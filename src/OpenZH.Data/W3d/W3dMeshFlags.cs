@@ -3,7 +3,7 @@
 namespace OpenZH.Data.W3d
 {
     [Flags]
-    public enum W3dMeshFlags
+    public enum W3dMeshFlags : uint
     {
         None = 0x00000000, // plain ole normal mesh
 

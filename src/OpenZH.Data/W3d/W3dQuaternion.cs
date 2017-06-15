@@ -1,26 +1,24 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Runtime.InteropServices;
 
 namespace OpenZH.Data.W3d
 {
     [StructLayout(LayoutKind.Sequential)]
-    [DebuggerDisplay("{DebugDisplayString,nq}")]
-    public struct W3dVector
+    public struct W3dQuaternion
     {
         public float X;
         public float Y;
         public float Z;
+        public float W;
 
-        private string DebugDisplayString => $"{X} {Y} {Z}";
-
-        public static W3dVector Parse(BinaryReader reader)
+        public static W3dQuaternion Parse(BinaryReader reader)
         {
-            return new W3dVector
+            return new W3dQuaternion
             {
                 X = reader.ReadSingle(),
                 Y = reader.ReadSingle(),
-                Z = reader.ReadSingle()
+                Z = reader.ReadSingle(),
+                W = reader.ReadSingle()
             };
         }
     }

@@ -8,11 +8,13 @@ namespace OpenZH.Data.W3d
         public uint ChunkCount { get; private set; }
 
         public W3dMesh[] Meshes { get; private set; }
-        // TODO
+        
+        public W3dHierarchyDef[] Hierarchies { get; private set; }
 
         public static W3dFile Parse(BinaryReader reader)
         {
             var meshes = new List<W3dMesh>();
+            var hierarchies = new List<W3dHierarchyDef>();
 
             uint chunkCount = 0;
             uint loadedSize = 0;
@@ -31,6 +33,10 @@ namespace OpenZH.Data.W3d
                         meshes.Add(W3dMesh.Parse(reader, currentChunk.ChunkSize));
                         break;
 
+                    case W3dChunkType.W3D_CHUNK_HIERARCHY:
+                        hierarchies.Add(W3dHierarchyDef.Parse(reader, currentChunk.ChunkSize));
+                        break;
+
                     // TODO
 
                     default:
@@ -42,7 +48,8 @@ namespace OpenZH.Data.W3d
             return new W3dFile
             {
                 ChunkCount = chunkCount,
-                Meshes = meshes.ToArray()
+                Meshes = meshes.ToArray(),
+                Hierarchies = hierarchies.ToArray()
                 // TODO
             };
         }

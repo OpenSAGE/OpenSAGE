@@ -5,6 +5,13 @@ namespace OpenZH.Data.W3d
 {
     public sealed class W3dMeshHeader3
     {
+        // boundary values for W3dMeshHeaderStruct::SortLevel
+        public const int SortLevelNone = 0;
+        public const int SortLevelMax = 32;
+        public const int SortLevelBin1 = 20;
+        public const int SortLevelBin2 = 15;
+        public const int SortLevelBin3 = 10;
+
         public uint Version { get; private set; }
 
         public W3dMeshFlags Attributes { get; private set; }
@@ -31,9 +38,9 @@ namespace OpenZH.Data.W3d
 
         public uint FutureCounts { get; private set; } // future counts
 
-        public uint VertexChannels { get; private set; }  // bits for presence of types of per-vertex info
+        public W3dVertexChannels VertexChannels { get; private set; }  // bits for presence of types of per-vertex info
 
-        public uint FaceChannels { get; private set; }        // bits for presence of types of per-face info
+        public W3dFaceChannels FaceChannels { get; private set; }        // bits for presence of types of per-face info
 
         //
         // Bounding volumes
@@ -65,8 +72,8 @@ namespace OpenZH.Data.W3d
             result.SortLevel = reader.ReadUInt32();
             result.PrelitVersion = reader.ReadUInt32();
             result.FutureCounts = reader.ReadUInt32();
-            result.VertexChannels = reader.ReadUInt32();
-            result.FaceChannels = reader.ReadUInt32();
+            result.VertexChannels = (W3dVertexChannels) reader.ReadUInt32();
+            result.FaceChannels = (W3dFaceChannels) reader.ReadUInt32();
             result.Min = W3dVector.Parse(reader);
             result.Max = W3dVector.Parse(reader);
             result.SphCenter = W3dVector.Parse(reader);

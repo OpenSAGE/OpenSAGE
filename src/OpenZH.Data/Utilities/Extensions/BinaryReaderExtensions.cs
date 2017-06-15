@@ -43,7 +43,7 @@ namespace OpenZH.Data.Utilities.Extensions
         public static string ReadFixedLengthString(this BinaryReader reader, int count)
         {
             var chars = reader.ReadChars(count);
-            return new string(chars);
+            return new string(chars).TrimEnd('\0');
         }
     }
 }
