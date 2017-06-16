@@ -7,7 +7,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenZH.Data", "OpenZH.Data\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenZH.Data.Tests", "OpenZH.Data.Tests\OpenZH.Data.Tests.csproj", "{F6C92404-06AE-4762-A4AD-190EB2E0C45E}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "OpenZH.DataViewer", "OpenZH.DataViewer\OpenZH.DataViewer.shproj", "{84115223-B31E-4338-8E8D-6832CD927985}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataViewer", "DataViewer", "{AE478DD6-82D8-4E1B-B5FB-931427823167}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenZH.DataViewer.UWP", "OpenZH.DataViewer.UWP\OpenZH.DataViewer.UWP.csproj", "{774DFA35-DF29-47FA-9050-99BDCA4EAC6D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{157F81D9-C9AD-4EF4-9946-464D380146FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pfim", "..\external\Pfim\Pfim.csproj", "{03EC99EE-E533-41CB-87DB-1FC5AEFA3108}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		OpenZH.DataViewer\OpenZH.DataViewer.projitems*{774dfa35-df29-47fa-9050-99bdca4eac6d}*SharedItemsImports = 4
+		OpenZH.DataViewer\OpenZH.DataViewer.projitems*{84115223-b31e-4338-8e8d-6832cd927985}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -21,8 +35,21 @@ Global
 		{F6C92404-06AE-4762-A4AD-190EB2E0C45E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6C92404-06AE-4762-A4AD-190EB2E0C45E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6C92404-06AE-4762-A4AD-190EB2E0C45E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{774DFA35-DF29-47FA-9050-99BDCA4EAC6D}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{774DFA35-DF29-47FA-9050-99BDCA4EAC6D}.Debug|Any CPU.Build.0 = Debug|x86
+		{774DFA35-DF29-47FA-9050-99BDCA4EAC6D}.Debug|Any CPU.Deploy.0 = Debug|x86
+		{774DFA35-DF29-47FA-9050-99BDCA4EAC6D}.Release|Any CPU.ActiveCfg = Release|x86
+		{03EC99EE-E533-41CB-87DB-1FC5AEFA3108}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03EC99EE-E533-41CB-87DB-1FC5AEFA3108}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03EC99EE-E533-41CB-87DB-1FC5AEFA3108}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03EC99EE-E533-41CB-87DB-1FC5AEFA3108}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{84115223-B31E-4338-8E8D-6832CD927985} = {AE478DD6-82D8-4E1B-B5FB-931427823167}
+		{774DFA35-DF29-47FA-9050-99BDCA4EAC6D} = {AE478DD6-82D8-4E1B-B5FB-931427823167}
+		{03EC99EE-E533-41CB-87DB-1FC5AEFA3108} = {157F81D9-C9AD-4EF4-9946-464D380146FF}
 	EndGlobalSection
 EndGlobal
