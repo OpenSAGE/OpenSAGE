@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using OpenZH.Data.Big;
+using OpenZH.Data.W3d;
 using Xamarin.Forms;
 
 namespace OpenZH.DataViewer.Controls
@@ -31,6 +32,17 @@ namespace OpenZH.DataViewer.Controls
 
             switch (fileExtension)
             {
+                case ".w3d":
+                    using (var stream = archiveEntry.Open())
+                    using (var binaryReader = new BinaryReader(stream))
+                        view.Content = new W3dView
+                        {
+                            W3dFile = W3dFile.Parse(binaryReader),
+                            HorizontalOptions = LayoutOptions.FillAndExpand,
+                            VerticalOptions = LayoutOptions.FillAndExpand
+                        };
+                    break;
+
                 case ".dds":
                     view.Content = new DdsView(archiveEntry.Open);
                     break;

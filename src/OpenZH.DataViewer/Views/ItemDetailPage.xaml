@@ -8,7 +8,7 @@
         <Label Text="{Binding Item.FullName}" FontSize="Medium"/>
 
         <controls:PreviewView ArchiveEntry="{Binding Item}" 
-                              VerticalOptions="CenterAndExpand" 
+                              VerticalOptions="FillAndExpand" 
                               HorizontalOptions="FillAndExpand" />
     </StackLayout>
 </ContentPage>

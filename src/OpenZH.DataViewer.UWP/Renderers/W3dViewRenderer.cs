@@ -25,6 +25,9 @@ namespace OpenZH.DataViewer.UWP.Renderers
 
     public class W3dViewRenderer : ViewRenderer<W3dView, SwapChainPanel>
     {
+        private const int FrameCount = 2;
+        private const Format BackBufferFormat = Format.B8G8R8A8_UNorm;
+
         private Device _device;
 
         private SwapChainPanel _swapChainPanel;
@@ -46,19 +49,31 @@ namespace OpenZH.DataViewer.UWP.Renderers
         private Fence _fence;
         private readonly int[] _fenceValues = new int[FrameCount];
 
-        private const int FrameCount = 2;
-        private const Format BackBufferFormat = Format.B8G8R8A8_UNorm;
+        private RawViewportF _viewport;
+        private RawRectangle _scissorRect;
+
+        private RootSignature _rootSignature;
+        private PipelineState _pipelineState;
+
+        private DescriptorHeap _constantBufferViewHeap;
+        private Resource _constantBuffer;
+        private ConstantBuffer _constantBufferData;
+        private IntPtr _constantBufferPointer;
+
+        private D3D12Mesh _mesh;
 
         protected override void OnElementChanged(ElementChangedEventArgs<W3dView> e)
         {
             base.OnElementChanged(e);
 
-            if (Control == null)
+            if (Control == null && e.NewElement != null)
             {
                 _swapChainPanel = new SwapChainPanel();
                 _swapChainPanel.SizeChanged += OnSizeChanged;
 
                 CreateDeviceResources();
+
+                CreateAssets();
 
                 CreateSizeDependentResources();
 
@@ -66,7 +81,14 @@ namespace OpenZH.DataViewer.UWP.Renderers
                 _commandList.Close();
 
                 CompositionTarget.Rendering += OnRendering;
+
+                e.NewElement.SizeChanged += OnElementSizeChanged;
             }
+        }
+
+        private void OnElementSizeChanged(object sender, EventArgs e)
+        {
+            CreateSizeDependentResources();
         }
 
         private void CreateDeviceResources()
@@ -75,7 +97,7 @@ namespace OpenZH.DataViewer.UWP.Renderers
             DebugInterface.Get().EnableDebugLayer();
 #endif
 
-            _device = new Device(null, SharpDX.Direct3D.FeatureLevel.Level_12_0);
+            _device = new Device(null, SharpDX.Direct3D.FeatureLevel.Level_11_0);
 
             _commandQueue = _device.CreateCommandQueue(new CommandQueueDescription(CommandListType.Direct));
 
@@ -90,6 +112,15 @@ namespace OpenZH.DataViewer.UWP.Renderers
 
             _rtvDescriptorSize = _device.GetDescriptorHandleIncrementSize(DescriptorHeapType.RenderTargetView);
 
+            var cbvHeapDesc = new DescriptorHeapDescription
+            {
+                DescriptorCount = 1,
+                Flags = DescriptorHeapFlags.ShaderVisible,
+                Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
+            };
+
+            _constantBufferViewHeap = _device.CreateDescriptorHeap(cbvHeapDesc);
+
             for (var i = 0; i < FrameCount; i++)
             {
                 _commandAllocators[i] = _device.CreateCommandAllocator(CommandListType.Direct);
@@ -99,6 +130,10 @@ namespace OpenZH.DataViewer.UWP.Renderers
             _fenceValues[_frameIndex]++;
 
             _fenceEvent = new AutoResetEvent(false);
+
+            _mesh = new D3D12Mesh(Element.W3dFile.Meshes[0]);
+
+            _mesh.Initialize(_device);
         }
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
@@ -173,6 +208,94 @@ namespace OpenZH.DataViewer.UWP.Renderers
                 _device.CreateRenderTargetView(_renderTargets[n], null, rtvHandle);
                 rtvHandle += _rtvDescriptorSize;
             }
+
+            _viewport = new RawViewportF
+            {
+                Width = _outputSize.Width,
+                Height = _outputSize.Height,
+                MinDepth = 0,
+                MaxDepth = 1
+            };
+
+            _scissorRect = new RawRectangle(0, 0, _outputSize.Width, _outputSize.Height);
+        }
+
+        private void CreateAssets()
+        {
+            var rootSignatureDesc = new RootSignatureDescription(
+                RootSignatureFlags.AllowInputAssemblerInputLayout,
+                new[]
+                {
+                    new RootParameter(ShaderVisibility.Vertex,
+                        new DescriptorRange
+                        {
+                            RangeType = DescriptorRangeType.ConstantBufferView,
+                            BaseShaderRegister = 0,
+                            OffsetInDescriptorsFromTableStart = int.MinValue,
+                            DescriptorCount = 1
+                        })
+                });
+            _rootSignature = _device.CreateRootSignature(rootSignatureDesc.Serialize());
+
+            // Create the pipeline state, which includes compiling and loading shaders.
+
+#if DEBUG
+            var vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "VSMain", "vs_5_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
+#else
+            var vertexShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "VSMain", "vs_5_0"));
+#endif
+
+#if DEBUG
+            var pixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "PSMain", "ps_5_0", SharpDX.D3DCompiler.ShaderFlags.Debug));
+#else
+            var pixelShader = new ShaderBytecode(SharpDX.D3DCompiler.ShaderBytecode.CompileFromFile("shaders.hlsl", "PSMain", "ps_5_0"));
+#endif
+
+            // Define the vertex input layout.
+            var inputElementDescs = new[]
+            {
+                    new InputElement("POSITION",0,Format.R32G32B32_Float,0,0)
+            };
+
+            // Describe and create the graphics pipeline state object (PSO).
+            var psoDesc = new GraphicsPipelineStateDescription()
+            {
+                InputLayout = new InputLayoutDescription(inputElementDescs),
+                RootSignature = _rootSignature,
+                VertexShader = vertexShader,
+                PixelShader = pixelShader,
+                RasterizerState = RasterizerStateDescription.Default(),
+                BlendState = BlendStateDescription.Default(),
+                DepthStencilFormat = SharpDX.DXGI.Format.D32_Float,
+                DepthStencilState = new DepthStencilStateDescription() { IsDepthEnabled = false, IsStencilEnabled = false },
+                SampleMask = int.MaxValue,
+                PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
+                RenderTargetCount = 1,
+                Flags = PipelineStateFlags.None,
+                SampleDescription = new SharpDX.DXGI.SampleDescription(1, 0),
+                StreamOutput = new StreamOutputDescription()
+            };
+            psoDesc.RenderTargetFormats[0] = BackBufferFormat;
+
+            _pipelineState = _device.CreateGraphicsPipelineState(psoDesc);
+
+            _constantBuffer = _device.CreateCommittedResource(
+                new HeapProperties(HeapType.Upload),
+                HeapFlags.None,
+                ResourceDescription.Buffer(1024 * 64),
+                ResourceStates.GenericRead);
+
+            var cbvDesc = new ConstantBufferViewDescription
+            {
+                BufferLocation = _constantBuffer.GPUVirtualAddress,
+                SizeInBytes = (Utilities.SizeOf<ConstantBuffer>() + 255) & ~255
+            };
+            _device.CreateConstantBufferView(cbvDesc, _constantBufferViewHeap.CPUDescriptorHandleForHeapStart);
+
+            // Initialize and map the constant buffers. We don't unmap this until the
+            // app closes. Keeping things mapped for the lifetime of the resource is okay.
+            _constantBufferPointer = _constantBuffer.Map(0);
+            Utilities.Write(_constantBufferPointer, ref _constantBufferData);
         }
 
         private void WaitForGpu()
@@ -209,6 +332,8 @@ namespace OpenZH.DataViewer.UWP.Renderers
 
         private void OnRendering(object sender, object e)
         {
+            Update();
+
             PopulateCommandList();
 
             _commandQueue.ExecuteCommandList(_commandList);
@@ -218,18 +343,50 @@ namespace OpenZH.DataViewer.UWP.Renderers
             MoveToNextFrame();
         }
 
+        private void Update()
+        {
+            var world = SharpDX.Matrix.Identity;
+            var view = SharpDX.Matrix.LookAtLH(
+                new Vector3(0, 1, 15),
+                Vector3.Zero,
+                Vector3.Up);
+            var projection = SharpDX.Matrix.PerspectiveFovLH(
+                MathUtil.DegreesToRadians(90),
+                (float) (Control.ActualWidth / Control.ActualHeight),
+                0.1f,
+                100.0f);
+
+            var wvp = world * view * projection;
+
+            _constantBufferData.WorldViewProjection = wvp;
+
+            Utilities.Write(_constantBufferPointer, ref _constantBufferData);
+        }
+
         private void PopulateCommandList()
         {
             _commandAllocators[_frameIndex].Reset();
 
-            _commandList.Reset(_commandAllocators[_frameIndex], null);
+            _commandList.Reset(_commandAllocators[_frameIndex], _pipelineState);
+
+            _commandList.SetGraphicsRootSignature(_rootSignature);
+
+            _commandList.SetDescriptorHeaps(_constantBufferViewHeap);
+            _commandList.SetGraphicsRootDescriptorTable(0, _constantBufferViewHeap.GPUDescriptorHandleForHeapStart);
+
+            _commandList.SetViewports(_viewport);
+            _commandList.SetScissorRectangles(_scissorRect);
 
             _commandList.ResourceBarrierTransition(_renderTargets[_frameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
 
             var rtvHandle = _renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
             rtvHandle += _frameIndex * _rtvDescriptorSize;
 
+            _commandList.SetRenderTargets(rtvHandle, null);
+
             _commandList.ClearRenderTargetView(rtvHandle, new RawColor4(1, 0, 0, 1));
+
+            _mesh.Draw(_commandList);
 
             _commandList.ResourceBarrierTransition(_renderTargets[_frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
 
@@ -241,6 +398,11 @@ namespace OpenZH.DataViewer.UWP.Renderers
             CompositionTarget.Rendering -= OnRendering;
 
             base.Dispose(disposing);
+        }
+
+        private struct ConstantBuffer
+        {
+            public RawMatrix WorldViewProjection;
         }
     }
 }
