@@ -7,7 +7,7 @@ namespace OpenZH.Data.W3d
         public W3dLightFlags Attributes { get; private set; }
 
         /// <summary>
-        /// // Old exclusion bit deprecated
+        /// Old exclusion bit deprecated
         /// </summary>
         public uint Unused { get; private set; }
 

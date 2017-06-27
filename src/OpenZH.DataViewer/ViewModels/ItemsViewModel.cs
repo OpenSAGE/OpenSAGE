@@ -1,51 +1,37 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using OpenZH.Data.Big;
-using OpenZH.DataViewer.Helpers;
-using Plugin.FilePicker;
+using OpenZH.DataViewer.Services;
 using Xamarin.Forms;
 
 namespace OpenZH.DataViewer.ViewModels
 {
-	public class ItemsViewModel : BaseViewModel
-	{
-		public ObservableRangeCollection<BigArchiveEntry> Items { get; }
+    public class ArchiveEntriesViewModel : ItemsViewModel
+    {
 		public Command OpenFileCommand { get; }
 
-		public ItemsViewModel()
+		public ArchiveEntriesViewModel()
 		{
-			Title = "Browse";
-			Items = new ObservableRangeCollection<BigArchiveEntry>();
 		    OpenFileCommand = new Command(async () => await OpenFileAsync());
 		}
 
 		private async Task OpenFileAsync()
 		{
-			if (IsBusy)
-				return;
-
-			IsBusy = true;
-
             try
 			{
-				Items.Clear();
+			    var fileData = await DependencyService.Get<IFilePicker>().PickFile();
 
-			    var fileData = await CrossFilePicker.Current.PickFile();
-
-			    var memoryStream = new MemoryStream(fileData.DataArray);
+			    var memoryStream = new MemoryStream(fileData);
 			    var bigArchive = new BigArchive(memoryStream);
 
-			    Items.ReplaceRange(bigArchive.Entries);
+                SetItems(bigArchive.Entries.Select(x => ArchiveEntryViewModel.Create(x)));
 			}
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex);
-			}
-			finally
-			{
-				IsBusy = false;
 			}
 		}
 	}

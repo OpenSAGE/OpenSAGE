@@ -8,9 +8,20 @@ namespace OpenZH.Data.W3d
 
         public uint[] ShaderIds { get; private set; }
 
+        /// <summary>
+        /// per-vertex diffuse color values
+        /// </summary>
         public W3dRgba[] Dcg { get; private set; }
-        public W3dRgba[] Dig{ get; private set; }
-        public W3dRgba[] Scg{ get; private set; }
+
+        /// <summary>
+        /// per-vertex diffuse illumination values
+        /// </summary>
+        public W3dRgba[] Dig { get; private set; }
+
+        /// <summary>
+        /// per-vertex specular color values
+        /// </summary>
+        public W3dRgba[] Scg { get; private set; }
 
         public uint StageCount { get; private set; }
 

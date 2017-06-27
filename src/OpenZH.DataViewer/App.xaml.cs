@@ -1,10 +1,11 @@
-﻿using OpenZH.Data.Big;
-using OpenZH.DataViewer.ViewModels;
+﻿using OpenZH.DataViewer.ViewModels;
 using OpenZH.DataViewer.Views;
+using System.Linq;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
+
 namespace OpenZH.DataViewer
 {
 	public partial class App : Application
@@ -18,19 +19,41 @@ namespace OpenZH.DataViewer
 
 		public static void SetMainPage()
 		{
-		    var masterPage = new ItemsPage();
-		    var detailPage = new ItemDetailPage();
+		    var masterPage = new ArchiveEntriesPage { Title = "Files" };
+		    var detailPage = new ItemPage();
 
-		    masterPage.ItemSelected += (sender, e) =>
-		    {
-		        detailPage.BindingContext = new ItemDetailViewModel((BigArchiveEntry) e.SelectedItem) { Title = "Details" };
-		    };
+            var masterNavigationPage = new NavigationPage(masterPage)
+            {
+                Title = "Files"
+            };
+
+            async void onItemSelected(object sender, SelectedItemChangedEventArgs e)
+            {
+                var selectedItem = (ItemViewModel) e.SelectedItem;
+                selectedItem.OnSelected();
+
+                if (selectedItem.Children.Any())
+                {
+                    var childItemsViewModel = new ItemsViewModel();
+                    childItemsViewModel.SetItems(selectedItem.Children);
+
+                    var childItemsView = new ItemsPage
+                    {
+                        BindingContext = childItemsViewModel
+                    };
+                    childItemsView.ItemSelected += onItemSelected;
+
+                    await masterNavigationPage.PushAsync(childItemsView, true);
+                }
+
+                detailPage.BindingContext = selectedItem;
+            }
+
+		    masterPage.ItemSelected += onItemSelected;
 
             Current.MainPage = new MasterDetailPage
 		    {
-                MasterBehavior = MasterBehavior.Split,
-
-		        Master = new NavigationPage(masterPage) { Title = "Files" },
+		        Master = masterNavigationPage,
 		        Detail = new NavigationPage(detailPage) { Title = "Details" }
             };
 		}

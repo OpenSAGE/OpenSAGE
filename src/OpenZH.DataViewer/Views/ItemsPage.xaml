@@ -2,28 +2,18 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="OpenZH.DataViewer.Views.ItemsPage"
-              Title="{Binding Title}"
-             x:Name="BrowseItemsPage">
-    <ContentPage.ToolbarItems>
-        <ToolbarItem x:Name="OpenFileItem" Text="Open .BIG File" Order="Primary" Command="{Binding OpenFileCommand}" Priority="0" />
-    </ContentPage.ToolbarItems>
+             Padding="15">
     <ContentPage.Content>
         <ListView x:Name="ItemsListView"
-				ItemsSource="{Binding Items}"
-                VerticalOptions="FillAndExpand"
-                HasUnevenRows="true"
-                IsRefreshing="{Binding IsBusy, Mode=OneWay}"
-                CachingStrategy="RecycleElement"
-				ItemSelected="OnItemSelected">
+				  ItemsSource="{Binding GroupedItems}"
+                  VerticalOptions="FillAndExpand"
+                  HasUnevenRows="false"
+                  CachingStrategy="RecycleElement"
+                  IsGroupingEnabled="true"
+                  GroupDisplayBinding="{Binding GroupName}">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <ViewCell>
-                        <StackLayout Padding="10">
-                            <Label Text="{Binding FullName}"
-                                   LineBreakMode="NoWrap"
-                                   FontSize="Small"/>
-                        </StackLayout>
-                    </ViewCell>
+                    <TextCell Text="{Binding DisplayName}" />
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
