@@ -1,6 +1,5 @@
 ﻿using System;
 using OpenZH.DataViewer.Controls;
-using Pfim;
 using SharpDX.DXGI;
 using Windows.Graphics.Imaging;
 using Windows.Storage.Streams;
@@ -305,58 +304,58 @@ namespace OpenZH.DataViewer.UWP.Renderers
 
             // Create the texture.
             {
-                // Describe and create a Texture2D.
-                var textureDesc = new ResourceDescription
-                {
-                    MipLevels = 1,
-                    Format = Format.R8G8B8A8_UNorm,
-                    Width = TextureWidth,
-                    Height = TextureHeight,
-                    Flags = D3D12_RESOURCE_FLAG_NONE,
-                    DepthOrArraySize = 1,
-                    SampleDesc.Count = 1,
-                    SampleDesc.Quality = 0,
-                    Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D
-                    };
+          //      // Describe and create a Texture2D.
+          //      var textureDesc = new ResourceDescription
+          //      {
+          //          MipLevels = 1,
+          //          Format = Format.R8G8B8A8_UNorm,
+          //          Width = TextureWidth,
+          //          Height = TextureHeight,
+          //          Flags = D3D12_RESOURCE_FLAG_NONE,
+          //          DepthOrArraySize = 1,
+          //          SampleDesc.Count = 1,
+          //          SampleDesc.Quality = 0,
+          //          Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D
+          //          };
 
-		        ThrowIfFailed(m_device->CreateCommittedResource(
-			        &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			        D3D12_HEAP_FLAG_NONE,
-			        &textureDesc,
-			        D3D12_RESOURCE_STATE_COPY_DEST,
-			        nullptr,
-			        IID_PPV_ARGS(&m_texture)));
+		        //ThrowIfFailed(m_device->CreateCommittedResource(
+			       // &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			       // D3D12_HEAP_FLAG_NONE,
+			       // &textureDesc,
+			       // D3D12_RESOURCE_STATE_COPY_DEST,
+			       // nullptr,
+			       // IID_PPV_ARGS(&m_texture)));
 
-		        const UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_texture.Get(), 0, 1);
+		        //const UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_texture.Get(), 0, 1);
 
-		        // Create the GPU upload buffer.
-		        ThrowIfFailed(m_device->CreateCommittedResource(
-			        &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-			        D3D12_HEAP_FLAG_NONE,
-			        &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-			        D3D12_RESOURCE_STATE_GENERIC_READ,
-			        nullptr,
-			        IID_PPV_ARGS(&textureUploadHeap)));
+		        //// Create the GPU upload buffer.
+		        //ThrowIfFailed(m_device->CreateCommittedResource(
+			       // &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+			       // D3D12_HEAP_FLAG_NONE,
+			       // &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
+			       // D3D12_RESOURCE_STATE_GENERIC_READ,
+			       // nullptr,
+			       // IID_PPV_ARGS(&textureUploadHeap)));
 
-		        // Copy data to the intermediate upload heap and then schedule a copy 
-		        // from the upload heap to the Texture2D.
-		        std::vector<UINT8> texture = GenerateTextureData();
+		        //// Copy data to the intermediate upload heap and then schedule a copy 
+		        //// from the upload heap to the Texture2D.
+		        //std::vector<UINT8> texture = GenerateTextureData();
 
-		        D3D12_SUBRESOURCE_DATA textureData = {};
-		        textureData.pData = &texture[0];
-		        textureData.RowPitch = TextureWidth * TexturePixelSize;
-		        textureData.SlicePitch = textureData.RowPitch * TextureHeight;
+		        //D3D12_SUBRESOURCE_DATA textureData = {};
+		        //textureData.pData = &texture[0];
+		        //textureData.RowPitch = TextureWidth * TexturePixelSize;
+		        //textureData.SlicePitch = textureData.RowPitch * TextureHeight;
 
-		        UpdateSubresources(m_commandList.Get(), m_texture.Get(), textureUploadHeap.Get(), 0, 0, 1, &textureData);
-		        m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_texture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+		        //UpdateSubresources(m_commandList.Get(), m_texture.Get(), textureUploadHeap.Get(), 0, 0, 1, &textureData);
+		        //m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_texture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
-		        // Describe and create a SRV for the texture.
-		        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		        srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		        srvDesc.Format = textureDesc.Format;
-		        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		        srvDesc.Texture2D.MipLevels = 1;
-		        m_device->CreateShaderResourceView(m_texture.Get(), &srvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
+		        //// Describe and create a SRV for the texture.
+		        //D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		        //srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		        //srvDesc.Format = textureDesc.Format;
+		        //srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		        //srvDesc.Texture2D.MipLevels = 1;
+		        //m_device->CreateShaderResourceView(m_texture.Get(), &srvDesc, m_srvHeap->GetCPUDescriptorHandleForHeapStart());
 	        }
         }
 
@@ -407,37 +406,7 @@ namespace OpenZH.DataViewer.UWP.Renderers
 
         private void Update()
         {
-            var now = _stopwatch.ElapsedMilliseconds * 0.001;
-            var updateTime = now - _lastUpdate;
-            _lastUpdate = now;
-
-            var world = SharpDX.Matrix.RotationY((float)_lastUpdate);
-
-            var cameraPosition = new Vector3(0, 1, 15);
-
-            var view = SharpDX.Matrix.LookAtLH(
-                cameraPosition,
-                Vector3.Zero,
-                Vector3.Up);
-
-            var projection = SharpDX.Matrix.PerspectiveFovLH(
-                MathUtil.DegreesToRadians(90),
-                (float)(Control.ActualWidth / Control.ActualHeight),
-                0.1f,
-                100.0f);
-
-            _wvpConstantBufferData.WorldViewProjection = world * view * projection;
-            _wvpConstantBufferData.World = world;
-            Utilities.Write(_wvpConstantBufferPointer, ref _wvpConstantBufferData);
-
-            _lightingConstantBufferData.CameraPosition = cameraPosition;
-            _lightingConstantBufferData.AmbientLightColor = new RawVector3(0.3f, 0.3f, 0.3f);
-            _lightingConstantBufferData.Light0Direction = Vector3.Normalize(new Vector3(-0.3f, -0.8f, -0.2f));
-            _lightingConstantBufferData.Light0Color = new RawVector3(0.5f, 0.5f, 0.5f);
-            Utilities.Write(_lightingConstantBufferPointer, ref _lightingConstantBufferData);
-
-            _mesh.UpdateMaterial(ref _materialConstantBufferData);
-            Utilities.Write(_materialConstantBufferPointer, ref _materialConstantBufferData);
+            
         }
 
         private void PopulateCommandList()
@@ -448,9 +417,9 @@ namespace OpenZH.DataViewer.UWP.Renderers
 
             _commandList.SetGraphicsRootSignature(_rootSignature);
 
-            _commandList.SetDescriptorHeaps(_constantBufferViewHeap);
-            _commandList.SetGraphicsRootDescriptorTable(0, _constantBufferViewHeap.GPUDescriptorHandleForHeapStart);
-            _commandList.SetGraphicsRootDescriptorTable(1, _constantBufferViewHeap.GPUDescriptorHandleForHeapStart + _cbvDescriptorSize);
+            //_commandList.SetDescriptorHeaps(_constantBufferViewHeap);
+            //_commandList.SetGraphicsRootDescriptorTable(0, _constantBufferViewHeap.GPUDescriptorHandleForHeapStart);
+            //_commandList.SetGraphicsRootDescriptorTable(1, _constantBufferViewHeap.GPUDescriptorHandleForHeapStart + _cbvDescriptorSize);
 
             _commandList.SetViewports(_viewport);
             _commandList.SetScissorRectangles(_scissorRect);
@@ -464,7 +433,7 @@ namespace OpenZH.DataViewer.UWP.Renderers
 
             _commandList.ClearRenderTargetView(rtvHandle, new RawColor4(0, 0, 0, 0));
 
-            _mesh.Draw(_commandList);
+            //_mesh.Draw(_commandList);
 
             _commandList.ResourceBarrierTransition(_renderTargets[_frameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
 
