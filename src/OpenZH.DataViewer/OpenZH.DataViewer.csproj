@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Numerics.Vectors" Version="4.3.0" />
     <PackageReference Include="Xamarin.Forms" Version="2.3.5.255-pre5" />
   </ItemGroup>
   
