@@ -1,0 +1,70 @@
+.map
+
+
+Map Header
+===========================================================
+
+Compressed file:
+
+|--------|-----------|------------------------------------|
+| Offset | Data type | Description                        |
+|--------|-----------|------------------------------------|
+| 0      | u32       | Compressed flag.                   |
+|        |           | 5390661u for compressed file.      |
+|--------|-----------|------------------------------------|
+| 4      | u32       | Unknown                            |
+|--------|-----------|------------------------------------|
+| 8      | -         | Refpack-compressed map data        |
+|--------|-----------|------------------------------------|
+
+Uncompressed file:
+
+|--------|-----------|------------------------------------|
+| Offset | Data type | Description                        |
+|--------|-----------|------------------------------------|
+| 0      | 4         | Compressed flag.                   |
+|        |           | 1884121923u for uncompressed file. |
+|--------|-----------|------------------------------------|
+| 4      | -         | [Map data]                         |
+|--------|-----------|------------------------------------|
+
+
+Map Data
+===========================================================
+
+struct MapData
+{
+    uint Unknown;
+    uint NumAssetNames;
+
+    AssetName[NumAssetNames] AssetNames;
+}
+
+struct AssetName
+{
+    string AssetName;
+    uint AssetIndex;
+}
+
+
+Known Asset Names
+===========================================================
+
+- HeightMapData
+
+
+Asset: HeightMapData
+===========================================================
+
+struct HeightMapData
+{
+    uint Width;
+    uint Height;
+    uint BorderWidth;
+    uint Unknown;
+    uint PlayableWidth;
+    uint PlayableHeight;
+    uint Area; // Should be Width * Height
+
+    SageFloat16[Width * Height] Elevations;
+}

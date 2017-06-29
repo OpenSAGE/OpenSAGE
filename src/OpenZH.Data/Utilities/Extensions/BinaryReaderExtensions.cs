@@ -45,5 +45,11 @@ namespace OpenZH.Data.Utilities.Extensions
             var chars = reader.ReadChars(count);
             return new string(chars).TrimEnd('\0');
         }
+
+        public static float ReadSageFloat16(this BinaryReader reader)
+        {
+            var v = reader.ReadUInt16();
+            return (float) ((double) (byte) ((uint) v >> 8) * 10.0 + (double) (byte) ((uint) v & (uint) byte.MaxValue) * 9.96000003814697 / 256.0);
+        }
     }
 }
