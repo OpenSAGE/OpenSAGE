@@ -46,7 +46,7 @@ namespace OpenZH.Data.Map
                 }
             }
 
-            while (true) // TODO
+            while (reader.BaseStream.Position < reader.BaseStream.Length)
             {
                 var assetIndex = reader.ReadUInt32(); // Asset index?
                 var unknown = reader.ReadUInt16(); // TODO
@@ -60,6 +60,11 @@ namespace OpenZH.Data.Map
                 {
                     case "HeightMapData":
                         var heightMapData = HeightMapData.Parse(reader);
+                        break;
+
+                    default:
+                        // TODO
+                        reader.ReadBytes((int) dataSize);
                         break;
                 }
 

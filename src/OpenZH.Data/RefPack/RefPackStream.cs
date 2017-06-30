@@ -111,10 +111,9 @@ namespace OpenZH.Data.RefPack
             }
             else // 1-byte command
             {
-                var opcode = byte1 & 0x1F;
-                if (opcode < 0xFC) // Ordinary 1-byte command
+                if (byte1 < 0xFC) // Ordinary 1-byte command
                 {
-                    Execute1ByteCommand(opcode);
+                    Execute1ByteCommand(byte1);
                 }
                 else // Stop command
                 {
@@ -162,9 +161,9 @@ namespace OpenZH.Data.RefPack
             CopyReferencedData(referencedDataLength, referencedDataDistance);
         }
 
-        private void Execute1ByteCommand(int opcode)
+        private void Execute1ByteCommand(int byte1)
         {
-            var proceedingDataLength = (opcode + 1) << 2;
+            var proceedingDataLength = ((byte1 & 0x1F) + 1) << 2;
             CopyProceeding(proceedingDataLength);
         }
 

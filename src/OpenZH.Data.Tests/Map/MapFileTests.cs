@@ -19,9 +19,6 @@ namespace OpenZH.Data.Tests.Map
             {
                 foreach (var entry in bigArchive.Entries.Where(x => Path.GetExtension(x.FullName).ToLowerInvariant() == ".map"))
                 {
-                    if (!entry.FullName.Contains("Alpine"))
-                        continue; // TODO: Remove this.
-
                     using (var entryStream = entry.Open())
                     using (var binaryReader = new BinaryReader(entryStream))
                     {
