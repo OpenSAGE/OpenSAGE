@@ -35,14 +35,14 @@ namespace OpenZH.Data.RefPack
 
             var headerByte1 = compressedStream.ReadByte();
             if ((headerByte1 & 0b00111110) != 0b00010000)
-                throw new NotSupportedException();
+                throw new InvalidDataException();
 
             var largeFilesFlag = (headerByte1 & 0b1000000) != 0;
             var compressedSizePresent = (headerByte1 & 0b00000001) != 0;
 
             var headerByte2 = compressedStream.ReadByte();
             if (headerByte2 != 0b11111011)
-                throw new NotSupportedException();
+                throw new InvalidDataException();
 
             int readBigEndianSize()
             {
@@ -158,7 +158,7 @@ namespace OpenZH.Data.RefPack
             CopyProceeding(proceedingDataLength);
 
             var referencedDataLength = ((byte1 & 0x0C) << 6) + byte4 + 5;
-            var referencedDataDistance = ((byte1 & 0x10) << 12) + byte3 + 1;
+            var referencedDataDistance = ((byte1 & 0x10) << 12) + (byte2 << 8) + byte3 + 1;
             CopyReferencedData(referencedDataLength, referencedDataDistance);
         }
 
