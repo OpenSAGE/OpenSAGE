@@ -34,12 +34,12 @@ namespace OpenZH.Data.Map
                 throw new InvalidDataException();
             }
 
-            var elevations = new float[mapWidth, mapHeight];
+            var elevations = new byte[mapWidth, mapHeight];
             for (var y = 0; y < mapHeight; y++)
             {
                 for (var x = 0; x < mapWidth; x++)
                 {
-                    elevations[x, y] = reader.ReadSageFloat16();
+                    elevations[x, y] = reader.ReadByte();
                 }
             }
 

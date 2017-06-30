@@ -19,11 +19,11 @@ namespace OpenZH.Data.RefPack
 
         public override bool CanSeek => false;
 
-        public override long Length => throw new NotSupportedException();
+        public override long Length => _output.Length;
 
         public override long Position
         {
-            get => throw new NotImplementedException();
+            get => _currentOutputPosition;
             set => throw new NotImplementedException();
         }
 
@@ -83,7 +83,7 @@ namespace OpenZH.Data.RefPack
         {
             var actualCount = Math.Min(count, _output.Length - _currentOutputPosition);
 
-            while (_currentOutputPosition + actualCount > _nextOutputPosition)
+            while (!_eof && _currentOutputPosition + actualCount > _nextOutputPosition)
             {
                 ExecuteCommand();
             }
@@ -172,6 +172,8 @@ namespace OpenZH.Data.RefPack
         {
             var proceedingDataLength = byte1 & 0x03;
             CopyProceeding(proceedingDataLength);
+
+            _eof = true;
         }
 
         private void CopyProceeding(int proceedingDataLength)

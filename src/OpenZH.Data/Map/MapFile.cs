@@ -11,9 +11,9 @@ namespace OpenZH.Data.Map
     {
         public static MapFile Parse(BinaryReader reader)
         {
-            var flag = reader.ReadUInt32();
+            var compressionFlag = reader.ReadUInt32();
 
-            switch (flag)
+            switch (compressionFlag)
             {
                 case 1884121923u:
                     // Uncompressed
@@ -39,8 +39,8 @@ namespace OpenZH.Data.Map
             for (var i = (int) (assetStringsLength - 1); i >= 0; i--)
             {
                 assetStrings[i] = reader.ReadString();
-                var num = reader.ReadUInt32(); // Asset index?
-                if (num != i + 1)
+                var assetIndex = reader.ReadUInt32();
+                if (assetIndex != i + 1)
                 {
                     throw new InvalidDataException();
                 }
@@ -48,17 +48,24 @@ namespace OpenZH.Data.Map
 
             while (true) // TODO
             {
-                var num1 = reader.ReadUInt32(); // Asset index?
-                var num2 = reader.ReadUInt16();
-                var num3 = reader.ReadUInt32(); // Length?
+                var assetIndex = reader.ReadUInt32(); // Asset index?
+                var unknown = reader.ReadUInt16(); // TODO
+                var dataSize = reader.ReadUInt32();
 
-                var key = assetStrings[num1 - 1];
+                var startPosition = reader.BaseStream.Position;
+
+                var key = assetStrings[assetIndex - 1];
 
                 switch (key)
                 {
                     case "HeightMapData":
                         var heightMapData = HeightMapData.Parse(reader);
                         break;
+                }
+
+                if (startPosition + dataSize != reader.BaseStream.Position)
+                {
+                    throw new Exception($"Parsed the wrong number of bytes. Parsed {reader.BaseStream.Position - startPosition}, expected {dataSize}.");
                 }
             }
 
