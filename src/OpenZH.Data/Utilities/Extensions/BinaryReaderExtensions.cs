@@ -28,6 +28,12 @@ namespace OpenZH.Data.Utilities.Extensions
             return sb.ToString();
         }
 
+        public static string ReadUInt16PrefixedString(this BinaryReader reader)
+        {
+            var length = reader.ReadUInt16();
+            return Encoding.ASCII.GetString(reader.ReadBytes(length));
+        }
+
         public static T ReadStruct<T>(this BinaryReader reader)
             where T : struct
         {
@@ -46,10 +52,50 @@ namespace OpenZH.Data.Utilities.Extensions
             return new string(chars).TrimEnd('\0');
         }
 
-        public static float ReadSageFloat16(this BinaryReader reader)
+        public static ushort[] ReadUInt16Array(this BinaryReader reader, uint length)
         {
-            var v = reader.ReadUInt16();
-            return (float) ((double) (byte) ((uint) v >> 8) * 10.0 + (double) (byte) ((uint) v & (uint) byte.MaxValue) * 9.96000003814697 / 256.0);
+            var result = new ushort[length];
+
+            for (var i = 0; i < length; i++)
+            {
+                result[i] = reader.ReadUInt16();
+            }
+
+            return result;
         }
+
+        public static bool[] ReadSingleBitBooleanArray(this BinaryReader reader, uint length)
+        {
+            var result = new bool[length];
+
+            var readBytes = 0;
+
+            var temp = (byte) 0;
+            for (var i = 0; i < length; i++)
+            {
+                if (i % 8 == 0)
+                {
+                    temp = reader.ReadByte();
+                    readBytes++;
+                }
+                result[i] = (temp & (1 << (i % 8))) > 0;
+            }
+
+            // Read up to next 4-byte boundary?
+            var bytesToRead = 4 - (readBytes % 4);
+            if (bytesToRead != 4)
+            {
+                for (var i = 0; i < bytesToRead; i++)
+                {
+                    var value = reader.ReadByte();
+                    if (value != 0)
+                    {
+                        throw new InvalidDataException();
+                    }
+                }
+            }
+
+            return result;
+        }        
     }
 }

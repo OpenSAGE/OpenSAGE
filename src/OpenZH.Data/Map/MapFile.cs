@@ -62,6 +62,10 @@ namespace OpenZH.Data.Map
                         var heightMapData = HeightMapData.Parse(reader);
                         break;
 
+                    case "BlendTileData":
+                        var blendTileData = BlendTileData.Parse(reader);
+                        break;
+
                     default:
                         // TODO
                         reader.ReadBytes((int) dataSize);
