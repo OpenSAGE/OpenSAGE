@@ -192,14 +192,16 @@ namespace OpenZH.Data.Tests.Map
                     else
                         textureIndex = 0;
                     Assert.Equal(textureIndex, mapFile.BlendTileData.TextureIndices[mapFile.BlendTileData.Tiles[x, y]].TextureIndex);
+
+                    Assert.Equal(0, mapFile.BlendTileData.ThreeWayBlends[x, y]);
                 }
             }
 
             void assertBlend(int x, int y, int secondaryTextureIndex, BlendDirection direction)
             {
-                var blendIndex = mapFile.BlendTileData.BlendIndices[x, y];
+                var blendIndex = mapFile.BlendTileData.Blends[x, y];
 
-                var blend = mapFile.BlendTileData.Blends[blendIndex - 1];
+                var blend = mapFile.BlendTileData.BlendDescriptions[blendIndex - 1];
 
                 Assert.Equal(secondaryTextureIndex, mapFile.BlendTileData.TextureIndices[blend.SecondaryTextureTile].TextureIndex);
 
@@ -229,12 +231,112 @@ namespace OpenZH.Data.Tests.Map
             assertBlends(0, 1);
             assertBlends(3, 2);
             assertBlends(6, 3);
+        }
 
-            // TODO: Single edge blends?
+        [Fact]
+        public void BlendTileData_TwoTextures_ThreeWayBlending()
+        {
+            var mapFile = GetMapFile();
 
-            //for (var i = 0; i < mapFile.BlendTileData.Blends.Length; i++)
+            Assert.Equal(196u, mapFile.BlendTileData.NumTiles);
+
+            Assert.Equal(3, mapFile.BlendTileData.Textures.Length);
+
+            Assert.Equal("AsphaltType1", mapFile.BlendTileData.Textures[0].Name);
+            Assert.Equal(0u, mapFile.BlendTileData.Textures[0].CellStart);
+            Assert.Equal(4u, mapFile.BlendTileData.Textures[0].CellCount);
+            Assert.Equal(2u, mapFile.BlendTileData.Textures[0].CellSize);
+
+            Assert.Equal("SandLargeType3Light", mapFile.BlendTileData.Textures[1].Name);
+            Assert.Equal(4u, mapFile.BlendTileData.Textures[1].CellStart);
+            Assert.Equal(36u, mapFile.BlendTileData.Textures[1].CellCount);
+            Assert.Equal(6u, mapFile.BlendTileData.Textures[1].CellSize);
+
+            Assert.Equal("CliffLargeType3b", mapFile.BlendTileData.Textures[2].Name);
+            Assert.Equal(40u, mapFile.BlendTileData.Textures[2].CellStart);
+            Assert.Equal(36u, mapFile.BlendTileData.Textures[2].CellCount);
+            Assert.Equal(6u, mapFile.BlendTileData.Textures[2].CellSize);
+
+            for (var y = 0; y < mapFile.HeightMapData.Height; y++)
+            {
+                for (var x = 0; x < mapFile.HeightMapData.Width; x++)
+                {
+                    int textureIndex;
+                    if (y == 1 && (x == 1 || x == 2 || x == 3 || x == 4))
+                        textureIndex = 1;
+                    else if (y == 3 && (x == 1 || x == 2 || x == 3 || x == 4))
+                        textureIndex = 2;
+                    else
+                        textureIndex = 0;
+                    Assert.Equal(textureIndex, mapFile.BlendTileData.TextureIndices[mapFile.BlendTileData.Tiles[x, y]].TextureIndex);
+
+                    if (y == 2 && (x == 1 || x == 2 || x == 3 || x == 4))
+                    {
+                        Assert.NotEqual(0, mapFile.BlendTileData.ThreeWayBlends[x, y]);
+                    }
+                    else
+                    {
+                        Assert.Equal(0, mapFile.BlendTileData.ThreeWayBlends[x, y]);
+                    }
+                }
+            }
+
+            void assertBlend(int x, int y, int secondaryTextureIndex, BlendDirection direction)
+            {
+                var blendIndex = mapFile.BlendTileData.Blends[x, y];
+
+                var blend = mapFile.BlendTileData.BlendDescriptions[blendIndex - 1];
+
+                Assert.Equal(secondaryTextureIndex, mapFile.BlendTileData.TextureIndices[blend.SecondaryTextureTile].TextureIndex);
+
+                Assert.Equal(direction, blend.BlendDirection);
+            }
+
+            void assertBlends(int startY, int textureIndex, bool includeBottom)
+            {
+                if (includeBottom)
+                {
+                    assertBlend(0, startY + 0, textureIndex, BlendDirection.BottomLeft);
+                    assertBlend(1, startY + 0, textureIndex, BlendDirection.Bottom);
+                    assertBlend(2, startY + 0, textureIndex, BlendDirection.Bottom);
+                    assertBlend(3, startY + 0, textureIndex, BlendDirection.Bottom);
+                    assertBlend(4, startY + 0, textureIndex, BlendDirection.Bottom);
+                    assertBlend(5, startY + 0, textureIndex, BlendDirection.BottomRight);
+                }
+
+                assertBlend(0, startY + 1, textureIndex, BlendDirection.Left);
+                assertBlend(5, startY + 1, textureIndex, BlendDirection.Right);
+
+                assertBlend(0, startY + 2, textureIndex, BlendDirection.TopLeft);
+                assertBlend(1, startY + 2, textureIndex, BlendDirection.Top);
+                assertBlend(2, startY + 2, textureIndex, BlendDirection.Top);
+                assertBlend(3, startY + 2, textureIndex, BlendDirection.Top);
+                assertBlend(4, startY + 2, textureIndex, BlendDirection.Top);
+                assertBlend(5, startY + 2, textureIndex, BlendDirection.TopRight);
+            }
+
+            assertBlends(0, 1, true);
+            assertBlends(2, 2, false);
+
+            void assertThreeWayBlend(int x, int y, int secondaryTextureIndex, BlendDirection direction)
+            {
+                var threeWayBlend = mapFile.BlendTileData.ThreeWayBlends[x, y];
+
+                var blendDescription = mapFile.BlendTileData.BlendDescriptions[threeWayBlend - 1];
+
+                Assert.Equal(secondaryTextureIndex, mapFile.BlendTileData.TextureIndices[blendDescription.SecondaryTextureTile].TextureIndex);
+
+                Assert.Equal(direction, blendDescription.BlendDirection);
+            }
+
+            assertThreeWayBlend(1, 2, 2, BlendDirection.Bottom);
+            assertThreeWayBlend(2, 2, 2, BlendDirection.Bottom);
+            assertThreeWayBlend(3, 2, 2, BlendDirection.Bottom);
+            assertThreeWayBlend(4, 2, 2, BlendDirection.Bottom);
+
+            //for (var i = 0; i < mapFile.BlendTileData.BlendDescriptions.Length; i++)
             //{
-            //    var blend = mapFile.BlendTileData.Blends[i];
+            //    var blend = mapFile.BlendTileData.BlendDescriptions[i];
             //    var binary = string.Empty;
             //    foreach (var value in BitConverter.GetBytes(blend.SecondaryTextureTile))
             //    {
@@ -250,7 +352,7 @@ namespace OpenZH.Data.Tests.Map
             //    {
             //        for (var x = 0; x < mapFile.HeightMapData.Width; x++)
             //        {
-            //            var blendIndex = mapFile.BlendTileData.BlendIndices[x, y];
+            //            var blendIndex = mapFile.BlendTileData.Blends[x, y];
             //            if (blendIndex == i + 1)
             //            {
             //                usages += $"[{x}, {y}], ";

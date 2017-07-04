@@ -9,15 +9,15 @@ namespace OpenZH.Data.Map
         public uint NumTiles { get; private set; }
 
         public ushort[,] Tiles { get; private set; }
-        public ushort[,] BlendIndices { get; private set; }
-        public ushort[,] SingleEdgeBlends { get; private set; }
+        public ushort[,] Blends { get; private set; }
+        public ushort[,] ThreeWayBlends { get; private set; }
         public ushort[,] CliffBlends { get; private set; }
 
         public bool[,] Passability { get; private set; }
 
         public BlendTileTexture[] Textures { get; private set; }
 
-        public BlendInfo[] Blends { get; private set; }
+        public BlendDescription[] BlendDescriptions { get; private set; }
 
         /// <summary>
         /// Derived data.
@@ -36,8 +36,8 @@ namespace OpenZH.Data.Map
             }
 
             var tiles = reader.ReadUInt16Array2D(width, height);
-            var blendIndices = reader.ReadUInt16Array2D(width, height);
-            var singleEdgeBlends = reader.ReadUInt16Array2D(width, height);
+            var blends = reader.ReadUInt16Array2D(width, height);
+            var threeWayBlends = reader.ReadUInt16Array2D(width, height);
             var cliffBlends = reader.ReadUInt16Array2D(width, height);
 
             // If terrain is passable, there's a 0 in the data file.
@@ -102,10 +102,10 @@ namespace OpenZH.Data.Map
                 throw new InvalidDataException();
             }
 
-            var blends = new BlendInfo[blendsCount];
+            var blendDescriptions = new BlendDescription[blendsCount];
             for (var i = 0; i < blendsCount; i++)
             {
-                blends[i] = BlendInfo.Parse(reader);
+                blendDescriptions[i] = BlendDescription.Parse(reader);
             }
 
             // TODO: Cliff blends.
@@ -113,9 +113,11 @@ namespace OpenZH.Data.Map
             return new BlendTileData
             {
                 NumTiles = numTiles,
+
                 Tiles = tiles,
-                BlendIndices = blendIndices,
-                SingleEdgeBlends = singleEdgeBlends,
+
+                Blends = blends,
+                ThreeWayBlends = threeWayBlends,
                 CliffBlends = cliffBlends,
 
                 Passability = passability,
@@ -124,7 +126,7 @@ namespace OpenZH.Data.Map
 
                 TextureIndices = textureIndices.ToArray(),
 
-                Blends = blends,
+                BlendDescriptions = blendDescriptions,
             };
         }
 

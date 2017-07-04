@@ -2,13 +2,13 @@
 
 namespace OpenZH.Data.Map
 {
-    public sealed class BlendInfo
+    public sealed class BlendDescription
     {
         public uint SecondaryTextureTile { get; private set; }
         public byte[] BlendDirectionBytes { get; private set; }
         public BlendDirection BlendDirection { get; private set; }
 
-        public static BlendInfo Parse(BinaryReader reader)
+        public static BlendDescription Parse(BinaryReader reader)
         {
             var secondaryTextureTile = reader.ReadUInt32();
             var blendDirection = reader.ReadBytes(6);
@@ -25,7 +25,7 @@ namespace OpenZH.Data.Map
                 throw new InvalidDataException();
             }
 
-            return new BlendInfo
+            return new BlendDescription
             {
                 SecondaryTextureTile = secondaryTextureTile,
                 BlendDirectionBytes = blendDirection,
