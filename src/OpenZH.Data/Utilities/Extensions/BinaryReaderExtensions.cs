@@ -52,46 +52,35 @@ namespace OpenZH.Data.Utilities.Extensions
             return new string(chars).TrimEnd('\0');
         }
 
-        public static ushort[] ReadUInt16Array(this BinaryReader reader, uint length)
+        public static ushort[,] ReadUInt16Array2D(this BinaryReader reader, uint width, uint height)
         {
-            var result = new ushort[length];
+            var result = new ushort[width, height];
 
-            for (var i = 0; i < length; i++)
+            for (var y = 0; y < height; y++)
             {
-                result[i] = reader.ReadUInt16();
+                for (var x = 0; x < width; x++)
+                {
+                    result[x, y] = reader.ReadUInt16();
+                }
             }
 
             return result;
         }
 
-        public static bool[] ReadSingleBitBooleanArray(this BinaryReader reader, uint length)
+        public static bool[,] ReadSingleBitBooleanArray2D(this BinaryReader reader, uint width, uint height)
         {
-            var result = new bool[length];
+            var result = new bool[width, height];
 
-            var readBytes = 0;
-
-            var temp = (byte) 0;
-            for (var i = 0; i < length; i++)
+            for (var y = 0; y < height; y++)
             {
-                if (i % 8 == 0)
+                var temp = (byte) 0;
+                for (var x = 0; x < width; x++)
                 {
-                    temp = reader.ReadByte();
-                    readBytes++;
-                }
-                result[i] = (temp & (1 << (i % 8))) > 0;
-            }
-
-            // Read up to next 4-byte boundary?
-            var bytesToRead = 4 - (readBytes % 4);
-            if (bytesToRead != 4)
-            {
-                for (var i = 0; i < bytesToRead; i++)
-                {
-                    var value = reader.ReadByte();
-                    if (value != 0)
+                    if (x % 8 == 0)
                     {
-                        throw new InvalidDataException();
+                        temp = reader.ReadByte();
                     }
+                    result[x, y] = (temp & (1 << (x % 8))) > 0;
                 }
             }
 

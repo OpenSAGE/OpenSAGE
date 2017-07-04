@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
 using OpenZH.Data.RefPack;
 
 namespace OpenZH.Data.Map
 {
     public sealed class MapFile
     {
+        public HeightMapData HeightMapData { get; private set; }
+        public BlendTileData BlendTileData { get; private set; }
+
         public static MapFile Parse(BinaryReader reader)
         {
             var compressionFlag = reader.ReadUInt32();
@@ -46,6 +46,8 @@ namespace OpenZH.Data.Map
                 }
             }
 
+            var result = new MapFile();
+
             while (reader.BaseStream.Position < reader.BaseStream.Length)
             {
                 var assetIndex = reader.ReadUInt32(); // Asset index?
@@ -59,11 +61,15 @@ namespace OpenZH.Data.Map
                 switch (key)
                 {
                     case "HeightMapData":
-                        var heightMapData = HeightMapData.Parse(reader);
+                        result.HeightMapData = HeightMapData.Parse(reader);
                         break;
 
                     case "BlendTileData":
-                        var blendTileData = BlendTileData.Parse(reader);
+                        if (result.HeightMapData == null)
+                        {
+                            throw new InvalidDataException("Expected HeightMapData block before BlendTileData block.");
+                        }
+                        result.BlendTileData = BlendTileData.Parse(reader, result.HeightMapData);
                         break;
 
                     default:
@@ -78,10 +84,7 @@ namespace OpenZH.Data.Map
                 }
             }
 
-            return new MapFile
-            {
-
-            };
+            return result;
         }
     }
 }
