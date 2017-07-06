@@ -54,8 +54,8 @@ namespace OpenZH.Data.Tests.Map
         {
             foreach (var entry in Directory.GetFiles(@"C:\Users\Tim Jones\Desktop\ZH", "*.map", SearchOption.AllDirectories))
             {
-                if (!entry.Contains("Alpine Assault Uncompressed"))
-                    continue;
+                //if (!entry.Contains("Alpine Assault Uncompressed"))
+                //    continue;
 
                 Debug.WriteLine(entry);
                 using (var entryStream = File.OpenRead(entry))
@@ -424,8 +424,8 @@ namespace OpenZH.Data.Tests.Map
                     if (j % 8 == 0)
                         binary += Environment.NewLine;
                     binary += Convert.ToString(cliffBlendDescription.Unknown2[j], 2).PadLeft(8, '0') + $" ({cliffBlendDescription.Unknown2[j].ToString().PadLeft(3, ' ')}) ";
-                    if (j % 4 == 0 && j != 0)
-                        binary += BitConverter. cliffBlendDescription
+                    //if (j % 4 == 0 && j != 0)
+                    //    binary += BitConverter. cliffBlendDescription
                 }
                 binary = binary.TrimEnd(' ');
                 //var binary = string.Empty;
@@ -459,6 +459,16 @@ namespace OpenZH.Data.Tests.Map
                 _output.WriteLine($"{i + 1}{Environment.NewLine}{unknown1Binary}{binary} {usages}");
                 _output.WriteLine(string.Empty);
             }
+        }
+
+        [Fact]
+        public void WorldInfo()
+        {
+            var mapFile = GetMapFile();
+
+            Assert.Equal(Data.Map.WorldInfo.CompressionType.RefPack, mapFile.WorldInfo.Compression);
+            Assert.Equal("FooBar", mapFile.WorldInfo.MapName);
+            Assert.Equal(Data.Map.WorldInfo.WeatherType.Snowy, mapFile.WorldInfo.Weather);
         }
 
         private static MapFile GetMapFile([CallerMemberName] string testName = null)

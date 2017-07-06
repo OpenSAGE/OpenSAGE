@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -85,6 +86,19 @@ namespace OpenZH.Data.Utilities.Extensions
             }
 
             return result;
-        }        
+        }
+
+        public static TEnum ReadUInt32AsEnum<TEnum>(this BinaryReader reader)
+            where TEnum : struct
+        {
+            var value = reader.ReadUInt32();
+
+            if (!Enum.IsDefined(typeof(TEnum), value))
+            {
+                throw new InvalidDataException($"Unexpected value for {typeof(TEnum).Name}: {value}");
+            }
+
+            return (TEnum) (object) value;
+        }
     }
 }

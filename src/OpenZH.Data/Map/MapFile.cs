@@ -8,6 +8,7 @@ namespace OpenZH.Data.Map
     {
         public HeightMapData HeightMapData { get; private set; }
         public BlendTileData BlendTileData { get; private set; }
+        public WorldInfo WorldInfo { get; private set; }
 
         public static MapFile Parse(BinaryReader reader)
         {
@@ -70,6 +71,10 @@ namespace OpenZH.Data.Map
                             throw new InvalidDataException("Expected HeightMapData block before BlendTileData block.");
                         }
                         result.BlendTileData = BlendTileData.Parse(reader, result.HeightMapData);
+                        break;
+
+                    case "WorldInfo":
+                        result.WorldInfo = WorldInfo.Parse(reader, assetStrings);
                         break;
 
                     default:
