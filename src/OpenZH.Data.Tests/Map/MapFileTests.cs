@@ -194,6 +194,8 @@ namespace OpenZH.Data.Tests.Map
                     Assert.Equal(textureIndex, mapFile.BlendTileData.TextureIndices[mapFile.BlendTileData.Tiles[x, y]].TextureIndex);
 
                     Assert.Equal(0, mapFile.BlendTileData.ThreeWayBlends[x, y]);
+
+                    Assert.Equal(0, mapFile.BlendTileData.CliffBlends[x, y]);
                 }
             }
 
@@ -234,7 +236,7 @@ namespace OpenZH.Data.Tests.Map
         }
 
         [Fact]
-        public void BlendTileData_TwoTextures_ThreeWayBlending()
+        public void BlendTileData_ThreeWayBlending()
         {
             var mapFile = GetMapFile();
 
@@ -278,6 +280,8 @@ namespace OpenZH.Data.Tests.Map
                     {
                         Assert.Equal(0, mapFile.BlendTileData.ThreeWayBlends[x, y]);
                     }
+
+                    Assert.Equal(0, mapFile.BlendTileData.CliffBlends[x, y]);
                 }
             }
 
@@ -362,6 +366,99 @@ namespace OpenZH.Data.Tests.Map
             //    usages = usages.TrimEnd(' ', ',');
             //    _output.WriteLine($"{(i + 1).ToString().PadLeft(2, ' ')} = {binary} {usages}");
             //}
+        }
+
+        [Fact]
+        public void BlendTileData_CliffTextures()
+        {
+            var mapFile = GetMapFile();
+
+            Assert.Equal(196u, mapFile.BlendTileData.NumTiles);
+
+            Assert.Equal(4, mapFile.BlendTileData.Textures.Length);
+
+            for (var y = 0; y < mapFile.HeightMapData.Height; y++)
+            {
+                for (var x = 0; x < mapFile.HeightMapData.Width; x++)
+                {
+                    //if (x >= 3 && x <= 5 && y == 3)
+                    //{
+                    //    Assert.NotEqual(0, mapFile.BlendTileData.CliffBlends[x, y]);
+                    //}
+                    //else
+                    //{
+                    //    Assert.Equal(0, mapFile.BlendTileData.CliffBlends[x, y]);
+                    //}
+                }
+            }
+
+            //void assertCliffBlend(int x, int y, int secondaryTextureIndex, BlendDirection direction)
+            //{
+            //    var blendIndex = mapFile.BlendTileData.Blends[x, y];
+
+            //    var blend = mapFile.BlendTileData.BlendDescriptions[blendIndex - 1];
+
+            //    Assert.Equal(secondaryTextureIndex, mapFile.BlendTileData.TextureIndices[blend.SecondaryTextureTile].TextureIndex);
+
+            //    Assert.Equal(direction, blend.BlendDirection);
+            //}
+            
+
+            //assertBlends(0, 1, true);
+            //assertBlends(2, 2, false);
+
+            for (var i = 0; i < mapFile.BlendTileData.CliffBlendDescriptions.Length; i++)
+            {
+                var cliffBlendDescription = mapFile.BlendTileData.CliffBlendDescriptions[i];
+
+                var unknown1Binary = string.Empty;
+                foreach (var value in BitConverter.GetBytes(cliffBlendDescription.Unknown1))
+                {
+                    unknown1Binary += Convert.ToString(value, 2).PadLeft(8, '0') + $" ({value.ToString().PadLeft(3, ' ')}) ";
+                }
+                unknown1Binary = unknown1Binary.TrimEnd(' ');
+
+                var binary = string.Empty;
+                for (int j = 0; j < cliffBlendDescription.Unknown2.Length; j++)
+                {
+                    if (j % 8 == 0)
+                        binary += Environment.NewLine;
+                    binary += Convert.ToString(cliffBlendDescription.Unknown2[j], 2).PadLeft(8, '0') + $" ({cliffBlendDescription.Unknown2[j].ToString().PadLeft(3, ' ')}) ";
+                    if (j % 4 == 0 && j != 0)
+                        binary += BitConverter. cliffBlendDescription
+                }
+                binary = binary.TrimEnd(' ');
+                //var binary = string.Empty;
+                //for (int j = 0; j < cliffBlendDescription.Unknown2.Length - 2; j += 4)
+                //{
+                //    if (j % 8 == 0)
+                //        binary += Environment.NewLine;
+                //    var temp = cliffBlendDescription.Unknown2.Skip(j).Take(4).ToArray();
+                //    binary += BitConverter.ToSingle(temp, 0).ToString() + " ";
+                //}
+                //binary = binary.TrimEnd(' ');
+
+                var usages = string.Empty;
+                for (var y = 0; y < mapFile.HeightMapData.Height; y++)
+                {
+                    for (var x = 0; x < mapFile.HeightMapData.Width; x++)
+                    {
+                        var blendIndex = mapFile.BlendTileData.CliffBlends[x, y];
+                        if (blendIndex == i + 1)
+                        {
+                            usages += $"[{x}, {y}], ";
+                        }
+                    }
+                }
+                usages = usages.TrimEnd(' ', ',');
+                if (usages == string.Empty)
+                {
+                    continue;
+                }
+
+                _output.WriteLine($"{i + 1}{Environment.NewLine}{unknown1Binary}{binary} {usages}");
+                _output.WriteLine(string.Empty);
+            }
         }
 
         private static MapFile GetMapFile([CallerMemberName] string testName = null)

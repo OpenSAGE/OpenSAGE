@@ -18,6 +18,7 @@ namespace OpenZH.Data.Map
         public BlendTileTexture[] Textures { get; private set; }
 
         public BlendDescription[] BlendDescriptions { get; private set; }
+        public CliffBlendDescription[] CliffBlendDescriptions { get; private set; }
 
         /// <summary>
         /// Derived data.
@@ -108,7 +109,11 @@ namespace OpenZH.Data.Map
                 blendDescriptions[i] = BlendDescription.Parse(reader);
             }
 
-            // TODO: Cliff blends.
+            var cliffBlendDescriptions = new CliffBlendDescription[cliffBlendsCount];
+            for (var i = 0; i < cliffBlendsCount; i++)
+            {
+                cliffBlendDescriptions[i] = CliffBlendDescription.Parse(reader);
+            }
 
             return new BlendTileData
             {
@@ -127,6 +132,7 @@ namespace OpenZH.Data.Map
                 TextureIndices = textureIndices.ToArray(),
 
                 BlendDescriptions = blendDescriptions,
+                CliffBlendDescriptions = cliffBlendDescriptions
             };
         }
 
