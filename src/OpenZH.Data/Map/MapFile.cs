@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using OpenZH.Data.RefPack;
 
@@ -36,65 +37,52 @@ namespace OpenZH.Data.Map
         private static MapFile ParseMapData(BinaryReader reader)
         {
             var assetStringsLength = reader.ReadUInt32();
-            var assetStrings = new string[assetStringsLength];
 
+            var assetNames = new Dictionary<uint, string>();
             for (var i = (int) (assetStringsLength - 1); i >= 0; i--)
             {
-                assetStrings[i] = reader.ReadString();
+                var assetName = reader.ReadString();
                 var assetIndex = reader.ReadUInt32();
                 if (assetIndex != i + 1)
                 {
                     throw new InvalidDataException();
                 }
+                assetNames[assetIndex] = assetName;
             }
 
             var result = new MapFile();
 
-            while (reader.BaseStream.Position < reader.BaseStream.Length)
+            var context = new MapParseContext(assetNames, result);
+
+            context.PushAsset(reader.BaseStream.Length);
+
+            Asset.ParseAssets(reader, context, assetName =>
             {
-                var assetIndex = reader.ReadUInt32(); // Asset index?
-
-                var unknown = reader.ReadUInt16(); // TODO
-
-                var dataSize = reader.ReadUInt32();
-
-                var startPosition = reader.BaseStream.Position;
-
-                var key = assetStrings[assetIndex - 1];
-
-                switch (key)
+                switch (assetName)
                 {
                     case "HeightMapData":
-                        result.HeightMapData = HeightMapData.Parse(reader);
+                        result.HeightMapData = HeightMapData.Parse(reader, context);
                         break;
 
                     case "BlendTileData":
-                        if (result.HeightMapData == null)
-                        {
-                            throw new InvalidDataException("Expected HeightMapData block before BlendTileData block.");
-                        }
-                        result.BlendTileData = BlendTileData.Parse(reader, result.HeightMapData);
+                        result.BlendTileData = BlendTileData.Parse(reader, context);
                         break;
 
                     case "WorldInfo":
-                        result.WorldInfo = WorldInfo.Parse(reader, assetStrings);
+                        result.WorldInfo = WorldInfo.Parse(reader, context);
                         break;
 
                     case "SidesList":
-                        result.SidesList = SidesList.Parse(reader, assetStrings);
+                        result.SidesList = SidesList.Parse(reader, context);
                         break;
 
                     default:
                         // TODO
-                        reader.ReadBytes((int) dataSize);
-                        break;
+                        throw new NotImplementedException(assetName);
                 }
+            });
 
-                if (startPosition + dataSize != reader.BaseStream.Position)
-                {
-                    throw new Exception($"Parsed the wrong number of bytes in {key} chunk. Parsed {reader.BaseStream.Position - startPosition}, expected {dataSize}.");
-                }
-            }
+            context.PopAsset();
 
             return result;
         }

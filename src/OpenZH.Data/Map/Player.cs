@@ -13,7 +13,7 @@ namespace OpenZH.Data.Map
         public string Enemies { get; private set; }
         public ColorArgb? Color { get; private set; }
 
-        public static Player Parse(BinaryReader reader, string[] assetStrings)
+        public static Player Parse(BinaryReader reader, MapParseContext context)
         {
             var numProperties = reader.ReadUInt16();
 
@@ -22,7 +22,7 @@ namespace OpenZH.Data.Map
             for (var i = 0; i < numProperties; i++)
             {
                 var propertyType = reader.ReadUInt32();
-                var propertyName = assetStrings[(propertyType >> 8) - 1];
+                var propertyName = context.AssetNames[propertyType >> 8];
 
                 switch (propertyName)
                 {

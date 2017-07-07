@@ -1,39 +1,48 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace OpenZH.Data.Map
 {
-    public sealed class ScriptList
+    public sealed class ScriptList : Asset
     {
-        public ScriptHierarchyNode[] ChildNodes { get; private set; }
+        public ScriptGroup[] ScriptGroups { get; private set; }
+        public Script[] Scripts { get; private set; }
 
-        public static ScriptList Parse(BinaryReader reader, string[] assetStrings)
+        public static ScriptList Parse(BinaryReader reader, MapParseContext context)
         {
-            var header = reader.ReadUInt32();
-            if (assetStrings[header - 1] != "ScriptList")
+            return ParseAsset(reader, context, version =>
             {
-                throw new InvalidDataException();
-            }
+                if (version != 1)
+                {
+                    throw new InvalidDataException();
+                }
 
-            var unknown = reader.ReadUInt16();
-            if (unknown != 1)
-            {
-                throw new InvalidDataException();
-            }
+                var scriptGroups = new List<ScriptGroup>();
+                var scripts = new List<Script>();
 
-            var dataSize = reader.ReadUInt32();
-            var endPosition = reader.BaseStream.Position + dataSize;
+                ParseAssets(reader, context, assetName =>
+                {
+                    switch (assetName)
+                    {
+                        case "ScriptGroup":
+                            scriptGroups.Add(ScriptGroup.Parse(reader, context));
+                            break;
 
-            var scriptHierarchyNodes = ScriptHierarchyNode.ParseNodes(reader, endPosition, assetStrings);
+                        case "Script":
+                            scripts.Add(Script.Parse(reader, context));
+                            break;
 
-            if (reader.BaseStream.Position != endPosition)
-            {
-                throw new InvalidDataException();
-            }
-
-            return new ScriptList
-            {
-                ChildNodes = scriptHierarchyNodes
-            };
+                        default:
+                            throw new InvalidDataException($"Unexpected asset: {assetName}");
+                    }
+                });
+                
+                return new ScriptList
+                {
+                    ScriptGroups = scriptGroups.ToArray(),
+                    Scripts = scripts.ToArray()
+                };
+            });
         }
     }
 }

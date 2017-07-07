@@ -3,7 +3,7 @@ using System.IO;
 
 namespace OpenZH.Data.Map
 {
-    public sealed class HeightMapData
+    public sealed class HeightMapData : Asset
     {
         public uint Width { get; private set; }
         public uint Height { get; private set; }
@@ -17,49 +17,52 @@ namespace OpenZH.Data.Map
         public uint Area { get; private set; }
         public byte[,] Elevations { get; private set; }
 
-        public static HeightMapData Parse(BinaryReader reader)
+        public static HeightMapData Parse(BinaryReader reader, MapParseContext context)
         {
-            var mapWidth = reader.ReadUInt32();
-            var mapHeight = reader.ReadUInt32();
-
-            var borderWidth = reader.ReadUInt32();
-
-            var perimeterCount = reader.ReadUInt32();
-            var perimeters = new HeightMapPerimeter[perimeterCount];
-            
-            for (var i = 0; i < perimeterCount; i++)
+            return ParseAsset(reader, context, version =>
             {
-                perimeters[i] = new HeightMapPerimeter
+                var mapWidth = reader.ReadUInt32();
+                var mapHeight = reader.ReadUInt32();
+
+                var borderWidth = reader.ReadUInt32();
+
+                var perimeterCount = reader.ReadUInt32();
+                var perimeters = new HeightMapPerimeter[perimeterCount];
+
+                for (var i = 0; i < perimeterCount; i++)
                 {
-                    Width = reader.ReadUInt32(),
-                    Height = reader.ReadUInt32()
-                };
-            }
-
-            var area = reader.ReadUInt32();
-            if (mapWidth * mapHeight != area)
-            {
-                throw new InvalidDataException();
-            }
-
-            var elevations = new byte[mapWidth, mapHeight];
-            for (var y = 0; y < mapHeight; y++)
-            {
-                for (var x = 0; x < mapWidth; x++)
-                {
-                    elevations[x, y] = reader.ReadByte();
+                    perimeters[i] = new HeightMapPerimeter
+                    {
+                        Width = reader.ReadUInt32(),
+                        Height = reader.ReadUInt32()
+                    };
                 }
-            }
 
-            return new HeightMapData
-            {
-                Width = mapWidth,
-                Height = mapHeight,
-                BorderWidth = borderWidth,
-                Perimeters = perimeters,
-                Area = area,
-                Elevations = elevations
-            };
+                var area = reader.ReadUInt32();
+                if (mapWidth * mapHeight != area)
+                {
+                    throw new InvalidDataException();
+                }
+
+                var elevations = new byte[mapWidth, mapHeight];
+                for (var y = 0; y < mapHeight; y++)
+                {
+                    for (var x = 0; x < mapWidth; x++)
+                    {
+                        elevations[x, y] = reader.ReadByte();
+                    }
+                }
+
+                return new HeightMapData
+                {
+                    Width = mapWidth,
+                    Height = mapHeight,
+                    BorderWidth = borderWidth,
+                    Perimeters = perimeters,
+                    Area = area,
+                    Elevations = elevations
+                };
+            });
         }
     }
 

@@ -1,46 +1,52 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using OpenZH.Data.Utilities.Extensions;
 
 namespace OpenZH.Data.Map
 {
-    public sealed class ScriptGroup : ScriptHierarchyNode
+    public sealed class ScriptGroup : Asset
     {
         public string Name { get; private set; }
         public bool IsActive { get; private set; }
         public bool IsSubroutine { get; private set; }
-        public ScriptHierarchyNode[] ChildNodes { get; private set; }
+        public Script[] Scripts { get; private set; }
 
-        public static ScriptGroup Parse(BinaryReader reader, string[] assetStrings)
+        public static ScriptGroup Parse(BinaryReader reader, MapParseContext context)
         {
-            var unknown1 = reader.ReadUInt16();
-            if (unknown1 != 2)
+            return ParseAsset(reader, context, version =>
             {
-                throw new InvalidDataException();
-            }
+                if (version != 2)
+                {
+                    throw new InvalidDataException();
+                }
 
-            var dataSize = reader.ReadUInt32();
-            var startPosition = reader.BaseStream.Position;
+                var name = reader.ReadUInt16PrefixedAsciiString();
+                var isActive = reader.ReadBoolean();
+                var isSubroutine = reader.ReadBoolean();
 
-            var name = reader.ReadUInt16PrefixedAsciiString();
-            var isActive = reader.ReadBoolean();
-            var isSubroutine = reader.ReadBoolean();
+                var scripts = new List<Script>();
 
-            var endPosition = dataSize + startPosition;
+                ParseAssets(reader, context, assetName =>
+                {
+                    switch (assetName)
+                    {
+                        case "Script":
+                            scripts.Add(Script.Parse(reader, context));
+                            break;
 
-            var scriptHierarchyNodes = ParseNodes(reader, endPosition, assetStrings);
+                        default:
+                            throw new InvalidDataException($"Unexpected asset: {assetName}");
+                    }
+                });
 
-            if (endPosition != reader.BaseStream.Position)
-            {
-                throw new InvalidDataException();
-            }
-
-            return new ScriptGroup
-            {
-                Name = name,
-                IsActive = isActive,
-                IsSubroutine = isSubroutine,
-                ChildNodes = scriptHierarchyNodes
-            };
+                return new ScriptGroup
+                {
+                    Name = name,
+                    IsActive = isActive,
+                    IsSubroutine = isSubroutine,
+                    Scripts = scripts.ToArray()
+                };
+            });
         }
     }
 }

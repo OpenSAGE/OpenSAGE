@@ -1,41 +1,33 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace OpenZH.Data.Map
 {
-    public class PlayerScriptsList
+    public sealed class PlayerScriptsList : Asset
     {
         public ScriptList[] ScriptLists { get; private set; }
 
-        public static PlayerScriptsList Parse(BinaryReader reader, uint numPlayers, string[] assetStrings)
+        public static PlayerScriptsList Parse(BinaryReader reader, MapParseContext context)
         {
-            var header = reader.ReadUInt32();
-            if (assetStrings[header - 1] != "PlayerScriptsList")
+            return ParseAsset(reader, context, version =>
             {
-                throw new InvalidDataException();
-            }
+                var scriptLists = new List<ScriptList>();
 
-            var unknown = reader.ReadUInt16();
+                ParseAssets(reader, context, assetName =>
+                {
+                    if (assetName != "ScriptList")
+                    {
+                        throw new InvalidDataException();
+                    }
 
-            var numScriptLists = numPlayers;
-            var scriptLists = new ScriptList[numScriptLists];
+                    scriptLists.Add(ScriptList.Parse(reader, context));
+                });
 
-            var dataSize = reader.ReadUInt32();
-            var startPosition = reader.BaseStream.Position;
-
-            for (var i = 0; i < numScriptLists; i++)
-            {
-                scriptLists[i] = ScriptList.Parse(reader, assetStrings);
-            }
-
-            if (startPosition + dataSize != reader.BaseStream.Position)
-            {
-                throw new InvalidDataException();
-            }
-
-            return new PlayerScriptsList
-            {
-                ScriptLists = scriptLists
-            };
+                return new PlayerScriptsList
+                {
+                    ScriptLists = scriptLists.ToArray()
+                };
+            });
         }
     }
 }

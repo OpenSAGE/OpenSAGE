@@ -3,43 +3,46 @@ using OpenZH.Data.Utilities.Extensions;
 
 namespace OpenZH.Data.Map
 {
-    public sealed class WorldInfo
+    public sealed class WorldInfo : Asset
     {
         public string MapName { get; private set; }
         public WeatherType Weather { get; private set; }
         public CompressionType Compression { get; private set; }
 
-        public static WorldInfo Parse(BinaryReader reader, string[] assetStrings)
+        public static WorldInfo Parse(BinaryReader reader, MapParseContext context)
         {
-            var numProperties = reader.ReadUInt16();
-
-            var result = new WorldInfo();
-
-            for (var i = 0; i < numProperties; i++)
+            return ParseAsset(reader, context, version =>
             {
-                var propertyType = reader.ReadUInt32();
-                var propertyName = assetStrings[(propertyType >> 8) - 1];
+                var numProperties = reader.ReadUInt16();
 
-                switch (propertyName)
+                var result = new WorldInfo();
+
+                for (var i = 0; i < numProperties; i++)
                 {
-                    case "mapName":
-                        result.MapName = reader.ReadUInt16PrefixedAsciiString();
-                        break;
+                    var propertyType = reader.ReadUInt32();
+                    var propertyName = context.AssetNames[propertyType >> 8];
 
-                    case "weather":
-                        result.Weather = reader.ReadUInt32AsEnum<WeatherType>();
-                        break;
+                    switch (propertyName)
+                    {
+                        case "mapName":
+                            result.MapName = reader.ReadUInt16PrefixedAsciiString();
+                            break;
 
-                    case "compression":
-                        result.Compression = reader.ReadUInt32AsEnum<CompressionType>();
-                        break;
+                        case "weather":
+                            result.Weather = reader.ReadUInt32AsEnum<WeatherType>();
+                            break;
 
-                    default:
-                        throw new InvalidDataException($"Unexpected property name: {propertyName}");
+                        case "compression":
+                            result.Compression = reader.ReadUInt32AsEnum<CompressionType>();
+                            break;
+
+                        default:
+                            throw new InvalidDataException($"Unexpected property name: {propertyName}");
+                    }
                 }
-            }
 
-            return result;
+                return result;
+            });
         }
 
         public enum WeatherType : uint

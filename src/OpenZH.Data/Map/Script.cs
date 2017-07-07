@@ -3,7 +3,7 @@ using OpenZH.Data.Utilities.Extensions;
 
 namespace OpenZH.Data.Map
 {
-    public sealed class Script : ScriptHierarchyNode
+    public sealed class Script : Asset
     {
         public string Name { get; private set; }
 
@@ -15,87 +15,77 @@ namespace OpenZH.Data.Map
         /// </summary>
         public uint ScriptEvaluationInterval { get; private set; }
 
-        public static Script Parse(BinaryReader reader, string[] assetStrings)
+        public static Script Parse(BinaryReader reader, MapParseContext context)
         {
-            var unknown = reader.ReadUInt16();
-            if (unknown != 2)
+            return ParseAsset(reader, context, version =>
             {
-                throw new InvalidDataException();
-            }
-
-            var dataSize = reader.ReadUInt32();
-            var startPosition = reader.BaseStream.Position;
-            var endPosition = startPosition + dataSize;
-
-            var name = reader.ReadUInt16PrefixedAsciiString();
-
-            var comment = reader.ReadUInt16PrefixedAsciiString();
-
-            var unknownBytes1 = reader.ReadBytes(4);
-
-            var isActive = reader.ReadBoolean();
-            var deactivateUponSuccess = reader.ReadBoolean();
-
-            var activeInEasy = reader.ReadBoolean();
-            var activeInMedium = reader.ReadBoolean();
-            var activeInHard = reader.ReadBoolean();
-
-            var isSubroutine = reader.ReadBoolean();
-
-            var scriptEvaluationInterval = reader.ReadUInt32();
-
-            while (reader.BaseStream.Position < endPosition)
-            {
-                var chunkType = reader.ReadUInt32();
-                var chunkName = assetStrings[chunkType - 1];
-
-                switch (chunkName)
+                if (version != 2)
                 {
-                    case "Condition":
-                        var unknown3 = reader.ReadUInt16();
-                        var unknown4 = reader.ReadUInt32();
-                        var unknown5 = reader.ReadUInt32();
-                        var unknown6 = reader.ReadByte();
-                        break;
-
-                    case "OrCondition":
-                        var unknown1 = reader.ReadUInt16();
-                        var unknown2 = reader.ReadUInt32();
-                        break;
-
-                    case "ScriptAction":
-                        var unknown3_ = reader.ReadUInt16();
-                        var unknown4_ = reader.ReadUInt32();
-                        var unknown5_ = reader.ReadUInt32();
-                        var unknown6_ = reader.ReadByte();
-                        break;
-
-                    case "CONDITION_TRUE":
-                        var unknown7 = reader.ReadBytes(3);
-                        break;
-
-                    case "CONDITION_FALSE":
-                        var unknown9 = reader.ReadBytes(3);
-                        break;
-
-                    case "NO_OP":
-                        var unknown8 = reader.ReadBytes(3);
-                        break;
-
-                    default:
-                        throw new InvalidDataException($"Unexpected chunk: {chunkName}");
+                    throw new InvalidDataException();
                 }
-            }
 
-            if (endPosition != reader.BaseStream.Position)
-            {
-                throw new InvalidDataException();
-            }
+                var name = reader.ReadUInt16PrefixedAsciiString();
 
-            return new Script
-            {
-                Name = name
-            };
+                var comment = reader.ReadUInt16PrefixedAsciiString();
+
+                var unknownBytes1 = reader.ReadBytes(4);
+
+                var isActive = reader.ReadBoolean();
+                var deactivateUponSuccess = reader.ReadBoolean();
+
+                var activeInEasy = reader.ReadBoolean();
+                var activeInMedium = reader.ReadBoolean();
+                var activeInHard = reader.ReadBoolean();
+
+                var isSubroutine = reader.ReadBoolean();
+
+                var scriptEvaluationInterval = reader.ReadUInt32();
+
+                ParseAssets(reader, context, assetName =>
+                {
+                    switch (assetName)
+                    {
+                        case "Condition":
+                            var unknown3 = reader.ReadUInt16();
+                            var unknown4 = reader.ReadUInt32();
+                            var unknown5 = reader.ReadUInt32();
+                            var unknown6 = reader.ReadByte();
+                            break;
+
+                        case "OrCondition":
+                            var unknown1 = reader.ReadUInt16();
+                            var unknown2 = reader.ReadUInt32();
+                            break;
+
+                        case "ScriptAction":
+                            var unknown3_ = reader.ReadUInt16();
+                            var unknown4_ = reader.ReadUInt32();
+                            var unknown5_ = reader.ReadUInt32();
+                            var unknown6_ = reader.ReadByte();
+                            break;
+
+                        case "CONDITION_TRUE":
+                            var unknown7 = reader.ReadBytes(3);
+                            break;
+
+                        case "CONDITION_FALSE":
+                            var unknown9 = reader.ReadBytes(3);
+                            break;
+
+                        case "NO_OP":
+                            var unknown8 = reader.ReadBytes(3);
+                            break;
+
+                        default:
+                            throw new InvalidDataException($"Unexpected asset: {assetName}");
+                    }
+                });
+                
+                return new Script
+                {
+                    Name = name
+                };
+            });
         }
     }
 }

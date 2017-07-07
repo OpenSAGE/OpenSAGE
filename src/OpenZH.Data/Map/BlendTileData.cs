@@ -4,7 +4,7 @@ using OpenZH.Data.Utilities.Extensions;
 
 namespace OpenZH.Data.Map
 {
-    public sealed class BlendTileData
+    public sealed class BlendTileData : Asset
     {
         public uint NumTiles { get; private set; }
 
@@ -25,115 +25,124 @@ namespace OpenZH.Data.Map
         /// </summary>
         public BlendTileTextureIndex[] TextureIndices { get; private set; }
 
-        public static BlendTileData Parse(BinaryReader reader, HeightMapData heightMapData)
+        public static BlendTileData Parse(BinaryReader reader, MapParseContext context)
         {
-            var width = heightMapData.Width;
-            var height = heightMapData.Height;
-
-            var numTiles = reader.ReadUInt32();
-            if (numTiles != width * height)
+            return ParseAsset(reader, context, version =>
             {
-                throw new InvalidDataException();
-            }
-
-            var tiles = reader.ReadUInt16Array2D(width, height);
-            var blends = reader.ReadUInt16Array2D(width, height);
-            var threeWayBlends = reader.ReadUInt16Array2D(width, height);
-            var cliffBlends = reader.ReadUInt16Array2D(width, height);
-
-            // If terrain is passable, there's a 0 in the data file.
-            var passability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
-            for (var y = 0; y < height; y++)
-            {
-                for (var x = 0; x < width; x++)
+                var heightMapData = context.MapFile.HeightMapData;
+                if (heightMapData == null)
                 {
-                    passability[x, y] = !passability[x, y];
+                    throw new InvalidDataException("Expected HeightMapData asset before BlendTileData asset.");
                 }
-            }
 
-            var textureCellCount = reader.ReadUInt32();
-            var blendsCount = reader.ReadUInt32() - 1;
-            var cliffBlendsCount = reader.ReadUInt32() - 1;
+                var width = heightMapData.Width;
+                var height = heightMapData.Height;
 
-            var textureCount = reader.ReadUInt32();
-            var textures = new BlendTileTexture[textureCount];
-            for (var i = 0; i < textureCount; i++)
-            {
-                textures[i] = BlendTileTexture.Parse(reader);
-            }
-
-            // Calculate texture index + offset within texture.
-            var textureIndices = new List<BlendTileTextureIndex>();
-            var actualCellIndex = 0u;
-            for (var i = 0; i < textures.Length; i++)
-            {
-                var texture = textures[i];
-
-                var actualCellCount = (texture.CellSize * 2) * (texture.CellSize * 2);
-                for (var j = 0; j < actualCellCount; j++)
+                var numTiles = reader.ReadUInt32();
+                if (numTiles != width * height)
                 {
-                    textureIndices.Add(new BlendTileTextureIndex
+                    throw new InvalidDataException();
+                }
+
+                var tiles = reader.ReadUInt16Array2D(width, height);
+                var blends = reader.ReadUInt16Array2D(width, height);
+                var threeWayBlends = reader.ReadUInt16Array2D(width, height);
+                var cliffBlends = reader.ReadUInt16Array2D(width, height);
+
+                // If terrain is passable, there's a 0 in the data file.
+                var passability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                for (var y = 0; y < height; y++)
+                {
+                    for (var x = 0; x < width; x++)
                     {
-                        TextureIndex = i,
-                        Offset = j
-                    });
+                        passability[x, y] = !passability[x, y];
+                    }
                 }
 
-                actualCellIndex += actualCellCount;
-            }
+                var textureCellCount = reader.ReadUInt32();
+                var blendsCount = reader.ReadUInt32() - 1;
+                var cliffBlendsCount = reader.ReadUInt32() - 1;
 
-            var cellTextureIndices = new int[width, height];
-            for (var y = 0; y < height; y++)
-            {
-                for (var x = 0; x < width; x++)
+                var textureCount = reader.ReadUInt32();
+                var textures = new BlendTileTexture[textureCount];
+                for (var i = 0; i < textureCount; i++)
                 {
-                    cellTextureIndices[x, y] = GetTextureIndex(tiles[x, y], textures);
+                    textures[i] = BlendTileTexture.Parse(reader);
                 }
-            }
 
-            var unknown1 = reader.ReadUInt32();
-            if (unknown1 != 0)
-            {
-                throw new InvalidDataException();
-            }
+                // Calculate texture index + offset within texture.
+                var textureIndices = new List<BlendTileTextureIndex>();
+                var actualCellIndex = 0u;
+                for (var i = 0; i < textures.Length; i++)
+                {
+                    var texture = textures[i];
 
-            var unknown2 = reader.ReadUInt32();
-            if (unknown2 != 0)
-            {
-                throw new InvalidDataException();
-            }
+                    var actualCellCount = (texture.CellSize * 2) * (texture.CellSize * 2);
+                    for (var j = 0; j < actualCellCount; j++)
+                    {
+                        textureIndices.Add(new BlendTileTextureIndex
+                        {
+                            TextureIndex = i,
+                            Offset = j
+                        });
+                    }
 
-            var blendDescriptions = new BlendDescription[blendsCount];
-            for (var i = 0; i < blendsCount; i++)
-            {
-                blendDescriptions[i] = BlendDescription.Parse(reader);
-            }
+                    actualCellIndex += actualCellCount;
+                }
 
-            var cliffBlendDescriptions = new CliffBlendDescription[cliffBlendsCount];
-            for (var i = 0; i < cliffBlendsCount; i++)
-            {
-                cliffBlendDescriptions[i] = CliffBlendDescription.Parse(reader);
-            }
+                var cellTextureIndices = new int[width, height];
+                for (var y = 0; y < height; y++)
+                {
+                    for (var x = 0; x < width; x++)
+                    {
+                        cellTextureIndices[x, y] = GetTextureIndex(tiles[x, y], textures);
+                    }
+                }
 
-            return new BlendTileData
-            {
-                NumTiles = numTiles,
+                var unknown1 = reader.ReadUInt32();
+                if (unknown1 != 0)
+                {
+                    throw new InvalidDataException();
+                }
 
-                Tiles = tiles,
+                var unknown2 = reader.ReadUInt32();
+                if (unknown2 != 0)
+                {
+                    throw new InvalidDataException();
+                }
 
-                Blends = blends,
-                ThreeWayBlends = threeWayBlends,
-                CliffBlends = cliffBlends,
+                var blendDescriptions = new BlendDescription[blendsCount];
+                for (var i = 0; i < blendsCount; i++)
+                {
+                    blendDescriptions[i] = BlendDescription.Parse(reader);
+                }
 
-                Passability = passability,
+                var cliffBlendDescriptions = new CliffBlendDescription[cliffBlendsCount];
+                for (var i = 0; i < cliffBlendsCount; i++)
+                {
+                    cliffBlendDescriptions[i] = CliffBlendDescription.Parse(reader);
+                }
 
-                Textures = textures,
+                return new BlendTileData
+                {
+                    NumTiles = numTiles,
 
-                TextureIndices = textureIndices.ToArray(),
+                    Tiles = tiles,
 
-                BlendDescriptions = blendDescriptions,
-                CliffBlendDescriptions = cliffBlendDescriptions
-            };
+                    Blends = blends,
+                    ThreeWayBlends = threeWayBlends,
+                    CliffBlends = cliffBlends,
+
+                    Passability = passability,
+
+                    Textures = textures,
+
+                    TextureIndices = textureIndices.ToArray(),
+
+                    BlendDescriptions = blendDescriptions,
+                    CliffBlendDescriptions = cliffBlendDescriptions
+                };
+            });
         }
 
         private static int GetTextureIndex(ushort tileValue, BlendTileTexture[] textures)

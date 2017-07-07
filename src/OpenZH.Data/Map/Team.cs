@@ -18,7 +18,7 @@ namespace OpenZH.Data.Map
         public UnitDescription[] Units { get; } = new UnitDescription[7];
         public string Description { get; private set; }
 
-        public static Team Parse(BinaryReader reader, string[] assetStrings)
+        public static Team Parse(BinaryReader reader, MapParseContext context)
         {
             var numProperties = reader.ReadUInt16();
 
@@ -27,7 +27,7 @@ namespace OpenZH.Data.Map
             for (var i = 0; i < numProperties; i++)
             {
                 var propertyType = reader.ReadUInt32();
-                var propertyName = assetStrings[(propertyType >> 8) - 1];
+                var propertyName = context.AssetNames[propertyType >> 8];
 
                 switch (propertyName)
                 {
@@ -109,13 +109,7 @@ namespace OpenZH.Data.Map
                         throw new InvalidDataException($"Unexpected property name: {propertyName}");
                 }
             }
-
-            //var unknown = reader.ReadUInt32();
-            //if (unknown != 0)
-            //{
-            //    throw new InvalidDataException();
-            //}
-
+            
             return result;
         }
 
