@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using OpenZH.Data.Map;
 
 namespace OpenZH.Data.Utilities.Extensions
 {
@@ -29,10 +30,16 @@ namespace OpenZH.Data.Utilities.Extensions
             return sb.ToString();
         }
 
-        public static string ReadUInt16PrefixedString(this BinaryReader reader)
+        public static string ReadUInt16PrefixedAsciiString(this BinaryReader reader)
         {
             var length = reader.ReadUInt16();
             return Encoding.ASCII.GetString(reader.ReadBytes(length));
+        }
+
+        public static string ReadUInt16PrefixedUnicodeString(this BinaryReader reader)
+        {
+            var length = reader.ReadUInt16();
+            return Encoding.Unicode.GetString(reader.ReadBytes(length * 2));
         }
 
         public static T ReadStruct<T>(this BinaryReader reader)
@@ -99,6 +106,18 @@ namespace OpenZH.Data.Utilities.Extensions
             }
 
             return (TEnum) (object) value;
+        }
+
+        public static ColorArgb ReadColorArgb(this BinaryReader reader)
+        {
+            var value = reader.ReadUInt32();
+            return new ColorArgb
+            {
+                A = (byte) ((value >> 24) & 0xFF),
+                R = (byte) ((value >> 16) & 0xFF),
+                G = (byte) ((value >> 8) & 0xFF),
+                B = (byte) (value & 0xFF)
+            };
         }
     }
 }

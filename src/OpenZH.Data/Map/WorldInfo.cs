@@ -1,14 +1,13 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using OpenZH.Data.Utilities.Extensions;
 
 namespace OpenZH.Data.Map
 {
     public sealed class WorldInfo
     {
-        public CompressionType Compression { get; private set; }
         public string MapName { get; private set; }
         public WeatherType Weather { get; private set; }
+        public CompressionType Compression { get; private set; }
 
         public static WorldInfo Parse(BinaryReader reader, string[] assetStrings)
         {
@@ -23,17 +22,20 @@ namespace OpenZH.Data.Map
 
                 switch (propertyName)
                 {
-                    case "compression":
-                        result.Compression = reader.ReadUInt32AsEnum<CompressionType>();
-                        break;
-
                     case "mapName":
-                        result.MapName = reader.ReadUInt16PrefixedString();
+                        result.MapName = reader.ReadUInt16PrefixedAsciiString();
                         break;
 
                     case "weather":
                         result.Weather = reader.ReadUInt32AsEnum<WeatherType>();
                         break;
+
+                    case "compression":
+                        result.Compression = reader.ReadUInt32AsEnum<CompressionType>();
+                        break;
+
+                    default:
+                        throw new InvalidDataException($"Unexpected property name: {propertyName}");
                 }
             }
 

@@ -9,6 +9,7 @@ namespace OpenZH.Data.Map
         public HeightMapData HeightMapData { get; private set; }
         public BlendTileData BlendTileData { get; private set; }
         public WorldInfo WorldInfo { get; private set; }
+        public SidesList SidesList { get; private set; }
 
         public static MapFile Parse(BinaryReader reader)
         {
@@ -52,7 +53,9 @@ namespace OpenZH.Data.Map
             while (reader.BaseStream.Position < reader.BaseStream.Length)
             {
                 var assetIndex = reader.ReadUInt32(); // Asset index?
+
                 var unknown = reader.ReadUInt16(); // TODO
+
                 var dataSize = reader.ReadUInt32();
 
                 var startPosition = reader.BaseStream.Position;
@@ -77,6 +80,10 @@ namespace OpenZH.Data.Map
                         result.WorldInfo = WorldInfo.Parse(reader, assetStrings);
                         break;
 
+                    case "SidesList":
+                        result.SidesList = SidesList.Parse(reader, assetStrings);
+                        break;
+
                     default:
                         // TODO
                         reader.ReadBytes((int) dataSize);
@@ -85,7 +92,7 @@ namespace OpenZH.Data.Map
 
                 if (startPosition + dataSize != reader.BaseStream.Position)
                 {
-                    throw new Exception($"Parsed the wrong number of bytes. Parsed {reader.BaseStream.Position - startPosition}, expected {dataSize}.");
+                    throw new Exception($"Parsed the wrong number of bytes in {key} chunk. Parsed {reader.BaseStream.Position - startPosition}, expected {dataSize}.");
                 }
             }
 

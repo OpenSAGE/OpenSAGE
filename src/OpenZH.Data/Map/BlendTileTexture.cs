@@ -37,7 +37,7 @@ namespace OpenZH.Data.Map
                 throw new InvalidDataException();
             }
 
-            var name = reader.ReadUInt16PrefixedString();
+            var name = reader.ReadUInt16PrefixedAsciiString();
 
             return new BlendTileTexture
             {
