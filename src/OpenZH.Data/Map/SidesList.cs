@@ -26,7 +26,7 @@ namespace OpenZH.Data.Map
                 teams[i] = Team.Parse(reader, assetStrings);
             }
 
-            var playerScripts = PlayerScriptsList.Parse(reader, assetStrings);
+            var playerScripts = PlayerScriptsList.Parse(reader, numPlayers, assetStrings);
 
             return new SidesList
             {

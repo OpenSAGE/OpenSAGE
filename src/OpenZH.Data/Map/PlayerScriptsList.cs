@@ -6,7 +6,7 @@ namespace OpenZH.Data.Map
     {
         public ScriptList[] ScriptLists { get; private set; }
 
-        public static PlayerScriptsList Parse(BinaryReader reader, string[] assetStrings)
+        public static PlayerScriptsList Parse(BinaryReader reader, uint numPlayers, string[] assetStrings)
         {
             var header = reader.ReadUInt32();
             if (assetStrings[header - 1] != "PlayerScriptsList")
@@ -14,7 +14,9 @@ namespace OpenZH.Data.Map
                 throw new InvalidDataException();
             }
 
-            var numScriptLists = reader.ReadUInt16();
+            var unknown = reader.ReadUInt16();
+
+            var numScriptLists = numPlayers;
             var scriptLists = new ScriptList[numScriptLists];
 
             var dataSize = reader.ReadUInt32();
