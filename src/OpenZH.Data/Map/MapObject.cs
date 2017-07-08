@@ -43,6 +43,13 @@ namespace OpenZH.Data.Map
         public float SoundAmbientMaxRange { get; private set; }
         public ObjectAmbientSoundPriority SoundAmbientPriority { get; private set; } = ObjectAmbientSoundPriority.Normal;
 
+        public string WaypointPathLabel1 { get; private set; }
+        public string WaypointPathLabel2 { get; private set; }
+        public string WaypointPathLabel3 { get; private set; }
+        public uint? WaypointID { get; private set; }
+        public string WaypointName { get; private set; }
+        public bool WaypointPathBiDirectional { get; private set; }
+
         public static MapObject Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version =>
@@ -171,6 +178,30 @@ namespace OpenZH.Data.Map
 
                         case "objectSoundAmbientPriority":
                             result.SoundAmbientPriority = reader.ReadUInt32AsEnum<ObjectAmbientSoundPriority>();
+                            break;
+
+                        case "waypointPathLabel1":
+                            result.WaypointPathLabel1 = reader.ReadUInt16PrefixedAsciiString();
+                            break;
+
+                        case "waypointPathLabel2":
+                            result.WaypointPathLabel2 = reader.ReadUInt16PrefixedAsciiString();
+                            break;
+
+                        case "waypointPathLabel3":
+                            result.WaypointPathLabel3 = reader.ReadUInt16PrefixedAsciiString();
+                            break;
+
+                        case "waypointID":
+                            result.WaypointID = reader.ReadUInt32();
+                            break;
+
+                        case "waypointName":
+                            result.WaypointName = reader.ReadUInt16PrefixedAsciiString();
+                            break;
+
+                        case "waypointPathBiDirectional":
+                            result.WaypointPathBiDirectional = reader.ReadBoolean();
                             break;
 
                         default:
