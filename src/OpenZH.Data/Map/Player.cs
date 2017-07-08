@@ -11,19 +11,14 @@ namespace OpenZH.Data.Map
         public string Faction { get; private set; }
         public string Allies { get; private set; }
         public string Enemies { get; private set; }
-        public ColorArgb? Color { get; private set; }
+        public MapColorArgb? Color { get; private set; }
 
         public static Player Parse(BinaryReader reader, MapParseContext context)
         {
-            var numProperties = reader.ReadUInt16();
-
             var result = new Player();
 
-            for (var i = 0; i < numProperties; i++)
+            Asset.ParseProperties(reader, context, propertyName =>
             {
-                var propertyType = reader.ReadUInt32();
-                var propertyName = context.AssetNames[propertyType >> 8];
-
                 switch (propertyName)
                 {
                     case "playerName":
@@ -57,7 +52,7 @@ namespace OpenZH.Data.Map
                     default:
                         throw new InvalidDataException($"Unexpected property name: {propertyName}");
                 }
-            }
+            });
 
             var unknown = reader.ReadUInt32();
             if (unknown != 0)

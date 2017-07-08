@@ -54,7 +54,7 @@ namespace OpenZH.Data.Tests.Map
         {
             foreach (var entry in Directory.GetFiles(@"C:\Users\Tim Jones\Desktop\ZH", "*.map", SearchOption.AllDirectories))
             {
-                if (!entry.Contains("BUG_"))
+                if (!entry.Contains("WorldInfo_Uncompressed"))
                     continue;
 
                 Debug.WriteLine(entry);
@@ -494,7 +494,7 @@ namespace OpenZH.Data.Tests.Map
             Assert.Equal("FactionAmerica", player1.Faction);
             Assert.Equal("", player1.Allies);
             Assert.Equal("", player1.Enemies);
-            Assert.Equal(new ColorArgb(0xFF, 0x96, 0, 0xC8), player1.Color);
+            Assert.Equal(new MapColorArgb(0xFF, 0x96, 0, 0xC8), player1.Color);
 
             var player2 = mapFile.SidesList.Players[2];
             Assert.Equal("Computer_Player_1", player2.Name);
@@ -521,7 +521,7 @@ namespace OpenZH.Data.Tests.Map
             Assert.Equal("FactionGLADemolitionGeneral", player4.Faction);
             Assert.Equal("", player4.Allies);
             Assert.Equal("", player4.Enemies);
-            Assert.Equal(new ColorArgb(0xFF, 0xFF, 0x96, 0xFF), player4.Color);
+            Assert.Equal(new MapColorArgb(0xFF, 0xFF, 0x96, 0xFF), player4.Color);
 
             Assert.Equal(11, mapFile.SidesList.Teams.Length);
         }
@@ -552,7 +552,7 @@ namespace OpenZH.Data.Tests.Map
             Assert.Equal("FactionAmerica", player1.Faction);
             Assert.Equal("", player1.Allies);
             Assert.Equal("", player1.Enemies);
-            Assert.Equal(new ColorArgb(0xFF, 0x96, 0, 0xC8), player1.Color);
+            Assert.Equal(new MapColorArgb(0xFF, 0x96, 0, 0xC8), player1.Color);
 
             var player2 = mapFile.SidesList.Players[2];
             Assert.Equal("Computer_Player_1", player2.Name);
@@ -579,7 +579,7 @@ namespace OpenZH.Data.Tests.Map
             Assert.Equal("FactionGLADemolitionGeneral", player4.Faction);
             Assert.Equal("", player4.Allies);
             Assert.Equal("", player4.Enemies);
-            Assert.Equal(new ColorArgb(0xFF, 0xFF, 0x96, 0xFF), player4.Color);
+            Assert.Equal(new MapColorArgb(0xFF, 0xFF, 0x96, 0xFF), player4.Color);
 
             Assert.Equal(11, mapFile.SidesList.Teams.Length);
         }

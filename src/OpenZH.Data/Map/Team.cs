@@ -15,20 +15,15 @@ namespace OpenZH.Data.Map
         public uint ProductionPrioritySuccessIncrease { get; private set; }
         public uint ProductionPriorityFailureDecrease { get; private set; }
         public uint InitialIdleFrames { get; private set; }
-        public UnitDescription[] Units { get; } = new UnitDescription[7];
+        public TeamUnitDescription[] Units { get; } = new TeamUnitDescription[7];
         public string Description { get; private set; }
 
         public static Team Parse(BinaryReader reader, MapParseContext context)
         {
-            var numProperties = reader.ReadUInt16();
-
             var result = new Team();
 
-            for (var i = 0; i < numProperties; i++)
+            Asset.ParseProperties(reader, context, propertyName =>
             {
-                var propertyType = reader.ReadUInt32();
-                var propertyName = context.AssetNames[propertyType >> 8];
-
                 switch (propertyName)
                 {
                     case "teamName":
@@ -108,7 +103,7 @@ namespace OpenZH.Data.Map
                     default:
                         throw new InvalidDataException($"Unexpected property name: {propertyName}");
                 }
-            }
+            });
             
             return result;
         }
@@ -118,17 +113,17 @@ namespace OpenZH.Data.Map
             return int.Parse(propertyName.Substring(propertyName.Length - 1)) - 1;
         }
 
-        private static UnitDescription GetUnitDescription(Team team, string propertyName)
+        private static TeamUnitDescription GetUnitDescription(Team team, string propertyName)
         {
             var index = GetUnitIndex(propertyName);
-            return team.Units[index] ?? (team.Units[index] = new UnitDescription());
+            return team.Units[index] ?? (team.Units[index] = new TeamUnitDescription());
         }
+    }
 
-        public sealed class UnitDescription
-        {
-            public string UnitType { get; set; }
-            public uint MinCount { get; set; }
-            public uint MaxCount { get; set; }
-        }
+    public sealed class TeamUnitDescription
+    {
+        public string UnitType { get; set; }
+        public uint MinCount { get; set; }
+        public uint MaxCount { get; set; }
     }
 }

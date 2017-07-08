@@ -1,13 +1,13 @@
 ﻿namespace OpenZH.Data.Map
 {
-    public struct ColorArgb
+    public struct MapColorArgb
     {
         public byte A;
         public byte R;
         public byte G;
         public byte B;
 
-        public ColorArgb(byte a, byte r, byte g, byte b)
+        public MapColorArgb(byte a, byte r, byte g, byte b)
         {
             A = a;
             R = r;
@@ -17,10 +17,10 @@
 
         public override bool Equals(object obj)
         {
-            return (obj is ColorArgb) && Equals((ColorArgb) obj);
+            return (obj is MapColorArgb) && Equals((MapColorArgb) obj);
         }
 
-        public bool Equals(ColorArgb other)
+        public bool Equals(MapColorArgb other)
         {
             return A == other.A
                 && R == other.R

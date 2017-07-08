@@ -13,15 +13,10 @@ namespace OpenZH.Data.Map
         {
             return ParseAsset(reader, context, version =>
             {
-                var numProperties = reader.ReadUInt16();
-
                 var result = new WorldInfo();
 
-                for (var i = 0; i < numProperties; i++)
+                ParseProperties(reader, context, propertyName =>
                 {
-                    var propertyType = reader.ReadUInt32();
-                    var propertyName = context.AssetNames[propertyType >> 8];
-
                     switch (propertyName)
                     {
                         case "mapName":
@@ -39,7 +34,7 @@ namespace OpenZH.Data.Map
                         default:
                             throw new InvalidDataException($"Unexpected property name: {propertyName}");
                     }
-                }
+                });
 
                 return result;
             });

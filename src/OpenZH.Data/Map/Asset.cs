@@ -38,10 +38,25 @@ namespace OpenZH.Data.Map
                 parseCallback(assetName);
             }
         }
+
+        public static void ParseProperties(BinaryReader reader, MapParseContext context, PropertiesParseCallback parseCallback)
+        {
+            var numProperties = reader.ReadUInt16();
+
+            for (var i = 0; i < numProperties; i++)
+            {
+                var propertyType = reader.ReadUInt32();
+                var propertyName = context.AssetNames[propertyType >> 8];
+
+                parseCallback(propertyName);
+            }
+        }
     }
 
     public delegate T AssetParseCallback<T>(uint assetVersion)
         where T : Asset;
 
     public delegate void AssetsParseCallback(string assetName);
+
+    public delegate void PropertiesParseCallback(string propertyName);
 }
