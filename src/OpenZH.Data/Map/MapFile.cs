@@ -11,6 +11,7 @@ namespace OpenZH.Data.Map
         public BlendTileData BlendTileData { get; private set; }
         public WorldInfo WorldInfo { get; private set; }
         public SidesList SidesList { get; private set; }
+        public ObjectsList ObjectsList { get; private set; }
 
         public static MapFile Parse(BinaryReader reader)
         {
@@ -74,6 +75,10 @@ namespace OpenZH.Data.Map
 
                     case "SidesList":
                         result.SidesList = SidesList.Parse(reader, context);
+                        break;
+
+                    case "ObjectsList":
+                        result.ObjectsList = ObjectsList.Parse(reader, context);
                         break;
 
                     default:
