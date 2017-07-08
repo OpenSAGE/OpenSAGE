@@ -13,6 +13,8 @@ namespace OpenZH.Data.Map
         public float Angle { get; private set; }
 
         public string TypeName { get; private set; }
+
+        public string Name { get; private set; }
         public uint InitialHealth { get; private set; }
         public bool Enabled { get; private set; }
         public bool Indestructible { get; private set; }
@@ -22,7 +24,24 @@ namespace OpenZH.Data.Map
         public bool Targetable { get; private set; }
         public string OriginalOwner { get; private set; }
         public string UniqueId { get; private set; }
-        public string ObjectLayer { get; private set; }
+        public string Layer { get; private set; }
+        public ObjectWeather Weather { get; private set; } = ObjectWeather.UseMapWeather;
+        public ObjectTime Time { get; private set; } = ObjectTime.UseMapTime;
+        public uint? MaxHitPoints { get; private set; }
+        public ObjectAggressiveness Aggressiveness { get; private set; } = ObjectAggressiveness.Normal;
+        public ObjectVeterancy Veterancy { get; private set; } = ObjectVeterancy.Normal;
+        public uint VisualRange { get; private set; }
+        public uint ShroudClearingDistance { get; private set; }
+        public float StoppingDistance { get; private set; }
+
+        public string SoundAmbient { get; private set; }
+        public bool SoundAmbientCustomized { get; private set; }
+        public uint SoundAmbientLoopCount { get; private set; }
+        public float SoundAmbientMinVolume { get; private set; }
+        public float SoundAmbientVolume { get; private set; }
+        public float SoundAmbientMinRange { get; private set; }
+        public float SoundAmbientMaxRange { get; private set; }
+        public ObjectAmbientSoundPriority SoundAmbientPriority { get; private set; } = ObjectAmbientSoundPriority.Normal;
 
         public static MapObject Parse(BinaryReader reader, MapParseContext context)
         {
@@ -83,7 +102,75 @@ namespace OpenZH.Data.Map
                             break;
 
                         case "objectLayer":
-                            result.ObjectLayer = reader.ReadUInt16PrefixedAsciiString();
+                            result.Layer = reader.ReadUInt16PrefixedAsciiString();
+                            break;
+
+                        case "objectWeather":
+                            result.Weather = reader.ReadUInt32AsEnum<ObjectWeather>();
+                            break;
+
+                        case "objectTime":
+                            result.Time = reader.ReadUInt32AsEnum<ObjectTime>();
+                            break;
+
+                        case "objectName":
+                            result.Name = reader.ReadUInt16PrefixedAsciiString();
+                            break;
+
+                        case "objectMaxHPs":
+                            result.MaxHitPoints = reader.ReadUInt32();
+                            break;
+
+                        case "objectAggressiveness":
+                            result.Aggressiveness = reader.ReadUInt32AsEnum<ObjectAggressiveness>();
+                            break;
+
+                        case "objectVisualRange":
+                            result.VisualRange = reader.ReadUInt32();
+                            break;
+
+                        case "objectVeterancy":
+                            result.Veterancy = reader.ReadUInt32AsEnum<ObjectVeterancy>();
+                            break;
+
+                        case "objectShroudClearingDistance":
+                            result.ShroudClearingDistance = reader.ReadUInt32();
+                            break;
+
+                        case "objectStoppingDistance":
+                            result.StoppingDistance = reader.ReadSingle();
+                            break;
+
+                        case "objectSoundAmbient":
+                            result.SoundAmbient = reader.ReadUInt16PrefixedAsciiString();
+                            break;
+
+                        case "objectSoundAmbientCustomized":
+                            result.SoundAmbientCustomized = reader.ReadBoolean();
+                            break;
+
+                        case "objectSoundAmbientLoopCount":
+                            result.SoundAmbientLoopCount = reader.ReadUInt32();
+                            break;
+
+                        case "objectSoundAmbientMinVolume":
+                            result.SoundAmbientMinVolume = reader.ReadSingle();
+                            break;
+
+                        case "objectSoundAmbientVolume":
+                            result.SoundAmbientVolume = reader.ReadSingle();
+                            break;
+
+                        case "objectSoundAmbientMinRange":
+                            result.SoundAmbientMinRange = reader.ReadSingle();
+                            break;
+
+                        case "objectSoundAmbientMaxRange":
+                            result.SoundAmbientMaxRange = reader.ReadSingle();
+                            break;
+
+                        case "objectSoundAmbientPriority":
+                            result.SoundAmbientPriority = reader.ReadUInt32AsEnum<ObjectAmbientSoundPriority>();
                             break;
 
                         default:
@@ -94,5 +181,45 @@ namespace OpenZH.Data.Map
                 return result;
             });
         }
+    }
+
+    public enum ObjectWeather : uint
+    {
+        UseMapWeather,
+        UseNormalModel,
+        UseSnowModel
+    }
+
+    public enum ObjectTime : uint
+    {
+        UseMapTime,
+        UseDayModel,
+        UseNightModel
+    }
+
+    public enum ObjectAggressiveness : uint
+    {
+        Aggressive,
+        Alert,
+        Normal,
+        Passive,
+        Sleep
+    }
+
+    public enum ObjectVeterancy : uint
+    {
+        Normal,
+        Veteran,
+        Elite,
+        Heroic
+    }
+
+    public enum ObjectAmbientSoundPriority : uint
+    {
+        Lowest,
+        Low,
+        Normal,
+        High,
+        Critical
     }
 }

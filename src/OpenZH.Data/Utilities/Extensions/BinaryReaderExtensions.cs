@@ -107,17 +107,5 @@ namespace OpenZH.Data.Utilities.Extensions
 
             return (TEnum) (object) value;
         }
-
-        public static MapColorArgb ReadColorArgb(this BinaryReader reader)
-        {
-            var value = reader.ReadUInt32();
-            return new MapColorArgb
-            {
-                A = (byte) ((value >> 24) & 0xFF),
-                R = (byte) ((value >> 16) & 0xFF),
-                G = (byte) ((value >> 8) & 0xFF),
-                B = (byte) (value & 0xFF)
-            };
-        }
     }
 }

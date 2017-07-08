@@ -46,7 +46,7 @@ namespace OpenZH.Data.Map
                         break;
 
                     case "playerColor":
-                        result.Color = reader.ReadColorArgb();
+                        result.Color = MapColorArgb.Parse(reader);
                         break;
 
                     default:
