@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using OpenZH.Data.Utilities.Extensions;
 
 namespace OpenZH.Data.Map
@@ -45,9 +46,15 @@ namespace OpenZH.Data.Map
         }
     }
 
+    [Flags]
     public enum PolygonTriggerType : uint
     {
         Area = 0,
-        Water = 1
+        Water = 1,
+        River = 256,
+        Unknown = 65536,
+
+        WaterAndRiver = Water | River,
+        WaterAndUnknown = Water | Unknown,
     }
 }
