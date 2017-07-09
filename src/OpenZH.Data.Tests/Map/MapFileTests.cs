@@ -54,8 +54,8 @@ namespace OpenZH.Data.Tests.Map
         {
             foreach (var entry in Directory.GetFiles(@"C:\Users\Tim Jones\Desktop\ZH", "*.map", SearchOption.AllDirectories))
             {
-                //if (!entry.Contains("WorldInfo_Uncompressed"))
-                //    continue;
+                if (!entry.Contains("WorldInfo_Uncompressed"))
+                    continue;
 
                 Debug.WriteLine(entry);
                 using (var entryStream = File.OpenRead(entry))

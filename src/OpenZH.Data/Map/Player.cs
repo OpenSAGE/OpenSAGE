@@ -13,6 +13,8 @@ namespace OpenZH.Data.Map
         public string Enemies { get; private set; }
         public MapColorArgb? Color { get; private set; }
 
+        public BuildListItem[] BuildList { get; private set; }
+
         public static Player Parse(BinaryReader reader, MapParseContext context)
         {
             var result = new Player();
@@ -54,10 +56,12 @@ namespace OpenZH.Data.Map
                 }
             });
 
-            var unknown = reader.ReadUInt32();
-            if (unknown != 0)
+            var numBuildListItems = reader.ReadUInt32();
+            var buildListItems = new BuildListItem[numBuildListItems];
+
+            for (var i = 0; i < numBuildListItems; i++)
             {
-                throw new InvalidDataException();
+                buildListItems[i] = BuildListItem.Parse(reader);
             }
 
             return result;
