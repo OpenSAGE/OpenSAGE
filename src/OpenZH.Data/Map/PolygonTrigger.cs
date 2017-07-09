@@ -8,7 +8,7 @@ namespace OpenZH.Data.Map
         public string Name { get; private set; }
         public string LayerName { get; private set; }
         public uint UniqueId { get; private set; }
-        public TriggerType TriggerType { get; private set; }
+        public PolygonTriggerType TriggerType { get; private set; }
         public MapVector3i[] Points { get; private set; }
 
         public static PolygonTrigger Parse(BinaryReader reader)
@@ -18,7 +18,7 @@ namespace OpenZH.Data.Map
 
             var uniqueId = reader.ReadUInt32();
 
-            var triggerType = reader.ReadUInt32AsEnum<TriggerType>();
+            var triggerType = reader.ReadUInt32AsEnum<PolygonTriggerType>();
 
             var unknown = reader.ReadUInt16();
             if (unknown != 0)
@@ -45,7 +45,7 @@ namespace OpenZH.Data.Map
         }
     }
 
-    public enum TriggerType : uint
+    public enum PolygonTriggerType : uint
     {
         Area = 0,
         Water = 1

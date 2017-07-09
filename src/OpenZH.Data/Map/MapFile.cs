@@ -13,6 +13,7 @@ namespace OpenZH.Data.Map
         public SidesList SidesList { get; private set; }
         public ObjectsList ObjectsList { get; private set; }
         public PolygonTriggers PolygonTriggers { get; private set; }
+        public GlobalLighting GlobalLighting { get; private set; }
 
         public static MapFile Parse(BinaryReader reader)
         {
@@ -84,6 +85,10 @@ namespace OpenZH.Data.Map
 
                     case "PolygonTriggers":
                         result.PolygonTriggers = PolygonTriggers.Parse(reader, context);
+                        break;
+
+                    case "GlobalLighting":
+                        result.GlobalLighting = GlobalLighting.Parse(reader, context);
                         break;
 
                     default:
