@@ -58,7 +58,7 @@ namespace OpenZH.Data.Map
 
             var context = new MapParseContext(assetNames, result);
 
-            context.PushAsset(reader.BaseStream.Length);
+            context.PushAsset(nameof(MapFile), reader.BaseStream.Length);
 
             Asset.ParseAssets(reader, context, assetName =>
             {

@@ -13,7 +13,7 @@ namespace OpenZH.Data.Map
             var startPosition = reader.BaseStream.Position;
             var endPosition = dataSize + startPosition;
 
-            context.PushAsset(endPosition);
+            context.PushAsset(typeof(T).Name, endPosition);
 
             var result = parseCallback(assetVersion);
 
@@ -21,7 +21,7 @@ namespace OpenZH.Data.Map
 
             if (reader.BaseStream.Position != endPosition)
             {
-                throw new InvalidDataException($"Expected reader to be at position {endPosition}, but was at {reader.BaseStream.Position}.");
+                throw new InvalidDataException($"Error while parsing asset '{typeof(T).Name}'. Expected reader to be at position {endPosition}, but was at {reader.BaseStream.Position}.");
             }
 
             return result;
@@ -33,7 +33,7 @@ namespace OpenZH.Data.Map
             {
                 var assetIndex = reader.ReadUInt32();
 
-                var assetName = context.AssetNames[assetIndex];
+                var assetName = context.GetAssetName(assetIndex);
 
                 parseCallback(assetName);
             }
@@ -46,7 +46,7 @@ namespace OpenZH.Data.Map
             for (var i = 0; i < numProperties; i++)
             {
                 var propertyType = reader.ReadUInt32();
-                var propertyName = context.AssetNames[propertyType >> 8];
+                var propertyName = context.GetAssetName(propertyType >> 8);
 
                 parseCallback(propertyName);
             }
