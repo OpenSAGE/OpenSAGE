@@ -100,6 +100,20 @@ namespace OpenZH.Data.Utilities.Extensions
         {
             var value = reader.ReadUInt32();
 
+            return CastValueAsEnum<uint, TEnum>(value);
+        }
+
+        public static TEnum ReadInt32AsEnum<TEnum>(this BinaryReader reader)
+           where TEnum : struct
+        {
+            var value = reader.ReadInt32();
+
+            return CastValueAsEnum<int, TEnum>(value);
+        }
+
+        private static TEnum CastValueAsEnum<TValue, TEnum>(TValue value)
+           where TEnum : struct
+        {
             if (!Enum.IsDefined(typeof(TEnum), value))
             {
                 throw new InvalidDataException($"Unexpected value for {typeof(TEnum).Name}: {value}");

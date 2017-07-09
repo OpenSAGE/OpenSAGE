@@ -14,25 +14,33 @@ namespace OpenZH.Data.Map
 
         public string TypeName { get; private set; }
 
-        public string Name { get; private set; }
-        public uint InitialHealth { get; private set; }
-        public bool Enabled { get; private set; }
-        public bool Indestructible { get; private set; }
-        public bool Unsellable { get; private set; }
-        public bool Powered { get; private set; }
-        public bool AiRecruitable { get; private set; }
-        public bool Targetable { get; private set; }
-        public string OriginalOwner { get; private set; }
-        public string UniqueId { get; private set; }
-        public string Layer { get; private set; }
-        public ObjectWeather Weather { get; private set; } = ObjectWeather.UseMapWeather;
-        public ObjectTime Time { get; private set; } = ObjectTime.UseMapTime;
-        public uint? MaxHitPoints { get; private set; }
-        public ObjectAggressiveness Aggressiveness { get; private set; } = ObjectAggressiveness.Normal;
-        public ObjectVeterancy Veterancy { get; private set; } = ObjectVeterancy.Normal;
-        public uint VisualRange { get; private set; }
-        public uint ShroudClearingDistance { get; private set; }
-        public float StoppingDistance { get; private set; }
+        public string ObjectName { get; private set; }
+        public uint ObjectInitialHealth { get; private set; }
+        public bool ObjectEnabled { get; private set; }
+        public bool ObjectIndestructible { get; private set; }
+        public bool ObjectUnsellable { get; private set; }
+        public bool ObjectPowered { get; private set; }
+        public bool ObjectAiRecruitable { get; private set; }
+        public bool ObjectTargetable { get; private set; }
+        public bool ObjectSelectable { get; private set; }
+        public bool ObjectRepairable { get; private set; }
+        public bool ObjectUseNightModels { get; private set; }
+        public bool ObjectUseSnowModels { get; private set; }
+        public float ObjectRadius { get; private set; }
+
+        public uint ScorchType { get; private set; }
+
+        public string ObjectOriginalOwner { get; private set; }
+        public string ObjectUniqueId { get; private set; }
+        public string ObjectLayer { get; private set; }
+        public ObjectWeather ObjectWeather { get; private set; } = ObjectWeather.UseMapWeather;
+        public ObjectTime ObjectTime { get; private set; } = ObjectTime.UseMapTime;
+        public uint? ObjectMaxHitPoints { get; private set; }
+        public ObjectAggressiveness ObjectAggressiveness { get; private set; } = ObjectAggressiveness.Normal;
+        public ObjectVeterancy ObjectVeterancy { get; private set; } = ObjectVeterancy.Normal;
+        public uint ObjectVisualRange { get; private set; }
+        public uint ObjectShroudClearingDistance { get; private set; }
+        public float ObjectStoppingDistance { get; private set; }
 
         public string SoundAmbient { get; private set; }
         public bool SoundAmbientCustomized { get; private set; }
@@ -73,79 +81,88 @@ namespace OpenZH.Data.Map
                     switch (propertyName)
                     {
                         case "objectInitialHealth":
-                            result.InitialHealth = reader.ReadUInt32();
+                            result.ObjectInitialHealth = reader.ReadUInt32();
                             break;
 
                         case "objectEnabled":
-                            result.Enabled = reader.ReadBoolean();
+                            result.ObjectEnabled = reader.ReadBoolean();
                             break;
 
                         case "objectIndestructible":
-                            result.Indestructible = reader.ReadBoolean();
+                            result.ObjectIndestructible = reader.ReadBoolean();
+                            break;
+
+                        case "objectDestructible":
+                            result.ObjectIndestructible = !reader.ReadBoolean();
                             break;
 
                         case "objectUnsellable":
-                            result.Unsellable = reader.ReadBoolean();
+                            result.ObjectUnsellable = reader.ReadBoolean();
+                            break;
+
+                        case "objectSellable":
+                            result.ObjectUnsellable = !reader.ReadBoolean();
                             break;
 
                         case "objectPowered":
-                            result.Powered = reader.ReadBoolean();
+                            result.ObjectPowered = reader.ReadBoolean();
                             break;
 
+                        case "objectRecruitable":
                         case "objectRecruitableAI":
-                            result.AiRecruitable = reader.ReadBoolean();
+                            result.ObjectAiRecruitable = reader.ReadBoolean();
                             break;
 
                         case "objectTargetable":
-                            result.Targetable = reader.ReadBoolean();
+                            result.ObjectTargetable = reader.ReadBoolean();
                             break;
 
                         case "originalOwner":
-                            result.OriginalOwner = reader.ReadUInt16PrefixedAsciiString();
+                            result.ObjectOriginalOwner = reader.ReadUInt16PrefixedAsciiString();
                             break;
 
                         case "uniqueID":
-                            result.UniqueId = reader.ReadUInt16PrefixedAsciiString();
+                            result.ObjectUniqueId = reader.ReadUInt16PrefixedAsciiString();
                             break;
 
                         case "objectLayer":
-                            result.Layer = reader.ReadUInt16PrefixedAsciiString();
+                            result.ObjectLayer = reader.ReadUInt16PrefixedAsciiString();
                             break;
 
                         case "objectWeather":
-                            result.Weather = reader.ReadUInt32AsEnum<ObjectWeather>();
+                            result.ObjectWeather = reader.ReadUInt32AsEnum<ObjectWeather>();
                             break;
 
                         case "objectTime":
-                            result.Time = reader.ReadUInt32AsEnum<ObjectTime>();
+                            result.ObjectTime = reader.ReadUInt32AsEnum<ObjectTime>();
                             break;
 
                         case "objectName":
-                            result.Name = reader.ReadUInt16PrefixedAsciiString();
+                            result.ObjectName = reader.ReadUInt16PrefixedAsciiString();
                             break;
 
                         case "objectMaxHPs":
-                            result.MaxHitPoints = reader.ReadUInt32();
+                            result.ObjectMaxHitPoints = reader.ReadUInt32();
                             break;
 
                         case "objectAggressiveness":
-                            result.Aggressiveness = reader.ReadUInt32AsEnum<ObjectAggressiveness>();
+                            result.ObjectAggressiveness = reader.ReadInt32AsEnum<ObjectAggressiveness>();
                             break;
 
                         case "objectVisualRange":
-                            result.VisualRange = reader.ReadUInt32();
+                            result.ObjectVisualRange = reader.ReadUInt32();
                             break;
 
                         case "objectVeterancy":
-                            result.Veterancy = reader.ReadUInt32AsEnum<ObjectVeterancy>();
+                            result.ObjectVeterancy = reader.ReadUInt32AsEnum<ObjectVeterancy>();
                             break;
 
                         case "objectShroudClearingDistance":
-                            result.ShroudClearingDistance = reader.ReadUInt32();
+                            result.ObjectShroudClearingDistance = reader.ReadUInt32();
                             break;
 
                         case "objectStoppingDistance":
-                            result.StoppingDistance = reader.ReadSingle();
+                            result.ObjectStoppingDistance = reader.ReadSingle();
                             break;
 
                         case "objectSoundAmbient":
@@ -178,6 +195,30 @@ namespace OpenZH.Data.Map
 
                         case "objectSoundAmbientPriority":
                             result.SoundAmbientPriority = reader.ReadUInt32AsEnum<ObjectAmbientSoundPriority>();
+                            break;
+
+                        case "objectSelectable":
+                            result.ObjectSelectable = reader.ReadBoolean();
+                            break;
+
+                        case "objectRepairable":
+                            result.ObjectRepairable = reader.ReadBoolean();
+                            break;
+
+                        case "objectUseNightModels":
+                            result.ObjectUseNightModels = reader.ReadBoolean();
+                            break;
+
+                        case "objectUseSnowModels":
+                            result.ObjectUseSnowModels = reader.ReadBoolean();
+                            break;
+
+                        case "objectRadius":
+                            result.ObjectRadius = reader.ReadSingle();
+                            break;
+
+                        case "scorchType":
+                            result.ScorchType = reader.ReadUInt32();
                             break;
 
                         case "waypointPathLabel1":
@@ -228,13 +269,13 @@ namespace OpenZH.Data.Map
         UseNightModel
     }
 
-    public enum ObjectAggressiveness : uint
+    public enum ObjectAggressiveness : int
     {
-        Aggressive,
-        Alert,
-        Normal,
+        Sleep = -2,
         Passive,
-        Sleep
+        Normal,
+        Alert,
+        Aggressive,
     }
 
     public enum ObjectVeterancy : uint
