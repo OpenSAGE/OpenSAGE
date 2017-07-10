@@ -52,7 +52,10 @@ namespace OpenZH.Data.Map
         Area = 0,
         Water = 1,
         River = 256,
+
         Unknown = 65536,
+        Unknown2 = 3801345,
+        Unknown3 = 3473665,
 
         WaterAndRiver = Water | River,
         WaterAndUnknown = Water | Unknown,

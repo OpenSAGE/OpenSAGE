@@ -1,19 +1,36 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using OpenZH.Data.Utilities.Extensions;
 
 namespace OpenZH.Data.Map
 {
-    public sealed class Script : Asset
+    public sealed partial class Script : Asset
     {
         public string Name { get; private set; }
 
         public string Comment { get; private set; }
+        public string ConditionsComment { get; private set; }
+        public string ActionsComment { get; private set; }
+
+        public bool IsActive { get; private set; }
+        public bool DeactivateUponSuccess { get; private set; }
+
+        public bool ActiveInEasy { get; private set; }
+        public bool ActiveInMedium { get; private set; }
+        public bool ActiveInHard { get; private set; }
+
+        public bool IsSubroutine { get; private set; }
 
         /// <summary>
         /// How often the script should be evaluated, in seconds.
         /// If zero, script should be evaluated every frame.
         /// </summary>
-        public uint ScriptEvaluationInterval { get; private set; }
+        public uint EvaluationInterval { get; private set; }
+
+        public ScriptOrCondition[] OrConditions { get; private set; }
+
+        public ScriptAction[] ActionsIfTrue { get; private set; }
+        public ScriptAction[] ActionsIfFalse { get; private set; }
 
         public static Script Parse(BinaryReader reader, MapParseContext context)
         {
@@ -27,8 +44,8 @@ namespace OpenZH.Data.Map
                 var name = reader.ReadUInt16PrefixedAsciiString();
 
                 var comment = reader.ReadUInt16PrefixedAsciiString();
-
-                var unknownBytes1 = reader.ReadBytes(4);
+                var conditionsComment = reader.ReadUInt16PrefixedAsciiString();
+                var actionsComment = reader.ReadUInt16PrefixedAsciiString();
 
                 var isActive = reader.ReadBoolean();
                 var deactivateUponSuccess = reader.ReadBoolean();
@@ -39,41 +56,26 @@ namespace OpenZH.Data.Map
 
                 var isSubroutine = reader.ReadBoolean();
 
-                var scriptEvaluationInterval = reader.ReadUInt32();
+                var evaluationInterval = reader.ReadUInt32();
+
+                var orConditions = new List<ScriptOrCondition>();
+                var actionsIfTrue = new List<ScriptAction>();
+                var actionsIfFalse = new List<ScriptAction>();
 
                 ParseAssets(reader, context, assetName =>
                 {
                     switch (assetName)
                     {
-                        case "Condition":
-                            var unknown3 = reader.ReadUInt16();
-                            var unknown4 = reader.ReadUInt32();
-                            var unknown5 = reader.ReadUInt32();
-                            var unknown6 = reader.ReadByte();
-                            break;
-
                         case "OrCondition":
-                            var unknown1 = reader.ReadUInt16();
-                            var unknown2 = reader.ReadUInt32();
+                            orConditions.Add(ScriptOrCondition.Parse(reader, context));
                             break;
 
                         case "ScriptAction":
-                            var unknown3_ = reader.ReadUInt16();
-                            var unknown4_ = reader.ReadUInt32();
-                            var unknown5_ = reader.ReadUInt32();
-                            var unknown6_ = reader.ReadByte();
+                            actionsIfTrue.Add(ScriptAction.Parse(reader, context));
                             break;
 
-                        case "CONDITION_TRUE":
-                            var unknown7 = reader.ReadBytes(3);
-                            break;
-
-                        case "CONDITION_FALSE":
-                            var unknown9 = reader.ReadBytes(3);
-                            break;
-
-                        case "NO_OP":
-                            var unknown8 = reader.ReadBytes(3);
+                        case "ScriptActionFalse":
+                            actionsIfFalse.Add(ScriptAction.Parse(reader, context));
                             break;
 
                         default:
@@ -83,7 +85,21 @@ namespace OpenZH.Data.Map
                 
                 return new Script
                 {
-                    Name = name
+                    Name = name,
+                    Comment = comment,
+                    ConditionsComment = conditionsComment,
+                    ActionsComment = actionsComment,
+                    IsActive = isActive,
+                    DeactivateUponSuccess = deactivateUponSuccess,
+                    ActiveInEasy = activeInEasy,
+                    ActiveInMedium = activeInMedium,
+                    ActiveInHard = activeInHard,
+                    IsSubroutine = isSubroutine,
+                    EvaluationInterval = evaluationInterval,
+
+                    OrConditions = orConditions.ToArray(),
+                    ActionsIfTrue = actionsIfTrue.ToArray(),
+                    ActionsIfFalse = actionsIfFalse.ToArray()
                 };
             });
         }

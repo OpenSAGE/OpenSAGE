@@ -12,6 +12,8 @@ namespace OpenZH.Data.Map
         
         public Dictionary<TimeOfDay, GlobalLightingConfiguration> LightingConfigurations { get; private set; }
 
+        public MapColorArgb ShadowColor { get; private set; }
+
         public static GlobalLighting Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version =>
@@ -27,16 +29,13 @@ namespace OpenZH.Data.Map
                     lightingConfigurations[(TimeOfDay) timeOfDayValues[i]] = GlobalLightingConfiguration.Parse(reader);
                 }
 
-                var unknown = reader.ReadSingle();
-                if (!float.IsNaN(unknown))
-                {
-                    throw new InvalidDataException();
-                }
+                var shadowColor = MapColorArgb.Parse(reader);
 
                 return new GlobalLighting
                 {
                     Time = time,
-                    LightingConfigurations = lightingConfigurations
+                    LightingConfigurations = lightingConfigurations,
+                    ShadowColor = shadowColor
                 };
             });
         }

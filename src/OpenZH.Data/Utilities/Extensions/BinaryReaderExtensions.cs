@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-using OpenZH.Data.Map;
 
 namespace OpenZH.Data.Utilities.Extensions
 {
@@ -15,6 +13,16 @@ namespace OpenZH.Data.Utilities.Extensions
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(array);
             return BitConverter.ToUInt32(array, 0);
+        }
+
+        public static uint ReadUInt24(this BinaryReader reader)
+        {
+            var result = 0u;
+            for (var i = 0; i < 3; i++)
+            {
+                result |= ((uint) reader.ReadByte() << (i * 8));
+            }
+            return result;
         }
 
         public static string ReadNullTerminatedString(this BinaryReader reader)

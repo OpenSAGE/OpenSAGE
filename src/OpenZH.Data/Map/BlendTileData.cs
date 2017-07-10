@@ -61,7 +61,13 @@ namespace OpenZH.Data.Map
 
                 var textureCellCount = reader.ReadUInt32();
                 var blendsCount = reader.ReadUInt32() - 1;
-                var cliffBlendsCount = reader.ReadUInt32() - 1;
+
+                var cliffBlendsCount = reader.ReadUInt32();
+                if (cliffBlendsCount > 0)
+                {
+                    // Usually minimum value is 1, but some files have 0.
+                    cliffBlendsCount--;
+                }
 
                 var textureCount = reader.ReadUInt32();
                 var textures = new BlendTileTexture[textureCount];
