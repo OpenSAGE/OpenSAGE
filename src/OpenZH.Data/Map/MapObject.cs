@@ -45,6 +45,9 @@ namespace OpenZH.Data.Map
 
         Angled = 8,
 
+        Unknown1 = 16,
+        Unknown2 = 32,
+
         TightCurve = 64,
 
         EndCap = 128,
