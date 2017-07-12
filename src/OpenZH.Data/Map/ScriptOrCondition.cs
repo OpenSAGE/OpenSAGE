@@ -5,6 +5,8 @@ namespace OpenZH.Data.Map
 {
     public sealed class ScriptOrCondition : Asset
     {
+        public const string AssetName = "OrCondition";
+
         public ScriptCondition[] Conditions { get; private set; }
 
         public static ScriptOrCondition Parse(BinaryReader reader, MapParseContext context)
@@ -17,7 +19,7 @@ namespace OpenZH.Data.Map
                 {
                     switch (assetName)
                     {
-                        case "Condition":
+                        case ScriptCondition.AssetName:
                             conditions.Add(ScriptCondition.Parse(reader, context));
                             break;
 
@@ -30,6 +32,18 @@ namespace OpenZH.Data.Map
                 {
                     Conditions = conditions.ToArray()
                 };
+            });
+        }
+
+        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        {
+            WriteAssetTo(writer, () =>
+            {
+                foreach (var condition in Conditions)
+                {
+                    writer.Write(assetNames.GetOrCreateAssetIndex(ScriptCondition.AssetName));
+                    condition.WriteTo(writer, assetNames);
+                }
             });
         }
     }

@@ -5,6 +5,8 @@ namespace OpenZH.Data.Map
 {
     public sealed class HeightMapData : Asset
     {
+        public const string AssetName = "HeightMapData";
+
         public uint Width { get; private set; }
         public uint Height { get; private set; }
         public uint BorderWidth { get; private set; }
@@ -62,6 +64,35 @@ namespace OpenZH.Data.Map
                     Area = area,
                     Elevations = elevations
                 };
+            });
+        }
+
+        public void WriteTo(BinaryWriter writer)
+        {
+            WriteAssetTo(writer, () =>
+            {
+                writer.Write(Width);
+                writer.Write(Height);
+
+                writer.Write(BorderWidth);
+
+                writer.Write((uint) Perimeters.Length);
+
+                foreach (var perimeter in Perimeters)
+                {
+                    writer.Write(perimeter.Width);
+                    writer.Write(perimeter.Height);
+                }
+
+                writer.Write(Area);
+
+                for (var y = 0; y < Height; y++)
+                {
+                    for (var x = 0; x < Width; x++)
+                    {
+                        writer.Write(Elevations[x, y]);
+                    }
+                }
             });
         }
     }

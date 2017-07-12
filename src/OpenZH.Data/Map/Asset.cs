@@ -1,10 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace OpenZH.Data.Map
 {
     public abstract class Asset
     {
-        public static T ParseAsset<T>(BinaryReader reader, MapParseContext context, AssetParseCallback<T> parseCallback)
+        protected static T ParseAsset<T>(BinaryReader reader, MapParseContext context, AssetParseCallback<T> parseCallback)
             where T : Asset
         {
             var assetVersion = reader.ReadUInt16();
@@ -16,6 +17,8 @@ namespace OpenZH.Data.Map
             context.PushAsset(typeof(T).Name, endPosition);
 
             var result = parseCallback(assetVersion);
+
+            result.Version = assetVersion;
 
             context.PopAsset();
 
@@ -39,21 +42,32 @@ namespace OpenZH.Data.Map
             }
         }
 
-        public static AssetProperty[] ParseProperties(BinaryReader reader, MapParseContext context)
+        public ushort Version { get; private set; }
+
+        protected void WriteAssetTo(BinaryWriter writer, Action writeCallback)
         {
-            var numProperties = reader.ReadUInt16();
-            var result = new AssetProperty[numProperties];
+            writer.Write(Version);
 
-            for (var i = 0; i < numProperties; i++)
-            {
-                result[i] = AssetProperty.Parse(reader, context);
-            }
+            var dataSizePosition = writer.BaseStream.Position;
 
-            return result;
+            writer.Write(0u); // Placeholder, we'll back up and overwrite this later.
+
+            var startPosition = writer.BaseStream.Position;
+
+            writeCallback();
+
+            var endPosition = writer.BaseStream.Position;
+
+            var dataSize = endPosition - startPosition;
+
+            // Back up and write data size.
+            writer.BaseStream.Position = dataSizePosition;
+            writer.Write((uint) dataSize);
+            writer.BaseStream.Position = endPosition;
         }
     }
 
-    public delegate T AssetParseCallback<T>(uint assetVersion)
+    public delegate T AssetParseCallback<T>(ushort assetVersion)
         where T : Asset;
 
     public delegate void AssetsParseCallback(string assetName);

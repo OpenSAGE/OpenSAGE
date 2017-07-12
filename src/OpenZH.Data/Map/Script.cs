@@ -6,6 +6,8 @@ namespace OpenZH.Data.Map
 {
     public sealed partial class Script : Asset
     {
+        public const string AssetName = "Script";
+
         public string Name { get; private set; }
 
         public string Comment { get; private set; }
@@ -36,7 +38,7 @@ namespace OpenZH.Data.Map
         {
             return ParseAsset(reader, context, version =>
             {
-                if (version != 2)
+                if (version != 1 && version != 2)
                 {
                     throw new InvalidDataException();
                 }
@@ -56,7 +58,11 @@ namespace OpenZH.Data.Map
 
                 var isSubroutine = reader.ReadBoolean();
 
-                var evaluationInterval = reader.ReadUInt32();
+                var evaluationInterval = 0u;
+                if (version > 1)
+                {
+                    evaluationInterval = reader.ReadUInt32();
+                }
 
                 var orConditions = new List<ScriptOrCondition>();
                 var actionsIfTrue = new List<ScriptAction>();
@@ -66,15 +72,15 @@ namespace OpenZH.Data.Map
                 {
                     switch (assetName)
                     {
-                        case "OrCondition":
+                        case ScriptOrCondition.AssetName:
                             orConditions.Add(ScriptOrCondition.Parse(reader, context));
                             break;
 
-                        case "ScriptAction":
+                        case ScriptAction.AssetNameTrue:
                             actionsIfTrue.Add(ScriptAction.Parse(reader, context));
                             break;
 
-                        case "ScriptActionFalse":
+                        case ScriptAction.AssetNameFalse:
                             actionsIfFalse.Add(ScriptAction.Parse(reader, context));
                             break;
 
@@ -101,6 +107,50 @@ namespace OpenZH.Data.Map
                     ActionsIfTrue = actionsIfTrue.ToArray(),
                     ActionsIfFalse = actionsIfFalse.ToArray()
                 };
+            });
+        }
+
+        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        {
+            WriteAssetTo(writer, () =>
+            {
+                writer.WriteUInt16PrefixedAsciiString(Name);
+
+                writer.WriteUInt16PrefixedAsciiString(Comment);
+                writer.WriteUInt16PrefixedAsciiString(ConditionsComment);
+                writer.WriteUInt16PrefixedAsciiString(ActionsComment);
+
+                writer.Write(IsActive);
+                writer.Write(DeactivateUponSuccess);
+
+                writer.Write(ActiveInEasy);
+                writer.Write(ActiveInMedium);
+                writer.Write(ActiveInHard);
+
+                writer.Write(IsSubroutine);
+
+                if (Version > 1)
+                {
+                    writer.Write(EvaluationInterval);
+                }
+
+                foreach (var orCondition in OrConditions)
+                {
+                    writer.Write(assetNames.GetOrCreateAssetIndex(ScriptOrCondition.AssetName));
+                    orCondition.WriteTo(writer, assetNames);
+                }
+
+                foreach (var scriptAction in ActionsIfTrue)
+                {
+                    writer.Write(assetNames.GetOrCreateAssetIndex(ScriptAction.AssetNameTrue));
+                    scriptAction.WriteTo(writer, assetNames);
+                }
+
+                foreach (var scriptAction in ActionsIfFalse)
+                {
+                    writer.Write(assetNames.GetOrCreateAssetIndex(ScriptAction.AssetNameFalse));
+                    scriptAction.WriteTo(writer, assetNames);
+                }
             });
         }
     }

@@ -9,8 +9,8 @@ namespace OpenZH.Data.Map
 
         public static CliffBlendDescription Parse(BinaryReader reader)
         {
-            var unknown = reader.ReadUInt32();
-            if (unknown != 0x0000004C)
+            var unknown1 = reader.ReadUInt32();
+            if (unknown1 != 0x0000004C)
             {
                 //throw new InvalidDataException();
             }
@@ -19,9 +19,15 @@ namespace OpenZH.Data.Map
 
             return new CliffBlendDescription
             {
-                Unknown1 = unknown,
+                Unknown1 = unknown1,
                 Unknown2 = unknown2
             };
+        }
+
+        public void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(Unknown1);
+            writer.Write(Unknown2);
         }
     }
 }

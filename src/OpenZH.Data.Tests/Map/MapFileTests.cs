@@ -12,7 +12,8 @@ namespace OpenZH.Data.Tests.Map
 {
     public class MapFileTests
     {
-        private const string BigFilePath = @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals Zero Hour\MapsZH.big";
+        private const string BigFilePath = @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals\Maps.big";
+        //private const string BigFilePath = @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals Zero Hour\MapsZH.big";
 
         private readonly ITestOutputHelper _output;
 
@@ -32,18 +33,7 @@ namespace OpenZH.Data.Tests.Map
                     using (var entryStream = entry.Open())
                     using (var binaryReader = new BinaryReader(entryStream))
                     {
-                        var mapFile = MapFile.Parse(binaryReader);
-
-                        for (var y = 0; y < mapFile.HeightMapData.Height; y++)
-                        {
-                            for (var x = 0; x < mapFile.HeightMapData.Width; x++)
-                            {
-                                Assert.InRange(
-                                    mapFile.BlendTileData.TextureIndices[mapFile.BlendTileData.Tiles[x, y]].TextureIndex,
-                                    0,
-                                    mapFile.BlendTileData.Textures.Length - 1);
-                            }
-                        }
+                        MapFile.Parse(binaryReader);
                     }
                 }
             }
@@ -52,7 +42,7 @@ namespace OpenZH.Data.Tests.Map
         [Fact]
         public void MapTestSuite()
         {
-            foreach (var entry in Directory.GetFiles(@"C:\Users\Tim Jones\Desktop\ZH", "*.map", SearchOption.AllDirectories))
+            foreach (var entry in Directory.GetFiles(@"C:\Users\Tim Jones\Documents\Command and Conquer Generals Zero Hour Data\Maps", "*.map", SearchOption.AllDirectories))
             {
                 //if (!entry.Contains("WorldInfo_Uncompressed"))
                 //    continue;
@@ -205,7 +195,7 @@ namespace OpenZH.Data.Tests.Map
 
                 var blend = mapFile.BlendTileData.BlendDescriptions[blendIndex - 1];
 
-                Assert.Equal(secondaryTextureIndex, mapFile.BlendTileData.TextureIndices[blend.SecondaryTextureTile].TextureIndex);
+                Assert.Equal(secondaryTextureIndex, mapFile.BlendTileData.TextureIndices[(int) blend.SecondaryTextureTile].TextureIndex);
 
                 Assert.Equal(direction, blend.BlendDirection);
             }
@@ -291,7 +281,7 @@ namespace OpenZH.Data.Tests.Map
 
                 var blend = mapFile.BlendTileData.BlendDescriptions[blendIndex - 1];
 
-                Assert.Equal(secondaryTextureIndex, mapFile.BlendTileData.TextureIndices[blend.SecondaryTextureTile].TextureIndex);
+                Assert.Equal(secondaryTextureIndex, mapFile.BlendTileData.TextureIndices[(int) blend.SecondaryTextureTile].TextureIndex);
 
                 Assert.Equal(direction, blend.BlendDirection);
             }
@@ -328,7 +318,7 @@ namespace OpenZH.Data.Tests.Map
 
                 var blendDescription = mapFile.BlendTileData.BlendDescriptions[threeWayBlend - 1];
 
-                Assert.Equal(secondaryTextureIndex, mapFile.BlendTileData.TextureIndices[blendDescription.SecondaryTextureTile].TextureIndex);
+                Assert.Equal(secondaryTextureIndex, mapFile.BlendTileData.TextureIndices[(int) blendDescription.SecondaryTextureTile].TextureIndex);
 
                 Assert.Equal(direction, blendDescription.BlendDirection);
             }
@@ -529,59 +519,7 @@ namespace OpenZH.Data.Tests.Map
         [Fact]
         public void SidesList_Scripts()
         {
-            var mapFile = GetMapFile();
-
-            Assert.Equal(5, mapFile.SidesList.PlayerScripts.ScriptLists.Length);
-
-            //var scriptList0 = mapFile.SidesList.PlayerScripts.ScriptLists[0];
-            ////Assert.Equal(scriptList0.ChildNodes)
-
-            //var player0 = mapFile.SidesList.Players[0];
-            //Assert.Equal("", player0.Name);
-            //Assert.Equal(false, player0.IsHuman);
-            //Assert.Equal("Neutral", player0.DisplayName);
-            //Assert.Equal("", player0.Faction);
-            //Assert.Equal("", player0.Allies);
-            //Assert.Equal("", player0.Enemies);
-            //Assert.Equal(null, player0.Color);
-
-            //var player1 = mapFile.SidesList.Players[1];
-            //Assert.Equal("Human_Player", player1.Name);
-            //Assert.Equal(true, player1.IsHuman);
-            //Assert.Equal("Human Player", player1.DisplayName);
-            //Assert.Equal("FactionAmerica", player1.Faction);
-            //Assert.Equal("", player1.Allies);
-            //Assert.Equal("", player1.Enemies);
-            //Assert.Equal(new MapColorArgb(0xFF, 0x96, 0, 0xC8), player1.Color);
-
-            //var player2 = mapFile.SidesList.Players[2];
-            //Assert.Equal("Computer_Player_1", player2.Name);
-            //Assert.Equal(false, player2.IsHuman);
-            //Assert.Equal("Computer Player 1", player2.DisplayName);
-            //Assert.Equal("FactionChina", player2.Faction);
-            //Assert.Equal("Human_Player", player2.Allies);
-            //Assert.Equal("Computer_Player_2 Computer_Player_3", player2.Enemies);
-            //Assert.Equal(null, player2.Color);
-
-            //var player3 = mapFile.SidesList.Players[3];
-            //Assert.Equal("Computer_Player_2", player3.Name);
-            //Assert.Equal(false, player3.IsHuman);
-            //Assert.Equal("Computer Player 2", player3.DisplayName);
-            //Assert.Equal("FactionGLA", player3.Faction);
-            //Assert.Equal("", player3.Allies);
-            //Assert.Equal("", player3.Enemies);
-            //Assert.Equal(null, player3.Color);
-
-            //var player4 = mapFile.SidesList.Players[4];
-            //Assert.Equal("Computer_Player_3", player4.Name);
-            //Assert.Equal(false, player4.IsHuman);
-            //Assert.Equal("Computer Player 3", player4.DisplayName);
-            //Assert.Equal("FactionGLADemolitionGeneral", player4.Faction);
-            //Assert.Equal("", player4.Allies);
-            //Assert.Equal("", player4.Enemies);
-            //Assert.Equal(new MapColorArgb(0xFF, 0xFF, 0x96, 0xFF), player4.Color);
-
-            Assert.Equal(11, mapFile.SidesList.Teams.Length);
+            GetMapFile();
         }
 
         private static MapFile GetMapFile([CallerMemberName] string testName = null)

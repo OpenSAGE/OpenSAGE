@@ -18,6 +18,8 @@ namespace OpenZH.Data.Map
         /// </summary>
         public uint CellSize { get; private set; }
 
+        public uint Unknown { get; private set; }
+
         public string Name { get; private set; }
 
         public static BlendTileTexture Parse(BinaryReader reader)
@@ -44,8 +46,20 @@ namespace OpenZH.Data.Map
                 CellStart = cellStart,
                 CellCount = cellCount,
                 CellSize = cellSize,
+                Unknown = unknown,
                 Name = name
             };
+        }
+
+        public void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(CellStart);
+            writer.Write(CellCount);
+            writer.Write(CellSize);
+
+            writer.Write(Unknown);
+
+            writer.WriteUInt16PrefixedUnicodeString(Name);
         }
     }
 }

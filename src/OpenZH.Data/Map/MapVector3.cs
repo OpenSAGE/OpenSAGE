@@ -17,5 +17,12 @@ namespace OpenZH.Data.Map
                 Z = reader.ReadSingle()
             };
         }
+
+        public void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(X);
+            writer.Write(Y);
+            writer.Write(Z);
+        }
     }
 }

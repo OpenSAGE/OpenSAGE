@@ -4,14 +4,19 @@ namespace OpenZH.Data.Map
 {
     public sealed class Team
     {
-        public AssetProperty[] Properties { get; private set; }
+        public AssetPropertyCollection Properties { get; private set; }
 
         public static Team Parse(BinaryReader reader, MapParseContext context)
         {
             return new Team
             {
-                Properties = Asset.ParseProperties(reader, context)
+                Properties = AssetPropertyCollection.Parse(reader, context)
             };
+        }
+
+        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        {
+            Properties.WriteTo(writer, assetNames);
         }
     }
 }

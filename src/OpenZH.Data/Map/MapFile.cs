@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using OpenZH.Data.RefPack;
+using OpenZH.Data.Utilities.Extensions;
 
 namespace OpenZH.Data.Map
 {
     public sealed class MapFile
     {
+        private const string FourCcUncompressed = "CkMp";
+
         public HeightMapData HeightMapData { get; private set; }
         public BlendTileData BlendTileData { get; private set; }
         public WorldInfo WorldInfo { get; private set; }
@@ -18,20 +20,26 @@ namespace OpenZH.Data.Map
 
         public static MapFile Parse(BinaryReader reader)
         {
-            var compressionFlag = reader.ReadUInt32();
+            var compressionFlag = reader.ReadUInt32().ToFourCcString();
 
             switch (compressionFlag)
             {
-                case 1884121923u:
-                    // Uncompressed
+                // Uncompressed
+                case FourCcUncompressed:
                     return ParseMapData(reader);
 
-                case 5390661u:
+                // EA RefPack
+                case "EAR\0":
                     // Compressed (after decompression, contents are exactly the same
                     // as uncompressed format, so we call back into this method)
                     var decompressedSize = reader.ReadUInt32();
                     var innerReader = new BinaryReader(new RefPackStream(reader.BaseStream));
                     return Parse(innerReader);
+
+                // Only found this on C&C Generals "Woodcrest Circle" map. Looks like a compressed
+                // or encrypted format, but I can't find any info about it online.
+                case "ZL5\0":
+                    return null;
 
                 default:
                     throw new NotSupportedException();
@@ -40,19 +48,7 @@ namespace OpenZH.Data.Map
 
         private static MapFile ParseMapData(BinaryReader reader)
         {
-            var assetStringsLength = reader.ReadUInt32();
-
-            var assetNames = new Dictionary<uint, string>();
-            for (var i = (int) (assetStringsLength - 1); i >= 0; i--)
-            {
-                var assetName = reader.ReadString();
-                var assetIndex = reader.ReadUInt32();
-                if (assetIndex != i + 1)
-                {
-                    throw new InvalidDataException();
-                }
-                assetNames[assetIndex] = assetName;
-            }
+            var assetNames = AssetNameCollection.Parse(reader);
 
             var result = new MapFile();
 
@@ -64,40 +60,39 @@ namespace OpenZH.Data.Map
             {
                 switch (assetName)
                 {
-                    case "HeightMapData":
+                    case HeightMapData.AssetName:
                         result.HeightMapData = HeightMapData.Parse(reader, context);
                         break;
 
-                    case "BlendTileData":
+                    case BlendTileData.AssetName:
                         result.BlendTileData = BlendTileData.Parse(reader, context);
                         break;
 
-                    case "WorldInfo":
+                    case WorldInfo.AssetName:
                         result.WorldInfo = WorldInfo.Parse(reader, context);
                         break;
 
-                    case "SidesList":
+                    case SidesList.AssetName:
                         result.SidesList = SidesList.Parse(reader, context);
                         break;
 
-                    case "ObjectsList":
+                    case ObjectsList.AssetName:
                         result.ObjectsList = ObjectsList.Parse(reader, context);
                         break;
 
-                    case "PolygonTriggers":
+                    case PolygonTriggers.AssetName:
                         result.PolygonTriggers = PolygonTriggers.Parse(reader, context);
                         break;
 
-                    case "GlobalLighting":
+                    case GlobalLighting.AssetName:
                         result.GlobalLighting = GlobalLighting.Parse(reader, context);
                         break;
 
-                    case "WaypointsList":
+                    case WaypointsList.AssetName:
                         result.WaypointsList = WaypointsList.Parse(reader, context);
                         break;
 
                     default:
-                        // TODO
                         throw new NotImplementedException(assetName);
                 }
             });
@@ -105,6 +100,57 @@ namespace OpenZH.Data.Map
             context.PopAsset();
 
             return result;
+        }
+
+        public void WriteTo(BinaryWriter writer)
+        {
+            // Always writes an uncompressed map, until (and if) we implement refpack compression.
+
+            writer.Write(FourCcUncompressed.ToFourCc());
+
+            WriteMapDataTo(writer);
+        }
+
+        private void WriteMapDataTo(BinaryWriter writer)
+        {
+            var assetNames = new AssetNameCollection();
+
+            // Do a first pass just to collect the asset names.
+            var tempWriter = BinaryWriter.Null;
+            WriteMapDataTo(tempWriter, assetNames);
+
+            // Now write out the asset names to the real writer.
+            assetNames.WriteTo(writer);
+
+            // And write out the data to the real writer.
+            WriteMapDataTo(writer, assetNames);
+        }
+
+        private void WriteMapDataTo(BinaryWriter writer, AssetNameCollection assetNames)
+        {
+            writer.Write(assetNames.GetOrCreateAssetIndex(HeightMapData.AssetName));
+            HeightMapData.WriteTo(writer);
+
+            writer.Write(assetNames.GetOrCreateAssetIndex(BlendTileData.AssetName));
+            BlendTileData.WriteTo(writer);
+
+            writer.Write(assetNames.GetOrCreateAssetIndex(WorldInfo.AssetName));
+            WorldInfo.WriteTo(writer, assetNames);
+
+            writer.Write(assetNames.GetOrCreateAssetIndex(SidesList.AssetName));
+            SidesList.WriteTo(writer, assetNames);
+
+            writer.Write(assetNames.GetOrCreateAssetIndex(ObjectsList.AssetName));
+            ObjectsList.WriteTo(writer, assetNames);
+
+            writer.Write(assetNames.GetOrCreateAssetIndex(PolygonTriggers.AssetName));
+            PolygonTriggers.WriteTo(writer);
+
+            writer.Write(assetNames.GetOrCreateAssetIndex(GlobalLighting.AssetName));
+            GlobalLighting.WriteTo(writer);
+
+            writer.Write(assetNames.GetOrCreateAssetIndex(WaypointsList.AssetName));
+            WaypointsList.WriteTo(writer);
         }
     }
 }

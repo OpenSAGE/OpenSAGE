@@ -29,6 +29,12 @@ namespace OpenZH.Data.Map
             };
         }
 
+        public void WriteTo(BinaryWriter writer)
+        {
+            var combined = (A << 24) | (R << 16) | (G << 8) | B;
+            writer.Write((uint) combined);
+        }
+
         public override bool Equals(object obj)
         {
             return (obj is MapColorArgb) && Equals((MapColorArgb) obj);

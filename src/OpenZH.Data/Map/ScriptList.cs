@@ -5,6 +5,8 @@ namespace OpenZH.Data.Map
 {
     public sealed class ScriptList : Asset
     {
+        public const string AssetName = "ScriptList";
+
         public ScriptGroup[] ScriptGroups { get; private set; }
         public Script[] Scripts { get; private set; }
 
@@ -24,11 +26,11 @@ namespace OpenZH.Data.Map
                 {
                     switch (assetName)
                     {
-                        case "ScriptGroup":
+                        case ScriptGroup.AssetName:
                             scriptGroups.Add(ScriptGroup.Parse(reader, context));
                             break;
 
-                        case "Script":
+                        case Script.AssetName:
                             scripts.Add(Script.Parse(reader, context));
                             break;
 
@@ -42,6 +44,24 @@ namespace OpenZH.Data.Map
                     ScriptGroups = scriptGroups.ToArray(),
                     Scripts = scripts.ToArray()
                 };
+            });
+        }
+
+        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        {
+            WriteAssetTo(writer, () =>
+            {
+                foreach (var script in Scripts)
+                {
+                    writer.Write(assetNames.GetOrCreateAssetIndex(Script.AssetName));
+                    script.WriteTo(writer, assetNames);
+                }
+
+                foreach (var scriptGroup in ScriptGroups)
+                {
+                    writer.Write(assetNames.GetOrCreateAssetIndex(ScriptGroup.AssetName));
+                    scriptGroup.WriteTo(writer, assetNames);
+                }
             });
         }
     }

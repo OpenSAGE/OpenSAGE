@@ -5,6 +5,8 @@ namespace OpenZH.Data.Map
 {
     public sealed class PlayerScriptsList : Asset
     {
+        public const string AssetName = "PlayerScriptsList";
+
         public ScriptList[] ScriptLists { get; private set; }
 
         public static PlayerScriptsList Parse(BinaryReader reader, MapParseContext context)
@@ -15,7 +17,7 @@ namespace OpenZH.Data.Map
 
                 ParseAssets(reader, context, assetName =>
                 {
-                    if (assetName != "ScriptList")
+                    if (assetName != ScriptList.AssetName)
                     {
                         throw new InvalidDataException();
                     }
@@ -27,6 +29,18 @@ namespace OpenZH.Data.Map
                 {
                     ScriptLists = scriptLists.ToArray()
                 };
+            });
+        }
+
+        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        {
+            WriteAssetTo(writer, () =>
+            {
+                foreach (var scriptList in ScriptLists)
+                {
+                    writer.Write(assetNames.GetOrCreateAssetIndex(ScriptList.AssetName));
+                    scriptList.WriteTo(writer, assetNames);
+                }
             });
         }
     }

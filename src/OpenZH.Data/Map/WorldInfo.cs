@@ -4,7 +4,9 @@ namespace OpenZH.Data.Map
 {
     public sealed class WorldInfo : Asset
     {
-        public AssetProperty[] Properties { get; private set; }
+        public const string AssetName = "WorldInfo";
+
+        public AssetPropertyCollection Properties { get; private set; }
 
         public static WorldInfo Parse(BinaryReader reader, MapParseContext context)
         {
@@ -12,21 +14,26 @@ namespace OpenZH.Data.Map
             {
                 return new WorldInfo
                 {
-                    Properties = ParseProperties(reader, context)
+                    Properties = AssetPropertyCollection.Parse(reader, context)
                 };
             });
         }
 
-        public enum WeatherType : uint
+        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
-            Normal,
-            Snowy
+            Properties.WriteTo(writer, assetNames);
         }
+    }
 
-        public enum CompressionType : uint
-        {
-            None,
-            RefPack
-        }
+    public enum MapWeatherType : uint
+    {
+        Normal,
+        Snowy
+    }
+
+    public enum MapCompressionType : uint
+    {
+        None,
+        RefPack
     }
 }

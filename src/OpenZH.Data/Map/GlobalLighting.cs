@@ -8,6 +8,10 @@ namespace OpenZH.Data.Map
 {
     public sealed class GlobalLighting : Asset
     {
+        public const string AssetName = "GlobalLighting";
+
+        private static readonly uint[] TimeOfDayValues = Enum.GetValues(typeof(TimeOfDay)).Cast<uint>().ToArray();
+
         public TimeOfDay Time { get; private set; }
         
         public Dictionary<TimeOfDay, GlobalLightingConfiguration> LightingConfigurations { get; private set; }
@@ -22,11 +26,9 @@ namespace OpenZH.Data.Map
 
                 var lightingConfigurations = new Dictionary<TimeOfDay, GlobalLightingConfiguration>();
 
-                var timeOfDayValues = Enum.GetValues(typeof(TimeOfDay)).Cast<uint>().ToArray();
-
-                for (var i = 0; i < timeOfDayValues.Length; i++)
+                for (var i = 0; i < TimeOfDayValues.Length; i++)
                 {
-                    lightingConfigurations[(TimeOfDay) timeOfDayValues[i]] = GlobalLightingConfiguration.Parse(reader);
+                    lightingConfigurations[(TimeOfDay) TimeOfDayValues[i]] = GlobalLightingConfiguration.Parse(reader);
                 }
 
                 var shadowColor = MapColorArgb.Parse(reader);
@@ -37,6 +39,21 @@ namespace OpenZH.Data.Map
                     LightingConfigurations = lightingConfigurations,
                     ShadowColor = shadowColor
                 };
+            });
+        }
+
+        public void WriteTo(BinaryWriter writer)
+        {
+            WriteAssetTo(writer, () =>
+            {
+                writer.Write((uint) Time);
+
+                for (var i = 0; i < TimeOfDayValues.Length; i++)
+                {
+                    LightingConfigurations[(TimeOfDay) TimeOfDayValues[i]].WriteTo(writer);
+                }
+
+                ShadowColor.WriteTo(writer);
             });
         }
     }

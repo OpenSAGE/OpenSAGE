@@ -4,6 +4,8 @@ namespace OpenZH.Data.Map
 {
     public sealed class WaypointsList : Asset
     {
+        public const string AssetName = "WaypointsList";
+
         public WaypointPath[] WaypointPaths { get; private set; }
 
         public static WaypointsList Parse(BinaryReader reader, MapParseContext context)
@@ -22,6 +24,19 @@ namespace OpenZH.Data.Map
                 {
                     WaypointPaths = waypointPaths
                 };
+            });
+        }
+
+        public void WriteTo(BinaryWriter writer)
+        {
+            WriteAssetTo(writer, () =>
+            {
+                writer.Write((uint) WaypointPaths.Length);
+
+                foreach (var waypointPath in WaypointPaths)
+                {
+                    waypointPath.WriteTo(writer);
+                }
             });
         }
     }

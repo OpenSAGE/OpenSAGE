@@ -6,6 +6,8 @@ namespace OpenZH.Data.Map
 {
     public sealed class MapObject : Asset
     {
+        public const string AssetName = "Object";
+
         public MapVector3 Position { get; private set; }
 
         /// <summary>
@@ -17,7 +19,7 @@ namespace OpenZH.Data.Map
 
         public string TypeName { get; private set; }
 
-        public AssetProperty[] Properties { get; private set; }
+        public AssetPropertyCollection Properties { get; private set; }
 
         public static MapObject Parse(BinaryReader reader, MapParseContext context)
         {
@@ -29,12 +31,25 @@ namespace OpenZH.Data.Map
                     Angle = reader.ReadSingle(),
                     RoadType = reader.ReadUInt32AsEnum<RoadType>(),
                     TypeName = reader.ReadUInt16PrefixedAsciiString(),
-                    Properties = ParseProperties(reader, context)
+                    Properties = AssetPropertyCollection.Parse(reader, context)
                 };
+            });
+        }
+
+        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        {
+            WriteAssetTo(writer, () =>
+            {
+                Position.WriteTo(writer);
+                writer.Write(Angle);
+                writer.Write((uint) RoadType);
+                writer.WriteUInt16PrefixedAsciiString(TypeName);
+                Properties.WriteTo(writer, assetNames);
             });
         }
     }
 
+    // TODO: Figure these out properly.
     [Flags]
     public enum RoadType : uint
     {
@@ -48,7 +63,13 @@ namespace OpenZH.Data.Map
         Unknown1 = 16,
         Unknown2 = 32,
 
+        Unknown1_Angled = Unknown1 | Angled,
+        Unknown2_Angled = Unknown2 | Angled,
+
         TightCurve = 64,
+
+        Unknown1_TightCurve = Unknown1 | TightCurve,
+        Unknown2_TightCurve = Unknown2 | TightCurve,
 
         EndCap = 128,
 

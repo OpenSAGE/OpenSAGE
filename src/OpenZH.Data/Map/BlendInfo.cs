@@ -5,12 +5,14 @@ namespace OpenZH.Data.Map
     public sealed class BlendDescription
     {
         public uint SecondaryTextureTile { get; private set; }
-        public byte[] BlendDirectionBytes { get; private set; }
         public BlendDirection BlendDirection { get; private set; }
+        public uint Unknown1 { get; private set; }
+        public uint Unknown2 { get; private set; }
 
         public static BlendDescription Parse(BinaryReader reader)
         {
             var secondaryTextureTile = reader.ReadUInt32();
+
             var blendDirection = reader.ReadBytes(6);
 
             var unknown1 = reader.ReadUInt32();
@@ -28,14 +30,16 @@ namespace OpenZH.Data.Map
             return new BlendDescription
             {
                 SecondaryTextureTile = secondaryTextureTile,
-                BlendDirectionBytes = blendDirection,
-                BlendDirection = ToBlendDirection(blendDirection)
+                BlendDirection = ToBlendDirection(blendDirection),
+                Unknown1 = unknown1,
+                Unknown2 = unknown2
             };
         }
 
         private static BlendDirection ToBlendDirection(byte[] bytes)
         {
-            int result = 0;
+            var result = 0;
+
             for (int i = 0; i < bytes.Length; i++)
             {
                 if (bytes[i] == 1)
@@ -45,6 +49,28 @@ namespace OpenZH.Data.Map
             }
 
             return (BlendDirection) result;
+        }
+
+        private static byte[] ToBytes(BlendDirection value)
+        {
+            var result = new byte[6];
+
+            for (var i = 0; i < result.Length; i++)
+            {
+                result[i] = (byte) ((((int) value) >> i) & 0x1);
+            }
+
+            return result;
+        }
+
+        public void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(SecondaryTextureTile);
+
+            writer.Write(ToBytes(BlendDirection));
+
+            writer.Write(Unknown1);
+            writer.Write(Unknown2);
         }
     }
 }

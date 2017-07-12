@@ -15,5 +15,11 @@ namespace OpenZH.Data.Map
                 EndWaypointID = reader.ReadUInt32()
             };
         }
+
+        public void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(StartWaypointID);
+            writer.Write(EndWaypointID);
+        }
     }
 }

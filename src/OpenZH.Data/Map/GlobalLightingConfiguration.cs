@@ -26,5 +26,17 @@ namespace OpenZH.Data.Map
                 ObjectAccent2 = GlobalLight.Parse(reader),
             };
         }
+
+        public void WriteTo(BinaryWriter writer)
+        {
+            TerrainSun.WriteTo(writer);
+            ObjectSun.WriteTo(writer);
+
+            TerrainAccent1.WriteTo(writer);
+            TerrainAccent2.WriteTo(writer);
+
+            ObjectAccent1.WriteTo(writer);
+            ObjectAccent2.WriteTo(writer);
+        }
     }
 }

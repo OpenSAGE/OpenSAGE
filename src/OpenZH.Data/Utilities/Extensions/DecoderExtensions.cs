@@ -30,6 +30,17 @@ namespace OpenZH.Data.Utilities.Extensions
             return mask;
         }
 
+        public static uint ToFourCc(this string fourCc)
+        {
+            if (string.IsNullOrEmpty(fourCc) || fourCc.Length != 4)
+                throw new ArgumentOutOfRangeException(nameof(fourCc), "Invalid FOURCC: " + fourCc);
+            var a = (byte) fourCc[0];
+            var b = (byte) fourCc[1];
+            var c = (byte) fourCc[2];
+            var d = (byte) fourCc[3];
+            return a | ((uint) (b << 8)) | ((uint) c << 16) | ((uint) d << 24);
+        }
+
         public static string ToFourCcString(this uint fourCc)
         {
             var a = fourCc.DecodeValue<char>(00, 07);

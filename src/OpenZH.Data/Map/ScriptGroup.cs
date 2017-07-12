@@ -6,6 +6,8 @@ namespace OpenZH.Data.Map
 {
     public sealed class ScriptGroup : Asset
     {
+        public const string AssetName = "ScriptGroup";
+
         public string Name { get; private set; }
         public bool IsActive { get; private set; }
         public bool IsSubroutine { get; private set; }
@@ -30,7 +32,7 @@ namespace OpenZH.Data.Map
                 {
                     switch (assetName)
                     {
-                        case "Script":
+                        case Script.AssetName:
                             scripts.Add(Script.Parse(reader, context));
                             break;
 
@@ -46,6 +48,22 @@ namespace OpenZH.Data.Map
                     IsSubroutine = isSubroutine,
                     Scripts = scripts.ToArray()
                 };
+            });
+        }
+
+        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        {
+            WriteAssetTo(writer, () =>
+            {
+                writer.WriteUInt16PrefixedAsciiString(Name);
+                writer.Write(IsActive);
+                writer.Write(IsSubroutine);
+
+                foreach (var script in Scripts)
+                {
+                    writer.Write(assetNames.GetOrCreateAssetIndex(Script.AssetName));
+                    script.WriteTo(writer, assetNames);
+                }
             });
         }
     }

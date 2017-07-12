@@ -17,5 +17,12 @@ namespace OpenZH.Data.Map
                 EulerAngles = MapVector3.Parse(reader)
             };
         }
+
+        public void WriteTo(BinaryWriter writer)
+        {
+            Ambient.WriteTo(writer);
+            Color.WriteTo(writer);
+            EulerAngles.WriteTo(writer);
+        }
     }
 }

@@ -111,6 +111,14 @@ namespace OpenZH.Data.Utilities.Extensions
             return CastValueAsEnum<uint, TEnum>(value);
         }
 
+        public static TEnum ReadUInt16AsEnum<TEnum>(this BinaryReader reader)
+            where TEnum : struct
+        {
+            var value = reader.ReadUInt16();
+
+            return CastValueAsEnum<ushort, TEnum>(value);
+        }
+
         public static TEnum ReadInt32AsEnum<TEnum>(this BinaryReader reader)
            where TEnum : struct
         {

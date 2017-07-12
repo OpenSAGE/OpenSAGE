@@ -5,6 +5,8 @@ namespace OpenZH.Data.Map
 {
     public sealed class ObjectsList : Asset
     {
+        public const string AssetName = "ObjectsList";
+
         public MapObject[] Objects { get; private set; }
 
         public static ObjectsList Parse(BinaryReader reader, MapParseContext context)
@@ -15,7 +17,7 @@ namespace OpenZH.Data.Map
 
                 ParseAssets(reader, context, assetName =>
                 {
-                    if (assetName != "Object")
+                    if (assetName != MapObject.AssetName)
                     {
                         throw new InvalidDataException();
                     }
@@ -27,6 +29,18 @@ namespace OpenZH.Data.Map
                 {
                     Objects = objects.ToArray()
                 };
+            });
+        }
+
+        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        {
+            WriteAssetTo(writer, () =>
+            {
+                foreach (var mapObject in Objects)
+                {
+                    writer.Write(assetNames.GetOrCreateAssetIndex(MapObject.AssetName));
+                    mapObject.WriteTo(writer, assetNames);
+                }
             });
         }
     }

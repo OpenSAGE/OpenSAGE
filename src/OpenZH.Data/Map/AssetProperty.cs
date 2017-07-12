@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using OpenZH.Data.Utilities.Extensions;
 
 namespace OpenZH.Data.Map
@@ -12,29 +11,10 @@ namespace OpenZH.Data.Map
 
         public static AssetProperty Parse(BinaryReader reader, MapParseContext context)
         {
-            AssetPropertyType propertyType;
-
-            // TODO: Remove this code once we've accounted for all property types.
-            string errorMessage = null;
-            var hasError = false;
-            try
-            {
-                propertyType = reader.ReadByteAsEnum<AssetPropertyType>();
-            }
-            catch (Exception ex)
-            {
-                propertyType = default(AssetPropertyType);
-                hasError = true;
-                errorMessage = ex.Message;
-            }
+            var propertyType = reader.ReadByteAsEnum<AssetPropertyType>();
 
             var propertyNameIndex = reader.ReadUInt24();
             var propertyName = context.GetAssetName(propertyNameIndex);
-
-            if (hasError)
-            {
-                throw new System.Exception($"Unknown property type for property name {propertyName} {errorMessage}");
-            }
 
             object value = null;
             switch (propertyType)
@@ -69,6 +49,39 @@ namespace OpenZH.Data.Map
                 Name = propertyName,
                 Value = value
             };
+        }
+
+        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        {
+            writer.Write((byte) PropertyType);
+
+            writer.WriteUInt24(assetNames.GetOrCreateAssetIndex(Name));
+
+            switch (PropertyType)
+            {
+                case AssetPropertyType.Boolean:
+                    writer.Write((bool) Value);
+                    break;
+
+                case AssetPropertyType.Integer:
+                    writer.Write((uint) Value);
+                    break;
+
+                case AssetPropertyType.RealNumber:
+                    writer.Write((float) Value);
+                    break;
+
+                case AssetPropertyType.AsciiString:
+                    writer.WriteUInt16PrefixedAsciiString((string) Value);
+                    break;
+
+                case AssetPropertyType.UnicodeString:
+                    writer.WriteUInt16PrefixedUnicodeString((string) Value);
+                    break;
+
+                default:
+                    throw new InvalidDataException($"Unexpected property type: {PropertyType}.");
+            }
         }
     }
 

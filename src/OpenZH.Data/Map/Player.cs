@@ -4,14 +4,14 @@ namespace OpenZH.Data.Map
 {
     public sealed class Player
     {
-        public AssetProperty[] Properties { get; private set; }
+        public AssetPropertyCollection Properties { get; private set; }
         public BuildListItem[] BuildList { get; private set; }
 
         public static Player Parse(BinaryReader reader, MapParseContext context)
         {
             var result = new Player
             {
-                Properties = Asset.ParseProperties(reader, context)
+                Properties = AssetPropertyCollection.Parse(reader, context)
             };
 
             var numBuildListItems = reader.ReadUInt32();
@@ -22,7 +22,21 @@ namespace OpenZH.Data.Map
                 buildListItems[i] = BuildListItem.Parse(reader);
             }
 
+            result.BuildList = buildListItems;
+
             return result;
+        }
+
+        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        {
+            Properties.WriteTo(writer, assetNames);
+
+            writer.Write((uint) BuildList.Length);
+
+            foreach (var buildListItem in BuildList)
+            {
+                buildListItem.WriteTo(writer);
+            }
         }
     }
 }

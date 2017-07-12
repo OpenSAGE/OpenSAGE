@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using OpenZH.Data.Utilities.Extensions;
 
 namespace OpenZH.Data.Map
@@ -9,41 +8,28 @@ namespace OpenZH.Data.Map
         where TContentType : struct
     {
         public TContentType ContentType { get; private set; }
+        public byte Unknown1 { get; private set; }
         public string InternalName { get; private set; }
 
         public ScriptArgument[] Arguments { get; private set; }
 
-        public static TDerived Parse(BinaryReader reader, MapParseContext context)
+        protected static TDerived Parse(BinaryReader reader, MapParseContext context, ushort minimumVersionThatHasInternalName)
         {
             return ParseAsset(reader, context, version =>
             {
-                // TODO: Remove this error handling code once we have all content types accounted for.
-                TContentType contentType;
-                var hasError = false;
-                string errorMessage = null;
-                try
-                {
-                    contentType = reader.ReadUInt32AsEnum<TContentType>();
-                }
-                catch (Exception ex)
-                {
-                    errorMessage = ex.Message;
-                    contentType = default(TContentType);
-                    hasError = true;
-                }
+                var contentType = reader.ReadUInt32AsEnum<TContentType>();
 
-                var unknown = reader.ReadByte();
-                if (unknown != 3)
+                string internalName = null;
+                if (version >= minimumVersionThatHasInternalName)
                 {
-                    throw new InvalidDataException();
-                }
+                    var unknown = reader.ReadByte();
+                    if (unknown != 3)
+                    {
+                        throw new InvalidDataException();
+                    }
 
-                var internalNameIndex = reader.ReadUInt24();
-                var internalName = context.GetAssetName(internalNameIndex);
-
-                if (hasError)
-                {
-                    File.AppendAllLines("MissingEnumValues.txt", new[] { $"Missing enum value for script content {internalName}. {errorMessage}" });
+                    var internalNameIndex = reader.ReadUInt24();
+                    internalName = context.GetAssetName(internalNameIndex);
                 }
 
                 var numArguments = reader.ReadUInt32();
@@ -60,6 +46,28 @@ namespace OpenZH.Data.Map
                     InternalName = internalName,
                     Arguments = arguments
                 };
+            });
+        }
+
+        protected void WriteTo(BinaryWriter writer, AssetNameCollection assetNames, ushort minimumVersionThatHasInternalName)
+        {
+            WriteAssetTo(writer, () =>
+            {
+                writer.Write((uint) (object) ContentType);
+
+                if (Version >= minimumVersionThatHasInternalName)
+                {
+                    writer.Write(Unknown1);
+
+                    writer.WriteUInt24(assetNames.GetOrCreateAssetIndex(InternalName));
+                }
+
+                writer.Write((uint) Arguments.Length);
+
+                foreach (var argument in Arguments)
+                {
+                    argument.WriteTo(writer);
+                }
             });
         }
     }

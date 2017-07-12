@@ -6,6 +6,8 @@ namespace OpenZH.Data.Map
 {
     public sealed class BlendTileData : Asset
     {
+        public const string AssetName = "BlendTileData";
+
         public uint NumTiles { get; private set; }
 
         public ushort[,] Tiles { get; private set; }
@@ -15,15 +17,32 @@ namespace OpenZH.Data.Map
 
         public bool[,] Passability { get; private set; }
 
+        public uint TextureCellCount { get; private set; }
+
         public BlendTileTexture[] Textures { get; private set; }
+
+        public uint Unknown1 { get; private set; }
+        public uint Unknown2 { get; private set; }
 
         public BlendDescription[] BlendDescriptions { get; private set; }
         public CliffBlendDescription[] CliffBlendDescriptions { get; private set; }
 
+        private List<BlendTileTextureIndex> _textureIndices;
+
         /// <summary>
         /// Derived data.
         /// </summary>
-        public BlendTileTextureIndex[] TextureIndices { get; private set; }
+        public IReadOnlyList<BlendTileTextureIndex> TextureIndices
+        {
+            get
+            {
+                if (_textureIndices == null)
+                {
+                    _textureIndices = CalculateTextureIndices();
+                }
+                return _textureIndices;
+            }
+        }
 
         public static BlendTileData Parse(BinaryReader reader, MapParseContext context)
         {
@@ -49,23 +68,44 @@ namespace OpenZH.Data.Map
                 var threeWayBlends = reader.ReadUInt16Array2D(width, height);
                 var cliffBlends = reader.ReadUInt16Array2D(width, height);
 
-                // If terrain is passable, there's a 0 in the data file.
-                var passability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
-                for (var y = 0; y < height; y++)
+                bool[,] passability = null;
+                if (version > 6)
                 {
-                    for (var x = 0; x < width; x++)
+                    var passabilityWidth = heightMapData.Width;
+                    if (version == 7)
                     {
-                        passability[x, y] = !passability[x, y];
+                        // C&C Generals clips partial bytes from each row of passability data,
+                        // if the border width is large enough to fully contain the clipped data.
+                        if (passabilityWidth % 8 <= 6 && passabilityWidth % 8 <= heightMapData.BorderWidth)
+                        {
+                            passabilityWidth -= passabilityWidth % 8;
+                        }
+                    }
+
+                    // If terrain is passable, there's a 0 in the data file.
+                    passability = reader.ReadSingleBitBooleanArray2D(passabilityWidth, heightMapData.Height);
+                    for (var y = 0; y < heightMapData.Height; y++)
+                    {
+                        for (var x = 0; x < passabilityWidth; x++)
+                        {
+                            passability[x, y] = !passability[x, y];
+                        }
                     }
                 }
 
                 var textureCellCount = reader.ReadUInt32();
-                var blendsCount = reader.ReadUInt32() - 1;
+
+                var blendsCount = reader.ReadUInt32();
+                if (blendsCount > 0)
+                {
+                    // Usually minimum value is 1, but some files (perhaps Generals, not Zero Hour?) have 0.
+                    blendsCount--;
+                }
 
                 var cliffBlendsCount = reader.ReadUInt32();
                 if (cliffBlendsCount > 0)
                 {
-                    // Usually minimum value is 1, but some files have 0.
+                    // Usually minimum value is 1, but some files (perhaps Generals, not Zero Hour?) have 0.
                     cliffBlendsCount--;
                 }
 
@@ -74,35 +114,6 @@ namespace OpenZH.Data.Map
                 for (var i = 0; i < textureCount; i++)
                 {
                     textures[i] = BlendTileTexture.Parse(reader);
-                }
-
-                // Calculate texture index + offset within texture.
-                var textureIndices = new List<BlendTileTextureIndex>();
-                var actualCellIndex = 0u;
-                for (var i = 0; i < textures.Length; i++)
-                {
-                    var texture = textures[i];
-
-                    var actualCellCount = (texture.CellSize * 2) * (texture.CellSize * 2);
-                    for (var j = 0; j < actualCellCount; j++)
-                    {
-                        textureIndices.Add(new BlendTileTextureIndex
-                        {
-                            TextureIndex = i,
-                            Offset = j
-                        });
-                    }
-
-                    actualCellIndex += actualCellCount;
-                }
-
-                var cellTextureIndices = new int[width, height];
-                for (var y = 0; y < height; y++)
-                {
-                    for (var x = 0; x < width; x++)
-                    {
-                        cellTextureIndices[x, y] = GetTextureIndex(tiles[x, y], textures);
-                    }
                 }
 
                 var unknown1 = reader.ReadUInt32();
@@ -141,9 +152,12 @@ namespace OpenZH.Data.Map
 
                     Passability = passability,
 
+                    TextureCellCount = textureCellCount,
+
                     Textures = textures,
 
-                    TextureIndices = textureIndices.ToArray(),
+                    Unknown1 = unknown1,
+                    Unknown2 = unknown2,
 
                     BlendDescriptions = blendDescriptions,
                     CliffBlendDescriptions = cliffBlendDescriptions
@@ -166,6 +180,72 @@ namespace OpenZH.Data.Map
             }
 
             throw new InvalidDataException();
+        }
+
+        private List<BlendTileTextureIndex> CalculateTextureIndices()
+        {
+            // Calculate texture index + offset within texture.
+            var textureIndices = new List<BlendTileTextureIndex>();
+            var actualCellIndex = 0u;
+            for (var i = 0; i < Textures.Length; i++)
+            {
+                var texture = Textures[i];
+
+                var actualCellCount = (texture.CellSize * 2) * (texture.CellSize * 2);
+                for (var j = 0; j < actualCellCount; j++)
+                {
+                    textureIndices.Add(new BlendTileTextureIndex
+                    {
+                        TextureIndex = i,
+                        Offset = j
+                    });
+                }
+
+                actualCellIndex += actualCellCount;
+            }
+
+            return textureIndices;
+        }
+
+        public void WriteTo(BinaryWriter writer)
+        {
+            WriteAssetTo(writer, () =>
+            {
+                writer.Write(NumTiles);
+
+                writer.WriteUInt16Array2D(Tiles);
+                writer.WriteUInt16Array2D(Blends);
+                writer.WriteUInt16Array2D(ThreeWayBlends);
+                writer.WriteUInt16Array2D(CliffBlends);
+
+                // Passability
+
+                writer.Write(TextureCellCount);
+
+                writer.Write((uint) Blends.Length + 1);
+
+                writer.Write((uint) CliffBlends.Length + 1);
+
+                writer.Write((uint) Textures.Length);
+
+                foreach (var texture in Textures)
+                {
+                    texture.WriteTo(writer);
+                }
+
+                writer.Write(Unknown1);
+                writer.Write(Unknown2);
+
+                foreach (var blendDescription in BlendDescriptions)
+                {
+                    blendDescription.WriteTo(writer);
+                }
+
+                foreach (var cliffBlendDescription in CliffBlendDescriptions)
+                {
+                    cliffBlendDescription.WriteTo(writer);
+                }
+            });
         }
     }
 
