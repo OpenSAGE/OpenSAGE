@@ -26,7 +26,7 @@ namespace OpenZH.Data.Map
             {
                 var assetName = reader.ReadString();
                 var assetIndex = reader.ReadUInt32();
-                if (assetIndex != i + 1)
+                if (assetIndex != i)
                 {
                     throw new InvalidDataException();
                 }

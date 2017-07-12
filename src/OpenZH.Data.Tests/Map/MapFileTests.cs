@@ -14,6 +14,7 @@ namespace OpenZH.Data.Tests.Map
     {
         private const string BigFilePath = @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals\Maps.big";
         //private const string BigFilePath = @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals Zero Hour\MapsZH.big";
+        private const string ScbFilePath = @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals\Data\Scripts\SkirmishScripts.scb";
 
         private readonly ITestOutputHelper _output;
 
@@ -23,18 +24,41 @@ namespace OpenZH.Data.Tests.Map
         }
 
         [Fact]
-        public void CanReadMaps()
+        public void CanRoundtripMaps()
         {
+            using (var fileStream = File.OpenRead(ScbFilePath))
+            using (var binaryReader = new BinaryReader(fileStream))
+                MapFile.Parse(binaryReader);
+
             using (var bigStream = File.OpenRead(BigFilePath))
             using (var bigArchive = new BigArchive(bigStream))
             {
                 foreach (var entry in bigArchive.Entries.Where(x => Path.GetExtension(x.FullName).ToLowerInvariant() == ".map"))
                 {
+                    byte[] originalUncompressedBytes;
+                    using (var originalUncompressedStream = new MemoryStream())
+                    using (var entryStream = entry.Open())
+                    {
+                        entryStream.CopyTo(originalUncompressedStream);
+                        originalUncompressedBytes = originalUncompressedStream.ToArray();
+                    }
+
+                    MapFile mapFile;
                     using (var entryStream = entry.Open())
                     using (var binaryReader = new BinaryReader(entryStream))
                     {
-                        MapFile.Parse(binaryReader);
+                        mapFile = MapFile.Parse(binaryReader);
                     }
+
+                    byte[] serializedBytes;
+                    using (var serializedStream = new MemoryStream())
+                    using (var binaryWriter = new BinaryWriter(serializedStream))
+                    {
+                        mapFile.WriteTo(binaryWriter);
+                        serializedBytes = serializedStream.ToArray();
+                    }
+
+                    Assert.Equal(originalUncompressedBytes, serializedBytes);
                 }
             }
         }
