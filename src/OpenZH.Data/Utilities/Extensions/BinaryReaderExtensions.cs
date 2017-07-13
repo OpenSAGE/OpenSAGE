@@ -96,7 +96,7 @@ namespace OpenZH.Data.Utilities.Extensions
                     {
                         temp = reader.ReadByte();
                     }
-                    result[x, y] = (temp & (1 << (x % 8))) > 0;
+                    result[x, y] = (temp & (1 << (x % 8))) == 0;
                 }
             }
 

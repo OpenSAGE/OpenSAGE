@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using OpenZH.Data.RefPack;
 using OpenZH.Data.Utilities.Extensions;
 
@@ -18,31 +19,52 @@ namespace OpenZH.Data.Map
         public GlobalLighting GlobalLighting { get; private set; }
         public WaypointsList WaypointsList { get; private set; }
 
-        public static MapFile Parse(BinaryReader reader)
+        public static Stream Decompress(Stream stream)
         {
-            var compressionFlag = reader.ReadUInt32().ToFourCcString();
-
-            switch (compressionFlag)
+            using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
-                // Uncompressed
-                case FourCcUncompressed:
-                    return ParseMapData(reader);
+                var compressionFlag = reader.ReadUInt32().ToFourCcString();
 
-                // EA RefPack
-                case "EAR\0":
-                    // Compressed (after decompression, contents are exactly the same
-                    // as uncompressed format, so we call back into this method)
-                    var decompressedSize = reader.ReadUInt32();
-                    var innerReader = new BinaryReader(new RefPackStream(reader.BaseStream));
-                    return Parse(innerReader);
+                switch (compressionFlag)
+                {
+                    // Uncompressed
+                    case FourCcUncompressed:
+                        // Back up, so we can read this value again in Parse.
+                        stream.Seek(-4, SeekOrigin.Current);
+                        return stream;
 
-                // Only found this on C&C Generals "Woodcrest Circle" map. Looks like a compressed
-                // or encrypted format, but I can't find any info about it online.
-                case "ZL5\0":
-                    return null;
+                    // EA RefPack
+                    case "EAR\0":
+                        // Compressed (after decompression, contents are exactly the same
+                        // as uncompressed format, so we call back into this method)
+                        var decompressedSize = reader.ReadUInt32();
+                        return new RefPackStream(reader.BaseStream);
 
-                default:
-                    throw new NotSupportedException();
+                    // Only found this on C&C Generals "Woodcrest Circle" map. Looks like a compressed
+                    // or encrypted format, but I can't find any info about it online.
+                    case "ZL5\0":
+                        throw new NotSupportedException();
+
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
+        }
+
+        public static MapFile Parse(Stream stream)
+        {
+            var mapDataStream = Decompress(stream);
+
+            using (var reader = new BinaryReader(mapDataStream, Encoding.ASCII, true))
+            {
+                var compressionFlag = reader.ReadUInt32().ToFourCcString();
+
+                if (compressionFlag != FourCcUncompressed)
+                {
+                    throw new InvalidDataException();
+                }
+
+                return ParseMapData(reader);
             }
         }
 

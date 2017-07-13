@@ -84,13 +84,6 @@ namespace OpenZH.Data.Map
 
                     // If terrain is passable, there's a 0 in the data file.
                     passability = reader.ReadSingleBitBooleanArray2D(passabilityWidth, heightMapData.Height);
-                    for (var y = 0; y < heightMapData.Height; y++)
-                    {
-                        for (var x = 0; x < passabilityWidth; x++)
-                        {
-                            passability[x, y] = !passability[x, y];
-                        }
-                    }
                 }
 
                 var textureCellCount = reader.ReadUInt32();
@@ -218,13 +211,16 @@ namespace OpenZH.Data.Map
                 writer.WriteUInt16Array2D(ThreeWayBlends);
                 writer.WriteUInt16Array2D(CliffBlends);
 
-                // Passability
+                if (Version > 6)
+                {
+                    writer.WriteSingleBitBooleanArray2D(Passability);
+                }
 
                 writer.Write(TextureCellCount);
 
-                writer.Write((uint) Blends.Length + 1);
+                writer.Write((uint) BlendDescriptions.Length + 1);
 
-                writer.Write((uint) CliffBlends.Length + 1);
+                writer.Write((uint) CliffBlendDescriptions.Length + 1);
 
                 writer.Write((uint) Textures.Length);
 
@@ -247,14 +243,5 @@ namespace OpenZH.Data.Map
                 }
             });
         }
-    }
-
-    public enum Passability : byte
-    {
-        Passable = 0,
-        Impassable,
-        ImpassableToPlayers,
-        ImpassableToAirUnits,
-        ExtraPassable
     }
 }

@@ -12,8 +12,8 @@ namespace OpenZH.Data.Tests.Map
 {
     public class MapFileTests
     {
-        private const string BigFilePath = @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals\Maps.big";
-        //private const string BigFilePath = @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals Zero Hour\MapsZH.big";
+        //private const string BigFilePath = @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals\Maps.big";
+        private const string BigFilePath = @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals Zero Hour\MapsZH.big";
         private const string ScbFilePath = @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals\Data\Scripts\SkirmishScripts.scb";
 
         private readonly ITestOutputHelper _output;
@@ -26,10 +26,6 @@ namespace OpenZH.Data.Tests.Map
         [Fact]
         public void CanRoundtripMaps()
         {
-            using (var fileStream = File.OpenRead(ScbFilePath))
-            using (var binaryReader = new BinaryReader(fileStream))
-                MapFile.Parse(binaryReader);
-
             using (var bigStream = File.OpenRead(BigFilePath))
             using (var bigArchive = new BigArchive(bigStream))
             {
@@ -38,16 +34,16 @@ namespace OpenZH.Data.Tests.Map
                     byte[] originalUncompressedBytes;
                     using (var originalUncompressedStream = new MemoryStream())
                     using (var entryStream = entry.Open())
+                    using (var mapDataStream = MapFile.Decompress(entryStream))
                     {
-                        entryStream.CopyTo(originalUncompressedStream);
+                        mapDataStream.CopyTo(originalUncompressedStream);
                         originalUncompressedBytes = originalUncompressedStream.ToArray();
                     }
 
                     MapFile mapFile;
                     using (var entryStream = entry.Open())
-                    using (var binaryReader = new BinaryReader(entryStream))
                     {
-                        mapFile = MapFile.Parse(binaryReader);
+                        mapFile = MapFile.Parse(entryStream);
                     }
 
                     byte[] serializedBytes;
@@ -58,7 +54,10 @@ namespace OpenZH.Data.Tests.Map
                         serializedBytes = serializedStream.ToArray();
                     }
 
-                    Assert.Equal(originalUncompressedBytes, serializedBytes);
+                    File.WriteAllBytes("Original.bin", originalUncompressedBytes);
+                    File.WriteAllBytes("Serialized.bin", serializedBytes);
+
+                    AssertUtility.Equal(originalUncompressedBytes, serializedBytes);
                 }
             }
         }
@@ -68,16 +67,10 @@ namespace OpenZH.Data.Tests.Map
         {
             foreach (var entry in Directory.GetFiles(@"C:\Users\Tim Jones\Documents\Command and Conquer Generals Zero Hour Data\Maps", "*.map", SearchOption.AllDirectories))
             {
-                //if (!entry.Contains("WorldInfo_Uncompressed"))
-                //    continue;
-
                 Debug.WriteLine(entry);
                 using (var entryStream = File.OpenRead(entry))
-                using (var binaryReader = new BinaryReader(entryStream))
                 {
-                    var mapFile = MapFile.Parse(binaryReader);
-
-                    //Assert.True(tgaFile.Header.ImagePixelSize == 24 || tgaFile.Header.ImagePixelSize == 32);
+                    var mapFile = MapFile.Parse(entryStream);
                 }
             }
         }
@@ -213,7 +206,7 @@ namespace OpenZH.Data.Tests.Map
                 }
             }
 
-            void assertBlend(int x, int y, int secondaryTextureIndex, BlendDirection direction)
+            void assertBlend(int x, int y, int secondaryTextureIndex, BlendDirection direction, bool reversed = false)
             {
                 var blendIndex = mapFile.BlendTileData.Blends[x, y];
 
@@ -222,26 +215,28 @@ namespace OpenZH.Data.Tests.Map
                 Assert.Equal(secondaryTextureIndex, mapFile.BlendTileData.TextureIndices[(int) blend.SecondaryTextureTile].TextureIndex);
 
                 Assert.Equal(direction, blend.BlendDirection);
+
+                Assert.Equal(reversed, blend.Flags.HasFlag(BlendFlags.Reversed));
             }
 
             void assertBlends(int startY, int textureIndex)
             {
-                assertBlend(0, startY + 0, textureIndex, BlendDirection.BottomLeft);
-                assertBlend(1, startY + 0, textureIndex, BlendDirection.Bottom);
-                assertBlend(2, startY + 0, textureIndex, BlendDirection.Bottom);
-                assertBlend(3, startY + 0, textureIndex, BlendDirection.Bottom);
-                assertBlend(4, startY + 0, textureIndex, BlendDirection.Bottom);
-                assertBlend(5, startY + 0, textureIndex, BlendDirection.BottomRight);
+                assertBlend(0, startY + 0, textureIndex, BlendDirection.BlendTowardsTopRight);
+                assertBlend(1, startY + 0, textureIndex, BlendDirection.BlendTowardsTop);
+                assertBlend(2, startY + 0, textureIndex, BlendDirection.BlendTowardsTop);
+                assertBlend(3, startY + 0, textureIndex, BlendDirection.BlendTowardsTop);
+                assertBlend(4, startY + 0, textureIndex, BlendDirection.BlendTowardsTop);
+                assertBlend(5, startY + 0, textureIndex, BlendDirection.BlendTowardsTopLeft);
 
-                assertBlend(0, startY + 1, textureIndex, BlendDirection.Left);
-                assertBlend(5, startY + 1, textureIndex, BlendDirection.Right);
+                assertBlend(0, startY + 1, textureIndex, BlendDirection.BlendTowardsRight);
+                assertBlend(5, startY + 1, textureIndex, BlendDirection.BlendTowardsRight, true);
 
-                assertBlend(0, startY + 2, textureIndex, BlendDirection.TopLeft);
-                assertBlend(1, startY + 2, textureIndex, BlendDirection.Top);
-                assertBlend(2, startY + 2, textureIndex, BlendDirection.Top);
-                assertBlend(3, startY + 2, textureIndex, BlendDirection.Top);
-                assertBlend(4, startY + 2, textureIndex, BlendDirection.Top);
-                assertBlend(5, startY + 2, textureIndex, BlendDirection.TopRight);
+                assertBlend(0, startY + 2, textureIndex, BlendDirection.BlendTowardsTopRight, true);
+                assertBlend(1, startY + 2, textureIndex, BlendDirection.BlendTowardsTop, true);
+                assertBlend(2, startY + 2, textureIndex, BlendDirection.BlendTowardsTop, true);
+                assertBlend(3, startY + 2, textureIndex, BlendDirection.BlendTowardsTop, true);
+                assertBlend(4, startY + 2, textureIndex, BlendDirection.BlendTowardsTop, true);
+                assertBlend(5, startY + 2, textureIndex, BlendDirection.BlendTowardsTopLeft, true);
             }
 
             assertBlends(0, 1);
@@ -299,7 +294,7 @@ namespace OpenZH.Data.Tests.Map
                 }
             }
 
-            void assertBlend(int x, int y, int secondaryTextureIndex, BlendDirection direction)
+            void assertBlend(int x, int y, int secondaryTextureIndex, BlendDirection direction, bool reversed = false)
             {
                 var blendIndex = mapFile.BlendTileData.Blends[x, y];
 
@@ -308,29 +303,31 @@ namespace OpenZH.Data.Tests.Map
                 Assert.Equal(secondaryTextureIndex, mapFile.BlendTileData.TextureIndices[(int) blend.SecondaryTextureTile].TextureIndex);
 
                 Assert.Equal(direction, blend.BlendDirection);
+
+                Assert.Equal(reversed, blend.Flags.HasFlag(BlendFlags.Reversed));
             }
 
             void assertBlends(int startY, int textureIndex, bool includeBottom)
             {
                 if (includeBottom)
                 {
-                    assertBlend(0, startY + 0, textureIndex, BlendDirection.BottomLeft);
-                    assertBlend(1, startY + 0, textureIndex, BlendDirection.Bottom);
-                    assertBlend(2, startY + 0, textureIndex, BlendDirection.Bottom);
-                    assertBlend(3, startY + 0, textureIndex, BlendDirection.Bottom);
-                    assertBlend(4, startY + 0, textureIndex, BlendDirection.Bottom);
-                    assertBlend(5, startY + 0, textureIndex, BlendDirection.BottomRight);
+                    assertBlend(0, startY + 0, textureIndex, BlendDirection.BlendTowardsTopRight);
+                    assertBlend(1, startY + 0, textureIndex, BlendDirection.BlendTowardsTop);
+                    assertBlend(2, startY + 0, textureIndex, BlendDirection.BlendTowardsTop);
+                    assertBlend(3, startY + 0, textureIndex, BlendDirection.BlendTowardsTop);
+                    assertBlend(4, startY + 0, textureIndex, BlendDirection.BlendTowardsTop);
+                    assertBlend(5, startY + 0, textureIndex, BlendDirection.BlendTowardsTopLeft);
                 }
 
-                assertBlend(0, startY + 1, textureIndex, BlendDirection.Left);
-                assertBlend(5, startY + 1, textureIndex, BlendDirection.Right);
+                assertBlend(0, startY + 1, textureIndex, BlendDirection.BlendTowardsRight);
+                assertBlend(5, startY + 1, textureIndex, BlendDirection.BlendTowardsRight, true);
 
-                assertBlend(0, startY + 2, textureIndex, BlendDirection.TopLeft);
-                assertBlend(1, startY + 2, textureIndex, BlendDirection.Top);
-                assertBlend(2, startY + 2, textureIndex, BlendDirection.Top);
-                assertBlend(3, startY + 2, textureIndex, BlendDirection.Top);
-                assertBlend(4, startY + 2, textureIndex, BlendDirection.Top);
-                assertBlend(5, startY + 2, textureIndex, BlendDirection.TopRight);
+                assertBlend(0, startY + 2, textureIndex, BlendDirection.BlendTowardsTopRight, true);
+                assertBlend(1, startY + 2, textureIndex, BlendDirection.BlendTowardsTop, true);
+                assertBlend(2, startY + 2, textureIndex, BlendDirection.BlendTowardsTop, true);
+                assertBlend(3, startY + 2, textureIndex, BlendDirection.BlendTowardsTop, true);
+                assertBlend(4, startY + 2, textureIndex, BlendDirection.BlendTowardsTop, true);
+                assertBlend(5, startY + 2, textureIndex, BlendDirection.BlendTowardsTopLeft, true);
             }
 
             assertBlends(0, 1, true);
@@ -347,10 +344,10 @@ namespace OpenZH.Data.Tests.Map
                 Assert.Equal(direction, blendDescription.BlendDirection);
             }
 
-            assertThreeWayBlend(1, 2, 2, BlendDirection.Bottom);
-            assertThreeWayBlend(2, 2, 2, BlendDirection.Bottom);
-            assertThreeWayBlend(3, 2, 2, BlendDirection.Bottom);
-            assertThreeWayBlend(4, 2, 2, BlendDirection.Bottom);
+            assertThreeWayBlend(1, 2, 2, BlendDirection.BlendTowardsTop);
+            assertThreeWayBlend(2, 2, 2, BlendDirection.BlendTowardsTop);
+            assertThreeWayBlend(3, 2, 2, BlendDirection.BlendTowardsTop);
+            assertThreeWayBlend(4, 2, 2, BlendDirection.BlendTowardsTop);
 
             //for (var i = 0; i < mapFile.BlendTileData.BlendDescriptions.Length; i++)
             //{
@@ -551,9 +548,8 @@ namespace OpenZH.Data.Tests.Map
             var fileName = Path.Combine("Map", "Assets", testName + ".map");
 
             using (var entryStream = File.OpenRead(fileName))
-            using (var binaryReader = new BinaryReader(entryStream))
             {
-                return MapFile.Parse(binaryReader);
+                return MapFile.Parse(entryStream);
             }
         }
     }

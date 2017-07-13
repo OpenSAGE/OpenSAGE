@@ -59,7 +59,7 @@ namespace OpenZH.Data.Map
 
             writer.Write(Unknown);
 
-            writer.WriteUInt16PrefixedUnicodeString(Name);
+            writer.WriteUInt16PrefixedAsciiString(Name);
         }
     }
 }

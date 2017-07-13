@@ -8,7 +8,7 @@ namespace OpenZH.Data.Map
         where TContentType : struct
     {
         public TContentType ContentType { get; private set; }
-        public byte Unknown1 { get; private set; }
+        public byte Unknown { get; private set; }
         public string InternalName { get; private set; }
 
         public ScriptArgument[] Arguments { get; private set; }
@@ -19,10 +19,11 @@ namespace OpenZH.Data.Map
             {
                 var contentType = reader.ReadUInt32AsEnum<TContentType>();
 
+                byte unknown = 0;
                 string internalName = null;
                 if (version >= minimumVersionThatHasInternalName)
                 {
-                    var unknown = reader.ReadByte();
+                    unknown = reader.ReadByte();
                     if (unknown != 3)
                     {
                         throw new InvalidDataException();
@@ -43,6 +44,7 @@ namespace OpenZH.Data.Map
                 return new TDerived
                 {
                     ContentType = contentType,
+                    Unknown = unknown,
                     InternalName = internalName,
                     Arguments = arguments
                 };
@@ -57,7 +59,7 @@ namespace OpenZH.Data.Map
 
                 if (Version >= minimumVersionThatHasInternalName)
                 {
-                    writer.Write(Unknown1);
+                    writer.Write(Unknown);
 
                     writer.WriteUInt24(assetNames.GetOrCreateAssetIndex(InternalName));
                 }

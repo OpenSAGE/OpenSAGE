@@ -51,5 +51,31 @@ namespace OpenZH.Data.Utilities.Extensions
                 }
             }
         }
+
+        public static void WriteSingleBitBooleanArray2D(this BinaryWriter writer, bool[,] values)
+        {
+            var width = values.GetLength(0);
+            var height = values.GetLength(1);
+
+            for (var y = 0; y < height; y++)
+            {
+                byte value = 0;
+                for (var x = 0; x < width; x++)
+                {
+                    if (x > 0 && x % 8 == 0)
+                    {
+                        writer.Write(value);
+                        value = 0;
+                    }
+
+                    var boolValue = values[x, y];
+
+                    value |= (byte) ((boolValue ? 0 : 1) << (x % 8));
+                }
+
+                // Write last value.
+                writer.Write(value);
+            }
+        }
     }
 }

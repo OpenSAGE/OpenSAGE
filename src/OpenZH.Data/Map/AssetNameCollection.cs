@@ -55,7 +55,7 @@ namespace OpenZH.Data.Map
             if (_assetNameToIndex.TryGetValue(assetName, out var assetIndex))
                 return assetIndex;
 
-            assetIndex = (uint) _assetIndexToName.Count;
+            assetIndex = (uint) _assetIndexToName.Count + 1;
             AddAssetName(assetIndex, assetName);
 
             return assetIndex;

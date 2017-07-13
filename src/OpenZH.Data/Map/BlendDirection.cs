@@ -2,13 +2,9 @@
 {
     public enum BlendDirection : byte
     {
-        Left = 1,
-        Bottom = 2,
-        BottomLeft = 4,
-        BottomRight = 8,
-        Right = 17,
-        Top = 18,
-        TopLeft = 20,
-        TopRight = 24
+        BlendTowardsRight = 1,  // Or towards right, if BlendDescription.Flags contains Reversed
+        BlendTowardsTop = 2,     // Or towards bottom, if BlendDescription.Flags contains Reversed
+        BlendTowardsTopLeft = 4, // Or towards bottom right, if BlendDescription.Flags contains Reversed
+        BlendTowardsTopRight = 8 // Or towards bottom left, if BlendDescription.Flags contains Reversed
     }
 }

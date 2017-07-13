@@ -21,7 +21,10 @@ namespace OpenZH.Data.Map
 
         public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
-            Properties.WriteTo(writer, assetNames);
+            WriteAssetTo(writer, () =>
+            {
+                Properties.WriteTo(writer, assetNames);
+            });
         }
     }
 
