@@ -9,7 +9,13 @@ namespace OpenZH.Data.Map
         public uint SecondaryTextureTile { get; private set; }
         public BlendDirection BlendDirection { get; private set; }
         public BlendFlags Flags { get; private set; }
-        public bool Unknown1 { get; private set; }
+
+        /// <summary>
+        /// True if blending from a corner, and blending should also occur from the
+        /// adjacent horizontal and vertical sides.
+        /// </summary>
+        public bool BlendFromThreeSides { get; private set; }
+
         public uint Unknown2 { get; private set; }
         public uint Unknown3 { get; private set; }
 
@@ -21,7 +27,7 @@ namespace OpenZH.Data.Map
 
             var flags = reader.ReadByteAsEnum<BlendFlags>();
 
-            var unknown1 = reader.ReadBoolean();
+            var blendFromThreeSides = reader.ReadBoolean();
 
             var unknown2 = reader.ReadUInt32();
             if (unknown2 != 0xFFFFFFFF)
@@ -40,7 +46,7 @@ namespace OpenZH.Data.Map
                 SecondaryTextureTile = secondaryTextureTile,
                 BlendDirection = blendDirection,
                 Flags = flags,
-                Unknown1 = unknown1,
+                BlendFromThreeSides = blendFromThreeSides,
                 Unknown2 = unknown2,
                 Unknown3 = unknown3
             };
@@ -80,7 +86,7 @@ namespace OpenZH.Data.Map
 
             writer.Write((byte) Flags);
 
-            writer.Write(Unknown1);
+            writer.Write(BlendFromThreeSides);
 
             writer.Write(Unknown2);
             writer.Write(Unknown3);
@@ -91,8 +97,15 @@ namespace OpenZH.Data.Map
     public enum BlendFlags : byte
     {
         None = 0,
-        Reversed = 1,
-        Unknown = 2,
-        Reversed_Unknown = Reversed | Unknown
+        ReverseDirection = 1,
+
+        /// <summary>
+        /// Only ever found on horizontal blends on cells that additionally
+        /// have a bottom-left or top-right blend. I don't know why it's necessary
+        /// to call this out specifically, perhaps to do with D3D8 texture transforms.
+        /// </summary>
+        AlsoHasBottomLeftOrTopRightBlend = 2,
+
+        Reversed_AlsoHasBottomLeftOrTopRightBlend = ReverseDirection | AlsoHasBottomLeftOrTopRightBlend
     }
 }

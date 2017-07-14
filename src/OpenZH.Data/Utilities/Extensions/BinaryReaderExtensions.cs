@@ -41,7 +41,7 @@ namespace OpenZH.Data.Utilities.Extensions
         public static string ReadUInt16PrefixedAsciiString(this BinaryReader reader)
         {
             var length = reader.ReadUInt16();
-            return Encoding.ASCII.GetString(reader.ReadBytes(length));
+            return BinaryUtility.AnsiEncoding.GetString(reader.ReadBytes(length));
         }
 
         public static string ReadUInt16PrefixedUnicodeString(this BinaryReader reader)

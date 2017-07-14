@@ -23,7 +23,7 @@ namespace OpenZH.Data.Utilities.Extensions
 
             writer.Write((ushort) value.Length);
 
-            writer.Write(Encoding.ASCII.GetBytes(value));
+            writer.Write(BinaryUtility.AnsiEncoding.GetBytes(value));
         }
 
         public static void WriteUInt16PrefixedUnicodeString(this BinaryWriter writer, string value)

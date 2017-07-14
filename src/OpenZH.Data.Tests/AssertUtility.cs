@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Xunit;
 using Xunit.Sdk;
 
@@ -14,12 +15,22 @@ namespace OpenZH.Data.Tests
 
             var comparer = EqualityComparer<T>.Default;
 
+            var differentIndices = new List<int>();
             for (var i = 0; i < array1.Length; i++)
             {
                 if (!comparer.Equals(array1[i], array2[i]))
                 {
-                    throw new AssertActualExpectedException(array1[i], array2[i], $"Different values at index {i}");
+                    differentIndices.Add(i);
                 }
+            }
+            if (differentIndices.Count > 0)
+            {
+                var message = string.Empty;
+                foreach (var index in differentIndices)
+                {
+                    message += $"Different values at index {index}. Expected: {array1[index]}. Actual: {array2[index]}.{Environment.NewLine}";
+                }
+                throw new Exception(message);
             }
         }
     }

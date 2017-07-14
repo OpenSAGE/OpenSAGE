@@ -43,7 +43,7 @@ namespace OpenZH.Data.Map
                     // Only found this on C&C Generals "Woodcrest Circle" map. Looks like a compressed
                     // or encrypted format, but I can't find any info about it online.
                     case "ZL5\0":
-                        throw new NotSupportedException();
+                        throw new NotSupportedException("ZL5-compressed maps are not supported.");
 
                     default:
                         throw new NotSupportedException();

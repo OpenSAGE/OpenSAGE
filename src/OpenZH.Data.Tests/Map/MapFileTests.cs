@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using OpenZH.Data.Big;
 using OpenZH.Data.Map;
 using Xunit;
 using Xunit.Abstractions;
@@ -12,10 +10,6 @@ namespace OpenZH.Data.Tests.Map
 {
     public class MapFileTests
     {
-        //private const string BigFilePath = @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals\Maps.big";
-        private const string BigFilePath = @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals Zero Hour\MapsZH.big";
-        private const string ScbFilePath = @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals\Data\Scripts\SkirmishScripts.scb";
-
         private readonly ITestOutputHelper _output;
 
         public MapFileTests(ITestOutputHelper output)
@@ -24,55 +18,57 @@ namespace OpenZH.Data.Tests.Map
         }
 
         [Fact]
-        public void CanRoundtripMaps()
+        public void TestSuite()
         {
-            using (var bigStream = File.OpenRead(BigFilePath))
-            using (var bigArchive = new BigArchive(bigStream))
+            using (var fileStream = File.OpenRead(@"C:\Users\Tim Jones\Desktop\C&C Generals\Extracted Data\Generals\maps\Alpine Assault\Alpine Assault.map"))
             {
-                foreach (var entry in bigArchive.Entries.Where(x => Path.GetExtension(x.FullName).ToLowerInvariant() == ".map"))
-                {
-                    byte[] originalUncompressedBytes;
-                    using (var originalUncompressedStream = new MemoryStream())
-                    using (var entryStream = entry.Open())
-                    using (var mapDataStream = MapFile.Decompress(entryStream))
-                    {
-                        mapDataStream.CopyTo(originalUncompressedStream);
-                        originalUncompressedBytes = originalUncompressedStream.ToArray();
-                    }
-
-                    MapFile mapFile;
-                    using (var entryStream = entry.Open())
-                    {
-                        mapFile = MapFile.Parse(entryStream);
-                    }
-
-                    byte[] serializedBytes;
-                    using (var serializedStream = new MemoryStream())
-                    using (var binaryWriter = new BinaryWriter(serializedStream))
-                    {
-                        mapFile.WriteTo(binaryWriter);
-                        serializedBytes = serializedStream.ToArray();
-                    }
-
-                    File.WriteAllBytes("Original.bin", originalUncompressedBytes);
-                    File.WriteAllBytes("Serialized.bin", serializedBytes);
-
-                    AssertUtility.Equal(originalUncompressedBytes, serializedBytes);
-                }
+                var map = MapFile.Parse(fileStream);
             }
         }
 
         [Fact]
-        public void MapTestSuite()
+        public void CanRoundtripMaps()
         {
-            foreach (var entry in Directory.GetFiles(@"C:\Users\Tim Jones\Documents\Command and Conquer Generals Zero Hour Data\Maps", "*.map", SearchOption.AllDirectories))
+            InstalledFilesTestData.ReadFiles(".map", _output, (fileName, openEntryStream) =>
             {
-                Debug.WriteLine(entry);
-                using (var entryStream = File.OpenRead(entry))
+                // These maps have false positive differences, so ignore them.
+                switch (fileName)
                 {
-                    var mapFile = MapFile.Parse(entryStream);
+                    // Differences in passability data, because the original file appears to have
+                    // un-initialized (random) values for partial passability bytes beyond the map width.
+                    case @"Maps\USA07-TaskForces\USA07-TaskForces.map":
+                        return;
+
+                    // Uses unknown ZL5 compression.
+                    case @"maps\Woodcrest Circle\Woodcrest Circle.map":
+                        return;
                 }
-            }
+
+                byte[] originalUncompressedBytes;
+                using (var originalUncompressedStream = new MemoryStream())
+                using (var entryStream = openEntryStream())
+                using (var mapDataStream = MapFile.Decompress(entryStream))
+                {
+                    mapDataStream.CopyTo(originalUncompressedStream);
+                    originalUncompressedBytes = originalUncompressedStream.ToArray();
+                }
+
+                MapFile mapFile;
+                using (var entryStream = new MemoryStream(originalUncompressedBytes, false))
+                {
+                    mapFile = MapFile.Parse(entryStream);
+                }
+
+                byte[] serializedBytes;
+                using (var serializedStream = new MemoryStream())
+                using (var binaryWriter = new BinaryWriter(serializedStream))
+                {
+                    mapFile.WriteTo(binaryWriter);
+                    serializedBytes = serializedStream.ToArray();
+                }
+
+                AssertUtility.Equal(originalUncompressedBytes, serializedBytes);
+            });
         }
 
         [Fact]

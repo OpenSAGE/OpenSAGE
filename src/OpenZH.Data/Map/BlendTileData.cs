@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using OpenZH.Data.Utilities.Extensions;
 
@@ -25,6 +26,13 @@ namespace OpenZH.Data.Map
         public uint Unknown2 { get; private set; }
 
         public BlendDescription[] BlendDescriptions { get; private set; }
+
+        /// <summary>
+        /// When there aren't any cliff blends, some maps have 0 and some have 1.
+        /// We need to keep the parsed value around so we can roundtrip correctly.
+        /// </summary>
+        public uint ParsedCliffBlendsCount { get; private set; }
+
         public CliffBlendDescription[] CliffBlendDescriptions { get; private set; }
 
         private List<BlendTileTextureIndex> _textureIndices;
@@ -48,6 +56,11 @@ namespace OpenZH.Data.Map
         {
             return ParseAsset(reader, context, version =>
             {
+                if (version < 6 || version > 8)
+                {
+                    throw new InvalidDataException();
+                }
+
                 var heightMapData = context.MapFile.HeightMapData;
                 if (heightMapData == null)
                 {
@@ -95,7 +108,8 @@ namespace OpenZH.Data.Map
                     blendsCount--;
                 }
 
-                var cliffBlendsCount = reader.ReadUInt32();
+                var parsedCliffBlendsCount = reader.ReadUInt32();
+                var cliffBlendsCount = parsedCliffBlendsCount;
                 if (cliffBlendsCount > 0)
                 {
                     // Usually minimum value is 1, but some files (perhaps Generals, not Zero Hour?) have 0.
@@ -125,6 +139,24 @@ namespace OpenZH.Data.Map
                 for (var i = 0; i < blendsCount; i++)
                 {
                     blendDescriptions[i] = BlendDescription.Parse(reader);
+
+                    if (blendDescriptions[i].Unknown1)
+                    {
+                        for (var y = 0; y < height; y++)
+                        {
+                            for (var x = 0; x < width; x++)
+                            {
+                                if (blends[x, y] == i + 1)
+                                {
+                                    int _ = 0;
+                                }
+                                if (threeWayBlends[x, y] == i + 1)
+                                {
+                                    int _2 = 0;
+                                }
+                            }
+                        }
+                    }
                 }
 
                 var cliffBlendDescriptions = new CliffBlendDescription[cliffBlendsCount];
@@ -153,6 +185,8 @@ namespace OpenZH.Data.Map
                     Unknown2 = unknown2,
 
                     BlendDescriptions = blendDescriptions,
+
+                    ParsedCliffBlendsCount = parsedCliffBlendsCount,
                     CliffBlendDescriptions = cliffBlendDescriptions
                 };
             });
@@ -220,7 +254,7 @@ namespace OpenZH.Data.Map
 
                 writer.Write((uint) BlendDescriptions.Length + 1);
 
-                writer.Write((uint) CliffBlendDescriptions.Length + 1);
+                writer.Write(ParsedCliffBlendsCount);
 
                 writer.Write((uint) Textures.Length);
 
