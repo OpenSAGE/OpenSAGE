@@ -14,9 +14,9 @@ namespace OpenZH.Data.Map
         public uint Rebuilds { get; private set; }
         public string Script { get; private set; }
         public uint StartingHealth { get; private set; }
-        public byte Unknown1 { get; private set; }
-        public byte Unknown2 { get; private set; }
-        public byte Unknown3 { get; private set; }
+        public bool Unknown1 { get; private set; }
+        public bool Unknown2 { get; private set; }
+        public bool Unknown3 { get; private set; }
 
         public static BuildListItem Parse(BinaryReader reader)
         {
@@ -35,19 +35,12 @@ namespace OpenZH.Data.Map
 
             var startingHealth = reader.ReadUInt32();
 
-            // One of these unknown bytes is the "Unsellable" checkbox in Building Properties.
-            var unknown1 = reader.ReadByte();
-            if (unknown1 != 0 && unknown1 != 1)
-            {
-                throw new InvalidDataException();
-            }
-            var unknown2 = reader.ReadByte();
-            if (unknown2 != 0 && unknown2 != 1)
-            {
-                throw new InvalidDataException();
-            }
-            var unknown3 = reader.ReadByte();
-            if (unknown3 != 1)
+            // One of these unknown booleans is the "Unsellable" checkbox in Building Properties.
+            var unknown1 = reader.ReadBoolean();
+            var unknown2 = reader.ReadBoolean();
+
+            var unknown3 = reader.ReadBoolean();
+            if (!unknown3)
             {
                 throw new InvalidDataException();
             }

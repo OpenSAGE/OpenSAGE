@@ -22,8 +22,8 @@ namespace OpenZH.Data.Map
 
         public BlendTileTexture[] Textures { get; private set; }
 
-        public uint Unknown1 { get; private set; }
-        public uint Unknown2 { get; private set; }
+        public uint MagicValue1 { get; private set; }
+        public uint MagicValue2 { get; private set; }
 
         public BlendDescription[] BlendDescriptions { get; private set; }
 
@@ -123,14 +123,14 @@ namespace OpenZH.Data.Map
                     textures[i] = BlendTileTexture.Parse(reader);
                 }
 
-                var unknown1 = reader.ReadUInt32();
-                if (unknown1 != 0)
+                var magicValue1 = reader.ReadUInt32();
+                if (magicValue1 != 0)
                 {
                     throw new InvalidDataException();
                 }
 
-                var unknown2 = reader.ReadUInt32();
-                if (unknown2 != 0)
+                var magicValue2 = reader.ReadUInt32();
+                if (magicValue2 != 0)
                 {
                     throw new InvalidDataException();
                 }
@@ -139,24 +139,6 @@ namespace OpenZH.Data.Map
                 for (var i = 0; i < blendsCount; i++)
                 {
                     blendDescriptions[i] = BlendDescription.Parse(reader);
-
-                    if (blendDescriptions[i].Unknown1)
-                    {
-                        for (var y = 0; y < height; y++)
-                        {
-                            for (var x = 0; x < width; x++)
-                            {
-                                if (blends[x, y] == i + 1)
-                                {
-                                    int _ = 0;
-                                }
-                                if (threeWayBlends[x, y] == i + 1)
-                                {
-                                    int _2 = 0;
-                                }
-                            }
-                        }
-                    }
                 }
 
                 var cliffBlendDescriptions = new CliffBlendDescription[cliffBlendsCount];
@@ -181,8 +163,8 @@ namespace OpenZH.Data.Map
 
                     Textures = textures,
 
-                    Unknown1 = unknown1,
-                    Unknown2 = unknown2,
+                    MagicValue1 = magicValue1,
+                    MagicValue2 = magicValue2,
 
                     BlendDescriptions = blendDescriptions,
 
@@ -263,8 +245,8 @@ namespace OpenZH.Data.Map
                     texture.WriteTo(writer);
                 }
 
-                writer.Write(Unknown1);
-                writer.Write(Unknown2);
+                writer.Write(MagicValue1);
+                writer.Write(MagicValue2);
 
                 foreach (var blendDescription in BlendDescriptions)
                 {

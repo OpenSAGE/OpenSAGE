@@ -14,10 +14,10 @@ namespace OpenZH.Data.Map
         /// True if blending from a corner, and blending should also occur from the
         /// adjacent horizontal and vertical sides.
         /// </summary>
-        public bool BlendFromThreeSides { get; private set; }
+        public bool TwoSided { get; private set; }
 
-        public uint Unknown2 { get; private set; }
-        public uint Unknown3 { get; private set; }
+        public uint MagicValue1 { get; private set; }
+        public uint MagicValue2 { get; private set; }
 
         public static BlendDescription Parse(BinaryReader reader)
         {
@@ -27,16 +27,16 @@ namespace OpenZH.Data.Map
 
             var flags = reader.ReadByteAsEnum<BlendFlags>();
 
-            var blendFromThreeSides = reader.ReadBoolean();
+            var twoSided = reader.ReadBoolean();
 
-            var unknown2 = reader.ReadUInt32();
-            if (unknown2 != 0xFFFFFFFF)
+            var magicValue1 = reader.ReadUInt32();
+            if (magicValue1 != 0xFFFFFFFF)
             {
                 throw new InvalidDataException();
             }
 
-            var unknown3 = reader.ReadUInt32();
-            if (unknown3 != 0x7ADA0000)
+            var magicValue2 = reader.ReadUInt32();
+            if (magicValue2 != 0x7ADA0000)
             {
                 throw new InvalidDataException();
             }
@@ -46,9 +46,9 @@ namespace OpenZH.Data.Map
                 SecondaryTextureTile = secondaryTextureTile,
                 BlendDirection = blendDirection,
                 Flags = flags,
-                BlendFromThreeSides = blendFromThreeSides,
-                Unknown2 = unknown2,
-                Unknown3 = unknown3
+                TwoSided = twoSided,
+                MagicValue1 = magicValue1,
+                MagicValue2 = magicValue2
             };
         }
 
@@ -86,10 +86,10 @@ namespace OpenZH.Data.Map
 
             writer.Write((byte) Flags);
 
-            writer.Write(BlendFromThreeSides);
+            writer.Write(TwoSided);
 
-            writer.Write(Unknown2);
-            writer.Write(Unknown3);
+            writer.Write(MagicValue1);
+            writer.Write(MagicValue2);
         }
     }
 
@@ -106,6 +106,6 @@ namespace OpenZH.Data.Map
         /// </summary>
         AlsoHasBottomLeftOrTopRightBlend = 2,
 
-        Reversed_AlsoHasBottomLeftOrTopRightBlend = ReverseDirection | AlsoHasBottomLeftOrTopRightBlend
+        ReverseDirection_AlsoHasBottomLeftOrTopRightBlend = ReverseDirection | AlsoHasBottomLeftOrTopRightBlend
     }
 }

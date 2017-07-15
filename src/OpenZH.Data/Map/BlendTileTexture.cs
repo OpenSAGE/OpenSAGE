@@ -18,7 +18,7 @@ namespace OpenZH.Data.Map
         /// </summary>
         public uint CellSize { get; private set; }
 
-        public uint Unknown { get; private set; }
+        public uint MagicValue { get; private set; }
 
         public string Name { get; private set; }
 
@@ -33,8 +33,8 @@ namespace OpenZH.Data.Map
                 throw new InvalidDataException();
             }
 
-            var unknown = reader.ReadUInt32();
-            if (unknown != 0)
+            var magicValue = reader.ReadUInt32();
+            if (magicValue != 0)
             {
                 throw new InvalidDataException();
             }
@@ -46,7 +46,7 @@ namespace OpenZH.Data.Map
                 CellStart = cellStart,
                 CellCount = cellCount,
                 CellSize = cellSize,
-                Unknown = unknown,
+                MagicValue = magicValue,
                 Name = name
             };
         }
@@ -57,7 +57,7 @@ namespace OpenZH.Data.Map
             writer.Write(CellCount);
             writer.Write(CellSize);
 
-            writer.Write(Unknown);
+            writer.Write(MagicValue);
 
             writer.WriteUInt16PrefixedAsciiString(Name);
         }
