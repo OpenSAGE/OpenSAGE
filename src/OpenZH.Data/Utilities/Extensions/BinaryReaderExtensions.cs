@@ -7,6 +7,23 @@ namespace OpenZH.Data.Utilities.Extensions
 {
     internal static class BinaryReaderExtensions
     {
+        public static bool ReadBooleanChecked(this BinaryReader reader)
+        {
+            var value = reader.ReadByte();
+            
+            switch (value)
+            {
+                case 0:
+                    return false;
+
+                case 1:
+                    return true;
+
+                default:
+                    throw new InvalidDataException();
+            }
+        }
+
         public static uint ReadBigEndianUInt32(this BinaryReader reader)
         {
             var array = reader.ReadBytes(4);

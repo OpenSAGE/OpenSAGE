@@ -27,7 +27,7 @@ namespace OpenZH.Data.Map
 
             var flags = reader.ReadByteAsEnum<BlendFlags>();
 
-            var twoSided = reader.ReadBoolean();
+            var twoSided = reader.ReadBooleanChecked();
 
             var magicValue1 = reader.ReadUInt32();
             if (magicValue1 != 0xFFFFFFFF)

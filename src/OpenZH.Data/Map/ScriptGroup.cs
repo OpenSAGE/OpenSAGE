@@ -23,8 +23,8 @@ namespace OpenZH.Data.Map
                 }
 
                 var name = reader.ReadUInt16PrefixedAsciiString();
-                var isActive = reader.ReadBoolean();
-                var isSubroutine = reader.ReadBoolean();
+                var isActive = reader.ReadBooleanChecked();
+                var isSubroutine = reader.ReadBooleanChecked();
 
                 var scripts = new List<Script>();
 

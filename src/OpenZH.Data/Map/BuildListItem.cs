@@ -27,7 +27,7 @@ namespace OpenZH.Data.Map
             var position = MapVector3.Parse(reader);
             var angle = reader.ReadSingle();
 
-            var structureAlreadyBuilt = reader.ReadBoolean();
+            var structureAlreadyBuilt = reader.ReadBooleanChecked();
 
             var rebuilds = reader.ReadUInt32();
 
@@ -36,10 +36,10 @@ namespace OpenZH.Data.Map
             var startingHealth = reader.ReadUInt32();
 
             // One of these unknown booleans is the "Unsellable" checkbox in Building Properties.
-            var unknown1 = reader.ReadBoolean();
-            var unknown2 = reader.ReadBoolean();
+            var unknown1 = reader.ReadBooleanChecked();
+            var unknown2 = reader.ReadBooleanChecked();
 
-            var unknown3 = reader.ReadBoolean();
+            var unknown3 = reader.ReadBooleanChecked();
             if (!unknown3)
             {
                 throw new InvalidDataException();

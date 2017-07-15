@@ -4,7 +4,7 @@ using OpenZH.Data.Utilities.Extensions;
 
 namespace OpenZH.Data.Map
 {
-    public sealed partial class Script : Asset
+    public sealed class Script : Asset
     {
         public const string AssetName = "Script";
 
@@ -49,14 +49,14 @@ namespace OpenZH.Data.Map
                 var conditionsComment = reader.ReadUInt16PrefixedAsciiString();
                 var actionsComment = reader.ReadUInt16PrefixedAsciiString();
 
-                var isActive = reader.ReadBoolean();
-                var deactivateUponSuccess = reader.ReadBoolean();
+                var isActive = reader.ReadBooleanChecked();
+                var deactivateUponSuccess = reader.ReadBooleanChecked();
 
-                var activeInEasy = reader.ReadBoolean();
-                var activeInMedium = reader.ReadBoolean();
-                var activeInHard = reader.ReadBoolean();
+                var activeInEasy = reader.ReadBooleanChecked();
+                var activeInMedium = reader.ReadBooleanChecked();
+                var activeInHard = reader.ReadBooleanChecked();
 
-                var isSubroutine = reader.ReadBoolean();
+                var isSubroutine = reader.ReadBooleanChecked();
 
                 var evaluationInterval = 0u;
                 if (version > 1)

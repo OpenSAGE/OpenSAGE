@@ -14,7 +14,7 @@ namespace OpenZH.Data.Map
         public ushort[,] Tiles { get; private set; }
         public ushort[,] Blends { get; private set; }
         public ushort[,] ThreeWayBlends { get; private set; }
-        public ushort[,] CliffBlends { get; private set; }
+        public ushort[,] CliffTextures { get; private set; }
 
         public bool[,] Passability { get; private set; }
 
@@ -31,9 +31,9 @@ namespace OpenZH.Data.Map
         /// When there aren't any cliff blends, some maps have 0 and some have 1.
         /// We need to keep the parsed value around so we can roundtrip correctly.
         /// </summary>
-        public uint ParsedCliffBlendsCount { get; private set; }
+        public uint ParsedCliffTextureMappingsCount { get; private set; }
 
-        public CliffBlendDescription[] CliffBlendDescriptions { get; private set; }
+        public CliffTextureMapping[] CliffTextureMappings { get; private set; }
 
         private List<BlendTileTextureIndex> _textureIndices;
 
@@ -79,7 +79,7 @@ namespace OpenZH.Data.Map
                 var tiles = reader.ReadUInt16Array2D(width, height);
                 var blends = reader.ReadUInt16Array2D(width, height);
                 var threeWayBlends = reader.ReadUInt16Array2D(width, height);
-                var cliffBlends = reader.ReadUInt16Array2D(width, height);
+                var cliffTextures = reader.ReadUInt16Array2D(width, height);
 
                 bool[,] passability = null;
                 if (version > 6)
@@ -141,10 +141,10 @@ namespace OpenZH.Data.Map
                     blendDescriptions[i] = BlendDescription.Parse(reader);
                 }
 
-                var cliffBlendDescriptions = new CliffBlendDescription[cliffBlendsCount];
+                var cliffTextureMappings = new CliffTextureMapping[cliffBlendsCount];
                 for (var i = 0; i < cliffBlendsCount; i++)
                 {
-                    cliffBlendDescriptions[i] = CliffBlendDescription.Parse(reader);
+                    cliffTextureMappings[i] = CliffTextureMapping.Parse(reader);
                 }
 
                 return new BlendTileData
@@ -155,7 +155,7 @@ namespace OpenZH.Data.Map
 
                     Blends = blends,
                     ThreeWayBlends = threeWayBlends,
-                    CliffBlends = cliffBlends,
+                    CliffTextures = cliffTextures,
 
                     Passability = passability,
 
@@ -168,8 +168,8 @@ namespace OpenZH.Data.Map
 
                     BlendDescriptions = blendDescriptions,
 
-                    ParsedCliffBlendsCount = parsedCliffBlendsCount,
-                    CliffBlendDescriptions = cliffBlendDescriptions
+                    ParsedCliffTextureMappingsCount = parsedCliffBlendsCount,
+                    CliffTextureMappings = cliffTextureMappings
                 };
             });
         }
@@ -225,7 +225,7 @@ namespace OpenZH.Data.Map
                 writer.WriteUInt16Array2D(Tiles);
                 writer.WriteUInt16Array2D(Blends);
                 writer.WriteUInt16Array2D(ThreeWayBlends);
-                writer.WriteUInt16Array2D(CliffBlends);
+                writer.WriteUInt16Array2D(CliffTextures);
 
                 if (Version > 6)
                 {
@@ -236,7 +236,7 @@ namespace OpenZH.Data.Map
 
                 writer.Write((uint) BlendDescriptions.Length + 1);
 
-                writer.Write(ParsedCliffBlendsCount);
+                writer.Write(ParsedCliffTextureMappingsCount);
 
                 writer.Write((uint) Textures.Length);
 
@@ -253,9 +253,9 @@ namespace OpenZH.Data.Map
                     blendDescription.WriteTo(writer);
                 }
 
-                foreach (var cliffBlendDescription in CliffBlendDescriptions)
+                foreach (var cliffTextureMapping in CliffTextureMappings)
                 {
-                    cliffBlendDescription.WriteTo(writer);
+                    cliffTextureMapping.WriteTo(writer);
                 }
             });
         }

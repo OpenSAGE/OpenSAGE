@@ -20,7 +20,7 @@ namespace OpenZH.Data.Map
             switch (propertyType)
             {
                 case AssetPropertyType.Boolean:
-                    value = reader.ReadBoolean();
+                    value = reader.ReadBooleanChecked();
                     break;
 
                 case AssetPropertyType.Integer:
