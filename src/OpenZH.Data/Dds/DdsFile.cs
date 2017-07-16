@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
+using System.Text;
 using OpenZH.Data.Utilities.Extensions;
 
 namespace OpenZH.Data.Dds
@@ -11,46 +11,51 @@ namespace OpenZH.Data.Dds
         public DdsImageFormat ImageFormat { get; private set; }
         public DdsMipMap[] MipMaps { get; private set; }
 
-        public static DdsFile Parse(BinaryReader reader)
+        public static DdsFile FromStream(Stream stream)
         {
-            var magic = reader.ReadUInt32();
-            if (magic.ToFourCcString() != "DDS ")
-                throw new InvalidDataException();
-
-            var header = DdsHeader.Parse(reader);
-
-            var imageFormat = GetImageFormat(header.PixelFormat.FourCc);
-
-            if (header.Flags.HasFlag(DdsHeaderFlags.Depth)
-                || header.Caps2.HasFlag(DdsCaps2.CubeMap)
-                || header.Caps2.HasFlag(DdsCaps2.Volume))
+            using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
-                throw new NotSupportedException();
+                var magic = reader.ReadUInt32();
+                if (magic.ToFourCcString() != "DDS ")
+                {
+                    throw new InvalidDataException();
+                }
+
+                var header = DdsHeader.Parse(reader);
+
+                var imageFormat = GetImageFormat(header.PixelFormat.FourCc);
+
+                if (header.Flags.HasFlag(DdsHeaderFlags.Depth)
+                    || header.Caps2.HasFlag(DdsCaps2.CubeMap)
+                    || header.Caps2.HasFlag(DdsCaps2.Volume))
+                {
+                    throw new NotSupportedException();
+                }
+
+                var mipMapCount = header.MipMapCount;
+                var mipMaps = new DdsMipMap[mipMapCount];
+
+                var width = header.Width;
+                var height = header.Height;
+                for (var i = 0; i < mipMapCount; i++)
+                {
+                    var surfaceInfo = GetSurfaceInfo(width, height, imageFormat);
+
+                    var mipMapData = reader.ReadBytes((int) surfaceInfo.NumBytes);
+
+                    mipMaps[i] = new DdsMipMap(mipMapData, surfaceInfo.RowBytes);
+
+                    width >>= 1;
+                    height >>= 1;
+                }
+
+                return new DdsFile
+                {
+                    Header = header,
+                    ImageFormat = imageFormat,
+                    MipMaps = mipMaps
+                };
             }
-
-            var mipMapCount = header.MipMapCount;
-            var mipMaps = new DdsMipMap[mipMapCount];
-
-            var width = header.Width;
-            var height = header.Height;
-            for (var i = 0; i < mipMapCount; i++)
-            {
-                var surfaceInfo = GetSurfaceInfo(width, height, imageFormat);
-
-                var mipMapData = reader.ReadBytes((int) surfaceInfo.NumBytes);
-
-                mipMaps[i] = new DdsMipMap(mipMapData, surfaceInfo.RowBytes);
-
-                width >>= 1;
-                height >>= 1;
-            }
-
-            return new DdsFile
-            {
-                Header = header,
-                ImageFormat = imageFormat,
-                MipMaps = mipMaps
-            };
         }
 
         private static DdsImageFormat GetImageFormat(uint fourCc)

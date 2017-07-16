@@ -16,7 +16,7 @@ namespace OpenZH.Data.Dds
         public DdsCaps Caps { get; private set; }
         public DdsCaps2 Caps2 { get; private set; }
 
-        public static DdsHeader Parse(BinaryReader reader)
+        internal static DdsHeader Parse(BinaryReader reader)
         {
             var size = reader.ReadUInt32();
             Debug.Assert(size == 124);

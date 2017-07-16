@@ -13,7 +13,7 @@ namespace OpenZH.Data.Dds
         public uint BBitMask { get; private set; }
         public uint ABitMask { get; private set; }
 
-        public static DdsPixelFormat Parse(BinaryReader reader)
+        internal static DdsPixelFormat Parse(BinaryReader reader)
         {
             return new DdsPixelFormat
             {

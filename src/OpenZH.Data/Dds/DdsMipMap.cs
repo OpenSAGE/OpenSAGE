@@ -5,7 +5,7 @@
         public byte[] Data { get; }
         public uint RowPitch { get; }
 
-        public DdsMipMap(byte[] data, uint rowPitch)
+        internal DdsMipMap(byte[] data, uint rowPitch)
         {
             Data = data;
             RowPitch = rowPitch;
