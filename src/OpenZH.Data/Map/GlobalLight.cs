@@ -8,7 +8,7 @@ namespace OpenZH.Data.Map
         public MapVector3 Color { get; private set; }
         public MapVector3 EulerAngles { get; private set; }
 
-        public static GlobalLight Parse(BinaryReader reader)
+        internal static GlobalLight Parse(BinaryReader reader)
         {
             return new GlobalLight
             {
@@ -18,7 +18,7 @@ namespace OpenZH.Data.Map
             };
         }
 
-        public void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer)
         {
             Ambient.WriteTo(writer);
             Color.WriteTo(writer);

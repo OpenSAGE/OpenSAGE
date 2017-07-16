@@ -13,7 +13,7 @@ namespace OpenZH.Data.Map
         public bool IsSubroutine { get; private set; }
         public Script[] Scripts { get; private set; }
 
-        public static ScriptGroup Parse(BinaryReader reader, MapParseContext context)
+        internal static ScriptGroup Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version =>
             {
@@ -51,7 +51,7 @@ namespace OpenZH.Data.Map
             });
         }
 
-        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
             WriteAssetTo(writer, () =>
             {

@@ -7,7 +7,7 @@ namespace OpenZH.Data.Map
         public float U;
         public float V;
 
-        public static MapTexCoord Parse(BinaryReader reader)
+        internal static MapTexCoord Parse(BinaryReader reader)
         {
             return new MapTexCoord
             {
@@ -16,7 +16,7 @@ namespace OpenZH.Data.Map
             };
         }
 
-        public void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer)
         {
             writer.Write(U);
             writer.Write(V);

@@ -2,7 +2,7 @@
 
 namespace OpenZH.Data.Map
 {
-    public sealed class MapParseContext
+    internal sealed class MapParseContext
     {
         private readonly Stack<AssetStackEntry> _assetParsingStack;
         private readonly AssetNameCollection _assetNames;

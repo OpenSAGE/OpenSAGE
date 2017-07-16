@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Runtime.CompilerServices;
 using OpenZH.Data.Map;
 using Xunit;
@@ -16,15 +13,6 @@ namespace OpenZH.Data.Tests.Map
         public MapFileTests(ITestOutputHelper output)
         {
             _output = output;
-        }
-
-        [Fact]
-        public void TestSuite()
-        {
-            using (var fileStream = File.OpenRead(@"C:\Users\Tim Jones\Desktop\C&C Generals\Extracted Data\Generals\maps\Alpine Assault\Alpine Assault.map"))
-            {
-                var map = MapFile.Parse(fileStream);
-            }
         }
 
         [Fact]
@@ -49,7 +37,7 @@ namespace OpenZH.Data.Tests.Map
                 {
                     TestUtility.DoRoundtripTest(
                         () => MapFile.Decompress(entryStream),
-                        stream => MapFile.Parse(stream),
+                        stream => MapFile.FromStream(stream),
                         (mapFile, stream) => mapFile.WriteTo(stream));
                 }
             });
@@ -328,35 +316,6 @@ namespace OpenZH.Data.Tests.Map
             assertThreeWayBlend(2, 2, 2, BlendDirection.BlendTowardsTop);
             assertThreeWayBlend(3, 2, 2, BlendDirection.BlendTowardsTop);
             assertThreeWayBlend(4, 2, 2, BlendDirection.BlendTowardsTop);
-
-            //for (var i = 0; i < mapFile.BlendTileData.BlendDescriptions.Length; i++)
-            //{
-            //    var blend = mapFile.BlendTileData.BlendDescriptions[i];
-            //    var binary = string.Empty;
-            //    foreach (var value in BitConverter.GetBytes(blend.SecondaryTextureTile))
-            //    {
-            //        binary += Convert.ToString(value, 2).PadLeft(8, '0') + " ";
-            //    }
-            //    foreach (var value in blend.BlendDirectionBytes)
-            //    {
-            //        binary += value + " ";
-            //    }
-            //    binary = binary.TrimEnd(' ');
-            //    var usages = string.Empty;
-            //    for (var y = 0; y < mapFile.HeightMapData.Height; y++)
-            //    {
-            //        for (var x = 0; x < mapFile.HeightMapData.Width; x++)
-            //        {
-            //            var blendIndex = mapFile.BlendTileData.Blends[x, y];
-            //            if (blendIndex == i + 1)
-            //            {
-            //                usages += $"[{x}, {y}], ";
-            //            }
-            //        }
-            //    }
-            //    usages = usages.TrimEnd(' ', ',');
-            //    _output.WriteLine($"{(i + 1).ToString().PadLeft(2, ' ')} = {binary} {usages}");
-            //}
         }
 
         [Fact]
@@ -446,7 +405,7 @@ namespace OpenZH.Data.Tests.Map
 
             using (var entryStream = File.OpenRead(fileName))
             {
-                return MapFile.Parse(entryStream);
+                return MapFile.FromStream(entryStream);
             }
         }
     }

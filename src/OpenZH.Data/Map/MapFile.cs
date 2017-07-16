@@ -68,7 +68,7 @@ namespace OpenZH.Data.Map
             }
         }
 
-        public static MapFile Parse(Stream stream)
+        public static MapFile FromStream(Stream stream)
         {
             return Parse(stream, reader => ParseMapData(reader));
         }

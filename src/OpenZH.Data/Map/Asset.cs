@@ -5,7 +5,7 @@ namespace OpenZH.Data.Map
 {
     public abstract class Asset
     {
-        protected static T ParseAsset<T>(BinaryReader reader, MapParseContext context, AssetParseCallback<T> parseCallback)
+        internal static T ParseAsset<T>(BinaryReader reader, MapParseContext context, AssetParseCallback<T> parseCallback)
             where T : Asset
         {
             var assetVersion = reader.ReadUInt16();
@@ -30,7 +30,7 @@ namespace OpenZH.Data.Map
             return result;
         }
 
-        public static void ParseAssets(BinaryReader reader, MapParseContext context, AssetsParseCallback parseCallback)
+        internal static void ParseAssets(BinaryReader reader, MapParseContext context, AssetsParseCallback parseCallback)
         {
             while (reader.BaseStream.Position < context.CurrentEndPosition)
             {
@@ -67,8 +67,8 @@ namespace OpenZH.Data.Map
         }
     }
 
-    public delegate T AssetParseCallback<T>(ushort assetVersion)
+    internal delegate T AssetParseCallback<T>(ushort assetVersion)
         where T : Asset;
 
-    public delegate void AssetsParseCallback(string assetName);
+    internal delegate void AssetsParseCallback(string assetName);
 }

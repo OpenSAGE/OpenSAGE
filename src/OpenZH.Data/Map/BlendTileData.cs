@@ -52,7 +52,7 @@ namespace OpenZH.Data.Map
             }
         }
 
-        public static BlendTileData Parse(BinaryReader reader, MapParseContext context, HeightMapData heightMapData)
+        internal static BlendTileData Parse(BinaryReader reader, MapParseContext context, HeightMapData heightMapData)
         {
             return ParseAsset(reader, context, version =>
             {
@@ -215,7 +215,7 @@ namespace OpenZH.Data.Map
             return textureIndices;
         }
 
-        public void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer)
         {
             WriteAssetTo(writer, () =>
             {

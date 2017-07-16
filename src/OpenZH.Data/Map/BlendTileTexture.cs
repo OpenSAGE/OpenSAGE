@@ -22,7 +22,7 @@ namespace OpenZH.Data.Map
 
         public string Name { get; private set; }
 
-        public static BlendTileTexture Parse(BinaryReader reader)
+        internal static BlendTileTexture Parse(BinaryReader reader)
         {
             var cellStart = reader.ReadUInt32();
             var cellCount = reader.ReadUInt32();
@@ -51,7 +51,7 @@ namespace OpenZH.Data.Map
             };
         }
 
-        public void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer)
         {
             writer.Write(CellStart);
             writer.Write(CellCount);

@@ -19,7 +19,7 @@ namespace OpenZH.Data.Map
 
         public MapVector3i[] Points { get; private set; }
 
-        public static PolygonTrigger Parse(BinaryReader reader, ushort version)
+        internal static PolygonTrigger Parse(BinaryReader reader, ushort version)
         {
             var name = reader.ReadUInt16PrefixedAsciiString();
 
@@ -59,7 +59,7 @@ namespace OpenZH.Data.Map
             };
         }
 
-        public void WriteTo(BinaryWriter writer, ushort version)
+        internal void WriteTo(BinaryWriter writer, ushort version)
         {
             writer.WriteUInt16PrefixedAsciiString(Name);
 

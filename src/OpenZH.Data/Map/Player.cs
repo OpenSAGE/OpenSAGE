@@ -7,7 +7,7 @@ namespace OpenZH.Data.Map
         public AssetPropertyCollection Properties { get; private set; }
         public BuildListItem[] BuildList { get; private set; }
 
-        public static Player Parse(BinaryReader reader, MapParseContext context)
+        internal static Player Parse(BinaryReader reader, MapParseContext context)
         {
             var result = new Player
             {
@@ -27,7 +27,7 @@ namespace OpenZH.Data.Map
             return result;
         }
 
-        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
             Properties.WriteTo(writer, assetNames);
 

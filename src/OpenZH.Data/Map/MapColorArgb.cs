@@ -17,7 +17,7 @@ namespace OpenZH.Data.Map
             B = b;
         }
 
-        public static MapColorArgb Parse(BinaryReader reader)
+        internal static MapColorArgb Parse(BinaryReader reader)
         {
             var value = reader.ReadUInt32();
             return new MapColorArgb
@@ -29,7 +29,7 @@ namespace OpenZH.Data.Map
             };
         }
 
-        public void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer)
         {
             var combined = (A << 24) | (R << 16) | (G << 8) | B;
             writer.Write((uint) combined);

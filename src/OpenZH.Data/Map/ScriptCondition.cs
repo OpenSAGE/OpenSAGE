@@ -8,12 +8,12 @@ namespace OpenZH.Data.Map
 
         private const ushort MinimumVersionThatHasInternalName = 4;
 
-        public static ScriptCondition Parse(BinaryReader reader, MapParseContext context)
+        internal static ScriptCondition Parse(BinaryReader reader, MapParseContext context)
         {
             return Parse(reader, context, MinimumVersionThatHasInternalName);
         }
 
-        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
             WriteTo(writer, assetNames, MinimumVersionThatHasInternalName);
         }

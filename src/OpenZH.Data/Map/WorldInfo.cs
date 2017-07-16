@@ -8,7 +8,7 @@ namespace OpenZH.Data.Map
 
         public AssetPropertyCollection Properties { get; private set; }
 
-        public static WorldInfo Parse(BinaryReader reader, MapParseContext context)
+        internal static WorldInfo Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version =>
             {
@@ -19,7 +19,7 @@ namespace OpenZH.Data.Map
             });
         }
 
-        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
             WriteAssetTo(writer, () =>
             {

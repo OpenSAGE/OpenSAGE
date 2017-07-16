@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace OpenZH.Data.Map
 {
-    public sealed class AssetNameCollection
+    internal sealed class AssetNameCollection
     {
         private readonly Dictionary<uint, string> _assetIndexToName;
         private readonly Dictionary<string, uint> _assetNameToIndex;

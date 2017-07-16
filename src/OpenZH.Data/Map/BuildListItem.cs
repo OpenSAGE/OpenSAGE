@@ -18,7 +18,7 @@ namespace OpenZH.Data.Map
         public bool Unknown2 { get; private set; }
         public bool Unknown3 { get; private set; }
 
-        public static BuildListItem Parse(BinaryReader reader)
+        internal static BuildListItem Parse(BinaryReader reader)
         {
             var buildingName = reader.ReadUInt16PrefixedAsciiString();
 
@@ -61,7 +61,7 @@ namespace OpenZH.Data.Map
             };
         }
 
-        public void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer)
         {
             writer.WriteUInt16PrefixedAsciiString(BuildingName);
 

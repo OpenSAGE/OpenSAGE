@@ -13,7 +13,7 @@ namespace OpenZH.Data.Scb
 
         public string[] PlayerNames { get; private set; }
 
-        public static ScriptsPlayers Parse(BinaryReader reader, MapParseContext context)
+        internal static ScriptsPlayers Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version =>
             {
@@ -50,7 +50,7 @@ namespace OpenZH.Data.Scb
             });
         }
 
-        public void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer)
         {
             WriteAssetTo(writer, () =>
             {

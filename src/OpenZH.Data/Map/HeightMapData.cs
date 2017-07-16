@@ -19,7 +19,7 @@ namespace OpenZH.Data.Map
         public uint Area { get; private set; }
         public byte[,] Elevations { get; private set; }
 
-        public static HeightMapData Parse(BinaryReader reader, MapParseContext context)
+        internal static HeightMapData Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version =>
             {
@@ -67,7 +67,7 @@ namespace OpenZH.Data.Map
             });
         }
 
-        public void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer)
         {
             WriteAssetTo(writer, () =>
             {

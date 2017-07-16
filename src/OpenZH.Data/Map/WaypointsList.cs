@@ -8,7 +8,7 @@ namespace OpenZH.Data.Map
 
         public WaypointPath[] WaypointPaths { get; private set; }
 
-        public static WaypointsList Parse(BinaryReader reader, MapParseContext context)
+        internal static WaypointsList Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version =>
             {
@@ -27,7 +27,7 @@ namespace OpenZH.Data.Map
             });
         }
 
-        public void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer)
         {
             WriteAssetTo(writer, () =>
             {

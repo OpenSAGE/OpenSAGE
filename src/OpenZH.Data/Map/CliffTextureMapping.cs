@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using OpenZH.Data.Utilities.Extensions;
 
 namespace OpenZH.Data.Map
 {
@@ -14,7 +13,7 @@ namespace OpenZH.Data.Map
 
         public ushort Unknown2 { get; private set; }
 
-        public static CliffTextureMapping Parse(BinaryReader reader)
+        internal static CliffTextureMapping Parse(BinaryReader reader)
         {
             return new CliffTextureMapping
             {
@@ -29,7 +28,7 @@ namespace OpenZH.Data.Map
             };
         }
 
-        public void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer)
         {
             writer.Write(TextureTile);
 

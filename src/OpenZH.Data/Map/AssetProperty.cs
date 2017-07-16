@@ -9,7 +9,7 @@ namespace OpenZH.Data.Map
         public string Name { get; private set; }
         public object Value { get; private set; }
 
-        public static AssetProperty Parse(BinaryReader reader, MapParseContext context)
+        internal static AssetProperty Parse(BinaryReader reader, MapParseContext context)
         {
             var propertyType = reader.ReadByteAsEnum<AssetPropertyType>();
 
@@ -51,7 +51,7 @@ namespace OpenZH.Data.Map
             };
         }
 
-        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
             writer.Write((byte) PropertyType);
 
@@ -83,14 +83,5 @@ namespace OpenZH.Data.Map
                     throw new InvalidDataException($"Unexpected property type: {PropertyType}.");
             }
         }
-    }
-
-    public enum AssetPropertyType : byte
-    {
-        Boolean = 0,
-        Integer = 1,
-        RealNumber = 2,
-        AsciiString = 3,
-        UnicodeString = 4
     }
 }

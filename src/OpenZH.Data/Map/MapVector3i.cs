@@ -8,7 +8,7 @@ namespace OpenZH.Data.Map
         public int Y;
         public int Z;
 
-        public static MapVector3i Parse(BinaryReader reader)
+        internal static MapVector3i Parse(BinaryReader reader)
         {
             return new MapVector3i
             {
@@ -18,7 +18,7 @@ namespace OpenZH.Data.Map
             };
         }
 
-        public void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer)
         {
             writer.Write(X);
             writer.Write(Y);

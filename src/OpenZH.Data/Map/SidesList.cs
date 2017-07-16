@@ -10,7 +10,7 @@ namespace OpenZH.Data.Map
         public Team[] Teams { get; private set; }
         public PlayerScriptsList PlayerScripts { get; private set; }
 
-        public static SidesList Parse(BinaryReader reader, MapParseContext context)
+        internal static SidesList Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version =>
             {
@@ -56,7 +56,7 @@ namespace OpenZH.Data.Map
             });
         }
 
-        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
             WriteAssetTo(writer, () =>
             {

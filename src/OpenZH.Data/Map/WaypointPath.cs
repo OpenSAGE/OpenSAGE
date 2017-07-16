@@ -7,7 +7,7 @@ namespace OpenZH.Data.Map
         public uint StartWaypointID { get; private set; }
         public uint EndWaypointID { get; private set; }
 
-        public static WaypointPath Parse(BinaryReader reader)
+        internal static WaypointPath Parse(BinaryReader reader)
         {
             return new WaypointPath
             {
@@ -16,7 +16,7 @@ namespace OpenZH.Data.Map
             };
         }
 
-        public void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer)
         {
             writer.Write(StartWaypointID);
             writer.Write(EndWaypointID);

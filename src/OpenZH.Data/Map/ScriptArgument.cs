@@ -15,7 +15,7 @@ namespace OpenZH.Data.Map
         // Or...
         public MapVector3? PositionValue { get; private set; }
 
-        public static ScriptArgument Parse(BinaryReader reader)
+        internal static ScriptArgument Parse(BinaryReader reader)
         {
             var argumentType = reader.ReadUInt32AsEnum<ScriptArgumentType>();
             
@@ -47,7 +47,7 @@ namespace OpenZH.Data.Map
             };
         }
 
-        public void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer)
         {
             writer.Write((uint) ArgumentType);
 

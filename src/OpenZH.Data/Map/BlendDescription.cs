@@ -19,7 +19,7 @@ namespace OpenZH.Data.Map
         public uint MagicValue1 { get; private set; }
         public uint MagicValue2 { get; private set; }
 
-        public static BlendDescription Parse(BinaryReader reader)
+        internal static BlendDescription Parse(BinaryReader reader)
         {
             var secondaryTextureTile = reader.ReadUInt32();
 
@@ -78,7 +78,7 @@ namespace OpenZH.Data.Map
             return result;
         }
 
-        public void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer)
         {
             writer.Write(SecondaryTextureTile);
 
@@ -91,21 +91,5 @@ namespace OpenZH.Data.Map
             writer.Write(MagicValue1);
             writer.Write(MagicValue2);
         }
-    }
-
-    [Flags]
-    public enum BlendFlags : byte
-    {
-        None = 0,
-        ReverseDirection = 1,
-
-        /// <summary>
-        /// Only ever found on horizontal blends on cells that additionally
-        /// have a bottom-left or top-right blend. I don't know why it's necessary
-        /// to call this out specifically, perhaps to do with D3D8 texture transforms.
-        /// </summary>
-        AlsoHasBottomLeftOrTopRightBlend = 2,
-
-        ReverseDirection_AlsoHasBottomLeftOrTopRightBlend = ReverseDirection | AlsoHasBottomLeftOrTopRightBlend
     }
 }

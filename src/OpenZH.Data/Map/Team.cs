@@ -6,7 +6,7 @@ namespace OpenZH.Data.Map
     {
         public AssetPropertyCollection Properties { get; private set; }
 
-        public static Team Parse(BinaryReader reader, MapParseContext context)
+        internal static Team Parse(BinaryReader reader, MapParseContext context)
         {
             return new Team
             {
@@ -14,7 +14,7 @@ namespace OpenZH.Data.Map
             };
         }
 
-        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
             Properties.WriteTo(writer, assetNames);
         }

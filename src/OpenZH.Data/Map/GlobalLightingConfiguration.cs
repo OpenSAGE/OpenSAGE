@@ -12,7 +12,7 @@ namespace OpenZH.Data.Map
         public GlobalLight ObjectAccent1 { get; private set; }
         public GlobalLight ObjectAccent2 { get; private set; }
 
-        public static GlobalLightingConfiguration Parse(BinaryReader reader)
+        internal static GlobalLightingConfiguration Parse(BinaryReader reader)
         {
             return new GlobalLightingConfiguration
             {
@@ -27,7 +27,7 @@ namespace OpenZH.Data.Map
             };
         }
 
-        public void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer)
         {
             TerrainSun.WriteTo(writer);
             ObjectSun.WriteTo(writer);

@@ -18,7 +18,7 @@ namespace OpenZH.Data.Map
 
         public MapColorArgb ShadowColor { get; private set; }
 
-        public static GlobalLighting Parse(BinaryReader reader, MapParseContext context)
+        internal static GlobalLighting Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version =>
             {
@@ -42,7 +42,7 @@ namespace OpenZH.Data.Map
             });
         }
 
-        public void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer)
         {
             WriteAssetTo(writer, () =>
             {

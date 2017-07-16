@@ -6,7 +6,7 @@ namespace OpenZH.Data.Map
 {
     public sealed class AssetPropertyCollection : Collection<AssetProperty>
     {
-        public static AssetPropertyCollection Parse(BinaryReader reader, MapParseContext context)
+        internal static AssetPropertyCollection Parse(BinaryReader reader, MapParseContext context)
         {
             var numProperties = reader.ReadUInt16();
             var result = new AssetProperty[numProperties];
@@ -19,13 +19,13 @@ namespace OpenZH.Data.Map
             return new AssetPropertyCollection(result);
         }
 
-        public AssetPropertyCollection(IList<AssetProperty> list)
+        internal AssetPropertyCollection(IList<AssetProperty> list)
             : base(list)
         {
 
         }
 
-        public void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
             writer.Write((ushort) Count);
 

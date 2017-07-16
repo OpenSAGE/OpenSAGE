@@ -13,7 +13,7 @@ namespace OpenZH.Data.Map
 
         public ScriptArgument[] Arguments { get; private set; }
 
-        protected static TDerived Parse(BinaryReader reader, MapParseContext context, ushort minimumVersionThatHasInternalName)
+        internal static TDerived Parse(BinaryReader reader, MapParseContext context, ushort minimumVersionThatHasInternalName)
         {
             return ParseAsset(reader, context, version =>
             {
@@ -51,7 +51,7 @@ namespace OpenZH.Data.Map
             });
         }
 
-        protected void WriteTo(BinaryWriter writer, AssetNameCollection assetNames, ushort minimumVersionThatHasInternalName)
+        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames, ushort minimumVersionThatHasInternalName)
         {
             WriteAssetTo(writer, () =>
             {
