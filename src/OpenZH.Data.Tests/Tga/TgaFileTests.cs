@@ -3,30 +3,30 @@ using System.Linq;
 using OpenZH.Data.Big;
 using OpenZH.Data.Tga;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace OpenZH.Data.Tests.Tga
 {
     public class TgaFileTests
     {
-        private const string BigFilePath = @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals Zero Hour\TexturesZH.big";
+        private readonly ITestOutputHelper _output;
+
+        public TgaFileTests(ITestOutputHelper output)
+        {
+            _output = output;
+        }
 
         [Fact]
         public void CanReadTgaTextures()
         {
-            using (var bigStream = File.OpenRead(BigFilePath))
-            using (var bigArchive = new BigArchive(bigStream))
+            InstalledFilesTestData.ReadFiles(".tga", _output, (fileName, openFileStream) =>
             {
-                foreach (var entry in bigArchive.Entries.Where(x => Path.GetExtension(x.FullName).ToLowerInvariant() == ".tga"))
+                using (var fileStream = openFileStream())
                 {
-                    using (var entryStream = entry.Open())
-                    using (var binaryReader = new BinaryReader(entryStream))
-                    {
-                        var tgaFile = TgaFile.Parse(binaryReader);
-
-                        Assert.True(tgaFile.Header.ImagePixelSize == 24 || tgaFile.Header.ImagePixelSize == 32);
-                    }
+                    var tgaFile = TgaFile.FromStream(fileStream);
+                    Assert.True(tgaFile.Header.ImagePixelSize == 24 || tgaFile.Header.ImagePixelSize == 32);
                 }
-            }
+            });
         }
     }
 }

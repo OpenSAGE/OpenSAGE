@@ -19,7 +19,7 @@ namespace OpenZH.Data.Tga
         public byte ImageDescriptor { get; private set; }
         public string Id { get; private set; }
 
-        public static TgaHeader Parse(BinaryReader reader)
+        internal static TgaHeader Parse(BinaryReader reader)
         {
             var idLength = reader.ReadByte();
 

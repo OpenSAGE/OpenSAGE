@@ -31,9 +31,6 @@ namespace OpenZH.Data.Tests
                 serializedBytes = serializedStream.ToArray();
             }
 
-            File.WriteAllBytes("Original.bin", originalUncompressedBytes);
-            File.WriteAllBytes("Serialized.bin", serializedBytes);
-
             AssertUtility.Equal(originalUncompressedBytes, serializedBytes);
         }
     }
