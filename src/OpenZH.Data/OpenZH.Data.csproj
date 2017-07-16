@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Wak\" />
     <Folder Include="Scb\" />
   </ItemGroup>
 

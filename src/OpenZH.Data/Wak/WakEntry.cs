@@ -9,7 +9,7 @@ namespace OpenZH.Data.Wak
         public float StartY { get; private set; }
         public float EndX { get; private set; }
         public float EndY { get; private set; }
-        public WakEntryType EntryType { get; private set; }
+        public WaveType WaveType { get; private set; }
 
         public static WakEntry Parse(BinaryReader reader)
         {
@@ -20,7 +20,7 @@ namespace OpenZH.Data.Wak
                 EndX = reader.ReadSingle(),
                 EndY = reader.ReadSingle(),
 
-                EntryType = reader.ReadUInt32AsEnum<WakEntryType>()
+                WaveType = reader.ReadUInt32AsEnum<WaveType>()
             };
         }
 
@@ -31,7 +31,7 @@ namespace OpenZH.Data.Wak
             writer.Write(EndX);
             writer.Write(EndY);
 
-            writer.Write((uint) EntryType);
+            writer.Write((uint) WaveType);
         }
     }
 }

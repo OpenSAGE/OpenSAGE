@@ -1,6 +1,6 @@
 ﻿namespace OpenZH.Data.Wak
 {
-    public enum WakEntryType : uint
+    public enum WaveType : uint
     {
         Pond = 0,
         Ocean = 1,
