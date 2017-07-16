@@ -52,7 +52,7 @@ namespace OpenZH.Data.Map
             }
         }
 
-        public static BlendTileData Parse(BinaryReader reader, MapParseContext context)
+        public static BlendTileData Parse(BinaryReader reader, MapParseContext context, HeightMapData heightMapData)
         {
             return ParseAsset(reader, context, version =>
             {
@@ -61,7 +61,6 @@ namespace OpenZH.Data.Map
                     throw new InvalidDataException();
                 }
 
-                var heightMapData = context.MapFile.HeightMapData;
                 if (heightMapData == null)
                 {
                     throw new InvalidDataException("Expected HeightMapData asset before BlendTileData asset.");

@@ -15,32 +15,14 @@ namespace OpenZH.Data.Tests.Wak
         }
 
         [Fact]
-        public void CanRoundtripWakFile()
+        public void CanRoundtripWakFiles()
         {
-            InstalledFilesTestData.ReadFiles(".wak", _output, (fileName, openEntryStream) =>
+            InstalledFilesTestData.ReadFiles(".wak", _output, (fileName, openFileStream) =>
             {
-                byte[] originalUncompressedBytes;
-                using (var originalUncompressedStream = new MemoryStream())
-                using (var entryStream = openEntryStream())
-                {
-                    entryStream.CopyTo(originalUncompressedStream);
-                    originalUncompressedBytes = originalUncompressedStream.ToArray();
-                }
-
-                WakFile wakFile;
-                using (var entryStream = new MemoryStream(originalUncompressedBytes, false))
-                {
-                    wakFile = WakFile.Parse(entryStream);
-                }
-
-                byte[] serializedBytes;
-                using (var serializedStream = new MemoryStream())
-                {
-                    wakFile.WriteTo(serializedStream);
-                    serializedBytes = serializedStream.ToArray();
-                }
-
-                AssertUtility.Equal(originalUncompressedBytes, serializedBytes);
+                TestUtility.DoRoundtripTest(
+                    openFileStream,
+                    stream => WakFile.Parse(stream),
+                    (wakFile, stream) => wakFile.WriteTo(stream));
             });
         }
 

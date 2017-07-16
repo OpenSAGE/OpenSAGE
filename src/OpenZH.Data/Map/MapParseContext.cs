@@ -7,13 +7,10 @@ namespace OpenZH.Data.Map
         private readonly Stack<AssetStackEntry> _assetParsingStack;
         private readonly AssetNameCollection _assetNames;
 
-        public MapFile MapFile { get; }
-
-        public MapParseContext(AssetNameCollection assetNames, MapFile mapFile)
+        public MapParseContext(AssetNameCollection assetNames)
         {
             _assetParsingStack = new Stack<AssetStackEntry>();
             _assetNames = assetNames;
-            MapFile = mapFile;
         }
 
         public string GetAssetName(uint assetIndex) => _assetNames.GetAssetName(assetIndex);

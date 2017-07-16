@@ -45,85 +45,13 @@ namespace OpenZH.Data.Tests.Map
                         return;
                 }
 
-                byte[] originalUncompressedBytes;
-                using (var originalUncompressedStream = new MemoryStream())
                 using (var entryStream = openEntryStream())
-                using (var mapDataStream = MapFile.Decompress(entryStream))
                 {
-                    mapDataStream.CopyTo(originalUncompressedStream);
-                    originalUncompressedBytes = originalUncompressedStream.ToArray();
+                    TestUtility.DoRoundtripTest(
+                        () => MapFile.Decompress(entryStream),
+                        stream => MapFile.Parse(stream),
+                        (mapFile, stream) => mapFile.WriteTo(stream));
                 }
-
-                MapFile mapFile;
-                using (var entryStream = new MemoryStream(originalUncompressedBytes, false))
-                {
-                    mapFile = MapFile.Parse(entryStream);
-                }
-
-                byte[] serializedBytes;
-                using (var serializedStream = new MemoryStream())
-                using (var binaryWriter = new BinaryWriter(serializedStream))
-                {
-                    mapFile.WriteTo(binaryWriter);
-                    serializedBytes = serializedStream.ToArray();
-                }
-
-                AssertUtility.Equal(originalUncompressedBytes, serializedBytes);
-
-                //_output.WriteLine($"Cliff blends for {fileName}");
-                //for (var i = 0; i < mapFile.BlendTileData.CliffBlendDescriptions.Length; i++)
-                //{
-                //    var cliffBlendDescription = mapFile.BlendTileData.CliffBlendDescriptions[i];
-
-                //    var unknown1Binary = string.Empty;
-                //    foreach (var value in BitConverter.GetBytes(cliffBlendDescription.Unknown1))
-                //    {
-                //        unknown1Binary += Convert.ToString(value, 2).PadLeft(8, '0') + $" ({value.ToString().PadLeft(3, ' ')}) ";
-                //    }
-                //    unknown1Binary = unknown1Binary.TrimEnd(' ');
-
-                //    var binary = string.Empty;
-                //    for (int j = 0; j < cliffBlendDescription.Unknown2.Length; j++)
-                //    {
-                //        if (j % 8 == 0)
-                //            binary += Environment.NewLine;
-                //        binary += Convert.ToString(cliffBlendDescription.Unknown2[j], 2).PadLeft(8, '0') + $" ({cliffBlendDescription.Unknown2[j].ToString().PadLeft(3, ' ')}) ";
-                //        //if (j % 4 == 0 && j != 0)
-                //        //    binary += BitConverter. cliffBlendDescription
-                //    }
-                //    binary = binary.TrimEnd(' ');
-                //    //var binary = string.Empty;
-                //    //for (int j = 0; j < cliffBlendDescription.Unknown2.Length - 2; j += 4)
-                //    //{
-                //    //    if (j % 8 == 0)
-                //    //        binary += Environment.NewLine;
-                //    //    var temp = cliffBlendDescription.Unknown2.Skip(j).Take(4).ToArray();
-                //    //    binary += BitConverter.ToSingle(temp, 0).ToString() + " ";
-                //    //}
-                //    //binary = binary.TrimEnd(' ');
-
-                //    var usages = string.Empty;
-                //    for (var y = 0; y < mapFile.HeightMapData.Height; y++)
-                //    {
-                //        for (var x = 0; x < mapFile.HeightMapData.Width; x++)
-                //        {
-                //            var blendIndex = mapFile.BlendTileData.CliffBlends[x, y];
-                //            if (blendIndex == i + 1)
-                //            {
-                //                usages += $"[{x}, {y}], ";
-                //            }
-                //        }
-                //    }
-                //    usages = usages.TrimEnd(' ', ',');
-                //    if (usages == string.Empty)
-                //    {
-                //        continue;
-                //    }
-
-                //    _output.WriteLine($"{i + 1}{Environment.NewLine}{unknown1Binary}{binary} {usages}");
-                //    _output.WriteLine(string.Empty);
-                //    _output.WriteLine(string.Empty);
-                //}
             });
         }
 

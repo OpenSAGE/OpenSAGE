@@ -6,9 +6,9 @@ using OpenZH.Data.Utilities.Extensions;
 
 namespace OpenZH.Data.Map
 {
-    public sealed class MapFile
+    public class MapFile
     {
-        private const string FourCcUncompressed = "CkMp";
+        internal const string FourCcUncompressed = "CkMp";
 
         public HeightMapData HeightMapData { get; private set; }
         public BlendTileData BlendTileData { get; private set; }
@@ -51,11 +51,11 @@ namespace OpenZH.Data.Map
             }
         }
 
-        public static MapFile Parse(Stream stream)
+        internal static T Parse<T>(Stream stream, Func<BinaryReader, T> parseCallback)
         {
-            var mapDataStream = Decompress(stream);
+            var dataStream = Decompress(stream);
 
-            using (var reader = new BinaryReader(mapDataStream, Encoding.ASCII, true))
+            using (var reader = new BinaryReader(dataStream, Encoding.ASCII, true))
             {
                 var compressionFlag = reader.ReadUInt32().ToFourCcString();
 
@@ -64,8 +64,13 @@ namespace OpenZH.Data.Map
                     throw new InvalidDataException();
                 }
 
-                return ParseMapData(reader);
+                return parseCallback(reader);
             }
+        }
+
+        public static MapFile Parse(Stream stream)
+        {
+            return Parse(stream, reader => ParseMapData(reader));
         }
 
         private static MapFile ParseMapData(BinaryReader reader)
@@ -74,7 +79,7 @@ namespace OpenZH.Data.Map
 
             var result = new MapFile();
 
-            var context = new MapParseContext(assetNames, result);
+            var context = new MapParseContext(assetNames);
 
             context.PushAsset(nameof(MapFile), reader.BaseStream.Length);
 
@@ -87,7 +92,7 @@ namespace OpenZH.Data.Map
                         break;
 
                     case BlendTileData.AssetName:
-                        result.BlendTileData = BlendTileData.Parse(reader, context);
+                        result.BlendTileData = BlendTileData.Parse(reader, context, result.HeightMapData);
                         break;
 
                     case WorldInfo.AssetName:
@@ -124,13 +129,16 @@ namespace OpenZH.Data.Map
             return result;
         }
 
-        public void WriteTo(BinaryWriter writer)
+        public void WriteTo(Stream stream)
         {
-            // Always writes an uncompressed map, until (and if) we implement refpack compression.
+            using (var writer = new BinaryWriter(stream))
+            {
+                // Always writes an uncompressed map, until (and if) we implement refpack compression.
 
-            writer.Write(FourCcUncompressed.ToFourCc());
+                writer.Write(FourCcUncompressed.ToFourCc());
 
-            WriteMapDataTo(writer);
+                WriteMapDataTo(writer);
+            }
         }
 
         private void WriteMapDataTo(BinaryWriter writer)
