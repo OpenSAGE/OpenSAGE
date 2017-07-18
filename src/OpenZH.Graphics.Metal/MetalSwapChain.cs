@@ -14,9 +14,9 @@ namespace OpenZH.Graphics.Metal
             _metalView = metalView;
         }
 
-        public override RenderTargetView GetNextRenderTarget()
+        public override RenderTarget GetNextRenderTarget()
         {
-            return new MetalRenderTargetView(_metalView.CurrentDrawable.Texture);
+            return new MetalRenderTarget(_metalView.CurrentDrawable.Texture);
         }
     }
 }

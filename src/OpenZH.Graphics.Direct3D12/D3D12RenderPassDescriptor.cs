@@ -8,18 +8,18 @@ namespace OpenZH.Graphics.Direct3D12
     {
         private class RenderTargetDescriptor
         {
-            public D3D12RenderTargetView RenderTargetView;
+            public D3D12RenderTarget RenderTarget;
             public LoadAction LoadAction;
             public RawColor4 ClearColor;
         }
 
         private RenderTargetDescriptor _renderTargetDescriptor;
 
-        public override void SetRenderTargetDescriptor(RenderTargetView renderTargetView, LoadAction loadAction, ColorRgba clearColor)
+        public override void SetRenderTargetDescriptor(RenderTarget renderTargetView, LoadAction loadAction, ColorRgba clearColor)
         {
             _renderTargetDescriptor = new RenderTargetDescriptor
             {
-                RenderTargetView = (D3D12RenderTargetView) renderTargetView,
+                RenderTarget = (D3D12RenderTarget) renderTargetView,
                 LoadAction = loadAction,
                 ClearColor = clearColor.ToRawColor4()
             };
@@ -28,12 +28,12 @@ namespace OpenZH.Graphics.Direct3D12
         internal void OnOpenedCommandList(GraphicsCommandList commandList)
         {
             commandList.ResourceBarrierTransition(
-                _renderTargetDescriptor.RenderTargetView.RenderTarget,
+                _renderTargetDescriptor.RenderTarget.Texture,
                 ResourceStates.Present,
                 ResourceStates.RenderTarget);
 
             commandList.SetRenderTargets(
-                _renderTargetDescriptor.RenderTargetView.CpuDescriptorHandle,
+                _renderTargetDescriptor.RenderTarget.CpuDescriptorHandle,
                 null);
 
             switch (_renderTargetDescriptor.LoadAction)
@@ -46,7 +46,7 @@ namespace OpenZH.Graphics.Direct3D12
 
                 case LoadAction.Clear:
                     commandList.ClearRenderTargetView(
-                        _renderTargetDescriptor.RenderTargetView.CpuDescriptorHandle,
+                        _renderTargetDescriptor.RenderTarget.CpuDescriptorHandle,
                         _renderTargetDescriptor.ClearColor);
                     break;
 
@@ -58,7 +58,7 @@ namespace OpenZH.Graphics.Direct3D12
         internal void OnClosingCommandList(GraphicsCommandList commandList)
         {
             commandList.ResourceBarrierTransition(
-                _renderTargetDescriptor.RenderTargetView.RenderTarget,
+                _renderTargetDescriptor.RenderTarget.Texture,
                 ResourceStates.RenderTarget,
                 ResourceStates.Present);
         }

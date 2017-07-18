@@ -2,11 +2,11 @@
 
 namespace OpenZH.Graphics.Metal
 {
-    public sealed class MetalRenderTargetView : RenderTargetView
+    public sealed class MetalRenderTarget : RenderTarget
     {
         public IMTLTexture Texture { get; }
 
-        public MetalRenderTargetView(IMTLTexture texture)
+        public MetalRenderTarget(IMTLTexture texture)
         {
             Texture = texture;
         }

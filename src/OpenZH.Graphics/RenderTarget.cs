@@ -1,6 +1,6 @@
 ﻿namespace OpenZH.Graphics
 {
-    public abstract class RenderTargetView
+    public abstract class RenderTarget
     {
     }
 }

@@ -11,11 +11,11 @@ namespace OpenZH.Graphics.Metal
             Descriptor = new MTLRenderPassDescriptor();
         }
 
-        public override void SetRenderTargetDescriptor(RenderTargetView renderTargetView, LoadAction loadAction, ColorRgba clearColor)
+        public override void SetRenderTargetDescriptor(RenderTarget renderTargetView, LoadAction loadAction, ColorRgba clearColor)
         {
             var colorAttachment = Descriptor.ColorAttachments[0];
 
-            colorAttachment.Texture = ((MetalRenderTargetView) renderTargetView).Texture;
+            colorAttachment.Texture = ((MetalRenderTarget) renderTargetView).Texture;
             colorAttachment.LoadAction = loadAction.ToMTLLoadAction();
             colorAttachment.ClearColor = clearColor.ToMTLClearColor();
         }

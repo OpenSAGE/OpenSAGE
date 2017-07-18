@@ -2,6 +2,6 @@
 {
     public abstract class SwapChain : GraphicsObject
     {
-        public abstract RenderTargetView GetNextRenderTarget();
+        public abstract RenderTarget GetNextRenderTarget();
     }
 }

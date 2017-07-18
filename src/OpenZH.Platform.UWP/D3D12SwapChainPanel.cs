@@ -66,7 +66,9 @@ namespace OpenZH.Platform.UWP
             GraphicsInitialize?.Invoke(this, new GraphicsEventArgs(_graphicsDevice));
 
             if (!RedrawsOnTimer)
+            {
                 Draw();
+            }
 
             Loaded -= OnLoaded;
         }
@@ -76,7 +78,9 @@ namespace OpenZH.Platform.UWP
             _swapChain.Resize((int) e.NewSize.Width, (int) e.NewSize.Height);
 
             if (!RedrawsOnTimer)
+            {
                 Draw();
+            }
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs e)

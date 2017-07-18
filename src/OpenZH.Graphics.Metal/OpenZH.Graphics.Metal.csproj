@@ -49,7 +49,7 @@
     <Compile Include="MetalCommandQueue.cs" />
     <Compile Include="MetalGraphicsDevice.cs" />
     <Compile Include="MetalRenderPassDescriptor.cs" />
-    <Compile Include="MetalRenderTargetView.cs" />
+    <Compile Include="MetalRenderTarget.cs" />
     <Compile Include="MetalSwapChain.cs" />
     <Compile Include="MetalTexture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -2,6 +2,6 @@
 {
     public abstract class RenderPassDescriptor
     {
-        public abstract void SetRenderTargetDescriptor(RenderTargetView renderTargetView, LoadAction loadAction, ColorRgba clearColor = default(ColorRgba));
+        public abstract void SetRenderTargetDescriptor(RenderTarget renderTargetView, LoadAction loadAction, ColorRgba clearColor = default(ColorRgba));
     }
 }

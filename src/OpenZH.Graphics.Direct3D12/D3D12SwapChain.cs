@@ -149,9 +149,9 @@ namespace OpenZH.Graphics.Direct3D12
             _fenceValues[_frameIndex]++;
         }
 
-        public override RenderTargetView GetNextRenderTarget()
+        public override RenderTarget GetNextRenderTarget()
         {
-            return new D3D12RenderTargetView(
+            return new D3D12RenderTarget(
                 _renderTargets[_frameIndex],
                 _descriptorHeap.CPUDescriptorHandleForHeapStart + (_frameIndex * _descriptorSize));
         }
