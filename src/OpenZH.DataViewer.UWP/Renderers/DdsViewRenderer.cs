@@ -7,7 +7,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Xamarin.Forms.Platform.UWP;
 
-[assembly: ExportRenderer(typeof(DdsView), typeof(OpenZH.DataViewer.UWP.Renderers.DdsViewRenderer))]
+//[assembly: ExportRenderer(typeof(DdsView), typeof(OpenZH.DataViewer.UWP.Renderers.DdsViewRenderer))]
 
 namespace OpenZH.DataViewer.UWP.Renderers
 {

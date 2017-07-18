@@ -46,6 +46,7 @@
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
     <ProjectReference Include="..\OpenZH.Data\OpenZH.Data.csproj" />
+    <ProjectReference Include="..\OpenZH.Graphics\OpenZH.Graphics.csproj" />
     <Compile Update="Views\ArchiveEntriesPage.xaml.cs">
       <DependentUpon>ArchiveEntriesPage.xaml</DependentUpon>
     </Compile>

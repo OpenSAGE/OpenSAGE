@@ -1,19 +1,35 @@
 ﻿using System;
 using System.IO;
-using Xamarin.Forms;
+using OpenZH.Graphics;
 
 namespace OpenZH.DataViewer.Controls
 {
-    public class DdsView : Image
+    public sealed class DdsView : RenderedView
     {
         public Func<Stream> OpenStream { get; set; }
 
-        public DdsView()
+        public override void Initialize(GraphicsDevice graphicsDevice)
         {
-            Aspect = Aspect.AspectFill;
+            // Load texture.
+        }
 
-            HorizontalOptions = LayoutOptions.CenterAndExpand;
-            VerticalOptions = LayoutOptions.CenterAndExpand;
+        public override void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
+        {
+            var renderPassDescriptor = graphicsDevice.CreateRenderPassDescriptor();
+            renderPassDescriptor.SetRenderTargetDescriptor(
+                swapChain.GetNextRenderTarget(),
+                LoadAction.Clear,
+                new ColorRgba(1, 0, 0, 1));
+
+            var commandBuffer = graphicsDevice.CommandQueue.GetCommandBuffer();
+
+            var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
+
+            // TODO
+
+            commandEncoder.Close();
+
+            commandBuffer.CommitAndPresent(swapChain);
         }
     }
 }

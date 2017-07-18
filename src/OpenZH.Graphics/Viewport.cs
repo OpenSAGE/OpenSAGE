@@ -1,4 +1,4 @@
-﻿namespace OpenZH.DataViewer.Rendering
+﻿namespace OpenZH.Graphics
 {
     public struct Viewport
     {
