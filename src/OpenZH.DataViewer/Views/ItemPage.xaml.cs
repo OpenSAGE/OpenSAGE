@@ -24,8 +24,8 @@ namespace OpenZH.DataViewer.Views
         {
             switch (bindingContext)
             {
-                case DdsArchiveEntryViewModel vm:
-                    return new DdsView { OpenStream = vm.Item.Open };
+                case TextureArchiveEntryViewModel vm:
+                    return new TextureView { OpenStream = vm.Item.Open, TextureFormat = vm.TextureFormat };
 
                 case WavArchiveEntryViewModel vm:
                     return new MediaView { CreateStream = vm.Item.Open };

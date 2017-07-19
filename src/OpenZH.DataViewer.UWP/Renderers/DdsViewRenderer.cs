@@ -20,7 +20,7 @@ namespace OpenZH.DataViewer.UWP.Renderers
     using SharpDX.Mathematics.Interop;
     using Windows.UI.Xaml;
 
-    public class DdsViewRenderer : ViewRenderer<DdsView, SwapChainPanel>
+    public class DdsViewRenderer : ViewRenderer<TextureView, SwapChainPanel>
     {
         private const int FrameCount = 2;
         private const Format BackBufferFormat = Format.B8G8R8A8_UNorm;
@@ -60,7 +60,7 @@ namespace OpenZH.DataViewer.UWP.Renderers
 
         private Resource _texture;
 
-        protected override void OnElementChanged(ElementChangedEventArgs<DdsView> e)
+        protected override void OnElementChanged(ElementChangedEventArgs<TextureView> e)
         {
             base.OnElementChanged(e);
 

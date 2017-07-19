@@ -16,7 +16,9 @@ namespace OpenZH.Data.Tga
                 var header = TgaHeader.Parse(reader);
 
                 if (header.HasColorMap || header.ImageType != TgaImageType.UncompressedRgb)
+                {
                     throw new NotSupportedException();
+                }
 
                 var data = reader.ReadBytes(header.Width * header.Height * header.ImagePixelSize);
 

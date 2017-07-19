@@ -43,6 +43,24 @@ namespace OpenZH.Graphics.Metal
             }
         }
 
+        public static MTLPixelFormat ToMTLPixelFormat(this PixelFormat value)
+        {
+            switch (value)
+            {
+                case PixelFormat.Bc1:
+                case PixelFormat.Bc2:
+                case PixelFormat.Bc3:
+                    // We will decompress these formats manually in MetalTexture.
+                    return MTLPixelFormat.RGBA8Unorm;
+
+                case PixelFormat.Rgba8UNorm:
+                    return MTLPixelFormat.RGBA8Unorm;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         public static MTLPrimitiveType ToMTLPrimitiveType(this PrimitiveType value)
         {
             switch (value)

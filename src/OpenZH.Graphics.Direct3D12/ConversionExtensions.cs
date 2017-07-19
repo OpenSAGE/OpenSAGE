@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
@@ -18,6 +17,27 @@ namespace OpenZH.Graphics.Direct3D12
 
                 case IndexType.UInt32:
                     return Format.R32_UInt;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public static Format ToDxgiFormat(this PixelFormat value)
+        {
+            switch (value)
+            {
+                case PixelFormat.Bc1:
+                    return Format.BC1_UNorm;
+
+                case PixelFormat.Bc2:
+                    return Format.BC2_UNorm;
+
+                case PixelFormat.Bc3:
+                    return Format.BC3_UNorm;
+
+                case PixelFormat.Rgba8UNorm:
+                    return Format.R8G8B8A8_UNorm;
 
                 default:
                     throw new ArgumentOutOfRangeException();

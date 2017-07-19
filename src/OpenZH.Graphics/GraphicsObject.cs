@@ -5,20 +5,29 @@ namespace OpenZH.Graphics
 {
     public abstract class GraphicsObject : IDisposable
     {
-        private readonly List<IDisposable> _disposables = new List<IDisposable>();
+        private List<IDisposable> _disposables;
 
         protected T AddDisposable<T>(T disposable)
             where T : IDisposable
         {
+            if (_disposables == null)
+            {
+                _disposables = new List<IDisposable>();
+            }
+
             _disposables.Add(disposable);
+
             return disposable;
         }
 
         public void Dispose()
         {
-            foreach (var disposable in _disposables)
+            if (_disposables != null)
             {
-                disposable.Dispose();
+                foreach (var disposable in _disposables)
+                {
+                    disposable.Dispose();
+                }
             }
 
             Dispose(true);
