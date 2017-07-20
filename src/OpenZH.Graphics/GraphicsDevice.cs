@@ -1,17 +1,14 @@
 ﻿namespace OpenZH.Graphics
 {
-    public abstract class GraphicsDevice : GraphicsObject
+    public sealed partial class GraphicsDevice : GraphicsObject
     {
-        public abstract CommandQueue CommandQueue { get; }
+        public CommandQueue CommandQueue { get; }
 
-        public abstract RenderPassDescriptor CreateRenderPassDescriptor();
+        public GraphicsDevice()
+        {
+            PlatformConstruct();
 
-        public abstract ResourceUploadBatch CreateResourceUploadBatch();
-
-        public abstract Texture CreateTexture2D(
-            PixelFormat pixelFormat,
-            int width,
-            int height,
-            int numMipmapLevels);
+            CommandQueue = new CommandQueue(this);
+        }
     }
 }

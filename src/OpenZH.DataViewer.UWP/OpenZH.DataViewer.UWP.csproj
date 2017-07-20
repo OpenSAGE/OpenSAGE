@@ -11,7 +11,7 @@
     <AssemblyName>OpenZH.DataViewer.UWP</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.15063.0</TargetPlatformVersion>
+    <TargetPlatformVersion>10.0.15063.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.10586.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
@@ -141,7 +141,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>5.2.3</Version>
+      <Version>5.3.3</Version>
     </PackageReference>
     <PackageReference Include="SharpDX.D3DCompiler">
       <Version>4.0.1</Version>
@@ -168,32 +168,13 @@
       <Project>{4d7452c4-40bf-47ef-ae2c-0cd53c1f4122}</Project>
       <Name>OpenZH.Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\OpenZH.Graphics.Direct3D12\OpenZH.Graphics.Direct3D12.csproj">
-      <Project>{3af5786b-7c64-4ed7-8b92-e99673e3ce4e}</Project>
-      <Name>OpenZH.Graphics.Direct3D12</Name>
-    </ProjectReference>
     <ProjectReference Include="..\OpenZH.Graphics\OpenZH.Graphics.csproj">
       <Project>{cec1a457-aaec-4be1-a8b2-ee0636e53477}</Project>
       <Name>OpenZH.Graphics</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\OpenZH.Platform.UWP\OpenZH.Platform.UWP.csproj">
-      <Project>{154a72a2-91e7-41ee-a480-999700794d09}</Project>
-      <Name>OpenZH.Platform.UWP</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\OpenZH.Platform\OpenZH.Platform.csproj">
-      <Project>{03bde18f-2a8b-4311-8fbc-2ce9191555ca}</Project>
-      <Name>OpenZH.Platform</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

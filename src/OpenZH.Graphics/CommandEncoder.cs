@@ -1,17 +1,45 @@
 ﻿namespace OpenZH.Graphics
 {
-    public abstract class CommandEncoder
+    public sealed partial class CommandEncoder : GraphicsDeviceChild
     {
-        public abstract void Close();
+        public void Close()
+        {
+            PlatformClose();
+        }
 
-        public abstract void DrawIndexed(
+        public void DrawIndexed(
             PrimitiveType primitiveType,
             uint indexCount,
             IndexType indexType,
             Buffer indexBuffer,
-            uint indexBufferOffset);
+            uint indexBufferOffset)
+        {
+            PlatformDrawIndexed(
+                primitiveType,
+                indexCount,
+                indexType,
+                indexBuffer,
+                indexBufferOffset);
+        }
 
-        public abstract void SetViewport(
-            Viewport viewport);
+        public void SetPipelineState(GraphicsPipelineState pipelineState)
+        {
+            PlatformSetPipelineState(pipelineState);
+        }
+
+        public void SetRootSignature(RootSignature rootSignature)
+        {
+            PlatformSetRootSignature(rootSignature);
+        }
+
+        public void SetVertexBuffer(int bufferIndex, Buffer vertexBuffer)
+        {
+            PlatformSetVertexBuffer(bufferIndex, vertexBuffer);
+        }
+
+        public void SetViewport(Viewport viewport)
+        {
+            PlatformSetViewport(viewport);
+        }
     }
 }

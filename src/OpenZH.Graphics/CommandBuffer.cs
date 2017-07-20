@@ -1,11 +1,20 @@
 ﻿namespace OpenZH.Graphics
 {
-    public abstract class CommandBuffer
+    public sealed partial class CommandBuffer : GraphicsDeviceChild
     {
-        public abstract CommandEncoder GetCommandEncoder(RenderPassDescriptor renderPassDescriptor);
+        public CommandEncoder GetCommandEncoder(RenderPassDescriptor renderPassDescriptor)
+        {
+            return PlatformGetCommandEncoder(renderPassDescriptor);
+        }
 
-        public abstract void Commit();
+        public void Commit()
+        {
+            PlatformCommit();
+        }
 
-        public abstract void CommitAndPresent(SwapChain swapChain);
+        public void CommitAndPresent(SwapChain swapChain)
+        {
+            PlatformCommitAndPresent(swapChain);
+        }
     }
 }

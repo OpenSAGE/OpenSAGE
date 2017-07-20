@@ -1,7 +1,10 @@
 ﻿namespace OpenZH.Graphics
 {
-    public abstract class SwapChain : GraphicsObject
+    public sealed partial class SwapChain : GraphicsObject
     {
-        public abstract RenderTarget GetNextRenderTarget();
+        public RenderTarget GetNextRenderTarget()
+        {
+            return PlatformGetNextRenderTarget();
+        }
     }
 }

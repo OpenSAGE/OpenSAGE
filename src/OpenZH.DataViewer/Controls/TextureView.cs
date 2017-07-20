@@ -43,13 +43,14 @@ namespace OpenZH.DataViewer.Controls
 
         private static Texture CreateTextureFromDds(GraphicsDevice graphicsDevice, DdsFile ddsFile)
         {
-            var texture = graphicsDevice.CreateTexture2D(
+            var texture = Texture.CreateTexture2D(
+                graphicsDevice,
                 ToPixelFormat(ddsFile.ImageFormat),
                 (int) ddsFile.Header.Width,
                 (int) ddsFile.Header.Height,
                 (int) ddsFile.Header.MipMapCount);
 
-            var uploadBatch = graphicsDevice.CreateResourceUploadBatch();
+            var uploadBatch = new ResourceUploadBatch(graphicsDevice);
             uploadBatch.Begin();
 
             for (var i = 0; i < ddsFile.Header.MipMapCount; i++)
@@ -91,13 +92,14 @@ namespace OpenZH.DataViewer.Controls
                 throw new InvalidOperationException();
             }
 
-            var texture = graphicsDevice.CreateTexture2D(
+            var texture = Texture.CreateTexture2D(
+                graphicsDevice,
                 PixelFormat.Rgba8UNorm,
                 tgaFile.Header.Width,
                 tgaFile.Header.Height,
                 1);
 
-            var uploadBatch = graphicsDevice.CreateResourceUploadBatch();
+            var uploadBatch = new ResourceUploadBatch(graphicsDevice);
             uploadBatch.Begin();
 
             var data = ConvertTgaPixels(tgaFile.Header.ImagePixelSize, tgaFile.Data);
@@ -152,7 +154,7 @@ namespace OpenZH.DataViewer.Controls
 
         public override void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
-            var renderPassDescriptor = graphicsDevice.CreateRenderPassDescriptor();
+            var renderPassDescriptor = new RenderPassDescriptor();
             renderPassDescriptor.SetRenderTargetDescriptor(
                 swapChain.GetNextRenderTarget(),
                 LoadAction.Clear,
@@ -162,7 +164,13 @@ namespace OpenZH.DataViewer.Controls
 
             var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
 
-            // TODO
+            //commandEncoder.SetVertexBuffer(0, vertexBufferView);
+            //commandEncoder.DrawIndexed(
+            //    PrimitiveType.TriangleList,
+            //    4,
+            //    IndexType.UInt16,
+            //    indexBuffer,
+            //    0);
 
             commandEncoder.Close();
 

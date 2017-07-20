@@ -1,6 +1,11 @@
 ﻿namespace OpenZH.Graphics
 {
-    public abstract class Buffer
+    public sealed partial class Buffer : GraphicsDeviceChild
     {
+        public Buffer(GraphicsDevice graphicsDevice, uint sizeInBytes)
+            : base(graphicsDevice)
+        {
+            PlatformConstruct(graphicsDevice, sizeInBytes);
+        }
     }
 }

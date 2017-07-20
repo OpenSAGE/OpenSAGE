@@ -1,9 +1,8 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using OpenZH.DataViewer.Controls;
 using OpenZH.DataViewer.UWP.Renderers;
-using OpenZH.Platform;
-using OpenZH.Platform.UWP;
+using OpenZH.Graphics.Hosting;
+using OpenZH.Graphics.Platforms.Direct3D12;
 using Xamarin.Forms.Platform.UWP;
 
 [assembly: ExportRenderer(typeof(RenderedView), typeof(RenderedViewRenderer))]

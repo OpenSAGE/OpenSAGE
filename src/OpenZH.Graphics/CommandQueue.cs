@@ -1,7 +1,16 @@
 ﻿namespace OpenZH.Graphics
 {
-    public abstract class CommandQueue : GraphicsObject
+    public sealed partial class CommandQueue : GraphicsDeviceChild
     {
-        public abstract CommandBuffer GetCommandBuffer();
+        internal CommandQueue(GraphicsDevice graphicsDevice)
+            : base(graphicsDevice)
+        {
+            PlatformConstruct(graphicsDevice);
+        }
+
+        public CommandBuffer GetCommandBuffer()
+        {
+            return PlatformGetCommandBuffer();
+        }
     }
 }

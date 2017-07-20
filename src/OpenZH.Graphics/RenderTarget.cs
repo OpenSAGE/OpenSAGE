@@ -1,6 +1,6 @@
 ﻿namespace OpenZH.Graphics
 {
-    public abstract class RenderTarget
+    public sealed partial class RenderTarget : GraphicsDeviceChild
     {
     }
 }
