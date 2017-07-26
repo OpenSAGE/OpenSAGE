@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using OpenZH.Graphics.Platforms.Direct3D12;
+using SharpDX;
 using SharpDX.Direct3D12;
 
 namespace OpenZH.Graphics
@@ -59,13 +60,15 @@ namespace OpenZH.Graphics
 
             var dataPtr = uploadResource.Map(0);
 
-            ResourceUploadUtil.MemcpySubresource(
-                dataPtr,
-                resourceLayouts[0].Footprint.RowPitch,
-                data,
-                bytesPerRow,
-                (int) resourceRowSizesInBytes[0],
-                resourceNumRows[0]);
+            var numRows = resourceNumRows[0];
+            for (var y = 0; y < numRows; y++)
+            {
+                Utilities.Write(
+                    dataPtr + (resourceLayouts[0].Footprint.RowPitch * y),
+                    data,
+                    bytesPerRow * y,
+                    (int) resourceRowSizesInBytes[0]);
+            }
 
             uploadResource.Unmap(0);
 
