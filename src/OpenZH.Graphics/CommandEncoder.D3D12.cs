@@ -10,8 +10,6 @@ namespace OpenZH.Graphics
         private readonly GraphicsCommandList _commandList;
         private readonly RenderPassDescriptor _renderPassDescriptor;
 
-        private GraphicsPipelineState _currentPipelineState;
-
         internal CommandEncoder(GraphicsDevice graphicsDevice, GraphicsCommandList commandList, RenderPassDescriptor renderPassDescriptor)
             : base(graphicsDevice)
         {
@@ -52,15 +50,25 @@ namespace OpenZH.Graphics
                 0);
         }
 
-        private void PlatformSetPipelineState(GraphicsPipelineState pipelineState)
+        private void PlatformSetDescriptorSet(int index, DescriptorSet descriptorSet)
+        {
+            _commandList.SetGraphicsRootDescriptorTable(index, descriptorSet.GPUDescriptorHandleForCbvUavSrvHeapStart);
+        }
+
+        private void PlatformSetConstantBuffer(int index, Buffer buffer)
+        {
+            _commandList.SetGraphicsRootConstantBufferView(index, buffer.DeviceBuffer.GPUVirtualAddress);
+        }
+
+        private void PlatformSetPipelineState(PipelineState pipelineState)
         {
             _commandList.PipelineState = pipelineState.DevicePipelineState;
             _currentPipelineState = pipelineState;
         }
 
-        private void PlatformSetRootSignature(RootSignature rootSignature)
+        private void PlatformSetPipelineLayout(PipelineLayout pipelineLayout)
         {
-            _commandList.SetGraphicsRootSignature(rootSignature.DeviceRootSignature);
+            _commandList.SetGraphicsRootSignature(pipelineLayout.DeviceRootSignature);
         }
 
         private void PlatformSetVertexBuffer(int slot, Buffer vertexBuffer)
@@ -74,7 +82,7 @@ namespace OpenZH.Graphics
             {
                 BufferLocation = vertexBuffer.DeviceBuffer.GPUVirtualAddress,
                 SizeInBytes = (int) vertexBuffer.DeviceBuffer.Description.Width,
-                StrideInBytes = _currentPipelineState.Descriptor.VertexDescriptor.GetStride(slot)
+                StrideInBytes = _currentPipelineState.Description.VertexDescriptor.GetStride(slot)
             });
         }
 

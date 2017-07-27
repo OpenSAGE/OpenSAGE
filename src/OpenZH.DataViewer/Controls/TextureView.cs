@@ -10,6 +10,8 @@ namespace OpenZH.DataViewer.Controls
     public sealed class TextureView : RenderedView
     {
         private Texture _texture;
+        private DescriptorSetLayout _descriptorSetLayout;
+        private DescriptorSet _descriptorSet;
 
         public TextureFormat TextureFormat { get; set; }
         public Func<Stream> OpenStream { get; set; }
@@ -39,6 +41,19 @@ namespace OpenZH.DataViewer.Controls
                 default:
                     throw new InvalidOperationException();
             }
+
+            _descriptorSetLayout = new DescriptorSetLayout(new DescriptorSetLayoutDescription
+            {
+                Visibility = ShaderStageVisibility.Pixel,
+                Bindings = new[]
+                {
+                    new DescriptorSetLayoutBinding(DescriptorType.Texture, 0, 1)
+                }
+            });
+
+            _descriptorSet = new DescriptorSet(graphicsDevice, _descriptorSetLayout);
+
+            _descriptorSet.SetTexture(0, _texture);
         }
 
         private static Texture CreateTextureFromDds(GraphicsDevice graphicsDevice, DdsFile ddsFile)

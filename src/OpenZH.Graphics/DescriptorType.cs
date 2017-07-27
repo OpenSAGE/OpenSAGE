@@ -1,9 +1,8 @@
 ﻿namespace OpenZH.Graphics
 {
-    public enum BindingType
+    public enum DescriptorType
     {
         ConstantBuffer,
-        Sampler,
         Texture
     }
 }

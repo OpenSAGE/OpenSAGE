@@ -8,7 +8,6 @@ namespace OpenZH.Graphics
         internal Device Device { get; private set; }
 
         internal DescriptorTablePool DescriptorHeapCbvUavSrv { get; private set; }
-        internal DescriptorTablePool DescriptorHeapSampler { get; private set; }
 
         private void PlatformConstruct()
         {
@@ -18,8 +17,10 @@ namespace OpenZH.Graphics
 
             Device = AddDisposable(new Device(null, SharpDX.Direct3D.FeatureLevel.Level_11_0));
 
-            DescriptorHeapCbvUavSrv = AddDisposable(new DescriptorTablePool(Device, DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView));
-            DescriptorHeapSampler = AddDisposable(new DescriptorTablePool(Device, DescriptorHeapType.Sampler));
+            DescriptorHeapCbvUavSrv = AddDisposable(new DescriptorTablePool(
+                Device,
+                DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView,
+                1_000_000)); // Maximum descriptor count for Tier 1 hardware
         }
     }
 }

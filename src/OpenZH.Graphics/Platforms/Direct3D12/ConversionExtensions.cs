@@ -8,17 +8,14 @@ namespace OpenZH.Graphics.Platforms.Direct3D12
 {
     internal static class ConversionExtensions
     {
-        public static DescriptorRangeType ToDescriptorRangeType(this BindingType value)
+        public static DescriptorRangeType ToDescriptorRangeType(this DescriptorType value)
         {
             switch (value)
             {
-                case BindingType.ConstantBuffer:
+                case DescriptorType.ConstantBuffer:
                     return DescriptorRangeType.ConstantBufferView;
 
-                case BindingType.Sampler:
-                    return DescriptorRangeType.Sampler;
-
-                case BindingType.Texture:
+                case DescriptorType.Texture:
                     return DescriptorRangeType.ShaderResourceView;
 
                 default:

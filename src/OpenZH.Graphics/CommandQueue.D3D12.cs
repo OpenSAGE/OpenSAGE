@@ -66,6 +66,8 @@ namespace OpenZH.Graphics
                     null);
             }
 
+            _commandList.SetDescriptorHeaps(GraphicsDevice.DescriptorHeapCbvUavSrv.DeviceDescriptorHeap);
+
             return _commandList;
         }
 

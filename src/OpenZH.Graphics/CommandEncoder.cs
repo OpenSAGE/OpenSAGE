@@ -2,6 +2,8 @@
 {
     public sealed partial class CommandEncoder : GraphicsDeviceChild
     {
+        private PipelineState _currentPipelineState;
+
         public void Close()
         {
             PlatformClose();
@@ -22,14 +24,16 @@
                 indexBufferOffset);
         }
 
-        public void SetPipelineState(GraphicsPipelineState pipelineState)
+        public void SetPipelineState(PipelineState pipelineState)
         {
+            _currentPipelineState = pipelineState;
+
             PlatformSetPipelineState(pipelineState);
         }
 
-        public void SetRootSignature(RootSignature rootSignature)
+        public void SetPipelineLayout(PipelineLayout pipelineLayout)
         {
-            PlatformSetRootSignature(rootSignature);
+            PlatformSetPipelineLayout(pipelineLayout);
         }
 
         public void SetVertexBuffer(int bufferIndex, Buffer vertexBuffer)

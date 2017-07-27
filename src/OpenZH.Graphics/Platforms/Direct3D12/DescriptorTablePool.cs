@@ -6,8 +6,7 @@ namespace OpenZH.Graphics.Platforms.Direct3D12
 {
     internal sealed class DescriptorTablePool : GraphicsObject
     {
-        private const int MaxEntries = 1_000_000; // Limit for Tier 1 hardware
-
+        private readonly int _maxEntries;
         private readonly DescriptorHeap _descriptorHeap;
         private readonly int _incrementSize;
 
@@ -15,13 +14,17 @@ namespace OpenZH.Graphics.Platforms.Direct3D12
 
         private int _nextDescriptorIndex;
 
-        public DescriptorTablePool(Device device, DescriptorHeapType heapType)
+        public DescriptorHeap DeviceDescriptorHeap => _descriptorHeap;
+
+        public DescriptorTablePool(Device device, DescriptorHeapType heapType, int maxEntries)
         {
+            _maxEntries = maxEntries;
+
             _descriptorHeap = AddDisposable(device.CreateDescriptorHeap(new DescriptorHeapDescription
             {
                 Type = heapType,
                 Flags = DescriptorHeapFlags.ShaderVisible,
-                DescriptorCount = MaxEntries
+                DescriptorCount = maxEntries
             }));
 
             _incrementSize = device.GetDescriptorHandleIncrementSize(heapType);
@@ -31,7 +34,7 @@ namespace OpenZH.Graphics.Platforms.Direct3D12
 
         public DescriptorTablePoolEntry Reserve(int descriptorCount)
         {
-            if (_nextDescriptorIndex + descriptorCount > MaxEntries)
+            if (_nextDescriptorIndex + descriptorCount > _maxEntries)
             {
                 throw new InvalidOperationException();
             }
@@ -60,13 +63,13 @@ namespace OpenZH.Graphics.Platforms.Direct3D12
 
     internal sealed class DescriptorTablePoolEntry
     {
+        private readonly int _incrementSize;
+
         public int HeapIndex { get; }
 
         public int DescriptorCount { get; }
         public GpuDescriptorHandle GpuDescriptorHandle { get; }
         public CpuDescriptorHandle CpuDescriptorHandle { get; }
-
-        public int IncrementSize { get; }
 
         public DescriptorTablePoolEntry(
             int heapIndex,
@@ -79,7 +82,13 @@ namespace OpenZH.Graphics.Platforms.Direct3D12
             DescriptorCount = descriptorCount;
             GpuDescriptorHandle = gpuDescriptorHandle;
             CpuDescriptorHandle = cpuDescriptorHandle;
-            IncrementSize = incrementSize;
+
+            _incrementSize = incrementSize;
+        }
+
+        public CpuDescriptorHandle GetCpuHandle(int offset = 0)
+        {
+            return CpuDescriptorHandle + _incrementSize * offset;
         }
     }
 }

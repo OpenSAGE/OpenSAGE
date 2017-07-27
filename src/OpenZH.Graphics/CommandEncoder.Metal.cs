@@ -19,12 +19,20 @@ namespace OpenZH.Graphics
             _commandEncoder.EndEncoding();
         }
 
-        private void PlatformSetPipelineState(GraphicsPipelineState pipelineState)
+        private void PlatformSetConstantBuffer(int index, Buffer buffer)
+        {
+            // TODO: Lookup in current root signature whether this buffer
+            // should be bound to vertex shader, fragment shader, or both.
+
+            //_commandList.SetGraphicsRootConstantBufferView(index, buffer.DeviceBuffer.GPUVirtualAddress);
+        }
+
+        private void PlatformSetPipelineState(PipelineState pipelineState)
         {
             _commandEncoder.SetRenderPipelineState(pipelineState.DeviceRenderPipelineState);
         }
 
-        private void PlatformSetRootSignature(RootSignature rootSignature) { }
+        private void PlatformSetPipelineLayout(PipelineLayout pipelineLayout) { }
 
         private void PlatformSetVertexBuffer(int bufferIndex, Buffer vertexBuffer)
         {

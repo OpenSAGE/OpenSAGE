@@ -42,10 +42,6 @@
     <Compile Include="**\*.Metal.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Remove="Platforms\Direct3D12\DescriptorTablePool.cs" />
-  </ItemGroup>
-
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
 
 </Project>

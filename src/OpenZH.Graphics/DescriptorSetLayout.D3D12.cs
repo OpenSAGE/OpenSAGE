@@ -3,18 +3,18 @@ using SharpDX.Direct3D12;
 
 namespace OpenZH.Graphics
 {
-    partial class BindGroupLayout
+    partial class DescriptorSetLayout
     {
-        internal RootParameter RootParameter { get; private set; }
+        internal RootParameter DeviceRootParameter { get; private set; }
 
-        private void PlatformConstruct(BindGroupLayoutDescription description)
+        private void PlatformConstruct(DescriptorSetLayoutDescription description)
         {
-            RootParameter = new RootParameter(
+            DeviceRootParameter = new RootParameter(
                 description.Visibility.ToShaderVisibility(),
                 ToDescriptorRanges(description.Bindings));
         }
 
-        private static DescriptorRange[] ToDescriptorRanges(BindingDescription[] bindings)
+        private static DescriptorRange[] ToDescriptorRanges(DescriptorSetLayoutBinding[] bindings)
         {
             var result = new DescriptorRange[bindings.Length];
 
@@ -24,12 +24,12 @@ namespace OpenZH.Graphics
                 var binding = bindings[i];
 
                 result[i] = new DescriptorRange(
-                    binding.BindingType.ToDescriptorRangeType(),
-                    binding.Count,
-                    0, // We will set this later
+                    binding.DescriptorType.ToDescriptorRangeType(),
+                    binding.DescriptorCount,
+                    binding.BaseShaderRegister,
                     offset);
 
-                offset += binding.Count;
+                offset += binding.DescriptorCount;
             }
 
             return result;
