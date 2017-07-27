@@ -12,6 +12,8 @@ namespace OpenZH.DataViewer.Controls
         private Texture _texture;
         private DescriptorSetLayout _descriptorSetLayout;
         private DescriptorSet _descriptorSet;
+        private PipelineLayout _pipelineLayout;
+        private PipelineState _pipelineState;
 
         public TextureFormat TextureFormat { get; set; }
         public Func<Stream> OpenStream { get; set; }
@@ -54,6 +56,29 @@ namespace OpenZH.DataViewer.Controls
             _descriptorSet = new DescriptorSet(graphicsDevice, _descriptorSetLayout);
 
             _descriptorSet.SetTexture(0, _texture);
+
+            _pipelineLayout = new PipelineLayout(graphicsDevice, new PipelineLayoutDescription
+            {
+                DescriptorSetLayouts = new[] { _descriptorSetLayout }
+            });
+
+            var shaderLibrary = new ShaderLibrary(graphicsDevice);
+
+            var pixelShader = new Shader(shaderLibrary, "TestPS");
+            var vertexShader = new Shader(shaderLibrary, "TestVS");
+
+            var vertexDescriptor = new VertexDescriptor();
+            vertexDescriptor.SetAttributeDescriptor(0, "POSITION", 0, VertexFormat.Float3, 0, 0);
+            vertexDescriptor.SetLayoutDescriptor(0, 12);
+
+            _pipelineState = new PipelineState(graphicsDevice, new PipelineStateDescription
+            {
+                PipelineLayout = _pipelineLayout,
+                PixelShader = pixelShader,
+                RenderTargetFormat = PixelFormat.Rgba8UNorm,
+                VertexDescriptor = vertexDescriptor,
+                VertexShader = vertexShader
+            });
         }
 
         private static Texture CreateTextureFromDds(GraphicsDevice graphicsDevice, DdsFile ddsFile)
@@ -179,7 +204,12 @@ namespace OpenZH.DataViewer.Controls
 
             var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
 
-            //commandEncoder.SetVertexBuffer(0, vertexBufferView);
+            commandEncoder.SetPipelineState(_pipelineState);
+
+            commandEncoder.SetPipelineLayout(_pipelineLayout);
+
+            //commandEncoder.SetVertexBuffer(0, _vertexBuffer);
+
             //commandEncoder.DrawIndexed(
             //    PrimitiveType.TriangleList,
             //    4,
