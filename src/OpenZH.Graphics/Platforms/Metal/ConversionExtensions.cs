@@ -53,6 +53,9 @@ namespace OpenZH.Graphics.Platforms.Metal
                     // We will decompress these formats manually in MetalTexture.
                     return MTLPixelFormat.RGBA8Unorm;
 
+                case PixelFormat.Bgra8UNorm:
+                    return MTLPixelFormat.BGRA8Unorm;
+
                 case PixelFormat.Rgba8UNorm:
                     return MTLPixelFormat.RGBA8Unorm;
 

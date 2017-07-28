@@ -26,6 +26,16 @@ namespace OpenZH.Graphics
             // Don't close _commandList. We'll close it in D3D12CommandBuffer.Commit.
         }
 
+        private void PlatformDraw(
+            PrimitiveType primitiveType,
+            uint vertexStart,
+            uint vertexCount)
+        {
+            _commandList.PrimitiveTopology = primitiveType.ToPrimitiveTopology();
+
+            _commandList.DrawInstanced((int) vertexCount, 1, (int) vertexStart, 0);
+        }
+
         private void PlatformDrawIndexed(
             PrimitiveType primitiveType,
             uint indexCount,

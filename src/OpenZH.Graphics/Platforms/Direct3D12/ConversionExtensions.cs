@@ -51,6 +51,9 @@ namespace OpenZH.Graphics.Platforms.Direct3D12
                 case PixelFormat.Bc3:
                     return Format.BC3_UNorm;
 
+                case PixelFormat.Bgra8UNorm:
+                    return Format.B8G8R8A8_UNorm;
+
                 case PixelFormat.Rgba8UNorm:
                     return Format.R8G8B8A8_UNorm;
 

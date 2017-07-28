@@ -67,16 +67,16 @@ namespace OpenZH.DataViewer.Controls
             var pixelShader = new Shader(shaderLibrary, "SpritePS");
             var vertexShader = new Shader(shaderLibrary, "SpriteVS");
 
-            var vertexDescriptor = new VertexDescriptor();
-            vertexDescriptor.SetAttributeDescriptor(0, "POSITION", 0, VertexFormat.Float3, 0, 0);
-            vertexDescriptor.SetLayoutDescriptor(0, 12);
+            //var vertexDescriptor = new VertexDescriptor();
+            //vertexDescriptor.SetAttributeDescriptor(0, "POSITION", 0, VertexFormat.Float3, 0, 0);
+            //vertexDescriptor.SetLayoutDescriptor(0, 12);
 
             _pipelineState = new PipelineState(graphicsDevice, new PipelineStateDescription
             {
                 PipelineLayout = _pipelineLayout,
                 PixelShader = pixelShader,
-                RenderTargetFormat = PixelFormat.Rgba8UNorm,
-                VertexDescriptor = vertexDescriptor,
+                RenderTargetFormat = PixelFormat.Bgra8UNorm, // TODO: Make this dynamic.
+                VertexDescriptor = null,
                 VertexShader = vertexShader
             });
         }
@@ -208,14 +208,9 @@ namespace OpenZH.DataViewer.Controls
 
             commandEncoder.SetPipelineLayout(_pipelineLayout);
 
-            //commandEncoder.SetVertexBuffer(0, _vertexBuffer);
+            commandEncoder.SetDescriptorSet(0, _descriptorSet);
 
-            //commandEncoder.DrawIndexed(
-            //    PrimitiveType.TriangleList,
-            //    4,
-            //    IndexType.UInt16,
-            //    indexBuffer,
-            //    0);
+            commandEncoder.Draw(PrimitiveType.TriangleList, 0, 3);
 
             commandEncoder.Close();
 

@@ -9,6 +9,17 @@
             PlatformClose();
         }
 
+        public void Draw(
+            PrimitiveType primitiveType,
+            uint vertexStart,
+            uint vertexCount)
+        {
+            PlatformDraw(
+                primitiveType,
+                vertexStart,
+                vertexCount);
+        }
+
         public void DrawIndexed(
             PrimitiveType primitiveType,
             uint indexCount,
@@ -22,6 +33,11 @@
                 indexType,
                 indexBuffer,
                 indexBufferOffset);
+        }
+
+        public void SetDescriptorSet(int index, DescriptorSet descriptorSet)
+        {
+            PlatformSetDescriptorSet(index, descriptorSet);
         }
 
         public void SetPipelineState(PipelineState pipelineState)

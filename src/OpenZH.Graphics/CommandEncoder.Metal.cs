@@ -27,6 +27,11 @@ namespace OpenZH.Graphics
             //_commandList.SetGraphicsRootConstantBufferView(index, buffer.DeviceBuffer.GPUVirtualAddress);
         }
 
+        private void PlatformSetDescriptorSet(int index, DescriptorSet descriptorSet)
+        {
+            // TODO
+        }
+
         private void PlatformSetPipelineState(PipelineState pipelineState)
         {
             _commandEncoder.SetRenderPipelineState(pipelineState.DeviceRenderPipelineState);
@@ -37,6 +42,17 @@ namespace OpenZH.Graphics
         private void PlatformSetVertexBuffer(int bufferIndex, Buffer vertexBuffer)
         {
             _commandEncoder.SetVertexBuffer(vertexBuffer.DeviceBuffer, 0, (nuint) bufferIndex);
+        }
+
+        private void PlatformDraw(
+            PrimitiveType primitiveType,
+            uint vertexStart,
+            uint vertexCount)
+        {
+            _commandEncoder.DrawPrimitives(
+                primitiveType.ToMTLPrimitiveType(),
+                vertexStart,
+                vertexCount);
         }
 
         private void PlatformDrawIndexed(
