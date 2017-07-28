@@ -125,9 +125,13 @@
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <PixelShader Include="Shaders\SpritePS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <EnableDebuggingInfo>True</EnableDebuggingInfo>
+      <DisableOptimizations>True</DisableOptimizations>
     </PixelShader>
     <VertexShader Include="Shaders\SpriteVS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <EnableDebuggingInfo>True</EnableDebuggingInfo>
+      <DisableOptimizations>True</DisableOptimizations>
     </VertexShader>
     <Content Include="Shaders\Sprite.hlsli" />
     <Content Include="Shaders\shaders.hlsl">
