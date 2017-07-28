@@ -64,8 +64,8 @@ namespace OpenZH.DataViewer.Controls
 
             var shaderLibrary = new ShaderLibrary(graphicsDevice);
 
-            var pixelShader = new Shader(shaderLibrary, "TestPS");
-            var vertexShader = new Shader(shaderLibrary, "TestVS");
+            var pixelShader = new Shader(shaderLibrary, "SpritePS");
+            var vertexShader = new Shader(shaderLibrary, "SpriteVS");
 
             var vertexDescriptor = new VertexDescriptor();
             vertexDescriptor.SetAttributeDescriptor(0, "POSITION", 0, VertexFormat.Float3, 0, 0);

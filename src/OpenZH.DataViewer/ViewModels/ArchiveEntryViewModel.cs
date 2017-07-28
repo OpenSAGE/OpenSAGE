@@ -1,38 +1,38 @@
 ﻿using System.IO;
-using OpenZH.Data.Big;
+using OpenZH.Data;
 
 namespace OpenZH.DataViewer.ViewModels
 {
 	public class ArchiveEntryViewModel : ItemViewModel
     {
-		public BigArchiveEntry Item { get; set; }
+		public FileSystemEntry Item { get; set; }
 
-        public override string DisplayName => Item.FullName;
+        public override string DisplayName => Item.FilePath;
         public override string GroupName => "Files";
 
-        public ArchiveEntryViewModel(BigArchiveEntry item)
+        public ArchiveEntryViewModel(FileSystemEntry item)
 		{
 			Item = item;
 		}
 
-        public static ArchiveEntryViewModel Create(BigArchiveEntry archiveEntry)
+        public static ArchiveEntryViewModel Create(FileSystemEntry file)
         {
-            switch (Path.GetExtension(archiveEntry.FullName).ToLower())
+            switch (Path.GetExtension(file.FilePath).ToLower())
             {
                 case ".dds":
-                    return new TextureArchiveEntryViewModel(archiveEntry, TextureFormat.Dds);
+                    return new TextureArchiveEntryViewModel(file, TextureFormat.Dds);
 
                 case ".tga":
-                    return new TextureArchiveEntryViewModel(archiveEntry, TextureFormat.Tga);
+                    return new TextureArchiveEntryViewModel(file, TextureFormat.Tga);
 
                 case ".wav":
-                    return new WavArchiveEntryViewModel(archiveEntry);
+                    return new WavArchiveEntryViewModel(file);
 
                 case ".w3d":
-                    return new W3dArchiveEntryViewModel(archiveEntry);
+                    return new W3dArchiveEntryViewModel(file);
 
                 default:
-                    return new ArchiveEntryViewModel(archiveEntry);
+                    return new ArchiveEntryViewModel(file);
             }
         }
 	}

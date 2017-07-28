@@ -106,6 +106,7 @@
     <Compile Include="Renderers\RenderedViewRenderer.cs" />
     <Compile Include="Renderers\W3dMeshViewRenderer.cs" />
     <Compile Include="Services\FilePicker.cs" />
+    <Compile Include="Util\DispatcherTaskExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -122,9 +123,13 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
-    <Content Include="Shaders\Sprite.hlsl">
+    <PixelShader Include="Shaders\SpritePS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </PixelShader>
+    <VertexShader Include="Shaders\SpriteVS.hlsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </VertexShader>
+    <Content Include="Shaders\Sprite.hlsli" />
     <Content Include="Shaders\shaders.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -140,6 +145,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.HLSL.CSharpVB">
+      <Version>1.0.1</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>5.3.3</Version>
     </PackageReference>

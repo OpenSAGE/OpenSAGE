@@ -1,10 +1,10 @@
-﻿using OpenZH.Data.Big;
+﻿using OpenZH.Data;
 
 namespace OpenZH.DataViewer.ViewModels
 {
     public sealed class WavArchiveEntryViewModel : ArchiveEntryViewModel
     {
-        public WavArchiveEntryViewModel(BigArchiveEntry archiveEntry)
+        public WavArchiveEntryViewModel(FileSystemEntry archiveEntry)
             : base(archiveEntry)
         {
         }

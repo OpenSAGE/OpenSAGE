@@ -14,11 +14,7 @@ namespace OpenZH.Graphics
             {
                 BlendState = BlendStateDescription.Default(),
                 DepthStencilFormat = SharpDX.DXGI.Format.D32_Float,
-                DepthStencilState = new DepthStencilStateDescription
-                {
-                    IsDepthEnabled = true,
-                    IsStencilEnabled = false
-                },
+                DepthStencilState = DepthStencilStateDescription.Default(),
                 Flags = PipelineStateFlags.None,
                 InputLayout = description.VertexDescriptor.DeviceInputLayoutDescription,
                 PixelShader = description.PixelShader.DeviceBytecode,

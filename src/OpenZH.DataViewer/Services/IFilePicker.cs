@@ -4,6 +4,6 @@ namespace OpenZH.DataViewer.Services
 {
     public interface IFilePicker
     {
-        Task<byte[]> PickFile();
+        Task<string> PickFolder();
     }
 }

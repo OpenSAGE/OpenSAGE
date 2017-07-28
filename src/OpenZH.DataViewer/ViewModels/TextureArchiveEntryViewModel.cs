@@ -1,4 +1,4 @@
-﻿using OpenZH.Data.Big;
+﻿using OpenZH.Data;
 
 namespace OpenZH.DataViewer.ViewModels
 {
@@ -6,7 +6,7 @@ namespace OpenZH.DataViewer.ViewModels
     {
         public TextureFormat TextureFormat { get; }
 
-        public TextureArchiveEntryViewModel(BigArchiveEntry archiveEntry, TextureFormat textureFormat)
+        public TextureArchiveEntryViewModel(FileSystemEntry archiveEntry, TextureFormat textureFormat)
             : base(archiveEntry)
         {
             TextureFormat = textureFormat;

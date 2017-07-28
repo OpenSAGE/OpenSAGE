@@ -9,7 +9,7 @@ namespace OpenZH.Graphics
 
         internal ShaderBytecode GetShader(string shaderName)
         {
-            var shaderPath = Path.Combine("Shaders", shaderName);
+            var shaderPath = Path.Combine("Shaders", shaderName + ".cso");
             return File.ReadAllBytes(shaderPath);
         }
     }

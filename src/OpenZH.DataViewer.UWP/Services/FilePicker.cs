@@ -1,14 +1,26 @@
-﻿using OpenZH.DataViewer.Services;
-using Plugin.FilePicker;
+﻿using System;
 using System.Threading.Tasks;
+using OpenZH.DataViewer.Services;
+using OpenZH.DataViewer.UWP.Util;
+using Windows.ApplicationModel.Core;
+using Windows.Storage.Pickers;
 
 namespace OpenZH.DataViewer.UWP.Services
 {
     public class FilePicker : IFilePicker
     {
-        public async Task<byte[]> PickFile()
+        public Task<string> PickFolder()
         {
-            return (await CrossFilePicker.Current.PickFile()).DataArray;
+            return CoreApplication.MainView.CoreWindow.Dispatcher.RunTaskAsync(
+                async () =>
+                {
+                    var folderPicker = new FolderPicker();
+                    folderPicker.FileTypeFilter.Add(".something"); // Otherwise PickSingleFolderAsync throws a COMException.
+
+                    var pickedFolder = await folderPicker.PickSingleFolderAsync();
+
+                    return pickedFolder.Path;
+                });
         }
     }
 }

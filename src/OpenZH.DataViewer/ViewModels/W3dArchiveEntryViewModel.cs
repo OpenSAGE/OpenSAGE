@@ -1,12 +1,12 @@
-﻿using OpenZH.Data.Big;
-using OpenZH.Data.W3d;
+﻿using OpenZH.Data.W3d;
 using System.IO;
+using OpenZH.Data;
 
 namespace OpenZH.DataViewer.ViewModels
 {
     public sealed class W3dArchiveEntryViewModel : ArchiveEntryViewModel
     {
-        public W3dArchiveEntryViewModel(BigArchiveEntry archiveEntry)
+        public W3dArchiveEntryViewModel(FileSystemEntry archiveEntry)
             : base(archiveEntry)
         {
         }
