@@ -33,7 +33,19 @@ namespace OpenZH.DataViewer.Controls
 
             _pipelineLayout = new PipelineLayout(graphicsDevice, new PipelineLayoutDescription
             {
-                DescriptorSetLayouts = new[] { _descriptorSetLayout }
+                DescriptorSetLayouts = new[] { _descriptorSetLayout },
+                StaticSamplerStates = new[]
+                {
+                    new StaticSamplerDescription
+                    {
+                        Visibility = ShaderStageVisibility.Pixel,
+                        ShaderRegister = 0,
+                        SamplerStateDescription = new SamplerStateDescription
+                        {
+                            Filter = SamplerFilter.MinMagMipPoint
+                        }
+                    }
+                }
             });
 
             var shaderLibrary = new ShaderLibrary(graphicsDevice);

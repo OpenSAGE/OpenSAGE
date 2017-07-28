@@ -1,5 +1,7 @@
 ﻿using System.Linq;
+using OpenZH.Graphics.Platforms.Direct3D12;
 using SharpDX.Direct3D12;
+using D3D12 = SharpDX.Direct3D12;
 
 namespace OpenZH.Graphics
 {
@@ -9,26 +11,31 @@ namespace OpenZH.Graphics
 
         private void PlatformConstruct(GraphicsDevice graphicsDevice, PipelineLayoutDescription description)
         {
-            // TODO
-            var samplerStateDescription = new SamplerStateDescription
+            var staticSamplerDescriptions = description.StaticSamplerStates.Select(x =>
             {
-                Filter = Filter.MinMagMipLinear,
-                AddressU = TextureAddressMode.Clamp,
-                AddressV = TextureAddressMode.Clamp,
-                AddressW = TextureAddressMode.Clamp,
-                ComparisonFunction = Comparison.Always,
-                MinimumLod = 0,
-                MaximumLod = float.MaxValue
-            };
-            var staticSamplerDescription = new StaticSamplerDescription(
-                samplerStateDescription,
-                ShaderVisibility.Pixel,
-                0, 0);
+                var samplerStateDescription = new D3D12.SamplerStateDescription
+                {
+                    Filter = x.SamplerStateDescription.Filter.ToFilter(),
+                    AddressU = TextureAddressMode.Clamp,
+                    AddressV = TextureAddressMode.Clamp,
+                    AddressW = TextureAddressMode.Clamp,
+                    ComparisonFunction = Comparison.Always,
+                    MinimumLod = 0,
+                    MaximumLod = float.MaxValue,
+                    MaximumAnisotropy = x.SamplerStateDescription.MaxAnisotropy
+                };
+
+                return new D3D12.StaticSamplerDescription(
+                    samplerStateDescription,
+                    x.Visibility.ToShaderVisibility(),
+                    x.ShaderRegister,
+                    0);
+            });
 
             var rootSignatureDescription = new RootSignatureDescription(
                 RootSignatureFlags.AllowInputAssemblerInputLayout,
                 parameters: description.DescriptorSetLayouts.Select(x => x.DeviceRootParameter).ToArray(),
-                samplers: new[] { staticSamplerDescription });
+                samplers: staticSamplerDescriptions.ToArray());
 
             var serializedRootSignatureDescription = rootSignatureDescription.Serialize();
             DeviceRootSignature = AddDisposable(graphicsDevice.Device.CreateRootSignature(serializedRootSignatureDescription));

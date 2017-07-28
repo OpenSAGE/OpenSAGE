@@ -57,7 +57,7 @@ namespace OpenZH.Graphics.Platforms.Apple
 
         void IMTKViewDelegate.Draw(MTKView view)
         {
-            GraphicsDraw?.Invoke(this, new GraphicsDrawEventArgs(_graphicsDevice, _swapChain));
+            GraphicsDraw?.Invoke(this, new GraphicsEventArgs(_graphicsDevice, _swapChain));
         }
 
         void IMTKViewDelegate.DrawableSizeWillChange(MTKView view, CGSize size)

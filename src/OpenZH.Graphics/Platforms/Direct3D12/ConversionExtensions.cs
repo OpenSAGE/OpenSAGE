@@ -80,6 +80,24 @@ namespace OpenZH.Graphics.Platforms.Direct3D12
             }
         }
 
+        public static Filter ToFilter(this SamplerFilter value)
+        {
+            switch (value)
+            {
+                case SamplerFilter.MinMagMipPoint:
+                    return Filter.MinMagMipPoint;
+
+                case SamplerFilter.MinMagMipLinear:
+                    return Filter.MinMagMipLinear;
+
+                case SamplerFilter.Anisotropic:
+                    return Filter.Anisotropic;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value));
+            }
+        }
+
         public static PrimitiveTopology ToPrimitiveTopology(this PrimitiveType value)
         {
             switch (value)

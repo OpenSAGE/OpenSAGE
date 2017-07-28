@@ -37,7 +37,29 @@ namespace OpenZH.Graphics
             _commandEncoder.SetRenderPipelineState(pipelineState.DeviceRenderPipelineState);
         }
 
-        private void PlatformSetPipelineLayout(PipelineLayout pipelineLayout) { }
+        private void PlatformSetPipelineLayout(PipelineLayout pipelineLayout)
+        {
+            for (var i = 0; i < pipelineLayout.Description.StaticSamplerStates.Length; i++)
+            {
+                var staticSamplerState = pipelineLayout.Description.StaticSamplerStates[i];
+
+                switch (staticSamplerState.Visibility)
+                {
+                    case ShaderStageVisibility.Vertex:
+                        _commandEncoder.SetVertexSamplerState(pipelineLayout.DeviceSamplerStates[i], (nuint) staticSamplerState.ShaderRegister);
+                        break;
+
+                    case ShaderStageVisibility.Pixel:
+                        _commandEncoder.SetFragmentSamplerState(pipelineLayout.DeviceSamplerStates[i], (nuint) staticSamplerState.ShaderRegister);
+                        break;
+
+                    case ShaderStageVisibility.All:
+                        _commandEncoder.SetVertexSamplerState(pipelineLayout.DeviceSamplerStates[i], (nuint) staticSamplerState.ShaderRegister);
+                        _commandEncoder.SetFragmentSamplerState(pipelineLayout.DeviceSamplerStates[i], (nuint) staticSamplerState.ShaderRegister);
+                        break;
+                }
+            }
+        }
 
         private void PlatformSetVertexBuffer(int bufferIndex, Buffer vertexBuffer)
         {
