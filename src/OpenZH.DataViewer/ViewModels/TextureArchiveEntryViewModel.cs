@@ -4,18 +4,9 @@ namespace OpenZH.DataViewer.ViewModels
 {
     public sealed class TextureArchiveEntryViewModel : ArchiveEntryViewModel
     {
-        public TextureFormat TextureFormat { get; }
-
-        public TextureArchiveEntryViewModel(FileSystemEntry archiveEntry, TextureFormat textureFormat)
+        public TextureArchiveEntryViewModel(FileSystemEntry archiveEntry)
             : base(archiveEntry)
         {
-            TextureFormat = textureFormat;
         }
-    }
-
-    public enum TextureFormat
-    {
-        Dds,
-        Tga
     }
 }

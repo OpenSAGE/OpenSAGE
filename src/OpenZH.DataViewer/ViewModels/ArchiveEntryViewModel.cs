@@ -20,10 +20,8 @@ namespace OpenZH.DataViewer.ViewModels
             switch (Path.GetExtension(file.FilePath).ToLower())
             {
                 case ".dds":
-                    return new TextureArchiveEntryViewModel(file, TextureFormat.Dds);
-
                 case ".tga":
-                    return new TextureArchiveEntryViewModel(file, TextureFormat.Tga);
+                    return new TextureArchiveEntryViewModel(file);
 
                 case ".wav":
                     return new WavArchiveEntryViewModel(file);
