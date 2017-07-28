@@ -101,7 +101,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderers\ConversionExtensions.cs" />
     <Compile Include="Renderers\D3D12Mesh.cs" />
-    <Compile Include="Renderers\DdsViewRenderer.cs" />
     <Compile Include="Renderers\MediaViewRenderer.cs" />
     <Compile Include="Renderers\RenderedViewRenderer.cs" />
     <Compile Include="Renderers\W3dMeshViewRenderer.cs" />
