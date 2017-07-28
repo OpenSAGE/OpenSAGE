@@ -5,7 +5,7 @@ namespace OpenZH.Graphics.Hosting
     public interface IGraphicsView
     {
         event EventHandler<GraphicsEventArgs> GraphicsInitialize;
-        event EventHandler<GraphicsDrawEventArgs> GraphicsDraw;
+        event EventHandler<GraphicsEventArgs> GraphicsDraw;
 
         bool RedrawsOnTimer { get; set; }
 

@@ -8,6 +8,8 @@ namespace OpenZH.Graphics
         private readonly GraphicsDevice _graphicsDevice;
         private readonly MTKView _metalView;
 
+        private PixelFormat PlatformBackBufferFormat => PixelFormat.Bgra8UNorm;
+
         internal IMTLDrawable CurrentDrawable => _metalView.CurrentDrawable;
 
         public SwapChain(GraphicsDevice graphicsDevice, MTKView metalView)

@@ -11,7 +11,7 @@ namespace OpenZH.Graphics.Platforms.Direct3D12
     public class D3D12SwapChainPanel : SwapChainPanel, IGraphicsView
     {
         public event EventHandler<GraphicsEventArgs> GraphicsInitialize;
-        public event EventHandler<GraphicsDrawEventArgs> GraphicsDraw;
+        public event EventHandler<GraphicsEventArgs> GraphicsDraw;
 
         private readonly GraphicsDevice _graphicsDevice;
         private readonly SwapChain _swapChain;
@@ -62,7 +62,7 @@ namespace OpenZH.Graphics.Platforms.Direct3D12
             var nativePanel = ComObject.As<ISwapChainPanelNative>(this);
             nativePanel.SwapChain = _swapChain.DeviceSwapChain;
 
-            GraphicsInitialize?.Invoke(this, new GraphicsEventArgs(_graphicsDevice));
+            GraphicsInitialize?.Invoke(this, new GraphicsEventArgs(_graphicsDevice, _swapChain));
 
             if (!RedrawsOnTimer)
             {
@@ -92,7 +92,7 @@ namespace OpenZH.Graphics.Platforms.Direct3D12
 
         public void Draw()
         {
-            GraphicsDraw?.Invoke(this, new GraphicsDrawEventArgs(_graphicsDevice, _swapChain));
+            GraphicsDraw?.Invoke(this, new GraphicsEventArgs(_graphicsDevice, _swapChain));
         }
 
         private void OnRendering(object sender, object e)

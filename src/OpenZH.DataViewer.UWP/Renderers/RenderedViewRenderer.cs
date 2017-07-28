@@ -32,10 +32,10 @@ namespace OpenZH.DataViewer.UWP.Renderers
 
         private void OnGraphicsInitialize(object sender, GraphicsEventArgs e)
         {
-            Element.Initialize(e.GraphicsDevice);
+            Element.Initialize(e.GraphicsDevice, e.SwapChain);
         }
 
-        private void OnGraphicsDraw(object sender, GraphicsDrawEventArgs e)
+        private void OnGraphicsDraw(object sender, GraphicsEventArgs e)
         {
             Element.Draw(e.GraphicsDevice, e.SwapChain);
         }

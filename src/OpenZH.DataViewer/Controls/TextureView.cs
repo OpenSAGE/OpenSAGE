@@ -14,7 +14,7 @@ namespace OpenZH.DataViewer.Controls
 
         public FileSystemEntry TextureFile { get; set; }
 
-        public override void Initialize(GraphicsDevice graphicsDevice)
+        public override void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
             _texture = TextureLoader.LoadTexture(graphicsDevice, TextureFile);
 
@@ -49,7 +49,7 @@ namespace OpenZH.DataViewer.Controls
             {
                 PipelineLayout = _pipelineLayout,
                 PixelShader = pixelShader,
-                RenderTargetFormat = PixelFormat.Bgra8UNorm, // TODO: Make this dynamic.
+                RenderTargetFormat = swapChain.BackBufferFormat,
                 VertexDescriptor = null,
                 VertexShader = vertexShader
             });

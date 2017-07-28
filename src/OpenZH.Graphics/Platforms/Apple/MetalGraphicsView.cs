@@ -9,7 +9,7 @@ namespace OpenZH.Graphics.Platforms.Apple
     public sealed class MetalGraphicsView : UIView, IMTKViewDelegate, IGraphicsView
     {
         public event EventHandler<GraphicsEventArgs> GraphicsInitialize;
-        public event EventHandler<GraphicsDrawEventArgs> GraphicsDraw;
+        public event EventHandler<GraphicsEventArgs> GraphicsDraw;
 
         private readonly GraphicsDevice _graphicsDevice;
         private readonly MTKView _metalView;
@@ -32,6 +32,7 @@ namespace OpenZH.Graphics.Platforms.Apple
             _graphicsDevice = new GraphicsDevice();
 
             _metalView = new MTKView(CGRect.Empty, _graphicsDevice.Device);
+            _metalView.ColorPixelFormat = global::Metal.MTLPixelFormat.BGRA8Unorm;
             _metalView.Delegate = this;
             AddSubview(_metalView);
 
@@ -47,7 +48,7 @@ namespace OpenZH.Graphics.Platforms.Apple
         {
             if (!_initialized)
             {
-                GraphicsInitialize?.Invoke(this, new GraphicsEventArgs(_graphicsDevice));
+                GraphicsInitialize?.Invoke(this, new GraphicsEventArgs(_graphicsDevice, _swapChain));
                 _initialized = true;
             }
 

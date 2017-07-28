@@ -14,7 +14,7 @@ namespace OpenZH.DataViewer.Controls
             set { SetValue(RedrawsOnTimerProperty, value); }
         }
 
-        public abstract void Initialize(GraphicsDevice graphicsDevice);
+        public abstract void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain);
 
         public abstract void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain);
     }

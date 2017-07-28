@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
 using D3D12 = SharpDX.Direct3D12;
@@ -8,7 +7,7 @@ namespace OpenZH.Graphics
 {
     partial class SwapChain
     {
-        private const Format BackBufferFormat = Format.B8G8R8A8_UNorm;
+        private const Format DeviceBackBufferFormat = Format.B8G8R8A8_UNorm;
 
         private readonly GraphicsDevice _graphicsDevice;
         private readonly int _backBufferCount;
@@ -21,6 +20,8 @@ namespace OpenZH.Graphics
         private readonly AutoResetEvent _fenceEvent;
         private Fence _fence;
         private readonly int[] _fenceValues;
+
+        private PixelFormat PlatformBackBufferFormat => PixelFormat.Bgra8UNorm;
 
         public SwapChain3 DeviceSwapChain { get; }
 
@@ -71,7 +72,7 @@ namespace OpenZH.Graphics
             {
                 Width = width,
                 Height = height,
-                Format = BackBufferFormat,
+                Format = DeviceBackBufferFormat,
                 Stereo = false,
                 SampleDescription = new SampleDescription(1, 0),
                 Usage = Usage.RenderTargetOutput,
@@ -111,7 +112,7 @@ namespace OpenZH.Graphics
                 _backBufferCount,
                 newWidth,
                 newHeight,
-                BackBufferFormat,
+                DeviceBackBufferFormat,
                 SwapChainFlags.None);
 
             _frameIndex = DeviceSwapChain.CurrentBackBufferIndex;
