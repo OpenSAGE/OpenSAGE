@@ -210,6 +210,16 @@ namespace OpenZH.DataViewer.Controls
 
             commandEncoder.SetDescriptorSet(0, _descriptorSet);
 
+            commandEncoder.SetViewport(new Viewport
+            {
+                X = 0,
+                Y = 0,
+                Width = (int) Width,
+                Height = (int) Height,
+                MinDepth = 0,
+                MaxDepth = 1
+            });
+
             commandEncoder.Draw(PrimitiveType.TriangleList, 0, 3);
 
             commandEncoder.Close();
