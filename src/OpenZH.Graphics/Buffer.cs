@@ -7,9 +7,11 @@
         public Buffer(GraphicsDevice graphicsDevice, uint sizeInBytes)
             : base(graphicsDevice)
         {
-            SizeInBytes = sizeInBytes;
+            var alignedSizeInBytes = PlatformGetAlignedSize(sizeInBytes);
 
-            PlatformConstruct(graphicsDevice, sizeInBytes);
+            SizeInBytes = alignedSizeInBytes;
+
+            PlatformConstruct(graphicsDevice, alignedSizeInBytes);
         }
 
         public void SetData<T>(T data, int offset)

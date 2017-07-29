@@ -7,6 +7,8 @@ namespace OpenZH.Graphics
     {
         internal IMTLBuffer DeviceBuffer { get; private set; }
 
+        private uint PlatformGetAlignedSize(uint sizeInBytes) => sizeInBytes;
+
         private void PlatformConstruct(GraphicsDevice graphicsDevice, uint sizeInBytes)
         {
             DeviceBuffer = AddDisposable(graphicsDevice.Device.CreateBuffer(

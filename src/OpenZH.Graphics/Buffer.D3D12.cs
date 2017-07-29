@@ -7,6 +7,12 @@ namespace OpenZH.Graphics
     {
         internal Resource DeviceBuffer { get; private set; }
 
+        private uint PlatformGetAlignedSize(uint sizeInBytes)
+        {
+            // Align to 256 bytes.
+            return (uint) ((sizeInBytes + 255) & ~255);
+        }
+
         private void PlatformConstruct(GraphicsDevice graphicsDevice, uint sizeInBytes)
         {
             DeviceBuffer = AddDisposable(graphicsDevice.Device.CreateCommittedResource(

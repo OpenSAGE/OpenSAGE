@@ -11,7 +11,8 @@ namespace OpenZH.Graphics
 
         private void PlatformConstruct(GraphicsDevice graphicsDevice, PipelineLayoutDescription description)
         {
-            var staticSamplerDescriptions = description.StaticSamplerStates.Select(x =>
+            var staticSamplerStates = description.StaticSamplerStates ?? new StaticSamplerDescription[0];
+            var staticSamplerDescriptions = staticSamplerStates.Select(x =>
             {
                 var samplerStateDescription = new D3D12.SamplerStateDescription
                 {

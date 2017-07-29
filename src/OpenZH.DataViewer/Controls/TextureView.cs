@@ -53,16 +53,11 @@ namespace OpenZH.DataViewer.Controls
             var pixelShader = new Shader(shaderLibrary, "SpritePS");
             var vertexShader = new Shader(shaderLibrary, "SpriteVS");
 
-            //var vertexDescriptor = new VertexDescriptor();
-            //vertexDescriptor.SetAttributeDescriptor(0, "POSITION", 0, VertexFormat.Float3, 0, 0);
-            //vertexDescriptor.SetLayoutDescriptor(0, 12);
-
             _pipelineState = new PipelineState(graphicsDevice, new PipelineStateDescription
             {
                 PipelineLayout = _pipelineLayout,
                 PixelShader = pixelShader,
                 RenderTargetFormat = swapChain.BackBufferFormat,
-                VertexDescriptor = null,
                 VertexShader = vertexShader
             });
         }

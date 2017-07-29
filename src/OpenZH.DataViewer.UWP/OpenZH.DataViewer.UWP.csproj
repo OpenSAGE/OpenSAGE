@@ -122,6 +122,18 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+    <VertexShader Include="Shaders\MeshVS.hlsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <DisableOptimizations>True</DisableOptimizations>
+      <EnableDebuggingInfo>True</EnableDebuggingInfo>
+      <ShaderModel>5_1</ShaderModel>
+    </VertexShader>
+    <PixelShader Include="Shaders\MeshPS.hlsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <DisableOptimizations>True</DisableOptimizations>
+      <EnableDebuggingInfo>True</EnableDebuggingInfo>
+      <ShaderModel>5_1</ShaderModel>
+    </PixelShader>
     <PixelShader Include="Shaders\SpritePS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <EnableDebuggingInfo>True</EnableDebuggingInfo>
@@ -132,10 +144,8 @@
       <EnableDebuggingInfo>True</EnableDebuggingInfo>
       <DisableOptimizations>True</DisableOptimizations>
     </VertexShader>
+    <Content Include="Shaders\Mesh.hlsli" />
     <Content Include="Shaders\Sprite.hlsli" />
-    <Content Include="Shaders\shaders.hlsl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">

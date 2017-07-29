@@ -27,7 +27,7 @@ namespace OpenZH.Graphics
                     binding.DescriptorType.ToDescriptorRangeType(),
                     binding.DescriptorCount,
                     binding.BaseShaderRegister,
-                    offset);
+                    offsetInDescriptorsFromTableStart: offset);
 
                 offset += binding.DescriptorCount;
             }

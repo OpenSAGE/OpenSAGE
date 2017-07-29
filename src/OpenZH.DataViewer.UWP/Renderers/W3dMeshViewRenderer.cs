@@ -17,7 +17,7 @@ using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
 using Xamarin.Forms.Platform.UWP;
 
-[assembly: ExportRenderer(typeof(W3dMeshView), typeof(W3dMeshViewRenderer))]
+//[assembly: ExportRenderer(typeof(W3dMeshView), typeof(W3dMeshViewRenderer))]
 
 namespace OpenZH.DataViewer.UWP.Renderers
 {
