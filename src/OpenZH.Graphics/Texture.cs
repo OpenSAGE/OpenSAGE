@@ -4,46 +4,43 @@
     {
         public static Texture CreateTexture2D(
             GraphicsDevice graphicsDevice,
+            ResourceUploadBatch uploadBatch,
             PixelFormat pixelFormat,
             int width,
             int height,
-            int numMipmapLevels)
+            TextureMipMapData[] mipMapData)
         {
             return new Texture(
                 graphicsDevice,
+                uploadBatch,
                 pixelFormat,
                 width,
                 height,
-                numMipmapLevels);
+                mipMapData);
         }
 
         private Texture(
             GraphicsDevice graphicsDevice,
+            ResourceUploadBatch uploadBatch,
             PixelFormat pixelFormat,
             int width,
             int height,
-            int numMipmapLevels)
+            TextureMipMapData[] mipMapData)
             : base(graphicsDevice)
         {
             PlatformConstruct(
                 graphicsDevice,
+                uploadBatch,
                 pixelFormat,
                 width,
                 height,
-                numMipmapLevels);
+                mipMapData);
         }
+    }
 
-        public void SetData(
-            ResourceUploadBatch uploadBatch,
-            int level,
-            byte[] data,
-            int bytesPerRow)
-        {
-            PlatformSetData(
-                uploadBatch,
-                level,
-                data,
-                bytesPerRow);
-        }
+    public struct TextureMipMapData
+    {
+        public byte[] Data;
+        public int BytesPerRow;
     }
 }

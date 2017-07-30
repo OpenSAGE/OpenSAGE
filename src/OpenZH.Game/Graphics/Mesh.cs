@@ -21,14 +21,14 @@ namespace OpenZH.Game.Graphics
             _w3dMesh = w3dMesh;
         }
 
-        public void Initialize(GraphicsDevice graphicsDevice)
+        public void Initialize(GraphicsDevice graphicsDevice, ResourceUploadBatch uploadBatch)
         {
-            CreateVertexBuffer(graphicsDevice);
+            CreateVertexBuffer(graphicsDevice, uploadBatch);
 
-            CreateIndexBuffer(graphicsDevice);
+            CreateIndexBuffer(graphicsDevice, uploadBatch);
         }
 
-        private void CreateVertexBuffer(GraphicsDevice graphicsDevice)
+        private void CreateVertexBuffer(GraphicsDevice graphicsDevice, ResourceUploadBatch uploadBatch)
         {
             _numVertices = (uint) _w3dMesh.Vertices.Length;
 
@@ -46,12 +46,13 @@ namespace OpenZH.Game.Graphics
 
             var vertexBufferSize = _numVertices * MeshVertex.SizeInBytes;
 
-            _vertexBuffer = AddDisposable(new Buffer(graphicsDevice, vertexBufferSize));
-
-            _vertexBuffer.SetData(vertices, 0);
+            _vertexBuffer = AddDisposable(StaticBuffer.Create(
+                graphicsDevice,
+                uploadBatch,
+                vertices));
         }
 
-        private void CreateIndexBuffer(GraphicsDevice graphicsDevice)
+        private void CreateIndexBuffer(GraphicsDevice graphicsDevice, ResourceUploadBatch uploadBatch)
         {
             _numIndices = (uint) _w3dMesh.Triangles.Length * 3;
 
@@ -64,8 +65,10 @@ namespace OpenZH.Game.Graphics
                 indices[indexIndex++] = (ushort) triangle.VIndex2;
             }
                                                                                                                     
-            _indexBuffer = AddDisposable(new Buffer(graphicsDevice, sizeof(ushort) * _numIndices));
-            _indexBuffer.SetData(indices, 0);
+            _indexBuffer = AddDisposable(StaticBuffer.Create(
+                graphicsDevice,
+                uploadBatch,
+                indices));
         }
 
         public void Draw(CommandEncoder commandEncoder)

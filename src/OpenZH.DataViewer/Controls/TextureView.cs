@@ -16,7 +16,12 @@ namespace OpenZH.DataViewer.Controls
 
         public override void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
-            _texture = TextureLoader.LoadTexture(graphicsDevice, TextureFile);
+            var uploadBatch = new ResourceUploadBatch(graphicsDevice);
+            uploadBatch.Begin();
+
+            _texture = TextureLoader.LoadTexture(graphicsDevice, uploadBatch, TextureFile);
+
+            uploadBatch.End();
 
             _descriptorSetLayout = new DescriptorSetLayout(new DescriptorSetLayoutDescription
             {

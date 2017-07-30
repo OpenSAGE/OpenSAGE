@@ -9,7 +9,7 @@
             // No-op.
         }
 
-        private void PlatformEnd(CommandQueue commandQueue)
+        private void PlatformEnd()
         {
             // No-op.
         }

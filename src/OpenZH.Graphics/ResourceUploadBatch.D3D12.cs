@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using OpenZH.Graphics.Platforms.Direct3D12;
 using SharpDX;
 using SharpDX.Direct3D12;
 
@@ -9,6 +8,7 @@ namespace OpenZH.Graphics
 {
     partial class ResourceUploadBatch
     {
+        private GraphicsDevice _graphicsDevice;
         private Device _device;
         private List<Resource> _trackedResources;
 
@@ -17,6 +17,7 @@ namespace OpenZH.Graphics
 
         private void PlatformConstruct(GraphicsDevice graphicsDevice)
         {
+            _graphicsDevice = graphicsDevice;
             _device = graphicsDevice.Device;
 
             _trackedResources = new List<Resource>();
@@ -29,22 +30,24 @@ namespace OpenZH.Graphics
             _commandList = _device.CreateCommandList(CommandListType.Direct, _commandAllocator, null);
         }
 
-        internal void Upload(Resource resource, int subresource, byte[] data, int bytesPerRow)
+        internal void Upload<T>(Resource destinationResource, ResourceUploadData<T>[] sourceSubresourceData)
+            where T : struct
         {
             if (!_inBeginEndBlock)
             {
                 throw new InvalidOperationException();
             }
 
-            var resourceDescription = resource.Description;
+            var destinationResourceDescription = destinationResource.Description;
+            var numSubresources = sourceSubresourceData.Length;
 
-            var resourceLayouts = new PlacedSubResourceFootprint[1];
-            var resourceNumRows = new int[1];
-            var resourceRowSizesInBytes = new long[1];
+            var resourceLayouts = new PlacedSubResourceFootprint[numSubresources];
+            var resourceNumRows = new int[numSubresources];
+            var resourceRowSizesInBytes = new long[numSubresources];
             _device.GetCopyableFootprints(
-                ref resourceDescription,
-                subresource,
-                1,
+                ref destinationResourceDescription,
+                0,
+                numSubresources,
                 0,
                 resourceLayouts,
                 resourceNumRows,
@@ -60,28 +63,51 @@ namespace OpenZH.Graphics
 
             var dataPtr = uploadResource.Map(0);
 
-            var numRows = resourceNumRows[0];
-            for (var y = 0; y < numRows; y++)
+            for (var i = 0; i < numSubresources; i++)
             {
-                Utilities.Write(
-                    dataPtr + (resourceLayouts[0].Footprint.RowPitch * y),
-                    data,
-                    bytesPerRow * y,
-                    (int) resourceRowSizesInBytes[0]);
+                var subresourceData = sourceSubresourceData[i];
+
+                var resourceLayout = resourceLayouts[i];
+                var numRows = resourceNumRows[i];
+                var resourceRowSizeInBytes = resourceRowSizesInBytes[i];
+
+                for (var y = 0; y < numRows; y++)
+                {
+                    Utilities.Write(
+                        dataPtr + (resourceLayout.Footprint.RowPitch * y),
+                        subresourceData.Data,
+                        subresourceData.BytesPerRow * y,
+                        (int) resourceRowSizeInBytes);
+                }
             }
 
             uploadResource.Unmap(0);
 
-            _commandList.CopyTextureRegion(
-                new TextureCopyLocation(resource, subresource),
-                0, 0, 0,
-                new TextureCopyLocation(uploadResource, resourceLayouts[0]),
-                null);
+            if (destinationResourceDescription.Dimension == ResourceDimension.Buffer)
+            {
+                _commandList.CopyBufferRegion(
+                    destinationResource,
+                    0,
+                    uploadResource,
+                    resourceLayouts[0].Offset,
+                    resourceLayouts[0].Footprint.Width);
+            }
+            else
+            {
+                for (var i = 0; i < numSubresources; i++)
+                {
+                    _commandList.CopyTextureRegion(
+                        new TextureCopyLocation(destinationResource, i),
+                        0, 0, 0,
+                        new TextureCopyLocation(uploadResource, resourceLayouts[i]),
+                        null);
+                }
+            }
 
             _trackedResources.Add(uploadResource);
         }
 
-        internal void Transition(Resource resource, int subresource, ResourceStates stateBefore, ResourceStates stateAfter)
+        internal void Transition(Resource resource, ResourceStates stateBefore, ResourceStates stateAfter)
         {
             if (!_inBeginEndBlock)
             {
@@ -90,16 +116,15 @@ namespace OpenZH.Graphics
 
             _commandList.ResourceBarrierTransition(
                 resource,
-                subresource,
                 stateBefore,
                 stateAfter);
         }
 
-        private void PlatformEnd(CommandQueue commandQueue)
+        private void PlatformEnd()
         {
             _commandList.Close();
 
-            var d3d12CommandQueue = commandQueue.DeviceCommandQueue;
+            var d3d12CommandQueue = _graphicsDevice.CommandQueue.DeviceCommandQueue;
             d3d12CommandQueue.ExecuteCommandList(_commandList);
 
             using (var fence = _device.CreateFence(0, FenceFlags.None))
@@ -123,5 +148,12 @@ namespace OpenZH.Graphics
             _commandAllocator.Dispose();
             _commandAllocator = null;
         }
+    }
+
+    internal struct ResourceUploadData<T>
+        where T : struct
+    {
+        public T[] Data;
+        public int BytesPerRow;
     }
 }

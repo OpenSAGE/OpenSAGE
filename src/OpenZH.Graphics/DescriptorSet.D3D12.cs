@@ -15,7 +15,7 @@ namespace OpenZH.Graphics
             _cbvUavSrvPoolEntry = graphicsDevice.DescriptorHeapCbvUavSrv.Reserve(layout.Description.Bindings.Length);
         }
 
-        private void PlatformSetConstantBuffer(int index, Buffer buffer)
+        private void PlatformSetConstantBuffer(int index, StaticBuffer buffer)
         {
             GraphicsDevice.Device.CreateConstantBufferView(
                 new ConstantBufferViewDescription

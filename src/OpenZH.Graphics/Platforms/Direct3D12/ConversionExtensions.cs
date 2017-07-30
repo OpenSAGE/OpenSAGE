@@ -115,6 +115,21 @@ namespace OpenZH.Graphics.Platforms.Direct3D12
             return new RawColor4(value.R, value.G, value.B, value.A);
         }
 
+        public static RootParameterType ToRootParameterType(this DescriptorType value)
+        {
+            switch (value)
+            {
+                case DescriptorType.ConstantBuffer:
+                    return RootParameterType.ConstantBufferView;
+
+                case DescriptorType.Texture:
+                    return RootParameterType.ShaderResourceView;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         public static ShaderVisibility ToShaderVisibility(this ShaderStageVisibility value)
         {
             switch (value)

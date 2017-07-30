@@ -37,7 +37,16 @@
 
         public void SetDescriptorSet(int index, DescriptorSet descriptorSet)
         {
+            // TODO: Validation.
+
             PlatformSetDescriptorSet(index, descriptorSet);
+        }
+
+        public void SetInlineConstantBuffer(int index, Buffer buffer)
+        {
+            // TODO: Validation.
+
+            PlatformSetInlineConstantBuffer(index, buffer);
         }
 
         public void SetPipelineState(PipelineState pipelineState)

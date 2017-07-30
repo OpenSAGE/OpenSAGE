@@ -14,10 +14,11 @@ namespace OpenZH.Graphics
 
         private void PlatformConstruct(
             GraphicsDevice graphicsDevice,
+            ResourceUploadBatch uploadBatch,
             PixelFormat pixelFormat,
             int width,
             int height,
-            int numMipmapLevels)
+            TextureMipMapData[] mipMapData)
         {
             var textureDescriptor = MTLTextureDescriptor.CreateTexture2DDescriptor(
                 pixelFormat.ToMTLPixelFormat(),
@@ -27,14 +28,22 @@ namespace OpenZH.Graphics
 
             textureDescriptor.Usage = MTLTextureUsage.ShaderRead;
 
-            textureDescriptor.MipmapLevelCount = (nuint) numMipmapLevels;
+            textureDescriptor.MipmapLevelCount = (nuint) mipMapData.Length;
 
             _originalPixelFormat = pixelFormat;
 
             DeviceTexture = AddDisposable(graphicsDevice.Device.CreateTexture(textureDescriptor));
+
+            for (var i = 0; i < mipMapData.Length; i++)
+            {
+                SetData(
+                    i,
+                    mipMapData[i].Data,
+                    mipMapData[i].BytesPerRow);
+            }
         }
 
-        private void PlatformSetData(ResourceUploadBatch uploadBatch, int level, byte[] data, int bytesPerRow)
+        private void SetData(int level, byte[] data, int bytesPerRow)
         {
             var processedData = data;
             var processedBytesPerRow = bytesPerRow;
@@ -52,6 +61,7 @@ namespace OpenZH.Graphics
                     break;
             }
 
+            // TODO: This isn't correct for mip levels > 0.
             var region = MTLRegion.Create2D(0, 0, DeviceTexture.Width, DeviceTexture.Height);
 
             var pinnedArray = GCHandle.Alloc(processedData, GCHandleType.Pinned);

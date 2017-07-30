@@ -5,22 +5,21 @@ namespace OpenZH.Graphics
 {
     partial class Texture
     {
-        private DescriptorHeap _descriptorHeap;
-
         internal Resource DeviceResource { get; private set; }
 
         private void PlatformConstruct(
             GraphicsDevice graphicsDevice,
+            ResourceUploadBatch uploadBatch,
             PixelFormat pixelFormat,
             int width,
             int height,
-            int numMipmapLevels)
+            TextureMipMapData[] mipMapData)
         {
             var resourceDescription = ResourceDescription.Texture2D(
                 pixelFormat.ToDxgiFormat(),
                 width,
                 height,
-                mipLevels: (short) numMipmapLevels);
+                mipLevels: (short) mipMapData.Length);
 
             DeviceResource = AddDisposable(graphicsDevice.Device.CreateCommittedResource(
                 new HeapProperties(HeapType.Default),
@@ -28,38 +27,24 @@ namespace OpenZH.Graphics
                 resourceDescription,
                 ResourceStates.CopyDestination));
 
-            _descriptorHeap = AddDisposable(graphicsDevice.Device.CreateDescriptorHeap(
-                new DescriptorHeapDescription
+            var uploadData = new ResourceUploadData<byte>[mipMapData.Length];
+            for (var i = 0; i < mipMapData.Length; i++)
+            {
+                uploadData[i] = new ResourceUploadData<byte>
                 {
-                    DescriptorCount = 1,
-                    Flags = DescriptorHeapFlags.ShaderVisible,
-                    Type = DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
-                }));
+                    Data = mipMapData[i].Data,
+                    BytesPerRow = mipMapData[i].BytesPerRow
+                };
+            }
 
-            graphicsDevice.Device.CreateShaderResourceView(
+            uploadBatch.Upload(
                 DeviceResource,
-                new ShaderResourceViewDescription
-                {
-                    Shader4ComponentMapping = ComponentMappingUtility.DefaultComponentMapping(),
-                    Format = resourceDescription.Format,
-                    Dimension = ShaderResourceViewDimension.Texture2D,
-                    Texture2D =
-                    {
-                        MipLevels = resourceDescription.MipLevels
-                    }
-                },
-                _descriptorHeap.CPUDescriptorHandleForHeapStart);
-        }
-
-        private void PlatformSetData(ResourceUploadBatch uploadBatch, int level, byte[] data, int bytesPerRow)
-        {
-            uploadBatch.Upload(DeviceResource, level, data, bytesPerRow);
+                uploadData);
 
             uploadBatch.Transition(
                 DeviceResource,
-                level,
                 ResourceStates.CopyDestination,
-                ResourceStates.PixelShaderResource);
+                ResourceStates.NonPixelShaderResource | ResourceStates.PixelShaderResource);
         }
     }
 }

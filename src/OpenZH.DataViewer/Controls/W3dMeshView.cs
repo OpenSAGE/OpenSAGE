@@ -14,12 +14,11 @@ namespace OpenZH.DataViewer.Controls
         private Mesh _mesh;
 
         private MeshTransformConstants _meshTransformConstants;
-        private Buffer _meshTransformConstantBuffer;
+        private DynamicBuffer _meshTransformConstantBuffer;
 
         private readonly Vector3 _cameraPosition = new Vector3(0, 1, 15);
 
         private PipelineLayout _pipelineLayout;
-        private DescriptorSet _descriptorSetVertex;
         private DescriptorSet _descriptorSetPixel;
         private PipelineState _pipelineState;
 
@@ -37,17 +36,11 @@ namespace OpenZH.DataViewer.Controls
 
         public override void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
-            _mesh = new Mesh(Mesh);
-            _mesh.Initialize(graphicsDevice);
+            var uploadBatch = new ResourceUploadBatch(graphicsDevice);
+            uploadBatch.Begin();
 
-            var descriptorSetLayoutVertex = new DescriptorSetLayout(new DescriptorSetLayoutDescription
-            {
-                Visibility = ShaderStageVisibility.Vertex,
-                Bindings = new[]
-                {
-                    new DescriptorSetLayoutBinding(DescriptorType.ConstantBuffer, 0, 1)
-                }
-            });
+            _mesh = new Mesh(Mesh);
+            _mesh.Initialize(graphicsDevice, uploadBatch);
 
             var descriptorSetLayoutPixel = new DescriptorSetLayout(new DescriptorSetLayoutDescription
             {
@@ -61,47 +54,57 @@ namespace OpenZH.DataViewer.Controls
 
             _pipelineLayout = new PipelineLayout(graphicsDevice, new PipelineLayoutDescription
             {
+                InlineDescriptorLayouts = new[]
+                {
+                    new InlineDescriptorLayoutDescription
+                    {
+                        Visibility = ShaderStageVisibility.Vertex,
+                        DescriptorType = DescriptorType.ConstantBuffer,
+                        ShaderRegister = 0
+                    }
+                },
                 DescriptorSetLayouts = new[]
                 {
-                    descriptorSetLayoutVertex,
                     descriptorSetLayoutPixel
                 }
             });
 
-            _descriptorSetVertex = new DescriptorSet(graphicsDevice, descriptorSetLayoutVertex);
-
-            _meshTransformConstantBuffer = new Buffer(graphicsDevice, MeshTransformConstants.SizeInBytes);
-
-            _descriptorSetVertex.SetConstantBuffer(0, _meshTransformConstantBuffer);
+            _meshTransformConstantBuffer = DynamicBuffer.Create<MeshTransformConstants>(graphicsDevice);
 
             _descriptorSetPixel = new DescriptorSet(graphicsDevice, descriptorSetLayoutPixel);
 
-            var lightingConstantBuffer = new Buffer(graphicsDevice, LightingConstants.SizeInBytes);
-            lightingConstantBuffer.SetData(new LightingConstants
-            {
-                CameraPosition = _cameraPosition,
-                AmbientLightColor = new Vector3(0.3f, 0.3f, 0.3f),
-                Light0Direction = Vector3.Normalize(new Vector3(-0.3f, -0.8f, -0.2f)),
-                Light0Color = new Vector3(0.5f, 0.5f, 0.5f)
-            }, 0);
+            var lightingConstantBuffer = StaticBuffer.Create(
+                graphicsDevice,
+                uploadBatch,
+                new LightingConstants
+                {
+                    CameraPosition = _cameraPosition,
+                    AmbientLightColor = new Vector3(0.3f, 0.3f, 0.3f),
+                    Light0Direction = Vector3.Normalize(new Vector3(-0.3f, -0.8f, -0.2f)),
+                    Light0Color = new Vector3(0.5f, 0.5f, 0.5f)
+                });
 
             _descriptorSetPixel.SetConstantBuffer(0, lightingConstantBuffer);
 
             // TODO
             var vertexMaterial = Mesh.Materials[0].VertexMaterialInfo;
 
-            var materialConstantBuffer = new Buffer(graphicsDevice, MaterialConstants.SizeInBytes);
-            materialConstantBuffer.SetData(new MaterialConstants
-            {
-                MaterialAmbient = vertexMaterial.Ambient.ToVector3(),
-                MaterialDiffuse = vertexMaterial.Diffuse.ToVector3(),
-                MaterialSpecular = vertexMaterial.Specular.ToVector3(),
-                MaterialEmissive = vertexMaterial.Emissive.ToVector3(),
-                MaterialShininess = vertexMaterial.Shininess,
-                MaterialOpacity = vertexMaterial.Opacity
-            }, 0);
+            var materialConstantBuffer = StaticBuffer.Create(
+                graphicsDevice,
+                uploadBatch,
+                new MaterialConstants
+                {
+                    MaterialAmbient = vertexMaterial.Ambient.ToVector3(),
+                    MaterialDiffuse = vertexMaterial.Diffuse.ToVector3(),
+                    MaterialSpecular = vertexMaterial.Specular.ToVector3(),
+                    MaterialEmissive = vertexMaterial.Emissive.ToVector3(),
+                    MaterialShininess = vertexMaterial.Shininess,
+                    MaterialOpacity = vertexMaterial.Opacity
+                });
 
             _descriptorSetPixel.SetConstantBuffer(1, materialConstantBuffer);
+
+            uploadBatch.End();
 
             var shaderLibrary = new ShaderLibrary(graphicsDevice);
 
@@ -125,8 +128,6 @@ namespace OpenZH.DataViewer.Controls
 
             _stopwatch.Start();
             _lastUpdate = 0;
-
-            Update();
         }
 
         private void Update()
@@ -150,12 +151,12 @@ namespace OpenZH.DataViewer.Controls
 
             _meshTransformConstants.WorldViewProjection = world * view * projection;
             _meshTransformConstants.World = world;
-            _meshTransformConstantBuffer.SetData(_meshTransformConstants, 0);
+            _meshTransformConstantBuffer.SetData(ref _meshTransformConstants);
         }
 
         public override void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
-            //Update();
+            Update();
 
             var renderPassDescriptor = new RenderPassDescriptor();
             renderPassDescriptor.SetRenderTargetDescriptor(
@@ -171,7 +172,8 @@ namespace OpenZH.DataViewer.Controls
 
             commandEncoder.SetPipelineLayout(_pipelineLayout);
 
-            commandEncoder.SetDescriptorSet(0, _descriptorSetVertex);
+            commandEncoder.SetInlineConstantBuffer(0, _meshTransformConstantBuffer);
+
             commandEncoder.SetDescriptorSet(1, _descriptorSetPixel);
 
             commandEncoder.SetViewport(new Viewport

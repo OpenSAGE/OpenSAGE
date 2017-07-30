@@ -12,7 +12,7 @@
             PlatformConstruct(graphicsDevice, layout);
         }
 
-        public void SetConstantBuffers(int startIndex, Buffer[] buffers)
+        public void SetConstantBuffers(int startIndex, StaticBuffer[] buffers)
         {
             for (var i = 0; i < buffers.Length; i++)
             {
@@ -22,7 +22,7 @@
             }
         }
 
-        public void SetConstantBuffer(int index, Buffer buffer)
+        public void SetConstantBuffer(int index, StaticBuffer buffer)
         {
             // TODO: Validation.
 

@@ -67,18 +67,6 @@ namespace OpenZH.Data.Utilities.Extensions
             return Encoding.Unicode.GetString(reader.ReadBytes(length * 2));
         }
 
-        public static T ReadStruct<T>(this BinaryReader reader)
-            where T : struct
-        {
-            var bytes = reader.ReadBytes(Marshal.SizeOf<T>());
-
-            var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            var theStructure = Marshal.PtrToStructure<T>(handle.AddrOfPinnedObject());
-            handle.Free();
-
-            return theStructure;
-        }
-
         public static string ReadFixedLengthString(this BinaryReader reader, int count)
         {
             var chars = reader.ReadChars(count);

@@ -23,14 +23,14 @@ namespace OpenZH.Graphics
             _inBeginEndBlock = true;
         }
 
-        public void End(CommandQueue commandQueue)
+        public void End()
         {
             if (!_inBeginEndBlock)
             {
                 throw new InvalidOperationException();
             }
 
-            PlatformEnd(commandQueue);
+            PlatformEnd();
 
             _inBeginEndBlock = false;
         }

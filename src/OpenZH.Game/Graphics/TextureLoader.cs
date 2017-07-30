@@ -9,7 +9,10 @@ namespace OpenZH.Game.Graphics
 {
     public static class TextureLoader
     {
-        public static Texture LoadTexture(GraphicsDevice graphicsDevice, FileSystemEntry textureFile)
+        public static Texture LoadTexture(
+            GraphicsDevice graphicsDevice,
+            ResourceUploadBatch uploadBatch,
+            FileSystemEntry textureFile)
         {
             switch (Path.GetExtension(textureFile.FilePath).ToLower())
             {
@@ -19,7 +22,10 @@ namespace OpenZH.Game.Graphics
                     {
                         ddsFile = DdsFile.FromStream(textureStream);
                     }
-                    return CreateTextureFromDds(graphicsDevice, ddsFile);
+                    return CreateTextureFromDds(
+                        graphicsDevice,
+                        uploadBatch,
+                        ddsFile);
 
                 case ".tga":
                     TgaFile tgaFile;
@@ -27,37 +33,39 @@ namespace OpenZH.Game.Graphics
                     {
                         tgaFile = TgaFile.FromStream(textureStream);
                     }
-                    return CreateTextureFromTga(graphicsDevice, tgaFile);
+                    return CreateTextureFromTga(
+                        graphicsDevice,
+                        uploadBatch,
+                        tgaFile);
 
                 default:
                     throw new InvalidOperationException();
             }
         }
 
-        private static Texture CreateTextureFromDds(GraphicsDevice graphicsDevice, DdsFile ddsFile)
+        private static Texture CreateTextureFromDds(
+            GraphicsDevice graphicsDevice,
+            ResourceUploadBatch uploadBatch,
+            DdsFile ddsFile)
         {
-            var texture = Texture.CreateTexture2D(
-                graphicsDevice,
-                ToPixelFormat(ddsFile.ImageFormat),
-                (int) ddsFile.Header.Width,
-                (int) ddsFile.Header.Height,
-                (int) ddsFile.Header.MipMapCount);
-
-            var uploadBatch = new ResourceUploadBatch(graphicsDevice);
-            uploadBatch.Begin();
+            var mipMapData = new TextureMipMapData[ddsFile.Header.MipMapCount];
 
             for (var i = 0; i < ddsFile.Header.MipMapCount; i++)
             {
-                texture.SetData(
-                    uploadBatch,
-                    i,
-                    ddsFile.MipMaps[i].Data,
-                    (int) ddsFile.MipMaps[i].RowPitch);
+                mipMapData[i] = new TextureMipMapData
+                {
+                    Data = ddsFile.MipMaps[i].Data,
+                    BytesPerRow = (int) ddsFile.MipMaps[i].RowPitch
+                };
             }
 
-            uploadBatch.End(graphicsDevice.CommandQueue);
-
-            return texture;
+            return Texture.CreateTexture2D(
+                graphicsDevice,
+                uploadBatch,
+                ToPixelFormat(ddsFile.ImageFormat),
+                (int) ddsFile.Header.Width,
+                (int) ddsFile.Header.Height,
+                mipMapData);
         }
 
         private static PixelFormat ToPixelFormat(DdsImageFormat imageFormat)
@@ -78,34 +86,34 @@ namespace OpenZH.Game.Graphics
             }
         }
 
-        private static Texture CreateTextureFromTga(GraphicsDevice graphicsDevice, TgaFile tgaFile)
+        private static Texture CreateTextureFromTga(
+            GraphicsDevice graphicsDevice,
+            ResourceUploadBatch uploadBatch,
+            TgaFile tgaFile)
         {
             if (tgaFile.Header.ImageType != TgaImageType.UncompressedRgb)
             {
                 throw new InvalidOperationException();
             }
 
-            var texture = Texture.CreateTexture2D(
+            var data = ConvertTgaPixels(
+                tgaFile.Header.ImagePixelSize, 
+                tgaFile.Data);
+
+            return Texture.CreateTexture2D(
                 graphicsDevice,
+                uploadBatch,
                 PixelFormat.Rgba8UNorm,
                 tgaFile.Header.Width,
                 tgaFile.Header.Height,
-                1);
-
-            var uploadBatch = new ResourceUploadBatch(graphicsDevice);
-            uploadBatch.Begin();
-
-            var data = ConvertTgaPixels(tgaFile.Header.ImagePixelSize, tgaFile.Data);
-
-            texture.SetData(
-                uploadBatch,
-                0,
-                data,
-                tgaFile.Header.Width * 4);
-
-            uploadBatch.End(graphicsDevice.CommandQueue);
-
-            return texture;
+                new[]
+                {
+                    new TextureMipMapData
+                    {
+                        Data = data,
+                        BytesPerRow = tgaFile.Header.Width * 4
+                    }
+                });
         }
 
         private static byte[] ConvertTgaPixels(byte pixelSize, byte[] data)

@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using OpenZH.Graphics.Platforms.Direct3D12;
+﻿using OpenZH.Graphics.Platforms.Direct3D12;
 using SharpDX.Direct3D12;
 using D3D12 = SharpDX.Direct3D12;
 
@@ -11,32 +10,56 @@ namespace OpenZH.Graphics
 
         private void PlatformConstruct(GraphicsDevice graphicsDevice, PipelineLayoutDescription description)
         {
-            var staticSamplerStates = description.StaticSamplerStates ?? new StaticSamplerDescription[0];
-            var staticSamplerDescriptions = staticSamplerStates.Select(x =>
+            var inlineDescriptorLayouts = description.InlineDescriptorLayouts ?? new InlineDescriptorLayoutDescription[0];
+
+            var descriptorSetLayouts = description.DescriptorSetLayouts ?? new DescriptorSetLayout[0];
+
+            var rootParameters = new RootParameter[descriptorSetLayouts.Length + inlineDescriptorLayouts.Length];
+
+            for (var i = 0; i < inlineDescriptorLayouts.Length; i++)
             {
+                var inlineDescriptorLayout = inlineDescriptorLayouts[i];
+
+                rootParameters[i] = new RootParameter(
+                    inlineDescriptorLayout.Visibility.ToShaderVisibility(),
+                    new RootDescriptor(inlineDescriptorLayout.ShaderRegister, 0),
+                    inlineDescriptorLayout.DescriptorType.ToRootParameterType());
+            }
+
+            for (var i = 0; i < descriptorSetLayouts.Length; i++)
+            {
+                rootParameters[inlineDescriptorLayouts.Length + i] = descriptorSetLayouts[i].DeviceRootParameter;
+            }
+
+            var staticSamplerStates = description.StaticSamplerStates ?? new StaticSamplerDescription[0];
+            var staticSamplerDescriptions = new D3D12.StaticSamplerDescription[staticSamplerStates.Length];
+            for (var i = 0; i < staticSamplerStates.Length; i++)
+            {
+                var staticSamplerState = staticSamplerStates[i];
+
                 var samplerStateDescription = new D3D12.SamplerStateDescription
                 {
-                    Filter = x.SamplerStateDescription.Filter.ToFilter(),
+                    Filter = staticSamplerState.SamplerStateDescription.Filter.ToFilter(),
                     AddressU = TextureAddressMode.Clamp,
                     AddressV = TextureAddressMode.Clamp,
                     AddressW = TextureAddressMode.Clamp,
                     ComparisonFunction = Comparison.Always,
                     MinimumLod = 0,
                     MaximumLod = float.MaxValue,
-                    MaximumAnisotropy = x.SamplerStateDescription.MaxAnisotropy
+                    MaximumAnisotropy = staticSamplerState.SamplerStateDescription.MaxAnisotropy
                 };
 
-                return new D3D12.StaticSamplerDescription(
+                staticSamplerDescriptions[i] = new D3D12.StaticSamplerDescription(
                     samplerStateDescription,
-                    x.Visibility.ToShaderVisibility(),
-                    x.ShaderRegister,
+                    staticSamplerState.Visibility.ToShaderVisibility(),
+                    staticSamplerState.ShaderRegister,
                     0);
-            });
+            }
 
             var rootSignatureDescription = new RootSignatureDescription(
                 RootSignatureFlags.AllowInputAssemblerInputLayout,
-                parameters: description.DescriptorSetLayouts.Select(x => x.DeviceRootParameter).ToArray(),
-                samplers: staticSamplerDescriptions.ToArray());
+                parameters: rootParameters,
+                samplers: staticSamplerDescriptions);
 
             var serializedRootSignatureDescription = rootSignatureDescription.Serialize();
             DeviceRootSignature = AddDisposable(graphicsDevice.Device.CreateRootSignature(serializedRootSignatureDescription));

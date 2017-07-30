@@ -65,9 +65,9 @@ namespace OpenZH.Graphics
             _commandList.SetGraphicsRootDescriptorTable(index, descriptorSet.GPUDescriptorHandleForCbvUavSrvHeapStart);
         }
 
-        private void PlatformSetConstantBuffer(int index, Buffer buffer)
+        private void PlatformSetInlineConstantBuffer(int index, Buffer buffer)
         {
-            _commandList.SetGraphicsRootConstantBufferView(index, buffer.DeviceBuffer.GPUVirtualAddress);
+            _commandList.SetGraphicsRootConstantBufferView(index, buffer.DeviceCurrentGPUVirtualAddress);
         }
 
         private void PlatformSetPipelineState(PipelineState pipelineState)
