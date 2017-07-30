@@ -9,8 +9,8 @@ struct VSInput
 
 struct MeshTransformConstants
 {
-  float4x4 WorldViewProjection;
-  float4x4 World;
+  row_major float4x4 WorldViewProjection;
+  row_major float4x4 World;
 };
 
 ConstantBuffer<MeshTransformConstants> MeshTransformCB : register(b0);

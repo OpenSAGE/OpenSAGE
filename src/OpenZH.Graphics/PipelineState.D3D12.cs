@@ -10,6 +10,9 @@ namespace OpenZH.Graphics
 
         private void PlatformConstruct(GraphicsDevice graphicsDevice, PipelineStateDescription description)
         {
+            var rasterizerState = RasterizerStateDescription.Default();
+            rasterizerState.IsFrontCounterClockwise = true;
+
             var deviceDescription = new GraphicsPipelineStateDescription
             {
                 BlendState = BlendStateDescription.Default(),
@@ -20,7 +23,7 @@ namespace OpenZH.Graphics
                 InputLayout = description.VertexDescriptor?.DeviceInputLayoutDescription ?? new InputLayoutDescription(),
                 PixelShader = description.PixelShader.DeviceBytecode,
                 PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
-                RasterizerState = RasterizerStateDescription.Default(),
+                RasterizerState = rasterizerState,
                 RenderTargetCount = 1,
                 RootSignature = description.PipelineLayout.DeviceRootSignature,
                 SampleDescription = new SharpDX.DXGI.SampleDescription(1, 0),

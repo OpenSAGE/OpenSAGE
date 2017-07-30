@@ -14,12 +14,9 @@ namespace OpenZH.DataViewer.Controls
         private Mesh _mesh;
 
         private MeshTransformConstants _meshTransformConstants;
+        private Buffer _meshTransformConstantBuffer;
 
         private readonly Vector3 _cameraPosition = new Vector3(0, 1, 15);
-
-        private Buffer _lightingConstantBuffer;
-        private Buffer _materialConstantBuffer;
-        private Buffer _meshTransformConstantBuffer;
 
         private PipelineLayout _pipelineLayout;
         private DescriptorSet _descriptorSetVertex;
