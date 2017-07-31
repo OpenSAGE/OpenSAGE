@@ -34,6 +34,11 @@ namespace OpenZH.DataViewer.Controls
             set { SetValue(MeshProperty, value); }
         }
 
+        public W3dMeshView()
+        {
+            RedrawsOnTimer = true;
+        }
+
         public override void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
             var uploadBatch = new ResourceUploadBatch(graphicsDevice);

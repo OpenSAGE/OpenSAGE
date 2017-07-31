@@ -178,6 +178,8 @@ namespace OpenZH.Graphics
 
             // Set the fence value for the next frame.
             _fenceValues[_frameIndex] = currentFenceValue + 1;
+
+            _graphicsDevice.FinishFrame();
         }
     }
 }

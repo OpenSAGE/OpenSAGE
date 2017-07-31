@@ -16,6 +16,9 @@ namespace OpenZH.Data.W3d
 
         public W3dTriangle[] Triangles { get; private set; }
 
+        /// <summary>
+        /// shade indexes for each vertex (array of uint32's)
+        /// </summary>
         public uint[] ShadeIndices { get; private set; }
 
         public W3dMaterialInfo MaterialInfo { get; private set; }
@@ -138,9 +141,14 @@ namespace OpenZH.Data.W3d
                         currentMaterialPass++;
                         break;
 
-                    default:
+                    case W3dChunkType.W3D_CHUNK_PS2_SHADERS:
+                    case W3dChunkType.W3D_CHUNK_AABTREE:
+                        // Ignored for now.
                         reader.ReadBytes((int) currentChunk.ChunkSize);
                         break;
+
+                    default:
+                        throw new InvalidDataException($"Unknown chunk type: {currentChunk.ChunkType}");
                 }
 
             } while (loadedSize < chunkSize);

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace OpenZH.Data.W3d
 {
@@ -23,15 +24,15 @@ namespace OpenZH.Data.W3d
         /// </summary>
         public W3dRgba[] Scg { get; private set; }
 
-        public uint StageCount { get; private set; }
-
-        public W3dTextureStage[] TextureStages { get; } = new W3dTextureStage[2];
+        public W3dTextureStage[] TextureStages { get; private set; }
 
         public static W3dMaterialPass Parse(BinaryReader reader, uint chunkSize)
         {
             var result = new W3dMaterialPass();
 
             uint loadedSize = 0;
+
+            var textureStages = new List<W3dTextureStage>();
 
             do
             {
@@ -83,15 +84,15 @@ namespace OpenZH.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_TEXTURE_STAGE:
-                        result.StageCount++;
-                        result.TextureStages[result.StageCount - 1] = W3dTextureStage.Parse(reader, currentChunk.ChunkSize);
+                        textureStages.Add(W3dTextureStage.Parse(reader, currentChunk.ChunkSize));
                         break;
 
                     default:
-                        reader.ReadBytes((int) currentChunk.ChunkSize);
-                        break;
+                        throw new InvalidDataException($"Unknown chunk type: {currentChunk.ChunkType}");
                 }
             } while (loadedSize < chunkSize);
+
+            result.TextureStages = textureStages.ToArray();
 
             return result;
         }

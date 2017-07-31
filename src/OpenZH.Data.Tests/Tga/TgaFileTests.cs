@@ -1,7 +1,4 @@
-﻿using System.IO;
-using System.Linq;
-using OpenZH.Data.Big;
-using OpenZH.Data.Tga;
+﻿using OpenZH.Data.Tga;
 using Xunit;
 using Xunit.Abstractions;
 

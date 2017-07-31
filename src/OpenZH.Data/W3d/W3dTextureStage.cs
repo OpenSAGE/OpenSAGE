@@ -50,8 +50,7 @@ namespace OpenZH.Data.W3d
                         break;
 
                     default:
-                        reader.ReadBytes((int) currentChunk.ChunkSize);
-                        break;
+                        throw new InvalidDataException($"Unknown chunk type: {currentChunk.ChunkType}");
                 }
             } while (loadedSize < chunkSize);
 

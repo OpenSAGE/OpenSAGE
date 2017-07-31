@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
 using SharpDX;
 using SharpDX.Direct3D12;
@@ -61,6 +62,8 @@ namespace OpenZH.Graphics
                 ResourceDescription.Buffer(uploadSize),
                 ResourceStates.GenericRead);
 
+            var sizeOfT = Marshal.SizeOf<T>();
+
             var dataPtr = uploadResource.Map(0);
 
             for (var i = 0; i < numSubresources; i++)
@@ -76,8 +79,8 @@ namespace OpenZH.Graphics
                     Utilities.Write(
                         dataPtr + (resourceLayout.Footprint.RowPitch * y),
                         subresourceData.Data,
-                        subresourceData.BytesPerRow * y,
-                        (int) resourceRowSizeInBytes);
+                        (subresourceData.BytesPerRow / sizeOfT) * y,
+                        (int) (resourceRowSizeInBytes / sizeOfT));
                 }
             }
 
