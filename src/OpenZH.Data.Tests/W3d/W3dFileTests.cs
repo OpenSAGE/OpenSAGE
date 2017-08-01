@@ -25,6 +25,11 @@ namespace OpenZH.Data.Tests.W3d
                 {
                     var w3dFile = W3dFile.Parse(binaryReader);
 
+                    if (fileName.Contains("CBChalet.W3D"))
+                    {
+                        int i = 0;
+                    }
+
                     foreach (var mesh in w3dFile.Meshes)
                     {
                         Assert.Equal((int) mesh.Header.NumVertices, mesh.Vertices.Length);
@@ -41,7 +46,7 @@ namespace OpenZH.Data.Tests.W3d
 
                         Assert.True(mesh.MaterialPasses.Length <= 2);
 
-                        Assert.True(mesh.Textures.Length <= 30);
+                        Assert.True(mesh.Textures.Length <= 29);
 
                         foreach (var materialPass in mesh.MaterialPasses)
                         {
@@ -54,6 +59,7 @@ namespace OpenZH.Data.Tests.W3d
                             foreach (var textureStage in materialPass.TextureStages)
                             {
                                 Assert.True(textureStage.TexCoords == null || textureStage.TexCoords.Length == mesh.Header.NumVertices);
+                                //Assert.True(textureStage.TexCoords.Length == mesh.Header.NumVertices);
 
                                 Assert.Null(textureStage.PerFaceTexCoordIds);
 

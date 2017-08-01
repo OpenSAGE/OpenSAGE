@@ -12,12 +12,6 @@ namespace OpenZH.Data.W3d
         public string MapperArgs0 { get; private set; }
         public string MapperArgs1 { get; private set; }
 
-        public float UPerSec { get; private set; }
-        public float VPerSec { get; private set; }
-
-        public float CurrentU { get; private set; }
-        public float CurrentV { get; private set; }
-
         public static W3dMaterial Parse(BinaryReader reader, uint chunkSize)
         {
             var result = new W3dMaterial();
@@ -50,8 +44,7 @@ namespace OpenZH.Data.W3d
                         break;
 
                     default:
-                        reader.ReadBytes((int) currentChunk.ChunkSize);
-                        break;
+                        throw new InvalidDataException($"Unknown chunk type: {currentChunk.ChunkType}");
                 }
             } while (loadedSize < chunkSize);
 

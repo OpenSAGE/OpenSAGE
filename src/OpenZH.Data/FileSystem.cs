@@ -14,7 +14,7 @@ namespace OpenZH.Data
 
         public FileSystem(string rootDirectory)
         {
-            _fileTable = new Dictionary<string, FileSystemEntry>();
+            _fileTable = new Dictionary<string, FileSystemEntry>(StringComparer.OrdinalIgnoreCase);
             _bigArchives = new List<BigArchive>();
 
             // TODO: Figure out if there's a specific order that .big files should be loaded in,
@@ -33,7 +33,7 @@ namespace OpenZH.Data
 
                     foreach (var entry in archive.Entries)
                     {
-                        _fileTable[entry.FullName] = new FileSystemEntry(entry.FullName, entry.Length, entry.Open);
+                        _fileTable[entry.FullName] = new FileSystemEntry(this, entry.FullName, entry.Length, entry.Open);
                     }
                 }
                 else
@@ -41,7 +41,7 @@ namespace OpenZH.Data
                     var relativePath = file.Substring(rootDirectory.Length);
                     if (relativePath.StartsWith(Path.DirectorySeparatorChar.ToString()))
                         relativePath = relativePath.Substring(1);
-                    _fileTable[relativePath] = new FileSystemEntry(relativePath, (uint) new FileInfo(file).Length, () => File.OpenRead(file));
+                    _fileTable[relativePath] = new FileSystemEntry(this, relativePath, (uint) new FileInfo(file).Length, () => File.OpenRead(file));
                 }
             }
         }

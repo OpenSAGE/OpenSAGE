@@ -3,6 +3,8 @@
     public enum DescriptorType
     {
         ConstantBuffer,
-        Texture
+        StructuredBuffer,
+        Texture,
+        TypedBuffer
     }
 }

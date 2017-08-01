@@ -15,7 +15,9 @@ namespace OpenZH.Graphics.Platforms.Direct3D12
                 case DescriptorType.ConstantBuffer:
                     return DescriptorRangeType.ConstantBufferView;
 
+                case DescriptorType.StructuredBuffer:
                 case DescriptorType.Texture:
+                case DescriptorType.TypedBuffer:
                     return DescriptorRangeType.ShaderResourceView;
 
                 default:
@@ -56,6 +58,9 @@ namespace OpenZH.Graphics.Platforms.Direct3D12
 
                 case PixelFormat.Rgba8UNorm:
                     return Format.R8G8B8A8_UNorm;
+
+                case PixelFormat.UInt32:
+                    return Format.R32_UInt;
 
                 default:
                     throw new ArgumentOutOfRangeException();

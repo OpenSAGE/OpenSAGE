@@ -130,6 +130,7 @@
       <DisableOptimizations>True</DisableOptimizations>
       <EnableDebuggingInfo>True</EnableDebuggingInfo>
       <ShaderModel>5_1</ShaderModel>
+      <EnableUnboundedDescriptorTable>True</EnableUnboundedDescriptorTable>
     </PixelShader>
     <PixelShader Include="Shaders\SpritePS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

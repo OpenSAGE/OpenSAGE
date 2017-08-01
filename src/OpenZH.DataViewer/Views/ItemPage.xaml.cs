@@ -34,7 +34,7 @@ namespace OpenZH.DataViewer.Views
                     return new Label { Text = "Select child item" };
 
                 case W3dMeshItemViewModel vm:
-                    return new W3dMeshView { Mesh = vm.Mesh };
+                    return new W3dMeshView { FileSystem = vm.ParentItem.FileSystem, Mesh = vm.Mesh };
 
                 case null:
                     return new Label { Text = "No selection" };

@@ -29,6 +29,19 @@
             PlatformSetConstantBuffer(index, buffer);
         }
 
+        public void SetStructuredBuffer(int index, StaticBuffer buffer)
+        {
+            // TODO: Validation.
+
+            PlatformSetStructuredBuffer(index, buffer);
+        }
+
+        public void SetTypedBuffer(int index, StaticBuffer buffer, PixelFormat format)
+        {
+            // TODO: Validation.
+            PlatformSetTypedBuffer(index, buffer, format);
+        }
+
         public void SetTextures(int startIndex, Texture[] textures)
         {
             for (var i = 0; i < textures.Length; i++)

@@ -15,9 +15,9 @@ struct MeshTransformConstants
 
 ConstantBuffer<MeshTransformConstants> MeshTransformCB : register(b0);
 
-PSInput main(VSInput input)
+VSOutput main(VSInput input)
 {
-	PSInput result;
+	VSOutput result;
 
 	result.Position = mul(float4(input.Position, 1), MeshTransformCB.WorldViewProjection);
   result.WorldPosition = mul(input.Position, (float3x3) MeshTransformCB.World);

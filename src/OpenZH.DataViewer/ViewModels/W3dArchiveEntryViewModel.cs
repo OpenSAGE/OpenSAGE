@@ -20,7 +20,7 @@ namespace OpenZH.DataViewer.ViewModels
                 w3dFile = W3dFile.Parse(binaryReader);
 
             foreach (var mesh in w3dFile.Meshes)
-                Children.Add(new W3dMeshItemViewModel(mesh));
+                Children.Add(new W3dMeshItemViewModel(Item, mesh));
 
             // TODO
         }

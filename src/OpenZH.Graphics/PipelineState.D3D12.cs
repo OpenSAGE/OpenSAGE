@@ -11,7 +11,7 @@ namespace OpenZH.Graphics
         private void PlatformConstruct(GraphicsDevice graphicsDevice, PipelineStateDescription description)
         {
             var rasterizerState = RasterizerStateDescription.Default();
-            rasterizerState.IsFrontCounterClockwise = true;
+            rasterizerState.IsFrontCounterClockwise = false;
 
             var deviceDescription = new GraphicsPipelineStateDescription
             {

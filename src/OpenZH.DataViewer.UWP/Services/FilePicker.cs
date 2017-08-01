@@ -17,12 +17,12 @@ namespace OpenZH.DataViewer.UWP.Services
                 {
                     var futureAccessList = StorageApplicationPermissions.FutureAccessList;
 
-                    if (futureAccessList.Entries.Count > 0)
-                    {
-                        var entry = futureAccessList.Entries[0];
-                        var futureFolder = await futureAccessList.GetFolderAsync(entry.Token);
-                        return futureFolder.Path;
-                    }
+                    //if (futureAccessList.Entries.Count > 0)
+                    //{
+                    //    var entry = futureAccessList.Entries[0];
+                    //    var futureFolder = await futureAccessList.GetFolderAsync(entry.Token);
+                    //    return futureFolder.Path;
+                    //}
 
                     var folderPicker = new FolderPicker();
                     folderPicker.FileTypeFilter.Add(".something"); // Otherwise PickSingleFolderAsync throws a COMException.

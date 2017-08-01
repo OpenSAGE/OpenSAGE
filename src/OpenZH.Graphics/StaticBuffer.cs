@@ -10,9 +10,14 @@ namespace OpenZH.Graphics
             T[] data)
             where T : struct
         {
-            var sizeInBytes = (uint) (data.Length * Marshal.SizeOf<T>());
+            var elementSizeInBytes = Marshal.SizeOf<T>();
+            var sizeInBytes = (uint) (data.Length * elementSizeInBytes);
 
-            var result = new StaticBuffer(graphicsDevice, sizeInBytes);
+            var result = new StaticBuffer(
+                graphicsDevice,
+                sizeInBytes,
+                (uint) elementSizeInBytes,
+                (uint) data.Length);
 
             result.PlatformConstruct(
                 graphicsDevice,
@@ -32,9 +37,18 @@ namespace OpenZH.Graphics
             return Create(graphicsDevice, uploadBatch, new[] { data });
         }
 
-        private StaticBuffer(GraphicsDevice graphicsDevice, uint sizeInBytes)
+        public uint ElementSizeInBytes { get; }
+        public uint ElementCount { get; }
+
+        private StaticBuffer(
+            GraphicsDevice graphicsDevice,
+            uint sizeInBytes,
+            uint elementSizeInBytes,
+            uint elementCount)
             : base(graphicsDevice, sizeInBytes)
         {
+            ElementSizeInBytes = elementSizeInBytes;
+            ElementCount = elementCount;
         }
     }
 }

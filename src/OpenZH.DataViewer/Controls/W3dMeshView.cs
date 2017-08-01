@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using OpenZH.Data;
 using OpenZH.Data.W3d;
 using OpenZH.Game.Graphics;
 using OpenZH.Game.Util;
@@ -16,7 +17,8 @@ namespace OpenZH.DataViewer.Controls
         private MeshTransformConstants _meshTransformConstants;
         private DynamicBuffer _meshTransformConstantBuffer;
 
-        private readonly Vector3 _cameraPosition = new Vector3(0, 1, 15);
+        // TODO: Make this dynamic, based on mesh size.
+        private readonly Vector3 _cameraPosition = new Vector3(0, 1, 30);
 
         private PipelineLayout _pipelineLayout;
         private DescriptorSet _descriptorSetPixel;
@@ -24,6 +26,8 @@ namespace OpenZH.DataViewer.Controls
 
         private readonly Stopwatch _stopwatch = new Stopwatch();
         private double _lastUpdate;
+
+        public FileSystem FileSystem { get; set; }
 
         public static readonly BindableProperty MeshProperty = BindableProperty.Create(
             nameof(Mesh), typeof(W3dMesh), typeof(W3dMeshView));
@@ -47,13 +51,17 @@ namespace OpenZH.DataViewer.Controls
             _mesh = new Mesh(Mesh);
             _mesh.Initialize(graphicsDevice, uploadBatch);
 
+            var numTextures = Mesh.Textures.Length;
+
             var descriptorSetLayoutPixel = new DescriptorSetLayout(new DescriptorSetLayoutDescription
             {
                 Visibility = ShaderStageVisibility.Pixel,
                 Bindings = new[]
                 {
                     new DescriptorSetLayoutBinding(DescriptorType.ConstantBuffer, 0, 1),
-                    new DescriptorSetLayoutBinding(DescriptorType.ConstantBuffer, 1, 1)
+                    new DescriptorSetLayoutBinding(DescriptorType.ConstantBuffer, 1, 1),
+                    new DescriptorSetLayoutBinding(DescriptorType.TypedBuffer, 0, 1),
+                    new DescriptorSetLayoutBinding(DescriptorType.Texture, 1, numTextures)
                 }
             });
 
@@ -71,6 +79,18 @@ namespace OpenZH.DataViewer.Controls
                 DescriptorSetLayouts = new[]
                 {
                     descriptorSetLayoutPixel
+                },
+                StaticSamplerStates = new[]
+                {
+                    new StaticSamplerDescription
+                    {
+                        Visibility = ShaderStageVisibility.Pixel,
+                        ShaderRegister = 0,
+                        SamplerStateDescription = new SamplerStateDescription
+                        {
+                            Filter = SamplerFilter.Anisotropic
+                        }
+                    }
                 }
             });
 
@@ -108,6 +128,41 @@ namespace OpenZH.DataViewer.Controls
                 });
 
             _descriptorSetPixel.SetConstantBuffer(1, materialConstantBuffer);
+
+            var textureIds = Mesh.MaterialPasses[0].TextureStages[0].TextureIds;
+            if (textureIds.Length == 1)
+            {
+                var textureId = textureIds[0];
+                textureIds = new uint[Mesh.Header.NumTris];
+                for (var i = 0; i < Mesh.Header.NumTris; i++)
+                {
+                    textureIds[i] = textureId;
+                }
+            }
+
+            var textureIndicesBuffer = StaticBuffer.Create(
+                graphicsDevice,
+                uploadBatch,
+                textureIds);
+
+            _descriptorSetPixel.SetTypedBuffer(2, textureIndicesBuffer, PixelFormat.UInt32);
+
+            var textures = new Texture[numTextures];
+            for (var i = 0; i < numTextures; i++)
+            {
+                var w3dTexture = Mesh.Textures[i];
+                var textureName = w3dTexture.Name.Replace(".tga", ".dds"); // Always right?
+                var texturePath = $@"Art\Textures\{textureName}";
+
+                var textureFileSystemEntry = FileSystem.GetFile(texturePath);
+
+                textures[i] = TextureLoader.LoadTexture(
+                    graphicsDevice,
+                    uploadBatch,
+                    textureFileSystemEntry);
+            }
+
+            _descriptorSetPixel.SetTextures(3, textures);
 
             uploadBatch.End();
 

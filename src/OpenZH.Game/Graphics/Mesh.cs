@@ -40,7 +40,9 @@ namespace OpenZH.Game.Graphics
                 {
                     Position = _w3dMesh.Vertices[i].ToVector3(),
                     Normal = _w3dMesh.Normals[i].ToVector3(),
-                    UV = Vector2.Zero // TODO: _w3dMesh.MaterialPasses[0].TextureStages[0].TexCoords
+
+                    // TODO
+                    UV = _w3dMesh.MaterialPasses[0].TextureStages[0].TexCoords[i].ToVector2()
                 };
             }
 

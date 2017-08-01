@@ -59,6 +59,9 @@ namespace OpenZH.Graphics.Platforms.Metal
                 case PixelFormat.Rgba8UNorm:
                     return MTLPixelFormat.RGBA8Unorm;
 
+                case PixelFormat.UInt32:
+                    return MTLPixelFormat.R32Uint;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }

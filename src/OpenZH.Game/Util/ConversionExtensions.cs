@@ -5,6 +5,11 @@ namespace OpenZH.Game.Util
 {
     public static class ConversionExtensions
     {
+        public static Vector2 ToVector2(this W3dTexCoord value)
+        {
+            return new Vector2(value.U, value.V);
+        }
+
         public static Vector3 ToVector3(this W3dVector value)
         {
             return new Vector3(value.X, value.Y, value.Z);

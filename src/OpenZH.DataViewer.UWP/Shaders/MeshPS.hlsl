@@ -21,6 +21,12 @@ struct MaterialConstants
 ConstantBuffer<LightingConstants> LightingCB : register(b0);
 ConstantBuffer<MaterialConstants> MaterialCB : register(b1);
 
+Buffer<uint> TextureIndices : register(t0);
+
+Texture2D<float4> Textures[] : register(t1);
+
+SamplerState Sampler : register(s0);
+
 float4 main(PSInput input) : SV_TARGET
 {
   float3 lightDir = LightingCB.Light0Direction;
@@ -30,7 +36,9 @@ float4 main(PSInput input) : SV_TARGET
   float3 h = normalize(normalize(LightingCB.CameraPosition - input.WorldPosition) - lightDir);
   //float specLighting = pow(saturate(dot(h, input.Normal)), MaterialShininess);
   float specLighting = 0;
-  float4 texel = float4(1, 1, 1, 1); // tex2D(texsampler, input.TexCoords);
+
+  uint textureIndex = TextureIndices[input.PrimitiveID];
+  float4 texel = Textures[textureIndex].Sample(Sampler, input.UV);
  
   return float4(
     saturate(
