@@ -8,8 +8,7 @@
                      mc:Ignorable="d" 
                      d:DesignHeight="300" d:DesignWidth="300"
                      Title="OpenZH Data Viewer"
-                     BorderBrush="{DynamicResource AccentColorBrush}"
-                     BorderThickness="1"
+                     GlowBrush="{DynamicResource AccentColorBrush}"
                      SaveWindowPosition="True"
                      WindowStartupLocation="CenterScreen">
     <Grid>
