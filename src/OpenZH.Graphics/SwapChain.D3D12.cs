@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
 using D3D12 = SharpDX.Direct3D12;
@@ -27,6 +28,9 @@ namespace OpenZH.Graphics
 
         public SwapChain(
             GraphicsDevice graphicsDevice,
+#if NET_46
+            IntPtr windowHandle,
+#endif
             int backBufferCount,
             int width,
             int height)
@@ -35,6 +39,9 @@ namespace OpenZH.Graphics
             _backBufferCount = backBufferCount;
 
             DeviceSwapChain = AddDisposable(CreateSwapChain(
+#if NET_46
+                windowHandle,
+#endif
                 _graphicsDevice.CommandQueue.DeviceCommandQueue,
                 backBufferCount,
                 width,
@@ -63,6 +70,9 @@ namespace OpenZH.Graphics
         }
 
         private static SwapChain3 CreateSwapChain(
+#if NET_46
+            IntPtr windowHandle,
+#endif
             D3D12.CommandQueue commandQueue,
             int backBufferCount,
             int width,
@@ -88,7 +98,11 @@ namespace OpenZH.Graphics
             const bool debug = false;
 #endif
             using (var dxgiFactory = new Factory2(debug))
+#if NET_46
+            using (var tempSwapChain = new SwapChain1(dxgiFactory, commandQueue, windowHandle, ref swapChainDescription))
+#elif WINDOWS_UWP
             using (var tempSwapChain = new SwapChain1(dxgiFactory, commandQueue, ref swapChainDescription))
+#endif
             {
                 return tempSwapChain.QueryInterface<SwapChain3>();
             }

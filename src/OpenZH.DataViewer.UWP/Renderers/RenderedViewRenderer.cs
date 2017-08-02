@@ -2,7 +2,7 @@
 using OpenZH.DataViewer.Controls;
 using OpenZH.DataViewer.UWP.Renderers;
 using OpenZH.Graphics.Hosting;
-using OpenZH.Graphics.Platforms.Direct3D12;
+using OpenZH.Graphics.Hosting.Direct3D12;
 using Xamarin.Forms.Platform.UWP;
 
 [assembly: ExportRenderer(typeof(RenderedView), typeof(RenderedViewRenderer))]

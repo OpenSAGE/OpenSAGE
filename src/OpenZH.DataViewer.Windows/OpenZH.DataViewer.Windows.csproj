@@ -5,7 +5,26 @@
     <OutputType>WinExe</OutputType>
     <StartupObject />
     <RootNamespace>OpenZH.DataViewer</RootNamespace>
+    <AssemblyName>OpenZH.DataViewer</AssemblyName>
+    <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
+    <Prefer32Bit>True</Prefer32Bit>
+
+    <!-- Remove this after .NET Core 2.0 ships, https://stackoverflow.com/a/45144848 -->
+    <RunCommand>bin\Debug\net46\OpenZH.DataViewer.exe</RunCommand>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="ffme">
+      <HintPath>..\..\lib\FFMediaElement\ffme.dll</HintPath>
+    </Reference>
+    <Reference Include="ffmpeg">
+      <HintPath>..\..\lib\FFMediaElement\ffmpeg.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Caliburn.Micro" Version="3.1.0" />
@@ -14,10 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="WindowsBase" />
+    <ProjectReference Include="..\OpenZH.Data\OpenZH.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>

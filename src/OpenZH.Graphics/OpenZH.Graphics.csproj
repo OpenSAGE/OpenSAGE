@@ -1,11 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>uap10.0;Xamarin.iOS10</TargetFrameworks>
+    <TargetFrameworks>uap10.0;Xamarin.iOS10;net46</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MSBuild.Sdk.Extras" Version="1.0.5" PrivateAssets="All" />
+
+    <Compile Remove="Hosting\**\*.cs" />
+    <Compile Include="Hosting\GraphicsEventArgs.cs;Hosting\IGraphicsView.cs" />
+    <None Include="Hosting\**\*.cs" Exclude="Hosting\GraphicsEventArgs.cs;Hosting\IGraphicsView.cs" />
 
     <Compile Remove="Platforms\**\*.cs" />
     <None Include="Platforms\**\*.cs" />
@@ -19,8 +23,19 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'uap10.0' ">
     <Compile Include="Platforms\Direct3D12\**\*.cs" />
-    <Compile Include="Platforms\UWP\**\*.cs" />
+    <Compile Include="Hosting\UWP\**\*.cs" />
     <Compile Include="**\*.D3D12.cs" />
+    <PackageReference Include="SharpDX.Direct3D12" Version="4.0.1" />
+    <PackageReference Include="SharpDX.D3DCompiler" Version="4.0.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
+    <Compile Include="Platforms\Direct3D12\**\*.cs" />
+    <Compile Include="Hosting\WPF\**\*.cs" />
+    <Compile Include="**\*.D3D12.cs" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsBase" />
     <PackageReference Include="SharpDX.Direct3D12" Version="4.0.1" />
     <PackageReference Include="SharpDX.D3DCompiler" Version="4.0.1" />
   </ItemGroup>
@@ -31,22 +46,14 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.iOS10' ">
     <Compile Include="Platforms\Metal\**\*.cs" />
-    <Compile Include="Platforms\iOS\**\*.cs" />
-    <Compile Include="Platforms\Apple\**\*.cs" />
+    <Compile Include="Hosting\Apple\**\*.cs" />
     <Compile Include="**\*.Metal.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.Mac20' ">
     <Compile Include="Platforms\Metal\**\*.cs" />
-    <Compile Include="Platforms\Apple\**\*.cs" />
+    <Compile Include="Hosting\Apple\**\*.cs" />
     <Compile Include="**\*.Metal.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Platforms\Direct3D12\DynamicAllocation.cs" />
-    <None Remove="Platforms\Direct3D12\DynamicUploadHeap.cs" />
-    <None Remove="Platforms\Direct3D12\GpuRingBuffer.cs" />
-    <None Remove="Platforms\Direct3D12\RingBuffer.cs" />
   </ItemGroup>
 
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />

@@ -1,4 +1,5 @@
 ﻿<mahapps:MetroWindow x:Class="OpenZH.DataViewer.Views.ShellView"
+                     x:Name="MainWindow"
                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                      xmlns:mahapps="http://metro.mahapps.com/winfx/xaml/controls"
@@ -8,16 +9,38 @@
                      mc:Ignorable="d" 
                      d:DesignHeight="300" d:DesignWidth="300"
                      Title="OpenZH Data Viewer"
+                     TitleCaps="False"
                      GlowBrush="{DynamicResource AccentColorBrush}"
                      SaveWindowPosition="True"
                      WindowStartupLocation="CenterScreen">
+    <mahapps:MetroWindow.RightWindowCommands>
+        <mahapps:WindowCommands>
+            <mahapps:DropDownButton ItemsSource="{Binding Installations}"
+                                    Content="{Binding SelectedInstallation.DisplayName}"
+                                    Background="Transparent"
+                                    Foreground="{Binding TitleForeground, ElementName=MainWindow}"
+                                    ArrowBrush="{Binding TitleForeground, ElementName=MainWindow}"
+                                    BorderThickness="0">
+                <mahapps:DropDownButton.ItemContainerStyle>
+                    <Style TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+                        <Setter Property="Header" Value="{Binding DisplayName}" />
+                        <Setter Property="Command" Value="{Binding DataContext.SelectInstallationCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" />
+                        <Setter Property="CommandParameter" Value="{Binding}" />
+                    </Style>
+                </mahapps:DropDownButton.ItemContainerStyle>
+            </mahapps:DropDownButton>
+        </mahapps:WindowCommands>
+    </mahapps:MetroWindow.RightWindowCommands>
     <Grid>
-        <mahapps:MetroAnimatedSingleRowTabControl ItemsSource="{Binding Tabs}" 
-                                                  DisplayMemberPath="Name"
+        <mahapps:MetroAnimatedSingleRowTabControl ItemsSource="{Binding SelectedInstallation.Tabs}" 
+                                                  SelectedItem="{Binding SelectedInstallation.SelectedTab}"
+                                                  DisplayMemberPath="DisplayName"
                                                   TabStripMargin="10">
             <mahapps:MetroAnimatedSingleRowTabControl.ContentTemplate>
                 <DataTemplate>
-                    <ContentControl cal:View.Model="{Binding}" />
+                    <Border BorderBrush="LightGray" BorderThickness="0 0 0 0" Padding="15 10 15 0">
+                        <ContentControl cal:View.Model="{Binding}" />
+                    </Border>
                 </DataTemplate>
             </mahapps:MetroAnimatedSingleRowTabControl.ContentTemplate>
         </mahapps:MetroAnimatedSingleRowTabControl>

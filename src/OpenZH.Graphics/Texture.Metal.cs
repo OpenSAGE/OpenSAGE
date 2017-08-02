@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using Metal;
-using OpenZH.Graphics.Platforms.iOS.BlockCompression;
 using OpenZH.Graphics.Platforms.Metal;
+using OpenZH.Graphics.Util.BlockCompression;
 
 namespace OpenZH.Graphics
 {
@@ -48,6 +48,7 @@ namespace OpenZH.Graphics
             var processedData = data;
             var processedBytesPerRow = bytesPerRow;
 
+            // TODO: Don't do this for Mac.
             switch (_originalPixelFormat)
             {
                 case PixelFormat.Bc1:
