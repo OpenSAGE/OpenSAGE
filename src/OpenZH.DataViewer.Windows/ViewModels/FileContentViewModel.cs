@@ -15,6 +15,9 @@ namespace OpenZH.DataViewer.ViewModels
                 case ".bik":
                     return new AudioVideoFileContentViewModel(file);
 
+                case ".ani":
+                    return new AnimatedCursorFileContentViewModel(file);
+
                 default:
                     return new UnsupportedFileContentViewModel(file);
             }
