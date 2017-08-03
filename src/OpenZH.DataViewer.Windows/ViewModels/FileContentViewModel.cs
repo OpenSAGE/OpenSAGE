@@ -18,6 +18,9 @@ namespace OpenZH.DataViewer.ViewModels
                 case ".ani":
                     return new AnimatedCursorFileContentViewModel(file);
 
+                case ".csf":
+                    return new CsfFileContentViewModel(file);
+
                 case ".txt":
                     return new TextFileContentViewModel(file);
 

@@ -61,10 +61,28 @@ namespace OpenZH.Data.Utilities.Extensions
             return BinaryUtility.AnsiEncoding.GetString(reader.ReadBytes(length));
         }
 
+        public static string ReadUInt32PrefixedAsciiString(this BinaryReader reader)
+        {
+            var length = reader.ReadUInt32();
+            return BinaryUtility.AnsiEncoding.GetString(reader.ReadBytes((int) length));
+        }
+
         public static string ReadUInt16PrefixedUnicodeString(this BinaryReader reader)
         {
             var length = reader.ReadUInt16();
             return Encoding.Unicode.GetString(reader.ReadBytes(length * 2));
+        }
+
+        public static string ReadUInt32PrefixedNegatedUnicodeString(this BinaryReader reader)
+        {
+            var length = reader.ReadUInt32();
+            var bytes = reader.ReadBytes((int) length * 2);
+            var negatedBytes = new byte[bytes.Length];
+            for (var i = 0; i < negatedBytes.Length; i++)
+            {
+                negatedBytes[i] = (byte) ~bytes[i];
+            }
+            return Encoding.Unicode.GetString(negatedBytes);
         }
 
         public static string ReadFixedLengthString(this BinaryReader reader, int count)

@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="OpenZH.DataViewer.Views.CsfFileContentView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" Padding="0 10">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock FontWeight="Bold" Text="Language: " />
+                <TextBlock Text="{Binding Language}" />
+            </StackPanel>
+        </Border>
+        <DataGrid Grid.Row="1" ItemsSource="{Binding FileEntries}" />
+    </Grid>
+</UserControl>
