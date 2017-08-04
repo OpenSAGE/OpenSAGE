@@ -1,9 +1,8 @@
-﻿using OpenZH.Data.Ani;
-using OpenZH.Data.Csf;
+﻿using OpenZH.Data.Csf;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenZH.Data.Tests.Ani
+namespace OpenZH.Data.Tests.Csf
 {
     public class CsfFileTests
     {

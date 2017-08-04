@@ -24,6 +24,9 @@ namespace OpenZH.DataViewer.ViewModels
                 case ".csf":
                     return new CsfFileContentViewModel(file);
 
+                case ".wnd":
+                    return new WndFileContentViewModel(file);
+
                 case ".txt":
                     return new TextFileContentViewModel(file);
 
