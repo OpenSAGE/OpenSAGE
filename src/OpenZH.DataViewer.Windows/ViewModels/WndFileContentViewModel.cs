@@ -110,7 +110,23 @@ namespace OpenZH.DataViewer.ViewModels
             {
                 DataContext = window;
 
-                SetBinding(BorderBrushProperty, new Binding("EnabledDrawData.Items[0].BorderColor") { Converter = WndColorToBrushConverter.Instance });
+                Background = Brushes.Transparent; // So that hit testing works for IsMouseOver.
+
+                var style = new Style(typeof(Border));
+
+                style.Setters.Add(new Setter(BorderBrushProperty, new Binding("EnabledDrawData.Items[0].BorderColor") { Converter = WndColorToBrushConverter.Instance }));
+
+                style.Triggers.Add(new Trigger
+                {
+                    Property = IsMouseOverProperty,
+                    Value = true,
+                    Setters =
+                    {
+                        new Setter(BorderBrushProperty, new Binding("HiliteDrawData.Items[0].BorderColor") { Converter = WndColorToBrushConverter.Instance })
+                    }
+                });
+
+                Style = style;
 
                 if (window.Status.HasFlag(WndWindowStatusFlags.Border))
                 {
