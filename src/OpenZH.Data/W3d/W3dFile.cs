@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace OpenZH.Data.W3d
 {
@@ -10,6 +11,12 @@ namespace OpenZH.Data.W3d
         public W3dMesh[] Meshes { get; private set; }
         
         public W3dHierarchyDef[] Hierarchies { get; private set; }
+
+        public static W3dFile FromStream(Stream stream)
+        {
+            using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
+                return Parse(reader);
+        }
 
         public static W3dFile Parse(BinaryReader reader)
         {

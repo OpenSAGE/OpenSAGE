@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>f0b99559-9cf8-459b-85fd-dc0233bdd659</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>OpenZH.Graphics.LowLevel</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Hosting\GraphicsDeviceControl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Hosting\HwndMouseEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Hosting\HwndMouseState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Hosting\HwndWrapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Hosting\Win32\NativeMethods.cs" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>a17bc6d5-db57-464f-9669-b84fd314be93</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>OpenZH.Graphics</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Mesh.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MeshMaterial.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TextureLoader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\ConversionExtensions.cs" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>1cd7f3dc-23f4-435b-bb18-3897e4e96215</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>OpenZH.DataViewer</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\AnimatedCursorFileContentViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\AudioVideoFileContentViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\BitmapFileContentViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\CsfFileContentViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\FileContentViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\InstallationViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\RenderedFileContentViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ShellViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\TabViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\TextFileContentViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\TextureFileContentViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\UnsupportedFileContentViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\W3dFileContentViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\WndFileContentViewModel.cs" />
+  </ItemGroup>
+</Project>
