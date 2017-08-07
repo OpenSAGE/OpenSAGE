@@ -166,14 +166,15 @@
     </PixelShader>
     <VertexShader Include="Shaders\MeshVS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ShaderModel>5_1</ShaderModel>
     </VertexShader>
     <Content Include="Shaders\Sprite.hlsli" />
     <PixelShader Include="Shaders\SpritePS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </PixelShader>
-    <AdditionalFiles Include="Shaders\SpriteVS.hlsl">
+    <VertexShader Include="Shaders\SpriteVS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AdditionalFiles>
+    </VertexShader>
   </ItemGroup>
   <Import Project="..\OpenZH.DataViewer\OpenZH.DataViewer.projitems" Label="Shared" />
   <Import Project="..\OpenZH.Graphics\OpenZH.Graphics.projitems" Label="Shared" />
