@@ -12,8 +12,8 @@ namespace OpenZH.Data.Tests
         {
             var rootDirectories = new[]
             {
-                @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals",
-                @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals Zero Hour"
+                @"C:\Program Files (x86)\EA Games\Command & Conquer The First Decade\Command & Conquer(tm) Generals",
+                @"C:\Program Files (x86)\EA Games\Command & Conquer The First Decade\Command & Conquer(tm) Generals Zero Hour"
             };
 
             var foundAtLeastOneFile = false;
