@@ -14,7 +14,7 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<Animation> FieldParseTable = new IniParseTable<Animation>
         {
-            { "AnimationMode", (parser, x) => x.AnimationMode = parser.ParseAnimationMode() },
+            { "AnimationMode", (parser, x) => x.AnimationMode = parser.ParseEnum<AnimationMode>() },
             { "AnimationDelay", (parser, x) => x.AnimationDelay = parser.ParseInteger() },
             { "RandomizeStartFrame", (parser, x) => x.RandomizeStartFrame = parser.ParseBoolean() },
             { "NumberImages", (parser, x) => parser.ParseInteger() },
@@ -31,8 +31,13 @@ namespace OpenZH.Data.Ini
 
     public enum AnimationMode
     {
+        [IniEnum("ONCE")]
         Once,
+
+        [IniEnum("LOOP")]
         Loop,
+
+        [IniEnum("PING_PONG")]
         PingPong
     }
 }

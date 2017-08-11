@@ -15,8 +15,19 @@ namespace OpenZH.Data.Ini.Parser
             { "Campaign", (parser, context) => context.Campaigns.Add(Campaign.Parse(parser)) },
             { "CommandButton", (parser, context) => context.CommandButtons.Add(CommandButton.Parse(parser)) },
             { "CommandMap", (parser, context) => context.CommandMaps.Add(CommandMap.Parse(parser)) },
+            { "CommandSet", (parser, context) => context.CommandSets.Add(CommandSet.Parse(parser)) },
+            { "ControlBarResizer", (parser, context) => context.ControlBarResizers.Add(ControlBarResizer.Parse(parser)) },
+            { "ControlBarScheme", (parser, context) => context.ControlBarSchemes.Add(ControlBarScheme.Parse(parser)) },
+            { "CrateData", (parser, context) => context.CrateDatas.Add(CrateData.Parse(parser)) },
+            { "Credits", (parser, context) => context.Credits = Credits.Parse(parser) },
+            { "DamageFX", (parser, context) => context.DamageFXs.Add(DamageFX.Parse(parser)) },
+            { "DrawGroupInfo", (parser, context) => context.DrawGroupInfo = DrawGroupInfo.Parse(parser) },
+            { "EvaEvent", (parser, context) => context.EvaEvents.Add(EvaEvent.Parse(parser)) },
+            { "FXList", (parser, context) => context.FXLists.Add(FXList.Parse(parser)) },
+            { "GameData", (parser, context) => context.GameData = GameData.Parse(parser) },
             { "HeaderTemplate", (parser, context) => context.HeaderTemplates.Add(HeaderTemplate.Parse(parser)) },
             { "Language", (parser, context) => context.Language = Language.Parse(parser) },
+            { "Object", (parser, context) => context.Objects.Add(ObjectDefinition.Parse(parser)) },
         };
 
         private readonly List<IniToken> _tokens;
@@ -40,6 +51,8 @@ namespace OpenZH.Data.Ini.Parser
         }
 
         private IniToken Current => _tokens[_tokenIndex];
+
+        public IniTokenPosition CurrentPosition => Current.Position;
 
         private IniToken NextToken(params IniTokenType[] tokenTypes)
         {
@@ -104,7 +117,15 @@ namespace OpenZH.Data.Ini.Parser
 
         public int ParseInteger() => NextIntegerLiteralTokenValue();
 
-        public float ParseFloat() => NextToken(IniTokenType.FloatLiteral).FloatValue;
+        public byte ParseByte() => (byte) NextIntegerLiteralTokenValue();
+
+        public float ParseFloat()
+        {
+            var token = NextToken(IniTokenType.FloatLiteral, IniTokenType.IntegerLiteral);
+            return (token.TokenType == IniTokenType.FloatLiteral)
+                ? token.FloatValue
+                : token.IntegerValue;
+        }
 
         public float ParsePercentage() => NextToken(IniTokenType.PercentLiteral).FloatValue;
 
@@ -130,7 +151,7 @@ namespace OpenZH.Data.Ini.Parser
             return NextToken(IniTokenType.Identifier).StringValue;
         }
 
-        public T ParseEnum<T>(Dictionary<string, T> stringToValueMap)
+        private T ParseEnum<T>(Dictionary<string, T> stringToValueMap)
             where T : struct
         {
             var token = NextToken(IniTokenType.Identifier);
@@ -141,7 +162,7 @@ namespace OpenZH.Data.Ini.Parser
             throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.StringValue}'", token.Position);
         }
 
-        public T ParseEnumFlags<T>(T noneValue, Dictionary<string, T> stringToValueMap)
+        private T ParseEnumFlags<T>(T noneValue, Dictionary<string, T> stringToValueMap)
             where T : struct
         {
             var result = noneValue;
@@ -222,18 +243,22 @@ namespace OpenZH.Data.Ini.Parser
             IniParseTable<T> fieldParseTable)
             where T : class, new()
         {
-            while (Current.TokenType == IniTokenType.Identifier)
+            while (Current.TokenType == IniTokenType.Identifier || Current.TokenType == IniTokenType.IntegerLiteral)
             {
-                if (Current.StringValue.ToUpper() == "END")
+                if (Current.TokenType == IniTokenType.Identifier && Current.StringValue.ToUpper() == "END")
                 {
                     NextToken();
                     break;
                 }
                 else
                 {
-                    if (fieldParseTable.TryGetValue(Current.StringValue, out var fieldParser))
+                    var fieldName = Current.TokenType == IniTokenType.Identifier
+                        ? Current.StringValue
+                        : Current.IntegerValue.ToString();
+
+                    if (fieldParseTable.TryGetValue(fieldName, out var fieldParser))
                     {
-                        _currentBlockOrFieldStack.Push(Current.StringValue);
+                        _currentBlockOrFieldStack.Push(fieldName);
 
                         NextToken();
                         NextTokenIf(IniTokenType.Equals);
@@ -246,7 +271,7 @@ namespace OpenZH.Data.Ini.Parser
                     }
                     else
                     {
-                        throw new IniParseException($"Unexpected field '{Current.StringValue}' in block '{_currentBlockOrFieldStack.Peek()}'.", Current.Position);
+                        throw new IniParseException($"Unexpected field '{fieldName}' in block '{_currentBlockOrFieldStack.Peek()}'.", Current.Position);
                     }
                 }
             }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using OpenZH.Data.Ini;
 using OpenZH.Data.Utilities.Extensions;
 
 namespace OpenZH.Data.Map
@@ -61,7 +62,10 @@ namespace OpenZH.Data.Map
     public enum TimeOfDay : uint
     {
         Morning = 1,
+
+        [IniEnum("AFTERNOON")]
         Afternoon,
+
         Evening,
         Night
     }

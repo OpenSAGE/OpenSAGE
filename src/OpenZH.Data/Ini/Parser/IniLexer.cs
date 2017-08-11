@@ -158,6 +158,31 @@ namespace OpenZH.Data.Ini.Parser
                 tokenType = IniTokenType.PercentLiteral;
                 NextChar();
             }
+            else if (IsIdentifierChar(CurrentChar))
+            {
+                if (numDots > 0)
+                {
+                    throw new IniParseException($"Invalid number: {numberValue}", CurrentPosition);
+                }
+                var numIdentifierChars = 0;
+                while (IsIdentifierChar(CurrentChar))
+                {
+                    numberValue += CurrentChar;
+                    NextChar();
+                    numIdentifierChars++;
+                }
+                if (numIdentifierChars == 1 && numberValue.EndsWith("f"))
+                {
+                    return new IniToken(tokenType, CurrentPosition)
+                    {
+                        FloatValue = float.Parse(numberValue.TrimEnd('f'))
+                    };
+                }
+                return new IniToken(IniTokenType.Identifier, CurrentPosition)
+                {
+                    StringValue = numberValue
+                };
+            }
 
             var result = new IniToken(tokenType, CurrentPosition);
 

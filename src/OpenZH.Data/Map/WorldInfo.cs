@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using OpenZH.Data.Ini;
 
 namespace OpenZH.Data.Map
 {
@@ -30,7 +31,9 @@ namespace OpenZH.Data.Map
 
     public enum MapWeatherType : uint
     {
+        [IniEnum("NORMAL")]
         Normal,
+
         Snowy
     }
 

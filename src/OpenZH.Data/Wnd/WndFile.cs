@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using OpenZH.Data.Ini.Parser;
 using OpenZH.Data.Wnd.Parser;
 
 namespace OpenZH.Data.Wnd
@@ -153,6 +154,16 @@ namespace OpenZH.Data.Wnd
 
     public sealed class WndFont
     {
+        internal static WndFont Parse(IniParser parser)
+        {
+            return new WndFont
+            {
+                Name = parser.ParseAsciiString(),
+                Size = parser.ParseInteger(),
+                Bold = parser.ParseBoolean()
+            };
+        }
+
         public string Name { get; internal set; }
         public int Size { get; internal set; }
         public bool Bold { get; internal set; }
@@ -170,6 +181,15 @@ namespace OpenZH.Data.Wnd
 
     public struct WndPoint
     {
+        internal static WndPoint Parse(IniParser parser)
+        {
+            return new WndPoint
+            {
+                X = parser.ParseAttributeInteger("X"),
+                Y = parser.ParseAttributeInteger("Y")
+            };
+        }
+
         public int X;
         public int Y;
     }
@@ -182,6 +202,17 @@ namespace OpenZH.Data.Wnd
 
     public struct WndColor
     {
+        internal static WndColor Parse(IniParser parser)
+        {
+            return new WndColor
+            {
+                R = parser.ParseAttributeByte("R"),
+                G = parser.ParseAttributeByte("G"),
+                B = parser.ParseAttributeByte("B"),
+                A = parser.ParseAttributeByte("A")
+            };
+        }
+
         public byte R;
         public byte G;
         public byte B;

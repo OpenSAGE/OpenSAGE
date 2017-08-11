@@ -14,7 +14,7 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<Campaign> FieldParseTable = new IniParseTable<Campaign>
         {
-            { "CampaignNameLabel", (parser, x) => x.CampaignNameLabel = parser.ParseAsciiString() },
+            { "CampaignNameLabel", (parser, x) => x.CampaignNameLabel = parser.ParseLocalizedStringKey() },
             { "FirstMission", (parser, x) => x.FirstMission = parser.ParseAsciiString() },
             { "FinalVictoryMovie", (parser, x) => x.FinalVictoryMovie = parser.ParseAsciiString() },
             { "Mission", (parser, x) => x.Missions.Add(CampaignMission.Parse(parser)) }
@@ -43,16 +43,16 @@ namespace OpenZH.Data.Ini
             { "Map", (parser, x) => x.Map = parser.ParseAsciiString() },
             { "NextMission", (parser, x) => x.NextMission = parser.ParseAsciiString() },
             { "IntroMovie", (parser, x) => x.IntroMovie = parser.ParseAsciiString() },
-            { "ObjectiveLine0", (parser, x) => x.ObjectiveLine0 = parser.ParseAsciiString() },
-            { "ObjectiveLine1", (parser, x) => x.ObjectiveLine1 = parser.ParseAsciiString() },
-            { "ObjectiveLine2", (parser, x) => x.ObjectiveLine2 = parser.ParseAsciiString() },
-            { "ObjectiveLine3", (parser, x) => x.ObjectiveLine3 = parser.ParseAsciiString() },
-            { "ObjectiveLine4", (parser, x) => x.ObjectiveLine4 = parser.ParseAsciiString() },
+            { "ObjectiveLine0", (parser, x) => x.ObjectiveLine0 = parser.ParseLocalizedStringKey() },
+            { "ObjectiveLine1", (parser, x) => x.ObjectiveLine1 = parser.ParseLocalizedStringKey() },
+            { "ObjectiveLine2", (parser, x) => x.ObjectiveLine2 = parser.ParseLocalizedStringKey() },
+            { "ObjectiveLine3", (parser, x) => x.ObjectiveLine3 = parser.ParseLocalizedStringKey() },
+            { "ObjectiveLine4", (parser, x) => x.ObjectiveLine4 = parser.ParseLocalizedStringKey() },
             { "BriefingVoice", (parser, x) => x.BriefingVoice = parser.ParseAsciiString() },
-            { "UnitNames0", (parser, x) => x.UnitNames0 = parser.ParseAsciiString() },
-            { "UnitNames1", (parser, x) => x.UnitNames1 = parser.ParseAsciiString() },
-            { "UnitNames2", (parser, x) => x.UnitNames2 = parser.ParseAsciiString() },
-            { "LocationNameLabel", (parser, x) => x.LocationNameLabel = parser.ParseAsciiString() },
+            { "UnitNames0", (parser, x) => x.UnitNames0 = parser.ParseLocalizedStringKey() },
+            { "UnitNames1", (parser, x) => x.UnitNames1 = parser.ParseLocalizedStringKey() },
+            { "UnitNames2", (parser, x) => x.UnitNames2 = parser.ParseLocalizedStringKey() },
+            { "LocationNameLabel", (parser, x) => x.LocationNameLabel = parser.ParseLocalizedStringKey() },
             { "VoiceLength", (parser, x) => x.VoiceLength = parser.ParseInteger() }
         };
 

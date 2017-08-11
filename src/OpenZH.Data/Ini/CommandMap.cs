@@ -13,13 +13,13 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<CommandMap> FieldParseTable = new IniParseTable<CommandMap>
         {
-            { "Key", (parser, x) => x.Key = parser.ParseKey() },
-            { "Transition", (parser, x) => x.Transition = parser.ParseKeyTransition() },
-            { "Modifiers", (parser, x) => x.Modifiers = parser.ParseKeyModifiers() },
-            { "UseableIn", (parser, x) => x.UseableIn = parser.ParseCommandMapUsabilityFlags() },
-            { "Category", (parser, x) => x.Category = parser.ParseCommandMapCategory() },
-            { "Description", (parser, x) => x.Description = parser.ParseIdentifier() },
-            { "DisplayName", (parser, x) => x.DisplayName = parser.ParseIdentifier() }
+            { "Key", (parser, x) => x.Key = parser.ParseEnum<Key>() },
+            { "Transition", (parser, x) => x.Transition = parser.ParseEnum<KeyTransition>() },
+            { "Modifiers", (parser, x) => x.Modifiers = parser.ParseEnum<KeyModifiers>() },
+            { "UseableIn", (parser, x) => x.UseableIn = parser.ParseEnumFlags<CommandMapUsabilityFlags>() },
+            { "Category", (parser, x) => x.Category = parser.ParseEnum<CommandMapCategory>() },
+            { "Description", (parser, x) => x.Description = parser.ParseLocalizedStringKey() },
+            { "DisplayName", (parser, x) => x.DisplayName = parser.ParseLocalizedStringKey() }
         };
 
         public string Name { get; private set; }

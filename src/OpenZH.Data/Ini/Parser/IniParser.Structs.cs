@@ -4,23 +4,55 @@ namespace OpenZH.Data.Ini.Parser
 {
     partial class IniParser
     {
-        public WndFont ParseFont()
+        private delegate bool ParseAttributeValue<T>(string value, out T parsedValue);
+
+        private T ParseAttribute<T>(string label, ParseAttributeValue<T> parse)
         {
-            return new WndFont
+            var attributeToken = NextToken(IniTokenType.Identifier);
+
+            void throwException()
             {
-                Name = ParseAsciiString(),
-                Size = ParseInteger(),
-                Bold = ParseBoolean()
-            };
+                throw new IniParseException($"Invalid attribute '{attributeToken.StringValue}'", attributeToken.Position);
+            }
+
+            if (!attributeToken.StringValue.Contains(":"))
+            {
+                throwException();
+            }
+
+            var attributeParts = attributeToken.StringValue.Split(':');
+            if (attributeParts.Length < 2)
+            {
+                throwException();
+            }
+            if (attributeParts[0] != label)
+            {
+                throwException();
+            }
+
+            if (!parse(attributeParts[1], out var parsedValue))
+            {
+                throwException();
+            }
+
+            return parsedValue;
         }
 
-        public ArmorValue ParseArmorValue()
+        public int ParseAttributeInteger(string label)
         {
-            return new ArmorValue
-            {
-                DamageType = ParseDamageType(),
-                Percent = ParsePercentage()
-            };
+            return ParseAttribute<int>(label, int.TryParse);
         }
+
+        public byte ParseAttributeByte(string label)
+        {
+            return ParseAttribute<byte>(label, byte.TryParse);
+        }
+
+        public float ParseAttributeFloat(string label)
+        {
+            return ParseAttribute<float>(label, float.TryParse);
+        }
+
+        public string ParseLocalizedStringKey() => ParseIdentifier();
     }
 }
