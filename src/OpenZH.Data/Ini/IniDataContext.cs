@@ -11,6 +11,7 @@ namespace OpenZH.Data.Ini
         public List<Animation> Animations { get; } = new List<Animation>();
         public List<Armor> Armors { get; } = new List<Armor>();
         public AudioSettings AudioSettings { get; internal set; }
+        public List<BenchProfile> BenchProfiles { get; } = new List<BenchProfile>();
         public List<Campaign> Campaigns { get; } = new List<Campaign>();
         public List<CommandButton> CommandButtons { get; } = new List<CommandButton>();
         public List<CommandMap> CommandMaps { get; } = new List<CommandMap>();
@@ -26,8 +27,11 @@ namespace OpenZH.Data.Ini
         public List<FXList> FXLists { get; } = new List<FXList>();
         public GameData GameData { get; internal set; }
         public List<HeaderTemplate> HeaderTemplates { get; } = new List<HeaderTemplate>();
+        public InGameUI InGameUI { get; internal set; }
         public Language Language { get; internal set; }
+        public List<LodPreset> LodPresets { get; } = new List<LodPreset>();
         public List<ObjectDefinition> Objects { get; } = new List<ObjectDefinition>();
+        public int ReallyLowMHz { get; internal set; }
         public List<StaticGameLod> StaticGameLods { get; } = new List<StaticGameLod>();
 
         public void LoadIniFile(Stream stream, string fileName)

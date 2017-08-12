@@ -12,6 +12,7 @@ namespace OpenZH.Data.Ini.Parser
             { "Animation", (parser, context) => context.Animations.Add(Animation.Parse(parser)) },
             { "Armor", (parser, context) => context.Armors.Add(Armor.Parse(parser)) },
             { "AudioSettings", (parser, context) => context.AudioSettings = AudioSettings.Parse(parser) },
+            { "BenchProfile", (parser, context) => context.BenchProfiles.Add(BenchProfile.Parse(parser)) },
             { "Campaign", (parser, context) => context.Campaigns.Add(Campaign.Parse(parser)) },
             { "CommandButton", (parser, context) => context.CommandButtons.Add(CommandButton.Parse(parser)) },
             { "CommandMap", (parser, context) => context.CommandMaps.Add(CommandMap.Parse(parser)) },
@@ -27,8 +28,11 @@ namespace OpenZH.Data.Ini.Parser
             { "FXList", (parser, context) => context.FXLists.Add(FXList.Parse(parser)) },
             { "GameData", (parser, context) => context.GameData = GameData.Parse(parser) },
             { "HeaderTemplate", (parser, context) => context.HeaderTemplates.Add(HeaderTemplate.Parse(parser)) },
+            { "InGameUI", (parser, context) => context.InGameUI = InGameUI.Parse(parser) },
             { "Language", (parser, context) => context.Language = Language.Parse(parser) },
+            { "LODPreset", (parser, context) => context.LodPresets.Add(LodPreset.Parse(parser)) },
             { "Object", (parser, context) => context.Objects.Add(ObjectDefinition.Parse(parser)) },
+            { "ReallyLowMHz", (parser, context) => context.ReallyLowMHz = ReallyLowMHz.Parse(parser) },
             { "StaticGameLOD", (parser, context) => context.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
         };
 
@@ -56,7 +60,7 @@ namespace OpenZH.Data.Ini.Parser
 
         public IniTokenPosition CurrentPosition => Current.Position;
 
-        private IniToken NextToken(params IniTokenType[] tokenTypes)
+        public IniToken NextToken(params IniTokenType[] tokenTypes)
         {
             var token = Current;
             if (tokenTypes.Length > 0 && !tokenTypes.Contains(token.TokenType))
@@ -67,7 +71,7 @@ namespace OpenZH.Data.Ini.Parser
             return token;
         }
 
-        private IniToken? NextTokenIf(IniTokenType tokenType)
+        public IniToken? NextTokenIf(IniTokenType tokenType)
         {
             var token = Current;
             if (token.TokenType == tokenType)

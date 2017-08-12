@@ -1,4 +1,5 @@
-﻿using OpenZH.Data.Ini.Parser;
+﻿using System;
+using OpenZH.Data.Ini.Parser;
 
 namespace OpenZH.Data.Ini
 {
@@ -7,7 +8,7 @@ namespace OpenZH.Data.Ini
         internal static StaticGameLod Parse(IniParser parser)
         {
             return parser.ParseTopLevelNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.Level = (StaticGameLodLevel) Enum.Parse(typeof(StaticGameLodLevel), name),
                 FieldParseTable);
         }
 
@@ -33,7 +34,7 @@ namespace OpenZH.Data.Ini
             { "TextureReductionFactor", (parser, x) => x.TextureReductionFactor = parser.ParseInteger() },
         };
 
-        public string Name { get; private set; }
+        public StaticGameLodLevel Level { get; private set; }
 
         public int MinimumFps { get; private set; }
         public int MinimumProcessorFps { get; private set; }
@@ -53,5 +54,17 @@ namespace OpenZH.Data.Ini
         public bool UseTreeSway { get; private set; }
         public bool UseEmissiveNightMaterials { get; private set; }
         public int TextureReductionFactor { get; private set; }
+    }
+
+    public enum StaticGameLodLevel
+    {
+        [IniEnum("LOW")]
+        Low,
+
+        [IniEnum("MEDIUM")]
+        Medium,
+
+        [IniEnum("HIGH")]
+        High
     }
 }

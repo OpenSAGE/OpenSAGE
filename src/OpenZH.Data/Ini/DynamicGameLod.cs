@@ -1,4 +1,5 @@
-﻿using OpenZH.Data.Ini.Parser;
+﻿using System;
+using OpenZH.Data.Ini.Parser;
 
 namespace OpenZH.Data.Ini
 {
@@ -7,7 +8,7 @@ namespace OpenZH.Data.Ini
         internal static DynamicGameLod Parse(IniParser parser)
         {
             return parser.ParseTopLevelNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.Level = (DynamicGameLodLevel) Enum.Parse(typeof(DynamicGameLodLevel), name),
                 FieldParseTable);
         }
 
@@ -21,7 +22,7 @@ namespace OpenZH.Data.Ini
             { "MinParticleSkipPriority", (parser, x) => x.MinParticleSkipPriority = parser.ParseEnum<ParticlePriority>() },
         };
 
-        public string Name { get; private set; }
+        public DynamicGameLodLevel Level { get; private set; }
 
         public int MinimumFps { get; private set; }
         public int ParticleSkipMask { get; private set; }
@@ -29,6 +30,14 @@ namespace OpenZH.Data.Ini
         public float SlowDeathScale { get; private set; }
         public ParticlePriority MinParticlePriority { get; private set; }
         public ParticlePriority MinParticleSkipPriority { get; private set; }
+    }
+
+    public enum DynamicGameLodLevel
+    {
+        Low,
+        Medium,
+        High,
+        VeryHigh
     }
 
     public enum ParticlePriority
