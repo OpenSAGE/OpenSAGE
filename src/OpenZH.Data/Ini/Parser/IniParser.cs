@@ -32,6 +32,7 @@ namespace OpenZH.Data.Ini.Parser
             { "Language", (parser, context) => context.Language = Language.Parse(parser) },
             { "Locomotor", (parser, context) => context.Locomotors.Add(Locomotor.Parse(parser)) },
             { "LODPreset", (parser, context) => context.LodPresets.Add(LodPreset.Parse(parser)) },
+            { "MiscAudio", (parser, context) => context.MiscAudio = MiscAudio.Parse(parser) },
             { "Object", (parser, context) => context.Objects.Add(ObjectDefinition.Parse(parser)) },
             { "ReallyLowMHz", (parser, context) => context.ReallyLowMHz = ReallyLowMHz.Parse(parser) },
             { "StaticGameLOD", (parser, context) => context.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
