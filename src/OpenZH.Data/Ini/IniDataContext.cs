@@ -29,6 +29,7 @@ namespace OpenZH.Data.Ini
         public List<HeaderTemplate> HeaderTemplates { get; } = new List<HeaderTemplate>();
         public InGameUI InGameUI { get; internal set; }
         public Language Language { get; internal set; }
+        public List<Locomotor> Locomotors { get; } = new List<Locomotor>();
         public List<LodPreset> LodPresets { get; } = new List<LodPreset>();
         public List<ObjectDefinition> Objects { get; } = new List<ObjectDefinition>();
         public int ReallyLowMHz { get; internal set; }
