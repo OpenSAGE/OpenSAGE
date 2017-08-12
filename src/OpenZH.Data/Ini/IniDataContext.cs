@@ -32,6 +32,8 @@ namespace OpenZH.Data.Ini
         public List<Locomotor> Locomotors { get; } = new List<Locomotor>();
         public List<LodPreset> LodPresets { get; } = new List<LodPreset>();
         public MiscAudio MiscAudio { get; internal set; }
+        public List<MouseCursor> MouseCursors { get; } = new List<MouseCursor>();
+        public MouseData MouseData { get; internal set; }
         public List<ObjectDefinition> Objects { get; } = new List<ObjectDefinition>();
         public int ReallyLowMHz { get; internal set; }
         public List<StaticGameLod> StaticGameLods { get; } = new List<StaticGameLod>();
