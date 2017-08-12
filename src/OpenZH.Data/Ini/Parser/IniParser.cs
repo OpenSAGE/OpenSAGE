@@ -107,7 +107,20 @@ namespace OpenZH.Data.Ini.Parser
             throw new IniParseException($"Unexpected token: {token}", token.Position);
         }
 
-        public string ParseAsciiString() => NextToken(IniTokenType.Identifier, IniTokenType.StringLiteral).StringValue;
+        public string ParseAsciiString()
+        {
+            if (Current.TokenType == IniTokenType.StringLiteral)
+            {
+                return NextToken().StringValue;
+            }
+
+            var result = string.Empty;
+            while (Current.TokenType == IniTokenType.Identifier)
+            {
+                result += NextToken().StringValue;
+            }
+            return result;
+        }
 
         public string[] ParseAsciiStringArray()
         {

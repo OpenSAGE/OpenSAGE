@@ -245,6 +245,9 @@ namespace OpenZH.Data.Ini
         [IniEnum("A10STRIKE")]
         A10Strike,
 
+        [IniEnum("PARTICLECANNON")]
+        ParticleCannon,
+
         [IniEnum("CARPETBOMB")]
         CarpetBomb,
 
@@ -284,7 +287,16 @@ namespace OpenZH.Data.Ini
         [IniEnum("ATTACK_SCATTER_AREA")]
         AttackScatterArea,
 
+        [IniEnum("ATTACK_DAMAGE_AREA")]
+        AttackDamageArea,
+
+        [IniEnum("SUPERWEAPON_SCATTER_AREA")]
+        SuperweaponScatterAreaRadiusCursor,
+
         [IniEnum("FRIENDLY_SPECIALPOWER")]
-        FriendlySpecialPower
+        FriendlySpecialPower,
+
+        [IniEnum("OFFENSIVE_SPECIALPOWER")]
+        OffensiveSpecialPower
     }
 }
