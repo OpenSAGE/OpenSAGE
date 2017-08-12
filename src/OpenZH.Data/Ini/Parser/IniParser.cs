@@ -22,12 +22,14 @@ namespace OpenZH.Data.Ini.Parser
             { "Credits", (parser, context) => context.Credits = Credits.Parse(parser) },
             { "DamageFX", (parser, context) => context.DamageFXs.Add(DamageFX.Parse(parser)) },
             { "DrawGroupInfo", (parser, context) => context.DrawGroupInfo = DrawGroupInfo.Parse(parser) },
+            { "DynamicGameLOD", (parser, context) => context.DynamicGameLods.Add(DynamicGameLod.Parse(parser)) },
             { "EvaEvent", (parser, context) => context.EvaEvents.Add(EvaEvent.Parse(parser)) },
             { "FXList", (parser, context) => context.FXLists.Add(FXList.Parse(parser)) },
             { "GameData", (parser, context) => context.GameData = GameData.Parse(parser) },
             { "HeaderTemplate", (parser, context) => context.HeaderTemplates.Add(HeaderTemplate.Parse(parser)) },
             { "Language", (parser, context) => context.Language = Language.Parse(parser) },
             { "Object", (parser, context) => context.Objects.Add(ObjectDefinition.Parse(parser)) },
+            { "StaticGameLOD", (parser, context) => context.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
         };
 
         private readonly List<IniToken> _tokens;
@@ -201,6 +203,8 @@ namespace OpenZH.Data.Ini.Parser
             where T : class, new()
         {
             var result = new T();
+
+            NextTokenIf(IniTokenType.Equals);
 
             var name = ParseIdentifier();
             setNameCallback(result, name);
