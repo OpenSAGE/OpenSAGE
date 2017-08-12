@@ -34,8 +34,11 @@ namespace OpenZH.Data.Ini.Parser
             { "LODPreset", (parser, context) => context.LodPresets.Add(LodPreset.Parse(parser)) },
             { "MiscAudio", (parser, context) => context.MiscAudio = MiscAudio.Parse(parser) },
             { "Mouse", (parser, context) => context.MouseData = MouseData.Parse(parser) },
-            { "Object", (parser, context) => context.Objects.Add(ObjectDefinition.Parse(parser)) },
             { "MouseCursor", (parser, context) => context.MouseCursors.Add(MouseCursor.Parse(parser)) },
+            { "MultiplayerColor", (parser, context) => context.MultiplayerColors.Add(MultiplayerColor.Parse(parser)) },
+            { "MultiplayerSettings", (parser, context) => context.MultiplayerSettings = MultiplayerSettings.Parse(parser) },
+            { "Object", (parser, context) => context.Objects.Add(ObjectDefinition.Parse(parser)) },
+            { "OnlineChatColors", (parser, context) => context.OnlineChatColors = OnlineChatColors.Parse(parser) },
             { "ReallyLowMHz", (parser, context) => context.ReallyLowMHz = ReallyLowMHz.Parse(parser) },
             { "StaticGameLOD", (parser, context) => context.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
         };

@@ -34,7 +34,10 @@ namespace OpenZH.Data.Ini
         public MiscAudio MiscAudio { get; internal set; }
         public List<MouseCursor> MouseCursors { get; } = new List<MouseCursor>();
         public MouseData MouseData { get; internal set; }
+        public List<MultiplayerColor> MultiplayerColors { get; } = new List<MultiplayerColor>();
+        public MultiplayerSettings MultiplayerSettings { get; internal set; }
         public List<ObjectDefinition> Objects { get; } = new List<ObjectDefinition>();
+        public OnlineChatColors OnlineChatColors { get; internal set; }
         public int ReallyLowMHz { get; internal set; }
         public List<StaticGameLod> StaticGameLods { get; } = new List<StaticGameLod>();
 
