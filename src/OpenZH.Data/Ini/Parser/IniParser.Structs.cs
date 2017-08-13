@@ -24,9 +24,10 @@ namespace OpenZH.Data.Ini.Parser
             if (attributeParts.Length < 2)
             {
                 // A bit hacky, but it works... Some attributes have a space between the colon and value.
+
                 attributeParts = new[] { attributeParts[0], ParseFloat().ToString() };
             }
-            if (attributeParts[0].ToUpper() != label)
+            if (attributeParts[0].ToUpper() != label.ToUpper())
             {
                 throwException();
             }
@@ -42,6 +43,29 @@ namespace OpenZH.Data.Ini.Parser
         public int ParseAttributeInteger(string label)
         {
             return ParseAttribute<int>(label, int.TryParse);
+        }
+
+        public string ParseAttributeString(string label)
+        {
+            bool tryParseString(string value, out string parsedValue)
+            {
+                parsedValue = value;
+                return true;
+            }
+
+            return ParseAttribute<string>(label, tryParseString);
+        }
+
+        public T ParseAttributeEnum<T>(string label)
+            where T : struct
+        {
+            bool tryParseEnum(string value, out T parsedValue)
+            {
+                parsedValue = ParseEnum<T>(new IniToken(IniTokenType.Identifier, CurrentPosition) { StringValue = value });
+                return true;
+            }
+
+            return ParseAttribute<T>(label, tryParseEnum);
         }
 
         public byte ParseAttributeByte(string label)

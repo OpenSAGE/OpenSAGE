@@ -12,6 +12,7 @@ namespace OpenZH.Data.Ini
         public List<Armor> Armors { get; } = new List<Armor>();
         public AudioSettings AudioSettings { get; internal set; }
         public List<BenchProfile> BenchProfiles { get; } = new List<BenchProfile>();
+        public List<Bridge> Bridges { get; } = new List<Bridge>();
         public List<Campaign> Campaigns { get; } = new List<Campaign>();
         public List<CommandButton> CommandButtons { get; } = new List<CommandButton>();
         public List<CommandMap> CommandMaps { get; } = new List<CommandMap>();
@@ -43,6 +44,7 @@ namespace OpenZH.Data.Ini
         public List<ParticleSystem> ParticleSystems { get; } = new List<ParticleSystem>();
         public List<PlayerTemplate> PlayerTemplates { get; } = new List<PlayerTemplate>();
         public List<Rank> Ranks { get; } = new List<Rank>();
+        public List<Road> Roads { get; } = new List<Road>();
         public int ReallyLowMHz { get; internal set; }
         public List<StaticGameLod> StaticGameLods { get; } = new List<StaticGameLod>();
 

@@ -140,12 +140,6 @@ namespace OpenZH.Data.Ini
         public List<ParticleSysBone> ParticleSysBones { get; } = new List<ParticleSysBone>();
     }
 
-    public enum ModelConditionFlagType
-    {
-        [IniEnum("REALLYDAMAGED")]
-        ReallyDamaged
-    }
-
     public abstract class ObjectModule
     {
         internal static T ParseModule<T>(IniParser parser, Dictionary<string, Func<IniParser, T>> moduleParseTable)

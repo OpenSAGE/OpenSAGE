@@ -282,7 +282,7 @@ namespace OpenZH.Data.Ini
             { "HorizontalScrollSpeedFactor", (parser, x) => x.HorizontalScrollSpeedFactor = parser.ParseFloat() },
             { "VerticalScrollSpeedFactor", (parser, x) => x.VerticalScrollSpeedFactor = parser.ParseFloat() },
             { "KeyboardScrollSpeedFactor", (parser, x) => x.KeyboardScrollSpeedFactor = parser.ParseFloat() },
-            { "MovementPenaltyDamageState", (parser, x) => x.MovementPenaltyDamageState = parser.ParseEnum<ModelConditionFlagType>() },
+            { "MovementPenaltyDamageState", (parser, x) => x.MovementPenaltyDamageState = parser.ParseEnum<BodyDamageType>() },
 
             { "MaxParticleCount", (parser, x) => x.MaxParticleCount = parser.ParseInteger() },
             { "MaxFieldParticleCount", (parser, x) => x.MaxFieldParticleCount = parser.ParseInteger() },
@@ -646,7 +646,7 @@ namespace OpenZH.Data.Ini
         public float HorizontalScrollSpeedFactor { get; private set; }
         public float VerticalScrollSpeedFactor { get; private set; }
         public float KeyboardScrollSpeedFactor { get; private set; }
-        public ModelConditionFlagType MovementPenaltyDamageState { get; private set; }
+        public BodyDamageType MovementPenaltyDamageState { get; private set; }
 
         public int MaxParticleCount { get; private set; }
         public int MaxFieldParticleCount { get; private set; }
@@ -739,6 +739,21 @@ namespace OpenZH.Data.Ini
         public int MaxDebugCashValueMapValue { get; private set; }
 
         public bool VTune { get; private set; }
+    }
+
+    public enum BodyDamageType
+    {
+        [IniEnum("PRISTINE")]
+        Pristine,
+
+        [IniEnum("DAMAGED")]
+        Damaged,
+
+        [IniEnum("REALLYDAMAGED")]
+        ReallyDamaged,
+
+        [IniEnum("RUBBLE")]
+        Rubble
     }
 
     public enum TerrainLod

@@ -13,6 +13,7 @@ namespace OpenZH.Data.Ini.Parser
             { "Armor", (parser, context) => context.Armors.Add(Armor.Parse(parser)) },
             { "AudioSettings", (parser, context) => context.AudioSettings = AudioSettings.Parse(parser) },
             { "BenchProfile", (parser, context) => context.BenchProfiles.Add(BenchProfile.Parse(parser)) },
+            { "Bridge", (parser, context) => context.Bridges.Add(Bridge.Parse(parser)) },
             { "Campaign", (parser, context) => context.Campaigns.Add(Campaign.Parse(parser)) },
             { "CommandButton", (parser, context) => context.CommandButtons.Add(CommandButton.Parse(parser)) },
             { "CommandMap", (parser, context) => context.CommandMaps.Add(CommandMap.Parse(parser)) },
@@ -44,6 +45,7 @@ namespace OpenZH.Data.Ini.Parser
             { "ParticleSystem", (parser, context) => context.ParticleSystems.Add(ParticleSystem.Parse(parser)) },
             { "PlayerTemplate", (parser, context) => context.PlayerTemplates.Add(PlayerTemplate.Parse(parser)) },
             { "Rank", (parser, context) => context.Ranks.Add(Rank.Parse(parser)) },
+            { "Road", (parser, context) => context.Roads.Add(Road.Parse(parser)) },
             { "ReallyLowMHz", (parser, context) => context.ReallyLowMHz = ReallyLowMHz.Parse(parser) },
             { "StaticGameLOD", (parser, context) => context.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
         };

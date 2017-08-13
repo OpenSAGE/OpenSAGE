@@ -9,7 +9,7 @@ namespace OpenZH.Data.Ini.Parser
     {
         private static readonly Dictionary<Type, Dictionary<string, Enum>> CachedEnumMap = new Dictionary<Type, Dictionary<string, Enum>>();
 
-        private Dictionary<string, Enum> GetEnumMap<T>()
+        private static Dictionary<string, Enum> GetEnumMap<T>()
             where T : struct
         {
             var enumType = typeof(T);
@@ -30,12 +30,16 @@ namespace OpenZH.Data.Ini.Parser
         public T ParseEnum<T>()
             where T : struct
         {
+            return ParseEnum<T>(NextToken(IniTokenType.Identifier));
+        }
+
+        private static T ParseEnum<T>(IniToken token)
+            where T : struct
+        {
             var stringToValueMap = GetEnumMap<T>();
 
-            var token = NextToken(IniTokenType.Identifier);
-
             if (stringToValueMap.TryGetValue(token.StringValue.ToUpper(), out var enumValue))
-                return (T) (object) enumValue;
+                return (T)(object)enumValue;
 
             throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.StringValue}'", token.Position);
         }
