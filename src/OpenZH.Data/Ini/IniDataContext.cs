@@ -42,6 +42,7 @@ namespace OpenZH.Data.Ini
         public OnlineChatColors OnlineChatColors { get; internal set; }
         public List<ParticleSystem> ParticleSystems { get; } = new List<ParticleSystem>();
         public List<PlayerTemplate> PlayerTemplates { get; } = new List<PlayerTemplate>();
+        public List<Rank> Ranks { get; } = new List<Rank>();
         public int ReallyLowMHz { get; internal set; }
         public List<StaticGameLod> StaticGameLods { get; } = new List<StaticGameLod>();
 

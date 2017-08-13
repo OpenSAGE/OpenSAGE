@@ -43,6 +43,7 @@ namespace OpenZH.Data.Ini.Parser
             { "OnlineChatColors", (parser, context) => context.OnlineChatColors = OnlineChatColors.Parse(parser) },
             { "ParticleSystem", (parser, context) => context.ParticleSystems.Add(ParticleSystem.Parse(parser)) },
             { "PlayerTemplate", (parser, context) => context.PlayerTemplates.Add(PlayerTemplate.Parse(parser)) },
+            { "Rank", (parser, context) => context.Ranks.Add(Rank.Parse(parser)) },
             { "ReallyLowMHz", (parser, context) => context.ReallyLowMHz = ReallyLowMHz.Parse(parser) },
             { "StaticGameLOD", (parser, context) => context.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
         };
