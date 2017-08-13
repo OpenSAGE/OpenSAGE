@@ -46,6 +46,7 @@ namespace OpenZH.Data.Ini
         public List<Rank> Ranks { get; } = new List<Rank>();
         public List<Road> Roads { get; } = new List<Road>();
         public int ReallyLowMHz { get; internal set; }
+        public List<Science> Sciences { get; } = new List<Science>();
         public List<StaticGameLod> StaticGameLods { get; } = new List<StaticGameLod>();
 
         public void LoadIniFile(Stream stream, string fileName)
