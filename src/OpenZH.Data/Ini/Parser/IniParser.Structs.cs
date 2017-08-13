@@ -1,4 +1,4 @@
-﻿using OpenZH.Data.Wnd;
+﻿using System;
 
 namespace OpenZH.Data.Ini.Parser
 {
@@ -20,12 +20,13 @@ namespace OpenZH.Data.Ini.Parser
                 throwException();
             }
 
-            var attributeParts = attributeToken.StringValue.Split(':');
+            var attributeParts = attributeToken.StringValue.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
             if (attributeParts.Length < 2)
             {
-                throwException();
+                // A bit hacky, but it works... Some attributes have a space between the colon and value.
+                attributeParts = new[] { attributeParts[0], ParseFloat().ToString() };
             }
-            if (attributeParts[0] != label)
+            if (attributeParts[0].ToUpper() != label)
             {
                 throwException();
             }
