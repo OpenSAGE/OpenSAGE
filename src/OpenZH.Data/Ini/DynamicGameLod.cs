@@ -18,8 +18,8 @@ namespace OpenZH.Data.Ini
             { "ParticleSkipMask", (parser, x) => x.ParticleSkipMask = parser.ParseInteger() },
             { "DebrisSkipMask", (parser, x) => x.DebrisSkipMask = parser.ParseInteger() },
             { "SlowDeathScale", (parser, x) => x.SlowDeathScale = parser.ParseFloat() },
-            { "MinParticlePriority", (parser, x) => x.MinParticlePriority = parser.ParseEnum<ParticlePriority>() },
-            { "MinParticleSkipPriority", (parser, x) => x.MinParticleSkipPriority = parser.ParseEnum<ParticlePriority>() },
+            { "MinParticlePriority", (parser, x) => x.MinParticlePriority = parser.ParseEnum<ParticleSystemPriority>() },
+            { "MinParticleSkipPriority", (parser, x) => x.MinParticleSkipPriority = parser.ParseEnum<ParticleSystemPriority>() },
         };
 
         public DynamicGameLodLevel Level { get; private set; }
@@ -28,8 +28,8 @@ namespace OpenZH.Data.Ini
         public int ParticleSkipMask { get; private set; }
         public int DebrisSkipMask { get; private set; }
         public float SlowDeathScale { get; private set; }
-        public ParticlePriority MinParticlePriority { get; private set; }
-        public ParticlePriority MinParticleSkipPriority { get; private set; }
+        public ParticleSystemPriority MinParticlePriority { get; private set; }
+        public ParticleSystemPriority MinParticleSkipPriority { get; private set; }
     }
 
     public enum DynamicGameLodLevel
@@ -40,7 +40,7 @@ namespace OpenZH.Data.Ini
         VeryHigh
     }
 
-    public enum ParticlePriority
+    public enum ParticleSystemPriority
     {
         [IniEnum("WEAPON_EXPLOSION")]
         WeaponExplosion,

@@ -245,14 +245,16 @@ namespace OpenZH.Data.Ini
         {
             return new RandomVariable
             {
-                Low = parser.ParseInteger(),
-                High = parser.ParseInteger(),
-                DistributionType = parser.ParseEnum<DistributionType>()
+                Low = parser.ParseFloat(),
+                High = parser.ParseFloat(),
+                DistributionType = (parser.CurrentTokenType == IniTokenType.Identifier)
+                    ? parser.ParseEnum<DistributionType>()
+                    : DistributionType.Uniform
             };
         }
 
-        public int Low;
-        public int High;
+        public float Low;
+        public float High;
         public DistributionType DistributionType;
     }
 

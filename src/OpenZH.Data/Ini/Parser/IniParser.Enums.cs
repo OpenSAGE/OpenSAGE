@@ -20,7 +20,7 @@ namespace OpenZH.Data.Ini.Parser
                     .Distinct()
                     .Select(x => new { Name = GetIniName(enumType, x), Value = x })
                     .Where(x => x.Name != null)
-                    .ToDictionary(x => x.Name, x => x.Value);
+                    .ToDictionary(x => x.Name, x => x.Value, StringComparer.OrdinalIgnoreCase);
 
                 CachedEnumMap.Add(enumType, stringToValueMap);
             }

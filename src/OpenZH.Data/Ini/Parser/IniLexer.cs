@@ -87,7 +87,7 @@ namespace OpenZH.Data.Ini.Parser
                     return LexNumber(c);
 
                 default:
-                    if (char.IsLetter(c))
+                    if (char.IsLetter(c) || c == '_')
                     {
                         var identiferValue = new StringBuilder();
                         identiferValue.Append(c);

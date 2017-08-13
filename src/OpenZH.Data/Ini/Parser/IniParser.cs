@@ -41,6 +41,7 @@ namespace OpenZH.Data.Ini.Parser
             { "Object", (parser, context) => context.Objects.Add(ObjectDefinition.Parse(parser)) },
             { "ObjectCreationList", (parser, context) => context.ObjectCreationLists.Add(ObjectCreationList.Parse(parser)) },
             { "OnlineChatColors", (parser, context) => context.OnlineChatColors = OnlineChatColors.Parse(parser) },
+            { "ParticleSystem", (parser, context) => context.ParticleSystems.Add(ParticleSystem.Parse(parser)) },
             { "ReallyLowMHz", (parser, context) => context.ReallyLowMHz = ReallyLowMHz.Parse(parser) },
             { "StaticGameLOD", (parser, context) => context.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
         };
@@ -68,6 +69,7 @@ namespace OpenZH.Data.Ini.Parser
         private IniToken Current => _tokens[_tokenIndex];
 
         public IniTokenPosition CurrentPosition => Current.Position;
+        public IniTokenType CurrentTokenType => Current.TokenType;
 
         public IniToken NextToken(params IniTokenType[] tokenTypes)
         {
