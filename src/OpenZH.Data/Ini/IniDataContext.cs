@@ -41,6 +41,7 @@ namespace OpenZH.Data.Ini
         public List<ObjectCreationList> ObjectCreationLists { get; } = new List<ObjectCreationList>();
         public OnlineChatColors OnlineChatColors { get; internal set; }
         public List<ParticleSystem> ParticleSystems { get; } = new List<ParticleSystem>();
+        public List<PlayerTemplate> PlayerTemplates { get; } = new List<PlayerTemplate>();
         public int ReallyLowMHz { get; internal set; }
         public List<StaticGameLod> StaticGameLods { get; } = new List<StaticGameLod>();
 
