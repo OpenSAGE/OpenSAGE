@@ -48,6 +48,7 @@ namespace OpenZH.Data.Ini.Parser
             { "Road", (parser, context) => context.Roads.Add(Road.Parse(parser)) },
             { "ReallyLowMHz", (parser, context) => context.ReallyLowMHz = ReallyLowMHz.Parse(parser) },
             { "Science", (parser, context) => context.Sciences.Add(Science.Parse(parser)) },
+            { "ShellMenuScheme", (parser, context) => context.ShellMenuSchemes.Add(ShellMenuScheme.Parse(parser)) },
             { "StaticGameLOD", (parser, context) => context.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
         };
 
