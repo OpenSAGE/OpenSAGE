@@ -10,6 +10,7 @@ namespace OpenZH.Data.Ini
         public AIData AIData { get; internal set; }
         public List<Animation> Animations { get; } = new List<Animation>();
         public List<Armor> Armors { get; } = new List<Armor>();
+        public List<AudioEvent> AudioEvents { get; } = new List<AudioEvent>();
         public AudioSettings AudioSettings { get; internal set; }
         public List<BenchProfile> BenchProfiles { get; } = new List<BenchProfile>();
         public List<Bridge> Bridges { get; } = new List<Bridge>();
@@ -22,6 +23,7 @@ namespace OpenZH.Data.Ini
         public List<CrateData> CrateDatas { get; } = new List<CrateData>();
         public Credits Credits { get; internal set; }
         public List<DamageFX> DamageFXs { get; } = new List<DamageFX>();
+        public List<DialogEvent> DialogEvents { get; } = new List<DialogEvent>();
         public DrawGroupInfo DrawGroupInfo { get; internal set; }
         public List<DynamicGameLod> DynamicGameLods { get; } = new List<DynamicGameLod>();
         public List<EvaEvent> EvaEvents { get; } = new List<EvaEvent>();
@@ -48,7 +50,15 @@ namespace OpenZH.Data.Ini
         public int ReallyLowMHz { get; internal set; }
         public List<Science> Sciences { get; } = new List<Science>();
         public List<ShellMenuScheme> ShellMenuSchemes { get; } = new List<ShellMenuScheme>();
+        public List<SpecialPower> SpecialPowers { get; } = new List<SpecialPower>();
         public List<StaticGameLod> StaticGameLods { get; } = new List<StaticGameLod>();
+        public List<Terrain> Terrains { get; } = new List<Terrain>();
+        public List<Upgrade> Upgrades { get; } = new List<Upgrade>();
+        public List<Video> Videos { get; } = new List<Video>();
+        public List<WaterSet> WaterSets { get; } = new List<WaterSet>();
+        public WaterTransparency WaterTransparency { get; internal set; }
+        public List<Weapon> Weapons { get; } = new List<Weapon>();
+        public List<WebpageUrl> WebpageUrls { get; } = new List<WebpageUrl>();
 
         public void LoadIniFile(Stream stream, string fileName)
         {

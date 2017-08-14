@@ -122,6 +122,9 @@ namespace OpenZH.Data.Ini.Parser
                 case ':':
                 case '\\':
                 case '.':
+                case '&':
+                case '/':
+                case '?':
                     return true;
 
                 default:

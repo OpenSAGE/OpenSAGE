@@ -11,6 +11,7 @@ namespace OpenZH.Data.Ini.Parser
             { "AIData", (parser, context) => context.AIData = AIData.Parse(parser) },
             { "Animation", (parser, context) => context.Animations.Add(Animation.Parse(parser)) },
             { "Armor", (parser, context) => context.Armors.Add(Armor.Parse(parser)) },
+            { "AudioEvent", (parser, context) => context.AudioEvents.Add(AudioEvent.Parse(parser)) },
             { "AudioSettings", (parser, context) => context.AudioSettings = AudioSettings.Parse(parser) },
             { "BenchProfile", (parser, context) => context.BenchProfiles.Add(BenchProfile.Parse(parser)) },
             { "Bridge", (parser, context) => context.Bridges.Add(Bridge.Parse(parser)) },
@@ -23,6 +24,7 @@ namespace OpenZH.Data.Ini.Parser
             { "CrateData", (parser, context) => context.CrateDatas.Add(CrateData.Parse(parser)) },
             { "Credits", (parser, context) => context.Credits = Credits.Parse(parser) },
             { "DamageFX", (parser, context) => context.DamageFXs.Add(DamageFX.Parse(parser)) },
+            { "DialogEvent", (parser, context) => context.DialogEvents.Add(DialogEvent.Parse(parser)) },
             { "DrawGroupInfo", (parser, context) => context.DrawGroupInfo = DrawGroupInfo.Parse(parser) },
             { "DynamicGameLOD", (parser, context) => context.DynamicGameLods.Add(DynamicGameLod.Parse(parser)) },
             { "EvaEvent", (parser, context) => context.EvaEvents.Add(EvaEvent.Parse(parser)) },
@@ -49,7 +51,15 @@ namespace OpenZH.Data.Ini.Parser
             { "ReallyLowMHz", (parser, context) => context.ReallyLowMHz = ReallyLowMHz.Parse(parser) },
             { "Science", (parser, context) => context.Sciences.Add(Science.Parse(parser)) },
             { "ShellMenuScheme", (parser, context) => context.ShellMenuSchemes.Add(ShellMenuScheme.Parse(parser)) },
+            { "SpecialPower", (parser, context) => context.SpecialPowers.Add(SpecialPower.Parse(parser)) },
             { "StaticGameLOD", (parser, context) => context.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
+            { "Terrain", (parser, context) => context.Terrains.Add(Terrain.Parse(parser)) },
+            { "Upgrade", (parser, context) => context.Upgrades.Add(Upgrade.Parse(parser)) },
+            { "Video", (parser, context) => context.Videos.Add(Video.Parse(parser)) },
+            { "WaterSet", (parser, context) => context.WaterSets.Add(WaterSet.Parse(parser)) },
+            { "WaterTransparency", (parser, context) => context.WaterTransparency = WaterTransparency.Parse(parser) },
+            { "Weapon", (parser, context) => context.Weapons.Add(Weapon.Parse(parser)) },
+            { "WebpageURL", (parser, context) => context.WebpageUrls.Add(WebpageUrl.Parse(parser)) },
         };
 
         private readonly List<IniToken> _tokens;

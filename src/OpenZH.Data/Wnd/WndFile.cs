@@ -204,12 +204,20 @@ namespace OpenZH.Data.Wnd
     {
         internal static WndColor Parse(IniParser parser)
         {
+            var r = parser.ParseAttributeByte("R");
+            var g = parser.ParseAttributeByte("G");
+            var b = parser.ParseAttributeByte("B");
+
+            var a = (parser.CurrentTokenType == IniTokenType.Identifier)
+                ? parser.ParseAttributeByte("A")
+                : (byte) 255;
+
             return new WndColor
             {
-                R = parser.ParseAttributeByte("R"),
-                G = parser.ParseAttributeByte("G"),
-                B = parser.ParseAttributeByte("B"),
-                A = parser.ParseAttributeByte("A")
+                R = r,
+                G = g,
+                B = b,
+                A = a
             };
         }
 

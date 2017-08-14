@@ -33,7 +33,7 @@ namespace OpenZH.Data.Ini.Parser
             return ParseEnum<T>(NextToken(IniTokenType.Identifier));
         }
 
-        private static T ParseEnum<T>(IniToken token)
+        public static T ParseEnum<T>(IniToken token)
             where T : struct
         {
             var stringToValueMap = GetEnumMap<T>();
