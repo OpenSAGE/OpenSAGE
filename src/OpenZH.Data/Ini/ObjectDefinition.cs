@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using OpenZH.Data.Ini.Parser;
 
 namespace OpenZH.Data.Ini
 {
-    public sealed class ObjectDefinition
+    public class ObjectDefinition
     {
         internal static ObjectDefinition Parse(IniParser parser)
         {
@@ -14,7 +13,7 @@ namespace OpenZH.Data.Ini
                 FieldParseTable);
         }
 
-        private static readonly IniParseTable<ObjectDefinition> FieldParseTable = new IniParseTable<ObjectDefinition>
+        internal static readonly IniParseTable<ObjectDefinition> FieldParseTable = new IniParseTable<ObjectDefinition>
         {
             { "PlacementViewAngle", (parser, x) => x.PlacementViewAngle = parser.ParseInteger() },
             { "SelectPortrait", (parser, x) => x.SelectPortrait = parser.ParseAssetReference() },
@@ -85,7 +84,7 @@ namespace OpenZH.Data.Ini
             { "BuildCompletion", (parser, x) => x.BuildCompletion = parser.ParseAssetReference() },
         };
 
-        public string Name { get; private set; }
+        public string Name { get; protected set; }
 
         // Art
         public int PlacementViewAngle { get; private set; }
@@ -236,7 +235,10 @@ namespace OpenZH.Data.Ini
         LocalUnitOnly,
 
         [IniEnum("STRUCTURE")]
-        Structure
+        Structure,
+
+        [IniEnum("NOT_ON_RADAR")]
+        NotOnRadar
     }
 
     public sealed class ArmorSet
@@ -341,6 +343,7 @@ namespace OpenZH.Data.Ini
             { "W3DDefaultDraw", W3dDefaultDraw.Parse},
             { "W3DModelDraw", W3dModelDraw.ParseModel },
             { "W3DScienceModelDraw", W3dScienceModelDraw.Parse },
+            { "W3DSupplyDraw", W3dSupplyDraw.Parse },
             { "W3DTankDraw", W3dTankDraw.Parse },
         };
     }
@@ -370,9 +373,10 @@ namespace OpenZH.Data.Ini
         internal static readonly IniParseTable<W3dModelDraw> ModelFieldParseTable = new IniParseTable<W3dModelDraw>
         {
             { "AnimationsRequirePower", (parser, x) => x.AnimationsRequirePower = parser.ParseBoolean() },
-            { "DefaultConditionState", (parser, x) => x.DefaultConditionState = ObjectConditionState.Parse(parser) },
+            { "DefaultConditionState", (parser, x) => x.DefaultConditionState = ObjectConditionState.ParseDefault(parser) },
             { "ConditionState", (parser, x) => x.ConditionStates.Add(ObjectConditionState.Parse(parser)) },
             { "OkToChangeModelColor", (parser, x) => x.OkToChangeModelColor = parser.ParseBoolean() },
+            { "ExtraPublicBone", (parser, x) => x.ExtraPublicBones.Add(parser.ParseBoneName()) },
         };
 
         public ObjectConditionState DefaultConditionState { get; private set; }
@@ -380,6 +384,7 @@ namespace OpenZH.Data.Ini
 
         public bool OkToChangeModelColor { get; private set; }
         public bool AnimationsRequirePower { get; private set; }
+        public List<string> ExtraPublicBones { get; } = new List<string>();
     }
 
     public sealed class W3dTankDraw : W3dModelDraw
@@ -397,6 +402,21 @@ namespace OpenZH.Data.Ini
 
         public string TrackMarks { get; private set; }
         public float TreadDriveSpeedFraction { get; private set; }
+    }
+
+    public sealed class W3dSupplyDraw : W3dModelDraw
+    {
+        internal static W3dSupplyDraw Parse(IniParser parser)
+        {
+            return parser.ParseBlock(SupplyFieldParseTable);
+        }
+
+        private static readonly IniParseTable<W3dSupplyDraw> SupplyFieldParseTable = new IniParseTable<W3dSupplyDraw>
+        {
+            { "SupplyBonePrefix", (parser, x) => x.SupplyBonePrefix = parser.ParseString() }
+        }.Concat<W3dSupplyDraw, W3dModelDraw>(ModelFieldParseTable);
+
+        public string SupplyBonePrefix { get; private set; }
     }
 
     public sealed class W3dScienceModelDraw : W3dModelDraw
@@ -423,7 +443,13 @@ namespace OpenZH.Data.Ini
 
         internal static ObjectConditionState Parse(IniParser parser)
         {
-            return parser.ParseBlock(FieldParseTable);
+            var conditionFlags = parser.ParseEnumBitArray<ModelConditionFlag>();
+
+            var result = parser.ParseBlock(FieldParseTable);
+
+            result.ConditionFlags = conditionFlags;
+
+            return result;
         }
 
         private static readonly IniParseTable<ObjectConditionState> FieldParseTable = new IniParseTable<ObjectConditionState>
@@ -435,11 +461,34 @@ namespace OpenZH.Data.Ini
             { "ParticleSysBone", (parser, x) => x.ParticleSysBones.Add(ParticleSysBone.Parse(parser)) },
         };
 
+        public BitArray<ModelConditionFlag> ConditionFlags { get; private set; }
+
         public string Model { get; private set; }
         public string Animation { get; private set; }
         public AnimationMode AnimationMode { get; private set; }
         public ObjectConditionStateFlags Flags { get; private set; }
         public List<ParticleSysBone> ParticleSysBones { get; } = new List<ParticleSysBone>();
+    }
+
+    public enum ModelConditionFlag
+    {
+        [IniEnum("NONE")]
+        None,
+
+        [IniEnum("DAMAGED")]
+        Damaged,
+
+        [IniEnum("REALLYDAMAGED")]
+        ReallyDamaged,
+
+        [IniEnum("RUBBLE")]
+        Rubble,
+
+        [IniEnum("SNOW")]
+        Snow,
+
+        [IniEnum("NIGHT")]
+        Night,
     }
 
     public abstract class ObjectModule
@@ -499,6 +548,7 @@ namespace OpenZH.Data.Ini
 
         private static readonly Dictionary<string, Func<IniParser, ObjectBody>> BodyParseTable = new Dictionary<string, Func<IniParser, ObjectBody>>
         {
+            { "ActiveBody", ActiveBody.Parse },
             { "HighlanderBody", HighlanderBody.Parse },
             { "ImmortalBody", ImmortalBody.Parse },
             { "InactiveBody", InactiveBody.Parse },
@@ -545,6 +595,23 @@ namespace OpenZH.Data.Ini
         public float InitialHealth { get; private set; }
     }
 
+    public sealed class ActiveBody : ObjectBody
+    {
+        internal static ActiveBody Parse(IniParser parser)
+        {
+            return parser.ParseBlock(FieldParseTable);
+        }
+
+        private static readonly IniParseTable<ActiveBody> FieldParseTable = new IniParseTable<ActiveBody>
+        {
+            { "MaxHealth", (parser, x) => x.MaxHealth = parser.ParseFloat() },
+            { "InitialHealth", (parser, x) => x.InitialHealth = parser.ParseFloat() }
+        };
+
+        public float MaxHealth { get; private set; }
+        public float InitialHealth { get; private set; }
+    }
+
     /// <summary>
     /// Prevents normal interaction with other objects.
     /// </summary>
@@ -562,8 +629,10 @@ namespace OpenZH.Data.Ini
         private static readonly Dictionary<string, Func<IniParser, ObjectBehavior>> BehaviorParseTable = new Dictionary<string, Func<IniParser, ObjectBehavior>>
         {
             { "AutoHealBehavior", AutoHealBehavior.Parse },
+            { "BridgeTowerBehavior", BridgeTowerBehavior.Parse },
             { "DeletionUpdate", DeletionUpdateBehavior.Parse },
             { "DestroyDie", DestroyDieBehavior.Parse },
+            { "KeepObjectDie", KeepObjectDieBehavior.Parse },
             { "MoneyCrateCollide", MoneyCrateCollideBehavior.Parse },
             { "PhysicsBehavior", PhysicsBehavior.Parse },
             { "SalvageCrateCollide", SalvageCrateCollideBehavior.Parse },
@@ -613,6 +682,29 @@ namespace OpenZH.Data.Ini
         };
 
         public BitArray<DeathType> DeathTypes { get; private set; }
+    }
+
+    /// <summary>
+    /// Transfers damage done to itself to its parent bridge too.
+    /// </summary>
+    public sealed class BridgeTowerBehavior : ObjectBehavior
+    {
+        internal static BridgeTowerBehavior Parse(IniParser parser)
+        {
+            return parser.ParseBlock(FieldParseTable);
+        }
+
+        private static readonly IniParseTable<BridgeTowerBehavior> FieldParseTable = new IniParseTable<BridgeTowerBehavior>();
+    }
+
+    public sealed class KeepObjectDieBehavior : ObjectBehavior
+    {
+        internal static KeepObjectDieBehavior Parse(IniParser parser)
+        {
+            return parser.ParseBlock(FieldParseTable);
+        }
+
+        private static readonly IniParseTable<KeepObjectDieBehavior> FieldParseTable = new IniParseTable<KeepObjectDieBehavior>();
     }
 
     public sealed class AutoHealBehavior : ObjectBehavior

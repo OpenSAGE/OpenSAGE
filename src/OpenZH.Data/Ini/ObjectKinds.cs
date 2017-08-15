@@ -142,5 +142,23 @@
 
         [IniEnum("STICK_TO_TERRAIN_SLOPE")]
         StickToTerrainSlope,
+
+        [IniEnum("STRUCTURE")]
+        Structure,
+
+        [IniEnum("BRIDGE_TOWER")]
+        BridgeTower,
+
+        [IniEnum("NO_HEAL_ICON")]
+        NoHealIcon,
+
+        [IniEnum("AIRCRAFT_PATH_AROUND")]
+        AircraftPathAround,
+
+        [IniEnum("SUPPLY_SOURCE")]
+        SupplySource,
+
+        [IniEnum("SUPPLY_SOURCE_ON_PREVIEW")]
+        SupplySourceOnPreview,
     }
 }

@@ -42,6 +42,7 @@ namespace OpenZH.Data.Ini
         public MultiplayerSettings MultiplayerSettings { get; internal set; }
         public List<MusicTrack> MusicTracks { get; } = new List<MusicTrack>();
         public List<ObjectDefinition> Objects { get; } = new List<ObjectDefinition>();
+        public List<ObjectReskin> ObjectReskins { get; } = new List<ObjectReskin>();
         public List<ObjectCreationList> ObjectCreationLists { get; } = new List<ObjectCreationList>();
         public OnlineChatColors OnlineChatColors { get; internal set; }
         public List<ParticleSystem> ParticleSystems { get; } = new List<ParticleSystem>();
