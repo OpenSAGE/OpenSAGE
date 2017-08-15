@@ -34,6 +34,7 @@ namespace OpenZH.Data.Ini
         public Language Language { get; internal set; }
         public List<Locomotor> Locomotors { get; } = new List<Locomotor>();
         public List<LodPreset> LodPresets { get; } = new List<LodPreset>();
+        public List<MappedImage> MappedImages { get; } = new List<MappedImage>();
         public MiscAudio MiscAudio { get; internal set; }
         public List<MouseCursor> MouseCursors { get; } = new List<MouseCursor>();
         public MouseData MouseData { get; internal set; }
@@ -59,6 +60,7 @@ namespace OpenZH.Data.Ini
         public WaterTransparency WaterTransparency { get; internal set; }
         public List<Weapon> Weapons { get; } = new List<Weapon>();
         public List<WebpageUrl> WebpageUrls { get; } = new List<WebpageUrl>();
+        public List<WindowTransition> WindowTransitions { get; } = new List<WindowTransition>();
 
         public void LoadIniFile(Stream stream, string fileName)
         {

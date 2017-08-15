@@ -13,11 +13,13 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<MusicTrack> FieldParseTable = new IniParseTable<MusicTrack>
         {
-            { "Filename", (parser, x) => x.Filename = parser.ParseAsciiString() }
+            { "Filename", (parser, x) => x.Filename = parser.ParseFileName() },
+            { "Volume", (parser, x) => x.Volume = parser.ParseFloat() }
         };
 
         public string Name { get; private set; }
 
         public string Filename { get; private set; }
+        public float Volume { get; private set; } = 100;
     }
 }

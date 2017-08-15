@@ -28,7 +28,7 @@ namespace OpenZH.Data.Ini
             { "GuardChaseUnitsDuration", (parser, x) => x.GuardChaseUnitsDuration = parser.ParseInteger() },
             { "GuardEnemyScanRate", (parser, x) => x.GuardEnemyScanRate = parser.ParseInteger() },
             { "GuardEnemyReturnScanRate", (parser, x) => x.GuardEnemyReturnScanRate = parser.ParseInteger() },
-            { "AlertRateModifier", (parser, x) => x.AlertRateModifier = parser.ParseFloat() },
+            { "AlertRangeModifier", (parser, x) => x.AlertRangeModifier = parser.ParseFloat() },
             { "AggressiveRangeModifier", (parser, x) => x.AggressiveRangeModifier = parser.ParseFloat() },
             { "AttackPriorityDistanceModifier", (parser, x) => x.AttackPriorityDistanceModifier = parser.ParseFloat() },
             { "MaxRecruitRadius", (parser, x) => x.MaxRecruitRadius = parser.ParseFloat() },
@@ -59,6 +59,10 @@ namespace OpenZH.Data.Ini
 
             { "AIDozerBoredRadiusModifier", (parser, x) => x.AIDozerBoredRadiusModifier = parser.ParseFloat() },
             { "AICrushesInfantry", (parser, x) => x.AICrushesInfantry = parser.ParseBoolean() },
+
+            { "SideInfo", (parser, x) => x.SideInfos.Add(AISideInfo.Parse(parser)) },
+
+            { "SkirmishBuildList", (parser, x) => x.SkirmishBuildLists.Add(AISkirmishBuildList.Parse(parser)) },
         };
 
         public float StructureSeconds { get; private set; }
@@ -77,7 +81,7 @@ namespace OpenZH.Data.Ini
         public int GuardChaseUnitsDuration { get; private set; }
         public int GuardEnemyScanRate { get; private set; }
         public int GuardEnemyReturnScanRate { get; private set; }
-        public float AlertRateModifier { get; private set; }
+        public float AlertRangeModifier { get; private set; }
         public float AggressiveRangeModifier { get; private set; }
         public float AttackPriorityDistanceModifier { get; private set; }
         public float MaxRecruitRadius { get; private set; }
@@ -116,6 +120,24 @@ namespace OpenZH.Data.Ini
 
     public sealed class AISideInfo
     {
+        internal static AISideInfo Parse(IniParser parser)
+        {
+            return parser.ParseNamedBlock(
+                (x, name) => x.Name = name,
+                FieldParseTable);
+        }
+
+        private static readonly IniParseTable<AISideInfo> FieldParseTable = new IniParseTable<AISideInfo>
+        {
+            { "ResourceGatherersEasy", (parser, x) => x.ResourceGatherersEasy = parser.ParseInteger() },
+            { "ResourceGatherersNormal", (parser, x) => x.ResourceGatherersNormal = parser.ParseInteger() },
+            { "ResourceGatherersHard", (parser, x) => x.ResourceGatherersHard = parser.ParseInteger() },
+            { "BaseDefenseStructure1", (parser, x) => x.BaseDefenseStructure1 = parser.ParseAssetReference() },
+
+            { "SkillSet1", (parser, x) => x.SkillSet1 = AISkillSet.Parse(parser) },
+            { "SkillSet2", (parser, x) => x.SkillSet1 = AISkillSet.Parse(parser) }
+        };
+
         public string Name { get; private set; }
 
         public int ResourceGatherersEasy { get; private set; }
@@ -129,11 +151,33 @@ namespace OpenZH.Data.Ini
 
     public sealed class AISkillSet
     {
+        internal static AISkillSet Parse(IniParser parser)
+        {
+            return parser.ParseBlock(FieldParseTable);
+        }
+
+        private static readonly IniParseTable<AISkillSet> FieldParseTable = new IniParseTable<AISkillSet>
+        {
+            { "Science", (parser, x) => x.Sciences.Add(parser.ParseAssetReference()) }
+        };
+
         public List<string> Sciences { get; } = new List<string>();
     }
 
     public sealed class AISkirmishBuildList
     {
+        internal static AISkirmishBuildList Parse(IniParser parser)
+        {
+            return parser.ParseNamedBlock(
+                (x, name) => x.Name = name,
+                FieldParseTable);
+        }
+
+        private static readonly IniParseTable<AISkirmishBuildList> FieldParseTable = new IniParseTable<AISkirmishBuildList>
+        {
+            { "Structure", (parser, x) => x.Structures.Add(AIStructure.Parse(parser)) }
+        };
+
         public string Name { get; private set; }
 
         public List<AIStructure> Structures { get; } = new List<AIStructure>();
@@ -141,10 +185,27 @@ namespace OpenZH.Data.Ini
 
     public sealed class AIStructure
     {
+        internal static AIStructure Parse(IniParser parser)
+        {
+            return parser.ParseNamedBlock(
+                (x, name) => x.Key = name,
+                FieldParseTable);
+        }
+
+        private static readonly IniParseTable<AIStructure> FieldParseTable = new IniParseTable<AIStructure>
+        {
+            { "Name", (parser, x) => x.Name = parser.ParseString() },
+            { "Location", (parser, x) => x.Location = Coord2D.Parse(parser) },
+            { "Rebuilds", (parser, x) => x.Rebuilds = parser.ParseInteger() },
+            { "Angle", (parser, x) => x.Angle = parser.ParseFloat() },
+            { "InitiallyBuilt", (parser, x) => x.InitiallyBuilt = parser.ParseBoolean() },
+            { "AutomaticallyBuild", (parser, x) => x.AutomaticallyBuild = parser.ParseBoolean() },
+        };
+
         public string Key { get; private set; }
 
         public string Name { get; private set; }
-        public IniPoint Location { get; private set; }
+        public Coord2D Location { get; private set; }
         public int Rebuilds { get; private set; }
         public float Angle { get; private set; }
         public bool InitiallyBuilt { get; private set; }

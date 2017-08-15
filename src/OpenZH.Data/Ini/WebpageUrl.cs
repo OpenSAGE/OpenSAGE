@@ -13,7 +13,7 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<WebpageUrl> FieldParseTable = new IniParseTable<WebpageUrl>
         {
-            { "URL", (parser, x) => x.Url = parser.ParseAsciiString() },
+            { "URL", (parser, x) => x.Url = parser.ParseString() },
         };
 
         public string Name { get; private set; }

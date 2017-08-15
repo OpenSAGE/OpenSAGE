@@ -15,11 +15,11 @@ namespace OpenZH.Data.Ini
         {
             { "Enum", (parser, x) => x.Type = parser.ParseEnum<SpecialPowerType>() },
             { "ReloadTime", (parser, x) => x.ReloadTime = parser.ParseInteger() },
-            { "RequiredScience", (parser, x) => x.RequiredScience = parser.ParseAsciiString() },
+            { "RequiredScience", (parser, x) => x.RequiredScience = parser.ParseAssetReference() },
             { "PublicTimer", (parser, x) => x.PublicTimer = parser.ParseBoolean() },
             { "SharedSyncedTimer", (parser, x) => x.SharedSyncedTimer = parser.ParseBoolean() },
-            { "InitiateSound", (parser, x) => x.InitiateSound = parser.ParseAsciiString() },
-            { "InitiateAtLocationSound", (parser, x) => x.InitiateAtLocationSound = parser.ParseAsciiString() },
+            { "InitiateSound", (parser, x) => x.InitiateSound = parser.ParseAssetReference() },
+            { "InitiateAtLocationSound", (parser, x) => x.InitiateAtLocationSound = parser.ParseAssetReference() },
             { "ViewObjectDuration", (parser, x) => x.ViewObjectDuration = parser.ParseInteger() },
             { "ViewObjectRange", (parser, x) => x.ViewObjectRange = parser.ParseInteger() },
             { "RadiusCursorRadius", (parser, x) => x.RadiusCursorRadius = parser.ParseInteger() }

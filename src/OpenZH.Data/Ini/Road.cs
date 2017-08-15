@@ -13,7 +13,7 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<Road> FieldParseTable = new IniParseTable<Road>
         {
-            { "Texture", (parser, x) => x.Texture = parser.ParseAsciiString() },
+            { "Texture", (parser, x) => x.Texture = parser.ParseFileName() },
             { "RoadWidth", (parser, x) => x.RoadWidth = parser.ParseFloat() },
             { "RoadWidthInTexture", (parser, x) => x.RoadWidthInTexture = parser.ParseFloat() }
         };

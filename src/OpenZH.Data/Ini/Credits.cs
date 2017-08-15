@@ -21,7 +21,7 @@ namespace OpenZH.Data.Ini
             { "NormalColor", (parser, x) => x.NormalColor = WndColor.Parse(parser) },
 
             { "Style", (parser, x) => x.Lines.Add(new CreditStyleLine(parser.ParseEnum<CreditStyle>())) },
-            { "Text", (parser, x) => x.Lines.Add(new CreditTextLine(parser.ParseAsciiString())) },
+            { "Text", (parser, x) => x.Lines.Add(new CreditTextLine(parser.ParseString())) },
             { "Blank", (parser, x) => x.Lines.Add(new CreditBlankLine()) }
         };
 

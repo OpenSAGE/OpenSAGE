@@ -16,9 +16,9 @@ namespace OpenZH.Data.Ini
         private static readonly IniParseTable<ControlBarScheme> FieldParseTable = new IniParseTable<ControlBarScheme>
         {
             { "ScreenCreationRes", (parser, x) => x.ScreenCreationRes = WndPoint.Parse(parser) },
-            { "Side", (parser, x) => x.Side = parser.ParseAsciiString() },
-            { "QueueButtonImage", (parser, x) => x.QueueButtonImage = parser.ParseAsciiString() },
-            { "RightHUDImage", (parser, x) => x.RightHudImage = parser.ParseAsciiString() },
+            { "Side", (parser, x) => x.Side = parser.ParseAssetReference() },
+            { "QueueButtonImage", (parser, x) => x.QueueButtonImage = parser.ParseFileName() },
+            { "RightHUDImage", (parser, x) => x.RightHudImage = parser.ParseAssetReference() },
             { "CommandBarBorderColor", (parser, x) => x.CommandBarBorderColor = WndColor.Parse(parser) },
             { "BuildUpClockColor", (parser, x) => x.BuildUpClockColor = WndColor.Parse(parser) },
             { "ButtonBorderBuildColor", (parser, x) => x.ButtonBorderBuildColor = WndColor.Parse(parser) },
@@ -26,49 +26,49 @@ namespace OpenZH.Data.Ini
             { "ButtonBorderUpgradeColor", (parser, x) => x.ButtonBorderUpgradeColor = WndColor.Parse(parser) },
             { "ButtonBorderSystemColor", (parser, x) => x.ButtonBorderSystemColor = WndColor.Parse(parser) },
 
-            { "GenBarButtonIn", (parser, x) => x.GenBarButtonIn = parser.ParseAsciiString() },
-            { "GenBarButtonOn", (parser, x) => x.GenBarButtonOn = parser.ParseAsciiString() },
+            { "GenBarButtonIn", (parser, x) => x.GenBarButtonIn = parser.ParseAssetReference() },
+            { "GenBarButtonOn", (parser, x) => x.GenBarButtonOn = parser.ParseAssetReference() },
 
-            { "ToggleButtonUpIn", (parser, x) => x.ToggleButtonUpIn = parser.ParseAsciiString() },
-            { "ToggleButtonUpOn", (parser, x) => x.ToggleButtonUpOn = parser.ParseAsciiString() },
-            { "ToggleButtonUpPushed", (parser, x) => x.ToggleButtonUpPushed = parser.ParseAsciiString() },
+            { "ToggleButtonUpIn", (parser, x) => x.ToggleButtonUpIn = parser.ParseAssetReference() },
+            { "ToggleButtonUpOn", (parser, x) => x.ToggleButtonUpOn = parser.ParseAssetReference() },
+            { "ToggleButtonUpPushed", (parser, x) => x.ToggleButtonUpPushed = parser.ParseAssetReference() },
 
-            { "ToggleButtonDownIn", (parser, x) => x.ToggleButtonDownIn = parser.ParseAsciiString() },
-            { "ToggleButtonDownOn", (parser, x) => x.ToggleButtonDownOn = parser.ParseAsciiString() },
-            { "ToggleButtonDownPushed", (parser, x) => x.ToggleButtonDownPushed = parser.ParseAsciiString() },
+            { "ToggleButtonDownIn", (parser, x) => x.ToggleButtonDownIn = parser.ParseAssetReference() },
+            { "ToggleButtonDownOn", (parser, x) => x.ToggleButtonDownOn = parser.ParseAssetReference() },
+            { "ToggleButtonDownPushed", (parser, x) => x.ToggleButtonDownPushed = parser.ParseAssetReference() },
 
-            { "OptionsButtonEnable", (parser, x) => x.OptionsButtonEnable = parser.ParseAsciiString() },
-            { "OptionsButtonHightlited", (parser, x) => x.OptionsButtonHighlighted = parser.ParseAsciiString() },
-            { "OptionsButtonPushed", (parser, x) => x.OptionsButtonPushed = parser.ParseAsciiString() },
-            { "OptionsButtonDisabled", (parser, x) => x.OptionsButtonDisabled = parser.ParseAsciiString() },
+            { "OptionsButtonEnable", (parser, x) => x.OptionsButtonEnable = parser.ParseAssetReference() },
+            { "OptionsButtonHightlited", (parser, x) => x.OptionsButtonHighlighted = parser.ParseAssetReference() },
+            { "OptionsButtonPushed", (parser, x) => x.OptionsButtonPushed = parser.ParseAssetReference() },
+            { "OptionsButtonDisabled", (parser, x) => x.OptionsButtonDisabled = parser.ParseAssetReference() },
 
-            { "IdleWorkerButtonEnable", (parser, x) => x.IdleWorkerButtonEnable = parser.ParseAsciiString() },
-            { "IdleWorkerButtonHightlited", (parser, x) => x.IdleWorkerButtonHighlighted = parser.ParseAsciiString() },
-            { "IdleWorkerButtonPushed", (parser, x) => x.IdleWorkerButtonPushed = parser.ParseAsciiString() },
-            { "IdleWorkerButtonDisabled", (parser, x) => x.IdleWorkerButtonDisabled = parser.ParseAsciiString() },
+            { "IdleWorkerButtonEnable", (parser, x) => x.IdleWorkerButtonEnable = parser.ParseAssetReference() },
+            { "IdleWorkerButtonHightlited", (parser, x) => x.IdleWorkerButtonHighlighted = parser.ParseAssetReference() },
+            { "IdleWorkerButtonPushed", (parser, x) => x.IdleWorkerButtonPushed = parser.ParseAssetReference() },
+            { "IdleWorkerButtonDisabled", (parser, x) => x.IdleWorkerButtonDisabled = parser.ParseAssetReference() },
 
-            { "BuddyButtonEnable", (parser, x) => x.BuddyButtonEnable = parser.ParseAsciiString() },
-            { "BuddyButtonHightlited", (parser, x) => x.BuddyButtonHighlighted = parser.ParseAsciiString() },
-            { "BuddyButtonPushed", (parser, x) => x.BuddyButtonPushed = parser.ParseAsciiString() },
-            { "BuddyButtonDisabled", (parser, x) => x.BuddyButtonDisabled = parser.ParseAsciiString() },
+            { "BuddyButtonEnable", (parser, x) => x.BuddyButtonEnable = parser.ParseAssetReference() },
+            { "BuddyButtonHightlited", (parser, x) => x.BuddyButtonHighlighted = parser.ParseAssetReference() },
+            { "BuddyButtonPushed", (parser, x) => x.BuddyButtonPushed = parser.ParseAssetReference() },
+            { "BuddyButtonDisabled", (parser, x) => x.BuddyButtonDisabled = parser.ParseAssetReference() },
 
-            { "BeaconButtonEnable", (parser, x) => x.BeaconButtonEnable = parser.ParseAsciiString() },
-            { "BeaconButtonHightlited", (parser, x) => x.BeaconButtonHighlighted = parser.ParseAsciiString() },
-            { "BeaconButtonPushed", (parser, x) => x.BeaconButtonPushed = parser.ParseAsciiString() },
-            { "BeaconButtonDisabled", (parser, x) => x.BeaconButtonDisabled = parser.ParseAsciiString() },
+            { "BeaconButtonEnable", (parser, x) => x.BeaconButtonEnable = parser.ParseAssetReference() },
+            { "BeaconButtonHightlited", (parser, x) => x.BeaconButtonHighlighted = parser.ParseAssetReference() },
+            { "BeaconButtonPushed", (parser, x) => x.BeaconButtonPushed = parser.ParseAssetReference() },
+            { "BeaconButtonDisabled", (parser, x) => x.BeaconButtonDisabled = parser.ParseAssetReference() },
 
-            { "GeneralButtonEnable", (parser, x) => x.GeneralButtonEnable = parser.ParseAsciiString() },
-            { "GeneralButtonHightlited", (parser, x) => x.GeneralButtonHighlighted = parser.ParseAsciiString() },
-            { "GeneralButtonPushed", (parser, x) => x.GeneralButtonPushed = parser.ParseAsciiString() },
-            { "GeneralButtonDisabled", (parser, x) => x.GeneralButtonDisabled = parser.ParseAsciiString() },
+            { "GeneralButtonEnable", (parser, x) => x.GeneralButtonEnable = parser.ParseAssetReference() },
+            { "GeneralButtonHightlited", (parser, x) => x.GeneralButtonHighlighted = parser.ParseAssetReference() },
+            { "GeneralButtonPushed", (parser, x) => x.GeneralButtonPushed = parser.ParseAssetReference() },
+            { "GeneralButtonDisabled", (parser, x) => x.GeneralButtonDisabled = parser.ParseAssetReference() },
 
-            { "UAttackButtonEnable", (parser, x) => x.UAttackButtonEnable = parser.ParseAsciiString() },
-            { "UAttackButtonHightlited", (parser, x) => x.UAttackButtonHighlighted = parser.ParseAsciiString() },
-            { "UAttackButtonPushed", (parser, x) => x.UAttackButtonPushed = parser.ParseAsciiString() },
+            { "UAttackButtonEnable", (parser, x) => x.UAttackButtonEnable = parser.ParseAssetReference() },
+            { "UAttackButtonHightlited", (parser, x) => x.UAttackButtonHighlighted = parser.ParseAssetReference() },
+            { "UAttackButtonPushed", (parser, x) => x.UAttackButtonPushed = parser.ParseAssetReference() },
 
-            { "MinMaxButtonEnable", (parser, x) => x.MinMaxButtonEnable = parser.ParseAsciiString() },
-            { "MinMaxButtonHightlited", (parser, x) => x.MinMaxButtonHighlighted = parser.ParseAsciiString() },
-            { "MinMaxButtonPushed", (parser, x) => x.MinMaxButtonPushed = parser.ParseAsciiString() },
+            { "MinMaxButtonEnable", (parser, x) => x.MinMaxButtonEnable = parser.ParseAssetReference() },
+            { "MinMaxButtonHightlited", (parser, x) => x.MinMaxButtonHighlighted = parser.ParseAssetReference() },
+            { "MinMaxButtonPushed", (parser, x) => x.MinMaxButtonPushed = parser.ParseAssetReference() },
 
             { "MinMaxUL", (parser, x) => x.MinMaxUL = WndPoint.Parse(parser) },
             { "MinMaxLR", (parser, x) => x.MinMaxLR = WndPoint.Parse(parser) },
@@ -94,13 +94,13 @@ namespace OpenZH.Data.Ini
             { "PowerBarUL", (parser, x) => x.PowerBarUL = WndPoint.Parse(parser) },
             { "PowerBarLR", (parser, x) => x.PowerBarLR = WndPoint.Parse(parser) },
 
-            { "ExpBarForegroundImage", (parser, x) => x.ExpBarForegroundImage = parser.ParseAsciiString() },
+            { "ExpBarForegroundImage", (parser, x) => x.ExpBarForegroundImage = parser.ParseAssetReference() },
 
             { "MoneyUL", (parser, x) => x.MoneyUL = WndPoint.Parse(parser) },
             { "MoneyLR", (parser, x) => x.MoneyLR = WndPoint.Parse(parser) },
 
-            { "GenArrow", (parser, x) => x.GenArrow = parser.ParseAsciiString() },
-            { "CommandMarkerImage", (parser, x) => x.CommandMarkerImage = parser.ParseAsciiString() },
+            { "GenArrow", (parser, x) => x.GenArrow = parser.ParseAssetReference() },
+            { "CommandMarkerImage", (parser, x) => x.CommandMarkerImage = parser.ParseAssetReference() },
 
             { "ImagePart", (parser, x) => x.ImageParts.Add(ControlBarImagePart.Parse(parser)) },
         };
@@ -201,7 +201,7 @@ namespace OpenZH.Data.Ini
         {
             { "Position", (parser, x) => x.Position = WndPoint.Parse(parser) },
             { "Size", (parser, x) => x.Size = WndPoint.Parse(parser) },
-            { "ImageName", (parser, x) => x.ImageName = parser.ParseAsciiString() },
+            { "ImageName", (parser, x) => x.ImageName = parser.ParseAssetReference() },
             { "Layer", (parser, x) => x.Layer = parser.ParseInteger() }
         };
 

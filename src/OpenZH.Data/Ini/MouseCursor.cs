@@ -13,8 +13,8 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<MouseCursor> FieldParseTable = new IniParseTable<MouseCursor>
         {
-            { "Texture", (parser, x) => x.Texture = parser.ParseAsciiString() },
-            { "Image", (parser, x) => x.Image = parser.ParseAsciiString() },
+            { "Texture", (parser, x) => x.Texture = parser.ParseFileName() },
+            { "Image", (parser, x) => x.Image = parser.ParseFileName() },
             { "Directions", (parser, x) => x.Directions = parser.ParseInteger() }
         };
 

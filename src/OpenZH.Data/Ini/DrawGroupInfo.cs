@@ -19,7 +19,7 @@ namespace OpenZH.Data.Ini
             { "DropShadowOffsetX", (parser, x) => x.DropShadowOffsetX = parser.ParseInteger() },
             { "DropShadowOffsetY", (parser, x) => x.DropShadowOffsetY = parser.ParseInteger() },
 
-            { "FontName", (parser, x) => x.FontName = parser.ParseAsciiString() },
+            { "FontName", (parser, x) => x.FontName = parser.ParseString() },
             { "FontSize", (parser, x) => x.FontSize = parser.ParseInteger() },
             { "FontIsBold", (parser, x) => x.FontIsBold = parser.ParseBoolean() },
 

@@ -13,7 +13,7 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<HeaderTemplate> FieldParseTable = new IniParseTable<HeaderTemplate>
         {
-            { "Font", (parser, x) => x.Font = parser.ParseAsciiString() },
+            { "Font", (parser, x) => x.Font = parser.ParseString() },
             { "Point", (parser, x) => x.Point = parser.ParseInteger() },
             { "Bold", (parser, x) => x.Bold = parser.ParseBoolean() }
         };

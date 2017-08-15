@@ -13,11 +13,11 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<Science> FieldParseTable = new IniParseTable<Science>
         {
-            { "PrerequisiteSciences", (parser, x) => x.PrerequisiteSciences = parser.ParseAsciiStringArray() },
+            { "PrerequisiteSciences", (parser, x) => x.PrerequisiteSciences = parser.ParseAssetReferenceArray() },
             { "SciencePurchasePointCost", (parser, x) => x.SciencePurchasePointCost = parser.ParseInteger() },
             { "IsGrantable", (parser, x) => x.IsGrantable = parser.ParseBoolean() },
-            { "DisplayName", (parser, x) => x.DisplayName = parser.ParseAsciiString() },
-            { "Description", (parser, x) => x.Description = parser.ParseAsciiString() },
+            { "DisplayName", (parser, x) => x.DisplayName = parser.ParseLocalizedStringKey() },
+            { "Description", (parser, x) => x.Description = parser.ParseLocalizedStringKey() },
         };
 
         public string Name { get; private set; }

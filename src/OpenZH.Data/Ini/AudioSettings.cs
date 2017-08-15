@@ -11,11 +11,11 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<AudioSettings> FieldParseTable = new IniParseTable<AudioSettings>
         {
-            { "AudioRoot", (parser, x) => x.AudioRoot = parser.ParseAsciiString() },
-            { "SoundsFolder", (parser, x) => x.SoundsFolder = parser.ParseAsciiString() },
-            { "MusicFolder", (parser, x) => x.MusicFolder = parser.ParseAsciiString() },
-            { "StreamingFolder", (parser, x) => x.StreamingFolder = parser.ParseAsciiString() },
-            { "SoundsExtension", (parser, x) => x.SoundsExtension = parser.ParseAsciiString() },
+            { "AudioRoot", (parser, x) => x.AudioRoot = parser.ParseString() },
+            { "SoundsFolder", (parser, x) => x.SoundsFolder = parser.ParseString() },
+            { "MusicFolder", (parser, x) => x.MusicFolder = parser.ParseString() },
+            { "StreamingFolder", (parser, x) => x.StreamingFolder = parser.ParseString() },
+            { "SoundsExtension", (parser, x) => x.SoundsExtension = parser.ParseString() },
             { "UseDigital", (parser, x) => x.UseDigital = parser.ParseBoolean() },
             { "UseMidi", (parser, x) => x.UseMidi = parser.ParseBoolean() },
             { "OutputRate", (parser, x) => x.OutputRate = parser.ParseInteger() },
@@ -24,8 +24,8 @@ namespace OpenZH.Data.Ini
             { "SampleCount2D", (parser, x) => x.SampleCount2D = parser.ParseInteger() },
             { "SampleCount3D", (parser, x) => x.SampleCount3D = parser.ParseInteger() },
             { "StreamCount", (parser, x) => x.StreamCount = parser.ParseInteger() },
-            { "GlobalMinRange", (parser, x) => x.GlobalMinRange = parser.ParseInteger() },
-            { "GlobalMaxRange", (parser, x) => x.GlobalMaxRange = parser.ParseInteger() },
+            { "GlobalMinRange", (parser, x) => x.GlobalMinRange = parser.ParseFloat() },
+            { "GlobalMaxRange", (parser, x) => x.GlobalMaxRange = parser.ParseFloat() },
             { "TimeBetweenDrawableSounds", (parser, x) => x.TimeBetweenDrawableSounds = parser.ParseInteger() },
             { "TimeToFadeAudio", (parser, x) => x.TimeToFadeAudio = parser.ParseInteger() },
             { "AudioFootprintInBytes", (parser, x) => x.AudioFootprintInBytes = parser.ParseInteger() },
@@ -37,12 +37,12 @@ namespace OpenZH.Data.Ini
             { "Default3DSoundVolume", (parser, x) => x.Default3DSoundVolume = parser.ParsePercentage() },
             { "DefaultSpeechVolume", (parser, x) => x.DefaultSpeechVolume = parser.ParsePercentage() },
             { "DefaultMusicVolume", (parser, x) => x.DefaultMusicVolume = parser.ParsePercentage() },
-            { "Default2DSpeakerType", (parser, x) => x.Default2DSpeakerType = parser.ParseAsciiString() },
-            { "Default3DSpeakerType", (parser, x) => x.Default3DSpeakerType = parser.ParseAsciiString() },
+            { "Default2DSpeakerType", (parser, x) => x.Default2DSpeakerType = parser.ParseString() },
+            { "Default3DSpeakerType", (parser, x) => x.Default3DSpeakerType = parser.ParseString() },
 
-            { "Preferred3DHW1", (parser, x) => x.Preferred3DHW1 = parser.ParseAsciiString() },
-            { "Preferred3DHW2", (parser, x) => x.Preferred3DHW2 = parser.ParseAsciiString() },
-            { "Preferred3DSW", (parser, x) => x.Preferred3DSW = parser.ParseAsciiString() },
+            { "Preferred3DHW1", (parser, x) => x.Preferred3DHW1 = parser.ParseString() },
+            { "Preferred3DHW2", (parser, x) => x.Preferred3DHW2 = parser.ParseString() },
+            { "Preferred3DSW", (parser, x) => x.Preferred3DSW = parser.ParseString() },
 
             { "MicrophoneDesiredHeightAboveTerrain", (parser, x) => x.MicrophoneDesiredHeightAboveTerrain = parser.ParseFloat() },
             { "MicrophoneMaxPercentageBetweenGroundAndCamera", (parser, x) => x.MicrophoneMaxPercentageBetweenGroundAndCamera = parser.ParsePercentage() },
@@ -66,8 +66,8 @@ namespace OpenZH.Data.Ini
         public int SampleCount2D { get; private set; }
         public int SampleCount3D { get; private set; }
         public int StreamCount { get; private set; }
-        public int GlobalMinRange { get; private set; }
-        public int GlobalMaxRange { get; private set; }
+        public float GlobalMinRange { get; private set; }
+        public float GlobalMaxRange { get; private set; }
         public int TimeBetweenDrawableSounds { get; private set; }
         public int TimeToFadeAudio { get; private set; }
         public int AudioFootprintInBytes { get; private set; }

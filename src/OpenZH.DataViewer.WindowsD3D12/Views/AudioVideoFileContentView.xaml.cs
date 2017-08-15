@@ -69,7 +69,7 @@ namespace OpenZH.DataViewer.Views
             InitializeComponent();
 
             // TODO: Put this in a sensible location.
-            Unosquare.FFME.MediaElement.FFmpegDirectory = Path.GetFullPath(@"..\..\lib\FFMediaElement\Native");
+            Unosquare.FFME.MediaElement.FFmpegDirectory = Path.GetFullPath(@"..\..\..\..\lib\FFMediaElement\Native");
 
             Unloaded += OnUnloaded;
         }

@@ -12,7 +12,7 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<MouseData> FieldParseTable = new IniParseTable<MouseData>
         {
-            { "TooltipFontName", (parser, x) => x.TooltipFontName = parser.ParseAsciiString() },
+            { "TooltipFontName", (parser, x) => x.TooltipFontName = parser.ParseString() },
             { "TooltipFontSize", (parser, x) => x.TooltipFontSize = parser.ParseInteger() },
             { "TooltipFontIsBold", (parser, x) => x.TooltipFontIsBold = parser.ParseBoolean() },
             { "TooltipAnimateBackground", (parser, x) => x.TooltipAnimateBackground = parser.ParseBoolean() },

@@ -16,9 +16,9 @@ namespace OpenZH.Data.Ini
         {
             { "Priority", (parser, x) => x.Priority = parser.ParseEnum<AudioPriority>() },
             { "Control", (parser, x) => x.Control = parser.ParseEnumFlags<AudioControlFlags>() },
-            { "Sounds", (parser, x) => x.Sounds = parser.ParseAsciiStringArray() },
-            { "Attack", (parser, x) => x.Attack = parser.ParseAsciiString() },
-            { "Decay", (parser, x) => x.Attack = parser.ParseAsciiString() },
+            { "Sounds", (parser, x) => x.Sounds = parser.ParseAssetReferenceArray() },
+            { "Attack", (parser, x) => x.Attack = parser.ParseAssetReferenceArray() },
+            { "Decay", (parser, x) => x.Decay = parser.ParseAssetReferenceArray() },
             { "PitchShift", (parser, x) => x.PitchShift = FloatRange.Parse(parser) },
             { "Delay", (parser, x) => x.Delay = IntRange.Parse(parser) },
             { "LoopCount", (parser, x) => x.LoopCount = parser.ParseInteger() },
@@ -27,8 +27,8 @@ namespace OpenZH.Data.Ini
             { "MinVolume", (parser, x) => x.MinVolume = parser.ParseInteger() },
             { "LowPassCutoff", (parser, x) => x.LowPassCutoff = parser.ParseInteger() },
             { "Limit", (parser, x) => x.Limit = parser.ParseInteger() },
-            { "MinRange", (parser, x) => x.MinRange = parser.ParseInteger() },
-            { "MaxRange", (parser, x) => x.MaxRange = parser.ParseInteger() },
+            { "MinRange", (parser, x) => x.MinRange = parser.ParseFloat() },
+            { "MaxRange", (parser, x) => x.MaxRange = parser.ParseFloat() },
             { "Type", (parser, x) => x.Type = parser.ParseEnumFlags<AudioTypeFlags>() },
         };
 
@@ -37,18 +37,18 @@ namespace OpenZH.Data.Ini
         public AudioPriority Priority { get; private set; } = AudioPriority.Normal;
         public AudioControlFlags Control { get; private set; }
         public string[] Sounds { get; private set; }
-        public string Attack { get; private set; }
-        public string Decay { get; private set; }
+        public string[] Attack { get; private set; }
+        public string[] Decay { get; private set; }
         public FloatRange PitchShift { get; private set; }
         public IntRange Delay { get; private set; }
         public int LoopCount { get; private set; }
         public int VolumeShift { get; private set; }
-        public int Volume { get; private set; }
+        public int Volume { get; private set; } = 100;
         public int MinVolume { get; private set; }
         public int LowPassCutoff { get; private set; }
         public int Limit { get; private set; }
-        public int MinRange { get; private set; }
-        public int MaxRange { get; private set; }
+        public float MinRange { get; private set; }
+        public float MaxRange { get; private set; }
         public AudioTypeFlags Type { get; private set; }
     }
 

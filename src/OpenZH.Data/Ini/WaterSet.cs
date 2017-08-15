@@ -15,8 +15,8 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<WaterSet> FieldParseTable = new IniParseTable<WaterSet>
         {
-            { "SkyTexture", (parser, x) => x.SkyTexture = parser.ParseAsciiString() },
-            { "WaterTexture", (parser, x) => x.WaterTexture = parser.ParseAsciiString() },
+            { "SkyTexture", (parser, x) => x.SkyTexture = parser.ParseFileName() },
+            { "WaterTexture", (parser, x) => x.WaterTexture = parser.ParseFileName() },
             { "Vertex00Color", (parser, x) => x.Vertex00Color = WndColor.Parse(parser) },
             { "Vertex10Color", (parser, x) => x.Vertex10Color = WndColor.Parse(parser) },
             { "Vertex01Color", (parser, x) => x.Vertex01Color = WndColor.Parse(parser) },

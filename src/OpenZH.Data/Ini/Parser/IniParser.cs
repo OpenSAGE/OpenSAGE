@@ -35,6 +35,7 @@ namespace OpenZH.Data.Ini.Parser
             { "Language", (parser, context) => context.Language = Language.Parse(parser) },
             { "Locomotor", (parser, context) => context.Locomotors.Add(Locomotor.Parse(parser)) },
             { "LODPreset", (parser, context) => context.LodPresets.Add(LodPreset.Parse(parser)) },
+            { "MappedImage", (parser, context) => context.MappedImages.Add(MappedImage.Parse(parser)) },
             { "MiscAudio", (parser, context) => context.MiscAudio = MiscAudio.Parse(parser) },
             { "Mouse", (parser, context) => context.MouseData = MouseData.Parse(parser) },
             { "MouseCursor", (parser, context) => context.MouseCursors.Add(MouseCursor.Parse(parser)) },
@@ -60,32 +61,80 @@ namespace OpenZH.Data.Ini.Parser
             { "WaterTransparency", (parser, context) => context.WaterTransparency = WaterTransparency.Parse(parser) },
             { "Weapon", (parser, context) => context.Weapons.Add(Weapon.Parse(parser)) },
             { "WebpageURL", (parser, context) => context.WebpageUrls.Add(WebpageUrl.Parse(parser)) },
+            { "WindowTransition", (parser, context) => context.WindowTransitions.Add(WindowTransition.Parse(parser)) },
         };
 
+        private readonly IniLexer _lexer;
+        private readonly Stack<IniLexerMode> _lexerModeStack;
         private readonly List<IniToken> _tokens;
         private int _tokenIndex;
+
+        private struct IniParserState
+        {
+            public IniLexerState LexerState;
+            public int TokenIndex;
+        }
 
         private readonly Stack<string> _currentBlockOrFieldStack;
 
         public IniParser(string source, string fileName)
         {
-            var lexer = new IniLexer(source, fileName);
+            _lexer = new IniLexer(source, fileName);
+
+            _lexerModeStack = new Stack<IniLexerMode>();
+            _lexerModeStack.Push(IniLexerMode.Normal);
 
             _tokens = new List<IniToken>();
-
-            IniToken token;
-            do
-            {
-                _tokens.Add(token = lexer.Lex());
-            } while (token.TokenType != IniTokenType.EndOfFile);
+            _tokenIndex = 0;
 
             _currentBlockOrFieldStack = new Stack<string>();
         }
 
-        private IniToken Current => _tokens[_tokenIndex];
+        public IniToken Current => _tokens[EnsureToken(_tokenIndex)];
 
         public IniTokenPosition CurrentPosition => Current.Position;
         public IniTokenType CurrentTokenType => Current.TokenType;
+
+        private int EnsureToken(int tokenIndex)
+        {
+            if (_tokens.Count > 0 
+                && _tokens[_tokens.Count - 1].TokenType == IniTokenType.EndOfFile
+                && tokenIndex == _tokens.Count - 1)
+            {
+                return _tokens.Count - 1;
+            }
+
+            while (tokenIndex >= _tokens.Count)
+            {
+                var token = _lexer.Lex(_lexerModeStack.Peek());
+
+                _tokens.Add(token);
+
+                if (token.TokenType == IniTokenType.EndOfFile)
+                {
+                    break;
+                }
+            }
+
+            return Math.Min(tokenIndex, _tokens.Count - 1);
+        }
+
+        private IniParserState GetState()
+        {
+            return new IniParserState
+            {
+                LexerState = _lexer.GetState(),
+                TokenIndex = _tokenIndex
+            };
+        }
+
+        private void RestoreState(IniParserState state)
+        {
+            _lexer.RestoreState(state.LexerState);
+            _tokenIndex = state.TokenIndex;
+
+            _tokens.RemoveRange(_tokenIndex, _tokens.Count - _tokenIndex);
+        }
 
         public IniToken NextToken(params IniTokenType[] tokenTypes)
         {
@@ -100,12 +149,16 @@ namespace OpenZH.Data.Ini.Parser
 
         public IniToken? NextTokenIf(IniTokenType tokenType)
         {
+            var state = GetState();
+
             var token = Current;
             if (token.TokenType == tokenType)
             {
                 _tokenIndex++;
                 return token;
             }
+            // Undo lexing, because we might want to re-lex in a different mode.
+            RestoreState(state);
             return null;
         }
 
@@ -119,51 +172,67 @@ namespace OpenZH.Data.Ini.Parser
             return token;
         }
 
-        private int NextIntegerLiteralTokenValue()
-        {
-            return NextToken(IniTokenType.IntegerLiteral).IntegerValue;
-        }
-
-        private string NextStringLiteralTokenValue()
-        {
-            return NextToken(IniTokenType.StringLiteral).StringValue;
-        }
-
         private void UnexpectedToken(IniToken token)
         {
             throw new IniParseException($"Unexpected token: {token}", token.Position);
         }
 
-        public string ParseAsciiString()
+        public string ParseString(bool allowWhitespace = false)
         {
-            if (Current.TokenType == IniTokenType.StringLiteral)
-            {
-                return NextToken().StringValue;
-            }
+            var lexerMode = allowWhitespace
+                ? IniLexerMode.StringWithWhitespace
+                : IniLexerMode.String;
 
-            var result = string.Empty;
-            while (Current.TokenType == IniTokenType.Identifier)
+            _lexerModeStack.Push(lexerMode);
+
+            try
             {
-                result += NextToken().StringValue;
+                return NextToken(IniTokenType.StringLiteral).StringValue;
             }
-            return result;
+            finally
+            {
+                _lexerModeStack.Pop();
+            }
         }
 
-        public string[] ParseAsciiStringArray()
+        public string ParseAssetReference()
         {
-            var result = new List<string>();
+            _lexerModeStack.Push(IniLexerMode.AssetReference);
 
-            do
+            try
             {
-                result.Add(ParseAsciiString());
-            } while (Current.TokenType == IniTokenType.Identifier);
-
-            return result.ToArray();
+                return NextToken(IniTokenType.StringLiteral).StringValue;
+            }
+            finally
+            {
+                _lexerModeStack.Pop();
+            }
         }
 
-        public int ParseInteger() => NextIntegerLiteralTokenValue();
+        public string[] ParseAssetReferenceArray()
+        {
+            _lexerModeStack.Push(IniLexerMode.AssetReference);
 
-        public byte ParseByte() => (byte) NextIntegerLiteralTokenValue();
+            try
+            {
+                var result = new List<string>();
+
+                while (Current.TokenType == IniTokenType.StringLiteral)
+                {
+                    result.Add(ParseAssetReference());
+                }
+
+                return result.ToArray();
+            }
+            finally
+            {
+                _lexerModeStack.Pop();
+            }
+        }
+
+        public int ParseInteger() => NextToken(IniTokenType.IntegerLiteral).IntegerValue;
+
+        public byte ParseByte() => (byte) ParseInteger();
 
         public float ParseFloat()
         {
@@ -196,6 +265,11 @@ namespace OpenZH.Data.Ini.Parser
         {
             return NextToken(IniTokenType.Identifier).StringValue;
         }
+
+        public string ParseLocalizedStringKey() => ParseString();
+        public string ParseFileName() => ParseString();
+        public string ParseBoneName() => ParseString();
+        public string ParseAnimationName() => ParseString();
 
         private T ParseEnum<T>(Dictionary<string, T> stringToValueMap)
             where T : struct
@@ -241,6 +315,20 @@ namespace OpenZH.Data.Ini.Parser
             return result;
         }
 
+        public T ParseTopLevelNamedBlock<T>(
+            Action<T, int> setNameCallback,
+            IniParseTable<T> fieldParseTable)
+            where T : class, new()
+        {
+            NextToken();
+
+            var result = ParseNamedBlock(setNameCallback, fieldParseTable);
+
+            NextTokenIf(IniTokenType.EndOfLine);
+
+            return result;
+        }
+
         public T ParseNamedBlock<T>(
             Action<T, string> setNameCallback,
             IniParseTable<T> fieldParseTable)
@@ -250,7 +338,34 @@ namespace OpenZH.Data.Ini.Parser
 
             NextTokenIf(IniTokenType.Equals);
 
-            var name = ParseIdentifier();
+            // In only a few places in SCShellUserInterface512.INI,
+            // there are what look like accidental spaces in the MappedImage names.
+            var name = ParseString(allowWhitespace: true).Replace(" ", string.Empty);
+            setNameCallback(result, name);
+
+            var errantEnd = NextTokenIf(IniTokenType.Identifier);
+            if (errantEnd != null && errantEnd.Value.StringValue != "End")
+            {
+                throw new IniParseException($"Unexpected identifier after block name: {errantEnd.Value.StringValue}", errantEnd.Value.Position);
+            }
+
+            NextToken(IniTokenType.EndOfLine);
+
+            ParseBlockContent(result, fieldParseTable);
+
+            return result;
+        }
+
+        public T ParseNamedBlock<T>(
+            Action<T, int> setNameCallback,
+            IniParseTable<T> fieldParseTable)
+            where T : class, new()
+        {
+            var result = new T();
+
+            NextTokenIf(IniTokenType.Equals);
+
+            var name = ParseInteger();
             setNameCallback(result, name);
 
             NextToken(IniTokenType.EndOfLine);

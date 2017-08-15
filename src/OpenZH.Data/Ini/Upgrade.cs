@@ -14,12 +14,12 @@ namespace OpenZH.Data.Ini
         private static readonly IniParseTable<Upgrade> FieldParseTable = new IniParseTable<Upgrade>
         {
             { "Type", (parser, x) => x.Type = parser.ParseEnum<UpgradeType>() },
-            { "DisplayName", (parser, x) => x.DisplayName = parser.ParseAsciiString() },
+            { "DisplayName", (parser, x) => x.DisplayName = parser.ParseLocalizedStringKey() },
             { "BuildTime", (parser, x) => x.BuildTime = parser.ParseFloat() },
             { "BuildCost", (parser, x) => x.BuildCost = parser.ParseInteger() },
-            { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseAsciiString() },
-            { "ResearchSound", (parser, x) => x.ResearchSound = parser.ParseAsciiString() },
-            { "UnitSpecificSound", (parser, x) => x.UnitSpecificSound = parser.ParseAsciiString() },
+            { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseAssetReference() },
+            { "ResearchSound", (parser, x) => x.ResearchSound = parser.ParseAssetReference() },
+            { "UnitSpecificSound", (parser, x) => x.UnitSpecificSound = parser.ParseAssetReference() },
         };
 
         public string Name { get; private set; }

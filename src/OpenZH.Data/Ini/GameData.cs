@@ -13,9 +13,9 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<GameData> FieldParseTable = new IniParseTable<GameData>
         {
-            { "ShellMapName", (parser, x) => x.ShellMapName = parser.ParseAsciiString() },
-            { "MapName", (parser, x) => x.MapName = parser.ParseAsciiString() },
-            { "MoveHintName", (parser, x) => x.MoveHintName = parser.ParseAsciiString() },
+            { "ShellMapName", (parser, x) => x.ShellMapName = parser.ParseString() },
+            { "MapName", (parser, x) => x.MapName = parser.ParseString() },
+            { "MoveHintName", (parser, x) => x.MoveHintName = parser.ParseString() },
             { "UseTrees", (parser, x) => x.UseTrees = parser.ParseBoolean() },
             { "UseFPSLimit", (parser, x) => x.UseFpsLimit = parser.ParseBoolean() },
             { "FramesPerSecondLimit", (parser, x) => x.FramesPerSecondLimit = parser.ParseInteger() },
@@ -54,7 +54,7 @@ namespace OpenZH.Data.Ini
 
             { "DefaultStructureRubbleHeight", (parser, x) => x.DefaultStructureRubbleHeight = parser.ParseFloat() },
 
-            { "VertexWaterAvailableMaps1", (parser, x) => x.VertexWaterAvailableMaps1 = parser.ParseAsciiString() },
+            { "VertexWaterAvailableMaps1", (parser, x) => x.VertexWaterAvailableMaps1 = parser.ParseString() },
             { "VertexWaterHeightClampLow1", (parser, x) => x.VertexWaterHeightClampLow1 = parser.ParseFloat() },
             { "VertexWaterHeightClampHi1", (parser, x) => x.VertexWaterHeightClampHi1 = parser.ParseFloat() },
             { "VertexWaterAngle1", (parser, x) => x.VertexWaterAngle1 = parser.ParseInteger() },
@@ -69,7 +69,7 @@ namespace OpenZH.Data.Ini
             { "VertexWaterAttenuationC1", (parser, x) => x.VertexWaterAttenuationC1 = parser.ParseFloat() },
             { "VertexWaterAttenuationRange1", (parser, x) => x.VertexWaterAttenuationRange1 = parser.ParseFloat() },
 
-            { "VertexWaterAvailableMaps2", (parser, x) => x.VertexWaterAvailableMaps2 = parser.ParseAsciiString() },
+            { "VertexWaterAvailableMaps2", (parser, x) => x.VertexWaterAvailableMaps2 = parser.ParseString() },
             { "VertexWaterHeightClampLow2", (parser, x) => x.VertexWaterHeightClampLow2 = parser.ParseFloat() },
             { "VertexWaterHeightClampHi2", (parser, x) => x.VertexWaterHeightClampHi2 = parser.ParseFloat() },
             { "VertexWaterAngle2", (parser, x) => x.VertexWaterAngle2 = parser.ParseInteger() },
@@ -84,7 +84,7 @@ namespace OpenZH.Data.Ini
             { "VertexWaterAttenuationC2", (parser, x) => x.VertexWaterAttenuationC2 = parser.ParseFloat() },
             { "VertexWaterAttenuationRange2", (parser, x) => x.VertexWaterAttenuationRange2 = parser.ParseFloat() },
 
-            { "VertexWaterAvailableMaps3", (parser, x) => x.VertexWaterAvailableMaps3 = parser.ParseAsciiString() },
+            { "VertexWaterAvailableMaps3", (parser, x) => x.VertexWaterAvailableMaps3 = parser.ParseString() },
             { "VertexWaterHeightClampLow3", (parser, x) => x.VertexWaterHeightClampLow3 = parser.ParseFloat() },
             { "VertexWaterHeightClampHi3", (parser, x) => x.VertexWaterHeightClampHi3 = parser.ParseFloat() },
             { "VertexWaterAngle3", (parser, x) => x.VertexWaterAngle3 = parser.ParseInteger() },
@@ -99,7 +99,7 @@ namespace OpenZH.Data.Ini
             { "VertexWaterAttenuationC3", (parser, x) => x.VertexWaterAttenuationC3 = parser.ParseFloat() },
             { "VertexWaterAttenuationRange3", (parser, x) => x.VertexWaterAttenuationRange3 = parser.ParseFloat() },
 
-            { "VertexWaterAvailableMaps4", (parser, x) => x.VertexWaterAvailableMaps4 = parser.ParseAsciiString() },
+            { "VertexWaterAvailableMaps4", (parser, x) => x.VertexWaterAvailableMaps4 = parser.ParseString() },
             { "VertexWaterHeightClampLow4", (parser, x) => x.VertexWaterHeightClampLow4 = parser.ParseFloat() },
             { "VertexWaterHeightClampHi4", (parser, x) => x.VertexWaterHeightClampHi4 = parser.ParseFloat() },
             { "VertexWaterAngle4", (parser, x) => x.VertexWaterAngle4 = parser.ParseInteger() },
@@ -137,32 +137,32 @@ namespace OpenZH.Data.Ini
 
             { "ParticleScale", (parser, x) => x.ParticleScale = parser.ParseFloat() },
 
-            { "AutoFireParticleSmallPrefix", (parser, x) => x.AutoFireParticleSmallPrefix = parser.ParseAsciiString() },
-            { "AutoFireParticleSmallSystem", (parser, x) => x.AutoFireParticleSmallSystem = parser.ParseAsciiString() },
+            { "AutoFireParticleSmallPrefix", (parser, x) => x.AutoFireParticleSmallPrefix = parser.ParseString() },
+            { "AutoFireParticleSmallSystem", (parser, x) => x.AutoFireParticleSmallSystem = parser.ParseAssetReference() },
             { "AutoFireParticleSmallMax", (parser, x) => x.AutoFireParticleSmallMax = parser.ParseInteger() },
 
-            { "AutoFireParticleMediumPrefix", (parser, x) => x.AutoFireParticleMediumPrefix = parser.ParseAsciiString() },
-            { "AutoFireParticleMediumSystem", (parser, x) => x.AutoFireParticleMediumSystem = parser.ParseAsciiString() },
+            { "AutoFireParticleMediumPrefix", (parser, x) => x.AutoFireParticleMediumPrefix = parser.ParseString() },
+            { "AutoFireParticleMediumSystem", (parser, x) => x.AutoFireParticleMediumSystem = parser.ParseAssetReference() },
             { "AutoFireParticleMediumMax", (parser, x) => x.AutoFireParticleMediumMax = parser.ParseInteger() },
 
-            { "AutoFireParticleLargePrefix", (parser, x) => x.AutoFireParticleLargePrefix = parser.ParseAsciiString() },
-            { "AutoFireParticleLargeSystem", (parser, x) => x.AutoFireParticleLargeSystem = parser.ParseAsciiString() },
+            { "AutoFireParticleLargePrefix", (parser, x) => x.AutoFireParticleLargePrefix = parser.ParseString() },
+            { "AutoFireParticleLargeSystem", (parser, x) => x.AutoFireParticleLargeSystem = parser.ParseAssetReference() },
             { "AutoFireParticleLargeMax", (parser, x) => x.AutoFireParticleLargeMax = parser.ParseInteger() },
 
-            { "AutoSmokeParticleSmallPrefix", (parser, x) => x.AutoSmokeParticleSmallPrefix = parser.ParseAsciiString() },
-            { "AutoSmokeParticleSmallSystem", (parser, x) => x.AutoSmokeParticleSmallSystem = parser.ParseAsciiString() },
+            { "AutoSmokeParticleSmallPrefix", (parser, x) => x.AutoSmokeParticleSmallPrefix = parser.ParseString() },
+            { "AutoSmokeParticleSmallSystem", (parser, x) => x.AutoSmokeParticleSmallSystem = parser.ParseAssetReference() },
             { "AutoSmokeParticleSmallMax", (parser, x) => x.AutoSmokeParticleSmallMax = parser.ParseInteger() },
 
-            { "AutoSmokeParticleMediumPrefix", (parser, x) => x.AutoSmokeParticleMediumPrefix = parser.ParseAsciiString() },
-            { "AutoSmokeParticleMediumSystem", (parser, x) => x.AutoSmokeParticleMediumSystem = parser.ParseAsciiString() },
+            { "AutoSmokeParticleMediumPrefix", (parser, x) => x.AutoSmokeParticleMediumPrefix = parser.ParseString() },
+            { "AutoSmokeParticleMediumSystem", (parser, x) => x.AutoSmokeParticleMediumSystem = parser.ParseAssetReference() },
             { "AutoSmokeParticleMediumMax", (parser, x) => x.AutoSmokeParticleMediumMax = parser.ParseInteger() },
 
-            { "AutoSmokeParticleLargePrefix", (parser, x) => x.AutoSmokeParticleLargePrefix = parser.ParseAsciiString() },
-            { "AutoSmokeParticleLargeSystem", (parser, x) => x.AutoSmokeParticleLargeSystem = parser.ParseAsciiString() },
+            { "AutoSmokeParticleLargePrefix", (parser, x) => x.AutoSmokeParticleLargePrefix = parser.ParseString() },
+            { "AutoSmokeParticleLargeSystem", (parser, x) => x.AutoSmokeParticleLargeSystem = parser.ParseAssetReference() },
             { "AutoSmokeParticleLargeMax", (parser, x) => x.AutoSmokeParticleLargeMax = parser.ParseInteger() },
 
-            { "AutoAflameParticlePrefix", (parser, x) => x.AutoAflameParticlePrefix = parser.ParseAsciiString() },
-            { "AutoAflameParticleSystem", (parser, x) => x.AutoAflameParticleSystem = parser.ParseAsciiString() },
+            { "AutoAflameParticlePrefix", (parser, x) => x.AutoAflameParticlePrefix = parser.ParseString() },
+            { "AutoAflameParticleSystem", (parser, x) => x.AutoAflameParticleSystem = parser.ParseAssetReference() },
             { "AutoAflameParticleMax", (parser, x) => x.AutoAflameParticleMax = parser.ParseInteger() },
 
             { "HistoricDamageLimit", (parser, x) => x.HistoricDamageLimit = parser.ParseInteger() },
@@ -174,11 +174,11 @@ namespace OpenZH.Data.Ini
             { "AmmoPipWorldOffset", (parser, x) => x.AmmoPipWorldOffset = Coord3D.Parse(parser) },
             { "ContainerPipWorldOffset", (parser, x) => x.ContainerPipWorldOffset = Coord3D.Parse(parser) },
 
-            { "LevelGainAnimationName", (parser, x) => x.LevelGainAnimationName = parser.ParseAsciiString() },
+            { "LevelGainAnimationName", (parser, x) => x.LevelGainAnimationName = parser.ParseAssetReference() },
             { "LevelGainAnimationTime", (parser, x) => x.LevelGainAnimationTime = parser.ParseFloat() },
             { "LevelGainAnimationZRise", (parser, x) => x.LevelGainAnimationZRise = parser.ParseFloat() },
 
-            { "GetHealedAnimationName", (parser, x) => x.GetHealedAnimationName = parser.ParseAsciiString() },
+            { "GetHealedAnimationName", (parser, x) => x.GetHealedAnimationName = parser.ParseAssetReference() },
             { "GetHealedAnimationTime", (parser, x) => x.GetHealedAnimationTime = parser.ParseFloat() },
             { "GetHealedAnimationZRise", (parser, x) => x.GetHealedAnimationZRise = parser.ParseFloat() },
 
@@ -323,9 +323,9 @@ namespace OpenZH.Data.Ini
             { "BaseRegenHealthPercentPerSecond", (parser, x) => x.BaseRegenHealthPercentPerSecond = parser.ParsePercentage() },
             { "BaseRegenDelay", (parser, x) => x.BaseRegenDelay = parser.ParseInteger() },
 
-            { "SpecialPowerViewObject", (parser, x) => x.SpecialPowerViewObject = parser.ParseAsciiString() },
+            { "SpecialPowerViewObject", (parser, x) => x.SpecialPowerViewObject = parser.ParseAssetReference() },
 
-            { "StandardPublicBone", (parser, x) => x.StandardPublicBones.Add(parser.ParseAsciiString()) },
+            { "StandardPublicBone", (parser, x) => x.StandardPublicBones.Add(parser.ParseString()) },
 
             { "DefaultStartingCash", (parser, x) => x.DefaultStartingCash = parser.ParseInteger() },
 
@@ -348,7 +348,7 @@ namespace OpenZH.Data.Ini
 
             { "KeyboardCameraRotateSpeed", (parser, x) => x.KeyboardCameraRotateSpeed = parser.ParseFloat() },
 
-            { "UserDataLeafName", (parser, x) => x.UserDataLeafName = parser.ParseAsciiString() },
+            { "UserDataLeafName", (parser, x) => x.UserDataLeafName = parser.ParseString() },
 
             { "StateMachineDebug", (parser, x) => x.StateMachineDebug = parser.ParseBoolean() },
             { "UseCameraConstraints", (parser, x) => x.UseCameraConstraints = parser.ParseBoolean() },

@@ -6,24 +6,16 @@ namespace OpenZH.Data.Ini
     {
         internal static Rank Parse(IniParser parser)
         {
-            parser.ParseIdentifier();
-
-            var level = parser.ParseInteger();
-
-            var result = parser.ParseBlock(FieldParseTable);
-
-            parser.NextTokenIf(IniTokenType.EndOfLine);
-
-            result.Level = level;
-
-            return result;
+            return parser.ParseTopLevelNamedBlock(
+                (x, name) => x.Level = name,
+                FieldParseTable);
         }
 
         private static readonly IniParseTable<Rank> FieldParseTable = new IniParseTable<Rank>
         {
-            { "RankName", (parser, x) => x.RankName = parser.ParseAsciiString() },
+            { "RankName", (parser, x) => x.RankName = parser.ParseLocalizedStringKey() },
             { "SkillPointsNeeded", (parser, x) => x.SkillPointsNeeded = parser.ParseInteger() },
-            { "SciencesGranted", (parser, x) => x.SciencesGranted = parser.ParseAsciiString() },
+            { "SciencesGranted", (parser, x) => x.SciencesGranted = parser.ParseAssetReference() },
             { "SciencePurchasePointsGranted", (parser, x) => x.SciencePurchasePointsGranted = parser.ParseInteger() }
         };
 

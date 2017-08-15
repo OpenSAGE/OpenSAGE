@@ -15,7 +15,7 @@ namespace OpenZH.Data.Ini
         {
             { "RGBColor", (parser, x) => x.RgbColor = IniColorRgb.Parse(parser) },
             { "RGBNightColor", (parser, x) => x.RgbNightColor = IniColorRgb.Parse(parser) },
-            { "TooltipName", (parser, x) => x.TooltipName = parser.ParseAsciiString() }
+            { "TooltipName", (parser, x) => x.TooltipName = parser.ParseLocalizedStringKey() }
         };
 
         public string Name { get; private set; }

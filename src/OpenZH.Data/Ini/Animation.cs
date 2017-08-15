@@ -18,7 +18,7 @@ namespace OpenZH.Data.Ini
             { "AnimationDelay", (parser, x) => x.AnimationDelay = parser.ParseInteger() },
             { "RandomizeStartFrame", (parser, x) => x.RandomizeStartFrame = parser.ParseBoolean() },
             { "NumberImages", (parser, x) => parser.ParseInteger() },
-            { "Image", (parser, x) => x.Images.Add(parser.ParseAsciiString()) },
+            { "Image", (parser, x) => x.Images.Add(parser.ParseAssetReference()) },
         };
 
         public string Name { get; private set; }

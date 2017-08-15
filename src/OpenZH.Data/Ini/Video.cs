@@ -13,8 +13,8 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<Video> FieldParseTable = new IniParseTable<Video>
         {
-            { "Filename", (parser, x) => x.Filename = parser.ParseAsciiString() },
-            { "Comment", (parser, x) => x.Comment = parser.ParseAsciiString() },
+            { "Filename", (parser, x) => x.Filename = parser.ParseFileName() },
+            { "Comment", (parser, x) => x.Comment = parser.ParseString(allowWhitespace: true) },
         };
 
         public string Name { get; private set; }

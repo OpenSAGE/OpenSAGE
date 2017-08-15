@@ -47,7 +47,7 @@ namespace OpenZH.Data.Ini
             { "CreateAtGroundHeight", (parser, x) => x.CreateAtGroundHeight = parser.ParseBoolean() },
             { "Height", (parser, x) => x.Height = RandomVariable.Parse(parser) },
             { "InitialDelay", (parser, x) => x.InitialDelay = RandomVariable.Parse(parser) },
-            { "Name", (parser, x) => x.Name = parser.ParseAsciiString() },
+            { "Name", (parser, x) => x.Name = parser.ParseAssetReference() },
             { "Offset", (parser, x) => x.Offset = Coord3D.Parse(parser) },
             { "OrientToObject", (parser, x) => x.OrientToObject = parser.ParseBoolean() },
             { "Radius", (parser, x) => x.Radius = RandomVariable.Parse(parser) },
@@ -79,7 +79,7 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<SoundFXListItem> FieldParseTable = new IniParseTable<SoundFXListItem>
         {
-            { "Name", (parser, x) => x.Name = parser.ParseAsciiString() },
+            { "Name", (parser, x) => x.Name = parser.ParseAssetReference() },
         };
 
         public string Name { get; private set; }
@@ -132,8 +132,8 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<FXListAtBonePosFXListItem> FieldParseTable = new IniParseTable<FXListAtBonePosFXListItem>
         {
-            { "FX", (parser, x) => x.FX = parser.ParseAsciiString() },
-            { "BoneName", (parser, x) => x.BoneName = parser.ParseAsciiString() },
+            { "FX", (parser, x) => x.FX = parser.ParseAssetReference() },
+            { "BoneName", (parser, x) => x.BoneName = parser.ParseAssetReference() },
             { "OrientToBone", (parser, x) => x.OrientToBone = parser.ParseBoolean() }
         };
 

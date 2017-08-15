@@ -34,17 +34,17 @@ namespace OpenZH.Data.Ini
             { "MinWeaponSpeed", (parser, x) => x.MinWeaponSpeed = parser.ParseFloat() },
             { "ScaleWeaponSpeed", (parser, x) => x.ScaleWeaponSpeed = parser.ParseBoolean() },
             { "WeaponRecoil", (parser, x) => x.WeaponRecoil = parser.ParseInteger() },
-            { "FireFX", (parser, x) => x.FireFX = parser.ParseAsciiString() },
+            { "FireFX", (parser, x) => x.FireFX = parser.ParseAssetReference() },
             { "PlayFXWhenStealthed", (parser, x) => x.PlayFXWhenStealthed = parser.ParseBoolean() },
-            { "FireOCL", (parser, x) => x.FireOCL = parser.ParseAsciiString() },
-            { "VeterancyFireFX", (parser, x) => x.VeterancyFireFX = parser.ParseAsciiString() },
-            { "ProjectileDetonationFX", (parser, x) => x.ProjectileDetonationFX = parser.ParseAsciiString() },
-            { "ProjectileDetonationOCL", (parser, x) => x.ProjectileDetonationOCL = parser.ParseAsciiString() },
-            { "ProjectileObject", (parser, x) => x.ProjectileObject = parser.ParseAsciiString() },
-            { "ProjectileExhaust", (parser, x) => x.ProjectileExhaust = parser.ParseAsciiString() },
-            { "VeterancyProjectileExhaust", (parser, x) => x.VeterancyProjectileExhaust = parser.ParseAsciiString() },
-            { "ProjectileStreamName", (parser, x) => x.ProjectileStreamName = parser.ParseAsciiString() },
-            { "FireSound", (parser, x) => x.FireSound = parser.ParseAsciiString() },
+            { "FireOCL", (parser, x) => x.FireOCL = parser.ParseAssetReference() },
+            { "VeterancyFireFX", (parser, x) => x.VeterancyFireFX = ParseVeterancyAssetReference(parser) },
+            { "ProjectileDetonationFX", (parser, x) => x.ProjectileDetonationFX = parser.ParseAssetReference() },
+            { "ProjectileDetonationOCL", (parser, x) => x.ProjectileDetonationOCL = parser.ParseAssetReference() },
+            { "ProjectileObject", (parser, x) => x.ProjectileObject = parser.ParseAssetReference() },
+            { "ProjectileExhaust", (parser, x) => x.ProjectileExhaust = parser.ParseAssetReference() },
+            { "VeterancyProjectileExhaust", (parser, x) => x.VeterancyProjectileExhaust = ParseVeterancyAssetReference(parser) },
+            { "ProjectileStreamName", (parser, x) => x.ProjectileStreamName = parser.ParseAssetReference() },
+            { "FireSound", (parser, x) => x.FireSound = parser.ParseAssetReference() },
             { "FireSoundLoopTime", (parser, x) => x.FireSoundLoopTime = parser.ParseInteger() },
             { "SuspendFXDelay", (parser, x) => x.SuspendFXDelay = parser.ParseInteger() },
             { "RadiusDamageAffects", (parser, x) => x.RadiusDamageAffects = parser.ParseEnumFlags<WeaponAffectsTypes>() },
@@ -69,7 +69,7 @@ namespace OpenZH.Data.Ini
             { "AntiBallisticMissile", (parser, x) => x.AntiBallisticMissile = parser.ParseBoolean() },
             { "AntiMine", (parser, x) => x.AntiMine = parser.ParseBoolean() },
             { "ShowsAmmoPips", (parser, x) => x.ShowsAmmoPips = parser.ParseBoolean() },
-            { "LaserName", (parser, x) => x.LaserName = parser.ParseAsciiString() },
+            { "LaserName", (parser, x) => x.LaserName = parser.ParseAssetReference() },
             { "DamageDealtAtSelfPosition", (parser, x) => x.DamageDealtAtSelfPosition = parser.ParseBoolean() },
             { "RequestAssistRange", (parser, x) => x.RequestAssistRange = parser.ParseInteger() },
             { "AllowAttackGarrisonedBldgs", (parser, x) => x.AllowAttackGarrisonedBldgs = parser.ParseBoolean() },
@@ -79,8 +79,19 @@ namespace OpenZH.Data.Ini
             { "HistoricBonusTime", (parser, x) => x.HistoricBonusTime = parser.ParseInteger() },
             { "HistoricBonusCount", (parser, x) => x.HistoricBonusCount = parser.ParseInteger() },
             { "HistoricBonusRadius", (parser, x) => x.HistoricBonusRadius = parser.ParseInteger() },
-            { "HistoricBonusWeapon", (parser, x) => x.HistoricBonusWeapon = parser.ParseAsciiString() },
+            { "HistoricBonusWeapon", (parser, x) => x.HistoricBonusWeapon = parser.ParseAssetReference() },
         };
+
+        private static string ParseVeterancyAssetReference(IniParser parser)
+        {
+            var tokenPosition = parser.CurrentPosition;
+            var identifier = parser.ParseIdentifier();
+            if (identifier != "HEROIC")
+            {
+                throw new IniParseException($"Unexpected identifier: {identifier}", tokenPosition);
+            }
+            return parser.ParseAssetReference();
+        }
 
         public string Name { get; private set; }
 
@@ -201,6 +212,9 @@ namespace OpenZH.Data.Ini
 
     public enum DeathType
     {
+        [IniEnum("NONE")]
+        None = 0,
+
         [IniEnum("NORMAL")]
         Normal,
 

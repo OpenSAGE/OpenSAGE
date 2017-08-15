@@ -38,8 +38,8 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<EvaSideSound> FieldParseTable = new IniParseTable<EvaSideSound>
         {
-            { "Side", (parser, x) => x.Side = parser.ParseAsciiString() },
-            { "Sounds", (parser, x) => x.Sound = parser.ParseAsciiString() }
+            { "Side", (parser, x) => x.Side = parser.ParseAssetReference() },
+            { "Sounds", (parser, x) => x.Sound = parser.ParseAssetReference() }
         };
 
         public string Side { get; private set; }

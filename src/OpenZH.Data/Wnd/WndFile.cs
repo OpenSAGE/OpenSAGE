@@ -158,7 +158,7 @@ namespace OpenZH.Data.Wnd
         {
             return new WndFont
             {
-                Name = parser.ParseAsciiString(),
+                Name = parser.ParseString(),
                 Size = parser.ParseInteger(),
                 Bold = parser.ParseBoolean()
             };

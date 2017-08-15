@@ -12,7 +12,7 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<Language> FieldParseTable = new IniParseTable<Language>
         {
-            { "UnicodeFontName", (parser, x) => x.UnicodeFontName = parser.ParseAsciiString() },
+            { "UnicodeFontName", (parser, x) => x.UnicodeFontName = parser.ParseString() },
             { "MilitaryCaptionSpeed", (parser, x) => x.MilitaryCaptionSpeed = parser.ParseInteger() },
             { "CopyrightFont", (parser, x) => x.CopyrightFont = WndFont.Parse(parser) },
             { "MessageFont", (parser, x) => x.MessageFont = WndFont.Parse(parser) },

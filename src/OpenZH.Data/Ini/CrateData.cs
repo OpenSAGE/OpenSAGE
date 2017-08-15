@@ -16,7 +16,7 @@ namespace OpenZH.Data.Ini
         {
             { "CreationChance", (parser, x) => x.CreationChance = parser.ParseFloat() },
             { "KilledByType", (parser, x) => x.KilledByType = parser.ParseEnum<ObjectKinds>() },
-            { "KillerScience", (parser, x) => x.KillerScience = parser.ParseAsciiString() },
+            { "KillerScience", (parser, x) => x.KillerScience = parser.ParseAssetReference() },
             { "VeterancyLevel", (parser, x) => x.VeterancyLevel = parser.ParseEnum<VeterancyLevel>() },
             { "OwnedByMaker", (parser, x) => x.OwnedByMaker = parser.ParseBoolean() },
             { "CrateObject", (parser, x) => x.CrateObjects.Add(CrateObject.Parse(parser)) },
@@ -54,7 +54,7 @@ namespace OpenZH.Data.Ini
         {
             return new CrateObject
             {
-                ObjectName = parser.ParseIdentifier(),
+                ObjectName = parser.ParseAssetReference(),
                 Probability = parser.ParseFloat()
             };
         }

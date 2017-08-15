@@ -1,6 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace OpenZH.Data.Ini.Parser
@@ -27,7 +25,28 @@ namespace OpenZH.Data.Ini.Parser
             _currentCharacter = 1;
         }
 
-        public IniToken Lex()
+        public IniLexerState GetState()
+        {
+            return new IniLexerState
+            {
+                CurrentIndex = _currentIndex,
+                AnyNonWhitespaceOnLine = _anyNonWhitespaceOnLine,
+
+                CurrentLine = _currentLine,
+                CurrentCharacter = _currentCharacter
+            };
+        }
+
+        public void RestoreState(IniLexerState state)
+        {
+            _currentIndex = state.CurrentIndex;
+            _anyNonWhitespaceOnLine = state.AnyNonWhitespaceOnLine;
+
+            _currentLine = state.CurrentLine;
+            _currentCharacter = state.CurrentCharacter;
+        }
+
+        public IniToken Lex(IniLexerMode mode)
         {
             SkipWhitespaceAndComments();
 
@@ -42,7 +61,38 @@ namespace OpenZH.Data.Ini.Parser
 
             _anyNonWhitespaceOnLine = true;
 
+            var pos = CurrentPosition;
             var c = CurrentChar;
+
+            if (mode != IniLexerMode.Normal)
+            {
+                var sb = new StringBuilder();
+                if ((mode == IniLexerMode.String || mode == IniLexerMode.StringWithWhitespace) && CurrentChar == '"')
+                {
+                    NextChar();
+                    return LexQuotedString(pos);
+                }
+                bool isStringChar()
+                {
+                    if (mode != IniLexerMode.StringWithWhitespace && char.IsWhiteSpace(CurrentChar))
+                        return false;
+                    return CurrentChar != '\0' && CurrentChar != ';' && CurrentChar != '\n';
+                }
+
+                while (isStringChar())
+                {
+                    sb.Append(CurrentChar);
+                    NextChar();
+                }
+                if (sb.Length > 0)
+                {
+                    return new IniToken(IniTokenType.StringLiteral, pos)
+                    {
+                        StringValue = sb.ToString()
+                    };
+                }
+            }
+
             NextChar();
 
             switch (c)
@@ -60,17 +110,7 @@ namespace OpenZH.Data.Ini.Parser
                     return CreateToken(IniTokenType.Comma);
 
                 case '"':
-                    var sb = new StringBuilder();
-                    while (CurrentChar != '"')
-                    {
-                        sb.Append(CurrentChar);
-                        NextChar();
-                    }
-                    NextChar();
-                    return new IniToken(IniTokenType.StringLiteral, CurrentPosition)
-                    {
-                        StringValue = sb.ToString()
-                    };
+                    return LexQuotedString(pos);
 
                 case '0':
                 case '1':
@@ -84,10 +124,10 @@ namespace OpenZH.Data.Ini.Parser
                 case '9':
                 case '-':
                 case '.':
-                    return LexNumber(c);
+                    return LexNumber(c, pos);
 
                 default:
-                    if (char.IsLetter(c) || c == '_')
+                    if (IsIdentifierStartChar(c))
                     {
                         var identiferValue = new StringBuilder();
                         identiferValue.Append(c);
@@ -98,41 +138,36 @@ namespace OpenZH.Data.Ini.Parser
                             NextChar();
                         }
 
-                        return new IniToken(IniTokenType.Identifier, CurrentPosition)
+                        return new IniToken(IniTokenType.Identifier, pos)
                         {
                             StringValue = identiferValue.ToString()
                         };
                     }
 
-                    throw new IniParseException($"Unexpected character: {c}", CurrentPosition);
+                    throw new IniParseException($"Unexpected character: {c}", pos);
             }
         }
 
-        private static bool IsIdentifierChar(char c)
+        private static bool IsIdentifierStartChar(char c) => char.IsLetter(c) || c == '_';
+
+        private static bool IsIdentifierChar(char c) => char.IsLetterOrDigit(c) || c == '_';
+
+        private IniToken LexQuotedString(IniTokenPosition pos)
         {
-            if (char.IsLetterOrDigit(c))
+            var sb = new StringBuilder();
+            while (CurrentChar != '"')
             {
-                return true;
+                sb.Append(CurrentChar);
+                NextChar();
             }
-
-            switch (c)
+            NextChar();
+            return new IniToken(IniTokenType.StringLiteral, pos)
             {
-                case '_':
-                case '-':
-                case ':':
-                case '\\':
-                case '.':
-                case '&':
-                case '/':
-                case '?':
-                    return true;
-
-                default:
-                    return false;
-            }
+                StringValue = sb.ToString()
+            };
         }
 
-        private IniToken LexNumber(char c)
+        private IniToken LexNumber(char c, IniTokenPosition pos)
         {
             var numDots = c == '.' ? 1 : 0;
 
@@ -149,7 +184,7 @@ namespace OpenZH.Data.Ini.Parser
 
             if (numDots > 1)
             {
-                throw new IniParseException($"Invalid number: {numberValue}", CurrentPosition);
+                throw new IniParseException($"Invalid number: {numberValue}", pos);
             }
 
             var tokenType = numDots > 0
@@ -161,45 +196,23 @@ namespace OpenZH.Data.Ini.Parser
                 tokenType = IniTokenType.PercentLiteral;
                 NextChar();
             }
-            else if (IsIdentifierChar(CurrentChar))
+            else if (CurrentChar == 'f')
             {
-                if (numDots > 0)
-                {
-                    throw new IniParseException($"Invalid number: {numberValue}", CurrentPosition);
-                }
-                var numIdentifierChars = 0;
-                while (IsIdentifierChar(CurrentChar))
-                {
-                    numberValue += CurrentChar;
-                    NextChar();
-                    numIdentifierChars++;
-                }
-                if (numIdentifierChars == 1 && numberValue.EndsWith("f"))
-                {
-                    return new IniToken(tokenType, CurrentPosition)
-                    {
-                        FloatValue = float.Parse(numberValue.TrimEnd('f'))
-                    };
-                }
-                return new IniToken(IniTokenType.Identifier, CurrentPosition)
-                {
-                    StringValue = numberValue
-                };
+                tokenType = IniTokenType.FloatLiteral;
+                NextChar();
             }
-
-            var result = new IniToken(tokenType, CurrentPosition);
 
             switch (tokenType)
             {
                 case IniTokenType.FloatLiteral:
                 case IniTokenType.PercentLiteral:
-                    return new IniToken(tokenType, CurrentPosition)
+                    return new IniToken(tokenType, pos)
                     {
                         FloatValue = float.Parse(numberValue)
                     };
 
                 case IniTokenType.IntegerLiteral:
-                    return new IniToken(tokenType, CurrentPosition)
+                    return new IniToken(tokenType, pos)
                     {
                         IntegerValue = int.Parse(numberValue)
                     };
@@ -215,9 +228,9 @@ namespace OpenZH.Data.Ini.Parser
 
         private void SkipWhitespaceAndComments()
         {
-            while (char.IsWhiteSpace(CurrentChar) || CurrentChar == ';')
+            while (char.IsWhiteSpace(CurrentChar) || CurrentChar == ';' || (CurrentChar == '/' && PeekChar() == '/'))
             {
-                if (CurrentChar == ';')
+                if (CurrentChar == ';' || CurrentChar == '/')
                 {
                     while (CurrentChar != '\n' && CurrentChar != '\0')
                     {
@@ -274,5 +287,22 @@ namespace OpenZH.Data.Ini.Parser
 
             _currentIndex++;
         }
+    }
+
+    internal struct IniLexerState
+    {
+        public int CurrentIndex;
+        public bool AnyNonWhitespaceOnLine;
+
+        public int CurrentLine;
+        public int CurrentCharacter;
+    }
+
+    internal enum IniLexerMode
+    {
+        Normal,
+        String,
+        StringWithWhitespace,
+        AssetReference
     }
 }

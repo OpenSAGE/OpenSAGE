@@ -41,9 +41,9 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<CreateDebrisObjectCreationListItem> FieldParseTable = new IniParseTable<CreateDebrisObjectCreationListItem>
         {
-            { "ModelNames", (parser, x) => x.ModelNames = parser.ParseAsciiStringArray() },
-            { "AnimationSet", (parser, x) => x.AnimationSets.Add(parser.ParseAsciiStringArray()) },
-            { "FXFinal", (parser, x) => x.FXFinal = parser.ParseAsciiString() },
+            { "ModelNames", (parser, x) => x.ModelNames = parser.ParseAssetReferenceArray() },
+            { "AnimationSet", (parser, x) => x.AnimationSets.Add(parser.ParseAssetReferenceArray()) },
+            { "FXFinal", (parser, x) => x.FXFinal = parser.ParseAssetReference() },
             { "Offset", (parser, x) => x.Offset = Coord3D.Parse(parser) },
             { "Mass", (parser, x) => x.Mass = parser.ParseFloat() },
             { "Count", (parser, x) => x.Count = parser.ParseInteger() },
@@ -54,10 +54,10 @@ namespace OpenZH.Data.Ini
             { "MinForcePitch", (parser, x) => x.MinForcePitch = parser.ParseFloat() },
             { "MaxForcePitch", (parser, x) => x.MaxForcePitch = parser.ParseFloat() },
             { "SpinRate", (parser, x) => x.SpinRate = parser.ParseFloat() },
-            { "ParticleSystem", (parser, x) => x.ParticleSystem = parser.ParseAsciiString() },
+            { "ParticleSystem", (parser, x) => x.ParticleSystem = parser.ParseAssetReference() },
             { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseInteger() },
             { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseInteger() },
-            { "BounceSound", (parser, x) => x.BounceSound = parser.ParseAsciiString() },
+            { "BounceSound", (parser, x) => x.BounceSound = parser.ParseAssetReference() },
             { "OkToChangeModelColor", (parser, x) => x.OkToChangeModelColor = parser.ParseBoolean() },
             { "IgnorePrimaryObstacle", (parser, x) => x.IgnorePrimaryObstacle = parser.ParseBoolean() },
             { "OrientInForceDirection", (parser, x) => x.OrientInForceDirection = parser.ParseBoolean() },
@@ -98,7 +98,7 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<CreateObjectObjectCreationListItem> FieldParseTable = new IniParseTable<CreateObjectObjectCreationListItem>
         {
-            { "ObjectNames", (parser, x) => x.ObjectNames = parser.ParseAsciiString() },
+            { "ObjectNames", (parser, x) => x.ObjectNames = parser.ParseAssetReference() },
             { "Offset", (parser, x) => x.Offset = Coord3D.Parse(parser) },
             { "Count", (parser, x) => x.Count = parser.ParseInteger() },
             { "SpreadFormation", (parser, x) => x.SpreadFormation = parser.ParseBoolean() },
@@ -107,8 +107,8 @@ namespace OpenZH.Data.Ini
             { "MaxDistanceFormation", (parser, x) => x.MaxDistanceFormation = parser.ParseFloat() },
             { "FadeIn", (parser, x) => x.FadeIn = parser.ParseBoolean() },
             { "FadeTime", (parser, x) => x.FadeTime = parser.ParseInteger() },
-            { "FadeSound", (parser, x) => x.FadeSound = parser.ParseAsciiString() },
-            { "PutInContainer", (parser, x) => x.PutInContainer = parser.ParseAsciiString() },
+            { "FadeSound", (parser, x) => x.FadeSound = parser.ParseAssetReference() },
+            { "PutInContainer", (parser, x) => x.PutInContainer = parser.ParseAssetReference() },
             { "IgnorePrimaryObstacle", (parser, x) => x.IgnorePrimaryObstacle = parser.ParseBoolean() },
             { "InheritsVeterancy", (parser, x) => x.InheritsVeterancy = parser.ParseBoolean() },
             { "Disposition", (parser, x) => x.Disposition = parser.ParseEnumBitArray<ObjectDisposition>() },
@@ -198,7 +198,7 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<FireWeaponObjectCreationListItem> FieldParseTable = new IniParseTable<FireWeaponObjectCreationListItem>
         {
-            { "Weapon", (parser, x) => x.Weapon = parser.ParseAsciiString() }
+            { "Weapon", (parser, x) => x.Weapon = parser.ParseAssetReference() }
         };
 
         public string Weapon { get; private set; }
@@ -234,7 +234,7 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<DeliverPayloadObjectCreationListItem> FieldParseTable = new IniParseTable<DeliverPayloadObjectCreationListItem>
         {
-            { "Transport", (parser, x) => x.Transport = parser.ParseAsciiString() },
+            { "Transport", (parser, x) => x.Transport = parser.ParseAssetReference() },
             { "FormationSize", (parser, x) => x.FormationSize = parser.ParseInteger() },
             { "FormationSpacing", (parser, x) => x.FormationSpacing = parser.ParseFloat() },
             { "StartAtPreferredHeight", (parser, x) => x.StartAtPreferredHeight = parser.ParseBoolean() },
@@ -242,7 +242,7 @@ namespace OpenZH.Data.Ini
             { "MaxAttempts", (parser, x) => x.MaxAttempts = parser.ParseInteger() },
             { "DropDelay", (parser, x) => x.DropDelay = parser.ParseInteger() },
             { "ParachuteDirectly", (parser, x) => x.ParachuteDirectly = parser.ParseBoolean() },
-            { "PutInContainer", (parser, x) => x.PutInContainer = parser.ParseAsciiString() },
+            { "PutInContainer", (parser, x) => x.PutInContainer = parser.ParseAssetReference() },
             { "DropOffset", (parser, x) => x.DropOffset = Coord3D.Parse(parser) },
             { "DropVariance", (parser, x) => x.DropVariance = Coord3D.Parse(parser) },
             { "Payload", (parser, x) => x.Payload = Payload.Parse(parser) },
@@ -252,18 +252,18 @@ namespace OpenZH.Data.Ini
             { "WeaponErrorRadius", (parser, x) => x.WeaponErrorRadius = parser.ParseInteger() },
             { "DelayDeliveryMax", (parser, x) => x.DelayDeliveryMax = parser.ParseInteger() },
             { "VisibleItemsDroppedPerInterval", (parser, x) => x.VisibleItemsDroppedPerInterval = parser.ParseInteger() },
-            { "VisibleDropBoneBaseName", (parser, x) => x.VisibleDropBoneBaseName = parser.ParseAsciiString() },
-            { "VisibleSubObjectBaseName", (parser, x) => x.VisibleSubObjectBaseName = parser.ParseAsciiString() },
+            { "VisibleDropBoneBaseName", (parser, x) => x.VisibleDropBoneBaseName = parser.ParseBoneName() },
+            { "VisibleSubObjectBaseName", (parser, x) => x.VisibleSubObjectBaseName = parser.ParseAssetReference() },
             { "VisibleNumBones", (parser, x) => x.VisibleNumBones = parser.ParseInteger() },
-            { "VisiblePayloadTemplateName", (parser, x) => x.VisiblePayloadTemplateName = parser.ParseAsciiString() },
-            { "VisiblePayloadWeaponTemplate", (parser, x) => x.VisiblePayloadWeaponTemplate = parser.ParseAsciiString() },
+            { "VisiblePayloadTemplateName", (parser, x) => x.VisiblePayloadTemplateName = parser.ParseAssetReference() },
+            { "VisiblePayloadWeaponTemplate", (parser, x) => x.VisiblePayloadWeaponTemplate = parser.ParseAssetReference() },
             { "InheritTransportVelocity", (parser, x) => x.InheritTransportVelocity = parser.ParseBoolean() },
             { "ExitPitchRate", (parser, x) => x.ExitPitchRate = parser.ParseInteger() },
             { "DiveStartDistance", (parser, x) => x.DiveStartDistance = parser.ParseInteger() },
             { "DiveEndDistance", (parser, x) => x.DiveEndDistance = parser.ParseInteger() },
             { "StrafingWeaponSlot", (parser, x) => x.StrafingWeaponSlot = parser.ParseEnum<WeaponSlot>() },
             { "StrafeLength", (parser, x) => x.StrafeLength = parser.ParseInteger() },
-            { "StrafeWeaponFX", (parser, x) => x.StrafeWeaponFX = parser.ParseAsciiString() },
+            { "StrafeWeaponFX", (parser, x) => x.StrafeWeaponFX = parser.ParseAssetReference() },
             { "SelfDestructObject", (parser, x) => x.SelfDestructObject = parser.ParseBoolean() },
             { "WeaponConvergenceFactor", (parser, x) => x.WeaponConvergenceFactor = parser.ParseFloat() },
             { "DeliveryDecalRadius", (parser, x) => x.DeliveryDecalRadius = parser.ParseInteger() },
@@ -312,7 +312,7 @@ namespace OpenZH.Data.Ini
         {
             return new Payload
             {
-                Name = parser.ParseAsciiString(),
+                Name = parser.ParseAssetReference(),
                 Quantity = parser.NextTokenIf(IniTokenType.IntegerLiteral)?.IntegerValue ?? 1
             };
         }

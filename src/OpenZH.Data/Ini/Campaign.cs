@@ -15,8 +15,8 @@ namespace OpenZH.Data.Ini
         private static readonly IniParseTable<Campaign> FieldParseTable = new IniParseTable<Campaign>
         {
             { "CampaignNameLabel", (parser, x) => x.CampaignNameLabel = parser.ParseLocalizedStringKey() },
-            { "FirstMission", (parser, x) => x.FirstMission = parser.ParseAsciiString() },
-            { "FinalVictoryMovie", (parser, x) => x.FinalVictoryMovie = parser.ParseAsciiString() },
+            { "FirstMission", (parser, x) => x.FirstMission = parser.ParseAssetReference() },
+            { "FinalVictoryMovie", (parser, x) => x.FinalVictoryMovie = parser.ParseAssetReference() },
             { "Mission", (parser, x) => x.Missions.Add(CampaignMission.Parse(parser)) }
         };
 
@@ -40,15 +40,15 @@ namespace OpenZH.Data.Ini
 
         private static readonly IniParseTable<CampaignMission> FieldParseTable = new IniParseTable<CampaignMission>
         {
-            { "Map", (parser, x) => x.Map = parser.ParseAsciiString() },
-            { "NextMission", (parser, x) => x.NextMission = parser.ParseAsciiString() },
-            { "IntroMovie", (parser, x) => x.IntroMovie = parser.ParseAsciiString() },
+            { "Map", (parser, x) => x.Map = parser.ParseFileName() },
+            { "NextMission", (parser, x) => x.NextMission = parser.ParseAssetReference() },
+            { "IntroMovie", (parser, x) => x.IntroMovie = parser.ParseAssetReference() },
             { "ObjectiveLine0", (parser, x) => x.ObjectiveLine0 = parser.ParseLocalizedStringKey() },
             { "ObjectiveLine1", (parser, x) => x.ObjectiveLine1 = parser.ParseLocalizedStringKey() },
             { "ObjectiveLine2", (parser, x) => x.ObjectiveLine2 = parser.ParseLocalizedStringKey() },
             { "ObjectiveLine3", (parser, x) => x.ObjectiveLine3 = parser.ParseLocalizedStringKey() },
             { "ObjectiveLine4", (parser, x) => x.ObjectiveLine4 = parser.ParseLocalizedStringKey() },
-            { "BriefingVoice", (parser, x) => x.BriefingVoice = parser.ParseAsciiString() },
+            { "BriefingVoice", (parser, x) => x.BriefingVoice = parser.ParseAssetReference() },
             { "UnitNames0", (parser, x) => x.UnitNames0 = parser.ParseLocalizedStringKey() },
             { "UnitNames1", (parser, x) => x.UnitNames1 = parser.ParseLocalizedStringKey() },
             { "UnitNames2", (parser, x) => x.UnitNames2 = parser.ParseLocalizedStringKey() },
