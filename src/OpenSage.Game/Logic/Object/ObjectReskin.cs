@@ -1,6 +1,6 @@
 ﻿using OpenSage.Data.Ini.Parser;
 
-namespace OpenSage.Data.Ini
+namespace OpenSage.Logic.Object
 {
     // TODO: These could be resolved at INI load time, since I think the ReskinOf object
     // always appears before the ObjectReskin that references it. Then the game can deal

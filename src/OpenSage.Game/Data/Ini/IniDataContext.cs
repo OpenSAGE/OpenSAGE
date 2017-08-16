@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Data.Ini
 {
