@@ -18,6 +18,11 @@ namespace OpenZH.Data.Ini
             return _inner.Get((int) (object) index);
         }
 
+        public void SetAll(bool value)
+        {
+            _inner.SetAll(value);
+        }
+
         public void Set(TEnum index, bool value)
         {
             _inner.Set((int) (object) index, value);

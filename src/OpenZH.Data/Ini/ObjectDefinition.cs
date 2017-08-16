@@ -29,7 +29,7 @@ namespace OpenZH.Data.Ini
             { "CrusherLevel", (parser, x) => x.CrusherLevel = parser.ParseInteger() },
             { "CrushableLevel", (parser, x) => x.CrushableLevel = parser.ParseInteger() },
             { "BuildCost", (parser, x) => x.BuildCost = parser.ParseInteger() },
-            { "BuildTime", (parser, x) => x.BuildTime = parser.ParseInteger() },
+            { "BuildTime", (parser, x) => x.BuildTime = parser.ParseFloat() },
             { "RefundValue", (parser, x) => x.RefundValue = parser.ParseInteger() },
             { "EnergyProduction", (parser, x) => x.EnergyProduction = parser.ParseInteger() },
             { "IsForbidden", (parser, x) => x.IsForbidden = parser.ParseBoolean() },
@@ -38,8 +38,12 @@ namespace OpenZH.Data.Ini
             { "WeaponSet", (parser, x) => x.WeaponSets.Add(WeaponSet.Parse(parser)) },
             { "ArmorSet", (parser, x) => x.ArmorSets.Add(ArmorSet.Parse(parser)) },
             { "CommandSet", (parser, x) => x.CommandSet = parser.ParseLocalizedStringKey() },
-            { "Prequisites", (parser, x) => x.Prequisites = ObjectPrequisites.Parse(parser) },
+            { "Prerequisites", (parser, x) => x.Prerequisites = ObjectPrerequisites.Parse(parser) },
             { "IsTrainable", (parser, x) => x.IsTrainable = parser.ParseBoolean() },
+            { "FenceWidth", (parser, x) => x.FenceWidth = parser.ParseFloat() },
+            { "FenceXOffset", (parser, x) => x.FenceXOffset = parser.ParseFloat() },
+            { "ExperienceValue", (parser, x) => x.ExperienceValue = VeterancyValues.Parse(parser) },
+            { "ExperienceRequired", (parser, x) => x.ExperienceRequired = VeterancyValues.Parse(parser) },
 
             { "VoiceSelect", (parser, x) => x.VoiceSelect = parser.ParseAssetReference() },
             { "VoiceMove", (parser, x) => x.VoiceMove = parser.ParseAssetReference() },
@@ -53,7 +57,10 @@ namespace OpenZH.Data.Ini
             { "VoiceTaskComplete", (parser, x) => x.VoiceTaskComplete = parser.ParseAssetReference() },
             { "VoiceMeetEnemy", (parser, x) => x.VoiceMeetEnemy = parser.ParseAssetReference() },
             { "SoundMoveStart", (parser, x) => x.SoundMoveStart = parser.ParseAssetReference() },
+            { "SoundMoveStartDamaged", (parser, x) => x.SoundMoveStart = parser.ParseAssetReference() },
             { "SoundMoveLoop", (parser, x) => x.SoundMoveLoop = parser.ParseAssetReference() },
+            { "SoundOnDamaged", (parser, x) => x.SoundOnDamaged = parser.ParseAssetReference() },
+            { "SoundOnReallyDamaged", (parser, x) => x.SoundOnReallyDamaged = parser.ParseAssetReference() },
             { "SoundDie", (parser, x) => x.SoundDie = parser.ParseAssetReference() },
             { "SoundDieFire", (parser, x) => x.SoundDieFire = parser.ParseAssetReference() },
             { "SoundDieToxin", (parser, x) => x.SoundDieToxin = parser.ParseAssetReference() },
@@ -61,12 +68,16 @@ namespace OpenZH.Data.Ini
             { "SoundStealthOff", (parser, x) => x.SoundStealthOff = parser.ParseAssetReference() },
             { "SoundCrush", (parser, x) => x.SoundCrush = parser.ParseAssetReference() },
             { "SoundAmbient", (parser, x) => x.SoundAmbient = parser.ParseAssetReference() },
+            { "SoundAmbientDamaged", (parser, x) => x.SoundAmbientDamaged = parser.ParseAssetReference() },
+            { "SoundAmbientReallyDamaged", (parser, x) => x.SoundAmbientReallyDamaged = parser.ParseAssetReference() },
+            { "SoundAmbientRubble", (parser, x) => x.SoundAmbientRubble = parser.ParseAssetReference() },
             { "SoundCreated", (parser, x) => x.SoundCreated = parser.ParseAssetReference() },
             { "UnitSpecificSounds", (parser, x) => x.UnitSpecificSounds = UnitSpecificSounds.Parse(parser) },
 
             { "Behavior", (parser, x) => x.Behaviors.Add(ObjectBehavior.ParseBehavior(parser)) },
             { "Draw", (parser, x) => x.Draws.Add(ObjectDrawModule.ParseDrawModule(parser)) },
-            { "Body", (parser, x) => x.Bodies.Add(ObjectBody.ParseBody(parser)) },
+            { "Body", (parser, x) => x.Body = ObjectBody.ParseBody(parser) },
+            { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdate.ParseClientUpdate(parser)) },
             { "InheritableModule", (parser, x) => x.InheritableModule = InheritableModule.Parse(parser) },
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "RadarPriority", (parser, x) => x.RadarPriority = parser.ParseEnum<RadarPriority>() },
@@ -102,7 +113,11 @@ namespace OpenZH.Data.Ini
         public int CrusherLevel { get; private set; }
         public int CrushableLevel { get; private set; }
         public int BuildCost { get; private set; }
-        public int BuildTime { get; private set; }
+
+        /// <summary>
+        /// Build time in seconds.
+        /// </summary>
+        public float BuildTime { get; private set; }
         public int RefundValue { get; private set; }
         public int EnergyProduction { get; private set; }
         public bool IsForbidden { get; private set; }
@@ -111,8 +126,28 @@ namespace OpenZH.Data.Ini
         public List<WeaponSet> WeaponSets { get; } = new List<WeaponSet>();
         public List<ArmorSet> ArmorSets { get; } = new List<ArmorSet>();
         public string CommandSet { get; private set; }
-        public ObjectPrequisites Prequisites { get; private set; }
+        public ObjectPrerequisites Prerequisites { get; private set; }
         public bool IsTrainable { get; private set; }
+
+        /// <summary>
+        /// Spacing used by fence tool in WorldBuilder.
+        /// </summary>
+        public float FenceWidth { get; private set; }
+
+        /// <summary>
+        /// Offset used by fence tool in WorldBuilder, to ensure that corners line up.
+        /// </summary>
+        public float FenceXOffset { get; private set; }
+
+        /// <summary>
+        /// Experience points given off when this object is destroyed.
+        /// </summary>
+        public VeterancyValues ExperienceValue { get; private set; }
+
+        /// <summary>
+        /// Experience points required to be promoted to next level.
+        /// </summary>
+        public VeterancyValues ExperienceRequired { get; private set; }
 
         // Audio
         public string VoiceSelect { get; private set; }
@@ -127,7 +162,10 @@ namespace OpenZH.Data.Ini
         public string VoiceTaskComplete { get; private set; }
         public string VoiceMeetEnemy { get; private set; }
         public string SoundMoveStart { get; private set; }
+        public string SoundMoveStartDamaged { get; private set; }
         public string SoundMoveLoop { get; private set; }
+        public string SoundOnDamaged { get; private set; }
+        public string SoundOnReallyDamaged { get; private set; }
         public string SoundDie { get; private set; }
         public string SoundDieFire { get; private set; }
         public string SoundDieToxin { get; private set; }
@@ -135,13 +173,17 @@ namespace OpenZH.Data.Ini
         public string SoundStealthOff { get; private set; }
         public string SoundCrush { get; private set; }
         public string SoundAmbient { get; private set; }
+        public string SoundAmbientDamaged { get; private set; }
+        public string SoundAmbientReallyDamaged { get; private set; }
+        public string SoundAmbientRubble { get; private set; }
         public string SoundCreated { get; private set; }
         public UnitSpecificSounds UnitSpecificSounds { get; private set; }
 
         // Engineering
         public List<ObjectBehavior> Behaviors { get; } = new List<ObjectBehavior>();
         public List<ObjectDrawModule> Draws { get; } = new List<ObjectDrawModule>();
-        public List<ObjectBody> Bodies { get; } = new List<ObjectBody>();
+        public ObjectBody Body { get; private set; }
+        public List<ClientUpdate> ClientUpdates { get; } = new List<ClientUpdate>();
         public InheritableModule InheritableModule { get; private set; }
         public BitArray<ObjectKinds> KindOf { get; private set; }
         public RadarPriority RadarPriority { get; private set; }
@@ -159,6 +201,25 @@ namespace OpenZH.Data.Ini
         public string BuildCompletion { get; private set; }
     }
 
+    public struct VeterancyValues
+    {
+        internal static VeterancyValues Parse(IniParser parser)
+        {
+            return new VeterancyValues
+            {
+                Regular = parser.ParseInteger(),
+                Veteran = parser.ParseInteger(),
+                Elite = parser.ParseInteger(),
+                Heroic = parser.ParseInteger(),
+            };
+        }
+
+        public int Regular { get; private set; }
+        public int Veteran { get; private set; }
+        public int Elite { get; private set; }
+        public int Heroic { get; private set; }
+    }
+
     /// <summary>
     /// Modules in here are not removed by default when copied from the default object.
     /// </summary>
@@ -174,14 +235,14 @@ namespace OpenZH.Data.Ini
         public List<ObjectBehavior> Behaviors { get; } = new List<ObjectBehavior>();
     }
 
-    public sealed class ObjectPrequisites
+    public sealed class ObjectPrerequisites
     {
-        internal static ObjectPrequisites Parse(IniParser parser)
+        internal static ObjectPrerequisites Parse(IniParser parser)
         {
             return parser.ParseBlock(FieldParseTable);
         }
 
-        private static readonly IniParseTable<ObjectPrequisites> FieldParseTable = new IniParseTable<ObjectPrequisites>
+        private static readonly IniParseTable<ObjectPrerequisites> FieldParseTable = new IniParseTable<ObjectPrerequisites>
         {
             { "Object", (parser, x) => x.Objects.Add(parser.ParseAssetReference()) },
             { "Science", (parser, x) => x.Sciences.Add(parser.ParseAssetReference()) }
@@ -237,6 +298,9 @@ namespace OpenZH.Data.Ini
         [IniEnum("STRUCTURE")]
         Structure,
 
+        [IniEnum("UNIT")]
+        Unit,
+
         [IniEnum("NOT_ON_RADAR")]
         NotOnRadar
     }
@@ -266,7 +330,8 @@ namespace OpenZH.Data.Ini
         [IniEnum("None")]
         None = 0,
 
-
+        [IniEnum("PLAYER_UPGRADE")]
+        PlayerUpgrade,
     }
 
     public sealed class WeaponSet
@@ -334,6 +399,27 @@ namespace OpenZH.Data.Ini
         FromScript = 1 << 2
     }
 
+    public abstract class ClientUpdate : ObjectModule
+    {
+        internal static ClientUpdate ParseClientUpdate(IniParser parser) => ParseModule(parser, ClientUpdateParseTable);
+
+        private static readonly Dictionary<string, Func<IniParser, ClientUpdate>> ClientUpdateParseTable = new Dictionary<string, Func<IniParser, ClientUpdate>>
+        {
+            { "AnimatedParticleSysBoneClientUpdate", AnimatedParticleSysBoneClientUpdate.Parse },
+        };
+    }
+
+    /// <summary>
+    /// Allows the object to have particle system effects dynamically attached to animated 
+    /// sub objects or bones.
+    /// </summary>
+    public sealed class AnimatedParticleSysBoneClientUpdate : ClientUpdate
+    {
+        internal static AnimatedParticleSysBoneClientUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        internal static readonly IniParseTable<AnimatedParticleSysBoneClientUpdate> FieldParseTable = new IniParseTable<AnimatedParticleSysBoneClientUpdate>();
+    }
+
     public abstract class ObjectDrawModule : ObjectModule
     {
         internal static ObjectDrawModule ParseDrawModule(IniParser parser) => ParseModule(parser, DrawModuleParseTable);
@@ -345,6 +431,7 @@ namespace OpenZH.Data.Ini
             { "W3DScienceModelDraw", W3dScienceModelDraw.Parse },
             { "W3DSupplyDraw", W3dSupplyDraw.Parse },
             { "W3DTankDraw", W3dTankDraw.Parse },
+            { "W3DTruckDraw", W3dTruckDraw.Parse },
         };
     }
 
@@ -375,6 +462,7 @@ namespace OpenZH.Data.Ini
             { "AnimationsRequirePower", (parser, x) => x.AnimationsRequirePower = parser.ParseBoolean() },
             { "DefaultConditionState", (parser, x) => x.DefaultConditionState = ObjectConditionState.ParseDefault(parser) },
             { "ConditionState", (parser, x) => x.ConditionStates.Add(ObjectConditionState.Parse(parser)) },
+            { "AliasConditionState", (parser, x) => x.ParseAliasConditionState(parser) },
             { "OkToChangeModelColor", (parser, x) => x.OkToChangeModelColor = parser.ParseBoolean() },
             { "ExtraPublicBone", (parser, x) => x.ExtraPublicBones.Add(parser.ParseBoneName()) },
         };
@@ -385,6 +473,22 @@ namespace OpenZH.Data.Ini
         public bool OkToChangeModelColor { get; private set; }
         public bool AnimationsRequirePower { get; private set; }
         public List<string> ExtraPublicBones { get; } = new List<string>();
+
+        private void ParseAliasConditionState(IniParser parser)
+        {
+            if (ConditionStates.Count == 0)
+            {
+                throw new IniParseException("Cannot use AliasConditionState if there are no preceding ConditionStates", parser.CurrentPosition);
+            }
+
+            var lastConditionState = ConditionStates[ConditionStates.Count - 1];
+
+            var conditionFlags = parser.ParseEnumBitArray<ModelConditionFlag>();
+
+            var aliasedConditionState = lastConditionState.Clone(conditionFlags);
+
+            ConditionStates.Add(aliasedConditionState);
+        }
     }
 
     public sealed class W3dTankDraw : W3dModelDraw
@@ -419,6 +523,27 @@ namespace OpenZH.Data.Ini
         public string SupplyBonePrefix { get; private set; }
     }
 
+    /// <summary>
+    /// Hardcoded to call for the TreadDebrisRight and TreadDebrisLeft (unless overriden) particle 
+    /// system definitions and allows use of TruckPowerslideSound and TruckLandingSound within the 
+    /// UnitSpecificSounds section of the object.
+    /// 
+    /// This module also includes automatic logic for showing and hiding of HEADLIGHT bones in and 
+    /// out of the NIGHT ConditionState.
+    /// </summary>
+    public sealed class W3dTruckDraw : W3dModelDraw
+    {
+        internal static W3dTruckDraw Parse(IniParser parser)
+        {
+            return parser.ParseBlock(SupplyFieldParseTable);
+        }
+
+        private static readonly IniParseTable<W3dTruckDraw> SupplyFieldParseTable = new IniParseTable<W3dTruckDraw>
+        {
+            
+        }.Concat<W3dTruckDraw, W3dModelDraw>(ModelFieldParseTable);
+    }
+
     public sealed class W3dScienceModelDraw : W3dModelDraw
     {
         internal static W3dScienceModelDraw Parse(IniParser parser)
@@ -438,7 +563,11 @@ namespace OpenZH.Data.Ini
     {
         internal static ObjectConditionState ParseDefault(IniParser parser)
         {
-            return parser.ParseBlock(FieldParseTable);
+            var result = parser.ParseBlock(FieldParseTable);
+
+            result.ConditionFlags = new BitArray<ModelConditionFlag>(); // "NONE"
+
+            return result;
         }
 
         internal static ObjectConditionState Parse(IniParser parser)
@@ -455,26 +584,56 @@ namespace OpenZH.Data.Ini
         private static readonly IniParseTable<ObjectConditionState> FieldParseTable = new IniParseTable<ObjectConditionState>
         {
             { "Model", (parser, x) => x.Model = parser.ParseFileName() },
+            { "Turret", (parser, x) => x.Turret = parser.ParseAssetReference() },
             { "Animation", (parser, x) => x.Animation = parser.ParseAnimationName() },
             { "AnimationMode", (parser, x) => x.AnimationMode = parser.ParseEnum<AnimationMode>() },
-            { "Flags", (parser, x) => x.Flags = parser.ParseEnum<ObjectConditionStateFlags>() },
+            { "AnimationSpeedFactorRange", (parser, x) => x.AnimationSpeedFactorRange = FloatRange.Parse(parser) },
+            { "Flags", (parser, x) => x.Flags = parser.ParseEnumFlags<ObjectConditionStateFlags>() },
+            { "WeaponFireFXBone", (parser, x) => x.WeaponFireFXBones.Add(BoneAttachPoint.Parse(parser)) },
+            { "WeaponRecoilBone", (parser, x) => x.WeaponRecoilBones.Add(BoneAttachPoint.Parse(parser)) },
+            { "WeaponMuzzleFlash", (parser, x) => x.WeaponMuzzleFlashes.Add(BoneAttachPoint.Parse(parser)) },
+            { "WeaponLaunchBone", (parser, x) => x.WeaponLaunchBones.Add(BoneAttachPoint.Parse(parser)) },
             { "ParticleSysBone", (parser, x) => x.ParticleSysBones.Add(ParticleSysBone.Parse(parser)) },
+            { "HideSubObject", (parser, x) => x.HideSubObject = parser.ParseAssetReference() },
+            { "ShowSubObject", (parser, x) => x.ShowSubObject = parser.ParseAssetReference() },
         };
 
         public BitArray<ModelConditionFlag> ConditionFlags { get; private set; }
 
         public string Model { get; private set; }
+        public string Turret { get; private set; }
         public string Animation { get; private set; }
         public AnimationMode AnimationMode { get; private set; }
+        public FloatRange AnimationSpeedFactorRange { get; private set; }
         public ObjectConditionStateFlags Flags { get; private set; }
-        public List<ParticleSysBone> ParticleSysBones { get; } = new List<ParticleSysBone>();
+        public List<BoneAttachPoint> WeaponFireFXBones { get; private set; } = new List<BoneAttachPoint>();
+        public List<BoneAttachPoint> WeaponRecoilBones { get; private set; } = new List<BoneAttachPoint>();
+        public List<BoneAttachPoint> WeaponMuzzleFlashes { get; private set; } = new List<BoneAttachPoint>();
+        public List<BoneAttachPoint> WeaponLaunchBones { get; private set; } = new List<BoneAttachPoint>();
+        public List<ParticleSysBone> ParticleSysBones { get; private set; } = new List<ParticleSysBone>();
+        public string HideSubObject { get; private set; }
+        public string ShowSubObject { get; private set; }
+
+        public ObjectConditionState Clone(BitArray<ModelConditionFlag> conditionFlags)
+        {
+            return new ObjectConditionState
+            {
+                ConditionFlags = conditionFlags,
+
+                Model = Model,
+                Turret = Turret,
+                Animation = Animation,
+                AnimationMode = AnimationMode,
+                Flags = Flags,
+                ParticleSysBones = ParticleSysBones,
+                HideSubObject = HideSubObject,
+                ShowSubObject = ShowSubObject
+            };
+        }
     }
 
     public enum ModelConditionFlag
     {
-        [IniEnum("NONE")]
-        None,
-
         [IniEnum("DAMAGED")]
         Damaged,
 
@@ -489,6 +648,18 @@ namespace OpenZH.Data.Ini
 
         [IniEnum("NIGHT")]
         Night,
+
+        [IniEnum("GARRISONED")]
+        Garrisoned,
+
+        [IniEnum("POST_COLLAPSE")]
+        PostCollapse,
+
+        [IniEnum("CAPTURED")]
+        Captured,
+
+        [IniEnum("DOOR_1_OPENING")]
+        Door1Opening
     }
 
     public abstract class ObjectModule
@@ -521,10 +692,28 @@ namespace OpenZH.Data.Ini
         None = 0,
 
         [IniEnum("RANDOMSTART")]
-        RandomStart,
+        RandomStart = 1 << 0,
 
         [IniEnum("START_FRAME_FIRST")]
-        StartFrameFirst
+        StartFrameFirst = 1 << 1,
+
+        [IniEnum("MAINTAIN_FRAME_ACROSS_STATES")]
+        MaintainFrameAcrossStates = 1 << 2
+    }
+
+    public sealed class BoneAttachPoint
+    {
+        internal static BoneAttachPoint Parse(IniParser parser)
+        {
+            return new BoneAttachPoint
+            {
+                WeaponSlot = parser.ParseEnum<WeaponSlot>(),
+                BoneName = parser.ParseBoneName()
+            };
+        }
+
+        public WeaponSlot WeaponSlot { get; private set; }
+        public string BoneName { get; private set; }
     }
 
     public sealed class ParticleSysBone
@@ -533,12 +722,12 @@ namespace OpenZH.Data.Ini
         {
             return new ParticleSysBone
             {
-                Bone = parser.ParseBoneName(),
+                BoneName = parser.ParseBoneName(),
                 ParticleSystem = parser.ParseAssetReference()
             };
         }
 
-        public string Bone { get; private set; }
+        public string BoneName { get; private set; }
         public string ParticleSystem { get; private set; }
     }
 
@@ -552,6 +741,7 @@ namespace OpenZH.Data.Ini
             { "HighlanderBody", HighlanderBody.Parse },
             { "ImmortalBody", ImmortalBody.Parse },
             { "InactiveBody", InactiveBody.Parse },
+            { "StructureBody", StructureBody.Parse },
         };
     }
 
@@ -628,15 +818,40 @@ namespace OpenZH.Data.Ini
 
         private static readonly Dictionary<string, Func<IniParser, ObjectBehavior>> BehaviorParseTable = new Dictionary<string, Func<IniParser, ObjectBehavior>>
         {
+            { "AIUpdateInterface", AIUpdateInterfaceBehavior.Parse },
+            { "AutoDepositUpdate", AutoDepositUpdateBehavior.Parse },
             { "AutoHealBehavior", AutoHealBehavior.Parse },
+            { "BaikonurLaunchPower", BaikonurLaunchPowerBehavior.Parse },
+            { "BoneFXDamage", BoneFXDamageBehavior.Parse },
+            { "BoneFXUpdate", BoneFXUpdateBehavior.Parse },
+            { "BridgeBehavior", BridgeBehavior.Parse },
             { "BridgeTowerBehavior", BridgeTowerBehavior.Parse },
+            { "CostModifierUpgrade", CostModifierUpgradeBehavior.Parse },
+            { "CreateObjectDie", CreateObjectDieBehavior.Parse },
+            { "DamDie", DamDieBehavior.Parse },
             { "DeletionUpdate", DeletionUpdateBehavior.Parse },
             { "DestroyDie", DestroyDieBehavior.Parse },
+            { "FireWeaponWhenDeadBehavior", FireWeaponWhenDeadBehavior.Parse },
+            { "FireWeaponWhenDamagedBehavior", FireWeaponWhenDamagedBehavior.Parse },
+            { "FlammableUpdate", FlammableUpdateBehavior.Parse },
+            { "FXListDie", FXListDieBehavior.Parse },
+            { "GarrisonContain", GarrisonContainBehavior.Parse },
+            { "GrantUpgradeCreate", GrantUpgradeCreateBehavior.Parse },
             { "KeepObjectDie", KeepObjectDieBehavior.Parse },
+            { "LifetimeUpdate", LifetimeUpdateBehavior.Parse },
             { "MoneyCrateCollide", MoneyCrateCollideBehavior.Parse },
             { "PhysicsBehavior", PhysicsBehavior.Parse },
             { "SalvageCrateCollide", SalvageCrateCollideBehavior.Parse },
+            { "SlowDeathBehavior", SlowDeathBehavior.Parse },
             { "SquishCollide", SquishCollideBehavior.Parse },
+            { "StructureCollapseUpdate", StructureCollapseUpdateBehavior.Parse },
+            { "StructureToppleUpdate", StructureToppleUpdateBehavior.Parse },
+            { "SupplyWarehouseCreate", SupplyWarehouseCreateBehavior.Parse },
+            { "SupplyWarehouseCripplingBehavior", SupplyWarehouseCripplingBehavior.Parse },
+            { "SupplyWarehouseDockUpdate", SupplyWarehouseDockUpdateBehavior.Parse },
+            { "TechBuildingBehavior", TechBuildingBehavior.Parse },
+            { "ToppleUpdate", ToppleUpdateBehavior.Parse },
+            { "TransitionDamageFX", TransitionDamageFXBehavior.Parse },
             { "UnitCrateCollide", UnitCrateCollideBehavior.Parse },
             { "VeterancyCrateCollide", VeterancyCrateCollideBehavior.Parse },
         };
@@ -644,10 +859,7 @@ namespace OpenZH.Data.Ini
 
     public sealed class MoneyCrateCollideBehavior : ObjectBehavior
     {
-        internal static MoneyCrateCollideBehavior Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static MoneyCrateCollideBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<MoneyCrateCollideBehavior> FieldParseTable = new IniParseTable<MoneyCrateCollideBehavior>
         {
@@ -669,6 +881,541 @@ namespace OpenZH.Data.Ini
         public bool ExecuteAnimationFades { get; private set; }
     }
 
+    /// <summary>
+    /// This module is required when KindOf contains TECH_BUILDING.
+    /// </summary>
+    public sealed class TechBuildingBehavior : ObjectBehavior
+    {
+        internal static TechBuildingBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<TechBuildingBehavior> FieldParseTable = new IniParseTable<TechBuildingBehavior>();
+    }
+
+    /// <summary>
+    /// Special-case logic allows for ParentObject to be specified as a bone name to allow other 
+    /// objects to appear on the bridge.
+    /// </summary>
+    public sealed class BridgeBehavior : ObjectBehavior
+    {
+        internal static BridgeBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<BridgeBehavior> FieldParseTable = new IniParseTable<BridgeBehavior>
+        {
+            { "LateralScaffoldSpeed", (parser, x) => x.LateralScaffoldSpeed = parser.ParseFloat() },
+            { "VerticalScaffoldSpeed", (parser, x) => x.VerticalScaffoldSpeed = parser.ParseFloat() },
+
+            { "BridgeDieOCL", (parser, x) => x.BridgeDieOCLs.Add(BridgeDieObjectCreationList.Parse(parser)) },
+            { "BridgeDieFX", (parser, x) => x.BridgeDieFXs.Add(BridgeDieFX.Parse(parser)) }
+        };
+
+        public float LateralScaffoldSpeed { get; private set; }
+        public float VerticalScaffoldSpeed { get; private set; }
+
+        public List<BridgeDieObjectCreationList> BridgeDieOCLs { get; } = new List<BridgeDieObjectCreationList>();
+        public List<BridgeDieFX> BridgeDieFXs { get; } = new List<BridgeDieFX>();
+    }
+
+    public sealed class BridgeDieFX
+    {
+        internal static BridgeDieFX Parse(IniParser parser)
+        {
+            return new BridgeDieFX
+            {
+                FX = parser.ParseAttribute("FX", () => parser.ParseAssetReference()),
+                Delay = parser.ParseAttributeInteger("Delay"),
+                Bone = parser.ParseAttribute("Bone", () => parser.ParseBoneName())
+            };
+        }
+
+        public string FX { get; private set; }
+        public int Delay { get; private set; }
+        public string Bone { get; private set; }
+    }
+
+    public sealed class BridgeDieObjectCreationList
+    {
+        internal static BridgeDieObjectCreationList Parse(IniParser parser)
+        {
+            return new BridgeDieObjectCreationList
+            {
+                OCL = parser.ParseAttribute("OCL", () => parser.ParseAssetReference()),
+                Delay = parser.ParseAttributeInteger("Delay"),
+                Bone = parser.ParseAttribute("Bone", () => parser.ParseBoneName())
+            };
+        }
+
+        public string OCL { get; private set; }
+        public int Delay { get; private set; }
+        public string Bone { get; private set; }
+    }
+
+    public sealed class FireWeaponWhenDeadBehavior : ObjectBehavior
+    {
+        internal static FireWeaponWhenDeadBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<FireWeaponWhenDeadBehavior> FieldParseTable = new IniParseTable<FireWeaponWhenDeadBehavior>
+        {
+            { "DeathWeapon", (parser, x) => x.DeathWeapon = parser.ParseAssetReference() },
+            { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() }
+        };
+
+        public string DeathWeapon { get; private set; }
+        public bool StartsActive { get; private set; }
+    }
+
+    public sealed class LifetimeUpdateBehavior : ObjectBehavior
+    {
+        internal static LifetimeUpdateBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<LifetimeUpdateBehavior> FieldParseTable = new IniParseTable<LifetimeUpdateBehavior>
+        {
+            { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseInteger() },
+            { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseInteger() }
+        };
+
+        public int MinLifetime { get; private set; }
+        public int MaxLifetime { get; private set; }
+    }
+
+    public sealed class GrantUpgradeCreateBehavior : ObjectBehavior
+    {
+        internal static GrantUpgradeCreateBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<GrantUpgradeCreateBehavior> FieldParseTable = new IniParseTable<GrantUpgradeCreateBehavior>
+        {
+            { "UpgradeToGrant", (parser, x) => x.UpgradeToGrant = parser.ParseAssetReference() }
+        };
+
+        public string UpgradeToGrant { get; private set; }
+    }
+
+    public sealed class CostModifierUpgradeBehavior : ObjectBehavior
+    {
+        internal static CostModifierUpgradeBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<CostModifierUpgradeBehavior> FieldParseTable = new IniParseTable<CostModifierUpgradeBehavior>
+        {
+            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() },
+            { "EffectKindOf", (parser, x) => x.EffectKindOf = parser.ParseEnum<ObjectKinds>() },
+            { "Percentage", (parser, x) => x.Percentage = parser.ParsePercentage() }
+        };
+
+        public string TriggeredBy { get; private set; }
+        public ObjectKinds EffectKindOf { get; private set; }
+        public float Percentage { get; private set; }
+    }
+
+    public sealed class AutoDepositUpdateBehavior : ObjectBehavior
+    {
+        internal static AutoDepositUpdateBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<AutoDepositUpdateBehavior> FieldParseTable = new IniParseTable<AutoDepositUpdateBehavior>
+        {
+            { "DepositTiming", (parser, x) => x.DepositTiming = parser.ParseInteger() },
+            { "DepositAmount", (parser, x) => x.DepositAmount = parser.ParseInteger() },
+            { "InitialCaptureBonus", (parser, x) => x.InitialCaptureBonus = parser.ParseInteger() }
+        };
+
+        /// <summary>
+        /// How often, in milliseconds, to give money to the owning player.
+        /// </summary>
+        public int DepositTiming { get; private set; }
+
+        /// <summary>
+        /// Amount of cash to deposit after every <see cref="DepositTiming"/>.
+        /// </summary>
+        public int DepositAmount { get; private set; }
+
+        /// <summary>
+        /// One-time capture bonus.
+        /// </summary>
+        public int InitialCaptureBonus { get; private set; }
+    }
+
+    /// <summary>
+    /// Enables use of BoneFXUpdate module on this object where an additional dynamic FX logic can 
+    /// be used.
+    /// </summary>
+    public sealed class BoneFXDamageBehavior : ObjectBehavior
+    {
+        internal static BoneFXDamageBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<BoneFXDamageBehavior> FieldParseTable = new IniParseTable<BoneFXDamageBehavior>();
+    }
+
+    public sealed class BoneFXUpdateBehavior : ObjectBehavior
+    {
+        internal static BoneFXUpdateBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<BoneFXUpdateBehavior> FieldParseTable = new IniParseTable<BoneFXUpdateBehavior>
+        {
+            { "DamageFXTypes", (parser, x) => x.DamageFXTypes = parser.ParseEnumBitArray<DamageType>() },
+            { "RubbleFXList1", (parser, x) => x.RubbleFXList1 = BoneFXUpdateFXList.Parse(parser) },
+
+            { "DamageParticleTypes", (parser, x) => x.DamageParticleTypes = parser.ParseEnumBitArray<DamageType>() },
+            { "RubbleParticleSystem1", (parser, x) => x.RubbleParticleSystem1 = BoneFXUpdateParticleSystem.Parse(parser) },
+        };
+
+        public BitArray<DamageType> DamageFXTypes { get; private set; }
+        public BoneFXUpdateFXList RubbleFXList1 { get; private set; }
+
+        public BitArray<DamageType> DamageParticleTypes { get; private set; }
+        public BoneFXUpdateParticleSystem RubbleParticleSystem1 { get; private set; }
+    }
+
+    public sealed class BoneFXUpdateFXList
+    {
+        internal static BoneFXUpdateFXList Parse(IniParser parser)
+        {
+            return new BoneFXUpdateFXList
+            {
+                Bone = parser.ParseAttribute("Bone", () => parser.ParseBoneName()),
+                OnlyOnce = parser.ParseAttributeBoolean("OnlyOnce"),
+                Min = parser.ParseInteger(),
+                Max = parser.ParseInteger(),
+                FXList = parser.ParseAttribute("FXList", () => parser.ParseAssetReference())
+            };
+        }
+
+        public string Bone { get; private set; }
+        public bool OnlyOnce { get; private set; }
+        public int Min { get; private set; }
+        public int Max { get; private set; }
+        public string FXList { get; private set; }
+    }
+
+    public sealed class BoneFXUpdateParticleSystem
+    {
+        internal static BoneFXUpdateParticleSystem Parse(IniParser parser)
+        {
+            return new BoneFXUpdateParticleSystem
+            {
+                Bone = parser.ParseAttribute("Bone", () => parser.ParseBoneName()),
+                OnlyOnce = parser.ParseAttributeBoolean("OnlyOnce"),
+                Min = parser.ParseInteger(),
+                Max = parser.ParseInteger(),
+                ParticleSystem = parser.ParseAttribute("PSys", () => parser.ParseAssetReference())
+            };
+        }
+
+        public string Bone { get; private set; }
+        public bool OnlyOnce { get; private set; }
+        public int Min { get; private set; }
+        public int Max { get; private set; }
+        public string ParticleSystem { get; private set; }
+    }
+
+    /// <summary>
+    /// Hardcoded to use the GarrisonGun object definition for the weapons pointing from the object 
+    /// when occupants are firing and these are drawn at bones named FIREPOINT. Also, it Allows use 
+    /// of the GARRISONED Model ConditionState.
+    /// </summary>
+    public sealed class GarrisonContainBehavior : ObjectBehavior
+    {
+        internal static GarrisonContainBehavior Parse(IniParser parser)
+        {
+            return parser.ParseBlock(FieldParseTable);
+        }
+
+        private static readonly IniParseTable<GarrisonContainBehavior> FieldParseTable = new IniParseTable<GarrisonContainBehavior>
+        {
+            { "ContainMax", (parser, x) => x.ContainMax = parser.ParseInteger() },
+            { "EnterSound", (parser, x) => x.EnterSound = parser.ParseAssetReference() },
+            { "ExitSound", (parser, x) => x.ExitSound = parser.ParseAssetReference() }
+        };
+
+        public int ContainMax { get; private set; }
+        public string EnterSound { get; private set; }
+        public string ExitSound { get; private set; }
+    }
+
+    public sealed class StructureCollapseUpdateBehavior : ObjectBehavior
+    {
+        internal static StructureCollapseUpdateBehavior Parse(IniParser parser)
+        {
+            return parser.ParseBlock(FieldParseTable);
+        }
+
+        private static readonly IniParseTable<StructureCollapseUpdateBehavior> FieldParseTable = new IniParseTable<StructureCollapseUpdateBehavior>
+        {
+            { "MinCollapseDelay", (parser, x) => x.MinCollapseDelay = parser.ParseInteger() },
+            { "MaxCollapseDelay", (parser, x) => x.MaxCollapseDelay = parser.ParseInteger() },
+            { "CollapseDamping", (parser, x) => x.CollapseDamping = parser.ParseFloat() },
+            { "MaxShudder", (parser, x) => x.MaxShudder = parser.ParseFloat() },
+            { "MinBurstDelay", (parser, x) => x.MinBurstDelay = parser.ParseInteger() },
+            { "MaxBurstDelay", (parser, x) => x.MaxBurstDelay = parser.ParseInteger() },
+            { "BigBurstFrequency", (parser, x) => x.BigBurstFrequency = parser.ParseInteger() },
+
+            { "OCL", (parser, x) => x.OCLs[parser.ParseEnum<StructureCollapseStage>()] = parser.ParseAssetReference() },
+            { "FXList", (parser, x) => x.FXLists[parser.ParseEnum<StructureCollapseStage>()] = parser.ParseAssetReference() },
+        };
+
+        public int MinCollapseDelay { get; private set; }
+        public int MaxCollapseDelay { get; private set; }
+        public float CollapseDamping { get; private set; }
+        public float MaxShudder { get; private set; }
+        public int MinBurstDelay { get; private set; }
+        public int MaxBurstDelay { get; private set; }
+        public int BigBurstFrequency { get; private set; }
+
+        public Dictionary<StructureCollapseStage, string> OCLs { get; } = new Dictionary<StructureCollapseStage, string>();
+        public Dictionary<StructureCollapseStage, string> FXLists { get; } = new Dictionary<StructureCollapseStage, string>();
+    }
+
+    public sealed class SlowDeathBehavior : ObjectBehavior
+    {
+        internal static SlowDeathBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<SlowDeathBehavior> FieldParseTable = new IniParseTable<SlowDeathBehavior>
+        {
+            { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
+            { "SinkRate", (parser, x) => x.SinkRate = parser.ParseInteger() },
+            { "SinkDelay", (parser, x) => x.SinkDelay = parser.ParseInteger() },
+            { "DestructionDelay", (parser, x) => x.DestructionDelay = parser.ParseInteger() },
+            { "DestructionDelayVariance", (parser, x) => x.DestructionDelayVariance = parser.ParseInteger() },
+
+            { "OCL", (parser, x) => x.OCLs[parser.ParseEnum<SlowDeathStage>()] = parser.ParseAssetReference() },
+            { "FX", (parser, x) => x.FXs[parser.ParseEnum<SlowDeathStage>()] = parser.ParseAssetReference() },
+            { "Weapon", (parser, x) => x.Weapons[parser.ParseEnum<SlowDeathStage>()] = parser.ParseAssetReference() },
+        };
+
+        public BitArray<DeathType> DeathTypes { get; private set; }
+        public int SinkRate { get; private set; }
+        public int SinkDelay { get; private set; }
+        public int DestructionDelay { get; private set; }
+        public int DestructionDelayVariance { get; private set; }
+
+        public Dictionary<SlowDeathStage, string> OCLs { get; } = new Dictionary<SlowDeathStage, string>();
+        public Dictionary<SlowDeathStage, string> FXs { get; } = new Dictionary<SlowDeathStage, string>();
+        public Dictionary<SlowDeathStage, string> Weapons { get; } = new Dictionary<SlowDeathStage, string>();
+    }
+
+    public enum SlowDeathStage
+    {
+        [IniEnum("INITIAL")]
+        Initial,
+
+        [IniEnum("FINAL")]
+        Final
+    }
+
+    public sealed class AIUpdateInterfaceBehavior : ObjectBehavior
+    {
+        internal static AIUpdateInterfaceBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<AIUpdateInterfaceBehavior> FieldParseTable = new IniParseTable<AIUpdateInterfaceBehavior>
+        {
+            { "Turret", (parser, x) => x.Turret = TurretAIData.Parse(parser) }
+        };
+
+        /// <summary>
+        /// Allows the use of TurretMoveStart and TurretMoveLoop within the UnitSpecificSounds 
+        /// section of the object.
+        /// </summary>
+        public TurretAIData Turret { get; private set; }
+    }
+
+    public sealed class TurretAIData
+    {
+        internal static TurretAIData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<TurretAIData> FieldParseTable = new IniParseTable<TurretAIData>
+        {
+            { "TurretTurnRate", (parser, x) => x.TurretTurnRate = parser.ParseInteger() },
+            { "ControlledWeaponSlots", (parser, x) => x.ControlledWeaponSlots = parser.ParseEnum<WeaponSlot>() }
+        };
+
+        public int TurretTurnRate { get; private set; }
+        public WeaponSlot ControlledWeaponSlots { get; private set; }
+    }
+
+    public sealed class ToppleUpdateBehavior : ObjectBehavior
+    {
+        internal static ToppleUpdateBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<ToppleUpdateBehavior> FieldParseTable = new IniParseTable<ToppleUpdateBehavior>
+        {
+            { "ToppleFX", (parser, x) => x.ToppleFX = parser.ParseAssetReference() },
+            { "BounceFX", (parser, x) => x.BounceFX = parser.ParseAssetReference() },
+            { "KillWhenStartToppling", (parser, x) => x.KillWhenStartToppling = parser.ParseBoolean() },
+            { "ToppleLeftOrRightOnly", (parser, x) => x.ToppleLeftOrRightOnly = parser.ParseBoolean() },
+            { "ReorientToppledRubble", (parser, x) => x.ReorientToppledRubble = parser.ParseBoolean() },
+            { "BounceVelocityPercent", (parser, x) => x.BounceVelocityPercent = parser.ParsePercentage() },
+            { "InitialAccelPercent", (parser, x) => x.InitialAccelPercent = parser.ParsePercentage() },
+        };
+
+        public string ToppleFX { get; private set; }
+        public string BounceFX { get; private set; }
+        public bool KillWhenStartToppling { get; private set; }
+        public bool ToppleLeftOrRightOnly { get; private set; }
+        public bool ReorientToppledRubble { get; private set; }
+        public float BounceVelocityPercent { get; private set; } = 30;
+        public float InitialAccelPercent { get; private set; } = 1;
+    }
+
+    public sealed class StructureToppleUpdateBehavior : ObjectBehavior
+    {
+        internal static StructureToppleUpdateBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<StructureToppleUpdateBehavior> FieldParseTable = new IniParseTable<StructureToppleUpdateBehavior>
+        {
+            { "MinToppleDelay", (parser, x) => x.MinToppleDelay = parser.ParseInteger() },
+            { "MaxToppleDelay", (parser, x) => x.MaxToppleDelay = parser.ParseInteger() },
+            { "MinToppleBurstDelay", (parser, x) => x.MinToppleBurstDelay = parser.ParseInteger() },
+            { "MaxToppleBurstDelay", (parser, x) => x.MaxToppleBurstDelay = parser.ParseInteger() },
+            { "StructuralIntegrity", (parser, x) => x.StructuralIntegrity = parser.ParseFloat() },
+            { "StructuralDecay", (parser, x) => x.StructuralDecay = parser.ParseFloat() },
+            { "DamageFXTypes", (parser, x) => x.DamageFXTypes = parser.ParseEnumBitArray<DamageType>() },
+            { "ToppleStartFX", (parser, x) => x.ToppleStartFX = parser.ParseAssetReference() },
+            { "ToppleDelayFX", (parser, x) => x.ToppleDelayFX = parser.ParseAssetReference() },
+            { "CrushingFX", (parser, x) => x.CrushingFX = parser.ParseAssetReference() },
+            { "AngleFX", (parser, x) => x.AngleFX = StructureToppleAngleFX.Parse(parser) },
+            { "ToppleDoneFX", (parser, x) => x.ToppleDoneFX = parser.ParseAssetReference() },
+            { "CrushingWeaponName", (parser, x) => x.CrushingWeaponName = parser.ParseAssetReference() },
+        };
+
+        public int MinToppleDelay { get; private set; }
+        public int MaxToppleDelay { get; private set; }
+        public int MinToppleBurstDelay { get; private set; }
+        public int MaxToppleBurstDelay { get; private set; }
+        public float StructuralIntegrity { get; private set; }
+        public float StructuralDecay { get; private set; }
+        public BitArray<DamageType> DamageFXTypes { get; private set; }
+        public string ToppleStartFX { get; private set; }
+        public string ToppleDelayFX { get; private set; }
+        public string CrushingFX { get; private set; }
+        public StructureToppleAngleFX AngleFX { get; private set; }
+        public string ToppleDoneFX { get; private set; }
+        public string CrushingWeaponName { get; private set; }
+    }
+
+    public struct StructureToppleAngleFX
+    {
+        internal static StructureToppleAngleFX Parse(IniParser parser)
+        {
+            return new StructureToppleAngleFX
+            {
+                Angle = parser.ParseFloat(),
+                FX = parser.ParseAssetReference()
+            };
+        }
+
+        public float Angle;
+        public string FX;
+    }
+
+    public enum StructureCollapseStage
+    {
+        [IniEnum("INITIAL")]
+        Initial,
+
+        [IniEnum("DELAY")]
+        Delay,
+
+        [IniEnum("BURST")]
+        Burst,
+
+        [IniEnum("FINAL")]
+        Final
+    }
+
+    /// <summary>
+    /// Forces object to dynamically restore itself.
+    /// Triggered when object is REALLYDAMAGED, or at 30% of MaxHealth.
+    /// </summary>
+    public sealed class SupplyWarehouseCripplingBehavior : ObjectBehavior
+    {
+        internal static SupplyWarehouseCripplingBehavior Parse(IniParser parser)
+        {
+            return parser.ParseBlock(FieldParseTable);
+        }
+
+        private static readonly IniParseTable<SupplyWarehouseCripplingBehavior> FieldParseTable = new IniParseTable<SupplyWarehouseCripplingBehavior>
+        {
+            { "SelfHealSupression", (parser, x) => x.SelfHealSuppression = parser.ParseInteger() },
+            { "SelfHealDelay", (parser, x) => x.SelfHealDelay = parser.ParseInteger() },
+            { "SelfHealAmount", (parser, x) => x.SelfHealAmount = parser.ParseInteger() }
+        };
+
+        /// <summary>
+        /// Time since last damage until healing starts.
+        /// </summary>
+        public int SelfHealSuppression { get; private set; }
+
+        /// <summary>
+        /// How frequently to heal.
+        /// </summary>
+        public int SelfHealDelay { get; private set; }
+
+        public int SelfHealAmount { get; private set; }
+    }
+
+    public sealed class SupplyWarehouseDockUpdateBehavior : ObjectBehavior
+    {
+        internal static SupplyWarehouseDockUpdateBehavior Parse(IniParser parser)
+        {
+            return parser.ParseBlock(FieldParseTable);
+        }
+
+        private static readonly IniParseTable<SupplyWarehouseDockUpdateBehavior> FieldParseTable = new IniParseTable<SupplyWarehouseDockUpdateBehavior>
+        {
+            { "NumberApproachPositions", (parser, x) => x.NumberApproachPositions = parser.ParseInteger() },
+            { "StartingBoxes", (parser, x) => x.StartingBoxes = parser.ParseInteger() },
+            { "AllowsPassthrough", (parser, x) => x.AllowsPassthrough = parser.ParseBoolean() },
+            { "DeleteWhenEmpty", (parser, x) => x.DeleteWhenEmpty = parser.ParseBoolean() }
+        };
+
+        /// <summary>
+        /// Number of approach bones in the model. If this is -1, infinite harvesters can approach.
+        /// </summary>
+        public int NumberApproachPositions { get; private set; }
+
+        /// <summary>
+        /// Used to determine the visual representation of a full warehouse.
+        /// </summary>
+        public int StartingBoxes { get; private set; }
+
+        /// <summary>
+        /// Can harvesters drive through this warehouse? Should be set to false if all dock points are external.
+        /// </summary>
+        public bool AllowsPassthrough { get; private set; } = true;
+
+        /// <summary>
+        /// True if warehouse should be deleted when depleted.
+        /// </summary>
+        public bool DeleteWhenEmpty { get; private set; }
+    }
+
+    /// <summary>
+    /// Ensures the object acts as a source for supply collection.
+    /// </summary>
+    public sealed class SupplyWarehouseCreateBehavior : ObjectBehavior
+    {
+        internal static SupplyWarehouseCreateBehavior Parse(IniParser parser)
+        {
+            return parser.ParseBlock(FieldParseTable);
+        }
+
+        private static readonly IniParseTable<SupplyWarehouseCreateBehavior> FieldParseTable = new IniParseTable<SupplyWarehouseCreateBehavior>();
+    }
+
+    public sealed class BaikonurLaunchPowerBehavior : ObjectBehavior
+    {
+        internal static BaikonurLaunchPowerBehavior Parse(IniParser parser)
+        {
+            return parser.ParseBlock(FieldParseTable);
+        }
+
+        private static readonly IniParseTable<BaikonurLaunchPowerBehavior> FieldParseTable = new IniParseTable<BaikonurLaunchPowerBehavior>
+        {
+            { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() },
+            { "DetonationObject", (parser, x) => x.DetonationObject = parser.ParseAssetReference() }
+        };
+
+        public string SpecialPowerTemplate { get; private set; }
+        public string DetonationObject { get; private set; }
+    }
+
     public sealed class DestroyDieBehavior : ObjectBehavior
     {
         internal static DestroyDieBehavior Parse(IniParser parser)
@@ -682,6 +1429,224 @@ namespace OpenZH.Data.Ini
         };
 
         public BitArray<DeathType> DeathTypes { get; private set; }
+    }
+
+    public sealed class CreateObjectDieBehavior : ObjectBehavior
+    {
+        internal static CreateObjectDieBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<CreateObjectDieBehavior> FieldParseTable = new IniParseTable<CreateObjectDieBehavior>
+        {
+            { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
+            { "CreationList", (parser, x) => x.CreationList = parser.ParseAssetReference() }
+        };
+
+        public BitArray<DeathType> DeathTypes { get; private set; }
+        public string CreationList { get; private set; }
+    }
+
+    /// <summary>
+    /// Allows object to continue to exist as an obstacle but allowing water terrain to move 
+    /// through. The module must be applied after any other death modules.
+    /// </summary>
+    public sealed class DamDieBehavior : ObjectBehavior
+    {
+        internal static DamDieBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<DamDieBehavior> FieldParseTable = new IniParseTable<DamDieBehavior>();
+    }
+
+    public sealed class TransitionDamageFXBehavior : ObjectBehavior
+    {
+        internal static TransitionDamageFXBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<TransitionDamageFXBehavior> FieldParseTable = new IniParseTable<TransitionDamageFXBehavior>
+        {
+            { "DamageFXTypes", (parser, x) => x.DamageFXTypes = parser.ParseEnumBitArray<DamageType>() },
+
+            { "DamagedFXList1", (parser, x) => x.DamagedFXList1 = TransitionDamageFXList.Parse(parser) },
+
+            { "ReallyDamagedFXList1", (parser, x) => x.ReallyDamagedFXList1 = TransitionDamageFXList.Parse(parser) },
+
+            { "RubbleFXList1", (parser, x) => x.RubbleFXList1 = TransitionDamageFXList.Parse(parser) },
+
+            { "DamageParticleTypes", (parser, x) => x.DamageParticleTypes = parser.ParseEnumBitArray<DamageType>() },
+
+            { "DamagedParticleSystem1", (parser, x) => x.DamagedParticleSystem1 = TransitionDamageParticleSystem.Parse(parser) },
+            { "DamagedParticleSystem2", (parser, x) => x.DamagedParticleSystem2 = TransitionDamageParticleSystem.Parse(parser) },
+            { "DamagedParticleSystem3", (parser, x) => x.DamagedParticleSystem3 = TransitionDamageParticleSystem.Parse(parser) },
+            { "DamagedParticleSystem4", (parser, x) => x.DamagedParticleSystem4 = TransitionDamageParticleSystem.Parse(parser) },
+            { "DamagedParticleSystem5", (parser, x) => x.DamagedParticleSystem5 = TransitionDamageParticleSystem.Parse(parser) },
+            { "DamagedParticleSystem6", (parser, x) => x.DamagedParticleSystem6 = TransitionDamageParticleSystem.Parse(parser) },
+
+            { "ReallyDamagedParticleSystem1", (parser, x) => x.ReallyDamagedParticleSystem1 = TransitionDamageParticleSystem.Parse(parser) },
+            { "ReallyDamagedParticleSystem2", (parser, x) => x.ReallyDamagedParticleSystem2 = TransitionDamageParticleSystem.Parse(parser) },
+            { "ReallyDamagedParticleSystem3", (parser, x) => x.ReallyDamagedParticleSystem3 = TransitionDamageParticleSystem.Parse(parser) },
+            { "ReallyDamagedParticleSystem4", (parser, x) => x.ReallyDamagedParticleSystem4 = TransitionDamageParticleSystem.Parse(parser) },
+            { "ReallyDamagedParticleSystem5", (parser, x) => x.ReallyDamagedParticleSystem5 = TransitionDamageParticleSystem.Parse(parser) },
+            { "ReallyDamagedParticleSystem6", (parser, x) => x.ReallyDamagedParticleSystem6 = TransitionDamageParticleSystem.Parse(parser) },
+            { "ReallyDamagedParticleSystem7", (parser, x) => x.ReallyDamagedParticleSystem7 = TransitionDamageParticleSystem.Parse(parser) },
+            { "ReallyDamagedParticleSystem8", (parser, x) => x.ReallyDamagedParticleSystem8 = TransitionDamageParticleSystem.Parse(parser) },
+
+            { "RubbleParticleSystem1", (parser, x) => x.RubbleParticleSystem1 = TransitionDamageParticleSystem.Parse(parser) },
+            { "RubbleParticleSystem2", (parser, x) => x.RubbleParticleSystem2 = TransitionDamageParticleSystem.Parse(parser) },
+            { "RubbleParticleSystem3", (parser, x) => x.RubbleParticleSystem3 = TransitionDamageParticleSystem.Parse(parser) },
+            { "RubbleParticleSystem4", (parser, x) => x.RubbleParticleSystem4 = TransitionDamageParticleSystem.Parse(parser) },
+            { "RubbleParticleSystem5", (parser, x) => x.RubbleParticleSystem5 = TransitionDamageParticleSystem.Parse(parser) },
+            { "RubbleParticleSystem6", (parser, x) => x.RubbleParticleSystem6 = TransitionDamageParticleSystem.Parse(parser) },
+            { "RubbleParticleSystem7", (parser, x) => x.RubbleParticleSystem7 = TransitionDamageParticleSystem.Parse(parser) },
+        };
+
+        public BitArray<DamageType> DamageFXTypes { get; private set; }
+
+        public TransitionDamageFXList DamagedFXList1 { get; private set; }
+
+        public TransitionDamageFXList ReallyDamagedFXList1 { get; private set; }
+
+        public TransitionDamageFXList RubbleFXList1 { get; private set; }
+
+        public BitArray<DamageType> DamageParticleTypes { get; private set; }
+
+        public TransitionDamageParticleSystem DamagedParticleSystem1 { get; private set; }
+        public TransitionDamageParticleSystem DamagedParticleSystem2 { get; private set; }
+        public TransitionDamageParticleSystem DamagedParticleSystem3 { get; private set; }
+        public TransitionDamageParticleSystem DamagedParticleSystem4 { get; private set; }
+        public TransitionDamageParticleSystem DamagedParticleSystem5 { get; private set; }
+        public TransitionDamageParticleSystem DamagedParticleSystem6 { get; private set; }
+
+        public TransitionDamageParticleSystem ReallyDamagedParticleSystem1 { get; private set; }
+        public TransitionDamageParticleSystem ReallyDamagedParticleSystem2 { get; private set; }
+        public TransitionDamageParticleSystem ReallyDamagedParticleSystem3 { get; private set; }
+        public TransitionDamageParticleSystem ReallyDamagedParticleSystem4 { get; private set; }
+        public TransitionDamageParticleSystem ReallyDamagedParticleSystem5 { get; private set; }
+        public TransitionDamageParticleSystem ReallyDamagedParticleSystem6 { get; private set; }
+        public TransitionDamageParticleSystem ReallyDamagedParticleSystem7 { get; private set; }
+        public TransitionDamageParticleSystem ReallyDamagedParticleSystem8 { get; private set; }
+
+        public TransitionDamageParticleSystem RubbleParticleSystem1 { get; private set; }
+        public TransitionDamageParticleSystem RubbleParticleSystem2 { get; private set; }
+        public TransitionDamageParticleSystem RubbleParticleSystem3 { get; private set; }
+        public TransitionDamageParticleSystem RubbleParticleSystem4 { get; private set; }
+        public TransitionDamageParticleSystem RubbleParticleSystem5 { get; private set; }
+        public TransitionDamageParticleSystem RubbleParticleSystem6 { get; private set; }
+        public TransitionDamageParticleSystem RubbleParticleSystem7 { get; private set; }
+    }
+
+    public sealed class TransitionDamageFXList
+    {
+        internal static TransitionDamageFXList Parse(IniParser parser)
+        {
+            return new TransitionDamageFXList
+            {
+                Location = parser.ParseAttribute("Loc", () => Coord3D.Parse(parser)),
+                FXList = parser.ParseAttribute("FXList", () => parser.ParseAssetReference())
+            };
+        }
+
+        public Coord3D Location { get; private set; }
+        public string FXList { get; private set; }
+    }
+
+    public sealed class TransitionDamageParticleSystem
+    {
+        internal static TransitionDamageParticleSystem Parse(IniParser parser)
+        {
+            return new TransitionDamageParticleSystem
+            {
+                Bone = parser.ParseAttribute("Bone", () => parser.ParseBoneName()),
+                RandomBone = parser.ParseAttributeBoolean("RandomBone"),
+                ParticleSystem = parser.ParseAttribute("PSys", () => parser.ParseAssetReference())
+            };
+        }
+
+        public string Bone { get; private set; }
+        public bool RandomBone { get; private set; }
+        public string ParticleSystem { get; private set; }
+    }
+
+    public sealed class FXListDieBehavior : ObjectBehavior
+    {
+        internal static FXListDieBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<FXListDieBehavior> FieldParseTable = new IniParseTable<FXListDieBehavior>
+        {
+            { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
+            { "DeathFX", (parser, x) => x.DeathFX = parser.ParseAssetReference() },
+            { "OrientToObject", (parser, x) => x.OrientToObject = parser.ParseBoolean() }
+        };
+
+        public BitArray<DeathType> DeathTypes { get; private set; }
+        public string DeathFX { get; private set; }
+        public bool OrientToObject { get; private set; }
+    }
+
+    public sealed class FireWeaponWhenDamagedBehavior : ObjectBehavior
+    {
+        internal static FireWeaponWhenDamagedBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<FireWeaponWhenDamagedBehavior> FieldParseTable = new IniParseTable<FireWeaponWhenDamagedBehavior>
+        {
+            { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
+            { "ContinuousWeaponDamaged", (parser, x) => x.ContinuousWeaponDamaged = parser.ParseAssetReference() },
+            { "ContinuousWeaponReallyDamaged", (parser, x) => x.ContinuousWeaponReallyDamaged = parser.ParseAssetReference() },
+            { "DamageTypes", (parser, x) => x.DamageTypes = parser.ParseEnumBitArray<DamageType>() },
+            { "DamageAmount", (parser, x) => x.DamageAmount = parser.ParseInteger() }
+        };
+
+        public bool StartsActive { get; private set; }
+        public string ContinuousWeaponDamaged { get; private set; }
+        public string ContinuousWeaponReallyDamaged { get; private set; }
+        public BitArray<DamageType> DamageTypes { get; private set; }
+
+        /// <summary>
+        /// If damage >= this value, the weapon will be fired.
+        /// </summary>
+        public int DamageAmount { get; private set; }
+    }
+
+    /// <summary>
+    /// Allows the use of the AFLAME, SMOLDERING, and BURNED condition states.
+    /// </summary>
+    public sealed class FlammableUpdateBehavior : ObjectBehavior
+    {
+        internal static FlammableUpdateBehavior Parse(IniParser parser)
+        {
+            return parser.ParseBlock(FieldParseTable);
+        }
+
+        private static readonly IniParseTable<FlammableUpdateBehavior> FieldParseTable = new IniParseTable<FlammableUpdateBehavior>
+        {
+            { "FlameDamageLimit", (parser, x) => x.FlameDamageLimit = parser.ParseInteger() },
+            { "FlameDamageExpiration", (parser, x) => x.FlameDamageExpiration = parser.ParseInteger() },
+            { "AflameDuration", (parser, x) => x.AflameDuration = parser.ParseInteger() },
+            { "AflameDamageAmount", (parser, x) => x.AflameDamageAmount = parser.ParseInteger() },
+            { "AflameDamageDelay", (parser, x) => x.AflameDamageDelay = parser.ParseInteger() },
+        };
+
+        /// <summary>
+        /// How much flame damage to receive before catching fire.
+        /// </summary>
+        public int FlameDamageLimit { get; private set; }
+
+        /// <summary>
+        /// Time within which <see cref="FlameDamageLimit"/> must be received in order to catch fire.
+        /// </summary>
+        public int FlameDamageExpiration { get; private set; }
+
+        /// <summary>
+        /// How long to burn for after catching fire.
+        /// </summary>
+        public int AflameDuration { get; private set; }
+
+        /// <summary>
+        /// Amount of damage inflicted.
+        /// </summary>
+        public int AflameDamageAmount { get; private set; }
+
+        /// <summary>
+        /// Delay between each time that <see cref="AflameDamageAmount"/> is inflicted.
+        /// </summary>
+        public int AflameDamageDelay { get; private set; }
     }
 
     /// <summary>
@@ -715,14 +1680,37 @@ namespace OpenZH.Data.Ini
         {
             { "HealingAmount", (parser, x) => x.HealingAmount = parser.ParseInteger() },
             { "HealingDelay", (parser, x) => x.HealingDelay = parser.ParseInteger() },
+            { "AffectsWholePlayer", (parser, x) => x.AffectsWholePlayer = parser.ParseBoolean() },
+            { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
+            { "KindOf", (parser, x) => x.KindOf = parser.ParseEnum<ObjectKinds>() },
             { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReferenceArray() },
             { "StartHealingDelay", (parser, x) => x.StartHealingDelay = parser.ParseInteger() },
         };
 
         public int HealingAmount { get; private set; }
         public int HealingDelay { get; private set; }
+        public bool AffectsWholePlayer { get; private set; }
+        public bool StartsActive { get; private set; }
+        public ObjectKinds KindOf { get; private set; }
         public string[] TriggeredBy { get; private set; }
         public int StartHealingDelay { get; private set; }
+    }
+
+    /// <summary>
+    /// Used by objects with STRUCTURE and IMMOBILE KindOfs defined.
+    /// </summary>
+    public sealed class StructureBody : ObjectBody
+    {
+        internal static StructureBody Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<StructureBody> FieldParseTable = new IniParseTable<StructureBody>
+        {
+            { "MaxHealth", (parser, x) => x.MaxHealth = parser.ParseFloat() },
+            { "InitialHealth", (parser, x) => x.InitialHealth = parser.ParseFloat() }
+        };
+
+        public float MaxHealth { get; private set; }
+        public float InitialHealth { get; private set; }
     }
 
     public sealed class UnitCrateCollideBehavior : ObjectBehavior

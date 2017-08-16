@@ -76,11 +76,34 @@ namespace OpenZH.Data.Ini.Parser
             {
                 var token = NextToken(IniTokenType.Identifier);
 
-                if (!stringToValueMap.TryGetValue(token.StringValue.ToUpper(), out var enumValue))
-                    throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.StringValue}'", token.Position);
+                switch (token.StringValue)
+                {
+                    case "ALL":
+                        result.SetAll(true);
+                        break;
 
-                // Ugh.
-                result.Set((T) (object) enumValue, true);
+                    case "NONE":
+                        result.SetAll(false);
+                        break;
+
+                    default:
+                        var value = true;
+                        var stringValue = token.StringValue;
+                        if (stringValue.StartsWith("-") || stringValue.StartsWith("+"))
+                        {
+                            value = stringValue[0] == '+';
+                            stringValue = stringValue.Substring(1);
+                        }
+                        if (!stringToValueMap.TryGetValue(stringValue.ToUpper(), out var enumValue))
+                        {
+                            throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{stringValue}'", token.Position);
+                        }
+
+                        // Ugh.
+                        result.Set((T)(object)enumValue, true);
+
+                        break;
+                }
             } while (Current.TokenType != IniTokenType.EndOfLine);
 
             return result;

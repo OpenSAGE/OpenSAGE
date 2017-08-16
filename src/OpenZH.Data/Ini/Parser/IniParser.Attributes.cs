@@ -4,7 +4,7 @@ namespace OpenZH.Data.Ini.Parser
 {
     partial class IniParser
     {
-        private T ParseAttribute<T>(string label, Func<T> parseValue)
+        public T ParseAttribute<T>(string label, Func<T> parseValue)
         {
             var nameToken = NextToken(IniTokenType.Identifier);
             if (!string.Equals(nameToken.StringValue, label, StringComparison.OrdinalIgnoreCase))
@@ -41,6 +41,11 @@ namespace OpenZH.Data.Ini.Parser
         public byte ParseAttributeByte(string label)
         {
             return ParseAttribute(label, ParseByte);
+        }
+
+        public bool ParseAttributeBoolean(string label)
+        {
+            return ParseAttribute(label, ParseBoolean);
         }
 
         public float ParseAttributeFloat(string label)

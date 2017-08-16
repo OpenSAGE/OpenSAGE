@@ -160,5 +160,26 @@
 
         [IniEnum("SUPPLY_SOURCE_ON_PREVIEW")]
         SupplySourceOnPreview,
+
+        [IniEnum("GARRISONABLE_UNTIL_DESTROYED")]
+        GarrisonableUntilDestroyed,
+
+        [IniEnum("IMMUNE_TO_CAPTURE")]
+        ImmuneToCapture,
+
+        [IniEnum("TECH_BUILDING")]
+        TechBuilding,
+
+        [IniEnum("BRIDGE")]
+        Bridge,
+
+        [IniEnum("LANDMARK_BRIDGE")]
+        LandmarkBridge,
+
+        [IniEnum("WALK_ON_TOP_OF_WALL")]
+        WalkOnTopOfWall,
+
+        [IniEnum("DEFENSIVE_WALL")]
+        DefensiveWall,
     }
 }

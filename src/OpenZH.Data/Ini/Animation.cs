@@ -34,6 +34,9 @@ namespace OpenZH.Data.Ini
         [IniEnum("ONCE")]
         Once,
 
+        [IniEnum("ONCE_BACKWARDS")]
+        OnceBackwards,
+
         [IniEnum("LOOP")]
         Loop,
 

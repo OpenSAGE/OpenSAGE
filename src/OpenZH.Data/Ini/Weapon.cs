@@ -212,9 +212,6 @@ namespace OpenZH.Data.Ini
 
     public enum DeathType
     {
-        [IniEnum("NONE")]
-        None = 0,
-
         [IniEnum("NORMAL")]
         Normal,
 
@@ -237,7 +234,10 @@ namespace OpenZH.Data.Ini
         PoisonedBeta,
 
         [IniEnum("CRUSHED")]
-        Crushed
+        Crushed,
+
+        [IniEnum("TOPPLED")]
+        Toppled,
     }
 
     [Flags]

@@ -123,6 +123,7 @@ namespace OpenZH.Data.Ini.Parser
                 case '8':
                 case '9':
                 case '-':
+                case '+':
                 case '.':
                     return LexNumber(c, pos);
 
@@ -169,25 +170,39 @@ namespace OpenZH.Data.Ini.Parser
 
         private IniToken LexNumber(char c, IniTokenPosition pos)
         {
-            var numDots = c == '.' ? 1 : 0;
+            var hasDot = c == '.';
 
             var numberValue = c.ToString();
-            while (char.IsDigit(CurrentChar) || CurrentChar == '.')
+            while (char.IsDigit(CurrentChar) || CurrentChar == '.' || CurrentChar == 'v')
             {
                 if (CurrentChar == '.')
                 {
-                    numDots++;
+                    if (hasDot)
+                    {
+                        // ODDITY: In CivilianProp.ini:6893, there are two dots in the number: 18.5.0
+                        NextChar();
+                        continue;
+                    }
+                    hasDot = true;
+                }
+                else if (CurrentChar == 'v')
+                {
+                    // ODDITY: In CivilianBuilding.ini:20199, there's a "v" in the middle of a number.
+                    if (PeekChar() == '.')
+                    {
+                        NextChar();
+                        continue;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
                 numberValue += CurrentChar;
                 NextChar();
             }
 
-            if (numDots > 1)
-            {
-                throw new IniParseException($"Invalid number: {numberValue}", pos);
-            }
-
-            var tokenType = numDots > 0
+            var tokenType = hasDot
                 ? IniTokenType.FloatLiteral
                 : IniTokenType.IntegerLiteral;
 
@@ -196,10 +211,30 @@ namespace OpenZH.Data.Ini.Parser
                 tokenType = IniTokenType.PercentLiteral;
                 NextChar();
             }
-            else if (CurrentChar == 'f')
+            else if (IsIdentifierChar(CurrentChar))
             {
-                tokenType = IniTokenType.FloatLiteral;
-                NextChar();
+                if (hasDot)
+                {
+                    throw new IniParseException($"Invalid number: {numberValue}", CurrentPosition);
+                }
+                var numIdentifierChars = 0;
+                while (IsIdentifierChar(CurrentChar))
+                {
+                    numberValue += CurrentChar;
+                    NextChar();
+                    numIdentifierChars++;
+                }
+                if (numIdentifierChars == 1 && numberValue.EndsWith("f"))
+                {
+                    return new IniToken(tokenType, CurrentPosition)
+                    {
+                        FloatValue = float.Parse(numberValue.TrimEnd('f'))
+                    };
+                }
+                return new IniToken(IniTokenType.Identifier, CurrentPosition)
+                {
+                    StringValue = numberValue
+                };
             }
 
             switch (tokenType)
