@@ -76,7 +76,8 @@ namespace OpenSage.Data.Ini.Parser
             {
                 var token = NextToken(IniTokenType.Identifier);
 
-                switch (token.StringValue)
+                var stringValue = token.StringValue.ToUpper();
+                switch (stringValue)
                 {
                     case "ALL":
                         result.SetAll(true);
@@ -88,13 +89,13 @@ namespace OpenSage.Data.Ini.Parser
 
                     default:
                         var value = true;
-                        var stringValue = token.StringValue;
+                        
                         if (stringValue.StartsWith("-") || stringValue.StartsWith("+"))
                         {
                             value = stringValue[0] == '+';
                             stringValue = stringValue.Substring(1);
                         }
-                        if (!stringToValueMap.TryGetValue(stringValue.ToUpper(), out var enumValue))
+                        if (!stringToValueMap.TryGetValue(stringValue, out var enumValue))
                         {
                             throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{stringValue}'", token.Position);
                         }

@@ -151,7 +151,7 @@ namespace OpenSage.Data.Ini.Parser
 
         private static bool IsIdentifierStartChar(char c) => char.IsLetter(c) || c == '_';
 
-        private static bool IsIdentifierChar(char c) => char.IsLetterOrDigit(c) || c == '_';
+        private static bool IsIdentifierChar(char c) => char.IsLetterOrDigit(c) || c == '_' || c == '%';
 
         private IniToken LexQuotedString(IniTokenPosition pos)
         {

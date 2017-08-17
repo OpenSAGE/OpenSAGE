@@ -8,9 +8,11 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<GrantUpgradeCreateBehavior> FieldParseTable = new IniParseTable<GrantUpgradeCreateBehavior>
         {
-            { "UpgradeToGrant", (parser, x) => x.UpgradeToGrant = parser.ParseAssetReference() }
+            { "UpgradeToGrant", (parser, x) => x.UpgradeToGrant = parser.ParseAssetReference() },
+            { "ExemptStatus", (parser, x) => x.ExemptStatus = parser.ParseEnum<ObjectStatus>() }
         };
 
         public string UpgradeToGrant { get; private set; }
+        public ObjectStatus ExemptStatus { get; private set; }
     }
 }

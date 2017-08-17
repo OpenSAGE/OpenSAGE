@@ -10,6 +10,9 @@ namespace OpenSage.Logic.Object
         None = 0,
 
         [IniEnum("PLAYER_UPGRADE")]
-        PlayerUpgrade = 1 << 0
+        PlayerUpgrade = 1 << 0,
+
+        [IniEnum("CARBOMB")]
+        CarBomb = 1 << 1
     }
 }

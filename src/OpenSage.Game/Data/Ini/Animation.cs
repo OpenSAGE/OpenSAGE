@@ -41,6 +41,9 @@ namespace OpenSage.Data.Ini
         Loop,
 
         [IniEnum("PING_PONG")]
-        PingPong
+        PingPong,
+
+        [IniEnum("MANUAL")]
+        Manual
     }
 }

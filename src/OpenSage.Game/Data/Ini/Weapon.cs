@@ -238,6 +238,12 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("TOPPLED")]
         Toppled,
+
+        [IniEnum("SPLATTED")]
+        Splatted,
+
+        [IniEnum("FLOODED")]
+        Flooded,
     }
 
     [Flags]

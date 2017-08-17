@@ -2,13 +2,14 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class AIUpdateInterfaceBehavior : ObjectBehavior
+    public class AIUpdateInterfaceBehavior : ObjectBehavior
     {
-        internal static AIUpdateInterfaceBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static AIUpdateInterfaceBehavior Parse(IniParser parser) => parser.ParseBlock(BaseFieldParseTable);
 
-        private static readonly IniParseTable<AIUpdateInterfaceBehavior> FieldParseTable = new IniParseTable<AIUpdateInterfaceBehavior>
+        internal static readonly IniParseTable<AIUpdateInterfaceBehavior> BaseFieldParseTable = new IniParseTable<AIUpdateInterfaceBehavior>
         {
-            { "Turret", (parser, x) => x.Turret = TurretAIData.Parse(parser) }
+            { "Turret", (parser, x) => x.Turret = TurretAIData.Parse(parser) },
+            { "AutoAcquireEnemiesWhenIdle", (parser, x) => x.AutoAcquireEnemiesWhenIdle = parser.ParseBoolean() }
         };
 
         /// <summary>
@@ -16,5 +17,7 @@ namespace OpenSage.Logic.Object
         /// section of the object.
         /// </summary>
         public TurretAIData Turret { get; private set; }
+
+        public bool AutoAcquireEnemiesWhenIdle { get; private set; }
     }
 }

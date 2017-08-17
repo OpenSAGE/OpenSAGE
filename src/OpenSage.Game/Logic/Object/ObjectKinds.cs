@@ -69,10 +69,10 @@
         FsTechnology,
 
         [IniEnum("MP_COUNT")]
-        MpCount,
+        MPCount,
 
         [IniEnum("MP_COUNT_FOR_VICTORY")]
-        MpCountForVictory,
+        MPCountForVictory,
 
         [IniEnum("UNATTACKABLE")]
         Unattackable,
@@ -181,5 +181,26 @@
 
         [IniEnum("DEFENSIVE_WALL")]
         DefensiveWall,
+
+        [IniEnum("SHOW_PORTRAIT_WHEN_CONTROLLED")]
+        ShowPortraitWhenControlled,
+
+        [IniEnum("BOAT")]
+        Boat,
+
+        [IniEnum("REBUILD_HOLE")]
+        RebuildHole,
+
+        [IniEnum("SCORE_DESTROY")]
+        ScoreDestroy,
+
+        [IniEnum("COMMANDCENTER")]
+        CommandCenter,
+
+        [IniEnum("FS_FACTORY")]
+        FSFactory,
+
+        [IniEnum("AUTO_RALLYPOINT")]
+        AutoRallyPoint,
     }
 }

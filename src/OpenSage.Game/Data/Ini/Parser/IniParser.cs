@@ -79,6 +79,9 @@ namespace OpenSage.Data.Ini.Parser
 
         private readonly Stack<string> _currentBlockOrFieldStack;
 
+        // Used for some things that need temporary storage, like AliasConditionState.
+        public object Temp { get; set; }
+
         public IniParser(string source, string fileName)
         {
             _lexer = new IniLexer(source, fileName);
@@ -95,7 +98,24 @@ namespace OpenSage.Data.Ini.Parser
         public IniToken Current => _tokens[EnsureToken(_tokenIndex)];
 
         public IniTokenPosition CurrentPosition => Current.Position;
-        public IniTokenType CurrentTokenType => Current.TokenType;
+
+        public IniTokenType CurrentTokenType
+        {
+            get
+            {
+                var state = GetState();
+
+                try
+                {
+                    return Current.TokenType;
+                }
+                finally
+                {
+                    // Undo lexing, because we might want to re-lex in a different mode.
+                    RestoreState(state);
+                }
+            }
+        }
 
         private int EnsureToken(int tokenIndex)
         {

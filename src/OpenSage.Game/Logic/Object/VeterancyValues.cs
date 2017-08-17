@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -6,18 +7,19 @@ namespace OpenSage.Logic.Object
     {
         internal static VeterancyValues Parse(IniParser parser)
         {
+            var values = new List<int>();
+
+            while (parser.CurrentTokenType == IniTokenType.IntegerLiteral)
+            {
+                values.Add(parser.ParseInteger());
+            }
+
             return new VeterancyValues
             {
-                Regular = parser.ParseInteger(),
-                Veteran = parser.ParseInteger(),
-                Elite = parser.ParseInteger(),
-                Heroic = parser.ParseInteger(),
+                Values = values.ToArray()
             };
         }
 
-        public int Regular { get; private set; }
-        public int Veteran { get; private set; }
-        public int Elite { get; private set; }
-        public int Heroic { get; private set; }
+        public int[] Values { get; private set; }
     }
 }

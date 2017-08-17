@@ -5,9 +5,12 @@ namespace OpenSage.Logic.Object
     public enum ObjectShadowType
     {
         [IniEnum("NONE")]
-        None,
+        None = 0,
 
         [IniEnum("SHADOW_VOLUME")]
-        ShadowVolume
+        ShadowVolume,
+
+        [IniEnum("SHADOW_DECAL")]
+        ShadowDecal,
     }
 }

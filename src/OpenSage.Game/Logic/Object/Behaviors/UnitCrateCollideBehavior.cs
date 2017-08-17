@@ -5,10 +5,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class UnitCrateCollideBehavior : ObjectBehavior
     {
-        internal static UnitCrateCollideBehavior Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static UnitCrateCollideBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<UnitCrateCollideBehavior> FieldParseTable = new IniParseTable<UnitCrateCollideBehavior>
         {

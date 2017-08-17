@@ -78,6 +78,7 @@ namespace OpenSage.Logic.Object
             { "Draw", (parser, x) => x.Draws.Add(ObjectDrawModule.ParseDrawModule(parser)) },
             { "Body", (parser, x) => x.Body = ObjectBody.ParseBody(parser) },
             { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdate.ParseClientUpdate(parser)) },
+            { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSet>()] = parser.ParseAssetReference() },
             { "InheritableModule", (parser, x) => x.InheritableModule = InheritableModule.Parse(parser) },
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "RadarPriority", (parser, x) => x.RadarPriority = parser.ParseEnum<RadarPriority>() },
@@ -184,6 +185,7 @@ namespace OpenSage.Logic.Object
         public List<ObjectDrawModule> Draws { get; } = new List<ObjectDrawModule>();
         public ObjectBody Body { get; private set; }
         public List<ClientUpdate> ClientUpdates { get; } = new List<ClientUpdate>();
+        public Dictionary<LocomotorSet, string> Locomotors { get; } = new Dictionary<LocomotorSet, string>();
         public InheritableModule InheritableModule { get; private set; }
         public BitArray<ObjectKinds> KindOf { get; private set; }
         public RadarPriority RadarPriority { get; private set; }

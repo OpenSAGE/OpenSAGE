@@ -10,10 +10,12 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<CreateObjectDieBehavior> FieldParseTable = new IniParseTable<CreateObjectDieBehavior>
         {
             { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
-            { "CreationList", (parser, x) => x.CreationList = parser.ParseAssetReference() }
+            { "CreationList", (parser, x) => x.CreationList = parser.ParseAssetReference() },
+            { "ExemptStatus", (parser, x) => x.ExemptStatus = parser.ParseEnum<ObjectStatus>() }
         };
 
         public BitArray<DeathType> DeathTypes { get; private set; }
         public string CreationList { get; private set; }
+        public ObjectStatus ExemptStatus { get; private set; }
     }
 }

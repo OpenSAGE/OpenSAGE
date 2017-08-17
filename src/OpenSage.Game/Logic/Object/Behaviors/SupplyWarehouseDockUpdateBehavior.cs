@@ -4,10 +4,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class SupplyWarehouseDockUpdateBehavior : ObjectBehavior
     {
-        internal static SupplyWarehouseDockUpdateBehavior Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static SupplyWarehouseDockUpdateBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<SupplyWarehouseDockUpdateBehavior> FieldParseTable = new IniParseTable<SupplyWarehouseDockUpdateBehavior>
         {
