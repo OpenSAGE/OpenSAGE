@@ -23,6 +23,7 @@ namespace OpenSage.Logic.Object
 
             { "Turret", (parser, x) => x.Turret = parser.ParseAssetReference() },
             { "TurretArtAngle", (parser, x) => x.TurretArtAngle = parser.ParseInteger() },
+            { "TurretPitch", (parser, x) => x.TurretPitch = parser.ParseAssetReference() },
 
             { "HideSubObject", (parser, x) => x.HideSubObject = parser.ParseAssetReferenceArray() },
             { "ShowSubObject", (parser, x) => x.ShowSubObject = parser.ParseAssetReferenceArray() },
@@ -47,6 +48,7 @@ namespace OpenSage.Logic.Object
         // Turret settings
         public string Turret { get; protected set; }
         public int TurretArtAngle { get; protected set; }
+        public string TurretPitch { get; protected set; }
 
         // Misc settings
         public string[] HideSubObject { get; protected set; }

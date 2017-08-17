@@ -6,6 +6,7 @@ namespace OpenSage.Logic.Object
     [Flags]
     public enum CommandSourceTypes
     {
+        [IniEnum("NONE")]
         None = 0,
 
         [IniEnum("FROM_PLAYER")]

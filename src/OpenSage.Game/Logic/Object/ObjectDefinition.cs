@@ -45,6 +45,7 @@ namespace OpenSage.Logic.Object
             { "FenceXOffset", (parser, x) => x.FenceXOffset = parser.ParseFloat() },
             { "ExperienceValue", (parser, x) => x.ExperienceValue = VeterancyValues.Parse(parser) },
             { "ExperienceRequired", (parser, x) => x.ExperienceRequired = VeterancyValues.Parse(parser) },
+            { "MaxSimultaneousOfType", (parser, x) => x.MaxSimultaneousOfType = parser.ParseInteger() },
 
             { "VoiceSelect", (parser, x) => x.VoiceSelect = parser.ParseAssetReference() },
             { "VoiceMove", (parser, x) => x.VoiceMove = parser.ParseAssetReference() },
@@ -152,6 +153,8 @@ namespace OpenSage.Logic.Object
         /// Experience points required to be promoted to next level.
         /// </summary>
         public VeterancyValues ExperienceRequired { get; private set; }
+
+        public int MaxSimultaneousOfType { get; private set; }
 
         // Audio
         public string VoiceSelect { get; private set; }

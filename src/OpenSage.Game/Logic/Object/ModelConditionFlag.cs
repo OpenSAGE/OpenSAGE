@@ -34,8 +34,29 @@ namespace OpenSage.Logic.Object
         [IniEnum("DOOR_1_WAITING_OPEN")]
         Door1WaitingOpen,
 
+        [IniEnum("DOOR_1_WAITING_TO_CLOSE")]
+        Door1WaitingToClose,
+
         [IniEnum("DOOR_1_CLOSING")]
         Door1Closing,
+
+        [IniEnum("DOOR_2_OPENING")]
+        Door2Opening,
+
+        [IniEnum("DOOR_2_WAITING_TO_CLOSE")]
+        Door2WaitingToClose,
+
+        [IniEnum("DOOR_2_CLOSING")]
+        Door2Closing,
+
+        [IniEnum("DOOR_3_OPENING")]
+        Door3Opening,
+
+        [IniEnum("DOOR_3_WAITING_TO_CLOSE")]
+        Door3WaitingToClose,
+
+        [IniEnum("DOOR_3_CLOSING")]
+        Door3Closing,
 
         [IniEnum("MOVING")]
         Moving,

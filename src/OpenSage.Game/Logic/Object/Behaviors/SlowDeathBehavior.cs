@@ -11,6 +11,7 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<SlowDeathBehavior> FieldParseTable = new IniParseTable<SlowDeathBehavior>
         {
             { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
+            { "ExemptStatus", (parser, x) => x.ExemptStatus = parser.ParseEnum<ObjectStatus>() },
             { "ProbabilityModifier", (parser, x) => x.ProbabilityModifier = parser.ParseInteger() },
             { "SinkRate", (parser, x) => x.SinkRate = parser.ParseFloat() },
             { "SinkDelay", (parser, x) => x.SinkDelay = parser.ParseInteger() },
@@ -27,6 +28,7 @@ namespace OpenSage.Logic.Object
         };
 
         public BitArray<DeathType> DeathTypes { get; private set; }
+        public ObjectStatus ExemptStatus { get; private set; }
         public int ProbabilityModifier { get; private set; }
         public float SinkRate { get; private set; }
         public int SinkDelay { get; private set; }

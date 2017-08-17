@@ -56,6 +56,7 @@ namespace OpenSage.Logic.Object
 
                 Turret = Turret,
                 TurretArtAngle = TurretArtAngle,
+                TurretPitch = TurretPitch,
 
                 HideSubObject = HideSubObject,
                 ShowSubObject = ShowSubObject,
