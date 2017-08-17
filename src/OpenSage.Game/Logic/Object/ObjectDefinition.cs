@@ -32,6 +32,7 @@ namespace OpenSage.Logic.Object
             { "BuildTime", (parser, x) => x.BuildTime = parser.ParseFloat() },
             { "RefundValue", (parser, x) => x.RefundValue = parser.ParseInteger() },
             { "EnergyProduction", (parser, x) => x.EnergyProduction = parser.ParseInteger() },
+            { "EnergyBonus", (parser, x) => x.EnergyBonus = parser.ParseInteger() },
             { "IsForbidden", (parser, x) => x.IsForbidden = parser.ParseBoolean() },
             { "IsBridge", (parser, x) => x.IsBridge = parser.ParseBoolean() },
             { "IsPrerequisite", (parser, x) => x.IsPrerequisite = parser.ParseBoolean() },
@@ -89,6 +90,7 @@ namespace OpenSage.Logic.Object
             { "GeometryMinorRadius", (parser, x) => x.GeometryMinorRadius = parser.ParseFloat() },
             { "GeometryHeight", (parser, x) => x.GeometryHeight = parser.ParseFloat() },
             { "GeometryIsSmall", (parser, x) => x.GeometryIsSmall = parser.ParseBoolean() },
+            { "FactoryExitWidth", (parser, x) => x.FactoryExitWidth = parser.ParseInteger() },
             { "Shadow", (parser, x) => x.Shadow = parser.ParseEnum<ObjectShadowType>() },
             { "ShadowTexture", (parser, x) => x.ShadowTexture = parser.ParseAssetReference() },
             { "ShadowSizeX", (parser, x) => x.ShadowSizeX = parser.ParseInteger() },
@@ -121,6 +123,7 @@ namespace OpenSage.Logic.Object
         public float BuildTime { get; private set; }
         public int RefundValue { get; private set; }
         public int EnergyProduction { get; private set; }
+        public int EnergyBonus { get; private set; }
         public bool IsForbidden { get; private set; }
         public bool IsBridge { get; private set; }
         public bool IsPrerequisite { get; private set; }
@@ -196,6 +199,12 @@ namespace OpenSage.Logic.Object
         public float GeometryMinorRadius { get; private set; }
         public float GeometryHeight { get; private set; }
         public bool GeometryIsSmall { get; private set; }
+
+        /// <summary>
+        /// Amount of space to leave for exiting units.
+        /// </summary>
+        public int FactoryExitWidth { get; private set; }
+
         public ObjectShadowType Shadow { get; private set; }
         public string ShadowTexture { get; private set; }
         public int ShadowSizeX { get; private set; }

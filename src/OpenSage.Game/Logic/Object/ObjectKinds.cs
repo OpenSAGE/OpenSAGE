@@ -202,5 +202,14 @@
 
         [IniEnum("AUTO_RALLYPOINT")]
         AutoRallyPoint,
+
+        [IniEnum("SCORE_CREATE")]
+        ScoreCreate,
+
+        [IniEnum("FS_POWER")]
+        FSPower,
+
+        [IniEnum("POWERED")]
+        Powered,
     }
 }

@@ -45,6 +45,9 @@ namespace OpenSage.Logic.Object
         [IniEnum("CREATE_AT_EDGE_NEAR_SOURCE")]
         CreateAtEdgeNearSource,
 
+        [IniEnum("CREATE_AT_EDGE_FARTHEST_FROM_TARGET")]
+        CreateAtEdgeFarthestFromTarget,
+
         [IniEnum("CREATE_ABOVE_LOCATION")]
         CreateAboveLocation,
 

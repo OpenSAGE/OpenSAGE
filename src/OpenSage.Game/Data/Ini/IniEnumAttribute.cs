@@ -2,7 +2,7 @@
 
 namespace OpenSage.Data.Ini
 {
-    [AttributeUsage(AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public sealed class IniEnumAttribute : Attribute
     {
         public string Name { get; }

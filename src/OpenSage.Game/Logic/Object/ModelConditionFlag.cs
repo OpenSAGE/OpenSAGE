@@ -98,6 +98,27 @@ namespace OpenSage.Logic.Object
         ActivelyBeingConstructed,
 
         [IniEnum("PREORDER")]
-        Preorder
+        Preorder,
+
+        [IniEnum("RADAR_EXTENDING")]
+        RadarExtending,
+
+        [IniEnum("RADAR_UPGRADED")]
+        RadarUpgraded,
+
+        [IniEnum("POWER_PLANT_UPGRADING")]
+        PowerPlantUpgrading,
+
+        [IniEnum("POWER_PLANT_UPGRADED")]
+        PowerPlantUpgraded,
+
+        [IniEnum("PACKING")]
+        Packing,
+
+        [IniEnum("UNPACKING")]
+        Unpacking,
+
+        [IniEnum("DEPLOYED")]
+        Deployed,
     }
 }
