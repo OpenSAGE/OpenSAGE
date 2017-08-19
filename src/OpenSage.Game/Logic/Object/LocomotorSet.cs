@@ -15,5 +15,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("SET_FREEFALL")]
         FreeFall,
+
+        [IniEnum("SET_TAXIING")]
+        Taxiing
     }
 }

@@ -3,6 +3,10 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
+    /// <summary>
+    /// Requires ExitStartN and ExitEndN bones defined unless overridden by <see cref="ExitBone"/>.
+    /// Allows the use of SoundEnter And SoundExit UnitSpecificSounds.
+    /// </summary>
     public sealed class TransportContain : ObjectBehavior
     {
         internal static TransportContain Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -19,7 +23,12 @@ namespace OpenSage.Logic.Object
             { "NumberOfExitPaths", (parser, x) => x.NumberOfExitPaths = parser.ParseInteger() },
             { "GoAggressiveOnExit", (parser, x) => x.GoAggressiveOnExit = parser.ParseBoolean() },
             { "DoorOpenTime", (parser, x) => x.DoorOpenTime = parser.ParseInteger() },
-            { "ScatterNearbyOnExit", (parser, x) => x.ScatterNearbyOnExit = parser.ParseBoolean() }
+            { "ScatterNearbyOnExit", (parser, x) => x.ScatterNearbyOnExit = parser.ParseBoolean() },
+            { "OrientLikeContainerOnExit", (parser, x) => x.OrientLikeContainerOnExit = parser.ParseBoolean() },
+            { "KeepContainerVelocityOnExit", (parser, x) => x.KeepContainerVelocityOnExit = parser.ParseBoolean() },
+            { "ExitPitchRate", (parser, x) => x.ExitPitchRate = parser.ParseInteger() },
+            { "ExitBone", (parser, x) => x.ExitBone = parser.ParseBoneName() },
+            { "DestroyRidersWhoAreNotFreeToExit", (parser, x) => x.DestroyRidersWhoAreNotFreeToExit = parser.ParseBoolean() }
         };
 
         public bool PassengersAllowedToFire { get; private set; }
@@ -33,5 +42,10 @@ namespace OpenSage.Logic.Object
         public bool GoAggressiveOnExit { get; private set; }
         public int DoorOpenTime { get; private set; }
         public bool ScatterNearbyOnExit { get; private set; }
+        public bool OrientLikeContainerOnExit { get; private set; }
+        public bool KeepContainerVelocityOnExit { get; private set; }
+        public int ExitPitchRate { get; private set; }
+        public string ExitBone { get; private set; }
+        public bool DestroyRidersWhoAreNotFreeToExit { get; private set; }
     }
 }

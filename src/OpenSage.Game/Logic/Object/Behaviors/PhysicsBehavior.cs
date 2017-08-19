@@ -12,11 +12,17 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<PhysicsBehavior> FieldParseTable = new IniParseTable<PhysicsBehavior>
         {
             { "Mass", (parser, x) => x.Mass = parser.ParseFloat() },
+            { "AerodynamicFriction", (parser, x) => x.AerodynamicFriction = parser.ParseInteger() },
+            { "ForwardFriction", (parser, x) => x.ForwardFriction = parser.ParseInteger() },
+            { "CenterOfMassOffset", (parser, x) => x.CenterOfMassOffset = parser.ParseInteger() },
             { "AllowBouncing", (parser, x) => x.AllowBouncing = parser.ParseBoolean() },
             { "KillWhenRestingOnGround", (parser, x) => x.KillWhenRestingOnGround = parser.ParseBoolean() },
         };
 
         public float Mass { get; private set; }
+        public int AerodynamicFriction { get; private set; }
+        public int ForwardFriction { get; private set; }
+        public int CenterOfMassOffset { get; private set; }
         public bool AllowBouncing { get; private set; }
         public bool KillWhenRestingOnGround { get; private set; }
     }

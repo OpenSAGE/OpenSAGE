@@ -13,6 +13,7 @@ namespace OpenSage.Logic.Object
             { "InitialVelocity", (parser, x) => x.InitialVelocity = parser.ParseInteger() },
             { "IgnitionDelay", (parser, x) => x.IgnitionDelay = parser.ParseInteger() },
             { "DistanceToTravelBeforeTurning", (parser, x) => x.DistanceToTravelBeforeTurning = parser.ParseInteger() },
+            { "DistanceToTargetBeforeDiving", (parser, x) => x.DistanceToTargetBeforeDiving = parser.ParseInteger() },
             { "DistanceToTargetForLock", (parser, x) => x.DistanceToTargetForLock = parser.ParseInteger() },
             { "IgnitionFX", (parser, x) => x.IgnitionFX = parser.ParseAssetReference() }
         };
@@ -22,6 +23,7 @@ namespace OpenSage.Logic.Object
         public int InitialVelocity { get; private set; }
         public int IgnitionDelay { get; private set; }
         public int DistanceToTravelBeforeTurning { get; private set; }
+        public int DistanceToTargetBeforeDiving { get; private set; }
         public int DistanceToTargetForLock { get; private set; }
         public string IgnitionFX { get; private set; }
     }

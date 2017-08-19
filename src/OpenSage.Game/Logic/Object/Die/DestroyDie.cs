@@ -5,10 +5,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class DestroyDie : ObjectBehavior
     {
-        internal static DestroyDie Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static DestroyDie Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<DestroyDie> FieldParseTable = new IniParseTable<DestroyDie>
         {
