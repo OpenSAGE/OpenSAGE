@@ -12,6 +12,7 @@ namespace OpenSage.Logic.Object
         {
             { "ActiveBody", ActiveBody.Parse },
             { "HighlanderBody", HighlanderBody.Parse },
+            { "HiveStructureBody", HiveStructureBody.Parse },
             { "ImmortalBody", ImmortalBody.Parse },
             { "InactiveBody", InactiveBody.Parse },
             { "StructureBody", StructureBody.Parse },

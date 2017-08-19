@@ -43,6 +43,9 @@ namespace OpenSage.Logic.Object
         [IniEnum("DOOR_2_OPENING")]
         Door2Opening,
 
+        [IniEnum("DOOR_2_WAITING_OPEN")]
+        Door2WaitingOpen,
+
         [IniEnum("DOOR_2_WAITING_TO_CLOSE")]
         Door2WaitingToClose,
 
@@ -52,11 +55,23 @@ namespace OpenSage.Logic.Object
         [IniEnum("DOOR_3_OPENING")]
         Door3Opening,
 
+        [IniEnum("DOOR_3_WAITING_OPEN")]
+        Door3WaitingOpen,
+
         [IniEnum("DOOR_3_WAITING_TO_CLOSE")]
         Door3WaitingToClose,
 
         [IniEnum("DOOR_3_CLOSING")]
         Door3Closing,
+
+        [IniEnum("DOOR_4_OPENING")]
+        Door4Opening,
+
+        [IniEnum("DOOR_4_WAITING_OPEN")]
+        Door4WaitingOpen,
+
+        [IniEnum("DOOR_4_CLOSING")]
+        Door4Closing,
 
         [IniEnum("MOVING")]
         Moving,
@@ -97,8 +112,26 @@ namespace OpenSage.Logic.Object
         [IniEnum("RELOADING_A")]
         ReloadingA,
 
+        [IniEnum("PREATTACK_A")]
+        PreAttackA,
+
+        [IniEnum("FIRING_B")]
+        FiringB,
+
+        [IniEnum("BETWEEN_FIRING_SHOTS_B")]
+        BetweenShotsFiringB,
+
+        [IniEnum("RELOADING_B")]
+        ReloadingB,
+
+        [IniEnum("PREATTACK_B")]
+        PreAttackB,
+
+        [IniEnum("FIRING_PRIMARY")]
+        FiringPrimary,
+
         [IniEnum("FREEFALL")]
-        Freefall,
+        FreeFall,
 
         [IniEnum("PARACHUTING")]
         Parachuting,
@@ -117,6 +150,12 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("ACTIVELY_BEING_CONSTRUCTED")]
         ActivelyBeingConstructed,
+
+        [IniEnum("ACTIVELY_CONSTRUCTING")]
+        ActivelyConstructing,
+
+        [IniEnum("CONSTRUCTION_COMPLETE")]
+        ConstructionComplete,
 
         [IniEnum("PREORDER")]
         Preorder,
@@ -141,5 +180,44 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("DEPLOYED")]
         Deployed,
+
+        [IniEnum("ATTACKING")]
+        Attacking,
+
+        [IniEnum("DOCKING_ACTIVE")]
+        DockingActive,
+
+        [IniEnum("CONTINUOUS_FIRE_SLOW")]
+        ContinuousFireSlow,
+
+        [IniEnum("CONTINUOUS_FIRE_MEAN")]
+        ContinuousFireMean,
+
+        [IniEnum("CONTINUOUS_FIRE_FAST")]
+        ContinuousFireFast,
+
+        [IniEnum("ENEMYNEAR")]
+        EnemyNear,
+
+        [IniEnum("SPECIAL_CHEERING")]
+        SpecialCheering,
+
+        [IniEnum("CLIMBING")]
+        Climbing,
+
+        [IniEnum("RAPPELLING")]
+        Rappelling,
+
+        [IniEnum("IS_FIRING_WEAPON")]
+        IsFiringWeapon,
+
+        [IniEnum("WEAPONSET_PLAYER_UPGRADE")]
+        WeaponSetPlayerUpgrade,
+
+        [IniEnum("JETEXHAUST")]
+        JetExhaust,
+
+        [IniEnum("JETAFTERBURNER")]
+        JetAfterburner,
     }
 }

@@ -40,6 +40,9 @@ namespace OpenSage.Data.Ini
         [IniEnum("LOOP")]
         Loop,
 
+        [IniEnum("LOOP_BACKWARDS")]
+        LoopBackwards,
+
         [IniEnum("PING_PONG")]
         PingPong,
 

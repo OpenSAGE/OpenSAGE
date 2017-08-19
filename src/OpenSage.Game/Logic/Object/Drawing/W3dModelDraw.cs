@@ -23,6 +23,7 @@ namespace OpenSage.Logic.Object
             { "AliasConditionState", (parser, x) => x.ParseAliasConditionState(parser) },
             { "TransitionState", (parser, x) => x.TransitionStates.Add(TransitionState.Parse(parser)) },
             { "OkToChangeModelColor", (parser, x) => x.OkToChangeModelColor = parser.ParseBoolean() },
+            { "ProjectileBoneFeedbackEnabledSlots", (parser, x) => x.ProjectileBoneFeedbackEnabledSlots = parser.ParseEnumBitArray<WeaponSlot>() },
             { "AnimationsRequirePower", (parser, x) => x.AnimationsRequirePower = parser.ParseBoolean() },
             { "MinLODRequired", (parser, x) => x.MinLodRequired = parser.ParseEnum<LevelOfDetail>() },
             { "ExtraPublicBone", (parser, x) => x.ExtraPublicBones.Add(parser.ParseBoneName()) },
@@ -34,6 +35,7 @@ namespace OpenSage.Logic.Object
         public List<TransitionState> TransitionStates { get; } = new List<TransitionState>();
 
         public bool OkToChangeModelColor { get; private set; }
+        public BitArray<WeaponSlot> ProjectileBoneFeedbackEnabledSlots { get; private set; }
         public bool AnimationsRequirePower { get; private set; }
 
         /// <summary>

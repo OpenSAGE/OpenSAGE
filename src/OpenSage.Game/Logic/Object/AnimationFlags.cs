@@ -26,7 +26,18 @@ namespace OpenSage.Logic.Object
         [IniEnum("MAINTAIN_FRAME_ACROSS_STATES3")]
         MaintainFrameAcrossStates3 = 1 << 5,
 
+        [IniEnum("PRISTINE_BONE_POS_IN_FINAL_FRAME")]
+        PristineBonePosInFinalFrame = 1 << 6,
+
         [IniEnum("ADJUST_HEIGHT_BY_CONSTRUCTION_PERCENT")]
-        AdjustHeightByConstructionPercent = 1 << 6
+        AdjustHeightByConstructionPercent = 1 << 7,
+
+        /// <summary>
+        /// This is a hack. <see cref="AnimationMode.Loop"/> can't be used in conjunction with
+        /// <see cref="ObjectConditionState.WaitForStateToFinishIfPossible"/>, so this is a
+        /// workaround to allow that.
+        /// </summary>
+        [IniEnum("RESTART_ANIM_WHEN_COMPLETE")]
+        RestartAnimWhenComplete = 1 << 8
     }
 }

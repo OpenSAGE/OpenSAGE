@@ -15,6 +15,9 @@ namespace OpenSage.Logic.Object
             { "ExitSound", (parser, x) => x.ExitSound = parser.ParseAssetReference() },
             { "DamagePercentToUnits", (parser, x) => x.DamagePercentToUnits = parser.ParsePercentage() },
             { "AllowInsideKindOf", (parser, x) => x.AllowInsideKindOf = parser.ParseEnumBitArray<ObjectKinds>() },
+            { "ExitDelay", (parser, x) => x.ExitDelay = parser.ParseInteger() },
+            { "NumberOfExitPaths", (parser, x) => x.NumberOfExitPaths = parser.ParseInteger() },
+            { "GoAggressiveOnExit", (parser, x) => x.GoAggressiveOnExit = parser.ParseBoolean() },
             { "DoorOpenTime", (parser, x) => x.DoorOpenTime = parser.ParseInteger() },
             { "ScatterNearbyOnExit", (parser, x) => x.ScatterNearbyOnExit = parser.ParseBoolean() }
         };
@@ -25,6 +28,9 @@ namespace OpenSage.Logic.Object
         public string ExitSound { get; private set; }
         public float DamagePercentToUnits { get; private set; }
         public BitArray<ObjectKinds> AllowInsideKindOf { get; private set; }
+        public int ExitDelay { get; private set; }
+        public int NumberOfExitPaths { get; private set; }
+        public bool GoAggressiveOnExit { get; private set; }
         public int DoorOpenTime { get; private set; }
         public bool ScatterNearbyOnExit { get; private set; }
     }

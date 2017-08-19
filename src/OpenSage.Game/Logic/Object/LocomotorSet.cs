@@ -11,6 +11,9 @@ namespace OpenSage.Logic.Object
         Wander,
 
         [IniEnum("SET_PANIC")]
-        Panic
+        Panic,
+
+        [IniEnum("SET_FREEFALL")]
+        FreeFall,
     }
 }

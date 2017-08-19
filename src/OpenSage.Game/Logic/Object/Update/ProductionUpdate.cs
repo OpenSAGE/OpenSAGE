@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -16,7 +17,11 @@ namespace OpenSage.Logic.Object
             { "DoorOpeningTime", (parser, x) => x.DoorOpeningTime = parser.ParseInteger() },
             { "DoorWaitOpenTime", (parser, x) => x.DoorWaitOpenTime = parser.ParseInteger() },
             { "DoorCloseTime", (parser, x) => x.DoorCloseTime = parser.ParseInteger() },
-            { "ConstructionCompleteDuration", (parser, x) => x.ConstructionCompleteDuration = parser.ParseInteger() }
+            { "ConstructionCompleteDuration", (parser, x) => x.ConstructionCompleteDuration = parser.ParseInteger() },
+            { "MaxQueueEntries", (parser, x) => x.MaxQueueEntries = parser.ParseInteger() },
+            { "QuantityModifier", (parser, x) => x.QuantityModifier = ProductionUpdateQuantityModifier.Parse(parser) },
+
+            { "DisabledTypesToProcess", (parser, x) => x.DisabledTypesToProcess = parser.ParseEnumBitArray<DisabledType>() }
         };
 
         /// <summary>
@@ -28,5 +33,37 @@ namespace OpenSage.Logic.Object
         public int DoorWaitOpenTime { get; private set; }
         public int DoorCloseTime { get; private set; }
         public int ConstructionCompleteDuration { get; private set; }
+        public int MaxQueueEntries { get; private set; }
+
+        /// <summary>
+        /// Red Guards use this so that they can come out of the barracks in pairs.
+        /// </summary>
+        public ProductionUpdateQuantityModifier? QuantityModifier { get; private set; }
+
+        public BitArray<DisabledType> DisabledTypesToProcess { get; private set; }
+    }
+
+    public struct ProductionUpdateQuantityModifier
+    {
+        internal static ProductionUpdateQuantityModifier Parse(IniParser parser)
+        {
+            return new ProductionUpdateQuantityModifier
+            {
+                ObjectName = parser.ParseAssetReference(),
+                Quantity = parser.ParseInteger()
+            };
+        }
+
+        public string ObjectName;
+        public int Quantity;
+    }
+
+    public enum DisabledType
+    {
+        [IniEnum("DISABLED_HELD")]
+        DisabledHeld,
+
+        [IniEnum("DISABLED_UNDERPOWERED")]
+        DisabledUnderpowered,
     }
 }

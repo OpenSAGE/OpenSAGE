@@ -18,6 +18,10 @@ namespace OpenSage.Logic.Object
             { "PlacementViewAngle", (parser, x) => x.PlacementViewAngle = parser.ParseInteger() },
             { "SelectPortrait", (parser, x) => x.SelectPortrait = parser.ParseAssetReference() },
             { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseAssetReference() },
+            { "UpgradeCameo1", (parser, x) => x.UpgradeCameo1 = parser.ParseAssetReference() },
+            { "UpgradeCameo2", (parser, x) => x.UpgradeCameo2 = parser.ParseAssetReference() },
+            { "UpgradeCameo3", (parser, x) => x.UpgradeCameo3 = parser.ParseAssetReference() },
+            { "UpgradeCameo4", (parser, x) => x.UpgradeCameo4 = parser.ParseAssetReference() },
 
             { "Buildable", (parser, x) => x.Buildable = parser.ParseBoolean() },
             { "Side", (parser, x) => x.Side = parser.ParseAssetReference() },
@@ -51,6 +55,7 @@ namespace OpenSage.Logic.Object
             { "VoiceMove", (parser, x) => x.VoiceMove = parser.ParseAssetReference() },
             { "VoiceGuard", (parser, x) => x.VoiceGuard = parser.ParseAssetReference() },
             { "VoiceAttack", (parser, x) => x.VoiceAttack = parser.ParseAssetReference() },
+            { "VoiceAttackAir", (parser, x) => x.VoiceAttackAir = parser.ParseAssetReference() },
             { "VoiceEnter", (parser, x) => x.VoiceEnter = parser.ParseAssetReference() },
             { "VoiceFear", (parser, x) => x.VoiceFear = parser.ParseAssetReference() },
             { "VoiceSelectElite", (parser, x) => x.VoiceSelectElite = parser.ParseAssetReference() },
@@ -74,13 +79,15 @@ namespace OpenSage.Logic.Object
             { "SoundAmbientReallyDamaged", (parser, x) => x.SoundAmbientReallyDamaged = parser.ParseAssetReference() },
             { "SoundAmbientRubble", (parser, x) => x.SoundAmbientRubble = parser.ParseAssetReference() },
             { "SoundCreated", (parser, x) => x.SoundCreated = parser.ParseAssetReference() },
+            { "SoundEnter", (parser, x) => x.SoundEnter = parser.ParseAssetReference() },
+            { "SoundExit", (parser, x) => x.SoundExit = parser.ParseAssetReference() },
             { "UnitSpecificSounds", (parser, x) => x.UnitSpecificSounds = UnitSpecificSounds.Parse(parser) },
 
             { "Behavior", (parser, x) => x.Behaviors.Add(ObjectBehavior.ParseBehavior(parser)) },
             { "Draw", (parser, x) => x.Draws.Add(ObjectDrawModule.ParseDrawModule(parser)) },
             { "Body", (parser, x) => x.Body = ObjectBody.ParseBody(parser) },
             { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdate.ParseClientUpdate(parser)) },
-            { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSet>()] = parser.ParseAssetReference() },
+            { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSet>()] = parser.ParseAssetReferenceArray() },
             { "InheritableModule", (parser, x) => x.InheritableModule = InheritableModule.Parse(parser) },
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "RadarPriority", (parser, x) => x.RadarPriority = parser.ParseEnum<RadarPriority>() },
@@ -105,6 +112,10 @@ namespace OpenSage.Logic.Object
         public int PlacementViewAngle { get; private set; }
         public string SelectPortrait { get; private set; }
         public string ButtonImage { get; private set; }
+        public string UpgradeCameo1 { get; private set; }
+        public string UpgradeCameo2 { get; private set; }
+        public string UpgradeCameo3 { get; private set; }
+        public string UpgradeCameo4 { get; private set; }
 
         // Design
         public bool Buildable { get; private set; }
@@ -161,6 +172,7 @@ namespace OpenSage.Logic.Object
         public string VoiceMove { get; private set; }
         public string VoiceGuard { get; private set; }
         public string VoiceAttack { get; private set; }
+        public string VoiceAttackAir { get; private set; }
         public string VoiceEnter { get; private set; }
         public string VoiceFear { get; private set; }
         public string VoiceSelectElite { get; private set; }
@@ -184,6 +196,8 @@ namespace OpenSage.Logic.Object
         public string SoundAmbientReallyDamaged { get; private set; }
         public string SoundAmbientRubble { get; private set; }
         public string SoundCreated { get; private set; }
+        public string SoundEnter { get; private set; }
+        public string SoundExit { get; private set; }
         public UnitSpecificSounds UnitSpecificSounds { get; private set; }
 
         // Engineering
@@ -191,7 +205,7 @@ namespace OpenSage.Logic.Object
         public List<ObjectDrawModule> Draws { get; } = new List<ObjectDrawModule>();
         public ObjectBody Body { get; private set; }
         public List<ClientUpdate> ClientUpdates { get; } = new List<ClientUpdate>();
-        public Dictionary<LocomotorSet, string> Locomotors { get; } = new Dictionary<LocomotorSet, string>();
+        public Dictionary<LocomotorSet, string[]> Locomotors { get; } = new Dictionary<LocomotorSet, string[]>();
         public InheritableModule InheritableModule { get; private set; }
         public BitArray<ObjectKinds> KindOf { get; private set; }
         public RadarPriority RadarPriority { get; private set; }

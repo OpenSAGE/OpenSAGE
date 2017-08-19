@@ -19,6 +19,7 @@ namespace OpenSage.Logic.Object
             { "DamagePercentToUnits", (parser, x) => x.DamagePercentToUnits = parser.ParsePercentage() },
             { "MobileGarrison", (parser, x) => x.MobileGarrison = parser.ParseBoolean() },
             { "InitialRoster", (parser, x) => x.InitialRoster = GarrisonRoster.Parse(parser) },
+            { "ImmuneToClearBuildingAttacks", (parser, x) => x.ImmuneToClearBuildingAttacks = parser.ParseBoolean() },
         };
 
         public int ContainMax { get; private set; }
@@ -27,6 +28,7 @@ namespace OpenSage.Logic.Object
         public float DamagePercentToUnits { get; private set; }
         public bool MobileGarrison { get; private set; }
         public GarrisonRoster InitialRoster { get; private set; }
+        public bool ImmuneToClearBuildingAttacks { get; private set; }
     }
 
     public sealed class GarrisonRoster

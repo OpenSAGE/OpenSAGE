@@ -211,5 +211,41 @@
 
         [IniEnum("POWERED")]
         Powered,
+
+        [IniEnum("DOZER")]
+        Dozer,
+
+        [IniEnum("DRONE")]
+        Drone,
+
+        [IniEnum("AIRFIELD")]
+        Airfield,
+
+        [IniEnum("FS_BASE_DEFENSE")]
+        FSBaseDefense,
+
+        [IniEnum("SPAWNS_ARE_THE_WEAPONS")]
+        SpawnsAreTheWeapons,
+
+        [IniEnum("CASH_GENERATOR")]
+        CashGenerator,
+
+        [IniEnum("CANNOT_BUILD_NEAR_SUPPLIES")]
+        CannotBuildNearSupplies,
+
+        [IniEnum("HEAL_PAD")]
+        HealPad,
+
+        [IniEnum("REPAIR_PAD")]
+        RepairPad,
+
+        [IniEnum("LINEBUILD")]
+        LineBuild,
+
+        [IniEnum("BALLISTIC_MISSILE")]
+        BallisticMissile,
+
+        [IniEnum("PARACHUTE")]
+        Parachute,
     }
 }

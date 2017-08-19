@@ -448,6 +448,9 @@ namespace OpenSage.Data.Ini.Parser
                         NextToken();
                         NextTokenIf(IniTokenType.Equals);
 
+                        // ODDITY: FactionBuilding.ini:13383 has a redundant =
+                        NextTokenIf(IniTokenType.Equals);
+
                         fieldParser(this, result);
 
                         NextToken(IniTokenType.EndOfLine);

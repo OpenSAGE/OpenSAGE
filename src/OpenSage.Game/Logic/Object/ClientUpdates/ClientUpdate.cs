@@ -11,6 +11,8 @@ namespace OpenSage.Logic.Object
         private static readonly Dictionary<string, Func<IniParser, ClientUpdate>> ClientUpdateParseTable = new Dictionary<string, Func<IniParser, ClientUpdate>>
         {
             { "AnimatedParticleSysBoneClientUpdate", AnimatedParticleSysBoneClientUpdate.Parse },
+            { "BeaconClientUpdate", BeaconClientUpdate.Parse },
+            { "LaserUpdate", LaserUpdate.Parse },
         };
     }
 }

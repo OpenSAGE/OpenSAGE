@@ -12,25 +12,29 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<ObjectPrerequisites> FieldParseTable = new IniParseTable<ObjectPrerequisites>
         {
-            {
-                "Object",
-                (parser, x) =>
-                {
-                    x.Objects.Add(parser.ParseAssetReference());
-
-                    // ODDITY: FactionBuilding.ini:6810, in the AmericaStrategyCenter definition,
-                    // you'll find Object = AmericaWarFactory AmericaAirfield. The second value
-                    // is ignored, since the strategy centre doesn't depend on the airfield.
-                    if (parser.CurrentTokenType == IniTokenType.Identifier)
-                    {
-                        parser.ParseAssetReference();
-                    }
-                }
-            },
-            { "Science", (parser, x) => x.Sciences.Add(parser.ParseAssetReference()) }
+            { "Object", (parser, x) => x.Objects.Add(PrerequisiteList.Parse(parser)) },
+            { "Science", (parser, x) => x.Sciences.Add(PrerequisiteList.Parse(parser)) }
         };
 
-        public List<string> Objects { get; } = new List<string>();
-        public List<string> Sciences { get; } = new List<string>();
+        public List<PrerequisiteList> Objects { get; } = new List<PrerequisiteList>();
+        public List<PrerequisiteList> Sciences { get; } = new List<PrerequisiteList>();
+    }
+
+    /// <summary>
+    /// Contains an OR'd list of prequisite objects or sciences.
+    /// </summary>
+    public sealed class PrerequisiteList : List<string>
+    {
+        internal static PrerequisiteList Parse(IniParser parser)
+        {
+            var result = new PrerequisiteList();
+
+            do
+            {
+                result.Add(parser.ParseAssetReference());
+            } while (parser.CurrentTokenType == IniTokenType.Identifier);
+
+            return result;
+        }
     }
 }

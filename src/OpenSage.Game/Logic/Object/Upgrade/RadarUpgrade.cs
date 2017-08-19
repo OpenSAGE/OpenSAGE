@@ -3,8 +3,8 @@
 namespace OpenSage.Logic.Object
 {
     /// <summary>
-    /// Triggers use of RadarUpdate module on this object if present and enables the Radar in the 
-    /// command bar.
+    /// Triggers use of <see cref="RadarUpdate"/> module on this object if present and enables the 
+    /// Radar in the command bar.
     /// </summary>
     public sealed class RadarUpgrade : ObjectBehavior
     {

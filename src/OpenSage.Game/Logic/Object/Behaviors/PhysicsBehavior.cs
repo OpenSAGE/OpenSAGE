@@ -13,9 +13,11 @@ namespace OpenSage.Logic.Object
         {
             { "Mass", (parser, x) => x.Mass = parser.ParseFloat() },
             { "AllowBouncing", (parser, x) => x.AllowBouncing = parser.ParseBoolean() },
+            { "KillWhenRestingOnGround", (parser, x) => x.KillWhenRestingOnGround = parser.ParseBoolean() },
         };
 
         public float Mass { get; private set; }
         public bool AllowBouncing { get; private set; }
+        public bool KillWhenRestingOnGround { get; private set; }
     }
 }

@@ -10,7 +10,14 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<TurretAIData> FieldParseTable = new IniParseTable<TurretAIData>
         {
             { "TurretTurnRate", (parser, x) => x.TurretTurnRate = parser.ParseInteger() },
+            { "TurretPitchRate", (parser, x) => x.TurretPitchRate = parser.ParseInteger() },
+            { "AllowsPitch", (parser, x) => x.AllowsPitch = parser.ParseBoolean() },
+            { "FiresWhileTurning", (parser, x) => x.FiresWhileTurning = parser.ParseBoolean() },
+            { "NaturalTurretPitch", (parser, x) => x.NaturalTurretPitch = parser.ParseInteger() },
             { "NaturalTurretAngle", (parser, x) => x.NaturalTurretAngle = parser.ParseInteger() },
+            { "GroundUnitPitch", (parser, x) => x.GroundUnitPitch = parser.ParseInteger() },
+            { "MinPhysicalPitch", (parser, x) => x.MinPhysicalPitch = parser.ParseInteger() },
+            { "FirePitch", (parser, x) => x.FirePitch = parser.ParseInteger() },
             { "MinIdleScanAngle", (parser, x) => x.MinIdleScanAngle = parser.ParseInteger() },
             { "MaxIdleScanAngle", (parser, x) => x.MaxIdleScanAngle = parser.ParseInteger() },
             { "MinIdleScanInterval", (parser, x) => x.MinIdleScanInterval = parser.ParseInteger() },
@@ -24,7 +31,21 @@ namespace OpenSage.Logic.Object
         /// </summary>
         public int TurretTurnRate { get; private set; }
 
+        public int TurretPitchRate { get; private set; }
+
+        public bool AllowsPitch { get; private set; }
+
+        public bool FiresWhileTurning { get; private set; }
+
+        public int NaturalTurretPitch { get; private set; }
+
         public int NaturalTurretAngle { get; private set; }
+
+        public int GroundUnitPitch { get; private set; }
+
+        public int MinPhysicalPitch { get; private set; }
+
+        public int FirePitch { get; private set; }
 
         /// <summary>
         /// Minimum offset, in degrees, from <see cref="NaturalTurretAngle"/>.

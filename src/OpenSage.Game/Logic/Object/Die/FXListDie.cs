@@ -10,11 +10,13 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<FXListDie> FieldParseTable = new IniParseTable<FXListDie>
         {
             { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
+            { "ExemptStatus", (parser, x) => x.ExemptStatus = parser.ParseEnum<ObjectStatus>() },
             { "DeathFX", (parser, x) => x.DeathFX = parser.ParseAssetReference() },
             { "OrientToObject", (parser, x) => x.OrientToObject = parser.ParseBoolean() }
         };
 
         public BitArray<DeathType> DeathTypes { get; private set; }
+        public ObjectStatus ExemptStatus { get; private set; }
         public string DeathFX { get; private set; }
         public bool OrientToObject { get; private set; }
     }

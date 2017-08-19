@@ -244,6 +244,9 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("FLOODED")]
         Flooded,
+
+        [IniEnum("DETONATED")]
+        Detonated,
     }
 
     [Flags]

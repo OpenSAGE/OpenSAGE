@@ -14,6 +14,7 @@ namespace OpenSage.Logic.Object
             { "WeaponFireFXBone", (parser, x) => x.WeaponFireFXBones.Add(BoneAttachPoint.Parse(parser)) },
             { "WeaponMuzzleFlash", (parser, x) => x.WeaponMuzzleFlashes.Add(BoneAttachPoint.Parse(parser)) },
             { "WeaponLaunchBone", (parser, x) => x.WeaponLaunchBones.Add(BoneAttachPoint.Parse(parser)) },
+            { "WeaponHideShowBone", (parser, x) => x.WeaponHideShowBones.Add(BoneAttachPoint.Parse(parser)) },
 
             { "Animation", (parser, x) => x.Animations.Add(ObjectConditionAnimation.Parse(parser)) },
             { "AnimationMode", (parser, x) => x.AnimationMode = parser.ParseEnum<AnimationMode>() },
@@ -37,6 +38,7 @@ namespace OpenSage.Logic.Object
         public List<BoneAttachPoint> WeaponFireFXBones { get; protected set; } = new List<BoneAttachPoint>();
         public List<BoneAttachPoint> WeaponMuzzleFlashes { get; protected set; } = new List<BoneAttachPoint>();
         public List<BoneAttachPoint> WeaponLaunchBones { get; protected set; } = new List<BoneAttachPoint>();
+        public List<BoneAttachPoint> WeaponHideShowBones { get; protected set; } = new List<BoneAttachPoint>();
 
         // Model animation settings
         public List<ObjectConditionAnimation> Animations { get; protected set; } = new List<ObjectConditionAnimation>();

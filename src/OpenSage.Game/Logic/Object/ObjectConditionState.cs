@@ -28,11 +28,14 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<ObjectConditionState> FieldParseTable = new IniParseTable<ObjectConditionState>
         {
             { "TransitionKey", (parser, x) => x.TransitionKey = parser.ParseIdentifier() },
+            { "WaitForStateToFinishIfPossible", (parser, x) => x.WaitForStateToFinishIfPossible = parser.ParseIdentifier() },
         }.Concat<ObjectConditionState, ObjectDrawState>(BaseFieldParseTable);
 
         public BitArray<ModelConditionFlag> ConditionFlags { get; private set; }
 
         public string TransitionKey { get; private set; }
+
+        public string WaitForStateToFinishIfPossible { get; private set; }
 
         public ObjectConditionState Clone(BitArray<ModelConditionFlag> conditionFlags)
         {
@@ -46,12 +49,14 @@ namespace OpenSage.Logic.Object
                 WeaponFireFXBones = WeaponFireFXBones,
                 WeaponMuzzleFlashes = WeaponMuzzleFlashes,
                 WeaponLaunchBones = WeaponLaunchBones,
+                WeaponHideShowBones = WeaponHideShowBones,
 
                 Animations = Animations,
                 AnimationMode = AnimationMode,
                 AnimationSpeedFactorRange = AnimationSpeedFactorRange,
                 IdleAnimations = IdleAnimations,
                 TransitionKey = TransitionKey,
+                WaitForStateToFinishIfPossible = WaitForStateToFinishIfPossible,
                 Flags = Flags,
 
                 Turret = Turret,

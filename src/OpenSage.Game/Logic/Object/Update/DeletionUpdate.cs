@@ -4,10 +4,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class DeletionUpdate : ObjectBehavior
     {
-        internal static DeletionUpdate Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static DeletionUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<DeletionUpdate> FieldParseTable = new IniParseTable<DeletionUpdate>
         {

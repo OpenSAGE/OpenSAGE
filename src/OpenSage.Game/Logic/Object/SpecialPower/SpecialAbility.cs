@@ -10,9 +10,11 @@ namespace OpenSage.Logic.Object
         {
             { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() },
             { "UpdateModuleStartsAttack", (parser, x) => x.UpdateModuleStartsAttack = parser.ParseBoolean() },
+            { "InitiateSound", (parser, x) => x.InitiateSound = parser.ParseAssetReference() },
         };
 
         public string SpecialPowerTemplate { get; private set; }
         public bool UpdateModuleStartsAttack { get; private set; }
+        public string InitiateSound { get; private set; }
     }
 }

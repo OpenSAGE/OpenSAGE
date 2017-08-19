@@ -5,6 +5,9 @@ namespace OpenSage.Logic.Object
     public enum ObjectStatus
     {
         [IniEnum("UNDER_CONSTRUCTION")]
-        UnderConstruction
+        UnderConstruction,
+
+        [IniEnum("HIJACKED")]
+        Hijacked,
     }
 }

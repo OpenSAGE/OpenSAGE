@@ -41,6 +41,7 @@ namespace OpenSage.Logic.Object
             { "TrackMarks", (parser, x) => x.TrackMarks = parser.ParseFileName() },
             { "Dust", (parser, x) => x.Dust = parser.ParseAssetReference() },
             { "DirtSpray", (parser, x) => x.DirtSpray = parser.ParseAssetReference() },
+            { "PowerslideSpray", (parser, x) => x.PowerslideSpray = parser.ParseAssetReference() },
         }.Concat<W3dTruckDraw, W3dModelDraw>(ModelFieldParseTable);
 
         // Settings for the attached "cab" model on the vehicle
@@ -68,5 +69,6 @@ namespace OpenSage.Logic.Object
         public string TrackMarks { get; private set; }
         public string Dust { get; private set; }
         public string DirtSpray { get; private set; }
+        public string PowerslideSpray { get; private set; }
     }
 }

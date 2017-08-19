@@ -11,6 +11,7 @@ namespace OpenSage.Logic.Object
         internal static readonly Dictionary<string, Func<IniParser, ObjectDrawModule>> DrawModuleParseTable = new Dictionary<string, Func<IniParser, ObjectDrawModule>>
         {
             { "W3DDefaultDraw", W3dDefaultDraw.Parse},
+            { "W3DLaserDraw", W3dLaserDraw.Parse },
             { "W3DModelDraw", W3dModelDraw.ParseModel },
             { "W3DPoliceCarDraw", W3dPoliceCarDraw.Parse },
             { "W3DScienceModelDraw", W3dScienceModelDraw.Parse },
