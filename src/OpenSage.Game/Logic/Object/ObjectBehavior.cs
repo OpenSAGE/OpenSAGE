@@ -55,6 +55,7 @@ namespace OpenSage.Logic.Object
             { "JetAIUpdate", JetAIUpdate.Parse },
             { "JetSlowDeathBehavior", JetSlowDeathBehavior.Parse },
             { "LifetimeUpdate", LifetimeUpdate.Parse },
+            { "MinefieldBehavior", MinefieldBehavior.Parse },
             { "MissileAIUpdate", MissileAIUpdate.Parse },
             { "MissileLauncherBuildingUpdate", MissileLauncherBuildingUpdate.Parse },
             { "MoneyCrateCollide", MoneyCrateCollide.Parse },
