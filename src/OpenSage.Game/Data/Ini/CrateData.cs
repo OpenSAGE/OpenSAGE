@@ -38,7 +38,7 @@ namespace OpenSage.Data.Ini
         [IniEnum("REGULAR")]
         Regular,
 
-        [IniEnum("VETARAN")]
+        [IniEnum("VETERAN")]
         Veteran,
 
         [IniEnum("ELITE")]

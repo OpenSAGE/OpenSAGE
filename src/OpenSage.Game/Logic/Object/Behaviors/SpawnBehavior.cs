@@ -13,7 +13,10 @@ namespace OpenSage.Logic.Object
             { "SpawnTemplateName", (parser, x) => x.SpawnTemplateName = parser.ParseAssetReference() },
             { "OneShot", (parser, x) => x.OneShot = parser.ParseBoolean() },
             { "CanReclaimOrphans", (parser, x) => x.CanReclaimOrphans = parser.ParseBoolean() },
-            { "SpawnedRequireSpawner", (parser, x) => x.SpawnedRequireSpawner = parser.ParseBoolean() }
+            { "SpawnedRequireSpawner", (parser, x) => x.SpawnedRequireSpawner = parser.ParseBoolean() },
+            { "ExitByBudding", (parser, x) => x.ExitByBudding = parser.ParseBoolean() },
+            { "InitialBurst", (parser, x) => x.InitialBurst = parser.ParseInteger() },
+            { "AggregateHealth", (parser, x) => x.AggregateHealth = parser.ParseBoolean() }
         };
 
         public int SpawnNumber { get; private set; }
@@ -22,5 +25,8 @@ namespace OpenSage.Logic.Object
         public bool OneShot { get; private set; }
         public bool CanReclaimOrphans { get; private set; }
         public bool SpawnedRequireSpawner { get; private set; }
+        public bool ExitByBudding { get; private set; }
+        public int InitialBurst { get; private set; }
+        public bool AggregateHealth { get; private set; }
     }
 }

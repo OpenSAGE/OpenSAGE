@@ -7,6 +7,9 @@ namespace OpenSage.Logic.Object
         [IniEnum("SET_NORMAL")]
         Normal,
 
+        [IniEnum("SET_NORMAL_UPGRADED")]
+        NormalUpgraded,
+
         [IniEnum("SET_WANDER")]
         Wander,
 

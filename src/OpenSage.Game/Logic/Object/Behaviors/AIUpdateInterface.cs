@@ -58,5 +58,8 @@ namespace OpenSage.Logic.Object
         /// </summary>
         [IniEnum("NotWhileAttacking")]
         NotWhileAttacking,
+
+        [IniEnum("Stealthed")]
+        Stealthed,
     }
 }
