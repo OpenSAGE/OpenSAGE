@@ -3,13 +3,13 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class UnitSpecificSounds
+    public sealed class UnitSpecificAssets
     {
-        internal static UnitSpecificSounds Parse(IniParser parser)
+        internal static UnitSpecificAssets Parse(IniParser parser)
         {
             parser.NextToken(IniTokenType.EndOfLine);
 
-            var result = new UnitSpecificSounds();
+            var result = new UnitSpecificAssets();
 
             while (parser.Current.TokenType == IniTokenType.Identifier)
             {
@@ -25,7 +25,7 @@ namespace OpenSage.Logic.Object
                     parser.NextToken();
                     parser.NextToken(IniTokenType.Equals);
 
-                    result.Sounds[fieldName] = parser.ParseAssetReference();
+                    result.Assets[fieldName] = parser.ParseAssetReference();
 
                     parser.NextToken(IniTokenType.EndOfLine);
                 }
@@ -35,6 +35,6 @@ namespace OpenSage.Logic.Object
         }
 
         // These keys will eventually mean something to some code, as noted in FactionUnit.ini:32029.
-        public Dictionary<string, string> Sounds { get; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Assets { get; } = new Dictionary<string, string>();
     }
 }

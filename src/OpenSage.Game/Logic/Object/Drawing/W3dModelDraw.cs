@@ -20,6 +20,7 @@ namespace OpenSage.Logic.Object
                     parser.Temp = conditionState;
                 }
             },
+            { "IgnoreConditionStates", (parser, x) => x.IgnoreConditionStates = parser.ParseEnumBitArray<ModelConditionFlag>() },
             { "AliasConditionState", (parser, x) => x.ParseAliasConditionState(parser) },
             { "TransitionState", (parser, x) => x.TransitionStates.Add(TransitionState.Parse(parser)) },
             { "OkToChangeModelColor", (parser, x) => x.OkToChangeModelColor = parser.ParseBoolean() },
@@ -30,6 +31,7 @@ namespace OpenSage.Logic.Object
             { "AttachToBoneInAnotherModule", (parser, x) => x.AttachToBoneInAnotherModule = parser.ParseBoneName() },
         };
 
+        public BitArray<ModelConditionFlag> IgnoreConditionStates { get; private set; }
         public ObjectConditionState DefaultConditionState { get; private set; }
         public List<ObjectConditionState> ConditionStates { get; } = new List<ObjectConditionState>();
         public List<TransitionState> TransitionStates { get; } = new List<TransitionState>();

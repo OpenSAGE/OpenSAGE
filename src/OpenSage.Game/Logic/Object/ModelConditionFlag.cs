@@ -130,6 +130,9 @@ namespace OpenSage.Logic.Object
         [IniEnum("FIRING_PRIMARY")]
         FiringPrimary,
 
+        [IniEnum("USING_WEAPON_A")]
+        UsingWeaponA,
+
         [IniEnum("FREEFALL")]
         FreeFall,
 
@@ -222,5 +225,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("JETAFTERBURNER")]
         JetAfterburner,
+
+        [IniEnum("RAISING_FLAG")]
+        RaisingFlag,
     }
 }

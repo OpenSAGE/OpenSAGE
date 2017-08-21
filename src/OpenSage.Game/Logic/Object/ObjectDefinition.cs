@@ -57,6 +57,7 @@ namespace OpenSage.Logic.Object
             { "VoiceAttack", (parser, x) => x.VoiceAttack = parser.ParseAssetReference() },
             { "VoiceAttackAir", (parser, x) => x.VoiceAttackAir = parser.ParseAssetReference() },
             { "VoiceEnter", (parser, x) => x.VoiceEnter = parser.ParseAssetReference() },
+            { "VoiceGarrison", (parser, x) => x.VoiceGarrison = parser.ParseAssetReference() },
             { "VoiceFear", (parser, x) => x.VoiceFear = parser.ParseAssetReference() },
             { "VoiceSelectElite", (parser, x) => x.VoiceSelectElite = parser.ParseAssetReference() },
             { "VoiceCreated", (parser, x) => x.VoiceCreated = parser.ParseAssetReference() },
@@ -82,7 +83,8 @@ namespace OpenSage.Logic.Object
             { "SoundEnter", (parser, x) => x.SoundEnter = parser.ParseAssetReference() },
             { "SoundExit", (parser, x) => x.SoundExit = parser.ParseAssetReference() },
             { "SoundFallingFromPlane", (parser, x) => x.SoundFallingFromPlane = parser.ParseAssetReference() },
-            { "UnitSpecificSounds", (parser, x) => x.UnitSpecificSounds = UnitSpecificSounds.Parse(parser) },
+            { "UnitSpecificSounds", (parser, x) => x.UnitSpecificSounds = UnitSpecificAssets.Parse(parser) },
+            { "UnitSpecificFX", (parser, x) => x.UnitSpecificFX = UnitSpecificAssets.Parse(parser) },
 
             { "Behavior", (parser, x) => x.Behaviors.Add(ObjectBehavior.ParseBehavior(parser)) },
             { "Draw", (parser, x) => x.Draws.Add(ObjectDrawModule.ParseDrawModule(parser)) },
@@ -175,6 +177,7 @@ namespace OpenSage.Logic.Object
         public string VoiceAttack { get; private set; }
         public string VoiceAttackAir { get; private set; }
         public string VoiceEnter { get; private set; }
+        public string VoiceGarrison { get; private set; }
         public string VoiceFear { get; private set; }
         public string VoiceSelectElite { get; private set; }
         public string VoiceCreated { get; private set; }
@@ -200,7 +203,8 @@ namespace OpenSage.Logic.Object
         public string SoundEnter { get; private set; }
         public string SoundExit { get; private set; }
         public string SoundFallingFromPlane { get; private set; }
-        public UnitSpecificSounds UnitSpecificSounds { get; private set; }
+        public UnitSpecificAssets UnitSpecificSounds { get; private set; }
+        public UnitSpecificAssets UnitSpecificFX { get; private set; }
 
         // Engineering
         public List<ObjectBehavior> Behaviors { get; } = new List<ObjectBehavior>();
