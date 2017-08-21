@@ -127,6 +127,12 @@ namespace OpenSage.Logic.Object
         [IniEnum("PREATTACK_B")]
         PreAttackB,
 
+        [IniEnum("FIRING_C")]
+        FiringC,
+
+        [IniEnum("BETWEEN_FIRING_SHOTS_C")]
+        BetweenShotsFiringC,
+
         [IniEnum("RELOADING_C")]
         ReloadingC,
 
@@ -236,6 +242,9 @@ namespace OpenSage.Logic.Object
         RaisingFlag,
 
         [IniEnum("USING_ABILITY")]
-        UsingAbility
+        UsingAbility,
+
+        [IniEnum("CARRYING")]
+        Carrying,
     }
 }

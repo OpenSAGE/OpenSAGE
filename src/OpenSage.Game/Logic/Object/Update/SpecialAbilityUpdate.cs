@@ -16,6 +16,9 @@ namespace OpenSage.Logic.Object
             { "AbilityAbortRange", (parser, x) => x.AbilityAbortRange = parser.ParseFloat() },
             { "PreparationTime", (parser, x) => x.PreparationTime = parser.ParseInteger() },
             { "PersistentPrepTime", (parser, x) => x.PersistentPrepTime = parser.ParseInteger() },
+            { "EffectDuration", (parser, x) => x.EffectDuration = parser.ParseInteger() },
+            { "EffectValue", (parser, x) => x.EffectValue = parser.ParseInteger() },
+            { "DisableFXParticleSystem", (parser, x) => x.DisableFXParticleSystem = parser.ParseAssetReference() },
             { "SpecialObject", (parser, x) => x.SpecialObject = parser.ParseAssetReference() },
             { "SpecialObjectAttachToBone", (parser, x) => x.SpecialObject = parser.ParseBoneName() },
             { "MaxSpecialObjects", (parser, x) => x.MaxSpecialObjects = parser.ParseInteger() },
@@ -30,7 +33,10 @@ namespace OpenSage.Logic.Object
             { "SkipPackingWithNoTarget", (parser, x) => x.SkipPackingWithNoTarget = parser.ParseBoolean() },
             { "FlipOwnerAfterUnpacking", (parser, x) => x.FlipOwnerAfterUnpacking = parser.ParseBoolean() },
             { "FleeRangeAfterCompletion", (parser, x) => x.FleeRangeAfterCompletion = parser.ParseFloat() },
+            { "PackSound", (parser, x) => x.PackSound = parser.ParseAssetReference() },
             { "UnpackSound", (parser, x) => x.UnpackSound = parser.ParseAssetReference() },
+            { "TriggerSound", (parser, x) => x.TriggerSound = parser.ParseAssetReference() },
+            { "PrepSoundLoop", (parser, x) => x.PrepSoundLoop = parser.ParseAssetReference() },
             { "LoseStealthOnTrigger", (parser, x) => x.LoseStealthOnTrigger = parser.ParseBoolean() },
             { "PreTriggerUnstealthTime", (parser, x) => x.PreTriggerUnstealthTime = parser.ParseInteger() }
         };
@@ -40,6 +46,9 @@ namespace OpenSage.Logic.Object
         public float AbilityAbortRange { get; private set; }
         public int PreparationTime { get; private set; }
         public int PersistentPrepTime { get; private set; }
+        public int EffectDuration { get; private set; }
+        public int EffectValue { get; private set; }
+        public string DisableFXParticleSystem { get; private set; }
         public string SpecialObject { get; private set; }
         public string SpecialObjectAttachToBone { get; private set; }
         public int MaxSpecialObjects { get; private set; }
@@ -54,7 +63,10 @@ namespace OpenSage.Logic.Object
         public bool SkipPackingWithNoTarget { get; private set; }
         public bool FlipOwnerAfterUnpacking { get; private set; }
         public float FleeRangeAfterCompletion { get; private set; }
+        public string PackSound { get; private set; }
         public string UnpackSound { get; private set; }
+        public string TriggerSound { get; private set; }
+        public string PrepSoundLoop { get; private set; }
         public bool LoseStealthOnTrigger { get; private set; }
         public int PreTriggerUnstealthTime { get; private set; }
     }

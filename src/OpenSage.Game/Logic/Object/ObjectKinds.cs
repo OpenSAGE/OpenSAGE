@@ -250,5 +250,8 @@
 
         [IniEnum("PRODUCED_AT_HELIPAD")]
         ProducedAtHelipad,
+
+        [IniEnum("HARVESTER")]
+        Harvester,
     }
 }

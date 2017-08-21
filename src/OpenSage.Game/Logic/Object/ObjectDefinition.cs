@@ -56,6 +56,7 @@ namespace OpenSage.Logic.Object
             { "VoiceGuard", (parser, x) => x.VoiceGuard = parser.ParseAssetReference() },
             { "VoiceAttack", (parser, x) => x.VoiceAttack = parser.ParseAssetReference() },
             { "VoiceAttackAir", (parser, x) => x.VoiceAttackAir = parser.ParseAssetReference() },
+            { "VoiceGroupSelect", (parser, x) => x.VoiceGroupSelect = parser.ParseAssetReference() },
             { "VoiceEnter", (parser, x) => x.VoiceEnter = parser.ParseAssetReference() },
             { "VoiceGarrison", (parser, x) => x.VoiceGarrison = parser.ParseAssetReference() },
             { "VoiceFear", (parser, x) => x.VoiceFear = parser.ParseAssetReference() },
@@ -176,6 +177,7 @@ namespace OpenSage.Logic.Object
         public string VoiceGuard { get; private set; }
         public string VoiceAttack { get; private set; }
         public string VoiceAttackAir { get; private set; }
+        public string VoiceGroupSelect { get; private set; }
         public string VoiceEnter { get; private set; }
         public string VoiceGarrison { get; private set; }
         public string VoiceFear { get; private set; }

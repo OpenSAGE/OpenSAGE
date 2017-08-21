@@ -13,6 +13,9 @@ namespace OpenSage.Logic.Object
         PlayerUpgrade = 1 << 0,
 
         [IniEnum("CARBOMB")]
-        CarBomb = 1 << 1
+        CarBomb = 1 << 1,
+
+        [IniEnum("MINE_CLEARING_DETAIL")]
+        MineClearingDetail = 1 << 2
     }
 }

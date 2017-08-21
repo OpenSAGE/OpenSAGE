@@ -9,9 +9,11 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<VeterancyGainCreate> FieldParseTable = new IniParseTable<VeterancyGainCreate>
         {
-            { "StartingLevel", (parser, x) => x.StartingLevel = parser.ParseEnum<VeterancyLevel>() }
+            { "StartingLevel", (parser, x) => x.StartingLevel = parser.ParseEnum<VeterancyLevel>() },
+            { "ScienceRequired", (parser, x) => x.ScienceRequired = parser.ParseAssetReference() }
         };
 
         public VeterancyLevel StartingLevel { get; private set; }
+        public string ScienceRequired { get; private set; }
     }
 }
