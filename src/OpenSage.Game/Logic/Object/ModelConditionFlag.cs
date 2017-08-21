@@ -202,6 +202,9 @@ namespace OpenSage.Logic.Object
         [IniEnum("SPECIAL_CHEERING")]
         SpecialCheering,
 
+        [IniEnum("SPECIAL_DAMAGED")]
+        SpecialDamaged,
+
         [IniEnum("CLIMBING")]
         Climbing,
 

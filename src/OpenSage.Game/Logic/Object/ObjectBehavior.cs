@@ -59,6 +59,8 @@ namespace OpenSage.Logic.Object
             { "MissileAIUpdate", MissileAIUpdate.Parse },
             { "MissileLauncherBuildingUpdate", MissileLauncherBuildingUpdate.Parse },
             { "MoneyCrateCollide", MoneyCrateCollide.Parse },
+            { "NeutronMissileSlowDeathBehavior", NeutronMissileSlowDeathBehavior.Parse },
+            { "NeutronMissileUpdate", NeutronMissileUpdate.Parse },
             { "OCLSpecialPower", OCLSpecialPower.Parse },
             { "OCLUpdate", OCLUpdate.Parse },
             { "ObjectCreationUpgrade", ObjectCreationUpgrade.Parse },

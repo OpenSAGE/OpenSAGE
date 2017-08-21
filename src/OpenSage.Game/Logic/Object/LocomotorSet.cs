@@ -17,6 +17,12 @@ namespace OpenSage.Logic.Object
         FreeFall,
 
         [IniEnum("SET_TAXIING")]
-        Taxiing
+        Taxiing,
+
+        [IniEnum("SET_SUPERSONIC")]
+        Supersonic,
+
+        [IniEnum("SET_SLUGGISH")]
+        Sluggish
     }
 }

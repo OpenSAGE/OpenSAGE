@@ -247,5 +247,8 @@
 
         [IniEnum("PARACHUTE")]
         Parachute,
+
+        [IniEnum("PRODUCED_AT_HELIPAD")]
+        ProducedAtHelipad,
     }
 }
