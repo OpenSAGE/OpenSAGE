@@ -256,5 +256,8 @@
 
         [IniEnum("INERT")]
         Inert,
+
+        [IniEnum("DISGUISER")]
+        Disguiser,
     }
 }

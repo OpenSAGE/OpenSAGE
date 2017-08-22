@@ -13,6 +13,7 @@ namespace OpenSage.Logic.Object
             { "RubbleFXList1", (parser, x) => x.RubbleFXList1 = BoneFXUpdateFXList.Parse(parser) },
 
             { "DamageParticleTypes", (parser, x) => x.DamageParticleTypes = parser.ParseEnumBitArray<DamageType>() },
+            { "PristineParticleSystem1", (parser, x) => x.PristineParticleSystem1 = BoneFXUpdateParticleSystem.Parse(parser) },
             { "RubbleParticleSystem1", (parser, x) => x.RubbleParticleSystem1 = BoneFXUpdateParticleSystem.Parse(parser) },
         };
 
@@ -20,6 +21,7 @@ namespace OpenSage.Logic.Object
         public BoneFXUpdateFXList RubbleFXList1 { get; private set; }
 
         public BitArray<DamageType> DamageParticleTypes { get; private set; }
+        public BoneFXUpdateParticleSystem PristineParticleSystem1 { get; private set; }
         public BoneFXUpdateParticleSystem RubbleParticleSystem1 { get; private set; }
     }
 

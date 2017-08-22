@@ -22,6 +22,7 @@ namespace OpenSage.Logic.Object
             { "UpgradeCameo2", (parser, x) => x.UpgradeCameo2 = parser.ParseAssetReference() },
             { "UpgradeCameo3", (parser, x) => x.UpgradeCameo3 = parser.ParseAssetReference() },
             { "UpgradeCameo4", (parser, x) => x.UpgradeCameo4 = parser.ParseAssetReference() },
+            { "UpgradeCameo5", (parser, x) => x.UpgradeCameo5 = parser.ParseAssetReference() },
 
             { "Buildable", (parser, x) => x.Buildable = parser.ParseBoolean() },
             { "Side", (parser, x) => x.Side = parser.ParseAssetReference() },
@@ -108,6 +109,7 @@ namespace OpenSage.Logic.Object
             { "ShadowSizeX", (parser, x) => x.ShadowSizeX = parser.ParseInteger() },
             { "ShadowSizeY", (parser, x) => x.ShadowSizeY = parser.ParseInteger() },
             { "BuildCompletion", (parser, x) => x.BuildCompletion = parser.ParseAssetReference() },
+            { "BuildVariations", (parser, x) => x.BuildVariations = parser.ParseAssetReferenceArray() },
         };
 
         public string Name { get; protected set; }
@@ -120,6 +122,7 @@ namespace OpenSage.Logic.Object
         public string UpgradeCameo2 { get; private set; }
         public string UpgradeCameo3 { get; private set; }
         public string UpgradeCameo4 { get; private set; }
+        public string UpgradeCameo5 { get; private set; }
 
         // Design
         public bool Buildable { get; private set; }
@@ -235,5 +238,6 @@ namespace OpenSage.Logic.Object
         public int ShadowSizeX { get; private set; }
         public int ShadowSizeY { get; private set; }
         public string BuildCompletion { get; private set; }
+        public string[] BuildVariations { get; private set; }
     }
 }

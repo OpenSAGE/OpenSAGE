@@ -38,7 +38,8 @@ namespace OpenSage.Logic.Object
             { "TriggerSound", (parser, x) => x.TriggerSound = parser.ParseAssetReference() },
             { "PrepSoundLoop", (parser, x) => x.PrepSoundLoop = parser.ParseAssetReference() },
             { "LoseStealthOnTrigger", (parser, x) => x.LoseStealthOnTrigger = parser.ParseBoolean() },
-            { "PreTriggerUnstealthTime", (parser, x) => x.PreTriggerUnstealthTime = parser.ParseInteger() }
+            { "PreTriggerUnstealthTime", (parser, x) => x.PreTriggerUnstealthTime = parser.ParseInteger() },
+            { "ApproachRequiresLOS", (parser, x) => x.ApproachRequiresLOS = parser.ParseBoolean() },
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -69,5 +70,6 @@ namespace OpenSage.Logic.Object
         public string PrepSoundLoop { get; private set; }
         public bool LoseStealthOnTrigger { get; private set; }
         public int PreTriggerUnstealthTime { get; private set; }
+        public bool ApproachRequiresLOS { get; private set; }
     }
 }

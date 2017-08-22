@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -15,7 +16,11 @@ namespace OpenSage.Logic.Object
             { "DistanceToTravelBeforeTurning", (parser, x) => x.DistanceToTravelBeforeTurning = parser.ParseInteger() },
             { "DistanceToTargetBeforeDiving", (parser, x) => x.DistanceToTargetBeforeDiving = parser.ParseInteger() },
             { "DistanceToTargetForLock", (parser, x) => x.DistanceToTargetForLock = parser.ParseInteger() },
-            { "IgnitionFX", (parser, x) => x.IgnitionFX = parser.ParseAssetReference() }
+            { "IgnitionFX", (parser, x) => x.IgnitionFX = parser.ParseAssetReference() },
+            { "GarrisonHitKillRequiredKindOf", (parser, x) => x.GarrisonHitKillRequiredKindOf = parser.ParseEnum<ObjectKinds>() },
+            { "GarrisonHitKillForbiddenKindOf", (parser, x) => x.GarrisonHitKillForbiddenKindOf = parser.ParseEnum<ObjectKinds>() },
+            { "GarrisonHitKillCount", (parser, x) => x.GarrisonHitKillCount = parser.ParseInteger() },
+            { "GarrisonHitKillFX", (parser, x) => x.GarrisonHitKillFX = parser.ParseAssetReference() }
         };
 
         public bool TryToFollowTarget { get; private set; }
@@ -26,5 +31,9 @@ namespace OpenSage.Logic.Object
         public int DistanceToTargetBeforeDiving { get; private set; }
         public int DistanceToTargetForLock { get; private set; }
         public string IgnitionFX { get; private set; }
+        public ObjectKinds GarrisonHitKillRequiredKindOf { get; private set; }
+        public ObjectKinds GarrisonHitKillForbiddenKindOf { get; private set; }
+        public int GarrisonHitKillCount { get; private set; }
+        public string GarrisonHitKillFX { get; private set; }
     }
 }

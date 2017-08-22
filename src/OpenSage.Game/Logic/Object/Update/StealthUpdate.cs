@@ -22,7 +22,13 @@ namespace OpenSage.Logic.Object
             { "PulseFrequency", (parser, x) => x.PulseFrequency = parser.ParseInteger() },
             { "MoveThresholdSpeed", (parser, x) => x.MoveThresholdSpeed = parser.ParseInteger() },
             { "InnateStealth", (parser, x) => x.InnateStealth = parser.ParseBoolean() },
-            { "OrderIdleEnemiesToAttackMeUponReveal", (parser, x) => x.OrderIdleEnemiesToAttackMeUponReveal = parser.ParseBoolean() }
+            { "OrderIdleEnemiesToAttackMeUponReveal", (parser, x) => x.OrderIdleEnemiesToAttackMeUponReveal = parser.ParseBoolean() },
+            { "DisguisesAsTeam", (parser, x) => x.DisguisesAsTeam = parser.ParseBoolean() },
+            { "RevealDistanceFromTarget", (parser, x) => x.RevealDistanceFromTarget = parser.ParseFloat() },
+            { "DisguiseFX", (parser, x) => x.DisguiseFX = parser.ParseAssetReference() },
+            { "DisguiseRevealFX", (parser, x) => x.DisguiseRevealFX = parser.ParseAssetReference() },
+            { "DisguiseTransitionTime", (parser, x) => x.DisguiseTransitionTime = parser.ParseInteger() },
+            { "DisguiseRevealTransitionTime", (parser, x) => x.DisguiseRevealTransitionTime = parser.ParseInteger() },
         };
 
         public int StealthDelay { get; private set; }
@@ -34,5 +40,11 @@ namespace OpenSage.Logic.Object
         public int MoveThresholdSpeed { get; private set; }
         public bool InnateStealth { get; private set; }
         public bool OrderIdleEnemiesToAttackMeUponReveal { get; private set; }
+        public bool DisguisesAsTeam { get; private set; }
+        public float RevealDistanceFromTarget { get; private set; }
+        public string DisguiseFX { get; private set; }
+        public string DisguiseRevealFX { get; private set; }
+        public int DisguiseTransitionTime { get; private set; }
+        public int DisguiseRevealTransitionTime { get; private set; }
     }
 }

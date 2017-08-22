@@ -25,7 +25,9 @@ namespace OpenSage.Logic.Object
             { "MaxIdleScanInterval", (parser, x) => x.MaxIdleScanInterval = parser.ParseInteger() },
             { "RecenterTime", (parser, x) => x.RecenterTime = parser.ParseInteger() },
             { "ControlledWeaponSlots", (parser, x) => x.ControlledWeaponSlots = parser.ParseEnumBitArray<WeaponSlot>() },
+
             { "TurretFireAngleSweep", (parser, x) => x.TurretFireAngleSweeps.Add(parser.ParseEnum<WeaponSlot>(), parser.ParseInteger()) },
+            { "TurretSweepSpeedModifier", (parser, x) => x.TurretSweepSpeedModifiers.Add(parser.ParseEnum<WeaponSlot>(), parser.ParseFloat()) },
         };
 
         /// <summary>
@@ -68,8 +70,9 @@ namespace OpenSage.Logic.Object
         /// </summary>
         public int RecenterTime { get; private set; }
 
-        public Dictionary<WeaponSlot, int> TurretFireAngleSweeps { get; } = new Dictionary<WeaponSlot, int>();
-
         public BitArray<WeaponSlot> ControlledWeaponSlots { get; private set; }
+
+        public Dictionary<WeaponSlot, int> TurretFireAngleSweeps { get; } = new Dictionary<WeaponSlot, int>();
+        public Dictionary<WeaponSlot, float> TurretSweepSpeedModifiers { get; } = new Dictionary<WeaponSlot, float>();
     }
 }

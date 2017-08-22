@@ -13,9 +13,9 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<WeaponSetUpgrade> FieldParseTable = new IniParseTable<WeaponSetUpgrade>
         {
-            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() }
+            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReferenceArray() }
         };
 
-        public string TriggeredBy { get; private set; }
+        public string[] TriggeredBy { get; private set; }
     }
 }

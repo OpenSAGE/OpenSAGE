@@ -14,9 +14,11 @@ namespace OpenSage.Logic.Object
             { "W3DLaserDraw", W3dLaserDraw.Parse },
             { "W3DModelDraw", W3dModelDraw.ParseModel },
             { "W3DPoliceCarDraw", W3dPoliceCarDraw.Parse },
+            { "W3DProjectileStreamDraw", W3dProjectileStreamDraw.Parse },
             { "W3DScienceModelDraw", W3dScienceModelDraw.Parse },
             { "W3DSupplyDraw", W3dSupplyDraw.Parse },
             { "W3DTankDraw", W3dTankDraw.Parse },
+            { "W3DTankTruckDraw", W3dTankTruckDraw.Parse },
             { "W3DTruckDraw", W3dTruckDraw.Parse },
         };
     }

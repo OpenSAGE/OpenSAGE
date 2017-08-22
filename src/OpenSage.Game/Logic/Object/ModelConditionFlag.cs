@@ -145,6 +145,9 @@ namespace OpenSage.Logic.Object
         [IniEnum("USING_WEAPON_A")]
         UsingWeaponA,
 
+        [IniEnum("USING_WEAPON_B")]
+        UsingWeaponB,
+
         [IniEnum("FREEFALL")]
         FreeFall,
 
@@ -231,6 +234,12 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("WEAPONSET_PLAYER_UPGRADE")]
         WeaponSetPlayerUpgrade,
+
+        [IniEnum("WEAPONSET_CRATEUPGRADE_ONE")]
+        WeaponSetCrateUpgradeOne,
+
+        [IniEnum("WEAPONSET_CRATEUPGRADE_TWO")]
+        WeaponSetCrateUpgradeTwo,
 
         [IniEnum("JETEXHAUST")]
         JetExhaust,

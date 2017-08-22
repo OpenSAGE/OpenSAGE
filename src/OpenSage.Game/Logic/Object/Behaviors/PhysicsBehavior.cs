@@ -17,6 +17,7 @@ namespace OpenSage.Logic.Object
             { "CenterOfMassOffset", (parser, x) => x.CenterOfMassOffset = parser.ParseInteger() },
             { "AllowBouncing", (parser, x) => x.AllowBouncing = parser.ParseBoolean() },
             { "KillWhenRestingOnGround", (parser, x) => x.KillWhenRestingOnGround = parser.ParseBoolean() },
+            { "AllowCollideForce", (parser, x) => x.AllowCollideForce = parser.ParseBoolean() },
         };
 
         public float Mass { get; private set; }
@@ -25,5 +26,6 @@ namespace OpenSage.Logic.Object
         public int CenterOfMassOffset { get; private set; }
         public bool AllowBouncing { get; private set; }
         public bool KillWhenRestingOnGround { get; private set; }
+        public bool AllowCollideForce { get; private set; } = true;
     }
 }

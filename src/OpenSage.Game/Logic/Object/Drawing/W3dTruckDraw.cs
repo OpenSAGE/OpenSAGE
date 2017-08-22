@@ -10,14 +10,11 @@ namespace OpenSage.Logic.Object
     /// This module also includes automatic logic for showing and hiding of HEADLIGHT bones in and 
     /// out of the NIGHT ConditionState.
     /// </summary>
-    public sealed class W3dTruckDraw : W3dModelDraw
+    public class W3dTruckDraw : W3dModelDraw
     {
-        internal static W3dTruckDraw Parse(IniParser parser)
-        {
-            return parser.ParseBlock(SupplyFieldParseTable);
-        }
+        internal static W3dTruckDraw Parse(IniParser parser) => parser.ParseBlock(TruckFieldParseTable);
 
-        private static readonly IniParseTable<W3dTruckDraw> SupplyFieldParseTable = new IniParseTable<W3dTruckDraw>
+        internal static readonly IniParseTable<W3dTruckDraw> TruckFieldParseTable = new IniParseTable<W3dTruckDraw>
         {
             { "CabRotationMultiplier", (parser, x) => x.CabRotationMultiplier = parser.ParseFloat() },
             { "TrailerRotationMultiplier", (parser, x) => x.TrailerRotationMultiplier = parser.ParseFloat() },
@@ -70,5 +67,27 @@ namespace OpenSage.Logic.Object
         public string Dust { get; private set; }
         public string DirtSpray { get; private set; }
         public string PowerslideSpray { get; private set; }
+    }
+
+    /// <summary>
+    /// Special case module that allows parameters from W3DTankDraw and W3DTruckDraw to be used. 
+    /// Effectively this is a module that combines the other two.
+    /// This can be useful for half track type units.
+    /// </summary>
+    public sealed class W3dTankTruckDraw : W3dTruckDraw
+    {
+        internal static new W3dTankTruckDraw Parse(IniParser parser) => parser.ParseBlock(TankTruckFieldParseTable);
+
+        internal static readonly IniParseTable<W3dTankTruckDraw> TankTruckFieldParseTable = new IniParseTable<W3dTankTruckDraw>
+        {
+            { "TreadAnimationRate", (parser, x) => x.TreadAnimationRate = parser.ParseFloat() },
+            { "TreadDriveSpeedFraction", (parser, x) => x.TreadDriveSpeedFraction = parser.ParseFloat() },
+            { "TreadPivotSpeedFraction", (parser, x) => x.TreadPivotSpeedFraction = parser.ParseFloat() },
+        }.Concat<W3dTankTruckDraw, W3dTruckDraw>(TruckFieldParseTable);
+
+        // Duplicated from W3dTankDraw
+        public float TreadAnimationRate { get; private set; }
+        public float TreadDriveSpeedFraction { get; private set; }
+        public float TreadPivotSpeedFraction { get; private set; }
     }
 }
