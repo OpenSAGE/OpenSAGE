@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
@@ -23,7 +24,8 @@ namespace OpenSage.Logic.Object
             { "MinIdleScanInterval", (parser, x) => x.MinIdleScanInterval = parser.ParseInteger() },
             { "MaxIdleScanInterval", (parser, x) => x.MaxIdleScanInterval = parser.ParseInteger() },
             { "RecenterTime", (parser, x) => x.RecenterTime = parser.ParseInteger() },
-            { "ControlledWeaponSlots", (parser, x) => x.ControlledWeaponSlots = parser.ParseEnumBitArray<WeaponSlot>() }
+            { "ControlledWeaponSlots", (parser, x) => x.ControlledWeaponSlots = parser.ParseEnumBitArray<WeaponSlot>() },
+            { "TurretFireAngleSweep", (parser, x) => x.TurretFireAngleSweeps.Add(parser.ParseEnum<WeaponSlot>(), parser.ParseInteger()) },
         };
 
         /// <summary>
@@ -65,6 +67,8 @@ namespace OpenSage.Logic.Object
         /// Time to wait when idling before recentering.
         /// </summary>
         public int RecenterTime { get; private set; }
+
+        public Dictionary<WeaponSlot, int> TurretFireAngleSweeps { get; } = new Dictionary<WeaponSlot, int>();
 
         public BitArray<WeaponSlot> ControlledWeaponSlots { get; private set; }
     }

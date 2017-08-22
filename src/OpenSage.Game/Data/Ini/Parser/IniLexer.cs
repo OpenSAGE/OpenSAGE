@@ -213,10 +213,6 @@ namespace OpenSage.Data.Ini.Parser
             }
             else if (IsIdentifierChar(CurrentChar))
             {
-                if (hasDot)
-                {
-                    throw new IniParseException($"Invalid number: {numberValue}", CurrentPosition);
-                }
                 var numIdentifierChars = 0;
                 while (IsIdentifierChar(CurrentChar))
                 {
@@ -230,6 +226,10 @@ namespace OpenSage.Data.Ini.Parser
                     {
                         FloatValue = float.Parse(numberValue.TrimEnd('f'))
                     };
+                }
+                if (hasDot)
+                {
+                    throw new IniParseException($"Invalid number: {numberValue}", CurrentPosition);
                 }
                 return new IniToken(IniTokenType.Identifier, CurrentPosition)
                 {

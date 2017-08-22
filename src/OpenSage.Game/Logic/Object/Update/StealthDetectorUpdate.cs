@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -16,6 +17,7 @@ namespace OpenSage.Logic.Object
             { "DetectionRange", (parser, x) => x.DetectionRange = parser.ParseInteger() },
             { "CanDetectWhileGarrisoned", (parser, x) => x.CanDetectWhileGarrisoned = parser.ParseBoolean() },
             { "CanDetectWhileContained", (parser, x) => x.CanDetectWhileContained = parser.ParseBoolean() },
+            { "ExtraRequiredKindOf", (parser, x) => x.ExtraRequiredKindOf = parser.ParseEnum<ObjectKinds>() },
         };
 
         /// <summary>
@@ -30,5 +32,7 @@ namespace OpenSage.Logic.Object
         public bool CanDetectWhileGarrisoned { get; private set; }
 
         public bool CanDetectWhileContained { get; private set; }
+
+        public ObjectKinds ExtraRequiredKindOf { get; private set; }
     }
 }

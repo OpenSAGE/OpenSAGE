@@ -253,5 +253,8 @@
 
         [IniEnum("HARVESTER")]
         Harvester,
+
+        [IniEnum("INERT")]
+        Inert,
     }
 }

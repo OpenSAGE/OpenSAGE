@@ -16,6 +16,7 @@ namespace OpenSage.Logic.Object
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnum<ObjectKinds>() },
             { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReferenceArray() },
             { "StartHealingDelay", (parser, x) => x.StartHealingDelay = parser.ParseInteger() },
+            { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
         };
 
         public int HealingAmount { get; private set; }
@@ -25,5 +26,6 @@ namespace OpenSage.Logic.Object
         public ObjectKinds KindOf { get; private set; }
         public string[] TriggeredBy { get; private set; }
         public int StartHealingDelay { get; private set; }
+        public float Radius { get; private set; }
     }
 }

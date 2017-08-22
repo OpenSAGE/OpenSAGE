@@ -9,10 +9,14 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<W3dTankDraw> TankFieldParseTable = new IniParseTable<W3dTankDraw>
         {
             { "TrackMarks", (parser, x) => x.TrackMarks = parser.ParseFileName() },
+            { "TreadAnimationRate", (parser, x) => x.TreadAnimationRate = parser.ParseFloat() },
             { "TreadDriveSpeedFraction", (parser, x) => x.TreadDriveSpeedFraction = parser.ParseFloat() },
+            { "TreadPivotSpeedFraction", (parser, x) => x.TreadPivotSpeedFraction = parser.ParseFloat() },
         }.Concat<W3dTankDraw, W3dModelDraw>(ModelFieldParseTable);
 
         public string TrackMarks { get; private set; }
+        public float TreadAnimationRate { get; private set; }
         public float TreadDriveSpeedFraction { get; private set; }
+        public float TreadPivotSpeedFraction { get; private set; }
     }
 }

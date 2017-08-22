@@ -15,10 +15,14 @@ namespace OpenSage.Logic.Object
         {
             { "PassengersAllowedToFire", (parser, x) => x.PassengersAllowedToFire = parser.ParseBoolean() },
             { "Slots", (parser, x) => x.Slots = parser.ParseInteger() },
+            { "HealthRegen%PerSec", (parser, x) => x.HealthRegenPercentPerSecond = parser.ParseInteger() },
             { "EnterSound", (parser, x) => x.EnterSound = parser.ParseAssetReference() },
             { "ExitSound", (parser, x) => x.ExitSound = parser.ParseAssetReference() },
             { "DamagePercentToUnits", (parser, x) => x.DamagePercentToUnits = parser.ParsePercentage() },
             { "AllowInsideKindOf", (parser, x) => x.AllowInsideKindOf = parser.ParseEnumBitArray<ObjectKinds>() },
+            { "AllowAlliesInside", (parser, x) => x.AllowAlliesInside = parser.ParseBoolean() },
+            { "AllowNeutralInside", (parser, x) => x.AllowNeutralInside = parser.ParseBoolean() },
+            { "AllowEnemiesInside", (parser, x) => x.AllowEnemiesInside = parser.ParseBoolean() },
             { "ExitDelay", (parser, x) => x.ExitDelay = parser.ParseInteger() },
             { "NumberOfExitPaths", (parser, x) => x.NumberOfExitPaths = parser.ParseInteger() },
             { "GoAggressiveOnExit", (parser, x) => x.GoAggressiveOnExit = parser.ParseBoolean() },
@@ -33,10 +37,14 @@ namespace OpenSage.Logic.Object
 
         public bool PassengersAllowedToFire { get; private set; }
         public int Slots { get; private set; }
+        public int HealthRegenPercentPerSecond { get; private set; }
         public string EnterSound { get; private set; }
         public string ExitSound { get; private set; }
         public float DamagePercentToUnits { get; private set; }
         public BitArray<ObjectKinds> AllowInsideKindOf { get; private set; }
+        public bool AllowAlliesInside { get; private set; }
+        public bool AllowNeutralInside { get; private set; }
+        public bool AllowEnemiesInside { get; private set; }
         public int ExitDelay { get; private set; }
         public int NumberOfExitPaths { get; private set; }
         public bool GoAggressiveOnExit { get; private set; }

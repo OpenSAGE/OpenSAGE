@@ -202,6 +202,9 @@ namespace OpenSage.Data.Ini
     public enum RadiusDecalStyle
     {
         [IniEnum("SHADOW_ALPHA_DECAL")]
-        ShadowAlphaDecal
+        ShadowAlphaDecal,
+
+        [IniEnum("SHADOW_ADDITIVE_DECAL")]
+        ShadowAdditiveDecal
     }
 }

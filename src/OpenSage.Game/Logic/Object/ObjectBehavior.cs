@@ -25,6 +25,8 @@ namespace OpenSage.Logic.Object
             { "CashBountyPower", CashBountyPower.Parse },
             { "CashHackSpecialPower", CashHackSpecialPower.Parse },
             { "CheckpointUpdate", CheckpointUpdate.Parse },
+            { "CleanupAreaPower", CleanupAreaPower.Parse },
+            { "CleanupHazardUpdate", CleanupHazardUpdate.Parse },
             { "CommandButtonHuntUpdate", CommandButtonHuntUpdate.Parse },
             { "ConvertToCarBombCrateCollide", ConvertToCarBombCrateCollide.Parse },
             { "ConvertToHijackedVehicleCrateCollide", ConvertToHijackedVehicleCrateCollide.Parse },
@@ -39,6 +41,7 @@ namespace OpenSage.Logic.Object
             { "DeliverPayloadAIUpdate", DeliverPayloadAIUpdate.Parse },
             { "DemoTrapUpdate", DemoTrapUpdate.Parse },
             { "DestroyDie", DestroyDie.Parse },
+            { "DynamicShroudClearingRangeUpdate", DynamicShroudClearingRangeUpdate.Parse },
             { "EjectPilotDie", EjectPilotDie.Parse },
             { "EnemyNearUpdate", EnemyNearUpdate.Parse },
             { "ExperienceScalarUpgrade", ExperienceScalarUpgrade.Parse },
@@ -128,10 +131,12 @@ namespace OpenSage.Logic.Object
             { "TunnelContain", TunnelContain.Parse },
             { "UnitCrateCollide", UnitCrateCollide.Parse },
             { "UnpauseSpecialPowerUpgrade", UnpauseSpecialPowerUpgrade.Parse },
+            { "UpgradeDie", UpgradeDie.Parse },
             { "VeterancyCrateCollide", VeterancyCrateCollide.Parse },
             { "VeterancyGainCreate", VeterancyGainCreate.Parse },
             { "WeaponBonusUpgrade", WeaponBonusUpgrade.Parse },
             { "WeaponSetUpgrade", WeaponSetUpgrade.Parse },
+            { "WorkerAIUpdate", WorkerAIUpdate.Parse },
         };
     }
 }
