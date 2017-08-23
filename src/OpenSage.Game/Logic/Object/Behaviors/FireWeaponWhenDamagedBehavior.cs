@@ -10,15 +10,27 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<FireWeaponWhenDamagedBehavior> FieldParseTable = new IniParseTable<FireWeaponWhenDamagedBehavior>
         {
             { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
+
             { "ContinuousWeaponDamaged", (parser, x) => x.ContinuousWeaponDamaged = parser.ParseAssetReference() },
             { "ContinuousWeaponReallyDamaged", (parser, x) => x.ContinuousWeaponReallyDamaged = parser.ParseAssetReference() },
+
+            { "ReactionWeaponPristine", (parser, x) => x.ReactionWeaponPristine = parser.ParseAssetReference() },
+            { "ReactionWeaponDamaged", (parser, x) => x.ReactionWeaponDamaged = parser.ParseAssetReference() },
+            { "ReactionWeaponReallyDamaged", (parser, x) => x.ReactionWeaponReallyDamaged = parser.ParseAssetReference() },
+
             { "DamageTypes", (parser, x) => x.DamageTypes = parser.ParseEnumBitArray<DamageType>() },
             { "DamageAmount", (parser, x) => x.DamageAmount = parser.ParseInteger() }
         };
 
         public bool StartsActive { get; private set; }
+
         public string ContinuousWeaponDamaged { get; private set; }
         public string ContinuousWeaponReallyDamaged { get; private set; }
+
+        public string ReactionWeaponPristine { get; private set; }
+        public string ReactionWeaponDamaged { get; private set; }
+        public string ReactionWeaponReallyDamaged { get; private set; }
+
         public BitArray<DamageType> DamageTypes { get; private set; }
 
         /// <summary>

@@ -13,6 +13,7 @@ namespace OpenSage.Logic.Object
             { "AnimatedParticleSysBoneClientUpdate", AnimatedParticleSysBoneClientUpdate.Parse },
             { "BeaconClientUpdate", BeaconClientUpdate.Parse },
             { "LaserUpdate", LaserUpdate.Parse },
+            { "SwayClientUpdate", SwayClientUpdate.Parse },
         };
     }
 }

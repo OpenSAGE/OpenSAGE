@@ -14,12 +14,14 @@ namespace OpenSage.Logic.Object
             { "OCL", (parser, x) => x.OCL = parser.ParseAssetReference() },
             { "UpgradeOCL", (parser, x) => x.UpgradeOCLs.Add(UpgradeOCL.Parse(parser)) },
             { "CreateLocation", (parser, x) => x.CreateLocation = parser.ParseEnum<OCLCreationPoint>() },
+            { "StartsPaused", (parser, x) => x.StartsPaused = parser.ParseBoolean() },
         };
 
         public string SpecialPowerTemplate { get; private set; }
         public string OCL { get; private set; }
         public List<UpgradeOCL> UpgradeOCLs { get; } = new List<UpgradeOCL>();
         public OCLCreationPoint CreateLocation { get; private set; }
+        public bool StartsPaused { get; private set; }
     }
 
     public sealed class UpgradeOCL

@@ -12,9 +12,11 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<RadarUpgrade> FieldParseTable = new IniParseTable<RadarUpgrade>
         {
-            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() }
+            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() },
+            { "DisableProof", (parser, x) => x.DisableProof = parser.ParseBoolean() }
         };
 
         public string TriggeredBy { get; private set; }
+        public bool DisableProof { get; private set; }
     }
 }

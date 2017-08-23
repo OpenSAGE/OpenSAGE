@@ -258,5 +258,14 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("DOCKING")]
         Docking,
+
+        [IniEnum("AFLAME")]
+        Aflame,
+
+        [IniEnum("SMOLDERING")]
+        Smoldering,
+
+        [IniEnum("BURNED")]
+        Burned,
     }
 }

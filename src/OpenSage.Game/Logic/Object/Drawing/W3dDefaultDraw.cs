@@ -9,10 +9,7 @@ namespace OpenSage.Logic.Object
     /// </summary>
     public sealed class W3dDefaultDraw : ObjectDrawModule
     {
-        internal static W3dDefaultDraw Parse(IniParser parser)
-        {
-            return parser.ParseBlock(DefaultFieldParseTable);
-        }
+        internal static W3dDefaultDraw Parse(IniParser parser) => parser.ParseBlock(DefaultFieldParseTable);
 
         internal static readonly IniParseTable<W3dDefaultDraw> DefaultFieldParseTable = new IniParseTable<W3dDefaultDraw>();
     }

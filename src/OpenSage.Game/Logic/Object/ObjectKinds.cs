@@ -265,5 +265,11 @@
 
         [IniEnum("PORTABLE_STRUCTURE")]
         PortableStructure,
+
+        [IniEnum("SHRUBBERY")]
+        Shrubbery,
+
+        [IniEnum("WAVEGUIDE")]
+        WaveGuide,
     }
 }

@@ -25,6 +25,8 @@ namespace OpenSage.Logic.Object
             { "Turret", (parser, x) => x.Turret = parser.ParseAssetReference() },
             { "TurretArtAngle", (parser, x) => x.TurretArtAngle = parser.ParseInteger() },
             { "TurretPitch", (parser, x) => x.TurretPitch = parser.ParseAssetReference() },
+            { "AltTurret", (parser, x) => x.AltTurret = parser.ParseAssetReference() },
+            { "AltTurretPitch", (parser, x) => x.AltTurretPitch = parser.ParseAssetReference() },
 
             { "HideSubObject", (parser, x) => x.HideSubObject = parser.ParseAssetReferenceArray() },
             { "ShowSubObject", (parser, x) => x.ShowSubObject = parser.ParseAssetReferenceArray() },
@@ -51,6 +53,8 @@ namespace OpenSage.Logic.Object
         public string Turret { get; protected set; }
         public int TurretArtAngle { get; protected set; }
         public string TurretPitch { get; protected set; }
+        public string AltTurret { get; protected set; }
+        public string AltTurretPitch { get; protected set; }
 
         // Misc settings
         public string[] HideSubObject { get; protected set; }
@@ -67,9 +71,10 @@ namespace OpenSage.Logic.Object
                 Animation = parser.ParseAnimationName()
             };
 
-            if (parser.Current.TokenType == IniTokenType.IntegerLiteral)
+            if (parser.Current.TokenType == IniTokenType.IntegerLiteral
+                || parser.Current.TokenType == IniTokenType.FloatLiteral)
             {
-                result.Unknown1 = parser.ParseInteger();
+                result.Unknown1 = parser.ParseFloat();
 
                 if (parser.Current.TokenType == IniTokenType.IntegerLiteral)
                 {
@@ -81,7 +86,7 @@ namespace OpenSage.Logic.Object
         }
 
         public string Animation { get; private set; }
-        public int Unknown1 { get; private set; }
+        public float Unknown1 { get; private set; }
         public int Unknown2 { get; private set; }
     }
 

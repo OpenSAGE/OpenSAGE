@@ -9,6 +9,7 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<DumbProjectileBehavior> FieldParseTable = new IniParseTable<DumbProjectileBehavior>
         {
+            { "TumbleRandomly", (parser, x) => x.TumbleRandomly = parser.ParseBoolean() },
             { "DetonateCallsKill", (parser, x) => x.DetonateCallsKill = parser.ParseBoolean() },
             { "FirstHeight", (parser, x) => x.FirstHeight = parser.ParseInteger() },
             { "SecondHeight", (parser, x) => x.SecondHeight = parser.ParseInteger() },
@@ -20,6 +21,11 @@ namespace OpenSage.Logic.Object
             { "GarrisonHitKillFX", (parser, x) => x.GarrisonHitKillFX = parser.ParseAssetReference() },
             { "FlightPathAdjustDistPerSecond", (parser, x) => x.FlightPathAdjustDistPerSecond = parser.ParseInteger() },
         };
+
+        /// <summary>
+        /// INI comment indicates that this is not implemented.
+        /// </summary>
+        public bool TumbleRandomly { get; private set; }
 
         public bool DetonateCallsKill { get; private set; }
 

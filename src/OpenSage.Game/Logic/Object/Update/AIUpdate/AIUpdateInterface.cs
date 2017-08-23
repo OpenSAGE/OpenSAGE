@@ -10,6 +10,7 @@ namespace OpenSage.Logic.Object
         internal static readonly IniParseTable<AIUpdateInterface> BaseFieldParseTable = new IniParseTable<AIUpdateInterface>
         {
             { "Turret", (parser, x) => x.Turret = TurretAIData.Parse(parser) },
+            { "AltTurret", (parser, x) => x.AltTurret = TurretAIData.Parse(parser) },
             { "AutoAcquireEnemiesWhenIdle", (parser, x) => x.AutoAcquireEnemiesWhenIdle = AutoAcquireEnemies.Parse(parser) },
             { "MoodAttackCheckRate", (parser, x) => x.MoodAttackCheckRate = parser.ParseInteger() }
         };
@@ -19,6 +20,8 @@ namespace OpenSage.Logic.Object
         /// section of the object.
         /// </summary>
         public TurretAIData Turret { get; private set; }
+
+        public TurretAIData AltTurret { get; private set; }
 
         public AutoAcquireEnemies AutoAcquireEnemiesWhenIdle { get; private set; }
         public int MoodAttackCheckRate { get; private set; }

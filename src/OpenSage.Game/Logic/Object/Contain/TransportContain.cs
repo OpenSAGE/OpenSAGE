@@ -20,6 +20,7 @@ namespace OpenSage.Logic.Object
             { "ExitSound", (parser, x) => x.ExitSound = parser.ParseAssetReference() },
             { "DamagePercentToUnits", (parser, x) => x.DamagePercentToUnits = parser.ParsePercentage() },
             { "AllowInsideKindOf", (parser, x) => x.AllowInsideKindOf = parser.ParseEnumBitArray<ObjectKinds>() },
+            { "ForbidInsideKindOf", (parser, x) => x.ForbidInsideKindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "AllowAlliesInside", (parser, x) => x.AllowAlliesInside = parser.ParseBoolean() },
             { "AllowNeutralInside", (parser, x) => x.AllowNeutralInside = parser.ParseBoolean() },
             { "AllowEnemiesInside", (parser, x) => x.AllowEnemiesInside = parser.ParseBoolean() },
@@ -43,6 +44,7 @@ namespace OpenSage.Logic.Object
         public string ExitSound { get; private set; }
         public float DamagePercentToUnits { get; private set; }
         public BitArray<ObjectKinds> AllowInsideKindOf { get; private set; }
+        public BitArray<ObjectKinds> ForbidInsideKindOf { get; private set; }
         public bool AllowAlliesInside { get; private set; }
         public bool AllowNeutralInside { get; private set; }
         public bool AllowEnemiesInside { get; private set; }

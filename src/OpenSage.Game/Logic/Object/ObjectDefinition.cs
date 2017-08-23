@@ -108,6 +108,7 @@ namespace OpenSage.Logic.Object
             { "ShadowTexture", (parser, x) => x.ShadowTexture = parser.ParseAssetReference() },
             { "ShadowSizeX", (parser, x) => x.ShadowSizeX = parser.ParseInteger() },
             { "ShadowSizeY", (parser, x) => x.ShadowSizeY = parser.ParseInteger() },
+            { "InstanceScaleFuzziness", (parser, x) => x.InstanceScaleFuzziness = parser.ParseFloat() },
             { "BuildCompletion", (parser, x) => x.BuildCompletion = parser.ParseAssetReference() },
             { "BuildVariations", (parser, x) => x.BuildVariations = parser.ParseAssetReferenceArray() },
         };
@@ -237,6 +238,7 @@ namespace OpenSage.Logic.Object
         public string ShadowTexture { get; private set; }
         public int ShadowSizeX { get; private set; }
         public int ShadowSizeY { get; private set; }
+        public float InstanceScaleFuzziness { get; private set; }
         public string BuildCompletion { get; private set; }
         public string[] BuildVariations { get; private set; }
     }

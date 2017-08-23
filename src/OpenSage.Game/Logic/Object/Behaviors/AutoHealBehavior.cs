@@ -17,6 +17,7 @@ namespace OpenSage.Logic.Object
             { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReferenceArray() },
             { "StartHealingDelay", (parser, x) => x.StartHealingDelay = parser.ParseInteger() },
             { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
+            { "SingleBurst", (parser, x) => x.SingleBurst = parser.ParseBoolean() },
         };
 
         public int HealingAmount { get; private set; }
@@ -27,5 +28,6 @@ namespace OpenSage.Logic.Object
         public string[] TriggeredBy { get; private set; }
         public int StartHealingDelay { get; private set; }
         public float Radius { get; private set; }
+        public bool SingleBurst { get; private set; }
     }
 }

@@ -19,6 +19,8 @@ namespace OpenSage.Logic.Object
             { "AflameDuration", (parser, x) => x.AflameDuration = parser.ParseInteger() },
             { "AflameDamageAmount", (parser, x) => x.AflameDamageAmount = parser.ParseInteger() },
             { "AflameDamageDelay", (parser, x) => x.AflameDamageDelay = parser.ParseInteger() },
+            { "BurnedDelay", (parser, x) => x.BurnedDelay = parser.ParseInteger() },
+            { "BurningSoundName", (parser, x) => x.BurningSoundName = parser.ParseAssetReference() },
         };
 
         /// <summary>
@@ -45,5 +47,9 @@ namespace OpenSage.Logic.Object
         /// Delay between each time that <see cref="AflameDamageAmount"/> is inflicted.
         /// </summary>
         public int AflameDamageDelay { get; private set; }
+
+        public int BurnedDelay { get; private set; }
+
+        public string BurningSoundName { get; private set; }
     }
 }
