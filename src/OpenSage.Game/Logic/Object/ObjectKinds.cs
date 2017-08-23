@@ -271,5 +271,8 @@
 
         [IniEnum("WAVEGUIDE")]
         WaveGuide,
+
+        [IniEnum("REVEAL_TO_ALL")]
+        RevealToAll,
     }
 }
