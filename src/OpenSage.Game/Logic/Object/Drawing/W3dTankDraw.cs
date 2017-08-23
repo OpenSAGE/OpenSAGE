@@ -6,7 +6,7 @@ namespace OpenSage.Logic.Object
     /// Default Draw used by tanks. Hardcoded to call for the TrackDebrisDirtRight and 
     /// TrackDebrisDirtLeft particle system definitions.
     /// </summary>
-    public sealed class W3dTankDraw : W3dModelDraw
+    public class W3dTankDraw : W3dModelDraw
     {
         internal static W3dTankDraw Parse(IniParser parser) => parser.ParseBlock(TankFieldParseTable);
 

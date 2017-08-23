@@ -13,11 +13,11 @@ namespace OpenSage.Logic.Object
         {
             { "UpgradeObject", (parser, x) => x.UpgradeObject = parser.ParseAssetReference() },
             { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() },
-            { "ConflictsWith", (parser, x) => x.ConflictsWith = parser.ParseAssetReference() }
+            { "ConflictsWith", (parser, x) => x.ConflictsWith = parser.ParseAssetReferenceArray() }
         };
 
         public string UpgradeObject { get; private set; }
         public string TriggeredBy { get; private set; }
-        public string ConflictsWith { get; private set; }
+        public string[] ConflictsWith { get; private set; }
     }
 }

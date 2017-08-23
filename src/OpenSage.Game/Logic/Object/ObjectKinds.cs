@@ -259,5 +259,11 @@
 
         [IniEnum("DISGUISER")]
         Disguiser,
+
+        [IniEnum("HUGE_VEHICLE")]
+        HugeVehicle,
+
+        [IniEnum("PORTABLE_STRUCTURE")]
+        PortableStructure,
     }
 }

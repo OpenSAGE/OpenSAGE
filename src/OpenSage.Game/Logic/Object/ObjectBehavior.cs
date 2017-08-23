@@ -77,6 +77,7 @@ namespace OpenSage.Logic.Object
             { "OCLUpdate", OCLUpdate.Parse },
             { "ObjectCreationUpgrade", ObjectCreationUpgrade.Parse },
             { "OverchargeBehavior", OverchargeBehavior.Parse },
+            { "OverlordContain", OverlordContain.Parse },
             { "ParachuteContain", ParachuteContain.Parse },
             { "ParkingPlaceBehavior", ParkingPlaceBehavior.Parse },
             { "ParticleUplinkCannonUpdate", ParticleUplinkCannonUpdate.Parse },
