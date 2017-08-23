@@ -255,5 +255,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("CARRYING")]
         Carrying,
+
+        [IniEnum("DOCKING")]
+        Docking,
     }
 }

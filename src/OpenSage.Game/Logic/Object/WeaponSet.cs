@@ -19,11 +19,13 @@ namespace OpenSage.Logic.Object
             { "PreferredAgainst", (parser, x) => x.ParseWeaponSlotProperty(parser, s => s.PreferredAgainst = parser.ParseEnumBitArray<ObjectKinds>()) },
             { "AutoChooseSources", (parser, x) => x.ParseWeaponSlotProperty(parser, s => s.AutoChooseSources = parser.ParseEnumFlags<CommandSourceTypes>()) },
             { "ShareWeaponReloadTime", (parser, x) => x.ShareWeaponReloadTime = parser.ParseBoolean() },
+            { "WeaponLockSharedAcrossSets", (parser, x) => x.WeaponLockSharedAcrossSets = parser.ParseBoolean() },
         };
 
         public WeaponSetConditions Conditions { get; private set; }
         public Dictionary<WeaponSlot, WeaponSetSlot> Slots { get; } = new Dictionary<WeaponSlot, WeaponSetSlot>();
         public bool ShareWeaponReloadTime { get; private set; }
+        public bool WeaponLockSharedAcrossSets { get; private set; }
 
         private void ParseWeaponSlotProperty(IniParser parser, Action<WeaponSetSlot> parseValue)
         {

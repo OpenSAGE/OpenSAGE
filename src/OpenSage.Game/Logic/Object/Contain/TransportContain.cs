@@ -32,7 +32,8 @@ namespace OpenSage.Logic.Object
             { "KeepContainerVelocityOnExit", (parser, x) => x.KeepContainerVelocityOnExit = parser.ParseBoolean() },
             { "ExitPitchRate", (parser, x) => x.ExitPitchRate = parser.ParseInteger() },
             { "ExitBone", (parser, x) => x.ExitBone = parser.ParseBoneName() },
-            { "DestroyRidersWhoAreNotFreeToExit", (parser, x) => x.DestroyRidersWhoAreNotFreeToExit = parser.ParseBoolean() }
+            { "DestroyRidersWhoAreNotFreeToExit", (parser, x) => x.DestroyRidersWhoAreNotFreeToExit = parser.ParseBoolean() },
+            { "InitialPayload", (parser, x) => x.InitialPayload = Payload.Parse(parser) }
         };
 
         public bool PassengersAllowedToFire { get; private set; }
@@ -55,5 +56,6 @@ namespace OpenSage.Logic.Object
         public int ExitPitchRate { get; private set; }
         public string ExitBone { get; private set; }
         public bool DestroyRidersWhoAreNotFreeToExit { get; private set; }
+        public Payload InitialPayload { get; private set; }
     }
 }

@@ -16,6 +16,7 @@ namespace OpenSage.Logic.Object
             { "ModifierBonusPerOverkillPercent", (parser, x) => x.ModifierBonusPerOverkillPercent = parser.ParsePercentage() },
             { "SinkRate", (parser, x) => x.SinkRate = parser.ParseFloat() },
             { "SinkDelay", (parser, x) => x.SinkDelay = parser.ParseInteger() },
+            { "SinkDelayVariance", (parser, x) => x.SinkDelayVariance = parser.ParseInteger() },
             { "DestructionDelay", (parser, x) => x.DestructionDelay = parser.ParseInteger() },
             { "DestructionDelayVariance", (parser, x) => x.DestructionDelayVariance = parser.ParseInteger() },
             { "FlingForce", (parser, x) => x.FlingForce = parser.ParseInteger() },
@@ -34,6 +35,7 @@ namespace OpenSage.Logic.Object
         public float ModifierBonusPerOverkillPercent { get; private set; }
         public float SinkRate { get; private set; }
         public int SinkDelay { get; private set; }
+        public int SinkDelayVariance { get; private set; }
         public int DestructionDelay { get; private set; }
         public int DestructionDelayVariance { get; private set; }
         public int FlingForce { get; private set; }

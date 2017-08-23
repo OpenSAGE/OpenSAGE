@@ -15,6 +15,16 @@ namespace OpenSage.Logic.Object
             { "DamageParticleTypes", (parser, x) => x.DamageParticleTypes = parser.ParseEnumBitArray<DamageType>() },
             { "PristineParticleSystem1", (parser, x) => x.PristineParticleSystem1 = BoneFXUpdateParticleSystem.Parse(parser) },
             { "RubbleParticleSystem1", (parser, x) => x.RubbleParticleSystem1 = BoneFXUpdateParticleSystem.Parse(parser) },
+
+            { "PristineParticleSystem2", (parser, x) => x.PristineParticleSystem2 = BoneFXUpdateParticleSystem.Parse(parser) },
+
+            { "PristineParticleSystem3", (parser, x) => x.PristineParticleSystem3 = BoneFXUpdateParticleSystem.Parse(parser) },
+
+            { "PristineParticleSystem4", (parser, x) => x.PristineParticleSystem4 = BoneFXUpdateParticleSystem.Parse(parser) },
+
+            { "PristineParticleSystem5", (parser, x) => x.PristineParticleSystem5 = BoneFXUpdateParticleSystem.Parse(parser) },
+
+            { "PristineParticleSystem6", (parser, x) => x.PristineParticleSystem6 = BoneFXUpdateParticleSystem.Parse(parser) },
         };
 
         public BitArray<DamageType> DamageFXTypes { get; private set; }
@@ -23,6 +33,16 @@ namespace OpenSage.Logic.Object
         public BitArray<DamageType> DamageParticleTypes { get; private set; }
         public BoneFXUpdateParticleSystem PristineParticleSystem1 { get; private set; }
         public BoneFXUpdateParticleSystem RubbleParticleSystem1 { get; private set; }
+
+        public BoneFXUpdateParticleSystem PristineParticleSystem2 { get; private set; }
+
+        public BoneFXUpdateParticleSystem PristineParticleSystem3 { get; private set; }
+
+        public BoneFXUpdateParticleSystem PristineParticleSystem4 { get; private set; }
+
+        public BoneFXUpdateParticleSystem PristineParticleSystem5 { get; private set; }
+
+        public BoneFXUpdateParticleSystem PristineParticleSystem6 { get; private set; }
     }
 
     public sealed class BoneFXUpdateFXList

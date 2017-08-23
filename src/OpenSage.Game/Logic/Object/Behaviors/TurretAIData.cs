@@ -10,6 +10,7 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<TurretAIData> FieldParseTable = new IniParseTable<TurretAIData>
         {
+            { "InitiallyDisabled", (parser, x) => x.InitiallyDisabled = parser.ParseBoolean() },
             { "TurretTurnRate", (parser, x) => x.TurretTurnRate = parser.ParseInteger() },
             { "TurretPitchRate", (parser, x) => x.TurretPitchRate = parser.ParseInteger() },
             { "AllowsPitch", (parser, x) => x.AllowsPitch = parser.ParseBoolean() },
@@ -29,6 +30,8 @@ namespace OpenSage.Logic.Object
             { "TurretFireAngleSweep", (parser, x) => x.TurretFireAngleSweeps.Add(parser.ParseEnum<WeaponSlot>(), parser.ParseInteger()) },
             { "TurretSweepSpeedModifier", (parser, x) => x.TurretSweepSpeedModifiers.Add(parser.ParseEnum<WeaponSlot>(), parser.ParseFloat()) },
         };
+
+        public bool InitiallyDisabled { get; private set; }
 
         /// <summary>
         /// Turn rate, in degrees per second.

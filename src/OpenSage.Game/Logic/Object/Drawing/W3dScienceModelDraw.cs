@@ -4,10 +4,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class W3dScienceModelDraw : W3dModelDraw
     {
-        internal static W3dScienceModelDraw Parse(IniParser parser)
-        {
-            return parser.ParseBlock(ScienceModelFieldParseTable);
-        }
+        internal static W3dScienceModelDraw Parse(IniParser parser) => parser.ParseBlock(ScienceModelFieldParseTable);
 
         private static readonly IniParseTable<W3dScienceModelDraw> ScienceModelFieldParseTable = new IniParseTable<W3dScienceModelDraw>
         {

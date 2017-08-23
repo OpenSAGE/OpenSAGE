@@ -15,8 +15,10 @@ namespace OpenSage.Logic.Object
         {
             { "Texture", (parser, x) => x.Texture = parser.ParseFileName() },
             { "NumBeams", (parser, x) => x.NumBeams = parser.ParseInteger() },
-            { "InnerBeamWidth", (parser, x) => x.InnerBeamWidth = parser.ParseInteger() },
+            { "InnerBeamWidth", (parser, x) => x.InnerBeamWidth = parser.ParseFloat() },
             { "InnerColor", (parser, x) => x.InnerColor = WndColor.Parse(parser) },
+            { "OuterBeamWidth", (parser, x) => x.OuterBeamWidth = parser.ParseFloat() },
+            { "OuterColor", (parser, x) => x.OuterColor = WndColor.Parse(parser) },
             { "Tile", (parser, x) => x.Tile = parser.ParseBoolean() },
             { "ScrollRate", (parser, x) => x.ScrollRate = parser.ParseFloat() },
             { "Segments", (parser, x) => x.Segments = parser.ParseInteger() },
@@ -27,8 +29,10 @@ namespace OpenSage.Logic.Object
 
         public string Texture { get; private set; }
         public int NumBeams { get; private set; }
-        public int InnerBeamWidth { get; private set; }
+        public float InnerBeamWidth { get; private set; }
         public WndColor InnerColor { get; private set; }
+        public float OuterBeamWidth { get; private set; }
+        public WndColor OuterColor { get; private set; }
         public bool Tile { get; private set; }
         public float ScrollRate { get; private set; }
         public int Segments { get; private set; }
