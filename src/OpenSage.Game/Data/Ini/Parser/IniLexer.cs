@@ -247,9 +247,17 @@ namespace OpenSage.Data.Ini.Parser
                     };
 
                 case IniTokenType.IntegerLiteral:
+                    var longNumber = long.Parse(numberValue);
+                    if (Math.Abs(longNumber) <= int.MaxValue)
+                    {
+                        return new IniToken(tokenType, pos)
+                        {
+                            IntegerValue = (int) longNumber
+                        };
+                    }
                     return new IniToken(tokenType, pos)
                     {
-                        IntegerValue = int.Parse(numberValue)
+                        LongValue = longNumber
                     };
 
                 default:

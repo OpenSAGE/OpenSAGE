@@ -313,7 +313,7 @@ namespace OpenSage.Data.Ini
             return new Payload
             {
                 Name = parser.ParseAssetReference(),
-                Quantity = parser.NextTokenIf(IniTokenType.IntegerLiteral)?.IntegerValue ?? 1
+                Quantity = (int) (parser.NextTokenIf(IniTokenType.IntegerLiteral)?.IntegerValue ?? 1)
             };
         }
 

@@ -5,6 +5,7 @@
         public IniTokenType TokenType;
         public string StringValue;
         public int IntegerValue;
+        public long LongValue;
         public float FloatValue;
 
         public IniTokenPosition Position;
@@ -14,6 +15,7 @@
             TokenType = tokenType;
             StringValue = null;
             IntegerValue = int.MinValue;
+            LongValue = long.MinValue;
             FloatValue = float.MinValue;
 
             Position = position;

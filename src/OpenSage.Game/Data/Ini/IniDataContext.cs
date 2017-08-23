@@ -35,6 +35,7 @@ namespace OpenSage.Data.Ini
         public Language Language { get; internal set; }
         public List<Locomotor> Locomotors { get; } = new List<Locomotor>();
         public List<LodPreset> LodPresets { get; } = new List<LodPreset>();
+        public List<MapCache> MapCaches { get; } = new List<MapCache>();
         public List<MappedImage> MappedImages { get; } = new List<MappedImage>();
         public MiscAudio MiscAudio { get; internal set; }
         public List<MouseCursor> MouseCursors { get; } = new List<MouseCursor>();

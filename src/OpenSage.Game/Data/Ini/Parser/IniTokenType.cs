@@ -5,6 +5,7 @@
         Identifier,
         Equals,
         IntegerLiteral,
+        LongLiteral,
         FloatLiteral,
         PercentLiteral,
         StringLiteral,

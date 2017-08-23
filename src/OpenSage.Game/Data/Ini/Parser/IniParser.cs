@@ -36,6 +36,7 @@ namespace OpenSage.Data.Ini.Parser
             { "Language", (parser, context) => context.Language = Language.Parse(parser) },
             { "Locomotor", (parser, context) => context.Locomotors.Add(Locomotor.Parse(parser)) },
             { "LODPreset", (parser, context) => context.LodPresets.Add(LodPreset.Parse(parser)) },
+            { "MapCache", (parser, context) => context.MapCaches.Add(MapCache.Parse(parser)) },
             { "MappedImage", (parser, context) => context.MappedImages.Add(MappedImage.Parse(parser)) },
             { "MiscAudio", (parser, context) => context.MiscAudio = MiscAudio.Parse(parser) },
             { "Mouse", (parser, context) => context.MouseData = MouseData.Parse(parser) },
@@ -253,6 +254,14 @@ namespace OpenSage.Data.Ini.Parser
         }
 
         public int ParseInteger() => NextToken(IniTokenType.IntegerLiteral).IntegerValue;
+
+        public long ParseLong()
+        {
+            var token = NextToken(IniTokenType.LongLiteral, IniTokenType.IntegerLiteral);
+            return (token.TokenType == IniTokenType.LongLiteral)
+                ? token.LongValue
+                : token.IntegerValue;
+        }
 
         public byte ParseByte() => (byte) ParseInteger();
 
