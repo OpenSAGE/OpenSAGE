@@ -103,6 +103,8 @@ namespace OpenSage.Data.Ini
             { "CommandMarkerImage", (parser, x) => x.CommandMarkerImage = parser.ParseAssetReference() },
 
             { "ImagePart", (parser, x) => x.ImageParts.Add(ControlBarImagePart.Parse(parser)) },
+
+            { "PowerPurchaseImage", (parser, x) => x.PowerPurchaseImage = parser.ParseAssetReference() },
         };
 
         public string Name { get; private set; }
@@ -188,6 +190,9 @@ namespace OpenSage.Data.Ini
         public string CommandMarkerImage { get; private set; }
 
         public List<ControlBarImagePart> ImageParts { get; } = new List<ControlBarImagePart>();
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string PowerPurchaseImage { get; private set; }
     }
 
     public sealed class ControlBarImagePart

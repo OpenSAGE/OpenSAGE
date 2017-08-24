@@ -16,6 +16,7 @@ namespace OpenSage.Data.Ini
         public List<BenchProfile> BenchProfiles { get; } = new List<BenchProfile>();
         public List<Bridge> Bridges { get; } = new List<Bridge>();
         public List<Campaign> Campaigns { get; } = new List<Campaign>();
+        public ChallengeGenerals ChallengeGenerals { get; internal set; }
         public List<CommandButton> CommandButtons { get; } = new List<CommandButton>();
         public List<CommandMap> CommandMaps { get; } = new List<CommandMap>();
         public List<CommandSet> CommandSets { get; } = new List<CommandSet>();

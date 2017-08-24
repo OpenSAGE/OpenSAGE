@@ -17,7 +17,10 @@ namespace OpenSage.Logic.Object
             { "ExecuteAnimationZRise", (parser, x) => x.ExecuteAnimationZRise = parser.ParseFloat() },
             { "ExecuteAnimationFades", (parser, x) => x.ExecuteAnimationFades = parser.ParseBoolean() },
             { "ForbidOwnerPlayer", (parser, x) => x.ForbidOwnerPlayer = parser.ParseBoolean() },
-            { "HumanOnly", (parser, x) => x.HumanOnly = parser.ParseBoolean() }
+            { "HumanOnly", (parser, x) => x.HumanOnly = parser.ParseBoolean() },
+
+
+            { "UpgradedBoost", (parser, x) => x.UpgradedBoost = BoostUpgrade.Parse(parser) }
         };
 
         public bool BuildingPickup { get; private set; }
@@ -29,5 +32,23 @@ namespace OpenSage.Logic.Object
         public bool ExecuteAnimationFades { get; private set; }
         public bool ForbidOwnerPlayer { get; private set; }
         public bool HumanOnly { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public BoostUpgrade UpgradedBoost { get; private set; }
+    }
+
+    public struct BoostUpgrade
+    {
+        internal static BoostUpgrade Parse(IniParser parser)
+        {
+            return new BoostUpgrade
+            {
+                UpgradeType = parser.ParseAttribute("UpgradeType", () => parser.ParseAssetReference()),
+                Boost = parser.ParseAttributeInteger("Boost")
+            };
+        }
+
+        public string UpgradeType;
+        public int Boost;
     }
 }

@@ -875,6 +875,21 @@ namespace OpenSage.Data.Ini
         SoloAINormal,
 
         [IniEnum("SOLO_AI_HARD")]
-        SoloAIHard
+        SoloAIHard,
+
+        [IniEnum("FANATICISM"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Fanaticism,
+
+        [IniEnum("TARGET_FAERIE_FIRE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        TargetFaerieFire,
+
+        [IniEnum("FRENZY_ONE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FrenzyOne,
+
+        [IniEnum("FRENZY_TWO"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FrenzyTwo,
+
+        [IniEnum("FRENZY_THREE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FrenzyThree,
     }
 }

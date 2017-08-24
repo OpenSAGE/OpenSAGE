@@ -14,13 +14,13 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<Locomotor> FieldParseTable = new IniParseTable<Locomotor>
         {
             { "Surfaces", (parser, x) => x.Surfaces = parser.ParseEnumBitArray<Surface>() },
-            { "Speed", (parser, x) => x.Speed = parser.ParseInteger() },
-            { "SpeedDamaged", (parser, x) => x.SpeedDamaged = parser.ParseInteger() },
+            { "Speed", (parser, x) => x.Speed = parser.ParseFloat() },
+            { "SpeedDamaged", (parser, x) => x.SpeedDamaged = parser.ParseFloat() },
             { "MinSpeed", (parser, x) => x.MinSpeed = parser.ParseInteger() },
-            { "TurnRate", (parser, x) => x.TurnRate = parser.ParseInteger() },
-            { "TurnRateDamaged", (parser, x) => x.TurnRateDamaged = parser.ParseInteger() },
-            { "Acceleration", (parser, x) => x.Acceleration = parser.ParseInteger() },
-            { "AccelerationDamaged", (parser, x) => x.AccelerationDamaged = parser.ParseInteger() },
+            { "TurnRate", (parser, x) => x.TurnRate = parser.ParseFloat() },
+            { "TurnRateDamaged", (parser, x) => x.TurnRateDamaged = parser.ParseFloat() },
+            { "Acceleration", (parser, x) => x.Acceleration = parser.ParseFloat() },
+            { "AccelerationDamaged", (parser, x) => x.AccelerationDamaged = parser.ParseFloat() },
             { "Lift", (parser, x) => x.Lift = parser.ParseInteger() },
             { "LiftDamaged", (parser, x) => x.LiftDamaged = parser.ParseInteger() },
             { "Braking", (parser, x) => x.Braking = parser.ParseInteger() },
@@ -49,6 +49,7 @@ namespace OpenSage.Data.Ini
             { "WanderAboutPointRadius", (parser, x) => x.WanderAboutPointRadius = parser.ParseFloat() },
 
             { "AccelerationPitchLimit", (parser, x) => x.AccelerationPitchLimit = parser.ParseFloat() },
+            { "DecelerationPitchLimit", (parser, x) => x.DecelerationPitchLimit = parser.ParseFloat() },
             { "BounceAmount", (parser, x) => x.BounceAmount = parser.ParseInteger() },
             { "PitchInDirectionOfZVelFactor", (parser, x) => x.PitchInDirectionOfZVelFactor = parser.ParseFloat() },
             { "PitchStiffness", (parser, x) => x.PitchStiffness = parser.ParseFloat() },
@@ -75,18 +76,23 @@ namespace OpenSage.Data.Ini
             { "FrontWheelTurnAngle", (parser, x) => x.FrontWheelTurnAngle = parser.ParseInteger() },
 
             { "SlideIntoPlaceTime", (parser, x) => x.SlideIntoPlaceTime = parser.ParseInteger() },
+
+            { "RudderCorrectionDegree", (parser, x) => x.RudderCorrectionDegree = parser.ParseFloat() },
+            { "RudderCorrectionRate", (parser, x) => x.RudderCorrectionRate = parser.ParseFloat() },
+            { "ElevatorCorrectionDegree", (parser, x) => x.ElevatorCorrectionDegree = parser.ParseFloat() },
+            { "ElevatorCorrectionRate", (parser, x) => x.ElevatorCorrectionRate = parser.ParseFloat() },
         };
 
         public string Name { get; private set; }
 
         public BitArray<Surface> Surfaces { get; private set; }
-        public int Speed { get; private set; }
-        public int SpeedDamaged { get; private set; }
+        public float Speed { get; private set; }
+        public float SpeedDamaged { get; private set; }
         public int MinSpeed { get; private set; }
-        public int TurnRate { get; private set; }
-        public int TurnRateDamaged { get; private set; }
-        public int Acceleration { get; private set; }
-        public int AccelerationDamaged { get; private set; }
+        public float TurnRate { get; private set; }
+        public float TurnRateDamaged { get; private set; }
+        public float Acceleration { get; private set; }
+        public float AccelerationDamaged { get; private set; }
         public int Lift { get; private set; }
         public int LiftDamaged { get; private set; }
         public int Braking { get; private set; }
@@ -116,6 +122,10 @@ namespace OpenSage.Data.Ini
         public float WanderAboutPointRadius { get; private set; }
 
         public float AccelerationPitchLimit { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public float DecelerationPitchLimit { get; private set; }
+
         public int BounceAmount { get; private set; }
         public float PitchInDirectionOfZVelFactor { get; private set; }
         public float PitchStiffness { get; private set; } = 0.1f;
@@ -142,6 +152,18 @@ namespace OpenSage.Data.Ini
         public int FrontWheelTurnAngle { get; private set; }
 
         public int SlideIntoPlaceTime { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public float RudderCorrectionDegree { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public float RudderCorrectionRate { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public float ElevatorCorrectionDegree { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public float ElevatorCorrectionRate { get; private set; }
     }
 
     public enum LocomotorAppearance
@@ -165,7 +187,10 @@ namespace OpenSage.Data.Ini
         Wings,
 
         [IniEnum("TREADS")]
-        Treads
+        Treads,
+
+        [IniEnum("MOTORCYCLE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Motorcycle,
     }
 
     public enum Surface

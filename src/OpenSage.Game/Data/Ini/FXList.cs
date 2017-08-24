@@ -202,7 +202,10 @@ namespace OpenSage.Data.Ini
     public enum TerrainScorchType
     {
         [IniEnum("RANDOM")]
-        Random
+        Random,
+
+        [IniEnum("SCORCH_4"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Scorch4,
     }
 
     public struct IniColorRgb

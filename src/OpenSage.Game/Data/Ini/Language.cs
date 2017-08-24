@@ -5,10 +5,7 @@ namespace OpenSage.Data.Ini
 {
     public sealed class Language
     {
-        internal static Language Parse(IniParser parser)
-        {
-            return parser.ParseTopLevelBlock(FieldParseTable);
-        }
+        internal static Language Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
 
         private static readonly IniParseTable<Language> FieldParseTable = new IniParseTable<Language>
         {
@@ -18,6 +15,7 @@ namespace OpenSage.Data.Ini
             { "MessageFont", (parser, x) => x.MessageFont = WndFont.Parse(parser) },
             { "MilitaryCaptionTitleFont", (parser, x) => x.MilitaryCaptionTitleFont = WndFont.Parse(parser) },
             { "MilitaryCaptionFont", (parser, x) => x.MilitaryCaptionFont = WndFont.Parse(parser) },
+            { "MilitaryCaptionDelayMS", (parser, x) => x.MilitaryCaptionDelayMS = parser.ParseInteger() },
             { "SuperweaponCountdownNormalFont", (parser, x) => x.SuperweaponCountdownNormalFont = WndFont.Parse(parser) },
             { "SuperweaponCountdownReadyFont", (parser, x) => x.SuperweaponCountdownReadyFont = WndFont.Parse(parser) },
             { "NamedTimerCountdownNormalFont", (parser, x) => x.NamedTimerCountdownNormalFont = WndFont.Parse(parser) },
@@ -40,6 +38,10 @@ namespace OpenSage.Data.Ini
         public WndFont MessageFont { get; private set; }
         public WndFont MilitaryCaptionTitleFont { get; private set; }
         public WndFont MilitaryCaptionFont { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public int MilitaryCaptionDelayMS { get; private set; }
+
         public WndFont SuperweaponCountdownNormalFont { get; private set; }
         public WndFont SuperweaponCountdownReadyFont { get; private set; }
         public WndFont NamedTimerCountdownNormalFont { get; private set; }

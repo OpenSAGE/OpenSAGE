@@ -15,11 +15,12 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<CommandButton> FieldParseTable = new IniParseTable<CommandButton>
         {
             { "Command", (parser, x) => x.Command = parser.ParseEnum<CommandType>() },
-            { "Options", (parser, x) => x.Options = parser.ParseEnumFlags<CommandButtonOptions>() },
+            { "Options", (parser, x) => x.Options = parser.ParseEnumBitArray<CommandButtonOption>() },
             { "CursorName", (parser, x) => x.CursorName = parser.ParseAssetReference() },
             { "InvalidCursorName", (parser, x) => x.InvalidCursorName = parser.ParseAssetReference() },
             { "SpecialPower", (parser, x) => x.SpecialPower = parser.ParseAssetReference() },
             { "TextLabel", (parser, x) => x.TextLabel = parser.ParseLocalizedStringKey() },
+            { "ConflictingLabel", (parser, x) => x.ConflictingLabel = parser.ParseLocalizedStringKey() },
             { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseAssetReference() },
             { "ButtonBorderType", (parser, x) => x.ButtonBorderType = parser.ParseEnum<CommandButtonBorderType>() },
             { "DescriptLabel", (parser, x) => x.DescriptLabel = parser.ParseLocalizedStringKey() },
@@ -27,7 +28,17 @@ namespace OpenSage.Data.Ini
             { "Object", (parser, x) => x.Object = parser.ParseAssetReference() },
             { "RadiusCursorType", (parser, x) => x.RadiusCursorType = parser.ParseEnum<CommandButtonRadiusCursorType>() },
             { "Science", (parser, x) => x.Science = parser.ParseAssetReferenceArray() },
-            { "WeaponSlot", (parser, x) => x.WeaponSlot = parser.ParseEnum<WeaponSlot>() },
+            {
+                "WeaponSlot",
+                (parser, x) => 
+                {
+                    x.WeaponSlot = parser.ParseEnum<WeaponSlot>();
+
+                    // ODDITY: Zero Hour CommandButton.ini:1858, WeaponSlot = SECONDARY TERTIARY
+                    // As far as I understand it, a command button should only be assigned one weapon slot.
+                    parser.NextTokenIf(IniTokenType.Identifier);
+                }
+            },
             { "UnitSpecificSound", (parser, x) => x.UnitSpecificSound = parser.ParseAssetReference() },
             { "Upgrade", (parser, x) => x.Upgrade = parser.ParseAssetReference() },
         };
@@ -38,8 +49,12 @@ namespace OpenSage.Data.Ini
         public string SpecialPower { get; private set; }
         public string Upgrade { get; private set; }
         public string[] Science { get; private set; }
-        public CommandButtonOptions Options { get; private set; }
+        public BitArray<CommandButtonOption> Options { get; private set; }
         public string TextLabel { get; private set; }
+        
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string ConflictingLabel { get; private set; }
+
         public string ButtonImage { get; private set; }
         public CommandButtonBorderType ButtonBorderType { get; private set; }
         public string DescriptLabel { get; private set; }
@@ -63,6 +78,9 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("SPECIAL_POWER_FROM_COMMAND_CENTER")]
         SpecialPowerFromCommandCenter,
+
+        [IniEnum("SPECIAL_POWER_FROM_SHORTCUT"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        SpecialPowerFromShortcut,
 
         [IniEnum("OBJECT_UPGRADE")]
         ObjectUpgrade,
@@ -137,7 +155,19 @@ namespace OpenSage.Data.Ini
         HijackVehicle,
 
         [IniEnum("HACK_INTERNET")]
-        HackInternet
+        HackInternet,
+
+        [IniEnum("SABOTAGE_BUILDING"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        SabotageBuilding,
+
+        [IniEnum("SELECT_ALL_UNITS_OF_TYPE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        SelectAllUnitsOfType,
+
+        [IniEnum("SPECIAL_POWER_CONSTRUCT"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        SpecialPowerConstruct,
+
+        [IniEnum("SPECIAL_POWER_CONSTRUCT_FROM_SHORTCUT"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        SpecialPowerConstructFromShortcut,
     }
 
     public enum CommandButtonBorderType
@@ -159,57 +189,61 @@ namespace OpenSage.Data.Ini
     }
 
     [Flags]
-    public enum CommandButtonOptions
+    public enum CommandButtonOption
     {
-        None = 0,
-
         [IniEnum("OK_FOR_MULTI_SELECT")]
-        OkForMultiSelect          = 0x0001,
+        OkForMultiSelect,
 
         [IniEnum("CHECK_LIKE")]
-        CheckLike                 = 0x0002,
+        CheckLike,
 
         [IniEnum("NEED_TARGET_ENEMY_OBJECT")]
-        NeedTargetEnemyObject     = 0x0004,
+        NeedTargetEnemyObject,
 
         [IniEnum("NEED_TARGET_NEUTRAL_OBJECT")]
-        NeedTargetNeutralObject   = 0x0008,
+        NeedTargetNeutralObject,
 
         [IniEnum("NEED_TARGET_ALLY_OBJECT")]
-        NeedTargetAllyObject      = 0x0010,
+        NeedTargetAllyObject,
 
         [IniEnum("CONTEXTMODE_COMMAND")]
-        ContextModeCommand        = 0x0020,
+        ContextModeCommand,
 
         [IniEnum("OPTION_ONE")]
-        OptionOne                 = 0x0040,
+        OptionOne,
 
         [IniEnum("OPTION_TWO")]
-        OptionTwo                 = 0x0080,
+        OptionTwo,
 
         [IniEnum("OPTION_THREE")]
-        OptionThree               = 0x0100,
+        OptionThree,
 
         [IniEnum("NEED_TARGET_POS")]
-        NeedTargetPos             = 0x0200,
+        NeedTargetPos,
 
         [IniEnum("NOT_QUEUEABLE")]
-        NotQueueable              = 0x0400,
+        NotQueueable,
 
         [IniEnum("IGNORES_UNDERPOWERED")]
-        IgnoresUnderpowered       = 0x0800,
+        IgnoresUnderpowered,
 
         [IniEnum("NEED_SPECIAL_POWER_SCIENCE")]
-        NeedSpecialPowerScience   = 0x1000,
+        NeedSpecialPowerScience,
 
         [IniEnum("SCRIPT_ONLY")]
-        ScriptOnly                = 0x2000,
+        ScriptOnly,
 
         [IniEnum("NEED_UPGRADE")]
-        NeedUpgrade               = 0x4000,
+        NeedUpgrade,
 
         [IniEnum("USES_MINE_CLEARING_WEAPONSET")]
-        UsesMineClearingWeaponSet = 0x8000
+        UsesMineClearingWeaponSet,
+
+        [IniEnum("CAN_USE_WAYPOINTS"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        CanUseWaypoints,
+
+        [IniEnum("MUST_BE_STOPPED"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        MustBeStopped
     }
 
     public enum WeaponSlot
@@ -296,6 +330,21 @@ namespace OpenSage.Data.Ini
         FriendlySpecialPower,
 
         [IniEnum("OFFENSIVE_SPECIALPOWER")]
-        OffensiveSpecialPower
+        OffensiveSpecialPower,
+
+        [IniEnum("SPECTREGUNSHIP"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        SpectreGunship,
+
+        [IniEnum("FRENZY"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Frenzy,
+
+        [IniEnum("CLEARMINES"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        ClearMines,
+
+        [IniEnum("AMBULANCE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Ambulance,
+
+        [IniEnum("HELIX_NAPALM_BOMB"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        HelixNapalmBomb,
     }
 }

@@ -133,6 +133,21 @@ namespace OpenSage.Data.Ini
         FleshySniper,
 
         [IniEnum("PARTICLE_BEAM")]
-        ParticleBeam
+        ParticleBeam,
+
+        [IniEnum("SUBDUAL_MISSILE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        SubdualMissile,
+
+        [IniEnum("SUBDUAL_VEHICLE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        SubdualVehicle,
+
+        [IniEnum("SUBDUAL_BUILDING"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        SubdualBuilding,
+
+        [IniEnum("MICROWAVE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Microwave,
+
+        [IniEnum("STATUS"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Status,
     }
 }

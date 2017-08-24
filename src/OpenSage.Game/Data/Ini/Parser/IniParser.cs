@@ -17,6 +17,7 @@ namespace OpenSage.Data.Ini.Parser
             { "BenchProfile", (parser, context) => context.BenchProfiles.Add(BenchProfile.Parse(parser)) },
             { "Bridge", (parser, context) => context.Bridges.Add(Bridge.Parse(parser)) },
             { "Campaign", (parser, context) => context.Campaigns.Add(Campaign.Parse(parser)) },
+            { "ChallengeGenerals", (parser, context) => context.ChallengeGenerals = ChallengeGenerals.Parse(parser) },
             { "CommandButton", (parser, context) => context.CommandButtons.Add(CommandButton.Parse(parser)) },
             { "CommandMap", (parser, context) => context.CommandMaps.Add(CommandMap.Parse(parser)) },
             { "CommandSet", (parser, context) => context.CommandSets.Add(CommandSet.Parse(parser)) },
@@ -334,12 +335,12 @@ namespace OpenSage.Data.Ini.Parser
 
         public T ParseTopLevelNamedBlock<T>(
             Action<T, string> setNameCallback,
-            IniParseTable<T> fieldParseTable)
+            IIniFieldParserProvider<T> fieldParserProvider)
             where T : class, new()
         {
             NextToken();
 
-            var result = ParseNamedBlock(setNameCallback, fieldParseTable);
+            var result = ParseNamedBlock(setNameCallback, fieldParserProvider);
 
             NextTokenIf(IniTokenType.EndOfLine);
 
@@ -348,12 +349,12 @@ namespace OpenSage.Data.Ini.Parser
 
         public T ParseTopLevelNamedBlock<T>(
             Action<T, int> setNameCallback,
-            IniParseTable<T> fieldParseTable)
+            IIniFieldParserProvider<T> fieldParserProvider)
             where T : class, new()
         {
             NextToken();
 
-            var result = ParseNamedBlock(setNameCallback, fieldParseTable);
+            var result = ParseNamedBlock(setNameCallback, fieldParserProvider);
 
             NextTokenIf(IniTokenType.EndOfLine);
 
@@ -362,7 +363,7 @@ namespace OpenSage.Data.Ini.Parser
 
         public T ParseNamedBlock<T>(
             Action<T, string> setNameCallback,
-            IniParseTable<T> fieldParseTable)
+            IIniFieldParserProvider<T> fieldParserProvider)
             where T : class, new()
         {
             var result = new T();
@@ -382,14 +383,14 @@ namespace OpenSage.Data.Ini.Parser
 
             NextToken(IniTokenType.EndOfLine);
 
-            ParseBlockContent(result, fieldParseTable);
+            ParseBlockContent(result, fieldParserProvider);
 
             return result;
         }
 
         public T ParseNamedBlock<T>(
             Action<T, int> setNameCallback,
-            IniParseTable<T> fieldParseTable)
+            IIniFieldParserProvider<T> fieldParserProvider)
             where T : class, new()
         {
             var result = new T();
@@ -401,18 +402,18 @@ namespace OpenSage.Data.Ini.Parser
 
             NextToken(IniTokenType.EndOfLine);
 
-            ParseBlockContent(result, fieldParseTable);
+            ParseBlockContent(result, fieldParserProvider);
 
             return result;
         }
 
         public T ParseTopLevelBlock<T>(
-            IniParseTable<T> fieldParseTable)
+            IIniFieldParserProvider<T> fieldParserProvider)
             where T : class, new()
         {
             NextToken();
 
-            var result = ParseBlock(fieldParseTable);
+            var result = ParseBlock(fieldParserProvider);
 
             NextTokenIf(IniTokenType.EndOfLine);
 
@@ -420,21 +421,21 @@ namespace OpenSage.Data.Ini.Parser
         }
 
         public T ParseBlock<T>(
-           IniParseTable<T> fieldParseTable)
+           IIniFieldParserProvider<T> fieldParserProvider)
            where T : class, new()
         {
             var result = new T();
 
             NextToken(IniTokenType.EndOfLine);
 
-            ParseBlockContent(result, fieldParseTable);
+            ParseBlockContent(result, fieldParserProvider);
 
             return result;
         }
 
         private void ParseBlockContent<T>(
             T result,
-            IniParseTable<T> fieldParseTable)
+           IIniFieldParserProvider<T> fieldParserProvider)
             where T : class, new()
         {
             while (Current.TokenType == IniTokenType.Identifier || Current.TokenType == IniTokenType.IntegerLiteral)
@@ -450,7 +451,7 @@ namespace OpenSage.Data.Ini.Parser
                         ? Current.StringValue
                         : Current.IntegerValue.ToString();
 
-                    if (fieldParseTable.TryGetValue(fieldName, out var fieldParser))
+                    if (fieldParserProvider.TryGetFieldParser(fieldName, out var fieldParser))
                     {
                         _currentBlockOrFieldStack.Push(fieldName);
 

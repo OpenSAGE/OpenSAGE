@@ -17,6 +17,8 @@ namespace OpenSage.Data.Ini
             { "CampaignNameLabel", (parser, x) => x.CampaignNameLabel = parser.ParseLocalizedStringKey() },
             { "FirstMission", (parser, x) => x.FirstMission = parser.ParseAssetReference() },
             { "FinalVictoryMovie", (parser, x) => x.FinalVictoryMovie = parser.ParseAssetReference() },
+            { "IsChallengeCampaign", (parser, x) => x.IsChallengeCampaign = parser.ParseBoolean() },
+            { "PlayerFaction", (parser, x) => x.PlayerFaction = parser.ParseAssetReference() },
             { "Mission", (parser, x) => x.Missions.Add(CampaignMission.Parse(parser)) }
         };
 
@@ -25,6 +27,12 @@ namespace OpenSage.Data.Ini
         public string CampaignNameLabel { get; private set; }
         public string FirstMission { get; private set; }
         public string FinalVictoryMovie { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool IsChallengeCampaign { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string PlayerFaction { get; private set; }
 
         public List<CampaignMission> Missions { get; } = new List<CampaignMission>();
     }
@@ -41,6 +49,7 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<CampaignMission> FieldParseTable = new IniParseTable<CampaignMission>
         {
             { "Map", (parser, x) => x.Map = parser.ParseFileName() },
+            { "GeneralName", (parser, x) => x.GeneralName = parser.ParseLocalizedStringKey() },
             { "NextMission", (parser, x) => x.NextMission = parser.ParseAssetReference() },
             { "IntroMovie", (parser, x) => x.IntroMovie = parser.ParseAssetReference() },
             { "ObjectiveLine0", (parser, x) => x.ObjectiveLine0 = parser.ParseLocalizedStringKey() },
@@ -59,6 +68,10 @@ namespace OpenSage.Data.Ini
         public string Name { get; private set; }
 
         public string Map { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string GeneralName { get; private set; }
+
         public string NextMission { get; private set; }
         public string IntroMovie { get; private set; }
         public string ObjectiveLine0 { get; private set; }

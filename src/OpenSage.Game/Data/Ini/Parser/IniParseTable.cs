@@ -3,9 +3,16 @@ using System.Collections.Generic;
 
 namespace OpenSage.Data.Ini.Parser
 {
-    internal sealed class IniParseTable<T> : Dictionary<string, Action<IniParser, T>>
+    internal interface IIniFieldParserProvider<T>
     {
-        public IniParseTable(IDictionary<string, Action<IniParser, T>> dictionary)
+        bool TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser);
+    }
+
+    internal delegate void ParseFieldCallback<T>(IniParser parser, T result);
+
+    internal sealed class IniParseTable<T> : Dictionary<string, ParseFieldCallback<T>>, IIniFieldParserProvider<T>
+    {
+        public IniParseTable(IDictionary<string, ParseFieldCallback<T>> dictionary)
             : base(dictionary)
         {
 
@@ -20,10 +27,31 @@ namespace OpenSage.Data.Ini.Parser
 
             foreach (var kvp in otherTable)
             {
-                result.Add(kvp.Key, (parser, x) => kvp.Value(parser, (T1) x));
+                result.Add(kvp.Key, (parser, x) => kvp.Value(parser, (T1)x));
             }
 
             return result;
+        }
+
+        bool IIniFieldParserProvider<T>.TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser)
+        {
+            return TryGetValue(fieldName, out fieldParser);
+        }
+    }
+
+    internal sealed class IniArbitraryFieldParserProvider<T> : IIniFieldParserProvider<T>
+    {
+        private readonly Action<T, string> _parseFieldCallback;
+
+        public IniArbitraryFieldParserProvider(Action<T, string> parseFieldCallback)
+        {
+            _parseFieldCallback = parseFieldCallback;
+        }
+
+        bool IIniFieldParserProvider<T>.TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser)
+        {
+            fieldParser = (parser, result) => _parseFieldCallback(result, fieldName);
+            return true;
         }
     }
 }

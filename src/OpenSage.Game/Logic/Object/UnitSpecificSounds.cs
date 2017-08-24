@@ -7,31 +7,8 @@ namespace OpenSage.Logic.Object
     {
         internal static UnitSpecificAssets Parse(IniParser parser)
         {
-            parser.NextToken(IniTokenType.EndOfLine);
-
-            var result = new UnitSpecificAssets();
-
-            while (parser.Current.TokenType == IniTokenType.Identifier)
-            {
-                if (parser.Current.TokenType == IniTokenType.Identifier && parser.Current.StringValue.ToUpper() == "END")
-                {
-                    parser.NextToken();
-                    break;
-                }
-                else
-                {
-                    var fieldName = parser.Current.StringValue;
-
-                    parser.NextToken();
-                    parser.NextToken(IniTokenType.Equals);
-
-                    result.Assets[fieldName] = parser.ParseAssetReference();
-
-                    parser.NextToken(IniTokenType.EndOfLine);
-                }
-            }
-
-            return result;
+            return parser.ParseBlock(new IniArbitraryFieldParserProvider<UnitSpecificAssets>(
+                (x, name) => x.Assets[name] = parser.ParseAssetReference()));
         }
 
         // These keys will eventually mean something to some code, as noted in FactionUnit.ini:32029.

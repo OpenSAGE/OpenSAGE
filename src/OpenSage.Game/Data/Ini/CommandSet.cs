@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
@@ -7,25 +8,10 @@ namespace OpenSage.Data.Ini
         internal static CommandSet Parse(IniParser parser)
         {
             return parser.ParseTopLevelNamedBlock(
-                 (x, name) => x.Name = name,
-                 FieldParseTable);
+                (x, name) => x.Name = name,
+                new IniArbitraryFieldParserProvider<CommandSet>(
+                    (x, name) => x.Buttons[int.Parse(name)] = parser.ParseAssetReference()));
         }
-
-        private static readonly IniParseTable<CommandSet> FieldParseTable = new IniParseTable<CommandSet>
-        {
-            { "1", (parser, x) => x.Buttons[0] = parser.ParseAssetReference() },
-            { "2", (parser, x) => x.Buttons[1] = parser.ParseAssetReference() },
-            { "3", (parser, x) => x.Buttons[2] = parser.ParseAssetReference() },
-            { "4", (parser, x) => x.Buttons[3] = parser.ParseAssetReference() },
-            { "5", (parser, x) => x.Buttons[4] = parser.ParseAssetReference() },
-            { "6", (parser, x) => x.Buttons[5] = parser.ParseAssetReference() },
-            { "7", (parser, x) => x.Buttons[6] = parser.ParseAssetReference() },
-            { "8", (parser, x) => x.Buttons[7] = parser.ParseAssetReference() },
-            { "9", (parser, x) => x.Buttons[8] = parser.ParseAssetReference() },
-            { "10", (parser, x) => x.Buttons[9] = parser.ParseAssetReference() },
-            { "11", (parser, x) => x.Buttons[10] = parser.ParseAssetReference() },
-            { "12", (parser, x) => x.Buttons[11] = parser.ParseAssetReference() }
-        };
 
         public string Name { get; private set; }
 
@@ -35,6 +21,6 @@ namespace OpenSage.Data.Ini
         // -------------------------------
         // | 02 | 04 | 06 | 08 | 10 | 12 |
         // -------------------------------
-        public string[] Buttons { get; } = new string[12];
+        public Dictionary<int, string> Buttons { get; } = new Dictionary<int, string>();
     }
 }
