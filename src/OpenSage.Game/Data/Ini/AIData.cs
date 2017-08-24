@@ -13,7 +13,7 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<AIData> FieldParseTable = new IniParseTable<AIData>
         {
             { "StructureSeconds", (parser, x) => x.StructureSeconds = parser.ParseFloat() },
-            { "TeamSeconds", (parser, x) => x.TeamSeconds = parser.ParseInteger() },
+            { "TeamSeconds", (parser, x) => x.TeamSeconds = parser.ParseFloat() },
             { "Wealthy", (parser, x) => x.Wealthy = parser.ParseInteger() },
             { "Poor", (parser, x) => x.Poor = parser.ParseInteger() },
             { "StructuresWealthyRate", (parser, x) => x.StructuresWealthyRate = parser.ParseFloat() },
@@ -66,7 +66,7 @@ namespace OpenSage.Data.Ini
         };
 
         public float StructureSeconds { get; private set; }
-        public int TeamSeconds { get; private set; }
+        public float TeamSeconds { get; private set; }
         public int Wealthy { get; private set; }
         public int Poor { get; private set; }
         public float StructuresWealthyRate { get; private set; }
@@ -135,7 +135,8 @@ namespace OpenSage.Data.Ini
             { "BaseDefenseStructure1", (parser, x) => x.BaseDefenseStructure1 = parser.ParseAssetReference() },
 
             { "SkillSet1", (parser, x) => x.SkillSet1 = AISkillSet.Parse(parser) },
-            { "SkillSet2", (parser, x) => x.SkillSet1 = AISkillSet.Parse(parser) }
+            { "SkillSet2", (parser, x) => x.SkillSet1 = AISkillSet.Parse(parser) },
+            { "SkillSet3", (parser, x) => x.SkillSet3 = AISkillSet.Parse(parser) }
         };
 
         public string Name { get; private set; }
@@ -147,6 +148,7 @@ namespace OpenSage.Data.Ini
 
         public AISkillSet SkillSet1 { get; private set; }
         public AISkillSet SkillSet2 { get; private set; }
+        public AISkillSet SkillSet3 { get; private set; }
     }
 
     public sealed class AISkillSet

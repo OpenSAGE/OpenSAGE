@@ -15,7 +15,9 @@ namespace OpenSage.Logic.Object
             { "ExecuteAnimation", (parser, x) => x.ExecuteAnimation = parser.ParseAssetReference() },
             { "ExecuteAnimationTime", (parser, x) => x.ExecuteAnimationTime = parser.ParseFloat() },
             { "ExecuteAnimationZRise", (parser, x) => x.ExecuteAnimationZRise = parser.ParseFloat() },
-            { "ExecuteAnimationFades", (parser, x) => x.ExecuteAnimationFades = parser.ParseBoolean() }
+            { "ExecuteAnimationFades", (parser, x) => x.ExecuteAnimationFades = parser.ParseBoolean() },
+            { "ForbidOwnerPlayer", (parser, x) => x.ForbidOwnerPlayer = parser.ParseBoolean() },
+            { "HumanOnly", (parser, x) => x.HumanOnly = parser.ParseBoolean() }
         };
 
         public bool BuildingPickup { get; private set; }
@@ -25,5 +27,7 @@ namespace OpenSage.Logic.Object
         public float ExecuteAnimationTime { get; private set; }
         public float ExecuteAnimationZRise { get; private set; }
         public bool ExecuteAnimationFades { get; private set; }
+        public bool ForbidOwnerPlayer { get; private set; }
+        public bool HumanOnly { get; private set; }
     }
 }

@@ -24,7 +24,7 @@ namespace OpenSage.Logic.Object
             { "UpgradeCameo4", (parser, x) => x.UpgradeCameo4 = parser.ParseAssetReference() },
             { "UpgradeCameo5", (parser, x) => x.UpgradeCameo5 = parser.ParseAssetReference() },
 
-            { "Buildable", (parser, x) => x.Buildable = parser.ParseBoolean() },
+            { "Buildable", (parser, x) => x.Buildable = parser.ParseEnum<ObjectBuildableType>() },
             { "Side", (parser, x) => x.Side = parser.ParseAssetReference() },
             { "DisplayName", (parser, x) => x.DisplayName = parser.ParseLocalizedStringKey() },
             { "EditorSorting", (parser, x) => x.EditorSorting = parser.ParseEnumFlags<ObjectEditorSortingFlags>() },
@@ -92,6 +92,7 @@ namespace OpenSage.Logic.Object
             { "Draw", (parser, x) => x.Draws.Add(ObjectDrawModule.ParseDrawModule(parser)) },
             { "Body", (parser, x) => x.Body = ObjectBody.ParseBody(parser) },
             { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdate.ParseClientUpdate(parser)) },
+
             { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSet>()] = parser.ParseAssetReferenceArray() },
             { "InheritableModule", (parser, x) => x.InheritableModule = InheritableModule.Parse(parser) },
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
@@ -111,6 +112,10 @@ namespace OpenSage.Logic.Object
             { "InstanceScaleFuzziness", (parser, x) => x.InstanceScaleFuzziness = parser.ParseFloat() },
             { "BuildCompletion", (parser, x) => x.BuildCompletion = parser.ParseAssetReference() },
             { "BuildVariations", (parser, x) => x.BuildVariations = parser.ParseAssetReferenceArray() },
+
+            { "RemoveModule", (parser, x) => x.RemoveModules.Add(parser.ParseIdentifier()) },
+            { "AddModule", (parser, x) => x.AddModules.Add(AddModule.Parse(parser)) },
+            { "ReplaceModule", (parser, x) => x.ReplaceModules.Add(ReplaceModule.Parse(parser)) },
         };
 
         public string Name { get; protected set; }
@@ -126,7 +131,7 @@ namespace OpenSage.Logic.Object
         public string UpgradeCameo5 { get; private set; }
 
         // Design
-        public bool Buildable { get; private set; }
+        public ObjectBuildableType Buildable { get; private set; }
         public string Side { get; private set; }
         public string DisplayName { get; private set; }
         public ObjectEditorSortingFlags EditorSorting { get; private set; }
@@ -241,5 +246,68 @@ namespace OpenSage.Logic.Object
         public float InstanceScaleFuzziness { get; private set; }
         public string BuildCompletion { get; private set; }
         public string[] BuildVariations { get; private set; }
+
+        // Map.ini module modifications
+        public List<string> RemoveModules { get; } = new List<string>();
+        public List<AddModule> AddModules { get; } = new List<AddModule>();
+        public List<ReplaceModule> ReplaceModules { get; } = new List<ReplaceModule>();
+    }
+
+    public enum ObjectBuildableType
+    {
+        [IniEnum("No")]
+        No,
+
+        [IniEnum("Yes")]
+        Yes,
+
+        [IniEnum("Only_By_AI")]
+        OnlyByAI
+    }
+
+    public sealed class AddModule
+    {
+        internal static AddModule Parse(IniParser parser)
+        {
+            var name = parser.NextTokenIf(IniTokenType.Identifier);
+
+            var result = parser.ParseBlock(FieldParseTable);
+
+            result.Name = name?.StringValue;
+
+            return result;
+        }
+
+        private static readonly IniParseTable<AddModule> FieldParseTable = new IniParseTable<AddModule>
+        {
+            { "Behavior", (parser, x) => x.Module = ObjectBehavior.ParseBehavior(parser) },
+            { "Draw", (parser, x) => x.Module = ObjectDrawModule.ParseDrawModule(parser) },
+            { "Body", (parser, x) => x.Module = ObjectBody.ParseBody(parser) },
+        };
+
+        public string Name { get; private set; }
+
+        public ObjectModule Module { get; private set; }
+    }
+
+    public sealed class ReplaceModule
+    {
+        internal static ReplaceModule Parse(IniParser parser)
+        {
+            return parser.ParseNamedBlock(
+                (x, name) => x.Name = name,
+                FieldParseTable);
+        }
+
+        private static readonly IniParseTable<ReplaceModule> FieldParseTable = new IniParseTable<ReplaceModule>
+        {
+            { "Behavior", (parser, x) => x.Module = ObjectBehavior.ParseBehavior(parser) },
+            { "Draw", (parser, x) => x.Module = ObjectDrawModule.ParseDrawModule(parser) },
+            { "Body", (parser, x) => x.Module = ObjectBody.ParseBody(parser) },
+        };
+
+        public string Name { get; private set; }
+
+        public ObjectModule Module { get; private set; }
     }
 }
