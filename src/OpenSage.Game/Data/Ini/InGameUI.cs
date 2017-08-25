@@ -6,10 +6,7 @@ namespace OpenSage.Data.Ini
 {
     public sealed class InGameUI
     {
-        internal static InGameUI Parse(IniParser parser)
-        {
-            return parser.ParseTopLevelBlock(FieldParseTable);
-        }
+        internal static InGameUI Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
 
         private static readonly IniParseTable<InGameUI> FieldParseTable = new IniParseTable<InGameUI>
         {

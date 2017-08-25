@@ -16,6 +16,11 @@ namespace OpenSage.Data.Ini
             { "SkyboxTextureS", (parser, x) => x.SkyboxTextureS = parser.ParseFileName() },
             { "SkyboxTextureW", (parser, x) => x.SkyboxTextureW = parser.ParseFileName() },
             { "SkyboxTextureT", (parser, x) => x.SkyboxTextureT = parser.ParseFileName() },
+
+            { "StandingWaterColor", (parser, x) => x.StandingWaterColor = IniColorRgb.Parse(parser) },
+            { "StandingWaterTexture", (parser, x) => x.StandingWaterTexture = parser.ParseFileName() },
+            { "AdditiveBlending", (parser, x) => x.AdditiveBlending = parser.ParseBoolean() },
+            { "RadarWaterColor", (parser, x) => x.RadarWaterColor = IniColorRgb.Parse(parser) },
         };
 
         public float TransparentWaterMinOpacity { get; private set; }
@@ -26,5 +31,17 @@ namespace OpenSage.Data.Ini
         public string SkyboxTextureS { get; private set; }
         public string SkyboxTextureW { get; private set; }
         public string SkyboxTextureT { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public IniColorRgb StandingWaterColor { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string StandingWaterTexture { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool AdditiveBlending { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public IniColorRgb RadarWaterColor { get; private set; }
     }
 }

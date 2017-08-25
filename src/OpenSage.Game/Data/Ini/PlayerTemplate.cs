@@ -14,11 +14,12 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<PlayerTemplate> FieldParseTable = new IniParseTable<PlayerTemplate>
         {
             { "Side", (parser, x) => x.Side = parser.ParseAssetReference() },
+            { "BaseSide", (parser, x) => x.BaseSide = parser.ParseAssetReference() },
             { "PlayableSide", (parser, x) => x.PlayableSide = parser.ParseBoolean() },
             { "IsObserver", (parser, x) => x.IsObserver = parser.ParseBoolean() },
             { "StartMoney", (parser, x) => x.StartMoney = parser.ParseInteger() },
             { "PreferredColor", (parser, x) => x.PreferredColor = IniColorRgb.Parse(parser) },
-            { "IntrinsicSciences", (parser, x) => x.IntrinsicSciences = parser.ParseAssetReference() },
+            { "IntrinsicSciences", (parser, x) => x.IntrinsicSciences = parser.ParseAssetReferenceArray() },
             { "PurchaseScienceCommandSetRank1", (parser, x) => x.PurchaseScienceCommandSetRank1 = parser.ParseAssetReference() },
             { "PurchaseScienceCommandSetRank3", (parser, x) => x.PurchaseScienceCommandSetRank3 = parser.ParseAssetReference() },
             { "PurchaseScienceCommandSetRank8", (parser, x) => x.PurchaseScienceCommandSetRank8 = parser.ParseAssetReference() },
@@ -34,17 +35,29 @@ namespace OpenSage.Data.Ini
             { "FlagWaterMark", (parser, x) => x.FlagWatermark = parser.ParseAssetReference() },
             { "EnabledImage", (parser, x) => x.EnabledImage = parser.ParseAssetReference() },
             { "BeaconName", (parser, x) => x.BeaconName = parser.ParseAssetReference() },
-            { "SideIconImage", (parser, x) => x.SideIconImage = parser.ParseAssetReference() }
+            { "SideIconImage", (parser, x) => x.SideIconImage = parser.ParseAssetReference() },
+            { "ScoreScreenMusic", (parser, x) => x.ScoreScreenMusic = parser.ParseAssetReference() },
+            { "OldFaction", (parser, x) => x.OldFaction = parser.ParseBoolean() },
+            { "GeneralImage", (parser, x) => x.GeneralImage = parser.ParseAssetReference() },
+            { "ArmyTooltip", (parser, x) => x.ArmyTooltip = parser.ParseLocalizedStringKey() },
+            { "Features", (parser, x) => x.Features = parser.ParseLocalizedStringKey() },
+            { "MedallionRegular", (parser, x) => x.MedallionRegular = parser.ParseAssetReference() },
+            { "MedallionHilite", (parser, x) => x.MedallionHilite = parser.ParseAssetReference() },
+            { "MedallionSelect", (parser, x) => x.MedallionSelect = parser.ParseAssetReference() },
         };
 
         public string Name { get; private set; }
 
         public string Side { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string BaseSide { get; private set; }
+
         public bool PlayableSide { get; private set; }
         public bool IsObserver { get; private set; }
         public int StartMoney { get; private set; }
         public IniColorRgb PreferredColor { get; private set; }
-        public string IntrinsicSciences { get; private set; }
+        public string[] IntrinsicSciences { get; private set; }
         public string PurchaseScienceCommandSetRank1 { get; private set; }
         public string PurchaseScienceCommandSetRank3 { get; private set; }
         public string PurchaseScienceCommandSetRank8 { get; private set; }
@@ -61,5 +74,29 @@ namespace OpenSage.Data.Ini
         public string EnabledImage { get; private set; }
         public string BeaconName { get; private set; }
         public string SideIconImage { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string ScoreScreenMusic { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool OldFaction { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string GeneralImage { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string ArmyTooltip { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string Features { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string MedallionRegular { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string MedallionHilite { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string MedallionSelect { get; private set; }
     }
 }

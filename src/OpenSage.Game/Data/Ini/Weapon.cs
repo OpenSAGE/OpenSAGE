@@ -29,6 +29,7 @@ namespace OpenSage.Data.Ini
             { "MinTargetPitch", (parser, x) => x.MinTargetPitch = parser.ParseInteger() },
             { "MaxTargetPitch", (parser, x) => x.MaxTargetPitch = parser.ParseInteger() },
             { "DamageType", (parser, x) => x.DamageType = parser.ParseEnum<DamageType>() },
+            { "DamageStatusType", (parser, x) => x.DamageStatusType = parser.ParseEnum<DamageStatusType>() },
             { "DeathType", (parser, x) => x.DeathType = parser.ParseEnum<DeathType>() },
             { "WeaponSpeed", (parser, x) => x.WeaponSpeed = parser.ParseFloat() },
             { "MinWeaponSpeed", (parser, x) => x.MinWeaponSpeed = parser.ParseFloat() },
@@ -51,7 +52,19 @@ namespace OpenSage.Data.Ini
             { "DelayBetweenShots", (parser, x) => x.DelayBetweenShots = RangeDuration.Parse(parser) },
             { "ShotsPerBarrel", (parser, x) => x.ShotsPerBarrel = parser.ParseInteger() },
             { "ClipSize", (parser, x) => x.ClipSize = parser.ParseInteger() },
-            { "ClipReloadTime", (parser, x) => x.ClipReloadTime = parser.ParseInteger() },
+            {
+                "ClipReloadTime",
+                (parser, x) =>
+                {
+                    x.ClipReloadTime = parser.ParseInteger();
+
+                    // ODDITY: Zero Hour Weapon.ini:633, missing a ; before the comment
+                    while (parser.CurrentTokenType != IniTokenType.EndOfLine)
+                    {
+                        parser.NextToken();
+                    }
+                }
+            },
             { "AutoReloadWhenIdle", (parser, x) => x.AutoReloadWhenIdle = parser.ParseInteger() },
             { "AutoReloadsClip", (parser, x) => x.AutoReloadsClip = parser.ParseEnum<WeaponReloadType>() },
             { "ContinuousFireOne", (parser, x) => x.ContinuousFireOne = parser.ParseInteger() },
@@ -60,7 +73,7 @@ namespace OpenSage.Data.Ini
             { "PreAttackDelay", (parser, x) => x.PreAttackDelay = parser.ParseInteger() },
             { "PreAttackType", (parser, x) => x.PreAttackType = parser.ParseEnum<WeaponPrefireType>() },
             { "ContinueAttackRange", (parser, x) => x.ContinueAttackRange = parser.ParseInteger() },
-            { "AcceptableAimDelta", (parser, x) => x.AcceptableAimDelta = parser.ParseInteger() },
+            { "AcceptableAimDelta", (parser, x) => x.AcceptableAimDelta = parser.ParseFloat() },
             { "AntiSmallMissile", (parser, x) => x.AntiSmallMissile = parser.ParseBoolean() },
             { "AntiProjectile", (parser, x) => x.AntiProjectile = parser.ParseBoolean() },
             { "AntiAirborneVehicle", (parser, x) => x.AntiAirborneVehicle = parser.ParseBoolean() },
@@ -70,6 +83,7 @@ namespace OpenSage.Data.Ini
             { "AntiMine", (parser, x) => x.AntiMine = parser.ParseBoolean() },
             { "ShowsAmmoPips", (parser, x) => x.ShowsAmmoPips = parser.ParseBoolean() },
             { "LaserName", (parser, x) => x.LaserName = parser.ParseAssetReference() },
+            { "LaserBoneName", (parser, x) => x.LaserBoneName = parser.ParseBoneName() },
             { "DamageDealtAtSelfPosition", (parser, x) => x.DamageDealtAtSelfPosition = parser.ParseBoolean() },
             { "RequestAssistRange", (parser, x) => x.RequestAssistRange = parser.ParseInteger() },
             { "AllowAttackGarrisonedBldgs", (parser, x) => x.AllowAttackGarrisonedBldgs = parser.ParseBoolean() },
@@ -80,6 +94,10 @@ namespace OpenSage.Data.Ini
             { "HistoricBonusCount", (parser, x) => x.HistoricBonusCount = parser.ParseInteger() },
             { "HistoricBonusRadius", (parser, x) => x.HistoricBonusRadius = parser.ParseInteger() },
             { "HistoricBonusWeapon", (parser, x) => x.HistoricBonusWeapon = parser.ParseAssetReference() },
+            { "ShockWaveAmount", (parser, x) => x.ShockWaveAmount = parser.ParseFloat() },
+            { "ShockWaveRadius", (parser, x) => x.ShockWaveRadius = parser.ParseFloat() },
+            { "ShockWaveTaperOff", (parser, x) => x.ShockWaveTaperOff = parser.ParseFloat() },
+            { "MissileCallsOnDie", (parser, x) => x.MissileCallsOnDie = parser.ParseBoolean() },
         };
 
         private static string ParseVeterancyAssetReference(IniParser parser)
@@ -109,6 +127,10 @@ namespace OpenSage.Data.Ini
         public int MinTargetPitch { get; private set; }
         public int MaxTargetPitch { get; private set; }
         public DamageType DamageType { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public DamageStatusType DamageStatusType { get; private set; }
+
         public DeathType DeathType { get; private set; }
         public float WeaponSpeed { get; private set; }
         public float MinWeaponSpeed { get; private set; }
@@ -140,7 +162,7 @@ namespace OpenSage.Data.Ini
         public int PreAttackDelay { get; private set; }
         public WeaponPrefireType PreAttackType { get; private set; }
         public int ContinueAttackRange { get; private set; }
-        public int AcceptableAimDelta { get; private set; }
+        public float AcceptableAimDelta { get; private set; }
         public bool AntiSmallMissile { get; private set; }
         public bool AntiProjectile { get; private set; }
         public bool AntiAirborneVehicle { get; private set; }
@@ -150,6 +172,10 @@ namespace OpenSage.Data.Ini
         public bool AntiMine { get; private set; }
         public bool ShowsAmmoPips { get; private set; }
         public string LaserName { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string LaserBoneName { get; private set; }
+
         public bool DamageDealtAtSelfPosition { get; private set; }
         public int RequestAssistRange { get; private set; }
         public bool AllowAttackGarrisonedBldgs { get; private set; }
@@ -160,15 +186,27 @@ namespace OpenSage.Data.Ini
         public int HistoricBonusCount { get; private set; }
         public int HistoricBonusRadius { get; private set; }
         public string HistoricBonusWeapon { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public float ShockWaveAmount { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public float ShockWaveRadius { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public float ShockWaveTaperOff { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool MissileCallsOnDie { get; private set; }
     }
 
     public struct RangeDuration
     {
         internal static RangeDuration Parse(IniParser parser)
         {
-            if (parser.CurrentTokenType == IniTokenType.IntegerLiteral)
+            if (parser.CurrentTokenType == IniTokenType.IntegerLiteral || parser.CurrentTokenType == IniTokenType.FloatLiteral)
             {
-                var value = parser.ParseInteger();
+                var value = parser.ParseFloat();
                 return new RangeDuration
                 {
                     Min = value,
@@ -182,8 +220,8 @@ namespace OpenSage.Data.Ini
             };
         }
 
-        public int Min { get; private set; }
-        public int Max { get; private set; }
+        public float Min { get; private set; }
+        public float Max { get; private set; }
     }
 
     public enum WeaponReloadType
@@ -232,6 +270,9 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("POISONED_BETA")]
         PoisonedBeta,
+
+        [IniEnum("POISONED_GAMMA"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        PoisonedGamma,
 
         [IniEnum("CRUSHED")]
         Crushed,
@@ -292,5 +333,11 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("SHRUBBERY")]
         Shrubbery = 1 << 3
+    }
+
+    public enum DamageStatusType
+    {
+        [IniEnum("FAERIE_FIRE")]
+        FaerieFire,
     }
 }

@@ -43,6 +43,7 @@ namespace OpenSage.Data.Ini
         public MouseData MouseData { get; internal set; }
         public List<MultiplayerColor> MultiplayerColors { get; } = new List<MultiplayerColor>();
         public MultiplayerSettings MultiplayerSettings { get; internal set; }
+        public List<MultiplayerStartingMoneyChoice> MultiplayerStartingMoneyChoices { get; } = new List<MultiplayerStartingMoneyChoice>();
         public List<MusicTrack> MusicTracks { get; } = new List<MusicTrack>();
         public List<ObjectDefinition> Objects { get; } = new List<ObjectDefinition>();
         public List<ObjectReskin> ObjectReskins { get; } = new List<ObjectReskin>();
@@ -63,6 +64,7 @@ namespace OpenSage.Data.Ini
         public List<WaterSet> WaterSets { get; } = new List<WaterSet>();
         public WaterTransparency WaterTransparency { get; internal set; }
         public List<Weapon> Weapons { get; } = new List<Weapon>();
+        public Weather Weather { get; internal set; }
         public List<WebpageUrl> WebpageUrls { get; } = new List<WebpageUrl>();
         public List<WindowTransition> WindowTransitions { get; } = new List<WindowTransition>();
 

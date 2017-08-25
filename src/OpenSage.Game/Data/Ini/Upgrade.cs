@@ -20,6 +20,7 @@ namespace OpenSage.Data.Ini
             { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseAssetReference() },
             { "ResearchSound", (parser, x) => x.ResearchSound = parser.ParseAssetReference() },
             { "UnitSpecificSound", (parser, x) => x.UnitSpecificSound = parser.ParseAssetReference() },
+            { "AcademyClassify", (parser, x) => x.AcademyClassify = parser.ParseEnum<AcademyType>() }
         };
 
         public string Name { get; private set; }
@@ -31,6 +32,9 @@ namespace OpenSage.Data.Ini
         public string ButtonImage { get; private set; }
         public string ResearchSound { get; private set; }
         public string UnitSpecificSound { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public AcademyType AcademyClassify { get; private set; }
     }
 
     public enum UpgradeType

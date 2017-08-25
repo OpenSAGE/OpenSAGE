@@ -62,7 +62,10 @@ namespace OpenSage.Data.Ini
             { "IgnorePrimaryObstacle", (parser, x) => x.IgnorePrimaryObstacle = parser.ParseBoolean() },
             { "OrientInForceDirection", (parser, x) => x.OrientInForceDirection = parser.ParseBoolean() },
             { "ExtraBounciness", (parser, x) => x.ExtraBounciness = parser.ParseFloat() },
-            { "ExtraFriction", (parser, x) => x.ExtraFriction = parser.ParseFloat() }
+            { "ExtraFriction", (parser, x) => x.ExtraFriction = parser.ParseFloat() },
+            { "YawRate", (parser, x) => x.YawRate = parser.ParseInteger() },
+            { "PitchRate", (parser, x) => x.PitchRate = parser.ParseInteger() },
+            { "RollRate", (parser, x) => x.RollRate = parser.ParseInteger() },
         };
 
         public string[] ModelNames { get; private set; }
@@ -87,6 +90,15 @@ namespace OpenSage.Data.Ini
         public bool OrientInForceDirection { get; private set; }
         public float ExtraBounciness { get; private set; }
         public float ExtraFriction { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public int YawRate { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public int PitchRate { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public int RollRate { get; private set; }
     }
 
     public sealed class CreateObjectObjectCreationListItem : ObjectCreationListItem
@@ -130,6 +142,7 @@ namespace OpenSage.Data.Ini
             { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseInteger() },
             { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseInteger() },
             { "SkipIfSignificantlyAirborne", (parser, x) => x.SkipIfSignificantlyAirborne = parser.ParseBoolean() },
+            { "DiesOnBadLand", (parser, x) => x.DiesOnBadLand = parser.ParseBoolean() },
         };
 
         public string ObjectNames { get; private set; }
@@ -164,6 +177,9 @@ namespace OpenSage.Data.Ini
         public int MinLifetime { get; private set; }
         public int MaxLifetime { get; private set; }
         public bool SkipIfSignificantlyAirborne { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool DiesOnBadLand { get; private set; }
     }
 
     public sealed class ApplyRandomForceObjectCreationListItem : ObjectCreationListItem

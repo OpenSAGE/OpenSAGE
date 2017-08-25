@@ -67,7 +67,7 @@ namespace OpenSage.Data.Ini.Parser
             if (mode != IniLexerMode.Normal)
             {
                 var sb = new StringBuilder();
-                if ((mode == IniLexerMode.String || mode == IniLexerMode.StringWithWhitespace) && CurrentChar == '"')
+                if (mode == IniLexerMode.String && CurrentChar == '"')
                 {
                     NextChar();
                     return LexQuotedString(pos);

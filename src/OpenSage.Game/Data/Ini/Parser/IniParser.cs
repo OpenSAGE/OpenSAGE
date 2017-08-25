@@ -44,6 +44,7 @@ namespace OpenSage.Data.Ini.Parser
             { "MouseCursor", (parser, context) => context.MouseCursors.Add(MouseCursor.Parse(parser)) },
             { "MultiplayerColor", (parser, context) => context.MultiplayerColors.Add(MultiplayerColor.Parse(parser)) },
             { "MultiplayerSettings", (parser, context) => context.MultiplayerSettings = MultiplayerSettings.Parse(parser) },
+            { "MultiplayerStartingMoneyChoice", (parser, context) => context.MultiplayerStartingMoneyChoices.Add(MultiplayerStartingMoneyChoice.Parse(parser)) },
             { "MusicTrack", (parser, context) => context.MusicTracks.Add(MusicTrack.Parse(parser)) },
             { "Object", (parser, context) => context.Objects.Add(ObjectDefinition.Parse(parser)) },
             { "ObjectReskin", (parser, context) => context.ObjectReskins.Add(ObjectReskin.Parse(parser)) },
@@ -64,6 +65,7 @@ namespace OpenSage.Data.Ini.Parser
             { "WaterSet", (parser, context) => context.WaterSets.Add(WaterSet.Parse(parser)) },
             { "WaterTransparency", (parser, context) => context.WaterTransparency = WaterTransparency.Parse(parser) },
             { "Weapon", (parser, context) => context.Weapons.Add(Weapon.Parse(parser)) },
+            { "Weather", (parser, context) => context.Weather = Weather.Parse(parser) },
             { "WebpageURL", (parser, context) => context.WebpageUrls.Add(WebpageUrl.Parse(parser)) },
             { "WindowTransition", (parser, context) => context.WindowTransitions.Add(WindowTransition.Parse(parser)) },
         };
@@ -269,6 +271,27 @@ namespace OpenSage.Data.Ini.Parser
         public float ParseFloat()
         {
             var token = NextToken(IniTokenType.FloatLiteral, IniTokenType.IntegerLiteral);
+
+            // ODDITY: Zero Hour ObjectCreationList.ini:179, there's an extra "End":
+            // DispositionIntensity = 0.1 End
+            var state = GetState();
+            var ateNextToken = false;
+            try
+            {
+                if (Current.TokenType == IniTokenType.Identifier && Current.StringValue == "End")
+                {
+                    NextToken();
+                    ateNextToken = true;
+                }
+            }
+            finally
+            {
+                if (!ateNextToken)
+                {
+                    RestoreState(state);
+                }
+            }
+
             return (token.TokenType == IniTokenType.FloatLiteral)
                 ? token.FloatValue
                 : token.IntegerValue;

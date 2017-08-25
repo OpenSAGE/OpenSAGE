@@ -149,5 +149,8 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("STATUS"), AddedIn(SageGame.CncGeneralsZeroHour)]
         Status,
+
+        [IniEnum("KILL_GARRISONED"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        KillGarrisoned,
     }
 }

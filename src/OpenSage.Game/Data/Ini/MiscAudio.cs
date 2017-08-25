@@ -43,7 +43,9 @@ namespace OpenSage.Data.Ini
             { "CrateMoney", (parser, x) => x.CrateMoney = parser.ParseAssetReference() },
             { "UnitPromoted", (parser, x) => x.UnitPromoted = parser.ParseAssetReference() },
             { "RepairSparks", (parser, x) => x.RepairSparks = parser.ParseAssetReference() },
-            { "AircraftWheelScreech", (parser, x) => x.AircraftWheelScreech = parser.ParseAssetReference() }
+            { "AircraftWheelScreech", (parser, x) => x.AircraftWheelScreech = parser.ParseAssetReference() },
+            { "SabotageShutDownBuilding", (parser, x) => x.SabotageShutDownBuilding = parser.ParseAssetReference() },
+            { "SabotageResetTimeBuilding", (parser, x) => x.SabotageResetTimeBuilding = parser.ParseAssetReference() }
         };
 
         public string RadarNotifyUnitUnderAttackSound { get; private set; }
@@ -79,5 +81,11 @@ namespace OpenSage.Data.Ini
         public string UnitPromoted { get; private set; }
         public string RepairSparks { get; private set; }
         public string AircraftWheelScreech { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string SabotageShutDownBuilding { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string SabotageResetTimeBuilding { get; private set; }
     }
 }
