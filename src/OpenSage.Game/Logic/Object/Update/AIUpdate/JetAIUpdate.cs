@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -16,6 +17,7 @@ namespace OpenSage.Logic.Object
         {
             { "OutOfAmmoDamagePerSecond", (parser, x) => x.OutOfAmmoDamagePerSecond = parser.ParsePercentage() },
             { "TakeoffSpeedForMaxLift", (parser, x) => x.TakeoffSpeedForMaxLift = parser.ParsePercentage() },
+            { "TakeoffDistForMaxLift", (parser, x) => x.TakeoffDistForMaxLift = parser.ParsePercentage() },
             { "TakeoffPause", (parser, x) => x.TakeoffPause = parser.ParseInteger() },
             { "MinHeight", (parser, x) => x.MinHeight = parser.ParseInteger() },
             { "NeedsRunway", (parser, x) => x.NeedsRunway = parser.ParseBoolean() },
@@ -37,6 +39,10 @@ namespace OpenSage.Logic.Object
         public float OutOfAmmoDamagePerSecond { get; private set; }
 
         public float TakeoffSpeedForMaxLift { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public float TakeoffDistForMaxLift { get; private set; }
+
         public int TakeoffPause { get; private set; }
         public int MinHeight { get; private set; }
         public bool NeedsRunway { get; private set; }

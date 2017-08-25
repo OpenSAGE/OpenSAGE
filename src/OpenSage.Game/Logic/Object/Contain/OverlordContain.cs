@@ -17,7 +17,9 @@ namespace OpenSage.Logic.Object
             { "DamagePercentToUnits", (parser, x) => x.DamagePercentToUnits = parser.ParsePercentage() },
             { "AllowInsideKindOf", (parser, x) => x.AllowInsideKindOf = parser.ParseEnum<ObjectKinds>() },
             { "PassengersAllowedToFire", (parser, x) => x.PassengersAllowedToFire = parser.ParseBoolean() },
-            { "PassengersInTurret", (parser, x) => x.PassengersInTurret = parser.ParseBoolean() }
+            { "PassengersInTurret", (parser, x) => x.PassengersInTurret = parser.ParseBoolean() },
+            { "PayloadTemplateName", (parser, x) => x.PayloadTemplateName = parser.ParseAssetReference() },
+            { "ExperienceSinkForRider", (parser, x) => x.ExperienceSinkForRider = parser.ParseBoolean() }
         };
 
         public int Slots { get; private set; }
@@ -25,5 +27,11 @@ namespace OpenSage.Logic.Object
         public ObjectKinds AllowInsideKindOf { get; private set; }
         public bool PassengersAllowedToFire { get; private set; }
         public bool PassengersInTurret { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string PayloadTemplateName { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool ExperienceSinkForRider { get; private set; }
     }
 }

@@ -13,6 +13,12 @@ namespace OpenSage.Logic.Object
             var moduleType = parser.ParseIdentifier();
             var tag = parser.ParseIdentifier();
 
+            // ODDITY: ZH AirforceGeneral.ini:5534, missing _ between ModuleTag and SalvageData
+            if (parser.CurrentTokenType == IniTokenType.Identifier)
+            {
+                tag += "_" + parser.ParseIdentifier();
+            }
+
             if (!moduleParseTable.TryGetValue(moduleType, out var moduleParser))
             {
                 throw new IniParseException($"Unknown module type: {moduleType}", moduleTypePosition);

@@ -32,6 +32,7 @@ namespace OpenSage.Data.Ini
             { "AggressiveRangeModifier", (parser, x) => x.AggressiveRangeModifier = parser.ParseFloat() },
             { "AttackPriorityDistanceModifier", (parser, x) => x.AttackPriorityDistanceModifier = parser.ParseFloat() },
             { "MaxRecruitRadius", (parser, x) => x.MaxRecruitRadius = parser.ParseFloat() },
+            { "SkirmishBaseDefenseExtraDistance", (parser, x) => x.SkirmishBaseDefenseExtraDistance = parser.ParseFloat() },
             { "ForceIdleMSEC", (parser, x) => x.ForceIdleMsec = parser.ParseInteger() },
             { "ForceSkirmishAI", (parser, x) => x.ForceSkirmishAI = parser.ParseBoolean() },
             { "RotateSkirmishBases", (parser, x) => x.RotateSkirmishBases = parser.ParseBoolean() },
@@ -60,6 +61,9 @@ namespace OpenSage.Data.Ini
             { "AIDozerBoredRadiusModifier", (parser, x) => x.AIDozerBoredRadiusModifier = parser.ParseFloat() },
             { "AICrushesInfantry", (parser, x) => x.AICrushesInfantry = parser.ParseBoolean() },
 
+            { "MaxRetaliationDistance", (parser, x) => x.MaxRetaliationDistance = parser.ParseFloat() },
+            { "RetaliationFriendsRadius", (parser, x) => x.RetaliationFriendsRadius = parser.ParseFloat() },
+
             { "SideInfo", (parser, x) => x.SideInfos.Add(AISideInfo.Parse(parser)) },
 
             { "SkirmishBuildList", (parser, x) => x.SkirmishBuildLists.Add(AISkirmishBuildList.Parse(parser)) },
@@ -85,6 +89,10 @@ namespace OpenSage.Data.Ini
         public float AggressiveRangeModifier { get; private set; }
         public float AttackPriorityDistanceModifier { get; private set; }
         public float MaxRecruitRadius { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public float SkirmishBaseDefenseExtraDistance { get; private set; }
+
         public int ForceIdleMsec { get; private set; }
         public bool ForceSkirmishAI { get; private set; }
         public bool RotateSkirmishBases { get; private set; }
@@ -112,6 +120,12 @@ namespace OpenSage.Data.Ini
 
         public float AIDozerBoredRadiusModifier { get; private set; }
         public bool AICrushesInfantry { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public float MaxRetaliationDistance { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public float RetaliationFriendsRadius { get; private set; }
 
         public List<AISideInfo> SideInfos { get; } = new List<AISideInfo>();
 

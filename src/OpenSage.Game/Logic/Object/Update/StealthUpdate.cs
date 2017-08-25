@@ -29,6 +29,9 @@ namespace OpenSage.Logic.Object
             { "DisguiseRevealFX", (parser, x) => x.DisguiseRevealFX = parser.ParseAssetReference() },
             { "DisguiseTransitionTime", (parser, x) => x.DisguiseTransitionTime = parser.ParseInteger() },
             { "DisguiseRevealTransitionTime", (parser, x) => x.DisguiseRevealTransitionTime = parser.ParseInteger() },
+            { "GrantedBySpecialPower", (parser, x) => x.GrantedBySpecialPower = parser.ParseBoolean() },
+            { "EnemyDetectionEvaEvent", (parser, x) => x.EnemyDetectionEvaEvent = parser.ParseAssetReference() },
+            { "OwnDetectionEvaEvent", (parser, x) => x.OwnDetectionEvaEvent = parser.ParseAssetReference() },
         };
 
         public int StealthDelay { get; private set; }
@@ -46,5 +49,14 @@ namespace OpenSage.Logic.Object
         public string DisguiseRevealFX { get; private set; }
         public int DisguiseTransitionTime { get; private set; }
         public int DisguiseRevealTransitionTime { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool GrantedBySpecialPower { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string EnemyDetectionEvaEvent { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string OwnDetectionEvaEvent { get; private set; }
     }
 }

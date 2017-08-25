@@ -26,6 +26,7 @@ namespace OpenSage.Logic.Object
             { "OkToChangeModelColor", (parser, x) => x.OkToChangeModelColor = parser.ParseBoolean() },
             { "ProjectileBoneFeedbackEnabledSlots", (parser, x) => x.ProjectileBoneFeedbackEnabledSlots = parser.ParseEnumBitArray<WeaponSlot>() },
             { "AnimationsRequirePower", (parser, x) => x.AnimationsRequirePower = parser.ParseBoolean() },
+            { "ParticlesAttachedToAnimatedBones", (parser, x) => x.ParticlesAttachedToAnimatedBones = parser.ParseBoolean() },
             { "MinLODRequired", (parser, x) => x.MinLodRequired = parser.ParseEnum<LevelOfDetail>() },
             { "ExtraPublicBone", (parser, x) => x.ExtraPublicBones.Add(parser.ParseBoneName()) },
             { "AttachToBoneInAnotherModule", (parser, x) => x.AttachToBoneInAnotherModule = parser.ParseBoneName() },
@@ -39,6 +40,9 @@ namespace OpenSage.Logic.Object
         public bool OkToChangeModelColor { get; private set; }
         public BitArray<WeaponSlot> ProjectileBoneFeedbackEnabledSlots { get; private set; }
         public bool AnimationsRequirePower { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool ParticlesAttachedToAnimatedBones { get; private set; }
 
         /// <summary>
         /// Minimum level of detail required before this object appears in the game.

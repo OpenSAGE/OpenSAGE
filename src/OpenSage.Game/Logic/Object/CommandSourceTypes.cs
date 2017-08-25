@@ -16,6 +16,9 @@ namespace OpenSage.Logic.Object
         FromAI = 1 << 1,
 
         [IniEnum("FROM_SCRIPT")]
-        FromScript = 1 << 2
+        FromScript = 1 << 2,
+
+        [IniEnum("DEFAULT_SWITCH_WEAPON")]
+        DefaultSwitchWeapon = 1 << 3
     }
 }

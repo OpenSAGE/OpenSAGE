@@ -274,5 +274,14 @@
 
         [IniEnum("REVEAL_TO_ALL")]
         RevealToAll,
+
+        [IniEnum("EMP_HARDENED"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        EmpHardened,
+
+        [IniEnum("CANNOT_RETALIATE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        CannotRetaliate,
+
+        [IniEnum("NO_SELECT"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        NoSelect,
     }
 }

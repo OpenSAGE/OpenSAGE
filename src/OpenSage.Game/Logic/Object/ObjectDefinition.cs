@@ -94,7 +94,6 @@ namespace OpenSage.Logic.Object
             { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdate.ParseClientUpdate(parser)) },
 
             { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSet>()] = parser.ParseAssetReferenceArray() },
-            { "InheritableModule", (parser, x) => x.InheritableModule = InheritableModule.Parse(parser) },
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "RadarPriority", (parser, x) => x.RadarPriority = parser.ParseEnum<RadarPriority>() },
             { "DisplayColor", (parser, x) => x.DisplayColor = IniColorRgb.Parse(parser) },
@@ -112,6 +111,9 @@ namespace OpenSage.Logic.Object
             { "InstanceScaleFuzziness", (parser, x) => x.InstanceScaleFuzziness = parser.ParseFloat() },
             { "BuildCompletion", (parser, x) => x.BuildCompletion = parser.ParseAssetReference() },
             { "BuildVariations", (parser, x) => x.BuildVariations = parser.ParseAssetReferenceArray() },
+
+            { "InheritableModule", (parser, x) => x.InheritableModules.Add(InheritableModule.Parse(parser)) },
+            { "OverrideableByLikeKind", (parser, x) => x.OverrideableByLikeKinds.Add(OverrideableByLikeKind.Parse(parser)) },
 
             { "RemoveModule", (parser, x) => x.RemoveModules.Add(parser.ParseIdentifier()) },
             { "AddModule", (parser, x) => x.AddModules.Add(AddModule.Parse(parser)) },
@@ -223,7 +225,6 @@ namespace OpenSage.Logic.Object
         public ObjectBody Body { get; private set; }
         public List<ClientUpdate> ClientUpdates { get; } = new List<ClientUpdate>();
         public Dictionary<LocomotorSet, string[]> Locomotors { get; } = new Dictionary<LocomotorSet, string[]>();
-        public InheritableModule InheritableModule { get; private set; }
         public BitArray<ObjectKinds> KindOf { get; private set; }
         public RadarPriority RadarPriority { get; private set; }
         public IniColorRgb DisplayColor { get; private set; }
@@ -246,6 +247,9 @@ namespace OpenSage.Logic.Object
         public float InstanceScaleFuzziness { get; private set; }
         public string BuildCompletion { get; private set; }
         public string[] BuildVariations { get; private set; }
+
+        public List<InheritableModule> InheritableModules { get; } = new List<InheritableModule>();
+        public List<OverrideableByLikeKind> OverrideableByLikeKinds { get; } = new List<OverrideableByLikeKind>();
 
         // Map.ini module modifications
         public List<string> RemoveModules { get; } = new List<string>();

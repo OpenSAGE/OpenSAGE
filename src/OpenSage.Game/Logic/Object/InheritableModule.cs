@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -12,9 +11,9 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<InheritableModule> FieldParseTable = new IniParseTable<InheritableModule>
         {
-            { "Behavior", (parser, x) => x.Behaviors.Add(ObjectBehavior.ParseBehavior(parser)) },
+            { "Behavior", (parser, x) => x.Module = ObjectBehavior.ParseBehavior(parser) },
         };
 
-        public List<ObjectBehavior> Behaviors { get; } = new List<ObjectBehavior>();
+        public ObjectModule Module { get; private set; }
     }
 }

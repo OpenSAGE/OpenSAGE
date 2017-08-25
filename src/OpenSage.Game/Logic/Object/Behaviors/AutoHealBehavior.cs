@@ -14,10 +14,12 @@ namespace OpenSage.Logic.Object
             { "AffectsWholePlayer", (parser, x) => x.AffectsWholePlayer = parser.ParseBoolean() },
             { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnum<ObjectKinds>() },
+            { "ForbiddenKindOf", (parser, x) => x.ForbiddenKindOf = parser.ParseEnum<ObjectKinds>() },
             { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReferenceArray() },
             { "StartHealingDelay", (parser, x) => x.StartHealingDelay = parser.ParseInteger() },
             { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
             { "SingleBurst", (parser, x) => x.SingleBurst = parser.ParseBoolean() },
+            { "SkipSelfForHealing", (parser, x) => x.SkipSelfForHealing = parser.ParseBoolean() },
         };
 
         public int HealingAmount { get; private set; }
@@ -25,9 +27,13 @@ namespace OpenSage.Logic.Object
         public bool AffectsWholePlayer { get; private set; }
         public bool StartsActive { get; private set; }
         public ObjectKinds KindOf { get; private set; }
+        public ObjectKinds ForbiddenKindOf { get; private set; }
         public string[] TriggeredBy { get; private set; }
         public int StartHealingDelay { get; private set; }
         public float Radius { get; private set; }
         public bool SingleBurst { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool SkipSelfForHealing { get; private set; }
     }
 }

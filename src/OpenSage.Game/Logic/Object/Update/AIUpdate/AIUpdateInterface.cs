@@ -12,7 +12,8 @@ namespace OpenSage.Logic.Object
             { "Turret", (parser, x) => x.Turret = TurretAIData.Parse(parser) },
             { "AltTurret", (parser, x) => x.AltTurret = TurretAIData.Parse(parser) },
             { "AutoAcquireEnemiesWhenIdle", (parser, x) => x.AutoAcquireEnemiesWhenIdle = AutoAcquireEnemies.Parse(parser) },
-            { "MoodAttackCheckRate", (parser, x) => x.MoodAttackCheckRate = parser.ParseInteger() }
+            { "MoodAttackCheckRate", (parser, x) => x.MoodAttackCheckRate = parser.ParseInteger() },
+            { "ForbidPlayerCommands", (parser, x) => x.ForbidPlayerCommands = parser.ParseBoolean() }
         };
 
         /// <summary>
@@ -25,6 +26,9 @@ namespace OpenSage.Logic.Object
 
         public AutoAcquireEnemies AutoAcquireEnemiesWhenIdle { get; private set; }
         public int MoodAttackCheckRate { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool ForbidPlayerCommands { get; private set; }
     }
 
     public struct AutoAcquireEnemies

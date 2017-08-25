@@ -142,11 +142,20 @@ namespace OpenSage.Logic.Object
         [IniEnum("FIRING_PRIMARY")]
         FiringPrimary,
 
+        [IniEnum("FIRING_SECONDARY"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FiringSecondary,
+
+        [IniEnum("FIRING_TERTIARY"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FiringTertiary,
+
         [IniEnum("USING_WEAPON_A")]
         UsingWeaponA,
 
         [IniEnum("USING_WEAPON_B")]
         UsingWeaponB,
+
+        [IniEnum("USING_WEAPON_C"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        UsingWeaponC,
 
         [IniEnum("FREEFALL")]
         FreeFall,
@@ -267,5 +276,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("BURNED")]
         Burned,
+
+        [IniEnum("RIDERS_ATTACKING"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        RidersAttacking,
+
+        [IniEnum("DISGUISED"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Disguised,
     }
 }

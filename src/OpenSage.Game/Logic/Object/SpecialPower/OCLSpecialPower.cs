@@ -15,6 +15,8 @@ namespace OpenSage.Logic.Object
             { "UpgradeOCL", (parser, x) => x.UpgradeOCLs.Add(UpgradeOCL.Parse(parser)) },
             { "CreateLocation", (parser, x) => x.CreateLocation = parser.ParseEnum<OCLCreationPoint>() },
             { "StartsPaused", (parser, x) => x.StartsPaused = parser.ParseBoolean() },
+            { "ScriptedSpecialPowerOnly", (parser, x) => x.ScriptedSpecialPowerOnly = parser.ParseBoolean() },
+            { "OCLAdjustPositionToPassable", (parser, x) => x.OCLAdjustPositionToPassable = parser.ParseBoolean() },
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -22,6 +24,12 @@ namespace OpenSage.Logic.Object
         public List<UpgradeOCL> UpgradeOCLs { get; } = new List<UpgradeOCL>();
         public OCLCreationPoint CreateLocation { get; private set; }
         public bool StartsPaused { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool ScriptedSpecialPowerOnly { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool OCLAdjustPositionToPassable { get; private set; }
     }
 
     public sealed class UpgradeOCL

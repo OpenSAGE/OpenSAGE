@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -8,9 +9,13 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<FireWeaponUpdate> FieldParseTable = new IniParseTable<FireWeaponUpdate>
         {
-            { "Weapon", (parser, x) => x.Weapon = parser.ParseAssetReference() }
+            { "Weapon", (parser, x) => x.Weapon = parser.ParseAssetReference() },
+            { "ExclusiveWeaponDelay", (parser, x) => x.ExclusiveWeaponDelay = parser.ParseInteger() }
         };
 
         public string Weapon { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public int ExclusiveWeaponDelay { get; private set; }
     }
 }
