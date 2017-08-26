@@ -106,6 +106,7 @@ namespace OpenSage.Logic.Object
             { "GeometryHeight", (parser, x) => x.GeometryHeight = parser.ParseFloat() },
             { "GeometryIsSmall", (parser, x) => x.GeometryIsSmall = parser.ParseBoolean() },
             { "FactoryExitWidth", (parser, x) => x.FactoryExitWidth = parser.ParseInteger() },
+            { "FactoryExtraBibWidth", (parser, x) => x.FactoryExtraBibWidth = parser.ParseFloat() },
             { "Shadow", (parser, x) => x.Shadow = parser.ParseEnum<ObjectShadowType>() },
             { "ShadowTexture", (parser, x) => x.ShadowTexture = parser.ParseAssetReference() },
             { "ShadowSizeX", (parser, x) => x.ShadowSizeX = parser.ParseInteger() },
@@ -248,6 +249,9 @@ namespace OpenSage.Logic.Object
         /// Amount of space to leave for exiting units.
         /// </summary>
         public int FactoryExitWidth { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public float FactoryExtraBibWidth { get; private set; }
 
         public ObjectShadowType Shadow { get; private set; }
         public string ShadowTexture { get; private set; }

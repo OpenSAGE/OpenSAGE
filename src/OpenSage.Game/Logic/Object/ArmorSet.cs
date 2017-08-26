@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -11,12 +12,12 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<ArmorSet> FieldParseTable = new IniParseTable<ArmorSet>
         {
-            { "Conditions", (parser, x) => x.Conditions = parser.ParseEnumFlags<ArmorSetConditions>() },
+            { "Conditions", (parser, x) => x.Conditions = parser.ParseEnumBitArray<ArmorSetCondition>() },
             { "Armor", (parser, x) => x.Armor = parser.ParseAssetReference() },
             { "DamageFX", (parser, x) => x.DamageFX = parser.ParseAssetReference() },
         };
 
-        public ArmorSetConditions Conditions { get; private set; }
+        public BitArray<ArmorSetCondition> Conditions { get; private set; }
         public string Armor { get; private set; }
         public string DamageFX { get; private set; }
     }

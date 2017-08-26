@@ -30,5 +30,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("STATUS_RIDER7")]
         Rider7,
+
+        [IniEnum("TOPPLED")]
+        Toppled,
     }
 }

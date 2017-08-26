@@ -7,11 +7,11 @@ namespace OpenSage.Logic.Object
     /// Requires ExitStartN and ExitEndN bones defined unless overridden by <see cref="ExitBone"/>.
     /// Allows the use of SoundEnter And SoundExit UnitSpecificSounds.
     /// </summary>
-    public sealed class TransportContain : ObjectBehavior
+    public class TransportContain : ObjectBehavior
     {
-        internal static TransportContain Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static TransportContain Parse(IniParser parser) => parser.ParseBlock(TransportFieldParseTable);
 
-        private static readonly IniParseTable<TransportContain> FieldParseTable = new IniParseTable<TransportContain>
+        internal static readonly IniParseTable<TransportContain> TransportFieldParseTable = new IniParseTable<TransportContain>
         {
             { "PassengersAllowedToFire", (parser, x) => x.PassengersAllowedToFire = parser.ParseBoolean() },
             { "Slots", (parser, x) => x.Slots = parser.ParseInteger() },
@@ -19,6 +19,7 @@ namespace OpenSage.Logic.Object
             { "EnterSound", (parser, x) => x.EnterSound = parser.ParseAssetReference() },
             { "ExitSound", (parser, x) => x.ExitSound = parser.ParseAssetReference() },
             { "DamagePercentToUnits", (parser, x) => x.DamagePercentToUnits = parser.ParsePercentage() },
+            { "BurnedDeathToUnits", (parser, x) => x.BurnedDeathToUnits = parser.ParseBoolean() },
             { "AllowInsideKindOf", (parser, x) => x.AllowInsideKindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "ForbidInsideKindOf", (parser, x) => x.ForbidInsideKindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "AllowAlliesInside", (parser, x) => x.AllowAlliesInside = parser.ParseBoolean() },
@@ -44,6 +45,10 @@ namespace OpenSage.Logic.Object
         public string EnterSound { get; private set; }
         public string ExitSound { get; private set; }
         public float DamagePercentToUnits { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool BurnedDeathToUnits { get; private set; }
+
         public BitArray<ObjectKinds> AllowInsideKindOf { get; private set; }
         public BitArray<ObjectKinds> ForbidInsideKindOf { get; private set; }
         public bool AllowAlliesInside { get; private set; }

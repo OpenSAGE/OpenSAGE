@@ -7,18 +7,9 @@ namespace OpenSage.Logic.Object
     /// </summary>
     public sealed class ImmortalBody : ObjectBody
     {
-        internal static ImmortalBody Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static ImmortalBody Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<ImmortalBody> FieldParseTable = new IniParseTable<ImmortalBody>
-        {
-            { "MaxHealth", (parser, x) => x.MaxHealth = parser.ParseFloat() },
-            { "InitialHealth", (parser, x) => x.InitialHealth = parser.ParseFloat() }
-        };
-
-        public float MaxHealth { get; private set; }
-        public float InitialHealth { get; private set; }
+        private static readonly IniParseTable<ImmortalBody> FieldParseTable = new IniParseTable<ImmortalBody>()
+            .Concat<ImmortalBody, ObjectBody>(BodyFieldParseTable);
     }
 }

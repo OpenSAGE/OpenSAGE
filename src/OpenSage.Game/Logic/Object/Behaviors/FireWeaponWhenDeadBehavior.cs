@@ -9,6 +9,7 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<FireWeaponWhenDeadBehavior> FieldParseTable = new IniParseTable<FireWeaponWhenDeadBehavior>
         {
+            { "RequiredStatus", (parser, x) => x.RequiredStatus = parser.ParseEnum<ObjectStatus>() },
             { "DeathWeapon", (parser, x) => x.DeathWeapon = parser.ParseAssetReference() },
             { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
             { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
@@ -17,6 +18,7 @@ namespace OpenSage.Logic.Object
             { "RequiresAllTriggers", (parser, x) => x.RequiresAllTriggers = parser.ParseBoolean() },
         };
 
+        public ObjectStatus RequiredStatus { get; private set; }
         public string DeathWeapon { get; private set; }
         public bool StartsActive { get; private set; }
         public BitArray<DeathType> DeathTypes { get; private set; }

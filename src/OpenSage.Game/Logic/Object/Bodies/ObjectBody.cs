@@ -17,14 +17,21 @@ namespace OpenSage.Logic.Object
             { "ImmortalBody", ImmortalBody.Parse },
             { "InactiveBody", InactiveBody.Parse },
             { "StructureBody", StructureBody.Parse },
+            { "UndeadBody", UndeadBody.Parse },
         };
 
         internal static readonly IniParseTable<ObjectBody> BodyFieldParseTable = new IniParseTable<ObjectBody>
         {
+            { "MaxHealth", (parser, x) => x.MaxHealth = parser.ParseFloat() },
+            { "InitialHealth", (parser, x) => x.InitialHealth = parser.ParseFloat() },
+
             { "SubdualDamageCap", (parser, x) => x.SubdualDamageCap = parser.ParseInteger() },
             { "SubdualDamageHealRate", (parser, x) => x.SubdualDamageHealRate = parser.ParseInteger() },
             { "SubdualDamageHealAmount", (parser, x) => x.SubdualDamageHealAmount = parser.ParseInteger() }
         };
+
+        public float MaxHealth { get; private set; }
+        public float InitialHealth { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int SubdualDamageCap { get; private set; }

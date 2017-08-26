@@ -11,6 +11,7 @@ namespace OpenSage.Logic.Object
         private static readonly Dictionary<string, Func<IniParser, ObjectBehavior>> BehaviorParseTable = new Dictionary<string, Func<IniParser, ObjectBehavior>>
         {
             { "AIUpdateInterface", AIUpdateInterface.Parse },
+            { "AnimationSteeringUpdate", AnimationSteeringUpdate.Parse },
             { "ArmorUpgrade", ArmorUpgrade.Parse },
             { "AssaultTransportAIUpdate", AssaultTransportAIUpdate.Parse },
             { "AssistedTargetingUpdate", AssistedTargetingUpdate.Parse },
@@ -88,6 +89,7 @@ namespace OpenSage.Logic.Object
             { "MissileAIUpdate", MissileAIUpdate.Parse },
             { "MissileLauncherBuildingUpdate", MissileLauncherBuildingUpdate.Parse },
             { "MobMemberSlavedUpdate", MobMemberSlavedUpdate.Parse },
+            { "ModelConditionUpgrade", ModelConditionUpgrade.Parse },
             { "MoneyCrateCollide", MoneyCrateCollide.Parse },
             { "MaxHealthUpgrade", MaxHealthUpgrade.Parse },
             { "NeutronMissileSlowDeathBehavior", NeutronMissileSlowDeathBehavior.Parse },
@@ -122,6 +124,8 @@ namespace OpenSage.Logic.Object
             { "RebuildHoleBehavior", RebuildHoleBehavior.Parse },
             { "RebuildHoleExposeDie", RebuildHoleExposeDie.Parse },
             { "RepairDockUpdate", RepairDockUpdate.Parse },
+            { "ReplaceObjectUpgrade", ReplaceObjectUpgrade.Parse },
+            { "RiderChangeContain", RiderChangeContain.Parse },
             { "SalvageCrateCollide", SalvageCrateCollide.Parse },
             { "SlavedUpdate", SlavedUpdate.Parse },
             { "SlowDeathBehavior", SlowDeathBehavior.Parse },

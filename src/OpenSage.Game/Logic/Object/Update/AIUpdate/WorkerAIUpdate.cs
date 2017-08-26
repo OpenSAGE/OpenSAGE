@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -21,7 +22,8 @@ namespace OpenSage.Logic.Object
             { "SupplyWarehouseActionDelay", (parser, x) => x.SupplyWarehouseActionDelay = parser.ParseInteger() },
             { "SupplyWarehouseScanDistance", (parser, x) => x.SupplyWarehouseScanDistance = parser.ParseInteger() },
             { "SuppliesDepletedVoice", (parser, x) => x.SuppliesDepletedVoice = parser.ParseAssetReference() },
-            { "AutoAcquireEnemiesWhenIdle", (parser, x) => x.AutoAcquireEnemiesWhenIdle = parser.ParseBoolean() }
+            { "AutoAcquireEnemiesWhenIdle", (parser, x) => x.AutoAcquireEnemiesWhenIdle = parser.ParseBoolean() },
+            { "UpgradedSupplyBoost", (parser, x) => x.UpgradedSupplyBoost = parser.ParseInteger() },
         };
 
         public float RepairHealthPercentPerSecond { get; private set; }
@@ -33,5 +35,8 @@ namespace OpenSage.Logic.Object
         public int SupplyWarehouseScanDistance { get; private set; }
         public string SuppliesDepletedVoice { get; private set; }
         public bool AutoAcquireEnemiesWhenIdle { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public int UpgradedSupplyBoost { get; private set; }
     }
 }

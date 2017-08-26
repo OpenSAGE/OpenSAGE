@@ -10,13 +10,7 @@ namespace OpenSage.Logic.Object
     {
         internal static StructureBody Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<StructureBody> FieldParseTable = new IniParseTable<StructureBody>
-        {
-            { "MaxHealth", (parser, x) => x.MaxHealth = parser.ParseFloat() },
-            { "InitialHealth", (parser, x) => x.InitialHealth = parser.ParseFloat() }
-        }.Concat<StructureBody, ObjectBody>(BodyFieldParseTable);
-
-        public float MaxHealth { get; private set; }
-        public float InitialHealth { get; private set; }
+        private static readonly IniParseTable<StructureBody> FieldParseTable = new IniParseTable<StructureBody>()
+            .Concat<StructureBody, ObjectBody>(BodyFieldParseTable);
     }
 }

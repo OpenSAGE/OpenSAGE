@@ -7,18 +7,9 @@ namespace OpenSage.Logic.Object
     /// </summary>
     public sealed class HighlanderBody : ObjectBody
     {
-        internal static HighlanderBody Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static HighlanderBody Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<HighlanderBody> FieldParseTable = new IniParseTable<HighlanderBody>
-        {
-            { "MaxHealth", (parser, x) => x.MaxHealth = parser.ParseFloat() },
-            { "InitialHealth", (parser, x) => x.InitialHealth = parser.ParseFloat() }
-        };
-
-        public float MaxHealth { get; private set; }
-        public float InitialHealth { get; private set; }
+        private static readonly IniParseTable<HighlanderBody> FieldParseTable = new IniParseTable<HighlanderBody>()
+            .Concat<HighlanderBody, ObjectBody>(BodyFieldParseTable);
     }
 }

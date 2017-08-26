@@ -324,5 +324,17 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("RIGHT_TO_CENTER"), AddedIn(SageGame.CncGeneralsZeroHour)]
         RightToCenter,
+
+        [IniEnum("USER_1"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        User1,
+
+        [IniEnum("SECOND_LIFE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        SecondLife,
+
+        [IniEnum("ARMORSET_CRATEUPGRADE_ONE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        ArmorSetCrateUpgradeOne,
+
+        [IniEnum("ARMORSET_CRATEUPGRADE_TWO"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        ArmorSetCrateUpgradeTwo,
     }
 }

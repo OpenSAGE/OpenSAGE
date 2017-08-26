@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -10,7 +11,8 @@ namespace OpenSage.Logic.Object
         {
             { "DepositTiming", (parser, x) => x.DepositTiming = parser.ParseInteger() },
             { "DepositAmount", (parser, x) => x.DepositAmount = parser.ParseInteger() },
-            { "InitialCaptureBonus", (parser, x) => x.InitialCaptureBonus = parser.ParseInteger() }
+            { "InitialCaptureBonus", (parser, x) => x.InitialCaptureBonus = parser.ParseInteger() },
+            { "ActualMoney", (parser, x) => x.ActualMoney = parser.ParseBoolean() }
         };
 
         /// <summary>
@@ -27,5 +29,8 @@ namespace OpenSage.Logic.Object
         /// One-time capture bonus.
         /// </summary>
         public int InitialCaptureBonus { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool ActualMoney { get; private set; }
     }
 }

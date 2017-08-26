@@ -313,5 +313,20 @@
 
         [IniEnum("CLIFF_JUMPER"), AddedIn(SageGame.CncGeneralsZeroHour)]
         CliffJumper,
+
+        [IniEnum("FS_FAKE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FSFake,
+
+        [IniEnum("FS_BLACK_MARKET"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FSBlackMarket,
+
+        [IniEnum("DEMOTRAP"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        DemoTrap,
+
+        [IniEnum("IGNORE_DOCKING_BONES"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        IgnoreDockingBones,
+
+        [IniEnum("ARMOR_SALVAGER"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        ArmorSalvager,
     }
 }
