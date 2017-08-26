@@ -32,6 +32,8 @@ namespace OpenSage.Logic.Object
             { "RopeFinalHeight", (parser, x) => x.RopeFinalHeight = parser.ParseInteger() },
             { "RappelSpeed", (parser, x) => x.RappelSpeed = parser.ParseInteger() },
             { "MinDropHeight", (parser, x) => x.MinDropHeight = parser.ParseInteger() },
+            { "UpgradedSupplyBoost", (parser, x) => x.UpgradedSupplyBoost = parser.ParseInteger() },
+            { "RotorWashParticleSystem", (parser, x) => x.RotorWashParticleSystem = parser.ParseAssetReference() },
         }.Concat<ChinookAIUpdate, AIUpdateInterface>(BaseFieldParseTable);
 
         public int MaxBoxes { get; private set; }
@@ -51,5 +53,11 @@ namespace OpenSage.Logic.Object
         public int RopeFinalHeight { get; private set; }
         public int RappelSpeed { get; private set; }
         public int MinDropHeight { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public int UpgradedSupplyBoost { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string RotorWashParticleSystem { get; private set; }
     }
 }

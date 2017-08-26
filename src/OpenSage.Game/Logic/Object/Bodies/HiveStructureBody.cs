@@ -16,7 +16,7 @@ namespace OpenSage.Logic.Object
             { "InitialHealth", (parser, x) => x.InitialHealth = parser.ParseFloat() },
             { "PropagateDamageTypesToSlavesWhenExisting", (parser, x) => x.PropagateDamageTypesToSlavesWhenExisting = parser.ParseEnumBitArray<DamageType>() },
             { "SwallowDamageTypesIfSlavesNotExisting", (parser, x) => x.SwallowDamageTypesIfSlavesNotExisting = parser.ParseEnumBitArray<DamageType>() }
-        };
+        }.Concat<HiveStructureBody, ObjectBody>(BodyFieldParseTable);
 
         public float MaxHealth { get; private set; }
         public float InitialHealth { get; private set; }

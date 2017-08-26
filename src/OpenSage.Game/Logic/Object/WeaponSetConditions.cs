@@ -23,5 +23,17 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("CRATEUPGRADE_TWO")]
         CrateUpgradeTwo = 1 << 4,
+
+        [IniEnum("WEAPON_RIDER2")]
+        WeaponRider2 = 1 << 5,
+
+        [IniEnum("WEAPON_RIDER3")]
+        WeaponRider3 = 1 << 6,
+
+        [IniEnum("WEAPON_RIDER4")]
+        WeaponRider4 = 1 << 7,
+
+        [IniEnum("WEAPON_RIDER5")]
+        WeaponRider5 = 1 << 8,
     }
 }

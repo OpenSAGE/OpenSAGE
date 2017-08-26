@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -20,6 +21,7 @@ namespace OpenSage.Logic.Object
             { "MobileGarrison", (parser, x) => x.MobileGarrison = parser.ParseBoolean() },
             { "InitialRoster", (parser, x) => x.InitialRoster = GarrisonRoster.Parse(parser) },
             { "ImmuneToClearBuildingAttacks", (parser, x) => x.ImmuneToClearBuildingAttacks = parser.ParseBoolean() },
+            { "IsEnclosingContainer", (parser, x) => x.IsEnclosingContainer = parser.ParseBoolean() },
         };
 
         public int ContainMax { get; private set; }
@@ -29,6 +31,9 @@ namespace OpenSage.Logic.Object
         public bool MobileGarrison { get; private set; }
         public GarrisonRoster InitialRoster { get; private set; }
         public bool ImmuneToClearBuildingAttacks { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool IsEnclosingContainer { get; private set; }
     }
 
     public sealed class GarrisonRoster

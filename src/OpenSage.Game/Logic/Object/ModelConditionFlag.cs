@@ -282,5 +282,47 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("DISGUISED"), AddedIn(SageGame.CncGeneralsZeroHour)]
         Disguised,
+
+        [IniEnum("JAMMED"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Jammed,
+
+        [IniEnum("DOCKING_BEGINNING"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        DockingBeginning,
+
+        [IniEnum("RIDER1"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Rider1,
+
+        [IniEnum("RIDER2"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Rider2,
+
+        [IniEnum("RIDER3"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Rider3,
+
+        [IniEnum("RIDER4"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Rider4,
+
+        [IniEnum("RIDER5"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Rider5,
+
+        [IniEnum("RIDER6"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Rider6,
+
+        [IniEnum("RIDER7"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Rider7,
+
+        [IniEnum("TOPPLED"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Toppled,
+
+        [IniEnum("CENTER_TO_LEFT"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        CenterToLeft,
+
+        [IniEnum("LEFT_TO_CENTER"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        LeftToCenter,
+
+        [IniEnum("CENTER_TO_RIGHT"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        CenterToRight,
+
+        [IniEnum("RIGHT_TO_CENTER"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        RightToCenter,
     }
 }

@@ -34,7 +34,8 @@ namespace OpenSage.Logic.Object
             { "ExitPitchRate", (parser, x) => x.ExitPitchRate = parser.ParseInteger() },
             { "ExitBone", (parser, x) => x.ExitBone = parser.ParseBoneName() },
             { "DestroyRidersWhoAreNotFreeToExit", (parser, x) => x.DestroyRidersWhoAreNotFreeToExit = parser.ParseBoolean() },
-            { "InitialPayload", (parser, x) => x.InitialPayload = Payload.Parse(parser) }
+            { "InitialPayload", (parser, x) => x.InitialPayload = Payload.Parse(parser) },
+            { "ArmedRidersUpgradeMyWeaponSet", (parser, x) => x.ArmedRidersUpgradeMyWeaponSet = parser.ParseBoolean() },
         };
 
         public bool PassengersAllowedToFire { get; private set; }
@@ -59,5 +60,8 @@ namespace OpenSage.Logic.Object
         public string ExitBone { get; private set; }
         public bool DestroyRidersWhoAreNotFreeToExit { get; private set; }
         public Payload InitialPayload { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool ArmedRidersUpgradeMyWeaponSet { get; private set; }
     }
 }

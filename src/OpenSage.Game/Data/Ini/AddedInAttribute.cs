@@ -2,7 +2,7 @@
 
 namespace OpenSage.Data.Ini
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Class | AttributeTargets.Enum, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Enum, AllowMultiple = false)]
     public sealed class AddedInAttribute : Attribute
     {
         public SageGame Game { get; }

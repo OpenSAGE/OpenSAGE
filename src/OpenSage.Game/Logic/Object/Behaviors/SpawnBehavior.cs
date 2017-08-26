@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -16,7 +17,8 @@ namespace OpenSage.Logic.Object
             { "SpawnedRequireSpawner", (parser, x) => x.SpawnedRequireSpawner = parser.ParseBoolean() },
             { "ExitByBudding", (parser, x) => x.ExitByBudding = parser.ParseBoolean() },
             { "InitialBurst", (parser, x) => x.InitialBurst = parser.ParseInteger() },
-            { "AggregateHealth", (parser, x) => x.AggregateHealth = parser.ParseBoolean() }
+            { "AggregateHealth", (parser, x) => x.AggregateHealth = parser.ParseBoolean() },
+            { "SlavesHaveFreeWill", (parser, x) => x.SlavesHaveFreeWill = parser.ParseBoolean() }
         };
 
         public int SpawnNumber { get; private set; }
@@ -28,5 +30,8 @@ namespace OpenSage.Logic.Object
         public bool ExitByBudding { get; private set; }
         public int InitialBurst { get; private set; }
         public bool AggregateHealth { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool SlavesHaveFreeWill { get; private set; }
     }
 }

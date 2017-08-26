@@ -466,6 +466,10 @@ namespace OpenSage.Data.Ini.Parser
                 if (Current.TokenType == IniTokenType.Identifier && Current.StringValue.ToUpper() == "END")
                 {
                     NextToken();
+
+                    // ODDITY: ZH AmericaVehicle.ini:1993 has Upgrade_AmericaHellfireDrone after "End"
+                    NextTokenIf(IniTokenType.Identifier);
+
                     break;
                 }
                 else

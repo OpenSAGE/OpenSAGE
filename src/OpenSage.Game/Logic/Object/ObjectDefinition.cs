@@ -30,6 +30,7 @@ namespace OpenSage.Logic.Object
             { "EditorSorting", (parser, x) => x.EditorSorting = parser.ParseEnumFlags<ObjectEditorSortingFlags>() },
             { "TransportSlotCount", (parser, x) => x.TransportSlotCount = parser.ParseInteger() },
             { "VisionRange", (parser, x) => x.VisionRange = parser.ParseFloat() },
+            { "ShroudRevealToAllRange", (parser, x) => x.ShroudRevealToAllRange = parser.ParseFloat() },
             { "ShroudClearingRange", (parser, x) => x.ShroudClearingRange = parser.ParseFloat() },
             { "CrusherLevel", (parser, x) => x.CrusherLevel = parser.ParseInteger() },
             { "CrushableLevel", (parser, x) => x.CrushableLevel = parser.ParseInteger() },
@@ -50,7 +51,8 @@ namespace OpenSage.Logic.Object
             { "FenceXOffset", (parser, x) => x.FenceXOffset = parser.ParseFloat() },
             { "ExperienceValue", (parser, x) => x.ExperienceValue = VeterancyValues.Parse(parser) },
             { "ExperienceRequired", (parser, x) => x.ExperienceRequired = VeterancyValues.Parse(parser) },
-            { "MaxSimultaneousOfType", (parser, x) => x.MaxSimultaneousOfType = parser.ParseInteger() },
+            { "MaxSimultaneousOfType", (parser, x) => x.MaxSimultaneousOfType = MaxSimultaneousObjectCount.Parse(parser) },
+            { "MaxSimultaneousLinkKey", (parser, x) => x.MaxSimultaneousLinkKey = parser.ParseIdentifier() },
 
             { "VoiceSelect", (parser, x) => x.VoiceSelect = parser.ParseAssetReference() },
             { "VoiceMove", (parser, x) => x.VoiceMove = parser.ParseAssetReference() },
@@ -139,6 +141,10 @@ namespace OpenSage.Logic.Object
         public ObjectEditorSortingFlags EditorSorting { get; private set; }
         public int TransportSlotCount { get; private set; }
         public float VisionRange { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public float ShroudRevealToAllRange { get; private set; }
+
         public float ShroudClearingRange { get; private set; }
         public int CrusherLevel { get; private set; }
         public int CrushableLevel { get; private set; }
@@ -180,7 +186,10 @@ namespace OpenSage.Logic.Object
         /// </summary>
         public VeterancyValues ExperienceRequired { get; private set; }
 
-        public int MaxSimultaneousOfType { get; private set; }
+        public MaxSimultaneousObjectCount MaxSimultaneousOfType { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string MaxSimultaneousLinkKey { get; private set; }
 
         // Audio
         public string VoiceSelect { get; private set; }
@@ -255,6 +264,43 @@ namespace OpenSage.Logic.Object
         public List<string> RemoveModules { get; } = new List<string>();
         public List<AddModule> AddModules { get; } = new List<AddModule>();
         public List<ReplaceModule> ReplaceModules { get; } = new List<ReplaceModule>();
+    }
+
+    [AddedIn(SageGame.CncGeneralsZeroHour)]
+    public struct MaxSimultaneousObjectCount
+    {
+        internal static MaxSimultaneousObjectCount Parse(IniParser parser)
+        {
+            if (parser.CurrentTokenType == IniTokenType.IntegerLiteral)
+            {
+                return new MaxSimultaneousObjectCount
+                {
+                    CountType = MaxSimultaneousObjectCountType.Explicit,
+                    ExplicitCount = parser.ParseInteger()
+                };
+            }
+
+            var currentPos = parser.CurrentPosition;
+            var countType = parser.ParseIdentifier();
+            if (countType != "DeterminedBySuperweaponRestriction")
+            {
+                throw new IniParseException("Unknown MaxSimultaneousOfType value: " + countType, currentPos);
+            }
+
+            return new MaxSimultaneousObjectCount
+            {
+                CountType = MaxSimultaneousObjectCountType.DeterminedBySuperweaponRestriction
+            };
+        }
+
+        public MaxSimultaneousObjectCountType CountType;
+        public int ExplicitCount;
+    }
+
+    public enum MaxSimultaneousObjectCountType
+    {
+        Explicit,
+        DeterminedBySuperweaponRestriction
     }
 
     public enum ObjectBuildableType

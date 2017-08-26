@@ -17,6 +17,7 @@ namespace OpenSage.Logic.Object
             { "StartsPaused", (parser, x) => x.StartsPaused = parser.ParseBoolean() },
             { "ScriptedSpecialPowerOnly", (parser, x) => x.ScriptedSpecialPowerOnly = parser.ParseBoolean() },
             { "OCLAdjustPositionToPassable", (parser, x) => x.OCLAdjustPositionToPassable = parser.ParseBoolean() },
+            { "ReferenceObject", (parser, x) => x.ReferenceObject = parser.ParseAssetReference() },
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -30,6 +31,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool OCLAdjustPositionToPassable { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string ReferenceObject { get; private set; }
     }
 
     public sealed class UpgradeOCL

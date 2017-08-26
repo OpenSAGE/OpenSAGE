@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -40,6 +41,8 @@ namespace OpenSage.Logic.Object
             { "LoseStealthOnTrigger", (parser, x) => x.LoseStealthOnTrigger = parser.ParseBoolean() },
             { "PreTriggerUnstealthTime", (parser, x) => x.PreTriggerUnstealthTime = parser.ParseInteger() },
             { "ApproachRequiresLOS", (parser, x) => x.ApproachRequiresLOS = parser.ParseBoolean() },
+            { "NeedToFaceTarget", (parser, x) => x.NeedToFaceTarget = parser.ParseBoolean() },
+            { "PersistenceRequiresRecharge", (parser, x) => x.PersistenceRequiresRecharge = parser.ParseBoolean() },
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -71,5 +74,11 @@ namespace OpenSage.Logic.Object
         public bool LoseStealthOnTrigger { get; private set; }
         public int PreTriggerUnstealthTime { get; private set; }
         public bool ApproachRequiresLOS { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool NeedToFaceTarget { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool PersistenceRequiresRecharge { get; private set; }
     }
 }

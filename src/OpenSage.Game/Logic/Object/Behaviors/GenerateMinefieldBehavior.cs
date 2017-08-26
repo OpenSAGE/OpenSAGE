@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -15,7 +16,10 @@ namespace OpenSage.Logic.Object
             { "SmartBorder", (parser, x) => x.SmartBorder = parser.ParseBoolean() },
             { "SmartBorderSkipInterior", (parser, x) => x.SmartBorderSkipInterior = parser.ParseBoolean() },
             { "AlwaysCircular", (parser, x) => x.AlwaysCircular = parser.ParseBoolean() },
-            { "GenerationFX", (parser, x) => x.GenerationFX = parser.ParseAssetReference() }
+            { "GenerationFX", (parser, x) => x.GenerationFX = parser.ParseAssetReference() },
+            { "Upgradable", (parser, x) => x.Upgradable = parser.ParseBoolean() },
+            { "UpgradedTriggeredBy", (parser, x) => x.UpgradedTriggeredBy = parser.ParseAssetReference() },
+            { "UpgradedMineName", (parser, x) => x.UpgradedMineName = parser.ParseAssetReference() },
         };
 
         public string TriggeredBy { get; private set; }
@@ -26,5 +30,14 @@ namespace OpenSage.Logic.Object
         public bool SmartBorderSkipInterior { get; private set; }
         public bool AlwaysCircular { get; private set; }
         public string GenerationFX { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool Upgradable { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string UpgradedTriggeredBy { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string UpgradedMineName { get; private set; }
     }
 }

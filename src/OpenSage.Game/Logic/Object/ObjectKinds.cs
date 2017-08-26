@@ -283,5 +283,35 @@
 
         [IniEnum("NO_SELECT"), AddedIn(SageGame.CncGeneralsZeroHour)]
         NoSelect,
+
+        [IniEnum("FS_SUPERWEAPON"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FSSuperweapon,
+
+        [IniEnum("FS_STRATEGY_CENTER"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FSStrategyCenter,
+
+        [IniEnum("FS_ADVANCED_TECH"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FSAdvancedTech,
+
+        [IniEnum("FS_AIRFIELD"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FSAirfield,
+
+        [IniEnum("FS_SUPPLY_CENTER"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FSSupplyCenter,
+
+        [IniEnum("FS_SUPPLY_DROPZONE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FSSupplyDropzone,
+
+        [IniEnum("FS_BARRACKS"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FSBarracks,
+
+        [IniEnum("FS_WARFACTORY"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FSWarFactory,
+
+        [IniEnum("MONEY_HACKER"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        MoneyHacker,
+
+        [IniEnum("CLIFF_JUMPER"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        CliffJumper,
     }
 }

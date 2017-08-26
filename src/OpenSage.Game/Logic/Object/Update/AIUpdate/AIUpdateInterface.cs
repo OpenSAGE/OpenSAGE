@@ -11,6 +11,7 @@ namespace OpenSage.Logic.Object
         {
             { "Turret", (parser, x) => x.Turret = TurretAIData.Parse(parser) },
             { "AltTurret", (parser, x) => x.AltTurret = TurretAIData.Parse(parser) },
+            { "TurretsLinked", (parser, x) => x.TurretsLinked = parser.ParseBoolean() },
             { "AutoAcquireEnemiesWhenIdle", (parser, x) => x.AutoAcquireEnemiesWhenIdle = AutoAcquireEnemies.Parse(parser) },
             { "MoodAttackCheckRate", (parser, x) => x.MoodAttackCheckRate = parser.ParseInteger() },
             { "ForbidPlayerCommands", (parser, x) => x.ForbidPlayerCommands = parser.ParseBoolean() }
@@ -23,6 +24,9 @@ namespace OpenSage.Logic.Object
         public TurretAIData Turret { get; private set; }
 
         public TurretAIData AltTurret { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool TurretsLinked { get; private set; }
 
         public AutoAcquireEnemies AutoAcquireEnemiesWhenIdle { get; private set; }
         public int MoodAttackCheckRate { get; private set; }
@@ -42,14 +46,14 @@ namespace OpenSage.Logic.Object
 
             if (parser.CurrentTokenType == IniTokenType.Identifier)
             {
-                result.Type = parser.ParseEnum<AutoAcquireEnemiesType>();
+                result.Type = parser.ParseEnumBitArray<AutoAcquireEnemiesType>();
             }
 
             return result;
         }
 
         public bool AutoAttackUnits { get; private set; }
-        public AutoAcquireEnemiesType Type { get; private set; }
+        public BitArray<AutoAcquireEnemiesType> Type { get; private set; }
     }
 
     public enum AutoAcquireEnemiesType

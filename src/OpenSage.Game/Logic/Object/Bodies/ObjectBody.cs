@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
@@ -17,5 +18,21 @@ namespace OpenSage.Logic.Object
             { "InactiveBody", InactiveBody.Parse },
             { "StructureBody", StructureBody.Parse },
         };
+
+        internal static readonly IniParseTable<ObjectBody> BodyFieldParseTable = new IniParseTable<ObjectBody>
+        {
+            { "SubdualDamageCap", (parser, x) => x.SubdualDamageCap = parser.ParseInteger() },
+            { "SubdualDamageHealRate", (parser, x) => x.SubdualDamageHealRate = parser.ParseInteger() },
+            { "SubdualDamageHealAmount", (parser, x) => x.SubdualDamageHealAmount = parser.ParseInteger() }
+        };
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public int SubdualDamageCap { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public int SubdualDamageHealRate { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public int SubdualDamageHealAmount { get; private set; }
     }
 }
