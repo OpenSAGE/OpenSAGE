@@ -3,11 +3,11 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class ParticleUplinkCannonUpdate : ObjectBehavior
+    public sealed class ParticleUplinkCannonUpdateModuleData : UpdateModuleData
     {
-        internal static ParticleUplinkCannonUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static ParticleUplinkCannonUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<ParticleUplinkCannonUpdate> FieldParseTable = new IniParseTable<ParticleUplinkCannonUpdate>
+        private static readonly IniParseTable<ParticleUplinkCannonUpdateModuleData> FieldParseTable = new IniParseTable<ParticleUplinkCannonUpdateModuleData>
         {
             { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() },
             { "BeginChargeTime", (parser, x) => x.BeginChargeTime = parser.ParseInteger() },

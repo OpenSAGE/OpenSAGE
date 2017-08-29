@@ -11,9 +11,9 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<InheritableModule> FieldParseTable = new IniParseTable<InheritableModule>
         {
-            { "Behavior", (parser, x) => x.Module = ObjectBehavior.ParseBehavior(parser) },
+            { "Behavior", (parser, x) => x.Module = BehaviorModuleData.ParseBehavior(parser) },
         };
 
-        public ObjectModule Module { get; private set; }
+        public ModuleData Module { get; private set; }
     }
 }

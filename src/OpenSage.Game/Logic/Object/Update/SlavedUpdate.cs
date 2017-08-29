@@ -2,11 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class SlavedUpdate : ObjectBehavior
+    public sealed class SlavedUpdateModuleData : UpdateModuleData
     {
-        internal static SlavedUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static SlavedUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<SlavedUpdate> FieldParseTable = new IniParseTable<SlavedUpdate>
+        private static readonly IniParseTable<SlavedUpdateModuleData> FieldParseTable = new IniParseTable<SlavedUpdateModuleData>
         {
             { "GuardMaxRange", (parser, x) => x.GuardMaxRange = parser.ParseInteger() },
             { "GuardWanderRange", (parser, x) => x.GuardWanderRange = parser.ParseInteger() },

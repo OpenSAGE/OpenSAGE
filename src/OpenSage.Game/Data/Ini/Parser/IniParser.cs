@@ -47,7 +47,7 @@ namespace OpenSage.Data.Ini.Parser
             { "MultiplayerStartingMoneyChoice", (parser, context) => context.MultiplayerStartingMoneyChoices.Add(MultiplayerStartingMoneyChoice.Parse(parser)) },
             { "MusicTrack", (parser, context) => context.MusicTracks.Add(MusicTrack.Parse(parser)) },
             { "Object", (parser, context) => context.Objects.Add(ObjectDefinition.Parse(parser)) },
-            { "ObjectReskin", (parser, context) => context.ObjectReskins.Add(ObjectReskin.Parse(parser)) },
+            { "ObjectReskin", (parser, context) => context.Objects.Add(ObjectDefinition.ParseReskin(parser)) },
             { "ObjectCreationList", (parser, context) => context.ObjectCreationLists.Add(ObjectCreationList.Parse(parser)) },
             { "OnlineChatColors", (parser, context) => context.OnlineChatColors = OnlineChatColors.Parse(parser) },
             { "ParticleSystem", (parser, context) => context.ParticleSystems.Add(ParticleSystem.Parse(parser)) },
@@ -321,9 +321,22 @@ namespace OpenSage.Data.Ini.Parser
             return NextToken(IniTokenType.Identifier).StringValue;
         }
 
-        public string ParseLocalizedStringKey() => ParseString();
+        public string ParseLocalizedStringKey()
+        {
+            var result = ParseString();
+
+            // ODDITY: ZH NatureProp.ini:37 incorrectly has OPTIMIZED_TREE after the localized string key.
+            if (CurrentTokenType == IniTokenType.Identifier)
+            {
+                NextToken();
+            }
+
+            return result;
+        }
+
         public string ParseFileName() => ParseString();
         public string ParseBoneName() => ParseString();
+        public string[] ParseBoneNameArray() => ParseAssetReferenceArray();
         public string ParseAnimationName() => ParseString();
 
         private T ParseEnum<T>(Dictionary<string, T> stringToValueMap)

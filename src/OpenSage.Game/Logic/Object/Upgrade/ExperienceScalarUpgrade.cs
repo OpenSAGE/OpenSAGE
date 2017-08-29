@@ -2,17 +2,16 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class ExperienceScalarUpgrade : ObjectBehavior
+    public sealed class ExperienceScalarUpgradeModuleData : UpgradeModuleData
     {
-        internal static ExperienceScalarUpgrade Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static ExperienceScalarUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<ExperienceScalarUpgrade> FieldParseTable = new IniParseTable<ExperienceScalarUpgrade>
-        {
-            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() },
-            { "AddXPScalar", (parser, x) => x.AddXPScalar = parser.ParseFloat() }
-        };
+        private static new readonly IniParseTable<ExperienceScalarUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+            .Concat(new IniParseTable<ExperienceScalarUpgradeModuleData>
+            {
+                { "AddXPScalar", (parser, x) => x.AddXPScalar = parser.ParseFloat() }
+            });
 
-        public string TriggeredBy { get; private set; }
         public float AddXPScalar { get; private set; }
     }
 }

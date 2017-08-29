@@ -5,13 +5,10 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Ensures the object acts as a source for supply collection.
     /// </summary>
-    public sealed class SupplyWarehouseCreate : ObjectBehavior
+    public sealed class SupplyWarehouseCreateModuleData : CreateModuleData
     {
-        internal static SupplyWarehouseCreate Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static SupplyWarehouseCreateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<SupplyWarehouseCreate> FieldParseTable = new IniParseTable<SupplyWarehouseCreate>();
+        private static readonly IniParseTable<SupplyWarehouseCreateModuleData> FieldParseTable = new IniParseTable<SupplyWarehouseCreateModuleData>();
     }
 }

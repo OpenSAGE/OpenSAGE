@@ -7,11 +7,11 @@ namespace OpenSage.Logic.Object
     /// the <see cref="ModelConditionFlag.PowerPlantUpgrading"/> and 
     /// <see cref="ModelConditionFlag.PowerPlantUpgraded"/> model condition states.
     /// </summary>
-    public sealed class PowerPlantUpdate : ObjectBehavior
+    public sealed class PowerPlantUpdateModuleData : UpdateModuleData
     {
-        internal static PowerPlantUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static PowerPlantUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<PowerPlantUpdate> FieldParseTable = new IniParseTable<PowerPlantUpdate>
+        private static readonly IniParseTable<PowerPlantUpdateModuleData> FieldParseTable = new IniParseTable<PowerPlantUpdateModuleData>
         {
             { "RodsExtendTime", (parser, x) => x.RodsExtendTime = parser.ParseInteger() }
         };

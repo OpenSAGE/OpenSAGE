@@ -3,11 +3,11 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class DumbProjectileBehavior : ObjectBehavior
+    public sealed class DumbProjectileBehaviorModuleData : BehaviorModuleData
     {
-        internal static DumbProjectileBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static DumbProjectileBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<DumbProjectileBehavior> FieldParseTable = new IniParseTable<DumbProjectileBehavior>
+        private static readonly IniParseTable<DumbProjectileBehaviorModuleData> FieldParseTable = new IniParseTable<DumbProjectileBehaviorModuleData>
         {
             { "TumbleRandomly", (parser, x) => x.TumbleRandomly = parser.ParseBoolean() },
             { "DetonateCallsKill", (parser, x) => x.DetonateCallsKill = parser.ParseBoolean() },

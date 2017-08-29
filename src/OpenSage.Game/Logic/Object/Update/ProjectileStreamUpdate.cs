@@ -5,10 +5,10 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Allows the object to behave as a stream like water or other liquid ordinance.
     /// </summary>
-    public sealed class ProjectileStreamUpdate : ObjectBehavior
+    public sealed class ProjectileStreamUpdateModuleData : UpdateModuleData
     {
-        internal static ProjectileStreamUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static ProjectileStreamUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<ProjectileStreamUpdate> FieldParseTable = new IniParseTable<ProjectileStreamUpdate>();
+        private static readonly IniParseTable<ProjectileStreamUpdateModuleData> FieldParseTable = new IniParseTable<ProjectileStreamUpdateModuleData>();
     }
 }

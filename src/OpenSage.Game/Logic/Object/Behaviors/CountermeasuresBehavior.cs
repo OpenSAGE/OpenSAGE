@@ -4,11 +4,11 @@ using OpenSage.Data.Ini.Parser;
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.CncGeneralsZeroHour)]
-    public sealed class CountermeasuresBehavior : ObjectBehavior
+    public sealed class CountermeasuresBehaviorModuleData : BehaviorModuleData
     {
-        internal static CountermeasuresBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static CountermeasuresBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<CountermeasuresBehavior> FieldParseTable = new IniParseTable<CountermeasuresBehavior>
+        private static readonly IniParseTable<CountermeasuresBehaviorModuleData> FieldParseTable = new IniParseTable<CountermeasuresBehaviorModuleData>
         {
             { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReferenceArray() },
             { "FlareTemplateName", (parser, x) => x.FlareTemplateName = parser.ParseAssetReference() },

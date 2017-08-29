@@ -1,25 +1,31 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
     /// <summary>
     /// Gives the object the ability to change commandsets back and forth when this module two times.
     /// </summary>
-    public sealed class CommandSetUpgrade : ObjectBehavior
+    public sealed class CommandSetUpgradeModuleData : UpgradeModuleData
     {
-        internal static CommandSetUpgrade Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static CommandSetUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<CommandSetUpgrade> FieldParseTable = new IniParseTable<CommandSetUpgrade>
-        {
-            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() },
-            { "ConflictsWith", (parser, x) => x.ConflictsWith = parser.ParseAssetReferenceArray() },
-            { "RemovesUpgrades", (parser, x) => x.RemovesUpgrades = parser.ParseAssetReferenceArray() },
-            { "CommandSet", (parser, x) => x.CommandSet = parser.ParseAssetReference() }
-        };
+        private static new readonly IniParseTable<CommandSetUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+            .Concat(new IniParseTable<CommandSetUpgradeModuleData>
+            {
+                { "RemovesUpgrades", (parser, x) => x.RemovesUpgrades = parser.ParseAssetReferenceArray() },
+                { "CommandSet", (parser, x) => x.CommandSet = parser.ParseAssetReference() },
+                { "CommandSetAlt", (parser, x) => x.CommandSetAlt = parser.ParseAssetReference() },
+                { "TriggerAlt", (parser, x) => x.TriggerAlt = parser.ParseAssetReference() }
+            });
 
-        public string TriggeredBy { get; private set; }
-        public string[] ConflictsWith { get; private set; }
         public string[] RemovesUpgrades { get; private set; }
         public string CommandSet { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string CommandSetAlt { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string TriggerAlt { get; private set; }
     }
 }

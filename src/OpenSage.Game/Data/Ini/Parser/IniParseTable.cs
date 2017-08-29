@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OpenSage.Data.Ini.Parser
 {
@@ -20,14 +21,16 @@ namespace OpenSage.Data.Ini.Parser
 
         public IniParseTable() { }
 
-        public IniParseTable<T> Concat<T1, T2>(IniParseTable<T2> otherTable)
-            where T1 : T, T2
+        public IniParseTable<T2> Concat<T2>(IniParseTable<T2> otherTable)
+            where T2 : T
         {
-            var result = new IniParseTable<T>(this);
+            var result = new IniParseTable<T2>(this.ToDictionary(
+                x => x.Key, 
+                x => new ParseFieldCallback<T2>((parser, y) => x.Value(parser, y))));
 
             foreach (var kvp in otherTable)
             {
-                result.Add(kvp.Key, (parser, x) => kvp.Value(parser, (T1)x));
+                result.Add(kvp.Key, (parser, x) => kvp.Value(parser, x));
             }
 
             return result;

@@ -3,19 +3,20 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class CreateObjectDie : ObjectBehavior
+    public sealed class CreateObjectDieModuleData : DieModuleData
     {
-        internal static CreateObjectDie Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static CreateObjectDieModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<CreateObjectDie> FieldParseTable = new IniParseTable<CreateObjectDie>
-        {
-            { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
-            { "ExemptStatus", (parser, x) => x.ExemptStatus = parser.ParseEnum<ObjectStatus>() },
-            { "CreationList", (parser, x) => x.CreationList = parser.ParseAssetReference() }
-        };
+        private static new readonly IniParseTable<CreateObjectDieModuleData> FieldParseTable = DieModuleData.FieldParseTable
+            .Concat(new IniParseTable<CreateObjectDieModuleData>
+            {
+                { "CreationList", (parser, x) => x.CreationList = parser.ParseAssetReference() },
+                { "TransferPreviousHealth", (parser, x) => x.TransferPreviousHealth = parser.ParseBoolean() }
+            });
 
-        public BitArray<DeathType> DeathTypes { get; private set; }
-        public ObjectStatus ExemptStatus { get; private set; }
         public string CreationList { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool TransferPreviousHealth { get; private set; }
     }
 }

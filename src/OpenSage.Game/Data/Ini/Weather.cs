@@ -12,7 +12,7 @@ namespace OpenSage.Data.Ini
             { "SnowEnabled", (parser, x) => x.SnowEnabled = parser.ParseBoolean() },
             { "SnowTexture", (parser, x) => x.SnowTexture = parser.ParseFileName() },
             { "SnowBoxDimensions", (parser, x) => x.SnowBoxDimensions = parser.ParseInteger() },
-            { "SnowBoxDensity", (parser, x) => x.SnowBoxDensity = parser.ParseInteger() },
+            { "SnowBoxDensity", (parser, x) => x.SnowBoxDensity = parser.ParseFloat() },
             { "SnowFrequencyScaleX", (parser, x) => x.SnowFrequencyScaleX = parser.ParseFloat() },
             { "SnowFrequencyScaleY", (parser, x) => x.SnowFrequencyScaleY = parser.ParseFloat() },
             { "SnowAmplitude", (parser, x) => x.SnowAmplitude = parser.ParseFloat() },
@@ -28,7 +28,7 @@ namespace OpenSage.Data.Ini
         public bool SnowEnabled { get; private set; }
         public string SnowTexture { get; private set; }
         public int SnowBoxDimensions { get; private set; }
-        public int SnowBoxDensity { get; private set; }
+        public float SnowBoxDensity { get; private set; }
         public float SnowFrequencyScaleX { get; private set; }
         public float SnowFrequencyScaleY { get; private set; }
         public float SnowAmplitude { get; private set; }

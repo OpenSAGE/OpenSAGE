@@ -7,17 +7,11 @@ namespace OpenSage.Logic.Object
     /// Allows the use of WeaponUpgradeSound within UnitSpecificSounds section of the object.
     /// Allows the use of the WEAPONSET_PLAYER_UPGRADE ConditionState.
     /// </summary>
-    public sealed class WeaponSetUpgrade : ObjectBehavior
+    public sealed class WeaponSetUpgradeModuleData : UpgradeModuleData
     {
-        internal static WeaponSetUpgrade Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static WeaponSetUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<WeaponSetUpgrade> FieldParseTable = new IniParseTable<WeaponSetUpgrade>
-        {
-            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReferenceArray() },
-            { "ConflictsWith", (parser, x) => x.ConflictsWith = parser.ParseAssetReferenceArray() }
-        };
-
-        public string[] TriggeredBy { get; private set; }
-        public string[] ConflictsWith { get; private set; }
+        private static new readonly IniParseTable<WeaponSetUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+            .Concat(new IniParseTable<WeaponSetUpgradeModuleData>());
     }
 }

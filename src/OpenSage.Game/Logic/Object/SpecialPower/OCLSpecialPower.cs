@@ -4,27 +4,24 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class OCLSpecialPower : ObjectBehavior
+    public sealed class OCLSpecialPowerModuleData : SpecialPowerModuleData
     {
-        internal static OCLSpecialPower Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static OCLSpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<OCLSpecialPower> FieldParseTable = new IniParseTable<OCLSpecialPower>
-        {
-            { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() },
-            { "OCL", (parser, x) => x.OCL = parser.ParseAssetReference() },
-            { "UpgradeOCL", (parser, x) => x.UpgradeOCLs.Add(UpgradeOCL.Parse(parser)) },
-            { "CreateLocation", (parser, x) => x.CreateLocation = parser.ParseEnum<OCLCreationPoint>() },
-            { "StartsPaused", (parser, x) => x.StartsPaused = parser.ParseBoolean() },
-            { "ScriptedSpecialPowerOnly", (parser, x) => x.ScriptedSpecialPowerOnly = parser.ParseBoolean() },
-            { "OCLAdjustPositionToPassable", (parser, x) => x.OCLAdjustPositionToPassable = parser.ParseBoolean() },
-            { "ReferenceObject", (parser, x) => x.ReferenceObject = parser.ParseAssetReference() },
-        };
+        private static new readonly IniParseTable<OCLSpecialPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
+            .Concat(new IniParseTable<OCLSpecialPowerModuleData>
+            {
+                { "OCL", (parser, x) => x.OCL = parser.ParseAssetReference() },
+                { "UpgradeOCL", (parser, x) => x.UpgradeOCLs.Add(OCLUpgradePair.Parse(parser)) },
+                { "CreateLocation", (parser, x) => x.CreateLocation = parser.ParseEnum<OCLCreateLocation>() },
+                { "ScriptedSpecialPowerOnly", (parser, x) => x.ScriptedSpecialPowerOnly = parser.ParseBoolean() },
+                { "OCLAdjustPositionToPassable", (parser, x) => x.OCLAdjustPositionToPassable = parser.ParseBoolean() },
+                { "ReferenceObject", (parser, x) => x.ReferenceObject = parser.ParseAssetReference() },
+            });
 
-        public string SpecialPowerTemplate { get; private set; }
         public string OCL { get; private set; }
-        public List<UpgradeOCL> UpgradeOCLs { get; } = new List<UpgradeOCL>();
-        public OCLCreationPoint CreateLocation { get; private set; }
-        public bool StartsPaused { get; private set; }
+        public List<OCLUpgradePair> UpgradeOCLs { get; } = new List<OCLUpgradePair>();
+        public OCLCreateLocation CreateLocation { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool ScriptedSpecialPowerOnly { get; private set; }
@@ -36,11 +33,11 @@ namespace OpenSage.Logic.Object
         public string ReferenceObject { get; private set; }
     }
 
-    public sealed class UpgradeOCL
+    public sealed class OCLUpgradePair
     {
-        internal static UpgradeOCL Parse(IniParser parser)
+        internal static OCLUpgradePair Parse(IniParser parser)
         {
-            return new UpgradeOCL
+            return new OCLUpgradePair
             {
                 Science = parser.ParseAssetReference(),
                 OCL = parser.ParseAssetReference()
@@ -51,7 +48,7 @@ namespace OpenSage.Logic.Object
         public string OCL { get; private set; }
     }
 
-    public enum OCLCreationPoint
+    public enum OCLCreateLocation
     {
         [IniEnum("USE_OWNER_OBJECT")]
         UseOwnerObject,

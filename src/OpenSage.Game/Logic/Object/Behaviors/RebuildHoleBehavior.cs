@@ -5,11 +5,11 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Requires the REBUILD_HOLE KindOf on the object that will use this to work properly.
     /// </summary>
-    public sealed class RebuildHoleBehavior : ObjectBehavior
+    public sealed class RebuildHoleBehaviorModuleData : BehaviorModuleData
     {
-        internal static RebuildHoleBehavior Parse(IniParser parser) => parser.ParseBlock(BaseFieldParseTable);
+        internal static RebuildHoleBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(BaseFieldParseTable);
 
-        internal static readonly IniParseTable<RebuildHoleBehavior> BaseFieldParseTable = new IniParseTable<RebuildHoleBehavior>
+        internal static readonly IniParseTable<RebuildHoleBehaviorModuleData> BaseFieldParseTable = new IniParseTable<RebuildHoleBehaviorModuleData>
         {
             { "WorkerObjectName", (parser, x) => x.WorkerObjectName = parser.ParseAssetReference() },
             { "WorkerRespawnDelay", (parser, x) => x.WorkerRespawnDelay = parser.ParseInteger() },

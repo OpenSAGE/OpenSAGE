@@ -2,11 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class RadarUpdate : ObjectBehavior
+    public sealed class RadarUpdateModuleData : UpdateModuleData
     {
-        internal static RadarUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static RadarUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<RadarUpdate> FieldParseTable = new IniParseTable<RadarUpdate>
+        private static readonly IniParseTable<RadarUpdateModuleData> FieldParseTable = new IniParseTable<RadarUpdateModuleData>
         {
             { "RadarExtendTime", (parser, x) => x.RadarExtendTime = parser.ParseInteger() }
         };

@@ -3,11 +3,11 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class DemoTrapUpdate : ObjectBehavior
+    public sealed class DemoTrapUpdateModuleData : UpdateModuleData
     {
-        internal static DemoTrapUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static DemoTrapUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<DemoTrapUpdate> FieldParseTable = new IniParseTable<DemoTrapUpdate>
+        private static readonly IniParseTable<DemoTrapUpdateModuleData> FieldParseTable = new IniParseTable<DemoTrapUpdateModuleData>
         {
             { "DefaultProximityMode", (parser, x) => x.DefaultProximityMode = parser.ParseBoolean() },
             { "DetonationWeaponSlot", (parser, x) => x.DetonationWeaponSlot = parser.ParseEnum<WeaponSlot>() },

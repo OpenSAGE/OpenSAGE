@@ -2,28 +2,25 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class PhysicsBehavior : ObjectBehavior
+    public sealed class PhysicsBehaviorModuleData : UpdateModuleData
     {
-        internal static PhysicsBehavior Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static PhysicsBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<PhysicsBehavior> FieldParseTable = new IniParseTable<PhysicsBehavior>
+        private static readonly IniParseTable<PhysicsBehaviorModuleData> FieldParseTable = new IniParseTable<PhysicsBehaviorModuleData>
         {
             { "Mass", (parser, x) => x.Mass = parser.ParseFloat() },
-            { "AerodynamicFriction", (parser, x) => x.AerodynamicFriction = parser.ParseInteger() },
-            { "ForwardFriction", (parser, x) => x.ForwardFriction = parser.ParseInteger() },
-            { "CenterOfMassOffset", (parser, x) => x.CenterOfMassOffset = parser.ParseInteger() },
+            { "AerodynamicFriction", (parser, x) => x.AerodynamicFriction = parser.ParseFloat() },
+            { "ForwardFriction", (parser, x) => x.ForwardFriction = parser.ParseFloat() },
+            { "CenterOfMassOffset", (parser, x) => x.CenterOfMassOffset = parser.ParseFloat() },
             { "AllowBouncing", (parser, x) => x.AllowBouncing = parser.ParseBoolean() },
             { "KillWhenRestingOnGround", (parser, x) => x.KillWhenRestingOnGround = parser.ParseBoolean() },
             { "AllowCollideForce", (parser, x) => x.AllowCollideForce = parser.ParseBoolean() },
         };
 
         public float Mass { get; private set; }
-        public int AerodynamicFriction { get; private set; }
-        public int ForwardFriction { get; private set; }
-        public int CenterOfMassOffset { get; private set; }
+        public float AerodynamicFriction { get; private set; }
+        public float ForwardFriction { get; private set; }
+        public float CenterOfMassOffset { get; private set; }
         public bool AllowBouncing { get; private set; }
         public bool KillWhenRestingOnGround { get; private set; }
         public bool AllowCollideForce { get; private set; } = true;

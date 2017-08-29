@@ -6,14 +6,14 @@ namespace OpenSage.Logic.Object
     /// Forces object to dynamically restore itself.
     /// Triggered when object is REALLYDAMAGED, or at 30% of MaxHealth.
     /// </summary>
-    public sealed class SupplyWarehouseCripplingBehavior : ObjectBehavior
+    public sealed class SupplyWarehouseCripplingBehaviorModuleData : BehaviorModuleData
     {
-        internal static SupplyWarehouseCripplingBehavior Parse(IniParser parser)
+        internal static SupplyWarehouseCripplingBehaviorModuleData Parse(IniParser parser)
         {
             return parser.ParseBlock(FieldParseTable);
         }
 
-        private static readonly IniParseTable<SupplyWarehouseCripplingBehavior> FieldParseTable = new IniParseTable<SupplyWarehouseCripplingBehavior>
+        private static readonly IniParseTable<SupplyWarehouseCripplingBehaviorModuleData> FieldParseTable = new IniParseTable<SupplyWarehouseCripplingBehaviorModuleData>
         {
             { "SelfHealSupression", (parser, x) => x.SelfHealSuppression = parser.ParseInteger() },
             { "SelfHealDelay", (parser, x) => x.SelfHealDelay = parser.ParseInteger() },

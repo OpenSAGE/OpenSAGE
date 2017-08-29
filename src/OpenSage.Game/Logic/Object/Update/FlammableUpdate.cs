@@ -5,14 +5,14 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Allows the use of the AFLAME, SMOLDERING, and BURNED condition states.
     /// </summary>
-    public sealed class FlammableUpdate : ObjectBehavior
+    public sealed class FlammableUpdateModuleData : UpdateModuleData
     {
-        internal static FlammableUpdate Parse(IniParser parser)
+        internal static FlammableUpdateModuleData Parse(IniParser parser)
         {
             return parser.ParseBlock(FieldParseTable);
         }
 
-        private static readonly IniParseTable<FlammableUpdate> FieldParseTable = new IniParseTable<FlammableUpdate>
+        private static readonly IniParseTable<FlammableUpdateModuleData> FieldParseTable = new IniParseTable<FlammableUpdateModuleData>
         {
             { "FlameDamageLimit", (parser, x) => x.FlameDamageLimit = parser.ParseInteger() },
             { "FlameDamageExpiration", (parser, x) => x.FlameDamageExpiration = parser.ParseInteger() },

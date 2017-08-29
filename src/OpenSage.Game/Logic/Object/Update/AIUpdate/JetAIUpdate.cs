@@ -9,29 +9,28 @@ namespace OpenSage.Logic.Object
     /// Allows the use of JETEXHAUST JETAFTERBURNER model condition states; this is triggered when
     /// it's taking off from the runway.
     /// </summary>
-    public sealed class JetAIUpdate : ObjectBehavior
+    public sealed class JetAIUpdateModuleData : AIUpdateModuleData
     {
-        internal static JetAIUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static new JetAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<JetAIUpdate> FieldParseTable = new IniParseTable<JetAIUpdate>
-        {
-            { "OutOfAmmoDamagePerSecond", (parser, x) => x.OutOfAmmoDamagePerSecond = parser.ParsePercentage() },
-            { "TakeoffSpeedForMaxLift", (parser, x) => x.TakeoffSpeedForMaxLift = parser.ParsePercentage() },
-            { "TakeoffDistForMaxLift", (parser, x) => x.TakeoffDistForMaxLift = parser.ParsePercentage() },
-            { "TakeoffPause", (parser, x) => x.TakeoffPause = parser.ParseInteger() },
-            { "MinHeight", (parser, x) => x.MinHeight = parser.ParseInteger() },
-            { "NeedsRunway", (parser, x) => x.NeedsRunway = parser.ParseBoolean() },
-            { "KeepsParkingSpaceWhenAirborne", (parser, x) => x.KeepsParkingSpaceWhenAirborne = parser.ParseBoolean() },
-            { "AutoAcquireEnemiesWhenIdle", (parser, x) => x.AutoAcquireEnemiesWhenIdle = AutoAcquireEnemies.Parse(parser) },
-            { "SneakyOffsetWhenAttacking", (parser, x) => x.SneakyOffsetWhenAttacking = parser.ParseFloat() },
-            { "AttackLocomotorType", (parser, x) => x.AttackLocomotorType = parser.ParseEnum<LocomotorSet>() },
-            { "AttackLocomotorPersistTime", (parser, x) => x.AttackLocomotorPersistTime = parser.ParseInteger() },
-            { "AttackersMissPersistTime", (parser, x) => x.AttackersMissPersistTime = parser.ParseInteger() },
-            { "ReturnForAmmoLocomotorType", (parser, x) => x.ReturnForAmmoLocomotorType = parser.ParseEnum<LocomotorSet>() },
-            { "ParkingOffset", (parser, x) => x.ParkingOffset = parser.ParseInteger() },
-            { "ReturnToBaseIdleTime", (parser, x) => x.ReturnToBaseIdleTime = parser.ParseInteger() },
-            { "Turret", (parser, x) => x.Turret = TurretAIData.Parse(parser) },
-        };
+        private static new readonly IniParseTable<JetAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+            .Concat(new IniParseTable<JetAIUpdateModuleData>
+            {
+                { "OutOfAmmoDamagePerSecond", (parser, x) => x.OutOfAmmoDamagePerSecond = parser.ParsePercentage() },
+                { "TakeoffSpeedForMaxLift", (parser, x) => x.TakeoffSpeedForMaxLift = parser.ParsePercentage() },
+                { "TakeoffDistForMaxLift", (parser, x) => x.TakeoffDistForMaxLift = parser.ParsePercentage() },
+                { "TakeoffPause", (parser, x) => x.TakeoffPause = parser.ParseInteger() },
+                { "MinHeight", (parser, x) => x.MinHeight = parser.ParseInteger() },
+                { "NeedsRunway", (parser, x) => x.NeedsRunway = parser.ParseBoolean() },
+                { "KeepsParkingSpaceWhenAirborne", (parser, x) => x.KeepsParkingSpaceWhenAirborne = parser.ParseBoolean() },
+                { "SneakyOffsetWhenAttacking", (parser, x) => x.SneakyOffsetWhenAttacking = parser.ParseFloat() },
+                { "AttackLocomotorType", (parser, x) => x.AttackLocomotorType = parser.ParseEnum<LocomotorSet>() },
+                { "AttackLocomotorPersistTime", (parser, x) => x.AttackLocomotorPersistTime = parser.ParseInteger() },
+                { "AttackersMissPersistTime", (parser, x) => x.AttackersMissPersistTime = parser.ParseInteger() },
+                { "ReturnForAmmoLocomotorType", (parser, x) => x.ReturnForAmmoLocomotorType = parser.ParseEnum<LocomotorSet>() },
+                { "ParkingOffset", (parser, x) => x.ParkingOffset = parser.ParseInteger() },
+                { "ReturnToBaseIdleTime", (parser, x) => x.ReturnToBaseIdleTime = parser.ParseInteger() },
+            });
 
         /// <summary>
         /// Amount of damage, as a percentage of max health, to take per second when out of ammo.
@@ -47,7 +46,6 @@ namespace OpenSage.Logic.Object
         public int MinHeight { get; private set; }
         public bool NeedsRunway { get; private set; }
         public bool KeepsParkingSpaceWhenAirborne { get; private set; }
-        public AutoAcquireEnemies AutoAcquireEnemiesWhenIdle { get; private set; }
         public float SneakyOffsetWhenAttacking { get; private set; }
         public LocomotorSet AttackLocomotorType { get; private set; }
         public int AttackLocomotorPersistTime { get; private set; }
@@ -55,7 +53,5 @@ namespace OpenSage.Logic.Object
         public LocomotorSet ReturnForAmmoLocomotorType { get; private set; }
         public int ParkingOffset { get; private set; }
         public int ReturnToBaseIdleTime { get; private set; }
-
-        public TurretAIData Turret { get; private set; }
     }
 }

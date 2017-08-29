@@ -8,14 +8,15 @@ namespace OpenSage.Logic.Object
     /// <see cref="GameData.MaxTunnelCapacity"/> in GameData.INI and allows the use of 
     /// <see cref="ObjectDefinition.SoundEnter"/> and <see cref="ObjectDefinition.SoundExit"/>.
     /// </summary>
-    public sealed class TunnelContain : ObjectBehavior
+    public sealed class TunnelContainModuleData : GarrisonContainModuleData
     {
-        internal static TunnelContain Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static new TunnelContainModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<TunnelContain> FieldParseTable = new IniParseTable<TunnelContain>
-        {
-            { "TimeForFullHeal", (parser, x) => x.TimeForFullHeal = parser.ParseInteger() }
-        };
+        private static new readonly IniParseTable<TunnelContainModuleData> FieldParseTable = GarrisonContainModuleData.FieldParseTable
+            .Concat(new IniParseTable<TunnelContainModuleData>
+            {
+                { "TimeForFullHeal", (parser, x) => x.TimeForFullHeal = parser.ParseInteger() }
+            });
 
         public int TimeForFullHeal { get; private set; }
     }

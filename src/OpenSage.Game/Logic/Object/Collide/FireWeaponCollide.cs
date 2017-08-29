@@ -2,11 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class FireWeaponCollide : ObjectBehavior
+    public sealed class FireWeaponCollideModuleData : CollideModuleData
     {
-        internal static FireWeaponCollide Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static FireWeaponCollideModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<FireWeaponCollide> FieldParseTable = new IniParseTable<FireWeaponCollide>
+        private static readonly IniParseTable<FireWeaponCollideModuleData> FieldParseTable = new IniParseTable<FireWeaponCollideModuleData>
         {
             { "CollideWeapon", (parser, x) => x.CollideWeapon = parser.ParseAssetReference() },
             { "RequiredStatus", (parser, x) => x.RequiredStatus = parser.ParseEnum<ModelConditionFlag>() }

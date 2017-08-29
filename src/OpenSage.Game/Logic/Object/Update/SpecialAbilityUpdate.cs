@@ -6,11 +6,11 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Allows the use of PACKING and UNPACKING condition states.
     /// </summary>
-    public sealed class SpecialAbilityUpdate : ObjectBehavior
+    public sealed class SpecialAbilityUpdateModuleData : UpdateModuleData
     {
-        internal static SpecialAbilityUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static SpecialAbilityUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<SpecialAbilityUpdate> FieldParseTable = new IniParseTable<SpecialAbilityUpdate>
+        private static readonly IniParseTable<SpecialAbilityUpdateModuleData> FieldParseTable = new IniParseTable<SpecialAbilityUpdateModuleData>
         {
             { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() },
             { "StartAbilityRange", (parser, x) => x.StartAbilityRange = parser.ParseFloat() },

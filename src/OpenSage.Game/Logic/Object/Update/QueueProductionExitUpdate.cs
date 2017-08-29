@@ -3,11 +3,11 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class QueueProductionExitUpdate : ObjectBehavior
+    public sealed class QueueProductionExitUpdateModuleData : UpdateModuleData
     {
-        internal static QueueProductionExitUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static QueueProductionExitUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<QueueProductionExitUpdate> FieldParseTable = new IniParseTable<QueueProductionExitUpdate>
+        private static readonly IniParseTable<QueueProductionExitUpdateModuleData> FieldParseTable = new IniParseTable<QueueProductionExitUpdateModuleData>
         {
             { "UnitCreatePoint", (parser, x) => x.UnitCreatePoint = Coord3D.Parse(parser) },
             { "NaturalRallyPoint", (parser, x) => x.NaturalRallyPoint = Coord3D.Parse(parser) },

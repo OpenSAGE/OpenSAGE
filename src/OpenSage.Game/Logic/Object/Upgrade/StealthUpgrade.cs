@@ -3,18 +3,15 @@
 namespace OpenSage.Logic.Object
 {
     /// <summary>
-    /// Eenables use of StealthUpdate module on this object. Requires InnateStealth = No defined in 
-    /// the StealthUpdate module.
+    /// Eenables use of <see cref="StealthUpdateModuleData"/> module on this object. Requires 
+    /// <see cref="StealthUpdateModuleData.InnateStealth"/> = No defined in the <see cref="StealthUpdateModuleData"/> 
+    /// module.
     /// </summary>
-    public sealed class StealthUpgrade : ObjectBehavior
+    public sealed class StealthUpgradeModuleData : UpgradeModuleData
     {
-        internal static StealthUpgrade Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static StealthUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<StealthUpgrade> FieldParseTable = new IniParseTable<StealthUpgrade>
-        {
-            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() }
-        };
-
-        public string TriggeredBy { get; private set; }
+        private static new readonly IniParseTable<StealthUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+            .Concat(new IniParseTable<StealthUpgradeModuleData>());
     }
 }

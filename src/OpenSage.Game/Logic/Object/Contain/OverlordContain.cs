@@ -7,26 +7,16 @@ namespace OpenSage.Logic.Object
     /// Like Transport, but when full, passes transport queries along to first passenger 
     /// (redirects like tunnel).
     /// </summary>
-    public sealed class OverlordContain : ObjectBehavior
+    public sealed class OverlordContainModuleData : TransportContainModuleData
     {
-        internal static OverlordContain Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static new OverlordContainModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<OverlordContain> FieldParseTable = new IniParseTable<OverlordContain>
-        {
-            { "Slots", (parser, x) => x.Slots = parser.ParseInteger() },
-            { "DamagePercentToUnits", (parser, x) => x.DamagePercentToUnits = parser.ParsePercentage() },
-            { "AllowInsideKindOf", (parser, x) => x.AllowInsideKindOf = parser.ParseEnum<ObjectKinds>() },
-            { "PassengersAllowedToFire", (parser, x) => x.PassengersAllowedToFire = parser.ParseBoolean() },
-            { "PassengersInTurret", (parser, x) => x.PassengersInTurret = parser.ParseBoolean() },
-            { "PayloadTemplateName", (parser, x) => x.PayloadTemplateName = parser.ParseAssetReference() },
-            { "ExperienceSinkForRider", (parser, x) => x.ExperienceSinkForRider = parser.ParseBoolean() }
-        };
-
-        public int Slots { get; private set; }
-        public float DamagePercentToUnits { get; private set; }
-        public ObjectKinds AllowInsideKindOf { get; private set; }
-        public bool PassengersAllowedToFire { get; private set; }
-        public bool PassengersInTurret { get; private set; }
+        private static new readonly IniParseTable<OverlordContainModuleData> FieldParseTable = TransportContainModuleData.FieldParseTable
+            .Concat(new IniParseTable<OverlordContainModuleData>
+            {
+                { "PayloadTemplateName", (parser, x) => x.PayloadTemplateName = parser.ParseAssetReference() },
+                { "ExperienceSinkForRider", (parser, x) => x.ExperienceSinkForRider = parser.ParseBoolean() }
+            });
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public string PayloadTemplateName { get; private set; }

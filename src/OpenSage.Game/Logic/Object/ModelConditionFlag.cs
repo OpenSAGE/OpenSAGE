@@ -328,6 +328,9 @@ namespace OpenSage.Logic.Object
         [IniEnum("USER_1"), AddedIn(SageGame.CncGeneralsZeroHour)]
         User1,
 
+        [IniEnum("USER_2"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        User2,
+
         [IniEnum("SECOND_LIFE"), AddedIn(SageGame.CncGeneralsZeroHour)]
         SecondLife,
 
@@ -336,5 +339,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("ARMORSET_CRATEUPGRADE_TWO"), AddedIn(SageGame.CncGeneralsZeroHour)]
         ArmorSetCrateUpgradeTwo,
+
+        [IniEnum("TAKING_DAMAGE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        TakingDamage,
     }
 }

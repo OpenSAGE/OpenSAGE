@@ -8,11 +8,11 @@ namespace OpenSage.Logic.Object
     /// Allows this object to turn on or off the <see cref="ModelConditionFlag.PowerPlantUpgrading"/>
     /// and <see cref="ModelConditionFlag.PowerPlantUpgraded"/> condition states.
     /// </summary>
-    public sealed class OverchargeBehavior : ObjectBehavior
+    public sealed class OverchargeBehaviorModuleData : BehaviorModuleData
     {
-        internal static OverchargeBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static OverchargeBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<OverchargeBehavior> FieldParseTable = new IniParseTable<OverchargeBehavior>
+        private static readonly IniParseTable<OverchargeBehaviorModuleData> FieldParseTable = new IniParseTable<OverchargeBehaviorModuleData>
         {
             { "HealthPercentToDrainPerSecond", (parser, x) => x.HealthPercentToDrainPerSecond = parser.ParsePercentage() },
             { "NotAllowedWhenHealthBelowPercent", (parser, x) => x.NotAllowedWhenHealthBelowPercent = parser.ParsePercentage() }

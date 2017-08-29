@@ -5,19 +5,16 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Allows an object to create/spawn a new object via upgrades.
     /// </summary>
-    public sealed class ObjectCreationUpgrade : ObjectBehavior
+    public sealed class ObjectCreationUpgradeModuleData : UpgradeModuleData
     {
-        internal static ObjectCreationUpgrade Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static ObjectCreationUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<ObjectCreationUpgrade> FieldParseTable = new IniParseTable<ObjectCreationUpgrade>
-        {
-            { "UpgradeObject", (parser, x) => x.UpgradeObject = parser.ParseAssetReference() },
-            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() },
-            { "ConflictsWith", (parser, x) => x.ConflictsWith = parser.ParseAssetReferenceArray() }
-        };
+        private static new readonly IniParseTable<ObjectCreationUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+            .Concat(new IniParseTable<ObjectCreationUpgradeModuleData>
+            {
+                { "UpgradeObject", (parser, x) => x.UpgradeObject = parser.ParseAssetReference() },
+            });
 
         public string UpgradeObject { get; private set; }
-        public string TriggeredBy { get; private set; }
-        public string[] ConflictsWith { get; private set; }
     }
 }

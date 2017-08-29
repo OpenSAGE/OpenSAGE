@@ -7,11 +7,11 @@ namespace OpenSage.Logic.Object
     /// Requires object to follow waypoint path named with Tunnel, Disembark or Station with "Start"
     /// and "End" convention.
     /// </summary>
-    public sealed class RailroadBehavior : ObjectBehavior
+    public sealed class RailroadBehaviorModuleData : BehaviorModuleData
     {
-        internal static RailroadBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static RailroadBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<RailroadBehavior> FieldParseTable = new IniParseTable<RailroadBehavior>
+        private static readonly IniParseTable<RailroadBehaviorModuleData> FieldParseTable = new IniParseTable<RailroadBehaviorModuleData>
         {
             { "PathPrefixName", (parser, x) => x.PathPrefixName = parser.ParseAssetReference() },
 

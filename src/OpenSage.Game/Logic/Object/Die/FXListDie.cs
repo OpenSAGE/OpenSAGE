@@ -3,21 +3,30 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class FXListDie : ObjectBehavior
+    public sealed class FXListDieModuleData : DieModuleData
     {
-        internal static FXListDie Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static FXListDieModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<FXListDie> FieldParseTable = new IniParseTable<FXListDie>
-        {
-            { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
-            { "ExemptStatus", (parser, x) => x.ExemptStatus = parser.ParseEnum<ObjectStatus>() },
-            { "DeathFX", (parser, x) => x.DeathFX = parser.ParseAssetReference() },
-            { "OrientToObject", (parser, x) => x.OrientToObject = parser.ParseBoolean() }
-        };
+        private static new readonly IniParseTable<FXListDieModuleData> FieldParseTable = DieModuleData.FieldParseTable
+            .Concat(new IniParseTable<FXListDieModuleData>
+            {
+                { "DeathFX", (parser, x) => x.DeathFX = parser.ParseAssetReference() },
+                { "OrientToObject", (parser, x) => x.OrientToObject = parser.ParseBoolean() },
+                { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
+                { "ConflictsWith", (parser, x) => x.ConflictsWith = parser.ParseAssetReferenceArray() },
+                { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReferenceArray() }
+            });
 
-        public BitArray<DeathType> DeathTypes { get; private set; }
-        public ObjectStatus ExemptStatus { get; private set; }
         public string DeathFX { get; private set; }
         public bool OrientToObject { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool StartsActive { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string[] ConflictsWith { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public string[] TriggeredBy { get; private set; }
     }
 }

@@ -2,11 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class PoisonedBehavior : ObjectBehavior
+    public sealed class PoisonedBehaviorModuleData : UpdateModuleData
     {
-        internal static PoisonedBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static PoisonedBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<PoisonedBehavior> FieldParseTable = new IniParseTable<PoisonedBehavior>
+        private static readonly IniParseTable<PoisonedBehaviorModuleData> FieldParseTable = new IniParseTable<PoisonedBehaviorModuleData>
         {
             { "PoisonDamageInterval", (parser, x) => x.PoisonDamageInterval = parser.ParseInteger() },
             { "PoisonDuration", (parser, x) => x.PoisonDuration = parser.ParseInteger() }

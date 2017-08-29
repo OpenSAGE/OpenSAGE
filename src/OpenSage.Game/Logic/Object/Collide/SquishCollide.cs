@@ -2,13 +2,10 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class SquishCollide : ObjectBehavior
+    public sealed class SquishCollideModuleData : CollideModuleData
     {
-        internal static SquishCollide Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static SquishCollideModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<SquishCollide> FieldParseTable = new IniParseTable<SquishCollide>();
+        private static readonly IniParseTable<SquishCollideModuleData> FieldParseTable = new IniParseTable<SquishCollideModuleData>();
     }
 }

@@ -8,20 +8,18 @@ namespace OpenSage.Logic.Object
     /// Allows you to steal money from an enemy supply center. The special power specified in
     /// <see cref="SpecialPowerTemplate"/> must use the <see cref="SpecialPowerType.CashHack"/> type.
     /// </summary>
-    public sealed class CashHackSpecialPower : ObjectBehavior
+    public sealed class CashHackSpecialPowerModuleData : SpecialPowerModuleData
     {
-        internal static CashHackSpecialPower Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static CashHackSpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<CashHackSpecialPower> FieldParseTable = new IniParseTable<CashHackSpecialPower>
-        {
-            { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() },
-            { "UpgradeMoneyAmount", (parser, x) => x.UpgradeMoneyAmounts.Add(UpgradeMoneyAmount.Parse(parser)) },
-            { "MoneyAmount", (parser, x) => x.MoneyAmount = parser.ParseInteger() }
-        };
+        private static new readonly IniParseTable<CashHackSpecialPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
+            .Concat(new IniParseTable<CashHackSpecialPowerModuleData>
+            {
+                { "UpgradeMoneyAmount", (parser, x) => x.UpgradeMoneyAmounts.Add(CashHackSpecialPowerUpgrade.Parse(parser)) },
+                { "MoneyAmount", (parser, x) => x.MoneyAmount = parser.ParseInteger() }
+            });
 
-        public string SpecialPowerTemplate { get; private set; }
-
-        public List<UpgradeMoneyAmount> UpgradeMoneyAmounts { get; } = new List<UpgradeMoneyAmount>();
+        public List<CashHackSpecialPowerUpgrade> UpgradeMoneyAmounts { get; } = new List<CashHackSpecialPowerUpgrade>();
 
         /// <summary>
         /// Amount of money to steal.
@@ -29,11 +27,11 @@ namespace OpenSage.Logic.Object
         public int MoneyAmount { get; private set; }
     }
 
-    public sealed class UpgradeMoneyAmount
+    public sealed class CashHackSpecialPowerUpgrade
     {
-        internal static UpgradeMoneyAmount Parse(IniParser parser)
+        internal static CashHackSpecialPowerUpgrade Parse(IniParser parser)
         {
-            return new UpgradeMoneyAmount
+            return new CashHackSpecialPowerUpgrade
             {
                 Science = parser.ParseAssetReference(),
                 MoneyAmount = parser.ParseInteger()

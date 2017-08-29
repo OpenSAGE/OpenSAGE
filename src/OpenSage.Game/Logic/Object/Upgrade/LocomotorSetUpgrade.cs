@@ -6,15 +6,11 @@ namespace OpenSage.Logic.Object
     /// Triggers use of SET_NORMAL_UPGRADED locomotor on this object and allows the use of 
     /// VoiceMoveUpgrade within the UnitSpecificSounds section of the object.
     /// </summary>
-    public sealed class LocomotorSetUpgrade : ObjectBehavior
+    public sealed class LocomotorSetUpgradeModuleData : UpgradeModuleData
     {
-        internal static LocomotorSetUpgrade Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static LocomotorSetUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<LocomotorSetUpgrade> FieldParseTable = new IniParseTable<LocomotorSetUpgrade>
-        {
-            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() }
-        };
-
-        public string TriggeredBy { get; private set; }
+        private static new readonly IniParseTable<LocomotorSetUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+            .Concat(new IniParseTable<LocomotorSetUpgradeModuleData>());
     }
 }

@@ -2,9 +2,9 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class TransitionState : ObjectDrawState
+    public sealed class TransitionState : ModelConditionState
     {
-        internal static TransitionState Parse(IniParser parser)
+        internal static new TransitionState Parse(IniParser parser)
         {
             var from = parser.ParseAssetReference();
             var to = parser.ParseAssetReference();
@@ -29,11 +29,8 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
-        private static readonly IniParseTable<TransitionState> FieldParseTable = new IniParseTable<TransitionState>
-        {
-            { "FromTransitionKey", (parser, x) => x.FromTransitionKey = parser.ParseAssetReference() },
-            { "ToTransitionKey", (parser, x) => x.ToTransitionKey = parser.ParseAssetReference() },
-        }.Concat<TransitionState, ObjectDrawState>(BaseFieldParseTable);
+        private static new readonly IniParseTable<TransitionState> FieldParseTable = ModelConditionState.FieldParseTable
+            .Concat(new IniParseTable<TransitionState>());
 
         public string FromTransitionKey { get; private set; }
         public string ToTransitionKey { get; private set; }

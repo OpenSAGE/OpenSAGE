@@ -7,14 +7,15 @@ namespace OpenSage.Logic.Object
     /// to hop out of the vehicle and attack the selected target. The passengers will auto return
     /// if ordered to stop or the target is dead.
     /// </summary>
-    public sealed class AssaultTransportAIUpdate : ObjectBehavior
+    public sealed class AssaultTransportAIUpdateModuleData : AIUpdateModuleData
     {
-        internal static AssaultTransportAIUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static new AssaultTransportAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<AssaultTransportAIUpdate> FieldParseTable = new IniParseTable<AssaultTransportAIUpdate>
-        {
-            { "MembersGetHealedAtLifeRatio", (parser, x) => x.MembersGetHealedAtLifeRatio = parser.ParseFloat() },
-        };
+        private static new readonly IniParseTable<AssaultTransportAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+            .Concat(new IniParseTable<AssaultTransportAIUpdateModuleData>
+            {
+                { "MembersGetHealedAtLifeRatio", (parser, x) => x.MembersGetHealedAtLifeRatio = parser.ParseFloat() },
+            });
 
         public float MembersGetHealedAtLifeRatio { get; private set; }
     }

@@ -2,13 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class KeepObjectDie : ObjectBehavior
+    public sealed class KeepObjectDieModuleData : DieModuleData
     {
-        internal static KeepObjectDie Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static KeepObjectDieModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<KeepObjectDie> FieldParseTable = new IniParseTable<KeepObjectDie>();
+        private static new readonly IniParseTable<KeepObjectDieModuleData> FieldParseTable = DieModuleData.FieldParseTable
+            .Concat(new IniParseTable<KeepObjectDieModuleData>());
     }
 }

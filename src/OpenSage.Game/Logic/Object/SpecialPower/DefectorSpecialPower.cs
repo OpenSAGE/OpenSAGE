@@ -6,15 +6,11 @@ namespace OpenSage.Logic.Object
     /// When used in junction with the SPECIAL_DEFECTOR special power, the unit will defect to 
     /// your side.
     /// </summary>
-    public sealed class DefectorSpecialPower : ObjectBehavior
+    public sealed class DefectorSpecialPowerModuleData : SpecialPowerModuleData
     {
-        internal static DefectorSpecialPower Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static DefectorSpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<DefectorSpecialPower> FieldParseTable = new IniParseTable<DefectorSpecialPower>
-        {
-            { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() }
-        };
-
-        public string SpecialPowerTemplate { get; private set; }
+        private static new readonly IniParseTable<DefectorSpecialPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
+            .Concat(new IniParseTable<DefectorSpecialPowerModuleData>());
     }
 }

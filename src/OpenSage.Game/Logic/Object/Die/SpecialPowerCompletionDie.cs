@@ -2,14 +2,15 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class SpecialPowerCompletionDie : ObjectBehavior
+    public sealed class SpecialPowerCompletionDieModuleData : DieModuleData
     {
-        internal static SpecialPowerCompletionDie Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static SpecialPowerCompletionDieModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<SpecialPowerCompletionDie> FieldParseTable = new IniParseTable<SpecialPowerCompletionDie>
-        {
-            { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() }
-        };
+        private static new readonly IniParseTable<SpecialPowerCompletionDieModuleData> FieldParseTable = DieModuleData.FieldParseTable
+            .Concat(new IniParseTable<SpecialPowerCompletionDieModuleData>
+            {
+                { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() }
+            });
 
         public string SpecialPowerTemplate { get; private set; }
     }

@@ -8,23 +8,23 @@ namespace OpenSage.Logic.Object
     /// VoiceTaskComplete within UnitSpecificSounds section of the object.
     /// Requires Kindof = DOZER HARVESTER.
     /// </summary>
-    public sealed class WorkerAIUpdate : ObjectBehavior
+    public sealed class WorkerAIUpdateModuleData : AIUpdateModuleData
     {
-        internal static WorkerAIUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static new WorkerAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<WorkerAIUpdate> FieldParseTable = new IniParseTable<WorkerAIUpdate>
-        {
-            { "RepairHealthPercentPerSecond", (parser, x) => x.RepairHealthPercentPerSecond = parser.ParsePercentage() },
-            { "BoredTime", (parser, x) => x.BoredTime = parser.ParseInteger() },
-            { "BoredRange", (parser, x) => x.BoredRange = parser.ParseInteger() },
-            { "MaxBoxes", (parser, x) => x.MaxBoxes = parser.ParseInteger() },
-            { "SupplyCenterActionDelay", (parser, x) => x.SupplyCenterActionDelay = parser.ParseInteger() },
-            { "SupplyWarehouseActionDelay", (parser, x) => x.SupplyWarehouseActionDelay = parser.ParseInteger() },
-            { "SupplyWarehouseScanDistance", (parser, x) => x.SupplyWarehouseScanDistance = parser.ParseInteger() },
-            { "SuppliesDepletedVoice", (parser, x) => x.SuppliesDepletedVoice = parser.ParseAssetReference() },
-            { "AutoAcquireEnemiesWhenIdle", (parser, x) => x.AutoAcquireEnemiesWhenIdle = parser.ParseBoolean() },
-            { "UpgradedSupplyBoost", (parser, x) => x.UpgradedSupplyBoost = parser.ParseInteger() },
-        };
+        private static new readonly IniParseTable<WorkerAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+            .Concat(new IniParseTable<WorkerAIUpdateModuleData>
+            {
+                { "RepairHealthPercentPerSecond", (parser, x) => x.RepairHealthPercentPerSecond = parser.ParsePercentage() },
+                { "BoredTime", (parser, x) => x.BoredTime = parser.ParseInteger() },
+                { "BoredRange", (parser, x) => x.BoredRange = parser.ParseInteger() },
+                { "MaxBoxes", (parser, x) => x.MaxBoxes = parser.ParseInteger() },
+                { "SupplyCenterActionDelay", (parser, x) => x.SupplyCenterActionDelay = parser.ParseInteger() },
+                { "SupplyWarehouseActionDelay", (parser, x) => x.SupplyWarehouseActionDelay = parser.ParseInteger() },
+                { "SupplyWarehouseScanDistance", (parser, x) => x.SupplyWarehouseScanDistance = parser.ParseInteger() },
+                { "SuppliesDepletedVoice", (parser, x) => x.SuppliesDepletedVoice = parser.ParseAssetReference() },
+                { "UpgradedSupplyBoost", (parser, x) => x.UpgradedSupplyBoost = parser.ParseInteger() },
+            });
 
         public float RepairHealthPercentPerSecond { get; private set; }
         public int BoredTime { get; private set; }
@@ -34,7 +34,6 @@ namespace OpenSage.Logic.Object
         public int SupplyWarehouseActionDelay { get; private set; }
         public int SupplyWarehouseScanDistance { get; private set; }
         public string SuppliesDepletedVoice { get; private set; }
-        public bool AutoAcquireEnemiesWhenIdle { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int UpgradedSupplyBoost { get; private set; }

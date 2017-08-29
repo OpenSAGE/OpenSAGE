@@ -6,11 +6,11 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Display MESSAGE:StealthDiscovered when triggered.
     /// </summary>
-    public sealed class StealthDetectorUpdate : ObjectBehavior
+    public sealed class StealthDetectorUpdateModuleData : UpdateModuleData
     {
-        internal static StealthDetectorUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static StealthDetectorUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<StealthDetectorUpdate> FieldParseTable = new IniParseTable<StealthDetectorUpdate>
+        private static readonly IniParseTable<StealthDetectorUpdateModuleData> FieldParseTable = new IniParseTable<StealthDetectorUpdateModuleData>
         {
             { "DetectionRate", (parser, x) => x.DetectionRate = parser.ParseInteger() },
             { "InitiallyDisabled", (parser, x) => x.InitiallyDisabled = parser.ParseBoolean() },

@@ -3,11 +3,11 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class FireOCLAfterWeaponCooldownUpdate : ObjectBehavior
+    public sealed class FireOCLAfterWeaponCooldownUpdateModuleData : UpdateModuleData
     {
-        internal static FireOCLAfterWeaponCooldownUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static FireOCLAfterWeaponCooldownUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<FireOCLAfterWeaponCooldownUpdate> FieldParseTable = new IniParseTable<FireOCLAfterWeaponCooldownUpdate>
+        private static readonly IniParseTable<FireOCLAfterWeaponCooldownUpdateModuleData> FieldParseTable = new IniParseTable<FireOCLAfterWeaponCooldownUpdateModuleData>
         {
             { "WeaponSlot", (parser, x) => x.WeaponSlot = parser.ParseEnum<WeaponSlot>() },
             { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReferenceArray() },

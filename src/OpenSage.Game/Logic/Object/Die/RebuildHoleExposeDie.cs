@@ -4,17 +4,18 @@ namespace OpenSage.Logic.Object
 {
     /// <summary>
     /// Requires the object specified in <see cref="HoleName"/> to have the REBUILD_HOLE KindOf and 
-    /// <see cref="RebuildHoleBehavior"/> module in order to work.
+    /// <see cref="RebuildHoleBehaviorModuleData"/> module in order to work.
     /// </summary>
-    public sealed class RebuildHoleExposeDie : ObjectBehavior
+    public sealed class RebuildHoleExposeDieModuleData : DieModuleData
     {
-        internal static RebuildHoleExposeDie Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static RebuildHoleExposeDieModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<RebuildHoleExposeDie> FieldParseTable = new IniParseTable<RebuildHoleExposeDie>
-        {
-            { "HoleName", (parser, x) => x.HoleName = parser.ParseAssetReference() },
-            { "HoleMaxHealth", (parser, x) => x.HoleMaxHealth = parser.ParseFloat() },
-        };
+        private static new readonly IniParseTable<RebuildHoleExposeDieModuleData> FieldParseTable = DieModuleData.FieldParseTable
+            .Concat(new IniParseTable<RebuildHoleExposeDieModuleData>
+            {
+                { "HoleName", (parser, x) => x.HoleName = parser.ParseAssetReference() },
+                { "HoleMaxHealth", (parser, x) => x.HoleMaxHealth = parser.ParseFloat() },
+            });
 
         public string HoleName { get; private set; }
         public float HoleMaxHealth { get; private set; }

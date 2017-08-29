@@ -5,11 +5,11 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Searches for a nearby healing station. AI only.
     /// </summary>
-    public sealed class AutoFindHealingUpdate : ObjectBehavior
+    public sealed class AutoFindHealingUpdateModuleData : UpdateModuleData
     {
-        internal static AutoFindHealingUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static AutoFindHealingUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<AutoFindHealingUpdate> FieldParseTable = new IniParseTable<AutoFindHealingUpdate>
+        private static readonly IniParseTable<AutoFindHealingUpdateModuleData> FieldParseTable = new IniParseTable<AutoFindHealingUpdateModuleData>
         {
             { "ScanRate", (parser, x) => x.ScanRate = parser.ParseInteger() },
             { "ScanRange", (parser, x) => x.ScanRange = parser.ParseInteger() },

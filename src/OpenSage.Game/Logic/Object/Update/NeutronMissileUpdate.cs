@@ -3,11 +3,11 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class NeutronMissileUpdate : ObjectBehavior
+    public sealed class NeutronMissileUpdateModuleData : UpdateModuleData
     {
-        internal static NeutronMissileUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static NeutronMissileUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<NeutronMissileUpdate> FieldParseTable = new IniParseTable<NeutronMissileUpdate>
+        private static readonly IniParseTable<NeutronMissileUpdateModuleData> FieldParseTable = new IniParseTable<NeutronMissileUpdateModuleData>
         {
             { "DistanceToTravelBeforeTurning", (parser, x) => x.DistanceToTravelBeforeTurning = parser.ParseInteger() },
             { "MaxTurnRate", (parser, x) => x.MaxTurnRate = parser.ParseInteger() },

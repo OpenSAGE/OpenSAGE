@@ -4,14 +4,11 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class StructureCollapseUpdate : ObjectBehavior
+    public sealed class StructureCollapseUpdateModuleData : UpdateModuleData
     {
-        internal static StructureCollapseUpdate Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static StructureCollapseUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<StructureCollapseUpdate> FieldParseTable = new IniParseTable<StructureCollapseUpdate>
+        private static readonly IniParseTable<StructureCollapseUpdateModuleData> FieldParseTable = new IniParseTable<StructureCollapseUpdateModuleData>
         {
             { "MinCollapseDelay", (parser, x) => x.MinCollapseDelay = parser.ParseInteger() },
             { "MaxCollapseDelay", (parser, x) => x.MaxCollapseDelay = parser.ParseInteger() },
@@ -21,8 +18,8 @@ namespace OpenSage.Logic.Object
             { "MaxBurstDelay", (parser, x) => x.MaxBurstDelay = parser.ParseInteger() },
             { "BigBurstFrequency", (parser, x) => x.BigBurstFrequency = parser.ParseInteger() },
 
-            { "OCL", (parser, x) => x.OCLs[parser.ParseEnum<StructureCollapseStage>()] = parser.ParseAssetReference() },
-            { "FXList", (parser, x) => x.FXLists[parser.ParseEnum<StructureCollapseStage>()] = parser.ParseAssetReference() },
+            { "OCL", (parser, x) => x.OCLs[parser.ParseEnum<StructureCollapsePhase>()] = parser.ParseAssetReference() },
+            { "FXList", (parser, x) => x.FXLists[parser.ParseEnum<StructureCollapsePhase>()] = parser.ParseAssetReference() },
         };
 
         public int MinCollapseDelay { get; private set; }
@@ -33,11 +30,11 @@ namespace OpenSage.Logic.Object
         public int MaxBurstDelay { get; private set; }
         public int BigBurstFrequency { get; private set; }
 
-        public Dictionary<StructureCollapseStage, string> OCLs { get; } = new Dictionary<StructureCollapseStage, string>();
-        public Dictionary<StructureCollapseStage, string> FXLists { get; } = new Dictionary<StructureCollapseStage, string>();
+        public Dictionary<StructureCollapsePhase, string> OCLs { get; } = new Dictionary<StructureCollapsePhase, string>();
+        public Dictionary<StructureCollapsePhase, string> FXLists { get; } = new Dictionary<StructureCollapsePhase, string>();
     }
 
-    public enum StructureCollapseStage
+    public enum StructureCollapsePhase
     {
         [IniEnum("INITIAL")]
         Initial,

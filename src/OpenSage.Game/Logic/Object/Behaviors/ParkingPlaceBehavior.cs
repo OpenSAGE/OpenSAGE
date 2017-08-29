@@ -7,11 +7,11 @@ namespace OpenSage.Logic.Object
     /// RunwayStartN, RunwayEndN, RunwayNPrepN, RunwayNParkingN and RunwayNParkNHan bones where N 
     /// corresponds to rows and columns. Module will only use the HeliPark01 bone for helicopters.
     /// </summary>
-    public sealed class ParkingPlaceBehavior : ObjectBehavior
+    public sealed class ParkingPlaceBehaviorModuleData : BehaviorModuleData
     {
-        internal static ParkingPlaceBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static ParkingPlaceBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<ParkingPlaceBehavior> FieldParseTable = new IniParseTable<ParkingPlaceBehavior>
+        private static readonly IniParseTable<ParkingPlaceBehaviorModuleData> FieldParseTable = new IniParseTable<ParkingPlaceBehaviorModuleData>
         {
             { "HealAmountPerSecond", (parser, x) => x.HealAmountPerSecond = parser.ParseInteger() },
             { "NumRows", (parser, x) => x.NumRows = parser.ParseInteger() },

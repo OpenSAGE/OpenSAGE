@@ -1,5 +1,4 @@
-﻿using System;
-using OpenSage.Data.Ini;
+﻿using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
@@ -8,14 +7,14 @@ namespace OpenSage.Logic.Object
     /// INI file comments indicate that this is not an accurate name; it's a really a 
     /// single mine behaviour.
     /// </summary>
-    public sealed class MinefieldBehavior : ObjectBehavior
+    public sealed class MinefieldBehaviorModuleData : BehaviorModuleData
     {
-        internal static MinefieldBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static MinefieldBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<MinefieldBehavior> FieldParseTable = new IniParseTable<MinefieldBehavior>
+        private static readonly IniParseTable<MinefieldBehaviorModuleData> FieldParseTable = new IniParseTable<MinefieldBehaviorModuleData>
         {
             { "DetonationWeapon", (parser, x) => x.DetonationWeapon = parser.ParseAssetReference() },
-            { "DetonatedBy", (parser, x) => x.DetonatedBy = parser.ParseEnumFlags<MinefieldDetonatedBy>() },
+            { "DetonatedBy", (parser, x) => x.DetonatedBy = parser.ParseEnumBitArray<ObjectFilterRelationship>() },
             { "ScootFromStartingPointTime", (parser, x) => x.ScootFromStartingPointTime = parser.ParseInteger() },
             { "RepeatDetonateMoveThresh", (parser, x) => x.RepeatDetonateMoveThresh = parser.ParseFloat() },
             { "NumVirtualMines", (parser, x) => x.NumVirtualMines = parser.ParseInteger() },
@@ -25,7 +24,7 @@ namespace OpenSage.Logic.Object
         };
 
         public string DetonationWeapon { get; private set; }
-        public MinefieldDetonatedBy DetonatedBy { get; private set; }
+        public BitArray<ObjectFilterRelationship> DetonatedBy { get; private set; }
         public int ScootFromStartingPointTime { get; private set; }
         public float RepeatDetonateMoveThresh { get; private set; }
         public int NumVirtualMines { get; private set; }
@@ -34,15 +33,12 @@ namespace OpenSage.Logic.Object
         public float DegenPercentPerSecondAfterCreatorDies { get; private set; }
     }
 
-    [Flags]
-    public enum MinefieldDetonatedBy
+    public enum ObjectFilterRelationship
     {
-        None = 0,
-
         [IniEnum("ENEMIES")]
-        Enemies = 1 << 0,
+        Enemies,
 
         [IniEnum("NEUTRAL")]
-        Neutral = 1 << 2,
+        Neutral,
     }
 }

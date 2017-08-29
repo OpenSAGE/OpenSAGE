@@ -2,17 +2,16 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class GrantScienceUpgrade : ObjectBehavior
+    public sealed class GrantScienceUpgradeModuleData : UpgradeModuleData
     {
-        internal static GrantScienceUpgrade Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static GrantScienceUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<GrantScienceUpgrade> FieldParseTable = new IniParseTable<GrantScienceUpgrade>
-        {
-            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() },
-            { "GrantScience", (parser, x) => x.GrantScience = parser.ParseAssetReference() },
-        };
+        private static new readonly IniParseTable<GrantScienceUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+            .Concat(new IniParseTable<GrantScienceUpgradeModuleData>
+            {
+                { "GrantScience", (parser, x) => x.GrantScience = parser.ParseAssetReference() },
+            });
 
-        public string TriggeredBy { get; private set; }
         public string GrantScience { get; private set; }
     }
 }

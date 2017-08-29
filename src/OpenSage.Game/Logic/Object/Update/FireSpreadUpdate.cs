@@ -2,11 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class FireSpreadUpdate : ObjectBehavior
+    public sealed class FireSpreadUpdateModuleData : UpdateModuleData
     {
-        internal static FireSpreadUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static FireSpreadUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<FireSpreadUpdate> FieldParseTable = new IniParseTable<FireSpreadUpdate>
+        private static readonly IniParseTable<FireSpreadUpdateModuleData> FieldParseTable = new IniParseTable<FireSpreadUpdateModuleData>
         {
             { "OCLEmbers", (parser, x) => x.OCLEmbers = parser.ParseAssetReference() },
             { "MinSpreadDelay", (parser, x) => x.MinSpreadDelay = parser.ParseInteger() },

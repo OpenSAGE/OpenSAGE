@@ -3,11 +3,11 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class StructureToppleUpdate : ObjectBehavior
+    public sealed class StructureToppleUpdateModuleData : UpdateModuleData
     {
-        internal static StructureToppleUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static StructureToppleUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<StructureToppleUpdate> FieldParseTable = new IniParseTable<StructureToppleUpdate>
+        private static readonly IniParseTable<StructureToppleUpdateModuleData> FieldParseTable = new IniParseTable<StructureToppleUpdateModuleData>
         {
             { "MinToppleDelay", (parser, x) => x.MinToppleDelay = parser.ParseInteger() },
             { "MaxToppleDelay", (parser, x) => x.MaxToppleDelay = parser.ParseInteger() },

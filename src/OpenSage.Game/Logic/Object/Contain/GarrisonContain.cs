@@ -8,46 +8,39 @@ namespace OpenSage.Logic.Object
     /// when occupants are firing and these are drawn at bones named FIREPOINT. Also, it Allows use 
     /// of the GARRISONED Model ConditionState.
     /// </summary>
-    public sealed class GarrisonContain : ObjectBehavior
+    public class GarrisonContainModuleData : OpenContainModuleData
     {
-        internal static GarrisonContain Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static GarrisonContainModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<GarrisonContain> FieldParseTable = new IniParseTable<GarrisonContain>
-        {
-            { "ContainMax", (parser, x) => x.ContainMax = parser.ParseInteger() },
-            { "EnterSound", (parser, x) => x.EnterSound = parser.ParseAssetReference() },
-            { "ExitSound", (parser, x) => x.ExitSound = parser.ParseAssetReference() },
-            { "DamagePercentToUnits", (parser, x) => x.DamagePercentToUnits = parser.ParsePercentage() },
-            { "MobileGarrison", (parser, x) => x.MobileGarrison = parser.ParseBoolean() },
-            { "InitialRoster", (parser, x) => x.InitialRoster = GarrisonRoster.Parse(parser) },
-            { "ImmuneToClearBuildingAttacks", (parser, x) => x.ImmuneToClearBuildingAttacks = parser.ParseBoolean() },
-            { "IsEnclosingContainer", (parser, x) => x.IsEnclosingContainer = parser.ParseBoolean() },
-        };
-
-        public int ContainMax { get; private set; }
-        public string EnterSound { get; private set; }
-        public string ExitSound { get; private set; }
-        public float DamagePercentToUnits { get; private set; }
+        internal static new readonly IniParseTable<GarrisonContainModuleData> FieldParseTable = OpenContainModuleData.FieldParseTable
+            .Concat(new IniParseTable<GarrisonContainModuleData>
+            {
+                { "MobileGarrison", (parser, x) => x.MobileGarrison = parser.ParseBoolean() },
+                { "InitialRoster", (parser, x) => x.InitialRoster = InitialRoster.Parse(parser) },
+                { "ImmuneToClearBuildingAttacks", (parser, x) => x.ImmuneToClearBuildingAttacks = parser.ParseBoolean() },
+                { "IsEnclosingContainer", (parser, x) => x.IsEnclosingContainer = parser.ParseBoolean() },
+            });
+        
         public bool MobileGarrison { get; private set; }
-        public GarrisonRoster InitialRoster { get; private set; }
+        public InitialRoster InitialRoster { get; private set; }
         public bool ImmuneToClearBuildingAttacks { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool IsEnclosingContainer { get; private set; }
     }
 
-    public sealed class GarrisonRoster
+    public sealed class InitialRoster
     {
-        internal static GarrisonRoster Parse(IniParser parser)
+        internal static InitialRoster Parse(IniParser parser)
         {
-            return new GarrisonRoster
+            return new InitialRoster
             {
-                ObjectName = parser.ParseAssetReference(),
-                Quantity = parser.ParseInteger()
+                TemplateId = parser.ParseAssetReference(),
+                Count = parser.ParseInteger()
             };
         }
 
-        public string ObjectName { get; private set; }
-        public int Quantity { get; private set; }
+        public string TemplateId { get; private set; }
+        public int Count { get; private set; }
     }
 }

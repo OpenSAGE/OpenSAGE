@@ -3,11 +3,11 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class BoneFXUpdate : ObjectBehavior
+    public sealed class BoneFXUpdateModuleData : UpdateModuleData
     {
-        internal static BoneFXUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static BoneFXUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<BoneFXUpdate> FieldParseTable = new IniParseTable<BoneFXUpdate>
+        private static readonly IniParseTable<BoneFXUpdateModuleData> FieldParseTable = new IniParseTable<BoneFXUpdateModuleData>
         {
             { "DamageFXTypes", (parser, x) => x.DamageFXTypes = parser.ParseEnumBitArray<DamageType>() },
             { "RubbleFXList1", (parser, x) => x.RubbleFXList1 = BoneFXUpdateFXList.Parse(parser) },

@@ -2,11 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class HijackerUpdate : ObjectBehavior
+    public sealed class HijackerUpdateModuleData : UpdateModuleData
     {
-        internal static HijackerUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static HijackerUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<HijackerUpdate> FieldParseTable = new IniParseTable<HijackerUpdate>
+        private static readonly IniParseTable<HijackerUpdateModuleData> FieldParseTable = new IniParseTable<HijackerUpdateModuleData>
         {
             { "ParachuteName", (parser, x) => x.ParachuteName = parser.ParseAssetReference() }
         };

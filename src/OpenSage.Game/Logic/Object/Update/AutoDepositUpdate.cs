@@ -3,16 +3,17 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class AutoDepositUpdate : ObjectBehavior
+    public sealed class AutoDepositUpdateModuleData : UpdateModuleData
     {
-        internal static AutoDepositUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static AutoDepositUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<AutoDepositUpdate> FieldParseTable = new IniParseTable<AutoDepositUpdate>
+        private static readonly IniParseTable<AutoDepositUpdateModuleData> FieldParseTable = new IniParseTable<AutoDepositUpdateModuleData>
         {
             { "DepositTiming", (parser, x) => x.DepositTiming = parser.ParseInteger() },
             { "DepositAmount", (parser, x) => x.DepositAmount = parser.ParseInteger() },
             { "InitialCaptureBonus", (parser, x) => x.InitialCaptureBonus = parser.ParseInteger() },
-            { "ActualMoney", (parser, x) => x.ActualMoney = parser.ParseBoolean() }
+            { "ActualMoney", (parser, x) => x.ActualMoney = parser.ParseBoolean() },
+            { "UpgradedBoost", (parser, x) => x.UpgradedBoost = BoostUpgrade.Parse(parser) }
         };
 
         /// <summary>
@@ -32,5 +33,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool ActualMoney { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public BoostUpgrade UpgradedBoost { get; private set; }
     }
 }

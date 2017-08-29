@@ -3,11 +3,11 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class EmpUpdate : ObjectBehavior
+    public sealed class EmpUpdateModuleData : UpdateModuleData
     {
-        internal static EmpUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static EmpUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<EmpUpdate> FieldParseTable = new IniParseTable<EmpUpdate>
+        private static readonly IniParseTable<EmpUpdateModuleData> FieldParseTable = new IniParseTable<EmpUpdateModuleData>
         {
             { "DisabledDuration", (parser, x) => x.DisabledDuration = parser.ParseInteger() },
             { "Lifetime", (parser, x) => x.Lifetime = parser.ParseInteger() },
@@ -17,7 +17,10 @@ namespace OpenSage.Logic.Object
             { "TargetScaleMax", (parser, x) => x.TargetScaleMax = parser.ParseFloat() },
             { "StartColor", (parser, x) => x.StartColor = IniColorRgb.Parse(parser) },
             { "EndColor", (parser, x) => x.EndColor = IniColorRgb.Parse(parser) },
-            { "DisableFXParticleSystem", (parser, x) => x.DisableFXParticleSystem = parser.ParseAssetReference() }
+            { "DisableFXParticleSystem", (parser, x) => x.DisableFXParticleSystem = parser.ParseAssetReference() },
+            { "DoesNotAffect", (parser, x) => x.DoesNotAffect = parser.ParseEnum<WeaponAffectsTypes>() },
+            { "DoesNotAffectMyOwnBuildings", (parser, x) => x.DoesNotAffectMyOwnBuildings = parser.ParseBoolean() },
+            { "EffectRadius", (parser, x) => x.EffectRadius = parser.ParseInteger() },
         };
 
         public int DisabledDuration { get; private set; }
@@ -29,5 +32,14 @@ namespace OpenSage.Logic.Object
         public IniColorRgb StartColor { get; private set; }
         public IniColorRgb EndColor { get; private set; }
         public string DisableFXParticleSystem { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public WeaponAffectsTypes DoesNotAffect { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool DoesNotAffectMyOwnBuildings { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public int EffectRadius { get; private set; }
     }
 }

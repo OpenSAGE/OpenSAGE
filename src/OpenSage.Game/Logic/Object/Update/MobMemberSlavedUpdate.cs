@@ -2,11 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class MobMemberSlavedUpdate : ObjectBehavior
+    public sealed class MobMemberSlavedUpdateModuleData : UpdateModuleData
     {
-        internal static MobMemberSlavedUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static MobMemberSlavedUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<MobMemberSlavedUpdate> FieldParseTable = new IniParseTable<MobMemberSlavedUpdate>
+        private static readonly IniParseTable<MobMemberSlavedUpdateModuleData> FieldParseTable = new IniParseTable<MobMemberSlavedUpdateModuleData>
         {
             { "MustCatchUpRadius", (parser, x) => x.MustCatchUpRadius = parser.ParseInteger() },
             { "NoNeedToCatchUpRadius", (parser, x) => x.NoNeedToCatchUpRadius = parser.ParseInteger() },

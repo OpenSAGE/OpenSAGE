@@ -328,5 +328,35 @@
 
         [IniEnum("ARMOR_SALVAGER"), AddedIn(SageGame.CncGeneralsZeroHour)]
         ArmorSalvager,
+
+        [IniEnum("REVEALS_ENEMY_PATHS"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        RevealsEnemyPaths,
+
+        [IniEnum("CONSERVATIVE_BUILDING"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        ConservativeBuilding,
+
+        [IniEnum("AIRCRAFT_CARRIER"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        AircraftCarrier,
+
+        [IniEnum("FS_INTERNET_CENTER"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        FSInternetCenter,
+
+        [IniEnum("OPTIMIZED_TREE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        OptimizedTree,
+
+        [IniEnum("PROP"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Prop,
+
+        [IniEnum("BLAST_CRATER"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        BlastCrater,
+
+        [IniEnum("TECH_BASE_DEFENSE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        TechBaseDefense,
+
+        [IniEnum("BOOBY_TRAP"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        BoobyTrap,
+
+        [IniEnum("REJECT_UNMANNED"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        RejectUnmanned,
     }
 }

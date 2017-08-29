@@ -1,5 +1,4 @@
-﻿using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -7,15 +6,11 @@ namespace OpenSage.Logic.Object
     /// Hardcoded to play the HijackDriver sound definition when triggered and converts the unit to 
     /// your side.
     /// </summary>
-    public sealed class ConvertToHijackedVehicleCrateCollide : ObjectBehavior
+    public sealed class ConvertToHijackedVehicleCrateCollideModuleData : CrateCollideModuleData
     {
-        internal static ConvertToHijackedVehicleCrateCollide Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static ConvertToHijackedVehicleCrateCollideModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<ConvertToHijackedVehicleCrateCollide> FieldParseTable = new IniParseTable<ConvertToHijackedVehicleCrateCollide>
-        {
-            { "RequiredKindOf", (parser, x) => x.RequiredKindOf = parser.ParseEnum<ObjectKinds>() }
-        };
-
-        public ObjectKinds RequiredKindOf { get; private set; }
+        private static new readonly IniParseTable<ConvertToHijackedVehicleCrateCollideModuleData> FieldParseTable = CrateCollideModuleData.FieldParseTable
+            .Concat(new IniParseTable<ConvertToHijackedVehicleCrateCollideModuleData>());
     }
 }

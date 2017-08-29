@@ -7,11 +7,11 @@ namespace OpenSage.Logic.Object
     /// Prevents indeterminate state plus two unpickable weapons equaling no attack.
     /// </summary>
     [AddedIn(SageGame.CncGeneralsZeroHour)]
-    public sealed class LockWeaponCreate : ObjectBehavior
+    public sealed class LockWeaponCreateModuleData : CreateModuleData
     {
-        internal static LockWeaponCreate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static LockWeaponCreateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<LockWeaponCreate> FieldParseTable = new IniParseTable<LockWeaponCreate>
+        private static readonly IniParseTable<LockWeaponCreateModuleData> FieldParseTable = new IniParseTable<LockWeaponCreateModuleData>
         {
             { "SlotToLock", (parser, x) => x.SlotToLock = parser.ParseEnum<WeaponSlot>() }
         };

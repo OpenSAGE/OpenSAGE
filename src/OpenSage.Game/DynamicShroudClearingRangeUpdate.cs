@@ -3,11 +3,11 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class DynamicShroudClearingRangeUpdate : ObjectBehavior
+    public sealed class DynamicShroudClearingRangeUpdateModuleData : UpdateModuleData
     {
-        internal static DynamicShroudClearingRangeUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static DynamicShroudClearingRangeUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<DynamicShroudClearingRangeUpdate> FieldParseTable = new IniParseTable<DynamicShroudClearingRangeUpdate>
+        private static readonly IniParseTable<DynamicShroudClearingRangeUpdateModuleData> FieldParseTable = new IniParseTable<DynamicShroudClearingRangeUpdateModuleData>
         {
             { "FinalVision", (parser, x) => x.FinalVision = parser.ParseFloat() },
             { "ChangeInterval", (parser, x) => x.ChangeInterval = parser.ParseInteger() },

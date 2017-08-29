@@ -7,10 +7,10 @@ namespace OpenSage.Logic.Object
     /// Forces the object's SpecialPower to start charging upon creation of the object. Required 
     /// by special powers that have <see cref="SpecialPower.PublicTimer"/> set to <code>true</code>.
     /// </summary>
-    public sealed class SpecialPowerCreate : ObjectBehavior
+    public sealed class SpecialPowerCreateModuleData : CreateModuleData
     {
-        internal static SpecialPowerCreate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static SpecialPowerCreateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<SpecialPowerCreate> FieldParseTable = new IniParseTable<SpecialPowerCreate>();
+        private static readonly IniParseTable<SpecialPowerCreateModuleData> FieldParseTable = new IniParseTable<SpecialPowerCreateModuleData>();
     }
 }

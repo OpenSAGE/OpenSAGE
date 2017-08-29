@@ -288,6 +288,9 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("DETONATED")]
         Detonated,
+
+        [IniEnum("EXTRA_4"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Extra4
     }
 
     [Flags]

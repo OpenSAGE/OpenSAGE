@@ -2,11 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class HeightDieUpdate : ObjectBehavior
+    public sealed class HeightDieUpdateModuleData : UpdateModuleData
     {
-        internal static HeightDieUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static HeightDieUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<HeightDieUpdate> FieldParseTable = new IniParseTable<HeightDieUpdate>
+        private static readonly IniParseTable<HeightDieUpdateModuleData> FieldParseTable = new IniParseTable<HeightDieUpdateModuleData>
         {
             { "TargetHeight", (parser, x) => x.TargetHeight = parser.ParseFloat() },
             { "TargetHeightIncludesStructures", (parser, x) => x.TargetHeightIncludesStructures = parser.ParseBoolean() },

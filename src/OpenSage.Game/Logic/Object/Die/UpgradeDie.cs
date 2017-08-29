@@ -1,22 +1,20 @@
-﻿using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
     /// <summary>
     /// Frees the object-based upgrade for the producer object.
     /// </summary>
-    public sealed class UpgradeDie : ObjectBehavior
+    public sealed class UpgradeDieModuleData : DieModuleData
     {
-        internal static UpgradeDie Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static UpgradeDieModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<UpgradeDie> FieldParseTable = new IniParseTable<UpgradeDie>
-        {
-            { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
-            { "UpgradeToRemove", (parser, x) => x.UpgradeToRemove = UpgradeToRemove.Parse(parser) }
-        };
+        private static new readonly IniParseTable<UpgradeDieModuleData> FieldParseTable = DieModuleData.FieldParseTable
+            .Concat(new IniParseTable<UpgradeDieModuleData>
+            {
+                { "UpgradeToRemove", (parser, x) => x.UpgradeToRemove = UpgradeToRemove.Parse(parser) }
+            });
 
-        public BitArray<DeathType> DeathTypes { get; private set; }
         public UpgradeToRemove UpgradeToRemove { get; private set; }
     }
 

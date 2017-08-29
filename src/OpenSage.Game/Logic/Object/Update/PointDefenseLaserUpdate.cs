@@ -3,11 +3,11 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class PointDefenseLaserUpdate : ObjectBehavior
+    public sealed class PointDefenseLaserUpdateModuleData : UpdateModuleData
     {
-        internal static PointDefenseLaserUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static PointDefenseLaserUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<PointDefenseLaserUpdate> FieldParseTable = new IniParseTable<PointDefenseLaserUpdate>
+        private static readonly IniParseTable<PointDefenseLaserUpdateModuleData> FieldParseTable = new IniParseTable<PointDefenseLaserUpdateModuleData>
         {
             { "WeaponTemplate", (parser, x) => x.WeaponTemplate = parser.ParseAssetReference() },
             { "PrimaryTargetTypes", (parser, x) => x.PrimaryTargetTypes = parser.ParseEnumBitArray<ObjectKinds>() },

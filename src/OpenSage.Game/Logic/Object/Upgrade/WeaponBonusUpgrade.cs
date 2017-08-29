@@ -5,15 +5,11 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Triggers use of WeaponBonus = parameter on this object's weapons.
     /// </summary>
-    public sealed class WeaponBonusUpgrade : ObjectBehavior
+    public sealed class WeaponBonusUpgradeModuleData : UpgradeModuleData
     {
-        internal static WeaponBonusUpgrade Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static WeaponBonusUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<WeaponBonusUpgrade> FieldParseTable = new IniParseTable<WeaponBonusUpgrade>
-        {
-            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() }
-        };
-
-        public string TriggeredBy { get; private set; }
+        private static new readonly IniParseTable<WeaponBonusUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+            .Concat(new IniParseTable<WeaponBonusUpgradeModuleData>());
     }
 }

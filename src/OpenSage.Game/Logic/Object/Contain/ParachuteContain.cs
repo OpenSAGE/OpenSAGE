@@ -6,11 +6,11 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Hardcoded to utilize PARA_MAN, PARA_ATTACH and PARA_COG bones on contained object.
     /// </summary>
-    public sealed class ParachuteContain : ObjectBehavior
+    public sealed class ParachuteContainModuleData : ContainModuleData
     {
-        internal static ParachuteContain Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static ParachuteContainModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<ParachuteContain> FieldParseTable = new IniParseTable<ParachuteContain>
+        private static readonly IniParseTable<ParachuteContainModuleData> FieldParseTable = new IniParseTable<ParachuteContainModuleData>
         {
             { "PitchRateMax", (parser, x) => x.PitchRateMax = parser.ParseInteger() },
             { "RollRateMax", (parser, x) => x.RollRateMax = parser.ParseInteger() },

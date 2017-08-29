@@ -2,32 +2,21 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class SupplyWarehouseDockUpdate : ObjectBehavior
+    public sealed class SupplyWarehouseDockUpdateModuleData : DockUpdateModuleData
     {
-        internal static SupplyWarehouseDockUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static SupplyWarehouseDockUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<SupplyWarehouseDockUpdate> FieldParseTable = new IniParseTable<SupplyWarehouseDockUpdate>
-        {
-            { "NumberApproachPositions", (parser, x) => x.NumberApproachPositions = parser.ParseInteger() },
-            { "StartingBoxes", (parser, x) => x.StartingBoxes = parser.ParseInteger() },
-            { "AllowsPassthrough", (parser, x) => x.AllowsPassthrough = parser.ParseBoolean() },
-            { "DeleteWhenEmpty", (parser, x) => x.DeleteWhenEmpty = parser.ParseBoolean() }
-        };
-
-        /// <summary>
-        /// Number of approach bones in the model. If this is -1, infinite harvesters can approach.
-        /// </summary>
-        public int NumberApproachPositions { get; private set; }
+        private static new readonly IniParseTable<SupplyWarehouseDockUpdateModuleData> FieldParseTable = DockUpdateModuleData.FieldParseTable
+            .Concat(new IniParseTable<SupplyWarehouseDockUpdateModuleData>
+            {
+                { "StartingBoxes", (parser, x) => x.StartingBoxes = parser.ParseInteger() },
+                { "DeleteWhenEmpty", (parser, x) => x.DeleteWhenEmpty = parser.ParseBoolean() }
+            });
 
         /// <summary>
         /// Used to determine the visual representation of a full warehouse.
         /// </summary>
         public int StartingBoxes { get; private set; }
-
-        /// <summary>
-        /// Can harvesters drive through this warehouse? Should be set to false if all dock points are external.
-        /// </summary>
-        public bool AllowsPassthrough { get; private set; } = true;
 
         /// <summary>
         /// True if warehouse should be deleted when depleted.

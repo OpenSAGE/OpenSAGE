@@ -7,11 +7,11 @@ namespace OpenSage.Logic.Object
     /// Special-case logic allows for ParentObject to be specified as a bone name to allow other 
     /// objects to appear on the bridge.
     /// </summary>
-    public sealed class BridgeBehavior : ObjectBehavior
+    public sealed class BridgeBehaviorModuleData : BehaviorModuleData
     {
-        internal static BridgeBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static BridgeBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<BridgeBehavior> FieldParseTable = new IniParseTable<BridgeBehavior>
+        private static readonly IniParseTable<BridgeBehaviorModuleData> FieldParseTable = new IniParseTable<BridgeBehaviorModuleData>
         {
             { "LateralScaffoldSpeed", (parser, x) => x.LateralScaffoldSpeed = parser.ParseFloat() },
             { "VerticalScaffoldSpeed", (parser, x) => x.VerticalScaffoldSpeed = parser.ParseFloat() },

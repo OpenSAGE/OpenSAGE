@@ -8,10 +8,10 @@ namespace OpenSage.Logic.Object
     /// triggered when an enemy object is within this object's 
     /// <see cref="ObjectDefinition.VisionRange"/>.
     /// </summary>
-    public sealed class EnemyNearUpdate : ObjectBehavior
+    public sealed class EnemyNearUpdateModuleData : UpdateModuleData
     {
-        internal static EnemyNearUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static EnemyNearUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<EnemyNearUpdate> FieldParseTable = new IniParseTable<EnemyNearUpdate>();
+        private static readonly IniParseTable<EnemyNearUpdateModuleData> FieldParseTable = new IniParseTable<EnemyNearUpdateModuleData>();
     }
 }

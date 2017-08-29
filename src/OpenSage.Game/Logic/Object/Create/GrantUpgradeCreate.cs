@@ -2,11 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class GrantUpgradeCreate : ObjectBehavior
+    public sealed class GrantUpgradeCreateModuleData : CreateModuleData
     {
-        internal static GrantUpgradeCreate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static GrantUpgradeCreateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<GrantUpgradeCreate> FieldParseTable = new IniParseTable<GrantUpgradeCreate>
+        private static readonly IniParseTable<GrantUpgradeCreateModuleData> FieldParseTable = new IniParseTable<GrantUpgradeCreateModuleData>
         {
             { "UpgradeToGrant", (parser, x) => x.UpgradeToGrant = parser.ParseAssetReference() },
             { "ExemptStatus", (parser, x) => x.ExemptStatus = parser.ParseEnum<ObjectStatus>() }

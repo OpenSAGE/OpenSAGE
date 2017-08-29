@@ -4,11 +4,11 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class SlowDeathBehavior : ObjectBehavior
+    public class SlowDeathBehaviorModuleData : UpdateModuleData
     {
-        internal static SlowDeathBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static SlowDeathBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<SlowDeathBehavior> FieldParseTable = new IniParseTable<SlowDeathBehavior>
+        internal static readonly IniParseTable<SlowDeathBehaviorModuleData> FieldParseTable = new IniParseTable<SlowDeathBehaviorModuleData>
         {
             { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
             { "RequiredStatus", (parser, x) => x.RequiredStatus = parser.ParseEnumBitArray<ObjectStatus>() },
@@ -25,9 +25,9 @@ namespace OpenSage.Logic.Object
             { "FlingPitch", (parser, x) => x.FlingPitch = parser.ParseInteger() },
             { "FlingPitchVariance", (parser, x) => x.FlingPitchVariance = parser.ParseInteger() },
 
-            { "OCL", (parser, x) => x.OCLs[parser.ParseEnum<SlowDeathStage>()] = parser.ParseAssetReference() },
-            { "FX", (parser, x) => x.FXs[parser.ParseEnum<SlowDeathStage>()] = parser.ParseAssetReference() },
-            { "Weapon", (parser, x) => x.Weapons[parser.ParseEnum<SlowDeathStage>()] = parser.ParseAssetReference() },
+            { "OCL", (parser, x) => x.OCLs[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseAssetReference() },
+            { "FX", (parser, x) => x.FXs[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseAssetReference() },
+            { "Weapon", (parser, x) => x.Weapons[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseAssetReference() },
         };
 
         public BitArray<DeathType> DeathTypes { get; private set; }
@@ -45,12 +45,12 @@ namespace OpenSage.Logic.Object
         public int FlingPitch { get; private set; }
         public int FlingPitchVariance { get; private set; }
 
-        public Dictionary<SlowDeathStage, string> OCLs { get; } = new Dictionary<SlowDeathStage, string>();
-        public Dictionary<SlowDeathStage, string> FXs { get; } = new Dictionary<SlowDeathStage, string>();
-        public Dictionary<SlowDeathStage, string> Weapons { get; } = new Dictionary<SlowDeathStage, string>();
+        public Dictionary<SlowDeathPhase, string> OCLs { get; } = new Dictionary<SlowDeathPhase, string>();
+        public Dictionary<SlowDeathPhase, string> FXs { get; } = new Dictionary<SlowDeathPhase, string>();
+        public Dictionary<SlowDeathPhase, string> Weapons { get; } = new Dictionary<SlowDeathPhase, string>();
     }
 
-    public enum SlowDeathStage
+    public enum SlowDeathPhase
     {
         [IniEnum("INITIAL")]
         Initial,

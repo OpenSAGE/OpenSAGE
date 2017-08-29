@@ -4,13 +4,31 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public class ObjectDefinition
+    public class ObjectDefinition : BaseInheritableAsset
     {
         internal static ObjectDefinition Parse(IniParser parser)
         {
             return parser.ParseTopLevelNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
+        }
+
+        internal static ObjectDefinition ParseReskin(IniParser parser)
+        {
+            parser.NextToken();
+
+            var name = parser.ParseIdentifier();
+
+            var reskinOf = parser.ParseAssetReference();
+
+            var result = parser.ParseBlock(FieldParseTable);
+
+            parser.NextTokenIf(IniTokenType.EndOfLine);
+
+            result.Name = name;
+            result.InheritFrom = reskinOf;
+
+            return result;
         }
 
         internal static readonly IniParseTable<ObjectDefinition> FieldParseTable = new IniParseTable<ObjectDefinition>
@@ -90,14 +108,16 @@ namespace OpenSage.Logic.Object
             { "UnitSpecificSounds", (parser, x) => x.UnitSpecificSounds = UnitSpecificAssets.Parse(parser) },
             { "UnitSpecificFX", (parser, x) => x.UnitSpecificFX = UnitSpecificAssets.Parse(parser) },
 
-            { "Behavior", (parser, x) => x.Behaviors.Add(ObjectBehavior.ParseBehavior(parser)) },
-            { "Draw", (parser, x) => x.Draws.Add(ObjectDrawModule.ParseDrawModule(parser)) },
-            { "Body", (parser, x) => x.Body = ObjectBody.ParseBody(parser) },
-            { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdate.ParseClientUpdate(parser)) },
+            { "Behavior", (parser, x) => x.Behaviors.Add(BehaviorModuleData.ParseBehavior(parser)) },
+            { "Draw", (parser, x) => x.Draws.Add(DrawModuleData.ParseDrawModule(parser)) },
+            { "Body", (parser, x) => x.Body = BodyModuleData.ParseBody(parser) },
+            { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdateModuleData.ParseClientUpdate(parser)) },
 
             { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSet>()] = parser.ParseAssetReferenceArray() },
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "RadarPriority", (parser, x) => x.RadarPriority = parser.ParseEnum<RadarPriority>() },
+            { "EnterGuard", (parser, x) => x.EnterGuard = parser.ParseBoolean() },
+            { "HijackGuard", (parser, x) => x.HijackGuard = parser.ParseBoolean() },
             { "DisplayColor", (parser, x) => x.DisplayColor = IniColorRgb.Parse(parser) },
             { "Scale", (parser, x) => x.Scale = parser.ParseFloat() },
             { "Geometry", (parser, x) => x.Geometry = parser.ParseEnum<ObjectGeometry>() },
@@ -230,13 +250,20 @@ namespace OpenSage.Logic.Object
         public UnitSpecificAssets UnitSpecificFX { get; private set; }
 
         // Engineering
-        public List<ObjectBehavior> Behaviors { get; } = new List<ObjectBehavior>();
-        public List<ObjectDrawModule> Draws { get; } = new List<ObjectDrawModule>();
-        public ObjectBody Body { get; private set; }
-        public List<ClientUpdate> ClientUpdates { get; } = new List<ClientUpdate>();
+        public List<BehaviorModuleData> Behaviors { get; } = new List<BehaviorModuleData>();
+        public List<DrawModuleData> Draws { get; } = new List<DrawModuleData>();
+        public BodyModuleData Body { get; private set; }
+        public List<ClientUpdateModuleData> ClientUpdates { get; } = new List<ClientUpdateModuleData>();
         public Dictionary<LocomotorSet, string[]> Locomotors { get; } = new Dictionary<LocomotorSet, string[]>();
         public BitArray<ObjectKinds> KindOf { get; private set; }
         public RadarPriority RadarPriority { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool EnterGuard { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool HijackGuard { get; private set; }
+
         public IniColorRgb DisplayColor { get; private set; }
         public float Scale { get; private set; }
         public ObjectGeometry Geometry { get; private set; }
@@ -319,9 +346,9 @@ namespace OpenSage.Logic.Object
         OnlyByAI
     }
 
-    public sealed class AddModule
+    public sealed class AddModule : ObjectDefinition
     {
-        internal static AddModule Parse(IniParser parser)
+        internal static new AddModule Parse(IniParser parser)
         {
             var name = parser.NextTokenIf(IniTokenType.Identifier);
 
@@ -332,16 +359,8 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
-        private static readonly IniParseTable<AddModule> FieldParseTable = new IniParseTable<AddModule>
-        {
-            { "Behavior", (parser, x) => x.Module = ObjectBehavior.ParseBehavior(parser) },
-            { "Draw", (parser, x) => x.Module = ObjectDrawModule.ParseDrawModule(parser) },
-            { "Body", (parser, x) => x.Module = ObjectBody.ParseBody(parser) },
-        };
-
-        public string Name { get; private set; }
-
-        public ObjectModule Module { get; private set; }
+        private static new readonly IniParseTable<AddModule> FieldParseTable = ObjectDefinition.FieldParseTable
+            .Concat(new IniParseTable<AddModule>());
     }
 
     public sealed class ReplaceModule
@@ -355,13 +374,13 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<ReplaceModule> FieldParseTable = new IniParseTable<ReplaceModule>
         {
-            { "Behavior", (parser, x) => x.Module = ObjectBehavior.ParseBehavior(parser) },
-            { "Draw", (parser, x) => x.Module = ObjectDrawModule.ParseDrawModule(parser) },
-            { "Body", (parser, x) => x.Module = ObjectBody.ParseBody(parser) },
+            { "Behavior", (parser, x) => x.Module = BehaviorModuleData.ParseBehavior(parser) },
+            { "Draw", (parser, x) => x.Module = DrawModuleData.ParseDrawModule(parser) },
+            { "Body", (parser, x) => x.Module = BodyModuleData.ParseBody(parser) },
         };
 
         public string Name { get; private set; }
 
-        public ObjectModule Module { get; private set; }
+        public ModuleData Module { get; private set; }
     }
 }

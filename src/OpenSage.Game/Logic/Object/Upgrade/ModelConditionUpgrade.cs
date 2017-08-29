@@ -7,17 +7,16 @@ namespace OpenSage.Logic.Object
     /// Switches to a model condition state via upgrades.
     /// </summary>
     [AddedIn(SageGame.CncGeneralsZeroHour)]
-    public sealed class ModelConditionUpgrade : ObjectBehavior
+    public sealed class ModelConditionUpgradeModuleData : UpgradeModuleData
     {
-        internal static ModelConditionUpgrade Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static ModelConditionUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<ModelConditionUpgrade> FieldParseTable = new IniParseTable<ModelConditionUpgrade>
-        {
-            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() },
-            { "ConditionFlag", (parser, x) => x.ConditionFlag = parser.ParseEnum<ModelConditionFlag>() },
-        };
+        private static new readonly IniParseTable<ModelConditionUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+            .Concat(new IniParseTable<ModelConditionUpgradeModuleData>
+            {
+                { "ConditionFlag", (parser, x) => x.ConditionFlag = parser.ParseEnum<ModelConditionFlag>() },
+            });
 
-        public string TriggeredBy { get; private set; }
         public ModelConditionFlag ConditionFlag { get; private set; }
     }
 }

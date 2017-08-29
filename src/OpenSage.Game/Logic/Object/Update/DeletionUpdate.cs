@@ -2,11 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class DeletionUpdate : ObjectBehavior
+    public sealed class DeletionUpdateModuleData : UpdateModuleData
     {
-        internal static DeletionUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static DeletionUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<DeletionUpdate> FieldParseTable = new IniParseTable<DeletionUpdate>
+        private static readonly IniParseTable<DeletionUpdateModuleData> FieldParseTable = new IniParseTable<DeletionUpdateModuleData>
         {
             { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseInteger() },
             { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseInteger() }

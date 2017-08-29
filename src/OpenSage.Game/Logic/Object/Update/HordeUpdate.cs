@@ -7,11 +7,11 @@ namespace OpenSage.Logic.Object
     /// Hardcoded to apply the following textures to objects that are affected by this module: 
     /// EXHorde, EXHorde_UP, EXHordeB, EXHordeB_UP.
     /// </summary>
-    public sealed class HordeUpdate : ObjectBehavior
+    public sealed class HordeUpdateModuleData : UpdateModuleData
     {
-        internal static HordeUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static HordeUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<HordeUpdate> FieldParseTable = new IniParseTable<HordeUpdate>
+        private static readonly IniParseTable<HordeUpdateModuleData> FieldParseTable = new IniParseTable<HordeUpdateModuleData>
         {
             { "RubOffRadius", (parser, x) => x.RubOffRadius = parser.ParseInteger() },
             { "UpdateRate", (parser, x) => x.UpdateRate = parser.ParseInteger() },

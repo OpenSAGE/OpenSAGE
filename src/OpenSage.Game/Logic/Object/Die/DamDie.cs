@@ -6,10 +6,11 @@ namespace OpenSage.Logic.Object
     /// Allows object to continue to exist as an obstacle but allowing water terrain to move 
     /// through. The module must be applied after any other death modules.
     /// </summary>
-    public sealed class DamDie : ObjectBehavior
+    public sealed class DamDieModuleData : DieModuleData
     {
-        internal static DamDie Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static DamDieModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<DamDie> FieldParseTable = new IniParseTable<DamDie>();
+        private static new readonly IniParseTable<DamDieModuleData> FieldParseTable = DieModuleData.FieldParseTable
+            .Concat(new IniParseTable<DamDieModuleData>());
     }
 }

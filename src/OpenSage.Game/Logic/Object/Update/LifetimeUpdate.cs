@@ -2,11 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class LifetimeUpdate : ObjectBehavior
+    public sealed class LifetimeUpdateModuleData : UpdateModuleData
     {
-        internal static LifetimeUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static LifetimeUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<LifetimeUpdate> FieldParseTable = new IniParseTable<LifetimeUpdate>
+        private static readonly IniParseTable<LifetimeUpdateModuleData> FieldParseTable = new IniParseTable<LifetimeUpdateModuleData>
         {
             { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseInteger() },
             { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseInteger() }

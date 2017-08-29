@@ -2,11 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class ToppleUpdate : ObjectBehavior
+    public sealed class ToppleUpdateModuleData : UpdateModuleData
     {
-        internal static ToppleUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static ToppleUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<ToppleUpdate> FieldParseTable = new IniParseTable<ToppleUpdate>
+        private static readonly IniParseTable<ToppleUpdateModuleData> FieldParseTable = new IniParseTable<ToppleUpdateModuleData>
         {
             { "ToppleFX", (parser, x) => x.ToppleFX = parser.ParseAssetReference() },
             { "BounceFX", (parser, x) => x.BounceFX = parser.ParseAssetReference() },

@@ -8,11 +8,11 @@ namespace OpenSage.Logic.Object
     /// WaterWaveBridge object definition as a template when it collides with a bridge.
     /// Requires a WAVEGUIDE KindOf.
     /// </summary>
-    public sealed class WaveGuideUpdate : ObjectBehavior
+    public sealed class WaveGuideUpdateModuleData : UpdateModuleData
     {
-        internal static WaveGuideUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static WaveGuideUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<WaveGuideUpdate> FieldParseTable = new IniParseTable<WaveGuideUpdate>
+        private static readonly IniParseTable<WaveGuideUpdateModuleData> FieldParseTable = new IniParseTable<WaveGuideUpdateModuleData>
         {
             { "WaveDelay", (parser, x) => x.WaveDelay = parser.ParseInteger() },
             { "YSize", (parser, x) => x.YSize = parser.ParseFloat() },

@@ -7,11 +7,11 @@ namespace OpenSage.Logic.Object
     /// Required on an object that uses PublicTimer code for any SpecialPower and/or required for 
     /// units/structures with object upgrades.
     /// </summary>
-    public sealed class ProductionUpdate : ObjectBehavior
+    public sealed class ProductionUpdateModuleData : UpdateModuleData
     {
-        internal static ProductionUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static ProductionUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<ProductionUpdate> FieldParseTable = new IniParseTable<ProductionUpdate>
+        private static readonly IniParseTable<ProductionUpdateModuleData> FieldParseTable = new IniParseTable<ProductionUpdateModuleData>
         {
             { "NumDoorAnimations", (parser, x) => x.NumDoorAnimations = parser.ParseInteger() },
             { "DoorOpeningTime", (parser, x) => x.DoorOpeningTime = parser.ParseInteger() },
@@ -19,7 +19,7 @@ namespace OpenSage.Logic.Object
             { "DoorCloseTime", (parser, x) => x.DoorCloseTime = parser.ParseInteger() },
             { "ConstructionCompleteDuration", (parser, x) => x.ConstructionCompleteDuration = parser.ParseInteger() },
             { "MaxQueueEntries", (parser, x) => x.MaxQueueEntries = parser.ParseInteger() },
-            { "QuantityModifier", (parser, x) => x.QuantityModifier = ProductionUpdateQuantityModifier.Parse(parser) },
+            { "QuantityModifier", (parser, x) => x.QuantityModifier = Object.QuantityModifier.Parse(parser) },
 
             { "DisabledTypesToProcess", (parser, x) => x.DisabledTypesToProcess = parser.ParseEnumBitArray<DisabledType>() }
         };
@@ -38,24 +38,24 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// Red Guards use this so that they can come out of the barracks in pairs.
         /// </summary>
-        public ProductionUpdateQuantityModifier? QuantityModifier { get; private set; }
+        public QuantityModifier? QuantityModifier { get; private set; }
 
         public BitArray<DisabledType> DisabledTypesToProcess { get; private set; }
     }
 
-    public struct ProductionUpdateQuantityModifier
+    public struct QuantityModifier
     {
-        internal static ProductionUpdateQuantityModifier Parse(IniParser parser)
+        internal static QuantityModifier Parse(IniParser parser)
         {
-            return new ProductionUpdateQuantityModifier
+            return new QuantityModifier
             {
                 ObjectName = parser.ParseAssetReference(),
-                Quantity = parser.ParseInteger()
+                Count = parser.ParseInteger()
             };
         }
 
         public string ObjectName;
-        public int Quantity;
+        public int Count;
     }
 
     public enum DisabledType

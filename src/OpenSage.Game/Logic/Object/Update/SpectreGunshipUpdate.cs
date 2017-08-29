@@ -4,11 +4,11 @@ using OpenSage.Data.Ini.Parser;
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.CncGeneralsZeroHour)]
-    public sealed class SpectreGunshipUpdate : ObjectBehavior
+    public sealed class SpectreGunshipUpdateModuleData : UpdateModuleData
     {
-        internal static SpectreGunshipUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static SpectreGunshipUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<SpectreGunshipUpdate> FieldParseTable = new IniParseTable<SpectreGunshipUpdate>
+        private static readonly IniParseTable<SpectreGunshipUpdateModuleData> FieldParseTable = new IniParseTable<SpectreGunshipUpdateModuleData>
         {
             { "GattlingStrafeFXParticleSystem", (parser, x) => x.GattlingStrafeFXParticleSystem = parser.ParseAssetReference() },
             { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() },

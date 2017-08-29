@@ -3,11 +3,11 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class MissileAIUpdate : ObjectBehavior
+    public sealed class MissileAIUpdateModuleData : BehaviorModuleData
     {
-        internal static MissileAIUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static MissileAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<MissileAIUpdate> FieldParseTable = new IniParseTable<MissileAIUpdate>
+        private static readonly IniParseTable<MissileAIUpdateModuleData> FieldParseTable = new IniParseTable<MissileAIUpdateModuleData>
         {
             { "TryToFollowTarget", (parser, x) => x.TryToFollowTarget = parser.ParseBoolean() },
             { "FuelLifetime", (parser, x) => x.FuelLifetime = parser.ParseInteger() },
@@ -21,7 +21,10 @@ namespace OpenSage.Logic.Object
             { "GarrisonHitKillRequiredKindOf", (parser, x) => x.GarrisonHitKillRequiredKindOf = parser.ParseEnum<ObjectKinds>() },
             { "GarrisonHitKillForbiddenKindOf", (parser, x) => x.GarrisonHitKillForbiddenKindOf = parser.ParseEnum<ObjectKinds>() },
             { "GarrisonHitKillCount", (parser, x) => x.GarrisonHitKillCount = parser.ParseInteger() },
-            { "GarrisonHitKillFX", (parser, x) => x.GarrisonHitKillFX = parser.ParseAssetReference() }
+            { "GarrisonHitKillFX", (parser, x) => x.GarrisonHitKillFX = parser.ParseAssetReference() },
+            { "DetonateCallsKill", (parser, x) => x.DetonateCallsKill = parser.ParseBoolean() },
+            { "KillSelfDelay", (parser, x) => x.KillSelfDelay = parser.ParseInteger() },
+            { "DistanceScatterWhenJammed", (parser, x) => x.DistanceScatterWhenJammed = parser.ParseInteger() },
         };
 
         public bool TryToFollowTarget { get; private set; }
@@ -37,5 +40,14 @@ namespace OpenSage.Logic.Object
         public ObjectKinds GarrisonHitKillForbiddenKindOf { get; private set; }
         public int GarrisonHitKillCount { get; private set; }
         public string GarrisonHitKillFX { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public bool DetonateCallsKill { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public int KillSelfDelay { get; private set; }
+
+        [AddedIn(SageGame.CncGeneralsZeroHour)]
+        public int DistanceScatterWhenJammed { get; private set; }
     }
 }

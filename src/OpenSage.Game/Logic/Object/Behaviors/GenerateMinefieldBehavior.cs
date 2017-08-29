@@ -3,11 +3,11 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class GenerateMinefieldBehavior : ObjectBehavior
+    public sealed class GenerateMinefieldBehaviorModuleData : UpdateModuleData
     {
-        internal static GenerateMinefieldBehavior Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static GenerateMinefieldBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<GenerateMinefieldBehavior> FieldParseTable = new IniParseTable<GenerateMinefieldBehavior>
+        private static readonly IniParseTable<GenerateMinefieldBehaviorModuleData> FieldParseTable = new IniParseTable<GenerateMinefieldBehaviorModuleData>
         {
             { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() },
             { "MineName", (parser, x) => x.MineName = parser.ParseAssetReference() },

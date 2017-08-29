@@ -8,23 +8,24 @@ namespace OpenSage.Logic.Object
     /// of the object.
     /// Also allows use of PACKING and UNPACKING condition states.
     /// </summary>
-    public sealed class HackInternetAIUpdate : ObjectBehavior
+    public sealed class HackInternetAIUpdateModuleData : AIUpdateModuleData
     {
-        internal static HackInternetAIUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static new HackInternetAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<HackInternetAIUpdate> FieldParseTable = new IniParseTable<HackInternetAIUpdate>
-        {
-            { "UnpackTime", (parser, x) => x.UnpackTime = parser.ParseInteger() },
-            { "PackTime", (parser, x) => x.PackTime = parser.ParseInteger() },
-            { "CashUpdateDelay", (parser, x) => x.CashUpdateDelay = parser.ParseInteger() },
-            { "CashUpdateDelayFast", (parser, x) => x.CashUpdateDelayFast = parser.ParseInteger() },
-            { "RegularCashAmount", (parser, x) => x.RegularCashAmount = parser.ParseInteger() },
-            { "VeteranCashAmount", (parser, x) => x.VeteranCashAmount = parser.ParseInteger() },
-            { "EliteCashAmount", (parser, x) => x.EliteCashAmount = parser.ParseInteger() },
-            { "HeroicCashAmount", (parser, x) => x.HeroicCashAmount = parser.ParseInteger() },
-            { "XpPerCashUpdate", (parser, x) => x.XpPerCashUpdate = parser.ParseInteger() },
-            { "PackUnpackVariationFactor", (parser, x) => x.PackUnpackVariationFactor = parser.ParseFloat() },
-        };
+        private static new readonly IniParseTable<HackInternetAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+            .Concat(new IniParseTable<HackInternetAIUpdateModuleData>
+            {
+                { "UnpackTime", (parser, x) => x.UnpackTime = parser.ParseInteger() },
+                { "PackTime", (parser, x) => x.PackTime = parser.ParseInteger() },
+                { "CashUpdateDelay", (parser, x) => x.CashUpdateDelay = parser.ParseInteger() },
+                { "CashUpdateDelayFast", (parser, x) => x.CashUpdateDelayFast = parser.ParseInteger() },
+                { "RegularCashAmount", (parser, x) => x.RegularCashAmount = parser.ParseInteger() },
+                { "VeteranCashAmount", (parser, x) => x.VeteranCashAmount = parser.ParseInteger() },
+                { "EliteCashAmount", (parser, x) => x.EliteCashAmount = parser.ParseInteger() },
+                { "HeroicCashAmount", (parser, x) => x.HeroicCashAmount = parser.ParseInteger() },
+                { "XpPerCashUpdate", (parser, x) => x.XpPerCashUpdate = parser.ParseInteger() },
+                { "PackUnpackVariationFactor", (parser, x) => x.PackUnpackVariationFactor = parser.ParseFloat() },
+            });
 
         public int UnpackTime { get; private set; }
         public int PackTime { get; private set; }

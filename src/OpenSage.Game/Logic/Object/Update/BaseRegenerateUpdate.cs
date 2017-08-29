@@ -8,10 +8,10 @@ namespace OpenSage.Logic.Object
     /// through <see cref="GameData.BaseRegenHealthPercentPerSecond"/> and
     /// <see cref="GameData.BaseRegenDelay"/>.
     /// </summary>
-    public sealed class BaseRegenerateUpdate : ObjectBehavior
+    public sealed class BaseRegenerateUpdateModuleData : UpdateModuleData
     {
-        internal static BaseRegenerateUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static BaseRegenerateUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<BaseRegenerateUpdate> FieldParseTable = new IniParseTable<BaseRegenerateUpdate>();
+        private static readonly IniParseTable<BaseRegenerateUpdateModuleData> FieldParseTable = new IniParseTable<BaseRegenerateUpdateModuleData>();
     }
 }

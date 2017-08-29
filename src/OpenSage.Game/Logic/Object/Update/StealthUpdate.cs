@@ -8,11 +8,11 @@ namespace OpenSage.Logic.Object
     /// <see cref="ObjectDefinition.SoundStealthOff"/> parameters on the object and is hardcoded to 
     /// display MESSAGE:StealthNeutralized when the object has been discovered.
     /// </summary>
-    public sealed class StealthUpdate : ObjectBehavior
+    public sealed class StealthUpdateModuleData : BehaviorModuleData
     {
-        internal static StealthUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static StealthUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<StealthUpdate> FieldParseTable = new IniParseTable<StealthUpdate>
+        private static readonly IniParseTable<StealthUpdateModuleData> FieldParseTable = new IniParseTable<StealthUpdateModuleData>
         {
             { "StealthDelay", (parser, x) => x.StealthDelay = parser.ParseInteger() },
             { "StealthForbiddenConditions", (parser, x) => x.StealthForbiddenConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },

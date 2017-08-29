@@ -2,21 +2,18 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class SpecialAbility : ObjectBehavior
+    public sealed class SpecialAbilityModuleData : SpecialPowerModuleData
     {
-        internal static SpecialAbility Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static SpecialAbilityModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<SpecialAbility> FieldParseTable = new IniParseTable<SpecialAbility>
-        {
-            { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() },
-            { "UpdateModuleStartsAttack", (parser, x) => x.UpdateModuleStartsAttack = parser.ParseBoolean() },
-            { "StartsPaused", (parser, x) => x.StartsPaused = parser.ParseBoolean() },
-            { "InitiateSound", (parser, x) => x.InitiateSound = parser.ParseAssetReference() },
-        };
+        private static new readonly IniParseTable<SpecialAbilityModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
+            .Concat(new IniParseTable<SpecialAbilityModuleData>
+            {
+                { "UpdateModuleStartsAttack", (parser, x) => x.UpdateModuleStartsAttack = parser.ParseBoolean() },
+                { "InitiateSound", (parser, x) => x.InitiateSound = parser.ParseAssetReference() },
+            });
 
-        public string SpecialPowerTemplate { get; private set; }
         public bool UpdateModuleStartsAttack { get; private set; }
-        public bool StartsPaused { get; private set; }
         public string InitiateSound { get; private set; }
     }
 }

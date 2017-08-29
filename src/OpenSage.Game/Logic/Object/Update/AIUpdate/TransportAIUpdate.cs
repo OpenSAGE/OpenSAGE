@@ -5,11 +5,11 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Used on TRANSPORT KindOfs that contain other objects.
     /// </summary>
-    public sealed class TransportAIUpdate : AIUpdateInterface
+    public sealed class TransportAIUpdateModuleData : AIUpdateModuleData
     {
-        internal static new TransportAIUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static new TransportAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<TransportAIUpdate> FieldParseTable = new IniParseTable<TransportAIUpdate>()
-            .Concat<TransportAIUpdate, AIUpdateInterface>(BaseFieldParseTable);
+        private static new readonly IniParseTable<TransportAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+            .Concat(new IniParseTable<TransportAIUpdateModuleData>());
     }
 }

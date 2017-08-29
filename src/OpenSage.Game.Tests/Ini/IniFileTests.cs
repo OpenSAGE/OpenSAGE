@@ -22,6 +22,9 @@ namespace OpenSage.Data.Tests.Ini
                 if (Path.GetFileName(fileName) == "ButtonSets.ini")
                     return; // This file doesn't seem to be used?
 
+                if (Path.GetFileName(fileName) == "Scripts.ini")
+                    return; // ZH only, and only needed by World Builder?
+
                 var dataContext = new IniDataContext();
 
                 using (var fileStream = openFileStream())

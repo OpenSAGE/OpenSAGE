@@ -5,10 +5,11 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Allows this object to move randomly about its point of origin using a SET_WANDER locomotor.
     /// </summary>
-    public sealed class WanderAIUpdate : ObjectBehavior
+    public sealed class WanderAIUpdateModuleData : AIUpdateModuleData
     {
-        internal static WanderAIUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static new WanderAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<WanderAIUpdate> FieldParseTable = new IniParseTable<WanderAIUpdate>();
+        private static new readonly IniParseTable<WanderAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+            .Concat(new IniParseTable<WanderAIUpdateModuleData>());
     }
 }

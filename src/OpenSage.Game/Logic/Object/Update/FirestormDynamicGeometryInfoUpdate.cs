@@ -2,11 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class FirestormDynamicGeometryInfoUpdate : ObjectBehavior
+    public sealed class FirestormDynamicGeometryInfoUpdateModuleData : UpdateModuleData
     {
-        internal static FirestormDynamicGeometryInfoUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static FirestormDynamicGeometryInfoUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<FirestormDynamicGeometryInfoUpdate> FieldParseTable = new IniParseTable<FirestormDynamicGeometryInfoUpdate>
+        private static readonly IniParseTable<FirestormDynamicGeometryInfoUpdateModuleData> FieldParseTable = new IniParseTable<FirestormDynamicGeometryInfoUpdateModuleData>
         {
             { "InitialDelay", (parser, x) => x.InitialDelay = parser.ParseInteger() },
             { "InitialHeight", (parser, x) => x.InitialHeight = parser.ParseFloat() },

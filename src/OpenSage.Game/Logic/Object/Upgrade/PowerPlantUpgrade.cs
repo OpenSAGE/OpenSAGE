@@ -6,15 +6,11 @@ namespace OpenSage.Logic.Object
     /// Triggers use of the <see cref="ObjectDefinition.EnergyBonus"/> setting on this object to 
     /// provide extra power to the faction.
     /// </summary>
-    public sealed class PowerPlantUpgrade : ObjectBehavior
+    public sealed class PowerPlantUpgradeModuleData : UpgradeModuleData
     {
-        internal static PowerPlantUpgrade Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static PowerPlantUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<PowerPlantUpgrade> FieldParseTable = new IniParseTable<PowerPlantUpgrade>
-        {
-            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() }
-        };
-
-        public string TriggeredBy { get; private set; }
+        private static new readonly IniParseTable<PowerPlantUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+            .Concat(new IniParseTable<PowerPlantUpgradeModuleData>());
     }
 }

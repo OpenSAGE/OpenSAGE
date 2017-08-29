@@ -2,11 +2,11 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class SpawnPointProductionExitUpdate : ObjectBehavior
+    public sealed class SpawnPointProductionExitUpdateModuleData : UpdateModuleData
     {
-        internal static SpawnPointProductionExitUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static SpawnPointProductionExitUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<SpawnPointProductionExitUpdate> FieldParseTable = new IniParseTable<SpawnPointProductionExitUpdate>
+        private static readonly IniParseTable<SpawnPointProductionExitUpdateModuleData> FieldParseTable = new IniParseTable<SpawnPointProductionExitUpdateModuleData>
         {
             { "SpawnPointBoneName", (parser, x) => x.SpawnPointBoneName = parser.ParseBoneName() }
         };

@@ -6,11 +6,11 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Allows weapons (or defense) to relay with a similar weapon (or defense) within its range.
     /// </summary>
-    public sealed class AssistedTargetingUpdate : ObjectBehavior
+    public sealed class AssistedTargetingUpdateModuleData : UpdateModuleData
     {
-        internal static AssistedTargetingUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static AssistedTargetingUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<AssistedTargetingUpdate> FieldParseTable = new IniParseTable<AssistedTargetingUpdate>
+        private static readonly IniParseTable<AssistedTargetingUpdateModuleData> FieldParseTable = new IniParseTable<AssistedTargetingUpdateModuleData>
         {
             { "AssistingClipSize", (parser, x) => x.AssistingClipSize = parser.ParseInteger() },
             { "AssistingWeaponSlot", (parser, x) => x.AssistingWeaponSlot = parser.ParseEnum<WeaponSlot>() },
@@ -18,8 +18,8 @@ namespace OpenSage.Logic.Object
             { "LaserToTarget", (parser, x) => x.LaserToTarget = parser.ParseAssetReference() }
         };
 
-        public int AssistingClipSize { get; private set; }
-        public WeaponSlot AssistingWeaponSlot { get; private set; }
+        public int AssistingClipSize { get; private set; } = 1;
+        public WeaponSlot AssistingWeaponSlot { get; private set; } = WeaponSlot.Primary;
         public string LaserFromAssisted { get; private set; }
         public string LaserToTarget { get; private set; }
     }

@@ -5,11 +5,11 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Allows the use of the DOOR_1_WAITING_OPEN, DOOR_1_CLOSING, DOOR_1_OPENING model condition states.
     /// </summary>
-    public sealed class MissileLauncherBuildingUpdate : ObjectBehavior
+    public sealed class MissileLauncherBuildingUpdateModuleData : UpdateModuleData
     {
-        internal static MissileLauncherBuildingUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static MissileLauncherBuildingUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<MissileLauncherBuildingUpdate> FieldParseTable = new IniParseTable<MissileLauncherBuildingUpdate>
+        private static readonly IniParseTable<MissileLauncherBuildingUpdateModuleData> FieldParseTable = new IniParseTable<MissileLauncherBuildingUpdateModuleData>
         {
             { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() },
 

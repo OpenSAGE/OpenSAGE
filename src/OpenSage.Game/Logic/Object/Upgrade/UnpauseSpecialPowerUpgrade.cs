@@ -2,17 +2,16 @@
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class UnpauseSpecialPowerUpgrade : ObjectBehavior
+    public sealed class UnpauseSpecialPowerUpgradeModuleData : UpgradeModuleData
     {
-        internal static UnpauseSpecialPowerUpgrade Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static UnpauseSpecialPowerUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<UnpauseSpecialPowerUpgrade> FieldParseTable = new IniParseTable<UnpauseSpecialPowerUpgrade>
-        {
-            { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() },
-            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() }
-        };
+        private static new readonly IniParseTable<UnpauseSpecialPowerUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+            .Concat(new IniParseTable<UnpauseSpecialPowerUpgradeModuleData>
+            {
+                { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() },
+            });
 
         public string SpecialPowerTemplate { get; private set; }
-        public string TriggeredBy { get; private set; }
     }
 }

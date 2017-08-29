@@ -6,14 +6,15 @@ namespace OpenSage.Logic.Object
     /// Used on TRANSPORT KindOfs that follow a specific pre-defined waypoint path in a scripted 
     /// manner.
     /// </summary>
-    public sealed class RailedTransportAIUpdate : ObjectBehavior
+    public sealed class RailedTransportAIUpdateModuleData : AIUpdateModuleData
     {
-        internal static RailedTransportAIUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static new RailedTransportAIUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<RailedTransportAIUpdate> FieldParseTable = new IniParseTable<RailedTransportAIUpdate>
-        {
-            { "PathPrefixName", (parser, x) => x.PathPrefixName = parser.ParseAssetReference() }
-        };
+        private static new readonly IniParseTable<RailedTransportAIUpdateModuleData> FieldParseTable = AIUpdateModuleData.FieldParseTable
+            .Concat(new IniParseTable<RailedTransportAIUpdateModuleData>
+            {
+                { "PathPrefixName", (parser, x) => x.PathPrefixName = parser.ParseAssetReference() }
+            });
 
         /// <summary>
         /// Waypoint prefix name.

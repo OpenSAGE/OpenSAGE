@@ -3,11 +3,11 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class BattlePlanUpdate : ObjectBehavior
+    public sealed class BattlePlanUpdateModuleData : UpdateModuleData
     {
-        internal static BattlePlanUpdate Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static BattlePlanUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<BattlePlanUpdate> FieldParseTable = new IniParseTable<BattlePlanUpdate>
+        private static readonly IniParseTable<BattlePlanUpdateModuleData> FieldParseTable = new IniParseTable<BattlePlanUpdateModuleData>
         {
             { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() },
 
