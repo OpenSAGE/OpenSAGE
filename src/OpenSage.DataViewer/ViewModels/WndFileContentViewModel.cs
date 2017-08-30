@@ -110,7 +110,7 @@ namespace OpenSage.DataViewer.ViewModels
                     break;
 
                 case WndWindowType.TextEntry:
-                    contentElement = new TextBox { Text = windowText };
+                    contentElement = new TextBox { Text = windowText, Background = Brushes.Transparent };
                     break;
 
                 case WndWindowType.ProgressBar:
@@ -118,7 +118,7 @@ namespace OpenSage.DataViewer.ViewModels
                     break;
 
                 case WndWindowType.ComboBox:
-                    contentElement = new ComboBox { Items = { new ComboBoxItem { Content = "Test" } } };
+                    contentElement = new ComboBox { Items = { new ComboBoxItem { Content = "Test" } }, Background = Brushes.Transparent };
                     break;
 
                 case WndWindowType.HorizontalSlider:
@@ -130,7 +130,7 @@ namespace OpenSage.DataViewer.ViewModels
                     break;
 
                 case WndWindowType.ListBox:
-                    contentElement = new ListBox { Items = { new ListBoxItem { Content = "Item 1" }, new ListBoxItem { Content = "Item 2" } } };
+                    contentElement = new ListBox { Items = { new ListBoxItem { Content = "Item 1" }, new ListBoxItem { Content = "Item 2" } }, Background = Brushes.Transparent };
                     break;
 
                 case WndWindowType.GenericWindow:
