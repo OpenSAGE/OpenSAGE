@@ -53,6 +53,25 @@ namespace OpenSage.Data
             return null;
         }
 
+        public FileSystemEntry SearchFile(string fileName, params string[] searchFolders)
+        {
+            foreach (var searchFolder in searchFolders)
+            {
+                if (_fileTable.TryGetValue(Path.Combine(searchFolder, fileName), out var file))
+                {
+                    return file;
+                }
+            }
+            return null;
+        }
+
+        public IEnumerable<FileSystemEntry> GetFiles(string folderPath)
+        {
+            foreach (var entry in _fileTable.Values)
+                if (entry.FilePath.StartsWith(folderPath))
+                    yield return entry;
+        }
+
         public void Dispose()
         {
             foreach (var archive in _bigArchives)

@@ -20,12 +20,30 @@ namespace OpenSage.Data.Tga
                     throw new NotSupportedException();
                 }
 
-                var data = reader.ReadBytes(header.Width * header.Height * header.ImagePixelSize);
+                var bytesPerPixel = header.ImagePixelSize / 8;
+                var stride = header.Width * bytesPerPixel;
+
+                var data = reader.ReadBytes(header.Width * header.Height * bytesPerPixel);
+
+                // Invert y, because data is stored bottom-up in TGA.
+                var invertedData = new byte[data.Length];
+                var invertedY = 0;
+                for (var y = header.Height - 1; y >= 0; y--)
+                {
+                    Array.Copy(
+                        data, 
+                        y * stride,
+                        invertedData, 
+                        invertedY * stride,
+                        stride);
+
+                    invertedY++;
+                }
 
                 return new TgaFile
                 {
                     Header = header,
-                    Data = data
+                    Data = invertedData
                 };
             }
         }

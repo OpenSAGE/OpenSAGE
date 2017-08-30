@@ -140,10 +140,10 @@ namespace OpenSage.Graphics
                         var resultIndex = 0;
                         for (var i = 0; i < data.Length; i += 4)
                         {
-                            result[resultIndex++] = data[i + 3]; // R
-                            result[resultIndex++] = data[i + 2]; // G
-                            result[resultIndex++] = data[i + 1]; // B
-                            result[resultIndex++] = data[i + 0]; // A
+                            result[resultIndex++] = data[i + 2]; // R
+                            result[resultIndex++] = data[i + 1]; // G
+                            result[resultIndex++] = data[i + 0]; // B
+                            result[resultIndex++] = data[i + 3]; // A
                         }
                         return result;
                     }
