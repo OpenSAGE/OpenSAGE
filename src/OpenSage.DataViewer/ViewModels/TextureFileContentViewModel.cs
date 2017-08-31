@@ -18,6 +18,9 @@ namespace OpenSage.DataViewer.ViewModels
         private TextureConstants _textureConstants;
         private DynamicBuffer _textureConstantBuffer;
 
+        public int TextureWidth => _texture?.Width ?? 0;
+        public int TextureHeight => _texture?.Height ?? 0;
+
         public IEnumerable<int> MipMapLevels => Enumerable.Range(0, _texture?.MipMapCount ?? 0);
 
         private int _selectedMipMapLevel;
@@ -42,6 +45,8 @@ namespace OpenSage.DataViewer.ViewModels
             uploadBatch.Begin();
 
             _texture = TextureLoader.LoadTexture(graphicsDevice, uploadBatch, File);
+            NotifyOfPropertyChange(nameof(TextureWidth));
+            NotifyOfPropertyChange(nameof(TextureHeight));
             NotifyOfPropertyChange(nameof(MipMapLevels));
 
             uploadBatch.End();

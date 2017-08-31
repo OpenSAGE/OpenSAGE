@@ -11,16 +11,19 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Border Background="LightGray" Padding="6" BorderBrush="Gray" BorderThickness="1">
+        <Border Padding="6">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                 <TextBlock Text="Mip Slice: " VerticalAlignment="Center" />
                 <ComboBox ItemsSource="{Binding MipMapLevels}" SelectedItem="{Binding SelectedMipMapLevel}" />
             </StackPanel>
         </Border>
-        <graphics:GraphicsDeviceControl x:Name="GraphicsDeviceControl" 
-                                        Grid.Row="1"
-                                        RedrawsOnTimer="True"
-                                        GraphicsInitialize="OnGraphicsInitialize"
-                                        GraphicsDraw="OnGraphicsDraw" />
+        <Viewbox Grid.Row="1">
+            <graphics:GraphicsDeviceControl x:Name="GraphicsDeviceControl" 
+                                            Width="{Binding TextureWidth}" 
+                                            Height="{Binding TextureHeight}"
+                                            RedrawsOnTimer="True"
+                                            GraphicsInitialize="OnGraphicsInitialize"
+                                            GraphicsDraw="OnGraphicsDraw" />
+        </Viewbox>
     </Grid>
 </UserControl>
