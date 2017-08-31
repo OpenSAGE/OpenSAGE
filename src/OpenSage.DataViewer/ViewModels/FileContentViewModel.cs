@@ -1,10 +1,11 @@
 ﻿using System;
 using System.IO;
+using Caliburn.Micro;
 using OpenSage.Data;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public class FileContentViewModel : IDisposable
+    public class FileContentViewModel : PropertyChangedBase, IDisposable
     {
         public static FileContentViewModel Create(FileSystemEntry file)
         {

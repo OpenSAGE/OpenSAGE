@@ -94,7 +94,6 @@ namespace OpenSage.DataViewer.ViewModels
                             VisualTree = contentPresenterFactory
                         }
                     };
-                    //contentElement.SetValue(TextBlock.ForegroundProperty, DependencyProperty.UnsetValue);
                     break;
 
                 case WndWindowType.StaticText:

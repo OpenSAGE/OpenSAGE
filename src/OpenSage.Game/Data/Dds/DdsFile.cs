@@ -47,6 +47,9 @@ namespace OpenSage.Data.Dds
 
                     width >>= 1;
                     height >>= 1;
+
+                    width = Math.Max(width, 1);
+                    height = Math.Max(height, 1);
                 }
 
                 return new DdsFile

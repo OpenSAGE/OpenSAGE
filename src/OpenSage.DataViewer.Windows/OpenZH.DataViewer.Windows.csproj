@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{10FC11DE-E942-45D5-B1EC-AFA8F9BB0B69}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>OpenZH.DataViewer</RootNamespace>
-    <AssemblyName>OpenZH.DataViewer.Windows</AssemblyName>
+    <RootNamespace>OpenSage.DataViewer</RootNamespace>
+    <AssemblyName>OpenSage.DataViewer.Windows</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -69,6 +69,9 @@
     <Compile Include="Views\RenderedFileContentView.xaml.cs">
       <DependentUpon>RenderedFileContentView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\TextureFileContentView.xaml.cs">
+      <DependentUpon>TextureFileContentView.xaml</DependentUpon>
+    </Compile>
     <Page Include="Views\AnimatedCursorFileContentView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -98,6 +101,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\TextFileContentView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\TextureFileContentView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -178,6 +185,7 @@
     <Content Include="Shaders\Sprite.hlsli" />
     <PixelShader Include="Shaders\SpritePS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ShaderModel>5_1</ShaderModel>
     </PixelShader>
     <VertexShader Include="Shaders\SpriteVS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

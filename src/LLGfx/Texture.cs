@@ -2,6 +2,8 @@
 {
     public sealed partial class Texture : GraphicsDeviceChild
     {
+        public int MipMapCount { get; }
+
         public static Texture CreateTexture2D(
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,
@@ -28,6 +30,8 @@
             TextureMipMapData[] mipMapData)
             : base(graphicsDevice)
         {
+            MipMapCount = mipMapData.Length;
+
             PlatformConstruct(
                 graphicsDevice,
                 uploadBatch,

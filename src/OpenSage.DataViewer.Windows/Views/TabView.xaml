@@ -22,7 +22,7 @@
 
         <GridSplitter Grid.Column="1" Width="5" ResizeBehavior="PreviousAndNext" />
 
-        <Border Grid.Column="2" Padding="20 20 5 20" BorderBrush="LightGray" BorderThickness="1">
+        <Border Grid.Column="2">
             <ContentControl cal:View.Model="{Binding SelectedFileContent}" />
         </Border>
     </Grid>

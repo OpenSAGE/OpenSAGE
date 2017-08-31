@@ -77,7 +77,7 @@ namespace LLGfx
                 for (var y = 0; y < numRows; y++)
                 {
                     Utilities.Write(
-                        dataPtr + (resourceLayout.Footprint.RowPitch * y),
+                        dataPtr + (int) resourceLayout.Offset + (resourceLayout.Footprint.RowPitch * y),
                         subresourceData.Data,
                         (subresourceData.BytesPerRow / sizeOfT) * y,
                         (int) (resourceRowSizeInBytes / sizeOfT));

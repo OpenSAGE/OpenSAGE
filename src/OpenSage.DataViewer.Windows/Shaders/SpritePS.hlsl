@@ -3,7 +3,14 @@
 Texture2D<float4> BaseTexture : register(t0);
 SamplerState LinearSampler : register(s0);
 
+struct TextureConstants
+{
+  int MipMapLevel;
+};
+
+ConstantBuffer<TextureConstants> TextureCB : register(b0);
+
 float4 main(PSInput input) : SV_TARGET
 {
-  return BaseTexture.SampleLevel(LinearSampler, input.TexCoords, 0);
+  return BaseTexture.SampleLevel(LinearSampler, input.TexCoords, TextureCB.MipMapLevel);
 }
