@@ -66,8 +66,8 @@
     <Compile Include="Framework\Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Framework\Converters\InverseBooleanToVisibilityConverter.cs" />
     <Compile Include="Framework\Converters\TimeSpanToSecondsConverter.cs" />
-    <Compile Include="Views\RenderedFileContentView.xaml.cs">
-      <DependentUpon>RenderedFileContentView.xaml</DependentUpon>
+    <Compile Include="Views\W3dFileContentView.xaml.cs">
+      <DependentUpon>W3dFileContentView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TextureFileContentView.xaml.cs">
       <DependentUpon>TextureFileContentView.xaml</DependentUpon>
@@ -88,7 +88,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\RenderedFileContentView.xaml">
+    <Page Include="Views\W3dFileContentView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

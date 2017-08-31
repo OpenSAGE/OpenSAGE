@@ -9,7 +9,7 @@ using OpenSage.Graphics.Util;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public sealed class W3dFileContentViewModel : RenderedFileContentViewModel
+    public sealed class W3dFileContentViewModel : FileContentViewModel
     {
         private readonly W3dMesh _w3dMesh;
         private readonly Mesh _mesh;
@@ -29,8 +29,6 @@ namespace OpenSage.DataViewer.ViewModels
 
         public FileSystem FileSystem { get; set; }
 
-        public override bool RedrawsOnTimer => true;
-
         public W3dFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
@@ -43,7 +41,7 @@ namespace OpenSage.DataViewer.ViewModels
             _mesh = new Mesh(_w3dMesh);
         }
 
-        public override void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
+        public void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
             var uploadBatch = new ResourceUploadBatch(graphicsDevice);
             uploadBatch.Begin();
@@ -213,7 +211,7 @@ namespace OpenSage.DataViewer.ViewModels
             _meshTransformConstantBuffer.SetData(ref _meshTransformConstants);
         }
 
-        public override void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
+        public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
             Update(swapChain);
 
