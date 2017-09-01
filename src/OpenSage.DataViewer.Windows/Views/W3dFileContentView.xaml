@@ -5,9 +5,20 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:graphics="clr-namespace:LLGfx.Hosting;assembly=LLGfx"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
-    <graphics:GraphicsDeviceControl x:Name="GraphicsDeviceControl" 
-                                    RedrawsOnTimer="True"
-                                    GraphicsInitialize="OnGraphicsInitialize"
-                                    GraphicsDraw="OnGraphicsDraw" />
+             d:DesignHeight="300" d:DesignWidth="500">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <ListBox Grid.Column="0"
+                 ItemsSource="{Binding ModelChildren}"
+                 DisplayMemberPath="Header.MeshName"
+                 SelectedItem="{Binding SelectedModelChild}" />
+        <graphics:GraphicsDeviceControl x:Name="GraphicsDeviceControl" 
+                                        Grid.Column="1"
+                                        RedrawsOnTimer="True"
+                                        GraphicsInitialize="OnGraphicsInitialize"
+                                        GraphicsDraw="OnGraphicsDraw" />
+    </Grid>
 </UserControl>

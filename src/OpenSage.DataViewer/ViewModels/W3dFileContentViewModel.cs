@@ -1,187 +1,40 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
-using System.Runtime.InteropServices;
+using LLGfx;
 using OpenSage.Data;
 using OpenSage.Data.W3d;
 using OpenSage.Graphics;
-using LLGfx;
-using OpenSage.Graphics.Util;
 
 namespace OpenSage.DataViewer.ViewModels
 {
     public sealed class W3dFileContentViewModel : FileContentViewModel
     {
-        private readonly W3dMesh _w3dMesh;
-        private readonly Mesh _mesh;
+        private readonly W3dFile _w3dFile;
 
-        private MeshTransformConstants _meshTransformConstants;
-        private DynamicBuffer _meshTransformConstantBuffer;
+        private ModelRenderer _modelRenderer;
+        private Model _model;
 
         // TODO: Make this dynamic, based on mesh size.
-        private readonly Vector3 _cameraPosition = new Vector3(0, 1, 30);
-
-        private PipelineLayout _pipelineLayout;
-        private DescriptorSet _descriptorSetPixel;
-        private PipelineState _pipelineState;
+        private Vector3 _cameraPosition = new Vector3(0, 1, 30);
 
         private readonly Stopwatch _stopwatch = new Stopwatch();
         private double _lastUpdate;
 
-        public FileSystem FileSystem { get; set; }
+        public IEnumerable<object> ModelChildren => _w3dFile.Meshes;
 
         public W3dFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
-            FileSystem = file.FileSystem;
-
-            // TODO: Let user select mesh.
             using (var fileStream = file.Open())
-                _w3dMesh = W3dFile.FromStream(fileStream).Meshes[0];
-
-            _mesh = new Mesh(_w3dMesh);
+                _w3dFile = W3dFile.FromStream(fileStream);
         }
 
         public void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
-            var uploadBatch = new ResourceUploadBatch(graphicsDevice);
-            uploadBatch.Begin();
-            
-            _mesh.Initialize(graphicsDevice, uploadBatch);
+            _modelRenderer = new ModelRenderer(graphicsDevice, swapChain);
 
-            var numTextures = _w3dMesh.Textures.Length;
-
-            var descriptorSetLayoutPixel = new DescriptorSetLayout(new DescriptorSetLayoutDescription
-            {
-                Visibility = ShaderStageVisibility.Pixel,
-                Bindings = new[]
-                {
-                    new DescriptorSetLayoutBinding(DescriptorType.ConstantBuffer, 0, 1),
-                    new DescriptorSetLayoutBinding(DescriptorType.ConstantBuffer, 1, 1),
-                    new DescriptorSetLayoutBinding(DescriptorType.TypedBuffer, 0, 1),
-                    new DescriptorSetLayoutBinding(DescriptorType.Texture, 1, numTextures)
-                }
-            });
-
-            _pipelineLayout = new PipelineLayout(graphicsDevice, new PipelineLayoutDescription
-            {
-                InlineDescriptorLayouts = new[]
-                {
-                    new InlineDescriptorLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Vertex,
-                        DescriptorType = DescriptorType.ConstantBuffer,
-                        ShaderRegister = 0
-                    }
-                },
-                DescriptorSetLayouts = new[]
-                {
-                    descriptorSetLayoutPixel
-                },
-                StaticSamplerStates = new[]
-                {
-                    new StaticSamplerDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        ShaderRegister = 0,
-                        SamplerStateDescription = new SamplerStateDescription
-                        {
-                            Filter = SamplerFilter.Anisotropic
-                        }
-                    }
-                }
-            });
-
-            _meshTransformConstantBuffer = DynamicBuffer.Create<MeshTransformConstants>(graphicsDevice);
-
-            _descriptorSetPixel = new DescriptorSet(graphicsDevice, descriptorSetLayoutPixel);
-
-            var lightingConstantBuffer = StaticBuffer.Create(
-                graphicsDevice,
-                uploadBatch,
-                new LightingConstants
-                {
-                    CameraPosition = _cameraPosition,
-                    AmbientLightColor = new Vector3(0.3f, 0.3f, 0.3f),
-                    Light0Direction = Vector3.Normalize(new Vector3(-0.3f, -0.8f, -0.2f)),
-                    Light0Color = new Vector3(0.5f, 0.5f, 0.5f)
-                });
-
-            _descriptorSetPixel.SetConstantBuffer(0, lightingConstantBuffer);
-
-            // TODO
-            var vertexMaterial = _w3dMesh.Materials[0].VertexMaterialInfo;
-
-            var materialConstantBuffer = StaticBuffer.Create(
-                graphicsDevice,
-                uploadBatch,
-                new MaterialConstants
-                {
-                    MaterialAmbient = vertexMaterial.Ambient.ToVector3(),
-                    MaterialDiffuse = vertexMaterial.Diffuse.ToVector3(),
-                    MaterialSpecular = vertexMaterial.Specular.ToVector3(),
-                    MaterialEmissive = vertexMaterial.Emissive.ToVector3(),
-                    MaterialShininess = vertexMaterial.Shininess,
-                    MaterialOpacity = vertexMaterial.Opacity
-                });
-
-            _descriptorSetPixel.SetConstantBuffer(1, materialConstantBuffer);
-
-            var textureIds = _w3dMesh.MaterialPasses[0].TextureStages[0].TextureIds;
-            if (textureIds.Length == 1)
-            {
-                var textureId = textureIds[0];
-                textureIds = new uint[_w3dMesh.Header.NumTris];
-                for (var i = 0; i < _w3dMesh.Header.NumTris; i++)
-                {
-                    textureIds[i] = textureId;
-                }
-            }
-
-            var textureIndicesBuffer = StaticBuffer.Create(
-                graphicsDevice,
-                uploadBatch,
-                textureIds);
-
-            _descriptorSetPixel.SetTypedBuffer(2, textureIndicesBuffer, PixelFormat.UInt32);
-
-            var textures = new Texture[numTextures];
-            for (var i = 0; i < numTextures; i++)
-            {
-                var w3dTexture = _w3dMesh.Textures[i];
-                var textureName = w3dTexture.Name.Replace(".tga", ".dds"); // Always right?
-                var texturePath = $@"Art\Textures\{textureName}";
-
-                var textureFileSystemEntry = FileSystem.GetFile(texturePath);
-
-                textures[i] = TextureLoader.LoadTexture(
-                    graphicsDevice,
-                    uploadBatch,
-                    textureFileSystemEntry);
-            }
-
-            _descriptorSetPixel.SetTextures(3, textures);
-
-            uploadBatch.End();
-
-            var shaderLibrary = new ShaderLibrary(graphicsDevice);
-
-            var pixelShader = new Shader(shaderLibrary, "MeshPS");
-            var vertexShader = new Shader(shaderLibrary, "MeshVS");
-
-            var vertexDescriptor = new VertexDescriptor();
-            vertexDescriptor.SetAttributeDescriptor(0, "POSITION", 0, VertexFormat.Float3, 0, 0);
-            vertexDescriptor.SetAttributeDescriptor(1, "NORMAL", 0, VertexFormat.Float3, 0, 12);
-            vertexDescriptor.SetAttributeDescriptor(2, "TEXCOORD", 0, VertexFormat.Float2, 0, 24);
-            vertexDescriptor.SetLayoutDescriptor(0, 32);
-
-            _pipelineState = new PipelineState(graphicsDevice, new PipelineStateDescription
-            {
-                PipelineLayout = _pipelineLayout,
-                PixelShader = pixelShader,
-                RenderTargetFormat = swapChain.BackBufferFormat,
-                VertexDescriptor = vertexDescriptor,
-                VertexShader = vertexShader
-            });
+            _model = _modelRenderer.LoadModel(_w3dFile, File.FileSystem, graphicsDevice);
 
             _stopwatch.Start();
             _lastUpdate = 0;
@@ -193,7 +46,7 @@ namespace OpenSage.DataViewer.ViewModels
             var updateTime = now - _lastUpdate;
             _lastUpdate = now;
 
-            var world = Matrix4x4.CreateRotationY((float)_lastUpdate);
+            var world = Matrix4x4.CreateRotationY((float) _lastUpdate);
 
             var view = Matrix4x4.CreateLookAt(
                 _cameraPosition,
@@ -206,9 +59,10 @@ namespace OpenSage.DataViewer.ViewModels
                 0.1f,
                 100.0f);
 
-            _meshTransformConstants.WorldViewProjection = world * view * projection;
-            _meshTransformConstants.World = world;
-            _meshTransformConstantBuffer.SetData(ref _meshTransformConstants);
+            foreach (var mesh in _model.Meshes)
+            {
+                mesh.SetMatrices(ref world, ref view, ref projection);
+            }
         }
 
         public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
@@ -225,14 +79,6 @@ namespace OpenSage.DataViewer.ViewModels
 
             var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
 
-            commandEncoder.SetPipelineState(_pipelineState);
-
-            commandEncoder.SetPipelineLayout(_pipelineLayout);
-
-            commandEncoder.SetInlineConstantBuffer(0, _meshTransformConstantBuffer);
-
-            commandEncoder.SetDescriptorSet(1, _descriptorSetPixel);
-
             commandEncoder.SetViewport(new Viewport
             {
                 X = 0,
@@ -243,62 +89,14 @@ namespace OpenSage.DataViewer.ViewModels
                 MaxDepth = 1
             });
 
-            _mesh.Draw(commandEncoder);
+            _modelRenderer.DrawModels(
+                commandEncoder, 
+                new[] { _model }, 
+                ref _cameraPosition);
 
             commandEncoder.Close();
 
             commandBuffer.CommitAndPresent(swapChain);
-        }
-
-        [StructLayout(LayoutKind.Explicit, Size = SizeInBytes)]
-        private struct LightingConstants
-        {
-            public const int SizeInBytes = 64;
-
-            [FieldOffset(0)]
-            public Vector3 CameraPosition;
-
-            [FieldOffset(16)]
-            public Vector3 AmbientLightColor;
-
-            [FieldOffset(32)]
-            public Vector3 Light0Direction;
-
-            [FieldOffset(48)]
-            public Vector3 Light0Color;
-        }
-
-        [StructLayout(LayoutKind.Explicit, Size = SizeInBytes)]
-        public struct MaterialConstants
-        {
-            public const int SizeInBytes = 64;
-
-            [FieldOffset(0)]
-            public Vector3 MaterialAmbient;
-
-            [FieldOffset(16)]
-            public Vector3 MaterialDiffuse;
-
-            [FieldOffset(32)]
-            public Vector3 MaterialSpecular;
-
-            [FieldOffset(44)]
-            public float MaterialShininess;
-
-            [FieldOffset(48)]
-            public Vector3 MaterialEmissive;
-
-            [FieldOffset(60)]
-            public float MaterialOpacity;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct MeshTransformConstants
-        {
-            public const int SizeInBytes = 128;
-
-            public Matrix4x4 WorldViewProjection;
-            public Matrix4x4 World;
         }
     }
 }

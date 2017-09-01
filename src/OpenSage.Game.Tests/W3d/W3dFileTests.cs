@@ -44,6 +44,8 @@ namespace OpenSage.Data.Tests.W3d
 
                         Assert.Equal(mesh.Vertices.Length, mesh.ShadeIndices.Length);
 
+                        Assert.True(mesh.Materials.Length <= 16);
+
                         Assert.True(mesh.MaterialPasses.Length <= 2);
 
                         Assert.True(mesh.Textures.Length <= 29);
