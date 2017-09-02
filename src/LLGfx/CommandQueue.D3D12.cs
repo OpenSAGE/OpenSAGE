@@ -17,7 +17,6 @@ namespace LLGfx
         private Fence _fence;
         private AutoResetEvent _fenceEvent;
         private long _nextFenceValue;
-        private long _lastCompletedFenceValue;
 
         private GraphicsCommandList _commandList;
         private CommandAllocator _currentAllocator;
@@ -39,7 +38,6 @@ namespace LLGfx
             _allocatorPool = AddDisposable(new CommandAllocatorPool(graphicsDevice, commandListType));
 
             _nextFenceValue = 1;
-            _lastCompletedFenceValue = 0;
 
             _commandBuffer = AddDisposable(new CommandBuffer(graphicsDevice, this));
         }
@@ -49,8 +47,7 @@ namespace LLGfx
             // For now, just create a single command list. We can expand
             // this in the future.
 
-            var completedFence = _fence.CompletedValue;
-            _currentAllocator = _allocatorPool.AcquireAllocator(completedFence);
+            _currentAllocator = _allocatorPool.AcquireResource(_fence.CompletedValue);
 
             if (_commandList != null)
             {
@@ -95,7 +92,7 @@ namespace LLGfx
                 _nextFenceValue++;
             }
 
-            _allocatorPool.ReleaseAllocator(fenceValue, _currentAllocator);
+            _allocatorPool.ReleaseResource(fenceValue, _currentAllocator);
         }
     }
 }

@@ -20,10 +20,14 @@ namespace LLGfx.Util
         {
             _maxEntries = maxEntries;
 
+            var flags = heapType == DescriptorHeapType.ConstantBufferViewShaderResourceViewUnorderedAccessView
+                ? DescriptorHeapFlags.ShaderVisible
+                : DescriptorHeapFlags.None;
+
             _descriptorHeap = AddDisposable(device.CreateDescriptorHeap(new DescriptorHeapDescription
             {
                 Type = heapType,
-                Flags = DescriptorHeapFlags.ShaderVisible,
+                Flags = flags,
                 DescriptorCount = maxEntries
             }));
 

@@ -15,6 +15,7 @@ namespace LLGfx
         }
 
         private RenderTargetDescriptor _renderTargetDescriptor;
+        private DepthStencilBuffer _depthStencilBuffer;
 
         private void PlatformConstruct() { }
 
@@ -28,6 +29,11 @@ namespace LLGfx
             };
         }
 
+        private void PlatformSetDepthStencilDescriptor(DepthStencilBuffer depthStencilBuffer)
+        {
+            _depthStencilBuffer = depthStencilBuffer;
+        }
+
         internal void OnOpenedCommandList(GraphicsCommandList commandList)
         {
             commandList.ResourceBarrierTransition(
@@ -35,9 +41,11 @@ namespace LLGfx
                 ResourceStates.Present,
                 ResourceStates.RenderTarget);
 
+            var depthStencilBufferCpuDescriptorHandle = _depthStencilBuffer?.Acquire();
+
             commandList.SetRenderTargets(
                 _renderTargetDescriptor.RenderTarget.CpuDescriptorHandle,
-                null);
+                depthStencilBufferCpuDescriptorHandle);
 
             switch (_renderTargetDescriptor.LoadAction)
             {
@@ -56,10 +64,21 @@ namespace LLGfx
                 default:
                     throw new InvalidOperationException();
             }
+
+            if (depthStencilBufferCpuDescriptorHandle != null)
+            {
+                commandList.ClearDepthStencilView(
+                    depthStencilBufferCpuDescriptorHandle.Value,
+                    ClearFlags.FlagsDepth,
+                    1.0f,
+                    0);
+            }
         }
 
         internal void OnClosingCommandList(GraphicsCommandList commandList)
         {
+            _depthStencilBuffer?.Release();
+
             commandList.ResourceBarrierTransition(
                 _renderTargetDescriptor.RenderTarget.Texture,
                 ResourceStates.RenderTarget,

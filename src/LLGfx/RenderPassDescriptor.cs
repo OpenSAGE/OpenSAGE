@@ -11,5 +11,10 @@
         {
             PlatformSetRenderTargetDescriptor(renderTargetView, loadAction, clearColor);
         }
+
+        public void SetDepthStencilDescriptor(DepthStencilBuffer depthStencilBuffer)
+        {
+            PlatformSetDepthStencilDescriptor(depthStencilBuffer);
+        }
     }
 }

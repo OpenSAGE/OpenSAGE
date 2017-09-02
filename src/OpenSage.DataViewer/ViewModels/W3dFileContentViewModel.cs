@@ -13,6 +13,8 @@ namespace OpenSage.DataViewer.ViewModels
     {
         private readonly W3dFile _w3dFile;
 
+        private DepthStencilBuffer _depthStencilBuffer;
+
         private ModelRenderer _modelRenderer;
         private Model _model;
 
@@ -53,6 +55,12 @@ namespace OpenSage.DataViewer.ViewModels
 
         public void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
+            // TODO: Handle output panel resize.
+            _depthStencilBuffer = new DepthStencilBuffer(
+                graphicsDevice, 
+                (int) swapChain.BackBufferWidth, 
+                (int) swapChain.BackBufferHeight);
+
             _modelRenderer = new ModelRenderer(graphicsDevice, swapChain);
 
             _model = _modelRenderer.LoadModel(_w3dFile, File.FileSystem, graphicsDevice);
@@ -97,6 +105,8 @@ namespace OpenSage.DataViewer.ViewModels
                 swapChain.GetNextRenderTarget(),
                 LoadAction.Clear,
                 new ColorRgba(0.5f, 0.5f, 0.5f, 1));
+
+            renderPassDescriptor.SetDepthStencilDescriptor(_depthStencilBuffer);
 
             var commandBuffer = graphicsDevice.CommandQueue.GetCommandBuffer();
 

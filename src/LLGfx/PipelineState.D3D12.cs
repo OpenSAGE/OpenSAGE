@@ -17,8 +17,7 @@ namespace LLGfx
             {
                 BlendState = BlendStateDescription.Default(),
                 DepthStencilFormat = SharpDX.DXGI.Format.D32_Float,
-                //DepthStencilState = DepthStencilStateDescription.Default(),
-                DepthStencilState = new DepthStencilStateDescription { IsDepthEnabled = false, IsStencilEnabled = false },
+                DepthStencilState = DepthStencilStateDescription.Default(),
                 Flags = PipelineStateFlags.None,
                 InputLayout = description.VertexDescriptor?.DeviceInputLayoutDescription ?? new InputLayoutDescription(),
                 PixelShader = description.PixelShader.DeviceBytecode,

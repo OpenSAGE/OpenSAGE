@@ -12,6 +12,9 @@ namespace LLGfx
 
         internal Device Device { get; private set; }
 
+        internal DescriptorTablePool DescriptorHeapDsv { get; private set; }
+
+
         internal DescriptorTablePool DescriptorHeapCbvUavSrv { get; private set; }
 
         internal DynamicUploadHeap DynamicUploadHeap { get; private set; }
@@ -23,6 +26,11 @@ namespace LLGfx
 #endif
 
             Device = AddDisposable(new Device(null, SharpDX.Direct3D.FeatureLevel.Level_11_0));
+
+            DescriptorHeapDsv = AddDisposable(new DescriptorTablePool(
+                Device,
+                DescriptorHeapType.DepthStencilView,
+                100)); // TODO: Might need to increase this
 
             DescriptorHeapCbvUavSrv = AddDisposable(new DescriptorTablePool(
                 Device,
