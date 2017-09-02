@@ -87,12 +87,12 @@ namespace OpenSage.Graphics
 
             if (w3dMaterialPass.ShaderIds.Length == 1)
             {
-                meshParts.Add(new ModelMeshPart(0, w3dMesh.Header.NumTris));
+                meshParts.Add(new ModelMeshPart(0, w3dMesh.Header.NumTris * 3));
             }
             else
             {
                 var shaderID = w3dMaterialPass.ShaderIds[0];
-                var startFaceID = 0;
+                var startIndex = 0u;
                 var indexCount = 0u;
                 for (var i = 0; i < w3dMaterialPass.ShaderIds.Length; i++)
                 {
@@ -101,10 +101,10 @@ namespace OpenSage.Graphics
                     if (shaderID != newShaderID)
                     {
                         meshParts.Add(new ModelMeshPart(
-                            w3dMesh.Triangles[startFaceID].VIndex0,
+                            startIndex,
                             indexCount));
 
-                        startFaceID = i;
+                        startIndex = (uint) (i * 3);
                         indexCount = 0;
                     }
 

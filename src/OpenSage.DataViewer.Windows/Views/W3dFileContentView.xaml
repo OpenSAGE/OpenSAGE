@@ -13,7 +13,7 @@
         </Grid.ColumnDefinitions>
         <ListBox Grid.Column="0"
                  ItemsSource="{Binding ModelChildren}"
-                 DisplayMemberPath="Header.MeshName"
+                 DisplayMemberPath="Name"
                  SelectedItem="{Binding SelectedModelChild}" />
         <graphics:GraphicsDeviceControl x:Name="GraphicsDeviceControl" 
                                         Grid.Column="1"

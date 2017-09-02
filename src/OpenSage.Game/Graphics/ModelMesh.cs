@@ -21,6 +21,8 @@ namespace OpenSage.Graphics
         private readonly DynamicBuffer _meshTransformConstantBuffer;
         private MeshTransformConstants _meshTransformConstants;
 
+        public string Name { get; }
+
         public IReadOnlyList<ModelMeshMaterialPass> MaterialPasses { get; }
 
         internal ModelMesh(
@@ -32,6 +34,8 @@ namespace OpenSage.Graphics
             DescriptorSetLayout vertexMaterialPassDescriptorSetLayout,
             DescriptorSetLayout pixelMaterialPassDescriptorSetLayout)
         {
+            Name = w3dMesh.Header.MeshName;
+
             _numVertices = (uint) w3dMesh.Vertices.Length;
 
             _vertexBuffer = CreateVertexBuffer(
@@ -162,8 +166,6 @@ namespace OpenSage.Graphics
                     Normal = w3dMesh.Normals[i].ToVector3()
                 };
             }
-
-            var vertexBufferSize = _numVertices * MeshVertex.SizeInBytes;
 
             return AddDisposable(StaticBuffer.Create(
                 graphicsDevice,

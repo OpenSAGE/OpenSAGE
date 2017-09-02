@@ -165,9 +165,8 @@ namespace OpenSage.Graphics
             return model;
         }
 
-        public void DrawModels(
+        public void PreDrawModels(
             CommandEncoder commandEncoder, 
-            IEnumerable<Model> models,
             ref Vector3 cameraPosition)
         {
             commandEncoder.SetPipelineState(_pipelineState);
@@ -180,11 +179,6 @@ namespace OpenSage.Graphics
             _lightingConstants.Light0Color = new Vector3(0.5f, 0.5f, 0.5f);
             _lightingConstantBuffer.SetData(ref _lightingConstants);
             commandEncoder.SetInlineConstantBuffer(1, _lightingConstantBuffer);
-
-            foreach (var model in models)
-            {
-                model.Draw(commandEncoder);
-            }
         }
     }
 }

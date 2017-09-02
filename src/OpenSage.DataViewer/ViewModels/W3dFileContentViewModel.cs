@@ -21,7 +21,18 @@ namespace OpenSage.DataViewer.ViewModels
         private readonly Stopwatch _stopwatch = new Stopwatch();
         private double _lastUpdate;
 
-        public IEnumerable<object> ModelChildren => _w3dFile.Meshes;
+        public IEnumerable<object> ModelChildren => _model?.Meshes;
+
+        private object _selectedModelChild;
+        public object SelectedModelChild
+        {
+            get { return _selectedModelChild; }
+            set
+            {
+                _selectedModelChild = value;
+                NotifyOfPropertyChange();
+            }
+        }
 
         public W3dFileContentViewModel(FileSystemEntry file)
             : base(file)
@@ -35,6 +46,8 @@ namespace OpenSage.DataViewer.ViewModels
             _modelRenderer = new ModelRenderer(graphicsDevice, swapChain);
 
             _model = _modelRenderer.LoadModel(_w3dFile, File.FileSystem, graphicsDevice);
+
+            NotifyOfPropertyChange(nameof(ModelChildren));
 
             _stopwatch.Start();
             _lastUpdate = 0;
@@ -89,10 +102,17 @@ namespace OpenSage.DataViewer.ViewModels
                 MaxDepth = 1
             });
 
-            _modelRenderer.DrawModels(
+            _modelRenderer.PreDrawModels(
                 commandEncoder, 
-                new[] { _model }, 
                 ref _cameraPosition);
+
+            foreach (var mesh in _model.Meshes)
+            {
+                if (mesh == _selectedModelChild)
+                {
+                    mesh.Draw(commandEncoder);
+                }
+            }
 
             commandEncoder.Close();
 
