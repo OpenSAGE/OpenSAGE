@@ -5,6 +5,7 @@ using LLGfx;
 using OpenSage.Data;
 using OpenSage.Data.W3d;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Util;
 
 namespace OpenSage.DataViewer.ViewModels
 {
@@ -15,8 +16,8 @@ namespace OpenSage.DataViewer.ViewModels
         private ModelRenderer _modelRenderer;
         private Model _model;
 
-        // TODO: Make this dynamic, based on mesh size.
-        private Vector3 _cameraPosition = new Vector3(0, 1, 30);
+        private Vector3 _cameraTarget;
+        private Vector3 _cameraPosition;
 
         private readonly Stopwatch _stopwatch = new Stopwatch();
         private double _lastUpdate;
@@ -30,6 +31,15 @@ namespace OpenSage.DataViewer.ViewModels
             set
             {
                 _selectedModelChild = value;
+
+                switch (value)
+                {
+                    case ModelMesh mm:
+                        _cameraTarget = mm.BoundingSphereCenter.ToVector3();
+                        _cameraPosition = _cameraTarget + new Vector3(0, mm.BoundingSphereRadius / 2, mm.BoundingSphereRadius + 5);
+                        break;
+                }
+
                 NotifyOfPropertyChange();
             }
         }
@@ -55,22 +65,22 @@ namespace OpenSage.DataViewer.ViewModels
 
         private void Update(SwapChain swapChain)
         {
-            var now = _stopwatch.ElapsedMilliseconds * 0.001;
+            var now = _stopwatch.ElapsedMilliseconds * 0.0001;
             var updateTime = now - _lastUpdate;
             _lastUpdate = now;
 
-            var world = Matrix4x4.CreateRotationY((float) _lastUpdate);
+            var world = Matrix4x4.CreateRotationY((float) _lastUpdate, _cameraTarget);
 
             var view = Matrix4x4.CreateLookAt(
                 _cameraPosition,
-                Vector3.Zero,
+                _cameraTarget,
                 Vector3.UnitY);
 
             var projection = Matrix4x4.CreatePerspectiveFieldOfView(
                 (float) (90 * System.Math.PI / 180),
                 (float) (swapChain.BackBufferWidth / swapChain.BackBufferHeight),
                 0.1f,
-                100.0f);
+                1000.0f);
 
             foreach (var mesh in _model.Meshes)
             {

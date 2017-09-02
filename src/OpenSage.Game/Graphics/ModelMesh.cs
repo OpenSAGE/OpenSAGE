@@ -23,6 +23,9 @@ namespace OpenSage.Graphics
 
         public string Name { get; }
 
+        public W3dVector BoundingSphereCenter { get; }
+        public float BoundingSphereRadius { get; }
+
         public IReadOnlyList<ModelMeshMaterialPass> MaterialPasses { get; }
 
         internal ModelMesh(
@@ -35,6 +38,9 @@ namespace OpenSage.Graphics
             DescriptorSetLayout pixelMaterialPassDescriptorSetLayout)
         {
             Name = w3dMesh.Header.MeshName;
+
+            BoundingSphereCenter = w3dMesh.Header.SphCenter;
+            BoundingSphereRadius = w3dMesh.Header.SphRadius;
 
             _numVertices = (uint) w3dMesh.Vertices.Length;
 
@@ -160,9 +166,15 @@ namespace OpenSage.Graphics
 
             for (var i = 0; i < _numVertices; i++)
             {
+                // Switch y and z to account for z being up in .w3d (thanks Stephan)
+                var position = w3dMesh.Vertices[i].ToVector3();
+                var y = position.Y;
+                position.Y = position.Z;
+                position.Z = y;
+
                 vertices[i] = new MeshVertex
                 {
-                    Position = w3dMesh.Vertices[i].ToVector3(),
+                    Position = position,
                     Normal = w3dMesh.Normals[i].ToVector3()
                 };
             }

@@ -48,7 +48,10 @@ float4 main(PSInput input) : SV_TARGET
     float3 diffuseColor = diffuseTexel.xyz * material.Diffuse * LightingCB.Light0Color * diffuseLighting;
     float3 specularColor = material.Specular * specularLighting;
 
+    float3 totalColor = diffuseColor;
+    //float3 totalColor = ambientColor + diffuseColor + specularColor;
+
     return float4(
-        saturate(ambientColor + diffuseColor + specularColor),
+        saturate(totalColor),
         diffuseTexel.w);
 }
