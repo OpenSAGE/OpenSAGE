@@ -10,6 +10,13 @@ struct LightingConstants
 
 ConstantBuffer<LightingConstants> LightingCB : register(b0);
 
+struct PerDrawConstants
+{
+    uint PrimitiveOffset;
+};
+
+ConstantBuffer<PerDrawConstants> PerDrawCB : register(b1);
+
 struct VertexMaterial
 {
     float3 Ambient;
@@ -40,9 +47,9 @@ float4 main(PSInput input) : SV_TARGET
     //float specularLighting = pow(saturate(dot(h, input.Normal)), material.Shininess);
     float specularLighting = 0;
 
-    uint textureIndex = TextureIndices[input.PrimitiveID];
+    uint textureIndex = TextureIndices[PerDrawCB.PrimitiveOffset + input.PrimitiveID];
     Texture2D<float4> diffuseTexture = Textures[NonUniformResourceIndex(textureIndex)];
-    float4 diffuseTexel = diffuseTexture.Sample(Sampler, input.UV);
+    float4 diffuseTexel = diffuseTexture.Sample(Sampler, float2(input.UV.x, 1 - input.UV.y));
 
     float3 ambientColor = LightingCB.AmbientLightColor * material.Ambient;
     float3 diffuseColor = diffuseTexel.xyz * material.Diffuse * LightingCB.Light0Color * diffuseLighting;

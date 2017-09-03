@@ -46,8 +46,8 @@ namespace LLGfx.Util
             var result = new DescriptorTablePoolEntry(
                 _nextDescriptorIndex,
                 descriptorCount,
-                _descriptorHeap.GPUDescriptorHandleForHeapStart + (_incrementSize * descriptorCount),
-                _descriptorHeap.CPUDescriptorHandleForHeapStart + (_incrementSize * descriptorCount),
+                _descriptorHeap.GPUDescriptorHandleForHeapStart + (_incrementSize * _nextDescriptorIndex),
+                _descriptorHeap.CPUDescriptorHandleForHeapStart + (_incrementSize * _nextDescriptorIndex),
                 _incrementSize);
 
             _entries[_nextDescriptorIndex] = result;

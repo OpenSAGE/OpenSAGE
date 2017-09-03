@@ -11,7 +11,7 @@ namespace LLGfx
         private void PlatformConstruct(GraphicsDevice graphicsDevice, PipelineStateDescription description)
         {
             var rasterizerState = RasterizerStateDescription.Default();
-            rasterizerState.IsFrontCounterClockwise = false;
+            rasterizerState.IsFrontCounterClockwise = true;
 
             var deviceDescription = new GraphicsPipelineStateDescription
             {

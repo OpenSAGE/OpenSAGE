@@ -12,7 +12,7 @@ namespace LLGfx
 
         private void PlatformConstruct(GraphicsDevice graphicsDevice, DescriptorSetLayout layout)
         {
-            _cbvUavSrvPoolEntry = graphicsDevice.DescriptorHeapCbvUavSrv.Reserve(layout.Description.Bindings.Length);
+            _cbvUavSrvPoolEntry = graphicsDevice.DescriptorHeapCbvUavSrv.Reserve(layout.Description.NumBindings);
         }
 
         private void PlatformSetConstantBuffer(int index, StaticBuffer buffer)
@@ -75,15 +75,17 @@ namespace LLGfx
 
         private void PlatformSetTexture(int index, Texture texture)
         {
-            var deviceResource = texture.DeviceResource;
+            var deviceResource = texture?.DeviceResource;
+            var format = deviceResource?.Description.Format ?? SharpDX.DXGI.Format.BC1_UNorm;
+            var dimension = deviceResource?.Description.Dimension ?? ResourceDimension.Texture2D;
 
             var description = new ShaderResourceViewDescription
             {
                 Shader4ComponentMapping = ComponentMappingUtility.DefaultComponentMapping(),
-                Format = deviceResource.Description.Format
+                Format = format
             };
 
-            switch (deviceResource.Description.Dimension)
+            switch (dimension)
             {
                 case ResourceDimension.Texture2D:
                     description.Dimension = ShaderResourceViewDimension.Texture2D;

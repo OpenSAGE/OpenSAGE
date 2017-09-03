@@ -20,7 +20,7 @@ namespace LLGfx
         }
 
         private DynamicBuffer(GraphicsDevice graphicsDevice, uint sizeInBytes)
-            : base(graphicsDevice, sizeInBytes)
+            : base(graphicsDevice, sizeInBytes, true)
         {
         }
 

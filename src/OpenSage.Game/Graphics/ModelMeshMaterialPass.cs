@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using System.Runtime.InteropServices;
 using OpenSage.Data.W3d;
 using OpenSage.Graphics.Util;
 using LLGfx;
@@ -37,7 +36,8 @@ namespace OpenSage.Graphics
             TexCoordVertexBuffer = AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
                 uploadBatch,
-                texCoords));
+                texCoords,
+                false));
 
             var textureIDs = textureStage.TextureIds;
             if (textureIDs.Length == 1)
@@ -53,7 +53,8 @@ namespace OpenSage.Graphics
             var textureIndicesBuffer = AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
                 uploadBatch,
-                textureIDs));
+                textureIDs,
+                false));
 
             PixelMaterialPassDescriptorSet = AddDisposable(new DescriptorSet(
                 graphicsDevice,
@@ -75,7 +76,8 @@ namespace OpenSage.Graphics
             var materialIndicesBuffer = AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
                 uploadBatch,
-                materialIDs));
+                materialIDs,
+                false));
 
             VertexMaterialPassDescriptorSet = AddDisposable(new DescriptorSet(
                 graphicsDevice,

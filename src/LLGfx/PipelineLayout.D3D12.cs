@@ -40,8 +40,8 @@ namespace LLGfx
                 var samplerStateDescription = new D3D12.SamplerStateDescription
                 {
                     Filter = staticSamplerState.SamplerStateDescription.Filter.ToFilter(),
-                    AddressU = TextureAddressMode.Clamp,
-                    AddressV = TextureAddressMode.Clamp,
+                    AddressU = TextureAddressMode.Wrap,
+                    AddressV = TextureAddressMode.Wrap,
                     AddressW = TextureAddressMode.Clamp,
                     ComparisonFunction = Comparison.Always,
                     MinimumLod = 0,

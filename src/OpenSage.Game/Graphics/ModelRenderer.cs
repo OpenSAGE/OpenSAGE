@@ -21,8 +21,7 @@ namespace OpenSage.Graphics
         private readonly DynamicBuffer _lightingConstantBuffer;
         private LightingConstants _lightingConstants;
 
-        public const int MaxTextures = 16;
-        public const int MaxMaterials = 2;
+        public const int MaxTextures = 32;
 
         public ModelRenderer(
             GraphicsDevice graphicsDevice, 
@@ -81,7 +80,15 @@ namespace OpenSage.Graphics
                         Visibility = ShaderStageVisibility.Pixel,
                         DescriptorType = DescriptorType.ConstantBuffer,
                         ShaderRegister = 0
-                    }
+                    },
+
+                    // PerDrawCB
+                    new InlineDescriptorLayoutDescription
+                    {
+                        Visibility = ShaderStageVisibility.Pixel,
+                        DescriptorType = DescriptorType.ConstantBuffer,
+                        ShaderRegister = 1
+                    },
                 },
                 DescriptorSetLayouts = new[]
                 {

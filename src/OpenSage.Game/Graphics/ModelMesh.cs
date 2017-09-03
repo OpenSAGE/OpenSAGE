@@ -21,6 +21,9 @@ namespace OpenSage.Graphics
         private readonly DynamicBuffer _meshTransformConstantBuffer;
         private MeshTransformConstants _meshTransformConstants;
 
+        private readonly DynamicBuffer _perDrawConstantBuffer;
+        private PerDrawConstants _perDrawConstants;
+
         public string Name { get; }
 
         public W3dVector BoundingSphereCenter { get; }
@@ -75,7 +78,12 @@ namespace OpenSage.Graphics
 
             _pixelMeshDescriptorSet.SetTextures(1, textures);
 
+            var remainingTextures = ModelRenderer.MaxTextures - textures.Length;
+            _pixelMeshDescriptorSet.SetTextures(1 + textures.Length, new Texture[remainingTextures]);
+
             _meshTransformConstantBuffer = DynamicBuffer.Create<MeshTransformConstants>(graphicsDevice);
+
+            _perDrawConstantBuffer = DynamicBuffer.Create<PerDrawConstants>(graphicsDevice);
 
             var materialPasses = new List<ModelMeshMaterialPass>();
             foreach (var w3dMaterialPass in w3dMesh.MaterialPasses)
@@ -130,7 +138,8 @@ namespace OpenSage.Graphics
             return AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
                 uploadBatch,
-                vertexMaterials));
+                vertexMaterials,
+                false));
         }
 
         private Texture[] CreateTextures(
@@ -170,7 +179,7 @@ namespace OpenSage.Graphics
                 var position = w3dMesh.Vertices[i].ToVector3();
                 var y = position.Y;
                 position.Y = position.Z;
-                position.Z = y;
+                position.Z = -y;
 
                 vertices[i] = new MeshVertex
                 {
@@ -182,7 +191,8 @@ namespace OpenSage.Graphics
             return AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
                 uploadBatch,
-                vertices));
+                vertices,
+                false));
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -212,7 +222,8 @@ namespace OpenSage.Graphics
             return AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
                 uploadBatch,
-                indices));
+                indices,
+                false));
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -228,14 +239,14 @@ namespace OpenSage.Graphics
         {
             commandEncoder.SetInlineConstantBuffer(0, _meshTransformConstantBuffer);
 
-            commandEncoder.SetDescriptorSet(4, _pixelMeshDescriptorSet);
+            commandEncoder.SetDescriptorSet(5, _pixelMeshDescriptorSet);
 
             commandEncoder.SetVertexBuffer(0, _vertexBuffer);
 
             foreach (var materialPass in MaterialPasses)
             {
-                commandEncoder.SetDescriptorSet(2, materialPass.VertexMaterialPassDescriptorSet);
-                commandEncoder.SetDescriptorSet(3, materialPass.PixelMaterialPassDescriptorSet);
+                commandEncoder.SetDescriptorSet(3, materialPass.VertexMaterialPassDescriptorSet);
+                commandEncoder.SetDescriptorSet(4, materialPass.PixelMaterialPassDescriptorSet);
 
                 commandEncoder.SetVertexBuffer(1, materialPass.TexCoordVertexBuffer);
 
@@ -243,6 +254,10 @@ namespace OpenSage.Graphics
                 {
                     // TODO: Set alpha blending state etc.
                     // based on W3dShader.
+
+                    _perDrawConstants.PrimitiveOffset = meshPart.StartIndex / 3;
+                    _perDrawConstantBuffer.SetData(ref _perDrawConstants);
+                    commandEncoder.SetInlineConstantBuffer(2, _perDrawConstantBuffer);
 
                     commandEncoder.DrawIndexed(
                         PrimitiveType.TriangleList,
@@ -270,6 +285,14 @@ namespace OpenSage.Graphics
             public Vector3 Emissive;
 
             public float Opacity;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct PerDrawConstants
+        {
+            public const int SizeInBytes = sizeof(uint);
+
+            public uint PrimitiveOffset;
         }
     }
 }

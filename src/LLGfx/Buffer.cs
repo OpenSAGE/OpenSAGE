@@ -4,10 +4,12 @@
     {
         public uint SizeInBytes { get; }
 
-        protected Buffer(GraphicsDevice graphicsDevice, uint sizeInBytes)
+        protected Buffer(GraphicsDevice graphicsDevice, uint sizeInBytes, bool isConstantBuffer)
             : base(graphicsDevice)
         {
-            SizeInBytes = PlatformGetAlignedSize(sizeInBytes);
+            SizeInBytes = isConstantBuffer
+                ? PlatformGetAlignedSize(sizeInBytes)
+                : sizeInBytes;
         }
     }
 }

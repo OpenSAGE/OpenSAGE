@@ -1,10 +1,14 @@
-﻿namespace LLGfx
+﻿using System.Linq;
+
+namespace LLGfx
 {
     public struct DescriptorSetLayoutDescription
     {
         public ShaderStageVisibility Visibility;
 
         public DescriptorSetLayoutBinding[] Bindings;
+
+        internal int NumBindings => Bindings.Sum(x => x.DescriptorCount);
     }
 
     public struct DescriptorSetLayoutBinding

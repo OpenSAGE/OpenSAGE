@@ -7,7 +7,8 @@ namespace LLGfx
         public static StaticBuffer Create<T>(
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,
-            T[] data)
+            T[] data,
+            bool isConstantBuffer)
             where T : struct
         {
             var elementSizeInBytes = Marshal.SizeOf<T>();
@@ -17,7 +18,8 @@ namespace LLGfx
                 graphicsDevice,
                 sizeInBytes,
                 (uint) elementSizeInBytes,
-                (uint) data.Length);
+                (uint) data.Length,
+                isConstantBuffer);
 
             result.PlatformConstruct(
                 graphicsDevice,
@@ -31,10 +33,11 @@ namespace LLGfx
         public static StaticBuffer Create<T>(
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,
-            T data)
+            T data,
+            bool isConstantBuffer)
             where T : struct
         {
-            return Create(graphicsDevice, uploadBatch, new[] { data });
+            return Create(graphicsDevice, uploadBatch, new[] { data }, isConstantBuffer);
         }
 
         public uint ElementSizeInBytes { get; }
@@ -44,8 +47,9 @@ namespace LLGfx
             GraphicsDevice graphicsDevice,
             uint sizeInBytes,
             uint elementSizeInBytes,
-            uint elementCount)
-            : base(graphicsDevice, sizeInBytes)
+            uint elementCount,
+            bool isConstantBuffer)
+            : base(graphicsDevice, sizeInBytes, isConstantBuffer)
         {
             ElementSizeInBytes = elementSizeInBytes;
             ElementCount = elementCount;

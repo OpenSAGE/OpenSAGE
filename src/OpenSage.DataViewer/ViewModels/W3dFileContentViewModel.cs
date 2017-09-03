@@ -22,6 +22,7 @@ namespace OpenSage.DataViewer.ViewModels
         private Vector3 _cameraPosition;
 
         private readonly Stopwatch _stopwatch = new Stopwatch();
+        private float _rotationY;
         private double _lastUpdate;
 
         public IEnumerable<object> ModelChildren => _model?.Meshes;
@@ -38,9 +39,11 @@ namespace OpenSage.DataViewer.ViewModels
                 {
                     case ModelMesh mm:
                         _cameraTarget = mm.BoundingSphereCenter.ToVector3();
-                        _cameraPosition = _cameraTarget + new Vector3(0, mm.BoundingSphereRadius / 2, mm.BoundingSphereRadius + 5);
+                        _cameraPosition = _cameraTarget + new Vector3(0, mm.BoundingSphereRadius / 3 * 2, mm.BoundingSphereRadius + 5);
                         break;
                 }
+
+                _lastUpdate = GetTimeNow();
 
                 NotifyOfPropertyChange();
             }
@@ -68,16 +71,27 @@ namespace OpenSage.DataViewer.ViewModels
             NotifyOfPropertyChange(nameof(ModelChildren));
 
             _stopwatch.Start();
-            _lastUpdate = 0;
+            _lastUpdate = GetTimeNow();
+        }
+
+        private double GetTimeNow()
+        {
+            return _stopwatch.ElapsedMilliseconds * 0.00025;
+        }
+
+        private float GetDeltaTime()
+        {
+            var now = GetTimeNow();
+            var deltaTime = now - _lastUpdate;
+            _lastUpdate = now;
+            return (float) deltaTime;
         }
 
         private void Update(SwapChain swapChain)
         {
-            var now = _stopwatch.ElapsedMilliseconds * 0.0001;
-            var updateTime = now - _lastUpdate;
-            _lastUpdate = now;
+            _rotationY += GetDeltaTime();
 
-            var world = Matrix4x4.CreateRotationY((float) _lastUpdate, _cameraTarget);
+            var world = Matrix4x4.CreateRotationY(_rotationY, _cameraTarget);
 
             var view = Matrix4x4.CreateLookAt(
                 _cameraPosition,
