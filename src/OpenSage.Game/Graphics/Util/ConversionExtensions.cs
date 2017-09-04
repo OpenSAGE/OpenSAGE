@@ -17,7 +17,12 @@ namespace OpenSage.Graphics.Util
 
         public static Vector3 ToVector3(this W3dRgb value)
         {
-            return new Vector3(value.R, value.G, value.B);
+            return new Vector3(value.R / 255.0f, value.G / 255.0f, value.B / 255.0f);
+        }
+
+        public static Quaternion ToQuaternion(this W3dQuaternion value)
+        {
+            return new Quaternion(value.X, value.Y, value.Z, value.W);
         }
     }
 }

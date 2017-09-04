@@ -13,6 +13,7 @@ ConstantBuffer<LightingConstants> LightingCB : register(b0);
 struct PerDrawConstants
 {
     uint PrimitiveOffset;
+    uint NumTextureStages;
 };
 
 ConstantBuffer<PerDrawConstants> PerDrawCB : register(b1);
@@ -40,25 +41,31 @@ float4 main(PSInput input) : SV_TARGET
 
     float3 lightDir = LightingCB.Light0Direction;
 
-    float diffuseLighting = saturate(dot(input.Normal, -lightDir));
+    float3 diffuse = saturate(dot(input.Normal, -lightDir)) * material.Diffuse;
 
-    float3 h = normalize(normalize(LightingCB.CameraPosition - input.WorldPosition) - lightDir);
-  
-    //float specularLighting = pow(saturate(dot(h, input.Normal)), material.Shininess);
-    float specularLighting = 0;
+    float3 v = normalize(LightingCB.CameraPosition - input.WorldPosition);
+    float3 h = normalize(v - lightDir);
+    //float specularLighting = pow(saturate(dot(input.Normal, h)), material.Shininess) * material.Specular;
+    float3 specular = 0 * material.Specular;
 
-    uint textureIndex = TextureIndices[PerDrawCB.PrimitiveOffset + input.PrimitiveID];
-    Texture2D<float4> diffuseTexture = Textures[NonUniformResourceIndex(textureIndex)];
-    float4 diffuseTexel = diffuseTexture.Sample(Sampler, float2(input.UV.x, 1 - input.UV.y));
+    float4 diffuseTextureColor;
+    if (PerDrawCB.NumTextureStages > 0)
+    {
+        uint textureIndex = TextureIndices[PerDrawCB.PrimitiveOffset + input.PrimitiveID];
+        Texture2D<float4> diffuseTexture = Textures[NonUniformResourceIndex(textureIndex)];
+        diffuseTextureColor = diffuseTexture.Sample(Sampler, float2(input.UV.x, 1 - input.UV.y));
+    }
+    else
+    {
+        diffuseTextureColor = float4(0, 0, 0, 1);
+    }
 
-    float3 ambientColor = LightingCB.AmbientLightColor * material.Ambient;
-    float3 diffuseColor = diffuseTexel.xyz * material.Diffuse * LightingCB.Light0Color * diffuseLighting;
-    float3 specularColor = material.Specular * specularLighting;
+    float3 ambient = LightingCB.AmbientLightColor * material.Ambient;
 
-    float3 totalColor = diffuseTexel.xyz;
-    //float3 totalColor = ambientColor + diffuseColor + specularColor;
+    float3 color = (saturate(ambient + diffuse) * diffuseTextureColor.rgb + specular) * LightingCB.Light0Color
+        + material.Emissive;
 
-    return float4(
-        saturate(totalColor),
-        diffuseTexel.w);
+    float alpha = material.Opacity * diffuseTextureColor.w;
+
+    return float4(color, alpha);
 }

@@ -177,10 +177,12 @@
       <ShaderModel>5_1</ShaderModel>
       <EnableUnboundedDescriptorTable>True</EnableUnboundedDescriptorTable>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <EnableDebuggingInfo>True</EnableDebuggingInfo>
     </PixelShader>
     <VertexShader Include="Shaders\MeshVS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ShaderModel>5_1</ShaderModel>
+      <EnableDebuggingInfo>True</EnableDebuggingInfo>
     </VertexShader>
     <Content Include="Shaders\Sprite.hlsli" />
     <PixelShader Include="Shaders\SpritePS.hlsl">

@@ -25,10 +25,7 @@ namespace OpenSage.Data.Tests.W3d
                 {
                     var w3dFile = W3dFile.Parse(binaryReader);
 
-                    if (fileName.Contains("CBChalet.W3D"))
-                    {
-                        int i = 0;
-                    }
+                    Assert.True(w3dFile.Hierarchies.Length <= 1);
 
                     foreach (var mesh in w3dFile.Meshes)
                     {

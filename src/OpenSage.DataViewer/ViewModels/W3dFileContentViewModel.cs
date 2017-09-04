@@ -25,23 +25,42 @@ namespace OpenSage.DataViewer.ViewModels
         private float _rotationY;
         private double _lastUpdate;
 
-        public IEnumerable<object> ModelChildren => _model?.Meshes;
+        private Matrix4x4 _world, _view, _projection;
 
-        private object _selectedModelChild;
-        public object SelectedModelChild
+        private List<W3dItemViewModelBase> _modelChildren;
+        public IReadOnlyList<W3dItemViewModelBase> ModelChildren
+        {
+            get
+            {
+                if (_modelChildren == null)
+                {
+                    _modelChildren = new List<W3dItemViewModelBase>();
+
+                    if (_model != null)
+                    {
+                        _modelChildren.Add(new ModelViewModel(_model));
+
+                        foreach (var mesh in _model.Meshes)
+                        {
+                            _modelChildren.Add(new ModelMeshViewModel(mesh));
+                        }
+                    }
+                }
+
+                return _modelChildren;
+            }
+        }
+
+        private W3dItemViewModelBase _selectedModelChild;
+        public W3dItemViewModelBase SelectedModelChild
         {
             get { return _selectedModelChild; }
             set
             {
                 _selectedModelChild = value;
 
-                switch (value)
-                {
-                    case ModelMesh mm:
-                        _cameraTarget = mm.BoundingSphereCenter.ToVector3();
-                        _cameraPosition = _cameraTarget + new Vector3(0, mm.BoundingSphereRadius / 3 * 2, mm.BoundingSphereRadius + 5);
-                        break;
-                }
+                _cameraTarget = value.BoundingSphereCenter;
+                _cameraPosition = _cameraTarget + new Vector3(0, value.BoundingSphereRadius / 3 * 2, value.BoundingSphereRadius + 5);
 
                 _lastUpdate = GetTimeNow();
 
@@ -68,7 +87,9 @@ namespace OpenSage.DataViewer.ViewModels
 
             _model = _modelRenderer.LoadModel(_w3dFile, File.FileSystem, graphicsDevice);
 
+            _modelChildren = null;
             NotifyOfPropertyChange(nameof(ModelChildren));
+            SelectedModelChild = ModelChildren[0];
 
             _stopwatch.Start();
             _lastUpdate = GetTimeNow();
@@ -91,23 +112,18 @@ namespace OpenSage.DataViewer.ViewModels
         {
             _rotationY += GetDeltaTime();
 
-            var world = Matrix4x4.CreateRotationY(_rotationY, _cameraTarget);
+            _world = Matrix4x4.CreateRotationY(_rotationY, _cameraTarget);
 
-            var view = Matrix4x4.CreateLookAt(
+            _view = Matrix4x4.CreateLookAt(
                 _cameraPosition,
                 _cameraTarget,
                 Vector3.UnitY);
 
-            var projection = Matrix4x4.CreatePerspectiveFieldOfView(
+            _projection = Matrix4x4.CreatePerspectiveFieldOfView(
                 (float) (90 * System.Math.PI / 180),
                 (float) (swapChain.BackBufferWidth / swapChain.BackBufferHeight),
                 0.1f,
                 1000.0f);
-
-            foreach (var mesh in _model.Meshes)
-            {
-                mesh.SetMatrices(ref world, ref view, ref projection);
-            }
         }
 
         public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
@@ -140,17 +156,79 @@ namespace OpenSage.DataViewer.ViewModels
                 commandEncoder, 
                 ref _cameraPosition);
 
-            foreach (var mesh in _model.Meshes)
-            {
-                if (mesh == _selectedModelChild)
-                {
-                    mesh.Draw(commandEncoder);
-                }
-            }
+            _selectedModelChild?.Draw(commandEncoder, ref _world, ref _view, ref _projection);
 
             commandEncoder.Close();
 
             commandBuffer.CommitAndPresent(swapChain);
+        }
+    }
+
+    public abstract class W3dItemViewModelBase
+    {
+        public abstract string GroupName { get; }
+        public abstract string Name { get; }
+        public abstract Vector3 BoundingSphereCenter { get; }
+        public abstract float BoundingSphereRadius { get; }
+
+        public abstract void Draw(
+            CommandEncoder commandEncoder,
+            ref Matrix4x4 world,
+            ref Matrix4x4 view,
+            ref Matrix4x4 projection);
+    }
+
+    public sealed class ModelViewModel : W3dItemViewModelBase
+    {
+        private readonly Model _model;
+
+        public override string GroupName => string.Empty;
+
+        public override string Name => "Hierarchy";
+
+        public override Vector3 BoundingSphereCenter => _model.BoundingSphereCenter;
+        public override float BoundingSphereRadius => _model.BoundingSphereRadius;
+
+        public ModelViewModel(Model model)
+        {
+            _model = model;
+        }
+
+        public override void Draw(
+            CommandEncoder commandEncoder, 
+            ref Matrix4x4 world, 
+            ref Matrix4x4 view, 
+            ref Matrix4x4 projection)
+        {
+            _model.Draw(commandEncoder, ref world, ref view, ref projection);
+        }
+    }
+
+    public sealed class ModelMeshViewModel : W3dItemViewModelBase
+    {
+        private readonly ModelMesh _mesh;
+
+        public override string GroupName => "Meshes";
+
+        public override string Name => _mesh.Name;
+
+        public override Vector3 BoundingSphereCenter => _mesh.BoundingSphereCenter;
+        public override float BoundingSphereRadius => _mesh.BoundingSphereRadius;
+
+        public ModelMeshViewModel(ModelMesh mesh)
+        {
+            _mesh = mesh;
+        }
+
+        public override void Draw(
+            CommandEncoder commandEncoder,
+            ref Matrix4x4 world,
+            ref Matrix4x4 view,
+            ref Matrix4x4 projection)
+        {
+            _mesh.SetMatrices(ref world, ref view, ref projection);
+
+            _mesh.Draw(commandEncoder);
         }
     }
 }

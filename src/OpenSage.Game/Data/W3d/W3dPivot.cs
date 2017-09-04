@@ -13,7 +13,7 @@ namespace OpenSage.Data.W3d
         /// <summary>
         /// 0xffffffff = root pivot; no parent
         /// </summary>
-        public uint ParentIdx { get; private set; }
+        public int ParentIdx { get; private set; }
 
         /// <summary>
         /// translation to pivot point
@@ -35,7 +35,7 @@ namespace OpenSage.Data.W3d
             return new W3dPivot
             {
                 Name = reader.ReadFixedLengthString(W3dConstants.NameLength),
-                ParentIdx = reader.ReadUInt32(),
+                ParentIdx = reader.ReadInt32(),
                 Translation = W3dVector.Parse(reader),
                 EulerAngles = W3dVector.Parse(reader),
                 Rotation = W3dQuaternion.Parse(reader)

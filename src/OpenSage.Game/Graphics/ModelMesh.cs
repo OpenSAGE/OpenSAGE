@@ -26,7 +26,9 @@ namespace OpenSage.Graphics
 
         public string Name { get; }
 
-        public W3dVector BoundingSphereCenter { get; }
+        public ModelBone ParentBone { get; }
+
+        public Vector3 BoundingSphereCenter { get; }
         public float BoundingSphereRadius { get; }
 
         public IReadOnlyList<ModelMeshMaterialPass> MaterialPasses { get; }
@@ -35,14 +37,16 @@ namespace OpenSage.Graphics
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,
             W3dMesh w3dMesh,
+            ModelBone parentBone,
             FileSystem fileSystem,
             DescriptorSetLayout pixelMeshDescriptorSetLayout,
             DescriptorSetLayout vertexMaterialPassDescriptorSetLayout,
             DescriptorSetLayout pixelMaterialPassDescriptorSetLayout)
         {
             Name = w3dMesh.Header.MeshName;
+            ParentBone = parentBone;
 
-            BoundingSphereCenter = w3dMesh.Header.SphCenter;
+            BoundingSphereCenter = w3dMesh.Header.SphCenter.ToVector3();
             BoundingSphereRadius = w3dMesh.Header.SphRadius;
 
             _numVertices = (uint) w3dMesh.Vertices.Length;
@@ -88,10 +92,6 @@ namespace OpenSage.Graphics
             var materialPasses = new List<ModelMeshMaterialPass>();
             foreach (var w3dMaterialPass in w3dMesh.MaterialPasses)
             {
-                // TODO: Don't do this.
-                if (w3dMaterialPass.TextureStages.Length == 0)
-                    continue;
-
                 materialPasses.Add(AddDisposable(new ModelMeshMaterialPass(
                     graphicsDevice,
                     uploadBatch,
@@ -177,14 +177,19 @@ namespace OpenSage.Graphics
             {
                 // Switch y and z to account for z being up in .w3d (thanks Stephan)
                 var position = w3dMesh.Vertices[i].ToVector3();
-                var y = position.Y;
+                var positionY = position.Y;
                 position.Y = position.Z;
-                position.Z = -y;
+                position.Z = -positionY;
+
+                var normal = w3dMesh.Normals[i].ToVector3();
+                var normalY = normal.Y;
+                normal.Y = normal.Z;
+                normal.Z = -normalY;
 
                 vertices[i] = new MeshVertex
                 {
                     Position = position,
-                    Normal = w3dMesh.Normals[i].ToVector3()
+                    Normal = normal
                 };
             }
 
@@ -256,6 +261,7 @@ namespace OpenSage.Graphics
                     // based on W3dShader.
 
                     _perDrawConstants.PrimitiveOffset = meshPart.StartIndex / 3;
+                    _perDrawConstants.NumTextureStages = materialPass.NumTextureStages;
                     _perDrawConstantBuffer.SetData(ref _perDrawConstants);
                     commandEncoder.SetInlineConstantBuffer(2, _perDrawConstantBuffer);
 
@@ -269,30 +275,37 @@ namespace OpenSage.Graphics
             }
         }
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Explicit, Size = 56)]
         private struct VertexMaterial
         {
-            public const int SizeInBytes = 14 * sizeof(float);
-
+            [FieldOffset(0)]
             public Vector3 Ambient;
 
+            [FieldOffset(12)]
             public Vector3 Diffuse;
 
+            [FieldOffset(24)]
             public Vector3 Specular;
 
+            [FieldOffset(36)]
             public float Shininess;
 
+            [FieldOffset(40)]
             public Vector3 Emissive;
 
+            [FieldOffset(52)]
             public float Opacity;
         }
 
         [StructLayout(LayoutKind.Sequential)]
         private struct PerDrawConstants
         {
-            public const int SizeInBytes = sizeof(uint);
+            public const int SizeInBytes = 2 * sizeof(uint);
 
             public uint PrimitiveOffset;
+
+            // Not actually per-draw, but we don't have a per-mesh CB.
+            public uint NumTextureStages;
         }
     }
 }

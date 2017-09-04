@@ -14,6 +14,8 @@ namespace OpenSage.Graphics
 
         public IReadOnlyList<ModelMeshPart> MeshParts { get; }
 
+        public uint NumTextureStages { get; }
+
         public StaticBuffer TexCoordVertexBuffer { get; }
 
         internal ModelMeshMaterialPass(
@@ -25,12 +27,25 @@ namespace OpenSage.Graphics
             DescriptorSetLayout pixelMaterialPassDescriptorSetLayout)
         {
             // TODO: Support multiple textures stages.
-            var textureStage = w3dMaterialPass.TextureStages[0];
+            var textureStage = w3dMaterialPass.TextureStages.Length > 0
+                ? w3dMaterialPass.TextureStages[0]
+                : null;
 
             var texCoords = new Vector2[w3dMesh.Header.NumVertices];
-            for (var i = 0; i < texCoords.Length; i++)
+
+            if (textureStage != null)
             {
-                texCoords[i] = textureStage.TexCoords[i].ToVector2();
+                for (var i = 0; i < texCoords.Length; i++)
+                {
+                    texCoords[i] = textureStage.TexCoords[i].ToVector2();
+                }
+            }
+            else
+            {
+                for (var i = 0; i < texCoords.Length; i++)
+                {
+                    texCoords[i] = Vector2.Zero;
+                }
             }
 
             TexCoordVertexBuffer = AddDisposable(StaticBuffer.Create(
@@ -39,15 +54,24 @@ namespace OpenSage.Graphics
                 texCoords,
                 false));
 
-            var textureIDs = textureStage.TextureIds;
-            if (textureIDs.Length == 1)
+            uint[] textureIDs;
+
+            if (textureStage != null)
             {
-                var textureID = textureIDs[0];
-                textureIDs = new uint[w3dMesh.Header.NumTris];
-                for (var i = 0; i < w3dMesh.Header.NumTris; i++)
+                textureIDs = textureStage.TextureIds;
+                if (textureIDs.Length == 1)
                 {
-                    textureIDs[i] = textureID;
+                    var textureID = textureIDs[0];
+                    textureIDs = new uint[w3dMesh.Header.NumTris];
+                    for (var i = 0; i < w3dMesh.Header.NumTris; i++)
+                    {
+                        textureIDs[i] = textureID;
+                    }
                 }
+            }
+            else
+            {
+                textureIDs = new uint[w3dMesh.Header.NumTris];
             }
 
             var textureIndicesBuffer = AddDisposable(StaticBuffer.Create(
@@ -117,6 +141,8 @@ namespace OpenSage.Graphics
             }
 
             MeshParts = meshParts;
+
+            NumTextureStages = textureStage != null ? 1u : 0u;
         }
     }
 }
