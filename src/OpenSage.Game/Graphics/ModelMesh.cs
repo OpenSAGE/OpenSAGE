@@ -263,6 +263,7 @@ namespace OpenSage.Graphics
                     _perDrawConstants.PrimitiveOffset = meshPart.StartIndex / 3;
                     _perDrawConstants.NumTextureStages = materialPass.NumTextureStages;
                     _perDrawConstants.AlphaTest = meshPart.AlphaTest;
+                    _perDrawConstants.Texturing = meshPart.Texturing;
                     _perDrawConstantBuffer.SetData(ref _perDrawConstants);
                     commandEncoder.SetInlineConstantBuffer(2, _perDrawConstantBuffer);
 
@@ -298,17 +299,21 @@ namespace OpenSage.Graphics
             public float Opacity;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Explicit, Size = 16)]
         private struct PerDrawConstants
         {
-            public const int SizeInBytes = 2 * sizeof(uint) + sizeof(bool);
-
+            [FieldOffset(0)]
             public uint PrimitiveOffset;
 
             // Not actually per-draw, but we don't have a per-mesh CB.
+            [FieldOffset(4)]
             public uint NumTextureStages;
 
+            [FieldOffset(8)]
             public bool AlphaTest;
+
+            [FieldOffset(12)]
+            public bool Texturing;
         }
     }
 }

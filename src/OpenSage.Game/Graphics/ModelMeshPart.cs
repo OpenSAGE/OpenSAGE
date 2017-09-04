@@ -11,6 +11,7 @@ namespace OpenSage.Graphics
         public uint IndexCount { get; }
 
         public bool AlphaTest { get; }
+        public bool Texturing { get; }
 
         internal ModelMeshPart(uint startIndex, uint indexCount, W3dShader shader)
         {
@@ -18,6 +19,7 @@ namespace OpenSage.Graphics
             IndexCount = indexCount;
 
             AlphaTest = shader.AlphaTest == W3dShaderAlphaTest.Enable;
+            Texturing = shader.Texturing == W3dShaderTexturing.Enable;
         }
     }
 }

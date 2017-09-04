@@ -15,6 +15,7 @@ struct PerDrawConstants
     uint PrimitiveOffset;
     uint NumTextureStages;
     bool AlphaTest;
+    bool Texturing;
 };
 
 ConstantBuffer<PerDrawConstants> PerDrawCB : register(b1);
@@ -50,7 +51,7 @@ float4 main(PSInput input) : SV_TARGET
     float3 specular = 0 * material.Specular;
 
     float4 diffuseTextureColor;
-    if (PerDrawCB.NumTextureStages > 0)
+    if (PerDrawCB.Texturing) // TODO: Add optional second texture stage, depending on PerDrawCB.NumTextureStages
     {
         uint textureIndex = TextureIndices[PerDrawCB.PrimitiveOffset + input.PrimitiveID];
         Texture2D<float4> diffuseTexture = Textures[NonUniformResourceIndex(textureIndex)];
@@ -67,7 +68,7 @@ float4 main(PSInput input) : SV_TARGET
     }
     else
     {
-        diffuseTextureColor = float4(0, 0, 0, 1);
+        diffuseTextureColor = float4(1, 1, 1, 1);
     }
 
     float3 ambient = LightingCB.AmbientLightColor * material.Ambient;
