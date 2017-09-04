@@ -14,6 +14,7 @@ struct PerDrawConstants
 {
     uint PrimitiveOffset;
     uint NumTextureStages;
+    bool AlphaTest;
 };
 
 ConstantBuffer<PerDrawConstants> PerDrawCB : register(b1);
@@ -54,6 +55,15 @@ float4 main(PSInput input) : SV_TARGET
         uint textureIndex = TextureIndices[PerDrawCB.PrimitiveOffset + input.PrimitiveID];
         Texture2D<float4> diffuseTexture = Textures[NonUniformResourceIndex(textureIndex)];
         diffuseTextureColor = diffuseTexture.Sample(Sampler, float2(input.UV.x, 1 - input.UV.y));
+
+        if (PerDrawCB.AlphaTest)
+        {
+            const float alphaTestThreshold = 0x60 / (float) 0xFF;
+            if (diffuseTextureColor.a < alphaTestThreshold)
+            {
+                discard;
+            }
+        }
     }
     else
     {
@@ -65,7 +75,7 @@ float4 main(PSInput input) : SV_TARGET
     float3 color = (saturate(ambient + diffuse) * diffuseTextureColor.rgb + specular) * LightingCB.Light0Color
         + material.Emissive;
 
-    float alpha = material.Opacity * diffuseTextureColor.w;
+    float alpha = material.Opacity * diffuseTextureColor.a;
 
     return float4(color, alpha);
 }

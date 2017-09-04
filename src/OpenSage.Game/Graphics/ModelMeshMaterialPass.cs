@@ -113,7 +113,7 @@ namespace OpenSage.Graphics
 
             if (w3dMaterialPass.ShaderIds.Length == 1)
             {
-                meshParts.Add(new ModelMeshPart(0, w3dMesh.Header.NumTris * 3));
+                meshParts.Add(new ModelMeshPart(0, w3dMesh.Header.NumTris * 3, w3dMesh.Shaders[0]));
             }
             else
             {
@@ -128,7 +128,8 @@ namespace OpenSage.Graphics
                     {
                         meshParts.Add(new ModelMeshPart(
                             startIndex,
-                            indexCount));
+                            indexCount,
+                            w3dMesh.Shaders[shaderID]));
 
                         startIndex = (uint) (i * 3);
                         indexCount = 0;
