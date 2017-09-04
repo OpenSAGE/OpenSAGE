@@ -47,8 +47,7 @@ float4 main(PSInput input) : SV_TARGET
 
     float3 v = normalize(LightingCB.CameraPosition - input.WorldPosition);
     float3 h = normalize(v - lightDir);
-    //float specularLighting = pow(saturate(dot(input.Normal, h)), material.Shininess) * material.Specular;
-    float3 specular = 0 * material.Specular;
+    float specular = saturate(dot(input.Normal, h)) * material.Shininess * material.Specular;
 
     float4 diffuseTextureColor;
     if (PerDrawCB.Texturing) // TODO: Add optional second texture stage, depending on PerDrawCB.NumTextureStages
