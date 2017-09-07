@@ -5,6 +5,7 @@ using OpenSage.Graphics.Util;
 using LLGfx;
 using System.Collections.Generic;
 using OpenSage.Data;
+using System.Linq;
 
 namespace OpenSage.Graphics
 {
@@ -33,6 +34,8 @@ namespace OpenSage.Graphics
 
         public IReadOnlyList<ModelMeshMaterialPass> MaterialPasses { get; }
 
+        public bool Skinned { get; }
+
         internal ModelMesh(
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,
@@ -41,7 +44,8 @@ namespace OpenSage.Graphics
             FileSystem fileSystem,
             DescriptorSetLayout pixelMeshDescriptorSetLayout,
             DescriptorSetLayout vertexMaterialPassDescriptorSetLayout,
-            DescriptorSetLayout pixelMaterialPassDescriptorSetLayout)
+            DescriptorSetLayout pixelMaterialPassDescriptorSetLayout,
+            ModelRenderer modelRenderer)
         {
             Name = w3dMesh.Header.MeshName;
             ParentBone = parentBone;
@@ -49,12 +53,15 @@ namespace OpenSage.Graphics
             BoundingSphereCenter = w3dMesh.Header.SphCenter.ToVector3();
             BoundingSphereRadius = w3dMesh.Header.SphRadius;
 
+            Skinned = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.GeometryTypeSkin);
+
             _numVertices = (uint) w3dMesh.Vertices.Length;
 
             _vertexBuffer = CreateVertexBuffer(
                 graphicsDevice,
                 uploadBatch,
-                w3dMesh);
+                w3dMesh,
+                Skinned);
 
             _numIndices = (uint) w3dMesh.Triangles.Length * 3;
 
@@ -85,9 +92,9 @@ namespace OpenSage.Graphics
             var remainingTextures = ModelRenderer.MaxTextures - textures.Length;
             _pixelMeshDescriptorSet.SetTextures(1 + textures.Length, new Texture[remainingTextures]);
 
-            _meshTransformConstantBuffer = DynamicBuffer.Create<MeshTransformConstants>(graphicsDevice);
+            _meshTransformConstantBuffer = AddDisposable(DynamicBuffer.Create<MeshTransformConstants>(graphicsDevice));
 
-            _perDrawConstantBuffer = DynamicBuffer.Create<PerDrawConstants>(graphicsDevice);
+            _perDrawConstantBuffer = AddDisposable(DynamicBuffer.Create<PerDrawConstants>(graphicsDevice));
 
             var materialPasses = new List<ModelMeshMaterialPass>();
             foreach (var w3dMaterialPass in w3dMesh.MaterialPasses)
@@ -98,7 +105,8 @@ namespace OpenSage.Graphics
                     w3dMesh,
                     w3dMaterialPass,
                     vertexMaterialPassDescriptorSetLayout,
-                    pixelMaterialPassDescriptorSetLayout)));
+                    pixelMaterialPassDescriptorSetLayout,
+                    modelRenderer)));
             }
             MaterialPasses = materialPasses;
         }
@@ -110,6 +118,7 @@ namespace OpenSage.Graphics
         {
             _meshTransformConstants.WorldViewProjection = world * view * projection;
             _meshTransformConstants.World = world;
+            _meshTransformConstants.SkinningEnabled = Skinned;
 
             _meshTransformConstantBuffer.SetData(ref _meshTransformConstants);
         }
@@ -131,7 +140,10 @@ namespace OpenSage.Graphics
                     Specular = w3dVertexMaterial.Specular.ToVector3(),
                     Emissive = w3dVertexMaterial.Emissive.ToVector3(),
                     Shininess = w3dVertexMaterial.Shininess,
-                    Opacity = w3dVertexMaterial.Opacity
+                    Opacity = w3dVertexMaterial.Opacity,
+                    TextureMapping = w3dVertexMaterial.Attributes.HasFlag(W3dVertexMaterialFlags.Stage0MappingEnvironment)
+                        ? TextureMappingType.Environment
+                        : TextureMappingType.Uv
                 };
             }
 
@@ -153,15 +165,30 @@ namespace OpenSage.Graphics
             for (var i = 0; i < numTextures; i++)
             {
                 var w3dTexture = w3dMesh.Textures[i];
-                var textureName = w3dTexture.Name.Replace(".tga", ".dds"); // TODO: Is this always right?
-                var texturePath = $@"Art\Textures\{textureName}";
 
-                var textureFileSystemEntry = fileSystem.GetFile(texturePath);
+                var fileExtensions = new[] { ".dds", ".tga" };
+                foreach (var fileExtension in fileExtensions)
+                {
+                    var textureName = w3dTexture.Name.Replace(".tga", fileExtension);
+                    var texturePath = $@"Art\Textures\{textureName}";
 
-                textures[i] = AddDisposable(TextureLoader.LoadTexture(
-                    graphicsDevice,
-                    uploadBatch,
-                    textureFileSystemEntry));
+                    var textureFileSystemEntry = fileSystem.GetFile(texturePath);
+
+                    if (textureFileSystemEntry == null)
+                    {
+                        continue;
+                    }
+
+                    textures[i] = AddDisposable(TextureLoader.LoadTexture(
+                        graphicsDevice,
+                        uploadBatch,
+                        textureFileSystemEntry));
+                }
+
+                if (textures[i] == null)
+                {
+                    throw new System.InvalidOperationException();
+                }
             }
             return textures;
         }
@@ -169,27 +196,20 @@ namespace OpenSage.Graphics
         private StaticBuffer CreateVertexBuffer(
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,
-            W3dMesh w3dMesh)
+            W3dMesh w3dMesh,
+            bool isSkinned)
         {
             var vertices = new MeshVertex[_numVertices];
 
             for (var i = 0; i < _numVertices; i++)
             {
-                // Switch y and z to account for z being up in .w3d (thanks Stephan)
-                var position = w3dMesh.Vertices[i].ToVector3();
-                var positionY = position.Y;
-                position.Y = position.Z;
-                position.Z = -positionY;
-
-                var normal = w3dMesh.Normals[i].ToVector3();
-                var normalY = normal.Y;
-                normal.Y = normal.Z;
-                normal.Z = -normalY;
-
                 vertices[i] = new MeshVertex
                 {
-                    Position = position,
-                    Normal = normal
+                    Position = w3dMesh.Vertices[i].ToVector3(),
+                    Normal = w3dMesh.Normals[i].ToVector3(),
+                    BoneIndex = isSkinned
+                        ? w3dMesh.Influences[i].BoneIndex
+                        : 0u
                 };
             }
 
@@ -203,10 +223,11 @@ namespace OpenSage.Graphics
         [StructLayout(LayoutKind.Sequential)]
         private struct MeshVertex
         {
-            public const int SizeInBytes = sizeof(float) * 6;
+            public const int SizeInBytes = sizeof(float) * 6 + sizeof(uint);
 
             public Vector3 Position;
             public Vector3 Normal;
+            public uint BoneIndex;
         }
 
         private StaticBuffer CreateIndexBuffer(
@@ -234,50 +255,81 @@ namespace OpenSage.Graphics
         [StructLayout(LayoutKind.Sequential)]
         private struct MeshTransformConstants
         {
-            public const int SizeInBytes = 128;
-
             public Matrix4x4 WorldViewProjection;
             public Matrix4x4 World;
+            public bool SkinningEnabled;
         }
 
-        public void Draw(CommandEncoder commandEncoder)
+        public void Draw(CommandEncoder commandEncoder, bool alphaBlended)
         {
-            commandEncoder.SetInlineConstantBuffer(0, _meshTransformConstantBuffer);
-
-            commandEncoder.SetDescriptorSet(5, _pixelMeshDescriptorSet);
-
-            commandEncoder.SetVertexBuffer(0, _vertexBuffer);
-
-            foreach (var materialPass in MaterialPasses)
+            void drawImpl(PipelineState pipelineState)
             {
-                commandEncoder.SetDescriptorSet(3, materialPass.VertexMaterialPassDescriptorSet);
-                commandEncoder.SetDescriptorSet(4, materialPass.PixelMaterialPassDescriptorSet);
+                commandEncoder.SetPipelineState(pipelineState);
 
-                commandEncoder.SetVertexBuffer(1, materialPass.TexCoordVertexBuffer);
+                commandEncoder.SetInlineConstantBuffer(1, _meshTransformConstantBuffer);
 
-                foreach (var meshPart in materialPass.MeshParts)
+                commandEncoder.SetDescriptorSet(6, _pixelMeshDescriptorSet);
+
+                commandEncoder.SetVertexBuffer(0, _vertexBuffer);
+
+                var materialPassIndex = 0u;
+                foreach (var materialPass in MaterialPasses)
                 {
-                    // TODO: Set alpha blending state etc.
-                    // based on W3dShader.
+                    if (!materialPass.MeshParts.Any(x => x.PipelineState == pipelineState))
+                    {
+                        materialPassIndex++;
+                        continue;
+                    }
 
-                    _perDrawConstants.PrimitiveOffset = meshPart.StartIndex / 3;
-                    _perDrawConstants.NumTextureStages = materialPass.NumTextureStages;
-                    _perDrawConstants.AlphaTest = meshPart.AlphaTest;
-                    _perDrawConstants.Texturing = meshPart.Texturing;
-                    _perDrawConstantBuffer.SetData(ref _perDrawConstants);
-                    commandEncoder.SetInlineConstantBuffer(2, _perDrawConstantBuffer);
+                    commandEncoder.SetDescriptorSet(4, materialPass.VertexMaterialPassDescriptorSet);
+                    commandEncoder.SetDescriptorSet(5, materialPass.PixelMaterialPassDescriptorSet);
 
-                    commandEncoder.DrawIndexed(
-                        PrimitiveType.TriangleList,
-                        meshPart.IndexCount,
-                        IndexType.UInt16,
-                        _indexBuffer,
-                        meshPart.StartIndex);
+                    commandEncoder.SetVertexBuffer(1, materialPass.TexCoordVertexBuffer);
+
+                    foreach (var meshPart in materialPass.MeshParts)
+                    {
+                        if (meshPart.PipelineState != pipelineState)
+                        {
+                            continue;
+                        }
+
+                        _perDrawConstants.PrimitiveOffset = meshPart.StartIndex / 3;
+                        _perDrawConstants.NumTextureStages = materialPass.NumTextureStages;
+                        _perDrawConstants.AlphaTest = meshPart.AlphaTest;
+                        _perDrawConstants.Texturing = meshPart.Texturing;
+
+                        _perDrawConstants.MaterialPassIndex = materialPassIndex;
+
+                        _perDrawConstantBuffer.SetData(ref _perDrawConstants);
+                        commandEncoder.SetInlineConstantBuffer(0, _perDrawConstantBuffer);
+
+                        commandEncoder.DrawIndexed(
+                            PrimitiveType.TriangleList,
+                            meshPart.IndexCount,
+                            IndexType.UInt16,
+                            _indexBuffer,
+                            meshPart.StartIndex);
+                    }
+
+                    materialPassIndex++;
+                }
+            }
+
+            // TODO: Don't do this here.
+            var uniquePipelineStates = MaterialPasses
+                .SelectMany(x => x.MeshParts.Select(y => y.PipelineState))
+                .Distinct();
+
+            foreach (var pipelineState in uniquePipelineStates)
+            {
+                if (pipelineState.Description.Blending.Enabled == alphaBlended)
+                {
+                    drawImpl(pipelineState);
                 }
             }
         }
 
-        [StructLayout(LayoutKind.Explicit, Size = 56)]
+        [StructLayout(LayoutKind.Explicit, Size = 60)]
         private struct VertexMaterial
         {
             [FieldOffset(0)]
@@ -297,9 +349,18 @@ namespace OpenSage.Graphics
 
             [FieldOffset(52)]
             public float Opacity;
+
+            [FieldOffset(56)]
+            public TextureMappingType TextureMapping;
         }
 
-        [StructLayout(LayoutKind.Explicit, Size = 16)]
+        public enum TextureMappingType : uint
+        {
+            Uv,
+            Environment
+        }
+
+        [StructLayout(LayoutKind.Explicit, Size = 20)]
         private struct PerDrawConstants
         {
             [FieldOffset(0)]
@@ -314,6 +375,10 @@ namespace OpenSage.Graphics
 
             [FieldOffset(12)]
             public bool Texturing;
+
+            // TODO: Remove this.
+            [FieldOffset(16)]
+            public uint MaterialPassIndex;
         }
     }
 }

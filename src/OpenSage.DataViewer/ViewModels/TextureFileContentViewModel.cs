@@ -97,13 +97,13 @@ namespace OpenSage.DataViewer.ViewModels
             var pixelShader = new Shader(shaderLibrary, "SpritePS");
             var vertexShader = new Shader(shaderLibrary, "SpriteVS");
 
-            _pipelineState = new PipelineState(graphicsDevice, new PipelineStateDescription
-            {
-                PipelineLayout = _pipelineLayout,
-                PixelShader = pixelShader,
-                RenderTargetFormat = swapChain.BackBufferFormat,
-                VertexShader = vertexShader
-            });
+            var pipelineStateDescription = PipelineStateDescription.Default();
+            pipelineStateDescription.PipelineLayout = _pipelineLayout;
+            pipelineStateDescription.PixelShader = pixelShader;
+            pipelineStateDescription.RenderTargetFormat = swapChain.BackBufferFormat;
+            pipelineStateDescription.VertexShader = vertexShader;
+
+            _pipelineState = new PipelineState(graphicsDevice, pipelineStateDescription);
         }
 
         public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)

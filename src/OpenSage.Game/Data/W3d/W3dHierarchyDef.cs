@@ -2,7 +2,7 @@
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dHierarchyDef
+    public sealed class W3dHierarchyDef : W3dChunk
     {
         public W3dHierarchy Header { get; private set; }
         public W3dPivot[] Pivots { get; private set; }
@@ -11,18 +11,9 @@ namespace OpenSage.Data.W3d
 
         public static W3dHierarchyDef Parse(BinaryReader reader, uint chunkSize)
         {
-            var result = new W3dHierarchyDef();
-
-            uint loadedSize = 0;
-
-            do
+            return ParseChunk<W3dHierarchyDef>(reader, chunkSize, (result, header) =>
             {
-                loadedSize += W3dChunkHeader.SizeInBytes;
-                var currentChunk = W3dChunkHeader.Parse(reader);
-
-                loadedSize += currentChunk.ChunkSize;
-
-                switch (currentChunk.ChunkType)
+                switch (header.ChunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_HIERARCHY_HEADER:
                         result.Header = W3dHierarchy.Parse(reader);
@@ -37,12 +28,10 @@ namespace OpenSage.Data.W3d
                         break;
 
                     default:
-                        reader.ReadBytes((int) currentChunk.ChunkSize);
+                        reader.ReadBytes((int) header.ChunkSize);
                         break;
                 }
-            } while (loadedSize < chunkSize);
-
-            return result;
+            });
         }
     }
 }

@@ -24,7 +24,8 @@ namespace OpenSage.Graphics
             W3dMesh w3dMesh, 
             W3dMaterialPass w3dMaterialPass,
             DescriptorSetLayout vertexMaterialPassDescriptorSetLayout,
-            DescriptorSetLayout pixelMaterialPassDescriptorSetLayout)
+            DescriptorSetLayout pixelMaterialPassDescriptorSetLayout,
+            ModelRenderer modelRenderer)
         {
             // TODO: Support multiple textures stages.
             var textureStage = w3dMaterialPass.TextureStages.Length > 0
@@ -113,7 +114,12 @@ namespace OpenSage.Graphics
 
             if (w3dMaterialPass.ShaderIds.Length == 1)
             {
-                meshParts.Add(new ModelMeshPart(0, w3dMesh.Header.NumTris * 3, w3dMesh.Shaders[0]));
+                meshParts.Add(new ModelMeshPart(
+                    0, 
+                    w3dMesh.Header.NumTris * 3, 
+                    w3dMesh,
+                    w3dMesh.Shaders[w3dMaterialPass.ShaderIds[0]],
+                    modelRenderer));
             }
             else
             {
@@ -129,7 +135,9 @@ namespace OpenSage.Graphics
                         meshParts.Add(new ModelMeshPart(
                             startIndex,
                             indexCount,
-                            w3dMesh.Shaders[shaderID]));
+                            w3dMesh,
+                            w3dMesh.Shaders[shaderID],
+                            modelRenderer));
 
                         startIndex = (uint) (i * 3);
                         indexCount = 0;

@@ -4,6 +4,7 @@ using OpenSage.Data.W3d;
 using LLGfx;
 using System.Collections.Generic;
 using OpenSage.Data;
+using OpenSage.Graphics.Util;
 
 namespace OpenSage.Graphics
 {
@@ -15,8 +16,15 @@ namespace OpenSage.Graphics
         private readonly DescriptorSetLayout _descriptorSetLayoutPixelMesh;
         private readonly DescriptorSetLayout _descriptorSetLayoutPixelMaterialPass;
 
+        private readonly VertexDescriptor _vertexDescriptor;
+        private readonly Shader _vertexShader;
+        private readonly Shader _pixelShader;
+
+        private readonly PixelFormat _backBufferFormat;
+
+        private readonly PipelineStateCache _pipelineStateCache;
+
         private readonly PipelineLayout _pipelineLayout;
-        private readonly PipelineState _pipelineState;
 
         private readonly DynamicBuffer _lightingConstantBuffer;
         private LightingConstants _lightingConstants;
@@ -66,6 +74,14 @@ namespace OpenSage.Graphics
             {
                 InlineDescriptorLayouts = new[]
                 {
+                    // PerDrawCB
+                    new InlineDescriptorLayoutDescription
+                    {
+                        Visibility = ShaderStageVisibility.Pixel,
+                        DescriptorType = DescriptorType.ConstantBuffer,
+                        ShaderRegister = 1
+                    },
+
                     // MeshTransformCB
                     new InlineDescriptorLayoutDescription
                     {
@@ -74,20 +90,20 @@ namespace OpenSage.Graphics
                         ShaderRegister = 0
                     },
 
+                    // SkinningCB
+                    new InlineDescriptorLayoutDescription
+                    {
+                        Visibility = ShaderStageVisibility.Vertex,
+                        DescriptorType = DescriptorType.ConstantBuffer,
+                        ShaderRegister = 1
+                    },
+
                     // LightingCB
                     new InlineDescriptorLayoutDescription
                     {
                         Visibility = ShaderStageVisibility.Pixel,
                         DescriptorType = DescriptorType.ConstantBuffer,
                         ShaderRegister = 0
-                    },
-
-                    // PerDrawCB
-                    new InlineDescriptorLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        DescriptorType = DescriptorType.ConstantBuffer,
-                        ShaderRegister = 1
                     },
                 },
                 DescriptorSetLayouts = new[]
@@ -113,26 +129,46 @@ namespace OpenSage.Graphics
 
             var shaderLibrary = AddDisposable(new ShaderLibrary(graphicsDevice));
 
-            var pixelShader = AddDisposable(new Shader(shaderLibrary, "MeshPS"));
-            var vertexShader = AddDisposable(new Shader(shaderLibrary, "MeshVS"));
+            _vertexShader = AddDisposable(new Shader(shaderLibrary, "MeshVS"));
+            _pixelShader = AddDisposable(new Shader(shaderLibrary, "MeshPS"));
 
-            var vertexDescriptor = new VertexDescriptor();
-            vertexDescriptor.SetAttributeDescriptor(0, "POSITION", 0, VertexFormat.Float3, 0, 0);
-            vertexDescriptor.SetAttributeDescriptor(1, "NORMAL", 0, VertexFormat.Float3, 0, 12);
-            vertexDescriptor.SetAttributeDescriptor(2, "TEXCOORD", 0, VertexFormat.Float2, 1, 0);
-            vertexDescriptor.SetLayoutDescriptor(0, 24);
-            vertexDescriptor.SetLayoutDescriptor(1, 8);
+            _vertexDescriptor = new VertexDescriptor();
+            _vertexDescriptor.SetAttributeDescriptor(0, "POSITION", 0, VertexFormat.Float3, 0, 0);
+            _vertexDescriptor.SetAttributeDescriptor(1, "NORMAL", 0, VertexFormat.Float3, 0, 12);
+            _vertexDescriptor.SetAttributeDescriptor(2, "BLENDINDICES", 0, VertexFormat.UInt, 0, 24);
+            _vertexDescriptor.SetAttributeDescriptor(3, "TEXCOORD", 0, VertexFormat.Float2, 1, 0);
+            _vertexDescriptor.SetLayoutDescriptor(0, 28);
+            _vertexDescriptor.SetLayoutDescriptor(1, 8);
 
-            _pipelineState = AddDisposable(new PipelineState(graphicsDevice, new PipelineStateDescription
-            {
-                PipelineLayout = _pipelineLayout,
-                PixelShader = pixelShader,
-                RenderTargetFormat = swapChain.BackBufferFormat,
-                VertexDescriptor = vertexDescriptor,
-                VertexShader = vertexShader
-            }));
+            _backBufferFormat = swapChain.BackBufferFormat;
+
+            _pipelineStateCache = AddDisposable(new PipelineStateCache(graphicsDevice));
 
             _lightingConstantBuffer = AddDisposable(DynamicBuffer.Create<LightingConstants>(graphicsDevice));
+        }
+
+        internal PipelineState GetPipelineState(W3dMesh mesh, W3dShader shader)
+        {
+            var description = PipelineStateDescription.Default();
+            description.PipelineLayout = _pipelineLayout;
+            description.RenderTargetFormat = _backBufferFormat;
+            description.VertexDescriptor = _vertexDescriptor;
+            description.VertexShader = _vertexShader;
+            description.PixelShader = _pixelShader;
+
+            description.TwoSided = mesh.Header.Attributes.HasFlag(W3dMeshFlags.TwoSided);
+
+            description.IsDepthWriteEnabled = shader.DepthMask == W3dShaderDepthMask.WriteEnable;
+
+            description.Blending.SourceBlend = shader.SrcBlend.ToBlend();
+            description.Blending.DestinationBlend = shader.DestBlend.ToBlend();
+
+            if (shader.SrcBlend != W3dShaderSrcBlendFunc.One || shader.DestBlend != W3dShaderDestBlendFunc.Zero)
+            {
+                description.Blending.Enabled = true;
+            }
+
+            return _pipelineStateCache.GetPipelineState(description);
         }
 
         [StructLayout(LayoutKind.Explicit, Size = SizeInBytes)]
@@ -165,7 +201,8 @@ namespace OpenSage.Graphics
                 fileSystem,
                 _descriptorSetLayoutPixelMesh,
                 _descriptorSetLayoutVertexMaterialPass,
-                _descriptorSetLayoutPixelMaterialPass);
+                _descriptorSetLayoutPixelMaterialPass,
+                this);
 
             uploadBatch.End();
 
@@ -176,8 +213,6 @@ namespace OpenSage.Graphics
             CommandEncoder commandEncoder, 
             ref Vector3 cameraPosition)
         {
-            commandEncoder.SetPipelineState(_pipelineState);
-
             commandEncoder.SetPipelineLayout(_pipelineLayout);
 
             _lightingConstants.CameraPosition = cameraPosition;
@@ -185,7 +220,7 @@ namespace OpenSage.Graphics
             _lightingConstants.Light0Direction = Vector3.Normalize(new Vector3(-0.3f, -0.8f, -0.2f));
             _lightingConstants.Light0Color = new Vector3(0.7f, 0.7f, 0.8f);
             _lightingConstantBuffer.SetData(ref _lightingConstants);
-            commandEncoder.SetInlineConstantBuffer(1, _lightingConstantBuffer);
+            commandEncoder.SetInlineConstantBuffer(3, _lightingConstantBuffer);
         }
     }
 }

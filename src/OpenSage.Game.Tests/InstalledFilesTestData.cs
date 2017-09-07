@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using OpenSage.Data.Big;
 using Xunit.Abstractions;
 
 namespace OpenSage.Data.Tests
@@ -17,36 +16,22 @@ namespace OpenSage.Data.Tests
             };
 
             var foundAtLeastOneFile = false;
-            foreach (var directory in rootDirectories.Where(x => Directory.Exists(x)))
+            foreach (var rootDirectory in rootDirectories.Where(x => Directory.Exists(x)))
             {
-                foreach (var file in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories))
+                var fileSystem = new FileSystem(rootDirectory);
+
+                foreach (var file in fileSystem.Files)
                 {
-                    var ext = Path.GetExtension(file).ToLower();
-                    if (ext == ".big")
+                    if (Path.GetExtension(file.FilePath).ToLower() != fileExtension)
                     {
-                        output.WriteLine($"Reading BIG archive {Path.GetFileName(file)}.");
-
-                        using (var bigStream = File.OpenRead(file))
-                        using (var archive = new BigArchive(bigStream))
-                        {
-                            foreach (var entry in archive.Entries.Where(x => Path.GetExtension(x.FullName).ToLower() == fileExtension))
-                            {
-                                output.WriteLine($"Reading file {entry.FullName}.");
-
-                                processFileCallback(entry.FullName, entry.Open);
-
-                                foundAtLeastOneFile = true;
-                            }
-                        }
+                        continue;
                     }
-                    else if (ext == fileExtension)
-                    {
-                        output.WriteLine($"Reading file {file}.");
 
-                        processFileCallback(file, () => File.OpenRead(file));
+                    output.WriteLine($"Reading file {file.FilePath}.");
 
-                        foundAtLeastOneFile = true;
-                    }
+                    processFileCallback(file.FilePath, file.Open);
+
+                    foundAtLeastOneFile = true;
                 }
             }
 

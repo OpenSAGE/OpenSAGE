@@ -6,11 +6,13 @@ namespace OpenSage.Data.W3d
 {
     public sealed class W3dFile
     {
-        public uint ChunkCount { get; private set; }
-
         public W3dMesh[] Meshes { get; private set; }
         
-        public W3dHierarchyDef[] Hierarchies { get; private set; }
+        public W3dHierarchyDef Hierarchy { get; private set; }
+
+        public W3dHLod HLod { get; private set; }
+
+        public W3dAnimation[] Animations { get; private set; }
 
         public static W3dFile FromStream(Stream stream)
         {
@@ -18,10 +20,12 @@ namespace OpenSage.Data.W3d
                 return Parse(reader);
         }
 
-        public static W3dFile Parse(BinaryReader reader)
+        private static W3dFile Parse(BinaryReader reader)
         {
             var meshes = new List<W3dMesh>();
-            var hierarchies = new List<W3dHierarchyDef>();
+            W3dHierarchyDef hierarchy = null;
+            W3dHLod hlod = null;
+            var animations = new List<W3dAnimation>();
 
             uint chunkCount = 0;
             uint loadedSize = 0;
@@ -41,7 +45,23 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_HIERARCHY:
-                        hierarchies.Add(W3dHierarchyDef.Parse(reader, currentChunk.ChunkSize));
+                        if (hierarchy != null)
+                        {
+                            throw new InvalidDataException();
+                        }
+                        hierarchy = W3dHierarchyDef.Parse(reader, currentChunk.ChunkSize);
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_HLOD:
+                        if (hlod != null)
+                        {
+                            throw new InvalidDataException();
+                        }
+                        hlod = W3dHLod.Parse(reader, currentChunk.ChunkSize);
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_ANIMATION:
+                        animations.Add(W3dAnimation.Parse(reader, currentChunk.ChunkSize));
                         break;
 
                     // TODO
@@ -54,9 +74,10 @@ namespace OpenSage.Data.W3d
 
             return new W3dFile
             {
-                ChunkCount = chunkCount,
                 Meshes = meshes.ToArray(),
-                Hierarchies = hierarchies.ToArray()
+                Hierarchy = hierarchy,
+                HLod = hlod,
+                Animations = animations.ToArray()
                 // TODO
             };
         }

@@ -87,8 +87,17 @@ namespace OpenSage.Data.Utilities.Extensions
 
         public static string ReadFixedLengthString(this BinaryReader reader, int count)
         {
+            if (count == 0)
+            {
+                return string.Empty;
+            }
+
             var chars = reader.ReadChars(count);
-            return new string(chars).TrimEnd('\0');
+
+            var result = new string(chars);
+
+            // There might be garbage after the \0 character, so we can't just do TrimEnd('\0').
+            return result.Substring(0, result.IndexOf('\0'));
         }
 
         public static ushort[,] ReadUInt16Array2D(this BinaryReader reader, uint width, uint height)

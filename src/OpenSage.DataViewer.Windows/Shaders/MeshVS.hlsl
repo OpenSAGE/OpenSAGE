@@ -2,9 +2,10 @@
 
 struct VSInput
 {
-    float3 Position  : POSITION;
-    float3 Normal    : NORMAL;
-    float2 UV        : TEXCOORD0;
+    float3 Position : POSITION;
+    float3 Normal   : NORMAL;
+    uint BoneIndex  : BLENDINDICES;
+    float2 UV       : TEXCOORD0;
 
     uint VertexID : SV_VertexID;
 };
@@ -13,15 +14,33 @@ struct MeshTransformConstants
 {
     row_major float4x4 WorldViewProjection;
     row_major float4x4 World;
+    bool SkinningEnabled;
 };
 
 ConstantBuffer<MeshTransformConstants> MeshTransformCB : register(b0);
+
+#define MAX_BONES 72
+
+struct SkinningConstants
+{
+    row_major float4x4 Bones[MAX_BONES]; // TODO: Use float4x3
+};
+
+ConstantBuffer<SkinningConstants> SkinningCB : register(b1);
 
 Buffer<uint> MaterialIndices : register(t0);
 
 VSOutput main(VSInput input)
 {
     VSOutput result;
+
+    if (MeshTransformCB.SkinningEnabled)
+    {
+        float4x4 skinning = SkinningCB.Bones[input.BoneIndex];
+
+        input.Position = mul(float4(input.Position, 1), skinning).xyz;
+        input.Normal = mul(input.Normal, (float3x3) skinning);
+    }
 
     result.Position = mul(float4(input.Position, 1), MeshTransformCB.WorldViewProjection);
     result.WorldPosition = mul(input.Position, (float3x3) MeshTransformCB.World);

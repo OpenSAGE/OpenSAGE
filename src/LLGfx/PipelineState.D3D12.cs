@@ -4,6 +4,14 @@ using D3D12 = SharpDX.Direct3D12;
 
 namespace LLGfx
 {
+    public enum Blend
+    {
+        Zero,
+        One,
+        SrcAlpha,
+        OneMinusSrcAlpha
+    }
+
     partial class PipelineState
     {
         internal D3D12.PipelineState DevicePipelineState { get; private set; }
@@ -13,11 +21,32 @@ namespace LLGfx
             var rasterizerState = RasterizerStateDescription.Default();
             rasterizerState.IsFrontCounterClockwise = true;
 
+            rasterizerState.CullMode = description.TwoSided
+                ? CullMode.None
+                : CullMode.Back;
+
+            var blendState = BlendStateDescription.Default();
+            if (description.Blending.Enabled)
+            {
+                blendState.RenderTarget[0].IsBlendEnabled = true;
+                blendState.RenderTarget[0].SourceBlend = description.Blending.SourceBlend.ToBlendOption();
+                blendState.RenderTarget[0].SourceAlphaBlend = description.Blending.SourceBlend.ToBlendOption();
+                blendState.RenderTarget[0].DestinationBlend = description.Blending.DestinationBlend.ToBlendOption();
+                blendState.RenderTarget[0].DestinationAlphaBlend = description.Blending.DestinationBlend.ToBlendOption();
+            }
+
+            var depthStencilState = DepthStencilStateDescription.Default();
+            depthStencilState.DepthWriteMask = description.IsDepthWriteEnabled
+                ? DepthWriteMask.All
+                : DepthWriteMask.Zero;
+
+            depthStencilState.DepthComparison = Comparison.LessEqual;
+
             var deviceDescription = new GraphicsPipelineStateDescription
             {
-                BlendState = BlendStateDescription.Default(),
+                BlendState = blendState,
                 DepthStencilFormat = SharpDX.DXGI.Format.D32_Float,
-                DepthStencilState = DepthStencilStateDescription.Default(),
+                DepthStencilState = depthStencilState,
                 Flags = PipelineStateFlags.None,
                 InputLayout = description.VertexDescriptor?.DeviceInputLayoutDescription ?? new InputLayoutDescription(),
                 PixelShader = description.PixelShader.DeviceBytecode,

@@ -21,11 +21,8 @@ namespace OpenSage.Data.Tests.W3d
             InstalledFilesTestData.ReadFiles(".w3d", _output, (fileName, openFileStream) =>
             {
                 using (var fileStream = openFileStream())
-                using (var binaryReader = new BinaryReader(fileStream))
                 {
-                    var w3dFile = W3dFile.Parse(binaryReader);
-
-                    Assert.True(w3dFile.Hierarchies.Length <= 1);
+                    var w3dFile = W3dFile.FromStream(fileStream);
 
                     foreach (var mesh in w3dFile.Meshes)
                     {
@@ -88,11 +85,9 @@ namespace OpenSage.Data.Tests.W3d
                 var entry = bigArchive.GetEntry(@"Art\W3D\ABBarracks_AC.W3D");
 
                 using (var entryStream = entry.Open())
-                using (var binaryReader = new BinaryReader(entryStream))
                 {
-                    var w3dFile = W3dFile.Parse(binaryReader);
+                    var w3dFile = W3dFile.FromStream(entryStream);
 
-                    Assert.Equal(6u, w3dFile.ChunkCount);
                     Assert.Equal(3, w3dFile.Meshes.Length);
                 }
             }

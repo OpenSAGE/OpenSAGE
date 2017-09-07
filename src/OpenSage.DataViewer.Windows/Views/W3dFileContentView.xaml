@@ -36,6 +36,13 @@
                                         Grid.Column="1"
                                         RedrawsOnTimer="True"
                                         GraphicsInitialize="OnGraphicsInitialize"
-                                        GraphicsDraw="OnGraphicsDraw" />
+                                        GraphicsDraw="OnGraphicsDraw"
+                                        HwndLButtonDown="OnHwndLButtonDown"
+                                        HwndLButtonUp="OnHwndLButtonUp"
+                                        HwndMButtonDown="OnHwndMButtonDown"
+                                        HwndMButtonUp="OnHwndMButtonUp"
+                                        HwndRButtonDown="OnHwndRButtonDown"
+                                        HwndRButtonUp="OnHwndRButtonUp"
+                                        HwndMouseMove="OnHwndMouseMove"/>
     </Grid>
 </UserControl>

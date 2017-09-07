@@ -16,9 +16,14 @@ struct PerDrawConstants
     uint NumTextureStages;
     bool AlphaTest;
     bool Texturing;
+
+    uint MaterialPassIndex;
 };
 
 ConstantBuffer<PerDrawConstants> PerDrawCB : register(b1);
+
+#define TEXTURE_MAPPING_UV          0
+#define TEXTURE_MAPPING_ENVIRONMENT 1
 
 struct VertexMaterial
 {
@@ -28,6 +33,7 @@ struct VertexMaterial
     float Shininess;
     float3 Emissive;
     float Opacity;
+    uint TextureMapping;
 };
 
 StructuredBuffer<VertexMaterial> Materials : register(t0);
@@ -54,7 +60,20 @@ float4 main(PSInput input) : SV_TARGET
     {
         uint textureIndex = TextureIndices[PerDrawCB.PrimitiveOffset + input.PrimitiveID];
         Texture2D<float4> diffuseTexture = Textures[NonUniformResourceIndex(textureIndex)];
-        diffuseTextureColor = diffuseTexture.Sample(Sampler, float2(input.UV.x, 1 - input.UV.y));
+
+        float2 uv;
+        switch (material.TextureMapping)
+        {
+        case TEXTURE_MAPPING_UV:
+            uv = float2(input.UV.x, 1 - input.UV.y);
+            break;
+
+        case TEXTURE_MAPPING_ENVIRONMENT:
+            uv = (reflect(v, input.Normal).xy / 2.0f) + float2(0.5f, 0.5f);
+            break;
+        }
+
+        diffuseTextureColor = diffuseTexture.Sample(Sampler, uv);
 
         if (PerDrawCB.AlphaTest)
         {

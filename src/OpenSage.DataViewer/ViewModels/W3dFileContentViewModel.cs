@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 using LLGfx;
 using OpenSage.Data;
 using OpenSage.Data.W3d;
+using OpenSage.DataViewer.Framework;
 using OpenSage.Graphics;
-using OpenSage.Graphics.Util;
 
 namespace OpenSage.DataViewer.ViewModels
 {
@@ -18,12 +19,12 @@ namespace OpenSage.DataViewer.ViewModels
         private ModelRenderer _modelRenderer;
         private Model _model;
 
-        private Vector3 _cameraTarget;
+        private readonly Stopwatch _stopwatch = new Stopwatch();
+        private double _lastUpdate;
+
         private Vector3 _cameraPosition;
 
-        private readonly Stopwatch _stopwatch = new Stopwatch();
-        private float _rotationY;
-        private double _lastUpdate;
+        public ArcballCamera Camera { get; }
 
         private Matrix4x4 _world, _view, _projection;
 
@@ -39,6 +40,11 @@ namespace OpenSage.DataViewer.ViewModels
                     if (_model != null)
                     {
                         _modelChildren.Add(new ModelViewModel(_model));
+
+                        foreach (var animation in _model.Animations)
+                        {
+                            _modelChildren.Add(new AnimationViewModel(_model, animation));
+                        }
 
                         foreach (var mesh in _model.Meshes)
                         {
@@ -57,10 +63,15 @@ namespace OpenSage.DataViewer.ViewModels
             get { return _selectedModelChild; }
             set
             {
+                _selectedModelChild?.Deactivate();
+
                 _selectedModelChild = value;
 
-                _cameraTarget = value.BoundingSphereCenter;
-                _cameraPosition = _cameraTarget + new Vector3(0, value.BoundingSphereRadius / 3 * 2, value.BoundingSphereRadius + 5);
+                _selectedModelChild.Activate();
+
+                Camera.Reset(
+                    value.BoundingSphereCenter,
+                    value.BoundingSphereRadius * 1.4f);
 
                 _lastUpdate = GetTimeNow();
 
@@ -73,6 +84,8 @@ namespace OpenSage.DataViewer.ViewModels
         {
             using (var fileStream = file.Open())
                 _w3dFile = W3dFile.FromStream(fileStream);
+
+            Camera = new ArcballCamera();
         }
 
         public void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
@@ -97,7 +110,7 @@ namespace OpenSage.DataViewer.ViewModels
 
         private double GetTimeNow()
         {
-            return _stopwatch.ElapsedMilliseconds * 0.00025;
+            return _stopwatch.ElapsedMilliseconds;
         }
 
         private float GetDeltaTime()
@@ -110,20 +123,20 @@ namespace OpenSage.DataViewer.ViewModels
 
         private void Update(SwapChain swapChain)
         {
-            _rotationY += GetDeltaTime();
+            var deltaTime = GetDeltaTime();
 
-            _world = Matrix4x4.CreateRotationY(_rotationY, _cameraTarget);
+            _world = Matrix4x4.Identity;
 
-            _view = Matrix4x4.CreateLookAt(
-                _cameraPosition,
-                _cameraTarget,
-                Vector3.UnitY);
+            _cameraPosition = Camera.Position;
+            _view = Camera.ViewMatrix;
 
             _projection = Matrix4x4.CreatePerspectiveFieldOfView(
                 (float) (90 * System.Math.PI / 180),
                 (float) (swapChain.BackBufferWidth / swapChain.BackBufferHeight),
                 0.1f,
                 1000.0f);
+
+            _selectedModelChild?.Update(TimeSpan.FromMilliseconds(deltaTime));
         }
 
         public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
@@ -156,6 +169,8 @@ namespace OpenSage.DataViewer.ViewModels
                 commandEncoder, 
                 ref _cameraPosition);
 
+            _model.PreDraw(commandEncoder);
+
             _selectedModelChild?.Draw(commandEncoder, ref _world, ref _view, ref _projection);
 
             commandEncoder.Close();
@@ -170,6 +185,11 @@ namespace OpenSage.DataViewer.ViewModels
         public abstract string Name { get; }
         public abstract Vector3 BoundingSphereCenter { get; }
         public abstract float BoundingSphereRadius { get; }
+
+        public virtual void Activate() { }
+        public virtual void Deactivate() { }
+
+        public virtual void Update(TimeSpan deltaTime) { }
 
         public abstract void Draw(
             CommandEncoder commandEncoder,
@@ -228,7 +248,50 @@ namespace OpenSage.DataViewer.ViewModels
         {
             _mesh.SetMatrices(ref world, ref view, ref projection);
 
-            _mesh.Draw(commandEncoder);
+            _mesh.Draw(commandEncoder, false);
+            _mesh.Draw(commandEncoder, true);
+        }
+    }
+
+    public sealed class AnimationViewModel : W3dItemViewModelBase
+    {
+        private readonly Model _model;
+        private readonly Animation _animation;
+
+        private readonly AnimationPlayer _animationPlayer;
+
+        public override string GroupName => "Animations";
+
+        public override string Name => _animation.Name;
+
+        public override Vector3 BoundingSphereCenter => _model.BoundingSphereCenter;
+        public override float BoundingSphereRadius => _model.BoundingSphereRadius;
+
+        public AnimationViewModel(Model model, Animation animation)
+        {
+            _model = model;
+            _animation = animation;
+
+            _animationPlayer = new AnimationPlayer(_animation, _model);
+        }
+
+        public override void Activate()
+        {
+            _animationPlayer.Start();
+        }
+
+        public override void Update(TimeSpan deltaTime)
+        {
+            _animationPlayer.Update(deltaTime);
+        }
+
+        public override void Draw(
+            CommandEncoder commandEncoder,
+            ref Matrix4x4 world,
+            ref Matrix4x4 view,
+            ref Matrix4x4 projection)
+        {
+            _model.Draw(commandEncoder, ref world, ref view, ref projection);
         }
     }
 }

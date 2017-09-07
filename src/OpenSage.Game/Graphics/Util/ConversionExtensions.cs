@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
+using LLGfx;
 using OpenSage.Data.W3d;
 
 namespace OpenSage.Graphics.Util
@@ -12,7 +14,8 @@ namespace OpenSage.Graphics.Util
 
         public static Vector3 ToVector3(this W3dVector value)
         {
-            return new Vector3(value.X, value.Y, value.Z);
+            // Switch y and z to account for z being up in .w3d (thanks Stephan)
+            return new Vector3(value.X, value.Z, -value.Y);
         }
 
         public static Vector3 ToVector3(this W3dRgb value)
@@ -22,7 +25,50 @@ namespace OpenSage.Graphics.Util
 
         public static Quaternion ToQuaternion(this W3dQuaternion value)
         {
-            return new Quaternion(value.X, value.Y, value.Z, value.W);
+            // Switch y and z to account for z being up in .w3d (thanks Stephan)
+            return new Quaternion(value.X, value.Z, -value.Y, value.W);
+        }
+
+        public static Blend ToBlend(this W3dShaderSrcBlendFunc value)
+        {
+            switch (value)
+            {
+                case W3dShaderSrcBlendFunc.Zero:
+                    return Blend.Zero;
+
+                case W3dShaderSrcBlendFunc.One:
+                    return Blend.One;
+
+                case W3dShaderSrcBlendFunc.SrcAlpha:
+                    return Blend.SrcAlpha;
+
+                case W3dShaderSrcBlendFunc.OneMinusSrcAlpha:
+                    return Blend.OneMinusSrcAlpha;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public static Blend ToBlend(this W3dShaderDestBlendFunc value)
+        {
+            switch (value)
+            {
+                case W3dShaderDestBlendFunc.Zero:
+                    return Blend.Zero;
+
+                case W3dShaderDestBlendFunc.One:
+                    return Blend.One;
+
+                case W3dShaderDestBlendFunc.SrcAlpha:
+                    return Blend.SrcAlpha;
+
+                case W3dShaderDestBlendFunc.OneMinusSrcAlpha:
+                    return Blend.OneMinusSrcAlpha;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

@@ -8,6 +8,27 @@ namespace LLGfx.Util
 {
     internal static class ConversionExtensions
     {
+        public static BlendOption ToBlendOption(this Blend value)
+        {
+            switch (value)
+            {
+                case Blend.Zero:
+                    return BlendOption.Zero;
+
+                case Blend.One:
+                    return BlendOption.One;
+
+                case Blend.SrcAlpha:
+                    return BlendOption.SourceAlpha;
+
+                case Blend.OneMinusSrcAlpha:
+                    return BlendOption.InverseSourceAlpha;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         public static DescriptorRangeType ToDescriptorRangeType(this DescriptorType value)
         {
             switch (value)
@@ -79,6 +100,9 @@ namespace LLGfx.Util
 
                 case VertexFormat.Float4:
                     return Format.R32G32B32A32_Float;
+
+                case VertexFormat.UInt:
+                    return Format.R32_UInt;
 
                 default:
                     throw new ArgumentOutOfRangeException();

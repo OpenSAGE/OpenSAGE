@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net46</TargetFramework>
     <RootNamespace>OpenSage</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\LLGfx\LLGfx.csproj" />
