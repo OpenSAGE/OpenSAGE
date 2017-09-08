@@ -10,8 +10,9 @@ namespace OpenSage.Data.Csf
         public CsfHeader Header { get; private set; }
         public CsfLabel[] Labels { get; private set; }
 
-        public static CsfFile Parse(Stream stream)
+        public static CsfFile FromFileSystemEntry(FileSystemEntry entry)
         {
+            using (var stream = entry.Open())
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
                 var fourCc = reader.ReadUInt32().ToFourCcString();

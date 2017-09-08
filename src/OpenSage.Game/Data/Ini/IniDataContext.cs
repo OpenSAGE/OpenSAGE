@@ -67,12 +67,13 @@ namespace OpenSage.Data.Ini
         public List<WebpageUrl> WebpageUrls { get; } = new List<WebpageUrl>();
         public List<WindowTransition> WindowTransitions { get; } = new List<WindowTransition>();
 
-        public void LoadIniFile(Stream stream, string fileName)
+        public void LoadIniFile(FileSystemEntry entry)
         {
+            using (var stream = entry.Open())
             using (var reader = new StreamReader(stream, Encoding.ASCII))
             {
                 var source = reader.ReadToEnd();
-                var parser = new IniParser(source, fileName);
+                var parser = new IniParser(source, entry.FilePath);
 
                 parser.ParseFile(this);
             }

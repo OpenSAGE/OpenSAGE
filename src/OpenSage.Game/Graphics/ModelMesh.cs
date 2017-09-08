@@ -1,11 +1,12 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
+using LLGfx;
+using OpenSage.Data;
 using OpenSage.Data.W3d;
 using OpenSage.Graphics.Util;
-using LLGfx;
-using System.Collections.Generic;
-using OpenSage.Data;
-using System.Linq;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics
 {
@@ -29,8 +30,7 @@ namespace OpenSage.Graphics
 
         public ModelBone ParentBone { get; }
 
-        public Vector3 BoundingSphereCenter { get; }
-        public float BoundingSphereRadius { get; }
+        public BoundingSphere BoundingSphere { get; }
 
         public IReadOnlyList<ModelMeshMaterialPass> MaterialPasses { get; }
 
@@ -50,8 +50,9 @@ namespace OpenSage.Graphics
             Name = w3dMesh.Header.MeshName;
             ParentBone = parentBone;
 
-            BoundingSphereCenter = w3dMesh.Header.SphCenter.ToVector3();
-            BoundingSphereRadius = w3dMesh.Header.SphRadius;
+            BoundingSphere = new BoundingSphere(
+                w3dMesh.Header.SphCenter.ToVector3(),
+                w3dMesh.Header.SphRadius);
 
             Skinned = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.GeometryTypeSkin);
 

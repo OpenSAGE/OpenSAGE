@@ -4,44 +4,51 @@ using System.Text;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dFile
+    public sealed class W3dFile : W3dChunk
     {
-        public W3dMesh[] Meshes { get; private set; }
+        public string FilePath { get; private set; }
+
+        public IReadOnlyList<W3dMesh> Meshes { get; private set; }
+
+        public IReadOnlyList<W3dBox> Boxes { get; private set; }
         
         public W3dHierarchyDef Hierarchy { get; private set; }
 
         public W3dHLod HLod { get; private set; }
 
-        public W3dAnimation[] Animations { get; private set; }
+        public IReadOnlyList<W3dAnimation> Animations { get; private set; }
 
-        public static W3dFile FromStream(Stream stream)
+        public IReadOnlyList<W3dCompressedAnimation> CompressedAnimations { get; private set; }
+
+        public IReadOnlyList<W3dEmitter> Emitters { get; private set; }
+
+        public static W3dFile FromFileSystemEntry(FileSystemEntry entry)
         {
+            using (var stream = entry.Open())
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
-                return Parse(reader);
+                return Parse(reader, entry.FilePath);
         }
 
-        private static W3dFile Parse(BinaryReader reader)
+        private static W3dFile Parse(BinaryReader reader, string filePath)
         {
             var meshes = new List<W3dMesh>();
+            var boxes = new List<W3dBox>();
             W3dHierarchyDef hierarchy = null;
             W3dHLod hlod = null;
             var animations = new List<W3dAnimation>();
+            var compressedAnimations = new List<W3dCompressedAnimation>();
+            var emitters = new List<W3dEmitter>();
 
-            uint chunkCount = 0;
-            uint loadedSize = 0;
-
-            do
+            var result = ParseChunk<W3dFile>(reader, (uint) reader.BaseStream.Length, (x, header) =>
             {
-                chunkCount++;
-                loadedSize += W3dChunkHeader.SizeInBytes;
-
-                var currentChunk = W3dChunkHeader.Parse(reader);
-                loadedSize += currentChunk.ChunkSize;
-
-                switch (currentChunk.ChunkType)
+                switch (header.ChunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_MESH:
-                        meshes.Add(W3dMesh.Parse(reader, currentChunk.ChunkSize));
+                        meshes.Add(W3dMesh.Parse(reader, header.ChunkSize));
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_BOX:
+                        boxes.Add(W3dBox.Parse(reader));
                         break;
 
                     case W3dChunkType.W3D_CHUNK_HIERARCHY:
@@ -49,7 +56,7 @@ namespace OpenSage.Data.W3d
                         {
                             throw new InvalidDataException();
                         }
-                        hierarchy = W3dHierarchyDef.Parse(reader, currentChunk.ChunkSize);
+                        hierarchy = W3dHierarchyDef.Parse(reader, header.ChunkSize);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_HLOD:
@@ -57,29 +64,36 @@ namespace OpenSage.Data.W3d
                         {
                             throw new InvalidDataException();
                         }
-                        hlod = W3dHLod.Parse(reader, currentChunk.ChunkSize);
+                        hlod = W3dHLod.Parse(reader, header.ChunkSize);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_ANIMATION:
-                        animations.Add(W3dAnimation.Parse(reader, currentChunk.ChunkSize));
+                        animations.Add(W3dAnimation.Parse(reader, header.ChunkSize));
                         break;
 
-                    // TODO
+                    case W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION:
+                        compressedAnimations.Add(W3dCompressedAnimation.Parse(reader, header.ChunkSize));
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_EMITTER:
+                        emitters.Add(W3dEmitter.Parse(reader, header.ChunkSize));
+                        break;
 
                     default:
-                        reader.ReadBytes((int) currentChunk.ChunkSize);
-                        break;
+                        throw new InvalidDataException();
                 }
-            } while (loadedSize < reader.BaseStream.Length);
+            });
 
-            return new W3dFile
-            {
-                Meshes = meshes.ToArray(),
-                Hierarchy = hierarchy,
-                HLod = hlod,
-                Animations = animations.ToArray()
-                // TODO
-            };
+            result.FilePath = filePath;
+            result.Meshes = meshes;
+            result.Boxes = boxes;
+            result.Hierarchy = hierarchy;
+            result.HLod = hlod;
+            result.Animations = animations;
+            result.CompressedAnimations = compressedAnimations;
+            result.Emitters = emitters;
+
+            return result;
         }
     }
 }

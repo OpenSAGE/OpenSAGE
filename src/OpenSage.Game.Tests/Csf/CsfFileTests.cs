@@ -16,11 +16,9 @@ namespace OpenSage.Data.Tests.Csf
         [Fact]
         public void CanReadCsfFiles()
         {
-            InstalledFilesTestData.ReadFiles(".csf", _output, (fileName, openFileStream) =>
+            InstalledFilesTestData.ReadFiles(".csf", _output, entry =>
             {
-                CsfFile csfFile;
-                using (var fileStream = openFileStream())
-                    csfFile = CsfFile.Parse(fileStream);
+                var csfFile = CsfFile.FromFileSystemEntry(entry);
 
                 Assert.NotNull(csfFile);
             });

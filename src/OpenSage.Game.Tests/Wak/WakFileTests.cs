@@ -17,10 +17,10 @@ namespace OpenSage.Data.Tests.Wak
         [Fact]
         public void CanRoundtripWakFiles()
         {
-            InstalledFilesTestData.ReadFiles(".wak", _output, (fileName, openFileStream) =>
+            InstalledFilesTestData.ReadFiles(".wak", _output, entry =>
             {
                 TestUtility.DoRoundtripTest(
-                    openFileStream,
+                    entry.Open,
                     stream => WakFile.Parse(stream),
                     (wakFile, stream) => wakFile.WriteTo(stream));
             });

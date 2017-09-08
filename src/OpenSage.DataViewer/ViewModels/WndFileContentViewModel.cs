@@ -29,31 +29,20 @@ namespace OpenSage.DataViewer.ViewModels
         {
             _fileSystem = file.FileSystem;
 
-            using (var csfFileStream = _fileSystem.GetFile(@"Data\English\generals.csf").Open())
-            {
-                _csfFile = CsfFile.Parse(csfFileStream);
-            }
+            _csfFile = CsfFile.FromFileSystemEntry(_fileSystem.GetFile(@"Data\English\generals.csf"));
 
             var iniDataContext = new IniDataContext();
             foreach (var iniFileEntry in _fileSystem.GetFiles(@"Data\INI\MappedImages\HandCreated\"))
             {
-                using (var iniFileStream = iniFileEntry.Open())
-                {
-                    iniDataContext.LoadIniFile(iniFileStream, iniFileEntry.FilePath);
-                }
+                iniDataContext.LoadIniFile(iniFileEntry);
             }
             foreach (var iniFileEntry in _fileSystem.GetFiles(@"Data\INI\MappedImages\TextureSize_512\"))
             {
-                using (var iniFileStream = iniFileEntry.Open())
-                {
-                    iniDataContext.LoadIniFile(iniFileStream, iniFileEntry.FilePath);
-                }
+                iniDataContext.LoadIniFile(iniFileEntry);
             }
             _mappedImages = iniDataContext.MappedImages;
 
-            WndFile wndFile;
-            using (var fileStream = file.Open())
-                wndFile = WndFile.FromStream(fileStream);
+            var wndFile = WndFile.FromFileSystemEntry(file);
 
             ContainerView = new NonInheritingCanvas
             {
@@ -151,10 +140,11 @@ namespace OpenSage.DataViewer.ViewModels
 
         private UIElement CreateWindowElement(WndWindow window, FrameworkElement contentElement)
         {
-            var result = new Border();
-            result.Name = window.Name.Replace(".", string.Empty).Replace(":", string.Empty);
-
-            result.DataContext = window;
+            var result = new Border
+            {
+                Name = window.Name.Replace(".", string.Empty).Replace(":", string.Empty),
+                DataContext = window
+            };
 
             var style = new Style(typeof(Border));
 
@@ -298,38 +288,35 @@ namespace OpenSage.DataViewer.ViewModels
                 @"Data\English\Art\Textures\",
                 @"Art\Textures\");
 
-            using (var tgaFileStream = tgaFileEntry.Open())
-            {
-                var tgaFile = TgaFile.FromStream(tgaFileStream);
+            var tgaFile = TgaFile.FromFileSystemEntry(tgaFileEntry);
 
-                var pixelFormat = tgaFile.Header.ImagePixelSize == 32
-                    ? PixelFormats.Bgra32
-                    : PixelFormats.Bgr24;
+            var pixelFormat = tgaFile.Header.ImagePixelSize == 32
+                ? PixelFormats.Bgra32
+                : PixelFormats.Bgr24;
 
-                var stride = tgaFile.Header.ImagePixelSize == 32
-                    ? tgaFile.Header.Width * 4
-                    : tgaFile.Header.Width * 3;
+            var stride = tgaFile.Header.ImagePixelSize == 32
+                ? tgaFile.Header.Width * 4
+                : tgaFile.Header.Width * 3;
 
-                var bitmapSource = BitmapSource.Create(
-                    tgaFile.Header.Width,
-                    tgaFile.Header.Height,
-                    96,
-                    96,
-                    pixelFormat,
-                    null,
-                    tgaFile.Data,
-                    stride);
+            var bitmapSource = BitmapSource.Create(
+                tgaFile.Header.Width,
+                tgaFile.Header.Height,
+                96,
+                96,
+                pixelFormat,
+                null,
+                tgaFile.Data,
+                stride);
 
-                var sourceRect = new Int32Rect(
-                    mappedImage.Coords.Left,
-                    mappedImage.Coords.Top,
-                    mappedImage.Coords.Right - mappedImage.Coords.Left,
-                    mappedImage.Coords.Bottom - mappedImage.Coords.Top);
+            var sourceRect = new Int32Rect(
+                mappedImage.Coords.Left,
+                mappedImage.Coords.Top,
+                mappedImage.Coords.Right - mappedImage.Coords.Left,
+                mappedImage.Coords.Bottom - mappedImage.Coords.Top);
 
-                return new CroppedBitmap(
-                    bitmapSource,
-                    sourceRect);
-            }
+            return new CroppedBitmap(
+                bitmapSource,
+                sourceRect);
         }
     }
 }

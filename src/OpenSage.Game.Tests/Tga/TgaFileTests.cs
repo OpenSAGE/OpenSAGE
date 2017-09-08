@@ -16,13 +16,11 @@ namespace OpenSage.Data.Tests.Tga
         [Fact]
         public void CanReadTgaTextures()
         {
-            InstalledFilesTestData.ReadFiles(".tga", _output, (fileName, openFileStream) =>
+            InstalledFilesTestData.ReadFiles(".tga", _output, entry =>
             {
-                using (var fileStream = openFileStream())
-                {
-                    var tgaFile = TgaFile.FromStream(fileStream);
-                    Assert.True(tgaFile.Header.ImagePixelSize == 24 || tgaFile.Header.ImagePixelSize == 32);
-                }
+                var tgaFile = TgaFile.FromFileSystemEntry(entry);
+
+                Assert.True(tgaFile.Header.ImagePixelSize == 24 || tgaFile.Header.ImagePixelSize == 32);
             });
         }
     }

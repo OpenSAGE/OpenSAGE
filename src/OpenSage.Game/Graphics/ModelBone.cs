@@ -45,8 +45,6 @@ namespace OpenSage.Graphics
             }
         }
 
-        public ModelBoneCollection Children { get; internal set; }
-
         internal ModelBone(int index, string name, ModelBone parent, Vector3 translation, Quaternion rotation)
         {
             Index = index;

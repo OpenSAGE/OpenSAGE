@@ -9,8 +9,9 @@ namespace OpenSage.Data.Tga
         public TgaHeader Header { get; private set; }
         public byte[] Data { get; private set; }
 
-        public static TgaFile FromStream(Stream stream)
+        public static TgaFile FromFileSystemEntry(FileSystemEntry entry)
         {
+            using (var stream = entry.Open())
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
                 var header = TgaHeader.Parse(reader);

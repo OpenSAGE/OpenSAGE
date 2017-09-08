@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using OpenSage.Data.Ini.Parser;
@@ -13,8 +12,9 @@ namespace OpenSage.Data.Wnd
         public WndLayoutBlock LayoutBlock { get; internal set; }
         public WndWindow RootWindow { get; internal set; }
 
-        public static WndFile FromStream(Stream stream)
+        public static WndFile FromFileSystemEntry(FileSystemEntry entry)
         {
+            using (var stream = entry.Open())
             using (var reader = new StreamReader(stream, Encoding.ASCII))
             {
                 var source = reader.ReadToEnd();

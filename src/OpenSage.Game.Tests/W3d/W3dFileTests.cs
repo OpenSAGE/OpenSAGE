@@ -18,57 +18,57 @@ namespace OpenSage.Data.Tests.W3d
         [Fact]
         public void CanReadW3dFiles()
         {
-            InstalledFilesTestData.ReadFiles(".w3d", _output, (fileName, openFileStream) =>
+            InstalledFilesTestData.ReadFiles(".w3d", _output, entry =>
             {
-                using (var fileStream = openFileStream())
+                if (Path.GetFileName(entry.FilePath) == "UISabotr_idel.w3d")
+                    return; // Animation file, seems to be corrupt.
+
+                var w3dFile = W3dFile.FromFileSystemEntry(entry);
+
+                foreach (var mesh in w3dFile.Meshes)
                 {
-                    var w3dFile = W3dFile.FromStream(fileStream);
+                    Assert.Equal((int) mesh.Header.NumVertices, mesh.Vertices.Length);
 
-                    foreach (var mesh in w3dFile.Meshes)
+                    Assert.Equal((int) mesh.Header.NumTris, mesh.Triangles.Length);
+
+                    Assert.Equal(mesh.Vertices.Length, mesh.Influences.Length);
+
+                    Assert.Equal((int) mesh.MaterialInfo.PassCount, mesh.MaterialPasses.Length);
+
+                    Assert.Equal((int) mesh.MaterialInfo.ShaderCount, mesh.Shaders.Length);
+
+                    Assert.Equal(mesh.Vertices.Length, mesh.ShadeIndices.Length);
+
+                    Assert.True(mesh.Materials.Length <= 16);
+
+                    Assert.True(mesh.MaterialPasses.Length <= 2);
+
+                    Assert.True(mesh.Textures.Length <= 29);
+
+                    foreach (var materialPass in mesh.MaterialPasses)
                     {
-                        Assert.Equal((int) mesh.Header.NumVertices, mesh.Vertices.Length);
+                        Assert.True(materialPass.Dcg == null || materialPass.Dcg.Length == mesh.Vertices.Length);
+                        Assert.Null(materialPass.Dig);
+                        Assert.Null(materialPass.Scg);
 
-                        Assert.Equal((int) mesh.Header.NumTris, mesh.Triangles.Length);
+                        Assert.True(materialPass.TextureStages.Length <= 2);
 
-                        Assert.Equal(mesh.Vertices.Length, mesh.Influences.Length);
-
-                        Assert.Equal((int) mesh.MaterialInfo.PassCount, mesh.MaterialPasses.Length);
-
-                        Assert.Equal((int) mesh.MaterialInfo.ShaderCount, mesh.Shaders.Length);
-
-                        Assert.Equal(mesh.Vertices.Length, mesh.ShadeIndices.Length);
-
-                        Assert.True(mesh.Materials.Length <= 16);
-
-                        Assert.True(mesh.MaterialPasses.Length <= 2);
-
-                        Assert.True(mesh.Textures.Length <= 29);
-
-                        foreach (var materialPass in mesh.MaterialPasses)
+                        foreach (var textureStage in materialPass.TextureStages)
                         {
-                            Assert.True(materialPass.Dcg == null || materialPass.Dcg.Length == mesh.Vertices.Length);
-                            Assert.Null(materialPass.Dig);
-                            Assert.Null(materialPass.Scg);
+                            Assert.True(textureStage.TexCoords == null || textureStage.TexCoords.Length == mesh.Header.NumVertices);
+                            //Assert.True(textureStage.TexCoords.Length == mesh.Header.NumVertices);
 
-                            Assert.True(materialPass.TextureStages.Length <= 2);
+                            Assert.Null(textureStage.PerFaceTexCoordIds);
 
-                            foreach (var textureStage in materialPass.TextureStages)
-                            {
-                                Assert.True(textureStage.TexCoords == null || textureStage.TexCoords.Length == mesh.Header.NumVertices);
-                                //Assert.True(textureStage.TexCoords.Length == mesh.Header.NumVertices);
-
-                                Assert.Null(textureStage.PerFaceTexCoordIds);
-
-                                var numTextureIds = textureStage.TextureIds.Length;
-                                Assert.True(numTextureIds == 1 || numTextureIds == mesh.Header.NumTris);
-                            }
-
-                            var numShaderIds = materialPass.ShaderIds.Length;
-                            Assert.True(numShaderIds == 1 || numShaderIds == mesh.Header.NumTris);
-
-                            var numVertexMaterialIds = materialPass.VertexMaterialIds.Length;
-                            Assert.True(numVertexMaterialIds == 1 || numVertexMaterialIds == mesh.Header.NumVertices);
+                            var numTextureIds = textureStage.TextureIds.Length;
+                            Assert.True(numTextureIds == 1 || numTextureIds == mesh.Header.NumTris);
                         }
+
+                        var numShaderIds = materialPass.ShaderIds.Length;
+                        Assert.True(numShaderIds == 1 || numShaderIds == mesh.Header.NumTris);
+
+                        var numVertexMaterialIds = materialPass.VertexMaterialIds.Length;
+                        Assert.True(numVertexMaterialIds == 1 || numVertexMaterialIds == mesh.Header.NumVertices);
                     }
                 }
             });
@@ -84,12 +84,8 @@ namespace OpenSage.Data.Tests.W3d
             {
                 var entry = bigArchive.GetEntry(@"Art\W3D\ABBarracks_AC.W3D");
 
-                using (var entryStream = entry.Open())
-                {
-                    var w3dFile = W3dFile.FromStream(entryStream);
-
-                    Assert.Equal(3, w3dFile.Meshes.Length);
-                }
+                var w3dFile = W3dFile.FromFileSystemEntry(new FileSystemEntry(null, entry.FullName, entry.Length, entry.Open));
+                Assert.Equal(3, w3dFile.Meshes.Count);
             }
         }
     }

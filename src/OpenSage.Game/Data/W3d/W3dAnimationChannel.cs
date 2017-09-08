@@ -14,14 +14,14 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public ushort VectorLength { get; private set; }
 
-        public W3dAnimationChannelType Flags { get; private set; }
-
-        public float[,] Data { get; private set; }
+        public W3dAnimationChannelType ChannelType { get; private set; }
 
         /// <summary>
         /// Pivot affected by this channel.
         /// </summary>
         public ushort Pivot { get; private set; }
+
+        public float[,] Data { get; private set; }
 
         public static W3dAnimationChannel Parse(BinaryReader reader, uint chunkSize)
         {
@@ -32,7 +32,7 @@ namespace OpenSage.Data.W3d
                 FirstFrame = reader.ReadUInt16(),
                 LastFrame = reader.ReadUInt16(),
                 VectorLength = reader.ReadUInt16(),
-                Flags = reader.ReadUInt16AsEnum<W3dAnimationChannelType>(),
+                ChannelType = reader.ReadUInt16AsEnum<W3dAnimationChannelType>(),
                 Pivot = reader.ReadUInt16()
             };
 

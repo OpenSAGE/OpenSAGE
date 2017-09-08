@@ -11,8 +11,9 @@ namespace OpenSage.Data.Dds
         public DdsImageFormat ImageFormat { get; private set; }
         public DdsMipMap[] MipMaps { get; private set; }
 
-        public static DdsFile FromStream(Stream stream)
+        public static DdsFile FromFileSystemEntry(FileSystemEntry entry)
         {
+            using (var stream = entry.Open())
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
                 var magic = reader.ReadUInt32();

@@ -17,9 +17,9 @@ namespace OpenSage.Data.Tests.Scb
         [Fact]
         public void CanRoundtripScbFiles()
         {
-            InstalledFilesTestData.ReadFiles(".scb", _output, (fileName, openFileStream) =>
+            InstalledFilesTestData.ReadFiles(".scb", _output, entry =>
             {
-                using (var fileStream = openFileStream())
+                using (var fileStream = entry.Open())
                 {
                     TestUtility.DoRoundtripTest(
                         () => MapFile.Decompress(fileStream),

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Numerics;
 using LLGfx;
 using OpenSage.Data;
 using OpenSage.Data.W3d;
 using OpenSage.DataViewer.Framework;
 using OpenSage.Graphics;
+using OpenSage.Mathematics;
 
 namespace OpenSage.DataViewer.ViewModels
 {
@@ -18,6 +20,8 @@ namespace OpenSage.DataViewer.ViewModels
 
         private ModelRenderer _modelRenderer;
         private Model _model;
+
+        private List<Animation> _externalAnimations;
 
         private readonly Stopwatch _stopwatch = new Stopwatch();
         private double _lastUpdate;
@@ -43,7 +47,12 @@ namespace OpenSage.DataViewer.ViewModels
 
                         foreach (var animation in _model.Animations)
                         {
-                            _modelChildren.Add(new AnimationViewModel(_model, animation));
+                            _modelChildren.Add(new AnimationViewModel(_model, animation, "Animations"));
+                        }
+
+                        foreach (var animation in _externalAnimations)
+                        {
+                            _modelChildren.Add(new AnimationViewModel(_model, animation, "External Animations"));
                         }
 
                         foreach (var mesh in _model.Meshes)
@@ -70,8 +79,8 @@ namespace OpenSage.DataViewer.ViewModels
                 _selectedModelChild.Activate();
 
                 Camera.Reset(
-                    value.BoundingSphereCenter,
-                    value.BoundingSphereRadius * 1.4f);
+                    value.BoundingSphere.Center,
+                    value.BoundingSphere.Radius * 1.4f);
 
                 _lastUpdate = GetTimeNow();
 
@@ -82,8 +91,29 @@ namespace OpenSage.DataViewer.ViewModels
         public W3dFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
-            using (var fileStream = file.Open())
-                _w3dFile = W3dFile.FromStream(fileStream);
+            _w3dFile = W3dFile.FromFileSystemEntry(file);
+
+            // If this is a skin file, load "external" animations.
+            _externalAnimations = new List<Animation>();
+            if (_w3dFile.HLod != null && _w3dFile.HLod.Header.Name.EndsWith("_SKN"))
+            {
+                var namePrefix = _w3dFile.HLod.Header.Name.Substring(0, _w3dFile.HLod.Header.Name.LastIndexOf('_') + 1);
+                var parentFolder = Path.GetDirectoryName(_w3dFile.FilePath);
+                var pathPrefix = Path.Combine(parentFolder, namePrefix);
+                foreach (var animationFileEntry in file.FileSystem.GetFiles(parentFolder))
+                {
+                    if (!animationFileEntry.FilePath.StartsWith(pathPrefix))
+                    {
+                        continue;
+                    }
+
+                    var animationFile = W3dFile.FromFileSystemEntry(animationFileEntry);
+                    foreach (var w3dAnimation in animationFile.Animations)
+                    {
+                        _externalAnimations.Add(new Animation(w3dAnimation));
+                    }
+                }
+            }
 
             Camera = new ArcballCamera();
         }
@@ -183,8 +213,7 @@ namespace OpenSage.DataViewer.ViewModels
     {
         public abstract string GroupName { get; }
         public abstract string Name { get; }
-        public abstract Vector3 BoundingSphereCenter { get; }
-        public abstract float BoundingSphereRadius { get; }
+        public abstract BoundingSphere BoundingSphere { get; }
 
         public virtual void Activate() { }
         public virtual void Deactivate() { }
@@ -206,8 +235,7 @@ namespace OpenSage.DataViewer.ViewModels
 
         public override string Name => "Hierarchy";
 
-        public override Vector3 BoundingSphereCenter => _model.BoundingSphereCenter;
-        public override float BoundingSphereRadius => _model.BoundingSphereRadius;
+        public override BoundingSphere BoundingSphere => _model.BoundingSphere;
 
         public ModelViewModel(Model model)
         {
@@ -232,8 +260,7 @@ namespace OpenSage.DataViewer.ViewModels
 
         public override string Name => _mesh.Name;
 
-        public override Vector3 BoundingSphereCenter => _mesh.BoundingSphereCenter;
-        public override float BoundingSphereRadius => _mesh.BoundingSphereRadius;
+        public override BoundingSphere BoundingSphere => _mesh.BoundingSphere;
 
         public ModelMeshViewModel(ModelMesh mesh)
         {
@@ -260,19 +287,20 @@ namespace OpenSage.DataViewer.ViewModels
 
         private readonly AnimationPlayer _animationPlayer;
 
-        public override string GroupName => "Animations";
+        public override string GroupName { get; }
 
         public override string Name => _animation.Name;
 
-        public override Vector3 BoundingSphereCenter => _model.BoundingSphereCenter;
-        public override float BoundingSphereRadius => _model.BoundingSphereRadius;
+        public override BoundingSphere BoundingSphere => _model.BoundingSphere;
 
-        public AnimationViewModel(Model model, Animation animation)
+        public AnimationViewModel(Model model, Animation animation, string groupName)
         {
             _model = model;
             _animation = animation;
 
             _animationPlayer = new AnimationPlayer(_animation, _model);
+
+            GroupName = groupName;
         }
 
         public override void Activate()

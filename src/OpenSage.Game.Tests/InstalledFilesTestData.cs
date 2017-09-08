@@ -7,7 +7,7 @@ namespace OpenSage.Data.Tests
 {
     internal static class InstalledFilesTestData
     {
-        public static void ReadFiles(string fileExtension, ITestOutputHelper output, Action<string, Func<Stream>> processFileCallback)
+        public static void ReadFiles(string fileExtension, ITestOutputHelper output, Action<FileSystemEntry> processFileCallback)
         {
             var rootDirectories = new[]
             {
@@ -29,7 +29,7 @@ namespace OpenSage.Data.Tests
 
                     output.WriteLine($"Reading file {file.FilePath}.");
 
-                    processFileCallback(file.FilePath, file.Open);
+                    processFileCallback(file);
 
                     foundAtLeastOneFile = true;
                 }

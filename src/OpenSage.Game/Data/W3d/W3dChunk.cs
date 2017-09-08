@@ -20,15 +20,16 @@ namespace OpenSage.Data.W3d
                 loadedSize += W3dChunkHeader.SizeInBytes;
                 var currentChunk = W3dChunkHeader.Parse(reader);
 
-                var currentPosition = reader.BaseStream.Position;
+                var startPosition = reader.BaseStream.Position;
 
                 loadedSize += currentChunk.ChunkSize;
 
                 parseCallback(result, currentChunk);
 
-                if (reader.BaseStream.Position != currentPosition + currentChunk.ChunkSize)
+                var endPosition = startPosition + currentChunk.ChunkSize;
+                if (reader.BaseStream.Position != endPosition)
                 {
-                    throw new InvalidDataException();
+                    throw new InvalidDataException($"Error while parsing asset '{typeof(T).Name}'. Expected reader to be at position {endPosition}, but was at {reader.BaseStream.Position}.");
                 }
             } while (loadedSize < chunkSize);
 

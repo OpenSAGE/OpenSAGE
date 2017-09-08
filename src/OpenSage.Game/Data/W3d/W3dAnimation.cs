@@ -7,11 +7,14 @@ namespace OpenSage.Data.W3d
     {
         public W3dAnimationHeader Header { get; private set; }
 
-        public W3dAnimationChannel[] Channels { get; private set; }
+        public IReadOnlyList<W3dAnimationChannel> Channels { get; private set; }
+
+        public IReadOnlyList<W3dBitChannel> BitChannels { get; private set; }
 
         public static W3dAnimation Parse(BinaryReader reader, uint chunkSize)
         {
             var channels = new List<W3dAnimationChannel>();
+            var bitChannels = new List<W3dBitChannel>();
 
             var finalResult = ParseChunk<W3dAnimation>(reader, chunkSize, (result, header) =>
             {
@@ -25,13 +28,17 @@ namespace OpenSage.Data.W3d
                         channels.Add(W3dAnimationChannel.Parse(reader, header.ChunkSize));
                         break;
 
-                    default:
-                        reader.ReadBytes((int) header.ChunkSize);
+                    case W3dChunkType.W3D_CHUNK_BIT_CHANNEL:
+                        bitChannels.Add(W3dBitChannel.Parse(reader, header.ChunkSize));
                         break;
+
+                    default:
+                        throw new InvalidDataException();
                 }
             });
 
-            finalResult.Channels = channels.ToArray();
+            finalResult.Channels = channels;
+            finalResult.BitChannels = bitChannels;
 
             return finalResult;
         }

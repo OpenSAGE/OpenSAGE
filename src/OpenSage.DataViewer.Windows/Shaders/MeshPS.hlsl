@@ -91,8 +91,7 @@ float4 main(PSInput input) : SV_TARGET
 
     float3 ambient = LightingCB.AmbientLightColor * material.Ambient;
 
-    float3 color = (saturate(ambient + diffuse) * diffuseTextureColor.rgb + specular) * LightingCB.Light0Color
-        + material.Emissive;
+    float3 color = (saturate(ambient + diffuse + material.Emissive) * diffuseTextureColor.rgb + specular) * LightingCB.Light0Color;
 
     float alpha = material.Opacity * diffuseTextureColor.a;
 

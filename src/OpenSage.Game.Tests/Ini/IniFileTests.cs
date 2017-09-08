@@ -17,18 +17,16 @@ namespace OpenSage.Data.Tests.Ini
         [Fact]
         public void CanReadIniFiles()
         {
-            InstalledFilesTestData.ReadFiles(".ini", _output, (fileName, openFileStream) =>
+            InstalledFilesTestData.ReadFiles(".ini", _output, entry =>
             {
-                if (Path.GetFileName(fileName) == "ButtonSets.ini")
+                if (Path.GetFileName(entry.FilePath) == "ButtonSets.ini")
                     return; // This file doesn't seem to be used?
 
-                if (Path.GetFileName(fileName) == "Scripts.ini")
+                if (Path.GetFileName(entry.FilePath) == "Scripts.ini")
                     return; // ZH only, and only needed by World Builder?
 
                 var dataContext = new IniDataContext();
-
-                using (var fileStream = openFileStream())
-                    dataContext.LoadIniFile(fileStream, fileName);
+                dataContext.LoadIniFile(entry);
 
                 Assert.NotNull(dataContext.CommandMaps);
             });

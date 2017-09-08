@@ -23,7 +23,7 @@ ConstantBuffer<MeshTransformConstants> MeshTransformCB : register(b0);
 
 struct SkinningConstants
 {
-    row_major float4x4 Bones[MAX_BONES]; // TODO: Use float4x3
+    float4x3 Bones[MAX_BONES];
 };
 
 ConstantBuffer<SkinningConstants> SkinningCB : register(b1);
@@ -36,9 +36,9 @@ VSOutput main(VSInput input)
 
     if (MeshTransformCB.SkinningEnabled)
     {
-        float4x4 skinning = SkinningCB.Bones[input.BoneIndex];
+        float4x3 skinning = SkinningCB.Bones[input.BoneIndex];
 
-        input.Position = mul(float4(input.Position, 1), skinning).xyz;
+        input.Position = mul(float4(input.Position, 1), skinning);
         input.Normal = mul(input.Normal, (float3x3) skinning);
     }
 

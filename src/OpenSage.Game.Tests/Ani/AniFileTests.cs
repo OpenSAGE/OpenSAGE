@@ -16,11 +16,9 @@ namespace OpenSage.Data.Tests.Ani
         [Fact]
         public void CanReadAniCursors()
         {
-            InstalledFilesTestData.ReadFiles(".ani", _output, (fileName, openFileStream) =>
+            InstalledFilesTestData.ReadFiles(".ani", _output, entry =>
             {
-                AniFile aniFile;
-                using (var fileStream = openFileStream())
-                    aniFile = AniFile.Parse(fileStream);
+                var aniFile = AniFile.FromFileSystemEntry(entry);
 
                 Assert.NotNull(aniFile);
 

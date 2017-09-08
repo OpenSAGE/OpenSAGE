@@ -21,7 +21,10 @@
         <ListBox Grid.Column="0"
                  ItemsSource="{Binding Source={StaticResource SortedItems}}"
                  DisplayMemberPath="Name"
-                 SelectedItem="{Binding SelectedModelChild}">
+                 SelectedItem="{Binding SelectedModelChild}"
+                 VirtualizingPanel.IsVirtualizing='True'
+                 VirtualizingPanel.IsVirtualizingWhenGrouping='True'
+                 VirtualizingPanel.ScrollUnit="Pixel">
             <ListBox.GroupStyle>
                 <GroupStyle>
                     <GroupStyle.HeaderTemplate>

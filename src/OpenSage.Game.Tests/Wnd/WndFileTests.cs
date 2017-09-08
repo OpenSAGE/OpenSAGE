@@ -16,11 +16,9 @@ namespace OpenSage.Data.Tests.Wnd
         [Fact]
         public void CanReadWndFiles()
         {
-            InstalledFilesTestData.ReadFiles(".wnd", _output, (fileName, openFileStream) =>
+            InstalledFilesTestData.ReadFiles(".wnd", _output, entry =>
             {
-                WndFile wndFile;
-                using (var fileStream = openFileStream())
-                    wndFile = WndFile.FromStream(fileStream);
+                var wndFile = WndFile.FromFileSystemEntry(entry);
 
                 Assert.NotNull(wndFile);
             });

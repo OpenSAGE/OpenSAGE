@@ -13,9 +13,7 @@ namespace OpenSage.DataViewer.ViewModels
         public CsfFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
-            CsfFile csfFile;
-            using (var fileStream = file.Open())
-                csfFile = CsfFile.Parse(fileStream);
+            var csfFile = CsfFile.FromFileSystemEntry(file);
 
             Language = csfFile.Header.Language.ToString();
             FileEntries = csfFile.Labels.Select(x => new CsfFileEntryViewModel(x)).ToList();

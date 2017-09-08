@@ -22,9 +22,10 @@ namespace OpenSage.Data.Ani
 
         public AniCursorImage[] Images { get; private set; }
 
-        public static AniFile Parse(Stream stream)
+        public static AniFile FromFileSystemEntry(FileSystemEntry entry)
         {
             RiffChunk rootChunk;
+            using (var stream = entry.Open())
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
                 rootChunk = RiffChunk.Parse(reader);
@@ -125,8 +126,7 @@ namespace OpenSage.Data.Ani
                 return chunk;
             }
 
-            var list = chunk.Content as RiffChunkList;
-            if (list != null)
+            if (chunk.Content is RiffChunkList list)
             {
                 foreach (var subchunk in list.Chunks)
                 {

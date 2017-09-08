@@ -17,22 +17,14 @@ namespace OpenSage.Graphics
             switch (Path.GetExtension(textureFile.FilePath).ToLower())
             {
                 case ".dds":
-                    DdsFile ddsFile;
-                    using (var textureStream = textureFile.Open())
-                    {
-                        ddsFile = DdsFile.FromStream(textureStream);
-                    }
+                    var ddsFile = DdsFile.FromFileSystemEntry(textureFile);
                     return CreateTextureFromDds(
                         graphicsDevice,
                         uploadBatch,
                         ddsFile);
 
                 case ".tga":
-                    TgaFile tgaFile;
-                    using (var textureStream = textureFile.Open())
-                    {
-                        tgaFile = TgaFile.FromStream(textureStream);
-                    }
+                    var tgaFile = TgaFile.FromFileSystemEntry(textureFile);
                     return CreateTextureFromTga(
                         graphicsDevice,
                         uploadBatch,

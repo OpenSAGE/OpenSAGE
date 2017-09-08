@@ -1,12 +1,13 @@
-﻿using OpenSage.Data.W3d;
-using LLGfx;
-using System.Collections.Generic;
-using OpenSage.Data;
-using System.Numerics;
-using OpenSage.Graphics.Util;
+﻿using System;
+using System.IO;
 using System.Linq;
-using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
+using LLGfx;
+using OpenSage.Data;
+using OpenSage.Data.W3d;
+using OpenSage.Graphics.Util;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics
 {
@@ -17,22 +18,17 @@ namespace OpenSage.Graphics
         private readonly DynamicBuffer _skinningConstantBuffer;
         private SkinningConstants _skinningConstants;
 
-        public Vector3 BoundingSphereCenter { get; }
-        public float BoundingSphereRadius { get; }
+        public BoundingSphere BoundingSphere { get; }
 
-        public ModelBoneCollection Bones { get; }
+        public ModelBone[] Bones { get; }
 
         public Matrix4x4[] AnimatedBoneTransforms { get; }
 
         public ModelBone Root { get; }
 
-        public Transform[] BindPose { get; }
+        public ModelMesh[] Meshes { get; }
 
-        public Matrix4x4[] InverseBindPose { get; }
-
-        public IReadOnlyList<ModelMesh> Meshes { get; }
-
-        public IReadOnlyList<Animation> Animations { get; }
+        public Animation[] Animations { get; }
 
         internal Model(
             GraphicsDevice graphicsDevice,
@@ -44,103 +40,62 @@ namespace OpenSage.Graphics
             DescriptorSetLayout pixelMaterialPassDescriptorSetLayout,
             ModelRenderer modelRenderer)
         {
-            var bones = new List<ModelBone>();
-
             var w3dHierarchy = w3dFile.Hierarchy;
             if (w3dFile.HLod != null && w3dHierarchy == null)
             {
                 // Load referenced hierarchy.
                 var hierarchyFileName = w3dFile.HLod.Header.HierarchyName + ".W3D";
-                var hierarchyFileEntry = fileSystem.GetFile($@"Art\W3D\{hierarchyFileName}");
-                using (var hierarchyFileStream = hierarchyFileEntry.Open())
-                {
-                    var hierarchyFile = W3dFile.FromStream(hierarchyFileStream);
-                    w3dHierarchy = hierarchyFile.Hierarchy;
-                }
+                var hierarchyFilePath = Path.Combine(Path.GetDirectoryName(w3dFile.FilePath), hierarchyFileName);
+                var hierarchyFileEntry = fileSystem.GetFile(hierarchyFilePath);
+                var hierarchyFile = W3dFile.FromFileSystemEntry(hierarchyFileEntry);
+                w3dHierarchy = hierarchyFile.Hierarchy;
             }
 
             if (w3dHierarchy != null)
             {
-                BoundingSphereCenter = w3dHierarchy.Header.Center.ToVector3();
-
                 if (w3dHierarchy.Pivots.Length > MaxBones)
                 {
                     throw new NotSupportedException();
                 }
 
-                var children = new List<ModelBone>[w3dHierarchy.Pivots.Length];
-
-                var bindPose = new List<Transform>();
-                var inverseBindPose = new List<Matrix4x4>();
+                Bones = new ModelBone[w3dHierarchy.Pivots.Length];
 
                 for (var i = 0; i < w3dHierarchy.Pivots.Length; i++)
                 {
-                    children[i] = new List<ModelBone>();
-
                     var pivot = w3dHierarchy.Pivots[i];
 
                     var parent = pivot.ParentIdx == -1
                         ? null
-                        : bones[pivot.ParentIdx];
+                        : Bones[pivot.ParentIdx];
 
-                    var translation = pivot.Translation.ToVector3();
-                    var rotation = pivot.Rotation.ToQuaternion();
-
-                    bindPose.Add(new Transform
-                    {
-                        Translation = translation,
-                        Rotation = rotation
-                    });
-
-                    var bone = new ModelBone(i, pivot.Name, parent, translation, rotation);
-
-                    var absoluteTransform = bone.Transform;
-                    var p = parent;
-                    while (p != null)
-                    {
-                        absoluteTransform = absoluteTransform * p.Transform;
-                        p = p.Parent;
-                    }
-                    Matrix4x4.Invert(absoluteTransform, out var inverseAbsoluteTransform);
-                    inverseBindPose.Add(inverseAbsoluteTransform);
-
-                    if (parent != null)
-                    {
-                        children[pivot.ParentIdx].Add(bone);
-                    }
-
-                    bones.Add(bone);
-                }
-
-                BindPose = bindPose.ToArray();
-                InverseBindPose = inverseBindPose.ToArray();
-
-                for (var i = 0; i < w3dHierarchy.Pivots.Length; i++)
-                {
-                    bones[i].Children = new ModelBoneCollection(children[i]);
+                    Bones[i] = new ModelBone(
+                        i, 
+                        pivot.Name, 
+                        parent,
+                        pivot.Translation.ToVector3(),
+                        pivot.Rotation.ToQuaternion());
                 }
             }
             else
             {
-                BindPose = new Transform[0];
-                InverseBindPose = new Matrix4x4[0];
+                Bones = new ModelBone[0];
             }
 
-            Bones = new ModelBoneCollection(bones);
+            _absoluteBoneMatrices = new Matrix4x4[Bones.Length];
 
-            _absoluteBoneMatrices = new Matrix4x4[bones.Count];
-            CopyAbsoluteBoneTransformsTo(_absoluteBoneMatrices);
-
-            AnimatedBoneTransforms = new Matrix4x4[bones.Count];
-            for (var i = 0; i < bones.Count; i++)
+            AnimatedBoneTransforms = new Matrix4x4[Bones.Length];
+            for (var i = 0; i < Bones.Length; i++)
             {
                 AnimatedBoneTransforms[i] = Matrix4x4.Identity;
             }
 
-            var meshes = new List<ModelMesh>();
+            _skinningConstantBuffer = AddDisposable(DynamicBuffer.Create<SkinningConstants>(graphicsDevice));
 
-            foreach (var w3dMesh in w3dFile.Meshes)
+            Meshes = new ModelMesh[w3dFile.Meshes.Count];
+            for (var i = 0; i < w3dFile.Meshes.Count; i++)
             {
+                var w3dMesh = w3dFile.Meshes[i];
+
                 var hlodSubObjct = w3dFile.HLod.Lods[0].SubObjects.Single(x => x.Name == w3dMesh.Header.ContainerName + "." + w3dMesh.Header.MeshName);
                 var bone = Bones[(int) hlodSubObjct.BoneIndex];
 
@@ -154,109 +109,25 @@ namespace OpenSage.Graphics
                     vertexMaterialPassDescriptorSetLayout,
                     pixelMaterialPassDescriptorSetLayout,
                     modelRenderer);
-                meshes.Add(mesh);
+                Meshes[i] = mesh;
 
-                var radius = Vector3.Distance(BoundingSphereCenter, mesh.BoundingSphereCenter) + mesh.BoundingSphereRadius;
-                if (radius > BoundingSphereRadius)
-                {
-                    BoundingSphereRadius = radius;
-                }
+                var meshBoundingSphere = mesh.BoundingSphere.Transform(bone.Transform);
+
+                BoundingSphere = (i == 0)
+                    ? meshBoundingSphere
+                    : BoundingSphere.CreateMerged(BoundingSphere, meshBoundingSphere);
             }
 
-            Meshes = meshes;
-
-            var w3dAnimations = w3dFile.Animations.ToList();
-
-            if (w3dFile.HLod.Header.Name.EndsWith("_SKN"))
+            Animations = new Animation[w3dFile.Animations.Count];
+            for (var i = 0; i < w3dFile.Animations.Count; i++)
             {
-                var namePrefix = w3dFile.HLod.Header.Name.Substring(0, w3dFile.HLod.Header.Name.LastIndexOf('_') + 1);
-                foreach (var animationFileEntry in fileSystem.GetFiles(@"Art\W3D"))
-                {
-                    if (!animationFileEntry.FilePath.StartsWith($@"Art\W3D\{namePrefix}"))
-                    {
-                        continue;
-                    }
-
-                    using (var animationFileStream = animationFileEntry.Open())
-                    {
-                        var animationFile = W3dFile.FromStream(animationFileStream);
-                        w3dAnimations.AddRange(animationFile.Animations);
-                    }
-                }
-            }
-
-            var animations = new List<Animation>();
-
-            foreach (var w3dAnimation in w3dAnimations)
-            {
-                var clips = new List<AnimationClip>();
-
-                foreach (var w3dChannel in w3dAnimation.Channels)
-                {
-                    var keyframes = new List<Keyframe>();
-
-                    var data = w3dChannel.Data;
-                    for (var i = 0; i < data.GetLength(0); i++)
-                    {
-                        var time = TimeSpan.FromSeconds((w3dChannel.FirstFrame + i) / (double) w3dAnimation.Header.FrameRate);
-
-                        // Switch y and z to account for z being up in .w3d
-                        switch (w3dChannel.Flags)
-                        {
-                            case W3dAnimationChannelType.Quaternion:
-                                keyframes.Add(new QuaternionKeyframe(
-                                    time,
-                                    new Quaternion(data[i, 0], data[i, 2], -data[i, 1], data[i, 3])));
-                                break;
-
-                            case W3dAnimationChannelType.TranslationX:
-                                keyframes.Add(new TranslationXKeyframe(time, data[i, 0]));
-                                break;
-
-                            case W3dAnimationChannelType.TranslationY:
-                                keyframes.Add(new TranslationZKeyframe(time, -data[i, 0]));
-                                break;
-
-                            case W3dAnimationChannelType.TranslationZ:
-                                keyframes.Add(new TranslationYKeyframe(time, data[i, 0]));
-                                break;
-
-                            default:
-                                throw new NotImplementedException();
-                        }
-                    }
-
-                    clips.Add(new AnimationClip(
-                        w3dChannel.Pivot,
-                        keyframes.ToArray()));
-                }
-
-                animations.Add(new Animation(
-                    w3dAnimation.Header.Name,
-                    TimeSpan.FromSeconds(w3dAnimation.Header.NumFrames / (double) w3dAnimation.Header.FrameRate),
-                    clips.ToArray()));
-            }
-
-            Animations = animations;
-
-            _skinningConstantBuffer = AddDisposable(DynamicBuffer.Create<SkinningConstants>(graphicsDevice));
-        }
-
-        public void CopyAbsoluteBoneTransformsTo(Matrix4x4[] destinationBoneTransforms)
-        {
-            for (var i = 0; i < Bones.Count; i++)
-            {
-                var bone = Bones[i];
-
-                destinationBoneTransforms[i] = bone.Parent != null
-                    ? bone.Transform * destinationBoneTransforms[bone.Parent.Index]
-                    : bone.Transform;
+                Animations[i] = new Animation(w3dFile.Animations[i]);
             }
         }
 
         public void PreDraw(CommandEncoder commandEncoder)
         {
-            for (var i = 0; i < Bones.Count; i++)
+            for (var i = 0; i < Bones.Length; i++)
             {
                 var bone = Bones[i];
 
@@ -267,41 +138,8 @@ namespace OpenSage.Graphics
 
             if (Meshes.Any(x => x.Skinned))
             {
-                unsafe
-                {
-                    fixed (float* boneArray = _skinningConstants.Bones)
-                    {
-                        for (var i = 0; i < _absoluteBoneMatrices.Length; i++)
-                        {
-                            var m = _absoluteBoneMatrices[i];
-
-                            var baseOffset = boneArray + (i * 16);
-
-                            *(baseOffset + 0) = m.M11;
-                            *(baseOffset + 1) = m.M12;
-                            *(baseOffset + 2) = m.M13;
-                            *(baseOffset + 3) = m.M14;
-
-                            *(baseOffset + 4) = m.M21;
-                            *(baseOffset + 5) = m.M22;
-                            *(baseOffset + 6) = m.M23;
-                            *(baseOffset + 7) = m.M24;
-
-                            *(baseOffset + 8) = m.M31;
-                            *(baseOffset + 9) = m.M32;
-                            *(baseOffset + 10) = m.M33;
-                            *(baseOffset + 11) = m.M34;
-
-                            *(baseOffset + 12) = m.M41;
-                            *(baseOffset + 13) = m.M42;
-                            *(baseOffset + 14) = m.M43;
-                            *(baseOffset + 15) = m.M44;
-                        }
-                    }
-                }
-
+                _skinningConstants.CopyFrom(_absoluteBoneMatrices);
                 _skinningConstantBuffer.SetData(ref _skinningConstants);
-
                 commandEncoder.SetInlineConstantBuffer(2, _skinningConstantBuffer);
             }
         }
@@ -311,8 +149,21 @@ namespace OpenSage.Graphics
         [StructLayout(LayoutKind.Sequential)]
         private unsafe struct SkinningConstants
         {
-            // Array of MaxBones * float4x4
-            public fixed float Bones[MaxBones * 16];
+            // Array of MaxBones * float4x3
+            public fixed float Bones[MaxBones * 12];
+
+            public void CopyFrom(Matrix4x4[] matrices)
+            {
+                fixed (float* boneArray = Bones)
+                {
+                    for (var i = 0; i < matrices.Length; i++)
+                    {
+                        PointerUtil.CopyToMatrix4x3(
+                            ref matrices[i],
+                            boneArray + (i * 12));
+                    }
+                }
+            }
         }
 
         public void Draw(
@@ -321,26 +172,27 @@ namespace OpenSage.Graphics
             ref Matrix4x4 view,
             ref Matrix4x4 projection)
         {
-            var localWorld = world;
-            var localView = view;
-            var localProjection = projection;
+            DrawImpl(commandEncoder, ref world, ref view, ref projection, false);
+            DrawImpl(commandEncoder, ref world, ref view, ref projection, true);
+        }
 
-            void drawImpl(bool alphaBlended)
+        private void DrawImpl(
+            CommandEncoder commandEncoder,
+            ref Matrix4x4 world,
+            ref Matrix4x4 view,
+            ref Matrix4x4 projection,
+            bool alphaBlended)
+        {
+            foreach (var mesh in Meshes)
             {
-                foreach (var mesh in Meshes)
-                {
-                    var meshWorld = mesh.Skinned
-                        ? localWorld
-                        : _absoluteBoneMatrices[mesh.ParentBone.Index] * localWorld;
+                var meshWorld = mesh.Skinned
+                    ? world
+                    : _absoluteBoneMatrices[mesh.ParentBone.Index] * world;
 
-                    mesh.SetMatrices(ref meshWorld, ref localView, ref localProjection);
+                mesh.SetMatrices(ref meshWorld, ref view, ref projection);
 
-                    mesh.Draw(commandEncoder, alphaBlended);
-                }
+                mesh.Draw(commandEncoder, alphaBlended);
             }
-
-            drawImpl(false);
-            drawImpl(true);
         }
     }
 }

@@ -18,10 +18,10 @@ namespace OpenSage.Data.Tests.Map
         [Fact]
         public void CanRoundtripMaps()
         {
-            InstalledFilesTestData.ReadFiles(".map", _output, (fileName, openEntryStream) =>
+            InstalledFilesTestData.ReadFiles(".map", _output, entry =>
             {
                 // These maps have false positive differences, so ignore them.
-                switch (fileName)
+                switch (entry.FilePath)
                 {
                     // Differences in passability data, because the original file appears to have
                     // un-initialized (random) values for partial passability bytes beyond the map width.
@@ -33,7 +33,7 @@ namespace OpenSage.Data.Tests.Map
                         return;
                 }
 
-                using (var entryStream = openEntryStream())
+                using (var entryStream = entry.Open())
                 {
                     TestUtility.DoRoundtripTest(
                         () => MapFile.Decompress(entryStream),

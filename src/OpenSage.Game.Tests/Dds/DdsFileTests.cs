@@ -16,14 +16,11 @@ namespace OpenSage.Data.Tests.Dds
         [Fact]
         public void CanReadDdsTextures()
         {
-            InstalledFilesTestData.ReadFiles(".dds", _output, (fileName, openFileStream) =>
+            InstalledFilesTestData.ReadFiles(".dds", _output, entry =>
             {
-                using (var fileStream = openFileStream())
-                {
-                    var ddsFile = DdsFile.FromStream(fileStream);
+                var ddsFile = DdsFile.FromFileSystemEntry(entry);
 
-                    Assert.True(ddsFile.MipMaps.Length > 1);
-                }
+                Assert.True(ddsFile.MipMaps.Length > 1);
             });
         }
     }
