@@ -2,7 +2,7 @@
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dMesh
+    public sealed class W3dMesh : W3dChunk
     {
         public W3dMeshHeader3 Header { get; private set; }
         public W3dVector[] Vertices { get; private set; }
@@ -33,19 +33,11 @@ namespace OpenSage.Data.W3d
 
         public static W3dMesh Parse(BinaryReader reader, uint chunkSize)
         {
-            var result = new W3dMesh();
-
-            uint loadedSize = 0;
             var currentMaterialPass = 0;
 
-            do
+            return ParseChunk<W3dMesh>(reader, chunkSize, (result, header) =>
             {
-                loadedSize += W3dChunkHeader.SizeInBytes;
-                var currentChunk = W3dChunkHeader.Parse(reader);
-
-                loadedSize += currentChunk.ChunkSize;
-
-                switch (currentChunk.ChunkType)
+                switch (header.ChunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_MESH_HEADER3:
                         result.Header = W3dMeshHeader3.Parse(reader);
@@ -137,23 +129,20 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_MATERIAL_PASS:
-                        result.MaterialPasses[currentMaterialPass] = W3dMaterialPass.Parse(reader, currentChunk.ChunkSize);
+                        result.MaterialPasses[currentMaterialPass] = W3dMaterialPass.Parse(reader, header.ChunkSize);
                         currentMaterialPass++;
                         break;
 
                     case W3dChunkType.W3D_CHUNK_PS2_SHADERS:
                     case W3dChunkType.W3D_CHUNK_AABTREE:
                         // Ignored for now.
-                        reader.ReadBytes((int) currentChunk.ChunkSize);
+                        reader.ReadBytes((int) header.ChunkSize);
                         break;
 
                     default:
-                        throw new InvalidDataException($"Unknown chunk type: {currentChunk.ChunkType}");
+                        throw CreateUnknownChunkException(header);
                 }
-
-            } while (loadedSize < chunkSize);
-
-            return result;
+            });
         }
     }
 }

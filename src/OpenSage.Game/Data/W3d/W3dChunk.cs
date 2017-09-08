@@ -35,5 +35,10 @@ namespace OpenSage.Data.W3d
 
             return result;
         }
+
+        protected static Exception CreateUnknownChunkException(W3dChunkHeader header)
+        {
+            return new InvalidDataException($"Unrecognised chunk: {header.ChunkType}");
+        }
     }
 }

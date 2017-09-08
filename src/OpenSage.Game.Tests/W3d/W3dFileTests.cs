@@ -20,7 +20,11 @@ namespace OpenSage.Data.Tests.W3d
         {
             InstalledFilesTestData.ReadFiles(".w3d", _output, entry =>
             {
-                if (Path.GetFileName(entry.FilePath) == "UISabotr_idel.w3d")
+                if (Path.GetFileName(entry.FilePath) == "UISabotr_idel.w3d" ||
+                    Path.GetFileName(entry.FilePath) == "UISabotr_Jump.w3d" ||
+                    Path.GetFileName(entry.FilePath) == "UISabotr_Left.w3d" ||
+                    Path.GetFileName(entry.FilePath) == "UISabotr_Right.w3d" ||
+                    Path.GetFileName(entry.FilePath) == "UISabotr_Up.w3d")
                     return; // Animation file, seems to be corrupt.
 
                 var w3dFile = W3dFile.FromFileSystemEntry(entry);

@@ -80,7 +80,7 @@ namespace OpenSage.Data.W3d
                         break;
 
                     default:
-                        throw new InvalidDataException();
+                        throw CreateUnknownChunkException(header);
                 }
             });
 
