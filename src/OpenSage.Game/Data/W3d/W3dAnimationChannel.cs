@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Runtime.InteropServices;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
@@ -21,7 +22,7 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public ushort Pivot { get; private set; }
 
-        public float[,] Data { get; private set; }
+        public W3dAnimationChannelDatum[] Data { get; private set; }
 
         public static W3dAnimationChannel Parse(BinaryReader reader, uint chunkSize)
         {
@@ -38,15 +39,14 @@ namespace OpenSage.Data.W3d
 
             reader.ReadUInt16(); // Pad
 
+            ValidateChannelDataSize(result.ChannelType, result.VectorLength);
+
             var numElements = result.LastFrame - result.FirstFrame + 1;
-            var data = new float[numElements, result.VectorLength];
+            var data = new W3dAnimationChannelDatum[numElements];
 
             for (var i = 0; i < numElements; i++)
             {
-                for (var j = 0; j < result.VectorLength; j++)
-                {
-                    data[i, j] = reader.ReadSingle();
-                }
+                data[i] = W3dAnimationChannelDatum.Parse(reader, result.ChannelType);
             }
 
             result.Data = data;
@@ -56,6 +56,64 @@ namespace OpenSage.Data.W3d
             reader.ReadBytes((int) (endPosition - reader.BaseStream.Position));
 
             return result;
+        }
+
+        internal static void ValidateChannelDataSize(W3dAnimationChannelType channelType, int vectorLength)
+        {
+            switch (channelType)
+            {
+                case W3dAnimationChannelType.Quaternion:
+                    if (vectorLength != 4)
+                    {
+                        throw new InvalidDataException();
+                    }
+                    break;
+
+                case W3dAnimationChannelType.TranslationX:
+                case W3dAnimationChannelType.TranslationY:
+                case W3dAnimationChannelType.TranslationZ:
+                    if (vectorLength != 1)
+                    {
+                        throw new InvalidDataException();
+                    }
+                    break;
+
+                default:
+                    throw new InvalidDataException();
+            }
+        }
+    }
+
+    [StructLayout(LayoutKind.Explicit)]
+    public struct W3dAnimationChannelDatum
+    {
+        [FieldOffset(0)]
+        public W3dQuaternion Quaternion;
+
+        [FieldOffset(0)]
+        public float FloatValue;
+
+        public static W3dAnimationChannelDatum Parse(BinaryReader reader, W3dAnimationChannelType channelType)
+        {
+            switch (channelType)
+            {
+                case W3dAnimationChannelType.Quaternion:
+                    return new W3dAnimationChannelDatum
+                    {
+                        Quaternion = W3dQuaternion.Parse(reader)
+                    };
+
+                case W3dAnimationChannelType.TranslationX:
+                case W3dAnimationChannelType.TranslationY:
+                case W3dAnimationChannelType.TranslationZ:
+                    return new W3dAnimationChannelDatum
+                    {
+                        FloatValue = reader.ReadSingle()
+                    };
+
+                default:
+                    throw new InvalidDataException();
+            }
         }
     }
 }

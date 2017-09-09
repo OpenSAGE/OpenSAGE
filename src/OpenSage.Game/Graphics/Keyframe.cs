@@ -12,7 +12,7 @@ namespace OpenSage.Graphics
             Time = time;
         }
 
-        public abstract void Apply(ref Transform transform);
+        public abstract void Apply(ref Transform transform, ref bool visibility);
     }
 
     public sealed class QuaternionKeyframe : Keyframe
@@ -25,7 +25,7 @@ namespace OpenSage.Graphics
             Rotation = rotation;
         }
 
-        public override void Apply(ref Transform transform)
+        public override void Apply(ref Transform transform, ref bool visibility)
         {
             transform.Rotation = Rotation;
         }
@@ -41,7 +41,7 @@ namespace OpenSage.Graphics
             Value = value;
         }
 
-        public override void Apply(ref Transform transform)
+        public override void Apply(ref Transform transform, ref bool visibility)
         {
             transform.Translation.X = Value;
         }
@@ -57,7 +57,7 @@ namespace OpenSage.Graphics
             Value = value;
         }
 
-        public override void Apply(ref Transform transform)
+        public override void Apply(ref Transform transform, ref bool visibility)
         {
             transform.Translation.Y = Value;
         }
@@ -73,9 +73,25 @@ namespace OpenSage.Graphics
             Value = value;
         }
 
-        public override void Apply(ref Transform transform)
+        public override void Apply(ref Transform transform, ref bool visibility)
         {
             transform.Translation.Z = Value;
+        }
+    }
+
+    public sealed class VisibilityKeyframe : Keyframe
+    {
+        public bool Value { get; }
+
+        public VisibilityKeyframe(TimeSpan time, bool value)
+            : base(time)
+        {
+            Value = value;
+        }
+
+        public override void Apply(ref Transform transform, ref bool visibility)
+        {
+            visibility = Value;
         }
     }
 }

@@ -23,6 +23,7 @@ namespace OpenSage.Graphics
         public ModelBone[] Bones { get; }
 
         public Matrix4x4[] AnimatedBoneTransforms { get; }
+        public bool[] AnimatedBoneVisibilities { get; }
 
         public ModelBone Root { get; }
 
@@ -89,6 +90,12 @@ namespace OpenSage.Graphics
                 AnimatedBoneTransforms[i] = Matrix4x4.Identity;
             }
 
+            AnimatedBoneVisibilities = new bool[Bones.Length];
+            for (var i = 0; i < Bones.Length; i++)
+            {
+                AnimatedBoneVisibilities[i] = true;
+            }
+
             _skinningConstantBuffer = AddDisposable(DynamicBuffer.Create<SkinningConstants>(graphicsDevice));
 
             Meshes = new ModelMesh[w3dFile.Meshes.Count];
@@ -96,8 +103,8 @@ namespace OpenSage.Graphics
             {
                 var w3dMesh = w3dFile.Meshes[i];
 
-                var hlodSubObjct = w3dFile.HLod.Lods[0].SubObjects.Single(x => x.Name == w3dMesh.Header.ContainerName + "." + w3dMesh.Header.MeshName);
-                var bone = Bones[(int) hlodSubObjct.BoneIndex];
+                var hlodSubObject = w3dFile.HLod.Lods[0].SubObjects.Single(x => x.Name == w3dMesh.Header.ContainerName + "." + w3dMesh.Header.MeshName);
+                var bone = Bones[(int) hlodSubObject.BoneIndex];
 
                 var mesh = new ModelMesh(
                     graphicsDevice, 
@@ -118,10 +125,14 @@ namespace OpenSage.Graphics
                     : BoundingSphere.CreateMerged(BoundingSphere, meshBoundingSphere);
             }
 
-            Animations = new Animation[w3dFile.Animations.Count];
+            Animations = new Animation[w3dFile.Animations.Count + w3dFile.CompressedAnimations.Count];
             for (var i = 0; i < w3dFile.Animations.Count; i++)
             {
                 Animations[i] = new Animation(w3dFile.Animations[i]);
+            }
+            for (var i = 0; i < w3dFile.CompressedAnimations.Count; i++)
+            {
+                Animations[w3dFile.Animations.Count + i] = new Animation(w3dFile.CompressedAnimations[i]);
             }
         }
 
@@ -185,6 +196,11 @@ namespace OpenSage.Graphics
         {
             foreach (var mesh in Meshes)
             {
+                if (!AnimatedBoneVisibilities[mesh.ParentBone.Index])
+                {
+                    continue;
+                }
+
                 var meshWorld = mesh.Skinned
                     ? world
                     : _absoluteBoneMatrices[mesh.ParentBone.Index] * world;

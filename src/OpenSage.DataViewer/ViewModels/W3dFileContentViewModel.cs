@@ -112,6 +112,10 @@ namespace OpenSage.DataViewer.ViewModels
                     {
                         _externalAnimations.Add(new Animation(w3dAnimation));
                     }
+                    foreach (var w3dAnimation in animationFile.CompressedAnimations)
+                    {
+                        _externalAnimations.Add(new Animation(w3dAnimation));
+                    }
                 }
             }
 

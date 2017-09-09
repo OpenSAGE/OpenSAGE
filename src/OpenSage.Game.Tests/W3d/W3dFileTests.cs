@@ -25,7 +25,9 @@ namespace OpenSage.Data.Tests.W3d
                     Path.GetFileName(entry.FilePath) == "UISabotr_Left.w3d" ||
                     Path.GetFileName(entry.FilePath) == "UISabotr_Right.w3d" ||
                     Path.GetFileName(entry.FilePath) == "UISabotr_Up.w3d")
-                    return; // Animation file, seems to be corrupt.
+                {
+                    return; // Animation files, seem to be corrupt.
+                }
 
                 var w3dFile = W3dFile.FromFileSystemEntry(entry);
 

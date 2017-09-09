@@ -83,7 +83,7 @@ namespace OpenSage.Graphics
                     }
 
                     // Use this keyframe.
-                    keyframe.Apply(ref _boneTransforms[clip.Bone]);
+                    keyframe.Apply(ref _boneTransforms[clip.Bone], ref _model.AnimatedBoneVisibilities[clip.Bone]);
 
                     _currentKeyframes[i] += 1;
                 }

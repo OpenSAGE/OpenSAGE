@@ -114,10 +114,8 @@ namespace OpenSage.Data.Utilities.Extensions
             return result;
         }
 
-        public static bool[,] ReadSingleBitBooleanArray2D(this BinaryReader reader, uint width, uint height, bool oneIsTrue = false)
+        public static bool[,] ReadSingleBitBooleanArray2D(this BinaryReader reader, uint width, uint height)
         {
-            var trueValue = oneIsTrue ? 1 : 0;
-
             var result = new bool[width, height];
 
             for (var y = 0; y < height; y++)
@@ -129,17 +127,15 @@ namespace OpenSage.Data.Utilities.Extensions
                     {
                         temp = reader.ReadByte();
                     }
-                    result[x, y] = (temp & (1 << (x % 8))) == trueValue;
+                    result[x, y] = (temp & (1 << (x % 8))) == 0;
                 }
             }
 
             return result;
         }
 
-        public static bool[] ReadSingleBitBooleanArray(this BinaryReader reader, uint count, bool oneIsTrue = true)
+        public static bool[] ReadSingleBitBooleanArray(this BinaryReader reader, uint count)
         {
-            var trueValue = oneIsTrue ? 1 : 0;
-
             var result = new bool[count];
 
             var temp = (byte) 0;
@@ -149,7 +145,7 @@ namespace OpenSage.Data.Utilities.Extensions
                 {
                     temp = reader.ReadByte();
                 }
-                result[i] = (temp & (1 << (i % 8))) == trueValue;
+                result[i] = (temp & (1 << (i % 8))) != 0;
             }
 
             return result;

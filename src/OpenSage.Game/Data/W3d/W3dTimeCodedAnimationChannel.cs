@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
@@ -33,6 +32,8 @@ namespace OpenSage.Data.W3d
                 ChannelType = (W3dAnimationChannelType) reader.ReadByte()
             };
 
+            W3dAnimationChannel.ValidateChannelDataSize(result.ChannelType, result.VectorLength);
+
             var data = new W3dTimeCodedDatum[result.NumTimeCodes];
 
             for (var i = 0; i < result.NumTimeCodes; i++)
@@ -47,11 +48,7 @@ namespace OpenSage.Data.W3d
                     throw new System.NotImplementedException();
                 }
 
-                datum.Values = new float[result.VectorLength];
-                for (var j = 0; j < result.VectorLength; j++)
-                {
-                    datum.Values[j] = reader.ReadSingle();
-                }
+                datum.Value = W3dAnimationChannelDatum.Parse(reader, result.ChannelType);
 
                 data[i] = datum;
             }
@@ -65,6 +62,6 @@ namespace OpenSage.Data.W3d
     public sealed class W3dTimeCodedDatum
     {
         public uint TimeCode;
-        public float[] Values;
+        public W3dAnimationChannelDatum Value;
     }
 }
