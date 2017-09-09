@@ -20,10 +20,4 @@
         AdaptiveDeltaTranslationZ,
         AdaptiveDeltaQuaternion
     }
-
-    public enum W3dBitChannelType : ushort
-    {
-        Visibility,
-        TimeCodedVisibility
-    }
 }

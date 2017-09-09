@@ -57,7 +57,7 @@ namespace OpenSage.Data.Tests.W3d
                         Assert.Null(materialPass.Dig);
                         Assert.Null(materialPass.Scg);
 
-                        Assert.True(materialPass.TextureStages.Length <= 2);
+                        Assert.True(materialPass.TextureStages.Count <= 2);
 
                         foreach (var textureStage in materialPass.TextureStages)
                         {

@@ -3,7 +3,7 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dMaterial
+    public sealed class W3dMaterial : W3dChunk
     {
         public string Name { get; private set; }
 
@@ -14,29 +14,20 @@ namespace OpenSage.Data.W3d
 
         public static W3dMaterial Parse(BinaryReader reader, uint chunkSize)
         {
-            var result = new W3dMaterial();
-
-            uint loadedSize = 0;
-
-            do
+            return ParseChunk<W3dMaterial>(reader, chunkSize, (result, header) =>
             {
-                loadedSize += W3dChunkHeader.SizeInBytes;
-                var currentChunk = W3dChunkHeader.Parse(reader);
-
-                loadedSize += currentChunk.ChunkSize;
-
-                switch (currentChunk.ChunkType)
+                switch (header.ChunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL_NAME:
-                        result.Name = reader.ReadFixedLengthString((int) currentChunk.ChunkSize);
+                        result.Name = reader.ReadFixedLengthString((int) header.ChunkSize);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_VERTEX_MAPPER_ARGS0:
-                        result.MapperArgs0 = reader.ReadFixedLengthString((int) currentChunk.ChunkSize);
+                        result.MapperArgs0 = reader.ReadFixedLengthString((int) header.ChunkSize);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_VERTEX_MAPPER_ARGS1:
-                        result.MapperArgs1 = reader.ReadFixedLengthString((int) currentChunk.ChunkSize);
+                        result.MapperArgs1 = reader.ReadFixedLengthString((int) header.ChunkSize);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL_INFO:
@@ -44,11 +35,9 @@ namespace OpenSage.Data.W3d
                         break;
 
                     default:
-                        throw new InvalidDataException($"Unknown chunk type: {currentChunk.ChunkType}");
+                        throw CreateUnknownChunkException(header);
                 }
-            } while (loadedSize < chunkSize);
-
-            return result;
+            });
         }
     }
 }

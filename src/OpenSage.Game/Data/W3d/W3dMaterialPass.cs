@@ -3,7 +3,7 @@ using System.IO;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dMaterialPass
+    public sealed class W3dMaterialPass : W3dChunk
     {
         public uint[] VertexMaterialIds { get; private set; }
 
@@ -24,27 +24,18 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public W3dRgba[] Scg { get; private set; }
 
-        public W3dTextureStage[] TextureStages { get; private set; }
+        public IReadOnlyList<W3dTextureStage> TextureStages { get; private set; }
 
         public static W3dMaterialPass Parse(BinaryReader reader, uint chunkSize)
         {
-            var result = new W3dMaterialPass();
-
-            uint loadedSize = 0;
-
             var textureStages = new List<W3dTextureStage>();
 
-            do
+            var r = ParseChunk<W3dMaterialPass>(reader, chunkSize, (result, header) =>
             {
-                loadedSize += W3dChunkHeader.SizeInBytes;
-                var currentChunk = W3dChunkHeader.Parse(reader);
-
-                loadedSize += currentChunk.ChunkSize;
-
-                switch (currentChunk.ChunkType)
+                switch (header.ChunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL_IDS:
-                        result.VertexMaterialIds = new uint[currentChunk.ChunkSize / sizeof(uint)];
+                        result.VertexMaterialIds = new uint[header.ChunkSize / sizeof(uint)];
                         for (var count = 0; count < result.VertexMaterialIds.Length; count++)
                         {
                             result.VertexMaterialIds[count] = reader.ReadUInt32();
@@ -52,7 +43,7 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_SHADER_IDS:
-                        result.ShaderIds = new uint[currentChunk.ChunkSize / sizeof(uint)];
+                        result.ShaderIds = new uint[header.ChunkSize / sizeof(uint)];
                         for (var count = 0; count < result.ShaderIds.Length; count++)
                         {
                             result.ShaderIds[count] = reader.ReadUInt32();
@@ -60,7 +51,7 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_DCG:
-                        result.Dcg = new W3dRgba[currentChunk.ChunkSize / W3dRgba.SizeInBytes];
+                        result.Dcg = new W3dRgba[header.ChunkSize / W3dRgba.SizeInBytes];
                         for (var count = 0; count < result.Dcg.Length; count++)
                         {
                             result.Dcg[count] = W3dRgba.Parse(reader);
@@ -68,7 +59,7 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_DIG:
-                        result.Dig = new W3dRgba[currentChunk.ChunkSize / W3dRgba.SizeInBytes];
+                        result.Dig = new W3dRgba[header.ChunkSize / W3dRgba.SizeInBytes];
                         for (var count = 0; count < result.Dig.Length; count++)
                         {
                             result.Dig[count] = W3dRgba.Parse(reader);
@@ -76,7 +67,7 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_SCG:
-                        result.Scg = new W3dRgba[currentChunk.ChunkSize / W3dRgba.SizeInBytes];
+                        result.Scg = new W3dRgba[header.ChunkSize / W3dRgba.SizeInBytes];
                         for (var count = 0; count < result.Scg.Length; count++)
                         {
                             result.Scg[count] = W3dRgba.Parse(reader);
@@ -84,17 +75,17 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_TEXTURE_STAGE:
-                        textureStages.Add(W3dTextureStage.Parse(reader, currentChunk.ChunkSize));
+                        textureStages.Add(W3dTextureStage.Parse(reader, header.ChunkSize));
                         break;
 
                     default:
-                        throw new InvalidDataException($"Unknown chunk type: {currentChunk.ChunkType}");
+                        throw CreateUnknownChunkException(header);
                 }
-            } while (loadedSize < chunkSize);
+            });
 
-            result.TextureStages = textureStages.ToArray();
+            r.TextureStages = textureStages;
 
-            return result;
+            return r;
         }
     }
 }

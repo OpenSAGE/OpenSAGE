@@ -28,7 +28,7 @@ namespace OpenSage.Graphics
             ModelRenderer modelRenderer)
         {
             // TODO: Support multiple textures stages.
-            var textureStage = w3dMaterialPass.TextureStages.Length > 0
+            var textureStage = w3dMaterialPass.TextureStages.Count > 0
                 ? w3dMaterialPass.TextureStages[0]
                 : null;
 

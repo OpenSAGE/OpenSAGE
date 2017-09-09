@@ -31,6 +31,8 @@ namespace OpenSage.Data.W3d
 
         public W3dMaterialPass[] MaterialPasses { get; private set; }
 
+        public W3dMeshAabTree AabTree { get; private set; }
+
         public static W3dMesh Parse(BinaryReader reader, uint chunkSize)
         {
             var currentMaterialPass = 0;
@@ -101,7 +103,7 @@ namespace OpenSage.Data.W3d
                             }
                             else
                             {
-                                reader.ReadBytes((int) innerChunk.ChunkSize);
+                                throw CreateUnknownChunkException(innerChunk);
                             }
                         }
                         break;
@@ -123,7 +125,7 @@ namespace OpenSage.Data.W3d
                             }
                             else
                             {
-                                reader.ReadBytes((int) innerChunk.ChunkSize);
+                                throw CreateUnknownChunkException(innerChunk);
                             }
                         }
                         break;
@@ -133,9 +135,16 @@ namespace OpenSage.Data.W3d
                         currentMaterialPass++;
                         break;
 
-                    case W3dChunkType.W3D_CHUNK_PS2_SHADERS:
                     case W3dChunkType.W3D_CHUNK_AABTREE:
-                        // Ignored for now.
+                        if (result.AabTree != null)
+                        {
+                            throw new InvalidDataException();
+                        }
+                        result.AabTree = W3dMeshAabTree.Parse(reader, header.ChunkSize);
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_PS2_SHADERS:
+                        // Don't need this.
                         reader.ReadBytes((int) header.ChunkSize);
                         break;
 

@@ -6,8 +6,6 @@ namespace OpenSage.Data.W3d
     {
         public W3dHierarchy Header { get; private set; }
         public W3dPivot[] Pivots { get; private set; }
-        //public float[] RotateMatrix { get; private set; }
-        //public uint[] Visible { get; private set; }
 
         public static W3dHierarchyDef Parse(BinaryReader reader, uint chunkSize)
         {
@@ -27,9 +25,13 @@ namespace OpenSage.Data.W3d
                         }
                         break;
 
-                    default:
+                    case W3dChunkType.W3D_CHUNK_PIVOT_FIXUPS:
+                        // We don't need this chunk; it's only relevant to the exporter, apparently.
                         reader.ReadBytes((int) header.ChunkSize);
                         break;
+
+                    default:
+                        throw CreateUnknownChunkException(header);
                 }
             });
         }

@@ -53,33 +53,28 @@ namespace OpenSage.Data.W3d
 
         public float SphRadius { get; private set; }			// Bounding sphere radius
 
-        private W3dMeshHeader3()
-        {
-        }
-
         public static W3dMeshHeader3 Parse(BinaryReader reader)
         {
-            var result = new W3dMeshHeader3();
-
-            result.Version = reader.ReadUInt32();
-            result.Attributes = (W3dMeshFlags) reader.ReadUInt32();
-            result.MeshName = reader.ReadFixedLengthString(W3dConstants.NameLength);
-            result.ContainerName = reader.ReadFixedLengthString(W3dConstants.NameLength);
-            result.NumTris = reader.ReadUInt32();
-            result.NumVertices = reader.ReadUInt32();
-            result.NumMaterials = reader.ReadUInt32();
-            result.NumDamageStages = reader.ReadUInt32();
-            result.SortLevel = reader.ReadUInt32();
-            result.PrelitVersion = reader.ReadUInt32();
-            result.FutureCounts = reader.ReadUInt32();
-            result.VertexChannels = (W3dVertexChannels) reader.ReadUInt32();
-            result.FaceChannels = (W3dFaceChannels) reader.ReadUInt32();
-            result.Min = W3dVector.Parse(reader);
-            result.Max = W3dVector.Parse(reader);
-            result.SphCenter = W3dVector.Parse(reader);
-            result.SphRadius = reader.ReadSingle();
-
-            return result;
+            return new W3dMeshHeader3
+            {
+                Version = reader.ReadUInt32(),
+                Attributes = (W3dMeshFlags) reader.ReadUInt32(),
+                MeshName = reader.ReadFixedLengthString(W3dConstants.NameLength),
+                ContainerName = reader.ReadFixedLengthString(W3dConstants.NameLength),
+                NumTris = reader.ReadUInt32(),
+                NumVertices = reader.ReadUInt32(),
+                NumMaterials = reader.ReadUInt32(),
+                NumDamageStages = reader.ReadUInt32(),
+                SortLevel = reader.ReadUInt32(),
+                PrelitVersion = reader.ReadUInt32(),
+                FutureCounts = reader.ReadUInt32(),
+                VertexChannels = (W3dVertexChannels) reader.ReadUInt32(),
+                FaceChannels = (W3dFaceChannels) reader.ReadUInt32(),
+                Min = W3dVector.Parse(reader),
+                Max = W3dVector.Parse(reader),
+                SphCenter = W3dVector.Parse(reader),
+                SphRadius = reader.ReadSingle()
+            };
         }
     }
 }
