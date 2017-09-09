@@ -47,9 +47,19 @@ namespace OpenSage.Data.Tests.W3d
 
                     Assert.True(mesh.Materials.Length <= 16);
 
-                    Assert.True(mesh.MaterialPasses.Length <= 2);
+                    foreach (var material in mesh.Materials)
+                    {
+                        //Assert.True(string.IsNullOrEmpty(material.MapperArgs0)
+                        //    || material.MapperArgs0.StartsWith("UPerSec=")
+                        //    || material.MapperArgs0.StartsWith("VPerSec="));
 
-                    Assert.True(mesh.Textures.Length <= 29);
+                        if (!string.IsNullOrEmpty(material.MapperArgs0))
+                        {
+                            Assert.Equal(W3dVertexMaterialFlags.Stage0MappingLinearOffset, material.VertexMaterialInfo.Attributes);
+                        }
+                    }
+
+                    Assert.True(mesh.MaterialPasses.Length <= 2);
 
                     foreach (var materialPass in mesh.MaterialPasses)
                     {
@@ -75,6 +85,16 @@ namespace OpenSage.Data.Tests.W3d
 
                         var numVertexMaterialIds = materialPass.VertexMaterialIds.Length;
                         Assert.True(numVertexMaterialIds == 1 || numVertexMaterialIds == mesh.Header.NumVertices);
+                    }
+
+                    Assert.True(mesh.Textures.Length <= 29);
+
+                    foreach (var texture in mesh.Textures)
+                    {
+                        if (texture.TextureInfo != null)
+                        {
+                            Assert.Equal(1u, texture.TextureInfo.FrameCount);
+                        }
                     }
                 }
             });

@@ -134,6 +134,37 @@ namespace OpenSage.Graphics
             for (var i = 0; i < w3dMesh.Materials.Length; i++)
             {
                 var w3dVertexMaterial = w3dMesh.Materials[i].VertexMaterialInfo;
+
+                var textureMapping = TextureMappingType.Uv;
+                if (w3dVertexMaterial.Attributes.HasFlag(W3dVertexMaterialFlags.Stage0MappingEnvironment))
+                    textureMapping = TextureMappingType.Environment;
+                else if (w3dVertexMaterial.Attributes.HasFlag(W3dVertexMaterialFlags.Stage0MappingLinearOffset))
+                    textureMapping = TextureMappingType.LinearOffset;
+
+                var mapperUVPerSec = Vector2.Zero;
+                var mapperArgs0 = w3dMesh.Materials[i].MapperArgs0;
+                if (!string.IsNullOrEmpty(mapperArgs0))
+                {
+                    var splitMapperArgs0 = mapperArgs0.Split(new[] { "\r\n" }, System.StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var mapperArg in splitMapperArgs0)
+                    {
+                        var splitMapperArg = mapperArg.Split('=');
+                        switch (splitMapperArg[0])
+                        {
+                            case "UPerSec":
+                                mapperUVPerSec.X = float.Parse(splitMapperArg[1]);
+                                break;
+
+                            case "VPerSec":
+                                mapperUVPerSec.Y = float.Parse(splitMapperArg[1]);
+                                break;
+
+                            default:
+                                throw new System.NotImplementedException();
+                        }
+                    }
+                }
+
                 vertexMaterials[i] = new VertexMaterial
                 {
                     Ambient = w3dVertexMaterial.Ambient.ToVector3(),
@@ -142,9 +173,8 @@ namespace OpenSage.Graphics
                     Emissive = w3dVertexMaterial.Emissive.ToVector3(),
                     Shininess = w3dVertexMaterial.Shininess,
                     Opacity = w3dVertexMaterial.Opacity,
-                    TextureMapping = w3dVertexMaterial.Attributes.HasFlag(W3dVertexMaterialFlags.Stage0MappingEnvironment)
-                        ? TextureMappingType.Environment
-                        : TextureMappingType.Uv
+                    TextureMapping = textureMapping,
+                    TextureMapperUVPerSec = mapperUVPerSec
                 };
             }
 
@@ -299,7 +329,8 @@ namespace OpenSage.Graphics
                         _perDrawConstants.AlphaTest = meshPart.AlphaTest;
                         _perDrawConstants.Texturing = meshPart.Texturing;
 
-                        _perDrawConstants.MaterialPassIndex = materialPassIndex;
+                        // TODO: Use time from main game engine, don't query for it every time like this.
+                        _perDrawConstants.TimeSecondsFraction = (float) System.DateTime.Now.TimeOfDay.TotalSeconds;
 
                         _perDrawConstantBuffer.SetData(ref _perDrawConstants);
                         commandEncoder.SetInlineConstantBuffer(0, _perDrawConstantBuffer);
@@ -330,7 +361,7 @@ namespace OpenSage.Graphics
             }
         }
 
-        [StructLayout(LayoutKind.Explicit, Size = 60)]
+        [StructLayout(LayoutKind.Explicit, Size = 68)]
         private struct VertexMaterial
         {
             [FieldOffset(0)]
@@ -353,12 +384,16 @@ namespace OpenSage.Graphics
 
             [FieldOffset(56)]
             public TextureMappingType TextureMapping;
+
+            [FieldOffset(60)]
+            public Vector2 TextureMapperUVPerSec;
         }
 
         public enum TextureMappingType : uint
         {
-            Uv,
-            Environment
+            Uv           = 0,
+            Environment  = 1,
+            LinearOffset = 2
         }
 
         [StructLayout(LayoutKind.Explicit, Size = 20)]
@@ -377,9 +412,8 @@ namespace OpenSage.Graphics
             [FieldOffset(12)]
             public bool Texturing;
 
-            // TODO: Remove this.
             [FieldOffset(16)]
-            public uint MaterialPassIndex;
+            public float TimeSecondsFraction;
         }
     }
 }

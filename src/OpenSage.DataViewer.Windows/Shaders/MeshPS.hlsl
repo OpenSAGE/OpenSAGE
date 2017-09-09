@@ -16,14 +16,14 @@ struct PerDrawConstants
     uint NumTextureStages;
     bool AlphaTest;
     bool Texturing;
-
-    uint MaterialPassIndex;
+    float TimeInSeconds;
 };
 
 ConstantBuffer<PerDrawConstants> PerDrawCB : register(b1);
 
-#define TEXTURE_MAPPING_UV          0
-#define TEXTURE_MAPPING_ENVIRONMENT 1
+#define TEXTURE_MAPPING_UV            0
+#define TEXTURE_MAPPING_ENVIRONMENT   1
+#define TEXTURE_MAPPING_LINEAR_OFFSET 2
 
 struct VertexMaterial
 {
@@ -34,6 +34,7 @@ struct VertexMaterial
     float3 Emissive;
     float Opacity;
     uint TextureMapping;
+    float2 TextureMapperUVPerSec;
 };
 
 StructuredBuffer<VertexMaterial> Materials : register(t0);
@@ -70,6 +71,11 @@ float4 main(PSInput input) : SV_TARGET
 
         case TEXTURE_MAPPING_ENVIRONMENT:
             uv = (reflect(v, input.Normal).xy / 2.0f) + float2(0.5f, 0.5f);
+            break;
+
+        case TEXTURE_MAPPING_LINEAR_OFFSET:
+            float2 offset = material.TextureMapperUVPerSec * PerDrawCB.TimeInSeconds;
+            uv = float2(input.UV.x, 1 - input.UV.y) + offset;
             break;
         }
 
