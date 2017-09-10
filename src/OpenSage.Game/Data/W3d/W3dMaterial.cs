@@ -9,8 +9,8 @@ namespace OpenSage.Data.W3d
 
         public W3dVertexMaterial VertexMaterialInfo { get; private set; }
 
-        public string MapperArgs0 { get; private set; }
-        public string MapperArgs1 { get; private set; }
+        public W3dVertexMapperArgs MapperArgs0 { get; private set; }
+        public W3dVertexMapperArgs MapperArgs1 { get; private set; }
 
         public static W3dMaterial Parse(BinaryReader reader, uint chunkSize)
         {
@@ -23,11 +23,11 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_VERTEX_MAPPER_ARGS0:
-                        result.MapperArgs0 = reader.ReadFixedLengthString((int) header.ChunkSize);
+                        result.MapperArgs0 = W3dVertexMapperArgs.Parse(reader.ReadFixedLengthString((int) header.ChunkSize));
                         break;
 
                     case W3dChunkType.W3D_CHUNK_VERTEX_MAPPER_ARGS1:
-                        result.MapperArgs1 = reader.ReadFixedLengthString((int) header.ChunkSize);
+                        result.MapperArgs1 = W3dVertexMapperArgs.Parse(reader.ReadFixedLengthString((int) header.ChunkSize));
                         break;
 
                     case W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL_INFO:

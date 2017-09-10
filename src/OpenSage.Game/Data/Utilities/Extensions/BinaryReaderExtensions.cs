@@ -156,7 +156,7 @@ namespace OpenSage.Data.Utilities.Extensions
         {
             var value = reader.ReadUInt32();
 
-            return CastValueAsEnum<uint, TEnum>(value);
+            return EnumUtility.CastValueAsEnum<uint, TEnum>(value);
         }
 
         public static TEnum ReadUInt16AsEnum<TEnum>(this BinaryReader reader)
@@ -164,7 +164,7 @@ namespace OpenSage.Data.Utilities.Extensions
         {
             var value = reader.ReadUInt16();
 
-            return CastValueAsEnum<ushort, TEnum>(value);
+            return EnumUtility.CastValueAsEnum<ushort, TEnum>(value);
         }
 
         public static TEnum ReadInt32AsEnum<TEnum>(this BinaryReader reader)
@@ -172,7 +172,7 @@ namespace OpenSage.Data.Utilities.Extensions
         {
             var value = reader.ReadInt32();
 
-            return CastValueAsEnum<int, TEnum>(value);
+            return EnumUtility.CastValueAsEnum<int, TEnum>(value);
         }
 
         public static TEnum ReadByteAsEnum<TEnum>(this BinaryReader reader)
@@ -180,18 +180,7 @@ namespace OpenSage.Data.Utilities.Extensions
         {
             var value = reader.ReadByte();
 
-            return CastValueAsEnum<byte, TEnum>(value);
-        }
-
-        private static TEnum CastValueAsEnum<TValue, TEnum>(TValue value)
-           where TEnum : struct
-        {
-            if (!Enum.IsDefined(typeof(TEnum), value))
-            {
-                throw new InvalidDataException($"Unexpected value for {typeof(TEnum).Name}: {value}");
-            }
-
-            return (TEnum) (object) value;
+            return EnumUtility.CastValueAsEnum<byte, TEnum>(value);
         }
     }
 }

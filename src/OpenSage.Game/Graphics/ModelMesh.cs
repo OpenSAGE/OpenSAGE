@@ -133,36 +133,20 @@ namespace OpenSage.Graphics
 
             for (var i = 0; i < w3dMesh.Materials.Length; i++)
             {
-                var w3dVertexMaterial = w3dMesh.Materials[i].VertexMaterialInfo;
+                var w3dMaterial = w3dMesh.Materials[i];
+                var w3dVertexMaterial = w3dMaterial.VertexMaterialInfo;
 
                 var textureMapping = TextureMappingType.Uv;
-                if (w3dVertexMaterial.Attributes.HasFlag(W3dVertexMaterialFlags.Stage0MappingEnvironment))
+                if (w3dVertexMaterial.Stage0Mapping == W3dVertexMappingType.Environment)
                     textureMapping = TextureMappingType.Environment;
-                else if (w3dVertexMaterial.Attributes.HasFlag(W3dVertexMaterialFlags.Stage0MappingLinearOffset))
+                else if (w3dVertexMaterial.Stage0Mapping == W3dVertexMappingType.LinearOffset)
                     textureMapping = TextureMappingType.LinearOffset;
 
                 var mapperUVPerSec = Vector2.Zero;
-                var mapperArgs0 = w3dMesh.Materials[i].MapperArgs0;
-                if (!string.IsNullOrEmpty(mapperArgs0))
+                if (textureMapping == TextureMappingType.LinearOffset)
                 {
-                    var splitMapperArgs0 = mapperArgs0.Split(new[] { "\r\n" }, System.StringSplitOptions.RemoveEmptyEntries);
-                    foreach (var mapperArg in splitMapperArgs0)
-                    {
-                        var splitMapperArg = mapperArg.Split('=');
-                        switch (splitMapperArg[0])
-                        {
-                            case "UPerSec":
-                                mapperUVPerSec.X = float.Parse(splitMapperArg[1]);
-                                break;
-
-                            case "VPerSec":
-                                mapperUVPerSec.Y = float.Parse(splitMapperArg[1]);
-                                break;
-
-                            default:
-                                throw new System.NotImplementedException();
-                        }
-                    }
+                    mapperUVPerSec.X = w3dMaterial.MapperArgs0.UPerSec;
+                    mapperUVPerSec.Y = w3dMaterial.MapperArgs0.VPerSec;
                 }
 
                 vertexMaterials[i] = new VertexMaterial

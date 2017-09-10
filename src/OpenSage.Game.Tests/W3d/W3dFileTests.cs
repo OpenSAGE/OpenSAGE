@@ -26,7 +26,7 @@ namespace OpenSage.Data.Tests.W3d
                     Path.GetFileName(entry.FilePath) == "UISabotr_Right.w3d" ||
                     Path.GetFileName(entry.FilePath) == "UISabotr_Up.w3d")
                 {
-                    return; // Animation files, seem to be corrupt.
+                    return; // Animation files, unused? and seem to be corrupt.
                 }
 
                 var w3dFile = W3dFile.FromFileSystemEntry(entry);
@@ -49,14 +49,17 @@ namespace OpenSage.Data.Tests.W3d
 
                     foreach (var material in mesh.Materials)
                     {
-                        //Assert.True(string.IsNullOrEmpty(material.MapperArgs0)
-                        //    || material.MapperArgs0.StartsWith("UPerSec=")
-                        //    || material.MapperArgs0.StartsWith("VPerSec="));
+                        Assert.Equal(W3dVertexMaterialFlags.None, material.VertexMaterialInfo.Attributes);
 
-                        if (!string.IsNullOrEmpty(material.MapperArgs0))
-                        {
-                            Assert.Equal(W3dVertexMaterialFlags.Stage0MappingLinearOffset, material.VertexMaterialInfo.Attributes);
-                        }
+                        var stage0Mapping = material.VertexMaterialInfo.Stage0Mapping;
+                        Assert.True(stage0Mapping == W3dVertexMappingType.Uv
+                            || stage0Mapping == W3dVertexMappingType.Environment
+                            || stage0Mapping == W3dVertexMappingType.LinearOffset
+                            || stage0Mapping == W3dVertexMappingType.Grid);
+
+                        var stage1Mapping = material.VertexMaterialInfo.Stage1Mapping;
+                        Assert.True(stage1Mapping == W3dVertexMappingType.Uv
+                            || stage1Mapping == W3dVertexMappingType.LinearOffset);
                     }
 
                     Assert.True(mesh.MaterialPasses.Length <= 2);
@@ -72,7 +75,6 @@ namespace OpenSage.Data.Tests.W3d
                         foreach (var textureStage in materialPass.TextureStages)
                         {
                             Assert.True(textureStage.TexCoords == null || textureStage.TexCoords.Length == mesh.Header.NumVertices);
-                            //Assert.True(textureStage.TexCoords.Length == mesh.Header.NumVertices);
 
                             Assert.Null(textureStage.PerFaceTexCoordIds);
 

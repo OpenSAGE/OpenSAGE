@@ -1,10 +1,14 @@
 ﻿using System.IO;
+using OpenSage.Data.Utilities;
 
 namespace OpenSage.Data.W3d
 {
     public sealed class W3dVertexMaterial
     {
         public W3dVertexMaterialFlags Attributes { get; private set; }
+
+        public W3dVertexMappingType Stage0Mapping { get; private set; }
+        public W3dVertexMappingType Stage1Mapping { get; private set; }
 
         public W3dRgb Ambient { get; private set; }
         public W3dRgb Diffuse { get; private set; }
@@ -28,9 +32,14 @@ namespace OpenSage.Data.W3d
 
         public static W3dVertexMaterial Parse(BinaryReader reader)
         {
-            return new W3dVertexMaterial
+            var rawAttributes = reader.ReadUInt32();
+
+            var result = new W3dVertexMaterial
             {
-                Attributes = (W3dVertexMaterialFlags) reader.ReadUInt32(),
+                Attributes = (W3dVertexMaterialFlags) (rawAttributes & 0xF),
+
+                Stage0Mapping = ConvertStageMapping(rawAttributes, 0x00FF0000, 16),
+                Stage1Mapping = ConvertStageMapping(rawAttributes, 0x0000FF00, 8),
 
                 Ambient = W3dRgb.Parse(reader),
                 Diffuse = W3dRgb.Parse(reader),
@@ -41,6 +50,13 @@ namespace OpenSage.Data.W3d
                 Opacity = reader.ReadSingle(),
                 Translucency = reader.ReadSingle()
             };
+
+            return result;
+        }
+
+        private static W3dVertexMappingType ConvertStageMapping(uint attributes, uint mask, int shift)
+        {
+            return EnumUtility.CastValueAsEnum<uint, W3dVertexMappingType>((attributes & mask) >> shift);
         }
     }
 }
