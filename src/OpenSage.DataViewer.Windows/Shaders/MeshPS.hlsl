@@ -25,6 +25,13 @@ ConstantBuffer<PerDrawConstants> PerDrawCB : register(b1);
 #define TEXTURE_MAPPING_ENVIRONMENT   1
 #define TEXTURE_MAPPING_LINEAR_OFFSET 2
 
+struct TextureMapping
+{
+    uint MappingType;
+    float2 UVPerSec;
+    float2 UVScale;
+};
+
 struct VertexMaterial
 {
     float3 Ambient;
@@ -33,16 +40,50 @@ struct VertexMaterial
     float Shininess;
     float3 Emissive;
     float Opacity;
-    uint TextureMapping;
-    float2 TextureMapperUVPerSec;
+
+    TextureMapping TextureMappingStage0;
+    TextureMapping TextureMappingStage1;
 };
 
 StructuredBuffer<VertexMaterial> Materials : register(t0);
 
-Buffer<uint> TextureIndices : register(t1);
+Buffer<uint2> TextureIndices : register(t1);
 Texture2D<float4> Textures[] : register(t2);
 
 SamplerState Sampler : register(s0);
+
+float4 SampleTexture(
+    uint primitiveID, float3 worldNormal, float2 uv,
+    TextureMapping textureMapping,
+    uint textureStage,
+    float3 viewVector)
+{
+    uint2 textureIndices = TextureIndices[PerDrawCB.PrimitiveOffset + primitiveID];
+    uint textureIndex = textureIndices[textureStage];
+
+    // TODO: Since all pixels in a primitive share the same textureIndex,
+    // can we remove the call to NonUniformResourceIndex?
+    Texture2D<float4> diffuseTexture = Textures[NonUniformResourceIndex(textureIndex)];
+
+    switch (textureMapping.MappingType)
+    {
+    case TEXTURE_MAPPING_UV:
+        uv = float2(uv.x, 1 - uv.y);
+        break;
+
+    case TEXTURE_MAPPING_ENVIRONMENT:
+        uv = (reflect(viewVector, worldNormal).xy / 2.0f) + float2(0.5f, 0.5f);
+        break;
+
+    case TEXTURE_MAPPING_LINEAR_OFFSET:
+        float2 offset = textureMapping.UVPerSec * PerDrawCB.TimeInSeconds;
+        uv = float2(uv.x, 1 - uv.y) + offset;
+        uv *= textureMapping.UVScale;
+        break;
+    }
+
+    return diffuseTexture.Sample(Sampler, uv);
+}
 
 float4 main(PSInput input) : SV_TARGET
 {
@@ -54,32 +95,24 @@ float4 main(PSInput input) : SV_TARGET
 
     float3 v = normalize(LightingCB.CameraPosition - input.WorldPosition);
     float3 h = normalize(v - lightDir);
-    float specular = saturate(dot(input.Normal, h)) * material.Shininess * material.Specular;
+    float3 specular = saturate(dot(input.Normal, h)) * material.Shininess * material.Specular;
 
     float4 diffuseTextureColor;
-    if (PerDrawCB.Texturing) // TODO: Add optional second texture stage, depending on PerDrawCB.NumTextureStages
+    if (PerDrawCB.Texturing)
     {
-        uint textureIndex = TextureIndices[PerDrawCB.PrimitiveOffset + input.PrimitiveID];
-        Texture2D<float4> diffuseTexture = Textures[NonUniformResourceIndex(textureIndex)];
+        diffuseTextureColor = SampleTexture(
+            0, input.Normal, input.UV0,
+            material.TextureMappingStage0,
+            0, v);
 
-        float2 uv;
-        switch (material.TextureMapping)
+        if (PerDrawCB.NumTextureStages > 1)
         {
-        case TEXTURE_MAPPING_UV:
-            uv = float2(input.UV.x, 1 - input.UV.y);
-            break;
-
-        case TEXTURE_MAPPING_ENVIRONMENT:
-            uv = (reflect(v, input.Normal).xy / 2.0f) + float2(0.5f, 0.5f);
-            break;
-
-        case TEXTURE_MAPPING_LINEAR_OFFSET:
-            float2 offset = material.TextureMapperUVPerSec * PerDrawCB.TimeInSeconds;
-            uv = float2(input.UV.x, 1 - input.UV.y) + offset;
-            break;
+            // TODO: Is this the right way to combine texture stages?
+            diffuseTextureColor += SampleTexture(
+                input.PrimitiveID, input.Normal, input.UV1,
+                material.TextureMappingStage1,
+                1, v);
         }
-
-        diffuseTextureColor = diffuseTexture.Sample(Sampler, uv);
 
         if (PerDrawCB.AlphaTest)
         {
@@ -97,7 +130,9 @@ float4 main(PSInput input) : SV_TARGET
 
     float3 ambient = LightingCB.AmbientLightColor * material.Ambient;
 
-    float3 color = (saturate(ambient + diffuse + material.Emissive) * diffuseTextureColor.rgb + specular) * LightingCB.Light0Color;
+    float3 totalObjectLighting = saturate(ambient + diffuse + material.Emissive);
+
+    float3 color = (totalObjectLighting * diffuseTextureColor.rgb + specular) * LightingCB.Light0Color;
 
     float alpha = material.Opacity * diffuseTextureColor.a;
 

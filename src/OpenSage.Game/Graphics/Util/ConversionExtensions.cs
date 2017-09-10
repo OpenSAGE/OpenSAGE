@@ -70,5 +70,41 @@ namespace OpenSage.Graphics.Util
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        internal static TextureMappingType ToTextureMappingType(this W3dVertexMappingType value)
+        {
+            switch (value)
+            {
+                case W3dVertexMappingType.Uv:
+                    return TextureMappingType.Uv;
+
+                case W3dVertexMappingType.Environment:
+                    return TextureMappingType.Environment;
+
+                case W3dVertexMappingType.LinearOffset:
+                    return TextureMappingType.LinearOffset;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        internal static TextureMapping CreateTextureMapping(W3dVertexMappingType mappingType, W3dVertexMapperArgs args)
+        {
+            return new TextureMapping
+            {
+                MappingType = mappingType.ToTextureMappingType(),
+                UVPerSec = new Vector2
+                {
+                    X = args.UPerSec,
+                    Y = args.VPerSec
+                },
+                UVScale = new Vector2
+                {
+                    X = args.UScale,
+                    Y = args.VScale,
+                }
+            };
+        }
     }
 }

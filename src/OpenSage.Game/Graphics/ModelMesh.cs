@@ -136,19 +136,6 @@ namespace OpenSage.Graphics
                 var w3dMaterial = w3dMesh.Materials[i];
                 var w3dVertexMaterial = w3dMaterial.VertexMaterialInfo;
 
-                var textureMapping = TextureMappingType.Uv;
-                if (w3dVertexMaterial.Stage0Mapping == W3dVertexMappingType.Environment)
-                    textureMapping = TextureMappingType.Environment;
-                else if (w3dVertexMaterial.Stage0Mapping == W3dVertexMappingType.LinearOffset)
-                    textureMapping = TextureMappingType.LinearOffset;
-
-                var mapperUVPerSec = Vector2.Zero;
-                if (textureMapping == TextureMappingType.LinearOffset)
-                {
-                    mapperUVPerSec.X = w3dMaterial.MapperArgs0.UPerSec;
-                    mapperUVPerSec.Y = w3dMaterial.MapperArgs0.VPerSec;
-                }
-
                 vertexMaterials[i] = new VertexMaterial
                 {
                     Ambient = w3dVertexMaterial.Ambient.ToVector3(),
@@ -157,8 +144,12 @@ namespace OpenSage.Graphics
                     Emissive = w3dVertexMaterial.Emissive.ToVector3(),
                     Shininess = w3dVertexMaterial.Shininess,
                     Opacity = w3dVertexMaterial.Opacity,
-                    TextureMapping = textureMapping,
-                    TextureMapperUVPerSec = mapperUVPerSec
+                    TextureMappingStage0 = ConversionExtensions.CreateTextureMapping(
+                        w3dVertexMaterial.Stage0Mapping,
+                        w3dMaterial.MapperArgs0),
+                    TextureMappingStage1 = ConversionExtensions.CreateTextureMapping(
+                        w3dVertexMaterial.Stage1Mapping,
+                        w3dMaterial.MapperArgs1)
                 };
             }
 
@@ -314,7 +305,7 @@ namespace OpenSage.Graphics
                         _perDrawConstants.Texturing = meshPart.Texturing;
 
                         // TODO: Use time from main game engine, don't query for it every time like this.
-                        _perDrawConstants.TimeSecondsFraction = (float) System.DateTime.Now.TimeOfDay.TotalSeconds;
+                        _perDrawConstants.TimeInSeconds = (float) System.DateTime.Now.TimeOfDay.TotalSeconds;
 
                         _perDrawConstantBuffer.SetData(ref _perDrawConstants);
                         commandEncoder.SetInlineConstantBuffer(0, _perDrawConstantBuffer);
@@ -345,7 +336,7 @@ namespace OpenSage.Graphics
             }
         }
 
-        [StructLayout(LayoutKind.Explicit, Size = 68)]
+        [StructLayout(LayoutKind.Explicit, Size = 96)]
         private struct VertexMaterial
         {
             [FieldOffset(0)]
@@ -367,17 +358,10 @@ namespace OpenSage.Graphics
             public float Opacity;
 
             [FieldOffset(56)]
-            public TextureMappingType TextureMapping;
+            public TextureMapping TextureMappingStage0;
 
-            [FieldOffset(60)]
-            public Vector2 TextureMapperUVPerSec;
-        }
-
-        public enum TextureMappingType : uint
-        {
-            Uv           = 0,
-            Environment  = 1,
-            LinearOffset = 2
+            [FieldOffset(76)]
+            public TextureMapping TextureMappingStage1;
         }
 
         [StructLayout(LayoutKind.Explicit, Size = 20)]
@@ -397,7 +381,27 @@ namespace OpenSage.Graphics
             public bool Texturing;
 
             [FieldOffset(16)]
-            public float TimeSecondsFraction;
+            public float TimeInSeconds;
         }
+    }
+
+    internal enum TextureMappingType : uint
+    {
+        Uv = 0,
+        Environment = 1,
+        LinearOffset = 2
+    }
+
+    [StructLayout(LayoutKind.Explicit, Size = 20)]
+    internal struct TextureMapping
+    {
+        [FieldOffset(0)]
+        public TextureMappingType MappingType;
+
+        [FieldOffset(4)]
+        public Vector2 UVPerSec;
+
+        [FieldOffset(12)]
+        public Vector2 UVScale;
     }
 }

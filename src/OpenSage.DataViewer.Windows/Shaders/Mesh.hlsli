@@ -2,8 +2,9 @@ struct PSInputBase
 {
     float3 WorldPosition : TEXCOORD0;
     float3 Normal        : TEXCOORD1;
-    float2 UV            : TEXCOORD2;
-    uint   MaterialIndex : TEXCOORD3;
+    float2 UV0           : TEXCOORD2;
+    float2 UV1           : TEXCOORD3;
+    uint   MaterialIndex : TEXCOORD4;
 };
 
 struct VSOutput : PSInputBase

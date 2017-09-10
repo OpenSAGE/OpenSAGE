@@ -60,6 +60,8 @@ namespace OpenSage.Data.Tests.W3d
                         var stage1Mapping = material.VertexMaterialInfo.Stage1Mapping;
                         Assert.True(stage1Mapping == W3dVertexMappingType.Uv
                             || stage1Mapping == W3dVertexMappingType.LinearOffset);
+
+                        Assert.Equal(0, material.VertexMaterialInfo.Translucency);
                     }
 
                     Assert.True(mesh.MaterialPasses.Length <= 2);

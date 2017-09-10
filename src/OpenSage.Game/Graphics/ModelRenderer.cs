@@ -66,7 +66,7 @@ namespace OpenSage.Graphics
                 Bindings = new[]
                 {
                     // TextureIndices
-                    new DescriptorSetLayoutBinding(DescriptorType.TypedBuffer, 1, 1),
+                    new DescriptorSetLayoutBinding(DescriptorType.TypedBuffer, 1, 1)
                 }
             });
 
@@ -137,8 +137,9 @@ namespace OpenSage.Graphics
             _vertexDescriptor.SetAttributeDescriptor(1, "NORMAL", 0, VertexFormat.Float3, 0, 12);
             _vertexDescriptor.SetAttributeDescriptor(2, "BLENDINDICES", 0, VertexFormat.UInt, 0, 24);
             _vertexDescriptor.SetAttributeDescriptor(3, "TEXCOORD", 0, VertexFormat.Float2, 1, 0);
+            _vertexDescriptor.SetAttributeDescriptor(4, "TEXCOORD", 1, VertexFormat.Float2, 1, 8);
             _vertexDescriptor.SetLayoutDescriptor(0, 28);
-            _vertexDescriptor.SetLayoutDescriptor(1, 8);
+            _vertexDescriptor.SetLayoutDescriptor(1, 16);
 
             _backBufferFormat = swapChain.BackBufferFormat;
 

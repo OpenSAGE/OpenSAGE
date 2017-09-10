@@ -9,8 +9,8 @@ namespace OpenSage.Data.W3d
 
         public W3dVertexMaterial VertexMaterialInfo { get; private set; }
 
-        public W3dVertexMapperArgs MapperArgs0 { get; private set; }
-        public W3dVertexMapperArgs MapperArgs1 { get; private set; }
+        public W3dVertexMapperArgs MapperArgs0 { get; private set; } = new W3dVertexMapperArgs();
+        public W3dVertexMapperArgs MapperArgs1 { get; private set; } = new W3dVertexMapperArgs();
 
         public static W3dMaterial Parse(BinaryReader reader, uint chunkSize)
         {

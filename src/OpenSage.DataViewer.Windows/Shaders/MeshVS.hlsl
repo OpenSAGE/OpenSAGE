@@ -5,7 +5,8 @@ struct VSInput
     float3 Position : POSITION;
     float3 Normal   : NORMAL;
     uint BoneIndex  : BLENDINDICES;
-    float2 UV       : TEXCOORD0;
+    float2 UV0      : TEXCOORD0;
+    float2 UV1      : TEXCOORD1;
 
     uint VertexID : SV_VertexID;
 };
@@ -46,7 +47,9 @@ VSOutput main(VSInput input)
     result.WorldPosition = mul(input.Position, (float3x3) MeshTransformCB.World);
 
     result.Normal = mul(input.Normal, (float3x3) MeshTransformCB.World);
-    result.UV = input.UV;
+
+    result.UV0 = input.UV0;
+    result.UV1 = input.UV1;
 
     // TODO: Make sure that material index is constant for all vertices in a triangle.
     result.MaterialIndex = MaterialIndices[input.VertexID];

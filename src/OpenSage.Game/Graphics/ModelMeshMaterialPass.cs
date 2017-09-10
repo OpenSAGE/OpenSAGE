@@ -27,25 +27,27 @@ namespace OpenSage.Graphics
             DescriptorSetLayout pixelMaterialPassDescriptorSetLayout,
             ModelRenderer modelRenderer)
         {
-            // TODO: Support multiple textures stages.
-            var textureStage = w3dMaterialPass.TextureStages.Count > 0
+            var hasTextureStage0 = w3dMaterialPass.TextureStages.Count > 0;
+            var textureStage0 = hasTextureStage0
                 ? w3dMaterialPass.TextureStages[0]
                 : null;
 
-            var texCoords = new Vector2[w3dMesh.Header.NumVertices];
+            var hasTextureStage1 = w3dMaterialPass.TextureStages.Count > 1;
+            var textureStage1 = hasTextureStage1
+                ? w3dMaterialPass.TextureStages[1]
+                : null;
 
-            if (textureStage != null)
+            var texCoords = new TexCoords[w3dMesh.Header.NumVertices];
+
+            if (hasTextureStage0)
             {
                 for (var i = 0; i < texCoords.Length; i++)
                 {
-                    texCoords[i] = textureStage.TexCoords[i].ToVector2();
-                }
-            }
-            else
-            {
-                for (var i = 0; i < texCoords.Length; i++)
-                {
-                    texCoords[i] = Vector2.Zero;
+                    texCoords[i].UV0 = textureStage0.TexCoords[i].ToVector2();
+                    if (hasTextureStage1)
+                    {
+                        texCoords[i].UV1 = textureStage1.TexCoords[i].ToVector2();
+                    }
                 }
             }
 
@@ -55,35 +57,55 @@ namespace OpenSage.Graphics
                 texCoords,
                 false));
 
-            uint[] textureIDs;
+            var textureIDs = new TextureIndex[w3dMesh.Header.NumTris];
 
-            if (textureStage != null)
+            if (hasTextureStage0)
             {
-                textureIDs = textureStage.TextureIds;
-                if (textureIDs.Length == 1)
+                if (textureStage0.TextureIds.Length == 1)
                 {
-                    var textureID = textureIDs[0];
-                    textureIDs = new uint[w3dMesh.Header.NumTris];
-                    for (var i = 0; i < w3dMesh.Header.NumTris; i++)
+                    var textureID = textureStage0.TextureIds[0];
+                    for (var i = 0; i < textureIDs.Length; i++)
                     {
-                        textureIDs[i] = textureID;
+                        textureIDs[i].IndexStage0 = textureID;
+                    }
+                }
+                else
+                {
+                    for (var i = 0; i < textureIDs.Length; i++)
+                    {
+                        textureIDs[i].IndexStage0 = textureStage0.TextureIds[i];
                     }
                 }
             }
-            else
+
+            if (hasTextureStage1)
             {
-                textureIDs = new uint[w3dMesh.Header.NumTris];
+                if (textureStage1.TextureIds.Length == 1)
+                {
+                    var textureID = textureStage1.TextureIds[0];
+                    for (var i = 0; i < textureIDs.Length; i++)
+                    {
+                        textureIDs[i].IndexStage1 = textureID;
+                    }
+                }
+                else
+                {
+                    for (var i = 0; i < textureIDs.Length; i++)
+                    {
+                        textureIDs[i].IndexStage1 = textureStage1.TextureIds[i];
+                    }
+                }
             }
+
+            PixelMaterialPassDescriptorSet = AddDisposable(new DescriptorSet(
+                graphicsDevice,
+                pixelMaterialPassDescriptorSetLayout));
 
             var textureIndicesBuffer = AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
                 uploadBatch,
                 textureIDs,
                 false));
-
-            PixelMaterialPassDescriptorSet = AddDisposable(new DescriptorSet(
-                graphicsDevice,
-                pixelMaterialPassDescriptorSetLayout));
 
             PixelMaterialPassDescriptorSet.SetTypedBuffer(0, textureIndicesBuffer, PixelFormat.UInt32);
 
@@ -151,7 +173,21 @@ namespace OpenSage.Graphics
 
             MeshParts = meshParts;
 
-            NumTextureStages = textureStage != null ? 1u : 0u;
+            NumTextureStages = hasTextureStage0 && hasTextureStage1
+                ? 2u
+                : hasTextureStage0 ? 1u : 0u;
+        }
+
+        private struct TexCoords
+        {
+            public Vector2 UV0;
+            public Vector2 UV1;
+        }
+
+        private struct TextureIndex
+        {
+            public uint IndexStage0;
+            public uint IndexStage1;
         }
     }
 }
