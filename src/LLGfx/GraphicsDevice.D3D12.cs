@@ -14,10 +14,11 @@ namespace LLGfx
 
         internal DescriptorTablePool DescriptorHeapDsv { get; private set; }
 
-
         internal DescriptorTablePool DescriptorHeapCbvUavSrv { get; private set; }
 
         internal DynamicUploadHeap DynamicUploadHeap { get; private set; }
+
+        private PixelFormat PlatformBackBufferFormat => PixelFormat.Bgra8UNorm;
 
         private void PlatformConstruct()
         {

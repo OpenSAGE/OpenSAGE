@@ -163,6 +163,8 @@ namespace LLGfx.Hosting
 
         protected HwndWrapper()
         {
+            Unloaded += OnUnloaded;
+
             // We must be notified of the application foreground status for our mouse input events
             Application.Current.Activated += OnApplicationActivated;
             Application.Current.Deactivated += OnApplicationDeactivated;
@@ -173,6 +175,11 @@ namespace LLGfx.Hosting
             // Check whether the application is active (it almost certainly is, at this point).
             if (Application.Current.Windows.Cast<Window>().Any(x => x.IsActive))
                 _applicationHasFocus = true;
+        }
+
+        protected virtual void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            Dispose();
         }
 
         protected override void Dispose(bool disposing)

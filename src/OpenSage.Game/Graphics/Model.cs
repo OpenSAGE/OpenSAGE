@@ -31,6 +31,8 @@ namespace OpenSage.Graphics
 
         public Animation[] Animations { get; }
 
+        public bool HasHierarchy { get; }
+
         internal Model(
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,
@@ -51,6 +53,8 @@ namespace OpenSage.Graphics
                 var hierarchyFile = W3dFile.FromFileSystemEntry(hierarchyFileEntry);
                 w3dHierarchy = hierarchyFile.Hierarchy;
             }
+
+            HasHierarchy = w3dHierarchy != null;
 
             if (w3dHierarchy != null)
             {
@@ -79,7 +83,8 @@ namespace OpenSage.Graphics
             }
             else
             {
-                Bones = new ModelBone[0];
+                Bones = new ModelBone[1];
+                Bones[0] = new ModelBone(0, null, null, Vector3.Zero, Quaternion.Identity);
             }
 
             _absoluteBoneMatrices = new Matrix4x4[Bones.Length];
@@ -103,10 +108,18 @@ namespace OpenSage.Graphics
             {
                 var w3dMesh = w3dFile.Meshes[i];
 
-                var hlodSubObject = w3dFile.HLod.Lods[0].SubObjects.Single(x => x.Name == w3dMesh.Header.ContainerName + "." + w3dMesh.Header.MeshName);
-                var bone = Bones[(int) hlodSubObject.BoneIndex];
+                ModelBone bone;
+                if (w3dFile.HLod != null)
+                {
+                    var hlodSubObject = w3dFile.HLod.Lods[0].SubObjects.Single(x => x.Name == w3dMesh.Header.ContainerName + "." + w3dMesh.Header.MeshName);
+                    bone = Bones[(int) hlodSubObject.BoneIndex];
+                }
+                else
+                {
+                    bone = Bones[0];
+                }
 
-                var mesh = new ModelMesh(
+                var mesh = AddDisposable(new ModelMesh(
                     graphicsDevice, 
                     uploadBatch, 
                     w3dMesh,
@@ -115,7 +128,7 @@ namespace OpenSage.Graphics
                     pixelMeshDescriptorSetLayout,
                     vertexMaterialPassDescriptorSetLayout,
                     pixelMaterialPassDescriptorSetLayout,
-                    modelRenderer);
+                    modelRenderer));
                 Meshes[i] = mesh;
 
                 var meshBoundingSphere = mesh.BoundingSphere.Transform(bone.Transform);

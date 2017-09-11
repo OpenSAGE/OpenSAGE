@@ -32,7 +32,7 @@ namespace OpenSage.Graphics
 
         public BoundingSphere BoundingSphere { get; }
 
-        public IReadOnlyList<ModelMeshMaterialPass> MaterialPasses { get; }
+        public ModelMeshMaterialPass[] MaterialPasses { get; }
 
         public bool Skinned { get; }
 
@@ -80,7 +80,8 @@ namespace OpenSage.Graphics
                 graphicsDevice,
                 uploadBatch,
                 w3dMesh,
-                fileSystem);
+                fileSystem,
+                modelRenderer);
 
             _pixelMeshDescriptorSet = AddDisposable(new DescriptorSet(
                 graphicsDevice,
@@ -97,19 +98,18 @@ namespace OpenSage.Graphics
 
             _perDrawConstantBuffer = AddDisposable(DynamicBuffer.Create<PerDrawConstants>(graphicsDevice));
 
-            var materialPasses = new List<ModelMeshMaterialPass>();
-            foreach (var w3dMaterialPass in w3dMesh.MaterialPasses)
+            MaterialPasses = new ModelMeshMaterialPass[w3dMesh.MaterialPasses.Length];
+            for (var i = 0; i < w3dMesh.MaterialPasses.Length; i++)
             {
-                materialPasses.Add(AddDisposable(new ModelMeshMaterialPass(
+                MaterialPasses[i] = AddDisposable(new ModelMeshMaterialPass(
                     graphicsDevice,
                     uploadBatch,
                     w3dMesh,
-                    w3dMaterialPass,
+                    w3dMesh.MaterialPasses[i],
                     vertexMaterialPassDescriptorSetLayout,
                     pixelMaterialPassDescriptorSetLayout,
-                    modelRenderer)));
+                    modelRenderer));
             }
-            MaterialPasses = materialPasses;
         }
 
         public void SetMatrices(
@@ -164,7 +164,8 @@ namespace OpenSage.Graphics
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,
             W3dMesh w3dMesh,
-            FileSystem fileSystem)
+            FileSystem fileSystem,
+            ModelRenderer modelRenderer)
         {
             var numTextures = w3dMesh.Textures.Length;
             var textures = new Texture[numTextures];
@@ -175,7 +176,7 @@ namespace OpenSage.Graphics
                 var fileExtensions = new[] { ".dds", ".tga" };
                 foreach (var fileExtension in fileExtensions)
                 {
-                    var textureName = w3dTexture.Name.Replace(".tga", fileExtension);
+                    var textureName = w3dTexture.Name.ToUpper().Replace(".TGA", fileExtension);
                     var texturePath = $@"Art\Textures\{textureName}";
 
                     var textureFileSystemEntry = fileSystem.GetFile(texturePath);
@@ -185,15 +186,14 @@ namespace OpenSage.Graphics
                         continue;
                     }
 
-                    textures[i] = AddDisposable(TextureLoader.LoadTexture(
-                        graphicsDevice,
-                        uploadBatch,
-                        textureFileSystemEntry));
+                    textures[i] = modelRenderer.GetTexture(
+                        textureFileSystemEntry,
+                        uploadBatch);
                 }
 
                 if (textures[i] == null)
                 {
-                    throw new System.InvalidOperationException();
+                    textures[i] = modelRenderer.MissingTexture;
                 }
             }
             return textures;

@@ -8,19 +8,23 @@ namespace LLGfx.Hosting
         public event EventHandler<GraphicsEventArgs> GraphicsInitialize;
         public event EventHandler<GraphicsEventArgs> GraphicsDraw;
 
-        private readonly GraphicsDevice _graphicsDevice;
         private SwapChain _swapChain;
+
+        public GraphicsDevice GraphicsDevice { get; set; }
 
         public GraphicsDeviceControl()
         {
-            _graphicsDevice = new GraphicsDevice();
-
             Loaded += OnLoaded;
         }
 
         protected override void Dispose(bool disposing)
         {
             Loaded -= OnLoaded;
+
+            if (_swapChain != null)
+            {
+                _swapChain.Dispose();
+            }
 
             base.Dispose(disposing);
         }
@@ -32,7 +36,7 @@ namespace LLGfx.Hosting
                 return;
             }
 
-            GraphicsDraw?.Invoke(this, new GraphicsEventArgs(_graphicsDevice, _swapChain));
+            GraphicsDraw?.Invoke(this, new GraphicsEventArgs(GraphicsDevice, _swapChain));
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -43,13 +47,13 @@ namespace LLGfx.Hosting
             }
 
             _swapChain = new SwapChain(
-                _graphicsDevice,
+                GraphicsDevice,
                 Handle,
                 3,
                 (int) ActualWidth,
                 (int) ActualHeight);
 
-            GraphicsInitialize?.Invoke(this, new GraphicsEventArgs(_graphicsDevice, _swapChain));
+            GraphicsInitialize?.Invoke(this, new GraphicsEventArgs(GraphicsDevice, _swapChain));
 
             if (!RedrawsOnTimer)
             {
@@ -64,8 +68,8 @@ namespace LLGfx.Hosting
             if (_swapChain != null)
             {
                 _swapChain.Resize(
-                    (int)sizeInfo.NewSize.Width,
-                    (int)sizeInfo.NewSize.Height);
+                    (int) sizeInfo.NewSize.Width,
+                    (int) sizeInfo.NewSize.Height);
 
                 if (!RedrawsOnTimer)
                 {

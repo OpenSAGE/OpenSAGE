@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using LLGfx.Util;
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
 using D3D12 = SharpDX.Direct3D12;
@@ -8,8 +9,6 @@ namespace LLGfx
 {
     partial class SwapChain
     {
-        private const Format DeviceBackBufferFormat = Format.B8G8R8A8_UNorm;
-
         private readonly GraphicsDevice _graphicsDevice;
         private readonly int _backBufferCount;
 
@@ -22,10 +21,8 @@ namespace LLGfx
         private Fence _fence;
         private readonly int[] _fenceValues;
 
-        private PixelFormat PlatformBackBufferFormat => PixelFormat.Bgra8UNorm;
-
-        private double PlatformBackBufferWidth { get; set; }
-        private double PlatformBackBufferHeight { get; set; }
+        private int PlatformBackBufferWidth { get; set; }
+        private int PlatformBackBufferHeight { get; set; }
 
         public SwapChain3 DeviceSwapChain { get; }
 
@@ -42,6 +39,7 @@ namespace LLGfx
             DeviceSwapChain = AddDisposable(CreateSwapChain(
                 windowHandle,
                 _graphicsDevice.CommandQueue.DeviceCommandQueue,
+                _graphicsDevice.BackBufferFormat,
                 backBufferCount,
                 width,
                 height));
@@ -71,6 +69,7 @@ namespace LLGfx
         private static SwapChain3 CreateSwapChain(
             IntPtr windowHandle,
             D3D12.CommandQueue commandQueue,
+            PixelFormat backBufferFormat,
             int backBufferCount,
             int width,
             int height)
@@ -79,7 +78,7 @@ namespace LLGfx
             {
                 Width = width,
                 Height = height,
-                Format = DeviceBackBufferFormat,
+                Format = backBufferFormat.ToDxgiFormat(),
                 Stereo = false,
                 SampleDescription = new SampleDescription(1, 0),
                 Usage = Usage.RenderTargetOutput,
@@ -119,7 +118,7 @@ namespace LLGfx
                 _backBufferCount,
                 newWidth,
                 newHeight,
-                DeviceBackBufferFormat,
+                _graphicsDevice.BackBufferFormat.ToDxgiFormat(),
                 SwapChainFlags.None);
 
             _frameIndex = DeviceSwapChain.CurrentBackBufferIndex;

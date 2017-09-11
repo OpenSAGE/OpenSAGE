@@ -2,7 +2,6 @@
 using System.Runtime.InteropServices;
 using OpenSage.Data.W3d;
 using LLGfx;
-using System.Collections.Generic;
 using OpenSage.Data;
 using OpenSage.Graphics.Util;
 
@@ -23,6 +22,7 @@ namespace OpenSage.Graphics
         private readonly PixelFormat _backBufferFormat;
 
         private readonly PipelineStateCache _pipelineStateCache;
+        private readonly TextureCache _textureCache;
 
         private readonly PipelineLayout _pipelineLayout;
 
@@ -31,9 +31,9 @@ namespace OpenSage.Graphics
 
         public const int MaxTextures = 32;
 
-        public ModelRenderer(
-            GraphicsDevice graphicsDevice, 
-            SwapChain swapChain)
+        public Texture MissingTexture { get; }
+
+        public ModelRenderer(GraphicsDevice graphicsDevice)
         {
             _graphicsDevice = graphicsDevice;
 
@@ -141,11 +141,21 @@ namespace OpenSage.Graphics
             _vertexDescriptor.SetLayoutDescriptor(0, 28);
             _vertexDescriptor.SetLayoutDescriptor(1, 16);
 
-            _backBufferFormat = swapChain.BackBufferFormat;
+            _backBufferFormat = graphicsDevice.BackBufferFormat;
 
             _pipelineStateCache = AddDisposable(new PipelineStateCache(graphicsDevice));
+            _textureCache = AddDisposable(new TextureCache(graphicsDevice));
 
             _lightingConstantBuffer = AddDisposable(DynamicBuffer.Create<LightingConstants>(graphicsDevice));
+
+            var uploadBatch = new ResourceUploadBatch(_graphicsDevice);
+            uploadBatch.Begin();
+
+            MissingTexture = AddDisposable(Texture.CreatePlaceholderTexture2D(
+                graphicsDevice,
+                uploadBatch));
+
+            uploadBatch.End();
         }
 
         internal PipelineState GetPipelineState(W3dMesh mesh, W3dShader shader)
@@ -170,6 +180,11 @@ namespace OpenSage.Graphics
             }
 
             return _pipelineStateCache.GetPipelineState(description);
+        }
+
+        internal Texture GetTexture(FileSystemEntry entry, ResourceUploadBatch uploadBatch)
+        {
+            return _textureCache.GetTexture(entry, uploadBatch);
         }
 
         [StructLayout(LayoutKind.Explicit, Size = SizeInBytes)]

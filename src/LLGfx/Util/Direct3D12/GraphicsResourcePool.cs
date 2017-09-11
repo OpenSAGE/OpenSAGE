@@ -46,7 +46,7 @@ namespace LLGfx.Util
                 // Otherwise, create a new one.
                 if (resource == null)
                 {
-                    resource = AddDisposable(CreateResource());
+                    resource = CreateResource();
                     _resourcePool.Add(resource);
                 }
 
@@ -63,5 +63,18 @@ namespace LLGfx.Util
         }
 
         // TODO: When resources haven't been used for a few frames, dispose of them.
+
+        protected override void Dispose(bool disposing)
+        {
+            // TODO: Don't dispose of resources that are still live.
+            // Instead, schedule them for disposal.
+            foreach (var resourceEntry in _readyResources)
+            {
+                resourceEntry.Item2.Dispose();
+            }
+            _readyResources.Clear();
+
+            base.Dispose(disposing);
+        }
     }
 }

@@ -7,4 +7,7 @@
   <ItemGroup>
     <ProjectReference Include="..\LLGfx\LLGfx.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Terrain\" />
+  </ItemGroup>
 </Project>

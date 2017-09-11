@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Windows;
 using Caliburn.Micro;
+using OpenSage.DataViewer.Framework;
 using OpenSage.DataViewer.ViewModels;
 
 namespace OpenSage.DataViewer
 {
     public class Bootstrapper : BootstrapperBase
     {
+        private GraphicsDeviceManager _graphicsDeviceManager;
         private SimpleContainer container;
 
         public Bootstrapper()
@@ -17,9 +19,12 @@ namespace OpenSage.DataViewer
 
         protected override void Configure()
         {
+            _graphicsDeviceManager = new GraphicsDeviceManager();
+
             container = new SimpleContainer();
 
             container.Singleton<IWindowManager, WindowManager>();
+            container.Instance(_graphicsDeviceManager);
 
             container.PerRequest<ShellViewModel>();
 
@@ -49,6 +54,13 @@ namespace OpenSage.DataViewer
         protected override void BuildUp(object instance)
         {
             container.BuildUp(instance);
+        }
+
+        protected override void OnExit(object sender, EventArgs e)
+        {
+            _graphicsDeviceManager.Dispose();
+
+            base.OnExit(sender, e);
         }
     }
 }

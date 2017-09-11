@@ -1,7 +1,10 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows;
+using System.Windows.Controls;
 using OpenSage.DataViewer.ViewModels;
 using LLGfx.Hosting;
-using System.Windows;
+using OpenSage.DataViewer.Framework;
+using Caliburn.Micro;
 
 namespace OpenSage.DataViewer.Views
 {
@@ -16,9 +19,16 @@ namespace OpenSage.DataViewer.Views
         public W3dFileContentView()
         {
             InitializeComponent();
+
+            GraphicsDeviceControl.GraphicsDevice = IoC.Get<GraphicsDeviceManager>().GraphicsDevice;
         }
 
         private W3dFileContentViewModel TypedDataContext => (W3dFileContentViewModel) DataContext;
+
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            TypedDataContext.Dispose();
+        }
 
         private void OnGraphicsInitialize(object sender, GraphicsEventArgs e)
         {

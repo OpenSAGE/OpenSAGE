@@ -100,7 +100,7 @@ namespace OpenSage.DataViewer.ViewModels
             var pipelineStateDescription = PipelineStateDescription.Default();
             pipelineStateDescription.PipelineLayout = _pipelineLayout;
             pipelineStateDescription.PixelShader = pixelShader;
-            pipelineStateDescription.RenderTargetFormat = swapChain.BackBufferFormat;
+            pipelineStateDescription.RenderTargetFormat = graphicsDevice.BackBufferFormat;
             pipelineStateDescription.VertexShader = vertexShader;
 
             _pipelineState = new PipelineState(graphicsDevice, pipelineStateDescription);

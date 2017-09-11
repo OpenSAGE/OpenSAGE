@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:graphics="clr-namespace:LLGfx.Hosting;assembly=LLGfx"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="500">
+             d:DesignHeight="300" d:DesignWidth="500"
+             Unloaded="OnUnloaded">
     <UserControl.Resources>
         <CollectionViewSource x:Key="SortedItems" Source="{Binding ModelChildren}">
             <CollectionViewSource.GroupDescriptions>

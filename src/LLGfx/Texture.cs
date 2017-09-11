@@ -23,6 +23,26 @@
                 mipMapData);
         }
 
+        public static Texture CreatePlaceholderTexture2D(
+            GraphicsDevice graphicsDevice,
+            ResourceUploadBatch uploadBatch)
+        {
+            return CreateTexture2D(
+                graphicsDevice,
+                uploadBatch,
+                PixelFormat.Rgba8UNorm,
+                1,
+                1,
+                new[]
+                {
+                    new TextureMipMapData
+                    {
+                        BytesPerRow = 4,
+                        Data = new byte[] { 255, 105, 180, 255 }
+                    }
+                });
+        }
+
         private Texture(
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,

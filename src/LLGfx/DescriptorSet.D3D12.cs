@@ -101,5 +101,12 @@ namespace LLGfx
                 description,
                 _cbvUavSrvPoolEntry.GetCpuHandle(index));
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            GraphicsDevice.DescriptorHeapCbvUavSrv.Release(_cbvUavSrvPoolEntry);
+
+            base.Dispose(disposing);
+        }
     }
 }

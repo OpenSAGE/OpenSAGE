@@ -67,7 +67,11 @@ namespace LLGfx
                 HeapFlags.None,
                 resourceDescription,
                 ResourceStates.DepthWrite,
-                new ClearValue { Format = SharpDX.DXGI.Format.D32_Float, DepthStencil = new DepthStencilValue { Depth = 1.0f } }));
+                new ClearValue
+                {
+                    Format = format,
+                    DepthStencil = new DepthStencilValue { Depth = 1.0f }
+                }));
 
             _descriptorTablePoolEntry = graphicsDevice.DescriptorHeapDsv.Reserve(1);
 

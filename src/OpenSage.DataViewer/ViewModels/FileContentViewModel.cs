@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Caliburn.Micro;
 using OpenSage.Data;
@@ -43,18 +44,32 @@ namespace OpenSage.DataViewer.ViewModels
             }
         }
 
+        private readonly List<IDisposable> _disposables;
+
         public FileSystemEntry File { get; }
 
         protected FileContentViewModel(FileSystemEntry file)
         {
+            _disposables = new List<IDisposable>();
+
             File = file;
+        }
+
+        protected T AddDisposable<T>(T disposable)
+            where T : IDisposable
+        {
+            _disposables.Add(disposable);
+            return disposable;
         }
 
         public void Dispose()
         {
-            Dispose(true);
+            _disposables.Reverse();
+            foreach (var disposable in _disposables)
+            {
+                disposable.Dispose();
+            }
+            _disposables.Clear();
         }
-
-        protected virtual void Dispose(bool disposing) { }
     }
 }

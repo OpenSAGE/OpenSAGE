@@ -4,11 +4,13 @@
     {
         public CommandQueue CommandQueue { get; }
 
+        public PixelFormat BackBufferFormat => PlatformBackBufferFormat;
+
         public GraphicsDevice()
         {
             PlatformConstruct();
 
-            CommandQueue = new CommandQueue(this);
+            CommandQueue = AddDisposable(new CommandQueue(this));
         }
     }
 }

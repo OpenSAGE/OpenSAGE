@@ -38,9 +38,9 @@ namespace OpenSage.Graphics
             }
         }
 
-        public void Update(TimeSpan deltaTime)
+        public void Update(GameTime gameTime)
         {
-            UpdateBoneTransforms(deltaTime);
+            UpdateBoneTransforms(gameTime);
 
             for (var i = 0; i < _boneTransforms.Length; i++)
             {
@@ -50,9 +50,9 @@ namespace OpenSage.Graphics
             }
         }
 
-        private void UpdateBoneTransforms(TimeSpan deltaTime)
+        private void UpdateBoneTransforms(GameTime gameTime)
         {
-            var time = _currentTimeValue + deltaTime;
+            var time = _currentTimeValue + gameTime.ElapsedGameTime;
 
             // If we reached the end, loop back to the start.
             while (time >= _animation.Duration)

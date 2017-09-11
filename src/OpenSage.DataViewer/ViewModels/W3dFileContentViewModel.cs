@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using LLGfx;
 using OpenSage.Data;
@@ -21,10 +22,9 @@ namespace OpenSage.DataViewer.ViewModels
         private ModelRenderer _modelRenderer;
         private Model _model;
 
-        private List<Animation> _externalAnimations;
+        private readonly List<Animation> _externalAnimations;
 
-        private readonly Stopwatch _stopwatch = new Stopwatch();
-        private double _lastUpdate;
+        private readonly GameTimer _gameTimer;
 
         private Vector3 _cameraPosition;
 
@@ -43,16 +43,19 @@ namespace OpenSage.DataViewer.ViewModels
 
                     if (_model != null)
                     {
-                        _modelChildren.Add(new ModelViewModel(_model));
-
-                        foreach (var animation in _model.Animations)
+                        if (_model.HasHierarchy)
                         {
-                            _modelChildren.Add(new AnimationViewModel(_model, animation, "Animations"));
-                        }
+                            _modelChildren.Add(new ModelViewModel(_model));
 
-                        foreach (var animation in _externalAnimations)
-                        {
-                            _modelChildren.Add(new AnimationViewModel(_model, animation, "External Animations"));
+                            foreach (var animation in _model.Animations)
+                            {
+                                _modelChildren.Add(new AnimationViewModel(_model, animation, "Animations"));
+                            }
+
+                            foreach (var animation in _externalAnimations)
+                            {
+                                _modelChildren.Add(new AnimationViewModel(_model, animation, "External Animations"));
+                            }
                         }
 
                         foreach (var mesh in _model.Meshes)
@@ -76,13 +79,16 @@ namespace OpenSage.DataViewer.ViewModels
 
                 _selectedModelChild = value;
 
-                _selectedModelChild.Activate();
+                if (_selectedModelChild != null)
+                {
+                    _selectedModelChild.Activate();
 
-                Camera.Reset(
-                    value.BoundingSphere.Center,
-                    value.BoundingSphere.Radius * 1.4f);
+                    Camera.Reset(
+                        value.BoundingSphere.Center,
+                        value.BoundingSphere.Radius * 1.4f);
+                }
 
-                _lastUpdate = GetTimeNow();
+                _gameTimer.Reset();
 
                 NotifyOfPropertyChange();
             }
@@ -120,44 +126,47 @@ namespace OpenSage.DataViewer.ViewModels
             }
 
             Camera = new ArcballCamera();
+
+            _gameTimer = new GameTimer();
+        }
+
+        private void EnsureDepthStencilBuffer(GraphicsDevice graphicsDevice, SwapChain swapChain)
+        {
+            if (_depthStencilBuffer != null 
+                && _depthStencilBuffer.Width == swapChain.BackBufferWidth
+                && _depthStencilBuffer.Height == swapChain.BackBufferHeight)
+            {
+                return;
+            }
+
+            if (_depthStencilBuffer != null)
+            {
+                _depthStencilBuffer.Dispose();
+                _depthStencilBuffer = null;
+            }
+
+            _depthStencilBuffer = new DepthStencilBuffer(
+                graphicsDevice,
+                swapChain.BackBufferWidth,
+                swapChain.BackBufferHeight);
         }
 
         public void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
-            // TODO: Handle output panel resize.
-            _depthStencilBuffer = new DepthStencilBuffer(
-                graphicsDevice, 
-                (int) swapChain.BackBufferWidth, 
-                (int) swapChain.BackBufferHeight);
+            _modelRenderer = AddDisposable(new ModelRenderer(graphicsDevice));
 
-            _modelRenderer = new ModelRenderer(graphicsDevice, swapChain);
-
-            _model = _modelRenderer.LoadModel(_w3dFile, File.FileSystem, graphicsDevice);
+            _model = AddDisposable(_modelRenderer.LoadModel(_w3dFile, File.FileSystem, graphicsDevice));
 
             _modelChildren = null;
             NotifyOfPropertyChange(nameof(ModelChildren));
-            SelectedModelChild = ModelChildren[0];
+            SelectedModelChild = ModelChildren.FirstOrDefault();
 
-            _stopwatch.Start();
-            _lastUpdate = GetTimeNow();
-        }
-
-        private double GetTimeNow()
-        {
-            return _stopwatch.ElapsedMilliseconds;
-        }
-
-        private float GetDeltaTime()
-        {
-            var now = GetTimeNow();
-            var deltaTime = now - _lastUpdate;
-            _lastUpdate = now;
-            return (float) deltaTime;
+            _gameTimer.Start();
         }
 
         private void Update(SwapChain swapChain)
         {
-            var deltaTime = GetDeltaTime();
+            _gameTimer.Update();
 
             _world = Matrix4x4.Identity;
 
@@ -170,7 +179,7 @@ namespace OpenSage.DataViewer.ViewModels
                 0.1f,
                 1000.0f);
 
-            _selectedModelChild?.Update(TimeSpan.FromMilliseconds(deltaTime));
+            _selectedModelChild?.Update(_gameTimer.CurrentGameTime);
         }
 
         public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
@@ -182,6 +191,8 @@ namespace OpenSage.DataViewer.ViewModels
                 swapChain.GetNextRenderTarget(),
                 LoadAction.Clear,
                 new ColorRgba(0.5f, 0.5f, 0.5f, 1));
+
+            EnsureDepthStencilBuffer(graphicsDevice, swapChain);
 
             renderPassDescriptor.SetDepthStencilDescriptor(_depthStencilBuffer);
 
@@ -222,7 +233,7 @@ namespace OpenSage.DataViewer.ViewModels
         public virtual void Activate() { }
         public virtual void Deactivate() { }
 
-        public virtual void Update(TimeSpan deltaTime) { }
+        public virtual void Update(GameTime gameTime) { }
 
         public abstract void Draw(
             CommandEncoder commandEncoder,
@@ -312,9 +323,9 @@ namespace OpenSage.DataViewer.ViewModels
             _animationPlayer.Start();
         }
 
-        public override void Update(TimeSpan deltaTime)
+        public override void Update(GameTime gameTime)
         {
-            _animationPlayer.Update(deltaTime);
+            _animationPlayer.Update(gameTime);
         }
 
         public override void Draw(

@@ -2,10 +2,8 @@
 {
     public sealed partial class SwapChain : GraphicsObject
     {
-        public PixelFormat BackBufferFormat => PlatformBackBufferFormat;
-
-        public double BackBufferWidth => PlatformBackBufferWidth;
-        public double BackBufferHeight => PlatformBackBufferHeight;
+        public int BackBufferWidth => PlatformBackBufferWidth;
+        public int BackBufferHeight => PlatformBackBufferHeight;
 
         public RenderTarget GetNextRenderTarget()
         {

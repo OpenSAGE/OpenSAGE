@@ -60,6 +60,7 @@ namespace LLGfx.Util
         public void Release(DescriptorTablePoolEntry entry)
         {
             // TODO: Do garbage collection
+            // https://github.com/DiligentGraphics/DiligentCore/blob/109a75aac22463802f03dfc6588951ed0b04892a/Graphics/GraphicsTools/include/VariableSizeAllocationsManager.h
 
             _entries.Remove(entry.HeapIndex);
         }
