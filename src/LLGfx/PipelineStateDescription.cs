@@ -6,6 +6,8 @@
         {
             return new PipelineStateDescription
             {
+                IsFrontCounterClockwise = true,
+                IsDepthEnabled = true,
                 IsDepthWriteEnabled = true,
                 Blending = new BlendDescription
                 {
@@ -20,11 +22,14 @@
         public VertexDescriptor VertexDescriptor;
         public Shader VertexShader;
 
-        public bool TwoSided;
-
         public Shader PixelShader;
 
+        public bool IsFrontCounterClockwise;
+        public bool TwoSided;
+
         public PixelFormat RenderTargetFormat;
+
+        public bool IsDepthEnabled;
         public bool IsDepthWriteEnabled;
 
         public BlendDescription Blending;

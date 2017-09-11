@@ -19,7 +19,7 @@ namespace LLGfx
         private void PlatformConstruct(GraphicsDevice graphicsDevice, PipelineStateDescription description)
         {
             var rasterizerState = RasterizerStateDescription.Default();
-            rasterizerState.IsFrontCounterClockwise = true;
+            rasterizerState.IsFrontCounterClockwise = description.IsFrontCounterClockwise;
 
             rasterizerState.CullMode = description.TwoSided
                 ? CullMode.None
@@ -36,10 +36,10 @@ namespace LLGfx
             }
 
             var depthStencilState = DepthStencilStateDescription.Default();
+            depthStencilState.IsDepthEnabled = description.IsDepthEnabled;
             depthStencilState.DepthWriteMask = description.IsDepthWriteEnabled
                 ? DepthWriteMask.All
                 : DepthWriteMask.Zero;
-
             depthStencilState.DepthComparison = Comparison.LessEqual;
 
             var deviceDescription = new GraphicsPipelineStateDescription

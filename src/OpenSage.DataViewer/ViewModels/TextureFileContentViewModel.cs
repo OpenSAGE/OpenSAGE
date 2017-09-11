@@ -21,10 +21,12 @@ namespace OpenSage.DataViewer.ViewModels
         public int TextureWidth => _texture?.Width ?? 0;
         public int TextureHeight => _texture?.Height ?? 0;
 
-        public IEnumerable<int> MipMapLevels => Enumerable.Range(0, _texture?.MipMapCount ?? 0);
+        public IEnumerable<uint> MipMapLevels => Enumerable
+            .Range(0, _texture?.MipMapCount ?? 0)
+            .Select(x => (uint) x);
 
-        private int _selectedMipMapLevel;
-        public int SelectedMipMapLevel
+        private uint _selectedMipMapLevel;
+        public uint SelectedMipMapLevel
         {
             get { return _selectedMipMapLevel; }
             set
@@ -102,6 +104,9 @@ namespace OpenSage.DataViewer.ViewModels
             pipelineStateDescription.PixelShader = pixelShader;
             pipelineStateDescription.RenderTargetFormat = graphicsDevice.BackBufferFormat;
             pipelineStateDescription.VertexShader = vertexShader;
+            pipelineStateDescription.IsFrontCounterClockwise = false;
+            pipelineStateDescription.IsDepthEnabled = false;
+            pipelineStateDescription.IsDepthWriteEnabled = false;
 
             _pipelineState = new PipelineState(graphicsDevice, pipelineStateDescription);
         }
@@ -121,9 +126,9 @@ namespace OpenSage.DataViewer.ViewModels
 
             var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
 
-            commandEncoder.SetPipelineState(_pipelineState);
-
             commandEncoder.SetPipelineLayout(_pipelineLayout);
+
+            commandEncoder.SetPipelineState(_pipelineState);
 
             commandEncoder.SetInlineConstantBuffer(0, _textureConstantBuffer);
 
@@ -133,8 +138,8 @@ namespace OpenSage.DataViewer.ViewModels
             {
                 X = 0,
                 Y = 0,
-                Width = (int) swapChain.BackBufferWidth,
-                Height = (int) swapChain.BackBufferHeight,
+                Width = swapChain.BackBufferWidth,
+                Height = swapChain.BackBufferHeight,
                 MinDepth = 0,
                 MaxDepth = 1
             });
@@ -149,9 +154,7 @@ namespace OpenSage.DataViewer.ViewModels
         [StructLayout(LayoutKind.Sequential)]
         private struct TextureConstants
         {
-            public const int SizeInBytes = 4;
-
-            public int MipMapLevel;
+            public uint MipMapLevel;
         }
     }
 }
