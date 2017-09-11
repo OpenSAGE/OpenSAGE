@@ -19,6 +19,9 @@ namespace OpenSage.DataViewer.ViewModels
                 case ".tga":
                     return new TextureFileContentViewModel(file);
 
+                case ".map":
+                    return new MapFileContentViewModel(file);
+
                 case ".wav":
                 case ".mp3":
                 case ".bik":

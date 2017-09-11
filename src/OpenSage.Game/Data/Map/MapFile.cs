@@ -68,6 +68,14 @@ namespace OpenSage.Data.Map
             }
         }
 
+        public static MapFile FromFileSystemEntry(FileSystemEntry entry)
+        {
+            using (var stream = entry.Open())
+            {
+                return FromStream(stream);
+            }
+        }
+
         public static MapFile FromStream(Stream stream)
         {
             return Parse(stream, reader => ParseMapData(reader));
