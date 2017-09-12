@@ -175,7 +175,7 @@ namespace OpenSage.DataViewer.ViewModels
 
             _projection = Matrix4x4.CreatePerspectiveFieldOfView(
                 (float) (90 * System.Math.PI / 180),
-                (float) (swapChain.BackBufferWidth / swapChain.BackBufferHeight),
+                swapChain.BackBufferWidth / (float) swapChain.BackBufferHeight,
                 0.1f,
                 1000.0f);
 

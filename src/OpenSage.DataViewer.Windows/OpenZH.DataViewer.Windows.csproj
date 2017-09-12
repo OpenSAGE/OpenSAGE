@@ -180,6 +180,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Shaders\Terrain.hlsli" />
     <Content Include="Shaders\Mesh.hlsli" />
     <PixelShader Include="Shaders\MeshPS.hlsl">
       <ShaderModel>5_1</ShaderModel>
@@ -192,6 +193,14 @@
       <ShaderModel>5_1</ShaderModel>
       <EnableDebuggingInfo>True</EnableDebuggingInfo>
     </VertexShader>
+    <VertexShader Include="Shaders\TerrainVS.hlsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ShaderModel>5_1</ShaderModel>
+    </VertexShader>
+    <PixelShader Include="Shaders\TerrainPS.hlsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ShaderModel>5_1</ShaderModel>
+    </PixelShader>
     <Content Include="Shaders\Sprite.hlsli" />
     <PixelShader Include="Shaders\SpritePS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

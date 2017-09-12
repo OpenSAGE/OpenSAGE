@@ -5,9 +5,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LLGfx\LLGfx.csproj" />
+    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Terrain\" />
+    <ProjectReference Include="..\LLGfx\LLGfx.csproj" />
   </ItemGroup>
 </Project>

@@ -20,7 +20,7 @@ namespace LLGfx
         {
             var rasterizerState = RasterizerStateDescription.Default();
             rasterizerState.IsFrontCounterClockwise = description.IsFrontCounterClockwise;
-
+            
             rasterizerState.CullMode = description.TwoSided
                 ? CullMode.None
                 : CullMode.Back;
