@@ -1,15 +1,17 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
+using OpenSage.Data;
 using OpenSage.Data.Map;
-using OpenSage.Mathematics;
+using OpenSage.Graphics.Util;
 
 namespace OpenSage.Terrain
 {
     public sealed class Map : GraphicsObject
     {
-        private readonly int _numPatchesX, _numPatchesY;
-        private readonly TerrainPatch[,] _patches;
+        public const int MaxTextures = 48;
+
+        private readonly Terrain _terrain;
 
         private readonly PipelineLayout _pipelineLayout;
         private readonly PipelineState _pipelineState;
@@ -20,54 +22,33 @@ namespace OpenSage.Terrain
         private readonly DynamicBuffer _lightingConstantBuffer;
         private LightingConstants _lightingConstants;
 
-        public Map(MapFile mapFile, GraphicsDevice graphicsDevice)
+        public Map(
+            MapFile mapFile, 
+            FileSystem fileSystem,
+            GraphicsDevice graphicsDevice)
         {
-            var uploadBatch = new ResourceUploadBatch(graphicsDevice);
-            uploadBatch.Begin();
-
-            const int patchSize = 17;
-            const int numTilesPerPatch = patchSize - 1;
-
-            var heightMap = new HeightMap(mapFile.HeightMapData);
-
-            _numPatchesX = heightMap.Width / numTilesPerPatch;
-            if (heightMap.Width % numTilesPerPatch != 0)
+            var descriptorSetLayoutPixelTerrain = new DescriptorSetLayout(new DescriptorSetLayoutDescription
             {
-                _numPatchesX += 1;
-            }
-
-            _numPatchesY = heightMap.Height / numTilesPerPatch;
-            if (heightMap.Height % numTilesPerPatch != 0)
-            {
-                _numPatchesY += 1;
-            }
-
-            _patches = new TerrainPatch[_numPatchesX, _numPatchesY];
-
-            for (var y = 0; y < _numPatchesY; y++)
-            {
-                for (var x = 0; x < _numPatchesX; x++)
+                Visibility = ShaderStageVisibility.Pixel,
+                Bindings = new[]
                 {
-                    var patchX = x * numTilesPerPatch;
-                    var patchY = y * numTilesPerPatch;
-
-                    var patchBounds = new Int32Rect
-                    {
-                        X = patchX,
-                        Y = patchY,
-                        Width = System.Math.Min(patchSize, heightMap.Width - patchX),
-                        Height = System.Math.Min(patchSize, heightMap.Height - patchY)
-                    };
-
-                    _patches[x, y] = AddDisposable(new TerrainPatch(
-                        heightMap,
-                        patchBounds,
-                        graphicsDevice,
-                        uploadBatch));
+                    // TextureInfo[]
+                    new DescriptorSetLayoutBinding(DescriptorType.StructuredBuffer, 1, 1),
+                    
+                    // Textures[]
+                    new DescriptorSetLayoutBinding(DescriptorType.Texture, 2, MaxTextures),
                 }
-            }
+            });
 
-            uploadBatch.End();
+            var descriptorSetLayoutPixelTerrainPatch = new DescriptorSetLayout(new DescriptorSetLayoutDescription
+            {
+                Visibility = ShaderStageVisibility.Pixel,
+                Bindings = new[]
+                {
+                    // TextureIndices
+                    new DescriptorSetLayoutBinding(DescriptorType.TypedBuffer, 0, 1)
+                }
+            });
 
             _pipelineLayout = AddDisposable(new PipelineLayout(graphicsDevice, new PipelineLayoutDescription
             {
@@ -87,8 +68,23 @@ namespace OpenSage.Terrain
                         ShaderRegister = 0
                     },
                 },
-                DescriptorSetLayouts = new DescriptorSetLayout[] { },
-                StaticSamplerStates = new StaticSamplerDescription[] { }
+                DescriptorSetLayouts = new[]
+                {
+                    descriptorSetLayoutPixelTerrainPatch,
+                    descriptorSetLayoutPixelTerrain
+                },
+                StaticSamplerStates = new[]
+                {
+                    new StaticSamplerDescription
+                    {
+                        Visibility = ShaderStageVisibility.Pixel,
+                        ShaderRegister = 0,
+                        SamplerStateDescription = new SamplerStateDescription
+                        {
+                            Filter = SamplerFilter.Anisotropic
+                        }
+                    }
+                }
             }));
 
             var shaderLibrary = AddDisposable(new ShaderLibrary(graphicsDevice));
@@ -98,7 +94,8 @@ namespace OpenSage.Terrain
             var vertexDescriptor = new VertexDescriptor();
             vertexDescriptor.SetAttributeDescriptor(0, "POSITION", 0, VertexFormat.Float3, 0, 0);
             vertexDescriptor.SetAttributeDescriptor(1, "NORMAL", 0, VertexFormat.Float3, 0, 12);
-            vertexDescriptor.SetLayoutDescriptor(0, 24);
+            vertexDescriptor.SetAttributeDescriptor(2, "TEXCOORD", 0, VertexFormat.Float2, 0, 24);
+            vertexDescriptor.SetLayoutDescriptor(0, 32);
 
             var pipelineStateDescription = PipelineStateDescription.Default();
             pipelineStateDescription.PipelineLayout = _pipelineLayout;
@@ -107,13 +104,21 @@ namespace OpenSage.Terrain
             pipelineStateDescription.VertexShader = vertexShader;
             pipelineStateDescription.PixelShader = pixelShader;
 
-            pipelineStateDescription.TwoSided = true; // TODO: Remove this.
-
             _pipelineState = AddDisposable(new PipelineState(graphicsDevice, pipelineStateDescription));
 
             _transformConstantBuffer = AddDisposable(DynamicBuffer.Create<TransformConstants>(graphicsDevice));
 
             _lightingConstantBuffer = AddDisposable(DynamicBuffer.Create<LightingConstants>(graphicsDevice));
+
+            var textureCache = AddDisposable(new TextureCache(graphicsDevice));
+
+            _terrain = AddDisposable(new Terrain(
+                mapFile, 
+                graphicsDevice,
+                fileSystem,
+                textureCache,
+                descriptorSetLayoutPixelTerrain,
+                descriptorSetLayoutPixelTerrainPatch));
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -162,14 +167,7 @@ namespace OpenSage.Terrain
             _lightingConstantBuffer.SetData(ref _lightingConstants);
             commandEncoder.SetInlineConstantBuffer(1, _lightingConstantBuffer);
 
-            for (var y = 0; y < _numPatchesY; y++)
-            {
-                for (var x = 0; x < _numPatchesX; x++)
-                {
-                    // TODO: Frustum culling.
-                    _patches[x, y].Draw(commandEncoder);
-                }
-            }
+            _terrain.Draw(commandEncoder);           
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
+using OpenSage.Data.Map;
 using OpenSage.Mathematics;
+using OpenSage.Terrain.Util;
 
 namespace OpenSage.Terrain
 {
@@ -12,11 +14,16 @@ namespace OpenSage.Terrain
         private readonly uint _numIndices;
         private readonly Buffer _indexBuffer;
 
+        private readonly DescriptorSet _terrainPatchDescriptorSet;
+
         public TerrainPatch(
             HeightMap heightMap,
+            BlendTileData blendTileData,
             Int32Rect patchBounds,
             GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch)
+            ResourceUploadBatch uploadBatch,
+            TerrainPatchIndexBufferCache indexBufferCache,
+            DescriptorSetLayout terrainPatchDescriptorSetLayout)
         {
             _vertexBuffer = AddDisposable(CreateVertexBuffer(
                 graphicsDevice,
@@ -24,12 +31,40 @@ namespace OpenSage.Terrain
                 heightMap,
                 patchBounds));
 
-            StaticBuffer indexBuffer;
-            (indexBuffer, _numIndices) = CreateIndexBuffer(
+            _numIndices = indexBufferCache.CalculateNumIndices(
+                patchBounds.Width, 
+                patchBounds.Height);
+
+            _indexBuffer = indexBufferCache.GetIndexBuffer(
+                patchBounds.Width, 
+                patchBounds.Height, 
+                uploadBatch);
+
+            _terrainPatchDescriptorSet = AddDisposable(new DescriptorSet(
+                graphicsDevice,
+                terrainPatchDescriptorSetLayout));
+
+            var textureIDs = new uint[(patchBounds.Width - 1) * (patchBounds.Height - 1) * 2];
+
+            var textureIDIndex = 0;
+            for (var y = patchBounds.Y; y < patchBounds.Y + patchBounds.Height - 1; y++)
+            {
+                for (var x = patchBounds.X; x < patchBounds.X + patchBounds.Width - 1; x++)
+                {
+                    var tile = blendTileData.Tiles[x, y];
+                    var textureIndex = blendTileData.TextureIndices[tile];
+                    textureIDs[textureIDIndex++] = (uint) textureIndex.TextureIndex;
+                    textureIDs[textureIDIndex++] = (uint) textureIndex.TextureIndex;
+                }
+            }
+
+            var textureIndicesBuffer = AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
                 uploadBatch,
-                patchBounds);
-            _indexBuffer = AddDisposable(indexBuffer);
+                textureIDs,
+                false));
+
+            _terrainPatchDescriptorSet.SetTypedBuffer(0, textureIndicesBuffer, PixelFormat.UInt32);
         }
 
         private static StaticBuffer CreateVertexBuffer(
@@ -50,7 +85,10 @@ namespace OpenSage.Terrain
                     vertices[vertexIndex++] = new TerrainVertex
                     {
                         Position = heightMap.GetPosition(x, y),
-                        Normal = heightMap.Normals[x, y]
+                        Normal = heightMap.Normals[x, y],
+                        UV = new Vector2( 
+                            x - patchBounds.X,
+                            y - patchBounds.Y)
                     };
                 }
             }
@@ -62,56 +100,18 @@ namespace OpenSage.Terrain
                 false);
         }
 
-        private static (StaticBuffer buffer, uint numIndices) CreateIndexBuffer(
-            GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch,
-            Int32Rect patchBounds)
-        {
-            // TODO: Could use triangle strip
-
-            // TODO: Split terrain into patches.
-            var patchHeight = System.Math.Min(
-                patchBounds.Height, 
-                ushort.MaxValue / (patchBounds.Width - 1) / 6);
-
-            var numIndices = (uint) ((patchBounds.Width - 1) * (patchHeight - 1) * 6);
-
-            var indices = new ushort[numIndices];
-
-            for (int y = 0, indexIndex = 0; y < patchHeight - 1; y++)
-            {
-                for (var x = 0; x < patchBounds.Width - 1; x++)
-                {
-                    // Triangle 1
-                    indices[indexIndex++] = (ushort) (y * (patchBounds.Width - 1) + x);
-                    indices[indexIndex++] = (ushort) (y * (patchBounds.Width - 1) + x + 1);
-                    indices[indexIndex++] = (ushort) ((y + 1) * (patchBounds.Width - 1) + x);
-
-                    // Triangle 2
-                    indices[indexIndex++] = (ushort) ((y + 1) * (patchBounds.Width - 1) + x);
-                    indices[indexIndex++] = (ushort) (y * (patchBounds.Width - 1) + x + 1);
-                    indices[indexIndex++] = (ushort) ((y + 1) * (patchBounds.Width - 1) + x + 1);
-                }
-            }
-
-            var buffer = StaticBuffer.Create(
-                graphicsDevice,
-                uploadBatch,
-                indices,
-                false);
-
-            return (buffer, numIndices);
-        }
-
         [StructLayout(LayoutKind.Sequential)]
         private struct TerrainVertex
         {
             public Vector3 Position;
             public Vector3 Normal;
+            public Vector2 UV;
         }
 
         public void Draw(CommandEncoder commandEncoder)
         {
+            commandEncoder.SetDescriptorSet(2, _terrainPatchDescriptorSet);
+
             commandEncoder.SetVertexBuffer(0, _vertexBuffer);
 
             commandEncoder.DrawIndexed(

@@ -8,6 +8,7 @@ namespace OpenSage.Graphics.Util
     {
         private readonly GraphicsDevice _graphicsDevice;
         private readonly Dictionary<FileSystemEntry, Texture> _cachedTextures;
+        private Texture _placeholderTexture;
 
         public TextureCache(GraphicsDevice graphicsDevice)
         {
@@ -22,9 +23,21 @@ namespace OpenSage.Graphics.Util
                 _cachedTextures[entry] = result = AddDisposable(TextureLoader.LoadTexture(
                     _graphicsDevice,
                     uploadBatch,
-                    entry));
+                    entry,
+                    true));
             }
             return result;
+        }
+
+        public Texture GetPlaceholderTexture(ResourceUploadBatch uploadBatch)
+        {
+            if (_placeholderTexture == null)
+            {
+                _placeholderTexture = AddDisposable(Texture.CreatePlaceholderTexture2D(
+                    _graphicsDevice,
+                    uploadBatch));
+            }
+            return _placeholderTexture;
         }
     }
 }

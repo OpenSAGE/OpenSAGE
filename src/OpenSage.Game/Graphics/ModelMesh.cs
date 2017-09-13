@@ -160,7 +160,7 @@ namespace OpenSage.Graphics
                 false));
         }
 
-        private Texture[] CreateTextures(
+        private static Texture[] CreateTextures(
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,
             W3dMesh w3dMesh,

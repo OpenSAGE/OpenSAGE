@@ -15,14 +15,21 @@ namespace OpenSage.Data.Ini.Parser
             var enumType = typeof(T);
             if (!CachedEnumMap.TryGetValue(enumType, out var stringToValueMap))
             {
-                stringToValueMap = Enum.GetValues(enumType)
-                    .Cast<Enum>()
-                    .Distinct()
-                    .Select(x => new { Name = GetIniName(enumType, x), Value = x })
-                    .Where(x => x.Name != null)
-                    .ToDictionary(x => x.Name, x => x.Value, StringComparer.OrdinalIgnoreCase);
+                lock (CachedEnumMap)
+                {
+                    stringToValueMap = Enum.GetValues(enumType)
+                        .Cast<Enum>()
+                        .Distinct()
+                        .Select(x => new { Name = GetIniName(enumType, x), Value = x })
+                        .Where(x => x.Name != null)
+                        .ToDictionary(x => x.Name, x => x.Value, StringComparer.OrdinalIgnoreCase);
 
-                CachedEnumMap.Add(enumType, stringToValueMap);
+                    // It might have been added by another thread.
+                    if (!CachedEnumMap.ContainsKey(enumType))
+                    {
+                        CachedEnumMap.Add(enumType, stringToValueMap);
+                    }
+                }
             }
             return stringToValueMap;
         }

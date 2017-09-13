@@ -151,9 +151,7 @@ namespace OpenSage.Graphics
             var uploadBatch = new ResourceUploadBatch(_graphicsDevice);
             uploadBatch.Begin();
 
-            MissingTexture = AddDisposable(Texture.CreatePlaceholderTexture2D(
-                graphicsDevice,
-                uploadBatch));
+            MissingTexture = _textureCache.GetPlaceholderTexture(uploadBatch);
 
             uploadBatch.End();
         }

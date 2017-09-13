@@ -69,14 +69,16 @@ namespace OpenSage.Data.Ini
 
         public void LoadIniFile(FileSystemEntry entry)
         {
+            string source;
+
             using (var stream = entry.Open())
             using (var reader = new StreamReader(stream, Encoding.ASCII))
             {
-                var source = reader.ReadToEnd();
-                var parser = new IniParser(source, entry.FilePath);
-
-                parser.ParseFile(this);
+                source = reader.ReadToEnd();
             }
+
+            var parser = new IniParser(source, entry.FilePath);
+            parser.ParseFile(this);
         }
     }
 }

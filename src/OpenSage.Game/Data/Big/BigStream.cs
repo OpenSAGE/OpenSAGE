@@ -8,12 +8,16 @@ namespace OpenSage.Data.Big
         private readonly BigArchiveEntry _entry;
         private readonly BigArchive _archive;
         private readonly uint _offset;
+        private bool _locked;
 
         public BigStream(BigArchiveEntry entry, uint offset)
         {
             _entry = entry;
             _archive = entry.Archive;
             _offset = offset;
+
+            _archive.AcquireLock();
+            _locked = true;
         }
 
         public override void Flush()
@@ -77,5 +81,16 @@ namespace OpenSage.Data.Big
         public override long Length => _entry.Length;
 
         public override long Position { get; set; }
+
+        public override void Close()
+        {
+            if (_locked)
+            {
+                _archive.ReleaseLock();
+                _locked = false;
+            }
+
+            base.Close();
+        }
     }
 }

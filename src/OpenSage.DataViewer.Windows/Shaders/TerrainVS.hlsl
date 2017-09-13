@@ -4,6 +4,7 @@ struct VSInput
 {
     float3 Position : POSITION;
     float3 Normal   : NORMAL;
+    float2 UV       : TEXCOORD;
 };
 
 struct TransformConstants
@@ -22,6 +23,8 @@ VSOutput main(VSInput input)
     result.WorldPosition = mul(input.Position, (float3x3) TransformCB.World);
 
     result.WorldNormal = mul(input.Normal, (float3x3) TransformCB.World);
+
+    result.UV = input.UV;
 
     return result;
 }

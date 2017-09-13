@@ -7,7 +7,9 @@ namespace OpenSage.Terrain
     public sealed class HeightMap
     {
         private const int HorizontalScale = 10;
-        private const float VerticalScale = 1;
+
+        // Gathered from heights in World Builder's status bar compared to heightmap data.
+        private const float VerticalScale = 0.625f;
 
         private readonly HeightMapData _heightMapData;
 

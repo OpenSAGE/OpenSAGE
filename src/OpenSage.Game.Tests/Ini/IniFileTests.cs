@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using OpenSage.Data.Ini;
 using Xunit;
 using Xunit.Abstractions;
@@ -17,6 +19,8 @@ namespace OpenSage.Data.Tests.Ini
         [Fact]
         public void CanReadIniFiles()
         {
+            var tasks = new List<Task>();
+
             InstalledFilesTestData.ReadFiles(".ini", _output, entry =>
             {
                 if (Path.GetFileName(entry.FilePath) == "ButtonSets.ini")
@@ -25,11 +29,16 @@ namespace OpenSage.Data.Tests.Ini
                 if (Path.GetFileName(entry.FilePath) == "Scripts.ini")
                     return; // ZH only, and only needed by World Builder?
 
-                var dataContext = new IniDataContext();
-                dataContext.LoadIniFile(entry);
+                tasks.Add(Task.Run(() =>
+                {
+                    var dataContext = new IniDataContext();
+                    dataContext.LoadIniFile(entry);
 
-                Assert.NotNull(dataContext.CommandMaps);
+                    Assert.NotNull(dataContext.CommandMaps);
+                }));
             });
+
+            Task.WaitAll(tasks.ToArray());
         }
     }
 }

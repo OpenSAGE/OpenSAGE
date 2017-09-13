@@ -46,7 +46,7 @@ namespace OpenSage.DataViewer.ViewModels
             var uploadBatch = new ResourceUploadBatch(graphicsDevice);
             uploadBatch.Begin();
 
-            _texture = TextureLoader.LoadTexture(graphicsDevice, uploadBatch, File);
+            _texture = TextureLoader.LoadTexture(graphicsDevice, uploadBatch, File, false);
             NotifyOfPropertyChange(nameof(TextureWidth));
             NotifyOfPropertyChange(nameof(TextureHeight));
             NotifyOfPropertyChange(nameof(MipMapLevels));

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
+using LLGfx;
 using OpenSage.Data;
 using OpenSage.Data.Dds;
 using OpenSage.Data.Tga;
-using LLGfx;
+using OpenSage.Graphics.Util;
 
 namespace OpenSage.Graphics
 {
@@ -12,7 +13,8 @@ namespace OpenSage.Graphics
         public static Texture LoadTexture(
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,
-            FileSystemEntry textureFile)
+            FileSystemEntry textureFile,
+            bool generateMipMaps)
         {
             switch (Path.GetExtension(textureFile.FilePath).ToLower())
             {
@@ -28,7 +30,8 @@ namespace OpenSage.Graphics
                     return CreateTextureFromTga(
                         graphicsDevice,
                         uploadBatch,
-                        tgaFile);
+                        tgaFile,
+                        generateMipMaps);
 
                 default:
                     throw new InvalidOperationException();
@@ -81,7 +84,8 @@ namespace OpenSage.Graphics
         private static Texture CreateTextureFromTga(
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,
-            TgaFile tgaFile)
+            TgaFile tgaFile,
+            bool generateMipMaps)
         {
             if (tgaFile.Header.ImageType != TgaImageType.UncompressedRgb)
             {
@@ -92,20 +96,33 @@ namespace OpenSage.Graphics
                 tgaFile.Header.ImagePixelSize, 
                 tgaFile.Data);
 
-            return Texture.CreateTexture2D(
-                graphicsDevice,
-                uploadBatch,
-                PixelFormat.Rgba8UNorm,
-                tgaFile.Header.Width,
-                tgaFile.Header.Height,
-                new[]
+            TextureMipMapData[] mipMapData;
+            if (generateMipMaps)
+            {
+                mipMapData = MipMapUtility.GenerateMipMaps(
+                    tgaFile.Header.Width,
+                    tgaFile.Header.Height,
+                    data);
+            }
+            else
+            {
+                mipMapData = new[]
                 {
                     new TextureMipMapData
                     {
                         Data = data,
                         BytesPerRow = tgaFile.Header.Width * 4
                     }
-                });
+                };
+            }
+
+            return Texture.CreateTexture2D(
+                graphicsDevice,
+                uploadBatch,
+                PixelFormat.Rgba8UNorm,
+                tgaFile.Header.Width,
+                tgaFile.Header.Height,
+                mipMapData);
         }
 
         private static byte[] ConvertTgaPixels(byte pixelSize, byte[] data)

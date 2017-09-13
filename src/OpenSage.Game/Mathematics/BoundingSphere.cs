@@ -58,6 +58,8 @@ namespace OpenSage.Mathematics
 
     public static class MathUtility
     {
+        public static readonly float Pi = (float) Math.PI;
+
         public static float Sqrt(float v) => (float) Math.Sqrt(v);
     }
 }

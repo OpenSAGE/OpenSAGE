@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Big
 {
     public class BigArchive : IDisposable
     {
+        private readonly object _lockObject = new object();
+
         private readonly Stream _stream;
         private readonly bool _leaveOpen;
         private readonly BinaryReader _reader;
@@ -42,6 +45,16 @@ namespace OpenSage.Data.Big
             _entriesDictionary = new Dictionary<string, BigArchiveEntry>();
 
             Read();
+        }
+
+        internal void AcquireLock()
+        {
+            Monitor.Enter(_lockObject);
+        }
+
+        internal void ReleaseLock()
+        {
+            Monitor.Exit(_lockObject);
         }
 
         private void Read()

@@ -14,16 +14,17 @@ namespace OpenSage.DataViewer.ViewModels
 
         private DepthStencilBuffer _depthStencilBuffer;
 
-        public ArcballCamera Camera { get; }
+        public MapCamera Camera { get; }
 
         public MapFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
             _mapFile = MapFile.FromFileSystemEntry(file);
 
-            Camera = new ArcballCamera();
+            Camera = new MapCamera();
 
-            Camera.Reset(Vector3.Zero, 50);
+            Camera.Reset(
+                new Vector3(_mapFile.HeightMapData.Width * 10 / 2, 0, -_mapFile.HeightMapData.Height * 10 / 2));
         }
 
         private void EnsureDepthStencilBuffer(GraphicsDevice graphicsDevice, SwapChain swapChain)
@@ -49,7 +50,10 @@ namespace OpenSage.DataViewer.ViewModels
 
         public void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
-            _map = AddDisposable(new Map(_mapFile, graphicsDevice));
+            _map = AddDisposable(new Map(
+                _mapFile, 
+                File.FileSystem,
+                graphicsDevice));
         }
 
         public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
@@ -83,7 +87,7 @@ namespace OpenSage.DataViewer.ViewModels
                 (float) (90 * System.Math.PI / 180),
                 swapChain.BackBufferWidth / (float) swapChain.BackBufferHeight,
                 0.1f,
-                1000.0f);
+                5000.0f);
 
             _map.Draw(commandEncoder, ref cameraPosition, ref view, ref projection);
 
