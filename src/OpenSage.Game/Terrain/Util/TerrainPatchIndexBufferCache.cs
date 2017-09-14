@@ -5,19 +5,26 @@ namespace OpenSage.Terrain.Util
 {
     public sealed class TerrainPatchIndexBufferCache : GraphicsObject
     {
+        private struct CacheEntry
+        {
+            public Buffer Buffer;
+            public ushort[] Indices;
+        }
+
         private readonly GraphicsDevice _graphicsDevice;
-        private readonly Dictionary<TerrainPatchSize, Buffer> _cachedIndexBuffers;
+        private readonly Dictionary<TerrainPatchSize, CacheEntry> _cachedIndexBuffers;
 
         public TerrainPatchIndexBufferCache(GraphicsDevice graphicsDevice)
         {
             _graphicsDevice = graphicsDevice;
-            _cachedIndexBuffers = new Dictionary<TerrainPatchSize, Buffer>();
+            _cachedIndexBuffers = new Dictionary<TerrainPatchSize, CacheEntry>();
         }
 
         public Buffer GetIndexBuffer(
             int width, 
             int height, 
-            ResourceUploadBatch uploadBatch)
+            ResourceUploadBatch uploadBatch,
+            out ushort[] indices)
         {
             var size = new TerrainPatchSize
             {
@@ -26,22 +33,31 @@ namespace OpenSage.Terrain.Util
             };
             if (!_cachedIndexBuffers.TryGetValue(size, out var result))
             {
-                _cachedIndexBuffers[size] = result = AddDisposable(CreateIndexBuffer(uploadBatch, size));
+                _cachedIndexBuffers[size] = result = new CacheEntry
+                {
+                    Buffer = AddDisposable(CreateIndexBuffer(uploadBatch, size, out indices)),
+                    Indices = indices
+                };
             }
-            return result;
+            else
+            {
+                indices = result.Indices;
+            }
+            return result.Buffer;
         }
 
         public uint CalculateNumIndices(int width, int height) => (uint) ((width - 1) * (height - 1) * 6);
 
         private StaticBuffer CreateIndexBuffer(
             ResourceUploadBatch uploadBatch,
-            TerrainPatchSize size)
+            TerrainPatchSize size,
+            out ushort[] indices)
         {
             // TODO: Could use triangle strip
 
             var numIndices = CalculateNumIndices(size.Width, size.Height);
 
-            var indices = new ushort[numIndices];
+            indices = new ushort[numIndices];
 
             for (int y = 0, indexIndex = 0; y < size.Height - 1; y++)
             {

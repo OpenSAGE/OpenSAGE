@@ -1,9 +1,11 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
 using OpenSage.Data;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Util;
+using OpenSage.Terrain.Util;
 
 namespace OpenSage.Terrain
 {
@@ -15,12 +17,34 @@ namespace OpenSage.Terrain
 
         private readonly PipelineLayout _pipelineLayout;
         private readonly PipelineState _pipelineState;
+        private readonly PipelineState _pipelineStateWireframe;
 
         private readonly DynamicBuffer _transformConstantBuffer;
         private TransformConstants _transformConstants;
 
+        private readonly Dictionary<TimeOfDay, LightConfiguration> _lightConfigurations;
+
         private readonly DynamicBuffer _lightingConstantBuffer;
         private LightingConstants _lightingConstants;
+
+        public Terrain Terrain => _terrain;
+
+        private TimeOfDay _currentTimeOfDay;
+        public TimeOfDay CurrentTimeOfDay
+        {
+            get { return _currentTimeOfDay; }
+            set
+            {
+                _currentTimeOfDay = value;
+
+                var lightConfiguration = _lightConfigurations[value];
+                _lightingConstants.Light0 = lightConfiguration.Light0;
+                _lightingConstants.Light1 = lightConfiguration.Light1;
+                _lightingConstants.Light2 = lightConfiguration.Light2;
+            }
+        }
+
+        public bool RenderWireframeOverlay { get; set; }
 
         public Map(
             MapFile mapFile, 
@@ -32,21 +56,14 @@ namespace OpenSage.Terrain
                 Visibility = ShaderStageVisibility.Pixel,
                 Bindings = new[]
                 {
-                    // TextureInfo[]
+                    // TileData
+                    new DescriptorSetLayoutBinding(DescriptorType.Texture, 0, 1),
+
+                    // TextureDetails
                     new DescriptorSetLayoutBinding(DescriptorType.StructuredBuffer, 1, 1),
                     
                     // Textures[]
                     new DescriptorSetLayoutBinding(DescriptorType.Texture, 2, MaxTextures),
-                }
-            });
-
-            var descriptorSetLayoutPixelTerrainPatch = new DescriptorSetLayout(new DescriptorSetLayoutDescription
-            {
-                Visibility = ShaderStageVisibility.Pixel,
-                Bindings = new[]
-                {
-                    // TextureIndices
-                    new DescriptorSetLayoutBinding(DescriptorType.TypedBuffer, 0, 1)
                 }
             });
 
@@ -70,7 +87,6 @@ namespace OpenSage.Terrain
                 },
                 DescriptorSetLayouts = new[]
                 {
-                    descriptorSetLayoutPixelTerrainPatch,
                     descriptorSetLayoutPixelTerrain
                 },
                 StaticSamplerStates = new[]
@@ -106,9 +122,21 @@ namespace OpenSage.Terrain
 
             _pipelineState = AddDisposable(new PipelineState(graphicsDevice, pipelineStateDescription));
 
+            pipelineStateDescription.FillMode = FillMode.Wireframe;
+            pipelineStateDescription.IsDepthWriteEnabled = false;
+            _pipelineStateWireframe = AddDisposable(new PipelineState(graphicsDevice, pipelineStateDescription));
+
             _transformConstantBuffer = AddDisposable(DynamicBuffer.Create<TransformConstants>(graphicsDevice));
 
             _lightingConstantBuffer = AddDisposable(DynamicBuffer.Create<LightingConstants>(graphicsDevice));
+
+            _lightConfigurations = new Dictionary<TimeOfDay, LightConfiguration>();
+            foreach (var kvp in mapFile.GlobalLighting.LightingConfigurations)
+            {
+                _lightConfigurations[kvp.Key] = ToLightConfiguration(kvp.Value);
+            }
+
+            CurrentTimeOfDay = mapFile.GlobalLighting.Time;
 
             var textureCache = AddDisposable(new TextureCache(graphicsDevice));
 
@@ -117,8 +145,44 @@ namespace OpenSage.Terrain
                 graphicsDevice,
                 fileSystem,
                 textureCache,
-                descriptorSetLayoutPixelTerrain,
-                descriptorSetLayoutPixelTerrainPatch));
+                descriptorSetLayoutPixelTerrain));
+        }
+
+        private sealed class LightConfiguration
+        {
+            public Light Light0;
+            public Light Light1;
+            public Light Light2;
+        }
+
+        private static LightConfiguration ToLightConfiguration(GlobalLightingConfiguration mapLightingConfiguration)
+        {
+            return new LightConfiguration
+            {
+                Light0 = ToLight(mapLightingConfiguration.TerrainSun),
+                Light1 = ToLight(mapLightingConfiguration.TerrainAccent1),
+                Light2 = ToLight(mapLightingConfiguration.TerrainAccent2),
+            };
+        }
+
+        private static Light ToLight(GlobalLight mapLight)
+        {
+            //var directionQuaternion = Quaternion.CreateFromYawPitchRoll(
+            //    mapLight.EulerAngles.Z,
+            //    mapLight.EulerAngles.X,
+            //    mapLight.EulerAngles.Y);
+
+            //var direction = Vector3.Normalize(Vector3.Transform(-Vector3.UnitY, directionQuaternion));
+
+            return new Light
+            {
+                Ambient = mapLight.Ambient.ToVector3(),
+                Color = mapLight.Color.ToVector3(),
+                Direction = Vector3.Normalize(new Vector3(
+                    mapLight.EulerAngles.X,
+                    mapLight.EulerAngles.Y,
+                    mapLight.EulerAngles.Z))
+            };
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -129,21 +193,36 @@ namespace OpenSage.Terrain
         }
 
         [StructLayout(LayoutKind.Explicit, Size = SizeInBytes)]
+        private struct Light
+        {
+            public const int SizeInBytes = 48;
+
+            [FieldOffset(0)]
+            public Vector3 Ambient;
+
+            [FieldOffset(16)]
+            public Vector3 Color;
+
+            [FieldOffset(32)]
+            public Vector3 Direction;
+        };
+
+        [StructLayout(LayoutKind.Explicit, Size = SizeInBytes)]
         private struct LightingConstants
         {
-            public const int SizeInBytes = 64;
+            public const int SizeInBytes = 160;
 
             [FieldOffset(0)]
             public Vector3 CameraPosition;
 
             [FieldOffset(16)]
-            public Vector3 AmbientLightColor;
+            public Light Light0;
 
-            [FieldOffset(32)]
-            public Vector3 Light0Direction;
+            [FieldOffset(64)]
+            public Light Light1;
 
-            [FieldOffset(48)]
-            public Vector3 Light0Color;
+            [FieldOffset(112)]
+            public Light Light2;
         }
 
         public void Draw(CommandEncoder commandEncoder,
@@ -153,7 +232,34 @@ namespace OpenSage.Terrain
         {
             commandEncoder.SetPipelineLayout(_pipelineLayout);
 
-            commandEncoder.SetPipelineState(_pipelineState);
+            Draw(commandEncoder, 
+                _pipelineState, 
+                ref _lightingConstants, 
+                ref cameraPosition, 
+                ref view, 
+                ref projection);
+
+            if (RenderWireframeOverlay)
+            {
+                var nullLightingConstants = new LightingConstants();
+                Draw(commandEncoder, 
+                    _pipelineStateWireframe, 
+                    ref nullLightingConstants, 
+                    ref cameraPosition, 
+                    ref view, 
+                    ref projection);
+            }
+        }
+
+        private void Draw(
+            CommandEncoder commandEncoder,
+            PipelineState pipelineState,
+            ref LightingConstants lightingConstants,
+            ref Vector3 cameraPosition,
+            ref Matrix4x4 view,
+            ref Matrix4x4 projection)
+        {
+            commandEncoder.SetPipelineState(pipelineState);
 
             _transformConstants.WorldViewProjection = view * projection;
             _transformConstants.World = Matrix4x4.Identity;
@@ -161,13 +267,10 @@ namespace OpenSage.Terrain
             commandEncoder.SetInlineConstantBuffer(0, _transformConstantBuffer);
 
             _lightingConstants.CameraPosition = cameraPosition;
-            _lightingConstants.AmbientLightColor = new Vector3(0.3f, 0.3f, 0.3f);
-            _lightingConstants.Light0Direction = Vector3.Normalize(new Vector3(-0.3f, -0.8f, -0.2f));
-            _lightingConstants.Light0Color = new Vector3(0.7f, 0.7f, 0.8f);
-            _lightingConstantBuffer.SetData(ref _lightingConstants);
+            _lightingConstantBuffer.SetData(ref lightingConstants);
             commandEncoder.SetInlineConstantBuffer(1, _lightingConstantBuffer);
 
-            _terrain.Draw(commandEncoder);           
+            _terrain.Draw(commandEncoder);
         }
     }
 }

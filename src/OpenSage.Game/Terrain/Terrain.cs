@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
 using OpenSage.Data;
@@ -21,13 +22,14 @@ namespace OpenSage.Terrain
 
         public HeightMap HeightMap { get; }
 
+        public BoundingBox BoundingBox { get; }
+
         public Terrain(
             MapFile mapFile,
             GraphicsDevice graphicsDevice,
             FileSystem fileSystem,
             TextureCache textureCache,
-            DescriptorSetLayout terrainDescriptorSetLayout,
-            DescriptorSetLayout terrainPatchDescriptorSetLayout)
+            DescriptorSetLayout terrainDescriptorSetLayout)
         {
             var indexBufferCache = AddDisposable(new TerrainPatchIndexBufferCache(graphicsDevice));
 
@@ -67,14 +69,24 @@ namespace OpenSage.Terrain
                         Height = System.Math.Min(PatchSize, HeightMap.Height - patchY)
                     };
 
-                    _patches[x, y] = AddDisposable(new TerrainPatch(
+                    var terrainPatch = AddDisposable(new TerrainPatch(
                         HeightMap,
                         mapFile.BlendTileData,
                         patchBounds,
                         graphicsDevice,
                         uploadBatch,
-                        indexBufferCache,
-                        terrainPatchDescriptorSetLayout));
+                        indexBufferCache));
+
+                    if (x == 0 && y == 0)
+                    {
+                        BoundingBox = terrainPatch.BoundingBox;
+                    }
+                    else
+                    {
+                        BoundingBox = BoundingBox.CreateMerged(BoundingBox, terrainPatch.BoundingBox);
+                    }
+
+                    _patches[x, y] = terrainPatch;
                 }
             }
 
@@ -95,8 +107,62 @@ namespace OpenSage.Terrain
                 textureDetails,
                 false));
 
-            _terrainDescriptorSet.SetStructuredBuffer(0, textureDetailsBuffer);
-            _terrainDescriptorSet.SetTextures(1, textures);
+            var tileData = new uint[HeightMap.Width * HeightMap.Height * 4];
+
+            var tileDataIndex = 0;
+            for (var y = 0; y < HeightMap.Height; y++)
+            {
+                for (var x = 0; x < HeightMap.Width; x++)
+                {
+                    var textureIndex = (uint) mapFile.BlendTileData.TextureIndices[mapFile.BlendTileData.Tiles[x, y]].TextureIndex;
+
+                    uint secondaryTextureIndex;
+                    uint blendDirection;
+                    uint reverseDirection;
+
+                    var blend = mapFile.BlendTileData.Blends[x, y];
+                    if (blend > 0)
+                    {
+                        var blendDescription = mapFile.BlendTileData.BlendDescriptions[blend - 1];
+                        secondaryTextureIndex = (uint) mapFile.BlendTileData.TextureIndices[(int) blendDescription.SecondaryTextureTile].TextureIndex;
+                        blendDirection = (uint) blendDescription.BlendDirection;
+                        reverseDirection = blendDescription.Flags.HasFlag(BlendFlags.ReverseDirection) 
+                            ? 1u 
+                            : 0u;
+                    }
+                    else
+                    {
+                        secondaryTextureIndex = textureIndex;
+                        blendDirection = 0;
+                        reverseDirection = 0;
+                    }
+
+                    tileData[tileDataIndex++] = textureIndex;
+                    tileData[tileDataIndex++] = secondaryTextureIndex;
+                    tileData[tileDataIndex++] = blendDirection;
+                    tileData[tileDataIndex++] = reverseDirection;
+                }
+            }
+            byte[] textureIDsByteArray = new byte[tileData.Length * sizeof(uint)];
+            System.Buffer.BlockCopy(tileData, 0, textureIDsByteArray, 0, tileData.Length * sizeof(uint));
+            var tileDataTexture = AddDisposable(Texture.CreateTexture2D(
+                graphicsDevice,
+                uploadBatch,
+                PixelFormat.Rgba32UInt,
+                HeightMap.Width,
+                HeightMap.Height,
+                new[]
+                {
+                    new TextureMipMapData
+                    {
+                        BytesPerRow = HeightMap.Width * sizeof(uint) * 4,
+                        Data = textureIDsByteArray
+                    }
+                }));
+
+            _terrainDescriptorSet.SetTexture(0, tileDataTexture);
+            _terrainDescriptorSet.SetStructuredBuffer(1, textureDetailsBuffer);
+            _terrainDescriptorSet.SetTextures(2, textures);
 
             uploadBatch.End();
         }
@@ -142,7 +208,7 @@ namespace OpenSage.Terrain
 
                 textureDetails[i] = new TextureInfo
                 {
-                    CellSize = mapTexture.CellSize
+                    CellSize = mapTexture.CellSize * 2
                 };
             }
             return (textures, textureDetails);
@@ -154,9 +220,34 @@ namespace OpenSage.Terrain
             public uint CellSize;
         }
 
+        public Vector3? Intersect(Ray ray)
+        {
+            if (ray.Intersects(BoundingBox) == null)
+            {
+                return null;
+            }
+
+            float? closestIntersection = null;
+
+            for (var y = 0; y < _numPatchesY; y++)
+            {
+                for (var x = 0; x < _numPatchesX; x++)
+                {
+                    _patches[x, y].Intersect(ray, ref closestIntersection);
+                }
+            }
+
+            if (closestIntersection == null)
+            {
+                return null;
+            }
+
+            return ray.Position + (ray.Direction * closestIntersection.Value);
+        }
+
         public void Draw(CommandEncoder commandEncoder)
         {
-            commandEncoder.SetDescriptorSet(3, _terrainDescriptorSet);
+            commandEncoder.SetDescriptorSet(2, _terrainDescriptorSet);
 
             for (var y = 0; y < _numPatchesY; y++)
             {

@@ -25,6 +25,8 @@ namespace LLGfx.Hosting
     {
         #region Fields
 
+        private readonly DpiScale _dpiScale;
+
         // The name of our window class
         private const string WindowClass = "GraphicsDeviceControlHostWindowClass";
 
@@ -175,6 +177,8 @@ namespace LLGfx.Hosting
             // Check whether the application is active (it almost certainly is, at this point).
             if (Application.Current.Windows.Cast<Window>().Any(x => x.IsActive))
                 _applicationHasFocus = true;
+
+            _dpiScale = VisualTreeHelper.GetDpi(this);
         }
 
         protected virtual void OnUnloaded(object sender, RoutedEventArgs e)
@@ -448,8 +452,8 @@ namespace LLGfx.Hosting
 
                     // record the prevous and new position of the mouse
                     _mouseState.ScreenPosition = PointToScreen(new Point(
-                        NativeMethods.GetXLParam((int) lParam),
-                        NativeMethods.GetYLParam((int) lParam)));
+                        NativeMethods.GetXLParam((int) lParam) / _dpiScale.DpiScaleX,
+                        NativeMethods.GetYLParam((int) lParam) / _dpiScale.DpiScaleY));
 
                     if (!_mouseInWindow)
                     {

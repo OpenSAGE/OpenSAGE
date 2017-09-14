@@ -20,10 +20,20 @@ namespace LLGfx
         {
             var rasterizerState = RasterizerStateDescription.Default();
             rasterizerState.IsFrontCounterClockwise = description.IsFrontCounterClockwise;
+
+            rasterizerState.FillMode = description.FillMode == FillMode.Solid
+                ? D3D12.FillMode.Solid
+                : D3D12.FillMode.Wireframe;
             
             rasterizerState.CullMode = description.TwoSided
                 ? CullMode.None
                 : CullMode.Back;
+
+            if (description.FillMode == FillMode.Wireframe)
+            {
+                //rasterizerState.DepthBias = -1000;
+                rasterizerState.SlopeScaledDepthBias = -1;
+            }
 
             var blendState = BlendStateDescription.Default();
             if (description.Blending.Enabled)

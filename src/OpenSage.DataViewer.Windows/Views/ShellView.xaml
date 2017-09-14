@@ -38,7 +38,7 @@
                                                   TabStripMargin="10">
             <mahapps:MetroAnimatedSingleRowTabControl.ContentTemplate>
                 <DataTemplate>
-                    <Border BorderBrush="LightGray" BorderThickness="0 0 0 0" Padding="15 10 15 0">
+                    <Border BorderBrush="LightGray" BorderThickness="0 0 0 0" Padding="15 10 0 0">
                         <ContentControl cal:View.Model="{Binding}" />
                     </Border>
                 </DataTemplate>

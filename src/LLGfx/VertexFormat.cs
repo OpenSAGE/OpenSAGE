@@ -5,6 +5,7 @@
         Float2,
         Float3,
         Float4,
-        UInt
+        UInt,
+        UInt2
     }
 }

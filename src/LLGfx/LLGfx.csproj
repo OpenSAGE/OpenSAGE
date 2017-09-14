@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net46</TargetFramework>
+    <TargetFramework>net462</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="SharpDX.Direct3D12" Version="4.0.1" />

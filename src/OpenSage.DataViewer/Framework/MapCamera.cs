@@ -24,8 +24,8 @@ namespace OpenSage.DataViewer.Framework
             get
             {
                 var result = Vector3.Transform(
-                    Vector3.UnitZ, 
-                    Matrix4x4.CreateFromYawPitchRoll(_yaw, DefaultPitch, 0));
+                    -Vector3.UnitY,
+                    QuaternionUtility.CreateFromYawPitchRoll_ZUp(_yaw, DefaultPitch, 0));
                 result *= _zoom * DefaultDistance;
                 result += _target;
                 return result;
@@ -35,7 +35,7 @@ namespace OpenSage.DataViewer.Framework
         public Matrix4x4 ViewMatrix => Matrix4x4.CreateLookAt(
             Position + _translation,
             _target + _translation,
-            Vector3.UnitY);
+            Vector3.UnitZ);
 
         public void Reset(Vector3 target)
         {
@@ -63,7 +63,7 @@ namespace OpenSage.DataViewer.Framework
 
         public void Pan(float deltaX, float deltaY)
         {
-            var cameraOrientation = Quaternion.CreateFromYawPitchRoll(
+            var cameraOrientation = QuaternionUtility.CreateFromYawPitchRoll_ZUp(
                 _yaw,
                 DefaultPitch, 
                 0);
@@ -72,9 +72,9 @@ namespace OpenSage.DataViewer.Framework
 
             var newTranslation = Vector3.Zero;
             newTranslation += Vector3.Transform(Vector3.UnitX, cameraOrientation) * deltaX * panSpeed;
-            newTranslation -= Vector3.Transform(Vector3.UnitY, cameraOrientation) * deltaY * panSpeed;
+            newTranslation += Vector3.Transform(-Vector3.UnitZ, cameraOrientation) * deltaY * panSpeed;
 
-            newTranslation.Y = 0;
+            newTranslation.Z = 0;
 
             _translation += newTranslation;
         }

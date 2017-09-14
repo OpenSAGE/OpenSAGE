@@ -98,6 +98,11 @@ namespace OpenSage.DataViewer.Views
                 TypedDataContext.Camera.Pan((float) delta.X, (float) delta.Y);
             }
 
+            var mousePosition = e.GetPosition(GraphicsDeviceControl);
+            TypedDataContext.OnMouseMove(
+                (int) mousePosition.X, 
+                (int) mousePosition.Y);
+
             _previousMousePoint = e.ScreenPosition;
         }
     }

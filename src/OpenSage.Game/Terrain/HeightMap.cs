@@ -1,5 +1,4 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using OpenSage.Data.Map;
 
 namespace OpenSage.Terrain
@@ -16,12 +15,12 @@ namespace OpenSage.Terrain
         public int Width { get; }
         public int Height { get; }
 
-        public float GetHeight(int x, int z) => _heightMapData.Elevations[x, z] * VerticalScale;
+        public float GetHeight(int x, int y) => _heightMapData.Elevations[x, y] * VerticalScale;
 
-        public Vector3 GetPosition(int x, int z) => new Vector3(
-            x * HorizontalScale, 
-            GetHeight(x, z), 
-            -z * HorizontalScale);
+        public Vector3 GetPosition(int x, int y) => new Vector3(
+            x * HorizontalScale,
+            y * HorizontalScale,
+            GetHeight(x, y));
 
         public Vector3[,] Normals { get; }
 
@@ -55,15 +54,15 @@ namespace OpenSage.Terrain
 		private Vector3 CalculateQuadNormal(int x, int y)
         {
             float h0 = GetHeight(x, y);
-            float h1 = GetHeight(x, y + 1);
-            float h2 = GetHeight(x + 1, y);
+            float h1 = GetHeight(x + 1, y);
+            float h2 = GetHeight(x, y + 1);
             float h3 = GetHeight(x + 1, y + 1);
 
-            Vector3 u = new Vector3(HorizontalScale, h1 - h0, 0);
-            Vector3 v = new Vector3(0, h2 - h0, -HorizontalScale);
+            Vector3 u = new Vector3(HorizontalScale, 0, h1 - h0);
+            Vector3 v = new Vector3(0, HorizontalScale, h2 - h0);
 
-            Vector3 s = new Vector3(-HorizontalScale, h2 - h3, 0);
-            Vector3 t = new Vector3(0, h1 - h3, HorizontalScale);
+            Vector3 s = new Vector3(-HorizontalScale, 0, h2 - h3);
+            Vector3 t = new Vector3(0, -HorizontalScale, h1 - h3);
 
             Vector3 n1 = Vector3.Normalize(Vector3.Cross(u, v));
             Vector3 n2 = Vector3.Normalize(Vector3.Cross(s, t));
@@ -89,7 +88,7 @@ namespace OpenSage.Terrain
                     // with the y-axis.
                     if (m < 0 || n < 0 || m == Width - 1 || n == Height - 1)
                     {
-                        avg += Vector3.UnitY;
+                        avg += Vector3.UnitZ;
                         num += 1.0f;
                     }
                     else

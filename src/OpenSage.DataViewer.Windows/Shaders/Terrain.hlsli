@@ -12,5 +12,5 @@ struct VSOutput : PSInputBase
 
 struct PSInput : PSInputBase
 {
-    uint PrimitiveID : SV_PrimitiveID;
+    
 };

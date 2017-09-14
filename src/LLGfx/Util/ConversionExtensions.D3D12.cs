@@ -80,8 +80,11 @@ namespace LLGfx.Util
                 case PixelFormat.Rgba8UNorm:
                     return Format.R8G8B8A8_UNorm;
 
-                case PixelFormat.UInt32:
+                case PixelFormat.R32UInt:
                     return Format.R32_UInt;
+
+                case PixelFormat.Rgba32UInt:
+                    return Format.R32G32B32A32_UInt;
 
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -103,6 +106,9 @@ namespace LLGfx.Util
 
                 case VertexFormat.UInt:
                     return Format.R32_UInt;
+
+                case VertexFormat.UInt2:
+                    return Format.R32G32_UInt;
 
                 default:
                     throw new ArgumentOutOfRangeException();

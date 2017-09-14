@@ -24,6 +24,7 @@
 
         public Shader PixelShader;
 
+        public FillMode FillMode;
         public bool IsFrontCounterClockwise;
         public bool TwoSided;
 
@@ -40,5 +41,11 @@
         public bool Enabled;
         public Blend SourceBlend;
         public Blend DestinationBlend;
+    }
+
+    public enum FillMode
+    {
+        Solid,
+        Wireframe
     }
 }

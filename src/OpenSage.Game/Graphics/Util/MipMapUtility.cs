@@ -98,10 +98,10 @@ namespace OpenSage.Graphics.Util
             {
                 return new ByteRgba
                 {
-                    R = (byte) ((v0.R + v1.R + v2.R + v3.R) / 4.0f),
-                    G = (byte) ((v0.G + v1.G + v2.G + v3.G) / 4.0f),
-                    B = (byte) ((v0.B + v1.B + v2.B + v3.B) / 4.0f),
-                    A = (byte) ((v0.A + v1.A + v2.A + v3.A) / 4.0f)
+                    R = (byte) ((v0.R + v1.R + v2.R + v3.R) / 4),
+                    G = (byte) ((v0.G + v1.G + v2.G + v3.G) / 4),
+                    B = (byte) ((v0.B + v1.B + v2.B + v3.B) / 4),
+                    A = (byte) ((v0.A + v1.A + v2.A + v3.A) / 4)
                 };
             }
 

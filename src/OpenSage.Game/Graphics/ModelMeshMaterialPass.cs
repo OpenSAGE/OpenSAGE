@@ -107,7 +107,7 @@ namespace OpenSage.Graphics
                 textureIDs,
                 false));
 
-            PixelMaterialPassDescriptorSet.SetTypedBuffer(0, textureIndicesBuffer, PixelFormat.UInt32);
+            PixelMaterialPassDescriptorSet.SetTypedBuffer(0, textureIndicesBuffer, PixelFormat.R32UInt);
 
             var materialIDs = w3dMaterialPass.VertexMaterialIds;
             if (materialIDs.Length == 1)
@@ -130,7 +130,7 @@ namespace OpenSage.Graphics
                 graphicsDevice,
                 vertexMaterialPassDescriptorSetLayout));
 
-            VertexMaterialPassDescriptorSet.SetTypedBuffer(0, materialIndicesBuffer, PixelFormat.UInt32);
+            VertexMaterialPassDescriptorSet.SetTypedBuffer(0, materialIndicesBuffer, PixelFormat.R32UInt);
 
             var meshParts = new List<ModelMeshPart>();
 
