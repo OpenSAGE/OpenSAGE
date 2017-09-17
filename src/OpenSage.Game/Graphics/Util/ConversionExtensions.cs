@@ -14,8 +14,7 @@ namespace OpenSage.Graphics.Util
 
         public static Vector3 ToVector3(this W3dVector value)
         {
-            // Switch y and z to account for z being up in .w3d (thanks Stephan)
-            return new Vector3(value.X, value.Z, -value.Y);
+            return new Vector3(value.X, value.Y, value.Z);
         }
 
         public static Vector3 ToVector3(this W3dRgb value)
@@ -25,8 +24,7 @@ namespace OpenSage.Graphics.Util
 
         public static Quaternion ToQuaternion(this W3dQuaternion value)
         {
-            // Switch y and z to account for z being up in .w3d (thanks Stephan)
-            return new Quaternion(value.X, value.Z, -value.Y, value.W);
+            return new Quaternion(value.X, value.Y, value.Z, value.W);
         }
 
         public static Blend ToBlend(this W3dShaderSrcBlendFunc value)

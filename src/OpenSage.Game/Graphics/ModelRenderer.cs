@@ -231,7 +231,7 @@ namespace OpenSage.Graphics
 
             _lightingConstants.CameraPosition = cameraPosition;
             _lightingConstants.AmbientLightColor = new Vector3(0.3f, 0.3f, 0.3f);
-            _lightingConstants.Light0Direction = Vector3.Normalize(new Vector3(-0.3f, -0.8f, -0.2f));
+            _lightingConstants.Light0Direction = Vector3.Normalize(new Vector3(-0.3f, 0.2f, -0.8f));
             _lightingConstants.Light0Color = new Vector3(0.7f, 0.7f, 0.8f);
             _lightingConstantBuffer.SetData(ref _lightingConstants);
             commandEncoder.SetInlineConstantBuffer(3, _lightingConstantBuffer);

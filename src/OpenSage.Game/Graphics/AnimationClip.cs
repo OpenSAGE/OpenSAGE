@@ -27,7 +27,6 @@ namespace OpenSage.Graphics
 
         private static Keyframe CreateKeyframe(W3dAnimationChannelType channelType, TimeSpan time, ref W3dAnimationChannelDatum datum)
         {
-            // Switch y and z to account for z being up in W3D.
             switch (channelType)
             {
                 case W3dAnimationChannelType.Quaternion:
@@ -37,10 +36,10 @@ namespace OpenSage.Graphics
                     return new TranslationXKeyframe(time, datum.FloatValue);
 
                 case W3dAnimationChannelType.TranslationY:
-                    return new TranslationZKeyframe(time, -datum.FloatValue);
+                    return new TranslationYKeyframe(time, datum.FloatValue);
 
                 case W3dAnimationChannelType.TranslationZ:
-                    return new TranslationYKeyframe(time, datum.FloatValue);
+                    return new TranslationZKeyframe(time, datum.FloatValue);
 
                 default:
                     throw new NotImplementedException();

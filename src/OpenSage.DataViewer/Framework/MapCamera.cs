@@ -1,5 +1,4 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using OpenSage.Mathematics;
 
 namespace OpenSage.DataViewer.Framework

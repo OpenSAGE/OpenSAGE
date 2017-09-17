@@ -1,5 +1,5 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
+using OpenSage.Mathematics;
 
 namespace OpenSage.DataViewer.Framework
 {
@@ -8,6 +8,9 @@ namespace OpenSage.DataViewer.Framework
         private const float RotationSpeed = 0.003f;
         private const float ZoomSpeed = 0.001f;
         private const float PanSpeed = 0.05f;
+
+        private readonly float MinPitch = -MathUtility.Pi / 2.0f + 0.3f;
+        private readonly float MaxPitch = MathUtility.Pi / 2.0f - 0.3f;
 
         private Vector3 _target;
         private float _radius;
@@ -21,7 +24,9 @@ namespace OpenSage.DataViewer.Framework
         {
             get
             {
-                var result = Vector3.Transform(Vector3.UnitZ, Matrix4x4.CreateFromYawPitchRoll(_yaw, _pitch, 0));
+                var result = Vector3.Transform(
+                    -Vector3.UnitY, 
+                    QuaternionUtility.CreateFromYawPitchRoll_ZUp(_yaw, _pitch, 0));
                 result *= _zoom * _radius;
                 result += _target;
                 return result;
@@ -31,7 +36,7 @@ namespace OpenSage.DataViewer.Framework
         public Matrix4x4 ViewMatrix => Matrix4x4.CreateLookAt(
             Position + _translation,
             _target + _translation,
-            Vector3.UnitY);
+            Vector3.UnitZ);
 
         public void Reset(Vector3 target, float radius)
         {
@@ -39,7 +44,7 @@ namespace OpenSage.DataViewer.Framework
             _radius = radius;
 
             _yaw = 0;
-            _pitch = -(float)Math.PI / 6.0f;
+            _pitch = -MathUtility.Pi / 6.0f;
             _zoom = 1;
             _translation = Vector3.Zero;
         }
@@ -48,14 +53,11 @@ namespace OpenSage.DataViewer.Framework
         {
             _yaw += deltaX * RotationSpeed;
 
-            const float minPitch = (float)(-Math.PI / 2.0f + 0.3f);
-            const float maxPitch = (float)(Math.PI / 2.0f - 0.3f);
-
             var newPitch = _pitch + deltaY * RotationSpeed;
-            if (newPitch < minPitch)
-                newPitch = minPitch;
-            else if (newPitch > maxPitch)
-                newPitch = maxPitch;
+            if (newPitch < MinPitch)
+                newPitch = MinPitch;
+            else if (newPitch > MaxPitch)
+                newPitch = MaxPitch;
             _pitch = newPitch;
         }
 
@@ -74,13 +76,13 @@ namespace OpenSage.DataViewer.Framework
 
         public void Pan(float deltaX, float deltaY)
         {
-            var cameraOrientation = Quaternion.CreateFromYawPitchRoll(
+            var cameraOrientation = QuaternionUtility.CreateFromYawPitchRoll_ZUp(
                 _yaw, 
                 _pitch, 
                 0);
 
             _translation += Vector3.Transform(Vector3.UnitX, cameraOrientation) * deltaX * PanSpeed;
-            _translation -= Vector3.Transform(Vector3.UnitY, cameraOrientation) * deltaY * PanSpeed;
+            _translation += Vector3.Transform(-Vector3.UnitZ, cameraOrientation) * deltaY * PanSpeed;
         }
     }
 }
