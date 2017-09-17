@@ -173,15 +173,16 @@ namespace OpenSage.Terrain
 
             var cliffDetails = new CliffInfo[mapFile.BlendTileData.CliffTextureMappings.Length];
 
+            const int cliffScalingFactor = 64;
             for (var i = 0; i < cliffDetails.Length; i++)
             {
                 var cliffMapping = mapFile.BlendTileData.CliffTextureMappings[i];
                 cliffDetails[i] = new CliffInfo
                 {
-                    BottomLeftUV = cliffMapping.BottomLeftCoords.ToVector2(),
-                    BottomRightUV = cliffMapping.BottomRightCoords.ToVector2(),
-                    TopLeftUV = cliffMapping.TopLeftCoords.ToVector2(),
-                    TopRightUV = cliffMapping.TopRightCoords.ToVector2()
+                    BottomLeftUV = cliffMapping.BottomLeftCoords.ToVector2() * cliffScalingFactor,
+                    BottomRightUV = cliffMapping.BottomRightCoords.ToVector2() * cliffScalingFactor,
+                    TopLeftUV = cliffMapping.TopLeftCoords.ToVector2() * cliffScalingFactor,
+                    TopRightUV = cliffMapping.TopRightCoords.ToVector2() * cliffScalingFactor
                 };
             }
 

@@ -12,7 +12,7 @@ namespace OpenSage.Terrain.Util
 
         public static Vector2 ToVector2(this MapTexCoord value)
         {
-            return new Vector2(value.U, value.V);
+            return new Vector2(value.U, -value.V);
         }
     }
 }

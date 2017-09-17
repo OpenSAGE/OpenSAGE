@@ -140,11 +140,6 @@ float3 SampleBlendedTextures(float2 uv)
         float2 uvXTop    = lerp(cliffInfo.TopLeftUV, cliffInfo.TopRightUV, fracUV.x);
 
         uv = lerp(uvXBottom, uvXTop, fracUV.y);
-
-        const int cliffScalingFactor = 64;
-        uv *= cliffScalingFactor;
-
-        uv.y = -uv.y;
     }
 
     float2 ddxUV = ddx(uv);
