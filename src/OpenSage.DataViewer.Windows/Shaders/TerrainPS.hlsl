@@ -17,26 +17,38 @@ struct LightingConstants
 
 ConstantBuffer<LightingConstants> LightingCB : register(b0);
 
+#define BLEND_DIRECTION_TOWARDS_RIGHT     1
+#define BLEND_DIRECTION_TOWARDS_TOP       2
+#define BLEND_DIRECTION_TOWARDS_TOP_RIGHT 4
+#define BLEND_DIRECTION_TOWARDS_TOP_LEFT  8
+
+Texture2D<uint4> TileData : register(t0);
+
+struct CliffInfo
+{
+    float2 BottomLeftUV;
+    float2 BottomRightUV;
+    float2 TopRightUV;
+    float2 TopLeftUV;
+};
+
+StructuredBuffer<CliffInfo> CliffDetails : register(t1);
+
 struct TextureInfo
 {
     uint CellSize;
 };
 
-#define BLEND_DIRECTION_TOWARDS_RIGHT     1
-#define BLEND_DIRECTION_TOWARDS_TOP       2
-#define BLEND_DIRECTION_TOWARDS_TOP_LEFT  4
-#define BLEND_DIRECTION_TOWARDS_TOP_RIGHT 8
-
-Texture2D<uint4> TileData : register(t0);
-
-StructuredBuffer<TextureInfo> TextureDetails : register(t1);
-Texture2D<float4> Textures[] : register(t2);
+StructuredBuffer<TextureInfo> TextureDetails : register(t2);
+Texture2D<float4> Textures[] : register(t3);
 
 SamplerState Sampler : register(s0);
 
 float3 SampleTexture(
     int textureIndex,
-    float2 uv)
+    float2 uv,
+    float2 ddxUV,
+    float2 ddyUV)
 {
     // TODO: Since all pixels in a primitive share the same textureIndex,
     // can we remove the call to NonUniformResourceIndex?
@@ -45,31 +57,51 @@ float3 SampleTexture(
 
     float2 scaledUV = uv / textureInfo.CellSize;
 
-    float4 diffuseTextureColor = diffuseTexture.Sample(
+    // Can't use standard Sample because UV is scaled by texture CellSize,
+    // and that doesn't work for divergent texture lookups.
+    float4 diffuseTextureColor = diffuseTexture.SampleGrad(
         Sampler,
-        float2(scaledUV.x, 1 - scaledUV.y));
+        float2(scaledUV.x, -scaledUV.y),
+        ddxUV / textureInfo.CellSize,
+        ddyUV / textureInfo.CellSize);
 
     return diffuseTextureColor.rgb;
 }
 
-float3 SampleBlendedTextures(float2 uv)
+float CalculateDiagonalBlendFactor(float2 fracUV, bool twoSided)
 {
-    uint4 tileDatum = TileData.Load(int3(uv, 0));
+    return twoSided
+        ? 1 - saturate((fracUV.x + fracUV.y) - 1)
+        : saturate(1 - (fracUV.x + fracUV.y));
+}
 
-    float3 baseTextureColor = SampleTexture(tileDatum.x, uv);
+float CalculateBlendFactor(
+    uint blendDirection,
+    uint blendFlags,
+    float2 fracUV)
+{
+    bool flipped  = (blendFlags & 1) == 1;
+    bool twoSided = (blendFlags & 2) == 2;
 
-    float3 secondaryTextureColor = SampleTexture(tileDatum.y, uv);
-
-    float blendFactor = 0;
-    float2 fracUV = frac(uv);
-
-    if (tileDatum.w == 1) // Reverse direction
+    if (flipped)
     {
-        fracUV.x = 1 - fracUV.x;
-        fracUV.y = 1 - fracUV.y;
+        switch (blendDirection)
+        {
+        case BLEND_DIRECTION_TOWARDS_RIGHT:
+            fracUV.x = 1 - fracUV.x;
+            break;
+
+        case BLEND_DIRECTION_TOWARDS_TOP:
+        case BLEND_DIRECTION_TOWARDS_TOP_RIGHT:
+        case BLEND_DIRECTION_TOWARDS_TOP_LEFT:
+            fracUV.y = 1 - fracUV.y;
+            break;
+        }
     }
 
-    switch (tileDatum.z)
+    float blendFactor = 0;
+
+    switch (blendDirection)
     {
     case BLEND_DIRECTION_TOWARDS_RIGHT:
         blendFactor = fracUV.x;
@@ -79,18 +111,71 @@ float3 SampleBlendedTextures(float2 uv)
         blendFactor = fracUV.y;
         break;
 
-    case BLEND_DIRECTION_TOWARDS_TOP_LEFT:
-        //fracUV.y = 1 - fracUV.y;
-        blendFactor = max(1 - fracUV.x, fracUV.y);
+    case BLEND_DIRECTION_TOWARDS_TOP_RIGHT:
+        fracUV = float2(1, 1) - fracUV;
+        blendFactor = CalculateDiagonalBlendFactor(fracUV, twoSided);
         break;
 
-    case BLEND_DIRECTION_TOWARDS_TOP_RIGHT:
-        //fracUV.x = 1 - fracUV.x;
-        blendFactor = max(fracUV.x, fracUV.y);
+    case BLEND_DIRECTION_TOWARDS_TOP_LEFT:
+        fracUV.y = 1 - fracUV.y;
+        blendFactor = CalculateDiagonalBlendFactor(fracUV, twoSided);
         break;
     }
 
-    return baseTextureColor * (1 - blendFactor) + secondaryTextureColor * blendFactor;
+    return blendFactor;
+}
+
+float3 SampleBlendedTextures(float2 uv)
+{
+    uint4 tileDatum = TileData.Load(int3(uv, 0));
+
+    float2 fracUV = frac(uv);
+
+    uint cliffTextureIndex = tileDatum.z;
+    if (cliffTextureIndex != 0)
+    {
+        CliffInfo cliffInfo = CliffDetails[cliffTextureIndex - 1];
+
+        float2 uvXBottom = lerp(cliffInfo.BottomLeftUV, cliffInfo.BottomRightUV, fracUV.x);
+        float2 uvXTop    = lerp(cliffInfo.TopLeftUV, cliffInfo.TopRightUV, fracUV.x);
+
+        uv = lerp(uvXBottom, uvXTop, fracUV.y);
+
+        const int cliffScalingFactor = 64;
+        uv *= cliffScalingFactor;
+
+        uv.y = -uv.y;
+    }
+
+    float2 ddxUV = ddx(uv);
+    float2 ddyUV = ddy(uv);
+
+    uint packedTextureIndices = tileDatum.x;
+    uint textureIndex0 = packedTextureIndices & 0xFF;
+    uint textureIndex1 = (packedTextureIndices >> 8) & 0xFF;
+    uint textureIndex2 = (packedTextureIndices >> 16) & 0xFF;
+
+    uint packedBlendInfo = tileDatum.y;
+    uint blendDirection1 = packedBlendInfo & 0xFF;
+    uint blendFlags1 = (packedBlendInfo >> 8) & 0xFF;
+    uint blendDirection2 = (packedBlendInfo >> 16) & 0xFF;
+    uint blendFlags2 = (packedBlendInfo >> 24) & 0xFF;
+
+    float3 textureColor0 = SampleTexture(textureIndex0, uv, ddxUV, ddyUV);
+    float3 textureColor1 = SampleTexture(textureIndex1, uv, ddxUV, ddyUV);
+    float3 textureColor2 = SampleTexture(textureIndex2, uv, ddxUV, ddyUV);
+
+    float blendFactor1 = CalculateBlendFactor(blendDirection1, blendFlags1, fracUV);
+    float blendFactor2 = CalculateBlendFactor(blendDirection2, blendFlags2, fracUV);
+
+    return 
+        lerp(
+            lerp(
+                textureColor0, 
+                textureColor1, 
+                blendFactor1), 
+            textureColor2, 
+            blendFactor2);
 }
 
 float4 main(PSInput input) : SV_TARGET

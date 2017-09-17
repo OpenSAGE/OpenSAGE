@@ -59,11 +59,14 @@ namespace OpenSage.Terrain
                     // TileData
                     new DescriptorSetLayoutBinding(DescriptorType.Texture, 0, 1),
 
-                    // TextureDetails
+                    // CliffDetails
                     new DescriptorSetLayoutBinding(DescriptorType.StructuredBuffer, 1, 1),
+
+                    // TextureDetails
+                    new DescriptorSetLayoutBinding(DescriptorType.StructuredBuffer, 2, 1),
                     
                     // Textures[]
-                    new DescriptorSetLayoutBinding(DescriptorType.Texture, 2, MaxTextures),
+                    new DescriptorSetLayoutBinding(DescriptorType.Texture, 3, MaxTextures),
                 }
             });
 

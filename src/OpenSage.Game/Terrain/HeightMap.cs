@@ -18,9 +18,25 @@ namespace OpenSage.Terrain
         public float GetHeight(int x, int y) => _heightMapData.Elevations[x, y] * VerticalScale;
 
         public Vector3 GetPosition(int x, int y) => new Vector3(
-            x * HorizontalScale,
-            y * HorizontalScale,
+            (x - _heightMapData.BorderWidth) * HorizontalScale,
+            (y - _heightMapData.BorderWidth) * HorizontalScale,
             GetHeight(x, y));
+
+        public (int X, int Y)? GetTilePosition(Vector3 worldPosition)
+        {
+            var tilePosition = (worldPosition / HorizontalScale) 
+                + new Vector3(_heightMapData.BorderWidth, _heightMapData.BorderWidth, 0);
+
+            var result = (X: (int) tilePosition.X, Y: (int) tilePosition.Y);
+
+            if (result.X < 0 || result.X >= _heightMapData.Width
+                || result.Y < 0 || result.Y >= _heightMapData.Height)
+            {
+                return null;
+            }
+
+            return result;
+        }
 
         public Vector3[,] Normals { get; }
 

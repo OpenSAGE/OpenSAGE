@@ -16,7 +16,7 @@
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -197,11 +197,13 @@
     <VertexShader Include="Shaders\TerrainVS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ShaderModel>5_1</ShaderModel>
+      <EnableDebuggingInfo>True</EnableDebuggingInfo>
     </VertexShader>
     <PixelShader Include="Shaders\TerrainPS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ShaderModel>5_1</ShaderModel>
       <EnableUnboundedDescriptorTable>True</EnableUnboundedDescriptorTable>
+      <EnableDebuggingInfo>True</EnableDebuggingInfo>
     </PixelShader>
     <Content Include="Shaders\Sprite.hlsli" />
     <PixelShader Include="Shaders\SpritePS.hlsl">

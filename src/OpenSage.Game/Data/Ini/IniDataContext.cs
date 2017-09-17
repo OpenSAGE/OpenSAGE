@@ -57,7 +57,7 @@ namespace OpenSage.Data.Ini
         public List<ShellMenuScheme> ShellMenuSchemes { get; } = new List<ShellMenuScheme>();
         public List<SpecialPower> SpecialPowers { get; } = new List<SpecialPower>();
         public List<StaticGameLod> StaticGameLods { get; } = new List<StaticGameLod>();
-        public List<Terrain> Terrains { get; } = new List<Terrain>();
+        public List<TerrainTexture> TerrainTextures { get; } = new List<TerrainTexture>();
         public List<Upgrade> Upgrades { get; } = new List<Upgrade>();
         public List<Video> Videos { get; } = new List<Video>();
         public List<WaterSet> WaterSets { get; } = new List<WaterSet>();

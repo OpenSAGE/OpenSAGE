@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Text;
 using LLGfx;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
@@ -14,6 +16,11 @@ namespace OpenSage.Terrain
     public sealed class Terrain : GraphicsObject
     {
         public const int PatchSize = 17;
+
+        // TODO: Don't keep this in memory.
+        private readonly MapFile _mapFile;
+
+        private readonly List<TerrainTexture> _terrainTextures;
 
         private readonly int _numPatchesX, _numPatchesY;
         private readonly TerrainPatch[,] _patches;
@@ -31,6 +38,12 @@ namespace OpenSage.Terrain
             TextureCache textureCache,
             DescriptorSetLayout terrainDescriptorSetLayout)
         {
+            _mapFile = mapFile;
+
+            var iniDataContext = new IniDataContext();
+            iniDataContext.LoadIniFile(fileSystem.GetFile(@"Data\INI\Terrain.ini"));
+            _terrainTextures = iniDataContext.TerrainTextures;
+
             var indexBufferCache = AddDisposable(new TerrainPatchIndexBufferCache(graphicsDevice));
 
             var uploadBatch = new ResourceUploadBatch(graphicsDevice);
@@ -95,6 +108,7 @@ namespace OpenSage.Terrain
                 uploadBatch,
                 mapFile.BlendTileData,
                 fileSystem,
+                _terrainTextures,
                 textureCache);
 
             _terrainDescriptorSet = AddDisposable(new DescriptorSet(
@@ -114,35 +128,32 @@ namespace OpenSage.Terrain
             {
                 for (var x = 0; x < HeightMap.Width; x++)
                 {
-                    var textureIndex = (uint) mapFile.BlendTileData.TextureIndices[mapFile.BlendTileData.Tiles[x, y]].TextureIndex;
+                    var baseTextureIndex = (byte) mapFile.BlendTileData.TextureIndices[mapFile.BlendTileData.Tiles[x, y]].TextureIndex;
 
-                    uint secondaryTextureIndex;
-                    uint blendDirection;
-                    uint reverseDirection;
+                    BlendData blendData1 = GetBlendData(mapFile, x, y, mapFile.BlendTileData.Blends[x, y], baseTextureIndex);
+                    BlendData blendData2 = GetBlendData(mapFile, x, y, mapFile.BlendTileData.ThreeWayBlends[x, y], baseTextureIndex);
 
-                    var blend = mapFile.BlendTileData.Blends[x, y];
-                    if (blend > 0)
-                    {
-                        var blendDescription = mapFile.BlendTileData.BlendDescriptions[blend - 1];
-                        secondaryTextureIndex = (uint) mapFile.BlendTileData.TextureIndices[(int) blendDescription.SecondaryTextureTile].TextureIndex;
-                        blendDirection = (uint) blendDescription.BlendDirection;
-                        reverseDirection = blendDescription.Flags.HasFlag(BlendFlags.ReverseDirection) 
-                            ? 1u 
-                            : 0u;
-                    }
-                    else
-                    {
-                        secondaryTextureIndex = textureIndex;
-                        blendDirection = 0;
-                        reverseDirection = 0;
-                    }
+                    uint packedTextureIndices = 0;
+                    packedTextureIndices |= baseTextureIndex;
+                    packedTextureIndices |= (uint) (blendData1.TextureIndex << 8);
+                    packedTextureIndices |= (uint) (blendData2.TextureIndex << 16);
 
-                    tileData[tileDataIndex++] = textureIndex;
-                    tileData[tileDataIndex++] = secondaryTextureIndex;
-                    tileData[tileDataIndex++] = blendDirection;
-                    tileData[tileDataIndex++] = reverseDirection;
+                    tileData[tileDataIndex++] = packedTextureIndices;
+
+                    var packedBlendInfo = 0u;
+                    packedBlendInfo |= blendData1.BlendDirection;
+                    packedBlendInfo |= (uint) (blendData1.Flags << 8);
+                    packedBlendInfo |= (uint) (blendData2.BlendDirection << 16);
+                    packedBlendInfo |= (uint) (blendData2.Flags << 24);
+
+                    tileData[tileDataIndex++] = packedBlendInfo;
+
+                    tileData[tileDataIndex++] = mapFile.BlendTileData.CliffTextures[x, y];
+
+                    tileData[tileDataIndex++] = 0;
                 }
             }
+
             byte[] textureIDsByteArray = new byte[tileData.Length * sizeof(uint)];
             System.Buffer.BlockCopy(tileData, 0, textureIDsByteArray, 0, tileData.Length * sizeof(uint));
             var tileDataTexture = AddDisposable(Texture.CreateTexture2D(
@@ -160,11 +171,68 @@ namespace OpenSage.Terrain
                     }
                 }));
 
+            var cliffDetails = new CliffInfo[mapFile.BlendTileData.CliffTextureMappings.Length];
+
+            for (var i = 0; i < cliffDetails.Length; i++)
+            {
+                var cliffMapping = mapFile.BlendTileData.CliffTextureMappings[i];
+                cliffDetails[i] = new CliffInfo
+                {
+                    BottomLeftUV = cliffMapping.BottomLeftCoords.ToVector2(),
+                    BottomRightUV = cliffMapping.BottomRightCoords.ToVector2(),
+                    TopLeftUV = cliffMapping.TopLeftCoords.ToVector2(),
+                    TopRightUV = cliffMapping.TopRightCoords.ToVector2()
+                };
+            }
+
+            var cliffDetailsBuffer = cliffDetails.Length > 0
+                ? AddDisposable(StaticBuffer.Create(
+                    graphicsDevice,
+                    uploadBatch,
+                    cliffDetails,
+                    false))
+                : null;
+
             _terrainDescriptorSet.SetTexture(0, tileDataTexture);
-            _terrainDescriptorSet.SetStructuredBuffer(1, textureDetailsBuffer);
-            _terrainDescriptorSet.SetTextures(2, textures);
+            _terrainDescriptorSet.SetStructuredBuffer(1, cliffDetailsBuffer);
+            _terrainDescriptorSet.SetStructuredBuffer(2, textureDetailsBuffer);
+            _terrainDescriptorSet.SetTextures(3, textures);
 
             uploadBatch.End();
+        }
+
+        private BlendData GetBlendData(MapFile mapFile, int x, int y, ushort blendIndex, byte baseTextureIndex)
+        {
+            if (blendIndex > 0)
+            {
+                var blendDescription = mapFile.BlendTileData.BlendDescriptions[blendIndex - 1];
+                var flipped = blendDescription.Flags.HasFlag(BlendFlags.Flipped);
+                var flags = (byte) (flipped ? 1 : 0);
+                if (blendDescription.TwoSided)
+                {
+                    flags |= 2;
+                }
+                return new BlendData
+                {
+                    TextureIndex = (byte) mapFile.BlendTileData.TextureIndices[(int) blendDescription.SecondaryTextureTile].TextureIndex,
+                    BlendDirection = (byte) blendDescription.BlendDirection,
+                    Flags = flags
+                };
+            }
+            else
+            {
+                return new BlendData
+                {
+                    TextureIndex = baseTextureIndex
+                };
+            }
+        }
+
+        private struct BlendData
+        {
+            public byte TextureIndex;
+            public byte BlendDirection;
+            public byte Flags;
         }
 
         private static (Texture[], TextureInfo[]) CreateTextures(
@@ -172,11 +240,9 @@ namespace OpenSage.Terrain
             ResourceUploadBatch uploadBatch,
             BlendTileData blendTileData,
             FileSystem fileSystem,
+            List<TerrainTexture> terrainTextures,
             TextureCache textureCache)
         {
-            var iniDataContext = new IniDataContext();
-            iniDataContext.LoadIniFile(fileSystem.GetFile(@"Data\INI\Terrain.ini"));
-
             var numTextures = blendTileData.Textures.Length;
 
             if (numTextures > Map.MaxTextures)
@@ -190,10 +256,18 @@ namespace OpenSage.Terrain
             {
                 var mapTexture = blendTileData.Textures[i];
 
-                var terrainType = iniDataContext.Terrains.First(x => x.Name == mapTexture.Name);
+                var terrainType = terrainTextures.FirstOrDefault(x => x.Name == mapTexture.Name);
 
-                var texturePath = $@"Art\Terrain\{terrainType.Texture}";
-                var textureFileSystemEntry = fileSystem.GetFile(texturePath);
+                FileSystemEntry textureFileSystemEntry;
+                if (terrainType != null)
+                {
+                    var texturePath = $@"Art\Terrain\{terrainType.Texture}";
+                    textureFileSystemEntry = fileSystem.GetFile(texturePath);
+                }
+                else
+                {
+                    textureFileSystemEntry = null;
+                }
 
                 if (textureFileSystemEntry != null)
                 {
@@ -218,6 +292,42 @@ namespace OpenSage.Terrain
         private struct TextureInfo
         {
             public uint CellSize;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct CliffInfo
+        {
+            public Vector2 BottomLeftUV;
+            public Vector2 BottomRightUV;
+            public Vector2 TopRightUV;
+            public Vector2 TopLeftUV;
+        }
+
+        public string GetTileDescription(int x, int y)
+        {
+            var blendTileData = _mapFile.BlendTileData;
+
+            string getTextureName(int textureTile)
+            {
+                var textureIndex = (uint) blendTileData.TextureIndices[textureTile].TextureIndex;
+                return blendTileData.Textures[textureIndex].Name;
+            }
+
+            var result = new StringBuilder();
+
+            result.Append($"Base texture: {getTextureName(blendTileData.Tiles[x, y])}");
+
+            var blend = blendTileData.Blends[x, y];
+            if (blend > 0)
+            {
+                var blendDescription = blendTileData.BlendDescriptions[blend - 1];
+                result.Append($"; Blend <Texture: {getTextureName((int) blendDescription.SecondaryTextureTile)}");
+                result.Append($", Dir: {blendDescription.BlendDirection}");
+                result.Append($", Flags: {blendDescription.Flags}");
+                result.Append($", Adjacent sides: {blendDescription.TwoSided}>");
+            }
+
+            return result.ToString();
         }
 
         public Vector3? Intersect(Ray ray)

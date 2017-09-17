@@ -1,10 +1,14 @@
 ﻿using System.IO;
+using System.Linq;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Map
 {
     public sealed class BlendDescription
     {
+        private const uint MagicValue1 = 0xFFFFFFFF;
+        private const uint MagicValue2 = 0x7ADA0000;
+
         public uint SecondaryTextureTile { get; private set; }
         public BlendDirection BlendDirection { get; private set; }
         public BlendFlags Flags { get; private set; }
@@ -14,9 +18,6 @@ namespace OpenSage.Data.Map
         /// adjacent horizontal and vertical sides.
         /// </summary>
         public bool TwoSided { get; private set; }
-
-        public uint MagicValue1 { get; private set; }
-        public uint MagicValue2 { get; private set; }
 
         internal static BlendDescription Parse(BinaryReader reader)
         {
@@ -29,13 +30,13 @@ namespace OpenSage.Data.Map
             var twoSided = reader.ReadBooleanChecked();
 
             var magicValue1 = reader.ReadUInt32();
-            if (magicValue1 != 0xFFFFFFFF)
+            if (magicValue1 != MagicValue1)
             {
                 throw new InvalidDataException();
             }
 
             var magicValue2 = reader.ReadUInt32();
-            if (magicValue2 != 0x7ADA0000)
+            if (magicValue2 != MagicValue2)
             {
                 throw new InvalidDataException();
             }
@@ -46,8 +47,6 @@ namespace OpenSage.Data.Map
                 BlendDirection = blendDirection,
                 Flags = flags,
                 TwoSided = twoSided,
-                MagicValue1 = magicValue1,
-                MagicValue2 = magicValue2
             };
         }
 
@@ -59,6 +58,9 @@ namespace OpenSage.Data.Map
             {
                 result |= bytes[i] << i;
             }
+
+            bytes.Single(x => x != 0);
+            bytes.All(x => x == 0 || x == 1);
 
             return (BlendDirection) result;
         }

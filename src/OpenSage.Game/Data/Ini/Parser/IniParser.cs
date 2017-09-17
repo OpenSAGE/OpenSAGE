@@ -59,7 +59,7 @@ namespace OpenSage.Data.Ini.Parser
             { "ShellMenuScheme", (parser, context) => context.ShellMenuSchemes.Add(ShellMenuScheme.Parse(parser)) },
             { "SpecialPower", (parser, context) => context.SpecialPowers.Add(SpecialPower.Parse(parser)) },
             { "StaticGameLOD", (parser, context) => context.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
-            { "Terrain", (parser, context) => context.Terrains.Add(Terrain.Parse(parser)) },
+            { "Terrain", (parser, context) => context.TerrainTextures.Add(TerrainTexture.Parse(parser)) },
             { "Upgrade", (parser, context) => context.Upgrades.Add(Upgrade.Parse(parser)) },
             { "Video", (parser, context) => context.Videos.Add(Video.Parse(parser)) },
             { "WaterSet", (parser, context) => context.WaterSets.Add(WaterSet.Parse(parser)) },

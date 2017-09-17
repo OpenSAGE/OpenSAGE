@@ -184,7 +184,7 @@ namespace OpenSage.Data.Tests.Map
 
                 Assert.Equal(direction, blend.BlendDirection);
 
-                Assert.Equal(reversed, blend.Flags.HasFlag(BlendFlags.ReverseDirection));
+                Assert.Equal(reversed, blend.Flags.HasFlag(BlendFlags.Flipped));
             }
 
             void assertBlends(int startY, int textureIndex)
@@ -272,7 +272,7 @@ namespace OpenSage.Data.Tests.Map
 
                 Assert.Equal(direction, blend.BlendDirection);
 
-                Assert.Equal(reversed, blend.Flags.HasFlag(BlendFlags.ReverseDirection));
+                Assert.Equal(reversed, blend.Flags.HasFlag(BlendFlags.Flipped));
             }
 
             void assertBlends(int startY, int textureIndex, bool includeBottom)

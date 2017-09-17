@@ -52,5 +52,7 @@ namespace OpenSage.Mathematics
             result.Max.Z = Math.Max(original.Max.Z, additional.Max.Z);
             return result;
         }
+
+        public Vector3 GetCenter() => (Max - Min) / 2;
     }
 }

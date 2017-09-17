@@ -63,15 +63,34 @@ namespace OpenSage.DataViewer.ViewModels
             }
         }
 
+        private string _tilePosition;
+        public string TilePosition
+        {
+            get => _tilePosition;
+            set
+            {
+                _tilePosition = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        private string _hoveredObjectInfo;
+        public string HoveredObjectInfo
+        {
+            get => _hoveredObjectInfo;
+            set
+            {
+                _hoveredObjectInfo = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
         public MapFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
             _mapFile = MapFile.FromFileSystemEntry(file);
 
             Camera = new MapCamera();
-
-            Camera.Reset(
-                new Vector3(_mapFile.HeightMapData.Width * 10 / 2, _mapFile.HeightMapData.Height * 10 / 2, 0));
         }
 
         public void OnMouseMove(int x, int y)
@@ -92,7 +111,28 @@ namespace OpenSage.DataViewer.ViewModels
 
             var intersectionPoint = _map.Terrain.Intersect(ray);
 
-            MousePosition = intersectionPoint?.ToString() ?? "No intersection";
+            if (intersectionPoint != null)
+            {
+                MousePosition = $"Pos: ({intersectionPoint.Value.X.ToString("F1")}, {intersectionPoint.Value.Y.ToString("F1")}, {intersectionPoint.Value.Z.ToString("F1")})";
+
+                var tilePosition = _map.Terrain.HeightMap.GetTilePosition(intersectionPoint.Value);
+                if (tilePosition != null)
+                {
+                    TilePosition = $"Tile: ({tilePosition.Value.X}, {tilePosition.Value.Y})";
+                    HoveredObjectInfo = _map.Terrain.GetTileDescription(tilePosition.Value.X, tilePosition.Value.Y);
+                }
+                else
+                {
+                    TilePosition = "Tile: No intersection";
+                    HoveredObjectInfo = string.Empty;
+                }
+            }
+            else
+            {
+                MousePosition = "Pos: No intersection";
+                TilePosition = "Tile: No intersection";
+                HoveredObjectInfo = string.Empty;
+            }
         }
 
         private void EnsureDepthStencilBuffer(GraphicsDevice graphicsDevice, SwapChain swapChain)
@@ -122,7 +162,7 @@ namespace OpenSage.DataViewer.ViewModels
                 swapChain.BackBufferHeight);
 
             _projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
-                (float) (90 * System.Math.PI / 180),
+                (float) (70 * System.Math.PI / 180),
                 swapChain.BackBufferWidth / (float) swapChain.BackBufferHeight,
                 0.1f,
                 5000.0f);
@@ -134,6 +174,8 @@ namespace OpenSage.DataViewer.ViewModels
                 _mapFile, 
                 File.FileSystem,
                 graphicsDevice));
+
+            Camera.Reset(_map.Terrain.BoundingBox.GetCenter());
 
             NotifyOfPropertyChange(nameof(CurrentTimeOfDay));
             NotifyOfPropertyChange(nameof(RenderWireframeOverlay));

@@ -10,8 +10,8 @@ namespace OpenSage.DataViewer.Framework
         private static readonly float DefaultPitch = -MathUtility.Pi / 4;
 
         private const float RotationSpeed = 0.003f;
-        private const float ZoomSpeed = 0.001f;
-        private const float PanSpeed = 0.1f;
+        private const float ZoomSpeed = 0.002f;
+        private const float PanSpeed = 0.2f;
 
         private Vector3 _target;
 
@@ -53,7 +53,7 @@ namespace OpenSage.DataViewer.Framework
 
         public void Zoom(float deltaY)
         {
-            const float minZoom = 0.1f;
+            const float minZoom = 0.01f;
 
             var newZoom = _zoom - deltaY * ZoomSpeed;
             if (newZoom < minZoom)

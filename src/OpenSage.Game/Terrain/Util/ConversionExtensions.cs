@@ -9,5 +9,10 @@ namespace OpenSage.Terrain.Util
         {
             return new Vector3(value.X, value.Y, value.Z);
         }
+
+        public static Vector2 ToVector2(this MapTexCoord value)
+        {
+            return new Vector2(value.U, value.V);
+        }
     }
 }

@@ -28,18 +28,20 @@ namespace LLGfx
 
         private void PlatformSetStructuredBuffer(int index, StaticBuffer buffer)
         {
-            var deviceResource = buffer.DeviceBuffer;
+            var deviceResource = buffer?.DeviceBuffer;
 
             var description = new ShaderResourceViewDescription
             {
                 Shader4ComponentMapping = ComponentMappingUtility.DefaultComponentMapping(),
-                Format = SharpDX.DXGI.Format.Unknown,
+                Format = buffer != null
+                    ? SharpDX.DXGI.Format.Unknown
+                    : SharpDX.DXGI.Format.R32_UInt,
                 Dimension = ShaderResourceViewDimension.Buffer,
                 Buffer =
                 {
                     FirstElement = 0,
-                    ElementCount = (int) buffer.ElementCount,
-                    StructureByteStride = (int) buffer.ElementSizeInBytes,
+                    ElementCount = (int) (buffer?.ElementCount ?? 0),
+                    StructureByteStride = (int) (buffer?.ElementSizeInBytes ?? 0),
                     Flags = BufferShaderResourceViewFlags.None
                 }
             };

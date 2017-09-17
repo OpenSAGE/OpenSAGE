@@ -11,7 +11,7 @@ namespace OpenSage.Data.Map
     {
         public const string AssetName = "GlobalLighting";
 
-        private static readonly uint[] TimeOfDayValues = Enum.GetValues(typeof(TimeOfDay)).Cast<uint>().ToArray();
+        private static readonly TimeOfDay[] TimeOfDayValues = Enum.GetValues(typeof(TimeOfDay)).Cast<TimeOfDay>().ToArray();
 
         public TimeOfDay Time { get; private set; }
         
@@ -29,7 +29,7 @@ namespace OpenSage.Data.Map
 
                 for (var i = 0; i < TimeOfDayValues.Length; i++)
                 {
-                    lightingConfigurations[(TimeOfDay) TimeOfDayValues[i]] = GlobalLightingConfiguration.Parse(reader);
+                    lightingConfigurations[TimeOfDayValues[i]] = GlobalLightingConfiguration.Parse(reader);
                 }
 
                 var shadowColor = MapColorArgb.Parse(reader);
@@ -51,7 +51,7 @@ namespace OpenSage.Data.Map
 
                 for (var i = 0; i < TimeOfDayValues.Length; i++)
                 {
-                    LightingConfigurations[(TimeOfDay) TimeOfDayValues[i]].WriteTo(writer);
+                    LightingConfigurations[TimeOfDayValues[i]].WriteTo(writer);
                 }
 
                 ShadowColor.WriteTo(writer);

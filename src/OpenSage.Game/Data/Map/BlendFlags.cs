@@ -6,7 +6,7 @@ namespace OpenSage.Data.Map
     public enum BlendFlags : byte
     {
         None = 0,
-        ReverseDirection = 1,
+        Flipped = 1,
 
         /// <summary>
         /// Only ever found on horizontal blends on cells that additionally
@@ -15,6 +15,6 @@ namespace OpenSage.Data.Map
         /// </summary>
         AlsoHasBottomLeftOrTopRightBlend = 2,
 
-        ReverseDirection_AlsoHasBottomLeftOrTopRightBlend = ReverseDirection | AlsoHasBottomLeftOrTopRightBlend
+        Flipped_AlsoHasBottomLeftOrTopRightBlend = Flipped | AlsoHasBottomLeftOrTopRightBlend
     }
 }

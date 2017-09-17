@@ -37,6 +37,12 @@
             <StatusBarItem>
                 <TextBlock Text="{Binding MousePosition}" />
             </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding TilePosition}" />
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding HoveredObjectInfo}" />
+            </StatusBarItem>
         </StatusBar>
     </Grid>
 </UserControl>
