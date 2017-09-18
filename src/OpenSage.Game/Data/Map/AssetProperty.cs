@@ -83,5 +83,10 @@ namespace OpenSage.Data.Map
                     throw new InvalidDataException($"Unexpected property type: {PropertyType}.");
             }
         }
+
+        public override string ToString()
+        {
+            return $"{Name} ({PropertyType}): {Value}";
+        }
     }
 }

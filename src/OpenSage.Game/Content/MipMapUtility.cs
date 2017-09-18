@@ -1,7 +1,7 @@
 ﻿using System;
 using LLGfx;
 
-namespace OpenSage.Graphics.Util
+namespace OpenSage.Content
 {
     internal static class MipMapUtility
     {

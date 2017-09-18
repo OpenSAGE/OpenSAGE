@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
-using OpenSage.Data;
+using OpenSage.Content;
 using OpenSage.Data.W3d;
+using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Util;
 using OpenSage.Mathematics;
 
@@ -26,6 +28,9 @@ namespace OpenSage.Graphics
         private readonly DynamicBuffer _perDrawConstantBuffer;
         private PerDrawConstants _perDrawConstants;
 
+        private List<DrawList> _drawListsOpaque;
+        private List<DrawList> _drawListsTransparent;
+
         public string Name { get; }
 
         public ModelBone ParentBone { get; }
@@ -37,15 +42,10 @@ namespace OpenSage.Graphics
         public bool Skinned { get; }
 
         internal ModelMesh(
-            GraphicsDevice graphicsDevice,
+            ContentManager contentManager,
             ResourceUploadBatch uploadBatch,
             W3dMesh w3dMesh,
-            ModelBone parentBone,
-            FileSystem fileSystem,
-            DescriptorSetLayout pixelMeshDescriptorSetLayout,
-            DescriptorSetLayout vertexMaterialPassDescriptorSetLayout,
-            DescriptorSetLayout pixelMaterialPassDescriptorSetLayout,
-            ModelRenderer modelRenderer)
+            ModelBone parentBone)
         {
             Name = w3dMesh.Header.MeshName;
             ParentBone = parentBone;
@@ -59,7 +59,7 @@ namespace OpenSage.Graphics
             _numVertices = (uint) w3dMesh.Vertices.Length;
 
             _vertexBuffer = CreateVertexBuffer(
-                graphicsDevice,
+                contentManager,
                 uploadBatch,
                 w3dMesh,
                 Skinned);
@@ -67,49 +67,71 @@ namespace OpenSage.Graphics
             _numIndices = (uint) w3dMesh.Triangles.Length * 3;
 
             _indexBuffer = CreateIndexBuffer(
-                graphicsDevice,
+                contentManager,
                 uploadBatch,
                 w3dMesh);
 
             var materialsBuffer = CreateMaterialsBuffer(
-                graphicsDevice,
+                contentManager,
                 uploadBatch,
                 w3dMesh);
 
             var textures = CreateTextures(
-                graphicsDevice,
+                contentManager,
                 uploadBatch,
-                w3dMesh,
-                fileSystem,
-                modelRenderer);
+                w3dMesh);
 
-            _pixelMeshDescriptorSet = AddDisposable(new DescriptorSet(
-                graphicsDevice,
-                pixelMeshDescriptorSetLayout));
+            _pixelMeshDescriptorSet = AddDisposable(contentManager.ModelEffect.CreateMeshPixelDescriptorSet());
 
             _pixelMeshDescriptorSet.SetStructuredBuffer(0, materialsBuffer);
 
             _pixelMeshDescriptorSet.SetTextures(1, textures);
 
-            var remainingTextures = ModelRenderer.MaxTextures - textures.Length;
+            var remainingTextures = ModelEffect.MaxTextures - textures.Length;
             _pixelMeshDescriptorSet.SetTextures(1 + textures.Length, new Texture[remainingTextures]);
 
-            _meshTransformConstantBuffer = AddDisposable(DynamicBuffer.Create<MeshTransformConstants>(graphicsDevice));
+            _meshTransformConstantBuffer = AddDisposable(DynamicBuffer.Create<MeshTransformConstants>(contentManager.GraphicsDevice));
 
-            _perDrawConstantBuffer = AddDisposable(DynamicBuffer.Create<PerDrawConstants>(graphicsDevice));
+            _perDrawConstantBuffer = AddDisposable(DynamicBuffer.Create<PerDrawConstants>(contentManager.GraphicsDevice));
 
             MaterialPasses = new ModelMeshMaterialPass[w3dMesh.MaterialPasses.Length];
             for (var i = 0; i < w3dMesh.MaterialPasses.Length; i++)
             {
                 MaterialPasses[i] = AddDisposable(new ModelMeshMaterialPass(
-                    graphicsDevice,
+                    contentManager,
                     uploadBatch,
                     w3dMesh,
-                    w3dMesh.MaterialPasses[i],
-                    vertexMaterialPassDescriptorSetLayout,
-                    pixelMaterialPassDescriptorSetLayout,
-                    modelRenderer));
+                    w3dMesh.MaterialPasses[i]));
             }
+
+            var uniquePipelineStates = MaterialPasses
+                .SelectMany(x => x.MeshParts.Select(y => y.PipelineState))
+                .Distinct()
+                .ToList();
+
+            List<DrawList> createDrawList(bool alphaBlended)
+            {
+                var result = new List<DrawList>();
+                foreach (var pipelineState in uniquePipelineStates)
+                {
+                    if (pipelineState.Description.Blending.Enabled != alphaBlended)
+                    {
+                        continue;
+                    }
+
+                    result.Add(new DrawList
+                    {
+                        PipelineState = pipelineState,
+                        MaterialPasses = MaterialPasses
+                            .Where(x => x.MeshParts.Any(y => y.PipelineState == pipelineState))
+                            .ToList()
+                    });
+                }
+                return result;
+            }
+
+            _drawListsOpaque = createDrawList(false);
+            _drawListsTransparent = createDrawList(true);
         }
 
         public void SetMatrices(
@@ -125,7 +147,7 @@ namespace OpenSage.Graphics
         }
 
         private StaticBuffer CreateMaterialsBuffer(
-            GraphicsDevice graphicsDevice,
+            ContentManager contentManager,
             ResourceUploadBatch uploadBatch,
             W3dMesh w3dMesh)
         {
@@ -154,53 +176,30 @@ namespace OpenSage.Graphics
             }
 
             return AddDisposable(StaticBuffer.Create(
-                graphicsDevice,
+                contentManager.GraphicsDevice,
                 uploadBatch,
                 vertexMaterials,
                 false));
         }
 
         private static Texture[] CreateTextures(
-            GraphicsDevice graphicsDevice,
+            ContentManager contentManager,
             ResourceUploadBatch uploadBatch,
-            W3dMesh w3dMesh,
-            FileSystem fileSystem,
-            ModelRenderer modelRenderer)
+            W3dMesh w3dMesh)
         {
             var numTextures = w3dMesh.Textures.Length;
             var textures = new Texture[numTextures];
             for (var i = 0; i < numTextures; i++)
             {
                 var w3dTexture = w3dMesh.Textures[i];
-
-                var fileExtensions = new[] { ".dds", ".tga" };
-                foreach (var fileExtension in fileExtensions)
-                {
-                    var textureName = w3dTexture.Name.ToUpper().Replace(".TGA", fileExtension);
-                    var texturePath = $@"Art\Textures\{textureName}";
-
-                    var textureFileSystemEntry = fileSystem.GetFile(texturePath);
-
-                    if (textureFileSystemEntry == null)
-                    {
-                        continue;
-                    }
-
-                    textures[i] = modelRenderer.GetTexture(
-                        textureFileSystemEntry,
-                        uploadBatch);
-                }
-
-                if (textures[i] == null)
-                {
-                    textures[i] = modelRenderer.MissingTexture;
-                }
+                var w3dTextureFilePath = Path.Combine("Art", "Textures", w3dTexture.Name);
+                textures[i] = contentManager.Load<Texture>(w3dTextureFilePath, uploadBatch);
             }
             return textures;
         }
 
         private StaticBuffer CreateVertexBuffer(
-            GraphicsDevice graphicsDevice,
+            ContentManager contentManager,
             ResourceUploadBatch uploadBatch,
             W3dMesh w3dMesh,
             bool isSkinned)
@@ -220,7 +219,7 @@ namespace OpenSage.Graphics
             }
 
             return AddDisposable(StaticBuffer.Create(
-                graphicsDevice,
+                contentManager.GraphicsDevice,
                 uploadBatch,
                 vertices,
                 false));
@@ -237,7 +236,7 @@ namespace OpenSage.Graphics
         }
 
         private StaticBuffer CreateIndexBuffer(
-            GraphicsDevice graphicsDevice,
+            ContentManager contentManager,
             ResourceUploadBatch uploadBatch,
             W3dMesh w3dMesh)
         {
@@ -252,7 +251,7 @@ namespace OpenSage.Graphics
             }
 
             return AddDisposable(StaticBuffer.Create(
-                graphicsDevice,
+                contentManager.GraphicsDevice,
                 uploadBatch,
                 indices,
                 false));
@@ -268,25 +267,20 @@ namespace OpenSage.Graphics
 
         public void Draw(CommandEncoder commandEncoder, bool alphaBlended)
         {
-            void drawImpl(PipelineState pipelineState)
+            // TODO: Use time from main game engine, don't query for it every time like this.
+            var timeInSeconds = (float) System.DateTime.Now.TimeOfDay.TotalSeconds;
+
+            void drawImpl(PipelineState pipelineState, IEnumerable<ModelMeshMaterialPass> materialPasses)
             {
                 commandEncoder.SetPipelineState(pipelineState);
 
                 commandEncoder.SetInlineConstantBuffer(1, _meshTransformConstantBuffer);
-
                 commandEncoder.SetDescriptorSet(6, _pixelMeshDescriptorSet);
 
                 commandEncoder.SetVertexBuffer(0, _vertexBuffer);
 
-                var materialPassIndex = 0u;
-                foreach (var materialPass in MaterialPasses)
+                foreach (var materialPass in materialPasses)
                 {
-                    if (!materialPass.MeshParts.Any(x => x.PipelineState == pipelineState))
-                    {
-                        materialPassIndex++;
-                        continue;
-                    }
-
                     commandEncoder.SetDescriptorSet(4, materialPass.VertexMaterialPassDescriptorSet);
                     commandEncoder.SetDescriptorSet(5, materialPass.PixelMaterialPassDescriptorSet);
 
@@ -303,9 +297,7 @@ namespace OpenSage.Graphics
                         _perDrawConstants.NumTextureStages = materialPass.NumTextureStages;
                         _perDrawConstants.AlphaTest = meshPart.AlphaTest;
                         _perDrawConstants.Texturing = meshPart.Texturing;
-
-                        // TODO: Use time from main game engine, don't query for it every time like this.
-                        _perDrawConstants.TimeInSeconds = (float) System.DateTime.Now.TimeOfDay.TotalSeconds;
+                        _perDrawConstants.TimeInSeconds = timeInSeconds;
 
                         _perDrawConstantBuffer.SetData(ref _perDrawConstants);
                         commandEncoder.SetInlineConstantBuffer(0, _perDrawConstantBuffer);
@@ -317,23 +309,23 @@ namespace OpenSage.Graphics
                             _indexBuffer,
                             meshPart.StartIndex);
                     }
-
-                    materialPassIndex++;
                 }
             }
 
-            // TODO: Don't do this here.
-            var uniquePipelineStates = MaterialPasses
-                .SelectMany(x => x.MeshParts.Select(y => y.PipelineState))
-                .Distinct();
+            var drawLists = alphaBlended
+                ? _drawListsTransparent
+                : _drawListsOpaque;
 
-            foreach (var pipelineState in uniquePipelineStates)
+            foreach (var drawList in drawLists)
             {
-                if (pipelineState.Description.Blending.Enabled == alphaBlended)
-                {
-                    drawImpl(pipelineState);
-                }
+                drawImpl(drawList.PipelineState, drawList.MaterialPasses);
             }
+        }
+
+        private sealed class DrawList
+        {
+            public PipelineState PipelineState;
+            public List<ModelMeshMaterialPass> MaterialPasses;
         }
 
         [StructLayout(LayoutKind.Explicit, Size = 96)]

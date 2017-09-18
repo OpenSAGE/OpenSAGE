@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 
 namespace OpenSage.Data.Map
 {
@@ -18,6 +19,8 @@ namespace OpenSage.Data.Map
 
             return new AssetPropertyCollection(result);
         }
+
+        public AssetProperty this[string name] => this.FirstOrDefault(x => x.Name == name);
 
         internal AssetPropertyCollection(IList<AssetProperty> list)
             : base(list)

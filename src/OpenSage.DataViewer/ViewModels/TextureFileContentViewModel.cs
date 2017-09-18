@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Runtime.InteropServices;
 using LLGfx;
+using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Graphics;
 
@@ -43,15 +44,19 @@ namespace OpenSage.DataViewer.ViewModels
 
         public void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
-            var uploadBatch = new ResourceUploadBatch(graphicsDevice);
-            uploadBatch.Begin();
+            var contentManager = AddDisposable(new ContentManager(File.FileSystem, graphicsDevice));
 
-            _texture = TextureLoader.LoadTexture(graphicsDevice, uploadBatch, File, false);
+            _texture = contentManager.Load<Texture>(
+                File.FilePath,
+                uploadBatch: null, 
+                options: new TextureLoadOptions
+                {
+                    GenerateMipMaps = false
+                });
+
             NotifyOfPropertyChange(nameof(TextureWidth));
             NotifyOfPropertyChange(nameof(TextureHeight));
             NotifyOfPropertyChange(nameof(MipMapLevels));
-
-            uploadBatch.End();
 
             _descriptorSetLayout = new DescriptorSetLayout(new DescriptorSetLayoutDescription
             {
@@ -66,7 +71,7 @@ namespace OpenSage.DataViewer.ViewModels
 
             _descriptorSet.SetTexture(0, _texture);
 
-            _pipelineLayout = new PipelineLayout(graphicsDevice, new PipelineLayoutDescription
+            var pipelineLayoutDescription = new PipelineLayoutDescription
             {
                 InlineDescriptorLayouts = new[]
                 {
@@ -90,7 +95,9 @@ namespace OpenSage.DataViewer.ViewModels
                         }
                     }
                 }
-            });
+            };
+
+            _pipelineLayout = new PipelineLayout(graphicsDevice, ref pipelineLayoutDescription);
 
             _textureConstantBuffer = DynamicBuffer.Create<TextureConstants>(graphicsDevice);
 

@@ -8,6 +8,22 @@ namespace OpenSage.Data.Ini
     {
         private readonly BitArray _inner;
 
+        public bool AnyBitSet
+        {
+            get
+            {
+                for (var i = 0; i < _inner.Count; i++)
+                {
+                    if (_inner[i])
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
         public BitArray()
         {
             _inner = new BitArray(Enum.GetValues(typeof(TEnum)).Length);
@@ -26,6 +42,11 @@ namespace OpenSage.Data.Ini
         public void Set(TEnum index, bool value)
         {
             _inner.Set((int) (object) index, value);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is BitArray<TEnum> x && _inner.Equals(x._inner);
         }
     }
 }

@@ -6,19 +6,19 @@ namespace OpenSage.Graphics
     public sealed class AnimationPlayer
     {
         private readonly Animation _animation;
-        private readonly Model _model;
+        private readonly ModelInstance _modelInstance;
 
         private TimeSpan _currentTimeValue;
 
         private int[] _currentKeyframes;
         private Transform[] _boneTransforms;
 
-        public AnimationPlayer(Animation animation, Model model)
+        public AnimationPlayer(Animation animation, ModelInstance modelInstance)
         {
             _animation = animation;
-            _model = model;
+            _modelInstance = modelInstance;
 
-            _boneTransforms = new Transform[model.Bones.Length];
+            _boneTransforms = new Transform[modelInstance.Model.Bones.Length];
         }
 
         public void Start()
@@ -44,7 +44,7 @@ namespace OpenSage.Graphics
 
             for (var i = 0; i < _boneTransforms.Length; i++)
             {
-                _model.AnimatedBoneTransforms[i] = 
+                _modelInstance.AnimatedBoneTransforms[i] = 
                     Matrix4x4.CreateFromQuaternion(_boneTransforms[i].Rotation) * 
                     Matrix4x4.CreateTranslation(_boneTransforms[i].Translation);
             }
@@ -83,7 +83,7 @@ namespace OpenSage.Graphics
                     }
 
                     // Use this keyframe.
-                    keyframe.Apply(ref _boneTransforms[clip.Bone], ref _model.AnimatedBoneVisibilities[clip.Bone]);
+                    keyframe.Apply(ref _boneTransforms[clip.Bone], ref _modelInstance.AnimatedBoneVisibilities[clip.Bone]);
 
                     _currentKeyframes[i] += 1;
                 }

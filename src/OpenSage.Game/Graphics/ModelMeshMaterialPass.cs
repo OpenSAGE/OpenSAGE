@@ -1,8 +1,9 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
+using LLGfx;
+using OpenSage.Content;
 using OpenSage.Data.W3d;
 using OpenSage.Graphics.Util;
-using LLGfx;
-using System.Collections.Generic;
 
 namespace OpenSage.Graphics
 {
@@ -19,13 +20,10 @@ namespace OpenSage.Graphics
         public StaticBuffer TexCoordVertexBuffer { get; }
 
         internal ModelMeshMaterialPass(
-            GraphicsDevice graphicsDevice,
+            ContentManager contentManager,
             ResourceUploadBatch uploadBatch,
             W3dMesh w3dMesh, 
-            W3dMaterialPass w3dMaterialPass,
-            DescriptorSetLayout vertexMaterialPassDescriptorSetLayout,
-            DescriptorSetLayout pixelMaterialPassDescriptorSetLayout,
-            ModelRenderer modelRenderer)
+            W3dMaterialPass w3dMaterialPass)
         {
             var hasTextureStage0 = w3dMaterialPass.TextureStages.Count > 0;
             var textureStage0 = hasTextureStage0
@@ -43,7 +41,12 @@ namespace OpenSage.Graphics
             {
                 for (var i = 0; i < texCoords.Length; i++)
                 {
-                    texCoords[i].UV0 = textureStage0.TexCoords[i].ToVector2();
+                    // TODO: What to do when this is null?
+                    if (textureStage0.TexCoords != null)
+                    {
+                        texCoords[i].UV0 = textureStage0.TexCoords[i].ToVector2();
+                    }
+
                     if (hasTextureStage1)
                     {
                         texCoords[i].UV1 = textureStage1.TexCoords[i].ToVector2();
@@ -52,7 +55,7 @@ namespace OpenSage.Graphics
             }
 
             TexCoordVertexBuffer = AddDisposable(StaticBuffer.Create(
-                graphicsDevice,
+                contentManager.GraphicsDevice,
                 uploadBatch,
                 texCoords,
                 false));
@@ -97,12 +100,10 @@ namespace OpenSage.Graphics
                 }
             }
 
-            PixelMaterialPassDescriptorSet = AddDisposable(new DescriptorSet(
-                graphicsDevice,
-                pixelMaterialPassDescriptorSetLayout));
+            PixelMaterialPassDescriptorSet = AddDisposable(contentManager.ModelEffect.CreateMaterialPassPixelDescriptorSet());
 
             var textureIndicesBuffer = AddDisposable(StaticBuffer.Create(
-                graphicsDevice,
+                contentManager.GraphicsDevice,
                 uploadBatch,
                 textureIDs,
                 false));
@@ -121,14 +122,12 @@ namespace OpenSage.Graphics
             }
 
             var materialIndicesBuffer = AddDisposable(StaticBuffer.Create(
-                graphicsDevice,
+                contentManager.GraphicsDevice,
                 uploadBatch,
                 materialIDs,
                 false));
 
-            VertexMaterialPassDescriptorSet = AddDisposable(new DescriptorSet(
-                graphicsDevice,
-                vertexMaterialPassDescriptorSetLayout));
+            VertexMaterialPassDescriptorSet = AddDisposable(contentManager.ModelEffect.CreateMaterialPassVertexDescriptorSet());
 
             VertexMaterialPassDescriptorSet.SetTypedBuffer(0, materialIndicesBuffer, PixelFormat.R32UInt);
 
@@ -141,7 +140,7 @@ namespace OpenSage.Graphics
                     w3dMesh.Header.NumTris * 3, 
                     w3dMesh,
                     w3dMesh.Shaders[w3dMaterialPass.ShaderIds[0]],
-                    modelRenderer));
+                    contentManager.ModelEffect));
             }
             else
             {
@@ -159,7 +158,7 @@ namespace OpenSage.Graphics
                             indexCount,
                             w3dMesh,
                             w3dMesh.Shaders[shaderID],
-                            modelRenderer));
+                            contentManager.ModelEffect));
 
                         startIndex = (uint) (i * 3);
                         indexCount = 0;

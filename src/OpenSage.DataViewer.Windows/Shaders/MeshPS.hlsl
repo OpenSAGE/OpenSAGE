@@ -1,14 +1,8 @@
 #include "Mesh.hlsli"
 
-struct LightingConstants
-{
-    float3 CameraPosition;
-    float3 AmbientLightColor;
-    float3 Light0Direction;
-    float3 Light0Color;
-};
-
-ConstantBuffer<LightingConstants> LightingCB : register(b0);
+#define LIGHTING_CB_REGISTER b0
+#define SPECULAR_ENABLED
+#include "Lighting.hlsli"
 
 struct PerDrawConstants
 {
@@ -89,17 +83,23 @@ float4 main(PSInput input) : SV_TARGET
 {
     VertexMaterial material = Materials[input.MaterialIndex];
 
-    float3 lightDir = LightingCB.Light0Direction;
+    LightingParameters lightingParams;
+    lightingParams.WorldPosition = input.WorldPosition;
+    lightingParams.WorldNormal = input.Normal;
+    lightingParams.MaterialAmbient = material.Ambient;
+    lightingParams.MaterialDiffuse = material.Diffuse;
+    lightingParams.MaterialSpecular = material.Specular;
+    lightingParams.MaterialShininess = material.Shininess;
 
-    float3 diffuse = saturate(dot(input.Normal, -lightDir)) * material.Diffuse;
-
-    float3 v = normalize(LightingCB.CameraPosition - input.WorldPosition);
-    float3 h = normalize(v - lightDir);
-    float3 specular = saturate(dot(input.Normal, h)) * material.Shininess * material.Specular;
+    float3 diffuseColor;
+    float3 specularColor;
+    DoLighting(lightingParams, diffuseColor, specularColor);
 
     float4 diffuseTextureColor;
     if (PerDrawCB.Texturing)
     {
+        float3 v = CalculateViewVector(input.WorldPosition);
+
         diffuseTextureColor = SampleTexture(
             0, input.Normal, input.UV0,
             material.TextureMappingStage0,
@@ -128,13 +128,9 @@ float4 main(PSInput input) : SV_TARGET
         diffuseTextureColor = float4(1, 1, 1, 1);
     }
 
-    float3 ambient = LightingCB.AmbientLightColor * material.Ambient;
+    float3 totalObjectLighting = saturate(diffuseColor + material.Emissive);
 
-    float3 totalObjectLighting = saturate(ambient + diffuse + material.Emissive);
-
-    float3 color = (totalObjectLighting * diffuseTextureColor.rgb + specular) * LightingCB.Light0Color;
-
-    float alpha = material.Opacity * diffuseTextureColor.a;
-
-    return float4(color, alpha);
+    return float4(
+        (totalObjectLighting * diffuseTextureColor.rgb) + specularColor, 
+        material.Opacity * diffuseTextureColor.a);
 }

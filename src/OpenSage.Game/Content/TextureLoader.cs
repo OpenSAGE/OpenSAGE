@@ -1,37 +1,53 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using LLGfx;
 using OpenSage.Data;
 using OpenSage.Data.Dds;
 using OpenSage.Data.Tga;
-using OpenSage.Graphics.Util;
 
-namespace OpenSage.Graphics
+namespace OpenSage.Content
 {
-    public static class TextureLoader
+    internal sealed class TextureLoader : ContentLoader<Texture>
     {
-        public static Texture LoadTexture(
-            GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch,
-            FileSystemEntry textureFile,
-            bool generateMipMaps)
+        public override object PlaceholderValue { get; }
+
+        public TextureLoader(GraphicsDevice graphicsDevice)
         {
-            switch (Path.GetExtension(textureFile.FilePath).ToLower())
+            var uploadBatch = new ResourceUploadBatch(graphicsDevice);
+            uploadBatch.Begin();
+
+            PlaceholderValue = AddDisposable(Texture.CreatePlaceholderTexture2D(
+                graphicsDevice,
+                uploadBatch));
+
+            uploadBatch.End();
+        }
+
+        public override IEnumerable<string> GetPossibleFilePaths(string filePath)
+        {
+            yield return Path.ChangeExtension(filePath, ".dds");
+            yield return Path.ChangeExtension(filePath, ".tga");
+        }
+
+        protected override Texture LoadEntry(FileSystemEntry entry, ContentManager contentManager, ResourceUploadBatch uploadBatch)
+        {
+            switch (Path.GetExtension(entry.FilePath).ToLower())
             {
                 case ".dds":
-                    var ddsFile = DdsFile.FromFileSystemEntry(textureFile);
+                    var ddsFile = DdsFile.FromFileSystemEntry(entry);
                     return CreateTextureFromDds(
-                        graphicsDevice,
+                        contentManager.GraphicsDevice,
                         uploadBatch,
                         ddsFile);
 
                 case ".tga":
-                    var tgaFile = TgaFile.FromFileSystemEntry(textureFile);
+                    var tgaFile = TgaFile.FromFileSystemEntry(entry);
                     return CreateTextureFromTga(
-                        graphicsDevice,
+                        contentManager.GraphicsDevice,
                         uploadBatch,
                         tgaFile,
-                        generateMipMaps);
+                        true); // TODO: Don't need to generate mipmaps for GUI textures.
 
                 default:
                     throw new InvalidOperationException();
@@ -93,7 +109,7 @@ namespace OpenSage.Graphics
             }
 
             var data = ConvertTgaPixels(
-                tgaFile.Header.ImagePixelSize, 
+                tgaFile.Header.ImagePixelSize,
                 tgaFile.Data);
 
             TextureMipMapData[] mipMapData;
@@ -161,5 +177,10 @@ namespace OpenSage.Graphics
                     throw new ArgumentOutOfRangeException(nameof(pixelSize));
             }
         }
+    }
+
+    public sealed class TextureLoadOptions : LoadOptions
+    {
+        public bool GenerateMipMaps { get; set; }
     }
 }

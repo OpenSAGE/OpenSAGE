@@ -1,9 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
+using LLGfx;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
+    public abstract class Drawable : GraphicsObject
+    {
+        public virtual void OnModelConditionStateChanged(BitArray<ModelConditionFlag> state)
+        {
+
+        }
+
+        public abstract void Draw(
+            CommandEncoder commandEncoder,
+            ref Vector3 cameraPosition,
+            ref Matrix4x4 world,
+            ref Matrix4x4 view,
+            ref Matrix4x4 projection);
+    }
+
     public abstract class DrawModuleData : ModuleData
     {
         internal static DrawModuleData ParseDrawModule(IniParser parser) => ParseModule(parser, DrawModuleParseTable);

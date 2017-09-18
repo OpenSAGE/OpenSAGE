@@ -1,5 +1,6 @@
 ﻿using LLGfx;
 using OpenSage.Data.W3d;
+using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Graphics
 {
@@ -14,7 +15,12 @@ namespace OpenSage.Graphics
 
         public PipelineState PipelineState { get; }
 
-        internal ModelMeshPart(uint startIndex, uint indexCount, W3dMesh mesh, W3dShader shader, ModelRenderer modelRenderer)
+        internal ModelMeshPart(
+            uint startIndex, 
+            uint indexCount, 
+            W3dMesh mesh, 
+            W3dShader shader,
+            ModelEffect modelEffect)
         {
             StartIndex = startIndex;
             IndexCount = indexCount;
@@ -22,7 +28,7 @@ namespace OpenSage.Graphics
             AlphaTest = shader.AlphaTest == W3dShaderAlphaTest.Enable;
             Texturing = shader.Texturing == W3dShaderTexturing.Enable;
 
-            PipelineState = modelRenderer.GetPipelineState(mesh, shader);
+            PipelineState = modelEffect.GetPipelineState(mesh, shader);
         }
     }
 }

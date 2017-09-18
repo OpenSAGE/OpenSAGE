@@ -1,9 +1,112 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Numerics;
+using LLGfx;
+using OpenSage.Content;
+using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Graphics;
 
 namespace OpenSage.Logic.Object
 {
+    public sealed class W3dModelDraw : Drawable
+    {
+        private readonly List<W3dModelDrawConditionState> _conditionStates;
+        private readonly W3dModelDrawConditionState _defaultConditionState;
+
+        private W3dModelDrawConditionState _activeConditionState;
+
+        public W3dModelDraw(
+            W3dModelDrawModuleData data,
+            FileSystem fileSystem,
+            ContentManager contentManager,
+            ResourceUploadBatch uploadBatch)
+        {
+            _conditionStates = new List<W3dModelDrawConditionState>();
+
+            if (data.DefaultConditionState != null)
+            {
+                var defaultConditionState = AddDisposable(new W3dModelDrawConditionState(contentManager, uploadBatch, data.DefaultConditionState));
+                _conditionStates.Add(defaultConditionState);
+            }
+
+            foreach (var conditionState in data.ConditionStates)
+            {
+                // TODO
+                if (!conditionState.ConditionFlags.AnyBitSet)
+                {
+                    _conditionStates.Add(AddDisposable(new W3dModelDrawConditionState(contentManager, uploadBatch, conditionState)));
+                }
+            }
+
+            _defaultConditionState = _conditionStates.Find(x => !x.Flags.AnyBitSet);
+            _activeConditionState = _defaultConditionState;
+        }
+
+        public override void OnModelConditionStateChanged(BitArray<ModelConditionFlag> state)
+        {
+            _activeConditionState = _conditionStates.Find(x => x.Flags.Equals(state)) ?? _defaultConditionState;
+        }
+
+        public override void Draw(
+            CommandEncoder commandEncoder,
+            ref Vector3 cameraPosition,
+            ref Matrix4x4 world,
+            ref Matrix4x4 view,
+            ref Matrix4x4 projection)
+        {
+            _activeConditionState.Draw(
+                commandEncoder,
+                ref world,
+                ref view,
+                ref projection);
+        }
+    }
+
+    internal sealed class W3dModelDrawConditionState : GraphicsObject
+    {
+        private readonly ModelInstance _modelInstance;
+
+        public BitArray<ModelConditionFlag> Flags { get; }
+
+        public W3dModelDrawConditionState(ContentManager contentManager, ResourceUploadBatch uploadBatch, ModelConditionState data)
+        {
+            Flags = data.ConditionFlags;
+
+            if (!string.Equals(data.Model, "NONE", System.StringComparison.OrdinalIgnoreCase))
+            {
+                var w3dFilePath = Path.Combine("Art", "W3D", data.Model + ".W3D");
+                var model = contentManager.Load<Model>(w3dFilePath, uploadBatch);
+                if (model != null)
+                {
+                    _modelInstance = AddDisposable(new ModelInstance(model, contentManager.GraphicsDevice));
+                }
+            }
+        }
+
+        public void Draw(
+            CommandEncoder commandEncoder,
+            ref Matrix4x4 world,
+            ref Matrix4x4 view,
+            ref Matrix4x4 projection)
+        {
+            if (_modelInstance == null)
+            {
+                return;
+            }
+
+            _modelInstance.WorldMatrix = world;
+
+            _modelInstance.PreDraw(commandEncoder);
+
+            _modelInstance.Draw(
+                commandEncoder,
+                ref view,
+                ref projection);
+        }
+    }
+
     public class W3dModelDrawModuleData : DrawModuleData
     {
         internal static W3dModelDrawModuleData ParseModel(IniParser parser) => parser.ParseBlock(FieldParseTable);

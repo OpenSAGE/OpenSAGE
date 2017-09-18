@@ -21,7 +21,17 @@ namespace OpenSage.Data.Big
 
         public Stream Open()
         {
-            return new BigStream(this, _offset);
+            // TODO: Is this faster than not doing it?
+            using (var bigStream = new BigStream(this, _offset))
+            {
+                var result = new MemoryStream((int) Length);
+
+                bigStream.CopyTo(result);
+
+                result.Position = 0;
+
+                return result;
+            }
         }
     }
 }

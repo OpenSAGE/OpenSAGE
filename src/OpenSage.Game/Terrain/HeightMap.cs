@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using OpenSage.Data.Map;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Terrain
 {
@@ -16,6 +17,35 @@ namespace OpenSage.Terrain
         public int Height { get; }
 
         public float GetHeight(int x, int y) => _heightMapData.Elevations[x, y] * VerticalScale;
+
+        public float GetHeight(float x, float y)
+        {
+            // convert coordinates to heightmap scale
+            x = x / HorizontalScale + _heightMapData.BorderWidth;
+            y = y / HorizontalScale + _heightMapData.BorderWidth;
+
+            // get integer and fractional parts of coordinates
+            int nIntX0 = MathUtility.FloorToInt(x);
+            int nIntY0 = MathUtility.FloorToInt(y);
+            float fFractionalX = x - nIntX0;
+            float fFractionalY = y - nIntY0;
+
+            // get coordinates for "other" side of quad
+            int nIntX1 = MathUtility.Clamp(nIntX0 + 1, 0, Width - 1);
+            int nIntY1 = MathUtility.Clamp(nIntY0 + 1, 0, Height - 1);
+
+            // read 4 map values
+            float f0 = GetHeight(nIntX0, nIntY0);
+            float f1 = GetHeight(nIntX1, nIntY0);
+            float f2 = GetHeight(nIntX0, nIntY1);
+            float f3 = GetHeight(nIntX1, nIntY1);
+
+            // calculate averages
+            float fAverageLo = (f1 * fFractionalX) + (f0 * (1.0f - fFractionalX));
+            float fAverageHi = (f3 * fFractionalX) + (f2 * (1.0f - fFractionalX));
+
+            return (fAverageHi * fFractionalY) + (fAverageLo * (1.0f - fFractionalY));
+        }
 
         public Vector3 GetPosition(int x, int y) => new Vector3(
             (x - _heightMapData.BorderWidth) * HorizontalScale,

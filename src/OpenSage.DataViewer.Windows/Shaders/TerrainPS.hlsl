@@ -1,21 +1,7 @@
 #include "Terrain.hlsli"
 
-struct Light
-{
-    float3 Ambient;
-    float3 Color;
-    float3 Direction;
-};
-
-#define NUM_LIGHTS 3
-
-struct LightingConstants
-{
-    float3 CameraPosition;
-    Light Lights[NUM_LIGHTS];
-};
-
-ConstantBuffer<LightingConstants> LightingCB : register(b0);
+#define LIGHTING_CB_REGISTER b0
+#include "Lighting.hlsli"
 
 #define BLEND_DIRECTION_TOWARDS_RIGHT     1
 #define BLEND_DIRECTION_TOWARDS_TOP       2
@@ -175,22 +161,18 @@ float3 SampleBlendedTextures(float2 uv)
 
 float4 main(PSInput input) : SV_TARGET
 {
-    float3 color = float3(0, 0, 0);
+    LightingParameters lightingParams;
+    lightingParams.WorldNormal = input.WorldNormal;
+    lightingParams.MaterialAmbient = float3(1, 1, 1);
+    lightingParams.MaterialDiffuse = float3(1, 1, 1);
 
-    for (int i = 0; i < NUM_LIGHTS; i++)
-    {
-        Light light = LightingCB.Lights[i];
-
-        float diffuse = saturate(dot(input.WorldNormal, -light.Direction));
-
-        color += light.Ambient + float3(diffuse, diffuse, diffuse) * light.Color;
-    }
-
-    color = saturate(color);
+    float3 diffuseColor;
+    float3 specularColor;
+    DoLighting(lightingParams, diffuseColor, specularColor);
 
     float3 textureColor = SampleBlendedTextures(input.UV);
 
     return float4(
-        color * textureColor,
+        diffuseColor * textureColor,
         1);
 }

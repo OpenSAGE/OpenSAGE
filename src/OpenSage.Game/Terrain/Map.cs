@@ -1,9 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
+using OpenSage.Content;
 using OpenSage.Data;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
+using OpenSage.Graphics;
+using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Util;
 using OpenSage.Terrain.Util;
 
@@ -11,11 +16,10 @@ namespace OpenSage.Terrain
 {
     public sealed class Map : GraphicsObject
     {
-        public const int MaxTextures = 48;
+        private readonly TerrainEffect _terrainEffect;
 
         private readonly Terrain _terrain;
 
-        private readonly PipelineLayout _pipelineLayout;
         private readonly PipelineState _pipelineState;
         private readonly PipelineState _pipelineStateWireframe;
 
@@ -28,6 +32,10 @@ namespace OpenSage.Terrain
         private LightingConstants _lightingConstants;
 
         public Terrain Terrain => _terrain;
+
+        private readonly ModelRenderer _modelRenderer;
+        private readonly List<Thing> _things;
+        private readonly List<Road> _roads;
 
         private TimeOfDay _currentTimeOfDay;
         public TimeOfDay CurrentTimeOfDay
@@ -51,83 +59,10 @@ namespace OpenSage.Terrain
             FileSystem fileSystem,
             GraphicsDevice graphicsDevice)
         {
-            var descriptorSetLayoutPixelTerrain = new DescriptorSetLayout(new DescriptorSetLayoutDescription
-            {
-                Visibility = ShaderStageVisibility.Pixel,
-                Bindings = new[]
-                {
-                    // TileData
-                    new DescriptorSetLayoutBinding(DescriptorType.Texture, 0, 1),
+            _terrainEffect = AddDisposable(new TerrainEffect(graphicsDevice, mapFile.BlendTileData.Textures.Length));
 
-                    // CliffDetails
-                    new DescriptorSetLayoutBinding(DescriptorType.StructuredBuffer, 1, 1),
-
-                    // TextureDetails
-                    new DescriptorSetLayoutBinding(DescriptorType.StructuredBuffer, 2, 1),
-                    
-                    // Textures[]
-                    new DescriptorSetLayoutBinding(DescriptorType.Texture, 3, MaxTextures),
-                }
-            });
-
-            _pipelineLayout = AddDisposable(new PipelineLayout(graphicsDevice, new PipelineLayoutDescription
-            {
-                InlineDescriptorLayouts = new [] 
-                {
-                    new InlineDescriptorLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Vertex,
-                        DescriptorType = DescriptorType.ConstantBuffer,
-                        ShaderRegister = 0
-                    },
-
-                    new InlineDescriptorLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        DescriptorType = DescriptorType.ConstantBuffer,
-                        ShaderRegister = 0
-                    },
-                },
-                DescriptorSetLayouts = new[]
-                {
-                    descriptorSetLayoutPixelTerrain
-                },
-                StaticSamplerStates = new[]
-                {
-                    new StaticSamplerDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        ShaderRegister = 0,
-                        SamplerStateDescription = new SamplerStateDescription
-                        {
-                            Filter = SamplerFilter.Anisotropic
-                        }
-                    }
-                }
-            }));
-
-            var shaderLibrary = AddDisposable(new ShaderLibrary(graphicsDevice));
-            var vertexShader = AddDisposable(new Shader(shaderLibrary, "TerrainVS"));
-            var pixelShader = AddDisposable(new Shader(shaderLibrary, "TerrainPS"));
-
-            var vertexDescriptor = new VertexDescriptor();
-            vertexDescriptor.SetAttributeDescriptor(0, "POSITION", 0, VertexFormat.Float3, 0, 0);
-            vertexDescriptor.SetAttributeDescriptor(1, "NORMAL", 0, VertexFormat.Float3, 0, 12);
-            vertexDescriptor.SetAttributeDescriptor(2, "TEXCOORD", 0, VertexFormat.Float2, 0, 24);
-            vertexDescriptor.SetLayoutDescriptor(0, 32);
-
-            var pipelineStateDescription = PipelineStateDescription.Default();
-            pipelineStateDescription.PipelineLayout = _pipelineLayout;
-            pipelineStateDescription.RenderTargetFormat = graphicsDevice.BackBufferFormat;
-            pipelineStateDescription.VertexDescriptor = vertexDescriptor;
-            pipelineStateDescription.VertexShader = vertexShader;
-            pipelineStateDescription.PixelShader = pixelShader;
-
-            _pipelineState = AddDisposable(new PipelineState(graphicsDevice, pipelineStateDescription));
-
-            pipelineStateDescription.FillMode = FillMode.Wireframe;
-            pipelineStateDescription.IsDepthWriteEnabled = false;
-            _pipelineStateWireframe = AddDisposable(new PipelineState(graphicsDevice, pipelineStateDescription));
+            _pipelineState = _terrainEffect.GetPipelineState(false);
+            _pipelineStateWireframe = _terrainEffect.GetPipelineState(true);
 
             _transformConstantBuffer = AddDisposable(DynamicBuffer.Create<TransformConstants>(graphicsDevice));
 
@@ -141,14 +76,61 @@ namespace OpenSage.Terrain
 
             CurrentTimeOfDay = mapFile.GlobalLighting.Time;
 
-            var textureCache = AddDisposable(new TextureCache(graphicsDevice));
+            var iniDataContext = new IniDataContext();
+            iniDataContext.LoadIniFile(fileSystem.GetFile(@"Data\INI\Terrain.ini"));
+            foreach (var iniFile in fileSystem.GetFiles(@"Data\INI\Object"))
+            {
+                iniDataContext.LoadIniFile(iniFile);
+            }
+
+            var contentManager = AddDisposable(new ContentManager(fileSystem, graphicsDevice));
+
+            var uploadBatch = new ResourceUploadBatch(graphicsDevice);
+            uploadBatch.Begin();
 
             _terrain = AddDisposable(new Terrain(
                 mapFile, 
                 graphicsDevice,
                 fileSystem,
-                textureCache,
-                descriptorSetLayoutPixelTerrain));
+                iniDataContext,
+                contentManager,
+                _terrainEffect));
+
+            uploadBatch.End();
+
+            _modelRenderer = AddDisposable(new ModelRenderer(contentManager));
+
+            _things = new List<Thing>();
+            _roads = new List<Road>();
+
+            foreach (var mapObject in mapFile.ObjectsList.Objects)
+            {
+                uploadBatch.Begin();
+
+                switch (mapObject.RoadType)
+                {
+                    case RoadType.None:
+                        var objectDefinition = iniDataContext.Objects.FirstOrDefault(x => x.Name == mapObject.TypeName);
+                        if (objectDefinition != null)
+                        {
+                            _things.Add(AddDisposable(new Thing(
+                                mapObject,
+                                _terrain.HeightMap,
+                                objectDefinition,
+                                fileSystem,
+                                contentManager,
+                                uploadBatch,
+                                graphicsDevice)));
+                        }
+                        break;
+
+                    default:
+                        _roads.Add(AddDisposable(new Road()));
+                        break;
+                }
+
+                uploadBatch.End();
+            }
         }
 
         private sealed class LightConfiguration
@@ -170,13 +152,6 @@ namespace OpenSage.Terrain
 
         private static Light ToLight(GlobalLight mapLight)
         {
-            //var directionQuaternion = Quaternion.CreateFromYawPitchRoll(
-            //    mapLight.EulerAngles.Z,
-            //    mapLight.EulerAngles.X,
-            //    mapLight.EulerAngles.Y);
-
-            //var direction = Vector3.Normalize(Vector3.Transform(-Vector3.UnitY, directionQuaternion));
-
             return new Light
             {
                 Ambient = mapLight.Ambient.ToVector3(),
@@ -195,45 +170,12 @@ namespace OpenSage.Terrain
             public Matrix4x4 World;
         }
 
-        [StructLayout(LayoutKind.Explicit, Size = SizeInBytes)]
-        private struct Light
-        {
-            public const int SizeInBytes = 48;
-
-            [FieldOffset(0)]
-            public Vector3 Ambient;
-
-            [FieldOffset(16)]
-            public Vector3 Color;
-
-            [FieldOffset(32)]
-            public Vector3 Direction;
-        };
-
-        [StructLayout(LayoutKind.Explicit, Size = SizeInBytes)]
-        private struct LightingConstants
-        {
-            public const int SizeInBytes = 160;
-
-            [FieldOffset(0)]
-            public Vector3 CameraPosition;
-
-            [FieldOffset(16)]
-            public Light Light0;
-
-            [FieldOffset(64)]
-            public Light Light1;
-
-            [FieldOffset(112)]
-            public Light Light2;
-        }
-
         public void Draw(CommandEncoder commandEncoder,
             ref Vector3 cameraPosition,
             ref Matrix4x4 view,
             ref Matrix4x4 projection)
         {
-            commandEncoder.SetPipelineLayout(_pipelineLayout);
+            _terrainEffect.Apply(commandEncoder);
 
             Draw(commandEncoder, 
                 _pipelineState, 
@@ -245,7 +187,8 @@ namespace OpenSage.Terrain
             if (RenderWireframeOverlay)
             {
                 var nullLightingConstants = new LightingConstants();
-                Draw(commandEncoder, 
+                Draw(
+                    commandEncoder, 
                     _pipelineStateWireframe, 
                     ref nullLightingConstants, 
                     ref cameraPosition, 
@@ -274,6 +217,17 @@ namespace OpenSage.Terrain
             commandEncoder.SetInlineConstantBuffer(1, _lightingConstantBuffer);
 
             _terrain.Draw(commandEncoder);
+
+            _modelRenderer.PreDrawModels(commandEncoder, ref _lightingConstants);
+
+            foreach (var thing in _things)
+            {
+                thing.Draw(
+                    commandEncoder, 
+                    ref cameraPosition, 
+                    ref view, 
+                    ref projection);
+            }
         }
     }
 }

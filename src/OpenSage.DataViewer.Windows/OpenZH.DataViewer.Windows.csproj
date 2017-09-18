@@ -181,6 +181,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Shaders\Lighting.hlsli" />
     <Content Include="Shaders\Terrain.hlsli" />
     <Content Include="Shaders\Mesh.hlsli" />
     <PixelShader Include="Shaders\MeshPS.hlsl">

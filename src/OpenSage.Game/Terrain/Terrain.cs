@@ -1,12 +1,16 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using LLGfx;
+using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
+using OpenSage.Graphics;
+using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Util;
 using OpenSage.Mathematics;
 using OpenSage.Terrain.Util;
@@ -35,13 +39,12 @@ namespace OpenSage.Terrain
             MapFile mapFile,
             GraphicsDevice graphicsDevice,
             FileSystem fileSystem,
-            TextureCache textureCache,
-            DescriptorSetLayout terrainDescriptorSetLayout)
+            IniDataContext iniDataContext,
+            ContentManager contentManager,
+            TerrainEffect terrainEffect)
         {
             _mapFile = mapFile;
 
-            var iniDataContext = new IniDataContext();
-            iniDataContext.LoadIniFile(fileSystem.GetFile(@"Data\INI\Terrain.ini"));
             _terrainTextures = iniDataContext.TerrainTextures;
 
             var indexBufferCache = AddDisposable(new TerrainPatchIndexBufferCache(graphicsDevice));
@@ -109,11 +112,9 @@ namespace OpenSage.Terrain
                 mapFile.BlendTileData,
                 fileSystem,
                 _terrainTextures,
-                textureCache);
+                contentManager);
 
-            _terrainDescriptorSet = AddDisposable(new DescriptorSet(
-                graphicsDevice,
-                terrainDescriptorSetLayout));
+            _terrainDescriptorSet = AddDisposable(terrainEffect.CreateTerrainDescriptorSet());
 
             var textureDetailsBuffer = AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
@@ -194,12 +195,12 @@ namespace OpenSage.Terrain
                     false))
                 : null;
 
+            uploadBatch.End();
+
             _terrainDescriptorSet.SetTexture(0, tileDataTexture);
             _terrainDescriptorSet.SetStructuredBuffer(1, cliffDetailsBuffer);
             _terrainDescriptorSet.SetStructuredBuffer(2, textureDetailsBuffer);
             _terrainDescriptorSet.SetTextures(3, textures);
-
-            uploadBatch.End();
         }
 
         private BlendData GetBlendData(MapFile mapFile, int x, int y, ushort blendIndex, byte baseTextureIndex)
@@ -242,14 +243,9 @@ namespace OpenSage.Terrain
             BlendTileData blendTileData,
             FileSystem fileSystem,
             List<TerrainTexture> terrainTextures,
-            TextureCache textureCache)
+            ContentManager contentManager)
         {
             var numTextures = blendTileData.Textures.Length;
-
-            if (numTextures > Map.MaxTextures)
-            {
-                throw new System.NotSupportedException();
-            }
 
             var textures = new Texture[numTextures];
             var textureDetails = new TextureInfo[numTextures];
@@ -257,29 +253,10 @@ namespace OpenSage.Terrain
             {
                 var mapTexture = blendTileData.Textures[i];
 
-                var terrainType = terrainTextures.FirstOrDefault(x => x.Name == mapTexture.Name);
+                var terrainType = terrainTextures.First(x => x.Name == mapTexture.Name);
 
-                FileSystemEntry textureFileSystemEntry;
-                if (terrainType != null)
-                {
-                    var texturePath = $@"Art\Terrain\{terrainType.Texture}";
-                    textureFileSystemEntry = fileSystem.GetFile(texturePath);
-                }
-                else
-                {
-                    textureFileSystemEntry = null;
-                }
-
-                if (textureFileSystemEntry != null)
-                {
-                    textures[i] = textureCache.GetTexture(
-                        textureFileSystemEntry,
-                        uploadBatch);
-                }
-                else
-                {
-                    textures[i] = textureCache.GetPlaceholderTexture(uploadBatch);
-                }
+                var texturePath = Path.Combine("Art", "Terrain", terrainType.Texture);
+                textures[i] = contentManager.Load<Texture>(texturePath, uploadBatch);
 
                 textureDetails[i] = new TextureInfo
                 {

@@ -5,10 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using LLGfx;
+using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Data.W3d;
 using OpenSage.DataViewer.Framework;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Effects;
 using OpenSage.Mathematics;
 
 namespace OpenSage.DataViewer.ViewModels
@@ -20,7 +22,7 @@ namespace OpenSage.DataViewer.ViewModels
         private DepthStencilBuffer _depthStencilBuffer;
 
         private ModelRenderer _modelRenderer;
-        private Model _model;
+        private ModelInstance _modelInstance;
 
         private readonly List<Animation> _externalAnimations;
 
@@ -41,24 +43,24 @@ namespace OpenSage.DataViewer.ViewModels
                 {
                     _modelChildren = new List<W3dItemViewModelBase>();
 
-                    if (_model != null)
+                    if (_modelInstance != null)
                     {
-                        if (_model.HasHierarchy)
+                        if (_modelInstance.Model.HasHierarchy)
                         {
-                            _modelChildren.Add(new ModelViewModel(_model));
+                            _modelChildren.Add(new ModelViewModel(_modelInstance));
 
-                            foreach (var animation in _model.Animations)
+                            foreach (var animation in _modelInstance.Model.Animations)
                             {
-                                _modelChildren.Add(new AnimationViewModel(_model, animation, "Animations"));
+                                _modelChildren.Add(new AnimationViewModel(_modelInstance, animation, "Animations"));
                             }
 
                             foreach (var animation in _externalAnimations)
                             {
-                                _modelChildren.Add(new AnimationViewModel(_model, animation, "External Animations"));
+                                _modelChildren.Add(new AnimationViewModel(_modelInstance, animation, "External Animations"));
                             }
                         }
 
-                        foreach (var mesh in _model.Meshes)
+                        foreach (var mesh in _modelInstance.Model.Meshes)
                         {
                             _modelChildren.Add(new ModelMeshViewModel(mesh));
                         }
@@ -153,9 +155,11 @@ namespace OpenSage.DataViewer.ViewModels
 
         public void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
-            _modelRenderer = AddDisposable(new ModelRenderer(graphicsDevice));
+            var contentManager = AddDisposable(new ContentManager(File.FileSystem, graphicsDevice));
 
-            _model = AddDisposable(_modelRenderer.LoadModel(_w3dFile, File.FileSystem, graphicsDevice));
+            _modelRenderer = AddDisposable(new ModelRenderer(contentManager));
+
+            _modelInstance = AddDisposable(new ModelInstance(contentManager.Load<Model>(File.FilePath, uploadBatch: null), graphicsDevice));
 
             _modelChildren = null;
             NotifyOfPropertyChange(nameof(ModelChildren));
@@ -204,19 +208,25 @@ namespace OpenSage.DataViewer.ViewModels
             {
                 X = 0,
                 Y = 0,
-                Width = (int) swapChain.BackBufferWidth,
-                Height = (int) swapChain.BackBufferHeight,
+                Width = swapChain.BackBufferWidth,
+                Height = swapChain.BackBufferHeight,
                 MinDepth = 0,
                 MaxDepth = 1
             });
 
+            var lightingConstants = new LightingConstants();
+            lightingConstants.CameraPosition = _cameraPosition;
+            lightingConstants.Light0.Ambient = new Vector3(0.3f, 0.3f, 0.3f);
+            lightingConstants.Light0.Direction = Vector3.Normalize(new Vector3(-0.3f, 0.2f, -0.8f));
+            lightingConstants.Light0.Color = new Vector3(0.7f, 0.7f, 0.8f);
+
             _modelRenderer.PreDrawModels(
                 commandEncoder, 
-                ref _cameraPosition);
+                ref lightingConstants);
 
-            _model.PreDraw(commandEncoder);
+            _modelInstance.PreDraw(commandEncoder);
 
-            _selectedModelChild?.Draw(commandEncoder, ref _world, ref _view, ref _projection);
+            _selectedModelChild?.Draw(commandEncoder, ref _view, ref _projection);
 
             commandEncoder.Close();
 
@@ -237,33 +247,31 @@ namespace OpenSage.DataViewer.ViewModels
 
         public abstract void Draw(
             CommandEncoder commandEncoder,
-            ref Matrix4x4 world,
             ref Matrix4x4 view,
             ref Matrix4x4 projection);
     }
 
     public sealed class ModelViewModel : W3dItemViewModelBase
     {
-        private readonly Model _model;
+        private readonly ModelInstance _modelInstance;
 
         public override string GroupName => string.Empty;
 
         public override string Name => "Hierarchy";
 
-        public override BoundingSphere BoundingSphere => _model.BoundingSphere;
+        public override BoundingSphere BoundingSphere => _modelInstance.Model.BoundingSphere;
 
-        public ModelViewModel(Model model)
+        public ModelViewModel(ModelInstance modelInstance)
         {
-            _model = model;
+            _modelInstance = modelInstance;
         }
 
         public override void Draw(
             CommandEncoder commandEncoder, 
-            ref Matrix4x4 world, 
             ref Matrix4x4 view, 
             ref Matrix4x4 projection)
         {
-            _model.Draw(commandEncoder, ref world, ref view, ref projection);
+            _modelInstance.Draw(commandEncoder, ref view, ref projection);
         }
     }
 
@@ -284,10 +292,10 @@ namespace OpenSage.DataViewer.ViewModels
 
         public override void Draw(
             CommandEncoder commandEncoder,
-            ref Matrix4x4 world,
             ref Matrix4x4 view,
             ref Matrix4x4 projection)
         {
+            var world = Matrix4x4.Identity;
             _mesh.SetMatrices(ref world, ref view, ref projection);
 
             _mesh.Draw(commandEncoder, false);
@@ -297,7 +305,7 @@ namespace OpenSage.DataViewer.ViewModels
 
     public sealed class AnimationViewModel : W3dItemViewModelBase
     {
-        private readonly Model _model;
+        private readonly ModelInstance _modelInstance;
         private readonly Animation _animation;
 
         private readonly AnimationPlayer _animationPlayer;
@@ -306,14 +314,14 @@ namespace OpenSage.DataViewer.ViewModels
 
         public override string Name => _animation.Name;
 
-        public override BoundingSphere BoundingSphere => _model.BoundingSphere;
+        public override BoundingSphere BoundingSphere => _modelInstance.Model.BoundingSphere;
 
-        public AnimationViewModel(Model model, Animation animation, string groupName)
+        public AnimationViewModel(ModelInstance modelInstance, Animation animation, string groupName)
         {
-            _model = model;
+            _modelInstance = modelInstance;
             _animation = animation;
 
-            _animationPlayer = new AnimationPlayer(_animation, _model);
+            _animationPlayer = new AnimationPlayer(_animation, _modelInstance);
 
             GroupName = groupName;
         }
@@ -330,11 +338,10 @@ namespace OpenSage.DataViewer.ViewModels
 
         public override void Draw(
             CommandEncoder commandEncoder,
-            ref Matrix4x4 world,
             ref Matrix4x4 view,
             ref Matrix4x4 projection)
         {
-            _model.Draw(commandEncoder, ref world, ref view, ref projection);
+            _modelInstance.Draw(commandEncoder, ref view, ref projection);
         }
     }
 }
