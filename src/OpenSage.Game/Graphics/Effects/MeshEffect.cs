@@ -2,7 +2,6 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
-using OpenSage.Data.W3d;
 using OpenSage.Graphics.Util;
 
 namespace OpenSage.Graphics.Effects
@@ -98,97 +97,65 @@ namespace OpenSage.Graphics.Effects
         {
             return new PipelineLayoutDescription
             {
-                InlineDescriptorLayouts = new[]
+                Entries = new[]
                 {
                     // PerDrawCB
-                    new InlineDescriptorLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        DescriptorType = DescriptorType.ConstantBuffer,
-                        ShaderRegister = 1
-                    },
+                    PipelineLayoutEntry.CreateResource(
+                        ShaderStageVisibility.Pixel,
+                        ResourceType.ConstantBuffer,
+                        1),
 
                     // MeshTransformCB
-                    new InlineDescriptorLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Vertex,
-                        DescriptorType = DescriptorType.ConstantBuffer,
-                        ShaderRegister = 0
-                    },
+                    PipelineLayoutEntry.CreateResource(
+                        ShaderStageVisibility.Vertex,
+                        ResourceType.ConstantBuffer,
+                        0),
 
                     // SkinningCB
-                    new InlineDescriptorLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Vertex,
-                        DescriptorType = DescriptorType.ConstantBuffer,
-                        ShaderRegister = 1
-                    },
+                    PipelineLayoutEntry.CreateResource(
+                        ShaderStageVisibility.Vertex,
+                        ResourceType.ConstantBuffer,
+                        1),
 
                     // LightingCB
-                    new InlineDescriptorLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        DescriptorType = DescriptorType.ConstantBuffer,
-                        ShaderRegister = 0
-                    },
-                },
+                    PipelineLayoutEntry.CreateResource(
+                        ShaderStageVisibility.Pixel,
+                        ResourceType.ConstantBuffer,
+                        0),
 
-                DescriptorSetLayouts = new[]
-                {
                     // Sorted in descending frequency of updating
-                    
-                    // MaterialIndices[]
-                    new DescriptorSetLayout(new DescriptorSetLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Vertex,
-                        Bindings = new[]
-                        {
-                            new DescriptorSetLayoutBinding(DescriptorType.StructuredBuffer, 0, 1)
-                        }
-                    }),
+
+                    // MaterialIndices
+                    PipelineLayoutEntry.CreateResourceView(
+                        ShaderStageVisibility.Vertex,
+                        ResourceType.StructuredBuffer,
+                        0, 1),
 
                     // TextureIndices
-                    new DescriptorSetLayout(new DescriptorSetLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        Bindings = new[]
-                        {
-                            new DescriptorSetLayoutBinding(DescriptorType.StructuredBuffer, 1, 1)
-                        }
-                    }),
+                    PipelineLayoutEntry.CreateResourceView(
+                        ShaderStageVisibility.Pixel,
+                        ResourceType.StructuredBuffer,
+                        1, 1),
 
                     // Materials
-                    new DescriptorSetLayout(new DescriptorSetLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        Bindings = new[]
-                        {
-                            new DescriptorSetLayoutBinding(DescriptorType.StructuredBuffer, 0, 1),
-                        }
-                    }),
+                    PipelineLayoutEntry.CreateResourceView(
+                        ShaderStageVisibility.Pixel,
+                        ResourceType.StructuredBuffer,
+                        0, 1),
 
-                    // Textures[]
-                    new DescriptorSetLayout(new DescriptorSetLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        Bindings = new[]
-                        {
-                            new DescriptorSetLayoutBinding(DescriptorType.Texture, 2, MaxTextures)
-                        }
-                    })
+                    // Textures
+                    PipelineLayoutEntry.CreateResourceView(
+                        ShaderStageVisibility.Pixel,
+                        ResourceType.Texture,
+                        2, MaxTextures),
                 },
 
                 StaticSamplerStates = new[]
                 {
-                    new StaticSamplerDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        ShaderRegister = 0,
-                        SamplerStateDescription = new SamplerStateDescription
-                        {
-                            Filter = SamplerFilter.Anisotropic
-                        }
-                    }
+                    new StaticSamplerDescription(
+                        ShaderStageVisibility.Pixel,
+                        0,
+                        new SamplerStateDescription(SamplerFilter.Anisotropic))
                 }
             };
         }

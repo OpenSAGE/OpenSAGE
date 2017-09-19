@@ -1,21 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using LLGfx;
 using OpenSage.Content;
 using OpenSage.Data;
+using OpenSage.Graphics.Effects;
 
 namespace OpenSage.DataViewer.ViewModels
 {
     public sealed class TextureFileContentViewModel : FileContentViewModel
     {
+        private SpriteEffect _spriteEffect;
         private Texture _texture;
-        private DescriptorSetLayout _descriptorSetLayout;
-        private DescriptorSet _descriptorSet;
-        private PipelineLayout _pipelineLayout;
-        private PipelineState _pipelineState;
-
-        private DynamicBuffer<TextureConstants> _textureConstantBuffer;
+        private ShaderResourceView _textureView;
+        private EffectPipelineStateHandle _pipelineStateHandle;
 
         public int TextureWidth => _texture?.Width ?? 0;
         public int TextureHeight => _texture?.Height ?? 0;
@@ -44,87 +41,34 @@ namespace OpenSage.DataViewer.ViewModels
         {
             var contentManager = AddDisposable(new ContentManager(File.FileSystem, graphicsDevice));
 
-            _texture = contentManager.Load<Texture>(
+            _texture = AddDisposable(contentManager.Load<Texture>(
                 File.FilePath,
                 uploadBatch: null, 
                 options: new TextureLoadOptions
                 {
                     GenerateMipMaps = false
-                });
+                }));
 
             NotifyOfPropertyChange(nameof(TextureWidth));
             NotifyOfPropertyChange(nameof(TextureHeight));
             NotifyOfPropertyChange(nameof(MipMapLevels));
 
-            _descriptorSetLayout = new DescriptorSetLayout(new DescriptorSetLayoutDescription
-            {
-                Visibility = ShaderStageVisibility.Pixel,
-                Bindings = new[]
-                {
-                    new DescriptorSetLayoutBinding(DescriptorType.Texture, 0, 1)
-                }
-            });
+            _spriteEffect = AddDisposable(new SpriteEffect(graphicsDevice));
 
-            _descriptorSet = new DescriptorSet(graphicsDevice, _descriptorSetLayout);
+            _textureView = AddDisposable(ShaderResourceView.Create(graphicsDevice, _texture));
 
-            _descriptorSet.SetTexture(0, _texture);
+            var rasterizerState = RasterizerStateDescription.CullBackSolid;
+            rasterizerState.IsFrontCounterClockwise = false;
 
-            var pipelineLayoutDescription = new PipelineLayoutDescription
-            {
-                InlineDescriptorLayouts = new[]
-                {
-                    new InlineDescriptorLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        DescriptorType = DescriptorType.ConstantBuffer,
-                        ShaderRegister = 0
-                    }
-                },
-                DescriptorSetLayouts = new[] { _descriptorSetLayout },
-                StaticSamplerStates = new[]
-                {
-                    new StaticSamplerDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        ShaderRegister = 0,
-                        SamplerStateDescription = new SamplerStateDescription
-                        {
-                            Filter = SamplerFilter.MinMagMipPoint
-                        }
-                    }
-                }
-            };
-
-            _pipelineLayout = new PipelineLayout(graphicsDevice, ref pipelineLayoutDescription);
-
-            _textureConstantBuffer = DynamicBuffer<TextureConstants>.Create(graphicsDevice);
-
-            var shaderLibrary = new ShaderLibrary(graphicsDevice);
-
-            var pixelShader = new Shader(shaderLibrary, "SpritePS");
-            var vertexShader = new Shader(shaderLibrary, "SpriteVS");
-
-            var pipelineStateDescription = PipelineStateDescription.Default;
-            pipelineStateDescription.PipelineLayout = _pipelineLayout;
-            pipelineStateDescription.PixelShader = pixelShader;
-            pipelineStateDescription.RenderTargetFormat = graphicsDevice.BackBufferFormat;
-            pipelineStateDescription.VertexShader = vertexShader;
-            pipelineStateDescription.RasterizerState = new RasterizerStateDescription
-            {
-                IsFrontCounterClockwise = false
-            };
-            pipelineStateDescription.DepthStencilState = DepthStencilStateDescription.None;
-
-            _pipelineState = new PipelineState(graphicsDevice, pipelineStateDescription);
+            _pipelineStateHandle = new EffectPipelineState(
+                rasterizerState,
+                DepthStencilStateDescription.None,
+                BlendStateDescription.Opaque)
+                .GetHandle();
         }
 
         public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
-            _textureConstantBuffer.UpdateData(new TextureConstants
-            {
-                MipMapLevel = _selectedMipMapLevel
-            });
-
             var renderPassDescriptor = new RenderPassDescriptor();
             renderPassDescriptor.SetRenderTargetDescriptor(
                 swapChain.GetNextRenderTarget(),
@@ -135,13 +79,13 @@ namespace OpenSage.DataViewer.ViewModels
 
             var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
 
-            commandEncoder.SetPipelineLayout(_pipelineLayout);
+            _spriteEffect.Begin(commandEncoder);
 
-            commandEncoder.SetPipelineState(_pipelineState);
+            _spriteEffect.SetPipelineState(_pipelineStateHandle);
+            _spriteEffect.SetTexture(_textureView);
+            _spriteEffect.SetMipMapLevel(_selectedMipMapLevel);
 
-            commandEncoder.SetInlineConstantBuffer(0, _textureConstantBuffer);
-
-            commandEncoder.SetDescriptorSet(1, _descriptorSet);
+            _spriteEffect.Apply(commandEncoder);
 
             commandEncoder.SetViewport(new Viewport
             {
@@ -158,12 +102,6 @@ namespace OpenSage.DataViewer.ViewModels
             commandEncoder.Close();
 
             commandBuffer.CommitAndPresent(swapChain);
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct TextureConstants
-        {
-            public uint MipMapLevel;
         }
     }
 }

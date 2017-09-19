@@ -31,13 +31,6 @@
                 indexBufferOffset);
         }
 
-        public void SetDescriptorSet(int index, DescriptorSet descriptorSet)
-        {
-            // TODO: Validation.
-
-            PlatformSetDescriptorSet(index, descriptorSet);
-        }
-
         public void SetShaderResourceView(int index, ShaderResourceView shaderResourceView)
         {
             // TODO: Validation.

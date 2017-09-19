@@ -1,6 +1,6 @@
 ﻿namespace LLGfx
 {
-    public enum DescriptorType
+    public enum ResourceType
     {
         ConstantBuffer,
         StructuredBuffer,

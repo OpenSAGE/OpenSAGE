@@ -10,25 +10,33 @@ namespace LLGfx
 
         private void PlatformConstruct(GraphicsDevice graphicsDevice, PipelineLayoutDescription description)
         {
-            var inlineDescriptorLayouts = description.InlineDescriptorLayouts ?? new InlineDescriptorLayoutDescription[0];
+            var rootParameters = new RootParameter[description.Entries.Length];
 
-            var descriptorSetLayouts = description.DescriptorSetLayouts ?? new DescriptorSetLayout[0];
-
-            var rootParameters = new RootParameter[descriptorSetLayouts.Length + inlineDescriptorLayouts.Length];
-
-            for (var i = 0; i < inlineDescriptorLayouts.Length; i++)
+            for (var i = 0; i < description.Entries.Length; i++)
             {
-                var inlineDescriptorLayout = inlineDescriptorLayouts[i];
+                var entry = description.Entries[i];
 
-                rootParameters[i] = new RootParameter(
-                    inlineDescriptorLayout.Visibility.ToShaderVisibility(),
-                    new RootDescriptor(inlineDescriptorLayout.ShaderRegister, 0),
-                    inlineDescriptorLayout.DescriptorType.ToRootParameterType());
-            }
+                switch (entry.EntryType)
+                {
+                    case PipelineLayoutEntryType.Resource:
+                        rootParameters[i] = new RootParameter(
+                            entry.Visibility.ToShaderVisibility(),
+                            new RootDescriptor(entry.Resource.ShaderRegister, 0),
+                            entry.ResourceType.ToRootParameterType());
+                        break;
 
-            for (var i = 0; i < descriptorSetLayouts.Length; i++)
-            {
-                rootParameters[inlineDescriptorLayouts.Length + i] = descriptorSetLayouts[i].DeviceRootParameter;
+                    case PipelineLayoutEntryType.ResourceView:
+                        rootParameters[i] = new RootParameter(
+                            entry.Visibility.ToShaderVisibility(),
+                            new DescriptorRange(
+                                entry.ResourceType.ToDescriptorRangeType(),
+                                entry.ResourceView.ResourceCount,
+                                entry.ResourceView.BaseShaderRegister));
+                        break;
+
+                    default:
+                        throw new System.InvalidOperationException();
+                }
             }
 
             var staticSamplerStates = description.StaticSamplerStates ?? new StaticSamplerDescription[0];

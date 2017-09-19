@@ -59,11 +59,6 @@ namespace LLGfx
                 0);
         }
 
-        private void PlatformSetDescriptorSet(int index, DescriptorSet descriptorSet)
-        {
-            _commandList.SetGraphicsRootDescriptorTable(index, descriptorSet.GPUDescriptorHandleForCbvUavSrvHeapStart);
-        }
-
         private void PlatformSetShaderResourceView(int index, ShaderResourceView shaderResourceView)
         {
             _commandList.SetGraphicsRootDescriptorTable(index, shaderResourceView.GPUDescriptorHandleForCbvUavSrvHeapStart);

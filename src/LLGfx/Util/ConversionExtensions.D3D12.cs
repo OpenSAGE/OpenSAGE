@@ -112,15 +112,15 @@ namespace LLGfx.Util
             }
         }
 
-        public static DescriptorRangeType ToDescriptorRangeType(this DescriptorType value)
+        public static DescriptorRangeType ToDescriptorRangeType(this ResourceType value)
         {
             switch (value)
             {
-                case DescriptorType.ConstantBuffer:
+                case ResourceType.ConstantBuffer:
                     return DescriptorRangeType.ConstantBufferView;
 
-                case DescriptorType.StructuredBuffer:
-                case DescriptorType.Texture:
+                case ResourceType.StructuredBuffer:
+                case ResourceType.Texture:
                     return DescriptorRangeType.ShaderResourceView;
 
                 default:
@@ -217,14 +217,14 @@ namespace LLGfx.Util
             return new RawColor4(value.R, value.G, value.B, value.A);
         }
 
-        public static RootParameterType ToRootParameterType(this DescriptorType value)
+        public static RootParameterType ToRootParameterType(this ResourceType value)
         {
             switch (value)
             {
-                case DescriptorType.ConstantBuffer:
+                case ResourceType.ConstantBuffer:
                     return RootParameterType.ConstantBufferView;
 
-                case DescriptorType.Texture:
+                case ResourceType.Texture:
                     return RootParameterType.ShaderResourceView;
 
                 default:

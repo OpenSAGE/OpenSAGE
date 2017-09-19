@@ -73,79 +73,51 @@ namespace OpenSage.Graphics.Effects
         {
             return new PipelineLayoutDescription
             {
-                InlineDescriptorLayouts = new[]
+                Entries = new[]
                 {
                     // TransformCB
-                    new InlineDescriptorLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Vertex,
-                        DescriptorType = DescriptorType.ConstantBuffer,
-                        ShaderRegister = 0
-                    },
+                    PipelineLayoutEntry.CreateResource(
+                        ShaderStageVisibility.Vertex,
+                        ResourceType.ConstantBuffer,
+                        0),
 
                     // LightingCB
-                    new InlineDescriptorLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        DescriptorType = DescriptorType.ConstantBuffer,
-                        ShaderRegister = 0
-                    },
-                },
+                    PipelineLayoutEntry.CreateResource(
+                        ShaderStageVisibility.Pixel,
+                        ResourceType.ConstantBuffer,
+                        0),
 
-                DescriptorSetLayouts = new[]
-                {
                     // TileData
-                    new DescriptorSetLayout(new DescriptorSetLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        Bindings = new[]
-                        {
-                            new DescriptorSetLayoutBinding(DescriptorType.Texture, 0, 1)
-                        }
-                    }),
+                    PipelineLayoutEntry.CreateResourceView(
+                        ShaderStageVisibility.Pixel,
+                        ResourceType.Texture,
+                        0, 1),
 
                     // CliffDetails
-                    new DescriptorSetLayout(new DescriptorSetLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        Bindings = new[]
-                        {
-                            new DescriptorSetLayoutBinding(DescriptorType.StructuredBuffer, 1, 1)
-                        }
-                    }),
+                    PipelineLayoutEntry.CreateResourceView(
+                        ShaderStageVisibility.Pixel,
+                        ResourceType.StructuredBuffer,
+                        1, 1),
 
                     // TextureDetails
-                    new DescriptorSetLayout(new DescriptorSetLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        Bindings = new[]
-                        {
-                            new DescriptorSetLayoutBinding(DescriptorType.StructuredBuffer, 2, 1)
-                        }
-                    }),
+                    PipelineLayoutEntry.CreateResourceView(
+                        ShaderStageVisibility.Pixel,
+                        ResourceType.StructuredBuffer,
+                        2, 1),
 
                     // Textures
-                    new DescriptorSetLayout(new DescriptorSetLayoutDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        Bindings = new[]
-                        {
-                            new DescriptorSetLayoutBinding(DescriptorType.StructuredBuffer, 3, numTextures)
-                        }
-                    })
+                    PipelineLayoutEntry.CreateResourceView(
+                        ShaderStageVisibility.Pixel,
+                        ResourceType.StructuredBuffer,
+                        3, numTextures)
                 },
 
                 StaticSamplerStates = new[]
                 {
-                    new StaticSamplerDescription
-                    {
-                        Visibility = ShaderStageVisibility.Pixel,
-                        ShaderRegister = 0,
-                        SamplerStateDescription = new SamplerStateDescription
-                        {
-                            Filter = SamplerFilter.Anisotropic
-                        }
-                    }
+                    new StaticSamplerDescription(
+                        ShaderStageVisibility.Pixel,
+                        0,
+                        new SamplerStateDescription(SamplerFilter.Anisotropic))
                 }
             };
         }
