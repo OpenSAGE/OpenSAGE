@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Text;
 using LLGfx;
 using OpenSage.Content;
 using OpenSage.Data;
@@ -19,9 +18,6 @@ namespace OpenSage.Terrain
     public sealed class Terrain : GraphicsObject
     {
         public const int PatchSize = 17;
-
-        // TODO: Don't keep this in memory.
-        private readonly MapFile _mapFile;
 
         private readonly List<TerrainTexture> _terrainTextures;
 
@@ -46,8 +42,6 @@ namespace OpenSage.Terrain
             IniDataContext iniDataContext,
             ContentManager contentManager)
         {
-            _mapFile = mapFile;
-
             _terrainEffect = AddDisposable(new TerrainEffect(graphicsDevice, mapFile.BlendTileData.Textures.Length));
 
             _pipelineStateSolid = new EffectPipelineState(
@@ -297,33 +291,6 @@ namespace OpenSage.Terrain
             public Vector2 BottomRightUV;
             public Vector2 TopRightUV;
             public Vector2 TopLeftUV;
-        }
-
-        public string GetTileDescription(int x, int y)
-        {
-            var blendTileData = _mapFile.BlendTileData;
-
-            string getTextureName(int textureTile)
-            {
-                var textureIndex = (uint) blendTileData.TextureIndices[textureTile].TextureIndex;
-                return blendTileData.Textures[textureIndex].Name;
-            }
-
-            var result = new StringBuilder();
-
-            result.Append($"Base texture: {getTextureName(blendTileData.Tiles[x, y])}");
-
-            var blend = blendTileData.Blends[x, y];
-            if (blend > 0)
-            {
-                var blendDescription = blendTileData.BlendDescriptions[blend - 1];
-                result.Append($"; Blend <Texture: {getTextureName((int) blendDescription.SecondaryTextureTile)}");
-                result.Append($", Dir: {blendDescription.BlendDirection}");
-                result.Append($", Flags: {blendDescription.Flags}");
-                result.Append($", Adjacent sides: {blendDescription.TwoSided}>");
-            }
-
-            return result.ToString();
         }
 
         public Vector3? Intersect(Ray ray)

@@ -4,6 +4,7 @@ using LLGfx;
 using OpenSage.Data;
 using OpenSage.Data.Map;
 using OpenSage.DataViewer.Framework;
+using OpenSage.Graphics;
 using OpenSage.Mathematics;
 using OpenSage.Terrain;
 
@@ -14,12 +15,13 @@ namespace OpenSage.DataViewer.ViewModels
         private readonly MapFile _mapFile;
         private Map _map;
 
+        private readonly GameTimer _gameTimer;
+
         private DepthStencilBuffer _depthStencilBuffer;
 
-        private Matrix4x4 _projectionMatrix;
-        private Viewport _viewport;
+        private readonly Camera _camera;
 
-        public MapCamera Camera { get; }
+        public MapCameraController CameraController { get; }
 
         public IEnumerable<TimeOfDay> TimesOfDay
         {
@@ -85,12 +87,28 @@ namespace OpenSage.DataViewer.ViewModels
             }
         }
 
+        private string _frameTime;
+        public string FrameTime
+        {
+            get => _frameTime;
+            set
+            {
+                _frameTime = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
         public MapFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
             _mapFile = MapFile.FromFileSystemEntry(file);
 
-            Camera = new MapCamera();
+            _camera = new Camera();
+            _camera.FieldOfView = 70;
+
+            CameraController = new MapCameraController(_camera);
+
+            _gameTimer = AddDisposable(new GameTimer());
         }
 
         public void OnMouseMove(int x, int y)
@@ -100,14 +118,7 @@ namespace OpenSage.DataViewer.ViewModels
                 return;
             }
 
-            var view = Camera.ViewMatrix;
-            var world = Matrix4x4.Identity;
-
-            var pos1 = _viewport.Unproject(new Vector3(x, y, 0), ref _projectionMatrix, ref view, ref world);
-            var pos2 = _viewport.Unproject(new Vector3(x, y, 1), ref _projectionMatrix, ref view, ref world);
-            var dir = Vector3.Normalize(pos2 - pos1);
-
-            var ray = new Ray(pos1, dir);
+            var ray = _camera.ScreenPointToRay(new Vector2(x, y));
 
             var intersectionPoint = _map.Terrain.Intersect(ray);
 
@@ -119,19 +130,16 @@ namespace OpenSage.DataViewer.ViewModels
                 if (tilePosition != null)
                 {
                     TilePosition = $"Tile: ({tilePosition.Value.X}, {tilePosition.Value.Y})";
-                    HoveredObjectInfo = _map.Terrain.GetTileDescription(tilePosition.Value.X, tilePosition.Value.Y);
                 }
                 else
                 {
                     TilePosition = "Tile: No intersection";
-                    HoveredObjectInfo = string.Empty;
                 }
             }
             else
             {
                 MousePosition = "Pos: No intersection";
                 TilePosition = "Tile: No intersection";
-                HoveredObjectInfo = string.Empty;
             }
         }
 
@@ -155,17 +163,11 @@ namespace OpenSage.DataViewer.ViewModels
                 swapChain.BackBufferWidth,
                 swapChain.BackBufferHeight);
 
-            _viewport = new Viewport(
+            _camera.Viewport = new Viewport(
                 0, 
                 0, 
                 swapChain.BackBufferWidth, 
                 swapChain.BackBufferHeight);
-
-            _projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
-                (float) (70 * System.Math.PI / 180),
-                swapChain.BackBufferWidth / (float) swapChain.BackBufferHeight,
-                0.1f,
-                5000.0f);
         }
 
         public void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
@@ -175,14 +177,18 @@ namespace OpenSage.DataViewer.ViewModels
                 File.FileSystem,
                 graphicsDevice));
 
-            Camera.Reset(_map.Terrain.BoundingBox.GetCenter());
+            CameraController.Reset(_map.Terrain.BoundingBox.GetCenter());
 
             NotifyOfPropertyChange(nameof(CurrentTimeOfDay));
             NotifyOfPropertyChange(nameof(RenderWireframeOverlay));
+
+            _gameTimer.Start();
         }
 
         public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
+            _gameTimer.Update();
+
             var renderPassDescriptor = new RenderPassDescriptor();
             renderPassDescriptor.SetRenderTargetDescriptor(
                 swapChain.GetNextRenderTarget(),
@@ -196,16 +202,19 @@ namespace OpenSage.DataViewer.ViewModels
 
             var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
 
-            commandEncoder.SetViewport(_viewport);
+            commandEncoder.SetViewport(_camera.Viewport);
 
-            var cameraPosition = Camera.Position;
-            var view = Camera.ViewMatrix;
+            var view = _camera.ViewMatrix;
+            var projection = _camera.ProjectionMatrix;
 
-            _map.Draw(commandEncoder, ref cameraPosition, ref view, ref _projectionMatrix);
+            _map.Draw(commandEncoder, ref view, ref projection);
 
             commandEncoder.Close();
 
             commandBuffer.CommitAndPresent(swapChain);
+
+            _gameTimer.Update();
+            FrameTime = $"{_gameTimer.CurrentGameTime.ElapsedGameTime.TotalMilliseconds}ms";
         }
     }
 }

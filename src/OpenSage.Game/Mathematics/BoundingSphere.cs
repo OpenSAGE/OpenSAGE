@@ -54,24 +54,17 @@ namespace OpenSage.Mathematics
                             ((matrix.M31 * matrix.M31) + (matrix.M32 * matrix.M32)) + (matrix.M33 * matrix.M33)))))
             };
         }
-    }
 
-    public static class MathUtility
-    {
-        public static readonly float Pi = (float) Math.PI;
-
-        public static float Sqrt(float v) => (float) Math.Sqrt(v);
-
-        public static int FloorToInt(float f)
+        public PlaneIntersectionType Intersects(Plane plane)
         {
-            return (int) Math.Floor(f);
-        }
-
-        public static int Clamp(int value, int min, int max)
-        {
-            value = (value > max) ? max : value;
-            value = (value < min) ? min : value;
-            return value;
+            var distance = Vector3.Dot(plane.Normal, this.Center);
+            distance += plane.D;
+            if (distance > this.Radius)
+                return PlaneIntersectionType.Front;
+            else if (distance < -this.Radius)
+                return PlaneIntersectionType.Back;
+            else
+                return PlaneIntersectionType.Intersecting;
         }
     }
 }

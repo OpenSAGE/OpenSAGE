@@ -34,6 +34,8 @@
                                         HwndRButtonUp="OnHwndRButtonUp"
                                         HwndMouseMove="OnHwndMouseMove"/>
         <StatusBar Grid.Row="2">
+            <StatusBarItem DockPanel.Dock="Right" 
+                           Content="{Binding FrameTime}" />
             <StatusBarItem>
                 <TextBlock Text="{Binding MousePosition}" />
             </StatusBarItem>

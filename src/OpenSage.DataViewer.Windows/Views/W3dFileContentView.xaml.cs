@@ -88,15 +88,15 @@ namespace OpenSage.DataViewer.Views
 
             if (_isLButtonDown)
             {
-                TypedDataContext.Camera.Rotate((float) delta.X, (float) delta.Y);
+                TypedDataContext.CameraController.Rotate((float) delta.X, (float) delta.Y);
             }
             else if (_isMButtonDown)
             {
-                TypedDataContext.Camera.Zoom((float)delta.Y);
+                TypedDataContext.CameraController.Zoom((float) delta.Y);
             }
             else if (_isRButtonDown)
             {
-                TypedDataContext.Camera.Pan((float) delta.X, (float) delta.Y);
+                TypedDataContext.CameraController.Pan((float) delta.X, (float) delta.Y);
             }
 
             _previousMousePoint = e.ScreenPosition;

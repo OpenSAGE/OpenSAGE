@@ -1,9 +1,10 @@
 ﻿using System.Numerics;
+using OpenSage.Graphics;
 using OpenSage.Mathematics;
 
 namespace OpenSage.DataViewer.Framework
 {
-    public sealed class MapCamera
+    public sealed class MapCameraController
     {
         private const float DefaultDistance = 300;
         private static readonly float DefaultPitch = -MathUtility.Pi / 4;
@@ -12,29 +13,30 @@ namespace OpenSage.DataViewer.Framework
         private const float ZoomSpeed = 0.002f;
         private const float PanSpeed = 0.2f;
 
+        private readonly Camera _camera;
+
         private Vector3 _target;
 
         private float _yaw;
         private float _zoom;
         private Vector3 _translation;
 
-        public Vector3 Position
+        public MapCameraController(Camera camera)
         {
-            get
-            {
-                var result = Vector3.Transform(
-                    -Vector3.UnitY,
-                    QuaternionUtility.CreateFromYawPitchRoll_ZUp(_yaw, DefaultPitch, 0));
-                result *= _zoom * DefaultDistance;
-                result += _target;
-                return result;
-            }
+            _camera = camera;
         }
 
-        public Matrix4x4 ViewMatrix => Matrix4x4.CreateLookAt(
-            Position + _translation,
-            _target + _translation,
-            Vector3.UnitZ);
+        private void UpdateCamera()
+        {
+            var position = Vector3.Transform(
+                -Vector3.UnitY,
+                QuaternionUtility.CreateFromYawPitchRoll_ZUp(_yaw, DefaultPitch, 0));
+            position *= _zoom * DefaultDistance;
+            position += _target;
+
+            _camera.Position = position + _translation;
+            _camera.Target = _target + _translation;
+        }
 
         public void Reset(Vector3 target)
         {
@@ -43,11 +45,15 @@ namespace OpenSage.DataViewer.Framework
             _yaw = 0;
             _zoom = 1;
             _translation = Vector3.Zero;
+
+            UpdateCamera();
         }
 
         public void Rotate(float deltaX, float deltaY)
         {
             _yaw += deltaX * RotationSpeed;
+
+            UpdateCamera();
         }
 
         public void Zoom(float deltaY)
@@ -58,6 +64,8 @@ namespace OpenSage.DataViewer.Framework
             if (newZoom < minZoom)
                 newZoom = minZoom;
             _zoom = newZoom;
+
+            UpdateCamera();
         }
 
         public void Pan(float deltaX, float deltaY)
@@ -76,6 +84,8 @@ namespace OpenSage.DataViewer.Framework
             newTranslation.Z = 0;
 
             _translation += newTranslation;
+
+            UpdateCamera();
         }
     }
 }

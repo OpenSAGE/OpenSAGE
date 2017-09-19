@@ -26,11 +26,9 @@ namespace OpenSage.DataViewer.ViewModels
 
         private readonly GameTimer _gameTimer;
 
-        private Vector3 _cameraPosition;
+        private readonly Camera _camera;
 
-        public ArcballCamera Camera { get; }
-
-        private Matrix4x4 _world, _view, _projection;
+        public ArcballCameraController CameraController { get; }
 
         private List<W3dItemViewModelBase> _modelChildren;
         public IReadOnlyList<W3dItemViewModelBase> ModelChildren
@@ -83,9 +81,9 @@ namespace OpenSage.DataViewer.ViewModels
                 {
                     _selectedModelChild.Activate();
 
-                    Camera.Reset(
+                    CameraController.Reset(
                         value.BoundingSphere.Center,
-                        value.BoundingSphere.Radius * 1.4f);
+                        value.BoundingSphere.Radius * 1.6f);
                 }
 
                 _gameTimer.Reset();
@@ -125,7 +123,10 @@ namespace OpenSage.DataViewer.ViewModels
                 }
             }
 
-            Camera = new ArcballCamera();
+            _camera = new Camera();
+            _camera.FieldOfView = 70;
+
+            CameraController = new ArcballCameraController(_camera);
 
             _gameTimer = new GameTimer();
         }
@@ -149,6 +150,12 @@ namespace OpenSage.DataViewer.ViewModels
                 graphicsDevice,
                 swapChain.BackBufferWidth,
                 swapChain.BackBufferHeight);
+
+            _camera.Viewport = new Viewport(
+                0,
+                0,
+                swapChain.BackBufferWidth,
+                swapChain.BackBufferHeight);
         }
 
         public void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
@@ -169,17 +176,6 @@ namespace OpenSage.DataViewer.ViewModels
         private void Update(SwapChain swapChain)
         {
             _gameTimer.Update();
-
-            _world = Matrix4x4.Identity;
-
-            _cameraPosition = Camera.Position;
-            _view = Camera.ViewMatrix;
-
-            _projection = Matrix4x4.CreatePerspectiveFieldOfView(
-                (float) (90 * System.Math.PI / 180),
-                swapChain.BackBufferWidth / (float) swapChain.BackBufferHeight,
-                0.1f,
-                1000.0f);
 
             _selectedModelChild?.Update(_gameTimer.CurrentGameTime);
         }
@@ -202,15 +198,7 @@ namespace OpenSage.DataViewer.ViewModels
 
             var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
 
-            commandEncoder.SetViewport(new Viewport
-            {
-                X = 0,
-                Y = 0,
-                Width = swapChain.BackBufferWidth,
-                Height = swapChain.BackBufferHeight,
-                MinDepth = 0,
-                MaxDepth = 1
-            });
+            commandEncoder.SetViewport(_camera.Viewport);
 
             _meshEffect.Begin(commandEncoder);
 
@@ -222,13 +210,15 @@ namespace OpenSage.DataViewer.ViewModels
             _meshEffect.SetLights(ref lights);
 
             var world = Matrix4x4.Identity;
+            var view = _camera.ViewMatrix;
+            var projection = _camera.ProjectionMatrix;
 
             _selectedModelChild?.Draw(
                 commandEncoder, 
                 _meshEffect,
                 ref world,
-                ref _view, 
-                ref _projection);
+                ref view, 
+                ref projection);
 
             commandEncoder.Close();
 

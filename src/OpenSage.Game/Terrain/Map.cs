@@ -107,7 +107,6 @@ namespace OpenSage.Terrain
 
         public void Draw(
             CommandEncoder commandEncoder,
-            ref Vector3 cameraPosition,
             ref Matrix4x4 view,
             ref Matrix4x4 projection)
         {
