@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace OpenSage.Data.Ini
 {
     public sealed class BitArray<TEnum>
         where TEnum : struct
     {
+        private static readonly int NumValues = Enum.GetValues(typeof(TEnum)).Length;
+
         private readonly BitArray _inner;
 
         public bool AnyBitSet
@@ -26,7 +29,7 @@ namespace OpenSage.Data.Ini
 
         public BitArray()
         {
-            _inner = new BitArray(Enum.GetValues(typeof(TEnum)).Length);
+            _inner = new BitArray(NumValues);
         }
 
         public bool Get(TEnum index)
@@ -47,6 +50,11 @@ namespace OpenSage.Data.Ini
         public override bool Equals(object obj)
         {
             return obj is BitArray<TEnum> x && _inner.Equals(x._inner);
+        }
+
+        public override int GetHashCode()
+        {
+            return -311176850 + EqualityComparer<BitArray>.Default.GetHashCode(_inner);
         }
     }
 }

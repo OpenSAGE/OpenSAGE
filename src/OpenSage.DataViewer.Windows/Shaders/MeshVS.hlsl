@@ -29,7 +29,7 @@ struct SkinningConstants
 
 ConstantBuffer<SkinningConstants> SkinningCB : register(b1);
 
-Buffer<uint> MaterialIndices : register(t0);
+StructuredBuffer<uint> MaterialIndices : register(t0);
 
 VSOutput main(VSInput input)
 {

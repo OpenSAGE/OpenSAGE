@@ -4,7 +4,6 @@
     {
         ConstantBuffer,
         StructuredBuffer,
-        Texture,
-        TypedBuffer
+        Texture
     }
 }

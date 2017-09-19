@@ -1,56 +1,81 @@
-﻿using LLGfx;
+﻿using System;
+using System.Numerics;
+using System.Runtime.InteropServices;
+using LLGfx;
 
 namespace OpenSage.Graphics.Effects
 {
     public sealed class TerrainEffect : Effect
     {
-        private readonly GraphicsDevice _graphicsDevice;
-        private readonly DescriptorSetLayout _terrainDescriptorSetLayout;
+        private readonly DynamicBuffer<TransformConstants> _transformConstantBuffer;
+        private TransformConstants _transformConstants;
 
-        public TerrainEffect(GraphicsDevice graphicsDevice, int numTextures)
-            : base(graphicsDevice, "TerrainVS", "TerrainPS")
+        private readonly DynamicBuffer<LightingConstants> _lightingConstantBuffer;
+        private LightingConstants _lightingConstants;
+
+        private TerrainEffectDirtyFlags _dirtyFlags;
+
+        private Matrix4x4 _world = Matrix4x4.Identity;
+        private Matrix4x4 _view;
+        private Matrix4x4 _projection;
+
+        private ShaderResourceView _tileDataTexture;
+        private ShaderResourceView _cliffDetailsBuffer;
+        private ShaderResourceView _textureDetailsBuffer;
+        private ShaderResourceView _textures;
+
+        [Flags]
+        private enum TerrainEffectDirtyFlags
         {
-            _graphicsDevice = graphicsDevice;
+            None = 0,
 
-            _terrainDescriptorSetLayout = new DescriptorSetLayout(new DescriptorSetLayoutDescription
-            {
-                Visibility = ShaderStageVisibility.Pixel,
-                Bindings = new[]
-                {
-                    // TileData
-                    new DescriptorSetLayoutBinding(DescriptorType.Texture, 0, 1),
+            TransformConstants = 0x2,
 
-                    // CliffDetails
-                    new DescriptorSetLayoutBinding(DescriptorType.StructuredBuffer, 1, 1),
+            LightingConstants = 0x4,
 
-                    // TextureDetails
-                    new DescriptorSetLayoutBinding(DescriptorType.StructuredBuffer, 2, 1),
-                    
-                    // Textures[]
-                    new DescriptorSetLayoutBinding(DescriptorType.Texture, 3, numTextures),
-                }
-            });
+            TileDataTexture = 0x8,
+            CliffDetailsBuffer = 0x10,
+            TextureDetailsBuffer = 0x20,
+            Textures = 0x40,
 
-            CreateVertexDescriptor(out var vertexDescriptor);
-            CreatePipelineLayoutDescription(out var pipelineLayoutDescription);
-            Initialize(ref vertexDescriptor, ref pipelineLayoutDescription);
+            All = TransformConstants
+                | LightingConstants
+                | TileDataTexture
+                | CliffDetailsBuffer
+                | TextureDetailsBuffer
+                | Textures
         }
 
-        private void CreateVertexDescriptor(out VertexDescriptor vertexDescriptor)
+        public TerrainEffect(GraphicsDevice graphicsDevice, int numTextures)
+            : base(
+                  graphicsDevice, 
+                  "TerrainVS", 
+                  "TerrainPS",
+                  CreateVertexDescriptor(),
+                  CreatePipelineLayoutDescription(numTextures))
         {
-            vertexDescriptor = new VertexDescriptor();
+            _transformConstantBuffer = AddDisposable(DynamicBuffer<TransformConstants>.Create(graphicsDevice));
+
+            _lightingConstantBuffer = AddDisposable(DynamicBuffer<LightingConstants>.Create(graphicsDevice));
+        }
+
+        private static VertexDescriptor CreateVertexDescriptor()
+        {
+            var vertexDescriptor = new VertexDescriptor();
             vertexDescriptor.SetAttributeDescriptor(0, "POSITION", 0, VertexFormat.Float3, 0, 0);
             vertexDescriptor.SetAttributeDescriptor(1, "NORMAL", 0, VertexFormat.Float3, 0, 12);
             vertexDescriptor.SetAttributeDescriptor(2, "TEXCOORD", 0, VertexFormat.Float2, 0, 24);
             vertexDescriptor.SetLayoutDescriptor(0, 32);
+            return vertexDescriptor;
         }
 
-        private void CreatePipelineLayoutDescription(out PipelineLayoutDescription pipelineLayoutDescription)
+        private static PipelineLayoutDescription CreatePipelineLayoutDescription(int numTextures)
         {
-            pipelineLayoutDescription = new PipelineLayoutDescription
+            return new PipelineLayoutDescription
             {
                 InlineDescriptorLayouts = new[]
                 {
+                    // TransformCB
                     new InlineDescriptorLayoutDescription
                     {
                         Visibility = ShaderStageVisibility.Vertex,
@@ -58,6 +83,7 @@ namespace OpenSage.Graphics.Effects
                         ShaderRegister = 0
                     },
 
+                    // LightingCB
                     new InlineDescriptorLayoutDescription
                     {
                         Visibility = ShaderStageVisibility.Pixel,
@@ -65,10 +91,50 @@ namespace OpenSage.Graphics.Effects
                         ShaderRegister = 0
                     },
                 },
+
                 DescriptorSetLayouts = new[]
                 {
-                    _terrainDescriptorSetLayout
+                    // TileData
+                    new DescriptorSetLayout(new DescriptorSetLayoutDescription
+                    {
+                        Visibility = ShaderStageVisibility.Pixel,
+                        Bindings = new[]
+                        {
+                            new DescriptorSetLayoutBinding(DescriptorType.Texture, 0, 1)
+                        }
+                    }),
+
+                    // CliffDetails
+                    new DescriptorSetLayout(new DescriptorSetLayoutDescription
+                    {
+                        Visibility = ShaderStageVisibility.Pixel,
+                        Bindings = new[]
+                        {
+                            new DescriptorSetLayoutBinding(DescriptorType.StructuredBuffer, 1, 1)
+                        }
+                    }),
+
+                    // TextureDetails
+                    new DescriptorSetLayout(new DescriptorSetLayoutDescription
+                    {
+                        Visibility = ShaderStageVisibility.Pixel,
+                        Bindings = new[]
+                        {
+                            new DescriptorSetLayoutBinding(DescriptorType.StructuredBuffer, 2, 1)
+                        }
+                    }),
+
+                    // Textures
+                    new DescriptorSetLayout(new DescriptorSetLayoutDescription
+                    {
+                        Visibility = ShaderStageVisibility.Pixel,
+                        Bindings = new[]
+                        {
+                            new DescriptorSetLayoutBinding(DescriptorType.StructuredBuffer, 3, numTextures)
+                        }
+                    })
                 },
+
                 StaticSamplerStates = new[]
                 {
                     new StaticSamplerDescription
@@ -84,24 +150,116 @@ namespace OpenSage.Graphics.Effects
             };
         }
 
-        public PipelineState GetPipelineState(bool wireframe)
+        protected override void OnBegin()
         {
-            var description = PipelineStateDescription.Default();
-
-            if (wireframe)
-            {
-                description.FillMode = FillMode.Wireframe;
-                description.IsDepthWriteEnabled = false;
-            }
-
-            return GetPipelineState(ref description);
+            _dirtyFlags = TerrainEffectDirtyFlags.All;
         }
 
-        public DescriptorSet CreateTerrainDescriptorSet()
+        protected override void OnApply(CommandEncoder commandEncoder)
         {
-            return new DescriptorSet(
-                _graphicsDevice,
-                _terrainDescriptorSetLayout);
+            if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.TransformConstants))
+            {
+                _transformConstants.World = _world;
+                _transformConstants.WorldViewProjection = _world * _view * _projection;
+
+                _transformConstantBuffer.UpdateData(ref _transformConstants);
+
+                commandEncoder.SetInlineConstantBuffer(0, _transformConstantBuffer);
+
+                _dirtyFlags &= ~TerrainEffectDirtyFlags.TransformConstants;
+            }
+
+            if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.LightingConstants))
+            {
+                Matrix4x4.Invert(_view, out var viewInverse);
+                _lightingConstants.CameraPosition = viewInverse.Translation;
+
+                _lightingConstantBuffer.UpdateData(ref _lightingConstants);
+
+                commandEncoder.SetInlineConstantBuffer(1, _lightingConstantBuffer);
+
+                _dirtyFlags &= ~TerrainEffectDirtyFlags.LightingConstants;
+            }
+
+            if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.TileDataTexture))
+            {
+                commandEncoder.SetShaderResourceView(2, _tileDataTexture);
+                _dirtyFlags &= ~TerrainEffectDirtyFlags.TileDataTexture;
+            }
+
+            if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.CliffDetailsBuffer))
+            {
+                commandEncoder.SetShaderResourceView(3, _cliffDetailsBuffer);
+                _dirtyFlags &= ~TerrainEffectDirtyFlags.CliffDetailsBuffer;
+            }
+
+            if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.TextureDetailsBuffer))
+            {
+                commandEncoder.SetShaderResourceView(4, _textureDetailsBuffer);
+                _dirtyFlags &= ~TerrainEffectDirtyFlags.TextureDetailsBuffer;
+            }
+
+            if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.Textures))
+            {
+                commandEncoder.SetShaderResourceView(5, _textures);
+                _dirtyFlags &= ~TerrainEffectDirtyFlags.Textures;
+            }
+        }
+
+        public void SetWorld(ref Matrix4x4 matrix)
+        {
+            _world = matrix;
+            _dirtyFlags |= TerrainEffectDirtyFlags.TransformConstants;
+        }
+
+        public void SetView(ref Matrix4x4 matrix)
+        {
+            _view = matrix;
+            _dirtyFlags |= TerrainEffectDirtyFlags.TransformConstants;
+            _dirtyFlags |= TerrainEffectDirtyFlags.LightingConstants;
+        }
+
+        public void SetProjection(ref Matrix4x4 matrix)
+        {
+            _projection = matrix;
+            _dirtyFlags |= TerrainEffectDirtyFlags.TransformConstants;
+        }
+
+        public void SetLights(ref Lights lights)
+        {
+            _lightingConstants.Lights = lights;
+            _dirtyFlags |= TerrainEffectDirtyFlags.LightingConstants;
+        }
+
+        public void SetTileData(ShaderResourceView tileDataTexture)
+        {
+            _tileDataTexture = tileDataTexture;
+            _dirtyFlags |= TerrainEffectDirtyFlags.TileDataTexture;
+        }
+
+        public void SetCliffDetails(ShaderResourceView cliffDetailsBuffer)
+        {
+            _cliffDetailsBuffer = cliffDetailsBuffer;
+            _dirtyFlags |= TerrainEffectDirtyFlags.CliffDetailsBuffer;
+        }
+
+        public void SetTextureDetails(ShaderResourceView textureDetailsBuffer)
+        {
+            _textureDetailsBuffer = textureDetailsBuffer;
+            _dirtyFlags |= TerrainEffectDirtyFlags.TextureDetailsBuffer;
+        }
+
+        public void SetTextures(ShaderResourceView textures)
+        {
+            _textures = textures;
+            _dirtyFlags |= TerrainEffectDirtyFlags.Textures;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct TransformConstants
+        {
+            public Matrix4x4 WorldViewProjection;
+            public Matrix4x4 World;
         }
     }
 }

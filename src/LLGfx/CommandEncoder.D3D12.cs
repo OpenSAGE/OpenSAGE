@@ -39,8 +39,7 @@ namespace LLGfx
         private void PlatformDrawIndexed(
             PrimitiveType primitiveType,
             uint indexCount,
-            IndexType indexType,
-            Buffer indexBuffer,
+            StaticBuffer<ushort> indexBuffer,
             uint indexBufferOffset)
         {
             _commandList.PrimitiveTopology = primitiveType.ToPrimitiveTopology();
@@ -48,7 +47,7 @@ namespace LLGfx
             _commandList.SetIndexBuffer(new IndexBufferView
             {
                 BufferLocation = indexBuffer.DeviceBuffer.GPUVirtualAddress,
-                Format = indexType.ToDxgiFormat(),
+                Format = SharpDX.DXGI.Format.R16_UInt,
                 SizeInBytes = (int) indexBuffer.DeviceBuffer.Description.Width
             });
 
@@ -65,6 +64,11 @@ namespace LLGfx
             _commandList.SetGraphicsRootDescriptorTable(index, descriptorSet.GPUDescriptorHandleForCbvUavSrvHeapStart);
         }
 
+        private void PlatformSetShaderResourceView(int index, ShaderResourceView shaderResourceView)
+        {
+            _commandList.SetGraphicsRootDescriptorTable(index, shaderResourceView.GPUDescriptorHandleForCbvUavSrvHeapStart);
+        }
+
         private void PlatformSetInlineConstantBuffer(int index, Buffer buffer)
         {
             _commandList.SetGraphicsRootConstantBufferView(index, buffer.DeviceCurrentGPUVirtualAddress);
@@ -73,7 +77,6 @@ namespace LLGfx
         private void PlatformSetPipelineState(PipelineState pipelineState)
         {
             _commandList.PipelineState = pipelineState.DevicePipelineState;
-            _currentPipelineState = pipelineState;
         }
 
         private void PlatformSetPipelineLayout(PipelineLayout pipelineLayout)
@@ -81,18 +84,14 @@ namespace LLGfx
             _commandList.SetGraphicsRootSignature(pipelineLayout.DeviceRootSignature);
         }
 
-        private void PlatformSetVertexBuffer(int slot, Buffer vertexBuffer)
+        private void PlatformSetVertexBuffer<T>(int slot, StaticBuffer<T> vertexBuffer)
+            where T : struct
         {
-            if (_currentPipelineState == null)
-            {
-                throw new InvalidOperationException("Must call SetPipelineState before SetVertexBuffer");
-            }
-
             _commandList.SetVertexBuffer(slot, new VertexBufferView
             {
                 BufferLocation = vertexBuffer.DeviceBuffer.GPUVirtualAddress,
                 SizeInBytes = (int) vertexBuffer.DeviceBuffer.Description.Width,
-                StrideInBytes = _currentPipelineState.Description.VertexDescriptor.GetStride(slot)
+                StrideInBytes = (int) vertexBuffer.ElementSizeInBytes
             });
         }
 

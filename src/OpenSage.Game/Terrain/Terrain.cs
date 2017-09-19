@@ -9,7 +9,6 @@ using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
-using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Util;
 using OpenSage.Mathematics;
@@ -26,24 +25,42 @@ namespace OpenSage.Terrain
 
         private readonly List<TerrainTexture> _terrainTextures;
 
+        private readonly TerrainEffect _terrainEffect;
+
+        private readonly EffectPipelineStateHandle _pipelineStateSolid;
+        private readonly EffectPipelineStateHandle _pipelineStateWireframe;
+
         private readonly int _numPatchesX, _numPatchesY;
         private readonly TerrainPatch[,] _patches;
-
-        private readonly DescriptorSet _terrainDescriptorSet;
 
         public HeightMap HeightMap { get; }
 
         public BoundingBox BoundingBox { get; }
+
+        public bool RenderWireframeOverlay { get; set; }
 
         public Terrain(
             MapFile mapFile,
             GraphicsDevice graphicsDevice,
             FileSystem fileSystem,
             IniDataContext iniDataContext,
-            ContentManager contentManager,
-            TerrainEffect terrainEffect)
+            ContentManager contentManager)
         {
             _mapFile = mapFile;
+
+            _terrainEffect = AddDisposable(new TerrainEffect(graphicsDevice, mapFile.BlendTileData.Textures.Length));
+
+            _pipelineStateSolid = new EffectPipelineState(
+                RasterizerStateDescription.CullBackSolid,
+                DepthStencilStateDescription.Default,
+                BlendStateDescription.Opaque)
+                .GetHandle();
+
+            _pipelineStateWireframe = new EffectPipelineState(
+                RasterizerStateDescription.CullBackWireframe,
+                DepthStencilStateDescription.DepthRead,
+                BlendStateDescription.Opaque)
+                .GetHandle();
 
             _terrainTextures = iniDataContext.TerrainTextures;
 
@@ -114,13 +131,10 @@ namespace OpenSage.Terrain
                 _terrainTextures,
                 contentManager);
 
-            _terrainDescriptorSet = AddDisposable(terrainEffect.CreateTerrainDescriptorSet());
-
             var textureDetailsBuffer = AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
                 uploadBatch,
-                textureDetails,
-                false));
+                textureDetails));
 
             var tileData = new uint[HeightMap.Width * HeightMap.Height * 4];
 
@@ -191,16 +205,20 @@ namespace OpenSage.Terrain
                 ? AddDisposable(StaticBuffer.Create(
                     graphicsDevice,
                     uploadBatch,
-                    cliffDetails,
-                    false))
+                    cliffDetails))
                 : null;
 
             uploadBatch.End();
 
-            _terrainDescriptorSet.SetTexture(0, tileDataTexture);
-            _terrainDescriptorSet.SetStructuredBuffer(1, cliffDetailsBuffer);
-            _terrainDescriptorSet.SetStructuredBuffer(2, textureDetailsBuffer);
-            _terrainDescriptorSet.SetTextures(3, textures);
+            var tileDataTextureView = AddDisposable(ShaderResourceView.Create(graphicsDevice, tileDataTexture));
+            var cliffDetailsBufferView = AddDisposable(ShaderResourceView.Create(graphicsDevice, cliffDetailsBuffer));
+            var textureDetailsBufferView = AddDisposable(ShaderResourceView.Create(graphicsDevice, textureDetailsBuffer));
+            var texturesView = AddDisposable(ShaderResourceView.Create(graphicsDevice, textures));
+
+            _terrainEffect.SetTileData(tileDataTextureView);
+            _terrainEffect.SetCliffDetails(cliffDetailsBufferView);
+            _terrainEffect.SetTextureDetails(textureDetailsBufferView);
+            _terrainEffect.SetTextures(texturesView);
         }
 
         private BlendData GetBlendData(MapFile mapFile, int x, int y, ushort blendIndex, byte baseTextureIndex)
@@ -333,9 +351,48 @@ namespace OpenSage.Terrain
             return ray.Position + (ray.Direction * closestIntersection.Value);
         }
 
-        public void Draw(CommandEncoder commandEncoder)
+        public void Draw(
+            CommandEncoder commandEncoder,
+            ref Matrix4x4 view,
+            ref Matrix4x4 projection,
+            ref Lights lights)
         {
-            commandEncoder.SetDescriptorSet(2, _terrainDescriptorSet);
+            _terrainEffect.Begin(commandEncoder);
+
+            _terrainEffect.SetView(ref view);
+            _terrainEffect.SetProjection(ref projection);
+
+            Draw(
+                commandEncoder,
+                _pipelineStateSolid,
+                ref lights,
+                ref view,
+                ref projection);
+
+            if (RenderWireframeOverlay)
+            {
+                var blackLights = new Lights();
+                Draw(
+                    commandEncoder,
+                    _pipelineStateWireframe,
+                    ref blackLights,
+                    ref view,
+                    ref projection);
+            }
+        }
+
+        private void Draw(
+            CommandEncoder commandEncoder,
+            EffectPipelineStateHandle pipelineStateHandle,
+            ref Lights lights,
+            ref Matrix4x4 view,
+            ref Matrix4x4 projection)
+        {
+            _terrainEffect.SetPipelineState(pipelineStateHandle);
+
+            _terrainEffect.SetLights(ref lights);
+
+            _terrainEffect.Apply(commandEncoder);
 
             for (var y = 0; y < _numPatchesY; y++)
             {

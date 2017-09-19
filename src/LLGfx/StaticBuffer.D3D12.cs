@@ -2,16 +2,15 @@ using SharpDX.Direct3D12;
 
 namespace LLGfx
 {
-    partial class StaticBuffer
+    partial class StaticBuffer<T>
     {
         internal override long DeviceCurrentGPUVirtualAddress => DeviceBuffer.GPUVirtualAddress;
 
-        private void PlatformConstruct<T>(
+        private void PlatformConstruct(
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,
             T[] data,
             uint sizeInBytes)
-            where T : struct
         {
             DeviceBuffer = AddDisposable(graphicsDevice.Device.CreateCommittedResource(
                 new HeapProperties(HeapType.Default),

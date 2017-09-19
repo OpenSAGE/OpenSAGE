@@ -4,53 +4,17 @@ using D3D12 = SharpDX.Direct3D12;
 
 namespace LLGfx
 {
-    public enum Blend
-    {
-        Zero,
-        One,
-        SrcAlpha,
-        OneMinusSrcAlpha
-    }
-
     partial class PipelineState
     {
         internal D3D12.PipelineState DevicePipelineState { get; private set; }
 
         private void PlatformConstruct(GraphicsDevice graphicsDevice, PipelineStateDescription description)
         {
-            var rasterizerState = RasterizerStateDescription.Default();
-            rasterizerState.IsFrontCounterClockwise = description.IsFrontCounterClockwise;
+            var rasterizerState = description.RasterizerState.ToRasterizerStateDescription();
 
-            rasterizerState.FillMode = description.FillMode == FillMode.Solid
-                ? D3D12.FillMode.Solid
-                : D3D12.FillMode.Wireframe;
-            
-            rasterizerState.CullMode = description.TwoSided
-                ? CullMode.None
-                : CullMode.Back;
+            var blendState = description.BlendState.ToBlendStateDescription();
 
-            if (description.FillMode == FillMode.Wireframe)
-            {
-                //rasterizerState.DepthBias = -1000;
-                rasterizerState.SlopeScaledDepthBias = -1;
-            }
-
-            var blendState = BlendStateDescription.Default();
-            if (description.Blending.Enabled)
-            {
-                blendState.RenderTarget[0].IsBlendEnabled = true;
-                blendState.RenderTarget[0].SourceBlend = description.Blending.SourceBlend.ToBlendOption();
-                blendState.RenderTarget[0].SourceAlphaBlend = description.Blending.SourceBlend.ToBlendOption();
-                blendState.RenderTarget[0].DestinationBlend = description.Blending.DestinationBlend.ToBlendOption();
-                blendState.RenderTarget[0].DestinationAlphaBlend = description.Blending.DestinationBlend.ToBlendOption();
-            }
-
-            var depthStencilState = DepthStencilStateDescription.Default();
-            depthStencilState.IsDepthEnabled = description.IsDepthEnabled;
-            depthStencilState.DepthWriteMask = description.IsDepthWriteEnabled
-                ? DepthWriteMask.All
-                : DepthWriteMask.Zero;
-            depthStencilState.DepthComparison = Comparison.LessEqual;
+            var depthStencilState = description.DepthStencilState.ToDepthStencilStateDescription();
 
             var deviceDescription = new GraphicsPipelineStateDescription
             {

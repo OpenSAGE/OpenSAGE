@@ -3,11 +3,94 @@ using SharpDX.Direct3D;
 using SharpDX.Direct3D12;
 using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
+using D3D12 = SharpDX.Direct3D12;
 
 namespace LLGfx.Util
 {
     internal static class ConversionExtensions
     {
+        public static D3D12.RasterizerStateDescription ToRasterizerStateDescription(this RasterizerStateDescription value)
+        {
+            var result = D3D12.RasterizerStateDescription.Default();
+
+            result.IsFrontCounterClockwise = value.IsFrontCounterClockwise;
+
+            result.FillMode = value.FillMode.ToFillMode();
+
+            result.CullMode = value.CullMode.ToCullMode();
+
+            if (value.FillMode == FillMode.Wireframe)
+            {
+                result.SlopeScaledDepthBias = -1;
+            }
+
+            return result;
+        }
+
+        public static D3D12.BlendStateDescription ToBlendStateDescription(this BlendStateDescription value)
+        {
+            var result = D3D12.BlendStateDescription.Default();
+
+            if (value.Enabled)
+            {
+                result.RenderTarget[0].IsBlendEnabled = true;
+                result.RenderTarget[0].SourceBlend = value.SourceBlend.ToBlendOption();
+                result.RenderTarget[0].SourceAlphaBlend = value.SourceBlend.ToBlendOption();
+                result.RenderTarget[0].DestinationBlend = value.DestinationBlend.ToBlendOption();
+                result.RenderTarget[0].DestinationAlphaBlend = value.DestinationBlend.ToBlendOption();
+            }
+
+            return result;
+        }
+
+        public static D3D12.DepthStencilStateDescription ToDepthStencilStateDescription(this DepthStencilStateDescription value)
+        {
+            var result = D3D12.DepthStencilStateDescription.Default();
+
+            result.IsDepthEnabled = value.IsDepthEnabled;
+
+            result.DepthWriteMask = value.IsDepthWriteEnabled
+                ? DepthWriteMask.All
+                : DepthWriteMask.Zero;
+
+            result.DepthComparison = Comparison.LessEqual;
+
+            return result;
+        }
+
+        public static D3D12.FillMode ToFillMode(this FillMode value)
+        {
+            switch (value)
+            {
+                case FillMode.Solid:
+                    return D3D12.FillMode.Solid;
+
+                case FillMode.Wireframe:
+                    return D3D12.FillMode.Wireframe;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public static D3D12.CullMode ToCullMode(this CullMode value)
+        {
+            switch (value)
+            {
+                case CullMode.CullBack:
+                    return D3D12.CullMode.Back;
+
+                case CullMode.CullFront:
+                    return D3D12.CullMode.Front;
+
+                case CullMode.None:
+                    return D3D12.CullMode.None;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         public static BlendOption ToBlendOption(this Blend value)
         {
             switch (value)
@@ -38,23 +121,7 @@ namespace LLGfx.Util
 
                 case DescriptorType.StructuredBuffer:
                 case DescriptorType.Texture:
-                case DescriptorType.TypedBuffer:
                     return DescriptorRangeType.ShaderResourceView;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        public static Format ToDxgiFormat(this IndexType value)
-        {
-            switch (value)
-            {
-                case IndexType.UInt16:
-                    return Format.R16_UInt;
-
-                case IndexType.UInt32:
-                    return Format.R32_UInt;
 
                 default:
                     throw new ArgumentOutOfRangeException();

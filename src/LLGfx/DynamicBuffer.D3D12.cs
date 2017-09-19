@@ -3,7 +3,7 @@ using SharpDX;
 
 namespace LLGfx
 {
-    partial class DynamicBuffer
+    partial class DynamicBuffer<T>
     {
         private DynamicAllocation _currentAllocation;
 
@@ -11,8 +11,7 @@ namespace LLGfx
 
         private void PlatformConstruct(GraphicsDevice graphicsDevice, uint sizeInBytes) { }
 
-        private void PlatformSetData<T>(ref T data)
-            where T : struct
+        private void PlatformSetData(ref T data)
         {
             _currentAllocation = GraphicsDevice.DynamicUploadHeap.Allocate(SizeInBytes);
             Utilities.Write(_currentAllocation.CpuAddress, ref data);

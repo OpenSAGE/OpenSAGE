@@ -10,14 +10,14 @@ namespace OpenSage.Graphics
     // One ModelMeshMaterialPass for each W3D_CHUNK_MATERIAL_PASS
     public sealed class ModelMeshMaterialPass : GraphicsObject
     {
-        public DescriptorSet VertexMaterialPassDescriptorSet;
-        public DescriptorSet PixelMaterialPassDescriptorSet;
+        internal ShaderResourceView TextureIndicesBufferView { get; }
+        internal ShaderResourceView MaterialIndicesBufferView { get; }
 
         public IReadOnlyList<ModelMeshPart> MeshParts { get; }
 
         public uint NumTextureStages { get; }
 
-        public StaticBuffer TexCoordVertexBuffer { get; }
+        internal StaticBuffer<TexCoords> TexCoordVertexBuffer { get; }
 
         internal ModelMeshMaterialPass(
             ContentManager contentManager,
@@ -57,8 +57,7 @@ namespace OpenSage.Graphics
             TexCoordVertexBuffer = AddDisposable(StaticBuffer.Create(
                 contentManager.GraphicsDevice,
                 uploadBatch,
-                texCoords,
-                false));
+                texCoords));
 
             var textureIDs = new TextureIndex[w3dMesh.Header.NumTris];
 
@@ -100,15 +99,10 @@ namespace OpenSage.Graphics
                 }
             }
 
-            PixelMaterialPassDescriptorSet = AddDisposable(contentManager.ModelEffect.CreateMaterialPassPixelDescriptorSet());
-
             var textureIndicesBuffer = AddDisposable(StaticBuffer.Create(
                 contentManager.GraphicsDevice,
                 uploadBatch,
-                textureIDs,
-                false));
-
-            PixelMaterialPassDescriptorSet.SetTypedBuffer(0, textureIndicesBuffer, PixelFormat.R32UInt);
+                textureIDs));
 
             var materialIDs = w3dMaterialPass.VertexMaterialIds;
             if (materialIDs.Length == 1)
@@ -124,12 +118,10 @@ namespace OpenSage.Graphics
             var materialIndicesBuffer = AddDisposable(StaticBuffer.Create(
                 contentManager.GraphicsDevice,
                 uploadBatch,
-                materialIDs,
-                false));
+                materialIDs));
 
-            VertexMaterialPassDescriptorSet = AddDisposable(contentManager.ModelEffect.CreateMaterialPassVertexDescriptorSet());
-
-            VertexMaterialPassDescriptorSet.SetTypedBuffer(0, materialIndicesBuffer, PixelFormat.R32UInt);
+            TextureIndicesBufferView = AddDisposable(ShaderResourceView.Create(contentManager.GraphicsDevice, textureIndicesBuffer));
+            MaterialIndicesBufferView = AddDisposable(ShaderResourceView.Create(contentManager.GraphicsDevice, materialIndicesBuffer));
 
             var meshParts = new List<ModelMeshPart>();
 
@@ -139,8 +131,7 @@ namespace OpenSage.Graphics
                     0, 
                     w3dMesh.Header.NumTris * 3, 
                     w3dMesh,
-                    w3dMesh.Shaders[w3dMaterialPass.ShaderIds[0]],
-                    contentManager.ModelEffect));
+                    w3dMesh.Shaders[w3dMaterialPass.ShaderIds[0]]));
             }
             else
             {
@@ -157,8 +148,7 @@ namespace OpenSage.Graphics
                             startIndex,
                             indexCount,
                             w3dMesh,
-                            w3dMesh.Shaders[shaderID],
-                            contentManager.ModelEffect));
+                            w3dMesh.Shaders[shaderID]));
 
                         startIndex = (uint) (i * 3);
                         indexCount = 0;
@@ -177,7 +167,7 @@ namespace OpenSage.Graphics
                 : hasTextureStage0 ? 1u : 0u;
         }
 
-        private struct TexCoords
+        internal struct TexCoords
         {
             public Vector2 UV0;
             public Vector2 UV1;

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -21,7 +19,7 @@ namespace OpenSage.DataViewer.ViewModels
 
         private DepthStencilBuffer _depthStencilBuffer;
 
-        private ModelRenderer _modelRenderer;
+        private MeshEffect _meshEffect;
         private ModelInstance _modelInstance;
 
         private readonly List<Animation> _externalAnimations;
@@ -157,7 +155,7 @@ namespace OpenSage.DataViewer.ViewModels
         {
             var contentManager = AddDisposable(new ContentManager(File.FileSystem, graphicsDevice));
 
-            _modelRenderer = AddDisposable(new ModelRenderer(contentManager));
+            _meshEffect = AddDisposable(new MeshEffect(graphicsDevice));
 
             _modelInstance = AddDisposable(new ModelInstance(contentManager.Load<Model>(File.FilePath, uploadBatch: null), graphicsDevice));
 
@@ -214,19 +212,23 @@ namespace OpenSage.DataViewer.ViewModels
                 MaxDepth = 1
             });
 
-            var lightingConstants = new LightingConstants();
-            lightingConstants.CameraPosition = _cameraPosition;
-            lightingConstants.Light0.Ambient = new Vector3(0.3f, 0.3f, 0.3f);
-            lightingConstants.Light0.Direction = Vector3.Normalize(new Vector3(-0.3f, 0.2f, -0.8f));
-            lightingConstants.Light0.Color = new Vector3(0.7f, 0.7f, 0.8f);
+            _meshEffect.Begin(commandEncoder);
 
-            _modelRenderer.PreDrawModels(
+            var lights = new Lights();
+            lights.Light0.Ambient = new Vector3(0.3f, 0.3f, 0.3f);
+            lights.Light0.Direction = Vector3.Normalize(new Vector3(-0.3f, 0.2f, -0.8f));
+            lights.Light0.Color = new Vector3(0.7f, 0.7f, 0.8f);
+
+            _meshEffect.SetLights(ref lights);
+
+            var world = Matrix4x4.Identity;
+
+            _selectedModelChild?.Draw(
                 commandEncoder, 
-                ref lightingConstants);
-
-            _modelInstance.PreDraw(commandEncoder);
-
-            _selectedModelChild?.Draw(commandEncoder, ref _view, ref _projection);
+                _meshEffect,
+                ref world,
+                ref _view, 
+                ref _projection);
 
             commandEncoder.Close();
 
@@ -247,6 +249,8 @@ namespace OpenSage.DataViewer.ViewModels
 
         public abstract void Draw(
             CommandEncoder commandEncoder,
+            MeshEffect meshEffect,
+            ref Matrix4x4 world,
             ref Matrix4x4 view,
             ref Matrix4x4 projection);
     }
@@ -267,11 +271,18 @@ namespace OpenSage.DataViewer.ViewModels
         }
 
         public override void Draw(
-            CommandEncoder commandEncoder, 
+            CommandEncoder commandEncoder,
+            MeshEffect meshEffect,
+            ref Matrix4x4 world,
             ref Matrix4x4 view, 
             ref Matrix4x4 projection)
         {
-            _modelInstance.Draw(commandEncoder, ref view, ref projection);
+            _modelInstance.Draw(
+                commandEncoder, 
+                meshEffect,
+                ref world,
+                ref view, 
+                ref projection);
         }
     }
 
@@ -292,14 +303,26 @@ namespace OpenSage.DataViewer.ViewModels
 
         public override void Draw(
             CommandEncoder commandEncoder,
+            MeshEffect meshEffect,
+            ref Matrix4x4 world,
             ref Matrix4x4 view,
             ref Matrix4x4 projection)
         {
-            var world = Matrix4x4.Identity;
-            _mesh.SetMatrices(ref world, ref view, ref projection);
+            _mesh.Draw(
+                commandEncoder,
+                meshEffect,
+                ref world,
+                ref view,
+                ref projection,
+                false);
 
-            _mesh.Draw(commandEncoder, false);
-            _mesh.Draw(commandEncoder, true);
+            _mesh.Draw(
+                commandEncoder,
+                meshEffect,
+                ref world,
+                ref view,
+                ref projection,
+                true);
         }
     }
 
@@ -338,10 +361,17 @@ namespace OpenSage.DataViewer.ViewModels
 
         public override void Draw(
             CommandEncoder commandEncoder,
+            MeshEffect meshEffect,
+            ref Matrix4x4 world,
             ref Matrix4x4 view,
             ref Matrix4x4 projection)
         {
-            _modelInstance.Draw(commandEncoder, ref view, ref projection);
+            _modelInstance.Draw(
+                commandEncoder, 
+                meshEffect,
+                ref world,
+                ref view, 
+                ref projection);
         }
     }
 }

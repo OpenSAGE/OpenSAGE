@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using LLGfx;
 using OpenSage.Content;
 using OpenSage.Data;
-using OpenSage.Graphics;
 
 namespace OpenSage.DataViewer.ViewModels
 {
@@ -16,8 +15,7 @@ namespace OpenSage.DataViewer.ViewModels
         private PipelineLayout _pipelineLayout;
         private PipelineState _pipelineState;
 
-        private TextureConstants _textureConstants;
-        private DynamicBuffer _textureConstantBuffer;
+        private DynamicBuffer<TextureConstants> _textureConstantBuffer;
 
         public int TextureWidth => _texture?.Width ?? 0;
         public int TextureHeight => _texture?.Height ?? 0;
@@ -99,29 +97,33 @@ namespace OpenSage.DataViewer.ViewModels
 
             _pipelineLayout = new PipelineLayout(graphicsDevice, ref pipelineLayoutDescription);
 
-            _textureConstantBuffer = DynamicBuffer.Create<TextureConstants>(graphicsDevice);
+            _textureConstantBuffer = DynamicBuffer<TextureConstants>.Create(graphicsDevice);
 
             var shaderLibrary = new ShaderLibrary(graphicsDevice);
 
             var pixelShader = new Shader(shaderLibrary, "SpritePS");
             var vertexShader = new Shader(shaderLibrary, "SpriteVS");
 
-            var pipelineStateDescription = PipelineStateDescription.Default();
+            var pipelineStateDescription = PipelineStateDescription.Default;
             pipelineStateDescription.PipelineLayout = _pipelineLayout;
             pipelineStateDescription.PixelShader = pixelShader;
             pipelineStateDescription.RenderTargetFormat = graphicsDevice.BackBufferFormat;
             pipelineStateDescription.VertexShader = vertexShader;
-            pipelineStateDescription.IsFrontCounterClockwise = false;
-            pipelineStateDescription.IsDepthEnabled = false;
-            pipelineStateDescription.IsDepthWriteEnabled = false;
+            pipelineStateDescription.RasterizerState = new RasterizerStateDescription
+            {
+                IsFrontCounterClockwise = false
+            };
+            pipelineStateDescription.DepthStencilState = DepthStencilStateDescription.None;
 
             _pipelineState = new PipelineState(graphicsDevice, pipelineStateDescription);
         }
 
         public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
-            _textureConstants.MipMapLevel = _selectedMipMapLevel;
-            _textureConstantBuffer.SetData(ref _textureConstants);
+            _textureConstantBuffer.UpdateData(new TextureConstants
+            {
+                MipMapLevel = _selectedMipMapLevel
+            });
 
             var renderPassDescriptor = new RenderPassDescriptor();
             renderPassDescriptor.SetRenderTargetDescriptor(

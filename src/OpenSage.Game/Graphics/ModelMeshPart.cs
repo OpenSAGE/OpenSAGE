@@ -1,6 +1,7 @@
 ﻿using LLGfx;
 using OpenSage.Data.W3d;
 using OpenSage.Graphics.Effects;
+using OpenSage.Graphics.Util;
 
 namespace OpenSage.Graphics
 {
@@ -13,22 +14,41 @@ namespace OpenSage.Graphics
         public bool AlphaTest { get; }
         public bool Texturing { get; }
 
-        public PipelineState PipelineState { get; }
+        public EffectPipelineStateHandle PipelineStateHandle { get; }
 
         internal ModelMeshPart(
             uint startIndex, 
             uint indexCount, 
-            W3dMesh mesh, 
-            W3dShader shader,
-            ModelEffect modelEffect)
+            W3dMesh w3dMesh, 
+            W3dShader w3dShader)
         {
             StartIndex = startIndex;
             IndexCount = indexCount;
 
-            AlphaTest = shader.AlphaTest == W3dShaderAlphaTest.Enable;
-            Texturing = shader.Texturing == W3dShaderTexturing.Enable;
+            AlphaTest = w3dShader.AlphaTest == W3dShaderAlphaTest.Enable;
+            Texturing = w3dShader.Texturing == W3dShaderTexturing.Enable;
 
-            PipelineState = modelEffect.GetPipelineState(mesh, shader);
+            var rasterizerState = RasterizerStateDescription.CullBackSolid;
+            rasterizerState.CullMode = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.TwoSided)
+                ? CullMode.None
+                : CullMode.CullBack;
+
+            var depthState = DepthStencilStateDescription.Default;
+            depthState.IsDepthEnabled = true;
+            depthState.IsDepthWriteEnabled = w3dShader.DepthMask == W3dShaderDepthMask.WriteEnable;
+            // TODO: DepthCompare
+
+            var blendState = BlendStateDescription.Opaque;
+            blendState.Enabled = w3dShader.SrcBlend != W3dShaderSrcBlendFunc.One 
+                || w3dShader.DestBlend != W3dShaderDestBlendFunc.Zero;
+            blendState.SourceBlend = w3dShader.SrcBlend.ToBlend();
+            blendState.DestinationBlend = w3dShader.DestBlend.ToBlend();
+
+            PipelineStateHandle = new EffectPipelineState(
+                rasterizerState,
+                depthState,
+                blendState)
+                .GetHandle();
         }
     }
 }

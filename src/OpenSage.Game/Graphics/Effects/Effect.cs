@@ -1,5 +1,6 @@
-﻿using LLGfx;
-using OpenSage.Graphics.Util;
+﻿using System;
+using System.Collections.Generic;
+using LLGfx;
 
 namespace OpenSage.Graphics.Effects
 {
@@ -13,46 +14,92 @@ namespace OpenSage.Graphics.Effects
         private readonly Shader _vertexShader;
         private readonly Shader _pixelShader;
 
-        private readonly PipelineStateCache _pipelineStateCache;
+        private readonly Dictionary<EffectPipelineStateHandle, PipelineState> _cachedPipelineStates;
+
+        private PipelineState _pipelineState;
+
+        private EffectDirtyFlags _dirtyFlags;
 
         protected GraphicsDevice GraphicsDevice => _graphicsDevice;
+
+        [Flags]
+        private enum EffectDirtyFlags
+        {
+            None = 0,
+
+            PipelineState = 0x1
+        }
 
         protected Effect(
             GraphicsDevice graphicsDevice,
             string vertexShaderName,
-            string pixelShaderName)
+            string pixelShaderName,
+            VertexDescriptor vertexDescriptor,
+            PipelineLayoutDescription pipelineLayoutDescription)
         {
             _graphicsDevice = graphicsDevice;
 
             _vertexShader = AddDisposable(new Shader(graphicsDevice.ShaderLibrary, vertexShaderName));
             _pixelShader = AddDisposable(new Shader(graphicsDevice.ShaderLibrary, pixelShaderName));
 
-            _pipelineStateCache = AddDisposable(new PipelineStateCache(graphicsDevice));
-        }
+            _cachedPipelineStates = new Dictionary<EffectPipelineStateHandle, PipelineState>();
 
-        protected void Initialize(
-            ref VertexDescriptor vertexDescriptor, 
-            ref PipelineLayoutDescription pipelineLayoutDescription)
-        {
             _vertexDescriptor = vertexDescriptor;
 
             _pipelineLayout = AddDisposable(new PipelineLayout(_graphicsDevice, ref pipelineLayoutDescription));
         }
 
-        protected PipelineState GetPipelineState(ref PipelineStateDescription description)
+        public void Begin(CommandEncoder commandEncoder)
         {
-            description.PipelineLayout = _pipelineLayout;
-            description.RenderTargetFormat = _graphicsDevice.BackBufferFormat;
-            description.VertexDescriptor = _vertexDescriptor;
-            description.VertexShader = _vertexShader;
-            description.PixelShader = _pixelShader;
+            commandEncoder.SetPipelineLayout(_pipelineLayout);
 
-            return _pipelineStateCache.GetPipelineState(description);
+            _dirtyFlags |= EffectDirtyFlags.PipelineState;
+
+            OnBegin();
         }
+
+        protected abstract void OnBegin();
 
         public void Apply(CommandEncoder commandEncoder)
         {
-            commandEncoder.SetPipelineLayout(_pipelineLayout);
+            if (_dirtyFlags.HasFlag(EffectDirtyFlags.PipelineState))
+            {
+                commandEncoder.SetPipelineState(_pipelineState);
+
+                _dirtyFlags &= ~EffectDirtyFlags.PipelineState;
+            }
+
+            OnApply(commandEncoder);
+        }
+
+        protected abstract void OnApply(CommandEncoder commandEncoder);
+
+        public void SetPipelineState(EffectPipelineStateHandle pipelineStateHandle)
+        {
+            _pipelineState = GetPipelineState(pipelineStateHandle);
+            _dirtyFlags |= EffectDirtyFlags.PipelineState;
+        }
+
+        private PipelineState GetPipelineState(EffectPipelineStateHandle pipelineStateHandle)
+        {
+            if (!_cachedPipelineStates.TryGetValue(pipelineStateHandle, out var result))
+            {
+                var description = PipelineStateDescription.Default;
+
+                description.PipelineLayout = _pipelineLayout;
+                description.RenderTargetFormat = _graphicsDevice.BackBufferFormat;
+                description.VertexDescriptor = _vertexDescriptor;
+                description.VertexShader = _vertexShader;
+                description.PixelShader = _pixelShader;
+
+                description.RasterizerState = pipelineStateHandle.EffectPipelineState.RasterizerState;
+                description.DepthStencilState = pipelineStateHandle.EffectPipelineState.DepthStencilState;
+                description.BlendState = pipelineStateHandle.EffectPipelineState.BlendState;
+
+                _cachedPipelineStates[pipelineStateHandle] = result = AddDisposable(new PipelineState(_graphicsDevice, description));
+            }
+
+            return result;
         }
     }
 }

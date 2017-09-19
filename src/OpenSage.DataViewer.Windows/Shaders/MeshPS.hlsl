@@ -41,7 +41,7 @@ struct VertexMaterial
 
 StructuredBuffer<VertexMaterial> Materials : register(t0);
 
-Buffer<uint2> TextureIndices : register(t1);
+StructuredBuffer<uint2> TextureIndices : register(t1);
 Texture2D<float4> Textures[] : register(t2);
 
 SamplerState Sampler : register(s0);

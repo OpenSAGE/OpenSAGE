@@ -44,10 +44,10 @@ namespace OpenSage.DataViewer.ViewModels
 
         public bool RenderWireframeOverlay
         {
-            get { return _map?.RenderWireframeOverlay ?? false; }
+            get { return _map?.Terrain.RenderWireframeOverlay ?? false; }
             set
             {
-                _map.RenderWireframeOverlay = value;
+                _map.Terrain.RenderWireframeOverlay = value;
                 NotifyOfPropertyChange();
             }
         }

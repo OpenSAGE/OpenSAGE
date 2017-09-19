@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using LLGfx;
 using OpenSage.Data;
 using OpenSage.Graphics;
-using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Content
 {
@@ -16,8 +15,6 @@ namespace OpenSage.Content
         private readonly FileSystem _fileSystem;
 
         public GraphicsDevice GraphicsDevice { get; }
-
-        internal ModelEffect ModelEffect { get; }
 
         public FileSystem FileSystem => _fileSystem;
 
@@ -33,8 +30,6 @@ namespace OpenSage.Content
             };
 
             _cachedObjects = new Dictionary<string, object>();
-
-            ModelEffect = AddDisposable(new ModelEffect(graphicsDevice));
         }
 
         public T Load<T>(

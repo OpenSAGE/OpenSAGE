@@ -1,18 +1,18 @@
 ﻿using System;
-using SharpDX.Direct3D12;
 using LLGfx.Util;
+using SharpDX.Direct3D12;
 
 namespace LLGfx
 {
-    partial class DescriptorSet
+    partial class ShaderResourceView
     {
         private DescriptorTablePoolEntry _cbvUavSrvPoolEntry;
 
         internal GpuDescriptorHandle GPUDescriptorHandleForCbvUavSrvHeapStart => _cbvUavSrvPoolEntry.GpuDescriptorHandle;
 
-        private void PlatformConstruct(GraphicsDevice graphicsDevice, DescriptorSetLayout layout)
+        private void PlatformConstruct(GraphicsDevice graphicsDevice, int numResources)
         {
-            _cbvUavSrvPoolEntry = graphicsDevice.DescriptorHeapCbvUavSrv.Reserve(layout.Description.NumBindings);
+            _cbvUavSrvPoolEntry = graphicsDevice.DescriptorHeapCbvUavSrv.Reserve(numResources);
         }
 
         private void PlatformSetStructuredBuffer<T>(int index, StaticBuffer<T> buffer)

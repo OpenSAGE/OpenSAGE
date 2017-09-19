@@ -12,34 +12,12 @@
             PlatformConstruct(graphicsDevice, layout);
         }
 
-        public void SetConstantBuffers(int startIndex, StaticBuffer[] buffers)
-        {
-            for (var i = 0; i < buffers.Length; i++)
-            {
-                var buffer = buffers[i];
-
-                SetConstantBuffer(startIndex + i, buffer);
-            }
-        }
-
-        public void SetConstantBuffer(int index, StaticBuffer buffer)
-        {
-            // TODO: Validation.
-
-            PlatformSetConstantBuffer(index, buffer);
-        }
-
-        public void SetStructuredBuffer(int index, StaticBuffer buffer)
+        public void SetStructuredBuffer<T>(int index, StaticBuffer<T> buffer)
+            where T : struct
         {
             // TODO: Validation.
 
             PlatformSetStructuredBuffer(index, buffer);
-        }
-
-        public void SetTypedBuffer(int index, StaticBuffer buffer, PixelFormat format)
-        {
-            // TODO: Validation.
-            PlatformSetTypedBuffer(index, buffer, format);
         }
 
         public void SetTextures(int startIndex, Texture[] textures)

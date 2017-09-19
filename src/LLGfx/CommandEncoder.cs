@@ -2,8 +2,6 @@
 {
     public sealed partial class CommandEncoder : GraphicsDeviceChild
     {
-        private PipelineState _currentPipelineState;
-
         public void Close()
         {
             PlatformClose();
@@ -23,14 +21,12 @@
         public void DrawIndexed(
             PrimitiveType primitiveType,
             uint indexCount,
-            IndexType indexType,
-            Buffer indexBuffer,
+            StaticBuffer<ushort> indexBuffer,
             uint indexBufferOffset)
         {
             PlatformDrawIndexed(
                 primitiveType,
                 indexCount,
-                indexType,
                 indexBuffer,
                 indexBufferOffset);
         }
@@ -42,6 +38,13 @@
             PlatformSetDescriptorSet(index, descriptorSet);
         }
 
+        public void SetShaderResourceView(int index, ShaderResourceView shaderResourceView)
+        {
+            // TODO: Validation.
+
+            PlatformSetShaderResourceView(index, shaderResourceView);
+        }
+
         public void SetInlineConstantBuffer(int index, Buffer buffer)
         {
             // TODO: Validation.
@@ -51,8 +54,6 @@
 
         public void SetPipelineState(PipelineState pipelineState)
         {
-            _currentPipelineState = pipelineState;
-
             PlatformSetPipelineState(pipelineState);
         }
 
@@ -61,7 +62,8 @@
             PlatformSetPipelineLayout(pipelineLayout);
         }
 
-        public void SetVertexBuffer(int bufferIndex, Buffer vertexBuffer)
+        public void SetVertexBuffer<T>(int bufferIndex, StaticBuffer<T> vertexBuffer)
+            where T : struct
         {
             PlatformSetVertexBuffer(bufferIndex, vertexBuffer);
         }

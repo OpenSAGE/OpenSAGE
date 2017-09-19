@@ -4,6 +4,7 @@ using System.Numerics;
 using LLGfx;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Logic.Object
 {
@@ -16,7 +17,7 @@ namespace OpenSage.Logic.Object
 
         public abstract void Draw(
             CommandEncoder commandEncoder,
-            ref Vector3 cameraPosition,
+            MeshEffect meshEffect,
             ref Matrix4x4 world,
             ref Matrix4x4 view,
             ref Matrix4x4 projection);

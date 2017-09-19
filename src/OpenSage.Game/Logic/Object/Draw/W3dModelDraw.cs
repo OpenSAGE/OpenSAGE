@@ -7,6 +7,7 @@ using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Logic.Object
 {
@@ -51,13 +52,14 @@ namespace OpenSage.Logic.Object
 
         public override void Draw(
             CommandEncoder commandEncoder,
-            ref Vector3 cameraPosition,
+            MeshEffect meshEffect,
             ref Matrix4x4 world,
             ref Matrix4x4 view,
             ref Matrix4x4 projection)
         {
             _activeConditionState.Draw(
                 commandEncoder,
+                meshEffect,
                 ref world,
                 ref view,
                 ref projection);
@@ -87,6 +89,7 @@ namespace OpenSage.Logic.Object
 
         public void Draw(
             CommandEncoder commandEncoder,
+            MeshEffect meshEffect,
             ref Matrix4x4 world,
             ref Matrix4x4 view,
             ref Matrix4x4 projection)
@@ -96,12 +99,10 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            _modelInstance.WorldMatrix = world;
-
-            _modelInstance.PreDraw(commandEncoder);
-
             _modelInstance.Draw(
                 commandEncoder,
+                meshEffect,
+                ref world,
                 ref view,
                 ref projection);
         }

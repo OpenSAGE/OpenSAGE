@@ -2,15 +2,15 @@
 
 namespace LLGfx
 {
-    public sealed partial class DynamicBuffer : Buffer
+    public sealed partial class DynamicBuffer<T> : Buffer
+        where T : struct
     {
-        public static DynamicBuffer Create<T>(
+        public static DynamicBuffer<T> Create(
             GraphicsDevice graphicsDevice)
-            where T : struct
         {
             var sizeInBytes = (uint) Marshal.SizeOf<T>();
 
-            var result = new DynamicBuffer(graphicsDevice, sizeInBytes);
+            var result = new DynamicBuffer<T>(graphicsDevice, sizeInBytes);
 
             result.PlatformConstruct(
                 graphicsDevice,
@@ -24,10 +24,17 @@ namespace LLGfx
         {
         }
 
-        public void SetData<T>(ref T data)
-            where T : struct
+        public void UpdateData(ref T data)
+        {
+            PlatformSetData(ref data);
+        }
+
+        public void UpdateData(T data)
         {
             PlatformSetData(ref data);
         }
     }
+
+    public delegate void DynamicBufferUpdateDataDelegate<T>(ref T data)
+        where T : struct;
 }

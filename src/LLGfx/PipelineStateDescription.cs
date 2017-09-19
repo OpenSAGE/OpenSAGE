@@ -2,50 +2,104 @@
 {
     public struct PipelineStateDescription
     {
-        public static PipelineStateDescription Default()
+        public static readonly PipelineStateDescription Default = new PipelineStateDescription
         {
-            return new PipelineStateDescription
-            {
-                IsFrontCounterClockwise = true,
-                IsDepthEnabled = true,
-                IsDepthWriteEnabled = true,
-                Blending = new BlendDescription
-                {
-                    SourceBlend = Blend.One,
-                    DestinationBlend = Blend.Zero
-                }
-            };
-        }
+            RasterizerState = RasterizerStateDescription.CullBackSolid,
+            DepthStencilState = DepthStencilStateDescription.Default,
+            BlendState = BlendStateDescription.Opaque
+        };
 
         public PipelineLayout PipelineLayout;
 
         public VertexDescriptor VertexDescriptor;
         public Shader VertexShader;
-
         public Shader PixelShader;
+
+        public PixelFormat RenderTargetFormat;
+
+        public RasterizerStateDescription RasterizerState;
+
+        public DepthStencilStateDescription DepthStencilState;
+
+        public BlendStateDescription BlendState;
+    }
+
+    public struct RasterizerStateDescription
+    {
+        public static readonly RasterizerStateDescription CullBackSolid = new RasterizerStateDescription(
+            FillMode.Solid, true, CullMode.CullBack);
+
+        public static readonly RasterizerStateDescription CullBackWireframe = new RasterizerStateDescription(
+            FillMode.Wireframe, true, CullMode.CullBack);
 
         public FillMode FillMode;
         public bool IsFrontCounterClockwise;
-        public bool TwoSided;
+        public CullMode CullMode;
 
-        public PixelFormat RenderTargetFormat;
+        private RasterizerStateDescription(FillMode fillMode, bool isFrontCounterClockwise, CullMode cullMode)
+        {
+            FillMode = fillMode;
+            IsFrontCounterClockwise = isFrontCounterClockwise;
+            CullMode = cullMode;
+        }
+    }
+
+    public enum CullMode
+    {
+        CullBack,
+        CullFront,
+        None
+    }
+
+    public struct DepthStencilStateDescription
+    {
+        public static readonly DepthStencilStateDescription Default = new DepthStencilStateDescription(
+            true, true);
+
+        public static readonly DepthStencilStateDescription DepthRead = new DepthStencilStateDescription(
+            true, false);
+
+        public static readonly DepthStencilStateDescription None = new DepthStencilStateDescription(
+            false, false);
 
         public bool IsDepthEnabled;
         public bool IsDepthWriteEnabled;
 
-        public BlendDescription Blending;
+        private DepthStencilStateDescription(bool isDepthEnabled, bool isDepthWriteEnabled)
+        {
+            IsDepthEnabled = isDepthEnabled;
+            IsDepthWriteEnabled = isDepthWriteEnabled;
+        }
     }
 
-    public struct BlendDescription
+    public struct BlendStateDescription
     {
+        public static readonly BlendStateDescription Opaque = new BlendStateDescription(
+            false, Blend.One, Blend.Zero);
+
         public bool Enabled;
         public Blend SourceBlend;
         public Blend DestinationBlend;
+
+        private BlendStateDescription(bool enabled, Blend sourceBlend, Blend destinationBlend)
+        {
+            Enabled = enabled;
+            SourceBlend = sourceBlend;
+            DestinationBlend = destinationBlend;
+        }
     }
 
     public enum FillMode
     {
         Solid,
         Wireframe
+    }
+
+    public enum Blend
+    {
+        Zero,
+        One,
+        SrcAlpha,
+        OneMinusSrcAlpha
     }
 }

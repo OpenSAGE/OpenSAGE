@@ -2,6 +2,7 @@
 using System.Numerics;
 using LLGfx;
 using OpenSage.Data.W3d;
+using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Graphics.Util
 {
@@ -69,25 +70,26 @@ namespace OpenSage.Graphics.Util
             }
         }
 
-        internal static TextureMappingType ToTextureMappingType(this W3dVertexMappingType value)
+        public static VertexMaterial ToVertexMaterial(this W3dVertexMaterial w3dVertexMaterial, W3dMaterial w3dMaterial)
         {
-            switch (value)
+            return new VertexMaterial
             {
-                case W3dVertexMappingType.Uv:
-                    return TextureMappingType.Uv;
-
-                case W3dVertexMappingType.Environment:
-                    return TextureMappingType.Environment;
-
-                case W3dVertexMappingType.LinearOffset:
-                    return TextureMappingType.LinearOffset;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                Ambient = w3dVertexMaterial.Ambient.ToVector3(),
+                Diffuse = w3dVertexMaterial.Diffuse.ToVector3(),
+                Specular = w3dVertexMaterial.Specular.ToVector3(),
+                Emissive = w3dVertexMaterial.Emissive.ToVector3(),
+                Shininess = w3dVertexMaterial.Shininess,
+                Opacity = w3dVertexMaterial.Opacity,
+                TextureMappingStage0 = CreateTextureMapping(
+                    w3dVertexMaterial.Stage0Mapping,
+                    w3dMaterial.MapperArgs0),
+                TextureMappingStage1 = CreateTextureMapping(
+                    w3dVertexMaterial.Stage1Mapping,
+                    w3dMaterial.MapperArgs1)
+            };
         }
 
-        internal static TextureMapping CreateTextureMapping(W3dVertexMappingType mappingType, W3dVertexMapperArgs args)
+        private static TextureMapping CreateTextureMapping(W3dVertexMappingType mappingType, W3dVertexMapperArgs args)
         {
             return new TextureMapping
             {
@@ -103,6 +105,24 @@ namespace OpenSage.Graphics.Util
                     Y = args.VScale,
                 }
             };
+        }
+
+        private static TextureMappingType ToTextureMappingType(this W3dVertexMappingType value)
+        {
+            switch (value)
+            {
+                case W3dVertexMappingType.Uv:
+                    return TextureMappingType.Uv;
+
+                case W3dVertexMappingType.Environment:
+                    return TextureMappingType.Environment;
+
+                case W3dVertexMappingType.LinearOffset:
+                    return TextureMappingType.LinearOffset;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

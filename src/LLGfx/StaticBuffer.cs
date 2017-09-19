@@ -2,57 +2,50 @@
 
 namespace LLGfx
 {
-    public sealed partial class StaticBuffer : Buffer
+    public static class StaticBuffer
     {
-        public static StaticBuffer Create<T>(
+        public static StaticBuffer<T> Create<T>(
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,
-            T[] data,
-            bool isConstantBuffer)
+            T[] data)
             where T : struct
         {
             var elementSizeInBytes = Marshal.SizeOf<T>();
             var sizeInBytes = (uint) (data.Length * elementSizeInBytes);
 
-            var result = new StaticBuffer(
+            return new StaticBuffer<T>(
                 graphicsDevice,
                 sizeInBytes,
                 (uint) elementSizeInBytes,
                 (uint) data.Length,
-                isConstantBuffer);
-
-            result.PlatformConstruct(
-                graphicsDevice,
                 uploadBatch,
-                data,
-                sizeInBytes);
-
-            return result;
+                data);
         }
+    }
 
-        public static StaticBuffer Create<T>(
-            GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch,
-            T data,
-            bool isConstantBuffer)
-            where T : struct
-        {
-            return Create(graphicsDevice, uploadBatch, new[] { data }, isConstantBuffer);
-        }
-
+    public sealed partial class StaticBuffer<T> : Buffer
+        where T : struct
+    {
         public uint ElementSizeInBytes { get; }
         public uint ElementCount { get; }
 
-        private StaticBuffer(
+        internal StaticBuffer(
             GraphicsDevice graphicsDevice,
             uint sizeInBytes,
             uint elementSizeInBytes,
             uint elementCount,
-            bool isConstantBuffer)
-            : base(graphicsDevice, sizeInBytes, isConstantBuffer)
+            ResourceUploadBatch uploadBatch,
+            T[] data)
+            : base(graphicsDevice, sizeInBytes, false)
         {
             ElementSizeInBytes = elementSizeInBytes;
             ElementCount = elementCount;
+
+            PlatformConstruct(
+                graphicsDevice,
+                uploadBatch,
+                data,
+                sizeInBytes);
         }
     }
 }

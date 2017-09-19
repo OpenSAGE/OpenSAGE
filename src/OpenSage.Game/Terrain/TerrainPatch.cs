@@ -9,10 +9,10 @@ namespace OpenSage.Terrain
 {
     public sealed class TerrainPatch : GraphicsObject
     {
-        private readonly Buffer _vertexBuffer;
+        private readonly StaticBuffer<TerrainVertex> _vertexBuffer;
 
         private readonly uint _numIndices;
-        private readonly Buffer _indexBuffer;
+        private readonly StaticBuffer<ushort> _indexBuffer;
 
         public Int32Rect Bounds { get; }
         public BoundingBox BoundingBox { get; }
@@ -51,7 +51,7 @@ namespace OpenSage.Terrain
             Triangles = triangles;
         }
 
-        private static StaticBuffer CreateVertexBuffer(
+        private static StaticBuffer<TerrainVertex> CreateVertexBuffer(
            GraphicsDevice graphicsDevice,
            ResourceUploadBatch uploadBatch,
            HeightMap heightMap,
@@ -112,8 +112,7 @@ namespace OpenSage.Terrain
             return StaticBuffer.Create(
                 graphicsDevice,
                 uploadBatch,
-                vertices,
-                false);
+                vertices);
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -159,7 +158,6 @@ namespace OpenSage.Terrain
             commandEncoder.DrawIndexed(
                 PrimitiveType.TriangleList,
                 _numIndices,
-                IndexType.UInt16,
                 _indexBuffer,
                 0);
         }
