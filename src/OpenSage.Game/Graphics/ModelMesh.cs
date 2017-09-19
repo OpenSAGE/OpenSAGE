@@ -221,16 +221,15 @@ namespace OpenSage.Graphics
         public void Draw(
             CommandEncoder commandEncoder, 
             MeshEffect meshEffect,
+            Camera camera,
             ref Matrix4x4 world,
-            ref Matrix4x4 view,
-            ref Matrix4x4 projection,
             bool alphaBlended)
         {
             meshEffect.SetSkinningEnabled(Skinned);
 
             meshEffect.SetWorld(ref world);
-            meshEffect.SetView(ref view);
-            meshEffect.SetProjection(ref projection);
+            meshEffect.SetView(camera.ViewMatrix);
+            meshEffect.SetProjection(camera.ProjectionMatrix);
 
             // TODO: Use time from main game engine, don't query for it every time like this.
             var timeInSeconds = (float) System.DateTime.Now.TimeOfDay.TotalSeconds;

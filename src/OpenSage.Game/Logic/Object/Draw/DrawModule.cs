@@ -4,6 +4,7 @@ using System.Numerics;
 using LLGfx;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Logic.Object
@@ -18,9 +19,8 @@ namespace OpenSage.Logic.Object
         public abstract void Draw(
             CommandEncoder commandEncoder,
             MeshEffect meshEffect,
-            ref Matrix4x4 world,
-            ref Matrix4x4 view,
-            ref Matrix4x4 projection);
+            Camera camera,
+            ref Matrix4x4 world);
     }
 
     public abstract class DrawModuleData : ModuleData

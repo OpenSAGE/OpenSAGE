@@ -53,16 +53,14 @@ namespace OpenSage.Logic.Object
         public override void Draw(
             CommandEncoder commandEncoder,
             MeshEffect meshEffect,
-            ref Matrix4x4 world,
-            ref Matrix4x4 view,
-            ref Matrix4x4 projection)
+            Camera camera,
+            ref Matrix4x4 world)
         {
             _activeConditionState.Draw(
                 commandEncoder,
                 meshEffect,
-                ref world,
-                ref view,
-                ref projection);
+                camera,
+                ref world);
         }
     }
 
@@ -90,9 +88,8 @@ namespace OpenSage.Logic.Object
         public void Draw(
             CommandEncoder commandEncoder,
             MeshEffect meshEffect,
-            ref Matrix4x4 world,
-            ref Matrix4x4 view,
-            ref Matrix4x4 projection)
+            Camera camera,
+            ref Matrix4x4 world)
         {
             if (_modelInstance == null)
             {
@@ -102,9 +99,8 @@ namespace OpenSage.Logic.Object
             _modelInstance.Draw(
                 commandEncoder,
                 meshEffect,
-                ref world,
-                ref view,
-                ref projection);
+                camera,
+                ref world);
         }
     }
 

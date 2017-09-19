@@ -8,6 +8,7 @@ using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
+using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Util;
 using OpenSage.Mathematics;
@@ -320,21 +321,19 @@ namespace OpenSage.Terrain
 
         public void Draw(
             CommandEncoder commandEncoder,
-            ref Matrix4x4 view,
-            ref Matrix4x4 projection,
+            Camera camera,
             ref Lights lights)
         {
             _terrainEffect.Begin(commandEncoder);
 
-            _terrainEffect.SetView(ref view);
-            _terrainEffect.SetProjection(ref projection);
+            _terrainEffect.SetView(camera.ViewMatrix);
+            _terrainEffect.SetProjection(camera.ProjectionMatrix);
 
             Draw(
                 commandEncoder,
                 _pipelineStateSolid,
-                ref lights,
-                ref view,
-                ref projection);
+                camera,
+                ref lights);
 
             if (RenderWireframeOverlay)
             {
@@ -342,18 +341,16 @@ namespace OpenSage.Terrain
                 Draw(
                     commandEncoder,
                     _pipelineStateWireframe,
-                    ref blackLights,
-                    ref view,
-                    ref projection);
+                    camera,
+                    ref blackLights);
             }
         }
 
         private void Draw(
             CommandEncoder commandEncoder,
             EffectPipelineStateHandle pipelineStateHandle,
-            ref Lights lights,
-            ref Matrix4x4 view,
-            ref Matrix4x4 projection)
+            Camera camera,
+            ref Lights lights)
         {
             _terrainEffect.SetPipelineState(pipelineStateHandle);
 
@@ -365,8 +362,12 @@ namespace OpenSage.Terrain
             {
                 for (var x = 0; x < _numPatchesX; x++)
                 {
-                    // TODO: Frustum culling.
-                    _patches[x, y].Draw(commandEncoder);
+                    var patch = _patches[x, y];
+
+                    if (camera.BoundingFrustum.Intersects(patch.BoundingBox))
+                    {
+                        patch.Draw(commandEncoder);
+                    }
                 }
             }
         }

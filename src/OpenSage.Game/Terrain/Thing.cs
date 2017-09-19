@@ -5,6 +5,7 @@ using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
+using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
 using OpenSage.Logic.Object;
 using OpenSage.Terrain.Util;
@@ -68,8 +69,7 @@ namespace OpenSage.Terrain
         public void Draw(
             CommandEncoder commandEncoder,
             MeshEffect meshEffect,
-            ref Matrix4x4 view,
-            ref Matrix4x4 projection)
+            Camera camera)
         {
             var world = Matrix4x4.CreateRotationZ(Angle) 
                 * Matrix4x4.CreateTranslation(Position);
@@ -79,9 +79,8 @@ namespace OpenSage.Terrain
                 drawable.Draw(
                     commandEncoder,
                     meshEffect,
-                    ref world,
-                    ref view,
-                    ref projection);
+                    camera,
+                    ref world);
             }
         }
     }

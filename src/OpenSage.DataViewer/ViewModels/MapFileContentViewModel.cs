@@ -204,10 +204,7 @@ namespace OpenSage.DataViewer.ViewModels
 
             commandEncoder.SetViewport(_camera.Viewport);
 
-            var view = _camera.ViewMatrix;
-            var projection = _camera.ProjectionMatrix;
-
-            _map.Draw(commandEncoder, ref view, ref projection);
+            _map.Draw(commandEncoder, _camera);
 
             commandEncoder.Close();
 

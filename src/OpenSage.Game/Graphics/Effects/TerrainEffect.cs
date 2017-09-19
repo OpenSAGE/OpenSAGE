@@ -184,14 +184,14 @@ namespace OpenSage.Graphics.Effects
             _dirtyFlags |= TerrainEffectDirtyFlags.TransformConstants;
         }
 
-        public void SetView(ref Matrix4x4 matrix)
+        public void SetView(Matrix4x4 matrix)
         {
             _view = matrix;
             _dirtyFlags |= TerrainEffectDirtyFlags.TransformConstants;
             _dirtyFlags |= TerrainEffectDirtyFlags.LightingConstants;
         }
 
-        public void SetProjection(ref Matrix4x4 matrix)
+        public void SetProjection(Matrix4x4 matrix)
         {
             _projection = matrix;
             _dirtyFlags |= TerrainEffectDirtyFlags.TransformConstants;

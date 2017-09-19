@@ -40,9 +40,8 @@ namespace OpenSage.Graphics
         public void Draw(
             CommandEncoder commandEncoder,
             MeshEffect meshEffect,
-            ref Matrix4x4 world,
-            ref Matrix4x4 view,
-            ref Matrix4x4 projection)
+            Camera camera,
+            ref Matrix4x4 world)
         {
             for (var i = 0; i < _model.Bones.Length; i++)
             {
@@ -61,26 +60,23 @@ namespace OpenSage.Graphics
             DrawImpl(
                 commandEncoder,
                 meshEffect,
+                camera,
                 ref world,
-                ref view,
-                ref projection,
                 false);
 
             DrawImpl(
                 commandEncoder,
                 meshEffect,
+                camera,
                 ref world,
-                ref view,
-                ref projection,
                 true);
         }
 
         private void DrawImpl(
             CommandEncoder commandEncoder,
             MeshEffect meshEffect,
+            Camera camera,
             ref Matrix4x4 world,
-            ref Matrix4x4 view,
-            ref Matrix4x4 projection,
             bool alphaBlended)
         {
             foreach (var mesh in _model.Meshes)
@@ -97,9 +93,8 @@ namespace OpenSage.Graphics
                 mesh.Draw(
                     commandEncoder,
                     meshEffect,
+                    camera,
                     ref meshWorld,
-                    ref view,
-                    ref projection,
                     alphaBlended);
             }
         }
