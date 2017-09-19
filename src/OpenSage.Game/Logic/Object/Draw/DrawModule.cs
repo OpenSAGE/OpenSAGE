@@ -16,6 +16,8 @@ namespace OpenSage.Logic.Object
 
         }
 
+        public abstract void Update(GameTime gameTime);
+
         public abstract void Draw(
             CommandEncoder commandEncoder,
             MeshEffect meshEffect,

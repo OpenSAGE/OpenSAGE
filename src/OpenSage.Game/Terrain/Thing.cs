@@ -66,6 +66,14 @@ namespace OpenSage.Terrain
             }
         }
 
+        public void Update(GameTime gameTime)
+        {
+            foreach (var drawable in _drawables)
+            {
+                drawable.Update(gameTime);
+            }
+        }
+
         public void Draw(
             CommandEncoder commandEncoder,
             MeshEffect meshEffect,

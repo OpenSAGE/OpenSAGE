@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace OpenSage.Graphics.Util
+namespace OpenSage.Graphics.Effects
 {
     internal static class PointerUtil
     {

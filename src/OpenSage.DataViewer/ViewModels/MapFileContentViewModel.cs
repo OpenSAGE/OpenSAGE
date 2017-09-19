@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using LLGfx;
 using OpenSage.Data;
@@ -86,6 +87,8 @@ namespace OpenSage.DataViewer.ViewModels
                 NotifyOfPropertyChange();
             }
         }
+
+        private DateTime _nextFrameTimeUpdate = DateTime.MinValue;
 
         private string _frameTime;
         public string FrameTime
@@ -189,6 +192,8 @@ namespace OpenSage.DataViewer.ViewModels
         {
             _gameTimer.Update();
 
+            _map.Update(_gameTimer.CurrentGameTime);
+
             var renderPassDescriptor = new RenderPassDescriptor();
             renderPassDescriptor.SetRenderTargetDescriptor(
                 swapChain.GetNextRenderTarget(),
@@ -210,8 +215,14 @@ namespace OpenSage.DataViewer.ViewModels
 
             commandBuffer.CommitAndPresent(swapChain);
 
-            _gameTimer.Update();
-            FrameTime = $"{_gameTimer.CurrentGameTime.ElapsedGameTime.TotalMilliseconds}ms";
+            //_gameTimer.Update();
+
+            //var now = DateTime.Now;
+            //if (now > _nextFrameTimeUpdate)
+            //{
+            //    FrameTime = $"{_gameTimer.CurrentGameTime.ElapsedGameTime.TotalMilliseconds}ms";
+            //    _nextFrameTimeUpdate = now.AddSeconds(1);
+            //}
         }
     }
 }

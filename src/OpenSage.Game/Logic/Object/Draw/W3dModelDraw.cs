@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using LLGfx;
 using OpenSage.Content;
@@ -50,6 +52,11 @@ namespace OpenSage.Logic.Object
             _activeConditionState = _conditionStates.Find(x => x.Flags.Equals(state)) ?? _defaultConditionState;
         }
 
+        public override void Update(GameTime gameTime)
+        {
+            _activeConditionState.Update(gameTime);
+        }
+
         public override void Draw(
             CommandEncoder commandEncoder,
             MeshEffect meshEffect,
@@ -67,6 +74,7 @@ namespace OpenSage.Logic.Object
     internal sealed class W3dModelDrawConditionState : GraphicsObject
     {
         private readonly ModelInstance _modelInstance;
+        private readonly List<AnimationPlayer> _animationPlayers;
 
         public BitArray<ModelConditionFlag> Flags { get; }
 
@@ -82,6 +90,35 @@ namespace OpenSage.Logic.Object
                 {
                     _modelInstance = AddDisposable(new ModelInstance(model, contentManager.GraphicsDevice));
                 }
+            }
+
+            _animationPlayers = new List<AnimationPlayer>();
+            if (_modelInstance != null)
+            {
+                // TODO: How do multiple animations work? Are there ever more than one?
+                foreach (var objectConditionAnimation in data.Animations)
+                {
+                    var splitName = objectConditionAnimation.Animation.Split('.');
+
+                    var w3dFilePath = Path.Combine("Art", "W3D", splitName[0] + ".W3D");
+                    var model = contentManager.Load<Model>(w3dFilePath, uploadBatch);
+
+                    var animation = model.Animations.First(x => string.Equals(x.Name, splitName[1], StringComparison.OrdinalIgnoreCase));
+
+                    var animationPlayer = new AnimationPlayer(animation, _modelInstance);
+
+                    _animationPlayers.Add(animationPlayer);
+
+                    animationPlayer.Start();
+                }
+            }
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            foreach (var animationPlayer in _animationPlayers)
+            {
+                animationPlayer.Update(gameTime);
             }
         }
 

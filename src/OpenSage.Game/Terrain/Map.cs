@@ -106,6 +106,14 @@ namespace OpenSage.Terrain
             }
         }
 
+        public void Update(GameTime gameTime)
+        {
+            foreach (var thing in _things)
+            {
+                thing.Update(gameTime);
+            }
+        }
+
         public void Draw(
             CommandEncoder commandEncoder,
             Camera camera)
