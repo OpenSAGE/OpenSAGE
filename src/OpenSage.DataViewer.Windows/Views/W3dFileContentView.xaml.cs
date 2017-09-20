@@ -30,11 +30,6 @@ namespace OpenSage.DataViewer.Views
             TypedDataContext.Dispose();
         }
 
-        private void OnGraphicsInitialize(object sender, GraphicsEventArgs e)
-        {
-            TypedDataContext.Initialize(e.GraphicsDevice, e.SwapChain);
-        }
-
         private void OnGraphicsDraw(object sender, GraphicsEventArgs e)
         {
             TypedDataContext.Draw(e.GraphicsDevice, e.SwapChain);

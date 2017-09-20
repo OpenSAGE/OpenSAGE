@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:cal="http://www.caliburnproject.org"
+             xmlns:conv="clr-namespace:OpenSage.DataViewer.Framework.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
@@ -22,8 +23,43 @@
 
         <GridSplitter Grid.Column="1" Width="5" ResizeBehavior="PreviousAndNext" />
 
-        <Border Grid.Column="2">
-            <ContentControl cal:View.Model="{Binding SelectedFileContent}" />
+        <Border Grid.Column="2" DataContext="{Binding SelectedFileContent}">
+            <Border.Resources>
+                <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+                <CollectionViewSource x:Key="SortedItems" Source="{Binding SubObjects, FallbackValue={x:Null}}">
+                    <CollectionViewSource.GroupDescriptions>
+                        <PropertyGroupDescription PropertyName="GroupName" />
+                    </CollectionViewSource.GroupDescriptions>
+                </CollectionViewSource>
+            </Border.Resources>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <ListBox Grid.Column="0" 
+                         Width="250"
+                         Visibility="{Binding Source={StaticResource SortedItems}, Converter={StaticResource NullToVisibilityConverter}}"
+                         ItemsSource="{Binding Source={StaticResource SortedItems}}"
+                         DisplayMemberPath="Name"
+                         SelectedItem="{Binding SelectedSubObject, FallbackValue={x:Null}}"
+                         VirtualizingPanel.IsVirtualizing='True'
+                         VirtualizingPanel.IsVirtualizingWhenGrouping='True'
+                         VirtualizingPanel.ScrollUnit="Pixel">
+                    <ListBox.GroupStyle>
+                        <GroupStyle>
+                            <GroupStyle.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" Margin="5 10 0 3" />
+                                </DataTemplate>
+                            </GroupStyle.HeaderTemplate>
+                        </GroupStyle>
+                    </ListBox.GroupStyle>
+                </ListBox>
+                <ContentControl Grid.Column="1" 
+                                cal:View.Model="{Binding}" />
+            </Grid>
         </Border>
     </Grid>
 </UserControl>

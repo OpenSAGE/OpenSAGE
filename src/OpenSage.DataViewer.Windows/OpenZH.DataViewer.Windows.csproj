@@ -57,7 +57,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Bootstrapper.cs" />
-    <Compile Include="Framework\GraphicsDeviceManager.cs" />
+    <Compile Include="Framework\Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Views\AudioVideoFileContentView.xaml.cs">
       <DependentUpon>AudioVideoFileContentView.xaml</DependentUpon>
     </Compile>

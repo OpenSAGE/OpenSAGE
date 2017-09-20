@@ -6,7 +6,7 @@ using OpenSage.Data;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public class FileContentViewModel : PropertyChangedBase, IDisposable
+    public abstract class FileContentViewModel : PropertyChangedBase, IDisposable
     {
         public static FileContentViewModel Create(FileSystemEntry file)
         {
@@ -74,5 +74,63 @@ namespace OpenSage.DataViewer.ViewModels
             }
             _disposables.Clear();
         }
+    }
+
+    public abstract class FileContentViewModel<TSubObject> : FileContentViewModel
+        where TSubObject : FileSubObjectViewModel
+    {
+        private IReadOnlyList<TSubObject> _subObjects;
+        public IReadOnlyList<TSubObject> SubObjects
+        {
+            get
+            {
+                if (_subObjects == null)
+                {
+                    _subObjects = CreateSubObjects();
+                    if (_subObjects.Count > 0)
+                    {
+                        SelectedSubObject = _subObjects[0];
+                    }
+                }
+                return _subObjects;
+            }
+        }
+
+        protected abstract IReadOnlyList<TSubObject> CreateSubObjects();
+
+        private TSubObject _selectedSubObject;
+
+        public TSubObject SelectedSubObject
+        {
+            get { return _selectedSubObject; }
+            set
+            {
+                _selectedSubObject?.Deactivate();
+
+                _selectedSubObject = value;
+
+                _selectedSubObject?.Activate();
+
+                OnSelectedSubObjectChanged(_selectedSubObject);
+
+                NotifyOfPropertyChange();
+            }
+        }
+
+        protected virtual void OnSelectedSubObjectChanged(TSubObject subObject) { }
+
+        protected FileContentViewModel(FileSystemEntry file) 
+            : base(file)
+        {
+        }
+    }
+
+    public abstract class FileSubObjectViewModel : PropertyChangedBase
+    {
+        public abstract string GroupName { get; }
+        public abstract string Name { get; }
+
+        public virtual void Activate() { }
+        public virtual void Deactivate() { }
     }
 }

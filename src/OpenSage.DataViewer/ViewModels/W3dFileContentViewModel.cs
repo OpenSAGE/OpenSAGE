@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using Caliburn.Micro;
 using LLGfx;
 using OpenSage.Content;
 using OpenSage.Data;
@@ -13,14 +14,14 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public sealed class W3dFileContentViewModel : FileContentViewModel
+    public sealed class W3dFileContentViewModel : FileContentViewModel<W3dItemViewModelBase>
     {
         private readonly W3dFile _w3dFile;
 
         private DepthStencilBuffer _depthStencilBuffer;
 
-        private MeshEffect _meshEffect;
-        private ModelInstance _modelInstance;
+        private readonly MeshEffect _meshEffect;
+        private readonly ModelInstance _modelInstance;
 
         private readonly List<Animation> _externalAnimations;
 
@@ -29,68 +30,6 @@ namespace OpenSage.DataViewer.ViewModels
         private readonly Camera _camera;
 
         public ArcballCameraController CameraController { get; }
-
-        private List<W3dItemViewModelBase> _modelChildren;
-        public IReadOnlyList<W3dItemViewModelBase> ModelChildren
-        {
-            get
-            {
-                if (_modelChildren == null)
-                {
-                    _modelChildren = new List<W3dItemViewModelBase>();
-
-                    if (_modelInstance != null)
-                    {
-                        if (_modelInstance.Model.HasHierarchy)
-                        {
-                            _modelChildren.Add(new ModelViewModel(_modelInstance));
-
-                            foreach (var animation in _modelInstance.Model.Animations)
-                            {
-                                _modelChildren.Add(new AnimationViewModel(_modelInstance, animation, "Animations"));
-                            }
-
-                            foreach (var animation in _externalAnimations)
-                            {
-                                _modelChildren.Add(new AnimationViewModel(_modelInstance, animation, "External Animations"));
-                            }
-                        }
-
-                        foreach (var mesh in _modelInstance.Model.Meshes)
-                        {
-                            _modelChildren.Add(new ModelMeshViewModel(mesh));
-                        }
-                    }
-                }
-
-                return _modelChildren;
-            }
-        }
-
-        private W3dItemViewModelBase _selectedModelChild;
-        public W3dItemViewModelBase SelectedModelChild
-        {
-            get { return _selectedModelChild; }
-            set
-            {
-                _selectedModelChild?.Deactivate();
-
-                _selectedModelChild = value;
-
-                if (_selectedModelChild != null)
-                {
-                    _selectedModelChild.Activate();
-
-                    CameraController.Reset(
-                        value.BoundingSphere.Center,
-                        value.BoundingSphere.Radius * 1.6f);
-                }
-
-                _gameTimer.Reset();
-
-                NotifyOfPropertyChange();
-            }
-        }
 
         public W3dFileContentViewModel(FileSystemEntry file)
             : base(file)
@@ -129,6 +68,55 @@ namespace OpenSage.DataViewer.ViewModels
             CameraController = new ArcballCameraController(_camera);
 
             _gameTimer = new GameTimer();
+
+            var graphicsDevice = IoC.Get<GraphicsDeviceManager>().GraphicsDevice;
+
+            var contentManager = AddDisposable(new ContentManager(File.FileSystem, graphicsDevice));
+
+            _meshEffect = AddDisposable(new MeshEffect(graphicsDevice));
+
+            _modelInstance = AddDisposable(new ModelInstance(contentManager.Load<Model>(File.FilePath, uploadBatch: null), graphicsDevice));
+
+            _gameTimer.Start();
+        }
+
+        protected override IReadOnlyList<W3dItemViewModelBase> CreateSubObjects()
+        {
+            var result = new List<W3dItemViewModelBase>();
+
+            if (_modelInstance.Model.HasHierarchy)
+            {
+                result.Add(new ModelViewModel(_modelInstance));
+
+                foreach (var animation in _modelInstance.Model.Animations)
+                {
+                    result.Add(new AnimationViewModel(_modelInstance, animation, "Animations"));
+                }
+
+                foreach (var animation in _externalAnimations)
+                {
+                    result.Add(new AnimationViewModel(_modelInstance, animation, "External Animations"));
+                }
+            }
+
+            foreach (var mesh in _modelInstance.Model.Meshes)
+            {
+                result.Add(new ModelMeshViewModel(mesh));
+            }
+
+            return result;
+        }
+
+        protected override void OnSelectedSubObjectChanged(W3dItemViewModelBase subObject)
+        {
+            if (subObject != null)
+            {
+                CameraController.Reset(
+                    subObject.BoundingSphere.Center,
+                    subObject.BoundingSphere.Radius * 1.6f);
+            }
+
+            _gameTimer.Reset();
         }
 
         private void EnsureDepthStencilBuffer(GraphicsDevice graphicsDevice, SwapChain swapChain)
@@ -158,26 +146,11 @@ namespace OpenSage.DataViewer.ViewModels
                 swapChain.BackBufferHeight);
         }
 
-        public void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
-        {
-            var contentManager = AddDisposable(new ContentManager(File.FileSystem, graphicsDevice));
-
-            _meshEffect = AddDisposable(new MeshEffect(graphicsDevice));
-
-            _modelInstance = AddDisposable(new ModelInstance(contentManager.Load<Model>(File.FilePath, uploadBatch: null), graphicsDevice));
-
-            _modelChildren = null;
-            NotifyOfPropertyChange(nameof(ModelChildren));
-            SelectedModelChild = ModelChildren.FirstOrDefault();
-
-            _gameTimer.Start();
-        }
-
         private void Update(SwapChain swapChain)
         {
             _gameTimer.Update();
 
-            _selectedModelChild?.Update(_gameTimer.CurrentGameTime);
+            SelectedSubObject?.Update(_gameTimer.CurrentGameTime);
         }
 
         public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
@@ -211,7 +184,7 @@ namespace OpenSage.DataViewer.ViewModels
 
             var world = Matrix4x4.Identity;
 
-            _selectedModelChild?.Draw(
+            SelectedSubObject?.Draw(
                 commandEncoder, 
                 _meshEffect,
                 _camera,
@@ -223,14 +196,9 @@ namespace OpenSage.DataViewer.ViewModels
         }
     }
 
-    public abstract class W3dItemViewModelBase
+    public abstract class W3dItemViewModelBase : FileSubObjectViewModel
     {
-        public abstract string GroupName { get; }
-        public abstract string Name { get; }
         public abstract BoundingSphere BoundingSphere { get; }
-
-        public virtual void Activate() { }
-        public virtual void Deactivate() { }
 
         public virtual void Update(GameTime gameTime) { }
 

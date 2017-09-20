@@ -95,7 +95,9 @@ namespace OpenSage.Logic.Object
             _animationPlayers = new List<AnimationPlayer>();
             if (_modelInstance != null)
             {
-                // TODO: How do multiple animations work? Are there ever more than one?
+                // TODO: Multiple animations. Shouldn't play all of them. I think
+                // we should randomly choose one of them?
+                // And there is also IdleAnimation.
                 foreach (var objectConditionAnimation in data.Animations)
                 {
                     var splitName = objectConditionAnimation.Animation.Split('.');
