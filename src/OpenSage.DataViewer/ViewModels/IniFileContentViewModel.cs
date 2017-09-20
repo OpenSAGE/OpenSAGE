@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
+using OpenSage.DataViewer.ViewModels.Ini;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public sealed class IniFileContentViewModel : FileContentViewModel<IniEntryViewModel>
+    public sealed class IniFileContentViewModel : FileContentViewModel<FileSubObjectViewModel>
     {
         private readonly IniDataContext _iniDataContext;
 
@@ -15,43 +16,24 @@ namespace OpenSage.DataViewer.ViewModels
             _iniDataContext.LoadIniFile(file);
         }
 
-        protected override IReadOnlyList<IniEntryViewModel> CreateSubObjects()
+        protected override IReadOnlyList<FileSubObjectViewModel> CreateSubObjects()
         {
-            var result = new List<IniEntryViewModel>();
+            var result = new List<FileSubObjectViewModel>();
 
-            foreach (var objectDefinition in _iniDataContext.Objects)
-            {
-                result.Add(new IniEntryViewModel(
-                    objectDefinition,
-                    "Object Definitions",
-                    objectDefinition.Name));
-            }
+            //foreach (var objectDefinition in _iniDataContext.Objects)
+            //{
+            //    result.Add(new IniEntryViewModel(
+            //        objectDefinition,
+            //        "Object Definitions",
+            //        objectDefinition.Name));
+            //}
 
             foreach (var particleSystem in _iniDataContext.ParticleSystems)
             {
-                result.Add(new IniEntryViewModel(
-                    particleSystem,
-                    "Particle Systems",
-                    particleSystem.Name));
+                result.Add(new ParticleSystemIniEntryViewModel(particleSystem));
             }
 
             return result;
-        }
-    }
-
-    public sealed class IniEntryViewModel : FileSubObjectViewModel
-    {
-        public override string GroupName { get; }
-
-        public override string Name { get; }
-
-        public object IniEntry { get; }
-
-        public IniEntryViewModel(object iniEntry, string groupName, string name)
-        {
-            IniEntry = iniEntry;
-            GroupName = groupName;
-            Name = name;
         }
     }
 }
