@@ -39,6 +39,9 @@ namespace OpenSage.DataViewer.ViewModels
                 case ".wnd":
                     return new WndFileContentViewModel(file);
 
+                case ".ini":
+                    return new IniFileContentViewModel(file);
+
                 case ".txt":
                     return new TextFileContentViewModel(file);
 

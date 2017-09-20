@@ -6,7 +6,6 @@ using OpenSage.Data;
 using OpenSage.Data.Map;
 using OpenSage.DataViewer.Framework;
 using OpenSage.Graphics;
-using OpenSage.Mathematics;
 using OpenSage.Terrain;
 
 namespace OpenSage.DataViewer.ViewModels
