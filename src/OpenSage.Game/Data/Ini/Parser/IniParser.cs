@@ -50,7 +50,7 @@ namespace OpenSage.Data.Ini.Parser
             { "ObjectReskin", (parser, context) => context.Objects.Add(ObjectDefinition.ParseReskin(parser)) },
             { "ObjectCreationList", (parser, context) => context.ObjectCreationLists.Add(ObjectCreationList.Parse(parser)) },
             { "OnlineChatColors", (parser, context) => context.OnlineChatColors = OnlineChatColors.Parse(parser) },
-            { "ParticleSystem", (parser, context) => context.ParticleSystems.Add(ParticleSystem.Parse(parser)) },
+            { "ParticleSystem", (parser, context) => context.ParticleSystems.Add(ParticleSystemDefinition.Parse(parser)) },
             { "PlayerTemplate", (parser, context) => context.PlayerTemplates.Add(PlayerTemplate.Parse(parser)) },
             { "Rank", (parser, context) => context.Ranks.Add(Rank.Parse(parser)) },
             { "Road", (parser, context) => context.Roads.Add(Road.Parse(parser)) },

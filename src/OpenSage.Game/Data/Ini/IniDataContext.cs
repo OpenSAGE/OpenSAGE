@@ -48,7 +48,7 @@ namespace OpenSage.Data.Ini
         public List<ObjectDefinition> Objects { get; } = new List<ObjectDefinition>();
         public List<ObjectCreationList> ObjectCreationLists { get; } = new List<ObjectCreationList>();
         public OnlineChatColors OnlineChatColors { get; internal set; }
-        public List<ParticleSystem> ParticleSystems { get; } = new List<ParticleSystem>();
+        public List<ParticleSystemDefinition> ParticleSystems { get; } = new List<ParticleSystemDefinition>();
         public List<PlayerTemplate> PlayerTemplates { get; } = new List<PlayerTemplate>();
         public List<Rank> Ranks { get; } = new List<Rank>();
         public List<Road> Roads { get; } = new List<Road>();

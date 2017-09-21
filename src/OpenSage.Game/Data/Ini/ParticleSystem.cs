@@ -2,16 +2,16 @@
 
 namespace OpenSage.Data.Ini
 {
-    public sealed class ParticleSystem
+    public sealed class ParticleSystemDefinition
     {
-        internal static ParticleSystem Parse(IniParser parser)
+        internal static ParticleSystemDefinition Parse(IniParser parser)
         {
             return parser.ParseTopLevelNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }
 
-        private static readonly IniParseTable<ParticleSystem> FieldParseTable = new IniParseTable<ParticleSystem>
+        private static readonly IniParseTable<ParticleSystemDefinition> FieldParseTable = new IniParseTable<ParticleSystemDefinition>
         {
             { "Priority", (parser, x) => x.Priority = parser.ParseEnum<ParticleSystemPriority>() },
             { "IsOneShot", (parser, x) => x.IsOneShot = parser.ParseBoolean() },
