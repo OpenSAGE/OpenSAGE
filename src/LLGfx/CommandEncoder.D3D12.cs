@@ -79,13 +79,12 @@ namespace LLGfx
             _commandList.SetGraphicsRootSignature(pipelineLayout.DeviceRootSignature);
         }
 
-        private void PlatformSetVertexBuffer<T>(int slot, StaticBuffer<T> vertexBuffer)
-            where T : struct
+        private void PlatformSetVertexBuffer(int slot, Buffer vertexBuffer)
         {
             _commandList.SetVertexBuffer(slot, new VertexBufferView
             {
-                BufferLocation = vertexBuffer.DeviceBuffer.GPUVirtualAddress,
-                SizeInBytes = (int) vertexBuffer.DeviceBuffer.Description.Width,
+                BufferLocation = vertexBuffer.DeviceCurrentGPUVirtualAddress,
+                SizeInBytes = (int) vertexBuffer.SizeInBytes,
                 StrideInBytes = (int) vertexBuffer.ElementSizeInBytes
             });
         }

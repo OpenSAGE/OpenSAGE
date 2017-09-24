@@ -9,7 +9,11 @@ namespace LLGfx
 
         internal override long DeviceCurrentGPUVirtualAddress => _currentAllocation.GpuAddress;
 
-        private void PlatformConstruct(GraphicsDevice graphicsDevice, uint sizeInBytes) { }
+        private void PlatformSetData(T[] data)
+        {
+            _currentAllocation = GraphicsDevice.DynamicUploadHeap.Allocate(SizeInBytes);
+            Utilities.Write(_currentAllocation.CpuAddress, data, 0, data.Length);
+        }
 
         private void PlatformSetData(ref T data)
         {

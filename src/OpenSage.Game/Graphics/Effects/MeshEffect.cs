@@ -71,13 +71,13 @@ namespace OpenSage.Graphics.Effects
                   CreateVertexDescriptor(),
                   CreatePipelineLayoutDescription())
         {
-            _skinningConstantBuffer = AddDisposable(DynamicBuffer<SkinningConstants>.Create(graphicsDevice));
+            _skinningConstantBuffer = AddDisposable(DynamicBuffer<SkinningConstants>.Create(graphicsDevice, BufferUsageFlags.ConstantBuffer));
 
-            _transformConstantBuffer = AddDisposable(DynamicBuffer<MeshTransformConstants>.Create(graphicsDevice));
+            _transformConstantBuffer = AddDisposable(DynamicBuffer<MeshTransformConstants>.Create(graphicsDevice, BufferUsageFlags.ConstantBuffer));
 
-            _lightingConstantBuffer = AddDisposable(DynamicBuffer<LightingConstants>.Create(graphicsDevice));
+            _lightingConstantBuffer = AddDisposable(DynamicBuffer<LightingConstants>.Create(graphicsDevice, BufferUsageFlags.ConstantBuffer));
 
-            _perDrawConstantBuffer = AddDisposable(DynamicBuffer<PerDrawConstants>.Create(graphicsDevice));
+            _perDrawConstantBuffer = AddDisposable(DynamicBuffer<PerDrawConstants>.Create(graphicsDevice, BufferUsageFlags.ConstantBuffer));
         }
 
         private static VertexDescriptor CreateVertexDescriptor()

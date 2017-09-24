@@ -55,8 +55,7 @@
             PlatformSetPipelineLayout(pipelineLayout);
         }
 
-        public void SetVertexBuffer<T>(int bufferIndex, StaticBuffer<T> vertexBuffer)
-            where T : struct
+        public void SetVertexBuffer(int bufferIndex, Buffer vertexBuffer)
         {
             PlatformSetVertexBuffer(bufferIndex, vertexBuffer);
         }

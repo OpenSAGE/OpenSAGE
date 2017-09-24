@@ -162,6 +162,9 @@ namespace LLGfx.Util
         {
             switch (value)
             {
+                case VertexFormat.Float:
+                    return Format.R32_Float;
+
                 case VertexFormat.Float2:
                     return Format.R32G32_Float;
 

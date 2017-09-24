@@ -5,8 +5,11 @@ namespace OpenSage.Mathematics
     public static class MathUtility
     {
         public static readonly float Pi = (float) Math.PI;
+        public static readonly float TwoPi = Pi * 2;
 
         public static float Sqrt(float v) => (float) Math.Sqrt(v);
+
+        public static float Pow(float x, float y) => (float) Math.Pow(x, y);
 
         public static int FloorToInt(float f)
         {
@@ -19,5 +22,9 @@ namespace OpenSage.Mathematics
             value = (value < min) ? min : value;
             return value;
         }
+
+        public static float Cos(float f) => (float) Math.Cos(f);
+
+        public static float Sin(float f) => (float) Math.Sin(f);
     }
 }

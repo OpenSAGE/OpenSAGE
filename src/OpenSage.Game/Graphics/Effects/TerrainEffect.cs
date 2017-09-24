@@ -54,9 +54,9 @@ namespace OpenSage.Graphics.Effects
                   CreateVertexDescriptor(),
                   CreatePipelineLayoutDescription(numTextures))
         {
-            _transformConstantBuffer = AddDisposable(DynamicBuffer<TransformConstants>.Create(graphicsDevice));
+            _transformConstantBuffer = AddDisposable(DynamicBuffer<TransformConstants>.Create(graphicsDevice, BufferUsageFlags.ConstantBuffer));
 
-            _lightingConstantBuffer = AddDisposable(DynamicBuffer<LightingConstants>.Create(graphicsDevice));
+            _lightingConstantBuffer = AddDisposable(DynamicBuffer<LightingConstants>.Create(graphicsDevice, BufferUsageFlags.ConstantBuffer));
         }
 
         private static VertexDescriptor CreateVertexDescriptor()

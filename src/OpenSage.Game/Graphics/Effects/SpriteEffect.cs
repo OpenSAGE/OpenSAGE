@@ -33,7 +33,7 @@ namespace OpenSage.Graphics.Effects
                   null,
                   CreatePipelineLayoutDescription())
         {
-            _textureConstantBuffer = DynamicBuffer<TextureConstants>.Create(graphicsDevice);
+            _textureConstantBuffer = DynamicBuffer<TextureConstants>.Create(graphicsDevice, BufferUsageFlags.ConstantBuffer);
         }
 
         private static PipelineLayoutDescription CreatePipelineLayoutDescription()

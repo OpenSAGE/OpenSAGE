@@ -190,8 +190,6 @@ namespace OpenSage.Graphics
         [StructLayout(LayoutKind.Sequential)]
         private struct MeshVertex
         {
-            public const int SizeInBytes = sizeof(float) * 6 + sizeof(uint);
-
             public Vector3 Position;
             public Vector3 Normal;
             public uint BoneIndex;

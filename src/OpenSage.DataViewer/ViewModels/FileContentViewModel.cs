@@ -6,7 +6,41 @@ using OpenSage.Data;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public abstract class FileContentViewModel : PropertyChangedBase, IDisposable
+    public abstract class DisposablePropertyChangedBase : PropertyChangedBase, IDisposable
+    {
+        private readonly List<IDisposable> _disposables;
+
+        protected DisposablePropertyChangedBase()
+        {
+            _disposables = new List<IDisposable>();
+        }
+
+        protected T AddDisposable<T>(T disposable)
+            where T : IDisposable
+        {
+            _disposables.Add(disposable);
+            return disposable;
+        }
+
+        public void Dispose()
+        {
+            _disposables.Reverse();
+            foreach (var disposable in _disposables)
+            {
+                disposable.Dispose();
+            }
+            _disposables.Clear();
+
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+
+        }
+    }
+
+    public abstract class FileContentViewModel : DisposablePropertyChangedBase
     {
         public static FileContentViewModel Create(FileSystemEntry file)
         {
@@ -50,32 +84,11 @@ namespace OpenSage.DataViewer.ViewModels
             }
         }
 
-        private readonly List<IDisposable> _disposables;
-
         public FileSystemEntry File { get; }
 
         protected FileContentViewModel(FileSystemEntry file)
         {
-            _disposables = new List<IDisposable>();
-
             File = file;
-        }
-
-        protected T AddDisposable<T>(T disposable)
-            where T : IDisposable
-        {
-            _disposables.Add(disposable);
-            return disposable;
-        }
-
-        public void Dispose()
-        {
-            _disposables.Reverse();
-            foreach (var disposable in _disposables)
-            {
-                disposable.Dispose();
-            }
-            _disposables.Clear();
         }
     }
 
@@ -128,7 +141,7 @@ namespace OpenSage.DataViewer.ViewModels
         }
     }
 
-    public abstract class FileSubObjectViewModel : PropertyChangedBase
+    public abstract class FileSubObjectViewModel : DisposablePropertyChangedBase
     {
         public abstract string GroupName { get; }
         public abstract string Name { get; }

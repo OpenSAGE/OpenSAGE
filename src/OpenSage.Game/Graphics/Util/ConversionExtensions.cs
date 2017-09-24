@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using LLGfx;
+using OpenSage.Data.Ini;
 using OpenSage.Data.W3d;
 using OpenSage.Graphics.Effects;
 
@@ -8,12 +9,22 @@ namespace OpenSage.Graphics.Util
 {
     public static class ConversionExtensions
     {
+        public static Vector3 ToVector3(this IniColorRgb value)
+        {
+            return new Vector3(value.R / 255.0f, value.G / 255.0f, value.B / 255.0f);
+        }
+
         public static Vector2 ToVector2(this W3dTexCoord value)
         {
             return new Vector2(value.U, value.V);
         }
 
         public static Vector3 ToVector3(this W3dVector value)
+        {
+            return new Vector3(value.X, value.Y, value.Z);
+        }
+
+        public static Vector3 ToVector3(this Coord3D value)
         {
             return new Vector3(value.X, value.Y, value.Z);
         }

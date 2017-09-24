@@ -146,7 +146,7 @@ namespace OpenSage.DataViewer.ViewModels
                 swapChain.BackBufferHeight);
         }
 
-        private void Update(SwapChain swapChain)
+        private void Update()
         {
             _gameTimer.Update();
 
@@ -155,7 +155,7 @@ namespace OpenSage.DataViewer.ViewModels
 
         public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
-            Update(swapChain);
+            Update();
 
             var renderPassDescriptor = new RenderPassDescriptor();
             renderPassDescriptor.SetRenderTargetDescriptor(

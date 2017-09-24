@@ -163,7 +163,7 @@ namespace OpenSage.Data.Ini
         public float WindPingPongEndAngleMax { get; private set; }
     }
 
-    public struct RandomAlphaKeyframe
+    public sealed class RandomAlphaKeyframe
     {
         internal static RandomAlphaKeyframe Parse(IniParser parser)
         {
@@ -180,7 +180,7 @@ namespace OpenSage.Data.Ini
         public int Time;
     }
 
-    public struct RgbColorKeyframe
+    public sealed class RgbColorKeyframe
     {
         internal static RgbColorKeyframe Parse(IniParser parser)
         {

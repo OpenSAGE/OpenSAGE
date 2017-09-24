@@ -196,6 +196,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Shaders\Lighting.hlsli" />
+    <VertexShader Include="Shaders\ParticleVS.hlsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ShaderModel>5_1</ShaderModel>
+    </VertexShader>
+    <PixelShader Include="Shaders\ParticlePS.hlsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </PixelShader>
     <Content Include="Shaders\Terrain.hlsli" />
     <Content Include="Shaders\Mesh.hlsli" />
     <PixelShader Include="Shaders\MeshPS.hlsl">
@@ -220,7 +227,7 @@
       <EnableUnboundedDescriptorTable>True</EnableUnboundedDescriptorTable>
       <EnableDebuggingInfo>True</EnableDebuggingInfo>
     </PixelShader>
-    <Content Include="Shaders\Sprite.hlsli" />
+    <Content Include="Shaders\Particle.hlsli" />
     <PixelShader Include="Shaders\SpritePS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ShaderModel>5_1</ShaderModel>

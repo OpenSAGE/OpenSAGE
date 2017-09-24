@@ -11,11 +11,9 @@ namespace LLGfx
             where T : struct
         {
             var elementSizeInBytes = Marshal.SizeOf<T>();
-            var sizeInBytes = (uint) (data.Length * elementSizeInBytes);
 
             return new StaticBuffer<T>(
                 graphicsDevice,
-                sizeInBytes,
                 (uint) elementSizeInBytes,
                 (uint) data.Length,
                 uploadBatch,
@@ -26,26 +24,19 @@ namespace LLGfx
     public sealed partial class StaticBuffer<T> : Buffer
         where T : struct
     {
-        public uint ElementSizeInBytes { get; }
-        public uint ElementCount { get; }
-
         internal StaticBuffer(
             GraphicsDevice graphicsDevice,
-            uint sizeInBytes,
             uint elementSizeInBytes,
             uint elementCount,
             ResourceUploadBatch uploadBatch,
             T[] data)
-            : base(graphicsDevice, sizeInBytes, false)
+            : base(graphicsDevice, elementSizeInBytes, elementCount, BufferUsageFlags.None)
         {
-            ElementSizeInBytes = elementSizeInBytes;
-            ElementCount = elementCount;
-
             PlatformConstruct(
                 graphicsDevice,
                 uploadBatch,
                 data,
-                sizeInBytes);
+                SizeInBytes);
         }
     }
 }

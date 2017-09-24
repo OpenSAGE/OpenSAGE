@@ -1,12 +1,9 @@
-using SharpDX;
 using SharpDX.Direct3D12;
 
 namespace LLGfx
 {
     partial class Buffer
     {
-        internal Resource DeviceBuffer { get; /* protected */ set; }
-
         internal abstract long DeviceCurrentGPUVirtualAddress { get; }
 
         private uint PlatformGetAlignedSize(uint sizeInBytes)
