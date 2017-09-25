@@ -14,6 +14,7 @@ struct VSInput
 struct ParticleTransformConstants
 {
     row_major matrix WorldViewProjection;
+    row_major matrix World;
     float3 CameraPosition;
 };
 
@@ -29,7 +30,9 @@ static const float4 VertexUVPos[4] =
 
 float4 ComputePosition(float3 particlePosition, float size, float angle, float2 quadPosition)
 {
-    float3 toEye = normalize(TransformCB.CameraPosition - particlePosition);
+    float3 particlePosWS = mul(float4(particlePosition, 1), TransformCB.World).xyz;
+
+    float3 toEye = normalize(TransformCB.CameraPosition - particlePosWS);
     float3 up    = { cos(angle), 0, sin(angle) };
     float3 right = cross(toEye, up);
     up = cross(toEye, right);

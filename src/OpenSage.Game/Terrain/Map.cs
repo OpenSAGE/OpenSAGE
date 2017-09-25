@@ -8,6 +8,7 @@ using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
+using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Terrain.Util;
 
 namespace OpenSage.Terrain
@@ -25,6 +26,8 @@ namespace OpenSage.Terrain
 
         private readonly List<Thing> _things;
         private readonly List<Road> _roads;
+
+        private readonly ParticleSystemManager _particleSystemManager;
 
         private TimeOfDay _currentTimeOfDay;
         public TimeOfDay CurrentTimeOfDay
@@ -52,6 +55,7 @@ namespace OpenSage.Terrain
 
             var iniDataContext = new IniDataContext();
             iniDataContext.LoadIniFile(fileSystem.GetFile(@"Data\INI\Terrain.ini"));
+            iniDataContext.LoadIniFile(fileSystem.GetFile(@"Data\INI\ParticleSystem.ini"));
             foreach (var iniFile in fileSystem.GetFiles(@"Data\INI\Object"))
             {
                 iniDataContext.LoadIniFile(iniFile);
@@ -73,6 +77,8 @@ namespace OpenSage.Terrain
 
             _meshEffect = AddDisposable(new MeshEffect(graphicsDevice));
 
+            _particleSystemManager = AddDisposable(new ParticleSystemManager(graphicsDevice));
+
             _things = new List<Thing>();
             _roads = new List<Road>();
 
@@ -93,7 +99,9 @@ namespace OpenSage.Terrain
                                 fileSystem,
                                 contentManager,
                                 uploadBatch,
-                                graphicsDevice)));
+                                graphicsDevice,
+                                iniDataContext,
+                                _particleSystemManager)));
                         }
                         break;
 
@@ -112,6 +120,8 @@ namespace OpenSage.Terrain
             {
                 thing.Update(gameTime);
             }
+
+            _particleSystemManager.Update(gameTime);
         }
 
         public void Draw(
@@ -134,6 +144,10 @@ namespace OpenSage.Terrain
                     _meshEffect,
                     camera);
             }
+
+            _particleSystemManager.Draw(
+                commandEncoder, 
+                camera);
         }
     }
 }

@@ -10,6 +10,7 @@ using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
+using OpenSage.Graphics.ParticleSystems;
 
 namespace OpenSage.Logic.Object
 {
@@ -24,13 +25,15 @@ namespace OpenSage.Logic.Object
             W3dModelDrawModuleData data,
             FileSystem fileSystem,
             ContentManager contentManager,
-            ResourceUploadBatch uploadBatch)
+            ResourceUploadBatch uploadBatch,
+            IniDataContext iniDataContext,
+            ParticleSystemManager particleSystemManager)
         {
             _conditionStates = new List<W3dModelDrawConditionState>();
 
             if (data.DefaultConditionState != null)
             {
-                var defaultConditionState = AddDisposable(new W3dModelDrawConditionState(contentManager, uploadBatch, data.DefaultConditionState));
+                var defaultConditionState = AddDisposable(new W3dModelDrawConditionState(contentManager, uploadBatch, data.DefaultConditionState, iniDataContext, particleSystemManager));
                 _conditionStates.Add(defaultConditionState);
             }
 
@@ -39,7 +42,7 @@ namespace OpenSage.Logic.Object
                 // TODO
                 if (!conditionState.ConditionFlags.AnyBitSet)
                 {
-                    _conditionStates.Add(AddDisposable(new W3dModelDrawConditionState(contentManager, uploadBatch, conditionState)));
+                    _conditionStates.Add(AddDisposable(new W3dModelDrawConditionState(contentManager, uploadBatch, conditionState, iniDataContext, particleSystemManager)));
                 }
             }
 
@@ -78,7 +81,12 @@ namespace OpenSage.Logic.Object
 
         public BitArray<ModelConditionFlag> Flags { get; }
 
-        public W3dModelDrawConditionState(ContentManager contentManager, ResourceUploadBatch uploadBatch, ModelConditionState data)
+        public W3dModelDrawConditionState(
+            ContentManager contentManager, 
+            ResourceUploadBatch uploadBatch, 
+            ModelConditionState data,
+            IniDataContext iniDataContext,
+            ParticleSystemManager particleSystemManager)
         {
             Flags = data.ConditionFlags;
 
@@ -105,13 +113,37 @@ namespace OpenSage.Logic.Object
                     var w3dFilePath = Path.Combine("Art", "W3D", splitName[0] + ".W3D");
                     var model = contentManager.Load<Model>(w3dFilePath, uploadBatch);
 
-                    var animation = model.Animations.First(x => string.Equals(x.Name, splitName[1], StringComparison.OrdinalIgnoreCase));
+                    var animation = model.Animations.FirstOrDefault(x => string.Equals(x.Name, splitName[1], StringComparison.OrdinalIgnoreCase));
+                    if (animation == null)
+                    {
+                        // TODO: Should this ever happen?
+                        continue;
+                    }
 
                     var animationPlayer = new AnimationPlayer(animation, _modelInstance);
 
                     _animationPlayers.Add(animationPlayer);
 
                     animationPlayer.Start();
+                }
+            }
+
+            if (_modelInstance != null)
+            {
+                foreach (var particleSysBone in data.ParticleSysBones)
+                {
+                    var particleSystemDefinition = iniDataContext.ParticleSystems.First(x => x.Name == particleSysBone.ParticleSystem);
+                    var bone = _modelInstance.Model.Bones.FirstOrDefault(x => string.Equals(x.Name, particleSysBone.BoneName, StringComparison.OrdinalIgnoreCase));
+                    if (bone == null)
+                    {
+                        // TODO: Should this ever happen?
+                        continue;
+                    }
+
+                    particleSystemManager.Add(AddDisposable(new ParticleSystem(
+                        particleSystemDefinition,
+                        contentManager,
+                        () => _modelInstance.AbsoluteBoneTransforms[bone.Index] * _savedWorld)));
                 }
             }
         }
@@ -124,6 +156,9 @@ namespace OpenSage.Logic.Object
             }
         }
 
+        // TODO: Don't do this.
+        private Matrix4x4 _savedWorld;
+
         public void Draw(
             CommandEncoder commandEncoder,
             MeshEffect meshEffect,
@@ -134,6 +169,8 @@ namespace OpenSage.Logic.Object
             {
                 return;
             }
+
+            _savedWorld = world;
 
             _modelInstance.Draw(
                 commandEncoder,

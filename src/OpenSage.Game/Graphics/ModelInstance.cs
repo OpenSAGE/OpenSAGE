@@ -37,6 +37,8 @@ namespace OpenSage.Graphics
             }
         }
 
+        public Matrix4x4[] AbsoluteBoneTransforms => _absoluteBoneMatrices;
+
         public void Draw(
             CommandEncoder commandEncoder,
             MeshEffect meshEffect,

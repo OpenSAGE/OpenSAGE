@@ -7,6 +7,7 @@ using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
+using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Logic.Object;
 using OpenSage.Terrain.Util;
 
@@ -41,7 +42,9 @@ namespace OpenSage.Terrain
             FileSystem fileSystem,
             ContentManager contentManager,
             ResourceUploadBatch uploadBatch,
-            GraphicsDevice graphicsDevice)
+            GraphicsDevice graphicsDevice,
+            IniDataContext iniDataContext,
+            ParticleSystemManager particleSystemManager)
         {
             var position = mapObject.Position.ToVector3();
             position.Z = heightMap.GetHeight(mapObject.Position.X, mapObject.Position.Y);
@@ -60,7 +63,9 @@ namespace OpenSage.Terrain
                             modelDrawData,
                             fileSystem,
                             contentManager,
-                            uploadBatch)));
+                            uploadBatch,
+                            iniDataContext,
+                            particleSystemManager)));
                         break;
                 }
             }

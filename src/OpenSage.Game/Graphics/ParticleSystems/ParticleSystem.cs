@@ -44,15 +44,20 @@ namespace OpenSage.Graphics.ParticleSystems
 
         private readonly StaticBuffer<ushort> _indexBuffer;
 
+        private readonly Func<Matrix4x4> _getWorldMatrix;
+
         public ParticleSystemDefinition Definition { get; }
 
         public ParticleSystemState State { get; private set; }
 
         public ParticleSystem(
             ParticleSystemDefinition definition,
-            ContentManager contentManager)
+            ContentManager contentManager,
+            Func<Matrix4x4> getWorldMatrix)
         {
             Definition = definition;
+
+            _getWorldMatrix = getWorldMatrix;
 
             _velocityType = VelocityTypeUtility.GetImplementation(definition.VelocityType);
             _volumeType = VolumeTypeUtility.GetImplementation(definition.VolumeType);
@@ -444,12 +449,13 @@ namespace OpenSage.Graphics.ParticleSystems
         public void Draw(
             CommandEncoder commandEncoder,
             ParticleEffect effect,
-            Camera camera,
-            ref Matrix4x4 world)
+            Camera camera)
         {
             effect.SetPipelineState(_pipelineStateHandle);
 
+            var world = _getWorldMatrix();
             effect.SetWorld(ref world);
+
             effect.SetView(camera.ViewMatrix);
             effect.SetProjection(camera.ProjectionMatrix);
 

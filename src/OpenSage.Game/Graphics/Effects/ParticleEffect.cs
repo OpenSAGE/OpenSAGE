@@ -92,6 +92,7 @@ namespace OpenSage.Graphics.Effects
             if (_dirtyFlags.HasFlag(ParticleEffectDirtyFlags.TransformConstants))
             {
                 _transformConstants.WorldViewProjection = _world * _view * _projection;
+                _transformConstants.World = _world;
 
                 Matrix4x4.Invert(_view, out var viewInverse);
                 _transformConstants.CameraPosition = viewInverse.Translation;
@@ -138,6 +139,7 @@ namespace OpenSage.Graphics.Effects
         private struct ParticleTransformConstants
         {
             public Matrix4x4 WorldViewProjection;
+            public Matrix4x4 World;
             public Vector3 CameraPosition;
         }
     }

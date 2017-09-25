@@ -56,15 +56,12 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             _particleEffect.Begin(commandEncoder);
 
-            var world = Matrix4x4.Identity; // TODO
-
             foreach (var particleSystem in _particleSystems)
             {
                 particleSystem.Draw(
                     commandEncoder,
                     _particleEffect,
-                    camera,
-                    ref world);
+                    camera);
             }
         }
     }

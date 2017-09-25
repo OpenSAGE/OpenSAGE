@@ -82,7 +82,7 @@ namespace OpenSage.DataViewer.ViewModels.Ini
 
         public override void Activate()
         {
-            _particleSystem = new ParticleSystem(_definition, _contentManager);
+            _particleSystem = new ParticleSystem(_definition, _contentManager, () => Matrix4x4.Identity);
             _particleSystemManager.Add(_particleSystem);
 
             _gameTimer.Reset();
