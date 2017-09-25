@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Caliburn.Micro;
 using LLGfx;
 using OpenSage.Data;
 using OpenSage.Data.Map;
@@ -10,18 +11,17 @@ using OpenSage.Terrain;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public sealed class MapFileContentViewModel : FileContentViewModel
+    public sealed class MapFileContentViewModel : FileContentViewModel, IRenderableViewModel
     {
-        private readonly MapFile _mapFile;
-        private Map _map;
+        private readonly Map _map;
 
         private readonly GameTimer _gameTimer;
-
-        private DepthStencilBuffer _depthStencilBuffer;
 
         private readonly Camera _camera;
 
         public MapCameraController CameraController { get; }
+
+        CameraController IRenderableViewModel.CameraController => CameraController;
 
         public IEnumerable<TimeOfDay> TimesOfDay
         {
@@ -36,7 +36,7 @@ namespace OpenSage.DataViewer.ViewModels
 
         public TimeOfDay CurrentTimeOfDay
         {
-            get { return _map?.CurrentTimeOfDay ?? TimeOfDay.Morning; }
+            get { return _map.CurrentTimeOfDay; }
             set
             {
                 _map.CurrentTimeOfDay = value;
@@ -46,7 +46,7 @@ namespace OpenSage.DataViewer.ViewModels
 
         public bool RenderWireframeOverlay
         {
-            get { return _map?.Terrain.RenderWireframeOverlay ?? false; }
+            get { return _map.Terrain.RenderWireframeOverlay; }
             set
             {
                 _map.Terrain.RenderWireframeOverlay = value;
@@ -103,14 +103,23 @@ namespace OpenSage.DataViewer.ViewModels
         public MapFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
-            _mapFile = MapFile.FromFileSystemEntry(file);
+            var graphicsDevice = IoC.Get<GraphicsDeviceManager>().GraphicsDevice;
+
+            var mapFile = MapFile.FromFileSystemEntry(file);
+
+            _map = AddDisposable(new Map(
+                mapFile,
+                File.FileSystem,
+                graphicsDevice));
 
             _camera = new Camera();
             _camera.FieldOfView = 70;
 
             CameraController = new MapCameraController(_camera);
+            CameraController.Reset(_map.Terrain.BoundingBox.GetCenter());
 
             _gameTimer = AddDisposable(new GameTimer());
+            _gameTimer.Start();
         }
 
         public void OnMouseMove(int x, int y)
@@ -145,66 +154,21 @@ namespace OpenSage.DataViewer.ViewModels
             }
         }
 
-        private void EnsureDepthStencilBuffer(GraphicsDevice graphicsDevice, SwapChain swapChain)
-        {
-            if (_depthStencilBuffer != null
-                && _depthStencilBuffer.Width == swapChain.BackBufferWidth
-                && _depthStencilBuffer.Height == swapChain.BackBufferHeight)
-            {
-                return;
-            }
-
-            if (_depthStencilBuffer != null)
-            {
-                _depthStencilBuffer.Dispose();
-                _depthStencilBuffer = null;
-            }
-
-            _depthStencilBuffer = new DepthStencilBuffer(
-                graphicsDevice,
-                swapChain.BackBufferWidth,
-                swapChain.BackBufferHeight);
-
-            _camera.Viewport = new Viewport(
-                0, 
-                0, 
-                swapChain.BackBufferWidth, 
-                swapChain.BackBufferHeight);
-        }
-
-        public void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
-        {
-            _map = AddDisposable(new Map(
-                _mapFile, 
-                File.FileSystem,
-                graphicsDevice));
-
-            CameraController.Reset(_map.Terrain.BoundingBox.GetCenter());
-
-            NotifyOfPropertyChange(nameof(CurrentTimeOfDay));
-            NotifyOfPropertyChange(nameof(RenderWireframeOverlay));
-
-            _gameTimer.Start();
-        }
-
-        public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
+        public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain, RenderPassDescriptor renderPassDescriptor)
         {
             _gameTimer.Update();
 
             _map.Update(_gameTimer.CurrentGameTime);
 
-            var renderPassDescriptor = new RenderPassDescriptor();
-            renderPassDescriptor.SetRenderTargetDescriptor(
-                swapChain.GetNextRenderTarget(),
-                LoadAction.Clear,
-                new ColorRgba(0.5f, 0.5f, 0.5f, 1));
-
-            EnsureDepthStencilBuffer(graphicsDevice, swapChain);
-            renderPassDescriptor.SetDepthStencilDescriptor(_depthStencilBuffer);
-
             var commandBuffer = graphicsDevice.CommandQueue.GetCommandBuffer();
 
             var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
+
+            _camera.Viewport = new Viewport(
+                0,
+                0,
+                swapChain.BackBufferWidth,
+                swapChain.BackBufferHeight);
 
             commandEncoder.SetViewport(_camera.Viewport);
 

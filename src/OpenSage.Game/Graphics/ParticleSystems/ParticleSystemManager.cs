@@ -27,7 +27,7 @@ namespace OpenSage.Graphics.ParticleSystems
             _particleSystems.Remove(particleSystem);
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
             // TODO: Don't allocate this every frame.
             var deadParticleSystems = new List<int>();
@@ -36,7 +36,7 @@ namespace OpenSage.Graphics.ParticleSystems
             {
                 var particleSystem = _particleSystems[i];
 
-                particleSystem.Update();
+                particleSystem.Update(gameTime);
 
                 if (particleSystem.State == ParticleSystemState.Dead)
                 {

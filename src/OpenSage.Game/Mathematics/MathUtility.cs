@@ -26,5 +26,10 @@ namespace OpenSage.Mathematics
         public static float Cos(float f) => (float) Math.Cos(f);
 
         public static float Sin(float f) => (float) Math.Sin(f);
+
+        public static float Lerp(float x, float y, float s)
+        {
+            return x + s * (y - x);
+        }
     }
 }

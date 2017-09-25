@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 using Caliburn.Micro;
 using LLGfx;
@@ -14,11 +13,9 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public sealed class W3dFileContentViewModel : FileContentViewModel<W3dItemViewModelBase>
+    public sealed class W3dFileContentViewModel : FileContentViewModel<W3dItemViewModelBase>, IRenderableViewModel
     {
         private readonly W3dFile _w3dFile;
-
-        private DepthStencilBuffer _depthStencilBuffer;
 
         private readonly MeshEffect _meshEffect;
         private readonly ModelInstance _modelInstance;
@@ -30,6 +27,10 @@ namespace OpenSage.DataViewer.ViewModels
         private readonly Camera _camera;
 
         public ArcballCameraController CameraController { get; }
+
+        CameraController IRenderableViewModel.CameraController => CameraController;
+
+        void IRenderableViewModel.OnMouseMove(int x, int y) { }
 
         public W3dFileContentViewModel(FileSystemEntry file)
             : base(file)
@@ -68,6 +69,7 @@ namespace OpenSage.DataViewer.ViewModels
             CameraController = new ArcballCameraController(_camera);
 
             _gameTimer = new GameTimer();
+            _gameTimer.Start();
 
             var graphicsDevice = IoC.Get<GraphicsDeviceManager>().GraphicsDevice;
 
@@ -76,8 +78,6 @@ namespace OpenSage.DataViewer.ViewModels
             _meshEffect = AddDisposable(new MeshEffect(graphicsDevice));
 
             _modelInstance = AddDisposable(new ModelInstance(contentManager.Load<Model>(File.FilePath, uploadBatch: null), graphicsDevice));
-
-            _gameTimer.Start();
         }
 
         protected override IReadOnlyList<W3dItemViewModelBase> CreateSubObjects()
@@ -119,57 +119,21 @@ namespace OpenSage.DataViewer.ViewModels
             _gameTimer.Reset();
         }
 
-        private void EnsureDepthStencilBuffer(GraphicsDevice graphicsDevice, SwapChain swapChain)
+        public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain, RenderPassDescriptor renderPassDescriptor)
         {
-            if (_depthStencilBuffer != null 
-                && _depthStencilBuffer.Width == swapChain.BackBufferWidth
-                && _depthStencilBuffer.Height == swapChain.BackBufferHeight)
-            {
-                return;
-            }
+            _gameTimer.Update();
 
-            if (_depthStencilBuffer != null)
-            {
-                _depthStencilBuffer.Dispose();
-                _depthStencilBuffer = null;
-            }
+            SelectedSubObject?.Update(_gameTimer.CurrentGameTime);
 
-            _depthStencilBuffer = new DepthStencilBuffer(
-                graphicsDevice,
-                swapChain.BackBufferWidth,
-                swapChain.BackBufferHeight);
+            var commandBuffer = graphicsDevice.CommandQueue.GetCommandBuffer();
+
+            var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
 
             _camera.Viewport = new Viewport(
                 0,
                 0,
                 swapChain.BackBufferWidth,
                 swapChain.BackBufferHeight);
-        }
-
-        private void Update()
-        {
-            _gameTimer.Update();
-
-            SelectedSubObject?.Update(_gameTimer.CurrentGameTime);
-        }
-
-        public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
-        {
-            Update();
-
-            var renderPassDescriptor = new RenderPassDescriptor();
-            renderPassDescriptor.SetRenderTargetDescriptor(
-                swapChain.GetNextRenderTarget(),
-                LoadAction.Clear,
-                new ColorRgba(0.5f, 0.5f, 0.5f, 1));
-
-            EnsureDepthStencilBuffer(graphicsDevice, swapChain);
-
-            renderPassDescriptor.SetDepthStencilDescriptor(_depthStencilBuffer);
-
-            var commandBuffer = graphicsDevice.CommandQueue.GetCommandBuffer();
-
-            var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
 
             commandEncoder.SetViewport(_camera.Viewport);
 

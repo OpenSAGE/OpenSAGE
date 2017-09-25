@@ -77,6 +77,12 @@
         public static readonly BlendStateDescription Opaque = new BlendStateDescription(
             false, Blend.One, Blend.Zero);
 
+        public static readonly BlendStateDescription AlphaBlend = new BlendStateDescription(
+            true, Blend.SrcAlpha, Blend.OneMinusSrcAlpha);
+
+        public static readonly BlendStateDescription Additive = new BlendStateDescription(
+            true, Blend.SrcAlpha, Blend.One);
+
         public bool Enabled;
         public Blend SourceBlend;
         public Blend DestinationBlend;

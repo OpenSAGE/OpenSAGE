@@ -4,7 +4,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.DataViewer.Framework
 {
-    public sealed class ArcballCameraController
+    public sealed class ArcballCameraController : CameraController
     {
         private const float RotationSpeed = 0.003f;
         private const float ZoomSpeed = 0.001f;
@@ -53,7 +53,7 @@ namespace OpenSage.DataViewer.Framework
             UpdateCamera();
         }
 
-        public void Rotate(float deltaX, float deltaY)
+        public override void OnLeftMouseButtonDragged(float deltaX, float deltaY)
         {
             _yaw += deltaX * RotationSpeed;
 
@@ -67,7 +67,7 @@ namespace OpenSage.DataViewer.Framework
             UpdateCamera();
         }
 
-        public void Zoom(float deltaY)
+        public override void OnMiddleMouseButtonDragged(float deltaY)
         {
             const float minZoom = 0.1f;
             const float maxZoom = 1;
@@ -82,11 +82,11 @@ namespace OpenSage.DataViewer.Framework
             UpdateCamera();
         }
 
-        public void Pan(float deltaX, float deltaY)
+        public override void OnRightMouseButtonDragged(float deltaX, float deltaY)
         {
             var cameraOrientation = QuaternionUtility.CreateFromYawPitchRoll_ZUp(
-                _yaw, 
-                _pitch, 
+                _yaw,
+                _pitch,
                 0);
 
             _translation += Vector3.Transform(Vector3.UnitX, cameraOrientation) * deltaX * PanSpeed;

@@ -5,13 +5,17 @@
         public int Width { get; }
         public int Height { get; }
 
-        public DepthStencilBuffer(GraphicsDevice graphicsDevice, int width, int height)
+        public float ClearValue { get; }
+
+        public DepthStencilBuffer(GraphicsDevice graphicsDevice, int width, int height, float clearValue)
             : base(graphicsDevice)
         {
             Width = width;
             Height = height;
 
-            PlatformConstruct(graphicsDevice, width, height);
+            ClearValue = clearValue;
+
+            PlatformConstruct(graphicsDevice, width, height, clearValue);
         }
     }
 }

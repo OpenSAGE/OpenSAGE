@@ -46,7 +46,10 @@ namespace OpenSage.Graphics.Effects
             var vertexDescriptor = new VertexDescriptor();
             vertexDescriptor.SetAttributeDescriptor(0, "POSITION", 0, VertexFormat.Float3, 0, 0);
             vertexDescriptor.SetAttributeDescriptor(1, "TEXCOORD", 0, VertexFormat.Float, 0, 12);
-            vertexDescriptor.SetLayoutDescriptor(0, 16);
+            vertexDescriptor.SetAttributeDescriptor(2, "TEXCOORD", 1, VertexFormat.Float3, 0, 16);
+            vertexDescriptor.SetAttributeDescriptor(3, "TEXCOORD", 2, VertexFormat.Float, 0, 28);
+            vertexDescriptor.SetAttributeDescriptor(4, "TEXCOORD", 3, VertexFormat.Float, 0, 32);
+            vertexDescriptor.SetLayoutDescriptor(0, 36);
             return vertexDescriptor;
         }
 

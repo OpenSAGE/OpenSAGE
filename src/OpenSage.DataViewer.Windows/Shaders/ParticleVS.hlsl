@@ -3,9 +3,10 @@
 struct VSInput
 {
     float3 Position : POSITION;
-    float Size : TEXCOORD;
-
-    // TODO: AngleZ
+    float  Size     : TEXCOORD0;
+    float3 Color    : TEXCOORD1;
+    float  Alpha    : TEXCOORD2;
+    float  AngleZ   : TEXCOORD3;
 
     uint VertexID : SV_VertexID;
 };
@@ -26,10 +27,10 @@ static const float4 VertexUVPos[4] =
     { 1.0, 0.0, +1.0, +1.0 },
 };
 
-float4 ComputePosition(float3 particlePosition, float size, float2 quadPosition)
+float4 ComputePosition(float3 particlePosition, float size, float angle, float2 quadPosition)
 {
     float3 toEye = normalize(TransformCB.CameraPosition - particlePosition);
-    float3 up    = { 0, 0, 1 };
+    float3 up    = { cos(angle), 0, sin(angle) };
     float3 right = cross(toEye, up);
     up = cross(toEye, right);
 
@@ -52,9 +53,13 @@ PSInput main(VSInput input)
     output.Position = ComputePosition(
         input.Position, 
         input.Size,
+        input.AngleZ,
         VertexUVPos[quadVertexID].zw);
 
     output.TexCoords = VertexUVPos[quadVertexID].xy;
+
+    output.Color = input.Color;
+    output.Alpha = input.Alpha;
     
     return output;
 }

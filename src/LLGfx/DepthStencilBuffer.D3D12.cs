@@ -11,12 +11,12 @@ namespace LLGfx
         private DepthStencilBufferPool _pool;
         private DepthStencilBufferImpl _currentDepthStencilBuffer;
 
-        private void PlatformConstruct(GraphicsDevice graphicsDevice, int width, int height)
+        private void PlatformConstruct(GraphicsDevice graphicsDevice, int width, int height, float clearValue)
         {
             _fence = AddDisposable(graphicsDevice.Device.CreateFence(0, FenceFlags.None));
             _nextFenceValue = 1;
 
-            _pool = AddDisposable(new DepthStencilBufferPool(graphicsDevice, width, height));
+            _pool = AddDisposable(new DepthStencilBufferPool(graphicsDevice, width, height, clearValue));
         }
 
         internal CpuDescriptorHandle Acquire()
@@ -49,7 +49,7 @@ namespace LLGfx
 
         internal CpuDescriptorHandle CpuDescriptorHandle => _descriptorTablePoolEntry.CpuDescriptorHandle;
 
-        public DepthStencilBufferImpl(GraphicsDevice graphicsDevice, int width, int height)
+        public DepthStencilBufferImpl(GraphicsDevice graphicsDevice, int width, int height, float clearValue)
         {
             _graphicsDevice = graphicsDevice;
 
@@ -70,7 +70,7 @@ namespace LLGfx
                 new ClearValue
                 {
                     Format = format,
-                    DepthStencil = new DepthStencilValue { Depth = 1.0f }
+                    DepthStencil = new DepthStencilValue { Depth = clearValue }
                 }));
 
             _descriptorTablePoolEntry = graphicsDevice.DescriptorHeapDsv.Reserve(1);
@@ -102,17 +102,19 @@ namespace LLGfx
     {
         private readonly int _width;
         private readonly int _height;
+        private readonly float _clearValue;
 
-        public DepthStencilBufferPool(GraphicsDevice graphicsDevice, int width, int height)
+        public DepthStencilBufferPool(GraphicsDevice graphicsDevice, int width, int height, float clearValue)
             : base(graphicsDevice)
         {
             _width = width;
             _height = height;
+            _clearValue = clearValue;
         }
 
         protected override DepthStencilBufferImpl CreateResource()
         {
-            return new DepthStencilBufferImpl(GraphicsDevice, _width, _height);
+            return new DepthStencilBufferImpl(GraphicsDevice, _width, _height, _clearValue);
         }
 
         protected override void ResetResource(DepthStencilBufferImpl resource)

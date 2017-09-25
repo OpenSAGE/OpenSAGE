@@ -12,6 +12,8 @@ namespace LLGfx.Hosting
 
         public GraphicsDevice GraphicsDevice { get; set; }
 
+        public SwapChain SwapChain => _swapChain;
+
         public GraphicsDeviceControl()
         {
             Loaded += OnLoaded;
@@ -53,6 +55,8 @@ namespace LLGfx.Hosting
                 (int) ActualWidth,
                 (int) ActualHeight);
 
+            OnSwapChainResized(_swapChain);
+
             GraphicsInitialize?.Invoke(this, new GraphicsEventArgs(GraphicsDevice, _swapChain));
 
             if (!RedrawsOnTimer)
@@ -71,11 +75,18 @@ namespace LLGfx.Hosting
                     (int) sizeInfo.NewSize.Width,
                     (int) sizeInfo.NewSize.Height);
 
+                OnSwapChainResized(_swapChain);
+
                 if (!RedrawsOnTimer)
                 {
                     Draw();
                 }
             }
+        }
+
+        protected virtual void OnSwapChainResized(SwapChain newSwapChain)
+        {
+
         }
 
         void IGraphicsView.Draw() => Draw();

@@ -4,7 +4,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.DataViewer.Framework
 {
-    public sealed class MapCameraController
+    public sealed class MapCameraController : CameraController
     {
         private const float DefaultDistance = 300;
         private static readonly float DefaultPitch = -MathUtility.Pi / 4;
@@ -49,14 +49,14 @@ namespace OpenSage.DataViewer.Framework
             UpdateCamera();
         }
 
-        public void Rotate(float deltaX, float deltaY)
+        public override void OnLeftMouseButtonDragged(float deltaX, float deltaY)
         {
             _yaw += deltaX * RotationSpeed;
 
             UpdateCamera();
         }
 
-        public void Zoom(float deltaY)
+        public override void OnMiddleMouseButtonDragged(float deltaY)
         {
             const float minZoom = 0.01f;
 
@@ -68,11 +68,11 @@ namespace OpenSage.DataViewer.Framework
             UpdateCamera();
         }
 
-        public void Pan(float deltaX, float deltaY)
+        public override void OnRightMouseButtonDragged(float deltaX, float deltaY)
         {
             var cameraOrientation = QuaternionUtility.CreateFromYawPitchRoll_ZUp(
                 _yaw,
-                DefaultPitch, 
+                DefaultPitch,
                 0);
 
             var panSpeed = PanSpeed * _zoom;

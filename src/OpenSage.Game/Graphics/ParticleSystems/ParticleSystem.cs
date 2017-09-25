@@ -11,6 +11,7 @@ using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.ParticleSystems.VelocityTypes;
 using OpenSage.Graphics.ParticleSystems.VolumeTypes;
 using OpenSage.Graphics.Util;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
@@ -28,7 +29,9 @@ namespace OpenSage.Graphics.ParticleSystems
         private float _startSizeRate;
         private float _startSize;
 
-        private readonly List<ParticleSystemColorKeyframe> _colorKeyframes;
+        private readonly List<ParticleColorKeyframe> _colorKeyframes;
+
+        private TimeSpan _nextUpdate;
 
         private int _timer;
         private int _nextBurst;
@@ -58,10 +61,12 @@ namespace OpenSage.Graphics.ParticleSystems
             var texture = contentManager.Load<Texture>(texturePath, uploadBatch: null);
             _textureView = AddDisposable(ShaderResourceView.Create(contentManager.GraphicsDevice, texture));
 
+            var blendState = GetBlendState(definition.Shader);
+
             _pipelineStateHandle = new EffectPipelineState(
                 RasterizerStateDescription.CullBackSolid,
                 DepthStencilStateDescription.DepthRead,
-                BlendStateDescription.Opaque) // TODO: Use appropriate "Shader" from particle system.
+                blendState)
                 .GetHandle();
 
             _initialDelay = definition.InitialDelay.GetRandomInt();
@@ -69,18 +74,18 @@ namespace OpenSage.Graphics.ParticleSystems
             _startSizeRate = definition.StartSizeRate.GetRandomFloat();
             _startSize = 0;
 
-            _colorKeyframes = new List<ParticleSystemColorKeyframe>();
+            _colorKeyframes = new List<ParticleColorKeyframe>();
 
             if (definition.Color1 != null)
             {
-                _colorKeyframes.Add(new ParticleSystemColorKeyframe(definition.Color1));
+                _colorKeyframes.Add(new ParticleColorKeyframe(definition.Color1));
             }
 
             void addColorKeyframe(RgbColorKeyframe keyframe, RgbColorKeyframe previous)
             {
                 if (keyframe != null && keyframe.Time > previous.Time)
                 {
-                    _colorKeyframes.Add(new ParticleSystemColorKeyframe(keyframe));
+                    _colorKeyframes.Add(new ParticleColorKeyframe(keyframe));
                 }
             }
 
@@ -110,7 +115,29 @@ namespace OpenSage.Graphics.ParticleSystems
 
             _vertices = new ParticleVertex[_vertexBuffer.ElementCount];
 
-            var uploadBatch = new ResourceUploadBatch(contentManager.GraphicsDevice);
+            _indexBuffer = AddDisposable(CreateIndexBuffer(contentManager.GraphicsDevice, maxParticles));
+
+            State = ParticleSystemState.Active;
+        }
+
+        private static BlendStateDescription GetBlendState(ParticleSystemShader shader)
+        {
+            switch (shader)
+            {
+                case ParticleSystemShader.Alpha:
+                    return BlendStateDescription.AlphaBlend;
+
+                case ParticleSystemShader.Additive:
+                    return BlendStateDescription.Additive;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(shader));
+            }
+        }
+
+        private static StaticBuffer<ushort> CreateIndexBuffer(GraphicsDevice graphicsDevice, int maxParticles)
+        {
+            var uploadBatch = new ResourceUploadBatch(graphicsDevice);
             uploadBatch.Begin();
 
             var indices = new ushort[maxParticles * 2 * 3]; // Two triangles per particle.
@@ -118,33 +145,40 @@ namespace OpenSage.Graphics.ParticleSystems
             for (ushort i = 0; i < maxParticles * 4; i += 4)
             {
                 indices[indexCounter++] = (ushort) (i + 0);
-                indices[indexCounter++] = (ushort) (i + 1);
                 indices[indexCounter++] = (ushort) (i + 2);
+                indices[indexCounter++] = (ushort) (i + 1);
 
                 indices[indexCounter++] = (ushort) (i + 1);
                 indices[indexCounter++] = (ushort) (i + 2);
                 indices[indexCounter++] = (ushort) (i + 3);
             }
 
-            _indexBuffer = AddDisposable(StaticBuffer.Create(
-                contentManager.GraphicsDevice,
+            var result = StaticBuffer.Create(
+                graphicsDevice,
                 uploadBatch,
-                indices));
+                indices);
 
             uploadBatch.End();
 
-            State = ParticleSystemState.Active;
+            return result;
         }
 
         private int CalculateMaxParticles()
         {
             // TODO: Is this right?
             // How about IsOneShot?
-            return (int) Math.Ceiling(((Definition.Lifetime.High + 1) / (Definition.BurstDelay.Low + 1)) * Definition.BurstCount.High);
+            return (int) Definition.BurstCount.High + (int) Math.Ceiling(((Definition.Lifetime.High) / (Definition.BurstDelay.Low + 1)) * Definition.BurstCount.High);
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
+            if (gameTime.TotalGameTime < _nextUpdate)
+            {
+                return;
+            }
+
+            _nextUpdate = gameTime.TotalGameTime + TimeSpan.FromSeconds(1 / 30.0f);
+
             if (_initialDelay > 0)
             {
                 _initialDelay -= 1;
@@ -154,6 +188,22 @@ namespace OpenSage.Graphics.ParticleSystems
             if (Definition.SystemLifetime != 0 && _timer > Definition.SystemLifetime)
             {
                 State = ParticleSystemState.Finished;
+            }
+
+            for (var i = 0; i < _particles.Length; i++)
+            {
+                ref var particle = ref _particles[i];
+
+                if (particle.Dead)
+                {
+                    continue;
+                }
+
+                if (particle.Timer > particle.Lifetime)
+                {
+                    particle.Dead = true;
+                    _deadList.Add(i);
+                }
             }
 
             if (State == ParticleSystemState.Active)
@@ -174,14 +224,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
                 UpdateParticle(ref particle);
 
-                if (particle.Dead)
-                {
-                    _deadList.Add(i);
-                }
-                else
-                {
-                    anyAlive = true;
-                }
+                anyAlive = true;
             }
 
             UpdateVertexBuffer();
@@ -252,6 +295,29 @@ namespace OpenSage.Graphics.ParticleSystems
             particle.SizeRateDamping = Definition.SizeRateDamping.GetRandomFloat();
 
             particle.VelocityDamping = Definition.VelocityDamping.GetRandomFloat();
+
+            var alphaKeyframes = particle.AlphaKeyframes = new List<ParticleAlphaKeyframe>();
+
+            if (Definition.Alpha1 != null)
+            {
+                alphaKeyframes.Add(new ParticleAlphaKeyframe(Definition.Alpha1));
+            }
+
+            void addAlphaKeyframe(RandomAlphaKeyframe keyframe, RandomAlphaKeyframe previous)
+            {
+                if (keyframe != null && keyframe.Time > previous.Time)
+                {
+                    alphaKeyframes.Add(new ParticleAlphaKeyframe(keyframe));
+                }
+            }
+
+            addAlphaKeyframe(Definition.Alpha2, Definition.Alpha1);
+            addAlphaKeyframe(Definition.Alpha3, Definition.Alpha2);
+            addAlphaKeyframe(Definition.Alpha4, Definition.Alpha3);
+            addAlphaKeyframe(Definition.Alpha5, Definition.Alpha4);
+            addAlphaKeyframe(Definition.Alpha6, Definition.Alpha5);
+            addAlphaKeyframe(Definition.Alpha7, Definition.Alpha6);
+            addAlphaKeyframe(Definition.Alpha8, Definition.Alpha7);
         }
 
         private ref Particle FindDeadParticleOrCreateNewOne()
@@ -270,14 +336,6 @@ namespace OpenSage.Graphics.ParticleSystems
 
         private void UpdateParticle(ref Particle particle)
         {
-            particle.Timer += 1;
-
-            if (particle.Timer > particle.Lifetime)
-            {
-                particle.Dead = true;
-                return;
-            }
-
             particle.Velocity.Z += Definition.Gravity;
             particle.Velocity *= particle.VelocityDamping;
 
@@ -290,7 +348,69 @@ namespace OpenSage.Graphics.ParticleSystems
             particle.AngleZ += particle.AngularRateZ;
             particle.AngularRateZ *= particle.AngularDamping;
 
-            // TODO: Interpolate color and alpha values.
+            ParticleColorKeyframe nextC = null;
+            ParticleColorKeyframe prevC = null;
+            foreach (var colorKeyframe in _colorKeyframes)
+            {
+                if (colorKeyframe.Time >= particle.Timer)
+                {
+                    nextC = colorKeyframe;
+                    break;
+                }
+                prevC = colorKeyframe;
+            }
+            if (prevC == null)
+            {
+                prevC = _colorKeyframes[0];
+            }
+            if (nextC == null)
+            {
+                nextC = prevC;
+            }
+            if (prevC != nextC)
+            {
+                var colorInterpoland = (float) (particle.Timer - prevC.Time) / (nextC.Time - prevC.Time);
+                particle.Color = Vector3Utility.Lerp(ref prevC.Color, ref nextC.Color, colorInterpoland);
+            }
+            else
+            {
+                particle.Color = prevC.Color;
+            }
+            var colorVal = particle.ColorScale * particle.Timer / 255.0f;
+            particle.Color.X += colorVal;
+            particle.Color.Y += colorVal;
+            particle.Color.Z += colorVal;
+
+            if (particle.AlphaKeyframes.Count > 1)
+            {
+                ParticleAlphaKeyframe nextA = null;
+                ParticleAlphaKeyframe prevA = null;
+                foreach (var alphaKeyframe in particle.AlphaKeyframes)
+                {
+                    if (alphaKeyframe.Time >= particle.Timer)
+                    {
+                        nextA = alphaKeyframe;
+                        break;
+                    }
+                    prevA = alphaKeyframe;
+                }
+                if (prevA == null)
+                {
+                    prevA = particle.AlphaKeyframes[0];
+                }
+                if (nextA == null)
+                {
+                    nextA = prevA;
+                }
+                var alphaInterpoland = (float) (particle.Timer - prevA.Time) / (nextA.Time - prevA.Time);
+                particle.Alpha = MathUtility.Lerp(prevA.Alpha, nextA.Alpha, alphaInterpoland);
+            }
+            else
+            {
+                particle.Alpha = 1;
+            }
+
+            particle.Timer += 1;
         }
 
         private void UpdateVertexBuffer()
@@ -304,7 +424,10 @@ namespace OpenSage.Graphics.ParticleSystems
                 var particleVertex = new ParticleVertex
                 {
                     Position = particle.Position,
-                    Size = particle.Dead ? 0 : particle.Size
+                    Size = particle.Dead ? 0 : particle.Size,
+                    Color = particle.Color,
+                    Alpha = particle.Alpha,
+                    AngleZ = particle.AngleZ,
                 };
 
                 // Repeat vertices 4 times; in the vertex shader, these will be transformed
@@ -348,6 +471,9 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             public Vector3 Position;
             public float Size;
+            public Vector3 Color;
+            public float Alpha;
+            public float AngleZ;
         }
     }
 
@@ -358,12 +484,12 @@ namespace OpenSage.Graphics.ParticleSystems
         Dead
     }
 
-    internal sealed class ParticleSystemColorKeyframe
+    internal sealed class ParticleColorKeyframe
     {
         public int Time;
         public Vector3 Color;
 
-        public ParticleSystemColorKeyframe(RgbColorKeyframe keyframe)
+        public ParticleColorKeyframe(RgbColorKeyframe keyframe)
         {
             Time = keyframe.Time;
             Color = keyframe.Color.ToVector3();

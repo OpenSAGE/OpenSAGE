@@ -70,7 +70,7 @@ namespace LLGfx
                 commandList.ClearDepthStencilView(
                     depthStencilBufferCpuDescriptorHandle.Value,
                     ClearFlags.FlagsDepth,
-                    1.0f,
+                    _depthStencilBuffer.ClearValue,
                     0);
             }
         }

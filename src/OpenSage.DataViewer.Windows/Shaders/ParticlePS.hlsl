@@ -5,9 +5,15 @@ SamplerState LinearSampler : register(s0);
 
 float4 main(PSInput input) : SV_TARGET
 {
-    return ParticleTexture.Sample(
+    float4 texColor = ParticleTexture.Sample(
         LinearSampler, 
         input.TexCoords);
+
+    texColor.rgb *= input.Color;
+
+    texColor.a *= input.Alpha;
+
+    return texColor;
 
     // TODO: Alpha test
 }

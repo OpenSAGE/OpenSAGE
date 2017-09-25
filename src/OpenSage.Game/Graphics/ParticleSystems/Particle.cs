@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
+using OpenSage.Data.Ini;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
@@ -23,5 +25,21 @@ namespace OpenSage.Graphics.ParticleSystems
         public bool Dead;
 
         public float ColorScale;
+        public Vector3 Color;
+
+        public List<ParticleAlphaKeyframe> AlphaKeyframes;
+        public float Alpha;
+    }
+
+    internal sealed class ParticleAlphaKeyframe
+    {
+        public int Time;
+        public float Alpha;
+
+        public ParticleAlphaKeyframe(RandomAlphaKeyframe keyframe)
+        {
+            Time = keyframe.Time;
+            Alpha = ParticleSystemUtility.GetRandomFloat(keyframe.Low, keyframe.High);
+        }
     }
 }

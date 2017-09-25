@@ -1,8 +1,6 @@
 ﻿using System.Numerics;
-using Caliburn.Micro;
 using LLGfx;
 using OpenSage.Content;
-using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.DataViewer.Framework;
 using OpenSage.Graphics;
@@ -10,7 +8,7 @@ using OpenSage.Graphics.ParticleSystems;
 
 namespace OpenSage.DataViewer.ViewModels.Ini
 {
-    public sealed class ParticleSystemIniEntryViewModel : FileSubObjectViewModel
+    public sealed class ParticleSystemIniEntryViewModel : FileSubObjectViewModel, IRenderableViewModel
     {
         private readonly ParticleSystemDefinition _definition;
 
@@ -19,11 +17,15 @@ namespace OpenSage.DataViewer.ViewModels.Ini
 
         private ParticleSystem _particleSystem;
 
-        private DepthStencilBuffer _depthStencilBuffer;
+        private readonly GameTimer _gameTimer;
 
         private readonly Camera _camera;
 
         public ArcballCameraController CameraController { get; }
+
+        CameraController IRenderableViewModel.CameraController => CameraController;
+
+        void IRenderableViewModel.OnMouseMove(int x, int y) { }
 
         public override string GroupName => "Particle Systems";
 
@@ -44,57 +46,30 @@ namespace OpenSage.DataViewer.ViewModels.Ini
             _camera.FieldOfView = 70;
 
             CameraController = new ArcballCameraController(_camera);
-            CameraController.Reset(Vector3.Zero, 30);
+            CameraController.Reset(Vector3.Zero, 200);
+
+            _gameTimer = new GameTimer();
+            _gameTimer.Start();
         }
 
-        private void EnsureDepthStencilBuffer(GraphicsDevice graphicsDevice, SwapChain swapChain)
+        public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain, RenderPassDescriptor renderPassDescriptor)
         {
-            if (_depthStencilBuffer != null
-                && _depthStencilBuffer.Width == swapChain.BackBufferWidth
-                && _depthStencilBuffer.Height == swapChain.BackBufferHeight)
-            {
+            if (_particleSystem == null)
                 return;
-            }
 
-            if (_depthStencilBuffer != null)
-            {
-                _depthStencilBuffer.Dispose();
-                _depthStencilBuffer = null;
-            }
+            _gameTimer.Update();
 
-            // TODO: This is not disposed.
-            _depthStencilBuffer = new DepthStencilBuffer(
-                graphicsDevice,
-                swapChain.BackBufferWidth,
-                swapChain.BackBufferHeight);
+            _particleSystemManager.Update(_gameTimer.CurrentGameTime);
+
+            var commandBuffer = graphicsDevice.CommandQueue.GetCommandBuffer();
+
+            var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
 
             _camera.Viewport = new Viewport(
                 0,
                 0,
                 swapChain.BackBufferWidth,
                 swapChain.BackBufferHeight);
-        }
-
-        public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
-        {
-            if (_particleSystem == null)
-                return;
-
-            _particleSystemManager.Update();
-
-            var renderPassDescriptor = new RenderPassDescriptor();
-            renderPassDescriptor.SetRenderTargetDescriptor(
-                swapChain.GetNextRenderTarget(),
-                LoadAction.Clear,
-                new ColorRgba(0.5f, 0.5f, 0.5f, 1));
-
-            EnsureDepthStencilBuffer(graphicsDevice, swapChain);
-
-            renderPassDescriptor.SetDepthStencilDescriptor(_depthStencilBuffer);
-
-            var commandBuffer = graphicsDevice.CommandQueue.GetCommandBuffer();
-
-            var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
 
             commandEncoder.SetViewport(_camera.Viewport);
 
@@ -109,6 +84,8 @@ namespace OpenSage.DataViewer.ViewModels.Ini
         {
             _particleSystem = new ParticleSystem(_definition, _contentManager);
             _particleSystemManager.Add(_particleSystem);
+
+            _gameTimer.Reset();
         }
 
         public override void Deactivate()

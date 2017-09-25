@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:graphics="clr-namespace:LLGfx.Hosting;assembly=LLGfx"
+             xmlns:controls="clr-namespace:OpenSage.DataViewer.Framework.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
@@ -21,18 +21,7 @@
                           Margin="10 0 0 0"/>
             </ToolBar>
         </ToolBarTray>
-        <graphics:GraphicsDeviceControl x:Name="GraphicsDeviceControl" 
-                                        Grid.Row="1"
-                                        RedrawsOnTimer="True"
-                                        GraphicsInitialize="OnGraphicsInitialize"
-                                        GraphicsDraw="OnGraphicsDraw"
-                                        HwndLButtonDown="OnHwndLButtonDown"
-                                        HwndLButtonUp="OnHwndLButtonUp"
-                                        HwndMButtonDown="OnHwndMButtonDown"
-                                        HwndMButtonUp="OnHwndMButtonUp"
-                                        HwndRButtonDown="OnHwndRButtonDown"
-                                        HwndRButtonUp="OnHwndRButtonUp"
-                                        HwndMouseMove="OnHwndMouseMove"/>
+        <controls:RenderableControl Grid.Row="1" />
         <StatusBar Grid.Row="2">
             <StatusBarItem DockPanel.Dock="Right" 
                            Content="{Binding FrameTime}" />

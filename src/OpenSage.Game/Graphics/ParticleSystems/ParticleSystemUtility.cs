@@ -14,7 +14,8 @@ namespace OpenSage.Graphics.ParticleSystems
             return GetRandomFloat(new RandomVariable
             {
                 Low = min,
-                High = max
+                High = max,
+                DistributionType = DistributionType.Uniform
             });
         }
 
