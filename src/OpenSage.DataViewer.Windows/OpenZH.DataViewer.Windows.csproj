@@ -72,6 +72,9 @@
     <Compile Include="Views\IniFileContentView.xaml.cs">
       <DependentUpon>IniFileContentView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Ini\ObjectDefinitionIniEntryView.xaml.cs">
+      <DependentUpon>ObjectDefinitionIniEntryView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Ini\ParticleSystemIniEntryView.xaml.cs">
       <DependentUpon>ParticleSystemIniEntryView.xaml</DependentUpon>
     </Compile>
@@ -101,6 +104,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\IniFileContentView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Ini\ObjectDefinitionIniEntryView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

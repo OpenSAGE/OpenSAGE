@@ -1,12 +1,8 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
-using OpenSage.Content;
-using OpenSage.Data;
-using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
@@ -19,8 +15,6 @@ namespace OpenSage.Terrain
     public sealed class Terrain : GraphicsObject
     {
         public const int PatchSize = 17;
-
-        private readonly List<TerrainTexture> _terrainTextures;
 
         private readonly TerrainEffect _terrainEffect;
 
@@ -36,14 +30,9 @@ namespace OpenSage.Terrain
 
         public bool RenderWireframeOverlay { get; set; }
 
-        public Terrain(
-            MapFile mapFile,
-            GraphicsDevice graphicsDevice,
-            FileSystem fileSystem,
-            IniDataContext iniDataContext,
-            ContentManager contentManager)
+        public Terrain(MapFile mapFile, GameContext gameContext)
         {
-            _terrainEffect = AddDisposable(new TerrainEffect(graphicsDevice, mapFile.BlendTileData.Textures.Length));
+            _terrainEffect = AddDisposable(new TerrainEffect(gameContext.GraphicsDevice, mapFile.BlendTileData.Textures.Length));
 
             _pipelineStateSolid = new EffectPipelineState(
                 RasterizerStateDescription.CullBackSolid,
@@ -57,11 +46,9 @@ namespace OpenSage.Terrain
                 BlendStateDescription.Opaque)
                 .GetHandle();
 
-            _terrainTextures = iniDataContext.TerrainTextures;
+            var indexBufferCache = AddDisposable(new TerrainPatchIndexBufferCache(gameContext.GraphicsDevice));
 
-            var indexBufferCache = AddDisposable(new TerrainPatchIndexBufferCache(graphicsDevice));
-
-            var uploadBatch = new ResourceUploadBatch(graphicsDevice);
+            var uploadBatch = new ResourceUploadBatch(gameContext.GraphicsDevice);
             uploadBatch.Begin();
 
             const int numTilesPerPatch = PatchSize - 1;
@@ -101,7 +88,7 @@ namespace OpenSage.Terrain
                         HeightMap,
                         mapFile.BlendTileData,
                         patchBounds,
-                        graphicsDevice,
+                        gameContext.GraphicsDevice,
                         uploadBatch,
                         indexBufferCache));
 
@@ -119,15 +106,12 @@ namespace OpenSage.Terrain
             }
 
             var (textures, textureDetails) = CreateTextures(
-                graphicsDevice,
+                gameContext,
                 uploadBatch,
-                mapFile.BlendTileData,
-                fileSystem,
-                _terrainTextures,
-                contentManager);
+                mapFile.BlendTileData);
 
             var textureDetailsBuffer = AddDisposable(StaticBuffer.Create(
-                graphicsDevice,
+                gameContext.GraphicsDevice,
                 uploadBatch,
                 textureDetails));
 
@@ -167,7 +151,7 @@ namespace OpenSage.Terrain
             byte[] textureIDsByteArray = new byte[tileData.Length * sizeof(uint)];
             System.Buffer.BlockCopy(tileData, 0, textureIDsByteArray, 0, tileData.Length * sizeof(uint));
             var tileDataTexture = AddDisposable(Texture.CreateTexture2D(
-                graphicsDevice,
+                gameContext.GraphicsDevice,
                 uploadBatch,
                 PixelFormat.Rgba32UInt,
                 HeightMap.Width,
@@ -198,17 +182,17 @@ namespace OpenSage.Terrain
 
             var cliffDetailsBuffer = cliffDetails.Length > 0
                 ? AddDisposable(StaticBuffer.Create(
-                    graphicsDevice,
+                    gameContext.GraphicsDevice,
                     uploadBatch,
                     cliffDetails))
                 : null;
 
             uploadBatch.End();
 
-            var tileDataTextureView = AddDisposable(ShaderResourceView.Create(graphicsDevice, tileDataTexture));
-            var cliffDetailsBufferView = AddDisposable(ShaderResourceView.Create(graphicsDevice, cliffDetailsBuffer));
-            var textureDetailsBufferView = AddDisposable(ShaderResourceView.Create(graphicsDevice, textureDetailsBuffer));
-            var texturesView = AddDisposable(ShaderResourceView.Create(graphicsDevice, textures));
+            var tileDataTextureView = AddDisposable(ShaderResourceView.Create(gameContext.GraphicsDevice, tileDataTexture));
+            var cliffDetailsBufferView = AddDisposable(ShaderResourceView.Create(gameContext.GraphicsDevice, cliffDetailsBuffer));
+            var textureDetailsBufferView = AddDisposable(ShaderResourceView.Create(gameContext.GraphicsDevice, textureDetailsBuffer));
+            var texturesView = AddDisposable(ShaderResourceView.Create(gameContext.GraphicsDevice, textures));
 
             _terrainEffect.SetTileData(tileDataTextureView);
             _terrainEffect.SetCliffDetails(cliffDetailsBufferView);
@@ -251,12 +235,9 @@ namespace OpenSage.Terrain
         }
 
         private static (Texture[], TextureInfo[]) CreateTextures(
-            GraphicsDevice graphicsDevice,
+            GameContext gameContext,
             ResourceUploadBatch uploadBatch,
-            BlendTileData blendTileData,
-            FileSystem fileSystem,
-            List<TerrainTexture> terrainTextures,
-            ContentManager contentManager)
+            BlendTileData blendTileData)
         {
             var numTextures = blendTileData.Textures.Length;
 
@@ -266,10 +247,10 @@ namespace OpenSage.Terrain
             {
                 var mapTexture = blendTileData.Textures[i];
 
-                var terrainType = terrainTextures.First(x => x.Name == mapTexture.Name);
+                var terrainType = gameContext.IniDataContext.TerrainTextures.First(x => x.Name == mapTexture.Name);
 
                 var texturePath = Path.Combine("Art", "Terrain", terrainType.Texture);
-                textures[i] = contentManager.Load<Texture>(texturePath, uploadBatch);
+                textures[i] = gameContext.ContentManager.Load<Texture>(texturePath, uploadBatch);
 
                 textureDetails[i] = new TextureInfo
                 {

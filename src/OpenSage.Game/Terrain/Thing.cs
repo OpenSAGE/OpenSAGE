@@ -1,15 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using LLGfx;
-using OpenSage.Content;
-using OpenSage.Data;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Map;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
-using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Logic.Object;
-using OpenSage.Terrain.Util;
 
 namespace OpenSage.Terrain
 {
@@ -19,6 +15,25 @@ namespace OpenSage.Terrain
 
         public Vector3 Position { get; set; }
         public float Angle { get; set; }
+
+        public IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates => _drawables
+            .SelectMany(x => x.ModelConditionStates)
+            .Distinct(new BitArrayEqualityComparer<ModelConditionFlag>())
+            .OrderBy(x => x.NumBitsSet);
+
+        public BitArray<ModelConditionFlag> ModelConditionFlags { get; private set; }
+
+        public void SetModelConditionFlags(BitArray<ModelConditionFlag> flags)
+        {
+            ModelConditionFlags = flags;
+
+            // TODO: Let each drawable use the appropriate TransitionState between ConditionStates.
+
+            foreach (var drawable in _drawables)
+            {
+                drawable.UpdateConditionState(flags);
+            }
+        }
 
         private BitArray<ModelConditionFlag> _modelCondition;
         public BitArray<ModelConditionFlag> ModelCondition
@@ -30,27 +45,20 @@ namespace OpenSage.Terrain
 
                 foreach (var drawable in _drawables)
                 {
-                    drawable.OnModelConditionStateChanged(value);
+                    drawable.UpdateConditionState(value);
                 }
             }
         }
 
         public Thing(
-            MapObject mapObject,
-            HeightMap heightMap,
             ObjectDefinition objectDefinition,
-            FileSystem fileSystem,
-            ContentManager contentManager,
-            ResourceUploadBatch uploadBatch,
-            GraphicsDevice graphicsDevice,
-            IniDataContext iniDataContext,
-            ParticleSystemManager particleSystemManager)
+            Vector3 position,
+            float angle,
+            GameContext gameContext,
+            ResourceUploadBatch uploadBatch)
         {
-            var position = mapObject.Position.ToVector3();
-            position.Z = heightMap.GetHeight(mapObject.Position.X, mapObject.Position.Y);
             Position = position;
-
-            Angle = mapObject.Angle;
+            Angle = angle;
 
             _drawables = new List<Drawable>();
 
@@ -61,11 +69,8 @@ namespace OpenSage.Terrain
                     case W3dModelDrawModuleData modelDrawData:
                         _drawables.Add(AddDisposable(new W3dModelDraw(
                             modelDrawData,
-                            fileSystem,
-                            contentManager,
-                            uploadBatch,
-                            iniDataContext,
-                            particleSystemManager)));
+                            gameContext,
+                            uploadBatch)));
                         break;
                 }
             }

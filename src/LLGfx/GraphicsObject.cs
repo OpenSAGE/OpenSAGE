@@ -5,30 +5,43 @@ namespace LLGfx
 {
     public abstract class GraphicsObject : IDisposable
     {
-        private List<IDisposable> _disposables;
+        private readonly List<IDisposable> _disposables = new List<IDisposable>();
 
         protected T AddDisposable<T>(T disposable)
             where T : IDisposable
         {
-            if (_disposables == null)
+            _disposables.Add(disposable);
+            return disposable;
+        }
+
+        protected void AddDisposeAction(Action callback)
+        {
+            _disposables.Add(new ActionDisposable(callback));
+        }
+
+        private sealed class ActionDisposable : IDisposable
+        {
+            private readonly Action _action;
+
+            public ActionDisposable(Action action)
             {
-                _disposables = new List<IDisposable>();
+                _action = action;
             }
 
-            _disposables.Add(disposable);
-
-            return disposable;
+            public void Dispose()
+            {
+                _action();
+            }
         }
 
         public void Dispose()
         {
-            if (_disposables != null)
+            _disposables.Reverse();
+            foreach (var disposable in _disposables)
             {
-                foreach (var disposable in _disposables)
-                {
-                    disposable.Dispose();
-                }
+                disposable.Dispose();
             }
+            _disposables.Clear();
 
             Dispose(true);
         }

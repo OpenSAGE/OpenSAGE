@@ -105,12 +105,14 @@ namespace OpenSage.DataViewer.ViewModels
         {
             var graphicsDevice = IoC.Get<GraphicsDeviceManager>().GraphicsDevice;
 
+            var gameContext = AddDisposable(new GameContext(
+                file.FileSystem, graphicsDevice));
+
             var mapFile = MapFile.FromFileSystemEntry(file);
 
             _map = AddDisposable(new Map(
                 mapFile,
-                File.FileSystem,
-                graphicsDevice));
+                gameContext));
 
             _camera = new Camera();
             _camera.FieldOfView = 70;

@@ -33,12 +33,11 @@ namespace OpenSage.DataViewer.ViewModels.Ini
 
         public ParticleSystemIniEntryViewModel(
             ParticleSystemDefinition definition,
-            ParticleSystemManager particleSystemManager,
             ContentManager contentManager)
         {
             _definition = definition;
 
-            _particleSystemManager = particleSystemManager;
+            _particleSystemManager = AddDisposable(new ParticleSystemManager(contentManager.GraphicsDevice));
 
             _contentManager = contentManager;
 

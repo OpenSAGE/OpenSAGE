@@ -11,7 +11,9 @@ namespace OpenSage.Logic.Object
 {
     public abstract class Drawable : GraphicsObject
     {
-        public virtual void OnModelConditionStateChanged(BitArray<ModelConditionFlag> state)
+        public abstract IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; }
+
+        public virtual void UpdateConditionState(BitArray<ModelConditionFlag> flags)
         {
 
         }

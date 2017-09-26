@@ -45,7 +45,7 @@ namespace OpenSage.DataViewer.Framework.Controls
             renderPassDescriptor.SetRenderTargetDescriptor(
                 SwapChain.GetNextRenderTarget(),
                 LoadAction.Clear,
-                new ColorRgba(0.9f, 0.9f, 0.9f, 1));
+                new ColorRgba(0.6f, 0.6f, 0.6f, 1));
 
             renderPassDescriptor.SetDepthStencilDescriptor(_depthStencilBuffer);
 

@@ -13,8 +13,8 @@ struct VSInput
 
 struct ParticleTransformConstants
 {
-    row_major matrix WorldViewProjection;
     row_major matrix World;
+    row_major matrix ViewProjection;
     float3 CameraPosition;
 };
 
@@ -33,13 +33,13 @@ float4 ComputePosition(float3 particlePosition, float size, float angle, float2 
     float3 particlePosWS = mul(float4(particlePosition, 1), TransformCB.World).xyz;
 
     float3 toEye = normalize(TransformCB.CameraPosition - particlePosWS);
-    float3 up    = { cos(angle), 0, sin(angle) };
+    float3 up = { cos(angle), 0, sin(angle) };
     float3 right = cross(toEye, up);
     up = cross(toEye, right);
 
-    particlePosition += (right * size * quadPosition.x) + (up * size * quadPosition.y);
+    particlePosWS += (right * size * quadPosition.x) + (up * size * quadPosition.y);
 
-    return mul(float4(particlePosition, 1), TransformCB.WorldViewProjection);
+    return mul(float4(particlePosWS, 1), TransformCB.ViewProjection);
 }
 
 PSInput main(VSInput input)

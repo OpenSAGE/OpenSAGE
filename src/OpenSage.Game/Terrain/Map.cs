@@ -1,20 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using LLGfx;
-using OpenSage.Content;
-using OpenSage.Data;
-using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
-using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Terrain.Util;
 
 namespace OpenSage.Terrain
 {
     public sealed class Map : GraphicsObject
     {
+        private readonly GameContext _gameContext;
+
         private readonly Terrain _terrain;
 
         private readonly Dictionary<TimeOfDay, Lights> _lightConfigurations;
@@ -27,8 +24,6 @@ namespace OpenSage.Terrain
         private readonly List<Thing> _things;
         private readonly List<Road> _roads;
 
-        private readonly ParticleSystemManager _particleSystemManager;
-
         private TimeOfDay _currentTimeOfDay;
         public TimeOfDay CurrentTimeOfDay
         {
@@ -40,11 +35,10 @@ namespace OpenSage.Terrain
             }
         }
 
-        public Map(
-            MapFile mapFile, 
-            FileSystem fileSystem,
-            GraphicsDevice graphicsDevice)
+        public Map(MapFile mapFile, GameContext gameContext)
         {
+            _gameContext = gameContext;
+
             _lightConfigurations = new Dictionary<TimeOfDay, Lights>();
             foreach (var kvp in mapFile.GlobalLighting.LightingConfigurations)
             {
@@ -53,31 +47,14 @@ namespace OpenSage.Terrain
 
             CurrentTimeOfDay = mapFile.GlobalLighting.Time;
 
-            var iniDataContext = new IniDataContext();
-            iniDataContext.LoadIniFile(fileSystem.GetFile(@"Data\INI\Terrain.ini"));
-            iniDataContext.LoadIniFile(fileSystem.GetFile(@"Data\INI\ParticleSystem.ini"));
-            foreach (var iniFile in fileSystem.GetFiles(@"Data\INI\Object"))
-            {
-                iniDataContext.LoadIniFile(iniFile);
-            }
-
-            var contentManager = AddDisposable(new ContentManager(fileSystem, graphicsDevice));
-
-            var uploadBatch = new ResourceUploadBatch(graphicsDevice);
+            var uploadBatch = new ResourceUploadBatch(gameContext.GraphicsDevice);
             uploadBatch.Begin();
 
-            _terrain = AddDisposable(new Terrain(
-                mapFile, 
-                graphicsDevice,
-                fileSystem,
-                iniDataContext,
-                contentManager));
+            _terrain = AddDisposable(new Terrain(mapFile, gameContext));
 
             uploadBatch.End();
 
-            _meshEffect = AddDisposable(new MeshEffect(graphicsDevice));
-
-            _particleSystemManager = AddDisposable(new ParticleSystemManager(graphicsDevice));
+            _meshEffect = AddDisposable(new MeshEffect(gameContext.GraphicsDevice));
 
             _things = new List<Thing>();
             _roads = new List<Road>();
@@ -89,19 +66,18 @@ namespace OpenSage.Terrain
                 switch (mapObject.RoadType)
                 {
                     case RoadType.None:
-                        var objectDefinition = iniDataContext.Objects.FirstOrDefault(x => x.Name == mapObject.TypeName);
+                        var objectDefinition = gameContext.IniDataContext.Objects.FirstOrDefault(x => x.Name == mapObject.TypeName);
                         if (objectDefinition != null)
                         {
+                            var position = mapObject.Position.ToVector3();
+                            position.Z = _terrain.HeightMap.GetHeight(position.X, position.Y);
+
                             _things.Add(AddDisposable(new Thing(
-                                mapObject,
-                                _terrain.HeightMap,
                                 objectDefinition,
-                                fileSystem,
-                                contentManager,
-                                uploadBatch,
-                                graphicsDevice,
-                                iniDataContext,
-                                _particleSystemManager)));
+                                position,
+                                mapObject.Angle,
+                                gameContext,
+                                uploadBatch)));
                         }
                         break;
 
@@ -121,7 +97,7 @@ namespace OpenSage.Terrain
                 thing.Update(gameTime);
             }
 
-            _particleSystemManager.Update(gameTime);
+            _gameContext.ParticleSystemManager.Update(gameTime);
         }
 
         public void Draw(
@@ -145,7 +121,7 @@ namespace OpenSage.Terrain
                     camera);
             }
 
-            _particleSystemManager.Draw(
+            _gameContext.ParticleSystemManager.Draw(
                 commandEncoder, 
                 camera);
         }
