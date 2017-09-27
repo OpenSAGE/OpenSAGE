@@ -129,8 +129,8 @@ namespace OpenSage.Graphics
             var x = screenPoint.X;
             var y = screenPoint.Y;
 
-            var pos1 = _viewport.Unproject(new Vector3(x, y, 0), ref _projectionMatrix, ref view, ref world);
-            var pos2 = _viewport.Unproject(new Vector3(x, y, 1), ref _projectionMatrix, ref view, ref world);
+            var pos1 = _viewport.Unproject(new Vector3(x, y, 0), _projectionMatrix, view, world);
+            var pos2 = _viewport.Unproject(new Vector3(x, y, 1), _projectionMatrix, view, world);
             var dir = Vector3.Normalize(pos2 - pos1);
 
             return new Ray(pos1, dir);

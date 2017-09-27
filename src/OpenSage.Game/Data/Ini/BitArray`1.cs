@@ -18,6 +18,7 @@ namespace OpenSage.Data.Ini
         }
     }
 
+    // TODO: Don't use .NET's BitArray as the internal implementation.
     public sealed class BitArray<TEnum>
         where TEnum : struct
     {

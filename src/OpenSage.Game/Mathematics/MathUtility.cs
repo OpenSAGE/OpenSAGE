@@ -5,6 +5,7 @@ namespace OpenSage.Mathematics
     public static class MathUtility
     {
         public static readonly float Pi = (float) Math.PI;
+        public static readonly float PiOver2 = Pi / 2;
         public static readonly float TwoPi = Pi * 2;
 
         public static float Sqrt(float v) => (float) Math.Sqrt(v);
@@ -27,9 +28,43 @@ namespace OpenSage.Mathematics
 
         public static float Sin(float f) => (float) Math.Sin(f);
 
+        /// <summary>
+        /// Returns the angle whose tangent is the quotient of the two specified numbers.
+        /// </summary>
+        public static float Atan2(float y, float x)
+        {
+            return (float) Math.Atan2(y, x);
+        }
+
+        /// <summary>
+        /// Returns the angle whose sine is the specified number.
+        /// </summary>
+        public static float Asin(float a)
+        {
+            return (float) Math.Asin(a);
+        }
+
         public static float Lerp(float x, float y, float s)
         {
             return x + s * (y - x);
+        }
+
+        public static float ToRadians(float degrees)
+        {
+            return (degrees * Pi / 180);
+        }
+
+        internal static int NextPowerOfTwo(int value)
+        {
+            value--;
+            value |= value >> 1;
+            value |= value >> 2;
+            value |= value >> 4;
+            value |= value >> 8;
+            value |= value >> 16;
+            value++;
+
+            return value;
         }
     }
 }

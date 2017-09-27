@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using LLGfx;
 using OpenSage.Data;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Content
 {
@@ -13,6 +14,8 @@ namespace OpenSage.Content
         private readonly Dictionary<string, object> _cachedObjects;
 
         private readonly FileSystem _fileSystem;
+
+        private readonly Dictionary<Type, Effect> _effects;
 
         public GraphicsDevice GraphicsDevice { get; }
 
@@ -30,6 +33,17 @@ namespace OpenSage.Content
             };
 
             _cachedObjects = new Dictionary<string, object>();
+
+            _effects = new Dictionary<Type, Effect>
+            {
+                { typeof(SpriteEffect), AddDisposable(new SpriteEffect(graphicsDevice)) }
+            };
+        }
+
+        public T GetEffect<T>()
+            where T : Effect
+        {
+            return (T) _effects[typeof(T)];
         }
 
         public T Load<T>(

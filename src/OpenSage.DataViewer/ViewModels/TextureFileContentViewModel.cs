@@ -1,33 +1,35 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Caliburn.Micro;
 using LLGfx;
 using OpenSage.Content;
 using OpenSage.Data;
+using OpenSage.DataViewer.Framework;
+using OpenSage.Graphics;
+using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Effects;
 
 namespace OpenSage.DataViewer.ViewModels
 {
     public sealed class TextureFileContentViewModel : FileContentViewModel
     {
-        private SpriteEffect _spriteEffect;
-        private Texture _texture;
-        private ShaderResourceView _textureView;
-        private EffectPipelineStateHandle _pipelineStateHandle;
+        private readonly Game _game;
+        private readonly SpriteComponent _spriteComponent;
+        private readonly Texture _texture;
 
-        public int TextureWidth => _texture?.Width ?? 0;
-        public int TextureHeight => _texture?.Height ?? 0;
+        public int TextureWidth => _texture.Width;
+        public int TextureHeight => _texture.Height;
 
         public IEnumerable<uint> MipMapLevels => Enumerable
-            .Range(0, _texture?.MipMapCount ?? 0)
+            .Range(0, _texture.MipMapCount)
             .Select(x => (uint) x);
 
-        private uint _selectedMipMapLevel;
         public uint SelectedMipMapLevel
         {
-            get { return _selectedMipMapLevel; }
+            get { return _spriteComponent.SelectedMipMapLevel; }
             set
             {
-                _selectedMipMapLevel = value;
+                _spriteComponent.SelectedMipMapLevel = value;
                 NotifyOfPropertyChange();
             }
         }
@@ -35,73 +37,84 @@ namespace OpenSage.DataViewer.ViewModels
         public TextureFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
-        }
+            _spriteComponent = new SpriteComponent();
 
-        public void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
-        {
-            var contentManager = AddDisposable(new ContentManager(File.FileSystem, graphicsDevice));
+            var graphicsDevice = IoC.Get<GraphicsDeviceManager>().GraphicsDevice;
 
-            _texture = AddDisposable(contentManager.Load<Texture>(
+            _game = new Game(graphicsDevice, File.FileSystem);
+
+            _texture = AddDisposable(_game.ContentManager.Load<Texture>(
                 File.FilePath,
-                uploadBatch: null, 
+                uploadBatch: null,
                 options: new TextureLoadOptions
                 {
                     GenerateMipMaps = false
                 }));
 
-            NotifyOfPropertyChange(nameof(TextureWidth));
-            NotifyOfPropertyChange(nameof(TextureHeight));
-            NotifyOfPropertyChange(nameof(MipMapLevels));
+            _spriteComponent.TextureView = AddDisposable(ShaderResourceView.Create(graphicsDevice, _texture));
 
-            _spriteEffect = AddDisposable(new SpriteEffect(graphicsDevice));
+            var scene = new Scene();
 
-            _textureView = AddDisposable(ShaderResourceView.Create(graphicsDevice, _texture));
+            var entity = new Entity();
+            scene.Entities.Add(entity);
 
-            var rasterizerState = RasterizerStateDescription.CullBackSolid;
-            rasterizerState.IsFrontCounterClockwise = false;
+            entity.Components.Add(new PerspectiveCameraComponent
+            {
+                
+            });
 
-            _pipelineStateHandle = new EffectPipelineState(
-                rasterizerState,
-                DepthStencilStateDescription.None,
-                BlendStateDescription.Opaque)
-                .GetHandle();
+            entity.Components.Add(_spriteComponent);
+
+            _game.Scene = scene;
+        }
+
+        public void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
+        {
+            _game.Initialize(swapChain);
         }
 
         public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
-            var renderPassDescriptor = new RenderPassDescriptor();
-            renderPassDescriptor.SetRenderTargetDescriptor(
-                swapChain.GetNextRenderTarget(),
-                LoadAction.Clear,
-                new ColorRgba(0.5f, 0.5f, 0.5f, 1));
+            _game.Tick();
+        }
 
-            var commandBuffer = graphicsDevice.CommandQueue.GetCommandBuffer();
+        private sealed class SpriteComponent : RenderableComponent
+        {
+            private SpriteEffect _effect;
 
-            var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
+            private EffectPipelineStateHandle _pipelineStateHandle;
 
-            _spriteEffect.Begin(commandEncoder);
+            public ShaderResourceView TextureView { get; set; }
+            public uint SelectedMipMapLevel { get; set; }
 
-            _spriteEffect.SetPipelineState(_pipelineStateHandle);
-            _spriteEffect.SetTexture(_textureView);
-            _spriteEffect.SetMipMapLevel(_selectedMipMapLevel);
-
-            _spriteEffect.Apply(commandEncoder);
-
-            commandEncoder.SetViewport(new Viewport
+            protected override void Start()
             {
-                X = 0,
-                Y = 0,
-                Width = swapChain.BackBufferWidth,
-                Height = swapChain.BackBufferHeight,
-                MinDepth = 0,
-                MaxDepth = 1
-            });
+                base.Start();
 
-            commandEncoder.Draw(PrimitiveType.TriangleList, 0, 3);
+                _effect = ContentManager.GetEffect<SpriteEffect>();
 
-            commandEncoder.Close();
+                var rasterizerState = RasterizerStateDescription.CullBackSolid;
+                rasterizerState.IsFrontCounterClockwise = false;
 
-            commandBuffer.CommitAndPresent(swapChain);
+                _pipelineStateHandle = new EffectPipelineState(
+                    rasterizerState,
+                    DepthStencilStateDescription.None,
+                    BlendStateDescription.Opaque)
+                    .GetHandle();
+            }
+
+            protected override void Render(CommandEncoder commandEncoder)
+            {
+                _effect.Begin(commandEncoder);
+
+                _effect.SetPipelineState(_pipelineStateHandle);
+                _effect.SetTexture(TextureView);
+                _effect.SetMipMapLevel(SelectedMipMapLevel);
+
+                _effect.Apply(commandEncoder);
+
+                commandEncoder.Draw(PrimitiveType.TriangleList, 0, 3);
+            }
         }
     }
 }
