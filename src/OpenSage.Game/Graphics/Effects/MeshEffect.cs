@@ -2,11 +2,10 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
-using OpenSage.Graphics.Util;
 
 namespace OpenSage.Graphics.Effects
 {
-    public sealed class MeshEffect : Effect
+    public sealed class MeshEffect : Effect, IEffectMatrices, IEffectLights, IEffectTime
     {
         public const int MaxTextures = 32;
 
@@ -30,10 +29,10 @@ namespace OpenSage.Graphics.Effects
         private Matrix4x4 _view;
         private Matrix4x4 _projection;
 
-        private ShaderResourceView _materialsBuffer;
-        private ShaderResourceView _textures;
-        private ShaderResourceView _textureIndicesBuffer;
-        private ShaderResourceView _materialIndicesBuffer;
+        private StaticBuffer<VertexMaterial> _materialsBuffer;
+        private TextureSet _textures;
+        private StaticBuffer<MeshTextureIndex> _textureIndicesBuffer;
+        private StaticBuffer<uint> _materialIndicesBuffer;
 
         [Flags]
         private enum MeshEffectDirtyFlags
@@ -216,25 +215,25 @@ namespace OpenSage.Graphics.Effects
 
             if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.MaterialsBuffer))
             {
-                commandEncoder.SetShaderResourceView(6, _materialsBuffer);
+                commandEncoder.SetStaticBuffer(6, _materialsBuffer);
                 _dirtyFlags &= ~MeshEffectDirtyFlags.MaterialsBuffer;
             }
 
             if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.Textures))
             {
-                commandEncoder.SetShaderResourceView(7, _textures);
+                commandEncoder.SetTextureSet(7, _textures);
                 _dirtyFlags &= ~MeshEffectDirtyFlags.Textures;
             }
 
             if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.TextureIndicesBuffer))
             {
-                commandEncoder.SetShaderResourceView(5, _textureIndicesBuffer);
+                commandEncoder.SetStaticBuffer(5, _textureIndicesBuffer);
                 _dirtyFlags &= ~MeshEffectDirtyFlags.TextureIndicesBuffer;
             }
 
             if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.MaterialIndicesBuffer))
             {
-                commandEncoder.SetShaderResourceView(4, _materialIndicesBuffer);
+                commandEncoder.SetStaticBuffer(4, _materialIndicesBuffer);
                 _dirtyFlags &= ~MeshEffectDirtyFlags.MaterialIndicesBuffer;
             }
         }
@@ -251,7 +250,7 @@ namespace OpenSage.Graphics.Effects
             _dirtyFlags |= MeshEffectDirtyFlags.TransformConstants;
         }
 
-        public void SetWorld(ref Matrix4x4 matrix)
+        public void SetWorld(Matrix4x4 matrix)
         {
             _world = matrix;
             _dirtyFlags |= MeshEffectDirtyFlags.TransformConstants;
@@ -276,25 +275,25 @@ namespace OpenSage.Graphics.Effects
             _dirtyFlags |= MeshEffectDirtyFlags.LightingConstants;
         }
 
-        public void SetMaterials(ShaderResourceView materialsBuffer)
+        public void SetMaterials(StaticBuffer<VertexMaterial> materialsBuffer)
         {
             _materialsBuffer = materialsBuffer;
             _dirtyFlags |= MeshEffectDirtyFlags.MaterialsBuffer;
         }
 
-        public void SetTextures(ShaderResourceView textures)
+        public void SetTextures(TextureSet textures)
         {
             _textures = textures;
             _dirtyFlags |= MeshEffectDirtyFlags.Textures;
         }
 
-        public void SetTextureIndices(ShaderResourceView textureIndicesBuffer)
+        public void SetTextureIndices(StaticBuffer<MeshTextureIndex> textureIndicesBuffer)
         {
             _textureIndicesBuffer = textureIndicesBuffer;
             _dirtyFlags |= MeshEffectDirtyFlags.TextureIndicesBuffer;
         }
 
-        public void SetMaterialIndices(ShaderResourceView materialIndicesBuffer)
+        public void SetMaterialIndices(StaticBuffer<uint> materialIndicesBuffer)
         {
             _materialIndicesBuffer = materialIndicesBuffer;
             _dirtyFlags |= MeshEffectDirtyFlags.MaterialIndicesBuffer;

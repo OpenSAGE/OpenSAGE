@@ -8,6 +8,7 @@ using OpenSage.Data;
 using OpenSage.Data.W3d;
 using OpenSage.DataViewer.Framework;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Effects;
 using OpenSage.Mathematics;
 
@@ -17,18 +18,17 @@ namespace OpenSage.DataViewer.ViewModels
     {
         private readonly W3dFile _w3dFile;
 
-        private readonly MeshEffect _meshEffect;
-        private readonly ModelInstance _modelInstance;
+        private readonly Game _game;
 
         private readonly List<Animation> _externalAnimations;
 
-        private readonly GameTimer _gameTimer;
+        //private readonly GameTimer _gameTimer;
 
-        private readonly Camera _camera;
+        //private readonly Camera _camera;
 
-        public ArcballCameraController CameraController { get; }
+        public Graphics.Cameras.Controllers.ArcballCameraController CameraController { get; }
 
-        CameraController IRenderableViewModel.CameraController => CameraController;
+        Framework.CameraController IRenderableViewModel.CameraController => new Framework.ArcballCameraController(new Camera());
 
         void IRenderableViewModel.OnMouseMove(int x, int y) { }
 
@@ -36,6 +36,12 @@ namespace OpenSage.DataViewer.ViewModels
             : base(file)
         {
             _w3dFile = W3dFile.FromFileSystemEntry(file);
+
+            var graphicsDevice = IoC.Get<GraphicsDeviceManager>().GraphicsDevice;
+
+            _game = new Game(graphicsDevice, File.FileSystem);
+
+            var contentManager = AddDisposable(new ContentManager(File.FileSystem, graphicsDevice));
 
             // If this is a skin file, load "external" animations.
             _externalAnimations = new List<Animation>();
@@ -51,58 +57,57 @@ namespace OpenSage.DataViewer.ViewModels
                         continue;
                     }
 
-                    var animationFile = W3dFile.FromFileSystemEntry(animationFileEntry);
-                    foreach (var w3dAnimation in animationFile.Animations)
+                    var animationModel = contentManager.Load<Model>(animationFileEntry.FilePath, uploadBatch: null);
+                    foreach (var animation in animationModel.Animations)
                     {
-                        _externalAnimations.Add(new Animation(w3dAnimation));
-                    }
-                    foreach (var w3dAnimation in animationFile.CompressedAnimations)
-                    {
-                        _externalAnimations.Add(new Animation(w3dAnimation));
+                        _externalAnimations.Add(animation);
                     }
                 }
             }
 
-            _camera = new Camera();
-            _camera.FieldOfView = 70;
+            var scene = new Scene();
 
-            CameraController = new ArcballCameraController(_camera);
+            var entity = new Entity();
+            scene.Entities.Add(entity);
 
-            _gameTimer = new GameTimer();
-            _gameTimer.Start();
+            entity.Components.Add(new PerspectiveCameraComponent
+            {
+                FieldOfView = 70
+            });
 
-            var graphicsDevice = IoC.Get<GraphicsDeviceManager>().GraphicsDevice;
+            scene.Entities.Add(contentManager.Load<Entity>(File.FilePath, uploadBatch: null));
 
-            var contentManager = AddDisposable(new ContentManager(File.FileSystem, graphicsDevice));
+            _game.Scene = scene;
 
-            _meshEffect = AddDisposable(new MeshEffect(graphicsDevice));
+            CameraController = new Graphics.Cameras.Controllers.ArcballCameraController();
+            entity.Components.Add(CameraController);
 
-            _modelInstance = AddDisposable(new ModelInstance(contentManager.Load<Model>(File.FilePath, uploadBatch: null), graphicsDevice));
+            CameraController.Reset(Vector3.Zero, 200);
         }
 
         protected override IReadOnlyList<W3dItemViewModelBase> CreateSubObjects()
         {
             var result = new List<W3dItemViewModelBase>();
 
-            if (_modelInstance.Model.HasHierarchy)
-            {
-                result.Add(new ModelViewModel(_modelInstance));
+            //if (_modelInstance.Model.HasHierarchy)
+            //{
+            //    result.Add(new ModelViewModel(_modelInstance));
 
-                foreach (var animation in _modelInstance.Model.Animations)
-                {
-                    result.Add(new AnimationViewModel(_modelInstance, animation, "Animations"));
-                }
+            //    foreach (var animation in _modelInstance.Model.Animations)
+            //    {
+            //        result.Add(new AnimationViewModel(_modelInstance, animation, "Animations"));
+            //    }
 
-                foreach (var animation in _externalAnimations)
-                {
-                    result.Add(new AnimationViewModel(_modelInstance, animation, "External Animations"));
-                }
-            }
+            //    foreach (var animation in _externalAnimations)
+            //    {
+            //        result.Add(new AnimationViewModel(_modelInstance, animation, "External Animations"));
+            //    }
+            //}
 
-            foreach (var mesh in _modelInstance.Model.Meshes)
-            {
-                result.Add(new ModelMeshViewModel(mesh));
-            }
+            //foreach (var mesh in _modelInstance.Model.Meshes)
+            //{
+            //    result.Add(new ModelMeshViewModel(mesh));
+            //}
 
             return result;
         }
@@ -116,47 +121,31 @@ namespace OpenSage.DataViewer.ViewModels
                     subObject.BoundingSphere.Radius * 1.6f);
             }
 
-            _gameTimer.Reset();
+            //_gameTimer.Reset();
         }
+
+        private bool _initialized;
 
         public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain, RenderPassDescriptor renderPassDescriptor)
         {
-            _gameTimer.Update();
+            if (!_initialized)
+            {
+                _game.Initialize(swapChain);
+                _initialized = true;
+            }
 
-            SelectedSubObject?.Update(_gameTimer.CurrentGameTime);
+            //_gameTimer.Update();
 
-            var commandBuffer = graphicsDevice.CommandQueue.GetCommandBuffer();
+            //SelectedSubObject?.Update(_gameTimer.CurrentGameTime);
 
-            var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
+            _game.Tick();
 
-            _camera.Viewport = new Viewport(
-                0,
-                0,
-                swapChain.BackBufferWidth,
-                swapChain.BackBufferHeight);
-
-            commandEncoder.SetViewport(_camera.Viewport);
-
-            _meshEffect.Begin(commandEncoder);
-
-            var lights = new Lights();
-            lights.Light0.Ambient = new Vector3(0.3f, 0.3f, 0.3f);
-            lights.Light0.Direction = Vector3.Normalize(new Vector3(-0.3f, 0.2f, -0.8f));
-            lights.Light0.Color = new Vector3(0.7f, 0.7f, 0.8f);
-
-            _meshEffect.SetLights(ref lights);
-
-            var world = Matrix4x4.Identity;
-
-            SelectedSubObject?.Draw(
-                commandEncoder, 
-                _meshEffect,
-                _camera,
-                ref world);
-
-            commandEncoder.Close();
-
-            commandBuffer.CommitAndPresent(swapChain);
+            //SelectedSubObject?.Draw(
+            //    commandEncoder, 
+            //    _meshEffect,
+            //    _camera,
+            //    ref world,
+            //    _gameTimer.CurrentGameTime);
         }
     }
 
@@ -170,119 +159,127 @@ namespace OpenSage.DataViewer.ViewModels
             CommandEncoder commandEncoder,
             MeshEffect meshEffect,
             Camera camera,
-            ref Matrix4x4 world);
+            ref Matrix4x4 world,
+            GameTime gameTime);
     }
 
-    public sealed class ModelViewModel : W3dItemViewModelBase
-    {
-        private readonly ModelInstance _modelInstance;
+    //public sealed class ModelViewModel : W3dItemViewModelBase
+    //{
+    //    private readonly ModelInstance _modelInstance;
 
-        public override string GroupName => string.Empty;
+    //    public override string GroupName => string.Empty;
 
-        public override string Name => "Hierarchy";
+    //    public override string Name => "Hierarchy";
 
-        public override BoundingSphere BoundingSphere => _modelInstance.Model.BoundingSphere;
+    //    public override BoundingSphere BoundingSphere => _modelInstance.Model.BoundingSphere;
 
-        public ModelViewModel(ModelInstance modelInstance)
-        {
-            _modelInstance = modelInstance;
-        }
+    //    public ModelViewModel(ModelInstance modelInstance)
+    //    {
+    //        _modelInstance = modelInstance;
+    //    }
 
-        public override void Draw(
-            CommandEncoder commandEncoder,
-            MeshEffect meshEffect,
-            Camera camera,
-            ref Matrix4x4 world)
-        {
-            _modelInstance.Draw(
-                commandEncoder, 
-                meshEffect,
-                camera,
-                ref world);
-        }
-    }
+    //    public override void Draw(
+    //        CommandEncoder commandEncoder,
+    //        MeshEffect meshEffect,
+    //        Camera camera,
+    //        ref Matrix4x4 world,
+    //        GameTime gameTime)
+    //    {
+    //        _modelInstance.Draw(
+    //            commandEncoder, 
+    //            meshEffect,
+    //            camera,
+    //            ref world,
+    //            gameTime);
+    //    }
+    //}
 
-    public sealed class ModelMeshViewModel : W3dItemViewModelBase
-    {
-        private readonly ModelMesh _mesh;
+    //public sealed class ModelMeshViewModel : W3dItemViewModelBase
+    //{
+    //    private readonly ModelMesh _mesh;
 
-        public override string GroupName => "Meshes";
+    //    public override string GroupName => "Meshes";
 
-        public override string Name => _mesh.Name;
+    //    public override string Name => _mesh.Name;
 
-        public override BoundingSphere BoundingSphere => _mesh.BoundingSphere;
+    //    public override BoundingSphere BoundingSphere => _mesh.BoundingSphere;
 
-        public ModelMeshViewModel(ModelMesh mesh)
-        {
-            _mesh = mesh;
-        }
+    //    public ModelMeshViewModel(ModelMesh mesh)
+    //    {
+    //        _mesh = mesh;
+    //    }
 
-        public override void Draw(
-            CommandEncoder commandEncoder,
-            MeshEffect meshEffect,
-            Camera camera,
-            ref Matrix4x4 world)
-        {
-            _mesh.Draw(
-                commandEncoder,
-                meshEffect,
-                camera,
-                ref world,
-                false);
+    //    public override void Draw(
+    //        CommandEncoder commandEncoder,
+    //        MeshEffect meshEffect,
+    //        Camera camera,
+    //        ref Matrix4x4 world,
+    //        GameTime gameTime)
+    //    {
+    //        _mesh.Draw(
+    //            commandEncoder,
+    //            meshEffect,
+    //            camera,
+    //            ref world,
+    //            gameTime,
+    //            false);
 
-            _mesh.Draw(
-                commandEncoder,
-                meshEffect,
-                camera,
-                ref world,
-                true);
-        }
-    }
+    //        _mesh.Draw(
+    //            commandEncoder,
+    //            meshEffect,
+    //            camera,
+    //            ref world,
+    //            gameTime,
+    //            true);
+    //    }
+    //}
 
-    public sealed class AnimationViewModel : W3dItemViewModelBase
-    {
-        private readonly ModelInstance _modelInstance;
-        private readonly Animation _animation;
+    //public sealed class AnimationViewModel : W3dItemViewModelBase
+    //{
+    //    private readonly ModelInstance _modelInstance;
+    //    private readonly Animation _animation;
 
-        private readonly AnimationPlayer _animationPlayer;
+    //    private readonly AnimationPlayer _animationPlayer;
 
-        public override string GroupName { get; }
+    //    public override string GroupName { get; }
 
-        public override string Name => _animation.Name;
+    //    public override string Name => _animation.Name;
 
-        public override BoundingSphere BoundingSphere => _modelInstance.Model.BoundingSphere;
+    //    public override BoundingSphere BoundingSphere => _modelInstance.Model.BoundingSphere;
 
-        public AnimationViewModel(ModelInstance modelInstance, Animation animation, string groupName)
-        {
-            _modelInstance = modelInstance;
-            _animation = animation;
+    //    public AnimationViewModel(ModelInstance modelInstance, Animation animation, string groupName)
+    //    {
+    //        _modelInstance = modelInstance;
+    //        _animation = animation;
 
-            _animationPlayer = new AnimationPlayer(_animation, _modelInstance);
+    //        _animationPlayer = new AnimationPlayer(_animation, _modelInstance);
 
-            GroupName = groupName;
-        }
+    //        GroupName = groupName;
+    //    }
 
-        public override void Activate()
-        {
-            _animationPlayer.Start();
-        }
+    //    public override void Activate()
+    //    {
+    //        _animationPlayer.Start();
+    //    }
 
-        public override void Update(GameTime gameTime)
-        {
-            _animationPlayer.Update(gameTime);
-        }
+    //    public override void Update(GameTime gameTime)
+    //    {
+    //        _animationPlayer.Update(gameTime);
+    //    }
 
-        public override void Draw(
-            CommandEncoder commandEncoder,
-            MeshEffect meshEffect,
-            Camera camera,
-            ref Matrix4x4 world)
-        {
-            _modelInstance.Draw(
-                commandEncoder, 
-                meshEffect,
-                camera,
-                ref world);
-        }
-    }
+    //    public override void Draw(
+    //        CommandEncoder commandEncoder,
+    //        MeshEffect meshEffect,
+    //        Camera camera,
+    //        ref Matrix4x4 world,
+    //        GameTime gameTime)
+    //    {
+    //        _modelInstance.Draw(
+    //            commandEncoder, 
+    //            meshEffect,
+    //            camera,
+    //            ref world,
+    //            gameTime);
+    //    }
+    //}
 }

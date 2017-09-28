@@ -5,12 +5,12 @@ using LLGfx;
 
 namespace OpenSage.Graphics.Effects
 {
-    public sealed class ParticleEffect : Effect
+    public sealed class ParticleEffect : Effect, IEffectMatrices
     {
         private readonly DynamicBuffer<ParticleTransformConstants> _transformConstantBuffer;
         private ParticleTransformConstants _transformConstants;
 
-        private ShaderResourceView _texture;
+        private Texture _texture;
 
         private ParticleEffectDirtyFlags _dirtyFlags;
 
@@ -106,12 +106,12 @@ namespace OpenSage.Graphics.Effects
 
             if (_dirtyFlags.HasFlag(ParticleEffectDirtyFlags.Texture))
             {
-                commandEncoder.SetShaderResourceView(1, _texture);
+                commandEncoder.SetTexture(1, _texture);
                 _dirtyFlags &= ~ParticleEffectDirtyFlags.Texture;
             }
         }
 
-        public void SetWorld(ref Matrix4x4 matrix)
+        public void SetWorld(Matrix4x4 matrix)
         {
             _world = matrix;
             _dirtyFlags |= ParticleEffectDirtyFlags.TransformConstants;
@@ -129,7 +129,7 @@ namespace OpenSage.Graphics.Effects
             _dirtyFlags |= ParticleEffectDirtyFlags.TransformConstants;
         }
 
-        public void SetTexture(ShaderResourceView texture)
+        public void SetTexture(Texture texture)
         {
             _texture = texture;
             _dirtyFlags |= ParticleEffectDirtyFlags.Texture;

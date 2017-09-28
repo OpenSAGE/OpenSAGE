@@ -189,15 +189,12 @@ namespace OpenSage.Terrain
 
             uploadBatch.End();
 
-            var tileDataTextureView = AddDisposable(ShaderResourceView.Create(gameContext.GraphicsDevice, tileDataTexture));
-            var cliffDetailsBufferView = AddDisposable(ShaderResourceView.Create(gameContext.GraphicsDevice, cliffDetailsBuffer));
-            var textureDetailsBufferView = AddDisposable(ShaderResourceView.Create(gameContext.GraphicsDevice, textureDetailsBuffer));
-            var texturesView = AddDisposable(ShaderResourceView.Create(gameContext.GraphicsDevice, textures));
+            var textureSet = AddDisposable(new TextureSet(gameContext.GraphicsDevice, textures));
 
-            _terrainEffect.SetTileData(tileDataTextureView);
-            _terrainEffect.SetCliffDetails(cliffDetailsBufferView);
-            _terrainEffect.SetTextureDetails(textureDetailsBufferView);
-            _terrainEffect.SetTextures(texturesView);
+            _terrainEffect.SetTileData(tileDataTexture);
+            _terrainEffect.SetCliffDetails(cliffDetailsBuffer);
+            _terrainEffect.SetTextureDetails(textureDetailsBuffer);
+            _terrainEffect.SetTextures(textureSet);
         }
 
         private BlendData GetBlendData(MapFile mapFile, int x, int y, ushort blendIndex, byte baseTextureIndex)
@@ -258,21 +255,6 @@ namespace OpenSage.Terrain
                 };
             }
             return (textures, textureDetails);
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct TextureInfo
-        {
-            public uint CellSize;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct CliffInfo
-        {
-            public Vector2 BottomLeftUV;
-            public Vector2 BottomRightUV;
-            public Vector2 TopRightUV;
-            public Vector2 TopLeftUV;
         }
 
         public Vector3? Intersect(Ray ray)
@@ -352,5 +334,20 @@ namespace OpenSage.Terrain
                 }
             }
         }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct TextureInfo
+    {
+        public uint CellSize;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CliffInfo
+    {
+        public Vector2 BottomLeftUV;
+        public Vector2 BottomRightUV;
+        public Vector2 TopRightUV;
+        public Vector2 TopLeftUV;
     }
 }

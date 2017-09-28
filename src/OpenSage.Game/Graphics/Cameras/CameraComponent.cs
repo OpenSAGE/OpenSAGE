@@ -241,7 +241,7 @@ namespace OpenSage.Graphics.Cameras
             base.Destroy();
         }
 
-        internal void Render()
+        internal void Render(GameTime gameTime)
         {
             _renderContext.Game = Game;
             _renderContext.GraphicsDevice = GraphicsDevice;
@@ -250,6 +250,7 @@ namespace OpenSage.Graphics.Cameras
             _renderContext.Scene = Entity.Scene;
             _renderContext.SwapChain = Game.SwapChain;
             _renderContext.RenderTarget = Game.SwapChain.GetNextRenderTarget();
+            _renderContext.GameTime = gameTime;
 
             _renderPipeline.Execute(_renderContext);
         }

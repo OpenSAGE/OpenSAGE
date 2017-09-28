@@ -2,10 +2,11 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
+using OpenSage.Terrain;
 
 namespace OpenSage.Graphics.Effects
 {
-    public sealed class TerrainEffect : Effect
+    public sealed class TerrainEffect : Effect, IEffectMatrices, IEffectLights
     {
         private readonly DynamicBuffer<TransformConstants> _transformConstantBuffer;
         private TransformConstants _transformConstants;
@@ -19,10 +20,10 @@ namespace OpenSage.Graphics.Effects
         private Matrix4x4 _view;
         private Matrix4x4 _projection;
 
-        private ShaderResourceView _tileDataTexture;
-        private ShaderResourceView _cliffDetailsBuffer;
-        private ShaderResourceView _textureDetailsBuffer;
-        private ShaderResourceView _textures;
+        private Texture _tileDataTexture;
+        private StaticBuffer<CliffInfo> _cliffDetailsBuffer;
+        private StaticBuffer<TextureInfo> _textureDetailsBuffer;
+        private TextureSet _textures;
 
         [Flags]
         private enum TerrainEffectDirtyFlags
@@ -155,30 +156,30 @@ namespace OpenSage.Graphics.Effects
 
             if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.TileDataTexture))
             {
-                commandEncoder.SetShaderResourceView(2, _tileDataTexture);
+                commandEncoder.SetTexture(2, _tileDataTexture);
                 _dirtyFlags &= ~TerrainEffectDirtyFlags.TileDataTexture;
             }
 
             if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.CliffDetailsBuffer))
             {
-                commandEncoder.SetShaderResourceView(3, _cliffDetailsBuffer);
+                commandEncoder.SetStaticBuffer(3, _cliffDetailsBuffer);
                 _dirtyFlags &= ~TerrainEffectDirtyFlags.CliffDetailsBuffer;
             }
 
             if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.TextureDetailsBuffer))
             {
-                commandEncoder.SetShaderResourceView(4, _textureDetailsBuffer);
+                commandEncoder.SetStaticBuffer(4, _textureDetailsBuffer);
                 _dirtyFlags &= ~TerrainEffectDirtyFlags.TextureDetailsBuffer;
             }
 
             if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.Textures))
             {
-                commandEncoder.SetShaderResourceView(5, _textures);
+                commandEncoder.SetTextureSet(5, _textures);
                 _dirtyFlags &= ~TerrainEffectDirtyFlags.Textures;
             }
         }
 
-        public void SetWorld(ref Matrix4x4 matrix)
+        public void SetWorld(Matrix4x4 matrix)
         {
             _world = matrix;
             _dirtyFlags |= TerrainEffectDirtyFlags.TransformConstants;
@@ -203,25 +204,25 @@ namespace OpenSage.Graphics.Effects
             _dirtyFlags |= TerrainEffectDirtyFlags.LightingConstants;
         }
 
-        public void SetTileData(ShaderResourceView tileDataTexture)
+        public void SetTileData(Texture tileDataTexture)
         {
             _tileDataTexture = tileDataTexture;
             _dirtyFlags |= TerrainEffectDirtyFlags.TileDataTexture;
         }
 
-        public void SetCliffDetails(ShaderResourceView cliffDetailsBuffer)
+        public void SetCliffDetails(StaticBuffer<CliffInfo> cliffDetailsBuffer)
         {
             _cliffDetailsBuffer = cliffDetailsBuffer;
             _dirtyFlags |= TerrainEffectDirtyFlags.CliffDetailsBuffer;
         }
 
-        public void SetTextureDetails(ShaderResourceView textureDetailsBuffer)
+        public void SetTextureDetails(StaticBuffer<TextureInfo> textureDetailsBuffer)
         {
             _textureDetailsBuffer = textureDetailsBuffer;
             _dirtyFlags |= TerrainEffectDirtyFlags.TextureDetailsBuffer;
         }
 
-        public void SetTextures(ShaderResourceView textures)
+        public void SetTextures(TextureSet textures)
         {
             _textures = textures;
             _dirtyFlags |= TerrainEffectDirtyFlags.Textures;

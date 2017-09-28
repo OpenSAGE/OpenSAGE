@@ -29,6 +29,8 @@ namespace OpenSage
                     return;
                 }
 
+                // TODO: Also remove and add components from this hierarchy.
+
                 oldParent?.Children.Remove(this);
                 value?.Children.Add(this);
             }

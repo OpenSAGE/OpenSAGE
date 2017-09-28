@@ -95,7 +95,7 @@ namespace OpenSage.DataViewer.ViewModels.Ini
 
             _gameContext.MeshEffect.SetLights(ref lights);
 
-            _thing.Draw(commandEncoder, _gameContext.MeshEffect, _camera);
+            _thing.Draw(commandEncoder, _gameContext.MeshEffect, _camera, _gameTimer.CurrentGameTime);
 
             _gameContext.ParticleSystemManager.Draw(commandEncoder, _camera);
 

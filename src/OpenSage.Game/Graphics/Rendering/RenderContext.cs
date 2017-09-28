@@ -18,6 +18,8 @@ namespace OpenSage.Graphics.Rendering
 
         public RenderTarget RenderTarget { get; set; }
 
+        public GameTime GameTime { get; set; }
+
         //public IReadOnlyList<RenderableComponent> Renderables { get; private set; }
 
         //public Action<RenderEffectPassCollection, RenderableComponent> EffectParametersCallback { get; set; }

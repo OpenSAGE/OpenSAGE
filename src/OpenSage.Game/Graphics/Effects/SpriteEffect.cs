@@ -9,7 +9,7 @@ namespace OpenSage.Graphics.Effects
         private readonly DynamicBuffer<TextureConstants> _textureConstantBuffer;
         private TextureConstants _textureConstants;
 
-        private ShaderResourceView _texture;
+        private Texture _texture;
 
         private SpriteEffectDirtyFlags _dirtyFlags;
 
@@ -83,7 +83,7 @@ namespace OpenSage.Graphics.Effects
 
             if (_dirtyFlags.HasFlag(SpriteEffectDirtyFlags.Texture))
             {
-                commandEncoder.SetShaderResourceView(1, _texture);
+                commandEncoder.SetTexture(1, _texture);
                 _dirtyFlags &= ~SpriteEffectDirtyFlags.Texture;
             }
         }
@@ -94,7 +94,7 @@ namespace OpenSage.Graphics.Effects
             _dirtyFlags |= SpriteEffectDirtyFlags.TextureConstants;
         }
 
-        public void SetTexture(ShaderResourceView texture)
+        public void SetTexture(Texture texture)
         {
             _texture = texture;
             _dirtyFlags |= SpriteEffectDirtyFlags.Texture;

@@ -1,6 +1,6 @@
 ﻿namespace LLGfx
 {
-    public sealed partial class ShaderResourceView : GraphicsDeviceChild
+    internal sealed partial class ShaderResourceView : GraphicsDeviceChild
     {
         public static ShaderResourceView Create<T>(
             GraphicsDevice graphicsDevice, 

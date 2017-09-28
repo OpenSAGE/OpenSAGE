@@ -28,7 +28,7 @@ namespace OpenSage.Content
 
             _contentLoaders = new Dictionary<Type, ContentLoader>
             {
-                { typeof(Model), AddDisposable(new ModelLoader()) },
+                { typeof(Entity), AddDisposable(new ModelLoader()) },
                 { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) }
             };
 
@@ -36,6 +36,7 @@ namespace OpenSage.Content
 
             _effects = new Dictionary<Type, Effect>
             {
+                { typeof(MeshEffect), AddDisposable(new MeshEffect(graphicsDevice)) },
                 { typeof(SpriteEffect), AddDisposable(new SpriteEffect(graphicsDevice)) }
             };
         }

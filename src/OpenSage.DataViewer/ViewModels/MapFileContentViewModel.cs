@@ -174,7 +174,7 @@ namespace OpenSage.DataViewer.ViewModels
 
             commandEncoder.SetViewport(_camera.Viewport);
 
-            _map.Draw(commandEncoder, _camera);
+            _map.Draw(commandEncoder, _camera, _gameTimer.CurrentGameTime);
 
             commandEncoder.Close();
 

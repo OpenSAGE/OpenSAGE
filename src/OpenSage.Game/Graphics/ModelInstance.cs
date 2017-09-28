@@ -43,7 +43,8 @@ namespace OpenSage.Graphics
             CommandEncoder commandEncoder,
             MeshEffect meshEffect,
             Camera camera,
-            ref Matrix4x4 world)
+            ref Matrix4x4 world,
+            GameTime gameTime)
         {
             for (var i = 0; i < _model.Bones.Length; i++)
             {
@@ -64,6 +65,7 @@ namespace OpenSage.Graphics
                 meshEffect,
                 camera,
                 ref world,
+                gameTime,
                 false);
 
             DrawImpl(
@@ -71,6 +73,7 @@ namespace OpenSage.Graphics
                 meshEffect,
                 camera,
                 ref world,
+                gameTime,
                 true);
         }
 
@@ -79,26 +82,28 @@ namespace OpenSage.Graphics
             MeshEffect meshEffect,
             Camera camera,
             ref Matrix4x4 world,
+            GameTime gameTime,
             bool alphaBlended)
         {
-            foreach (var mesh in _model.Meshes)
-            {
-                if (!AnimatedBoneVisibilities[mesh.ParentBone.Index])
-                {
-                    continue;
-                }
+            //foreach (var mesh in _model.Meshes)
+            //{
+            //    if (!AnimatedBoneVisibilities[mesh.ParentBone.Index])
+            //    {
+            //        continue;
+            //    }
 
-                var meshWorld = mesh.Skinned
-                    ? world
-                    : _absoluteBoneMatrices[mesh.ParentBone.Index] * world;
+            //    var meshWorld = mesh.Skinned
+            //        ? world
+            //        : _absoluteBoneMatrices[mesh.ParentBone.Index] * world;
 
-                mesh.Draw(
-                    commandEncoder,
-                    meshEffect,
-                    camera,
-                    ref meshWorld,
-                    alphaBlended);
-            }
+            //    mesh.Draw(
+            //        commandEncoder,
+            //        meshEffect,
+            //        camera,
+            //        ref meshWorld,
+            //        gameTime,
+            //        alphaBlended);
+            //}
         }
     }
 }

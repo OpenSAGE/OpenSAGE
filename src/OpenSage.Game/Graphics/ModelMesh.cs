@@ -1,34 +1,33 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
-using OpenSage.Content;
-using OpenSage.Data.W3d;
 using OpenSage.Graphics.Effects;
-using OpenSage.Graphics.Util;
+using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics
 {
+    /// <summary>
+    /// A mesh is composed of the following hierarchy:
+    /// 
+    /// - Mesh: Vertices, Normals, Indices, Materials.
+    ///   - MeshMaterialPasses[]: per-vertex TexCoords, 
+    ///                           per-vertex Material indices, 
+    ///                           per-triangle Texture indices.
+    ///     - MeshParts[]: One for each unique PipelineState in a material pass.
+    ///                    StartIndex, IndexCount, PipelineState, AlphaTest, Texturing
+    /// </summary>
     public sealed class ModelMesh : GraphicsObject
     {
-        private readonly uint _numVertices;
         private readonly StaticBuffer<MeshVertex> _vertexBuffer;
-
-        private readonly uint _numIndices;
         private readonly StaticBuffer<ushort> _indexBuffer;
 
-        private readonly ShaderResourceView _materialsBufferView;
-        private readonly ShaderResourceView _texturesView;
-
-        private readonly List<DrawList> _drawListsOpaque;
-        private readonly List<DrawList> _drawListsTransparent;
+        private readonly StaticBuffer<VertexMaterial> _materialsBuffer;
+        private readonly TextureSet _textures;
 
         public string Name { get; }
-
-        public ModelBone ParentBone { get; }
 
         public BoundingSphere BoundingSphere { get; }
 
@@ -36,256 +35,126 @@ namespace OpenSage.Graphics
 
         public bool Skinned { get; }
 
-        internal ModelMesh(
-            ContentManager contentManager,
+        public ModelMesh(
+            GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,
-            W3dMesh w3dMesh,
-            ModelBone parentBone)
+            string name,
+            MeshVertex[] vertices,
+            ushort[] indices,
+            VertexMaterial[] vertexMaterials,
+            Texture[] textures,
+            ModelMeshMaterialPass[] materialPasses,
+            bool isSkinned,
+            BoundingSphere boundingSphere)
         {
-            Name = w3dMesh.Header.MeshName;
-            ParentBone = parentBone;
+            Name = name;
 
-            BoundingSphere = new BoundingSphere(
-                w3dMesh.Header.SphCenter.ToVector3(),
-                w3dMesh.Header.SphRadius);
+            BoundingSphere = boundingSphere;
 
-            Skinned = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.GeometryTypeSkin);
+            Skinned = isSkinned;
 
-            _numVertices = (uint) w3dMesh.Vertices.Length;
-
-            _vertexBuffer = CreateVertexBuffer(
-                contentManager,
+            _vertexBuffer = AddDisposable(StaticBuffer.Create(
+                graphicsDevice,
                 uploadBatch,
-                w3dMesh,
-                Skinned);
+                vertices));
 
-            _numIndices = (uint) w3dMesh.Triangles.Length * 3;
-
-            _indexBuffer = CreateIndexBuffer(
-                contentManager,
+            _indexBuffer = AddDisposable(StaticBuffer.Create(
+                graphicsDevice,
                 uploadBatch,
-                w3dMesh);
+                indices));
 
-            var materialsBuffer = CreateMaterialsBuffer(
-                contentManager,
+            _materialsBuffer = AddDisposable(StaticBuffer.Create(
+                graphicsDevice,
                 uploadBatch,
-                w3dMesh);
+                vertexMaterials));
 
-            var textures = CreateTextures(
-                contentManager,
-                uploadBatch,
-                w3dMesh);
+            _textures = AddDisposable(new TextureSet(graphicsDevice, textures));
 
-            _materialsBufferView = AddDisposable(ShaderResourceView.Create(contentManager.GraphicsDevice, materialsBuffer));
-            _texturesView = AddDisposable(ShaderResourceView.Create(contentManager.GraphicsDevice, textures));
-
-            MaterialPasses = new ModelMeshMaterialPass[w3dMesh.MaterialPasses.Length];
-            for (var i = 0; i < MaterialPasses.Length; i++)
+            foreach (var materialPass in materialPasses)
             {
-                MaterialPasses[i] = AddDisposable(new ModelMeshMaterialPass(
-                    contentManager,
-                    uploadBatch,
-                    w3dMesh,
-                    w3dMesh.MaterialPasses[i]));
+                AddDisposable(materialPass);
             }
+            MaterialPasses = materialPasses;
+        }
 
+        internal void BuildRenderList(RenderList renderList, RenderableComponent renderable, MeshEffect effect)
+        {
             var uniquePipelineStates = MaterialPasses
                 .SelectMany(x => x.MeshParts.Select(y => y.PipelineStateHandle))
                 .Distinct()
                 .ToList();
 
-            List<DrawList> createDrawList(bool alphaBlended)
+            foreach (var pipelineStateHandle in uniquePipelineStates)
             {
-                var result = new List<DrawList>();
-                foreach (var pipelineState in uniquePipelineStates)
+                var filteredMaterialPasses = MaterialPasses
+                    .Where(x => x.MeshParts.Any(y => y.PipelineStateHandle == pipelineStateHandle))
+                    .ToList();
+
+                if (filteredMaterialPasses.Count > 0)
                 {
-                    if (pipelineState.EffectPipelineState.BlendState.Enabled != alphaBlended)
+                    renderList.AddRenderItem(new RenderItem
+                    {
+                        Renderable = renderable,
+                        Effect = effect,
+                        PipelineStateHandle = pipelineStateHandle,
+                        RenderCallback = (commandEncoder, e, h) =>
+                        {
+                            Draw(commandEncoder, effect, pipelineStateHandle, filteredMaterialPasses);
+                        }
+                    });
+                }
+            }
+        }
+
+        private void Draw(
+            CommandEncoder commandEncoder, 
+            MeshEffect meshEffect,
+            EffectPipelineStateHandle pipelineStateHandle,
+            IEnumerable<ModelMeshMaterialPass> materialPasses)
+        {
+            meshEffect.SetSkinningEnabled(Skinned);
+
+            meshEffect.SetMaterials(_materialsBuffer);
+            meshEffect.SetTextures(_textures);
+
+            commandEncoder.SetVertexBuffer(0, _vertexBuffer);
+
+            foreach (var materialPass in materialPasses)
+            {
+                meshEffect.SetTextureIndices(materialPass.TextureIndicesBuffer);
+                meshEffect.SetMaterialIndices(materialPass.MaterialIndicesBuffer);
+                meshEffect.SetNumTextureStages(materialPass.NumTextureStages);
+
+                commandEncoder.SetVertexBuffer(1, materialPass.TexCoordVertexBuffer);
+
+                foreach (var meshPart in materialPass.MeshParts)
+                {
+                    if (meshPart.PipelineStateHandle != pipelineStateHandle)
                     {
                         continue;
                     }
 
-                    var materialPasses = MaterialPasses
-                        .Where(x => x.MeshParts.Any(y => y.PipelineStateHandle == pipelineState))
-                        .ToList();
+                    meshEffect.SetPrimitiveOffset(meshPart.StartIndex / 3);
+                    meshEffect.SetAlphaTest(meshPart.AlphaTest);
+                    meshEffect.SetTexturing(meshPart.Texturing);
 
-                    if (materialPasses.Count > 0)
-                    {
-                        result.Add(new DrawList
-                        {
-                            PipelineState = pipelineState,
-                            MaterialPasses = materialPasses
-                        });
-                    }
-                }
-                return result;
-            }
+                    meshEffect.Apply(commandEncoder);
 
-            _drawListsOpaque = createDrawList(false);
-            _drawListsTransparent = createDrawList(true);
-        }
-
-        private StaticBuffer<VertexMaterial> CreateMaterialsBuffer(
-            ContentManager contentManager,
-            ResourceUploadBatch uploadBatch,
-            W3dMesh w3dMesh)
-        {
-            var vertexMaterials = new VertexMaterial[w3dMesh.Materials.Length];
-
-            for (var i = 0; i < w3dMesh.Materials.Length; i++)
-            {
-                var w3dMaterial = w3dMesh.Materials[i];
-                var w3dVertexMaterial = w3dMaterial.VertexMaterialInfo;
-
-                vertexMaterials[i] = w3dVertexMaterial.ToVertexMaterial(w3dMaterial);
-            }
-
-            return AddDisposable(StaticBuffer.Create(
-                contentManager.GraphicsDevice,
-                uploadBatch,
-                vertexMaterials));
-        }
-
-        private static Texture[] CreateTextures(
-            ContentManager contentManager,
-            ResourceUploadBatch uploadBatch,
-            W3dMesh w3dMesh)
-        {
-            var numTextures = w3dMesh.Textures.Length;
-            var textures = new Texture[numTextures];
-            for (var i = 0; i < numTextures; i++)
-            {
-                var w3dTexture = w3dMesh.Textures[i];
-                var w3dTextureFilePath = Path.Combine("Art", "Textures", w3dTexture.Name);
-                textures[i] = contentManager.Load<Texture>(w3dTextureFilePath, uploadBatch);
-            }
-            return textures;
-        }
-
-        private StaticBuffer<MeshVertex> CreateVertexBuffer(
-            ContentManager contentManager,
-            ResourceUploadBatch uploadBatch,
-            W3dMesh w3dMesh,
-            bool isSkinned)
-        {
-            var vertices = new MeshVertex[_numVertices];
-
-            for (var i = 0; i < _numVertices; i++)
-            {
-                vertices[i] = new MeshVertex
-                {
-                    Position = w3dMesh.Vertices[i].ToVector3(),
-                    Normal = w3dMesh.Normals[i].ToVector3(),
-                    BoneIndex = isSkinned
-                        ? w3dMesh.Influences[i].BoneIndex
-                        : 0u
-                };
-            }
-
-            return AddDisposable(StaticBuffer.Create(
-                contentManager.GraphicsDevice,
-                uploadBatch,
-                vertices));
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct MeshVertex
-        {
-            public Vector3 Position;
-            public Vector3 Normal;
-            public uint BoneIndex;
-        }
-
-        private StaticBuffer<ushort> CreateIndexBuffer(
-            ContentManager contentManager,
-            ResourceUploadBatch uploadBatch,
-            W3dMesh w3dMesh)
-        {
-            var indices = new ushort[_numIndices];
-
-            var indexIndex = 0;
-            foreach (var triangle in w3dMesh.Triangles)
-            {
-                indices[indexIndex++] = (ushort) triangle.VIndex0;
-                indices[indexIndex++] = (ushort) triangle.VIndex1;
-                indices[indexIndex++] = (ushort) triangle.VIndex2;
-            }
-
-            return AddDisposable(StaticBuffer.Create(
-                contentManager.GraphicsDevice,
-                uploadBatch,
-                indices));
-        }
-
-        public void Draw(
-            CommandEncoder commandEncoder, 
-            MeshEffect meshEffect,
-            Camera camera,
-            ref Matrix4x4 world,
-            bool alphaBlended)
-        {
-            meshEffect.SetSkinningEnabled(Skinned);
-
-            meshEffect.SetWorld(ref world);
-            meshEffect.SetView(camera.ViewMatrix);
-            meshEffect.SetProjection(camera.ProjectionMatrix);
-
-            // TODO: Use time from main game engine, don't query for it every time like this.
-            var timeInSeconds = (float) System.DateTime.Now.TimeOfDay.TotalSeconds;
-
-            void drawImpl(EffectPipelineStateHandle pipelineStateHandle, IEnumerable<ModelMeshMaterialPass> materialPasses)
-            {
-                meshEffect.SetPipelineState(pipelineStateHandle);
-
-                meshEffect.SetMaterials(_materialsBufferView);
-                meshEffect.SetTextures(_texturesView);
-
-                commandEncoder.SetVertexBuffer(0, _vertexBuffer);
-
-                foreach (var materialPass in materialPasses)
-                {
-                    meshEffect.SetTextureIndices(materialPass.TextureIndicesBufferView);
-                    meshEffect.SetMaterialIndices(materialPass.MaterialIndicesBufferView);
-
-                    commandEncoder.SetVertexBuffer(1, materialPass.TexCoordVertexBuffer);
-
-                    foreach (var meshPart in materialPass.MeshParts)
-                    {
-                        if (meshPart.PipelineStateHandle != pipelineStateHandle)
-                        {
-                            continue;
-                        }
-
-                        meshEffect.SetPrimitiveOffset(meshPart.StartIndex / 3);
-                        meshEffect.SetNumTextureStages(materialPass.NumTextureStages);
-                        meshEffect.SetAlphaTest(meshPart.AlphaTest);
-                        meshEffect.SetTexturing(meshPart.Texturing);
-                        meshEffect.SetTimeInSeconds(timeInSeconds);
-
-                        meshEffect.Apply(commandEncoder);
-
-                        commandEncoder.DrawIndexed(
-                            PrimitiveType.TriangleList,
-                            meshPart.IndexCount,
-                            _indexBuffer,
-                            meshPart.StartIndex);
-                    }
+                    commandEncoder.DrawIndexed(
+                        PrimitiveType.TriangleList,
+                        meshPart.IndexCount,
+                        _indexBuffer,
+                        meshPart.StartIndex);
                 }
             }
-
-            var drawLists = alphaBlended
-                ? _drawListsTransparent
-                : _drawListsOpaque;
-
-            foreach (var drawList in drawLists)
-            {
-                drawImpl(drawList.PipelineState, drawList.MaterialPasses);
-            }
         }
+    }
 
-        private sealed class DrawList
-        {
-            public EffectPipelineStateHandle PipelineState;
-            public List<ModelMeshMaterialPass> MaterialPasses;
-        }
+    [StructLayout(LayoutKind.Sequential)]
+    public struct MeshVertex
+    {
+        public Vector3 Position;
+        public Vector3 Normal;
+        public uint BoneIndex;
     }
 }

@@ -102,7 +102,8 @@ namespace OpenSage.Terrain
 
         public void Draw(
             CommandEncoder commandEncoder,
-            Camera camera)
+            Camera camera,
+            GameTime gameTime)
         {
             Terrain.Draw(
                 commandEncoder,
@@ -118,7 +119,8 @@ namespace OpenSage.Terrain
                 thing.Draw(
                     commandEncoder,
                     _meshEffect,
-                    camera);
+                    camera,
+                    gameTime);
             }
 
             _gameContext.ParticleSystemManager.Draw(

@@ -24,7 +24,8 @@ namespace OpenSage.Logic.Object
             CommandEncoder commandEncoder,
             MeshEffect meshEffect,
             Camera camera,
-            ref Matrix4x4 world);
+            ref Matrix4x4 world,
+            GameTime gameTime);
     }
 
     public abstract class DrawModuleData : ModuleData

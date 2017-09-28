@@ -112,13 +112,15 @@ namespace OpenSage.Logic.Object
             CommandEncoder commandEncoder,
             MeshEffect meshEffect,
             Camera camera,
-            ref Matrix4x4 world)
+            ref Matrix4x4 world,
+            GameTime gameTime)
         {
             _activeConditionState.Draw(
                 commandEncoder,
                 meshEffect,
                 camera,
-                ref world);
+                ref world,
+                gameTime);
         }
     }
 
@@ -254,7 +256,8 @@ namespace OpenSage.Logic.Object
             CommandEncoder commandEncoder,
             MeshEffect meshEffect,
             Camera camera,
-            ref Matrix4x4 world)
+            ref Matrix4x4 world,
+            GameTime gameTime)
         {
             if (_modelInstance == null)
             {
@@ -267,7 +270,8 @@ namespace OpenSage.Logic.Object
                 commandEncoder,
                 meshEffect,
                 camera,
-                ref world);
+                ref world,
+                gameTime);
         }
     }
 

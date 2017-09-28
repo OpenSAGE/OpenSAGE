@@ -6,6 +6,20 @@
         public int Height { get; }
         public int MipMapCount { get; }
 
+        private ShaderResourceView _shaderResourceView;
+
+        internal ShaderResourceView ShaderResourceView
+        {
+            get
+            {
+                if (_shaderResourceView == null)
+                {
+                    _shaderResourceView = AddDisposable(ShaderResourceView.Create(GraphicsDevice, this));
+                }
+                return _shaderResourceView;
+            }
+        }
+
         public static Texture CreateTexture2D(
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,

@@ -31,11 +31,26 @@
                 indexBufferOffset);
         }
 
-        public void SetShaderResourceView(int index, ShaderResourceView shaderResourceView)
+        public void SetTexture(int index, Texture texture)
         {
             // TODO: Validation.
 
-            PlatformSetShaderResourceView(index, shaderResourceView);
+            PlatformSetShaderResourceView(index, texture.ShaderResourceView);
+        }
+
+        public void SetTextureSet(int index, TextureSet textureSet)
+        {
+            // TODO: Validation.
+
+            PlatformSetShaderResourceView(index, textureSet.ShaderResourceView);
+        }
+
+        public void SetStaticBuffer<T>(int index, StaticBuffer<T> buffer)
+            where T : struct
+        {
+            // TODO: Validation.
+
+            PlatformSetShaderResourceView(index, buffer.ShaderResourceView);
         }
 
         public void SetInlineConstantBuffer(int index, Buffer buffer)

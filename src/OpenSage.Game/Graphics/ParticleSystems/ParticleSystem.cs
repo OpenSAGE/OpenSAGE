@@ -20,7 +20,7 @@ namespace OpenSage.Graphics.ParticleSystems
         private readonly IVelocityType _velocityType;
         private readonly IVolumeType _volumeType;
 
-        private readonly ShaderResourceView _textureView;
+        private readonly Texture _texture;
 
         private readonly EffectPipelineStateHandle _pipelineStateHandle;
 
@@ -63,8 +63,7 @@ namespace OpenSage.Graphics.ParticleSystems
             _volumeType = VolumeTypeUtility.GetImplementation(definition.VolumeType);
 
             var texturePath = Path.Combine("Art", "Textures", definition.ParticleName);
-            var texture = contentManager.Load<Texture>(texturePath, uploadBatch: null);
-            _textureView = AddDisposable(ShaderResourceView.Create(contentManager.GraphicsDevice, texture));
+            _texture = contentManager.Load<Texture>(texturePath, uploadBatch: null);
 
             var blendState = GetBlendState(definition.Shader);
 
@@ -454,12 +453,12 @@ namespace OpenSage.Graphics.ParticleSystems
             effect.SetPipelineState(_pipelineStateHandle);
 
             var world = _getWorldMatrix();
-            effect.SetWorld(ref world);
+            effect.SetWorld(world);
 
             effect.SetView(camera.ViewMatrix);
             effect.SetProjection(camera.ProjectionMatrix);
 
-            effect.SetTexture(_textureView);
+            effect.SetTexture(_texture);
 
             effect.Apply(commandEncoder);
 

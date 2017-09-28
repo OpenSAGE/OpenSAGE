@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace OpenSage
 {
@@ -9,6 +11,8 @@ namespace OpenSage
     /// </summary>
     public sealed class Entity
     {
+        public string Name { get; set; }
+
         private Scene _scene;
 
         internal Scene SceneDirect
@@ -53,6 +57,11 @@ namespace OpenSage
             return Transform.Parent?.Entity;
         }
 
+        public IEnumerable<Entity> GetChildren()
+        {
+            return Transform.Children.Select(x => x.Entity);
+        }
+
         public Entity FindRoot()
         {
             var root = this;
@@ -62,6 +71,11 @@ namespace OpenSage
                 root = parent;
             }
             return root;
+        }
+
+        public void AddChild(Entity child)
+        {
+            Transform.Children.Add(child.Transform);
         }
     }
 }

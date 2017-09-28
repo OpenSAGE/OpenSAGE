@@ -87,7 +87,8 @@ namespace OpenSage.Terrain
         public void Draw(
             CommandEncoder commandEncoder,
             MeshEffect meshEffect,
-            Camera camera)
+            Camera camera,
+            GameTime gameTime)
         {
             var world = Matrix4x4.CreateRotationZ(Angle) 
                 * Matrix4x4.CreateTranslation(Position);
@@ -98,7 +99,8 @@ namespace OpenSage.Terrain
                     commandEncoder,
                     meshEffect,
                     camera,
-                    ref world);
+                    ref world,
+                    gameTime);
             }
         }
     }

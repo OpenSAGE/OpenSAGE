@@ -7,7 +7,6 @@ using OpenSage.Data;
 using OpenSage.DataViewer.Framework;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
-using OpenSage.Graphics.Effects;
 
 namespace OpenSage.DataViewer.ViewModels
 {
@@ -15,13 +14,12 @@ namespace OpenSage.DataViewer.ViewModels
     {
         private readonly Game _game;
         private readonly SpriteComponent _spriteComponent;
-        private readonly Texture _texture;
 
-        public int TextureWidth => _texture.Width;
-        public int TextureHeight => _texture.Height;
+        public int TextureWidth => _spriteComponent.Texture.Width;
+        public int TextureHeight => _spriteComponent.Texture.Height;
 
         public IEnumerable<uint> MipMapLevels => Enumerable
-            .Range(0, _texture.MipMapCount)
+            .Range(0, _spriteComponent.Texture.MipMapCount)
             .Select(x => (uint) x);
 
         public uint SelectedMipMapLevel
@@ -43,7 +41,7 @@ namespace OpenSage.DataViewer.ViewModels
 
             _game = new Game(graphicsDevice, File.FileSystem);
 
-            _texture = AddDisposable(_game.ContentManager.Load<Texture>(
+            _spriteComponent.Texture = AddDisposable(_game.ContentManager.Load<Texture>(
                 File.FilePath,
                 uploadBatch: null,
                 options: new TextureLoadOptions
@@ -51,17 +49,12 @@ namespace OpenSage.DataViewer.ViewModels
                     GenerateMipMaps = false
                 }));
 
-            _spriteComponent.TextureView = AddDisposable(ShaderResourceView.Create(graphicsDevice, _texture));
-
             var scene = new Scene();
 
             var entity = new Entity();
             scene.Entities.Add(entity);
 
-            entity.Components.Add(new PerspectiveCameraComponent
-            {
-                
-            });
+            entity.Components.Add(new PerspectiveCameraComponent());
 
             entity.Components.Add(_spriteComponent);
 
@@ -76,45 +69,6 @@ namespace OpenSage.DataViewer.ViewModels
         public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
             _game.Tick();
-        }
-
-        private sealed class SpriteComponent : RenderableComponent
-        {
-            private SpriteEffect _effect;
-
-            private EffectPipelineStateHandle _pipelineStateHandle;
-
-            public ShaderResourceView TextureView { get; set; }
-            public uint SelectedMipMapLevel { get; set; }
-
-            protected override void Start()
-            {
-                base.Start();
-
-                _effect = ContentManager.GetEffect<SpriteEffect>();
-
-                var rasterizerState = RasterizerStateDescription.CullBackSolid;
-                rasterizerState.IsFrontCounterClockwise = false;
-
-                _pipelineStateHandle = new EffectPipelineState(
-                    rasterizerState,
-                    DepthStencilStateDescription.None,
-                    BlendStateDescription.Opaque)
-                    .GetHandle();
-            }
-
-            protected override void Render(CommandEncoder commandEncoder)
-            {
-                _effect.Begin(commandEncoder);
-
-                _effect.SetPipelineState(_pipelineStateHandle);
-                _effect.SetTexture(TextureView);
-                _effect.SetMipMapLevel(SelectedMipMapLevel);
-
-                _effect.Apply(commandEncoder);
-
-                commandEncoder.Draw(PrimitiveType.TriangleList, 0, 3);
-            }
         }
     }
 }

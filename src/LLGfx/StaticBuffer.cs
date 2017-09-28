@@ -24,6 +24,20 @@ namespace LLGfx
     public sealed partial class StaticBuffer<T> : Buffer
         where T : struct
     {
+        private ShaderResourceView _shaderResourceView;
+
+        internal ShaderResourceView ShaderResourceView
+        {
+            get
+            {
+                if (_shaderResourceView == null)
+                {
+                    _shaderResourceView = AddDisposable(ShaderResourceView.Create(GraphicsDevice, this));
+                }
+                return _shaderResourceView;
+            }
+        }
+
         internal StaticBuffer(
             GraphicsDevice graphicsDevice,
             uint elementSizeInBytes,

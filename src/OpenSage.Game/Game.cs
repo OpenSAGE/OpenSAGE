@@ -71,11 +71,7 @@ namespace OpenSage
 
                 if (oldScene != null)
                 {
-                    // TODO: Also remove descendant components.
-                    foreach (var entity in oldScene.Entities)
-                    {
-                        OnEntityComponentsRemoved(entity.Components);
-                    }
+                    RemoveComponentsRecursive(oldScene.Entities);
                     oldScene.Game = null;
                 }
 
@@ -84,12 +80,28 @@ namespace OpenSage
                 if (_scene != null)
                 {
                     _scene.Game = this;
-                    // TODO: Also add descendant components.
-                    foreach (var entity in _scene.Entities)
-                    {
-                        OnEntityComponentsAdded(entity.Components);
-                    }
+                    AddComponentsRecursive(_scene.Entities);
                 }
+            }
+        }
+
+        private void RemoveComponentsRecursive(IEnumerable<Entity> entities)
+        {
+            foreach (var entity in entities)
+            {
+                OnEntityComponentsRemoved(entity.Components);
+
+                RemoveComponentsRecursive(entity.GetChildren());
+            }
+        }
+
+        private void AddComponentsRecursive(IEnumerable<Entity> entities)
+        {
+            foreach (var entity in entities)
+            {
+                OnEntityComponentsAdded(entity.Components);
+
+                AddComponentsRecursive(entity.GetChildren());
             }
         }
 
