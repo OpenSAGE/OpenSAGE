@@ -81,6 +81,11 @@ namespace OpenSage.Graphics.Rendering
 
                         foreach (var renderItem in pipelineStateGroup.RenderItems)
                         {
+                            if (!renderItem.Renderable.Entity.VisibleInHierarchy)
+                            {
+                                continue;
+                            }
+
                             if (effect is IEffectMatrices m2)
                             {
                                 m2.SetWorld(renderItem.Renderable.Entity.Transform.LocalToWorldMatrix);
@@ -94,6 +99,11 @@ namespace OpenSage.Graphics.Rendering
                     }
                 }
             }
+
+            // TODO: Culling, based on:
+            // - Renderable.BoundingBox
+            // - Renderable.VisibleInHierarchy
+            // - Renderable.IsAlwaysVisible
 
             var renderList = context.Graphics.RenderList;
 

@@ -1,6 +1,7 @@
 ﻿using LLGfx;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics
 {
@@ -12,6 +13,10 @@ namespace OpenSage.Graphics
 
         public Texture Texture { get; set; }
         public uint SelectedMipMapLevel { get; set; }
+
+        internal override bool IsAlwaysVisible => true;
+
+        internal override BoundingBox LocalBoundingBox => new BoundingBox();
 
         protected override void Start()
         {

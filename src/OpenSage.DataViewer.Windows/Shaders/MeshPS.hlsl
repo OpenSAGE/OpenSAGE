@@ -101,7 +101,7 @@ float4 main(PSInput input) : SV_TARGET
         float3 v = CalculateViewVector(input.WorldPosition);
 
         diffuseTextureColor = SampleTexture(
-            0, input.Normal, input.UV0,
+            input.PrimitiveID, input.Normal, input.UV0,
             material.TextureMappingStage0,
             0, v);
 

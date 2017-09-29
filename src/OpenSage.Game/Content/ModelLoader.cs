@@ -8,14 +8,15 @@ using OpenSage.Content.Util;
 using OpenSage.Data;
 using OpenSage.Data.W3d;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Effects;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Content
 {
-    internal sealed class ModelLoader : ContentLoader<Entity>
+    internal sealed class ModelLoader : ContentLoader<Model>
     {
-        protected override Entity LoadEntry(FileSystemEntry entry, ContentManager contentManager, ResourceUploadBatch uploadBatch)
+        protected override Model LoadEntry(FileSystemEntry entry, ContentManager contentManager, ResourceUploadBatch uploadBatch)
         {
             var w3dFile = W3dFile.FromFileSystemEntry(entry);
 
@@ -37,76 +38,68 @@ namespace OpenSage.Content
                 w3dHierarchy);
         }
 
-        private static Entity CreateModel(
+        private static Model CreateModel(
             ContentManager contentManager,
             ResourceUploadBatch uploadBatch,
             W3dFile w3dFile,
             W3dHierarchyDef w3dHierarchy)
         {
-            var result = new Entity();
-
-            var hasHierarchy = w3dHierarchy != null;
-
-            Entity[] bones;
+            ModelBone[] bones;
             if (w3dHierarchy != null)
             {
-                if (w3dHierarchy.Pivots.Length > Model.MaxBones)
+                if (w3dHierarchy.Pivots.Length > ModelMesh.MaxBones)
                 {
                     throw new NotSupportedException();
                 }
 
-                bones = new Entity[w3dHierarchy.Pivots.Length];
+                bones = new ModelBone[w3dHierarchy.Pivots.Length];
 
                 for (var i = 0; i < w3dHierarchy.Pivots.Length; i++)
                 {
                     var pivot = w3dHierarchy.Pivots[i];
 
                     var parent = pivot.ParentIdx == -1
-                        ? result
+                        ? null
                         : bones[pivot.ParentIdx];
 
-                    var boneEntity = new Entity();
-                    boneEntity.Name = pivot.Name;
-                    boneEntity.Transform.LocalPosition = pivot.Translation.ToVector3();
-                    boneEntity.Transform.LocalRotation = pivot.Rotation.ToQuaternion();
-
-                    parent.AddChild(boneEntity);
-
-                    bones[i] = boneEntity;
+                    bones[i] = new ModelBone(
+                        i,
+                        pivot.Name,
+                        parent,
+                        pivot.Translation.ToVector3(),
+                        pivot.Rotation.ToQuaternion());
                 }
             }
             else
             {
-                bones = new Entity[1];
-                result.AddChild(bones[0] = new Entity());
+                bones = new ModelBone[1];
+                bones[0] = new ModelBone(0, null, null, Vector3.Zero, Quaternion.Identity);
             }
 
             //BoundingSphere boundingSphere = default(BoundingSphere);
+
+            var meshes = new ModelMesh[w3dFile.Meshes.Count];
 
             for (var i = 0; i < w3dFile.Meshes.Count; i++)
             {
                 var w3dMesh = w3dFile.Meshes[i];
 
-                Entity boneEntity;
+                ModelBone bone;
                 if (w3dFile.HLod != null)
                 {
                     var hlodSubObject = w3dFile.HLod.Lods[0].SubObjects.Single(x => x.Name == w3dMesh.Header.ContainerName + "." + w3dMesh.Header.MeshName);
-                    boneEntity = bones[(int) hlodSubObject.BoneIndex];
+                    bone = bones[(int) hlodSubObject.BoneIndex];
                 }
                 else
                 {
-                    boneEntity = bones[0];
+                    bone = bones[0];
                 }
 
-                var mesh = CreateModelMesh(
+                meshes[i] = CreateModelMesh(
                     contentManager,
                     uploadBatch,
-                    w3dMesh);
-
-                boneEntity.Components.Add(new MeshComponent
-                {
-                    Mesh = mesh
-                });
+                    w3dMesh,
+                    bone);
 
                 //var meshBoundingSphere = mesh.BoundingSphere.Transform(bone.Transform);
 
@@ -125,13 +118,17 @@ namespace OpenSage.Content
                 animations[w3dFile.Animations.Count + i] = CreateAnimation(w3dFile.CompressedAnimations[i]);
             }
 
-            return result;
+            return new Model(
+                bones,
+                meshes,
+                animations);
         }
 
         private static ModelMesh CreateModelMesh(
             ContentManager contentManager,
             ResourceUploadBatch uploadBatch,
-            W3dMesh w3dMesh)
+            W3dMesh w3dMesh,
+            ModelBone parentBone)
         {
             var materialPasses = new ModelMeshMaterialPass[w3dMesh.MaterialPasses.Length];
             for (var i = 0; i < materialPasses.Length; i++)
@@ -143,9 +140,9 @@ namespace OpenSage.Content
                     w3dMesh.MaterialPasses[i]);
             }
 
-            var boundingSphere = new BoundingSphere(
-                w3dMesh.Header.SphCenter.ToVector3(),
-                w3dMesh.Header.SphRadius);
+            var boundingBox = new BoundingBox(
+                w3dMesh.Header.Min.ToVector3(),
+                w3dMesh.Header.Max.ToVector3());
 
             var isSkinned = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.GeometryTypeSkin);
 
@@ -159,7 +156,8 @@ namespace OpenSage.Content
                 CreateTextures(contentManager, uploadBatch, w3dMesh),
                 materialPasses,
                 isSkinned,
-                boundingSphere);
+                parentBone,
+                boundingBox);
         }
 
         private static VertexMaterial[] CreateMaterials(W3dMesh w3dMesh)
@@ -358,6 +356,15 @@ namespace OpenSage.Content
                     shaderID = newShaderID;
 
                     indexCount += 3;
+                }
+
+                if (indexCount > 0)
+                {
+                    meshParts.Add(CreateModelMeshPart(
+                        startIndex,
+                        indexCount,
+                        w3dMesh,
+                        w3dMesh.Shaders[shaderID]));
                 }
             }
 

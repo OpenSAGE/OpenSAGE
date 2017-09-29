@@ -57,12 +57,17 @@ namespace LLGfx.Hosting
 
             OnSwapChainResized(_swapChain);
 
-            GraphicsInitialize?.Invoke(this, new GraphicsEventArgs(GraphicsDevice, _swapChain));
+            RaiseGraphicsInitialize(new GraphicsEventArgs(GraphicsDevice, _swapChain));
 
             if (!RedrawsOnTimer)
             {
                 Draw();
             }
+        }
+
+        protected virtual void RaiseGraphicsInitialize(GraphicsEventArgs args)
+        {
+            GraphicsInitialize?.Invoke(this, args);
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)

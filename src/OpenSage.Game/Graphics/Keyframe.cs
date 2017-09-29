@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
-namespace OpenSage.Graphics
+namespace OpenSage.Graphics.Animation
 {
     public abstract class Keyframe
     {
@@ -12,7 +12,7 @@ namespace OpenSage.Graphics
             Time = time;
         }
 
-        public abstract void Apply(ref Transform transform, ref bool visibility);
+        public abstract void Apply(ref Transform transform, Action<bool> setVisibility);
     }
 
     public sealed class QuaternionKeyframe : Keyframe
@@ -25,7 +25,7 @@ namespace OpenSage.Graphics
             Rotation = rotation;
         }
 
-        public override void Apply(ref Transform transform, ref bool visibility)
+        public override void Apply(ref Transform transform, Action<bool> setVisibility)
         {
             transform.Rotation = Rotation;
         }
@@ -41,7 +41,7 @@ namespace OpenSage.Graphics
             Value = value;
         }
 
-        public override void Apply(ref Transform transform, ref bool visibility)
+        public override void Apply(ref Transform transform, Action<bool> setVisibility)
         {
             transform.Translation.X = Value;
         }
@@ -57,7 +57,7 @@ namespace OpenSage.Graphics
             Value = value;
         }
 
-        public override void Apply(ref Transform transform, ref bool visibility)
+        public override void Apply(ref Transform transform, Action<bool> setVisibility)
         {
             transform.Translation.Y = Value;
         }
@@ -73,7 +73,7 @@ namespace OpenSage.Graphics
             Value = value;
         }
 
-        public override void Apply(ref Transform transform, ref bool visibility)
+        public override void Apply(ref Transform transform, Action<bool> setVisibility)
         {
             transform.Translation.Z = Value;
         }
@@ -89,9 +89,9 @@ namespace OpenSage.Graphics
             Value = value;
         }
 
-        public override void Apply(ref Transform transform, ref bool visibility)
+        public override void Apply(ref Transform transform, Action<bool> setVisibility)
         {
-            visibility = Value;
+            setVisibility(Value);
         }
     }
 }

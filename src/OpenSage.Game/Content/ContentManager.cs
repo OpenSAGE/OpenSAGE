@@ -28,7 +28,7 @@ namespace OpenSage.Content
 
             _contentLoaders = new Dictionary<Type, ContentLoader>
             {
-                { typeof(Entity), AddDisposable(new ModelLoader()) },
+                { typeof(Model), AddDisposable(new ModelLoader()) },
                 { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) }
             };
 

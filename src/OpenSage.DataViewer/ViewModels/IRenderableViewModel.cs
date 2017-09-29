@@ -15,4 +15,12 @@ namespace OpenSage.DataViewer.ViewModels
 
         void OnMouseMove(int x, int y);
     }
+
+    public interface IGameViewModel : IDisposable
+    {
+        Graphics.Cameras.Controllers.CameraController CameraController { get; }
+        void OnMouseMove(int x, int y);
+
+        Game Game { get; }
+    }
 }

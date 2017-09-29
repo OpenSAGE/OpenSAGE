@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
+using OpenSage.Graphics.Util;
 
 namespace OpenSage.Graphics.Effects
 {
@@ -240,6 +241,10 @@ namespace OpenSage.Graphics.Effects
 
         public void SetAbsoluteBoneTransforms(Matrix4x4[] transforms)
         {
+            if (transforms == _absoluteBonesMatrices)
+            {
+                return;
+            }
             _absoluteBonesMatrices = transforms;
             _dirtyFlags |= MeshEffectDirtyFlags.SkinningConstants;
         }
@@ -333,7 +338,7 @@ namespace OpenSage.Graphics.Effects
         private unsafe struct SkinningConstants
         {
             // Array of MaxBones * float4x3
-            public fixed float Bones[Model.MaxBones * 12];
+            public fixed float Bones[ModelMesh.MaxBones * 12];
 
             public void CopyFrom(Matrix4x4[] matrices)
             {

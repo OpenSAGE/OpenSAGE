@@ -129,8 +129,8 @@ namespace OpenSage.Logic.Object
         private readonly GameContext _gameContext;
         private readonly ModelConditionState _data;
 
-        private readonly List<AnimationPlayer> _animationPlayers;
-        private ModelInstance _modelInstance;
+        //private readonly List<AnimationPlayer> _animationPlayers;
+        //private ModelInstance _modelInstance;
 
         private readonly List<ParticleSystem> _particleSystems;
 
@@ -147,90 +147,90 @@ namespace OpenSage.Logic.Object
 
             Flags = data.ConditionFlags;
 
-            _animationPlayers = new List<AnimationPlayer>();
+            //_animationPlayers = new List<AnimationPlayer>();
             _particleSystems = new List<ParticleSystem>();
         }
 
         public void Load()
         {
-            if (_loaded)
-            {
-                foreach (var particleSystem in _particleSystems)
-                {
-                    _gameContext.ParticleSystemManager.Add(particleSystem);
-                }
-                return;
-            }
+            //if (_loaded)
+            //{
+            //    foreach (var particleSystem in _particleSystems)
+            //    {
+            //        _gameContext.ParticleSystemManager.Add(particleSystem);
+            //    }
+            //    return;
+            //}
 
-            var uploadBatch = new ResourceUploadBatch(_gameContext.GraphicsDevice);
-            uploadBatch.Begin();
+            //var uploadBatch = new ResourceUploadBatch(_gameContext.GraphicsDevice);
+            //uploadBatch.Begin();
 
-            if (!string.Equals(_data.Model, "NONE", System.StringComparison.OrdinalIgnoreCase))
-            {
-                var w3dFilePath = Path.Combine("Art", "W3D", _data.Model + ".W3D");
-                var model = _gameContext.ContentManager.Load<Model>(w3dFilePath, uploadBatch);
-                if (model != null)
-                {
-                    _modelInstance = AddDisposable(new ModelInstance(model, _gameContext.GraphicsDevice));
-                }
-            }
+            //if (!string.Equals(_data.Model, "NONE", System.StringComparison.OrdinalIgnoreCase))
+            //{
+            //    var w3dFilePath = Path.Combine("Art", "W3D", _data.Model + ".W3D");
+            //    var model = _gameContext.ContentManager.Load<Model>(w3dFilePath, uploadBatch);
+            //    if (model != null)
+            //    {
+            //        _modelInstance = AddDisposable(new ModelInstance(model, _gameContext.GraphicsDevice));
+            //    }
+            //}
 
-            if (_modelInstance != null)
-            {
-                // TODO: Multiple animations. Shouldn't play all of them. I think
-                // we should randomly choose one of them?
-                // And there is also IdleAnimation.
-                if (_data.Animations.Count > 0)
-                {
-                    var objectConditionAnimation = _data.Animations[0];
+            //if (_modelInstance != null)
+            //{
+            //    // TODO: Multiple animations. Shouldn't play all of them. I think
+            //    // we should randomly choose one of them?
+            //    // And there is also IdleAnimation.
+            //    if (_data.Animations.Count > 0)
+            //    {
+            //        var objectConditionAnimation = _data.Animations[0];
 
-                    var splitName = objectConditionAnimation.Animation.Split('.');
+            //        var splitName = objectConditionAnimation.Animation.Split('.');
 
-                    var w3dFilePath = Path.Combine("Art", "W3D", splitName[0] + ".W3D");
-                    var model = _gameContext.ContentManager.Load<Model>(w3dFilePath, uploadBatch);
+            //        var w3dFilePath = Path.Combine("Art", "W3D", splitName[0] + ".W3D");
+            //        var model = _gameContext.ContentManager.Load<Model>(w3dFilePath, uploadBatch);
 
-                    var animation = model.Animations.FirstOrDefault(x => string.Equals(x.Name, splitName[1], StringComparison.OrdinalIgnoreCase));
-                    if (animation != null)
-                    {
-                        // TODO: Should this ever be null?
+            //        var animation = model.Animations.FirstOrDefault(x => string.Equals(x.Name, splitName[1], StringComparison.OrdinalIgnoreCase));
+            //        if (animation != null)
+            //        {
+            //            // TODO: Should this ever be null?
 
-                        var animationPlayer = new AnimationPlayer(animation, _modelInstance);
+            //            var animationPlayer = new AnimationPlayer(animation, _modelInstance);
 
-                        _animationPlayers.Add(animationPlayer);
+            //            _animationPlayers.Add(animationPlayer);
 
-                        animationPlayer.Start();
-                    }
-                }
-            }
+            //            animationPlayer.Start();
+            //        }
+            //    }
+            //}
 
-            if (_modelInstance != null)
-            {
-                foreach (var particleSysBone in _data.ParticleSysBones)
-                {
-                    var particleSystemDefinition = _gameContext.IniDataContext.ParticleSystems.First(x => x.Name == particleSysBone.ParticleSystem);
-                    var bone = _modelInstance.Model.Bones.FirstOrDefault(x => string.Equals(x.Name, particleSysBone.BoneName, StringComparison.OrdinalIgnoreCase));
-                    if (bone == null)
-                    {
-                        // TODO: Should this ever happen?
-                        continue;
-                    }
+            //if (_modelInstance != null)
+            //{
+            //    foreach (var particleSysBone in _data.ParticleSysBones)
+            //    {
+            //        var particleSystemDefinition = _gameContext.IniDataContext.ParticleSystems.First(x => x.Name == particleSysBone.ParticleSystem);
+            //        var bone = _modelInstance.Model.Bones.FirstOrDefault(x => string.Equals(x.Name, particleSysBone.BoneName, StringComparison.OrdinalIgnoreCase));
+            //        if (bone == null)
+            //        {
+            //            // TODO: Should this ever happen?
+            //            continue;
+            //        }
 
-                    var particleSystem = AddDisposable(new ParticleSystem(
-                        particleSystemDefinition,
-                        _gameContext.ContentManager,
-                        () => _modelInstance.AbsoluteBoneTransforms[bone.Index] * _savedWorld));
+            //        var particleSystem = AddDisposable(new ParticleSystem(
+            //            particleSystemDefinition,
+            //            _gameContext.ContentManager,
+            //            () => _modelInstance.AbsoluteBoneTransforms[bone.Index] * _savedWorld));
 
-                    _particleSystems.Add(particleSystem);
+            //        _particleSystems.Add(particleSystem);
 
-                    _gameContext.ParticleSystemManager.Add(particleSystem);
+            //        _gameContext.ParticleSystemManager.Add(particleSystem);
 
-                    AddDisposeAction(() => _gameContext.ParticleSystemManager.Remove(particleSystem));
-                }
-            }
+            //        AddDisposeAction(() => _gameContext.ParticleSystemManager.Remove(particleSystem));
+            //    }
+            //}
 
-            uploadBatch.End();
+            //uploadBatch.End();
 
-            _loaded = true;
+            //_loaded = true;
         }
 
         public void Unload()
@@ -243,10 +243,10 @@ namespace OpenSage.Logic.Object
 
         public void Update(GameTime gameTime)
         {
-            foreach (var animationPlayer in _animationPlayers)
-            {
-                animationPlayer.Update(gameTime);
-            }
+            //foreach (var animationPlayer in _animationPlayers)
+            //{
+            //    animationPlayer.Update(gameTime);
+            //}
         }
 
         // TODO: Don't do this.
@@ -259,19 +259,19 @@ namespace OpenSage.Logic.Object
             ref Matrix4x4 world,
             GameTime gameTime)
         {
-            if (_modelInstance == null)
-            {
-                return;
-            }
+            //if (_modelInstance == null)
+            //{
+            //    return;
+            //}
 
-            _savedWorld = world;
+            //_savedWorld = world;
 
-            _modelInstance.Draw(
-                commandEncoder,
-                meshEffect,
-                camera,
-                ref world,
-                gameTime);
+            //_modelInstance.Draw(
+            //    commandEncoder,
+            //    meshEffect,
+            //    camera,
+            //    ref world,
+            //    gameTime);
         }
     }
 

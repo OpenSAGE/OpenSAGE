@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OpenSage.Graphics
+namespace OpenSage.Graphics.Animation
 {
     public sealed class Animation
     {

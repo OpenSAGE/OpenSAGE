@@ -12,7 +12,7 @@ namespace OpenSage.Graphics
 
         public EffectPipelineStateHandle PipelineStateHandle { get; }
 
-        public ModelMeshPart(
+        internal ModelMeshPart(
             uint startIndex, 
             uint indexCount, 
             bool alphaTest,

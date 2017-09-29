@@ -3,6 +3,7 @@ using LLGfx;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Animation;
 
 namespace OpenSage
 {
@@ -37,6 +38,8 @@ namespace OpenSage
             ContentManager = AddDisposable(new ContentManager(_fileSystem, graphicsDevice));
 
             GameSystems = new List<GameSystem>();
+
+            AddDisposable(new AnimationSystem(this));
 
             Graphics = AddDisposable(new GraphicsSystem(this));
 

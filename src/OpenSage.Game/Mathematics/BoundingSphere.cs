@@ -41,6 +41,19 @@ namespace OpenSage.Mathematics
             };
         }
 
+        public static BoundingSphere CreateFromBoundingBox(BoundingBox box)
+        {
+            // Find the center of the box.
+            Vector3 center = new Vector3((box.Min.X + box.Max.X) / 2.0f,
+                                         (box.Min.Y + box.Max.Y) / 2.0f,
+                                         (box.Min.Z + box.Max.Z) / 2.0f);
+
+            // Find the distance between the center and one of the corners of the box.
+            float radius = Vector3.Distance(center, box.Max);
+
+            return new BoundingSphere(center, radius);
+        }
+
         public BoundingSphere Transform(Matrix4x4 matrix)
         {
             return new BoundingSphere

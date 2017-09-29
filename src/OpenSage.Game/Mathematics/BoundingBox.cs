@@ -53,7 +53,17 @@ namespace OpenSage.Mathematics
             return result;
         }
 
-        public Vector3 GetCenter() => (Max - Min) / 2;
+        public static BoundingBox CreateFromSphere(BoundingSphere sphere)
+        {
+            var corner = new Vector3(sphere.Radius);
+            return new BoundingBox
+            {
+                Min = sphere.Center - corner,
+                Max = sphere.Center + corner
+            };
+        }
+
+        public Vector3 GetCenter() => (Min + Max) / 2;
 
         public PlaneIntersectionType Intersects(Plane plane)
         {

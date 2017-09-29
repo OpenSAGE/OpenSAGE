@@ -1,4 +1,4 @@
-﻿namespace OpenSage.Graphics
+﻿namespace OpenSage.Graphics.Animation
 {
     public sealed class AnimationClip
     {

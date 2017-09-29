@@ -13,6 +13,24 @@ namespace OpenSage
     {
         public string Name { get; set; }
 
+        // TODO: Cache this property in ancestors and descendants.
+        public bool Visible { get; set; } = true;
+
+        internal bool VisibleInHierarchy
+        {
+            get
+            {
+                var parent = this;
+                while (parent != null)
+                {
+                    if (!parent.Visible)
+                        return false;
+                    parent = parent.GetParent();
+                }
+                return true;
+            }
+        }
+
         private Scene _scene;
 
         internal Scene SceneDirect
@@ -76,6 +94,43 @@ namespace OpenSage
         public void AddChild(Entity child)
         {
             Transform.Children.Add(child.Transform);
+        }
+
+        public T GetComponent<T>()
+            where T : EntityComponent
+        {
+            return Components.OfType<T>().FirstOrDefault();
+        }
+
+        public IEnumerable<T> GetComponents<T>()
+            where T : EntityComponent
+        {
+            return Components.OfType<T>();
+        }
+
+        public IEnumerable<Entity> GetSelfAndDescendants()
+        {
+            yield return this;
+
+            foreach (var child in GetChildren())
+            {
+                foreach (var descendant in child.GetSelfAndDescendants())
+                {
+                    yield return descendant;
+                }
+            }
+        }
+
+        public IEnumerable<T> GetComponentsInSelfAndDescendants<T>()
+            where T : EntityComponent
+        {
+            foreach (var entity in GetSelfAndDescendants())
+            {
+                foreach (var component in entity.GetComponents<T>())
+                {
+                    yield return component;
+                }
+            }
         }
     }
 }

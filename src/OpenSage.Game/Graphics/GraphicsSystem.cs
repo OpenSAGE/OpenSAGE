@@ -7,6 +7,7 @@ namespace OpenSage.Graphics
     public sealed class GraphicsSystem : GameSystem
     {
         private readonly List<CameraComponent> _cameras;
+        private readonly List<ModelComponent> _models;
 
         public IEnumerable<CameraComponent> Cameras => _cameras;
 
@@ -16,6 +17,7 @@ namespace OpenSage.Graphics
             : base(game)
         {
             RegisterComponentList(_cameras = new List<CameraComponent>());
+            RegisterComponentList(_models = new List<ModelComponent>());
         }
 
         internal override void OnEntityComponentAdded(EntityComponent component)
@@ -40,8 +42,15 @@ namespace OpenSage.Graphics
 
         public override void Draw(GameTime gameTime)
         {
+            foreach (var model in _models)
+            {
+                model.UpdateAbsoluteBoneTransforms();
+            }
+
             foreach (var camera in _cameras)
+            {
                 camera.Render(gameTime);
+            }
 
             base.Draw(gameTime);
         }

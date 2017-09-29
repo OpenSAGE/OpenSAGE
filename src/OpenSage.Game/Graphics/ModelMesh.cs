@@ -21,6 +21,8 @@ namespace OpenSage.Graphics
     /// </summary>
     public sealed class ModelMesh : GraphicsObject
     {
+        internal const int MaxBones = 100;
+
         private readonly StaticBuffer<MeshVertex> _vertexBuffer;
         private readonly StaticBuffer<ushort> _indexBuffer;
 
@@ -29,7 +31,9 @@ namespace OpenSage.Graphics
 
         public string Name { get; }
 
-        public BoundingSphere BoundingSphere { get; }
+        public ModelBone ParentBone { get; }
+
+        public BoundingBox BoundingBox { get; }
 
         public ModelMeshMaterialPass[] MaterialPasses { get; }
 
@@ -45,11 +49,14 @@ namespace OpenSage.Graphics
             Texture[] textures,
             ModelMeshMaterialPass[] materialPasses,
             bool isSkinned,
-            BoundingSphere boundingSphere)
+            ModelBone parentBone,
+            BoundingBox boundingBox)
         {
             Name = name;
 
-            BoundingSphere = boundingSphere;
+            ParentBone = parentBone;
+
+            BoundingBox = boundingBox;
 
             Skinned = isSkinned;
 
@@ -99,7 +106,12 @@ namespace OpenSage.Graphics
                         PipelineStateHandle = pipelineStateHandle,
                         RenderCallback = (commandEncoder, e, h) =>
                         {
-                            Draw(commandEncoder, effect, pipelineStateHandle, filteredMaterialPasses);
+                            Draw(
+                                commandEncoder, 
+                                effect, 
+                                pipelineStateHandle, 
+                                filteredMaterialPasses,
+                                renderable);
                         }
                     });
                 }
@@ -110,8 +122,15 @@ namespace OpenSage.Graphics
             CommandEncoder commandEncoder, 
             MeshEffect meshEffect,
             EffectPipelineStateHandle pipelineStateHandle,
-            IEnumerable<ModelMeshMaterialPass> materialPasses)
+            IEnumerable<ModelMeshMaterialPass> materialPasses,
+            RenderableComponent renderable)
         {
+            if (Skinned)
+            {
+                var modelComponent = renderable.Entity.GetComponent<ModelComponent>();
+                meshEffect.SetAbsoluteBoneTransforms(modelComponent.AbsoluteBoneTransforms);
+            }
+
             meshEffect.SetSkinningEnabled(Skinned);
 
             meshEffect.SetMaterials(_materialsBuffer);

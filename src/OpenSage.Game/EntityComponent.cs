@@ -2,6 +2,7 @@
 using OpenSage.Content;
 using OpenSage.Graphics;
 using OpenSage.Input;
+using OpenSage.Mathematics;
 using OpenSage.Physics;
 
 namespace OpenSage
@@ -43,6 +44,15 @@ namespace OpenSage
         public Game Game => Scene?.Game;
 
         public ContentManager ContentManager => Game?.ContentManager;
+
+        public TransformComponent Transform => Entity?.Transform;
+
+        /// <summary>
+        /// Gets an axis-aligned bounding box that encloses this game component. The base implementation
+        /// returns a zero-volume bounding box around the parent entity's world-space position. Components
+        /// that have a visual representation override this to return a more suitable bounding box.
+        /// </summary>
+        public virtual BoundingBox BoundingBox => new BoundingBox(Transform.WorldPosition, Transform.WorldPosition);
 
         internal void Initialize()
         {

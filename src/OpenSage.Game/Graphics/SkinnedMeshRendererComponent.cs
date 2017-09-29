@@ -1,10 +1,11 @@
-﻿using OpenSage.Graphics.Effects;
+﻿using System.Numerics;
+using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics
 {
-    public sealed class MeshComponent : RenderableComponent
+    public sealed class SkinnedMeshComponent : RenderableComponent
     {
         private MeshEffect _effect;
 

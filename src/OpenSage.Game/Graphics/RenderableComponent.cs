@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using LLGfx;
-using OpenSage.Graphics.Effects;
+﻿using System.Numerics;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics
 {
@@ -24,26 +22,26 @@ namespace OpenSage.Graphics
         internal virtual bool IsAlwaysVisible => false;
 
         /// <inheritdoc />
-        //public override BoundingBox BoundingBox
-        //{
-        //    get
-        //    {
-        //        // TODO: Don't create this every time.
+        public override BoundingBox BoundingBox
+        {
+            get
+            {
+                // TODO: Don't create this every time.
 
-        //        var localBoundingBox = LocalBoundingBox;
-        //        var localToWorldMatrix = Transform.LocalToWorldMatrix;
+                var localBoundingBox = LocalBoundingBox;
+                var localToWorldMatrix = Transform.LocalToWorldMatrix;
 
-        //        // TODO: There's probably a better solution than this.
-        //        BoundingBox transformedBoundingBox;
-        //        transformedBoundingBox.Min = Vector3.Transform(localBoundingBox.Min, localToWorldMatrix);
-        //        transformedBoundingBox.Max = Vector3.Transform(localBoundingBox.Max, localToWorldMatrix);
+                // TODO: There's probably a better solution than this.
+                BoundingBox transformedBoundingBox;
+                transformedBoundingBox.Min = Vector3.Transform(localBoundingBox.Min, localToWorldMatrix);
+                transformedBoundingBox.Max = Vector3.Transform(localBoundingBox.Max, localToWorldMatrix);
 
-        //        var boundingSphere = BoundingSphere.CreateFromBoundingBox(transformedBoundingBox);
-        //        return BoundingBox.CreateFromSphere(boundingSphere);
-        //    }
-        //}
+                var boundingSphere = BoundingSphere.CreateFromBoundingBox(transformedBoundingBox);
+                return BoundingBox.CreateFromSphere(boundingSphere);
+            }
+        }
 
-        //internal abstract BoundingBox LocalBoundingBox { get; }
+        internal abstract BoundingBox LocalBoundingBox { get; }
 
         //[ContentSerializerIgnore]
         //internal abstract MeshBase MeshBase { get; }
