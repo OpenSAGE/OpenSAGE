@@ -72,7 +72,7 @@ namespace OpenSage.DataViewer.ViewModels.Ini
 
             _thing.Update(_gameTimer.CurrentGameTime);
 
-            _gameContext.ParticleSystemManager.Update(_gameTimer.CurrentGameTime);
+            //_gameContext.ParticleSystemManager.Update(_gameTimer.CurrentGameTime);
 
             var commandBuffer = graphicsDevice.CommandQueue.GetCommandBuffer();
 
@@ -97,7 +97,7 @@ namespace OpenSage.DataViewer.ViewModels.Ini
 
             _thing.Draw(commandEncoder, _gameContext.MeshEffect, _camera, _gameTimer.CurrentGameTime);
 
-            _gameContext.ParticleSystemManager.Draw(commandEncoder, _camera);
+            //_gameContext.ParticleSystemManager.Draw(commandEncoder, _camera);
 
             commandEncoder.Close();
 

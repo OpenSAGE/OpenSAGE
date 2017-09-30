@@ -237,7 +237,7 @@ namespace OpenSage.Logic.Object
         {
             foreach (var particleSystem in _particleSystems)
             {
-                _gameContext.ParticleSystemManager.Remove(particleSystem);
+                //_gameContext.ParticleSystemManager.Remove(particleSystem);
             }
         }
 

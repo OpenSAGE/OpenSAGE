@@ -41,6 +41,7 @@ namespace OpenSage.Content
             _effects = new Dictionary<Type, Effect>
             {
                 { typeof(MeshEffect), AddDisposable(new MeshEffect(graphicsDevice)) },
+                { typeof(ParticleEffect), AddDisposable(new ParticleEffect(graphicsDevice)) },
                 { typeof(SpriteEffect), AddDisposable(new SpriteEffect(graphicsDevice)) },
             };
 

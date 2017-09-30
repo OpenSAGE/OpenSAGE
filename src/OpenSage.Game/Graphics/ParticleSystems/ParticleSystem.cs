@@ -10,62 +10,66 @@ using OpenSage.Data.Ini;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.ParticleSystems.VelocityTypes;
 using OpenSage.Graphics.ParticleSystems.VolumeTypes;
+using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Util;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
-    public sealed class ParticleSystem : GraphicsObject
+    public sealed class ParticleSystem : RenderableComponent
     {
-        private readonly IVelocityType _velocityType;
-        private readonly IVolumeType _volumeType;
+        private IVelocityType _velocityType;
+        private IVolumeType _volumeType;
 
-        private readonly Texture _texture;
+        private Texture _texture;
 
-        private readonly EffectPipelineStateHandle _pipelineStateHandle;
+        private ParticleEffect _particleEffect;
+        private EffectPipelineStateHandle _pipelineStateHandle;
 
         private int _initialDelay;
 
         private float _startSizeRate;
         private float _startSize;
 
-        private readonly List<ParticleColorKeyframe> _colorKeyframes;
+        private List<ParticleColorKeyframe> _colorKeyframes;
 
         private TimeSpan _nextUpdate;
 
         private int _timer;
         private int _nextBurst;
 
-        private readonly Particle[] _particles;
-        private readonly List<int> _deadList;
+        private Particle[] _particles;
+        private List<int> _deadList;
 
-        private readonly DynamicBuffer<ParticleVertex> _vertexBuffer;
-        private readonly ParticleVertex[] _vertices;
+        private DynamicBuffer<ParticleVertex> _vertexBuffer;
+        private ParticleVertex[] _vertices;
 
-        private readonly StaticBuffer<ushort> _indexBuffer;
-
-        private readonly Func<Matrix4x4> _getWorldMatrix;
+        private StaticBuffer<ushort> _indexBuffer;
 
         public ParticleSystemDefinition Definition { get; }
 
         public ParticleSystemState State { get; private set; }
 
-        public ParticleSystem(
-            ParticleSystemDefinition definition,
-            ContentManager contentManager,
-            Func<Matrix4x4> getWorldMatrix)
+        internal override BoundingBox LocalBoundingBox => throw new NotImplementedException();
+
+        public ParticleSystem(ParticleSystemDefinition definition)
         {
             Definition = definition;
+        }
 
-            _getWorldMatrix = getWorldMatrix;
+        protected override void Start()
+        {
+            base.Start();
 
-            _velocityType = VelocityTypeUtility.GetImplementation(definition.VelocityType);
-            _volumeType = VolumeTypeUtility.GetImplementation(definition.VolumeType);
+            _particleEffect = ContentManager.GetEffect<ParticleEffect>();
 
-            var texturePath = Path.Combine("Art", "Textures", definition.ParticleName);
-            _texture = contentManager.Load<Texture>(texturePath, uploadBatch: null);
+            _velocityType = VelocityTypeUtility.GetImplementation(Definition.VelocityType);
+            _volumeType = VolumeTypeUtility.GetImplementation(Definition.VolumeType);
 
-            var blendState = GetBlendState(definition.Shader);
+            var texturePath = Path.Combine("Art", "Textures", Definition.ParticleName);
+            _texture = ContentManager.Load<Texture>(texturePath, uploadBatch: null);
+
+            var blendState = GetBlendState(Definition.Shader);
 
             _pipelineStateHandle = new EffectPipelineState(
                 RasterizerStateDescription.CullBackSolid,
@@ -73,16 +77,16 @@ namespace OpenSage.Graphics.ParticleSystems
                 blendState)
                 .GetHandle();
 
-            _initialDelay = definition.InitialDelay.GetRandomInt();
+            _initialDelay = Definition.InitialDelay.GetRandomInt();
 
-            _startSizeRate = definition.StartSizeRate.GetRandomFloat();
+            _startSizeRate = Definition.StartSizeRate.GetRandomFloat();
             _startSize = 0;
 
             _colorKeyframes = new List<ParticleColorKeyframe>();
 
-            if (definition.Color1 != null)
+            if (Definition.Color1 != null)
             {
-                _colorKeyframes.Add(new ParticleColorKeyframe(definition.Color1));
+                _colorKeyframes.Add(new ParticleColorKeyframe(Definition.Color1));
             }
 
             void addColorKeyframe(RgbColorKeyframe keyframe, RgbColorKeyframe previous)
@@ -93,13 +97,13 @@ namespace OpenSage.Graphics.ParticleSystems
                 }
             }
 
-            addColorKeyframe(definition.Color2, definition.Color1);
-            addColorKeyframe(definition.Color3, definition.Color2);
-            addColorKeyframe(definition.Color4, definition.Color3);
-            addColorKeyframe(definition.Color5, definition.Color4);
-            addColorKeyframe(definition.Color6, definition.Color5);
-            addColorKeyframe(definition.Color7, definition.Color6);
-            addColorKeyframe(definition.Color8, definition.Color7);
+            addColorKeyframe(Definition.Color2, Definition.Color1);
+            addColorKeyframe(Definition.Color3, Definition.Color2);
+            addColorKeyframe(Definition.Color4, Definition.Color3);
+            addColorKeyframe(Definition.Color5, Definition.Color4);
+            addColorKeyframe(Definition.Color6, Definition.Color5);
+            addColorKeyframe(Definition.Color7, Definition.Color6);
+            addColorKeyframe(Definition.Color8, Definition.Color7);
 
             var maxParticles = CalculateMaxParticles();
 
@@ -112,16 +116,24 @@ namespace OpenSage.Graphics.ParticleSystems
             _deadList = new List<int>();
             _deadList.AddRange(Enumerable.Range(0, maxParticles));
 
-            _vertexBuffer = AddDisposable(DynamicBuffer<ParticleVertex>.CreateArray(
-                contentManager.GraphicsDevice,
+            _vertexBuffer = DynamicBuffer<ParticleVertex>.CreateArray(
+                GraphicsDevice,
                 maxParticles * 4,
-                BufferUsageFlags.None));
+                BufferUsageFlags.None);
 
             _vertices = new ParticleVertex[_vertexBuffer.ElementCount];
 
-            _indexBuffer = AddDisposable(CreateIndexBuffer(contentManager.GraphicsDevice, maxParticles));
+            _indexBuffer = CreateIndexBuffer(GraphicsDevice, maxParticles);
 
             State = ParticleSystemState.Active;
+        }
+
+        protected override void Destroy()
+        {
+            _indexBuffer.Dispose();
+            _vertexBuffer.Dispose();
+
+            base.Destroy();
         }
 
         private static BlendStateDescription GetBlendState(ParticleSystemShader shader)
@@ -174,7 +186,7 @@ namespace OpenSage.Graphics.ParticleSystems
             return (int) Definition.BurstCount.High + (int) Math.Ceiling(((Definition.Lifetime.High) / (Definition.BurstDelay.Low + 1)) * Definition.BurstCount.High);
         }
 
-        public void Update(GameTime gameTime)
+        internal void Update(GameTime gameTime)
         {
             if (gameTime.TotalGameTime < _nextUpdate)
             {
@@ -445,30 +457,28 @@ namespace OpenSage.Graphics.ParticleSystems
             _vertexBuffer.UpdateData(_vertices);
         }
 
-        public void Draw(
-            CommandEncoder commandEncoder,
-            ParticleEffect effect,
-            Camera camera)
+        internal override void BuildRenderList(RenderList renderList)
         {
-            effect.SetPipelineState(_pipelineStateHandle);
+            renderList.AddRenderItem(new RenderItem
+            {
+                Renderable = this,
+                Effect = _particleEffect,
+                PipelineStateHandle = _pipelineStateHandle,
+                RenderCallback = (commandEncoder, effect, pipelineStateHandle) =>
+                {
+                    _particleEffect.SetTexture(_texture);
 
-            var world = _getWorldMatrix();
-            effect.SetWorld(world);
+                    effect.Apply(commandEncoder);
 
-            effect.SetView(camera.ViewMatrix);
-            effect.SetProjection(camera.ProjectionMatrix);
+                    commandEncoder.SetVertexBuffer(0, _vertexBuffer);
 
-            effect.SetTexture(_texture);
-
-            effect.Apply(commandEncoder);
-
-            commandEncoder.SetVertexBuffer(0, _vertexBuffer);
-
-            commandEncoder.DrawIndexed(
-                PrimitiveType.TriangleList,
-                _indexBuffer.ElementCount,
-                _indexBuffer,
-                0);
+                    commandEncoder.DrawIndexed(
+                        PrimitiveType.TriangleList,
+                        _indexBuffer.ElementCount,
+                        _indexBuffer,
+                        0);
+                }
+            });
         }
 
         [StructLayout(LayoutKind.Sequential)]

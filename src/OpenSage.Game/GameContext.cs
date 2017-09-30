@@ -12,7 +12,7 @@ namespace OpenSage
         public GraphicsDevice GraphicsDevice { get; }
         public ContentManager ContentManager { get; }
         public IniDataContext IniDataContext { get; }
-        public ParticleSystemManager ParticleSystemManager { get; }
+        //public ParticleSystemManager ParticleSystemManager { get; }
         public MeshEffect MeshEffect { get; }
 
         public GameContext(FileSystem fileSystem, GraphicsDevice graphicsDevice)
@@ -29,7 +29,7 @@ namespace OpenSage
                 IniDataContext.LoadIniFile(iniFile);
             }
 
-            ParticleSystemManager = AddDisposable(new ParticleSystemManager(graphicsDevice));
+            //ParticleSystemManager = AddDisposable(new ParticleSystemManager(graphicsDevice));
 
             MeshEffect = AddDisposable(new MeshEffect(graphicsDevice));
         }

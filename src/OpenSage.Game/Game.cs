@@ -4,6 +4,7 @@ using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
+using OpenSage.Graphics.ParticleSystems;
 
 namespace OpenSage
 {
@@ -40,6 +41,7 @@ namespace OpenSage
             GameSystems = new List<GameSystem>();
 
             AddDisposable(new AnimationSystem(this));
+            AddDisposable(new ParticleSystemSystem(this));
 
             Graphics = AddDisposable(new GraphicsSystem(this));
 
@@ -49,6 +51,11 @@ namespace OpenSage
         public void Initialize(SwapChain swapChain)
         {
             SwapChain = swapChain;
+        }
+
+        public void ResetElapsedTime()
+        {
+            _gameTimer.Reset();
         }
 
         public void Activate()

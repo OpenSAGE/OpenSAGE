@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Caliburn.Micro;
-using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.DataViewer.Framework;
@@ -11,8 +10,7 @@ namespace OpenSage.DataViewer.ViewModels
     public sealed class IniFileContentViewModel : FileContentViewModel<FileSubObjectViewModel>
     {
         private readonly IniDataContext _iniDataContext;
-
-        private readonly GameContext _gameContext;
+        private readonly Game _game;
 
         public IniFileContentViewModel(FileSystemEntry file)
             : base(file)
@@ -20,11 +18,8 @@ namespace OpenSage.DataViewer.ViewModels
             _iniDataContext = new IniDataContext();
             _iniDataContext.LoadIniFile(file);
 
-            var graphicsDevice = IoC.Get<GraphicsDeviceManager>().GraphicsDevice;
-
-            _gameContext = AddDisposable(new GameContext(
-                file.FileSystem, 
-                graphicsDevice));
+            var graphicsDevice = IoC.Get<Framework.GraphicsDeviceManager>().GraphicsDevice;
+            _game = new Game(graphicsDevice, file.FileSystem);
         }
 
         protected override IReadOnlyList<FileSubObjectViewModel> CreateSubObjects()
@@ -35,14 +30,14 @@ namespace OpenSage.DataViewer.ViewModels
             {
                 result.Add(new ObjectDefinitionIniEntryViewModel(
                     objectDefinition,
-                    _gameContext));
+                    null)); // TODO
             }
 
             foreach (var particleSystem in _iniDataContext.ParticleSystems)
             {
                 result.Add(new ParticleSystemIniEntryViewModel(
                     particleSystem,
-                    _gameContext.ContentManager));
+                    _game));
             }
 
             return result;

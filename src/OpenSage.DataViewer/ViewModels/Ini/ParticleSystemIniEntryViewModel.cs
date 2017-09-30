@@ -1,31 +1,31 @@
 ﻿using System.Numerics;
-using LLGfx;
+using Caliburn.Micro;
 using OpenSage.Content;
+using OpenSage.Data;
 using OpenSage.Data.Ini;
-using OpenSage.DataViewer.Framework;
-using OpenSage.Graphics;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Graphics.Cameras.Controllers;
 using OpenSage.Graphics.ParticleSystems;
 
 namespace OpenSage.DataViewer.ViewModels.Ini
 {
-    public sealed class ParticleSystemIniEntryViewModel : FileSubObjectViewModel, IRenderableViewModel
+    public sealed class ParticleSystemIniEntryViewModel : FileSubObjectViewModel, IGameViewModel
     {
         private readonly ParticleSystemDefinition _definition;
 
-        private readonly ParticleSystemManager _particleSystemManager;
-        private readonly ContentManager _contentManager;
+        //private readonly ParticleSystemManager _particleSystemManager;
+        //private readonly ContentManager _contentManager;
 
+        private Entity _particleSystemEntity;
         private ParticleSystem _particleSystem;
 
-        private readonly GameTimer _gameTimer;
-
-        private readonly Camera _camera;
+        public Game Game { get; }
 
         public ArcballCameraController CameraController { get; }
 
-        CameraController IRenderableViewModel.CameraController => CameraController;
+        CameraController IGameViewModel.CameraController => CameraController;
 
-        void IRenderableViewModel.OnMouseMove(int x, int y) { }
+        void IGameViewModel.OnMouseMove(int x, int y) { }
 
         public override string GroupName => "Particle Systems";
 
@@ -33,65 +33,47 @@ namespace OpenSage.DataViewer.ViewModels.Ini
 
         public ParticleSystemIniEntryViewModel(
             ParticleSystemDefinition definition,
-            ContentManager contentManager)
+            Game game)
         {
             _definition = definition;
 
-            _particleSystemManager = AddDisposable(new ParticleSystemManager(contentManager.GraphicsDevice));
+            Game = game;
 
-            _contentManager = contentManager;
-
-            _camera = new Camera();
-            _camera.FieldOfView = 70;
-
-            CameraController = new ArcballCameraController(_camera);
-            CameraController.Reset(Vector3.Zero, 200);
-
-            _gameTimer = new GameTimer();
-            _gameTimer.Start();
-        }
-
-        public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain, RenderPassDescriptor renderPassDescriptor)
-        {
-            if (_particleSystem == null)
-                return;
-
-            _gameTimer.Update();
-
-            _particleSystemManager.Update(_gameTimer.CurrentGameTime);
-
-            var commandBuffer = graphicsDevice.CommandQueue.GetCommandBuffer();
-
-            var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
-
-            _camera.Viewport = new Viewport(
-                0,
-                0,
-                swapChain.BackBufferWidth,
-                swapChain.BackBufferHeight);
-
-            commandEncoder.SetViewport(_camera.Viewport);
-
-            _particleSystemManager.Draw(commandEncoder, _camera);
-
-            commandEncoder.Close();
-
-            commandBuffer.CommitAndPresent(swapChain);
+            CameraController = new ArcballCameraController();
         }
 
         public override void Activate()
         {
-            _particleSystem = new ParticleSystem(_definition, _contentManager, () => Matrix4x4.Identity);
-            _particleSystemManager.Add(_particleSystem);
+            var scene = new Scene();
 
-            _gameTimer.Reset();
+            var cameraEntity = new Entity();
+            scene.Entities.Add(cameraEntity);
+
+            cameraEntity.Components.Add(new PerspectiveCameraComponent
+            {
+                FieldOfView = 70
+            });
+
+            cameraEntity.Components.Add(CameraController);
+            CameraController.Reset(Vector3.Zero, 200);
+
+            _particleSystemEntity = new Entity();
+            scene.Entities.Add(_particleSystemEntity);
+
+            _particleSystem = new ParticleSystem(_definition);
+            _particleSystemEntity.Components.Add(_particleSystem);
+
+            Game.Scene = scene;
+
+            Game.ResetElapsedTime();
         }
 
         public override void Deactivate()
         {
-            _particleSystemManager.Remove(_particleSystem);
-            _particleSystem.Dispose();
+            _particleSystemEntity.Components.Remove(_particleSystem);
             _particleSystem = null;
+
+            Game.Scene = null;
         }
 
         protected override void Dispose(bool disposing)

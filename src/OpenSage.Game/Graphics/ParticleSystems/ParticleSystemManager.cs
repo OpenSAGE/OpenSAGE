@@ -1,36 +1,23 @@
 ﻿using System.Collections.Generic;
-using LLGfx;
-using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
-    public sealed class ParticleSystemManager : GraphicsObject
+    public sealed class ParticleSystemSystem : GameSystem
     {
         private readonly List<ParticleSystem> _particleSystems;
-        private readonly ParticleEffect _particleEffect;
 
-        public ParticleSystemManager(GraphicsDevice graphicsDevice)
+        private readonly List<ParticleSystem> _deadParticleSystems;
+
+        public ParticleSystemSystem(Game game)
+            : base(game)
         {
-            _particleSystems = new List<ParticleSystem>();
+            RegisterComponentList(_particleSystems = new List<ParticleSystem>());
 
-            _particleEffect = AddDisposable(new ParticleEffect(graphicsDevice));
+            _deadParticleSystems = new List<ParticleSystem>();
         }
 
-        public void Add(ParticleSystem particleSystem)
+        public override void Update(GameTime gameTime)
         {
-            _particleSystems.Add(particleSystem);
-        }
-
-        public void Remove(ParticleSystem particleSystem)
-        {
-            _particleSystems.Remove(particleSystem);
-        }
-
-        public void Update(GameTime gameTime)
-        {
-            // TODO: Don't allocate this every frame.
-            var deadParticleSystems = new List<int>();
-
             for (var i = 0; i < _particleSystems.Count; i++)
             {
                 var particleSystem = _particleSystems[i];
@@ -39,29 +26,16 @@ namespace OpenSage.Graphics.ParticleSystems
 
                 if (particleSystem.State == ParticleSystemState.Dead)
                 {
-                    deadParticleSystems.Add(i);
+                    _deadParticleSystems.Add(particleSystem);
                 }
             }
 
-            foreach (var deadParticleSystem in deadParticleSystems)
+            foreach (var deadParticleSystem in _deadParticleSystems)
             {
-                _particleSystems.RemoveAt(deadParticleSystem);
+                deadParticleSystem.Entity.Components.Remove(deadParticleSystem);
             }
-        }
 
-        public void Draw(
-            CommandEncoder commandEncoder,
-            Camera camera)
-        {
-            _particleEffect.Begin(commandEncoder);
-
-            foreach (var particleSystem in _particleSystems)
-            {
-                particleSystem.Draw(
-                    commandEncoder,
-                    _particleEffect,
-                    camera);
-            }
+            _deadParticleSystems.Clear();
         }
     }
 }

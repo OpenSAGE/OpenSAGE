@@ -89,7 +89,7 @@ namespace OpenSage.Terrain
                 thing.Update(gameTime);
             }
 
-            _gameContext.ParticleSystemManager.Update(gameTime);
+            //_gameContext.ParticleSystemManager.Update(gameTime);
         }
 
         public void Draw(
@@ -115,9 +115,9 @@ namespace OpenSage.Terrain
                     gameTime);
             }
 
-            _gameContext.ParticleSystemManager.Draw(
-                commandEncoder, 
-                camera);
+            //_gameContext.ParticleSystemManager.Draw(
+            //    commandEncoder, 
+            //    camera);
         }
     }
 }
