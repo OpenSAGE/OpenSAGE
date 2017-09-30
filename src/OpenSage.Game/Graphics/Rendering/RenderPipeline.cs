@@ -38,17 +38,8 @@ namespace OpenSage.Graphics.Rendering
 
             commandEncoder.SetViewport(context.Camera.Viewport);
 
-            // TODO: Don't do this conversion every time.
-            var lights = context.Scene.Settings?.CurrentLightingConfiguration.ToLights()
-                ?? new Effects.Lights
-                {
-                    Light0 = new Light
-                    {
-                        Ambient = new Vector3(0.3f, 0.3f, 0.3f),
-                        Direction = Vector3.Normalize(new Vector3(-0.3f, 0.2f, -0.8f)),
-                        Color = new Vector3(0.7f, 0.7f, 0.8f)
-                    }
-                };
+            // TODO: Object lights.
+            var lights = context.Scene.Settings.CurrentLightingConfiguration.TerrainLights;
 
             void doDrawPass(List<RenderListEffectGroup> effectGroups)
             {
@@ -85,6 +76,12 @@ namespace OpenSage.Graphics.Rendering
                             {
                                 continue;
                             }
+
+                            // TODO: Test this.
+                            //if (!context.Camera.BoundingFrustum.Intersects(renderItem.Renderable.BoundingBox))
+                            //{
+                            //    continue;
+                            //}
 
                             if (effect is IEffectMatrices m2)
                             {

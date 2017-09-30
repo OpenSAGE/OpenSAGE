@@ -35,7 +35,7 @@
         {
             // TODO: Validation.
 
-            PlatformSetShaderResourceView(index, texture.ShaderResourceView);
+            PlatformSetShaderResourceView(index, texture?.ShaderResourceView ?? GraphicsDevice.NullTextureShaderResourceView);
         }
 
         public void SetTextureSet(int index, TextureSet textureSet)
@@ -50,7 +50,7 @@
         {
             // TODO: Validation.
 
-            PlatformSetShaderResourceView(index, buffer.ShaderResourceView);
+            PlatformSetShaderResourceView(index, buffer?.ShaderResourceView ?? GraphicsDevice.NullBufferShaderResourceView);
         }
 
         public void SetInlineConstantBuffer(int index, Buffer buffer)

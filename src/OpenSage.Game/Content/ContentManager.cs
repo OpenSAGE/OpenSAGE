@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using LLGfx;
 using OpenSage.Data;
+using OpenSage.Data.Ini;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
 
@@ -21,6 +22,8 @@ namespace OpenSage.Content
 
         public FileSystem FileSystem => _fileSystem;
 
+        public IniDataContext IniDataContext { get; }
+
         public ContentManager(FileSystem fileSystem, GraphicsDevice graphicsDevice)
         {
             _fileSystem = fileSystem;
@@ -29,6 +32,7 @@ namespace OpenSage.Content
             _contentLoaders = new Dictionary<Type, ContentLoader>
             {
                 { typeof(Model), AddDisposable(new ModelLoader()) },
+                { typeof(Scene), AddDisposable(new MapLoader()) },
                 { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) }
             };
 
@@ -37,8 +41,16 @@ namespace OpenSage.Content
             _effects = new Dictionary<Type, Effect>
             {
                 { typeof(MeshEffect), AddDisposable(new MeshEffect(graphicsDevice)) },
-                { typeof(SpriteEffect), AddDisposable(new SpriteEffect(graphicsDevice)) }
+                { typeof(SpriteEffect), AddDisposable(new SpriteEffect(graphicsDevice)) },
             };
+
+            IniDataContext = new IniDataContext();
+            IniDataContext.LoadIniFile(fileSystem.GetFile(@"Data\INI\Terrain.ini"));
+            IniDataContext.LoadIniFile(fileSystem.GetFile(@"Data\INI\ParticleSystem.ini"));
+            foreach (var iniFile in fileSystem.GetFiles(@"Data\INI\Object"))
+            {
+                IniDataContext.LoadIniFile(iniFile);
+            }
         }
 
         public T GetEffect<T>()

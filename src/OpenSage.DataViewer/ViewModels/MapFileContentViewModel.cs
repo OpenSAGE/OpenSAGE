@@ -1,27 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Caliburn.Micro;
-using LLGfx;
 using OpenSage.Data;
 using OpenSage.Data.Map;
-using OpenSage.DataViewer.Framework;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Graphics.Cameras.Controllers;
 using OpenSage.Terrain;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public sealed class MapFileContentViewModel : FileContentViewModel, IRenderableViewModel
+    public sealed class MapFileContentViewModel : FileContentViewModel, IGameViewModel
     {
-        private readonly Map _map;
+        private readonly CameraComponent _camera;
+        private readonly TerrainComponent _terrain;
 
-        private readonly GameTimer _gameTimer;
-
-        private readonly Camera _camera;
+        public Game Game { get; }
 
         public MapCameraController CameraController { get; }
 
-        CameraController IRenderableViewModel.CameraController => CameraController;
+        CameraController IGameViewModel.CameraController => CameraController;
 
         public IEnumerable<TimeOfDay> TimesOfDay
         {
@@ -36,20 +36,10 @@ namespace OpenSage.DataViewer.ViewModels
 
         public TimeOfDay CurrentTimeOfDay
         {
-            get { return _map.CurrentTimeOfDay; }
+            get { return Game.Scene.Settings.TimeOfDay; }
             set
             {
-                _map.CurrentTimeOfDay = value;
-                NotifyOfPropertyChange();
-            }
-        }
-
-        public bool RenderWireframeOverlay
-        {
-            get { return _map.Terrain.RenderWireframeOverlay; }
-            set
-            {
-                _map.Terrain.RenderWireframeOverlay = value;
+                Game.Scene.Settings.TimeOfDay = value;
                 NotifyOfPropertyChange();
             }
         }
@@ -103,43 +93,40 @@ namespace OpenSage.DataViewer.ViewModels
         public MapFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
-            var graphicsDevice = IoC.Get<GraphicsDeviceManager>().GraphicsDevice;
+            var graphicsDevice = IoC.Get<Framework.GraphicsDeviceManager>().GraphicsDevice;
 
-            var gameContext = AddDisposable(new GameContext(
-                file.FileSystem, graphicsDevice));
+            Game = new Game(graphicsDevice, file.FileSystem);
 
-            var mapFile = MapFile.FromFileSystemEntry(file);
+            var scene = Game.ContentManager.Load<Scene>(file.FilePath, uploadBatch: null);
 
-            _map = AddDisposable(new Map(
-                mapFile,
-                gameContext));
+            _terrain = scene.Entities[0].GetComponent<TerrainComponent>();
 
-            _camera = new Camera();
-            _camera.FieldOfView = 70;
+            var cameraEntity = new Entity();
+            scene.Entities.Add(cameraEntity);
 
-            CameraController = new MapCameraController(_camera);
-            CameraController.Reset(_map.Terrain.BoundingBox.GetCenter());
+            cameraEntity.Components.Add(_camera = new PerspectiveCameraComponent
+            {
+                FieldOfView = 70
+            });
 
-            _gameTimer = AddDisposable(new GameTimer());
-            _gameTimer.Start();
+            CameraController = new MapCameraController();
+            cameraEntity.Components.Add(CameraController);
+            CameraController.Reset(_terrain.Entity.GetEnclosingBoundingBox().GetCenter());
+
+            Game.Scene = scene;
         }
 
         public void OnMouseMove(int x, int y)
         {
-            if (_map == null)
-            {
-                return;
-            }
-
             var ray = _camera.ScreenPointToRay(new Vector2(x, y));
 
-            var intersectionPoint = _map.Terrain.Intersect(ray);
+            var intersectionPoint = _terrain.Intersect(ray);
 
             if (intersectionPoint != null)
             {
                 MousePosition = $"Pos: ({intersectionPoint.Value.X.ToString("F1")}, {intersectionPoint.Value.Y.ToString("F1")}, {intersectionPoint.Value.Z.ToString("F1")})";
 
-                var tilePosition = _map.Terrain.HeightMap.GetTilePosition(intersectionPoint.Value);
+                var tilePosition = _terrain.HeightMap.GetTilePosition(intersectionPoint.Value);
                 if (tilePosition != null)
                 {
                     TilePosition = $"Tile: ({tilePosition.Value.X}, {tilePosition.Value.Y})";
@@ -154,40 +141,6 @@ namespace OpenSage.DataViewer.ViewModels
                 MousePosition = "Pos: No intersection";
                 TilePosition = "Tile: No intersection";
             }
-        }
-
-        public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain, RenderPassDescriptor renderPassDescriptor)
-        {
-            _gameTimer.Update();
-
-            _map.Update(_gameTimer.CurrentGameTime);
-
-            var commandBuffer = graphicsDevice.CommandQueue.GetCommandBuffer();
-
-            var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
-
-            _camera.Viewport = new Viewport(
-                0,
-                0,
-                swapChain.BackBufferWidth,
-                swapChain.BackBufferHeight);
-
-            commandEncoder.SetViewport(_camera.Viewport);
-
-            _map.Draw(commandEncoder, _camera, _gameTimer.CurrentGameTime);
-
-            commandEncoder.Close();
-
-            commandBuffer.CommitAndPresent(swapChain);
-
-            //_gameTimer.Update();
-
-            //var now = DateTime.Now;
-            //if (now > _nextFrameTimeUpdate)
-            //{
-            //    FrameTime = $"{_gameTimer.CurrentGameTime.ElapsedGameTime.TotalMilliseconds}ms";
-            //    _nextFrameTimeUpdate = now.AddSeconds(1);
-            //}
         }
     }
 }

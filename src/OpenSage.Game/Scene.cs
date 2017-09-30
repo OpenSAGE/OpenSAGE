@@ -6,7 +6,7 @@ namespace OpenSage
     {
         public Game Game { get; internal set; }
 
-        public SceneSettings Settings { get; }
+        public SceneSettings Settings { get; } = new SceneSettings();
 
         public SceneEntitiesCollection Entities { get; }
 

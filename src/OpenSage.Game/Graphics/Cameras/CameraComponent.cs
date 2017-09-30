@@ -28,7 +28,7 @@ namespace OpenSage.Graphics.Cameras
             _frustum = new BoundingFrustum(Matrix4x4.Identity);
             _normalizedViewportRectangle = new RectangleF(0, 0, 1, 1);
             NearPlaneDistance = 0.125f;
-            FarPlaneDistance = 1000.0f;
+            FarPlaneDistance = 5000.0f;
             _windowSize = new Size(100, 100);
 
             _renderContext = new RenderContext();

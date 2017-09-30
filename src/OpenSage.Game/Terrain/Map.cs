@@ -12,12 +12,12 @@ namespace OpenSage.Terrain
     {
         private readonly GameContext _gameContext;
 
-        private readonly Terrain _terrain;
+        //private readonly Terrain _terrain;
 
         private readonly Dictionary<TimeOfDay, Lights> _lightConfigurations;
         private Lights _lights;
 
-        public Terrain Terrain => _terrain;
+        //public Terrain Terrain => _terrain;
 
         private readonly MeshEffect _meshEffect;
 
@@ -39,55 +39,47 @@ namespace OpenSage.Terrain
         {
             _gameContext = gameContext;
 
-            _lightConfigurations = new Dictionary<TimeOfDay, Lights>();
-            foreach (var kvp in mapFile.GlobalLighting.LightingConfigurations)
-            {
-                _lightConfigurations[kvp.Key] = kvp.Value.ToLights();
-            }
-
-            CurrentTimeOfDay = mapFile.GlobalLighting.Time;
-
             var uploadBatch = new ResourceUploadBatch(gameContext.GraphicsDevice);
             uploadBatch.Begin();
 
-            _terrain = AddDisposable(new Terrain(mapFile, gameContext));
+            //_terrain = AddDisposable(new Terrain(mapFile, gameContext));
 
             uploadBatch.End();
 
-            _meshEffect = AddDisposable(new MeshEffect(gameContext.GraphicsDevice));
+            //_meshEffect = AddDisposable(new MeshEffect(gameContext.GraphicsDevice));
 
-            _things = new List<Thing>();
-            _roads = new List<Road>();
+            //_things = new List<Thing>();
+            //_roads = new List<Road>();
 
-            foreach (var mapObject in mapFile.ObjectsList.Objects)
-            {
-                uploadBatch.Begin();
+            //foreach (var mapObject in mapFile.ObjectsList.Objects)
+            //{
+            //    uploadBatch.Begin();
 
-                switch (mapObject.RoadType)
-                {
-                    case RoadType.None:
-                        var objectDefinition = gameContext.IniDataContext.Objects.FirstOrDefault(x => x.Name == mapObject.TypeName);
-                        if (objectDefinition != null)
-                        {
-                            var position = mapObject.Position.ToVector3();
-                            position.Z = _terrain.HeightMap.GetHeight(position.X, position.Y);
+            //    switch (mapObject.RoadType)
+            //    {
+            //        case RoadType.None:
+            //            var objectDefinition = gameContext.IniDataContext.Objects.FirstOrDefault(x => x.Name == mapObject.TypeName);
+            //            if (objectDefinition != null)
+            //            {
+            //                var position = mapObject.Position.ToVector3();
+            //                position.Z = _terrain.HeightMap.GetHeight(position.X, position.Y);
 
-                            _things.Add(AddDisposable(new Thing(
-                                objectDefinition,
-                                position,
-                                mapObject.Angle,
-                                gameContext,
-                                uploadBatch)));
-                        }
-                        break;
+            //                _things.Add(AddDisposable(new Thing(
+            //                    objectDefinition,
+            //                    position,
+            //                    mapObject.Angle,
+            //                    gameContext,
+            //                    uploadBatch)));
+            //            }
+            //            break;
 
-                    default:
-                        _roads.Add(AddDisposable(new Road()));
-                        break;
-                }
+            //        default:
+            //            _roads.Add(AddDisposable(new Road()));
+            //            break;
+            //    }
 
-                uploadBatch.End();
-            }
+            //    uploadBatch.End();
+            //}
         }
 
         public void Update(GameTime gameTime)
@@ -105,10 +97,10 @@ namespace OpenSage.Terrain
             Camera camera,
             GameTime gameTime)
         {
-            Terrain.Draw(
-                commandEncoder,
-                camera,
-                ref _lights);
+            //Terrain.Draw(
+            //    commandEncoder,
+            //    camera,
+            //    ref _lights);
 
             _meshEffect.Begin(commandEncoder);
 
