@@ -54,6 +54,18 @@ namespace OpenSage.Content
             }
         }
 
+        public void Unload()
+        {
+            foreach (var cachedObject in _cachedObjects.Values)
+            {
+                if (cachedObject is IDisposable d)
+                {
+                    RemoveAndDispose(d);
+                }
+            }
+            _cachedObjects.Clear();
+        }
+
         public T GetEffect<T>()
             where T : Effect
         {

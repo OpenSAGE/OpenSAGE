@@ -10,6 +10,7 @@ namespace OpenSage.DataViewer
     public class Bootstrapper : BootstrapperBase
     {
         private GraphicsDeviceManager _graphicsDeviceManager;
+        private GameService _gameService;
         private SimpleContainer container;
 
         public Bootstrapper()
@@ -20,11 +21,13 @@ namespace OpenSage.DataViewer
         protected override void Configure()
         {
             _graphicsDeviceManager = new GraphicsDeviceManager();
+            _gameService = new GameService();
 
             container = new SimpleContainer();
 
             container.Singleton<IWindowManager, WindowManager>();
             container.Instance(_graphicsDeviceManager);
+            container.Instance(_gameService);
 
             container.PerRequest<ShellViewModel>();
 
@@ -58,6 +61,7 @@ namespace OpenSage.DataViewer
 
         protected override void OnExit(object sender, EventArgs e)
         {
+            _gameService.Dispose();
             _graphicsDeviceManager.Dispose();
 
             base.OnExit(sender, e);

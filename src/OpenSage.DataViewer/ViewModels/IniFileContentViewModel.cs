@@ -18,8 +18,7 @@ namespace OpenSage.DataViewer.ViewModels
             _iniDataContext = new IniDataContext();
             _iniDataContext.LoadIniFile(file);
 
-            var graphicsDevice = IoC.Get<GraphicsDeviceManager>().GraphicsDevice;
-            _game = new Game(graphicsDevice, file.FileSystem);
+            _game = IoC.Get<GameService>().Game;
         }
 
         protected override IReadOnlyList<FileSubObjectViewModel> CreateSubObjects()
@@ -41,13 +40,6 @@ namespace OpenSage.DataViewer.ViewModels
             }
 
             return result;
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            _game.Scene = null;
-
-            base.Dispose(disposing);
         }
     }
 }

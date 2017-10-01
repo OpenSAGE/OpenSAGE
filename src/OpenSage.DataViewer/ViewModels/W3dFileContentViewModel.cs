@@ -5,6 +5,7 @@ using System.Numerics;
 using Caliburn.Micro;
 using OpenSage.Data;
 using OpenSage.Data.W3d;
+using OpenSage.DataViewer.Framework;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
@@ -28,31 +29,23 @@ namespace OpenSage.DataViewer.ViewModels
         {
             _w3dFile = W3dFile.FromFileSystemEntry(file);
 
-            var graphicsDevice = IoC.Get<Framework.GraphicsDeviceManager>().GraphicsDevice;
-
-            Game = new Game(graphicsDevice, file.FileSystem);
+            Game = IoC.Get<GameService>().Game;
 
             var scene = new Scene();
 
             var cameraEntity = new Entity();
             scene.Entities.Add(cameraEntity);
 
-            cameraEntity.Components.Add(new PerspectiveCameraComponent
-            {
-                FieldOfView = 70
-            });
+            cameraEntity.Components.Add(new PerspectiveCameraComponent { FieldOfView = 70 });
 
-            var model = Game.ContentManager.Load<Model>(File.FilePath, uploadBatch: null);
-            _modelEntity = model.CreateEntity();
+            _modelEntity = Game.ContentManager.Load<Model>(File.FilePath, uploadBatch: null).CreateEntity();
             scene.Entities.Add(_modelEntity);
 
             var enclosingBoundingBox = _modelEntity.GetEnclosingBoundingBox();
 
-            var cameraController = new ArcballCameraController();
-            cameraEntity.Components.Add(cameraController);
-            cameraController.Reset(
+            cameraEntity.Components.Add(new ArcballCameraController(
                 enclosingBoundingBox.GetCenter(),
-                Vector3.Distance(enclosingBoundingBox.Min, enclosingBoundingBox.Max) / 1.5f);
+                Vector3.Distance(enclosingBoundingBox.Min, enclosingBoundingBox.Max) / 1.5f));
 
             Game.Scene = scene;
 

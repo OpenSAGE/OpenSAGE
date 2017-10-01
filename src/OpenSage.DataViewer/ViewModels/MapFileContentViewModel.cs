@@ -5,6 +5,7 @@ using System.Numerics;
 using Caliburn.Micro;
 using OpenSage.Data;
 using OpenSage.Data.Map;
+using OpenSage.DataViewer.Framework;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Cameras.Controllers;
@@ -89,9 +90,7 @@ namespace OpenSage.DataViewer.ViewModels
         public MapFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
-            var graphicsDevice = IoC.Get<Framework.GraphicsDeviceManager>().GraphicsDevice;
-
-            Game = new Game(graphicsDevice, file.FileSystem);
+            Game = IoC.Get<GameService>().Game;
 
             var scene = Game.ContentManager.Load<Scene>(file.FilePath, uploadBatch: null);
 

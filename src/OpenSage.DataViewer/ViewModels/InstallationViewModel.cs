@@ -1,18 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Windows.Input;
+﻿using System.Linq;
 using Caliburn.Micro;
 using OpenSage.Data;
-using OpenSage.DataViewer.Framework;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-
-    public class InstallationViewModel : PropertyChangedBase
+    public sealed class InstallationViewModel : PropertyChangedBase
     {
         private FileSystem _fileSystem;
+
+        public FileSystem FileSystem
+        {
+            get
+            {
+                if (_fileSystem == null)
+                {
+                    _fileSystem = new FileSystem(Path);
+                }
+                return _fileSystem;
+            }
+        }
 
         public string DisplayName { get; }
         public string Path { get; }
@@ -24,8 +30,6 @@ namespace OpenSage.DataViewer.ViewModels
             {
                 if (_tabs == null)
                 {
-                    _fileSystem = new FileSystem(Path);
-
                     var tabs = new[]
                     {
                         new TabViewModel("3D Models", new[] { ".w3d" }),
@@ -39,7 +43,7 @@ namespace OpenSage.DataViewer.ViewModels
                         new TabViewModel("Other", new string[0]),
                     };
 
-                    foreach (var file in _fileSystem.Files)
+                    foreach (var file in FileSystem.Files)
                     {
                         var fileExtension = System.IO.Path.GetExtension(file.FilePath).ToLower();
                         var tab = tabs.First(x => x.FileExtensions.Contains(fileExtension) || x.FileExtensions.Length == 0);

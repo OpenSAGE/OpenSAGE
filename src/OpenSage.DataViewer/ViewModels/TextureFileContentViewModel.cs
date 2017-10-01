@@ -39,7 +39,7 @@ namespace OpenSage.DataViewer.ViewModels
 
             var graphicsDevice = IoC.Get<GraphicsDeviceManager>().GraphicsDevice;
 
-            _game = new Game(graphicsDevice, File.FileSystem);
+            _game = IoC.Get<GameService>().Game;
 
             _spriteComponent.Texture = AddDisposable(_game.ContentManager.Load<Texture>(
                 File.FilePath,
@@ -52,18 +52,16 @@ namespace OpenSage.DataViewer.ViewModels
             var scene = new Scene();
 
             var entity = new Entity();
-            scene.Entities.Add(entity);
-
             entity.Components.Add(new PerspectiveCameraComponent());
-
             entity.Components.Add(_spriteComponent);
+            scene.Entities.Add(entity);
 
             _game.Scene = scene;
         }
 
         public void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
-            _game.Initialize(swapChain);
+            _game.SetSwapChain(swapChain);
         }
 
         public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)

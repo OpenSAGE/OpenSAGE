@@ -62,7 +62,7 @@ namespace OpenSage
             GameSystems.ForEach(gs => gs.Initialize());
         }
 
-        public void Initialize(SwapChain swapChain)
+        public void SetSwapChain(SwapChain swapChain)
         {
             SwapChain = swapChain;
         }

@@ -20,6 +20,9 @@ namespace OpenSage.DataViewer.ViewModels
             {
                 _selectedInstallation = value;
                 NotifyOfPropertyChange();
+
+                var gameService = IoC.Get<GameService>();
+                gameService.OnFileSystemChanged(value.FileSystem);
             }
         }
 

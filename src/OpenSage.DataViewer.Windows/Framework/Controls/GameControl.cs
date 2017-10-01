@@ -21,7 +21,12 @@ namespace OpenSage.DataViewer.Framework.Controls
         {
             base.OnUnloaded(sender, e);
 
+            TypedDataContext.Game.SetSwapChain(null);
+            TypedDataContext.Game.Input.InputProvider = null;
+
             TypedDataContext.Game.Scene = null;
+
+            TypedDataContext.Game.ContentManager.Unload();
 
             TypedDataContext.Dispose();
         }
@@ -31,8 +36,7 @@ namespace OpenSage.DataViewer.Framework.Controls
             base.RaiseGraphicsInitialize(args);
 
             TypedDataContext.Game.Input.InputProvider = new HwndHostInputProvider(this);
-
-            TypedDataContext.Game.Initialize(SwapChain);
+            TypedDataContext.Game.SetSwapChain(SwapChain);
         }
 
         protected override void Draw()
