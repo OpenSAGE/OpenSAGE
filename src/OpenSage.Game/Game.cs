@@ -5,6 +5,7 @@ using OpenSage.Data;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.ParticleSystems;
+using OpenSage.Logic.Object;
 
 namespace OpenSage
 {
@@ -41,6 +42,7 @@ namespace OpenSage
             GameSystems = new List<GameSystem>();
 
             AddDisposable(new AnimationSystem(this));
+            AddDisposable(new ObjectSystem(this));
             AddDisposable(new ParticleSystemSystem(this));
 
             Graphics = AddDisposable(new GraphicsSystem(this));

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 using OpenSage.Mathematics;
 
 namespace OpenSage
@@ -16,14 +12,14 @@ namespace OpenSage
         private Matrix4x4 _cachedWorldToLocalMatrix;
         private Vector3? _cachedLocalEulerAngles;
 
-        private TransformComponent _parent;
+        internal TransformComponent ParentDirect;
 
         public TransformComponent Parent
         {
-            get { return _parent; }
+            get { return ParentDirect; }
             set
             {
-                var oldParent = _parent;
+                var oldParent = ParentDirect;
                 if (oldParent == value)
                 {
                     return;
@@ -87,14 +83,14 @@ namespace OpenSage
         {
             get
             {
-                return (_parent != null)
-                    ? Vector3.Transform(LocalPosition, _parent.LocalToWorldMatrix)
+                return (ParentDirect != null)
+                    ? Vector3.Transform(LocalPosition, ParentDirect.LocalToWorldMatrix)
                     : LocalPosition;
             }
             set
             {
-                LocalPosition = (_parent != null)
-                    ? Vector3.Transform(value, _parent.WorldToLocalMatrix)
+                LocalPosition = (ParentDirect != null)
+                    ? Vector3.Transform(value, ParentDirect.WorldToLocalMatrix)
                     : value;
                 ClearCachedMatrices();
             }
@@ -123,14 +119,14 @@ namespace OpenSage
         {
             get
             {
-                return (_parent != null)
-                    ? LocalRotation * _parent.WorldRotation
+                return (ParentDirect != null)
+                    ? LocalRotation * ParentDirect.WorldRotation
                     : LocalRotation;
             }
             set
             {
-                LocalRotation = (_parent != null)
-                    ? value * _parent.WorldRotation
+                LocalRotation = (ParentDirect != null)
+                    ? value * ParentDirect.WorldRotation
                     : value;
                 ClearCachedMatrices();
             }
@@ -222,7 +218,7 @@ namespace OpenSage
             }
         }
 
-        private void ClearCachedMatrices()
+        internal void ClearCachedMatrices()
         {
             ClearCachedMatricesLocal();
 
@@ -258,7 +254,7 @@ namespace OpenSage
             if (transform == null)
                 return Matrix4x4.Identity;
 
-            var result = AppendMatrixRecursive(transform._parent);
+            var result = AppendMatrixRecursive(transform.ParentDirect);
             result = transform.LocalMatrix * result;
 
             return result;
@@ -283,59 +279,13 @@ namespace OpenSage
         /// </summary>
         public TransformComponent()
         {
-            Children = new TransformChildrenCollection();
-            Children.CollectionChanged += OnChildrenChanged;
+            Children = new TransformChildrenCollection(this);
 
             LocalScale = new Vector3(1, 1, 1);
             LocalPosition = Vector3.Zero;
             LocalRotation = Quaternion.Identity;
 
             ClearCachedMatricesLocal();
-        }
-
-        private void AddItems(IEnumerable<TransformComponent> items)
-        {
-            foreach (var item in items)
-            {
-                if (item._parent != null)
-                {
-                    throw new InvalidOperationException();
-                }
-
-                item.ClearCachedMatrices();
-                item._parent = this;
-            }
-        }
-
-        private void RemoveItems(IEnumerable<TransformComponent> items)
-        {
-            foreach (var item in items)
-            {
-                if (item._parent != this)
-                {
-                    throw new InvalidOperationException();
-                }
-
-                item.ClearCachedMatrices();
-                item._parent = null;
-            }
-        }
-
-        private void OnChildrenChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    AddItems(e.NewItems.Cast<TransformComponent>());
-                    break;
-
-                case NotifyCollectionChangedAction.Remove:
-                    RemoveItems(e.OldItems.Cast<TransformComponent>());
-                    break;
-
-                default:
-                    throw new NotSupportedException();
-            }
         }
 
         /// <summary>

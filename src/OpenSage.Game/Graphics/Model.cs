@@ -39,14 +39,14 @@ namespace OpenSage.Graphics
                     : result.Transform;
 
                 var boneEntity = new Entity();
-                boneEntity.Name = bone.Name;
+                boneEntity.Name = bone.Name + " Animation Offset Parent";
                 boneEntity.Transform.LocalPosition = bone.Translation;
                 boneEntity.Transform.LocalRotation = bone.Rotation;
 
                 parentTransform.Children.Add(boneEntity.Transform);
 
                 var animatedBoneEntity = new Entity();
-                animatedBoneEntity.Name = bone.Name + " Animated Offset";
+                animatedBoneEntity.Name = bone.Name;
                 boneEntity.AddChild(animatedBoneEntity);
 
                 boneTransforms[i] = animatedBoneEntity.Transform;

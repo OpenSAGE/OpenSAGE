@@ -7,87 +7,98 @@ using LLGfx;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.ParticleSystems;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class W3dModelDraw : Drawable
+    public sealed class W3dModelDraw : DrawableComponent
     {
-        private readonly List<W3dModelDrawConditionState> _conditionStates;
-        private readonly W3dModelDrawConditionState _defaultConditionState;
+        private readonly W3dModelDrawModuleData _data;
 
-        private W3dModelDrawConditionState _activeConditionState;
+        private readonly List<ModelConditionState> _conditionStates;
+        private readonly ModelConditionState _defaultConditionState;
+
+        private ModelConditionState _activeConditionState;
 
         public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates
         {
             get
             {
-                if (_defaultConditionState != null)
+                if (_data.DefaultConditionState != null)
                 {
-                    yield return _defaultConditionState.Flags;
+                    yield return _data.DefaultConditionState.ConditionFlags;
                 }
 
-                foreach (var conditionState in _conditionStates)
+                foreach (var conditionState in _data.ConditionStates)
                 {
-                    yield return conditionState.Flags;
+                    yield return conditionState.ConditionFlags;
                 }
             }
         }
 
-        public W3dModelDraw(
-            W3dModelDrawModuleData data,
-            GameContext gameContext,
-            ResourceUploadBatch uploadBatch)
+        public W3dModelDraw(W3dModelDrawModuleData data)
         {
-            _conditionStates = new List<W3dModelDrawConditionState>();
+            _data = data;
+
+            _conditionStates = new List<ModelConditionState>();
 
             if (data.DefaultConditionState != null)
             {
-                _defaultConditionState = AddDisposable(new W3dModelDrawConditionState(gameContext, data.DefaultConditionState));
+                _defaultConditionState = data.DefaultConditionState;
             }
 
             foreach (var conditionState in data.ConditionStates)
             {
-                _conditionStates.Add(AddDisposable(new W3dModelDrawConditionState(gameContext, conditionState)));
+                _conditionStates.Add(conditionState);
             }
 
             if (_defaultConditionState == null)
             {
-                _defaultConditionState = _conditionStates.Find(x => !x.Flags.AnyBitSet);
+                _defaultConditionState = _conditionStates.Find(x => !x.ConditionFlags.AnyBitSet);
 
-                if (_defaultConditionState == null)
+                if (_defaultConditionState != null)
+                {
+                    _conditionStates.Remove(_defaultConditionState);
+                }
+                else
                 {
                     throw new InvalidOperationException();
                 }
             }
+        }
+
+        protected override void Start()
+        {
+            base.Start();
 
             SetActiveConditionState(_defaultConditionState);
         }
 
-        private void SetActiveConditionState(W3dModelDrawConditionState conditionState)
+        private void SetActiveConditionState(ModelConditionState conditionState)
         {
             if (_activeConditionState == conditionState)
             {
                 return;
             }
 
-            _activeConditionState?.Unload();
+            Entity.Transform.Children.Clear();
 
             _activeConditionState = conditionState;
 
-            _activeConditionState.Load();
+            Entity.AddChild(CreateModelDrawConditionStateEntity(conditionState));
         }
 
         public override void UpdateConditionState(BitArray<ModelConditionFlag> flags)
         {
-            W3dModelDrawConditionState bestConditionState = null;
+            ModelConditionState bestConditionState = null;
             var bestMatch = int.MinValue;
 
             // Find best matching ConditionState.
             foreach (var conditionState in _conditionStates)
             {
-                var match = conditionState.Flags.And(flags).NumBitsSet;
+                var match = conditionState.ConditionFlags.And(flags).NumBitsSet;
                 if (match > bestMatch)
                 {
                     bestConditionState = conditionState;
@@ -103,175 +114,71 @@ namespace OpenSage.Logic.Object
             SetActiveConditionState(bestConditionState);
         }
 
-        public override void Update(GameTime gameTime)
+        private Entity CreateModelDrawConditionStateEntity(ModelConditionState conditionState)
         {
-            _activeConditionState.Update(gameTime);
-        }
+            var result = new Entity();
 
-        public override void Draw(
-            CommandEncoder commandEncoder,
-            MeshEffect meshEffect,
-            Camera camera,
-            ref Matrix4x4 world,
-            GameTime gameTime)
-        {
-            _activeConditionState.Draw(
-                commandEncoder,
-                meshEffect,
-                camera,
-                ref world,
-                gameTime);
-        }
-    }
-
-    internal sealed class W3dModelDrawConditionState : GraphicsObject
-    {
-        private readonly GameContext _gameContext;
-        private readonly ModelConditionState _data;
-
-        //private readonly List<AnimationPlayer> _animationPlayers;
-        //private ModelInstance _modelInstance;
-
-        private readonly List<ParticleSystem> _particleSystems;
-
-        private bool _loaded;
-
-        public BitArray<ModelConditionFlag> Flags { get; }
-
-        public W3dModelDrawConditionState(
-            GameContext gameContext, 
-            ModelConditionState data)
-        {
-            _gameContext = gameContext;
-            _data = data;
-
-            Flags = data.ConditionFlags;
-
-            //_animationPlayers = new List<AnimationPlayer>();
-            _particleSystems = new List<ParticleSystem>();
-        }
-
-        public void Load()
-        {
-            //if (_loaded)
-            //{
-            //    foreach (var particleSystem in _particleSystems)
-            //    {
-            //        _gameContext.ParticleSystemManager.Add(particleSystem);
-            //    }
-            //    return;
-            //}
-
-            //var uploadBatch = new ResourceUploadBatch(_gameContext.GraphicsDevice);
-            //uploadBatch.Begin();
-
-            //if (!string.Equals(_data.Model, "NONE", System.StringComparison.OrdinalIgnoreCase))
-            //{
-            //    var w3dFilePath = Path.Combine("Art", "W3D", _data.Model + ".W3D");
-            //    var model = _gameContext.ContentManager.Load<Model>(w3dFilePath, uploadBatch);
-            //    if (model != null)
-            //    {
-            //        _modelInstance = AddDisposable(new ModelInstance(model, _gameContext.GraphicsDevice));
-            //    }
-            //}
-
-            //if (_modelInstance != null)
-            //{
-            //    // TODO: Multiple animations. Shouldn't play all of them. I think
-            //    // we should randomly choose one of them?
-            //    // And there is also IdleAnimation.
-            //    if (_data.Animations.Count > 0)
-            //    {
-            //        var objectConditionAnimation = _data.Animations[0];
-
-            //        var splitName = objectConditionAnimation.Animation.Split('.');
-
-            //        var w3dFilePath = Path.Combine("Art", "W3D", splitName[0] + ".W3D");
-            //        var model = _gameContext.ContentManager.Load<Model>(w3dFilePath, uploadBatch);
-
-            //        var animation = model.Animations.FirstOrDefault(x => string.Equals(x.Name, splitName[1], StringComparison.OrdinalIgnoreCase));
-            //        if (animation != null)
-            //        {
-            //            // TODO: Should this ever be null?
-
-            //            var animationPlayer = new AnimationPlayer(animation, _modelInstance);
-
-            //            _animationPlayers.Add(animationPlayer);
-
-            //            animationPlayer.Start();
-            //        }
-            //    }
-            //}
-
-            //if (_modelInstance != null)
-            //{
-            //    foreach (var particleSysBone in _data.ParticleSysBones)
-            //    {
-            //        var particleSystemDefinition = _gameContext.IniDataContext.ParticleSystems.First(x => x.Name == particleSysBone.ParticleSystem);
-            //        var bone = _modelInstance.Model.Bones.FirstOrDefault(x => string.Equals(x.Name, particleSysBone.BoneName, StringComparison.OrdinalIgnoreCase));
-            //        if (bone == null)
-            //        {
-            //            // TODO: Should this ever happen?
-            //            continue;
-            //        }
-
-            //        var particleSystem = AddDisposable(new ParticleSystem(
-            //            particleSystemDefinition,
-            //            _gameContext.ContentManager,
-            //            () => _modelInstance.AbsoluteBoneTransforms[bone.Index] * _savedWorld));
-
-            //        _particleSystems.Add(particleSystem);
-
-            //        _gameContext.ParticleSystemManager.Add(particleSystem);
-
-            //        AddDisposeAction(() => _gameContext.ParticleSystemManager.Remove(particleSystem));
-            //    }
-            //}
-
-            //uploadBatch.End();
-
-            //_loaded = true;
-        }
-
-        public void Unload()
-        {
-            foreach (var particleSystem in _particleSystems)
+            Entity modelEntity = null;
+            if (!string.Equals(conditionState.Model, "NONE", StringComparison.OrdinalIgnoreCase))
             {
-                //_gameContext.ParticleSystemManager.Remove(particleSystem);
+                var w3dFilePath = Path.Combine("Art", "W3D", conditionState.Model + ".W3D");
+                var model = ContentManager.Load<Model>(w3dFilePath, uploadBatch: null);
+                if (model != null)
+                {
+                    result.AddChild(modelEntity = model.CreateEntity());
+                }
             }
-        }
 
-        public void Update(GameTime gameTime)
-        {
-            //foreach (var animationPlayer in _animationPlayers)
-            //{
-            //    animationPlayer.Update(gameTime);
-            //}
-        }
+            if (modelEntity != null)
+            {
+                // TODO: Multiple animations. Shouldn't play all of them. I think
+                // we should randomly choose one of them?
+                // And there is also IdleAnimation.
+                if (conditionState.Animations.Count > 0)
+                {
+                    var objectConditionAnimation = conditionState.Animations[0];
 
-        // TODO: Don't do this.
-        private Matrix4x4 _savedWorld;
+                    var splitName = objectConditionAnimation.Animation.Split('.');
 
-        public void Draw(
-            CommandEncoder commandEncoder,
-            MeshEffect meshEffect,
-            Camera camera,
-            ref Matrix4x4 world,
-            GameTime gameTime)
-        {
-            //if (_modelInstance == null)
-            //{
-            //    return;
-            //}
+                    var w3dFilePath = Path.Combine("Art", "W3D", splitName[0] + ".W3D");
+                    var model = ContentManager.Load<Model>(w3dFilePath, uploadBatch: null);
 
-            //_savedWorld = world;
+                    var animation = model.Animations.FirstOrDefault(x => string.Equals(x.Name, splitName[1], StringComparison.OrdinalIgnoreCase));
+                    if (animation != null)
+                    {
+                        // TODO: Should this ever be null?
 
-            //_modelInstance.Draw(
-            //    commandEncoder,
-            //    meshEffect,
-            //    camera,
-            //    ref world,
-            //    gameTime);
+                        var animationComponent = new AnimationComponent
+                        {
+                            Animation = animation
+                        };
+
+                        modelEntity.Components.Add(animationComponent);
+
+                        animationComponent.Play();
+                    }
+                }
+            }
+
+            if (modelEntity != null)
+            {
+                foreach (var particleSysBone in conditionState.ParticleSysBones)
+                {
+                    var particleSystemDefinition = ContentManager.IniDataContext.ParticleSystems.First(x => x.Name == particleSysBone.ParticleSystem);
+                    var bone = modelEntity.GetComponent<ModelComponent>().Bones.FirstOrDefault(x => string.Equals(x.Entity.Name, particleSysBone.BoneName, StringComparison.OrdinalIgnoreCase));
+                    if (bone == null)
+                    {
+                        // TODO: Should this ever happen?
+                        throw new InvalidOperationException();
+                        continue;
+                    }
+
+                    var particleSystem = new ParticleSystem(particleSystemDefinition);
+                    bone.Entity.Components.Add(particleSystem);
+                }
+            }
+
+            return result;
         }
     }
 

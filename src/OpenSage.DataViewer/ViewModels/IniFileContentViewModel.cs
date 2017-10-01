@@ -30,7 +30,7 @@ namespace OpenSage.DataViewer.ViewModels
             {
                 result.Add(new ObjectDefinitionIniEntryViewModel(
                     objectDefinition,
-                    null)); // TODO
+                    _game));
             }
 
             foreach (var particleSystem in _iniDataContext.ParticleSystems)

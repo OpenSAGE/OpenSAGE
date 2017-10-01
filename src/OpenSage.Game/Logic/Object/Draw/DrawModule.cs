@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
-using LLGfx;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
-using OpenSage.Graphics;
-using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Logic.Object
 {
-    public abstract class Drawable : GraphicsObject
+    public abstract class DrawableComponent : EntityComponent
     {
         public abstract IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; }
 
@@ -17,15 +13,6 @@ namespace OpenSage.Logic.Object
         {
 
         }
-
-        public abstract void Update(GameTime gameTime);
-
-        public abstract void Draw(
-            CommandEncoder commandEncoder,
-            MeshEffect meshEffect,
-            Camera camera,
-            ref Matrix4x4 world,
-            GameTime gameTime);
     }
 
     public abstract class DrawModuleData : ModuleData

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenSage.Logic.Object;
 
 namespace OpenSage
 {
@@ -11,6 +12,30 @@ namespace OpenSage
     /// </summary>
     public sealed class Entity
     {
+        public static Entity FromObjectDefinition(ObjectDefinition objectDefinition)
+        {
+            var result = new Entity();
+            result.Name = objectDefinition.Name;
+
+            foreach (var draw in objectDefinition.Draws)
+            {
+                var drawEntity = new Entity();
+                drawEntity.Name = draw.Tag;
+                result.AddChild(drawEntity);
+
+                switch (draw)
+                {
+                    case W3dModelDrawModuleData modelDrawData:
+                        drawEntity.Components.Add(new W3dModelDraw(modelDrawData));
+                        break;
+
+                    // TODO
+                }
+            }
+
+            return result;
+        }
+
         public string Name { get; set; }
 
         // TODO: Cache this property in ancestors and descendants.

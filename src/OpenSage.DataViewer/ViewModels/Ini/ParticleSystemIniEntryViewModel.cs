@@ -13,9 +13,6 @@ namespace OpenSage.DataViewer.ViewModels.Ini
     {
         private readonly ParticleSystemDefinition _definition;
 
-        //private readonly ParticleSystemManager _particleSystemManager;
-        //private readonly ContentManager _contentManager;
-
         private Entity _particleSystemEntity;
         private ParticleSystem _particleSystem;
 

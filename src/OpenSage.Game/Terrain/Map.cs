@@ -21,7 +21,7 @@ namespace OpenSage.Terrain
 
         private readonly MeshEffect _meshEffect;
 
-        private readonly List<Thing> _things;
+        //private readonly List<Thing> _things;
         private readonly List<Road> _roads;
 
         private TimeOfDay _currentTimeOfDay;
@@ -84,10 +84,10 @@ namespace OpenSage.Terrain
 
         public void Update(GameTime gameTime)
         {
-            foreach (var thing in _things)
-            {
-                thing.Update(gameTime);
-            }
+            //foreach (var thing in _things)
+            //{
+            //    thing.Update(gameTime);
+            //}
 
             //_gameContext.ParticleSystemManager.Update(gameTime);
         }
@@ -106,14 +106,14 @@ namespace OpenSage.Terrain
 
             _meshEffect.SetLights(ref _lights);
 
-            foreach (var thing in _things)
-            {
-                thing.Draw(
-                    commandEncoder,
-                    _meshEffect,
-                    camera,
-                    gameTime);
-            }
+            //foreach (var thing in _things)
+            //{
+            //    thing.Draw(
+            //        commandEncoder,
+            //        _meshEffect,
+            //        camera,
+            //        gameTime);
+            //}
 
             //_gameContext.ParticleSystemManager.Draw(
             //    commandEncoder, 
