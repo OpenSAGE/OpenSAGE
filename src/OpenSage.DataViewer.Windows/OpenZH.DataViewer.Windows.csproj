@@ -59,6 +59,8 @@
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="Framework\Controls\GameControl.cs" />
     <Compile Include="Framework\Converters\NullToVisibilityConverter.cs" />
+    <Compile Include="Framework\Services\HwndHostInputMapper.cs" />
+    <Compile Include="Framework\Services\HwndHostInputProvider.cs" />
     <Compile Include="Views\AudioVideoFileContentView.xaml.cs">
       <DependentUpon>AudioVideoFileContentView.xaml</DependentUpon>
     </Compile>

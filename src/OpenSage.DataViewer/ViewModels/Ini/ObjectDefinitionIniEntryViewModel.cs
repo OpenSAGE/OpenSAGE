@@ -20,12 +20,6 @@ namespace OpenSage.DataViewer.ViewModels.Ini
 
         public Game Game { get; }
 
-        public ArcballCameraController CameraController { get; }
-
-        CameraController IGameViewModel.CameraController => CameraController;
-
-        void IGameViewModel.OnMouseMove(int x, int y) { }
-
         public override string GroupName => "Object Definitions";
 
         public override string Name => _definition.Name;
@@ -49,8 +43,6 @@ namespace OpenSage.DataViewer.ViewModels.Ini
             _definition = definition;
 
             Game = game;
-
-            CameraController = new ArcballCameraController();
         }
 
         public override void Activate()
@@ -65,8 +57,9 @@ namespace OpenSage.DataViewer.ViewModels.Ini
                 FieldOfView = 70
             });
 
-            cameraEntity.Components.Add(CameraController);
-            CameraController.Reset(Vector3.Zero, 300);
+            var cameraController = new ArcballCameraController();
+            cameraEntity.Components.Add(cameraController);
+            cameraController.Reset(Vector3.Zero, 300);
 
             var gameEntity = Entity.FromObjectDefinition(_definition);
             scene.Entities.Add(gameEntity);

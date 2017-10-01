@@ -1,9 +1,10 @@
 ﻿using System.Numerics;
+using OpenSage.Input;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Cameras.Controllers
 {
-    public sealed class ArcballCameraController : CameraController
+    public sealed class ArcballCameraController : UpdateableComponent
     {
         private const float RotationSpeed = 0.003f;
         private const float ZoomSpeed = 0.001f;
@@ -19,6 +20,35 @@ namespace OpenSage.Graphics.Cameras.Controllers
         private float _pitch;
         private float _zoom;
         private Vector3 _translation;
+
+        protected internal override void Update(GameTime gameTime)
+        {
+            var deltaX = Input.GetAxis(MouseMovementAxis.XAxis);
+            var deltaY = Input.GetAxis(MouseMovementAxis.YAxis);
+
+            bool isMovementTypeActive(MouseButton button)
+            {
+                return Input.GetMouseButtonDown(button)
+                    && !Input.GetMouseButtonPressed(button);
+            }
+
+            if (isMovementTypeActive(MouseButton.Left))
+            {
+                RotateCamera(deltaX, deltaY);
+            }
+
+            if (isMovementTypeActive(MouseButton.Middle))
+            {
+                ZoomCamera(deltaY);
+            }
+
+            if (isMovementTypeActive(MouseButton.Right))
+            {
+                PanCamera(deltaX, deltaY);
+            }
+
+            UpdateCamera();
+        }
 
         private void UpdateCamera()
         {
@@ -41,50 +71,42 @@ namespace OpenSage.Graphics.Cameras.Controllers
             _pitch = -MathUtility.Pi / 6.0f;
             _zoom = 1;
             _translation = Vector3.Zero;
-
-            UpdateCamera();
         }
 
-        public override void OnLeftMouseButtonDragged(float deltaX, float deltaY)
+        private void RotateCamera(float deltaX, float deltaY)
         {
-            _yaw += deltaX * RotationSpeed;
+            _yaw -= deltaX * RotationSpeed;
 
-            var newPitch = _pitch + deltaY * RotationSpeed;
+            var newPitch = _pitch - deltaY * RotationSpeed;
             if (newPitch < MinPitch)
                 newPitch = MinPitch;
             else if (newPitch > MaxPitch)
                 newPitch = MaxPitch;
             _pitch = newPitch;
-
-            UpdateCamera();
         }
 
-        public override void OnMiddleMouseButtonDragged(float deltaY)
+        private void ZoomCamera(float deltaY)
         {
             const float minZoom = 0.1f;
             const float maxZoom = 1;
 
-            var newZoom = _zoom - deltaY * ZoomSpeed;
+            var newZoom = _zoom + deltaY * ZoomSpeed;
             if (newZoom < minZoom)
                 newZoom = minZoom;
             else if (newZoom > maxZoom)
                 newZoom = maxZoom;
             _zoom = newZoom;
-
-            UpdateCamera();
         }
 
-        public override void OnRightMouseButtonDragged(float deltaX, float deltaY)
+        private void PanCamera(float deltaX, float deltaY)
         {
             var cameraOrientation = QuaternionUtility.CreateFromYawPitchRoll_ZUp(
                 _yaw,
                 _pitch,
                 0);
 
-            _translation += Vector3.Transform(Vector3.UnitX, cameraOrientation) * deltaX * PanSpeed;
-            _translation += Vector3.Transform(-Vector3.UnitZ, cameraOrientation) * deltaY * PanSpeed;
-
-            UpdateCamera();
+            _translation += Vector3.Transform(-Vector3.UnitX, cameraOrientation) * deltaX * PanSpeed;
+            _translation += Vector3.Transform(Vector3.UnitZ, cameraOrientation) * deltaY * PanSpeed;
         }
     }
 }

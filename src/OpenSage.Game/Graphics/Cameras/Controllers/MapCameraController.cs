@@ -1,9 +1,10 @@
 ﻿using System.Numerics;
+using OpenSage.Input;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Cameras.Controllers
 {
-    public sealed class MapCameraController : CameraController
+    public sealed class MapCameraController : UpdateableComponent
     {
         private const float DefaultDistance = 300;
         private static readonly float DefaultPitch = -MathUtility.Pi / 4;
@@ -17,6 +18,35 @@ namespace OpenSage.Graphics.Cameras.Controllers
         private float _yaw;
         private float _zoom;
         private Vector3 _translation;
+
+        protected internal override void Update(GameTime gameTime)
+        {
+            var deltaX = Input.GetAxis(MouseMovementAxis.XAxis);
+            var deltaY = Input.GetAxis(MouseMovementAxis.YAxis);
+
+            bool isMovementTypeActive(MouseButton button)
+            {
+                return Input.GetMouseButtonDown(button)
+                    && !Input.GetMouseButtonPressed(button);
+            }
+
+            if (isMovementTypeActive(MouseButton.Left))
+            {
+                RotateCamera(deltaX, deltaY);
+            }
+
+            if (isMovementTypeActive(MouseButton.Middle))
+            {
+                ZoomCamera(deltaY);
+            }
+
+            if (isMovementTypeActive(MouseButton.Right))
+            {
+                PanCamera(deltaX, deltaY);
+            }
+
+            UpdateCamera();
+        }
 
         private void UpdateCamera()
         {
@@ -37,30 +67,24 @@ namespace OpenSage.Graphics.Cameras.Controllers
             _yaw = 0;
             _zoom = 1;
             _translation = Vector3.Zero;
-
-            UpdateCamera();
         }
 
-        public override void OnLeftMouseButtonDragged(float deltaX, float deltaY)
+        private void RotateCamera(float deltaX, float deltaY)
         {
-            _yaw += deltaX * RotationSpeed;
-
-            UpdateCamera();
+            _yaw -= deltaX * RotationSpeed;
         }
 
-        public override void OnMiddleMouseButtonDragged(float deltaY)
+        private void ZoomCamera(float deltaY)
         {
             const float minZoom = 0.01f;
 
-            var newZoom = _zoom - deltaY * ZoomSpeed;
+            var newZoom = _zoom + deltaY * ZoomSpeed;
             if (newZoom < minZoom)
                 newZoom = minZoom;
             _zoom = newZoom;
-
-            UpdateCamera();
         }
 
-        public override void OnRightMouseButtonDragged(float deltaX, float deltaY)
+        private void PanCamera(float deltaX, float deltaY)
         {
             var cameraOrientation = QuaternionUtility.CreateFromYawPitchRoll_ZUp(
                 _yaw,
@@ -70,14 +94,12 @@ namespace OpenSage.Graphics.Cameras.Controllers
             var panSpeed = PanSpeed * _zoom;
 
             var newTranslation = Vector3.Zero;
-            newTranslation += Vector3.Transform(Vector3.UnitX, cameraOrientation) * deltaX * panSpeed;
-            newTranslation += Vector3.Transform(-Vector3.UnitZ, cameraOrientation) * deltaY * panSpeed;
+            newTranslation += Vector3.Transform(-Vector3.UnitX, cameraOrientation) * deltaX * panSpeed;
+            newTranslation += Vector3.Transform(Vector3.UnitZ, cameraOrientation) * deltaY * panSpeed;
 
             newTranslation.Z = 0;
 
             _translation += newTranslation;
-
-            UpdateCamera();
         }
     }
 }

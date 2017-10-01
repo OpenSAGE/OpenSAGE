@@ -19,10 +19,6 @@ namespace OpenSage.DataViewer.ViewModels
 
         public Game Game { get; }
 
-        public MapCameraController CameraController { get; }
-
-        CameraController IGameViewModel.CameraController => CameraController;
-
         public IEnumerable<TimeOfDay> TimesOfDay
         {
             get
@@ -109,13 +105,14 @@ namespace OpenSage.DataViewer.ViewModels
                 FieldOfView = 70
             });
 
-            CameraController = new MapCameraController();
-            cameraEntity.Components.Add(CameraController);
-            CameraController.Reset(_terrain.Entity.GetEnclosingBoundingBox().GetCenter());
+            var cameraController = new MapCameraController();
+            cameraEntity.Components.Add(cameraController);
+            cameraController.Reset(_terrain.Entity.GetEnclosingBoundingBox().GetCenter());
 
             Game.Scene = scene;
         }
 
+        // TODO: Hook this up as a component.
         public void OnMouseMove(int x, int y)
         {
             var ray = _camera.ScreenPointToRay(new Vector2(x, y));

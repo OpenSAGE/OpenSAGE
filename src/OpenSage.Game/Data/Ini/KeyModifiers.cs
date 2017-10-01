@@ -1,26 +1,29 @@
-﻿namespace OpenSage.Data.Ini
+﻿using System;
+
+namespace OpenSage.Data.Ini
 {
+    [Flags]
     public enum KeyModifiers
     {
         [IniEnum("NONE")]
-        None,
+        None = 0,
 
         [IniEnum("CTRL")]
-        Ctrl,
+        Ctrl = 0x1,
 
         [IniEnum("SHIFT")]
-        Shift,
+        Shift = 0x2,
 
         [IniEnum("ALT")]
-        Alt,
+        Alt = 0x4,
 
         [IniEnum("SHIFT_CTRL")]
-        ShiftCtrl,
+        ShiftCtrl = Shift | Ctrl,
 
         [IniEnum("SHIFT_ALT")]
-        ShiftAlt,
+        ShiftAlt = Shift | Alt,
 
         [IniEnum("SHIFT_ALT_CTRL")]
-        ShiftAltCtrl
+        ShiftAltCtrl = Shift | Alt | Ctrl
     }
 }

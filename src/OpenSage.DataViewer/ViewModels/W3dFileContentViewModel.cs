@@ -23,12 +23,6 @@ namespace OpenSage.DataViewer.ViewModels
 
         public Game Game { get; }
 
-        public ArcballCameraController CameraController { get; }
-
-        CameraController IGameViewModel.CameraController => CameraController;
-
-        void IGameViewModel.OnMouseMove(int x, int y) { }
-
         public W3dFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
@@ -54,9 +48,9 @@ namespace OpenSage.DataViewer.ViewModels
 
             var enclosingBoundingBox = _modelEntity.GetEnclosingBoundingBox();
 
-            CameraController = new ArcballCameraController();
-            cameraEntity.Components.Add(CameraController);
-            CameraController.Reset(
+            var cameraController = new ArcballCameraController();
+            cameraEntity.Components.Add(cameraController);
+            cameraController.Reset(
                 enclosingBoundingBox.GetCenter(),
                 Vector3.Distance(enclosingBoundingBox.Min, enclosingBoundingBox.Max) / 1.5f);
 

@@ -24,10 +24,10 @@ namespace OpenSage
         /// </summary>
         public GraphicsSystem Graphics => Game.Graphics;
 
-        ///// <summary>
-        ///// Gets the input system.
-        ///// </summary>
-        //public InputSystem Input => Game.Input;
+        /// <summary>
+        /// Gets the input system.
+        /// </summary>
+        public InputSystem Input => Game.Input;
 
         ///// <summary>
         ///// Gets the physics system.

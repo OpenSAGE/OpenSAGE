@@ -5,7 +5,9 @@ using OpenSage.Data;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.ParticleSystems;
+using OpenSage.Input;
 using OpenSage.Logic.Object;
+using OpenSage.Settings;
 
 namespace OpenSage
 {
@@ -15,6 +17,8 @@ namespace OpenSage
         private readonly GameTimer _gameTimer;
 
         private Scene _scene;
+
+        public GameSettings Settings { get; } = new GameSettings();
 
         public ContentManager ContentManager { get; private set; }
 
@@ -26,7 +30,12 @@ namespace OpenSage
         /// <summary>
         /// Gets the graphics system.
         /// </summary>
-        public GraphicsSystem Graphics { get; private set; }
+        public GraphicsSystem Graphics { get; }
+
+        /// <summary>
+        /// Gets the input system.
+        /// </summary>
+        public InputSystem Input { get; }
 
         public Game(GraphicsDevice graphicsDevice, FileSystem fileSystem)
         {
@@ -44,8 +53,11 @@ namespace OpenSage
             AddDisposable(new AnimationSystem(this));
             AddDisposable(new ObjectSystem(this));
             AddDisposable(new ParticleSystemSystem(this));
+            AddDisposable(new UpdateableSystem(this));
 
             Graphics = AddDisposable(new GraphicsSystem(this));
+
+            Input = AddDisposable(new InputSystem(this));
 
             GameSystems.ForEach(gs => gs.Initialize());
         }
