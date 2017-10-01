@@ -21,6 +21,16 @@ namespace OpenSage.Graphics.Cameras.Controllers
         private float _zoom;
         private Vector3 _translation;
 
+        public ArcballCameraController()
+        {
+
+        }
+
+        public ArcballCameraController(Vector3 target, float radius)
+        {
+            Reset(target, radius);
+        }
+
         protected internal override void Update(GameTime gameTime)
         {
             var deltaX = Input.GetAxis(MouseMovementAxis.XAxis);

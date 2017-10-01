@@ -18,7 +18,7 @@ namespace OpenSage.DataViewer.ViewModels
             _iniDataContext = new IniDataContext();
             _iniDataContext.LoadIniFile(file);
 
-            var graphicsDevice = IoC.Get<Framework.GraphicsDeviceManager>().GraphicsDevice;
+            var graphicsDevice = IoC.Get<GraphicsDeviceManager>().GraphicsDevice;
             _game = new Game(graphicsDevice, file.FileSystem);
         }
 
@@ -28,19 +28,26 @@ namespace OpenSage.DataViewer.ViewModels
 
             foreach (var objectDefinition in _iniDataContext.Objects)
             {
-                result.Add(new ObjectDefinitionIniEntryViewModel(
+                result.Add(AddDisposable(new ObjectDefinitionIniEntryViewModel(
                     objectDefinition,
-                    _game));
+                    _game)));
             }
 
             foreach (var particleSystem in _iniDataContext.ParticleSystems)
             {
-                result.Add(new ParticleSystemIniEntryViewModel(
+                result.Add(AddDisposable(new ParticleSystemIniEntryViewModel(
                     particleSystem,
-                    _game));
+                    _game)));
             }
 
             return result;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            _game.Scene = null;
+
+            base.Dispose(disposing);
         }
     }
 }

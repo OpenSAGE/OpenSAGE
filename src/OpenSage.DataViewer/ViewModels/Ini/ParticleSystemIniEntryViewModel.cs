@@ -1,7 +1,4 @@
 ﻿using System.Numerics;
-using Caliburn.Micro;
-using OpenSage.Content;
-using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Cameras.Controllers;
@@ -12,9 +9,6 @@ namespace OpenSage.DataViewer.ViewModels.Ini
     public sealed class ParticleSystemIniEntryViewModel : FileSubObjectViewModel, IGameViewModel
     {
         private readonly ParticleSystemDefinition _definition;
-
-        private Entity _particleSystemEntity;
-        private ParticleSystem _particleSystem;
 
         public Game Game { get; }
 
@@ -36,44 +30,17 @@ namespace OpenSage.DataViewer.ViewModels.Ini
             var scene = new Scene();
 
             var cameraEntity = new Entity();
+            cameraEntity.AddComponent(new PerspectiveCameraComponent { FieldOfView = 70 });
+            cameraEntity.AddComponent(new ArcballCameraController(Vector3.Zero, 200));
             scene.Entities.Add(cameraEntity);
 
-            cameraEntity.Components.Add(new PerspectiveCameraComponent
-            {
-                FieldOfView = 70
-            });
-
-            var cameraController = new ArcballCameraController();
-            cameraEntity.Components.Add(cameraController);
-            cameraController.Reset(Vector3.Zero, 200);
-
-            _particleSystemEntity = new Entity();
-            scene.Entities.Add(_particleSystemEntity);
-
-            _particleSystem = new ParticleSystem(_definition);
-            _particleSystemEntity.Components.Add(_particleSystem);
+            var particleSystemEntity = new Entity();
+            particleSystemEntity.Components.Add(new ParticleSystem(_definition));
+            scene.Entities.Add(particleSystemEntity);
 
             Game.Scene = scene;
 
             Game.ResetElapsedTime();
-        }
-
-        public override void Deactivate()
-        {
-            _particleSystemEntity.Components.Remove(_particleSystem);
-            _particleSystem = null;
-
-            Game.Scene = null;
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (_particleSystem != null)
-            {
-                Deactivate();
-            }
-
-            base.Dispose(disposing);
         }
     }
 }

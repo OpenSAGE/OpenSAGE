@@ -121,6 +121,11 @@ namespace OpenSage
             Transform.Children.Add(child.Transform);
         }
 
+        public void AddComponent(EntityComponent component)
+        {
+            Components.Add(component);
+        }
+
         public T GetComponent<T>()
             where T : EntityComponent
         {
