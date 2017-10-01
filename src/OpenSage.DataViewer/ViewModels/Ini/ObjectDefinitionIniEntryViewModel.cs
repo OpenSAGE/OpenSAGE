@@ -1,14 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using LLGfx;
 using OpenSage.Data.Ini;
-using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Cameras.Controllers;
-using OpenSage.Graphics.Effects;
 using OpenSage.Logic.Object;
-using OpenSage.Terrain;
 
 namespace OpenSage.DataViewer.ViewModels.Ini
 {
@@ -16,7 +12,7 @@ namespace OpenSage.DataViewer.ViewModels.Ini
     {
         private readonly ObjectDefinition _definition;
 
-        //private Thing _thing;
+        private ObjectComponent _objectComponent;
 
         public Game Game { get; }
 
@@ -26,15 +22,15 @@ namespace OpenSage.DataViewer.ViewModels.Ini
 
         public IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; private set; }
 
-        //public BitArray<ModelConditionFlag> SelectedModelConditionState
-        //{
-        //    get { return _thing?.ModelCondition; }
-        //    set
-        //    {
-        //        _thing.ModelCondition = value;
-        //        NotifyOfPropertyChange();
-        //    }
-        //}
+        public BitArray<ModelConditionFlag> SelectedModelConditionState
+        {
+            get { return _objectComponent?.ModelConditionFlags; }
+            set
+            {
+                _objectComponent.SetModelConditionFlags(value);
+                NotifyOfPropertyChange();
+            }
+        }
 
         public ObjectDefinitionIniEntryViewModel(
             ObjectDefinition definition,
@@ -50,42 +46,21 @@ namespace OpenSage.DataViewer.ViewModels.Ini
             var scene = new Scene();
 
             var cameraEntity = new Entity();
+            cameraEntity.Components.Add(new PerspectiveCameraComponent { FieldOfView = 70 });
+            cameraEntity.Components.Add(new ArcballCameraController(Vector3.Zero, 300));
             scene.Entities.Add(cameraEntity);
 
-            cameraEntity.Components.Add(new PerspectiveCameraComponent
-            {
-                FieldOfView = 70
-            });
-
-            var cameraController = new ArcballCameraController();
-            cameraEntity.Components.Add(cameraController);
-            cameraController.Reset(Vector3.Zero, 300);
-
-            var gameEntity = Entity.FromObjectDefinition(_definition);
-            scene.Entities.Add(gameEntity);
+            var objectEntity = Entity.FromObjectDefinition(_definition);
+            _objectComponent = objectEntity.GetComponent<ObjectComponent>();
+            scene.Entities.Add(objectEntity);
 
             Game.Scene = scene;
 
             Game.ResetElapsedTime();
 
-            //ModelConditionStates = _thing.ModelConditionStates.ToList();
-            //NotifyOfPropertyChange(nameof(ModelConditionStates));
-            //SelectedModelConditionState = ModelConditionStates.FirstOrDefault();
-        }
-
-        public override void Deactivate()
-        {
-            Game.Scene = null;
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (Game.Scene != null)
-            {
-                Deactivate();
-            }
-
-            base.Dispose(disposing);
+            ModelConditionStates = _objectComponent.ModelConditionStates.ToList();
+            NotifyOfPropertyChange(nameof(ModelConditionStates));
+            SelectedModelConditionState = ModelConditionStates.FirstOrDefault();
         }
     }
 }

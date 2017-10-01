@@ -12,10 +12,13 @@ namespace OpenSage
     /// </summary>
     public sealed class Entity
     {
+        // TODO: Move to ObjectFactory.
         public static Entity FromObjectDefinition(ObjectDefinition objectDefinition)
         {
             var result = new Entity();
             result.Name = objectDefinition.Name;
+
+            result.AddComponent(new ObjectComponent());
 
             foreach (var draw in objectDefinition.Draws)
             {

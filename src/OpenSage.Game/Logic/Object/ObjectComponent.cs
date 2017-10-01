@@ -25,5 +25,12 @@ namespace OpenSage.Logic.Object
                 drawable.UpdateConditionState(flags);
             }
         }
+
+        protected override void Start()
+        {
+            base.Start();
+
+            SetModelConditionFlags(new BitArray<ModelConditionFlag>());
+        }
     }
 }
