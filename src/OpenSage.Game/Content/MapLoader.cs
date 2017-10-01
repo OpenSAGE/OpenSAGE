@@ -88,7 +88,48 @@ namespace OpenSage.Content
             terrainEffect.SetTextureDetails(textureDetailsBuffer);
             terrainEffect.SetTextures(textureSet);
 
+            var objectsEntity = new Entity();
+            result.Entities.Add(objectsEntity);
+            LoadObjects(
+                contentManager,
+                objectsEntity, 
+                heightMap,
+                mapFile.ObjectsList.Objects);
+
             return result;
+        }
+
+        private void LoadObjects(
+            ContentManager contentManager,
+            Entity objectsEntity, 
+            HeightMap heightMap,
+            MapObject[] mapObjects)
+        {
+            foreach (var mapObject in mapObjects)
+            {
+                switch (mapObject.RoadType)
+                {
+                    case RoadType.None:
+                        var objectDefinition = contentManager.IniDataContext.Objects.FirstOrDefault(x => x.Name == mapObject.TypeName);
+                        if (objectDefinition != null)
+                        {
+                            var position = mapObject.Position.ToVector3();
+                            position.Z = heightMap.GetHeight(position.X, position.Y);
+
+                            var objectEntity = Entity.FromObjectDefinition(objectDefinition);
+
+                            objectEntity.Transform.LocalPosition = position;
+                            objectEntity.Transform.LocalEulerAngles = new Vector3(0, 0, mapObject.Angle);
+
+                            objectsEntity.AddChild(objectEntity);
+                        }
+                        break;
+
+                    default:
+                        // TODO: Roads.
+                        break;
+                }
+            }
         }
 
         private void CreatePatches(

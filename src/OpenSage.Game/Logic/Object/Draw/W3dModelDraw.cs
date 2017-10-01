@@ -169,7 +169,6 @@ namespace OpenSage.Logic.Object
                     if (bone == null)
                     {
                         // TODO: Should this ever happen?
-                        throw new InvalidOperationException();
                         continue;
                     }
 
