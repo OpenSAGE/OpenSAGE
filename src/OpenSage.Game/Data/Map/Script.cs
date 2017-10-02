@@ -14,7 +14,7 @@ namespace OpenSage.Data.Map
         public string ConditionsComment { get; private set; }
         public string ActionsComment { get; private set; }
 
-        public bool IsActive { get; private set; }
+        public bool IsActive { get; set; } // TODO: Make this private.
         public bool DeactivateUponSuccess { get; private set; }
 
         public bool ActiveInEasy { get; private set; }

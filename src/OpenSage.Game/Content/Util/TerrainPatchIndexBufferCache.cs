@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using LLGfx;
 
-namespace OpenSage.Terrain.Util
+namespace OpenSage.Content.Util
 {
     public sealed class TerrainPatchIndexBufferCache : GraphicsObject
     {

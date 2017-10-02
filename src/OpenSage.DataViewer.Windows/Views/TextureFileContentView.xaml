@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:graphics="clr-namespace:LLGfx.Hosting;assembly=LLGfx"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="300"
+             Unloaded="OnUnloaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

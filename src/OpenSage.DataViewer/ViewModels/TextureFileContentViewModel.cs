@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Caliburn.Micro;
 using LLGfx;
 using OpenSage.Content;
 using OpenSage.Data;
-using OpenSage.DataViewer.Framework;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
 
@@ -12,7 +10,6 @@ namespace OpenSage.DataViewer.ViewModels
 {
     public sealed class TextureFileContentViewModel : FileContentViewModel
     {
-        private readonly Game _game;
         private readonly SpriteComponent _spriteComponent;
 
         public int TextureWidth => _spriteComponent.Texture.Width;
@@ -35,19 +32,16 @@ namespace OpenSage.DataViewer.ViewModels
         public TextureFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
-            _spriteComponent = new SpriteComponent();
-
-            var graphicsDevice = IoC.Get<GraphicsDeviceManager>().GraphicsDevice;
-
-            _game = IoC.Get<GameService>().Game;
-
-            _spriteComponent.Texture = AddDisposable(_game.ContentManager.Load<Texture>(
-                File.FilePath,
-                uploadBatch: null,
-                options: new TextureLoadOptions
-                {
-                    GenerateMipMaps = false
-                }));
+            _spriteComponent = new SpriteComponent
+            {
+                Texture = Game.ContentManager.Load<Texture>(
+                    File.FilePath,
+                    uploadBatch: null,
+                    options: new TextureLoadOptions
+                    {
+                        GenerateMipMaps = false
+                    })
+            };
 
             var scene = new Scene();
 
@@ -56,17 +50,17 @@ namespace OpenSage.DataViewer.ViewModels
             entity.Components.Add(_spriteComponent);
             scene.Entities.Add(entity);
 
-            _game.Scene = scene;
+            Game.Scene = scene;
         }
 
         public void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
-            _game.SetSwapChain(swapChain);
+            Game.SetSwapChain(swapChain);
         }
 
         public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
         {
-            _game.Tick();
+            Game.Tick();
         }
     }
 }

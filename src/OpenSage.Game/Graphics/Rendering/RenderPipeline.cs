@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Numerics;
 using LLGfx;
 using OpenSage.Graphics.Effects;
-using OpenSage.Terrain.Util;
 
 namespace OpenSage.Graphics.Rendering
 {

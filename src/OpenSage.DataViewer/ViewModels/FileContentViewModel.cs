@@ -3,44 +3,31 @@ using System.Collections.Generic;
 using System.IO;
 using Caliburn.Micro;
 using OpenSage.Data;
+using OpenSage.DataViewer.Framework;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public abstract class DisposablePropertyChangedBase : PropertyChangedBase, IDisposable
+    public abstract class FileContentViewModelBase : PropertyChangedBase, IDisposable
     {
-        private readonly List<IDisposable> _disposables;
+        public Game Game { get; }
 
-        protected DisposablePropertyChangedBase()
+        protected FileContentViewModelBase()
         {
-            _disposables = new List<IDisposable>();
-        }
-
-        protected T AddDisposable<T>(T disposable)
-            where T : IDisposable
-        {
-            _disposables.Add(disposable);
-            return disposable;
+            Game = IoC.Get<GameService>().Game;
         }
 
         public void Dispose()
         {
-            _disposables.Reverse();
-            foreach (var disposable in _disposables)
-            {
-                disposable.Dispose();
-            }
-            _disposables.Clear();
+            Game.SetSwapChain(null);
+            Game.Input.InputProvider = null;
 
-            Dispose(true);
-        }
+            Game.Scene = null;
 
-        protected virtual void Dispose(bool disposing)
-        {
-
+            Game.ContentManager.Unload();
         }
     }
 
-    public abstract class FileContentViewModel : DisposablePropertyChangedBase
+    public abstract class FileContentViewModel : FileContentViewModelBase
     {
         public static FileContentViewModel Create(FileSystemEntry file)
         {
@@ -141,12 +128,13 @@ namespace OpenSage.DataViewer.ViewModels
         }
     }
 
-    public abstract class FileSubObjectViewModel : DisposablePropertyChangedBase
+    public abstract class FileSubObjectViewModel : FileContentViewModelBase
     {
         public abstract string GroupName { get; }
         public abstract string Name { get; }
 
         public virtual void Activate() { }
+
         public virtual void Deactivate() { }
     }
 }

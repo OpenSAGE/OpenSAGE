@@ -21,7 +21,7 @@
                           Width="300"/>
             </ToolBar>
         </ToolBarTray>
-        <controls:GameControl Grid.Row="1" />
+        <controls:GameControl Grid.Row="1" Game="{Binding Game}" />
         <StatusBar Grid.Row="2">
         </StatusBar>
     </Grid>

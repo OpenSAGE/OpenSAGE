@@ -8,13 +8,11 @@ using OpenSage.Logic.Object;
 
 namespace OpenSage.DataViewer.ViewModels.Ini
 {
-    public sealed class ObjectDefinitionIniEntryViewModel : FileSubObjectViewModel, IGameViewModel
+    public sealed class ObjectDefinitionIniEntryViewModel : IniEntryViewModel
     {
         private readonly ObjectDefinition _definition;
 
         private ObjectComponent _objectComponent;
-
-        public Game Game { get; }
 
         public override string GroupName => "Object Definitions";
 
@@ -32,13 +30,9 @@ namespace OpenSage.DataViewer.ViewModels.Ini
             }
         }
 
-        public ObjectDefinitionIniEntryViewModel(
-            ObjectDefinition definition,
-            Game game)
+        public ObjectDefinitionIniEntryViewModel(ObjectDefinition definition)
         {
             _definition = definition;
-
-            Game = game;
         }
 
         public override void Activate()

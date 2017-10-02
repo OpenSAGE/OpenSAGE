@@ -11,5 +11,7 @@ namespace OpenSage.Logic.Object
         {
             RegisterComponentList(_objects = new List<ObjectComponent>());
         }
+
+
     }
 }

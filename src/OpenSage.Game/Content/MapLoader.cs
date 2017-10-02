@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -8,8 +9,9 @@ using OpenSage.Data;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Effects;
 using OpenSage.Mathematics;
+using OpenSage.Scripting;
+using OpenSage.Settings;
 using OpenSage.Terrain;
-using OpenSage.Terrain.Util;
 
 namespace OpenSage.Content
 {
@@ -94,34 +96,91 @@ namespace OpenSage.Content
                 contentManager,
                 objectsEntity, 
                 heightMap,
-                mapFile.ObjectsList.Objects);
+                mapFile.ObjectsList.Objects,
+                result.Settings);
+
+            foreach (var waypointPath in mapFile.WaypointsList.WaypointPaths)
+            {
+                var start = result.Settings.Waypoints[waypointPath.StartWaypointID];
+                var end = result.Settings.Waypoints[waypointPath.EndWaypointID];
+
+                result.Settings.WaypointPaths[start.Name] = new Settings.WaypointPath(
+                    start, end);
+            }
+
+            var scriptsEntity = new Entity();
+            result.Entities.Add(scriptsEntity);
+
+            // TODO: Don't hardcode this.
+            var scriptList = mapFile.SidesList.PlayerScripts.ScriptLists[0];
+            //var index = 0;
+            //foreach (var scriptGroup in scriptList.ScriptGroups)
+            {
+                AddScripts(scriptsEntity, scriptList.ScriptGroups[0].Scripts);
+            }
+            // TODO
+            //AddScripts(scriptsEntity, scriptList.Scripts);
 
             return result;
+        }
+
+        private void AddScripts(Entity scriptsEntity, Script[] scripts)
+        {
+            var index = 0;
+            foreach (var script in scripts)
+            {
+                scriptsEntity.AddComponent(new ScriptComponent
+                {
+                    Script = script
+                });
+                if (++index > 5)
+                    break; // TODO
+            }
         }
 
         private void LoadObjects(
             ContentManager contentManager,
             Entity objectsEntity, 
             HeightMap heightMap,
-            MapObject[] mapObjects)
+            MapObject[] mapObjects,
+            SceneSettings sceneSettings)
         {
+            var waypoints = new List<Waypoint>();
+
             foreach (var mapObject in mapObjects)
             {
                 switch (mapObject.RoadType)
                 {
                     case RoadType.None:
-                        var objectDefinition = contentManager.IniDataContext.Objects.FirstOrDefault(x => x.Name == mapObject.TypeName);
-                        if (objectDefinition != null)
+                        var position = mapObject.Position.ToVector3();
+                        position.Z = heightMap.GetHeight(position.X, position.Y);
+
+                        switch (mapObject.TypeName)
                         {
-                            var position = mapObject.Position.ToVector3();
-                            position.Z = heightMap.GetHeight(position.X, position.Y);
+                            case "*Waypoints/Waypoint":
+                                position.Z += 10; // TODO
 
-                            var objectEntity = Entity.FromObjectDefinition(objectDefinition);
+                                var waypointID = (uint) mapObject.Properties["waypointID"].Value;
+                                var waypointName = (string) mapObject.Properties["waypointName"].Value;
+                                waypoints.Add(new Waypoint(waypointID, waypointName, position));
+                                break;
 
-                            objectEntity.Transform.LocalPosition = position;
-                            objectEntity.Transform.LocalEulerAngles = new Vector3(0, 0, mapObject.Angle);
+                            default:
+                                var objectDefinition = contentManager.IniDataContext.Objects.FirstOrDefault(x => x.Name == mapObject.TypeName);
+                                if (objectDefinition != null)
+                                {
+                                    var objectEntity = Entity.FromObjectDefinition(objectDefinition);
 
-                            objectsEntity.AddChild(objectEntity);
+                                    objectEntity.Transform.LocalPosition = position;
+                                    objectEntity.Transform.LocalEulerAngles = new Vector3(0, 0, mapObject.Angle);
+
+                                    objectsEntity.AddChild(objectEntity);
+                                }
+                                else
+                                {
+
+                                }
+                                break;
                         }
                         break;
 
@@ -130,6 +189,8 @@ namespace OpenSage.Content
                         break;
                 }
             }
+
+            sceneSettings.Waypoints = new WaypointCollection(waypoints);
         }
 
         private void CreatePatches(

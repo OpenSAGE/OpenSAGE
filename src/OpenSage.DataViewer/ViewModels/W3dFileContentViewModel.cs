@@ -13,7 +13,7 @@ using OpenSage.Graphics.Cameras.Controllers;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public sealed class W3dFileContentViewModel : FileContentViewModel<W3dItemViewModelBase>, IGameViewModel
+    public sealed class W3dFileContentViewModel : FileContentViewModel<W3dItemViewModelBase>
     {
         private readonly W3dFile _w3dFile;
 
@@ -22,14 +22,10 @@ namespace OpenSage.DataViewer.ViewModels
         private readonly List<AnimationComponent> _animations;
         private readonly List<AnimationComponent> _externalAnimations;
 
-        public Game Game { get; }
-
         public W3dFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
             _w3dFile = W3dFile.FromFileSystemEntry(file);
-
-            Game = IoC.Get<GameService>().Game;
 
             var scene = new Scene();
 

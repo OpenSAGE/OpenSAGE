@@ -1,14 +1,27 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using Caliburn.Micro;
 using LLGfx.Hosting;
 using OpenSage.DataViewer.Framework.Services;
-using OpenSage.DataViewer.ViewModels;
 
 namespace OpenSage.DataViewer.Framework.Controls
 {
     public sealed class GameControl : GraphicsDeviceControl
     {
-        private IGameViewModel TypedDataContext => (IGameViewModel) DataContext;
+        public static readonly DependencyProperty GameProperty = DependencyProperty.Register(
+            nameof(Game), typeof(Game), typeof(GameControl),
+            new PropertyMetadata(null, OnGameChanged));
+
+        private static void OnGameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((GameControl) d).GraphicsDevice = ((Game) e.NewValue).GraphicsDevice;
+        }
+
+        public Game Game
+        {
+            get { return (Game) GetValue(GameProperty); }
+            set { SetValue(GameProperty, value); }
+        }
 
         public GameControl()
         {
@@ -17,31 +30,17 @@ namespace OpenSage.DataViewer.Framework.Controls
             RedrawsOnTimer = true;
         }
 
-        protected override void OnUnloaded(object sender, RoutedEventArgs e)
-        {
-            base.OnUnloaded(sender, e);
-
-            TypedDataContext.Game.SetSwapChain(null);
-            TypedDataContext.Game.Input.InputProvider = null;
-
-            TypedDataContext.Game.Scene = null;
-
-            TypedDataContext.Game.ContentManager.Unload();
-
-            TypedDataContext.Dispose();
-        }
-
         protected override void RaiseGraphicsInitialize(GraphicsEventArgs args)
         {
             base.RaiseGraphicsInitialize(args);
 
-            TypedDataContext.Game.Input.InputProvider = new HwndHostInputProvider(this);
-            TypedDataContext.Game.SetSwapChain(SwapChain);
+            Game.Input.InputProvider = new HwndHostInputProvider(this);
+            Game.SetSwapChain(SwapChain);
         }
 
         protected override void Draw()
         {
-            TypedDataContext.Game.Tick();
+            Game.Tick();
         }
     }
 }

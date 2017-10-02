@@ -1,4 +1,6 @@
-﻿using OpenSage.Settings;
+﻿using System.Linq;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Settings;
 
 namespace OpenSage
 {
@@ -9,6 +11,8 @@ namespace OpenSage
         public SceneSettings Settings { get; } = new SceneSettings();
 
         public SceneEntitiesCollection Entities { get; }
+
+        public CameraComponent MainCamera => Game.Graphics.Cameras.FirstOrDefault();
 
         public Scene()
         {

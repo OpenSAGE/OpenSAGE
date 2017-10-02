@@ -21,6 +21,11 @@ namespace OpenSage
 
             item.ClearCachedMatrices();
             item.ParentDirect = _transform;
+
+            if (_transform.Game != null)
+            {
+                _transform.Game.AddComponentsRecursive(item.Entity);
+            }
         }
 
         private void RemoveItem(TransformComponent item)
@@ -28,6 +33,11 @@ namespace OpenSage
             if (item.ParentDirect != _transform)
             {
                 throw new InvalidOperationException();
+            }
+
+            if (_transform.Game != null)
+            {
+                _transform.Game.RemoveComponentsRecursive(item.Entity);
             }
 
             item.ClearCachedMatrices();

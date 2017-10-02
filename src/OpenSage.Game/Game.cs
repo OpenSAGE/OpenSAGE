@@ -7,6 +7,7 @@ using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Input;
 using OpenSage.Logic.Object;
+using OpenSage.Scripting;
 using OpenSage.Settings;
 
 namespace OpenSage
@@ -37,6 +38,15 @@ namespace OpenSage
         /// </summary>
         public InputSystem Input { get; }
 
+        /// <summary>
+        /// Gets the scripting system.
+        /// </summary>
+        public ScriptingSystem Scripting { get; }
+
+        public int FrameCount { get; private set; }
+
+        public GameTime UpdateTime { get; private set; }
+
         public Game(GraphicsDevice graphicsDevice, FileSystem fileSystem)
         {
             GraphicsDevice = graphicsDevice;
@@ -58,6 +68,8 @@ namespace OpenSage
             Graphics = AddDisposable(new GraphicsSystem(this));
 
             Input = AddDisposable(new InputSystem(this));
+
+            Scripting = AddDisposable(new ScriptingSystem(this));
 
             GameSystems.ForEach(gs => gs.Initialize());
         }
@@ -113,20 +125,30 @@ namespace OpenSage
         {
             foreach (var entity in entities)
             {
-                OnEntityComponentsRemoved(entity.Components);
-
-                RemoveComponentsRecursive(entity.GetChildren());
+                RemoveComponentsRecursive(entity);
             }
+        }
+
+        internal void RemoveComponentsRecursive(Entity entity)
+        {
+            OnEntityComponentsRemoved(entity.Components);
+
+            RemoveComponentsRecursive(entity.GetChildren());
         }
 
         private void AddComponentsRecursive(IEnumerable<Entity> entities)
         {
             foreach (var entity in entities)
             {
-                OnEntityComponentsAdded(entity.Components);
-
-                AddComponentsRecursive(entity.GetChildren());
+                AddComponentsRecursive(entity);
             }
+        }
+
+        internal void AddComponentsRecursive(Entity entity)
+        {
+            OnEntityComponentsAdded(entity.Components);
+
+            AddComponentsRecursive(entity.GetChildren());
         }
 
         public void Tick()
@@ -135,8 +157,12 @@ namespace OpenSage
 
             var gameTime = _gameTimer.CurrentGameTime;
 
+            UpdateTime = gameTime;
+
             Update(gameTime);
             Draw(gameTime);
+
+            FrameCount += 1;
         }
 
         private void Update(GameTime gameTime)

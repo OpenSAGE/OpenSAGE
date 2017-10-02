@@ -15,6 +15,8 @@ namespace OpenSage.Data.Map
         // Or...
         public MapVector3? PositionValue { get; private set; }
 
+        public bool UintValueAsBool => UintValue.Value == 1;
+
         internal static ScriptArgument Parse(BinaryReader reader)
         {
             var argumentType = reader.ReadUInt32AsEnum<ScriptArgumentType>();

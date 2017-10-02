@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 using Caliburn.Micro;
 using LLGfx.Hosting;
 using OpenSage.DataViewer.Framework;
@@ -23,6 +24,11 @@ namespace OpenSage.DataViewer.Views
         private void OnGraphicsDraw(object sender, GraphicsEventArgs e)
         {
             ((TextureFileContentViewModel) DataContext).Draw(e.GraphicsDevice, e.SwapChain);
+        }
+
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            ((TextureFileContentViewModel) DataContext).Dispose();
         }
     }
 }

@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Caliburn.Micro;
 using OpenSage.Data;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public class TabViewModel : PropertyChangedBase
+    public sealed class TabViewModel : PropertyChangedBase
     {
         public string DisplayName { get; }
         public string[] FileExtensions { get; }
@@ -20,6 +21,12 @@ namespace OpenSage.DataViewer.ViewModels
                 _selectedFile = value;
                 NotifyOfPropertyChange();
 
+                if (_selectedFileContent != null)
+                {
+                    _selectedFileContent.Dispose();
+                    _selectedFileContent = null;
+                }
+
                 SelectedFileContent = FileContentViewModel.Create(value);
             }
         }
@@ -30,12 +37,6 @@ namespace OpenSage.DataViewer.ViewModels
             get { return _selectedFileContent; }
             private set
             {
-                if (_selectedFileContent != null)
-                {
-                    _selectedFileContent.Dispose();
-                    _selectedFileContent = null;
-                }
-
                 _selectedFileContent = value;
                 NotifyOfPropertyChange();
             }

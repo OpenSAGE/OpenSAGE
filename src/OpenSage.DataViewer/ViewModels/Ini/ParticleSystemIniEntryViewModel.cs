@@ -6,23 +6,17 @@ using OpenSage.Graphics.ParticleSystems;
 
 namespace OpenSage.DataViewer.ViewModels.Ini
 {
-    public sealed class ParticleSystemIniEntryViewModel : FileSubObjectViewModel, IGameViewModel
+    public sealed class ParticleSystemIniEntryViewModel : IniEntryViewModel
     {
         private readonly ParticleSystemDefinition _definition;
-
-        public Game Game { get; }
 
         public override string GroupName => "Particle Systems";
 
         public override string Name => _definition.Name;
 
-        public ParticleSystemIniEntryViewModel(
-            ParticleSystemDefinition definition,
-            Game game)
+        public ParticleSystemIniEntryViewModel(ParticleSystemDefinition definition)
         {
             _definition = definition;
-
-            Game = game;
         }
 
         public override void Activate()

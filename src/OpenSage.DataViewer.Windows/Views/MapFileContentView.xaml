@@ -21,7 +21,7 @@
                           Margin="10 0 0 0"/>
             </ToolBar>
         </ToolBarTray>
-        <controls:GameControl Grid.Row="1" />
+        <controls:GameControl Grid.Row="1" Game="{Binding Game}" />
         <StatusBar Grid.Row="2">
             <StatusBarItem DockPanel.Dock="Right" 
                            Content="{Binding FrameTime}" />

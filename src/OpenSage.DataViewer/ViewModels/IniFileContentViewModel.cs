@@ -7,36 +7,29 @@ using OpenSage.DataViewer.ViewModels.Ini;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public sealed class IniFileContentViewModel : FileContentViewModel<FileSubObjectViewModel>
+    public sealed class IniFileContentViewModel : FileContentViewModel<IniEntryViewModel>
     {
         private readonly IniDataContext _iniDataContext;
-        private readonly Game _game;
 
         public IniFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
             _iniDataContext = new IniDataContext();
             _iniDataContext.LoadIniFile(file);
-
-            _game = IoC.Get<GameService>().Game;
         }
 
-        protected override IReadOnlyList<FileSubObjectViewModel> CreateSubObjects()
+        protected override IReadOnlyList<IniEntryViewModel> CreateSubObjects()
         {
-            var result = new List<FileSubObjectViewModel>();
+            var result = new List<IniEntryViewModel>();
 
             foreach (var objectDefinition in _iniDataContext.Objects)
             {
-                result.Add(AddDisposable(new ObjectDefinitionIniEntryViewModel(
-                    objectDefinition,
-                    _game)));
+                result.Add(new ObjectDefinitionIniEntryViewModel(objectDefinition));
             }
 
             foreach (var particleSystem in _iniDataContext.ParticleSystems)
             {
-                result.Add(AddDisposable(new ParticleSystemIniEntryViewModel(
-                    particleSystem,
-                    _game)));
+                result.Add(new ParticleSystemIniEntryViewModel(particleSystem));
             }
 
             return result;

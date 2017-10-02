@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using Caliburn.Micro;
 using OpenSage.Data;
@@ -13,12 +12,10 @@ using OpenSage.Terrain;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public sealed class MapFileContentViewModel : FileContentViewModel, IGameViewModel
+    public sealed class MapFileContentViewModel : FileContentViewModel
     {
         private readonly CameraComponent _camera;
         private readonly TerrainComponent _terrain;
-
-        public Game Game { get; }
 
         public IEnumerable<TimeOfDay> TimesOfDay
         {
@@ -90,8 +87,6 @@ namespace OpenSage.DataViewer.ViewModels
         public MapFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
-            Game = IoC.Get<GameService>().Game;
-
             var scene = Game.ContentManager.Load<Scene>(file.FilePath, uploadBatch: null);
 
             _terrain = scene.Entities[0].GetComponent<TerrainComponent>();
@@ -104,9 +99,9 @@ namespace OpenSage.DataViewer.ViewModels
                 FieldOfView = 70
             });
 
-            var cameraController = new MapCameraController();
-            cameraEntity.Components.Add(cameraController);
-            cameraController.Reset(_terrain.Entity.GetEnclosingBoundingBox().GetCenter());
+            //var cameraController = new MapCameraController();
+            //cameraEntity.Components.Add(cameraController);
+            //cameraController.Reset(_terrain.Entity.GetEnclosingBoundingBox().GetCenter());
 
             Game.Scene = scene;
         }
