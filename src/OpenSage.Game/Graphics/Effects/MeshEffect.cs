@@ -2,7 +2,8 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
-using OpenSage.Graphics.Util;
+using LLGfx.Effects;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Effects
 {
@@ -10,8 +11,7 @@ namespace OpenSage.Graphics.Effects
     {
         public const int MaxTextures = 32;
 
-        private readonly DynamicBuffer<SkinningConstants> _skinningConstantBuffer;
-        private SkinningConstants _skinningConstants;
+        private DynamicBuffer<Matrix4x3> _skinningBuffer;
 
         private readonly DynamicBuffer<MeshTransformConstants> _transformConstantBuffer;
         private MeshTransformConstants _transformConstants;
@@ -23,8 +23,6 @@ namespace OpenSage.Graphics.Effects
         private PerDrawConstants _perDrawConstants;
 
         private MeshEffectDirtyFlags _dirtyFlags;
-
-        private Matrix4x4[] _absoluteBonesMatrices;
 
         private Matrix4x4 _world = Matrix4x4.Identity;
         private Matrix4x4 _view;
@@ -71,8 +69,6 @@ namespace OpenSage.Graphics.Effects
                   CreateVertexDescriptor(),
                   CreatePipelineLayoutDescription())
         {
-            _skinningConstantBuffer = AddDisposable(DynamicBuffer<SkinningConstants>.Create(graphicsDevice, BufferUsageFlags.ConstantBuffer));
-
             _transformConstantBuffer = AddDisposable(DynamicBuffer<MeshTransformConstants>.Create(graphicsDevice, BufferUsageFlags.ConstantBuffer));
 
             _lightingConstantBuffer = AddDisposable(DynamicBuffer<LightingConstants>.Create(graphicsDevice, BufferUsageFlags.ConstantBuffer));
@@ -83,13 +79,18 @@ namespace OpenSage.Graphics.Effects
         private static VertexDescriptor CreateVertexDescriptor()
         {
             var vertexDescriptor = new VertexDescriptor();
-            vertexDescriptor.SetAttributeDescriptor(0, "POSITION", 0, VertexFormat.Float3, 0, 0);
-            vertexDescriptor.SetAttributeDescriptor(1, "NORMAL", 0, VertexFormat.Float3, 0, 12);
-            vertexDescriptor.SetAttributeDescriptor(2, "BLENDINDICES", 0, VertexFormat.UInt, 0, 24);
-            vertexDescriptor.SetAttributeDescriptor(3, "TEXCOORD", 0, VertexFormat.Float2, 1, 0);
-            vertexDescriptor.SetAttributeDescriptor(4, "TEXCOORD", 1, VertexFormat.Float2, 1, 8);
+            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerVertexData, 0, "POSITION", 0, VertexFormat.Float3, 0, 0);
+            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerVertexData, 1, "NORMAL", 0, VertexFormat.Float3, 0, 12);
+            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerVertexData, 2, "BLENDINDICES", 0, VertexFormat.UInt, 0, 24);
+            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerVertexData, 3, "TEXCOORD", 0, VertexFormat.Float2, 1, 0);
+            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerVertexData, 4, "TEXCOORD", 1, VertexFormat.Float2, 1, 8);
+            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerInstanceData, 5, "TEXCOORD", 2, VertexFormat.Float4, 2, 0);
+            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerInstanceData, 6, "TEXCOORD", 3, VertexFormat.Float4, 2, 16);
+            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerInstanceData, 7, "TEXCOORD", 4, VertexFormat.Float4, 2, 32);
+            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerInstanceData, 8, "TEXCOORD", 5, VertexFormat.Float4, 2, 48);
             vertexDescriptor.SetLayoutDescriptor(0, 28);
             vertexDescriptor.SetLayoutDescriptor(1, 16);
+            vertexDescriptor.SetLayoutDescriptor(1, 64);
             return vertexDescriptor;
         }
 
@@ -111,11 +112,11 @@ namespace OpenSage.Graphics.Effects
                         ResourceType.ConstantBuffer,
                         0),
 
-                    // SkinningCB
+                    // SkinningBuffer
                     PipelineLayoutEntry.CreateResource(
                         ShaderStageVisibility.Vertex,
-                        ResourceType.ConstantBuffer,
-                        1),
+                        ResourceType.StructuredBuffer,
+                        0),
 
                     // LightingCB
                     PipelineLayoutEntry.CreateResource(
@@ -129,7 +130,7 @@ namespace OpenSage.Graphics.Effects
                     PipelineLayoutEntry.CreateResourceView(
                         ShaderStageVisibility.Vertex,
                         ResourceType.StructuredBuffer,
-                        0, 1),
+                        1, 1),
 
                     // TextureIndices
                     PipelineLayoutEntry.CreateResourceView(
@@ -169,22 +170,17 @@ namespace OpenSage.Graphics.Effects
         {
             if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.SkinningConstants))
             {
-                if (_absoluteBonesMatrices != null)
+                if (_skinningBuffer != null)
                 {
-                    _skinningConstants.CopyFrom(_absoluteBonesMatrices);
+                    commandEncoder.SetInlineStructuredBuffer(2, _skinningBuffer);
                 }
-
-                _skinningConstantBuffer.UpdateData(ref _skinningConstants);
-
-                commandEncoder.SetInlineConstantBuffer(2, _skinningConstantBuffer);
 
                 _dirtyFlags &= ~MeshEffectDirtyFlags.SkinningConstants;
             }
 
             if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.TransformConstants))
             {
-                _transformConstants.World = _world;
-                _transformConstants.WorldViewProjection = _world * _view * _projection;
+                _transformConstants.ViewProjection = _view * _projection;
 
                 _transformConstantBuffer.UpdateData(ref _transformConstants);
 
@@ -239,19 +235,25 @@ namespace OpenSage.Graphics.Effects
             }
         }
 
-        public void SetAbsoluteBoneTransforms(Matrix4x4[] transforms)
+        public void SetSkinningBuffer(DynamicBuffer<Matrix4x3> skinningBuffer)
         {
-            if (transforms == _absoluteBonesMatrices)
+            if (skinningBuffer == _skinningBuffer)
             {
                 return;
             }
-            _absoluteBonesMatrices = transforms;
+            _skinningBuffer = skinningBuffer;
             _dirtyFlags |= MeshEffectDirtyFlags.SkinningConstants;
         }
 
         public void SetSkinningEnabled(bool enabled)
         {
             _transformConstants.SkinningEnabled = enabled;
+            _dirtyFlags |= MeshEffectDirtyFlags.TransformConstants;
+        }
+
+        public void SetNumBones(uint numBones)
+        {
+            _transformConstants.NumBones = numBones;
             _dirtyFlags |= MeshEffectDirtyFlags.TransformConstants;
         }
 
@@ -335,31 +337,11 @@ namespace OpenSage.Graphics.Effects
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private unsafe struct SkinningConstants
-        {
-            // Array of MaxBones * float4x3
-            public fixed float Bones[ModelMesh.MaxBones * 12];
-
-            public void CopyFrom(Matrix4x4[] matrices)
-            {
-                fixed (float* boneArray = Bones)
-                {
-                    for (var i = 0; i < matrices.Length; i++)
-                    {
-                        PointerUtil.CopyToMatrix4x3(
-                            ref matrices[i],
-                            boneArray + (i * 12));
-                    }
-                }
-            }
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
         private struct MeshTransformConstants
         {
-            public Matrix4x4 WorldViewProjection;
-            public Matrix4x4 World;
+            public Matrix4x4 ViewProjection;
             public bool SkinningEnabled;
+            public uint NumBones;
         }
 
         [StructLayout(LayoutKind.Explicit, Size = 20)]

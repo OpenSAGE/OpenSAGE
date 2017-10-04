@@ -1,12 +1,14 @@
 ﻿using System.IO;
+using System.Numerics;
+using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
     public sealed class W3dMesh : W3dChunk
     {
         public W3dMeshHeader3 Header { get; private set; }
-        public W3dVector[] Vertices { get; private set; }
-        public W3dVector[] Normals { get; private set; }
+        public Vector3[] Vertices { get; private set; }
+        public Vector3[] Normals { get; private set; }
 
         /// <summary>
         /// Vertex influences link vertices of a mesh to bones in a hierarchy.
@@ -43,8 +45,8 @@ namespace OpenSage.Data.W3d
                 {
                     case W3dChunkType.W3D_CHUNK_MESH_HEADER3:
                         result.Header = W3dMeshHeader3.Parse(reader);
-                        result.Vertices = new W3dVector[result.Header.NumVertices];
-                        result.Normals = new W3dVector[result.Header.NumVertices];
+                        result.Vertices = new Vector3[result.Header.NumVertices];
+                        result.Normals = new Vector3[result.Header.NumVertices];
                         result.ShadeIndices = new uint[result.Header.NumVertices];
                         result.Influences = new W3dVertexInfluence[result.Header.NumVertices];
                         result.Triangles = new W3dTriangle[result.Header.NumTris];
@@ -53,14 +55,14 @@ namespace OpenSage.Data.W3d
                     case W3dChunkType.W3D_CHUNK_VERTICES:
                         for (var count = 0; count < result.Header.NumVertices; count++)
                         {
-                            result.Vertices[count] = W3dVector.Parse(reader);
+                            result.Vertices[count] = reader.ReadVector3();
                         }
                         break;
 
                     case W3dChunkType.W3D_CHUNK_VERTEX_NORMALS:
                         for (var count = 0; count < result.Header.NumVertices; count++)
                         {
-                            result.Normals[count] = W3dVector.Parse(reader);
+                            result.Normals[count] = reader.ReadVector3();
                         }
                         break;
 

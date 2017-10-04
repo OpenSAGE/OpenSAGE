@@ -9,6 +9,7 @@
 using System;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -171,9 +172,6 @@ namespace LLGfx.Hosting
             Application.Current.Activated += OnApplicationActivated;
             Application.Current.Deactivated += OnApplicationDeactivated;
 
-            // We use the CompositionTarget.Rendering event to trigger the control to draw itself
-            CompositionTarget.Rendering += OnCompositionTargetRendering;
-
             // Check whether the application is active (it almost certainly is, at this point).
             if (Application.Current.Windows.Cast<Window>().Any(x => x.IsActive))
                 _applicationHasFocus = true;
@@ -181,7 +179,7 @@ namespace LLGfx.Hosting
             _dpiScale = VisualTreeHelper.GetDpi(this);
         }
 
-        protected virtual void OnUnloaded(object sender, RoutedEventArgs e)
+        private void OnUnloaded(object sender, RoutedEventArgs e)
         {
             Dispose();
         }
@@ -189,7 +187,6 @@ namespace LLGfx.Hosting
         protected override void Dispose(bool disposing)
         {
             // Unhook all events.
-            CompositionTarget.Rendering -= OnCompositionTargetRendering;
             if (Application.Current != null)
             {
                 Application.Current.Activated -= OnApplicationActivated;
@@ -238,35 +235,6 @@ namespace LLGfx.Hosting
         #endregion
 
         #region Graphics Device Control Implementation
-
-        public static readonly DependencyProperty RedrawsOnTimerProperty = DependencyProperty.Register(
-            nameof(RedrawsOnTimer), typeof(bool), typeof(HwndWrapper), new PropertyMetadata(false));
-
-        public bool RedrawsOnTimer
-        {
-            get { return (bool) GetValue(RedrawsOnTimerProperty); }
-            set { SetValue(RedrawsOnTimerProperty, value); }
-        }
-
-        private void OnCompositionTargetRendering(object sender, EventArgs e)
-        {
-            if (!RedrawsOnTimer)
-            {
-                return;
-            }
-
-            // Get the current width and height of the control
-            var width = (int) ActualWidth;
-            var height = (int) ActualHeight;
-
-            // If the control has no width or no height, skip drawing since it's not visible
-            if (width < 1 || height < 1)
-                return;
-
-            Draw();
-        }
-
-        protected abstract void Draw();
 
         private void OnApplicationActivated(object sender, EventArgs e)
         {
@@ -504,135 +472,97 @@ namespace LLGfx.Hosting
 
         protected virtual void RaiseHwndLButtonDown(HwndMouseEventArgs args)
         {
-            var handler = HwndLButtonDown;
-            if (handler != null)
-                handler(this, args);
+            HwndLButtonDown?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndLButtonUp(HwndMouseEventArgs args)
         {
-            var handler = HwndLButtonUp;
-            if (handler != null)
-                handler(this, args);
+            HwndLButtonUp?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndRButtonDown(HwndMouseEventArgs args)
         {
-            var handler = HwndRButtonDown;
-            if (handler != null)
-                handler(this, args);
+            HwndRButtonDown?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndRButtonUp(HwndMouseEventArgs args)
         {
-            var handler = HwndRButtonUp;
-            if (handler != null)
-                handler(this, args);
+            HwndRButtonUp?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndMButtonDown(HwndMouseEventArgs args)
         {
-            var handler = HwndMButtonDown;
-            if (handler != null)
-                handler(this, args);
+            HwndMButtonDown?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndMButtonUp(HwndMouseEventArgs args)
         {
-            var handler = HwndMButtonUp;
-            if (handler != null)
-                handler(this, args);
+            HwndMButtonUp?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndLButtonDblClick(HwndMouseEventArgs args)
         {
-            var handler = HwndLButtonDblClick;
-            if (handler != null)
-                handler(this, args);
+            HwndLButtonDblClick?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndRButtonDblClick(HwndMouseEventArgs args)
         {
-            var handler = HwndRButtonDblClick;
-            if (handler != null)
-                handler(this, args);
+            HwndRButtonDblClick?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndMButtonDblClick(HwndMouseEventArgs args)
         {
-            var handler = HwndMButtonDblClick;
-            if (handler != null)
-                handler(this, args);
+            HwndMButtonDblClick?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndMouseEnter(HwndMouseEventArgs args)
         {
-            var handler = HwndMouseEnter;
-            if (handler != null)
-                handler(this, args);
+            HwndMouseEnter?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndX1ButtonDown(HwndMouseEventArgs args)
         {
-            var handler = HwndX1ButtonDown;
-            if (handler != null)
-                handler(this, args);
+            HwndX1ButtonDown?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndX1ButtonUp(HwndMouseEventArgs args)
         {
-            var handler = HwndX1ButtonUp;
-            if (handler != null)
-                handler(this, args);
+            HwndX1ButtonUp?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndX2ButtonDown(HwndMouseEventArgs args)
         {
-            var handler = HwndX2ButtonDown;
-            if (handler != null)
-                handler(this, args);
+            HwndX2ButtonDown?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndX2ButtonUp(HwndMouseEventArgs args)
         {
-            var handler = HwndX2ButtonUp;
-            if (handler != null)
-                handler(this, args);
+            HwndX2ButtonUp?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndX1ButtonDblClick(HwndMouseEventArgs args)
         {
-            var handler = HwndX1ButtonDblClick;
-            if (handler != null)
-                handler(this, args);
+            HwndX1ButtonDblClick?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndX2ButtonDblClick(HwndMouseEventArgs args)
         {
-            var handler = HwndX2ButtonDblClick;
-            if (handler != null)
-                handler(this, args);
+            HwndX2ButtonDblClick?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndMouseLeave(HwndMouseEventArgs args)
         {
-            var handler = HwndMouseLeave;
-            if (handler != null)
-                handler(this, args);
+            HwndMouseLeave?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndMouseMove(HwndMouseEventArgs args)
         {
-            var handler = HwndMouseMove;
-            if (handler != null)
-                handler(this, args);
+            HwndMouseMove?.Invoke(this, args);
         }
 
         protected virtual void RaiseHwndMouseWheel(HwndMouseEventArgs args)
         {
-            var handler = HwndMouseWheel;
-            if (handler != null)
-                handler(this, args);
+            HwndMouseWheel?.Invoke(this, args);
         }
 
         #endregion

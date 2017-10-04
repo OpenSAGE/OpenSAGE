@@ -52,5 +52,27 @@ namespace OpenSage.Mathematics
         {
             return new Vector3(value.M21, value.M22, value.M23);
         }
+
+        public static void ToMatrix4x3(this Matrix4x4 value, out Matrix4x3 output)
+        {
+            output = new Matrix4x3
+            {
+                M11 = value.M11,
+                M12 = value.M12,
+                M13 = value.M13,
+
+                M21 = value.M21,
+                M22 = value.M22,
+                M23 = value.M23,
+
+                M31 = value.M31,
+                M32 = value.M32,
+                M33 = value.M33,
+
+                M41 = value.M41,
+                M42 = value.M42,
+                M43 = value.M43,
+            };
+        }
     }
 }

@@ -7,7 +7,7 @@
             PlatformConstruct();
         }
 
-        public void SetRenderTargetDescriptor(RenderTarget renderTargetView, LoadAction loadAction, ColorRgba clearColor = default(ColorRgba))
+        public void SetRenderTargetDescriptor(RenderTarget renderTargetView, LoadAction loadAction, ColorRgbaF clearColor = default(ColorRgbaF))
         {
             PlatformSetRenderTargetDescriptor(renderTargetView, loadAction, clearColor);
         }

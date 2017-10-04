@@ -1,4 +1,5 @@
 ﻿using LLGfx;
+using LLGfx.Effects;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
@@ -36,12 +37,11 @@ namespace OpenSage.Graphics
 
         internal override void BuildRenderList(RenderList renderList)
         {
-            renderList.AddRenderItem(new RenderItem
-            {
-                Renderable = this,
-                Effect = _effect,
-                PipelineStateHandle = _pipelineStateHandle,
-                RenderCallback = (commandEncoder, effect, pipelineStateHandle) =>
+            renderList.AddRenderItem(new RenderItem(
+                this,
+                _effect,
+                _pipelineStateHandle,
+                (commandEncoder, effect, pipelineStateHandle, instanceData) =>
                 {
                     _effect.SetTexture(Texture);
                     _effect.SetMipMapLevel(SelectedMipMapLevel);
@@ -49,8 +49,7 @@ namespace OpenSage.Graphics
                     _effect.Apply(commandEncoder);
 
                     commandEncoder.Draw(PrimitiveType.TriangleList, 0, 3);
-                }
-            });
+                }));
         }
     }
 }

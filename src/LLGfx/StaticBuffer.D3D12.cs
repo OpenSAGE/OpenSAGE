@@ -4,7 +4,7 @@ namespace LLGfx
 {
     partial class StaticBuffer<T>
     {
-        internal Resource DeviceBuffer { get; set; }
+        internal Resource DeviceBuffer { get; private set; }
 
         internal override long DeviceCurrentGPUVirtualAddress => DeviceBuffer.GPUVirtualAddress;
 

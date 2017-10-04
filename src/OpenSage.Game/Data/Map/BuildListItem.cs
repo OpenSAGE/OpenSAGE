@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using System.Linq;
+using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Map
@@ -8,7 +8,7 @@ namespace OpenSage.Data.Map
     {
         public string BuildingName { get; private set; }
         public string Name { get; private set; }
-        public MapVector3 Position { get; private set; }
+        public Vector3 Position { get; private set; }
         public float Angle { get; private set; }
         public bool StructureAlreadyBuilt { get; private set; }
         public uint Rebuilds { get; private set; }
@@ -24,7 +24,7 @@ namespace OpenSage.Data.Map
 
             var name = reader.ReadUInt16PrefixedAsciiString();
 
-            var position = MapVector3.Parse(reader);
+            var position = reader.ReadVector3();
             var angle = reader.ReadSingle();
 
             var structureAlreadyBuilt = reader.ReadBooleanChecked();
@@ -67,7 +67,7 @@ namespace OpenSage.Data.Map
 
             writer.WriteUInt16PrefixedAsciiString(Name);
 
-            Position.WriteTo(writer);
+            writer.Write(Position);
             writer.Write(Angle);
 
             writer.Write(StructureAlreadyBuilt);

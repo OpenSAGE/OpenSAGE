@@ -18,6 +18,8 @@ namespace OpenSage.Graphics
         {
             RegisterComponentList(_cameras = new List<CameraComponent>());
             RegisterComponentList(_models = new List<ModelComponent>());
+
+            RenderList = AddDisposable(new RenderList());
         }
 
         internal override void OnEntityComponentAdded(EntityComponent component)
@@ -42,11 +44,6 @@ namespace OpenSage.Graphics
 
         public override void Draw(GameTime gameTime)
         {
-            foreach (var model in _models)
-            {
-                model.UpdateAbsoluteBoneTransforms();
-            }
-
             foreach (var camera in _cameras)
             {
                 camera.Render(gameTime);

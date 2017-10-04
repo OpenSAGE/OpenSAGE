@@ -40,6 +40,13 @@ namespace LLGfx
 
             _pool.ReleaseResource(fenceValue, _currentDepthStencilBuffer);
         }
+
+        protected override void Dispose(bool disposeManagedResources)
+        {
+            //Release();
+
+            base.Dispose(disposeManagedResources);
+        }
     }
 
     internal sealed class DepthStencilBufferImpl : GraphicsObject

@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using System.Numerics;
+using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Map
 {
@@ -6,10 +8,10 @@ namespace OpenSage.Data.Map
     {
         public uint TextureTile { get; private set; }
 
-        public MapTexCoord BottomLeftCoords { get; private set; }
-        public MapTexCoord BottomRightCoords { get; private set; }
-        public MapTexCoord TopRightCoords { get; private set; }
-        public MapTexCoord TopLeftCoords { get; private set; }
+        public Vector2 BottomLeftCoords { get; private set; }
+        public Vector2 BottomRightCoords { get; private set; }
+        public Vector2 TopRightCoords { get; private set; }
+        public Vector2 TopLeftCoords { get; private set; }
 
         public ushort Unknown2 { get; private set; }
 
@@ -19,10 +21,10 @@ namespace OpenSage.Data.Map
             {
                 TextureTile = reader.ReadUInt32(),
 
-                BottomLeftCoords = MapTexCoord.Parse(reader),
-                BottomRightCoords = MapTexCoord.Parse(reader),
-                TopRightCoords = MapTexCoord.Parse(reader),
-                TopLeftCoords = MapTexCoord.Parse(reader),
+                BottomLeftCoords = reader.ReadVector2(),
+                BottomRightCoords = reader.ReadVector2(),
+                TopRightCoords = reader.ReadVector2(),
+                TopLeftCoords = reader.ReadVector2(),
 
                 Unknown2 = reader.ReadUInt16()
             };
@@ -32,10 +34,10 @@ namespace OpenSage.Data.Map
         {
             writer.Write(TextureTile);
 
-            BottomLeftCoords.WriteTo(writer);
-            BottomRightCoords.WriteTo(writer);
-            TopRightCoords.WriteTo(writer);
-            TopLeftCoords.WriteTo(writer);
+            writer.Write(BottomLeftCoords);
+            writer.Write(BottomRightCoords);
+            writer.Write(TopRightCoords);
+            writer.Write(TopLeftCoords);
 
             writer.Write(Unknown2);
         }

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
@@ -18,17 +19,17 @@ namespace OpenSage.Data.W3d
         /// <summary>
         /// translation to pivot point
         /// </summary>
-        public W3dVector Translation { get; private set; }
+        public Vector3 Translation { get; private set; }
 
         /// <summary>
         /// orientation of the pivot point
         /// </summary>
-        public W3dVector EulerAngles { get; private set; }
+        public Vector3 EulerAngles { get; private set; }
 
         /// <summary>
         /// orientation of the pivot point
         /// </summary>
-        public W3dQuaternion Rotation { get; private set; }
+        public Quaternion Rotation { get; private set; }
 
         public static W3dPivot Parse(BinaryReader reader)
         {
@@ -36,9 +37,9 @@ namespace OpenSage.Data.W3d
             {
                 Name = reader.ReadFixedLengthString(W3dConstants.NameLength),
                 ParentIdx = reader.ReadInt32(),
-                Translation = W3dVector.Parse(reader),
-                EulerAngles = W3dVector.Parse(reader),
-                Rotation = W3dQuaternion.Parse(reader)
+                Translation = reader.ReadVector3(),
+                EulerAngles = reader.ReadVector3(),
+                Rotation = reader.ReadQuaternion()
             };
         }
     }

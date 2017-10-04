@@ -9,6 +9,36 @@ namespace LLGfx.Util
 {
     internal static class ConversionExtensions
     {
+        public static ResourceStates ToResourceStates(this ResourceState value)
+        {
+            switch (value)
+            {
+                case ResourceState.RenderTarget:
+                    return ResourceStates.RenderTarget;
+
+                case ResourceState.Present:
+                    return ResourceStates.Present;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public static D3D12.InputClassification ToInputClassification(this InputClassification value)
+        {
+            switch (value)
+            {
+                case InputClassification.PerVertexData:
+                    return D3D12.InputClassification.PerVertexData;
+
+                case InputClassification.PerInstanceData:
+                    return D3D12.InputClassification.PerInstanceData;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         public static D3D12.RasterizerStateDescription ToRasterizerStateDescription(this RasterizerStateDescription value)
         {
             var result = D3D12.RasterizerStateDescription.Default();
@@ -215,7 +245,7 @@ namespace LLGfx.Util
             }
         }
 
-        public static RawColor4 ToRawColor4(this ColorRgba value)
+        public static RawColor4 ToRawColor4(this ColorRgbaF value)
         {
             return new RawColor4(value.R, value.G, value.B, value.A);
         }
@@ -227,6 +257,7 @@ namespace LLGfx.Util
                 case ResourceType.ConstantBuffer:
                     return RootParameterType.ConstantBufferView;
 
+                case ResourceType.StructuredBuffer:
                 case ResourceType.Texture:
                     return RootParameterType.ShaderResourceView;
 

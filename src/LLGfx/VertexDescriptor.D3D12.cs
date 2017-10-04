@@ -33,6 +33,7 @@ namespace LLGfx
         }
 
         private void PlatformSetAttributeDescriptor(
+            InputClassification classification,
             int index,
             string semanticName,
             int semanticIndex,
@@ -48,9 +49,9 @@ namespace LLGfx
             _inputElements[index] = new InputElement
             {
                 AlignedByteOffset = offset,
-                Classification = InputClassification.PerVertexData,
+                Classification = classification.ToInputClassification(),
                 Format = format.ToDxgiFormat(),
-                InstanceDataStepRate = 0,
+                InstanceDataStepRate = (classification == InputClassification.PerInstanceData) ? 1 : 0,
                 SemanticIndex = semanticIndex,
                 SemanticName = semanticName,
                 Slot = bufferIndex

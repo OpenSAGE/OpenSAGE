@@ -19,7 +19,7 @@ namespace LLGfx
 
         private void PlatformConstruct() { }
 
-        private void PlatformSetRenderTargetDescriptor(RenderTarget renderTargetView, LoadAction loadAction, ColorRgba clearColor)
+        private void PlatformSetRenderTargetDescriptor(RenderTarget renderTargetView, LoadAction loadAction, ColorRgbaF clearColor)
         {
             _renderTargetDescriptor = new RenderTargetDescriptor
             {

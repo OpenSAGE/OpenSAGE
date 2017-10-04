@@ -10,6 +10,7 @@ namespace LLGfx
         }
 
         public void SetAttributeDescriptor(
+            InputClassification classification,
             int index,
             string semanticName,
             int semanticIndex,
@@ -18,6 +19,7 @@ namespace LLGfx
             int offset)
         {
             PlatformSetAttributeDescriptor(
+                classification,
                 index,
                 semanticName,
                 semanticIndex,

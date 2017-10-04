@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Caliburn.Micro;
 using OpenSage.Data;
 
@@ -20,12 +19,6 @@ namespace OpenSage.DataViewer.ViewModels
             {
                 _selectedFile = value;
                 NotifyOfPropertyChange();
-
-                if (_selectedFileContent != null)
-                {
-                    _selectedFileContent.Dispose();
-                    _selectedFileContent = null;
-                }
 
                 SelectedFileContent = FileContentViewModel.Create(value);
             }

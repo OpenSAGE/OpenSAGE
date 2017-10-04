@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Numerics;
 using System.Text;
 
 namespace OpenSage.Data.Utilities.Extensions
@@ -76,6 +77,19 @@ namespace OpenSage.Data.Utilities.Extensions
                 // Write last value.
                 writer.Write(value);
             }
+        }
+
+        public static void Write(this BinaryWriter writer, Vector2 value)
+        {
+            writer.Write(value.X);
+            writer.Write(value.Y);
+        }
+
+        public static void Write(this BinaryWriter writer, Vector3 value)
+        {
+            writer.Write(value.X);
+            writer.Write(value.Y);
+            writer.Write(value.Z);
         }
     }
 }

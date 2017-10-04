@@ -2,10 +2,8 @@
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using Caliburn.Micro;
 using OpenSage.Data;
 using OpenSage.Data.W3d;
-using OpenSage.DataViewer.Framework;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
@@ -13,20 +11,23 @@ using OpenSage.Graphics.Cameras.Controllers;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public sealed class W3dFileContentViewModel : FileContentViewModel<W3dItemViewModelBase>
+    public sealed class W3dFileContentViewModel : FileContentViewModel<W3dItemViewModelBase>, IGameViewModel
     {
         private readonly W3dFile _w3dFile;
 
-        private readonly Entity _modelEntity;
+        private Entity _modelEntity;
 
-        private readonly List<AnimationComponent> _animations;
-        private readonly List<AnimationComponent> _externalAnimations;
+        private List<AnimationComponent> _animations;
+        private List<AnimationComponent> _externalAnimations;
 
         public W3dFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
             _w3dFile = W3dFile.FromFileSystemEntry(file);
+        }
 
+        void IGameViewModel.LoadScene(Game game)
+        {
             var scene = new Scene();
 
             var cameraEntity = new Entity();
@@ -34,7 +35,7 @@ namespace OpenSage.DataViewer.ViewModels
 
             cameraEntity.Components.Add(new PerspectiveCameraComponent { FieldOfView = 70 });
 
-            _modelEntity = Game.ContentManager.Load<Model>(File.FilePath, uploadBatch: null).CreateEntity();
+            _modelEntity = game.ContentManager.Load<Model>(File.FilePath, uploadBatch: null).CreateEntity();
             scene.Entities.Add(_modelEntity);
 
             var enclosingBoundingBox = _modelEntity.GetEnclosingBoundingBox();
@@ -43,7 +44,7 @@ namespace OpenSage.DataViewer.ViewModels
                 enclosingBoundingBox.GetCenter(),
                 Vector3.Distance(enclosingBoundingBox.Min, enclosingBoundingBox.Max) / 1.5f));
 
-            Game.Scene = scene;
+            game.Scene = scene;
 
             _animations = new List<AnimationComponent>();
             _animations.AddRange(_modelEntity.Components.OfType<AnimationComponent>());
@@ -55,14 +56,14 @@ namespace OpenSage.DataViewer.ViewModels
                 var namePrefix = _w3dFile.HLod.Header.Name.Substring(0, _w3dFile.HLod.Header.Name.LastIndexOf('_') + 1);
                 var parentFolder = Path.GetDirectoryName(_w3dFile.FilePath);
                 var pathPrefix = Path.Combine(parentFolder, namePrefix);
-                foreach (var animationFileEntry in file.FileSystem.GetFiles(parentFolder))
+                foreach (var animationFileEntry in File.FileSystem.GetFiles(parentFolder))
                 {
                     if (!animationFileEntry.FilePath.StartsWith(pathPrefix))
                     {
                         continue;
                     }
 
-                    var animationModel = Game.ContentManager.Load<Model>(animationFileEntry.FilePath, uploadBatch: null);
+                    var animationModel = game.ContentManager.Load<Model>(animationFileEntry.FilePath, uploadBatch: null);
                     foreach (var animation in animationModel.Animations)
                     {
                         var externalAnimationComponent = new AnimationComponent
@@ -74,33 +75,20 @@ namespace OpenSage.DataViewer.ViewModels
                     }
                 }
             }
-        }
 
-        protected override IReadOnlyList<W3dItemViewModelBase> CreateSubObjects()
-        {
-            var result = new List<W3dItemViewModelBase>();
+            SubObjects.Add(new ModelViewModel());
 
-            //if (_modelInstance.Model.HasHierarchy)
+            foreach (var animation in _animations)
             {
-                result.Add(new ModelViewModel());
-
-                foreach (var animation in _animations)
-                {
-                    result.Add(new AnimationViewModel(animation, "Animations"));
-                }
-
-                foreach (var animation in _externalAnimations)
-                {
-                    result.Add(new AnimationViewModel(animation, "External Animations"));
-                }
+                SubObjects.Add(new AnimationViewModel(animation, "Animations"));
             }
 
-            //foreach (var mesh in _modelInstance.Model.Meshes)
-            //{
-            //    result.Add(new ModelMeshViewModel(mesh));
-            //}
+            foreach (var animation in _externalAnimations)
+            {
+                SubObjects.Add(new AnimationViewModel(animation, "External Animations"));
+            }
 
-            return result;
+            SelectedSubObject = SubObjects[0];
         }
 
         protected override void OnSelectedSubObjectChanged(W3dItemViewModelBase subObject)
@@ -120,68 +108,15 @@ namespace OpenSage.DataViewer.ViewModels
 
     public abstract class W3dItemViewModelBase : FileSubObjectViewModel
     {
-        //public abstract BoundingSphere BoundingSphere { get; }
-
-        //public virtual void Update(GameTime gameTime) { }
-
-        //public abstract void Draw(
-        //    CommandEncoder commandEncoder,
-        //    MeshEffect meshEffect,
-        //    Camera camera,
-        //    ref Matrix4x4 world,
-        //    GameTime gameTime);
+        
     }
 
     public sealed class ModelViewModel : W3dItemViewModelBase
     {
-        //private readonly ModelInstance _modelInstance;
-
         public override string GroupName => string.Empty;
 
         public override string Name => "Hierarchy";
-
-        //public override BoundingSphere BoundingSphere => _modelInstance.Model.BoundingSphere;
     }
-
-    //public sealed class ModelMeshViewModel : W3dItemViewModelBase
-    //{
-    //    private readonly ModelMesh _mesh;
-
-    //    public override string GroupName => "Meshes";
-
-    //    public override string Name => _mesh.Name;
-
-    //    public override BoundingSphere BoundingSphere => _mesh.BoundingSphere;
-
-    //    public ModelMeshViewModel(ModelMesh mesh)
-    //    {
-    //        _mesh = mesh;
-    //    }
-
-    //    public override void Draw(
-    //        CommandEncoder commandEncoder,
-    //        MeshEffect meshEffect,
-    //        Camera camera,
-    //        ref Matrix4x4 world,
-    //        GameTime gameTime)
-    //    {
-    //        _mesh.Draw(
-    //            commandEncoder,
-    //            meshEffect,
-    //            camera,
-    //            ref world,
-    //            gameTime,
-    //            false);
-
-    //        _mesh.Draw(
-    //            commandEncoder,
-    //            meshEffect,
-    //            camera,
-    //            ref world,
-    //            gameTime,
-    //            true);
-    //    }
-    //}
 
     public sealed class AnimationViewModel : W3dItemViewModelBase
     {
@@ -190,8 +125,6 @@ namespace OpenSage.DataViewer.ViewModels
         public override string GroupName { get; }
 
         public override string Name => _animationComponent.Animation.Name;
-
-        //public override BoundingSphere BoundingSphere => _modelInstance.Model.BoundingSphere;
 
         public AnimationViewModel(AnimationComponent animation, string groupName)
         {
@@ -209,25 +142,5 @@ namespace OpenSage.DataViewer.ViewModels
         {
             _animationComponent.Stop();
         }
-
-        //public override void Update(GameTime gameTime)
-        //{
-        //    _animationPlayer.Update(gameTime);
-        //}
-
-        //public override void Draw(
-        //    CommandEncoder commandEncoder,
-        //    MeshEffect meshEffect,
-        //    Camera camera,
-        //    ref Matrix4x4 world,
-        //    GameTime gameTime)
-        //{
-        //    _modelInstance.Draw(
-        //        commandEncoder,
-        //        meshEffect,
-        //        camera,
-        //        ref world,
-        //        gameTime);
-        //}
     }
 }

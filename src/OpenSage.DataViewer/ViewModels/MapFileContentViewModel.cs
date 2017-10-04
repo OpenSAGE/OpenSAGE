@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Caliburn.Micro;
 using OpenSage.Data;
 using OpenSage.Data.Map;
-using OpenSage.DataViewer.Framework;
-using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
-using OpenSage.Graphics.Cameras.Controllers;
 using OpenSage.Terrain;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public sealed class MapFileContentViewModel : FileContentViewModel
+    public sealed class MapFileContentViewModel : FileContentViewModel, IGameViewModel
     {
-        private readonly CameraComponent _camera;
-        private readonly TerrainComponent _terrain;
+        private Scene _scene;
+
+        private CameraComponent _camera;
+        private TerrainComponent _terrain;
 
         public IEnumerable<TimeOfDay> TimesOfDay
         {
@@ -30,10 +28,10 @@ namespace OpenSage.DataViewer.ViewModels
 
         public TimeOfDay CurrentTimeOfDay
         {
-            get { return Game.Scene.Settings.TimeOfDay; }
+            get { return _scene?.Settings.TimeOfDay ?? TimeOfDay.Morning; }
             set
             {
-                Game.Scene.Settings.TimeOfDay = value;
+                _scene.Settings.TimeOfDay = value;
                 NotifyOfPropertyChange();
             }
         }
@@ -87,12 +85,17 @@ namespace OpenSage.DataViewer.ViewModels
         public MapFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
-            var scene = Game.ContentManager.Load<Scene>(file.FilePath, uploadBatch: null);
+            
+        }
 
-            _terrain = scene.Entities[0].GetComponent<TerrainComponent>();
+        void IGameViewModel.LoadScene(Game game)
+        {
+            _scene = game.ContentManager.Load<Scene>(File.FilePath, uploadBatch: null);
+
+            _terrain = _scene.Entities[0].GetComponent<TerrainComponent>();
 
             var cameraEntity = new Entity();
-            scene.Entities.Add(cameraEntity);
+            _scene.Entities.Add(cameraEntity);
 
             cameraEntity.Components.Add(_camera = new PerspectiveCameraComponent
             {
@@ -103,7 +106,9 @@ namespace OpenSage.DataViewer.ViewModels
             //cameraEntity.Components.Add(cameraController);
             //cameraController.Reset(_terrain.Entity.GetEnclosingBoundingBox().GetCenter());
 
-            Game.Scene = scene;
+            game.Scene = _scene;
+
+            NotifyOfPropertyChange(nameof(CurrentTimeOfDay));
         }
 
         // TODO: Hook this up as a component.

@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using OpenSage.Graphics.Effects;
+﻿using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
 
@@ -10,6 +9,8 @@ namespace OpenSage.Graphics
         private MeshEffect _effect;
 
         public ModelMesh Mesh { get; set; }
+
+        internal override ModelMesh MeshBase => Mesh;
 
         internal override BoundingBox LocalBoundingBox => Mesh.BoundingBox;
 
@@ -22,7 +23,7 @@ namespace OpenSage.Graphics
 
         internal override void BuildRenderList(RenderList renderList)
         {
-            Mesh.BuildRenderList(renderList, this, _effect);
+            renderList.AddInstancedRenderItem(Mesh, this, _effect);
         }
     }
 }

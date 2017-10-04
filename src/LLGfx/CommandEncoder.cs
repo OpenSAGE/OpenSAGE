@@ -31,6 +31,21 @@
                 indexBufferOffset);
         }
 
+        public void DrawIndexedInstanced(
+            PrimitiveType primitiveType,
+            uint indexCount,
+            uint instanceCount,
+            StaticBuffer<ushort> indexBuffer,
+            uint indexBufferOffset)
+        {
+            PlatformDrawIndexedInstanced(
+                primitiveType,
+                indexCount,
+                instanceCount,
+                indexBuffer,
+                indexBufferOffset);
+        }
+
         public void SetTexture(int index, Texture texture)
         {
             // TODO: Validation.
@@ -58,6 +73,13 @@
             // TODO: Validation.
 
             PlatformSetInlineConstantBuffer(index, buffer);
+        }
+
+        public void SetInlineStructuredBuffer(int index, Buffer buffer)
+        {
+            // TODO: Validation.
+
+            PlatformSetInlineStructuredBuffer(index, buffer);
         }
 
         public void SetPipelineState(PipelineState pipelineState)

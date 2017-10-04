@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
@@ -15,9 +16,9 @@ namespace OpenSage.Data.W3d
 
         public W3dRgb Color { get; private set; }
 
-        public W3dVector Center { get; private set; }
+        public Vector3 Center { get; private set; }
 
-        public W3dVector Extent { get; private set; }
+        public Vector3 Extent { get; private set; }
 
         public static W3dBox Parse(BinaryReader reader)
         {
@@ -33,8 +34,8 @@ namespace OpenSage.Data.W3d
 
             result.Name = reader.ReadFixedLengthString(W3dConstants.NameLength * 2);
             result.Color = W3dRgb.Parse(reader);
-            result.Center = W3dVector.Parse(reader);
-            result.Extent = W3dVector.Parse(reader);
+            result.Center = reader.ReadVector3();
+            result.Extent = reader.ReadVector3();
 
             return result;
         }

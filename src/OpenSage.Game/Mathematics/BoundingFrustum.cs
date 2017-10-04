@@ -59,12 +59,12 @@ namespace OpenSage.Mathematics
 
         public override int GetHashCode() => _matrix.GetHashCode();
 
-        public ContainmentType Contains(BoundingBox box)
+        public ContainmentType Contains(ref BoundingBox box)
         {
             var intersects = false;
             for (var i = 0; i < PlaneCount; ++i)
             {
-                var planeIntersectionType = box.Intersects(this._planes[i]);
+                var planeIntersectionType = box.Intersects(ref _planes[i]);
                 switch (planeIntersectionType)
                 {
                     case PlaneIntersectionType.Front:
@@ -103,7 +103,7 @@ namespace OpenSage.Mathematics
 
         public bool Intersects(BoundingBox box)
         {
-            return Contains(box) != ContainmentType.Disjoint;
+            return Contains(ref box) != ContainmentType.Disjoint;
         }
 
         public bool Intersects(BoundingSphere sphere)

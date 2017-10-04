@@ -42,20 +42,49 @@ namespace OpenSage
         public string Name { get; set; }
 
         // TODO: Cache this property in ancestors and descendants.
-        public bool Visible { get; set; } = true;
+        private bool _visible = true;
+        public bool Visible
+        {
+            get { return _visible; }
+            set
+            {
+                _visible = value;
 
+                ClearCachedVisibleInHierarchyRecursive();
+            }
+        }
+
+        private void ClearCachedVisibleInHierarchyRecursive()
+        {
+            _visibleInHierarchy = null;
+
+            foreach (var child in GetChildren())
+            {
+                child.ClearCachedVisibleInHierarchyRecursive();
+            }
+        }
+
+        private bool? _visibleInHierarchy;
         internal bool VisibleInHierarchy
         {
             get
             {
-                var parent = this;
-                while (parent != null)
+                if (_visibleInHierarchy == null)
                 {
-                    if (!parent.Visible)
-                        return false;
-                    parent = parent.GetParent();
+                    _visibleInHierarchy = true;
+
+                    var parent = this;
+                    while (parent != null)
+                    {
+                        if (!parent.Visible)
+                        {
+                            _visibleInHierarchy = false;
+                            break;
+                        }
+                        parent = parent.GetParent();
+                    }
                 }
-                return true;
+                return _visibleInHierarchy.Value;
             }
         }
 

@@ -15,7 +15,7 @@ namespace OpenSage.Graphics.Lights
         /// <summary>
         /// Gets or sets the color of this light.
         /// </summary>
-        public Color Color { get; set; } = Color.White;
+        public ColorRgba Color { get; set; } = ColorRgba.White;
 
         /// <summary>
         /// Gets or sets the intensity of this light.
@@ -71,7 +71,7 @@ namespace OpenSage.Graphics.Lights
 
         private Dictionary<CameraComponent, IDisposable> ShadowData { get; } = new Dictionary<CameraComponent, IDisposable>();
 
-        internal Color GetColor()
+        internal ColorRgba GetColor()
         {
             return Color * Intensity;
         }

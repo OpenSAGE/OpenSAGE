@@ -47,7 +47,7 @@ float3 SampleTexture(
     // and that doesn't work for divergent texture lookups.
     float4 diffuseTextureColor = diffuseTexture.SampleGrad(
         Sampler,
-        float2(scaledUV.x, -scaledUV.y),
+        scaledUV,
         ddxUV / textureInfo.CellSize,
         ddyUV / textureInfo.CellSize);
 

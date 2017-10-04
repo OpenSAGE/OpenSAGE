@@ -65,7 +65,7 @@ namespace OpenSage.Mathematics
 
         public Vector3 GetCenter() => (Min + Max) / 2;
 
-        public PlaneIntersectionType Intersects(Plane plane)
+        public PlaneIntersectionType Intersects(ref Plane plane)
         {
             // See http://zach.in.tu-clausthal.de/teaching/cg_literatur/lighthouse3d_view_frustum_culling/index.html
 

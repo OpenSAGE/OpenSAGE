@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
@@ -18,8 +19,8 @@ namespace OpenSage.Data.W3d
         public float Gravity { get; private set; }
         public float Elasticity { get; private set; }
 
-        public W3dVector Velocity { get; private set; }
-        public W3dVector Acceleration { get; private set; }
+        public Vector3 Velocity { get; private set; }
+        public Vector3 Acceleration { get; private set; }
 
         public W3dRgba StartColor { get; private set; }
         public W3dRgba EndColor { get; private set; }
@@ -40,8 +41,8 @@ namespace OpenSage.Data.W3d
                 Gravity = reader.ReadSingle(),
                 Elasticity = reader.ReadSingle(),
 
-                Velocity = W3dVector.Parse(reader),
-                Acceleration = W3dVector.Parse(reader),
+                Velocity = reader.ReadVector3(),
+                Acceleration = reader.ReadVector3(),
 
                 StartColor = W3dRgba.Parse(reader),
                 EndColor = W3dRgba.Parse(reader)

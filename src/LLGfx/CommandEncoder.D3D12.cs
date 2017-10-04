@@ -59,6 +59,30 @@ namespace LLGfx
                 0);
         }
 
+        private void PlatformDrawIndexedInstanced(
+            PrimitiveType primitiveType,
+            uint indexCount,
+            uint instanceCount,
+            StaticBuffer<ushort> indexBuffer,
+            uint indexBufferOffset)
+        {
+            _commandList.PrimitiveTopology = primitiveType.ToPrimitiveTopology();
+
+            _commandList.SetIndexBuffer(new IndexBufferView
+            {
+                BufferLocation = indexBuffer.DeviceBuffer.GPUVirtualAddress,
+                Format = SharpDX.DXGI.Format.R16_UInt,
+                SizeInBytes = (int) indexBuffer.DeviceBuffer.Description.Width
+            });
+
+            _commandList.DrawIndexedInstanced(
+                (int) indexCount,
+                (int) instanceCount,
+                (int) indexBufferOffset,
+                0,
+                0);
+        }
+
         private void PlatformSetShaderResourceView(int index, ShaderResourceView shaderResourceView)
         {
             _commandList.SetGraphicsRootDescriptorTable(index, shaderResourceView.GPUDescriptorHandleForCbvUavSrvHeapStart);
@@ -67,6 +91,11 @@ namespace LLGfx
         private void PlatformSetInlineConstantBuffer(int index, Buffer buffer)
         {
             _commandList.SetGraphicsRootConstantBufferView(index, buffer.DeviceCurrentGPUVirtualAddress);
+        }
+
+        private void PlatformSetInlineStructuredBuffer(int index, Buffer buffer)
+        {
+            _commandList.SetGraphicsRootShaderResourceView(index, buffer.DeviceCurrentGPUVirtualAddress);
         }
 
         private void PlatformSetPipelineState(PipelineState pipelineState)

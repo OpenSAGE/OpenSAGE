@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
+using LLGfx.Effects;
 using OpenSage.Graphics;
-using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
 
@@ -19,6 +19,8 @@ namespace OpenSage.Terrain
         public Int32Rect Bounds { get; }
 
         internal override BoundingBox LocalBoundingBox { get; }
+
+        public override BoundingBox BoundingBox { get; }
 
         public Triangle[] Triangles { get; }
 
@@ -40,6 +42,7 @@ namespace OpenSage.Terrain
             _indexBuffer = indexBuffer;
 
             LocalBoundingBox = boundingBox;
+            BoundingBox = boundingBox;
             Triangles = triangles;
         }
 
@@ -73,12 +76,11 @@ namespace OpenSage.Terrain
 
         internal override void BuildRenderList(RenderList renderList)
         {
-            renderList.AddRenderItem(new RenderItem
-            {
-                Renderable = this,
-                Effect = _terrainEffect,
-                PipelineStateHandle = _pipelineStateHandle,
-                RenderCallback = (commandEncoder, effect, pipelineStateHandle) =>
+            renderList.AddRenderItem(new RenderItem(
+                this,
+                _terrainEffect,
+                _pipelineStateHandle,
+                (commandEncoder, effect, pipelineStateHandle, instanceData) =>
                 {
                     effect.Apply(commandEncoder);
 
@@ -89,8 +91,7 @@ namespace OpenSage.Terrain
                         _indexBuffer.ElementCount,
                         _indexBuffer,
                         0);
-                }
-            });
+                }));
         }
     }
 

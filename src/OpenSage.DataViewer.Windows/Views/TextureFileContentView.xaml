@@ -3,10 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:graphics="clr-namespace:LLGfx.Hosting;assembly=LLGfx"
+             xmlns:controls="clr-namespace:OpenSage.DataViewer.Framework.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300"
-             Unloaded="OnUnloaded">
+             d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -19,12 +18,8 @@
             </StackPanel>
         </Border>
         <Viewbox Grid.Row="1">
-            <graphics:GraphicsDeviceControl x:Name="GraphicsDeviceControl" 
-                                            Width="{Binding TextureWidth}" 
-                                            Height="{Binding TextureHeight}"
-                                            RedrawsOnTimer="True"
-                                            GraphicsInitialize="OnGraphicsInitialize"
-                                            GraphicsDraw="OnGraphicsDraw" />
+            <controls:GameControl Width="{Binding TextureWidth}" 
+                                  Height="{Binding TextureHeight}" />
         </Viewbox>
     </Grid>
 </UserControl>

@@ -8,20 +8,29 @@ using OpenSage.Graphics.Cameras;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public sealed class TextureFileContentViewModel : FileContentViewModel
+    public sealed class TextureFileContentViewModel : FileContentViewModel, IGameViewModel
     {
-        private readonly SpriteComponent _spriteComponent;
+        private SpriteComponent _spriteComponent;
 
-        public int TextureWidth => _spriteComponent.Texture.Width;
-        public int TextureHeight => _spriteComponent.Texture.Height;
+        public int TextureWidth => _spriteComponent?.Texture.Width ?? 0;
+        public int TextureHeight => _spriteComponent?.Texture.Height ?? 0;
 
-        public IEnumerable<uint> MipMapLevels => Enumerable
-            .Range(0, _spriteComponent.Texture.MipMapCount)
-            .Select(x => (uint) x);
+        public IEnumerable<uint> MipMapLevels
+        {
+            get
+            {
+                if (_spriteComponent == null)
+                    return Enumerable.Empty<uint>();
+
+                return Enumerable
+                    .Range(0, _spriteComponent.Texture.MipMapCount)
+                    .Select(x => (uint) x);
+            }
+        }
 
         public uint SelectedMipMapLevel
         {
-            get { return _spriteComponent.SelectedMipMapLevel; }
+            get { return _spriteComponent?.SelectedMipMapLevel ?? 0; }
             set
             {
                 _spriteComponent.SelectedMipMapLevel = value;
@@ -32,9 +41,13 @@ namespace OpenSage.DataViewer.ViewModels
         public TextureFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
+        }
+
+        void IGameViewModel.LoadScene(Game game)
+        {
             _spriteComponent = new SpriteComponent
             {
-                Texture = Game.ContentManager.Load<Texture>(
+                Texture = game.ContentManager.Load<Texture>(
                     File.FilePath,
                     uploadBatch: null,
                     options: new TextureLoadOptions
@@ -50,17 +63,12 @@ namespace OpenSage.DataViewer.ViewModels
             entity.Components.Add(_spriteComponent);
             scene.Entities.Add(entity);
 
-            Game.Scene = scene;
-        }
+            game.Scene = scene;
 
-        public void Initialize(GraphicsDevice graphicsDevice, SwapChain swapChain)
-        {
-            Game.SetSwapChain(swapChain);
-        }
-
-        public void Draw(GraphicsDevice graphicsDevice, SwapChain swapChain)
-        {
-            Game.Tick();
+            NotifyOfPropertyChange(nameof(TextureWidth));
+            NotifyOfPropertyChange(nameof(TextureHeight));
+            NotifyOfPropertyChange(nameof(MipMapLevels));
+            NotifyOfPropertyChange(nameof(SelectedMipMapLevel));
         }
     }
 }

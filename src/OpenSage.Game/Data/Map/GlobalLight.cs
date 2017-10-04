@@ -1,28 +1,30 @@
 ﻿using System.IO;
+using System.Numerics;
+using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Map
 {
     public sealed class GlobalLight
     {
-        public MapVector3 Ambient { get; private set; }
-        public MapVector3 Color { get; private set; }
-        public MapVector3 EulerAngles { get; private set; }
+        public Vector3 Ambient { get; private set; }
+        public Vector3 Color { get; private set; }
+        public Vector3 Direction { get; private set; }
 
         internal static GlobalLight Parse(BinaryReader reader)
         {
             return new GlobalLight
             {
-                Ambient = MapVector3.Parse(reader),
-                Color = MapVector3.Parse(reader),
-                EulerAngles = MapVector3.Parse(reader)
+                Ambient = reader.ReadVector3(),
+                Color = reader.ReadVector3(),
+                Direction = reader.ReadVector3()
             };
         }
 
         internal void WriteTo(BinaryWriter writer)
         {
-            Ambient.WriteTo(writer);
-            Color.WriteTo(writer);
-            EulerAngles.WriteTo(writer);
+            writer.Write(Ambient);
+            writer.Write(Color);
+            writer.Write(Direction);
         }
     }
 }

@@ -1,10 +1,13 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Mathematics;
 
 namespace OpenSage
 {
     public sealed class TransformComponent : EntityComponent
     {
+        public event EventHandler TransformChanged;
+
         private bool _needToRecreateLocalMatrix;
         private bool _needToRecreateWorldMatrices;
         private Matrix4x4 _cachedLocalMatrix;
@@ -230,6 +233,8 @@ namespace OpenSage
         {
             _needToRecreateLocalMatrix = true;
             _needToRecreateWorldMatrices = true;
+
+            TransformChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void CacheLocalMatrix()

@@ -2,9 +2,10 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
-using OpenSage.Terrain;
+using LLGfx.Effects;
+using OpenSage.Graphics.Effects;
 
-namespace OpenSage.Graphics.Effects
+namespace OpenSage.Terrain
 {
     public sealed class TerrainEffect : Effect, IEffectMatrices, IEffectLights
     {
@@ -63,9 +64,9 @@ namespace OpenSage.Graphics.Effects
         private static VertexDescriptor CreateVertexDescriptor()
         {
             var vertexDescriptor = new VertexDescriptor();
-            vertexDescriptor.SetAttributeDescriptor(0, "POSITION", 0, VertexFormat.Float3, 0, 0);
-            vertexDescriptor.SetAttributeDescriptor(1, "NORMAL", 0, VertexFormat.Float3, 0, 12);
-            vertexDescriptor.SetAttributeDescriptor(2, "TEXCOORD", 0, VertexFormat.Float2, 0, 24);
+            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerVertexData, 0, "POSITION", 0, VertexFormat.Float3, 0, 0);
+            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerVertexData, 1, "NORMAL", 0, VertexFormat.Float3, 0, 12);
+            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerVertexData, 2, "TEXCOORD", 0, VertexFormat.Float2, 0, 24);
             vertexDescriptor.SetLayoutDescriptor(0, 32);
             return vertexDescriptor;
         }

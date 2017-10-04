@@ -6,7 +6,7 @@ using OpenSage.Graphics.ParticleSystems;
 
 namespace OpenSage.DataViewer.ViewModels.Ini
 {
-    public sealed class ParticleSystemIniEntryViewModel : IniEntryViewModel
+    public sealed class ParticleSystemIniEntryViewModel : IniEntryViewModel, IGameViewModel
     {
         private readonly ParticleSystemDefinition _definition;
 
@@ -19,7 +19,7 @@ namespace OpenSage.DataViewer.ViewModels.Ini
             _definition = definition;
         }
 
-        public override void Activate()
+        void IGameViewModel.LoadScene(Game game)
         {
             var scene = new Scene();
 
@@ -32,9 +32,7 @@ namespace OpenSage.DataViewer.ViewModels.Ini
             particleSystemEntity.Components.Add(new ParticleSystem(_definition));
             scene.Entities.Add(particleSystemEntity);
 
-            Game.Scene = scene;
-
-            Game.ResetElapsedTime();
+            game.Scene = scene;
         }
     }
 }

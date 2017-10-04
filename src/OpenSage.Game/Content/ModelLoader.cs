@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using LLGfx;
+using LLGfx.Effects;
 using OpenSage.Content.Util;
 using OpenSage.Data;
 using OpenSage.Data.W3d;
@@ -66,8 +67,8 @@ namespace OpenSage.Content
                         i,
                         pivot.Name,
                         parent,
-                        pivot.Translation.ToVector3(),
-                        pivot.Rotation.ToQuaternion());
+                        pivot.Translation,
+                        pivot.Rotation);
                 }
             }
             else
@@ -99,7 +100,8 @@ namespace OpenSage.Content
                     contentManager,
                     uploadBatch,
                     w3dMesh,
-                    bone);
+                    bone,
+                    bones.Length);
 
                 //var meshBoundingSphere = mesh.BoundingSphere.Transform(bone.Transform);
 
@@ -128,7 +130,8 @@ namespace OpenSage.Content
             ContentManager contentManager,
             ResourceUploadBatch uploadBatch,
             W3dMesh w3dMesh,
-            ModelBone parentBone)
+            ModelBone parentBone,
+            int numBones)
         {
             var materialPasses = new ModelMeshMaterialPass[w3dMesh.MaterialPasses.Length];
             for (var i = 0; i < materialPasses.Length; i++)
@@ -141,8 +144,8 @@ namespace OpenSage.Content
             }
 
             var boundingBox = new BoundingBox(
-                w3dMesh.Header.Min.ToVector3(),
-                w3dMesh.Header.Max.ToVector3());
+                w3dMesh.Header.Min,
+                w3dMesh.Header.Max);
 
             var isSkinned = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.GeometryTypeSkin);
 
@@ -157,6 +160,7 @@ namespace OpenSage.Content
                 materialPasses,
                 isSkinned,
                 parentBone,
+                (uint) numBones,
                 boundingBox);
         }
 
@@ -204,8 +208,8 @@ namespace OpenSage.Content
             {
                 vertices[i] = new MeshVertex
                 {
-                    Position = w3dMesh.Vertices[i].ToVector3(),
-                    Normal = w3dMesh.Normals[i].ToVector3(),
+                    Position = w3dMesh.Vertices[i],
+                    Normal = w3dMesh.Normals[i],
                     BoneIndex = isSkinned
                         ? w3dMesh.Influences[i].BoneIndex
                         : 0u
@@ -261,12 +265,12 @@ namespace OpenSage.Content
                     // TODO: What to do when this is null?
                     if (textureStage0.TexCoords != null)
                     {
-                        texCoords[i].UV0 = textureStage0.TexCoords[i].ToVector2();
+                        texCoords[i].UV0 = textureStage0.TexCoords[i];
                     }
 
                     if (hasTextureStage1)
                     {
-                        texCoords[i].UV1 = textureStage1.TexCoords[i].ToVector2();
+                        texCoords[i].UV1 = textureStage1.TexCoords[i];
                     }
                 }
             }
@@ -478,7 +482,7 @@ namespace OpenSage.Content
             switch (channelType)
             {
                 case W3dAnimationChannelType.Quaternion:
-                    return new QuaternionKeyframe(time, datum.Quaternion.ToQuaternion());
+                    return new QuaternionKeyframe(time, datum.Quaternion);
 
                 case W3dAnimationChannelType.TranslationX:
                     return new TranslationXKeyframe(time, datum.FloatValue);

@@ -6,9 +6,6 @@ namespace LLGfx.Hosting
     {
         event EventHandler<GraphicsEventArgs> GraphicsInitialize;
         event EventHandler<GraphicsEventArgs> GraphicsDraw;
-
-        bool RedrawsOnTimer { get; set; }
-
-        void Draw();
+        event EventHandler GraphicsUninitialized;
     }
 }

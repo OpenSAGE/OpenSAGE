@@ -5,9 +5,9 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
+using LLGfx.Effects;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.ParticleSystems.VelocityTypes;
 using OpenSage.Graphics.ParticleSystems.VolumeTypes;
 using OpenSage.Graphics.Rendering;
@@ -50,7 +50,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
         public ParticleSystemState State { get; private set; }
 
-        internal override BoundingBox LocalBoundingBox => throw new NotImplementedException();
+        // TODO
+        internal override BoundingBox LocalBoundingBox => BoundingBox.CreateFromSphere(new BoundingSphere(Transform.LocalPosition, 100));
 
         public ParticleSystem(ParticleSystemDefinition definition)
         {
@@ -459,12 +460,11 @@ namespace OpenSage.Graphics.ParticleSystems
 
         internal override void BuildRenderList(RenderList renderList)
         {
-            renderList.AddRenderItem(new RenderItem
-            {
-                Renderable = this,
-                Effect = _particleEffect,
-                PipelineStateHandle = _pipelineStateHandle,
-                RenderCallback = (commandEncoder, effect, pipelineStateHandle) =>
+            renderList.AddRenderItem(new RenderItem(
+                this,
+                _particleEffect,
+                _pipelineStateHandle,
+                (commandEncoder, effect, pipelineStateHandle, instanceData) =>
                 {
                     _particleEffect.SetTexture(_texture);
 
@@ -477,8 +477,7 @@ namespace OpenSage.Graphics.ParticleSystems
                         _indexBuffer.ElementCount,
                         _indexBuffer,
                         0);
-                }
-            });
+                }));
         }
 
         [StructLayout(LayoutKind.Sequential)]

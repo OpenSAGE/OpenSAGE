@@ -1,5 +1,7 @@
 ﻿using System.IO;
+using System.Numerics;
 using System.Runtime.InteropServices;
+using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
@@ -20,7 +22,7 @@ namespace OpenSage.Data.W3d
         /// <summary>
         /// Plane normal.
         /// </summary>
-        public W3dVector Normal;
+        public Vector3 Normal;
 
         /// <summary>
         /// Plane distance.
@@ -37,7 +39,7 @@ namespace OpenSage.Data.W3d
 
                 SurfaceType = (W3dSurfaceType) reader.ReadUInt32(),
 
-                Normal = W3dVector.Parse(reader),
+                Normal = reader.ReadVector3(),
 
                 Distance = reader.ReadSingle()
             };

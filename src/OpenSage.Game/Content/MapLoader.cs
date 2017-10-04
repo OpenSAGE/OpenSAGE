@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using LLGfx;
+using LLGfx.Effects;
 using OpenSage.Content.Util;
 using OpenSage.Data;
 using OpenSage.Data.Map;
@@ -116,7 +117,10 @@ namespace OpenSage.Content
             //var index = 0;
             //foreach (var scriptGroup in scriptList.ScriptGroups)
             {
-                AddScripts(scriptsEntity, scriptList.ScriptGroups[0].Scripts);
+                if (scriptList.ScriptGroups.Length > 0)
+                {
+                    AddScripts(scriptsEntity, scriptList.ScriptGroups[0].Scripts);
+                }
             }
             // TODO
             //AddScripts(scriptsEntity, scriptList.Scripts);
@@ -152,7 +156,7 @@ namespace OpenSage.Content
                 switch (mapObject.RoadType)
                 {
                     case RoadType.None:
-                        var position = mapObject.Position.ToVector3();
+                        var position = mapObject.Position;
                         position.Z = heightMap.GetHeight(position.X, position.Y);
 
                         switch (mapObject.TypeName)
@@ -453,10 +457,10 @@ namespace OpenSage.Content
                 var cliffMapping = mapFile.BlendTileData.CliffTextureMappings[i];
                 cliffDetails[i] = new CliffInfo
                 {
-                    BottomLeftUV = cliffMapping.BottomLeftCoords.ToVector2() * cliffScalingFactor,
-                    BottomRightUV = cliffMapping.BottomRightCoords.ToVector2() * cliffScalingFactor,
-                    TopLeftUV = cliffMapping.TopLeftCoords.ToVector2() * cliffScalingFactor,
-                    TopRightUV = cliffMapping.TopRightCoords.ToVector2() * cliffScalingFactor
+                    BottomLeftUV = cliffMapping.BottomLeftCoords * cliffScalingFactor,
+                    BottomRightUV = cliffMapping.BottomRightCoords * cliffScalingFactor,
+                    TopLeftUV = cliffMapping.TopLeftCoords * cliffScalingFactor,
+                    TopRightUV = cliffMapping.TopRightCoords * cliffScalingFactor
                 };
             }
 

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
+using LLGfx.Effects;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
@@ -32,6 +33,7 @@ namespace OpenSage.Graphics
         public string Name { get; }
 
         public ModelBone ParentBone { get; }
+        public uint NumBones { get; }
 
         public BoundingBox BoundingBox { get; }
 
@@ -50,11 +52,13 @@ namespace OpenSage.Graphics
             ModelMeshMaterialPass[] materialPasses,
             bool isSkinned,
             ModelBone parentBone,
+            uint numBones,
             BoundingBox boundingBox)
         {
             Name = name;
 
             ParentBone = parentBone;
+            NumBones = numBones;
 
             BoundingBox = boundingBox;
 
@@ -84,7 +88,7 @@ namespace OpenSage.Graphics
             MaterialPasses = materialPasses;
         }
 
-        internal void BuildRenderList(RenderList renderList, RenderableComponent renderable, MeshEffect effect)
+        internal void BuildRenderList(RenderList renderList, RenderInstanceData instanceData, MeshEffect effect)
         {
             var uniquePipelineStates = MaterialPasses
                 .SelectMany(x => x.MeshParts.Select(y => y.PipelineStateHandle))
@@ -99,21 +103,19 @@ namespace OpenSage.Graphics
 
                 if (filteredMaterialPasses.Count > 0)
                 {
-                    renderList.AddRenderItem(new RenderItem
-                    {
-                        Renderable = renderable,
-                        Effect = effect,
-                        PipelineStateHandle = pipelineStateHandle,
-                        RenderCallback = (commandEncoder, e, h) =>
+                    renderList.AddRenderItem(new InstancedRenderItem(
+                        instanceData,
+                        effect,
+                        pipelineStateHandle,
+                        (commandEncoder, e, h, _) =>
                         {
                             Draw(
-                                commandEncoder, 
-                                effect, 
-                                pipelineStateHandle, 
+                                commandEncoder,
+                                effect,
+                                h,
                                 filteredMaterialPasses,
-                                renderable);
-                        }
-                    });
+                                instanceData);
+                        }));
                 }
             }
         }
@@ -123,12 +125,14 @@ namespace OpenSage.Graphics
             MeshEffect meshEffect,
             EffectPipelineStateHandle pipelineStateHandle,
             IEnumerable<ModelMeshMaterialPass> materialPasses,
-            RenderableComponent renderable)
+            RenderInstanceData instanceData)
         {
+            commandEncoder.SetVertexBuffer(2, instanceData.WorldBuffer);
+
             if (Skinned)
             {
-                var modelComponent = renderable.Entity.GetComponent<ModelComponent>();
-                meshEffect.SetAbsoluteBoneTransforms(modelComponent.AbsoluteBoneTransforms);
+                meshEffect.SetSkinningBuffer(instanceData.SkinningBuffer);
+                meshEffect.SetNumBones(NumBones);
             }
 
             meshEffect.SetSkinningEnabled(Skinned);
@@ -159,9 +163,10 @@ namespace OpenSage.Graphics
 
                     meshEffect.Apply(commandEncoder);
 
-                    commandEncoder.DrawIndexed(
+                    commandEncoder.DrawIndexedInstanced(
                         PrimitiveType.TriangleList,
                         meshPart.IndexCount,
+                        instanceData.NumInstances,
                         _indexBuffer,
                         meshPart.StartIndex);
                 }

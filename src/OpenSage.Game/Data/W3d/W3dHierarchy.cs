@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
@@ -43,7 +44,7 @@ namespace OpenSage.Data.W3d
 
         public uint NumPivots { get; private set; }
 
-        public W3dVector Center { get; private set; }
+        public Vector3 Center { get; private set; }
 
         public static W3dHierarchy Parse(BinaryReader reader)
         {
@@ -52,7 +53,7 @@ namespace OpenSage.Data.W3d
                 Version = reader.ReadUInt32(),
                 Name = reader.ReadFixedLengthString(W3dConstants.NameLength),
                 NumPivots = reader.ReadUInt32(),
-                Center = W3dVector.Parse(reader)
+                Center = reader.ReadVector3()
             };
         }
     }

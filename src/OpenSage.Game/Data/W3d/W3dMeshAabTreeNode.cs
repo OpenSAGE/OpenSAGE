@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using System.Numerics;
+using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
@@ -7,12 +9,12 @@ namespace OpenSage.Data.W3d
         /// <summary>
         /// min corner of the box
         /// </summary>
-        public W3dVector Min { get; private set; }
+        public Vector3 Min { get; private set; }
 
         /// <summary>
         /// max corner of the box
         /// </summary>
-        public W3dVector Max { get; private set; }
+        public Vector3 Max { get; private set; }
 
         /// <summary>
         /// index of the front child or poly0 (if MSB is set, then leaf and poly0 is valid)
@@ -28,8 +30,8 @@ namespace OpenSage.Data.W3d
         {
             return new W3dMeshAabTreeNode
             {
-                Min = W3dVector.Parse(reader),
-                Max = W3dVector.Parse(reader),
+                Min = reader.ReadVector3(),
+                Max = reader.ReadVector3(),
 
                 FrontOrPoly0 = reader.ReadUInt32(),
                 BackOrPolyCount = reader.ReadUInt32()

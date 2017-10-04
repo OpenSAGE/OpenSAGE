@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Numerics;
 using System.Text;
 
 namespace OpenSage.Data.Utilities.Extensions
@@ -181,6 +182,30 @@ namespace OpenSage.Data.Utilities.Extensions
             var value = reader.ReadByte();
 
             return EnumUtility.CastValueAsEnum<byte, TEnum>(value);
+        }
+
+        public static Vector2 ReadVector2(this BinaryReader reader)
+        {
+            return new Vector2(
+                reader.ReadSingle(),
+                reader.ReadSingle());
+        }
+
+        public static Vector3 ReadVector3(this BinaryReader reader)
+        {
+            return new Vector3(
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle());
+        }
+
+        public static Quaternion ReadQuaternion(this BinaryReader reader)
+        {
+            return new Quaternion(
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle());
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace LLGfx.Hosting
@@ -7,6 +8,10 @@ namespace LLGfx.Hosting
     {
         public event EventHandler<GraphicsEventArgs> GraphicsInitialize;
         public event EventHandler<GraphicsEventArgs> GraphicsDraw;
+        public event EventHandler GraphicsUninitialized;
+
+        private Task _renderLoopTask;
+        private bool _unloading;
 
         private SwapChain _swapChain;
 
@@ -19,19 +24,20 @@ namespace LLGfx.Hosting
             Loaded += OnLoaded;
         }
 
-        protected override void Dispose(bool disposing)
+        private void DoRenderLoop()
         {
-            Loaded -= OnLoaded;
-
-            if (_swapChain != null)
+            while (!_unloading)
             {
-                _swapChain.Dispose();
-            }
+                System.Windows.Forms.Application.DoEvents();
 
-            base.Dispose(disposing);
+                if (!_unloading)
+                {
+                    Draw();
+                }
+            }
         }
 
-        protected override void Draw()
+        private void Draw()
         {
             if (_swapChain == null)
             {
@@ -52,22 +58,12 @@ namespace LLGfx.Hosting
                 GraphicsDevice,
                 Handle,
                 3,
-                (int) ActualWidth,
-                (int) ActualHeight);
+                Math.Max((int) ActualWidth, 1),
+                Math.Max((int) ActualHeight, 1));
 
-            OnSwapChainResized(_swapChain);
+            GraphicsInitialize?.Invoke(this, new GraphicsEventArgs(GraphicsDevice, _swapChain));
 
-            RaiseGraphicsInitialize(new GraphicsEventArgs(GraphicsDevice, _swapChain));
-
-            if (!RedrawsOnTimer)
-            {
-                Draw();
-            }
-        }
-
-        protected virtual void RaiseGraphicsInitialize(GraphicsEventArgs args)
-        {
-            GraphicsInitialize?.Invoke(this, args);
+            StartRenderLoop();
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
@@ -76,24 +72,39 @@ namespace LLGfx.Hosting
 
             if (_swapChain != null)
             {
+                StopRenderLoop();
+
                 _swapChain.Resize(
-                    (int) sizeInfo.NewSize.Width,
-                    (int) sizeInfo.NewSize.Height);
+                    Math.Max((int) sizeInfo.NewSize.Width, 1),
+                    Math.Max((int) sizeInfo.NewSize.Height, 1));
 
-                OnSwapChainResized(_swapChain);
-
-                if (!RedrawsOnTimer)
-                {
-                    Draw();
-                }
+                StartRenderLoop();
             }
         }
 
-        protected virtual void OnSwapChainResized(SwapChain newSwapChain)
+        private void StartRenderLoop()
         {
-
+            _unloading = false;
+            _renderLoopTask = Task.Run(() => DoRenderLoop());
         }
 
-        void IGraphicsView.Draw() => Draw();
+        private void StopRenderLoop()
+        {
+            _unloading = true;
+            _renderLoopTask?.Wait();
+            _renderLoopTask = null;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            StopRenderLoop();
+
+            _swapChain?.Dispose();
+            _swapChain = null;
+
+            GraphicsUninitialized?.Invoke(this, EventArgs.Empty);
+
+            base.Dispose(disposing);
+        }
     }
 }

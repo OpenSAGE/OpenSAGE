@@ -15,6 +15,8 @@ namespace OpenSage.Graphics.Rendering
 
         public void Execute(RenderContext context)
         {
+            var commandBuffer = context.GraphicsDevice.CommandQueue.GetCommandBuffer();
+
             var renderPassDescriptor = new RenderPassDescriptor();
 
             var clearColor = context.Camera.BackgroundColor.ToColorRgba();
@@ -30,14 +32,64 @@ namespace OpenSage.Graphics.Rendering
 
             renderPassDescriptor.SetDepthStencilDescriptor(depthStencilBuffer);
 
-            var commandBuffer = context.GraphicsDevice.CommandQueue.GetCommandBuffer();
-
             var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
-
-            commandEncoder.SetViewport(context.Camera.Viewport);
 
             // TODO: Object lights.
             var lights = context.Scene.Settings.CurrentLightingConfiguration.TerrainLights;
+
+            var renderList = context.Graphics.RenderList;
+
+            // Culling
+            foreach (var renderItem in renderList.RenderItems)
+            {
+                renderItem.Visible = true;
+
+                if (renderItem.Renderable.IsAlwaysVisible)
+                {
+                    continue;
+                }
+
+                if (!renderItem.Renderable.Entity.VisibleInHierarchy)
+                {
+                    renderItem.Visible = false;
+                    continue;
+                }
+
+                if (!context.Camera.BoundingFrustum.Intersects(renderItem.Renderable.BoundingBox))
+                {
+                    renderItem.Visible = false;
+                    continue;
+                }
+            }
+
+            foreach (var instanceData in renderList.InstanceData.Values)
+            {
+                foreach (var instancedRenderable in instanceData.InstancedRenderables)
+                {
+                    instancedRenderable.Visible = true;
+
+                    if (instancedRenderable.Renderable.IsAlwaysVisible)
+                    {
+                        continue;
+                    }
+
+                    if (!instancedRenderable.Renderable.Entity.VisibleInHierarchy)
+                    {
+                        instancedRenderable.Visible = false;
+                        continue;
+                    }
+
+                    if (!context.Camera.BoundingFrustum.Intersects(instancedRenderable.Renderable.BoundingBox))
+                    {
+                        instancedRenderable.Visible = false;
+                        continue;
+                    }
+                }
+
+                instanceData.Update(context.GraphicsDevice);
+            }
+
+            commandEncoder.SetViewport(context.Camera.Viewport);
 
             void doDrawPass(List<RenderListEffectGroup> effectGroups)
             {
@@ -70,16 +122,10 @@ namespace OpenSage.Graphics.Rendering
 
                         foreach (var renderItem in pipelineStateGroup.RenderItems)
                         {
-                            if (!renderItem.Renderable.Entity.VisibleInHierarchy)
+                            if (!renderItem.Visible)
                             {
                                 continue;
                             }
-
-                            // TODO: Test this.
-                            //if (!context.Camera.BoundingFrustum.Intersects(renderItem.Renderable.BoundingBox))
-                            //{
-                            //    continue;
-                            //}
 
                             if (effect is IEffectMatrices m2)
                             {
@@ -88,8 +134,23 @@ namespace OpenSage.Graphics.Rendering
 
                             renderItem.RenderCallback(
                                 commandEncoder,
-                                renderItem.Effect,
-                                renderItem.PipelineStateHandle);
+                                effectGroup.Effect,
+                                pipelineStateGroup.PipelineStateHandle,
+                                null);
+                        }
+
+                        foreach (var instancedRenderItem in pipelineStateGroup.InstancedRenderItems)
+                        {
+                            if (instancedRenderItem.InstanceData.NumInstances == 0)
+                            {
+                                continue;
+                            }
+
+                            instancedRenderItem.RenderCallback(
+                                commandEncoder,
+                                effectGroup.Effect,
+                                pipelineStateGroup.PipelineStateHandle,
+                                instancedRenderItem.InstanceData);
                         }
                     }
                 }
@@ -99,8 +160,6 @@ namespace OpenSage.Graphics.Rendering
             // - Renderable.BoundingBox
             // - Renderable.VisibleInHierarchy
             // - Renderable.IsAlwaysVisible
-
-            var renderList = context.Graphics.RenderList;
 
             doDrawPass(renderList.Opaque);
             doDrawPass(renderList.Transparent);

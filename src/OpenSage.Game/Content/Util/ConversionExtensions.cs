@@ -54,21 +54,6 @@ namespace OpenSage.Content.Util
             }
         }
 
-        public static Quaternion ToQuaternion(this W3dQuaternion value)
-        {
-            return new Quaternion(value.X, value.Y, value.Z, value.W);
-        }
-
-        public static Vector2 ToVector2(this W3dTexCoord value)
-        {
-            return new Vector2(value.U, value.V);
-        }
-
-        public static Vector3 ToVector3(this W3dVector value)
-        {
-            return new Vector3(value.X, value.Y, value.Z);
-        }
-
         public static Vector3 ToVector3(this W3dRgb value)
         {
             return new Vector3(value.R / 255.0f, value.G / 255.0f, value.B / 255.0f);
@@ -159,20 +144,10 @@ namespace OpenSage.Content.Util
         {
             return new Light
             {
-                Ambient = mapLight.Ambient.ToVector3(),
-                Color = mapLight.Color.ToVector3(),
-                Direction = Vector3.Normalize(mapLight.EulerAngles.ToVector3())
+                Ambient = mapLight.Ambient,
+                Color = mapLight.Color,
+                Direction = Vector3.Normalize(mapLight.Direction)
             };
-        }
-
-        public static Vector3 ToVector3(this MapVector3 value)
-        {
-            return new Vector3(value.X, value.Y, value.Z);
-        }
-
-        public static Vector2 ToVector2(this MapTexCoord value)
-        {
-            return new Vector2(value.U, -value.V);
         }
     }
 }

@@ -8,7 +8,7 @@ using OpenSage.Logic.Object;
 
 namespace OpenSage.DataViewer.ViewModels.Ini
 {
-    public sealed class ObjectDefinitionIniEntryViewModel : IniEntryViewModel
+    public sealed class ObjectDefinitionIniEntryViewModel : IniEntryViewModel, IGameViewModel
     {
         private readonly ObjectDefinition _definition;
 
@@ -35,7 +35,7 @@ namespace OpenSage.DataViewer.ViewModels.Ini
             _definition = definition;
         }
 
-        public override void Activate()
+        void IGameViewModel.LoadScene(Game game)
         {
             var scene = new Scene();
 
@@ -48,9 +48,7 @@ namespace OpenSage.DataViewer.ViewModels.Ini
             _objectComponent = objectEntity.GetComponent<ObjectComponent>();
             scene.Entities.Add(objectEntity);
 
-            Game.Scene = scene;
-
-            Game.ResetElapsedTime();
+            game.Scene = scene;
 
             ModelConditionStates = _objectComponent.ModelConditionStates.ToList();
             NotifyOfPropertyChange(nameof(ModelConditionStates));

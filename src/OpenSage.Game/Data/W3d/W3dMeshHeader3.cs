@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
@@ -45,11 +46,11 @@ namespace OpenSage.Data.W3d
         //
         // Bounding volumes
         //
-        public W3dVector Min { get; private set; }                    // Min corner of the bounding box
+        public Vector3 Min { get; private set; }                    // Min corner of the bounding box
 
-        public W3dVector Max { get; private set; }                    // Max corner of the bounding box
+        public Vector3 Max { get; private set; }                    // Max corner of the bounding box
 
-        public W3dVector SphCenter { get; private set; }          // Center of bounding sphere
+        public Vector3 SphCenter { get; private set; }          // Center of bounding sphere
 
         public float SphRadius { get; private set; }			// Bounding sphere radius
 
@@ -70,9 +71,9 @@ namespace OpenSage.Data.W3d
                 FutureCounts = reader.ReadUInt32(),
                 VertexChannels = (W3dVertexChannels) reader.ReadUInt32(),
                 FaceChannels = (W3dFaceChannels) reader.ReadUInt32(),
-                Min = W3dVector.Parse(reader),
-                Max = W3dVector.Parse(reader),
-                SphCenter = W3dVector.Parse(reader),
+                Min = reader.ReadVector3(),
+                Max = reader.ReadVector3(),
+                SphCenter = reader.ReadVector3(),
                 SphRadius = reader.ReadSingle()
             };
         }

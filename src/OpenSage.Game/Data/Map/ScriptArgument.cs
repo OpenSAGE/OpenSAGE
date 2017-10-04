@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Map
@@ -13,7 +14,7 @@ namespace OpenSage.Data.Map
         public string StringValue { get; private set; }
 
         // Or...
-        public MapVector3? PositionValue { get; private set; }
+        public Vector3? PositionValue { get; private set; }
 
         public bool UintValueAsBool => UintValue.Value == 1;
 
@@ -24,11 +25,11 @@ namespace OpenSage.Data.Map
             uint? uintValue = null;
             float? floatValue = null;
             string stringValue = null;
-            MapVector3? positionValue = null;
+            Vector3? positionValue = null;
 
             if (argumentType == ScriptArgumentType.PositionCoordinate)
             {
-                positionValue = MapVector3.Parse(reader);
+                positionValue = reader.ReadVector3();
             }
             else
             {
@@ -55,7 +56,7 @@ namespace OpenSage.Data.Map
 
             if (ArgumentType == ScriptArgumentType.PositionCoordinate)
             {
-                PositionValue.Value.WriteTo(writer);
+                writer.Write(PositionValue.Value);
             }
             else
             {

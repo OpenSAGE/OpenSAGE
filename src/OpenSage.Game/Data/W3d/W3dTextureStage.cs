@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using System.Numerics;
+using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
@@ -6,7 +8,7 @@ namespace OpenSage.Data.W3d
     {
         public uint[] TextureIds { get; private set; }
 
-        public W3dTexCoord[] TexCoords { get; private set; }
+        public Vector2[] TexCoords { get; private set; }
 
         public W3dVectorUInt32[] PerFaceTexCoordIds { get; private set; }
 
@@ -33,10 +35,10 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_STAGE_TEXCOORDS:
-                        result.TexCoords = new W3dTexCoord[header.ChunkSize / W3dTexCoord.SizeInBytes];
+                        result.TexCoords = new Vector2[header.ChunkSize / (sizeof(float) * 2)];
                         for (var count = 0; count < result.TexCoords.Length; count++)
                         {
-                            result.TexCoords[count] = W3dTexCoord.Parse(reader);
+                            result.TexCoords[count] = reader.ReadVector2();
                         }
                         break;
 

@@ -13,6 +13,8 @@ namespace OpenSage.DataViewer
         private GameService _gameService;
         private SimpleContainer container;
 
+        public static bool Exiting { get; private set; }
+
         public Bootstrapper()
         {
             Initialize();
@@ -61,8 +63,7 @@ namespace OpenSage.DataViewer
 
         protected override void OnExit(object sender, EventArgs e)
         {
-            _gameService.Dispose();
-            _graphicsDeviceManager.Dispose();
+            Exiting = true;
 
             base.OnExit(sender, e);
         }

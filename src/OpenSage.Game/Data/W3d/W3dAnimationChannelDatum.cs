@@ -1,5 +1,7 @@
 ﻿using System.IO;
+using System.Numerics;
 using System.Runtime.InteropServices;
+using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
@@ -7,7 +9,7 @@ namespace OpenSage.Data.W3d
     public struct W3dAnimationChannelDatum
     {
         [FieldOffset(0)]
-        public W3dQuaternion Quaternion;
+        public Quaternion Quaternion;
 
         [FieldOffset(0)]
         public float FloatValue;
@@ -19,7 +21,7 @@ namespace OpenSage.Data.W3d
                 case W3dAnimationChannelType.Quaternion:
                     return new W3dAnimationChannelDatum
                     {
-                        Quaternion = W3dQuaternion.Parse(reader)
+                        Quaternion = reader.ReadQuaternion()
                     };
 
                 case W3dAnimationChannelType.TranslationX:

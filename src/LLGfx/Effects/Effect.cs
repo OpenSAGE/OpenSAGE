@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using LLGfx;
 
-namespace OpenSage.Graphics.Effects
+namespace LLGfx.Effects
 {
     public abstract class Effect : GraphicsObject
     {

@@ -113,6 +113,7 @@ namespace OpenSage.Scripting
                         var currentTimeFraction = (float) ((endTime - Game.UpdateTime.TotalGameTime).TotalSeconds / (endTime - startTime).TotalSeconds);
                         var currentPosition = startWaypoint.Position + direction * currentTimeFraction;
                         Scene.MainCamera.Transform.WorldPosition = currentPosition;
+                        Scene.MainCamera.Transform.Translate(new Vector3(0, 0, 200));
                         // Interpolate distance along waypoint path.
                         await context.WaitForNextFrame();
                     }
@@ -320,6 +321,7 @@ namespace OpenSage.Scripting
                     var pitch = action.Arguments[2].FloatValue;
                     var targetWaypoint = action.Arguments[3].StringValue;
                     Scene.MainCamera.Transform.WorldPosition = Scene.Settings.Waypoints[positionWaypoint].Position;
+                    Scene.MainCamera.Transform.Translate(new Vector3(0, 0, 200));
                     Scene.MainCamera.Transform.LookAt(Scene.Settings.Waypoints[targetWaypoint].Position);
                     break;
 

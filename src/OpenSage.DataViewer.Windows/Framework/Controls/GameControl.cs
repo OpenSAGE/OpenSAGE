@@ -1,46 +1,56 @@
 ﻿using System;
-using System.Windows;
 using Caliburn.Micro;
 using LLGfx.Hosting;
 using OpenSage.DataViewer.Framework.Services;
+using OpenSage.DataViewer.ViewModels;
 
 namespace OpenSage.DataViewer.Framework.Controls
 {
     public sealed class GameControl : GraphicsDeviceControl
     {
-        public static readonly DependencyProperty GameProperty = DependencyProperty.Register(
-            nameof(Game), typeof(Game), typeof(GameControl),
-            new PropertyMetadata(null, OnGameChanged));
-
-        private static void OnGameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((GameControl) d).GraphicsDevice = ((Game) e.NewValue).GraphicsDevice;
-        }
-
-        public Game Game
-        {
-            get { return (Game) GetValue(GameProperty); }
-            set { SetValue(GameProperty, value); }
-        }
+        private readonly Game _game;
 
         public GameControl()
         {
             GraphicsDevice = IoC.Get<GraphicsDeviceManager>().GraphicsDevice;
 
-            RedrawsOnTimer = true;
+            _game = IoC.Get<GameService>().Game;
+
+            GraphicsInitialize += OnGraphicsInitialize;
+            GraphicsDraw += OnGraphicsDraw;
+            GraphicsUninitialized += OnGraphicsUninitialized;
         }
 
-        protected override void RaiseGraphicsInitialize(GraphicsEventArgs args)
-        {
-            base.RaiseGraphicsInitialize(args);
+        private IGameViewModel TypedDataContext => (IGameViewModel) DataContext;
 
-            Game.Input.InputProvider = new HwndHostInputProvider(this);
-            Game.SetSwapChain(SwapChain);
+        private void OnGraphicsInitialize(object sender, GraphicsEventArgs e)
+        {
+            _game.Input.InputProvider = new HwndHostInputProvider(this);
+            _game.SetSwapChain(SwapChain);
+
+            TypedDataContext.LoadScene(_game);
+
+            _game.ResetElapsedTime();
         }
 
-        protected override void Draw()
+        private void OnGraphicsDraw(object sender, GraphicsEventArgs e)
         {
-            Game.Tick();
+            _game.Tick();
+        }
+
+        private void OnGraphicsUninitialized(object sender, EventArgs e)
+        {
+            _game.Scene = null;
+            _game.ContentManager.Unload();
+
+            _game.SetSwapChain(null);
+            _game.Input.InputProvider = null;
+
+            if (Bootstrapper.Exiting)
+            {
+                IoC.Get<GameService>().Dispose();
+                IoC.Get<GraphicsDeviceManager>().Dispose();
+            }
         }
     }
 }

@@ -1,30 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using Caliburn.Micro;
 using OpenSage.Data;
-using OpenSage.DataViewer.Framework;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public abstract class FileContentViewModelBase : PropertyChangedBase, IDisposable
+    public abstract class FileContentViewModelBase : PropertyChangedBase
     {
-        public Game Game { get; }
 
-        protected FileContentViewModelBase()
-        {
-            Game = IoC.Get<GameService>().Game;
-        }
-
-        public void Dispose()
-        {
-            Game.SetSwapChain(null);
-            Game.Input.InputProvider = null;
-
-            Game.Scene = null;
-
-            Game.ContentManager.Unload();
-        }
     }
 
     public abstract class FileContentViewModel : FileContentViewModelBase
@@ -82,24 +65,7 @@ namespace OpenSage.DataViewer.ViewModels
     public abstract class FileContentViewModel<TSubObject> : FileContentViewModel
         where TSubObject : FileSubObjectViewModel
     {
-        private IReadOnlyList<TSubObject> _subObjects;
-        public IReadOnlyList<TSubObject> SubObjects
-        {
-            get
-            {
-                if (_subObjects == null)
-                {
-                    _subObjects = CreateSubObjects();
-                    if (_subObjects.Count > 0)
-                    {
-                        SelectedSubObject = _subObjects[0];
-                    }
-                }
-                return _subObjects;
-            }
-        }
-
-        protected abstract IReadOnlyList<TSubObject> CreateSubObjects();
+        public ObservableCollection<TSubObject> SubObjects { get; } = new ObservableCollection<TSubObject>();
 
         private TSubObject _selectedSubObject;
 

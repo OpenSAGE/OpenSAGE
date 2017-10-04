@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using LLGfx;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
@@ -18,7 +19,12 @@ namespace OpenSage.Graphics.Cameras
         private RenderPipeline _renderPipeline;
 
         private Viewport? _viewport;
+
         private Matrix4x4? _cachedProjectionMatrix;
+        private int _cachedProjectionMatrixWidth;
+        private int _cachedProjectionMatrixHeight;
+
+        private bool _boundingFrustumDirty = true;
 
         /// <summary>
         /// Initializes a new instance of this class.
@@ -85,8 +91,11 @@ namespace OpenSage.Graphics.Cameras
         {
             get
             {
-                // TODO: Only do this when it's changed.
-                _frustum.Matrix = View * Projection;
+                if (_boundingFrustumDirty)
+                {
+                    _frustum.Matrix = View * Projection;
+                    _boundingFrustumDirty = false;
+                }
                 return _frustum;
             }
         }
@@ -122,8 +131,22 @@ namespace OpenSage.Graphics.Cameras
         {
             get
             {
+                var pixelWidth = Game.SwapChain.BackBufferWidth;
+                var pixelHeight = Game.SwapChain.BackBufferHeight;
+
+                if (_cachedProjectionMatrix != null && (pixelWidth != _cachedProjectionMatrixWidth || pixelHeight != _cachedProjectionMatrixHeight))
+                {
+                    _cachedProjectionMatrix = null;
+                }
+
                 if (_cachedProjectionMatrix == null)
+                {
                     _cachedProjectionMatrix = GetProjectionMatrix(Viewport.AspectRatio);
+
+                    _cachedProjectionMatrixWidth = pixelWidth;
+                    _cachedProjectionMatrixHeight = pixelHeight;
+                }
+
                 return _cachedProjectionMatrix.Value;
             }
         }
@@ -170,7 +193,7 @@ namespace OpenSage.Graphics.Cameras
         /// Gets or sets the background color for this camera. Only used when
         /// <see cref="ClearType"/> is set to <see cref="CameraClearType.DepthAndColor"/>.
         /// </summary>
-        public Color BackgroundColor { get; set; } = Color.DimGray;
+        public ColorRgba BackgroundColor { get; set; } = ColorRgba.DimGray;
 
         /// <summary>
         /// Gets the viewport for this camera, which defines the area on the screen
@@ -225,16 +248,26 @@ namespace OpenSage.Graphics.Cameras
         protected void ClearCachedProjectionMatrix()
         {
             _cachedProjectionMatrix = null;
+            _boundingFrustumDirty = true;
         }
 
         /// <inheritdoc />
         protected override void Start()
         {
             _renderPipeline = new RenderPipeline(GraphicsDevice);
+
+            Transform.TransformChanged += OnTransformChanged;
+        }
+
+        private void OnTransformChanged(object sender, EventArgs e)
+        {
+            _boundingFrustumDirty = true;
         }
 
         protected override void Destroy()
         {
+            Transform.TransformChanged -= OnTransformChanged;
+
             _renderPipeline.Dispose();
             _renderPipeline = null;
 

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Map
@@ -7,7 +8,7 @@ namespace OpenSage.Data.Map
     {
         public const string AssetName = "Object";
 
-        public MapVector3 Position { get; private set; }
+        public Vector3 Position { get; private set; }
 
         /// <summary>
         /// Angle of the object in radians.
@@ -26,7 +27,7 @@ namespace OpenSage.Data.Map
             {
                 return new MapObject
                 {
-                    Position = MapVector3.Parse(reader),
+                    Position = reader.ReadVector3(),
                     Angle = reader.ReadSingle(),
                     RoadType = reader.ReadUInt32AsEnum<RoadType>(),
                     TypeName = reader.ReadUInt16PrefixedAsciiString(),
@@ -39,7 +40,7 @@ namespace OpenSage.Data.Map
         {
             WriteAssetTo(writer, () =>
             {
-                Position.WriteTo(writer);
+                writer.Write(Position);
                 writer.Write(Angle);
                 writer.Write((uint) RoadType);
                 writer.WriteUInt16PrefixedAsciiString(TypeName);
