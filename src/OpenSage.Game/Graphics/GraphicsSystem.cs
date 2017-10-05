@@ -19,7 +19,7 @@ namespace OpenSage.Graphics
             RegisterComponentList(_cameras = new List<CameraComponent>());
             RegisterComponentList(_models = new List<ModelComponent>());
 
-            RenderList = AddDisposable(new RenderList());
+            RenderList = new RenderList();
         }
 
         internal override void OnEntityComponentAdded(EntityComponent component)

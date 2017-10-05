@@ -8,7 +8,7 @@ namespace LLGfx
     {
         private Fence _numCompletedFramesFence;
         private long _numCompletedFrames;
-        private long _currentFrame;
+        private long _currentFrame = 1;
 
         internal Device Device { get; private set; }
 
@@ -50,9 +50,9 @@ namespace LLGfx
 
             DynamicUploadHeap.FinishFrame(_currentFrame, _numCompletedFrames);
 
-            _currentFrame += 1;
-
             CommandQueue.DeviceCommandQueue.Signal(_numCompletedFramesFence, _currentFrame);
+
+            _currentFrame += 1;
         }
     }
 }

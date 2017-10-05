@@ -134,28 +134,39 @@ namespace OpenSage.Logic.Object
                 // TODO: Multiple animations. Shouldn't play all of them. I think
                 // we should randomly choose one of them?
                 // And there is also IdleAnimation.
-                if (conditionState.Animations.Count > 0)
+                var firstAnimation = conditionState.Animations
+                    .Concat(conditionState.IdleAnimations)
+                    .LastOrDefault();
+                if (firstAnimation != null)
                 {
-                    var objectConditionAnimation = conditionState.Animations[0];
-
-                    var splitName = objectConditionAnimation.Animation.Split('.');
+                    var splitName = firstAnimation.Animation.Split('.');
 
                     var w3dFilePath = Path.Combine("Art", "W3D", splitName[0] + ".W3D");
                     var model = ContentManager.Load<Model>(w3dFilePath, uploadBatch: null);
 
-                    var animation = model.Animations.FirstOrDefault(x => string.Equals(x.Name, splitName[1], StringComparison.OrdinalIgnoreCase));
-                    if (animation != null)
+                    if (model.Animations.Length == 0)
                     {
-                        // TODO: Should this ever be null?
+                        // TODO: What is the actual algorithm here?
+                        w3dFilePath = Path.Combine("Art", "W3D", splitName[1] + ".W3D");
+                        model = ContentManager.Load<Model>(w3dFilePath, uploadBatch: null);
+                    }
 
-                        var animationComponent = new AnimationComponent
+                    if (model != null)
+                    {
+                        var animation = model.Animations.FirstOrDefault(x => string.Equals(x.Name, splitName[1], StringComparison.OrdinalIgnoreCase));
+                        if (animation != null)
                         {
-                            Animation = animation
-                        };
+                            // TODO: Should this ever be null?
 
-                        modelEntity.Components.Add(animationComponent);
+                            var animationComponent = new AnimationComponent
+                            {
+                                Animation = animation
+                            };
 
-                        animationComponent.Play();
+                            modelEntity.Components.Add(animationComponent);
+
+                            animationComponent.Play();
+                        }
                     }
                 }
             }

@@ -419,8 +419,15 @@ namespace OpenSage.Graphics.ParticleSystems
                 {
                     nextA = prevA;
                 }
-                var alphaInterpoland = (float) (particle.Timer - prevA.Time) / (nextA.Time - prevA.Time);
-                particle.Alpha = MathUtility.Lerp(prevA.Alpha, nextA.Alpha, alphaInterpoland);
+                if (prevA != nextA)
+                {
+                    var alphaInterpoland = (float) (particle.Timer - prevA.Time) / (nextA.Time - prevA.Time);
+                    particle.Alpha = MathUtility.Lerp(prevA.Alpha, nextA.Alpha, alphaInterpoland);
+                }
+                else
+                {
+                    particle.Alpha = prevA.Alpha;
+                }
             }
             else
             {

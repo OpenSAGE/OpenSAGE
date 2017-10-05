@@ -7,6 +7,8 @@
 
         public uint SizeInBytes { get; }
 
+        public BufferUsageFlags UsageFlags { get; }
+
         protected Buffer(
             GraphicsDevice graphicsDevice, 
             uint elementSizeInBytes, 
@@ -22,6 +24,8 @@
                 : elementSizeInBytes;
 
             SizeInBytes = alignedElementSize * elementCount;
+
+            UsageFlags = flags;
         }
     }
 }

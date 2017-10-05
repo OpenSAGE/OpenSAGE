@@ -90,7 +90,7 @@ namespace OpenSage.Graphics.Effects
             vertexDescriptor.SetAttributeDescriptor(InputClassification.PerInstanceData, 8, "TEXCOORD", 5, VertexFormat.Float4, 2, 48);
             vertexDescriptor.SetLayoutDescriptor(0, 28);
             vertexDescriptor.SetLayoutDescriptor(1, 16);
-            vertexDescriptor.SetLayoutDescriptor(1, 64);
+            vertexDescriptor.SetLayoutDescriptor(2, 64);
             return vertexDescriptor;
         }
 

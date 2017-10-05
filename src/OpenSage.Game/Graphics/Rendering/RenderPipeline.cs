@@ -15,28 +15,6 @@ namespace OpenSage.Graphics.Rendering
 
         public void Execute(RenderContext context)
         {
-            var commandBuffer = context.GraphicsDevice.CommandQueue.GetCommandBuffer();
-
-            var renderPassDescriptor = new RenderPassDescriptor();
-
-            var clearColor = context.Camera.BackgroundColor.ToColorRgba();
-
-            renderPassDescriptor.SetRenderTargetDescriptor(
-                context.RenderTarget,
-                LoadAction.Clear,
-                clearColor);
-
-            var depthStencilBuffer = _depthStencilBufferCache.Get(
-                context.SwapChain.BackBufferWidth,
-                context.SwapChain.BackBufferHeight);
-
-            renderPassDescriptor.SetDepthStencilDescriptor(depthStencilBuffer);
-
-            var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
-
-            // TODO: Object lights.
-            var lights = context.Scene.Settings.CurrentLightingConfiguration.TerrainLights;
-
             var renderList = context.Graphics.RenderList;
 
             // Culling
@@ -88,6 +66,28 @@ namespace OpenSage.Graphics.Rendering
 
                 instanceData.Update(context.GraphicsDevice);
             }
+
+            var commandBuffer = context.GraphicsDevice.CommandQueue.GetCommandBuffer();
+
+            var renderPassDescriptor = new RenderPassDescriptor();
+
+            var clearColor = context.Camera.BackgroundColor.ToColorRgba();
+
+            renderPassDescriptor.SetRenderTargetDescriptor(
+                context.RenderTarget,
+                LoadAction.Clear,
+                clearColor);
+
+            var depthStencilBuffer = _depthStencilBufferCache.Get(
+                context.SwapChain.BackBufferWidth,
+                context.SwapChain.BackBufferHeight);
+
+            renderPassDescriptor.SetDepthStencilDescriptor(depthStencilBuffer);
+
+            var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
+
+            // TODO: Object lights.
+            var lights = context.Scene.Settings.CurrentLightingConfiguration.TerrainLights;
 
             commandEncoder.SetViewport(context.Camera.Viewport);
 

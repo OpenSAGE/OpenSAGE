@@ -4,7 +4,7 @@ using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Graphics.Rendering
 {
-    internal sealed class RenderList : DisposableBase
+    internal sealed class RenderList
     {
         public readonly List<RenderListEffectGroup> Opaque = new List<RenderListEffectGroup>();
         public readonly List<RenderListEffectGroup> Transparent = new List<RenderListEffectGroup>();
@@ -129,8 +129,6 @@ namespace OpenSage.Graphics.Rendering
 
                     removeInstancedItems(Opaque);
                     removeInstancedItems(Transparent);
-
-                    RemoveAndDispose(instanceData);
                 }
             }
 

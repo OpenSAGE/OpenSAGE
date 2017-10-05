@@ -201,7 +201,10 @@ namespace OpenSage
             get
             {
                 if (_needToRecreateLocalMatrix)
+                {
                     CacheLocalMatrix();
+                    RaiseTransformChanged();
+                }
 
                 return _cachedLocalMatrix;
             }
@@ -215,7 +218,10 @@ namespace OpenSage
             get
             {
                 if (_needToRecreateWorldMatrices)
+                {
                     CacheWorldMatrices();
+                    RaiseTransformChanged();
+                }
 
                 return _cachedLocalToWorldMatrix;
             }
@@ -233,7 +239,10 @@ namespace OpenSage
         {
             _needToRecreateLocalMatrix = true;
             _needToRecreateWorldMatrices = true;
+        }
 
+        private void RaiseTransformChanged()
+        {
             TransformChanged?.Invoke(this, EventArgs.Empty);
         }
 

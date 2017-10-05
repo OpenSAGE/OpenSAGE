@@ -6,11 +6,6 @@ namespace LLGfx.Util
 {
     internal sealed class DynamicUploadHeap : IDisposable
     {
-        /// <summary>
-        /// Default alignment for constant buffers, as required by D3D12.
-        /// </summary>
-        public const uint DefaultAlignment = 256;
-
         private readonly Device _device;
         private readonly List<GpuRingBuffer> _ringBuffers;
 
@@ -18,22 +13,15 @@ namespace LLGfx.Util
         {
             _device = device;
 
-            _ringBuffers = new List<GpuRingBuffer>();
-            _ringBuffers.Add(new GpuRingBuffer(initialSize, device));
+            _ringBuffers = new List<GpuRingBuffer>
+            {
+                new GpuRingBuffer(initialSize, device)
+            };
         }
 
-        public DynamicAllocation Allocate(uint sizeInBytes, uint alignment = DefaultAlignment)
+        public DynamicAllocation Allocate(uint sizeInBytes)
         {
-            var alignmentMask = alignment - 1;
-
-            if ((alignmentMask & alignment) != 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(alignment));
-            }
-
-            var alignedSize = (sizeInBytes + alignmentMask) & ~alignmentMask;
-
-            var dynamicAllocationTemp = _ringBuffers[_ringBuffers.Count - 1].Allocate(alignedSize);
+            var dynamicAllocationTemp = _ringBuffers[_ringBuffers.Count - 1].Allocate(sizeInBytes);
 
             DynamicAllocation dynamicAllocation;
             if (dynamicAllocationTemp != null)
@@ -49,7 +37,7 @@ namespace LLGfx.Util
                 }
                 GpuRingBuffer newRingBuffer;
                 _ringBuffers.Add(newRingBuffer = new GpuRingBuffer(newMaxSize, _device));
-                dynamicAllocation = newRingBuffer.Allocate(alignedSize).Value;
+                dynamicAllocation = newRingBuffer.Allocate(sizeInBytes).Value;
             }
 
             return dynamicAllocation;

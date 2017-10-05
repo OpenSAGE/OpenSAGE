@@ -54,9 +54,6 @@ namespace LLGfx
         }
     }
 
-    public delegate void DynamicBufferUpdateDataDelegate<T>(ref T data)
-        where T : struct;
-
     [Flags]
     public enum BufferUsageFlags
     {
