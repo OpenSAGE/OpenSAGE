@@ -9,20 +9,20 @@ namespace OpenSage.Data.Map
         public ScriptArgumentType ArgumentType { get; private set; }
 
         // Either...
-        public uint? UintValue { get; private set; }
+        public int? IntValue { get; private set; }
         public float? FloatValue { get; private set; }
         public string StringValue { get; private set; }
 
         // Or...
         public Vector3? PositionValue { get; private set; }
 
-        public bool UintValueAsBool => UintValue.Value == 1;
+        public bool IntValueAsBool => IntValue.Value == 1;
 
         internal static ScriptArgument Parse(BinaryReader reader)
         {
             var argumentType = reader.ReadUInt32AsEnum<ScriptArgumentType>();
             
-            uint? uintValue = null;
+            int? uintValue = null;
             float? floatValue = null;
             string stringValue = null;
             Vector3? positionValue = null;
@@ -33,7 +33,7 @@ namespace OpenSage.Data.Map
             }
             else
             {
-                uintValue = reader.ReadUInt32();
+                uintValue = reader.ReadInt32();
                 floatValue = reader.ReadSingle();
                 stringValue = reader.ReadUInt16PrefixedAsciiString();
             }
@@ -42,7 +42,7 @@ namespace OpenSage.Data.Map
             {
                 ArgumentType = argumentType,
 
-                UintValue = uintValue,
+                IntValue = uintValue,
                 FloatValue = floatValue,
                 StringValue = stringValue,
 
@@ -60,7 +60,7 @@ namespace OpenSage.Data.Map
             }
             else
             {
-                writer.Write(UintValue.Value);
+                writer.Write(IntValue.Value);
                 writer.Write(FloatValue.Value);
                 writer.WriteUInt16PrefixedAsciiString(StringValue);
             }

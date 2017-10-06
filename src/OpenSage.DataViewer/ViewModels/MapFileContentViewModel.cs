@@ -99,7 +99,7 @@ namespace OpenSage.DataViewer.ViewModels
 
             cameraEntity.Components.Add(_camera = new PerspectiveCameraComponent
             {
-                FieldOfView = 70
+                FieldOfView = 35
             });
 
             //var cameraController = new MapCameraController();

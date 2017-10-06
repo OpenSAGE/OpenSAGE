@@ -235,6 +235,118 @@ namespace OpenSage.Graphics.Cameras
             }
         }
 
+        private Vector3 _lookDirection;
+        public Vector3 LookDirection
+        {
+            get { return _lookDirection; }
+            set
+            {
+                _lookDirection = value;
+                UpdateTransform();
+            }
+        }
+
+        private float _pitch = 1;
+        public float Pitch
+        {
+            get { return _pitch; }
+            set
+            {
+                _pitch = value;
+                UpdateTransform();
+            }
+        }
+
+        private float _zoom = 1;
+        public float Zoom
+        {
+            get { return _zoom; }
+            set
+            {
+                _zoom = value;
+                UpdateTransform();
+            }
+        }
+
+        private Vector3 _worldPosition;
+        public Vector3 WorldPosition
+        {
+            get { return _worldPosition; }
+            set
+            {
+                _worldPosition = value;
+                _targetPosition = null;
+                UpdateTransform();
+            }
+        }
+
+        private Vector3? _targetPosition;
+        public Vector3? TargetPosition
+        {
+            get { return _targetPosition; }
+            set
+            {
+                _targetPosition = value;
+                UpdateTransform();
+            }
+        }
+
+        private void UpdateTransform()
+        {
+            var defaultPitch = MathUtility.ToRadians(ContentManager.IniDataContext.GameData.CameraPitch);
+
+            var yaw = MathUtility.Atan2(_lookDirection.Y, _lookDirection.X);
+
+            var pitch = MathUtility.Lerp(
+                0,
+                -defaultPitch,
+                _pitch);
+
+            var lookDirection = new Vector3(
+                MathUtility.Cos(yaw),
+                MathUtility.Sin(yaw),
+                MathUtility.Sin(pitch));
+
+            lookDirection = Vector3.Normalize(lookDirection);
+
+            Vector3 newPosition, targetPosition;
+
+            if (_targetPosition != null)
+            {
+                var cameraHeight = MathUtility.Lerp(
+                    0,
+                    ContentManager.IniDataContext.GameData.CameraHeight,
+                    _zoom);
+
+                // Back up camera from camera "position".
+                var toCameraRay = new Ray(_targetPosition.Value, -lookDirection);
+                var plane = Plane.CreateFromVertices(
+                    new Vector3(0, 0, cameraHeight),
+                    new Vector3(0, 1, cameraHeight),
+                    new Vector3(1, 0, cameraHeight));
+                var toCameraIntersectionDistance = toCameraRay.Intersects(ref plane).Value;
+                newPosition = _targetPosition.Value - lookDirection * toCameraIntersectionDistance;
+                targetPosition = _targetPosition.Value;
+            }
+            else
+            {
+                var cameraHeight = MathUtility.Lerp(
+                    Scene.HeightMap.GetHeight(_worldPosition.X, _worldPosition.Y),
+                    ContentManager.IniDataContext.GameData.CameraHeight,
+                    _zoom);
+
+                newPosition = _worldPosition;
+                newPosition.Z = cameraHeight;
+
+                targetPosition = newPosition + lookDirection;
+            }
+
+            Transform.LocalPosition = newPosition;
+            Transform.LookAt(targetPosition);
+
+            _boundingFrustumDirty = true;
+        }
+
         private void ClearCachedViewport()
         {
             _viewport = null;
@@ -255,19 +367,10 @@ namespace OpenSage.Graphics.Cameras
         protected override void Start()
         {
             _renderPipeline = new RenderPipeline(GraphicsDevice);
-
-            Transform.TransformChanged += OnTransformChanged;
-        }
-
-        private void OnTransformChanged(object sender, EventArgs e)
-        {
-            _boundingFrustumDirty = true;
         }
 
         protected override void Destroy()
         {
-            Transform.TransformChanged -= OnTransformChanged;
-
             _renderPipeline.Dispose();
             _renderPipeline = null;
 

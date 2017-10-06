@@ -24,6 +24,13 @@ namespace OpenSage.Mathematics
             return value;
         }
 
+        public static float Clamp(float value, float min, float max)
+        {
+            value = (value > max) ? max : value;
+            value = (value < min) ? min : value;
+            return value;
+        }
+
         public static float Cos(float f) => (float) Math.Cos(f);
 
         public static float Sin(float f) => (float) Math.Sin(f);

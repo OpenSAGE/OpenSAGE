@@ -11,6 +11,8 @@ using OpenSage.Data.Map;
 using OpenSage.Graphics.Effects;
 using OpenSage.Mathematics;
 using OpenSage.Scripting;
+using OpenSage.Scripting.Actions;
+using OpenSage.Scripting.Conditions;
 using OpenSage.Settings;
 using OpenSage.Terrain;
 
@@ -28,6 +30,7 @@ namespace OpenSage.Content
             result.Settings.TimeOfDay = mapFile.GlobalLighting.Time;
 
             var heightMap = new HeightMap(mapFile.HeightMapData);
+            result.HeightMap = heightMap;
 
             var terrainEntity = new Entity();
             result.Entities.Add(terrainEntity);
@@ -113,36 +116,108 @@ namespace OpenSage.Content
             result.Entities.Add(scriptsEntity);
 
             // TODO: Don't hardcode this.
+            // Perhaps add one ScriptComponent for the neutral player, 
+            // and one for the active player.
             var scriptList = mapFile.SidesList.PlayerScripts.ScriptLists[0];
-            //var index = 0;
-            //foreach (var scriptGroup in scriptList.ScriptGroups)
-            {
-                if (scriptList.ScriptGroups.Length > 0)
-                {
-                    AddScripts(scriptsEntity, scriptList.ScriptGroups[0].Scripts);
-                }
-            }
-            // TODO
-            //AddScripts(scriptsEntity, scriptList.Scripts);
+            AddScripts(scriptsEntity, scriptList, result.Settings);
 
             return result;
         }
 
-        private void AddScripts(Entity scriptsEntity, Script[] scripts)
+        private void AddScripts(Entity scriptsEntity, ScriptList scriptList, SceneSettings sceneSettings)
         {
-            var index = 0;
-            foreach (var script in scripts)
+            scriptsEntity.AddComponent(new ScriptComponent
             {
-                scriptsEntity.AddComponent(new ScriptComponent
-                {
-                    Script = script
-                });
-                if (++index > 5)
-                    break; // TODO
-            }
+                ScriptGroups = CreateMapScriptGroups(scriptList.ScriptGroups, sceneSettings),
+                Scripts = CreateMapScripts(scriptList.Scripts, sceneSettings)
+            });
         }
 
-        private void LoadObjects(
+        private static MapScriptGroup[] CreateMapScriptGroups(ScriptGroup[] scriptGroups, SceneSettings sceneSettings)
+        {
+            var result = new MapScriptGroup[scriptGroups.Length];
+
+            for (var i = 0; i < result.Length; i++)
+            {
+                result[i] = CreateMapScriptGroup(scriptGroups[i], sceneSettings);
+            }
+
+            return result;
+        }
+
+        private static MapScriptGroup CreateMapScriptGroup(ScriptGroup scriptGroup, SceneSettings sceneSettings)
+        {
+            return new MapScriptGroup(
+                scriptGroup.Name,
+                CreateMapScripts(scriptGroup.Scripts, sceneSettings),
+                scriptGroup.IsActive,
+                scriptGroup.IsSubroutine);
+        }
+
+        private static MapScript[] CreateMapScripts(Script[] scripts, SceneSettings sceneSettings)
+        {
+            var result = new MapScript[scripts.Length];
+
+            for (var i = 0; i < scripts.Length; i++)
+            {
+                result[i] = CreateMapScript(scripts[i], sceneSettings);
+            }
+
+            return result;
+        }
+
+        private static MapScript CreateMapScript(Script script, SceneSettings sceneSettings)
+        {
+            var conditions = CreateMapScriptConditions(script.OrConditions, sceneSettings);
+
+            var actionsIfTrue = CreateMapScriptActions(script.ActionsIfTrue, sceneSettings);
+            var actionsIfFalse = CreateMapScriptActions(script.ActionsIfFalse, sceneSettings);
+
+            return new MapScript(
+                script.Name,
+                conditions,
+                actionsIfTrue,
+                actionsIfFalse,
+                script.IsActive,
+                script.DeactivateUponSuccess,
+                script.IsSubroutine,
+                script.EvaluationInterval);
+        }
+
+        private static MapScriptConditions CreateMapScriptConditions(ScriptOrCondition[] orConditions, SceneSettings sceneSettings)
+        {
+            var result = new MapScriptOrCondition[orConditions.Length];
+
+            for (var i = 0; i < orConditions.Length; i++)
+            {
+                var orCondition = orConditions[i];
+
+                var andConditions = new MapScriptCondition[orCondition.Conditions.Length];
+
+                for (var j = 0; j < andConditions.Length; j++)
+                {
+                    andConditions[j] = MapScriptConditionFactory.Create(orCondition.Conditions[j], sceneSettings);
+                }
+
+                result[i] = new MapScriptOrCondition(andConditions);
+            }
+
+            return new MapScriptConditions(result);
+        }
+
+        private static List<MapScriptAction> CreateMapScriptActions(ScriptAction[] actions, SceneSettings sceneSettings)
+        {
+            var result = new List<MapScriptAction>(actions.Length);
+
+            for (var i = 0; i < actions.Length; i++)
+            {
+                result.Add(MapScriptActionFactory.Create(actions[i], sceneSettings, result));
+            }
+
+            return result;
+        }
+
+        private static void LoadObjects(
             ContentManager contentManager,
             Entity objectsEntity, 
             HeightMap heightMap,
@@ -157,19 +232,18 @@ namespace OpenSage.Content
                 {
                     case RoadType.None:
                         var position = mapObject.Position;
-                        position.Z = heightMap.GetHeight(position.X, position.Y);
 
                         switch (mapObject.TypeName)
                         {
                             case "*Waypoints/Waypoint":
-                                position.Z += 10; // TODO
-
                                 var waypointID = (uint) mapObject.Properties["waypointID"].Value;
                                 var waypointName = (string) mapObject.Properties["waypointName"].Value;
                                 waypoints.Add(new Waypoint(waypointID, waypointName, position));
                                 break;
 
                             default:
+                                position.Z = heightMap.GetHeight(position.X, position.Y);
+
                                 var objectDefinition = contentManager.IniDataContext.Objects.FirstOrDefault(x => x.Name == mapObject.TypeName);
                                 if (objectDefinition != null)
                                 {

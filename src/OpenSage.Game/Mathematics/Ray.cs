@@ -99,6 +99,29 @@ namespace OpenSage.Mathematics
             return tMin;
         }
 
+        public float? Intersects(ref Plane plane)
+        {
+            var den = Vector3.Dot(Direction, plane.Normal);
+            if (Math.Abs(den) < 0.00001f)
+            {
+                return null;
+            }
+
+            var result = (-plane.D - Vector3.Dot(plane.Normal, Position)) / den;
+
+            if (result < 0.0f)
+            {
+                if (result < -0.00001f)
+                {
+                    return null;
+                }
+
+                result = 0.0f;
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// From XNA "Picking With Triangle Accuracy" sample.
         /// http://xbox.create.msdn.com/en-US/education/catalog/sample/picking_triangle

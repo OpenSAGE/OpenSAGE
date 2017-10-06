@@ -1,12 +1,15 @@
 ﻿using System.Linq;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Settings;
+using OpenSage.Terrain;
 
 namespace OpenSage
 {
     public sealed class Scene
     {
         public Game Game { get; internal set; }
+
+        public HeightMap HeightMap { get; set; }
 
         public SceneSettings Settings { get; } = new SceneSettings();
 

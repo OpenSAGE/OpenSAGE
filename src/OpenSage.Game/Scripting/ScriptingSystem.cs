@@ -8,11 +8,9 @@ namespace OpenSage.Scripting
     {
         private readonly List<ScriptComponent> _scripts;
 
-        private readonly CoroutineScheduler _coroutineScheduler;
-        private readonly Coroutine _coroutine;
+        private readonly ScriptExecutionContext _executionContext;
 
-        private readonly Dictionary<ScriptComponent, Task> _coroutineInstances;
-
+        public Dictionary<string, int> Counters { get; }
         public Dictionary<string, bool> Flags { get; }
         public Dictionary<string, ScriptTimer> Timers { get; }
 
@@ -21,13 +19,11 @@ namespace OpenSage.Scripting
         {
             RegisterComponentList(_scripts = new List<ScriptComponent>());
 
-            _coroutineScheduler = new CoroutineScheduler();
-            _coroutine = new Coroutine(_coroutineScheduler, game);
-
-            _coroutineInstances = new Dictionary<ScriptComponent, Task>();
-
+            Counters = new Dictionary<string, int>();
             Flags = new Dictionary<string, bool>();
             Timers = new Dictionary<string, ScriptTimer>();
+
+            _executionContext = new ScriptExecutionContext(game);
         }
 
         public override void Update(GameTime gameTime)
@@ -41,15 +37,9 @@ namespace OpenSage.Scripting
                 }
             }
 
-            _coroutineScheduler.Update();
-
             foreach (var scriptComponent in _scripts)
             {
-                if (!_coroutineInstances.TryGetValue(scriptComponent, out var coroutineInstance)
-                    || coroutineInstance.IsCompleted)
-                {
-                    _coroutineInstances[scriptComponent] = _coroutine.Run(scriptComponent.Execute);
-                }
+                scriptComponent.Execute(_executionContext);
             }
         }
     }

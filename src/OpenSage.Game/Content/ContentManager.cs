@@ -48,6 +48,7 @@ namespace OpenSage.Content
             };
 
             IniDataContext = new IniDataContext();
+            IniDataContext.LoadIniFile(fileSystem.GetFile(@"Data\INI\GameData.ini"));
             IniDataContext.LoadIniFile(fileSystem.GetFile(@"Data\INI\Terrain.ini"));
             IniDataContext.LoadIniFile(fileSystem.GetFile(@"Data\INI\ParticleSystem.ini"));
             foreach (var iniFile in fileSystem.GetFiles(@"Data\INI\Object"))

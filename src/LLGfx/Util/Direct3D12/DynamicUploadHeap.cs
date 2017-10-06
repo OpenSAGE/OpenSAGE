@@ -21,7 +21,18 @@ namespace LLGfx.Util
 
         public DynamicAllocation Allocate(uint sizeInBytes)
         {
-            var dynamicAllocationTemp = _ringBuffers[_ringBuffers.Count - 1].Allocate(sizeInBytes);
+            // Default alignment for constant buffers, as required by D3D12.
+            const uint alignment = 256;
+            var alignmentMask = alignment - 1;
+
+            if ((alignmentMask & alignment) != 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(alignment));
+            }
+
+            var alignedSize = (sizeInBytes + alignmentMask) & ~alignmentMask;
+
+            var dynamicAllocationTemp = _ringBuffers[_ringBuffers.Count - 1].Allocate(alignedSize);
 
             DynamicAllocation dynamicAllocation;
             if (dynamicAllocationTemp != null)
@@ -31,13 +42,13 @@ namespace LLGfx.Util
             else
             {
                 var newMaxSize = _ringBuffers[_ringBuffers.Count - 1].MaxSize * 2;
-                while (newMaxSize < sizeInBytes)
+                while (newMaxSize < alignedSize)
                 {
                     newMaxSize *= 2;
                 }
                 GpuRingBuffer newRingBuffer;
                 _ringBuffers.Add(newRingBuffer = new GpuRingBuffer(newMaxSize, _device));
-                dynamicAllocation = newRingBuffer.Allocate(sizeInBytes).Value;
+                dynamicAllocation = newRingBuffer.Allocate(alignedSize).Value;
             }
 
             return dynamicAllocation;
