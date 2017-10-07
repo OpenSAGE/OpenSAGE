@@ -217,6 +217,7 @@
     <PixelShader Include="Shaders\ParticlePS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </PixelShader>
+    <Content Include="Shaders\Sprite.hlsli" />
     <Content Include="Shaders\Terrain.hlsli" />
     <Content Include="Shaders\Mesh.hlsli" />
     <PixelShader Include="Shaders\MeshPS.hlsl">
