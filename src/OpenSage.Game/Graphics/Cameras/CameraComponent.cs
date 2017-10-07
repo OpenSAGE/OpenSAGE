@@ -314,7 +314,7 @@ namespace OpenSage.Graphics.Cameras
             if (_targetPosition != null)
             {
                 var cameraHeight = MathUtility.Lerp(
-                    0,
+                    Scene.HeightMap.GetHeight(_targetPosition.Value.X, _targetPosition.Value.Y),
                     ContentManager.IniDataContext.GameData.CameraHeight,
                     _zoom);
 

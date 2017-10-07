@@ -51,6 +51,14 @@ namespace OpenSage.Mathematics
             return (float) Math.Asin(a);
         }
 
+        /// <summary>
+        /// Returns the angle whose cosine is the specified number.
+        /// </summary>
+        public static float Acos(float a)
+        {
+            return (float) Math.Acos(a);
+        }
+
         public static float Lerp(float x, float y, float s)
         {
             return x + s * (y - x);

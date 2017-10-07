@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using OpenSage.Mathematics;
 using OpenSage.Settings;
 using ScriptAction = OpenSage.Data.Map.ScriptAction;
 
@@ -19,7 +20,7 @@ namespace OpenSage.Scripting.Actions
         private State _state;
 
         private Vector3 _startDirection;
-        private readonly Vector3 _endDirection;
+        private Vector3 _endDirection;
 
         private TimeSpan _startTime;
         private TimeSpan _endTime;
@@ -38,6 +39,8 @@ namespace OpenSage.Scripting.Actions
             {
                 case State.NotStarted:
                     _startDirection = context.Scene.MainCamera.Transform.Forward;
+                    _startDirection.Z = 0;
+                    _startDirection = Vector3.Normalize(_startDirection);
                     _startTime = context.UpdateTime.TotalGameTime;
                     _endTime = _startTime + _modificationOf.Duration;
                     _state = State.Moving;
@@ -46,7 +49,7 @@ namespace OpenSage.Scripting.Actions
 
             var currentTimeFraction = CalculateCurrentTimeFraction(context, _modificationOf.Duration, _startTime);
 
-            var direction = Vector3.Normalize(Vector3.Lerp(_startDirection, _endDirection, currentTimeFraction));
+            var direction = Vector3.Normalize(Vector3Utility.Slerp(ref _startDirection, ref _endDirection, currentTimeFraction));
 
             context.Scene.MainCamera.LookDirection = direction;
 
