@@ -12,7 +12,6 @@ namespace OpenSage.DataViewer.ViewModels
     {
         private Scene _scene;
 
-        private CameraComponent _camera;
         private TerrainComponent _terrain;
 
         public IEnumerable<TimeOfDay> TimesOfDay
@@ -97,11 +96,6 @@ namespace OpenSage.DataViewer.ViewModels
             var cameraEntity = new Entity();
             _scene.Entities.Add(cameraEntity);
 
-            cameraEntity.Components.Add(_camera = new PerspectiveCameraComponent
-            {
-                FieldOfView = 35
-            });
-
             //var cameraController = new MapCameraController();
             //cameraEntity.Components.Add(cameraController);
             //cameraController.Reset(_terrain.Entity.GetEnclosingBoundingBox().GetCenter());
@@ -114,29 +108,29 @@ namespace OpenSage.DataViewer.ViewModels
         // TODO: Hook this up as a component.
         public void OnMouseMove(int x, int y)
         {
-            var ray = _camera.ScreenPointToRay(new Vector2(x, y));
+            //var ray = Game.Scene.Camera.ScreenPointToRay(new Vector2(x, y));
 
-            var intersectionPoint = _terrain.Intersect(ray);
+            //var intersectionPoint = _terrain.Intersect(ray);
 
-            if (intersectionPoint != null)
-            {
-                MousePosition = $"Pos: ({intersectionPoint.Value.X.ToString("F1")}, {intersectionPoint.Value.Y.ToString("F1")}, {intersectionPoint.Value.Z.ToString("F1")})";
+            //if (intersectionPoint != null)
+            //{
+            //    MousePosition = $"Pos: ({intersectionPoint.Value.X.ToString("F1")}, {intersectionPoint.Value.Y.ToString("F1")}, {intersectionPoint.Value.Z.ToString("F1")})";
 
-                var tilePosition = _terrain.HeightMap.GetTilePosition(intersectionPoint.Value);
-                if (tilePosition != null)
-                {
-                    TilePosition = $"Tile: ({tilePosition.Value.X}, {tilePosition.Value.Y})";
-                }
-                else
-                {
-                    TilePosition = "Tile: No intersection";
-                }
-            }
-            else
-            {
-                MousePosition = "Pos: No intersection";
-                TilePosition = "Tile: No intersection";
-            }
+            //    var tilePosition = _terrain.HeightMap.GetTilePosition(intersectionPoint.Value);
+            //    if (tilePosition != null)
+            //    {
+            //        TilePosition = $"Tile: ({tilePosition.Value.X}, {tilePosition.Value.Y})";
+            //    }
+            //    else
+            //    {
+            //        TilePosition = "Tile: No intersection";
+            //    }
+            //}
+            //else
+            //{
+            //    MousePosition = "Pos: No intersection";
+            //    TilePosition = "Tile: No intersection";
+            //}
         }
     }
 }

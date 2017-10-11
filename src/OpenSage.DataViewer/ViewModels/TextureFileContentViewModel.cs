@@ -59,7 +59,6 @@ namespace OpenSage.DataViewer.ViewModels
             var scene = new Scene();
 
             var entity = new Entity();
-            entity.Components.Add(new PerspectiveCameraComponent());
             entity.Components.Add(_spriteComponent);
             scene.Entities.Add(entity);
 

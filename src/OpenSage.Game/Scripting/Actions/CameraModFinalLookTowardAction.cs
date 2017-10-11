@@ -38,8 +38,7 @@ namespace OpenSage.Scripting.Actions
             switch (_state)
             {
                 case State.NotStarted:
-                    _startDirection = context.Scene.MainCamera.Transform.Forward;
-                    _startDirection.Z = 0;
+                    _startDirection = context.Scene.CameraController.LookDirection;
                     _startDirection = Vector3.Normalize(_startDirection);
                     _startTime = context.UpdateTime.TotalGameTime;
                     _endTime = _startTime + _modificationOf.Duration;
@@ -51,7 +50,7 @@ namespace OpenSage.Scripting.Actions
 
             var direction = Vector3.Normalize(Vector3Utility.Slerp(ref _startDirection, ref _endDirection, currentTimeFraction));
 
-            context.Scene.MainCamera.LookDirection = direction;
+            context.Scene.CameraController.LookDirection = direction;
 
             return (context.UpdateTime.TotalGameTime >= _endTime)
                 ? ScriptExecutionResult.Finished

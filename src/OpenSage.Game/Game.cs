@@ -77,6 +77,10 @@ namespace OpenSage
         public void SetSwapChain(SwapChain swapChain)
         {
             SwapChain = swapChain;
+            if (Scene != null)
+            {
+                Scene.Camera.SetSwapChain(swapChain);
+            }
         }
 
         public void ResetElapsedTime()
@@ -117,6 +121,8 @@ namespace OpenSage
                 {
                     _scene.Game = this;
                     AddComponentsRecursive(_scene.Entities);
+
+                    _scene.Camera.SetSwapChain(SwapChain);
                 }
             }
         }

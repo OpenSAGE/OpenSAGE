@@ -63,7 +63,7 @@ namespace OpenSage.Scripting.Actions
 
             var currentPosition = _waypointPath.Start.Position + _direction * currentTimeFraction;
 
-            context.Scene.MainCamera.TargetPosition = currentPosition;
+            context.Scene.CameraController.TerrainPosition = currentPosition;
 
             return (context.UpdateTime.TotalGameTime >= _endTime)
                 ? ScriptExecutionResult.Finished

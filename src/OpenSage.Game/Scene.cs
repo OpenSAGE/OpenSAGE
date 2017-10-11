@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using OpenSage.Graphics.Cameras;
+﻿using OpenSage.Graphics.Cameras;
 using OpenSage.Settings;
 using OpenSage.Terrain;
 
@@ -7,7 +6,20 @@ namespace OpenSage
 {
     public sealed class Scene
     {
-        public Game Game { get; internal set; }
+        private Game _game;
+
+        public Game Game
+        {
+            get => _game;
+            set
+            {
+                _game = value;
+                if (value != null)
+                {
+                    CameraController.Initialize(value);
+                }
+            }
+        }
 
         public HeightMap HeightMap { get; set; }
 
@@ -15,11 +27,16 @@ namespace OpenSage
 
         public SceneEntitiesCollection Entities { get; }
 
-        public CameraComponent MainCamera => Game.Graphics.Cameras.FirstOrDefault();
+        public CameraComponent Camera { get; }
+
+        public RtsCameraController CameraController { get; }
 
         public Scene()
         {
             Entities = new SceneEntitiesCollection(this);
+
+            Camera = new CameraComponent();
+            CameraController = new RtsCameraController(Camera);
         }
     }
 }

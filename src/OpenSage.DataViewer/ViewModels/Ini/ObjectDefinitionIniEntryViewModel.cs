@@ -39,11 +39,6 @@ namespace OpenSage.DataViewer.ViewModels.Ini
         {
             var scene = new Scene();
 
-            var cameraEntity = new Entity();
-            cameraEntity.Components.Add(new PerspectiveCameraComponent { FieldOfView = 70 });
-            cameraEntity.Components.Add(new ArcballCameraController(Vector3.Zero, 300));
-            scene.Entities.Add(cameraEntity);
-
             var objectEntity = Entity.FromObjectDefinition(_definition);
             _objectComponent = objectEntity.GetComponent<ObjectComponent>();
             scene.Entities.Add(objectEntity);

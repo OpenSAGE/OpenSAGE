@@ -54,8 +54,7 @@ namespace OpenSage
             var result = new List<IList>();
             while (componentType != null)
             {
-                IList componentList;
-                if (_componentLists.TryGetValue(componentType, out componentList))
+                if (_componentLists.TryGetValue(componentType, out IList componentList))
                     result.Add(componentList);
                 foreach (var interfaceType in componentType.GetInterfaces())
                     if (_componentLists.TryGetValue(interfaceType, out componentList))

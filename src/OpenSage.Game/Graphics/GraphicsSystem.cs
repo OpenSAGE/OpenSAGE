@@ -1,25 +1,32 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Graphics
 {
     public sealed class GraphicsSystem : GameSystem
     {
-        private readonly List<CameraComponent> _cameras;
+        private readonly RenderContext _renderContext;
         private readonly List<ModelComponent> _models;
 
-        public IEnumerable<CameraComponent> Cameras => _cameras;
+        private RenderPipeline _renderPipeline;
 
         internal readonly RenderList RenderList = new RenderList();
 
         public GraphicsSystem(Game game)
             : base(game)
         {
-            RegisterComponentList(_cameras = new List<CameraComponent>());
             RegisterComponentList(_models = new List<ModelComponent>());
 
             RenderList = new RenderList();
+
+            _renderContext = new RenderContext();
+        }
+
+        public override void Initialize()
+        {
+            _renderPipeline = new RenderPipeline(Game.GraphicsDevice);
+
+            base.Initialize();
         }
 
         internal override void OnEntityComponentAdded(EntityComponent component)
@@ -44,12 +51,29 @@ namespace OpenSage.Graphics
 
         public override void Draw(GameTime gameTime)
         {
-            foreach (var camera in _cameras)
-            {
-                camera.Render(gameTime);
-            }
+            // TODO: Do this in Update?
+            Game.Scene.CameraController.UpdateCamera();
+
+            _renderContext.Game = Game;
+            _renderContext.GraphicsDevice = Game.GraphicsDevice;
+            _renderContext.Graphics = this;
+            _renderContext.Camera = Game.Scene.Camera;
+            _renderContext.Scene = Game.Scene;
+            _renderContext.SwapChain = Game.SwapChain;
+            _renderContext.RenderTarget = Game.SwapChain.GetNextRenderTarget();
+            _renderContext.GameTime = gameTime;
+
+            _renderPipeline.Execute(_renderContext);
 
             base.Draw(gameTime);
+        }
+
+        protected override void Dispose(bool disposeManagedResources)
+        {
+            _renderPipeline.Dispose();
+            _renderPipeline = null;
+
+            base.Dispose(disposeManagedResources);
         }
     }
 }

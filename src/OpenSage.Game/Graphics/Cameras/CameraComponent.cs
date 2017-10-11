@@ -1,49 +1,35 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using LLGfx;
-using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Cameras
 {
-    public abstract class CameraComponent : EntityComponent
+    public sealed class CameraComponent
     {
         private readonly BoundingFrustum _frustum;
-        private readonly RenderContext _renderContext;
 
         private RectangleF _normalizedViewportRectangle;
         private float _nearPlaneDistance;
         private float _farPlaneDistance;
-        private Size _windowSize;
-
-        private RenderPipeline _renderPipeline;
 
         private Viewport? _viewport;
 
         private Matrix4x4? _cachedProjectionMatrix;
-        private int _cachedProjectionMatrixWidth;
-        private int _cachedProjectionMatrixHeight;
 
         private bool _boundingFrustumDirty = true;
+
+        private SwapChain _swapChain;
 
         /// <summary>
         /// Initializes a new instance of this class.
         /// </summary>
-        protected CameraComponent()
+        public CameraComponent()
         {
             _frustum = new BoundingFrustum(Matrix4x4.Identity);
             _normalizedViewportRectangle = new RectangleF(0, 0, 1, 1);
             NearPlaneDistance = 0.125f;
             FarPlaneDistance = 5000.0f;
-            _windowSize = new Size(100, 100);
-
-            _renderContext = new RenderContext();
         }
-
-        /// <summary>
-        /// Gets the position, in world space, of this camera.
-        /// </summary>
-        public Vector3 Position => View.Translation;
 
         /// <summary>
         /// Gets or sets a value that specifies the distance from the camera of the camera's far clip plane.
@@ -72,18 +58,6 @@ namespace OpenSage.Graphics.Cameras
         }
 
         /// <summary>
-        /// Gets the distance from the camera of the camera's near clip plane. 
-        /// Used for terrain detail level calculation.
-        /// </summary>
-        internal float ProjectionNear => NearPlaneDistance;
-
-        /// <summary>
-        /// Gets the distance from the camera of the camera's top clip plane. 
-        /// Used for terrain detail level calculation.
-        /// </summary>
-        internal float ProjectionTop => 0.5f;
-
-        /// <summary>
         /// Gets the frustum covered by this camera. The frustum is calculated from the camera's
         /// view and projection matrices.
         /// </summary>
@@ -101,11 +75,6 @@ namespace OpenSage.Graphics.Cameras
         }
 
         /// <summary>
-        /// Gets or sets whether shadows will be rendered for this camera.
-        /// </summary>
-        public bool RenderShadows { get; set; } = true;
-
-        /// <summary>
         /// Gets or sets the normalized viewport rectangle for this camera. For example, this can 
         /// be used to implement split-screen or a rear view mirror for an in-car view.
         /// </summary>
@@ -119,10 +88,28 @@ namespace OpenSage.Graphics.Cameras
             }
         }
 
+        private Matrix4x4 _view;
+
         /// <summary>
         /// Gets the View matrix for this camera.
         /// </summary>
-        public Matrix4x4 View => GetViewMatrix();
+        public Matrix4x4 View
+        {
+            get => _view;
+            set
+            {
+                _view = value;
+                _boundingFrustumDirty = true;
+            }
+        }
+
+        internal void SetSwapChain(SwapChain swapChain)
+        {
+            _swapChain = swapChain;
+
+            ClearCachedProjectionMatrix();
+            ClearCachedViewport();
+        }
 
         /// <summary>
         /// Gets the Projection matrix for this camera.
@@ -131,48 +118,31 @@ namespace OpenSage.Graphics.Cameras
         {
             get
             {
-                var pixelWidth = Game.SwapChain.BackBufferWidth;
-                var pixelHeight = Game.SwapChain.BackBufferHeight;
-
-                if (_cachedProjectionMatrix != null && (pixelWidth != _cachedProjectionMatrixWidth || pixelHeight != _cachedProjectionMatrixHeight))
-                {
-                    _cachedProjectionMatrix = null;
-                }
-
                 if (_cachedProjectionMatrix == null)
                 {
-                    _cachedProjectionMatrix = GetProjectionMatrix(Viewport.AspectRatio);
-
-                    _cachedProjectionMatrixWidth = pixelWidth;
-                    _cachedProjectionMatrixHeight = pixelHeight;
+                    _cachedProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
+                        MathUtility.ToRadians(FieldOfView), Viewport.AspectRatio,
+                        NearPlaneDistance, FarPlaneDistance);
                 }
 
                 return _cachedProjectionMatrix.Value;
             }
         }
 
-        /// <summary>
-        /// Gets the rectangle covered by this camera in screen space.
-        /// </summary>
-        public Rectangle PixelRect => Viewport.Bounds();
+        private float _fieldOfView = 45;
 
         /// <summary>
-        /// Gets the width of the rectangle covered by this camera in screen space.
+        /// Gets or sets a value that represents the camera's horizontal field of view in degrees. 
         /// </summary>
-        public int PixelWidth => PixelRect.Width;
-
-        /// <summary>
-        /// Gets the height of the rectangle covered by this camera in screen space.
-        /// </summary>
-        public int PixelHeight => PixelRect.Height;
-
-        /// <summary>
-        /// Render target to render this camera into. If this is <code>null</code>,
-        /// the camera will be rendered into the back buffer and displayed on the screen.
-        /// If this is not <code>null</code>, the camera will be rendered into the
-        /// specified <see cref="RenderTarget2D"/> and not displayed on the screen.
-        /// </summary>
-        public RenderTarget RenderTarget { get; set; }
+        public float FieldOfView
+        {
+            get { return _fieldOfView; }
+            set
+            {
+                _fieldOfView = value;
+                ClearCachedProjectionMatrix();
+            }
+        }
 
         /// <summary>
         /// Gets or sets how the render target (either backbuffer or texture)
@@ -203,17 +173,11 @@ namespace OpenSage.Graphics.Cameras
         {
             get
             {
-                var pixelWidth = Game.SwapChain.BackBufferWidth;
-                var pixelHeight = Game.SwapChain.BackBufferHeight;
-
-                if (_viewport != null && 
-                    (pixelWidth != _viewport.Value.Width || pixelHeight != _viewport.Value.Height))
-                {
-                    _viewport = null;
-                }
-
                 if (_viewport == null)
                 {
+                    var pixelWidth = _swapChain.BackBufferWidth;
+                    var pixelHeight = _swapChain.BackBufferHeight;
+
                     var bounds = new Rectangle(
                         (int) (NormalizedViewportRectangle.X * pixelWidth),
                         (int) (NormalizedViewportRectangle.Y * pixelHeight),
@@ -235,176 +199,16 @@ namespace OpenSage.Graphics.Cameras
             }
         }
 
-        private Vector3 _lookDirection;
-        public Vector3 LookDirection
-        {
-            get { return _lookDirection; }
-            set
-            {
-                _lookDirection = value;
-                UpdateTransform();
-            }
-        }
-
-        private float _pitch = 1;
-        public float Pitch
-        {
-            get { return _pitch; }
-            set
-            {
-                _pitch = value;
-                UpdateTransform();
-            }
-        }
-
-        private float _zoom = 1;
-        public float Zoom
-        {
-            get { return _zoom; }
-            set
-            {
-                _zoom = value;
-                UpdateTransform();
-            }
-        }
-
-        private Vector3 _worldPosition;
-        public Vector3 WorldPosition
-        {
-            get { return _worldPosition; }
-            set
-            {
-                _worldPosition = value;
-                _targetPosition = null;
-                UpdateTransform();
-            }
-        }
-
-        private Vector3? _targetPosition;
-        public Vector3? TargetPosition
-        {
-            get { return _targetPosition; }
-            set
-            {
-                _targetPosition = value;
-                UpdateTransform();
-            }
-        }
-
-        private void UpdateTransform()
-        {
-            var defaultPitch = MathUtility.ToRadians(ContentManager.IniDataContext.GameData.CameraPitch);
-
-            var yaw = MathUtility.Atan2(_lookDirection.Y, _lookDirection.X);
-
-            var pitch = MathUtility.Lerp(
-                0,
-                -defaultPitch,
-                _pitch);
-
-            var lookDirection = new Vector3(
-                MathUtility.Cos(yaw),
-                MathUtility.Sin(yaw),
-                MathUtility.Sin(pitch));
-
-            lookDirection = Vector3.Normalize(lookDirection);
-
-            Vector3 newPosition, targetPosition;
-
-            if (_targetPosition != null)
-            {
-                var cameraHeight = MathUtility.Lerp(
-                    Scene.HeightMap.GetHeight(_targetPosition.Value.X, _targetPosition.Value.Y),
-                    ContentManager.IniDataContext.GameData.CameraHeight,
-                    _zoom);
-
-                // Back up camera from camera "position".
-                var toCameraRay = new Ray(_targetPosition.Value, -lookDirection);
-                var plane = Plane.CreateFromVertices(
-                    new Vector3(0, 0, cameraHeight),
-                    new Vector3(0, 1, cameraHeight),
-                    new Vector3(1, 0, cameraHeight));
-                var toCameraIntersectionDistance = toCameraRay.Intersects(ref plane).Value;
-                newPosition = _targetPosition.Value - lookDirection * toCameraIntersectionDistance;
-                targetPosition = _targetPosition.Value;
-            }
-            else
-            {
-                var cameraHeight = MathUtility.Lerp(
-                    Scene.HeightMap.GetHeight(_worldPosition.X, _worldPosition.Y),
-                    ContentManager.IniDataContext.GameData.CameraHeight,
-                    _zoom);
-
-                newPosition = _worldPosition;
-                newPosition.Z = cameraHeight;
-
-                targetPosition = newPosition + lookDirection;
-            }
-
-            Transform.LocalPosition = newPosition;
-            Transform.LookAt(targetPosition);
-
-            _boundingFrustumDirty = true;
-        }
-
         private void ClearCachedViewport()
         {
             _viewport = null;
             ClearCachedProjectionMatrix();
         }
 
-        /// <summary>
-        /// Clears the cached projection matrix. This method should be called
-        /// after changes to any properties that affect the projection matrix.
-        /// </summary>
-        protected void ClearCachedProjectionMatrix()
+        private void ClearCachedProjectionMatrix()
         {
             _cachedProjectionMatrix = null;
             _boundingFrustumDirty = true;
-        }
-
-        /// <inheritdoc />
-        protected override void Start()
-        {
-            _renderPipeline = new RenderPipeline(GraphicsDevice);
-        }
-
-        protected override void Destroy()
-        {
-            _renderPipeline.Dispose();
-            _renderPipeline = null;
-
-            base.Destroy();
-        }
-
-        internal void Render(GameTime gameTime)
-        {
-            _renderContext.Game = Game;
-            _renderContext.GraphicsDevice = GraphicsDevice;
-            _renderContext.Graphics = Graphics;
-            _renderContext.Camera = this;
-            _renderContext.Scene = Entity.Scene;
-            _renderContext.SwapChain = Game.SwapChain;
-            _renderContext.RenderTarget = Game.SwapChain.GetNextRenderTarget();
-            _renderContext.GameTime = gameTime;
-
-            _renderPipeline.Execute(_renderContext);
-        }
-
-        /// <summary>
-        /// Gets the projection matrix for this camera.
-        /// </summary>
-        /// <param name="aspectRatio">Aspect ratio.</param>
-        /// <returns>Computed projection matrix.</returns>
-        protected abstract Matrix4x4 GetProjectionMatrix(float aspectRatio);
-
-        /// <summary>
-        /// Gets the view matrix for this camera.
-        /// </summary>
-        /// <returns>Computed view matrix.</returns>
-        protected virtual Matrix4x4 GetViewMatrix()
-        {
-            return Entity.Transform.WorldToLocalMatrix;
         }
 
         /// <summary>

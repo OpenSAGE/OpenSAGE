@@ -44,7 +44,7 @@ namespace OpenSage.Scripting.Actions
             switch (_state)
             {
                 case MoveCameraState.NotStarted:
-                    _startPosition = context.Scene.MainCamera.Transform.WorldPosition;
+                    _startPosition = context.Scene.Camera.View.Translation;
                     _direction = _targetWaypoint.Position - _startPosition;
                     _startTime = context.UpdateTime.TotalGameTime;
                     _endTime = _startTime + Duration;
@@ -59,7 +59,7 @@ namespace OpenSage.Scripting.Actions
 
             var currentPosition = _startPosition + _direction * currentTimeFraction;
 
-            context.Scene.MainCamera.WorldPosition = currentPosition;
+            context.Scene.CameraController.CameraPosition = currentPosition;
 
             return (context.UpdateTime.TotalGameTime >= _endTime)
                 ? ScriptExecutionResult.Finished
