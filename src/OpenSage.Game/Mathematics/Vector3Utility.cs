@@ -10,7 +10,7 @@ namespace OpenSage.Mathematics
         }
 
         //  From https://keithmaggio.wordpress.com/2011/02/15/math-magician-lerp-slerp-and-nlerp/
-        public static Vector3 Slerp(ref Vector3 start, ref Vector3 end, float percent)
+        public static Vector3 Slerp(Vector3 start, Vector3 end, float percent)
         {
             // Dot product - the cosine of the angle between 2 vectors.
             float dot = Vector3.Dot(start, end);

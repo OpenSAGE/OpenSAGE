@@ -7,22 +7,22 @@ namespace OpenSage.Scripting.Actions
 {
     public static class MapScriptActionFactory
     {
-        private delegate MapScriptAction CreateMapScriptAction(ScriptAction action, SceneSettings sceneSettings, MapScriptAction modificationOf);
+        private delegate MapScriptAction CreateMapScriptAction(ScriptAction action, SceneSettings sceneSettings);
 
         private static readonly Dictionary<ScriptActionType, CreateMapScriptAction> Factories = new Dictionary<ScriptActionType, CreateMapScriptAction>
         {
-            { ScriptActionType.SetFlag, (a, s, p) => new SetFlagAction(a) },
-            { ScriptActionType.SetCounter, (a, s, p) => new SetCounterAction(a) },
-            { ScriptActionType.NoOp, (a, s, p) => new NoOpAction() },
-            { ScriptActionType.MoveCameraTo, (a, s, p) => new MoveCameraToAction(a, s) },
-            { ScriptActionType.IncrementCounter, (a, s, p) => new IncrementCounterAction(a) },
-            { ScriptActionType.DecrementCounter, (a, s, p) => new DecrementCounterAction(a) },
-            { ScriptActionType.MoveCameraAlongWaypointPath, (a, s, p) => new MoveCameraAlongWaypointPathAction(a, s) },
-            { ScriptActionType.SetMillisecondTimer, (a, s, p) => new SetMillisecondTimerAction(a) },
-            { ScriptActionType.CameraModSetFinalZoom, (a, s, p) => new CameraModSetFinalZoomAction(a, s, (MoveCameraAction) p) },
-            { ScriptActionType.CameraModSetFinalPitch, (a, s, p) => new CameraModSetFinalPitchAction(a, s, (MoveCameraAction) p) },
-            { ScriptActionType.CameraModFinalLookToward, (a, s, p) => new CameraModFinalLookTowardAction(a, s, (MoveCameraAction) p) },
-            { ScriptActionType.SetupCamera, (a, s, p) => new SetupCameraAction(a, s) },
+            { ScriptActionType.SetFlag, (a, s) => new SetFlagAction(a) },
+            { ScriptActionType.SetCounter, (a, s) => new SetCounterAction(a) },
+            { ScriptActionType.NoOp, (a, s) => new NoOpAction() },
+            { ScriptActionType.MoveCameraTo, (a, s) => new MoveCameraToAction(a, s) },
+            { ScriptActionType.IncrementCounter, (a, s) => new IncrementCounterAction(a) },
+            { ScriptActionType.DecrementCounter, (a, s) => new DecrementCounterAction(a) },
+            { ScriptActionType.MoveCameraAlongWaypointPath, (a, s) => new MoveCameraAlongWaypointPathAction(a, s) },
+            { ScriptActionType.SetMillisecondTimer, (a, s) => new SetMillisecondTimerAction(a) },
+            { ScriptActionType.CameraModSetFinalZoom, (a, s) => new CameraModSetFinalZoomAction(a, s) },
+            { ScriptActionType.CameraModSetFinalPitch, (a, s) => new CameraModSetFinalPitchAction(a, s) },
+            { ScriptActionType.CameraModFinalLookToward, (a, s) => new CameraModFinalLookTowardAction(a, s) },
+            { ScriptActionType.SetupCamera, (a, s) => new SetupCameraAction(a, s) },
         };
 
         public static MapScriptAction Create(ScriptAction action, SceneSettings sceneSettings, List<MapScriptAction> previousActions)
@@ -33,17 +33,7 @@ namespace OpenSage.Scripting.Actions
                 return new NoOpAction();
             }
 
-            MapScriptAction previousAction = null;
-            switch (action.ContentType)
-            {
-                case ScriptActionType.CameraModSetFinalZoom:
-                case ScriptActionType.CameraModSetFinalPitch:
-                case ScriptActionType.CameraModFinalLookToward:
-                    previousAction = previousActions.FindLast(x => x is MoveCameraAction);
-                    break;
-            }
-
-            return factory(action, sceneSettings, previousAction);
+            return factory(action, sceneSettings);
         }
     }
 }

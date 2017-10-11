@@ -52,7 +52,7 @@ namespace OpenSage.Graphics
         public override void Draw(GameTime gameTime)
         {
             // TODO: Do this in Update?
-            Game.Scene.CameraController.UpdateCamera();
+            Game.Scene.CameraController.UpdateCamera(gameTime);
 
             _renderContext.Game = Game;
             _renderContext.GraphicsDevice = Game.GraphicsDevice;

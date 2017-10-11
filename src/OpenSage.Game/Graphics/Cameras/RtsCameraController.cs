@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Cameras
@@ -11,6 +12,8 @@ namespace OpenSage.Graphics.Cameras
         private float _pitchAngle;
 
         private bool _needsCameraUpdate = true;
+
+        private CameraAnimation _animation;
 
         private Vector3 _lookDirection;
         public Vector3 LookDirection
@@ -68,6 +71,24 @@ namespace OpenSage.Graphics.Cameras
             }
         }
 
+        public CameraAnimation StartAnimation(
+            Vector3 startPosition,
+            Vector3 endPosition,
+            TimeSpan startTime,
+            TimeSpan duration)
+        {
+            return _animation = new CameraAnimation(
+                 startPosition,
+                 endPosition,
+                 _lookDirection,
+                 startTime,
+                 duration,
+                 _pitch,
+                 _zoom);
+        }
+
+        public CameraAnimation CurrentAnimation => _animation;
+
         public RtsCameraController(CameraComponent camera)
         {
             _camera = camera;
@@ -79,14 +100,17 @@ namespace OpenSage.Graphics.Cameras
             _pitchAngle = MathUtility.ToRadians(game.ContentManager.IniDataContext.GameData.CameraPitch);
         }
 
-        public void UpdateCamera()
+        public void UpdateCamera(GameTime gameTime)
         {
-            if (!_needsCameraUpdate)
+            if (_animation != null)
             {
-                return;
-            }
+                _animation.Update(this, gameTime);
 
-            _needsCameraUpdate = false;
+                if (_animation.Finished)
+                {
+                    _animation = null;
+                }
+            }
 
             var yaw = MathUtility.Atan2(_lookDirection.Y, _lookDirection.X);
 

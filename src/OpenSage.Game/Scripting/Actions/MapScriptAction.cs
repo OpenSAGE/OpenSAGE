@@ -142,7 +142,7 @@ namespace OpenSage.Scripting.Actions
 
         public override ScriptExecutionResult Execute(ScriptExecutionContext context)
         {
-            context.Scene.CameraController.TerrainPosition = _positionWaypoint.Position;
+            context.Scene.CameraController.CameraPosition = _positionWaypoint.Position;
             context.Scene.CameraController.Zoom = _zoom;
             context.Scene.CameraController.Pitch = _pitch;
             context.Scene.CameraController.LookDirection = Vector3.Normalize(_targetWaypoint.Position - _positionWaypoint.Position);
