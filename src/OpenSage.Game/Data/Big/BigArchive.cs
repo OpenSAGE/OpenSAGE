@@ -22,6 +22,8 @@ namespace OpenSage.Data.Big
 
         internal Stream Stream => _stream;
 
+        public BigArchiveVersion Version { get; private set; }
+
         public BigArchive(Stream stream, bool leaveOpen = false)
         {
             _stream = stream ?? throw new ArgumentNullException(nameof(stream));
@@ -59,10 +61,19 @@ namespace OpenSage.Data.Big
 
         private void Read()
         {
-            var fourCc = _reader.ReadChars(4);
-            if (!fourCc.SequenceEqual(new[] { 'B', 'I', 'G', 'F' }))
+            var fourCc = _reader.ReadUInt32().ToFourCcString();
+            switch (fourCc)
             {
-                throw new InvalidDataException($"Not a supported BIG format: {fourCc}");
+                case "BIGF":
+                    Version = BigArchiveVersion.BigF;
+                    break;
+
+                case "BIG4":
+                    Version = BigArchiveVersion.Big4;
+                    break;
+
+                default:
+                    throw new InvalidDataException($"Not a supported BIG format: {fourCc}");
             }
 
             _reader.ReadBigEndianUInt32(); // Archive Size
@@ -107,5 +118,11 @@ namespace OpenSage.Data.Big
                 _reader.Dispose();
             }
         }
+    }
+
+    public enum BigArchiveVersion
+    {
+        BigF,
+        Big4
     }
 }

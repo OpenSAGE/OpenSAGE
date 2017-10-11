@@ -45,7 +45,8 @@ namespace OpenSage.DataViewer.ViewModels
                 new InstallationViewModel("C&C Generals (The First Decade)", Path.Combine(programFilesPath, @"EA Games\Command & Conquer The First Decade\Command & Conquer(tm) Generals")),
                 new InstallationViewModel("C&C Generals (Origin)", Path.Combine(programFilesPath, @"Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals")),
                 new InstallationViewModel("C&C Generals Zero Hour (The First Decade)", Path.Combine(programFilesPath, @"EA Games\Command & Conquer The First Decade\Command & Conquer(tm) Generals Zero Hour")),
-                new InstallationViewModel("C&C Generals Zero Hour (Origin)", Path.Combine(programFilesPath, @"Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals Zero Hour"))
+                new InstallationViewModel("C&C Generals Zero Hour (Origin)", Path.Combine(programFilesPath, @"Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals Zero Hour")),
+                new InstallationViewModel("Battle for Middle-earth (DVD)", Path.Combine(programFilesPath, @"EA Games\The Battle for Middle-earth (tm)"))
             };
 
             return possibleInstallations.Where(x => Directory.Exists(x.Path));
