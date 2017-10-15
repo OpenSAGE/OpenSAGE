@@ -65,6 +65,8 @@ namespace OpenSage.Graphics.Cameras
             TimeSpan startTime,
             TimeSpan duration)
         {
+            EndAnimation();
+
             return _animation = new CameraAnimation(
                  startPosition,
                  endPosition,
@@ -116,8 +118,6 @@ namespace OpenSage.Graphics.Cameras
                 -_pitchAngle,
                 _pitch);
 
-            Vector3 newPosition, targetPosition;
-
             var cameraHeight = MathUtility.Lerp(
                 0,
                 _defaultHeight,
@@ -145,27 +145,18 @@ namespace OpenSage.Graphics.Cameras
                 new Vector3(0, 1, cameraHeight),
                 new Vector3(1, 0, cameraHeight));
             var toCameraIntersectionDistance = toCameraRay.Intersects(ref plane).Value;
-            newPosition = _terrainPosition - cameraToTerrainDirection * toCameraIntersectionDistance;
+            var newPosition = _terrainPosition - cameraToTerrainDirection * toCameraIntersectionDistance;
 
             // Pitch - 0 means top-down view.
             // Pitch between 0 and CameraPitch = Move camera position to match pitch.
             // Pitch between CameraPitch and horizontal = Raise or lower target height.
 
-            if ((_pitch > 0 && _pitch < 1) || (_pitch < 0 && _pitch > -1))
-            {
-                var lookDirection = new Vector3(
-                    MathUtility.Cos(yaw),
-                    MathUtility.Sin(yaw),
-                    MathUtility.Sin(pitch));
+            var lookDirection = new Vector3(
+                MathUtility.Cos(yaw),
+                MathUtility.Sin(yaw),
+                MathUtility.Sin(pitch));
 
-                lookDirection = Vector3.Normalize(lookDirection);
-
-                targetPosition = newPosition + lookDirection;
-            }
-            else
-            {
-                targetPosition = _terrainPosition;
-            }
+            var targetPosition = newPosition + lookDirection;
 
             _camera.View = Matrix4x4.CreateLookAt(
                 newPosition,

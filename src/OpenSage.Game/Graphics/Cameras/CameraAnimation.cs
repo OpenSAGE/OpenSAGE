@@ -78,7 +78,7 @@ namespace OpenSage.Graphics.Cameras
 
                 camera.LookDirection = lookDirection;
 
-                camera.TerrainPosition = Vector3Utility.Slerp(_startPosition + _startDirection, _endPosition + _endDirection.Value, currentTimeFraction);
+                //camera.TerrainPosition = Vector3Utility.Slerp(_startPosition + _startDirection, _endPosition + _endDirection.Value, currentTimeFraction);
             }
 
             if (_endPitch != null)
