@@ -19,6 +19,8 @@
                 <CheckBox IsChecked="{Binding RenderWireframeOverlay}" 
                           Content="Wireframe"
                           Margin="10 0 0 0"/>
+                <ToggleButton Content="Pause" Command="{Binding TogglePlayPauseCommand}"
+                              IsChecked="{Binding IsPaused}" />
             </ToolBar>
         </ToolBarTray>
         <controls:GameControl Grid.Row="1" />

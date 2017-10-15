@@ -48,20 +48,8 @@ namespace OpenSage.Graphics.Cameras
             }
         }
 
-        private Vector3 _cameraPosition;
-        public Vector3 CameraPosition
-        {
-            get { return _cameraPosition; }
-            set
-            {
-                _cameraPosition = value;
-                _terrainPosition = null;
-                _needsCameraUpdate = true;
-            }
-        }
-
-        private Vector3? _terrainPosition;
-        public Vector3? TerrainPosition
+        private Vector3 _terrainPosition;
+        public Vector3 TerrainPosition
         {
             get { return _terrainPosition; }
             set
@@ -97,7 +85,16 @@ namespace OpenSage.Graphics.Cameras
         public void Initialize(Game game)
         {
             _defaultHeight = game.ContentManager.IniDataContext.GameData.CameraHeight;
-            _pitchAngle = MathUtility.ToRadians(game.ContentManager.IniDataContext.GameData.CameraPitch);
+            _pitchAngle = MathUtility.ToRadians(90 - game.ContentManager.IniDataContext.GameData.CameraPitch);
+        }
+
+        public void EndAnimation()
+        {
+            if (_animation != null)
+            {
+                _animation.Finished = true;
+                _animation = null;
+            }
         }
 
         public void UpdateCamera(GameTime gameTime)
@@ -119,13 +116,6 @@ namespace OpenSage.Graphics.Cameras
                 -_pitchAngle,
                 _pitch);
 
-            var lookDirection = new Vector3(
-                MathUtility.Cos(yaw),
-                MathUtility.Sin(yaw),
-                MathUtility.Sin(pitch));
-
-            lookDirection = Vector3.Normalize(lookDirection);
-
             Vector3 newPosition, targetPosition;
 
             var cameraHeight = MathUtility.Lerp(
@@ -133,24 +123,48 @@ namespace OpenSage.Graphics.Cameras
                 _defaultHeight,
                 _zoom);
 
-            if (_terrainPosition != null)
+            float clampedPitch = pitch;
+            if (pitch > 0 && pitch < _pitchAngle)
             {
-                // Back up camera from camera "position".
-                var toCameraRay = new Ray(_terrainPosition.Value, -lookDirection);
-                var plane = Plane.CreateFromVertices(
-                    new Vector3(0, 0, cameraHeight),
-                    new Vector3(0, 1, cameraHeight),
-                    new Vector3(1, 0, cameraHeight));
-                var toCameraIntersectionDistance = toCameraRay.Intersects(ref plane).Value;
-                newPosition = _terrainPosition.Value - lookDirection * toCameraIntersectionDistance;
-                targetPosition = _terrainPosition.Value;
+                clampedPitch = _pitchAngle;
+            }
+            else if (pitch < 0 && pitch > -_pitchAngle)
+            {
+                clampedPitch = -_pitchAngle;
+            }
+
+            var cameraToTerrainDirection = Vector3.Normalize(new Vector3(
+                MathUtility.Cos(yaw),
+                MathUtility.Sin(yaw),
+                MathUtility.Sin(clampedPitch)));
+
+            // Back up camera from terrain position.
+            var toCameraRay = new Ray(_terrainPosition, -cameraToTerrainDirection);
+            var plane = Plane.CreateFromVertices(
+                new Vector3(0, 0, cameraHeight),
+                new Vector3(0, 1, cameraHeight),
+                new Vector3(1, 0, cameraHeight));
+            var toCameraIntersectionDistance = toCameraRay.Intersects(ref plane).Value;
+            newPosition = _terrainPosition - cameraToTerrainDirection * toCameraIntersectionDistance;
+
+            // Pitch - 0 means top-down view.
+            // Pitch between 0 and CameraPitch = Move camera position to match pitch.
+            // Pitch between CameraPitch and horizontal = Raise or lower target height.
+
+            if ((_pitch > 0 && _pitch < 1) || (_pitch < 0 && _pitch > -1))
+            {
+                var lookDirection = new Vector3(
+                    MathUtility.Cos(yaw),
+                    MathUtility.Sin(yaw),
+                    MathUtility.Sin(pitch));
+
+                lookDirection = Vector3.Normalize(lookDirection);
+
+                targetPosition = newPosition + lookDirection;
             }
             else
             {
-                newPosition = _cameraPosition;
-                newPosition.Z = cameraHeight;
-
-                targetPosition = newPosition + lookDirection;
+                targetPosition = _terrainPosition;
             }
 
             _camera.View = Matrix4x4.CreateLookAt(

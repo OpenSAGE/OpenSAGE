@@ -27,8 +27,11 @@ namespace OpenSage.Data.Tests.Ini
                 if (Path.GetFileName(entry.FilePath) == "ButtonSets.ini")
                     return; // This file doesn't seem to be used?
 
-                if (Path.GetFileName(entry.FilePath) == "Scripts.ini")
-                    return; // ZH only, and only needed by World Builder?
+                if (Path.GetFileName(entry.FilePath).ToLowerInvariant() == "scripts.ini")
+                    return; // Only needed by World Builder?
+
+                if (Path.GetFileName(entry.FilePath).ToLowerInvariant() != "gamedata.ini")
+                    return;
 
                 tasks.Add(Task.Run(() =>
                 {

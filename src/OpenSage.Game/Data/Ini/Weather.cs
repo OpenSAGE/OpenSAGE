@@ -10,6 +10,7 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<Weather> FieldParseTable = new IniParseTable<Weather>
         {
             { "SnowEnabled", (parser, x) => x.SnowEnabled = parser.ParseBoolean() },
+            { "IsSnowing", (parser, x) => x.IsSnowing = parser.ParseBoolean() },
             { "SnowTexture", (parser, x) => x.SnowTexture = parser.ParseFileName() },
             { "SnowBoxDimensions", (parser, x) => x.SnowBoxDimensions = parser.ParseInteger() },
             { "SnowBoxDensity", (parser, x) => x.SnowBoxDensity = parser.ParseFloat() },
@@ -26,6 +27,10 @@ namespace OpenSage.Data.Ini
         };
 
         public bool SnowEnabled { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool IsSnowing { get; private set; }
+
         public string SnowTexture { get; private set; }
         public int SnowBoxDimensions { get; private set; }
         public float SnowBoxDensity { get; private set; }

@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini.Parser;
 using OpenSage.Data.Wnd;
 
 namespace OpenSage.Data.Ini
@@ -9,6 +10,8 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<Language> FieldParseTable = new IniParseTable<Language>
         {
+            { "ThousandSeparator", (parser, x) => x.ThousandSeparator = parser.ParseString() },
+            { "LocalFontFile", (parser, x) => x.LocalFontFiles.Add(parser.ParseString()) },
             { "UnicodeFontName", (parser, x) => x.UnicodeFontName = parser.ParseString() },
             { "MilitaryCaptionSpeed", (parser, x) => x.MilitaryCaptionSpeed = parser.ParseInteger() },
             { "CopyrightFont", (parser, x) => x.CopyrightFont = WndFont.Parse(parser) },
@@ -16,6 +19,7 @@ namespace OpenSage.Data.Ini
             { "MilitaryCaptionTitleFont", (parser, x) => x.MilitaryCaptionTitleFont = WndFont.Parse(parser) },
             { "MilitaryCaptionFont", (parser, x) => x.MilitaryCaptionFont = WndFont.Parse(parser) },
             { "MilitaryCaptionDelayMS", (parser, x) => x.MilitaryCaptionDelayMS = parser.ParseInteger() },
+            { "AudioSubtitleFont", (parser, x) => x.AudioSubtitleFont = WndFont.Parse(parser) },
             { "SuperweaponCountdownNormalFont", (parser, x) => x.SuperweaponCountdownNormalFont = WndFont.Parse(parser) },
             { "SuperweaponCountdownReadyFont", (parser, x) => x.SuperweaponCountdownReadyFont = WndFont.Parse(parser) },
             { "NamedTimerCountdownNormalFont", (parser, x) => x.NamedTimerCountdownNormalFont = WndFont.Parse(parser) },
@@ -30,7 +34,16 @@ namespace OpenSage.Data.Ini
             { "CreditsMinorTitleFont", (parser, x) => x.CreditsMinorTitleFont = WndFont.Parse(parser) },
             { "CreditsNormalFont", (parser, x) => x.CreditsNormalFont = WndFont.Parse(parser) },
             { "ResolutionFontAdjustment", (parser, x) => x.ResolutionFontAdjustment = parser.ParseFloat() },
+            { "HelpBoxNameFont", (parser, x) => x.HelpBoxNameFont = WndFont.Parse(parser) },
+            { "HelpBoxCostFont", (parser, x) => x.HelpBoxCostFont = WndFont.Parse(parser) },
+            { "HelpBoxShortcutFont", (parser, x) => x.HelpBoxShortcutFont = WndFont.Parse(parser) },
+            { "HelpBoxDescriptionFont", (parser, x) => x.HelpBoxDescriptionFont = WndFont.Parse(parser) },
         };
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public string ThousandSeparator { get; private set; }
+
+        public List<string> LocalFontFiles { get; } = new List<string>();
 
         public string UnicodeFontName { get; private set; }
         public int MilitaryCaptionSpeed { get; private set; }
@@ -41,6 +54,9 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int MilitaryCaptionDelayMS { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public WndFont AudioSubtitleFont { get; private set; }
 
         public WndFont SuperweaponCountdownNormalFont { get; private set; }
         public WndFont SuperweaponCountdownReadyFont { get; private set; }
@@ -56,5 +72,17 @@ namespace OpenSage.Data.Ini
         public WndFont CreditsMinorTitleFont { get; private set; }
         public WndFont CreditsNormalFont { get; private set; }
         public float ResolutionFontAdjustment { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public WndFont HelpBoxNameFont { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public WndFont HelpBoxCostFont { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public WndFont HelpBoxShortcutFont { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public WndFont HelpBoxDescriptionFont { get; private set; }
     }
 }

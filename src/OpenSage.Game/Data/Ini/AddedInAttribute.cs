@@ -16,6 +16,7 @@ namespace OpenSage.Data.Ini
     public enum SageGame
     {
         CncGenerals,
-        CncGeneralsZeroHour
+        CncGeneralsZeroHour,
+        BattleForMiddleEarth
     }
 }

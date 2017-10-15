@@ -16,9 +16,12 @@ namespace OpenSage.Data.Ini
             { "ShellMapName", (parser, x) => x.ShellMapName = parser.ParseString() },
             { "MapName", (parser, x) => x.MapName = parser.ParseString() },
             { "MoveHintName", (parser, x) => x.MoveHintName = parser.ParseString() },
+            { "ShowProps", (parser, x) => x.ShowProps = parser.ParseBoolean() },
             { "UseTrees", (parser, x) => x.UseTrees = parser.ParseBoolean() },
             { "UseFPSLimit", (parser, x) => x.UseFpsLimit = parser.ParseBoolean() },
             { "FramesPerSecondLimit", (parser, x) => x.FramesPerSecondLimit = parser.ParseInteger() },
+            { "UseHighQualityVideo", (parser, x) => x.UseHighQualityVideo = parser.ParseBoolean() },
+            { "DisablePixelShader", (parser, x) => x.DisablePixelShader = parser.ParseBoolean() },
             { "ChipsetType", (parser, x) => x.ChipsetType = parser.ParseInteger() },
             { "MaxShellScreens", (parser, x) => x.MaxShellScreens = parser.ParseInteger() },
             { "Wireframe", (parser, x) => x.Wireframe = parser.ParseBoolean() },
@@ -26,6 +29,7 @@ namespace OpenSage.Data.Ini
             { "UseLightMap", (parser, x) => x.UseLightMap = parser.ParseBoolean() },
             { "BilinearTerrainTex", (parser, x) => x.BilinearTerrainTex = parser.ParseBoolean() },
             { "TrilinearTerrainTex", (parser, x) => x.TrilinearTerrainTex = parser.ParseBoolean() },
+            { "AnisotropicTerrainTex", (parser, x) => x.AnisotropicTerrainTex = parser.ParseBoolean() },
             { "MultiPassTerrain", (parser, x) => x.MultiPassTerrain = parser.ParseBoolean() },
             { "AdjustCliffTextures", (parser, x) => x.AdjustCliffTextures = parser.ParseBoolean() },
             { "StretchTerrain", (parser, x) => x.StretchTerrain = parser.ParseBoolean() },
@@ -42,6 +46,10 @@ namespace OpenSage.Data.Ini
             { "UseCloudPlane", (parser, x) => x.UseCloudPlane = parser.ParseBoolean() },
             { "UseShadowVolumes", (parser, x) => x.UseShadowVolumes = parser.ParseBoolean() },
             { "UseShadowDecals", (parser, x) => x.UseShadowDecals = parser.ParseBoolean() },
+            { "ShowSelectedUnitMarker", (parser, x) => x.ShowSelectedUnitMarker = parser.ParseBoolean() },
+            { "UseSimpleHordeDecals", (parser, x) => x.UseSimpleHordeDecals = parser.ParseBoolean() },
+            { "UseSimpleMergeDecals", (parser, x) => x.UseSimpleMergeDecals = parser.ParseBoolean() },
+            { "OpacityOfSimpleMergeDecals", (parser, x) => x.OpacityOfSimpleMergeDecals = parser.ParsePercentage() },
             { "UseBehindBuildingMarker", (parser, x) => x.UseBehindBuildingMarker = parser.ParseBoolean() },
             { "DefaultOcclusionDelay", (parser, x) => x.DefaultOcclusionDelay = parser.ParseInteger() },
             { "OccludedColorLuminanceScale", (parser, x) => x.OccludedColorLuminanceScale = parser.ParseFloat() },
@@ -51,6 +59,9 @@ namespace OpenSage.Data.Ini
             { "WaterExtentX", (parser, x) => x.WaterExtentX = parser.ParseFloat() },
             { "WaterExtentY", (parser, x) => x.WaterExtentY = parser.ParseFloat() },
             { "WaterType", (parser, x) => x.WaterType = parser.ParseInteger() },
+
+            { "DefaultUnitHealingBuffFxList", (parser, x) => x.DefaultUnitHealingBuffFxList = parser.ParseAssetReference() },
+            { "DefaultStructureRepairBuffFxList", (parser, x) => x.DefaultStructureRepairBuffFxList = parser.ParseAssetReference() },
 
             { "DefaultStructureRubbleHeight", (parser, x) => x.DefaultStructureRubbleHeight = parser.ParseFloat() },
 
@@ -118,11 +129,21 @@ namespace OpenSage.Data.Ini
             { "DrawSkyBox", (parser, x) => x.DrawSkyBox = parser.ParseBoolean() },
             { "SkyBoxPositionZ", (parser, x) => x.SkyBoxPositionZ = parser.ParseFloat() },
             { "SkyBoxScale", (parser, x) => x.SkyBoxScale = parser.ParseFloat() },
+
+            { "DefaultCameraMinHeight", (parser, x) => x.DefaultCameraMinHeight = parser.ParseFloat() },
+            { "DefaultCameraMaxHeight", (parser, x) => x.DefaultCameraMaxHeight = parser.ParseFloat() },
+            { "DefaultCameraPitchAngle", (parser, x) => x.DefaultCameraPitchAngle = parser.ParseFloat() },
+            { "DefaultCameraYawAngle", (parser, x) => x.DefaultCameraYawAngle = parser.ParseFloat() },
+            { "DefaultCameraScrollSpeedScalar", (parser, x) => x.DefaultCameraScrollSpeedScalar = parser.ParseFloat() },
+            { "CameraLockHeightDelta", (parser, x) => x.CameraLockHeightDelta = parser.ParseFloat() },
+            { "CameraTerrainSampleRadiusForHeight", (parser, x) => x.CameraTerrainSampleRadiusForHeight = parser.ParseFloat() },
+
             { "CameraPitch", (parser, x) => x.CameraPitch = parser.ParseFloat() },
             { "CameraYaw", (parser, x) => x.CameraYaw = parser.ParseFloat() },
             { "CameraHeight", (parser, x) => x.CameraHeight = parser.ParseFloat() },
             { "MaxCameraHeight", (parser, x) => x.MaxCameraHeight = parser.ParseFloat() },
             { "MinCameraHeight", (parser, x) => x.MinCameraHeight = parser.ParseFloat() },
+            { "UseCameraInReplay", (parser, x) => x.UseCameraInReplay = parser.ParseBoolean() },
             { "CameraAdjustSpeed", (parser, x) => x.CameraAdjustSpeed = parser.ParseFloat() },
             { "ScrollAmountCutoff", (parser, x) => x.ScrollAmountCutoff = parser.ParseFloat() },
             { "EnforceMaxCameraHeight", (parser, x) => x.EnforceMaxCameraHeight = parser.ParseBoolean() },
@@ -181,6 +202,9 @@ namespace OpenSage.Data.Ini
             { "GetHealedAnimationName", (parser, x) => x.GetHealedAnimationName = parser.ParseAssetReference() },
             { "GetHealedAnimationTime", (parser, x) => x.GetHealedAnimationTime = parser.ParseFloat() },
             { "GetHealedAnimationZRise", (parser, x) => x.GetHealedAnimationZRise = parser.ParseFloat() },
+
+            { "GenericDamageFieldName", (parser, x) => x.GenericDamageFieldName = parser.ParseAssetReference() },
+            { "GenericDamageWarningName", (parser, x) => x.GenericDamageWarningName = parser.ParseAssetReference() },
 
             { "MaxTerrainTracks", (parser, x) => x.MaxTerrainTracks = parser.ParseInteger() },
             { "TimeOfDay", (parser, x) => x.TimeOfDay = parser.ParseEnum<TimeOfDay>() },
@@ -380,9 +404,20 @@ namespace OpenSage.Data.Ini
         public string ShellMapName { get; private set; }
         public string MapName { get; private set; }
         public string MoveHintName { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool ShowProps { get; private set; }
+
         public bool UseTrees { get; private set; }
         public bool UseFpsLimit { get; private set; }
         public int FramesPerSecondLimit { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool UseHighQualityVideo { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool DisablePixelShader { get; private set; }
+
         public int ChipsetType { get; private set; }
         public int MaxShellScreens { get; private set; }
         public bool Wireframe { get; private set; }
@@ -390,6 +425,10 @@ namespace OpenSage.Data.Ini
         public bool UseLightMap { get; private set; }
         public bool BilinearTerrainTex { get; private set; }
         public bool TrilinearTerrainTex { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool AnisotropicTerrainTex { get; private set; }
+
         public bool MultiPassTerrain { get; private set; }
         public bool AdjustCliffTextures { get; private set; }
         public bool StretchTerrain { get; private set; }
@@ -406,6 +445,19 @@ namespace OpenSage.Data.Ini
         public bool UseCloudPlane { get; private set; }
         public bool UseShadowVolumes { get; private set; }
         public bool UseShadowDecals { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool ShowSelectedUnitMarker { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool UseSimpleHordeDecals { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool UseSimpleMergeDecals { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float OpacityOfSimpleMergeDecals { get; private set; }
+
         public bool UseBehindBuildingMarker { get; private set; }
         public int DefaultOcclusionDelay { get; private set; }
         public float OccludedColorLuminanceScale { get; private set; }
@@ -415,6 +467,9 @@ namespace OpenSage.Data.Ini
         public float WaterExtentX { get; private set; }
         public float WaterExtentY { get; private set; }
         public int WaterType { get; private set; }
+
+        public string DefaultUnitHealingBuffFxList { get; private set; }
+        public string DefaultStructureRepairBuffFxList { get; private set; }
 
         public float DefaultStructureRubbleHeight { get; private set; }
 
@@ -482,11 +537,37 @@ namespace OpenSage.Data.Ini
         public bool DrawSkyBox { get; private set; }
         public float SkyBoxPositionZ { get; private set; }
         public float SkyBoxScale { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float DefaultCameraMinHeight { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float DefaultCameraMaxHeight { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float DefaultCameraPitchAngle { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float DefaultCameraYawAngle { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float DefaultCameraScrollSpeedScalar { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float CameraLockHeightDelta { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float CameraTerrainSampleRadiusForHeight { get; private set; }
+
         public float CameraPitch { get; private set; }
         public float CameraYaw { get; private set; }
         public float CameraHeight { get; private set; }
         public float MaxCameraHeight { get; private set; }
         public float MinCameraHeight { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool UseCameraInReplay { get; private set; }
+
         public float CameraAdjustSpeed { get; private set; }
         public float ScrollAmountCutoff { get; private set; }
         public bool EnforceMaxCameraHeight { get; private set; }
@@ -545,6 +626,12 @@ namespace OpenSage.Data.Ini
         public string GetHealedAnimationName { get; private set; }
         public float GetHealedAnimationTime { get; private set; }
         public float GetHealedAnimationZRise { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public string GenericDamageFieldName { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public string GenericDamageWarningName { get; private set; }
 
         public int MaxTerrainTracks { get; private set; }
         public TimeOfDay TimeOfDay { get; private set; }

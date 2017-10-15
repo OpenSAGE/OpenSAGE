@@ -10,6 +10,7 @@ namespace OpenSage.Data.Ini.Parser
         private static readonly Dictionary<string, Action<IniParser, IniDataContext>> BlockParsers = new Dictionary<string, Action<IniParser, IniDataContext>>
         {
             { "AIData", (parser, context) => context.AIData = AIData.Parse(parser) },
+            { "AmbientStream", (parser, context) => context.AmbientStreams.Add(AmbientStream.Parse(parser)) },
             { "Animation", (parser, context) => context.Animations.Add(Animation.Parse(parser)) },
             { "Armor", (parser, context) => context.Armors.Add(Armor.Parse(parser)) },
             { "AudioEvent", (parser, context) => context.AudioEvents.Add(AudioEvent.Parse(parser)) },

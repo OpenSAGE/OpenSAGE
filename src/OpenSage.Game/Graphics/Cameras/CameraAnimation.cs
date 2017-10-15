@@ -22,7 +22,7 @@ namespace OpenSage.Graphics.Cameras
         private readonly float _startZoom;
         private float? _endZoom;
 
-        public bool Finished { get; private set; }
+        public bool Finished { get; internal set; }
 
         public CameraAnimation(
             Vector3 startPosition,

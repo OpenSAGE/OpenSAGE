@@ -358,5 +358,8 @@
 
         [IniEnum("REJECT_UNMANNED"), AddedIn(SageGame.CncGeneralsZeroHour)]
         RejectUnmanned,
+
+        [IniEnum("TACTICAL_MARKER"), AddedIn(SageGame.BattleForMiddleEarth)]
+        TacticalMarker,
     }
 }

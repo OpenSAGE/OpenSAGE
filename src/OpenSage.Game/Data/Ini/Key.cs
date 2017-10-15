@@ -194,6 +194,9 @@
         [IniEnum("KEY_ESC")]
         Escape,
 
+        [IniEnum("KEY_TICK")]
+        Tick,
+
         [IniEnum("KEY_BACKSPACE")]
         Backspace,
 

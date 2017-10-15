@@ -33,6 +33,7 @@ namespace OpenSage.Logic.Object
             { "W3DProjectileStreamDraw", W3dProjectileStreamDrawModuleData.Parse },
             { "W3DRopeDraw", W3dRopeDrawModuleData.Parse },
             { "W3DScienceModelDraw", W3dScienceModelDrawModuleData.Parse },
+            { "W3DScriptedModelDraw", W3dScriptedModelDrawModuleData.Parse },
             { "W3DSupplyDraw", W3dSupplyDrawModuleData.Parse },
             { "W3DTankDraw", W3dTankDrawModuleData.Parse },
             { "W3DTankTruckDraw", W3dTankTruckDrawModuleData.Parse },

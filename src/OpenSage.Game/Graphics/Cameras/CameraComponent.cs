@@ -120,8 +120,11 @@ namespace OpenSage.Graphics.Cameras
             {
                 if (_cachedProjectionMatrix == null)
                 {
+                    const int height = 24; // Height in mm of 35mm film.
+                    var fieldOfView = 2 * MathUtility.Atan(0.5f * height / _focalLength);
+
                     _cachedProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
-                        MathUtility.ToRadians(FieldOfView), Viewport.AspectRatio,
+                        fieldOfView, Viewport.AspectRatio,
                         NearPlaneDistance, FarPlaneDistance);
                 }
 
@@ -129,17 +132,17 @@ namespace OpenSage.Graphics.Cameras
             }
         }
 
-        private float _fieldOfView = 45;
+        private float _focalLength = 25;
 
         /// <summary>
-        /// Gets or sets a value that represents the camera's horizontal field of view in degrees. 
+        /// Gets or sets a value that represents the camera's focal length in mm. 
         /// </summary>
-        public float FieldOfView
+        public float FocalLength
         {
-            get { return _fieldOfView; }
+            get { return _focalLength; }
             set
             {
-                _fieldOfView = value;
+                _focalLength = value;
                 ClearCachedProjectionMatrix();
             }
         }

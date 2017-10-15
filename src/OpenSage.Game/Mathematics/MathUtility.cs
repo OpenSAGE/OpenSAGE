@@ -35,6 +35,8 @@ namespace OpenSage.Mathematics
 
         public static float Sin(float f) => (float) Math.Sin(f);
 
+        public static float Atan(float f) => (float) Math.Atan(f);
+
         /// <summary>
         /// Returns the angle whose tangent is the quotient of the two specified numbers.
         /// </summary>

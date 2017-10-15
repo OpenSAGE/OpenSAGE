@@ -9,6 +9,7 @@ namespace OpenSage.Data.Ini
     public sealed class IniDataContext
     {
         public AIData AIData { get; internal set; }
+        public List<AmbientStream> AmbientStreams { get; } = new List<AmbientStream>();
         public List<Animation> Animations { get; } = new List<Animation>();
         public List<Armor> Armors { get; } = new List<Armor>();
         public List<AudioEvent> AudioEvents { get; } = new List<AudioEvent>();

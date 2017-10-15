@@ -47,6 +47,8 @@ namespace OpenSage
 
         public GameTime UpdateTime { get; private set; }
 
+        public bool IsActive { get; set; }
+
         public Game(GraphicsDevice graphicsDevice, FileSystem fileSystem)
         {
             GraphicsDevice = graphicsDevice;
