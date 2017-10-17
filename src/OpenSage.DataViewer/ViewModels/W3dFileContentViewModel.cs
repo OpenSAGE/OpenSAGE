@@ -46,14 +46,14 @@ namespace OpenSage.DataViewer.ViewModels
 
             // If this is a skin file, load "external" animations.
             _externalAnimations = new List<AnimationComponent>();
-            if (_w3dFile.HLod != null && _w3dFile.HLod.Header.Name.EndsWith("_SKN"))
+            if (_w3dFile.HLod != null && _w3dFile.HLod.Header.Name.EndsWith("_SKN", System.StringComparison.OrdinalIgnoreCase))
             {
                 var namePrefix = _w3dFile.HLod.Header.Name.Substring(0, _w3dFile.HLod.Header.Name.LastIndexOf('_') + 1);
                 var parentFolder = Path.GetDirectoryName(_w3dFile.FilePath);
                 var pathPrefix = Path.Combine(parentFolder, namePrefix);
                 foreach (var animationFileEntry in File.FileSystem.GetFiles(parentFolder))
                 {
-                    if (!animationFileEntry.FilePath.StartsWith(pathPrefix))
+                    if (!animationFileEntry.FilePath.StartsWith(pathPrefix, System.StringComparison.OrdinalIgnoreCase))
                     {
                         continue;
                     }

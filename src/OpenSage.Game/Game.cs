@@ -60,6 +60,8 @@ namespace OpenSage
 
             ContentManager = AddDisposable(new ContentManager(_fileSystem, graphicsDevice));
 
+            ContentManager.IniDataContext.LoadIniFile(@"Data\INI\GameData.ini");
+
             GameSystems = new List<GameSystem>();
 
             AddDisposable(new AnimationSystem(this));

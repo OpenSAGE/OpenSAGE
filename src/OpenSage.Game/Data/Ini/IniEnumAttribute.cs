@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Linq;
 
 namespace OpenSage.Data.Ini
 {
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public sealed class IniEnumAttribute : Attribute
     {
-        public string Name { get; }
+        public string[] Names { get; }
 
-        public IniEnumAttribute(string name)
+        public IniEnumAttribute(string name, params string[] otherNames)
         {
-            Name = name;
+            Names = new[] { name }.Union(otherNames).ToArray();
         }
     }
 }

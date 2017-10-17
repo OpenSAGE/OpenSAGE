@@ -535,6 +535,14 @@ namespace OpenSage.Data.Ini.Parser
                         }
                         break;
 
+                    case IniTokenType.DefineKeyword:
+                        NextToken();
+                        var macroName = ParseIdentifier();
+                        var macroValue = ParseString(true);
+                        dataContext.Defines.Add(macroName, macroValue);
+                        NextToken(IniTokenType.EndOfLine);
+                        break;
+
                     default:
                         UnexpectedToken(Current);
                         break;

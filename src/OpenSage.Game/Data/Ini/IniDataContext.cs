@@ -8,6 +8,11 @@ namespace OpenSage.Data.Ini
 {
     public sealed class IniDataContext
     {
+        private readonly FileSystem _fileSystem;
+
+        // TODO: Remove this once we can load all INI files upfront.
+        private readonly List<string> _alreadyLoaded = new List<string>();
+
         public AIData AIData { get; internal set; }
         public List<AmbientStream> AmbientStreams { get; } = new List<AmbientStream>();
         public List<Animation> Animations { get; } = new List<Animation>();
@@ -68,8 +73,33 @@ namespace OpenSage.Data.Ini
         public List<WebpageUrl> WebpageUrls { get; } = new List<WebpageUrl>();
         public List<WindowTransition> WindowTransitions { get; } = new List<WindowTransition>();
 
+        public Dictionary<string, string> Defines { get; } = new Dictionary<string, string>();
+
+        public IniDataContext(FileSystem fileSystem)
+        {
+            _fileSystem = fileSystem;
+        }
+
+        public void LoadIniFiles(string folder)
+        {
+            foreach (var iniFile in _fileSystem.GetFiles(folder))
+            {
+                LoadIniFile(iniFile);
+            }
+        }
+
+        public void LoadIniFile(string filePath)
+        {
+            LoadIniFile(_fileSystem.GetFile(filePath));
+        }
+
         public void LoadIniFile(FileSystemEntry entry)
         {
+            if (_alreadyLoaded.Contains(entry.FilePath))
+            {
+                return;
+            }
+
             string source;
 
             using (var stream = entry.Open())
@@ -80,6 +110,8 @@ namespace OpenSage.Data.Ini
 
             var parser = new IniParser(source, entry.FilePath);
             parser.ParseFile(this);
+
+            _alreadyLoaded.Add(entry.FilePath);
         }
     }
 }

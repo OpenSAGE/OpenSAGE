@@ -10,6 +10,10 @@
         Environment,
 
         CheapEnvironment,
+
+        /// <summary>
+        /// Projects the screen coordinate as the UV coordinate.
+        /// </summary>
         Screen,
 
         /// <summary>
@@ -18,6 +22,10 @@
         LinearOffset,
 
         Silhouette,
+
+        /// <summary>
+        /// Scales the UV coordinates. Useful for detail mapping.
+        /// </summary>
         Scale,
 
         /// <summary>
@@ -28,8 +36,16 @@
         /// </summary>
         Grid,
 
+        /// <summary>
+        /// Rotates a texture map counterclockwise about a specified center then scales the texture.
+        /// </summary>
         Rotate,
+
+        /// <summary>
+        /// Moves the texture map in the shape of a Lissajous figure.
+        /// </summary>
         SineLinearOffset,
+
         StepLinearOffset,
         ZigZagLinearOffset,
         WsClassicEnv,
@@ -38,6 +54,12 @@
         GridEnvironment,
         Random,
         Edge,
+
+        /// <summary>
+        /// Sets up and possibly animates the bump matrix, also has the LinearOffset features
+        /// NOTE: even if you don't want to animate the bump matrix, you should use this mapper
+        /// so that the matrix gets set up with the identity settings.
+        /// </summary>
         BumpEnv
     }
 }

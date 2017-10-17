@@ -127,6 +127,9 @@ namespace OpenSage.Data.Ini.Parser
                 case '.':
                     return LexNumber(c, pos);
 
+                case '#':
+                    return LexDefineKeyword(c, pos);
+
                 default:
                     if (IsIdentifierStartChar(c))
                     {
@@ -163,6 +166,20 @@ namespace OpenSage.Data.Ini.Parser
             }
             NextChar();
             return new IniToken(IniTokenType.StringLiteral, pos)
+            {
+                StringValue = sb.ToString()
+            };
+        }
+
+        private IniToken LexDefineKeyword(char c, IniTokenPosition pos)
+        {
+            var sb = new StringBuilder(c.ToString());
+            while (!char.IsWhiteSpace(CurrentChar))
+            {
+                sb.Append(CurrentChar);
+                NextChar();
+            }
+            return new IniToken(IniTokenType.DefineKeyword, pos)
             {
                 StringValue = sb.ToString()
             };

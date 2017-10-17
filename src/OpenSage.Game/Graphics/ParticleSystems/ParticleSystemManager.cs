@@ -14,6 +14,8 @@ namespace OpenSage.Graphics.ParticleSystems
             RegisterComponentList(_particleSystems = new List<ParticleSystem>());
 
             _deadParticleSystems = new List<ParticleSystem>();
+
+            game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\ParticleSystem.ini");
         }
 
         public override void Update(GameTime gameTime)

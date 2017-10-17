@@ -42,7 +42,7 @@ namespace OpenSage.Data.Ini
 
     public enum ParticleSystemPriority
     {
-        [IniEnum("WEAPON_EXPLOSION")]
+        [IniEnum("WEAPON_EXPLOSION", "WEAPON_EXPLSION")]
         WeaponExplosion,
 
         [IniEnum("SCORCHMARK")]

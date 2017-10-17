@@ -7,8 +7,13 @@ namespace OpenSage.Data.W3d
     public sealed class W3dMesh : W3dChunk
     {
         public W3dMeshHeader3 Header { get; private set; }
+
         public Vector3[] Vertices { get; private set; }
         public Vector3[] Normals { get; private set; }
+
+        // TODO: What are these? Some sort of alternate state?
+        public Vector3[] Vertices2 { get; private set; }
+        public Vector3[] Normals2 { get; private set; }
 
         /// <summary>
         /// Vertex influences link vertices of a mesh to bones in a hierarchy.
@@ -148,6 +153,28 @@ namespace OpenSage.Data.W3d
                     case W3dChunkType.W3D_CHUNK_PS2_SHADERS:
                         // Don't need this.
                         reader.ReadBytes((int) header.ChunkSize);
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_MESH_USER_TEXT:
+                        // TODO: Do we need this? It has line-separated key/value pairs
+                        // for things like mass, elasticity, friction, etc.
+                        reader.ReadBytes((int) header.ChunkSize);
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_VERTICES_2:
+                        result.Vertices2 = new Vector3[result.Header.NumVertices];
+                        for (var count = 0; count < result.Vertices2.Length; count++)
+                        {
+                            result.Vertices2[count] = reader.ReadVector3();
+                        }
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_NORMALS_2:
+                        result.Normals2 = new Vector3[result.Header.NumVertices];
+                        for (var count = 0; count < result.Normals2.Length; count++)
+                        {
+                            result.Normals2[count] = reader.ReadVector3();
+                        }
                         break;
 
                     default:

@@ -18,6 +18,8 @@
         AdaptiveDeltaTranslationX,
         AdaptiveDeltaTranslationY,
         AdaptiveDeltaTranslationZ,
-        AdaptiveDeltaQuaternion
+        AdaptiveDeltaQuaternion,
+
+        UnknownBfme
     }
 }

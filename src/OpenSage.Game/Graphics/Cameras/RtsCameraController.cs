@@ -86,7 +86,9 @@ namespace OpenSage.Graphics.Cameras
 
         public void Initialize(Game game)
         {
-            _defaultHeight = game.ContentManager.IniDataContext.GameData.CameraHeight;
+            _defaultHeight = game.ContentManager.IniDataContext.GameData.DefaultCameraMaxHeight > 0
+                ? game.ContentManager.IniDataContext.GameData.DefaultCameraMaxHeight
+                : game.ContentManager.IniDataContext.GameData.CameraHeight;
             _pitchAngle = MathUtility.ToRadians(90 - game.ContentManager.IniDataContext.GameData.CameraPitch);
         }
 

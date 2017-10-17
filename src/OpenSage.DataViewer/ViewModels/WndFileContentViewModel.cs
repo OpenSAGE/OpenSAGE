@@ -12,7 +12,6 @@ using OpenSage.Data.Ini;
 using OpenSage.Data.Tga;
 using OpenSage.Data.Wnd;
 using OpenSage.DataViewer.Framework.Converters;
-using OpenSage.Graphics;
 
 namespace OpenSage.DataViewer.ViewModels
 {
@@ -31,15 +30,9 @@ namespace OpenSage.DataViewer.ViewModels
 
             _csfFile = CsfFile.FromFileSystemEntry(_fileSystem.GetFile(@"Data\English\generals.csf"));
 
-            var iniDataContext = new IniDataContext();
-            foreach (var iniFileEntry in _fileSystem.GetFiles(@"Data\INI\MappedImages\HandCreated\"))
-            {
-                iniDataContext.LoadIniFile(iniFileEntry);
-            }
-            foreach (var iniFileEntry in _fileSystem.GetFiles(@"Data\INI\MappedImages\TextureSize_512\"))
-            {
-                iniDataContext.LoadIniFile(iniFileEntry);
-            }
+            var iniDataContext = new IniDataContext(_fileSystem);
+            iniDataContext.LoadIniFiles(@"Data\INI\MappedImages\HandCreated\");
+            iniDataContext.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512\");
             _mappedImages = iniDataContext.MappedImages;
 
             var wndFile = WndFile.FromFileSystemEntry(file);

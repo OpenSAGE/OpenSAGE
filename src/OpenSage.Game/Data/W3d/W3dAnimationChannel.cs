@@ -77,6 +77,13 @@ namespace OpenSage.Data.W3d
                     }
                     break;
 
+                case W3dAnimationChannelType.UnknownBfme:
+                    if (vectorLength != 1)
+                    {
+                        throw new InvalidDataException();
+                    }
+                    break;
+
                 default:
                     throw new InvalidDataException();
             }

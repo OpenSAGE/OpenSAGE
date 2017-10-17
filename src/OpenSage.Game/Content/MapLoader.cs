@@ -8,7 +8,6 @@ using LLGfx.Effects;
 using OpenSage.Content.Util;
 using OpenSage.Data;
 using OpenSage.Data.Map;
-using OpenSage.Graphics.Effects;
 using OpenSage.Mathematics;
 using OpenSage.Scripting;
 using OpenSage.Scripting.Actions;
@@ -22,6 +21,8 @@ namespace OpenSage.Content
     {
         protected override Scene LoadEntry(FileSystemEntry entry, ContentManager contentManager, ResourceUploadBatch uploadBatch)
         {
+            contentManager.IniDataContext.LoadIniFile(@"Data\INI\Terrain.ini");
+
             var mapFile = MapFile.FromFileSystemEntry(entry);
 
             var result = new Scene();
@@ -102,6 +103,15 @@ namespace OpenSage.Content
                 heightMap,
                 mapFile.ObjectsList.Objects,
                 result.Settings);
+
+            foreach (var team in mapFile.SidesList.Teams)
+            {
+                var name = (string) team.Properties["teamName"].Value;
+                var owner = (string) team.Properties["teamOwner"].Value;
+                var isSingleton = (bool) team.Properties["teamIsSingleton"].Value;
+
+
+            }
 
             foreach (var waypointPath in mapFile.WaypointsList.WaypointPaths)
             {
@@ -244,11 +254,9 @@ namespace OpenSage.Content
                             default:
                                 position.Z = heightMap.GetHeight(position.X, position.Y);
 
-                                var objectDefinition = contentManager.IniDataContext.Objects.FirstOrDefault(x => x.Name == mapObject.TypeName);
-                                if (objectDefinition != null)
+                                var objectEntity = contentManager.InstantiateObject(mapObject.TypeName);
+                                if (objectEntity != null)
                                 {
-                                    var objectEntity = Entity.FromObjectDefinition(objectDefinition);
-
                                     objectEntity.Transform.LocalPosition = position;
                                     objectEntity.Transform.LocalEulerAngles = new Vector3(0, 0, mapObject.Angle);
 
@@ -256,7 +264,7 @@ namespace OpenSage.Content
                                 }
                                 else
                                 {
-
+                                    // TODO
                                 }
                                 break;
                         }

@@ -79,6 +79,9 @@ namespace OpenSage.Data.Ini
             { "IsEmitAboveGroundOnly", (parser, x) => x.IsEmitAboveGroundOnly = parser.ParseBoolean() },
             { "IsParticleUpTowardsEmitter", (parser, x) => x.IsParticleUpTowardsEmitter = parser.ParseBoolean() },
             { "WindMotion", (parser, x) => x.WindMotion = parser.ParseEnum<ParticleSystemWindMotion>() },
+            { "WindStrength", (parser, x) => x.WindStrength = parser.ParseFloat() },
+            { "WindFullStrengthDist", (parser, x) => x.WindFullStrengthDist = parser.ParseFloat() },
+            { "WindZeroStrengthDist", (parser, x) => x.WindZeroStrengthDist = parser.ParseFloat() },
             { "WindAngleChangeMin", (parser, x) => x.WindAngleChangeMin = parser.ParseFloat() },
             { "WindAngleChangeMax", (parser, x) => x.WindAngleChangeMax = parser.ParseFloat() },
             { "WindPingPongStartAngleMin", (parser, x) => x.WindPingPongStartAngleMin = parser.ParseFloat() },
@@ -155,6 +158,16 @@ namespace OpenSage.Data.Ini
         public bool IsEmitAboveGroundOnly { get; private set; }
         public bool IsParticleUpTowardsEmitter { get; private set; }
         public ParticleSystemWindMotion WindMotion { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float WindStrength { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float WindFullStrengthDist { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float WindZeroStrengthDist { get; private set; }
+
         public float WindAngleChangeMin { get; private set; }
         public float WindAngleChangeMax { get; private set; }
         public float WindPingPongStartAngleMin { get; private set; }
@@ -276,6 +289,9 @@ namespace OpenSage.Data.Ini
         Unused,
 
         [IniEnum("PingPong")]
-        PingPong
+        PingPong,
+
+        [IniEnum("Circular"), AddedIn(SageGame.BattleForMiddleEarth)]
+        Circular
     }
 }

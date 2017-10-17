@@ -24,9 +24,13 @@ namespace OpenSage.Data.Tests.W3d
                     Path.GetFileName(entry.FilePath) == "UISabotr_Jump.w3d" ||
                     Path.GetFileName(entry.FilePath) == "UISabotr_Left.w3d" ||
                     Path.GetFileName(entry.FilePath) == "UISabotr_Right.w3d" ||
-                    Path.GetFileName(entry.FilePath) == "UISabotr_Up.w3d")
+                    Path.GetFileName(entry.FilePath) == "UISabotr_Up.w3d" ||
+                    Path.GetFileName(entry.FilePath) == "cusheep_grza.w3d" ||
+                    Path.GetFileName(entry.FilePath) == "gbmtwalld.w3d" ||
+                    Path.GetFileName(entry.FilePath) == "gbmtwalldramp.w3d" ||
+                    Path.GetFileName(entry.FilePath) == "gbmtwalle.w3d")
                 {
-                    return; // Animation files, unused? and seem to be corrupt.
+                    return; // Corrupt, or unreferenced and contain chunks that don't exist elsewhere.
                 }
 
                 var w3dFile = W3dFile.FromFileSystemEntry(entry);
@@ -51,20 +55,10 @@ namespace OpenSage.Data.Tests.W3d
                     {
                         Assert.Equal(W3dVertexMaterialFlags.None, material.VertexMaterialInfo.Attributes);
 
-                        var stage0Mapping = material.VertexMaterialInfo.Stage0Mapping;
-                        Assert.True(stage0Mapping == W3dVertexMappingType.Uv
-                            || stage0Mapping == W3dVertexMappingType.Environment
-                            || stage0Mapping == W3dVertexMappingType.LinearOffset
-                            || stage0Mapping == W3dVertexMappingType.Grid);
-
-                        var stage1Mapping = material.VertexMaterialInfo.Stage1Mapping;
-                        Assert.True(stage1Mapping == W3dVertexMappingType.Uv
-                            || stage1Mapping == W3dVertexMappingType.LinearOffset);
-
                         Assert.Equal(0, material.VertexMaterialInfo.Translucency);
                     }
 
-                    Assert.True(mesh.MaterialPasses.Length <= 2);
+                    Assert.True(mesh.MaterialPasses.Length <= 3);
 
                     foreach (var materialPass in mesh.MaterialPasses)
                     {
@@ -92,14 +86,6 @@ namespace OpenSage.Data.Tests.W3d
                     }
 
                     Assert.True(mesh.Textures.Length <= 29);
-
-                    foreach (var texture in mesh.Textures)
-                    {
-                        if (texture.TextureInfo != null)
-                        {
-                            Assert.Equal(1u, texture.TextureInfo.FrameCount);
-                        }
-                    }
                 }
             });
         }

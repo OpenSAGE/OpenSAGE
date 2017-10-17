@@ -20,7 +20,7 @@ namespace OpenSage.Data.Ini.Parser
                     stringToValueMap = Enum.GetValues(enumType)
                         .Cast<Enum>()
                         .Distinct()
-                        .Select(x => new { Name = GetIniName(enumType, x), Value = x })
+                        .SelectMany(x => GetIniNames(enumType, x).Select(y => new { Name = y, Value = x }))
                         .Where(x => x.Name != null)
                         .ToDictionary(x => x.Name, x => x.Value, StringComparer.OrdinalIgnoreCase);
 
@@ -117,11 +117,11 @@ namespace OpenSage.Data.Ini.Parser
             return result;
         }
 
-        private static string GetIniName(Type enumType, Enum value)
+        private static string[] GetIniNames(Type enumType, Enum value)
         {
             var field = enumType.GetTypeInfo().GetDeclaredField(value.ToString());
             var iniEnumAttribute = field.GetCustomAttribute<IniEnumAttribute>();
-            return iniEnumAttribute?.Name;
+            return iniEnumAttribute?.Names ?? new string[0];
         }
     }
 }

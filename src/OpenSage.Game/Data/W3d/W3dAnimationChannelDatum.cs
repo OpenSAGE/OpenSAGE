@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Data.Utilities.Extensions;
+using System.Diagnostics;
 
 namespace OpenSage.Data.W3d
 {
@@ -32,9 +33,20 @@ namespace OpenSage.Data.W3d
                         FloatValue = reader.ReadSingle()
                     };
 
+                case W3dAnimationChannelType.UnknownBfme:
+                    return new W3dAnimationChannelDatum
+                    {
+                        FloatValue = reader.ReadSingle()
+                    };
+
                 default:
                     throw new InvalidDataException();
             }
+        }
+
+        public override string ToString()
+        {
+            return $"Quaterion = {Quaternion}, FloatValue = {FloatValue}";
         }
     }
 }

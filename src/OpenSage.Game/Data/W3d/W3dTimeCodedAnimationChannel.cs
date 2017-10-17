@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 
 namespace OpenSage.Data.W3d
 {
@@ -45,7 +46,9 @@ namespace OpenSage.Data.W3d
                 // MSB is used to indicate a binary (non interpolated) movement
                 if ((datum.TimeCode >> 31) == 1)
                 {
-                    throw new System.NotImplementedException();
+                    // TODO: non-interpolated movement.
+
+                    datum.TimeCode &= ~(1 << 31);
                 }
 
                 datum.Value = W3dAnimationChannelDatum.Parse(reader, result.ChannelType);
@@ -59,6 +62,7 @@ namespace OpenSage.Data.W3d
         }
     }
     
+    [DebuggerDisplay("TimeCode = {TimeCode}, Value = {Value}")]
     public sealed class W3dTimeCodedDatum
     {
         public uint TimeCode;

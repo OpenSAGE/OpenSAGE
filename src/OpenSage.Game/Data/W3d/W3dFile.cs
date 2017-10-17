@@ -39,50 +39,58 @@ namespace OpenSage.Data.W3d
             var compressedAnimations = new List<W3dCompressedAnimation>();
             var emitters = new List<W3dEmitter>();
 
-            var result = ParseChunk<W3dFile>(reader, (uint) reader.BaseStream.Length, (x, header) =>
+            W3dFile result;
+            if (reader.BaseStream.Length > 0)
             {
-                switch (header.ChunkType)
-                {
-                    case W3dChunkType.W3D_CHUNK_MESH:
-                        meshes.Add(W3dMesh.Parse(reader, header.ChunkSize));
-                        break;
+                result = ParseChunk<W3dFile>(reader, (uint)reader.BaseStream.Length, (x, header) =>
+               {
+                   switch (header.ChunkType)
+                   {
+                       case W3dChunkType.W3D_CHUNK_MESH:
+                           meshes.Add(W3dMesh.Parse(reader, header.ChunkSize));
+                           break;
 
-                    case W3dChunkType.W3D_CHUNK_BOX:
-                        boxes.Add(W3dBox.Parse(reader));
-                        break;
+                       case W3dChunkType.W3D_CHUNK_BOX:
+                           boxes.Add(W3dBox.Parse(reader));
+                           break;
 
-                    case W3dChunkType.W3D_CHUNK_HIERARCHY:
-                        if (hierarchy != null)
-                        {
-                            throw new InvalidDataException();
-                        }
-                        hierarchy = W3dHierarchyDef.Parse(reader, header.ChunkSize);
-                        break;
+                       case W3dChunkType.W3D_CHUNK_HIERARCHY:
+                           if (hierarchy != null)
+                           {
+                               throw new InvalidDataException();
+                           }
+                           hierarchy = W3dHierarchyDef.Parse(reader, header.ChunkSize);
+                           break;
 
-                    case W3dChunkType.W3D_CHUNK_HLOD:
-                        if (hlod != null)
-                        {
-                            throw new InvalidDataException();
-                        }
-                        hlod = W3dHLod.Parse(reader, header.ChunkSize);
-                        break;
+                       case W3dChunkType.W3D_CHUNK_HLOD:
+                           if (hlod != null)
+                           {
+                               throw new InvalidDataException();
+                           }
+                           hlod = W3dHLod.Parse(reader, header.ChunkSize);
+                           break;
 
-                    case W3dChunkType.W3D_CHUNK_ANIMATION:
-                        animations.Add(W3dAnimation.Parse(reader, header.ChunkSize));
-                        break;
+                       case W3dChunkType.W3D_CHUNK_ANIMATION:
+                           animations.Add(W3dAnimation.Parse(reader, header.ChunkSize));
+                           break;
 
-                    case W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION:
-                        compressedAnimations.Add(W3dCompressedAnimation.Parse(reader, header.ChunkSize));
-                        break;
+                       case W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION:
+                           compressedAnimations.Add(W3dCompressedAnimation.Parse(reader, header.ChunkSize));
+                           break;
 
-                    case W3dChunkType.W3D_CHUNK_EMITTER:
-                        emitters.Add(W3dEmitter.Parse(reader, header.ChunkSize));
-                        break;
+                       case W3dChunkType.W3D_CHUNK_EMITTER:
+                           emitters.Add(W3dEmitter.Parse(reader, header.ChunkSize));
+                           break;
 
-                    default:
-                        throw CreateUnknownChunkException(header);
-                }
-            });
+                       default:
+                           throw CreateUnknownChunkException(header);
+                   }
+               });
+            }
+            else
+            {
+                result = new W3dFile();
+            }
 
             result.FilePath = filePath;
             result.Meshes = meshes;

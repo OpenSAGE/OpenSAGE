@@ -18,6 +18,10 @@ namespace OpenSage.Data.W3d
 
         public W3dEmitterFrameKeyframes FrameKeyframes { get; private set; }
 
+        public W3dEmitterLineProperties LineProperties { get; private set; }
+
+        public W3dEmitterBlurTimeKeyframes BlurTimeKeyframes { get; private set; }
+
         public static W3dEmitter Parse(BinaryReader reader, uint chunkSize)
         {
             return ParseChunk<W3dEmitter>(reader, chunkSize, (result, header) =>
@@ -50,6 +54,19 @@ namespace OpenSage.Data.W3d
 
                     case W3dChunkType.W3D_CHUNK_EMITTER_FRAME_KEYFRAMES:
                         result.FrameKeyframes = W3dEmitterFrameKeyframes.Parse(reader);
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_EMITTER_LINE_PROPERTIES:
+                        result.LineProperties = W3dEmitterLineProperties.Parse(reader);
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_EMITTER_BLUR_TIME_KEYFRAMES:
+                        result.BlurTimeKeyframes = W3dEmitterBlurTimeKeyframes.Parse(reader);
+                        break;
+
+                    case (W3dChunkType) 1293:
+                        // TODO: What is this?
+                        reader.ReadBytes((int)header.ChunkSize);
                         break;
 
                     default:

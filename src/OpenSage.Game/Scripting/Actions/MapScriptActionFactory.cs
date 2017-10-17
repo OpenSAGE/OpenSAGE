@@ -23,6 +23,7 @@ namespace OpenSage.Scripting.Actions
             { ScriptActionType.CameraModSetFinalPitch, (a, s) => new CameraModSetFinalPitchAction(a, s) },
             { ScriptActionType.CameraModFinalLookToward, (a, s) => new CameraModFinalLookTowardAction(a, s) },
             { ScriptActionType.SetupCamera, (a, s) => new SetupCameraAction(a, s) },
+            { ScriptActionType.TeamFollowWaypointsExact, (a, s) => new TeamFollowWaypointsExactAction(a, s) }
         };
 
         public static MapScriptAction Create(ScriptAction action, SceneSettings sceneSettings, List<MapScriptAction> previousActions)

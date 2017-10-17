@@ -153,6 +153,29 @@ namespace OpenSage.Scripting.Actions
         }
     }
 
+    public sealed class TeamFollowWaypointsExactAction : MapScriptAction
+    {
+        private readonly string _teamName;
+        private readonly WaypointPath _waypointPath;
+        private readonly bool _asTeam;
+
+        public TeamFollowWaypointsExactAction(ScriptAction action, SceneSettings sceneSettings)
+        {
+            _teamName = action.Arguments[0].StringValue;
+            _waypointPath = sceneSettings.WaypointPaths[action.Arguments[1].StringValue];
+            _asTeam = action.Arguments[2].IntValueAsBool;
+        }
+
+        public override ScriptExecutionResult Execute(ScriptExecutionContext context)
+        {
+            var team = context.Scene.Teams[_teamName];
+            
+            // TODO
+
+            return ScriptExecutionResult.Finished;
+        }
+    }
+
     public enum ScriptExecutionResult
     {
         NotFinished,

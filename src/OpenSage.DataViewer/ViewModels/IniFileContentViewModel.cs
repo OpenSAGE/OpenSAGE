@@ -11,7 +11,7 @@ namespace OpenSage.DataViewer.ViewModels
         public IniFileContentViewModel(FileSystemEntry file)
             : base(file)
         {
-            _iniDataContext = new IniDataContext();
+            _iniDataContext = new IniDataContext(file.FileSystem);
             _iniDataContext.LoadIniFile(file);
 
             foreach (var objectDefinition in _iniDataContext.Objects)

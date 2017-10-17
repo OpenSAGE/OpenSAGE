@@ -9,9 +9,12 @@ namespace OpenSage.Data.W3d
 
         public IReadOnlyList<W3dTimeCodedAnimationChannel> TimeCodedChannels { get; private set; }
 
+        public IReadOnlyList<W3dTimeCodedBitChannel> TimeCodedBitChannels { get; private set; }
+
         public static W3dCompressedAnimation Parse(BinaryReader reader, uint chunkSize)
         {
             var timeCodedChannels = new List<W3dTimeCodedAnimationChannel>();
+            var timeCodedBitChannels = new List<W3dTimeCodedBitChannel>();
 
             var finalResult = ParseChunk<W3dCompressedAnimation>(reader, chunkSize, (result, header) =>
             {
@@ -33,12 +36,25 @@ namespace OpenSage.Data.W3d
                         }
                         break;
 
+                    case W3dChunkType.W3D_CHUNK_COMPRESSED_BIT_CHANNEL:
+                        switch (result.Header.Flavor)
+                        {
+                            case W3dCompressedAnimationFlavor.TimeCoded:
+                                timeCodedBitChannels.Add(W3dTimeCodedBitChannel.Parse(reader, header.ChunkSize));
+                                break;
+
+                            default:
+                                throw new InvalidDataException();
+                        }
+                        break;
+
                     default:
                         throw CreateUnknownChunkException(header);
                 }
             });
 
             finalResult.TimeCodedChannels = timeCodedChannels;
+            finalResult.TimeCodedBitChannels = timeCodedBitChannels;
 
             return finalResult;
         }

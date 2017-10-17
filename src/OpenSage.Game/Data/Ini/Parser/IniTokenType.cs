@@ -11,6 +11,7 @@
         StringLiteral,
         Colon,
         Comma,
+        DefineKeyword,
         EndOfLine,
         EndOfFile
     }

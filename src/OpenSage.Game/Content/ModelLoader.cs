@@ -190,6 +190,12 @@ namespace OpenSage.Content
             for (var i = 0; i < numTextures; i++)
             {
                 var w3dTexture = w3dMesh.Textures[i];
+
+                if (w3dTexture.TextureInfo != null && w3dTexture.TextureInfo.FrameCount != 1)
+                {
+                    throw new NotImplementedException();
+                }
+
                 var w3dTextureFilePath = Path.Combine("Art", "Textures", w3dTexture.Name);
                 textures[i] = contentManager.Load<Texture>(w3dTextureFilePath, uploadBatch);
             }

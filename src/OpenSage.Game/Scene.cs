@@ -1,6 +1,8 @@
 ﻿using OpenSage.Graphics.Cameras;
+using OpenSage.Logic;
 using OpenSage.Settings;
 using OpenSage.Terrain;
+using System.Collections.Generic;
 
 namespace OpenSage
 {
@@ -31,12 +33,16 @@ namespace OpenSage
 
         public RtsCameraController CameraController { get; }
 
+        public Dictionary<string, Team> Teams { get; }
+
         public Scene()
         {
             Entities = new SceneEntitiesCollection(this);
 
             Camera = new CameraComponent();
             CameraController = new RtsCameraController(Camera);
+
+            Teams = new Dictionary<string, Team>();
         }
     }
 }

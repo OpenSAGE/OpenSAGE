@@ -5,6 +5,10 @@
         [IniEnum("NONE")]
         None,
 
+        // TODO: Not sure if this should be here.
+        [IniEnum("ANY"), AddedIn(SageGame.BattleForMiddleEarth)]
+        Any,
+
         [IniEnum("SALVAGER")]
         Salvager,
 
@@ -361,5 +365,8 @@
 
         [IniEnum("TACTICAL_MARKER"), AddedIn(SageGame.BattleForMiddleEarth)]
         TacticalMarker,
+
+        [IniEnum("CAVALRY"), AddedIn(SageGame.BattleForMiddleEarth)]
+        Cavalry,
     }
 }

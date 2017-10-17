@@ -8,6 +8,8 @@ namespace OpenSage.Data.W3d
 
         public W3dHLodArray[] Lods { get; private set; }
 
+        public W3dHLodArray Aggregate { get; private set; }
+
         public static W3dHLod Parse(BinaryReader reader, uint chunkSize)
         {
             var currentLodIndex = 0;
@@ -24,6 +26,14 @@ namespace OpenSage.Data.W3d
                     case W3dChunkType.W3D_CHUNK_HLOD_LOD_ARRAY:
                         result.Lods[currentLodIndex] = W3dHLodArray.Parse(reader, header.ChunkSize);
                         currentLodIndex++;
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_HLOD_AGGREGATE_ARRAY:
+                        if (result.Aggregate != null)
+                        {
+                            throw new InvalidDataException();
+                        }
+                        result.Aggregate = W3dHLodArray.Parse(reader, header.ChunkSize);
                         break;
 
                     default:

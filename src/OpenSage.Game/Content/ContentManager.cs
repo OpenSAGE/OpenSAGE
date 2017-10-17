@@ -7,6 +7,7 @@ using OpenSage.Data.Ini;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.ParticleSystems;
+using System.Linq;
 
 namespace OpenSage.Content
 {
@@ -47,14 +48,7 @@ namespace OpenSage.Content
                 { typeof(SpriteEffect), AddDisposable(new SpriteEffect(graphicsDevice)) },
             };
 
-            IniDataContext = new IniDataContext();
-            IniDataContext.LoadIniFile(fileSystem.GetFile(@"Data\INI\GameData.ini"));
-            IniDataContext.LoadIniFile(fileSystem.GetFile(@"Data\INI\Terrain.ini"));
-            IniDataContext.LoadIniFile(fileSystem.GetFile(@"Data\INI\ParticleSystem.ini"));
-            foreach (var iniFile in fileSystem.GetFiles(@"Data\INI\Object"))
-            {
-                IniDataContext.LoadIniFile(iniFile);
-            }
+            IniDataContext = new IniDataContext(fileSystem);
         }
 
         public void Unload()
@@ -132,6 +126,22 @@ namespace OpenSage.Content
             _cachedObjects.Add(filePath, asset);
 
             return (T) asset;
+        }
+
+        public Entity InstantiateObject(string typeName)
+        {
+            IniDataContext.LoadIniFiles(@"Data\INI\Object");
+
+            var objectDefinition = IniDataContext.Objects.FirstOrDefault(x => x.Name == typeName);
+            if (objectDefinition != null)
+            {
+                return Entity.FromObjectDefinition(objectDefinition);
+            }
+            else
+            {
+                // TODO
+                return null;
+            }
         }
     }
 }
