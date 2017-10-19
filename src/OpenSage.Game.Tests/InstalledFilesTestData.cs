@@ -13,8 +13,8 @@ namespace OpenSage.Data.Tests
             {
                 //@"C:\Program Files (x86)\EA Games\Command & Conquer The First Decade\Command & Conquer(tm) Generals",
                 //@"C:\Program Files (x86)\EA Games\Command & Conquer The First Decade\Command & Conquer(tm) Generals Zero Hour",
-                @"C:\Program Files (x86)\EA Games\The Battle for Middle-earth (tm)",
-                //@"C:\Program Files (x86)\Electronic Arts\The Battle for Middle-earth (tm) II"
+                //@"C:\Program Files (x86)\EA Games\The Battle for Middle-earth (tm)",
+                @"C:\Program Files (x86)\Electronic Arts\The Battle for Middle-earth (tm) II"
             };
 
             var foundAtLeastOneFile = false;

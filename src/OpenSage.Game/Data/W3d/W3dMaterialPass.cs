@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using OpenSage.Data.Utilities.Extensions;
+using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 
 namespace OpenSage.Data.W3d
 {
@@ -8,6 +10,8 @@ namespace OpenSage.Data.W3d
         public uint[] VertexMaterialIds { get; private set; }
 
         public uint[] ShaderIds { get; private set; }
+
+        public uint? ShaderMaterialId { get; private set; }
 
         /// <summary>
         /// per-vertex diffuse color values
@@ -25,6 +29,11 @@ namespace OpenSage.Data.W3d
         public W3dRgba[] Scg { get; private set; }
 
         public IReadOnlyList<W3dTextureStage> TextureStages { get; private set; }
+
+        /// <summary>
+        /// Only present when using shader materials.
+        /// </summary>
+        public Vector2[] TexCoords { get; private set; }
 
         public static W3dMaterialPass Parse(BinaryReader reader, uint chunkSize)
         {
@@ -76,6 +85,25 @@ namespace OpenSage.Data.W3d
 
                     case W3dChunkType.W3D_CHUNK_TEXTURE_STAGE:
                         textureStages.Add(W3dTextureStage.Parse(reader, header.ChunkSize));
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_SHADER_MATERIAL_ID:
+                        if (header.ChunkSize != sizeof(uint))
+                        {
+                            // TODO: If this is thrown: this is probably an array of IDs?
+                            throw new InvalidDataException();
+                        }
+                        result.ShaderMaterialId = reader.ReadUInt32();
+                        break;
+
+                    // Normally this appears inside W3dTextureStage, but it can also
+                    // appear directly under W3dMaterialPass if using shader materials.
+                    case W3dChunkType.W3D_CHUNK_STAGE_TEXCOORDS:
+                        result.TexCoords = new Vector2[header.ChunkSize / (sizeof(float) * 2)];
+                        for (var count = 0; count < result.TexCoords.Length; count++)
+                        {
+                            result.TexCoords[count] = reader.ReadVector2();
+                        }
                         break;
 
                     default:

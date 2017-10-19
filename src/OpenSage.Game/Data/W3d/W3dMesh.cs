@@ -15,6 +15,10 @@ namespace OpenSage.Data.W3d
         public Vector3[] Vertices2 { get; private set; }
         public Vector3[] Normals2 { get; private set; }
 
+        // TODO: Implement these in renderer.
+        public Vector3[] Tangents { get; private set; }
+        public Vector3[] Bitangents { get; private set; }
+
         /// <summary>
         /// Vertex influences link vertices of a mesh to bones in a hierarchy.
         /// This is the information needed for skinning.
@@ -39,6 +43,8 @@ namespace OpenSage.Data.W3d
         public W3dMaterialPass[] MaterialPasses { get; private set; }
 
         public W3dMeshAabTree AabTree { get; private set; }
+
+        public W3dShaderMaterials ShaderMaterials { get; private set; }
 
         public static W3dMesh Parse(BinaryReader reader, uint chunkSize)
         {
@@ -175,6 +181,26 @@ namespace OpenSage.Data.W3d
                         {
                             result.Normals2[count] = reader.ReadVector3();
                         }
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_TANGENTS:
+                        result.Tangents = new Vector3[result.Header.NumVertices];
+                        for (var count = 0; count < result.Tangents.Length; count++)
+                        {
+                            result.Tangents[count] = reader.ReadVector3();
+                        }
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_BITANGENTS:
+                        result.Bitangents = new Vector3[result.Header.NumVertices];
+                        for (var count = 0; count < result.Bitangents.Length; count++)
+                        {
+                            result.Bitangents[count] = reader.ReadVector3();
+                        }
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_SHADER_MATERIALS:
+                        result.ShaderMaterials = W3dShaderMaterials.Parse(reader, header.ChunkSize);
                         break;
 
                     default:

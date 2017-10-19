@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LLGfx;
+using System;
 using System.IO;
 using System.Numerics;
 using System.Text;
@@ -202,6 +203,15 @@ namespace OpenSage.Data.Utilities.Extensions
         public static Quaternion ReadQuaternion(this BinaryReader reader)
         {
             return new Quaternion(
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle());
+        }
+
+        public static ColorRgbaF ReadColorRgbaF(this BinaryReader reader)
+        {
+            return new ColorRgbaF(
                 reader.ReadSingle(),
                 reader.ReadSingle(),
                 reader.ReadSingle(),

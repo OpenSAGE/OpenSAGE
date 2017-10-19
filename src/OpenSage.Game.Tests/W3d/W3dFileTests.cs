@@ -20,17 +20,21 @@ namespace OpenSage.Data.Tests.W3d
         {
             InstalledFilesTestData.ReadFiles(".w3d", _output, entry =>
             {
-                if (Path.GetFileName(entry.FilePath) == "UISabotr_idel.w3d" ||
-                    Path.GetFileName(entry.FilePath) == "UISabotr_Jump.w3d" ||
-                    Path.GetFileName(entry.FilePath) == "UISabotr_Left.w3d" ||
-                    Path.GetFileName(entry.FilePath) == "UISabotr_Right.w3d" ||
-                    Path.GetFileName(entry.FilePath) == "UISabotr_Up.w3d" ||
-                    Path.GetFileName(entry.FilePath) == "cusheep_grza.w3d" ||
-                    Path.GetFileName(entry.FilePath) == "gbmtwalld.w3d" ||
-                    Path.GetFileName(entry.FilePath) == "gbmtwalldramp.w3d" ||
-                    Path.GetFileName(entry.FilePath) == "gbmtwalle.w3d")
+                switch (Path.GetFileName(entry.FilePath))
                 {
-                    return; // Corrupt, or unreferenced and contain chunks that don't exist elsewhere.
+                    case "UISabotr_idel.w3d":
+                    case "UISabotr_Jump.w3d":
+                    case "UISabotr_Left.w3d":
+                    case "UISabotr_Right.w3d":
+                    case "UISabotr_Up.w3d":
+                    case "cusheep_grza.w3d":
+                    case "gbmtwalld.w3d":
+                    case "gbmtwalldramp.w3d":
+                    case "gbmtwalle.w3d":
+                    case "bbbags.w3d":
+                    case "cuwyrm_cld_skl.w3d":
+                    case "cuwyrm_cld_skn.w3d":
+                        return; // Corrupt, or unreferenced and contain chunks that don't exist elsewhere.
                 }
 
                 var w3dFile = W3dFile.FromFileSystemEntry(entry);
@@ -78,11 +82,19 @@ namespace OpenSage.Data.Tests.W3d
                             Assert.True(numTextureIds == 1 || numTextureIds == mesh.Header.NumTris);
                         }
 
-                        var numShaderIds = materialPass.ShaderIds.Length;
-                        Assert.True(numShaderIds == 1 || numShaderIds == mesh.Header.NumTris);
+                        Assert.True((materialPass.ShaderIds != null && materialPass.VertexMaterialIds != null && materialPass.TexCoords == null) || materialPass.ShaderMaterialId != null);
 
-                        var numVertexMaterialIds = materialPass.VertexMaterialIds.Length;
-                        Assert.True(numVertexMaterialIds == 1 || numVertexMaterialIds == mesh.Header.NumVertices);
+                        if (materialPass.ShaderIds != null)
+                        {
+                            var numShaderIds = materialPass.ShaderIds.Length;
+                            Assert.True(numShaderIds == 1 || numShaderIds == mesh.Header.NumTris);
+                        }
+
+                        if (materialPass.VertexMaterialIds != null)
+                        {
+                            var numVertexMaterialIds = materialPass.VertexMaterialIds.Length;
+                            Assert.True(numVertexMaterialIds == 1 || numVertexMaterialIds == mesh.Header.NumVertices);
+                        }
                     }
 
                     Assert.True(mesh.Textures.Length <= 29);

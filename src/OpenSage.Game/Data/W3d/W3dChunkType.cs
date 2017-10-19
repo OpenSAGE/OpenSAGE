@@ -17,39 +17,48 @@
             W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS = 0x00000025,  // optional lightmapped multi-pass material chunk wrapper
             W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE = 0x00000026,   // optional lightmapped multi-texture material chunk wrapper
 
-                W3D_CHUNK_MATERIAL_INFO = 0x00000028,   // materials information, pass count, etc (contains W3dMaterialInfoStruct)
+            W3D_CHUNK_MATERIAL_INFO = 0x00000028,   // materials information, pass count, etc (contains W3dMaterialInfoStruct)
 
-                W3D_CHUNK_SHADERS = 0x00000029, // shaders (array of W3dShaderStruct's)
+            W3D_CHUNK_SHADERS = 0x00000029, // shaders (array of W3dShaderStruct's)
 
-                W3D_CHUNK_VERTEX_MATERIALS = 0x0000002A,    // wraps the vertex materials
-                    W3D_CHUNK_VERTEX_MATERIAL = 0x0000002B,
-                        W3D_CHUNK_VERTEX_MATERIAL_NAME = 0x0000002C,    // vertex material name (NULL-terminated string)
-                        W3D_CHUNK_VERTEX_MATERIAL_INFO = 0x0000002D,    // W3dVertexMaterialStruct
-                        W3D_CHUNK_VERTEX_MAPPER_ARGS0 = 0x0000002E, // Null-terminated string
-                        W3D_CHUNK_VERTEX_MAPPER_ARGS1 = 0x0000002F, // Null-terminated string
+            W3D_CHUNK_VERTEX_MATERIALS = 0x0000002A,    // wraps the vertex materials
+                W3D_CHUNK_VERTEX_MATERIAL = 0x0000002B,
+                    W3D_CHUNK_VERTEX_MATERIAL_NAME = 0x0000002C,    // vertex material name (NULL-terminated string)
+                    W3D_CHUNK_VERTEX_MATERIAL_INFO = 0x0000002D,    // W3dVertexMaterialStruct
+                    W3D_CHUNK_VERTEX_MAPPER_ARGS0 = 0x0000002E, // Null-terminated string
+                    W3D_CHUNK_VERTEX_MAPPER_ARGS1 = 0x0000002F, // Null-terminated string
 
-                W3D_CHUNK_TEXTURES = 0x00000030,    // wraps all of the texture info
-                    W3D_CHUNK_TEXTURE = 0x00000031, // wraps a texture definition
-                        W3D_CHUNK_TEXTURE_NAME = 0x00000032,    // texture filename (NULL-terminated string)
-                        W3D_CHUNK_TEXTURE_INFO = 0x00000033,    // optional W3dTextureInfoStruct
+            W3D_CHUNK_TEXTURES = 0x00000030,    // wraps all of the texture info
+                W3D_CHUNK_TEXTURE = 0x00000031, // wraps a texture definition
+                    W3D_CHUNK_TEXTURE_NAME = 0x00000032,    // texture filename (NULL-terminated string)
+                    W3D_CHUNK_TEXTURE_INFO = 0x00000033,    // optional W3dTextureInfoStruct
 
-                W3D_CHUNK_MATERIAL_PASS = 0x00000038,   // wraps the information for a single material pass
-                    W3D_CHUNK_VERTEX_MATERIAL_IDS = 0x00000039, // single or per-vertex array of uint32 vertex material indices (check chunk size)
-                    W3D_CHUNK_SHADER_IDS = 0x0000003A,  // single or per-tri array of uint32 shader indices (check chunk size)
-                    W3D_CHUNK_DCG = 0x0000003B, // per-vertex diffuse color values (array of W3dRGBAStruct's)
-                    W3D_CHUNK_DIG = 0x0000003C, // per-vertex diffuse illumination values (array of W3dRGBStruct's)
-                    W3D_CHUNK_SCG = 0x0000003E, // per-vertex specular color values (array of W3dRGBStruct's)
+            W3D_CHUNK_MATERIAL_PASS = 0x00000038,   // wraps the information for a single material pass
+                W3D_CHUNK_VERTEX_MATERIAL_IDS = 0x00000039, // single or per-vertex array of uint32 vertex material indices (check chunk size)
+                W3D_CHUNK_SHADER_IDS = 0x0000003A,  // single or per-tri array of uint32 shader indices (check chunk size)
+                W3D_CHUNK_DCG = 0x0000003B, // per-vertex diffuse color values (array of W3dRGBAStruct's)
+                W3D_CHUNK_DIG = 0x0000003C, // per-vertex diffuse illumination values (array of W3dRGBStruct's)
+                W3D_CHUNK_SCG = 0x0000003E, // per-vertex specular color values (array of W3dRGBStruct's)
 
-                    W3D_CHUNK_TEXTURE_STAGE = 0x00000048,   // wrapper around a texture stage.
-                        W3D_CHUNK_TEXTURE_IDS = 0x00000049, // single or per-tri array of uint32 texture indices (check chunk size)
-                        W3D_CHUNK_STAGE_TEXCOORDS = 0x0000004A, // per-vertex texture coordinates (array of W3dTexCoordStruct's)
-                        W3D_CHUNK_PER_FACE_TEXCOORD_IDS = 0x0000004B,   // indices to W3D_CHUNK_STAGE_TEXCOORDS, (array of Vector3i)
+                W3D_CHUNK_SHADER_MATERIAL_ID = 0x3F,
 
+                W3D_CHUNK_TEXTURE_STAGE = 0x00000048,   // wrapper around a texture stage.
+                    W3D_CHUNK_TEXTURE_IDS = 0x00000049, // single or per-tri array of uint32 texture indices (check chunk size)
+                    W3D_CHUNK_STAGE_TEXCOORDS = 0x0000004A, // per-vertex texture coordinates (array of W3dTexCoordStruct's)
+                    W3D_CHUNK_PER_FACE_TEXCOORD_IDS = 0x0000004B,   // indices to W3D_CHUNK_STAGE_TEXCOORDS, (array of Vector3i)
+
+            W3D_CHUNK_SHADER_MATERIALS = 0x50,
+                W3D_CHUNK_SHADER_MATERIAL = 0x51,
+                    W3D_CHUNK_SHADER_MATERIAL_HEADER = 0x52,
+                    W3D_CHUNK_SHADER_MATERIAL_PROPERTY = 0x53,
 
             W3D_CHUNK_DEFORM = 0x00000058,  // mesh deform or 'damage' information.
                 W3D_CHUNK_DEFORM_SET = 0x00000059,  // set of deform information
                     W3D_CHUNK_DEFORM_KEYFRAME = 0x0000005A, // a keyframe of deform information in the set
                         W3D_CHUNK_DEFORM_DATA = 0x0000005B, // deform information about a single vertex
+
+            W3D_CHUNK_TANGENTS = 0x60,
+            W3D_CHUNK_BITANGENTS = 0x61,
 
             W3D_CHUNK_PS2_SHADERS = 0x00000080, // Shader info specific to the Playstation 2.
 
@@ -72,6 +81,7 @@
             W3D_CHUNK_COMPRESSED_ANIMATION_HEADER,                          // describes playback rate, number of frames, and type of compression
             W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL,                     // compressed channel, format dependent on type of compression
             W3D_CHUNK_COMPRESSED_BIT_CHANNEL,                               // compressed bit stream channel, format dependent on type of compression
+            W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL, // Added in BFME II
 
         W3D_CHUNK_MORPH_ANIMATION = 0x000002C0, // hierarchy morphing animation data (morphs between poses, for facial animation)
             W3D_CHUNK_MORPHANIM_HEADER,                                     // W3dMorphAnimHeaderStruct describes playback rate, number of frames, and type of compression
