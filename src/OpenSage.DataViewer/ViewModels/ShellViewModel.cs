@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using Caliburn.Micro;
 using OpenSage.DataViewer.Framework;
+using OpenSage.Data;
 
 namespace OpenSage.DataViewer.ViewModels
 {
@@ -38,18 +37,11 @@ namespace OpenSage.DataViewer.ViewModels
 
         private static IEnumerable<InstallationViewModel> FindInstallations()
         {
-            var programFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
+            var locator = IoC.Get<IInstallationLocator>();
 
-            var possibleInstallations = new[]
-            {
-                new InstallationViewModel("C&C Generals (The First Decade)", Path.Combine(programFilesPath, @"EA Games\Command & Conquer The First Decade\Command & Conquer(tm) Generals")),
-                new InstallationViewModel("C&C Generals (Origin)", Path.Combine(programFilesPath, @"Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals")),
-                new InstallationViewModel("C&C Generals Zero Hour (The First Decade)", Path.Combine(programFilesPath, @"EA Games\Command & Conquer The First Decade\Command & Conquer(tm) Generals Zero Hour")),
-                new InstallationViewModel("C&C Generals Zero Hour (Origin)", Path.Combine(programFilesPath, @"Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals Zero Hour")),
-                new InstallationViewModel("Battle for Middle-earth (DVD)", Path.Combine(programFilesPath, @"EA Games\The Battle for Middle-earth (tm)"))
-            };
-
-            return possibleInstallations.Where(x => Directory.Exists(x.Path));
+            return Games.GetAll()
+                .SelectMany(locator.FindInstallations)
+                .Select(installation => new InstallationViewModel(installation.DisplayName, installation.Path));
         }
     }
 }
