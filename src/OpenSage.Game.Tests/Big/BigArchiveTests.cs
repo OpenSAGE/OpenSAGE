@@ -6,7 +6,12 @@ namespace OpenSage.Data.Tests.Big
 {
     public class BigArchiveTests
     {
-        private const string BigFilePath = @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals Zero Hour\W3DZH.big";
+        private string BigFilePath;
+
+        public BigArchiveTests()
+        {
+            BigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(GameId.ZeroHour), "W3DZH.big");
+        }
 
         [Fact]
         public void OpenBigArchive()
