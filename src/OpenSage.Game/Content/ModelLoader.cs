@@ -184,7 +184,7 @@ namespace OpenSage.Content
             ResourceUploadBatch uploadBatch,
             W3dMesh w3dMesh)
         {
-            var numTextures = w3dMesh.Textures.Length;
+            var numTextures = w3dMesh.Textures.Count;
             var textures = new Texture[numTextures];
 
             for (var i = 0; i < numTextures; i++)

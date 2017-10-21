@@ -34,6 +34,15 @@ namespace OpenSage.Data.Tests.W3d
                     case "bbbags.w3d":
                     case "cuwyrm_cld_skl.w3d":
                     case "cuwyrm_cld_skn.w3d":
+                    case "gugandalfcrstl.w3d":
+                    case "guhbtshfb_cinb.w3d":
+                    case "guhbtshfb_cinc.w3d":
+                    case "lwbanhfllbst.w3d":
+                    case "lwbanhnazgul.w3d":
+                    case "lwbanhwtchkng.w3d":
+                    case "psupplies04.w3d":
+                    case "wbcave_d2a.w3d":
+                    case "wbcave_d2c.w3d":
                         return; // Corrupt, or unreferenced and contain chunks that don't exist elsewhere.
                 }
 
@@ -97,7 +106,7 @@ namespace OpenSage.Data.Tests.W3d
                         }
                     }
 
-                    Assert.True(mesh.Textures.Length <= 29);
+                    Assert.True(mesh.Textures.Count <= 29);
                 }
             });
         }

@@ -80,7 +80,7 @@ namespace OpenSage.Data.W3d
                     mapperArgValue = mapperArgValue.Substring(0, mapperArgValue.IndexOf(';')).Trim();
                 }
 
-                mapperArgValue = mapperArgValue.TrimEnd('f');
+                mapperArgValue = mapperArgValue.TrimEnd('f').Replace("..", ".");
 
                 switch (mapperArgName)
                 {
@@ -93,7 +93,7 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case "UScale":
-                        result.UScale = float.Parse(mapperArgValue);
+                        float.TryParse(mapperArgValue, out result.UScale);
                         break;
 
                     case "VScale":

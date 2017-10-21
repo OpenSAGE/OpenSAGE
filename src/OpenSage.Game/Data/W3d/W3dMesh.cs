@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
 
@@ -38,7 +39,7 @@ namespace OpenSage.Data.W3d
 
         public W3dShader[] Shaders { get; private set; }
 
-        public W3dTexture[] Textures { get; private set; }
+        public IReadOnlyList<W3dTexture> Textures { get; private set; }
 
         public W3dMaterialPass[] MaterialPasses { get; private set; }
 
@@ -50,7 +51,9 @@ namespace OpenSage.Data.W3d
         {
             var currentMaterialPass = 0;
 
-            return ParseChunk<W3dMesh>(reader, chunkSize, (result, header) =>
+            var textures = new List<W3dTexture>();
+
+            var finalResult = ParseChunk<W3dMesh>(reader, chunkSize, (result, header) =>
             {
                 switch (header.ChunkType)
                 {
@@ -102,7 +105,6 @@ namespace OpenSage.Data.W3d
                         result.MaterialInfo = W3dMaterialInfo.Parse(reader);
                         result.Materials = new W3dMaterial[result.MaterialInfo.VertexMaterialCount];
                         result.Shaders = new W3dShader[result.MaterialInfo.ShaderCount];
-                        result.Textures = new W3dTexture[result.MaterialInfo.TextureCount];
                         result.MaterialPasses = new W3dMaterialPass[result.MaterialInfo.PassCount];
                         break;
 
@@ -129,12 +131,13 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_TEXTURES:
-                        for (var count = 0; count < result.MaterialInfo.TextureCount; count++)
+                        var startPosition = reader.BaseStream.Position;
+                        while (reader.BaseStream.Position < startPosition + header.ChunkSize)
                         {
                             var innerChunk = W3dChunkHeader.Parse(reader);
                             if (innerChunk.ChunkType == W3dChunkType.W3D_CHUNK_TEXTURE)
                             {
-                                result.Textures[count] = W3dTexture.Parse(reader, innerChunk.ChunkSize);
+                                textures.Add(W3dTexture.Parse(reader, innerChunk.ChunkSize));
                             }
                             else
                             {
@@ -207,6 +210,10 @@ namespace OpenSage.Data.W3d
                         throw CreateUnknownChunkException(header);
                 }
             });
+
+            finalResult.Textures = textures;
+
+            return finalResult;
         }
     }
 }

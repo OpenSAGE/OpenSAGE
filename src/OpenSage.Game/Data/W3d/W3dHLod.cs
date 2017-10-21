@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace OpenSage.Data.W3d
 {
@@ -6,15 +7,15 @@ namespace OpenSage.Data.W3d
     {
         public W3dHLodHeader Header { get; private set; }
 
-        public W3dHLodArray[] Lods { get; private set; }
+        public IReadOnlyList<W3dHLodArray> Lods { get; private set; }
 
         public W3dHLodArray Aggregate { get; private set; }
 
         public static W3dHLod Parse(BinaryReader reader, uint chunkSize)
         {
-            var currentLodIndex = 0;
+            var lods = new List<W3dHLodArray>();
 
-            return ParseChunk<W3dHLod>(reader, chunkSize, (result, header) =>
+            var finalResult = ParseChunk<W3dHLod>(reader, chunkSize, (result, header) =>
             {
                 switch (header.ChunkType)
                 {
@@ -24,8 +25,7 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_HLOD_LOD_ARRAY:
-                        result.Lods[currentLodIndex] = W3dHLodArray.Parse(reader, header.ChunkSize);
-                        currentLodIndex++;
+                        lods.Add(W3dHLodArray.Parse(reader, header.ChunkSize));
                         break;
 
                     case W3dChunkType.W3D_CHUNK_HLOD_AGGREGATE_ARRAY:
@@ -40,6 +40,10 @@ namespace OpenSage.Data.W3d
                         throw CreateUnknownChunkException(header);
                 }
             });
+
+            finalResult.Lods = lods;
+
+            return finalResult;
         }
     }
 }

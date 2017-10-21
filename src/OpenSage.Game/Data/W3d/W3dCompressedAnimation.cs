@@ -9,6 +9,8 @@ namespace OpenSage.Data.W3d
 
         public IReadOnlyList<W3dTimeCodedAnimationChannel> TimeCodedChannels { get; private set; }
 
+        public IReadOnlyList<W3dAdaptiveDeltaAnimationChannel> AdaptiveDeltaChannels { get; private set; }
+
         public IReadOnlyList<W3dTimeCodedBitChannel> TimeCodedBitChannels { get; private set; }
 
         public IReadOnlyList<W3dMotionChannel> MotionChannels { get; private set; }
@@ -16,6 +18,7 @@ namespace OpenSage.Data.W3d
         public static W3dCompressedAnimation Parse(BinaryReader reader, uint chunkSize)
         {
             var timeCodedChannels = new List<W3dTimeCodedAnimationChannel>();
+            var adaptiveDeltaChannels = new List<W3dAdaptiveDeltaAnimationChannel>();
             var timeCodedBitChannels = new List<W3dTimeCodedBitChannel>();
             var motionChannels = new List<W3dMotionChannel>();
 
@@ -32,6 +35,10 @@ namespace OpenSage.Data.W3d
                         {
                             case W3dCompressedAnimationFlavor.TimeCoded:
                                 timeCodedChannels.Add(W3dTimeCodedAnimationChannel.Parse(reader, header.ChunkSize));
+                                break;
+
+                            case W3dCompressedAnimationFlavor.AdaptiveDelta:
+                                adaptiveDeltaChannels.Add(W3dAdaptiveDeltaAnimationChannel.Parse(reader, header.ChunkSize));
                                 break;
 
                             default:
@@ -69,6 +76,7 @@ namespace OpenSage.Data.W3d
             });
 
             finalResult.TimeCodedChannels = timeCodedChannels;
+            finalResult.AdaptiveDeltaChannels = adaptiveDeltaChannels;
             finalResult.TimeCodedBitChannels = timeCodedBitChannels;
             finalResult.MotionChannels = motionChannels;
 

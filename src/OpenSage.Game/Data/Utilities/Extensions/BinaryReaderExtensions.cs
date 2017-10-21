@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Numerics;
 using System.Text;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Utilities.Extensions
 {
@@ -213,6 +214,14 @@ namespace OpenSage.Data.Utilities.Extensions
         {
             return new ColorRgbaF(
                 reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle());
+        }
+
+        public static ColorRgbF ReadColorRgbF(this BinaryReader reader)
+        {
+            return new ColorRgbF(
                 reader.ReadSingle(),
                 reader.ReadSingle(),
                 reader.ReadSingle());
