@@ -39,7 +39,7 @@ namespace OpenSage.DataViewer.ViewModels
         {
             var locator = IoC.Get<IInstallationLocator>();
 
-            return Games.GetAll()
+            return SageGames.GetAll()
                 .SelectMany(locator.FindInstallations)
                 .Select(installation => new InstallationViewModel(installation.DisplayName, installation.Path));
         }

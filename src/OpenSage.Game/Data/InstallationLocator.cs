@@ -6,18 +6,12 @@ using System.Linq;
 
 namespace OpenSage.Data
 {
-    public enum GameId
-    {
-        Generals,
-        ZeroHour
-    }
-
     public struct GameInstallation
     {
-        public readonly GameId Game;
+        public readonly SageGame Game;
         public readonly string Path;
 
-        public GameInstallation(GameId game, string path)
+        public GameInstallation(SageGame game, string path)
         {
             Game = game;
             Path = path;
@@ -25,48 +19,39 @@ namespace OpenSage.Data
 
         public string DisplayName => GetDisplayName(Game);
 
-        private static string GetDisplayName(GameId game)
+        private static string GetDisplayName(SageGame game)
         {
             switch (game)
             {
-                case GameId.Generals: return "C&C Generals";
-                case GameId.ZeroHour: return "C&C Generals Zero Hour";
+                case SageGame.CncGenerals: return "C&C Generals";
+                case SageGame.CncGeneralsZeroHour: return "C&C Generals Zero Hour";
             }
 
             throw new ArgumentException($"{game} is not supported.", nameof(game));
         }
     }
 
-    public static class Games
-    {
-        public static IEnumerable<GameId> GetAll()
-        {
-            yield return GameId.Generals;
-            yield return GameId.ZeroHour;
-        }
-    }
-
     public interface IInstallationLocator
     {
-        IEnumerable<GameInstallation> FindInstallations(GameId game);
+        IEnumerable<GameInstallation> FindInstallations(SageGame game);
     }
 
     public class RegistryInstallationLocator : IInstallationLocator
     {
-        private static readonly (string, string)[] GeneralsKeys = new[] { (@"SOFTWARE\Electronic Arts\EA Games\Generals", "InstallPath") };
-        private static readonly (string, string)[] ZeroHourKeys = new[] { (@"SOFTWARE\Electronic Arts\EA Games\Command and Conquer Generals Zero Hour", "InstallPath") };
+        private static readonly (string, string)[] GeneralsKeys = { (@"SOFTWARE\Electronic Arts\EA Games\Generals", "InstallPath") };
+        private static readonly (string, string)[] ZeroHourKeys = { (@"SOFTWARE\Electronic Arts\EA Games\Command and Conquer Generals Zero Hour", "InstallPath") };
 
-        private IEnumerable<(string keyName, string valueName)> GetRegistryKeysForGame(GameId game)
+        private static IEnumerable<(string keyName, string valueName)> GetRegistryKeysForGame(SageGame game)
         {
             switch (game)
             {
-                case GameId.Generals: return GeneralsKeys;
-                case GameId.ZeroHour: return ZeroHourKeys;
+                case SageGame.CncGenerals: return GeneralsKeys;
+                case SageGame.CncGeneralsZeroHour: return ZeroHourKeys;
                 default: return Enumerable.Empty<(string, string)>();
             }
         }
 
-        private string GetRegistryValue(string keyName, string valueName)
+        private static string GetRegistryValue(string keyName, string valueName)
         {
             // 64-bit Windows uses a separate registry for 32-bit and 64-bit applications.
             // On a 64-bit system Registry.GetValue uses the 64-bit registry by default, which is why we have to read the value the "long way".
@@ -74,15 +59,12 @@ namespace OpenSage.Data
             {
                 using (var key = baseKey.OpenSubKey(keyName, false))
                 {
-                    var path = key.GetValue(valueName, null) as string;
-                    if (path == null) return null;
-
-                    return path;
+                    return key?.GetValue(valueName, null) as string;
                 }
             }
         }
 
-        public IEnumerable<GameInstallation> FindInstallations(GameId game)
+        public IEnumerable<GameInstallation> FindInstallations(SageGame game)
         {
             var keys = GetRegistryKeysForGame(game);
 

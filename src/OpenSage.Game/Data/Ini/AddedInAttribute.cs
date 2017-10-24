@@ -12,11 +12,4 @@ namespace OpenSage.Data.Ini
             Game = game;
         }
     }
-
-    public enum SageGame
-    {
-        CncGenerals,
-        CncGeneralsZeroHour,
-        BattleForMiddleEarth
-    }
 }

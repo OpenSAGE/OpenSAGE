@@ -7,18 +7,18 @@ namespace OpenSage.Data.Tests
 {
     internal static class InstalledFilesTestData
     {
-        private static readonly IInstallationLocator locator;
+        private static readonly IInstallationLocator Locator;
 
         static InstalledFilesTestData()
         {
-            locator = new RegistryInstallationLocator();
+            Locator = new RegistryInstallationLocator();
         }
 
-        public static string GetInstallationDirectory(GameId game) => locator.FindInstallations(game).FirstOrDefault().Path;
+        public static string GetInstallationDirectory(SageGame game) => Locator.FindInstallations(game).FirstOrDefault().Path;
 
         public static void ReadFiles(string fileExtension, ITestOutputHelper output, Action<FileSystemEntry> processFileCallback)
         {
-            var rootDirectories = Games.GetAll().SelectMany(locator.FindInstallations).Select(i => i.Path);
+            var rootDirectories = SageGames.GetAll().SelectMany(Locator.FindInstallations).Select(i => i.Path);
 
             var foundAtLeastOneFile = false;
             foreach (var rootDirectory in rootDirectories.Where(x => Directory.Exists(x)))

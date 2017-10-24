@@ -105,7 +105,7 @@ namespace OpenSage.Data.Tests.W3d
         [Fact]
         public void LoadW3dFromBigFile()
         {
-            var bigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(GameId.ZeroHour), "W3DZH.big");
+            var bigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(SageGame.CncGeneralsZeroHour), "W3DZH.big");
         
             using (var bigStream = File.OpenRead(bigFilePath))
             using (var bigArchive = new BigArchive(bigStream))

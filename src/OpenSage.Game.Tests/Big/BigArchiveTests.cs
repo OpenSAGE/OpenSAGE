@@ -10,7 +10,7 @@ namespace OpenSage.Data.Tests.Big
 
         public BigArchiveTests()
         {
-            BigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(GameId.ZeroHour), "W3DZH.big");
+            BigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(SageGame.CncGeneralsZeroHour), "W3DZH.big");
         }
 
         [Fact]
