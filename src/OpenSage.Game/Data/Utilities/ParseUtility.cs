@@ -11,7 +11,7 @@ namespace OpenSage.Data.Utilities
 
         public static bool TryParseFloat(string s, out float result)
         {
-            return float.TryParse(s, out result);
+            return float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out result);
         }
     }
 }
