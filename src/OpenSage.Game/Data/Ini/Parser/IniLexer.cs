@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using static OpenSage.Data.Utilities.ParseUtility;
 
 namespace OpenSage.Data.Ini.Parser
 {
@@ -241,7 +242,7 @@ namespace OpenSage.Data.Ini.Parser
                 {
                     return new IniToken(tokenType, CurrentPosition)
                     {
-                        FloatValue = float.Parse(numberValue.TrimEnd('f'))
+                        FloatValue = ParseFloat(numberValue.TrimEnd('f'))
                     };
                 }
                 if (hasDot)
@@ -260,7 +261,7 @@ namespace OpenSage.Data.Ini.Parser
                 case IniTokenType.PercentLiteral:
                     return new IniToken(tokenType, pos)
                     {
-                        FloatValue = float.Parse(numberValue)
+                        FloatValue = ParseFloat(numberValue)
                     };
 
                 case IniTokenType.IntegerLiteral:
