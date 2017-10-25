@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.Compression;
 using System.Text;
 using OpenSage.Data.RefPack;
 using OpenSage.Data.Utilities.Extensions;
@@ -25,6 +26,7 @@ namespace OpenSage.Data.Map
             {
                 var compressionFlag = reader.ReadUInt32().ToFourCcString();
 
+                uint decompressedSize;
                 switch (compressionFlag)
                 {
                     // Uncompressed
@@ -37,13 +39,22 @@ namespace OpenSage.Data.Map
                     case "EAR\0":
                         // Compressed (after decompression, contents are exactly the same
                         // as uncompressed format, so we call back into this method)
-                        var decompressedSize = reader.ReadUInt32();
+                        decompressedSize = reader.ReadUInt32();
                         return new RefPackStream(reader.BaseStream);
 
-                    // Only found this on C&C Generals "Woodcrest Circle" map. Looks like a compressed
-                    // or encrypted format, but I can't find any info about it online.
+                    // Zlib. Only found this on C&C Generals "Woodcrest Circle" map.
+                    // Thanks to OmniBlade for figuring out that it's zlib copression.
                     case "ZL5\0":
-                        throw new NotSupportedException("ZL5-compressed maps are not supported.");
+                        decompressedSize = reader.ReadUInt32();
+                        // We have the zlib header bytes, but .NET's DeflateStream only supports
+                        // the Deflate section of the zlib container.
+                        var zlibHeader1 = reader.ReadByte();
+                        var zlibHeader2 = reader.ReadByte();
+                        if (zlibHeader1 != 0x78 || zlibHeader2 != 0x9C)
+                        {
+                            throw new InvalidDataException();
+                        }
+                        return new DeflateStream(reader.BaseStream, CompressionMode.Decompress);
 
                     default:
                         throw new NotSupportedException();

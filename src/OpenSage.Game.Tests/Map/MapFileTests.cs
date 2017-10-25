@@ -27,10 +27,6 @@ namespace OpenSage.Data.Tests.Map
                     // un-initialized (random) values for partial passability bytes beyond the map width.
                     case @"Maps\USA07-TaskForces\USA07-TaskForces.map":
                         return;
-
-                    // Uses unknown ZL5 compression.
-                    case @"maps\Woodcrest Circle\Woodcrest Circle.map":
-                        return;
                 }
 
                 using (var entryStream = entry.Open())
