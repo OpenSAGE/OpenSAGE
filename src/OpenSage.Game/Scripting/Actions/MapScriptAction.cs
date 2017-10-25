@@ -147,7 +147,7 @@ namespace OpenSage.Scripting.Actions
             context.Scene.CameraController.TerrainPosition = _positionWaypoint.Position;
             context.Scene.CameraController.Zoom = _zoom;
             context.Scene.CameraController.Pitch = _pitch;
-            context.Scene.CameraController.LookDirection = Vector3.Normalize(_targetWaypoint.Position - _positionWaypoint.Position);
+            context.Scene.CameraController.SetLookDirection(Vector3.Normalize(_targetWaypoint.Position - _positionWaypoint.Position));
 
             return ScriptExecutionResult.Finished;
         }

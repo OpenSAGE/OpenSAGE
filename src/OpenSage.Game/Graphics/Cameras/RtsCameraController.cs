@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Numerics;
+using OpenSage.Input;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Cameras
 {
     public sealed class RtsCameraController
     {
+        private const float RotationSpeed = 0.003f;
+        private const float ZoomSpeed = 0.002f;
+        private const float PanSpeed = 0.2f;
+
         private readonly CameraComponent _camera;
 
         private float _defaultHeight;
@@ -15,15 +20,13 @@ namespace OpenSage.Graphics.Cameras
 
         private CameraAnimation _animation;
 
+        public bool IsPlayerInputEnabled { get; set; } = true;
+
         private Vector3 _lookDirection;
-        public Vector3 LookDirection
+        public void SetLookDirection(Vector3 lookDirection)
         {
-            get { return _lookDirection; }
-            set
-            {
-                _lookDirection = value;
-                _needsCameraUpdate = true;
-            }
+            _lookDirection = new Vector3(lookDirection.X, lookDirection.Y, 0);
+            _needsCameraUpdate = true;
         }
 
         private float _pitch = 1;
@@ -101,8 +104,25 @@ namespace OpenSage.Graphics.Cameras
             }
         }
 
-        public void UpdateCamera(GameTime gameTime)
+        internal void UpdateCamera(InputSystem input, GameTime gameTime)
         {
+            if (IsPlayerInputEnabled)
+            {
+                var deltaX = input.GetAxis(MouseMovementAxis.XAxis);
+                var deltaY = input.GetAxis(MouseMovementAxis.YAxis);
+
+                bool isMovementTypeActive(MouseButton button)
+                {
+                    return input.GetMouseButtonDown(button)
+                        && !input.GetMouseButtonPressed(button);
+                }
+
+                if (isMovementTypeActive(MouseButton.Middle))
+                {
+                    RotateCamera(deltaX);
+                }
+            }
+
             if (_animation != null)
             {
                 _animation.Update(this, gameTime);
@@ -164,6 +184,14 @@ namespace OpenSage.Graphics.Cameras
                 newPosition,
                 targetPosition,
                 Vector3.UnitZ);
+        }
+
+        private void RotateCamera(float deltaX)
+        {
+            var yaw = MathUtility.Atan2(_lookDirection.Y, _lookDirection.X);
+            yaw -= deltaX * RotationSpeed;
+            _lookDirection.X = MathUtility.Cos(yaw);
+            _lookDirection.Y = MathUtility.Sin(yaw);
         }
     }
 }

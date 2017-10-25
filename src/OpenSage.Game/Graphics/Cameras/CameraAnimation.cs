@@ -76,7 +76,7 @@ namespace OpenSage.Graphics.Cameras
             {
                 var lookDirection = Vector3.Normalize(Vector3Utility.Slerp(_startDirection, _endDirection.Value, currentTimeFraction));
 
-                camera.LookDirection = lookDirection;
+                camera.SetLookDirection(lookDirection);
 
                 //camera.TerrainPosition = Vector3Utility.Slerp(_startPosition + _startDirection, _endPosition + _endDirection.Value, currentTimeFraction);
             }
