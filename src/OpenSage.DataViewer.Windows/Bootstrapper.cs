@@ -4,6 +4,7 @@ using System.Windows;
 using Caliburn.Micro;
 using OpenSage.DataViewer.Framework;
 using OpenSage.DataViewer.ViewModels;
+using OpenSage.Data;
 
 namespace OpenSage.DataViewer
 {
@@ -28,6 +29,7 @@ namespace OpenSage.DataViewer
             container = new SimpleContainer();
 
             container.Singleton<IWindowManager, WindowManager>();
+            container.Singleton<IInstallationLocator, RegistryInstallationLocator>();
             container.Instance(_graphicsDeviceManager);
             container.Instance(_gameService);
 

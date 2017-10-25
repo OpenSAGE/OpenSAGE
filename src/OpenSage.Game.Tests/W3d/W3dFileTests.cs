@@ -114,7 +114,7 @@ namespace OpenSage.Data.Tests.W3d
         [Fact]
         public void LoadW3dFromBigFile()
         {
-            const string bigFilePath = @"C:\Program Files (x86)\Origin Games\Command and Conquer Generals Zero Hour\Command and Conquer Generals Zero Hour\W3DZH.big";
+            var bigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(SageGame.CncGeneralsZeroHour), "W3DZH.big");
         
             using (var bigStream = File.OpenRead(bigFilePath))
             using (var bigArchive = new BigArchive(bigStream))
