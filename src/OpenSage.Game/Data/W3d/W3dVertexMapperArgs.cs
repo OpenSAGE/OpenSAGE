@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using static OpenSage.Data.Utilities.ParseUtility;
 
 namespace OpenSage.Data.W3d
 {
@@ -85,23 +86,23 @@ namespace OpenSage.Data.W3d
                 switch (mapperArgName)
                 {
                     case "UPerSec":
-                        result.UPerSec = float.Parse(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.UPerSec);
                         break;
 
                     case "VPerSec":
-                        result.VPerSec = float.Parse(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.VPerSec);
                         break;
 
                     case "UScale":
-                        float.TryParse(mapperArgValue, out result.UScale);
+                        TryParseFloat(mapperArgValue, out result.UScale);
                         break;
 
                     case "VScale":
-                        result.VScale = float.Parse(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.VScale);
                         break;
 
                     case "FPS":
-                        result.FPS = float.Parse(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.FPS);
                         break;
 
                     case "Log1Width":
@@ -117,59 +118,59 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case "Speed":
-                        result.Speed = float.Parse(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.Speed);
                         break;
 
                     case "UCenter":
-                        result.UCenter = float.Parse(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.UCenter);
                         break;
 
                     case "VCenter":
-                        result.VCenter = float.Parse(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.VCenter);
                         break;
 
                     case "UAmp":
-                        result.UAmp = float.Parse(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.UAmp);
                         break;
 
                     case "UFreq":
-                        result.UFreq = float.Parse(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.UFreq);
                         break;
 
                     case "UPhase":
-                        result.UPhase = float.Parse(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.UPhase);
                         break;
 
                     case "VAmp":
-                        result.VAmp = float.Parse(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.VAmp);
                         break;
 
                     case "VFreq":
-                        result.VFreq = float.Parse(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.VFreq);
                         break;
 
                     case "VPhase":
-                        result.VPhase = float.Parse(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.VPhase);
                         break;
 
                     case "BumpRotation":
-                        result.BumpRotation = float.Parse(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.BumpRotation);
                         break;
 
                     case "BumpScale":
-                        float.TryParse(mapperArgValue, out result.BumpScale);
+                        TryParseFloat(mapperArgValue, out result.BumpScale);
                         break;
 
                     case "UStep":
-                        result.UStep = float.Parse(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.UStep);
                         break;
 
                     case "VStep":
-                        result.VStep = float.Parse(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.VStep);
                         break;
 
                     case "SPS":
-                        result.StepsPerSecond = float.Parse(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.StepsPerSecond);
                         break;
 
                     default:
