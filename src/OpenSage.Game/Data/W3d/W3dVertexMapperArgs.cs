@@ -86,11 +86,11 @@ namespace OpenSage.Data.W3d
                 switch (mapperArgName)
                 {
                     case "UPerSec":
-                        result.UPerSec = ParseFloat(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.UPerSec);
                         break;
 
                     case "VPerSec":
-                        result.VPerSec = ParseFloat(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.VPerSec);
                         break;
 
                     case "UScale":
@@ -98,11 +98,11 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case "VScale":
-                        result.VScale = ParseFloat(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.VScale);
                         break;
 
                     case "FPS":
-                        result.FPS = ParseFloat(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.FPS);
                         break;
 
                     case "Log1Width":
@@ -118,43 +118,43 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case "Speed":
-                        result.Speed = ParseFloat(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.Speed);
                         break;
 
                     case "UCenter":
-                        result.UCenter = ParseFloat(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.UCenter);
                         break;
 
                     case "VCenter":
-                        result.VCenter = ParseFloat(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.VCenter);
                         break;
 
                     case "UAmp":
-                        result.UAmp = ParseFloat(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.UAmp);
                         break;
 
                     case "UFreq":
-                        result.UFreq = ParseFloat(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.UFreq);
                         break;
 
                     case "UPhase":
-                        result.UPhase = ParseFloat(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.UPhase);
                         break;
 
                     case "VAmp":
-                        result.VAmp = ParseFloat(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.VAmp);
                         break;
 
                     case "VFreq":
-                        result.VFreq = ParseFloat(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.VFreq);
                         break;
 
                     case "VPhase":
-                        result.VPhase = ParseFloat(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.VPhase);
                         break;
 
                     case "BumpRotation":
-                        result.BumpRotation = ParseFloat(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.BumpRotation);
                         break;
 
                     case "BumpScale":
@@ -162,15 +162,15 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case "UStep":
-                        result.UStep = ParseFloat(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.UStep);
                         break;
 
                     case "VStep":
-                        result.VStep = ParseFloat(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.VStep);
                         break;
 
                     case "SPS":
-                        result.StepsPerSecond = ParseFloat(mapperArgValue);
+                        TryParseFloat(mapperArgValue, out result.StepsPerSecond);
                         break;
 
                     default:
