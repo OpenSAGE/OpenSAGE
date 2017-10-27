@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using OpenSage.Data.Ini;
 using OpenSage.Input;
 using OpenSage.Mathematics;
 
@@ -9,7 +10,7 @@ namespace OpenSage.Graphics.Cameras
     {
         private const float RotationSpeed = 0.003f;
         private const float ZoomSpeed = 0.002f;
-        private const float PanSpeed = 0.2f;
+        private const float PanSpeed = 3f;
 
         private readonly CameraComponent _camera;
 
@@ -25,7 +26,7 @@ namespace OpenSage.Graphics.Cameras
         private Vector3 _lookDirection;
         public void SetLookDirection(Vector3 lookDirection)
         {
-            _lookDirection = new Vector3(lookDirection.X, lookDirection.Y, 0);
+            _lookDirection = Vector3.Normalize(new Vector3(lookDirection.X, lookDirection.Y, 0));
             _needsCameraUpdate = true;
         }
 
@@ -98,6 +99,12 @@ namespace OpenSage.Graphics.Cameras
                 ? game.ContentManager.IniDataContext.GameData.DefaultCameraMaxHeight
                 : game.ContentManager.IniDataContext.GameData.CameraHeight;
             _pitchAngle = MathUtility.ToRadians(90 - game.ContentManager.IniDataContext.GameData.CameraPitch);
+
+            var yaw = game.ContentManager.IniDataContext.GameData.CameraYaw;
+            SetLookDirection(new Vector3(
+                MathUtility.Sin(yaw),
+                MathUtility.Cos(yaw),
+                0));
         }
 
         public void EndAnimation()
@@ -129,10 +136,9 @@ namespace OpenSage.Graphics.Cameras
 
                 ZoomCamera(-input.GetAxis(MouseMovementAxis.ThirdAxis));
 
-                //if (isMovementTypeActive(MouseButton.Right))
-                //{
-                //    PanCamera(deltaX, deltaY);
-                //}
+                var forwards = input.GetAxis(Key.Up, Key.Down);
+                var right = input.GetAxis(Key.Right, Key.Left);
+                PanCamera(forwards, right);
             }
 
             if (_animation != null)
@@ -209,6 +215,21 @@ namespace OpenSage.Graphics.Cameras
         private void ZoomCamera(float deltaY)
         {
             Zoom = _zoom + deltaY * ZoomSpeed;
+        }
+
+        private void PanCamera(float forwards, float right)
+        {
+            var panSpeed = PanSpeed * _zoom;
+
+            _terrainPosition += _lookDirection * forwards * panSpeed;
+
+            // Get "right" vector from look direction.
+
+            var yaw = MathUtility.Atan2(_lookDirection.Y, _lookDirection.X);
+
+            var cameraOrientation = Matrix4x4.CreateFromQuaternion(QuaternionUtility.CreateLookRotation(_lookDirection));
+
+            _terrainPosition += cameraOrientation.Right() * right * panSpeed;
         }
     }
 }
