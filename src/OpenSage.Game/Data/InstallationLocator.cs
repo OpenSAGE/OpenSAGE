@@ -23,11 +23,21 @@ namespace OpenSage.Data
         {
             switch (game)
             {
-                case SageGame.CncGenerals: return "C&C Generals";
-                case SageGame.CncGeneralsZeroHour: return "C&C Generals Zero Hour";
-            }
+                case SageGame.CncGenerals:
+                    return "C&C Generals";
 
-            throw new ArgumentException($"{game} is not supported.", nameof(game));
+                case SageGame.CncGeneralsZeroHour:
+                    return "C&C Generals Zero Hour";
+
+                case SageGame.BattleForMiddleEarth:
+                    return "Battle for Middle-earth";
+
+                case SageGame.BattleForMiddleEarthII:
+                    return "Battle for Middle-earth II";
+
+                default:
+                    throw new ArgumentException($"{game} is not supported.", nameof(game));
+            }
         }
     }
 
@@ -40,14 +50,27 @@ namespace OpenSage.Data
     {
         private static readonly (string, string)[] GeneralsKeys = { (@"SOFTWARE\Electronic Arts\EA Games\Generals", "InstallPath") };
         private static readonly (string, string)[] ZeroHourKeys = { (@"SOFTWARE\Electronic Arts\EA Games\Command and Conquer Generals Zero Hour", "InstallPath") };
+        private static readonly (string, string)[] BfmeKeys = { (@"SOFTWARE\Electronic Arts\EA Games\The Battle for Middle-earth", "InstallPath") };
+        private static readonly (string, string)[] BfmeIIKeys = { (@"SOFTWARE\Electronic Arts\Electronic Arts\The Battle for Middle-earth II", "InstallPath") };
 
         private static IEnumerable<(string keyName, string valueName)> GetRegistryKeysForGame(SageGame game)
         {
             switch (game)
             {
-                case SageGame.CncGenerals: return GeneralsKeys;
-                case SageGame.CncGeneralsZeroHour: return ZeroHourKeys;
-                default: return Enumerable.Empty<(string, string)>();
+                case SageGame.CncGenerals:
+                    return GeneralsKeys;
+
+                case SageGame.CncGeneralsZeroHour:
+                    return ZeroHourKeys;
+
+                case SageGame.BattleForMiddleEarth:
+                    return BfmeKeys;
+
+                case SageGame.BattleForMiddleEarthII:
+                    return BfmeIIKeys;
+
+                default:
+                    return Enumerable.Empty<(string, string)>();
             }
         }
 

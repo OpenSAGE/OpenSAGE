@@ -6,7 +6,8 @@ namespace OpenSage
     {
         CncGenerals,
         CncGeneralsZeroHour,
-        BattleForMiddleEarth
+        BattleForMiddleEarth,
+        BattleForMiddleEarthII
     }
 
     public static class SageGames
@@ -15,6 +16,8 @@ namespace OpenSage
         {
             yield return SageGame.CncGenerals;
             yield return SageGame.CncGeneralsZeroHour;
+            yield return SageGame.BattleForMiddleEarth;
+            yield return SageGame.BattleForMiddleEarthII;
         }
     }
 }
