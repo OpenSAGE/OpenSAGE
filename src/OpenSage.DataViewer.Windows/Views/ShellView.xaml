@@ -33,18 +33,20 @@
             </mahapps:DropDownButton>
         </mahapps:WindowCommands>
     </mahapps:MetroWindow.RightWindowCommands>
-    <Grid DataContext="{Binding SelectedInstallation}">
+    <Grid x:Name="MainContent" DataContext="{Binding SelectedInstallation}">
         <Grid.Resources>
             <Style x:Key="GroupedListBoxStyle" TargetType="ListBox">
                 <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True" />
                 <Setter Property="VirtualizingPanel.IsVirtualizingWhenGrouping" Value="True" />
                 <Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel" />
             </Style>
+            
             <DataTemplate x:Key="GroupStyleHeaderTemplate">
                 <TextBlock Text="{Binding Name}" FontWeight="Bold" Margin="5 10 0 3" />
             </DataTemplate>
 
-            <CollectionViewSource x:Key="SortedFiles" Source="{Binding Files}">
+            <CollectionViewSource x:Key="SortedFiles" Source="{Binding Files}"
+                                  Filter="OnFilteringSortedFiles">
                 <CollectionViewSource.GroupDescriptions>
                     <PropertyGroupDescription PropertyName="FileTypeDisplayName" />
                 </CollectionViewSource.GroupDescriptions>
@@ -61,16 +63,24 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <ListBox Grid.Column="0"
-                 BorderThickness="0"
-                 Style="{StaticResource GroupedListBoxStyle}"
-                 ItemsSource="{Binding Source={StaticResource SortedFiles}}"
-                 DisplayMemberPath="FilePath"
-                 SelectedItem="{Binding SelectedFile}">
-            <ListBox.GroupStyle>
-                <GroupStyle HeaderTemplate="{StaticResource GroupStyleHeaderTemplate}" />
-            </ListBox.GroupStyle>
-        </ListBox>
+        <DockPanel Grid.Column="0" LastChildFill="True">
+            <TextBox DockPanel.Dock="Top"
+                     x:Name="SearchBox"
+                     mahapps:TextBoxHelper.Watermark="Search"
+                     mahapps:TextBoxHelper.ClearTextButton="True"
+                     BorderThickness="0 0 0 1"
+                     TextChanged="OnSearchTextChanged" />
+            
+            <ListBox BorderThickness="0"
+                     Style="{StaticResource GroupedListBoxStyle}"
+                     ItemsSource="{Binding Source={StaticResource SortedFiles}}"
+                     DisplayMemberPath="FilePath"
+                     SelectedItem="{Binding SelectedFile}">
+                <ListBox.GroupStyle>
+                    <GroupStyle HeaderTemplate="{StaticResource GroupStyleHeaderTemplate}" />
+                </ListBox.GroupStyle>
+            </ListBox>
+        </DockPanel>
 
         <GridSplitter Grid.Column="1" Width="5" ResizeBehavior="PreviousAndNext" />
 
