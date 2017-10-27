@@ -13,13 +13,20 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public uint ChunkSize { get; private set; }
 
+        public bool HasSubChunks { get; private set; }
+
         public static W3dChunkHeader Parse(BinaryReader reader)
         {
-            return new W3dChunkHeader
+            var result = new W3dChunkHeader
             {
-                ChunkType = (W3dChunkType) reader.ReadUInt32(),
-                ChunkSize = reader.ReadUInt32() & 0x7FFFFFFF
+                ChunkType = (W3dChunkType)reader.ReadUInt32(),
             };
+
+            var chunkSize = reader.ReadUInt32();
+            result.ChunkSize = chunkSize & 0x7FFFFFFF;
+            result.HasSubChunks = (chunkSize >> 31) == 1;
+
+            return result;
         }
     }
 }
