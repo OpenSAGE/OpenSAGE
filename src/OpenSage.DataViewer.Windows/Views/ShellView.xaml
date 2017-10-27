@@ -6,6 +6,8 @@
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
                      xmlns:cal="http://www.caliburnproject.org"
+                     xmlns:conv="clr-namespace:OpenSage.DataViewer.Framework.Converters"
+                     xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
                      mc:Ignorable="d" 
                      d:DesignHeight="300" d:DesignWidth="300"
                      Title="OpenSAGE Data Viewer"
@@ -31,18 +33,76 @@
             </mahapps:DropDownButton>
         </mahapps:WindowCommands>
     </mahapps:MetroWindow.RightWindowCommands>
-    <Grid>
-        <mahapps:MetroAnimatedSingleRowTabControl ItemsSource="{Binding SelectedInstallation.Tabs}" 
-                                                  SelectedItem="{Binding SelectedInstallation.SelectedTab}"
-                                                  DisplayMemberPath="DisplayName"
-                                                  TabStripMargin="10">
-            <mahapps:MetroAnimatedSingleRowTabControl.ContentTemplate>
-                <DataTemplate>
-                    <Border BorderBrush="LightGray" BorderThickness="0 0 0 0" Padding="15 10 0 0">
-                        <ContentControl cal:View.Model="{Binding}" />
-                    </Border>
-                </DataTemplate>
-            </mahapps:MetroAnimatedSingleRowTabControl.ContentTemplate>
-        </mahapps:MetroAnimatedSingleRowTabControl>
+    <Grid DataContext="{Binding SelectedInstallation}">
+        <Grid.Resources>
+            <Style x:Key="GroupedListBoxStyle" TargetType="ListBox">
+                <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True" />
+                <Setter Property="VirtualizingPanel.IsVirtualizingWhenGrouping" Value="True" />
+                <Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel" />
+            </Style>
+            <DataTemplate x:Key="GroupStyleHeaderTemplate">
+                <TextBlock Text="{Binding Name}" FontWeight="Bold" Margin="5 10 0 3" />
+            </DataTemplate>
+
+            <CollectionViewSource x:Key="SortedFiles" Source="{Binding Files}">
+                <CollectionViewSource.GroupDescriptions>
+                    <PropertyGroupDescription PropertyName="FileTypeDisplayName" />
+                </CollectionViewSource.GroupDescriptions>
+                <CollectionViewSource.SortDescriptions>
+                    <scm:SortDescription PropertyName="FileTypeDisplayName" />
+                    <scm:SortDescription PropertyName="FilePath" />
+                </CollectionViewSource.SortDescriptions>
+            </CollectionViewSource>
+        </Grid.Resources>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <ListBox Grid.Column="0"
+                 BorderThickness="0"
+                 Style="{StaticResource GroupedListBoxStyle}"
+                 ItemsSource="{Binding Source={StaticResource SortedFiles}}"
+                 DisplayMemberPath="FilePath"
+                 SelectedItem="{Binding SelectedFile}">
+            <ListBox.GroupStyle>
+                <GroupStyle HeaderTemplate="{StaticResource GroupStyleHeaderTemplate}" />
+            </ListBox.GroupStyle>
+        </ListBox>
+
+        <GridSplitter Grid.Column="1" Width="5" ResizeBehavior="PreviousAndNext" />
+
+        <Border Grid.Column="2" DataContext="{Binding SelectedFileContent}">
+            <Border.Resources>
+                <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+                <CollectionViewSource x:Key="SortedItems" Source="{Binding SubObjects, FallbackValue={x:Null}}">
+                    <CollectionViewSource.GroupDescriptions>
+                        <PropertyGroupDescription PropertyName="GroupName" />
+                    </CollectionViewSource.GroupDescriptions>
+                </CollectionViewSource>
+            </Border.Resources>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <ListBox Grid.Column="0" 
+                         Style="{StaticResource GroupedListBoxStyle}"
+                         Width="250"
+                         Visibility="{Binding Source={StaticResource SortedItems}, Converter={StaticResource NullToVisibilityConverter}}"
+                         ItemsSource="{Binding Source={StaticResource SortedItems}}"
+                         DisplayMemberPath="Name"
+                         SelectedItem="{Binding SelectedSubObject, FallbackValue={x:Null}}">
+                    <ListBox.GroupStyle>
+                        <GroupStyle HeaderTemplate="{StaticResource GroupStyleHeaderTemplate}" />
+                    </ListBox.GroupStyle>
+                </ListBox>
+                <ContentControl Grid.Column="1" 
+                                cal:View.Model="{Binding}" />
+            </Grid>
+        </Border>
     </Grid>
 </mahapps:MetroWindow>

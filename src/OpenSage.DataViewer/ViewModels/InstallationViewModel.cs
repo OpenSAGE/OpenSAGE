@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Caliburn.Micro;
 using OpenSage.Data;
 
@@ -23,48 +24,45 @@ namespace OpenSage.DataViewer.ViewModels
         public string DisplayName { get; }
         public string Path { get; }
 
-        private BindableCollection<TabViewModel> _tabs;
-        public BindableCollection<TabViewModel> Tabs
+        private List<FileSystemEntryViewModel> _files;
+        public IReadOnlyList<FileSystemEntryViewModel> Files
         {
             get
             {
-                if (_tabs == null)
+                if (_files == null)
                 {
-                    var tabs = new[]
-                    {
-                        new TabViewModel("3D Models", new[] { ".w3d" }),
-                        new TabViewModel("Textures", new[] { ".dds", ".tga" }),
-                        new TabViewModel("Maps", new[] { ".map", ".wak" }),
-                        new TabViewModel("INI", new[] { ".ini" }),
-                        new TabViewModel("Windows", new[] { ".wnd" }),
-                        new TabViewModel("Audio", new[] { ".wav", ".mp3" }),
-                        new TabViewModel("Videos", new[] { ".bik" }),
-                        new TabViewModel("Cursors", new[] { ".ani" }),
-                        new TabViewModel("Other", new string[0]),
-                    };
-
+                    _files = new List<FileSystemEntryViewModel>();
                     foreach (var file in FileSystem.Files)
                     {
-                        var fileExtension = System.IO.Path.GetExtension(file.FilePath).ToLower();
-                        var tab = tabs.First(x => x.FileExtensions.Contains(fileExtension) || x.FileExtensions.Length == 0);
-                        tab.Files.Add(file);
+                        _files.Add(new FileSystemEntryViewModel(file));
                     }
 
-                    _tabs = new BindableCollection<TabViewModel>(tabs.Where(x => x.Files.Count > 0));
-
-                    NotifyOfPropertyChange(nameof(SelectedTab));
+                    NotifyOfPropertyChange(nameof(SelectedFile));
                 }
-                return _tabs;
+                return _files;
             }
         }
 
-        private TabViewModel _selectedTab;
-        public TabViewModel SelectedTab
+        private FileSystemEntryViewModel _selectedFile;
+        public FileSystemEntryViewModel SelectedFile
         {
-            get { return _selectedTab ?? (_selectedTab = Tabs.FirstOrDefault()); }
+            get { return _selectedFile ?? (_selectedFile = Files.FirstOrDefault()); }
             set
             {
-                _selectedTab = value;
+                _selectedFile = value;
+                NotifyOfPropertyChange();
+
+                SelectedFileContent = value?.CreateFileContentViewModel() ?? null;
+            }
+        }
+
+        private FileContentViewModel _selectedFileContent;
+        public FileContentViewModel SelectedFileContent
+        {
+            get { return _selectedFileContent; }
+            private set
+            {
+                _selectedFileContent = value;
                 NotifyOfPropertyChange();
             }
         }

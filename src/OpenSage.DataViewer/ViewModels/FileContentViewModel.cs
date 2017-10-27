@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.IO;
 using Caliburn.Micro;
 using OpenSage.Data;
 
@@ -12,48 +11,6 @@ namespace OpenSage.DataViewer.ViewModels
 
     public abstract class FileContentViewModel : FileContentViewModelBase
     {
-        public static FileContentViewModel Create(FileSystemEntry file)
-        {
-            switch (Path.GetExtension(file.FilePath).ToLower())
-            {
-                case ".w3d":
-                    return new W3dFileContentViewModel(file);
-
-                case ".dds":
-                case ".tga":
-                    return new TextureFileContentViewModel(file);
-
-                case ".map":
-                    return new MapFileContentViewModel(file);
-
-                case ".wav":
-                case ".mp3":
-                case ".bik":
-                    return new AudioVideoFileContentViewModel(file);
-
-                case ".ani":
-                    return new AnimatedCursorFileContentViewModel(file);
-
-                case ".bmp":
-                    return new BitmapFileContentViewModel(file);
-
-                case ".csf":
-                    return new CsfFileContentViewModel(file);
-
-                case ".wnd":
-                    return new WndFileContentViewModel(file);
-
-                case ".ini":
-                    return new IniFileContentViewModel(file);
-
-                case ".txt":
-                    return new TextFileContentViewModel(file);
-
-                default:
-                    return new UnsupportedFileContentViewModel(file);
-            }
-        }
-
         public FileSystemEntry File { get; }
 
         protected FileContentViewModel(FileSystemEntry file)
