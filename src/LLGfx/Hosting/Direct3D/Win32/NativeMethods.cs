@@ -183,7 +183,7 @@ namespace LLGfx.Hosting.Win32
             return HighWord(lParam);
         }
 
-        public static int GetWheelDeltaWParam(int wParam)
+        public static int GetWheelDeltaWParam(long wParam)
         {
             return HighWord(wParam);
         }
@@ -193,7 +193,7 @@ namespace LLGfx.Hosting.Win32
             return (short) (input & 0xffff);
         }
 
-        public static int HighWord(int input)
+        public static int HighWord(long input)
         {
             return (short) (input >> 16);
         }

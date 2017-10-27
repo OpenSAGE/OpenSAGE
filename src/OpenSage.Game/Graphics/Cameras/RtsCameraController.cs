@@ -46,7 +46,12 @@ namespace OpenSage.Graphics.Cameras
             get { return _zoom; }
             set
             {
+                const float minZoom = 0.01f;
+
                 _zoom = value;
+                if (_zoom < minZoom)
+                    _zoom = minZoom;
+
                 _needsCameraUpdate = true;
             }
         }
@@ -121,6 +126,13 @@ namespace OpenSage.Graphics.Cameras
                 {
                     RotateCamera(deltaX);
                 }
+
+                ZoomCamera(-input.GetAxis(MouseMovementAxis.ThirdAxis));
+
+                //if (isMovementTypeActive(MouseButton.Right))
+                //{
+                //    PanCamera(deltaX, deltaY);
+                //}
             }
 
             if (_animation != null)
@@ -192,6 +204,11 @@ namespace OpenSage.Graphics.Cameras
             yaw -= deltaX * RotationSpeed;
             _lookDirection.X = MathUtility.Cos(yaw);
             _lookDirection.Y = MathUtility.Sin(yaw);
+        }
+
+        private void ZoomCamera(float deltaY)
+        {
+            Zoom = _zoom + deltaY * ZoomSpeed;
         }
     }
 }

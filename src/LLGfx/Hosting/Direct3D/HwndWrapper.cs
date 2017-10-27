@@ -346,7 +346,7 @@ namespace LLGfx.Hosting
                 case NativeMethods.WM_MOUSEWHEEL:
                     if (_mouseInWindow)
                     {
-                        int delta = NativeMethods.GetWheelDeltaWParam(wParam.ToInt32());
+                        int delta = NativeMethods.GetWheelDeltaWParam(wParam.ToInt64());
                         RaiseHwndMouseWheel(new HwndMouseEventArgs(_mouseState, delta, 0));
                     }
                     break;
