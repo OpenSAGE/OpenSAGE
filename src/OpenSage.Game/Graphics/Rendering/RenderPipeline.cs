@@ -112,7 +112,7 @@ namespace OpenSage.Graphics.Rendering
 
                     if (effect is IEffectTime t)
                     {
-                        t.SetTimeInSeconds(context.GameTime.TotalGameTime.Seconds);
+                        t.SetTimeInSeconds((float) context.GameTime.TotalGameTime.TotalSeconds);
                     }
 
                     foreach (var pipelineStateGroup in effectGroup.PipelineStateGroups)

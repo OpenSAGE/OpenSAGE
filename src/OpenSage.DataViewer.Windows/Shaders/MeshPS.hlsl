@@ -18,12 +18,15 @@ ConstantBuffer<PerDrawConstants> PerDrawCB : register(b1);
 #define TEXTURE_MAPPING_UV            0
 #define TEXTURE_MAPPING_ENVIRONMENT   1
 #define TEXTURE_MAPPING_LINEAR_OFFSET 2
+#define TEXTURE_MAPPING_ROTATE        3
 
 struct TextureMapping
 {
     uint MappingType;
     float2 UVPerSec;
     float2 UVScale;
+    float2 UVCenter;
+    float Speed;
 };
 
 struct VertexMaterial
@@ -45,6 +48,8 @@ StructuredBuffer<uint2> TextureIndices : register(t1);
 Texture2D<float4> Textures[] : register(t2);
 
 SamplerState Sampler : register(s0);
+
+#define TWO_PI (2 * 3.1415926535)
 
 float4 SampleTexture(
     uint primitiveID, float3 worldNormal, float2 uv,
@@ -73,6 +78,23 @@ float4 SampleTexture(
         float2 offset = textureMapping.UVPerSec * PerDrawCB.TimeInSeconds;
         uv = float2(uv.x, 1 - uv.y) + offset;
         uv *= textureMapping.UVScale;
+        break;
+
+    case TEXTURE_MAPPING_ROTATE:
+        float angle = textureMapping.Speed * PerDrawCB.TimeInSeconds * TWO_PI;
+        float s = sin(angle);
+        float c = cos(angle);
+
+        uv -= textureMapping.UVCenter;
+
+        float2 rotatedPoint = float2(
+            uv.x * c - uv.y * s,
+            uv.x * s + uv.y * c);
+
+        uv = rotatedPoint + textureMapping.UVCenter;
+
+        uv *= textureMapping.UVScale;
+
         break;
     }
 

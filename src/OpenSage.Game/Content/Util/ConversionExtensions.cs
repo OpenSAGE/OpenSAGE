@@ -92,7 +92,13 @@ namespace OpenSage.Content.Util
                 {
                     X = args.UScale,
                     Y = args.VScale,
-                }
+                },
+                UVCenter = new Vector2
+                {
+                    X = args.UCenter,
+                    Y = args.VCenter
+                },
+                Speed = args.Speed
             };
         }
 
@@ -108,6 +114,9 @@ namespace OpenSage.Content.Util
 
                 case W3dVertexMappingType.LinearOffset:
                     return TextureMappingType.LinearOffset;
+
+                case W3dVertexMappingType.Rotate:
+                    return TextureMappingType.Rotate;
 
                 default:
                     throw new ArgumentOutOfRangeException();

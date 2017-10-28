@@ -3,7 +3,7 @@ using LLGfx;
 
 namespace OpenSage.Content.Util
 {
-    public sealed class TerrainPatchIndexBufferCache : GraphicsObject
+    internal sealed class TerrainPatchIndexBufferCache : GraphicsObject
     {
         private struct CacheEntry
         {
