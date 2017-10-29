@@ -11,6 +11,8 @@ namespace LLGfx
         public float MinDepth;
         public float MaxDepth;
 
+        public Vector2 Size => new Vector2(Width, Height);
+
         public Viewport(int x, int y, int width, int height)
         {
             X = x;

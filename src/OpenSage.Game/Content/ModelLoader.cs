@@ -499,6 +499,10 @@ namespace OpenSage.Content
                 case W3dAnimationChannelType.TranslationZ:
                     return new TranslationZKeyframe(time, datum.FloatValue);
 
+                case W3dAnimationChannelType.UnknownBfme:
+                    // TODO
+                    return new TranslationXKeyframe(time, 0);
+
                 default:
                     throw new NotImplementedException();
             }

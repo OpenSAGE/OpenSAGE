@@ -7,7 +7,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Effects
 {
-    public sealed class MeshEffect : Effect, IEffectMatrices, IEffectLights, IEffectTime
+    public sealed class MeshEffect : Effect, IEffectMatrices, IEffectLights, IEffectTime, IEffectViewport
     {
         public const int MaxTextures = 32;
 
@@ -336,6 +336,12 @@ namespace OpenSage.Graphics.Effects
             _dirtyFlags |= MeshEffectDirtyFlags.PerDrawConstants;
         }
 
+        public void SetViewportSize(Vector2 viewportSize)
+        {
+            _perDrawConstants.ViewportSize = viewportSize;
+            _dirtyFlags |= MeshEffectDirtyFlags.PerDrawConstants;
+        }
+
         [StructLayout(LayoutKind.Sequential)]
         private struct MeshTransformConstants
         {
@@ -344,7 +350,7 @@ namespace OpenSage.Graphics.Effects
             public uint NumBones;
         }
 
-        [StructLayout(LayoutKind.Explicit, Size = 20)]
+        [StructLayout(LayoutKind.Explicit, Size = 28)]
         private struct PerDrawConstants
         {
             [FieldOffset(0)]
@@ -362,6 +368,10 @@ namespace OpenSage.Graphics.Effects
 
             [FieldOffset(16)]
             public float TimeInSeconds;
+
+            // Not actually per-draw
+            [FieldOffset(20)]
+            public Vector2 ViewportSize;
         }
     }
 }

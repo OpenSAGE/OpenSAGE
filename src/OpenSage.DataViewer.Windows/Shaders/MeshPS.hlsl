@@ -11,14 +11,17 @@ struct PerDrawConstants
     bool AlphaTest;
     bool Texturing;
     float TimeInSeconds;
+    float2 ViewportSize;
 };
 
 ConstantBuffer<PerDrawConstants> PerDrawCB : register(b1);
 
-#define TEXTURE_MAPPING_UV            0
-#define TEXTURE_MAPPING_ENVIRONMENT   1
-#define TEXTURE_MAPPING_LINEAR_OFFSET 2
-#define TEXTURE_MAPPING_ROTATE        3
+#define TEXTURE_MAPPING_UV                 0
+#define TEXTURE_MAPPING_ENVIRONMENT        1
+#define TEXTURE_MAPPING_LINEAR_OFFSET      2
+#define TEXTURE_MAPPING_ROTATE             3
+#define TEXTURE_MAPPING_SINE_LINEAR_OFFSET 4
+#define TEXTURE_MAPPING_SCREEN             5
 
 struct TextureMapping
 {
@@ -26,6 +29,9 @@ struct TextureMapping
     float2 UVPerSec;
     float2 UVScale;
     float2 UVCenter;
+    float2 UVAmplitude;
+    float2 UVFrequency;
+    float2 UVPhase;
     float Speed;
 };
 
@@ -52,7 +58,7 @@ SamplerState Sampler : register(s0);
 #define TWO_PI (2 * 3.1415926535)
 
 float4 SampleTexture(
-    uint primitiveID, float3 worldNormal, float2 uv,
+    uint primitiveID, float3 worldNormal, float2 uv, float2 screenPosition,
     TextureMapping textureMapping,
     uint textureStage,
     float3 viewVector)
@@ -63,6 +69,8 @@ float4 SampleTexture(
     // TODO: Since all pixels in a primitive share the same textureIndex,
     // can we remove the call to NonUniformResourceIndex?
     Texture2D<float4> diffuseTexture = Textures[NonUniformResourceIndex(textureIndex)];
+
+    float t = PerDrawCB.TimeInSeconds;
 
     switch (textureMapping.MappingType)
     {
@@ -75,13 +83,13 @@ float4 SampleTexture(
         break;
 
     case TEXTURE_MAPPING_LINEAR_OFFSET:
-        float2 offset = textureMapping.UVPerSec * PerDrawCB.TimeInSeconds;
+        float2 offset = textureMapping.UVPerSec * t;
         uv = float2(uv.x, 1 - uv.y) + offset;
         uv *= textureMapping.UVScale;
         break;
 
     case TEXTURE_MAPPING_ROTATE:
-        float angle = textureMapping.Speed * PerDrawCB.TimeInSeconds * TWO_PI;
+        float angle = textureMapping.Speed * t * TWO_PI;
         float s = sin(angle);
         float c = cos(angle);
 
@@ -95,6 +103,14 @@ float4 SampleTexture(
 
         uv *= textureMapping.UVScale;
 
+        break;
+
+    case TEXTURE_MAPPING_SINE_LINEAR_OFFSET:
+        uv += textureMapping.UVAmplitude * sin(textureMapping.UVFrequency * t + textureMapping.UVPhase);
+        break;
+
+    case TEXTURE_MAPPING_SCREEN:
+        uv = screenPosition / PerDrawCB.ViewportSize * textureMapping.UVScale;
         break;
     }
 
@@ -123,7 +139,7 @@ float4 main(PSInput input) : SV_TARGET
         float3 v = CalculateViewVector(input.WorldPosition);
 
         diffuseTextureColor = SampleTexture(
-            input.PrimitiveID, input.Normal, input.UV0,
+            input.PrimitiveID, input.Normal, input.UV0, input.ScreenPosition.xy,
             material.TextureMappingStage0,
             0, v);
 
@@ -131,7 +147,7 @@ float4 main(PSInput input) : SV_TARGET
         {
             // TODO: Is this the right way to combine texture stages?
             diffuseTextureColor += SampleTexture(
-                input.PrimitiveID, input.Normal, input.UV1,
+                input.PrimitiveID, input.Normal, input.UV1, input.ScreenPosition.xy,
                 material.TextureMappingStage1,
                 1, v);
         }

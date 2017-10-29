@@ -15,4 +15,5 @@ struct VSOutput : PSInputBase
 struct PSInput : PSInputBase
 {
     uint PrimitiveID : SV_PrimitiveID;
+    float4 ScreenPosition : SV_Position;
 };

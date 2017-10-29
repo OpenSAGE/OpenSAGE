@@ -98,6 +98,21 @@ namespace OpenSage.Content.Util
                     X = args.UCenter,
                     Y = args.VCenter
                 },
+                UVAmplitude = new Vector2
+                {
+                    X = args.UAmp,
+                    Y = args.VAmp
+                },
+                UVFrequency = new Vector2
+                {
+                    X = args.UFreq,
+                    Y = args.VFreq
+                },
+                UVPhase = new Vector2
+                {
+                    X = args.UPhase,
+                    Y = args.VPhase
+                },
                 Speed = args.Speed
             };
         }
@@ -117,6 +132,12 @@ namespace OpenSage.Content.Util
 
                 case W3dVertexMappingType.Rotate:
                     return TextureMappingType.Rotate;
+
+                case W3dVertexMappingType.SineLinearOffset:
+                    return TextureMappingType.SineLinearOffset;
+
+                case W3dVertexMappingType.Screen:
+                    return TextureMappingType.Screen;
 
                 default:
                     throw new ArgumentOutOfRangeException();

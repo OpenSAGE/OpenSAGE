@@ -25,6 +25,9 @@ namespace OpenSage.Graphics.Effects
         public Vector2 UVPerSec;
         public Vector2 UVScale;
         public Vector2 UVCenter;
+        public Vector2 UVAmplitude;
+        public Vector2 UVFrequency;
+        public Vector2 UVPhase;
         public float Speed;
     }
 
@@ -33,6 +36,8 @@ namespace OpenSage.Graphics.Effects
         Uv = 0,
         Environment = 1,
         LinearOffset = 2,
-        Rotate = 3
+        Rotate = 3,
+        SineLinearOffset = 4,
+        Screen = 5
     }
 }

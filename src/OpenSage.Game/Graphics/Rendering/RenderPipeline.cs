@@ -115,6 +115,11 @@ namespace OpenSage.Graphics.Rendering
                         t.SetTimeInSeconds((float) context.GameTime.TotalGameTime.TotalSeconds);
                     }
 
+                    if (effect is IEffectViewport v)
+                    {
+                        v.SetViewportSize(context.Camera.Viewport.Size);
+                    }
+
                     foreach (var pipelineStateGroup in effectGroup.PipelineStateGroups)
                     {
                         var pipelineStateHandle = pipelineStateGroup.PipelineStateHandle;
