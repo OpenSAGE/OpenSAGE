@@ -64,11 +64,13 @@
 
         public bool IsDepthEnabled;
         public bool IsDepthWriteEnabled;
+        public Comparison DepthComparison;
 
         private DepthStencilStateDescription(bool isDepthEnabled, bool isDepthWriteEnabled)
         {
             IsDepthEnabled = isDepthEnabled;
             IsDepthWriteEnabled = isDepthWriteEnabled;
+            DepthComparison = Comparison.LessEqual;
         }
     }
 

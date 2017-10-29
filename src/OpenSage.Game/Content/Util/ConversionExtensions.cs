@@ -179,5 +179,38 @@ namespace OpenSage.Content.Util
                 Direction = Vector3.Normalize(mapLight.Direction)
             };
         }
+
+        public static Comparison ToComparison(this W3dShaderDepthCompare value)
+        {
+            switch (value)
+            {
+                case W3dShaderDepthCompare.PassNever:
+                    return Comparison.Never;
+
+                case W3dShaderDepthCompare.PassLess:
+                    return Comparison.Less;
+
+                case W3dShaderDepthCompare.PassEqual:
+                    return Comparison.Equal;
+
+                case W3dShaderDepthCompare.PassLEqual:
+                    return Comparison.LessEqual;
+
+                case W3dShaderDepthCompare.PassGreater:
+                    return Comparison.Greater;
+
+                case W3dShaderDepthCompare.PassNotEqual:
+                    return Comparison.NotEqual;
+
+                case W3dShaderDepthCompare.PassGEqual:
+                    return Comparison.GreaterEqual;
+
+                case W3dShaderDepthCompare.PassAlways:
+                    return Comparison.Always;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value));
+            }
+        }
     }
 }

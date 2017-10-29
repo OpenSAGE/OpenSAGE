@@ -51,7 +51,7 @@ namespace LLGfx
                     AddressU = TextureAddressMode.Wrap,
                     AddressV = TextureAddressMode.Wrap,
                     AddressW = TextureAddressMode.Clamp,
-                    ComparisonFunction = Comparison.Always,
+                    ComparisonFunction = D3D12.Comparison.Always,
                     MinimumLod = 0,
                     MaximumLod = float.MaxValue,
                     MaximumAnisotropy = staticSamplerState.SamplerStateDescription.MaxAnisotropy

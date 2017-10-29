@@ -83,10 +83,44 @@ namespace LLGfx.Util
                 ? DepthWriteMask.All
                 : DepthWriteMask.Zero;
 
-            result.DepthComparison = Comparison.LessEqual;
+            result.DepthComparison = value.DepthComparison.ToComparison();
 
             return result;
         }
+
+        public static D3D12.Comparison ToComparison(this Comparison value)
+        {
+            switch (value)
+            {
+                case Comparison.Never:
+                    return D3D12.Comparison.Never;
+
+                case Comparison.Less:
+                    return D3D12.Comparison.Less;
+
+                case Comparison.Equal:
+                    return D3D12.Comparison.Equal;
+
+                case Comparison.LessEqual:
+                    return D3D12.Comparison.LessEqual;
+
+                case Comparison.Greater:
+                    return D3D12.Comparison.Greater;
+
+                case Comparison.NotEqual:
+                    return D3D12.Comparison.NotEqual;
+
+                case Comparison.GreaterEqual:
+                    return D3D12.Comparison.GreaterEqual;
+
+                case Comparison.Always:
+                    return D3D12.Comparison.Always;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
 
         public static D3D12.FillMode ToFillMode(this FillMode value)
         {

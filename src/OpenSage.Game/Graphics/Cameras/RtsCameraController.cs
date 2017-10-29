@@ -129,7 +129,7 @@ namespace OpenSage.Graphics.Cameras
                         && !input.GetMouseButtonPressed(button);
                 }
 
-                if (isMovementTypeActive(MouseButton.Middle))
+                if (isMovementTypeActive(MouseButton.Left))
                 {
                     RotateCamera(deltaX);
                 }

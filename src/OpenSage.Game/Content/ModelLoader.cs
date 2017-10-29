@@ -403,7 +403,7 @@ namespace OpenSage.Content
             var depthState = DepthStencilStateDescription.Default;
             depthState.IsDepthEnabled = true;
             depthState.IsDepthWriteEnabled = w3dShader.DepthMask == W3dShaderDepthMask.WriteEnable;
-            // TODO: DepthCompare
+            depthState.DepthComparison = w3dShader.DepthCompare.ToComparison();
 
             var blendState = BlendStateDescription.Opaque;
             blendState.Enabled = w3dShader.SrcBlend != W3dShaderSrcBlendFunc.One
