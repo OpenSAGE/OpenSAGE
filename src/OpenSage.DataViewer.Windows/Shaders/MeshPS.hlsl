@@ -106,7 +106,8 @@ float4 SampleTexture(
         break;
 
     case TEXTURE_MAPPING_SINE_LINEAR_OFFSET:
-        uv += textureMapping.UVAmplitude * sin(textureMapping.UVFrequency * t + textureMapping.UVPhase);
+        uv.x += textureMapping.UVAmplitude.x * sin(textureMapping.UVFrequency.x * t * TWO_PI + textureMapping.UVPhase.x * TWO_PI);
+        uv.y += textureMapping.UVAmplitude.y * sin(textureMapping.UVFrequency.y * t * TWO_PI);
         break;
 
     case TEXTURE_MAPPING_SCREEN:
