@@ -33,11 +33,9 @@ namespace OpenSage.DataViewer.ViewModels
             _modelEntity = game.ContentManager.Load<Model>(File.FilePath, uploadBatch: null).CreateEntity();
             scene.Entities.Add(_modelEntity);
 
-            //var enclosingBoundingBox = _modelEntity.GetEnclosingBoundingBox();
-
-            //cameraEntity.Components.Add(new ArcballCameraController(
-            //    enclosingBoundingBox.GetCenter(),
-            //    Vector3.Distance(enclosingBoundingBox.Min, enclosingBoundingBox.Max) / 1.5f));
+            var enclosingBoundingBox = _modelEntity.GetEnclosingBoundingBox();
+            scene.CameraController.TerrainPosition = enclosingBoundingBox.GetCenter();
+            scene.CameraController.Zoom = Vector3.Distance(enclosingBoundingBox.Min, enclosingBoundingBox.Max) / 400f;
 
             game.Scene = scene;
 
