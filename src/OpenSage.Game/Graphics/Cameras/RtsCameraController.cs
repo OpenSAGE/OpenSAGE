@@ -9,7 +9,7 @@ namespace OpenSage.Graphics.Cameras
     public sealed class RtsCameraController
     {
         private const float RotationSpeed = 0.003f;
-        private const float ZoomSpeed = 0.002f;
+        private const float ZoomSpeed = 0.0005f;
         private const float PanSpeed = 3f;
 
         private readonly CameraComponent _camera;
