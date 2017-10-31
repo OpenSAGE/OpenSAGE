@@ -139,6 +139,9 @@ namespace OpenSage.Content.Util
                 case W3dVertexMappingType.Screen:
                     return TextureMappingType.Screen;
 
+                case W3dVertexMappingType.Scale:
+                    return TextureMappingType.Scale;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }

@@ -38,6 +38,7 @@ namespace OpenSage.Graphics.Effects
         LinearOffset = 2,
         Rotate = 3,
         SineLinearOffset = 4,
-        Screen = 5
+        Screen = 5,
+        Scale = 6
     }
 }

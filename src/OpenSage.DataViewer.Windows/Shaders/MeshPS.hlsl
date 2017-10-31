@@ -22,6 +22,7 @@ ConstantBuffer<PerDrawConstants> PerDrawCB : register(b1);
 #define TEXTURE_MAPPING_ROTATE             3
 #define TEXTURE_MAPPING_SINE_LINEAR_OFFSET 4
 #define TEXTURE_MAPPING_SCREEN             5
+#define TEXTURE_MAPPING_SCALE              6
 
 struct TextureMapping
 {
@@ -112,6 +113,10 @@ float4 SampleTexture(
 
     case TEXTURE_MAPPING_SCREEN:
         uv = screenPosition / PerDrawCB.ViewportSize * textureMapping.UVScale;
+        break;
+
+    case TEXTURE_MAPPING_SCALE:
+        uv *= textureMapping.UVScale;
         break;
     }
 
