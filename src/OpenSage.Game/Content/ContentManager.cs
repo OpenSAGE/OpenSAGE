@@ -117,13 +117,13 @@ namespace OpenSage.Content
                 {
                     uploadBatch.End();
                 }
+
+                _cachedObjects.Add(filePath, asset);
             }
             else
             {
                 asset = contentLoader.PlaceholderValue;
             }
-
-            _cachedObjects.Add(filePath, asset);
 
             return (T) asset;
         }
