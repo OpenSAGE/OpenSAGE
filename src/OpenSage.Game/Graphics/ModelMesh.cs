@@ -29,6 +29,7 @@ namespace OpenSage.Graphics
 
         private readonly StaticBuffer<VertexMaterial> _materialsBuffer;
         private readonly TextureSet _textures;
+        private readonly StaticBuffer<ShadingConfiguration> _shadingConfigurationsBuffer;
 
         public string Name { get; }
 
@@ -50,6 +51,7 @@ namespace OpenSage.Graphics
             VertexMaterial[] vertexMaterials,
             Texture[] textures,
             ModelMeshMaterialPass[] materialPasses,
+            ShadingConfiguration[] shadingConfigurations,
             bool isSkinned,
             ModelBone parentBone,
             uint numBones,
@@ -86,6 +88,11 @@ namespace OpenSage.Graphics
                 AddDisposable(materialPass);
             }
             MaterialPasses = materialPasses;
+
+            _shadingConfigurationsBuffer = AddDisposable(StaticBuffer.Create(
+                graphicsDevice,
+                uploadBatch,
+                shadingConfigurations));
         }
 
         internal void BuildRenderList(RenderList renderList, RenderInstanceData instanceData, MeshEffect effect)
@@ -139,6 +146,7 @@ namespace OpenSage.Graphics
 
             meshEffect.SetMaterials(_materialsBuffer);
             meshEffect.SetTextures(_textures);
+            meshEffect.SetShadingConfigurations(_shadingConfigurationsBuffer);
 
             commandEncoder.SetVertexBuffer(0, _vertexBuffer);
 
@@ -158,8 +166,7 @@ namespace OpenSage.Graphics
                     }
 
                     meshEffect.SetPrimitiveOffset(meshPart.StartIndex / 3);
-                    meshEffect.SetAlphaTest(meshPart.AlphaTest);
-                    meshEffect.SetTexturing(meshPart.Texturing);
+                    meshEffect.SetShadingConfigurationID(meshPart.ShadingConfigurationID);
 
                     meshEffect.Apply(commandEncoder);
 

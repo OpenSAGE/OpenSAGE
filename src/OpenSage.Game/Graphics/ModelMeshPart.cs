@@ -7,23 +7,20 @@ namespace OpenSage.Graphics
         public uint StartIndex { get; }
         public uint IndexCount { get; }
 
-        public bool AlphaTest { get; }
-        public bool Texturing { get; }
+        public uint ShadingConfigurationID { get; }
 
         public EffectPipelineStateHandle PipelineStateHandle { get; }
 
         internal ModelMeshPart(
             uint startIndex, 
             uint indexCount, 
-            bool alphaTest,
-            bool texturing,
+            uint shadingConfigurationID,
             EffectPipelineStateHandle pipelineStateHandle)
         {
             StartIndex = startIndex;
             IndexCount = indexCount;
 
-            AlphaTest = alphaTest;
-            Texturing = texturing;
+            ShadingConfigurationID = shadingConfigurationID;
 
             PipelineStateHandle = pipelineStateHandle;
         }

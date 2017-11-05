@@ -143,6 +143,12 @@ namespace OpenSage.Content
                     w3dMesh.MaterialPasses[i]);
             }
 
+            var shadingConfigurations = new ShadingConfiguration[w3dMesh.Shaders.Length];
+            for (var i = 0; i < shadingConfigurations.Length; i++)
+            {
+                shadingConfigurations[i] = CreateShadingConfiguration(w3dMesh.Shaders[i]);
+            }
+
             var boundingBox = new BoundingBox(
                 w3dMesh.Header.Min,
                 w3dMesh.Header.Max);
@@ -158,10 +164,24 @@ namespace OpenSage.Content
                 CreateMaterials(w3dMesh),
                 CreateTextures(contentManager, uploadBatch, w3dMesh),
                 materialPasses,
+                shadingConfigurations,
                 isSkinned,
                 parentBone,
                 (uint) numBones,
                 boundingBox);
+        }
+
+        private static ShadingConfiguration CreateShadingConfiguration(W3dShader w3dShader)
+        {
+            return new ShadingConfiguration
+            {
+                DiffuseLightingType = w3dShader.PrimaryGradient.ToDiffuseLightingType(),
+                SpecularEnabled = w3dShader.SecondaryGradient == W3dShaderSecondaryGradient.Enable,
+                TexturingEnabled = w3dShader.Texturing == W3dShaderTexturing.Enable,
+                SecondaryTextureColorBlend = w3dShader.DetailColorFunc.ToSecondaryTextureBlend(),
+                SecondaryTextureAlphaBlend = w3dShader.DetailAlphaFunc.ToSecondaryTextureBlend(),
+                AlphaTest = w3dShader.AlphaTest == W3dShaderAlphaTest.Enable
+            };
         }
 
         private static VertexMaterial[] CreateMaterials(W3dMesh w3dMesh)
@@ -340,7 +360,7 @@ namespace OpenSage.Content
                     0, 
                     w3dMesh.Header.NumTris * 3,
                     w3dMesh,
-                    w3dMesh.Shaders[w3dMaterialPass.ShaderIds[0]]));
+                    w3dMaterialPass.ShaderIds[0]));
             }
             else
             {
@@ -357,7 +377,7 @@ namespace OpenSage.Content
                             startIndex,
                             indexCount,
                             w3dMesh,
-                            w3dMesh.Shaders[shaderID]));
+                            shaderID));
 
                         startIndex = (uint) (i * 3);
                         indexCount = 0;
@@ -374,7 +394,7 @@ namespace OpenSage.Content
                         startIndex,
                         indexCount,
                         w3dMesh,
-                        w3dMesh.Shaders[shaderID]));
+                        shaderID));
                 }
             }
 
@@ -393,8 +413,10 @@ namespace OpenSage.Content
             uint startIndex,
             uint indexCount,
             W3dMesh w3dMesh,
-            W3dShader w3dShader)
+            uint shaderID)
         {
+            var w3dShader = w3dMesh.Shaders[shaderID];
+
             var rasterizerState = RasterizerStateDescription.CullBackSolid;
             rasterizerState.CullMode = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.TwoSided)
                 ? CullMode.None
@@ -420,8 +442,7 @@ namespace OpenSage.Content
             return new ModelMeshPart(
                 startIndex,
                 indexCount,
-                w3dShader.AlphaTest == W3dShaderAlphaTest.Enable,
-                w3dShader.Texturing == W3dShaderTexturing.Enable,
+                shaderID,
                 pipelineStateHandle);
         }
 

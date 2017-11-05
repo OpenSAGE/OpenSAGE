@@ -147,6 +147,76 @@ namespace OpenSage.Content.Util
             }
         }
 
+        public static DiffuseLightingType ToDiffuseLightingType(this W3dShaderPrimaryGradient value)
+        {
+            switch (value)
+            {
+                case W3dShaderPrimaryGradient.Disable:
+                    return DiffuseLightingType.Disable;
+
+                case W3dShaderPrimaryGradient.Modulate:
+                    return DiffuseLightingType.Modulate;
+
+                case W3dShaderPrimaryGradient.Add:
+                    return DiffuseLightingType.Add;
+
+                case W3dShaderPrimaryGradient.BumpEnvMap:
+                    throw new NotImplementedException();
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public static SecondaryTextureBlend ToSecondaryTextureBlend(this W3dShaderDetailColorFunc value)
+        {
+            switch (value)
+            {
+                case W3dShaderDetailColorFunc.Disable:
+                    return SecondaryTextureBlend.Disable;
+                    
+                case W3dShaderDetailColorFunc.Detail:
+                    return SecondaryTextureBlend.Detail;
+
+                case W3dShaderDetailColorFunc.Scale:
+                    return SecondaryTextureBlend.Scale;
+
+                case W3dShaderDetailColorFunc.InvScale:
+                    return SecondaryTextureBlend.InvScale;
+
+                case W3dShaderDetailColorFunc.Add:
+                case W3dShaderDetailColorFunc.Sub:
+                case W3dShaderDetailColorFunc.SubR:
+                case W3dShaderDetailColorFunc.Blend:
+                case W3dShaderDetailColorFunc.DetailBlend:
+                    throw new NotImplementedException();
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public static SecondaryTextureBlend ToSecondaryTextureBlend(this W3dShaderDetailAlphaFunc value)
+        {
+            switch (value)
+            {
+                case W3dShaderDetailAlphaFunc.Disable:
+                    return SecondaryTextureBlend.Disable;
+
+                case W3dShaderDetailAlphaFunc.Detail:
+                    return SecondaryTextureBlend.Detail;
+
+                case W3dShaderDetailAlphaFunc.Scale:
+                    return SecondaryTextureBlend.Scale;
+
+                case W3dShaderDetailAlphaFunc.InvScale:
+                    return SecondaryTextureBlend.InvScale;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         public static Dictionary<TimeOfDay, LightSettings> ToLightSettingsDictionary(this Dictionary<TimeOfDay, GlobalLightingConfiguration> value)
         {
             return value.ToDictionary(

@@ -6,10 +6,9 @@
 
 struct PerDrawConstants
 {
+    uint ShadingConfigurationID;
     uint PrimitiveOffset;
     uint NumTextureStages;
-    bool AlphaTest;
-    bool Texturing;
     float TimeInSeconds;
     float2 ViewportSize;
 };
@@ -51,8 +50,29 @@ struct VertexMaterial
 
 StructuredBuffer<VertexMaterial> Materials : register(t0);
 
-StructuredBuffer<uint2> TextureIndices : register(t1);
-Texture2D<float4> Textures[] : register(t2);
+#define DIFFUSE_LIGHTING_DISABLE  0
+#define DIFFUSE_LIGHTING_MODULATE 1
+#define DIFFUSE_LIGHTING_ADD      2
+
+#define SECONDARY_TEXTURE_BLEND_DISABLE   0
+#define SECONDARY_TEXTURE_BLEND_DETAIL    1
+#define SECONDARY_TEXTURE_BLEND_SCALE     2
+#define SECONDARY_TEXTURE_BLEND_INV_SCALE 3
+
+struct ShadingConfiguration
+{
+    uint DiffuseLightingType;
+    bool SpecularEnabled;
+    bool TexturingEnabled;
+    uint SecondaryTextureColorBlend;
+    uint SecondaryTextureAlphaBlend;
+    bool AlphaTest;
+};
+
+StructuredBuffer<ShadingConfiguration> ShadingConfigurations : register(t1);
+
+StructuredBuffer<uint2> TextureIndices : register(t2);
+Texture2D<float4> Textures[] : register(t3);
 
 SamplerState Sampler : register(s0);
 
@@ -125,6 +145,8 @@ float4 SampleTexture(
 
 float4 main(PSInput input) : SV_TARGET
 {
+    ShadingConfiguration shadingConfiguration = ShadingConfigurations[PerDrawCB.ShadingConfigurationID];
+
     VertexMaterial material = Materials[input.MaterialIndex];
 
     LightingParameters lightingParams;
@@ -140,7 +162,7 @@ float4 main(PSInput input) : SV_TARGET
     DoLighting(lightingParams, diffuseColor, specularColor);
 
     float4 diffuseTextureColor;
-    if (PerDrawCB.Texturing)
+    if (shadingConfiguration.TexturingEnabled)
     {
         float3 v = CalculateViewVector(input.WorldPosition);
 
@@ -158,7 +180,7 @@ float4 main(PSInput input) : SV_TARGET
                 1, v);
         }
 
-        if (PerDrawCB.AlphaTest)
+        if (shadingConfiguration.AlphaTest)
         {
             const float alphaTestThreshold = 0x60 / (float) 0xFF;
             if (diffuseTextureColor.a < alphaTestThreshold)
