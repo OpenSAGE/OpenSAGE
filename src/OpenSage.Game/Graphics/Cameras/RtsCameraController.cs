@@ -23,6 +23,8 @@ namespace OpenSage.Graphics.Cameras
 
         public bool IsPlayerInputEnabled { get; set; } = true;
 
+        public bool CanPlayerInputChangePitch { get; set; }
+        
         private Vector3 _lookDirection;
         public void SetLookDirection(Vector3 lookDirection)
         {
@@ -63,7 +65,7 @@ namespace OpenSage.Graphics.Cameras
             get { return _terrainPosition; }
             set
             {
-                _terrainPosition = value;
+                _terrainPosition = new Vector3(value.X, value.Y, 0);
                 _needsCameraUpdate = true;
             }
         }
@@ -131,7 +133,7 @@ namespace OpenSage.Graphics.Cameras
 
                 if (isMovementTypeActive(MouseButton.Left))
                 {
-                    RotateCamera(deltaX);
+                    RotateCamera(deltaX, deltaY);
                 }
 
                 ZoomCamera(-input.GetAxis(MouseMovementAxis.ThirdAxis));
@@ -204,12 +206,24 @@ namespace OpenSage.Graphics.Cameras
                 Vector3.UnitZ);
         }
 
-        private void RotateCamera(float deltaX)
+        private void RotateCamera(float deltaX, float deltaY)
         {
             var yaw = MathUtility.Atan2(_lookDirection.Y, _lookDirection.X);
             yaw -= deltaX * RotationSpeed;
             _lookDirection.X = MathUtility.Cos(yaw);
             _lookDirection.Y = MathUtility.Sin(yaw);
+
+            if (CanPlayerInputChangePitch)
+            {
+                var maxPitch = 90.0f / _pitchAngle;
+
+                var newPitch = _pitch + deltaY * RotationSpeed;
+                if (newPitch < 0)
+                    newPitch = 0;
+                else if (newPitch > maxPitch)
+                    newPitch = maxPitch;
+                _pitch = newPitch;
+            }
         }
 
         private void ZoomCamera(float deltaY)

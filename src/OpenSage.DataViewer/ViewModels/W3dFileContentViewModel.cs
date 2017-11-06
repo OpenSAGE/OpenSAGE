@@ -34,6 +34,7 @@ namespace OpenSage.DataViewer.ViewModels
             scene.Entities.Add(_modelEntity);
 
             var enclosingBoundingBox = _modelEntity.GetEnclosingBoundingBox();
+            scene.CameraController.CanPlayerInputChangePitch = true;
             scene.CameraController.TerrainPosition = enclosingBoundingBox.GetCenter();
             scene.CameraController.Zoom = Vector3.Distance(enclosingBoundingBox.Min, enclosingBoundingBox.Max) / 400f;
 
