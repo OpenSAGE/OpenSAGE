@@ -190,5 +190,12 @@ namespace LLGfx
 
             _graphicsDevice.FinishFrame();
         }
+
+        protected override void Dispose(bool disposeManagedResources)
+        {
+            WaitForGpu();
+
+            base.Dispose(disposeManagedResources);
+        }
     }
 }
