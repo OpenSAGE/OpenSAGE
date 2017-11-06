@@ -127,12 +127,12 @@ float4 SampleTexture(
         break;
 
     case TEXTURE_MAPPING_SINE_LINEAR_OFFSET:
-        uv.x += textureMapping.UVAmplitude.x * sin(textureMapping.UVFrequency.x * t * TWO_PI + textureMapping.UVPhase.x * TWO_PI);
-        uv.y += textureMapping.UVAmplitude.y * sin(textureMapping.UVFrequency.y * t * TWO_PI);
+        uv.x += textureMapping.UVAmplitude.x * sin(textureMapping.UVFrequency.x * t * TWO_PI - textureMapping.UVPhase.x * TWO_PI);
+        uv.y += textureMapping.UVAmplitude.y * cos(textureMapping.UVFrequency.y * t * TWO_PI - textureMapping.UVPhase.y * TWO_PI);
         break;
 
     case TEXTURE_MAPPING_SCREEN:
-        uv = screenPosition / PerDrawCB.ViewportSize * textureMapping.UVScale;
+        uv = (screenPosition / PerDrawCB.ViewportSize) * textureMapping.UVScale;
         break;
 
     case TEXTURE_MAPPING_SCALE:
