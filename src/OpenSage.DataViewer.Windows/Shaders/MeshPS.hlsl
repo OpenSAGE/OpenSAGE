@@ -173,11 +173,40 @@ float4 main(PSInput input) : SV_TARGET
 
         if (PerDrawCB.NumTextureStages > 1)
         {
-            // TODO: Is this the right way to combine texture stages?
-            diffuseTextureColor += SampleTexture(
+            float4 secondaryTextureColor = SampleTexture(
                 input.PrimitiveID, input.Normal, input.UV1, input.ScreenPosition.xy,
                 material.TextureMappingStage1,
                 1, v);
+
+            switch (shadingConfiguration.SecondaryTextureColorBlend)
+            {
+            case SECONDARY_TEXTURE_BLEND_DETAIL:
+                diffuseTextureColor.rgb = secondaryTextureColor.rgb;
+                break;
+
+            case SECONDARY_TEXTURE_BLEND_SCALE:
+                diffuseTextureColor.rgb *= secondaryTextureColor.rgb;
+                break;
+
+            case SECONDARY_TEXTURE_BLEND_INV_SCALE:
+                diffuseTextureColor.rgb += (float3(1, 1, 1) - diffuseTextureColor.rgb) * secondaryTextureColor.rgb;
+                break;
+            }
+
+            switch (shadingConfiguration.SecondaryTextureAlphaBlend)
+            {
+            case SECONDARY_TEXTURE_BLEND_DETAIL:
+                diffuseTextureColor.a = secondaryTextureColor.a;
+                break;
+
+            case SECONDARY_TEXTURE_BLEND_SCALE:
+                diffuseTextureColor.a *= secondaryTextureColor.a;
+                break;
+
+            case SECONDARY_TEXTURE_BLEND_INV_SCALE:
+                diffuseTextureColor.a += (1 - diffuseTextureColor.a) * secondaryTextureColor.a;
+                break;
+            }
         }
 
         if (shadingConfiguration.AlphaTest)
@@ -196,7 +225,25 @@ float4 main(PSInput input) : SV_TARGET
 
     float3 totalObjectLighting = saturate(diffuseColor + material.Emissive);
 
+    float3 objectColor = diffuseTextureColor.rgb;
+
+    switch (shadingConfiguration.DiffuseLightingType)
+    {
+    case DIFFUSE_LIGHTING_MODULATE:
+        objectColor *= totalObjectLighting;
+        break;
+
+    case DIFFUSE_LIGHTING_ADD:
+        objectColor += totalObjectLighting;
+        break;
+    }
+
+    if (shadingConfiguration.SpecularEnabled)
+    {
+        objectColor += specularColor;
+    }
+
     return float4(
-        (totalObjectLighting * diffuseTextureColor.rgb) + specularColor, 
+        objectColor,
         material.Opacity * diffuseTextureColor.a);
 }
