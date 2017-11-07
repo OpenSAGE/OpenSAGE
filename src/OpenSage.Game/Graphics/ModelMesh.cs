@@ -42,6 +42,8 @@ namespace OpenSage.Graphics
 
         public bool Skinned { get; }
 
+        public bool Hidden { get; }
+
         public ModelMesh(
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,
@@ -55,7 +57,8 @@ namespace OpenSage.Graphics
             bool isSkinned,
             ModelBone parentBone,
             uint numBones,
-            BoundingBox boundingBox)
+            BoundingBox boundingBox,
+            bool hidden)
         {
             Name = name;
 
@@ -65,6 +68,8 @@ namespace OpenSage.Graphics
             BoundingBox = boundingBox;
 
             Skinned = isSkinned;
+
+            Hidden = hidden;
 
             _vertexBuffer = AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
@@ -97,6 +102,11 @@ namespace OpenSage.Graphics
 
         internal void BuildRenderList(RenderList renderList, RenderInstanceData instanceData, MeshEffect effect)
         {
+            if (Hidden)
+            {
+                return;
+            }
+
             var uniquePipelineStates = MaterialPasses
                 .SelectMany(x => x.MeshParts.Select(y => y.PipelineStateHandle))
                 .Distinct()

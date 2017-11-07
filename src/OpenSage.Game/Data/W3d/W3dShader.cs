@@ -63,6 +63,16 @@ namespace OpenSage.Data.W3d
                 PostDetailAlphaFunc = (W3dShaderDetailAlphaFunc) reader.ReadByte()
             };
 
+            // TODO: Need to do this for armyantsglow in BFME, why?
+            if (result.DetailColorFunc == (W3dShaderDetailColorFunc) 11)
+            {
+                result.DetailColorFunc = W3dShaderDetailColorFunc.Scale;
+            }
+            else if (result.DetailColorFunc == (W3dShaderDetailColorFunc) 12)
+            {
+                result.DetailColorFunc = W3dShaderDetailColorFunc.InvScale;
+            }
+
             reader.ReadByte(); // padding
 
             return result;

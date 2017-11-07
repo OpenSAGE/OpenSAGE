@@ -50,14 +50,15 @@ struct VertexMaterial
 
 StructuredBuffer<VertexMaterial> Materials : register(t0);
 
-#define DIFFUSE_LIGHTING_DISABLE  0
-#define DIFFUSE_LIGHTING_MODULATE 1
-#define DIFFUSE_LIGHTING_ADD      2
+#define DIFFUSE_LIGHTING_DISABLE       0
+#define DIFFUSE_LIGHTING_MODULATE      1
+#define DIFFUSE_LIGHTING_ADD           2
 
-#define SECONDARY_TEXTURE_BLEND_DISABLE   0
-#define SECONDARY_TEXTURE_BLEND_DETAIL    1
-#define SECONDARY_TEXTURE_BLEND_SCALE     2
-#define SECONDARY_TEXTURE_BLEND_INV_SCALE 3
+#define SECONDARY_TEXTURE_BLEND_DISABLE      0
+#define SECONDARY_TEXTURE_BLEND_DETAIL       1
+#define SECONDARY_TEXTURE_BLEND_SCALE        2
+#define SECONDARY_TEXTURE_BLEND_INV_SCALE    3
+#define SECONDARY_TEXTURE_BLEND_DETAIL_BLEND 4
 
 struct ShadingConfiguration
 {
@@ -190,6 +191,11 @@ float4 main(PSInput input) : SV_TARGET
 
             case SECONDARY_TEXTURE_BLEND_INV_SCALE:
                 diffuseTextureColor.rgb += (float3(1, 1, 1) - diffuseTextureColor.rgb) * secondaryTextureColor.rgb;
+                break;
+
+            case SECONDARY_TEXTURE_BLEND_DETAIL_BLEND:
+                // (otherAlpha)*local + (~otherAlpha)*other
+                diffuseTextureColor.rgb += (secondaryTextureColor.a * diffuseTextureColor.rgb) + ((1 - secondaryTextureColor.a) * secondaryTextureColor.rgb);
                 break;
             }
 

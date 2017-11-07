@@ -155,6 +155,7 @@ namespace OpenSage.Content.Util
                     return DiffuseLightingType.Disable;
 
                 case W3dShaderPrimaryGradient.Modulate:
+                case W3dShaderPrimaryGradient.Enable:
                     return DiffuseLightingType.Modulate;
 
                 case W3dShaderPrimaryGradient.Add:
@@ -188,8 +189,10 @@ namespace OpenSage.Content.Util
                 case W3dShaderDetailColorFunc.Sub:
                 case W3dShaderDetailColorFunc.SubR:
                 case W3dShaderDetailColorFunc.Blend:
-                case W3dShaderDetailColorFunc.DetailBlend:
                     throw new NotImplementedException();
+
+                case W3dShaderDetailColorFunc.DetailBlend:
+                    return SecondaryTextureBlend.DetailBlend;
 
                 default:
                     throw new ArgumentOutOfRangeException();

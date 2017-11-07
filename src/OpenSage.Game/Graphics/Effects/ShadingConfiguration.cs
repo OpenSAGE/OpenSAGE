@@ -36,6 +36,7 @@ namespace OpenSage.Graphics.Effects
         Disable = 0,
         Detail = 1,
         Scale = 2,
-        InvScale = 3
+        InvScale = 3,
+        DetailBlend = 4
     }
 }

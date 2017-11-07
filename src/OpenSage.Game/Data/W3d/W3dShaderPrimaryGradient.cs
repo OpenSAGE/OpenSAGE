@@ -20,6 +20,8 @@
         /// <summary>
         /// environment-mapped bump mapping
         /// </summary>
-        BumpEnvMap
+        BumpEnvMap,
+
+        Enable = 5
     }
 }

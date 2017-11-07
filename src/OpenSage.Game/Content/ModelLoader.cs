@@ -168,7 +168,8 @@ namespace OpenSage.Content
                 isSkinned,
                 parentBone,
                 (uint) numBones,
-                boundingBox);
+                boundingBox,
+                w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.Hidden));
         }
 
         private static ShadingConfiguration CreateShadingConfiguration(W3dShader w3dShader)
