@@ -33,7 +33,7 @@ namespace OpenSage.Content.Util
             }
         }
 
-        public static Blend ToBlend(this W3dShaderDestBlendFunc value)
+        public static Blend ToBlend(this W3dShaderDestBlendFunc value, bool alpha)
         {
             switch (value)
             {
@@ -50,7 +50,7 @@ namespace OpenSage.Content.Util
                     return Blend.OneMinusSrcAlpha;
 
                 case W3dShaderDestBlendFunc.SrcColor:
-                    return Blend.SrcColor;
+                    return alpha ? Blend.SrcAlpha : Blend.SrcColor;
 
                 default:
                     throw new ArgumentOutOfRangeException();
