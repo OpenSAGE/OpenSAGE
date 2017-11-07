@@ -40,6 +40,8 @@ namespace OpenSage.DataViewer.Framework.Controls
 
         private void OnGraphicsUninitialized(object sender, EventArgs e)
         {
+            StopRenderLoop();
+
             _game.Scene = null;
             _game.ContentManager.Unload();
 

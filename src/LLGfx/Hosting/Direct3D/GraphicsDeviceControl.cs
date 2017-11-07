@@ -88,7 +88,7 @@ namespace LLGfx.Hosting
             _renderLoopTask = Task.Run(() => DoRenderLoop());
         }
 
-        private void StopRenderLoop()
+        protected void StopRenderLoop()
         {
             _unloading = true;
             _renderLoopTask?.Wait();
