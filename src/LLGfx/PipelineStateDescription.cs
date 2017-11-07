@@ -108,6 +108,7 @@
         Zero,
         One,
         SrcAlpha,
-        OneMinusSrcAlpha
+        OneMinusSrcAlpha,
+        SrcColor
     }
 }
