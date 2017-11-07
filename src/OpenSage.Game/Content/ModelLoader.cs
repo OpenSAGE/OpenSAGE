@@ -432,7 +432,17 @@ namespace OpenSage.Content
             blendState.Enabled = w3dShader.SrcBlend != W3dShaderSrcBlendFunc.One
                 || w3dShader.DestBlend != W3dShaderDestBlendFunc.Zero;
             blendState.SourceBlend = w3dShader.SrcBlend.ToBlend();
+            blendState.SourceAlphaBlend = w3dShader.SrcBlend.ToBlend();
+            if (blendState.SourceAlphaBlend == Blend.SrcColor)
+            {
+                blendState.SourceAlphaBlend = Blend.One;
+            }
             blendState.DestinationBlend = w3dShader.DestBlend.ToBlend();
+            blendState.DestinationAlphaBlend = w3dShader.DestBlend.ToBlend();
+            if (blendState.DestinationAlphaBlend == Blend.SrcColor)
+            {
+                blendState.DestinationAlphaBlend = Blend.One;
+            }
 
             var pipelineStateHandle = new EffectPipelineState(
                 rasterizerState,

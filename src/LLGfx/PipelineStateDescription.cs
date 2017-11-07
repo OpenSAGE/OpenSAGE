@@ -87,13 +87,15 @@
 
         public bool Enabled;
         public Blend SourceBlend;
+        public Blend SourceAlphaBlend;
         public Blend DestinationBlend;
+        public Blend DestinationAlphaBlend;
 
         private BlendStateDescription(bool enabled, Blend sourceBlend, Blend destinationBlend)
         {
             Enabled = enabled;
-            SourceBlend = sourceBlend;
-            DestinationBlend = destinationBlend;
+            SourceBlend = SourceAlphaBlend = sourceBlend;
+            DestinationBlend = DestinationAlphaBlend = destinationBlend;
         }
     }
 

@@ -65,9 +65,9 @@ namespace LLGfx.Util
             {
                 result.RenderTarget[0].IsBlendEnabled = true;
                 result.RenderTarget[0].SourceBlend = value.SourceBlend.ToBlendOption();
-                result.RenderTarget[0].SourceAlphaBlend = value.SourceBlend.ToBlendOption();
+                result.RenderTarget[0].SourceAlphaBlend = value.SourceAlphaBlend.ToBlendOption();
                 result.RenderTarget[0].DestinationBlend = value.DestinationBlend.ToBlendOption();
-                result.RenderTarget[0].DestinationAlphaBlend = value.DestinationBlend.ToBlendOption();
+                result.RenderTarget[0].DestinationAlphaBlend = value.DestinationAlphaBlend.ToBlendOption();
             }
 
             return result;
