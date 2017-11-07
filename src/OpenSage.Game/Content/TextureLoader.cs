@@ -35,6 +35,10 @@ namespace OpenSage.Content
             switch (Path.GetExtension(entry.FilePath).ToLower())
             {
                 case ".dds":
+                    if (entry.FilePath == @"art\textures\palantira.dds")
+                    {
+                        goto case ".tga";
+                    }
                     var ddsFile = DdsFile.FromFileSystemEntry(entry);
                     return CreateTextureFromDds(
                         contentManager.GraphicsDevice,
