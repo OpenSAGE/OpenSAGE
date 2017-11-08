@@ -22,6 +22,7 @@ ConstantBuffer<PerDrawConstants> PerDrawCB : register(b1);
 #define TEXTURE_MAPPING_SINE_LINEAR_OFFSET 4
 #define TEXTURE_MAPPING_SCREEN             5
 #define TEXTURE_MAPPING_SCALE              6
+#define TEXTURE_MAPPING_GRID               7
 
 struct TextureMapping
 {
@@ -33,6 +34,8 @@ struct TextureMapping
     float2 UVFrequency;
     float2 UVPhase;
     float Speed;
+    float FPS;
+    uint Log2Width;
 };
 
 struct VertexMaterial
@@ -138,6 +141,18 @@ float4 SampleTexture(
 
     case TEXTURE_MAPPING_SCALE:
         uv *= textureMapping.UVScale;
+        break;
+
+    case TEXTURE_MAPPING_GRID:
+        uv = float2(uv.x, 1 - uv.y);
+        uint numFramesPerSide = pow(2, textureMapping.Log2Width);
+        uint numFrames = numFramesPerSide * numFramesPerSide;
+        //uv /= (float) numFramesPerSide;
+        uint currentFrame = (t * textureMapping.FPS) % numFrames;
+        uint currentFrameU = currentFrame % numFramesPerSide;
+        uint currentFrameV = currentFrame / numFramesPerSide;
+        uv.x += currentFrameU / (float) numFramesPerSide;
+        uv.y += currentFrameV / (float) numFramesPerSide;
         break;
     }
 

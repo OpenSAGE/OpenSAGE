@@ -153,7 +153,7 @@ namespace OpenSage.Content
                 w3dMesh.Header.Min,
                 w3dMesh.Header.Max);
 
-            var isSkinned = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.GeometryTypeSkin);
+            var isSkinned = (w3dMesh.Header.Attributes & W3dMeshFlags.GeometryTypeMask) == W3dMeshFlags.GeometryTypeSkin;
 
             return new ModelMesh(
                 contentManager.GraphicsDevice,

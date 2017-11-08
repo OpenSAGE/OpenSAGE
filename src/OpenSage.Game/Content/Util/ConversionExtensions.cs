@@ -116,7 +116,9 @@ namespace OpenSage.Content.Util
                     X = args.UPhase,
                     Y = args.VPhase
                 },
-                Speed = args.Speed
+                Speed = args.Speed,
+                Fps = args.FPS,
+                Log2Width = (uint) args.Log2Width
             };
         }
 
@@ -128,6 +130,7 @@ namespace OpenSage.Content.Util
                     return TextureMappingType.Uv;
 
                 case W3dVertexMappingType.Environment:
+                case W3dVertexMappingType.CheapEnvironment:
                     return TextureMappingType.Environment;
 
                 case W3dVertexMappingType.LinearOffset:
@@ -144,6 +147,9 @@ namespace OpenSage.Content.Util
 
                 case W3dVertexMappingType.Scale:
                     return TextureMappingType.Scale;
+
+                case W3dVertexMappingType.Grid:
+                    return TextureMappingType.Grid;
 
                 default:
                     throw new ArgumentOutOfRangeException();

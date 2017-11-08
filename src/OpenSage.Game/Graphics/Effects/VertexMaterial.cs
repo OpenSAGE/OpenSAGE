@@ -29,6 +29,8 @@ namespace OpenSage.Graphics.Effects
         public Vector2 UVFrequency;
         public Vector2 UVPhase;
         public float Speed;
+        public float Fps;
+        public uint Log2Width;
     }
 
     public enum TextureMappingType : uint
@@ -39,6 +41,7 @@ namespace OpenSage.Graphics.Effects
         Rotate = 3,
         SineLinearOffset = 4,
         Screen = 5,
-        Scale = 6
+        Scale = 6,
+        Grid = 7
     }
 }
