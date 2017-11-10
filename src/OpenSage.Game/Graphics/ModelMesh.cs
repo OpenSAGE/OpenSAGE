@@ -43,6 +43,7 @@ namespace OpenSage.Graphics
         public bool Skinned { get; }
 
         public bool Hidden { get; }
+        public bool CameraOriented { get; }
 
         public ModelMesh(
             GraphicsDevice graphicsDevice,
@@ -58,7 +59,8 @@ namespace OpenSage.Graphics
             ModelBone parentBone,
             uint numBones,
             BoundingBox boundingBox,
-            bool hidden)
+            bool hidden,
+            bool cameraOriented)
         {
             Name = name;
 
@@ -70,6 +72,7 @@ namespace OpenSage.Graphics
             Skinned = isSkinned;
 
             Hidden = hidden;
+            CameraOriented = cameraOriented;
 
             _vertexBuffer = AddDisposable(StaticBuffer.Create(
                 graphicsDevice,

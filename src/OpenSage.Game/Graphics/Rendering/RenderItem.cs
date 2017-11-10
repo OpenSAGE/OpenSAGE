@@ -3,6 +3,7 @@ using System.Numerics;
 using LLGfx;
 using LLGfx.Effects;
 using OpenSage.Mathematics;
+using OpenSage.Graphics.Cameras;
 
 namespace OpenSage.Graphics.Rendering
 {
@@ -65,7 +66,7 @@ namespace OpenSage.Graphics.Rendering
             Mesh = mesh;
         }
 
-        public void Update(GraphicsDevice graphicsDevice)
+        public void Update(GraphicsDevice graphicsDevice, CameraComponent camera)
         {
             NumInstances = 0;
 
@@ -128,7 +129,29 @@ namespace OpenSage.Graphics.Rendering
             {
                 if (instancedRenderable.Visible)
                 {
-                    _worldTransforms[worldTransformIndex++] = instancedRenderable.Renderable.Transform.LocalToWorldMatrix;
+                    if (instancedRenderable.Renderable is MeshComponent m && m.Mesh.CameraOriented)
+                    {
+                        var localToWorldMatrix = instancedRenderable.Renderable.Transform.LocalToWorldMatrix;
+
+                        var viewInverse = Matrix4x4Utility.Invert(camera.View);
+                        var cameraPosition = viewInverse.Translation;
+
+                        var toCamera = Vector3.Normalize(Vector3.TransformNormal(
+                            cameraPosition - instancedRenderable.Renderable.Transform.WorldPosition,
+                            instancedRenderable.Renderable.Transform.WorldToLocalMatrix));
+
+                        toCamera.Z = 0;
+
+                        var cameraOrientedRotation = Matrix4x4.CreateFromQuaternion(QuaternionUtility.CreateRotation(Vector3.UnitX, toCamera));
+
+                        var world = cameraOrientedRotation * localToWorldMatrix;
+
+                        _worldTransforms[worldTransformIndex++] = world;
+                    }
+                    else
+                    {
+                        _worldTransforms[worldTransformIndex++] = instancedRenderable.Renderable.Transform.LocalToWorldMatrix;
+                    }
                 }
             }
 

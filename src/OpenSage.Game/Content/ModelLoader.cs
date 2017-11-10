@@ -154,6 +154,7 @@ namespace OpenSage.Content
                 w3dMesh.Header.Max);
 
             var isSkinned = (w3dMesh.Header.Attributes & W3dMeshFlags.GeometryTypeMask) == W3dMeshFlags.GeometryTypeSkin;
+            var cameraOriented = (w3dMesh.Header.Attributes & W3dMeshFlags.GeometryTypeMask) == W3dMeshFlags.GeometryTypeCameraOriented;
 
             return new ModelMesh(
                 contentManager.GraphicsDevice,
@@ -169,7 +170,8 @@ namespace OpenSage.Content
                 parentBone,
                 (uint) numBones,
                 boundingBox,
-                w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.Hidden));
+                w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.Hidden),
+                cameraOriented);
         }
 
         private static ShadingConfiguration CreateShadingConfiguration(W3dShader w3dShader)

@@ -147,7 +147,6 @@ float4 SampleTexture(
         uv = float2(uv.x, 1 - uv.y);
         uint numFramesPerSide = pow(2, textureMapping.Log2Width);
         uint numFrames = numFramesPerSide * numFramesPerSide;
-        //uv /= (float) numFramesPerSide;
         uint currentFrame = (t * textureMapping.FPS) % numFrames;
         uint currentFrameU = currentFrame % numFramesPerSide;
         uint currentFrameV = currentFrame / numFramesPerSide;

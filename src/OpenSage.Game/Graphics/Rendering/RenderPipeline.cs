@@ -64,7 +64,7 @@ namespace OpenSage.Graphics.Rendering
                     }
                 }
 
-                instanceData.Update(context.GraphicsDevice);
+                instanceData.Update(context.GraphicsDevice, context.Camera);
             }
 
             var commandBuffer = context.GraphicsDevice.CommandQueue.GetCommandBuffer();
