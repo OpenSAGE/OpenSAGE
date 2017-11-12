@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenSage.Mathematics;
+using System;
 using System.Numerics;
 
 namespace OpenSage.Graphics.Animation
@@ -13,7 +14,6 @@ namespace OpenSage.Graphics.Animation
 
         private bool[] _originalVisibilities;
 
-        private int[] _currentKeyframes;
         private Transform[] _boneTransforms;
 
         private Animation _animation;
@@ -26,7 +26,6 @@ namespace OpenSage.Graphics.Animation
                 _animation = value;
 
                 _currentTimeValue = TimeSpan.Zero;
-                _currentKeyframes = new int[value.Clips.Length];
             }
         }
 
@@ -69,8 +68,6 @@ namespace OpenSage.Graphics.Animation
 
         private void ResetBoneTransforms()
         {
-            Array.Clear(_currentKeyframes, 0, _currentKeyframes.Length);
-
             for (var i = 0; i < _boneTransforms.Length; i++)
             {
                 _boneTransforms[i].Translation = Vector3.Zero;
@@ -116,24 +113,73 @@ namespace OpenSage.Graphics.Animation
 
             for (var i = 0; i < _animation.Clips.Length; i++)
             {
-                var clip = _animation.Clips[i];
-                while (_currentKeyframes[i] < clip.Keyframes.Length)
-                {
-                    var keyframe = clip.Keyframes[_currentKeyframes[i]];
+                Keyframe? previous = null;
+                Keyframe? next = null;
 
-                    // Stop when we've read up to current time position.
+                var clip = _animation.Clips[i];
+
+                for (var j = 0; j < clip.Keyframes.Length; j++)
+                {
+                    var keyframe = clip.Keyframes[j];
+
                     if (keyframe.Time > _currentTimeValue)
                     {
+                        next = keyframe;
                         break;
                     }
 
-                    // Use this keyframe.
-                    keyframe.Apply(
-                        ref _boneTransforms[clip.Bone], 
-                        x => _bones[clip.Bone].Entity.Visible = x);
-
-                    _currentKeyframes[i] += 1;
+                    previous = keyframe;
                 }
+
+                if (previous != null)
+                {
+                    Evaluate(clip, previous.Value, next ?? previous.Value, _currentTimeValue);
+                }
+            }
+        }
+
+        private void Evaluate(AnimationClip clip, Keyframe previous, Keyframe next, TimeSpan currentTime)
+        {
+            var amount = previous.Time == next.Time
+                ? 0
+                : (float) ((currentTime - previous.Time).TotalMilliseconds / (next.Time - previous.Time).TotalMilliseconds);
+
+            switch (clip.ClipType)
+            {
+                case AnimationClipType.TranslationX:
+                    _boneTransforms[clip.Bone].Translation.X = MathUtility.Lerp(
+                        previous.Value.FloatValue,
+                        next.Value.FloatValue,
+                        amount);
+                    break;
+
+                case AnimationClipType.TranslationY:
+                    _boneTransforms[clip.Bone].Translation.Y = MathUtility.Lerp(
+                        previous.Value.FloatValue,
+                        next.Value.FloatValue,
+                        amount);
+                    break;
+
+                case AnimationClipType.TranslationZ:
+                    _boneTransforms[clip.Bone].Translation.Z = MathUtility.Lerp(
+                        previous.Value.FloatValue,
+                        next.Value.FloatValue,
+                        amount);
+                    break;
+
+                case AnimationClipType.Quaternion:
+                    _boneTransforms[clip.Bone].Rotation = Quaternion.Lerp(
+                        previous.Value.Quaternion,
+                        next.Value.Quaternion,
+                        amount);
+                    break;
+
+                case AnimationClipType.Visibility:
+                    _bones[clip.Bone].Entity.Visible = previous.Value.BoolValue;
+                    break;
+
+                default:
+                    throw new InvalidOperationException();
             }
         }
     }

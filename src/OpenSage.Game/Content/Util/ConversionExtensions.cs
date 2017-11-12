@@ -7,6 +7,7 @@ using OpenSage.Data.Map;
 using OpenSage.Data.W3d;
 using OpenSage.Graphics.Effects;
 using OpenSage.Settings;
+using OpenSage.Graphics.Animation;
 
 namespace OpenSage.Content.Util
 {
@@ -292,6 +293,27 @@ namespace OpenSage.Content.Util
 
                 case W3dShaderDepthCompare.PassAlways:
                     return Comparison.Always;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value));
+            }
+        }
+
+        public static AnimationClipType ToAnimationClipType(this W3dAnimationChannelType value)
+        {
+            switch (value)
+            {
+                case W3dAnimationChannelType.TranslationX:
+                    return AnimationClipType.TranslationX;
+
+                case W3dAnimationChannelType.TranslationY:
+                    return AnimationClipType.TranslationY;
+
+                case W3dAnimationChannelType.TranslationZ:
+                    return AnimationClipType.TranslationZ;
+
+                case W3dAnimationChannelType.Quaternion:
+                    return AnimationClipType.Quaternion;
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(value));

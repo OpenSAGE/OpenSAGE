@@ -506,28 +506,29 @@ namespace OpenSage.Content
                 keyframes[i] = CreateKeyframe(w3dChannel.ChannelType, time, ref data[i]);
             }
 
-            return new AnimationClip(bone, keyframes);
+            return new AnimationClip(w3dChannel.ChannelType.ToAnimationClipType(), bone, keyframes);
         }
 
         private static Keyframe CreateKeyframe(W3dAnimationChannelType channelType, TimeSpan time, ref W3dAnimationChannelDatum datum)
         {
+            return new Keyframe(time, CreateKeyframeValue(channelType, ref datum));
+        }
+
+        private static KeyframeValue CreateKeyframeValue(W3dAnimationChannelType channelType, ref W3dAnimationChannelDatum datum)
+        {
             switch (channelType)
             {
                 case W3dAnimationChannelType.Quaternion:
-                    return new QuaternionKeyframe(time, datum.Quaternion);
+                    return new KeyframeValue { Quaternion = datum.Quaternion };
 
                 case W3dAnimationChannelType.TranslationX:
-                    return new TranslationXKeyframe(time, datum.FloatValue);
-
                 case W3dAnimationChannelType.TranslationY:
-                    return new TranslationYKeyframe(time, datum.FloatValue);
-
                 case W3dAnimationChannelType.TranslationZ:
-                    return new TranslationZKeyframe(time, datum.FloatValue);
+                    return new KeyframeValue { FloatValue = datum.FloatValue };
 
                 case W3dAnimationChannelType.UnknownBfme:
                     // TODO
-                    return new TranslationXKeyframe(time, 0);
+                    throw new NotImplementedException();
 
                 default:
                     throw new NotImplementedException();
@@ -557,7 +558,7 @@ namespace OpenSage.Content
             var keyframeIndex = 0;
             if (w3dChannel.FirstFrame != 0)
             {
-                keyframes[keyframeIndex++] = new VisibilityKeyframe(TimeSpan.Zero, w3dChannel.DefaultValue);
+                keyframes[keyframeIndex++] = new Keyframe(TimeSpan.Zero, new KeyframeValue { BoolValue = w3dChannel.DefaultValue });
             }
 
             for (var i = 0; i < numKeyframes; i++)
@@ -567,7 +568,7 @@ namespace OpenSage.Content
                 switch (w3dChannel.ChannelType)
                 {
                     case W3dBitChannelType.Visibility:
-                        keyframes[keyframeIndex++] = new VisibilityKeyframe(time, data[i]);
+                        keyframes[keyframeIndex++] = new Keyframe(time, new KeyframeValue { BoolValue = data[i] });
                         break;
 
                     default:
@@ -578,10 +579,10 @@ namespace OpenSage.Content
             if (w3dChannel.LastFrame != w3dAnimation.Header.NumFrames - 1)
             {
                 var time = TimeSpan.FromSeconds((w3dChannel.LastFrame + 1) / (double) w3dAnimation.Header.FrameRate);
-                keyframes[keyframeIndex++] = new VisibilityKeyframe(time, w3dChannel.DefaultValue);
+                keyframes[keyframeIndex++] = new Keyframe(time, new KeyframeValue { BoolValue = w3dChannel.DefaultValue });
             }
 
-            return new AnimationClip(bone, keyframes);
+            return new AnimationClip(AnimationClipType.Visibility, bone, keyframes);
         }
 
         private static AnimationClip CreateAnimationClip(W3dCompressedAnimation w3dAnimation, W3dTimeCodedAnimationChannel w3dChannel)
@@ -597,7 +598,7 @@ namespace OpenSage.Content
                 keyframes[i] = CreateKeyframe(w3dChannel.ChannelType, time, ref timeCodedDatum.Value);
             }
 
-            return new AnimationClip(bone, keyframes);
+            return new AnimationClip(w3dChannel.ChannelType.ToAnimationClipType(), bone, keyframes);
         }
     }
 }
