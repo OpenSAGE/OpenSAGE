@@ -140,9 +140,12 @@ namespace OpenSage.Graphics.Animation
 
         private void Evaluate(AnimationClip clip, Keyframe previous, Keyframe next, TimeSpan currentTime)
         {
-            var amount = previous.Time == next.Time
-                ? 0
-                : (float) ((currentTime - previous.Time).TotalMilliseconds / (next.Time - previous.Time).TotalMilliseconds);
+            var progress = (float) (currentTime - previous.Time).TotalMilliseconds;
+            var duration = (float) (next.Time - previous.Time).TotalMilliseconds;
+
+            var amount = (duration != 0)
+                ? progress / duration
+                : 0;
 
             switch (clip.ClipType)
             {
