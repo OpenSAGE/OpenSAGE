@@ -479,11 +479,15 @@ namespace OpenSage.Content
             var name = w3dAnimation.Header.Name;
             var duration = TimeSpan.FromSeconds(w3dAnimation.Header.NumFrames / (double) w3dAnimation.Header.FrameRate);
 
-            var clips = new AnimationClip[w3dAnimation.TimeCodedChannels.Count];
+            var timeCodedChannels = w3dAnimation.TimeCodedChannels
+                .Where(x => x.ChannelType != W3dAnimationChannelType.UnknownBfme) // Don't know what this channel means.
+                .ToList();
 
-            for (var i = 0; i < w3dAnimation.TimeCodedChannels.Count; i++)
+            var clips = new AnimationClip[timeCodedChannels.Count];
+
+            for (var i = 0; i < timeCodedChannels.Count; i++)
             {
-                clips[i] = CreateAnimationClip(w3dAnimation, w3dAnimation.TimeCodedChannels[i]);
+                clips[i] = CreateAnimationClip(w3dAnimation, timeCodedChannels[i]);
             }
 
             return new Animation(
@@ -525,10 +529,6 @@ namespace OpenSage.Content
                 case W3dAnimationChannelType.TranslationY:
                 case W3dAnimationChannelType.TranslationZ:
                     return new KeyframeValue { FloatValue = datum.FloatValue };
-
-                case W3dAnimationChannelType.UnknownBfme:
-                    // TODO
-                    throw new NotImplementedException();
 
                 default:
                     throw new NotImplementedException();

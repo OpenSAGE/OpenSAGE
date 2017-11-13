@@ -108,6 +108,19 @@ namespace OpenSage.Data.Tests.W3d
 
                     Assert.True(mesh.Textures.Count <= 29);
                 }
+
+                foreach (var animation in w3dFile.CompressedAnimations)
+                {
+                    foreach (var channel in animation.TimeCodedChannels)
+                    {
+                        switch (channel.ChannelType)
+                        {
+                            case W3dAnimationChannelType.UnknownBfme:
+                                Assert.Equal(1, channel.VectorLength);
+                                break;
+                        }
+                    }
+                }
             });
         }
 
