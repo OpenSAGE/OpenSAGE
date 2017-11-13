@@ -7,13 +7,17 @@ namespace OpenSage.Data
 {
     public sealed class FileSystem : IDisposable
     {
+        private readonly FileSystem _nextFileSystem;
+
         private readonly Dictionary<string, FileSystemEntry> _fileTable;
         private readonly List<BigArchive> _bigArchives;
 
         public IReadOnlyCollection<FileSystemEntry> Files => _fileTable.Values;
 
-        public FileSystem(string rootDirectory)
+        public FileSystem(string rootDirectory, FileSystem nextFileSystem = null)
         {
+            _nextFileSystem = nextFileSystem;
+
             _fileTable = new Dictionary<string, FileSystemEntry>(StringComparer.OrdinalIgnoreCase);
             _bigArchives = new List<BigArchive>();
 
@@ -40,7 +44,9 @@ namespace OpenSage.Data
                 {
                     var relativePath = file.Substring(rootDirectory.Length);
                     if (relativePath.StartsWith(Path.DirectorySeparatorChar.ToString()))
+                    {
                         relativePath = relativePath.Substring(1);
+                    }
                     _fileTable[relativePath] = new FileSystemEntry(this, relativePath, (uint) new FileInfo(file).Length, () => File.OpenRead(file));
                 }
             }
@@ -49,8 +55,11 @@ namespace OpenSage.Data
         public FileSystemEntry GetFile(string filePath)
         {
             if (_fileTable.TryGetValue(filePath, out var file))
+            {
                 return file;
-            return null;
+            }
+
+            return _nextFileSystem?.GetFile(filePath);
         }
 
         public FileSystemEntry SearchFile(string fileName, params string[] searchFolders)
@@ -62,14 +71,27 @@ namespace OpenSage.Data
                     return file;
                 }
             }
-            return null;
+
+            return _nextFileSystem?.SearchFile(fileName, searchFolders);
         }
 
         public IEnumerable<FileSystemEntry> GetFiles(string folderPath)
         {
             foreach (var entry in _fileTable.Values)
+            {
                 if (entry.FilePath.StartsWith(folderPath))
+                {
                     yield return entry;
+                }
+            }
+
+            if (_nextFileSystem != null)
+            {
+                foreach (var entry in _nextFileSystem.GetFiles(folderPath))
+                {
+                    yield return entry;
+                }
+            }
         }
 
         public void Dispose()

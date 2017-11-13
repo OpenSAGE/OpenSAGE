@@ -6,38 +6,52 @@ using System.Linq;
 
 namespace OpenSage.Data
 {
-    public struct GameInstallation
+    public sealed class GameInstallation
     {
-        public readonly SageGame Game;
-        public readonly string Path;
+        public SageGame Game { get; }
+        public string Path { get; }
+        public string SecondaryPath { get; }
 
-        public GameInstallation(SageGame game, string path)
+        public string DisplayName
+        {
+            get
+            {
+                switch (Game)
+                {
+                    case SageGame.CncGenerals:
+                        return "C&C Generals";
+
+                    case SageGame.CncGeneralsZeroHour:
+                        return "C&C Generals Zero Hour";
+
+                    case SageGame.BattleForMiddleEarth:
+                        return "Battle for Middle-earth";
+
+                    case SageGame.BattleForMiddleEarthII:
+                        return "Battle for Middle-earth II";
+
+                    default:
+                        throw new InvalidOperationException($"{Game} is not supported.");
+                }
+            }
+        }
+
+        public GameInstallation(SageGame game, string path, string secondaryPath)
         {
             Game = game;
             Path = path;
+            SecondaryPath = secondaryPath;
         }
 
-        public string DisplayName => GetDisplayName(Game);
-
-        private static string GetDisplayName(SageGame game)
+        public FileSystem CreateFileSystem()
         {
-            switch (game)
+            FileSystem nextFileSystem = null;
+            if (SecondaryPath != null)
             {
-                case SageGame.CncGenerals:
-                    return "C&C Generals";
-
-                case SageGame.CncGeneralsZeroHour:
-                    return "C&C Generals Zero Hour";
-
-                case SageGame.BattleForMiddleEarth:
-                    return "Battle for Middle-earth";
-
-                case SageGame.BattleForMiddleEarthII:
-                    return "Battle for Middle-earth II";
-
-                default:
-                    throw new ArgumentException($"{game} is not supported.", nameof(game));
+                nextFileSystem = new FileSystem(SecondaryPath);
             }
+
+            return new FileSystem(Path, nextFileSystem);
         }
     }
 
@@ -49,7 +63,13 @@ namespace OpenSage.Data
     public class RegistryInstallationLocator : IInstallationLocator
     {
         private static readonly (string, string)[] GeneralsKeys = { (@"SOFTWARE\Electronic Arts\EA Games\Generals", "InstallPath") };
-        private static readonly (string, string)[] ZeroHourKeys = { (@"SOFTWARE\Electronic Arts\EA Games\Command and Conquer Generals Zero Hour", "InstallPath") };
+
+        private static readonly (string, string)[] ZeroHourKeys =
+        {
+            (@"SOFTWARE\Electronic Arts\EA Games\Command and Conquer The First Decade", "zh_folder"),
+            (@"SOFTWARE\Electronic Arts\EA Games\Command and Conquer Generals Zero Hour", "InstallPath")
+        };
+
         private static readonly (string, string)[] BfmeKeys = { (@"SOFTWARE\Electronic Arts\EA Games\The Battle for Middle-earth", "InstallPath") };
         private static readonly (string, string)[] BfmeIIKeys = { (@"SOFTWARE\Electronic Arts\Electronic Arts\The Battle for Middle-earth II", "InstallPath") };
 
@@ -94,7 +114,14 @@ namespace OpenSage.Data
             var installations = keys
                 .Select(k => GetRegistryValue(k.keyName, k.valueName))
                 .Where(Directory.Exists)
-                .Select(p => new GameInstallation(game, p))
+                .Select(p =>
+                {
+                    var secondaryPath = (game == SageGame.CncGeneralsZeroHour)
+                        ? FindInstallations(SageGame.CncGenerals).FirstOrDefault()?.Path
+                        : null;
+
+                    return new GameInstallation(game, p, secondaryPath);
+                })
                 .ToList();
 
             return installations;

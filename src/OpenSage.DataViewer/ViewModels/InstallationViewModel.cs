@@ -7,6 +7,7 @@ namespace OpenSage.DataViewer.ViewModels
 {
     public sealed class InstallationViewModel : PropertyChangedBase
     {
+        private readonly GameInstallation _installation;
         private FileSystem _fileSystem;
 
         public FileSystem FileSystem
@@ -15,14 +16,13 @@ namespace OpenSage.DataViewer.ViewModels
             {
                 if (_fileSystem == null)
                 {
-                    _fileSystem = new FileSystem(Path);
+                    _fileSystem = _installation.CreateFileSystem();
                 }
                 return _fileSystem;
             }
         }
 
-        public string DisplayName { get; }
-        public string Path { get; }
+        public string DisplayName => _installation.DisplayName;
 
         private List<FileSystemEntryViewModel> _files;
         public IReadOnlyList<FileSystemEntryViewModel> Files
@@ -67,10 +67,9 @@ namespace OpenSage.DataViewer.ViewModels
             }
         }
 
-        public InstallationViewModel(string displayName, string path)
+        public InstallationViewModel(GameInstallation installation)
         {
-            DisplayName = displayName;
-            Path = path;
+            _installation = installation;
         }
     }
 }

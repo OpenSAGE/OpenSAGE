@@ -41,7 +41,7 @@ namespace OpenSage.DataViewer.ViewModels
 
             return SageGames.GetAll()
                 .SelectMany(locator.FindInstallations)
-                .Select(installation => new InstallationViewModel(installation.DisplayName, installation.Path));
+                .Select(installation => new InstallationViewModel(installation));
         }
     }
 }
