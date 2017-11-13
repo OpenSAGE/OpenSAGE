@@ -129,7 +129,7 @@ namespace OpenSage.Data.Ini.Parser
                     return LexNumber(c, pos);
 
                 case '#':
-                    return LexDefineKeyword(c, pos);
+                    return LexPreprocessorKeyword(c, pos);
 
                 default:
                     if (IsIdentifierStartChar(c))
@@ -172,7 +172,7 @@ namespace OpenSage.Data.Ini.Parser
             };
         }
 
-        private IniToken LexDefineKeyword(char c, IniTokenPosition pos)
+        private IniToken LexPreprocessorKeyword(char c, IniTokenPosition pos)
         {
             var sb = new StringBuilder(c.ToString());
             while (!char.IsWhiteSpace(CurrentChar))
@@ -180,10 +180,25 @@ namespace OpenSage.Data.Ini.Parser
                 sb.Append(CurrentChar);
                 NextChar();
             }
-            return new IniToken(IniTokenType.DefineKeyword, pos)
+
+            var stringValue = sb.ToString();
+            switch (stringValue)
             {
-                StringValue = sb.ToString()
-            };
+                case "#define":
+                    return new IniToken(IniTokenType.DefineKeyword, pos)
+                    {
+                        StringValue = stringValue
+                    };
+
+                case "#include":
+                    return new IniToken(IniTokenType.IncludeKeyword, pos)
+                    {
+                        StringValue = stringValue
+                    };
+
+                default:
+                    throw new IniParseException($"Unexpected directive: {stringValue}", pos);
+            }
         }
 
         private IniToken LexNumber(char c, IniTokenPosition pos)

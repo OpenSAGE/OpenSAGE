@@ -12,6 +12,7 @@
         Colon,
         Comma,
         DefineKeyword,
+        IncludeKeyword,
         EndOfLine,
         EndOfFile
     }

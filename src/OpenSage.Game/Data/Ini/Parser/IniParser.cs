@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Logic.Object;
+using System.IO;
 
 namespace OpenSage.Data.Ini.Parser
 {
@@ -71,6 +72,7 @@ namespace OpenSage.Data.Ini.Parser
             { "WindowTransition", (parser, context) => context.WindowTransitions.Add(WindowTransition.Parse(parser)) },
         };
 
+        private readonly string _directory;
         private readonly IniLexer _lexer;
         private readonly Stack<IniLexerMode> _lexerModeStack;
         private readonly List<IniToken> _tokens;
@@ -89,6 +91,8 @@ namespace OpenSage.Data.Ini.Parser
 
         public IniParser(string source, string fileName)
         {
+            _directory = Path.GetDirectoryName(fileName);
+
             _lexer = new IniLexer(source, fileName);
 
             _lexerModeStack = new Stack<IniLexerMode>();
@@ -540,7 +544,14 @@ namespace OpenSage.Data.Ini.Parser
                         var macroName = ParseIdentifier();
                         var macroValue = ParseString(true);
                         dataContext.Defines.Add(macroName, macroValue);
-                        NextToken(IniTokenType.EndOfLine);
+                        NextToken(IniTokenType.EndOfLine, IniTokenType.EndOfFile);
+                        break;
+
+                    case IniTokenType.IncludeKeyword:
+                        NextToken();
+                        var includeFileName = ParseString();
+                        dataContext.LoadIniFile(Path.Combine(_directory, includeFileName));
+                        NextToken(IniTokenType.EndOfLine, IniTokenType.EndOfFile);
                         break;
 
                     default:
