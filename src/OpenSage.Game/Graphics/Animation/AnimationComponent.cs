@@ -118,6 +118,11 @@ namespace OpenSage.Graphics.Animation
 
                 var clip = _animation.Clips[i];
 
+                if (clip.Bone >= _boneTransforms.Length)
+                {
+                    continue;
+                }
+
                 for (var j = 0; j < clip.Keyframes.Length; j++)
                 {
                     var keyframe = clip.Keyframes[j];
