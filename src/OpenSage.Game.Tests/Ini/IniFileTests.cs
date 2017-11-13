@@ -30,9 +30,6 @@ namespace OpenSage.Data.Tests.Ini
                 if (Path.GetFileName(entry.FilePath).ToLowerInvariant() == "scripts.ini")
                     return; // Only needed by World Builder?
 
-                if (Path.GetFileName(entry.FilePath).ToLowerInvariant() != "particlesystem.ini")
-                    return;
-
                 tasks.Add(Task.Run(() =>
                 {
                     var dataContext = new IniDataContext(entry.FileSystem);
