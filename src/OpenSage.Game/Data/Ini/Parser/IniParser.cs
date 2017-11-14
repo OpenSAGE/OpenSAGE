@@ -42,6 +42,7 @@ namespace OpenSage.Data.Ini.Parser
             { "MapCache", (parser, context) => context.MapCaches.Add(MapCache.Parse(parser)) },
             { "MappedImage", (parser, context) => context.MappedImages.Add(MappedImage.Parse(parser)) },
             { "MiscAudio", (parser, context) => context.MiscAudio = MiscAudio.Parse(parser) },
+            { "ModifierList", (parser, context) => context.ModifierLists.Add(ModifierList.Parse(parser)) },
             { "Mouse", (parser, context) => context.MouseData = MouseData.Parse(parser) },
             { "MouseCursor", (parser, context) => context.MouseCursors.Add(MouseCursor.Parse(parser)) },
             { "MultiplayerColor", (parser, context) => context.MultiplayerColors.Add(MultiplayerColor.Parse(parser)) },

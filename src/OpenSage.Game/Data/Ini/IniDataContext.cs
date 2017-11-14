@@ -45,6 +45,7 @@ namespace OpenSage.Data.Ini
         public List<MapCache> MapCaches { get; } = new List<MapCache>();
         public List<MappedImage> MappedImages { get; } = new List<MappedImage>();
         public MiscAudio MiscAudio { get; internal set; }
+        public List<ModifierList> ModifierLists { get; } = new List<ModifierList>();
         public List<MouseCursor> MouseCursors { get; } = new List<MouseCursor>();
         public MouseData MouseData { get; internal set; }
         public List<MultiplayerColor> MultiplayerColors { get; } = new List<MultiplayerColor>();

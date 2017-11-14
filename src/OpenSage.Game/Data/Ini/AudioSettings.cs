@@ -1,4 +1,5 @@
 ﻿using OpenSage.Data.Ini.Parser;
+using OpenSage.Data.Wnd;
 
 namespace OpenSage.Data.Ini
 {
@@ -15,12 +16,26 @@ namespace OpenSage.Data.Ini
             { "SoundsFolder", (parser, x) => x.SoundsFolder = parser.ParseString() },
             { "MusicFolder", (parser, x) => x.MusicFolder = parser.ParseString() },
             { "StreamingFolder", (parser, x) => x.StreamingFolder = parser.ParseString() },
+            { "AmbientStreamFolder", (parser, x) => x.AmbientStreamFolder = parser.ParseString() },
             { "SoundsExtension", (parser, x) => x.SoundsExtension = parser.ParseString() },
             { "UseDigital", (parser, x) => x.UseDigital = parser.ParseBoolean() },
             { "UseMidi", (parser, x) => x.UseMidi = parser.ParseBoolean() },
             { "OutputRate", (parser, x) => x.OutputRate = parser.ParseInteger() },
             { "OutputBits", (parser, x) => x.OutputBits = parser.ParseInteger() },
             { "OutputChannels", (parser, x) => x.OutputChannels = parser.ParseInteger() },
+            { "MixaheadLatency", (parser, x) => x.MixaheadLatency = parser.ParseInteger() },
+            { "MixaheadLatencyDuringMovies", (parser, x) => x.MixaheadLatencyDuringMovies = parser.ParseInteger() },
+            { "3DBufferLengthMS", (parser, x) => x._3DBufferLengthMS = parser.ParseInteger() },
+            { "3DBufferCallbackCallsPerBufferLength", (parser, x) => x._3DBufferCallbackCallsPerBufferLength = parser.ParseInteger() },
+            { "ForceResetTimeSeconds", (parser, x) => x.ForceResetTimeSeconds = parser.ParseInteger() },
+            { "EmergencyResetTimeSeconds", (parser, x) => x.EmergencyResetTimeSeconds = parser.ParseInteger() },
+            { "MusicScriptLibraryName", (parser, x) => x.MusicScriptLibraryName = parser.ParseFileName() },
+            { "AutomaticSubtitleDurationMS", (parser, x) => x.AutomaticSubtitleDurationMS = parser.ParseInteger() },
+            { "AutomaticSubtitleWindowWidth", (parser, x) => x.AutomaticSubtitleWindowWidth = parser.ParseInteger() },
+            { "AutomaticSubtitleLines", (parser, x) => x.AutomaticSubtitleLines = parser.ParseInteger() },
+            { "AutomaticSubtitleWindowColor", (parser, x) => x.AutomaticSubtitleWindowColor = WndColor.Parse(parser) },
+            { "AutomaticSubtitleTextColor", (parser, x) => x.AutomaticSubtitleTextColor = WndColor.Parse(parser) },
+            { "PositionDeltaForReverbRecheck", (parser, x) => x.PositionDeltaForReverbRecheck = parser.ParseInteger() },
             { "SampleCount2D", (parser, x) => x.SampleCount2D = parser.ParseInteger() },
             { "SampleCount3D", (parser, x) => x.SampleCount3D = parser.ParseInteger() },
             { "StreamCount", (parser, x) => x.StreamCount = parser.ParseInteger() },
@@ -30,10 +45,12 @@ namespace OpenSage.Data.Ini
             { "TimeToFadeAudio", (parser, x) => x.TimeToFadeAudio = parser.ParseInteger() },
             { "AudioFootprintInBytes", (parser, x) => x.AudioFootprintInBytes = parser.ParseInteger() },
             { "MinSampleVolume", (parser, x) => x.MinSampleVolume = parser.ParseInteger() },
+            { "AmbientStreamHysteresisVolume", (parser, x) => x.AmbientStreamHysteresisVolume = parser.ParseInteger() },
 
             { "Relative2DVolume", (parser, x) => x.Relative2DVolume = parser.ParsePercentage() },
 
             { "DefaultSoundVolume", (parser, x) => x.DefaultSoundVolume = parser.ParsePercentage() },
+            { "DefaultAmbientVolume", (parser, x) => x.DefaultAmbientVolume = parser.ParsePercentage() },
             { "Default3DSoundVolume", (parser, x) => x.Default3DSoundVolume = parser.ParsePercentage() },
             { "DefaultSpeechVolume", (parser, x) => x.DefaultSpeechVolume = parser.ParsePercentage() },
             { "DefaultMusicVolume", (parser, x) => x.DefaultMusicVolume = parser.ParsePercentage() },
@@ -57,12 +74,56 @@ namespace OpenSage.Data.Ini
         public string SoundsFolder { get; private set; }
         public string MusicFolder { get; private set; }
         public string StreamingFolder { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public string AmbientStreamFolder { get; private set; }
+
         public string SoundsExtension { get; private set; }
         public bool UseDigital { get; private set; }
         public bool UseMidi { get; private set; }
         public int OutputRate { get; private set; }
         public int OutputBits { get; private set; }
         public int OutputChannels { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int MixaheadLatency { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int MixaheadLatencyDuringMovies { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int _3DBufferLengthMS { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int _3DBufferCallbackCallsPerBufferLength { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int ForceResetTimeSeconds { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int EmergencyResetTimeSeconds { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public string MusicScriptLibraryName { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int AutomaticSubtitleDurationMS { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int AutomaticSubtitleWindowWidth { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int AutomaticSubtitleLines { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public WndColor AutomaticSubtitleWindowColor { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public WndColor AutomaticSubtitleTextColor { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int PositionDeltaForReverbRecheck { get; private set; }
+
         public int SampleCount2D { get; private set; }
         public int SampleCount3D { get; private set; }
         public int StreamCount { get; private set; }
@@ -73,9 +134,16 @@ namespace OpenSage.Data.Ini
         public int AudioFootprintInBytes { get; private set; }
         public int MinSampleVolume { get; private set; }
 
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int AmbientStreamHysteresisVolume { get; private set; }
+
         public float Relative2DVolume { get; private set; }
 
         public float DefaultSoundVolume { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float DefaultAmbientVolume { get; private set; }
+
         public float Default3DSoundVolume { get; private set; }
         public float DefaultSpeechVolume { get; private set; }
         public float DefaultMusicVolume { get; private set; }
