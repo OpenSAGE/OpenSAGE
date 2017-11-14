@@ -20,46 +20,51 @@ namespace OpenSage.Data.Tests.Ini
         [Fact]
         public void CanReadIniFiles()
         {
-            var tasks = new List<Task>();
-
             InstalledFilesTestData.ReadFiles(".ini", _output, entry =>
             {
                 if (Path.GetFileName(entry.FilePath) == "ButtonSets.ini")
+                {
                     return; // This file doesn't seem to be used?
+                }
 
                 if (Path.GetFileName(entry.FilePath).ToLowerInvariant() == "scripts.ini")
-                    return; // Only needed by World Builder?
-
-                tasks.Add(Task.Run(() =>
                 {
-                    var dataContext = new IniDataContext(entry.FileSystem);
-                    dataContext.LoadIniFile(entry);
+                    return; // Only needed by World Builder?
+                }
 
-                    Assert.NotNull(dataContext.CommandMaps);
+                var dataContext = new IniDataContext(entry.FileSystem);
 
-                    foreach (var objectDefinition in dataContext.Objects)
+                // BFME I and II need to have GameData.ini loaded before any other INI files,
+                // because GameData.ini contains global macro definitions.
+                if (entry.FilePath.ToLowerInvariant() != @"data\ini\gamedata.ini")
+                {
+                    dataContext.LoadIniFile(@"Data\INI\GameData.ini");
+                }
+
+                dataContext.LoadIniFile(entry);
+
+                Assert.NotNull(dataContext.CommandMaps);
+
+                foreach (var objectDefinition in dataContext.Objects)
+                {
+                    foreach (var draw in objectDefinition.Draws)
                     {
-                        foreach (var draw in objectDefinition.Draws)
+                        switch (draw)
                         {
-                            switch (draw)
-                            {
-                                case W3dModelDrawModuleData md:
-                                    //if (md.DefaultConditionState != null)
-                                    //{
-                                    //    Assert.True(md.DefaultConditionState.Animations.Count <= 1);
-                                    //}
-                                    //foreach (var conditionState in md.ConditionStates)
-                                    //{
-                                    //    Assert.True(conditionState.Animations.Count <= 1);
-                                    //}
-                                    break;
-                            }
+                            case W3dModelDrawModuleData md:
+                                //if (md.DefaultConditionState != null)
+                                //{
+                                //    Assert.True(md.DefaultConditionState.Animations.Count <= 1);
+                                //}
+                                //foreach (var conditionState in md.ConditionStates)
+                                //{
+                                //    Assert.True(conditionState.Animations.Count <= 1);
+                                //}
+                                break;
                         }
                     }
-                }));
+                }
             });
-
-            Task.WaitAll(tasks.ToArray());
         }
     }
 }
