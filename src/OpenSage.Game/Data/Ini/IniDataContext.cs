@@ -74,7 +74,7 @@ namespace OpenSage.Data.Ini
         public List<WebpageUrl> WebpageUrls { get; } = new List<WebpageUrl>();
         public List<WindowTransition> WindowTransitions { get; } = new List<WindowTransition>();
 
-        public Dictionary<string, string> Defines { get; } = new Dictionary<string, string>();
+        internal Dictionary<string, IniToken[]> Defines { get; } = new Dictionary<string, IniToken[]>();
 
         public IniDataContext(FileSystem fileSystem)
         {
@@ -109,8 +109,8 @@ namespace OpenSage.Data.Ini
                 source = reader.ReadToEnd();
             }
 
-            var parser = new IniParser(source, entry.FilePath);
-            parser.ParseFile(this);
+            var parser = new IniParser(source, entry.FilePath, this);
+            parser.ParseFile();
 
             _alreadyLoaded.Add(entry.FilePath);
         }

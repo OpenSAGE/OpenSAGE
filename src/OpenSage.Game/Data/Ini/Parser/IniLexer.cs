@@ -8,6 +8,7 @@ namespace OpenSage.Data.Ini.Parser
     {
         private readonly string _source;
         private readonly string _fileName;
+        private readonly IniDataContext _dataContext;
 
         private int _currentIndex;
         private bool _anyNonWhitespaceOnLine;
@@ -15,10 +16,14 @@ namespace OpenSage.Data.Ini.Parser
         private int _currentLine;
         private int _currentCharacter;
 
-        public IniLexer(string source, string fileName)
+        private IniToken[] _macroExpansion;
+        private int? _macroExpansionIndex;
+
+        public IniLexer(string source, string fileName, IniDataContext dataContext)
         {
             _source = source.Replace("\r\n", "\n"); // Normalise line endings
             _fileName = fileName;
+            _dataContext = dataContext;
 
             _currentIndex = 0;
 
@@ -49,6 +54,22 @@ namespace OpenSage.Data.Ini.Parser
 
         public IniToken Lex(IniLexerMode mode)
         {
+            // Are we in the middle of a macro expansion?
+            if (_macroExpansion != null)
+            {
+                var result = _macroExpansion[_macroExpansionIndex.Value];
+
+                _macroExpansionIndex += 1;
+
+                if (_macroExpansionIndex >= _macroExpansion.Length)
+                {
+                    _macroExpansion = null;
+                    _macroExpansionIndex = null;
+                }
+
+                return result;
+            }
+
             SkipWhitespaceAndComments();
 
             if (_anyNonWhitespaceOnLine && CurrentChar == '\n')
@@ -65,7 +86,7 @@ namespace OpenSage.Data.Ini.Parser
             var pos = CurrentPosition;
             var c = CurrentChar;
 
-            if (mode != IniLexerMode.Normal)
+            if (mode != IniLexerMode.Normal && mode != IniLexerMode.FieldValue)
             {
                 var sb = new StringBuilder();
                 if (mode == IniLexerMode.String && CurrentChar == '"')
@@ -110,6 +131,15 @@ namespace OpenSage.Data.Ini.Parser
                 case ',':
                     return CreateToken(IniTokenType.Comma);
 
+                case '%':
+                    return CreateToken(IniTokenType.Percent);
+
+                // These shouldn't really be here, but they appear in an uncommented comment in attributemodifier.ini:1690
+                case '(':
+                    return CreateToken(IniTokenType.LeftParen);
+                case ')':
+                    return CreateToken(IniTokenType.RightParen);
+
                 case '"':
                     return LexQuotedString(pos);
 
@@ -143,9 +173,24 @@ namespace OpenSage.Data.Ini.Parser
                             NextChar();
                         }
 
+                        var identifierString = identiferValue.ToString();
+                        if (mode == IniLexerMode.FieldValue)
+                        {
+                            if (_dataContext.Defines.TryGetValue(identifierString, out var macroExpansion))
+                            {
+                                if (macroExpansion.Length > 1)
+                                {
+                                    _macroExpansion = macroExpansion;
+                                    _macroExpansionIndex = 1;
+                                }
+
+                                return macroExpansion[0];
+                            }
+                        }
+
                         return new IniToken(IniTokenType.Identifier, pos)
                         {
-                            StringValue = identiferValue.ToString()
+                            StringValue = identifierString
                         };
                     }
 
@@ -239,12 +284,7 @@ namespace OpenSage.Data.Ini.Parser
                 ? IniTokenType.FloatLiteral
                 : IniTokenType.IntegerLiteral;
 
-            if (CurrentChar == '%')
-            {
-                tokenType = IniTokenType.PercentLiteral;
-                NextChar();
-            }
-            else if (IsIdentifierChar(CurrentChar))
+            if (IsIdentifierChar(CurrentChar) && CurrentChar != '%')
             {
                 var numIdentifierChars = 0;
                 while (IsIdentifierChar(CurrentChar))
@@ -273,7 +313,6 @@ namespace OpenSage.Data.Ini.Parser
             switch (tokenType)
             {
                 case IniTokenType.FloatLiteral:
-                case IniTokenType.PercentLiteral:
                     return new IniToken(tokenType, pos)
                     {
                         FloatValue = ParseFloat(numberValue)
@@ -377,6 +416,7 @@ namespace OpenSage.Data.Ini.Parser
     internal enum IniLexerMode
     {
         Normal,
+        FieldValue,
         String,
         StringWithWhitespace,
         AssetReference

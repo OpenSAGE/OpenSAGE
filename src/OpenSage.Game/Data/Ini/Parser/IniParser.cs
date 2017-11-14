@@ -74,6 +74,7 @@ namespace OpenSage.Data.Ini.Parser
         };
 
         private readonly string _directory;
+        private readonly IniDataContext _dataContext;
         private readonly IniLexer _lexer;
         private readonly Stack<IniLexerMode> _lexerModeStack;
         private readonly List<IniToken> _tokens;
@@ -90,11 +91,12 @@ namespace OpenSage.Data.Ini.Parser
         // Used for some things that need temporary storage, like AliasConditionState.
         public object Temp { get; set; }
 
-        public IniParser(string source, string fileName)
+        public IniParser(string source, string fileName, IniDataContext dataContext)
         {
             _directory = Path.GetDirectoryName(fileName);
+            _dataContext = dataContext;
 
-            _lexer = new IniLexer(source, fileName);
+            _lexer = new IniLexer(source, fileName, dataContext);
 
             _lexerModeStack = new Stack<IniLexerMode>();
             _lexerModeStack.Push(IniLexerMode.Normal);
@@ -303,7 +305,19 @@ namespace OpenSage.Data.Ini.Parser
                 : token.IntegerValue;
         }
 
-        public float ParsePercentage() => NextToken(IniTokenType.PercentLiteral).FloatValue;
+        public float ParsePercentage()
+        {
+            var result = ParseFloat();
+            NextToken(IniTokenType.Percent);
+            return result;
+        }
+
+        public float ParsePercentageOrFloat()
+        {
+            var result = ParseFloat();
+            NextTokenIf(IniTokenType.Percent);
+            return result;
+        }
 
         public bool ParseBoolean()
         {
@@ -507,7 +521,17 @@ namespace OpenSage.Data.Ini.Parser
                         // ODDITY: FactionBuilding.ini:13383 has a redundant =
                         NextTokenIf(IniTokenType.Equals);
 
+                        _lexerModeStack.Push(IniLexerMode.FieldValue);
+
                         fieldParser(this, result);
+
+                        _lexerModeStack.Pop();
+
+                        // ODDITY: attributemodifier.ini:1690 is missing a comment character before the comment.
+                        while (Current.TokenType != IniTokenType.EndOfLine)
+                        {
+                            NextToken();
+                        }
 
                         NextToken(IniTokenType.EndOfLine);
 
@@ -521,7 +545,7 @@ namespace OpenSage.Data.Ini.Parser
             }
         }
 
-        public void ParseFile(IniDataContext dataContext)
+        public void ParseFile()
         {
             while (Current.TokenType != IniTokenType.EndOfFile)
             {
@@ -531,7 +555,7 @@ namespace OpenSage.Data.Ini.Parser
                         if (BlockParsers.TryGetValue(Current.StringValue, out var blockParser))
                         {
                             _currentBlockOrFieldStack.Push(Current.StringValue);
-                            blockParser(this, dataContext);
+                            blockParser(this, _dataContext);
                             _currentBlockOrFieldStack.Pop();
                         }
                         else
@@ -543,15 +567,20 @@ namespace OpenSage.Data.Ini.Parser
                     case IniTokenType.DefineKeyword:
                         NextToken();
                         var macroName = ParseIdentifier();
-                        var macroValue = ParseString(true);
-                        dataContext.Defines.Add(macroName, macroValue);
+                        var macroExpansion = new List<IniToken>();
+                        while (CurrentTokenType != IniTokenType.EndOfLine && CurrentTokenType != IniTokenType.EndOfFile)
+                        {
+                            macroExpansion.Add(Current);
+                            NextToken();
+                        }
+                        _dataContext.Defines.Add(macroName, macroExpansion.ToArray());
                         NextToken(IniTokenType.EndOfLine, IniTokenType.EndOfFile);
                         break;
 
                     case IniTokenType.IncludeKeyword:
                         NextToken();
                         var includeFileName = ParseString();
-                        dataContext.LoadIniFile(Path.Combine(_directory, includeFileName));
+                        _dataContext.LoadIniFile(Path.Combine(_directory, includeFileName));
                         NextToken(IniTokenType.EndOfLine, IniTokenType.EndOfFile);
                         break;
 
