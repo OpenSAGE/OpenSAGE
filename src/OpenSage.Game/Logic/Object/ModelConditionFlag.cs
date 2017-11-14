@@ -342,5 +342,20 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("TAKING_DAMAGE"), AddedIn(SageGame.CncGeneralsZeroHour)]
         TakingDamage,
+
+        [IniEnum("HERO"), AddedIn(SageGame.BattleForMiddleEarth)]
+        Hero,
+
+        [IniEnum("UPGRADE_ECONOMY_BONUS"), AddedIn(SageGame.BattleForMiddleEarth)]
+        UpgradeEconomyBonus,
+
+        [IniEnum("WAR_CHANT"), AddedIn(SageGame.BattleForMiddleEarth)]
+        WarChant,
+
+        [IniEnum("JUST_BUILT"), AddedIn(SageGame.BattleForMiddleEarth)]
+        JustBuilt,
+
+        [IniEnum("EMOTION_AFRAID"), AddedIn(SageGame.BattleForMiddleEarth)]
+        EmotionAfraid,
     }
 }
