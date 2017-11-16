@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.IO;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.Object;
 using Xunit;

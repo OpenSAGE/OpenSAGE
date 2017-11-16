@@ -111,6 +111,7 @@
         One,
         SrcAlpha,
         OneMinusSrcAlpha,
-        SrcColor
+        SrcColor,
+        OneMinusSrcColor
     }
 }

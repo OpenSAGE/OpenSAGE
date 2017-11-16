@@ -2,47 +2,13 @@
 {
     internal struct IniToken
     {
-        public IniTokenType TokenType;
-        public string StringValue;
-        public int IntegerValue;
-        public long LongValue;
-        public float FloatValue;
-
+        public string Text;
         public IniTokenPosition Position;
 
-        public IniToken(IniTokenType tokenType, IniTokenPosition position)
+        public IniToken(string text, IniTokenPosition position)
         {
-            TokenType = tokenType;
-            StringValue = null;
-            IntegerValue = int.MinValue;
-            LongValue = long.MinValue;
-            FloatValue = float.MinValue;
-
+            Text = text;
             Position = position;
-        }
-
-        public override string ToString()
-        {
-            return $"Type: {TokenType}; StringValue: {StringValue}; IntegerValue: {IntegerValue}";
-        }
-    }
-
-    internal struct IniTokenPosition
-    {
-        public string File;
-        public int Line;
-        public int Character;
-
-        public IniTokenPosition(string file, int line, int character)
-        {
-            File = file;
-            Line = line;
-            Character = character;
-        }
-
-        public override string ToString()
-        {
-            return $"{File},{Line},{Character}";
         }
     }
 }

@@ -30,11 +30,10 @@ namespace OpenSage.Data.Ini
 
         private void ParseVeterancyGroupProperty(IniParser parser, Action<DamageFXGroup> callback)
         {
-            var tokenPosition = parser.CurrentPosition;
-            var identifier = parser.ParseIdentifier();
-            if (identifier != "HEROIC")
+            var token = parser.GetNextToken();
+            if (token.Text != "HEROIC")
             {
-                throw new IniParseException($"Unexpected identifier: {identifier}", tokenPosition);
+                throw new IniParseException($"Unexpected identifier: {token.Text}", token.Position);
             }
 
             ParseGroupProperty(parser, callback);

@@ -23,16 +23,7 @@ namespace OpenSage.Data.Ini
             { "numPlayers", (parser, x) => x.NumPlayers = parser.ParseInteger() },
             { "extentMin", (parser, x) => x.ExtentMin = Coord3D.Parse(parser) },
             { "extentMax", (parser, x) => x.ExtentMax = Coord3D.Parse(parser) },
-            {
-                "nameLookupTag",
-                (parser, x) => 
-                {
-                    if (parser.CurrentTokenType == IniTokenType.Identifier)
-                    {
-                        x.NameLookupTag = parser.ParseLocalizedStringKey();
-                    }
-                }
-            },
+            { "nameLookupTag", (parser, x) => x.NameLookupTag = parser.GetNextTokenOptional()?.Text },
             { "displayName", (parser, x) => x.DisplayName = parser.ParseIdentifier() },
             { "InitialCameraPosition", (parser, x) => x.InitialCameraPosition = Coord3D.Parse(parser) },
             { "Player_1_Start", (parser, x) => x.Player1Start = Coord3D.Parse(parser) },

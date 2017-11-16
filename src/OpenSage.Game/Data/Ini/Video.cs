@@ -14,7 +14,7 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<Video> FieldParseTable = new IniParseTable<Video>
         {
             { "Filename", (parser, x) => x.Filename = parser.ParseFileName() },
-            { "Comment", (parser, x) => x.Comment = parser.ParseString(allowWhitespace: true) },
+            { "Comment", (parser, x) => x.Comment = parser.ParseString() },
         };
 
         public string Name { get; private set; }

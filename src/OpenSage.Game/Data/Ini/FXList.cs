@@ -246,14 +246,18 @@ namespace OpenSage.Data.Ini
     {
         internal static RandomVariable Parse(IniParser parser)
         {
-            return new RandomVariable
+            var result = new RandomVariable
             {
                 Low = parser.ParseFloat(),
-                High = parser.ParseFloat(),
-                DistributionType = (parser.CurrentTokenType == IniTokenType.Identifier)
-                    ? parser.ParseEnum<DistributionType>()
-                    : DistributionType.Uniform
+                High = parser.ParseFloat()
             };
+
+            var distributionType = parser.GetNextTokenOptional();
+            result.DistributionType = (distributionType != null)
+                ? IniParser.ParseEnum<DistributionType>(distributionType.Value)
+                : DistributionType.Uniform;
+
+            return result;
         }
 
         public float Low;

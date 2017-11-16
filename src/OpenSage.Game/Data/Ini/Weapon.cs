@@ -52,19 +52,7 @@ namespace OpenSage.Data.Ini
             { "DelayBetweenShots", (parser, x) => x.DelayBetweenShots = RangeDuration.Parse(parser) },
             { "ShotsPerBarrel", (parser, x) => x.ShotsPerBarrel = parser.ParseInteger() },
             { "ClipSize", (parser, x) => x.ClipSize = parser.ParseInteger() },
-            {
-                "ClipReloadTime",
-                (parser, x) =>
-                {
-                    x.ClipReloadTime = parser.ParseInteger();
-
-                    // ODDITY: Zero Hour Weapon.ini:633, missing a ; before the comment
-                    while (parser.CurrentTokenType != IniTokenType.EndOfLine)
-                    {
-                        parser.NextToken();
-                    }
-                }
-            },
+            { "ClipReloadTime", (parser, x) => x.ClipReloadTime = parser.ParseInteger() },
             { "AutoReloadWhenIdle", (parser, x) => x.AutoReloadWhenIdle = parser.ParseInteger() },
             { "AutoReloadsClip", (parser, x) => x.AutoReloadsClip = parser.ParseEnum<WeaponReloadType>() },
             { "ContinuousFireOne", (parser, x) => x.ContinuousFireOne = parser.ParseInteger() },
@@ -204,18 +192,27 @@ namespace OpenSage.Data.Ini
     {
         internal static RangeDuration Parse(IniParser parser)
         {
-            if (parser.CurrentTokenType == IniTokenType.IntegerLiteral || parser.CurrentTokenType == IniTokenType.FloatLiteral)
+            var token = parser.GetNextToken(IniParser.SeparatorsColon);
+            if (parser.IsFloat(token))
             {
-                var value = parser.ParseFloat();
+                var value = parser.ScanFloat(token);
                 return new RangeDuration
                 {
                     Min = value,
                     Max = value
                 };
             }
+
+            if (token.Text.ToUpper() != "MIN")
+            {
+                throw new IniParseException($"Unexpected range duration: {token.Text}", token.Position);
+            }
+
+            var minValue = parser.ScanInteger(parser.GetNextToken());
+
             return new RangeDuration
             {
-                Min = parser.ParseAttributeInteger("Min"),
+                Min = minValue,
                 Max = parser.ParseAttributeInteger("Max")
             };
         }

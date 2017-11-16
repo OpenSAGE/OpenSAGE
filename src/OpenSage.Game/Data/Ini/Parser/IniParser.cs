@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using OpenSage.Logic.Object;
 using System.IO;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Data.Ini.Parser
 {
@@ -13,6 +12,7 @@ namespace OpenSage.Data.Ini.Parser
             { "AIData", (parser, context) => context.AIData = AIData.Parse(parser) },
             { "AmbientStream", (parser, context) => context.AmbientStreams.Add(AmbientStream.Parse(parser)) },
             { "Animation", (parser, context) => context.Animations.Add(Animation.Parse(parser)) },
+            { "AnimationSoundClientBehaviorGlobalSetting", (parser, context) => context.AnimationSoundClientBehaviorGlobalSetting = AnimationSoundClientBehaviorGlobalSetting.Parse(parser) },
             { "Armor", (parser, context) => context.Armors.Add(Armor.Parse(parser)) },
             { "AudioEvent", (parser, context) => context.AudioEvents.Add(AudioEvent.Parse(parser)) },
             { "AudioSettings", (parser, context) => context.AudioSettings = AudioSettings.Parse(parser) },
@@ -73,257 +73,165 @@ namespace OpenSage.Data.Ini.Parser
             { "WindowTransition", (parser, context) => context.WindowTransitions.Add(WindowTransition.Parse(parser)) },
         };
 
+        private static readonly char[] Separators = { ' ', '\n', '\r', '\t', '=' };
+        private static readonly char[] SeparatorsPercent = { ' ', '\n', '\r', '\t', '=', '%' };
+        public static readonly char[] SeparatorsColon = { ' ', '\n', '\r', '\t', '=', ':' };
+        private static readonly char[] SeparatorsQuote = { '"', '\n', '=' };
+
+        public const string EndToken = "END";
+
+        private readonly TokenReader _tokenReader;
+
         private readonly string _directory;
         private readonly IniDataContext _dataContext;
-        private readonly IniLexer _lexer;
-        private readonly Stack<IniLexerMode> _lexerModeStack;
-        private readonly List<IniToken> _tokens;
-        private int _tokenIndex;
-
-        private struct IniParserState
-        {
-            public IniLexerState LexerState;
-            public int TokenIndex;
-        }
 
         private readonly Stack<string> _currentBlockOrFieldStack;
 
         // Used for some things that need temporary storage, like AliasConditionState.
         public object Temp { get; set; }
 
+        public IniTokenPosition CurrentPosition => _tokenReader.CurrentPosition;
+
         public IniParser(string source, string fileName, IniDataContext dataContext)
         {
             _directory = Path.GetDirectoryName(fileName);
             _dataContext = dataContext;
 
-            _lexer = new IniLexer(source, fileName, dataContext);
-
-            _lexerModeStack = new Stack<IniLexerMode>();
-            _lexerModeStack.Push(IniLexerMode.Normal);
-
-            _tokens = new List<IniToken>();
-            _tokenIndex = 0;
+            _tokenReader = new TokenReader(source, fileName);
 
             _currentBlockOrFieldStack = new Stack<string>();
         }
 
-        public IniToken Current => _tokens[EnsureToken(_tokenIndex)];
+        public void GoToNextLine() => _tokenReader.GoToNextLine();
 
-        public IniTokenPosition CurrentPosition => Current.Position;
-
-        public IniTokenType CurrentTokenType
+        public string ParseQuotedString()
         {
-            get
-            {
-                var state = GetState();
+            var token = GetNextTokenOptional();
 
-                try
-                {
-                    return Current.TokenType;
-                }
-                finally
-                {
-                    // Undo lexing, because we might want to re-lex in a different mode.
-                    RestoreState(state);
-                }
-            }
-        }
-
-        private int EnsureToken(int tokenIndex)
-        {
-            if (_tokens.Count > 0 
-                && _tokens[_tokens.Count - 1].TokenType == IniTokenType.EndOfFile
-                && tokenIndex == _tokens.Count - 1)
+            if (token == null)
             {
-                return _tokens.Count - 1;
+                return string.Empty;
             }
 
-            while (tokenIndex >= _tokens.Count)
+            if (!token.Value.Text.StartsWith("\""))
             {
-                var token = _lexer.Lex(_lexerModeStack.Peek());
-
-                _tokens.Add(token);
-
-                if (token.TokenType == IniTokenType.EndOfFile)
-                {
-                    break;
-                }
+                return token.Value.Text;
             }
 
-            return Math.Min(tokenIndex, _tokens.Count - 1);
-        }
-
-        private IniParserState GetState()
-        {
-            return new IniParserState
+            var firstPart = token.Value.Text.TrimStart('"');
+            if (token.Value.Text.Length > 1 && firstPart.EndsWith("\""))
             {
-                LexerState = _lexer.GetState(),
-                TokenIndex = _tokenIndex
-            };
-        }
-
-        private void RestoreState(IniParserState state)
-        {
-            _lexer.RestoreState(state.LexerState);
-            _tokenIndex = state.TokenIndex;
-
-            _tokens.RemoveRange(_tokenIndex, _tokens.Count - _tokenIndex);
-        }
-
-        public IniToken NextToken(params IniTokenType[] tokenTypes)
-        {
-            var token = Current;
-            if (tokenTypes.Length > 0 && !tokenTypes.Contains(token.TokenType))
-            {
-                throw new IniParseException($"Expected token of type '{string.Join(",", tokenTypes)}', but got token of type '{token.TokenType}'.", token.Position);
+                return firstPart.TrimEnd('"');
             }
-            _tokenIndex++;
-            return token;
+
+            var restOfQuotedStringToken = GetNextToken(SeparatorsQuote);
+
+            return firstPart + " " + restOfQuotedStringToken.Text;
         }
 
-        public IniToken? NextTokenIf(IniTokenType tokenType)
+        public string ParseString()
         {
-            var state = GetState();
+            var token = GetNextTokenOptional();
 
-            var token = Current;
-            if (token.TokenType == tokenType)
+            if (token == null)
             {
-                _tokenIndex++;
-                return token;
+                return string.Empty;
             }
-            // Undo lexing, because we might want to re-lex in a different mode.
-            RestoreState(state);
-            return null;
+
+            if (!token.Value.Text.StartsWith("\""))
+            {
+                return token.Value.Text;
+            }
+
+            if (token.Value.Text.Length > 1 && token.Value.Text.EndsWith("\""))
+            {
+                return token.Value.Text;
+            }
+
+            var restOfQuotedStringToken = GetNextToken(SeparatorsQuote);
+
+            var restOfQuotedString = restOfQuotedStringToken.Text.TrimEnd('"');
+
+            return token.Value.Text + " " + restOfQuotedString;
         }
 
-        private IniToken NextIdentifierToken(string expectedStringValue)
-        {
-            var token = NextToken(IniTokenType.Identifier);
-            if (token.StringValue != expectedStringValue)
-            {
-                throw new IniParseException($"Expected an identifier with name '{expectedStringValue}', but got '{token.StringValue}'.", token.Position);
-            }
-            return token;
-        }
+        public string ScanAssetReference(IniToken token) => token.Text;
 
-        private void UnexpectedToken(IniToken token)
-        {
-            throw new IniParseException($"Unexpected token: {token}", token.Position);
-        }
-
-        public string ParseString(bool allowWhitespace = false)
-        {
-            var lexerMode = allowWhitespace
-                ? IniLexerMode.StringWithWhitespace
-                : IniLexerMode.String;
-
-            _lexerModeStack.Push(lexerMode);
-
-            try
-            {
-                return NextToken(IniTokenType.StringLiteral).StringValue;
-            }
-            finally
-            {
-                _lexerModeStack.Pop();
-            }
-        }
-
-        public string ParseAssetReference()
-        {
-            _lexerModeStack.Push(IniLexerMode.AssetReference);
-
-            try
-            {
-                return NextToken(IniTokenType.StringLiteral).StringValue;
-            }
-            finally
-            {
-                _lexerModeStack.Pop();
-            }
-        }
+        public string ParseAssetReference() => ScanAssetReference(GetNextToken());
 
         public string[] ParseAssetReferenceArray()
         {
-            _lexerModeStack.Push(IniLexerMode.AssetReference);
+            var result = new List<string>();
 
-            try
+            IniToken? token;
+            while ((token = GetNextTokenOptional()) != null)
             {
-                var result = new List<string>();
+                result.Add(token.Value.Text);
+            }
 
-                while (Current.TokenType == IniTokenType.StringLiteral)
+            return result.ToArray();
+        }
+
+        public bool IsInteger(IniToken token) => int.TryParse(token.Text, out _);
+
+        public int ScanInteger(IniToken token) => Convert.ToInt32(token.Text);
+
+        public int ParseInteger() => ScanInteger(GetNextToken());
+
+        private long ScanLong(IniToken token) => Convert.ToInt64(token.Text);
+
+        public long ParseLong() => ScanLong(GetNextToken());
+
+        public byte ScanByte(IniToken token) => (byte) ScanInteger(token);
+
+        public byte ParseByte() => ScanByte(GetNextToken());
+
+        private static string GetFloatText(IniToken token)
+        {
+            var floatText = string.Empty;
+            var seenDot = false;
+            foreach (var c in token.Text)
+            {
+                if (!char.IsDigit(c) && c != '.' && c != '-')
                 {
-                    result.Add(ParseAssetReference());
+                    break;
                 }
-
-                return result.ToArray();
-            }
-            finally
-            {
-                _lexerModeStack.Pop();
-            }
-        }
-
-        public int ParseInteger() => NextToken(IniTokenType.IntegerLiteral).IntegerValue;
-
-        public long ParseLong()
-        {
-            var token = NextToken(IniTokenType.LongLiteral, IniTokenType.IntegerLiteral);
-            return (token.TokenType == IniTokenType.LongLiteral)
-                ? token.LongValue
-                : token.IntegerValue;
-        }
-
-        public byte ParseByte() => (byte) ParseInteger();
-
-        public float ParseFloat()
-        {
-            var token = NextToken(IniTokenType.FloatLiteral, IniTokenType.IntegerLiteral);
-
-            // ODDITY: Zero Hour ObjectCreationList.ini:179, there's an extra "End":
-            // DispositionIntensity = 0.1 End
-            var state = GetState();
-            var ateNextToken = false;
-            try
-            {
-                if (Current.TokenType == IniTokenType.Identifier && Current.StringValue == "End")
+                if (c == '.')
                 {
-                    NextToken();
-                    ateNextToken = true;
+                    if (seenDot)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        seenDot = true;
+                    }
                 }
+                floatText += c;
             }
-            finally
-            {
-                if (!ateNextToken)
-                {
-                    RestoreState(state);
-                }
-            }
-
-            return (token.TokenType == IniTokenType.FloatLiteral)
-                ? token.FloatValue
-                : token.IntegerValue;
+            return floatText;
         }
 
-        public float ParsePercentage()
+        public bool IsFloat(IniToken token)
         {
-            var result = ParseFloat();
-            NextToken(IniTokenType.Percent);
-            return result;
+            var floatText = GetFloatText(token);
+            return !string.IsNullOrEmpty(floatText) && float.TryParse(floatText, out _);
         }
 
-        public float ParsePercentageOrFloat()
+        public float ScanFloat(IniToken token)
         {
-            var result = ParseFloat();
-            NextTokenIf(IniTokenType.Percent);
-            return result;
+            return Convert.ToSingle(GetFloatText(token));
         }
 
-        public bool ParseBoolean()
-        {
-            var token = NextToken(IniTokenType.Identifier);
+        public float ParseFloat() => ScanFloat(GetNextToken());
 
-            switch (token.StringValue.ToUpper())
+        private float ScanPercentage(IniToken token) => ScanFloat(token);
+
+        public float ParsePercentage() => ScanPercentage(GetNextToken(SeparatorsPercent));
+
+        private bool ScanBoolean(IniToken token)
+        {
+            switch (token.Text.ToUpper())
             {
                 case "YES":
                     return true;
@@ -332,61 +240,49 @@ namespace OpenSage.Data.Ini.Parser
                     return false;
 
                 default:
-                    throw new IniParseException($"Invalid value for boolean: '{token.StringValue}'", token.Position);
+                    throw new IniParseException($"Invalid value for boolean: '{token.Text}'", token.Position);
             }
         }
 
+        public bool ParseBoolean() => ScanBoolean(GetNextToken());
+
         public string ParseIdentifier()
         {
-            return NextToken(IniTokenType.Identifier).StringValue;
+            return GetNextToken().Text;
         }
 
         public string ParseLocalizedStringKey()
         {
-            var result = ParseString();
+            return ParseIdentifier();
+        }
 
-            // ODDITY: ZH NatureProp.ini:37 incorrectly has OPTIMIZED_TREE after the localized string key.
-            if (CurrentTokenType == IniTokenType.Identifier)
+        public string ParseFileName() => ParseIdentifier();
+
+        public string ScanBoneName(IniToken token) => token.Text;
+        public string ParseBoneName() => ScanBoneName(GetNextToken());
+
+        public string[] ParseBoneNameArray() => ParseAssetReferenceArray();
+        public string ParseAnimationName() => ParseIdentifier();
+
+        public IniToken GetNextToken(char[] separators = null)
+        {
+            var result = GetNextTokenOptional(separators);
+            if (result == null)
             {
-                NextToken();
+                throw new IniParseException("Expected a token", _tokenReader.CurrentPosition);
             }
 
-            return result;
-        }
-
-        public string ParseFileName() => ParseString();
-        public string ParseBoneName() => ParseString();
-        public string[] ParseBoneNameArray() => ParseAssetReferenceArray();
-        public string ParseAnimationName() => ParseString();
-
-        private T ParseEnum<T>(Dictionary<string, T> stringToValueMap)
-            where T : struct
-        {
-            var token = NextToken(IniTokenType.Identifier);
-
-            if (stringToValueMap.TryGetValue(token.StringValue.ToUpper(), out var enumValue))
-                return enumValue;
-
-            throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.StringValue}'", token.Position);
-        }
-
-        private T ParseEnumFlags<T>(T noneValue, Dictionary<string, T> stringToValueMap)
-            where T : struct
-        {
-            var result = noneValue;
-
-            do
+            if (_dataContext.Defines.TryGetValue(result.Value.Text, out var macroExpansion))
             {
-                var token = NextToken(IniTokenType.Identifier);
+                return macroExpansion;
+            }
 
-                if (!stringToValueMap.TryGetValue(token.StringValue.ToUpper(), out var enumValue))
-                    throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.StringValue}'", token.Position);
+            return result.Value;
+        }
 
-                // Ugh.
-                result = (T) (object) ((int) (object) result | (int) (object) enumValue);
-            } while (Current.TokenType != IniTokenType.EndOfLine);
-
-            return result;
+        public IniToken? GetNextTokenOptional(char[] separators = null)
+        {
+            return _tokenReader.NextToken(separators ?? Separators);
         }
 
         public T ParseTopLevelNamedBlock<T>(
@@ -394,11 +290,7 @@ namespace OpenSage.Data.Ini.Parser
             IIniFieldParserProvider<T> fieldParserProvider)
             where T : class, new()
         {
-            NextToken();
-
             var result = ParseNamedBlock(setNameCallback, fieldParserProvider);
-
-            NextTokenIf(IniTokenType.EndOfLine);
 
             return result;
         }
@@ -408,11 +300,7 @@ namespace OpenSage.Data.Ini.Parser
             IIniFieldParserProvider<T> fieldParserProvider)
             where T : class, new()
         {
-            NextToken();
-
             var result = ParseNamedBlock(setNameCallback, fieldParserProvider);
-
-            NextTokenIf(IniTokenType.EndOfLine);
 
             return result;
         }
@@ -424,20 +312,9 @@ namespace OpenSage.Data.Ini.Parser
         {
             var result = new T();
 
-            NextTokenIf(IniTokenType.Equals);
+            var name = GetNextToken();
 
-            // In only a few places in SCShellUserInterface512.INI,
-            // there are what look like accidental spaces in the MappedImage names.
-            var name = ParseString(allowWhitespace: true).Replace(" ", string.Empty);
-            setNameCallback(result, name);
-
-            var errantEnd = NextTokenIf(IniTokenType.Identifier);
-            if (errantEnd != null && errantEnd.Value.StringValue != "End")
-            {
-                throw new IniParseException($"Unexpected identifier after block name: {errantEnd.Value.StringValue}", errantEnd.Value.Position);
-            }
-
-            NextToken(IniTokenType.EndOfLine);
+            setNameCallback(result, name.Text);
 
             ParseBlockContent(result, fieldParserProvider);
 
@@ -451,12 +328,8 @@ namespace OpenSage.Data.Ini.Parser
         {
             var result = new T();
 
-            NextTokenIf(IniTokenType.Equals);
-
             var name = ParseInteger();
             setNameCallback(result, name);
-
-            NextToken(IniTokenType.EndOfLine);
 
             ParseBlockContent(result, fieldParserProvider);
 
@@ -467,11 +340,7 @@ namespace OpenSage.Data.Ini.Parser
             IIniFieldParserProvider<T> fieldParserProvider)
             where T : class, new()
         {
-            NextToken();
-
             var result = ParseBlock(fieldParserProvider);
-
-            NextTokenIf(IniTokenType.EndOfLine);
 
             return result;
         }
@@ -481,8 +350,6 @@ namespace OpenSage.Data.Ini.Parser
            where T : class, new()
         {
             var result = new T();
-
-            NextToken(IniTokenType.EndOfLine);
 
             ParseBlockContent(result, fieldParserProvider);
 
@@ -494,52 +361,43 @@ namespace OpenSage.Data.Ini.Parser
            IIniFieldParserProvider<T> fieldParserProvider)
             where T : class, new()
         {
-            while (Current.TokenType == IniTokenType.Identifier || Current.TokenType == IniTokenType.IntegerLiteral)
+            var done = false;
+
+            while (!done)
             {
-                if (Current.TokenType == IniTokenType.Identifier && Current.StringValue.ToUpper() == "END")
+                if (_tokenReader.EndOfFile)
                 {
-                    NextToken();
+                    throw new InvalidOperationException();
+                }
 
-                    // ODDITY: ZH AmericaVehicle.ini:1993 has Upgrade_AmericaHellfireDrone after "End"
-                    NextTokenIf(IniTokenType.Identifier);
+                _tokenReader.GoToNextLine();
 
-                    break;
+                var token = _tokenReader.NextToken(Separators);
+
+                if (token == null)
+                {
+                    continue;
+                }
+
+                if (string.Equals(token.Value.Text, EndToken, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    done = true;
                 }
                 else
                 {
-                    var fieldName = Current.TokenType == IniTokenType.Identifier
-                        ? Current.StringValue
-                        : Current.IntegerValue.ToString();
+                    var fieldName = token.Value.Text;
 
                     if (fieldParserProvider.TryGetFieldParser(fieldName, out var fieldParser))
                     {
                         _currentBlockOrFieldStack.Push(fieldName);
 
-                        NextToken();
-                        NextTokenIf(IniTokenType.Equals);
-
-                        // ODDITY: FactionBuilding.ini:13383 has a redundant =
-                        NextTokenIf(IniTokenType.Equals);
-
-                        _lexerModeStack.Push(IniLexerMode.FieldValue);
-
                         fieldParser(this, result);
-
-                        _lexerModeStack.Pop();
-
-                        // ODDITY: attributemodifier.ini:1690 is missing a comment character before the comment.
-                        while (Current.TokenType != IniTokenType.EndOfLine)
-                        {
-                            NextToken();
-                        }
-
-                        NextToken(IniTokenType.EndOfLine);
 
                         _currentBlockOrFieldStack.Pop();
                     }
                     else
                     {
-                        throw new IniParseException($"Unexpected field '{fieldName}' in block '{_currentBlockOrFieldStack.Peek()}'.", Current.Position);
+                        throw new IniParseException($"Unexpected field '{fieldName}' in block '{_currentBlockOrFieldStack.Peek()}'.", token.Value.Position);
                     }
                 }
             }
@@ -547,46 +405,38 @@ namespace OpenSage.Data.Ini.Parser
 
         public void ParseFile()
         {
-            while (Current.TokenType != IniTokenType.EndOfFile)
+            while (!_tokenReader.EndOfFile)
             {
-                switch (Current.TokenType)
+                _tokenReader.GoToNextLine();
+
+                var token = _tokenReader.NextToken(Separators);
+
+                if (token == null)
                 {
-                    case IniTokenType.Identifier:
-                        if (BlockParsers.TryGetValue(Current.StringValue, out var blockParser))
-                        {
-                            _currentBlockOrFieldStack.Push(Current.StringValue);
-                            blockParser(this, _dataContext);
-                            _currentBlockOrFieldStack.Pop();
-                        }
-                        else
-                        {
-                            throw new IniParseException($"Unexpected block '{Current.StringValue}'.", Current.Position);
-                        }
-                        break;
+                    continue;
+                }
 
-                    case IniTokenType.DefineKeyword:
-                        NextToken();
-                        var macroName = ParseIdentifier();
-                        var macroExpansion = new List<IniToken>();
-                        while (CurrentTokenType != IniTokenType.EndOfLine && CurrentTokenType != IniTokenType.EndOfFile)
-                        {
-                            macroExpansion.Add(Current);
-                            NextToken();
-                        }
-                        _dataContext.Defines.Add(macroName, macroExpansion.ToArray());
-                        NextToken(IniTokenType.EndOfLine, IniTokenType.EndOfFile);
-                        break;
+                if (token.Value.Text == "#define")
+                {
+                    var macroName = ParseIdentifier();
+                    var macroExpansion = _tokenReader.NextToken(Separators);
 
-                    case IniTokenType.IncludeKeyword:
-                        NextToken();
-                        var includeFileName = ParseString();
-                        _dataContext.LoadIniFile(Path.Combine(_directory, includeFileName));
-                        NextToken(IniTokenType.EndOfLine, IniTokenType.EndOfFile);
-                        break;
-
-                    default:
-                        UnexpectedToken(Current);
-                        break;
+                    _dataContext.Defines.Add(macroName, macroExpansion.Value);
+                }
+                else if (token.Value.Text == "#include")
+                {
+                    var includeFileName = ParseQuotedString();
+                    _dataContext.LoadIniFile(Path.Combine(_directory, includeFileName));
+                }
+                else if (BlockParsers.TryGetValue(token.Value.Text, out var blockParser))
+                {
+                    _currentBlockOrFieldStack.Push(token.Value.Text);
+                    blockParser(this, _dataContext);
+                    _currentBlockOrFieldStack.Pop();
+                }
+                else
+                {
+                    throw new IniParseException($"Unexpected block '{token.Value.Text}'.", token.Value.Position);
                 }
             }
         }

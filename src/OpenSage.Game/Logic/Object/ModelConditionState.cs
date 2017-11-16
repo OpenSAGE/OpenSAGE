@@ -136,14 +136,16 @@ namespace OpenSage.Logic.Object
                 Animation = parser.ParseAnimationName()
             };
 
-            if (parser.Current.TokenType == IniTokenType.IntegerLiteral
-                || parser.Current.TokenType == IniTokenType.FloatLiteral)
-            {
-                result.Unknown1 = parser.ParseFloat();
+            var unknown1Token = parser.GetNextTokenOptional();
 
-                if (parser.Current.TokenType == IniTokenType.IntegerLiteral)
+            if (unknown1Token != null)
+            {
+                result.Unknown1 = parser.ScanFloat(unknown1Token.Value);
+
+                var unknown2Token = parser.GetNextTokenOptional();
+                if (unknown2Token != null)
                 {
-                    result.Unknown2 = parser.ParseInteger();
+                    result.Unknown2 = parser.ScanInteger(unknown2Token.Value);
                 }
             }
 

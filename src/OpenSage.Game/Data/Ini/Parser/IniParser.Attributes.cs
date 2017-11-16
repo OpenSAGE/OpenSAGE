@@ -4,53 +4,57 @@ namespace OpenSage.Data.Ini.Parser
 {
     partial class IniParser
     {
-        public T ParseAttribute<T>(string label, Func<T> parseValue)
+        public T ParseAttribute<T>(string label, Func<IniToken, T> parseValue)
         {
-            var nameToken = NextToken(IniTokenType.Identifier);
-            if (!string.Equals(nameToken.StringValue, label, StringComparison.OrdinalIgnoreCase))
+            var nameToken = GetNextToken(SeparatorsColon);
+            if (!string.Equals(nameToken.Text, label, StringComparison.OrdinalIgnoreCase))
             {
                 throw new IniParseException($"Expected attribute name '{label}'", nameToken.Position);
             }
 
-            NextToken(IniTokenType.Colon);
+            return parseValue(GetNextToken(SeparatorsColon));
+        }
 
-            var result = parseValue();
+        public T ParseAttribute<T>(string label, Func<T> parseValue)
+        {
+            var nameToken = GetNextToken(SeparatorsColon);
+            if (!string.Equals(nameToken.Text, label, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new IniParseException($"Expected attribute name '{label}'", nameToken.Position);
+            }
 
-            // Generals FXList.ini line 2296 has an extra colon...
-            NextTokenIf(IniTokenType.Colon);
-
-            return result;
+            return parseValue();
         }
 
         public int ParseAttributeInteger(string label)
         {
-            return ParseAttribute(label, ParseInteger);
+            return ParseAttribute(label, ScanInteger);
         }
 
         public string ParseAttributeIdentifier(string label)
         {
-            return ParseAttribute(label, ParseIdentifier);
+            return ParseAttribute(label, x => x.Text);
         }
 
         public T ParseAttributeEnum<T>(string label)
             where T : struct
         {
-            return ParseAttribute(label, ParseEnum<T>);
+            return ParseAttribute(label, x => ParseEnum<T>(x));
         }
 
         public byte ParseAttributeByte(string label)
         {
-            return ParseAttribute(label, ParseByte);
+            return ParseAttribute(label, ScanByte);
         }
 
         public bool ParseAttributeBoolean(string label)
         {
-            return ParseAttribute(label, ParseBoolean);
+            return ParseAttribute(label, ScanBoolean);
         }
 
         public float ParseAttributeFloat(string label)
         {
-            return ParseAttribute(label, ParseFloat);
+            return ParseAttribute(label, ScanFloat);
         }
     }
 }

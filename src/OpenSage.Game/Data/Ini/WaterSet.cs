@@ -9,7 +9,7 @@ namespace OpenSage.Data.Ini
         internal static WaterSet Parse(IniParser parser)
         {
             return parser.ParseTopLevelNamedBlock(
-                (x, name) => x.TimeOfDay = IniParser.ParseEnum<TimeOfDay>(new IniToken(IniTokenType.Identifier, default(IniTokenPosition)) { StringValue = name }),
+                (x, name) => x.TimeOfDay = IniParser.ParseEnum<TimeOfDay>(new IniToken(name, default(IniTokenPosition))),
                 FieldParseTable);
         }
 

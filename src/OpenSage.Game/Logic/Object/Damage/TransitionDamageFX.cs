@@ -86,7 +86,7 @@ namespace OpenSage.Logic.Object
             return new TransitionDamageFXList
             {
                 Location = parser.ParseAttribute("Loc", () => Coord3D.Parse(parser)),
-                FXList = parser.ParseAttribute("FXList", () => parser.ParseAssetReference())
+                FXList = parser.ParseAttribute("FXList", parser.ScanAssetReference)
             };
         }
 
@@ -100,9 +100,9 @@ namespace OpenSage.Logic.Object
         {
             return new TransitionDamageParticleSystem
             {
-                Bone = parser.ParseAttribute("Bone", () => parser.ParseBoneName()),
+                Bone = parser.ParseAttribute("Bone", parser.ScanBoneName),
                 RandomBone = parser.ParseAttributeBoolean("RandomBone"),
-                ParticleSystem = parser.ParseAttribute("PSys", () => parser.ParseAssetReference())
+                ParticleSystem = parser.ParseAttribute("PSys", parser.ScanAssetReference)
             };
         }
 

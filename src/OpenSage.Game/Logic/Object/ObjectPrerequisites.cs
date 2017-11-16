@@ -28,12 +28,7 @@ namespace OpenSage.Logic.Object
         internal static PrerequisiteList Parse(IniParser parser)
         {
             var result = new PrerequisiteList();
-
-            do
-            {
-                result.Add(parser.ParseAssetReference());
-            } while (parser.CurrentTokenType == IniTokenType.Identifier);
-
+            result.AddRange(parser.ParseAssetReferenceArray());
             return result;
         }
     }

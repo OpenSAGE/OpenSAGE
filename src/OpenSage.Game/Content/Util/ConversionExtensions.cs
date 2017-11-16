@@ -53,6 +53,9 @@ namespace OpenSage.Content.Util
                 case W3dShaderDestBlendFunc.SrcColor:
                     return alpha ? Blend.SrcAlpha : Blend.SrcColor;
 
+                case W3dShaderDestBlendFunc.OneMinusSrcColor:
+                    return alpha ? Blend.OneMinusSrcAlpha : Blend.OneMinusSrcColor;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }

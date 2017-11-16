@@ -6,10 +6,7 @@ namespace OpenSage.Data.Ini
     {
         internal static LodPreset Parse(IniParser parser)
         {
-            parser.NextToken(IniTokenType.Identifier);
-            parser.NextToken(IniTokenType.Equals);
-
-            var result = new LodPreset
+            return new LodPreset
             {
                 Level = parser.ParseEnum<StaticGameLodLevel>(),
                 CpuType = parser.ParseEnum<CpuType>(),
@@ -17,10 +14,6 @@ namespace OpenSage.Data.Ini
                 GpuType = parser.ParseEnum<GpuType>(),
                 GpuMemory = parser.ParseInteger()
             };
-
-            parser.NextTokenIf(IniTokenType.EndOfLine);
-
-            return result;
         }
 
         public StaticGameLodLevel Level { get; private set; }

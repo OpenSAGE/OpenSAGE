@@ -368,5 +368,59 @@
 
         [IniEnum("CAVALRY"), AddedIn(SageGame.BattleForMiddleEarth)]
         Cavalry,
+
+        [IniEnum("MONSTER"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        Monster,
+
+        [IniEnum("MACHINE"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        Machine,
+
+        [IniEnum("HORDE"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        Horde,
+
+        [IniEnum("DWARVENBATTLEWAGON"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        DwarvenBattleWagon,
+
+        [IniEnum("ISENGARDBESERKER"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        IsengardBeserker,
+
+        [IniEnum("IGNORE_FOR_VICTORY"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        IgnoreForVictory,
+
+        [IniEnum("ECONOMY_STRUCTURE"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        EconomyStructure,
+
+        [IniEnum("WALL_UPGRADE"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        WallUpgrade,
+
+        [IniEnum("WALL_HUB"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        WallHub,
+
+        [IniEnum("WALL_SEGMENT"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        WallSegment,
+
+        [IniEnum("INN"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        Inn,
+
+        [IniEnum("SHIPWRIGHT"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        Shipwright,
+
+        [IniEnum("OUTPOST"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        Outpost,
+
+        [IniEnum("SIGNALFIRE"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        SignalFire,
+
+        [IniEnum("CAPTUREFLAG"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        CaptureFlag,
+
+        [IniEnum("SHIREGREENDRAGON"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        ShireGreenDragon,
+
+        [IniEnum("NOT_AUTOACQUIRABLE"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        NotAutoAcquirable,
+
+        [IniEnum("MORDORWORKER"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        MordorWorker,
     }
 }

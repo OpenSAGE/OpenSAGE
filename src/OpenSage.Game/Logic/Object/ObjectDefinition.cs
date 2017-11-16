@@ -15,15 +15,11 @@ namespace OpenSage.Logic.Object
 
         internal static ObjectDefinition ParseReskin(IniParser parser)
         {
-            parser.NextToken();
-
             var name = parser.ParseIdentifier();
 
             var reskinOf = parser.ParseAssetReference();
 
             var result = parser.ParseBlock(FieldParseTable);
-
-            parser.NextTokenIf(IniTokenType.EndOfLine);
 
             result.Name = name;
             result.InheritFrom = reskinOf;
@@ -302,20 +298,19 @@ namespace OpenSage.Logic.Object
     {
         internal static MaxSimultaneousObjectCount Parse(IniParser parser)
         {
-            if (parser.CurrentTokenType == IniTokenType.IntegerLiteral)
+            var token = parser.GetNextToken();
+            if (parser.IsInteger(token))
             {
                 return new MaxSimultaneousObjectCount
                 {
                     CountType = MaxSimultaneousObjectCountType.Explicit,
-                    ExplicitCount = parser.ParseInteger()
+                    ExplicitCount = parser.ScanInteger(token)
                 };
             }
 
-            var currentPos = parser.CurrentPosition;
-            var countType = parser.ParseIdentifier();
-            if (countType != "DeterminedBySuperweaponRestriction")
+            if (token.Text != "DeterminedBySuperweaponRestriction")
             {
-                throw new IniParseException("Unknown MaxSimultaneousOfType value: " + countType, currentPos);
+                throw new IniParseException("Unknown MaxSimultaneousOfType value: " + token.Text, token.Position);
             }
 
             return new MaxSimultaneousObjectCount
@@ -350,11 +345,11 @@ namespace OpenSage.Logic.Object
     {
         internal static new AddModule Parse(IniParser parser)
         {
-            var name = parser.NextTokenIf(IniTokenType.Identifier);
+            var name = parser.GetNextTokenOptional();
 
             var result = parser.ParseBlock(FieldParseTable);
 
-            result.Name = name?.StringValue;
+            result.Name = name?.Text;
 
             return result;
         }

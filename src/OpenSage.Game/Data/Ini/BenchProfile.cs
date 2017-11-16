@@ -6,9 +6,6 @@ namespace OpenSage.Data.Ini
     {
         internal static BenchProfile Parse(IniParser parser)
         {
-            parser.NextToken(IniTokenType.Identifier);
-            parser.NextToken(IniTokenType.Equals);
-
             var result = new BenchProfile
             {
                 CpuType = parser.ParseEnum<CpuType>(),
@@ -18,8 +15,6 @@ namespace OpenSage.Data.Ini
                 Unknown2 = parser.ParseFloat(),
                 Unknown3 = parser.ParseFloat()
             };
-
-            parser.NextToken(IniTokenType.EndOfLine);
 
             return result;
         }

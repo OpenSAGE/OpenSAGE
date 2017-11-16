@@ -5,10 +5,7 @@ namespace OpenSage.Data.Ini
 {
     public sealed class AIData
     {
-        internal static AIData Parse(IniParser parser)
-        {
-            return parser.ParseTopLevelBlock(FieldParseTable);
-        }
+        internal static AIData Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
 
         private static readonly IniParseTable<AIData> FieldParseTable = new IniParseTable<AIData>
         {

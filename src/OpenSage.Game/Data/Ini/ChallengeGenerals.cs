@@ -8,32 +8,28 @@ namespace OpenSage.Data.Ini
     {
         internal static ChallengeGenerals Parse(IniParser parser)
         {
-            parser.NextToken();
-
-            parser.NextToken(IniTokenType.EndOfLine);
-
             var result = new ChallengeGenerals();
 
             while (true)
             {
-                if (parser.Current.TokenType == IniTokenType.Identifier && parser.Current.StringValue.ToUpper() == "END")
+                parser.GoToNextLine();
+
+                var token = parser.GetNextTokenOptional();
+                if (token == null)
                 {
-                    parser.NextToken();
+                    continue;
+                }
+                else if (token.Value.Text.ToUpper() == IniParser.EndToken)
+                {
                     break;
                 }
                 else
                 {
-                    var personaName = parser.Current.StringValue;
-
-                    parser.NextToken();
+                    var personaName = token.Value.Text;
 
                     result.Personas[personaName] = GeneralPersona.Parse(parser);
-
-                    parser.NextTokenIf(IniTokenType.EndOfLine);
                 }
             }
-
-            parser.NextTokenIf(IniTokenType.EndOfLine);
 
             return result;
         }

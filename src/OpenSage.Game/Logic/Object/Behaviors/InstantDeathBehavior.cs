@@ -11,20 +11,7 @@ namespace OpenSage.Logic.Object
         {
             { "RequiredStatus", (parser, x) => x.RequiredStatus = parser.ParseEnum<ObjectStatus>() },
             { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
-            {
-                "FX",
-                (parser, x) =>
-                {
-                    x.FX = parser.ParseAssetReference();
-
-                    // ODDITY: ZH WeaponObjects.ini:5838 incorrectly uses a SlowDeathPhase (FINAL)
-                    // before the actual FX reference.
-                    if (x.FX == "FINAL" && parser.CurrentTokenType == IniTokenType.Identifier)
-                    {
-                        x.FX = parser.ParseAssetReference();
-                    }
-                }
-            },
+            { "FX", (parser, x) => x.FX = parser.ParseAssetReference() },
             { "OCL", (parser, x) => x.OCL = parser.ParseAssetReference() },
         };
 

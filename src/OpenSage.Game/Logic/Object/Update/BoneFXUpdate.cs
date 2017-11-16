@@ -51,11 +51,11 @@ namespace OpenSage.Logic.Object
         {
             return new BoneFXUpdateFXList
             {
-                Bone = parser.ParseAttribute("Bone", () => parser.ParseBoneName()),
+                Bone = parser.ParseAttribute("Bone", parser.ScanBoneName),
                 OnlyOnce = parser.ParseAttributeBoolean("OnlyOnce"),
                 Min = parser.ParseInteger(),
                 Max = parser.ParseInteger(),
-                FXList = parser.ParseAttribute("FXList", () => parser.ParseAssetReference())
+                FXList = parser.ParseAttribute("FXList", parser.ScanAssetReference)
             };
         }
 
@@ -72,11 +72,11 @@ namespace OpenSage.Logic.Object
         {
             return new BoneFXUpdateParticleSystem
             {
-                Bone = parser.ParseAttribute("Bone", () => parser.ParseBoneName()),
+                Bone = parser.ParseAttribute("Bone", parser.ScanBoneName),
                 OnlyOnce = parser.ParseAttributeBoolean("OnlyOnce"),
                 Min = parser.ParseInteger(),
                 Max = parser.ParseInteger(),
-                ParticleSystem = parser.ParseAttribute("PSys", () => parser.ParseAssetReference())
+                ParticleSystem = parser.ParseAttribute("PSys", parser.ScanAssetReference)
             };
         }
 

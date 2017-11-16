@@ -9,18 +9,6 @@ namespace OpenSage.Logic.Object
             var from = parser.ParseAssetReference();
             var to = parser.ParseAssetReference();
 
-            // ODDITY: FactionBuilding.ini:849 has a mistake:
-            // UP_SNOW NIGHT DOWN_DEFAULT
-            // It should be:
-            // UP_SNOWNIGHT DOWN_DEFAULT
-            if (parser.CurrentTokenType == IniTokenType.Identifier)
-            {
-                var extra = parser.ParseAssetReference();
-
-                from = from + to;
-                to = extra;
-            }
-
             var result = parser.ParseBlock(FieldParseTable);
 
             result.FromTransitionKey = from;

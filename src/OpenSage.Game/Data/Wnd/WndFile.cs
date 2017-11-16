@@ -158,7 +158,7 @@ namespace OpenSage.Data.Wnd
         {
             return new WndFont
             {
-                Name = parser.ParseString(),
+                Name = parser.ParseQuotedString(),
                 Size = parser.ParseInteger(),
                 Bold = parser.ParseBoolean()
             };
@@ -208,9 +208,16 @@ namespace OpenSage.Data.Wnd
             var g = parser.ParseAttributeByte("G");
             var b = parser.ParseAttributeByte("B");
 
-            var a = (parser.CurrentTokenType == IniTokenType.Identifier)
-                ? parser.ParseAttributeByte("A")
-                : (byte) 255;
+            var aToken = parser.GetNextTokenOptional(IniParser.SeparatorsColon);
+            var a = (byte) 255;
+            if (aToken != null)
+            {
+                if (aToken.Value.Text != "A")
+                {
+                    throw new IniParseException($"Expected attribute name 'A'", aToken.Value.Position);
+                }
+                a = parser.ScanByte(parser.GetNextToken(IniParser.SeparatorsColon));
+            }
 
             return new WndColor
             {

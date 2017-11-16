@@ -37,8 +37,8 @@ namespace OpenSage.Logic.Object
         {
             return new FactionOCL
             {
-                Faction = parser.ParseAttribute("Faction", () => parser.ParseAssetReference()),
-                OCL = parser.ParseAttribute("OCL", () => parser.ParseAssetReference()),
+                Faction = parser.ParseAttribute("Faction", parser.ScanAssetReference),
+                OCL = parser.ParseAttribute("OCL", parser.ScanAssetReference),
             };
         }
 

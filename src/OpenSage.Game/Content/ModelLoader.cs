@@ -456,16 +456,20 @@ namespace OpenSage.Content
             var name = w3dAnimation.Header.Name;
             var duration = TimeSpan.FromSeconds(w3dAnimation.Header.NumFrames / (double) w3dAnimation.Header.FrameRate);
 
-            var clips = new AnimationClip[w3dAnimation.Channels.Count + w3dAnimation.BitChannels.Count];
+            var channels = w3dAnimation.Channels
+                .Where(x => x.ChannelType != W3dAnimationChannelType.UnknownBfme) // Don't know what this channel means.
+                .ToList();
 
-            for (var i = 0; i < w3dAnimation.Channels.Count; i++)
+            var clips = new AnimationClip[channels.Count + w3dAnimation.BitChannels.Count];
+
+            for (var i = 0; i < channels.Count; i++)
             {
-                clips[i] = CreateAnimationClip(w3dAnimation, w3dAnimation.Channels[i]);
+                clips[i] = CreateAnimationClip(w3dAnimation, channels[i]);
             }
 
             for (var i = 0; i < w3dAnimation.BitChannels.Count; i++)
             {
-                clips[w3dAnimation.Channels.Count + i] = CreateAnimationClip(w3dAnimation, w3dAnimation.BitChannels[i]);
+                clips[channels.Count + i] = CreateAnimationClip(w3dAnimation, w3dAnimation.BitChannels[i]);
             }
 
             return new Animation(

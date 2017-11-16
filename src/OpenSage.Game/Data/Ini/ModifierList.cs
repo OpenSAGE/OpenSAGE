@@ -59,7 +59,7 @@ namespace OpenSage.Data.Ini
             return new Modifier
             {
                 ModifierType = parser.ParseEnum<ModifierType>(),
-                Amount = parser.ParsePercentageOrFloat()
+                Amount = parser.ParsePercentage()
             };
         }
 

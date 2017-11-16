@@ -9,9 +9,10 @@ namespace OpenSage.Logic.Object
         {
             var values = new List<int>();
 
-            while (parser.CurrentTokenType == IniTokenType.IntegerLiteral)
+            IniToken? token;
+            while ((token = parser.GetNextTokenOptional()) != null)
             {
-                values.Add(parser.ParseInteger());
+                values.Add(parser.ScanInteger(token.Value));
             }
 
             return new VeterancyValues

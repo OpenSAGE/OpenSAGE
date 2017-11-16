@@ -33,9 +33,9 @@ namespace OpenSage.Logic.Object
         {
             return new BridgeDieObjectCreationList
             {
-                OCL = parser.ParseAttribute("OCL", () => parser.ParseAssetReference()),
+                OCL = parser.ParseAttribute("OCL", parser.ScanAssetReference),
                 Delay = parser.ParseAttributeInteger("Delay"),
-                Bone = parser.ParseAttribute("Bone", () => parser.ParseBoneName())
+                Bone = parser.ParseAttribute("Bone", parser.ScanBoneName)
             };
         }
 
@@ -50,9 +50,9 @@ namespace OpenSage.Logic.Object
         {
             return new BridgeDieFX
             {
-                FX = parser.ParseAttribute("FX", () => parser.ParseAssetReference()),
+                FX = parser.ParseAttribute("FX", parser.ScanAssetReference),
                 Delay = parser.ParseAttributeInteger("Delay"),
-                Bone = parser.ParseAttribute("Bone", () => parser.ParseBoneName())
+                Bone = parser.ParseAttribute("Bone", parser.ScanBoneName)
             };
         }
 

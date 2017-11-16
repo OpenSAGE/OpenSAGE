@@ -174,6 +174,9 @@ namespace LLGfx.Util
                 case Blend.SrcColor:
                     return BlendOption.SourceColor;
 
+                case Blend.OneMinusSrcColor:
+                    return BlendOption.InverseSourceColor;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }

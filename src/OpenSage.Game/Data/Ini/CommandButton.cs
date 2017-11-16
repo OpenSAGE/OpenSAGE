@@ -30,14 +30,7 @@ namespace OpenSage.Data.Ini
             { "Science", (parser, x) => x.Science = parser.ParseAssetReferenceArray() },
             {
                 "WeaponSlot",
-                (parser, x) => 
-                {
-                    x.WeaponSlot = parser.ParseEnum<WeaponSlot>();
-
-                    // ODDITY: Zero Hour CommandButton.ini:1858, WeaponSlot = SECONDARY TERTIARY
-                    // As far as I understand it, a command button should only be assigned one weapon slot.
-                    parser.NextTokenIf(IniTokenType.Identifier);
-                }
+                (parser, x) => x.WeaponSlot = parser.ParseEnum<WeaponSlot>()
             },
             { "UnitSpecificSound", (parser, x) => x.UnitSpecificSound = parser.ParseAssetReference() },
             { "Upgrade", (parser, x) => x.Upgrade = parser.ParseAssetReference() },

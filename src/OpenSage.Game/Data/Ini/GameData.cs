@@ -26,6 +26,7 @@ namespace OpenSage.Data.Ini
             { "MaxShellScreens", (parser, x) => x.MaxShellScreens = parser.ParseInteger() },
             { "Wireframe", (parser, x) => x.Wireframe = parser.ParseBoolean() },
             { "UseCloudMap", (parser, x) => x.UseCloudMap = parser.ParseBoolean() },
+            { "AllowTreeFading", (parser, x) => x.AllowTreeFading = parser.ParseBoolean() },
             { "UseLightMap", (parser, x) => x.UseLightMap = parser.ParseBoolean() },
             { "BilinearTerrainTex", (parser, x) => x.BilinearTerrainTex = parser.ParseBoolean() },
             { "TrilinearTerrainTex", (parser, x) => x.TrilinearTerrainTex = parser.ParseBoolean() },
@@ -46,6 +47,7 @@ namespace OpenSage.Data.Ini
             { "UseCloudPlane", (parser, x) => x.UseCloudPlane = parser.ParseBoolean() },
             { "UseShadowVolumes", (parser, x) => x.UseShadowVolumes = parser.ParseBoolean() },
             { "UseShadowDecals", (parser, x) => x.UseShadowDecals = parser.ParseBoolean() },
+            { "UseShadowMapping", (parser, x) => x.UseShadowMapping = parser.ParseBoolean() },
             { "ShowSelectedUnitMarker", (parser, x) => x.ShowSelectedUnitMarker = parser.ParseBoolean() },
             { "UseSimpleHordeDecals", (parser, x) => x.UseSimpleHordeDecals = parser.ParseBoolean() },
             { "UseSimpleMergeDecals", (parser, x) => x.UseSimpleMergeDecals = parser.ParseBoolean() },
@@ -155,6 +157,7 @@ namespace OpenSage.Data.Ini
             { "Gravity", (parser, x) => x.Gravity = parser.ParseFloat() },
 
             { "PartitionCellSize", (parser, x) => x.PartitionCellSize = parser.ParseFloat() },
+            { "TerrainResourceCellSize", (parser, x) => x.TerrainResourceCellSize = parser.ParseFloat() },
 
             { "ParticleScale", (parser, x) => x.ParticleScale = parser.ParseFloat() },
 
@@ -285,28 +288,58 @@ namespace OpenSage.Data.Ini
             { "PowerLimit", (parser, x) => x.PowerLimit = parser.ParseInteger() },
             { "ResourceMultiplierLimit", (parser, x) => x.ResourceMultiplierLimit = parser.ParseFloat() },
             { "InitialMaxRingLevel", (parser, x) => x.InitialMaxRingLevel = parser.ParseInteger() },
+            { "SkipMapUnroll", (parser, x) => x.SkipMapUnroll = parser.ParseBoolean() },
             { "ResourceBonusMultiplier", (parser, x) => x.ResourceBonusMultiplier = parser.ParseFloat() },
-            { "GoodCommandPoints", (parser, x) => x.GoodCommandPoints = parser.ParseInteger() },
-            { "EvilCommandPoints", (parser, x) => x.EvilCommandPoints = parser.ParseInteger() },
+            { "GoodCommandPoints", (parser, x) => x.GoodCommandPoints = CommandPoints.Parse(parser) },
+            { "EvilCommandPoints", (parser, x) => x.EvilCommandPoints = CommandPoints.Parse(parser) },
             { "GoodCommandPointsBonus", (parser, x) => x.GoodCommandPointsBonus = parser.ParseInteger() },
             { "EvilCommandPointsBonus", (parser, x) => x.EvilCommandPointsBonus = parser.ParseInteger() },
-            { "GoodCommandPointsAI", (parser, x) => x.GoodCommandPointsAI = parser.ParseInteger() },
-            { "EvilCommandPointsAI", (parser, x) => x.EvilCommandPointsAI = parser.ParseInteger() },
-            { "GoodCommandPointsMP2", (parser, x) => x.GoodCommandPointsMP2 = parser.ParseInteger() },
-            { "EvilCommandPointsMP2", (parser, x) => x.EvilCommandPointsMP2 = parser.ParseInteger() },
-            { "GoodCommandPointsMP3", (parser, x) => x.GoodCommandPointsMP3 = parser.ParseInteger() },
-            { "EvilCommandPointsMP3", (parser, x) => x.EvilCommandPointsMP3 = parser.ParseInteger() },
-            { "GoodCommandPointsMP4", (parser, x) => x.GoodCommandPointsMP4 = parser.ParseInteger() },
-            { "EvilCommandPointsMP4", (parser, x) => x.EvilCommandPointsMP4 = parser.ParseInteger() },
-            { "GoodCommandPointsMP56", (parser, x) => x.GoodCommandPointsMP56 = parser.ParseInteger() },
-            { "EvilCommandPointsMP56", (parser, x) => x.EvilCommandPointsMP56 = parser.ParseInteger() },
-            { "GoodCommandPointsMP78", (parser, x) => x.GoodCommandPointsMP78 = parser.ParseInteger() },
-            { "EvilCommandPointsMP78", (parser, x) => x.EvilCommandPointsMP78 = parser.ParseInteger() },
+            { "GoodCommandPointsAI", (parser, x) => x.GoodCommandPointsAI = CommandPoints.Parse(parser) },
+            { "EvilCommandPointsAI", (parser, x) => x.EvilCommandPointsAI = CommandPoints.Parse(parser) },
+            { "GoodCommandPointsMP2", (parser, x) => x.GoodCommandPointsMP2 = CommandPoints.Parse(parser) },
+            { "EvilCommandPointsMP2", (parser, x) => x.EvilCommandPointsMP2 = CommandPoints.Parse(parser) },
+            { "GoodCommandPointsMP3", (parser, x) => x.GoodCommandPointsMP3 = CommandPoints.Parse(parser) },
+            { "EvilCommandPointsMP3", (parser, x) => x.EvilCommandPointsMP3 = CommandPoints.Parse(parser) },
+            { "GoodCommandPointsMP4", (parser, x) => x.GoodCommandPointsMP4 = CommandPoints.Parse(parser) },
+            { "EvilCommandPointsMP4", (parser, x) => x.EvilCommandPointsMP4 = CommandPoints.Parse(parser) },
+            { "GoodCommandPointsMP5", (parser, x) => x.GoodCommandPointsMP5 = CommandPoints.Parse(parser) },
+            { "EvilCommandPointsMP5", (parser, x) => x.EvilCommandPointsMP5 = CommandPoints.Parse(parser) },
+            { "GoodCommandPointsMP6", (parser, x) => x.GoodCommandPointsMP6 = CommandPoints.Parse(parser) },
+            { "EvilCommandPointsMP6", (parser, x) => x.EvilCommandPointsMP6 = CommandPoints.Parse(parser) },
+            { "GoodCommandPointsMP7", (parser, x) => x.GoodCommandPointsMP7 = CommandPoints.Parse(parser) },
+            { "EvilCommandPointsMP7", (parser, x) => x.EvilCommandPointsMP7 = CommandPoints.Parse(parser) },
+            { "GoodCommandPointsMP8", (parser, x) => x.GoodCommandPointsMP8 = CommandPoints.Parse(parser) },
+            { "EvilCommandPointsMP8", (parser, x) => x.EvilCommandPointsMP8 = CommandPoints.Parse(parser) },
+            { "GoodCommandPointsMP56", (parser, x) => x.GoodCommandPointsMP56 = CommandPoints.Parse(parser) },
+            { "EvilCommandPointsMP56", (parser, x) => x.EvilCommandPointsMP56 = CommandPoints.Parse(parser) },
+            { "GoodCommandPointsMP78", (parser, x) => x.GoodCommandPointsMP78 = CommandPoints.Parse(parser) },
+            { "EvilCommandPointsMP78", (parser, x) => x.EvilCommandPointsMP78 = CommandPoints.Parse(parser) },
             { "MultiPlayMoneyMult", (parser, x) => x.MultiPlayMoneyMult = MultiPlayerTuningFactor.Parse(parser) },
             { "MultiPlayUnitXPMult", (parser, x) => x.MultiPlayUnitXPMult = MultiPlayerTuningFactor.Parse(parser) },
             { "MultiPlayBuildingXPMult", (parser, x) => x.MultiPlayBuildingXPMult = MultiPlayerTuningFactor.Parse(parser) },
             { "MultiPlayUnitSpeedMult", (parser, x) => x.MultiPlayUnitSpeedMult = MultiPlayerTuningFactor.Parse(parser) },
             { "MultiPlayBuildingSpeedMult", (parser, x) => x.MultiPlayBuildingSpeedMult = MultiPlayerTuningFactor.Parse(parser) },
+
+            { "HandicapBuildSpeed5", (parser, x) => x.HandicapBuildSpeed5 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed10", (parser, x) => x.HandicapBuildSpeed10 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed15", (parser, x) => x.HandicapBuildSpeed15 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed20", (parser, x) => x.HandicapBuildSpeed20 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed25", (parser, x) => x.HandicapBuildSpeed25 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed30", (parser, x) => x.HandicapBuildSpeed30 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed35", (parser, x) => x.HandicapBuildSpeed35 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed40", (parser, x) => x.HandicapBuildSpeed40 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed45", (parser, x) => x.HandicapBuildSpeed45 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed50", (parser, x) => x.HandicapBuildSpeed50 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed55", (parser, x) => x.HandicapBuildSpeed55 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed60", (parser, x) => x.HandicapBuildSpeed60 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed65", (parser, x) => x.HandicapBuildSpeed65 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed70", (parser, x) => x.HandicapBuildSpeed70 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed75", (parser, x) => x.HandicapBuildSpeed75 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed80", (parser, x) => x.HandicapBuildSpeed80 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed85", (parser, x) => x.HandicapBuildSpeed85 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed90", (parser, x) => x.HandicapBuildSpeed90 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed95", (parser, x) => x.HandicapBuildSpeed95 = parser.ParsePercentage() },
+            { "HandicapBuildSpeed100", (parser, x) => x.HandicapBuildSpeed100 = parser.ParsePercentage() },
 
             { "ValuePerSupplyBox", (parser, x) => x.ValuePerSupplyBox = parser.ParseInteger() },
             { "SupplyBoxesPerTree", (parser, x) => x.SupplyBoxesPerTree = parser.ParseInteger() },
@@ -447,10 +480,37 @@ namespace OpenSage.Data.Ini
             { "EnableHouseColor", (parser, x) => x.EnableHouseColor = parser.ParseBoolean() },
 
             { "TreeFadeObjectFilter", (parser, x) => x.TreeFadeObjectFilter = parser.ParseEnumBitArray<ObjectKinds>() },
+            { "CamouflageDetectorObjectFilter", (parser, x) => x.CamouflageDetectorObjectFilter = parser.ParseEnumBitArray<ObjectKinds>() },
+            { "VeterancyPipDrawObjectFilter", (parser, x) => x.VeterancyPipDrawObjectFilter = parser.ParseEnumBitArray<ObjectKinds>() },
+
+            { "ReinvisibityDelay", (parser, x) => x.ReinvisibilityDelay = parser.ParseInteger() },
+            { "InvisibilityOpacityMin", (parser, x) => x.InvisibilityOpacityMin = parser.ParseFloat() },
+            { "InvisibilityOpacityMax", (parser, x) => x.InvisibilityOpacityMax = parser.ParseFloat() },
+            { "InvisibilityOpacityCycleFrames", (parser, x) => x.InvisibilityOpacityCycleFrames = parser.ParseInteger() },
+
+            { "BuilderFadeOutTime", (parser, x) => x.BuilderFadeOutTime = parser.ParseInteger() },
+            { "BuilderFadeInTime", (parser, x) => x.BuilderFadeInTime = parser.ParseInteger() },
+            { "BuilderMoveFromNewStructureDistance", (parser, x) => x.BuilderMoveFromNewStructureDistance = parser.ParseInteger() },
+            { "MaxCastleRadius", (parser, x) => x.MaxCastleRadius = parser.ParseInteger() },
+
+            { "VictoryConditionStructureObjectFilter", (parser, x) => x.VictoryConditionStructureObjectFilter = parser.ParseEnumBitArray<ObjectKinds>() },
+            { "VictoryConditionUnitObjectFilter", (parser, x) => x.VictoryConditionUnitObjectFilter = parser.ParseEnumBitArray<ObjectKinds>() },
 
             { "TutorialMap", (parser, x) => x.TutorialMap = parser.ParseFileName() },
             { "TutorialLoadMovie", (parser, x) => x.TutorialLoadMovie = parser.ParseAssetReference() },
             { "TutorialObjective", (parser, x) => x.TutorialObjective = parser.ParseLocalizedStringKey() },
+
+            { "BasicTutorialMap", (parser, x) => x.BasicTutorialMap = parser.ParseFileName() },
+            { "BasicTutorialLoadScreenStillImage", (parser, x) => x.BasicTutorialLoadScreenStillImage = parser.ParseAssetReference() },
+            { "BasicTutorialLoadScreenMusicTrack", (parser, x) => x.BasicTutorialLoadScreenMusicTrack = parser.ParseAssetReference() },
+            { "BasicTutorialObjective", (parser, x) => x.BasicTutorialObjective = parser.ParseLocalizedStringKey() },
+            { "BasicTutorialMillisecondsAfterStartToStartFadeUp", (parser, x) => x.BasicTutorialMillisecondsAfterStartToStartFadeUp = parser.ParseInteger() },
+
+            { "AdvancedTutorialMap", (parser, x) => x.AdvancedTutorialMap = parser.ParseFileName() },
+            { "AdvancedTutorialLoadScreenStillImage", (parser, x) => x.AdvancedTutorialLoadScreenStillImage = parser.ParseAssetReference() },
+            { "AdvancedTutorialLoadScreenMusicTrack", (parser, x) => x.AdvancedTutorialLoadScreenMusicTrack = parser.ParseAssetReference() },
+            { "AdvancedTutorialObjective", (parser, x) => x.AdvancedTutorialObjective = parser.ParseLocalizedStringKey() },
+            { "AdvancedTutorialMillisecondsAfterStartToStartFadeUp", (parser, x) => x.AdvancedTutorialMillisecondsAfterStartToStartFadeUp = parser.ParseInteger() },
 
             { "ObjectsThatScore", (parser, x) => x.ObjectsThatScore = parser.ParseEnumBitArray<ObjectKinds>() },
             { "ScoreKeeper_UnitsBuiltMultiplier", (parser, x) => x.ScoreKeeper_UnitsBuiltMultiplier = parser.ParseInteger() },
@@ -461,6 +521,7 @@ namespace OpenSage.Data.Ini
             { "ScoreKeeper_UnitsVettedMultiplier", (parser, x) => x.ScoreKeeper_UnitsVettedMultiplier = parser.ParseInteger() },
             { "ScoreKeeper_ObjectivesCompletedMultiplier", (parser, x) => x.ScoreKeeper_ObjectivesCompletedMultiplier = parser.ParseInteger() },
             { "ScoreKeeper_SuppliesCollectedMultiplier", (parser, x) => x.ScoreKeeper_SuppliesCollectedMultiplier = parser.ParseInteger() },
+            { "ScoreKeeper_SkillPointsMultiplier", (parser, x) => x.ScoreKeeper_SkillPointsMultiplier = parser.ParseInteger() },
             { "ScoreKeeper_PowerPointsMultiplier", (parser, x) => x.ScoreKeeper_PowerPointsMultiplier = parser.ParseInteger() },
             { "ScoreKeeper_RegionCommandPointsMultiplier", (parser, x) => x.ScoreKeeper_RegionCommandPointsMultiplier = parser.ParseInteger() },
             { "ScoreKeeper_RegionResourcesMultiplier", (parser, x) => x.ScoreKeeper_RegionResourcesMultiplier = parser.ParseInteger() },
@@ -471,8 +532,28 @@ namespace OpenSage.Data.Ini
             { "ScoreKeeper_TotalVictoryRequiredScore", (parser, x) => x.ScoreKeeper_TotalVictoryRequiredScore = parser.ParseInteger() },
             { "ScoreKeeper_NormalVictoryRequiredScore", (parser, x) => x.ScoreKeeper_NormalVictoryRequiredScore = parser.ParseInteger() },
             { "ScoreKeeper_NormalVictoryRequiredObjectivesPercentage", (parser, x) => x.ScoreKeeper_NormalVictoryRequiredObjectivesPercentage = parser.ParseInteger() },
+            { "ScoreKeeper_PlayerEliminatedMultiplier", (parser, x) => x.ScoreKeeper_PlayerEliminatedMultiplier = parser.ParseFloat() },
 
             { "TintUnitIfPathingForMoreThan", (parser, x) => x.TintUnitIfPathingForMoreThan = parser.ParseInteger() },
+
+            { "GarrisonedRangeMultiplier", (parser, x) => x.GarrisonedRangeMultiplier = parser.ParseFloat() },
+
+            { "MaxPathfindCellsPerFrame", (parser, x) => x.MaxPathfindCellsPerFrame = parser.ParseInteger() },
+            { "MaxCellsFindMeleeEngagementLocation", (parser, x) => x.MaxCellsFindMeleeEngagementLocation = parser.ParseInteger() },
+            { "MaxCellsAdjustDestination", (parser, x) => x.MaxCellsAdjustDestination = parser.ParseInteger() },
+            { "MaxCellsAdjustHordeMeleeDestination", (parser, x) => x.MaxCellsAdjustHordeMeleeDestination = parser.ParseInteger() },
+            { "MaxCellsAdjustTargetDestination", (parser, x) => x.MaxCellsAdjustTargetDestination = parser.ParseInteger() },
+            { "MaxCellsAdjustToPossibleDestination", (parser, x) => x.MaxCellsAdjustToPossibleDestination = parser.ParseInteger() },
+            { "MaxCellsAdjustToMeleeDestination", (parser, x) => x.MaxCellsAdjustToMeleeDestination = parser.ParseInteger() },
+            { "MaxCellsAdjustToNearestGroundCell", (parser, x) => x.MaxCellsAdjustToNearestGroundCell = parser.ParseInteger() },
+            { "MaxCellsAdjustToNearestValidCell", (parser, x) => x.MaxCellsAdjustToNearestValidCell = parser.ParseInteger() },
+            { "MaxCellsPatchPath", (parser, x) => x.MaxCellsPatchPath = parser.ParseInteger() },
+            { "MaxCellsFindPathLimit", (parser, x) => x.MaxCellsFindPathLimit = parser.ParseInteger() },
+            { "MaxCellsFindAttackPath", (parser, x) => x.MaxCellsFindAttackPath = parser.ParseInteger() },
+            { "MaxCellsFindAttackPathSideways", (parser, x) => x.MaxCellsFindAttackPathSideways = parser.ParseInteger() },
+            { "MaxCellsToExamineTowardsGoal", (parser, x) => x.MaxCellsToExamineTowardsGoal = parser.ParseInteger() },
+
+            { "NumMinutesBeforePlayersCanTransferMoney", (parser, x) => x.NumMinutesBeforePlayersCanTransferMoney = parser.ParseInteger() },
 
             { "StateMachineDebug", (parser, x) => x.StateMachineDebug = parser.ParseBoolean() },
             { "UseCameraConstraints", (parser, x) => x.UseCameraConstraints = parser.ParseBoolean() },
@@ -522,6 +603,10 @@ namespace OpenSage.Data.Ini
         public int MaxShellScreens { get; private set; }
         public bool Wireframe { get; private set; }
         public bool UseCloudMap { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public bool AllowTreeFading { get; private set; }
+
         public bool UseLightMap { get; private set; }
         public bool BilinearTerrainTex { get; private set; }
         public bool TrilinearTerrainTex { get; private set; }
@@ -545,6 +630,9 @@ namespace OpenSage.Data.Ini
         public bool UseCloudPlane { get; private set; }
         public bool UseShadowVolumes { get; private set; }
         public bool UseShadowDecals { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public bool UseShadowMapping { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public bool ShowSelectedUnitMarker { get; private set; }
@@ -679,6 +767,9 @@ namespace OpenSage.Data.Ini
         public float Gravity { get; private set; }
 
         public float PartitionCellSize { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float TerrainResourceCellSize { get; private set; }
 
         public float ParticleScale { get; private set; }
 
@@ -822,14 +913,17 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public int InitialMaxRingLevel { get; private set; }
 
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public bool SkipMapUnroll { get; private set; }
+
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public float ResourceBonusMultiplier { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public int GoodCommandPoints { get; private set; }
+        public CommandPoints GoodCommandPoints { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public int EvilCommandPoints { get; private set; }
+        public CommandPoints EvilCommandPoints { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public int GoodCommandPointsBonus { get; private set; }
@@ -838,40 +932,64 @@ namespace OpenSage.Data.Ini
         public int EvilCommandPointsBonus { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public int GoodCommandPointsAI { get; private set; }
+        public CommandPoints GoodCommandPointsAI { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public int EvilCommandPointsAI { get; private set; }
+        public CommandPoints EvilCommandPointsAI { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public int GoodCommandPointsMP2 { get; private set; }
+        public CommandPoints GoodCommandPointsMP2 { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public int EvilCommandPointsMP2 { get; private set; }
+        public CommandPoints EvilCommandPointsMP2 { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public int GoodCommandPointsMP3 { get; private set; }
+        public CommandPoints GoodCommandPointsMP3 { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public int EvilCommandPointsMP3 { get; private set; }
+        public CommandPoints EvilCommandPointsMP3 { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public int GoodCommandPointsMP4 { get; private set; }
+        public CommandPoints GoodCommandPointsMP4 { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public int EvilCommandPointsMP4 { get; private set; }
+        public CommandPoints EvilCommandPointsMP4 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public CommandPoints GoodCommandPointsMP5 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public CommandPoints EvilCommandPointsMP5 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public CommandPoints GoodCommandPointsMP6 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public CommandPoints EvilCommandPointsMP6 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public CommandPoints GoodCommandPointsMP7 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public CommandPoints EvilCommandPointsMP7 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public CommandPoints GoodCommandPointsMP8 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public CommandPoints EvilCommandPointsMP8 { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public int GoodCommandPointsMP56 { get; private set; }
+        public CommandPoints GoodCommandPointsMP56 { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public int EvilCommandPointsMP56 { get; private set; }
+        public CommandPoints EvilCommandPointsMP56 { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public int GoodCommandPointsMP78 { get; private set; }
+        public CommandPoints GoodCommandPointsMP78 { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public int EvilCommandPointsMP78 { get; private set; }
+        public CommandPoints EvilCommandPointsMP78 { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public MultiPlayerTuningFactor MultiPlayMoneyMult { get; private set; }
@@ -887,6 +1005,66 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public MultiPlayerTuningFactor MultiPlayBuildingSpeedMult { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed5 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed10 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed15 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed20 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed25 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed30 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed35 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed40 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed45 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed50 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed55 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed60 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed65 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed70 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed75 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed80 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed85 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed90 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed95 { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float HandicapBuildSpeed100 { get; private set; }
 
         public int ValuePerSupplyBox { get; private set; }
 
@@ -1091,6 +1269,42 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public BitArray<ObjectKinds> TreeFadeObjectFilter { get; private set; }
 
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public BitArray<ObjectKinds> CamouflageDetectorObjectFilter { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public BitArray<ObjectKinds> VeterancyPipDrawObjectFilter { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int ReinvisibilityDelay { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float InvisibilityOpacityMin { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float InvisibilityOpacityMax { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int InvisibilityOpacityCycleFrames { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int BuilderFadeOutTime { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int BuilderFadeInTime { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int BuilderMoveFromNewStructureDistance { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int MaxCastleRadius { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public BitArray<ObjectKinds> VictoryConditionStructureObjectFilter { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public BitArray<ObjectKinds> VictoryConditionUnitObjectFilter { get; private set; }
+
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public string TutorialMap { get; private set; }
 
@@ -1099,6 +1313,36 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public string TutorialObjective { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public string BasicTutorialMap { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public string BasicTutorialLoadScreenStillImage { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public string BasicTutorialLoadScreenMusicTrack { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public string BasicTutorialObjective { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int BasicTutorialMillisecondsAfterStartToStartFadeUp { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public string AdvancedTutorialMap { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public string AdvancedTutorialLoadScreenStillImage { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public string AdvancedTutorialLoadScreenMusicTrack { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public string AdvancedTutorialObjective { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int AdvancedTutorialMillisecondsAfterStartToStartFadeUp { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public BitArray<ObjectKinds> ObjectsThatScore { get; private set; }
@@ -1126,6 +1370,9 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public int ScoreKeeper_SuppliesCollectedMultiplier { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int ScoreKeeper_SkillPointsMultiplier { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public int ScoreKeeper_PowerPointsMultiplier { get; private set; }
@@ -1157,8 +1404,59 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public int ScoreKeeper_NormalVictoryRequiredObjectivesPercentage { get; private set; }
 
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float ScoreKeeper_PlayerEliminatedMultiplier { get; private set; }
+
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public int TintUnitIfPathingForMoreThan { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public float GarrisonedRangeMultiplier { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int MaxPathfindCellsPerFrame { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int MaxCellsFindMeleeEngagementLocation { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int MaxCellsAdjustDestination { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int MaxCellsAdjustHordeMeleeDestination { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int MaxCellsAdjustTargetDestination { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int MaxCellsAdjustToPossibleDestination { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int MaxCellsAdjustToMeleeDestination { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int MaxCellsAdjustToNearestGroundCell { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int MaxCellsAdjustToNearestValidCell { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int MaxCellsPatchPath { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int MaxCellsFindPathLimit { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int MaxCellsFindAttackPath { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int MaxCellsFindAttackPathSideways { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int MaxCellsToExamineTowardsGoal { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public int NumMinutesBeforePlayersCanTransferMoney { get; private set; }
 
         public bool StateMachineDebug { get; private set; }
         public bool UseCameraConstraints { get; private set; }
@@ -1365,5 +1663,28 @@ namespace OpenSage.Data.Ini
         public float MP6 { get; private set; }
         public float MP7 { get; private set; }
         public float MP8 { get; private set; }
+    }
+
+    [AddedIn(SageGame.BattleForMiddleEarthII)]
+    public struct CommandPoints
+    {
+        internal static CommandPoints Parse(IniParser parser)
+        {
+            var result = new CommandPoints
+            {
+                StartingValue = parser.ParseInteger()
+            };
+
+            var maxValueToken = parser.GetNextTokenOptional();
+            if (maxValueToken != null)
+            {
+                result.MaximumValue = parser.ScanInteger(maxValueToken.Value);
+            }
+
+            return result;
+        }
+
+        public int StartingValue;
+        public int MaximumValue;
     }
 }

@@ -203,18 +203,9 @@ namespace OpenSage.Logic.Object
                 "ConditionState",
                 (parser, x) =>
                 {
-                    if (parser.CurrentTokenType == IniTokenType.Identifier)
-                    {
-                        var conditionState = ModelConditionState.Parse(parser);
-                        x.ConditionStates.Add(conditionState);
-                        parser.Temp = conditionState;
-                    }
-                    else
-                    {
-                        // ODDITY: ZH ChemicalGeneral.ini:10694 uses ConditionState with no flag,
-                        // instead of DefaultConditionState.
-                        parser.Temp = x.DefaultConditionState = ModelConditionState.ParseDefault(parser);
-                    }
+                    var conditionState = ModelConditionState.Parse(parser);
+                    x.ConditionStates.Add(conditionState);
+                    parser.Temp = conditionState;
                 }
             },
             { "IgnoreConditionStates", (parser, x) => x.IgnoreConditionStates = parser.ParseEnumBitArray<ModelConditionFlag>() },

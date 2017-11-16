@@ -9,24 +9,17 @@ namespace OpenSage.Logic.Object
         internal static T ParseModule<T>(IniParser parser, Dictionary<string, Func<IniParser, T>> moduleParseTable)
             where T : ModuleData
         {
-            var moduleTypePosition = parser.CurrentPosition;
-            var moduleType = parser.ParseIdentifier();
-            var tag = parser.ParseIdentifier();
+            var moduleType = parser.GetNextToken();
+            var tag = parser.GetNextToken();
 
-            // ODDITY: ZH AirforceGeneral.ini:5534, missing _ between ModuleTag and SalvageData
-            if (parser.CurrentTokenType == IniTokenType.Identifier)
+            if (!moduleParseTable.TryGetValue(moduleType.Text, out var moduleParser))
             {
-                tag += "_" + parser.ParseIdentifier();
-            }
-
-            if (!moduleParseTable.TryGetValue(moduleType, out var moduleParser))
-            {
-                throw new IniParseException($"Unknown module type: {moduleType}", moduleTypePosition);
+                throw new IniParseException($"Unknown module type: {moduleType.Text}", moduleType.Position);
             }
 
             var result = moduleParser(parser);
 
-            result.Tag = tag;
+            result.Tag = tag.Text;
 
             return result;
         }

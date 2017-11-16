@@ -5,10 +5,7 @@ namespace OpenSage.Data.Ini
 {
     public sealed class AudioSettings
     {
-        internal static AudioSettings Parse(IniParser parser)
-        {
-            return parser.ParseTopLevelBlock(FieldParseTable);
-        }
+        internal static AudioSettings Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
 
         private static readonly IniParseTable<AudioSettings> FieldParseTable = new IniParseTable<AudioSettings>
         {
@@ -51,6 +48,8 @@ namespace OpenSage.Data.Ini
 
             { "DefaultSoundVolume", (parser, x) => x.DefaultSoundVolume = parser.ParsePercentage() },
             { "DefaultAmbientVolume", (parser, x) => x.DefaultAmbientVolume = parser.ParsePercentage() },
+            { "DefaultMovieVolume", (parser, x) => x.DefaultMovieVolume = parser.ParsePercentage() },
+            { "DefaultVoiceVolume", (parser, x) => x.DefaultVoiceVolume = parser.ParsePercentage() },
             { "Default3DSoundVolume", (parser, x) => x.Default3DSoundVolume = parser.ParsePercentage() },
             { "DefaultSpeechVolume", (parser, x) => x.DefaultSpeechVolume = parser.ParsePercentage() },
             { "DefaultMusicVolume", (parser, x) => x.DefaultMusicVolume = parser.ParsePercentage() },
@@ -63,11 +62,19 @@ namespace OpenSage.Data.Ini
 
             { "MicrophoneDesiredHeightAboveTerrain", (parser, x) => x.MicrophoneDesiredHeightAboveTerrain = parser.ParseFloat() },
             { "MicrophoneMaxPercentageBetweenGroundAndCamera", (parser, x) => x.MicrophoneMaxPercentageBetweenGroundAndCamera = parser.ParsePercentage() },
+            { "MicrophonePreferredFractionCameraToGround", (parser, x) => x.MicrophonePreferredFractionCameraToGround = parser.ParsePercentage() },
+            { "MicrophoneMinDistanceToCamera", (parser, x) => x.MicrophoneMinDistanceToCamera = parser.ParseFloat() },
+            { "MicrophoneMaxDistanceToCamera", (parser, x) => x.MicrophoneMaxDistanceToCamera = parser.ParseFloat() },
+            { "MicrophonePullTowardsTerrainLookAtPointPercent", (parser, x) => x.MicrophonePullTowardsTerrainLookAtPointPercent = parser.ParsePercentage() },
 
             { "ZoomMinDistance", (parser, x) => x.ZoomMinDistance = parser.ParseFloat() },
             { "ZoomMaxDistance", (parser, x) => x.ZoomMaxDistance = parser.ParseFloat() },
 
             { "ZoomSoundVolumePercentageAmount", (parser, x) => x.ZoomSoundVolumePercentageAmount = parser.ParsePercentage() },
+
+            { "LivingWorldMicrophonePreferredFractionCameraToGround", (parser, x) => x.LivingWorldMicrophonePreferredFractionCameraToGround = parser.ParsePercentage() },
+            { "LivingWorldMicrophoneMaxDistanceToCamera", (parser, x) => x.LivingWorldMicrophoneMaxDistanceToCamera = parser.ParseFloat() },
+            { "LivingWorldZoomMaxDistance", (parser, x) => x.LivingWorldZoomMaxDistance = parser.ParseFloat() },
         };
 
         public string AudioRoot { get; private set; }
@@ -144,6 +151,12 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public float DefaultAmbientVolume { get; private set; }
 
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float DefaultMovieVolume { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float DefaultVoiceVolume { get; private set; }
+
         public float Default3DSoundVolume { get; private set; }
         public float DefaultSpeechVolume { get; private set; }
         public float DefaultMusicVolume { get; private set; }
@@ -158,9 +171,30 @@ namespace OpenSage.Data.Ini
 
         public float MicrophoneMaxPercentageBetweenGroundAndCamera { get; private set; }
 
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float MicrophonePreferredFractionCameraToGround { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float MicrophoneMinDistanceToCamera { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float MicrophoneMaxDistanceToCamera { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float MicrophonePullTowardsTerrainLookAtPointPercent { get; private set; }
+
         public float ZoomMinDistance { get; private set; }
         public float ZoomMaxDistance { get; private set; }
 
         public float ZoomSoundVolumePercentageAmount { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float LivingWorldMicrophonePreferredFractionCameraToGround { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float LivingWorldMicrophoneMaxDistanceToCamera { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float LivingWorldZoomMaxDistance { get; private set; }
     }
 }

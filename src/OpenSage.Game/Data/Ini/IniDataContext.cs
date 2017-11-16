@@ -16,6 +16,7 @@ namespace OpenSage.Data.Ini
         public AIData AIData { get; internal set; }
         public List<AmbientStream> AmbientStreams { get; } = new List<AmbientStream>();
         public List<Animation> Animations { get; } = new List<Animation>();
+        public AnimationSoundClientBehaviorGlobalSetting AnimationSoundClientBehaviorGlobalSetting { get; internal set; }
         public List<Armor> Armors { get; } = new List<Armor>();
         public List<AudioEvent> AudioEvents { get; } = new List<AudioEvent>();
         public AudioSettings AudioSettings { get; internal set; }
@@ -74,7 +75,7 @@ namespace OpenSage.Data.Ini
         public List<WebpageUrl> WebpageUrls { get; } = new List<WebpageUrl>();
         public List<WindowTransition> WindowTransitions { get; } = new List<WindowTransition>();
 
-        internal Dictionary<string, IniToken[]> Defines { get; } = new Dictionary<string, IniToken[]>();
+        internal Dictionary<string, IniToken> Defines { get; } = new Dictionary<string, IniToken>();
 
         public IniDataContext(FileSystem fileSystem)
         {

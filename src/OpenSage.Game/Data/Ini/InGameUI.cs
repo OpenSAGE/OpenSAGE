@@ -15,18 +15,18 @@ namespace OpenSage.Data.Ini
             { "MessageColor1", (parser, x) => x.MessageColor1 = IniColorRgb.Parse(parser) },
             { "MessageColor2", (parser, x) => x.MessageColor2 = IniColorRgb.Parse(parser) },
             { "MessagePosition", (parser, x) => x.MessagePosition = Coord2D.Parse(parser) },
-            { "MessageFont", (parser, x) => x.MessageFont = parser.ParseString(allowWhitespace: true) },
+            { "MessageFont", (parser, x) => x.MessageFont = parser.ParseString() },
             { "MessagePointSize", (parser, x) => x.MessagePointSize = parser.ParseInteger() },
             { "MessageBold", (parser, x) => x.MessageBold = parser.ParseBoolean() },
             { "MessageDelayMS", (parser, x) => x.MessageDelayMS = parser.ParseInteger() },
 
             { "MilitaryCaptionColor", (parser, x) => x.MilitaryCaptionColor = WndColor.Parse(parser) },
             { "MilitaryCaptionPosition", (parser, x) => x.MilitaryCaptionPosition = Coord2D.Parse(parser) },
-            { "MilitaryCaptionTitleFont", (parser, x) => x.MilitaryCaptionTitleFont = parser.ParseString(allowWhitespace: true) },
+            { "MilitaryCaptionTitleFont", (parser, x) => x.MilitaryCaptionTitleFont = parser.ParseString() },
             { "MilitaryCaptionTitlePointSize", (parser, x) => x.MilitaryCaptionTitlePointSize = parser.ParseInteger() },
             { "MilitaryCaptionTitleBold", (parser, x) => x.MilitaryCaptionTitleBold = parser.ParseBoolean() },
 
-            { "MilitaryCaptionFont", (parser, x) => x.MilitaryCaptionFont = parser.ParseString(allowWhitespace: true) },
+            { "MilitaryCaptionFont", (parser, x) => x.MilitaryCaptionFont = parser.ParseString() },
             { "MilitaryCaptionPointSize", (parser, x) => x.MilitaryCaptionPointSize = parser.ParseInteger() },
             { "MilitaryCaptionBold", (parser, x) => x.MilitaryCaptionBold = parser.ParseBoolean() },
 
@@ -37,11 +37,11 @@ namespace OpenSage.Data.Ini
             { "SuperweaponCountdownFlashDuration", (parser, x) => x.SuperweaponCountdownFlashDuration = parser.ParseInteger() },
             { "SuperweaponCountdownFlashColor", (parser, x) => x.SuperweaponCountdownFlashColor = IniColorRgb.Parse(parser) },
 
-            { "SuperweaponCountdownNormalFont", (parser, x) => x.SuperweaponCountdownNormalFont = parser.ParseString(allowWhitespace: true) },
+            { "SuperweaponCountdownNormalFont", (parser, x) => x.SuperweaponCountdownNormalFont = parser.ParseString() },
             { "SuperweaponCountdownNormalPointSize", (parser, x) => x.SuperweaponCountdownNormalPointSize = parser.ParseInteger() },
             { "SuperweaponCountdownNormalBold", (parser, x) => x.SuperweaponCountdownNormalBold = parser.ParseBoolean() },
 
-            { "SuperweaponCountdownReadyFont", (parser, x) => x.SuperweaponCountdownReadyFont = parser.ParseString(allowWhitespace: true) },
+            { "SuperweaponCountdownReadyFont", (parser, x) => x.SuperweaponCountdownReadyFont = parser.ParseString() },
             { "SuperweaponCountdownReadyPointSize", (parser, x) => x.SuperweaponCountdownReadyPointSize = parser.ParseInteger() },
             { "SuperweaponCountdownReadyBold", (parser, x) => x.SuperweaponCountdownReadyBold = parser.ParseBoolean() },
 
@@ -49,12 +49,12 @@ namespace OpenSage.Data.Ini
             { "NamedTimerCountdownFlashDuration", (parser, x) => x.NamedTimerCountdownFlashDuration = parser.ParseInteger() },
             { "NamedTimerCountdownFlashColor", (parser, x) => x.NamedTimerCountdownFlashColor = IniColorRgb.Parse(parser) },
 
-            { "NamedTimerCountdownNormalFont", (parser, x) => x.NamedTimerCountdownNormalFont = parser.ParseString(allowWhitespace: true) },
+            { "NamedTimerCountdownNormalFont", (parser, x) => x.NamedTimerCountdownNormalFont = parser.ParseString() },
             { "NamedTimerCountdownNormalPointSize", (parser, x) => x.NamedTimerCountdownNormalPointSize = parser.ParseInteger() },
             { "NamedTimerCountdownNormalBold", (parser, x) => x.NamedTimerCountdownNormalBold = parser.ParseBoolean() },
             { "NamedTimerCountdownNormalColor", (parser, x) => x.NamedTimerCountdownNormalColor = IniColorRgb.Parse(parser) },
 
-            { "NamedTimerCountdownReadyFont", (parser, x) => x.NamedTimerCountdownReadyFont = parser.ParseString(allowWhitespace: true) },
+            { "NamedTimerCountdownReadyFont", (parser, x) => x.NamedTimerCountdownReadyFont = parser.ParseString() },
             { "NamedTimerCountdownReadyPointSize", (parser, x) => x.NamedTimerCountdownReadyPointSize = parser.ParseInteger() },
             { "NamedTimerCountdownReadyBold", (parser, x) => x.NamedTimerCountdownReadyBold = parser.ParseBoolean() },
             { "NamedTimerCountdownReadyColor", (parser, x) => x.NamedTimerCountdownReadyColor = IniColorRgb.Parse(parser) },

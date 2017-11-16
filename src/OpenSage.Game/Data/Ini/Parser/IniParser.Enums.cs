@@ -34,10 +34,21 @@ namespace OpenSage.Data.Ini.Parser
             return stringToValueMap;
         }
 
+        private T ParseEnum<T>(Dictionary<string, T> stringToValueMap)
+            where T : struct
+        {
+            var token = GetNextToken();
+
+            if (stringToValueMap.TryGetValue(token.Text.ToUpper(), out var enumValue))
+                return enumValue;
+
+            throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.Text}'", token.Position);
+        }
+
         public T ParseEnum<T>()
             where T : struct
         {
-            return ParseEnum<T>(NextToken(IniTokenType.Identifier));
+            return ParseEnum<T>(GetNextToken());
         }
 
         public static T ParseEnum<T>(IniToken token)
@@ -45,10 +56,10 @@ namespace OpenSage.Data.Ini.Parser
         {
             var stringToValueMap = GetEnumMap<T>();
 
-            if (stringToValueMap.TryGetValue(token.StringValue.ToUpper(), out var enumValue))
+            if (stringToValueMap.TryGetValue(token.Text.ToUpper(), out var enumValue))
                 return (T)(object)enumValue;
 
-            throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.StringValue}'", token.Position);
+            throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.Text}'", token.Position);
         }
 
         public T ParseEnumFlags<T>()
@@ -58,16 +69,15 @@ namespace OpenSage.Data.Ini.Parser
 
             var result = (T) (object) 0;
 
-            do
+            IniToken? token;
+            while ((token = GetNextTokenOptional()) != null)
             {
-                var token = NextToken(IniTokenType.Identifier);
-
-                if (!stringToValueMap.TryGetValue(token.StringValue.ToUpper(), out var enumValue))
-                    throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.StringValue}'", token.Position);
+                if (!stringToValueMap.TryGetValue(token.Value.Text.ToUpper(), out var enumValue))
+                    throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.Value.Text}'", token.Value.Position);
 
                 // Ugh.
                 result = (T) (object) ((int) (object) result | (int) (object) enumValue);
-            } while (Current.TokenType != IniTokenType.EndOfLine);
+            }
 
             return result;
         }
@@ -79,11 +89,10 @@ namespace OpenSage.Data.Ini.Parser
 
             var result = new BitArray<T>();
 
-            do
+            IniToken? token;
+            while ((token = GetNextTokenOptional()) != null)
             {
-                var token = NextToken(IniTokenType.Identifier);
-
-                var stringValue = token.StringValue.ToUpper();
+                var stringValue = token.Value.Text.ToUpper();
                 switch (stringValue)
                 {
                     case "ALL":
@@ -104,7 +113,7 @@ namespace OpenSage.Data.Ini.Parser
                         }
                         if (!stringToValueMap.TryGetValue(stringValue, out var enumValue))
                         {
-                            throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{stringValue}'", token.Position);
+                            throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{stringValue}'", token.Value.Position);
                         }
 
                         // Ugh.
@@ -112,7 +121,7 @@ namespace OpenSage.Data.Ini.Parser
 
                         break;
                 }
-            } while (Current.TokenType != IniTokenType.EndOfLine);
+            }
 
             return result;
         }

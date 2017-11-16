@@ -326,11 +326,19 @@ namespace OpenSage.Data.Ini
     {
         internal static Payload Parse(IniParser parser)
         {
-            return new Payload
+            var result = new Payload
             {
                 Name = parser.ParseAssetReference(),
-                Quantity = (int) (parser.NextTokenIf(IniTokenType.IntegerLiteral)?.IntegerValue ?? 1)
+                Quantity = 1
             };
+
+            var quantityToken = parser.GetNextTokenOptional();
+            if (quantityToken != null)
+            {
+                result.Quantity = parser.ScanInteger(quantityToken.Value);
+            }
+
+            return result;
         }
 
         public string Name { get; private set; }

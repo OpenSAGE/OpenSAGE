@@ -6,14 +6,7 @@ namespace OpenSage.Data.Ini
     {
         public static int Parse(IniParser parser)
         {
-            parser.NextToken(IniTokenType.Identifier);
-            parser.NextToken(IniTokenType.Equals);
-
-            var result = parser.ParseInteger();
-
-            parser.NextToken(IniTokenType.EndOfLine);
-
-            return result;
+            return parser.ParseInteger();
         }
     }
 }
