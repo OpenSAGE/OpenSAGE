@@ -72,7 +72,8 @@ namespace OpenSage.Content
         public T Load<T>(
             string filePath, 
             ResourceUploadBatch uploadBatch,
-            LoadOptions options = null)
+            LoadOptions options = null,
+            bool fallbackToPlaceholder = true)
             where T : class
         {
             if (_cachedObjects.TryGetValue(filePath, out var asset))
@@ -120,7 +121,7 @@ namespace OpenSage.Content
 
                 _cachedObjects.Add(filePath, asset);
             }
-            else
+            else if (fallbackToPlaceholder)
             {
                 asset = contentLoader.PlaceholderValue;
             }

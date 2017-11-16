@@ -220,7 +220,15 @@ namespace OpenSage.Content
                 }
 
                 var w3dTextureFilePath = Path.Combine("Art", "Textures", w3dTexture.Name);
-                textures[i] = contentManager.Load<Texture>(w3dTextureFilePath, uploadBatch);
+
+                var texture = contentManager.Load<Texture>(w3dTextureFilePath, uploadBatch, fallbackToPlaceholder: false);
+                if (texture == null)
+                {
+                    w3dTextureFilePath = Path.Combine("Art", "CompiledTextures", w3dTexture.Name.Substring(0, 2), w3dTexture.Name);
+                    texture = contentManager.Load<Texture>(w3dTextureFilePath, uploadBatch);
+                }
+
+                textures[i] = texture;
             }
 
             return textures;
