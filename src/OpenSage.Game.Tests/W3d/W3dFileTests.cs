@@ -73,6 +73,8 @@ namespace OpenSage.Data.Tests.W3d
 
                     Assert.True(mesh.MaterialPasses.Length <= 3);
 
+                    Assert.True(mesh.ShaderMaterials == null || mesh.ShaderMaterials.Materials.Count == 1);
+
                     foreach (var materialPass in mesh.MaterialPasses)
                     {
                         Assert.True(materialPass.Dcg == null || materialPass.Dcg.Length == mesh.Vertices.Length);
@@ -104,6 +106,8 @@ namespace OpenSage.Data.Tests.W3d
                             var numVertexMaterialIds = materialPass.VertexMaterialIds.Length;
                             Assert.True(numVertexMaterialIds == 1 || numVertexMaterialIds == mesh.Header.NumVertices);
                         }
+
+                        Assert.True(materialPass.ShaderMaterialId == null || materialPass.ShaderMaterialId == 0);
                     }
 
                     Assert.True(mesh.Textures.Count <= 29);
