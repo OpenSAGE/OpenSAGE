@@ -213,16 +213,21 @@
     <PixelShader Include="Shaders\ParticlePS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </PixelShader>
+    <VertexShader Include="Shaders\SimpleVS.hlsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ShaderModel>5_1</ShaderModel>
+    </VertexShader>
+    <Content Include="Shaders\Common.hlsli" />
     <Content Include="Shaders\Sprite.hlsli" />
     <Content Include="Shaders\Terrain.hlsli" />
-    <Content Include="Shaders\Mesh.hlsli" />
-    <PixelShader Include="Shaders\MeshPS.hlsl">
+    <Content Include="Shaders\FixedFunction.hlsli" />
+    <PixelShader Include="Shaders\FixedFunctionPS.hlsl">
       <ShaderModel>5_1</ShaderModel>
       <EnableUnboundedDescriptorTable>True</EnableUnboundedDescriptorTable>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <EnableDebuggingInfo>True</EnableDebuggingInfo>
     </PixelShader>
-    <VertexShader Include="Shaders\MeshVS.hlsl">
+    <VertexShader Include="Shaders\FixedFunctionVS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ShaderModel>5_1</ShaderModel>
       <EnableDebuggingInfo>True</EnableDebuggingInfo>

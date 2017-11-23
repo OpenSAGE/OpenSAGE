@@ -67,8 +67,8 @@ namespace OpenSage.Graphics.Effects
         public MeshEffect(GraphicsDevice graphicsDevice)
             : base(
                   graphicsDevice, 
-                  "MeshVS", 
-                  "MeshPS",
+                  "FixedFunctionVS", 
+                  "FixedFunctionPS",
                   CreateVertexDescriptor(),
                   CreatePipelineLayoutDescription())
         {

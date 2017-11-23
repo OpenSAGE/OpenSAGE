@@ -1,4 +1,4 @@
-#include "Mesh.hlsli"
+#include "FixedFunction.hlsli"
 
 #define LIGHTING_CB_REGISTER b0
 #define SPECULAR_ENABLED
@@ -138,11 +138,11 @@ float4 SampleTexture(
     case TEXTURE_MAPPING_SCREEN:
         uv = (screenPosition / PerDrawCB.ViewportSize) * textureMapping.UVScale;
         break;
-
+        
     case TEXTURE_MAPPING_SCALE:
         uv *= textureMapping.UVScale;
         break;
-
+        
     case TEXTURE_MAPPING_GRID:
         uv = float2(uv.x, 1 - uv.y);
         uint numFramesPerSide = pow(2, textureMapping.Log2Width);
@@ -158,15 +158,15 @@ float4 SampleTexture(
     return diffuseTexture.Sample(Sampler, uv);
 }
 
-float4 main(PSInput input) : SV_TARGET
+float4 main(PSInputFixedFunction input) : SV_TARGET
 {
     ShadingConfiguration shadingConfiguration = ShadingConfigurations[PerDrawCB.ShadingConfigurationID];
 
-    VertexMaterial material = Materials[input.MaterialIndex];
+    VertexMaterial material = Materials[input.Transfer.MaterialIndex];
 
     LightingParameters lightingParams;
-    lightingParams.WorldPosition = input.WorldPosition;
-    lightingParams.WorldNormal = input.Normal;
+    lightingParams.WorldPosition = input.TransferCommon.WorldPosition;
+    lightingParams.WorldNormal = input.TransferCommon.WorldNormal;
     lightingParams.MaterialAmbient = material.Ambient;
     lightingParams.MaterialDiffuse = material.Diffuse;
     lightingParams.MaterialSpecular = material.Specular;
@@ -179,17 +179,17 @@ float4 main(PSInput input) : SV_TARGET
     float4 diffuseTextureColor;
     if (shadingConfiguration.TexturingEnabled)
     {
-        float3 v = CalculateViewVector(input.WorldPosition);
+        float3 v = CalculateViewVector(input.TransferCommon.WorldPosition);
 
         diffuseTextureColor = SampleTexture(
-            input.PrimitiveID, input.Normal, input.UV0, input.ScreenPosition.xy,
+            input.PrimitiveID, input.TransferCommon.WorldNormal, input.TransferCommon.UV0, input.ScreenPosition.xy,
             material.TextureMappingStage0,
             0, v);
 
         if (PerDrawCB.NumTextureStages > 1)
         {
             float4 secondaryTextureColor = SampleTexture(
-                input.PrimitiveID, input.Normal, input.UV1, input.ScreenPosition.xy,
+                input.PrimitiveID, input.TransferCommon.WorldNormal, input.TransferCommon.UV1, input.ScreenPosition.xy,
                 material.TextureMappingStage1,
                 1, v);
 

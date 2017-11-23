@@ -295,7 +295,7 @@ namespace OpenSage.Content
 
             var texCoords = new MeshTexCoords[w3dMesh.Header.NumVertices];
 
-            if (hasTextureStage0)
+            if (hasTextureStage0 || (w3dMaterialPass.ShaderMaterialId != null && w3dMaterialPass.TexCoords != null))
             {
                 for (var i = 0; i < texCoords.Length; i++)
                 {
@@ -303,6 +303,10 @@ namespace OpenSage.Content
                     if (textureStage0.TexCoords != null)
                     {
                         texCoords[i].UV0 = textureStage0.TexCoords[i];
+                    }
+                    else if (w3dMaterialPass.ShaderMaterialId != null && w3dMaterialPass.TexCoords != null)
+                    {
+                        texCoords[i].UV0 = w3dMaterialPass.TexCoords[i];
                     }
 
                     if (hasTextureStage1)

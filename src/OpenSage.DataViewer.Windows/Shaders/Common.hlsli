@@ -1,6 +1,8 @@
-#include "Mesh.hlsli"
+///////////////////////////////
+// Structures
+///////////////////////////////
 
-struct VSInput
+struct VSInputSkinnedInstanced
 {
     float3 Position : POSITION;
     float3 Normal   : NORMAL;
@@ -13,8 +15,20 @@ struct VSInput
     float4 World2   : TEXCOORD4;
     float4 World3   : TEXCOORD5;
 
-    uint VertexID   : SV_VertexID;
     uint InstanceID : SV_InstanceID;
+};
+
+struct PSInputCommon
+{
+    float3 WorldPosition : TEXCOORD0;
+    float3 WorldNormal   : TEXCOORD1;
+    float2 UV0           : TEXCOORD2;
+    float2 UV1           : TEXCOORD3;
+};
+
+struct VSOutputCommon
+{
+    float4 Position : SV_Position;
 };
 
 struct MeshTransformConstants
@@ -24,16 +38,23 @@ struct MeshTransformConstants
     uint NumBones;
 };
 
+///////////////////////////////
+// Buffers
+///////////////////////////////
+
 ConstantBuffer<MeshTransformConstants> MeshTransformCB : register(b0);
 
 StructuredBuffer<float4x3> SkinningBuffer : register(t0);
 
-StructuredBuffer<uint> MaterialIndices : register(t1);
+///////////////////////////////
+// Functions
+///////////////////////////////
 
-VSOutput main(VSInput input)
+void VSSkinnedInstanced(
+    in VSInputSkinnedInstanced input, 
+    out VSOutputCommon vsOutput,
+    out PSInputCommon psInput)
 {
-    VSOutput result;
-
     if (MeshTransformCB.SkinningEnabled)
     {
         uint skinningMatrixIndex = MeshTransformCB.NumBones * input.InstanceID + input.BoneIndex;
@@ -51,16 +72,12 @@ VSOutput main(VSInput input)
 
     float4 worldPosition = mul(float4(input.Position, 1), world);
 
-    result.Position = mul(worldPosition, MeshTransformCB.ViewProjection);
-    result.WorldPosition = worldPosition.xyz;
+    vsOutput.Position = mul(worldPosition, MeshTransformCB.ViewProjection);
 
-    result.Normal = mul(input.Normal, (float3x3) world);
+    psInput.WorldPosition = worldPosition.xyz;
 
-    result.UV0 = input.UV0;
-    result.UV1 = input.UV1;
+    psInput.WorldNormal = mul(input.Normal, (float3x3) world);
 
-    // TODO: Make sure that material index is constant for all vertices in a triangle.
-    result.MaterialIndex = MaterialIndices[input.VertexID];
-
-    return result;
+    psInput.UV0 = input.UV0;
+    psInput.UV1 = input.UV1;
 }
