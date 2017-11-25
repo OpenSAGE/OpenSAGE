@@ -12,8 +12,8 @@
         public PipelineLayout PipelineLayout;
 
         public VertexDescriptor VertexDescriptor;
-        public Shader VertexShader;
-        public Shader PixelShader;
+        public VertexShader VertexShader;
+        public PixelShader PixelShader;
 
         public PixelFormat RenderTargetFormat;
 

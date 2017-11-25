@@ -1,11 +1,11 @@
 ﻿namespace LLGfx
 {
-    public sealed partial class Shader : GraphicsDeviceChild
+    public abstract partial class Shader : GraphicsDeviceChild
     {
-        public Shader(ShaderLibrary shaderLibrary, string shaderName)
-            : base(shaderLibrary.GraphicsDevice)
+        protected Shader(GraphicsDevice graphicsDevice)
+            : base(graphicsDevice)
         {
-            PlatformConstruct(shaderLibrary, shaderName);
+            
         }
     }
 }

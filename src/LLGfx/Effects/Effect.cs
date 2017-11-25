@@ -10,8 +10,8 @@ namespace LLGfx.Effects
         private PipelineLayout _pipelineLayout;
 
         private VertexDescriptor _vertexDescriptor;
-        private readonly Shader _vertexShader;
-        private readonly Shader _pixelShader;
+        private readonly VertexShader _vertexShader;
+        private readonly PixelShader _pixelShader;
 
         private readonly Dictionary<EffectPipelineStateHandle, PipelineState> _cachedPipelineStates;
 
@@ -38,8 +38,8 @@ namespace LLGfx.Effects
         {
             _graphicsDevice = graphicsDevice;
 
-            _vertexShader = AddDisposable(new Shader(graphicsDevice.ShaderLibrary, vertexShaderName));
-            _pixelShader = AddDisposable(new Shader(graphicsDevice.ShaderLibrary, pixelShaderName));
+            _vertexShader = AddDisposable(new VertexShader(graphicsDevice.ShaderLibrary, vertexShaderName));
+            _pixelShader = AddDisposable(new PixelShader(graphicsDevice.ShaderLibrary, pixelShaderName));
 
             _cachedPipelineStates = new Dictionary<EffectPipelineStateHandle, PipelineState>();
 
