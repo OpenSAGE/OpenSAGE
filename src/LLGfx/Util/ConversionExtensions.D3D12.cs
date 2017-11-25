@@ -336,20 +336,5 @@ namespace LLGfx.Util
                 MaxDepth = v.MaxDepth
             };
         }
-
-        public static ResourceStates ToResourceStates(this GraphicsResourceState resourceState)
-        {
-            switch (resourceState)
-            {
-                case GraphicsResourceState.Present:
-                    return ResourceStates.Present;
-
-                case GraphicsResourceState.RenderTarget:
-                    return ResourceStates.RenderTarget;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
     }
 }
