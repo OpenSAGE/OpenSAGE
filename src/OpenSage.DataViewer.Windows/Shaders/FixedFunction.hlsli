@@ -17,6 +17,5 @@ struct PSInputFixedFunction
     PSInputCommon TransferCommon;
     TransferFixedFunction Transfer;
 
-    uint PrimitiveID : SV_PrimitiveID;
     float4 ScreenPosition : SV_Position;
 };

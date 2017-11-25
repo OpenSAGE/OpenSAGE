@@ -82,7 +82,7 @@ SamplerState Sampler : register(s0);
 #define TWO_PI (2 * 3.1415926535)
 
 float4 SampleTexture(
-    uint primitiveID, float3 worldNormal, float2 uv, float2 screenPosition,
+    float3 worldNormal, float2 uv, float2 screenPosition,
     TextureMapping textureMapping,
     Texture2D<float4> diffuseTexture,
     float3 viewVector)
@@ -174,7 +174,7 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
         float3 v = CalculateViewVector(input.TransferCommon.WorldPosition);
 
         diffuseTextureColor = SampleTexture(
-            input.PrimitiveID, input.TransferCommon.WorldNormal, input.TransferCommon.UV0, input.ScreenPosition.xy,
+            input.TransferCommon.WorldNormal, input.TransferCommon.UV0, input.ScreenPosition.xy,
             material.TextureMappingStage0,
             Texture0, 
             v);
@@ -182,7 +182,7 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
         if (PerDrawCB.NumTextureStages > 1)
         {
             float4 secondaryTextureColor = SampleTexture(
-                input.PrimitiveID, input.TransferCommon.WorldNormal, input.TransferCommon.UV1, input.ScreenPosition.xy,
+                input.TransferCommon.WorldNormal, input.TransferCommon.UV1, input.ScreenPosition.xy,
                 material.TextureMappingStage1,
                 Texture1, 
                 v);
