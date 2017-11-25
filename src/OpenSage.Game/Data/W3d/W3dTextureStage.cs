@@ -6,7 +6,7 @@ namespace OpenSage.Data.W3d
 {
     public sealed class W3dTextureStage : W3dChunk
     {
-        public uint[] TextureIds { get; private set; }
+        public uint?[] TextureIds { get; private set; }
 
         public Vector2[] TexCoords { get; private set; }
 
@@ -19,10 +19,13 @@ namespace OpenSage.Data.W3d
                 switch (header.ChunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_TEXTURE_IDS:
-                        result.TextureIds = new uint[header.ChunkSize / sizeof(uint)];
+                        result.TextureIds = new uint?[header.ChunkSize / sizeof(int)];
                         for (var count = 0; count < result.TextureIds.Length; count++)
                         {
-                            result.TextureIds[count] = reader.ReadUInt32();
+                            var textureId = reader.ReadInt32();
+                            result.TextureIds[count] = textureId != -1
+                                ? (uint) textureId
+                                : (uint?) null;
                         }
                         break;
 

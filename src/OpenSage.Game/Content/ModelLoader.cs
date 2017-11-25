@@ -346,7 +346,7 @@ namespace OpenSage.Content
                 // Expand ShaderIds and TextureIds, if they have a single entry
                 // (which means same ID for all faces)
 
-                IEnumerable<uint?> getExpandedIds(uint[] ids)
+                IEnumerable<uint?> getExpandedTextureIds(uint?[] ids)
                 {
                     if (ids == null)
                     {
@@ -372,9 +372,28 @@ namespace OpenSage.Content
                     }
                 }
 
-                var combinedIds = getExpandedIds(w3dMaterialPass.ShaderIds)
-                    .Zip(getExpandedIds(textureStage0?.TextureIds), (x, y) => new { ShaderId = x.Value, TextureIndex0 = y })
-                    .Zip(getExpandedIds(textureStage1?.TextureIds), (x, y) => new { x.ShaderId, x.TextureIndex0, TextureIndex1 = y });
+                IEnumerable<uint> getExpandedShaderIds(uint[] ids)
+                {
+                    if (ids.Length == 1)
+                    {
+                        var result = ids[0];
+                        for (var i = 0; i < w3dMesh.Header.NumTris; i++)
+                        {
+                            yield return result;
+                        }
+                    }
+                    else
+                    {
+                        foreach (var id in ids)
+                        {
+                            yield return id;
+                        }
+                    }
+                }
+
+                var combinedIds = getExpandedShaderIds(w3dMaterialPass.ShaderIds)
+                    .Zip(getExpandedTextureIds(textureStage0?.TextureIds), (x, y) => new { ShaderId = x, TextureIndex0 = y })
+                    .Zip(getExpandedTextureIds(textureStage1?.TextureIds), (x, y) => new { x.ShaderId, x.TextureIndex0, TextureIndex1 = y });
 
                 var combinedId = combinedIds.First();
                 var startIndex = 0u;
