@@ -63,12 +63,18 @@ namespace OpenSage.Terrain
 
         private static VertexDescriptor CreateVertexDescriptor()
         {
-            var vertexDescriptor = new VertexDescriptor();
-            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerVertexData, 0, "POSITION", 0, VertexFormat.Float3, 0, 0);
-            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerVertexData, 1, "NORMAL", 0, VertexFormat.Float3, 0, 12);
-            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerVertexData, 2, "TEXCOORD", 0, VertexFormat.Float2, 0, 24);
-            vertexDescriptor.SetLayoutDescriptor(0, 32);
-            return vertexDescriptor;
+            return new VertexDescriptor(
+                 new[]
+                 {
+                    new VertexAttributeDescription(InputClassification.PerVertexData, "POSITION", 0, VertexFormat.Float3, 0, 0),
+                    new VertexAttributeDescription(InputClassification.PerVertexData, "NORMAL", 0, VertexFormat.Float3, 12, 0),
+                    new VertexAttributeDescription(InputClassification.PerVertexData, "TEXCOORD", 0, VertexFormat.Float2, 24, 0),
+
+                 },
+                 new[]
+                 {
+                    new VertexLayoutDescription(32)
+                 });
         }
 
         private static PipelineLayoutDescription CreatePipelineLayoutDescription(int numTextures)

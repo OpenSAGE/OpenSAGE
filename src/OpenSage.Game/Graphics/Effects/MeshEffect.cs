@@ -81,20 +81,25 @@ namespace OpenSage.Graphics.Effects
 
         private static VertexDescriptor CreateVertexDescriptor()
         {
-            var vertexDescriptor = new VertexDescriptor();
-            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerVertexData, 0, "POSITION", 0, VertexFormat.Float3, 0, 0);
-            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerVertexData, 1, "NORMAL", 0, VertexFormat.Float3, 0, 12);
-            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerVertexData, 2, "BLENDINDICES", 0, VertexFormat.UInt, 0, 24);
-            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerVertexData, 3, "TEXCOORD", 0, VertexFormat.Float2, 1, 0);
-            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerVertexData, 4, "TEXCOORD", 1, VertexFormat.Float2, 1, 8);
-            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerInstanceData, 5, "TEXCOORD", 2, VertexFormat.Float4, 2, 0);
-            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerInstanceData, 6, "TEXCOORD", 3, VertexFormat.Float4, 2, 16);
-            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerInstanceData, 7, "TEXCOORD", 4, VertexFormat.Float4, 2, 32);
-            vertexDescriptor.SetAttributeDescriptor(InputClassification.PerInstanceData, 8, "TEXCOORD", 5, VertexFormat.Float4, 2, 48);
-            vertexDescriptor.SetLayoutDescriptor(0, 28);
-            vertexDescriptor.SetLayoutDescriptor(1, 16);
-            vertexDescriptor.SetLayoutDescriptor(2, 64);
-            return vertexDescriptor;
+            return new VertexDescriptor(
+                 new[]
+                 {
+                    new VertexAttributeDescription(InputClassification.PerVertexData, "POSITION", 0, VertexFormat.Float3, 0, 0),
+                    new VertexAttributeDescription(InputClassification.PerVertexData, "NORMAL", 0, VertexFormat.Float3, 12, 0),
+                    new VertexAttributeDescription(InputClassification.PerVertexData, "BLENDINDICES", 0, VertexFormat.UInt, 24, 0),
+                    new VertexAttributeDescription(InputClassification.PerVertexData, "TEXCOORD", 0, VertexFormat.Float2, 0, 1),
+                    new VertexAttributeDescription(InputClassification.PerVertexData, "TEXCOORD", 1, VertexFormat.Float2, 8, 1),
+                    new VertexAttributeDescription(InputClassification.PerInstanceData, "TEXCOORD", 2, VertexFormat.Float4, 0, 2),
+                    new VertexAttributeDescription(InputClassification.PerInstanceData, "TEXCOORD", 3, VertexFormat.Float4, 16, 2),
+                    new VertexAttributeDescription(InputClassification.PerInstanceData, "TEXCOORD", 4, VertexFormat.Float4, 32, 2),
+                    new VertexAttributeDescription(InputClassification.PerInstanceData, "TEXCOORD", 5, VertexFormat.Float4, 48, 2),
+                 },
+                 new[]
+                 {
+                    new VertexLayoutDescription(28),
+                    new VertexLayoutDescription(16),
+                    new VertexLayoutDescription(64)
+                 });
         }
 
         private static PipelineLayoutDescription CreatePipelineLayoutDescription()

@@ -4,38 +4,56 @@ namespace LLGfx
 {
     public sealed partial class VertexDescriptor
     {
-        public VertexDescriptor()
+        public VertexDescriptor(
+            VertexAttributeDescription[] attributeDescriptions,
+            VertexLayoutDescription[] layoutDescriptions)
         {
-            PlatformConstruct();
-        }
-
-        public void SetAttributeDescriptor(
-            InputClassification classification,
-            int index,
-            string semanticName,
-            int semanticIndex,
-            VertexFormat format,
-            int bufferIndex,
-            int offset)
-        {
-            PlatformSetAttributeDescriptor(
-                classification,
-                index,
-                semanticName,
-                semanticIndex,
-                format,
-                bufferIndex,
-                offset);
-        }
-
-        public void SetLayoutDescriptor(int bufferIndex, int stride)
-        {
-            if (stride % 4 != 0)
+            for (var i = 0; i < layoutDescriptions.Length; i++)
             {
-                throw new ArgumentOutOfRangeException(nameof(stride), "Stride must be a multiple of 4.");
+                // Metal requires a multiple of 4 for the vertex stride.
+                if (layoutDescriptions[i].Stride % 4 != 0)
+                {
+                    throw new ArgumentOutOfRangeException("Stride must be a multiple of 4.");
+                }
             }
 
-            PlatformSetLayoutDescriptor(bufferIndex, stride);
+            PlatformConstruct(attributeDescriptions, layoutDescriptions);
+        }
+    }
+
+    public struct VertexAttributeDescription
+    {
+        public InputClassification Classification;
+        public string SemanticName;
+        public int SemanticIndex;
+        public VertexFormat Format;
+        public int Offset;
+        public int BufferIndex;
+
+        public VertexAttributeDescription(
+            InputClassification classification, 
+            string semanticName, 
+            int semanticIndex,
+            VertexFormat format,
+            int offset,
+            int bufferIndex)
+        {
+            Classification = classification;
+            SemanticName = semanticName;
+            SemanticIndex = semanticIndex;
+            Format = format;
+            Offset = offset;
+            BufferIndex = bufferIndex;
+        }
+    }
+
+    public struct VertexLayoutDescription
+    {
+        public int Stride;
+
+        public VertexLayoutDescription(int stride)
+        {
+            Stride = stride;
         }
     }
 }

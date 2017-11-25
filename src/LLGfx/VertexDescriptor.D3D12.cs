@@ -1,77 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using SharpDX.Direct3D12;
-using LLGfx.Util;
+﻿using LLGfx.Util;
+using D3D12 = SharpDX.Direct3D12;
 
 namespace LLGfx
 {
     partial class VertexDescriptor
     {
-        private InputElement[] _inputElements;
-        private InputLayoutDescription _inputLayoutDescription;
-        private bool _isDirty = true;
+        private VertexLayoutDescription[] _layoutDescriptions;
 
-        private Dictionary<int, int> _bufferStrides;
+        internal D3D12.InputLayoutDescription DeviceInputLayoutDescription { get; private set; }
 
-        internal InputLayoutDescription DeviceInputLayoutDescription
+        private void PlatformConstruct(
+            VertexAttributeDescription[] attributeDescriptions,
+            VertexLayoutDescription[] layoutDescriptions)
         {
-            get
+            var inputElements = new D3D12.InputElement[attributeDescriptions.Length];
+            for (var i = 0; i < attributeDescriptions.Length; i++)
             {
-                if (_isDirty)
+                var desc = attributeDescriptions[i];
+
+                inputElements[i] = new D3D12.InputElement
                 {
-                    _inputLayoutDescription = new InputLayoutDescription(_inputElements);
-                    _isDirty = false;
-                }
-                return _inputLayoutDescription;
-            }
-        }
-
-        private void PlatformConstruct()
-        {
-            _inputElements = new InputElement[0];
-            _bufferStrides = new Dictionary<int, int>();
-        }
-
-        private void PlatformSetAttributeDescriptor(
-            InputClassification classification,
-            int index,
-            string semanticName,
-            int semanticIndex,
-            VertexFormat format,
-            int bufferIndex,
-            int offset)
-        {
-            if (index + 1 > _inputElements.Length)
-            {
-                Array.Resize(ref _inputElements, index + 1);
+                    AlignedByteOffset = desc.Offset,
+                    Classification = desc.Classification.ToInputClassification(),
+                    Format = desc.Format.ToDxgiFormat(),
+                    InstanceDataStepRate = (desc.Classification == InputClassification.PerInstanceData) ? 1 : 0,
+                    SemanticIndex = desc.SemanticIndex,
+                    SemanticName = desc.SemanticName,
+                    Slot = desc.BufferIndex
+                };
             }
 
-            _inputElements[index] = new InputElement
-            {
-                AlignedByteOffset = offset,
-                Classification = classification.ToInputClassification(),
-                Format = format.ToDxgiFormat(),
-                InstanceDataStepRate = (classification == InputClassification.PerInstanceData) ? 1 : 0,
-                SemanticIndex = semanticIndex,
-                SemanticName = semanticName,
-                Slot = bufferIndex
-            };
+            DeviceInputLayoutDescription = new D3D12.InputLayoutDescription(inputElements);
 
-            _isDirty = true;
-        }
-
-        private void PlatformSetLayoutDescriptor(int bufferIndex, int stride)
-        {
-            _bufferStrides[bufferIndex] = stride;
+            _layoutDescriptions = layoutDescriptions;
         }
 
         internal int GetStride(int bufferIndex)
         {
-            if (_bufferStrides.TryGetValue(bufferIndex, out var stride))
-            {
-                return stride;
-            }
-            return 0;
+            return _layoutDescriptions[bufferIndex].Stride;
         }
     }
 }
