@@ -7,7 +7,6 @@
 struct PerDrawConstants
 {
     uint ShadingConfigurationID;
-    uint PrimitiveOffset;
     uint NumTextureStages;
     float TimeInSeconds;
     float2 ViewportSize;
@@ -75,8 +74,8 @@ struct ShadingConfiguration
 
 StructuredBuffer<ShadingConfiguration> ShadingConfigurations : register(t1);
 
-StructuredBuffer<uint2> TextureIndices : register(t2);
-Texture2D<float4> Textures[] : register(t3);
+Texture2D<float4> Texture0 : register(t2);
+Texture2D<float4> Texture1 : register(t3);
 
 SamplerState Sampler : register(s0);
 
@@ -85,16 +84,9 @@ SamplerState Sampler : register(s0);
 float4 SampleTexture(
     uint primitiveID, float3 worldNormal, float2 uv, float2 screenPosition,
     TextureMapping textureMapping,
-    uint textureStage,
+    Texture2D<float4> diffuseTexture,
     float3 viewVector)
 {
-    uint2 textureIndices = TextureIndices[PerDrawCB.PrimitiveOffset + primitiveID];
-    uint textureIndex = textureIndices[textureStage];
-
-    // TODO: Since all pixels in a primitive share the same textureIndex,
-    // can we remove the call to NonUniformResourceIndex?
-    Texture2D<float4> diffuseTexture = Textures[NonUniformResourceIndex(textureIndex)];
-
     float t = PerDrawCB.TimeInSeconds;
 
     switch (textureMapping.MappingType)
@@ -184,14 +176,16 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
         diffuseTextureColor = SampleTexture(
             input.PrimitiveID, input.TransferCommon.WorldNormal, input.TransferCommon.UV0, input.ScreenPosition.xy,
             material.TextureMappingStage0,
-            0, v);
+            Texture0, 
+            v);
 
         if (PerDrawCB.NumTextureStages > 1)
         {
             float4 secondaryTextureColor = SampleTexture(
                 input.PrimitiveID, input.TransferCommon.WorldNormal, input.TransferCommon.UV1, input.ScreenPosition.xy,
                 material.TextureMappingStage1,
-                1, v);
+                Texture1, 
+                v);
 
             switch (shadingConfiguration.SecondaryTextureColorBlend)
             {

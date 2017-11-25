@@ -29,8 +29,8 @@ namespace OpenSage.Graphics.Effects
         private Matrix4x4 _projection;
 
         private StaticBuffer<VertexMaterial> _materialsBuffer;
-        private TextureSet _textures;
-        private StaticBuffer<MeshTextureIndex> _textureIndicesBuffer;
+        private Texture _texture0;
+        private Texture _texture1;
         private StaticBuffer<uint> _materialIndicesBuffer;
         private StaticBuffer<ShadingConfiguration> _shadingConfigurationsBuffer;
 
@@ -48,8 +48,8 @@ namespace OpenSage.Graphics.Effects
             LightingConstants = 0x8,
 
             MaterialsBuffer = 0x10,
-            Textures = 0x20,
-            TextureIndicesBuffer = 0x40,
+            Texture0 = 0x20,
+            Texture1 = 0x40,
             MaterialIndicesBuffer = 0x80,
             ShadingConfigurationsBuffer = 0x100,
 
@@ -58,8 +58,8 @@ namespace OpenSage.Graphics.Effects
                 | TransformConstants
                 | LightingConstants
                 | MaterialsBuffer
-                | Textures
-                | TextureIndicesBuffer
+                | Texture0
+                | Texture1
                 | MaterialIndicesBuffer
                 | ShadingConfigurationsBuffer
         }
@@ -140,12 +140,6 @@ namespace OpenSage.Graphics.Effects
                         ResourceType.StructuredBuffer,
                         1, 1),
 
-                    // TextureIndices
-                    PipelineLayoutEntry.CreateResourceView(
-                        ShaderStageVisibility.Pixel,
-                        ResourceType.StructuredBuffer,
-                        2, 1),
-
                     // ShadingConfigurations
                     PipelineLayoutEntry.CreateResourceView(
                         ShaderStageVisibility.Pixel,
@@ -158,11 +152,17 @@ namespace OpenSage.Graphics.Effects
                         ResourceType.StructuredBuffer,
                         0, 1),
 
-                    // Textures
+                    // Texture0
                     PipelineLayoutEntry.CreateResourceView(
                         ShaderStageVisibility.Pixel,
                         ResourceType.Texture,
-                        3, MaxTextures),
+                        2, 1),
+
+                    // Texture1
+                    PipelineLayoutEntry.CreateResourceView(
+                        ShaderStageVisibility.Pixel,
+                        ResourceType.Texture,
+                        3, 1),
                 },
 
                 StaticSamplerStates = new[]
@@ -226,26 +226,26 @@ namespace OpenSage.Graphics.Effects
 
             if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.ShadingConfigurationsBuffer))
             {
-                commandEncoder.SetStaticBuffer(6, _shadingConfigurationsBuffer);
+                commandEncoder.SetStaticBuffer(5, _shadingConfigurationsBuffer);
                 _dirtyFlags &= ~MeshEffectDirtyFlags.ShadingConfigurationsBuffer;
             }
 
             if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.MaterialsBuffer))
             {
-                commandEncoder.SetStaticBuffer(7, _materialsBuffer);
+                commandEncoder.SetStaticBuffer(6, _materialsBuffer);
                 _dirtyFlags &= ~MeshEffectDirtyFlags.MaterialsBuffer;
             }
 
-            if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.Textures))
+            if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.Texture0))
             {
-                commandEncoder.SetTextureSet(8, _textures);
-                _dirtyFlags &= ~MeshEffectDirtyFlags.Textures;
+                commandEncoder.SetTexture(7, _texture0);
+                _dirtyFlags &= ~MeshEffectDirtyFlags.Texture0;
             }
 
-            if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.TextureIndicesBuffer))
+            if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.Texture1))
             {
-                commandEncoder.SetStaticBuffer(5, _textureIndicesBuffer);
-                _dirtyFlags &= ~MeshEffectDirtyFlags.TextureIndicesBuffer;
+                commandEncoder.SetTexture(8, _texture1);
+                _dirtyFlags &= ~MeshEffectDirtyFlags.Texture1;
             }
 
             if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.MaterialIndicesBuffer))
@@ -308,16 +308,16 @@ namespace OpenSage.Graphics.Effects
             _dirtyFlags |= MeshEffectDirtyFlags.MaterialsBuffer;
         }
 
-        public void SetTextures(TextureSet textures)
+        public void SetTexture0(Texture texture)
         {
-            _textures = textures;
-            _dirtyFlags |= MeshEffectDirtyFlags.Textures;
+            _texture0 = texture;
+            _dirtyFlags |= MeshEffectDirtyFlags.Texture0;
         }
 
-        public void SetTextureIndices(StaticBuffer<MeshTextureIndex> textureIndicesBuffer)
+        public void SetTexture1(Texture texture)
         {
-            _textureIndicesBuffer = textureIndicesBuffer;
-            _dirtyFlags |= MeshEffectDirtyFlags.TextureIndicesBuffer;
+            _texture1 = texture;
+            _dirtyFlags |= MeshEffectDirtyFlags.Texture1;
         }
 
         public void SetMaterialIndices(StaticBuffer<uint> materialIndicesBuffer)
@@ -335,12 +335,6 @@ namespace OpenSage.Graphics.Effects
         public void SetShadingConfigurationID(uint shadingConfigurationID)
         {
             _perDrawConstants.ShadingConfigurationID = shadingConfigurationID;
-            _dirtyFlags |= MeshEffectDirtyFlags.PerDrawConstants;
-        }
-
-        public void SetPrimitiveOffset(uint primitiveOffset)
-        {
-            _perDrawConstants.PrimitiveOffset = primitiveOffset;
             _dirtyFlags |= MeshEffectDirtyFlags.PerDrawConstants;
         }
 
@@ -370,24 +364,21 @@ namespace OpenSage.Graphics.Effects
             public uint NumBones;
         }
 
-        [StructLayout(LayoutKind.Explicit, Size = 24)]
+        [StructLayout(LayoutKind.Explicit, Size = 20)]
         private struct PerDrawConstants
         {
             [FieldOffset(0)]
             public uint ShadingConfigurationID;
 
-            [FieldOffset(4)]
-            public uint PrimitiveOffset;
-
             // Not actually per-draw, but we don't have a per-mesh CB.
-            [FieldOffset(8)]
+            [FieldOffset(4)]
             public uint NumTextureStages;
 
-            [FieldOffset(12)]
+            [FieldOffset(8)]
             public float TimeInSeconds;
 
             // Not actually per-draw
-            [FieldOffset(16)]
+            [FieldOffset(12)]
             public Vector2 ViewportSize;
         }
     }

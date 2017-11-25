@@ -137,7 +137,7 @@ namespace OpenSage.Content
             for (var i = 0; i < materialPasses.Length; i++)
             {
                 materialPasses[i] = CreateModelMeshMaterialPass(
-                    contentManager.GraphicsDevice,
+                    contentManager,
                     uploadBatch,
                     w3dMesh,
                     w3dMesh.MaterialPasses[i]);
@@ -163,7 +163,6 @@ namespace OpenSage.Content
                 CreateVertices(w3dMesh, isSkinned),
                 CreateIndices(w3dMesh),
                 CreateMaterials(w3dMesh),
-                CreateTextures(contentManager, uploadBatch, w3dMesh),
                 materialPasses,
                 shadingConfigurations,
                 isSkinned,
@@ -202,36 +201,34 @@ namespace OpenSage.Content
             return vertexMaterials;
         }
 
-        private static Texture[] CreateTextures(
+        private static Texture CreateTexture(
             ContentManager contentManager,
             ResourceUploadBatch uploadBatch,
-            W3dMesh w3dMesh)
+            W3dMesh w3dMesh,
+            uint? textureIndex)
         {
-            var numTextures = w3dMesh.Textures.Count;
-            var textures = new Texture[numTextures];
-
-            for (var i = 0; i < numTextures; i++)
+            if (textureIndex == null)
             {
-                var w3dTexture = w3dMesh.Textures[i];
-
-                if (w3dTexture.TextureInfo != null && w3dTexture.TextureInfo.FrameCount != 1)
-                {
-                    throw new NotImplementedException();
-                }
-
-                var w3dTextureFilePath = Path.Combine("Art", "Textures", w3dTexture.Name);
-
-                var texture = contentManager.Load<Texture>(w3dTextureFilePath, uploadBatch, fallbackToPlaceholder: false);
-                if (texture == null)
-                {
-                    w3dTextureFilePath = Path.Combine("Art", "CompiledTextures", w3dTexture.Name.Substring(0, 2), w3dTexture.Name);
-                    texture = contentManager.Load<Texture>(w3dTextureFilePath, uploadBatch);
-                }
-
-                textures[i] = texture;
+                return null;
             }
 
-            return textures;
+            var w3dTexture = w3dMesh.Textures[(int) textureIndex];
+
+            if (w3dTexture.TextureInfo != null && w3dTexture.TextureInfo.FrameCount != 1)
+            {
+                throw new NotImplementedException();
+            }
+
+            var w3dTextureFilePath = Path.Combine("Art", "Textures", w3dTexture.Name);
+
+            var texture = contentManager.Load<Texture>(w3dTextureFilePath, uploadBatch, fallbackToPlaceholder: false);
+            if (texture == null)
+            {
+                w3dTextureFilePath = Path.Combine("Art", "CompiledTextures", w3dTexture.Name.Substring(0, 2), w3dTexture.Name);
+                texture = contentManager.Load<Texture>(w3dTextureFilePath, uploadBatch);
+            }
+
+            return texture;
         }
 
         private static MeshVertex[] CreateVertices(
@@ -274,7 +271,7 @@ namespace OpenSage.Content
 
         // One ModelMeshMaterialPass for each W3D_CHUNK_MATERIAL_PASS
         private static ModelMeshMaterialPass CreateModelMeshMaterialPass(
-            GraphicsDevice graphicsDevice,
+            ContentManager contentManager,
             ResourceUploadBatch uploadBatch,
             W3dMesh w3dMesh,
             W3dMaterialPass w3dMaterialPass)
@@ -316,46 +313,6 @@ namespace OpenSage.Content
                 }
             }
 
-            var textureIndices = new MeshTextureIndex[w3dMesh.Header.NumTris];
-
-            if (hasTextureStage0)
-            {
-                if (textureStage0.TextureIds.Length == 1)
-                {
-                    var textureID = textureStage0.TextureIds[0];
-                    for (var i = 0; i < textureIndices.Length; i++)
-                    {
-                        textureIndices[i].IndexStage0 = textureID;
-                    }
-                }
-                else
-                {
-                    for (var i = 0; i < textureIndices.Length; i++)
-                    {
-                        textureIndices[i].IndexStage0 = textureStage0.TextureIds[i];
-                    }
-                }
-            }
-
-            if (hasTextureStage1)
-            {
-                if (textureStage1.TextureIds.Length == 1)
-                {
-                    var textureID = textureStage1.TextureIds[0];
-                    for (var i = 0; i < textureIndices.Length; i++)
-                    {
-                        textureIndices[i].IndexStage1 = textureID;
-                    }
-                }
-                else
-                {
-                    for (var i = 0; i < textureIndices.Length; i++)
-                    {
-                        textureIndices[i].IndexStage1 = textureStage1.TextureIds[i];
-                    }
-                }
-            }
-
             var materialIndices = w3dMaterialPass.VertexMaterialIds;
             if (materialIndices.Length == 1)
             {
@@ -369,36 +326,79 @@ namespace OpenSage.Content
 
             var meshParts = new List<ModelMeshPart>();
 
-            if (w3dMaterialPass.ShaderIds.Length == 1)
+            // Optimisation for a fairly common case.
+            if (w3dMaterialPass.ShaderIds.Length == 1
+                && w3dMaterialPass.TextureStages.Count == 1
+                && w3dMaterialPass.TextureStages[0].TextureIds.Length == 1)
             {
                 meshParts.Add(CreateModelMeshPart(
+                    contentManager,
+                    uploadBatch,
                     0, 
                     w3dMesh.Header.NumTris * 3,
                     w3dMesh,
-                    w3dMaterialPass.ShaderIds[0]));
+                    w3dMaterialPass.ShaderIds[0],
+                    w3dMaterialPass.TextureStages[0].TextureIds[0],
+                    0));
             }
             else
             {
-                var shaderID = w3dMaterialPass.ShaderIds[0];
+                // Expand ShaderIds and TextureIds, if they have a single entry
+                // (which means same ID for all faces)
+
+                IEnumerable<uint?> getExpandedIds(uint[] ids)
+                {
+                    if (ids == null)
+                    {
+                        for (var i = 0; i < w3dMesh.Header.NumTris; i++)
+                        {
+                            yield return null;
+                        }
+                    }
+                    else if (ids.Length == 1)
+                    {
+                        var result = ids[0];
+                        for (var i = 0; i < w3dMesh.Header.NumTris; i++)
+                        {
+                            yield return result;
+                        }
+                    }
+                    else
+                    {
+                        foreach (var id in ids)
+                        {
+                            yield return id;
+                        }
+                    }
+                }
+
+                var combinedIds = getExpandedIds(w3dMaterialPass.ShaderIds)
+                    .Zip(getExpandedIds(textureStage0?.TextureIds), (x, y) => new { ShaderId = x.Value, TextureIndex0 = y })
+                    .Zip(getExpandedIds(textureStage1?.TextureIds), (x, y) => new { x.ShaderId, x.TextureIndex0, TextureIndex1 = y });
+
+                var combinedId = combinedIds.First();
                 var startIndex = 0u;
                 var indexCount = 0u;
-                for (var i = 0; i < w3dMaterialPass.ShaderIds.Length; i++)
-                {
-                    var newShaderID = w3dMaterialPass.ShaderIds[i];
 
-                    if (shaderID != newShaderID)
+                foreach (var newCombinedId in combinedIds)
+                {
+                    if (combinedId != newCombinedId)
                     {
                         meshParts.Add(CreateModelMeshPart(
+                            contentManager,
+                            uploadBatch,
                             startIndex,
                             indexCount,
                             w3dMesh,
-                            shaderID));
+                            combinedId.ShaderId,
+                            combinedId.TextureIndex0,
+                            combinedId.TextureIndex1));
 
-                        startIndex = (uint) (i * 3);
+                        startIndex = startIndex + indexCount;
                         indexCount = 0;
                     }
 
-                    shaderID = newShaderID;
+                    combinedId = newCombinedId;
 
                     indexCount += 3;
                 }
@@ -406,29 +406,36 @@ namespace OpenSage.Content
                 if (indexCount > 0)
                 {
                     meshParts.Add(CreateModelMeshPart(
+                        contentManager,
+                        uploadBatch,
                         startIndex,
                         indexCount,
                         w3dMesh,
-                        shaderID));
+                        combinedId.ShaderId,
+                        combinedId.TextureIndex0,
+                        combinedId.TextureIndex1));
                 }
             }
 
             return new ModelMeshMaterialPass(
-                graphicsDevice,
+                contentManager.GraphicsDevice,
                 uploadBatch,
                 numTextureStages,
                 texCoords,
-                textureIndices,
                 materialIndices,
                 meshParts);
         }
 
         // One ModelMeshPart for each unique shader in a W3D_CHUNK_MATERIAL_PASS.
         private static ModelMeshPart CreateModelMeshPart(
+            ContentManager contentManager,
+            ResourceUploadBatch uploadBatch,
             uint startIndex,
             uint indexCount,
             W3dMesh w3dMesh,
-            uint shaderID)
+            uint shaderID,
+            uint? textureIndex0,
+            uint? textureIndex1)
         {
             var w3dShader = w3dMesh.Shaders[shaderID];
 
@@ -460,7 +467,9 @@ namespace OpenSage.Content
                 startIndex,
                 indexCount,
                 shaderID,
-                pipelineStateHandle);
+                pipelineStateHandle,
+                CreateTexture(contentManager, uploadBatch, w3dMesh, textureIndex0),
+                CreateTexture(contentManager, uploadBatch, w3dMesh, textureIndex1));
         }
 
         private static Animation CreateAnimation(W3dAnimation w3dAnimation)

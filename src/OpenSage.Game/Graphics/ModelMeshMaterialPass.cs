@@ -11,7 +11,6 @@ namespace OpenSage.Graphics
         public IReadOnlyList<ModelMeshPart> MeshParts { get; set; }
 
         internal StaticBuffer<MeshTexCoords> TexCoordVertexBuffer;
-        internal StaticBuffer<MeshTextureIndex> TextureIndicesBuffer;
         internal StaticBuffer<uint> MaterialIndicesBuffer;
 
         internal ModelMeshMaterialPass(
@@ -19,7 +18,6 @@ namespace OpenSage.Graphics
             ResourceUploadBatch uploadBatch,
             uint numTextureStages,
             MeshTexCoords[] texCoords,
-            MeshTextureIndex[] textureIndices,
             uint[] materialIndices,
             IReadOnlyList<ModelMeshPart> meshParts)
         {
@@ -29,11 +27,6 @@ namespace OpenSage.Graphics
                 graphicsDevice,
                 uploadBatch,
                 texCoords));
-
-            TextureIndicesBuffer = AddDisposable(StaticBuffer.Create(
-                graphicsDevice,
-                uploadBatch,
-                textureIndices));
 
             MaterialIndicesBuffer = AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
@@ -48,11 +41,5 @@ namespace OpenSage.Graphics
     {
         public Vector2 UV0;
         public Vector2 UV1;
-    }
-
-    public struct MeshTextureIndex
-    {
-        public uint IndexStage0;
-        public uint IndexStage1;
     }
 }

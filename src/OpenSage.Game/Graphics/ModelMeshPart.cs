@@ -1,4 +1,5 @@
-﻿using LLGfx.Effects;
+﻿using LLGfx;
+using LLGfx.Effects;
 
 namespace OpenSage.Graphics
 {
@@ -11,11 +12,16 @@ namespace OpenSage.Graphics
 
         public EffectPipelineStateHandle PipelineStateHandle { get; }
 
+        public Texture Texture0 { get; }
+        public Texture Texture1 { get; }
+
         internal ModelMeshPart(
             uint startIndex, 
             uint indexCount, 
             uint shadingConfigurationID,
-            EffectPipelineStateHandle pipelineStateHandle)
+            EffectPipelineStateHandle pipelineStateHandle,
+            Texture texture0,
+            Texture texture1)
         {
             StartIndex = startIndex;
             IndexCount = indexCount;
@@ -23,6 +29,9 @@ namespace OpenSage.Graphics
             ShadingConfigurationID = shadingConfigurationID;
 
             PipelineStateHandle = pipelineStateHandle;
+
+            Texture0 = texture0;
+            Texture1 = texture1;
         }
     }
 }

@@ -28,7 +28,6 @@ namespace OpenSage.Graphics
         private readonly StaticBuffer<ushort> _indexBuffer;
 
         private readonly StaticBuffer<VertexMaterial> _materialsBuffer;
-        private readonly TextureSet _textures;
         private readonly StaticBuffer<ShadingConfiguration> _shadingConfigurationsBuffer;
 
         public string Name { get; }
@@ -52,7 +51,6 @@ namespace OpenSage.Graphics
             MeshVertex[] vertices,
             ushort[] indices,
             VertexMaterial[] vertexMaterials,
-            Texture[] textures,
             ModelMeshMaterialPass[] materialPasses,
             ShadingConfiguration[] shadingConfigurations,
             bool isSkinned,
@@ -88,8 +86,6 @@ namespace OpenSage.Graphics
                 graphicsDevice,
                 uploadBatch,
                 vertexMaterials));
-
-            _textures = AddDisposable(new TextureSet(graphicsDevice, textures));
 
             foreach (var materialPass in materialPasses)
             {
@@ -158,14 +154,12 @@ namespace OpenSage.Graphics
             meshEffect.SetSkinningEnabled(Skinned);
 
             meshEffect.SetMaterials(_materialsBuffer);
-            meshEffect.SetTextures(_textures);
             meshEffect.SetShadingConfigurations(_shadingConfigurationsBuffer);
 
             commandEncoder.SetVertexBuffer(0, _vertexBuffer);
 
             foreach (var materialPass in materialPasses)
             {
-                meshEffect.SetTextureIndices(materialPass.TextureIndicesBuffer);
                 meshEffect.SetMaterialIndices(materialPass.MaterialIndicesBuffer);
                 meshEffect.SetNumTextureStages(materialPass.NumTextureStages);
 
@@ -178,8 +172,10 @@ namespace OpenSage.Graphics
                         continue;
                     }
 
-                    meshEffect.SetPrimitiveOffset(meshPart.StartIndex / 3);
                     meshEffect.SetShadingConfigurationID(meshPart.ShadingConfigurationID);
+
+                    meshEffect.SetTexture0(meshPart.Texture0);
+                    meshEffect.SetTexture1(meshPart.Texture1);
 
                     meshEffect.Apply(commandEncoder);
 
