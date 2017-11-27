@@ -14,14 +14,7 @@ namespace OpenSage.Content
 
         public TextureLoader(GraphicsDevice graphicsDevice)
         {
-            var uploadBatch = new ResourceUploadBatch(graphicsDevice);
-            uploadBatch.Begin();
-
-            PlaceholderValue = AddDisposable(Texture.CreatePlaceholderTexture2D(
-                graphicsDevice,
-                uploadBatch));
-
-            uploadBatch.End();
+            PlaceholderValue = AddDisposable(Texture.CreatePlaceholderTexture2D(graphicsDevice));
         }
 
         public override IEnumerable<string> GetPossibleFilePaths(string filePath)
@@ -30,7 +23,7 @@ namespace OpenSage.Content
             yield return Path.ChangeExtension(filePath, ".tga");
         }
 
-        protected override Texture LoadEntry(FileSystemEntry entry, ContentManager contentManager, ResourceUploadBatch uploadBatch)
+        protected override Texture LoadEntry(FileSystemEntry entry, ContentManager contentManager)
         {
             switch (Path.GetExtension(entry.FilePath).ToLower())
             {
@@ -42,14 +35,12 @@ namespace OpenSage.Content
                     var ddsFile = DdsFile.FromFileSystemEntry(entry);
                     return CreateTextureFromDds(
                         contentManager.GraphicsDevice,
-                        uploadBatch,
                         ddsFile);
 
                 case ".tga":
                     var tgaFile = TgaFile.FromFileSystemEntry(entry);
                     return CreateTextureFromTga(
                         contentManager.GraphicsDevice,
-                        uploadBatch,
                         tgaFile,
                         true); // TODO: Don't need to generate mipmaps for GUI textures.
 
@@ -60,7 +51,6 @@ namespace OpenSage.Content
 
         private static Texture CreateTextureFromDds(
             GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch,
             DdsFile ddsFile)
         {
             var mipMapData = new TextureMipMapData[ddsFile.Header.MipMapCount];
@@ -76,7 +66,6 @@ namespace OpenSage.Content
 
             return Texture.CreateTexture2D(
                 graphicsDevice,
-                uploadBatch,
                 ToPixelFormat(ddsFile.ImageFormat),
                 (int) ddsFile.Header.Width,
                 (int) ddsFile.Header.Height,
@@ -134,7 +123,6 @@ namespace OpenSage.Content
 
         private static Texture CreateTextureFromTga(
             GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch,
             TgaFile tgaFile,
             bool generateMipMaps)
         {
@@ -142,7 +130,6 @@ namespace OpenSage.Content
 
             return Texture.CreateTexture2D(
                 graphicsDevice,
-                uploadBatch,
                 PixelFormat.Rgba8UNorm,
                 tgaFile.Header.Width,
                 tgaFile.Header.Height,

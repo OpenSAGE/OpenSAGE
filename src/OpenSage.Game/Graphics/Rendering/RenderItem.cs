@@ -88,7 +88,10 @@ namespace OpenSage.Graphics.Rendering
                 var numElements = (int) (Mesh.NumBones * NumInstances);
                 if (SkinningBuffer == null || SkinningBuffer.ElementCount < numElements)
                 {
-                    SkinningBuffer = DynamicBuffer<Matrix4x3>.CreateArray(graphicsDevice, numElements, BufferUsageFlags.None);
+                    SkinningBuffer = DynamicBuffer<Matrix4x3>.CreateArray(
+                        graphicsDevice, 
+                        numElements, 
+                        BufferBindFlags.ShaderResource);
 
                     _skinningBones = new Matrix4x3[numElements];
                 }
@@ -119,7 +122,7 @@ namespace OpenSage.Graphics.Rendering
                 WorldBuffer = DynamicBuffer<Matrix4x4>.CreateArray(
                     graphicsDevice,
                     (int) NumInstances, 
-                    BufferUsageFlags.None);
+                    BufferBindFlags.VertexBuffer);
 
                 _worldTransforms = new Matrix4x4[NumInstances];
             }

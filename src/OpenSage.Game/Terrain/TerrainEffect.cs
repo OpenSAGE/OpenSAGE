@@ -56,9 +56,9 @@ namespace OpenSage.Terrain
                   CreateVertexDescriptor(),
                   CreatePipelineLayoutDescription(numTextures))
         {
-            _transformConstantBuffer = AddDisposable(DynamicBuffer<TransformConstants>.Create(graphicsDevice, BufferUsageFlags.ConstantBuffer));
+            _transformConstantBuffer = AddDisposable(DynamicBuffer<TransformConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer));
 
-            _lightingConstantBuffer = AddDisposable(DynamicBuffer<LightingConstants>.Create(graphicsDevice, BufferUsageFlags.ConstantBuffer));
+            _lightingConstantBuffer = AddDisposable(DynamicBuffer<LightingConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer));
         }
 
         private static VertexDescriptor CreateVertexDescriptor()
@@ -181,7 +181,7 @@ namespace OpenSage.Terrain
 
             if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.Textures))
             {
-                commandEncoder.SetTextureSet(5, _textures);
+                commandEncoder.SetTextures(5, _textures);
                 _dirtyFlags &= ~TerrainEffectDirtyFlags.Textures;
             }
         }

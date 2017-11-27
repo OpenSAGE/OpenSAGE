@@ -1,30 +1,15 @@
 ﻿namespace LLGfx
 {
-    public sealed class TextureSet : GraphicsObject
+    public sealed partial class TextureSet : GraphicsDeviceChild
     {
-        private readonly GraphicsDevice _graphicsDevice;
-        private readonly Texture[] _textures;
-
-        private ShaderResourceView _shaderResourceView;
-
-        internal ShaderResourceView ShaderResourceView
-        {
-            get
-            {
-                if (_shaderResourceView == null)
-                {
-                    _shaderResourceView = AddDisposable(ShaderResourceView.Create(
-                        _graphicsDevice, 
-                        _textures));
-                }
-                return _shaderResourceView;
-            }
-        }
+        public Texture[] Textures { get; }
 
         public TextureSet(GraphicsDevice graphicsDevice, Texture[] textures)
+            : base(graphicsDevice)
         {
-            _graphicsDevice = graphicsDevice;
-            _textures = textures;
+            Textures = textures;
+
+            PlatformConstruct(graphicsDevice, textures);
         }
     }
 }

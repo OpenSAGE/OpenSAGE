@@ -13,6 +13,6 @@ namespace OpenSage.Content
             yield return filePath;
         }
 
-        public abstract object Load(FileSystemEntry entry, ContentManager contentManager, ResourceUploadBatch uploadBatch);
+        public abstract object Load(FileSystemEntry entry, ContentManager contentManager);
     }
 }

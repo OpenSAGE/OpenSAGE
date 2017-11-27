@@ -46,7 +46,6 @@ namespace OpenSage.Graphics
 
         public ModelMesh(
             GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch,
             string name,
             MeshVertex[] vertices,
             ushort[] indices,
@@ -74,18 +73,18 @@ namespace OpenSage.Graphics
 
             _vertexBuffer = AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
-                uploadBatch,
-                vertices));
+                vertices,
+                BufferBindFlags.VertexBuffer));
 
             _indexBuffer = AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
-                uploadBatch,
-                indices));
+                indices,
+                BufferBindFlags.IndexBuffer));
 
             _materialsBuffer = AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
-                uploadBatch,
-                vertexMaterials));
+                vertexMaterials,
+                BufferBindFlags.ShaderResource));
 
             foreach (var materialPass in materialPasses)
             {
@@ -95,8 +94,8 @@ namespace OpenSage.Graphics
 
             _shadingConfigurationsBuffer = AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
-                uploadBatch,
-                shadingConfigurations));
+                shadingConfigurations,
+                BufferBindFlags.ShaderResource));
         }
 
         internal void BuildRenderList(RenderList renderList, RenderInstanceData instanceData, MeshEffect effect)

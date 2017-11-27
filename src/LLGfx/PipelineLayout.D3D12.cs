@@ -1,76 +1,58 @@
-﻿using LLGfx.Util;
-using SharpDX.Direct3D12;
-using D3D12 = SharpDX.Direct3D12;
+﻿using System;
+using LLGfx.Util;
+using SharpDX.Direct3D11;
+using D3D11 = SharpDX.Direct3D11;
 
 namespace LLGfx
 {
     partial class PipelineLayout
     {
-        internal RootSignature DeviceRootSignature { get; private set; }
+        private SamplerState[] _samplerStates;
 
-        private void PlatformConstruct(GraphicsDevice graphicsDevice, PipelineLayoutDescription description)
+        private void PlatformConstruct(GraphicsDevice graphicsDevice, ref PipelineLayoutDescription description)
         {
-            var rootParameters = new RootParameter[description.Entries.Length];
+            _samplerStates = new SamplerState[description.StaticSamplerStates.Length];
 
-            for (var i = 0; i < description.Entries.Length; i++)
+            for (var i = 0; i < description.StaticSamplerStates.Length; i++)
             {
-                var entry = description.Entries[i];
+                var staticSamplerState = description.StaticSamplerStates[i];
 
-                switch (entry.EntryType)
+                _samplerStates[i] = AddDisposable(new SamplerState(
+                    graphicsDevice.Device, 
+                    new D3D11.SamplerStateDescription
+                    {
+                        Filter = staticSamplerState.SamplerStateDescription.Filter.ToFilter(),
+                        AddressU = TextureAddressMode.Wrap,
+                        AddressV = TextureAddressMode.Wrap,
+                        AddressW = TextureAddressMode.Clamp,
+                        ComparisonFunction = D3D11.Comparison.Always,
+                        MinimumLod = 0,
+                        MaximumLod = float.MaxValue,
+                        MaximumAnisotropy = staticSamplerState.SamplerStateDescription.MaxAnisotropy
+                    }));
+            }
+        }
+
+        internal void Apply(DeviceContext context)
+        {
+            for (var i = 0; i < Description.StaticSamplerStates.Length; i++)
+            { 
+                ref var staticSamplerState = ref Description.StaticSamplerStates[i];
+
+                switch (staticSamplerState.Visibility)
                 {
-                    case PipelineLayoutEntryType.Resource:
-                        rootParameters[i] = new RootParameter(
-                            entry.Visibility.ToShaderVisibility(),
-                            new RootDescriptor(entry.Resource.ShaderRegister, 0),
-                            entry.ResourceType.ToRootParameterType());
+                    case ShaderStageVisibility.Vertex:
+                        context.VertexShader.SetSampler(staticSamplerState.ShaderRegister, _samplerStates[i]);
                         break;
 
-                    case PipelineLayoutEntryType.ResourceView:
-                        rootParameters[i] = new RootParameter(
-                            entry.Visibility.ToShaderVisibility(),
-                            new DescriptorRange(
-                                entry.ResourceType.ToDescriptorRangeType(),
-                                entry.ResourceView.ResourceCount,
-                                entry.ResourceView.BaseShaderRegister));
+                    case ShaderStageVisibility.Pixel:
+                        context.PixelShader.SetSampler(staticSamplerState.ShaderRegister, _samplerStates[i]);
                         break;
 
                     default:
-                        throw new System.InvalidOperationException();
+                        throw new InvalidOperationException();
                 }
             }
-
-            var staticSamplerStates = description.StaticSamplerStates ?? new StaticSamplerDescription[0];
-            var staticSamplerDescriptions = new D3D12.StaticSamplerDescription[staticSamplerStates.Length];
-            for (var i = 0; i < staticSamplerStates.Length; i++)
-            {
-                var staticSamplerState = staticSamplerStates[i];
-
-                var samplerStateDescription = new D3D12.SamplerStateDescription
-                {
-                    Filter = staticSamplerState.SamplerStateDescription.Filter.ToFilter(),
-                    AddressU = TextureAddressMode.Wrap,
-                    AddressV = TextureAddressMode.Wrap,
-                    AddressW = TextureAddressMode.Clamp,
-                    ComparisonFunction = D3D12.Comparison.Always,
-                    MinimumLod = 0,
-                    MaximumLod = float.MaxValue,
-                    MaximumAnisotropy = staticSamplerState.SamplerStateDescription.MaxAnisotropy
-                };
-
-                staticSamplerDescriptions[i] = new D3D12.StaticSamplerDescription(
-                    samplerStateDescription,
-                    staticSamplerState.Visibility.ToShaderVisibility(),
-                    staticSamplerState.ShaderRegister,
-                    0);
-            }
-
-            var rootSignatureDescription = new RootSignatureDescription(
-                RootSignatureFlags.AllowInputAssemblerInputLayout,
-                parameters: rootParameters,
-                samplers: staticSamplerDescriptions);
-
-            var serializedRootSignatureDescription = rootSignatureDescription.Serialize();
-            DeviceRootSignature = AddDisposable(graphicsDevice.Device.CreateRootSignature(serializedRootSignatureDescription));
         }
     }
 }

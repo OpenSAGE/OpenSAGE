@@ -28,6 +28,7 @@ struct TextureInfo
 };
 
 StructuredBuffer<TextureInfo> TextureDetails : register(t2);
+
 Texture2DArray<float4> TextureArrays[4] : register(t3);
 
 SamplerState Sampler : register(s0);
@@ -40,17 +41,29 @@ float3 SampleTexture(
 {
     TextureInfo textureInfo = TextureDetails[textureIndex];
 
-    Texture2DArray<float4> diffuseTextureArray = TextureArrays[NonUniformResourceIndex(textureInfo.TextureSizeIndex)];
+    // TODO: Not good to do 4 texture lookups just to throw 3 away.
+    // But D3D11 doesn't let us do dynamic indexing to get the right
+    // Texture2DArray.
 
     float2 scaledUV = uv / textureInfo.CellSize;
 
-    // Can't use standard Sample because UV is scaled by texture CellSize,
-    // and that doesn't work for divergent texture lookups.
-    float4 diffuseTextureColor = diffuseTextureArray.SampleGrad(
-        Sampler,
-        float3(scaledUV, textureInfo.SizeSpecificIndex),
-        ddxUV / textureInfo.CellSize,
-        ddyUV / textureInfo.CellSize);
+    float4 diffuseTextureColor = float4(0, 0, 0, 0);
+
+    [unroll]
+    for (uint i = 0; i < 4; i++)
+    {
+        // Can't use standard Sample because UV is scaled by texture CellSize,
+        // and that doesn't work for divergent texture lookups.
+        float4 c = TextureArrays[i].SampleGrad(
+            Sampler,
+            float3(scaledUV, textureInfo.SizeSpecificIndex),
+            ddxUV / textureInfo.CellSize,
+            ddyUV / textureInfo.CellSize);
+
+        uint textureMask = i == textureInfo.TextureSizeIndex ? 1 : 0;
+
+        diffuseTextureColor += c * textureMask;
+    }
 
     return diffuseTextureColor.rgb;
 }

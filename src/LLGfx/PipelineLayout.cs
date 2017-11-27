@@ -9,7 +9,7 @@
         {
             Description = description;
 
-            PlatformConstruct(graphicsDevice, description);
+            PlatformConstruct(graphicsDevice, ref description);
         }
     }
 }

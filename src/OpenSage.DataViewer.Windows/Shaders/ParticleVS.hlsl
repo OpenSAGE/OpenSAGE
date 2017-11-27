@@ -11,14 +11,12 @@ struct VSInput
     uint VertexID : SV_VertexID;
 };
 
-struct ParticleTransformConstants
+cbuffer ParticleTransformCB : register(b0)
 {
     row_major matrix World;
     row_major matrix ViewProjection;
     float3 CameraPosition;
 };
-
-ConstantBuffer<ParticleTransformConstants> TransformCB : register(b0);
 
 static const float4 VertexUVPos[4] =
 {
@@ -30,16 +28,16 @@ static const float4 VertexUVPos[4] =
 
 float4 ComputePosition(float3 particlePosition, float size, float angle, float2 quadPosition)
 {
-    float3 particlePosWS = mul(float4(particlePosition, 1), TransformCB.World).xyz;
+    float3 particlePosWS = mul(float4(particlePosition, 1), World).xyz;
 
-    float3 toEye = normalize(TransformCB.CameraPosition - particlePosWS);
+    float3 toEye = normalize(CameraPosition - particlePosWS);
     float3 up = { cos(angle), 0, sin(angle) };
     float3 right = cross(toEye, up);
     up = cross(toEye, right);
 
     particlePosWS += (right * size * quadPosition.x) + (up * size * quadPosition.y);
 
-    return mul(float4(particlePosWS, 1), TransformCB.ViewProjection);
+    return mul(float4(particlePosWS, 1), ViewProjection);
 }
 
 PSInput main(VSInput input)

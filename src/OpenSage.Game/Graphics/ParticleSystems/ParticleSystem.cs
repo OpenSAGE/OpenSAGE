@@ -68,7 +68,7 @@ namespace OpenSage.Graphics.ParticleSystems
             _volumeType = VolumeTypeUtility.GetImplementation(Definition.VolumeType);
 
             var texturePath = Path.Combine("Art", "Textures", Definition.ParticleName);
-            _texture = ContentManager.Load<Texture>(texturePath, uploadBatch: null);
+            _texture = ContentManager.Load<Texture>(texturePath);
 
             var blendState = GetBlendState(Definition.Shader);
 
@@ -120,7 +120,7 @@ namespace OpenSage.Graphics.ParticleSystems
             _vertexBuffer = DynamicBuffer<ParticleVertex>.CreateArray(
                 GraphicsDevice,
                 maxParticles * 4,
-                BufferUsageFlags.None);
+                BufferBindFlags.VertexBuffer);
 
             _vertices = new ParticleVertex[_vertexBuffer.ElementCount];
 
@@ -154,9 +154,6 @@ namespace OpenSage.Graphics.ParticleSystems
 
         private static StaticBuffer<ushort> CreateIndexBuffer(GraphicsDevice graphicsDevice, int maxParticles)
         {
-            var uploadBatch = new ResourceUploadBatch(graphicsDevice);
-            uploadBatch.Begin();
-
             var indices = new ushort[maxParticles * 2 * 3]; // Two triangles per particle.
             var indexCounter = 0;
             for (ushort i = 0; i < maxParticles * 4; i += 4)
@@ -172,10 +169,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
             var result = StaticBuffer.Create(
                 graphicsDevice,
-                uploadBatch,
-                indices);
-
-            uploadBatch.End();
+                indices,
+                BufferBindFlags.IndexBuffer);
 
             return result;
         }

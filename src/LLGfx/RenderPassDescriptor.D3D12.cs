@@ -1,7 +1,7 @@
 ﻿using System;
-using SharpDX.Direct3D12;
-using SharpDX.Mathematics.Interop;
 using LLGfx.Util;
+using SharpDX.Mathematics.Interop;
+using SharpDX.Direct3D11;
 
 namespace LLGfx
 {
@@ -34,18 +34,13 @@ namespace LLGfx
             _depthStencilBuffer = depthStencilBuffer;
         }
 
-        internal void OnOpenedCommandList(GraphicsCommandList commandList)
+        internal void OnOpenedCommandList(DeviceContext context)
         {
-            commandList.ResourceBarrierTransition(
-                _renderTargetDescriptor.RenderTarget.Texture,
-                ResourceStates.Present,
-                ResourceStates.RenderTarget);
+            var depthStencilView = _depthStencilBuffer?.DeviceDepthStencilView;
 
-            var depthStencilBufferCpuDescriptorHandle = _depthStencilBuffer?.Acquire();
-
-            commandList.SetRenderTargets(
-                _renderTargetDescriptor.RenderTarget.CpuDescriptorHandle,
-                depthStencilBufferCpuDescriptorHandle);
+            context.OutputMerger.SetRenderTargets(
+                depthStencilView,
+                _renderTargetDescriptor.RenderTarget.DeviceRenderTargetView);
 
             switch (_renderTargetDescriptor.LoadAction)
             {
@@ -56,8 +51,8 @@ namespace LLGfx
                     throw new NotSupportedException();
 
                 case LoadAction.Clear:
-                    commandList.ClearRenderTargetView(
-                        _renderTargetDescriptor.RenderTarget.CpuDescriptorHandle,
+                    context.ClearRenderTargetView(
+                        _renderTargetDescriptor.RenderTarget.DeviceRenderTargetView,
                         _renderTargetDescriptor.ClearColor);
                     break;
 
@@ -65,24 +60,14 @@ namespace LLGfx
                     throw new InvalidOperationException();
             }
 
-            if (depthStencilBufferCpuDescriptorHandle != null)
+            if (depthStencilView != null)
             {
-                commandList.ClearDepthStencilView(
-                    depthStencilBufferCpuDescriptorHandle.Value,
-                    ClearFlags.FlagsDepth,
+                context.ClearDepthStencilView(
+                    depthStencilView,
+                    DepthStencilClearFlags.Depth,
                     _depthStencilBuffer.ClearValue,
                     0);
             }
-        }
-
-        internal void OnClosingCommandList(GraphicsCommandList commandList)
-        {
-            _depthStencilBuffer?.Release();
-
-            commandList.ResourceBarrierTransition(
-                _renderTargetDescriptor.RenderTarget.Texture,
-                ResourceStates.RenderTarget,
-                ResourceStates.Present);
         }
     }
 }

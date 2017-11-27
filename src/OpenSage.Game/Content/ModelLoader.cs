@@ -17,7 +17,7 @@ namespace OpenSage.Content
 {
     internal sealed class ModelLoader : ContentLoader<Model>
     {
-        protected override Model LoadEntry(FileSystemEntry entry, ContentManager contentManager, ResourceUploadBatch uploadBatch)
+        protected override Model LoadEntry(FileSystemEntry entry, ContentManager contentManager)
         {
             var w3dFile = W3dFile.FromFileSystemEntry(entry);
 
@@ -34,14 +34,12 @@ namespace OpenSage.Content
 
             return CreateModel(
                 contentManager,
-                uploadBatch,
                 w3dFile,
                 w3dHierarchy);
         }
 
         private static Model CreateModel(
             ContentManager contentManager,
-            ResourceUploadBatch uploadBatch,
             W3dFile w3dFile,
             W3dHierarchyDef w3dHierarchy)
         {
@@ -98,7 +96,6 @@ namespace OpenSage.Content
 
                 meshes[i] = CreateModelMesh(
                     contentManager,
-                    uploadBatch,
                     w3dMesh,
                     bone,
                     bones.Length);
@@ -128,7 +125,6 @@ namespace OpenSage.Content
 
         private static ModelMesh CreateModelMesh(
             ContentManager contentManager,
-            ResourceUploadBatch uploadBatch,
             W3dMesh w3dMesh,
             ModelBone parentBone,
             int numBones)
@@ -138,7 +134,6 @@ namespace OpenSage.Content
             {
                 materialPasses[i] = CreateModelMeshMaterialPass(
                     contentManager,
-                    uploadBatch,
                     w3dMesh,
                     w3dMesh.MaterialPasses[i]);
             }
@@ -158,7 +153,6 @@ namespace OpenSage.Content
 
             return new ModelMesh(
                 contentManager.GraphicsDevice,
-                uploadBatch,
                 w3dMesh.Header.MeshName,
                 CreateVertices(w3dMesh, isSkinned),
                 CreateIndices(w3dMesh),
@@ -203,7 +197,6 @@ namespace OpenSage.Content
 
         private static Texture CreateTexture(
             ContentManager contentManager,
-            ResourceUploadBatch uploadBatch,
             W3dMesh w3dMesh,
             uint? textureIndex)
         {
@@ -221,11 +214,11 @@ namespace OpenSage.Content
 
             var w3dTextureFilePath = Path.Combine("Art", "Textures", w3dTexture.Name);
 
-            var texture = contentManager.Load<Texture>(w3dTextureFilePath, uploadBatch, fallbackToPlaceholder: false);
+            var texture = contentManager.Load<Texture>(w3dTextureFilePath, fallbackToPlaceholder: false);
             if (texture == null)
             {
                 w3dTextureFilePath = Path.Combine("Art", "CompiledTextures", w3dTexture.Name.Substring(0, 2), w3dTexture.Name);
-                texture = contentManager.Load<Texture>(w3dTextureFilePath, uploadBatch);
+                texture = contentManager.Load<Texture>(w3dTextureFilePath);
             }
 
             return texture;
@@ -272,7 +265,6 @@ namespace OpenSage.Content
         // One ModelMeshMaterialPass for each W3D_CHUNK_MATERIAL_PASS
         private static ModelMeshMaterialPass CreateModelMeshMaterialPass(
             ContentManager contentManager,
-            ResourceUploadBatch uploadBatch,
             W3dMesh w3dMesh,
             W3dMaterialPass w3dMaterialPass)
         {
@@ -333,7 +325,6 @@ namespace OpenSage.Content
             {
                 meshParts.Add(CreateModelMeshPart(
                     contentManager,
-                    uploadBatch,
                     0, 
                     w3dMesh.Header.NumTris * 3,
                     w3dMesh,
@@ -405,7 +396,6 @@ namespace OpenSage.Content
                     {
                         meshParts.Add(CreateModelMeshPart(
                             contentManager,
-                            uploadBatch,
                             startIndex,
                             indexCount,
                             w3dMesh,
@@ -426,7 +416,6 @@ namespace OpenSage.Content
                 {
                     meshParts.Add(CreateModelMeshPart(
                         contentManager,
-                        uploadBatch,
                         startIndex,
                         indexCount,
                         w3dMesh,
@@ -438,7 +427,6 @@ namespace OpenSage.Content
 
             return new ModelMeshMaterialPass(
                 contentManager.GraphicsDevice,
-                uploadBatch,
                 numTextureStages,
                 texCoords,
                 materialIndices,
@@ -448,7 +436,6 @@ namespace OpenSage.Content
         // One ModelMeshPart for each unique shader in a W3D_CHUNK_MATERIAL_PASS.
         private static ModelMeshPart CreateModelMeshPart(
             ContentManager contentManager,
-            ResourceUploadBatch uploadBatch,
             uint startIndex,
             uint indexCount,
             W3dMesh w3dMesh,
@@ -487,8 +474,8 @@ namespace OpenSage.Content
                 indexCount,
                 shaderID,
                 pipelineStateHandle,
-                CreateTexture(contentManager, uploadBatch, w3dMesh, textureIndex0),
-                CreateTexture(contentManager, uploadBatch, w3dMesh, textureIndex1));
+                CreateTexture(contentManager, w3dMesh, textureIndex0),
+                CreateTexture(contentManager, w3dMesh, textureIndex1));
         }
 
         private static Animation CreateAnimation(W3dAnimation w3dAnimation)

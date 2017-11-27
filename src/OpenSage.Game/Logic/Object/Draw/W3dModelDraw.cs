@@ -122,7 +122,7 @@ namespace OpenSage.Logic.Object
             if (!string.Equals(conditionState.Model, "NONE", StringComparison.OrdinalIgnoreCase))
             {
                 var w3dFilePath = Path.Combine("Art", "W3D", conditionState.Model + ".W3D");
-                var model = ContentManager.Load<Model>(w3dFilePath, uploadBatch: null);
+                var model = ContentManager.Load<Model>(w3dFilePath);
                 if (model != null)
                 {
                     result.AddChild(modelEntity = model.CreateEntity());
@@ -142,13 +142,13 @@ namespace OpenSage.Logic.Object
                     var splitName = firstAnimation.Animation.Split('.');
 
                     var w3dFilePath = Path.Combine("Art", "W3D", splitName[0] + ".W3D");
-                    var model = ContentManager.Load<Model>(w3dFilePath, uploadBatch: null);
+                    var model = ContentManager.Load<Model>(w3dFilePath);
 
                     if (model.Animations.Length == 0)
                     {
                         // TODO: What is the actual algorithm here?
                         w3dFilePath = Path.Combine("Art", "W3D", splitName[1] + ".W3D");
-                        model = ContentManager.Load<Model>(w3dFilePath, uploadBatch: null);
+                        model = ContentManager.Load<Model>(w3dFilePath);
                     }
 
                     if (model != null)

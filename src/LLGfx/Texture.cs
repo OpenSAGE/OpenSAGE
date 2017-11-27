@@ -6,23 +6,8 @@
         public int Height { get; }
         public int MipMapCount { get; }
 
-        private ShaderResourceView _shaderResourceView;
-
-        internal ShaderResourceView ShaderResourceView
-        {
-            get
-            {
-                if (_shaderResourceView == null)
-                {
-                    _shaderResourceView = AddDisposable(ShaderResourceView.Create(GraphicsDevice, this));
-                }
-                return _shaderResourceView;
-            }
-        }
-
         public static Texture CreateTexture2D(
             GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch,
             PixelFormat pixelFormat,
             int width,
             int height,
@@ -30,16 +15,11 @@
         {
             var result = new Texture(
                 graphicsDevice,
-                uploadBatch,
                 pixelFormat,
                 1,
                 width,
                 height,
-                mipMapData.Length);
-
-            result.SetData(
-                uploadBatch,
-                0,
+                mipMapData.Length,
                 mipMapData);
 
             return result;
@@ -47,7 +27,6 @@
 
         public static Texture CreateTexture2DArray(
             GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch,
             PixelFormat pixelFormat,
             int arraySize,
             int mipMapCount,
@@ -56,21 +35,18 @@
         {
             return new Texture(
                 graphicsDevice,
-                uploadBatch,
                 pixelFormat,
                 arraySize,
                 width,
                 height,
-                mipMapCount);
+                mipMapCount,
+                null);
         }
 
-        public static Texture CreatePlaceholderTexture2D(
-            GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch)
+        public static Texture CreatePlaceholderTexture2D(GraphicsDevice graphicsDevice)
         {
             return CreateTexture2D(
                 graphicsDevice,
-                uploadBatch,
                 PixelFormat.Rgba8UNorm,
                 1,
                 1,
@@ -86,12 +62,12 @@
 
         private Texture(
             GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch,
             PixelFormat pixelFormat,
             int arraySize,
             int width,
             int height,
-            int mipMapCount)
+            int mipMapCount,
+            TextureMipMapData[] mipMapData)
             : base(graphicsDevice)
         {
             Width = width;
@@ -100,25 +76,19 @@
 
             PlatformConstruct(
                 graphicsDevice,
-                uploadBatch,
                 pixelFormat,
                 arraySize,
                 width,
                 height,
-                mipMapCount);
+                mipMapCount,
+                mipMapData);
         }
 
-        public void SetData(
-            ResourceUploadBatch uploadBatch, 
-            int arrayIndex,
-            TextureMipMapData[] mipMapData)
+        public void CopyFromTexture(
+            Texture source,
+            int destinationArrayIndex)
         {
-            PlatformSetData(uploadBatch, arrayIndex, mipMapData);
-        }
-
-        public void Freeze(ResourceUploadBatch uploadBatch)
-        {
-            PlatformFreeze(uploadBatch);
+            PlatformCopyFromTexture(source, destinationArrayIndex);
         }
     }
 

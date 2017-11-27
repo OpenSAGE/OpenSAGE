@@ -7,19 +7,19 @@
 
         public uint SizeInBytes { get; }
 
-        public BufferUsageFlags UsageFlags { get; }
+        public BufferBindFlags UsageFlags { get; }
 
         protected Buffer(
             GraphicsDevice graphicsDevice, 
             uint elementSizeInBytes, 
             uint elementCount,
-            BufferUsageFlags flags)
+            BufferBindFlags flags)
             : base(graphicsDevice)
         {
             ElementSizeInBytes = elementSizeInBytes;
             ElementCount = elementCount;
 
-            var alignedElementSize = flags.HasFlag(BufferUsageFlags.ConstantBuffer)
+            var alignedElementSize = flags.HasFlag(BufferBindFlags.ConstantBuffer)
                 ? PlatformGetAlignedSize(elementSizeInBytes)
                 : elementSizeInBytes;
 

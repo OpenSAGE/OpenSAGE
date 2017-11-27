@@ -1,41 +1,40 @@
-using SharpDX.Direct3D12;
+using LLGfx.Util;
+using SharpDX;
+using D3D11 = SharpDX.Direct3D11;
 
 namespace LLGfx
 {
     partial class StaticBuffer<T>
     {
-        internal Resource DeviceBuffer { get; private set; }
-
-        internal override long DeviceCurrentGPUVirtualAddress => DeviceBuffer.GPUVirtualAddress;
-
         private void PlatformConstruct(
             GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch,
             T[] data,
-            uint sizeInBytes)
+            uint sizeInBytes,
+            uint elementSizeInBytes,
+            BufferBindFlags flags)
         {
-            DeviceBuffer = AddDisposable(graphicsDevice.Device.CreateCommittedResource(
-                new HeapProperties(HeapType.Default),
-                HeapFlags.None,
-                ResourceDescription.Buffer(SizeInBytes),
-                ResourceStates.CopyDestination));
+            using (var dataStream = new DataStream((int) sizeInBytes, true, true))
+            {
+                dataStream.WriteRange(data);
+                dataStream.Seek(0, System.IO.SeekOrigin.Begin);
 
-            uploadBatch.Upload(
-                DeviceBuffer,
-                0,
-                new[]
-                {
-                    new ResourceUploadData<T>
+                var optionFlags = flags.HasFlag(BufferBindFlags.ShaderResource)
+                    ? D3D11.ResourceOptionFlags.BufferStructured
+                    : D3D11.ResourceOptionFlags.None;
+
+                DeviceBuffer = AddDisposable(new D3D11.Buffer(
+                    graphicsDevice.Device,
+                    dataStream,
+                    new D3D11.BufferDescription
                     {
-                        Data = data,
-                        BytesPerRow = (int) sizeInBytes
-                    }
-                });
-
-            uploadBatch.Transition(
-                DeviceBuffer,
-                ResourceStates.CopyDestination,
-                ResourceStates.VertexAndConstantBuffer);
+                        BindFlags = flags.ToBindFlags(),
+                        CpuAccessFlags = D3D11.CpuAccessFlags.None,
+                        OptionFlags = optionFlags,
+                        SizeInBytes = (int) sizeInBytes,
+                        StructureByteStride = (int) elementSizeInBytes,
+                        Usage = D3D11.ResourceUsage.Immutable
+                    }));
+            }
         }
     }
 }

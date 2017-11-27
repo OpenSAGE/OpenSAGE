@@ -89,7 +89,7 @@ namespace OpenSage.DataViewer.ViewModels
 
         void IGameViewModel.LoadScene(Game game)
         {
-            _scene = game.ContentManager.Load<Scene>(File.FilePath, uploadBatch: null);
+            _scene = game.ContentManager.Load<Scene>(File.FilePath);
 
             _terrain = _scene.Entities[0].GetComponent<TerrainComponent>();
 

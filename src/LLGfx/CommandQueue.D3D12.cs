@@ -1,98 +1,17 @@
-﻿using System.Threading;
-using SharpDX.Direct3D12;
-using D3D12 = SharpDX.Direct3D12;
-using LLGfx.Util;
-
-namespace LLGfx
+﻿namespace LLGfx
 {
     partial class CommandQueue
     {
-        private CommandAllocatorPool _allocatorPool;
-
         private CommandBuffer _commandBuffer;
-
-        private readonly object _fenceLock = new object();
-        private readonly object _eventLock = new object();
-
-        private Fence _fence;
-        private AutoResetEvent _fenceEvent;
-        private long _nextFenceValue;
-
-        private GraphicsCommandList _commandList;
-        private CommandAllocator _currentAllocator;
-
-        internal D3D12.CommandQueue DeviceCommandQueue { get; private set; }
 
         private void PlatformConstruct(GraphicsDevice graphicsDevice)
         {
-            const CommandListType commandListType = CommandListType.Direct;
-
-            var device = graphicsDevice.Device;
-
-            DeviceCommandQueue = AddDisposable(device.CreateCommandQueue(new CommandQueueDescription(commandListType)));
-
-            _fence = AddDisposable(device.CreateFence(0, FenceFlags.None));
-
-            _fenceEvent = AddDisposable(new AutoResetEvent(false));
-
-            _allocatorPool = AddDisposable(new CommandAllocatorPool(graphicsDevice, commandListType));
-
-            _nextFenceValue = 1;
-
-            _commandBuffer = AddDisposable(new CommandBuffer(graphicsDevice, this));
-        }
-
-        internal GraphicsCommandList GetOrCreateCommandList()
-        {
-            // For now, just create a single command list. We can expand
-            // this in the future.
-
-            _currentAllocator = _allocatorPool.AcquireResource(_fence.CompletedValue);
-
-            if (_commandList != null)
-            {
-                _commandList.Reset(
-                    _currentAllocator,
-                    null);
-            }
-            else
-            {
-                _commandList = GraphicsDevice.Device.CreateCommandList(
-                    DeviceCommandQueue.Description.Type,
-                    _currentAllocator,
-                    null);
-            }
-
-            _commandList.SetDescriptorHeaps(GraphicsDevice.DescriptorHeapCbvUavSrv.DeviceDescriptorHeap);
-
-            return _commandList;
+            _commandBuffer = new CommandBuffer(graphicsDevice, this);
         }
 
         private CommandBuffer PlatformGetCommandBuffer()
         {
             return _commandBuffer;
-        }
-
-        internal void ExecuteCommandList()
-        {
-            var commandList = _commandList;
-
-            long fenceValue;
-
-            lock (_fenceLock)
-            {
-                commandList.Close();
-
-                DeviceCommandQueue.ExecuteCommandList(commandList);
-
-                DeviceCommandQueue.Signal(_fence, _nextFenceValue);
-
-                fenceValue = _nextFenceValue;
-
-                _nextFenceValue++;
-            }
-
-            _allocatorPool.ReleaseResource(fenceValue, _currentAllocator);
         }
     }
 }

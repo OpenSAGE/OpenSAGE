@@ -1,42 +1,42 @@
 ﻿using LLGfx.Util;
-using SharpDX.Direct3D12;
-using D3D12 = SharpDX.Direct3D12;
+using SharpDX.Direct3D11;
 
 namespace LLGfx
 {
     partial class PipelineState
     {
-        internal D3D12.PipelineState DevicePipelineState { get; private set; }
+        private InputLayout _inputLayout;
+
+        private RasterizerState _rasterizerState;
+        private BlendState _blendState;
+        private DepthStencilState _depthStencilState;
 
         private void PlatformConstruct(GraphicsDevice graphicsDevice, PipelineStateDescription description)
         {
-            var rasterizerState = description.RasterizerState.ToRasterizerStateDescription();
+            _inputLayout = AddDisposable(new InputLayout(
+                graphicsDevice.Device, 
+                description.VertexShader.DeviceBytecode, 
+                description.VertexDescriptor.DeviceInputElements));
 
-            var blendState = description.BlendState.ToBlendStateDescription();
+            _rasterizerState = AddDisposable(new RasterizerState(graphicsDevice.Device, description.RasterizerState.ToRasterizerStateDescription()));
 
-            var depthStencilState = description.DepthStencilState.ToDepthStencilStateDescription();
+            _blendState = AddDisposable(new BlendState(graphicsDevice.Device, description.BlendState.ToBlendStateDescription()));
 
-            var deviceDescription = new GraphicsPipelineStateDescription
-            {
-                BlendState = blendState,
-                DepthStencilFormat = SharpDX.DXGI.Format.D32_Float,
-                DepthStencilState = depthStencilState,
-                Flags = PipelineStateFlags.None,
-                InputLayout = description.VertexDescriptor?.DeviceInputLayoutDescription ?? new InputLayoutDescription(),
-                PixelShader = description.PixelShader.DeviceBytecode,
-                PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
-                RasterizerState = rasterizerState,
-                RenderTargetCount = 1,
-                RootSignature = description.PipelineLayout.DeviceRootSignature,
-                SampleDescription = new SharpDX.DXGI.SampleDescription(1, 0),
-                SampleMask = int.MaxValue,
-                StreamOutput = new StreamOutputDescription(),
-                VertexShader = description.VertexShader.DeviceBytecode
-            };
+            _depthStencilState = AddDisposable(new DepthStencilState(graphicsDevice.Device, description.DepthStencilState.ToDepthStencilStateDescription()));
+        }
 
-            deviceDescription.RenderTargetFormats[0] = description.RenderTargetFormat.ToDxgiFormat();
+        internal void Apply(DeviceContext context)
+        {
+            context.InputAssembler.InputLayout = _inputLayout;
 
-            DevicePipelineState = AddDisposable(graphicsDevice.Device.CreateGraphicsPipelineState(deviceDescription));
+            context.VertexShader.SetShader(Description.VertexShader.DeviceShader, null, 0);
+
+            context.Rasterizer.State = _rasterizerState;
+
+            context.PixelShader.SetShader(Description.PixelShader.DeviceShader, null, 0);
+
+            context.OutputMerger.BlendState = _blendState;
+            context.OutputMerger.DepthStencilState = _depthStencilState;
         }
     }
 }

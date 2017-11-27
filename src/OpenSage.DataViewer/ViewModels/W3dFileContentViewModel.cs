@@ -30,7 +30,7 @@ namespace OpenSage.DataViewer.ViewModels
         {
             var scene = new Scene();
 
-            _modelEntity = game.ContentManager.Load<Model>(File.FilePath, uploadBatch: null).CreateEntity();
+            _modelEntity = game.ContentManager.Load<Model>(File.FilePath).CreateEntity();
             scene.Entities.Add(_modelEntity);
 
             var enclosingBoundingBox = _modelEntity.GetEnclosingBoundingBox();
@@ -57,7 +57,7 @@ namespace OpenSage.DataViewer.ViewModels
                         continue;
                     }
 
-                    var animationModel = game.ContentManager.Load<Model>(animationFileEntry.FilePath, uploadBatch: null);
+                    var animationModel = game.ContentManager.Load<Model>(animationFileEntry.FilePath);
                     foreach (var animation in animationModel.Animations)
                     {
                         var externalAnimationComponent = new AnimationComponent

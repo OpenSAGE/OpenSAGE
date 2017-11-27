@@ -50,14 +50,14 @@
         {
             // TODO: Validation.
 
-            PlatformSetShaderResourceView(index, texture?.ShaderResourceView ?? GraphicsDevice.NullTextureShaderResourceView);
+            PlatformSetTexture(index, texture);
         }
 
-        public void SetTextureSet(int index, TextureSet textureSet)
+        public void SetTextures(int index, TextureSet textures)
         {
             // TODO: Validation.
 
-            PlatformSetShaderResourceView(index, textureSet.ShaderResourceView);
+            PlatformSetTextures(index, textures);
         }
 
         public void SetStaticBuffer<T>(int index, StaticBuffer<T> buffer)
@@ -65,7 +65,7 @@
         {
             // TODO: Validation.
 
-            PlatformSetShaderResourceView(index, buffer?.ShaderResourceView ?? GraphicsDevice.NullBufferShaderResourceView);
+            PlatformSetStaticBuffer(index, buffer);
         }
 
         public void SetInlineConstantBuffer(int index, Buffer buffer)

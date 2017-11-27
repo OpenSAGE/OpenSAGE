@@ -8,7 +8,7 @@ namespace LLGfx
     {
         public static DynamicBuffer<T> Create(
             GraphicsDevice graphicsDevice,
-            BufferUsageFlags flags)
+            BufferBindFlags flags)
         {
             return CreateArray(graphicsDevice, 1, flags);
         }
@@ -16,7 +16,7 @@ namespace LLGfx
         public static DynamicBuffer<T> CreateArray(
             GraphicsDevice graphicsDevice,
             int arrayLength,
-            BufferUsageFlags flags)
+            BufferBindFlags flags)
         {
             var elementSizeInBytes = Marshal.SizeOf<T>();
 
@@ -33,9 +33,14 @@ namespace LLGfx
             GraphicsDevice graphicsDevice,
             uint elementSizeInBytes,
             uint elementCount,
-            BufferUsageFlags flags)
+            BufferBindFlags flags)
             : base(graphicsDevice, elementSizeInBytes, elementCount, flags)
         {
+            PlatformConstruct(
+                graphicsDevice,
+                SizeInBytes,
+                elementSizeInBytes,
+                flags);
         }
 
         public void UpdateData(T[] data)
@@ -55,10 +60,16 @@ namespace LLGfx
     }
 
     [Flags]
-    public enum BufferUsageFlags
+    public enum BufferBindFlags
     {
         None = 0,
 
-        ConstantBuffer = 0x1,
+        VertexBuffer = 0x1,
+
+        IndexBuffer = 0x2,
+
+        ConstantBuffer = 0x4,
+
+        ShaderResource = 0x8
     }
 }

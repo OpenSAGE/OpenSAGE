@@ -1,5 +1,5 @@
 ﻿using LLGfx.Util;
-using D3D12 = SharpDX.Direct3D12;
+using D3D11 = SharpDX.Direct3D11;
 
 namespace LLGfx
 {
@@ -7,18 +7,18 @@ namespace LLGfx
     {
         private VertexLayoutDescription[] _layoutDescriptions;
 
-        internal D3D12.InputLayoutDescription DeviceInputLayoutDescription { get; private set; }
+        internal D3D11.InputElement[] DeviceInputElements { get; private set; }
 
         private void PlatformConstruct(
             VertexAttributeDescription[] attributeDescriptions,
             VertexLayoutDescription[] layoutDescriptions)
         {
-            var inputElements = new D3D12.InputElement[attributeDescriptions.Length];
+            DeviceInputElements = new D3D11.InputElement[attributeDescriptions.Length];
             for (var i = 0; i < attributeDescriptions.Length; i++)
             {
                 var desc = attributeDescriptions[i];
 
-                inputElements[i] = new D3D12.InputElement
+                DeviceInputElements[i] = new D3D11.InputElement
                 {
                     AlignedByteOffset = desc.Offset,
                     Classification = desc.Classification.ToInputClassification(),
@@ -29,8 +29,6 @@ namespace LLGfx
                     Slot = desc.BufferIndex
                 };
             }
-
-            DeviceInputLayoutDescription = new D3D12.InputLayoutDescription(inputElements);
 
             _layoutDescriptions = layoutDescriptions;
         }

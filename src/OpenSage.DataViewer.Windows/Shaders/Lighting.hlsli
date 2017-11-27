@@ -7,13 +7,11 @@ struct Light
 
 #define NUM_LIGHTS 3
 
-struct LightingConstants
+cbuffer LightingCB : register(LIGHTING_CB_REGISTER)
 {
     float3 CameraPosition;
     Light Lights[NUM_LIGHTS];
 };
-
-ConstantBuffer<LightingConstants> LightingCB : register(LIGHTING_CB_REGISTER);
 
 struct LightingParameters
 {
@@ -27,7 +25,7 @@ struct LightingParameters
 
 float3 CalculateViewVector(float3 worldPosition)
 {
-    return normalize(LightingCB.CameraPosition - worldPosition);
+    return normalize(CameraPosition - worldPosition);
 }
 
 void DoLighting(
@@ -40,7 +38,7 @@ void DoLighting(
 
     for (int i = 0; i < NUM_LIGHTS; i++)
     {
-        Light light = LightingCB.Lights[i];
+        Light light = Lights[i];
 
         float3 ambient = light.Ambient * params.MaterialAmbient;
 

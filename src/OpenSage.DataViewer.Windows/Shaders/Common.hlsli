@@ -31,18 +31,16 @@ struct VSOutputCommon
     float4 Position : SV_Position;
 };
 
-struct MeshTransformConstants
+///////////////////////////////
+// Buffers
+///////////////////////////////
+
+cbuffer MeshTransformCB : register(b0)
 {
     row_major float4x4 ViewProjection;
     bool SkinningEnabled;
     uint NumBones;
 };
-
-///////////////////////////////
-// Buffers
-///////////////////////////////
-
-ConstantBuffer<MeshTransformConstants> MeshTransformCB : register(b0);
 
 StructuredBuffer<float4x3> SkinningBuffer : register(t0);
 
@@ -55,9 +53,9 @@ void VSSkinnedInstanced(
     out VSOutputCommon vsOutput,
     out PSInputCommon psInput)
 {
-    if (MeshTransformCB.SkinningEnabled)
+    if (SkinningEnabled)
     {
-        uint skinningMatrixIndex = MeshTransformCB.NumBones * input.InstanceID + input.BoneIndex;
+        uint skinningMatrixIndex = NumBones * input.InstanceID + input.BoneIndex;
         float4x3 skinning = SkinningBuffer[skinningMatrixIndex];
 
         input.Position = mul(float4(input.Position, 1), skinning);
@@ -72,7 +70,7 @@ void VSSkinnedInstanced(
 
     float4 worldPosition = mul(float4(input.Position, 1), world);
 
-    vsOutput.Position = mul(worldPosition, MeshTransformCB.ViewProjection);
+    vsOutput.Position = mul(worldPosition, ViewProjection);
 
     psInput.WorldPosition = worldPosition.xyz;
 

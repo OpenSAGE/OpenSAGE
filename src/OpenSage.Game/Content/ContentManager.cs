@@ -63,12 +63,6 @@ namespace OpenSage.Content
             _cachedObjects.Clear();
         }
 
-        public T AddManuallyLoadedContent<T>(T content)
-            where T : IDisposable
-        {
-            return AddDisposable(content);
-        }
-
         public T GetEffect<T>()
             where T : Effect
         {
@@ -77,7 +71,6 @@ namespace OpenSage.Content
 
         public T Load<T>(
             string filePath, 
-            ResourceUploadBatch uploadBatch,
             LoadOptions options = null,
             bool fallbackToPlaceholder = true)
             where T : class
@@ -106,23 +99,11 @@ namespace OpenSage.Content
 
             if (entry != null)
             {
-                var createdUploadBatch = false;
-                if (uploadBatch == null)
-                {
-                    uploadBatch = new ResourceUploadBatch(GraphicsDevice);
-                    uploadBatch.Begin();
-                    createdUploadBatch = true;
-                }
+                asset = contentLoader.Load(entry, this);
 
-                asset = contentLoader.Load(entry, this, uploadBatch);
                 if (asset is IDisposable d)
                 {
                     AddDisposable(d);
-                }
-
-                if (createdUploadBatch)
-                {
-                    uploadBatch.End();
                 }
 
                 _cachedObjects.Add(filePath, asset);

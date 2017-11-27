@@ -1,18 +1,15 @@
-﻿using SharpDX.Direct3D12;
+﻿using SharpDX.Direct3D11;
 
 namespace LLGfx
 {
-    public sealed partial class RenderTarget
+    partial class RenderTarget
     {
-        internal Resource Texture { get; }
+        internal RenderTargetView DeviceRenderTargetView { get; }
 
-        internal CpuDescriptorHandle CpuDescriptorHandle { get; }
-
-        internal RenderTarget(GraphicsDevice graphicsDevice, Resource texture, CpuDescriptorHandle cpuDescriptorHandle)
+        internal RenderTarget(GraphicsDevice graphicsDevice, RenderTargetView renderTargetView)
             : base(graphicsDevice)
         {
-            Texture = texture;
-            CpuDescriptorHandle = cpuDescriptorHandle;
+            DeviceRenderTargetView = renderTargetView;
         }
     }
 }

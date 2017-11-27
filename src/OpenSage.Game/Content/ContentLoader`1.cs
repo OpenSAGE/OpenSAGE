@@ -5,11 +5,11 @@ namespace OpenSage.Content
 {
     internal abstract class ContentLoader<T> : ContentLoader
     {
-        public sealed override object Load(FileSystemEntry entry, ContentManager contentManager, ResourceUploadBatch uploadBatch)
+        public sealed override object Load(FileSystemEntry entry, ContentManager contentManager)
         {
-            return LoadEntry(entry, contentManager, uploadBatch);
+            return LoadEntry(entry, contentManager);
         }
 
-        protected abstract T LoadEntry(FileSystemEntry entry, ContentManager contentManager, ResourceUploadBatch uploadBatch);
+        protected abstract T LoadEntry(FileSystemEntry entry, ContentManager contentManager);
     }
 }

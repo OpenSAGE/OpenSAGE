@@ -23,7 +23,6 @@ namespace OpenSage.Content.Util
         public StaticBuffer<ushort> GetIndexBuffer(
             int width, 
             int height, 
-            ResourceUploadBatch uploadBatch,
             out ushort[] indices)
         {
             var size = new TerrainPatchSize
@@ -35,7 +34,7 @@ namespace OpenSage.Content.Util
             {
                 _cachedIndexBuffers[size] = result = new CacheEntry
                 {
-                    Buffer = AddDisposable(CreateIndexBuffer(uploadBatch, size, out indices)),
+                    Buffer = AddDisposable(CreateIndexBuffer(size, out indices)),
                     Indices = indices
                 };
             }
@@ -49,7 +48,6 @@ namespace OpenSage.Content.Util
         public uint CalculateNumIndices(int width, int height) => (uint) ((width - 1) * (height - 1) * 6);
 
         private StaticBuffer<ushort> CreateIndexBuffer(
-            ResourceUploadBatch uploadBatch,
             TerrainPatchSize size,
             out ushort[] indices)
         {
@@ -80,8 +78,8 @@ namespace OpenSage.Content.Util
 
             return StaticBuffer.Create(
                 _graphicsDevice,
-                uploadBatch,
-                indices);
+                indices,
+                BufferBindFlags.IndexBuffer);
         }
 
         private struct TerrainPatchSize

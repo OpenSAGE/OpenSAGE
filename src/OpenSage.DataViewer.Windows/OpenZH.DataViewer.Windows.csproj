@@ -208,7 +208,7 @@
     <Content Include="Shaders\Lighting.hlsli" />
     <VertexShader Include="Shaders\ParticleVS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ShaderModel>5_1</ShaderModel>
+      <ShaderModel>5_0</ShaderModel>
     </VertexShader>
     <PixelShader Include="Shaders\ParticlePS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -222,31 +222,31 @@
     <Content Include="Shaders\Terrain.hlsli" />
     <Content Include="Shaders\FixedFunction.hlsli" />
     <PixelShader Include="Shaders\FixedFunctionPS.hlsl">
-      <ShaderModel>5_1</ShaderModel>
-      <EnableUnboundedDescriptorTable>True</EnableUnboundedDescriptorTable>
+      <ShaderModel>5_0</ShaderModel>
+      <EnableUnboundedDescriptorTable>False</EnableUnboundedDescriptorTable>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <EnableDebuggingInfo>True</EnableDebuggingInfo>
     </PixelShader>
     <VertexShader Include="Shaders\FixedFunctionVS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ShaderModel>5_1</ShaderModel>
+      <ShaderModel>5_0</ShaderModel>
       <EnableDebuggingInfo>True</EnableDebuggingInfo>
     </VertexShader>
     <VertexShader Include="Shaders\TerrainVS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ShaderModel>5_1</ShaderModel>
+      <ShaderModel>5_0</ShaderModel>
       <EnableDebuggingInfo>True</EnableDebuggingInfo>
     </VertexShader>
     <PixelShader Include="Shaders\TerrainPS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ShaderModel>5_1</ShaderModel>
+      <ShaderModel>5_0</ShaderModel>
       <EnableUnboundedDescriptorTable>False</EnableUnboundedDescriptorTable>
       <EnableDebuggingInfo>True</EnableDebuggingInfo>
     </PixelShader>
     <Content Include="Shaders\Particle.hlsli" />
     <PixelShader Include="Shaders\SpritePS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ShaderModel>5_1</ShaderModel>
+      <ShaderModel>5_0</ShaderModel>
     </PixelShader>
     <VertexShader Include="Shaders\SpriteVS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

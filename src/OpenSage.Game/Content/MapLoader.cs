@@ -20,7 +20,7 @@ namespace OpenSage.Content
 {
     internal sealed class MapLoader : ContentLoader<Scene>
     {
-        protected override Scene LoadEntry(FileSystemEntry entry, ContentManager contentManager, ResourceUploadBatch uploadBatch)
+        protected override Scene LoadEntry(FileSystemEntry entry, ContentManager contentManager)
         {
             contentManager.IniDataContext.LoadIniFile(@"Data\INI\Terrain.ini");
 
@@ -56,7 +56,6 @@ namespace OpenSage.Content
 
             CreatePatches(
                 contentManager.GraphicsDevice,
-                uploadBatch,
                 terrainEntity,
                 heightMap,
                 mapFile.BlendTileData,
@@ -66,35 +65,32 @@ namespace OpenSage.Content
 
             var tileDataTexture = AddDisposable(CreateTileDataTexture(
                 contentManager.GraphicsDevice,
-                uploadBatch,
                 mapFile,
                 heightMap));
 
             var cliffDetailsBuffer = AddDisposable(CreateCliffDetails(
                 contentManager.GraphicsDevice,
-                uploadBatch,
                 mapFile));
 
             CreateTextures(
                 contentManager,
-                uploadBatch,
                 mapFile.BlendTileData,
-                out var textures,
+                out var textureArrays,
                 out var textureDetails);
+
+            var textureSet = AddDisposable(new TextureSet(
+                contentManager.GraphicsDevice, 
+                textureArrays));
 
             var textureDetailsBuffer = AddDisposable(StaticBuffer.Create(
                 contentManager.GraphicsDevice,
-                uploadBatch,
-                textureDetails));
-
-            var textureArrays = AddDisposable(new TextureSet(
-                contentManager.GraphicsDevice,
-                textures));
+                textureDetails,
+                BufferBindFlags.ShaderResource));
 
             terrainEffect.SetTileData(tileDataTexture);
             terrainEffect.SetCliffDetails(cliffDetailsBuffer);
             terrainEffect.SetTextureDetails(textureDetailsBuffer);
-            terrainEffect.SetTextureArrays(textureArrays);
+            terrainEffect.SetTextureArrays(textureSet);
 
             var objectsEntity = new Entity();
             result.Entities.Add(objectsEntity);
@@ -282,7 +278,6 @@ namespace OpenSage.Content
 
         private void CreatePatches(
             GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch,
             Entity terrainEntity,
             HeightMap heightMap,
             BlendTileData blendTileData,
@@ -326,7 +321,6 @@ namespace OpenSage.Content
                         blendTileData,
                         patchBounds,
                         graphicsDevice,
-                        uploadBatch,
                         indexBufferCache));
                 }
             }
@@ -339,18 +333,15 @@ namespace OpenSage.Content
             BlendTileData blendTileData,
             Int32Rect patchBounds,
             GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch,
             TerrainPatchIndexBufferCache indexBufferCache)
         {
             var indexBuffer = indexBufferCache.GetIndexBuffer(
                 patchBounds.Width,
                 patchBounds.Height,
-                uploadBatch,
                 out var indices);
 
             var vertexBuffer = AddDisposable(CreateVertexBuffer(
                 graphicsDevice,
-                uploadBatch,
                 heightMap,
                 patchBounds,
                 indices,
@@ -369,7 +360,6 @@ namespace OpenSage.Content
 
         private static StaticBuffer<TerrainVertex> CreateVertexBuffer(
            GraphicsDevice graphicsDevice,
-           ResourceUploadBatch uploadBatch,
            HeightMap heightMap,
            Int32Rect patchBounds,
            ushort[] indices,
@@ -427,13 +417,12 @@ namespace OpenSage.Content
 
             return StaticBuffer.Create(
                 graphicsDevice,
-                uploadBatch,
-                vertices);
+                vertices,
+                BufferBindFlags.VertexBuffer);
         }
 
         private static Texture CreateTileDataTexture(
             GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch,
             MapFile mapFile,
             HeightMap heightMap)
         {
@@ -475,7 +464,6 @@ namespace OpenSage.Content
 
             return Texture.CreateTexture2D(
                 graphicsDevice,
-                uploadBatch,
                 PixelFormat.Rgba32UInt,
                 heightMap.Width,
                 heightMap.Height,
@@ -529,7 +517,6 @@ namespace OpenSage.Content
 
         private static StaticBuffer<CliffInfo> CreateCliffDetails(
             GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch,
             MapFile mapFile)
         {
             var cliffDetails = new CliffInfo[mapFile.BlendTileData.CliffTextureMappings.Length];
@@ -550,14 +537,13 @@ namespace OpenSage.Content
             return cliffDetails.Length > 0
                 ? StaticBuffer.Create(
                     graphicsDevice,
-                    uploadBatch,
-                    cliffDetails)
+                    cliffDetails,
+                    BufferBindFlags.ShaderResource)
                 : null;
         }
 
         private void CreateTextures(
             ContentManager contentManager,
-            ResourceUploadBatch uploadBatch,
             BlendTileData blendTileData,
             out Texture[] textureArrays,
             out TextureInfo[] textureDetails)
@@ -623,7 +609,6 @@ namespace OpenSage.Content
                     {
                         textureArray = AddDisposable(Texture.CreateTexture2DArray(
                             contentManager.GraphicsDevice,
-                            uploadBatch,
                             PixelFormat.Rgba8UNorm,
                             textureData.Value.Count,
                             MipMapUtility.CalculateMipMapCount(textureData.Key, textureData.Key),
@@ -636,19 +621,19 @@ namespace OpenSage.Content
                         var tgaFile = TgaFile.FromFileSystemEntry(textureData.Value[arrayIndex]);
                         var mipMapData = TextureLoader.GetData(tgaFile, true);
 
-                        textureArray.SetData(uploadBatch, arrayIndex, mipMapData);
+                        using (var sourceTexture = Texture.CreateTexture2D(
+                            contentManager.GraphicsDevice,
+                            PixelFormat.Rgba8UNorm,
+                            textureData.Key,
+                            textureData.Key,
+                            mipMapData))
+                        {
+                            textureArray.CopyFromTexture(sourceTexture, arrayIndex);
+                        }
                     }
                 }
 
                 addToTexture2DArray(ref textureArrays[getTextureSizeIndex(textureData.Key)]);
-            }
-
-            foreach (var textureArray in textureArrays)
-            {
-                if (textureArray != null)
-                {
-                    textureArray.Freeze(uploadBatch);
-                }
             }
         }
     }

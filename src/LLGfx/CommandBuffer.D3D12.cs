@@ -14,14 +14,11 @@ namespace LLGfx
         {
             return new CommandEncoder(
                 GraphicsDevice,
-                _parent.GetOrCreateCommandList(),
+                GraphicsDevice.Device.ImmediateContext,
                 renderPassDescriptor);
         }
 
-        private void PlatformCommit()
-        {
-            _parent.ExecuteCommandList();
-        }
+        private void PlatformCommit() { }
 
         private void PlatformCommitAndPresent(SwapChain swapChain)
         {

@@ -3,7 +3,7 @@
     <TargetFramework>net462</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="SharpDX.Direct3D12" Version="4.0.1" />
+    <PackageReference Include="SharpDX.Direct3D11" Version="4.0.1" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Windows.Forms" />

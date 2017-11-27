@@ -10,14 +10,13 @@ namespace OpenSage.Graphics
 
         internal ModelMeshShaderPass(
             GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch,
             Vector2[] texCoords,
             Effect effect)
         {
             TexCoordVertexBuffer = AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
-                uploadBatch,
-                texCoords));
+                texCoords,
+                BufferBindFlags.VertexBuffer));
         }
     }
 }

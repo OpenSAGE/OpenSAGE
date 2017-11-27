@@ -1,47 +1,32 @@
 ﻿using System;
 using SharpDX.Direct3D;
-using SharpDX.Direct3D12;
+using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
-using D3D12 = SharpDX.Direct3D12;
+using D3D11 = SharpDX.Direct3D11;
 
 namespace LLGfx.Util
 {
     internal static class ConversionExtensions
     {
-        public static ResourceStates ToResourceStates(this ResourceState value)
-        {
-            switch (value)
-            {
-                case ResourceState.RenderTarget:
-                    return ResourceStates.RenderTarget;
-
-                case ResourceState.Present:
-                    return ResourceStates.Present;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        public static D3D12.InputClassification ToInputClassification(this InputClassification value)
+        public static D3D11.InputClassification ToInputClassification(this InputClassification value)
         {
             switch (value)
             {
                 case InputClassification.PerVertexData:
-                    return D3D12.InputClassification.PerVertexData;
+                    return D3D11.InputClassification.PerVertexData;
 
                 case InputClassification.PerInstanceData:
-                    return D3D12.InputClassification.PerInstanceData;
+                    return D3D11.InputClassification.PerInstanceData;
 
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        public static D3D12.RasterizerStateDescription ToRasterizerStateDescription(this RasterizerStateDescription value)
+        public static D3D11.RasterizerStateDescription ToRasterizerStateDescription(this RasterizerStateDescription value)
         {
-            var result = D3D12.RasterizerStateDescription.Default();
+            var result = D3D11.RasterizerStateDescription.Default();
 
             result.IsFrontCounterClockwise = value.IsFrontCounterClockwise;
 
@@ -57,9 +42,9 @@ namespace LLGfx.Util
             return result;
         }
 
-        public static D3D12.BlendStateDescription ToBlendStateDescription(this BlendStateDescription value)
+        public static D3D11.BlendStateDescription ToBlendStateDescription(this BlendStateDescription value)
         {
-            var result = D3D12.BlendStateDescription.Default();
+            var result = D3D11.BlendStateDescription.Default();
 
             if (value.Enabled)
             {
@@ -73,9 +58,9 @@ namespace LLGfx.Util
             return result;
         }
 
-        public static D3D12.DepthStencilStateDescription ToDepthStencilStateDescription(this DepthStencilStateDescription value)
+        public static D3D11.DepthStencilStateDescription ToDepthStencilStateDescription(this DepthStencilStateDescription value)
         {
-            var result = D3D12.DepthStencilStateDescription.Default();
+            var result = D3D11.DepthStencilStateDescription.Default();
 
             result.IsDepthEnabled = value.IsDepthEnabled;
 
@@ -88,33 +73,33 @@ namespace LLGfx.Util
             return result;
         }
 
-        public static D3D12.Comparison ToComparison(this Comparison value)
+        public static D3D11.Comparison ToComparison(this Comparison value)
         {
             switch (value)
             {
                 case Comparison.Never:
-                    return D3D12.Comparison.Never;
+                    return D3D11.Comparison.Never;
 
                 case Comparison.Less:
-                    return D3D12.Comparison.Less;
+                    return D3D11.Comparison.Less;
 
                 case Comparison.Equal:
-                    return D3D12.Comparison.Equal;
+                    return D3D11.Comparison.Equal;
 
                 case Comparison.LessEqual:
-                    return D3D12.Comparison.LessEqual;
+                    return D3D11.Comparison.LessEqual;
 
                 case Comparison.Greater:
-                    return D3D12.Comparison.Greater;
+                    return D3D11.Comparison.Greater;
 
                 case Comparison.NotEqual:
-                    return D3D12.Comparison.NotEqual;
+                    return D3D11.Comparison.NotEqual;
 
                 case Comparison.GreaterEqual:
-                    return D3D12.Comparison.GreaterEqual;
+                    return D3D11.Comparison.GreaterEqual;
 
                 case Comparison.Always:
-                    return D3D12.Comparison.Always;
+                    return D3D11.Comparison.Always;
 
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -122,33 +107,33 @@ namespace LLGfx.Util
         }
 
 
-        public static D3D12.FillMode ToFillMode(this FillMode value)
+        public static D3D11.FillMode ToFillMode(this FillMode value)
         {
             switch (value)
             {
                 case FillMode.Solid:
-                    return D3D12.FillMode.Solid;
+                    return D3D11.FillMode.Solid;
 
                 case FillMode.Wireframe:
-                    return D3D12.FillMode.Wireframe;
+                    return D3D11.FillMode.Wireframe;
 
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        public static D3D12.CullMode ToCullMode(this CullMode value)
+        public static D3D11.CullMode ToCullMode(this CullMode value)
         {
             switch (value)
             {
                 case CullMode.CullBack:
-                    return D3D12.CullMode.Back;
+                    return D3D11.CullMode.Back;
 
                 case CullMode.CullFront:
-                    return D3D12.CullMode.Front;
+                    return D3D11.CullMode.Front;
 
                 case CullMode.None:
-                    return D3D12.CullMode.None;
+                    return D3D11.CullMode.None;
 
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -176,22 +161,6 @@ namespace LLGfx.Util
 
                 case Blend.OneMinusSrcColor:
                     return BlendOption.InverseSourceColor;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        public static DescriptorRangeType ToDescriptorRangeType(this ResourceType value)
-        {
-            switch (value)
-            {
-                case ResourceType.ConstantBuffer:
-                    return DescriptorRangeType.ConstantBufferView;
-
-                case ResourceType.StructuredBuffer:
-                case ResourceType.Texture:
-                    return DescriptorRangeType.ShaderResourceView;
 
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -290,40 +259,6 @@ namespace LLGfx.Util
             return new RawColor4(value.R, value.G, value.B, value.A);
         }
 
-        public static RootParameterType ToRootParameterType(this ResourceType value)
-        {
-            switch (value)
-            {
-                case ResourceType.ConstantBuffer:
-                    return RootParameterType.ConstantBufferView;
-
-                case ResourceType.StructuredBuffer:
-                case ResourceType.Texture:
-                    return RootParameterType.ShaderResourceView;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        public static ShaderVisibility ToShaderVisibility(this ShaderStageVisibility value)
-        {
-            switch (value)
-            {
-                case ShaderStageVisibility.All:
-                    return ShaderVisibility.All;
-
-                case ShaderStageVisibility.Vertex:
-                    return ShaderVisibility.Vertex;
-
-                case ShaderStageVisibility.Pixel:
-                    return ShaderVisibility.Pixel;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
         public static RawViewportF ToViewportF(this Viewport v)
         {
             return new RawViewportF
@@ -335,6 +270,30 @@ namespace LLGfx.Util
                 MinDepth = v.MinDepth,
                 MaxDepth = v.MaxDepth
             };
+        }
+
+        public static BindFlags ToBindFlags(this BufferBindFlags value)
+        {
+            switch (value)
+            {
+                case BufferBindFlags.None:
+                    return BindFlags.None;
+
+                case BufferBindFlags.VertexBuffer:
+                    return BindFlags.VertexBuffer;
+
+                case BufferBindFlags.IndexBuffer:
+                    return BindFlags.IndexBuffer;
+
+                case BufferBindFlags.ConstantBuffer:
+                    return BindFlags.ConstantBuffer;
+
+                case BufferBindFlags.ShaderResource:
+                    return BindFlags.ShaderResource;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

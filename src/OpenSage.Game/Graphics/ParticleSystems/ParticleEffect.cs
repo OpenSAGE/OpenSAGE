@@ -40,7 +40,7 @@ namespace OpenSage.Graphics.ParticleSystems
                   CreateVertexDescriptor(),
                   CreatePipelineLayoutDescription())
         {
-            _transformConstantBuffer = DynamicBuffer<ParticleTransformConstants>.Create(graphicsDevice, BufferUsageFlags.ConstantBuffer);
+            _transformConstantBuffer = DynamicBuffer<ParticleTransformConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer);
         }
 
         private static VertexDescriptor CreateVertexDescriptor()

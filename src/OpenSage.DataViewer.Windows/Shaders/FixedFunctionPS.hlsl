@@ -4,15 +4,13 @@
 #define SPECULAR_ENABLED
 #include "Lighting.hlsli"
 
-struct PerDrawConstants
+cbuffer PerDrawCB : register(b1)
 {
     uint ShadingConfigurationID;
     uint NumTextureStages;
     float TimeInSeconds;
     float2 ViewportSize;
 };
-
-ConstantBuffer<PerDrawConstants> PerDrawCB : register(b1);
 
 #define TEXTURE_MAPPING_UV                 0
 #define TEXTURE_MAPPING_ENVIRONMENT        1
@@ -87,7 +85,7 @@ float4 SampleTexture(
     Texture2D<float4> diffuseTexture,
     float3 viewVector)
 {
-    float t = PerDrawCB.TimeInSeconds;
+    float t = TimeInSeconds;
 
     switch (textureMapping.MappingType)
     {
@@ -128,7 +126,7 @@ float4 SampleTexture(
         break;
 
     case TEXTURE_MAPPING_SCREEN:
-        uv = (screenPosition / PerDrawCB.ViewportSize) * textureMapping.UVScale;
+        uv = (screenPosition / ViewportSize) * textureMapping.UVScale;
         break;
         
     case TEXTURE_MAPPING_SCALE:
@@ -152,7 +150,7 @@ float4 SampleTexture(
 
 float4 main(PSInputFixedFunction input) : SV_TARGET
 {
-    ShadingConfiguration shadingConfiguration = ShadingConfigurations[PerDrawCB.ShadingConfigurationID];
+    ShadingConfiguration shadingConfiguration = ShadingConfigurations[ShadingConfigurationID];
 
     VertexMaterial material = Materials[input.Transfer.MaterialIndex];
 
@@ -179,7 +177,7 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
             Texture0, 
             v);
 
-        if (PerDrawCB.NumTextureStages > 1)
+        if (NumTextureStages > 1)
         {
             float4 secondaryTextureColor = SampleTexture(
                 input.TransferCommon.WorldNormal, input.TransferCommon.UV1, input.ScreenPosition.xy,

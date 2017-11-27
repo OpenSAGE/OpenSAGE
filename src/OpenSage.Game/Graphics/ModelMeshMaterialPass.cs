@@ -15,7 +15,6 @@ namespace OpenSage.Graphics
 
         internal ModelMeshMaterialPass(
             GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch,
             uint numTextureStages,
             MeshTexCoords[] texCoords,
             uint[] materialIndices,
@@ -25,13 +24,13 @@ namespace OpenSage.Graphics
 
             TexCoordVertexBuffer = AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
-                uploadBatch,
-                texCoords));
+                texCoords,
+                BufferBindFlags.VertexBuffer));
 
             MaterialIndicesBuffer = AddDisposable(StaticBuffer.Create(
                 graphicsDevice,
-                uploadBatch,
-                materialIndices));
+                materialIndices,
+                BufferBindFlags.ShaderResource));
 
             MeshParts = meshParts;
         }

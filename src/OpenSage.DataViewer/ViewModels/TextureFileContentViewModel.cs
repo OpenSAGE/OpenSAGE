@@ -49,7 +49,6 @@ namespace OpenSage.DataViewer.ViewModels
             {
                 Texture = game.ContentManager.Load<Texture>(
                     File.FilePath,
-                    uploadBatch: null,
                     options: new TextureLoadOptions
                     {
                         GenerateMipMaps = false
