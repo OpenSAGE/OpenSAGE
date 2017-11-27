@@ -57,8 +57,18 @@ namespace LLGfx
             switch (dimension)
             {
                 case ResourceDimension.Texture2D:
-                    description.Dimension = ShaderResourceViewDimension.Texture2D;
-                    description.Texture2D.MipLevels = -1;
+                    if (deviceResource != null && deviceResource.Description.DepthOrArraySize > 1)
+                    {
+                        description.Dimension = ShaderResourceViewDimension.Texture2DArray;
+                        description.Texture2DArray.ArraySize = deviceResource.Description.DepthOrArraySize;
+                        description.Texture2DArray.FirstArraySlice = 0;
+                        description.Texture2DArray.MipLevels = -1;
+                    }
+                    else
+                    {
+                        description.Dimension = ShaderResourceViewDimension.Texture2D;
+                        description.Texture2D.MipLevels = -1;
+                    }
                     break;
 
                 default:

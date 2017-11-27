@@ -22,11 +22,13 @@ StructuredBuffer<CliffInfo> CliffDetails : register(t1);
 
 struct TextureInfo
 {
+    uint TextureSizeIndex;
+    uint SizeSpecificIndex;
     uint CellSize;
 };
 
 StructuredBuffer<TextureInfo> TextureDetails : register(t2);
-Texture2D<float4> Textures[] : register(t3);
+Texture2DArray<float4> TextureArrays[4] : register(t3);
 
 SamplerState Sampler : register(s0);
 
@@ -36,18 +38,17 @@ float3 SampleTexture(
     float2 ddxUV,
     float2 ddyUV)
 {
-    // TODO: Since all pixels in a primitive share the same textureIndex,
-    // can we remove the call to NonUniformResourceIndex?
-    Texture2D<float4> diffuseTexture = Textures[NonUniformResourceIndex(textureIndex)];
     TextureInfo textureInfo = TextureDetails[textureIndex];
+
+    Texture2DArray<float4> diffuseTextureArray = TextureArrays[NonUniformResourceIndex(textureInfo.TextureSizeIndex)];
 
     float2 scaledUV = uv / textureInfo.CellSize;
 
     // Can't use standard Sample because UV is scaled by texture CellSize,
     // and that doesn't work for divergent texture lookups.
-    float4 diffuseTextureColor = diffuseTexture.SampleGrad(
+    float4 diffuseTextureColor = diffuseTextureArray.SampleGrad(
         Sampler,
-        scaledUV,
+        float3(scaledUV, textureInfo.SizeSpecificIndex),
         ddxUV / textureInfo.CellSize,
         ddyUV / textureInfo.CellSize);
 

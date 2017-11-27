@@ -48,5 +48,21 @@ namespace OpenSage.Data.Tga
                 };
             }
         }
+
+        public static int GetSquareTextureSize(FileSystemEntry entry)
+        {
+            using (var stream = entry.Open())
+            using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
+            {
+                var header = TgaHeader.Parse(reader);
+
+                if (header.Width != header.Height)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                return header.Width;
+            }
+        }
     }
 }

@@ -101,11 +101,7 @@ namespace OpenSage.Content
             }
         }
 
-        private static Texture CreateTextureFromTga(
-            GraphicsDevice graphicsDevice,
-            ResourceUploadBatch uploadBatch,
-            TgaFile tgaFile,
-            bool generateMipMaps)
+        public static TextureMipMapData[] GetData(TgaFile tgaFile, bool generateMipMaps)
         {
             if (tgaFile.Header.ImageType != TgaImageType.UncompressedRgb)
             {
@@ -116,17 +112,16 @@ namespace OpenSage.Content
                 tgaFile.Header.ImagePixelSize,
                 tgaFile.Data);
 
-            TextureMipMapData[] mipMapData;
             if (generateMipMaps)
             {
-                mipMapData = MipMapUtility.GenerateMipMaps(
+                return MipMapUtility.GenerateMipMaps(
                     tgaFile.Header.Width,
                     tgaFile.Header.Height,
                     data);
             }
             else
             {
-                mipMapData = new[]
+                return new[]
                 {
                     new TextureMipMapData
                     {
@@ -135,6 +130,15 @@ namespace OpenSage.Content
                     }
                 };
             }
+        }
+
+        private static Texture CreateTextureFromTga(
+            GraphicsDevice graphicsDevice,
+            ResourceUploadBatch uploadBatch,
+            TgaFile tgaFile,
+            bool generateMipMaps)
+        {
+            var mipMapData = GetData(tgaFile, generateMipMaps);
 
             return Texture.CreateTexture2D(
                 graphicsDevice,

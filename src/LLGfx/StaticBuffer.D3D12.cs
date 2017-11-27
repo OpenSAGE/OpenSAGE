@@ -22,6 +22,7 @@ namespace LLGfx
 
             uploadBatch.Upload(
                 DeviceBuffer,
+                0,
                 new[]
                 {
                     new ResourceUploadData<T>

@@ -63,6 +63,12 @@ namespace OpenSage.Content
             _cachedObjects.Clear();
         }
 
+        public T AddManuallyLoadedContent<T>(T content)
+            where T : IDisposable
+        {
+            return AddDisposable(content);
+        }
+
         public T GetEffect<T>()
             where T : Effect
         {

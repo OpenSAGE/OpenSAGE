@@ -36,6 +36,8 @@ namespace OpenSage.Terrain
     [StructLayout(LayoutKind.Sequential)]
     public struct TextureInfo
     {
+        public uint TextureSizeIndex;
+        public uint SizeSpecificIndex;
         public uint CellSize;
     }
 

@@ -8,6 +8,7 @@ using LLGfx.Effects;
 using OpenSage.Content.Util;
 using OpenSage.Data;
 using OpenSage.Data.Map;
+using OpenSage.Data.Tga;
 using OpenSage.Mathematics;
 using OpenSage.Scripting;
 using OpenSage.Scripting.Actions;
@@ -86,14 +87,14 @@ namespace OpenSage.Content
                 uploadBatch,
                 textureDetails));
 
-            var textureSet = AddDisposable(new TextureSet(
-                contentManager.GraphicsDevice, 
+            var textureArrays = AddDisposable(new TextureSet(
+                contentManager.GraphicsDevice,
                 textures));
 
             terrainEffect.SetTileData(tileDataTexture);
             terrainEffect.SetCliffDetails(cliffDetailsBuffer);
             terrainEffect.SetTextureDetails(textureDetailsBuffer);
-            terrainEffect.SetTextures(textureSet);
+            terrainEffect.SetTextureArrays(textureArrays);
 
             var objectsEntity = new Entity();
             result.Entities.Add(objectsEntity);
@@ -554,30 +555,100 @@ namespace OpenSage.Content
                 : null;
         }
 
-        private static void CreateTextures(
+        private void CreateTextures(
             ContentManager contentManager,
             ResourceUploadBatch uploadBatch,
             BlendTileData blendTileData,
-            out Texture[] textures,
+            out Texture[] textureArrays,
             out TextureInfo[] textureDetails)
         {
             var numTextures = blendTileData.Textures.Length;
 
-            textures = new Texture[numTextures];
+            var texturesBySize = new Dictionary<int, List<FileSystemEntry>>();
+
             textureDetails = new TextureInfo[numTextures];
+
+            uint getTextureSizeIndex(int size)
+            {
+                switch (size)
+                {
+                    case 64:
+                        return 0;
+
+                    case 128:
+                        return 1;
+
+                    case 256:
+                        return 2;
+
+                    case 384:
+                        return 3;
+
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+
             for (var i = 0; i < numTextures; i++)
             {
                 var mapTexture = blendTileData.Textures[i];
 
                 var terrainType = contentManager.IniDataContext.TerrainTextures.First(x => x.Name == mapTexture.Name);
-
                 var texturePath = Path.Combine("Art", "Terrain", terrainType.Texture);
-                textures[i] = contentManager.Load<Texture>(texturePath, uploadBatch);
+                var entry = contentManager.FileSystem.GetFile(texturePath);
+
+                var size = TgaFile.GetSquareTextureSize(entry);
+                if (!texturesBySize.TryGetValue(size, out var textureData))
+                {
+                    texturesBySize.Add(size, textureData = new List<FileSystemEntry>());
+                }
 
                 textureDetails[i] = new TextureInfo
                 {
+                    TextureSizeIndex = getTextureSizeIndex(size),
+                    SizeSpecificIndex = (uint) textureData.Count,
                     CellSize = mapTexture.CellSize * 2
                 };
+
+                textureData.Add(entry);
+            }
+
+            textureArrays = new Texture[4];
+
+            foreach (var textureData in texturesBySize)
+            {
+                void addToTexture2DArray(ref Texture textureArray)
+                {
+                    if (textureArray == null)
+                    {
+                        textureArray = AddDisposable(Texture.CreateTexture2DArray(
+                            contentManager.GraphicsDevice,
+                            uploadBatch,
+                            PixelFormat.Rgba8UNorm,
+                            textureData.Value.Count,
+                            MipMapUtility.CalculateMipMapCount(textureData.Key, textureData.Key),
+                            textureData.Key,
+                            textureData.Key));
+                    }
+
+                    for (var arrayIndex = 0; arrayIndex < textureData.Value.Count; arrayIndex++)
+                    {
+                        var tgaFile = TgaFile.FromFileSystemEntry(textureData.Value[arrayIndex]);
+                        var mipMapData = TextureLoader.GetData(tgaFile, true);
+
+                        textureArray.SetData(uploadBatch, arrayIndex, mipMapData);
+                    }
+                }
+
+                addToTexture2DArray(ref textureArrays[getTextureSizeIndex(textureData.Key)]);
+            }
+
+            foreach (var textureArray in textureArrays)
+            {
+                if (textureArray != null)
+                {
+                    textureArray.Freeze(uploadBatch);
+                }
             }
         }
     }

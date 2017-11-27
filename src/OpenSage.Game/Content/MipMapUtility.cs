@@ -5,12 +5,17 @@ namespace OpenSage.Content
 {
     internal static class MipMapUtility
     {
+        public static int CalculateMipMapCount(int width, int height)
+        {
+            return 1 + (int) Math.Floor(Math.Log(Math.Max(width, height), 2));
+        }
+
         public static TextureMipMapData[] GenerateMipMaps(
             int width,
             int height,
             byte[] rgbaData)
         {
-            var numLevels = 1 + (int) Math.Floor(Math.Log(Math.Max(width, height), 2));
+            var numLevels = CalculateMipMapCount(width, height);
 
             var mipMapData = new TextureMipMapData[numLevels];
 

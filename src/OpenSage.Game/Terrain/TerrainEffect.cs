@@ -113,11 +113,11 @@ namespace OpenSage.Terrain
                         ResourceType.StructuredBuffer,
                         2, 1),
 
-                    // Textures
+                    // TextureArrays
                     PipelineLayoutEntry.CreateResourceView(
                         ShaderStageVisibility.Pixel,
-                        ResourceType.StructuredBuffer,
-                        3, numTextures)
+                        ResourceType.Texture,
+                        3, 4)
                 },
 
                 StaticSamplerStates = new[]
@@ -229,7 +229,7 @@ namespace OpenSage.Terrain
             _dirtyFlags |= TerrainEffectDirtyFlags.TextureDetailsBuffer;
         }
 
-        public void SetTextures(TextureSet textures)
+        public void SetTextureArrays(TextureSet textures)
         {
             _textures = textures;
             _dirtyFlags |= TerrainEffectDirtyFlags.Textures;

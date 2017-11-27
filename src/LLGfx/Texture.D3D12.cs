@@ -11,22 +11,30 @@ namespace LLGfx
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,
             PixelFormat pixelFormat,
+            int arraySize,
             int width,
             int height,
-            TextureMipMapData[] mipMapData)
+            int mipMapCount)
         {
             var resourceDescription = ResourceDescription.Texture2D(
                 pixelFormat.ToDxgiFormat(),
                 width,
                 height,
-                mipLevels: (short) mipMapData.Length);
+                arraySize: (short) arraySize,
+                mipLevels: (short) mipMapCount);
 
             DeviceResource = AddDisposable(graphicsDevice.Device.CreateCommittedResource(
                 new HeapProperties(HeapType.Default),
                 HeapFlags.None,
                 resourceDescription,
                 ResourceStates.CopyDestination));
+        }
 
+        private void PlatformSetData(
+            ResourceUploadBatch uploadBatch,
+            int arrayIndex, 
+            TextureMipMapData[] mipMapData)
+        {
             var uploadData = new ResourceUploadData<byte>[mipMapData.Length];
             for (var i = 0; i < mipMapData.Length; i++)
             {
@@ -39,8 +47,12 @@ namespace LLGfx
 
             uploadBatch.Upload(
                 DeviceResource,
+                arrayIndex,
                 uploadData);
+        }
 
+        private void PlatformFreeze(ResourceUploadBatch uploadBatch)
+        {
             uploadBatch.Transition(
                 DeviceResource,
                 ResourceStates.CopyDestination,

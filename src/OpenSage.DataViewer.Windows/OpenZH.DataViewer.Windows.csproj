@@ -240,7 +240,7 @@
     <PixelShader Include="Shaders\TerrainPS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ShaderModel>5_1</ShaderModel>
-      <EnableUnboundedDescriptorTable>True</EnableUnboundedDescriptorTable>
+      <EnableUnboundedDescriptorTable>False</EnableUnboundedDescriptorTable>
       <EnableDebuggingInfo>True</EnableDebuggingInfo>
     </PixelShader>
     <Content Include="Shaders\Particle.hlsli" />

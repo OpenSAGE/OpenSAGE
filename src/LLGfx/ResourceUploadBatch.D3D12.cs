@@ -31,7 +31,10 @@ namespace LLGfx
             _commandList = _device.CreateCommandList(CommandListType.Direct, _commandAllocator, null);
         }
 
-        internal void Upload<T>(Resource destinationResource, ResourceUploadData<T>[] sourceSubresourceData)
+        internal void Upload<T>(
+            Resource destinationResource, 
+            int arrayIndex,
+            ResourceUploadData<T>[] sourceSubresourceData)
             where T : struct
         {
             if (!_inBeginEndBlock)
@@ -40,6 +43,7 @@ namespace LLGfx
             }
 
             var destinationResourceDescription = destinationResource.Description;
+            var firstSubresource = arrayIndex * destinationResourceDescription.MipLevels;
             var numSubresources = sourceSubresourceData.Length;
 
             var resourceLayouts = new PlacedSubResourceFootprint[numSubresources];
@@ -47,7 +51,7 @@ namespace LLGfx
             var resourceRowSizesInBytes = new long[numSubresources];
             _device.GetCopyableFootprints(
                 ref destinationResourceDescription,
-                0,
+                firstSubresource,
                 numSubresources,
                 0,
                 resourceLayouts,
@@ -100,7 +104,7 @@ namespace LLGfx
                 for (var i = 0; i < numSubresources; i++)
                 {
                     _commandList.CopyTextureRegion(
-                        new TextureCopyLocation(destinationResource, i),
+                        new TextureCopyLocation(destinationResource, firstSubresource + i),
                         0, 0, 0,
                         new TextureCopyLocation(uploadResource, resourceLayouts[i]),
                         null);

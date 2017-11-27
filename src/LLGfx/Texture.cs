@@ -28,13 +28,40 @@
             int height,
             TextureMipMapData[] mipMapData)
         {
+            var result = new Texture(
+                graphicsDevice,
+                uploadBatch,
+                pixelFormat,
+                1,
+                width,
+                height,
+                mipMapData.Length);
+
+            result.SetData(
+                uploadBatch,
+                0,
+                mipMapData);
+
+            return result;
+        }
+
+        public static Texture CreateTexture2DArray(
+            GraphicsDevice graphicsDevice,
+            ResourceUploadBatch uploadBatch,
+            PixelFormat pixelFormat,
+            int arraySize,
+            int mipMapCount,
+            int width,
+            int height)
+        {
             return new Texture(
                 graphicsDevice,
                 uploadBatch,
                 pixelFormat,
+                arraySize,
                 width,
                 height,
-                mipMapData);
+                mipMapCount);
         }
 
         public static Texture CreatePlaceholderTexture2D(
@@ -61,22 +88,37 @@
             GraphicsDevice graphicsDevice,
             ResourceUploadBatch uploadBatch,
             PixelFormat pixelFormat,
+            int arraySize,
             int width,
             int height,
-            TextureMipMapData[] mipMapData)
+            int mipMapCount)
             : base(graphicsDevice)
         {
             Width = width;
             Height = height;
-            MipMapCount = mipMapData.Length;
+            MipMapCount = mipMapCount;
 
             PlatformConstruct(
                 graphicsDevice,
                 uploadBatch,
                 pixelFormat,
+                arraySize,
                 width,
                 height,
-                mipMapData);
+                mipMapCount);
+        }
+
+        public void SetData(
+            ResourceUploadBatch uploadBatch, 
+            int arrayIndex,
+            TextureMipMapData[] mipMapData)
+        {
+            PlatformSetData(uploadBatch, arrayIndex, mipMapData);
+        }
+
+        public void Freeze(ResourceUploadBatch uploadBatch)
+        {
+            PlatformFreeze(uploadBatch);
         }
     }
 
