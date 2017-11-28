@@ -53,13 +53,6 @@
             PlatformSetTexture(index, texture);
         }
 
-        public void SetTextures(int index, TextureSet textures)
-        {
-            // TODO: Validation.
-
-            PlatformSetTextures(index, textures);
-        }
-
         public void SetStaticBuffer<T>(int index, StaticBuffer<T> buffer)
             where T : struct
         {

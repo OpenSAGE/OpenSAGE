@@ -115,11 +115,6 @@ namespace LLGfx
             SetShaderResources(index, (shaderStage, slot) => shaderStage.SetShaderResource(slot, texture?.DeviceShaderResourceView));
         }
 
-        private void PlatformSetTextures(int index, TextureSet textures)
-        {
-            SetShaderResources(index, (shaderStage, slot) => shaderStage.SetShaderResources(slot, textures.DeviceShaderResourceViews));
-        }
-
         private void PlatformSetStaticBuffer<T>(int index, StaticBuffer<T> buffer)
             where T : struct
         {
