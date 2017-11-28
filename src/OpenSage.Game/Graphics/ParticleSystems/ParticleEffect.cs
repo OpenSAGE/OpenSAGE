@@ -37,27 +37,9 @@ namespace OpenSage.Graphics.ParticleSystems
                   graphicsDevice, 
                   "ParticleVS", 
                   "ParticlePS",
-                  CreateVertexDescriptor())
+                  ParticleVertex.VertexDescriptor)
         {
             _transformConstantBuffer = DynamicBuffer<ParticleTransformConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer);
-        }
-
-        private static VertexDescriptor CreateVertexDescriptor()
-        {
-            return new VertexDescriptor(
-                 new[]
-                 {
-                    new VertexAttributeDescription(InputClassification.PerVertexData, "POSITION", 0, VertexFormat.Float3, 0, 0),
-                    new VertexAttributeDescription(InputClassification.PerVertexData, "TEXCOORD", 0, VertexFormat.Float, 12, 0),
-                    new VertexAttributeDescription(InputClassification.PerVertexData, "TEXCOORD", 1, VertexFormat.Float3, 16, 0),
-                    new VertexAttributeDescription(InputClassification.PerVertexData, "TEXCOORD", 2, VertexFormat.Float, 28, 0),
-                    new VertexAttributeDescription(InputClassification.PerVertexData, "TEXCOORD", 3, VertexFormat.Float, 32, 0),
-
-                 },
-                 new[]
-                 {
-                    new VertexLayoutDescription(36)
-                 });
         }
 
         protected override void OnBegin(CommandEncoder commandEncoder)

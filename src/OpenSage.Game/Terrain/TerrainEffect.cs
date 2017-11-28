@@ -53,27 +53,11 @@ namespace OpenSage.Terrain
                   graphicsDevice, 
                   "TerrainVS", 
                   "TerrainPS",
-                  CreateVertexDescriptor())
+                  TerrainVertex.VertexDescriptor)
         {
             _transformConstantBuffer = AddDisposable(DynamicBuffer<TransformConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer));
 
             _lightingConstantBuffer = AddDisposable(DynamicBuffer<LightingConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer));
-        }
-
-        private static VertexDescriptor CreateVertexDescriptor()
-        {
-            return new VertexDescriptor(
-                 new[]
-                 {
-                    new VertexAttributeDescription(InputClassification.PerVertexData, "POSITION", 0, VertexFormat.Float3, 0, 0),
-                    new VertexAttributeDescription(InputClassification.PerVertexData, "NORMAL", 0, VertexFormat.Float3, 12, 0),
-                    new VertexAttributeDescription(InputClassification.PerVertexData, "TEXCOORD", 0, VertexFormat.Float2, 24, 0),
-
-                 },
-                 new[]
-                 {
-                    new VertexLayoutDescription(32)
-                 });
         }
 
         protected override void OnBegin(CommandEncoder commandEncoder)

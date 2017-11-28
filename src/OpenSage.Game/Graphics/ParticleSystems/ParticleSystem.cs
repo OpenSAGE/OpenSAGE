@@ -481,16 +481,31 @@ namespace OpenSage.Graphics.ParticleSystems
                         0);
                 }));
         }
+    }
 
-        [StructLayout(LayoutKind.Sequential)]
-        private struct ParticleVertex
-        {
-            public Vector3 Position;
-            public float Size;
-            public Vector3 Color;
-            public float Alpha;
-            public float AngleZ;
-        }
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct ParticleVertex
+    {
+        public Vector3 Position;
+        public float Size;
+        public Vector3 Color;
+        public float Alpha;
+        public float AngleZ;
+
+        public static readonly VertexDescriptor VertexDescriptor = new VertexDescriptor(
+             new[]
+             {
+                    new VertexAttributeDescription(InputClassification.PerVertexData, "POSITION", 0, VertexFormat.Float3, 0, 0),
+                    new VertexAttributeDescription(InputClassification.PerVertexData, "TEXCOORD", 0, VertexFormat.Float, 12, 0),
+                    new VertexAttributeDescription(InputClassification.PerVertexData, "TEXCOORD", 1, VertexFormat.Float3, 16, 0),
+                    new VertexAttributeDescription(InputClassification.PerVertexData, "TEXCOORD", 2, VertexFormat.Float, 28, 0),
+                    new VertexAttributeDescription(InputClassification.PerVertexData, "TEXCOORD", 3, VertexFormat.Float, 32, 0),
+
+             },
+             new[]
+             {
+                    new VertexLayoutDescription(36)
+             });
     }
 
     public enum ParticleSystemState

@@ -101,5 +101,17 @@ namespace OpenSage.Terrain
         public Vector3 Position;
         public Vector3 Normal;
         public Vector2 UV;
+
+        public static readonly VertexDescriptor VertexDescriptor = new VertexDescriptor(
+            new[]
+            {
+                new VertexAttributeDescription(InputClassification.PerVertexData, "POSITION", 0, VertexFormat.Float3, 0, 0),
+                new VertexAttributeDescription(InputClassification.PerVertexData, "NORMAL", 0, VertexFormat.Float3, 12, 0),
+                new VertexAttributeDescription(InputClassification.PerVertexData, "TEXCOORD", 0, VertexFormat.Float2, 24, 0)
+            },
+            new[]
+            {
+                new VertexLayoutDescription(32)
+            });
     }
 }
