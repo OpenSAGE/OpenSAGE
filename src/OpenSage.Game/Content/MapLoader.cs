@@ -45,9 +45,7 @@ namespace OpenSage.Content
                 HeightMap = heightMap
             });
 
-            var terrainEffect = AddDisposable(new TerrainEffect(
-                contentManager.GraphicsDevice, 
-                mapFile.BlendTileData.Textures.Length));
+            var terrainEffect = contentManager.GetEffect<TerrainEffect>();
 
             var pipelineStateSolid = new EffectPipelineState(
                 RasterizerStateDescription.CullBackSolid,

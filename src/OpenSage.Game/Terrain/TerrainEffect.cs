@@ -34,7 +34,7 @@ namespace OpenSage.Terrain
                 | LightingConstants
         }
 
-        public TerrainEffect(GraphicsDevice graphicsDevice, int numTextures)
+        public TerrainEffect(GraphicsDevice graphicsDevice)
             : base(
                   graphicsDevice, 
                   "TerrainVS", 

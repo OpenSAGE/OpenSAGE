@@ -8,6 +8,7 @@ using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.ParticleSystems;
 using System.Linq;
+using OpenSage.Terrain;
 
 namespace OpenSage.Content
 {
@@ -46,6 +47,7 @@ namespace OpenSage.Content
                 { typeof(MeshEffect), AddDisposable(new MeshEffect(graphicsDevice)) },
                 { typeof(ParticleEffect), AddDisposable(new ParticleEffect(graphicsDevice)) },
                 { typeof(SpriteEffect), AddDisposable(new SpriteEffect(graphicsDevice)) },
+                { typeof(TerrainEffect), AddDisposable(new TerrainEffect(graphicsDevice)) },
             };
 
             IniDataContext = new IniDataContext(fileSystem);
