@@ -69,8 +69,7 @@ namespace OpenSage.Graphics.Effects
                   graphicsDevice, 
                   "FixedFunctionVS", 
                   "FixedFunctionPS",
-                  MeshVertex.VertexDescriptor,
-                  CreatePipelineLayoutDescription())
+                  MeshVertex.VertexDescriptor)
         {
             _transformConstantBuffer = AddDisposable(DynamicBuffer<MeshTransformConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer));
 
@@ -78,96 +77,19 @@ namespace OpenSage.Graphics.Effects
 
             _perDrawConstantBuffer = AddDisposable(DynamicBuffer<PerDrawConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer));
         }
-
-        private static PipelineLayoutDescription CreatePipelineLayoutDescription()
-        {
-            var samplerStateDescription = SamplerStateDescription.Default;
-            samplerStateDescription.Filter = SamplerFilter.Anisotropic;
-
-            return new PipelineLayoutDescription
-            {
-                Entries = new[]
-                {
-                    // PerDrawCB
-                    PipelineLayoutEntry.CreateResource(
-                        ShaderStageVisibility.Pixel,
-                        ResourceType.ConstantBuffer,
-                        1),
-
-                    // MeshTransformCB
-                    PipelineLayoutEntry.CreateResource(
-                        ShaderStageVisibility.Vertex,
-                        ResourceType.ConstantBuffer,
-                        0),
-
-                    // SkinningBuffer
-                    PipelineLayoutEntry.CreateResource(
-                        ShaderStageVisibility.Vertex,
-                        ResourceType.StructuredBuffer,
-                        0),
-
-                    // LightingCB
-                    PipelineLayoutEntry.CreateResource(
-                        ShaderStageVisibility.Pixel,
-                        ResourceType.ConstantBuffer,
-                        0),
-
-                    // Sorted in descending frequency of updating
-
-                    // MaterialIndices
-                    PipelineLayoutEntry.CreateResourceView(
-                        ShaderStageVisibility.Vertex,
-                        ResourceType.StructuredBuffer,
-                        1, 1),
-
-                    // ShadingConfigurations
-                    PipelineLayoutEntry.CreateResourceView(
-                        ShaderStageVisibility.Pixel,
-                        ResourceType.StructuredBuffer,
-                        1, 1),
-
-                    // Materials
-                    PipelineLayoutEntry.CreateResourceView(
-                        ShaderStageVisibility.Pixel,
-                        ResourceType.StructuredBuffer,
-                        0, 1),
-
-                    // Texture0
-                    PipelineLayoutEntry.CreateResourceView(
-                        ShaderStageVisibility.Pixel,
-                        ResourceType.Texture,
-                        2, 1),
-
-                    // Texture1
-                    PipelineLayoutEntry.CreateResourceView(
-                        ShaderStageVisibility.Pixel,
-                        ResourceType.Texture,
-                        3, 1),
-                },
-
-                StaticSamplerStates = new[]
-                {
-                    new StaticSamplerDescription(
-                        ShaderStageVisibility.Pixel,
-                        0,
-                        samplerStateDescription)
-                }
-            };
-        }
-
-        protected override void OnBegin()
+        
+        protected override void OnBegin(CommandEncoder commandEncoder)
         {
             _dirtyFlags = MeshEffectDirtyFlags.All;
+
+            commandEncoder.SetFragmentSampler(0, GraphicsDevice.SamplerAnisotropicWrap);
         }
 
         protected override void OnApply(CommandEncoder commandEncoder)
         {
             if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.SkinningConstants))
             {
-                if (_skinningBuffer != null)
-                {
-                    commandEncoder.SetInlineStructuredBuffer(2, _skinningBuffer);
-                }
+                commandEncoder.SetVertexStructuredBuffer(0, _skinningBuffer);
 
                 _dirtyFlags &= ~MeshEffectDirtyFlags.SkinningConstants;
             }
@@ -178,7 +100,7 @@ namespace OpenSage.Graphics.Effects
 
                 _transformConstantBuffer.UpdateData(ref _transformConstants);
 
-                commandEncoder.SetInlineConstantBuffer(1, _transformConstantBuffer);
+                commandEncoder.SetVertexConstantBuffer(0, _transformConstantBuffer);
 
                 _dirtyFlags &= ~MeshEffectDirtyFlags.TransformConstants;
             }
@@ -190,7 +112,7 @@ namespace OpenSage.Graphics.Effects
 
                 _lightingConstantBuffer.UpdateData(ref _lightingConstants);
 
-                commandEncoder.SetInlineConstantBuffer(3, _lightingConstantBuffer);
+                commandEncoder.SetFragmentConstantBuffer(0, _lightingConstantBuffer);
 
                 _dirtyFlags &= ~MeshEffectDirtyFlags.LightingConstants;
             }
@@ -199,38 +121,38 @@ namespace OpenSage.Graphics.Effects
             {
                 _perDrawConstantBuffer.UpdateData(ref _perDrawConstants);
 
-                commandEncoder.SetInlineConstantBuffer(0, _perDrawConstantBuffer);
+                commandEncoder.SetFragmentConstantBuffer(1, _perDrawConstantBuffer);
 
                 _dirtyFlags &= ~MeshEffectDirtyFlags.PerDrawConstants;
             }
 
             if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.ShadingConfigurationsBuffer))
             {
-                commandEncoder.SetStaticBuffer(5, _shadingConfigurationsBuffer);
+                commandEncoder.SetFragmentStructuredBuffer(1, _shadingConfigurationsBuffer);
                 _dirtyFlags &= ~MeshEffectDirtyFlags.ShadingConfigurationsBuffer;
             }
 
             if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.MaterialsBuffer))
             {
-                commandEncoder.SetStaticBuffer(6, _materialsBuffer);
+                commandEncoder.SetFragmentStructuredBuffer(0, _materialsBuffer);
                 _dirtyFlags &= ~MeshEffectDirtyFlags.MaterialsBuffer;
             }
 
             if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.Texture0))
             {
-                commandEncoder.SetTexture(7, _texture0);
+                commandEncoder.SetFragmentTexture(2, _texture0);
                 _dirtyFlags &= ~MeshEffectDirtyFlags.Texture0;
             }
 
             if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.Texture1))
             {
-                commandEncoder.SetTexture(8, _texture1);
+                commandEncoder.SetFragmentTexture(3, _texture0);
                 _dirtyFlags &= ~MeshEffectDirtyFlags.Texture1;
             }
 
             if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.MaterialIndicesBuffer))
             {
-                commandEncoder.SetStaticBuffer(4, _materialIndicesBuffer);
+                commandEncoder.SetVertexStructuredBuffer(1, _materialIndicesBuffer);
                 _dirtyFlags &= ~MeshEffectDirtyFlags.MaterialIndicesBuffer;
             }
         }

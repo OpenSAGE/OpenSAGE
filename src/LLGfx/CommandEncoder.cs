@@ -46,43 +46,39 @@
                 indexBufferOffset);
         }
 
-        public void SetTexture(int index, Texture texture)
+        public void SetFragmentTexture(int slot, Texture texture)
         {
-            // TODO: Validation.
-
-            PlatformSetTexture(index, texture);
+            PlatformSetFragmentTexture(slot, texture);
         }
 
-        public void SetStaticBuffer<T>(int index, StaticBuffer<T> buffer)
-            where T : struct
+        public void SetFragmentSampler(int slot, SamplerState sampler)
         {
-            // TODO: Validation.
-
-            PlatformSetStaticBuffer(index, buffer);
+            PlatformSetFragmentSampler(slot, sampler);
         }
 
-        public void SetInlineConstantBuffer(int index, Buffer buffer)
+        public void SetVertexStructuredBuffer(int slot, Buffer buffer)
         {
-            // TODO: Validation.
-
-            PlatformSetInlineConstantBuffer(index, buffer);
+            PlatformSetVertexStructuredBuffer(slot, buffer);
         }
 
-        public void SetInlineStructuredBuffer(int index, Buffer buffer)
+        public void SetFragmentStructuredBuffer(int slot, Buffer buffer)
         {
-            // TODO: Validation.
+            PlatformSetFragmentStructuredBuffer(slot, buffer);
+        }
 
-            PlatformSetInlineStructuredBuffer(index, buffer);
+        public void SetVertexConstantBuffer(int slot, Buffer buffer)
+        {
+            PlatformSetVertexConstantBuffer(slot, buffer);
+        }
+
+        public void SetFragmentConstantBuffer(int slot, Buffer buffer)
+        {
+            PlatformSetFragmentConstantBuffer(slot, buffer);
         }
 
         public void SetPipelineState(PipelineState pipelineState)
         {
             PlatformSetPipelineState(pipelineState);
-        }
-
-        public void SetPipelineLayout(PipelineLayout pipelineLayout)
-        {
-            PlatformSetPipelineLayout(pipelineLayout);
         }
 
         public void SetVertexBuffer(int bufferIndex, Buffer vertexBuffer)

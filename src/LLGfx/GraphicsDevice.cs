@@ -8,6 +8,10 @@
 
         public PixelFormat BackBufferFormat => PlatformBackBufferFormat;
 
+        public SamplerState SamplerAnisotropicWrap { get; }
+        public SamplerState SamplerLinearWrap { get; }
+        public SamplerState SamplerPointWrap { get; }
+
         public GraphicsDevice()
         {
             PlatformConstruct();
@@ -15,6 +19,10 @@
             CommandQueue = AddDisposable(new CommandQueue(this));
 
             ShaderLibrary = AddDisposable(new ShaderLibrary(this));
+
+            SamplerAnisotropicWrap = AddDisposable(new SamplerState(this, SamplerStateDescription.AnisotropicWrap));
+            SamplerLinearWrap = AddDisposable(new SamplerState(this, SamplerStateDescription.LinearWrap));
+            SamplerPointWrap = AddDisposable(new SamplerState(this, SamplerStateDescription.PointWrap));
         }
     }
 }

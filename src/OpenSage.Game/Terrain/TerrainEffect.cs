@@ -53,8 +53,7 @@ namespace OpenSage.Terrain
                   graphicsDevice, 
                   "TerrainVS", 
                   "TerrainPS",
-                  CreateVertexDescriptor(),
-                  CreatePipelineLayoutDescription(numTextures))
+                  CreateVertexDescriptor())
         {
             _transformConstantBuffer = AddDisposable(DynamicBuffer<TransformConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer));
 
@@ -77,67 +76,11 @@ namespace OpenSage.Terrain
                  });
         }
 
-        private static PipelineLayoutDescription CreatePipelineLayoutDescription(int numTextures)
-        {
-            return new PipelineLayoutDescription
-            {
-                Entries = new[]
-                {
-                    // TransformCB
-                    PipelineLayoutEntry.CreateResource(
-                        ShaderStageVisibility.Vertex,
-                        ResourceType.ConstantBuffer,
-                        0),
-
-                    // LightingCB
-                    PipelineLayoutEntry.CreateResource(
-                        ShaderStageVisibility.Pixel,
-                        ResourceType.ConstantBuffer,
-                        0),
-
-                    // TileData
-                    PipelineLayoutEntry.CreateResourceView(
-                        ShaderStageVisibility.Pixel,
-                        ResourceType.Texture,
-                        0, 1),
-
-                    // CliffDetails
-                    PipelineLayoutEntry.CreateResourceView(
-                        ShaderStageVisibility.Pixel,
-                        ResourceType.StructuredBuffer,
-                        1, 1),
-
-                    // TextureDetails
-                    PipelineLayoutEntry.CreateResourceView(
-                        ShaderStageVisibility.Pixel,
-                        ResourceType.StructuredBuffer,
-                        2, 1),
-
-                    // Textures
-                    PipelineLayoutEntry.CreateResourceView(
-                        ShaderStageVisibility.Pixel,
-                        ResourceType.Texture,
-                        3, 1)
-                },
-
-                StaticSamplerStates = new[]
-                {
-                    new StaticSamplerDescription(
-                        ShaderStageVisibility.Pixel,
-                        0,
-                        new SamplerStateDescription
-                        {
-                            Filter = SamplerFilter.Anisotropic,
-                            AddressU = SamplerAddressMode.Wrap,
-                            AddressV = SamplerAddressMode.Wrap
-                        })
-                }
-            };
-        }
-
-        protected override void OnBegin()
+        protected override void OnBegin(CommandEncoder commandEncoder)
         {
             _dirtyFlags = TerrainEffectDirtyFlags.All;
+
+            commandEncoder.SetFragmentSampler(0, GraphicsDevice.SamplerAnisotropicWrap);
         }
 
         protected override void OnApply(CommandEncoder commandEncoder)
@@ -149,7 +92,7 @@ namespace OpenSage.Terrain
 
                 _transformConstantBuffer.UpdateData(ref _transformConstants);
 
-                commandEncoder.SetInlineConstantBuffer(0, _transformConstantBuffer);
+                commandEncoder.SetVertexConstantBuffer(0, _transformConstantBuffer);
 
                 _dirtyFlags &= ~TerrainEffectDirtyFlags.TransformConstants;
             }
@@ -161,32 +104,32 @@ namespace OpenSage.Terrain
 
                 _lightingConstantBuffer.UpdateData(ref _lightingConstants);
 
-                commandEncoder.SetInlineConstantBuffer(1, _lightingConstantBuffer);
+                commandEncoder.SetFragmentConstantBuffer(0, _lightingConstantBuffer);
 
                 _dirtyFlags &= ~TerrainEffectDirtyFlags.LightingConstants;
             }
 
             if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.TileDataTexture))
             {
-                commandEncoder.SetTexture(2, _tileDataTexture);
+                commandEncoder.SetFragmentTexture(0, _tileDataTexture);
                 _dirtyFlags &= ~TerrainEffectDirtyFlags.TileDataTexture;
             }
 
             if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.CliffDetailsBuffer))
             {
-                commandEncoder.SetStaticBuffer(3, _cliffDetailsBuffer);
+                commandEncoder.SetFragmentStructuredBuffer(1, _cliffDetailsBuffer);
                 _dirtyFlags &= ~TerrainEffectDirtyFlags.CliffDetailsBuffer;
             }
 
             if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.TextureDetailsBuffer))
             {
-                commandEncoder.SetStaticBuffer(4, _textureDetailsBuffer);
+                commandEncoder.SetFragmentStructuredBuffer(2, _textureDetailsBuffer);
                 _dirtyFlags &= ~TerrainEffectDirtyFlags.TextureDetailsBuffer;
             }
 
             if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.Textures))
             {
-                commandEncoder.SetTexture(5, _textureArray);
+                commandEncoder.SetFragmentTexture(3, _textureArray);
                 _dirtyFlags &= ~TerrainEffectDirtyFlags.Textures;
             }
         }

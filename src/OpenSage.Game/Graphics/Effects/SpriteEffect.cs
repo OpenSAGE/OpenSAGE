@@ -31,47 +31,16 @@ namespace OpenSage.Graphics.Effects
                   graphicsDevice, 
                   "SpriteVS", 
                   "SpritePS", 
-                  null,
-                  CreatePipelineLayoutDescription())
+                  null)
         {
             _textureConstantBuffer = DynamicBuffer<TextureConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer);
         }
 
-        private static PipelineLayoutDescription CreatePipelineLayoutDescription()
-        {
-            var samplerStateDescription = SamplerStateDescription.Default;
-            samplerStateDescription.Filter = SamplerFilter.MinMagMipPoint;
-
-            return new PipelineLayoutDescription
-            {
-                Entries = new[]
-                {
-                    // TextureCB
-                    PipelineLayoutEntry.CreateResource(
-                        ShaderStageVisibility.Pixel,
-                        ResourceType.ConstantBuffer,
-                        0),
-
-                    // Texture
-                    PipelineLayoutEntry.CreateResourceView(
-                        ShaderStageVisibility.Pixel,
-                        ResourceType.Texture,
-                        0, 1)
-                },
-
-                StaticSamplerStates = new[]
-                {
-                    new StaticSamplerDescription(
-                        ShaderStageVisibility.Pixel,
-                        0,
-                        samplerStateDescription)
-                }
-            };
-        }
-
-        protected override void OnBegin()
+        protected override void OnBegin(CommandEncoder commandEncoder)
         {
             _dirtyFlags = SpriteEffectDirtyFlags.All;
+
+            commandEncoder.SetFragmentSampler(0, GraphicsDevice.SamplerPointWrap);
         }
 
         protected override void OnApply(CommandEncoder commandEncoder)
@@ -80,14 +49,14 @@ namespace OpenSage.Graphics.Effects
             {
                 _textureConstantBuffer.UpdateData(_textureConstants);
 
-                commandEncoder.SetInlineConstantBuffer(0, _textureConstantBuffer);
+                commandEncoder.SetFragmentConstantBuffer(0, _textureConstantBuffer);
 
                 _dirtyFlags &= ~SpriteEffectDirtyFlags.TextureConstants;
             }
 
             if (_dirtyFlags.HasFlag(SpriteEffectDirtyFlags.Texture))
             {
-                commandEncoder.SetTexture(1, _texture);
+                commandEncoder.SetFragmentTexture(0, _texture);
                 _dirtyFlags &= ~SpriteEffectDirtyFlags.Texture;
             }
         }

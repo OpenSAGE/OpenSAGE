@@ -9,8 +9,6 @@
             BlendState = BlendStateDescription.Opaque
         };
 
-        public PipelineLayout PipelineLayout;
-
         public VertexDescriptor VertexDescriptor;
         public VertexShader VertexShader;
         public PixelShader PixelShader;

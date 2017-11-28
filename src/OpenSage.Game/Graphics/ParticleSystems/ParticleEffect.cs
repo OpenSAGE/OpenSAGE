@@ -37,8 +37,7 @@ namespace OpenSage.Graphics.ParticleSystems
                   graphicsDevice, 
                   "ParticleVS", 
                   "ParticlePS",
-                  CreateVertexDescriptor(),
-                  CreatePipelineLayoutDescription())
+                  CreateVertexDescriptor())
         {
             _transformConstantBuffer = DynamicBuffer<ParticleTransformConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer);
         }
@@ -61,38 +60,11 @@ namespace OpenSage.Graphics.ParticleSystems
                  });
         }
 
-        private static PipelineLayoutDescription CreatePipelineLayoutDescription()
-        {
-            return new PipelineLayoutDescription
-            {
-                Entries = new[]
-                {
-                    // TransformCB
-                    PipelineLayoutEntry.CreateResource(
-                        ShaderStageVisibility.Vertex,
-                        ResourceType.ConstantBuffer,
-                        0),
-
-                    // ParticleTexture
-                    PipelineLayoutEntry.CreateResourceView(
-                        ShaderStageVisibility.Pixel,
-                        ResourceType.Texture,
-                        0, 1)
-                },
-
-                StaticSamplerStates = new[]
-                {
-                    new StaticSamplerDescription(
-                        ShaderStageVisibility.Pixel,
-                        0,
-                        SamplerStateDescription.Default)
-                }
-            };
-        }
-
-        protected override void OnBegin()
+        protected override void OnBegin(CommandEncoder commandEncoder)
         {
             _dirtyFlags = ParticleEffectDirtyFlags.All;
+
+            commandEncoder.SetFragmentSampler(0, GraphicsDevice.SamplerLinearWrap);
         }
 
         protected override void OnApply(CommandEncoder commandEncoder)
@@ -107,14 +79,14 @@ namespace OpenSage.Graphics.ParticleSystems
 
                 _transformConstantBuffer.UpdateData(_transformConstants);
 
-                commandEncoder.SetInlineConstantBuffer(0, _transformConstantBuffer);
+                commandEncoder.SetVertexConstantBuffer(0, _transformConstantBuffer);
 
                 _dirtyFlags &= ~ParticleEffectDirtyFlags.TransformConstants;
             }
 
             if (_dirtyFlags.HasFlag(ParticleEffectDirtyFlags.Texture))
             {
-                commandEncoder.SetTexture(1, _texture);
+                commandEncoder.SetFragmentTexture(0, _texture);
                 _dirtyFlags &= ~ParticleEffectDirtyFlags.Texture;
             }
         }

@@ -7,8 +7,6 @@ namespace LLGfx.Effects
     {
         private readonly GraphicsDevice _graphicsDevice;
 
-        private PipelineLayout _pipelineLayout;
-
         private VertexDescriptor _vertexDescriptor;
         private readonly VertexShader _vertexShader;
         private readonly PixelShader _pixelShader;
@@ -33,8 +31,7 @@ namespace LLGfx.Effects
             GraphicsDevice graphicsDevice,
             string vertexShaderName,
             string pixelShaderName,
-            VertexDescriptor vertexDescriptor,
-            PipelineLayoutDescription pipelineLayoutDescription)
+            VertexDescriptor vertexDescriptor)
         {
             _graphicsDevice = graphicsDevice;
 
@@ -44,20 +41,16 @@ namespace LLGfx.Effects
             _cachedPipelineStates = new Dictionary<EffectPipelineStateHandle, PipelineState>();
 
             _vertexDescriptor = vertexDescriptor;
-
-            _pipelineLayout = AddDisposable(new PipelineLayout(_graphicsDevice, ref pipelineLayoutDescription));
         }
 
         public void Begin(CommandEncoder commandEncoder)
         {
-            commandEncoder.SetPipelineLayout(_pipelineLayout);
-
             _dirtyFlags |= EffectDirtyFlags.PipelineState;
 
-            OnBegin();
+            OnBegin(commandEncoder);
         }
 
-        protected abstract void OnBegin();
+        protected abstract void OnBegin(CommandEncoder commandEncoder);
 
         public void Apply(CommandEncoder commandEncoder)
         {
@@ -85,7 +78,6 @@ namespace LLGfx.Effects
             {
                 var description = PipelineStateDescription.Default;
 
-                description.PipelineLayout = _pipelineLayout;
                 description.RenderTargetFormat = _graphicsDevice.BackBufferFormat;
                 description.VertexDescriptor = _vertexDescriptor;
                 description.VertexShader = _vertexShader;

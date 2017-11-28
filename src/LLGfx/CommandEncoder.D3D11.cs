@@ -1,4 +1,3 @@
-using System;
 using LLGfx.Util;
 using SharpDX.Direct3D11;
 using SharpDX.Mathematics.Interop;
@@ -9,8 +8,6 @@ namespace LLGfx
     {
         private readonly DeviceContext _context;
         private readonly RenderPassDescriptor _renderPassDescriptor;
-
-        private PipelineLayout _pipelineLayout;
 
         internal CommandEncoder(GraphicsDevice graphicsDevice, DeviceContext context, RenderPassDescriptor renderPassDescriptor)
             : base(graphicsDevice)
@@ -74,72 +71,39 @@ namespace LLGfx
                 0);
         }
 
-        private delegate void SetShaderResourcesCallback(CommonShaderStage shaderStage, int slot);
-
-        private void SetShaderResources(int index, SetShaderResourcesCallback callback)
+        private void PlatformSetFragmentTexture(int slot, Texture texture)
         {
-            ref var pipelineLayoutEntry = ref _pipelineLayout.Description.Entries[index];
-
-            CommonShaderStage shaderStage;
-            switch (pipelineLayoutEntry.Visibility)
-            {
-                case ShaderStageVisibility.Vertex:
-                    shaderStage = _context.VertexShader;
-                    break;
-
-                case ShaderStageVisibility.Pixel:
-                    shaderStage = _context.PixelShader;
-                    break;
-
-                default:
-                    throw new InvalidOperationException();
-            }
-
-            switch (pipelineLayoutEntry.EntryType)
-            {
-                case PipelineLayoutEntryType.Resource:
-                    callback(shaderStage, pipelineLayoutEntry.Resource.ShaderRegister);
-                    break;
-
-                case PipelineLayoutEntryType.ResourceView:
-                    callback(shaderStage, pipelineLayoutEntry.ResourceView.BaseShaderRegister);
-                    break;
-
-                default:
-                    throw new InvalidOperationException();
-            }
+            _context.PixelShader.SetShaderResource(slot, texture?.DeviceShaderResourceView);
         }
 
-        private void PlatformSetTexture(int index, Texture texture)
+        private void PlatformSetFragmentSampler(int slot, SamplerState sampler)
         {
-            SetShaderResources(index, (shaderStage, slot) => shaderStage.SetShaderResource(slot, texture?.DeviceShaderResourceView));
+            _context.PixelShader.SetSampler(slot, sampler.DeviceSamplerState);
         }
 
-        private void PlatformSetStaticBuffer<T>(int index, StaticBuffer<T> buffer)
-            where T : struct
+        private void PlatformSetVertexStructuredBuffer(int slot, Buffer buffer)
         {
-            SetShaderResources(index, (shaderStage, slot) => shaderStage.SetShaderResource(slot, buffer?.DeviceShaderResourceView));
+            _context.VertexShader.SetShaderResource(slot, buffer?.DeviceShaderResourceView);
         }
 
-        private void PlatformSetInlineConstantBuffer(int index, Buffer buffer)
+        private void PlatformSetFragmentStructuredBuffer(int slot, Buffer buffer)
         {
-            SetShaderResources(index, (shaderStage, slot) => shaderStage.SetConstantBuffer(slot, buffer.DeviceBuffer));
+            _context.PixelShader.SetShaderResource(slot, buffer?.DeviceShaderResourceView);
         }
 
-        private void PlatformSetInlineStructuredBuffer(int index, Buffer buffer)
+        private void PlatformSetVertexConstantBuffer(int slot, Buffer buffer)
         {
-            SetShaderResources(index, (shaderStage, slot) => shaderStage.SetShaderResource(slot, buffer.DeviceShaderResourceView));
+            _context.VertexShader.SetConstantBuffer(slot, buffer.DeviceBuffer);
+        }
+
+        private void PlatformSetFragmentConstantBuffer(int slot, Buffer buffer)
+        {
+            _context.PixelShader.SetConstantBuffer(slot, buffer.DeviceBuffer);
         }
 
         private void PlatformSetPipelineState(PipelineState pipelineState)
         {
             pipelineState.Apply(_context);
-        }
-
-        private void PlatformSetPipelineLayout(PipelineLayout pipelineLayout)
-        {
-            _pipelineLayout = pipelineLayout;
-            pipelineLayout.Apply(_context);
         }
 
         private void PlatformSetVertexBuffer(int slot, Buffer vertexBuffer)
