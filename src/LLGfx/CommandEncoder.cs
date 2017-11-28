@@ -46,9 +46,19 @@
                 indexBufferOffset);
         }
 
+        public void SetVertexTexture(int slot, Texture texture)
+        {
+            PlatformSetVertexTexture(slot, texture);
+        }
+
         public void SetFragmentTexture(int slot, Texture texture)
         {
             PlatformSetFragmentTexture(slot, texture);
+        }
+
+        public void SetVertexSampler(int slot, SamplerState sampler)
+        {
+            PlatformSetVertexSampler(slot, sampler);
         }
 
         public void SetFragmentSampler(int slot, SamplerState sampler)

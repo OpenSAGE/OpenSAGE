@@ -11,8 +11,6 @@ namespace OpenSage.Graphics.Effects
     {
         public const int MaxTextures = 32;
 
-        private DynamicBuffer<Matrix4x3> _skinningBuffer;
-
         private readonly DynamicBuffer<MeshTransformConstants> _transformConstantBuffer;
         private MeshTransformConstants _transformConstants;
 
@@ -28,12 +26,6 @@ namespace OpenSage.Graphics.Effects
         private Matrix4x4 _view;
         private Matrix4x4 _projection;
 
-        private StaticBuffer<VertexMaterial> _materialsBuffer;
-        private Texture _texture0;
-        private Texture _texture1;
-        private StaticBuffer<uint> _materialIndicesBuffer;
-        private StaticBuffer<ShadingConfiguration> _shadingConfigurationsBuffer;
-
         [Flags]
         private enum MeshEffectDirtyFlags
         {
@@ -47,21 +39,10 @@ namespace OpenSage.Graphics.Effects
 
             LightingConstants = 0x8,
 
-            MaterialsBuffer = 0x10,
-            Texture0 = 0x20,
-            Texture1 = 0x40,
-            MaterialIndicesBuffer = 0x80,
-            ShadingConfigurationsBuffer = 0x100,
-
             All = PerDrawConstants
                 | SkinningConstants
                 | TransformConstants
                 | LightingConstants
-                | MaterialsBuffer
-                | Texture0
-                | Texture1
-                | MaterialIndicesBuffer
-                | ShadingConfigurationsBuffer
         }
 
         public MeshEffect(GraphicsDevice graphicsDevice)
@@ -82,18 +63,11 @@ namespace OpenSage.Graphics.Effects
         {
             _dirtyFlags = MeshEffectDirtyFlags.All;
 
-            commandEncoder.SetFragmentSampler(0, GraphicsDevice.SamplerAnisotropicWrap);
+            SetValue("Sampler", GraphicsDevice.SamplerAnisotropicWrap);
         }
 
         protected override void OnApply(CommandEncoder commandEncoder)
         {
-            if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.SkinningConstants))
-            {
-                commandEncoder.SetVertexStructuredBuffer(0, _skinningBuffer);
-
-                _dirtyFlags &= ~MeshEffectDirtyFlags.SkinningConstants;
-            }
-
             if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.TransformConstants))
             {
                 _transformConstants.ViewProjection = _view * _projection;
@@ -125,46 +99,11 @@ namespace OpenSage.Graphics.Effects
 
                 _dirtyFlags &= ~MeshEffectDirtyFlags.PerDrawConstants;
             }
-
-            if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.ShadingConfigurationsBuffer))
-            {
-                commandEncoder.SetFragmentStructuredBuffer(1, _shadingConfigurationsBuffer);
-                _dirtyFlags &= ~MeshEffectDirtyFlags.ShadingConfigurationsBuffer;
-            }
-
-            if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.MaterialsBuffer))
-            {
-                commandEncoder.SetFragmentStructuredBuffer(0, _materialsBuffer);
-                _dirtyFlags &= ~MeshEffectDirtyFlags.MaterialsBuffer;
-            }
-
-            if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.Texture0))
-            {
-                commandEncoder.SetFragmentTexture(2, _texture0);
-                _dirtyFlags &= ~MeshEffectDirtyFlags.Texture0;
-            }
-
-            if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.Texture1))
-            {
-                commandEncoder.SetFragmentTexture(3, _texture0);
-                _dirtyFlags &= ~MeshEffectDirtyFlags.Texture1;
-            }
-
-            if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.MaterialIndicesBuffer))
-            {
-                commandEncoder.SetVertexStructuredBuffer(1, _materialIndicesBuffer);
-                _dirtyFlags &= ~MeshEffectDirtyFlags.MaterialIndicesBuffer;
-            }
         }
 
         public void SetSkinningBuffer(DynamicBuffer<Matrix4x3> skinningBuffer)
         {
-            if (skinningBuffer == _skinningBuffer)
-            {
-                return;
-            }
-            _skinningBuffer = skinningBuffer;
-            _dirtyFlags |= MeshEffectDirtyFlags.SkinningConstants;
+            SetValue("SkinningBuffer", skinningBuffer);
         }
 
         public void SetSkinningEnabled(bool enabled)
@@ -206,32 +145,27 @@ namespace OpenSage.Graphics.Effects
 
         public void SetMaterials(StaticBuffer<VertexMaterial> materialsBuffer)
         {
-            _materialsBuffer = materialsBuffer;
-            _dirtyFlags |= MeshEffectDirtyFlags.MaterialsBuffer;
+            SetValue("Materials", materialsBuffer);
         }
 
         public void SetTexture0(Texture texture)
         {
-            _texture0 = texture;
-            _dirtyFlags |= MeshEffectDirtyFlags.Texture0;
+            SetValue("Texture0", texture);
         }
 
         public void SetTexture1(Texture texture)
         {
-            _texture1 = texture;
-            _dirtyFlags |= MeshEffectDirtyFlags.Texture1;
+            SetValue("Texture1", texture);
         }
 
         public void SetMaterialIndices(StaticBuffer<uint> materialIndicesBuffer)
         {
-            _materialIndicesBuffer = materialIndicesBuffer;
-            _dirtyFlags |= MeshEffectDirtyFlags.MaterialIndicesBuffer;
+            SetValue("MaterialIndices", materialIndicesBuffer);
         }
 
         public void SetShadingConfigurations(StaticBuffer<ShadingConfiguration> shadingConfigurationsBuffer)
         {
-            _shadingConfigurationsBuffer = shadingConfigurationsBuffer;
-            _dirtyFlags |= MeshEffectDirtyFlags.ShadingConfigurationsBuffer;
+            SetValue("ShadingConfigurations", shadingConfigurationsBuffer);
         }
 
         public void SetShadingConfigurationID(uint shadingConfigurationID)

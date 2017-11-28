@@ -12,8 +12,6 @@ namespace OpenSage.Graphics.ParticleSystems
         private readonly DynamicBuffer<ParticleTransformConstants> _transformConstantBuffer;
         private ParticleTransformConstants _transformConstants;
 
-        private Texture _texture;
-
         private ParticleEffectDirtyFlags _dirtyFlags;
 
         private Matrix4x4 _world = Matrix4x4.Identity;
@@ -27,9 +25,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
             TransformConstants = 0x1,
 
-            Texture = 0x2,
-
-            All = TransformConstants | Texture
+            All = TransformConstants
         }
 
         public ParticleEffect(GraphicsDevice graphicsDevice) 
@@ -46,7 +42,7 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             _dirtyFlags = ParticleEffectDirtyFlags.All;
 
-            commandEncoder.SetFragmentSampler(0, GraphicsDevice.SamplerLinearWrap);
+            SetValue("LinearSampler", GraphicsDevice.SamplerLinearWrap);
         }
 
         protected override void OnApply(CommandEncoder commandEncoder)
@@ -64,12 +60,6 @@ namespace OpenSage.Graphics.ParticleSystems
                 commandEncoder.SetVertexConstantBuffer(0, _transformConstantBuffer);
 
                 _dirtyFlags &= ~ParticleEffectDirtyFlags.TransformConstants;
-            }
-
-            if (_dirtyFlags.HasFlag(ParticleEffectDirtyFlags.Texture))
-            {
-                commandEncoder.SetFragmentTexture(0, _texture);
-                _dirtyFlags &= ~ParticleEffectDirtyFlags.Texture;
             }
         }
 
@@ -93,8 +83,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
         public void SetTexture(Texture texture)
         {
-            _texture = texture;
-            _dirtyFlags |= ParticleEffectDirtyFlags.Texture;
+            SetValue("ParticleTexture", texture);
         }
 
         [StructLayout(LayoutKind.Sequential)]

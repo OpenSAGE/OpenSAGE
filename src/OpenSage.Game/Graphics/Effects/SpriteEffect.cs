@@ -10,8 +10,6 @@ namespace OpenSage.Graphics.Effects
         private readonly DynamicBuffer<TextureConstants> _textureConstantBuffer;
         private TextureConstants _textureConstants;
 
-        private Texture _texture;
-
         private SpriteEffectDirtyFlags _dirtyFlags;
 
         [Flags]
@@ -21,9 +19,7 @@ namespace OpenSage.Graphics.Effects
 
             TextureConstants = 0x1,
 
-            Texture = 0x2,
-
-            All = TextureConstants | Texture
+            All = TextureConstants
         }
 
         public SpriteEffect(GraphicsDevice graphicsDevice) 
@@ -40,7 +36,7 @@ namespace OpenSage.Graphics.Effects
         {
             _dirtyFlags = SpriteEffectDirtyFlags.All;
 
-            commandEncoder.SetFragmentSampler(0, GraphicsDevice.SamplerPointWrap);
+            SetValue("Sampler", GraphicsDevice.SamplerPointWrap);
         }
 
         protected override void OnApply(CommandEncoder commandEncoder)
@@ -53,12 +49,6 @@ namespace OpenSage.Graphics.Effects
 
                 _dirtyFlags &= ~SpriteEffectDirtyFlags.TextureConstants;
             }
-
-            if (_dirtyFlags.HasFlag(SpriteEffectDirtyFlags.Texture))
-            {
-                commandEncoder.SetFragmentTexture(0, _texture);
-                _dirtyFlags &= ~SpriteEffectDirtyFlags.Texture;
-            }
         }
 
         public void SetMipMapLevel(uint mipMapLevel)
@@ -69,8 +59,7 @@ namespace OpenSage.Graphics.Effects
 
         public void SetTexture(Texture texture)
         {
-            _texture = texture;
-            _dirtyFlags |= SpriteEffectDirtyFlags.Texture;
+            SetValue("BaseTexture", texture);
         }
 
         [StructLayout(LayoutKind.Sequential)]

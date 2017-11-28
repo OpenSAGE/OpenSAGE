@@ -71,9 +71,19 @@ namespace LLGfx
                 0);
         }
 
+        private void PlatformSetVertexTexture(int slot, Texture texture)
+        {
+            _context.VertexShader.SetShaderResource(slot, texture?.DeviceShaderResourceView);
+        }
+
         private void PlatformSetFragmentTexture(int slot, Texture texture)
         {
             _context.PixelShader.SetShaderResource(slot, texture?.DeviceShaderResourceView);
+        }
+
+        private void PlatformSetVertexSampler(int slot, SamplerState sampler)
+        {
+            _context.VertexShader.SetSampler(slot, sampler.DeviceSamplerState);
         }
 
         private void PlatformSetFragmentSampler(int slot, SamplerState sampler)
