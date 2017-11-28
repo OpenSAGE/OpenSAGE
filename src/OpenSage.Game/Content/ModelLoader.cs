@@ -224,16 +224,16 @@ namespace OpenSage.Content
             return texture;
         }
 
-        private static MeshVertex[] CreateVertices(
+        private static MeshVertex.Basic[] CreateVertices(
             W3dMesh w3dMesh,
             bool isSkinned)
         {
             var numVertices = (uint) w3dMesh.Vertices.Length;
-            var vertices = new MeshVertex[numVertices];
+            var vertices = new MeshVertex.Basic[numVertices];
 
             for (var i = 0; i < numVertices; i++)
             {
-                vertices[i] = new MeshVertex
+                vertices[i] = new MeshVertex.Basic
                 {
                     Position = w3dMesh.Vertices[i],
                     Normal = w3dMesh.Normals[i],
@@ -282,7 +282,7 @@ namespace OpenSage.Content
                 ? 2u
                 : hasTextureStage0 ? 1u : 0u;
 
-            var texCoords = new MeshTexCoords[w3dMesh.Header.NumVertices];
+            var texCoords = new MeshVertex.TexCoords[w3dMesh.Header.NumVertices];
 
             if (hasTextureStage0 || (w3dMaterialPass.ShaderMaterialId != null && w3dMaterialPass.TexCoords != null))
             {

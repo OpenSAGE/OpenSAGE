@@ -24,7 +24,7 @@ namespace OpenSage.Terrain
         private Texture _tileDataTexture;
         private StaticBuffer<CliffInfo> _cliffDetailsBuffer;
         private StaticBuffer<TextureInfo> _textureDetailsBuffer;
-        private TextureSet _textures;
+        private Texture _textureArray;
 
         [Flags]
         private enum TerrainEffectDirtyFlags
@@ -113,11 +113,11 @@ namespace OpenSage.Terrain
                         ResourceType.StructuredBuffer,
                         2, 1),
 
-                    // TextureArrays
+                    // Textures
                     PipelineLayoutEntry.CreateResourceView(
                         ShaderStageVisibility.Pixel,
                         ResourceType.Texture,
-                        3, 4)
+                        3, 1)
                 },
 
                 StaticSamplerStates = new[]
@@ -125,7 +125,12 @@ namespace OpenSage.Terrain
                     new StaticSamplerDescription(
                         ShaderStageVisibility.Pixel,
                         0,
-                        new SamplerStateDescription(SamplerFilter.Anisotropic))
+                        new SamplerStateDescription
+                        {
+                            Filter = SamplerFilter.Anisotropic,
+                            AddressU = SamplerAddressMode.Wrap,
+                            AddressV = SamplerAddressMode.Wrap
+                        })
                 }
             };
         }
@@ -181,7 +186,7 @@ namespace OpenSage.Terrain
 
             if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.Textures))
             {
-                commandEncoder.SetTextures(5, _textures);
+                commandEncoder.SetTexture(5, _textureArray);
                 _dirtyFlags &= ~TerrainEffectDirtyFlags.Textures;
             }
         }
@@ -229,9 +234,9 @@ namespace OpenSage.Terrain
             _dirtyFlags |= TerrainEffectDirtyFlags.TextureDetailsBuffer;
         }
 
-        public void SetTextureArrays(TextureSet textures)
+        public void SetTextureArray(Texture textureArray)
         {
-            _textures = textures;
+            _textureArray = textureArray;
             _dirtyFlags |= TerrainEffectDirtyFlags.Textures;
         }
 

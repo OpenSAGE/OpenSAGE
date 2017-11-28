@@ -2,13 +2,17 @@
 {
     public struct SamplerStateDescription
     {
+        public static readonly SamplerStateDescription Default = new SamplerStateDescription
+        {
+            Filter = SamplerFilter.MinMagMipLinear,
+            AddressU = SamplerAddressMode.Wrap,
+            AddressV = SamplerAddressMode.Wrap,
+            MaxAnisotropy = 0
+        };
+
         public SamplerFilter Filter;
         public int MaxAnisotropy;
-
-        public SamplerStateDescription(SamplerFilter filter)
-        {
-            Filter = filter;
-            MaxAnisotropy = 0;
-        }
+        public SamplerAddressMode AddressU;
+        public SamplerAddressMode AddressV;
     }
 }

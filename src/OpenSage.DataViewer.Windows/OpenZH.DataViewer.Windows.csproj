@@ -205,6 +205,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <PixelShader Include="Shaders\SimplePS.hlsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </PixelShader>
+    <Content Include="Shaders\Simple.hlsli" />
     <Content Include="Shaders\Lighting.hlsli" />
     <VertexShader Include="Shaders\ParticleVS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -215,7 +219,7 @@
     </PixelShader>
     <VertexShader Include="Shaders\SimpleVS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ShaderModel>5_1</ShaderModel>
+      <ShaderModel>5_0</ShaderModel>
     </VertexShader>
     <Content Include="Shaders\Common.hlsli" />
     <Content Include="Shaders\Sprite.hlsli" />

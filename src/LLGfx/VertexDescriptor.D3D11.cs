@@ -16,18 +16,7 @@ namespace LLGfx
             DeviceInputElements = new D3D11.InputElement[attributeDescriptions.Length];
             for (var i = 0; i < attributeDescriptions.Length; i++)
             {
-                var desc = attributeDescriptions[i];
-
-                DeviceInputElements[i] = new D3D11.InputElement
-                {
-                    AlignedByteOffset = desc.Offset,
-                    Classification = desc.Classification.ToInputClassification(),
-                    Format = desc.Format.ToDxgiFormat(),
-                    InstanceDataStepRate = (desc.Classification == InputClassification.PerInstanceData) ? 1 : 0,
-                    SemanticIndex = desc.SemanticIndex,
-                    SemanticName = desc.SemanticName,
-                    Slot = desc.BufferIndex
-                };
+                DeviceInputElements[i] = attributeDescriptions[i].ToInputElement();
             }
 
             _layoutDescriptions = layoutDescriptions;

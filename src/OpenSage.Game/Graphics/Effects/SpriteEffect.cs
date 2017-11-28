@@ -39,6 +39,9 @@ namespace OpenSage.Graphics.Effects
 
         private static PipelineLayoutDescription CreatePipelineLayoutDescription()
         {
+            var samplerStateDescription = SamplerStateDescription.Default;
+            samplerStateDescription.Filter = SamplerFilter.MinMagMipPoint;
+
             return new PipelineLayoutDescription
             {
                 Entries = new[]
@@ -61,7 +64,7 @@ namespace OpenSage.Graphics.Effects
                     new StaticSamplerDescription(
                         ShaderStageVisibility.Pixel,
                         0,
-                        new SamplerStateDescription(SamplerFilter.MinMagMipPoint))
+                        samplerStateDescription)
                 }
             };
         }

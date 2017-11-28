@@ -85,7 +85,7 @@ namespace OpenSage.Graphics.ParticleSystems
                     new StaticSamplerDescription(
                         ShaderStageVisibility.Pixel,
                         0,
-                        new SamplerStateDescription(SamplerFilter.MinMagMipLinear))
+                        SamplerStateDescription.Default)
                 }
             };
         }

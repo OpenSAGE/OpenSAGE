@@ -9,12 +9,15 @@ using OpenSage.Content.Util;
 using OpenSage.Data;
 using OpenSage.Data.Map;
 using OpenSage.Data.Tga;
+using OpenSage.Graphics.Effects;
 using OpenSage.Mathematics;
 using OpenSage.Scripting;
 using OpenSage.Scripting.Actions;
 using OpenSage.Scripting.Conditions;
 using OpenSage.Settings;
 using OpenSage.Terrain;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace OpenSage.Content
 {
@@ -75,12 +78,8 @@ namespace OpenSage.Content
             CreateTextures(
                 contentManager,
                 mapFile.BlendTileData,
-                out var textureArrays,
+                out var textureArray,
                 out var textureDetails);
-
-            var textureSet = AddDisposable(new TextureSet(
-                contentManager.GraphicsDevice, 
-                textureArrays));
 
             var textureDetailsBuffer = AddDisposable(StaticBuffer.Create(
                 contentManager.GraphicsDevice,
@@ -90,7 +89,7 @@ namespace OpenSage.Content
             terrainEffect.SetTileData(tileDataTexture);
             terrainEffect.SetCliffDetails(cliffDetailsBuffer);
             terrainEffect.SetTextureDetails(textureDetailsBuffer);
-            terrainEffect.SetTextureArrays(textureSet);
+            terrainEffect.SetTextureArray(textureArray);
 
             var objectsEntity = new Entity();
             result.Entities.Add(objectsEntity);
@@ -545,35 +544,17 @@ namespace OpenSage.Content
         private void CreateTextures(
             ContentManager contentManager,
             BlendTileData blendTileData,
-            out Texture[] textureArrays,
+            out Texture textureArray,
             out TextureInfo[] textureDetails)
         {
+            var graphicsDevice = contentManager.GraphicsDevice;
+
             var numTextures = blendTileData.Textures.Length;
 
-            var texturesBySize = new Dictionary<int, List<FileSystemEntry>>();
+            var textureInfo = new (int size, FileSystemEntry entry)[numTextures];
+            var largestTextureSize = int.MinValue;
 
             textureDetails = new TextureInfo[numTextures];
-
-            uint getTextureSizeIndex(int size)
-            {
-                switch (size)
-                {
-                    case 64:
-                        return 0;
-
-                    case 128:
-                        return 1;
-
-                    case 256:
-                        return 2;
-
-                    case 384:
-                        return 3;
-
-                    default:
-                        throw new InvalidOperationException();
-                }
-            }
 
             for (var i = 0; i < numTextures; i++)
             {
@@ -584,56 +565,66 @@ namespace OpenSage.Content
                 var entry = contentManager.FileSystem.GetFile(texturePath);
 
                 var size = TgaFile.GetSquareTextureSize(entry);
-                if (!texturesBySize.TryGetValue(size, out var textureData))
+
+                textureInfo[i] = (size, entry);
+
+                if (size > largestTextureSize)
                 {
-                    texturesBySize.Add(size, textureData = new List<FileSystemEntry>());
+                    largestTextureSize = size;
                 }
 
                 textureDetails[i] = new TextureInfo
                 {
-                    TextureSizeIndex = getTextureSizeIndex(size),
-                    SizeSpecificIndex = (uint) textureData.Count,
+                    TextureIndex = (uint) i,
                     CellSize = mapTexture.CellSize * 2
                 };
-
-                textureData.Add(entry);
             }
 
-            textureArrays = new Texture[4];
+            textureArray = AddDisposable(Texture.CreateTexture2DArray(
+                graphicsDevice,
+                PixelFormat.Rgba8UNorm,
+                numTextures,
+                MipMapUtility.CalculateMipMapCount(largestTextureSize, largestTextureSize),
+                largestTextureSize,
+                largestTextureSize));
 
-            foreach (var textureData in texturesBySize)
+            var spriteEffect = contentManager.GetEffect<SpriteEffect>();
+
+            for (var i = 0; i < numTextures; i++)
             {
-                void addToTexture2DArray(ref Texture textureArray)
+                var tgaFile = TgaFile.FromFileSystemEntry(textureInfo[i].entry);
+                var originalData = TextureLoader.GetData(tgaFile, false)[0].Data;
+
+                byte[] resizedData;
+                if (tgaFile.Header.Width == largestTextureSize)
                 {
-                    if (textureArray == null)
+                    resizedData = originalData;
+                }
+                else
+                {
+                    using (var tgaImage = Image.LoadPixelData<Rgba32>(originalData, tgaFile.Header.Width, tgaFile.Header.Height))
                     {
-                        textureArray = AddDisposable(Texture.CreateTexture2DArray(
-                            contentManager.GraphicsDevice,
-                            PixelFormat.Rgba8UNorm,
-                            textureData.Value.Count,
-                            MipMapUtility.CalculateMipMapCount(textureData.Key, textureData.Key),
-                            textureData.Key,
-                            textureData.Key));
-                    }
+                        tgaImage.Mutate(x => x
+                            .Resize(largestTextureSize, largestTextureSize, new Lanczos2Resampler()));
 
-                    for (var arrayIndex = 0; arrayIndex < textureData.Value.Count; arrayIndex++)
-                    {
-                        var tgaFile = TgaFile.FromFileSystemEntry(textureData.Value[arrayIndex]);
-                        var mipMapData = TextureLoader.GetData(tgaFile, true);
-
-                        using (var sourceTexture = Texture.CreateTexture2D(
-                            contentManager.GraphicsDevice,
-                            PixelFormat.Rgba8UNorm,
-                            textureData.Key,
-                            textureData.Key,
-                            mipMapData))
-                        {
-                            textureArray.CopyFromTexture(sourceTexture, arrayIndex);
-                        }
+                        resizedData = tgaImage.SavePixelData();
                     }
                 }
 
-                addToTexture2DArray(ref textureArrays[getTextureSizeIndex(textureData.Key)]);
+                var resizedMipMaps = MipMapUtility.GenerateMipMaps(
+                    largestTextureSize,
+                    largestTextureSize,
+                    resizedData);
+
+                using (var sourceTexture = Texture.CreateTexture2D(
+                    graphicsDevice,
+                    PixelFormat.Rgba8UNorm,
+                    largestTextureSize,
+                    largestTextureSize,
+                    resizedMipMaps))
+                {
+                    textureArray.CopyFromTexture(sourceTexture, i);
+                }
             }
         }
     }

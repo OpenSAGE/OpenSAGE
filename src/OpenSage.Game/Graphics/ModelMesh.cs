@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
-using System.Runtime.InteropServices;
 using LLGfx;
 using LLGfx.Effects;
 using OpenSage.Graphics.Effects;
@@ -24,7 +22,7 @@ namespace OpenSage.Graphics
     {
         internal const int MaxBones = 100;
 
-        private readonly StaticBuffer<MeshVertex> _vertexBuffer;
+        private readonly StaticBuffer<MeshVertex.Basic> _vertexBuffer;
         private readonly StaticBuffer<ushort> _indexBuffer;
 
         private readonly StaticBuffer<VertexMaterial> _materialsBuffer;
@@ -47,7 +45,7 @@ namespace OpenSage.Graphics
         public ModelMesh(
             GraphicsDevice graphicsDevice,
             string name,
-            MeshVertex[] vertices,
+            MeshVertex.Basic[] vertices,
             ushort[] indices,
             VertexMaterial[] vertexMaterials,
             ModelMeshMaterialPass[] materialPasses,
@@ -187,13 +185,5 @@ namespace OpenSage.Graphics
                 }
             }
         }
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct MeshVertex
-    {
-        public Vector3 Position;
-        public Vector3 Normal;
-        public uint BoneIndex;
     }
 }

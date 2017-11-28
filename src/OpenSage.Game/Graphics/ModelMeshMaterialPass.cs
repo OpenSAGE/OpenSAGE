@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Numerics;
 using LLGfx;
 
 namespace OpenSage.Graphics
@@ -10,13 +9,13 @@ namespace OpenSage.Graphics
 
         public IReadOnlyList<ModelMeshPart> MeshParts { get; set; }
 
-        internal StaticBuffer<MeshTexCoords> TexCoordVertexBuffer;
+        internal StaticBuffer<MeshVertex.TexCoords> TexCoordVertexBuffer;
         internal StaticBuffer<uint> MaterialIndicesBuffer;
 
         internal ModelMeshMaterialPass(
             GraphicsDevice graphicsDevice,
             uint numTextureStages,
-            MeshTexCoords[] texCoords,
+            MeshVertex.TexCoords[] texCoords,
             uint[] materialIndices,
             IReadOnlyList<ModelMeshPart> meshParts)
         {
@@ -34,11 +33,5 @@ namespace OpenSage.Graphics
 
             MeshParts = meshParts;
         }
-    }
-
-    public struct MeshTexCoords
-    {
-        public Vector2 UV0;
-        public Vector2 UV1;
     }
 }

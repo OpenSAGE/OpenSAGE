@@ -22,8 +22,8 @@ namespace LLGfx
                     new D3D11.SamplerStateDescription
                     {
                         Filter = staticSamplerState.SamplerStateDescription.Filter.ToFilter(),
-                        AddressU = TextureAddressMode.Wrap,
-                        AddressV = TextureAddressMode.Wrap,
+                        AddressU = staticSamplerState.SamplerStateDescription.AddressU.ToTextureAddressMode(),
+                        AddressV = staticSamplerState.SamplerStateDescription.AddressV.ToTextureAddressMode(),
                         AddressW = TextureAddressMode.Clamp,
                         ComparisonFunction = D3D11.Comparison.Always,
                         MinimumLod = 0,

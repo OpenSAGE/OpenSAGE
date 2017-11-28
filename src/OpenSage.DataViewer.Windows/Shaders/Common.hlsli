@@ -7,6 +7,7 @@ struct VSInputSkinnedInstanced
     float3 Position : POSITION;
     float3 Normal   : NORMAL;
     uint BoneIndex  : BLENDINDICES;
+
     float2 UV0      : TEXCOORD0;
     float2 UV1      : TEXCOORD1;
 

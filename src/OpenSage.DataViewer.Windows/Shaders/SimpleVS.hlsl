@@ -1,19 +1,4 @@
-#include "Common.hlsli"
-
-struct VSOutput
-{
-    VSOutputCommon VSOutput;
-    PSInputCommon TransferCommon;
-
-};
-
-struct SimpleConstants
-{
-    float3 ColorEmissive;
-    float4 TexCoordTransform0;
-};
-
-ConstantBuffer<SimpleConstants> SimpleParamsCB : register(b0);
+#include "Simple.hlsli"
 
 // ColorEmissive (float3)
 // Texture_0
@@ -22,9 +7,9 @@ ConstantBuffer<SimpleConstants> SimpleParamsCB : register(b0);
 // AlphaBlendingEnable
 // FogEnable
 
-VSOutput main(VSInputSkinnedInstanced input)
+VSOutputSimple main(VSInputSkinnedInstanced input)
 {
-    VSOutput result;
+    VSOutputSimple result;
 
     VSSkinnedInstanced(input, result.VSOutput, result.TransferCommon);
 

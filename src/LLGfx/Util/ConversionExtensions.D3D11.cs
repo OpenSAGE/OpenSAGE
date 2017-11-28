@@ -24,6 +24,20 @@ namespace LLGfx.Util
             }
         }
 
+        public static InputElement ToInputElement(this VertexAttributeDescription value)
+        {
+            return new InputElement
+            {
+                AlignedByteOffset = value.Offset,
+                Classification = value.Classification.ToInputClassification(),
+                Format = value.Format.ToDxgiFormat(),
+                InstanceDataStepRate = (value.Classification == InputClassification.PerInstanceData) ? 1 : 0,
+                SemanticIndex = value.SemanticIndex,
+                SemanticName = value.SemanticName,
+                Slot = value.BufferIndex
+            };
+        }
+
         public static D3D11.RasterizerStateDescription ToRasterizerStateDescription(this RasterizerStateDescription value)
         {
             var result = D3D11.RasterizerStateDescription.Default();
@@ -290,6 +304,21 @@ namespace LLGfx.Util
 
                 case BufferBindFlags.ShaderResource:
                     return BindFlags.ShaderResource;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public static TextureAddressMode ToTextureAddressMode(this SamplerAddressMode value)
+        {
+            switch (value)
+            {
+                case SamplerAddressMode.Clamp:
+                    return TextureAddressMode.Clamp;
+
+                case SamplerAddressMode.Wrap:
+                    return TextureAddressMode.Wrap;
 
                 default:
                     throw new ArgumentOutOfRangeException();
