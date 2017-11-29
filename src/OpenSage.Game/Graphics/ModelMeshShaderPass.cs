@@ -6,14 +6,14 @@ namespace OpenSage.Graphics
 {
     public sealed class ModelMeshShaderPass : DisposableBase
     {
-        internal StaticBuffer<Vector2> TexCoordVertexBuffer;
+        internal Buffer<Vector2> TexCoordVertexBuffer;
 
         internal ModelMeshShaderPass(
             GraphicsDevice graphicsDevice,
             Vector2[] texCoords,
             Effect effect)
         {
-            TexCoordVertexBuffer = AddDisposable(StaticBuffer.Create(
+            TexCoordVertexBuffer = AddDisposable(Buffer<Vector2>.CreateStatic(
                 graphicsDevice,
                 texCoords,
                 BufferBindFlags.VertexBuffer));

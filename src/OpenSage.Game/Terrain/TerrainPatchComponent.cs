@@ -10,8 +10,8 @@ namespace OpenSage.Terrain
 {
     public sealed class TerrainPatchComponent : RenderableComponent
     {
-        private readonly StaticBuffer<TerrainVertex> _vertexBuffer;
-        private readonly StaticBuffer<ushort> _indexBuffer;
+        private readonly Buffer<TerrainVertex> _vertexBuffer;
+        private readonly Buffer<ushort> _indexBuffer;
 
         private readonly TerrainEffect _terrainEffect;
         private readonly EffectPipelineStateHandle _pipelineStateHandle;
@@ -28,8 +28,8 @@ namespace OpenSage.Terrain
             TerrainEffect terrainEffect,
             EffectPipelineStateHandle pipelineStateHandle,
             Int32Rect patchBounds,
-            StaticBuffer<TerrainVertex> vertexBuffer,
-            StaticBuffer<ushort> indexBuffer,
+            Buffer<TerrainVertex> vertexBuffer,
+            Buffer<ushort> indexBuffer,
             Triangle[] triangles,
             BoundingBox boundingBox)
         {

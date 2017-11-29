@@ -7,7 +7,7 @@ namespace OpenSage.Content.Util
     {
         private struct CacheEntry
         {
-            public StaticBuffer<ushort> Buffer;
+            public Buffer<ushort> Buffer;
             public ushort[] Indices;
         }
 
@@ -20,7 +20,7 @@ namespace OpenSage.Content.Util
             _cachedIndexBuffers = new Dictionary<TerrainPatchSize, CacheEntry>();
         }
 
-        public StaticBuffer<ushort> GetIndexBuffer(
+        public Buffer<ushort> GetIndexBuffer(
             int width, 
             int height, 
             out ushort[] indices)
@@ -47,7 +47,7 @@ namespace OpenSage.Content.Util
 
         public uint CalculateNumIndices(int width, int height) => (uint) ((width - 1) * (height - 1) * 6);
 
-        private StaticBuffer<ushort> CreateIndexBuffer(
+        private Buffer<ushort> CreateIndexBuffer(
             TerrainPatchSize size,
             out ushort[] indices)
         {
@@ -76,7 +76,7 @@ namespace OpenSage.Content.Util
                 }
             }
 
-            return StaticBuffer.Create(
+            return Buffer<ushort>.CreateStatic(
                 _graphicsDevice,
                 indices,
                 BufferBindFlags.IndexBuffer);

@@ -41,10 +41,10 @@ namespace OpenSage.Graphics.ParticleSystems
         private Particle[] _particles;
         private List<int> _deadList;
 
-        private DynamicBuffer<ParticleVertex> _vertexBuffer;
+        private Buffer<ParticleVertex> _vertexBuffer;
         private ParticleVertex[] _vertices;
 
-        private StaticBuffer<ushort> _indexBuffer;
+        private Buffer<ushort> _indexBuffer;
 
         public ParticleSystemDefinition Definition { get; }
 
@@ -117,7 +117,7 @@ namespace OpenSage.Graphics.ParticleSystems
             _deadList = new List<int>();
             _deadList.AddRange(Enumerable.Range(0, maxParticles));
 
-            _vertexBuffer = DynamicBuffer<ParticleVertex>.CreateArray(
+            _vertexBuffer = Buffer<ParticleVertex>.CreateDynamicArray(
                 GraphicsDevice,
                 maxParticles * 4,
                 BufferBindFlags.VertexBuffer);
@@ -152,7 +152,7 @@ namespace OpenSage.Graphics.ParticleSystems
             }
         }
 
-        private static StaticBuffer<ushort> CreateIndexBuffer(GraphicsDevice graphicsDevice, int maxParticles)
+        private static Buffer<ushort> CreateIndexBuffer(GraphicsDevice graphicsDevice, int maxParticles)
         {
             var indices = new ushort[maxParticles * 2 * 3]; // Two triangles per particle.
             var indexCounter = 0;
@@ -167,7 +167,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 indices[indexCounter++] = (ushort) (i + 3);
             }
 
-            var result = StaticBuffer.Create(
+            var result = Buffer<ushort>.CreateStatic(
                 graphicsDevice,
                 indices,
                 BufferBindFlags.IndexBuffer);
@@ -457,7 +457,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 _vertices[vertexIndex++] = particleVertex;
             }
 
-            _vertexBuffer.UpdateData(_vertices);
+            _vertexBuffer.SetData(_vertices);
         }
 
         internal override void BuildRenderList(RenderList renderList)

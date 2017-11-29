@@ -9,10 +9,10 @@ namespace OpenSage.Terrain
 {
     public sealed class TerrainEffect : Effect, IEffectMatrices, IEffectLights
     {
-        private readonly DynamicBuffer<TransformConstants> _transformConstantBuffer;
+        private readonly Buffer<TransformConstants> _transformConstantBuffer;
         private TransformConstants _transformConstants;
 
-        private readonly DynamicBuffer<LightingConstants> _lightingConstantBuffer;
+        private readonly Buffer<LightingConstants> _lightingConstantBuffer;
         private LightingConstants _lightingConstants;
 
         private TerrainEffectDirtyFlags _dirtyFlags;
@@ -41,9 +41,9 @@ namespace OpenSage.Terrain
                   "TerrainPS",
                   TerrainVertex.VertexDescriptor)
         {
-            _transformConstantBuffer = AddDisposable(DynamicBuffer<TransformConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer));
+            _transformConstantBuffer = AddDisposable(Buffer<TransformConstants>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer));
 
-            _lightingConstantBuffer = AddDisposable(DynamicBuffer<LightingConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer));
+            _lightingConstantBuffer = AddDisposable(Buffer<LightingConstants>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer));
         }
 
         protected override void OnBegin(CommandEncoder commandEncoder)
@@ -60,7 +60,7 @@ namespace OpenSage.Terrain
                 _transformConstants.World = _world;
                 _transformConstants.WorldViewProjection = _world * _view * _projection;
 
-                _transformConstantBuffer.UpdateData(ref _transformConstants);
+                _transformConstantBuffer.SetData(ref _transformConstants);
 
                 commandEncoder.SetVertexConstantBuffer(0, _transformConstantBuffer);
 
@@ -72,7 +72,7 @@ namespace OpenSage.Terrain
                 Matrix4x4.Invert(_view, out var viewInverse);
                 _lightingConstants.CameraPosition = viewInverse.Translation;
 
-                _lightingConstantBuffer.UpdateData(ref _lightingConstants);
+                _lightingConstantBuffer.SetData(ref _lightingConstants);
 
                 commandEncoder.SetFragmentConstantBuffer(0, _lightingConstantBuffer);
 
@@ -110,12 +110,12 @@ namespace OpenSage.Terrain
             SetValue("TileData", tileDataTexture);
         }
 
-        public void SetCliffDetails(StaticBuffer<CliffInfo> cliffDetailsBuffer)
+        public void SetCliffDetails(Buffer<CliffInfo> cliffDetailsBuffer)
         {
             SetValue("CliffDetails", cliffDetailsBuffer);
         }
 
-        public void SetTextureDetails(StaticBuffer<TextureInfo> textureDetailsBuffer)
+        public void SetTextureDetails(Buffer<TextureInfo> textureDetailsBuffer)
         {
             SetValue("TextureDetails", textureDetailsBuffer);
         }

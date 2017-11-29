@@ -11,13 +11,13 @@ namespace OpenSage.Graphics.Effects
     {
         public const int MaxTextures = 32;
 
-        private readonly DynamicBuffer<MeshTransformConstants> _transformConstantBuffer;
+        private readonly Buffer<MeshTransformConstants> _transformConstantBuffer;
         private MeshTransformConstants _transformConstants;
 
-        private readonly DynamicBuffer<LightingConstants> _lightingConstantBuffer;
+        private readonly Buffer<LightingConstants> _lightingConstantBuffer;
         private LightingConstants _lightingConstants;
 
-        private readonly DynamicBuffer<PerDrawConstants> _perDrawConstantBuffer;
+        private readonly Buffer<PerDrawConstants> _perDrawConstantBuffer;
         private PerDrawConstants _perDrawConstants;
 
         private MeshEffectDirtyFlags _dirtyFlags;
@@ -52,11 +52,11 @@ namespace OpenSage.Graphics.Effects
                   "FixedFunctionPS",
                   MeshVertex.VertexDescriptor)
         {
-            _transformConstantBuffer = AddDisposable(DynamicBuffer<MeshTransformConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer));
+            _transformConstantBuffer = AddDisposable(Buffer<MeshTransformConstants>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer));
 
-            _lightingConstantBuffer = AddDisposable(DynamicBuffer<LightingConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer));
+            _lightingConstantBuffer = AddDisposable(Buffer<LightingConstants>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer));
 
-            _perDrawConstantBuffer = AddDisposable(DynamicBuffer<PerDrawConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer));
+            _perDrawConstantBuffer = AddDisposable(Buffer<PerDrawConstants>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer));
         }
         
         protected override void OnBegin(CommandEncoder commandEncoder)
@@ -72,7 +72,7 @@ namespace OpenSage.Graphics.Effects
             {
                 _transformConstants.ViewProjection = _view * _projection;
 
-                _transformConstantBuffer.UpdateData(ref _transformConstants);
+                _transformConstantBuffer.SetData(ref _transformConstants);
 
                 commandEncoder.SetVertexConstantBuffer(0, _transformConstantBuffer);
 
@@ -84,7 +84,7 @@ namespace OpenSage.Graphics.Effects
                 Matrix4x4.Invert(_view, out var viewInverse);
                 _lightingConstants.CameraPosition = viewInverse.Translation;
 
-                _lightingConstantBuffer.UpdateData(ref _lightingConstants);
+                _lightingConstantBuffer.SetData(ref _lightingConstants);
 
                 commandEncoder.SetFragmentConstantBuffer(0, _lightingConstantBuffer);
 
@@ -93,7 +93,7 @@ namespace OpenSage.Graphics.Effects
 
             if (_dirtyFlags.HasFlag(MeshEffectDirtyFlags.PerDrawConstants))
             {
-                _perDrawConstantBuffer.UpdateData(ref _perDrawConstants);
+                _perDrawConstantBuffer.SetData(ref _perDrawConstants);
 
                 commandEncoder.SetFragmentConstantBuffer(1, _perDrawConstantBuffer);
 
@@ -101,7 +101,7 @@ namespace OpenSage.Graphics.Effects
             }
         }
 
-        public void SetSkinningBuffer(DynamicBuffer<Matrix4x3> skinningBuffer)
+        public void SetSkinningBuffer(Buffer<Matrix4x3> skinningBuffer)
         {
             SetValue("SkinningBuffer", skinningBuffer);
         }
@@ -143,7 +143,7 @@ namespace OpenSage.Graphics.Effects
             _dirtyFlags |= MeshEffectDirtyFlags.LightingConstants;
         }
 
-        public void SetMaterials(StaticBuffer<VertexMaterial> materialsBuffer)
+        public void SetMaterials(Buffer<VertexMaterial> materialsBuffer)
         {
             SetValue("Materials", materialsBuffer);
         }
@@ -158,12 +158,12 @@ namespace OpenSage.Graphics.Effects
             SetValue("Texture1", texture);
         }
 
-        public void SetMaterialIndices(StaticBuffer<uint> materialIndicesBuffer)
+        public void SetMaterialIndices(Buffer<uint> materialIndicesBuffer)
         {
             SetValue("MaterialIndices", materialIndicesBuffer);
         }
 
-        public void SetShadingConfigurations(StaticBuffer<ShadingConfiguration> shadingConfigurationsBuffer)
+        public void SetShadingConfigurations(Buffer<ShadingConfiguration> shadingConfigurationsBuffer)
         {
             SetValue("ShadingConfigurations", shadingConfigurationsBuffer);
         }

@@ -22,11 +22,11 @@ namespace OpenSage.Graphics
     {
         internal const int MaxBones = 100;
 
-        private readonly StaticBuffer<MeshVertex.Basic> _vertexBuffer;
-        private readonly StaticBuffer<ushort> _indexBuffer;
+        private readonly Buffer<MeshVertex.Basic> _vertexBuffer;
+        private readonly Buffer<ushort> _indexBuffer;
 
-        private readonly StaticBuffer<VertexMaterial> _materialsBuffer;
-        private readonly StaticBuffer<ShadingConfiguration> _shadingConfigurationsBuffer;
+        private readonly Buffer<VertexMaterial> _materialsBuffer;
+        private readonly Buffer<ShadingConfiguration> _shadingConfigurationsBuffer;
 
         public string Name { get; }
 
@@ -69,17 +69,17 @@ namespace OpenSage.Graphics
             Hidden = hidden;
             CameraOriented = cameraOriented;
 
-            _vertexBuffer = AddDisposable(StaticBuffer.Create(
+            _vertexBuffer = AddDisposable(Buffer<MeshVertex.Basic>.CreateStatic(
                 graphicsDevice,
                 vertices,
                 BufferBindFlags.VertexBuffer));
 
-            _indexBuffer = AddDisposable(StaticBuffer.Create(
+            _indexBuffer = AddDisposable(Buffer<ushort>.CreateStatic(
                 graphicsDevice,
                 indices,
                 BufferBindFlags.IndexBuffer));
 
-            _materialsBuffer = AddDisposable(StaticBuffer.Create(
+            _materialsBuffer = AddDisposable(Buffer<VertexMaterial>.CreateStatic(
                 graphicsDevice,
                 vertexMaterials,
                 BufferBindFlags.ShaderResource));
@@ -90,7 +90,7 @@ namespace OpenSage.Graphics
             }
             MaterialPasses = materialPasses;
 
-            _shadingConfigurationsBuffer = AddDisposable(StaticBuffer.Create(
+            _shadingConfigurationsBuffer = AddDisposable(Buffer<ShadingConfiguration>.CreateStatic(
                 graphicsDevice,
                 shadingConfigurations,
                 BufferBindFlags.ShaderResource));

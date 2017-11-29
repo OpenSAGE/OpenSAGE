@@ -72,7 +72,7 @@ namespace LLGfx
                 MipLevels = mipMapCount,
                 OptionFlags = ResourceOptionFlags.None,
                 SampleDescription = new SharpDX.DXGI.SampleDescription(1, 0),
-                Usage = mipMapData != null ? ResourceUsage.Immutable : ResourceUsage.Default,
+                Usage = mipMapData != null ? D3D11.ResourceUsage.Immutable : D3D11.ResourceUsage.Default,
                 Width = width
             };
 

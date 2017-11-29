@@ -79,7 +79,7 @@ namespace OpenSage.Content
                 out var textureArray,
                 out var textureDetails);
 
-            var textureDetailsBuffer = AddDisposable(StaticBuffer.Create(
+            var textureDetailsBuffer = AddDisposable(Buffer<TextureInfo>.CreateStatic(
                 contentManager.GraphicsDevice,
                 textureDetails,
                 BufferBindFlags.ShaderResource));
@@ -355,7 +355,7 @@ namespace OpenSage.Content
                 boundingBox);
         }
 
-        private static StaticBuffer<TerrainVertex> CreateVertexBuffer(
+        private static Buffer<TerrainVertex> CreateVertexBuffer(
            GraphicsDevice graphicsDevice,
            HeightMap heightMap,
            Int32Rect patchBounds,
@@ -412,7 +412,7 @@ namespace OpenSage.Content
                 }
             }
 
-            return StaticBuffer.Create(
+            return Buffer<TerrainVertex>.CreateStatic(
                 graphicsDevice,
                 vertices,
                 BufferBindFlags.VertexBuffer);
@@ -512,7 +512,7 @@ namespace OpenSage.Content
             public byte Flags;
         }
 
-        private static StaticBuffer<CliffInfo> CreateCliffDetails(
+        private static Buffer<CliffInfo> CreateCliffDetails(
             GraphicsDevice graphicsDevice,
             MapFile mapFile)
         {
@@ -532,7 +532,7 @@ namespace OpenSage.Content
             }
 
             return cliffDetails.Length > 0
-                ? StaticBuffer.Create(
+                ? Buffer<CliffInfo>.CreateStatic(
                     graphicsDevice,
                     cliffDetails,
                     BufferBindFlags.ShaderResource)

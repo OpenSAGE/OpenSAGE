@@ -7,7 +7,7 @@ namespace OpenSage.Graphics.Effects
 {
     public sealed class SpriteEffect : Effect
     {
-        private readonly DynamicBuffer<TextureConstants> _textureConstantBuffer;
+        private readonly Buffer<TextureConstants> _textureConstantBuffer;
         private TextureConstants _textureConstants;
 
         private SpriteEffectDirtyFlags _dirtyFlags;
@@ -29,7 +29,7 @@ namespace OpenSage.Graphics.Effects
                   "SpritePS", 
                   null)
         {
-            _textureConstantBuffer = DynamicBuffer<TextureConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer);
+            _textureConstantBuffer = Buffer<TextureConstants>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer);
         }
 
         protected override void OnBegin(CommandEncoder commandEncoder)
@@ -43,7 +43,7 @@ namespace OpenSage.Graphics.Effects
         {
             if (_dirtyFlags.HasFlag(SpriteEffectDirtyFlags.TextureConstants))
             {
-                _textureConstantBuffer.UpdateData(_textureConstants);
+                _textureConstantBuffer.SetData(_textureConstants);
 
                 commandEncoder.SetFragmentConstantBuffer(0, _textureConstantBuffer);
 

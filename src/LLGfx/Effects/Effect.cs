@@ -9,12 +9,12 @@ namespace LLGfx.Effects
         private readonly GraphicsDevice _graphicsDevice;
 
         private VertexDescriptor _vertexDescriptor;
-        private readonly VertexShader _vertexShader;
-        private readonly PixelShader _pixelShader;
+        private readonly Shader _vertexShader;
+        private readonly Shader _pixelShader;
 
         private readonly Dictionary<EffectPipelineStateHandle, PipelineState> _cachedPipelineStates;
 
-        private readonly Dictionary<string, EffectResourceBinding> _resourceBindings;
+        private readonly Dictionary<string, EffectParameter> _parameters;
 
         private PipelineState _pipelineState;
 
@@ -38,21 +38,16 @@ namespace LLGfx.Effects
         {
             _graphicsDevice = graphicsDevice;
 
-            _vertexShader = AddDisposable(new VertexShader(graphicsDevice.ShaderLibrary, vertexShaderName));
-            _pixelShader = AddDisposable(new PixelShader(graphicsDevice.ShaderLibrary, pixelShaderName));
+            _vertexShader = AddDisposable(new Shader(graphicsDevice.ShaderLibrary, vertexShaderName));
+            _pixelShader = AddDisposable(new Shader(graphicsDevice.ShaderLibrary, pixelShaderName));
 
             _cachedPipelineStates = new Dictionary<EffectPipelineStateHandle, PipelineState>();
 
             _vertexDescriptor = vertexDescriptor;
 
-            PlatformDoReflection(
-                _vertexShader,
-                _pixelShader,
-                out var vertexShaderResourceBindings,
-                out var pixelShaderResourceBindings);
-
-            _resourceBindings = vertexShaderResourceBindings
-                .Concat(pixelShaderResourceBindings)
+            _parameters = _vertexShader.ResourceBindings
+                .Concat(_pixelShader.ResourceBindings)
+                .Select(x => AddDisposable(new EffectParameter(x)))
                 .ToDictionary(x => x.Name);
         }
 
@@ -60,9 +55,9 @@ namespace LLGfx.Effects
         {
             _dirtyFlags |= EffectDirtyFlags.PipelineState;
 
-            foreach (var resourceBinding in _resourceBindings.Values)
+            foreach (var parameter in _parameters.Values)
             {
-                resourceBinding.ResetDirty();
+                parameter.ResetDirty();
             }
 
             OnBegin(commandEncoder);
@@ -79,9 +74,9 @@ namespace LLGfx.Effects
                 _dirtyFlags &= ~EffectDirtyFlags.PipelineState;
             }
 
-            foreach (var resourceBinding in _resourceBindings.Values)
+            foreach (var parameter in _parameters.Values)
             {
-                resourceBinding.ApplyChanges(commandEncoder);
+                parameter.ApplyChanges(commandEncoder);
             }
 
             OnApply(commandEncoder);
@@ -118,12 +113,12 @@ namespace LLGfx.Effects
 
         private void SetValueImpl(string name, object value)
         {
-            if (!_resourceBindings.TryGetValue(name, out var resourceBinding))
+            if (!_parameters.TryGetValue(name, out var parameter))
             {
                 throw new InvalidOperationException();
             }
 
-            resourceBinding.SetData(value);
+            parameter.SetData(value);
         }
 
         public void SetValue(string name, Buffer buffer)
@@ -139,138 +134,6 @@ namespace LLGfx.Effects
         public void SetValue(string name, SamplerState sampler)
         {
             SetValueImpl(name, sampler);
-        }
-    }
-
-    internal enum EffectResourceShaderStage
-    {
-        VertexShader,
-        PixelShader
-    }
-
-    internal enum EffectResourceType
-    {
-        ConstantBuffer,
-        StructuredBuffer,
-        Texture,
-        Sampler
-    }
-
-    internal sealed partial class EffectResourceBinding
-    {
-        public string Name { get; }
-        public EffectResourceType ResourceType { get; }
-        public EffectResourceShaderStage ShaderStage { get; }
-        public int Slot { get; }
-
-        private object _data;
-        private bool _isDirty;
-
-        public EffectResourceBinding(string name, EffectResourceType resourceType, EffectResourceShaderStage shaderStage, int slot)
-        {
-            Name = name;
-            ResourceType = resourceType;
-            ShaderStage = shaderStage;
-            Slot = slot;
-
-            ResetDirty();
-        }
-
-        public void ResetDirty()
-        {
-            _isDirty = true;
-        }
-
-        public void SetData(object data)
-        {
-            if (ReferenceEquals(_data, data))
-            {
-                return;
-            }
-
-            _data = data;
-            _isDirty = true;
-        }
-
-        public void ApplyChanges(CommandEncoder commandEncoder)
-        {
-            if (!_isDirty)
-            {
-                return;
-            }
-
-            switch (ResourceType)
-            {
-                // TODO
-                case EffectResourceType.ConstantBuffer:
-                //    switch (ShaderStage)
-                //    {
-                //        case EffectResourceShaderStage.VertexShader:
-                //            commandEncoder.SetVertexConstantBuffer(Slot, (Buffer) _data);
-                //            break;
-
-                //        case EffectResourceShaderStage.PixelShader:
-                //            commandEncoder.SetFragmentConstantBuffer(Slot, (Buffer) _data);
-                //            break;
-
-                //        default:
-                //            throw new InvalidOperationException();
-                //    }
-                    break;
-
-                case EffectResourceType.StructuredBuffer:
-                    switch (ShaderStage)
-                    {
-                        case EffectResourceShaderStage.VertexShader:
-                            commandEncoder.SetVertexStructuredBuffer(Slot, (Buffer) _data);
-                            break;
-
-                        case EffectResourceShaderStage.PixelShader:
-                            commandEncoder.SetFragmentStructuredBuffer(Slot, (Buffer) _data);
-                            break;
-
-                        default:
-                            throw new InvalidOperationException();
-                    }
-                    break;
-
-                case EffectResourceType.Texture:
-                    switch (ShaderStage)
-                    {
-                        case EffectResourceShaderStage.VertexShader:
-                            commandEncoder.SetVertexTexture(Slot, (Texture) _data);
-                            break;
-
-                        case EffectResourceShaderStage.PixelShader:
-                            commandEncoder.SetFragmentTexture(Slot, (Texture) _data);
-                            break;
-
-                        default:
-                            throw new InvalidOperationException();
-                    }
-                    break;
-
-                case EffectResourceType.Sampler:
-                    switch (ShaderStage)
-                    {
-                        case EffectResourceShaderStage.VertexShader:
-                            commandEncoder.SetVertexSampler(Slot, (SamplerState) _data);
-                            break;
-
-                        case EffectResourceShaderStage.PixelShader:
-                            commandEncoder.SetFragmentSampler(Slot, (SamplerState) _data);
-                            break;
-
-                        default:
-                            throw new InvalidOperationException();
-                    }
-                    break;
-
-                default:
-                    throw new InvalidOperationException();
-            }
-
-            _isDirty = false;
         }
     }
 }

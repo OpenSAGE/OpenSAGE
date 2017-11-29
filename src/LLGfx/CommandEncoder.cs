@@ -21,7 +21,7 @@
         public void DrawIndexed(
             PrimitiveType primitiveType,
             uint indexCount,
-            StaticBuffer<ushort> indexBuffer,
+            Buffer<ushort> indexBuffer,
             uint indexBufferOffset)
         {
             PlatformDrawIndexed(
@@ -35,7 +35,7 @@
             PrimitiveType primitiveType,
             uint indexCount,
             uint instanceCount,
-            StaticBuffer<ushort> indexBuffer,
+            Buffer<ushort> indexBuffer,
             uint indexBufferOffset)
         {
             PlatformDrawIndexedInstanced(

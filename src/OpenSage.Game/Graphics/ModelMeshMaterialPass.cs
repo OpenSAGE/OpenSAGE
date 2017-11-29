@@ -9,8 +9,8 @@ namespace OpenSage.Graphics
 
         public IReadOnlyList<ModelMeshPart> MeshParts { get; set; }
 
-        internal StaticBuffer<MeshVertex.TexCoords> TexCoordVertexBuffer;
-        internal StaticBuffer<uint> MaterialIndicesBuffer;
+        internal Buffer<MeshVertex.TexCoords> TexCoordVertexBuffer;
+        internal Buffer<uint> MaterialIndicesBuffer;
 
         internal ModelMeshMaterialPass(
             GraphicsDevice graphicsDevice,
@@ -21,12 +21,12 @@ namespace OpenSage.Graphics
         {
             NumTextureStages = numTextureStages;
 
-            TexCoordVertexBuffer = AddDisposable(StaticBuffer.Create(
+            TexCoordVertexBuffer = AddDisposable(Buffer<MeshVertex.TexCoords>.CreateStatic(
                 graphicsDevice,
                 texCoords,
                 BufferBindFlags.VertexBuffer));
 
-            MaterialIndicesBuffer = AddDisposable(StaticBuffer.Create(
+            MaterialIndicesBuffer = AddDisposable(Buffer<uint>.CreateStatic(
                 graphicsDevice,
                 materialIndices,
                 BufferBindFlags.ShaderResource));

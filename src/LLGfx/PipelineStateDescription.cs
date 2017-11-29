@@ -10,8 +10,8 @@
         };
 
         public VertexDescriptor VertexDescriptor;
-        public VertexShader VertexShader;
-        public PixelShader PixelShader;
+        public Shader VertexShader;
+        public Shader PixelShader;
 
         public PixelFormat RenderTargetFormat;
 

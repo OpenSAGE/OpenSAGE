@@ -33,7 +33,7 @@ namespace LLGfx
         private void PlatformDrawIndexed(
             PrimitiveType primitiveType,
             uint indexCount,
-            StaticBuffer<ushort> indexBuffer,
+            Buffer<ushort> indexBuffer,
             uint indexBufferOffset)
         {
             _context.InputAssembler.PrimitiveTopology = primitiveType.ToPrimitiveTopology();
@@ -53,7 +53,7 @@ namespace LLGfx
             PrimitiveType primitiveType,
             uint indexCount,
             uint instanceCount,
-            StaticBuffer<ushort> indexBuffer,
+            Buffer<ushort> indexBuffer,
             uint indexBufferOffset)
         {
             _context.InputAssembler.PrimitiveTopology = primitiveType.ToPrimitiveTopology();

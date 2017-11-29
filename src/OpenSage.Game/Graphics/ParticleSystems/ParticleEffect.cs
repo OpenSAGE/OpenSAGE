@@ -9,7 +9,7 @@ namespace OpenSage.Graphics.ParticleSystems
 {
     public sealed class ParticleEffect : Effect, IEffectMatrices
     {
-        private readonly DynamicBuffer<ParticleTransformConstants> _transformConstantBuffer;
+        private readonly Buffer<ParticleTransformConstants> _transformConstantBuffer;
         private ParticleTransformConstants _transformConstants;
 
         private ParticleEffectDirtyFlags _dirtyFlags;
@@ -35,7 +35,7 @@ namespace OpenSage.Graphics.ParticleSystems
                   "ParticlePS",
                   ParticleVertex.VertexDescriptor)
         {
-            _transformConstantBuffer = DynamicBuffer<ParticleTransformConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer);
+            _transformConstantBuffer = Buffer<ParticleTransformConstants>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer);
         }
 
         protected override void OnBegin(CommandEncoder commandEncoder)
@@ -55,7 +55,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 var result = Matrix4x4.Invert(_view, out var viewInverse);
                 _transformConstants.CameraPosition = viewInverse.Translation;
 
-                _transformConstantBuffer.UpdateData(_transformConstants);
+                _transformConstantBuffer.SetData(_transformConstants);
 
                 commandEncoder.SetVertexConstantBuffer(0, _transformConstantBuffer);
 

@@ -1,4 +1,5 @@
 ﻿using SharpDX.Direct3D11;
+using D3D11 = SharpDX.Direct3D11;
 
 namespace LLGfx
 {
@@ -18,7 +19,7 @@ namespace LLGfx
                 MipLevels = 1,
                 OptionFlags = ResourceOptionFlags.None,
                 SampleDescription = new SharpDX.DXGI.SampleDescription(1, 0),
-                Usage = ResourceUsage.Default,
+                Usage = D3D11.ResourceUsage.Default,
                 Width = width
             }));
 
