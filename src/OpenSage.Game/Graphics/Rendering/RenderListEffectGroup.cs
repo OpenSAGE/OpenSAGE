@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using LLGfx.Effects;
+using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Graphics.Rendering
 {

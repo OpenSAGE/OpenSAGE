@@ -1,6 +1,6 @@
 ﻿using LLGfx;
-using LLGfx.Effects;
 using System.Numerics;
+using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Graphics
 {

@@ -2,7 +2,6 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
-using LLGfx.Effects;
 using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Graphics.ParticleSystems

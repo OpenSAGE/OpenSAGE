@@ -1,4 +1,6 @@
-﻿namespace LLGfx.Effects
+﻿using LLGfx;
+
+namespace OpenSage.Graphics.Effects
 {
     public struct EffectPipelineState
     {

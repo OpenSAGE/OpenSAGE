@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using LLGfx;
-using LLGfx.Effects;
 using OpenSage.Mathematics;
 using OpenSage.Graphics.Cameras;
+using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Graphics.Rendering
 {

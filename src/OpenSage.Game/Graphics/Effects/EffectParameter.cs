@@ -1,6 +1,8 @@
 ﻿using System;
+using LLGfx;
+using Buffer = LLGfx.Buffer;
 
-namespace LLGfx.Effects
+namespace OpenSage.Graphics.Effects
 {
     internal sealed class ConstantBuffer : GraphicsObject
     {

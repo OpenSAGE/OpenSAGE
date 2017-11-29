@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace LLGfx.Effects
+namespace OpenSage.Graphics.Effects
 {
     public static class EffectPipelineStateFactory
     {

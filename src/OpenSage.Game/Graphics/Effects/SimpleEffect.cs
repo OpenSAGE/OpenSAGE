@@ -1,5 +1,4 @@
 ﻿using LLGfx;
-using LLGfx.Effects;
 
 namespace OpenSage.Graphics.Effects
 {

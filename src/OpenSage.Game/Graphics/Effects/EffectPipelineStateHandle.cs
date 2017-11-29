@@ -1,4 +1,4 @@
-﻿namespace LLGfx.Effects
+﻿namespace OpenSage.Graphics.Effects
 {
     public sealed class EffectPipelineStateHandle
     {

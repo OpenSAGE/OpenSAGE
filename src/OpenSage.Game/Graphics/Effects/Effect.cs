@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LLGfx;
+using Buffer = LLGfx.Buffer;
 
-namespace LLGfx.Effects
+namespace OpenSage.Graphics.Effects
 {
     public abstract partial class Effect : GraphicsObject
     {
