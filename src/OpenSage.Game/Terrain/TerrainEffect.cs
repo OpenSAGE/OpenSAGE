@@ -62,7 +62,7 @@ namespace OpenSage.Terrain
 
                 _transformConstantBuffer.SetData(ref _transformConstants);
 
-                commandEncoder.SetVertexConstantBuffer(0, _transformConstantBuffer);
+                commandEncoder.SetVertexShaderConstantBuffer(0, _transformConstantBuffer);
 
                 _dirtyFlags &= ~TerrainEffectDirtyFlags.TransformConstants;
             }
@@ -74,7 +74,7 @@ namespace OpenSage.Terrain
 
                 _lightingConstantBuffer.SetData(ref _lightingConstants);
 
-                commandEncoder.SetFragmentConstantBuffer(0, _lightingConstantBuffer);
+                commandEncoder.SetPixelShaderConstantBuffer(0, _lightingConstantBuffer);
 
                 _dirtyFlags &= ~TerrainEffectDirtyFlags.LightingConstants;
             }

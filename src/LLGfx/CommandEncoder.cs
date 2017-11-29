@@ -46,44 +46,44 @@
                 indexBufferOffset);
         }
 
-        public void SetVertexTexture(int slot, Texture texture)
+        public void SetVertexShaderTexture(int slot, Texture texture)
         {
-            PlatformSetVertexTexture(slot, texture);
+            PlatformSetVertexShaderTexture(slot, texture);
         }
 
-        public void SetFragmentTexture(int slot, Texture texture)
+        public void SetPixelShaderTexture(int slot, Texture texture)
         {
-            PlatformSetFragmentTexture(slot, texture);
+            PlatformSetPixelShaderTexture(slot, texture);
         }
 
-        public void SetVertexSampler(int slot, SamplerState sampler)
+        public void SetVertexShaderSampler(int slot, SamplerState sampler)
         {
-            PlatformSetVertexSampler(slot, sampler);
+            PlatformSetVertexShaderSampler(slot, sampler);
         }
 
-        public void SetFragmentSampler(int slot, SamplerState sampler)
+        public void SetPixelShaderSampler(int slot, SamplerState sampler)
         {
-            PlatformSetFragmentSampler(slot, sampler);
+            PlatformSetPixelShaderSampler(slot, sampler);
         }
 
-        public void SetVertexStructuredBuffer(int slot, Buffer buffer)
+        public void SetVertexShaderStructuredBuffer(int slot, Buffer buffer)
         {
-            PlatformSetVertexStructuredBuffer(slot, buffer);
+            PlatformSetVertexShaderStructuredBuffer(slot, buffer);
         }
 
-        public void SetFragmentStructuredBuffer(int slot, Buffer buffer)
+        public void SetPixelShaderStructuredBuffer(int slot, Buffer buffer)
         {
-            PlatformSetFragmentStructuredBuffer(slot, buffer);
+            PlatformSetPixelShaderStructuredBuffer(slot, buffer);
         }
 
-        public void SetVertexConstantBuffer(int slot, Buffer buffer)
+        public void SetVertexShaderConstantBuffer(int slot, Buffer buffer)
         {
-            PlatformSetVertexConstantBuffer(slot, buffer);
+            PlatformSetVertexShaderConstantBuffer(slot, buffer);
         }
 
-        public void SetFragmentConstantBuffer(int slot, Buffer buffer)
+        public void SetPixelShaderConstantBuffer(int slot, Buffer buffer)
         {
-            PlatformSetFragmentConstantBuffer(slot, buffer);
+            PlatformSetPixelShaderConstantBuffer(slot, buffer);
         }
 
         public void SetPipelineState(PipelineState pipelineState)

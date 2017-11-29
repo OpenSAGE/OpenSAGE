@@ -74,7 +74,7 @@ namespace OpenSage.Graphics.Effects
 
                 _transformConstantBuffer.SetData(ref _transformConstants);
 
-                commandEncoder.SetVertexConstantBuffer(0, _transformConstantBuffer);
+                commandEncoder.SetVertexShaderConstantBuffer(0, _transformConstantBuffer);
 
                 _dirtyFlags &= ~MeshEffectDirtyFlags.TransformConstants;
             }
@@ -86,7 +86,7 @@ namespace OpenSage.Graphics.Effects
 
                 _lightingConstantBuffer.SetData(ref _lightingConstants);
 
-                commandEncoder.SetFragmentConstantBuffer(0, _lightingConstantBuffer);
+                commandEncoder.SetPixelShaderConstantBuffer(0, _lightingConstantBuffer);
 
                 _dirtyFlags &= ~MeshEffectDirtyFlags.LightingConstants;
             }
@@ -95,7 +95,7 @@ namespace OpenSage.Graphics.Effects
             {
                 _perDrawConstantBuffer.SetData(ref _perDrawConstants);
 
-                commandEncoder.SetFragmentConstantBuffer(1, _perDrawConstantBuffer);
+                commandEncoder.SetPixelShaderConstantBuffer(1, _perDrawConstantBuffer);
 
                 _dirtyFlags &= ~MeshEffectDirtyFlags.PerDrawConstants;
             }

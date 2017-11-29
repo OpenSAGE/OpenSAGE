@@ -45,7 +45,7 @@ namespace OpenSage.Graphics.Effects
             {
                 _textureConstantBuffer.SetData(_textureConstants);
 
-                commandEncoder.SetFragmentConstantBuffer(0, _textureConstantBuffer);
+                commandEncoder.SetPixelShaderConstantBuffer(0, _textureConstantBuffer);
 
                 _dirtyFlags &= ~SpriteEffectDirtyFlags.TextureConstants;
             }

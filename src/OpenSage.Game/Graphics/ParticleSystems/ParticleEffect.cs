@@ -57,7 +57,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
                 _transformConstantBuffer.SetData(_transformConstants);
 
-                commandEncoder.SetVertexConstantBuffer(0, _transformConstantBuffer);
+                commandEncoder.SetVertexShaderConstantBuffer(0, _transformConstantBuffer);
 
                 _dirtyFlags &= ~ParticleEffectDirtyFlags.TransformConstants;
             }

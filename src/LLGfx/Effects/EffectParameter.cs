@@ -79,11 +79,11 @@ namespace LLGfx.Effects
                     switch (_resourceBinding.ShaderType)
                     {
                         case ShaderType.VertexShader:
-                            commandEncoder.SetVertexStructuredBuffer(_resourceBinding.Slot, (Buffer) _data);
+                            commandEncoder.SetVertexShaderStructuredBuffer(_resourceBinding.Slot, (Buffer) _data);
                             break;
 
                         case ShaderType.PixelShader:
-                            commandEncoder.SetFragmentStructuredBuffer(_resourceBinding.Slot, (Buffer) _data);
+                            commandEncoder.SetPixelShaderStructuredBuffer(_resourceBinding.Slot, (Buffer) _data);
                             break;
 
                         default:
@@ -95,11 +95,11 @@ namespace LLGfx.Effects
                     switch (_resourceBinding.ShaderType)
                     {
                         case ShaderType.VertexShader:
-                            commandEncoder.SetVertexTexture(_resourceBinding.Slot, (Texture) _data);
+                            commandEncoder.SetVertexShaderTexture(_resourceBinding.Slot, (Texture) _data);
                             break;
 
                         case ShaderType.PixelShader:
-                            commandEncoder.SetFragmentTexture(_resourceBinding.Slot, (Texture) _data);
+                            commandEncoder.SetPixelShaderTexture(_resourceBinding.Slot, (Texture) _data);
                             break;
 
                         default:
@@ -111,11 +111,11 @@ namespace LLGfx.Effects
                     switch (_resourceBinding.ShaderType)
                     {
                         case ShaderType.VertexShader:
-                            commandEncoder.SetVertexSampler(_resourceBinding.Slot, (SamplerState) _data);
+                            commandEncoder.SetVertexShaderSampler(_resourceBinding.Slot, (SamplerState) _data);
                             break;
 
                         case ShaderType.PixelShader:
-                            commandEncoder.SetFragmentSampler(_resourceBinding.Slot, (SamplerState) _data);
+                            commandEncoder.SetPixelShaderSampler(_resourceBinding.Slot, (SamplerState) _data);
                             break;
 
                         default:

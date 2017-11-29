@@ -71,42 +71,42 @@ namespace LLGfx
                 0);
         }
 
-        private void PlatformSetVertexTexture(int slot, Texture texture)
+        private void PlatformSetVertexShaderTexture(int slot, Texture texture)
         {
             _context.VertexShader.SetShaderResource(slot, texture?.DeviceShaderResourceView);
         }
 
-        private void PlatformSetFragmentTexture(int slot, Texture texture)
+        private void PlatformSetPixelShaderTexture(int slot, Texture texture)
         {
             _context.PixelShader.SetShaderResource(slot, texture?.DeviceShaderResourceView);
         }
 
-        private void PlatformSetVertexSampler(int slot, SamplerState sampler)
+        private void PlatformSetVertexShaderSampler(int slot, SamplerState sampler)
         {
             _context.VertexShader.SetSampler(slot, sampler.DeviceSamplerState);
         }
 
-        private void PlatformSetFragmentSampler(int slot, SamplerState sampler)
+        private void PlatformSetPixelShaderSampler(int slot, SamplerState sampler)
         {
             _context.PixelShader.SetSampler(slot, sampler.DeviceSamplerState);
         }
 
-        private void PlatformSetVertexStructuredBuffer(int slot, Buffer buffer)
+        private void PlatformSetVertexShaderStructuredBuffer(int slot, Buffer buffer)
         {
             _context.VertexShader.SetShaderResource(slot, buffer?.DeviceShaderResourceView);
         }
 
-        private void PlatformSetFragmentStructuredBuffer(int slot, Buffer buffer)
+        private void PlatformSetPixelShaderStructuredBuffer(int slot, Buffer buffer)
         {
             _context.PixelShader.SetShaderResource(slot, buffer?.DeviceShaderResourceView);
         }
 
-        private void PlatformSetVertexConstantBuffer(int slot, Buffer buffer)
+        private void PlatformSetVertexShaderConstantBuffer(int slot, Buffer buffer)
         {
             _context.VertexShader.SetConstantBuffer(slot, buffer.DeviceBuffer);
         }
 
-        private void PlatformSetFragmentConstantBuffer(int slot, Buffer buffer)
+        private void PlatformSetPixelShaderConstantBuffer(int slot, Buffer buffer)
         {
             _context.PixelShader.SetConstantBuffer(slot, buffer.DeviceBuffer);
         }
