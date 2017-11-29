@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using LLGfx;
 using OpenSage.Graphics.Effects;
 
@@ -8,12 +7,6 @@ namespace OpenSage.Terrain
 {
     public sealed class TerrainEffect : Effect, IEffectMatrices, IEffectLights
     {
-        private readonly Buffer<TransformConstants> _transformConstantBuffer;
-        private TransformConstants _transformConstants;
-
-        private readonly Buffer<LightingConstants> _lightingConstantBuffer;
-        private LightingConstants _lightingConstants;
-
         private TerrainEffectDirtyFlags _dirtyFlags;
 
         private Matrix4x4 _world = Matrix4x4.Identity;
@@ -25,12 +18,9 @@ namespace OpenSage.Terrain
         {
             None = 0,
 
-            TransformConstants = 0x2,
-
-            LightingConstants = 0x4,
+            TransformConstants = 0x1,
 
             All = TransformConstants
-                | LightingConstants
         }
 
         public TerrainEffect(GraphicsDevice graphicsDevice)
@@ -40,42 +30,26 @@ namespace OpenSage.Terrain
                   "TerrainPS",
                   TerrainVertex.VertexDescriptor)
         {
-            _transformConstantBuffer = AddDisposable(Buffer<TransformConstants>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer));
-
-            _lightingConstantBuffer = AddDisposable(Buffer<LightingConstants>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer));
         }
 
-        protected override void OnBegin(CommandEncoder commandEncoder)
+        protected override void OnBegin()
         {
             _dirtyFlags = TerrainEffectDirtyFlags.All;
 
             SetValue("Sampler", GraphicsDevice.SamplerAnisotropicWrap);
         }
 
-        protected override void OnApply(CommandEncoder commandEncoder)
+        protected override void OnApply()
         {
             if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.TransformConstants))
             {
-                _transformConstants.World = _world;
-                _transformConstants.WorldViewProjection = _world * _view * _projection;
+                SetConstantBufferField("TransformCB", "WorldViewProjection", _world * _view * _projection);
+                SetConstantBufferField("TransformCB", "World", ref _world);
 
-                _transformConstantBuffer.SetData(ref _transformConstants);
-
-                commandEncoder.SetVertexShaderConstantBuffer(0, _transformConstantBuffer);
+                Matrix4x4.Invert(_view, out var viewInverse);
+                SetConstantBufferField("LightingCB", "CameraPosition", viewInverse.Translation);
 
                 _dirtyFlags &= ~TerrainEffectDirtyFlags.TransformConstants;
-            }
-
-            if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.LightingConstants))
-            {
-                Matrix4x4.Invert(_view, out var viewInverse);
-                _lightingConstants.CameraPosition = viewInverse.Translation;
-
-                _lightingConstantBuffer.SetData(ref _lightingConstants);
-
-                commandEncoder.SetPixelShaderConstantBuffer(0, _lightingConstantBuffer);
-
-                _dirtyFlags &= ~TerrainEffectDirtyFlags.LightingConstants;
             }
         }
 
@@ -89,7 +63,6 @@ namespace OpenSage.Terrain
         {
             _view = matrix;
             _dirtyFlags |= TerrainEffectDirtyFlags.TransformConstants;
-            _dirtyFlags |= TerrainEffectDirtyFlags.LightingConstants;
         }
 
         public void SetProjection(Matrix4x4 matrix)
@@ -100,8 +73,7 @@ namespace OpenSage.Terrain
 
         public void SetLights(ref Lights lights)
         {
-            _lightingConstants.Lights = lights;
-            _dirtyFlags |= TerrainEffectDirtyFlags.LightingConstants;
+            SetConstantBufferField("LightingCB", "Lights", ref lights);
         }
 
         public void SetTileData(Texture tileDataTexture)
@@ -122,13 +94,6 @@ namespace OpenSage.Terrain
         public void SetTextureArray(Texture textureArray)
         {
             SetValue("Textures", textureArray);
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct TransformConstants
-        {
-            public Matrix4x4 WorldViewProjection;
-            public Matrix4x4 World;
         }
     }
 }

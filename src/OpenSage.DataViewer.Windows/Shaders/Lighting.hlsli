@@ -3,6 +3,7 @@ struct Light
     float3 Ambient;
     float3 Color;
     float3 Direction;
+    float _Padding;
 };
 
 #define NUM_LIGHTS 3

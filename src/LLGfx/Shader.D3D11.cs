@@ -44,11 +44,38 @@ namespace LLGfx
                 {
                     var resourceDescription = reflection.GetResourceBindingDescription(i);
 
+                    int constantBufferSizeInBytes;
+                    ConstantBufferField[] constantBufferFields;
+                    if (resourceDescription.Type == ShaderInputType.ConstantBuffer)
+                    {
+                        using (var constantBufferDesc = reflection.GetConstantBuffer(resourceDescription.Name))
+                        {
+                            constantBufferSizeInBytes = constantBufferDesc.Description.Size;
+                            constantBufferFields = new ConstantBufferField[constantBufferDesc.Description.VariableCount];
+                            for (var j = 0; j < constantBufferFields.Length; j++)
+                            {
+                                var variable = constantBufferDesc.GetVariable(j);
+
+                                constantBufferFields[j] = new ConstantBufferField(
+                                    variable.Description.Name,
+                                    variable.Description.StartOffset,
+                                    variable.Description.Size);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        constantBufferSizeInBytes = 0;
+                        constantBufferFields = null;
+                    }
+
                     resourceBindings[i] = new ShaderResourceBinding(
                         resourceDescription.Name,
                         GetResourceType(resourceDescription.Type),
                         shaderType,
-                        resourceDescription.BindPoint);
+                        resourceDescription.BindPoint,
+                        constantBufferSizeInBytes,
+                        constantBufferFields);
                 }
             }
         }

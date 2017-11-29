@@ -2,7 +2,7 @@
 
 namespace LLGfx.Util
 {
-    internal static class StructInteropUtility
+    public static class StructInteropUtility
     {
         public static byte[] ToBytes<T>(ref T value)
             where T : struct

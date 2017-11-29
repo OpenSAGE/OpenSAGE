@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using LLGfx;
 using Buffer = LLGfx.Buffer;
 
@@ -49,7 +50,7 @@ namespace OpenSage.Graphics.Effects
 
             _parameters = _vertexShader.ResourceBindings
                 .Concat(_pixelShader.ResourceBindings)
-                .Select(x => AddDisposable(new EffectParameter(x)))
+                .Select(x => AddDisposable(new EffectParameter(graphicsDevice, x)))
                 .ToDictionary(x => x.Name);
         }
 
@@ -62,10 +63,10 @@ namespace OpenSage.Graphics.Effects
                 parameter.ResetDirty();
             }
 
-            OnBegin(commandEncoder);
+            OnBegin();
         }
 
-        protected abstract void OnBegin(CommandEncoder commandEncoder);
+        protected abstract void OnBegin();
 
         public void Apply(CommandEncoder commandEncoder)
         {
@@ -76,15 +77,15 @@ namespace OpenSage.Graphics.Effects
                 _dirtyFlags &= ~EffectDirtyFlags.PipelineState;
             }
 
+            OnApply();
+
             foreach (var parameter in _parameters.Values)
             {
                 parameter.ApplyChanges(commandEncoder);
             }
-
-            OnApply(commandEncoder);
         }
 
-        protected abstract void OnApply(CommandEncoder commandEncoder);
+        protected virtual void OnApply() { }
 
         public void SetPipelineState(EffectPipelineStateHandle pipelineStateHandle)
         {
@@ -111,6 +112,29 @@ namespace OpenSage.Graphics.Effects
             }
 
             return result;
+        }
+
+        private void SetConstantBufferFieldImpl<T>(string name, string fieldName, ref T value)
+            where T : struct
+        {
+            if (!_parameters.TryGetValue(name, out var parameter))
+            {
+                throw new InvalidOperationException();
+            }
+
+            parameter.SetConstantBufferField(fieldName, ref value);
+        }
+
+        public void SetConstantBufferField<T>(string name, string fieldName, T value)
+            where T : struct
+        {
+            SetConstantBufferFieldImpl(name, fieldName, ref value);
+        }
+
+        public void SetConstantBufferField<T>(string name, string fieldName, ref T value)
+            where T : struct
+        {
+            SetConstantBufferFieldImpl(name, fieldName, ref value);
         }
 
         private void SetValueImpl(string name, object value)

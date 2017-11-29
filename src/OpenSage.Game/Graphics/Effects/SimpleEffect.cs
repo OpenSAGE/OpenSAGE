@@ -14,12 +14,12 @@ namespace OpenSage.Graphics.Effects
             //_textureConstantBuffer = DynamicBuffer<TextureConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer);
         }
 
-        protected override void OnApply(CommandEncoder commandEncoder)
+        protected override void OnApply()
         {
             throw new System.NotImplementedException();
         }
 
-        protected override void OnBegin(CommandEncoder commandEncoder)
+        protected override void OnBegin()
         {
             throw new System.NotImplementedException();
         }

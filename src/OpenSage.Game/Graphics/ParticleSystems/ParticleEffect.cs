@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using LLGfx;
 using OpenSage.Graphics.Effects;
 
@@ -8,9 +7,6 @@ namespace OpenSage.Graphics.ParticleSystems
 {
     public sealed class ParticleEffect : Effect, IEffectMatrices
     {
-        private readonly Buffer<ParticleTransformConstants> _transformConstantBuffer;
-        private ParticleTransformConstants _transformConstants;
-
         private ParticleEffectDirtyFlags _dirtyFlags;
 
         private Matrix4x4 _world = Matrix4x4.Identity;
@@ -34,29 +30,24 @@ namespace OpenSage.Graphics.ParticleSystems
                   "ParticlePS",
                   ParticleVertex.VertexDescriptor)
         {
-            _transformConstantBuffer = Buffer<ParticleTransformConstants>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer);
         }
 
-        protected override void OnBegin(CommandEncoder commandEncoder)
+        protected override void OnBegin()
         {
             _dirtyFlags = ParticleEffectDirtyFlags.All;
 
             SetValue("LinearSampler", GraphicsDevice.SamplerLinearWrap);
         }
 
-        protected override void OnApply(CommandEncoder commandEncoder)
+        protected override void OnApply()
         {
             if (_dirtyFlags.HasFlag(ParticleEffectDirtyFlags.TransformConstants))
             {
-                _transformConstants.World = _world;
-                _transformConstants.ViewProjection = _view * _projection;
+                SetConstantBufferField("ParticleTransformCB", "World", ref _world);
+                SetConstantBufferField("ParticleTransformCB", "ViewProjection", _view * _projection);
 
                 var result = Matrix4x4.Invert(_view, out var viewInverse);
-                _transformConstants.CameraPosition = viewInverse.Translation;
-
-                _transformConstantBuffer.SetData(_transformConstants);
-
-                commandEncoder.SetVertexShaderConstantBuffer(0, _transformConstantBuffer);
+                SetConstantBufferField("ParticleTransformCB", "CameraPosition", viewInverse.Translation);
 
                 _dirtyFlags &= ~ParticleEffectDirtyFlags.TransformConstants;
             }
@@ -83,14 +74,6 @@ namespace OpenSage.Graphics.ParticleSystems
         public void SetTexture(Texture texture)
         {
             SetValue("ParticleTexture", texture);
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct ParticleTransformConstants
-        {
-            public Matrix4x4 World;
-            public Matrix4x4 ViewProjection;
-            public Vector3 CameraPosition;
         }
     }
 }
