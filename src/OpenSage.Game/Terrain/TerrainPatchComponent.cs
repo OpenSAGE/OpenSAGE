@@ -13,7 +13,7 @@ namespace OpenSage.Terrain
         private readonly Buffer<TerrainVertex> _vertexBuffer;
         private readonly Buffer<ushort> _indexBuffer;
 
-        private readonly TerrainEffect _terrainEffect;
+        private readonly TerrainMaterial _terrainMaterial;
         private readonly EffectPipelineStateHandle _pipelineStateHandle;
 
         public Int32Rect Bounds { get; }
@@ -25,7 +25,7 @@ namespace OpenSage.Terrain
         public Triangle[] Triangles { get; }
 
         internal TerrainPatchComponent(
-            TerrainEffect terrainEffect,
+            TerrainMaterial terrainMaterial,
             EffectPipelineStateHandle pipelineStateHandle,
             Int32Rect patchBounds,
             Buffer<TerrainVertex> vertexBuffer,
@@ -33,7 +33,7 @@ namespace OpenSage.Terrain
             Triangle[] triangles,
             BoundingBox boundingBox)
         {
-            _terrainEffect = terrainEffect;
+            _terrainMaterial = terrainMaterial;
             _pipelineStateHandle = pipelineStateHandle;
 
             Bounds = patchBounds;
@@ -78,7 +78,7 @@ namespace OpenSage.Terrain
         {
             renderList.AddRenderItem(new RenderItem(
                 this,
-                _terrainEffect,
+                _terrainMaterial,
                 _pipelineStateHandle,
                 (commandEncoder, effect, pipelineStateHandle, instanceData) =>
                 {

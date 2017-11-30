@@ -35,8 +35,6 @@ namespace OpenSage.Graphics.ParticleSystems
         protected override void OnBegin()
         {
             _dirtyFlags = ParticleEffectDirtyFlags.All;
-
-            SetValue("LinearSampler", GraphicsDevice.SamplerLinearWrap);
         }
 
         protected override void OnApply()
@@ -70,10 +68,19 @@ namespace OpenSage.Graphics.ParticleSystems
             _projection = matrix;
             _dirtyFlags |= ParticleEffectDirtyFlags.TransformConstants;
         }
+    }
+
+    public sealed class ParticleMaterial : EffectMaterial
+    {
+        public ParticleMaterial(ParticleEffect effect)
+            : base(effect)
+        {
+            SetProperty("LinearSampler", effect.GraphicsDevice.SamplerLinearWrap);
+        }
 
         public void SetTexture(Texture texture)
         {
-            SetValue("ParticleTexture", texture);
+            SetProperty("ParticleTexture", texture);
         }
     }
 }

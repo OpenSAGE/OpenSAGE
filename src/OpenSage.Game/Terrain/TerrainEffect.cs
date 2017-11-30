@@ -35,8 +35,6 @@ namespace OpenSage.Terrain
         protected override void OnBegin()
         {
             _dirtyFlags = TerrainEffectDirtyFlags.All;
-
-            SetValue("Sampler", GraphicsDevice.SamplerAnisotropicWrap);
         }
 
         protected override void OnApply()
@@ -75,25 +73,34 @@ namespace OpenSage.Terrain
         {
             SetConstantBufferField("LightingCB", "Lights", ref lights);
         }
+    }
+
+    public sealed class TerrainMaterial : EffectMaterial
+    {
+        public TerrainMaterial(TerrainEffect effect)
+            : base(effect)
+        {
+            SetProperty("Sampler", effect.GraphicsDevice.SamplerAnisotropicWrap);
+        }
 
         public void SetTileData(Texture tileDataTexture)
         {
-            SetValue("TileData", tileDataTexture);
+            SetProperty("TileData", tileDataTexture);
         }
 
         public void SetCliffDetails(Buffer<CliffInfo> cliffDetailsBuffer)
         {
-            SetValue("CliffDetails", cliffDetailsBuffer);
+            SetProperty("CliffDetails", cliffDetailsBuffer);
         }
 
         public void SetTextureDetails(Buffer<TextureInfo> textureDetailsBuffer)
         {
-            SetValue("TextureDetails", textureDetailsBuffer);
+            SetProperty("TextureDetails", textureDetailsBuffer);
         }
 
         public void SetTextureArray(Texture textureArray)
         {
-            SetValue("Textures", textureArray);
+            SetProperty("Textures", textureArray);
         }
     }
 }

@@ -12,20 +12,24 @@ namespace OpenSage.Graphics.Effects
                   null)
         {
         }
+    }
 
-        protected override void OnBegin()
+    public sealed class SpriteMaterial : EffectMaterial
+    {
+        public SpriteMaterial(SpriteEffect effect) 
+            : base(effect)
         {
-            SetValue("Sampler", GraphicsDevice.SamplerPointWrap);
+            SetProperty("Sampler", effect.GraphicsDevice.SamplerPointWrap);
         }
 
         public void SetMipMapLevel(uint mipMapLevel)
         {
-            SetConstantBufferField("TextureCB", "MipMapLevel", mipMapLevel);
+            //SetConstantBufferField("TextureCB", "MipMapLevel", mipMapLevel);
         }
 
         public void SetTexture(Texture texture)
         {
-            SetValue("BaseTexture", texture);
+            SetProperty("BaseTexture", texture);
         }
     }
 }

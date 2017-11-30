@@ -54,15 +54,6 @@ namespace OpenSage.Content
 
             var indexBufferCache = AddDisposable(new TerrainPatchIndexBufferCache(contentManager.GraphicsDevice));
 
-            CreatePatches(
-                contentManager.GraphicsDevice,
-                terrainEntity,
-                heightMap,
-                mapFile.BlendTileData,
-                terrainEffect,
-                pipelineStateSolid,
-                indexBufferCache);
-
             var tileDataTexture = AddDisposable(CreateTileDataTexture(
                 contentManager.GraphicsDevice,
                 mapFile,
@@ -83,10 +74,21 @@ namespace OpenSage.Content
                 textureDetails,
                 BufferBindFlags.ShaderResource));
 
-            terrainEffect.SetTileData(tileDataTexture);
-            terrainEffect.SetCliffDetails(cliffDetailsBuffer);
-            terrainEffect.SetTextureDetails(textureDetailsBuffer);
-            terrainEffect.SetTextureArray(textureArray);
+            var terrainMaterial = new TerrainMaterial(terrainEffect);
+
+            terrainMaterial.SetTileData(tileDataTexture);
+            terrainMaterial.SetCliffDetails(cliffDetailsBuffer);
+            terrainMaterial.SetTextureDetails(textureDetailsBuffer);
+            terrainMaterial.SetTextureArray(textureArray);
+
+            CreatePatches(
+                contentManager.GraphicsDevice,
+                terrainEntity,
+                heightMap,
+                mapFile.BlendTileData,
+                terrainMaterial,
+                pipelineStateSolid,
+                indexBufferCache);
 
             var objectsEntity = new Entity();
             result.Entities.Add(objectsEntity);
@@ -103,7 +105,7 @@ namespace OpenSage.Content
                 var owner = (string) team.Properties["teamOwner"].Value;
                 var isSingleton = (bool) team.Properties["teamIsSingleton"].Value;
 
-
+                // TODO
             }
 
             foreach (var waypointPath in mapFile.WaypointsList.WaypointPaths)
@@ -277,7 +279,7 @@ namespace OpenSage.Content
             Entity terrainEntity,
             HeightMap heightMap,
             BlendTileData blendTileData,
-            TerrainEffect terrainEffect,
+            TerrainMaterial terrainMaterial,
             EffectPipelineStateHandle pipelineStateHandle,
             TerrainPatchIndexBufferCache indexBufferCache)
         {
@@ -311,7 +313,7 @@ namespace OpenSage.Content
                     };
 
                     terrainEntity.Components.Add(CreatePatch(
-                        terrainEffect,
+                        terrainMaterial,
                         pipelineStateHandle,
                         heightMap,
                         blendTileData,
@@ -323,7 +325,7 @@ namespace OpenSage.Content
         }
 
         private TerrainPatchComponent CreatePatch(
-            TerrainEffect terrainEffect,
+            TerrainMaterial terrainMaterial,
             EffectPipelineStateHandle pipelineStateHandle,
             HeightMap heightMap,
             BlendTileData blendTileData,
@@ -345,7 +347,7 @@ namespace OpenSage.Content
                 out var triangles));
 
             return new TerrainPatchComponent(
-                terrainEffect,
+                terrainMaterial,
                 pipelineStateHandle,
                 patchBounds,
                 vertexBuffer,

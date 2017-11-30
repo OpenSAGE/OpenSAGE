@@ -11,17 +11,16 @@ namespace OpenSage.Graphics.Effects
                   "SimplePS",
                   MeshVertex.VertexDescriptor)
         {
-            //_textureConstantBuffer = DynamicBuffer<TextureConstants>.Create(graphicsDevice, BufferBindFlags.ConstantBuffer);
         }
 
         protected override void OnApply()
         {
-            throw new System.NotImplementedException();
+            SetValue("Sampler", GraphicsDevice.SamplerAnisotropicWrap);
         }
 
         protected override void OnBegin()
         {
-            throw new System.NotImplementedException();
+            
         }
     }
 }

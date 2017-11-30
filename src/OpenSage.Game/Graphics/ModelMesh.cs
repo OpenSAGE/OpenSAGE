@@ -25,7 +25,6 @@ namespace OpenSage.Graphics
         private readonly Buffer<ushort> _indexBuffer;
 
         private readonly Buffer<VertexMaterial> _materialsBuffer;
-        private readonly Buffer<ShadingConfiguration> _shadingConfigurationsBuffer;
 
         public string Name { get; }
 
@@ -48,7 +47,6 @@ namespace OpenSage.Graphics
             ushort[] indices,
             VertexMaterial[] vertexMaterials,
             ModelMeshMaterialPass[] materialPasses,
-            ShadingConfiguration[] shadingConfigurations,
             bool isSkinned,
             ModelBone parentBone,
             uint numBones,
@@ -88,14 +86,9 @@ namespace OpenSage.Graphics
                 AddDisposable(materialPass);
             }
             MaterialPasses = materialPasses;
-
-            _shadingConfigurationsBuffer = AddDisposable(Buffer<ShadingConfiguration>.CreateStatic(
-                graphicsDevice,
-                shadingConfigurations,
-                BufferBindFlags.ShaderResource));
         }
 
-        internal void BuildRenderList(RenderList renderList, RenderInstanceData instanceData, MeshEffect effect)
+        internal void BuildRenderList(RenderList renderList, RenderInstanceData instanceData, MeshMaterial material)
         {
             if (Hidden)
             {
@@ -117,13 +110,13 @@ namespace OpenSage.Graphics
                 {
                     renderList.AddRenderItem(new InstancedRenderItem(
                         instanceData,
-                        effect,
+                        material,
                         pipelineStateHandle,
                         (commandEncoder, e, h, _) =>
                         {
                             Draw(
                                 commandEncoder,
-                                effect,
+                                material,
                                 h,
                                 filteredMaterialPasses,
                                 instanceData);
@@ -134,11 +127,14 @@ namespace OpenSage.Graphics
 
         private void Draw(
             CommandEncoder commandEncoder, 
-            MeshEffect meshEffect,
+            MeshMaterial meshMaterial,
             EffectPipelineStateHandle pipelineStateHandle,
             IEnumerable<ModelMeshMaterialPass> materialPasses,
             RenderInstanceData instanceData)
         {
+            // TODO
+            var meshEffect = (MeshEffect) meshMaterial.Effect;
+
             commandEncoder.SetVertexBuffer(2, instanceData.WorldBuffer);
 
             if (Skinned)
@@ -150,7 +146,6 @@ namespace OpenSage.Graphics
             meshEffect.SetSkinningEnabled(Skinned);
 
             meshEffect.SetMaterials(_materialsBuffer);
-            meshEffect.SetShadingConfigurations(_shadingConfigurationsBuffer);
 
             commandEncoder.SetVertexBuffer(0, _vertexBuffer);
 
@@ -168,7 +163,7 @@ namespace OpenSage.Graphics
                         continue;
                     }
 
-                    meshEffect.SetShadingConfigurationID(meshPart.ShadingConfigurationID);
+                    meshEffect.SetShadingConfiguration(meshPart.ShadingConfiguration);
 
                     meshEffect.SetTexture0(meshPart.Texture0);
                     meshEffect.SetTexture1(meshPart.Texture1);

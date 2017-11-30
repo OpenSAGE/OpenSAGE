@@ -7,12 +7,22 @@ namespace OpenSage.Graphics
 {
     public sealed class SpriteComponent : RenderableComponent
     {
-        private SpriteEffect _effect;
+        private SpriteMaterial _material;
 
         private EffectPipelineStateHandle _pipelineStateHandle;
 
         public Texture Texture { get; set; }
-        public uint SelectedMipMapLevel { get; set; }
+
+        private uint _selectedMipMapLevel;
+        public uint SelectedMipMapLevel
+        {
+            get { return _selectedMipMapLevel; }
+            set
+            {
+                _selectedMipMapLevel = value;
+                _material.SetMipMapLevel(value);
+            }
+        }
 
         internal override bool IsAlwaysVisible => true;
 
@@ -22,7 +32,8 @@ namespace OpenSage.Graphics
         {
             base.Start();
 
-            _effect = ContentManager.GetEffect<SpriteEffect>();
+            _material = new SpriteMaterial(ContentManager.GetEffect<SpriteEffect>());
+            _material.SetTexture(Texture);
 
             var rasterizerState = RasterizerStateDescription.CullBackSolid;
             rasterizerState.IsFrontCounterClockwise = false;
@@ -38,14 +49,11 @@ namespace OpenSage.Graphics
         {
             renderList.AddRenderItem(new RenderItem(
                 this,
-                _effect,
+                _material,
                 _pipelineStateHandle,
                 (commandEncoder, effect, pipelineStateHandle, instanceData) =>
                 {
-                    _effect.SetTexture(Texture);
-                    _effect.SetMipMapLevel(SelectedMipMapLevel);
-
-                    _effect.Apply(commandEncoder);
+                    effect.Apply(commandEncoder);
 
                     commandEncoder.Draw(PrimitiveType.TriangleList, 0, 3);
                 }));

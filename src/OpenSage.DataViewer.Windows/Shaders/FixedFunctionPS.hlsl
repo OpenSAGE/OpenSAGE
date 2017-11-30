@@ -4,12 +4,22 @@
 #define SPECULAR_ENABLED
 #include "Lighting.hlsli"
 
+struct ShadingConfiguration
+{
+    uint DiffuseLightingType;
+    bool SpecularEnabled;
+    bool TexturingEnabled;
+    uint SecondaryTextureColorBlend;
+    uint SecondaryTextureAlphaBlend;
+    bool AlphaTest;
+};
+
 cbuffer PerDrawCB : register(b1)
 {
-    uint ShadingConfigurationID;
     uint NumTextureStages;
     float TimeInSeconds;
     float2 ViewportSize;
+    ShadingConfiguration Shading;
 };
 
 #define TEXTURE_MAPPING_UV                 0
@@ -59,18 +69,6 @@ StructuredBuffer<VertexMaterial> Materials : register(t0);
 #define SECONDARY_TEXTURE_BLEND_SCALE        2
 #define SECONDARY_TEXTURE_BLEND_INV_SCALE    3
 #define SECONDARY_TEXTURE_BLEND_DETAIL_BLEND 4
-
-struct ShadingConfiguration
-{
-    uint DiffuseLightingType;
-    bool SpecularEnabled;
-    bool TexturingEnabled;
-    uint SecondaryTextureColorBlend;
-    uint SecondaryTextureAlphaBlend;
-    bool AlphaTest;
-};
-
-StructuredBuffer<ShadingConfiguration> ShadingConfigurations : register(t1);
 
 Texture2D<float4> Texture0 : register(t2);
 Texture2D<float4> Texture1 : register(t3);
@@ -150,8 +148,6 @@ float4 SampleTexture(
 
 float4 main(PSInputFixedFunction input) : SV_TARGET
 {
-    ShadingConfiguration shadingConfiguration = ShadingConfigurations[ShadingConfigurationID];
-
     VertexMaterial material = Materials[input.Transfer.MaterialIndex];
 
     LightingParameters lightingParams;
@@ -167,7 +163,7 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
     DoLighting(lightingParams, diffuseColor, specularColor);
 
     float4 diffuseTextureColor;
-    if (shadingConfiguration.TexturingEnabled)
+    if (Shading.TexturingEnabled)
     {
         float3 v = CalculateViewVector(input.TransferCommon.WorldPosition);
 
@@ -185,7 +181,7 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
                 Texture1, 
                 v);
 
-            switch (shadingConfiguration.SecondaryTextureColorBlend)
+            switch (Shading.SecondaryTextureColorBlend)
             {
             case SECONDARY_TEXTURE_BLEND_DETAIL:
                 diffuseTextureColor.rgb = secondaryTextureColor.rgb;
@@ -205,7 +201,7 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
                 break;
             }
 
-            switch (shadingConfiguration.SecondaryTextureAlphaBlend)
+            switch (Shading.SecondaryTextureAlphaBlend)
             {
             case SECONDARY_TEXTURE_BLEND_DETAIL:
                 diffuseTextureColor.a = secondaryTextureColor.a;
@@ -221,7 +217,7 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
             }
         }
 
-        if (shadingConfiguration.AlphaTest)
+        if (Shading.AlphaTest)
         {
             const float alphaTestThreshold = 0x60 / (float) 0xFF;
             if (diffuseTextureColor.a < alphaTestThreshold)
@@ -239,7 +235,7 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
 
     float3 objectColor = diffuseTextureColor.rgb;
 
-    switch (shadingConfiguration.DiffuseLightingType)
+    switch (Shading.DiffuseLightingType)
     {
     case DIFFUSE_LIGHTING_MODULATE:
         objectColor *= totalObjectLighting;
@@ -250,7 +246,7 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
         break;
     }
 
-    if (shadingConfiguration.SpecularEnabled)
+    if (Shading.SpecularEnabled)
     {
         objectColor += specularColor;
     }

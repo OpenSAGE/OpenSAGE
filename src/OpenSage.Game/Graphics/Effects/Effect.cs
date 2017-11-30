@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using LLGfx;
 using Buffer = LLGfx.Buffer;
 
@@ -23,7 +22,7 @@ namespace OpenSage.Graphics.Effects
 
         private EffectDirtyFlags _dirtyFlags;
 
-        protected GraphicsDevice GraphicsDevice => _graphicsDevice;
+        public GraphicsDevice GraphicsDevice => _graphicsDevice;
 
         [Flags]
         private enum EffectDirtyFlags
@@ -54,6 +53,8 @@ namespace OpenSage.Graphics.Effects
                 .ToDictionary(x => x.Name);
         }
 
+        internal EffectParameter GetParameter(string name) => _parameters[name];
+
         public void Begin(CommandEncoder commandEncoder)
         {
             _dirtyFlags |= EffectDirtyFlags.PipelineState;
@@ -66,7 +67,7 @@ namespace OpenSage.Graphics.Effects
             OnBegin();
         }
 
-        protected abstract void OnBegin();
+        protected virtual void OnBegin() { }
 
         public void Apply(CommandEncoder commandEncoder)
         {

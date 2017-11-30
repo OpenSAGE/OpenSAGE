@@ -6,7 +6,7 @@ namespace OpenSage.Graphics
 {
     public sealed class MeshComponent : RenderableComponent
     {
-        private MeshEffect _effect;
+        private MeshMaterial _material;
 
         public ModelMesh Mesh { get; set; }
 
@@ -18,12 +18,12 @@ namespace OpenSage.Graphics
         {
             base.Start();
 
-            _effect = ContentManager.GetEffect<MeshEffect>();
+            _material = new MeshMaterial(ContentManager.GetEffect<MeshEffect>());
         }
 
         internal override void BuildRenderList(RenderList renderList)
         {
-            renderList.AddInstancedRenderItem(Mesh, this, _effect);
+            renderList.AddInstancedRenderItem(Mesh, this, _material);
         }
     }
 }

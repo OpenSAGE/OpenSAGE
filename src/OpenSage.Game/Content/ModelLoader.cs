@@ -137,12 +137,6 @@ namespace OpenSage.Content
                     w3dMesh.MaterialPasses[i]);
             }
 
-            var shadingConfigurations = new ShadingConfiguration[w3dMesh.Shaders.Length];
-            for (var i = 0; i < shadingConfigurations.Length; i++)
-            {
-                shadingConfigurations[i] = CreateShadingConfiguration(w3dMesh.Shaders[i]);
-            }
-
             var boundingBox = new BoundingBox(
                 w3dMesh.Header.Min,
                 w3dMesh.Header.Max);
@@ -157,7 +151,6 @@ namespace OpenSage.Content
                 CreateIndices(w3dMesh),
                 CreateMaterials(w3dMesh),
                 materialPasses,
-                shadingConfigurations,
                 isSkinned,
                 parentBone,
                 (uint) numBones,
@@ -471,7 +464,7 @@ namespace OpenSage.Content
             return new ModelMeshPart(
                 startIndex,
                 indexCount,
-                shaderID,
+                CreateShadingConfiguration(w3dMesh.Shaders[shaderID]),
                 pipelineStateHandle,
                 CreateTexture(contentManager, w3dMesh, textureIndex0),
                 CreateTexture(contentManager, w3dMesh, textureIndex1));

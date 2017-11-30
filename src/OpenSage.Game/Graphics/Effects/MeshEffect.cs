@@ -109,14 +109,9 @@ namespace OpenSage.Graphics.Effects
             SetValue("MaterialIndices", materialIndicesBuffer);
         }
 
-        public void SetShadingConfigurations(Buffer<ShadingConfiguration> shadingConfigurationsBuffer)
+        public void SetShadingConfiguration(ShadingConfiguration shadingConfiguration)
         {
-            SetValue("ShadingConfigurations", shadingConfigurationsBuffer);
-        }
-
-        public void SetShadingConfigurationID(uint shadingConfigurationID)
-        {
-            SetConstantBufferField("PerDrawCB", "ShadingConfigurationID", shadingConfigurationID);
+            SetConstantBufferField("PerDrawCB", "Shading", ref shadingConfiguration);
         }
 
         public void SetNumTextureStages(uint numTextureStages)
@@ -132,6 +127,15 @@ namespace OpenSage.Graphics.Effects
         public void SetViewportSize(Vector2 viewportSize)
         {
             SetConstantBufferField("PerDrawCB", "ViewportSize", ref viewportSize);
+        }
+    }
+
+    public sealed class MeshMaterial : EffectMaterial
+    {
+        public MeshMaterial(MeshEffect effect)
+            : base(effect)
+        {
+            // TODO
         }
     }
 }

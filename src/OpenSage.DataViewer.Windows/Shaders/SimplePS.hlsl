@@ -1,6 +1,6 @@
 #include "Simple.hlsli"
 
-cbuffer SimpleCB : register(b0)
+cbuffer MaterialCB : register(b0)
 {
     float3 ColorEmissive;
     float Time;

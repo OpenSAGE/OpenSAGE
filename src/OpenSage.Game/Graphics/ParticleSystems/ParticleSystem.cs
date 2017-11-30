@@ -21,9 +21,7 @@ namespace OpenSage.Graphics.ParticleSystems
         private IVelocityType _velocityType;
         private IVolumeType _volumeType;
 
-        private Texture _texture;
-
-        private ParticleEffect _particleEffect;
+        private ParticleMaterial _particleMaterial;
         private EffectPipelineStateHandle _pipelineStateHandle;
 
         private int _initialDelay;
@@ -62,13 +60,14 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             base.Start();
 
-            _particleEffect = ContentManager.GetEffect<ParticleEffect>();
+            _particleMaterial = new ParticleMaterial(ContentManager.GetEffect<ParticleEffect>());
 
             _velocityType = VelocityTypeUtility.GetImplementation(Definition.VelocityType);
             _volumeType = VolumeTypeUtility.GetImplementation(Definition.VolumeType);
 
             var texturePath = Path.Combine("Art", "Textures", Definition.ParticleName);
-            _texture = ContentManager.Load<Texture>(texturePath);
+            var texture = ContentManager.Load<Texture>(texturePath);
+            _particleMaterial.SetTexture(texture);
 
             var blendState = GetBlendState(Definition.Shader);
 
@@ -464,12 +463,10 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             renderList.AddRenderItem(new RenderItem(
                 this,
-                _particleEffect,
+                _particleMaterial,
                 _pipelineStateHandle,
                 (commandEncoder, effect, pipelineStateHandle, instanceData) =>
                 {
-                    _particleEffect.SetTexture(_texture);
-
                     effect.Apply(commandEncoder);
 
                     commandEncoder.SetVertexBuffer(0, _vertexBuffer);

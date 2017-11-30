@@ -8,7 +8,7 @@ namespace OpenSage.Graphics
         public uint StartIndex { get; }
         public uint IndexCount { get; }
 
-        public uint ShadingConfigurationID { get; }
+        public ShadingConfiguration ShadingConfiguration { get; }
 
         public EffectPipelineStateHandle PipelineStateHandle { get; }
 
@@ -18,7 +18,7 @@ namespace OpenSage.Graphics
         internal ModelMeshPart(
             uint startIndex, 
             uint indexCount, 
-            uint shadingConfigurationID,
+            ShadingConfiguration shadingConfiguration,
             EffectPipelineStateHandle pipelineStateHandle,
             Texture texture0,
             Texture texture1)
@@ -26,7 +26,7 @@ namespace OpenSage.Graphics
             StartIndex = startIndex;
             IndexCount = indexCount;
 
-            ShadingConfigurationID = shadingConfigurationID;
+            ShadingConfiguration = shadingConfiguration;
 
             PipelineStateHandle = pipelineStateHandle;
 

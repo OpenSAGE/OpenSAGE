@@ -137,6 +137,8 @@ namespace OpenSage.Graphics.Rendering
                                 m2.SetWorld(renderItem.Renderable.Entity.Transform.LocalToWorldMatrix);
                             }
 
+                            renderItem.Material.Apply();
+
                             renderItem.RenderCallback(
                                 commandEncoder,
                                 effectGroup.Effect,
@@ -150,6 +152,8 @@ namespace OpenSage.Graphics.Rendering
                             {
                                 continue;
                             }
+
+                            instancedRenderItem.Material.Apply();
 
                             instancedRenderItem.RenderCallback(
                                 commandEncoder,
