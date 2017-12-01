@@ -11,7 +11,7 @@ namespace OpenSage.Graphics.Effects
 
         public ConstantBuffer(GraphicsDevice graphicsDevice)
         {
-            Buffer = Buffer<T>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer);
+            Buffer = AddDisposable(Buffer<T>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer));
         }
 
         public void Update()

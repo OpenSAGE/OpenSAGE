@@ -19,7 +19,7 @@ namespace LLGfx
         private int PlatformBackBufferWidth { get; set; }
         private int PlatformBackBufferHeight { get; set; }
 
-        public DXGI.SwapChain DeviceSwapChain { get; }
+        private DXGI.SwapChain DeviceSwapChain { get; }
 
         public SwapChain(
             GraphicsDevice graphicsDevice,
@@ -81,9 +81,12 @@ namespace LLGfx
                 _graphicsDevice.BackBufferFormat.ToDxgiFormat(),
                 SwapChainFlags.None);
 
-            _renderTargetView = AddDisposable(new RenderTargetView(
-                _graphicsDevice.Device,
-                DeviceSwapChain.GetBackBuffer<Texture2D>(0)));
+            using (var backBuffer = DeviceSwapChain.GetBackBuffer<Texture2D>(0))
+            {
+                _renderTargetView = AddDisposable(new RenderTargetView(
+                    _graphicsDevice.Device,
+                    backBuffer));
+            }
 
             _renderTarget = AddDisposable(new RenderTarget(
                 _graphicsDevice,

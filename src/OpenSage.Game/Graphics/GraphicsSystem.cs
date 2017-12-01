@@ -17,7 +17,7 @@ namespace OpenSage.Graphics
         {
             RegisterComponentList(_models = new List<ModelComponent>());
 
-            RenderList = new RenderList();
+            RenderList = AddDisposable(new RenderList());
 
             _renderContext = new RenderContext();
         }

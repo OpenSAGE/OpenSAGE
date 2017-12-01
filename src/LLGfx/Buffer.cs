@@ -4,20 +4,6 @@ namespace LLGfx
 {
     public partial class Buffer : GraphicsDeviceChild
     {
-        public static Buffer CreateDynamic(
-            GraphicsDevice graphicsDevice,
-            uint sizeInBytes,
-            BufferBindFlags flags)
-        {
-            return new Buffer(
-                graphicsDevice,
-                sizeInBytes,
-                1u,
-                flags,
-                ResourceUsage.Dynamic,
-                null);
-        }
-
         public uint ElementSizeInBytes { get; }
         public uint ElementCount { get; }
 

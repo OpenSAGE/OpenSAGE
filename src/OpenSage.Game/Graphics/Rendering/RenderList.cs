@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Graphics.Rendering
 {
-    internal sealed class RenderList
+    internal sealed class RenderList : DisposableBase
     {
         public readonly List<RenderListEffectGroup> Opaque = new List<RenderListEffectGroup>();
         public readonly List<RenderListEffectGroup> Transparent = new List<RenderListEffectGroup>();
@@ -60,7 +59,7 @@ namespace OpenSage.Graphics.Rendering
         {
             if (!InstanceData.TryGetValue(mesh, out var instanceData))
             {
-                InstanceData.Add(mesh, instanceData = new RenderInstanceData(mesh));
+                InstanceData.Add(mesh, instanceData = AddDisposable(new RenderInstanceData(mesh)));
 
                 mesh.BuildRenderList(this, instanceData);
             }
@@ -129,6 +128,8 @@ namespace OpenSage.Graphics.Rendering
 
                     removeInstancedItems(Opaque);
                     removeInstancedItems(Transparent);
+
+                    instanceData.Dispose();
                 }
             }
 

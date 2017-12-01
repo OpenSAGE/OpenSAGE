@@ -50,7 +50,7 @@ namespace OpenSage.Graphics.Rendering
         }
     }
 
-    internal sealed class RenderInstanceData
+    internal sealed class RenderInstanceData : DisposableBase
     {
         public readonly ModelMesh Mesh;
         public readonly List<InstancedRenderable> InstancedRenderables = new List<InstancedRenderable>();
@@ -90,10 +90,12 @@ namespace OpenSage.Graphics.Rendering
                 var numElements = (int) (Mesh.NumBones * NumInstances);
                 if (SkinningBuffer == null || SkinningBuffer.ElementCount < numElements)
                 {
-                    SkinningBuffer = Buffer<Matrix4x3>.CreateDynamicArray(
+                    RemoveAndDispose(SkinningBuffer);
+
+                    SkinningBuffer = AddDisposable(Buffer<Matrix4x3>.CreateDynamicArray(
                         graphicsDevice, 
                         numElements, 
-                        BufferBindFlags.ShaderResource);
+                        BufferBindFlags.ShaderResource));
 
                     _skinningBones = new Matrix4x3[numElements];
                 }
@@ -121,10 +123,12 @@ namespace OpenSage.Graphics.Rendering
 
             if (WorldBuffer == null || WorldBuffer.ElementCount < NumInstances)
             {
-                WorldBuffer = Buffer<Matrix4x4>.CreateDynamicArray(
+                RemoveAndDispose(WorldBuffer);
+
+                WorldBuffer = AddDisposable(Buffer<Matrix4x4>.CreateDynamicArray(
                     graphicsDevice,
                     (int) NumInstances, 
-                    BufferBindFlags.VertexBuffer);
+                    BufferBindFlags.VertexBuffer));
 
                 _worldTransforms = new Matrix4x4[NumInstances];
             }

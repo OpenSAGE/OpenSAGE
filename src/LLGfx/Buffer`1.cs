@@ -21,7 +21,10 @@ namespace LLGfx
                 1,
                 flags,
                 ResourceUsage.Static,
-                initialData);
+                initialData)
+            {
+                DebugName = $"Static Buffer <{typeof(T).Name}, {flags}>"
+            };
         }
 
         public static Buffer<T> CreateStatic(
@@ -37,7 +40,10 @@ namespace LLGfx
                 (uint) data.Length,
                 flags,
                 ResourceUsage.Static,
-                initialData);
+                initialData)
+            {
+                DebugName = $"Static Array Buffer <{typeof(T).Name}, {flags}>"
+            };
         }
 
         public static Buffer<T> CreateDynamic(
@@ -58,7 +64,10 @@ namespace LLGfx
                 (uint) arrayLength,
                 flags,
                 ResourceUsage.Dynamic,
-                null);
+                null)
+            {
+                DebugName = $"Dynamic Buffer <{typeof(T).Name}, {arrayLength}, {flags}>"
+            };
         }
 
         private Buffer(
