@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using LLGfx;
+using LLGfx.Util;
 
 namespace OpenSage.Graphics.Effects
 {
@@ -16,13 +17,19 @@ namespace OpenSage.Graphics.Effects
             _properties = new Dictionary<string, EffectMaterialProperty>();
         }
 
-        private void SetPropertyImpl(string name, object value)
+        private EffectMaterialProperty EnsureProperty(string name)
         {
             if (!_properties.TryGetValue(name, out var property))
             {
                 var parameter = Effect.GetParameter(name);
                 _properties[name] = property = new EffectMaterialProperty(parameter);
             }
+            return property;
+        }
+
+        private void SetPropertyImpl(string name, object value)
+        {
+            var property = EnsureProperty(name);
 
             property.Data = value;
         }
@@ -42,11 +49,36 @@ namespace OpenSage.Graphics.Effects
             SetPropertyImpl(name, sampler);
         }
 
+        public void SetProperty<T>(string constantBufferName, string fieldName, ref T value)
+            where T : struct
+        {
+            var property = EnsureProperty(constantBufferName);
+
+            var bytes = StructInteropUtility.ToBytes(ref value);
+            property.ConstantBufferFields[fieldName] = bytes;
+        }
+
+        public void SetProperty<T>(string constantBufferName, string fieldName, T value)
+            where T : struct
+        {
+            SetProperty(constantBufferName, fieldName, ref value);
+        }
+
         public void Apply()
         {
             foreach (var property in _properties.Values)
             {
-                property.Parameter.SetData(property.Data);
+                if (property.Parameter.IsConstantBuffer)
+                {
+                    foreach (var kvp in property.ConstantBufferFields)
+                    {
+                        property.Parameter.SetConstantBufferField(kvp.Key, kvp.Value);
+                    }
+                }
+                else
+                {
+                    property.Parameter.SetData(property.Data);
+                }
             }
         }
     }
@@ -54,7 +86,9 @@ namespace OpenSage.Graphics.Effects
     internal sealed class EffectMaterialProperty
     {
         public EffectParameter Parameter { get; }
+
         public object Data;
+        public Dictionary<string, byte[]> ConstantBufferFields = new Dictionary<string, byte[]>();
 
         public EffectMaterialProperty(EffectParameter parameter)
         {

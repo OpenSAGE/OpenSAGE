@@ -115,7 +115,13 @@ namespace OpenSage.Graphics.Effects
             return result;
         }
 
-        private void SetConstantBufferFieldImpl<T>(string name, string fieldName, ref T value)
+        public void SetConstantBufferField<T>(string name, string fieldName, T value)
+            where T : struct
+        {
+            SetConstantBufferField(name, fieldName, ref value);
+        }
+
+        public void SetConstantBufferField<T>(string name, string fieldName, ref T value)
             where T : struct
         {
             if (!_parameters.TryGetValue(name, out var parameter))
@@ -124,18 +130,6 @@ namespace OpenSage.Graphics.Effects
             }
 
             parameter.SetConstantBufferField(fieldName, ref value);
-        }
-
-        public void SetConstantBufferField<T>(string name, string fieldName, T value)
-            where T : struct
-        {
-            SetConstantBufferFieldImpl(name, fieldName, ref value);
-        }
-
-        public void SetConstantBufferField<T>(string name, string fieldName, ref T value)
-            where T : struct
-        {
-            SetConstantBufferFieldImpl(name, fieldName, ref value);
         }
 
         private void SetValueImpl(string name, object value)

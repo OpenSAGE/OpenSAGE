@@ -17,6 +17,8 @@ namespace OpenSage.Graphics.Effects
 
         public string Name => _resourceBinding.Name;
 
+        public bool IsConstantBuffer => _resourceBinding.ResourceType == ShaderResourceType.ConstantBuffer;
+
         public EffectParameter(GraphicsDevice graphicsDevice, ShaderResourceBinding resourceBinding)
         {
             _resourceBinding = resourceBinding;
@@ -46,14 +48,19 @@ namespace OpenSage.Graphics.Effects
             _isDirty = true;
         }
 
+        public void SetConstantBufferField(string fieldName, byte[] bytes)
+        {
+            _constantBuffer.SetData(fieldName, bytes);
+
+            _isDirty = true;
+        }
+
         public void SetConstantBufferField<T>(string fieldName, ref T value)
             where T : struct
         {
             var bytes = StructInteropUtility.ToBytes(ref value);
 
-            _constantBuffer.SetData(fieldName, bytes);
-
-            _isDirty = true;
+            SetConstantBufferField(fieldName, bytes);
         }
 
         public void ApplyChanges(CommandEncoder commandEncoder)

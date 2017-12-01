@@ -24,7 +24,7 @@ namespace OpenSage.Graphics.Effects
 
         public void SetMipMapLevel(uint mipMapLevel)
         {
-            //SetConstantBufferField("TextureCB", "MipMapLevel", mipMapLevel);
+            SetProperty("TextureCB", "MipMapLevel", mipMapLevel);
         }
 
         public void SetTexture(Texture texture)
