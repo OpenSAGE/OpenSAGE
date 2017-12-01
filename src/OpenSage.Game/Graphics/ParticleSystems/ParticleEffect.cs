@@ -1,26 +1,10 @@
-﻿using System;
-using System.Numerics;
-using LLGfx;
+﻿using LLGfx;
 using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
-    public sealed class ParticleEffect : Effect, IEffectMatrices
+    public sealed class ParticleEffect : Effect
     {
-        private ParticleEffectDirtyFlags _dirtyFlags;
-
-        private Matrix4x4 _world = Matrix4x4.Identity;
-
-        [Flags]
-        private enum ParticleEffectDirtyFlags
-        {
-            None = 0,
-
-            TransformConstants = 0x1,
-
-            All = TransformConstants
-        }
-
         public ParticleEffect(GraphicsDevice graphicsDevice) 
             : base(
                   graphicsDevice, 
@@ -28,26 +12,6 @@ namespace OpenSage.Graphics.ParticleSystems
                   "ParticlePS",
                   ParticleVertex.VertexDescriptor)
         {
-        }
-
-        protected override void OnBegin()
-        {
-            _dirtyFlags = ParticleEffectDirtyFlags.All;
-        }
-
-        protected override void OnApply()
-        {
-            if (_dirtyFlags.HasFlag(ParticleEffectDirtyFlags.TransformConstants))
-            {
-                SetConstantBufferField("TransformConstants", "World", ref _world);
-                _dirtyFlags &= ~ParticleEffectDirtyFlags.TransformConstants;
-            }
-        }
-
-        void IEffectMatrices.SetWorld(Matrix4x4 matrix)
-        {
-            _world = matrix;
-            _dirtyFlags |= ParticleEffectDirtyFlags.TransformConstants;
         }
     }
 

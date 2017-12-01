@@ -24,6 +24,8 @@ namespace OpenSage.Graphics
         private readonly Buffer<MeshVertex.Basic> _vertexBuffer;
         private readonly Buffer<ushort> _indexBuffer;
 
+        private readonly Buffer<SkinningConstants> _skinningConstantsBuffer;
+
         public string Name { get; }
 
         public ModelBone ParentBone { get; }
@@ -72,6 +74,15 @@ namespace OpenSage.Graphics
                 graphicsDevice,
                 indices,
                 BufferBindFlags.IndexBuffer));
+
+            _skinningConstantsBuffer = AddDisposable(Buffer<SkinningConstants>.CreateStatic(
+                graphicsDevice,
+                new SkinningConstants
+                {
+                    SkinningEnabled = isSkinned,
+                    NumBones = numBones
+                },
+                BufferBindFlags.ConstantBuffer));
 
             foreach (var materialPass in materialPasses)
             {
@@ -129,10 +140,9 @@ namespace OpenSage.Graphics
             if (Skinned)
             {
                 effect.SetSkinningBuffer(instanceData.SkinningBuffer);
-                effect.SetNumBones(NumBones);
             }
 
-            effect.SetSkinningEnabled(Skinned);
+            effect.SetSkinningConstants(_skinningConstantsBuffer);
 
             commandEncoder.SetVertexBuffer(0, _vertexBuffer);
 

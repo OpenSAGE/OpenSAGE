@@ -12,10 +12,12 @@ namespace OpenSage.Graphics.Rendering
     {
         private readonly DepthStencilBufferCache _depthStencilBufferCache;
         private readonly Buffer<GlobalConstantsVS> _globalConstantBufferVS;
+        private readonly Buffer<RenderItemConstantsVS> _renderItemConstantsBufferVS;
         private readonly Buffer<GlobalConstantsPS> _globalConstantBufferPS;
         private readonly Buffer<LightingConstants> _globalLightingTerrainBuffer;
         private readonly Buffer<LightingConstants> _globalLightingObjectBuffer;
         private GlobalConstantsVS _globalConstantsVS;
+        private RenderItemConstantsVS _renderItemConstantsVS;
         private GlobalConstantsPS _globalConstantsPS;
         private LightingConstants _globalLightingTerrain;
         private LightingConstants _globalLightingObject;
@@ -25,6 +27,7 @@ namespace OpenSage.Graphics.Rendering
             _depthStencilBufferCache = AddDisposable(new DepthStencilBufferCache(graphicsDevice));
 
             _globalConstantBufferVS = Buffer<GlobalConstantsVS>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer);
+            _renderItemConstantsBufferVS = Buffer<RenderItemConstantsVS>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer);
             _globalConstantBufferPS = Buffer<GlobalConstantsPS>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer);
             _globalLightingTerrainBuffer = Buffer<LightingConstants>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer);
             _globalLightingObjectBuffer = Buffer<LightingConstants>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer);
@@ -135,9 +138,12 @@ namespace OpenSage.Graphics.Rendering
                                 continue;
                             }
 
-                            if (effect is IEffectMatrices m2)
+                            var renderItemConstantsVSParameter = effect.GetParameter("RenderItemConstantsVS");
+                            if (renderItemConstantsVSParameter != null)
                             {
-                                m2.SetWorld(renderItem.Renderable.Entity.Transform.LocalToWorldMatrix);
+                                _renderItemConstantsVS.World = renderItem.Renderable.Entity.Transform.LocalToWorldMatrix;
+                                _renderItemConstantsBufferVS.SetData(ref _renderItemConstantsVS);
+                                renderItemConstantsVSParameter.SetData(_renderItemConstantsBufferVS);
                             }
 
                             renderItem.Material.Apply();
@@ -205,6 +211,12 @@ namespace OpenSage.Graphics.Rendering
         {
             public Matrix4x4 ViewProjection;
             public Vector3 CameraPosition;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RenderItemConstantsVS
+        {
+            public Matrix4x4 World;
         }
 
         [StructLayout(LayoutKind.Sequential)]

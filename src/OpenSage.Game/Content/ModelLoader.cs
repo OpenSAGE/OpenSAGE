@@ -37,7 +37,7 @@ namespace OpenSage.Content
                 w3dHierarchy);
         }
 
-        private static Model CreateModel(
+        private Model CreateModel(
             ContentManager contentManager,
             W3dFile w3dFile,
             W3dHierarchyDef w3dHierarchy)
@@ -122,7 +122,7 @@ namespace OpenSage.Content
                 animations);
         }
 
-        private static ModelMesh CreateModelMesh(
+        private ModelMesh CreateModelMesh(
             ContentManager contentManager,
             W3dMesh w3dMesh,
             ModelBone parentBone,
@@ -264,7 +264,7 @@ namespace OpenSage.Content
         }
 
         // One ModelMeshMaterialPass for each W3D_CHUNK_MATERIAL_PASS
-        private static ModelMeshMaterialPass CreateModelMeshMaterialPass(
+        private ModelMeshMaterialPass CreateModelMeshMaterialPass(
             ContentManager contentManager,
             W3dMesh w3dMesh,
             W3dMaterialPass w3dMaterialPass,
@@ -472,7 +472,7 @@ namespace OpenSage.Content
         }
 
         // One ModelMeshPart for each unique shader in a W3D_CHUNK_MATERIAL_PASS.
-        private static ModelMeshPart CreateModelMeshPart(
+        private ModelMeshPart CreateModelMeshPart(
             ContentManager contentManager,
             uint startIndex,
             uint indexCount,
@@ -512,9 +512,18 @@ namespace OpenSage.Content
                 .GetHandle();
 
             var effectMaterial = new MeshMaterial(contentManager.GetEffect<MeshEffect>());
-            effectMaterial.SetVertexMaterial(ref vertexMaterials[vertexMaterialID]);
-            effectMaterial.SetShadingConfiguration(ref shadingConfigurations[shaderID]);
-            effectMaterial.SetNumTextureStages(numTextureStages);
+
+            var materialConstantsBuffer = AddDisposable(Buffer<MaterialConstants>.CreateStatic(
+                contentManager.GraphicsDevice,
+                new MaterialConstants
+                {
+                    Material = vertexMaterials[vertexMaterialID],
+                    Shading = shadingConfigurations[shaderID],
+                    NumTextureStages = numTextureStages
+                },
+                BufferBindFlags.ConstantBuffer));
+
+            effectMaterial.SetMaterialConstants(materialConstantsBuffer);
             effectMaterial.SetTexture0(CreateTexture(contentManager, w3dMesh, textureIndex0));
             effectMaterial.SetTexture1(CreateTexture(contentManager, w3dMesh, textureIndex1));
 

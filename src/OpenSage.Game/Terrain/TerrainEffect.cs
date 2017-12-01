@@ -1,26 +1,10 @@
-﻿using System;
-using System.Numerics;
-using LLGfx;
+﻿using LLGfx;
 using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Terrain
 {
-    public sealed class TerrainEffect : Effect, IEffectMatrices, IEffectLights
+    public sealed class TerrainEffect : Effect, IEffectLights
     {
-        private TerrainEffectDirtyFlags _dirtyFlags;
-
-        private Matrix4x4 _world = Matrix4x4.Identity;
-
-        [Flags]
-        private enum TerrainEffectDirtyFlags
-        {
-            None = 0,
-
-            TransformConstants = 0x1,
-
-            All = TransformConstants
-        }
-
         LightingType IEffectLights.LightingType => LightingType.Object;
 
         public TerrainEffect(GraphicsDevice graphicsDevice)
@@ -30,26 +14,6 @@ namespace OpenSage.Terrain
                   "TerrainPS",
                   TerrainVertex.VertexDescriptor)
         {
-        }
-
-        protected override void OnBegin()
-        {
-            _dirtyFlags = TerrainEffectDirtyFlags.All;
-        }
-
-        protected override void OnApply()
-        {
-            if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.TransformConstants))
-            {
-                SetConstantBufferField("TransformConstants", "World", ref _world);
-                _dirtyFlags &= ~TerrainEffectDirtyFlags.TransformConstants;
-            }
-        }
-
-        void IEffectMatrices.SetWorld(Matrix4x4 matrix)
-        {
-            _world = matrix;
-            _dirtyFlags |= TerrainEffectDirtyFlags.TransformConstants;
         }
     }
 

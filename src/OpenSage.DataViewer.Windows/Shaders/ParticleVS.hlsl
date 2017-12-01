@@ -12,7 +12,7 @@ struct VSInput
     uint VertexID : SV_VertexID;
 };
 
-cbuffer TransformConstants : register(b1)
+cbuffer RenderItemConstantsVS : register(b1)
 {
     row_major matrix World;
 };

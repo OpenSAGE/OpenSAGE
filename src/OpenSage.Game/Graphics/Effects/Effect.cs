@@ -55,7 +55,11 @@ namespace OpenSage.Graphics.Effects
                 .ToDictionary(x => x.Name);
         }
 
-        internal EffectParameter GetParameter(string name) => _parameters[name];
+        internal EffectParameter GetParameter(string name)
+        {
+            _parameters.TryGetValue(name, out var result);
+            return result;
+        }
 
         public void Begin(CommandEncoder commandEncoder)
         {
@@ -115,23 +119,6 @@ namespace OpenSage.Graphics.Effects
             }
 
             return result;
-        }
-
-        public void SetConstantBufferField<T>(string name, string fieldName, T value)
-            where T : struct
-        {
-            SetConstantBufferField(name, fieldName, ref value);
-        }
-
-        public void SetConstantBufferField<T>(string name, string fieldName, ref T value)
-            where T : struct
-        {
-            if (!_parameters.TryGetValue(name, out var parameter))
-            {
-                throw new InvalidOperationException();
-            }
-
-            parameter.SetConstantBufferField(fieldName, ref value);
         }
 
         private void SetValueImpl(string name, object value)

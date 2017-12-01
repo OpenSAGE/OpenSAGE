@@ -1,4 +1,5 @@
-﻿using LLGfx;
+﻿using System.Runtime.InteropServices;
+using LLGfx;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Effects
@@ -21,15 +22,17 @@ namespace OpenSage.Graphics.Effects
             SetValue("SkinningBuffer", skinningBuffer);
         }
 
-        public void SetSkinningEnabled(bool enabled)
+        public void SetSkinningConstants(Buffer<SkinningConstants> skinningConstantsBuffer)
         {
-            SetConstantBufferField("SkinningConstants", "SkinningEnabled", enabled);
+            SetValue("SkinningConstants", skinningConstantsBuffer);
         }
+    }
 
-        public void SetNumBones(uint numBones)
-        {
-            SetConstantBufferField("SkinningConstants", "NumBones", numBones);
-        }
+    [StructLayout(LayoutKind.Sequential)]
+    public struct SkinningConstants
+    {
+        public bool SkinningEnabled;
+        public uint NumBones;
     }
 
     public sealed class MeshMaterial : EffectMaterial
@@ -50,19 +53,9 @@ namespace OpenSage.Graphics.Effects
             SetProperty("Texture1", texture);
         }
 
-        public void SetVertexMaterial(ref VertexMaterial vertexMaterial)
+        public void SetMaterialConstants(Buffer<MaterialConstants> materialConstants)
         {
-            SetProperty("MaterialConstants", "Material", ref vertexMaterial);
-        }
-
-        public void SetShadingConfiguration(ref ShadingConfiguration shadingConfiguration)
-        {
-            SetProperty("MaterialConstants", "Shading", ref shadingConfiguration);
-        }
-
-        public void SetNumTextureStages(uint numTextureStages)
-        {
-            SetProperty("MaterialConstants", "NumTextureStages", numTextureStages);
+            SetProperty("MaterialConstants", materialConstants);
         }
     }
 }

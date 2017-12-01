@@ -68,17 +68,7 @@ namespace OpenSage.Graphics.Effects
         {
             foreach (var property in _properties.Values)
             {
-                if (property.Parameter.IsConstantBuffer)
-                {
-                    foreach (var kvp in property.ConstantBufferFields)
-                    {
-                        property.Parameter.SetConstantBufferField(kvp.Key, kvp.Value);
-                    }
-                }
-                else
-                {
-                    property.Parameter.SetData(property.Data);
-                }
+                property.Parameter.SetData(property.Data);
             }
         }
     }

@@ -8,7 +8,7 @@ struct VSInput
     float2 UV       : TEXCOORD;
 };
 
-cbuffer TransformConstants : register(b1)
+cbuffer RenderItemConstantsVS : register(b1)
 {
     row_major float4x4 World;
 };
