@@ -1,6 +1,7 @@
 #include "CommonPS.hlsli"
 #include "Terrain.hlsli"
 
+#define LIGHTING_TYPE Terrain
 #include "Lighting.hlsli"
 
 #define BLEND_DIRECTION_TOWARDS_RIGHT     1

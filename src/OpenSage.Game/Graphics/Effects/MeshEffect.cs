@@ -4,10 +4,8 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Effects
 {
-    public sealed class MeshEffect : Effect, IEffectLights
+    public sealed class MeshEffect : Effect
     {
-        LightingType IEffectLights.LightingType => LightingType.Object;
-
         public MeshEffect(GraphicsDevice graphicsDevice)
             : base(
                   graphicsDevice, 

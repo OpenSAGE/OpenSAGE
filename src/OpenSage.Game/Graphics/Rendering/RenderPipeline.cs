@@ -118,12 +118,16 @@ namespace OpenSage.Graphics.Rendering
 
                     effect.Begin(commandEncoder);
 
-                    if (effect is IEffectLights l)
+                    var lightingConstantsObjectParameter = effect.GetParameter("LightingConstants_Object");
+                    if (lightingConstantsObjectParameter != null)
                     {
-                        commandEncoder.SetPixelShaderConstantBuffer(1,
-                            l.LightingType == LightingType.Terrain
-                                ? _globalLightingTerrainBuffer
-                                : _globalLightingObjectBuffer);
+                        lightingConstantsObjectParameter.SetData(_globalLightingObjectBuffer);
+                    }
+
+                    var lightingConstantsTerrainParameter = effect.GetParameter("LightingConstants_Terrain");
+                    if (lightingConstantsTerrainParameter != null)
+                    {
+                        lightingConstantsTerrainParameter.SetData(_globalLightingTerrainBuffer);
                     }
 
                     foreach (var pipelineStateGroup in effectGroup.PipelineStateGroups)

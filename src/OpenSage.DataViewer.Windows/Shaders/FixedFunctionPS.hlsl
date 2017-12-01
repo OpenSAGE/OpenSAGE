@@ -2,6 +2,7 @@
 #include "FixedFunction.hlsli"
 
 #define SPECULAR_ENABLED
+#define LIGHTING_TYPE Object
 #include "Lighting.hlsli"
 
 struct TextureMapping

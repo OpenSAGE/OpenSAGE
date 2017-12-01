@@ -3,10 +3,8 @@ using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Terrain
 {
-    public sealed class TerrainEffect : Effect, IEffectLights
+    public sealed class TerrainEffect : Effect
     {
-        LightingType IEffectLights.LightingType => LightingType.Object;
-
         public TerrainEffect(GraphicsDevice graphicsDevice)
             : base(
                   graphicsDevice, 
