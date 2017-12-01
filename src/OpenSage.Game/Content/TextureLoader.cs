@@ -14,7 +14,9 @@ namespace OpenSage.Content
 
         public TextureLoader(GraphicsDevice graphicsDevice)
         {
-            PlaceholderValue = AddDisposable(Texture.CreatePlaceholderTexture2D(graphicsDevice));
+            var texture = AddDisposable(Texture.CreatePlaceholderTexture2D(graphicsDevice));
+            texture.DebugName = "Placeholder Texture";
+            PlaceholderValue = AddDisposable(texture);
         }
 
         public override IEnumerable<string> GetPossibleFilePaths(string filePath)
@@ -25,6 +27,12 @@ namespace OpenSage.Content
 
         protected override Texture LoadEntry(FileSystemEntry entry, ContentManager contentManager)
         {
+            Texture applyDebugName(Texture texture)
+            {
+                texture.DebugName = entry.FilePath;
+                return texture;
+            }
+
             switch (Path.GetExtension(entry.FilePath).ToLower())
             {
                 case ".dds":
@@ -33,16 +41,16 @@ namespace OpenSage.Content
                         goto case ".tga";
                     }
                     var ddsFile = DdsFile.FromFileSystemEntry(entry);
-                    return CreateTextureFromDds(
+                    return applyDebugName(CreateTextureFromDds(
                         contentManager.GraphicsDevice,
-                        ddsFile);
+                        ddsFile));
 
                 case ".tga":
                     var tgaFile = TgaFile.FromFileSystemEntry(entry);
-                    return CreateTextureFromTga(
+                    return applyDebugName(CreateTextureFromTga(
                         contentManager.GraphicsDevice,
                         tgaFile,
-                        true); // TODO: Don't need to generate mipmaps for GUI textures.
+                        true)); // TODO: Don't need to generate mipmaps for GUI textures.
 
                 default:
                     throw new InvalidOperationException();

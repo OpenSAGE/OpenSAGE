@@ -8,6 +8,9 @@ namespace LLGfx
     {
         internal D3D11.SamplerState DeviceSamplerState { get; private set; }
 
+        internal override string PlatformGetDebugName() => DeviceSamplerState.DebugName;
+        internal override void PlatformSetDebugName(string value) => DeviceSamplerState.DebugName = value;
+
         private void PlatformConstruct(GraphicsDevice graphicsDevice, SamplerStateDescription description)
         {
             DeviceSamplerState = AddDisposable(new D3D11.SamplerState(

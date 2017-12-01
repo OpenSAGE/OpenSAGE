@@ -11,6 +11,16 @@ namespace LLGfx
         private BlendState _blendState;
         private DepthStencilState _depthStencilState;
 
+        internal override string PlatformGetDebugName() => _inputLayout.DebugName;
+
+        internal override void PlatformSetDebugName(string value)
+        {
+            _inputLayout.DebugName = value;
+            _rasterizerState.DebugName = value;
+            _blendState.DebugName = value;
+            _depthStencilState.DebugName = value;
+        }
+
         private void PlatformConstruct(GraphicsDevice graphicsDevice, PipelineStateDescription description)
         {
             _inputLayout = AddDisposable(new InputLayout(

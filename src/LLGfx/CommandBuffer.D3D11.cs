@@ -4,6 +4,9 @@ namespace LLGfx
     {
         private readonly CommandQueue _parent;
 
+        internal override string PlatformGetDebugName() => null;
+        internal override void PlatformSetDebugName(string value) { }
+
         internal CommandBuffer(GraphicsDevice graphicsDevice, CommandQueue parent)
             : base(graphicsDevice)
         {

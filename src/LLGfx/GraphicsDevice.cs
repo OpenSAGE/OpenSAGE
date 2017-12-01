@@ -20,9 +20,9 @@
 
             ShaderLibrary = AddDisposable(new ShaderLibrary(this));
 
-            SamplerAnisotropicWrap = AddDisposable(new SamplerState(this, SamplerStateDescription.AnisotropicWrap));
-            SamplerLinearWrap = AddDisposable(new SamplerState(this, SamplerStateDescription.LinearWrap));
-            SamplerPointWrap = AddDisposable(new SamplerState(this, SamplerStateDescription.PointWrap));
+            SamplerAnisotropicWrap = AddDisposable(new SamplerState(this, SamplerStateDescription.AnisotropicWrap) { DebugName = "AnisotropicWrap SamplerState" });
+            SamplerLinearWrap = AddDisposable(new SamplerState(this, SamplerStateDescription.LinearWrap) { DebugName = "LinearWrap SamplerState" });
+            SamplerPointWrap = AddDisposable(new SamplerState(this, SamplerStateDescription.PointWrap) { DebugName = "PointWrap SamplerState" });
         }
     }
 }

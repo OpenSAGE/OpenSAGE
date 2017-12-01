@@ -19,7 +19,25 @@ namespace LLGfx
             const DeviceCreationFlags flags = DeviceCreationFlags.None;
 #endif
 
-            Device = AddDisposable(new Device(DriverType.Hardware, flags, FeatureLevel.Level_11_0));
+            Device = new Device(DriverType.Hardware, flags, FeatureLevel.Level_11_0);
+        }
+
+        protected override void Dispose(bool disposeManagedResources)
+        {
+            Device.ImmediateContext.ClearState();
+
+            base.Dispose(disposeManagedResources);
+
+            Device.ImmediateContext.Dispose();
+
+#if DEBUG
+            using (var deviceDebug = AddDisposable(new DeviceDebug(Device)))
+            {
+                deviceDebug.ReportLiveDeviceObjects(ReportingLevel.Detail);
+            }
+#endif
+
+            Device.Dispose();
         }
     }
 }

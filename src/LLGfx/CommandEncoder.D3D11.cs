@@ -9,6 +9,9 @@ namespace LLGfx
         private readonly DeviceContext _context;
         private readonly RenderPassDescriptor _renderPassDescriptor;
 
+        internal override string PlatformGetDebugName() => null;
+        internal override void PlatformSetDebugName(string value) { }
+
         internal CommandEncoder(GraphicsDevice graphicsDevice, DeviceContext context, RenderPassDescriptor renderPassDescriptor)
             : base(graphicsDevice)
         {

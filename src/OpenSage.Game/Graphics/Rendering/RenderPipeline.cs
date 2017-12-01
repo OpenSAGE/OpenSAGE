@@ -141,7 +141,7 @@ namespace OpenSage.Graphics.Rendering
                             {
                                 _renderItemConstantsBufferVS.Value.World = renderItem.Renderable.Entity.Transform.LocalToWorldMatrix;
                                 _renderItemConstantsBufferVS.Update();
-                                renderItemConstantsVSParameter.SetData(_renderItemConstantsBufferVS);
+                                renderItemConstantsVSParameter.SetData(_renderItemConstantsBufferVS.Buffer);
                             }
 
                             renderItem.Material.Apply();

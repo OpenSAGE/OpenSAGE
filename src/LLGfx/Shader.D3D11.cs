@@ -9,6 +9,9 @@ namespace LLGfx
         internal byte[] DeviceBytecode { get; set; }
         internal DeviceChild DeviceShader { get; private set; }
 
+        internal override string PlatformGetDebugName() => DeviceShader.DebugName;
+        internal override void PlatformSetDebugName(string value) => DeviceShader.DebugName = value;
+
         private void PlatformConstruct(
             ShaderLibrary shaderLibrary, 
             string shaderName, 

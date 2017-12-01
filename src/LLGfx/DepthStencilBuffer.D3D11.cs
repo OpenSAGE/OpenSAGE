@@ -7,6 +7,9 @@ namespace LLGfx
     {
         internal DepthStencilView DeviceDepthStencilView { get; private set; }
 
+        internal override string PlatformGetDebugName() => DeviceDepthStencilView.DebugName;
+        internal override void PlatformSetDebugName(string value) => DeviceDepthStencilView.DebugName = value;
+
         private void PlatformConstruct(GraphicsDevice graphicsDevice, int width, int height, float clearValue)
         {
             var depthStencilBuffer = AddDisposable(new Texture2D(graphicsDevice.Device, new Texture2DDescription

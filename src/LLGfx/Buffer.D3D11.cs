@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using LLGfx.Util;
 using SharpDX;
+using SharpDX.Direct3D11;
 using D3D11 = SharpDX.Direct3D11;
 
 namespace LLGfx
@@ -12,6 +13,9 @@ namespace LLGfx
         private const int ConstantBufferAlignmentMask = ConstantBufferAlignment - 1;
 
         internal D3D11.Buffer DeviceBuffer { get; set; }
+
+        internal override string PlatformGetDebugName() => DeviceBuffer.DebugName;
+        internal override void PlatformSetDebugName(string value) => DeviceBuffer.DebugName = value;
 
         private D3D11.ShaderResourceView _deviceShaderResourceView;
         internal D3D11.ShaderResourceView DeviceShaderResourceView

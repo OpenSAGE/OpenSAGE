@@ -11,8 +11,11 @@ namespace LLGfx
     {
         internal Texture2D DeviceResource { get; private set; }
 
-        private D3D11.ShaderResourceView _deviceShaderResourceView;
-        internal D3D11.ShaderResourceView DeviceShaderResourceView
+        internal override string PlatformGetDebugName() => DeviceResource.DebugName;
+        internal override void PlatformSetDebugName(string value) => DeviceResource.DebugName = value;
+
+        private ShaderResourceView _deviceShaderResourceView;
+        internal ShaderResourceView DeviceShaderResourceView
         {
             get
             {
@@ -44,7 +47,7 @@ namespace LLGfx
                             throw new ArgumentOutOfRangeException();
                     }
 
-                    _deviceShaderResourceView = AddDisposable(new D3D11.ShaderResourceView(
+                    _deviceShaderResourceView = AddDisposable(new ShaderResourceView(
                         GraphicsDevice.Device,
                         DeviceResource,
                         description));

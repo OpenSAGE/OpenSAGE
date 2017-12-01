@@ -4,6 +4,9 @@ namespace LLGfx
 {
     partial class ShaderLibrary
     {
+        internal override string PlatformGetDebugName() => null;
+        internal override void PlatformSetDebugName(string value) { }
+
         private void PlatformConstruct(GraphicsDevice graphicsDevice) { }
 
         internal byte[] GetShader(string shaderName)
