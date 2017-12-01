@@ -7,6 +7,7 @@ namespace OpenSage.Graphics
 {
     public sealed class SpriteComponent : RenderableComponent
     {
+        private ConstantBuffer<SpriteMaterial.MaterialConstants> _materialConstantsBuffer;
         private SpriteMaterial _material;
 
         private EffectPipelineStateHandle _pipelineStateHandle;
@@ -20,7 +21,8 @@ namespace OpenSage.Graphics
             set
             {
                 _selectedMipMapLevel = value;
-                _material.SetMipMapLevel(value);
+                _materialConstantsBuffer.Value.MipMapLevel = value;
+                _materialConstantsBuffer.Update();
             }
         }
 
@@ -32,7 +34,9 @@ namespace OpenSage.Graphics
         {
             base.Start();
 
-            _material = new SpriteMaterial(ContentManager.GetEffect<SpriteEffect>());
+            _materialConstantsBuffer = new ConstantBuffer<SpriteMaterial.MaterialConstants>(GraphicsDevice);
+            _material = new SpriteMaterial(ContentManager.EffectLibrary.Sprite);
+            _material.SetMaterialConstants(_materialConstantsBuffer.Buffer);
             _material.SetTexture(Texture);
 
             var rasterizerState = RasterizerStateDescription.CullBackSolid;

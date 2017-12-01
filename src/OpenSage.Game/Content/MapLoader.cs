@@ -44,8 +44,6 @@ namespace OpenSage.Content
                 HeightMap = heightMap
             });
 
-            var terrainEffect = contentManager.GetEffect<TerrainEffect>();
-
             var pipelineStateSolid = new EffectPipelineState(
                 RasterizerStateDescription.CullBackSolid,
                 DepthStencilStateDescription.Default,
@@ -74,7 +72,7 @@ namespace OpenSage.Content
                 textureDetails,
                 BufferBindFlags.ShaderResource));
 
-            var terrainMaterial = new TerrainMaterial(terrainEffect);
+            var terrainMaterial = new TerrainMaterial(contentManager.EffectLibrary.Terrain);
 
             terrainMaterial.SetTileData(tileDataTexture);
             terrainMaterial.SetCliffDetails(cliffDetailsBuffer);
@@ -586,8 +584,6 @@ namespace OpenSage.Content
                 MipMapUtility.CalculateMipMapCount(largestTextureSize, largestTextureSize),
                 largestTextureSize,
                 largestTextureSize));
-
-            var spriteEffect = contentManager.GetEffect<SpriteEffect>();
 
             for (var i = 0; i < numTextures; i++)
             {

@@ -3,21 +3,9 @@ using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Terrain
 {
-    public sealed class TerrainEffect : Effect
-    {
-        public TerrainEffect(GraphicsDevice graphicsDevice)
-            : base(
-                  graphicsDevice, 
-                  "TerrainVS", 
-                  "TerrainPS",
-                  TerrainVertex.VertexDescriptor)
-        {
-        }
-    }
-
     public sealed class TerrainMaterial : EffectMaterial
     {
-        public TerrainMaterial(TerrainEffect effect)
+        public TerrainMaterial(Effect effect)
             : base(effect)
         {
             SetProperty("Sampler", effect.GraphicsDevice.SamplerAnisotropicWrap);

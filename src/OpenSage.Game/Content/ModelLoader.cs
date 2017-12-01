@@ -128,9 +128,22 @@ namespace OpenSage.Content
             ModelBone parentBone,
             int numBones)
         {
+            Effect effect = null;
+            if (w3dMesh.MaterialPasses.Length == 1 && w3dMesh.MaterialPasses[0].ShaderMaterialId != null)
+            {
+                var shaderMaterialID = w3dMesh.MaterialPasses[0].ShaderMaterialId.Value;
+                var shaderMaterial = w3dMesh.ShaderMaterials.Materials[(int) shaderMaterialID];
+                var effectName = shaderMaterial.Header.TypeName.Replace(".fx", string.Empty);
+                effect = contentManager.EffectLibrary.GetEffect(effectName, MeshVertex.VertexDescriptor);
+            }
+            else
+            {
+                effect = contentManager.EffectLibrary.FixedFunction;
+            }
+
             var vertexMaterials = CreateMaterials(w3dMesh);
 
-            var shadingConfigurations = new ShadingConfiguration[w3dMesh.Shaders.Length];
+            var shadingConfigurations = new FixedFunctionMaterial.ShadingConfiguration[w3dMesh.Shaders.Length];
             for (var i = 0; i < shadingConfigurations.Length; i++)
             {
                 shadingConfigurations[i] = CreateShadingConfiguration(w3dMesh.Shaders[i]);
@@ -159,6 +172,7 @@ namespace OpenSage.Content
                 w3dMesh.Header.MeshName,
                 CreateVertices(w3dMesh, isSkinned),
                 CreateIndices(w3dMesh),
+                effect,
                 materialPasses,
                 isSkinned,
                 parentBone,
@@ -168,9 +182,9 @@ namespace OpenSage.Content
                 cameraOriented);
         }
 
-        private static ShadingConfiguration CreateShadingConfiguration(W3dShader w3dShader)
+        private static FixedFunctionMaterial.ShadingConfiguration CreateShadingConfiguration(W3dShader w3dShader)
         {
-            return new ShadingConfiguration
+            return new FixedFunctionMaterial.ShadingConfiguration
             {
                 DiffuseLightingType = w3dShader.PrimaryGradient.ToDiffuseLightingType(),
                 SpecularEnabled = w3dShader.SecondaryGradient == W3dShaderSecondaryGradient.Enable,
@@ -181,9 +195,9 @@ namespace OpenSage.Content
             };
         }
 
-        private static VertexMaterial[] CreateMaterials(W3dMesh w3dMesh)
+        private static FixedFunctionMaterial.VertexMaterial[] CreateMaterials(W3dMesh w3dMesh)
         {
-            var vertexMaterials = new VertexMaterial[w3dMesh.Materials.Length];
+            var vertexMaterials = new FixedFunctionMaterial.VertexMaterial[w3dMesh.Materials.Length];
 
             for (var i = 0; i < w3dMesh.Materials.Length; i++)
             {
@@ -268,8 +282,8 @@ namespace OpenSage.Content
             ContentManager contentManager,
             W3dMesh w3dMesh,
             W3dMaterialPass w3dMaterialPass,
-            VertexMaterial[] vertexMaterials,
-            ShadingConfiguration[] shadingConfigurations)
+            FixedFunctionMaterial.VertexMaterial[] vertexMaterials,
+            FixedFunctionMaterial.ShadingConfiguration[] shadingConfigurations)
         {
             var hasTextureStage0 = w3dMaterialPass.TextureStages.Count > 0;
             var textureStage0 = hasTextureStage0
@@ -477,8 +491,8 @@ namespace OpenSage.Content
             uint startIndex,
             uint indexCount,
             W3dMesh w3dMesh,
-            VertexMaterial[] vertexMaterials,
-            ShadingConfiguration[] shadingConfigurations,
+            FixedFunctionMaterial.VertexMaterial[] vertexMaterials,
+            FixedFunctionMaterial.ShadingConfiguration[] shadingConfigurations,
             uint vertexMaterialID,
             uint shaderID,
             uint numTextureStages,
@@ -511,11 +525,11 @@ namespace OpenSage.Content
                 blendState)
                 .GetHandle();
 
-            var effectMaterial = new MeshMaterial(contentManager.GetEffect<MeshEffect>());
+            var effectMaterial = new FixedFunctionMaterial(contentManager.EffectLibrary.FixedFunction);
 
-            var materialConstantsBuffer = AddDisposable(Buffer<MaterialConstants>.CreateStatic(
+            var materialConstantsBuffer = AddDisposable(Buffer<FixedFunctionMaterial.MaterialConstants>.CreateStatic(
                 contentManager.GraphicsDevice,
-                new MaterialConstants
+                new FixedFunctionMaterial.MaterialConstants
                 {
                     Material = vertexMaterials[vertexMaterialID],
                     Shading = shadingConfigurations[shaderID],

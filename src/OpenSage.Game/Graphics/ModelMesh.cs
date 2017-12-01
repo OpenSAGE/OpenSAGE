@@ -24,7 +24,9 @@ namespace OpenSage.Graphics
         private readonly Buffer<MeshVertex.Basic> _vertexBuffer;
         private readonly Buffer<ushort> _indexBuffer;
 
-        private readonly Buffer<SkinningConstants> _skinningConstantsBuffer;
+        private readonly Buffer<MeshMaterial.SkinningConstants> _skinningConstantsBuffer;
+
+        private readonly Effect _effect;
 
         public string Name { get; }
 
@@ -45,6 +47,7 @@ namespace OpenSage.Graphics
             string name,
             MeshVertex.Basic[] vertices,
             ushort[] indices,
+            Effect effect,
             ModelMeshMaterialPass[] materialPasses,
             bool isSkinned,
             ModelBone parentBone,
@@ -65,6 +68,8 @@ namespace OpenSage.Graphics
             Hidden = hidden;
             CameraOriented = cameraOriented;
 
+            _effect = effect;
+
             _vertexBuffer = AddDisposable(Buffer<MeshVertex.Basic>.CreateStatic(
                 graphicsDevice,
                 vertices,
@@ -75,9 +80,9 @@ namespace OpenSage.Graphics
                 indices,
                 BufferBindFlags.IndexBuffer));
 
-            _skinningConstantsBuffer = AddDisposable(Buffer<SkinningConstants>.CreateStatic(
+            _skinningConstantsBuffer = AddDisposable(Buffer<MeshMaterial.SkinningConstants>.CreateStatic(
                 graphicsDevice,
-                new SkinningConstants
+                new MeshMaterial.SkinningConstants
                 {
                     SkinningEnabled = isSkinned,
                     NumBones = numBones
@@ -91,7 +96,7 @@ namespace OpenSage.Graphics
             MaterialPasses = materialPasses;
         }
 
-        internal void BuildRenderList(RenderList renderList, RenderInstanceData instanceData, MeshEffect effect)
+        internal void BuildRenderList(RenderList renderList, RenderInstanceData instanceData)
         {
             if (Hidden)
             {
@@ -113,13 +118,13 @@ namespace OpenSage.Graphics
                 {
                     renderList.AddRenderItem(new InstancedRenderItem(
                         instanceData,
-                        effect,
+                        _effect,
                         pipelineStateHandle,
                         (commandEncoder, e, h, _) =>
                         {
                             Draw(
                                 commandEncoder,
-                                effect,
+                                _effect,
                                 h,
                                 filteredMaterialPasses,
                                 instanceData);
@@ -130,7 +135,7 @@ namespace OpenSage.Graphics
 
         private void Draw(
             CommandEncoder commandEncoder, 
-            MeshEffect effect,
+            Effect effect,
             EffectPipelineStateHandle pipelineStateHandle,
             IEnumerable<ModelMeshMaterialPass> materialPasses,
             RenderInstanceData instanceData)

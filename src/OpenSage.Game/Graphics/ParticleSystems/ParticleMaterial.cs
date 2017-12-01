@@ -3,21 +3,9 @@ using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
-    public sealed class ParticleEffect : Effect
-    {
-        public ParticleEffect(GraphicsDevice graphicsDevice) 
-            : base(
-                  graphicsDevice, 
-                  "ParticleVS", 
-                  "ParticlePS",
-                  ParticleVertex.VertexDescriptor)
-        {
-        }
-    }
-
     public sealed class ParticleMaterial : EffectMaterial
     {
-        public ParticleMaterial(ParticleEffect effect)
+        public ParticleMaterial(Effect effect)
             : base(effect)
         {
             SetProperty("LinearSampler", effect.GraphicsDevice.SamplerLinearWrap);

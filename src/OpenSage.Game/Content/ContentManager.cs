@@ -5,9 +5,7 @@ using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
-using OpenSage.Graphics.ParticleSystems;
 using System.Linq;
-using OpenSage.Terrain;
 
 namespace OpenSage.Content
 {
@@ -19,9 +17,9 @@ namespace OpenSage.Content
 
         private readonly FileSystem _fileSystem;
 
-        private readonly Dictionary<Type, Effect> _effects;
-
         public GraphicsDevice GraphicsDevice { get; }
+
+        public EffectLibrary EffectLibrary { get; }
 
         public FileSystem FileSystem => _fileSystem;
 
@@ -41,13 +39,7 @@ namespace OpenSage.Content
 
             _cachedObjects = new Dictionary<string, object>();
 
-            _effects = new Dictionary<Type, Effect>
-            {
-                { typeof(MeshEffect), AddDisposable(new MeshEffect(graphicsDevice)) },
-                { typeof(ParticleEffect), AddDisposable(new ParticleEffect(graphicsDevice)) },
-                { typeof(SpriteEffect), AddDisposable(new SpriteEffect(graphicsDevice)) },
-                { typeof(TerrainEffect), AddDisposable(new TerrainEffect(graphicsDevice)) },
-            };
+            EffectLibrary = AddDisposable(new EffectLibrary(graphicsDevice));
 
             IniDataContext = new IniDataContext(fileSystem);
         }
@@ -62,12 +54,6 @@ namespace OpenSage.Content
                 }
             }
             _cachedObjects.Clear();
-        }
-
-        public T GetEffect<T>()
-            where T : Effect
-        {
-            return (T) _effects[typeof(T)];
         }
 
         public T Load<T>(

@@ -1,6 +1,6 @@
 #include "Sprite.hlsli"
 
-Texture2D<float4> BaseTexture : register(t0);
+Texture2D<float4> Texture : register(t0);
 SamplerState Sampler : register(s0);
 
 cbuffer MaterialConstants : register(b2)
@@ -10,7 +10,7 @@ cbuffer MaterialConstants : register(b2)
 
 float4 main(PSInput input) : SV_TARGET
 {
-    return BaseTexture.SampleLevel(
+    return Texture.SampleLevel(
         Sampler,
         input.TexCoords, 
         MipMapLevel);

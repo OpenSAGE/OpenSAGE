@@ -56,13 +56,13 @@ namespace OpenSage.Graphics.Rendering
             addItem(blendEnabled ? Transparent : Opaque);
         }
 
-        public void AddInstancedRenderItem(ModelMesh mesh, RenderableComponent renderable, MeshEffect effect)
+        public void AddInstancedRenderItem(ModelMesh mesh, RenderableComponent renderable)
         {
             if (!InstanceData.TryGetValue(mesh, out var instanceData))
             {
                 InstanceData.Add(mesh, instanceData = new RenderInstanceData(mesh));
 
-                mesh.BuildRenderList(this, instanceData, effect);
+                mesh.BuildRenderList(this, instanceData);
             }
 
             instanceData.InstancedRenderables.Add(new InstancedRenderable(renderable));

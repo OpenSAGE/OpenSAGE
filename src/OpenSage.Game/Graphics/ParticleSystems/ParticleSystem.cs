@@ -60,7 +60,7 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             base.Start();
 
-            _particleMaterial = new ParticleMaterial(ContentManager.GetEffect<ParticleEffect>());
+            _particleMaterial = new ParticleMaterial(ContentManager.EffectLibrary.Particle);
 
             _velocityType = VelocityTypeUtility.GetImplementation(Definition.VelocityType);
             _volumeType = VolumeTypeUtility.GetImplementation(Definition.VolumeType);

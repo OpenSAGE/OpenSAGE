@@ -1,5 +1,4 @@
-﻿using OpenSage.Graphics.Effects;
-using OpenSage.Graphics.Rendering;
+﻿using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics
@@ -14,7 +13,7 @@ namespace OpenSage.Graphics
 
         internal override void BuildRenderList(RenderList renderList)
         {
-            renderList.AddInstancedRenderItem(Mesh, this, ContentManager.GetEffect<MeshEffect>());
+            renderList.AddInstancedRenderItem(Mesh, this);
         }
     }
 }

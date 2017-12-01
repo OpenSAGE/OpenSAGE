@@ -6,7 +6,7 @@ using Buffer = LLGfx.Buffer;
 
 namespace OpenSage.Graphics.Effects
 {
-    public abstract partial class Effect : GraphicsObject
+    public sealed class Effect : GraphicsObject
     {
         private readonly GraphicsDevice _graphicsDevice;
 
@@ -32,7 +32,7 @@ namespace OpenSage.Graphics.Effects
             PipelineState = 0x1
         }
 
-        protected Effect(
+        public Effect(
             GraphicsDevice graphicsDevice,
             string vertexShaderName,
             string pixelShaderName,
@@ -69,11 +69,7 @@ namespace OpenSage.Graphics.Effects
             {
                 parameter.ResetDirty();
             }
-
-            OnBegin();
         }
-
-        protected virtual void OnBegin() { }
 
         public void Apply(CommandEncoder commandEncoder)
         {
@@ -84,15 +80,11 @@ namespace OpenSage.Graphics.Effects
                 _dirtyFlags &= ~EffectDirtyFlags.PipelineState;
             }
 
-            OnApply();
-
             foreach (var parameter in _parameters.Values)
             {
                 parameter.ApplyChanges(commandEncoder);
             }
         }
-
-        protected virtual void OnApply() { }
 
         public void SetPipelineState(EffectPipelineStateHandle pipelineStateHandle)
         {
