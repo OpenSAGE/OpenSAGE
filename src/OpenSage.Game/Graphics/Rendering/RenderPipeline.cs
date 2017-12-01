@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using LLGfx;
@@ -11,26 +10,21 @@ namespace OpenSage.Graphics.Rendering
     internal sealed class RenderPipeline : DisposableBase
     {
         private readonly DepthStencilBufferCache _depthStencilBufferCache;
-        private readonly Buffer<GlobalConstantsVS> _globalConstantBufferVS;
-        private readonly Buffer<RenderItemConstantsVS> _renderItemConstantsBufferVS;
-        private readonly Buffer<GlobalConstantsPS> _globalConstantBufferPS;
-        private readonly Buffer<LightingConstants> _globalLightingTerrainBuffer;
-        private readonly Buffer<LightingConstants> _globalLightingObjectBuffer;
-        private GlobalConstantsVS _globalConstantsVS;
-        private RenderItemConstantsVS _renderItemConstantsVS;
-        private GlobalConstantsPS _globalConstantsPS;
-        private LightingConstants _globalLightingTerrain;
-        private LightingConstants _globalLightingObject;
+        private readonly ConstantBuffer<GlobalConstantsVS> _globalConstantBufferVS;
+        private readonly ConstantBuffer<RenderItemConstantsVS> _renderItemConstantsBufferVS;
+        private readonly ConstantBuffer<GlobalConstantsPS> _globalConstantBufferPS;
+        private readonly ConstantBuffer<LightingConstants> _globalLightingTerrainBuffer;
+        private readonly ConstantBuffer<LightingConstants> _globalLightingObjectBuffer;
 
         public RenderPipeline(GraphicsDevice graphicsDevice)
         {
             _depthStencilBufferCache = AddDisposable(new DepthStencilBufferCache(graphicsDevice));
 
-            _globalConstantBufferVS = Buffer<GlobalConstantsVS>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer);
-            _renderItemConstantsBufferVS = Buffer<RenderItemConstantsVS>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer);
-            _globalConstantBufferPS = Buffer<GlobalConstantsPS>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer);
-            _globalLightingTerrainBuffer = Buffer<LightingConstants>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer);
-            _globalLightingObjectBuffer = Buffer<LightingConstants>.CreateDynamic(graphicsDevice, BufferBindFlags.ConstantBuffer);
+            _globalConstantBufferVS = AddDisposable(new ConstantBuffer<GlobalConstantsVS>(graphicsDevice));
+            _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<RenderItemConstantsVS>(graphicsDevice));
+            _globalConstantBufferPS = AddDisposable(new ConstantBuffer<GlobalConstantsPS>(graphicsDevice));
+            _globalLightingTerrainBuffer = AddDisposable(new ConstantBuffer<LightingConstants>(graphicsDevice));
+            _globalLightingObjectBuffer = AddDisposable(new ConstantBuffer<LightingConstants>(graphicsDevice));
         }
 
         public void Execute(RenderContext context)
@@ -121,13 +115,13 @@ namespace OpenSage.Graphics.Rendering
                     var lightingConstantsObjectParameter = effect.GetParameter("LightingConstants_Object");
                     if (lightingConstantsObjectParameter != null)
                     {
-                        lightingConstantsObjectParameter.SetData(_globalLightingObjectBuffer);
+                        lightingConstantsObjectParameter.SetData(_globalLightingObjectBuffer.Buffer);
                     }
 
                     var lightingConstantsTerrainParameter = effect.GetParameter("LightingConstants_Terrain");
                     if (lightingConstantsTerrainParameter != null)
                     {
-                        lightingConstantsTerrainParameter.SetData(_globalLightingTerrainBuffer);
+                        lightingConstantsTerrainParameter.SetData(_globalLightingTerrainBuffer.Buffer);
                     }
 
                     foreach (var pipelineStateGroup in effectGroup.PipelineStateGroups)
@@ -145,8 +139,8 @@ namespace OpenSage.Graphics.Rendering
                             var renderItemConstantsVSParameter = effect.GetParameter("RenderItemConstantsVS");
                             if (renderItemConstantsVSParameter != null)
                             {
-                                _renderItemConstantsVS.World = renderItem.Renderable.Entity.Transform.LocalToWorldMatrix;
-                                _renderItemConstantsBufferVS.SetData(ref _renderItemConstantsVS);
+                                _renderItemConstantsBufferVS.Value.World = renderItem.Renderable.Entity.Transform.LocalToWorldMatrix;
+                                _renderItemConstantsBufferVS.Update();
                                 renderItemConstantsVSParameter.SetData(_renderItemConstantsBufferVS);
                             }
 
@@ -193,21 +187,21 @@ namespace OpenSage.Graphics.Rendering
         {
             var cameraPosition = Matrix4x4Utility.Invert(context.Camera.View).Translation;
 
-            _globalConstantsVS.ViewProjection = context.Camera.View * context.Camera.Projection;
-            _globalConstantsVS.CameraPosition = cameraPosition;
-            _globalConstantBufferVS.SetData(ref _globalConstantsVS);
-            commandEncoder.SetVertexShaderConstantBuffer(0, _globalConstantBufferVS);
+            _globalConstantBufferVS.Value.ViewProjection = context.Camera.View * context.Camera.Projection;
+            _globalConstantBufferVS.Value.CameraPosition = cameraPosition;
+            _globalConstantBufferVS.Update();
+            commandEncoder.SetVertexShaderConstantBuffer(0, _globalConstantBufferVS.Buffer);
 
-            _globalConstantsPS.CameraPosition = cameraPosition;
-            _globalConstantsPS.TimeInSeconds = (float) context.GameTime.TotalGameTime.TotalSeconds;
-            _globalConstantsPS.ViewportSize = context.Camera.Viewport.Size;
-            _globalConstantBufferPS.SetData(ref _globalConstantsPS);
-            commandEncoder.SetPixelShaderConstantBuffer(0, _globalConstantBufferPS);
+            _globalConstantBufferPS.Value.CameraPosition = cameraPosition;
+            _globalConstantBufferPS.Value.TimeInSeconds = (float) context.GameTime.TotalGameTime.TotalSeconds;
+            _globalConstantBufferPS.Value.ViewportSize = context.Camera.Viewport.Size;
+            _globalConstantBufferPS.Update();
+            commandEncoder.SetPixelShaderConstantBuffer(0, _globalConstantBufferPS.Buffer);
 
-            _globalLightingTerrain = context.Scene.Settings.CurrentLightingConfiguration.TerrainLights;
-            _globalLightingObject = context.Scene.Settings.CurrentLightingConfiguration.ObjectLights;
-            _globalLightingTerrainBuffer.SetData(ref _globalLightingTerrain);
-            _globalLightingObjectBuffer.SetData(ref _globalLightingObject);
+            _globalLightingTerrainBuffer.Value = context.Scene.Settings.CurrentLightingConfiguration.TerrainLights;
+            _globalLightingObjectBuffer.Value = context.Scene.Settings.CurrentLightingConfiguration.ObjectLights;
+            _globalLightingTerrainBuffer.Update();
+            _globalLightingObjectBuffer.Update();
         }
 
         [StructLayout(LayoutKind.Sequential)]
