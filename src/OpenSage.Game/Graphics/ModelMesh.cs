@@ -139,10 +139,10 @@ namespace OpenSage.Graphics
 
             if (Skinned)
             {
-                effect.SetSkinningBuffer(instanceData.SkinningBuffer);
+                effect.SetValue("SkinningBuffer", instanceData.SkinningBuffer);
             }
 
-            effect.SetSkinningConstants(_skinningConstantsBuffer);
+            effect.SetValue("SkinningConstants", _skinningConstantsBuffer);
 
             commandEncoder.SetVertexBuffer(0, _vertexBuffer);
 

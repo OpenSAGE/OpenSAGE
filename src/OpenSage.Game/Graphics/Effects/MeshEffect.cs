@@ -14,16 +14,6 @@ namespace OpenSage.Graphics.Effects
                   MeshVertex.VertexDescriptor)
         {
         }
-
-        public void SetSkinningBuffer(Buffer<Matrix4x3> skinningBuffer)
-        {
-            SetValue("SkinningBuffer", skinningBuffer);
-        }
-
-        public void SetSkinningConstants(Buffer<SkinningConstants> skinningConstantsBuffer)
-        {
-            SetValue("SkinningConstants", skinningConstantsBuffer);
-        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
