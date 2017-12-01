@@ -10,6 +10,22 @@ namespace LLGfx
 
         public static Buffer<T> CreateStatic(
             GraphicsDevice graphicsDevice,
+            T data,
+            BufferBindFlags flags)
+        {
+            byte[] initialData = StructInteropUtility.ToBytes(ref data);
+
+            return new Buffer<T>(
+                graphicsDevice,
+                SizeOfT,
+                1,
+                flags,
+                ResourceUsage.Static,
+                initialData);
+        }
+
+        public static Buffer<T> CreateStatic(
+            GraphicsDevice graphicsDevice,
             T[] data,
             BufferBindFlags flags)
         {

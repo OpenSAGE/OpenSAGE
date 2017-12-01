@@ -1,5 +1,3 @@
-#include "Common.hlsli"
-
 struct VSOutputSimple
 {
     VSOutputCommon VSOutput;

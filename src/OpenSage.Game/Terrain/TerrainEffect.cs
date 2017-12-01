@@ -10,8 +10,6 @@ namespace OpenSage.Terrain
         private TerrainEffectDirtyFlags _dirtyFlags;
 
         private Matrix4x4 _world = Matrix4x4.Identity;
-        private Matrix4x4 _view;
-        private Matrix4x4 _projection;
 
         [Flags]
         private enum TerrainEffectDirtyFlags
@@ -22,6 +20,8 @@ namespace OpenSage.Terrain
 
             All = TransformConstants
         }
+
+        LightingType IEffectLights.LightingType => LightingType.Object;
 
         public TerrainEffect(GraphicsDevice graphicsDevice)
             : base(
@@ -41,37 +41,15 @@ namespace OpenSage.Terrain
         {
             if (_dirtyFlags.HasFlag(TerrainEffectDirtyFlags.TransformConstants))
             {
-                SetConstantBufferField("TransformCB", "WorldViewProjection", _world * _view * _projection);
-                SetConstantBufferField("TransformCB", "World", ref _world);
-
-                Matrix4x4.Invert(_view, out var viewInverse);
-                SetConstantBufferField("LightingCB", "CameraPosition", viewInverse.Translation);
-
+                SetConstantBufferField("TransformConstants", "World", ref _world);
                 _dirtyFlags &= ~TerrainEffectDirtyFlags.TransformConstants;
             }
         }
 
-        public void SetWorld(Matrix4x4 matrix)
+        void IEffectMatrices.SetWorld(Matrix4x4 matrix)
         {
             _world = matrix;
             _dirtyFlags |= TerrainEffectDirtyFlags.TransformConstants;
-        }
-
-        public void SetView(Matrix4x4 matrix)
-        {
-            _view = matrix;
-            _dirtyFlags |= TerrainEffectDirtyFlags.TransformConstants;
-        }
-
-        public void SetProjection(Matrix4x4 matrix)
-        {
-            _projection = matrix;
-            _dirtyFlags |= TerrainEffectDirtyFlags.TransformConstants;
-        }
-
-        public void SetLights(ref Lights lights)
-        {
-            SetConstantBufferField("LightingCB", "Lights", ref lights);
         }
     }
 

@@ -1,6 +1,6 @@
+#include "CommonPS.hlsli"
 #include "Terrain.hlsli"
 
-#define LIGHTING_CB_REGISTER b0
 #include "Lighting.hlsli"
 
 #define BLEND_DIRECTION_TOWARDS_RIGHT     1

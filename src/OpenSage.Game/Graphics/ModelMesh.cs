@@ -24,8 +24,6 @@ namespace OpenSage.Graphics
         private readonly Buffer<MeshVertex.Basic> _vertexBuffer;
         private readonly Buffer<ushort> _indexBuffer;
 
-        private readonly Buffer<VertexMaterial> _materialsBuffer;
-
         public string Name { get; }
 
         public ModelBone ParentBone { get; }
@@ -45,7 +43,6 @@ namespace OpenSage.Graphics
             string name,
             MeshVertex.Basic[] vertices,
             ushort[] indices,
-            VertexMaterial[] vertexMaterials,
             ModelMeshMaterialPass[] materialPasses,
             bool isSkinned,
             ModelBone parentBone,
@@ -76,11 +73,6 @@ namespace OpenSage.Graphics
                 indices,
                 BufferBindFlags.IndexBuffer));
 
-            _materialsBuffer = AddDisposable(Buffer<VertexMaterial>.CreateStatic(
-                graphicsDevice,
-                vertexMaterials,
-                BufferBindFlags.ShaderResource));
-
             foreach (var materialPass in materialPasses)
             {
                 AddDisposable(materialPass);
@@ -88,7 +80,7 @@ namespace OpenSage.Graphics
             MaterialPasses = materialPasses;
         }
 
-        internal void BuildRenderList(RenderList renderList, RenderInstanceData instanceData, MeshMaterial material)
+        internal void BuildRenderList(RenderList renderList, RenderInstanceData instanceData, MeshEffect effect)
         {
             if (Hidden)
             {
@@ -110,13 +102,13 @@ namespace OpenSage.Graphics
                 {
                     renderList.AddRenderItem(new InstancedRenderItem(
                         instanceData,
-                        material,
+                        effect,
                         pipelineStateHandle,
                         (commandEncoder, e, h, _) =>
                         {
                             Draw(
                                 commandEncoder,
-                                material,
+                                effect,
                                 h,
                                 filteredMaterialPasses,
                                 instanceData);
@@ -127,33 +119,25 @@ namespace OpenSage.Graphics
 
         private void Draw(
             CommandEncoder commandEncoder, 
-            MeshMaterial meshMaterial,
+            MeshEffect effect,
             EffectPipelineStateHandle pipelineStateHandle,
             IEnumerable<ModelMeshMaterialPass> materialPasses,
             RenderInstanceData instanceData)
         {
-            // TODO
-            var meshEffect = (MeshEffect) meshMaterial.Effect;
-
             commandEncoder.SetVertexBuffer(2, instanceData.WorldBuffer);
 
             if (Skinned)
             {
-                meshEffect.SetSkinningBuffer(instanceData.SkinningBuffer);
-                meshEffect.SetNumBones(NumBones);
+                effect.SetSkinningBuffer(instanceData.SkinningBuffer);
+                effect.SetNumBones(NumBones);
             }
 
-            meshEffect.SetSkinningEnabled(Skinned);
-
-            meshEffect.SetMaterials(_materialsBuffer);
+            effect.SetSkinningEnabled(Skinned);
 
             commandEncoder.SetVertexBuffer(0, _vertexBuffer);
 
             foreach (var materialPass in materialPasses)
             {
-                meshEffect.SetMaterialIndices(materialPass.MaterialIndicesBuffer);
-                meshEffect.SetNumTextureStages(materialPass.NumTextureStages);
-
                 commandEncoder.SetVertexBuffer(1, materialPass.TexCoordVertexBuffer);
 
                 foreach (var meshPart in materialPass.MeshParts)
@@ -163,12 +147,9 @@ namespace OpenSage.Graphics
                         continue;
                     }
 
-                    meshEffect.SetShadingConfiguration(meshPart.ShadingConfiguration);
+                    meshPart.Material.Apply();
 
-                    meshEffect.SetTexture0(meshPart.Texture0);
-                    meshEffect.SetTexture1(meshPart.Texture1);
-
-                    meshEffect.Apply(commandEncoder);
+                    effect.Apply(commandEncoder);
 
                     commandEncoder.DrawIndexedInstanced(
                         PrimitiveType.TriangleList,

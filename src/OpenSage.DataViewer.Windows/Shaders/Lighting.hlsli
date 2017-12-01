@@ -8,9 +8,8 @@ struct Light
 
 #define NUM_LIGHTS 3
 
-cbuffer LightingCB : register(LIGHTING_CB_REGISTER)
+cbuffer LightingConstants : register(b1)
 {
-    float3 CameraPosition;
     Light Lights[NUM_LIGHTS];
 };
 

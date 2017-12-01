@@ -1,3 +1,4 @@
+#include "MeshCommonVS.hlsli"
 #include "Simple.hlsli"
 
 // ColorEmissive (float3)

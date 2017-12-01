@@ -4,7 +4,7 @@ namespace OpenSage.Settings
 {
     public sealed class LightSettings
     {
-        public Lights TerrainLights;
-        public Lights ObjectLights;
+        public LightingConstants TerrainLights;
+        public LightingConstants ObjectLights;
     }
 }

@@ -128,13 +128,23 @@ namespace OpenSage.Content
             ModelBone parentBone,
             int numBones)
         {
+            var vertexMaterials = CreateMaterials(w3dMesh);
+
+            var shadingConfigurations = new ShadingConfiguration[w3dMesh.Shaders.Length];
+            for (var i = 0; i < shadingConfigurations.Length; i++)
+            {
+                shadingConfigurations[i] = CreateShadingConfiguration(w3dMesh.Shaders[i]);
+            }
+
             var materialPasses = new ModelMeshMaterialPass[w3dMesh.MaterialPasses.Length];
             for (var i = 0; i < materialPasses.Length; i++)
             {
                 materialPasses[i] = CreateModelMeshMaterialPass(
                     contentManager,
                     w3dMesh,
-                    w3dMesh.MaterialPasses[i]);
+                    w3dMesh.MaterialPasses[i],
+                    vertexMaterials,
+                    shadingConfigurations);
             }
 
             var boundingBox = new BoundingBox(
@@ -149,7 +159,6 @@ namespace OpenSage.Content
                 w3dMesh.Header.MeshName,
                 CreateVertices(w3dMesh, isSkinned),
                 CreateIndices(w3dMesh),
-                CreateMaterials(w3dMesh),
                 materialPasses,
                 isSkinned,
                 parentBone,
@@ -258,7 +267,9 @@ namespace OpenSage.Content
         private static ModelMeshMaterialPass CreateModelMeshMaterialPass(
             ContentManager contentManager,
             W3dMesh w3dMesh,
-            W3dMaterialPass w3dMaterialPass)
+            W3dMaterialPass w3dMaterialPass,
+            VertexMaterial[] vertexMaterials,
+            ShadingConfiguration[] shadingConfigurations)
         {
             var hasTextureStage0 = w3dMaterialPass.TextureStages.Count > 0;
             var textureStage0 = hasTextureStage0
@@ -297,21 +308,11 @@ namespace OpenSage.Content
                 }
             }
 
-            var materialIndices = w3dMaterialPass.VertexMaterialIds;
-            if (materialIndices.Length == 1)
-            {
-                var materialID = materialIndices[0];
-                materialIndices = new uint[w3dMesh.Header.NumVertices];
-                for (var i = 0; i < w3dMesh.Header.NumVertices; i++)
-                {
-                    materialIndices[i] = materialID;
-                }
-            }
-
             var meshParts = new List<ModelMeshPart>();
 
             // Optimisation for a fairly common case.
-            if (w3dMaterialPass.ShaderIds.Length == 1
+            if (w3dMaterialPass.VertexMaterialIds.Length == 1
+                && w3dMaterialPass.ShaderIds.Length == 1
                 && w3dMaterialPass.TextureStages.Count == 1
                 && w3dMaterialPass.TextureStages[0].TextureIds.Length == 1)
             {
@@ -320,9 +321,13 @@ namespace OpenSage.Content
                     0, 
                     w3dMesh.Header.NumTris * 3,
                     w3dMesh,
+                    vertexMaterials,
+                    shadingConfigurations,
+                    w3dMaterialPass.VertexMaterialIds[0],
                     w3dMaterialPass.ShaderIds[0],
+                    numTextureStages,
                     w3dMaterialPass.TextureStages[0].TextureIds[0],
-                    0));
+                    null));
             }
             else
             {
@@ -355,8 +360,9 @@ namespace OpenSage.Content
                     }
                 }
 
-                IEnumerable<uint> getExpandedShaderIds(uint[] ids)
+                IEnumerable<uint> getExpandedShaderIds()
                 {
+                    var ids = w3dMaterialPass.ShaderIds;
                     if (ids.Length == 1)
                     {
                         var result = ids[0];
@@ -374,9 +380,43 @@ namespace OpenSage.Content
                     }
                 }
 
-                var combinedIds = getExpandedShaderIds(w3dMaterialPass.ShaderIds)
-                    .Zip(getExpandedTextureIds(textureStage0?.TextureIds), (x, y) => new { ShaderId = x, TextureIndex0 = y })
-                    .Zip(getExpandedTextureIds(textureStage1?.TextureIds), (x, y) => new { x.ShaderId, x.TextureIndex0, TextureIndex1 = y });
+                IEnumerable<uint> getExpandedVertexMaterialIDs()
+                {
+                    var ids = w3dMaterialPass.VertexMaterialIds;
+                    if (ids.Length == 1)
+                    {
+                        var result = ids[0];
+                        for (var i = 0; i < w3dMesh.Header.NumTris; i++)
+                        {
+                            yield return result;
+                        }
+                    }
+                    else
+                    {
+                        for (var i = 0; i < w3dMesh.Header.NumTris; i++)
+                        {
+                            var triangle = w3dMesh.Triangles[i];
+                            var materialID0 = ids[triangle.VIndex0];
+                            var materialID1 = ids[triangle.VIndex1];
+                            var materialID2 = ids[triangle.VIndex2];
+                            if (materialID0 != materialID1 || materialID1 != materialID2)
+                            {
+                                throw new NotSupportedException();
+                            }
+                            yield return materialID0;
+                        }
+
+                        foreach (var id in ids)
+                        {
+                            yield return id;
+                        }
+                    }
+                }
+
+                var combinedIds = getExpandedVertexMaterialIDs()
+                    .Zip(getExpandedShaderIds(), (x, y) => new { VertexMaterialID = x, ShaderID = y })
+                    .Zip(getExpandedTextureIds(textureStage0?.TextureIds), (x, y) => new { x.VertexMaterialID, x.ShaderID, TextureIndex0 = y })
+                    .Zip(getExpandedTextureIds(textureStage1?.TextureIds), (x, y) => new { x.VertexMaterialID, x.ShaderID, x.TextureIndex0, TextureIndex1 = y });
 
                 var combinedId = combinedIds.First();
                 var startIndex = 0u;
@@ -391,7 +431,11 @@ namespace OpenSage.Content
                             startIndex,
                             indexCount,
                             w3dMesh,
-                            combinedId.ShaderId,
+                            vertexMaterials,
+                            shadingConfigurations,
+                            combinedId.VertexMaterialID,
+                            combinedId.ShaderID,
+                            numTextureStages,
                             combinedId.TextureIndex0,
                             combinedId.TextureIndex1));
 
@@ -411,7 +455,11 @@ namespace OpenSage.Content
                         startIndex,
                         indexCount,
                         w3dMesh,
-                        combinedId.ShaderId,
+                        vertexMaterials,
+                        shadingConfigurations,
+                        combinedId.VertexMaterialID,
+                        combinedId.ShaderID,
+                        numTextureStages,
                         combinedId.TextureIndex0,
                         combinedId.TextureIndex1));
                 }
@@ -419,9 +467,7 @@ namespace OpenSage.Content
 
             return new ModelMeshMaterialPass(
                 contentManager.GraphicsDevice,
-                numTextureStages,
                 texCoords,
-                materialIndices,
                 meshParts);
         }
 
@@ -431,7 +477,11 @@ namespace OpenSage.Content
             uint startIndex,
             uint indexCount,
             W3dMesh w3dMesh,
+            VertexMaterial[] vertexMaterials,
+            ShadingConfiguration[] shadingConfigurations,
+            uint vertexMaterialID,
             uint shaderID,
+            uint numTextureStages,
             uint? textureIndex0,
             uint? textureIndex1)
         {
@@ -461,13 +511,18 @@ namespace OpenSage.Content
                 blendState)
                 .GetHandle();
 
+            var effectMaterial = new MeshMaterial(contentManager.GetEffect<MeshEffect>());
+            effectMaterial.SetVertexMaterial(ref vertexMaterials[vertexMaterialID]);
+            effectMaterial.SetShadingConfiguration(ref shadingConfigurations[shaderID]);
+            effectMaterial.SetNumTextureStages(numTextureStages);
+            effectMaterial.SetTexture0(CreateTexture(contentManager, w3dMesh, textureIndex0));
+            effectMaterial.SetTexture1(CreateTexture(contentManager, w3dMesh, textureIndex1));
+
             return new ModelMeshPart(
                 startIndex,
                 indexCount,
-                CreateShadingConfiguration(w3dMesh.Shaders[shaderID]),
-                pipelineStateHandle,
-                CreateTexture(contentManager, w3dMesh, textureIndex0),
-                CreateTexture(contentManager, w3dMesh, textureIndex1));
+                effectMaterial,
+                pipelineStateHandle);
         }
 
         private static Animation CreateAnimation(W3dAnimation w3dAnimation)

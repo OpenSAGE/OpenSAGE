@@ -21,7 +21,7 @@ namespace OpenSage.Settings
 
         public SceneSettings()
         {
-            var lights = new Lights
+            var lights = new LightingConstants
             {
                 Light0 = new Light
                 {

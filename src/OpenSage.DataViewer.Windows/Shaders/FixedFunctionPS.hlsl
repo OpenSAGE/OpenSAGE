@@ -1,48 +1,23 @@
+#include "MeshCommonPS.hlsli"
 #include "FixedFunction.hlsli"
 
-#define LIGHTING_CB_REGISTER b0
 #define SPECULAR_ENABLED
 #include "Lighting.hlsli"
-
-struct ShadingConfiguration
-{
-    uint DiffuseLightingType;
-    bool SpecularEnabled;
-    bool TexturingEnabled;
-    uint SecondaryTextureColorBlend;
-    uint SecondaryTextureAlphaBlend;
-    bool AlphaTest;
-};
-
-cbuffer PerDrawCB : register(b1)
-{
-    uint NumTextureStages;
-    float TimeInSeconds;
-    float2 ViewportSize;
-    ShadingConfiguration Shading;
-};
-
-#define TEXTURE_MAPPING_UV                 0
-#define TEXTURE_MAPPING_ENVIRONMENT        1
-#define TEXTURE_MAPPING_LINEAR_OFFSET      2
-#define TEXTURE_MAPPING_ROTATE             3
-#define TEXTURE_MAPPING_SINE_LINEAR_OFFSET 4
-#define TEXTURE_MAPPING_SCREEN             5
-#define TEXTURE_MAPPING_SCALE              6
-#define TEXTURE_MAPPING_GRID               7
 
 struct TextureMapping
 {
     uint MappingType;
+
+    float Speed;
+    float FPS;
+    uint Log2Width;
+
     float2 UVPerSec;
     float2 UVScale;
     float2 UVCenter;
     float2 UVAmplitude;
     float2 UVFrequency;
     float2 UVPhase;
-    float Speed;
-    float FPS;
-    uint Log2Width;
 };
 
 struct VertexMaterial
@@ -58,7 +33,31 @@ struct VertexMaterial
     TextureMapping TextureMappingStage1;
 };
 
-StructuredBuffer<VertexMaterial> Materials : register(t0);
+struct ShadingConfiguration
+{
+    uint DiffuseLightingType;
+    bool SpecularEnabled;
+    bool TexturingEnabled;
+    uint SecondaryTextureColorBlend;
+    uint SecondaryTextureAlphaBlend;
+    bool AlphaTest;
+};
+
+cbuffer MaterialConstants : register(b2)
+{
+    uint NumTextureStages;
+    VertexMaterial Material;
+    ShadingConfiguration Shading;
+};
+
+#define TEXTURE_MAPPING_UV                 0
+#define TEXTURE_MAPPING_ENVIRONMENT        1
+#define TEXTURE_MAPPING_LINEAR_OFFSET      2
+#define TEXTURE_MAPPING_ROTATE             3
+#define TEXTURE_MAPPING_SINE_LINEAR_OFFSET 4
+#define TEXTURE_MAPPING_SCREEN             5
+#define TEXTURE_MAPPING_SCALE              6
+#define TEXTURE_MAPPING_GRID               7
 
 #define DIFFUSE_LIGHTING_DISABLE       0
 #define DIFFUSE_LIGHTING_MODULATE      1
@@ -70,8 +69,8 @@ StructuredBuffer<VertexMaterial> Materials : register(t0);
 #define SECONDARY_TEXTURE_BLEND_INV_SCALE    3
 #define SECONDARY_TEXTURE_BLEND_DETAIL_BLEND 4
 
-Texture2D<float4> Texture0 : register(t2);
-Texture2D<float4> Texture1 : register(t3);
+Texture2D<float4> Texture0 : register(t0);
+Texture2D<float4> Texture1 : register(t1);
 
 SamplerState Sampler : register(s0);
 
@@ -148,15 +147,13 @@ float4 SampleTexture(
 
 float4 main(PSInputFixedFunction input) : SV_TARGET
 {
-    VertexMaterial material = Materials[input.Transfer.MaterialIndex];
-
     LightingParameters lightingParams;
     lightingParams.WorldPosition = input.TransferCommon.WorldPosition;
     lightingParams.WorldNormal = input.TransferCommon.WorldNormal;
-    lightingParams.MaterialAmbient = material.Ambient;
-    lightingParams.MaterialDiffuse = material.Diffuse;
-    lightingParams.MaterialSpecular = material.Specular;
-    lightingParams.MaterialShininess = material.Shininess;
+    lightingParams.MaterialAmbient = Material.Ambient;
+    lightingParams.MaterialDiffuse = Material.Diffuse;
+    lightingParams.MaterialSpecular = Material.Specular;
+    lightingParams.MaterialShininess = Material.Shininess;
 
     float3 diffuseColor;
     float3 specularColor;
@@ -169,7 +166,7 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
 
         diffuseTextureColor = SampleTexture(
             input.TransferCommon.WorldNormal, input.TransferCommon.UV0, input.ScreenPosition.xy,
-            material.TextureMappingStage0,
+            Material.TextureMappingStage0,
             Texture0, 
             v);
 
@@ -177,7 +174,7 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
         {
             float4 secondaryTextureColor = SampleTexture(
                 input.TransferCommon.WorldNormal, input.TransferCommon.UV1, input.ScreenPosition.xy,
-                material.TextureMappingStage1,
+                Material.TextureMappingStage1,
                 Texture1, 
                 v);
 
@@ -231,7 +228,7 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
         diffuseTextureColor = float4(1, 1, 1, 1);
     }
 
-    float3 totalObjectLighting = saturate(diffuseColor + material.Emissive);
+    float3 totalObjectLighting = saturate(diffuseColor + Material.Emissive);
 
     float3 objectColor = diffuseTextureColor.rgb;
 
@@ -253,5 +250,5 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
 
     return float4(
         objectColor,
-        material.Opacity * diffuseTextureColor.a);
+        Material.Opacity * diffuseTextureColor.a);
 }

@@ -1,3 +1,4 @@
+#include "CommonVS.hlsli"
 #include "Terrain.hlsli"
 
 struct VSInput
@@ -7,9 +8,8 @@ struct VSInput
     float2 UV       : TEXCOORD;
 };
 
-cbuffer TransformCB : register(b0)
+cbuffer TransformConstants : register(b1)
 {
-    row_major float4x4 WorldViewProjection;
     row_major float4x4 World;
 };
 
@@ -17,8 +17,10 @@ VSOutput main(VSInput input)
 {
     VSOutput result;
 
-    result.Position = mul(float4(input.Position, 1), WorldViewProjection);
-    result.WorldPosition = mul(input.Position, (float3x3) World);
+    float3 worldPosition = mul(input.Position, (float3x3) World);
+
+    result.Position = mul(float4(worldPosition, 1), ViewProjection);
+    result.WorldPosition = worldPosition;
 
     result.WorldNormal = mul(input.Normal, (float3x3) World);
 

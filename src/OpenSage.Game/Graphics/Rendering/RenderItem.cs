@@ -16,17 +16,15 @@ namespace OpenSage.Graphics.Rendering
     internal abstract class RenderItemBase
     {
         public readonly Effect Effect;
-        public readonly EffectMaterial Material;
         public readonly EffectPipelineStateHandle PipelineStateHandle;
         public readonly RenderCallback RenderCallback;
 
         protected RenderItemBase(
-            EffectMaterial material,
+            Effect effect,
             EffectPipelineStateHandle pipelineStateHandle,
             RenderCallback renderCallback)
         {
-            Effect = material.Effect;
-            Material = material;
+            Effect = effect;
             PipelineStateHandle = pipelineStateHandle;
             RenderCallback = renderCallback;
         }
@@ -34,6 +32,7 @@ namespace OpenSage.Graphics.Rendering
 
     internal sealed class RenderItem : RenderItemBase
     {
+        public readonly EffectMaterial Material;
         public readonly RenderableComponent Renderable;
 
         // Set by RenderPipeline.
@@ -44,8 +43,9 @@ namespace OpenSage.Graphics.Rendering
             EffectMaterial material,
             EffectPipelineStateHandle pipelineStateHandle,
             RenderCallback renderCallback)
-            : base(material, pipelineStateHandle, renderCallback)
+            : base(material.Effect, pipelineStateHandle, renderCallback)
         {
+            Material = material;
             Renderable = renderable;
         }
     }
@@ -170,10 +170,10 @@ namespace OpenSage.Graphics.Rendering
 
         public InstancedRenderItem(
             RenderInstanceData instanceData,
-            EffectMaterial material,
+            Effect effect,
             EffectPipelineStateHandle pipelineStateHandle,
             RenderCallback renderCallback)
-            : base(material, pipelineStateHandle, renderCallback)
+            : base(effect, pipelineStateHandle, renderCallback)
         {
             InstanceData = instanceData;
         }

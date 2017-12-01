@@ -2,6 +2,12 @@
 {
     public interface IEffectLights
     {
-        void SetLights(ref Lights lights);
+        LightingType LightingType { get; }
+    }
+
+    public enum LightingType
+    {
+        Terrain,
+        Object
     }
 }

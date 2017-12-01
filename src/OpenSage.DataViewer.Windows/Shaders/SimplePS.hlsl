@@ -1,9 +1,9 @@
+#include "MeshCommonPS.hlsli"
 #include "Simple.hlsli"
 
-cbuffer MaterialCB : register(b0)
+cbuffer MaterialConstants : register(b2)
 {
     float3 ColorEmissive;
-    float Time;
     float4 TexCoordTransform0;
 };
 
@@ -13,7 +13,7 @@ SamplerState Sampler : register(s0);
 
 float4 main(VSOutputSimple input) : SV_Target
 {
-    float2 uv = input.TransferCommon.UV0 * TexCoordTransform0.xy + Time * TexCoordTransform0.zw;
+    float2 uv = input.TransferCommon.UV0 * TexCoordTransform0.xy + TimeInSeconds * TexCoordTransform0.zw;
 
     float4 color = float4(ColorEmissive, 1);
 

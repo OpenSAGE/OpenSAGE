@@ -1,3 +1,4 @@
+#include "CommonVS.hlsli"
 #include "Particle.hlsli"
 
 struct VSInput
@@ -11,11 +12,9 @@ struct VSInput
     uint VertexID : SV_VertexID;
 };
 
-cbuffer ParticleTransformCB : register(b0)
+cbuffer TransformConstants : register(b1)
 {
     row_major matrix World;
-    row_major matrix ViewProjection;
-    float3 CameraPosition;
 };
 
 static const float4 VertexUVPos[4] =

@@ -50,6 +50,8 @@ namespace OpenSage.Graphics.Effects
             _parameters = _vertexShader.ResourceBindings
                 .Concat(_pixelShader.ResourceBindings)
                 .Select(x => AddDisposable(new EffectParameter(graphicsDevice, x)))
+                // TODO: This is awful.
+                .Where(x => x.Name != "GlobalConstantsVS" && x.Name != "GlobalConstantsPS" && x.Name != "LightingConstants")
                 .ToDictionary(x => x.Name);
         }
 

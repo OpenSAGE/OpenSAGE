@@ -244,13 +244,13 @@ namespace OpenSage.Content.Util
         {
             return new LightSettings
             {
-                TerrainLights = new Lights
+                TerrainLights = new LightingConstants
                 {
                     Light0 = ToLight(mapLightingConfiguration.TerrainSun),
                     Light1 = ToLight(mapLightingConfiguration.TerrainAccent1),
                     Light2 = ToLight(mapLightingConfiguration.TerrainAccent2),
                 },
-                ObjectLights = new Lights
+                ObjectLights = new LightingConstants
                 {
                     Light0 = ToLight(mapLightingConfiguration.ObjectSun),
                     Light1 = ToLight(mapLightingConfiguration.ObjectAccent1),
