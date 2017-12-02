@@ -397,6 +397,7 @@ namespace OpenSage.Content
                 }
             }
 
+            materialConstantsBuffer.SetData(materialConstantsBytes);
             material.SetProperty("MaterialConstants", materialConstantsBuffer);
 
             meshParts.Add(new ModelMeshPart(
