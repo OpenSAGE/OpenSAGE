@@ -1,67 +1,88 @@
 ﻿using System.IO;
-using OpenSage.Data.Utilities.Extensions;
+using System.Numerics;
+using System.Runtime.InteropServices;
 using LLGfx;
-using OpenSage.Mathematics;
+using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
     public sealed class W3dShaderMaterialProperty : W3dChunk
     {
         public W3dShaderMaterialPropertyType PropertyType { get; private set; }
-        public string TypeName { get; private set; }
+        public string PropertyName { get; private set; }
 
-        public string ItemName { get; private set; }
-        public float? ItemScalar1 { get; private set; }
-        public float? ItemScalar2 { get; private set; }
-        public uint? ItemUint { get; private set; }
-        public ColorRgbF? ItemColorRgb { get; private set; }
-        public ColorRgbaF? ItemColorRgba { get; private set; }
-        public byte? ItemAlpha { get; private set; }
+        public string StringValue { get; private set; }
+        public W3dShaderMaterialPropertyValue Value { get; private set; }
 
         public static W3dShaderMaterialProperty Parse(BinaryReader reader, uint chunkSize)
         {
             var result = new W3dShaderMaterialProperty
             {
                 PropertyType = reader.ReadUInt32AsEnum<W3dShaderMaterialPropertyType>(),
-                TypeName = reader.ReadFixedLengthString((int) reader.ReadUInt32())
+                PropertyName = reader.ReadFixedLengthString((int) reader.ReadUInt32())
             };
+
+            var value = new W3dShaderMaterialPropertyValue();
 
             switch (result.PropertyType)
             {
                 case W3dShaderMaterialPropertyType.Texture:
-                    result.ItemName = reader.ReadFixedLengthString((int) reader.ReadUInt32());
+                    result.StringValue = reader.ReadFixedLengthString((int) reader.ReadUInt32());
                     break;
 
-                case W3dShaderMaterialPropertyType.Bump:
-                    result.ItemScalar1 = reader.ReadSingle();
+                case W3dShaderMaterialPropertyType.Float:
+                    value.Float = reader.ReadSingle();
                     break;
 
-                case W3dShaderMaterialPropertyType.Unknown1:
-                    result.ItemScalar1 = reader.ReadSingle();
-                    result.ItemScalar2 = reader.ReadSingle();
+                case W3dShaderMaterialPropertyType.Vector2:
+                    value.Vector2 = reader.ReadVector2();
                     break;
 
-                case W3dShaderMaterialPropertyType.Unknown2:
-                    result.ItemColorRgb = reader.ReadColorRgbF();
+                case W3dShaderMaterialPropertyType.Vector3:
+                    value.Vector3 = reader.ReadVector3();
                     break;
 
-                case W3dShaderMaterialPropertyType.Colors:
-                    result.ItemColorRgba = reader.ReadColorRgbaF();
+                case W3dShaderMaterialPropertyType.Color:
+                    value.Color = reader.ReadColorRgbaF();
                     break;
 
-                case W3dShaderMaterialPropertyType.Unknown3:
-                    result.ItemUint = reader.ReadUInt32();
+                case W3dShaderMaterialPropertyType.Int:
+                    value.Int = reader.ReadInt32();
                     break;
 
-                case W3dShaderMaterialPropertyType.Alpha:
-                    result.ItemAlpha = reader.ReadByte();
+                case W3dShaderMaterialPropertyType.Bool:
+                    value.Bool = reader.ReadBooleanChecked();
                     break;
 
                 default:
                     throw new InvalidDataException();
             }
 
+            result.Value = value;
+
             return result;
         }
+    }
+
+    [StructLayout(LayoutKind.Explicit)]
+    public struct W3dShaderMaterialPropertyValue
+    {
+        [FieldOffset(0)]
+        public bool Bool;
+
+        [FieldOffset(0)]
+        public float Float;
+
+        [FieldOffset(0)]
+        public Vector2 Vector2;
+
+        [FieldOffset(0)]
+        public Vector3 Vector3;
+
+        [FieldOffset(0)]
+        public int Int;
+
+        [FieldOffset(0)]
+        public ColorRgbaF Color;
     }
 }

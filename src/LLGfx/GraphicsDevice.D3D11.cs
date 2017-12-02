@@ -1,6 +1,4 @@
-﻿using System;
-using SharpDX.Direct3D11;
-using LLGfx.Util;
+﻿using SharpDX.Direct3D11;
 using SharpDX.Direct3D;
 
 namespace LLGfx

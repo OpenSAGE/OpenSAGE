@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using LLGfx;
+using LLGfx.Util;
 using OpenSage.Content.Util;
 using OpenSage.Data;
 using OpenSage.Data.W3d;
@@ -128,16 +129,18 @@ namespace OpenSage.Content
             ModelBone parentBone,
             int numBones)
         {
+            W3dShaderMaterial w3dShaderMaterial;
             Effect effect = null;
             if (w3dMesh.MaterialPasses.Length == 1 && w3dMesh.MaterialPasses[0].ShaderMaterialId != null)
             {
                 var shaderMaterialID = w3dMesh.MaterialPasses[0].ShaderMaterialId.Value;
-                var shaderMaterial = w3dMesh.ShaderMaterials.Materials[(int) shaderMaterialID];
-                var effectName = shaderMaterial.Header.TypeName.Replace(".fx", string.Empty);
+                w3dShaderMaterial = w3dMesh.ShaderMaterials.Materials[(int) shaderMaterialID];
+                var effectName = w3dShaderMaterial.Header.TypeName.Replace(".fx", string.Empty);
                 effect = contentManager.EffectLibrary.GetEffect(effectName, MeshVertex.VertexDescriptor);
             }
             else
             {
+                w3dShaderMaterial = null;
                 effect = contentManager.EffectLibrary.FixedFunction;
             }
 
@@ -150,14 +153,26 @@ namespace OpenSage.Content
             }
 
             var materialPasses = new ModelMeshMaterialPass[w3dMesh.MaterialPasses.Length];
-            for (var i = 0; i < materialPasses.Length; i++)
+            if (w3dShaderMaterial != null)
             {
-                materialPasses[i] = CreateModelMeshMaterialPass(
+                materialPasses[0] = CreateModelMeshMaterialPassShaderMaterial(
                     contentManager,
                     w3dMesh,
-                    w3dMesh.MaterialPasses[i],
-                    vertexMaterials,
-                    shadingConfigurations);
+                    w3dMesh.MaterialPasses[0],
+                    w3dShaderMaterial,
+                    effect);
+            }
+            else
+            {
+                for (var i = 0; i < materialPasses.Length; i++)
+                {
+                    materialPasses[i] = CreateModelMeshMaterialPassFixedFunction(
+                        contentManager,
+                        w3dMesh,
+                        w3dMesh.MaterialPasses[i],
+                        vertexMaterials,
+                        shadingConfigurations);
+                }
             }
 
             var boundingBox = new BoundingBox(
@@ -227,12 +242,19 @@ namespace OpenSage.Content
                 throw new NotImplementedException();
             }
 
-            var w3dTextureFilePath = Path.Combine("Art", "Textures", w3dTexture.Name);
+            return CreateTexture(contentManager, w3dTexture.Name);
+        }
+
+        private static Texture CreateTexture(
+            ContentManager contentManager,
+            string textureName)
+        {
+            var w3dTextureFilePath = Path.Combine("Art", "Textures", textureName);
 
             var texture = contentManager.Load<Texture>(w3dTextureFilePath, fallbackToPlaceholder: false);
             if (texture == null)
             {
-                w3dTextureFilePath = Path.Combine("Art", "CompiledTextures", w3dTexture.Name.Substring(0, 2), w3dTexture.Name);
+                w3dTextureFilePath = Path.Combine("Art", "CompiledTextures", textureName.Substring(0, 2), textureName);
                 texture = contentManager.Load<Texture>(w3dTextureFilePath);
             }
 
@@ -277,8 +299,120 @@ namespace OpenSage.Content
             return indices;
         }
 
+        private ModelMeshMaterialPass CreateModelMeshMaterialPassShaderMaterial(
+            ContentManager contentManager,
+            W3dMesh w3dMesh,
+            W3dMaterialPass w3dMaterialPass,
+            W3dShaderMaterial w3dShaderMaterial,
+            Effect effect)
+        {
+            var texCoords = new MeshVertex.TexCoords[w3dMesh.Header.NumVertices];
+
+            if (w3dMaterialPass.TexCoords != null)
+            {
+                for (var i = 0; i < texCoords.Length; i++)
+                {
+                    texCoords[i].UV0 = w3dMaterialPass.TexCoords[i];
+                }
+            }
+
+            var meshParts = new List<ModelMeshPart>();
+
+            // TODO: Extract state properties from shader material.
+            var rasterizerState = RasterizerStateDescription.CullBackSolid;
+            var depthState = DepthStencilStateDescription.Default;
+            var blendState = BlendStateDescription.Opaque;
+
+            var pipelineStateHandle = new EffectPipelineState(
+                rasterizerState,
+                depthState,
+                blendState)
+                .GetHandle();
+
+            var material = new ShaderMaterial(effect);
+
+            var materialConstantsResourceBinding = effect.GetParameter("MaterialConstants").ResourceBinding;
+            var materialConstantsBuffer = AddDisposable(LLGfx.Buffer.CreateDynamic(
+                contentManager.GraphicsDevice, 
+                (uint) materialConstantsResourceBinding.ConstantBufferSizeInBytes,
+                BufferBindFlags.ConstantBuffer));
+
+            var materialConstantsBytes = new byte[materialConstantsResourceBinding.ConstantBufferSizeInBytes];
+
+            void setMaterialConstant<T>(string name, T value)
+                where T : struct
+            {
+                var constantBufferField = materialConstantsResourceBinding.GetConstantBufferField(name);
+
+                var valueBytes = StructInteropUtility.ToBytes(ref value);
+
+                if (valueBytes.Length != constantBufferField.Size)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                System.Buffer.BlockCopy(
+                    valueBytes,
+                    0,
+                    materialConstantsBytes,
+                    constantBufferField.Offset,
+                    constantBufferField.Size);
+            }
+
+            foreach (var w3dShaderProperty in w3dShaderMaterial.Properties)
+            {
+                switch (w3dShaderProperty.PropertyType)
+                {
+                    case W3dShaderMaterialPropertyType.Texture:
+                        var texture = CreateTexture(contentManager, w3dShaderProperty.StringValue);
+                        material.SetProperty(w3dShaderProperty.PropertyName, texture);
+                        break;
+
+                    case W3dShaderMaterialPropertyType.Bool:
+                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Bool);
+                        break;
+
+                    case W3dShaderMaterialPropertyType.Color:
+                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Color);
+                        break;
+
+                    case W3dShaderMaterialPropertyType.Float:
+                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Float);
+                        break;
+
+                    case W3dShaderMaterialPropertyType.Vector2:
+                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector2);
+                        break;
+
+                    case W3dShaderMaterialPropertyType.Vector3:
+                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector3);
+                        break;
+
+                    case W3dShaderMaterialPropertyType.Int:
+                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Int);
+                        break;
+
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
+
+            material.SetProperty("MaterialConstants", materialConstantsBuffer);
+
+            meshParts.Add(new ModelMeshPart(
+                0,
+                w3dMesh.Header.NumTris * 3,
+                material,
+                pipelineStateHandle));
+
+            return new ModelMeshMaterialPass(
+                contentManager.GraphicsDevice,
+                texCoords,
+                meshParts);
+        }
+
         // One ModelMeshMaterialPass for each W3D_CHUNK_MATERIAL_PASS
-        private ModelMeshMaterialPass CreateModelMeshMaterialPass(
+        private ModelMeshMaterialPass CreateModelMeshMaterialPassFixedFunction(
             ContentManager contentManager,
             W3dMesh w3dMesh,
             W3dMaterialPass w3dMaterialPass,
@@ -301,7 +435,7 @@ namespace OpenSage.Content
 
             var texCoords = new MeshVertex.TexCoords[w3dMesh.Header.NumVertices];
 
-            if (hasTextureStage0 || (w3dMaterialPass.ShaderMaterialId != null && w3dMaterialPass.TexCoords != null))
+            if (hasTextureStage0)
             {
                 for (var i = 0; i < texCoords.Length; i++)
                 {
@@ -309,10 +443,6 @@ namespace OpenSage.Content
                     if (textureStage0.TexCoords != null)
                     {
                         texCoords[i].UV0 = textureStage0.TexCoords[i];
-                    }
-                    else if (w3dMaterialPass.ShaderMaterialId != null && w3dMaterialPass.TexCoords != null)
-                    {
-                        texCoords[i].UV0 = w3dMaterialPass.TexCoords[i];
                     }
 
                     if (hasTextureStage1)

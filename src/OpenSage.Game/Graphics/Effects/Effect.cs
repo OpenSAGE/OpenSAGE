@@ -55,9 +55,12 @@ namespace OpenSage.Graphics.Effects
                 .ToDictionary(x => x.Name);
         }
 
-        internal EffectParameter GetParameter(string name)
+        internal EffectParameter GetParameter(string name, bool throwIfMissing = true)
         {
-            _parameters.TryGetValue(name, out var result);
+            if (!_parameters.TryGetValue(name, out var result) && throwIfMissing)
+            {
+                throw new Exception($"Missing parameter named {name}");
+            }
             return result;
         }
 

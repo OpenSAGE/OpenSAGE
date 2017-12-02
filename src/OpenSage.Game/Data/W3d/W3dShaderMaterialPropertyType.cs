@@ -3,11 +3,11 @@
     public enum W3dShaderMaterialPropertyType : uint
     {
         Texture = 1,
-        Bump = 2,
-        Unknown1 = 3,
-        Unknown2 = 4,
-        Colors = 5,
-        Unknown3 = 6,
-        Alpha = 7
+        Float = 2,
+        Vector2 = 3,
+        Vector3 = 4,
+        Color = 5,
+        Int = 6,
+        Bool = 7
     }
 }

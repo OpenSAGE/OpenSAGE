@@ -6,18 +6,16 @@ namespace OpenSage.Graphics.Effects
 {
     internal sealed class EffectParameter : GraphicsObject
     {
-        private readonly ShaderResourceBinding _resourceBinding;
-
         private object _data;
         private bool _isDirty;
 
-        public string Name => _resourceBinding.Name;
+        public ShaderResourceBinding ResourceBinding { get; }
 
-        public bool IsConstantBuffer => _resourceBinding.ResourceType == ShaderResourceType.ConstantBuffer;
+        public string Name => ResourceBinding.Name;
 
         public EffectParameter(GraphicsDevice graphicsDevice, ShaderResourceBinding resourceBinding)
         {
-            _resourceBinding = resourceBinding;
+            ResourceBinding = resourceBinding;
         }
 
         public void ResetDirty()
@@ -43,17 +41,17 @@ namespace OpenSage.Graphics.Effects
                 return;
             }
 
-            switch (_resourceBinding.ResourceType)
+            switch (ResourceBinding.ResourceType)
             {
                 case ShaderResourceType.ConstantBuffer:
-                    switch (_resourceBinding.ShaderType)
+                    switch (ResourceBinding.ShaderType)
                     {
                         case ShaderType.VertexShader:
-                            commandEncoder.SetVertexShaderConstantBuffer(_resourceBinding.Slot, (Buffer) _data);
+                            commandEncoder.SetVertexShaderConstantBuffer(ResourceBinding.Slot, (Buffer) _data);
                             break;
 
                         case ShaderType.PixelShader:
-                            commandEncoder.SetPixelShaderConstantBuffer(_resourceBinding.Slot, (Buffer) _data);
+                            commandEncoder.SetPixelShaderConstantBuffer(ResourceBinding.Slot, (Buffer) _data);
                             break;
 
                         default:
@@ -62,14 +60,14 @@ namespace OpenSage.Graphics.Effects
                     break;
 
                 case ShaderResourceType.StructuredBuffer:
-                    switch (_resourceBinding.ShaderType)
+                    switch (ResourceBinding.ShaderType)
                     {
                         case ShaderType.VertexShader:
-                            commandEncoder.SetVertexShaderStructuredBuffer(_resourceBinding.Slot, (Buffer) _data);
+                            commandEncoder.SetVertexShaderStructuredBuffer(ResourceBinding.Slot, (Buffer) _data);
                             break;
 
                         case ShaderType.PixelShader:
-                            commandEncoder.SetPixelShaderStructuredBuffer(_resourceBinding.Slot, (Buffer) _data);
+                            commandEncoder.SetPixelShaderStructuredBuffer(ResourceBinding.Slot, (Buffer) _data);
                             break;
 
                         default:
@@ -78,14 +76,14 @@ namespace OpenSage.Graphics.Effects
                     break;
 
                 case ShaderResourceType.Texture:
-                    switch (_resourceBinding.ShaderType)
+                    switch (ResourceBinding.ShaderType)
                     {
                         case ShaderType.VertexShader:
-                            commandEncoder.SetVertexShaderTexture(_resourceBinding.Slot, (Texture) _data);
+                            commandEncoder.SetVertexShaderTexture(ResourceBinding.Slot, (Texture) _data);
                             break;
 
                         case ShaderType.PixelShader:
-                            commandEncoder.SetPixelShaderTexture(_resourceBinding.Slot, (Texture) _data);
+                            commandEncoder.SetPixelShaderTexture(ResourceBinding.Slot, (Texture) _data);
                             break;
 
                         default:
@@ -94,14 +92,14 @@ namespace OpenSage.Graphics.Effects
                     break;
 
                 case ShaderResourceType.Sampler:
-                    switch (_resourceBinding.ShaderType)
+                    switch (ResourceBinding.ShaderType)
                     {
                         case ShaderType.VertexShader:
-                            commandEncoder.SetVertexShaderSampler(_resourceBinding.Slot, (SamplerState) _data);
+                            commandEncoder.SetVertexShaderSampler(ResourceBinding.Slot, (SamplerState) _data);
                             break;
 
                         case ShaderType.PixelShader:
-                            commandEncoder.SetPixelShaderSampler(_resourceBinding.Slot, (SamplerState) _data);
+                            commandEncoder.SetPixelShaderSampler(ResourceBinding.Slot, (SamplerState) _data);
                             break;
 
                         default:

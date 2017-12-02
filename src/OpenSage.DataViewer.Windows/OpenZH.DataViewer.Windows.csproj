@@ -212,6 +212,7 @@
     <Content Include="Shaders\MeshCommon.hlsli" />
     <Content Include="Shaders\MeshCommonVS.hlsli" />
     <Content Include="Shaders\MeshCommonPS.hlsli" />
+    <Content Include="Shaders\NormalMapped.hlsli" />
     <Content Include="Shaders\Simple.hlsli" />
     <Content Include="Shaders\Lighting.hlsli" />
     <VertexShader Include="Shaders\ParticleVS.hlsl">
@@ -226,6 +227,12 @@
       <ShaderModel>5_0</ShaderModel>
     </VertexShader>
     <Content Include="Shaders\CommonPS.hlsli" />
+    <PixelShader Include="Shaders\NormalMappedPS.hlsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </PixelShader>
+    <VertexShader Include="Shaders\NormalMappedVS.hlsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </VertexShader>
     <Content Include="Shaders\Sprite.hlsli" />
     <Content Include="Shaders\Terrain.hlsli" />
     <Content Include="Shaders\FixedFunction.hlsli" />

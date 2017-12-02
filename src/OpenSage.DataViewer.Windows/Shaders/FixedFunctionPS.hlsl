@@ -217,8 +217,7 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
 
         if (Shading.AlphaTest)
         {
-            const float alphaTestThreshold = 0x60 / (float) 0xFF;
-            if (diffuseTextureColor.a < alphaTestThreshold)
+            if (diffuseTextureColor.a < AlphaTestThreshold)
             {
                 discard;
             }
@@ -228,7 +227,7 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
     {
         diffuseTextureColor = float4(1, 1, 1, 1);
     }
-
+    
     float3 totalObjectLighting = saturate(diffuseColor + Material.Emissive);
 
     float3 objectColor = diffuseTextureColor.rgb;

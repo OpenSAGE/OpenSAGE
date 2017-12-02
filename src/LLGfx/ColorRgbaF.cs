@@ -1,5 +1,8 @@
-﻿namespace LLGfx
+﻿using System.Runtime.InteropServices;
+
+namespace LLGfx
 {
+    [StructLayout(LayoutKind.Sequential)]
     public struct ColorRgbaF
     {
         public static readonly ColorRgbaF Transparent = new ColorRgbaF();

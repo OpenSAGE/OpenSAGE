@@ -72,11 +72,21 @@ namespace OpenSage.Content
                 };
             }
 
+            var width = (int) ddsFile.Header.Width;
+            var height = (int) ddsFile.Header.Height;
+
+            // BC3 texture dimensions need to be aligned to a multiple of 4.
+            if (ddsFile.ImageFormat == DdsImageFormat.Bc3)
+            {
+                width = Math.Max(width, 4);
+                height = Math.Max(height, 4);
+            }
+
             return Texture.CreateTexture2D(
                 graphicsDevice,
                 ToPixelFormat(ddsFile.ImageFormat),
-                (int) ddsFile.Header.Width,
-                (int) ddsFile.Header.Height,
+                width,
+                height,
                 mipMapData);
         }
 

@@ -49,21 +49,6 @@ namespace OpenSage.Graphics.Effects
             SetPropertyImpl(name, sampler);
         }
 
-        public void SetProperty<T>(string constantBufferName, string fieldName, ref T value)
-            where T : struct
-        {
-            var property = EnsureProperty(constantBufferName);
-
-            var bytes = StructInteropUtility.ToBytes(ref value);
-            property.ConstantBufferFields[fieldName] = bytes;
-        }
-
-        public void SetProperty<T>(string constantBufferName, string fieldName, T value)
-            where T : struct
-        {
-            SetProperty(constantBufferName, fieldName, ref value);
-        }
-
         public void Apply()
         {
             foreach (var property in _properties.Values)
@@ -78,7 +63,6 @@ namespace OpenSage.Graphics.Effects
         public EffectParameter Parameter { get; }
 
         public object Data;
-        public Dictionary<string, byte[]> ConstantBufferFields = new Dictionary<string, byte[]>();
 
         public EffectMaterialProperty(EffectParameter parameter)
         {

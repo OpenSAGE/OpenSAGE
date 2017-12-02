@@ -112,13 +112,13 @@ namespace OpenSage.Graphics.Rendering
 
                     effect.Begin(commandEncoder);
 
-                    var lightingConstantsObjectParameter = effect.GetParameter("LightingConstants_Object");
+                    var lightingConstantsObjectParameter = effect.GetParameter("LightingConstants_Object", throwIfMissing: false);
                     if (lightingConstantsObjectParameter != null)
                     {
                         lightingConstantsObjectParameter.SetData(_globalLightingObjectBuffer.Buffer);
                     }
 
-                    var lightingConstantsTerrainParameter = effect.GetParameter("LightingConstants_Terrain");
+                    var lightingConstantsTerrainParameter = effect.GetParameter("LightingConstants_Terrain", throwIfMissing: false);
                     if (lightingConstantsTerrainParameter != null)
                     {
                         lightingConstantsTerrainParameter.SetData(_globalLightingTerrainBuffer.Buffer);
@@ -136,7 +136,7 @@ namespace OpenSage.Graphics.Rendering
                                 continue;
                             }
 
-                            var renderItemConstantsVSParameter = effect.GetParameter("RenderItemConstantsVS");
+                            var renderItemConstantsVSParameter = effect.GetParameter("RenderItemConstantsVS", throwIfMissing: false);
                             if (renderItemConstantsVSParameter != null)
                             {
                                 _renderItemConstantsBufferVS.Value.World = renderItem.Renderable.Entity.Transform.LocalToWorldMatrix;
