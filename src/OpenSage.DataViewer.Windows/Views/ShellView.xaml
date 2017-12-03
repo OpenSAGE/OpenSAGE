@@ -15,6 +15,18 @@
                      GlowBrush="{DynamicResource AccentColorBrush}"
                      SaveWindowPosition="True"
                      WindowStartupLocation="CenterScreen">
+    <mahapps:MetroWindow.IconTemplate>
+        <DataTemplate>
+            <Grid Width="{TemplateBinding Width}"
+                 Height="{TemplateBinding Height}"
+                 Margin="4"
+                 Background="Transparent"
+                 RenderOptions.EdgeMode="Aliased"
+                 RenderOptions.BitmapScalingMode="HighQuality">
+                <Image Source="..\AppIcon.ico"></Image>
+            </Grid>
+        </DataTemplate>
+    </mahapps:MetroWindow.IconTemplate>
     <mahapps:MetroWindow.RightWindowCommands>
         <mahapps:WindowCommands>
             <mahapps:DropDownButton ItemsSource="{Binding Installations}"

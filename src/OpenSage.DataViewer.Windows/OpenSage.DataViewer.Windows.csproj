@@ -34,6 +34,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>AppIcon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ffme">
       <HintPath>..\..\lib\FFMediaElement\ffme.dll</HintPath>
@@ -208,6 +211,7 @@
     <PixelShader Include="Shaders\SimplePS.hlsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </PixelShader>
+    <Resource Include="AppIcon.ico" />
     <Content Include="Shaders\CommonVS.hlsli" />
     <Content Include="Shaders\MeshCommon.hlsli" />
     <Content Include="Shaders\MeshCommonVS.hlsli" />
