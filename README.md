@@ -1,6 +1,8 @@
 ![OpenSAGE](/art/opensage-logo.png)
 ============================================================
 
+![Build Status](https://img.shields.io/vso/build/timjones/bd04a18a-bd7f-4ef5-b994-60a0f4270afa/1.svg)
+
 **OpenSAGE**: a free, open source re-implementation of [SAGE](https://en.wikipedia.org/wiki/SAGE_(game_engine)), the 3D 
 real time strategy (RTS) engine used in Command & Conquer™: Generals and other 
 RTS titles from EA Pacific.
@@ -20,20 +22,20 @@ Here's a rough roadmap:
 ### Parse data files
 
 * [x] `.map`
-* [ ] `.w3d`
+* [x] `.w3d`
 * [x] `.wak`
 * [x] `.wnd`
 * [x] `.csf`
-* [ ] `.ini`
+* [x] `.ini`
 * [x] `.ani`
 * [x] `.dds`
 * [x] `.tga`
 
 ### Rendering
 
-* [ ] Render 3D models loaded from `.w3d`, including animations
-* [ ] Render maps loaded from `.map`
-* [ ] Render particle systems
+* [-] Render 3D models loaded from `.w3d`, including animations
+* [-] Render maps loaded from `.map`
+* [-] Render particle systems
 * [ ] Render GUI loaded from `.wnd`
 
 ### Game logic
