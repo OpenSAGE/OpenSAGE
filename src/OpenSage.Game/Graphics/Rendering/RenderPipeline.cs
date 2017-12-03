@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using LLGfx;
+using LL.Graphics3D;
 using OpenSage.Graphics.Effects;
 using OpenSage.Mathematics;
 

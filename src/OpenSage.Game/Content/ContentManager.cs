@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using LLGfx;
+using LL.Graphics3D;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;

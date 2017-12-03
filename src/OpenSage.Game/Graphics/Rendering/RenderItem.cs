@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
-using LLGfx;
+using LL.Graphics3D;
 using OpenSage.Mathematics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Effects;

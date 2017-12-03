@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using LLGfx;
+using LL.Graphics3D;
 using OpenSage.Data;
 
 namespace OpenSage.Content

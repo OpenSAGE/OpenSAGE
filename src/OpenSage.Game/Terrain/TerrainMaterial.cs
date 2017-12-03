@@ -1,4 +1,4 @@
-﻿using LLGfx;
+﻿using LL.Graphics3D;
 using OpenSage.Graphics.Effects;
 
 namespace OpenSage.Terrain

@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using LLGfx;
+using LL.Graphics3D;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d

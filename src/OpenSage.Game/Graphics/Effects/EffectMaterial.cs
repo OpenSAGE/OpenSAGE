@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using LLGfx;
-using LLGfx.Util;
+using LL.Graphics3D;
+using LL.Graphics3D.Util;
 
 namespace OpenSage.Graphics.Effects
 {

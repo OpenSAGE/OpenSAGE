@@ -191,9 +191,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LLGfx\LLGfx.csproj">
+    <ProjectReference Include="..\LL.Graphics3D\LL.Graphics3D.csproj">
       <Project>{b63917c9-71c6-4b52-80de-a29c21c6499b}</Project>
-      <Name>LLGfx</Name>
+      <Name>LL.Graphics3D</Name>
     </ProjectReference>
     <ProjectReference Include="..\OpenSage.DataViewer\OpenSage.DataViewer.csproj">
       <Project>{46eda15b-7300-4fd6-a4fd-66810c3b5b75}</Project>

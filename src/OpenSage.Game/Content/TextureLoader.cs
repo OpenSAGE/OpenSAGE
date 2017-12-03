@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using LLGfx;
+using LL.Graphics3D;
 using OpenSage.Data;
 using OpenSage.Data.Dds;
 using OpenSage.Data.Tga;

@@ -1,4 +1,4 @@
-﻿using LLGfx;
+﻿using LL.Graphics3D;
 using OpenSage.Content;
 using OpenSage.Graphics;
 using OpenSage.Input;

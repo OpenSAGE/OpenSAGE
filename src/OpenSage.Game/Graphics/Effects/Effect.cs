@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using LLGfx;
-using Buffer = LLGfx.Buffer;
+using LL.Graphics3D;
+using Buffer = LL.Graphics3D.Buffer;
 
 namespace OpenSage.Graphics.Effects
 {

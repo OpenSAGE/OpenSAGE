@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using LLGfx;
+using LL.Graphics3D;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics.Effects;

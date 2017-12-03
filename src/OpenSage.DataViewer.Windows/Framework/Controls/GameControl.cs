@@ -1,6 +1,6 @@
 ﻿using System;
 using Caliburn.Micro;
-using LLGfx.Hosting;
+using LL.Graphics3D.Hosting;
 using OpenSage.DataViewer.Framework.Services;
 using OpenSage.DataViewer.ViewModels;
 

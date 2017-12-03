@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-using LLGfx;
+using LL.Graphics3D;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Cameras

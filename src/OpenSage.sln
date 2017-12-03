@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.27004.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataViewer", "DataViewer", "{AE478DD6-82D8-4E1B-B5FB-931427823167}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLGfx", "LLGfx\LLGfx.csproj", "{B63917C9-71C6-4B52-80DE-A29C21C6499B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LL.Graphics3D", "LL.Graphics3D\LL.Graphics3D.csproj", "{B63917C9-71C6-4B52-80DE-A29C21C6499B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Game", "OpenSage.Game\OpenSage.Game.csproj", "{65414137-B69D-42ED-9950-0428974D54CE}"
 EndProject

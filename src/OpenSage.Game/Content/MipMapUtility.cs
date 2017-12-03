@@ -1,5 +1,5 @@
 ﻿using System;
-using LLGfx;
+using LL.Graphics3D;
 
 namespace OpenSage.Content
 {
