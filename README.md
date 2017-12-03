@@ -33,10 +33,10 @@ Here's a rough roadmap:
 
 ### Rendering
 
-* [-] Render 3D models loaded from `.w3d`, including animations
-* [-] Render maps loaded from `.map`
-* [-] Render particle systems
-* [ ] Render GUI loaded from `.wnd`
+* [x] Render 3D models loaded from `.w3d`, including animations
+* [x] Render maps loaded from `.map`
+* [ ] Render particle systems (in progress)
+* [ ] Render GUI loaded from `.wnd` (in progress)
 
 ### Game logic
 
