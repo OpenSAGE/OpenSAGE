@@ -23,6 +23,7 @@ SamplerState Sampler : register(s0);
 float4 main(VSOutputSimple input) : SV_Target
 {
     float2 uv = input.TransferCommon.UV0;
+    uv.y = 1 - uv.y;
 
     // TODO: Should do this in vertex shader?
     float3x3 tangentToWorldSpace = float3x3(
