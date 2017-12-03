@@ -9,6 +9,8 @@ struct VSInputSkinnedInstanced
 {
     float3 Position : POSITION;
     float3 Normal   : NORMAL;
+    float3 Tangent  : TANGENT;
+    float3 Binormal : BINORMAL;
     uint BoneIndex  : BLENDINDICES;
 
     float2 UV0      : TEXCOORD0;

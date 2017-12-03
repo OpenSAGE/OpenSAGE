@@ -274,6 +274,12 @@ namespace OpenSage.Content
                 {
                     Position = w3dMesh.Vertices[i],
                     Normal = w3dMesh.Normals[i],
+                    Tangent = w3dMesh.Tangents != null
+                        ? w3dMesh.Tangents[i]
+                        : Vector3.Zero,
+                    Binormal = w3dMesh.Bitangents != null
+                        ? w3dMesh.Bitangents[i]
+                        : Vector3.Zero,
                     BoneIndex = isSkinned
                         ? w3dMesh.Influences[i].BoneIndex
                         : 0u

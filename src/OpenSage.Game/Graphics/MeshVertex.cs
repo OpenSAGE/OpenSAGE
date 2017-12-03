@@ -11,6 +11,8 @@ namespace OpenSage.Graphics
         {
             public Vector3 Position;
             public Vector3 Normal;
+            public Vector3 Tangent;
+            public Vector3 Binormal;
             public uint BoneIndex;
         }
 
@@ -26,7 +28,9 @@ namespace OpenSage.Graphics
             {
                 new VertexAttributeDescription(InputClassification.PerVertexData, "POSITION", 0, VertexFormat.Float3, 0, 0),
                 new VertexAttributeDescription(InputClassification.PerVertexData, "NORMAL", 0, VertexFormat.Float3, 12, 0),
-                new VertexAttributeDescription(InputClassification.PerVertexData, "BLENDINDICES", 0, VertexFormat.UInt, 24, 0),
+                new VertexAttributeDescription(InputClassification.PerVertexData, "TANGENT", 0, VertexFormat.Float3, 24, 0),
+                new VertexAttributeDescription(InputClassification.PerVertexData, "BINORMAL", 0, VertexFormat.Float3, 36, 0),
+                new VertexAttributeDescription(InputClassification.PerVertexData, "BLENDINDICES", 0, VertexFormat.UInt, 48, 0),
 
                 new VertexAttributeDescription(InputClassification.PerVertexData, "TEXCOORD", 0, VertexFormat.Float2, 0, 1),
                 new VertexAttributeDescription(InputClassification.PerVertexData, "TEXCOORD", 1, VertexFormat.Float2, 8, 1),
@@ -38,7 +42,7 @@ namespace OpenSage.Graphics
             },
             new[]
             {
-                new VertexLayoutDescription(28),
+                new VertexLayoutDescription(52),
                 new VertexLayoutDescription(16),
                 new VertexLayoutDescription(64)
             });
