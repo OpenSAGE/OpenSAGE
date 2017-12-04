@@ -12,12 +12,18 @@ namespace LL.Graphics3D
         private void PlatformConstruct()
         {
 #if DEBUG
-            const DeviceCreationFlags flags = DeviceCreationFlags.Debug;
+            var flags = DeviceCreationFlags.Debug;
 #else
-            const DeviceCreationFlags flags = DeviceCreationFlags.None;
+            var flags = DeviceCreationFlags.None;
 #endif
 
-            Device = new Device(DriverType.Hardware, flags, FeatureLevel.Level_11_0);
+            // Required for D2D compatibility.
+            flags |= DeviceCreationFlags.BgraSupport;
+
+            Device = new Device(
+                DriverType.Hardware, 
+                flags, 
+                FeatureLevel.Level_11_0);
         }
 
         protected override void Dispose(bool disposeManagedResources)

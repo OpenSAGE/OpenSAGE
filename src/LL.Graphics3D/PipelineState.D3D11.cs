@@ -23,10 +23,13 @@ namespace LL.Graphics3D
 
         private void PlatformConstruct(GraphicsDevice graphicsDevice, PipelineStateDescription description)
         {
-            _inputLayout = AddDisposable(new InputLayout(
-                graphicsDevice.Device, 
-                description.VertexShader.DeviceBytecode, 
-                description.VertexDescriptor.DeviceInputElements));
+            if (description.VertexDescriptor != null)
+            {
+                _inputLayout = AddDisposable(new InputLayout(
+                    graphicsDevice.Device,
+                    description.VertexShader.DeviceBytecode,
+                    description.VertexDescriptor.DeviceInputElements));
+            }
 
             _rasterizerState = AddDisposable(new RasterizerState(graphicsDevice.Device, description.RasterizerState.ToRasterizerStateDescription()));
 

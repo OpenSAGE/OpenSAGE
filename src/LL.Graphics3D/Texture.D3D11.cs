@@ -9,7 +9,7 @@ namespace LL.Graphics3D
 {
     partial class Texture
     {
-        internal Texture2D DeviceResource { get; private set; }
+        public Texture2D DeviceResource { get; private set; }
 
         internal override string PlatformGetDebugName() => DeviceResource.DebugName;
         internal override void PlatformSetDebugName(string value) => DeviceResource.DebugName = value;
@@ -121,6 +121,18 @@ namespace LL.Graphics3D
                     DeviceResource,
                     Resource.CalculateSubResourceIndex(i, destinationArrayIndex, mipLevels));
             }
+        }
+
+        public Texture(GraphicsDevice graphicsDevice, Texture2DDescription description)
+            : base(graphicsDevice)
+        {
+            Width = description.Width;
+            Height = description.Height;
+            MipMapCount = description.MipLevels;
+
+            DeviceResource = AddDisposable(new Texture2D(
+                graphicsDevice.Device,
+                description));
         }
     }
 }

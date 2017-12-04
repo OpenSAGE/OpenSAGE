@@ -71,8 +71,8 @@ namespace LL.Graphics3D
         public void Resize(int newWidth, int newHeight)
         {
             // Clear the previous window size specific content and update the tracked fence values.
-            RemoveAndDispose(_renderTarget);
-            RemoveAndDispose(_renderTargetView);
+            RemoveAndDispose(ref _renderTarget);
+            RemoveAndDispose(ref _renderTargetView);
 
             DeviceSwapChain.ResizeBuffers(
                 _backBufferCount,

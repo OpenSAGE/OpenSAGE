@@ -90,7 +90,7 @@ namespace OpenSage.Graphics.Rendering
                 var numElements = (int) (Mesh.NumBones * NumInstances);
                 if (SkinningBuffer == null || SkinningBuffer.ElementCount < numElements)
                 {
-                    RemoveAndDispose(SkinningBuffer);
+                    RemoveAndDispose(ref SkinningBuffer);
 
                     SkinningBuffer = AddDisposable(Buffer<Matrix4x3>.CreateDynamicArray(
                         graphicsDevice, 
@@ -123,7 +123,7 @@ namespace OpenSage.Graphics.Rendering
 
             if (WorldBuffer == null || WorldBuffer.ElementCount < NumInstances)
             {
-                RemoveAndDispose(WorldBuffer);
+                RemoveAndDispose(ref WorldBuffer);
 
                 WorldBuffer = AddDisposable(Buffer<Matrix4x4>.CreateDynamicArray(
                     graphicsDevice,

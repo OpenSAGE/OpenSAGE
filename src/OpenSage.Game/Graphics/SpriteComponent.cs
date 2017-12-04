@@ -49,6 +49,13 @@ namespace OpenSage.Graphics
                 .GetHandle();
         }
 
+        protected override void Destroy()
+        {
+            _materialConstantsBuffer.Dispose();
+
+            base.Destroy();
+        }
+
         internal override void BuildRenderList(RenderList renderList)
         {
             renderList.AddRenderItem(new RenderItem(

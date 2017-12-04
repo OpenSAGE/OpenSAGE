@@ -9,6 +9,7 @@
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\LL.Graphics2D\LL.Graphics2D.csproj" />
     <ProjectReference Include="..\LL.Graphics3D\LL.Graphics3D.csproj" />
   </ItemGroup>
 </Project>

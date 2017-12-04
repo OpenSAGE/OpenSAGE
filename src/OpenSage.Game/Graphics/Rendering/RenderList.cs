@@ -7,6 +7,7 @@ namespace OpenSage.Graphics.Rendering
     {
         public readonly List<RenderListEffectGroup> Opaque = new List<RenderListEffectGroup>();
         public readonly List<RenderListEffectGroup> Transparent = new List<RenderListEffectGroup>();
+        public readonly List<RenderListEffectGroup> Gui = new List<RenderListEffectGroup>();
 
         public readonly Dictionary<ModelMesh, RenderInstanceData> InstanceData = new Dictionary<ModelMesh, RenderInstanceData>();
 
@@ -24,6 +25,14 @@ namespace OpenSage.Graphics.Rendering
 
             var blendEnabled = renderItem.PipelineStateHandle.EffectPipelineState.BlendState.Enabled;
             addItem(blendEnabled ? Transparent : Opaque);
+        }
+
+        public void AddGuiRenderItem(RenderItem renderItem)
+        {
+            RenderItems.Add(renderItem);
+
+            var pipelineStateGroup = GetPipelineStateGroup(Gui, renderItem);
+            pipelineStateGroup.RenderItems.Add(renderItem);
         }
 
         private RenderListPipelineStateGroup GetPipelineStateGroup(List<RenderListEffectGroup> effectGroups, RenderItemBase renderItem)

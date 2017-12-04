@@ -6,16 +6,18 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using LL.Graphics3D;
 using OpenSage.Data;
 using OpenSage.Data.Csf;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Tga;
 using OpenSage.Data.Wnd;
 using OpenSage.DataViewer.Framework.Converters;
+using OpenSage.Gui;
 
 namespace OpenSage.DataViewer.ViewModels
 {
-    public sealed class WndFileContentViewModel : FileContentViewModel
+    public sealed class WndFileContentViewModel : FileContentViewModel, IGameViewModel
     {
         private readonly FileSystem _fileSystem;
         private readonly CsfFile _csfFile;
@@ -35,14 +37,85 @@ namespace OpenSage.DataViewer.ViewModels
             iniDataContext.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512\");
             _mappedImages = iniDataContext.MappedImages;
 
-            var wndFile = WndFile.FromFileSystemEntry(file);
+            
 
-            ContainerView = new NonInheritingCanvas
+            //ContainerView = new NonInheritingCanvas
+            //{
+            //    Width = wndFile.RootWindow.ScreenRect.CreationResolution.Width,
+            //    Height = wndFile.RootWindow.ScreenRect.CreationResolution.Height,
+            //};
+            //AddWindow(wndFile.RootWindow);
+        }
+
+        void IGameViewModel.LoadScene(Game game)
+        {
+            var wndFile = WndFile.FromFileSystemEntry(File);
+
+            var guiComponent = new GuiComponent
             {
-                Width = wndFile.RootWindow.ScreenRect.CreationResolution.Width,
-                Height = wndFile.RootWindow.ScreenRect.CreationResolution.Height,
+                RootWindow = (Gui.Elements.Window) CreateElement(wndFile.RootWindow)
             };
-            AddWindow(wndFile.RootWindow);
+
+            var scene = new Scene();
+
+            var entity = new Entity();
+            entity.Components.Add(guiComponent);
+            scene.Entities.Add(entity);
+
+            game.Scene = scene;
+        }
+
+        private static Gui.Elements.UIElement CreateElement(WndWindow window)
+        {
+            Gui.Elements.UIElement result;
+
+            switch (window.WindowType)
+            {
+                case WndWindowType.GenericWindow:
+                    result = new Gui.Elements.Window();
+                    break;
+
+                case WndWindowType.PushButton:
+                    result = new Gui.Elements.Button
+                    {
+                        Text = window.Text
+                    };
+                    break;
+
+                default:
+                    // TODO
+                    result = new Gui.Elements.Window();
+                    break;
+            }
+
+            var screenRect = window.ScreenRect;
+            result.Frame = new Mathematics.Rectangle(
+                screenRect.UpperLeft.X,
+                screenRect.UpperLeft.Y,
+                screenRect.BottomRight.X - screenRect.UpperLeft.X,
+                screenRect.BottomRight.Y - screenRect.UpperLeft.Y);
+
+            result.BackgroundColor = ToColorRgbaF(window.EnabledDrawData.Items[0].Color);
+            result.BorderColor = ToColorRgbaF(window.EnabledDrawData.Items[0].BorderColor);
+
+            // TODO: Remove this.
+            result.BackgroundColor = new ColorRgbaF(1, 0, 0, 1);
+
+            foreach (var childWindow in window.ChildWindows)
+            {
+                result.Children.Add(CreateElement(childWindow));
+            }
+
+            return result;
+        }
+
+        private static ColorRgbaF ToColorRgbaF(WndColor color)
+        {
+            return new ColorRgbaF(
+                color.R / 255.0f,
+                color.G / 255.0f,
+                color.B / 255.0f,
+                color.A / 255.0f);
         }
 
         private sealed class NonInheritingCanvas : Canvas

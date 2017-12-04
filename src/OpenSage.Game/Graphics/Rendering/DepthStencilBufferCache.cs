@@ -21,7 +21,7 @@ namespace OpenSage.Graphics.Rendering
                 return _depthStencilBuffer;
             }
 
-            RemoveAndDispose(_depthStencilBuffer);
+            RemoveAndDispose(ref _depthStencilBuffer);
 
             _depthStencilBuffer = AddDisposable(new DepthStencilBuffer(
                 _graphicsDevice,

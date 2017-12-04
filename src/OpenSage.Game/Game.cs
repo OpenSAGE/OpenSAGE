@@ -5,6 +5,7 @@ using OpenSage.Data;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.ParticleSystems;
+using OpenSage.Gui;
 using OpenSage.Input;
 using OpenSage.Logic.Object;
 using OpenSage.Scripting;
@@ -32,6 +33,11 @@ namespace OpenSage
         /// Gets the graphics system.
         /// </summary>
         public GraphicsSystem Graphics { get; }
+
+        /// <summary>
+        /// Gets the GUI system.
+        /// </summary>
+        public GuiSystem Gui { get; }
 
         /// <summary>
         /// Gets the input system.
@@ -74,6 +80,8 @@ namespace OpenSage
             Input = AddDisposable(new InputSystem(this));
 
             Scripting = AddDisposable(new ScriptingSystem(this));
+
+            Gui = AddDisposable(new GuiSystem(this));
 
             GameSystems.ForEach(gs => gs.Initialize());
         }

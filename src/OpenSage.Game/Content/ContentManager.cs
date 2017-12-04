@@ -50,7 +50,7 @@ namespace OpenSage.Content
             {
                 if (cachedObject is IDisposable d)
                 {
-                    RemoveAndDispose(d);
+                    RemoveAndDispose(ref d);
                 }
             }
             _cachedObjects.Clear();

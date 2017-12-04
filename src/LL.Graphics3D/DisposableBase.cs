@@ -106,13 +106,15 @@ namespace OpenSage
         /// Removes this object from the ToDispose list.
         /// </summary>
         /// <param name="objectToDispose">Object to dispose.</param>
-        protected internal void RemoveAndDispose<T>(T objectToDispose)
-            where T : IDisposable
+        protected internal void RemoveAndDispose<T>(ref T objectToDispose)
+            where T : class, IDisposable
         {
             if (!ReferenceEquals(objectToDispose, null))
             {
                 _disposables.Remove(objectToDispose);
                 objectToDispose.Dispose();
+
+                objectToDispose = null;
             }
         }
 

@@ -178,6 +178,8 @@ namespace OpenSage.Graphics.Rendering
             doDrawPass(renderList.Opaque);
             doDrawPass(renderList.Transparent);
 
+            doDrawPass(renderList.Gui);
+
             commandEncoder.Close();
 
             commandBuffer.CommitAndPresent(context.SwapChain);
