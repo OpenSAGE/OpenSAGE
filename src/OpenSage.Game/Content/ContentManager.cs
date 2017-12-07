@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using LL.Graphics3D;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
-using System.Linq;
+using OpenSage.Gui.Elements;
 
 namespace OpenSage.Content
 {
@@ -25,23 +26,31 @@ namespace OpenSage.Content
 
         public IniDataContext IniDataContext { get; }
 
-        public ContentManager(FileSystem fileSystem, GraphicsDevice graphicsDevice)
+        public TranslationManager TranslationManager { get; }
+
+        public ContentManager(
+            FileSystem fileSystem, 
+            GraphicsDevice graphicsDevice)
         {
             _fileSystem = fileSystem;
+
             GraphicsDevice = graphicsDevice;
+
+            IniDataContext = new IniDataContext(fileSystem);
 
             _contentLoaders = new Dictionary<Type, ContentLoader>
             {
                 { typeof(Model), AddDisposable(new ModelLoader()) },
                 { typeof(Scene), AddDisposable(new MapLoader()) },
-                { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) }
+                { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
+                { typeof(UIElement), AddDisposable(new WindowLoader(this)) }
             };
 
             _cachedObjects = new Dictionary<string, object>();
 
             EffectLibrary = AddDisposable(new EffectLibrary(graphicsDevice));
 
-            IniDataContext = new IniDataContext(fileSystem);
+            TranslationManager = new TranslationManager(fileSystem);
         }
 
         public void Unload()
@@ -54,6 +63,26 @@ namespace OpenSage.Content
                 }
             }
             _cachedObjects.Clear();
+        }
+
+        public T Load<T>(
+            string[] filePaths, 
+            LoadOptions options = null, 
+            bool fallbackToPlaceholder = true)
+            where T : class
+        {
+            for (var i = 0; i < filePaths.Length; i++)
+            {
+                var actuallyFallbackToPlaceholder = fallbackToPlaceholder && i == filePaths.Length - 1;
+
+                var result = Load<T>(filePaths[i], options, actuallyFallbackToPlaceholder);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+
+            return null;
         }
 
         public T Load<T>(
@@ -86,7 +115,7 @@ namespace OpenSage.Content
 
             if (entry != null)
             {
-                asset = contentLoader.Load(entry, this);
+                asset = contentLoader.Load(entry, this, options);
 
                 if (asset is IDisposable d)
                 {
@@ -105,6 +134,7 @@ namespace OpenSage.Content
 
         public Entity InstantiateObject(string typeName)
         {
+            // TODO: Don't do this every time.
             IniDataContext.LoadIniFiles(@"Data\INI\Object");
 
             var objectDefinition = IniDataContext.Objects.FirstOrDefault(x => x.Name == typeName);

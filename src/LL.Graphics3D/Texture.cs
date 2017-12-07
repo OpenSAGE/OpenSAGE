@@ -13,16 +13,15 @@
             int height,
             TextureMipMapData[] mipMapData)
         {
-            var result = new Texture(
+            return new Texture(
                 graphicsDevice,
                 pixelFormat,
                 1,
                 width,
                 height,
+                TextureBindFlags.ShaderResource,
                 mipMapData.Length,
                 mipMapData);
-
-            return result;
         }
 
         public static Texture CreateTexture2DArray(
@@ -39,6 +38,7 @@
                 arraySize,
                 width,
                 height,
+                TextureBindFlags.ShaderResource,
                 mipMapCount,
                 null);
         }
@@ -60,12 +60,33 @@
                 });
         }
 
+        public static Texture CreateTexture2D(
+            GraphicsDevice graphicsDevice,
+            PixelFormat pixelFormat,
+            int width,
+            int height,
+            TextureBindFlags bindFlags)
+        {
+            var result = new Texture(
+                graphicsDevice,
+                pixelFormat,
+                1,
+                width,
+                height,
+                bindFlags,
+                1,
+                null);
+
+            return result;
+        }
+
         private Texture(
             GraphicsDevice graphicsDevice,
             PixelFormat pixelFormat,
             int arraySize,
             int width,
             int height,
+            TextureBindFlags bindFlags,
             int mipMapCount,
             TextureMipMapData[] mipMapData)
             : base(graphicsDevice)
@@ -80,6 +101,7 @@
                 arraySize,
                 width,
                 height,
+                bindFlags,
                 mipMapCount,
                 mipMapData);
         }

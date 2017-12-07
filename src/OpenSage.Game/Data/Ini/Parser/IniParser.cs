@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini.Parser
 {
@@ -263,6 +264,32 @@ namespace OpenSage.Data.Ini.Parser
 
         public string[] ParseBoneNameArray() => ParseAssetReferenceArray();
         public string ParseAnimationName() => ParseIdentifier();
+
+        public ColorRgba ParseColorRgba()
+        {
+            var r = ParseAttributeByte("R");
+            var g = ParseAttributeByte("G");
+            var b = ParseAttributeByte("B");
+
+            var aToken = GetNextTokenOptional(SeparatorsColon);
+            var a = (byte) 255;
+            if (aToken != null)
+            {
+                if (aToken.Value.Text != "A")
+                {
+                    throw new IniParseException($"Expected attribute name 'A'", aToken.Value.Position);
+                }
+                a = ScanByte(GetNextToken(SeparatorsColon));
+            }
+
+            return new ColorRgba
+            {
+                R = r,
+                G = g,
+                B = b,
+                A = a
+            };
+        }
 
         public IniToken GetNextToken(char[] separators = null)
         {

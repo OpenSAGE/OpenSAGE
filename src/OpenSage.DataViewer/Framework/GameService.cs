@@ -10,9 +10,9 @@ namespace OpenSage.DataViewer.Framework
 
         public void OnFileSystemChanged(FileSystem fileSystem)
         {
-            var graphicsDevice = IoC.Get<GraphicsDeviceManager>().GraphicsDevice;
+            var graphicsDeviceManager = IoC.Get<GraphicsDeviceManager>();
 
-            Game = new Game(graphicsDevice, fileSystem);
+            Game = new Game(graphicsDeviceManager.GraphicsDevice, fileSystem);
         }
 
         public void Dispose()

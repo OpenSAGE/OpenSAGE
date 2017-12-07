@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Data.Wnd;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -20,7 +21,7 @@ namespace OpenSage.Data.Ini
             { "MessageBold", (parser, x) => x.MessageBold = parser.ParseBoolean() },
             { "MessageDelayMS", (parser, x) => x.MessageDelayMS = parser.ParseInteger() },
 
-            { "MilitaryCaptionColor", (parser, x) => x.MilitaryCaptionColor = WndColor.Parse(parser) },
+            { "MilitaryCaptionColor", (parser, x) => x.MilitaryCaptionColor = parser.ParseColorRgba() },
             { "MilitaryCaptionPosition", (parser, x) => x.MilitaryCaptionPosition = Coord2D.Parse(parser) },
             { "MilitaryCaptionTitleFont", (parser, x) => x.MilitaryCaptionTitleFont = parser.ParseString() },
             { "MilitaryCaptionTitlePointSize", (parser, x) => x.MilitaryCaptionTitlePointSize = parser.ParseInteger() },
@@ -65,7 +66,7 @@ namespace OpenSage.Data.Ini
 
             { "DrawRMBScrollAnchor", (parser, x) => x.DrawRmbScrollAnchor = parser.ParseBoolean() },
             { "MoveRMBScrollAnchor", (parser, x) => x.MoveRmbScrollAnchor = parser.ParseBoolean() },
-            { "PopupMessageColor", (parser, x) => x.PopupMessageColor = WndColor.Parse(parser) },
+            { "PopupMessageColor", (parser, x) => x.PopupMessageColor = parser.ParseColorRgba() },
 
             { "SpyDroneRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.SpyDrone)) },
             { "AttackScatterAreaRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.AttackScatterArea)) },
@@ -110,7 +111,7 @@ namespace OpenSage.Data.Ini
         public bool MessageBold { get; private set; }
         public int MessageDelayMS { get; private set; }
 
-        public WndColor MilitaryCaptionColor { get; private set; }
+        public ColorRgba MilitaryCaptionColor { get; private set; }
         public Coord2D MilitaryCaptionPosition { get; private set; }
         public string MilitaryCaptionTitleFont { get; private set; }
         public int MilitaryCaptionTitlePointSize { get; private set; }
@@ -155,7 +156,7 @@ namespace OpenSage.Data.Ini
 
         public bool DrawRmbScrollAnchor { get; private set; }
         public bool MoveRmbScrollAnchor { get; private set; }
-        public WndColor PopupMessageColor { get; private set; }
+        public ColorRgba PopupMessageColor { get; private set; }
 
         public List<RadiusCursor> RadiusCursors { get; } = new List<RadiusCursor>();
     }
@@ -190,7 +191,7 @@ namespace OpenSage.Data.Ini
             { "OpacityMin", (parser, x) => x.OpacityMin = parser.ParsePercentage() },
             { "OpacityMax", (parser, x) => x.OpacityMax = parser.ParsePercentage() },
             { "OpacityThrobTime", (parser, x) => x.OpacityThrobTime = parser.ParseInteger() },
-            { "Color", (parser, x) => x.Color = WndColor.Parse(parser) },
+            { "Color", (parser, x) => x.Color = parser.ParseColorRgba() },
             { "OnlyVisibleToOwningPlayer", (parser, x) => x.OnlyVisibleToOwningPlayer = parser.ParseBoolean() }
         };
 
@@ -199,7 +200,7 @@ namespace OpenSage.Data.Ini
         public float OpacityMin { get; private set; }
         public float OpacityMax { get; private set; }
         public int OpacityThrobTime { get; private set; }
-        public WndColor Color { get; private set; }
+        public ColorRgba Color { get; private set; }
         public bool OnlyVisibleToOwningPlayer { get; private set; }
     }
 

@@ -1,5 +1,6 @@
 ﻿using OpenSage.Data.Ini.Parser;
 using OpenSage.Data.Wnd;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -13,8 +14,8 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<DrawGroupInfo> FieldParseTable = new IniParseTable<DrawGroupInfo>
         {
             { "UsePlayerColor", (parser, x) => x.UsePlayerColor = parser.ParseBoolean() },
-            { "ColorForText", (parser, x) => x.ColorForText = WndColor.Parse(parser) },
-            { "ColorForTextDropShadow", (parser, x) => x.ColorForTextDropShadow = WndColor.Parse(parser) },
+            { "ColorForText", (parser, x) => x.ColorForText = parser.ParseColorRgba() },
+            { "ColorForTextDropShadow", (parser, x) => x.ColorForTextDropShadow = parser.ParseColorRgba() },
 
             { "DropShadowOffsetX", (parser, x) => x.DropShadowOffsetX = parser.ParseInteger() },
             { "DropShadowOffsetY", (parser, x) => x.DropShadowOffsetY = parser.ParseInteger() },
@@ -28,8 +29,8 @@ namespace OpenSage.Data.Ini
         };
 
         public bool UsePlayerColor { get; private set; }
-        public WndColor ColorForText { get; private set; }
-        public WndColor ColorForTextDropShadow { get; private set; }
+        public ColorRgba ColorForText { get; private set; }
+        public ColorRgba ColorForTextDropShadow { get; private set; }
 
         public int DropShadowOffsetX { get; private set; }
         public int DropShadowOffsetY { get; private set; }

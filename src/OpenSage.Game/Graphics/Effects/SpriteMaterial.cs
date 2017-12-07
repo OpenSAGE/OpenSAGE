@@ -8,7 +8,7 @@ namespace OpenSage.Graphics.Effects
         public SpriteMaterial(Effect effect)
             : base(effect)
         {
-            SetProperty("Sampler", effect.GraphicsDevice.SamplerPointWrap);
+            SetProperty("Sampler", effect.GraphicsDevice.SamplerLinearWrap);
         }
 
         public void SetMaterialConstants(Buffer<MaterialConstants> buffer)

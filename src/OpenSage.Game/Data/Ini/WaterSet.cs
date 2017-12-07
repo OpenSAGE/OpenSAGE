@@ -1,6 +1,6 @@
 ﻿using OpenSage.Data.Ini.Parser;
 using OpenSage.Data.Map;
-using OpenSage.Data.Wnd;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -17,12 +17,12 @@ namespace OpenSage.Data.Ini
         {
             { "SkyTexture", (parser, x) => x.SkyTexture = parser.ParseFileName() },
             { "WaterTexture", (parser, x) => x.WaterTexture = parser.ParseFileName() },
-            { "Vertex00Color", (parser, x) => x.Vertex00Color = WndColor.Parse(parser) },
-            { "Vertex10Color", (parser, x) => x.Vertex10Color = WndColor.Parse(parser) },
-            { "Vertex01Color", (parser, x) => x.Vertex01Color = WndColor.Parse(parser) },
-            { "Vertex11Color", (parser, x) => x.Vertex11Color = WndColor.Parse(parser) },
-            { "DiffuseColor", (parser, x) => x.DiffuseColor = WndColor.Parse(parser) },
-            { "TransparentDiffuseColor", (parser, x) => x.TransparentDiffuseColor = WndColor.Parse(parser) },
+            { "Vertex00Color", (parser, x) => x.Vertex00Color = parser.ParseColorRgba() },
+            { "Vertex10Color", (parser, x) => x.Vertex10Color = parser.ParseColorRgba() },
+            { "Vertex01Color", (parser, x) => x.Vertex01Color = parser.ParseColorRgba() },
+            { "Vertex11Color", (parser, x) => x.Vertex11Color = parser.ParseColorRgba() },
+            { "DiffuseColor", (parser, x) => x.DiffuseColor = parser.ParseColorRgba() },
+            { "TransparentDiffuseColor", (parser, x) => x.TransparentDiffuseColor = parser.ParseColorRgba() },
             { "UScrollPerMS", (parser, x) => x.UScrollPerMS = parser.ParseFloat() },
             { "VScrollPerMS", (parser, x) => x.VScrollPerMS = parser.ParseFloat() },
             { "SkyTexelsPerUnit", (parser, x) => x.SkyTexelsPerUnit = parser.ParseFloat() },
@@ -33,12 +33,12 @@ namespace OpenSage.Data.Ini
 
         public string SkyTexture { get; private set; }
         public string WaterTexture { get; private set; }
-        public WndColor Vertex00Color { get; private set; }
-        public WndColor Vertex10Color { get; private set; }
-        public WndColor Vertex01Color { get; private set; }
-        public WndColor Vertex11Color { get; private set; }
-        public WndColor DiffuseColor { get; private set; }
-        public WndColor TransparentDiffuseColor { get; private set; }
+        public ColorRgba Vertex00Color { get; private set; }
+        public ColorRgba Vertex10Color { get; private set; }
+        public ColorRgba Vertex01Color { get; private set; }
+        public ColorRgba Vertex11Color { get; private set; }
+        public ColorRgba DiffuseColor { get; private set; }
+        public ColorRgba TransparentDiffuseColor { get; private set; }
         public float UScrollPerMS { get; private set; }
         public float VScrollPerMS { get; private set; }
         public float SkyTexelsPerUnit { get; private set; }

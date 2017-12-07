@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using LL.Graphics3D;
+﻿using LL.Graphics3D;
 using OpenSage.Graphics.Cameras;
 
 namespace OpenSage.Graphics.Rendering

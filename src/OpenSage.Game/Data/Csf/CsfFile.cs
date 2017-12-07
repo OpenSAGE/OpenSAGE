@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Linq;
 using System.Text;
 using OpenSage.Data.Utilities.Extensions;
 
@@ -40,13 +39,6 @@ namespace OpenSage.Data.Csf
                     Labels = labels
                 };
             }
-        }
-
-        // TODO: Move this to a Manager class somewhere.
-        public string Lookup(string key)
-        {
-            var label = Labels.FirstOrDefault(x => x.Name == key);
-            return label?.Strings[0].Value ?? key;
         }
     }
 }

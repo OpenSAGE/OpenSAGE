@@ -7,7 +7,7 @@ namespace OpenSage.Gui
 {
     public sealed class GuiComponent : RenderableComponent
     {
-        public Window RootWindow { get; set; }
+        public UIElement RootWindow { get; set; }
 
         internal override BoundingBox LocalBoundingBox => default(BoundingBox);
 

@@ -7,24 +7,13 @@ namespace OpenSage.Graphics
 {
     public sealed class SpriteComponent : RenderableComponent
     {
-        private ConstantBuffer<SpriteMaterial.MaterialConstants> _materialConstantsBuffer;
-        private SpriteMaterial _material;
-
+        private SpriteBatch _spriteBatch;
+        
         private EffectPipelineStateHandle _pipelineStateHandle;
 
         public Texture Texture { get; set; }
 
-        private uint _selectedMipMapLevel;
-        public uint SelectedMipMapLevel
-        {
-            get { return _selectedMipMapLevel; }
-            set
-            {
-                _selectedMipMapLevel = value;
-                _materialConstantsBuffer.Value.MipMapLevel = value;
-                _materialConstantsBuffer.Update();
-            }
-        }
+        public uint SelectedMipMapLevel { get; set; }
 
         internal override bool IsAlwaysVisible => true;
 
@@ -34,10 +23,7 @@ namespace OpenSage.Graphics
         {
             base.Start();
 
-            _materialConstantsBuffer = new ConstantBuffer<SpriteMaterial.MaterialConstants>(GraphicsDevice);
-            _material = new SpriteMaterial(ContentManager.EffectLibrary.Sprite);
-            _material.SetMaterialConstants(_materialConstantsBuffer.Buffer);
-            _material.SetTexture(Texture);
+            _spriteBatch = new SpriteBatch(ContentManager);
 
             var rasterizerState = RasterizerStateDescription.CullBackSolid;
             rasterizerState.IsFrontCounterClockwise = false;
@@ -51,7 +37,7 @@ namespace OpenSage.Graphics
 
         protected override void Destroy()
         {
-            _materialConstantsBuffer.Dispose();
+            _spriteBatch.Dispose();
 
             base.Destroy();
         }
@@ -60,13 +46,19 @@ namespace OpenSage.Graphics
         {
             renderList.AddRenderItem(new RenderItem(
                 this,
-                _material,
+                _spriteBatch.Material,
                 _pipelineStateHandle,
                 (commandEncoder, effect, pipelineStateHandle, instanceData) =>
                 {
-                    effect.Apply(commandEncoder);
+                    _spriteBatch.Begin(commandEncoder, Scene.Camera.Viewport.Bounds());
 
-                    commandEncoder.Draw(PrimitiveType.TriangleList, 0, 3);
+                    _spriteBatch.Draw(
+                        Texture,
+                        new Rectangle(0, 0, Texture.Width, Texture.Height),
+                        Scene.Camera.Viewport.Bounds(),
+                        SelectedMipMapLevel);
+
+                    _spriteBatch.End();
                 }));
         }
     }

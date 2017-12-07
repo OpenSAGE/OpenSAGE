@@ -64,7 +64,9 @@ namespace OpenSage
             _gameTimer = AddDisposable(new GameTimer());
             _gameTimer.Start();
 
-            ContentManager = AddDisposable(new ContentManager(_fileSystem, graphicsDevice));
+            ContentManager = AddDisposable(new ContentManager(
+                _fileSystem, 
+                graphicsDevice));
 
             ContentManager.IniDataContext.LoadIniFile(@"Data\INI\GameData.ini");
 
@@ -132,9 +134,10 @@ namespace OpenSage
                 if (_scene != null)
                 {
                     _scene.Game = this;
-                    AddComponentsRecursive(_scene.Entities);
 
                     _scene.Camera.SetSwapChain(SwapChain);
+
+                    AddComponentsRecursive(_scene.Entities);
                 }
             }
         }

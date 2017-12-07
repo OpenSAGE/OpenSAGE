@@ -1,5 +1,6 @@
 ﻿using OpenSage.Data.Ini.Parser;
 using OpenSage.Data.Wnd;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -16,9 +17,9 @@ namespace OpenSage.Logic.Object
             { "Texture", (parser, x) => x.Texture = parser.ParseFileName() },
             { "NumBeams", (parser, x) => x.NumBeams = parser.ParseInteger() },
             { "InnerBeamWidth", (parser, x) => x.InnerBeamWidth = parser.ParseFloat() },
-            { "InnerColor", (parser, x) => x.InnerColor = WndColor.Parse(parser) },
+            { "InnerColor", (parser, x) => x.InnerColor = parser.ParseColorRgba() },
             { "OuterBeamWidth", (parser, x) => x.OuterBeamWidth = parser.ParseFloat() },
-            { "OuterColor", (parser, x) => x.OuterColor = WndColor.Parse(parser) },
+            { "OuterColor", (parser, x) => x.OuterColor = parser.ParseColorRgba() },
             { "Tile", (parser, x) => x.Tile = parser.ParseBoolean() },
             { "ScrollRate", (parser, x) => x.ScrollRate = parser.ParseFloat() },
             { "Segments", (parser, x) => x.Segments = parser.ParseInteger() },
@@ -30,9 +31,9 @@ namespace OpenSage.Logic.Object
         public string Texture { get; private set; }
         public int NumBeams { get; private set; }
         public float InnerBeamWidth { get; private set; }
-        public WndColor InnerColor { get; private set; }
+        public ColorRgba InnerColor { get; private set; }
         public float OuterBeamWidth { get; private set; }
-        public WndColor OuterColor { get; private set; }
+        public ColorRgba OuterColor { get; private set; }
         public bool Tile { get; private set; }
         public float ScrollRate { get; private set; }
         public int Segments { get; private set; }

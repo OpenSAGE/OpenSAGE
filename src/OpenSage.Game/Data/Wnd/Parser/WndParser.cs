@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Wnd.Parser
 {
@@ -431,7 +432,7 @@ namespace OpenSage.Data.Wnd.Parser
                     return WndWindowType.PushButton;
 
                 case "ENTRYFIELD":
-                    return WndWindowType.TextEntry;
+                    return WndWindowType.EntryField;
 
                 case "STATICTEXT":
                     return WndWindowType.StaticText;
@@ -654,9 +655,9 @@ namespace OpenSage.Data.Wnd.Parser
             return result;
         }
 
-        private WndColor ParseColor()
+        private ColorRgba ParseColor()
         {
-            return new WndColor
+            return new ColorRgba
             {
                 R = (byte) NextIntegerLiteralTokenValue(),
                 G = (byte) NextIntegerLiteralTokenValue(),

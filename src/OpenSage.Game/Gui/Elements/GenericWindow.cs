@@ -1,8 +1,6 @@
-﻿using LL.Graphics2D;
-
-namespace OpenSage.Gui.Elements
+﻿namespace OpenSage.Gui.Elements
 {
-    public sealed class Window : UIElement
+    public sealed class GenericWindow : UIElement
     {
         protected override void OnRender(DrawingContext drawingContext)
         {

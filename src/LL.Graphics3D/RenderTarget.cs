@@ -2,5 +2,10 @@
 {
     public sealed partial class RenderTarget : GraphicsDeviceChild
     {
+        public RenderTarget(GraphicsDevice graphicsDevice, Texture texture)
+            : base(graphicsDevice)
+        {
+            PlatformConstruct(graphicsDevice, texture);
+        }
     }
 }

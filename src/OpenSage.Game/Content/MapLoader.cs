@@ -22,7 +22,7 @@ namespace OpenSage.Content
 {
     internal sealed class MapLoader : ContentLoader<Scene>
     {
-        protected override Scene LoadEntry(FileSystemEntry entry, ContentManager contentManager)
+        protected override Scene LoadEntry(FileSystemEntry entry, ContentManager contentManager, LoadOptions loadOptions)
         {
             contentManager.IniDataContext.LoadIniFile(@"Data\INI\Terrain.ini");
 
@@ -302,13 +302,11 @@ namespace OpenSage.Content
                     var patchX = x * numTilesPerPatch;
                     var patchY = y * numTilesPerPatch;
 
-                    var patchBounds = new Int32Rect
-                    {
-                        X = patchX,
-                        Y = patchY,
-                        Width = Math.Min(TerrainComponent.PatchSize, heightMap.Width - patchX),
-                        Height = Math.Min(TerrainComponent.PatchSize, heightMap.Height - patchY)
-                    };
+                    var patchBounds = new Rectangle(
+                        patchX,
+                        patchY,
+                        Math.Min(TerrainComponent.PatchSize, heightMap.Width - patchX),
+                        Math.Min(TerrainComponent.PatchSize, heightMap.Height - patchY));
 
                     terrainEntity.Components.Add(CreatePatch(
                         terrainMaterial,
@@ -327,7 +325,7 @@ namespace OpenSage.Content
             EffectPipelineStateHandle pipelineStateHandle,
             HeightMap heightMap,
             BlendTileData blendTileData,
-            Int32Rect patchBounds,
+            Rectangle patchBounds,
             GraphicsDevice graphicsDevice,
             TerrainPatchIndexBufferCache indexBufferCache)
         {
@@ -357,7 +355,7 @@ namespace OpenSage.Content
         private static Buffer<TerrainVertex> CreateVertexBuffer(
            GraphicsDevice graphicsDevice,
            HeightMap heightMap,
-           Int32Rect patchBounds,
+           Rectangle patchBounds,
            ushort[] indices,
            out BoundingBox boundingBox,
            out Triangle[] triangles)

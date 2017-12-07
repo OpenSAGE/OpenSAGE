@@ -16,7 +16,7 @@ namespace OpenSage.Terrain
         private readonly TerrainMaterial _terrainMaterial;
         private readonly EffectPipelineStateHandle _pipelineStateHandle;
 
-        public Int32Rect Bounds { get; }
+        public Rectangle Bounds { get; }
 
         internal override BoundingBox LocalBoundingBox { get; }
 
@@ -27,7 +27,7 @@ namespace OpenSage.Terrain
         internal TerrainPatchComponent(
             TerrainMaterial terrainMaterial,
             EffectPipelineStateHandle pipelineStateHandle,
-            Int32Rect patchBounds,
+            Rectangle patchBounds,
             Buffer<TerrainVertex> vertexBuffer,
             Buffer<ushort> indexBuffer,
             Triangle[] triangles,

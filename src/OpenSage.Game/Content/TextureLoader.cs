@@ -25,8 +25,10 @@ namespace OpenSage.Content
             yield return Path.ChangeExtension(filePath, ".tga");
         }
 
-        protected override Texture LoadEntry(FileSystemEntry entry, ContentManager contentManager)
+        protected override Texture LoadEntry(FileSystemEntry entry, ContentManager contentManager, LoadOptions loadOptions)
         {
+            var generateMipMaps = (loadOptions as TextureLoadOptions)?.GenerateMipMaps ?? true;
+
             Texture applyDebugName(Texture texture)
             {
                 texture.DebugName = entry.FilePath;
@@ -50,7 +52,7 @@ namespace OpenSage.Content
                     return applyDebugName(CreateTextureFromTga(
                         contentManager.GraphicsDevice,
                         tgaFile,
-                        true)); // TODO: Don't need to generate mipmaps for GUI textures.
+                        generateMipMaps)); // TODO: Don't need to generate mipmaps for GUI textures.
 
                 default:
                     throw new InvalidOperationException();

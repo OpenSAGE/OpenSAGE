@@ -62,13 +62,14 @@ namespace LL.Graphics3D
             int arraySize,
             int width,
             int height,
+            TextureBindFlags bindFlags,
             int mipMapCount,
             TextureMipMapData[] mipMapData)
         {
             var resourceDescription = new Texture2DDescription
             {
                 ArraySize = arraySize,
-                BindFlags = BindFlags.ShaderResource,
+                BindFlags = bindFlags.ToBindFlags(),
                 CpuAccessFlags = CpuAccessFlags.None,
                 Format = pixelFormat.ToDxgiFormat(),
                 Height = height,

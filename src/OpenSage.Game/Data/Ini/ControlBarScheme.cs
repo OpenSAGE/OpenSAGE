@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Data.Wnd;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -19,12 +20,12 @@ namespace OpenSage.Data.Ini
             { "Side", (parser, x) => x.Side = parser.ParseAssetReference() },
             { "QueueButtonImage", (parser, x) => x.QueueButtonImage = parser.ParseFileName() },
             { "RightHUDImage", (parser, x) => x.RightHudImage = parser.ParseAssetReference() },
-            { "CommandBarBorderColor", (parser, x) => x.CommandBarBorderColor = WndColor.Parse(parser) },
-            { "BuildUpClockColor", (parser, x) => x.BuildUpClockColor = WndColor.Parse(parser) },
-            { "ButtonBorderBuildColor", (parser, x) => x.ButtonBorderBuildColor = WndColor.Parse(parser) },
-            { "ButtonBorderActionColor", (parser, x) => x.ButtonBorderActionColor = WndColor.Parse(parser) },
-            { "ButtonBorderUpgradeColor", (parser, x) => x.ButtonBorderUpgradeColor = WndColor.Parse(parser) },
-            { "ButtonBorderSystemColor", (parser, x) => x.ButtonBorderSystemColor = WndColor.Parse(parser) },
+            { "CommandBarBorderColor", (parser, x) => x.CommandBarBorderColor = parser.ParseColorRgba() },
+            { "BuildUpClockColor", (parser, x) => x.BuildUpClockColor = parser.ParseColorRgba() },
+            { "ButtonBorderBuildColor", (parser, x) => x.ButtonBorderBuildColor = parser.ParseColorRgba() },
+            { "ButtonBorderActionColor", (parser, x) => x.ButtonBorderActionColor = parser.ParseColorRgba() },
+            { "ButtonBorderUpgradeColor", (parser, x) => x.ButtonBorderUpgradeColor = parser.ParseColorRgba() },
+            { "ButtonBorderSystemColor", (parser, x) => x.ButtonBorderSystemColor = parser.ParseColorRgba() },
 
             { "GenBarButtonIn", (parser, x) => x.GenBarButtonIn = parser.ParseAssetReference() },
             { "GenBarButtonOn", (parser, x) => x.GenBarButtonOn = parser.ParseAssetReference() },
@@ -113,12 +114,12 @@ namespace OpenSage.Data.Ini
         public string Side { get; private set; }
         public string QueueButtonImage { get; private set; }
         public string RightHudImage { get; private set; }
-        public WndColor CommandBarBorderColor { get; private set; }
-        public WndColor BuildUpClockColor { get; private set; }
-        public WndColor ButtonBorderBuildColor { get; private set; }
-        public WndColor ButtonBorderActionColor { get; private set; }
-        public WndColor ButtonBorderUpgradeColor { get; private set; }
-        public WndColor ButtonBorderSystemColor { get; private set; }
+        public ColorRgba CommandBarBorderColor { get; private set; }
+        public ColorRgba BuildUpClockColor { get; private set; }
+        public ColorRgba ButtonBorderBuildColor { get; private set; }
+        public ColorRgba ButtonBorderActionColor { get; private set; }
+        public ColorRgba ButtonBorderUpgradeColor { get; private set; }
+        public ColorRgba ButtonBorderSystemColor { get; private set; }
 
         public string GenBarButtonIn { get; private set; }
         public string GenBarButtonOn { get; private set; }

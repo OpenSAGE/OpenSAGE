@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Data.Wnd;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -16,9 +17,9 @@ namespace OpenSage.Data.Ini
             { "ScrollRate", (parser, x) => x.ScrollRate = parser.ParseInteger() },
             { "ScrollRateEveryFrames", (parser, x) => x.ScrollRateEveryFrames = parser.ParseInteger() },
             { "ScrollDown", (parser, x) => x.ScrollDown = parser.ParseBoolean() },
-            { "TitleColor", (parser, x) => x.TitleColor = WndColor.Parse(parser) },
-            { "MinorTitleColor", (parser, x) => x.MinorTitleColor = WndColor.Parse(parser) },
-            { "NormalColor", (parser, x) => x.NormalColor = WndColor.Parse(parser) },
+            { "TitleColor", (parser, x) => x.TitleColor = parser.ParseColorRgba() },
+            { "MinorTitleColor", (parser, x) => x.MinorTitleColor = parser.ParseColorRgba() },
+            { "NormalColor", (parser, x) => x.NormalColor = parser.ParseColorRgba() },
 
             { "Style", (parser, x) => x.Lines.Add(new CreditStyleLine(parser.ParseEnum<CreditStyle>())) },
             { "Text", (parser, x) => x.Lines.Add(new CreditTextLine(parser.ParseString())) },
@@ -28,9 +29,9 @@ namespace OpenSage.Data.Ini
         public int ScrollRate { get; private set; }
         public int ScrollRateEveryFrames { get; private set; }
         public bool ScrollDown { get; private set; }
-        public WndColor TitleColor { get; private set; }
-        public WndColor MinorTitleColor { get; private set; }
-        public WndColor NormalColor { get; private set; }
+        public ColorRgba TitleColor { get; private set; }
+        public ColorRgba MinorTitleColor { get; private set; }
+        public ColorRgba NormalColor { get; private set; }
 
         public List<CreditLine> Lines { get; } = new List<CreditLine>();
     }

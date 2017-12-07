@@ -263,6 +263,9 @@ namespace LL.Graphics3D.Util
                 case PrimitiveType.TriangleList:
                     return PrimitiveTopology.TriangleList;
 
+                case PrimitiveType.LineList:
+                    return PrimitiveTopology.LineList;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -308,6 +311,23 @@ namespace LL.Graphics3D.Util
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public static BindFlags ToBindFlags(this TextureBindFlags value)
+        {
+            var result = BindFlags.None;
+
+            if (value.HasFlag(TextureBindFlags.ShaderResource))
+            {
+                result |= BindFlags.ShaderResource;
+            }
+
+            if (value.HasFlag(TextureBindFlags.RenderTarget))
+            {
+                result |= BindFlags.RenderTarget;
+            }
+
+            return result;
         }
 
         public static TextureAddressMode ToTextureAddressMode(this SamplerAddressMode value)

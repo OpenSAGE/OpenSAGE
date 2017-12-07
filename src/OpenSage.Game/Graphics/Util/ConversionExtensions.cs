@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using OpenSage.Data.Ini;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Util
 {

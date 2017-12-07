@@ -1,5 +1,6 @@
 ﻿using OpenSage.Data.Ini.Parser;
 using OpenSage.Data.Wnd;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -30,8 +31,8 @@ namespace OpenSage.Data.Ini
             { "AutomaticSubtitleDurationMS", (parser, x) => x.AutomaticSubtitleDurationMS = parser.ParseInteger() },
             { "AutomaticSubtitleWindowWidth", (parser, x) => x.AutomaticSubtitleWindowWidth = parser.ParseInteger() },
             { "AutomaticSubtitleLines", (parser, x) => x.AutomaticSubtitleLines = parser.ParseInteger() },
-            { "AutomaticSubtitleWindowColor", (parser, x) => x.AutomaticSubtitleWindowColor = WndColor.Parse(parser) },
-            { "AutomaticSubtitleTextColor", (parser, x) => x.AutomaticSubtitleTextColor = WndColor.Parse(parser) },
+            { "AutomaticSubtitleWindowColor", (parser, x) => x.AutomaticSubtitleWindowColor = parser.ParseColorRgba() },
+            { "AutomaticSubtitleTextColor", (parser, x) => x.AutomaticSubtitleTextColor = parser.ParseColorRgba() },
             { "PositionDeltaForReverbRecheck", (parser, x) => x.PositionDeltaForReverbRecheck = parser.ParseInteger() },
             { "SampleCount2D", (parser, x) => x.SampleCount2D = parser.ParseInteger() },
             { "SampleCount3D", (parser, x) => x.SampleCount3D = parser.ParseInteger() },
@@ -123,10 +124,10 @@ namespace OpenSage.Data.Ini
         public int AutomaticSubtitleLines { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public WndColor AutomaticSubtitleWindowColor { get; private set; }
+        public ColorRgba AutomaticSubtitleWindowColor { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public WndColor AutomaticSubtitleTextColor { get; private set; }
+        public ColorRgba AutomaticSubtitleTextColor { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public int PositionDeltaForReverbRecheck { get; private set; }

@@ -2,12 +2,12 @@
 
 namespace OpenSage.Mathematics
 {
-    public struct Rectangle
+    public readonly struct Rectangle
     {
-        public int X;
-        public int Y;
-        public int Width;
-        public int Height;
+        public readonly int X;
+        public readonly int Y;
+        public readonly int Width;
+        public readonly int Height;
 
         public int Left => X;
         public int Right => X + Width;
@@ -30,7 +30,7 @@ namespace OpenSage.Mathematics
                 Top < value.Bottom;
         }
 
-        public static Rectangle Intersect(Rectangle value1, Rectangle value2)
+        public static Rectangle Intersect(in Rectangle value1, in Rectangle value2)
         {
             if (value1.Intersects(value2))
             {

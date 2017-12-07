@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Data.Wnd.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Wnd
 {
@@ -119,7 +120,7 @@ namespace OpenSage.Data.Wnd
         VerticalSlider,
         ProgressBar,
 
-        TextEntry,
+        EntryField,
         StaticText
     }
 
@@ -171,12 +172,12 @@ namespace OpenSage.Data.Wnd
 
     public sealed class WndTextColor
     {
-        public WndColor Enabled { get; internal set; }
-        public WndColor EnabledBorder { get; internal set; }
-        public WndColor Disabled { get; internal set; }
-        public WndColor DisabledBorder { get; internal set; }
-        public WndColor Hilite { get; internal set; }
-        public WndColor HiliteBorder { get; internal set; }
+        public ColorRgba Enabled { get; internal set; }
+        public ColorRgba EnabledBorder { get; internal set; }
+        public ColorRgba Disabled { get; internal set; }
+        public ColorRgba DisabledBorder { get; internal set; }
+        public ColorRgba Hilite { get; internal set; }
+        public ColorRgba HiliteBorder { get; internal set; }
     }
 
     public struct WndPoint
@@ -200,40 +201,6 @@ namespace OpenSage.Data.Wnd
         public int Height;
     }
 
-    public struct WndColor
-    {
-        internal static WndColor Parse(IniParser parser)
-        {
-            var r = parser.ParseAttributeByte("R");
-            var g = parser.ParseAttributeByte("G");
-            var b = parser.ParseAttributeByte("B");
-
-            var aToken = parser.GetNextTokenOptional(IniParser.SeparatorsColon);
-            var a = (byte) 255;
-            if (aToken != null)
-            {
-                if (aToken.Value.Text != "A")
-                {
-                    throw new IniParseException($"Expected attribute name 'A'", aToken.Value.Position);
-                }
-                a = parser.ScanByte(parser.GetNextToken(IniParser.SeparatorsColon));
-            }
-
-            return new WndColor
-            {
-                R = r,
-                G = g,
-                B = b,
-                A = a
-            };
-        }
-
-        public byte R;
-        public byte G;
-        public byte B;
-        public byte A;
-    }
-
     public sealed class WndDrawData
     {
         public WndDrawDataItem[] Items { get; internal set; }
@@ -242,8 +209,8 @@ namespace OpenSage.Data.Wnd
     public sealed class WndDrawDataItem
     {
         public string Image { get; internal set; }
-        public WndColor Color { get; internal set; }
-        public WndColor BorderColor { get; internal set; }
+        public ColorRgba Color { get; internal set; }
+        public ColorRgba BorderColor { get; internal set; }
     }
 
     public sealed class WndListBoxData

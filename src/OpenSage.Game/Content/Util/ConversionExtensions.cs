@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using LL.Graphics3D;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Data.W3d;
-using OpenSage.Graphics.Effects;
-using OpenSage.Settings;
+using OpenSage.Data.Wnd;
 using OpenSage.Graphics.Animation;
+using OpenSage.Graphics.Effects;
+using OpenSage.Mathematics;
+using OpenSage.Settings;
 
 namespace OpenSage.Content.Util
 {
@@ -321,6 +324,33 @@ namespace OpenSage.Content.Util
                 default:
                     throw new ArgumentOutOfRangeException(nameof(value));
             }
+        }
+
+        public static Rectangle ToRectangle(this WndScreenRect value)
+        {
+            return new Rectangle(
+                value.UpperLeft.X,
+                value.UpperLeft.Y,
+                value.BottomRight.X - value.UpperLeft.X,
+                value.BottomRight.Y - value.UpperLeft.Y);
+        }
+
+        public static Rectangle ToRectangle(this MappedImageCoords value)
+        {
+            return new Rectangle(
+                value.Left,
+                value.Top,
+                value.Right - value.Left,
+                value.Bottom - value.Top);
+        }
+
+        public static ColorRgbaF ToColorRgbaF(this ColorRgba value)
+        {
+            return new ColorRgbaF(
+                value.R / 255.0f,
+                value.G / 255.0f,
+                value.B / 255.0f,
+                value.A / 255.0f);
         }
     }
 }

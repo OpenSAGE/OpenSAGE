@@ -1,31 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using LL.Graphics2D;
 using LL.Graphics3D;
+using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Gui.Elements;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Gui
 {
     public sealed class GuiSystem : GameSystem
     {
         private readonly List<GuiComponent> _guiComponents;
-        private readonly SpriteMaterial _spriteMaterial;
+        private readonly SpriteBatch _spriteBatch;
         private readonly EffectPipelineStateHandle _pipelineStateHandle;
-        private readonly GraphicsDevice2D _graphicsDevice2D;
 
         public GuiSystem(Game game) 
             : base(game)
         {
             RegisterComponentList(_guiComponents = new List<GuiComponent>());
 
-            _spriteMaterial = new SpriteMaterial(Game.ContentManager.EffectLibrary.Sprite);
-
-            var materialConstantsBuffer = AddDisposable(new ConstantBuffer<SpriteMaterial.MaterialConstants>(Game.GraphicsDevice));
-            materialConstantsBuffer.Value.MipMapLevel = 0;
-            materialConstantsBuffer.Update();
-            _spriteMaterial.SetMaterialConstants(materialConstantsBuffer.Buffer);
+            _spriteBatch = AddDisposable(new SpriteBatch(Game.ContentManager));
 
             // TODO: Duplicated from SpriteComponent.
             var rasterizerState = RasterizerStateDescription.CullBackSolid;
@@ -34,10 +29,22 @@ namespace OpenSage.Gui
             _pipelineStateHandle = new EffectPipelineState(
                 rasterizerState,
                 DepthStencilStateDescription.None,
-                BlendStateDescription.Opaque)
+                BlendStateDescription.AlphaBlend)
                 .GetHandle();
+        }
 
-            _graphicsDevice2D = AddDisposable(new GraphicsDevice2D());
+        internal override void OnEntityComponentAdded(EntityComponent component)
+        {
+            if (component is GuiComponent c)
+            {
+                var viewport = Game.Scene.Camera.Viewport;
+                var size = new Size(viewport.Width, viewport.Height);
+                DoActionRecursive(
+                    c.RootWindow,
+                    x => x.CreateSizeDependentResources(Game.ContentManager, size));
+            }
+
+            base.OnEntityComponentAdded(component);
         }
 
         internal void AddRenderItem(RenderList renderList, GuiComponent component)
@@ -45,19 +52,24 @@ namespace OpenSage.Gui
             // TODO: Duplicated from SpriteComponent.
             renderList.AddGuiRenderItem(new RenderItem(
                 component,
-                _spriteMaterial,
+                _spriteBatch.Material,
                 _pipelineStateHandle,
                 (commandEncoder, effect, pipelineStateHandle, instanceData) =>
                 {
+                    _spriteBatch.Begin(commandEncoder, Game.Scene.Camera.Viewport.Bounds());
+
                     DoActionRecursive(component.RootWindow, x =>
                     {
-                        _spriteMaterial.SetTexture(x.Texture);
-                        _spriteMaterial.Apply();
-
-                        effect.Apply(commandEncoder);
-
-                        commandEncoder.Draw(PrimitiveType.TriangleList, 0, 3);
+                        if (!x.Hidden)
+                        {
+                            _spriteBatch.Draw(
+                                x.Texture,
+                                new Rectangle(0, 0, x.Texture.Width, x.Texture.Height),
+                                x.Frame);
+                        }
                     });
+
+                    _spriteBatch.End();
                 }));
         }
 
@@ -73,15 +85,11 @@ namespace OpenSage.Gui
 
         public override void Update(GameTime gameTime)
         {
-            var renderContext = new RenderContext(
-                Game.GraphicsDevice,
-                _graphicsDevice2D);
-
             foreach (var guiComponent in _guiComponents)
             {
                 DoActionRecursive(
                     guiComponent.RootWindow, 
-                    x => x.Render(renderContext));
+                    x => x.Render(Game.GraphicsDevice));
             }
 
             base.Update(gameTime);
