@@ -2,9 +2,18 @@
 // Buffers
 ///////////////////////////////
 
-cbuffer GlobalConstantsPS : register(b0)
+cbuffer GlobalConstantsShared
 {
     float3 CameraPosition;
+};
+
+cbuffer GlobalConstantsVS
+{
+    row_major float4x4 ViewProjection;
+};
+
+cbuffer GlobalConstantsPS
+{
     float TimeInSeconds;
     float2 ViewportSize;
 };

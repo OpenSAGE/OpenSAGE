@@ -4,8 +4,6 @@
     {
         public CommandQueue CommandQueue { get; }
 
-        public ShaderLibrary ShaderLibrary { get; }
-
         public PixelFormat BackBufferFormat => PlatformBackBufferFormat;
 
         public SamplerState SamplerAnisotropicWrap { get; }
@@ -17,8 +15,6 @@
             PlatformConstruct();
 
             CommandQueue = AddDisposable(new CommandQueue(this));
-
-            ShaderLibrary = AddDisposable(new ShaderLibrary(this));
 
             SamplerAnisotropicWrap = AddDisposable(new SamplerState(this, SamplerStateDescription.AnisotropicWrap) { DebugName = "AnisotropicWrap SamplerState" });
             SamplerLinearWrap = AddDisposable(new SamplerState(this, SamplerStateDescription.LinearWrap) { DebugName = "LinearWrap SamplerState" });

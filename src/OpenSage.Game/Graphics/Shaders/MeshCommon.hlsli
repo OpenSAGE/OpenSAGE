@@ -1,5 +1,19 @@
-#include "CommonVS.hlsli"
-#include "MeshCommon.hlsli"
+///////////////////////////////
+// Structures
+///////////////////////////////
+
+struct PSInputCommon
+{
+    float3 WorldPosition : TEXCOORD0;
+    float3 WorldNormal   : TEXCOORD1;
+    float2 UV0           : TEXCOORD2;
+    float2 UV1           : TEXCOORD3;
+};
+
+struct VSOutputCommon
+{
+    float4 Position : SV_Position;
+};
 
 ///////////////////////////////
 // Structures
@@ -28,7 +42,7 @@ struct VSInputSkinnedInstanced
 // Buffers
 ///////////////////////////////
 
-cbuffer SkinningConstants : register(b1)
+cbuffer SkinningConstants
 {
     bool SkinningEnabled;
     uint NumBones;
@@ -41,7 +55,7 @@ StructuredBuffer<float4x3> SkinningBuffer : register(t0);
 ///////////////////////////////
 
 void VSSkinnedInstanced(
-    in VSInputSkinnedInstanced input, 
+    in VSInputSkinnedInstanced input,
     out VSOutputCommon vsOutput,
     out PSInputCommon psInput)
 {

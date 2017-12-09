@@ -10,9 +10,10 @@ namespace OpenSage.Graphics.Rendering
     internal sealed class RenderPipeline : DisposableBase
     {
         private readonly DepthStencilBufferCache _depthStencilBufferCache;
+        private readonly ConstantBuffer<GlobalConstantsShared> _globalConstantBufferShared;
         private readonly ConstantBuffer<GlobalConstantsVS> _globalConstantBufferVS;
-        private readonly ConstantBuffer<RenderItemConstantsVS> _renderItemConstantsBufferVS;
         private readonly ConstantBuffer<GlobalConstantsPS> _globalConstantBufferPS;
+        private readonly ConstantBuffer<RenderItemConstantsVS> _renderItemConstantsBufferVS;
         private readonly ConstantBuffer<LightingConstants> _globalLightingTerrainBuffer;
         private readonly ConstantBuffer<LightingConstants> _globalLightingObjectBuffer;
 
@@ -20,6 +21,7 @@ namespace OpenSage.Graphics.Rendering
         {
             _depthStencilBufferCache = AddDisposable(new DepthStencilBufferCache(graphicsDevice));
 
+            _globalConstantBufferShared = AddDisposable(new ConstantBuffer<GlobalConstantsShared>(graphicsDevice));
             _globalConstantBufferVS = AddDisposable(new ConstantBuffer<GlobalConstantsVS>(graphicsDevice));
             _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<RenderItemConstantsVS>(graphicsDevice));
             _globalConstantBufferPS = AddDisposable(new ConstantBuffer<GlobalConstantsPS>(graphicsDevice));
@@ -112,6 +114,24 @@ namespace OpenSage.Graphics.Rendering
 
                     effect.Begin(commandEncoder);
 
+                    var globalConstantsSharedParameter = effect.GetParameter("GlobalConstantsShared", throwIfMissing: false);
+                    if (globalConstantsSharedParameter != null)
+                    {
+                        globalConstantsSharedParameter.SetData(_globalConstantBufferShared.Buffer);
+                    }
+
+                    var globalConstantsVSParameter = effect.GetParameter("GlobalConstantsVS", throwIfMissing: false);
+                    if (globalConstantsVSParameter != null)
+                    {
+                        globalConstantsVSParameter.SetData(_globalConstantBufferVS.Buffer);
+                    }
+
+                    var globalConstantsPSParameter = effect.GetParameter("GlobalConstantsPS", throwIfMissing: false);
+                    if (globalConstantsPSParameter != null)
+                    {
+                        globalConstantsPSParameter.SetData(_globalConstantBufferPS.Buffer);
+                    }
+
                     var lightingConstantsObjectParameter = effect.GetParameter("LightingConstants_Object", throwIfMissing: false);
                     if (lightingConstantsObjectParameter != null)
                     {
@@ -189,16 +209,15 @@ namespace OpenSage.Graphics.Rendering
         {
             var cameraPosition = Matrix4x4Utility.Invert(context.Camera.View).Translation;
 
-            _globalConstantBufferVS.Value.ViewProjection = context.Camera.View * context.Camera.Projection;
-            _globalConstantBufferVS.Value.CameraPosition = cameraPosition;
-            _globalConstantBufferVS.Update();
-            commandEncoder.SetVertexShaderConstantBuffer(0, _globalConstantBufferVS.Buffer);
+            _globalConstantBufferShared.Value.CameraPosition = cameraPosition;
+            _globalConstantBufferShared.Update();
 
-            _globalConstantBufferPS.Value.CameraPosition = cameraPosition;
+            _globalConstantBufferVS.Value.ViewProjection = context.Camera.View * context.Camera.Projection;
+            _globalConstantBufferVS.Update();
+
             _globalConstantBufferPS.Value.TimeInSeconds = (float) context.GameTime.TotalGameTime.TotalSeconds;
             _globalConstantBufferPS.Value.ViewportSize = context.Camera.Viewport.Size;
             _globalConstantBufferPS.Update();
-            commandEncoder.SetPixelShaderConstantBuffer(0, _globalConstantBufferPS.Buffer);
 
             _globalLightingTerrainBuffer.Value = context.Scene.Settings.CurrentLightingConfiguration.TerrainLights;
             _globalLightingObjectBuffer.Value = context.Scene.Settings.CurrentLightingConfiguration.ObjectLights;
@@ -207,10 +226,15 @@ namespace OpenSage.Graphics.Rendering
         }
 
         [StructLayout(LayoutKind.Sequential)]
+        private struct GlobalConstantsShared
+        {
+            public Vector3 CameraPosition;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
         private struct GlobalConstantsVS
         {
             public Matrix4x4 ViewProjection;
-            public Vector3 CameraPosition;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -222,7 +246,6 @@ namespace OpenSage.Graphics.Rendering
         [StructLayout(LayoutKind.Sequential)]
         private struct GlobalConstantsPS
         {
-            public Vector3 CameraPosition;
             public float TimeInSeconds;
             public Vector2 ViewportSize;
         }

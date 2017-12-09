@@ -186,9 +186,6 @@
     <PackageReference Include="MahApps.Metro">
       <Version>1.5.0</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.HLSL.CSharpVB">
-      <Version>1.0.1</Version>
-    </PackageReference>
     <PackageReference Include="SharpDX.Direct3D12">
       <Version>4.0.1</Version>
     </PackageReference>
@@ -208,68 +205,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PixelShader Include="Shaders\SimplePS.hlsl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </PixelShader>
     <Resource Include="AppIcon.ico" />
-    <Content Include="Shaders\CommonVS.hlsli" />
-    <Content Include="Shaders\MeshCommon.hlsli" />
-    <Content Include="Shaders\MeshCommonVS.hlsli" />
-    <Content Include="Shaders\MeshCommonPS.hlsli" />
-    <Content Include="Shaders\NormalMapped.hlsli" />
-    <Content Include="Shaders\Simple.hlsli" />
-    <Content Include="Shaders\Lighting.hlsli" />
-    <VertexShader Include="Shaders\ParticleVS.hlsl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ShaderModel>5_0</ShaderModel>
-    </VertexShader>
-    <PixelShader Include="Shaders\ParticlePS.hlsl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </PixelShader>
-    <VertexShader Include="Shaders\SimpleVS.hlsl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ShaderModel>5_0</ShaderModel>
-    </VertexShader>
-    <Content Include="Shaders\CommonPS.hlsli" />
-    <PixelShader Include="Shaders\NormalMappedPS.hlsl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </PixelShader>
-    <VertexShader Include="Shaders\NormalMappedVS.hlsl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </VertexShader>
-    <Content Include="Shaders\Sprite.hlsli" />
-    <Content Include="Shaders\Terrain.hlsli" />
-    <Content Include="Shaders\FixedFunction.hlsli" />
-    <PixelShader Include="Shaders\FixedFunctionPS.hlsl">
-      <ShaderModel>5_0</ShaderModel>
-      <EnableUnboundedDescriptorTable>False</EnableUnboundedDescriptorTable>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <EnableDebuggingInfo>True</EnableDebuggingInfo>
-    </PixelShader>
-    <VertexShader Include="Shaders\FixedFunctionVS.hlsl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ShaderModel>5_0</ShaderModel>
-      <EnableDebuggingInfo>True</EnableDebuggingInfo>
-    </VertexShader>
-    <VertexShader Include="Shaders\TerrainVS.hlsl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ShaderModel>5_0</ShaderModel>
-      <EnableDebuggingInfo>True</EnableDebuggingInfo>
-    </VertexShader>
-    <PixelShader Include="Shaders\TerrainPS.hlsl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ShaderModel>5_0</ShaderModel>
-      <EnableUnboundedDescriptorTable>False</EnableUnboundedDescriptorTable>
-      <EnableDebuggingInfo>True</EnableDebuggingInfo>
-    </PixelShader>
-    <Content Include="Shaders\Particle.hlsli" />
-    <PixelShader Include="Shaders\SpritePS.hlsl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ShaderModel>5_0</ShaderModel>
-    </PixelShader>
-    <VertexShader Include="Shaders\SpriteVS.hlsl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </VertexShader>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,5 +1,27 @@
-#include "MeshCommonPS.hlsli"
-#include "FixedFunction.hlsli"
+#include "Common.hlsli"
+#include "MeshCommon.hlsli"
+
+struct VSOutputFixedFunction
+{
+    PSInputCommon TransferCommon;
+    VSOutputCommon VSOutput;
+};
+
+struct PSInputFixedFunction
+{
+    PSInputCommon TransferCommon;
+
+    float4 ScreenPosition : SV_Position;
+};
+
+VSOutputFixedFunction VS(VSInputSkinnedInstanced input)
+{
+    VSOutputFixedFunction result = (VSOutputFixedFunction)0;
+
+    VSSkinnedInstanced(input, result.VSOutput, result.TransferCommon);
+
+    return result;
+}
 
 #define SPECULAR_ENABLED
 #define LIGHTING_TYPE Object
@@ -126,11 +148,11 @@ float4 SampleTexture(
     case TEXTURE_MAPPING_SCREEN:
         uv = (screenPosition / ViewportSize) * textureMapping.UVScale;
         break;
-        
+
     case TEXTURE_MAPPING_SCALE:
         uv *= textureMapping.UVScale;
         break;
-        
+
     case TEXTURE_MAPPING_GRID:
         uv = float2(uv.x, 1 - uv.y);
         uint numFramesPerSide = pow(2, textureMapping.Log2Width);
@@ -138,15 +160,15 @@ float4 SampleTexture(
         uint currentFrame = (t * textureMapping.FPS) % numFrames;
         uint currentFrameU = currentFrame % numFramesPerSide;
         uint currentFrameV = currentFrame / numFramesPerSide;
-        uv.x += currentFrameU / (float) numFramesPerSide;
-        uv.y += currentFrameV / (float) numFramesPerSide;
+        uv.x += currentFrameU / (float)numFramesPerSide;
+        uv.y += currentFrameV / (float)numFramesPerSide;
         break;
     }
 
     return diffuseTexture.Sample(Sampler, uv);
 }
 
-float4 main(PSInputFixedFunction input) : SV_TARGET
+float4 PS(PSInputFixedFunction input) : SV_Target
 {
     LightingParameters lightingParams;
     lightingParams.WorldPosition = input.TransferCommon.WorldPosition;
@@ -168,7 +190,7 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
         diffuseTextureColor = SampleTexture(
             input.TransferCommon.WorldNormal, input.TransferCommon.UV0, input.ScreenPosition.xy,
             Material.TextureMappingStage0,
-            Texture0, 
+            Texture0,
             v);
 
         if (NumTextureStages > 1)
@@ -176,7 +198,7 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
             float4 secondaryTextureColor = SampleTexture(
                 input.TransferCommon.WorldNormal, input.TransferCommon.UV1, input.ScreenPosition.xy,
                 Material.TextureMappingStage1,
-                Texture1, 
+                Texture1,
                 v);
 
             switch (Shading.SecondaryTextureColorBlend)
@@ -227,7 +249,7 @@ float4 main(PSInputFixedFunction input) : SV_TARGET
     {
         diffuseTextureColor = float4(1, 1, 1, 1);
     }
-    
+
     float3 totalObjectLighting = saturate(diffuseColor + Material.Emissive);
 
     float3 objectColor = diffuseTextureColor.rgb;

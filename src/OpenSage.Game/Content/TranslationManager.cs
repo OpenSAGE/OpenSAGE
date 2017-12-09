@@ -10,7 +10,12 @@ namespace OpenSage.Content
 
         public TranslationManager(FileSystem fileSystem)
         {
-            _csfFile = CsfFile.FromFileSystemEntry(fileSystem.GetFile(@"Data\English\generals.csf"));
+            var csfEntry = fileSystem.GetFile(@"Data\English\generals.csf");
+            if (csfEntry != null)
+            {
+                // TODO: Each game probably has its own path for this file.
+                _csfFile = CsfFile.FromFileSystemEntry(csfEntry);
+            }
         }
 
         public string Lookup(string key)

@@ -1,15 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\OpenSage.EffectCompiler.props" />
+  
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
     <RootNamespace>OpenSage</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0002" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
   </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\LL.Graphics3D\LL.Graphics3D.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EffectShader Include="**\*.fx" />
+  </ItemGroup>
+
+  <Import Project="..\..\build\OpenSage.EffectCompiler.targets" />
 </Project>

@@ -13,24 +13,24 @@ namespace LL.Graphics3D
         internal override void PlatformSetDebugName(string value) => DeviceShader.DebugName = value;
 
         private void PlatformConstruct(
-            ShaderLibrary shaderLibrary, 
-            string shaderName, 
+            GraphicsDevice graphicsDevice,
+            byte[] deviceBytecode, 
             out ShaderType shaderType,
             out ShaderResourceBinding[] resourceBindings)
         {
-            DeviceBytecode = shaderLibrary.GetShader(shaderName);
+            DeviceBytecode = deviceBytecode;
 
             using (var shaderBytecode = new ShaderBytecode(DeviceBytecode))
             {
                 switch (shaderBytecode.GetVersion().Version)
                 {
                     case ShaderVersion.VertexShader:
-                        DeviceShader = AddDisposable(new VertexShader(shaderLibrary.GraphicsDevice.Device, DeviceBytecode));
+                        DeviceShader = AddDisposable(new VertexShader(graphicsDevice.Device, DeviceBytecode));
                         shaderType = ShaderType.VertexShader;
                         break;
 
                     case ShaderVersion.PixelShader:
-                        DeviceShader = AddDisposable(new PixelShader(shaderLibrary.GraphicsDevice.Device, DeviceBytecode));
+                        DeviceShader = AddDisposable(new PixelShader(graphicsDevice.Device, DeviceBytecode));
                         shaderType = ShaderType.PixelShader;
                         break;
 

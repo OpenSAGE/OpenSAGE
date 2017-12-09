@@ -22,26 +22,22 @@ namespace OpenSage.Graphics.Effects
 
             FixedFunction = AddDisposable(new Effect(
                 graphicsDevice,
-                "FixedFunctionVS",
-                "FixedFunctionPS",
+                "FixedFunction",
                 MeshVertex.VertexDescriptor));
 
             Particle = AddDisposable(new Effect(
                 graphicsDevice,
-                "ParticleVS",
-                "ParticlePS",
+                "Particle",
                 ParticleVertex.VertexDescriptor));
 
             Sprite = AddDisposable(new Effect(
                 graphicsDevice,
-                "SpriteVS",
-                "SpritePS",
+                "Sprite",
                 SpriteVertex.VertexDescriptor));
 
             Terrain = AddDisposable(new Effect(
                 graphicsDevice,
-                "TerrainVS",
-                "TerrainPS",
+                "Terrain",
                 TerrainVertex.VertexDescriptor));
         }
 
@@ -51,8 +47,7 @@ namespace OpenSage.Graphics.Effects
             {
                 _effects[name] = effect = AddDisposable(new Effect(
                     _graphicsDevice,
-                    $"{name}VS",
-                    $"{name}PS",
+                    name,
                     vertexDescriptor));
             }
             return effect;

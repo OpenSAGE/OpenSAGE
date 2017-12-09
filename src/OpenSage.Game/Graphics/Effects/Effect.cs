@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using LL.Graphics3D;
 using Buffer = LL.Graphics3D.Buffer;
@@ -34,14 +35,22 @@ namespace OpenSage.Graphics.Effects
 
         public Effect(
             GraphicsDevice graphicsDevice,
-            string vertexShaderName,
-            string pixelShaderName,
+            string shaderName,
             VertexDescriptor vertexDescriptor)
         {
             _graphicsDevice = graphicsDevice;
 
-            _vertexShader = AddDisposable(new Shader(graphicsDevice.ShaderLibrary, vertexShaderName));
-            _pixelShader = AddDisposable(new Shader(graphicsDevice.ShaderLibrary, pixelShaderName));
+            using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream($"OpenSage.Graphics.Shaders.{shaderName}.fxo"))
+            using (var shaderReader = new BinaryReader(shaderStream))
+            {
+                var vertexShaderBytecodeLength = shaderReader.ReadInt32();
+                var vertexShaderBytecode = shaderReader.ReadBytes(vertexShaderBytecodeLength);
+                _vertexShader = AddDisposable(new Shader(graphicsDevice, vertexShaderBytecode));
+
+                var pixelShaderBytecodeLength = shaderReader.ReadInt32();
+                var pixelShaderBytecode = shaderReader.ReadBytes(pixelShaderBytecodeLength);
+                _pixelShader = AddDisposable(new Shader(graphicsDevice, pixelShaderBytecode));
+            }
 
             _cachedPipelineStates = new Dictionary<EffectPipelineStateHandle, PipelineState>();
 
@@ -50,8 +59,6 @@ namespace OpenSage.Graphics.Effects
             _parameters = _vertexShader.ResourceBindings
                 .Concat(_pixelShader.ResourceBindings)
                 .Select(x => AddDisposable(new EffectParameter(graphicsDevice, x)))
-                // TODO: This is awful.
-                .Where(x => x.Name != "GlobalConstantsVS" && x.Name != "GlobalConstantsPS" && x.Name != "LightingConstants")
                 .ToDictionary(x => x.Name);
         }
 

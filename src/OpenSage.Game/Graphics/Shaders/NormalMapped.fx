@@ -1,5 +1,33 @@
-#include "MeshCommonPS.hlsli"
-#include "NormalMapped.hlsli"
+#include "Common.hlsli"
+#include "MeshCommon.hlsli"
+
+struct VSOutputSimple
+{
+    VSOutputCommon VSOutput;
+    PSInputCommon TransferCommon;
+
+    float3 WorldTangent : TANGENT;
+    float3 WorldBinormal : BINORMAL;
+};
+
+VSOutputSimple VS(VSInputSkinnedInstanced input)
+{
+    VSOutputSimple result;
+
+    VSSkinnedInstanced(input, result.VSOutput, result.TransferCommon);
+
+    // TODO: Duplicated from MeshCommonVS.hlsli
+    matrix world;
+    world[0] = input.World0;
+    world[1] = input.World1;
+    world[2] = input.World2;
+    world[3] = input.World3;
+
+    result.WorldTangent = mul(input.Tangent, (float3x3) world);
+    result.WorldBinormal = mul(input.Binormal, (float3x3) world);
+
+    return result;
+}
 
 //#define SPECULAR_ENABLED
 #define LIGHTING_TYPE Object
@@ -20,7 +48,7 @@ Texture2D<float4> NormalMap : register(t1);
 
 SamplerState Sampler : register(s0);
 
-float4 main(VSOutputSimple input) : SV_Target
+float4 PS(VSOutputSimple input) : SV_Target
 {
     float2 uv = input.TransferCommon.UV0;
     uv.y = 1 - uv.y;

@@ -1,5 +1,54 @@
-#include "CommonPS.hlsli"
-#include "Terrain.hlsli"
+#include "Common.hlsli"
+
+struct PSInputBase
+{
+    float3 WorldPosition : TEXCOORD0;
+    float3 WorldNormal   : TEXCOORD1;
+    float2 UV            : TEXCOORD2;
+};
+
+struct VSOutput : PSInputBase
+{
+    float4 Position : SV_Position;
+};
+
+struct PSInput : PSInputBase
+{
+
+};
+
+struct VSInput
+{
+    float3 Position : POSITION;
+    float3 Normal   : NORMAL;
+    float2 UV       : TEXCOORD;
+};
+
+struct RenderItemConstantsVS
+{
+    row_major float4x4 World;
+};
+
+cbuffer RenderItemConstantsVS : register(b1)
+{
+    row_major float4x4 World;
+};
+
+VSOutput VS(VSInput input, uniform RenderItemConstantsVS constants : register(b4))
+{
+    VSOutput result;
+
+    float3 worldPosition = mul(input.Position, (float3x3) World);
+
+    result.Position = mul(float4(worldPosition, 1), ViewProjection);
+    result.WorldPosition = worldPosition;
+
+    result.WorldNormal = mul(input.Normal, (float3x3) World);
+
+    result.UV = input.UV;
+
+    return result;
+}
 
 #define LIGHTING_TYPE Terrain
 #include "Lighting.hlsli"
@@ -66,7 +115,7 @@ float CalculateBlendFactor(
     uint blendFlags,
     float2 fracUV)
 {
-    bool flipped  = (blendFlags & 1) == 1;
+    bool flipped = (blendFlags & 1) == 1;
     bool twoSided = (blendFlags & 2) == 2;
 
     if (flipped)
@@ -123,7 +172,7 @@ float3 SampleBlendedTextures(float2 uv)
         CliffInfo cliffInfo = CliffDetails[cliffTextureIndex - 1];
 
         float2 uvXBottom = lerp(cliffInfo.BottomLeftUV, cliffInfo.BottomRightUV, fracUV.x);
-        float2 uvXTop    = lerp(cliffInfo.TopLeftUV, cliffInfo.TopRightUV, fracUV.x);
+        float2 uvXTop = lerp(cliffInfo.TopLeftUV, cliffInfo.TopRightUV, fracUV.x);
 
         uv = lerp(uvXBottom, uvXTop, fracUV.y);
     }
@@ -149,17 +198,17 @@ float3 SampleBlendedTextures(float2 uv)
     float blendFactor1 = CalculateBlendFactor(blendDirection1, blendFlags1, fracUV);
     float blendFactor2 = CalculateBlendFactor(blendDirection2, blendFlags2, fracUV);
 
-    return 
+    return
         lerp(
             lerp(
-                textureColor0, 
-                textureColor1, 
-                blendFactor1), 
-            textureColor2, 
+                textureColor0,
+                textureColor1,
+                blendFactor1),
+            textureColor2,
             blendFactor2);
 }
 
-float4 main(PSInput input) : SV_TARGET
+float4 PS(PSInput input) : SV_Target
 {
     LightingParameters lightingParams;
     lightingParams.WorldNormal = input.WorldNormal;
