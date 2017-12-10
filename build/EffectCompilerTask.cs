@@ -66,6 +66,11 @@ namespace OpenSage.EffectCompiler
                 IntermediateDirectory.ItemSpec,
                 item.GetMetadata("RelativeDir"));
 
+            if (!Directory.Exists(outputFolder))
+            {
+                Directory.CreateDirectory(outputFolder);
+            }
+
             var fileName = item.GetMetadata("Filename");
 
             var vertexShaderBytecode = CompileShader(item, fxcPath, "vs_5_0", "VS", "VERTEX_SHADER=1", outputFolder, fileName);
