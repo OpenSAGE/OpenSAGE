@@ -34,10 +34,10 @@ namespace OpenSage.Data.Apt
 
                 data.AptDataEntryOffset = reader.ReadUInt32();
                 var numEntries = reader.ReadUInt32();
+
                 reader.BaseStream.Seek(4, SeekOrigin.Current);
 
-
-                for (var i=0;i< numEntries;++i)
+                for (var i = 0; i < numEntries; i++)
                 {
                     var constEntry = new ConstantEntry
                     {
