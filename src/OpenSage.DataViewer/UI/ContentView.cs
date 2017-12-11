@@ -44,6 +44,9 @@ namespace OpenSage.DataViewer.UI
                 case ".dds":
                     return new DdsView(entry);
 
+                case ".const":
+                    return new ConstViewer(entry);
+
                 case ".csf":
                     return new CsfView(entry);
 

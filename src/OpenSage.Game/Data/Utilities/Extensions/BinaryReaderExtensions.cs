@@ -4,6 +4,7 @@ using System.IO;
 using System.Numerics;
 using System.Text;
 using OpenSage.Mathematics;
+using System.Linq;
 
 namespace OpenSage.Data.Utilities.Extensions
 {
@@ -99,7 +100,10 @@ namespace OpenSage.Data.Utilities.Extensions
             var result = new string(chars);
 
             // There might be garbage after the \0 character, so we can't just do TrimEnd('\0').
-            return result.Substring(0, result.IndexOf('\0'));
+            if (result.Contains('\0'))
+                return result.Substring(0, result.IndexOf('\0'));
+            else
+                return result;
         }
 
         public static ushort[,] ReadUInt16Array2D(this BinaryReader reader, uint width, uint height)

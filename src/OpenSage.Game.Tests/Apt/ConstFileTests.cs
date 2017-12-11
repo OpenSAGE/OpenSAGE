@@ -30,6 +30,9 @@ namespace OpenSage.Game.Tests.Apt
 
                 var data = ConstantData.FromFileSystemEntry(new FileSystemEntry(null, entry.FullName, entry.Length, entry.Open));
                 Assert.NotNull(data);
+
+                //requires unmodified main menu
+                Assert.Equal(data.Entries.Count, 412);
             }
         }
     }
