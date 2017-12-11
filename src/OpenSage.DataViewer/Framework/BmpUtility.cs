@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace OpenSage.DataViewer.Framework
 {
@@ -11,29 +8,23 @@ namespace OpenSage.DataViewer.Framework
     {
         public static byte[] PrependBmpHeader(byte[] rgbaData, int width, int height)
         {
-            using (var stream = new MemoryStream(54 + rgbaData.Length))
-            using (var binaryWriter = new BinaryWriter(stream))
+            var pixels = new Argb32[width * height];
+            var pixelIndex = 0;
+            for (var i = 0; i < rgbaData.Length; i += 4)
             {
-                binaryWriter.Write((ushort) 0x4D42);
-                binaryWriter.Write((uint) stream.Length);
-                binaryWriter.Write((ushort) 0);
-                binaryWriter.Write((ushort) 0);
-                binaryWriter.Write((uint) 54);
-                binaryWriter.Write((uint) 40);
-                binaryWriter.Write((uint) width);
-                binaryWriter.Write((uint) height);
-                binaryWriter.Write((ushort) 1);
-                binaryWriter.Write((ushort) 32);
-                binaryWriter.Write((uint) 0);
-                binaryWriter.Write((uint) rgbaData.Length);
-                binaryWriter.Write((uint) 96);
-                binaryWriter.Write((uint) 96);
-                binaryWriter.Write((uint) 0);
-                binaryWriter.Write((uint) 0);
+                pixels[pixelIndex++] = new Argb32(
+                    rgbaData[i + 0],
+                    rgbaData[i + 1],
+                    rgbaData[i + 2],
+                    rgbaData[i + 3]);
+            }
 
-                binaryWriter.Write(rgbaData);
+            using (var outputStream = new MemoryStream())
+            {
+                var image = Image.LoadPixelData(pixels, width, height);
+                image.SaveAsBmp(outputStream);
 
-                return stream.ToArray();
+                return outputStream.ToArray();
             }
         }
     }
