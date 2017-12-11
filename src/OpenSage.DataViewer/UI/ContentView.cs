@@ -47,7 +47,7 @@ namespace OpenSage.DataViewer.UI
                     return new CsfView(entry);
 
                 case ".ini":
-                    return new IniView();
+                    return new IniView(entry, _getGame());
 
                 case ".map":
                     return new MapView(entry, _getGame());
@@ -71,7 +71,9 @@ namespace OpenSage.DataViewer.UI
 
         protected override void Dispose(bool disposing)
         {
-            Content?.Dispose();
+            var content = Content;
+            Content = null;
+            content?.Dispose();
 
             base.Dispose(disposing);
         }

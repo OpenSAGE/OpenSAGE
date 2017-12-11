@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using SharpDX.Windows;
 
 namespace LL.Graphics3D.Hosting
 {
-    public sealed class GraphicsView : Control
+    public sealed class GraphicsView : RenderControl
     {
         public event EventHandler<GraphicsEventArgs> GraphicsInitialize;
         public event EventHandler<GraphicsEventArgs> GraphicsDraw;
         public event EventHandler GraphicsResized;
         public event EventHandler GraphicsUninitialized;
-
-        private Task _renderLoopTask;
-        private bool _unloading;
 
         private SwapChain _swapChain;
 
@@ -36,22 +33,16 @@ namespace LL.Graphics3D.Hosting
 
             GraphicsInitialize?.Invoke(this, new GraphicsEventArgs(GraphicsDevice, _swapChain));
 
-            StartRenderLoop();
-
             base.OnHandleCreated(e);
         }
 
-        private void DoRenderLoop()
+        protected override void OnPaint(PaintEventArgs e)
         {
-            while (!_unloading)
-            {
-                Application.DoEvents();
+            Draw();
 
-                if (!_unloading)
-                {
-                    Draw();
-                }
-            }
+            base.OnPaint(e);
+
+            Invalidate();
         }
 
         private void Draw()
@@ -68,37 +59,18 @@ namespace LL.Graphics3D.Hosting
         {
             if (_swapChain != null)
             {
-                StopRenderLoop();
-
                 _swapChain.Resize(
                     Math.Max(Width, 1),
                     Math.Max(Height, 1));
 
                 GraphicsResized?.Invoke(this, EventArgs.Empty);
-
-                StartRenderLoop();
             }
 
             base.OnSizeChanged(e);
         }
 
-        private void StartRenderLoop()
-        {
-            _unloading = false;
-            _renderLoopTask = Task.Run(() => DoRenderLoop());
-        }
-
-        private void StopRenderLoop()
-        {
-            _unloading = true;
-            _renderLoopTask?.Wait();
-            _renderLoopTask = null;
-        }
-
         protected override void OnHandleDestroyed(EventArgs e)
         {
-            StopRenderLoop();
-
             _swapChain?.Dispose();
             _swapChain = null;
 

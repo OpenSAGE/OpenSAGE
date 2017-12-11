@@ -20,7 +20,7 @@ namespace OpenSage.DataViewer.UI
 
         public MainForm()
         {
-            ClientSize = new Size(800, 600);
+            ClientSize = new Size(1024, 768);
 
             Title = "OpenSAGE Data Viewer";
 
@@ -40,7 +40,7 @@ namespace OpenSage.DataViewer.UI
             {
                 var installationCommand = new RadioCommand((sender, e) => ChangeInstallation(installation))
                 {
-                    MenuText = installation.DisplayName
+                    MenuText = installation.DisplayName.Replace("&", "&&")
                 };
 
                 if (firstInstallationCommand == null)
