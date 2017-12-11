@@ -2,7 +2,7 @@
 
 namespace LL.Graphics3D.Util.BlockCompression
 {
-    internal static class BlockCompressionUtility
+    public static class BlockCompressionUtility
     {
         private static readonly BcBase Bc1 = new Bc1();
         private static readonly BcBase Bc2 = new Bc2();

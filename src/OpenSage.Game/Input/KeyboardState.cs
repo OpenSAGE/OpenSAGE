@@ -1,17 +1,15 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Data.Ini;
+using LL.Input;
 
 namespace OpenSage.Input
 {
     public struct KeyboardState
     {
         public List<Key> Keys { get; }
-        public List<KeyModifiers> KeyModifiers { get; }
 
-        public KeyboardState(List<Key> keys, List<KeyModifiers> keyModifiers)
+        public KeyboardState(List<Key> keys)
         {
             Keys = keys;
-            KeyModifiers = keyModifiers;
         }
 
         public bool IsKeyDown(Key key)

@@ -178,8 +178,8 @@ namespace OpenSage.Graphics.Cameras
             {
                 if (_viewport == null)
                 {
-                    var pixelWidth = _swapChain.BackBufferWidth;
-                    var pixelHeight = _swapChain.BackBufferHeight;
+                    var pixelWidth = _swapChain?.BackBufferWidth ?? 1;
+                    var pixelHeight = _swapChain?.BackBufferHeight ?? 1;
 
                     var bounds = new Rectangle(
                         (int) (NormalizedViewportRectangle.X * pixelWidth),

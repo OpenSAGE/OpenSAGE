@@ -13,7 +13,6 @@ namespace OpenSage.Input
         public MouseState LastMouseState { get; set; }
 
         public bool AnyKeyOrMouseButtonPressed => CurrentKeyboardState.Keys.Any() 
-            || CurrentKeyboardState.KeyModifiers.Any() 
             || AnyMouseButtonPressed;
 
         public bool AnyMouseButtonPressed => CurrentMouseState.LeftButton == ButtonState.Pressed

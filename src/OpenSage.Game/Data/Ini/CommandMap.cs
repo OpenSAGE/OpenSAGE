@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using LL.Input;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {

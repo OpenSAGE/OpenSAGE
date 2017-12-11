@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
+using LL.Input;
 using OpenSage.Data.Ini;
 using OpenSage.Input.Providers;
 
@@ -50,21 +51,6 @@ namespace OpenSage.Input
         public bool GetKeyDown(Key key)
         {
             return _state.CurrentKeyboardState.IsKeyDown(key);
-        }
-
-        public bool IsSystemKeyDown(SystemKey key)
-        {
-            switch (key)
-            {
-                case SystemKey.Alt:
-                    return _state.CurrentKeyboardState.KeyModifiers.Contains(KeyModifiers.Alt);
-                case SystemKey.Control:
-                    return _state.CurrentKeyboardState.KeyModifiers.Contains(KeyModifiers.Ctrl);
-                case SystemKey.Shift:
-                    return _state.CurrentKeyboardState.KeyModifiers.Contains(KeyModifiers.Shift);
-                default:
-                    throw new ArgumentOutOfRangeException("key");
-            }
         }
 
         public bool GetMouseButtonPressed(MouseButton button)

@@ -15,6 +15,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\LL.Graphics3D\LL.Graphics3D.csproj" />
+    <ProjectReference Include="..\LL.Input\LL.Input.csproj" />
   </ItemGroup>
 
   <ItemGroup>

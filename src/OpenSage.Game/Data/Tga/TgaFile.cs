@@ -64,5 +64,45 @@ namespace OpenSage.Data.Tga
                 return header.Width;
             }
         }
+
+        public static byte[] ConvertPixelsToRgba8(TgaFile tgaFile)
+        {
+            var pixelSize = tgaFile.Header.ImagePixelSize;
+            var data = tgaFile.Data;
+
+            switch (pixelSize)
+            {
+                case 24: // BGR
+                    {
+                        var result = new byte[data.Length / 3 * 4];
+                        var resultIndex = 0;
+                        for (var i = 0; i < data.Length; i += 3)
+                        {
+                            result[resultIndex++] = data[i + 2]; // R
+                            result[resultIndex++] = data[i + 1]; // G
+                            result[resultIndex++] = data[i + 0]; // B
+                            result[resultIndex++] = 255;         // A
+                        }
+                        return result;
+                    }
+
+                case 32: // BGRA
+                    {
+                        var result = new byte[data.Length];
+                        var resultIndex = 0;
+                        for (var i = 0; i < data.Length; i += 4)
+                        {
+                            result[resultIndex++] = data[i + 2]; // R
+                            result[resultIndex++] = data[i + 1]; // G
+                            result[resultIndex++] = data[i + 0]; // B
+                            result[resultIndex++] = data[i + 3]; // A
+                        }
+                        return result;
+                    }
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(pixelSize));
+            }
+        }
     }
 }

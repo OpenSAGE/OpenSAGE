@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using LL.Graphics3D;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Dds
@@ -10,6 +11,27 @@ namespace OpenSage.Data.Dds
         public DdsHeader Header { get; private set; }
         public DdsImageFormat ImageFormat { get; private set; }
         public DdsMipMap[] MipMaps { get; private set; }
+
+        public PixelFormat PixelFormat
+        {
+            get
+            {
+                switch (ImageFormat)
+                {
+                    case DdsImageFormat.Bc1:
+                        return PixelFormat.Bc1;
+
+                    case DdsImageFormat.Bc2:
+                        return PixelFormat.Bc2;
+
+                    case DdsImageFormat.Bc3:
+                        return PixelFormat.Bc3;
+
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
+        }
 
         public static DdsFile FromFileSystemEntry(FileSystemEntry entry)
         {

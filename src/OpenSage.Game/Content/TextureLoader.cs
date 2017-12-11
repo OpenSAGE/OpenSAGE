@@ -52,7 +52,7 @@ namespace OpenSage.Content
                     return applyDebugName(CreateTextureFromTga(
                         contentManager.GraphicsDevice,
                         tgaFile,
-                        generateMipMaps)); // TODO: Don't need to generate mipmaps for GUI textures.
+                        generateMipMaps));
 
                 default:
                     throw new InvalidOperationException();
@@ -86,28 +86,10 @@ namespace OpenSage.Content
 
             return Texture.CreateTexture2D(
                 graphicsDevice,
-                ToPixelFormat(ddsFile.ImageFormat),
+                ddsFile.PixelFormat,
                 width,
                 height,
                 mipMapData);
-        }
-
-        private static PixelFormat ToPixelFormat(DdsImageFormat imageFormat)
-        {
-            switch (imageFormat)
-            {
-                case DdsImageFormat.Bc1:
-                    return PixelFormat.Bc1;
-
-                case DdsImageFormat.Bc2:
-                    return PixelFormat.Bc2;
-
-                case DdsImageFormat.Bc3:
-                    return PixelFormat.Bc3;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(imageFormat));
-            }
         }
 
         public static TextureMipMapData[] GetData(TgaFile tgaFile, bool generateMipMaps)
@@ -117,9 +99,7 @@ namespace OpenSage.Content
                 throw new InvalidOperationException();
             }
 
-            var data = ConvertTgaPixels(
-                tgaFile.Header.ImagePixelSize,
-                tgaFile.Data);
+            var data = TgaFile.ConvertPixelsToRgba8(tgaFile);
 
             if (generateMipMaps)
             {
@@ -154,43 +134,6 @@ namespace OpenSage.Content
                 tgaFile.Header.Width,
                 tgaFile.Header.Height,
                 mipMapData);
-        }
-
-        private static byte[] ConvertTgaPixels(byte pixelSize, byte[] data)
-        {
-            switch (pixelSize)
-            {
-                case 24: // BGR
-                    {
-                        var result = new byte[data.Length / 3 * 4];
-                        var resultIndex = 0;
-                        for (var i = 0; i < data.Length; i += 3)
-                        {
-                            result[resultIndex++] = data[i + 2]; // R
-                            result[resultIndex++] = data[i + 1]; // G
-                            result[resultIndex++] = data[i + 0]; // B
-                            result[resultIndex++] = 255;         // A
-                        }
-                        return result;
-                    }
-
-                case 32: // BGRA
-                    {
-                        var result = new byte[data.Length];
-                        var resultIndex = 0;
-                        for (var i = 0; i < data.Length; i += 4)
-                        {
-                            result[resultIndex++] = data[i + 2]; // R
-                            result[resultIndex++] = data[i + 1]; // G
-                            result[resultIndex++] = data[i + 0]; // B
-                            result[resultIndex++] = data[i + 3]; // A
-                        }
-                        return result;
-                    }
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(pixelSize));
-            }
         }
     }
 

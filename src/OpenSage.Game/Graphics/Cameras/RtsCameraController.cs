@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using LL.Input;
 using OpenSage.Data.Ini;
 using OpenSage.Input;
 using OpenSage.Mathematics;
@@ -125,13 +126,13 @@ namespace OpenSage.Graphics.Cameras
                 var deltaX = input.GetAxis(MouseMovementAxis.XAxis);
                 var deltaY = input.GetAxis(MouseMovementAxis.YAxis);
 
-                bool isMovementTypeActive(MouseButton button)
+                bool isMovementTypeActive(Input.MouseButton button)
                 {
                     return input.GetMouseButtonDown(button)
                         && !input.GetMouseButtonPressed(button);
                 }
 
-                if (isMovementTypeActive(MouseButton.Left))
+                if (isMovementTypeActive(Input.MouseButton.Left))
                 {
                     RotateCamera(deltaX, deltaY);
                 }
