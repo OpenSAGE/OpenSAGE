@@ -37,26 +37,38 @@ namespace OpenSage.Gui
         {
             if (component is GuiComponent c)
             {
-                var viewport = Game.Scene.Camera.Viewport;
-                var size = new Size(viewport.Width, viewport.Height);
-                DoActionRecursive(
-                    c.RootWindow,
-                    x => x.CreateSizeDependentResources(Game.ContentManager, size));
+                CreateSizeDependentResources(c);
             }
 
             base.OnEntityComponentAdded(component);
         }
 
+        internal override void OnSwapChainChanged()
+        {
+            foreach (var guiComponent in _guiComponents)
+            {
+                CreateSizeDependentResources(guiComponent);
+            }
+        }
+
+        private void CreateSizeDependentResources(GuiComponent guiComponent)
+        {
+            var viewport = Game.Scene.Camera.Viewport;
+            var size = new Size(viewport.Width, viewport.Height);
+            DoActionRecursive(
+                guiComponent.RootWindow,
+                x => x.CreateSizeDependentResources(Game.ContentManager, size));
+        }
+
         internal void AddRenderItem(RenderList renderList, GuiComponent component)
         {
-            // TODO: Duplicated from SpriteComponent.
             renderList.AddGuiRenderItem(new RenderItem(
                 component,
                 _spriteBatch.Material,
                 _pipelineStateHandle,
                 (commandEncoder, effect, pipelineStateHandle, instanceData) =>
                 {
-                    _spriteBatch.Begin(commandEncoder, Game.Scene.Camera.Viewport.Bounds());
+                    _spriteBatch.Begin(commandEncoder, Game.Scene.Camera.Viewport.Bounds(), BlendStateDescription.AlphaBlend, SamplerStateDescription.LinearClamp);
 
                     DoActionRecursive(component.RootWindow, x =>
                     {

@@ -104,6 +104,8 @@ namespace OpenSage.Graphics.Rendering
             removeItems(Opaque);
             removeItems(Transparent);
 
+            removeItems(Gui);
+
             if (renderable.MeshBase != null)
             {
                 var instanceData = InstanceData[renderable.MeshBase];

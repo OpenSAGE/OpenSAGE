@@ -95,6 +95,10 @@ namespace OpenSage
             {
                 Scene.Camera.SetSwapChain(swapChain);
             }
+            foreach (var gameSystem in GameSystems)
+            {
+                gameSystem.OnSwapChainChanged();
+            }
         }
 
         public void ResetElapsedTime()

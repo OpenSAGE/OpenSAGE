@@ -49,6 +49,8 @@ namespace OpenSage
                 componentList.Remove(component);
         }
 
+        internal virtual void OnSwapChainChanged() { }
+
         private List<IList> FindComponentLists(Type componentType)
         {
             var result = new List<IList>();

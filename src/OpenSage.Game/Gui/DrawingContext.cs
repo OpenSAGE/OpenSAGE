@@ -13,9 +13,9 @@ namespace OpenSage.Gui
             _spriteBatch = spriteBatch;
         }
 
-        public void Begin(CommandEncoder commandEncoder, in Rectangle viewport)
+        public void Begin(CommandEncoder commandEncoder, in Rectangle viewport, in SamplerStateDescription samplerState)
         {
-            _spriteBatch.Begin(commandEncoder, in viewport);
+            _spriteBatch.Begin(commandEncoder, viewport, BlendStateDescription.Opaque, samplerState);
         }
 
         public void DrawText(string text)
@@ -23,12 +23,13 @@ namespace OpenSage.Gui
             // TODO
         }
 
-        public void DrawImage(Texture texture, in Rectangle destinationRect, in Rectangle? sourceRect = null)
+        public void DrawImage(Texture texture, in Rectangle destinationRect, in Rectangle? sourceRect = null, in ColorRgbaF? tintColor = null)
         {
             _spriteBatch.Draw(
                 texture, 
                 sourceRect ?? new Rectangle(0, 0, texture.Width, texture.Height), 
-                destinationRect);
+                destinationRect,
+                tintColor);
         }
 
         public void End()

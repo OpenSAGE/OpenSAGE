@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Eto.Forms;
 using OpenSage.Data;
 using OpenSage.DataViewer.Controls;
 using OpenSage.Gui;
@@ -6,37 +6,69 @@ using OpenSage.Gui.Elements;
 
 namespace OpenSage.DataViewer.UI.Viewers
 {
-    public sealed class WndView : GameControl
+    public sealed class WndView : Splitter
     {
-        private readonly FileSystemEntry _entry;
-
         public WndView(FileSystemEntry entry, Game game)
         {
-            Game = game;
+            var guiComponent = new GuiComponent
+            {
+                RootWindow = game.ContentManager.Load<UIElement>(entry.FilePath)
+            };
 
-            _entry = entry;
+            var scene = new Scene();
+
+            var entity = new Entity();
+            entity.Components.Add(guiComponent);
+            scene.Entities.Add(entity);
+
+            game.Scene = scene;
+
+            var treeItem = new TreeItem();
+            treeItem.Children.Add(CreateTreeItemRecursive(guiComponent.RootWindow));
+
+            var treeView = new TreeView
+            {
+                Width = 300,
+                DataStore = treeItem
+            };
+
+            UIElement selectedElement = null;
+
+            treeView.SelectionChanged += (sender, e) =>
+            {
+                if (selectedElement != null)
+                {
+                    selectedElement.Highlighted = false;
+                    selectedElement = null;
+                }
+
+                selectedElement = (UIElement) ((TreeItem) treeView.SelectedItem).Tag;
+                selectedElement.Highlighted = true;
+            };
+
+            Panel1 = treeView;
+
+            Panel2 = new GameControl
+            {
+                Game = game
+            };
         }
 
-        protected override void OnSizeChanged(EventArgs e)
+        private static TreeItem CreateTreeItemRecursive(UIElement element)
         {
-            // TODO
-            if (Width > 0 && Height > 0)
+            var result = new TreeItem
             {
-                var guiComponent = new GuiComponent
-                {
-                    RootWindow = Game.ContentManager.Load<UIElement>(_entry.FilePath)
-                };
+                Text = element.Name,
+                Expanded = true,
+                Tag = element
+            };
 
-                var scene = new Scene();
-
-                var entity = new Entity();
-                entity.Components.Add(guiComponent);
-                scene.Entities.Add(entity);
-
-                Game.Scene = scene;
+            foreach (var childElement in element.Children)
+            {
+                result.Children.Add(CreateTreeItemRecursive(childElement));
             }
 
-            base.OnSizeChanged(e);
+            return result;
         }
     }
 }

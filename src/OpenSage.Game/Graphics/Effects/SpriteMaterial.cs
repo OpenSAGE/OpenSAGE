@@ -8,7 +8,7 @@ namespace OpenSage.Graphics.Effects
         public SpriteMaterial(Effect effect)
             : base(effect)
         {
-            SetProperty("Sampler", effect.GraphicsDevice.SamplerLinearWrap);
+            SetProperty("Sampler", effect.GraphicsDevice.SamplerLinearClamp);
         }
 
         public void SetMaterialConstants(Buffer<MaterialConstants> buffer)
@@ -24,7 +24,7 @@ namespace OpenSage.Graphics.Effects
         [StructLayout(LayoutKind.Sequential)]
         public struct MaterialConstants
         {
-            public uint MipMapLevel;
+            public ColorRgbaF TintColor;
         }
     }
 }

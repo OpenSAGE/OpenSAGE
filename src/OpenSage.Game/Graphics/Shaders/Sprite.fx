@@ -19,13 +19,13 @@ SamplerState Sampler : register(s0);
 
 cbuffer MaterialConstants : register(b2)
 {
-    uint MipMapLevel;
+    float4 TintColor;
 };
 
 float4 PS(PSInput input) : SV_TARGET
 {
-    return Texture.SampleLevel(
+    return TintColor * Texture.SampleLevel(
         Sampler,
         input.TexCoords,
-        MipMapLevel);
+        0);
 }

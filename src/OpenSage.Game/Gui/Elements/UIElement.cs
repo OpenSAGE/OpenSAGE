@@ -18,6 +18,10 @@ namespace OpenSage.Gui.Elements
 
         private Texture _texture;
         private RenderTarget _renderTarget;
+
+        private Texture _imageTexture;
+
+        private SpriteBatch _spriteBatch;
         private DrawingContext _drawingContext;
 
         private ColorRgbaF? _backgroundColor;
@@ -42,6 +46,17 @@ namespace OpenSage.Gui.Elements
 
         public UIElementCollection Children { get; } = new UIElementCollection();
 
+        private bool _highlighted;
+        public bool Highlighted
+        {
+            get => _highlighted;
+            set
+            {
+                _highlighted = value;
+                _needsRender = true;
+            }
+        }
+
         public void Initialize(WndWindow wndWindow, ContentManager contentManager)
         {
             if (_initialized)
@@ -52,7 +67,8 @@ namespace OpenSage.Gui.Elements
             _wndWindow = wndWindow;
             _needsRender = true;
 
-            _drawingContext = new DrawingContext(AddDisposable(new SpriteBatch(contentManager)));
+            _spriteBatch = AddDisposable(new SpriteBatch(contentManager));
+            _drawingContext = new DrawingContext(_spriteBatch);
 
             _text = contentManager.TranslationManager.Lookup(wndWindow.Text);
 
@@ -69,6 +85,11 @@ namespace OpenSage.Gui.Elements
             if (wndWindow.Status.HasFlag(WndWindowStatusFlags.Image))
             {
                 _image = LoadImage(wndWindow, contentManager);
+
+                if (_image != null)
+                {
+                    _imageTexture = AddDisposable(_image.RenderToTexture(contentManager.GraphicsDevice, _spriteBatch));
+                }
             }
 
             Hidden = wndWindow.Status.HasFlag(WndWindowStatusFlags.Hidden);
@@ -95,6 +116,8 @@ namespace OpenSage.Gui.Elements
             _renderTarget = AddDisposable(new RenderTarget(
                 contentManager.GraphicsDevice,
                 _texture));
+
+            _needsRender = true;
         }
 
         private static Rectangle CalculateFrame(in WndScreenRect wndScreenRect, in Size viewportSize)
@@ -131,30 +154,32 @@ namespace OpenSage.Gui.Elements
 
         public void Render(GraphicsDevice graphicsDevice)
         {
-            //if (!_needsRender)
-            //{
-            //    return;
-            //}
+            if (!_needsRender)
+            {
+                return;
+            }
 
             var commandBuffer = graphicsDevice.CommandQueue.GetCommandBuffer();
 
             var renderPassDescriptor = new RenderPassDescriptor();
 
+            var clearColour = _backgroundColor.GetValueOrDefault(new ColorRgbaF(0, 0, 0, 0));
+
             renderPassDescriptor.SetRenderTargetDescriptor(
                 _renderTarget,
-                _backgroundColor != null ? LoadAction.Clear : LoadAction.DontCare,
-                _backgroundColor.GetValueOrDefault());
+                LoadAction.Clear,
+                clearColour);
 
             var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
 
             var viewport = new Rectangle(0, 0, Frame.Width, Frame.Height);
-            _drawingContext.Begin(commandEncoder, viewport);
+            _drawingContext.Begin(commandEncoder, viewport, SamplerStateDescription.LinearClamp);
 
             commandEncoder.SetViewport(new Viewport(0, 0, Frame.Width, Frame.Height));
 
-            if (_image != null)
+            if (_imageTexture != null)
             {
-                _image.Render(_drawingContext, viewport);
+                _drawingContext.DrawImage(_imageTexture, viewport);
             }
 
             OnRender(_drawingContext);
@@ -178,7 +203,7 @@ namespace OpenSage.Gui.Elements
                     {
                         var image = LoadImage(wndWindow, 0, contentManager);
                         return image != null 
-                            ? new StretchableImage(image)
+                            ? StretchableImage.CreateNormal(wndWindow.ScreenRect.ToRectangle().Width, image)
                             : null;
                     }
 
@@ -187,9 +212,14 @@ namespace OpenSage.Gui.Elements
                         var imageLeft = LoadImage(wndWindow, 0, contentManager);
                         var imageMiddle = LoadImage(wndWindow, 5, contentManager);
                         var imageRight = LoadImage(wndWindow, 6, contentManager);
-                        return imageLeft != null
-                            ? new StretchableImage(imageLeft, imageMiddle, imageRight)
-                            : null;
+
+                        if (imageLeft != null && imageMiddle != null && imageRight != null)
+                            return StretchableImage.CreateStretchable(wndWindow.ScreenRect.ToRectangle().Width, imageLeft, imageMiddle, imageRight);
+
+                        if (imageLeft != null)
+                            return StretchableImage.CreateNormal(wndWindow.ScreenRect.ToRectangle().Width, imageLeft);
+
+                        return null;
                     }
 
                 default:

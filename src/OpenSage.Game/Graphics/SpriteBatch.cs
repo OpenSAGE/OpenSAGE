@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using LL.Graphics3D;
 using OpenSage.Content;
@@ -13,6 +14,8 @@ namespace OpenSage.Graphics
         private readonly ConstantBuffer<SpriteMaterial.MaterialConstants> _materialConstantsBuffer;
         private readonly SpriteMaterial _material;
 
+        private readonly Dictionary<SamplerStateDescription, SamplerState> _samplerStates;
+
         private CommandEncoder _commandEncoder;
         private Rectangle _viewport;
 
@@ -25,23 +28,50 @@ namespace OpenSage.Graphics
                 6,
                 BufferBindFlags.VertexBuffer));
 
-            _materialConstantsBuffer = AddDisposable(new ConstantBuffer<SpriteMaterial.MaterialConstants>(contentManager.GraphicsDevice));
             _material = new SpriteMaterial(contentManager.EffectLibrary.Sprite);
+
+            _materialConstantsBuffer = AddDisposable(new ConstantBuffer<SpriteMaterial.MaterialConstants>(contentManager.GraphicsDevice));
             _material.SetMaterialConstants(_materialConstantsBuffer.Buffer);
+
+            _samplerStates = new Dictionary<SamplerStateDescription, SamplerState>();
         }
 
-        public void Begin(CommandEncoder commandEncoder, in Rectangle viewport)
+        public void Begin(
+            CommandEncoder commandEncoder, 
+            in Rectangle viewport, 
+            in BlendStateDescription blendState,
+            in SamplerStateDescription samplerState)
         {
             _commandEncoder = commandEncoder;
             _viewport = viewport;
+
+            _material.Effect.Begin(_commandEncoder);
+
+            if (!_samplerStates.TryGetValue(samplerState, out var s))
+            {
+                _samplerStates[samplerState] = s = AddDisposable(new SamplerState(_vertexBuffer.GraphicsDevice, samplerState));
+            }
+            _material.SetProperty("Sampler", s);
+
+            // TODO: Clean this up.
+            var rasterizerState = RasterizerStateDescription.CullBackSolid;
+            rasterizerState.IsFrontCounterClockwise = false;
+
+            var pipelineStateHandle = new EffectPipelineState(
+                rasterizerState,
+                DepthStencilStateDescription.None,
+                blendState)
+                .GetHandle();
+
+            _material.Effect.SetPipelineState(pipelineStateHandle);
         }
 
-        public void Draw(Texture texture, in Rectangle sourceRect, in Rectangle destinationRect, uint mipMapLevel = 0)
+        public void Draw(Texture texture, in Rectangle sourceRect, in Rectangle destinationRect, ColorRgbaF? tintColor = null)
         {
-            var uvL = sourceRect.X / (float) texture.Width;
-            var uvT = sourceRect.Y / (float) texture.Height;
-            var uvR = (sourceRect.X + sourceRect.Width) / (float) texture.Width;
-            var uvB = (sourceRect.Y + sourceRect.Height) / (float) texture.Height;
+            var uvL = sourceRect.X / (float) (texture.Width);
+            var uvT = sourceRect.Y / (float) (texture.Height);
+            var uvR = (sourceRect.X + sourceRect.Width) / (float) (texture.Width);
+            var uvB = (sourceRect.Y + sourceRect.Height) / (float) (texture.Height);
 
             var left = (destinationRect.X / (float) _viewport.Width) * 2 - 1;
             var top = (destinationRect.Y / (float) _viewport.Height) * 2 - 1;
@@ -61,10 +91,10 @@ namespace OpenSage.Graphics
 
             _commandEncoder.SetVertexBuffer(0, _vertexBuffer);
 
-            _materialConstantsBuffer.Value.MipMapLevel = mipMapLevel;
-            _materialConstantsBuffer.Update();
-
             _material.SetTexture(texture);
+
+            _materialConstantsBuffer.Value.TintColor = tintColor ?? new ColorRgbaF(1, 1, 1, 1);
+            _materialConstantsBuffer.Update();
 
             _material.Apply();
 

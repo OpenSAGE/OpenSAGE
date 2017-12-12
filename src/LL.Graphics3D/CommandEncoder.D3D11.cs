@@ -21,7 +21,10 @@ namespace LL.Graphics3D
             _renderPassDescriptor.OnOpenedCommandList(_context);
         }
 
-        private void PlatformClose() { }
+        private void PlatformClose()
+        {
+            _renderPassDescriptor.OnClosedCommandList(_context);
+        }
 
         private void PlatformDraw(
             PrimitiveType primitiveType,

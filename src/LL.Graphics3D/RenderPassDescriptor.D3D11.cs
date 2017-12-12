@@ -69,5 +69,12 @@ namespace LL.Graphics3D
                     0);
             }
         }
+
+        internal void OnClosedCommandList(DeviceContext context)
+        {
+            context.OutputMerger.SetRenderTargets(
+                (DepthStencilView) null, 
+                (RenderTargetView) null);
+        }
     }
 }
