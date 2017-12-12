@@ -3,11 +3,17 @@ using LL.Graphics3D;
 
 namespace OpenSage.Content
 {
-    internal static class MipMapUtility
+    public static class MipMapUtility
     {
         public static int CalculateMipMapCount(int width, int height)
         {
             return 1 + (int) Math.Floor(Math.Log(Math.Max(width, height), 2));
+        }
+
+        public static int CalculateMipMapSize(int mipLevel, int baseSize)
+        {
+            baseSize = baseSize >> mipLevel;
+            return baseSize > 0 ? baseSize : 1;
         }
 
         public static TextureMipMapData[] GenerateMipMaps(

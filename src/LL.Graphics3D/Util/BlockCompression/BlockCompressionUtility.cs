@@ -47,9 +47,9 @@ namespace LL.Graphics3D.Util.BlockCompression
             {
                 bc.DecompressBlock(data, i, result, resultX, resultY, decompressedRowPitch);
 
-                resultX += pixelsPerBlockSide;
+                resultX += pixelsPerBlockSide * ColorRgba.SizeInBytes;
 
-                if (i > 0 && resultX % rowPitch == 0)
+                if (i > 0 && (resultX % decompressedRowPitch) == 0)
                 {
                     resultX = 0;
                     resultY += pixelsPerBlockSide;
