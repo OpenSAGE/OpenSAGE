@@ -1,81 +1,89 @@
 ﻿using System;
 using System.Windows.Forms;
+using LL.Graphics3D.Hosting;
 using Swf = System.Windows.Forms;
 
 namespace LL.Input
 {
-    partial class InputMapper
+    public class InputView : GraphicsView, IInputView
     {
-        private readonly Control _form;
+        public event EventHandler<KeyEventArgs> InputKeyDown;
+        public event EventHandler<KeyEventArgs> InputKeyUp;
+        public event EventHandler InputMouseEnter;
+        public event EventHandler InputMouseExit;
+        public event EventHandler<MouseEventArgs> InputMouseDown;
+        public event EventHandler<MouseEventArgs> InputMouseMove;
+        public event EventHandler<MouseEventArgs> InputMouseUp;
+        public event EventHandler<MouseEventArgs> InputMouseWheel;
 
-        public InputMapper(Control form)
-        {
-            _form = form;
-
-            _form.PreviewKeyDown += HandlePreviewKeyDown;
-            _form.KeyDown += HandleKeyDown;
-            _form.KeyUp += HandleKeyUp;
-
-            _form.MouseEnter += HandleMouseEnter;
-            _form.MouseLeave += HandleMouseLeave;
-
-            _form.MouseDown += HandleMouseDown;
-            _form.MouseMove += HandleMouseMove;
-            _form.MouseUp += HandleMouseUp;
-
-            _form.MouseWheel += HandleMouseWheel;
-        }
-
-        private void HandlePreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
         {
             // Make sure we get special keys (arrow keys, etc.)
             e.IsInputKey = true;
+
+            base.OnPreviewKeyDown(e);
         }
 
-        private void HandleKeyDown(object sender, Swf.KeyEventArgs e)
+        protected override void OnKeyDown(Swf.KeyEventArgs e)
         {
             e.Handled = true;
-            var key = e.KeyCode;
 
-            KeyDown?.Invoke(sender, CreateKeyEventArgs(e));
+            InputKeyDown?.Invoke(this, CreateKeyEventArgs(e));
+
+            base.OnKeyDown(e);
         }
 
-        private void HandleKeyUp(object sender, Swf.KeyEventArgs e)
+        protected override void OnKeyUp(Swf.KeyEventArgs e)
         {
             e.Handled = true;
-            KeyUp?.Invoke(sender, CreateKeyEventArgs(e));
+
+            InputKeyUp?.Invoke(this, CreateKeyEventArgs(e));
+
+            base.OnKeyUp(e);
         }
 
-        private void HandleMouseEnter(object sender, EventArgs e)
+        protected override void OnMouseEnter(EventArgs e)
         {
-            MouseEnter?.Invoke(sender, EventArgs.Empty);
+            InputMouseEnter?.Invoke(this, EventArgs.Empty);
+
+            base.OnMouseEnter(e);
         }
 
-        private void HandleMouseLeave(object sender, EventArgs e)
+        protected override void OnMouseLeave(EventArgs e)
         {
-            MouseExit?.Invoke(sender, EventArgs.Empty);
+            InputMouseExit?.Invoke(this, EventArgs.Empty);
+
+            base.OnMouseLeave(e);
         }
 
-        private void HandleMouseDown(object sender, Swf.MouseEventArgs e)
+        protected override void OnMouseDown(Swf.MouseEventArgs e)
         {
-            _form.Focus();
+            Focus();
 
-            MouseDown?.Invoke(sender, CreateMouseEventArgs(e));
+            InputMouseDown?.Invoke(this, CreateMouseEventArgs(e));
+
+            base.OnMouseDown(e);
         }
 
-        private void HandleMouseMove(object sender, Swf.MouseEventArgs e)
+        protected override void OnMouseMove(Swf.MouseEventArgs e)
         {
-            MouseMove?.Invoke(sender, CreateMouseEventArgs(e));
+            InputMouseMove?.Invoke(this, CreateMouseEventArgs(e));
+
+            base.OnMouseMove(e);
         }
 
-        private void HandleMouseUp(object sender, Swf.MouseEventArgs e)
+        protected override void OnMouseUp(Swf.MouseEventArgs e)
         {
-            MouseUp?.Invoke(sender, CreateMouseEventArgs(e));
+            InputMouseUp?.Invoke(this, CreateMouseEventArgs(e));
+
+            base.OnMouseUp(e);
         }
 
-        private void HandleMouseWheel(object sender, Swf.MouseEventArgs e)
+        protected override void OnMouseWheel(Swf.MouseEventArgs e)
         {
-            MouseWheel?.Invoke(sender, CreateMouseEventArgs(e));
+            InputMouseWheel?.Invoke(this, CreateMouseEventArgs(e));
+
+            base.OnMouseWheel(e);
         }
 
         private static KeyEventArgs CreateKeyEventArgs(Swf.KeyEventArgs e)
@@ -277,22 +285,6 @@ namespace LL.Input
                 default:
                     return Key.None;
             }
-        }
-
-        private void PlatformDispose()
-        {
-            _form.MouseWheel -= HandleMouseWheel;
-
-            _form.MouseUp -= HandleMouseUp;
-            _form.MouseMove -= HandleMouseMove;
-            _form.MouseDown -= HandleMouseDown;
-
-            _form.MouseEnter -= HandleMouseEnter;
-            _form.MouseLeave -= HandleMouseLeave;
-
-            _form.KeyUp -= HandleKeyUp;
-            _form.KeyDown -= HandleKeyDown;
-            _form.PreviewKeyDown -= HandlePreviewKeyDown;
         }
     }
 }

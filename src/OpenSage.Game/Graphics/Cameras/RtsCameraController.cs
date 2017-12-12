@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Numerics;
 using LL.Input;
-using OpenSage.Data.Ini;
 using OpenSage.Input;
 using OpenSage.Mathematics;
 
@@ -18,8 +17,6 @@ namespace OpenSage.Graphics.Cameras
         private float _defaultHeight;
         private float _pitchAngle;
 
-        private bool _needsCameraUpdate = true;
-
         private CameraAnimation _animation;
 
         public bool IsPlayerInputEnabled { get; set; } = true;
@@ -30,19 +27,9 @@ namespace OpenSage.Graphics.Cameras
         public void SetLookDirection(Vector3 lookDirection)
         {
             _lookDirection = Vector3.Normalize(new Vector3(lookDirection.X, lookDirection.Y, 0));
-            _needsCameraUpdate = true;
         }
 
-        private float _pitch = 1;
-        public float Pitch
-        {
-            get { return _pitch; }
-            set
-            {
-                _pitch = value;
-                _needsCameraUpdate = true;
-            }
-        }
+        public float Pitch { get; set; } = 1;
 
         private float _zoom = 1;
         public float Zoom
@@ -55,8 +42,6 @@ namespace OpenSage.Graphics.Cameras
                 _zoom = value;
                 if (_zoom < minZoom)
                     _zoom = minZoom;
-
-                _needsCameraUpdate = true;
             }
         }
 
@@ -64,11 +49,7 @@ namespace OpenSage.Graphics.Cameras
         public Vector3 TerrainPosition
         {
             get { return _terrainPosition; }
-            set
-            {
-                _terrainPosition = new Vector3(value.X, value.Y, 0);
-                _needsCameraUpdate = true;
-            }
+            set { _terrainPosition = new Vector3(value.X, value.Y, 0); }
         }
 
         public CameraAnimation StartAnimation(
@@ -85,7 +66,7 @@ namespace OpenSage.Graphics.Cameras
                  _lookDirection,
                  startTime,
                  duration,
-                 _pitch,
+                 Pitch,
                  _zoom);
         }
 
@@ -159,7 +140,7 @@ namespace OpenSage.Graphics.Cameras
             var pitch = MathUtility.Lerp(
                 0,
                 -_pitchAngle,
-                _pitch);
+                Pitch);
 
             var cameraHeight = MathUtility.Lerp(
                 0,
@@ -218,12 +199,12 @@ namespace OpenSage.Graphics.Cameras
             {
                 var maxPitch = 90.0f / _pitchAngle;
 
-                var newPitch = _pitch + deltaY * RotationSpeed;
+                var newPitch = Pitch + deltaY * RotationSpeed;
                 if (newPitch < 0)
                     newPitch = 0;
                 else if (newPitch > maxPitch)
                     newPitch = maxPitch;
-                _pitch = newPitch;
+                Pitch = newPitch;
             }
         }
 

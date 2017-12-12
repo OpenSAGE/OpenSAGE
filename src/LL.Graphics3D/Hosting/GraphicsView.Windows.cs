@@ -4,7 +4,7 @@ using SharpDX.Windows;
 
 namespace LL.Graphics3D.Hosting
 {
-    public sealed class GraphicsView : RenderControl
+    public class GraphicsView : RenderControl
     {
         public event EventHandler<GraphicsEventArgs> GraphicsInitialize;
         public event EventHandler<GraphicsEventArgs> GraphicsDraw;

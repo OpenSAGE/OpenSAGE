@@ -14,14 +14,14 @@ namespace OpenSage.DataViewer.Windows.Controls
     {
         public GameControlHandler()
         {
-            var graphicsView = new GraphicsView
+            var graphicsView = new InputView
             {
                 GraphicsDevice = DataViewerApplication.Instance.GraphicsDevice
             };
 
             graphicsView.GraphicsInitialize += (sender, e) =>
             {
-                Game.Input.InputProvider = new InputProvider(new InputMapper(graphicsView));
+                Game.Input.InputProvider = new InputProvider(graphicsView);
                 Game.SetSwapChain(graphicsView.SwapChain);
 
                 Widget.OnGraphicsInitialized();

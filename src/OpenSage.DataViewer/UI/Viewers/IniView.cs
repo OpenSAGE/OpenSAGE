@@ -28,11 +28,13 @@ namespace OpenSage.DataViewer.UI.Viewers
                 subObjects.Add(new IniEntry(particleSystem.Name, () => new ParticleSystemView(game, particleSystem)));
             }
 
-            _listBox = new ListBox();
-            _listBox.Width = 200;
-            _listBox.ItemTextBinding = Binding.Property((IniEntry v) => v.Name);
+            _listBox = new ListBox
+            {
+                Width = 200,
+                ItemTextBinding = Binding.Property((IniEntry v) => v.Name),
+                DataStore = subObjects
+            };
             _listBox.SelectedValueChanged += OnSelectedValueChanged;
-            _listBox.DataStore = subObjects;
             Panel1 = _listBox;
 
             Panel2 = new Panel();

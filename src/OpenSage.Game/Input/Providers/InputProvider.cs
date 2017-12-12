@@ -6,7 +6,7 @@ namespace OpenSage.Input.Providers
 {
     public sealed class InputProvider : IInputProvider, IDisposable
     {
-        private readonly InputMapper _inputMapper;
+        private readonly IInputView _inputView;
 
         private readonly List<Key> _pressedKeys;
 
@@ -14,42 +14,50 @@ namespace OpenSage.Input.Providers
         private MouseState _currentState;
         private bool _mouseEventSinceLastUpdate;
 
-        public InputProvider(InputMapper inputMapper)
+        public InputProvider(IInputView inputView)
         {
-            _inputMapper = inputMapper;
+            _inputView = inputView;
 
             _pressedKeys = new List<Key>();
 
-            _inputMapper.KeyDown += HandleKeyDown;
-            _inputMapper.KeyUp += HandleKeyUp;
+            _inputView.InputKeyDown += HandleKeyDown;
+            _inputView.InputKeyUp += HandleKeyUp;
 
-            _inputMapper.MouseEnter += OnMouseEnter;
+            _inputView.InputMouseEnter += OnMouseEnter;
 
-            _inputMapper.MouseDown += HandleMouseDown;
-            _inputMapper.MouseMove += HandleMouseMove;
-            _inputMapper.MouseUp += HandleMouseUp;
+            _inputView.InputMouseDown += HandleMouseDown;
+            _inputView.InputMouseMove += HandleMouseMove;
+            _inputView.InputMouseUp += HandleMouseUp;
 
-            _inputMapper.MouseWheel += HandleMouseWheel;
+            _inputView.InputMouseWheel += HandleMouseWheel;
         }
 
         private void HandleKeyDown(object sender, KeyEventArgs e)
         {
             var key = e.Key;
             lock (_pressedKeys)
+            {
                 if (!_pressedKeys.Contains(key))
+                {
                     _pressedKeys.Add(key);
+                }
+            }
         }
 
         private void HandleKeyUp(object sender, KeyEventArgs e)
         {
             lock (_pressedKeys)
+            {
                 _pressedKeys.Remove(e.Key);
+            }
         }
 
         private KeyboardState GetKeyboardState()
         {
             lock (_pressedKeys)
+            {
                 return new KeyboardState(_pressedKeys);
+            }
         }
 
         private void HandleMouseDown(object sender, MouseEventArgs e)
@@ -143,18 +151,16 @@ namespace OpenSage.Input.Providers
 
         public void Dispose()
         {
-            _inputMapper.MouseWheel -= HandleMouseWheel;
+            _inputView.InputMouseWheel -= HandleMouseWheel;
 
-            _inputMapper.MouseUp -= HandleMouseUp;
-            _inputMapper.MouseMove -= HandleMouseMove;
-            _inputMapper.MouseDown -= HandleMouseDown;
+            _inputView.InputMouseUp -= HandleMouseUp;
+            _inputView.InputMouseMove -= HandleMouseMove;
+            _inputView.InputMouseDown -= HandleMouseDown;
 
-            _inputMapper.MouseEnter -= OnMouseEnter;
+            _inputView.InputMouseEnter -= OnMouseEnter;
 
-            _inputMapper.KeyUp -= HandleKeyUp;
-            _inputMapper.KeyDown -= HandleKeyDown;
-
-            _inputMapper.Dispose();
+            _inputView.InputKeyUp -= HandleKeyUp;
+            _inputView.InputKeyDown -= HandleKeyDown;
         }
     }
 }
