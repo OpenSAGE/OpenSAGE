@@ -1,13 +1,22 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Numerics;
 using Eto.Forms;
 using OpenSage.Data;
+using OpenSage.Data.W3d;
 using OpenSage.DataViewer.Controls;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Animation;
 
 namespace OpenSage.DataViewer.UI.Viewers
 {
     public sealed class W3dView : Splitter
     {
+        private readonly ListBox _listBox;
+        private W3dItem _selectedItem;
+
         public W3dView(FileSystemEntry entry, Game game)
         {
             var scene = new Scene();
@@ -22,80 +31,117 @@ namespace OpenSage.DataViewer.UI.Viewers
 
             game.Scene = scene;
 
-            //_animations = new List<AnimationComponent>();
-            //_animations.AddRange(_modelEntity.Components.OfType<AnimationComponent>());
+            var animations = new List<AnimationComponent>();
+            animations.AddRange(modelEntity.Components.OfType<AnimationComponent>());
 
-            //// If this is a skin file, load "external" animations.
-            //_externalAnimations = new List<AnimationComponent>();
-            //if (_w3dFile.HLod != null && _w3dFile.HLod.Header.Name.EndsWith("_SKN", System.StringComparison.OrdinalIgnoreCase))
-            //{
-            //    var namePrefix = _w3dFile.HLod.Header.Name.Substring(0, _w3dFile.HLod.Header.Name.LastIndexOf('_') + 1);
-            //    var parentFolder = Path.GetDirectoryName(_w3dFile.FilePath);
-            //    var pathPrefix = Path.Combine(parentFolder, namePrefix);
-            //    foreach (var animationFileEntry in File.FileSystem.GetFiles(parentFolder))
-            //    {
-            //        if (!animationFileEntry.FilePath.StartsWith(pathPrefix, System.StringComparison.OrdinalIgnoreCase))
-            //        {
-            //            continue;
-            //        }
+            var w3dFile = W3dFile.FromFileSystemEntry(entry);
 
-            //        var animationModel = game.ContentManager.Load<Model>(animationFileEntry.FilePath);
-            //        foreach (var animation in animationModel.Animations)
-            //        {
-            //            var externalAnimationComponent = new AnimationComponent
-            //            {
-            //                Animation = animation
-            //            };
-            //            _modelEntity.Components.Add(externalAnimationComponent);
-            //            _externalAnimations.Add(externalAnimationComponent);
-            //        }
-            //    }
-            //}
+            // If this is a skin file, load "external" animations.
+            var externalAnimations = new List<AnimationComponent>();
+            if (w3dFile.HLod != null && w3dFile.HLod.Header.Name.EndsWith("_SKN", StringComparison.OrdinalIgnoreCase))
+            {
+                var namePrefix = w3dFile.HLod.Header.Name.Substring(0, w3dFile.HLod.Header.Name.LastIndexOf('_') + 1);
+                var parentFolder = Path.GetDirectoryName(w3dFile.FilePath);
+                var pathPrefix = Path.Combine(parentFolder, namePrefix);
+                foreach (var animationFileEntry in entry.FileSystem.GetFiles(parentFolder))
+                {
+                    if (!animationFileEntry.FilePath.StartsWith(pathPrefix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
 
-            //SubObjects.Add(new ModelViewModel());
+                    var animationModel = game.ContentManager.Load<Model>(animationFileEntry.FilePath);
+                    foreach (var animation in animationModel.Animations)
+                    {
+                        var externalAnimationComponent = new AnimationComponent
+                        {
+                            Animation = animation
+                        };
+                        modelEntity.Components.Add(externalAnimationComponent);
+                        externalAnimations.Add(externalAnimationComponent);
+                    }
+                }
+            }
 
-            //foreach (var animation in _animations)
-            //{
-            //    SubObjects.Add(new AnimationViewModel(animation, "Animations"));
-            //}
+            var subObjects = new List<W3dItem>();
 
-            //foreach (var animation in _externalAnimations)
-            //{
-            //    SubObjects.Add(new AnimationViewModel(animation, "External Animations"));
-            //}
+            subObjects.Add(new W3dModelItem());
 
-            //SelectedSubObject = SubObjects[0];
+            foreach (var animation in animations)
+            {
+                subObjects.Add(new W3dAnimationItem(animation, "Animation"));
+            }
+
+            foreach (var animation in externalAnimations)
+            {
+                subObjects.Add(new W3dAnimationItem(animation, "External Animation"));
+            }
+
+            _listBox = new ListBox();
+            _listBox.Width = 250;
+            _listBox.ItemTextBinding = Binding.Property((W3dItem v) => v.Name);
+            _listBox.SelectedValueChanged += OnSelectedValueChanged;
+            _listBox.DataStore = subObjects;
+            Panel1 = _listBox;
+
+            _listBox.SelectedIndex = 0;
 
             Panel2 = new GameControl
             {
                 Game = game
             };
         }
+
+        private void OnSelectedValueChanged(object sender, EventArgs e)
+        {
+            if (_selectedItem != null)
+            {
+                _selectedItem.Deactivate();
+                _selectedItem = null;
+            }
+
+            if (_listBox.SelectedValue != null)
+            {
+                _selectedItem = (W3dItem) _listBox.SelectedValue;
+                _selectedItem.Activate();
+            }
+        }
+
+        private abstract class W3dItem
+        {
+            public abstract string Name { get; }
+
+            public virtual void Activate() { }
+            public virtual void Deactivate() { }
+        }
+
+        private sealed class W3dModelItem : W3dItem
+        {
+            public override string Name { get; } = "Model";
+        }
+
+        private sealed class W3dAnimationItem : W3dItem
+        {
+            private readonly AnimationComponent _animationComponent;
+
+            public override string Name { get; }
+
+            public W3dAnimationItem(AnimationComponent animation, string groupName)
+            {
+                _animationComponent = animation;
+
+                Name = $"{groupName} - {animation.Animation.Name}";
+            }
+
+            public override void Activate()
+            {
+                _animationComponent.Play();
+            }
+
+            public override void Deactivate()
+            {
+                _animationComponent.Stop();
+            }
+        }
     }
-
-    //public sealed class AnimationViewModel : W3dItemViewModelBase
-    //{
-    //    private readonly AnimationComponent _animationComponent;
-
-    //    public override string GroupName { get; }
-
-    //    public override string Name => _animationComponent.Animation.Name;
-
-    //    public AnimationViewModel(AnimationComponent animation, string groupName)
-    //    {
-    //        _animationComponent = animation;
-
-    //        GroupName = groupName;
-    //    }
-
-    //    public override void Activate()
-    //    {
-    //        _animationComponent.Play();
-    //    }
-
-    //    public override void Deactivate()
-    //    {
-    //        _animationComponent.Stop();
-    //    }
-    //}
 }
