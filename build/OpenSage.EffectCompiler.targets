@@ -22,10 +22,15 @@
           BeforeTargets="BeforeBuild"
           Inputs="@(EffectShader)"
           Outputs="@(EffectShader->'%(RelativeDir)%(Filename).fxo');">
+    <PropertyGroup>
+      <IsDebug>false</IsDebug>
+      <IsDebug Condition=" '$(Configuration)' == 'Debug' ">true</IsDebug>
+    </PropertyGroup>
     <EffectCompilerTask RootNamespace="$(RootNamespace)" 
                         ProjectDirectory="$(ProjectDir)"
                         IntermediateDirectory="$(IntermediateOutputPath)" 
-                        Files="@(EffectShader)">
+                        Files="@(EffectShader)"
+                        Debug="$(IsDebug)">
       <Output TaskParameter="CompileFiles" ItemName="EffectCompile" />
     </EffectCompilerTask>
 

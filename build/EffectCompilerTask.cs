@@ -129,13 +129,19 @@ namespace OpenSage.EffectCompiler
             string macro, 
             string outputPath)
         {
+            var arguments = string.Format("{0} /nologo /T {1} /E {2} /D {3} /Fo {4}", item.ItemSpec, shaderProfile, entryPoint, macro, outputPath);
+            if (Debug)
+            {
+                arguments += " /Zi /Od";
+            }
+
             var processStartInfo = new ProcessStartInfo
             {
                 UseShellExecute = false,
                 RedirectStandardError = true,                
                 RedirectStandardOutput = true,
                 FileName = fxcPath,
-                Arguments = string.Format("{0} /nologo /T {1} /E {2} /D {3} /Fo {4}", item.ItemSpec, shaderProfile, entryPoint, macro, outputPath),
+                Arguments = arguments,
                 CreateNoWindow = true
             };
 
