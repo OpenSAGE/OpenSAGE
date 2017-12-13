@@ -56,12 +56,30 @@ csharp_new_line_before_members_in_anonymous_types = true
 csharp_space_after_cast = true
 csharp_prefer_braces = true:suggestion
 
+dotnet_naming_rule.constants_must_be_pascal_cased.symbols                                             = constant_symbols
+dotnet_naming_rule.constants_must_be_pascal_cased.style                                               = pascal_case_style
+dotnet_naming_rule.constants_must_be_pascal_cased.severity                                            = warning
+
+dotnet_naming_rule.private_static_fields_must_be_pascal_cased.symbols                                 = private_static_field_symbols
+dotnet_naming_rule.private_static_fields_must_be_pascal_cased.style                                   = pascal_case_style
+dotnet_naming_rule.private_static_fields_must_be_pascal_cased.severity                                = warning
+
 dotnet_naming_rule.private_instance_fields_must_be_camel_cased_and_prefixed_with_underscore.symbols   = private_field_symbols
 dotnet_naming_rule.private_instance_fields_must_be_camel_cased_and_prefixed_with_underscore.style     = camel_case_and_prefix_with_underscore_style
 dotnet_naming_rule.private_instance_fields_must_be_camel_cased_and_prefixed_with_underscore.severity  = warning
 
+dotnet_naming_symbols.constant_symbols.applicable_kinds                                               = field
+dotnet_naming_symbols.constant_symbols.required_modifiers                                             = const
+dotnet_naming_symbols.constant_symbols.applicable_accessibilities                                     = *
+
+dotnet_naming_symbols.private_static_field_symbols.applicable_kinds                                   = field
+dotnet_naming_symbols.private_static_field_symbols.required_modifiers                                 = static,shared
+dotnet_naming_symbols.private_static_field_symbols.applicable_accessibilities                         = private
+
 dotnet_naming_symbols.private_field_symbols.applicable_kinds                                          = field
 dotnet_naming_symbols.private_field_symbols.applicable_accessibilities                                = private
+
+dotnet_naming_style.pascal_case_style.capitalization                                                  = pascal_case
 
 dotnet_naming_style.camel_case_and_prefix_with_underscore_style.required_prefix                       = _
 dotnet_naming_style.camel_case_and_prefix_with_underscore_style.capitalization                        = camel_case
