@@ -91,14 +91,16 @@ namespace LL.Input
             return new KeyEventArgs(MapKey(e.KeyCode));
         }
 
-        private static MouseEventArgs CreateMouseEventArgs(Swf.MouseEventArgs e)
+        private MouseEventArgs CreateMouseEventArgs(Swf.MouseEventArgs e)
         {
+            var controlPosition = PointToClient(e.Location);
+
             return new MouseEventArgs(
                 MapButton(e.Button),
                 e.Clicks,
                 e.Delta,
-                e.X,
-                e.Y);
+                controlPosition.X,
+                controlPosition.Y);
         }
 
         private static MouseButton MapButton(MouseButtons button)
