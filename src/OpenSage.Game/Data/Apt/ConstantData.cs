@@ -36,8 +36,7 @@ namespace OpenSage.Data.Apt
                 var numEntries = reader.ReadUInt32();
                 reader.BaseStream.Seek(4, SeekOrigin.Current);
 
-
-                for (var i=0;i< numEntries;++i)
+                for (var i = 0; i < numEntries; i++)
                 {
                     var constEntry = new ConstantEntry
                     {
@@ -69,7 +68,6 @@ namespace OpenSage.Data.Apt
             }
         }
     }
-
 
     public enum ConstantEntryType
     {
