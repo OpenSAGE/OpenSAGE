@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace LL.Graphics3D
+namespace OpenSage.LowLevel.Graphics3D
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct ColorRgbaF

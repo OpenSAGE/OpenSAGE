@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace LL.Input
+namespace OpenSage.LowLevel.Input
 {
     public struct KeyboardState
     {

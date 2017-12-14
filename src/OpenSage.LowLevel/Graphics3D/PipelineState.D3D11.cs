@@ -1,7 +1,7 @@
-﻿using LL.Graphics3D.Util;
+﻿using OpenSage.LowLevel.Graphics3D.Util;
 using SharpDX.Direct3D11;
 
-namespace LL.Graphics3D
+namespace OpenSage.LowLevel.Graphics3D
 {
     partial class PipelineState
     {

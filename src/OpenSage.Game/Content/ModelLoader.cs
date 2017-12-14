@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using LL.Graphics3D;
-using LL.Graphics3D.Util;
+using OpenSage.LowLevel.Graphics3D;
+using OpenSage.LowLevel.Graphics3D.Util;
 using OpenSage.Content.Util;
 using OpenSage.Data;
 using OpenSage.Data.W3d;
@@ -338,7 +338,7 @@ namespace OpenSage.Content
             var material = new ShaderMaterial(effect);
 
             var materialConstantsResourceBinding = effect.GetParameter("MaterialConstants").ResourceBinding;
-            var materialConstantsBuffer = AddDisposable(LL.Graphics3D.Buffer.CreateDynamic(
+            var materialConstantsBuffer = AddDisposable(OpenSage.LowLevel.Graphics3D.Buffer.CreateDynamic(
                 contentManager.GraphicsDevice, 
                 (uint) materialConstantsResourceBinding.ConstantBufferSizeInBytes,
                 BufferBindFlags.ConstantBuffer));

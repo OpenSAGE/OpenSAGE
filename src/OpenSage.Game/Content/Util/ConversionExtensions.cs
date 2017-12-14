@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using LL.Graphics3D;
+using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Data.W3d;

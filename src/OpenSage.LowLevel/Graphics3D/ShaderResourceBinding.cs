@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LL.Graphics3D
+namespace OpenSage.LowLevel.Graphics3D
 {
     public sealed class ShaderResourceBinding
     {

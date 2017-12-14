@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace LL.Graphics3D.Util
+namespace OpenSage.LowLevel.Graphics3D.Util
 {
     public static class StructInteropUtility
     {

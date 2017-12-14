@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LL.Graphics3D.Util.BlockCompression
+namespace OpenSage.LowLevel.Graphics3D.Util.BlockCompression
 {
     public static class BlockCompressionUtility
     {

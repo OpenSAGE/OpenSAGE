@@ -1,6 +1,6 @@
 ﻿using OpenSage;
 
-namespace LL.Graphics3D
+namespace OpenSage.LowLevel.Graphics3D
 {
     public abstract class GraphicsObject : DisposableBase
     {

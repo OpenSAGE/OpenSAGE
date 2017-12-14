@@ -1,7 +1,7 @@
 ﻿using SharpDX.Direct3D11;
 using D3D11 = SharpDX.Direct3D11;
 
-namespace LL.Graphics3D
+namespace OpenSage.LowLevel.Graphics3D
 {
     partial class DepthStencilBuffer : GraphicsDeviceChild
     {

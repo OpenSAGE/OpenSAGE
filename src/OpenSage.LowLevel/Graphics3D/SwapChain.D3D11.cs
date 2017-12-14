@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading;
-using LL.Graphics3D.Util;
+using OpenSage.LowLevel.Graphics3D.Util;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using D3D11 = SharpDX.Direct3D11;
 using DXGI = SharpDX.DXGI;
 
-namespace LL.Graphics3D
+namespace OpenSage.LowLevel.Graphics3D
 {
     partial class SwapChain
     {

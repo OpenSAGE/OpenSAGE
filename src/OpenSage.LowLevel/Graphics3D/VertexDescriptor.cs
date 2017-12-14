@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LL.Graphics3D
+namespace OpenSage.LowLevel.Graphics3D
 {
     public sealed partial class VertexDescriptor
     {

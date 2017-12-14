@@ -5,7 +5,7 @@ using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
 using D3D11 = SharpDX.Direct3D11;
 
-namespace LL.Graphics3D.Util
+namespace OpenSage.LowLevel.Graphics3D.Util
 {
     internal static class ConversionExtensions
     {

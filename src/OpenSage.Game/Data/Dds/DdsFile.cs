@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using LL.Graphics3D;
+using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Dds

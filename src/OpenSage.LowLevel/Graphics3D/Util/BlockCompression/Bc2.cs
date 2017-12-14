@@ -1,4 +1,4 @@
-﻿namespace LL.Graphics3D.Util.BlockCompression
+﻿namespace OpenSage.LowLevel.Graphics3D.Util.BlockCompression
 {
     internal sealed class Bc2 : BcBase
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Numerics;
-using LL.Input;
+using OpenSage.LowLevel.Input;
 using OpenSage.Input;
 using OpenSage.Mathematics;
 

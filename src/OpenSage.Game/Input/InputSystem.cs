@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
-using LL.Input;
+using OpenSage.LowLevel.Input;
 
 namespace OpenSage.Input
 {

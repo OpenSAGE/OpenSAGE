@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
-using LL.Graphics3D.Util;
+using OpenSage.LowLevel.Graphics3D.Util;
 
-namespace LL.Graphics3D
+namespace OpenSage.LowLevel.Graphics3D
 {
     public sealed class Buffer<T> : Buffer
         where T : struct

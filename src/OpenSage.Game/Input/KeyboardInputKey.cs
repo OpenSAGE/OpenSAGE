@@ -1,4 +1,4 @@
-﻿using LL.Input;
+﻿using OpenSage.LowLevel.Input;
 
 namespace OpenSage.Input
 {

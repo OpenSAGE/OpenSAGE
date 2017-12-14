@@ -1,6 +1,6 @@
 ﻿using System;
-using LL.Graphics3D;
-using LL.Input;
+using OpenSage.LowLevel.Graphics3D;
+using OpenSage.LowLevel.Input;
 
 namespace OpenSage.LowLevel
 {

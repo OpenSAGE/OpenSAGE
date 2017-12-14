@@ -2,7 +2,7 @@
 using System.Linq;
 using Eto.Drawing;
 using Eto.Forms;
-using LL.Graphics3D.Util.BlockCompression;
+using OpenSage.LowLevel.Graphics3D.Util.BlockCompression;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Data.Dds;

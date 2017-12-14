@@ -2,7 +2,7 @@
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
 
-namespace LL.Graphics3D
+namespace OpenSage.LowLevel.Graphics3D
 {
     partial class Shader
     {

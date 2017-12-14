@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using LL.Graphics3D;
-using LL.Input;
+using OpenSage.LowLevel.Graphics3D;
+using OpenSage.LowLevel.Input;
 using SharpDX.Windows;
 
 namespace OpenSage.LowLevel
@@ -303,7 +303,7 @@ namespace OpenSage.LowLevel
             Focus();
 
             SetMousePosition(e.Location);
-            SetMouseButtonState(e.Button, LL.Input.ButtonState.Pressed);
+            SetMouseButtonState(e.Button, OpenSage.LowLevel.Input.ButtonState.Pressed);
 
             base.OnMouseDown(e);
         }
@@ -311,7 +311,7 @@ namespace OpenSage.LowLevel
         protected override void OnMouseUp(MouseEventArgs e)
         {
             SetMousePosition(e.Location);
-            SetMouseButtonState(e.Button, LL.Input.ButtonState.Released);
+            SetMouseButtonState(e.Button, OpenSage.LowLevel.Input.ButtonState.Released);
 
             base.OnMouseUp(e);
         }
@@ -331,7 +331,7 @@ namespace OpenSage.LowLevel
             _mouseState.Y = controlPosition.Y;
         }
 
-        private void SetMouseButtonState(MouseButtons button, LL.Input.ButtonState state)
+        private void SetMouseButtonState(MouseButtons button, OpenSage.LowLevel.Input.ButtonState state)
         {
             switch (button)
             {

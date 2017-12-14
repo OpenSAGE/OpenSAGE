@@ -1,6 +1,6 @@
 ﻿using System;
-using LL.Graphics3D;
-using Buffer = LL.Graphics3D.Buffer;
+using OpenSage.LowLevel.Graphics3D;
+using Buffer = OpenSage.LowLevel.Graphics3D.Buffer;
 
 namespace OpenSage.Graphics.Effects
 {
