@@ -223,9 +223,15 @@ namespace OpenSage
         {
             if (!_cachedCursors.TryGetValue(cursorName, out var cursor))
             {
-                var cursorFileName = ContentManager.IniDataContext.MouseCursors.Find(x => x.Name == cursorName);
+                var mouseCursor = ContentManager.IniDataContext.MouseCursors.Find(x => x.Name == cursorName);
 
-                var aniFilePath = Path.Combine(_fileSystem.RootDirectory, "Data", "Cursors", cursorFileName.Image + ".ani");
+                var cursorFileName = mouseCursor.Image;
+                if (string.IsNullOrEmpty(Path.GetExtension(cursorFileName)))
+                {
+                    cursorFileName += ".ani";
+                }
+
+                var aniFilePath = Path.Combine(_fileSystem.RootDirectory, "Data", "Cursors", cursorFileName);
 
                 _cachedCursors[cursorName] = cursor = AddDisposable(new HostCursor(aniFilePath));
             }
