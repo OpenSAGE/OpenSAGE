@@ -35,7 +35,7 @@ namespace OpenSage.DataViewer.UI
             switch (Path.GetExtension(entry.FilePath).ToLower())
             {
                 case ".ani":
-                    return new AniView(entry);
+                    return new AniView(entry, _getGame());
 
                 case ".bmp":
                     return new BmpView(entry);

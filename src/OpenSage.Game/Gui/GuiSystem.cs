@@ -97,6 +97,18 @@ namespace OpenSage.Gui
 
         public override void Update(GameTime gameTime)
         {
+            var mousePosition = Game.Input.MousePosition;
+
+            foreach (var guiComponent in _guiComponents)
+            {
+                DoActionRecursive(
+                    guiComponent.RootWindow,
+                    x =>
+                    {
+
+                    });
+            }
+
             foreach (var guiComponent in _guiComponents)
             {
                 DoActionRecursive(

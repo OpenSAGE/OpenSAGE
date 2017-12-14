@@ -14,7 +14,6 @@ namespace OpenSage.DataViewer
         {
             var platform = new Eto.Wpf.Platform();
 
-            platform.Add<AniCursorPreview.IAniCursorPreview>(() => new AniCursorPreviewHandler());
             platform.Add<GameControl.IGameControl>(() => new GameControlHandler());
 
             Eto.Style.Add<ImageViewHandler>("nearest-neighbor", handler =>

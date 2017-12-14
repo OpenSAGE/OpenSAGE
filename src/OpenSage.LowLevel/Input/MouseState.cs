@@ -1,4 +1,4 @@
-﻿namespace OpenSage.Input
+﻿namespace LL.Input
 {
     public struct MouseState
     {

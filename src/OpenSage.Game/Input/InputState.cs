@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using OpenSage.Input.Providers;
+using LL.Input;
 
 namespace OpenSage.Input
 {
@@ -19,12 +19,13 @@ namespace OpenSage.Input
                                              || CurrentMouseState.RightButton == ButtonState.Pressed
                                              || CurrentMouseState.MiddleButton == ButtonState.Pressed;
 
-        public void Update(IInputProvider inputProvider)
+        internal void Update(in KeyboardState keyboardState, in MouseState mouseState)
         {
             LastKeyboardState = CurrentKeyboardState;
             LastMouseState = CurrentMouseState;
 
-            inputProvider.UpdateInputState(this);
+            CurrentKeyboardState = keyboardState;
+            CurrentMouseState = mouseState;
 
             if (!_doneFirstUpdate)
             {

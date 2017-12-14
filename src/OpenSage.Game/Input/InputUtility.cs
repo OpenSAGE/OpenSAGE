@@ -1,10 +1,11 @@
-using System;
+﻿using System;
+using LL.Input;
 
 namespace OpenSage.Input
 {
     internal static class InputUtility
     {
-        public static bool IsMouseButtonPressed(MouseState mouseState, MouseButton mousebuttons)
+        public static bool IsMouseButtonPressed(in MouseState mouseState, MouseButton mousebuttons)
         {
             switch (mousebuttons)
             {

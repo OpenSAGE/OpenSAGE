@@ -5,6 +5,7 @@ using Eto.Drawing;
 using Eto.Forms;
 using OpenSage.Data;
 using OpenSage.DataViewer.Framework;
+using OpenSage.LowLevel;
 
 namespace OpenSage.DataViewer.UI
 {
@@ -115,7 +116,7 @@ namespace OpenSage.DataViewer.UI
 
             _fileSystem = installation.CreateFileSystem();
 
-            _game = new Game(DataViewerApplication.Instance.GraphicsDevice, _fileSystem);
+            _game = new Game(HostPlatform.GraphicsDevice, _fileSystem);
 
             InstallationChanged?.Invoke(this, new InstallationChangedEventArgs(installation, _fileSystem));
         }

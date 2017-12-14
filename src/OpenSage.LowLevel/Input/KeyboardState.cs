@@ -1,25 +1,26 @@
 ﻿using System.Collections.Generic;
-using LL.Input;
 
-namespace OpenSage.Input
+namespace LL.Input
 {
     public struct KeyboardState
     {
-        public List<Key> Keys { get; }
+        private readonly List<Key> _keys;
+
+        public IReadOnlyList<Key> Keys => _keys;
 
         public KeyboardState(List<Key> keys)
         {
-            Keys = keys;
+            _keys = keys;
         }
 
         public bool IsKeyDown(Key key)
         {
-            return Keys.Contains(key);
+            return _keys.Contains(key);
         }
 
         public bool IsKeyUp(Key key)
         {
-            return !Keys.Contains(key);
+            return !_keys.Contains(key);
         }
     }
 }

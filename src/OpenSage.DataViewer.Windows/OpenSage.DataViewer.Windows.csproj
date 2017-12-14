@@ -8,7 +8,6 @@
     <PackageReference Include="Eto.Platform.Wpf" Version="2.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LL.Input\LL.Input.csproj" />
     <ProjectReference Include="..\OpenSage.DataViewer\OpenSage.DataViewer.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -1,26 +1,20 @@
 ﻿using Eto;
 using Eto.Forms;
-using LL.Graphics3D;
+using OpenSage.LowLevel;
 
 namespace OpenSage.DataViewer
 {
     public sealed class DataViewerApplication : Application
     {
-        public new static DataViewerApplication Instance { get; private set; }
-
-        public GraphicsDevice GraphicsDevice { get; }
-
         public DataViewerApplication(Platform platform)
             : base(platform)
         {
-            Instance = this;
-
-            GraphicsDevice = new GraphicsDevice();
+            HostPlatform.Start();
         }
 
         protected override void Dispose(bool disposing)
         {
-            GraphicsDevice.Dispose();
+            HostPlatform.Stop();
 
             base.Dispose(disposing);
         }

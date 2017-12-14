@@ -2,8 +2,6 @@
 using System.Linq;
 using System.Numerics;
 using LL.Input;
-using OpenSage.Data.Ini;
-using OpenSage.Input.Providers;
 
 namespace OpenSage.Input
 {
@@ -12,11 +10,7 @@ namespace OpenSage.Input
         private readonly InputSettings _settings;
         private readonly InputState _state;
 
-        /// <summary>
-        /// Gets or sets the current input provider. Only needs to be changed if <see cref="Game"/>
-        /// is in a custom host, such as a scene editor.
-        /// </summary>
-        public IInputProvider InputProvider { get; set; }
+        internal InputState InputState => _state;
 
         public bool AnyKeyOrMouseButtonDown => _state.AnyKeyOrMouseButtonPressed;
 
@@ -29,13 +23,6 @@ namespace OpenSage.Input
         {
             _settings = game.Settings.InputSettings;
             _state = new InputState();
-        }
-
-        public override void Update(GameTime gameTime)
-        {
-            base.Update(gameTime);
-
-            _state.Update(InputProvider);
         }
 
         public bool GetKeyPressed(Key key)

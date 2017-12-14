@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using LL.Graphics3D;
 using OpenSage.Content;
 using OpenSage.Data;
@@ -8,6 +9,7 @@ using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Gui;
 using OpenSage.Input;
 using OpenSage.Logic.Object;
+using OpenSage.LowLevel;
 using OpenSage.Scripting;
 using OpenSage.Settings;
 
@@ -17,6 +19,9 @@ namespace OpenSage
     {
         private readonly FileSystem _fileSystem;
         private readonly GameTimer _gameTimer;
+
+        private readonly Dictionary<string, HostCursor> _cachedCursors;
+        private HostCursor _currentCursor;
 
         private Scene _scene;
 
@@ -55,6 +60,31 @@ namespace OpenSage
 
         public bool IsActive { get; set; }
 
+        private HostView _hostView;
+        internal HostView HostView
+        {
+            get => _hostView;
+            set
+            {
+                _hostView = value;
+
+                if (value != null)
+                {
+                    SetSwapChain(value.SwapChain);
+                    ResetElapsedTime();
+
+                    _hostView.SetCursor(_currentCursor);
+                }
+                else
+                {
+                    Scene = null;
+                    ContentManager.Unload();
+
+                    SetSwapChain(null);
+                }
+            }
+        }
+
         public Game(GraphicsDevice graphicsDevice, FileSystem fileSystem)
         {
             GraphicsDevice = graphicsDevice;
@@ -64,11 +94,14 @@ namespace OpenSage
             _gameTimer = AddDisposable(new GameTimer());
             _gameTimer.Start();
 
+            _cachedCursors = new Dictionary<string, HostCursor>();
+
             ContentManager = AddDisposable(new ContentManager(
                 _fileSystem, 
                 graphicsDevice));
 
             ContentManager.IniDataContext.LoadIniFile(@"Data\INI\GameData.ini");
+            ContentManager.IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
 
             GameSystems = new List<GameSystem>();
 
@@ -86,6 +119,8 @@ namespace OpenSage
             Gui = AddDisposable(new GuiSystem(this));
 
             GameSystems.ForEach(gs => gs.Initialize());
+
+            SetCursor("Arrow");
         }
 
         public void SetSwapChain(SwapChain swapChain)
@@ -176,8 +211,34 @@ namespace OpenSage
             AddComponentsRecursive(entity.GetChildren());
         }
 
+        // Needed by Data Viewer.
+        public void SetCursor(HostCursor cursor)
+        {
+            _currentCursor = cursor;
+
+            HostView?.SetCursor(cursor);
+        }
+
+        public void SetCursor(string cursorName)
+        {
+            if (!_cachedCursors.TryGetValue(cursorName, out var cursor))
+            {
+                var cursorFileName = ContentManager.IniDataContext.MouseCursors.Find(x => x.Name == cursorName);
+
+                var aniFilePath = Path.Combine(_fileSystem.RootDirectory, "Data", "Cursors", cursorFileName.Image + ".ani");
+
+                _cachedCursors[cursorName] = cursor = AddDisposable(new HostCursor(aniFilePath));
+            }
+
+            SetCursor(cursor);
+        }
+
         public void Tick()
         {
+            Input.InputState.Update(
+                HostView.GetKeyboardState(),
+                HostView.GetMouseState());
+
             _gameTimer.Update();
 
             var gameTime = _gameTimer.CurrentGameTime;

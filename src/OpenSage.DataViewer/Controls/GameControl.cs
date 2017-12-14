@@ -18,24 +18,5 @@ namespace OpenSage.DataViewer.Controls
         {
             Game Game { get; set; }
         }
-
-        public void OnGraphicsInitialized()
-        {
-            Game.ResetElapsedTime();
-        }
-
-        public void OnGraphicsDraw()
-        {
-            if (Game.Scene != null)
-            {
-                Game.Tick();
-            }
-        }
-
-        public void OnGraphicsUninitialized()
-        {
-            Game.Scene = null;
-            Game.ContentManager.Unload();
-        }
     }
 }

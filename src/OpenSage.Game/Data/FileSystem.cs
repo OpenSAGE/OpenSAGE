@@ -12,10 +12,14 @@ namespace OpenSage.Data
         private readonly Dictionary<string, FileSystemEntry> _fileTable;
         private readonly List<BigArchive> _bigArchives;
 
+        public string RootDirectory { get; }
+
         public IReadOnlyCollection<FileSystemEntry> Files => _fileTable.Values;
 
         public FileSystem(string rootDirectory, FileSystem nextFileSystem = null)
         {
+            RootDirectory = rootDirectory;
+
             _nextFileSystem = nextFileSystem;
 
             _fileTable = new Dictionary<string, FileSystemEntry>(StringComparer.OrdinalIgnoreCase);

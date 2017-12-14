@@ -147,6 +147,20 @@ namespace OpenSage.Gui.Elements
             return new Rectangle(posX, posY, newWidth, newHeight);
         }
 
+        private bool _isMouseOver;
+        public bool IsMouseOver
+        {
+            get => _isMouseOver;
+            set
+            {
+                _isMouseOver = value;
+                Invalidate();
+            }
+        }
+
+        protected internal virtual void OnMouseEnter(EventArgs args) { }
+        protected internal virtual void OnMouseExit(EventArgs args) { }
+
         protected void Invalidate()
         {
             _needsRender = true;
