@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
@@ -44,6 +45,14 @@ namespace OpenSage.Mathematics
             {
                 return new Rectangle(0, 0, 0, 0);
             }
+        }
+
+        public bool Contains(in Vector2 point)
+        {
+            return point.X >= X
+                && point.X <= Right
+                && point.Y >= Y
+                && point.Y <= Bottom;
         }
     }
 }

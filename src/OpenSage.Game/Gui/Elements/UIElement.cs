@@ -1,9 +1,6 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Content;
-using OpenSage.Content.Util;
 using OpenSage.Data.Wnd;
 using OpenSage.Graphics;
 using OpenSage.Mathematics;
@@ -19,14 +16,11 @@ namespace OpenSage.Gui.Elements
         private Texture _texture;
         private RenderTarget _renderTarget;
 
-        private Texture _imageTexture;
-
         private SpriteBatch _spriteBatch;
         private DrawingContext _drawingContext;
 
-        private ColorRgbaF? _backgroundColor;
-        private ColorRgbaF? _borderColor;
-        private StretchableImage _image;
+        private UIElementState _enabledState;
+        private UIElementState _highlightState;
 
         private string _text;
 
@@ -72,24 +66,11 @@ namespace OpenSage.Gui.Elements
 
             _text = contentManager.TranslationManager.Lookup(wndWindow.Text);
 
-            if (!wndWindow.Status.HasFlag(WndWindowStatusFlags.Image))
-            {
-                _backgroundColor = wndWindow.EnabledDrawData.Items[0].Color.ToColorRgbaF();
-            }
+            _enabledState = AddDisposable(new UIElementState(wndWindow, wndWindow.EnabledDrawData, contentManager, _spriteBatch));
 
-            if (wndWindow.Status.HasFlag(WndWindowStatusFlags.Border))
+            if (wndWindow.WindowType == WndWindowType.PushButton)
             {
-                _borderColor = wndWindow.EnabledDrawData.Items[0].BorderColor.ToColorRgbaF();
-            }
-
-            if (wndWindow.Status.HasFlag(WndWindowStatusFlags.Image))
-            {
-                _image = LoadImage(wndWindow, contentManager);
-
-                if (_image != null)
-                {
-                    _imageTexture = AddDisposable(_image.RenderToTexture(contentManager.GraphicsDevice, _spriteBatch));
-                }
+                _highlightState = AddDisposable(new UIElementState(wndWindow, wndWindow.HiliteDrawData, contentManager, _spriteBatch));
             }
 
             Hidden = wndWindow.Status.HasFlag(WndWindowStatusFlags.Hidden);
@@ -154,6 +135,7 @@ namespace OpenSage.Gui.Elements
             set
             {
                 _isMouseOver = value;
+                _highlighted = value;
                 Invalidate();
             }
         }
@@ -177,7 +159,11 @@ namespace OpenSage.Gui.Elements
 
             var renderPassDescriptor = new RenderPassDescriptor();
 
-            var clearColour = _backgroundColor.GetValueOrDefault(new ColorRgbaF(0, 0, 0, 0));
+            var activeState = _highlighted
+                ? _highlightState ?? _enabledState
+                : _enabledState;
+
+            var clearColour = activeState.BackgroundColor.GetValueOrDefault(new ColorRgbaF(0, 0, 0, 0));
 
             renderPassDescriptor.SetRenderTargetDescriptor(
                 _renderTarget,
@@ -191,9 +177,9 @@ namespace OpenSage.Gui.Elements
 
             commandEncoder.SetViewport(new Viewport(0, 0, Frame.Width, Frame.Height));
 
-            if (_imageTexture != null)
+            if (activeState.ImageTexture != null)
             {
-                _drawingContext.DrawImage(_imageTexture, viewport);
+                _drawingContext.DrawImage(activeState.ImageTexture, viewport);
             }
 
             OnRender(_drawingContext);
@@ -209,66 +195,7 @@ namespace OpenSage.Gui.Elements
 
         protected abstract void OnRender(DrawingContext drawingContext);
 
-        private StretchableImage LoadImage(WndWindow wndWindow, ContentManager contentManager)
-        {
-            switch (wndWindow.WindowType)
-            {
-                case WndWindowType.GenericWindow:
-                    {
-                        var image = LoadImage(wndWindow, 0, contentManager);
-                        return image != null 
-                            ? StretchableImage.CreateNormal(wndWindow.ScreenRect.ToRectangle().Width, image)
-                            : null;
-                    }
-
-                case WndWindowType.PushButton:
-                    {
-                        var imageLeft = LoadImage(wndWindow, 0, contentManager);
-                        var imageMiddle = LoadImage(wndWindow, 5, contentManager);
-                        var imageRight = LoadImage(wndWindow, 6, contentManager);
-
-                        if (imageLeft != null && imageMiddle != null && imageRight != null)
-                            return StretchableImage.CreateStretchable(wndWindow.ScreenRect.ToRectangle().Width, imageLeft, imageMiddle, imageRight);
-
-                        if (imageLeft != null)
-                            return StretchableImage.CreateNormal(wndWindow.ScreenRect.ToRectangle().Width, imageLeft);
-
-                        return null;
-                    }
-
-                default:
-                    // TODO
-                    return null;
-            }
-        }
-
-        private CroppedBitmap LoadImage(WndWindow wndWindow, int drawDataIndex, ContentManager contentManager)
-        {
-            var image = wndWindow.EnabledDrawData.Items[drawDataIndex].Image;
-
-            if (string.IsNullOrEmpty(image) || image == "NoImage")
-            {
-                return null;
-            }
-
-            var mappedImage = contentManager.IniDataContext.MappedImages.FirstOrDefault(x => x.Name == image);
-            if (mappedImage == null)
-            {
-                return null;
-            }
-
-            var texture = contentManager.Load<Texture>(
-                new[]
-                {
-                    Path.Combine(@"Data\English\Art\Textures", mappedImage.Texture),
-                    Path.Combine(@"Art\Textures", mappedImage.Texture)
-                },
-                new TextureLoadOptions { GenerateMipMaps = false });
-
-            var textureRect = mappedImage.Coords.ToRectangle();
-
-            return new CroppedBitmap(texture, textureRect);
-        }
+        
 
         /*
          * private UIElement CreateWindowElement(WndWindow window, FrameworkElement contentElement)

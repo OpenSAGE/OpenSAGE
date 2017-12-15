@@ -105,7 +105,19 @@ namespace OpenSage.Gui
                     guiComponent.RootWindow,
                     x =>
                     {
-
+                        if (x.Frame.Contains(mousePosition))
+                        {
+                            if (!x.IsMouseOver)
+                            {
+                                x.IsMouseOver = true;
+                                x.OnMouseEnter(EventArgs.Empty);
+                            }
+                        }
+                        else if (x.IsMouseOver)
+                        {
+                            x.IsMouseOver = false;
+                            x.OnMouseExit(EventArgs.Empty);
+                        }
                     });
             }
 
