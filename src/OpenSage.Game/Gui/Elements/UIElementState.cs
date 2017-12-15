@@ -5,6 +5,7 @@ using OpenSage.Content;
 using OpenSage.Content.Util;
 using OpenSage.Data.Wnd;
 using OpenSage.Graphics;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Elements
 {
@@ -14,15 +15,23 @@ namespace OpenSage.Gui.Elements
 
         private StretchableImage _image;
 
+        public ColorRgba TextColor { get; }
+        public ColorRgba TextBorderColor { get; }
+
         public ColorRgbaF? BackgroundColor { get; }
         public Texture ImageTexture { get; }
 
         public UIElementState(
             WndWindow wndWindow,
+            ColorRgba textColor,
+            ColorRgba textBorderColor,
             WndDrawData wndDrawData,
             ContentManager contentManager,
             SpriteBatch spriteBatch)
         {
+            TextColor = textColor;
+            TextBorderColor = textBorderColor;
+
             if (!wndWindow.Status.HasFlag(WndWindowStatusFlags.Image))
             {
                 BackgroundColor = wndDrawData.Items[0].Color.ToColorRgbaF();

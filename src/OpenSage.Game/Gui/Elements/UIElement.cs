@@ -4,6 +4,8 @@ using OpenSage.Content;
 using OpenSage.Data.Wnd;
 using OpenSage.Graphics;
 using OpenSage.Mathematics;
+using OpenSage.LowLevel;
+using OpenSage.LowLevel.Graphics2D;
 
 namespace OpenSage.Gui.Elements
 {
@@ -21,6 +23,8 @@ namespace OpenSage.Gui.Elements
 
         private UIElementState _enabledState;
         private UIElementState _highlightState;
+
+        private float _scale;
 
         private string _text;
 
@@ -66,11 +70,11 @@ namespace OpenSage.Gui.Elements
 
             _text = contentManager.TranslationManager.Lookup(wndWindow.Text);
 
-            _enabledState = AddDisposable(new UIElementState(wndWindow, wndWindow.EnabledDrawData, contentManager, _spriteBatch));
+            _enabledState = AddDisposable(new UIElementState(wndWindow, wndWindow.TextColor.Enabled, wndWindow.TextColor.EnabledBorder, wndWindow.EnabledDrawData, contentManager, _spriteBatch));
 
             if (wndWindow.WindowType == WndWindowType.PushButton)
             {
-                _highlightState = AddDisposable(new UIElementState(wndWindow, wndWindow.HiliteDrawData, contentManager, _spriteBatch));
+                _highlightState = AddDisposable(new UIElementState(wndWindow, wndWindow.TextColor.Hilite, wndWindow.TextColor.HiliteBorder, wndWindow.HiliteDrawData, contentManager, _spriteBatch));
             }
 
             Hidden = wndWindow.Status.HasFlag(WndWindowStatusFlags.Hidden);
@@ -82,7 +86,7 @@ namespace OpenSage.Gui.Elements
 
         public void CreateSizeDependentResources(ContentManager contentManager, in Size windowSize)
         {
-            Frame = CalculateFrame(_wndWindow.ScreenRect, windowSize);
+            Frame = CalculateFrame(_wndWindow.ScreenRect, windowSize, out _scale);
 
             RemoveAndDispose(ref _renderTarget);
             RemoveAndDispose(ref _texture);
@@ -101,7 +105,7 @@ namespace OpenSage.Gui.Elements
             _needsRender = true;
         }
 
-        private static Rectangle CalculateFrame(in WndScreenRect wndScreenRect, in Size viewportSize)
+        private static Rectangle CalculateFrame(in WndScreenRect wndScreenRect, in Size viewportSize, out float scale)
         {
             // Figure out the ratio.
             var ratioX = viewportSize.Width / (float) wndScreenRect.CreationResolution.Width;
@@ -109,6 +113,8 @@ namespace OpenSage.Gui.Elements
 
             // Use whichever multiplier is smaller.
             var ratio = ratioX < ratioY ? ratioX : ratioY;
+
+            scale = ratio;
 
             var originalWidth = wndScreenRect.BottomRight.X - wndScreenRect.UpperLeft.X;
             var originalHeight = wndScreenRect.BottomRight.Y - wndScreenRect.UpperLeft.Y;
@@ -180,6 +186,18 @@ namespace OpenSage.Gui.Elements
             if (activeState.ImageTexture != null)
             {
                 _drawingContext.DrawImage(activeState.ImageTexture, viewport);
+            }
+
+            if (!string.IsNullOrEmpty(Text))
+            {
+                using (var drawingContext2D = new LowLevel.Graphics2D.DrawingContext(HostPlatform.GraphicsDevice2D, _texture))
+                using (var textFormat = new TextFormat(HostPlatform.GraphicsDevice2D, _wndWindow.Font.Name, _wndWindow.Font.Size * _scale, _wndWindow.Font.Bold ? FontWeight.Bold : FontWeight.Normal))
+                {
+                    var rect = new RawRectangleF { X = 0, Y = 0, Width = Frame.Width, Height = Frame.Height };
+                    drawingContext2D.DrawText(Text, textFormat, activeState.TextColor.ToColorRgba(), rect);
+
+                    drawingContext2D.Close();
+                }
             }
 
             OnRender(_drawingContext);
