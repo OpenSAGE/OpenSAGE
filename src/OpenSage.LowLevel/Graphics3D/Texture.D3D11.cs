@@ -123,17 +123,5 @@ namespace OpenSage.LowLevel.Graphics3D
                     Resource.CalculateSubResourceIndex(i, destinationArrayIndex, mipLevels));
             }
         }
-
-        public Texture(GraphicsDevice graphicsDevice, Texture2DDescription description)
-            : base(graphicsDevice)
-        {
-            Width = description.Width;
-            Height = description.Height;
-            MipMapCount = description.MipLevels;
-
-            DeviceResource = AddDisposable(new Texture2D(
-                graphicsDevice.Device,
-                description));
-        }
     }
 }

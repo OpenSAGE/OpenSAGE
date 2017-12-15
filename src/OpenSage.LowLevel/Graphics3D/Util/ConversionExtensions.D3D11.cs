@@ -24,20 +24,6 @@ namespace OpenSage.LowLevel.Graphics3D.Util
             }
         }
 
-        public static InputElement ToInputElement(this VertexAttributeDescription value)
-        {
-            return new InputElement
-            {
-                AlignedByteOffset = value.Offset,
-                Classification = value.Classification.ToInputClassification(),
-                Format = value.Format.ToDxgiFormat(),
-                InstanceDataStepRate = (value.Classification == InputClassification.PerInstanceData) ? 1 : 0,
-                SemanticIndex = value.SemanticIndex,
-                SemanticName = value.SemanticName,
-                Slot = value.BufferIndex
-            };
-        }
-
         public static D3D11.RasterizerStateDescription ToRasterizerStateDescription(this RasterizerStateDescription value)
         {
             var result = D3D11.RasterizerStateDescription.Default();
@@ -63,6 +49,8 @@ namespace OpenSage.LowLevel.Graphics3D.Util
             if (value.Enabled)
             {
                 result.RenderTarget[0].IsBlendEnabled = true;
+                result.RenderTarget[0].BlendOperation = BlendOperation.Add;
+                result.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
                 result.RenderTarget[0].SourceBlend = value.SourceBlend.ToBlendOption();
                 result.RenderTarget[0].SourceAlphaBlend = value.SourceAlphaBlend.ToBlendOption();
                 result.RenderTarget[0].DestinationBlend = value.DestinationBlend.ToBlendOption();

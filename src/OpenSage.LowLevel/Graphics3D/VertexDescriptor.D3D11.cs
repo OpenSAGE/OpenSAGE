@@ -16,7 +16,19 @@ namespace OpenSage.LowLevel.Graphics3D
             DeviceInputElements = new D3D11.InputElement[attributeDescriptions.Length];
             for (var i = 0; i < attributeDescriptions.Length; i++)
             {
-                DeviceInputElements[i] = attributeDescriptions[i].ToInputElement();
+                var attributeDescription = attributeDescriptions[i];
+                var layoutDescription = layoutDescriptions[attributeDescription.BufferIndex];
+
+                DeviceInputElements[i] = new D3D11.InputElement
+                {
+                    AlignedByteOffset = attributeDescription.Offset,
+                    Classification = layoutDescription.Classification.ToInputClassification(),
+                    Format = attributeDescription.Format.ToDxgiFormat(),
+                    InstanceDataStepRate = (layoutDescription.Classification == InputClassification.PerInstanceData) ? 1 : 0,
+                    SemanticIndex = attributeDescription.SemanticIndex,
+                    SemanticName = attributeDescription.SemanticName,
+                    Slot = attributeDescription.BufferIndex
+                };
             }
 
             _layoutDescriptions = layoutDescriptions;

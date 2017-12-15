@@ -325,10 +325,8 @@ namespace OpenSage.LowLevel
 
         private void SetMousePosition(Point mouseLocation)
         {
-            var controlPosition = PointToClient(mouseLocation);
-
-            _mouseState.X = controlPosition.X;
-            _mouseState.Y = controlPosition.Y;
+            _mouseState.X = mouseLocation.X;
+            _mouseState.Y = mouseLocation.Y;
         }
 
         private void SetMouseButtonState(MouseButtons button, OpenSage.LowLevel.Input.ButtonState state)

@@ -5,11 +5,12 @@
         public ShaderType ShaderType { get; }
         public ShaderResourceBinding[] ResourceBindings { get; }
 
-        public Shader(GraphicsDevice graphicsDevice, byte[] deviceBytecode)
+        public Shader(GraphicsDevice graphicsDevice, string functionName, byte[] deviceBytecode)
             : base(graphicsDevice)
         {
             PlatformConstruct(
                 graphicsDevice,
+                functionName,
                 deviceBytecode, 
                 out var shaderType,
                 out var resourceBindings);

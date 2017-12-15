@@ -2,7 +2,7 @@
 
 namespace OpenSage.LowLevel.Graphics3D
 {
-    public sealed partial class VertexDescriptor
+    public sealed partial class VertexDescriptor : DisposableBase
     {
         public VertexDescriptor(
             VertexAttributeDescription[] attributeDescriptions,
@@ -23,7 +23,6 @@ namespace OpenSage.LowLevel.Graphics3D
 
     public struct VertexAttributeDescription
     {
-        public InputClassification Classification;
         public string SemanticName;
         public int SemanticIndex;
         public VertexFormat Format;
@@ -31,14 +30,12 @@ namespace OpenSage.LowLevel.Graphics3D
         public int BufferIndex;
 
         public VertexAttributeDescription(
-            InputClassification classification, 
             string semanticName, 
             int semanticIndex,
             VertexFormat format,
             int offset,
             int bufferIndex)
         {
-            Classification = classification;
             SemanticName = semanticName;
             SemanticIndex = semanticIndex;
             Format = format;
@@ -49,10 +46,12 @@ namespace OpenSage.LowLevel.Graphics3D
 
     public struct VertexLayoutDescription
     {
+        public InputClassification Classification;
         public int Stride;
 
-        public VertexLayoutDescription(int stride)
+        public VertexLayoutDescription(InputClassification classification, int stride)
         {
+            Classification = classification;
             Stride = stride;
         }
     }

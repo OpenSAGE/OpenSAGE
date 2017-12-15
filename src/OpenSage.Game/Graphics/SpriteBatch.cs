@@ -124,12 +124,12 @@ namespace OpenSage.Graphics
         public static readonly VertexDescriptor VertexDescriptor = new VertexDescriptor(
             new[]
             {
-                new VertexAttributeDescription(InputClassification.PerVertexData, "POSITION", 0, VertexFormat.Float2, 0, 0),
-                new VertexAttributeDescription(InputClassification.PerVertexData, "TEXCOORD", 0, VertexFormat.Float2, 8, 0)
+                new VertexAttributeDescription("POSITION", 0, VertexFormat.Float2, 0, 0),
+                new VertexAttributeDescription("TEXCOORD", 0, VertexFormat.Float2, 8, 0)
             },
             new[]
             {
-                new VertexLayoutDescription(16)
+                new VertexLayoutDescription(InputClassification.PerVertexData, 16)
             });
     }
 }

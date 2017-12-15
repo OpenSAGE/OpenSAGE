@@ -45,11 +45,11 @@ namespace OpenSage.Graphics.Effects
             {
                 var vertexShaderBytecodeLength = shaderReader.ReadInt32();
                 var vertexShaderBytecode = shaderReader.ReadBytes(vertexShaderBytecodeLength);
-                _vertexShader = AddDisposable(new Shader(graphicsDevice, vertexShaderBytecode));
+                _vertexShader = AddDisposable(new Shader(graphicsDevice, shaderName + "VS", vertexShaderBytecode));
 
                 var pixelShaderBytecodeLength = shaderReader.ReadInt32();
                 var pixelShaderBytecode = shaderReader.ReadBytes(pixelShaderBytecodeLength);
-                _pixelShader = AddDisposable(new Shader(graphicsDevice, pixelShaderBytecode));
+                _pixelShader = AddDisposable(new Shader(graphicsDevice, shaderName + "PS", pixelShaderBytecode));
             }
 
             _cachedPipelineStates = new Dictionary<EffectPipelineStateHandle, PipelineState>();

@@ -2,6 +2,12 @@
 {
     public sealed partial class Texture : GraphicsDeviceChild
     {
+        public static int CalculateMipMapSize(int mipLevel, int baseSize)
+        {
+            baseSize = baseSize >> mipLevel;
+            return baseSize > 0 ? baseSize : 1;
+        }
+
         public int Width { get; }
         public int Height { get; }
         public int MipMapCount { get; }

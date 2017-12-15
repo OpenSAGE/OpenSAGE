@@ -7,6 +7,7 @@ using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Data.Dds;
 using OpenSage.DataViewer.Framework;
+using OpenSage.LowLevel.Graphics3D;
 
 namespace OpenSage.DataViewer.UI.Viewers
 {
@@ -59,8 +60,8 @@ namespace OpenSage.DataViewer.UI.Viewers
 
             var bmpData = BmpUtility.PrependBmpHeader(
                 decompressedData,
-                Math.Max(MipMapUtility.CalculateMipMapSize(ddsMipMapInfo.Level, (int) _ddsFile.Header.Width), 4),
-                Math.Max(MipMapUtility.CalculateMipMapSize(ddsMipMapInfo.Level, (int) _ddsFile.Header.Height), 4));
+                Math.Max(Texture.CalculateMipMapSize(ddsMipMapInfo.Level, (int) _ddsFile.Header.Width), 4),
+                Math.Max(Texture.CalculateMipMapSize(ddsMipMapInfo.Level, (int) _ddsFile.Header.Height), 4));
 
             Panel2 = new ImageView
             {

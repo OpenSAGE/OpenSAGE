@@ -6,8 +6,11 @@
         {
             RasterizerState = RasterizerStateDescription.CullBackSolid,
             DepthStencilState = DepthStencilStateDescription.Default,
-            BlendState = BlendStateDescription.Opaque
+            BlendState = BlendStateDescription.Opaque,
+            PrimitiveType = PrimitiveType.TriangleList
         };
+
+        public PrimitiveType PrimitiveType;
 
         public VertexDescriptor VertexDescriptor;
         public Shader VertexShader;
