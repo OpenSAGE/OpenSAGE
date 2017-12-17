@@ -137,7 +137,6 @@ namespace OpenSage.Gui.Elements
             set
             {
                 _isMouseOver = value;
-                _highlighted = value;
                 Invalidate();
             }
         }
@@ -157,7 +156,7 @@ namespace OpenSage.Gui.Elements
                 return;
             }
             
-            var activeState = _highlighted
+            var activeState = _isMouseOver
                 ? _highlightState ?? _enabledState
                 : _enabledState;
 
@@ -169,14 +168,6 @@ namespace OpenSage.Gui.Elements
 
                 drawingContext.Clear(clearColour);
 
-                if (activeState.BorderColor != null)
-                {
-                    drawingContext.DrawRectangle(
-                        new RawRectangleF(0, 0, Frame.Width, Frame.Height),
-                        activeState.BorderColor.Value,
-                        2);
-                }
-
                 if (activeState.ImageTexture != null)
                 {
                     drawingContext.DrawImage(
@@ -184,6 +175,20 @@ namespace OpenSage.Gui.Elements
                         new RawRectangleF(0, 0, activeState.ImageTexture.Width, activeState.ImageTexture.Height),
                         new RawRectangleF(0, 0, Frame.Width, Frame.Height),
                         true);
+                }
+
+                if (activeState.BorderColor != null || _highlighted)
+                {
+                    var borderColor = _highlighted
+                        ? new ColorRgbaF(1f, 0.41f, 0.71f, 1)
+                        : activeState.BorderColor.Value;
+
+                    var borderWidth = _highlighted ? 8 : 2;
+
+                    drawingContext.DrawRectangle(
+                        new RawRectangleF(0, 0, Frame.Width, Frame.Height),
+                        borderColor,
+                        borderWidth);
                 }
 
                 if (!string.IsNullOrEmpty(Text))
