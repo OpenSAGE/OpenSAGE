@@ -6,19 +6,18 @@ using OpenSage.Content.Util;
 using OpenSage.Data.Wnd;
 using OpenSage.Graphics;
 using OpenSage.Mathematics;
+using OpenSage.LowLevel.Graphics2D;
 
 namespace OpenSage.Gui.Elements
 {
     internal sealed class UIElementState : DisposableBase
     {
-        private ColorRgbaF? _borderColor;
-
-        private StretchableImage _image;
-
         public ColorRgba TextColor { get; }
         public ColorRgba TextBorderColor { get; }
 
         public ColorRgbaF? BackgroundColor { get; }
+        public ColorRgbaF? BorderColor { get; }
+
         public Texture ImageTexture { get; }
 
         public UIElementState(
@@ -27,7 +26,8 @@ namespace OpenSage.Gui.Elements
             ColorRgba textBorderColor,
             WndDrawData wndDrawData,
             ContentManager contentManager,
-            SpriteBatch spriteBatch)
+            GraphicsDevice graphicsDevice,
+            GraphicsDevice2D graphicsDevice2D)
         {
             TextColor = textColor;
             TextBorderColor = textBorderColor;
@@ -37,20 +37,17 @@ namespace OpenSage.Gui.Elements
                 BackgroundColor = wndDrawData.Items[0].Color.ToColorRgbaF();
             }
 
-            if (wndWindow.Status.HasFlag(WndWindowStatusFlags.Border))
+            if (BackgroundColor != null || wndWindow.Status.HasFlag(WndWindowStatusFlags.Border))
             {
-                _borderColor = wndDrawData.Items[0].BorderColor.ToColorRgbaF();
+                BorderColor = wndDrawData.Items[0].BorderColor.ToColorRgbaF();
             }
 
             if (wndWindow.Status.HasFlag(WndWindowStatusFlags.Image))
             {
-                _image = LoadImage(wndWindow, wndDrawData, contentManager);
-
-                if (_image != null)
+                var image = LoadImage(wndWindow, wndDrawData, contentManager);
+                if (image != null)
                 {
-                    ImageTexture = AddDisposable(_image.RenderToTexture(
-                        contentManager.GraphicsDevice,
-                        spriteBatch));
+                    ImageTexture = AddDisposable(image.RenderToTexture(graphicsDevice, graphicsDevice2D));
                 }
             }
         }

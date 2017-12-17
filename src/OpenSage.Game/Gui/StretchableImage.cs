@@ -1,9 +1,9 @@
 ﻿using System;
+using OpenSage.LowLevel.Graphics2D;
 using OpenSage.LowLevel.Graphics3D;
-using OpenSage.Graphics;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Gui.Elements
+namespace OpenSage.Gui
 {
     public sealed class StretchableImage
     {
@@ -53,10 +53,8 @@ namespace OpenSage.Gui.Elements
                 croppedBitmapRight);
         }
 
-        internal Texture RenderToTexture(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch)
+        internal Texture RenderToTexture(GraphicsDevice graphicsDevice, GraphicsDevice2D graphicsDevice2D)
         {
-            var drawingContext = new DrawingContext(spriteBatch);
-
             var imageTexture = Texture.CreateTexture2D(
                 graphicsDevice,
                 PixelFormat.Rgba8UNorm,
@@ -64,55 +62,41 @@ namespace OpenSage.Gui.Elements
                 _height,
                 TextureBindFlags.ShaderResource | TextureBindFlags.RenderTarget);
 
-            using (var renderTarget = new RenderTarget(
-                graphicsDevice,
-                imageTexture))
+            using (var drawingContext = new DrawingContext(graphicsDevice2D, imageTexture))
             {
-                var commandBuffer = graphicsDevice.CommandQueue.GetCommandBuffer();
-
-                var renderPassDescriptor = new RenderPassDescriptor();
-
-                var clearColour = new ColorRgbaF(0, 0, 0, 0);
-
-                renderPassDescriptor.SetRenderTargetDescriptor(
-                    renderTarget,
-                    LoadAction.Clear,
-                    clearColour);
-
-                var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
-
-                var viewport = new Rectangle(0, 0, imageTexture.Width, imageTexture.Height);
-                drawingContext.Begin(commandEncoder, viewport, SamplerStateDescription.PointClamp);
-
-                commandEncoder.SetViewport(new Viewport(0, 0, imageTexture.Width, imageTexture.Height));
+                drawingContext.Begin();
 
                 switch (_mode)
                 {
                     case StretchableImageMode.Normal:
                         drawingContext.DrawImage(
                            _croppedBitmapLeft.Bitmap,
-                           new Rectangle(0, 0, _totalWidth, _height),
-                           _croppedBitmapLeft.SourceRect);
+                           ToRawRectangleF(_croppedBitmapLeft.SourceRect),
+                           new RawRectangleF(0, 0, _totalWidth, _height),
+                           false);
                         break;
 
                     case StretchableImageMode.Stretchable:
                         var leftWidth = _croppedBitmapLeft.SourceRect.Width;
                         var rightWidth = _croppedBitmapRight.SourceRect.Width;
-                        var leftRect = new Rectangle(0, 0, leftWidth, _height);
+                        var leftRect = new RawRectangleF(0, 0, leftWidth, _height);
                         drawingContext.DrawImage(
                            _croppedBitmapLeft.Bitmap,
+                           ToRawRectangleF(_croppedBitmapLeft.SourceRect),
                            leftRect,
-                           _croppedBitmapLeft.SourceRect);
-                        var middleRect = new Rectangle(leftRect.Right, 0, _totalWidth - leftWidth - rightWidth, _height);
+                           false);
+                        var middleRect = new RawRectangleF(leftRect.Right, 0, _totalWidth - leftWidth - rightWidth, _height);
                         drawingContext.DrawImage(
                            _croppedBitmapMiddle.Bitmap,
+                           ToRawRectangleF(_croppedBitmapMiddle.SourceRect),
                            middleRect,
-                           _croppedBitmapMiddle.SourceRect);
-                        var rightRect = new Rectangle(middleRect.Right, 0, rightWidth, _height);
+                           false);
+                        var rightRect = new RawRectangleF(middleRect.Right, 0, rightWidth, _height);
                         drawingContext.DrawImage(
                            _croppedBitmapRight.Bitmap,
+                           ToRawRectangleF(_croppedBitmapRight.SourceRect),
                            rightRect,
-                           _croppedBitmapRight.SourceRect);
+                           false);
                         break;
 
                     default:
@@ -120,13 +104,14 @@ namespace OpenSage.Gui.Elements
                 }
 
                 drawingContext.End();
-
-                commandEncoder.Close();
-
-                commandBuffer.Commit();
             }
 
             return imageTexture;
+        }
+
+        private static RawRectangleF ToRawRectangleF(in Rectangle value)
+        {
+            return new RawRectangleF(value.X, value.Y, value.Width, value.Height);
         }
     }
 

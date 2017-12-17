@@ -57,7 +57,11 @@ namespace OpenSage.Gui
             var size = new Size(viewport.Width, viewport.Height);
             DoActionRecursive(
                 guiComponent.RootWindow,
-                x => x.CreateSizeDependentResources(Game.ContentManager, size));
+                x =>
+                {
+                    x.CreateSizeDependentResources(Game.ContentManager, size);
+                    return true;
+                });
         }
 
         internal void AddRenderItem(RenderList renderList, GuiComponent component)
@@ -78,16 +82,21 @@ namespace OpenSage.Gui
                                 x.Texture,
                                 new Rectangle(0, 0, x.Texture.Width, x.Texture.Height),
                                 x.Frame);
+                            return true;
                         }
+                        return false;
                     });
 
                     _spriteBatch.End();
                 }));
         }
 
-        private static void DoActionRecursive(UIElement element, Action<UIElement> action)
+        private static void DoActionRecursive(UIElement element, Func<UIElement, bool> action)
         {
-            action(element);
+            if (!action(element))
+            {
+                return;
+            }
 
             foreach (var child in element.Children)
             {
@@ -118,6 +127,7 @@ namespace OpenSage.Gui
                             x.IsMouseOver = false;
                             x.OnMouseExit(EventArgs.Empty);
                         }
+                        return true;
                     });
             }
 
@@ -125,7 +135,11 @@ namespace OpenSage.Gui
             {
                 DoActionRecursive(
                     guiComponent.RootWindow, 
-                    x => x.Render(Game.GraphicsDevice));
+                    x =>
+                    {
+                        x.Render(Game.GraphicsDevice);
+                        return true;
+                    });
             }
 
             base.Update(gameTime);

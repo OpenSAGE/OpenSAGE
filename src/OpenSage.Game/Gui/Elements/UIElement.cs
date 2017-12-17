@@ -1,11 +1,10 @@
 ﻿using System;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Content;
 using OpenSage.Data.Wnd;
-using OpenSage.Graphics;
-using OpenSage.Mathematics;
 using OpenSage.LowLevel;
 using OpenSage.LowLevel.Graphics2D;
+using OpenSage.LowLevel.Graphics3D;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Elements
 {
@@ -17,9 +16,6 @@ namespace OpenSage.Gui.Elements
 
         private Texture _texture;
         private RenderTarget _renderTarget;
-
-        private SpriteBatch _spriteBatch;
-        private DrawingContext _drawingContext;
 
         private UIElementState _enabledState;
         private UIElementState _highlightState;
@@ -65,19 +61,16 @@ namespace OpenSage.Gui.Elements
             _wndWindow = wndWindow;
             _needsRender = true;
 
-            _spriteBatch = AddDisposable(new SpriteBatch(contentManager));
-            _drawingContext = new DrawingContext(_spriteBatch);
-
             _text = contentManager.TranslationManager.Lookup(wndWindow.Text);
 
-            _enabledState = AddDisposable(new UIElementState(wndWindow, wndWindow.TextColor.Enabled, wndWindow.TextColor.EnabledBorder, wndWindow.EnabledDrawData, contentManager, _spriteBatch));
+            _enabledState = AddDisposable(new UIElementState(wndWindow, wndWindow.TextColor.Enabled, wndWindow.TextColor.EnabledBorder, wndWindow.EnabledDrawData, contentManager, contentManager.GraphicsDevice, HostPlatform.GraphicsDevice2D));
 
             if (wndWindow.WindowType == WndWindowType.PushButton)
             {
-                _highlightState = AddDisposable(new UIElementState(wndWindow, wndWindow.TextColor.Hilite, wndWindow.TextColor.HiliteBorder, wndWindow.HiliteDrawData, contentManager, _spriteBatch));
+                _highlightState = AddDisposable(new UIElementState(wndWindow, wndWindow.TextColor.Hilite, wndWindow.TextColor.HiliteBorder, wndWindow.HiliteDrawData, contentManager, contentManager.GraphicsDevice, HostPlatform.GraphicsDevice2D));
             }
 
-            Hidden = wndWindow.Status.HasFlag(WndWindowStatusFlags.Hidden);
+            Hidden = wndWindow.Status.HasFlag(WndWindowStatusFlags.Hidden) || wndWindow.InputCallback == "GameWinBlockInput";
 
             // TODO
 
@@ -160,60 +153,54 @@ namespace OpenSage.Gui.Elements
             {
                 return;
             }
-
-            var commandBuffer = graphicsDevice.CommandQueue.GetCommandBuffer();
-
-            var renderPassDescriptor = new RenderPassDescriptor();
-
+            
             var activeState = _highlighted
                 ? _highlightState ?? _enabledState
                 : _enabledState;
 
             var clearColour = activeState.BackgroundColor.GetValueOrDefault(new ColorRgbaF(0, 0, 0, 0));
 
-            renderPassDescriptor.SetRenderTargetDescriptor(
-                _renderTarget,
-                LoadAction.Clear,
-                clearColour);
-
-            var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
-
-            var viewport = new Rectangle(0, 0, Frame.Width, Frame.Height);
-            _drawingContext.Begin(commandEncoder, viewport, SamplerStateDescription.LinearClamp);
-
-            commandEncoder.SetViewport(new Viewport(0, 0, Frame.Width, Frame.Height));
-
-            if (activeState.ImageTexture != null)
+            using (var drawingContext = new DrawingContext(HostPlatform.GraphicsDevice2D, _texture))
             {
-                _drawingContext.DrawImage(activeState.ImageTexture, viewport);
-            }
+                drawingContext.Begin();
 
-            if (!string.IsNullOrEmpty(Text))
-            {
-                using (var drawingContext2D = new LowLevel.Graphics2D.DrawingContext(HostPlatform.GraphicsDevice2D, _texture))
-                using (var textFormat = new TextFormat(HostPlatform.GraphicsDevice2D, _wndWindow.Font.Name, _wndWindow.Font.Size * _scale, _wndWindow.Font.Bold ? FontWeight.Bold : FontWeight.Normal))
+                drawingContext.Clear(clearColour);
+
+                if (activeState.BorderColor != null)
                 {
-                    var rect = new RawRectangleF { X = 0, Y = 0, Width = Frame.Width, Height = Frame.Height };
-                    drawingContext2D.DrawText(Text, textFormat, activeState.TextColor.ToColorRgba(), rect);
-
-                    drawingContext2D.Close();
+                    drawingContext.DrawRectangle(
+                        new RawRectangleF(0, 0, Frame.Width, Frame.Height),
+                        activeState.BorderColor.Value,
+                        2);
                 }
+
+                if (activeState.ImageTexture != null)
+                {
+                    drawingContext.DrawImage(
+                        activeState.ImageTexture,
+                        new RawRectangleF(0, 0, activeState.ImageTexture.Width, activeState.ImageTexture.Height),
+                        new RawRectangleF(0, 0, Frame.Width, Frame.Height),
+                        true);
+                }
+
+                if (!string.IsNullOrEmpty(Text))
+                {
+                    using (var textFormat = new TextFormat(HostPlatform.GraphicsDevice2D, _wndWindow.Font.Name, _wndWindow.Font.Size * _scale, _wndWindow.Font.Bold ? FontWeight.Bold : FontWeight.Normal))
+                    {
+                        var rect = new RawRectangleF { X = 0, Y = 0, Width = Frame.Width, Height = Frame.Height };
+                        drawingContext.DrawText(Text, textFormat, activeState.TextColor.ToColorRgba(), rect);
+                    }
+                }
+
+                OnRender(drawingContext);
+
+                drawingContext.End();
             }
-
-            OnRender(_drawingContext);
-
-            _drawingContext.End();
-
-            commandEncoder.Close();
-
-            commandBuffer.Commit();
 
             _needsRender = false;
         }
 
         protected abstract void OnRender(DrawingContext drawingContext);
-
-        
 
         /*
          * private UIElement CreateWindowElement(WndWindow window, FrameworkElement contentElement)

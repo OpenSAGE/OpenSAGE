@@ -1,7 +1,7 @@
 ﻿using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Gui.Elements
+namespace OpenSage.Gui
 {
     public sealed class CroppedBitmap
     {

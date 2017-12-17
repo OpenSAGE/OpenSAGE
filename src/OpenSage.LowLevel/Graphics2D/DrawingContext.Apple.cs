@@ -9,12 +9,29 @@ namespace OpenSage.LowLevel.Graphics2D
             
         }
 
+        private void PlatformBegin()
+        {
+
+        }
+
+        private void PlatformClear(in ColorRgbaF color) { }
+
+        private void PlatformDrawImage(Texture image, in RawRectangleF sourceRect, in RawRectangleF destinationRect, bool interpolate)
+        {
+
+        }
+
         private void PlatformDrawText(string text, TextFormat textFormat, in ColorRgbaF color, in RawRectangleF rect)
         {
             
         }
 
-        private void PlatformClose()
+        private void PlatformDrawRectangle(in RawRectangleF rect, in ColorRgbaF strokeColor, float strokeWidth)
+        {
+
+        }
+
+        private void PlatformEnd()
         {
             
         }

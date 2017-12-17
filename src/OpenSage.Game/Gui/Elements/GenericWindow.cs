@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Gui.Elements
+﻿using OpenSage.LowLevel.Graphics2D;
+
+namespace OpenSage.Gui.Elements
 {
     public sealed class GenericWindow : UIElement
     {

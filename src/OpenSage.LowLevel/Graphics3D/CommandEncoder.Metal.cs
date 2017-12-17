@@ -7,7 +7,6 @@ namespace OpenSage.LowLevel.Graphics3D
     partial class CommandEncoder
     {
         private readonly IMTLRenderCommandEncoder _deviceCommandEncoder;
-        private readonly RenderPassDescriptor _renderPassDescriptor;
 
         internal override string PlatformGetDebugName() => null;
         internal override void PlatformSetDebugName(string value) { }
