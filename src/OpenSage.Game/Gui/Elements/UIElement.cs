@@ -113,16 +113,19 @@ namespace OpenSage.Gui.Elements
             var originalHeight = wndScreenRect.BottomRight.Y - wndScreenRect.UpperLeft.Y;
 
             // Now we can get the new height and width
-            var newWidth = Convert.ToInt32(originalWidth * ratio);
-            var newHeight = Convert.ToInt32(originalHeight * ratio);
+            var newWidth = (int) Math.Round(originalWidth * ratio);
+            var newHeight = (int) Math.Round(originalHeight * ratio);
 
-            var newX = Convert.ToInt32(wndScreenRect.UpperLeft.X * ratio);
-            var newY = Convert.ToInt32(wndScreenRect.UpperLeft.Y * ratio);
+            newWidth = Math.Max(newWidth, 1);
+            newHeight = Math.Max(newHeight, 1);
+
+            var newX = (int) Math.Round(wndScreenRect.UpperLeft.X * ratio);
+            var newY = (int) Math.Round(wndScreenRect.UpperLeft.Y * ratio);
 
             // Now calculate the X,Y position of the upper-left corner 
-            // (one of these will always be zero)
-            var posX = Convert.ToInt32((viewportSize.Width - (wndScreenRect.CreationResolution.Width * ratio)) / 2) + newX;
-            var posY = Convert.ToInt32((viewportSize.Height - (wndScreenRect.CreationResolution.Height * ratio)) / 2) + newY;
+            // (one of these will always be zero for the top level window)
+            var posX = (int) Math.Round((viewportSize.Width - (wndScreenRect.CreationResolution.Width * ratio)) / 2) + newX;
+            var posY = (int) Math.Round((viewportSize.Height - (wndScreenRect.CreationResolution.Height * ratio)) / 2) + newY;
 
             return new Rectangle(posX, posY, newWidth, newHeight);
         }
