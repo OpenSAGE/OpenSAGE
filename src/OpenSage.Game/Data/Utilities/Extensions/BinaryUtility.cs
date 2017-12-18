@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 
 namespace OpenSage.Data.Utilities.Extensions
 {
@@ -14,5 +15,13 @@ namespace OpenSage.Data.Utilities.Extensions
         /// which is in the extended ASCII character set.
         /// </summary>
         public static Encoding AnsiEncoding { get; }
+    }
+
+    internal abstract class BinaryObject
+    {
+        public BinaryObject(BinaryReader br)
+        {
+
+        }
     }
 }

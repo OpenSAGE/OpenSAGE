@@ -36,7 +36,7 @@ namespace OpenSage.Data.Apt
                 {
                     var constEntry = new ConstantEntry
                     {
-                        Type = (ConstantEntryType)reader.ReadUInt32()
+                        Type = reader.ReadUInt32AsEnum<ConstantEntryType>()
                     };
 
                     //read the number/ string offset

@@ -34,13 +34,8 @@ namespace OpenSage.Data.Apt
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
                 //check if this is a valid apt file
-                var fourCc = reader.ReadUInt32().ToFourCcString();
-                if (fourCc != "Apt ")
-                {
-                    throw new InvalidDataException();
-                }
-                fourCc = reader.ReadUInt32().ToFourCcString();
-                if (fourCc != "Data")
+                var magic = reader.ReadFixedLengthString(8);
+                if (magic != "Apt Data")
                 {
                     throw new InvalidDataException();
                 }

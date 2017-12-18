@@ -4,12 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Apt.Characters
 {
     public class Movie : Character
     {
-        public uint FrameCount       { get; private set; }
+        public List<Frame> Frames   { get; private set; }
         public uint CharacterCount   { get; private set; }
         public uint ScreenWidth      { get; private set; }
         public uint ScreenHeight     { get; private set; }
@@ -18,8 +19,7 @@ namespace OpenSage.Data.Apt.Characters
 
         public Movie(BinaryReader br)
         {
-            FrameCount = br.ReadUInt32();
-            var frameOffset = br.ReadUInt32();
+            Frames = br.ReadListAtOffset<Frame>();
             var unknown = br.ReadUInt32();
 
             CharacterCount = br.ReadUInt32();

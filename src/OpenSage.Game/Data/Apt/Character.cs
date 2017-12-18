@@ -9,33 +9,32 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Apt
 {
+    public enum CharacterType : uint
+    {
+        SHAPE = 1,
+        TEXT = 2,
+        FONT = 3,
+        BUTTON = 4,
+        SPRITE = 5,
+        SOUND = 6,
+        IMAGE = 7,
+        MORPH = 8,
+        MOVIE = 9,
+        STATICTEXT = 10,
+        NONE = 11,
+        VIDEO = 12
+    };
+
     //base class for all characters used in apt
     public class Character
     {
         private const uint SIGNATURE = 0x09876543;
 
-        public enum Type : uint
-        {
-            SHAPE = 1,
-            TEXT = 2,
-            FONT = 3,
-            BUTTON = 4,
-            SPRITE = 5,
-            SOUND = 6,
-            IMAGE = 7,
-            MORPH = 8,
-            MOVIE = 9,
-            STATICTEXT = 10,
-            NONE = 11,
-            VIDEO = 12
-        };
-
-
         static public Character Create(BinaryReader br)
         {
             Character ch = new Character();
 
-            var type = (Type)br.ReadUInt32();
+            var type = br.ReadUInt32AsEnum<CharacterType>();
             var sig = br.ReadUInt32();
 
             if (sig != SIGNATURE)
@@ -43,7 +42,7 @@ namespace OpenSage.Data.Apt
 
             switch(type)
             {
-                case Type.MOVIE:
+                case CharacterType.MOVIE:
                     ch = new Movie(br);
                     break;
                 default:

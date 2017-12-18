@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Text;
 using OpenSage.Mathematics;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace OpenSage.Data.Utilities.Extensions
 {
@@ -229,6 +230,28 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadSingle(),
                 reader.ReadSingle(),
                 reader.ReadSingle());
+        }
+
+        public static List<T> ReadListAtOffset<T>(this BinaryReader reader) where T : BinaryObject
+        {
+            var capacity = reader.ReadInt32();
+            List<T> result = new List<T>(capacity);
+
+            //get the offset
+            var listOffset = reader.ReadUInt32();
+            var oldOffset = reader.BaseStream.Position;
+
+            //jump to the location and read the data
+            reader.BaseStream.Seek(listOffset, SeekOrigin.Begin);
+
+            for(var i=0;i<capacity;i++)
+            {
+                var item = default T();
+            }
+
+            //jump back to where we came from
+            reader.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
+            return result;
         }
     }
 }
