@@ -15,6 +15,8 @@ namespace OpenSage.Gui
         private readonly SpriteBatch _spriteBatch;
         private readonly EffectPipelineStateHandle _pipelineStateHandle;
 
+        private readonly WindowTransitionManager _transitionManager;
+
         public GuiSystem(Game game) 
             : base(game)
         {
@@ -31,6 +33,9 @@ namespace OpenSage.Gui
                 DepthStencilStateDescription.None,
                 BlendStateDescription.AlphaBlend)
                 .GetHandle();
+
+            game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\WindowTransitions.ini");
+            _transitionManager = new WindowTransitionManager(game.ContentManager.IniDataContext.WindowTransitions);
         }
 
         internal override void OnEntityComponentAdded(EntityComponent component)
@@ -38,6 +43,8 @@ namespace OpenSage.Gui
             if (component is GuiComponent c)
             {
                 CreateSizeDependentResources(c);
+
+                c.Window.LayoutInit?.Invoke(c.Window);
             }
 
             base.OnEntityComponentAdded(component);
@@ -56,7 +63,7 @@ namespace OpenSage.Gui
             var viewport = Game.Scene.Camera.Viewport;
             var size = new Size(viewport.Width, viewport.Height);
             DoActionRecursive(
-                guiComponent.RootWindow,
+                guiComponent.Window.Root,
                 x =>
                 {
                     x.CreateSizeDependentResources(Game.ContentManager, size);
@@ -72,16 +79,17 @@ namespace OpenSage.Gui
                 _pipelineStateHandle,
                 (commandEncoder, effect, pipelineStateHandle, instanceData) =>
                 {
-                    _spriteBatch.Begin(commandEncoder, Game.Scene.Camera.Viewport.Bounds(), BlendStateDescription.AlphaBlend, SamplerStateDescription.LinearClamp);
+                    _spriteBatch.Begin(commandEncoder, Game.Scene.Camera.Viewport.Bounds(), BlendStateDescription.AlphaBlend, SamplerStateDescription.PointClamp);
 
-                    DoActionRecursive(component.RootWindow, x =>
+                    DoActionRecursive(component.Window.Root, x =>
                     {
-                        if (!x.Hidden)
+                        if (x.Visible)
                         {
                             _spriteBatch.Draw(
                                 x.Texture,
                                 new Rectangle(0, 0, x.Texture.Width, x.Texture.Height),
-                                x.Frame);
+                                x.Frame,
+                                x.Opacity);
                             return true;
                         }
                         return false;
@@ -110,8 +118,16 @@ namespace OpenSage.Gui
 
             foreach (var guiComponent in _guiComponents)
             {
+                guiComponent.Window.LayoutUpdate?.Invoke(guiComponent.Window);
+
+                var elementCallbackContext = new UIElementCallbackContext(
+                    guiComponent.Window,
+                    _transitionManager,
+                    mousePosition,
+                    gameTime);
+
                 DoActionRecursive(
-                    guiComponent.RootWindow,
+                    guiComponent.Window.Root,
                     x =>
                     {
                         if (x.Frame.Contains(mousePosition))
@@ -127,14 +143,19 @@ namespace OpenSage.Gui
                             x.IsMouseOver = false;
                             x.OnMouseExit(EventArgs.Empty);
                         }
+
+                        x.SystemCallback?.Invoke(x, elementCallbackContext);
+
                         return true;
                     });
             }
 
+            _transitionManager.Update(gameTime);
+
             foreach (var guiComponent in _guiComponents)
             {
                 DoActionRecursive(
-                    guiComponent.RootWindow, 
+                    guiComponent.Window.Root, 
                     x =>
                     {
                         x.Render(Game.GraphicsDevice);

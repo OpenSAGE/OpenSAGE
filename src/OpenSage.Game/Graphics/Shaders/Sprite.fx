@@ -19,13 +19,17 @@ SamplerState Sampler : register(s0);
 
 cbuffer MaterialConstants : register(b2)
 {
-    float4 TintColor;
+    float Opacity;
 };
 
 float4 PS(PSInput input) : SV_TARGET
 {
-    return TintColor * Texture.SampleLevel(
+    float4 textureColor = Texture.SampleLevel(
         Sampler,
         input.TexCoords,
         0);
+
+    textureColor.a *= Opacity;
+
+    return textureColor;
 }

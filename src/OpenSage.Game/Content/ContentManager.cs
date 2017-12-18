@@ -6,7 +6,7 @@ using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
-using OpenSage.Gui.Elements;
+using OpenSage.Gui;
 
 namespace OpenSage.Content
 {
@@ -43,7 +43,7 @@ namespace OpenSage.Content
                 { typeof(Model), AddDisposable(new ModelLoader()) },
                 { typeof(Scene), AddDisposable(new MapLoader()) },
                 { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
-                { typeof(UIElement), AddDisposable(new WindowLoader(this)) }
+                { typeof(GuiWindow), AddDisposable(new WindowLoader(this)) }
             };
 
             _cachedObjects = new Dictionary<string, object>();
