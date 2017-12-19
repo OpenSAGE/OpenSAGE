@@ -357,5 +357,14 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("EMOTION_AFRAID"), AddedIn(SageGame.BattleForMiddleEarth)]
         EmotionAfraid,
+
+        [IniEnum("WEAPONSET_TOGGLE_1"), AddedIn(SageGame.BattleForMiddleEarth)]
+        WeaponSetToggle1,
+
+        [IniEnum("MOUNTED"), AddedIn(SageGame.BattleForMiddleEarth)]
+        Mounted,
+
+        [IniEnum("WEAPONLOCK_SECONDARY"), AddedIn(SageGame.BattleForMiddleEarth)]
+        WeaponLockSecondary,
     }
 }

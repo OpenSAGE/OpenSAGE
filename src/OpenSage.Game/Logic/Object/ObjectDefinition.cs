@@ -358,6 +358,27 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<AddModule>());
     }
 
+    public sealed class ChildObject : ObjectDefinition
+    {
+        internal static new ChildObject Parse(IniParser parser)
+        {
+            var childName = parser.GetNextToken();
+            var parentName = parser.GetNextToken();
+
+            var result = parser.ParseBlock(FieldParseTable);
+
+            result.Name = childName.Text;
+            result.ChildOf = parentName.Text;
+
+            return result;
+        }
+
+        private static new readonly IniParseTable<ChildObject> FieldParseTable = ObjectDefinition.FieldParseTable
+            .Concat(new IniParseTable<ChildObject>());
+
+        public string ChildOf { get; private set; }
+    }
+
     public sealed class ReplaceModule
     {
         internal static ReplaceModule Parse(IniParser parser)

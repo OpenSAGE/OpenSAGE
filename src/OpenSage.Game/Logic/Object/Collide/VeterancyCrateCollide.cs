@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -11,12 +12,20 @@ namespace OpenSage.Logic.Object
             {
                 { "EffectRange", (parser, x) => x.EffectRange = parser.ParseInteger() },
                 { "AddsOwnerVeterancy", (parser, x) => x.AddsOwnerVeterancy = parser.ParseBoolean() },
-                { "IsPilot", (parser, x) => x.IsPilot = parser.ParseBoolean() }
+                { "IsPilot", (parser, x) => x.IsPilot = parser.ParseBoolean() },
+                { "ExecuteFX", (parser, x) => x.ExecuteFX = parser.ParseAssetReference() },
+                { "AffectsUpToLevel", (parser, x) => x.AffectsUpToLevel = parser.ParseInteger() },
             });
 
        
         public int EffectRange { get; private set; }
         public bool AddsOwnerVeterancy { get; private set; }
         public bool IsPilot { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public string ExecuteFX { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int AffectsUpToLevel { get; private set; }
     }
 }

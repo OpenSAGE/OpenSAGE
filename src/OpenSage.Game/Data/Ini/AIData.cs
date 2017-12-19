@@ -9,6 +9,12 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<AIData> FieldParseTable = new IniParseTable<AIData>
         {
+            { "UseLowLODTrees", (parser, x) => x.UseLowLodTrees = parser.ParseBoolean() },
+            { "LowLodTreeScale", (parser, x) => x.LowLodTreeScale = parser.ParseFloat() },
+            { "LowLodTreeName", (parser, x) => x.LowLodTreeName = parser.ParseAssetReference() },
+            { "LowLodTreeNameNoGrab", (parser, x) => x.LowLodTreeNameNoGrab = parser.ParseAssetReference() },
+            { "LowLodTreeNameNoHarvest", (parser, x) => x.LowLodTreeNameNoHarvest = parser.ParseAssetReference() },
+
             { "StructureSeconds", (parser, x) => x.StructureSeconds = parser.ParseFloat() },
             { "TeamSeconds", (parser, x) => x.TeamSeconds = parser.ParseFloat() },
             { "Wealthy", (parser, x) => x.Wealthy = parser.ParseInteger() },
@@ -49,6 +55,19 @@ namespace OpenSage.Data.Ini
             { "MinDistanceForGroup", (parser, x) => x.MinDistanceForGroup = parser.ParseFloat() },
             { "DistanceRequiresGroup", (parser, x) => x.DistanceRequiresGroup = parser.ParseFloat() },
 
+            { "FormationEnemyDistance", (parser, x) => x.FormationEnemyDistance = parser.ParseFloat() },
+            { "FormationColumnWidth", (parser, x) => x.FormationColumnWidth = parser.ParseFloat() },
+            { "FormationRowDepth", (parser, x) => x.FormationRowDepth = parser.ParseFloat() },
+            { "FormationSquadSpacing", (parser, x) => x.FormationSquadSpacing = parser.ParseFloat() },
+            { "FormationColumns", (parser, x) => x.FormationColumns = parser.ParseInteger() },
+            { "UseFormations", (parser, x) => x.UseFormations = parser.ParseBoolean() },
+            { "WaitForOthers", (parser, x) => x.WaitForOthers = parser.ParseBoolean() },
+
+            { "NarrowPassageScale", (parser, x) => x.NarrowPassageScale = parser.ParseFloat() },
+
+            { "HordesWaitForHordes", (parser, x) => x.HordesWaitForHordes = parser.ParseBoolean() },
+            { "AttackMoveUsesFormations", (parser, x) => x.AttackMoveUsesFormations = parser.ParseBoolean() },
+
             { "InfantryPathfindDiameter", (parser, x) => x.InfantryPathfindDiameter = parser.ParseInteger() },
             { "VehiclePathfindDiameter", (parser, x) => x.VehiclePathfindDiameter = parser.ParseInteger() },
 
@@ -58,13 +77,43 @@ namespace OpenSage.Data.Ini
             { "AIDozerBoredRadiusModifier", (parser, x) => x.AIDozerBoredRadiusModifier = parser.ParseFloat() },
             { "AICrushesInfantry", (parser, x) => x.AICrushesInfantry = parser.ParseBoolean() },
 
+            { "MeleeApproachDist", (parser, x) => x.MeleeApproachDist = parser.ParseFloat() },
+            { "MeleeApproachTolerance", (parser, x) => x.MeleeApproachTolerance = parser.ParseFloat() },
+            { "MeleeAcquireLimitDist", (parser, x) => x.MeleeAcquireLimitDist = parser.ParseFloat() },
+            { "WadeWaterDepth", (parser, x) => x.WadeWaterDepth = parser.ParseFloat() },
+
             { "MaxRetaliationDistance", (parser, x) => x.MaxRetaliationDistance = parser.ParseFloat() },
+            { "MaxRetaliateDistance", (parser, x) => x.MaxRetaliationDistance = parser.ParseFloat() }, // Same thing, but BFME uses different name from ZH
+
             { "RetaliationFriendsRadius", (parser, x) => x.RetaliationFriendsRadius = parser.ParseFloat() },
+            { "RetaliateFriendsRadius", (parser, x) => x.RetaliationFriendsRadius = parser.ParseFloat() }, // Same thing, but BFME uses different name from ZH
+
+            { "ChaseFromBehindLimit", (parser, x) => x.ChaseFromBehindLimit = parser.ParseFloat() },
+            { "ForceHordesToLowLOD", (parser, x) => x.ForceHordesToLowLod = parser.ParseBoolean() },
+            { "AllowForestFires", (parser, x) => x.AllowForestFires = parser.ParseBoolean() },
+            { "CastleSiegeStandBackDistance", (parser, x) => x.CastleSiegeStandBackDistance = parser.ParseFloat() },
 
             { "SideInfo", (parser, x) => x.SideInfos.Add(AISideInfo.Parse(parser)) },
 
             { "SkirmishBuildList", (parser, x) => x.SkirmishBuildLists.Add(AISkirmishBuildList.Parse(parser)) },
+
+            { "AttackPriority", (parser, x) => x.AttackPriorities.Add(AttackPriority.Parse(parser)) },
         };
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool UseLowLodTrees { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float LowLodTreeScale { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public string LowLodTreeName { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public string LowLodTreeNameNoGrab { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public string LowLodTreeNameNoHarvest { get; private set; }
 
         public float StructureSeconds { get; private set; }
         public float TeamSeconds { get; private set; }
@@ -109,6 +158,36 @@ namespace OpenSage.Data.Ini
         public float MinDistanceForGroup { get; private set; }
         public float DistanceRequiresGroup { get; private set; }
 
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float FormationEnemyDistance { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float FormationColumnWidth { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float FormationRowDepth { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float FormationSquadSpacing { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int FormationColumns { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool UseFormations { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool WaitForOthers { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float NarrowPassageScale { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool HordesWaitForHordes { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool AttackMoveUsesFormations { get; private set; }
+
         public int InfantryPathfindDiameter { get; private set; }
         public int VehiclePathfindDiameter { get; private set; }
 
@@ -118,15 +197,42 @@ namespace OpenSage.Data.Ini
         public float AIDozerBoredRadiusModifier { get; private set; }
         public bool AICrushesInfantry { get; private set; }
 
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float MeleeApproachDist { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float MeleeApproachTolerance { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float MeleeAcquireLimitDist { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float WadeWaterDepth { get; private set; }
+
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public float MaxRetaliationDistance { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public float RetaliationFriendsRadius { get; private set; }
 
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float ChaseFromBehindLimit { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool ForceHordesToLowLod { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool AllowForestFires { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public float CastleSiegeStandBackDistance { get; private set; }
+
         public List<AISideInfo> SideInfos { get; } = new List<AISideInfo>();
 
         public List<AISkirmishBuildList> SkirmishBuildLists { get; } = new List<AISkirmishBuildList>();
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public List<AttackPriority> AttackPriorities { get; } = new List<AttackPriority>();
     }
 
     public sealed class AISideInfo

@@ -5,10 +5,6 @@
         [IniEnum("NONE")]
         None,
 
-        // TODO: Not sure if this should be here.
-        [IniEnum("ANY"), AddedIn(SageGame.BattleForMiddleEarth)]
-        Any,
-
         [IniEnum("SALVAGER")]
         Salvager,
 
@@ -378,12 +374,6 @@
         [IniEnum("HORDE"), AddedIn(SageGame.BattleForMiddleEarthII)]
         Horde,
 
-        [IniEnum("DWARVENBATTLEWAGON"), AddedIn(SageGame.BattleForMiddleEarthII)]
-        DwarvenBattleWagon,
-
-        [IniEnum("ISENGARDBESERKER"), AddedIn(SageGame.BattleForMiddleEarthII)]
-        IsengardBeserker,
-
         [IniEnum("IGNORE_FOR_VICTORY"), AddedIn(SageGame.BattleForMiddleEarthII)]
         IgnoreForVictory,
 
@@ -399,28 +389,16 @@
         [IniEnum("WALL_SEGMENT"), AddedIn(SageGame.BattleForMiddleEarthII)]
         WallSegment,
 
-        [IniEnum("INN"), AddedIn(SageGame.BattleForMiddleEarthII)]
-        Inn,
-
-        [IniEnum("SHIPWRIGHT"), AddedIn(SageGame.BattleForMiddleEarthII)]
-        Shipwright,
-
-        [IniEnum("OUTPOST"), AddedIn(SageGame.BattleForMiddleEarthII)]
-        Outpost,
-
-        [IniEnum("SIGNALFIRE"), AddedIn(SageGame.BattleForMiddleEarthII)]
-        SignalFire,
-
-        [IniEnum("CAPTUREFLAG"), AddedIn(SageGame.BattleForMiddleEarthII)]
-        CaptureFlag,
-
-        [IniEnum("SHIREGREENDRAGON"), AddedIn(SageGame.BattleForMiddleEarthII)]
-        ShireGreenDragon,
-
         [IniEnum("NOT_AUTOACQUIRABLE"), AddedIn(SageGame.BattleForMiddleEarthII)]
         NotAutoAcquirable,
 
-        [IniEnum("MORDORWORKER"), AddedIn(SageGame.BattleForMiddleEarthII)]
-        MordorWorker,
+        [IniEnum("BLOCKING_GATE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        BlockingGate,
+
+        [IniEnum("ENVIRONMENT"), AddedIn(SageGame.BattleForMiddleEarth)]
+        Environment,
+
+        [IniEnum("CREEP"), AddedIn(SageGame.BattleForMiddleEarth)]
+        Creep,
     }
 }

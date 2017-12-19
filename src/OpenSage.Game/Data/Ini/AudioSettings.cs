@@ -1,5 +1,4 @@
 ﻿using OpenSage.Data.Ini.Parser;
-using OpenSage.Data.Wnd;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini

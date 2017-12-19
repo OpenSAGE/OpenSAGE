@@ -26,6 +26,7 @@ namespace OpenSage.Data.Ini
             { "ButtonBorderActionColor", (parser, x) => x.ButtonBorderActionColor = parser.ParseColorRgba() },
             { "ButtonBorderUpgradeColor", (parser, x) => x.ButtonBorderUpgradeColor = parser.ParseColorRgba() },
             { "ButtonBorderSystemColor", (parser, x) => x.ButtonBorderSystemColor = parser.ParseColorRgba() },
+            { "ButtonBorderAlteredColor", (parser, x) => x.ButtonBorderAlteredColor = parser.ParseColorRgba() },
 
             { "GenBarButtonIn", (parser, x) => x.GenBarButtonIn = parser.ParseAssetReference() },
             { "GenBarButtonOn", (parser, x) => x.GenBarButtonOn = parser.ParseAssetReference() },
@@ -120,6 +121,9 @@ namespace OpenSage.Data.Ini
         public ColorRgba ButtonBorderActionColor { get; private set; }
         public ColorRgba ButtonBorderUpgradeColor { get; private set; }
         public ColorRgba ButtonBorderSystemColor { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public ColorRgba ButtonBorderAlteredColor { get; private set; }
 
         public string GenBarButtonIn { get; private set; }
         public string GenBarButtonOn { get; private set; }
