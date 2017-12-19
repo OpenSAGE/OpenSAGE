@@ -20,14 +20,12 @@ namespace OpenSage.Data.Tests.Ini
         {
             InstalledFilesTestData.ReadFiles(".ini", _output, entry =>
             {
-                if (Path.GetFileName(entry.FilePath) == "ButtonSets.ini")
+                switch (Path.GetFileName(entry.FilePath).ToLowerInvariant())
                 {
-                    return; // This file doesn't seem to be used?
-                }
-
-                if (Path.GetFileName(entry.FilePath).ToLowerInvariant() == "scripts.ini")
-                {
-                    return; // Only needed by World Builder?
+                    case "buttonsets.ini": // Doesn't seem to be used?
+                    case "scripts.ini": // Only needed by World Builder?
+                    case "commandmapdebug.ini": // Only applies to DEBUG and INTERNAL builds
+                        return;
                 }
 
                 var dataContext = new IniDataContext(entry.FileSystem);

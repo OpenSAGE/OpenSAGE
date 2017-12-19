@@ -16,14 +16,14 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<AmbientStream> FieldParseTable = new IniParseTable<AmbientStream>
         {
             { "Filename", (parser, x) => x.FileName = parser.ParseFileName() },
-            { "Volume", (parser, x) => x.Volume = parser.ParseInteger() },
+            { "Volume", (parser, x) => x.Volume = parser.ParseFloat() },
             { "Type", (parser, x) => x.Type = parser.ParseEnumFlags<AudioTypeFlags>() }
         };
 
         public string Name { get; private set; }
 
         public string FileName { get; private set; }
-        public int Volume { get; private set; }
+        public float Volume { get; private set; }
         public AudioTypeFlags Type { get; private set; }
     }
 }

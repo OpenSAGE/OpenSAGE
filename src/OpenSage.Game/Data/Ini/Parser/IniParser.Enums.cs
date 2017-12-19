@@ -74,6 +74,7 @@ namespace OpenSage.Data.Ini.Parser
                 { "KEY_BACKSLASH", Key.Backslash },
                 { "KEY_SLASH", Key.Slash },
                 { "KEY_SPACE", Key.Space },
+                { "KEY_ENTER", Key.Enter },
                 { "KEY_TAB", Key.Tab },
                 { "KEY_DEL", Key.Delete },
                 { "KEY_ESC", Key.Escape },
@@ -95,7 +96,7 @@ namespace OpenSage.Data.Ini.Parser
             });
         }
 
-        private static Dictionary<string, Enum> GetEnumMap<T>()
+        public static Dictionary<string, Enum> GetEnumMap<T>()
             where T : struct
         {
             var enumType = typeof(T);

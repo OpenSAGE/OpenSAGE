@@ -74,6 +74,16 @@ namespace OpenSage.LowLevel.Graphics2D
             }
         }
 
+        private void PlatformFillRectangle(in RawRectangleF rect, in ColorRgbaF fillColor)
+        {
+            using (var brush = CreateBrush(fillColor))
+            {
+                _graphicsDevice.DeviceContext.FillRectangle(
+                    ToRawRectangleF(rect),
+                    brush);
+            }
+        }
+
         private SolidColorBrush CreateBrush(in ColorRgbaF color)
         {
             return new SolidColorBrush(_graphicsDevice.DeviceContext, color.ToRawColor4());

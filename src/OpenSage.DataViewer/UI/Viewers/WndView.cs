@@ -12,7 +12,7 @@ namespace OpenSage.DataViewer.UI.Viewers
         {
             var guiComponent = new GuiComponent
             {
-                RootWindow = game.ContentManager.Load<UIElement>(entry.FilePath)
+                Window = game.ContentManager.Load<GuiWindow>(entry.FilePath)
             };
 
             var scene = new Scene();
@@ -24,11 +24,11 @@ namespace OpenSage.DataViewer.UI.Viewers
             game.Scene = scene;
 
             var treeItem = new TreeItem();
-            treeItem.Children.Add(CreateTreeItemRecursive(guiComponent.RootWindow));
+            treeItem.Children.Add(CreateTreeItemRecursive(guiComponent.Window.Root));
 
             var treeView = new TreeView
             {
-                Width = 300,
+                Width = 400,
                 DataStore = treeItem
             };
 
@@ -58,7 +58,7 @@ namespace OpenSage.DataViewer.UI.Viewers
         {
             var result = new TreeItem
             {
-                Text = element.Name,
+                Text = element.DisplayName,
                 Expanded = true,
                 Tag = element
             };

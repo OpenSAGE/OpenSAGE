@@ -24,7 +24,7 @@ namespace OpenSage.Graphics.Effects
         [StructLayout(LayoutKind.Sequential)]
         public struct MaterialConstants
         {
-            public ColorRgbaF TintColor;
+            public float Opacity;
         }
     }
 }

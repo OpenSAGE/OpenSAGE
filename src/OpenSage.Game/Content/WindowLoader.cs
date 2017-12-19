@@ -1,25 +1,44 @@
 ﻿using System;
 using OpenSage.Data;
 using OpenSage.Data.Wnd;
+using OpenSage.Gui;
 using OpenSage.Gui.Elements;
 
 namespace OpenSage.Content
 {
-    internal sealed class WindowLoader : ContentLoader<UIElement>
+    internal sealed class WindowLoader : ContentLoader<GuiWindow>
     {
         public WindowLoader(ContentManager contentManager)
         {
+            switch (contentManager.SageGame)
+            {
+                case SageGame.CncGenerals:
+                case SageGame.CncGeneralsZeroHour:
+                    contentManager.IniDataContext.LoadIniFile(@"Data\English\HeaderTemplate.ini");
+                    break;
+
+                case SageGame.BattleForMiddleEarth:
+                    contentManager.IniDataContext.LoadIniFile(@"lang\english\headertemplate.ini");
+                    break;
+
+                case SageGame.BattleForMiddleEarthII:
+                    contentManager.IniDataContext.LoadIniFile(@"headertemplate.ini");
+                    break;
+            }
+
             contentManager.IniDataContext.LoadIniFiles(@"Data\INI\MappedImages\HandCreated\");
             contentManager.IniDataContext.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512\");
         }
 
-        protected override UIElement LoadEntry(FileSystemEntry entry, ContentManager contentManager, LoadOptions loadOptions)
+        protected override GuiWindow LoadEntry(FileSystemEntry entry, ContentManager contentManager, LoadOptions loadOptions)
         {
             var wndFile = WndFile.FromFileSystemEntry(entry);
 
-            return CreateElementRecursive(
+            var result = CreateElementRecursive(
                 wndFile.RootWindow, 
                 contentManager);
+
+            return new GuiWindow(wndFile, result);
         }
 
         private static UIElement CreateElementRecursive(WndWindow wndWindow, ContentManager contentManager)

@@ -66,7 +66,7 @@ namespace OpenSage.Graphics
             _material.Effect.SetPipelineState(pipelineStateHandle);
         }
 
-        public void Draw(Texture texture, in Rectangle sourceRect, in Rectangle destinationRect, ColorRgbaF? tintColor = null)
+        public void Draw(Texture texture, in Rectangle sourceRect, in Rectangle destinationRect, float opacity)
         {
             var uvL = sourceRect.X / (float) (texture.Width);
             var uvT = sourceRect.Y / (float) (texture.Height);
@@ -93,7 +93,7 @@ namespace OpenSage.Graphics
 
             _material.SetTexture(texture);
 
-            _materialConstantsBuffer.Value.TintColor = tintColor ?? new ColorRgbaF(1, 1, 1, 1);
+            _materialConstantsBuffer.Value.Opacity = opacity;
             _materialConstantsBuffer.Update();
 
             _material.Apply();

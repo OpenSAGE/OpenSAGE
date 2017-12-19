@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Linq;
+using System.Numerics;
 using OpenSage.Content;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Wnd;
 using OpenSage.LowLevel;
 using OpenSage.LowLevel.Graphics2D;
@@ -22,23 +25,68 @@ namespace OpenSage.Gui.Elements
 
         private float _scale;
 
+        private HeaderTemplate _headerTemplate;
         private string _text;
 
         protected string Text => _text;
 
         private bool _needsRender;
 
+        public WndWindow Definition => _wndWindow;
+
         public Rectangle Frame { get; private set; }
 
         public string Name => _wndWindow.Name;
 
+        public string DisplayName => $"{Name} ({_wndWindow.WindowType}, {(Visible ? "Visible" : "Hidden")})";
+
         public Texture Texture => _texture;
 
-        public bool Hidden { get; private set; }
+        public bool Visible { get; private set; }
 
         public UIElement Parent { get; internal set; }
 
         public UIElementCollection Children { get; } = new UIElementCollection();
+
+        internal UIElementCallback SystemCallback { get; private set; }
+        internal UIElementCallback InputCallback { get; private set; }
+        internal UIElementCallback TooltipCallback { get; private set; }
+        internal UIElementCallback DrawCallback { get; private set; }
+
+        private ColorRgba? _backgroundColorOverride;
+        public ColorRgba? BackgroundColorOverride
+        {
+            get => _backgroundColorOverride;
+            set
+            {
+                _backgroundColorOverride = value;
+                Invalidate();
+            }
+        }
+
+        private ColorRgba? _overlayColorOverride;
+        public ColorRgba? OverlayColorOverride
+        {
+            get => _overlayColorOverride;
+            set
+            {
+                _overlayColorOverride = value;
+                Invalidate();
+            }
+        }
+
+        public float Opacity { get; set; } = 1;
+
+        private float _textOpacity = 1;
+        public float TextOpacity
+        {
+            get => _textOpacity;
+            set
+            {
+                _textOpacity = value;
+                Invalidate();
+            }
+        }
 
         private bool _highlighted;
         public bool Highlighted
@@ -47,8 +95,37 @@ namespace OpenSage.Gui.Elements
             set
             {
                 _highlighted = value;
-                _needsRender = true;
+                Invalidate();
             }
+        }
+
+        public UIElement FindChild(string name)
+        {
+            foreach (var child in Children)
+            {
+                if (child.Name == name)
+                {
+                    return child;
+                }
+
+                var foundChild = child.FindChild(name);
+                if (foundChild != null)
+                {
+                    return foundChild;
+                }
+            }
+
+            return null;
+        }
+
+        public void Show()
+        {
+            Visible = true;
+        }
+
+        public void Hide()
+        {
+            Visible = false;
         }
 
         public void Initialize(WndWindow wndWindow, ContentManager contentManager)
@@ -61,6 +138,11 @@ namespace OpenSage.Gui.Elements
             _wndWindow = wndWindow;
             _needsRender = true;
 
+            if (!string.Equals(wndWindow.HeaderTemplate, "[NONE]", StringComparison.InvariantCultureIgnoreCase))
+            {
+                _headerTemplate = contentManager.IniDataContext.HeaderTemplates.First(x => x.Name == wndWindow.HeaderTemplate);
+            }
+
             _text = contentManager.TranslationManager.Lookup(wndWindow.Text);
 
             _enabledState = AddDisposable(new UIElementState(wndWindow, wndWindow.TextColor.Enabled, wndWindow.TextColor.EnabledBorder, wndWindow.EnabledDrawData, contentManager, contentManager.GraphicsDevice, HostPlatform.GraphicsDevice2D));
@@ -70,7 +152,12 @@ namespace OpenSage.Gui.Elements
                 _highlightState = AddDisposable(new UIElementState(wndWindow, wndWindow.TextColor.Hilite, wndWindow.TextColor.HiliteBorder, wndWindow.HiliteDrawData, contentManager, contentManager.GraphicsDevice, HostPlatform.GraphicsDevice2D));
             }
 
-            Hidden = wndWindow.Status.HasFlag(WndWindowStatusFlags.Hidden) || wndWindow.InputCallback == "GameWinBlockInput";
+            Visible = !wndWindow.Status.HasFlag(WndWindowStatusFlags.Hidden) && wndWindow.InputCallback != "GameWinBlockInput";
+
+            SystemCallback = CallbackUtility.GetUIElementCallback(wndWindow.SystemCallback);
+            InputCallback = CallbackUtility.GetUIElementCallback(wndWindow.InputCallback);
+            TooltipCallback = CallbackUtility.GetUIElementCallback(wndWindow.TooltipCallback);
+            DrawCallback = CallbackUtility.GetUIElementCallback(wndWindow.DrawCallback);
 
             // TODO
 
@@ -160,7 +247,9 @@ namespace OpenSage.Gui.Elements
                 ? _highlightState ?? _enabledState
                 : _enabledState;
 
-            var clearColour = activeState.BackgroundColor.GetValueOrDefault(new ColorRgbaF(0, 0, 0, 0));
+            var clearColour = _backgroundColorOverride?.ToColorRgba()
+                ?? activeState.BackgroundColor
+                ?? new ColorRgbaF(0, 0, 0, 0);
 
             using (var drawingContext = new DrawingContext(HostPlatform.GraphicsDevice2D, _texture))
             {
@@ -191,12 +280,41 @@ namespace OpenSage.Gui.Elements
                         borderWidth);
                 }
 
+                if (_overlayColorOverride != null)
+                {
+                    var overlayColor = _overlayColorOverride.Value.ToColorRgba();
+                    overlayColor.A *= Opacity;
+
+                    drawingContext.FillRectangle(
+                        new RawRectangleF(0, 0, Frame.Width, Frame.Height),
+                        overlayColor);
+                }
+
                 if (!string.IsNullOrEmpty(Text))
                 {
-                    using (var textFormat = new TextFormat(HostPlatform.GraphicsDevice2D, _wndWindow.Font.Name, _wndWindow.Font.Size * _scale, _wndWindow.Font.Bold ? FontWeight.Bold : FontWeight.Normal))
+                    string fontName;
+                    int fontSize;
+                    bool fontBold;
+                    if (_headerTemplate != null)
                     {
+                        fontName = _headerTemplate.Font;
+                        fontSize = _headerTemplate.Point;
+                        fontBold = _headerTemplate.Bold;
+                    }
+                    else
+                    {
+                        fontName = _wndWindow.Font.Name;
+                        fontSize = _wndWindow.Font.Size;
+                        fontBold = _wndWindow.Font.Bold;
+                    }
+                    
+                    using (var textFormat = new TextFormat(HostPlatform.GraphicsDevice2D, fontName, fontSize * _scale, fontBold ? FontWeight.Bold : FontWeight.Normal))
+                    {
+                        var textColor = activeState.TextColor.ToColorRgba();
+                        textColor.A *= TextOpacity;
+
                         var rect = new RawRectangleF { X = 0, Y = 0, Width = Frame.Width, Height = Frame.Height };
-                        drawingContext.DrawText(Text, textFormat, activeState.TextColor.ToColorRgba(), rect);
+                        drawingContext.DrawText(Text, textFormat, textColor, rect);
                     }
                 }
 
@@ -209,139 +327,27 @@ namespace OpenSage.Gui.Elements
         }
 
         protected abstract void OnRender(DrawingContext drawingContext);
+    }
 
-        /*
-         * private UIElement CreateWindowElement(WndWindow window, FrameworkElement contentElement)
+    internal delegate void UIElementCallback(UIElement element, UIElementCallbackContext context);
+
+    internal sealed class UIElementCallbackContext
+    {
+        public GuiWindow Window { get; }
+        public WindowTransitionManager TransitionManager { get; }
+        public Vector2 MousePosition { get; }
+        public GameTime GameTime { get; }
+
+        public UIElementCallbackContext(
+            GuiWindow window,
+            WindowTransitionManager transitionManager,
+            in Vector2 mousePosition,
+            GameTime gameTime)
         {
-            var result = new Border
-            {
-                Name = window.Name.Replace(".", string.Empty).Replace(":", string.Empty),
-                DataContext = window
-            };
-
-            var style = new Style(typeof(Border));
-
-            var hasBackground = !window.Status.HasFlag(WndWindowStatusFlags.Image);
-
-            style.Setters.Add(new Setter(TextBlock.ForegroundProperty, new Binding("TextColor.Enabled") { Converter = ColorRgbaToBrushConverter.Instance }));
-            if (hasBackground)
-            {
-                style.Setters.Add(new Setter(Border.BackgroundProperty, new Binding("EnabledDrawData.Items[0].Color") { Converter = ColorRgbaToBrushConverter.Instance }));
-                style.Setters.Add(new Setter(Border.BorderBrushProperty, new Binding("EnabledDrawData.Items[0].BorderColor") { Converter = ColorRgbaToBrushConverter.Instance }));
-            }
-            else
-                result.Background = Brushes.Transparent;
-
-            var trigger = new Trigger
-            {
-                Property = UIElement.IsMouseOverProperty,
-                Value = true,
-            };
-
-            trigger.Setters.Add(new Setter(TextBlock.ForegroundProperty, new Binding("TextColor.Hilite") { Converter = ColorRgbaToBrushConverter.Instance }));
-            if (hasBackground)
-            {
-                trigger.Setters.Add(new Setter(Border.BackgroundProperty, new Binding("HiliteDrawData.Items[0].Color") { Converter = ColorRgbaToBrushConverter.Instance }));
-                trigger.Setters.Add(new Setter(Border.BorderBrushProperty, new Binding("HiliteDrawData.Items[0].BorderColor") { Converter = ColorRgbaToBrushConverter.Instance }));
-            }
-
-            style.Triggers.Add(trigger);
-
-            result.Style = style;
-
-            if (hasBackground || window.Status.HasFlag(WndWindowStatusFlags.Border))
-            {
-                result.BorderThickness = new Thickness(1);
-            }
-
-            if (window.Status.HasFlag(WndWindowStatusFlags.Hidden) || window.InputCallback == "GameWinBlockInput")
-            {
-                result.Visibility = Visibility.Hidden;
-            }
-
-            var grid = new Grid();
-
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-            //if (result.Name != "MainMenuwndEarthMap2" && result.Name != "MainMenuwndEarthMap")
-            {
-                switch (window.WindowType)
-                {
-                    case WndWindowType.GenericWindow:
-                        grid.Children.Add(CreateImage(result, window, 0, Stretch.Fill));
-                        Grid.SetColumnSpan(grid.Children[0], 3);
-                        break;
-
-                    case WndWindowType.PushButton:
-                        grid.Children.Add(CreateImage(result, window, 0));
-                        Grid.SetColumn(grid.Children[0], 0);
-
-                        grid.Children.Add(CreateImage(result, window, 5, Stretch.Fill));
-                        Grid.SetColumn(grid.Children[1], 1);
-
-                        grid.Children.Add(CreateImage(result, window, 6));
-                        Grid.SetColumn(grid.Children[2], 2);
-
-                        break;
-                }
-            }
-
-            if (contentElement != null)
-            {
-                Grid.SetColumnSpan(contentElement, 3);
-                grid.Children.Add(contentElement);
-            }
-
-            result.Child = grid;
-
-            var screenRect = window.ScreenRect;
-
-            Canvas.SetLeft(result, screenRect.UpperLeft.X);
-            Canvas.SetTop(result, screenRect.UpperLeft.Y);
-
-            result.Width = screenRect.BottomRight.X - screenRect.UpperLeft.X;
-            result.Height = screenRect.BottomRight.Y - screenRect.UpperLeft.Y;
-
-            TextBlock.SetFontFamily(result, new FontFamily(window.Font.Name));
-            TextBlock.SetFontWeight(result, window.Font.Bold ? FontWeights.Bold : FontWeights.Normal);
-            TextBlock.SetFontSize(result, window.Font.Size);
-
-            return result;
+            Window = window;
+            TransitionManager = transitionManager;
+            MousePosition = mousePosition;
+            GameTime = gameTime;
         }
-
-        private Image CreateImage(FrameworkElement parentElement, WndWindow window, int drawDataIndex, Stretch? stretch = null)
-        {
-            var image = new Image();
-
-            if (stretch != null)
-            {
-                image.Stretch = stretch.Value;
-            };
-
-            var style = new Style(typeof(Image));
-
-            style.Setters.Add(new Setter(Image.SourceProperty, CreateImageSource(window.EnabledDrawData.Items[drawDataIndex].Image)));
-
-            var hoverImageSource = CreateImageSource(window.HiliteDrawData.Items[drawDataIndex].Image);
-            if (hoverImageSource != null)
-            {
-                style.Triggers.Add(new DataTrigger
-                {
-                    Binding = new Binding("IsMouseOver") { Source = parentElement },
-                    Value = true,
-                    Setters =
-                    {
-                        new Setter(Image.SourceProperty, hoverImageSource),
-                    }
-                });
-            }
-
-            image.Style = style;
-
-            return image;
-        }
-         * */
     }
 }

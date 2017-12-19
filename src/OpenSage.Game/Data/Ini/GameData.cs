@@ -479,9 +479,9 @@ namespace OpenSage.Data.Ini
             { "UseHelpTextSystem", (parser, x) => x.UseHelpTextSystem = parser.ParseBoolean() },
             { "EnableHouseColor", (parser, x) => x.EnableHouseColor = parser.ParseBoolean() },
 
-            { "TreeFadeObjectFilter", (parser, x) => x.TreeFadeObjectFilter = parser.ParseEnumBitArray<ObjectKinds>() },
-            { "CamouflageDetectorObjectFilter", (parser, x) => x.CamouflageDetectorObjectFilter = parser.ParseEnumBitArray<ObjectKinds>() },
-            { "VeterancyPipDrawObjectFilter", (parser, x) => x.VeterancyPipDrawObjectFilter = parser.ParseEnumBitArray<ObjectKinds>() },
+            { "TreeFadeObjectFilter", (parser, x) => x.TreeFadeObjectFilter = ObjectFilter.Parse(parser) },
+            { "CamouflageDetectorObjectFilter", (parser, x) => x.CamouflageDetectorObjectFilter = ObjectFilter.Parse(parser) },
+            { "VeterancyPipDrawObjectFilter", (parser, x) => x.VeterancyPipDrawObjectFilter = ObjectFilter.Parse(parser) },
 
             { "ReinvisibityDelay", (parser, x) => x.ReinvisibilityDelay = parser.ParseInteger() },
             { "InvisibilityOpacityMin", (parser, x) => x.InvisibilityOpacityMin = parser.ParseFloat() },
@@ -493,8 +493,8 @@ namespace OpenSage.Data.Ini
             { "BuilderMoveFromNewStructureDistance", (parser, x) => x.BuilderMoveFromNewStructureDistance = parser.ParseInteger() },
             { "MaxCastleRadius", (parser, x) => x.MaxCastleRadius = parser.ParseInteger() },
 
-            { "VictoryConditionStructureObjectFilter", (parser, x) => x.VictoryConditionStructureObjectFilter = parser.ParseEnumBitArray<ObjectKinds>() },
-            { "VictoryConditionUnitObjectFilter", (parser, x) => x.VictoryConditionUnitObjectFilter = parser.ParseEnumBitArray<ObjectKinds>() },
+            { "VictoryConditionStructureObjectFilter", (parser, x) => x.VictoryConditionStructureObjectFilter = ObjectFilter.Parse(parser) },
+            { "VictoryConditionUnitObjectFilter", (parser, x) => x.VictoryConditionUnitObjectFilter = ObjectFilter.Parse(parser) },
 
             { "TutorialMap", (parser, x) => x.TutorialMap = parser.ParseFileName() },
             { "TutorialLoadMovie", (parser, x) => x.TutorialLoadMovie = parser.ParseAssetReference() },
@@ -512,7 +512,7 @@ namespace OpenSage.Data.Ini
             { "AdvancedTutorialObjective", (parser, x) => x.AdvancedTutorialObjective = parser.ParseLocalizedStringKey() },
             { "AdvancedTutorialMillisecondsAfterStartToStartFadeUp", (parser, x) => x.AdvancedTutorialMillisecondsAfterStartToStartFadeUp = parser.ParseInteger() },
 
-            { "ObjectsThatScore", (parser, x) => x.ObjectsThatScore = parser.ParseEnumBitArray<ObjectKinds>() },
+            { "ObjectsThatScore", (parser, x) => x.ObjectsThatScore = ObjectFilter.Parse(parser) },
             { "ScoreKeeper_UnitsBuiltMultiplier", (parser, x) => x.ScoreKeeper_UnitsBuiltMultiplier = parser.ParseInteger() },
             { "ScoreKeeper_UnitsDestroyedMultiplier", (parser, x) => x.ScoreKeeper_UnitsDestroyedMultiplier = parser.ParseInteger() },
             { "ScoreKeeper_StructuresBuiltMultiplier", (parser, x) => x.ScoreKeeper_StructuresBuiltMultiplier = parser.ParseInteger() },
@@ -1267,13 +1267,13 @@ namespace OpenSage.Data.Ini
         public bool EnableHouseColor { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public BitArray<ObjectKinds> TreeFadeObjectFilter { get; private set; }
+        public ObjectFilter TreeFadeObjectFilter { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarthII)]
-        public BitArray<ObjectKinds> CamouflageDetectorObjectFilter { get; private set; }
+        public ObjectFilter CamouflageDetectorObjectFilter { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarthII)]
-        public BitArray<ObjectKinds> VeterancyPipDrawObjectFilter { get; private set; }
+        public ObjectFilter VeterancyPipDrawObjectFilter { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public int ReinvisibilityDelay { get; private set; }
@@ -1300,10 +1300,10 @@ namespace OpenSage.Data.Ini
         public int MaxCastleRadius { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarthII)]
-        public BitArray<ObjectKinds> VictoryConditionStructureObjectFilter { get; private set; }
+        public ObjectFilter VictoryConditionStructureObjectFilter { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarthII)]
-        public BitArray<ObjectKinds> VictoryConditionUnitObjectFilter { get; private set; }
+        public ObjectFilter VictoryConditionUnitObjectFilter { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public string TutorialMap { get; private set; }
@@ -1345,7 +1345,7 @@ namespace OpenSage.Data.Ini
         public int AdvancedTutorialMillisecondsAfterStartToStartFadeUp { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public BitArray<ObjectKinds> ObjectsThatScore { get; private set; }
+        public ObjectFilter ObjectsThatScore { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public int ScoreKeeper_UnitsBuiltMultiplier { get; private set; }

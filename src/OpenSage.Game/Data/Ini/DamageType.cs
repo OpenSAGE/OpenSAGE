@@ -151,5 +151,38 @@
 
         [IniEnum("FLY_INTO"), AddedIn(SageGame.BattleForMiddleEarth)]
         FlyInto,
+
+        [IniEnum("GOOD_ARROW_PIERCE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        GoodArrowPierce,
+
+        [IniEnum("EVIL_ARROW_PIERCE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        EvilArrowPierce,
+
+        [IniEnum("SWORD_SLASH"), AddedIn(SageGame.BattleForMiddleEarth)]
+        SwordSlash,
+
+        [IniEnum("WITCH_KING_MORGUL_BLADE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        WitchKingMorgulBlade,
+
+        [IniEnum("REFLECTED"), AddedIn(SageGame.BattleForMiddleEarth)]
+        Reflected,
+
+        [IniEnum("BALROG_SWORD"), AddedIn(SageGame.BattleForMiddleEarth)]
+        BalrogSword,
+
+        [IniEnum("BALROG_WHIP"), AddedIn(SageGame.BattleForMiddleEarth)]
+        BalrogWhip,
+
+        [IniEnum("ELECTRIC"), AddedIn(SageGame.BattleForMiddleEarth)]
+        Electric,
+
+        [IniEnum("GIMLI_LEAP"), AddedIn(SageGame.BattleForMiddleEarth)]
+        GimliLeap,
+
+        [IniEnum("BIG_ROCK"), AddedIn(SageGame.BattleForMiddleEarth)]
+        BigRock,
+
+        [IniEnum("CLUBBING"), AddedIn(SageGame.BattleForMiddleEarth)]
+        Clubbing,
     }
 }

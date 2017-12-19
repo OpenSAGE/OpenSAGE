@@ -20,6 +20,8 @@ namespace OpenSage.Data.Ini
         public List<Armor> Armors { get; } = new List<Armor>();
         public List<AudioEvent> AudioEvents { get; } = new List<AudioEvent>();
         public AudioSettings AudioSettings { get; internal set; }
+        public List<BannerType> BannerTypes { get; } = new List<BannerType>();
+        public BannerUI BannerUI { get; internal set; }
         public List<BenchProfile> BenchProfiles { get; } = new List<BenchProfile>();
         public List<Bridge> Bridges { get; } = new List<Bridge>();
         public List<Campaign> Campaigns { get; } = new List<Campaign>();
@@ -41,6 +43,9 @@ namespace OpenSage.Data.Ini
         public List<HeaderTemplate> HeaderTemplates { get; } = new List<HeaderTemplate>();
         public InGameUI InGameUI { get; internal set; }
         public Language Language { get; internal set; }
+        public List<LivingWorldCampaign> LivingWorldCampaigns { get; } = new List<LivingWorldCampaign>();
+        public List<LivingWorldPlayerArmy> LivingWorldPlayerArmies { get; } = new List<LivingWorldPlayerArmy>();
+        public List<LivingWorldRegionCampaign> LivingWorldRegionCampaigns { get; } = new List<LivingWorldRegionCampaign>();
         public List<Locomotor> Locomotors { get; } = new List<Locomotor>();
         public List<LodPreset> LodPresets { get; } = new List<LodPreset>();
         public List<MapCache> MapCaches { get; } = new List<MapCache>();
