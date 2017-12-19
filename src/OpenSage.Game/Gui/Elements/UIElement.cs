@@ -32,6 +32,8 @@ namespace OpenSage.Gui.Elements
 
         private bool _needsRender;
 
+        public WndWindow Definition => _wndWindow;
+
         public Rectangle Frame { get; private set; }
 
         public string Name => _wndWindow.Name;
@@ -51,7 +53,40 @@ namespace OpenSage.Gui.Elements
         internal UIElementCallback TooltipCallback { get; private set; }
         internal UIElementCallback DrawCallback { get; private set; }
 
+        private ColorRgba? _backgroundColorOverride;
+        public ColorRgba? BackgroundColorOverride
+        {
+            get => _backgroundColorOverride;
+            set
+            {
+                _backgroundColorOverride = value;
+                Invalidate();
+            }
+        }
+
+        private ColorRgba? _overlayColorOverride;
+        public ColorRgba? OverlayColorOverride
+        {
+            get => _overlayColorOverride;
+            set
+            {
+                _overlayColorOverride = value;
+                Invalidate();
+            }
+        }
+
         public float Opacity { get; set; } = 1;
+
+        private float _textOpacity = 1;
+        public float TextOpacity
+        {
+            get => _textOpacity;
+            set
+            {
+                _textOpacity = value;
+                Invalidate();
+            }
+        }
 
         private bool _highlighted;
         public bool Highlighted
@@ -212,7 +247,9 @@ namespace OpenSage.Gui.Elements
                 ? _highlightState ?? _enabledState
                 : _enabledState;
 
-            var clearColour = activeState.BackgroundColor.GetValueOrDefault(new ColorRgbaF(0, 0, 0, 0));
+            var clearColour = _backgroundColorOverride?.ToColorRgba()
+                ?? activeState.BackgroundColor
+                ?? new ColorRgbaF(0, 0, 0, 0);
 
             using (var drawingContext = new DrawingContext(HostPlatform.GraphicsDevice2D, _texture))
             {
@@ -243,6 +280,16 @@ namespace OpenSage.Gui.Elements
                         borderWidth);
                 }
 
+                if (_overlayColorOverride != null)
+                {
+                    var overlayColor = _overlayColorOverride.Value.ToColorRgba();
+                    overlayColor.A *= Opacity;
+
+                    drawingContext.FillRectangle(
+                        new RawRectangleF(0, 0, Frame.Width, Frame.Height),
+                        overlayColor);
+                }
+
                 if (!string.IsNullOrEmpty(Text))
                 {
                     string fontName;
@@ -263,8 +310,11 @@ namespace OpenSage.Gui.Elements
                     
                     using (var textFormat = new TextFormat(HostPlatform.GraphicsDevice2D, fontName, fontSize * _scale, fontBold ? FontWeight.Bold : FontWeight.Normal))
                     {
+                        var textColor = activeState.TextColor.ToColorRgba();
+                        textColor.A *= TextOpacity;
+
                         var rect = new RawRectangleF { X = 0, Y = 0, Width = Frame.Width, Height = Frame.Height };
-                        drawingContext.DrawText(Text, textFormat, activeState.TextColor.ToColorRgba(), rect);
+                        drawingContext.DrawText(Text, textFormat, textColor, rect);
                     }
                 }
 

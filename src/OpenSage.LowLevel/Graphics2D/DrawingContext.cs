@@ -34,6 +34,11 @@ namespace OpenSage.LowLevel.Graphics2D
             PlatformDrawRectangle(rect, strokeColor, strokeWidth);
         }
 
+        public void FillRectangle(in RawRectangleF rect, in ColorRgbaF fillColor)
+        {
+            PlatformFillRectangle(rect, fillColor);
+        }
+
         public void End()
         {
             PlatformEnd();
