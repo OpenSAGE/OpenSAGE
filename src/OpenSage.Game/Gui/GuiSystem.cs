@@ -34,8 +34,16 @@ namespace OpenSage.Gui
                 BlendStateDescription.AlphaBlend)
                 .GetHandle();
 
-            game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\WindowTransitions.ini");
-            _transitionManager = new WindowTransitionManager(game.ContentManager.IniDataContext.WindowTransitions);
+            switch (game.SageGame)
+            {
+                case SageGame.CncGenerals:
+                case SageGame.CncGeneralsZeroHour:
+                    game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\WindowTransitions.ini");
+                    _transitionManager = new WindowTransitionManager(game.ContentManager.IniDataContext.WindowTransitions);
+                    break;
+
+                // TODO: Handle other games.
+            }
         }
 
         internal override void OnEntityComponentAdded(EntityComponent component)
