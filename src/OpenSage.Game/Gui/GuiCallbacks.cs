@@ -48,7 +48,8 @@ namespace OpenSage.Gui
                 }
                 else if (_mousePosition.Value != context.MousePosition)
                 {
-                    context.TransitionManager.StartTransition(null, context.Window, "MainMenuFade", context.GameTime);
+                    context.TransitionManager.QueueTransition(null, context.Window, "MainMenuFade");
+                    context.TransitionManager.QueueTransition(null, context.Window, "MainMenuDefaultMenu");
                     _doneMainMenuFadeIn = true;
                 }
             }
@@ -59,40 +60,65 @@ namespace OpenSage.Gui
     {
         private readonly Dictionary<string, WindowTransition> _transitions;
 
+        private readonly Queue<WindowTransitionRequest> _transitionQueue;
+
+        private sealed class WindowTransitionRequest
+        {
+            public GuiWindow From;
+            public GuiWindow To;
+            public WindowTransition Transition;
+        }
+
         private WindowTransitionState _currentTransitionState;
 
         public WindowTransitionManager(List<WindowTransition> transitions)
         {
             _transitions = transitions.ToDictionary(x => x.Name);
+
+            _transitionQueue = new Queue<WindowTransitionRequest>();
         }
 
-        public void StartTransition(
+        public void QueueTransition(
             GuiWindow from,
             GuiWindow to,
-            string transitionName,
-            GameTime currentTime)
+            string transitionName)
         {
             if (!_transitions.TryGetValue(transitionName, out var transition))
             {
                 throw new ArgumentOutOfRangeException(nameof(transitionName));
             }
 
-            _currentTransitionState = new WindowTransitionState(
-                to,
-                transition,
-                currentTime.TotalGameTime);
+            _transitionQueue.Enqueue(new WindowTransitionRequest
+            {
+                From = from,
+                To = to,
+                Transition = transition
+            });
         }
 
         public void Update(GameTime currentTime)
         {
             var transitionTime = currentTime.TotalGameTime;
 
+            if (_currentTransitionState == null && _transitionQueue.Count > 0)
+            {
+                var nextTransition = _transitionQueue.Dequeue();
+
+                _currentTransitionState = new WindowTransitionState(
+                    nextTransition.To,
+                    nextTransition.Transition,
+                    transitionTime);
+            }
+
             if (_currentTransitionState != null)
             {
                 _currentTransitionState.Update(transitionTime);
-            }
 
-            //return currentTime.TotalGameTime > _currentTransitionState.LastEndTime;
+                if (currentTime.TotalGameTime > _currentTransitionState.LastEndTime)
+                {
+                    _currentTransitionState = null;
+                }
+            }
         }
     }
 
