@@ -232,7 +232,19 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadSingle());
         }
 
-        public static List<T> ReadListAtOffset<T>(this BinaryReader reader) where T : BinaryObject
+        public static string ReadStringAtOffset(this BinaryReader reader)
+        {
+            var stringOffset = reader.ReadUInt32();
+            var oldOffset = reader.BaseStream.Position;
+
+            //jump to the location and read the data
+            reader.BaseStream.Seek(stringOffset, SeekOrigin.Begin);
+            var str = reader.ReadNullTerminatedString();
+            reader.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
+            return str;
+        }
+
+        public static List<T> ReadListAtOffset<T>(this BinaryReader reader,Func<T> creator,bool ptr=false) where T : class
         {
             var capacity = reader.ReadInt32();
             List<T> result = new List<T>(capacity);
@@ -246,7 +258,30 @@ namespace OpenSage.Data.Utilities.Extensions
 
             for(var i=0;i<capacity;i++)
             {
-                var item = default T();
+                T item = null;
+                if(!ptr)
+                {
+                    item = creator();
+                }
+                else
+                {
+                    //read the adress of the object first
+                    var itemOffset = reader.ReadUInt32();
+
+                    //if offset is 0 this item must be null
+                    if(!itemOffset.Equals(0))
+                    {
+                        var oldOffset2 = reader.BaseStream.Position;
+
+                        //jump to the location and read the data
+                        reader.BaseStream.Seek(itemOffset, SeekOrigin.Begin);
+                        item = creator();
+
+                        reader.BaseStream.Seek(oldOffset2, SeekOrigin.Begin);
+                    }
+                }
+
+                result.Add(item);
             }
 
             //jump back to where we came from

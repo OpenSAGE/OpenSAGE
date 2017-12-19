@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenSage.Data.Apt.FrameItems;
 using OpenSage.Data.Utilities.Extensions;
 
@@ -13,9 +9,12 @@ namespace OpenSage.Data.Apt
     {
         public List<FrameItem> FrameItems { get; private set; }
 
-        public Frame(BinaryReader br)
+        public static Frame Parse(BinaryReader br)
         {
-            FrameItems = br.ReadListAtOffset<FrameItem>();
+            var f = new Frame();
+            f.FrameItems = br.ReadListAtOffset<FrameItem>(() => FrameItem.Create(br),true);
+
+            return f;
         }
     }
 }

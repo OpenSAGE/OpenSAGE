@@ -1,39 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Apt.Characters
 {
     public class Movie : Character
     {
-        public List<Frame> Frames   { get; private set; }
-        public uint CharacterCount   { get; private set; }
+        public List<Frame> Frames           { get; private set; }
+        public List<Character> Characters   { get; private set; }
+        public List<Import> Imports         { get; private set; }
+        public List<Export> Exports         { get; private set; }
         public uint ScreenWidth      { get; private set; }
         public uint ScreenHeight     { get; private set; }
-        public uint ImportCount      { get; private set; }
-        public uint ExportCount      { get; private set; }
 
-        public Movie(BinaryReader br)
+        public static Movie Parse(BinaryReader br)
         {
-            Frames = br.ReadListAtOffset<Frame>();
+            var m = new Movie();
+            m.Frames = br.ReadListAtOffset<Frame>(() => Frame.Parse(br));
             var unknown = br.ReadUInt32();
 
-            CharacterCount = br.ReadUInt32();
-            var charOffset = br.ReadUInt32();
+            m.Characters = br.ReadListAtOffset<Character>(() => Character.Create(br,m),true);
 
-            ScreenWidth = br.ReadUInt32();
-            ScreenHeight = br.ReadUInt32();
+            m.ScreenWidth = br.ReadUInt32();
+            m.ScreenHeight = br.ReadUInt32();
             var unknown2 = br.ReadUInt32();
 
-            ImportCount = br.ReadUInt32();
-            var importOffset = br.ReadUInt32();
+            m.Imports = br.ReadListAtOffset<Import>(() => Import.Parse(br));
+            m.Exports = br.ReadListAtOffset<Export>(() => Export.Parse(br));
 
-            ExportCount = br.ReadUInt32();
-            var exportOffset = br.ReadUInt32();
+            return m;
         }
     }
 }

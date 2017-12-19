@@ -30,9 +30,9 @@ namespace OpenSage.Data.Apt
     {
         private const uint SIGNATURE = 0x09876543;
 
-        static public Character Create(BinaryReader br)
+        static public Character Create(BinaryReader br,Character root=null)
         {
-            Character ch = new Character();
+            Character ch = null;
 
             var type = br.ReadUInt32AsEnum<CharacterType>();
             var sig = br.ReadUInt32();
@@ -40,10 +40,39 @@ namespace OpenSage.Data.Apt
             if (sig != SIGNATURE)
                 throw new InvalidDataException();
 
-            switch(type)
+           
+
+
+            switch (type)
             {
+                //must be the root object. Movie does contain itself so, do a simple check
                 case CharacterType.MOVIE:
-                    ch = new Movie(br);
+                    if (root==null)
+                        ch = Movie.Parse(br);
+                    else
+                        return root;
+                    break;
+                case CharacterType.SHAPE:
+                    break;
+                case CharacterType.TEXT:
+                    break;
+                case CharacterType.FONT:
+                    break;
+                case CharacterType.BUTTON:
+                    break;
+                case CharacterType.SPRITE:
+                    break;
+                case CharacterType.SOUND:
+                    break;
+                case CharacterType.IMAGE:
+                    break;
+                case CharacterType.MORPH:
+                    break;
+                case CharacterType.STATICTEXT:
+                    break;
+                case CharacterType.NONE:
+                    break;
+                case CharacterType.VIDEO:
                     break;
                 default:
                     throw new NotImplementedException();
