@@ -20,6 +20,8 @@ namespace OpenSage.Content
 
         public GraphicsDevice GraphicsDevice { get; }
 
+        public SageGame SageGame { get; }
+
         public EffectLibrary EffectLibrary { get; }
 
         public FileSystem FileSystem => _fileSystem;
@@ -30,11 +32,13 @@ namespace OpenSage.Content
 
         public ContentManager(
             FileSystem fileSystem, 
-            GraphicsDevice graphicsDevice)
+            GraphicsDevice graphicsDevice,
+            SageGame sageGame)
         {
             _fileSystem = fileSystem;
 
             GraphicsDevice = graphicsDevice;
+            SageGame = sageGame;
 
             IniDataContext = new IniDataContext(fileSystem);
 

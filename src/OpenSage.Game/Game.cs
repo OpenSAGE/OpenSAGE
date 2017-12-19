@@ -85,9 +85,12 @@ namespace OpenSage
             }
         }
 
-        public Game(GraphicsDevice graphicsDevice, FileSystem fileSystem)
+        public SageGame SageGame { get; }
+
+        public Game(GraphicsDevice graphicsDevice, FileSystem fileSystem, SageGame sageGame)
         {
             GraphicsDevice = graphicsDevice;
+            SageGame = sageGame;
 
             _fileSystem = fileSystem;
 
@@ -98,7 +101,8 @@ namespace OpenSage
 
             ContentManager = AddDisposable(new ContentManager(
                 _fileSystem, 
-                graphicsDevice));
+                graphicsDevice,
+                sageGame));
 
             ContentManager.IniDataContext.LoadIniFile(@"Data\INI\GameData.ini");
             ContentManager.IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
