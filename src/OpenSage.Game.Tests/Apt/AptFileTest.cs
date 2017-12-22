@@ -31,17 +31,11 @@ namespace OpenSage.Game.Tests.Apt
         [Fact]
         public void CheckEntryCount()
         {
-            var bigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(SageGame.BattleForMiddleEarthII), "apt/MainMenu.big");
+            var fileSystem = new FileSystem(InstalledFilesTestData.GetInstallationDirectory(SageGame.BattleForMiddleEarthII));
+            var entry = fileSystem.GetFile(@"MainMenu.apt");
 
-            using (var bigStream = File.OpenRead(bigFilePath))
-            using (var bigArchive = new BigArchive(bigStream))
-            {
-                var entry = bigArchive.GetEntry(@"MainMenu.apt");
-
-                var data = AptFile.FromFileSystemEntry(new FileSystemEntry(null, entry.FullName, entry.Length, entry.Open));
-                Assert.NotNull(data);
-
-            }
+            var data = AptFile.FromFileSystemEntry(entry);
+            Assert.NotNull(data);
         }
     }
 }

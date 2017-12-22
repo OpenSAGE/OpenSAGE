@@ -7,30 +7,32 @@ using System.Threading.Tasks;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Utilities.Extensions;
 
-namespace OpenSage.Data.Apt
+namespace OpenSage.Data.Apt.Characters
 {
     public enum CharacterType : uint
     {
-        SHAPE = 1,
-        TEXT = 2,
-        FONT = 3,
-        BUTTON = 4,
-        SPRITE = 5,
-        SOUND = 6,
-        IMAGE = 7,
-        MORPH = 8,
-        MOVIE = 9,
-        STATICTEXT = 10,
-        NONE = 11,
-        VIDEO = 12
+        Shape = 1,
+        Text = 2,
+        Font = 3,
+        Button = 4,
+        Sprite = 5,
+        Sound = 6,
+        Image = 7,
+        Morph = 8,
+        Movie = 9,
+        StaticText = 10,
+        None = 11,
+        Video = 12
     };
 
     //base class for all characters used in apt
     public class Character
     {
         private const uint SIGNATURE = 0x09876543;
+        public AptFile Container { get; private set; }
 
-        static public Character Create(BinaryReader br,Character root=null)
+
+        public static Character Create(BinaryReader br,AptFile c)
         {
             Character ch = null;
 
@@ -39,40 +41,38 @@ namespace OpenSage.Data.Apt
 
             if (sig != SIGNATURE)
                 throw new InvalidDataException();
-
-           
-
+      
 
             switch (type)
             {
                 //must be the root object. Movie does contain itself so, do a simple check
-                case CharacterType.MOVIE:
-                    if (root==null)
-                        ch = Movie.Parse(br);
+                case CharacterType.Movie:
+                    if (c.IsEmpty)
+                        ch = Movie.Parse(br,c);
                     else
-                        return root;
+                        return c.Movie;
                     break;
-                case CharacterType.SHAPE:
+                case CharacterType.Shape:
                     break;
-                case CharacterType.TEXT:
+                case CharacterType.Text:
                     break;
-                case CharacterType.FONT:
+                case CharacterType.Font:
                     break;
-                case CharacterType.BUTTON:
+                case CharacterType.Button:
                     break;
-                case CharacterType.SPRITE:
+                case CharacterType.Sprite:
                     break;
-                case CharacterType.SOUND:
+                case CharacterType.Sound:
                     break;
-                case CharacterType.IMAGE:
+                case CharacterType.Image:
                     break;
-                case CharacterType.MORPH:
+                case CharacterType.Morph:
                     break;
-                case CharacterType.STATICTEXT:
+                case CharacterType.StaticText:
                     break;
-                case CharacterType.NONE:
+                case CharacterType.None:
                     break;
-                case CharacterType.VIDEO:
+                case CharacterType.Video:
                     break;
                 default:
                     throw new NotImplementedException();

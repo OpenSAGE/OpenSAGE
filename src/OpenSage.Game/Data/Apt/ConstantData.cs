@@ -44,15 +44,15 @@ namespace OpenSage.Data.Apt
 
                     switch (constEntry.Type)
                     {
-                        case ConstantEntryType.UNDEF:
+                        case ConstantEntryType.Undef:
                             throw new InvalidDataException("Undefined const entry");
-                        case ConstantEntryType.STRING:
+                        case ConstantEntryType.String:
                             var pos = reader.BaseStream.Position;
                             reader.BaseStream.Seek(entryValue, SeekOrigin.Begin);
                             constEntry.Value =  reader.ReadNullTerminatedString();
                             reader.BaseStream.Seek(pos, SeekOrigin.Begin);
                             break;
-                        case ConstantEntryType.NUMBER:
+                        case ConstantEntryType.Number:
                             constEntry.Value = entryValue;
                             break;
                     }
@@ -67,9 +67,9 @@ namespace OpenSage.Data.Apt
 
     public enum ConstantEntryType
     {
-        UNDEF   = 0,
-        STRING  = 1,
-        NUMBER  = 4,
+        Undef   = 0,
+        String  = 1,
+        Number  = 4,
     }
 
     public sealed class ConstantEntry

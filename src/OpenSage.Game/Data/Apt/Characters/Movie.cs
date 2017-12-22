@@ -13,13 +13,13 @@ namespace OpenSage.Data.Apt.Characters
         public uint ScreenWidth      { get; private set; }
         public uint ScreenHeight     { get; private set; }
 
-        public static Movie Parse(BinaryReader br)
+        public static Movie Parse(BinaryReader br,AptFile c)
         {
             var m = new Movie();
             m.Frames = br.ReadListAtOffset<Frame>(() => Frame.Parse(br));
             var unknown = br.ReadUInt32();
 
-            m.Characters = br.ReadListAtOffset<Character>(() => Character.Create(br,m),true);
+            m.Characters = br.ReadListAtOffset<Character>(() => Character.Create(br,c),true);
 
             m.ScreenWidth = br.ReadUInt32();
             m.ScreenHeight = br.ReadUInt32();

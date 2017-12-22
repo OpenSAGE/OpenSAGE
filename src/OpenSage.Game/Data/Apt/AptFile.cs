@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text;
+using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Apt
@@ -7,7 +8,8 @@ namespace OpenSage.Data.Apt
     public class AptFile
     {
         public ConstantData Constants { get; private set; }
-
+        public Movie Movie { get; private set; }
+        internal bool IsEmpty = true;
 
         public AptFile(ConstantData c)
         {
@@ -21,7 +23,13 @@ namespace OpenSage.Data.Apt
             br.BaseStream.Seek(entryOffset, SeekOrigin.Begin);
 
             //proceed loading the characters
-            var movie = Character.Create(br);
+            Movie = (Movie)Character.Create(br,this);
+
+            //resolve imports
+            foreach(var import in Movie.Imports)
+            {
+
+            }
         }
 
         public static AptFile FromFileSystemEntry(FileSystemEntry entry)

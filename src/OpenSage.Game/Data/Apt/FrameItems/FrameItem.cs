@@ -5,12 +5,12 @@ namespace OpenSage.Data.Apt.FrameItems
 {
     enum FrameItemType
     {
-        ACTION = 1,
-        FRAMELABEL = 2,
-        PLACEOBJECT = 3,
-        REMOVEOBJECT = 4,
-        BACKGROUNDCOLOR = 5,
-        INITACTION = 8
+        Action = 1,
+        FrameLabel = 2,
+        PlaceObject = 3,
+        RemoveObject = 4,
+        BackgroundColor = 5,
+        InitAction = 8
     };
 
     public class FrameItem
@@ -23,17 +23,17 @@ namespace OpenSage.Data.Apt.FrameItems
 
             switch (type)
             {
-                case FrameItemType.ACTION:
+                case FrameItemType.Action:
                     break;
-                case FrameItemType.FRAMELABEL:
+                case FrameItemType.FrameLabel:
                     break;
-                case FrameItemType.PLACEOBJECT:
+                case FrameItemType.PlaceObject:
                     break;
-                case FrameItemType.REMOVEOBJECT:
+                case FrameItemType.RemoveObject:
                     break;
-                case FrameItemType.BACKGROUNDCOLOR:
+                case FrameItemType.BackgroundColor:
                     break;
-                case FrameItemType.INITACTION:
+                case FrameItemType.InitAction:
                     break;
             }
 
