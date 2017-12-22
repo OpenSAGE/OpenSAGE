@@ -206,6 +206,23 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadSingle());
         }
 
+        public static Vector4 ReadVector4(this BinaryReader reader)
+        {
+            return new Vector4(
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle());
+        }
+
+        public static IndexedTriangle ReadIndexedTri(this BinaryReader reader)
+        {
+            return new IndexedTriangle(
+                reader.ReadUInt16(),
+                reader.ReadUInt16(),
+                reader.ReadUInt16());
+        }
+
         public static Quaternion ReadQuaternion(this BinaryReader reader)
         {
             return new Quaternion(
@@ -288,5 +305,28 @@ namespace OpenSage.Data.Utilities.Extensions
             reader.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
             return result;
         }
+
+        public static T[] ReadFixedSizeArrayAtOffset<T>(this BinaryReader br, Func<T> creator,uint size) where T : struct
+        {
+            var arr = new T[size];
+
+            //get the offset
+            var listOffset = br.ReadUInt32();
+            var oldOffset = br.BaseStream.Position;
+
+            //jump to the location and read the data
+            br.BaseStream.Seek(listOffset, SeekOrigin.Begin);
+
+            for (var i=0;i<size;i++)
+            {
+                arr[i] = creator();
+            }
+
+            //jump back to where we came from
+            br.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
+
+            return arr;
+        }
+
     }
 }

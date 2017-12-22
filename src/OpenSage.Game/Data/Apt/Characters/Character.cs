@@ -48,21 +48,28 @@ namespace OpenSage.Data.Apt.Characters
                 //must be the root object. Movie does contain itself so, do a simple check
                 case CharacterType.Movie:
                     if (c.IsEmpty)
-                        ch = Movie.Parse(br,c);
+                    {
+                        c.IsEmpty = false;
+                        ch = Movie.Parse(br, c);
+                    }
                     else
-                        return c.Movie;
+                        return null;
                     break;
                 case CharacterType.Shape:
+                    ch = Shape.Parse(br); 
                     break;
                 case CharacterType.Text:
                     break;
                 case CharacterType.Font:
                     break;
                 case CharacterType.Button:
+                    ch = Button.Parse(br);
                     break;
                 case CharacterType.Sprite:
+                    ch = Sprite.Parse(br);
                     break;
                 case CharacterType.Sound:
+                    throw new NotImplementedException("Not used in any known game");
                     break;
                 case CharacterType.Image:
                     break;
@@ -71,8 +78,10 @@ namespace OpenSage.Data.Apt.Characters
                 case CharacterType.StaticText:
                     break;
                 case CharacterType.None:
+                    throw new NotImplementedException("Not used in any known game");
                     break;
                 case CharacterType.Video:
+                    throw new NotImplementedException("Not used in any known game");
                     break;
                 default:
                     throw new NotImplementedException();

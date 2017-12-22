@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Utilities.Extensions;
@@ -10,10 +11,14 @@ namespace OpenSage.Data.Apt
         public ConstantData Constants { get; private set; }
         public Movie Movie { get; private set; }
         internal bool IsEmpty = true;
+        internal string MovieName;
+        internal FileSystem FileSystem;
 
-        public AptFile(ConstantData c)
+        public AptFile(ConstantData c,FileSystem fs,string n)
         {
             Constants = c;
+            FileSystem = fs;
+            MovieName = n;
         }
 
         public void Parse(BinaryReader br)
@@ -25,10 +30,33 @@ namespace OpenSage.Data.Apt
             //proceed loading the characters
             Movie = (Movie)Character.Create(br,this);
 
+            //set first character to itself
+            Movie.Characters[0] = Movie;
+
+            var importDict = new Dictionary<string, AptFile>();
+
             //resolve imports
             foreach(var import in Movie.Imports)
             {
+                //open the apt file where our character is located
+                AptFile importApt;
 
+                if(importDict.ContainsKey(import.Movie))
+                {
+                    importApt = importDict[import.Movie];
+                }
+                else
+                {
+                    var importEntry = FileSystem.GetFile(Path.ChangeExtension(import.Movie, ".apt"));
+                    importApt = AptFile.FromFileSystemEntry(importEntry);
+                    importDict[import.Movie] = importApt;
+                }
+
+                //get the export from that apt and proceed
+                var export = importApt.Movie.Exports.Find(x => x.Name == import.Name);
+
+                //place the exported character inside our movie
+                Movie.Characters[(int)import.Character] = importApt.Movie.Characters[(int)export.Character];
             }
         }
 
@@ -48,7 +76,9 @@ namespace OpenSage.Data.Apt
                 var constPath = Path.ChangeExtension(entry.FilePath, ".const");
                 var constFile = ConstantData.FromFileSystemEntry(entry.FileSystem.GetFile(constPath));
 
-                AptFile apt = new AptFile(constFile);
+                var aptName = Path.GetFileNameWithoutExtension(entry.FilePath);
+
+                var apt = new AptFile(constFile,entry.FileSystem, aptName);
                 apt.Parse(reader);
 
                 return apt;
