@@ -23,7 +23,7 @@ namespace OpenSage.Data.Apt
 
                 //validate that this is a correct const              
                 var magic = reader.ReadFixedLengthString(17);
-                if (magic!="Apt constant file")
+                if (magic != "Apt constant file")
                     throw new InvalidDataException($"Not a supported const file: {magic}");
 
                 reader.BaseStream.Seek(3, SeekOrigin.Current);
@@ -49,7 +49,7 @@ namespace OpenSage.Data.Apt
                         case ConstantEntryType.String:
                             var pos = reader.BaseStream.Position;
                             reader.BaseStream.Seek(entryValue, SeekOrigin.Begin);
-                            constEntry.Value =  reader.ReadNullTerminatedString();
+                            constEntry.Value = reader.ReadNullTerminatedString();
                             reader.BaseStream.Seek(pos, SeekOrigin.Begin);
                             break;
                         case ConstantEntryType.Number:
@@ -67,9 +67,9 @@ namespace OpenSage.Data.Apt
 
     public enum ConstantEntryType
     {
-        Undef   = 0,
-        String  = 1,
-        Number  = 4,
+        Undef = 0,
+        String = 1,
+        Number = 4,
     }
 
     public sealed class ConstantEntry

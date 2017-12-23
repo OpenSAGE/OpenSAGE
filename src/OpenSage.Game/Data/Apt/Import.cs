@@ -10,13 +10,13 @@ namespace OpenSage.Data.Apt
         public uint Character { get; private set; }
         public uint Pointer { get; private set; }
 
-        public static Import Parse(BinaryReader br)
+        public static Import Parse(BinaryReader reader)
         {
             var im = new Import();
-            im.Movie = br.ReadStringAtOffset();
-            im.Name = br.ReadStringAtOffset();
-            im.Character = br.ReadUInt32();
-            im.Pointer = br.ReadUInt32();
+            im.Movie = reader.ReadStringAtOffset();
+            im.Name = reader.ReadStringAtOffset();
+            im.Character = reader.ReadUInt32();
+            im.Pointer = reader.ReadUInt32();
 
             return im;
         }

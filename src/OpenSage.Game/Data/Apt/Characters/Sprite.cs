@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Apt.Characters
@@ -12,10 +8,10 @@ namespace OpenSage.Data.Apt.Characters
     {
         public List<Frame> Frames { get; private set; }
 
-        public static Sprite Parse(BinaryReader br)
+        public static Sprite Parse(BinaryReader reader)
         {
             var sp = new Sprite();
-            sp.Frames = br.ReadListAtOffset<Frame>(() => Frame.Parse(br));
+            sp.Frames = reader.ReadListAtOffset<Frame>(() => Frame.Parse(reader));
             return sp;
         }
     }

@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Apt.Characters
@@ -32,57 +27,55 @@ namespace OpenSage.Data.Apt.Characters
         public AptFile Container { get; private set; }
 
 
-        public static Character Create(BinaryReader br,AptFile c)
+        public static Character Create(BinaryReader reader, AptFile container)
         {
             Character ch = null;
 
-            var type = br.ReadUInt32AsEnum<CharacterType>();
-            var sig = br.ReadUInt32();
+            var type = reader.ReadUInt32AsEnum<CharacterType>();
+            var sig = reader.ReadUInt32();
 
             if (sig != SIGNATURE)
                 throw new InvalidDataException();
-      
+
 
             switch (type)
             {
                 //must be the root object. Movie does contain itself so, do a simple check
                 case CharacterType.Movie:
-                    if (c.IsEmpty)
+                    if (container.IsEmpty)
                     {
-                        c.IsEmpty = false;
-                        ch = Movie.Parse(br, c);
+                        container.IsEmpty = false;
+                        ch = Movie.Parse(reader, container);
                     }
                     else
                         return null;
                     break;
                 case CharacterType.Shape:
-                    ch = Shape.Parse(br); 
+                    ch = Shape.Parse(reader);
                     break;
                 case CharacterType.Text:
                     break;
                 case CharacterType.Font:
                     break;
                 case CharacterType.Button:
-                    ch = Button.Parse(br);
+                    ch = Button.Parse(reader);
                     break;
                 case CharacterType.Sprite:
-                    ch = Sprite.Parse(br);
+                    ch = Sprite.Parse(reader);
                     break;
                 case CharacterType.Sound:
                     throw new NotImplementedException("Not used in any known game");
-                    break;
                 case CharacterType.Image:
                     break;
                 case CharacterType.Morph:
+                    //used only by CahPowers
                     break;
                 case CharacterType.StaticText:
                     break;
                 case CharacterType.None:
                     throw new NotImplementedException("Not used in any known game");
-                    break;
                 case CharacterType.Video:
                     throw new NotImplementedException("Not used in any known game");
-                    break;
                 default:
                     throw new NotImplementedException();
             }

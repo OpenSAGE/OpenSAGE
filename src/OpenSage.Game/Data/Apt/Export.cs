@@ -8,11 +8,11 @@ namespace OpenSage.Data.Apt
         public string Name { get; private set; }
         public uint Character { get; private set; }
 
-        public static Export Parse(BinaryReader br)
+        public static Export Parse(BinaryReader reader)
         {
             var ex = new Export();
-            ex.Name = br.ReadStringAtOffset();
-            ex.Character = br.ReadUInt32();
+            ex.Name = reader.ReadStringAtOffset();
+            ex.Character = reader.ReadUInt32();
 
             return ex;
         }

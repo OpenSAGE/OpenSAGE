@@ -9,10 +9,10 @@ namespace OpenSage.Data.Apt
     {
         public List<FrameItem> FrameItems { get; private set; }
 
-        public static Frame Parse(BinaryReader br)
+        public static Frame Parse(BinaryReader reader)
         {
             var f = new Frame();
-            f.FrameItems = br.ReadListAtOffset<FrameItem>(() => FrameItem.Create(br),true);
+            f.FrameItems = reader.ReadListAtOffset<FrameItem>(() => FrameItem.Create(reader), true);
 
             return f;
         }

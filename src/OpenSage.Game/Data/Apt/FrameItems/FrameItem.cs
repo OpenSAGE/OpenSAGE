@@ -15,11 +15,11 @@ namespace OpenSage.Data.Apt.FrameItems
 
     public class FrameItem
     {
-        public static FrameItem Create(BinaryReader br)
+        public static FrameItem Create(BinaryReader reader)
         {
             FrameItem fi = null;
 
-            var type = br.ReadUInt32AsEnum<FrameItemType>();
+            var type = reader.ReadUInt32AsEnum<FrameItemType>();
 
             switch (type)
             {

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.Mathematics;
 
@@ -25,16 +20,16 @@ namespace OpenSage.Data.Apt.Characters
         public IndexedTriangle[] Triangles { get; private set; }
         public Vector2[] Vertices { get; private set; }
 
-        public static Button Parse(BinaryReader br)
+        public static Button Parse(BinaryReader reader)
         {
             var b = new Button();
 
-            var unknown = br.ReadUInt32();
-            b.Bounds = br.ReadVector4();
-            var tc = br.ReadUInt32();
-            var vc = br.ReadUInt32();
-            b.Vertices = br.ReadFixedSizeArrayAtOffset<Vector2>(() => br.ReadVector2(),vc);
-            b.Triangles = br.ReadFixedSizeArrayAtOffset<IndexedTriangle>(() => br.ReadIndexedTri(), tc);
+            var unknown = reader.ReadUInt32();
+            b.Bounds = reader.ReadVector4();
+            var tc = reader.ReadUInt32();
+            var vc = reader.ReadUInt32();
+            b.Vertices = reader.ReadFixedSizeArrayAtOffset<Vector2>(() => reader.ReadVector2(), vc);
+            b.Triangles = reader.ReadFixedSizeArrayAtOffset<IndexedTriangle>(() => reader.ReadIndexedTri(), tc);
 
             //TODO: read actionscript related stuff and buttonrecords
             return b;

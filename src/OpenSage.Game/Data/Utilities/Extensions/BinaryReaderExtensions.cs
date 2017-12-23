@@ -14,7 +14,7 @@ namespace OpenSage.Data.Utilities.Extensions
         public static bool ReadBooleanChecked(this BinaryReader reader)
         {
             var value = reader.ReadByte();
-            
+
             switch (value)
             {
                 case 0:
@@ -261,7 +261,7 @@ namespace OpenSage.Data.Utilities.Extensions
             return str;
         }
 
-        public static List<T> ReadListAtOffset<T>(this BinaryReader reader,Func<T> creator,bool ptr=false) where T : class
+        public static List<T> ReadListAtOffset<T>(this BinaryReader reader, Func<T> creator, bool ptr = false) where T : class
         {
             var capacity = reader.ReadInt32();
             List<T> result = new List<T>(capacity);
@@ -273,10 +273,10 @@ namespace OpenSage.Data.Utilities.Extensions
             //jump to the location and read the data
             reader.BaseStream.Seek(listOffset, SeekOrigin.Begin);
 
-            for(var i=0;i<capacity;i++)
+            for (var i = 0; i < capacity; i++)
             {
                 T item = null;
-                if(!ptr)
+                if (!ptr)
                 {
                     item = creator();
                 }
@@ -286,7 +286,7 @@ namespace OpenSage.Data.Utilities.Extensions
                     var itemOffset = reader.ReadUInt32();
 
                     //if offset is 0 this item must be null
-                    if(!itemOffset.Equals(0))
+                    if (!itemOffset.Equals(0))
                     {
                         var oldOffset2 = reader.BaseStream.Position;
 
@@ -306,24 +306,24 @@ namespace OpenSage.Data.Utilities.Extensions
             return result;
         }
 
-        public static T[] ReadFixedSizeArrayAtOffset<T>(this BinaryReader br, Func<T> creator,uint size) where T : struct
+        public static T[] ReadFixedSizeArrayAtOffset<T>(this BinaryReader reader, Func<T> creator, uint size) where T : struct
         {
             var arr = new T[size];
 
             //get the offset
-            var listOffset = br.ReadUInt32();
-            var oldOffset = br.BaseStream.Position;
+            var listOffset = reader.ReadUInt32();
+            var oldOffset = reader.BaseStream.Position;
 
             //jump to the location and read the data
-            br.BaseStream.Seek(listOffset, SeekOrigin.Begin);
+            reader.BaseStream.Seek(listOffset, SeekOrigin.Begin);
 
-            for (var i=0;i<size;i++)
+            for (var i = 0; i < size; i++)
             {
                 arr[i] = creator();
             }
 
             //jump back to where we came from
-            br.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
+            reader.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
 
             return arr;
         }
