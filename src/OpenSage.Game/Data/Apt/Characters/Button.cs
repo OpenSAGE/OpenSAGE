@@ -14,7 +14,7 @@ namespace OpenSage.Data.Apt.Characters
         OverDown = 4,
     }
 
-    public class Button : Character
+    public sealed class Button : Character
     {
         public Vector4 Bounds { get; private set; }
         public IndexedTriangle[] Triangles { get; private set; }
@@ -22,17 +22,17 @@ namespace OpenSage.Data.Apt.Characters
 
         public static Button Parse(BinaryReader reader)
         {
-            var b = new Button();
+            var button = new Button();
 
             var unknown = reader.ReadUInt32();
-            b.Bounds = reader.ReadVector4();
+            button.Bounds = reader.ReadVector4();
             var tc = reader.ReadUInt32();
             var vc = reader.ReadUInt32();
-            b.Vertices = reader.ReadFixedSizeArrayAtOffset<Vector2>(() => reader.ReadVector2(), vc);
-            b.Triangles = reader.ReadFixedSizeArrayAtOffset<IndexedTriangle>(() => reader.ReadIndexedTri(), tc);
+            button.Vertices = reader.ReadFixedSizeArrayAtOffset<Vector2>(() => reader.ReadVector2(), vc);
+            button.Triangles = reader.ReadFixedSizeArrayAtOffset<IndexedTriangle>(() => reader.ReadIndexedTri(), tc);
 
             //TODO: read actionscript related stuff and buttonrecords
-            return b;
+            return button;
         }
     }
 }

@@ -16,12 +16,4 @@ namespace OpenSage.Data.Utilities.Extensions
         /// </summary>
         public static Encoding AnsiEncoding { get; }
     }
-
-    internal abstract class BinaryObject
-    {
-        public BinaryObject(BinaryReader br)
-        {
-
-        }
-    }
 }

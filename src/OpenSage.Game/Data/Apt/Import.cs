@@ -3,7 +3,7 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Apt
 {
-    public class Import
+    public sealed class Import
     {
         public string Movie { get; private set; }
         public string Name { get; private set; }
@@ -12,13 +12,13 @@ namespace OpenSage.Data.Apt
 
         public static Import Parse(BinaryReader reader)
         {
-            var im = new Import();
-            im.Movie = reader.ReadStringAtOffset();
-            im.Name = reader.ReadStringAtOffset();
-            im.Character = reader.ReadUInt32();
-            im.Pointer = reader.ReadUInt32();
+            var import = new Import();
+            import.Movie = reader.ReadStringAtOffset();
+            import.Name = reader.ReadStringAtOffset();
+            import.Character = reader.ReadUInt32();
+            import.Pointer = reader.ReadUInt32();
 
-            return im;
+            return import;
         }
     }
 }

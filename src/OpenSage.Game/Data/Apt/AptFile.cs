@@ -6,7 +6,7 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Apt
 {
-    public class AptFile
+    public sealed class AptFile
     {
         public ConstantData Constants { get; private set; }
         public Movie Movie { get; private set; }
@@ -14,14 +14,14 @@ namespace OpenSage.Data.Apt
         internal string MovieName;
         internal FileSystem FileSystem;
 
-        public AptFile(ConstantData constants, FileSystem filesystem, string name)
+        private AptFile(ConstantData constants, FileSystem filesystem, string name)
         {
             Constants = constants;
             FileSystem = filesystem;
             MovieName = name;
         }
 
-        public void Parse(BinaryReader reader)
+        private void Parse(BinaryReader reader)
         {
             //jump to the entry offset
             var entryOffset = Constants.AptDataEntryOffset;
@@ -32,6 +32,15 @@ namespace OpenSage.Data.Apt
 
             //set first character to itself
             Movie.Characters[0] = Movie;
+
+            //resolve geometries
+            foreach (Shape shape in Movie.Characters.FindAll((x)=>x is Shape))
+            {
+                var ruPath = MovieName + "_geometry/" + shape.Geometry + ".ru";
+                var shapeEntry = FileSystem.GetFile(ruPath);
+                var shapeGeometry = Geometry.FromFileSystemEntry(shapeEntry);
+            }
+
 
             var importDict = new Dictionary<string, AptFile>();
 

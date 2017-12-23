@@ -29,7 +29,7 @@ namespace OpenSage.Data.Apt.Characters
 
         public static Character Create(BinaryReader reader, AptFile container)
         {
-            Character ch = null;
+            Character character = null;
 
             var type = reader.ReadUInt32AsEnum<CharacterType>();
             var sig = reader.ReadUInt32();
@@ -45,23 +45,23 @@ namespace OpenSage.Data.Apt.Characters
                     if (container.IsEmpty)
                     {
                         container.IsEmpty = false;
-                        ch = Movie.Parse(reader, container);
+                        character = Movie.Parse(reader, container);
                     }
                     else
                         return null;
                     break;
                 case CharacterType.Shape:
-                    ch = Shape.Parse(reader);
+                    character = Shape.Parse(reader);
                     break;
                 case CharacterType.Text:
                     break;
                 case CharacterType.Font:
                     break;
                 case CharacterType.Button:
-                    ch = Button.Parse(reader);
+                    character = Button.Parse(reader);
                     break;
                 case CharacterType.Sprite:
-                    ch = Sprite.Parse(reader);
+                    character = Sprite.Parse(reader);
                     break;
                 case CharacterType.Sound:
                     throw new NotImplementedException("Not used in any known game");
@@ -80,7 +80,7 @@ namespace OpenSage.Data.Apt.Characters
                     throw new NotImplementedException();
             }
 
-            return ch;
+            return character;
         }
     }
 }

@@ -4,7 +4,7 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Apt.Characters
 {
-    public class Movie : Character
+    public sealed class Movie : Character
     {
         public List<Frame> Frames { get; private set; }
         public List<Character> Characters { get; private set; }
@@ -15,20 +15,20 @@ namespace OpenSage.Data.Apt.Characters
 
         public static Movie Parse(BinaryReader reader, AptFile container)
         {
-            var m = new Movie();
-            m.Frames = reader.ReadListAtOffset<Frame>(() => Frame.Parse(reader));
+            var movie = new Movie();
+            movie.Frames = reader.ReadListAtOffset<Frame>(() => Frame.Parse(reader));
             var unknown = reader.ReadUInt32();
 
-            m.Characters = reader.ReadListAtOffset<Character>(() => Character.Create(reader, container), true);
+            movie.Characters = reader.ReadListAtOffset<Character>(() => Character.Create(reader, container), true);
 
-            m.ScreenWidth = reader.ReadUInt32();
-            m.ScreenHeight = reader.ReadUInt32();
+            movie.ScreenWidth = reader.ReadUInt32();
+            movie.ScreenHeight = reader.ReadUInt32();
             var unknown2 = reader.ReadUInt32();
 
-            m.Imports = reader.ReadListAtOffset<Import>(() => Import.Parse(reader));
-            m.Exports = reader.ReadListAtOffset<Export>(() => Export.Parse(reader));
+            movie.Imports = reader.ReadListAtOffset<Import>(() => Import.Parse(reader));
+            movie.Exports = reader.ReadListAtOffset<Export>(() => Export.Parse(reader));
 
-            return m;
+            return movie;
         }
     }
 }

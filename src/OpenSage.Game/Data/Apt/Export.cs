@@ -3,18 +3,18 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Apt
 {
-    public class Export
+    public sealed class Export
     {
         public string Name { get; private set; }
         public uint Character { get; private set; }
 
         public static Export Parse(BinaryReader reader)
         {
-            var ex = new Export();
-            ex.Name = reader.ReadStringAtOffset();
-            ex.Character = reader.ReadUInt32();
+            var export = new Export();
+            export.Name = reader.ReadStringAtOffset();
+            export.Character = reader.ReadUInt32();
 
-            return ex;
+            return export;
         }
     }
 }
