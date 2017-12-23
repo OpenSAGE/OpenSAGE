@@ -6,7 +6,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Cameras
 {
-    public sealed class RtsCameraController
+    public sealed class RtsCameraController : InputMessageHandler
     {
         private const float RotationSpeed = 0.003f;
         private const float ZoomSpeed = 0.0005f;
@@ -14,12 +14,16 @@ namespace OpenSage.Graphics.Cameras
 
         private readonly CameraComponent _camera;
 
+        private bool _leftMouseDown;
+        private bool _middleMouseDown;
+        private int _lastX, _lastY;
+        private int _deltaX, _deltaY;
+        private int _scrollWheelValue;
+
         private float _defaultHeight;
         private float _pitchAngle;
 
         private CameraAnimation _animation;
-
-        public bool IsPlayerInputEnabled { get; set; } = true;
 
         public bool CanPlayerInputChangePitch { get; set; }
         
@@ -100,30 +104,69 @@ namespace OpenSage.Graphics.Cameras
             }
         }
 
+        public override InputMessageResult HandleMessage(InputMessage message)
+        {
+            switch (message.MessageType)
+            {
+                case InputMessageType.MouseMove:
+                    if (_leftMouseDown)
+                    {
+                        _deltaX += message.MouseX.Value - _lastX;
+                        _deltaY += message.MouseY.Value - _lastY;
+
+                        _lastX = message.MouseX.Value;
+                        _lastY = message.MouseY.Value;
+                    }
+                    break;
+
+                case InputMessageType.MouseDown:
+                    switch (message.MouseButton)
+                    {
+                        case MouseButton.Left:
+                            _lastX = message.MouseX.Value;
+                            _lastY = message.MouseY.Value;
+                            _leftMouseDown = true;
+                            break;
+
+                        case MouseButton.Middle:
+                            _middleMouseDown = true;
+                            break;
+                    }
+                    break;
+
+                case InputMessageType.MouseUp:
+                    switch (message.MouseButton)
+                    {
+                        case MouseButton.Left:
+                            _leftMouseDown = false;
+                            break;
+
+                        case MouseButton.Middle:
+                            _middleMouseDown = false;
+                            break;
+                    }
+                    break;
+
+                case InputMessageType.MouseWheel:
+                    _scrollWheelValue += message.MouseScrollWheelDelta.Value;
+                    break;
+            }
+
+            return InputMessageResult.Handled;
+        }
+
         internal void UpdateCamera(InputSystem input, GameTime gameTime)
         {
-            if (IsPlayerInputEnabled)
+            if (_leftMouseDown)
             {
-                var deltaX = input.GetAxis(MouseMovementAxis.XAxis);
-                var deltaY = input.GetAxis(MouseMovementAxis.YAxis);
-
-                bool isMovementTypeActive(Input.MouseButton button)
-                {
-                    return input.GetMouseButtonDown(button)
-                        && !input.GetMouseButtonPressed(button);
-                }
-
-                if (isMovementTypeActive(Input.MouseButton.Left))
-                {
-                    RotateCamera(deltaX, deltaY);
-                }
-
-                ZoomCamera(-input.GetAxis(MouseMovementAxis.ThirdAxis));
-
-                var forwards = input.GetAxis(Key.Up, Key.Down);
-                var right = input.GetAxis(Key.Right, Key.Left);
-                PanCamera(forwards, right);
+                RotateCamera(_deltaX, _deltaY);
             }
+
+            ZoomCamera(-_scrollWheelValue);
+
+            //var forwards = input.GetAxis(Key.Up, Key.Down);
+            //var right = input.GetAxis(Key.Right, Key.Left);
+            //PanCamera(forwards, right);
 
             if (_animation != null)
             {
@@ -186,6 +229,8 @@ namespace OpenSage.Graphics.Cameras
                 newPosition,
                 targetPosition,
                 Vector3.UnitZ);
+
+            _deltaX = _deltaY = _scrollWheelValue = 0;
         }
 
         private void RotateCamera(float deltaX, float deltaY)

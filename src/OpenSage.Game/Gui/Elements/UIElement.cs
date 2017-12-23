@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Wnd;
@@ -11,7 +11,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Elements
 {
-    public abstract class UIElement : DisposableBase
+    public abstract partial class UIElement : DisposableBase
     {
         private bool _initialized;
 
@@ -20,15 +20,44 @@ namespace OpenSage.Gui.Elements
         private Texture _texture;
         private RenderTarget _renderTarget;
 
-        private UIElementState _enabledState;
-        private UIElementState _highlightState;
+        private readonly Dictionary<UIElementState, UIElementStateConfiguration> _stateConfigurations;
+
+        private UIElementState _currentState;
+        internal UIElementState CurrentState
+        {
+            get => _currentState;
+            set
+            {
+                _currentState = value;
+                Invalidate();
+            }
+        }
 
         private float _scale;
 
         private HeaderTemplate _headerTemplate;
-        private string _text;
 
-        protected string Text => _text;
+        private string _text;
+        public string Text
+        {
+            get => _text;
+            set
+            {
+                _text = value;
+                Invalidate();
+            }
+        }
+
+        private TextAlignment _textAlignment;
+        public TextAlignment TextAlignment
+        {
+            get => _textAlignment;
+            set
+            {
+                _textAlignment = value;
+                Invalidate();
+            }
+        }
 
         private bool _needsRender;
 
@@ -46,12 +75,14 @@ namespace OpenSage.Gui.Elements
 
         public UIElement Parent { get; internal set; }
 
+        public GuiWindow Window { get; internal set; }
+
         public UIElementCollection Children { get; } = new UIElementCollection();
 
         internal UIElementCallback SystemCallback { get; private set; }
         internal UIElementCallback InputCallback { get; private set; }
         internal UIElementCallback TooltipCallback { get; private set; }
-        internal UIElementCallback DrawCallback { get; private set; }
+        internal Action<UIElement, GraphicsDevice> DrawCallback { get; private set; }
 
         private ColorRgba? _backgroundColorOverride;
         public ColorRgba? BackgroundColorOverride
@@ -97,6 +128,11 @@ namespace OpenSage.Gui.Elements
                 _highlighted = value;
                 Invalidate();
             }
+        }
+
+        protected UIElement()
+        {
+            _stateConfigurations = new Dictionary<UIElementState, UIElementStateConfiguration>();
         }
 
         public UIElement FindChild(string name)
@@ -145,19 +181,54 @@ namespace OpenSage.Gui.Elements
 
             _text = contentManager.TranslationManager.Lookup(wndWindow.Text);
 
-            _enabledState = AddDisposable(new UIElementState(wndWindow, wndWindow.TextColor.Enabled, wndWindow.TextColor.EnabledBorder, wndWindow.EnabledDrawData, contentManager, contentManager.GraphicsDevice, HostPlatform.GraphicsDevice2D));
+            _textAlignment = TextAlignment.Center;
+            if (wndWindow.WindowType == WndWindowType.StaticText && !wndWindow.StaticTextData.Centered)
+            {
+                _textAlignment = TextAlignment.Leading;
+            }
+
+            void createStateConfiguration(UIElementState state)
+            {
+                _stateConfigurations[state] = AddDisposable(UIElementStateConfiguration.Create(
+                    wndWindow,
+                    state,
+                    contentManager,
+                    contentManager.GraphicsDevice,
+                    HostPlatform.GraphicsDevice2D));
+            }
+
+            createStateConfiguration(UIElementState.Enabled);
+            createStateConfiguration(UIElementState.Highlighted);
+            createStateConfiguration(UIElementState.Disabled);
 
             if (wndWindow.WindowType == WndWindowType.PushButton)
             {
-                _highlightState = AddDisposable(new UIElementState(wndWindow, wndWindow.TextColor.Hilite, wndWindow.TextColor.HiliteBorder, wndWindow.HiliteDrawData, contentManager, contentManager.GraphicsDevice, HostPlatform.GraphicsDevice2D));
+                createStateConfiguration(UIElementState.HighlightedPushed);
             }
 
-            Visible = !wndWindow.Status.HasFlag(WndWindowStatusFlags.Hidden) && wndWindow.InputCallback != "GameWinBlockInput";
+            Visible = !wndWindow.Status.HasFlag(WndWindowStatusFlags.Hidden)
+                && wndWindow.InputCallback != "GameWinBlockInput"; // TODO: This isn't right.
 
-            SystemCallback = CallbackUtility.GetUIElementCallback(wndWindow.SystemCallback);
+            SystemCallback = CallbackUtility.GetUIElementCallback(wndWindow.SystemCallback) ?? DefaultSystem;
+
             InputCallback = CallbackUtility.GetUIElementCallback(wndWindow.InputCallback);
+            if (InputCallback == null)
+            {
+                switch (wndWindow.WindowType)
+                {
+                    case WndWindowType.PushButton:
+                        InputCallback = DefaultPushButtonInput;
+                        break;
+
+                    default:
+                        InputCallback = DefaultInput;
+                        break;
+                }
+            }
+
             TooltipCallback = CallbackUtility.GetUIElementCallback(wndWindow.TooltipCallback);
-            DrawCallback = CallbackUtility.GetUIElementCallback(wndWindow.DrawCallback);
+
+            DrawCallback = CallbackUtility.GetDrawCallback(wndWindow.DrawCallback) ?? DefaultDraw;
 
             // TODO
 
@@ -217,35 +288,34 @@ namespace OpenSage.Gui.Elements
             return new Rectangle(posX, posY, newWidth, newHeight);
         }
 
-        private bool _isMouseOver;
-        public bool IsMouseOver
-        {
-            get => _isMouseOver;
-            set
-            {
-                _isMouseOver = value;
-                Invalidate();
-            }
-        }
-
-        protected internal virtual void OnMouseEnter(EventArgs args) { }
-        protected internal virtual void OnMouseExit(EventArgs args) { }
-
         protected void Invalidate()
         {
             _needsRender = true;
         }
 
-        public void Render(GraphicsDevice graphicsDevice)
+        private static void DefaultInput(UIElement element, GuiWindowMessage message, UIElementCallbackContext context)
+        {
+
+        }
+
+        private static void DefaultSystem(UIElement element, GuiWindowMessage message, UIElementCallbackContext context)
+        {
+
+        }
+
+        private static void DefaultDraw(UIElement element, GraphicsDevice graphicsDevice)
+        {
+            element.RenderImpl(graphicsDevice);
+        }
+
+        private void RenderImpl(GraphicsDevice graphicsDevice)
         {
             if (!_needsRender)
             {
                 return;
             }
-            
-            var activeState = _isMouseOver
-                ? _highlightState ?? _enabledState
-                : _enabledState;
+
+            var activeState = _stateConfigurations[_currentState];
 
             var clearColour = _backgroundColorOverride?.ToColorRgba()
                 ?? activeState.BackgroundColor
@@ -290,7 +360,7 @@ namespace OpenSage.Gui.Elements
                         overlayColor);
                 }
 
-                if (!string.IsNullOrEmpty(Text))
+                if (!string.IsNullOrEmpty(_text))
                 {
                     string fontName;
                     int fontSize;
@@ -308,13 +378,13 @@ namespace OpenSage.Gui.Elements
                         fontBold = _wndWindow.Font.Bold;
                     }
                     
-                    using (var textFormat = new TextFormat(HostPlatform.GraphicsDevice2D, fontName, fontSize * _scale, fontBold ? FontWeight.Bold : FontWeight.Normal))
+                    using (var textFormat = new TextFormat(HostPlatform.GraphicsDevice2D, fontName, fontSize * _scale, fontBold ? FontWeight.Bold : FontWeight.Normal, _textAlignment))
                     {
                         var textColor = activeState.TextColor.ToColorRgba();
                         textColor.A *= TextOpacity;
 
                         var rect = new RawRectangleF { X = 0, Y = 0, Width = Frame.Width, Height = Frame.Height };
-                        drawingContext.DrawText(Text, textFormat, textColor, rect);
+                        drawingContext.DrawText(_text, textFormat, textColor, rect);
                     }
                 }
 
@@ -326,28 +396,18 @@ namespace OpenSage.Gui.Elements
             _needsRender = false;
         }
 
-        protected abstract void OnRender(DrawingContext drawingContext);
+        protected virtual void OnRender(DrawingContext drawingContext) { }
     }
 
-    internal delegate void UIElementCallback(UIElement element, UIElementCallbackContext context);
+    internal delegate void UIElementCallback(UIElement element, GuiWindowMessage message, UIElementCallbackContext context);
 
     internal sealed class UIElementCallbackContext
     {
-        public GuiWindow Window { get; }
-        public WindowTransitionManager TransitionManager { get; }
-        public Vector2 MousePosition { get; }
-        public GameTime GameTime { get; }
+        public GuiSystem GuiSystem { get; }
 
-        public UIElementCallbackContext(
-            GuiWindow window,
-            WindowTransitionManager transitionManager,
-            in Vector2 mousePosition,
-            GameTime gameTime)
+        public UIElementCallbackContext(GuiSystem guiSystem)
         {
-            Window = window;
-            TransitionManager = transitionManager;
-            MousePosition = mousePosition;
-            GameTime = gameTime;
+            GuiSystem = guiSystem;
         }
     }
 }

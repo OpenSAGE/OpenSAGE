@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using AppKit;
 using CoreGraphics;
 using MetalKit;
@@ -62,46 +61,15 @@ namespace OpenSage.LowLevel
 
         #region Input
 
-        private readonly List<Key> _pressedKeys = new List<Key>();
-
         public override void KeyDown(NSEvent theEvent)
         {
             throw new NotImplementedException();
-
-            //var key = MapKey(e.KeyCode);
-            //lock (_pressedKeys)
-            //{
-            //    if (!_pressedKeys.Contains(key))
-            //    {
-            //        _pressedKeys.Add(key);
-            //    }
-            //}
-
-            base.KeyDown(theEvent);
         }
 
         public override void KeyUp(NSEvent theEvent)
         {
             throw new NotImplementedException();
-
-            //var key = MapKey(e.KeyCode);
-            //lock (_pressedKeys)
-            //{
-            //    _pressedKeys.Remove(key);
-            //}
-
-            base.KeyUp(theEvent);
         }
-
-        private KeyboardState PlatformGetKeyboardState()
-        {
-            lock (_pressedKeys)
-            {
-                return new KeyboardState(new List<Key>(_pressedKeys));
-            }
-        }
-
-        private MouseState _mouseState;
 
         public override void MouseEntered(NSEvent theEvent)
         {
@@ -115,76 +83,76 @@ namespace OpenSage.LowLevel
 
         public override void MouseDown(NSEvent theEvent)
         {
-            SetMousePosition(theEvent.LocationInWindow);
-            _mouseState.LeftButton = ButtonState.Pressed;
+            RaiseMouseEvent(InputMessageType.MouseDown, MouseButton.Left, theEvent);
         }
 
         public override void MouseUp(NSEvent theEvent)
         {
-            SetMousePosition(theEvent.LocationInWindow);
-            _mouseState.LeftButton = ButtonState.Released;
+            RaiseMouseEvent(InputMessageType.MouseUp, MouseButton.Left, theEvent);
         }
 
         public override void RightMouseDown(NSEvent theEvent)
         {
-            SetMousePosition(theEvent.LocationInWindow);
-            _mouseState.RightButton = ButtonState.Pressed;
+            RaiseMouseEvent(InputMessageType.MouseDown, MouseButton.Right, theEvent);
         }
 
         public override void RightMouseUp(NSEvent theEvent)
         {
-            SetMousePosition(theEvent.LocationInWindow);
-            _mouseState.RightButton = ButtonState.Released;
+            RaiseMouseEvent(InputMessageType.MouseUp, MouseButton.Right, theEvent);
         }
 
         public override void OtherMouseDown(NSEvent theEvent)
         {
             // TODO: theEvent.ButtonNumber
-            SetMousePosition(theEvent.LocationInWindow);
-            _mouseState.MiddleButton = ButtonState.Pressed;
+            RaiseMouseEvent(InputMessageType.MouseDown, MouseButton.Middle, theEvent);
         }
 
         public override void OtherMouseUp(NSEvent theEvent)
         {
             // TODO: theEvent.ButtonNumber
-            SetMousePosition(theEvent.LocationInWindow);
-            _mouseState.MiddleButton = ButtonState.Released;
+            RaiseMouseEvent(InputMessageType.MouseUp, MouseButton.Middle, theEvent);
         }
 
         public override void MouseMoved(NSEvent theEvent)
         {
-            SetMousePosition(theEvent.LocationInWindow);
+            RaiseMouseEvent(InputMessageType.MouseMove, null, theEvent);
         }
 
         public override void MouseDragged(NSEvent theEvent)
         {
-            SetMousePosition(theEvent.LocationInWindow);
+            RaiseMouseEvent(InputMessageType.MouseMove, MouseButton.Left, theEvent);
         }
 
         public override void RightMouseDragged(NSEvent theEvent)
         {
-            SetMousePosition(theEvent.LocationInWindow);
+            RaiseMouseEvent(InputMessageType.MouseMove, MouseButton.Right, theEvent);
         }
 
         public override void OtherMouseDragged(NSEvent theEvent)
         {
-            SetMousePosition(theEvent.LocationInWindow);
+            // TODO: theEvent.ButtonNumber
+            RaiseMouseEvent(InputMessageType.MouseMove, MouseButton.Middle, theEvent);
         }
 
-        private void SetMousePosition(CGPoint mouseLocation)
+        private void RaiseMouseEvent(
+            InputMessageType mouseMessageType,
+            MouseButton? button,
+            NSEvent theEvent)
         {
-            var controlPosition = ConvertPointFromView(mouseLocation, null);
+            var controlPosition = ConvertPointFromView(theEvent.LocationInWindow, null);
 
-            _mouseState.X = (int) controlPosition.X;
-            _mouseState.Y = (int) controlPosition.Y;
+            RaiseInputMessage(new InputMessage(
+                mouseMessageType,
+                button,
+                (int) controlPosition.X,
+                (int) controlPosition.Y,
+                (int) theEvent.ScrollingDeltaY));
         }
 
         public override void ScrollWheel(NSEvent theEvent)
         {
-            _mouseState.ScrollWheelValue += (int) theEvent.ScrollingDeltaY;
+            RaiseMouseEvent(InputMessageType.MouseWheel, null, theEvent);
         }
-
-        private MouseState PlatformGetMouseState() => _mouseState;
 
         #endregion
 

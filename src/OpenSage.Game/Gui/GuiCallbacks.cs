@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Ini;
+using OpenSage.Gui;
 using OpenSage.Gui.Elements;
+using OpenSage.LowLevel.Graphics2D;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui
@@ -12,12 +14,13 @@ namespace OpenSage.Gui
     internal static class GuiCallbacks
     {
         private static bool _doneMainMenuFadeIn;
-        private static Vector2? _mousePosition;
 
         public static void W3DMainMenuInit(GuiWindow window)
         {
             // We'll show these later via window transitions.
+            window.Root.FindChild("MainMenu.wnd:MainMenuRuler").Hide();
             window.Root.FindChild("MainMenu.wnd:MainMenuRuler").Opacity = 0;
+
             window.Root.FindChild("MainMenu.wnd:MapBorder2").Opacity = 0;
             foreach (var button in window.Root.FindChild("MainMenu.wnd:EarthMap2").Children)
             {
@@ -42,22 +45,79 @@ namespace OpenSage.Gui
             _doneMainMenuFadeIn = false;
         }
 
-        public static void MainMenuSystem(UIElement element, UIElementCallbackContext context)
+        public static void MainMenuSystem(UIElement element, GuiWindowMessage message, UIElementCallbackContext context)
         {
-            if (!_doneMainMenuFadeIn)
+            switch (message.MessageType)
             {
-                if (_mousePosition == null)
-                {
-                    _mousePosition = context.MousePosition;
-                }
-                else if (_mousePosition.Value != context.MousePosition)
-                {
-                    context.TransitionManager.QueueTransition(null, context.Window, "MainMenuFade");
-                    context.TransitionManager.QueueTransition(null, context.Window, "MainMenuDefaultMenu");
-                    _doneMainMenuFadeIn = true;
-                }
+                case GuiWindowMessageType.SelectedButton:
+                    switch (message.Element.Name)
+                    {
+                        case "MainMenu.wnd:ButtonExit":
+                            var exitWindow = context.GuiSystem.OpenWindow(@"Menus\QuitMessageBox.wnd");
+                            exitWindow.Root.FindChild("QuitMessageBox.wnd:StaticTextTitle").Text = "EXIT?";
+                            exitWindow.Root.FindChild("QuitMessageBox.wnd:StaticTextTitle").TextAlignment = TextAlignment.Leading;
+                            exitWindow.Root.FindChild("QuitMessageBox.wnd:StaticTextMessage").Text = "Are you sure you want to exit?";
+                            exitWindow.Root.FindChild("QuitMessageBox.wnd:ButtonOk").Show();
+                            exitWindow.Root.FindChild("QuitMessageBox.wnd:ButtonOk").Text = "YES";
+                            exitWindow.Root.FindChild("QuitMessageBox.wnd:ButtonCancel").Show();
+                            exitWindow.Root.FindChild("QuitMessageBox.wnd:ButtonCancel").Text = "NO";
+                            break;
+                    }
+                    break;
             }
         }
+
+        public static void MainMenuInput(UIElement element, GuiWindowMessage message, UIElementCallbackContext context)
+        {
+            // Any input at all (mouse, keyboard) will trigger the main menu fade-in.
+            if (!_doneMainMenuFadeIn)
+            {
+                context.GuiSystem.TransitionManager.QueueTransition(null, element.Window, "MainMenuFade");
+                context.GuiSystem.TransitionManager.QueueTransition(null, element.Window, "MainMenuDefaultMenu");
+                element.Window.Root.FindChild("MainMenu.wnd:MainMenuRuler").Show();
+                _doneMainMenuFadeIn = true;
+            }
+        }
+
+        public static void PassSelectedButtonsToParentSystem(UIElement element, GuiWindowMessage message, UIElementCallbackContext context)
+        {
+            if (message.MessageType != GuiWindowMessageType.SelectedButton)
+            {
+                return;
+            }
+
+            element.Parent.SystemCallback.Invoke(element.Parent, message, context);
+        }
+
+        public static void PassMessagesToParentSystem(UIElement element, GuiWindowMessage message, UIElementCallbackContext context)
+        {
+            element.Parent.SystemCallback.Invoke(element.Parent, message, context);
+        }
+    }
+
+    internal sealed class GuiWindowMessage
+    {
+        public GuiWindowMessageType MessageType { get; }
+        public UIElement Element { get; }
+
+        public GuiWindowMessage(GuiWindowMessageType messageType, UIElement element)
+        {
+            MessageType = messageType;
+            Element = element;
+        }
+    }
+
+    public enum GuiWindowMessageType
+    {
+        MouseEnter,
+        MouseExit,
+
+        MouseMove,
+
+        MouseDown,
+        MouseUp,
+
+        SelectedButton
     }
 
     internal sealed class WindowTransitionManager

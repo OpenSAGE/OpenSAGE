@@ -2,7 +2,7 @@
 {
     partial class TextFormat
     {
-        private void PlatformConstruct(GraphicsDevice2D graphicsDevice, string fontFamily, float fontSize, FontWeight fontWeight)
+        private void PlatformConstruct(GraphicsDevice2D graphicsDevice, string fontFamily, float fontSize, FontWeight fontWeight, TextAlignment alignment)
         {
             
         }

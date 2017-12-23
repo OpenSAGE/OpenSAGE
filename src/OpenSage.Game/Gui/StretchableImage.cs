@@ -1,4 +1,9 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
+using OpenSage.Content;
+using OpenSage.Content.Util;
+using OpenSage.Data.Wnd;
 using OpenSage.LowLevel.Graphics2D;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Mathematics;
@@ -15,6 +20,66 @@ namespace OpenSage.Gui
 
         private readonly int _totalWidth;
         private readonly int _height;
+
+        public static StretchableImage CreateNormalImage(
+            WndWindow wndWindow,
+            WndDrawData wndDrawData,
+            ContentManager contentManager)
+        {
+            var image = LoadImage(wndDrawData, 0, contentManager);
+            return image != null
+                ? CreateNormal(wndWindow.ScreenRect.ToRectangle().Width, image)
+                : null;
+        }
+
+        public static StretchableImage CreatePushButtonImage(
+            WndWindow wndWindow,
+            WndDrawData wndDrawData,
+            ContentManager contentManager,
+            int leftIndex,
+            int middleIndex,
+            int rightIndex)
+        {
+            var imageLeft = LoadImage(wndDrawData, leftIndex, contentManager);
+            var imageMiddle = LoadImage(wndDrawData, middleIndex, contentManager);
+            var imageRight = LoadImage(wndDrawData, rightIndex, contentManager);
+
+            if (imageLeft != null && imageMiddle != null && imageRight != null)
+                return CreateStretchable(wndWindow.ScreenRect.ToRectangle().Width, imageLeft, imageMiddle, imageRight);
+
+            //if (imageLeft != null)
+            //    return StretchableImage.CreateNormal(wndWindow.ScreenRect.ToRectangle().Width, imageLeft);
+
+            return null;
+        }
+
+        private static CroppedBitmap LoadImage(WndDrawData wndDrawData, int drawDataIndex, ContentManager contentManager)
+        {
+            var image = wndDrawData.Items[drawDataIndex].Image;
+
+            if (string.IsNullOrEmpty(image) || image == "NoImage")
+            {
+                return null;
+            }
+
+            var mappedImage = contentManager.IniDataContext.MappedImages.FirstOrDefault(x => x.Name == image);
+            if (mappedImage == null)
+            {
+                return null;
+            }
+
+            var texture = contentManager.Load<Texture>(
+                new[]
+                {
+                    Path.Combine(@"Data\English\Art\Textures", mappedImage.Texture),
+                    Path.Combine(@"Art\Textures", mappedImage.Texture)
+                },
+                new TextureLoadOptions { GenerateMipMaps = false });
+
+            var textureRect = mappedImage.Coords.ToRectangle();
+
+            return new CroppedBitmap(texture, textureRect);
+        }
 
         private StretchableImage(
             int destinationWidth,
@@ -34,12 +99,12 @@ namespace OpenSage.Gui
             _height = croppedBitmapLeft.SourceRect.Height;
         }
 
-        public static StretchableImage CreateNormal(int destinationWidth, CroppedBitmap croppedBitmap)
+        private static StretchableImage CreateNormal(int destinationWidth, CroppedBitmap croppedBitmap)
         {
             return new StretchableImage(destinationWidth, StretchableImageMode.Normal, croppedBitmap, null, null);
         }
 
-        public static StretchableImage CreateStretchable(
+        private static StretchableImage CreateStretchable(
             int destinationWidth,
             CroppedBitmap croppedBitmapLeft,
             CroppedBitmap croppedBitmapMiddle,

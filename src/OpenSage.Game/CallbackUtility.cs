@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenSage.Gui.Elements;
+using OpenSage.LowLevel.Graphics3D;
 
 namespace OpenSage.Gui
 {
@@ -13,6 +14,11 @@ namespace OpenSage.Gui
         public static UIElementCallback GetUIElementCallback(string name)
         {
             return GetCallback<UIElementCallback>(name);
+        }
+
+        public static Action<UIElement, GraphicsDevice> GetDrawCallback(string name)
+        {
+            return GetCallback<Action<UIElement, GraphicsDevice>>(name);
         }
 
         private static TDelegate GetCallback<TDelegate>(string name)

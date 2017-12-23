@@ -38,7 +38,21 @@ namespace OpenSage.Content
                 wndFile.RootWindow, 
                 contentManager);
 
-            return new GuiWindow(wndFile, result);
+            var window = new GuiWindow(wndFile, result);
+
+            void setWindowRecursive(UIElement element)
+            {
+                element.Window = window;
+
+                foreach (var child in element.Children)
+                {
+                    setWindowRecursive(child);
+                }
+            }
+
+            setWindowRecursive(result);
+
+            return window;
         }
 
         private static UIElement CreateElementRecursive(WndWindow wndWindow, ContentManager contentManager)

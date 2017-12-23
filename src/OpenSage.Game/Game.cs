@@ -25,8 +25,6 @@ namespace OpenSage
 
         private Scene _scene;
 
-        public GameSettings Settings { get; } = new GameSettings();
-
         public ContentManager ContentManager { get; private set; }
 
         public GraphicsDevice GraphicsDevice { get; }
@@ -70,6 +68,8 @@ namespace OpenSage
 
                 if (value != null)
                 {
+                    Input.MessageBuffer.SetHostView(value);
+
                     SetSwapChain(value.SwapChain);
                     ResetElapsedTime();
 
@@ -77,6 +77,8 @@ namespace OpenSage
                 }
                 else
                 {
+                    Input.MessageBuffer.SetHostView(null);
+
                     Scene = null;
                     ContentManager.Unload();
 
@@ -109,14 +111,14 @@ namespace OpenSage
 
             GameSystems = new List<GameSystem>();
 
+            Input = AddDisposable(new InputSystem(this));
+
             AddDisposable(new AnimationSystem(this));
             AddDisposable(new ObjectSystem(this));
             AddDisposable(new ParticleSystemSystem(this));
             AddDisposable(new UpdateableSystem(this));
 
             Graphics = AddDisposable(new GraphicsSystem(this));
-
-            Input = AddDisposable(new InputSystem(this));
 
             Scripting = AddDisposable(new ScriptingSystem(this));
 
@@ -245,10 +247,6 @@ namespace OpenSage
 
         public void Tick()
         {
-            Input.InputState.Update(
-                HostView.GetKeyboardState(),
-                HostView.GetMouseState());
-
             _gameTimer.Update();
 
             var gameTime = _gameTimer.CurrentGameTime;

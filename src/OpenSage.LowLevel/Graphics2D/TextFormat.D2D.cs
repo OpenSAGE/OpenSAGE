@@ -6,7 +6,7 @@ namespace OpenSage.LowLevel.Graphics2D
     {
         internal DW.TextFormat DeviceTextFormat { get; private set; }
 
-        private void PlatformConstruct(GraphicsDevice2D graphicsDevice, string fontFamily, float fontSize, FontWeight fontWeight)
+        private void PlatformConstruct(GraphicsDevice2D graphicsDevice, string fontFamily, float fontSize, FontWeight fontWeight, TextAlignment alignment)
         {
             DeviceTextFormat = AddDisposable(new DW.TextFormat(
                 graphicsDevice.DirectWriteFactory,
@@ -16,8 +16,9 @@ namespace OpenSage.LowLevel.Graphics2D
                 DW.FontStretch.Normal,
                 fontSize));
 
+            DeviceTextFormat.TextAlignment = ToDirectWriteTextAlignment(alignment);
+
             // TODO: Make this configurable.
-            DeviceTextFormat.TextAlignment = DW.TextAlignment.Center;
             DeviceTextFormat.ParagraphAlignment = DW.ParagraphAlignment.Center;
         }
 
@@ -30,6 +31,21 @@ namespace OpenSage.LowLevel.Graphics2D
 
                 case FontWeight.Bold:
                     return DW.FontWeight.Bold;
+
+                default:
+                    throw new System.ArgumentOutOfRangeException();
+            }
+        }
+
+        private static DW.TextAlignment ToDirectWriteTextAlignment(TextAlignment value)
+        {
+            switch (value)
+            {
+                case TextAlignment.Center:
+                    return DW.TextAlignment.Center;
+
+                case TextAlignment.Leading:
+                    return DW.TextAlignment.Leading;
 
                 default:
                     throw new System.ArgumentOutOfRangeException();

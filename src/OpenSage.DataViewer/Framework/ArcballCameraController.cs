@@ -31,31 +31,31 @@ namespace OpenSage.Graphics.Cameras.Controllers
             Reset(target, radius);
         }
 
-        protected internal override void Update(GameTime gameTime)
+        protected override void Update(GameTime gameTime)
         {
-            var deltaX = Input.GetAxis(MouseMovementAxis.XAxis);
-            var deltaY = Input.GetAxis(MouseMovementAxis.YAxis);
+            //var deltaX = Input.GetAxis(MouseMovementAxis.XAxis);
+            //var deltaY = Input.GetAxis(MouseMovementAxis.YAxis);
 
-            bool isMovementTypeActive(MouseButton button)
-            {
-                return Input.GetMouseButtonDown(button)
-                    && !Input.GetMouseButtonPressed(button);
-            }
+            //bool isMovementTypeActive(MouseButton button)
+            //{
+            //    return Input.GetMouseButtonDown(button)
+            //        && !Input.GetMouseButtonPressed(button);
+            //}
 
-            if (isMovementTypeActive(MouseButton.Left))
-            {
-                RotateCamera(deltaX, deltaY);
-            }
+            //if (isMovementTypeActive(MouseButton.Left))
+            //{
+            //    RotateCamera(deltaX, deltaY);
+            //}
 
-            if (isMovementTypeActive(MouseButton.Middle))
-            {
-                ZoomCamera(deltaY);
-            }
+            //if (isMovementTypeActive(MouseButton.Middle))
+            //{
+            //    ZoomCamera(deltaY);
+            //}
 
-            if (isMovementTypeActive(MouseButton.Right))
-            {
-                PanCamera(deltaX, deltaY);
-            }
+            //if (isMovementTypeActive(MouseButton.Right))
+            //{
+            //    PanCamera(deltaX, deltaY);
+            //}
 
             UpdateCamera();
         }

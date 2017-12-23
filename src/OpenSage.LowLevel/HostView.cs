@@ -16,8 +16,12 @@ namespace OpenSage.LowLevel
 
         protected virtual void OnGraphicsUninitialized(EventArgs args) { }
 
-        public KeyboardState GetKeyboardState() => PlatformGetKeyboardState();
-        public MouseState GetMouseState() => PlatformGetMouseState();
+        public event EventHandler<InputMessageEventArgs> InputMessage;
+
+        private void RaiseInputMessage(InputMessage message)
+        {
+            InputMessage?.Invoke(this, new InputMessageEventArgs(message));
+        }
 
         public void SetCursor(HostCursor cursor) => PlatformSetCursor(cursor);
     }

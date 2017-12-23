@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Windows.Forms;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.LowLevel.Input;
@@ -80,8 +78,6 @@ namespace OpenSage.LowLevel
 
         #region Input
 
-        private readonly List<Key> _pressedKeys = new List<Key>();
-
         protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
         {
             // Make sure we get special keys (arrow keys, etc.)
@@ -94,14 +90,7 @@ namespace OpenSage.LowLevel
         {
             e.Handled = true;
 
-            var key = MapKey(e.KeyCode);
-            lock (_pressedKeys)
-            {
-                if (!_pressedKeys.Contains(key))
-                {
-                    _pressedKeys.Add(key);
-                }
-            }
+            RaiseInputMessage(new InputMessage(InputMessageType.KeyDown, MapKey(e.KeyCode)));
 
             base.OnKeyDown(e);
         }
@@ -110,21 +99,9 @@ namespace OpenSage.LowLevel
         {
             e.Handled = true;
 
-            var key = MapKey(e.KeyCode);
-            lock (_pressedKeys)
-            {
-                _pressedKeys.Remove(key);
-            }
+            RaiseInputMessage(new InputMessage(InputMessageType.KeyUp, MapKey(e.KeyCode)));
 
             base.OnKeyUp(e);
-        }
-
-        private KeyboardState PlatformGetKeyboardState()
-        {
-            lock (_pressedKeys)
-            {
-                return new KeyboardState(new List<Key>(_pressedKeys));
-            }
         }
 
         private static Key MapKey(Keys key)
@@ -286,8 +263,6 @@ namespace OpenSage.LowLevel
             }
         }
 
-        private MouseState _mouseState;
-
         protected override void OnMouseEnter(EventArgs e)
         {
             base.OnMouseEnter(e);
@@ -302,67 +277,61 @@ namespace OpenSage.LowLevel
         {
             Focus();
 
-            SetMousePosition(e.Location);
-            SetMouseButtonState(e.Button, OpenSage.LowLevel.Input.ButtonState.Pressed);
+            RaiseMouseEvent(InputMessageType.MouseDown, e);
 
             base.OnMouseDown(e);
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
-            SetMousePosition(e.Location);
-            SetMouseButtonState(e.Button, OpenSage.LowLevel.Input.ButtonState.Released);
+            RaiseMouseEvent(InputMessageType.MouseUp, e);
 
             base.OnMouseUp(e);
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            SetMousePosition(e.Location);
+            RaiseMouseEvent(InputMessageType.MouseMove, e);
 
             base.OnMouseMove(e);
         }
 
-        private void SetMousePosition(Point mouseLocation)
+        private void RaiseMouseEvent(
+            InputMessageType mouseMessageType,
+            MouseEventArgs args)
         {
-            _mouseState.X = mouseLocation.X;
-            _mouseState.Y = mouseLocation.Y;
+            RaiseInputMessage(new InputMessage(
+                mouseMessageType,
+                GetMouseButton(args.Button),
+                args.X,
+                args.Y,
+                args.Delta));
         }
 
-        private void SetMouseButtonState(MouseButtons button, OpenSage.LowLevel.Input.ButtonState state)
+        private static MouseButton? GetMouseButton(MouseButtons button)
         {
             switch (button)
             {
                 case MouseButtons.Left:
-                    _mouseState.LeftButton = state;
-                    break;
+                    return MouseButton.Left;
 
                 case MouseButtons.Right:
-                    _mouseState.RightButton = state;
-                    break;
+                    return MouseButton.Right;
 
                 case MouseButtons.Middle:
-                    _mouseState.MiddleButton = state;
-                    break;
+                    return MouseButton.Middle;
 
-                case MouseButtons.XButton1:
-                    _mouseState.XButton1 = state;
-                    break;
-
-                case MouseButtons.XButton2:
-                    _mouseState.XButton1 = state;
-                    break;
+                default:
+                    return null;
             }
         }
 
         protected override void OnMouseWheel(MouseEventArgs e)
         {
-            _mouseState.ScrollWheelValue += e.Delta;
+            RaiseMouseEvent(InputMessageType.MouseWheel, e);
 
             base.OnMouseWheel(e);
         }
-
-        private MouseState PlatformGetMouseState() => _mouseState;
 
         #endregion
 

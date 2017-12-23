@@ -1,8 +1,5 @@
-﻿namespace OpenSage.Input
+﻿namespace OpenSage.LowLevel.Input
 {
-    /// <summary>
-    /// Mouse button, used to configure <see cref="MouseButtonInputKey"/>.
-    /// </summary>
     public enum MouseButton
     {
         /// <summary>

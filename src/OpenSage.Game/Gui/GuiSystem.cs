@@ -6,6 +6,7 @@ using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Gui.Elements;
 using OpenSage.Mathematics;
+using System.IO;
 
 namespace OpenSage.Gui
 {
@@ -15,12 +16,15 @@ namespace OpenSage.Gui
         private readonly SpriteBatch _spriteBatch;
         private readonly EffectPipelineStateHandle _pipelineStateHandle;
 
-        private readonly WindowTransitionManager _transitionManager;
+        internal Stack<GuiWindow> WindowStack { get; }
+        internal WindowTransitionManager TransitionManager { get; }
 
         public GuiSystem(Game game) 
             : base(game)
         {
             RegisterComponentList(_guiComponents = new List<GuiComponent>());
+
+            WindowStack = new Stack<GuiWindow>();
 
             _spriteBatch = AddDisposable(new SpriteBatch(Game.ContentManager));
 
@@ -39,11 +43,18 @@ namespace OpenSage.Gui
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
                     game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\WindowTransitions.ini");
-                    _transitionManager = new WindowTransitionManager(game.ContentManager.IniDataContext.WindowTransitions);
+                    TransitionManager = new WindowTransitionManager(game.ContentManager.IniDataContext.WindowTransitions);
                     break;
 
                 // TODO: Handle other games.
             }
+        }
+
+        public override void Initialize()
+        {
+            base.Initialize();
+
+            Game.Input.MessageBuffer.Handlers.Add(new GuiMessageHandler(this));
         }
 
         internal override void OnEntityComponentAdded(EntityComponent component)
@@ -52,10 +63,22 @@ namespace OpenSage.Gui
             {
                 CreateSizeDependentResources(c);
 
+                WindowStack.Push(c.Window);
+
                 c.Window.LayoutInit?.Invoke(c.Window);
             }
 
             base.OnEntityComponentAdded(component);
+        }
+
+        internal override void OnEntityComponentRemoved(EntityComponent component)
+        {
+            if (component is GuiComponent c)
+            {
+                WindowStack.Pop();
+            }
+
+            base.OnEntityComponentRemoved(component);
         }
 
         internal override void OnSwapChainChanged()
@@ -122,43 +145,12 @@ namespace OpenSage.Gui
 
         public override void Update(GameTime gameTime)
         {
-            var mousePosition = Game.Input.MousePosition;
-
             foreach (var guiComponent in _guiComponents)
             {
                 guiComponent.Window.LayoutUpdate?.Invoke(guiComponent.Window);
-
-                var elementCallbackContext = new UIElementCallbackContext(
-                    guiComponent.Window,
-                    _transitionManager,
-                    mousePosition,
-                    gameTime);
-
-                DoActionRecursive(
-                    guiComponent.Window.Root,
-                    x =>
-                    {
-                        if (x.Frame.Contains(mousePosition))
-                        {
-                            if (!x.IsMouseOver)
-                            {
-                                x.IsMouseOver = true;
-                                x.OnMouseEnter(EventArgs.Empty);
-                            }
-                        }
-                        else if (x.IsMouseOver)
-                        {
-                            x.IsMouseOver = false;
-                            x.OnMouseExit(EventArgs.Empty);
-                        }
-
-                        x.SystemCallback?.Invoke(x, elementCallbackContext);
-
-                        return true;
-                    });
             }
 
-            _transitionManager.Update(gameTime);
+            TransitionManager.Update(gameTime);
 
             foreach (var guiComponent in _guiComponents)
             {
@@ -166,12 +158,30 @@ namespace OpenSage.Gui
                     guiComponent.Window.Root, 
                     x =>
                     {
-                        x.Render(Game.GraphicsDevice);
+                        x.DrawCallback.Invoke(x, Game.GraphicsDevice);
                         return true;
                     });
             }
 
             base.Update(gameTime);
+        }
+
+        internal GuiWindow OpenWindow(string wndFileName)
+        {
+            var wndFilePath = Path.Combine("Window", wndFileName);
+
+            var guiComponent = new GuiComponent
+            {
+                Window = Game.ContentManager.Load<GuiWindow>(wndFilePath)
+            };
+
+            var entity = new Entity();
+
+            Game.Scene.Entities.Add(entity);
+
+            entity.Components.Add(guiComponent);
+
+            return guiComponent.Window;
         }
     }
 }

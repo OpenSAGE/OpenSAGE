@@ -31,6 +31,8 @@ namespace OpenSage.DataViewer.UI.Viewers
 
             game.Scene = scene;
 
+            game.Input.MessageBuffer.Handlers.Add(scene.CameraController);
+
             var animations = new List<AnimationComponent>();
             animations.AddRange(modelEntity.Components.OfType<AnimationComponent>());
 
