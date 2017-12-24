@@ -2,6 +2,13 @@
 
 namespace OpenSage.Mathematics
 {
+    public struct Triangle2D
+    {
+        public Vector2 V0;
+        public Vector2 V1;
+        public Vector2 V2;
+    }
+
     public struct Triangle
     {
         public Vector3 V0;
