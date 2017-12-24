@@ -8,4 +8,18 @@ namespace OpenSage.Mathematics
         public Vector3 V1;
         public Vector3 V2;
     }
+
+    public struct IndexedTriangle
+    {
+        public ushort IDX0;
+        public ushort IDX1;
+        public ushort IDX2;
+
+        public IndexedTriangle(ushort i0,ushort i1,ushort i2)
+        {
+            IDX0 = i0;
+            IDX1 = i1;
+            IDX2 = i2;
+        }
+    }
 }

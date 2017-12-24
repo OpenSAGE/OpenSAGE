@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Text;
 using OpenSage.Mathematics;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace OpenSage.Data.Utilities.Extensions
 {
@@ -13,7 +14,7 @@ namespace OpenSage.Data.Utilities.Extensions
         public static bool ReadBooleanChecked(this BinaryReader reader)
         {
             var value = reader.ReadByte();
-            
+
             switch (value)
             {
                 case 0:
@@ -205,6 +206,23 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadSingle());
         }
 
+        public static Vector4 ReadVector4(this BinaryReader reader)
+        {
+            return new Vector4(
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle());
+        }
+
+        public static IndexedTriangle ReadIndexedTri(this BinaryReader reader)
+        {
+            return new IndexedTriangle(
+                reader.ReadUInt16(),
+                reader.ReadUInt16(),
+                reader.ReadUInt16());
+        }
+
         public static Quaternion ReadQuaternion(this BinaryReader reader)
         {
             return new Quaternion(
@@ -230,5 +248,85 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadSingle(),
                 reader.ReadSingle());
         }
+
+        public static string ReadStringAtOffset(this BinaryReader reader)
+        {
+            var stringOffset = reader.ReadUInt32();
+            var oldOffset = reader.BaseStream.Position;
+
+            //jump to the location and read the data
+            reader.BaseStream.Seek(stringOffset, SeekOrigin.Begin);
+            var str = reader.ReadNullTerminatedString();
+            reader.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
+            return str;
+        }
+
+        public static List<T> ReadListAtOffset<T>(this BinaryReader reader, Func<T> creator, bool ptr = false) where T : class
+        {
+            var capacity = reader.ReadInt32();
+            List<T> result = new List<T>(capacity);
+
+            //get the offset
+            var listOffset = reader.ReadUInt32();
+            var oldOffset = reader.BaseStream.Position;
+
+            //jump to the location and read the data
+            reader.BaseStream.Seek(listOffset, SeekOrigin.Begin);
+
+            for (var i = 0; i < capacity; i++)
+            {
+                T item = null;
+                if (!ptr)
+                {
+                    item = creator();
+                }
+                else
+                {
+                    //read the adress of the object first
+                    var itemOffset = reader.ReadUInt32();
+
+                    //if offset is 0 this item must be null
+                    if (!itemOffset.Equals(0))
+                    {
+                        var oldOffset2 = reader.BaseStream.Position;
+
+                        //jump to the location and read the data
+                        reader.BaseStream.Seek(itemOffset, SeekOrigin.Begin);
+                        item = creator();
+
+                        reader.BaseStream.Seek(oldOffset2, SeekOrigin.Begin);
+                    }
+                }
+
+                result.Add(item);
+            }
+
+            //jump back to where we came from
+            reader.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
+            return result;
+        }
+
+        public static T[] ReadFixedSizeArrayAtOffset<T>(this BinaryReader reader, Func<T> creator, uint size) where T : struct
+        {
+            var arr = new T[size];
+
+            //get the offset
+            var listOffset = reader.ReadUInt32();
+            var oldOffset = reader.BaseStream.Position;
+
+            //jump to the location and read the data
+            reader.BaseStream.Seek(listOffset, SeekOrigin.Begin);
+
+            for (var i = 0; i < size; i++)
+            {
+                arr[i] = creator();
+            }
+
+            //jump back to where we came from
+            reader.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
+
+            return arr;
+        }
+
     }
 }

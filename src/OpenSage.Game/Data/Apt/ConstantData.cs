@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Apt
@@ -27,7 +23,7 @@ namespace OpenSage.Data.Apt
 
                 //validate that this is a correct const              
                 var magic = reader.ReadFixedLengthString(17);
-                if (magic!="Apt constant file")
+                if (magic != "Apt constant file")
                     throw new InvalidDataException($"Not a supported const file: {magic}");
 
                 reader.BaseStream.Seek(3, SeekOrigin.Current);
@@ -40,7 +36,7 @@ namespace OpenSage.Data.Apt
                 {
                     var constEntry = new ConstantEntry
                     {
-                        Type = (ConstantEntryType)reader.ReadUInt32()
+                        Type = reader.ReadUInt32AsEnum<ConstantEntryType>()
                     };
 
                     //read the number/ string offset
@@ -48,15 +44,15 @@ namespace OpenSage.Data.Apt
 
                     switch (constEntry.Type)
                     {
-                        case ConstantEntryType.UNDEF:
+                        case ConstantEntryType.Undef:
                             throw new InvalidDataException("Undefined const entry");
-                        case ConstantEntryType.STRING:
+                        case ConstantEntryType.String:
                             var pos = reader.BaseStream.Position;
                             reader.BaseStream.Seek(entryValue, SeekOrigin.Begin);
-                            constEntry.Value =  reader.ReadNullTerminatedString();
+                            constEntry.Value = reader.ReadNullTerminatedString();
                             reader.BaseStream.Seek(pos, SeekOrigin.Begin);
                             break;
-                        case ConstantEntryType.NUMBER:
+                        case ConstantEntryType.Number:
                             constEntry.Value = entryValue;
                             break;
                     }
@@ -71,9 +67,9 @@ namespace OpenSage.Data.Apt
 
     public enum ConstantEntryType
     {
-        UNDEF   = 0,
-        STRING  = 1,
-        NUMBER  = 4,
+        Undef = 0,
+        String = 1,
+        Number = 4,
     }
 
     public sealed class ConstantEntry
