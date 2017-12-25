@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using OpenSage.Data.Utilities;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
@@ -227,7 +228,7 @@ namespace OpenSage.Data.Ini.Parser
 
         public float ScanFloat(IniToken token)
         {
-            return Convert.ToSingle(GetFloatText(token));
+            return ParseUtility.ParseFloat(GetFloatText(token));
         }
 
         public float ParseFloat() => ScanFloat(GetNextToken());
