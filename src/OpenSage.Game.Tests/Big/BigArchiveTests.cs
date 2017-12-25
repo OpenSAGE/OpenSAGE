@@ -1,5 +1,6 @@
-using System.IO;
+﻿using System.IO;
 using OpenSage.Data.Big;
+using OpenSage.Game.Tests;
 using Xunit;
 
 namespace OpenSage.Data.Tests.Big
@@ -13,7 +14,7 @@ namespace OpenSage.Data.Tests.Big
             BigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(SageGame.CncGeneralsZeroHour), "W3DZH.big");
         }
 
-        [Fact]
+        [GameFact(SageGame.CncGeneralsZeroHour)]
         public void OpenBigArchive()
         {
             using (var bigStream = File.OpenRead(BigFilePath))
@@ -23,7 +24,7 @@ namespace OpenSage.Data.Tests.Big
             }
         }
 
-        [Fact]
+        [GameFact(SageGame.CncGeneralsZeroHour)]
         public void ReadFirstEntry()
         {
             using (var bigStream = File.OpenRead(BigFilePath))
@@ -36,7 +37,7 @@ namespace OpenSage.Data.Tests.Big
             }
         }
 
-        [Fact]
+        [GameFact(SageGame.CncGeneralsZeroHour)]
         public void ReadFirstEntryStream()
         {
             using (var bigStream = File.OpenRead(BigFilePath))
@@ -55,7 +56,7 @@ namespace OpenSage.Data.Tests.Big
             }
         }
 
-        [Fact]
+        [GameFact(SageGame.CncGeneralsZeroHour)]
         public void GetEntryByName()
         {
             using (var bigStream = File.OpenRead(BigFilePath))
