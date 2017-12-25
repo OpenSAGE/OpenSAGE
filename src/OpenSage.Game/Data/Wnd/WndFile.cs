@@ -83,6 +83,8 @@ namespace OpenSage.Data.Wnd
         public WndSliderData SliderData { get; internal set; }
 
         public WndWindow[] ChildWindows { get; internal set; }
+
+        public bool HasHeaderTemplate => HeaderTemplate != null && !string.Equals(HeaderTemplate, "[NONE]", StringComparison.InvariantCultureIgnoreCase);
     }
 
     public sealed class WndTextEntryData

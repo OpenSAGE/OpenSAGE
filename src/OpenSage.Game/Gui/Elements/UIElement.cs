@@ -174,7 +174,7 @@ namespace OpenSage.Gui.Elements
             _wndWindow = wndWindow;
             _needsRender = true;
 
-            if (!string.Equals(wndWindow.HeaderTemplate, "[NONE]", StringComparison.InvariantCultureIgnoreCase))
+            if (wndWindow.HasHeaderTemplate)
             {
                 _headerTemplate = contentManager.IniDataContext.HeaderTemplates.First(x => x.Name == wndWindow.HeaderTemplate);
             }
