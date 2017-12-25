@@ -4,6 +4,8 @@ using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
+using System.Numerics;
+using OpenSage.Graphics.Cameras;
 
 namespace OpenSage.Graphics
 {
@@ -24,7 +26,10 @@ namespace OpenSage.Graphics
         private readonly Buffer<MeshVertex.Basic> _vertexBuffer;
         private readonly Buffer<ushort> _indexBuffer;
 
-        private readonly Buffer<MeshMaterial.SkinningConstants> _skinningConstantsBuffer;
+        private readonly ConstantBuffer<MeshMaterial.MeshConstants> _meshConstantsBuffer;
+
+        private readonly Buffer<Matrix4x3> _skinningBuffer;
+        private readonly Matrix4x3[] _skinningBones;
 
         private readonly Effect _effect;
 
@@ -80,14 +85,19 @@ namespace OpenSage.Graphics
                 indices,
                 BufferBindFlags.IndexBuffer));
 
-            _skinningConstantsBuffer = AddDisposable(Buffer<MeshMaterial.SkinningConstants>.CreateStatic(
-                graphicsDevice,
-                new MeshMaterial.SkinningConstants
-                {
-                    SkinningEnabled = isSkinned,
-                    NumBones = numBones
-                },
-                BufferBindFlags.ConstantBuffer));
+            _meshConstantsBuffer = AddDisposable(new ConstantBuffer<MeshMaterial.MeshConstants>(graphicsDevice));
+            _meshConstantsBuffer.Value.SkinningEnabled = isSkinned;
+            _meshConstantsBuffer.Value.NumBones = numBones;
+
+            if (isSkinned)
+            {
+                _skinningBuffer = AddDisposable(Buffer<Matrix4x3>.CreateDynamicArray(
+                    graphicsDevice,
+                    (int) numBones,
+                    BufferBindFlags.ShaderResource));
+
+                _skinningBones = new Matrix4x3[numBones];
+            }
 
             foreach (var materialPass in materialPasses)
             {
@@ -96,7 +106,7 @@ namespace OpenSage.Graphics
             MaterialPasses = materialPasses;
         }
 
-        internal void BuildRenderList(RenderList renderList, RenderInstanceData instanceData)
+        internal void BuildRenderList(RenderList renderList, MeshComponent mesh)
         {
             if (Hidden)
             {
@@ -116,18 +126,19 @@ namespace OpenSage.Graphics
 
                 if (filteredMaterialPasses.Count > 0)
                 {
-                    renderList.AddRenderItem(new InstancedRenderItem(
-                        instanceData,
-                        _effect,
+                    renderList.AddRenderItem(new RenderItem(
+                        mesh,
+                        filteredMaterialPasses[0].MeshParts[0].Material, // TODO
                         pipelineStateHandle,
-                        (commandEncoder, e, h, _) =>
+                        (commandEncoder, e, h, c) =>
                         {
                             Draw(
                                 commandEncoder,
                                 _effect,
                                 h,
                                 filteredMaterialPasses,
-                                instanceData);
+                                mesh,
+                                c);
                         }));
                 }
             }
@@ -138,16 +149,56 @@ namespace OpenSage.Graphics
             Effect effect,
             EffectPipelineStateHandle pipelineStateHandle,
             IEnumerable<ModelMeshMaterialPass> materialPasses,
-            RenderInstanceData instanceData)
+            MeshComponent renderable,
+            CameraComponent camera)
         {
-            commandEncoder.SetVertexBuffer(2, instanceData.WorldBuffer);
-
             if (Skinned)
             {
-                effect.SetValue("SkinningBuffer", instanceData.SkinningBuffer);
+                var bones = renderable.Entity.GetComponent<ModelComponent>().Bones;
+
+                for (var i = 0; i < NumBones; i++)
+                {
+                    // Bone matrix should be relative to root bone transform.
+                    var rootBoneMatrix = bones[0].LocalToWorldMatrix;
+                    var boneMatrix = bones[i].LocalToWorldMatrix;
+
+                    var boneMatrixRelativeToRoot = boneMatrix * Matrix4x4Utility.Invert(rootBoneMatrix);
+
+                    boneMatrixRelativeToRoot.ToMatrix4x3(out _skinningBones[i]);
+                }
+
+                _skinningBuffer.SetData(_skinningBones);
+
+                effect.SetValue("SkinningBuffer", _skinningBuffer);
             }
 
-            effect.SetValue("SkinningConstants", _skinningConstantsBuffer);
+            Matrix4x4 world;
+            if (CameraOriented)
+            {
+                var localToWorldMatrix = renderable.Transform.LocalToWorldMatrix;
+
+                var viewInverse = Matrix4x4Utility.Invert(camera.View);
+                var cameraPosition = viewInverse.Translation;
+
+                var toCamera = Vector3.Normalize(Vector3.TransformNormal(
+                    cameraPosition - renderable.Transform.WorldPosition,
+                    renderable.Transform.WorldToLocalMatrix));
+
+                toCamera.Z = 0;
+
+                var cameraOrientedRotation = Matrix4x4.CreateFromQuaternion(QuaternionUtility.CreateRotation(Vector3.UnitX, toCamera));
+
+                world = cameraOrientedRotation * localToWorldMatrix;
+            }
+            else
+            {
+                world = renderable.Transform.LocalToWorldMatrix;
+            }
+
+            _meshConstantsBuffer.Value.World = world;
+            _meshConstantsBuffer.Update();
+
+            effect.SetValue("MeshConstants", _meshConstantsBuffer.Buffer);
 
             commandEncoder.SetVertexBuffer(0, _vertexBuffer);
 
@@ -166,10 +217,9 @@ namespace OpenSage.Graphics
 
                     effect.Apply(commandEncoder);
 
-                    commandEncoder.DrawIndexedInstanced(
+                    commandEncoder.DrawIndexed(
                         PrimitiveType.TriangleList,
                         meshPart.IndexCount,
-                        instanceData.NumInstances,
                         _indexBuffer,
                         meshPart.StartIndex);
                 }

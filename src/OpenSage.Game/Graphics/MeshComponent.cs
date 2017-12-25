@@ -13,7 +13,7 @@ namespace OpenSage.Graphics
 
         internal override void BuildRenderList(RenderList renderList)
         {
-            renderList.AddInstancedRenderItem(Mesh, this);
+            Mesh.BuildRenderList(renderList, this);
         }
     }
 }

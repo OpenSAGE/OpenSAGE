@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace OpenSage.Graphics.Effects
 {
@@ -11,8 +12,9 @@ namespace OpenSage.Graphics.Effects
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct SkinningConstants
+        public struct MeshConstants
         {
+            public Matrix4x4 World;
             public bool SkinningEnabled;
             public uint NumBones;
         }

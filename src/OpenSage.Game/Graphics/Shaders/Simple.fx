@@ -7,7 +7,7 @@ struct VSOutputSimple
     PSInputCommon TransferCommon;
 };
 
-VSOutputSimple VS(VSInputSkinnedInstanced input)
+VSOutputSimple VS(VSInputSkinned input)
 {
     VSOutputSimple result;
 

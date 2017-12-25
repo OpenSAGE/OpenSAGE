@@ -65,7 +65,7 @@ namespace OpenSage.Graphics
                 {
                     // Add skinned mesh component to root model entity,
                     // not bone entity.
-                    result.Components.Add(new SkinnedMeshComponent
+                    result.Components.Add(new MeshComponent
                     {
                         Mesh = mesh
                     });

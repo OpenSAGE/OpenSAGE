@@ -10,21 +10,14 @@ struct VSOutputSimple
     float3 WorldBinormal : BINORMAL;
 };
 
-VSOutputSimple VS(VSInputSkinnedInstanced input)
+VSOutputSimple VS(VSInputSkinned input)
 {
     VSOutputSimple result;
 
     VSSkinnedInstanced(input, result.VSOutput, result.TransferCommon);
 
-    // TODO: Duplicated from MeshCommonVS.hlsli
-    matrix world;
-    world[0] = input.World0;
-    world[1] = input.World1;
-    world[2] = input.World2;
-    world[3] = input.World3;
-
-    result.WorldTangent = mul(input.Tangent, (float3x3) world);
-    result.WorldBinormal = mul(input.Binormal, (float3x3) world);
+    result.WorldTangent = mul(input.Tangent, (float3x3) World);
+    result.WorldBinormal = mul(input.Binormal, (float3x3) World);
 
     return result;
 }

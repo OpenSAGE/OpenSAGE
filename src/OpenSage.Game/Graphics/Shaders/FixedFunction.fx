@@ -14,7 +14,7 @@ struct PSInputFixedFunction
     float4 ScreenPosition : SV_Position;
 };
 
-VSOutputFixedFunction VS(VSInputSkinnedInstanced input)
+VSOutputFixedFunction VS(VSInputSkinned input)
 {
     VSOutputFixedFunction result = (VSOutputFixedFunction)0;
 

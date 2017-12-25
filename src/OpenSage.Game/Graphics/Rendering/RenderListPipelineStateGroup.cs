@@ -7,7 +7,6 @@ namespace OpenSage.Graphics.Rendering
     {
         public readonly EffectPipelineStateHandle PipelineStateHandle;
         public readonly List<RenderItem> RenderItems = new List<RenderItem>();
-        public readonly List<InstancedRenderItem> InstancedRenderItems = new List<InstancedRenderItem>();
 
         public RenderListPipelineStateGroup(EffectPipelineStateHandle pipelineStateHandle)
         {

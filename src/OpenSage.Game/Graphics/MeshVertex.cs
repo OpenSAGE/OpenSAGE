@@ -33,18 +33,12 @@ namespace OpenSage.Graphics
                 new VertexAttributeDescription("BLENDINDICES", 0, VertexFormat.UInt, 48, 0),
 
                 new VertexAttributeDescription("TEXCOORD", 0, VertexFormat.Float2, 0, 1),
-                new VertexAttributeDescription("TEXCOORD", 1, VertexFormat.Float2, 8, 1),
-
-                new VertexAttributeDescription("TEXCOORD", 2, VertexFormat.Float4, 0, 2),
-                new VertexAttributeDescription("TEXCOORD", 3, VertexFormat.Float4, 16, 2),
-                new VertexAttributeDescription("TEXCOORD", 4, VertexFormat.Float4, 32, 2),
-                new VertexAttributeDescription("TEXCOORD", 5, VertexFormat.Float4, 48, 2),
+                new VertexAttributeDescription("TEXCOORD", 1, VertexFormat.Float2, 8, 1)
             },
             new[]
             {
                 new VertexLayoutDescription(InputClassification.PerVertexData, 52),
-                new VertexLayoutDescription(InputClassification.PerVertexData, 16),
-                new VertexLayoutDescription(InputClassification.PerInstanceData, 64)
+                new VertexLayoutDescription(InputClassification.PerVertexData, 16)
             });
     }
 }

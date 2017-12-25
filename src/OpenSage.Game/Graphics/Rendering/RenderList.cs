@@ -9,8 +9,6 @@ namespace OpenSage.Graphics.Rendering
         public readonly List<RenderListEffectGroup> Transparent = new List<RenderListEffectGroup>();
         public readonly List<RenderListEffectGroup> Gui = new List<RenderListEffectGroup>();
 
-        public readonly Dictionary<ModelMesh, RenderInstanceData> InstanceData = new Dictionary<ModelMesh, RenderInstanceData>();
-
         public readonly List<RenderItem> RenderItems = new List<RenderItem>();
 
         public void AddRenderItem(RenderItem renderItem)
@@ -35,7 +33,7 @@ namespace OpenSage.Graphics.Rendering
             pipelineStateGroup.RenderItems.Add(renderItem);
         }
 
-        private RenderListPipelineStateGroup GetPipelineStateGroup(List<RenderListEffectGroup> effectGroups, RenderItemBase renderItem)
+        private RenderListPipelineStateGroup GetPipelineStateGroup(List<RenderListEffectGroup> effectGroups, RenderItem renderItem)
         {
             var effectGroup = effectGroups.FirstOrDefault(x => x.Effect == renderItem.Effect);
             if (effectGroup == null)
@@ -51,31 +49,7 @@ namespace OpenSage.Graphics.Rendering
 
             return pipelineStateGroup;
         }
-
-        public void AddRenderItem(InstancedRenderItem renderItem)
-        {
-            void addItem(List<RenderListEffectGroup> effectGroups)
-            {
-                var pipelineStateGroup = GetPipelineStateGroup(effectGroups, renderItem);
-                pipelineStateGroup.InstancedRenderItems.Add(renderItem);
-            }
-
-            var blendEnabled = renderItem.PipelineStateHandle.EffectPipelineState.BlendState.Enabled;
-            addItem(blendEnabled ? Transparent : Opaque);
-        }
-
-        public void AddInstancedRenderItem(ModelMesh mesh, RenderableComponent renderable)
-        {
-            if (!InstanceData.TryGetValue(mesh, out var instanceData))
-            {
-                InstanceData.Add(mesh, instanceData = AddDisposable(new RenderInstanceData(mesh)));
-
-                mesh.BuildRenderList(this, instanceData);
-            }
-
-            instanceData.InstancedRenderables.Add(new InstancedRenderable(renderable));
-        }
-
+        
         public void RemoveRenderable(RenderableComponent renderable)
         {
             void removeItems(List<RenderListEffectGroup> effectGroups)
@@ -106,44 +80,6 @@ namespace OpenSage.Graphics.Rendering
 
             removeItems(Gui);
 
-            if (renderable.MeshBase != null)
-            {
-                var instanceData = InstanceData[renderable.MeshBase];
-                instanceData.InstancedRenderables.RemoveAll(x => x.Renderable == renderable);
-
-                if (instanceData.InstancedRenderables.Count == 0)
-                {
-                    InstanceData.Remove(renderable.MeshBase);
-
-                    void removeInstancedItems(List<RenderListEffectGroup> effectGroups)
-                    {
-                        foreach (var effectGroup in effectGroups)
-                        {
-                            foreach (var pipelineStateGroup in effectGroup.PipelineStateGroups)
-                            {
-                                var toRemove = new List<InstancedRenderItem>();
-                                foreach (var renderItem in pipelineStateGroup.InstancedRenderItems)
-                                {
-                                    if (renderItem.InstanceData == instanceData)
-                                    {
-                                        toRemove.Add(renderItem);
-                                    }
-                                }
-                                foreach (var renderItem in toRemove)
-                                {
-                                    pipelineStateGroup.InstancedRenderItems.Remove(renderItem);
-                                }
-                            }
-                        }
-                    }
-
-                    removeInstancedItems(Opaque);
-                    removeInstancedItems(Transparent);
-
-                    instanceData.Dispose();
-                }
-            }
-
             void cleanGroups(List<RenderListEffectGroup> effectGroups)
             {
                 var effectGroupsToRemove = new List<RenderListEffectGroup>();
@@ -152,7 +88,7 @@ namespace OpenSage.Graphics.Rendering
                     var pipelineStateGroupsToRemove = new List<RenderListPipelineStateGroup>();
                     foreach (var pipelineStateGroup in effectGroup.PipelineStateGroups)
                     {
-                        if (pipelineStateGroup.RenderItems.Count == 0 && pipelineStateGroup.InstancedRenderItems.Count == 0)
+                        if (pipelineStateGroup.RenderItems.Count == 0)
                         {
                             pipelineStateGroupsToRemove.Add(pipelineStateGroup);
                         }

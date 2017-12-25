@@ -9,6 +9,7 @@ namespace OpenSage.Graphics.Rendering
 {
     internal sealed class RenderPipeline : DisposableBase
     {
+        private readonly Culler _culler;
         private readonly DepthStencilBufferCache _depthStencilBufferCache;
         private readonly ConstantBuffer<GlobalConstantsShared> _globalConstantBufferShared;
         private readonly ConstantBuffer<GlobalConstantsVS> _globalConstantBufferVS;
@@ -19,6 +20,8 @@ namespace OpenSage.Graphics.Rendering
 
         public RenderPipeline(GraphicsDevice graphicsDevice)
         {
+            _culler = new Culler();
+
             _depthStencilBufferCache = AddDisposable(new DepthStencilBufferCache(graphicsDevice));
 
             _globalConstantBufferShared = AddDisposable(new ConstantBuffer<GlobalConstantsShared>(graphicsDevice));
@@ -34,54 +37,7 @@ namespace OpenSage.Graphics.Rendering
             var renderList = context.Graphics.RenderList;
 
             // Culling
-            foreach (var renderItem in renderList.RenderItems)
-            {
-                renderItem.Visible = true;
-
-                if (renderItem.Renderable.IsAlwaysVisible)
-                {
-                    continue;
-                }
-
-                if (!renderItem.Renderable.Entity.VisibleInHierarchy)
-                {
-                    renderItem.Visible = false;
-                    continue;
-                }
-
-                if (!context.Camera.BoundingFrustum.Intersects(renderItem.Renderable.BoundingBox))
-                {
-                    renderItem.Visible = false;
-                    continue;
-                }
-            }
-
-            foreach (var instanceData in renderList.InstanceData.Values)
-            {
-                foreach (var instancedRenderable in instanceData.InstancedRenderables)
-                {
-                    instancedRenderable.Visible = true;
-
-                    if (instancedRenderable.Renderable.IsAlwaysVisible)
-                    {
-                        continue;
-                    }
-
-                    if (!instancedRenderable.Renderable.Entity.VisibleInHierarchy)
-                    {
-                        instancedRenderable.Visible = false;
-                        continue;
-                    }
-
-                    if (!context.Camera.BoundingFrustum.Intersects(instancedRenderable.Renderable.BoundingBox))
-                    {
-                        instancedRenderable.Visible = false;
-                        continue;
-                    }
-                }
-
-                instanceData.Update(context.GraphicsDevice, context.Camera);
-            }
+            _culler.Cull(renderList.RenderItems, context);
 
             var commandBuffer = context.GraphicsDevice.CommandQueue.GetCommandBuffer();
 
@@ -171,20 +127,6 @@ namespace OpenSage.Graphics.Rendering
                                 effectGroup.Effect,
                                 pipelineStateGroup.PipelineStateHandle,
                                 null);
-                        }
-
-                        foreach (var instancedRenderItem in pipelineStateGroup.InstancedRenderItems)
-                        {
-                            if (instancedRenderItem.InstanceData.NumInstances == 0)
-                            {
-                                continue;
-                            }
-
-                            instancedRenderItem.RenderCallback(
-                                commandEncoder,
-                                effectGroup.Effect,
-                                pipelineStateGroup.PipelineStateHandle,
-                                instancedRenderItem.InstanceData);
                         }
                     }
                 }
