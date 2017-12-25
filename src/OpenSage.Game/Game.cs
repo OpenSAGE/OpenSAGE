@@ -12,6 +12,7 @@ using OpenSage.Logic.Object;
 using OpenSage.LowLevel;
 using OpenSage.Scripting;
 using OpenSage.Settings;
+using OpenSage.Graphics.Cameras;
 
 namespace OpenSage
 {
@@ -181,6 +182,11 @@ namespace OpenSage
                     _scene.Game = this;
 
                     _scene.Camera.SetSwapChain(SwapChain);
+
+                    if (_scene.CameraController == null)
+                    {
+                        _scene.CameraController = new RtsCameraController(ContentManager);
+                    }
 
                     AddComponentsRecursive(_scene.Entities);
                 }

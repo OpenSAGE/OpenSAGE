@@ -1,27 +1,18 @@
 ﻿using System;
 using System.Numerics;
-using OpenSage.LowLevel.Input;
-using OpenSage.Input;
 using OpenSage.Mathematics;
+using OpenSage.Content;
 
 namespace OpenSage.Graphics.Cameras
 {
-    public sealed class RtsCameraController : InputMessageHandler
+    public sealed class RtsCameraController : ICameraController
     {
         private const float RotationSpeed = 0.003f;
         private const float ZoomSpeed = 0.0005f;
         private const float PanSpeed = 3f;
 
-        private readonly CameraComponent _camera;
-
-        private bool _leftMouseDown;
-        private bool _middleMouseDown;
-        private int _lastX, _lastY;
-        private int _deltaX, _deltaY;
-        private int _scrollWheelValue;
-
-        private float _defaultHeight;
-        private float _pitchAngle;
+        private readonly float _defaultHeight;
+        private readonly float _pitchAngle;
 
         private CameraAnimation _animation;
 
@@ -76,19 +67,16 @@ namespace OpenSage.Graphics.Cameras
 
         public CameraAnimation CurrentAnimation => _animation;
 
-        public RtsCameraController(CameraComponent camera)
+        public RtsCameraController(ContentManager contentManager)
         {
-            _camera = camera;
-        }
+            var iniDataContext = contentManager.IniDataContext;
 
-        public void Initialize(Game game)
-        {
-            _defaultHeight = game.ContentManager.IniDataContext.GameData.DefaultCameraMaxHeight > 0
-                ? game.ContentManager.IniDataContext.GameData.DefaultCameraMaxHeight
-                : game.ContentManager.IniDataContext.GameData.CameraHeight;
-            _pitchAngle = MathUtility.ToRadians(90 - game.ContentManager.IniDataContext.GameData.CameraPitch);
+            _defaultHeight = iniDataContext.GameData.DefaultCameraMaxHeight > 0
+                ? iniDataContext.GameData.DefaultCameraMaxHeight
+                : iniDataContext.GameData.CameraHeight;
+            _pitchAngle = MathUtility.ToRadians(90 - iniDataContext.GameData.CameraPitch);
 
-            var yaw = game.ContentManager.IniDataContext.GameData.CameraYaw;
+            var yaw = iniDataContext.GameData.CameraYaw;
             SetLookDirection(new Vector3(
                 MathUtility.Sin(yaw),
                 MathUtility.Cos(yaw),
@@ -104,65 +92,29 @@ namespace OpenSage.Graphics.Cameras
             }
         }
 
-        public override InputMessageResult HandleMessage(InputMessage message)
+        void ICameraController.ModSetFinalPitch(float finalPitch)
         {
-            switch (message.MessageType)
-            {
-                case InputMessageType.MouseMove:
-                    if (_leftMouseDown)
-                    {
-                        _deltaX += message.MouseX.Value - _lastX;
-                        _deltaY += message.MouseY.Value - _lastY;
-
-                        _lastX = message.MouseX.Value;
-                        _lastY = message.MouseY.Value;
-                    }
-                    break;
-
-                case InputMessageType.MouseDown:
-                    switch (message.MouseButton)
-                    {
-                        case MouseButton.Left:
-                            _lastX = message.MouseX.Value;
-                            _lastY = message.MouseY.Value;
-                            _leftMouseDown = true;
-                            break;
-
-                        case MouseButton.Middle:
-                            _middleMouseDown = true;
-                            break;
-                    }
-                    break;
-
-                case InputMessageType.MouseUp:
-                    switch (message.MouseButton)
-                    {
-                        case MouseButton.Left:
-                            _leftMouseDown = false;
-                            break;
-
-                        case MouseButton.Middle:
-                            _middleMouseDown = false;
-                            break;
-                    }
-                    break;
-
-                case InputMessageType.MouseWheel:
-                    _scrollWheelValue += message.MouseScrollWheelDelta.Value;
-                    break;
-            }
-
-            return InputMessageResult.Handled;
+            CurrentAnimation.SetFinalPitch(finalPitch);
         }
 
-        internal void UpdateCamera(InputSystem input, GameTime gameTime)
+        void ICameraController.ModSetFinalZoom(float finalZoom)
         {
-            if (_leftMouseDown)
+            CurrentAnimation.SetFinalZoom(finalZoom);
+        }
+
+        void ICameraController.ModFinalLookToward(in Vector3 position)
+        {
+            CurrentAnimation.SetFinalLookToward(position);
+        }
+
+        void ICameraController.UpdateCamera(CameraComponent camera, in CameraInputState inputState, GameTime gameTime)
+        {
+            if (inputState.LeftMouseDown)
             {
-                RotateCamera(_deltaX, _deltaY);
+                RotateCamera(inputState.DeltaX, inputState.DeltaY);
             }
 
-            ZoomCamera(-_scrollWheelValue);
+            ZoomCamera(-inputState.ScrollWheelValue);
 
             //var forwards = input.GetAxis(Key.Up, Key.Down);
             //var right = input.GetAxis(Key.Right, Key.Left);
@@ -225,12 +177,10 @@ namespace OpenSage.Graphics.Cameras
 
             var targetPosition = newPosition + lookDirection;
 
-            _camera.View = Matrix4x4.CreateLookAt(
+            camera.View = Matrix4x4.CreateLookAt(
                 newPosition,
                 targetPosition,
                 Vector3.UnitZ);
-
-            _deltaX = _deltaY = _scrollWheelValue = 0;
         }
 
         private void RotateCamera(float deltaX, float deltaY)

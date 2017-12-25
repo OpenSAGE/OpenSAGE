@@ -8,20 +8,7 @@ namespace OpenSage
 {
     public sealed class Scene
     {
-        private Game _game;
-
-        public Game Game
-        {
-            get => _game;
-            set
-            {
-                _game = value;
-                if (value != null)
-                {
-                    CameraController.Initialize(value);
-                }
-            }
-        }
+        public Game Game { get; set; }
 
         public HeightMap HeightMap { get; set; }
 
@@ -31,7 +18,7 @@ namespace OpenSage
 
         public CameraComponent Camera { get; }
 
-        public RtsCameraController CameraController { get; }
+        public ICameraController CameraController { get; set; }
 
         public Dictionary<string, Team> Teams { get; }
 
@@ -40,7 +27,6 @@ namespace OpenSage
             Entities = new SceneEntitiesCollection(this);
 
             Camera = new CameraComponent();
-            CameraController = new RtsCameraController(Camera);
 
             Teams = new Dictionary<string, Team>();
         }

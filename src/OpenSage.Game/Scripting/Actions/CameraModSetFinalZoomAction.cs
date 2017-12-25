@@ -14,7 +14,7 @@ namespace OpenSage.Scripting.Actions
 
         public override ScriptExecutionResult Execute(ScriptExecutionContext context)
         {
-            context.Scene.CameraController.CurrentAnimation.SetFinalZoom(_finalZoom);
+            context.Scene.CameraController.ModSetFinalZoom(_finalZoom);
             return ScriptExecutionResult.Finished;
         }
     }

@@ -14,7 +14,7 @@ namespace OpenSage.Scripting.Actions
 
         public override ScriptExecutionResult Execute(ScriptExecutionContext context)
         {
-            context.Scene.CameraController.CurrentAnimation.SetFinalLookToward(_targetWaypoint.Position);
+            context.Scene.CameraController.ModFinalLookToward(_targetWaypoint.Position);
             return ScriptExecutionResult.Finished;
         }
     }

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Numerics;
 using Eto.Forms;
 using OpenSage.Data.Ini;
 using OpenSage.DataViewer.Controls;
+using OpenSage.Graphics.Cameras.Controllers;
 using OpenSage.Logic.Object;
 
 namespace OpenSage.DataViewer.UI.Viewers.Ini
@@ -19,6 +21,10 @@ namespace OpenSage.DataViewer.UI.Viewers.Ini
             var objectEntity = Entity.FromObjectDefinition(objectDefinition);
             _objectComponent = objectEntity.GetComponent<ObjectComponent>();
             scene.Entities.Add(objectEntity);
+
+            scene.CameraController = new ArcballCameraController(
+                Vector3.Zero,
+                200);
 
             game.Scene = scene;
 

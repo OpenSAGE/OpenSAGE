@@ -9,6 +9,7 @@ using OpenSage.Data.W3d;
 using OpenSage.DataViewer.Controls;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
+using OpenSage.Graphics.Cameras.Controllers;
 
 namespace OpenSage.DataViewer.UI.Viewers
 {
@@ -25,13 +26,11 @@ namespace OpenSage.DataViewer.UI.Viewers
             scene.Entities.Add(modelEntity);
 
             var enclosingBoundingBox = modelEntity.GetEnclosingBoundingBox();
-            scene.CameraController.CanPlayerInputChangePitch = true;
-            scene.CameraController.TerrainPosition = enclosingBoundingBox.GetCenter();
-            scene.CameraController.Zoom = Vector3.Distance(enclosingBoundingBox.Min, enclosingBoundingBox.Max) / 400f;
+            scene.CameraController = new ArcballCameraController(
+                enclosingBoundingBox.GetCenter(),
+                Vector3.Distance(enclosingBoundingBox.Min, enclosingBoundingBox.Max));
 
             game.Scene = scene;
-
-            game.Input.MessageBuffer.Handlers.Add(scene.CameraController);
 
             var animations = new List<AnimationComponent>();
             animations.AddRange(modelEntity.Components.OfType<AnimationComponent>());

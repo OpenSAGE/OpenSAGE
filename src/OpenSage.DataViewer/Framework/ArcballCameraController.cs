@@ -1,10 +1,12 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Input;
+using OpenSage.LowLevel.Input;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Cameras.Controllers
 {
-    public sealed class ArcballCameraController : UpdateableComponent
+    public sealed class ArcballCameraController : ICameraController
     {
         private const float RotationSpeed = 0.003f;
         private const float ZoomSpeed = 0.001f;
@@ -13,66 +15,19 @@ namespace OpenSage.Graphics.Cameras.Controllers
         private readonly float MinPitch = -MathUtility.Pi / 2.0f + 0.3f;
         private readonly float MaxPitch = MathUtility.Pi / 2.0f - 0.3f;
 
-        private Vector3 _target;
-        private float _radius;
+        private readonly Vector3 _target;
+        private readonly float _radius;
 
         private float _yaw;
         private float _pitch;
         private float _zoom;
         private Vector3 _translation;
 
-        public ArcballCameraController()
-        {
-
-        }
+        float ICameraController.Pitch { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        float ICameraController.Zoom { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        Vector3 ICameraController.TerrainPosition { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public ArcballCameraController(Vector3 target, float radius)
-        {
-            Reset(target, radius);
-        }
-
-        protected override void Update(GameTime gameTime)
-        {
-            //var deltaX = Input.GetAxis(MouseMovementAxis.XAxis);
-            //var deltaY = Input.GetAxis(MouseMovementAxis.YAxis);
-
-            //bool isMovementTypeActive(MouseButton button)
-            //{
-            //    return Input.GetMouseButtonDown(button)
-            //        && !Input.GetMouseButtonPressed(button);
-            //}
-
-            //if (isMovementTypeActive(MouseButton.Left))
-            //{
-            //    RotateCamera(deltaX, deltaY);
-            //}
-
-            //if (isMovementTypeActive(MouseButton.Middle))
-            //{
-            //    ZoomCamera(deltaY);
-            //}
-
-            //if (isMovementTypeActive(MouseButton.Right))
-            //{
-            //    PanCamera(deltaX, deltaY);
-            //}
-
-            UpdateCamera();
-        }
-
-        private void UpdateCamera()
-        {
-            var position = Vector3.Transform(
-                -Vector3.UnitY,
-                QuaternionUtility.CreateFromYawPitchRoll_ZUp(_yaw, _pitch, 0));
-            position *= _zoom * _radius;
-            position += _target;
-
-            Entity.Transform.LocalPosition = position + _translation;
-            Entity.Transform.LookAt(_target + _translation);
-        }
-
-        public void Reset(Vector3 target, float radius)
         {
             _target = target;
             _radius = radius;
@@ -117,6 +72,62 @@ namespace OpenSage.Graphics.Cameras.Controllers
 
             _translation += Vector3.Transform(-Vector3.UnitX, cameraOrientation) * deltaX * PanSpeed;
             _translation += Vector3.Transform(Vector3.UnitZ, cameraOrientation) * deltaY * PanSpeed;
+        }
+
+        void ICameraController.SetLookDirection(Vector3 lookDirection)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ICameraController.ModSetFinalPitch(float finalPitch)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ICameraController.ModSetFinalZoom(float finalZoom)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ICameraController.ModFinalLookToward(in Vector3 position)
+        {
+            throw new NotImplementedException();
+        }
+
+        CameraAnimation ICameraController.StartAnimation(Vector3 startPosition, Vector3 endPosition, TimeSpan startTime, TimeSpan duration)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ICameraController.EndAnimation()
+        {
+            throw new NotImplementedException();
+        }
+
+        void ICameraController.UpdateCamera(CameraComponent camera, in CameraInputState inputState, GameTime gameTime)
+        {
+            if (inputState.LeftMouseDown)
+            {
+                RotateCamera(inputState.DeltaX, inputState.DeltaY);
+            }
+
+            if (inputState.RightMouseDown)
+            {
+                PanCamera(inputState.DeltaX, inputState.DeltaY);
+            }
+
+            ZoomCamera(-inputState.ScrollWheelValue);
+
+            var position = Vector3.Transform(
+                -Vector3.UnitY,
+                QuaternionUtility.CreateFromYawPitchRoll_ZUp(_yaw, _pitch, 0));
+            position *= _zoom * _radius;
+            position += _target;
+
+            camera.View = Matrix4x4.CreateLookAt(
+                position + _translation,
+                _target + _translation,
+                Vector3.UnitZ);
         }
     }
 }

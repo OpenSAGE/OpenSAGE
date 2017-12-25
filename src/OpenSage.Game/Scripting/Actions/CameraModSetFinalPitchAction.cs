@@ -14,7 +14,7 @@ namespace OpenSage.Scripting.Actions
 
         public override ScriptExecutionResult Execute(ScriptExecutionContext context)
         {
-            context.Scene.CameraController.CurrentAnimation.SetFinalPitch(_finalPitch);
+            context.Scene.CameraController.ModSetFinalPitch(_finalPitch);
             return ScriptExecutionResult.Finished;
         }
     }

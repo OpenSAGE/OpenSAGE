@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Graphics
@@ -7,6 +8,9 @@ namespace OpenSage.Graphics
     {
         private readonly RenderContext _renderContext;
         private readonly List<ModelComponent> _models;
+
+        private readonly CameraInputMessageHandler _cameraInputMessageHandler;
+        private CameraInputState _cameraInputState;
 
         private RenderPipeline _renderPipeline;
 
@@ -20,11 +24,15 @@ namespace OpenSage.Graphics
             RenderList = AddDisposable(new RenderList());
 
             _renderContext = new RenderContext();
+
+            _cameraInputMessageHandler = new CameraInputMessageHandler();
         }
 
         public override void Initialize()
         {
             _renderPipeline = new RenderPipeline(Game.GraphicsDevice);
+
+            Game.Input.MessageBuffer.Handlers.Add(_cameraInputMessageHandler);
 
             base.Initialize();
         }
@@ -52,7 +60,8 @@ namespace OpenSage.Graphics
         public override void Draw(GameTime gameTime)
         {
             // TODO: Do this in Update?
-            Game.Scene.CameraController.UpdateCamera(Game.Input, gameTime);
+            _cameraInputMessageHandler.UpdateInputState(ref _cameraInputState);
+            Game.Scene.CameraController.UpdateCamera(Game.Scene.Camera, _cameraInputState, gameTime);
 
             _renderContext.Game = Game;
             _renderContext.GraphicsDevice = Game.GraphicsDevice;
