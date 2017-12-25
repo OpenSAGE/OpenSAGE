@@ -11,7 +11,6 @@ using OpenSage.Input;
 using OpenSage.Logic.Object;
 using OpenSage.LowLevel;
 using OpenSage.Scripting;
-using OpenSage.Settings;
 using OpenSage.Graphics.Cameras;
 
 namespace OpenSage
@@ -119,11 +118,11 @@ namespace OpenSage
             AddDisposable(new ParticleSystemSystem(this));
             AddDisposable(new UpdateableSystem(this));
 
+            Gui = AddDisposable(new GuiSystem(this));
+
             Graphics = AddDisposable(new GraphicsSystem(this));
 
             Scripting = AddDisposable(new ScriptingSystem(this));
-
-            Gui = AddDisposable(new GuiSystem(this));
 
             GameSystems.ForEach(gs => gs.Initialize());
 
