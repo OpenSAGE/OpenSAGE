@@ -305,6 +305,11 @@ namespace OpenSage.EffectCompiler
 
             using (var key = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\Windows Kits\Installed Roots"))
             {
+                if (key == null)
+                {
+                    return result;
+                }
+
                 var kitRootNames = key.GetValueNames()
                     .Where(x => !string.IsNullOrEmpty(x) && x.StartsWith("KitsRoot"));
 
