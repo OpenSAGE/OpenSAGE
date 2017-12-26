@@ -16,7 +16,7 @@ namespace OpenSage.Data.Tga
             {
                 var header = TgaHeader.Parse(reader);
 
-                if (header.HasColorMap || header.ImageType != TgaImageType.UncompressedRgb)
+                if (header.HasColorMap || (header.ImageType != TgaImageType.UncompressedRgb && header.ImageType != TgaImageType.UncompressedBlackAndWhite))
                 {
                     throw new NotSupportedException();
                 }
@@ -72,6 +72,20 @@ namespace OpenSage.Data.Tga
 
             switch (pixelSize)
             {
+                case 8: // Grayscale
+                    {
+                        var result = new byte[data.Length * 4];
+                        var resultIndex = 0;
+                        for (var i = 0; i < data.Length; i++)
+                        {
+                            result[resultIndex++] = data[i]; // R
+                            result[resultIndex++] = data[i]; // G
+                            result[resultIndex++] = data[i]; // B
+                            result[resultIndex++] = 255;     // A
+                        }
+                        return result;
+                    }
+
                 case 24: // BGR
                     {
                         var result = new byte[data.Length / 3 * 4];

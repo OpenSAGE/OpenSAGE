@@ -20,7 +20,7 @@ namespace OpenSage.Data.Tests.Tga
             {
                 var tgaFile = TgaFile.FromFileSystemEntry(entry);
 
-                Assert.True(tgaFile.Header.ImagePixelSize == 24 || tgaFile.Header.ImagePixelSize == 32);
+                Assert.True(tgaFile.Header.ImagePixelSize == 8 || tgaFile.Header.ImagePixelSize == 24 || tgaFile.Header.ImagePixelSize == 32);
             });
         }
     }

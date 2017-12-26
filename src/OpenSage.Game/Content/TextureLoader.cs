@@ -94,7 +94,7 @@ namespace OpenSage.Content
 
         public static TextureMipMapData[] GetData(TgaFile tgaFile, bool generateMipMaps)
         {
-            if (tgaFile.Header.ImageType != TgaImageType.UncompressedRgb)
+            if (tgaFile.Header.ImageType != TgaImageType.UncompressedRgb && tgaFile.Header.ImageType != TgaImageType.UncompressedBlackAndWhite)
             {
                 throw new InvalidOperationException();
             }
