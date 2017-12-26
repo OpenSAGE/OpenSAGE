@@ -107,6 +107,15 @@ namespace OpenSage.Data
             }
         }
 
+        // Validates paths to directories. Removes duplicates.
+        private IEnumerable<string> GetValidPaths(IEnumerable<string> paths)
+        {
+            return paths
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Distinct()
+                .Where(Directory.Exists);
+        }
+
         // Zero Hour requires some special handling compared to any other game.
         // For starters it is an expansion pack, so it requires an installation of the base game.
         // It also sometimes uses a registry key which doesn't point directly to the installation directory.
@@ -125,14 +134,13 @@ namespace OpenSage.Data
             // For an unknown reason sometimes the Origin version gets installed with a different registry key.
             // This wouldn't be an issue, except for the fact it points to the root of the Generals bundle, not to the Zero Hour expansion itself.
             var originVersionRootPath = GetRegistryValue(@"SOFTWARE\EA Games\Command and Conquer Generals Zero Hour", "Install Dir");
-            var originVersionPath = originVersionRootPath == null ? null : Path.Combine(originVersionRootPath, "Command and Conquer Generals Zero Hour");
+            var originVersionPath = originVersionRootPath == null ? null : Path.Combine(originVersionRootPath, "Command and Conquer Generals Zero Hour\\");
 
             var paths = new List<string>();
             paths.AddRange(keys.Select(k => GetRegistryValue(k.keyName, k.valueName)));
             paths.Add(originVersionPath);
 
-            var installations = paths
-                .Where(Directory.Exists)
+            var installations = GetValidPaths(paths)
                 .Select(p => new GameInstallation(SageGame.CncGeneralsZeroHour, p, generalsPath))
                 .ToList();
 
@@ -147,10 +155,9 @@ namespace OpenSage.Data
             }
 
             var keys = GetRegistryKeysForGame(game);
+            var paths = keys.Select(k => GetRegistryValue(k.keyName, k.valueName));
 
-            var installations = keys
-                .Select(k => GetRegistryValue(k.keyName, k.valueName))
-                .Where(Directory.Exists)
+            var installations = GetValidPaths(paths)
                 .Select(p => new GameInstallation(game, p))
                 .ToList();
 
