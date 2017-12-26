@@ -16,15 +16,41 @@ namespace OpenSage.Data.Tga
             {
                 var header = TgaHeader.Parse(reader);
 
-                if (header.HasColorMap || (header.ImageType != TgaImageType.UncompressedRgb && header.ImageType != TgaImageType.UncompressedBlackAndWhite))
+                if (header.HasColorMap)
                 {
-                    throw new NotSupportedException();
+                    throw new NotSupportedException("TGA files with color maps are not supported.");
+                }
+
+                switch (header.ImageType)
+                {
+                    case TgaImageType.UncompressedRgb:
+                    case TgaImageType.UncompressedBlackAndWhite:
+                    case TgaImageType.RunLengthEncodedRgb:
+                        break;
+
+                    default:
+                        throw new NotSupportedException($"TGA file is of an unsupported type: {header.ImageType}.");
                 }
 
                 var bytesPerPixel = header.ImagePixelSize / 8;
-                var stride = header.Width * bytesPerPixel;
 
-                var data = reader.ReadBytes(header.Width * header.Height * bytesPerPixel);
+                byte[] data;
+                switch (header.ImageType)
+                {
+                    case TgaImageType.UncompressedRgb:
+                    case TgaImageType.UncompressedBlackAndWhite:
+                        data = reader.ReadBytes(header.Width * header.Height * bytesPerPixel);
+                        break;
+
+                    case TgaImageType.RunLengthEncodedRgb:
+                        data = ReadRunLengthEncodedRgbData(reader, header, bytesPerPixel);
+                        break;
+
+                    default:
+                        throw new InvalidOperationException();
+                }
+
+                var stride = header.Width * bytesPerPixel;
 
                 // Invert y, because data is stored bottom-up in TGA.
                 var invertedData = new byte[data.Length];
@@ -32,9 +58,9 @@ namespace OpenSage.Data.Tga
                 for (var y = header.Height - 1; y >= 0; y--)
                 {
                     Array.Copy(
-                        data, 
+                        data,
                         y * stride,
-                        invertedData, 
+                        invertedData,
                         invertedY * stride,
                         stride);
 
@@ -47,6 +73,53 @@ namespace OpenSage.Data.Tga
                     Data = invertedData
                 };
             }
+        }
+
+        private static byte[] ReadRunLengthEncodedRgbData(BinaryReader reader, TgaHeader header, int bytesPerPixel)
+        {
+            var data = new byte[header.Width * header.Height * bytesPerPixel];
+            var dataIndex = 0;
+
+            while (dataIndex < data.Length)
+            {
+                var packet = reader.ReadByte();
+
+                var packetType = (RlePacketType) (packet >> 7);
+                var value = (packet & 0b1111111) + 1;
+
+                switch (packetType)
+                {
+                    case RlePacketType.RawPacket:
+                        {
+                            var bytes = reader.ReadBytes(bytesPerPixel * value);
+                            Array.Copy(bytes, 0, data, dataIndex, bytes.Length);
+                            dataIndex += bytes.Length;
+                            break;
+                        }
+
+                    case RlePacketType.RunLengthEncodedPacket:
+                        {
+                            var bytes = reader.ReadBytes(bytesPerPixel);
+                            for (var i = 0; i < value; i++)
+                            {
+                                Array.Copy(bytes, 0, data, dataIndex, bytes.Length);
+                                dataIndex += bytes.Length;
+                            }
+                            break;
+                        }
+
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+
+            return data;
+        }
+
+        private enum RlePacketType
+        {
+            RawPacket = 0,
+            RunLengthEncodedPacket = 1
         }
 
         public static int GetSquareTextureSize(FileSystemEntry entry)
@@ -82,6 +155,29 @@ namespace OpenSage.Data.Tga
                             result[resultIndex++] = data[i]; // G
                             result[resultIndex++] = data[i]; // B
                             result[resultIndex++] = 255;     // A
+                        }
+                        return result;
+                    }
+
+                case 16: // ARRRRRGG GGGBBBBB
+                    {
+                        var result = new byte[data.Length / 2 * 4];
+                        var resultIndex = 0;
+                        for (var i = 0; i < data.Length; i += 2)
+                        {
+                            var gb = data[i + 0];
+                            var arg = data[i + 1];
+
+                            var r = (arg >> 2) & 0b11111;
+                            var g = (gb >> 5) | ((arg & 0b11) << 3);
+                            var b = gb & 0b1111;
+
+                            const float factor = (1.0f / 32.0f) * 255.0f;
+
+                            result[resultIndex++] = (byte) (r * factor); // R
+                            result[resultIndex++] = (byte) (g * factor); // G
+                            result[resultIndex++] = (byte) (b * factor); // B
+                            result[resultIndex++] = 255; // A
                         }
                         return result;
                     }
