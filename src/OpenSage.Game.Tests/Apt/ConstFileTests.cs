@@ -17,7 +17,7 @@ namespace OpenSage.Game.Tests.Apt
             _output = output;
         }
 
-        [Fact]
+        [GameFact(SageGame.BattleForMiddleEarthII)]
         public void CanReadConstFiles()
         {
             InstalledFilesTestData.ReadFiles(".const", _output, entry =>
@@ -28,7 +28,7 @@ namespace OpenSage.Game.Tests.Apt
             });
         }
 
-        [Fact]
+        [GameFact(SageGame.BattleForMiddleEarthII)]
         public void CheckEntryCount()
         {
             var bigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(SageGame.BattleForMiddleEarthII), "apt/MainMenu.big");
