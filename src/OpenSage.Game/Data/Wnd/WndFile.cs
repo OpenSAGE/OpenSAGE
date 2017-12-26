@@ -123,7 +123,9 @@ namespace OpenSage.Data.Wnd
         ProgressBar,
 
         EntryField,
-        StaticText
+        StaticText,
+
+        CommandButton
     }
 
     public struct WndScreenRect
@@ -152,7 +154,8 @@ namespace OpenSage.Data.Wnd
         TabStop      = 0x0800,
         OneLine      = 0x1000,
         OnMouseDown  = 0x2000,
-        CheckLike    = 0x4000
+        CheckLike    = 0x4000,
+        MouseTrack   = 0x8000
     }
 
     public sealed class WndFont

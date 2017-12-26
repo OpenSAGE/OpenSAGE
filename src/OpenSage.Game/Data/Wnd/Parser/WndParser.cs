@@ -458,6 +458,9 @@ namespace OpenSage.Data.Wnd.Parser
                 case "VERTSLIDER":
                     return WndWindowType.VerticalSlider;
 
+                case "COMMANDBUTTON":
+                    return WndWindowType.CommandButton;
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(windowType), windowType, "Unexpected window type.");
             }
@@ -562,6 +565,10 @@ namespace OpenSage.Data.Wnd.Parser
 
                     case "CHECK_LIKE":
                         result |= WndWindowStatusFlags.CheckLike;
+                        break;
+
+                    case "MOUSETRACK":
+                        result |= WndWindowStatusFlags.MouseTrack;
                         break;
 
                     default:
@@ -689,7 +696,11 @@ namespace OpenSage.Data.Wnd.Parser
         {
             var image = ParseAttribute("IMAGE", () => NextToken(WndTokenType.Identifier).StringValue);
 
-            NextToken(WndTokenType.Comma);
+            // BFME II has some .wnd files with missing commas.
+            if (Current.TokenType == WndTokenType.Comma)
+            {
+                NextToken(WndTokenType.Comma);
+            }
 
             var color = ParseAttribute("COLOR", ParseColor);
 
