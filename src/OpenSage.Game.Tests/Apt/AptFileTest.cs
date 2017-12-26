@@ -1,10 +1,8 @@
-﻿using System.IO;
-using OpenSage.Data.Big;
+﻿using OpenSage.Data;
 using OpenSage.Data.Apt;
+using OpenSage.Data.Tests;
 using Xunit;
 using Xunit.Abstractions;
-using OpenSage.Data.Tests;
-using OpenSage.Data;
 
 namespace OpenSage.Game.Tests.Apt
 {
@@ -17,7 +15,7 @@ namespace OpenSage.Game.Tests.Apt
             _output = output;
         }
 
-        [GameFact(SageGame.BattleForMiddleEarthII)]
+        [GameFact(SageGame.BattleForMiddleEarth, SageGame.BattleForMiddleEarthII)]
         public void CanReadAptFiles()
         {
             InstalledFilesTestData.ReadFiles(".apt", _output, entry =>

@@ -7,17 +7,17 @@ namespace OpenSage.Data.Tests.Big
 {
     public class BigArchiveTests
     {
-        private string BigFilePath;
+        private readonly string _bigFilePath;
 
         public BigArchiveTests()
         {
-            BigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(SageGame.CncGeneralsZeroHour), "W3DZH.big");
+            _bigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(SageGame.CncGeneralsZeroHour), "W3DZH.big");
         }
 
         [GameFact(SageGame.CncGeneralsZeroHour)]
         public void OpenBigArchive()
         {
-            using (var bigStream = File.OpenRead(BigFilePath))
+            using (var bigStream = File.OpenRead(_bigFilePath))
             using (var bigArchive = new BigArchive(bigStream))
             {
                 Assert.Equal(4432, bigArchive.Entries.Count);
@@ -27,7 +27,7 @@ namespace OpenSage.Data.Tests.Big
         [GameFact(SageGame.CncGeneralsZeroHour)]
         public void ReadFirstEntry()
         {
-            using (var bigStream = File.OpenRead(BigFilePath))
+            using (var bigStream = File.OpenRead(_bigFilePath))
             using (var bigArchive = new BigArchive(bigStream))
             {
                 var firstEntry = bigArchive.Entries[0];
@@ -40,7 +40,7 @@ namespace OpenSage.Data.Tests.Big
         [GameFact(SageGame.CncGeneralsZeroHour)]
         public void ReadFirstEntryStream()
         {
-            using (var bigStream = File.OpenRead(BigFilePath))
+            using (var bigStream = File.OpenRead(_bigFilePath))
             using (var bigArchive = new BigArchive(bigStream))
             {
                 var firstEntry = bigArchive.Entries[0];
@@ -59,7 +59,7 @@ namespace OpenSage.Data.Tests.Big
         [GameFact(SageGame.CncGeneralsZeroHour)]
         public void GetEntryByName()
         {
-            using (var bigStream = File.OpenRead(BigFilePath))
+            using (var bigStream = File.OpenRead(_bigFilePath))
             using (var bigArchive = new BigArchive(bigStream))
             {
                 var entry = bigArchive.GetEntry(@"Art\W3D\ABBarracks_AC.W3D");

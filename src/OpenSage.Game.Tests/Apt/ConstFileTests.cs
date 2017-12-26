@@ -17,7 +17,7 @@ namespace OpenSage.Game.Tests.Apt
             _output = output;
         }
 
-        [GameFact(SageGame.BattleForMiddleEarthII)]
+        [GameFact(SageGame.BattleForMiddleEarth, SageGame.BattleForMiddleEarthII)]
         public void CanReadConstFiles()
         {
             InstalledFilesTestData.ReadFiles(".const", _output, entry =>
