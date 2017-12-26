@@ -1,27 +1,27 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Terrain;
 
 namespace OpenSage.Graphics
 {
     public sealed class GraphicsSystem : GameSystem
     {
         private readonly RenderContext _renderContext;
-        private readonly List<ModelComponent> _models;
+
+        private readonly List<MeshComponent> _meshes;
+        private readonly List<TerrainPatchComponent> _terrainPatches;
 
         private readonly CameraInputMessageHandler _cameraInputMessageHandler;
         private CameraInputState _cameraInputState;
 
         private RenderPipeline _renderPipeline;
 
-        internal readonly RenderList RenderList = new RenderList();
-
         public GraphicsSystem(Game game)
             : base(game)
         {
-            RegisterComponentList(_models = new List<ModelComponent>());
-
-            RenderList = AddDisposable(new RenderList());
+            RegisterComponentList(_meshes = new List<MeshComponent>());
+            RegisterComponentList(_terrainPatches = new List<TerrainPatchComponent>());
 
             _renderContext = new RenderContext();
 
@@ -37,23 +37,15 @@ namespace OpenSage.Graphics
             base.Initialize();
         }
 
-        internal override void OnEntityComponentAdded(EntityComponent component)
+        internal override void BuildRenderList(RenderList renderList)
         {
-            base.OnEntityComponentAdded(component);
-
-            if (component is RenderableComponent r)
+            foreach (var renderable in _meshes)
             {
-                r.BuildRenderList(RenderList);
+                renderable.BuildRenderList(renderList);
             }
-        }
-
-        internal override void OnEntityComponentRemoved(EntityComponent component)
-        {
-            base.OnEntityComponentRemoved(component);
-
-            if (component is RenderableComponent r)
+            foreach (var renderable in _terrainPatches)
             {
-                RenderList.RemoveRenderable(r);
+                renderable.BuildRenderList(renderList);
             }
         }
 

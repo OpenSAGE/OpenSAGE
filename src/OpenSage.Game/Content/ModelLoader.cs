@@ -329,13 +329,12 @@ namespace OpenSage.Content
             var depthState = DepthStencilStateDescription.Default;
             var blendState = BlendStateDescription.Opaque;
 
-            var pipelineStateHandle = new EffectPipelineState(
+            var material = new ShaderMaterial(effect);
+
+            material.PipelineState = new EffectPipelineState(
                 rasterizerState,
                 depthState,
-                blendState)
-                .GetHandle();
-
-            var material = new ShaderMaterial(effect);
+                blendState);
 
             var materialConstantsResourceBinding = effect.GetParameter("MaterialConstants").ResourceBinding;
             var materialConstantsBuffer = AddDisposable(OpenSage.LowLevel.Graphics3D.Buffer.CreateDynamic(
@@ -409,8 +408,7 @@ namespace OpenSage.Content
             meshParts.Add(new ModelMeshPart(
                 0,
                 w3dMesh.Header.NumTris * 3,
-                material,
-                pipelineStateHandle));
+                material));
 
             return new ModelMeshMaterialPass(
                 contentManager.GraphicsDevice,
@@ -656,13 +654,12 @@ namespace OpenSage.Content
             blendState.DestinationBlend = w3dShader.DestBlend.ToBlend(false);
             blendState.DestinationAlphaBlend = w3dShader.DestBlend.ToBlend(true);
 
-            var pipelineStateHandle = new EffectPipelineState(
+            var effectMaterial = new FixedFunctionMaterial(contentManager.EffectLibrary.FixedFunction);
+
+            effectMaterial.PipelineState = new EffectPipelineState(
                 rasterizerState,
                 depthState,
-                blendState)
-                .GetHandle();
-
-            var effectMaterial = new FixedFunctionMaterial(contentManager.EffectLibrary.FixedFunction);
+                blendState);
 
             var materialConstantsBuffer = AddDisposable(Buffer<FixedFunctionMaterial.MaterialConstants>.CreateStatic(
                 contentManager.GraphicsDevice,
@@ -681,8 +678,7 @@ namespace OpenSage.Content
             return new ModelMeshPart(
                 startIndex,
                 indexCount,
-                effectMaterial,
-                pipelineStateHandle);
+                effectMaterial);
         }
 
         private static Animation CreateAnimation(W3dAnimation w3dAnimation)

@@ -1,4 +1,4 @@
-using OpenSage.LowLevel.Graphics3D.Util;
+﻿using OpenSage.LowLevel.Graphics3D.Util;
 using SharpDX.Direct3D11;
 using SharpDX.Mathematics.Interop;
 
@@ -127,8 +127,8 @@ namespace OpenSage.LowLevel.Graphics3D
             _context.InputAssembler.SetVertexBuffers(
                 slot,
                 new VertexBufferBinding(
-                    vertexBuffer.DeviceBuffer,
-                    (int) vertexBuffer.ElementSizeInBytes,
+                    vertexBuffer?.DeviceBuffer,
+                    (int) (vertexBuffer?.ElementSizeInBytes ?? 0),
                     0));
         }
 

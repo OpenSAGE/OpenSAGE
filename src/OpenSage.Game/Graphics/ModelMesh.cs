@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using OpenSage.LowLevel.Graphics3D;
+﻿using System.Numerics;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
+using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Mathematics;
-using System.Numerics;
-using OpenSage.Graphics.Cameras;
 
 namespace OpenSage.Graphics
 {
@@ -102,6 +99,12 @@ namespace OpenSage.Graphics
             foreach (var materialPass in materialPasses)
             {
                 AddDisposable(materialPass);
+
+                foreach (var meshPart in materialPass.MeshParts)
+                {
+                    meshPart.Material.SetSkinningBuffer(_skinningBuffer);
+                    meshPart.Material.SetMeshConstants(_meshConstantsBuffer.Buffer);
+                }
             }
             MaterialPasses = materialPasses;
         }
@@ -113,48 +116,9 @@ namespace OpenSage.Graphics
                 return;
             }
 
-            var uniquePipelineStates = MaterialPasses
-                .SelectMany(x => x.MeshParts.Select(y => y.PipelineStateHandle))
-                .Distinct()
-                .ToList();
-
-            foreach (var pipelineStateHandle in uniquePipelineStates)
-            {
-                var filteredMaterialPasses = MaterialPasses
-                    .Where(x => x.MeshParts.Any(y => y.PipelineStateHandle == pipelineStateHandle))
-                    .ToList();
-
-                if (filteredMaterialPasses.Count > 0)
-                {
-                    renderList.AddRenderItem(new RenderItem(
-                        mesh,
-                        filteredMaterialPasses[0].MeshParts[0].Material, // TODO
-                        pipelineStateHandle,
-                        (commandEncoder, e, h, c) =>
-                        {
-                            Draw(
-                                commandEncoder,
-                                _effect,
-                                h,
-                                filteredMaterialPasses,
-                                mesh,
-                                c);
-                        }));
-                }
-            }
-        }
-
-        private void Draw(
-            CommandEncoder commandEncoder, 
-            Effect effect,
-            EffectPipelineStateHandle pipelineStateHandle,
-            IEnumerable<ModelMeshMaterialPass> materialPasses,
-            MeshComponent renderable,
-            CameraComponent camera)
-        {
             if (Skinned)
             {
-                var bones = renderable.Entity.GetComponent<ModelComponent>().Bones;
+                var bones = mesh.Entity.GetComponent<ModelComponent>().Bones;
 
                 for (var i = 0; i < NumBones; i++)
                 {
@@ -168,21 +132,19 @@ namespace OpenSage.Graphics
                 }
 
                 _skinningBuffer.SetData(_skinningBones);
-
-                effect.SetValue("SkinningBuffer", _skinningBuffer);
             }
 
             Matrix4x4 world;
             if (CameraOriented)
             {
-                var localToWorldMatrix = renderable.Transform.LocalToWorldMatrix;
+                var localToWorldMatrix = mesh.Transform.LocalToWorldMatrix;
 
-                var viewInverse = Matrix4x4Utility.Invert(camera.View);
+                var viewInverse = Matrix4x4Utility.Invert(mesh.Game.Scene.Camera.View);
                 var cameraPosition = viewInverse.Translation;
 
                 var toCamera = Vector3.Normalize(Vector3.TransformNormal(
-                    cameraPosition - renderable.Transform.WorldPosition,
-                    renderable.Transform.WorldToLocalMatrix));
+                    cameraPosition - mesh.Transform.WorldPosition,
+                    mesh.Transform.WorldToLocalMatrix));
 
                 toCamera.Z = 0;
 
@@ -192,36 +154,30 @@ namespace OpenSage.Graphics
             }
             else
             {
-                world = renderable.Transform.LocalToWorldMatrix;
+                world = mesh.Transform.LocalToWorldMatrix;
             }
 
             _meshConstantsBuffer.Value.World = world;
             _meshConstantsBuffer.Update();
 
-            effect.SetValue("MeshConstants", _meshConstantsBuffer.Buffer);
-
-            commandEncoder.SetVertexBuffer(0, _vertexBuffer);
-
-            foreach (var materialPass in materialPasses)
+            foreach (var materialPass in MaterialPasses)
             {
-                commandEncoder.SetVertexBuffer(1, materialPass.TexCoordVertexBuffer);
-
                 foreach (var meshPart in materialPass.MeshParts)
                 {
-                    if (meshPart.PipelineStateHandle != pipelineStateHandle)
-                    {
-                        continue;
-                    }
+                    var renderQueue = meshPart.Material.PipelineState.BlendState.Enabled
+                        ? renderList.Transparent
+                        : renderList.Opaque;
 
-                    meshPart.Material.Apply();
-
-                    effect.Apply(commandEncoder);
-
-                    commandEncoder.DrawIndexed(
-                        PrimitiveType.TriangleList,
+                    renderQueue.AddRenderItemDrawIndexed(
+                        meshPart.Material,
+                        _vertexBuffer,
+                        materialPass.TexCoordVertexBuffer,
+                        CullFlags.None,
+                        mesh,
+                        world,
+                        meshPart.StartIndex,
                         meshPart.IndexCount,
-                        _indexBuffer,
-                        meshPart.StartIndex);
+                        _indexBuffer);
                 }
             }
         }

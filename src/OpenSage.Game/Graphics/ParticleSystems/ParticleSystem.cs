@@ -22,7 +22,6 @@ namespace OpenSage.Graphics.ParticleSystems
         private IVolumeType _volumeType;
 
         private ParticleMaterial _particleMaterial;
-        private EffectPipelineStateHandle _pipelineStateHandle;
 
         private int _initialDelay;
 
@@ -71,11 +70,10 @@ namespace OpenSage.Graphics.ParticleSystems
 
             var blendState = GetBlendState(Definition.Shader);
 
-            _pipelineStateHandle = new EffectPipelineState(
+            _particleMaterial.PipelineState = new EffectPipelineState(
                 RasterizerStateDescription.CullBackSolid,
                 DepthStencilStateDescription.DepthRead,
-                blendState)
-                .GetHandle();
+                blendState);
 
             _initialDelay = Definition.InitialDelay.GetRandomInt();
 
@@ -461,22 +459,16 @@ namespace OpenSage.Graphics.ParticleSystems
 
         internal override void BuildRenderList(RenderList renderList)
         {
-            renderList.AddRenderItem(new RenderItem(
-                this,
+            renderList.Transparent.AddRenderItemDrawIndexed(
                 _particleMaterial,
-                _pipelineStateHandle,
-                (commandEncoder, effect, pipelineStateHandle, instanceData) =>
-                {
-                    effect.Apply(commandEncoder);
-
-                    commandEncoder.SetVertexBuffer(0, _vertexBuffer);
-
-                    commandEncoder.DrawIndexed(
-                        PrimitiveType.TriangleList,
-                        _indexBuffer.ElementCount,
-                        _indexBuffer,
-                        0);
-                }));
+                _vertexBuffer,
+                null,
+                CullFlags.None,
+                this,
+                Transform.LocalToWorldMatrix,
+                0,
+                _indexBuffer.ElementCount,
+                _indexBuffer);
         }
     }
 

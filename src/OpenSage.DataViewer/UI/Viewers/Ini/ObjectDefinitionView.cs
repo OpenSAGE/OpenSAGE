@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Numerics;
 using Eto.Forms;
 using OpenSage.Data.Ini;
@@ -31,7 +30,11 @@ namespace OpenSage.DataViewer.UI.Viewers.Ini
             _listBox = new ListBox();
             _listBox.Width = 200;
             _listBox.ItemTextBinding = Binding.Property((BitArray<ModelConditionFlag> x) => x.DisplayName);
-            _listBox.SelectedValueChanged += OnSelectedValueChanged;
+            _listBox.SelectedValueChanged += (sender, e) =>
+            {
+                var modelConditionState = (BitArray<ModelConditionFlag>) _listBox.SelectedValue;
+                _objectComponent.SetModelConditionFlags(modelConditionState);
+            };
             _listBox.DataStore = _objectComponent.ModelConditionStates.ToList();
             _listBox.SelectedIndex = 0;
 
@@ -43,10 +46,12 @@ namespace OpenSage.DataViewer.UI.Viewers.Ini
             };
         }
 
-        private void OnSelectedValueChanged(object sender, EventArgs e)
+        protected override void Dispose(bool disposing)
         {
-            var modelConditionState = (BitArray<ModelConditionFlag>) _listBox.SelectedValue;
-            _objectComponent.SetModelConditionFlags(modelConditionState);
+            Panel1.Dispose();
+            Panel2.Dispose();
+
+            base.Dispose(disposing);
         }
     }
 }

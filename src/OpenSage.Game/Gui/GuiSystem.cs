@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.LowLevel.Graphics3D;
-using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Gui.Elements;
@@ -13,7 +12,6 @@ namespace OpenSage.Gui
     public sealed class GuiSystem : GameSystem
     {
         private readonly List<GuiComponent> _guiComponents;
-        private readonly SpriteBatch _spriteBatch;
         private readonly EffectPipelineStateHandle _pipelineStateHandle;
 
         internal Stack<GuiWindow> WindowStack { get; }
@@ -25,8 +23,6 @@ namespace OpenSage.Gui
             RegisterComponentList(_guiComponents = new List<GuiComponent>());
 
             WindowStack = new Stack<GuiWindow>();
-
-            _spriteBatch = AddDisposable(new SpriteBatch(Game.ContentManager));
 
             // TODO: Duplicated from SpriteComponent.
             var rasterizerState = RasterizerStateDescription.CullBackSolid;
@@ -93,6 +89,7 @@ namespace OpenSage.Gui
         {
             var viewport = Game.Scene.Camera.Viewport;
             var size = new Size(viewport.Width, viewport.Height);
+
             DoActionRecursive(
                 guiComponent.Window.Root,
                 x =>
@@ -102,32 +99,32 @@ namespace OpenSage.Gui
                 });
         }
 
-        internal void AddRenderItem(RenderList renderList, GuiComponent component)
+        internal override void BuildRenderList(RenderList renderList)
         {
-            renderList.AddGuiRenderItem(new RenderItem(
-                component,
-                _spriteBatch.Material,
-                _pipelineStateHandle,
-                (commandEncoder, effect, pipelineStateHandle, instanceData) =>
-                {
-                    _spriteBatch.Begin(commandEncoder, Game.Scene.Camera.Viewport.Bounds(), BlendStateDescription.AlphaBlend, SamplerStateDescription.PointClamp);
-
-                    DoActionRecursive(component.Window.Root, x =>
+            foreach (var guiComponent in _guiComponents)
+            {
+                DoActionRecursive(
+                    guiComponent.Window.Root,
+                    x =>
                     {
-                        if (x.Visible)
+                        if (!x.Visible)
                         {
-                            _spriteBatch.Draw(
-                                x.Texture,
-                                new Rectangle(0, 0, x.Texture.Width, x.Texture.Height),
-                                x.Frame,
-                                x.Opacity);
-                            return true;
+                            return false;
                         }
-                        return false;
-                    });
 
-                    _spriteBatch.End();
-                }));
+                        renderList.Gui.AddRenderItemDraw(
+                            x.Material,
+                            x.VertexBuffer,
+                            null,
+                            CullFlags.AlwaysVisible,
+                            null,
+                            default,
+                            0,
+                            6);
+
+                        return true;
+                    });
+            }
         }
 
         private static void DoActionRecursive(UIElement element, Func<UIElement, bool> action)

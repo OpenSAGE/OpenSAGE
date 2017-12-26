@@ -44,12 +44,6 @@ namespace OpenSage.Content
                 HeightMap = heightMap
             });
 
-            var pipelineStateSolid = new EffectPipelineState(
-                RasterizerStateDescription.CullBackSolid,
-                DepthStencilStateDescription.Default,
-                BlendStateDescription.Opaque)
-                .GetHandle();
-
             var indexBufferCache = AddDisposable(new TerrainPatchIndexBufferCache(contentManager.GraphicsDevice));
 
             var tileDataTexture = AddDisposable(CreateTileDataTexture(
@@ -85,7 +79,6 @@ namespace OpenSage.Content
                 heightMap,
                 mapFile.BlendTileData,
                 terrainMaterial,
-                pipelineStateSolid,
                 indexBufferCache);
 
             var objectsEntity = new Entity();
@@ -278,7 +271,6 @@ namespace OpenSage.Content
             HeightMap heightMap,
             BlendTileData blendTileData,
             TerrainMaterial terrainMaterial,
-            EffectPipelineStateHandle pipelineStateHandle,
             TerrainPatchIndexBufferCache indexBufferCache)
         {
             const int numTilesPerPatch = TerrainComponent.PatchSize - 1;
@@ -310,7 +302,6 @@ namespace OpenSage.Content
 
                     terrainEntity.Components.Add(CreatePatch(
                         terrainMaterial,
-                        pipelineStateHandle,
                         heightMap,
                         blendTileData,
                         patchBounds,
@@ -322,7 +313,6 @@ namespace OpenSage.Content
 
         private TerrainPatchComponent CreatePatch(
             TerrainMaterial terrainMaterial,
-            EffectPipelineStateHandle pipelineStateHandle,
             HeightMap heightMap,
             BlendTileData blendTileData,
             Rectangle patchBounds,
@@ -344,7 +334,6 @@ namespace OpenSage.Content
 
             return new TerrainPatchComponent(
                 terrainMaterial,
-                pipelineStateHandle,
                 patchBounds,
                 vertexBuffer,
                 indexBuffer,

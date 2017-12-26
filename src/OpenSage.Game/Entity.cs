@@ -134,7 +134,7 @@ namespace OpenSage
 
         public IEnumerable<Entity> GetChildren()
         {
-            return Transform.Children.Select(x => x.Entity);
+            return Transform.Children.Select(x => x.Entity).ToList();
         }
 
         public Entity FindRoot()

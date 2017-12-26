@@ -8,7 +8,16 @@ namespace OpenSage.Graphics.Effects
         public SpriteMaterial(Effect effect)
             : base(effect)
         {
-            SetProperty("Sampler", effect.GraphicsDevice.SamplerLinearClamp);
+            SetProperty("Sampler", effect.GraphicsDevice.SamplerPointClamp);
+
+            // TODO: Clean this up.
+            var rasterizerState = RasterizerStateDescription.CullBackSolid;
+            rasterizerState.IsFrontCounterClockwise = false;
+
+            PipelineState = new EffectPipelineState(
+                rasterizerState,
+                DepthStencilStateDescription.None,
+                BlendStateDescription.AlphaBlend);
         }
 
         public void SetMaterialConstants(Buffer<MaterialConstants> buffer)

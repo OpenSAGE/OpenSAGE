@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using OpenSage.Graphics.Rendering;
 
 namespace OpenSage
 {
@@ -87,5 +88,7 @@ namespace OpenSage
         public virtual void Draw(GameTime gameTime)
         {
         }
+
+        internal virtual void BuildRenderList(RenderList renderList) { }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
@@ -38,6 +39,14 @@ namespace OpenSage.Graphics.ParticleSystems
             }
 
             _deadParticleSystems.Clear();
+        }
+
+        internal override void BuildRenderList(RenderList renderList)
+        {
+            foreach (var particleSystem in _particleSystems)
+            {
+                particleSystem.BuildRenderList(renderList);
+            }
         }
     }
 }

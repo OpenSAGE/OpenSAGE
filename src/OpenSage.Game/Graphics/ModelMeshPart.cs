@@ -9,20 +9,15 @@ namespace OpenSage.Graphics
 
         public MeshMaterial Material { get; }
 
-        public EffectPipelineStateHandle PipelineStateHandle { get; }
-
         internal ModelMeshPart(
             uint startIndex, 
             uint indexCount, 
-            MeshMaterial material,
-            EffectPipelineStateHandle pipelineStateHandle)
+            MeshMaterial material)
         {
             StartIndex = startIndex;
             IndexCount = indexCount;
 
             Material = material;
-
-            PipelineStateHandle = pipelineStateHandle;
         }
     }
 }

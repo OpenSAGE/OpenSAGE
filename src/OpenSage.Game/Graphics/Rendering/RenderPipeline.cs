@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Graphics.Effects;
@@ -9,7 +8,8 @@ namespace OpenSage.Graphics.Rendering
 {
     internal sealed class RenderPipeline : DisposableBase
     {
-        private readonly Culler _culler;
+        private readonly RenderList _renderList;
+
         private readonly DepthStencilBufferCache _depthStencilBufferCache;
         private readonly ConstantBuffer<GlobalConstantsShared> _globalConstantBufferShared;
         private readonly ConstantBuffer<GlobalConstantsVS> _globalConstantBufferVS;
@@ -20,7 +20,7 @@ namespace OpenSage.Graphics.Rendering
 
         public RenderPipeline(GraphicsDevice graphicsDevice)
         {
-            _culler = new Culler();
+            _renderList = new RenderList();
 
             _depthStencilBufferCache = AddDisposable(new DepthStencilBufferCache(graphicsDevice));
 
@@ -34,10 +34,9 @@ namespace OpenSage.Graphics.Rendering
 
         public void Execute(RenderContext context)
         {
-            var renderList = context.Graphics.RenderList;
+            _renderList.Clear();
 
-            // Culling
-            _culler.Cull(renderList.RenderItems, context);
+            context.Graphics.BuildRenderList(_renderList);
 
             var commandBuffer = context.GraphicsDevice.CommandQueue.GetCommandBuffer();
 
@@ -60,94 +59,107 @@ namespace OpenSage.Graphics.Rendering
 
             commandEncoder.SetViewport(context.Camera.Viewport);
 
-            SetGlobalConstantBuffers(commandEncoder, context);
+            UpdateGlobalConstantBuffers(commandEncoder, context);
 
-            void doDrawPass(List<RenderListEffectGroup> effectGroups)
+            void doRenderPass(RenderBucket bucket)
             {
-                foreach (var effectGroup in effectGroups)
+                Culler.Cull(bucket.RenderItems, bucket.CulledItems, context);
+
+                if (bucket.CulledItems.Count == 0)
                 {
-                    var effect = effectGroup.Effect;
+                    return;
+                }
 
-                    effect.Begin(commandEncoder);
+                bucket.CulledItems.Sort();
 
-                    var globalConstantsSharedParameter = effect.GetParameter("GlobalConstantsShared", throwIfMissing: false);
-                    if (globalConstantsSharedParameter != null)
+                RenderItem? lastRenderItem = null;
+                foreach (var renderItem in bucket.CulledItems)
+                {
+                    if (lastRenderItem == null || lastRenderItem.Value.Effect != renderItem.Effect)
                     {
-                        globalConstantsSharedParameter.SetData(_globalConstantBufferShared.Buffer);
+                        var effect = renderItem.Effect;
+
+                        effect.Begin(commandEncoder);
+
+                        SetDefaultConstantBuffers(effect);
                     }
 
-                    var globalConstantsVSParameter = effect.GetParameter("GlobalConstantsVS", throwIfMissing: false);
-                    if (globalConstantsVSParameter != null)
+                    if (lastRenderItem == null || lastRenderItem.Value.VertexBuffer0 != renderItem.VertexBuffer0)
                     {
-                        globalConstantsVSParameter.SetData(_globalConstantBufferVS.Buffer);
+                        commandEncoder.SetVertexBuffer(0, renderItem.VertexBuffer0);
                     }
 
-                    var globalConstantsPSParameter = effect.GetParameter("GlobalConstantsPS", throwIfMissing: false);
-                    if (globalConstantsPSParameter != null)
+                    if (lastRenderItem == null || lastRenderItem.Value.VertexBuffer1 != renderItem.VertexBuffer1)
                     {
-                        globalConstantsPSParameter.SetData(_globalConstantBufferPS.Buffer);
+                        commandEncoder.SetVertexBuffer(1, renderItem.VertexBuffer1);
                     }
 
-                    var lightingConstantsObjectParameter = effect.GetParameter("LightingConstants_Object", throwIfMissing: false);
-                    if (lightingConstantsObjectParameter != null)
+                    var renderItemConstantsVSParameter = renderItem.Effect.GetParameter("RenderItemConstantsVS", throwIfMissing: false);
+                    if (renderItemConstantsVSParameter != null)
                     {
-                        lightingConstantsObjectParameter.SetData(_globalLightingObjectBuffer.Buffer);
+                        _renderItemConstantsBufferVS.Value.World = renderItem.World;
+                        _renderItemConstantsBufferVS.Update();
+                        renderItemConstantsVSParameter.SetData(_renderItemConstantsBufferVS.Buffer);
                     }
 
-                    var lightingConstantsTerrainParameter = effect.GetParameter("LightingConstants_Terrain", throwIfMissing: false);
-                    if (lightingConstantsTerrainParameter != null)
+                    renderItem.Material.Apply();
+
+                    renderItem.Effect.Apply(commandEncoder);
+
+                    switch (renderItem.DrawCommand)
                     {
-                        lightingConstantsTerrainParameter.SetData(_globalLightingTerrainBuffer.Buffer);
+                        case DrawCommand.Draw:
+                            commandEncoder.Draw(
+                                PrimitiveType.TriangleList,
+                                renderItem.VertexStart,
+                                renderItem.VertexCount);
+                            break;
+
+                        case DrawCommand.DrawIndexed:
+                            commandEncoder.DrawIndexed(
+                                PrimitiveType.TriangleList,
+                                renderItem.IndexCount,
+                                renderItem.IndexBuffer,
+                                renderItem.StartIndex);
+                            break;
+
+                        default:
+                            throw new System.Exception();
                     }
 
-                    foreach (var pipelineStateGroup in effectGroup.PipelineStateGroups)
-                    {
-                        var pipelineStateHandle = pipelineStateGroup.PipelineStateHandle;
-                        effect.SetPipelineState(pipelineStateHandle);
-
-                        foreach (var renderItem in pipelineStateGroup.RenderItems)
-                        {
-                            if (!renderItem.Visible)
-                            {
-                                continue;
-                            }
-
-                            var renderItemConstantsVSParameter = effect.GetParameter("RenderItemConstantsVS", throwIfMissing: false);
-                            if (renderItemConstantsVSParameter != null)
-                            {
-                                _renderItemConstantsBufferVS.Value.World = renderItem.Renderable.Entity.Transform.LocalToWorldMatrix;
-                                _renderItemConstantsBufferVS.Update();
-                                renderItemConstantsVSParameter.SetData(_renderItemConstantsBufferVS.Buffer);
-                            }
-
-                            renderItem.Material.Apply();
-
-                            renderItem.RenderCallback(
-                                commandEncoder,
-                                effectGroup.Effect,
-                                pipelineStateGroup.PipelineStateHandle,
-                                null);
-                        }
-                    }
+                    lastRenderItem = renderItem;
                 }
             }
 
-            // TODO: Culling, based on:
-            // - Renderable.BoundingBox
-            // - Renderable.VisibleInHierarchy
-            // - Renderable.IsAlwaysVisible
+            doRenderPass(_renderList.Opaque);
+            doRenderPass(_renderList.Transparent);
 
-            doDrawPass(renderList.Opaque);
-            doDrawPass(renderList.Transparent);
-
-            doDrawPass(renderList.Gui);
+            doRenderPass(_renderList.Gui);
 
             commandEncoder.Close();
 
             commandBuffer.CommitAndPresent(context.SwapChain);
         }
 
-        private void SetGlobalConstantBuffers(CommandEncoder commandEncoder, RenderContext context)
+        private void SetDefaultConstantBuffers(Effect effect)
+        {
+            void setDefaultConstantBuffer(string name, Buffer buffer)
+            {
+                var parameter = effect.GetParameter(name, throwIfMissing: false);
+                if (parameter != null)
+                {
+                    parameter.SetData(buffer);
+                }
+            }
+
+            setDefaultConstantBuffer("GlobalConstantsShared", _globalConstantBufferShared.Buffer);
+            setDefaultConstantBuffer("GlobalConstantsVS", _globalConstantBufferVS.Buffer);
+            setDefaultConstantBuffer("GlobalConstantsPS", _globalConstantBufferPS.Buffer);
+            setDefaultConstantBuffer("LightingConstants_Object", _globalLightingObjectBuffer.Buffer);
+            setDefaultConstantBuffer("LightingConstants_Terrain", _globalLightingTerrainBuffer.Buffer);
+        }
+
+        private void UpdateGlobalConstantBuffers(CommandEncoder commandEncoder, RenderContext context)
         {
             var cameraPosition = Matrix4x4Utility.Invert(context.Camera.View).Translation;
 

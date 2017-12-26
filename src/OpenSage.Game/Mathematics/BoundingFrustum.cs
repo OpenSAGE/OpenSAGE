@@ -59,7 +59,7 @@ namespace OpenSage.Mathematics
 
         public override int GetHashCode() => _matrix.GetHashCode();
 
-        public ContainmentType Contains(ref BoundingBox box)
+        public ContainmentType Contains(in BoundingBox box)
         {
             var intersects = false;
             for (var i = 0; i < PlaneCount; ++i)
@@ -80,7 +80,7 @@ namespace OpenSage.Mathematics
                 : ContainmentType.Contains;
         }
 
-        public ContainmentType Contains(BoundingSphere sphere)
+        public ContainmentType Contains(in BoundingSphere sphere)
         {
             var intersects = false;
             for (var i = 0; i < PlaneCount; ++i)
@@ -101,12 +101,12 @@ namespace OpenSage.Mathematics
                 : ContainmentType.Contains;
         }
 
-        public bool Intersects(BoundingBox box)
+        public bool Intersects(in BoundingBox box)
         {
-            return Contains(ref box) != ContainmentType.Disjoint;
+            return Contains(box) != ContainmentType.Disjoint;
         }
 
-        public bool Intersects(BoundingSphere sphere)
+        public bool Intersects(in BoundingSphere sphere)
         {
             return Contains(sphere) != ContainmentType.Disjoint;
         }

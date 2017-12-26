@@ -1,17 +1,25 @@
 ﻿using System.Collections.Generic;
 using OpenSage.LowLevel.Graphics3D;
-using OpenSage.LowLevel.Graphics3D.Util;
 
 namespace OpenSage.Graphics.Effects
 {
     public class EffectMaterial
     {
+        private static ushort _nextID = 0;
+
         private readonly Dictionary<string, EffectMaterialProperty> _properties;
 
         public Effect Effect { get; }
 
+        public EffectPipelineState PipelineState { get; set; }
+
+        public ushort ID { get; }
+
         public EffectMaterial(Effect effect)
         {
+            // TODO: This can overflow.
+            ID = _nextID++;
+
             Effect = effect;
 
             _properties = new Dictionary<string, EffectMaterialProperty>();
@@ -51,6 +59,8 @@ namespace OpenSage.Graphics.Effects
 
         public void Apply()
         {
+            Effect.SetPipelineState(PipelineState.GetHandle());
+
             foreach (var property in _properties.Values)
             {
                 property.Parameter.SetData(property.Data);

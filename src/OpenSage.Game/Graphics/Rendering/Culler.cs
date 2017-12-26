@@ -4,28 +4,27 @@ namespace OpenSage.Graphics.Rendering
 {
     internal sealed class Culler
     {
-        public void Cull(List<RenderItem> items, RenderContext context)
+        public static void Cull(List<RenderItem> items, List<RenderItem> culledItems, RenderContext context)
         {
             foreach (var renderItem in items)
             {
-                renderItem.Visible = true;
+                if (renderItem.CullFlags.HasFlag(CullFlags.AlwaysVisible))
+                {
+                    culledItems.Add(renderItem);
+                    continue;
+                }
 
-                if (renderItem.Renderable.IsAlwaysVisible)
+                if (!renderItem.Cullable.VisibleInHierarchy)
                 {
                     continue;
                 }
 
-                if (!renderItem.Renderable.Entity.VisibleInHierarchy)
+                if (!context.Camera.BoundingFrustum.Intersects(renderItem.Cullable.BoundingBox))
                 {
-                    renderItem.Visible = false;
                     continue;
                 }
 
-                if (!context.Camera.BoundingFrustum.Intersects(renderItem.Renderable.BoundingBox))
-                {
-                    renderItem.Visible = false;
-                    continue;
-                }
+                culledItems.Add(renderItem);
             }
         }
     }

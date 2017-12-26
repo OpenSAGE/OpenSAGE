@@ -1,9 +1,23 @@
-﻿using OpenSage.LowLevel.Graphics3D;
-using OpenSage.Graphics.Cameras;
+﻿using System.Numerics;
 using OpenSage.Graphics.Effects;
+using OpenSage.LowLevel.Graphics3D;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Rendering
 {
+    [System.Flags]
+    internal enum CullFlags
+    {
+        None = 0,
+        AlwaysVisible = 0x1
+    }
+
+    internal enum DrawCommand
+    {
+        Draw,
+        DrawIndexed
+    }
+
     //internal readonly struct DrawItem
     //{
     //    public readonly Matrix4x4 World;
@@ -19,36 +33,85 @@ namespace OpenSage.Graphics.Rendering
     //    public readonly uint StartIndex;
     //}
 
-    internal delegate void RenderCallback(
-        CommandEncoder commandEncoder, 
-        Effect effect, 
-        EffectPipelineStateHandle pipelineStateHandle,
-        CameraComponent camera);
-
-    internal sealed class RenderItem
+    internal readonly struct RenderItem : System.IComparable<RenderItem>
     {
         public readonly Effect Effect;
-        public readonly EffectPipelineStateHandle PipelineStateHandle;
-        public readonly RenderCallback RenderCallback;
 
         public readonly EffectMaterial Material;
-        public readonly RenderableComponent Renderable;
 
-        // Set by RenderPipeline.
-        public bool Visible;
+        public readonly Buffer VertexBuffer0;
+        public readonly Buffer VertexBuffer1;
+
+        public readonly CullFlags CullFlags;
+        public readonly ICullable Cullable;
+
+        public readonly Matrix4x4 World;
+
+        public readonly DrawCommand DrawCommand;
+
+        // Draw
+        public readonly uint VertexStart;
+        public readonly uint VertexCount;
+
+        // DrawIndexed
+        public readonly uint StartIndex;
+        public readonly uint IndexCount;
+        public readonly Buffer<ushort> IndexBuffer;
+
+        public readonly uint Key;
 
         public RenderItem(
-            RenderableComponent renderable,
             EffectMaterial material,
-            EffectPipelineStateHandle pipelineStateHandle,
-            RenderCallback renderCallback)
+            Buffer vertexBuffer0,
+            Buffer vertexBuffer1,
+            CullFlags cullFlags,
+            ICullable cullable,
+            in Matrix4x4 world,
+            DrawCommand drawCommand,
+
+            uint vertexStart,
+            uint vertexCount,
+
+            uint startIndex,
+            uint indexCount,
+            Buffer<ushort> indexBuffer)
         {
             Effect = material.Effect;
-            PipelineStateHandle = pipelineStateHandle;
-            RenderCallback = renderCallback;
-
             Material = material;
-            Renderable = renderable;
+
+            VertexBuffer0 = vertexBuffer0;
+            VertexBuffer1 = vertexBuffer1;
+            CullFlags = cullFlags;
+            Cullable = cullable;
+            World = world;
+            DrawCommand = drawCommand;
+
+            VertexStart = vertexStart;
+            VertexCount = vertexCount;
+
+            StartIndex = startIndex;
+            IndexCount = indexCount;
+            IndexBuffer = indexBuffer;
+
+            // Key.
+            Key = 0;
+
+            // Bit 24-31: Effect
+            Key |= (uint) ((material.Effect.ID) << 24);
+
+            // Bit 8-23: Material
+            Key |= (uint) ((material.ID) << 8);
         }
+
+        int System.IComparable<RenderItem>.CompareTo(RenderItem other)
+        {
+            return Key.CompareTo(other.Key);
+        }
+    }
+
+    internal interface ICullable
+    {
+        bool VisibleInHierarchy { get; }
+        BoundingBox BoundingBox { get; }
     }
 }

@@ -9,6 +9,8 @@ namespace OpenSage.Graphics.Effects
 {
     public sealed class Effect : GraphicsObject
     {
+        private static byte _nextID = 0;
+
         private readonly GraphicsDevice _graphicsDevice;
 
         private VertexDescriptor _vertexDescriptor;
@@ -19,11 +21,14 @@ namespace OpenSage.Graphics.Effects
 
         private readonly Dictionary<string, EffectParameter> _parameters;
 
+        private EffectPipelineStateHandle _pipelineStateHandle;
         private PipelineState _pipelineState;
 
         private EffectDirtyFlags _dirtyFlags;
 
         public GraphicsDevice GraphicsDevice => _graphicsDevice;
+
+        public byte ID { get; }
 
         [Flags]
         private enum EffectDirtyFlags
@@ -39,6 +44,8 @@ namespace OpenSage.Graphics.Effects
             VertexDescriptor vertexDescriptor)
         {
             _graphicsDevice = graphicsDevice;
+
+            ID = _nextID++;
 
             using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream($"OpenSage.Graphics.Shaders.{shaderName}.fxo"))
             using (var shaderReader = new BinaryReader(shaderStream))
@@ -98,6 +105,12 @@ namespace OpenSage.Graphics.Effects
 
         public void SetPipelineState(EffectPipelineStateHandle pipelineStateHandle)
         {
+            if (_pipelineStateHandle == pipelineStateHandle)
+            {
+                return;
+            }
+
+            _pipelineStateHandle = pipelineStateHandle;
             _pipelineState = GetPipelineState(pipelineStateHandle);
             _dirtyFlags |= EffectDirtyFlags.PipelineState;
         }

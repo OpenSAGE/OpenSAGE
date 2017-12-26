@@ -9,6 +9,11 @@ namespace OpenSage.Terrain
             : base(effect)
         {
             SetProperty("Sampler", effect.GraphicsDevice.SamplerAnisotropicWrap);
+
+            PipelineState = new EffectPipelineState(
+                RasterizerStateDescription.CullBackSolid,
+                DepthStencilStateDescription.Default,
+                BlendStateDescription.Opaque);
         }
 
         public void SetTileData(Texture tileDataTexture)

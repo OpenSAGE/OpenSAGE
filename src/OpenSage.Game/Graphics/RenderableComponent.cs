@@ -8,7 +8,7 @@ namespace OpenSage.Graphics
     /// <summary>
     /// Base class for renderable components.
     /// </summary>
-    public abstract class RenderableComponent : EntityComponent
+    public abstract class RenderableComponent : EntityComponent, ICullable
     {
         private BoundingBox? _cachedBoundingBox;
 
@@ -21,6 +21,8 @@ namespace OpenSage.Graphics
         /// Gets or sets whether this renderable component receives shadows cast from other objects in the scene.
         /// </summary>
         public bool ReceivesShadows { get; set; } = true;
+
+        bool ICullable.VisibleInHierarchy => Entity.VisibleInHierarchy;
 
         internal virtual bool IsAlwaysVisible => false;
 

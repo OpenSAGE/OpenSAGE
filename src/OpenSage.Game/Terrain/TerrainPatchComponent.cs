@@ -2,7 +2,6 @@
 using System.Runtime.InteropServices;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Graphics;
-using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
 
@@ -14,7 +13,6 @@ namespace OpenSage.Terrain
         private readonly Buffer<ushort> _indexBuffer;
 
         private readonly TerrainMaterial _terrainMaterial;
-        private readonly EffectPipelineStateHandle _pipelineStateHandle;
 
         public Rectangle Bounds { get; }
 
@@ -26,7 +24,6 @@ namespace OpenSage.Terrain
 
         internal TerrainPatchComponent(
             TerrainMaterial terrainMaterial,
-            EffectPipelineStateHandle pipelineStateHandle,
             Rectangle patchBounds,
             Buffer<TerrainVertex> vertexBuffer,
             Buffer<ushort> indexBuffer,
@@ -34,7 +31,6 @@ namespace OpenSage.Terrain
             BoundingBox boundingBox)
         {
             _terrainMaterial = terrainMaterial;
-            _pipelineStateHandle = pipelineStateHandle;
 
             Bounds = patchBounds;
 
@@ -76,22 +72,16 @@ namespace OpenSage.Terrain
 
         internal override void BuildRenderList(RenderList renderList)
         {
-            renderList.AddRenderItem(new RenderItem(
-                this,
+            renderList.Opaque.AddRenderItemDrawIndexed(
                 _terrainMaterial,
-                _pipelineStateHandle,
-                (commandEncoder, effect, pipelineStateHandle, instanceData) =>
-                {
-                    effect.Apply(commandEncoder);
-
-                    commandEncoder.SetVertexBuffer(0, _vertexBuffer);
-
-                    commandEncoder.DrawIndexed(
-                        PrimitiveType.TriangleList,
-                        _indexBuffer.ElementCount,
-                        _indexBuffer,
-                        0);
-                }));
+                _vertexBuffer,
+                null,
+                CullFlags.None,
+                this,
+                Transform.LocalToWorldMatrix,
+                0,
+                _indexBuffer.ElementCount,
+                _indexBuffer);
         }
     }
 

@@ -1,116 +1,87 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using System.Numerics;
+using OpenSage.Graphics.Effects;
+using OpenSage.LowLevel.Graphics3D;
 
 namespace OpenSage.Graphics.Rendering
 {
-    internal sealed class RenderList : DisposableBase
+    internal sealed class RenderBucket
     {
-        public readonly List<RenderListEffectGroup> Opaque = new List<RenderListEffectGroup>();
-        public readonly List<RenderListEffectGroup> Transparent = new List<RenderListEffectGroup>();
-        public readonly List<RenderListEffectGroup> Gui = new List<RenderListEffectGroup>();
+        public readonly List<RenderItem> RenderItems;
+        public readonly List<RenderItem> CulledItems;
 
-        public readonly List<RenderItem> RenderItems = new List<RenderItem>();
-
-        public void AddRenderItem(RenderItem renderItem)
+        public RenderBucket()
         {
-            RenderItems.Add(renderItem);
-
-            void addItem(List<RenderListEffectGroup> effectGroups)
-            {
-                var pipelineStateGroup = GetPipelineStateGroup(effectGroups, renderItem);
-                pipelineStateGroup.RenderItems.Add(renderItem);
-            }
-
-            var blendEnabled = renderItem.PipelineStateHandle.EffectPipelineState.BlendState.Enabled;
-            addItem(blendEnabled ? Transparent : Opaque);
+            RenderItems = new List<RenderItem>();
+            CulledItems = new List<RenderItem>();
         }
 
-        public void AddGuiRenderItem(RenderItem renderItem)
+        public void Clear()
         {
-            RenderItems.Add(renderItem);
-
-            var pipelineStateGroup = GetPipelineStateGroup(Gui, renderItem);
-            pipelineStateGroup.RenderItems.Add(renderItem);
+            RenderItems.Clear();
+            CulledItems.Clear();
         }
 
-        private RenderListPipelineStateGroup GetPipelineStateGroup(List<RenderListEffectGroup> effectGroups, RenderItem renderItem)
+        public void AddRenderItemDraw(
+            EffectMaterial material,
+            Buffer vertexBuffer0,
+            Buffer vertexBuffer1,
+            CullFlags cullFlags,
+            ICullable cullable,
+            in Matrix4x4 world,
+            uint vertexStart,
+            uint vertexCount)
         {
-            var effectGroup = effectGroups.FirstOrDefault(x => x.Effect == renderItem.Effect);
-            if (effectGroup == null)
-            {
-                effectGroups.Add(effectGroup = new RenderListEffectGroup(renderItem.Effect));
-            }
-
-            var pipelineStateGroup = effectGroup.PipelineStateGroups.FirstOrDefault(x => x.PipelineStateHandle == renderItem.PipelineStateHandle);
-            if (pipelineStateGroup == null)
-            {
-                effectGroup.PipelineStateGroups.Add(pipelineStateGroup = new RenderListPipelineStateGroup(renderItem.PipelineStateHandle));
-            }
-
-            return pipelineStateGroup;
+            RenderItems.Add(new RenderItem(
+                material,
+                vertexBuffer0,
+                vertexBuffer1,
+                cullFlags,
+                cullable,
+                world,
+                DrawCommand.Draw,
+                vertexStart,
+                vertexCount,
+                0, 0, null));
         }
-        
-        public void RemoveRenderable(RenderableComponent renderable)
+
+        public void AddRenderItemDrawIndexed(
+            EffectMaterial material,
+            Buffer vertexBuffer0,
+            Buffer vertexBuffer1,
+            CullFlags cullFlags,
+            ICullable cullable,
+            in Matrix4x4 world,
+            uint startIndex,
+            uint indexCount,
+            Buffer<ushort> indexBuffer)
         {
-            void removeItems(List<RenderListEffectGroup> effectGroups)
-            {
-                foreach (var effectGroup in effectGroups)
-                {
-                    foreach (var pipelineStateGroup in effectGroup.PipelineStateGroups)
-                    {
-                        var toRemove = new List<RenderItem>();
-                        foreach (var renderItem in pipelineStateGroup.RenderItems)
-                        {
-                            if (renderItem.Renderable == renderable)
-                            {
-                                toRemove.Add(renderItem);
-                            }
-                        }
-                        foreach (var renderItem in toRemove)
-                        {
-                            RenderItems.Remove(renderItem);
-                            pipelineStateGroup.RenderItems.Remove(renderItem);
-                        }
-                    }
-                }
-            }
+            RenderItems.Add(new RenderItem(
+                material,
+                vertexBuffer0,
+                vertexBuffer1,
+                cullFlags,
+                cullable,
+                world,
+                DrawCommand.DrawIndexed,
+                0, 0,
+                startIndex,
+                indexCount,
+                indexBuffer));
+        }
+    }
 
-            removeItems(Opaque);
-            removeItems(Transparent);
+    internal sealed class RenderList
+    {
+        public readonly RenderBucket Opaque = new RenderBucket();
+        public readonly RenderBucket Transparent = new RenderBucket();
+        public readonly RenderBucket Gui = new RenderBucket();
 
-            removeItems(Gui);
-
-            void cleanGroups(List<RenderListEffectGroup> effectGroups)
-            {
-                var effectGroupsToRemove = new List<RenderListEffectGroup>();
-                foreach (var effectGroup in effectGroups)
-                {
-                    var pipelineStateGroupsToRemove = new List<RenderListPipelineStateGroup>();
-                    foreach (var pipelineStateGroup in effectGroup.PipelineStateGroups)
-                    {
-                        if (pipelineStateGroup.RenderItems.Count == 0)
-                        {
-                            pipelineStateGroupsToRemove.Add(pipelineStateGroup);
-                        }
-                    }
-                    foreach (var toRemove in pipelineStateGroupsToRemove)
-                    {
-                        effectGroup.PipelineStateGroups.Remove(toRemove);
-                    }
-
-                    if (effectGroup.PipelineStateGroups.Count == 0)
-                    {
-                        effectGroupsToRemove.Add(effectGroup);
-                    }
-                }
-                foreach (var toRemove in effectGroupsToRemove)
-                {
-                    effectGroups.Remove(toRemove);
-                }
-            }
-
-            cleanGroups(Opaque);
-            cleanGroups(Transparent);
+        public void Clear()
+        {
+            Opaque.Clear();
+            Transparent.Clear();
+            Gui.Clear();
         }
     }
 }

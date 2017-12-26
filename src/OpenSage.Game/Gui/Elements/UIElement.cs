@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Wnd;
+using OpenSage.Graphics;
+using OpenSage.Graphics.Effects;
 using OpenSage.LowLevel;
 using OpenSage.LowLevel.Graphics2D;
 using OpenSage.LowLevel.Graphics3D;
@@ -18,7 +21,7 @@ namespace OpenSage.Gui.Elements
         private WndWindow _wndWindow;
 
         private Texture _texture;
-        private RenderTarget _renderTarget;
+        private Buffer<SpriteVertex> _vertexBuffer;
 
         private readonly Dictionary<UIElementState, UIElementStateConfiguration> _stateConfigurations;
 
@@ -69,7 +72,11 @@ namespace OpenSage.Gui.Elements
 
         public string DisplayName => $"{Name} ({_wndWindow.WindowType}, {(Visible ? "Visible" : "Hidden")})";
 
-        public Texture Texture => _texture;
+        public Buffer<SpriteVertex> VertexBuffer => _vertexBuffer;
+
+        private ConstantBuffer<SpriteMaterial.MaterialConstants> _materialConstantsBuffer;
+
+        public SpriteMaterial Material { get; private set; }
 
         public bool Visible { get; private set; }
 
@@ -106,7 +113,15 @@ namespace OpenSage.Gui.Elements
             }
         }
 
-        public float Opacity { get; set; } = 1;
+        public float Opacity
+        {
+            get => _materialConstantsBuffer.Value.Opacity;
+            set
+            {
+                _materialConstantsBuffer.Value.Opacity = value;
+                _materialConstantsBuffer.Update();
+            }
+        }
 
         private float _textOpacity = 1;
         public float TextOpacity
@@ -230,6 +245,14 @@ namespace OpenSage.Gui.Elements
 
             DrawCallback = CallbackUtility.GetDrawCallback(wndWindow.DrawCallback) ?? DefaultDraw;
 
+            Material = new SpriteMaterial(contentManager.EffectLibrary.Sprite);
+
+            _materialConstantsBuffer = AddDisposable(new ConstantBuffer<SpriteMaterial.MaterialConstants>(contentManager.GraphicsDevice));
+            _materialConstantsBuffer.Value.Opacity = 1;
+            _materialConstantsBuffer.Update();
+
+            Material.SetMaterialConstants(_materialConstantsBuffer.Buffer);
+
             // TODO
 
             _initialized = true;
@@ -239,7 +262,7 @@ namespace OpenSage.Gui.Elements
         {
             Frame = CalculateFrame(_wndWindow.ScreenRect, windowSize, out _scale);
 
-            RemoveAndDispose(ref _renderTarget);
+            RemoveAndDispose(ref _vertexBuffer);
             RemoveAndDispose(ref _texture);
 
             _texture = AddDisposable(Texture.CreateTexture2D(
@@ -249,9 +272,26 @@ namespace OpenSage.Gui.Elements
                 Frame.Height,
                 TextureBindFlags.ShaderResource | TextureBindFlags.RenderTarget));
 
-            _renderTarget = AddDisposable(new RenderTarget(
+            Material.SetTexture(_texture);
+
+            var left = (Frame.X / (float) windowSize.Width) * 2 - 1;
+            var top = (Frame.Y / (float) windowSize.Height) * 2 - 1;
+            var right = ((Frame.X + Frame.Width) / (float) windowSize.Width) * 2 - 1;
+            var bottom = ((Frame.Y + Frame.Height) / (float) windowSize.Height) * 2 - 1;
+
+            var vertices = new[]
+            {
+                new SpriteVertex(new Vector2(left, top * -1), new Vector2(0, 0)),
+                new SpriteVertex(new Vector2(right, top * -1), new Vector2(1, 0)),
+                new SpriteVertex(new Vector2(left, bottom * -1), new Vector2(0, 1)),
+                new SpriteVertex(new Vector2(right, top * -1), new Vector2(1, 0)),
+                new SpriteVertex(new Vector2(right, bottom * -1), new Vector2(1, 1)),
+                new SpriteVertex(new Vector2(left, bottom * -1), new Vector2(0, 1))
+            };
+            _vertexBuffer = AddDisposable(Buffer<SpriteVertex>.CreateStatic(
                 contentManager.GraphicsDevice,
-                _texture));
+                vertices,
+                BufferBindFlags.VertexBuffer));
 
             _needsRender = true;
         }
