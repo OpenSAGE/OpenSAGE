@@ -18,12 +18,23 @@ namespace OpenSage.Data.Ani
             {
                 throw new NotSupportedException();
             }
-            if (infoHeader.BitCount != 4)
+
+            int numColorTableEntries;
+            switch (infoHeader.BitCount)
             {
-                throw new NotSupportedException();
+                case 4:
+                case 8:
+                    numColorTableEntries = (int) Math.Pow(2, infoHeader.BitCount);
+                    break;
+
+                case 24:
+                    numColorTableEntries = (int) infoHeader.ColorsUsed;
+                    break;
+
+                default:
+                    throw new NotSupportedException();
             }
 
-            var numColorTableEntries = (int) Math.Pow(2, infoHeader.BitCount);
             var colorTable = BmpColorTable.Parse(reader, numColorTableEntries);
 
             var xorMask = BmpRasterData.Parse(reader, infoHeader.Width, infoHeader.Height / 2, infoHeader.BitCount);
