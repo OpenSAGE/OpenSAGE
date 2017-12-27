@@ -19,6 +19,7 @@ namespace OpenSage.Data.Map
         public PolygonTriggers PolygonTriggers { get; private set; }
         public GlobalLighting GlobalLighting { get; private set; }
         public WaypointsList WaypointsList { get; private set; }
+        public LibraryMapLists LibraryMapsLists { get; private set; }
 
         public static Stream Decompress(Stream stream)
         {
@@ -136,6 +137,10 @@ namespace OpenSage.Data.Map
 
                     case WaypointsList.AssetName:
                         result.WaypointsList = WaypointsList.Parse(reader, context);
+                        break;
+
+                    case LibraryMapLists.AssetName:
+                        result.LibraryMapsLists = LibraryMapLists.Parse(reader, context);
                         break;
 
                     default:
