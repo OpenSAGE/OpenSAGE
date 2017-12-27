@@ -7,6 +7,7 @@ namespace OpenSage.Data.Dds
         public uint Size { get; private set; }
         public DdsPixelFormatFlags Flags { get; private set; }
         public uint FourCc { get; private set; }
+
         public uint RgbBitCount { get; private set; }
         public uint RBitMask { get; private set; }
         public uint GBitMask { get; private set; }

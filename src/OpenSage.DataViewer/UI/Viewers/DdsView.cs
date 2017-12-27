@@ -52,16 +52,44 @@ namespace OpenSage.DataViewer.UI.Viewers
         {
             var ddsMipMapInfo = (DdsMipMapInfo) _listBox.SelectedValue;
 
-            var decompressedData = BlockCompressionUtility.Decompress(
-                _ddsFile.PixelFormat,
-                ddsMipMapInfo.MipMap.Data,
-                (int) ddsMipMapInfo.MipMap.RowPitch,
-                out _);
+            var width = Texture.CalculateMipMapSize(ddsMipMapInfo.Level, (int) _ddsFile.Header.Width);
+            var height = Texture.CalculateMipMapSize(ddsMipMapInfo.Level, (int) _ddsFile.Header.Height);
+
+            byte[] unpackedData;
+            switch (_ddsFile.PixelFormat)
+            {
+                case LowLevel.Graphics3D.PixelFormat.Bc1:
+                case LowLevel.Graphics3D.PixelFormat.Bc2:
+                case LowLevel.Graphics3D.PixelFormat.Bc3:
+                    unpackedData = BlockCompressionUtility.Decompress(
+                        _ddsFile.PixelFormat,
+                        ddsMipMapInfo.MipMap.Data,
+                        (int) ddsMipMapInfo.MipMap.RowPitch,
+                        out _);
+                    width = Math.Max(width, 4);
+                    height = Math.Max(height, 4);
+                    break;
+
+                case LowLevel.Graphics3D.PixelFormat.Rg8SNorm:
+                    unpackedData = new byte[width * height * 4];
+                    var unpackedDataIndex = 0;
+                    for (var i = 0; i < ddsMipMapInfo.MipMap.Data.Length; i += 2)
+                    {
+                        unpackedData[unpackedDataIndex++] = ddsMipMapInfo.MipMap.Data[i + 0];
+                        unpackedData[unpackedDataIndex++] = ddsMipMapInfo.MipMap.Data[i + 1];
+                        unpackedData[unpackedDataIndex++] = 0;
+                        unpackedData[unpackedDataIndex++] = 255;
+                    }
+                    break;
+
+                default:
+                    throw new NotSupportedException();
+            }
 
             var bmpData = BmpUtility.PrependBmpHeader(
-                decompressedData,
-                Math.Max(Texture.CalculateMipMapSize(ddsMipMapInfo.Level, (int) _ddsFile.Header.Width), 4),
-                Math.Max(Texture.CalculateMipMapSize(ddsMipMapInfo.Level, (int) _ddsFile.Header.Height), 4));
+                unpackedData,
+                width,
+                height);
 
             Panel2 = new ImageView
             {

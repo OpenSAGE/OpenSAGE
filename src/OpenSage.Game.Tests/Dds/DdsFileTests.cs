@@ -18,9 +18,14 @@ namespace OpenSage.Data.Tests.Dds
         {
             InstalledFilesTestData.ReadFiles(".dds", _output, entry =>
             {
+                if (!DdsFile.IsDdsFile(entry))
+                {
+                    return;
+                }
+
                 var ddsFile = DdsFile.FromFileSystemEntry(entry);
 
-                Assert.True(ddsFile.MipMaps.Length > 1);
+                Assert.True(ddsFile.MipMaps.Length > 0);
             });
         }
     }

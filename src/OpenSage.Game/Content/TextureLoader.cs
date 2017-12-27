@@ -38,7 +38,7 @@ namespace OpenSage.Content
             switch (Path.GetExtension(entry.FilePath).ToLower())
             {
                 case ".dds":
-                    if (entry.FilePath == @"art\textures\palantira.dds")
+                    if (!DdsFile.IsDdsFile(entry))
                     {
                         goto case ".tga";
                     }

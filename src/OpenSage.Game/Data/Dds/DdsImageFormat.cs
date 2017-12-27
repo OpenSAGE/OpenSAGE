@@ -4,6 +4,7 @@
     {
         Bc1,
         Bc2,
-        Bc3
+        Bc3,
+        Rg8SNorm
     }
 }

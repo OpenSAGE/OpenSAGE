@@ -10,6 +10,7 @@ namespace OpenSage.Data.Dds
         FourCc = 0x4,
         Rgb = 0x40,
         Yuv = 0x200,
-        Luminance = 0x20000
+        Luminance = 0x20000,
+        BumpDuDv = 0x80000
     }
 }

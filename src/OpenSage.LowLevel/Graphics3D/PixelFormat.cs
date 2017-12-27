@@ -7,6 +7,7 @@
         Bc3,
         Bgra8UNorm,
         Rgba8UNorm,
+        Rg8SNorm,
         R32UInt,
         Rgba32UInt
     }

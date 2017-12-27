@@ -27,9 +27,22 @@ namespace OpenSage.Data.Dds
                     case DdsImageFormat.Bc3:
                         return PixelFormat.Bc3;
 
+                    case DdsImageFormat.Rg8SNorm:
+                        return PixelFormat.Rg8SNorm;
+
                     default:
                         throw new NotSupportedException();
                 }
+            }
+        }
+
+        public static bool IsDdsFile(FileSystemEntry entry)
+        {
+            using (var stream = entry.Open())
+            using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
+            {
+                var magic = reader.ReadUInt32();
+                return magic.ToFourCcString() == "DDS ";
             }
         }
 
@@ -46,7 +59,19 @@ namespace OpenSage.Data.Dds
 
                 var header = DdsHeader.Parse(reader);
 
-                var imageFormat = GetImageFormat(header.PixelFormat.FourCc);
+                DdsImageFormat imageFormat;
+                if (header.PixelFormat.Flags.HasFlag(DdsPixelFormatFlags.FourCc))
+                {
+                    imageFormat = GetImageFormat(header.PixelFormat.FourCc);
+                }
+                else if (header.PixelFormat.Flags.HasFlag(DdsPixelFormatFlags.BumpDuDv))
+                {
+                    imageFormat = DdsImageFormat.Rg8SNorm;
+                }
+                else
+                {
+                    throw new InvalidDataException();
+                }
 
                 if (header.Flags.HasFlag(DdsHeaderFlags.Depth)
                     || header.Caps2.HasFlag(DdsCaps2.CubeMap)
@@ -56,6 +81,11 @@ namespace OpenSage.Data.Dds
                 }
 
                 var mipMapCount = header.MipMapCount;
+                if (mipMapCount == 0)
+                {
+                    mipMapCount = 1;
+                }
+
                 var mipMaps = new DdsMipMap[mipMapCount];
 
                 var width = header.Width;
@@ -104,6 +134,17 @@ namespace OpenSage.Data.Dds
 
         private static SurfaceInfo GetSurfaceInfo(uint width, uint height, DdsImageFormat format)
         {
+            if (format == DdsImageFormat.Rg8SNorm)
+            {
+                var rowBytes = (width * 16 + 7) / 8; // round up to nearest byte
+                return new SurfaceInfo
+                {
+                    RowBytes = rowBytes,
+                    NumRows = height,
+                    NumBytes = rowBytes * height
+                };
+            }
+
             uint blockSize;
             switch (format)
             {

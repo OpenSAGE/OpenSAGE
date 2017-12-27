@@ -188,6 +188,9 @@ namespace OpenSage.LowLevel.Graphics3D.Util
                 case PixelFormat.Rgba8UNorm:
                     return Format.R8G8B8A8_UNorm;
 
+                case PixelFormat.Rg8SNorm:
+                    return Format.R8G8_SNorm;
+
                 case PixelFormat.R32UInt:
                     return Format.R32_UInt;
 

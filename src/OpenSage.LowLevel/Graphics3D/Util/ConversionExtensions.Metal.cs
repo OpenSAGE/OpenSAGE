@@ -202,6 +202,9 @@ namespace OpenSage.LowLevel.Graphics3D.Util
                 case PixelFormat.Rgba8UNorm:
                     return MTLPixelFormat.RGBA8Unorm;
 
+                case PixelFormat.Rg8SNorm:
+                    return MTLPixelFormat.RG8Snorm;
+
                 case PixelFormat.R32UInt:
                     return MTLPixelFormat.R32Uint;
 

@@ -2,6 +2,8 @@
 using System.IO;
 using Eto.Forms;
 using OpenSage.Data;
+using OpenSage.Data.Dds;
+using OpenSage.Data.Tga;
 using OpenSage.DataViewer.UI.Viewers;
 
 namespace OpenSage.DataViewer.UI
@@ -42,6 +44,10 @@ namespace OpenSage.DataViewer.UI
                     return new BmpView(entry);
 
                 case ".dds":
+                    if (!DdsFile.IsDdsFile(entry))
+                    {
+                        goto case ".tga";
+                    }
                     return new DdsView(entry);
 
                 case ".const":
