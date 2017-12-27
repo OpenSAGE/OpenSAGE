@@ -21,6 +21,7 @@ namespace OpenSage.Data.Map
         public WaypointsList WaypointsList { get; private set; }
         public LibraryMapLists LibraryMapsLists { get; private set; }
         public Teams Teams { get; private set; }
+        public PlayerScriptsList PlayerScriptsList { get; private set; }
 
         public static Stream Decompress(Stream stream)
         {
@@ -146,6 +147,10 @@ namespace OpenSage.Data.Map
 
                     case Teams.AssetName:
                         result.Teams = Teams.Parse(reader, context);
+                        break;
+
+                    case PlayerScriptsList.AssetName:
+                        result.PlayerScriptsList = PlayerScriptsList.Parse(reader, context);
                         break;
 
                     default:
