@@ -17,7 +17,7 @@ namespace OpenSage.Data.Map
         public HeightMapPerimeter[] Perimeters { get; private set; }
 
         public uint Area { get; private set; }
-        public byte[,] Elevations { get; private set; }
+        public ushort[,] Elevations { get; private set; }
 
         internal static HeightMapData Parse(BinaryReader reader, MapParseContext context)
         {
@@ -46,12 +46,14 @@ namespace OpenSage.Data.Map
                     throw new InvalidDataException();
                 }
 
-                var elevations = new byte[mapWidth, mapHeight];
+                var elevations = new ushort[mapWidth, mapHeight];
                 for (var y = 0; y < mapHeight; y++)
                 {
                     for (var x = 0; x < mapWidth; x++)
                     {
-                        elevations[x, y] = reader.ReadByte();
+                        elevations[x, y] = version >= 5
+                            ? reader.ReadUInt16()
+                            : reader.ReadByte();
                     }
                 }
 
@@ -90,7 +92,14 @@ namespace OpenSage.Data.Map
                 {
                     for (var x = 0; x < Width; x++)
                     {
-                        writer.Write(Elevations[x, y]);
+                        if (Version >= 5)
+                        {
+                            writer.Write(Elevations[x, y]);
+                        }
+                        else
+                        {
+                            writer.Write((byte) Elevations[x, y]);
+                        }
                     }
                 }
             });
