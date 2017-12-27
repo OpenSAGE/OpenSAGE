@@ -90,7 +90,7 @@ namespace OpenSage.Content
                 mapFile.ObjectsList.Objects,
                 result.Settings);
 
-            foreach (var team in mapFile.SidesList.Teams)
+            foreach (var team in mapFile.SidesList.Teams ?? mapFile.Teams)
             {
                 var name = (string) team.Properties["teamName"].Value;
                 var owner = (string) team.Properties["teamOwner"].Value;
@@ -114,7 +114,7 @@ namespace OpenSage.Content
             // TODO: Don't hardcode this.
             // Perhaps add one ScriptComponent for the neutral player, 
             // and one for the active player.
-            var scriptList = mapFile.SidesList.PlayerScripts.ScriptLists[0];
+            var scriptList = (mapFile.SidesList.PlayerScripts ?? mapFile.PlayerScriptsList).ScriptLists[0];
             AddScripts(scriptsEntity, scriptList, result.Settings);
 
             return result;

@@ -42,7 +42,9 @@ namespace OpenSage.Gui
                     TransitionManager = new WindowTransitionManager(game.ContentManager.IniDataContext.WindowTransitions);
                     break;
 
-                // TODO: Handle other games.
+                default: // TODO: Handle other games.
+                    TransitionManager = new WindowTransitionManager(new List<Data.Ini.WindowTransition>());
+                    break;
             }
         }
 
