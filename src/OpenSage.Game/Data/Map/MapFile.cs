@@ -20,6 +20,7 @@ namespace OpenSage.Data.Map
         public GlobalLighting GlobalLighting { get; private set; }
         public WaypointsList WaypointsList { get; private set; }
         public LibraryMapLists LibraryMapsLists { get; private set; }
+        public Teams Teams { get; private set; }
 
         public static Stream Decompress(Stream stream)
         {
@@ -141,6 +142,10 @@ namespace OpenSage.Data.Map
 
                     case LibraryMapLists.AssetName:
                         result.LibraryMapsLists = LibraryMapLists.Parse(reader, context);
+                        break;
+
+                    case Teams.AssetName:
+                        result.Teams = Teams.Parse(reader, context);
                         break;
 
                     default:
