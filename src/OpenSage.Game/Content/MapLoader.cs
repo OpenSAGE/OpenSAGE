@@ -90,7 +90,7 @@ namespace OpenSage.Content
                 mapFile.ObjectsList.Objects,
                 result.Settings);
 
-            foreach (var team in mapFile.SidesList.Teams ?? mapFile.Teams)
+            foreach (var team in mapFile.SidesList.Teams ?? mapFile.Teams.Items)
             {
                 var name = (string) team.Properties["teamName"].Value;
                 var owner = (string) team.Properties["teamOwner"].Value;
