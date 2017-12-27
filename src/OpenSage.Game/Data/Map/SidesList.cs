@@ -22,6 +22,15 @@ namespace OpenSage.Data.Map
                     players[i] = Player.Parse(reader, context);
                 }
 
+                if (version >= 5)
+                {
+                    // Above version 5, teams and scripts are in separate top-level chunks.
+                    return new SidesList
+                    {
+                        Players = players
+                    };
+                }
+
                 var numTeams = reader.ReadUInt32();
                 var teams = new Team[numTeams];
 
@@ -65,6 +74,11 @@ namespace OpenSage.Data.Map
                 foreach (var player in Players)
                 {
                     player.WriteTo(writer, assetNames);
+                }
+
+                if (Version >= 5)
+                {
+                    return;
                 }
 
                 writer.Write((uint) Teams.Length);
