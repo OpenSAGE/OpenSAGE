@@ -5,19 +5,15 @@ namespace OpenSage.Data.Map
 {
     public sealed class AssetProperty
     {
-        public AssetPropertyType PropertyType { get; private set; }
-        public string Name { get; private set; }
+        public AssetPropertyKey Key { get; private set; }
         public object Value { get; private set; }
 
         internal static AssetProperty Parse(BinaryReader reader, MapParseContext context)
         {
-            var propertyType = reader.ReadByteAsEnum<AssetPropertyType>();
-
-            var propertyNameIndex = reader.ReadUInt24();
-            var propertyName = context.GetAssetName(propertyNameIndex);
+            var key = AssetPropertyKey.Parse(reader, context);
 
             object value = null;
-            switch (propertyType)
+            switch (key.PropertyType)
             {
                 case AssetPropertyType.Boolean:
                     value = reader.ReadBooleanChecked();
@@ -40,24 +36,21 @@ namespace OpenSage.Data.Map
                     break;
 
                 default:
-                    throw new InvalidDataException($"Unexpected property type: {propertyType}.");
+                    throw new InvalidDataException($"Unexpected property type: {key.PropertyType}.");
             }
 
             return new AssetProperty
             {
-                PropertyType = propertyType,
-                Name = propertyName,
+                Key = key,
                 Value = value
             };
         }
 
         internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
-            writer.Write((byte) PropertyType);
+            Key.WriteTo(writer, assetNames);
 
-            writer.WriteUInt24(assetNames.GetOrCreateAssetIndex(Name));
-
-            switch (PropertyType)
+            switch (Key.PropertyType)
             {
                 case AssetPropertyType.Boolean:
                     writer.Write((bool) Value);
@@ -80,13 +73,13 @@ namespace OpenSage.Data.Map
                     break;
 
                 default:
-                    throw new InvalidDataException($"Unexpected property type: {PropertyType}.");
+                    throw new InvalidDataException($"Unexpected property type: {Key.PropertyType}.");
             }
         }
 
         public override string ToString()
         {
-            return $"{Name} ({PropertyType}): {Value}";
+            return $"{Key}: {Value}";
         }
     }
 }

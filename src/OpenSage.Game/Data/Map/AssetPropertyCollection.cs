@@ -20,7 +20,7 @@ namespace OpenSage.Data.Map
             return new AssetPropertyCollection(result);
         }
 
-        public AssetProperty this[string name] => this.FirstOrDefault(x => x.Name == name);
+        public AssetProperty this[string name] => this.FirstOrDefault(x => x.Key.Name == name);
 
         internal AssetPropertyCollection(IList<AssetProperty> list)
             : base(list)
