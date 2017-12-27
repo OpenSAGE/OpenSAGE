@@ -120,7 +120,7 @@ namespace OpenSage.Data.Tests.Map
 
             Assert.Equal(196u, mapFile.BlendTileData.NumTiles);
 
-            Assert.Equal(5, mapFile.BlendTileData.Textures.Length);
+            Assert.Equal(9, mapFile.BlendTileData.Textures.Length);
 
             Assert.Equal("AsphaltType1", mapFile.BlendTileData.Textures[0].Name);
             Assert.Equal(0u, mapFile.BlendTileData.Textures[0].CellStart);
@@ -146,66 +146,6 @@ namespace OpenSage.Data.Tests.Map
             Assert.Equal(112u, mapFile.BlendTileData.Textures[4].CellStart);
             Assert.Equal(36u, mapFile.BlendTileData.Textures[4].CellCount);
             Assert.Equal(6u, mapFile.BlendTileData.Textures[4].CellSize);
-
-            for (var y = 0; y < mapFile.HeightMapData.Height; y++)
-            {
-                for (var x = 0; x < mapFile.HeightMapData.Width; x++)
-                {
-                    int textureIndex;
-                    if (y == 1 && (x == 1 || x == 2 || x == 3 || x == 4))
-                        textureIndex = 1;
-                    else if (y == 4 && (x == 1 || x == 2 || x == 3 || x == 4))
-                        textureIndex = 2;
-                    else if (y == 7 && (x == 1 || x == 2 || x == 3 || x == 4))
-                        textureIndex = 3;
-                    else if (y == 10 && (x == 1 || x == 2 || x == 3 || x == 4))
-                        textureIndex = 4;
-                    else
-                        textureIndex = 0;
-                    Assert.Equal(textureIndex, mapFile.BlendTileData.TextureIndices[mapFile.BlendTileData.Tiles[x, y]].TextureIndex);
-
-                    Assert.Equal(0, mapFile.BlendTileData.ThreeWayBlends[x, y]);
-
-                    Assert.Equal(0, mapFile.BlendTileData.CliffTextures[x, y]);
-                }
-            }
-
-            void assertBlend(int x, int y, int secondaryTextureIndex, BlendDirection direction, bool reversed = false)
-            {
-                var blendIndex = mapFile.BlendTileData.Blends[x, y];
-
-                var blend = mapFile.BlendTileData.BlendDescriptions[blendIndex - 1];
-
-                Assert.Equal(secondaryTextureIndex, mapFile.BlendTileData.TextureIndices[(int) blend.SecondaryTextureTile].TextureIndex);
-
-                Assert.Equal(direction, blend.BlendDirection);
-
-                Assert.Equal(reversed, blend.Flags.HasFlag(BlendFlags.Flipped));
-            }
-
-            void assertBlends(int startY, int textureIndex)
-            {
-                assertBlend(0, startY + 0, textureIndex, BlendDirection.BlendTowardsTopRight);
-                assertBlend(1, startY + 0, textureIndex, BlendDirection.BlendTowardsTop);
-                assertBlend(2, startY + 0, textureIndex, BlendDirection.BlendTowardsTop);
-                assertBlend(3, startY + 0, textureIndex, BlendDirection.BlendTowardsTop);
-                assertBlend(4, startY + 0, textureIndex, BlendDirection.BlendTowardsTop);
-                assertBlend(5, startY + 0, textureIndex, BlendDirection.BlendTowardsTopLeft);
-
-                assertBlend(0, startY + 1, textureIndex, BlendDirection.BlendTowardsRight);
-                assertBlend(5, startY + 1, textureIndex, BlendDirection.BlendTowardsRight, true);
-
-                assertBlend(0, startY + 2, textureIndex, BlendDirection.BlendTowardsTopRight, true);
-                assertBlend(1, startY + 2, textureIndex, BlendDirection.BlendTowardsTop, true);
-                assertBlend(2, startY + 2, textureIndex, BlendDirection.BlendTowardsTop, true);
-                assertBlend(3, startY + 2, textureIndex, BlendDirection.BlendTowardsTop, true);
-                assertBlend(4, startY + 2, textureIndex, BlendDirection.BlendTowardsTop, true);
-                assertBlend(5, startY + 2, textureIndex, BlendDirection.BlendTowardsTopLeft, true);
-            }
-
-            assertBlends(0, 1);
-            assertBlends(3, 2);
-            assertBlends(6, 3);
         }
 
         [Fact]
