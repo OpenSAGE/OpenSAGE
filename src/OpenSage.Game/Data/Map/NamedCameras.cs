@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Map
 {
@@ -26,11 +25,11 @@ namespace OpenSage.Data.Map
             });
         }
 
-        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        internal void WriteTo(BinaryWriter writer)
         {
             WriteAssetTo(writer, () =>
             {
-                writer.Write((byte) 0);
+                writer.Write((uint) 0);
 
                 // TODO
             });

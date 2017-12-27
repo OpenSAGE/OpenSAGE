@@ -15,16 +15,16 @@ namespace OpenSage.Data.Map
         public BlendTileData BlendTileData { get; private set; }
         public WorldInfo WorldInfo { get; private set; }
         public SidesList SidesList { get; private set; }
-        public ObjectsList ObjectsList { get; private set; }
-        public PolygonTriggers PolygonTriggers { get; private set; }
-        public GlobalLighting GlobalLighting { get; private set; }
-        public WaypointsList WaypointsList { get; private set; }
-        public LibraryMapLists LibraryMapsLists { get; private set; }
+        public LibraryMapLists LibraryMapLists { get; private set; }
         public Teams Teams { get; private set; }
         public PlayerScriptsList PlayerScriptsList { get; private set; }
         public BuildLists BuildLists { get; private set; }
+        public ObjectsList ObjectsList { get; private set; }
+        public PolygonTriggers PolygonTriggers { get; private set; }
+        public GlobalLighting GlobalLighting { get; private set; }
         public EnvironmentData EnvironmentData { get; private set; }
         public NamedCameras NamedCameras { get; private set; }
+        public WaypointsList WaypointsList { get; private set; }
         public SkyboxSettings SkyboxSettings { get; private set; }
 
         public static Stream Decompress(Stream stream)
@@ -129,24 +129,8 @@ namespace OpenSage.Data.Map
                         result.SidesList = SidesList.Parse(reader, context);
                         break;
 
-                    case ObjectsList.AssetName:
-                        result.ObjectsList = ObjectsList.Parse(reader, context);
-                        break;
-
-                    case PolygonTriggers.AssetName:
-                        result.PolygonTriggers = PolygonTriggers.Parse(reader, context);
-                        break;
-
-                    case GlobalLighting.AssetName:
-                        result.GlobalLighting = GlobalLighting.Parse(reader, context);
-                        break;
-
-                    case WaypointsList.AssetName:
-                        result.WaypointsList = WaypointsList.Parse(reader, context);
-                        break;
-
                     case LibraryMapLists.AssetName:
-                        result.LibraryMapsLists = LibraryMapLists.Parse(reader, context);
+                        result.LibraryMapLists = LibraryMapLists.Parse(reader, context);
                         break;
 
                     case Teams.AssetName:
@@ -161,12 +145,28 @@ namespace OpenSage.Data.Map
                         result.BuildLists = BuildLists.Parse(reader, context);
                         break;
 
+                    case ObjectsList.AssetName:
+                        result.ObjectsList = ObjectsList.Parse(reader, context);
+                        break;
+
+                    case PolygonTriggers.AssetName:
+                        result.PolygonTriggers = PolygonTriggers.Parse(reader, context);
+                        break;
+
+                    case GlobalLighting.AssetName:
+                        result.GlobalLighting = GlobalLighting.Parse(reader, context);
+                        break;
+
                     case EnvironmentData.AssetName:
                         result.EnvironmentData = EnvironmentData.Parse(reader, context);
                         break;
 
                     case NamedCameras.AssetName:
                         result.NamedCameras = NamedCameras.Parse(reader, context);
+                        break;
+
+                    case WaypointsList.AssetName:
+                        result.WaypointsList = WaypointsList.Parse(reader, context);
                         break;
 
                     case SkyboxSettings.AssetName:
@@ -224,6 +224,30 @@ namespace OpenSage.Data.Map
             writer.Write(assetNames.GetOrCreateAssetIndex(SidesList.AssetName));
             SidesList.WriteTo(writer, assetNames);
 
+            if (LibraryMapLists != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(LibraryMapLists.AssetName));
+                LibraryMapLists.WriteTo(writer, assetNames);
+            }
+
+            if (Teams != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(Teams.AssetName));
+                Teams.WriteTo(writer, assetNames);
+            }
+
+            if (PlayerScriptsList != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(PlayerScriptsList.AssetName));
+                PlayerScriptsList.WriteTo(writer, assetNames);
+            }
+
+            if (BuildLists != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(BuildLists.AssetName));
+                BuildLists.WriteTo(writer, assetNames);
+            }
+
             writer.Write(assetNames.GetOrCreateAssetIndex(ObjectsList.AssetName));
             ObjectsList.WriteTo(writer, assetNames);
 
@@ -233,8 +257,26 @@ namespace OpenSage.Data.Map
             writer.Write(assetNames.GetOrCreateAssetIndex(GlobalLighting.AssetName));
             GlobalLighting.WriteTo(writer);
 
+            if (EnvironmentData != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(EnvironmentData.AssetName));
+                EnvironmentData.WriteTo(writer);
+            }
+
+            if (NamedCameras != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(NamedCameras.AssetName));
+                NamedCameras.WriteTo(writer);
+            }
+
             writer.Write(assetNames.GetOrCreateAssetIndex(WaypointsList.AssetName));
             WaypointsList.WriteTo(writer);
+
+            if (SkyboxSettings != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(SkyboxSettings.AssetName));
+                SkyboxSettings.WriteTo(writer);
+            }
         }
     }
 }

@@ -36,10 +36,9 @@ namespace OpenSage.Data.Map
         {
             WriteAssetTo(writer, () =>
             {
-                writer.Write((uint) Lists.Length);
-
                 foreach (var list in Lists)
                 {
+                    writer.Write(assetNames.GetOrCreateAssetIndex(LibraryMaps.AssetName));
                     list.WriteTo(writer, assetNames);
                 }
             });

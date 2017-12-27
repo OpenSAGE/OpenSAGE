@@ -31,7 +31,7 @@ namespace OpenSage.Data.Map
             });
         }
 
-        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        internal void WriteTo(BinaryWriter writer)
         {
             WriteAssetTo(writer, () =>
             {
