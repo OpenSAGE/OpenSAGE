@@ -61,12 +61,15 @@ namespace OpenSage.Data.Map
 
                 for (var i = 0; i < TimeOfDayValues.Length; i++)
                 {
-                    LightingConfigurations[TimeOfDayValues[i]].WriteTo(writer);
+                    LightingConfigurations[TimeOfDayValues[i]].WriteTo(writer, Version);
                 }
 
                 ShadowColor.WriteTo(writer);
 
-                writer.Write(Unknown);
+                if (Version >= 7)
+                {
+                    writer.Write(Unknown);
+                }
             });
         }
     }

@@ -61,16 +61,31 @@ namespace OpenSage.Data.Map
             };
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer, uint version)
         {
             TerrainSun.WriteTo(writer);
             ObjectSun.WriteTo(writer);
 
-            TerrainAccent1.WriteTo(writer);
-            TerrainAccent2.WriteTo(writer);
+            if (version >= 7)
+            {
+                InfantrySun.WriteTo(writer);
+            }
 
+            TerrainAccent1.WriteTo(writer);
             ObjectAccent1.WriteTo(writer);
+
+            if (version >= 7)
+            {
+                InfantryAccent1.WriteTo(writer);
+            }
+
+            TerrainAccent2.WriteTo(writer);
             ObjectAccent2.WriteTo(writer);
+
+            if (version >= 7)
+            {
+                InfantryAccent2.WriteTo(writer);
+            }
         }
     }
 }

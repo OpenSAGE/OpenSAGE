@@ -30,7 +30,7 @@ namespace OpenSage.Data.Map
         {
             FactionNameProperty.WriteTo(writer, assetNames);
 
-            writer.Write((ushort) Items.Length);
+            writer.Write((uint) Items.Length);
 
             foreach (var buildListItem in Items)
             {
