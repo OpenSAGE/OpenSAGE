@@ -7,6 +7,7 @@ namespace OpenSage.Data.Csf
     {
         public CsfVersion Version { get; private set; }
         public uint LabelCount { get; private set; }
+        public uint StringCount { get; private set; }
         public CsfLanguage Language { get; private set; }
 
         internal static CsfHeader Parse(BinaryReader reader)
@@ -14,12 +15,7 @@ namespace OpenSage.Data.Csf
             var version = reader.ReadUInt32AsEnum<CsfVersion>();
 
             var labelCount = reader.ReadUInt32();
-
-            var labelCount2 = reader.ReadUInt32();
-            if (labelCount != labelCount2 + 1)
-            {
-                throw new InvalidDataException();
-            }
+            var stringCount = reader.ReadUInt32();
 
             var magicValue = reader.ReadUInt32();
             if (magicValue != 0)
@@ -33,6 +29,7 @@ namespace OpenSage.Data.Csf
             {
                 Version = version,
                 LabelCount = labelCount,
+                StringCount = stringCount,
                 Language = language
             };
         }
