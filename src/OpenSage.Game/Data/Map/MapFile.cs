@@ -24,6 +24,7 @@ namespace OpenSage.Data.Map
         public PlayerScriptsList PlayerScriptsList { get; private set; }
         public BuildLists BuildLists { get; private set; }
         public EnvironmentData EnvironmentData { get; private set; }
+        public NamedCameras NamedCameras { get; private set; }
 
         public static Stream Decompress(Stream stream)
         {
@@ -161,6 +162,10 @@ namespace OpenSage.Data.Map
 
                     case EnvironmentData.AssetName:
                         result.EnvironmentData = EnvironmentData.Parse(reader, context);
+                        break;
+
+                    case NamedCameras.AssetName:
+                        result.NamedCameras = NamedCameras.Parse(reader, context);
                         break;
 
                     default:
