@@ -23,6 +23,7 @@ namespace OpenSage.Data.Map
         public Teams Teams { get; private set; }
         public PlayerScriptsList PlayerScriptsList { get; private set; }
         public BuildLists BuildLists { get; private set; }
+        public EnvironmentData EnvironmentData { get; private set; }
 
         public static Stream Decompress(Stream stream)
         {
@@ -156,6 +157,10 @@ namespace OpenSage.Data.Map
 
                     case BuildLists.AssetName:
                         result.BuildLists = BuildLists.Parse(reader, context);
+                        break;
+
+                    case EnvironmentData.AssetName:
+                        result.EnvironmentData = EnvironmentData.Parse(reader, context);
                         break;
 
                     default:
