@@ -19,6 +19,8 @@ namespace OpenSage.Data.Map
 
         public MapColorArgb ShadowColor { get; private set; }
 
+        public byte[] Unknown { get; private set; }
+
         internal static GlobalLighting Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version =>
@@ -29,16 +31,24 @@ namespace OpenSage.Data.Map
 
                 for (var i = 0; i < TimeOfDayValues.Length; i++)
                 {
-                    lightingConfigurations[TimeOfDayValues[i]] = GlobalLightingConfiguration.Parse(reader);
+                    lightingConfigurations[TimeOfDayValues[i]] = GlobalLightingConfiguration.Parse(reader, version);
                 }
 
                 var shadowColor = MapColorArgb.Parse(reader);
+
+                // TODO: BFME. Overbright? Bloom?
+                byte[] unknown = null;
+                if (version >= 7)
+                {
+                    unknown = reader.ReadBytes(44);
+                }
 
                 return new GlobalLighting
                 {
                     Time = time,
                     LightingConfigurations = lightingConfigurations,
-                    ShadowColor = shadowColor
+                    ShadowColor = shadowColor,
+                    Unknown = unknown
                 };
             });
         }
@@ -55,6 +65,8 @@ namespace OpenSage.Data.Map
                 }
 
                 ShadowColor.WriteTo(writer);
+
+                writer.Write(Unknown);
             });
         }
     }
