@@ -19,8 +19,11 @@ namespace OpenSage.Game.Tests
 
         public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
         {
-            var arguments = factAttribute.GetConstructorArguments();
-            var games = (SageGame[]) arguments.Single();
+            var arguments = factAttribute.GetConstructorArguments().ToList();
+            var game = (SageGame) arguments[0];
+            var otherGames = (SageGame[]) arguments[1];
+
+            var games = new[] { game }.Union(otherGames).ToArray();
 
             if (!InstalledGames.Any(x => games.Contains(x)))
             {
