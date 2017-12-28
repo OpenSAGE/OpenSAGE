@@ -14,6 +14,7 @@ namespace OpenSage.Data.Map
         public HeightMapData HeightMapData { get; private set; }
         public BlendTileData BlendTileData { get; private set; }
         public WorldInfo WorldInfo { get; private set; }
+        public MPPositionList MPPositionList { get; private set; }
         public SidesList SidesList { get; private set; }
         public LibraryMapLists LibraryMapLists { get; private set; }
         public Teams Teams { get; private set; }
@@ -125,6 +126,10 @@ namespace OpenSage.Data.Map
                         result.WorldInfo = WorldInfo.Parse(reader, context);
                         break;
 
+                    case MPPositionList.AssetName:
+                        result.MPPositionList = MPPositionList.Parse(reader, context);
+                        break;
+
                     case SidesList.AssetName:
                         result.SidesList = SidesList.Parse(reader, context);
                         break;
@@ -220,6 +225,12 @@ namespace OpenSage.Data.Map
 
             writer.Write(assetNames.GetOrCreateAssetIndex(WorldInfo.AssetName));
             WorldInfo.WriteTo(writer, assetNames);
+
+            if (MPPositionList != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(MPPositionList.AssetName));
+                MPPositionList.WriteTo(writer, assetNames);
+            }
 
             writer.Write(assetNames.GetOrCreateAssetIndex(SidesList.AssetName));
             SidesList.WriteTo(writer, assetNames);
