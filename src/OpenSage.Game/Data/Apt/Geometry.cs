@@ -11,7 +11,7 @@ using OpenSage.Data.Utilities;
 
 namespace OpenSage.Data.Apt
 {
-    internal enum GeometryStyle
+    public enum GeometryStyle
     {
         Undefined,
         TexturedTri,
@@ -19,24 +19,21 @@ namespace OpenSage.Data.Apt
         Line
     }
 
+    public interface GeometryEntry
+    {
+        GeometryStyle Type { get; }
+    }
+
+    
     public sealed class Geometry
     {
+        public List<GeometryEntry> Entries { get; private set; }
 
-        private void AddSolidTriangles(ColorRgba color, List<Triangle2D> triangles)
+        public Geometry()
         {
-
+            Entries = new List<GeometryEntry>();
         }
-
-        private void AddLines(ColorRgba color, List<Line2D> lines)
-        {
-
-        }
-
-        private void AddTexturedTriangles(ColorRgba color, List<Triangle2D> triangles)
-        {
-
-        }
-
+    
         public static Geometry FromFileSystemEntry(FileSystemEntry entry)
         {
             var geometry = new Geometry();
@@ -54,6 +51,30 @@ namespace OpenSage.Data.Apt
                 var tris = new List<Triangle2D>();
                 var lines = new List<Line2D>();
 
+                Action ApplyStyle = () =>
+                {
+                    switch (style)
+                    {
+                        //no data parsed yet
+                        case GeometryStyle.Undefined:
+                            break;
+                        case GeometryStyle.TexturedTri:
+                            geometry.Entries.Add(new GeometryTexturedTriangles(tris, color));
+                            tris.Clear();
+                            break;
+                        case GeometryStyle.SolidTri:
+                            geometry.Entries.Add(new GeometrySolidTriangles(tris, color));
+                            tris.Clear();
+                            break;
+                        case GeometryStyle.Line:
+                            geometry.Entries.Add(new GeometryLines(lines, color, thickness));
+                            lines.Clear();
+                            break;
+                    }
+
+                    style = GeometryStyle.Undefined;
+                };
+
                 while ((line = reader.ReadLine()) != null)
                 {
                     line = line.Trim();
@@ -68,29 +89,11 @@ namespace OpenSage.Data.Apt
                         paramList[i] = paramList[i].Trim();
                     }
 
-
                     switch (lineMode)
                     {
                         //Clear - Finish the last geometry
                         case 'c':
-                            switch (style)
-                            {
-                                //no data parsed yet
-                                case GeometryStyle.Undefined:
-                                    break;
-                                case GeometryStyle.TexturedTri:
-                                    geometry.AddTexturedTriangles(color, tris);
-                                    tris.Clear();
-                                    break;
-                                case GeometryStyle.SolidTri:
-                                    geometry.AddSolidTriangles(color, tris);
-                                    tris.Clear();
-                                    break;
-                                case GeometryStyle.Line:
-                                    geometry.AddLines(color, lines);
-                                    lines.Clear();
-                                    break;
-                            }
+                            ApplyStyle();
                             break;
                         //Style - Header for the following data
                         case 's':
@@ -164,9 +167,73 @@ namespace OpenSage.Data.Apt
                     }
 
                 }
+
+                ApplyStyle();
             }
 
             return geometry;
+        }
+    }
+
+    public struct GeometrySolidTriangles : GeometryEntry
+    {
+        public ColorRgba Color { get; private set; }
+        public List<Triangle2D> Triangles { get; private set; }
+
+        public GeometryStyle Type
+        {
+            get
+            {
+                return GeometryStyle.SolidTri;
+            }
+        }
+
+        public GeometrySolidTriangles(List<Triangle2D> triangles, ColorRgba color)
+        {
+            Color = color;
+            Triangles = new List<Triangle2D>(triangles);
+        }
+    }
+
+    public struct GeometryLines : GeometryEntry
+    {
+        public ColorRgba Color { get; private set; }
+        public float Thickness { get; private set; }
+        public List<Line2D> Lines { get; private set; }
+
+        public GeometryStyle Type
+        {
+            get
+            {
+                return GeometryStyle.Line;
+            }
+        }
+
+        public GeometryLines(List<Line2D> lines, ColorRgba color, float thickness)
+        {
+            Color = color;
+            Lines = new List<Line2D>(lines);
+            Thickness = thickness;
+        }
+    }
+
+    public struct GeometryTexturedTriangles : GeometryEntry
+    {
+        public ColorRgba Color { get; private set; }
+        public List<Triangle2D> Triangles { get; private set; }
+
+        public GeometryStyle Type
+        {
+            get
+            {
+                return GeometryStyle.TexturedTri;
+            }
+        }
+
+        public GeometryTexturedTriangles(List<Triangle2D> triangles, ColorRgba color)
+        {
+            Color = color;
+            Triangles = new List<Triangle2D>(triangles);
         }
     }
 }
