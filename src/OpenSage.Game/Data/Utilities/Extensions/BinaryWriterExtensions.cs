@@ -2,6 +2,7 @@
 using System.IO;
 using System.Numerics;
 using System.Text;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Utilities.Extensions
 {
@@ -71,7 +72,7 @@ namespace OpenSage.Data.Utilities.Extensions
 
                     var boolValue = values[x, y];
 
-                    value |= (byte) ((boolValue ? 0 : 1) << (x % 8));
+                    value |= (byte) ((boolValue ? 1 : 0) << (x % 8));
                 }
 
                 // Write last value.
@@ -79,17 +80,24 @@ namespace OpenSage.Data.Utilities.Extensions
             }
         }
 
-        public static void Write(this BinaryWriter writer, Vector2 value)
+        public static void Write(this BinaryWriter writer, in Vector2 value)
         {
             writer.Write(value.X);
             writer.Write(value.Y);
         }
 
-        public static void Write(this BinaryWriter writer, Vector3 value)
+        public static void Write(this BinaryWriter writer, in Vector3 value)
         {
             writer.Write(value.X);
             writer.Write(value.Y);
             writer.Write(value.Z);
+        }
+
+        public static void Write(this BinaryWriter writer, in ColorRgb value)
+        {
+            writer.Write(value.R);
+            writer.Write(value.G);
+            writer.Write(value.B);
         }
     }
 }

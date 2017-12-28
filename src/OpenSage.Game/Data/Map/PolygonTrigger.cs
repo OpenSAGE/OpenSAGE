@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Map
 {
@@ -17,46 +19,74 @@ namespace OpenSage.Data.Map
         /// </summary>
         public uint RiverStartControlPoint { get; private set; }
 
+        // Shared water options
+        public bool UseAdditiveBlending { get; private set; }
+        public Vector2 UvScrollSpeed { get; private set; }
+
+        // River-specific options
+        public string RiverTexture { get; private set; }
+        public string NoiseTexture { get; private set; }
+        public string AlphaEdgeTexture { get; private set; }
+        public string SparkleTexture { get; private set; }
+        public string BumpMapTexture { get; private set; }
+        public string SkyTexture { get; private set; }
+        public byte Unknown { get; private set; }
+        public ColorRgb RiverColor { get; private set; }
+        public float RiverAlpha { get; private set; }
+
         public MapVector3i[] Points { get; private set; }
 
         internal static PolygonTrigger Parse(BinaryReader reader, ushort version)
         {
-            var name = reader.ReadUInt16PrefixedAsciiString();
-
-            string layerName = null;
-            if (version == 4)
+            var result = new PolygonTrigger
             {
-                layerName = reader.ReadUInt16PrefixedAsciiString();
+                Name = reader.ReadUInt16PrefixedAsciiString()
+            };
+
+            if (version >= 4)
+            {
+                result.LayerName = reader.ReadUInt16PrefixedAsciiString();
             }
 
-            var uniqueId = reader.ReadUInt32();
+            result.UniqueId = reader.ReadUInt32();
 
-            var triggerType = reader.ReadUInt16AsEnum<PolygonTriggerType>();
+            result.TriggerType = reader.ReadUInt16AsEnum<PolygonTriggerType>();
 
-            var riverStartControlPoint = reader.ReadUInt32();
+            result.RiverStartControlPoint = reader.ReadUInt32();
+
+            if (version >= 5)
+            {
+                result.RiverTexture = reader.ReadUInt16PrefixedAsciiString();
+                result.NoiseTexture = reader.ReadUInt16PrefixedAsciiString();
+                result.AlphaEdgeTexture = reader.ReadUInt16PrefixedAsciiString();
+                result.SparkleTexture = reader.ReadUInt16PrefixedAsciiString();
+                result.BumpMapTexture = reader.ReadUInt16PrefixedAsciiString();
+                result.SkyTexture = reader.ReadUInt16PrefixedAsciiString();
+
+                result.UseAdditiveBlending = reader.ReadBooleanChecked();
+
+                result.RiverColor = reader.ReadColorRgb();
+
+                result.Unknown = reader.ReadByte(); // 0
+                if (result.Unknown != 0)
+                {
+                    throw new InvalidDataException();
+                }
+
+                result.UvScrollSpeed = reader.ReadVector2();
+
+                result.RiverAlpha = reader.ReadSingle();
+            }
 
             var numPoints = reader.ReadUInt32();
-            var points = new MapVector3i[numPoints];
-
-            if (riverStartControlPoint > numPoints - 1)
-            {
-                throw new InvalidDataException();
-            }
+            result.Points = new MapVector3i[numPoints];
 
             for (var i = 0; i < numPoints; i++)
             {
-                points[i] = MapVector3i.Parse(reader);
+                result.Points[i] = MapVector3i.Parse(reader);
             }
 
-            return new PolygonTrigger
-            {
-                Name = name,
-                LayerName = layerName,
-                UniqueId = uniqueId,
-                TriggerType = triggerType,
-                RiverStartControlPoint = riverStartControlPoint,
-                Points = points
-            };
+            return result;
         }
 
         internal void WriteTo(BinaryWriter writer, ushort version)
@@ -73,6 +103,26 @@ namespace OpenSage.Data.Map
             writer.Write((ushort) TriggerType);
 
             writer.Write(RiverStartControlPoint);
+
+            if (version >= 5)
+            {
+                writer.WriteUInt16PrefixedAsciiString(RiverTexture);
+                writer.WriteUInt16PrefixedAsciiString(NoiseTexture);
+                writer.WriteUInt16PrefixedAsciiString(AlphaEdgeTexture);
+                writer.WriteUInt16PrefixedAsciiString(SparkleTexture);
+                writer.WriteUInt16PrefixedAsciiString(BumpMapTexture);
+                writer.WriteUInt16PrefixedAsciiString(SkyTexture);
+
+                writer.Write(UseAdditiveBlending);
+
+                writer.Write(RiverColor);
+
+                writer.Write(Unknown);
+
+                writer.Write(UvScrollSpeed);
+
+                writer.Write(RiverAlpha);
+            }
 
             writer.Write((uint) Points.Length);
 

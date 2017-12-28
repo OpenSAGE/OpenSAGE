@@ -135,7 +135,7 @@ namespace OpenSage.Data.Utilities.Extensions
                     {
                         temp = reader.ReadByte();
                     }
-                    result[x, y] = (temp & (1 << (x % 8))) == 0;
+                    result[x, y] = (temp & (1 << (x % 8))) != 0;
                 }
             }
 
@@ -247,6 +247,14 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadSingle(),
                 reader.ReadSingle(),
                 reader.ReadSingle());
+        }
+
+        public static ColorRgb ReadColorRgb(this BinaryReader reader)
+        {
+            return new ColorRgb(
+                reader.ReadByte(),
+                reader.ReadByte(),
+                reader.ReadByte());
         }
 
         public static string ReadStringAtOffset(this BinaryReader reader)
