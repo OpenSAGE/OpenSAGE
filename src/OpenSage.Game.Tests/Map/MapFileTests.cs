@@ -335,6 +335,37 @@ namespace OpenSage.Data.Tests.Map
             GetMapFile();
         }
 
+        [Fact]
+        public void BlendTileData_Passability()
+        {
+            var mapFile = GetMapFile();
+
+            Assert.Equal(false, mapFile.BlendTileData.Impassability[0, 0]);
+            Assert.Equal(false, mapFile.BlendTileData.Impassability[0, 1]);
+            Assert.Equal(true, mapFile.BlendTileData.Impassability[1, 0]);
+            Assert.Equal(false, mapFile.BlendTileData.Impassability[1, 1]);
+
+            Assert.Equal(false, mapFile.BlendTileData.ImpassabilityToPlayers[0, 0]);
+            Assert.Equal(true, mapFile.BlendTileData.ImpassabilityToPlayers[0, 1]);
+            Assert.Equal(false, mapFile.BlendTileData.ImpassabilityToPlayers[1, 0]);
+            Assert.Equal(false, mapFile.BlendTileData.ImpassabilityToPlayers[1, 1]);
+
+            Assert.Equal(true, mapFile.BlendTileData.PassageWidths[0, 0]);
+            Assert.Equal(false, mapFile.BlendTileData.PassageWidths[0, 1]);
+            Assert.Equal(false, mapFile.BlendTileData.PassageWidths[1, 0]);
+            Assert.Equal(true, mapFile.BlendTileData.PassageWidths[1, 1]);
+
+            Assert.Equal(false, mapFile.BlendTileData.Taintability[0, 0]);
+            Assert.Equal(true, mapFile.BlendTileData.Taintability[0, 1]);
+            Assert.Equal(true, mapFile.BlendTileData.Taintability[1, 0]);
+            Assert.Equal(false, mapFile.BlendTileData.Taintability[1, 1]);
+
+            Assert.Equal(true, mapFile.BlendTileData.ExtraPassability[0, 0]);
+            Assert.Equal(false, mapFile.BlendTileData.ExtraPassability[0, 1]);
+            Assert.Equal(false, mapFile.BlendTileData.ExtraPassability[1, 0]);
+            Assert.Equal(false, mapFile.BlendTileData.ExtraPassability[1, 1]);
+        }
+
         private static MapFile GetMapFile([CallerMemberName] string testName = null)
         {
             var fileName = Path.Combine("Map", "Assets", testName + ".map");

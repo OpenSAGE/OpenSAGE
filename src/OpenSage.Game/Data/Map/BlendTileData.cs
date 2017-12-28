@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using OpenSage.Data.Utilities.Extensions;
 
@@ -16,7 +15,13 @@ namespace OpenSage.Data.Map
         public ushort[,] ThreeWayBlends { get; private set; }
         public ushort[,] CliffTextures { get; private set; }
 
-        public bool[,] Passability { get; private set; }
+        public byte[] Unknown { get; private set; }
+
+        public bool[,] Impassability { get; private set; }
+        public bool[,] ImpassabilityToPlayers { get; private set; }
+        public bool[,] PassageWidths { get; private set; }
+        public bool[,] Taintability { get; private set; }
+        public bool[,] ExtraPassability { get; private set; }
 
         public uint TextureCellCount { get; private set; }
 
@@ -56,7 +61,7 @@ namespace OpenSage.Data.Map
         {
             return ParseAsset(reader, context, version =>
             {
-                if (version < 6 || version > 8)
+                if (version < 6)
                 {
                     throw new InvalidDataException();
                 }
@@ -69,18 +74,32 @@ namespace OpenSage.Data.Map
                 var width = heightMapData.Width;
                 var height = heightMapData.Height;
 
-                var numTiles = reader.ReadUInt32();
-                if (numTiles != width * height)
+                var result = new BlendTileData();
+
+                result.NumTiles = reader.ReadUInt32();
+                if (result.NumTiles != width * height)
                 {
                     throw new InvalidDataException();
                 }
 
-                var tiles = reader.ReadUInt16Array2D(width, height);
-                var blends = reader.ReadUInt16Array2D(width, height);
-                var threeWayBlends = reader.ReadUInt16Array2D(width, height);
-                var cliffTextures = reader.ReadUInt16Array2D(width, height);
+                result.Tiles = reader.ReadUInt16Array2D(width, height);
+                result.Blends = reader.ReadUInt16Array2D(width, height);
+                result.ThreeWayBlends = reader.ReadUInt16Array2D(width, height);
+                result.CliffTextures = reader.ReadUInt16Array2D(width, height);
 
-                bool[,] passability = null;
+                if (version >= 15)
+                {
+                    // Unknown.
+                    result.Unknown = reader.ReadBytes((int) (width * height * 6));
+                    foreach (var value in result.Unknown)
+                    {
+                        if (value != 0)
+                        {
+                            throw new InvalidDataException();
+                        }
+                    }
+                }
+
                 if (version > 6)
                 {
                     var passabilityWidth = heightMapData.Width;
@@ -95,10 +114,18 @@ namespace OpenSage.Data.Map
                     }
 
                     // If terrain is passable, there's a 0 in the data file.
-                    passability = reader.ReadSingleBitBooleanArray2D(passabilityWidth, heightMapData.Height);
+                    result.Impassability = reader.ReadSingleBitBooleanArray2D(passabilityWidth, heightMapData.Height);
                 }
 
-                var textureCellCount = reader.ReadUInt32();
+                if (version >= 15)
+                {
+                    result.ImpassabilityToPlayers = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                    result.PassageWidths = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                    result.Taintability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                    result.ExtraPassability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                }
+
+                result.TextureCellCount = reader.ReadUInt32();
 
                 var blendsCount = reader.ReadUInt32();
                 if (blendsCount > 0)
@@ -107,8 +134,8 @@ namespace OpenSage.Data.Map
                     blendsCount--;
                 }
 
-                var parsedCliffBlendsCount = reader.ReadUInt32();
-                var cliffBlendsCount = parsedCliffBlendsCount;
+                result.ParsedCliffTextureMappingsCount = reader.ReadUInt32();
+                var cliffBlendsCount = result.ParsedCliffTextureMappingsCount;
                 if (cliffBlendsCount > 0)
                 {
                     // Usually minimum value is 1, but some files (perhaps Generals, not Zero Hour?) have 0.
@@ -116,60 +143,37 @@ namespace OpenSage.Data.Map
                 }
 
                 var textureCount = reader.ReadUInt32();
-                var textures = new BlendTileTexture[textureCount];
+                result.Textures = new BlendTileTexture[textureCount];
                 for (var i = 0; i < textureCount; i++)
                 {
-                    textures[i] = BlendTileTexture.Parse(reader);
+                    result.Textures[i] = BlendTileTexture.Parse(reader);
                 }
 
-                var magicValue1 = reader.ReadUInt32();
-                if (magicValue1 != 0)
+                result.MagicValue1 = reader.ReadUInt32();
+                if (result.MagicValue1 != 0)
                 {
                     throw new InvalidDataException();
                 }
 
-                var magicValue2 = reader.ReadUInt32();
-                if (magicValue2 != 0)
+                result.MagicValue2 = reader.ReadUInt32();
+                if (result.MagicValue2 != 0)
                 {
                     throw new InvalidDataException();
                 }
 
-                var blendDescriptions = new BlendDescription[blendsCount];
+                result.BlendDescriptions = new BlendDescription[blendsCount];
                 for (var i = 0; i < blendsCount; i++)
                 {
-                    blendDescriptions[i] = BlendDescription.Parse(reader);
+                    result.BlendDescriptions[i] = BlendDescription.Parse(reader);
                 }
 
-                var cliffTextureMappings = new CliffTextureMapping[cliffBlendsCount];
+                result.CliffTextureMappings = new CliffTextureMapping[cliffBlendsCount];
                 for (var i = 0; i < cliffBlendsCount; i++)
                 {
-                    cliffTextureMappings[i] = CliffTextureMapping.Parse(reader);
+                    result.CliffTextureMappings[i] = CliffTextureMapping.Parse(reader);
                 }
 
-                return new BlendTileData
-                {
-                    NumTiles = numTiles,
-
-                    Tiles = tiles,
-
-                    Blends = blends,
-                    ThreeWayBlends = threeWayBlends,
-                    CliffTextures = cliffTextures,
-
-                    Passability = passability,
-
-                    TextureCellCount = textureCellCount,
-
-                    Textures = textures,
-
-                    MagicValue1 = magicValue1,
-                    MagicValue2 = magicValue2,
-
-                    BlendDescriptions = blendDescriptions,
-
-                    ParsedCliffTextureMappingsCount = parsedCliffBlendsCount,
-                    CliffTextureMappings = cliffTextureMappings
-                };
+                return result;
             });
         }
 
@@ -226,9 +230,22 @@ namespace OpenSage.Data.Map
                 writer.WriteUInt16Array2D(ThreeWayBlends);
                 writer.WriteUInt16Array2D(CliffTextures);
 
+                if (Version >= 15)
+                {
+                    writer.Write(Unknown);
+                }
+
                 if (Version > 6)
                 {
-                    writer.WriteSingleBitBooleanArray2D(Passability);
+                    writer.WriteSingleBitBooleanArray2D(Impassability);
+                }
+
+                if (Version >= 15)
+                {
+                    writer.WriteSingleBitBooleanArray2D(ImpassabilityToPlayers);
+                    writer.WriteSingleBitBooleanArray2D(PassageWidths);
+                    writer.WriteSingleBitBooleanArray2D(Taintability);
+                    writer.WriteSingleBitBooleanArray2D(ExtraPassability);
                 }
 
                 writer.Write(TextureCellCount);
