@@ -1,8 +1,8 @@
 ﻿using OpenSage.LowLevel.Graphics2D;
 
-namespace OpenSage.Gui.Elements
+namespace OpenSage.Gui.Wnd.Elements
 {
-    public sealed class ProgressBar : UIElement
+    public sealed class StaticText : UIElement
     {
         protected override void OnRender(DrawingContext drawingContext)
         {

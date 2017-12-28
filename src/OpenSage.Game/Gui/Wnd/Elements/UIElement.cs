@@ -12,7 +12,7 @@ using OpenSage.LowLevel.Graphics2D;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Gui.Elements
+namespace OpenSage.Gui.Wnd.Elements
 {
     public abstract partial class UIElement : DisposableBase
     {
@@ -443,9 +443,9 @@ namespace OpenSage.Gui.Elements
 
     internal sealed class UIElementCallbackContext
     {
-        public GuiSystem GuiSystem { get; }
+        public WndSystem GuiSystem { get; }
 
-        public UIElementCallbackContext(GuiSystem guiSystem)
+        public UIElementCallbackContext(WndSystem guiSystem)
         {
             GuiSystem = guiSystem;
         }

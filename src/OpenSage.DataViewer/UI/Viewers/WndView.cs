@@ -1,8 +1,8 @@
 ﻿using Eto.Forms;
 using OpenSage.Data;
 using OpenSage.DataViewer.Controls;
-using OpenSage.Gui;
-using OpenSage.Gui.Elements;
+using OpenSage.Gui.Wnd;
+using OpenSage.Gui.Wnd.Elements;
 
 namespace OpenSage.DataViewer.UI.Viewers
 {
@@ -10,7 +10,7 @@ namespace OpenSage.DataViewer.UI.Viewers
     {
         public WndView(FileSystemEntry entry, Game game)
         {
-            var guiComponent = new GuiComponent
+            var wndComponent = new WndComponent
             {
                 Window = game.ContentManager.Load<GuiWindow>(entry.FilePath)
             };
@@ -18,13 +18,13 @@ namespace OpenSage.DataViewer.UI.Viewers
             var scene = new Scene();
 
             var entity = new Entity();
-            entity.Components.Add(guiComponent);
+            entity.Components.Add(wndComponent);
             scene.Entities.Add(entity);
 
             game.Scene = scene;
 
             var treeItem = new TreeItem();
-            treeItem.Children.Add(CreateTreeItemRecursive(guiComponent.Window.Root));
+            treeItem.Children.Add(CreateTreeItemRecursive(wndComponent.Window.Root));
 
             var treeView = new TreeView
             {

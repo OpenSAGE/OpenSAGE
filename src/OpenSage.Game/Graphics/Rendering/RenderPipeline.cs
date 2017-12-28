@@ -36,7 +36,10 @@ namespace OpenSage.Graphics.Rendering
         {
             _renderList.Clear();
 
-            context.Graphics.BuildRenderList(_renderList);
+            foreach (var system in context.Game.GameSystems)
+            {
+                system.BuildRenderList(_renderList);
+            }
 
             var commandBuffer = context.GraphicsDevice.CommandQueue.GetCommandBuffer();
 

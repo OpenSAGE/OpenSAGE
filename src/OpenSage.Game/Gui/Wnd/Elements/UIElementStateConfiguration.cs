@@ -6,7 +6,7 @@ using OpenSage.Mathematics;
 using OpenSage.LowLevel.Graphics2D;
 using System;
 
-namespace OpenSage.Gui.Elements
+namespace OpenSage.Gui.Wnd.Elements
 {
     internal sealed class UIElementStateConfiguration : DisposableBase
     {

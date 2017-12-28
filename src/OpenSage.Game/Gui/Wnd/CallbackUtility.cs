@@ -1,8 +1,8 @@
 ﻿using System;
-using OpenSage.Gui.Elements;
+using OpenSage.Gui.Wnd.Elements;
 using OpenSage.LowLevel.Graphics3D;
 
-namespace OpenSage.Gui
+namespace OpenSage.Gui.Wnd
 {
     internal static class CallbackUtility
     {
@@ -29,7 +29,7 @@ namespace OpenSage.Gui
                 return null;
             }
 
-            var callbackMethod = typeof(GuiCallbacks).GetMethod(name);
+            var callbackMethod = typeof(WndCallbacks).GetMethod(name);
             if (callbackMethod == null) // TODO: Should never be null, but will be during development.
             {
                 return null;

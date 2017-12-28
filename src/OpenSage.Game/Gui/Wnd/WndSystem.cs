@@ -3,24 +3,24 @@ using System.Collections.Generic;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
-using OpenSage.Gui.Elements;
+using OpenSage.Gui.Wnd.Elements;
 using OpenSage.Mathematics;
 using System.IO;
 
-namespace OpenSage.Gui
+namespace OpenSage.Gui.Wnd
 {
-    public sealed class GuiSystem : GameSystem
+    public sealed class WndSystem : GameSystem
     {
-        private readonly List<GuiComponent> _guiComponents;
+        private readonly List<WndComponent> _guiComponents;
         private readonly EffectPipelineStateHandle _pipelineStateHandle;
 
         internal Stack<GuiWindow> WindowStack { get; }
         internal WindowTransitionManager TransitionManager { get; }
 
-        public GuiSystem(Game game) 
+        public WndSystem(Game game) 
             : base(game)
         {
-            RegisterComponentList(_guiComponents = new List<GuiComponent>());
+            RegisterComponentList(_guiComponents = new List<WndComponent>());
 
             WindowStack = new Stack<GuiWindow>();
 
@@ -52,12 +52,12 @@ namespace OpenSage.Gui
         {
             base.Initialize();
 
-            Game.Input.MessageBuffer.Handlers.Add(new GuiMessageHandler(this));
+            Game.Input.MessageBuffer.Handlers.Add(new WndInputMessageHandler(this));
         }
 
         internal override void OnEntityComponentAdded(EntityComponent component)
         {
-            if (component is GuiComponent c)
+            if (component is WndComponent c)
             {
                 CreateSizeDependentResources(c);
 
@@ -71,7 +71,7 @@ namespace OpenSage.Gui
 
         internal override void OnEntityComponentRemoved(EntityComponent component)
         {
-            if (component is GuiComponent c)
+            if (component is WndComponent c)
             {
                 WindowStack.Pop();
             }
@@ -87,7 +87,7 @@ namespace OpenSage.Gui
             }
         }
 
-        private void CreateSizeDependentResources(GuiComponent guiComponent)
+        private void CreateSizeDependentResources(WndComponent guiComponent)
         {
             var viewport = Game.Scene.Camera.Viewport;
             var size = new Size(viewport.Width, viewport.Height);
@@ -169,7 +169,7 @@ namespace OpenSage.Gui
         {
             var wndFilePath = Path.Combine("Window", wndFileName);
 
-            var guiComponent = new GuiComponent
+            var guiComponent = new WndComponent
             {
                 Window = Game.ContentManager.Load<GuiWindow>(wndFilePath)
             };

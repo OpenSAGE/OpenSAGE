@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using OpenSage.Data.Ini;
-using OpenSage.Gui;
-using OpenSage.Gui.Elements;
+using OpenSage.Gui.Wnd.Elements;
 using OpenSage.LowLevel.Graphics2D;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Gui
+namespace OpenSage.Gui.Wnd
 {
     // TODO: This class should move to a Generals-specific csproj.
-    internal static class GuiCallbacks
+    internal static class WndCallbacks
     {
         private static bool _doneMainMenuFadeIn;
 

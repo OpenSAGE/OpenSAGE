@@ -1,12 +1,12 @@
 ﻿using OpenSage.LowLevel.Graphics2D;
 
-namespace OpenSage.Gui.Elements
+namespace OpenSage.Gui.Wnd.Elements
 {
-    public sealed class RadioButton : UIElement
+    public sealed class GenericWindow : UIElement
     {
         protected override void OnRender(DrawingContext drawingContext)
         {
-            
+            // TODO
         }
     }
 }

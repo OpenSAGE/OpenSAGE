@@ -6,7 +6,7 @@ using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
-using OpenSage.Gui;
+using OpenSage.Gui.Wnd;
 
 namespace OpenSage.Content
 {

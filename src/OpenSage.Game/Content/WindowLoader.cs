@@ -1,8 +1,8 @@
 ﻿using System;
 using OpenSage.Data;
 using OpenSage.Data.Wnd;
-using OpenSage.Gui;
-using OpenSage.Gui.Elements;
+using OpenSage.Gui.Wnd;
+using OpenSage.Gui.Wnd.Elements;
 
 namespace OpenSage.Content
 {

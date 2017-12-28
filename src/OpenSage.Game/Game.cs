@@ -1,17 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
+using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
-using OpenSage.Gui;
+using OpenSage.Gui.Wnd;
 using OpenSage.Input;
 using OpenSage.Logic.Object;
 using OpenSage.LowLevel;
+using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Scripting;
-using OpenSage.Graphics.Cameras;
 
 namespace OpenSage
 {
@@ -40,7 +40,7 @@ namespace OpenSage
         /// <summary>
         /// Gets the GUI system.
         /// </summary>
-        public GuiSystem Gui { get; }
+        public WndSystem Wnd { get; }
 
         /// <summary>
         /// Gets the input system.
@@ -118,7 +118,7 @@ namespace OpenSage
             AddDisposable(new ParticleSystemSystem(this));
             AddDisposable(new UpdateableSystem(this));
 
-            Gui = AddDisposable(new GuiSystem(this));
+            Wnd = AddDisposable(new WndSystem(this));
 
             Graphics = AddDisposable(new GraphicsSystem(this));
 

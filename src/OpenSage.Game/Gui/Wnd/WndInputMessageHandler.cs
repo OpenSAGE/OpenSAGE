@@ -1,18 +1,18 @@
-﻿using OpenSage.Gui.Elements;
+﻿using OpenSage.Gui.Wnd.Elements;
 using OpenSage.Input;
 using OpenSage.LowLevel.Input;
 using System.Numerics;
 using System.Linq;
 
-namespace OpenSage.Gui
+namespace OpenSage.Gui.Wnd
 {
-    internal sealed class GuiMessageHandler : InputMessageHandler
+    internal sealed class WndInputMessageHandler : InputMessageHandler
     {
-        private readonly GuiSystem _guiSystem;
+        private readonly WndSystem _guiSystem;
 
         private UIElement _lastHighlightedElement;
 
-        public GuiMessageHandler(GuiSystem guiSystem)
+        public WndInputMessageHandler(WndSystem guiSystem)
         {
             _guiSystem = guiSystem;
         }

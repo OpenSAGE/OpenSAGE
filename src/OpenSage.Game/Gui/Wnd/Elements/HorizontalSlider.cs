@@ -1,8 +1,8 @@
 ﻿using OpenSage.LowLevel.Graphics2D;
 
-namespace OpenSage.Gui.Elements
+namespace OpenSage.Gui.Wnd.Elements
 {
-    public sealed class StaticText : UIElement
+    public sealed class HorizontalSlider : UIElement
     {
         protected override void OnRender(DrawingContext drawingContext)
         {

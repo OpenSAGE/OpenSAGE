@@ -1,7 +1,7 @@
 ﻿using OpenSage.Data.Wnd;
-using OpenSage.Gui.Elements;
+using OpenSage.Gui.Wnd.Elements;
 
-namespace OpenSage.Gui
+namespace OpenSage.Gui.Wnd
 {
     public sealed class GuiWindow
     {

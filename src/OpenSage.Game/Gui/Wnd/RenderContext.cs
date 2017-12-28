@@ -1,6 +1,6 @@
 ﻿using OpenSage.LowLevel.Graphics3D;
 
-namespace OpenSage.Gui
+namespace OpenSage.Gui.Wnd
 {
     public sealed class RenderContext
     {

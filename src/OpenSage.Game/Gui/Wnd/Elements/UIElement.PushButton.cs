@@ -1,4 +1,4 @@
-﻿namespace OpenSage.Gui.Elements
+﻿namespace OpenSage.Gui.Wnd.Elements
 {
     partial class UIElement
     {

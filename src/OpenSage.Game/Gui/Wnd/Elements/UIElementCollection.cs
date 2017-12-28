@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-namespace OpenSage.Gui.Elements
+namespace OpenSage.Gui.Wnd.Elements
 {
     public sealed class UIElementCollection : Collection<UIElement>
     {
