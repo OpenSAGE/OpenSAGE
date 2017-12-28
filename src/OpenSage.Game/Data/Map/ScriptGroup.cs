@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Map
@@ -13,25 +14,31 @@ namespace OpenSage.Data.Map
         public bool IsSubroutine { get; private set; }
         public Script[] Scripts { get; private set; }
 
+        public ScriptGroup[] Groups { get; private set; }
+
         internal static ScriptGroup Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version =>
             {
-                if (version != 2)
-                {
-                    throw new InvalidDataException();
-                }
-
                 var name = reader.ReadUInt16PrefixedAsciiString();
                 var isActive = reader.ReadBooleanChecked();
                 var isSubroutine = reader.ReadBooleanChecked();
 
                 var scripts = new List<Script>();
+                var groups = new List<ScriptGroup>();
 
                 ParseAssets(reader, context, assetName =>
                 {
                     switch (assetName)
                     {
+                        case ScriptGroup.AssetName:
+                            if (version < 3)
+                            {
+                                goto default;
+                            }
+                            groups.Add(ScriptGroup.Parse(reader, context));
+                            break;
+
                         case Script.AssetName:
                             scripts.Add(Script.Parse(reader, context));
                             break;
@@ -46,7 +53,8 @@ namespace OpenSage.Data.Map
                     Name = name,
                     IsActive = isActive,
                     IsSubroutine = isSubroutine,
-                    Scripts = scripts.ToArray()
+                    Scripts = scripts.ToArray(),
+                    Groups = groups.ToArray()
                 };
             });
         }
@@ -58,6 +66,12 @@ namespace OpenSage.Data.Map
                 writer.WriteUInt16PrefixedAsciiString(Name);
                 writer.Write(IsActive);
                 writer.Write(IsSubroutine);
+
+                foreach (var scriptGroup in Groups)
+                {
+                    writer.Write(assetNames.GetOrCreateAssetIndex(ScriptGroup.AssetName));
+                    scriptGroup.WriteTo(writer, assetNames);
+                }
 
                 foreach (var script in Scripts)
                 {
