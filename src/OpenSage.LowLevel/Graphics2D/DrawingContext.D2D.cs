@@ -74,6 +74,18 @@ namespace OpenSage.LowLevel.Graphics2D
             }
         }
 
+        private void PlatformDrawLine(in RawLineF line, in ColorRgbaF strokeColor)
+        {
+            using (var brush = CreateBrush(strokeColor))
+            {
+                _graphicsDevice.DeviceContext.DrawLine(
+                    ToRawVector2(line.X1, line.Y1),
+                    ToRawVector2(line.X2, line.Y2),
+                    brush,
+                    line.Thickness);
+            }
+        }
+
         private void PlatformFillRectangle(in RawRectangleF rect, in ColorRgbaF fillColor)
         {
             using (var brush = CreateBrush(fillColor))
@@ -92,6 +104,11 @@ namespace OpenSage.LowLevel.Graphics2D
         private static SharpDX.Mathematics.Interop.RawRectangleF ToRawRectangleF(in RawRectangleF value)
         {
             return new SharpDX.Mathematics.Interop.RawRectangleF(value.X, value.Y, value.X + value.Width, value.Y + value.Height);
+        }
+
+        private static SharpDX.Mathematics.Interop.RawVector2 ToRawVector2(in float x,in float y)
+        {
+            return new SharpDX.Mathematics.Interop.RawVector2(x,y);
         }
 
         private void PlatformEnd()

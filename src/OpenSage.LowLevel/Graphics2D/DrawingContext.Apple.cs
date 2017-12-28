@@ -25,8 +25,13 @@ namespace OpenSage.LowLevel.Graphics2D
         {
             
         }
-
+    
         private void PlatformDrawRectangle(in RawRectangleF rect, in ColorRgbaF strokeColor, float strokeWidth)
+        {
+
+        }
+
+        private void PlatformDrawLine(in RawLineF line, in ColorRgbaF strokeColor)
         {
 
         }

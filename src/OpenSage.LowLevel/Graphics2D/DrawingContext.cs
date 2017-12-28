@@ -34,6 +34,11 @@ namespace OpenSage.LowLevel.Graphics2D
             PlatformDrawRectangle(rect, strokeColor, strokeWidth);
         }
 
+        public void DrawLine(in RawLineF line, in ColorRgbaF strokeColor)
+        {
+            PlatformDrawLine(line, strokeColor);
+        }
+
         public void FillRectangle(in RawRectangleF rect, in ColorRgbaF fillColor)
         {
             PlatformFillRectangle(rect, fillColor);
