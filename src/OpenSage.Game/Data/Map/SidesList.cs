@@ -14,6 +14,15 @@ namespace OpenSage.Data.Map
         {
             return ParseAsset(reader, context, version =>
             {
+                if (version >= 6)
+                {
+                    var unknown = reader.ReadByte();
+                    if (unknown != 1)
+                    {
+                        throw new InvalidDataException();
+                    }
+                }
+
                 var numPlayers = reader.ReadUInt32();
                 var players = new Player[numPlayers];
 
@@ -69,6 +78,11 @@ namespace OpenSage.Data.Map
         {
             WriteAssetTo(writer, () =>
             {
+                if (Version >= 6)
+                {
+                    writer.Write((byte) 1);
+                }
+
                 writer.Write((uint) Players.Length);
 
                 foreach (var player in Players)
