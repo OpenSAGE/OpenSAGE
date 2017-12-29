@@ -110,6 +110,17 @@
         SupplySourceSafe = 105,
         SupplySourceAttacked = 106,
         StartPositionIs = 107,
-        NamedHasFreeConstructionSlots = 108
+        NamedHasFreeConstructionSlots = 108,
+
+        // Added in BFME
+        CounterCounter = 111,
+        UnitThreadLevel = 115,
+        TeamThreatLevel = 116,
+        NamedBaseUnpackableForPlayer = 121,
+        CanBuildAtBase = 127,
+        TeamHasCustomState = 143,
+        PlayerHasObjectOfVeterancy = 146,
+        TeamIsAttackedAndCannotRetaliate = 165,
+        CanBuildObjectTypeAtBase = 169,
     }
 }
