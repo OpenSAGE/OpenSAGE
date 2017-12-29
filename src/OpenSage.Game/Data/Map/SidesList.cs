@@ -6,6 +6,8 @@ namespace OpenSage.Data.Map
     {
         public const string AssetName = "SidesList";
 
+        public byte Unknown { get; private set; }
+
         public Player[] Players { get; private set; }
         public Team[] Teams { get; private set; }
         public PlayerScriptsList PlayerScripts { get; private set; }
@@ -14,10 +16,11 @@ namespace OpenSage.Data.Map
         {
             return ParseAsset(reader, context, version =>
             {
+                var unknown = (byte) 0;
                 if (version >= 6)
                 {
-                    var unknown = reader.ReadByte();
-                    if (unknown != 1)
+                    unknown = reader.ReadByte();
+                    if (unknown != 0 && unknown != 1)
                     {
                         throw new InvalidDataException();
                     }
@@ -36,6 +39,7 @@ namespace OpenSage.Data.Map
                     // Above version 5, teams and scripts are in separate top-level chunks.
                     return new SidesList
                     {
+                        Unknown = unknown,
                         Players = players
                     };
                 }
@@ -80,7 +84,7 @@ namespace OpenSage.Data.Map
             {
                 if (Version >= 6)
                 {
-                    writer.Write((byte) 1);
+                    writer.Write(Unknown);
                 }
 
                 writer.Write((uint) Players.Length);
