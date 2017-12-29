@@ -6,21 +6,23 @@ namespace OpenSage.Data.Map
     {
         public const string AssetName = "NamedCameras";
 
+        public NamedCamera[] Cameras { get; private set; }
+
         internal static NamedCameras Parse(BinaryReader reader, MapParseContext context)
         {
             return ParseAsset(reader, context, version =>
             {
                 var numNamedCameras = reader.ReadUInt32();
-                if (numNamedCameras != 0)
-                {
-                    throw new System.NotImplementedException();
-                }
+                var cameras = new NamedCamera[numNamedCameras];
 
-                // TODO
+                for (var i = 0; i < numNamedCameras; i++)
+                {
+                    cameras[i] = NamedCamera.Parse(reader);
+                }
 
                 return new NamedCameras
                 {
-                    
+                    Cameras = cameras
                 };
             });
         }
@@ -29,9 +31,12 @@ namespace OpenSage.Data.Map
         {
             WriteAssetTo(writer, () =>
             {
-                writer.Write((uint) 0);
+                writer.Write((uint) Cameras.Length);
 
-                // TODO
+                foreach (var camera in Cameras)
+                {
+                    camera.WriteTo(writer);
+                }
             });
         }
     }
