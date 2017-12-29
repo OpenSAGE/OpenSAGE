@@ -1,10 +1,13 @@
 ﻿using OpenSage.LowLevel.Input;
 using OpenSage.Input;
+using System.Collections.Generic;
 
 namespace OpenSage.Graphics.Cameras
 {
     public sealed class CameraInputMessageHandler : InputMessageHandler
     {
+        private readonly List<Key> _pressedKeys = new List<Key>();
+
         private bool _leftMouseDown;
         private bool _middleMouseDown;
         private bool _rightMouseDown;
@@ -69,6 +72,17 @@ namespace OpenSage.Graphics.Cameras
                 case InputMessageType.MouseWheel:
                     _scrollWheelValue += message.MouseScrollWheelDelta.Value;
                     break;
+
+                case InputMessageType.KeyDown:
+                    if (!_pressedKeys.Contains(message.Key.Value))
+                    {
+                        _pressedKeys.Add(message.Key.Value);
+                    }
+                    break;
+
+                case InputMessageType.KeyUp:
+                    _pressedKeys.Remove(message.Key.Value);
+                    break;
             }
 
             return InputMessageResult.Handled;
@@ -84,6 +98,8 @@ namespace OpenSage.Graphics.Cameras
             state.DeltaY = _deltaY;
 
             state.ScrollWheelValue = _scrollWheelValue;
+
+            state.PressedKeys = new List<Key>(_pressedKeys);
 
             _deltaX = _deltaY = _scrollWheelValue = 0;
         }

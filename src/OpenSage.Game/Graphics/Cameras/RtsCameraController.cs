@@ -2,6 +2,7 @@
 using System.Numerics;
 using OpenSage.Mathematics;
 using OpenSage.Content;
+using OpenSage.LowLevel.Input;
 
 namespace OpenSage.Graphics.Cameras
 {
@@ -107,6 +108,17 @@ namespace OpenSage.Graphics.Cameras
             CurrentAnimation.SetFinalLookToward(position);
         }
 
+        private static float GetKeyMovement(in CameraInputState inputState, Key positive, Key negative)
+        {
+            if (inputState.PressedKeys.Contains(positive))
+                return 1;
+
+            if (inputState.PressedKeys.Contains(negative))
+                return -1;
+
+            return 0;
+        }
+
         void ICameraController.UpdateCamera(CameraComponent camera, in CameraInputState inputState, GameTime gameTime)
         {
             if (inputState.LeftMouseDown)
@@ -116,9 +128,9 @@ namespace OpenSage.Graphics.Cameras
 
             ZoomCamera(-inputState.ScrollWheelValue);
 
-            //var forwards = input.GetAxis(Key.Up, Key.Down);
-            //var right = input.GetAxis(Key.Right, Key.Left);
-            //PanCamera(forwards, right);
+            var forwards = GetKeyMovement(inputState, Key.Up, Key.Down);
+            var right = GetKeyMovement(inputState, Key.Right, Key.Left);
+            PanCamera(forwards, right);
 
             if (_animation != null)
             {

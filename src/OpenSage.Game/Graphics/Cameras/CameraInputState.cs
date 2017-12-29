@@ -1,4 +1,7 @@
-﻿namespace OpenSage.Graphics.Cameras
+﻿using System.Collections.Generic;
+using OpenSage.LowLevel.Input;
+
+namespace OpenSage.Graphics.Cameras
 {
     public struct CameraInputState
     {
@@ -10,5 +13,7 @@
         public int DeltaY;
 
         public int ScrollWheelValue;
+
+        public List<Key> PressedKeys;
     }
 }
