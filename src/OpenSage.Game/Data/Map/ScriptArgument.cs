@@ -65,5 +65,28 @@ namespace OpenSage.Data.Map
                 writer.WriteUInt16PrefixedAsciiString(StringValue);
             }
         }
+
+        public override string ToString()
+        {
+            var value = string.Empty;
+            if (IntValue != null)
+            {
+                value = $"Int: {IntValue.Value.ToString()}";
+            }
+            else if (FloatValue != null)
+            {
+                value = $"Float: {FloatValue.Value.ToString()}";
+            }
+            else if (StringValue != null)
+            {
+                value = $"String: {StringValue}";
+            }
+            else if (PositionValue != null)
+            {
+                value = $"Position: {PositionValue.Value.ToString()}";
+            }
+
+            return $"({ArgumentType}) {value}";
+        }
     }
 }

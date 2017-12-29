@@ -53,6 +53,19 @@
         MapRevealName = 48,
         ScienceAvailabilityName = 49,
         EvacuateContainerSide = 50,
-        Percentage = 51
+        Percentage = 51,
+
+        // Added in BFME
+        Percentage2 = 52, // Dupe of 51, perhaps because BFME and ZH development overlapped?
+        UnitReference = 54,
+        TeamReference = 55,
+        NearOrFar = 56,
+        MathOperator = 57,
+        ModelCondition = 58,
+        AudioName = 59,
+        ReverbRoomType = 60,
+        ObjectType = 61,
+        Hero = 62,
+        Emotion = 63,
     }
 }
