@@ -93,7 +93,7 @@ namespace OpenSage.Data.Map
         {
             writer.WriteUInt16PrefixedAsciiString(Name);
 
-            if (version == 4)
+            if (version >= 4)
             {
                 writer.WriteUInt16PrefixedAsciiString(LayerName);
             }
