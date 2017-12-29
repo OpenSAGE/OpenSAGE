@@ -20,15 +20,24 @@ namespace OpenSage.Data.Map
                 var result = new MPPositionInfo
                 {
                     IsHuman = reader.ReadBooleanChecked(),
-                    IsComputer = reader.ReadBooleanChecked(),
-                    LoadAIScript = reader.ReadBooleanChecked(),
-                    Team = reader.ReadUInt32()
+                    IsComputer = reader.ReadBooleanChecked()
                 };
 
-                result.SideRestrictions = new string[reader.ReadUInt32()];
-                for (var i = 0; i < result.SideRestrictions.Length; i++)
+                if (version > 0)
                 {
-                    result.SideRestrictions[i] = reader.ReadUInt16PrefixedAsciiString();
+                    // I'm guessing about what 5 bytes are missing in version 0, compared to version 1.
+                    result.LoadAIScript = reader.ReadBooleanChecked();
+                }
+
+                result.Team = reader.ReadUInt32();
+
+                if (version > 0)
+                {
+                    result.SideRestrictions = new string[reader.ReadUInt32()];
+                    for (var i = 0; i < result.SideRestrictions.Length; i++)
+                    {
+                        result.SideRestrictions[i] = reader.ReadUInt16PrefixedAsciiString();
+                    }
                 }
 
                 return result;
@@ -41,13 +50,21 @@ namespace OpenSage.Data.Map
             {
                 writer.Write(IsHuman);
                 writer.Write(IsComputer);
-                writer.Write(LoadAIScript);
+
+                if (Version > 0)
+                {
+                    writer.Write(LoadAIScript);
+                }
+
                 writer.Write(Team);
 
-                writer.Write((uint) SideRestrictions.Length);
-                foreach (var sideRestriction in SideRestrictions)
+                if (Version > 0)
                 {
-                    writer.WriteUInt16PrefixedAsciiString(sideRestriction);
+                    writer.Write((uint) SideRestrictions.Length);
+                    foreach (var sideRestriction in SideRestrictions)
+                    {
+                        writer.WriteUInt16PrefixedAsciiString(sideRestriction);
+                    }
                 }
             });
         }
