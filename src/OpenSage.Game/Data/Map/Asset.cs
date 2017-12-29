@@ -18,6 +18,8 @@ namespace OpenSage.Data.Map
 
             var result = parseCallback(assetVersion);
 
+            result.StartPosition = startPosition;
+            result.EndPosition = endPosition;
             result.Version = assetVersion;
 
             context.PopAsset();
@@ -41,6 +43,10 @@ namespace OpenSage.Data.Map
                 parseCallback(assetName);
             }
         }
+
+        // For debugging.
+        internal long StartPosition { get; private set; }
+        internal long EndPosition { get; private set; }
 
         public ushort Version { get; private set; }
 
