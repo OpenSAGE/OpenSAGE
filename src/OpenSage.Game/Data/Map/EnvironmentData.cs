@@ -10,6 +10,8 @@ namespace OpenSage.Data.Map
         public float WaterMaxAlphaDepth { get; private set; }
         public float DeepWaterAlpha { get; private set; }
 
+        public byte Unknown { get; private set; }
+
         public string MacroTexture { get; private set; }
         public string CloudTexture { get; private set; }
 
@@ -25,8 +27,8 @@ namespace OpenSage.Data.Map
                     result.DeepWaterAlpha = reader.ReadSingle();
                 }
 
-                var unknown = reader.ReadByte();
-                if (unknown != 0)
+                result.Unknown = reader.ReadByte();
+                if (result.Unknown != 0 && result.Unknown != 1)
                 {
                     throw new InvalidDataException();
                 }
@@ -48,7 +50,7 @@ namespace OpenSage.Data.Map
                     writer.Write(DeepWaterAlpha);
                 }
 
-                writer.Write((byte) 0);
+                writer.Write(Unknown);
 
                 writer.WriteUInt16PrefixedAsciiString(MacroTexture);
                 writer.WriteUInt16PrefixedAsciiString(CloudTexture);
