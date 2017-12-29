@@ -6,11 +6,17 @@ namespace OpenSage.Data.Map
 {
     public sealed class BlendDescription
     {
-        private const uint MagicValue1 = 0xFFFFFFFF;
+        private const uint MagicValue1_1 = 0xFFFFFFFF;
+        private const uint MagicValue1_2 = 24;
+
         private const uint MagicValue2 = 0x7ADA0000;
 
         public uint SecondaryTextureTile { get; private set; }
         public BlendDirection BlendDirection { get; private set; }
+
+        // TODO: Here until I figure out what changed in BlendDirection in v15...
+        public byte[] RawBlendDirection { get; private set; }
+
         public BlendFlags Flags { get; private set; }
 
         /// <summary>
@@ -19,20 +25,24 @@ namespace OpenSage.Data.Map
         /// </summary>
         public bool TwoSided { get; private set; }
 
-        internal static BlendDescription Parse(BinaryReader reader)
+        public uint MagicValue1 { get; private set; }
+
+        internal static BlendDescription Parse(BinaryReader reader, ushort version)
         {
             var secondaryTextureTile = reader.ReadUInt32();
 
-            var blendDirection = ToBlendDirection(reader.ReadBytes(4));
+            var rawBlendDirection = reader.ReadBytes(4);
+            var blendDirection = ToBlendDirection(rawBlendDirection);
 
             var flags = reader.ReadByteAsEnum<BlendFlags>();
 
             var twoSided = reader.ReadBooleanChecked();
 
             var magicValue1 = reader.ReadUInt32();
-            if (magicValue1 != MagicValue1)
+            if (magicValue1 != MagicValue1_1 && magicValue1 != MagicValue1_2)
             {
-                throw new InvalidDataException();
+                // TODO: What is this?
+                //throw new InvalidDataException();
             }
 
             var magicValue2 = reader.ReadUInt32();
@@ -44,9 +54,11 @@ namespace OpenSage.Data.Map
             return new BlendDescription
             {
                 SecondaryTextureTile = secondaryTextureTile,
+                RawBlendDirection = rawBlendDirection,
                 BlendDirection = blendDirection,
                 Flags = flags,
                 TwoSided = twoSided,
+                MagicValue1 = magicValue1
             };
         }
 
@@ -56,11 +68,16 @@ namespace OpenSage.Data.Map
 
             for (int i = 0; i < bytes.Length; i++)
             {
-                result |= bytes[i] << i;
+                if (bytes[i] != 0 && bytes[i] != 1)
+                {
+                    // TODO
+                    //throw new InvalidDataException();
+                }
+                if (bytes[i] != 0)
+                {
+                    result |= bytes[i] << i;
+                }
             }
-
-            bytes.Single(x => x != 0);
-            bytes.All(x => x == 0 || x == 1);
 
             return (BlendDirection) result;
         }
@@ -83,7 +100,7 @@ namespace OpenSage.Data.Map
         {
             writer.Write(SecondaryTextureTile);
 
-            writer.Write(ToBytes(BlendDirection));
+            writer.Write(RawBlendDirection);
 
             writer.Write((byte) Flags);
 

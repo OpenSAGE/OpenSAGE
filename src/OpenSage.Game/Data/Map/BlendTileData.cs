@@ -87,17 +87,10 @@ namespace OpenSage.Data.Map
                 result.ThreeWayBlends = reader.ReadUInt16Array2D(width, height);
                 result.CliffTextures = reader.ReadUInt16Array2D(width, height);
 
-                if (version >= 15)
+                if (version >= 14)
                 {
-                    // Unknown.
+                    // TODO
                     result.Unknown = reader.ReadBytes((int) (width * height * 6));
-                    foreach (var value in result.Unknown)
-                    {
-                        if (value != 0)
-                        {
-                            throw new InvalidDataException();
-                        }
-                    }
                 }
 
                 if (version > 6)
@@ -115,14 +108,26 @@ namespace OpenSage.Data.Map
 
                     // If terrain is passable, there's a 0 in the data file.
                     result.Impassability = reader.ReadSingleBitBooleanArray2D(passabilityWidth, heightMapData.Height);
-                }
 
-                if (version >= 15)
-                {
-                    result.ImpassabilityToPlayers = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
-                    result.PassageWidths = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
-                    result.Taintability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
-                    result.ExtraPassability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                    if (version >= 10)
+                    {
+                        result.ImpassabilityToPlayers = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+
+                        if (version >= 11)
+                        {
+                            result.PassageWidths = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+
+                            if (version >= 14)
+                            {
+                                result.Taintability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+
+                                if (version >= 15)
+                                {
+                                    result.ExtraPassability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                                }
+                            }
+                        }
+                    }
                 }
 
                 result.TextureCellCount = reader.ReadUInt32();
@@ -164,7 +169,7 @@ namespace OpenSage.Data.Map
                 result.BlendDescriptions = new BlendDescription[blendsCount];
                 for (var i = 0; i < blendsCount; i++)
                 {
-                    result.BlendDescriptions[i] = BlendDescription.Parse(reader);
+                    result.BlendDescriptions[i] = BlendDescription.Parse(reader, version);
                 }
 
                 result.CliffTextureMappings = new CliffTextureMapping[cliffBlendsCount];
@@ -230,7 +235,7 @@ namespace OpenSage.Data.Map
                 writer.WriteUInt16Array2D(ThreeWayBlends);
                 writer.WriteUInt16Array2D(CliffTextures);
 
-                if (Version >= 15)
+                if (Version >= 14)
                 {
                     writer.Write(Unknown);
                 }
@@ -238,14 +243,26 @@ namespace OpenSage.Data.Map
                 if (Version > 6)
                 {
                     writer.WriteSingleBitBooleanArray2D(Impassability);
-                }
 
-                if (Version >= 15)
-                {
-                    writer.WriteSingleBitBooleanArray2D(ImpassabilityToPlayers);
-                    writer.WriteSingleBitBooleanArray2D(PassageWidths);
-                    writer.WriteSingleBitBooleanArray2D(Taintability);
-                    writer.WriteSingleBitBooleanArray2D(ExtraPassability);
+                    if (Version >= 10)
+                    {
+                        writer.WriteSingleBitBooleanArray2D(ImpassabilityToPlayers);
+
+                        if (Version >= 11)
+                        {
+                            writer.WriteSingleBitBooleanArray2D(PassageWidths);
+
+                            if (Version >= 14)
+                            {
+                                writer.WriteSingleBitBooleanArray2D(Taintability);
+
+                                if (Version >= 15)
+                                {
+                                    writer.WriteSingleBitBooleanArray2D(ExtraPassability);
+                                }
+                            }
+                        }
+                    }
                 }
 
                 writer.Write(TextureCellCount);
