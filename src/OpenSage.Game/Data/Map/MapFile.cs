@@ -14,18 +14,41 @@ namespace OpenSage.Data.Map
         public HeightMapData HeightMapData { get; private set; }
         public BlendTileData BlendTileData { get; private set; }
         public WorldInfo WorldInfo { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
         public MPPositionList MPPositionList { get; private set; }
+
         public SidesList SidesList { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
         public LibraryMapLists LibraryMapLists { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
         public Teams Teams { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
         public PlayerScriptsList PlayerScriptsList { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
         public BuildLists BuildLists { get; private set; }
+
         public ObjectsList ObjectsList { get; private set; }
         public PolygonTriggers PolygonTriggers { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public TriggerAreas TriggerAreas { get; private set; }
+
         public GlobalLighting GlobalLighting { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
         public EnvironmentData EnvironmentData { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
         public NamedCameras NamedCameras { get; private set; }
+
         public WaypointsList WaypointsList { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
         public SkyboxSettings SkyboxSettings { get; private set; }
 
         public static Stream Decompress(Stream stream)
@@ -156,6 +179,10 @@ namespace OpenSage.Data.Map
 
                     case PolygonTriggers.AssetName:
                         result.PolygonTriggers = PolygonTriggers.Parse(reader, context);
+                        break;
+
+                    case TriggerAreas.AssetName:
+                        result.TriggerAreas = TriggerAreas.Parse(reader, context);
                         break;
 
                     case GlobalLighting.AssetName:

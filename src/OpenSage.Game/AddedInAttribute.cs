@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OpenSage.Data.Ini
+namespace OpenSage
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Enum, AllowMultiple = false)]
     public sealed class AddedInAttribute : Attribute
