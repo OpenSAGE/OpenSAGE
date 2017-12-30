@@ -8,7 +8,6 @@ using OpenSage.Content.Util;
 using OpenSage.Data;
 using OpenSage.Data.Map;
 using OpenSage.Data.Tga;
-using OpenSage.Graphics.Effects;
 using OpenSage.Mathematics;
 using OpenSage.Scripting;
 using OpenSage.Scripting.Actions;
@@ -29,6 +28,8 @@ namespace OpenSage.Content
             var mapFile = MapFile.FromFileSystemEntry(entry);
 
             var result = new Scene();
+
+            result.MapFile = mapFile;
 
             result.Settings.LightingConfigurations = mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary();
             result.Settings.TimeOfDay = mapFile.GlobalLighting.Time;

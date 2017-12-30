@@ -22,6 +22,8 @@ namespace OpenSage
 
         public Dictionary<string, Team> Teams { get; }
 
+        public OpenSage.Data.Map.MapFile MapFile { get; set; }
+
         public Scene()
         {
             Entities = new SceneEntitiesCollection(this);

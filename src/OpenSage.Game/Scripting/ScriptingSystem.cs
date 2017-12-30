@@ -14,6 +14,8 @@ namespace OpenSage.Scripting
         public Dictionary<string, bool> Flags { get; }
         public Dictionary<string, ScriptTimer> Timers { get; }
 
+        public bool Active { get; set; }
+
         public ScriptingSystem(Game game) 
             : base(game)
         {
@@ -28,18 +30,21 @@ namespace OpenSage.Scripting
 
         public override void Update(GameTime gameTime)
         {
-            foreach (var timer in Timers.Values)
+            if (Active)
             {
-                if (gameTime.TotalGameTime >= timer.ExpirationTime)
+                foreach (var timer in Timers.Values)
                 {
-                    timer.Expired = true;
-                    // TODO: Should we remove expired timers on the next frame?
+                    if (gameTime.TotalGameTime >= timer.ExpirationTime)
+                    {
+                        timer.Expired = true;
+                        // TODO: Should we remove expired timers on the next frame?
+                    }
                 }
-            }
 
-            foreach (var scriptComponent in _scripts)
-            {
-                scriptComponent.Execute(_executionContext);
+                foreach (var scriptComponent in _scripts)
+                {
+                    scriptComponent.Execute(_executionContext);
+                }
             }
         }
     }
