@@ -20,7 +20,7 @@ namespace OpenSage.DataViewer.UI.Viewers
                 tgaFile.Header.Height);
 
             Style = "nearest-neighbor";
-
+            new Image()
             Image = new Bitmap(bmpData);
         }
     }

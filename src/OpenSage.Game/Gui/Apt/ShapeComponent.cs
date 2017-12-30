@@ -1,7 +1,10 @@
-﻿namespace OpenSage.Gui.Apt
+﻿using OpenSage.Data.Apt;
+using OpenSage.Graphics;
+
+namespace OpenSage.Gui.Apt
 {
     public sealed class ShapeComponent : EntityComponent
     {
-        public ShapeWindow Window { get; set; }
+        public Geometry Shape { get; set; }
     }
 }

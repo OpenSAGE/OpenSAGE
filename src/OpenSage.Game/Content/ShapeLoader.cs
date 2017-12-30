@@ -5,7 +5,7 @@ using OpenSage.Gui.Apt;
 
 namespace OpenSage.Content
 {
-    internal sealed class ShapeLoader : ContentLoader<ShapeWindow>
+    internal sealed class ShapeLoader : ContentLoader<ShapeComponent>
     {
         public ShapeLoader(ContentManager contentManager)
         {
@@ -29,13 +29,12 @@ namespace OpenSage.Content
             contentManager.IniDataContext.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512\");
         }
 
-        protected override ShapeWindow LoadEntry(FileSystemEntry entry, ContentManager contentManager, LoadOptions loadOptions)
+        protected override ShapeComponent LoadEntry(FileSystemEntry entry, ContentManager contentManager, LoadOptions loadOptions)
         {
             var shape = Geometry.FromFileSystemEntry(entry);
 
-            var window = new ShapeWindow(shape);
 
-            return window;
+            return new ShapeComponent() { Shape = shape };
         }
     }
 }

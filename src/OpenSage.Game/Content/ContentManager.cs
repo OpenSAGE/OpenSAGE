@@ -49,7 +49,7 @@ namespace OpenSage.Content
                 { typeof(Scene), AddDisposable(new MapLoader()) },
                 { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
                 { typeof(Gui.Wnd.GuiWindow), AddDisposable(new WindowLoader(this)) },
-                { typeof(ShapeWindow), AddDisposable(new ShapeLoader(this)) }
+                { typeof(ShapeComponent), AddDisposable(new ShapeLoader(this)) }
             };
 
             _cachedObjects = new Dictionary<string, object>();
