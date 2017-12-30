@@ -1,5 +1,8 @@
 ﻿namespace OpenSage.Data.Map
 {
+    // TODO: BFME re-used existing ScriptConditionType values, so we can't have one enum for all SAGE games.
+    // We can either have separate enums per game, or rely in InternalName, but this wasn't available in some
+    // earlier Generals maps.
     public enum ScriptConditionType : uint
     {
         False = 0,

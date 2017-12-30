@@ -1,5 +1,7 @@
 ﻿namespace OpenSage.Data.Map
 {
+    // TODO: Check if BFME reused existing ScriptArgumentType values. It probably did...
+    // in which case we'll need a ScriptArgumentType per game.
     public enum ScriptArgumentType : uint
     {
         Integer = 0,
