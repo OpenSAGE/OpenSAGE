@@ -26,7 +26,7 @@ namespace OpenSage.Data.Map
 
             if (reader.BaseStream.Position != endPosition)
             {
-                throw new InvalidDataException($"Error while parsing asset '{typeof(T).Name}'. Expected reader to be at position {endPosition}, but was at {reader.BaseStream.Position}.");
+                throw new InvalidDataException($"Error while parsing asset '{typeof(T).Name}', version {assetVersion}. Expected reader to be at position {endPosition}, but was at {reader.BaseStream.Position}.");
             }
 
             return result;

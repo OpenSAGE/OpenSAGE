@@ -99,5 +99,12 @@ namespace OpenSage.Data.Utilities.Extensions
             writer.Write(value.G);
             writer.Write(value.B);
         }
+
+        public static void Write(this BinaryWriter writer, in ColorRgbF value)
+        {
+            writer.Write(value.R);
+            writer.Write(value.G);
+            writer.Write(value.B);
+        }
     }
 }

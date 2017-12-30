@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Map
 {
@@ -20,6 +21,8 @@ namespace OpenSage.Data.Map
         public MapColorArgb ShadowColor { get; private set; }
 
         public byte[] Unknown { get; private set; }
+
+        public ColorRgbF? NoCloudFactor { get; private set; }
 
         internal static GlobalLighting Parse(BinaryReader reader, MapParseContext context)
         {
@@ -43,12 +46,19 @@ namespace OpenSage.Data.Map
                     unknown = reader.ReadBytes(44);
                 }
 
+                ColorRgbF? noCloudFactor = null;
+                if (version >= 8)
+                {
+                    noCloudFactor = reader.ReadColorRgbF();
+                }
+
                 return new GlobalLighting
                 {
                     Time = time,
                     LightingConfigurations = lightingConfigurations,
                     ShadowColor = shadowColor,
-                    Unknown = unknown
+                    Unknown = unknown,
+                    NoCloudFactor = noCloudFactor
                 };
             });
         }
@@ -69,6 +79,11 @@ namespace OpenSage.Data.Map
                 if (Version >= 7)
                 {
                     writer.Write(Unknown);
+                }
+
+                if (Version >= 8)
+                {
+                    writer.Write(NoCloudFactor.Value);
                 }
             });
         }
