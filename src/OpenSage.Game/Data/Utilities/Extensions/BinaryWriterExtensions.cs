@@ -64,7 +64,7 @@ namespace OpenSage.Data.Utilities.Extensions
             {
                 for (var x = 0; x < width; x++)
                 {
-                    writer.Write((byte) (object) values[x, y]);
+                    writer.Write(Convert.ToByte(values[x, y]));
                 }
             }
         }
