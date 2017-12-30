@@ -60,6 +60,9 @@ namespace OpenSage.Data.Map
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public NamedCameras NamedCameras { get; private set; }
 
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public CameraAnimationList CameraAnimationList { get; private set; }
+
         public WaypointsList WaypointsList { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
@@ -227,6 +230,10 @@ namespace OpenSage.Data.Map
                         result.NamedCameras = NamedCameras.Parse(reader, context);
                         break;
 
+                    case CameraAnimationList.AssetName:
+                        result.CameraAnimationList = CameraAnimationList.Parse(reader, context);
+                        break;
+
                     case WaypointsList.AssetName:
                         result.WaypointsList = WaypointsList.Parse(reader, context);
                         break;
@@ -368,6 +375,12 @@ namespace OpenSage.Data.Map
             {
                 writer.Write(assetNames.GetOrCreateAssetIndex(NamedCameras.AssetName));
                 NamedCameras.WriteTo(writer);
+            }
+
+            if (CameraAnimationList != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(CameraAnimationList.AssetName));
+                CameraAnimationList.WriteTo(writer);
             }
 
             writer.Write(assetNames.GetOrCreateAssetIndex(WaypointsList.AssetName));
