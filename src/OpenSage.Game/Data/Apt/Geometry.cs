@@ -22,18 +22,21 @@ namespace OpenSage.Data.Apt
     public interface GeometryEntry
     {
         GeometryStyle Type { get; }
+
     }
 
-    
+
     public sealed class Geometry
     {
         public List<GeometryEntry> Entries { get; private set; }
+        public RectangleF BoundingBox { get; private set; }
+
 
         public Geometry()
         {
             Entries = new List<GeometryEntry>();
         }
-    
+
         public static Geometry FromFileSystemEntry(FileSystemEntry entry)
         {
             var geometry = new Geometry();
@@ -171,7 +174,75 @@ namespace OpenSage.Data.Apt
                 ApplyStyle();
             }
 
+            geometry.CalculateBoundings();
             return geometry;
+        }
+
+        private void CalculateBoundings()
+        {
+            //find topleft and botright point
+            var topLeft = new Vector2 { X = float.MaxValue, Y = float.MaxValue };
+            var botRight = new Vector2 { X = float.MinValue, Y = float.MinValue };
+
+            foreach (var entry in Entries)
+            {
+                if (entry is GeometryLines gl)
+                {
+                    foreach (var line in gl.Lines)
+                    {
+                        if (line.V0.X < topLeft.X) topLeft.X = line.V0.X;
+                        if (line.V1.X < topLeft.X) topLeft.X = line.V1.X;
+                        if (line.V0.Y < topLeft.Y) topLeft.Y = line.V0.Y;
+                        if (line.V1.Y < topLeft.Y) topLeft.Y = line.V1.Y;
+
+                        if (line.V0.X > botRight.X) botRight.X = line.V0.X;
+                        if (line.V1.X > botRight.X) botRight.X = line.V1.X;
+                        if (line.V0.Y > botRight.Y) botRight.Y = line.V0.Y;
+                        if (line.V1.Y > botRight.Y) botRight.Y = line.V1.Y;
+                    }
+                }
+                else if (entry is GeometrySolidTriangles gst)
+                {
+                    foreach (var tri in gst.Triangles)
+                    {
+                        if (tri.V0.X < topLeft.X) topLeft.X = tri.V0.X;
+                        if (tri.V1.X < topLeft.X) topLeft.X = tri.V1.X;
+                        if (tri.V2.X < topLeft.X) topLeft.X = tri.V2.X;
+                        if (tri.V0.Y < topLeft.Y) topLeft.Y = tri.V0.Y;
+                        if (tri.V1.Y < topLeft.Y) topLeft.Y = tri.V1.Y;
+                        if (tri.V2.Y < topLeft.Y) topLeft.Y = tri.V2.Y;
+
+                        if (tri.V0.X > botRight.X) botRight.X = tri.V0.X;
+                        if (tri.V1.X > botRight.X) botRight.X = tri.V1.X;
+                        if (tri.V2.X > botRight.X) botRight.X = tri.V2.X;
+                        if (tri.V0.Y > botRight.Y) botRight.Y = tri.V0.Y;
+                        if (tri.V1.Y > botRight.Y) botRight.Y = tri.V1.Y;
+                        if (tri.V2.Y > botRight.Y) botRight.Y = tri.V2.Y;
+                    }
+                }
+                else if (entry is GeometryTexturedTriangles gtt)
+                {
+                    foreach (var tri in gtt.Triangles)
+                    {
+                        if (tri.V0.X < topLeft.X) topLeft.X = tri.V0.X;
+                        if (tri.V1.X < topLeft.X) topLeft.X = tri.V1.X;
+                        if (tri.V2.X < topLeft.X) topLeft.X = tri.V2.X;
+                        if (tri.V0.Y < topLeft.Y) topLeft.Y = tri.V0.Y;
+                        if (tri.V1.Y < topLeft.Y) topLeft.Y = tri.V1.Y;
+                        if (tri.V2.Y < topLeft.Y) topLeft.Y = tri.V2.Y;
+
+                        if (tri.V0.X > botRight.X) botRight.X = tri.V0.X;
+                        if (tri.V1.X > botRight.X) botRight.X = tri.V1.X;
+                        if (tri.V2.X > botRight.X) botRight.X = tri.V2.X;
+                        if (tri.V0.Y > botRight.Y) botRight.Y = tri.V0.Y;
+                        if (tri.V1.Y > botRight.Y) botRight.Y = tri.V1.Y;
+                        if (tri.V2.Y > botRight.Y) botRight.Y = tri.V2.Y;
+                    }
+                }
+            }
+
+            var size = botRight - topLeft;
+            BoundingBox = new RectangleF(topLeft.X, topLeft.Y, size.X, size.Y);
         }
     }
 

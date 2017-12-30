@@ -25,7 +25,6 @@ namespace OpenSage.Gui.Apt
         public Buffer<SpriteVertex> VertexBuffer => _vertexBuffer;
         public SpriteMaterial Material { get; private set; }
 
-
         public void Initialize(ContentManager contentManager)
         {
             Material = new SpriteMaterial(contentManager.EffectLibrary.Sprite);
@@ -37,19 +36,19 @@ namespace OpenSage.Gui.Apt
             Material.SetMaterialConstants(_materialConstantsBuffer.Buffer);
         }
 
-        private static Rectangle CalculateFrame(in WndScreenRect wndScreenRect, in Size viewportSize, out float scale)
+        private static Rectangle CalculateFrame(in RectangleF shapeBounding, in Size viewportSize, out float scale)
         {
             // Figure out the ratio.
-            var ratioX = viewportSize.Width / (float) wndScreenRect.CreationResolution.Width;
-            var ratioY = viewportSize.Height / (float) wndScreenRect.CreationResolution.Height;
+            var ratioX = viewportSize.Width / (float) shapeBounding.Width;
+            var ratioY = viewportSize.Height / (float) shapeBounding.Height;
 
             // Use whichever multiplier is smaller.
             var ratio = ratioX < ratioY ? ratioX : ratioY;
 
             scale = ratio;
 
-            var originalWidth = wndScreenRect.BottomRight.X - wndScreenRect.UpperLeft.X;
-            var originalHeight = wndScreenRect.BottomRight.Y - wndScreenRect.UpperLeft.Y;
+            var originalWidth = shapeBounding.Width;
+            var originalHeight = shapeBounding.Height;
 
             // Now we can get the new height and width
             var newWidth = (int) Math.Round(originalWidth * ratio);
@@ -58,13 +57,13 @@ namespace OpenSage.Gui.Apt
             newWidth = Math.Max(newWidth, 1);
             newHeight = Math.Max(newHeight, 1);
 
-            var newX = (int) Math.Round(wndScreenRect.UpperLeft.X * ratio);
-            var newY = (int) Math.Round(wndScreenRect.UpperLeft.Y * ratio);
+            var newX = (int) Math.Round(shapeBounding.X * ratio);
+            var newY = (int) Math.Round(shapeBounding.Y * ratio);
 
             // Now calculate the X,Y position of the upper-left corner 
             // (one of these will always be zero for the top level window)
-            var posX = (int) Math.Round((viewportSize.Width - (wndScreenRect.CreationResolution.Width * ratio)) / 2) + newX;
-            var posY = (int) Math.Round((viewportSize.Height - (wndScreenRect.CreationResolution.Height * ratio)) / 2) + newY;
+            var posX = (int) Math.Round((viewportSize.Width - (shapeBounding.Width * ratio)) / 2) + newX;
+            var posY = (int) Math.Round((viewportSize.Height - (shapeBounding.Height * ratio)) / 2) + newY;
 
             return new Rectangle(posX, posY, newWidth, newHeight);
         }
@@ -72,13 +71,8 @@ namespace OpenSage.Gui.Apt
         public void Layout(GraphicsDevice gd, in Size windowSize)
         {
             float _scale = 0.0f;
-            var rect = new WndScreenRect
-            {
-                BottomRight = new WndPoint() { X = 1024, Y = 768 },
-                UpperLeft = new WndPoint() { X = 0, Y = 0 }
-            };
-            var Frame = CalculateFrame(rect, windowSize, out _scale);
 
+            var Frame = CalculateFrame(Shape.BoundingBox, windowSize, out _scale);
 
             _texture = Texture.CreateTexture2D(
                 gd,
@@ -135,13 +129,27 @@ namespace OpenSage.Gui.Apt
                         foreach(var line in l.Lines)
                         {
                             RawLineF rl;
-                            rl.X1 = line.V0.X;
-                            rl.Y1 = line.V0.Y;
-                            rl.X2 = line.V1.X;
-                            rl.Y2 = line.V1.Y;
+                            rl.X1 = line.V0.X + Shape.BoundingBox.Width;
+                            rl.Y1 = line.V0.Y + Shape.BoundingBox.Height;
+                            rl.X2 = line.V1.X + Shape.BoundingBox.Width;
+                            rl.Y2 = line.V1.Y + Shape.BoundingBox.Height;
                             rl.Thickness = l.Thickness;
                             drawingContext.DrawLine(rl, ToFloatColor(l.Color));
                         }                     
+                    }
+                    else if(e is GeometrySolidTriangles t)
+                    {
+                        foreach(var tri in t.Triangles)
+                        {
+                            RawTriangleF rt;
+                            rt.X1 = tri.V0.X + Shape.BoundingBox.Width;
+                            rt.Y1 = tri.V0.Y + Shape.BoundingBox.Height;
+                            rt.X2 = tri.V1.X + Shape.BoundingBox.Width;
+                            rt.Y2 = tri.V1.Y + Shape.BoundingBox.Height;
+                            rt.X3 = tri.V2.X + Shape.BoundingBox.Width;
+                            rt.Y3 = tri.V2.Y + Shape.BoundingBox.Height;
+                            drawingContext.FillTriangle(rt, ToFloatColor(t.Color));
+                        }
                     }
                 }
 

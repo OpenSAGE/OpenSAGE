@@ -96,6 +96,21 @@ namespace OpenSage.LowLevel.Graphics2D
             }
         }
 
+        private void PlatformFillTriangle(in RawTriangleF tri, in ColorRgbaF fillColor)
+        {
+            using (var brush = CreateBrush(fillColor))
+            {
+                var geometry = new PathGeometry(_graphicsDevice.DeviceContext.Factory);
+                var sink = geometry.Open();
+                sink.BeginFigure(ToRawVector2(tri.X1, tri.Y1),FigureBegin.Filled);
+                sink.AddLine(ToRawVector2(tri.X2, tri.Y2));
+                sink.AddLine(ToRawVector2(tri.X3, tri.Y3));
+                sink.EndFigure(FigureEnd.Closed);
+                sink.Close();
+                _graphicsDevice.DeviceContext.FillGeometry(geometry, brush);
+            }
+        }
+
         private SolidColorBrush CreateBrush(in ColorRgbaF color)
         {
             return new SolidColorBrush(_graphicsDevice.DeviceContext, color.ToRawColor4());

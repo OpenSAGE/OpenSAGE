@@ -36,6 +36,11 @@ namespace OpenSage.LowLevel.Graphics2D
 
         }
 
+        private void PlatformFillTriangle(in RawTriangleF tri, in ColorRgbaF fillColor)
+        {
+
+        }
+
         private void PlatformFillRectangle(in RawRectangleF rect, in ColorRgbaF fillColor)
         {
 
