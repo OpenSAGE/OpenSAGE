@@ -46,6 +46,9 @@ namespace OpenSage.Data.Map
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public RiverAreas RiverAreas { get; private set; }
 
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public StandingWaveAreas StandingWaveAreas { get; private set; }
+
         public GlobalLighting GlobalLighting { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
@@ -201,6 +204,10 @@ namespace OpenSage.Data.Map
                         result.RiverAreas = RiverAreas.Parse(reader, context);
                         break;
 
+                    case StandingWaveAreas.AssetName:
+                        result.StandingWaveAreas = StandingWaveAreas.Parse(reader, context);
+                        break;
+
                     case GlobalLighting.AssetName:
                         result.GlobalLighting = GlobalLighting.Parse(reader, context);
                         break;
@@ -327,6 +334,12 @@ namespace OpenSage.Data.Map
             {
                 writer.Write(assetNames.GetOrCreateAssetIndex(RiverAreas.AssetName));
                 RiverAreas.WriteTo(writer);
+            }
+
+            if (StandingWaveAreas != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(StandingWaveAreas.AssetName));
+                StandingWaveAreas.WriteTo(writer);
             }
 
             writer.Write(assetNames.GetOrCreateAssetIndex(GlobalLighting.AssetName));
