@@ -170,6 +170,9 @@ namespace OpenSage
 
                 if (oldScene != null)
                 {
+                    foreach (var system in GameSystems)
+                        system.OnSceneChange();
+
                     RemoveComponentsRecursive(oldScene.Entities);
                     oldScene.Game = null;
                 }
