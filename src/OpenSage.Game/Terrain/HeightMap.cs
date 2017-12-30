@@ -8,15 +8,14 @@ namespace OpenSage.Terrain
     {
         private const int HorizontalScale = 10;
 
-        // Gathered from heights in World Builder's status bar compared to heightmap data.
-        private const float VerticalScale = 0.625f;
+        private readonly float _verticalScale;
 
         private readonly HeightMapData _heightMapData;
 
         public int Width { get; }
         public int Height { get; }
 
-        public float GetHeight(int x, int y) => _heightMapData.Elevations[x, y] * VerticalScale;
+        public float GetHeight(int x, int y) => _heightMapData.Elevations[x, y] * _verticalScale;
 
         public float GetHeight(float x, float y)
         {
@@ -73,6 +72,13 @@ namespace OpenSage.Terrain
         public HeightMap(HeightMapData heightMapData)
         {
             _heightMapData = heightMapData;
+
+            // Gathered from heights in World Builder's status bar compared to heightmap data.
+            // In Generals, heights are stored as uint8, and scaled by 0.625
+            // In BFME, heights are stored in uint16, and scale by 0.00625
+            _verticalScale = heightMapData.ElevationsAre16Bit
+                ? 0.00625f
+                : 0.625f;
 
             Width = (int) heightMapData.Width;
             Height = (int) heightMapData.Height;

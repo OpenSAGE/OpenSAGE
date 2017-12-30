@@ -7,6 +7,8 @@ namespace OpenSage.Data.Map
     {
         public const string AssetName = "HeightMapData";
 
+        public bool ElevationsAre16Bit => Version >= 5;
+
         public uint Width { get; private set; }
         public uint Height { get; private set; }
         public uint BorderWidth { get; private set; }
