@@ -33,10 +33,15 @@ namespace OpenSage.Data.Map
         public BuildLists BuildLists { get; private set; }
 
         public ObjectsList ObjectsList { get; private set; }
+
+        // Either PolygonTriggers (Generals, ZH, BFME I) or TriggerAreas + StandingWaterAreas + RiverAreas + StandingWaveAreas (BFME II and later)
         public PolygonTriggers PolygonTriggers { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public TriggerAreas TriggerAreas { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public StandingWaterAreas StandingWaterAreas { get; private set; }
 
         public GlobalLighting GlobalLighting { get; private set; }
 
@@ -185,6 +190,10 @@ namespace OpenSage.Data.Map
                         result.TriggerAreas = TriggerAreas.Parse(reader, context);
                         break;
 
+                    case StandingWaterAreas.AssetName:
+                        result.StandingWaterAreas = StandingWaterAreas.Parse(reader, context);
+                        break;
+
                     case GlobalLighting.AssetName:
                         result.GlobalLighting = GlobalLighting.Parse(reader, context);
                         break;
@@ -289,8 +298,23 @@ namespace OpenSage.Data.Map
             writer.Write(assetNames.GetOrCreateAssetIndex(ObjectsList.AssetName));
             ObjectsList.WriteTo(writer, assetNames);
 
-            writer.Write(assetNames.GetOrCreateAssetIndex(PolygonTriggers.AssetName));
-            PolygonTriggers.WriteTo(writer);
+            if (PolygonTriggers != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(PolygonTriggers.AssetName));
+                PolygonTriggers.WriteTo(writer);
+            }
+
+            if (TriggerAreas != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(TriggerAreas.AssetName));
+                TriggerAreas.WriteTo(writer);
+            }
+
+            if (StandingWaterAreas != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(StandingWaterAreas.AssetName));
+                StandingWaterAreas.WriteTo(writer);
+            }
 
             writer.Write(assetNames.GetOrCreateAssetIndex(GlobalLighting.AssetName));
             GlobalLighting.WriteTo(writer);
