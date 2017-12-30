@@ -51,6 +51,9 @@ namespace OpenSage.Data.Map
 
         public GlobalLighting GlobalLighting { get; private set; }
 
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public PostEffectsChunk PostEffectsChunk { get; private set; }
+
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public EnvironmentData EnvironmentData { get; private set; }
 
@@ -212,6 +215,10 @@ namespace OpenSage.Data.Map
                         result.GlobalLighting = GlobalLighting.Parse(reader, context);
                         break;
 
+                    case PostEffectsChunk.AssetName:
+                        result.PostEffectsChunk = PostEffectsChunk.Parse(reader, context);
+                        break;
+
                     case EnvironmentData.AssetName:
                         result.EnvironmentData = EnvironmentData.Parse(reader, context);
                         break;
@@ -344,6 +351,12 @@ namespace OpenSage.Data.Map
 
             writer.Write(assetNames.GetOrCreateAssetIndex(GlobalLighting.AssetName));
             GlobalLighting.WriteTo(writer);
+
+            if (PostEffectsChunk != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(PostEffectsChunk.AssetName));
+                PostEffectsChunk.WriteTo(writer);
+            }
 
             if (EnvironmentData != null)
             {
