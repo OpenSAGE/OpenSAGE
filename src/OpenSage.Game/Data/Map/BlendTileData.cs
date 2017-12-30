@@ -18,10 +18,24 @@ namespace OpenSage.Data.Map
         public byte[] Unknown { get; private set; }
 
         public bool[,] Impassability { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
         public bool[,] ImpassabilityToPlayers { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
         public bool[,] PassageWidths { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
         public bool[,] Taintability { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
         public bool[,] ExtraPassability { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public TileFlammability[,] Flammability { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        public bool[,] Visibility { get; private set; }
 
         public uint TextureCellCount { get; private set; }
 
@@ -124,6 +138,12 @@ namespace OpenSage.Data.Map
                                 if (version >= 15)
                                 {
                                     result.ExtraPassability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+
+                                    if (version >= 18)
+                                    {
+                                        result.Flammability = reader.ReadByteArray2DAsEnum<TileFlammability>(heightMapData.Width, heightMapData.Height);
+                                        result.Visibility = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                                    }
                                 }
                             }
                         }
@@ -259,6 +279,12 @@ namespace OpenSage.Data.Map
                                 if (Version >= 15)
                                 {
                                     writer.WriteSingleBitBooleanArray2D(ExtraPassability);
+
+                                    if (Version >= 18)
+                                    {
+                                        writer.WriteByteArray2DAsEnum(Flammability);
+                                        writer.WriteSingleBitBooleanArray2D(Visibility);
+                                    }
                                 }
                             }
                         }
@@ -292,5 +318,14 @@ namespace OpenSage.Data.Map
                 }
             });
         }
+    }
+
+    [AddedIn(SageGame.BattleForMiddleEarthII)]
+    public enum TileFlammability
+    {
+        FireResistant = 0,
+        Grass = 1,
+        HighlyFlammable = 2,
+        Undefined = 3
     }
 }

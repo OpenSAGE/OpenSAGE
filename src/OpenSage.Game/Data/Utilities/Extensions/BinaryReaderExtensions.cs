@@ -122,6 +122,22 @@ namespace OpenSage.Data.Utilities.Extensions
             return result;
         }
 
+        public static TEnum[,] ReadByteArray2DAsEnum<TEnum>(this BinaryReader reader, uint width, uint height)
+            where TEnum : struct
+        {
+            var result = new TEnum[width, height];
+
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    result[x, y] = reader.ReadByteAsEnum<TEnum>();
+                }
+            }
+
+            return result;
+        }
+
         public static bool[,] ReadSingleBitBooleanArray2D(this BinaryReader reader, uint width, uint height)
         {
             var result = new bool[width, height];

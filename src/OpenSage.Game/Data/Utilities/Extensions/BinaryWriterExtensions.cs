@@ -54,6 +54,21 @@ namespace OpenSage.Data.Utilities.Extensions
             }
         }
 
+        public static void WriteByteArray2DAsEnum<TEnum>(this BinaryWriter writer, TEnum[,] values)
+            where TEnum : struct
+        {
+            var width = values.GetLength(0);
+            var height = values.GetLength(1);
+
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    writer.Write((byte) (object) values[x, y]);
+                }
+            }
+        }
+
         public static void WriteSingleBitBooleanArray2D(this BinaryWriter writer, bool[,] values)
         {
             var width = values.GetLength(0);

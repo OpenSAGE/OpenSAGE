@@ -368,6 +368,17 @@ namespace OpenSage.Data.Tests.Map
             Assert.Equal(false, mapFile.BlendTileData.ExtraPassability[1, 1]);
         }
 
+        [Fact]
+        public void BlendTileData_Flammability()
+        {
+            var mapFile = GetMapFile();
+
+            Assert.Equal(TileFlammability.FireResistant, mapFile.BlendTileData.Flammability[0, 0]);
+            Assert.Equal(TileFlammability.HighlyFlammable, mapFile.BlendTileData.Flammability[0, 1]);
+            Assert.Equal(TileFlammability.Grass, mapFile.BlendTileData.Flammability[1, 0]);
+            Assert.Equal(TileFlammability.Undefined, mapFile.BlendTileData.Flammability[1, 1]);
+        }
+
         private static MapFile GetMapFile([CallerMemberName] string testName = null)
         {
             var fileName = Path.Combine("Map", "Assets", testName + ".map");
