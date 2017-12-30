@@ -8,8 +8,7 @@ namespace OpenSage.Data.Map
         where TContentType : struct
     {
         public TContentType ContentType { get; private set; }
-        public byte MagicValue { get; private set; }
-        public string InternalName { get; private set; }
+        public AssetPropertyKey InternalName { get; private set; }
 
         public ScriptArgument[] Arguments { get; private set; }
 
@@ -19,18 +18,10 @@ namespace OpenSage.Data.Map
             {
                 var contentType = reader.ReadUInt32AsEnum<TContentType>();
 
-                byte magicValue = 0;
-                string internalName = null;
+                AssetPropertyKey internalName = null;
                 if (version >= minimumVersionThatHasInternalName)
                 {
-                    magicValue = reader.ReadByte();
-                    if (magicValue != 3)
-                    {
-                        throw new InvalidDataException();
-                    }
-
-                    var internalNameIndex = reader.ReadUInt24();
-                    internalName = context.GetAssetName(internalNameIndex);
+                    internalName = AssetPropertyKey.Parse(reader, context);
                 }
 
                 var numArguments = reader.ReadUInt32();
@@ -44,7 +35,6 @@ namespace OpenSage.Data.Map
                 return new TDerived
                 {
                     ContentType = contentType,
-                    MagicValue = magicValue,
                     InternalName = internalName,
                     Arguments = arguments
                 };
@@ -59,9 +49,7 @@ namespace OpenSage.Data.Map
 
                 if (Version >= minimumVersionThatHasInternalName)
                 {
-                    writer.Write(MagicValue);
-
-                    writer.WriteUInt24(assetNames.GetOrCreateAssetIndex(InternalName));
+                    InternalName.WriteTo(writer, assetNames);
                 }
 
                 writer.Write((uint) Arguments.Length);
