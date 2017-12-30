@@ -6,7 +6,7 @@ using OpenSage.Gui.Apt;
 
 namespace OpenSage.DataViewer.UI.Viewers
 {
-    public sealed class RuView : Splitter
+    public sealed class RuView : GameControl
     {
         public RuView(FileSystemEntry entry, Game game)
         {
@@ -18,6 +18,7 @@ namespace OpenSage.DataViewer.UI.Viewers
             scene.Entities.Add(entity);
 
             game.Scene = scene;
+            Game = game;
         }
 
        

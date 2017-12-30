@@ -49,6 +49,11 @@ namespace OpenSage
         public AptSystem Apt { get; }
 
         /// <summary>
+        /// Gets the GUI system.
+        /// </summary>
+        public ShapeSystem Shape { get; }
+
+        /// <summary>
         /// Gets the input system.
         /// </summary>
         public InputSystem Input { get; }
@@ -127,6 +132,8 @@ namespace OpenSage
             Wnd = AddDisposable(new WndSystem(this));
 
             Apt = AddDisposable(new AptSystem(this));
+
+            Shape = AddDisposable(new ShapeSystem(this));
 
             Graphics = AddDisposable(new GraphicsSystem(this));
 

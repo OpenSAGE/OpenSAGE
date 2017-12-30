@@ -33,8 +33,10 @@ namespace OpenSage.Content
         {
             var shape = Geometry.FromFileSystemEntry(entry);
 
+            var component = new ShapeComponent() { Shape = shape };
+            component.Initialize(contentManager);
 
-            return new ShapeComponent() { Shape = shape };
+            return component;
         }
     }
 }
