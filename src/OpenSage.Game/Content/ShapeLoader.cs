@@ -31,6 +31,11 @@ namespace OpenSage.Content
 
         protected override ShapeComponent LoadEntry(FileSystemEntry entry, ContentManager contentManager, LoadOptions loadOptions)
         {
+            //load the corresponding .dat file
+            var datPath = entry.FilePath.Split('/')[0].Split('_')[0]+".dat";
+            var datEntry = contentManager.FileSystem.GetFile(datPath);
+            var imageMap = ImageMap.FromFileSystemEntry(datEntry);
+
             var shape = Geometry.FromFileSystemEntry(entry);
 
             var component = new ShapeComponent() { Shape = shape };

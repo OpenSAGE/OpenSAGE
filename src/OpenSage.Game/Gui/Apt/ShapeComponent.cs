@@ -62,8 +62,8 @@ namespace OpenSage.Gui.Apt
 
             // Now calculate the X,Y position of the upper-left corner 
             // (one of these will always be zero for the top level window)
-            var posX = (int) Math.Round((viewportSize.Width - (shapeBounding.Width * ratio)) / 2) + newX;
-            var posY = (int) Math.Round((viewportSize.Height - (shapeBounding.Height * ratio)) / 2) + newY;
+            var posX = (int) Math.Round((viewportSize.Width - (shapeBounding.Width * ratio)) / 2);
+            var posY = (int) Math.Round((viewportSize.Height - (shapeBounding.Height * ratio)) / 2);
 
             return new Rectangle(posX, posY, newWidth, newHeight);
         }
@@ -137,9 +137,9 @@ namespace OpenSage.Gui.Apt
                             drawingContext.DrawLine(rl, ToFloatColor(l.Color));
                         }                     
                     }
-                    else if(e is GeometrySolidTriangles t)
+                    else if(e is GeometrySolidTriangles st)
                     {
-                        foreach(var tri in t.Triangles)
+                        foreach(var tri in st.Triangles)
                         {
                             RawTriangleF rt;
                             rt.X1 = tri.V0.X + Shape.BoundingBox.Width;
@@ -148,7 +148,21 @@ namespace OpenSage.Gui.Apt
                             rt.Y2 = tri.V1.Y + Shape.BoundingBox.Height;
                             rt.X3 = tri.V2.X + Shape.BoundingBox.Width;
                             rt.Y3 = tri.V2.Y + Shape.BoundingBox.Height;
-                            drawingContext.FillTriangle(rt, ToFloatColor(t.Color));
+                            drawingContext.FillTriangle(rt, ToFloatColor(st.Color));
+                        }
+                    }
+                    else if (e is GeometryTexturedTriangles tt)
+                    {
+                        foreach (var tri in tt.Triangles)
+                        {
+                            RawTriangleF rt;
+                            rt.X1 = tri.V0.X + Shape.BoundingBox.Width;
+                            rt.Y1 = tri.V0.Y + Shape.BoundingBox.Height;
+                            rt.X2 = tri.V1.X + Shape.BoundingBox.Width;
+                            rt.Y2 = tri.V1.Y + Shape.BoundingBox.Height;
+                            rt.X3 = tri.V2.X + Shape.BoundingBox.Width;
+                            rt.Y3 = tri.V2.Y + Shape.BoundingBox.Height;
+                            drawingContext.FillTriangle(rt, ToFloatColor(tt.Color));
                         }
                     }
                 }

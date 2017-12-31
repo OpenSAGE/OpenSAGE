@@ -25,7 +25,6 @@ namespace OpenSage.Data.Apt
 
     }
 
-
     public sealed class Geometry
     {
         public List<GeometryEntry> Entries { get; private set; }

@@ -2,6 +2,7 @@
 using OpenSage.LowLevel.Graphics3D.Util;
 using SharpDX.Direct2D1;
 using SharpDX.DXGI;
+using SharpDX.Mathematics.Interop;
 
 namespace OpenSage.LowLevel.Graphics2D
 {
@@ -113,7 +114,24 @@ namespace OpenSage.LowLevel.Graphics2D
 
         private SolidColorBrush CreateBrush(in ColorRgbaF color)
         {
+            
             return new SolidColorBrush(_graphicsDevice.DeviceContext, color.ToRawColor4());
+        }
+
+        private ImageBrush CreateImageBrush(in Image img,RawMatrix3x2 transform)
+        {
+            var prop = new ImageBrushProperties()
+            {
+                ExtendModeX = ExtendMode.Clamp,
+                ExtendModeY = ExtendMode.Clamp,
+                InterpolationMode = InterpolationMode.NearestNeighbor
+            };
+
+            var brush = new ImageBrush(_graphicsDevice.DeviceContext, img, prop);
+
+            brush.Transform = transform;
+
+            return brush;
         }
 
         private static SharpDX.Mathematics.Interop.RawRectangleF ToRawRectangleF(in RawRectangleF value)
