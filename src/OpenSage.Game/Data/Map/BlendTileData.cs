@@ -139,10 +139,14 @@ namespace OpenSage.Data.Map
                                 {
                                     result.ExtraPassability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
 
-                                    if (version >= 18)
+                                    if (version >= 16)
                                     {
                                         result.Flammability = reader.ReadByteArray2DAsEnum<TileFlammability>(heightMapData.Width, heightMapData.Height);
-                                        result.Visibility = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+
+                                        if (version >= 18)
+                                        {
+                                            result.Visibility = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                                        }
                                     }
                                 }
                             }
@@ -280,10 +284,14 @@ namespace OpenSage.Data.Map
                                 {
                                     writer.WriteSingleBitBooleanArray2D(ExtraPassability);
 
-                                    if (Version >= 18)
+                                    if (Version >= 16)
                                     {
                                         writer.WriteByteArray2DAsEnum(Flammability);
-                                        writer.WriteSingleBitBooleanArray2D(Visibility, padValue: 0xFF);
+
+                                        if (Version >= 18)
+                                        {
+                                            writer.WriteSingleBitBooleanArray2D(Visibility, padValue: 0xFF);
+                                        }
                                     }
                                 }
                             }
