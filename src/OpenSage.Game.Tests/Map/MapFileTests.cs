@@ -384,6 +384,8 @@ namespace OpenSage.Data.Tests.Map
         {
             var mapFile = GetMapFile();
 
+            Assert.Equal(2, mapFile.StandingWaterAreas.Areas.Length);
+
             var standingWaterArea0 = mapFile.StandingWaterAreas.Areas[0];
 
             Assert.Equal(1u, standingWaterArea0.UniqueID);
@@ -411,6 +413,52 @@ namespace OpenSage.Data.Tests.Map
             Assert.Equal(0u, standingWaterArea1.WaterHeight);
             Assert.Equal("WaterCaribbean.w3d", standingWaterArea1.FxShader);
             Assert.Equal("LUTDepthTint.tga", standingWaterArea1.DepthColors);
+        }
+
+        [Fact]
+        public void BlendTileData_RiverAreas()
+        {
+            var mapFile = GetMapFile();
+
+            Assert.Equal(2, mapFile.RiverAreas.Areas.Length);
+
+            var riverArea0 = mapFile.RiverAreas.Areas[0];
+
+            Assert.Equal(6u, riverArea0.UniqueID);
+            Assert.Equal("Amazon River", riverArea0.Name);
+            Assert.Equal(string.Empty, riverArea0.LayerName);
+            Assert.Equal(0.07f, riverArea0.UvScrollSpeed, 2);
+            Assert.Equal(true, riverArea0.UseAdditiveBlending);
+            Assert.Equal("TSWater.tga", riverArea0.RiverTexture);
+            Assert.Equal("Noise0001.tga", riverArea0.NoiseTexture);
+            Assert.Equal("TLava_Mor02.tga", riverArea0.AlphaEdgeTexture);
+            Assert.Equal("WaterSurfaceBubbles01.tga", riverArea0.SparkleTexture);
+            Assert.Equal(128, riverArea0.Color.R);
+            Assert.Equal(128, riverArea0.Color.G);
+            Assert.Equal(64, riverArea0.Color.B);
+            Assert.Equal(0.8f, riverArea0.Alpha, 2);
+            Assert.Equal(5u, riverArea0.WaterHeight);
+            Assert.Equal("Medium", riverArea0.MinimumWaterLod);
+            Assert.Equal(4, riverArea0.Lines.Length);
+
+            var riverArea1 = mapFile.RiverAreas.Areas[1];
+
+            Assert.Equal(7u, riverArea1.UniqueID);
+            Assert.Equal("Hudson River", riverArea1.Name);
+            Assert.Equal(string.Empty, riverArea1.LayerName);
+            Assert.Equal(0.06f, riverArea1.UvScrollSpeed, 2);
+            Assert.Equal(false, riverArea1.UseAdditiveBlending);
+            Assert.Equal("TWWater01.tga", riverArea1.RiverTexture);
+            Assert.Equal("Noise0000.tga", riverArea1.NoiseTexture);
+            Assert.Equal("TWAlphaEdge.tga", riverArea1.AlphaEdgeTexture);
+            Assert.Equal("WaterSurfaceBubbles.tga", riverArea1.SparkleTexture);
+            Assert.Equal(255, riverArea1.Color.R);
+            Assert.Equal(255, riverArea1.Color.G);
+            Assert.Equal(255, riverArea1.Color.B);
+            Assert.Equal(1.0f, riverArea1.Alpha, 2);
+            Assert.Equal(0u, riverArea1.WaterHeight);
+            Assert.Equal(string.Empty, riverArea1.MinimumWaterLod);
+            Assert.Equal(2, riverArea1.Lines.Length);
         }
 
         private static MapFile GetMapFile([CallerMemberName] string testName = null)

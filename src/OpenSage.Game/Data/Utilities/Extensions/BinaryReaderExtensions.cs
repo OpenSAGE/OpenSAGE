@@ -6,6 +6,7 @@ using System.Text;
 using OpenSage.Mathematics;
 using System.Linq;
 using System.Collections.Generic;
+using OpenSage.Data.Map;
 
 namespace OpenSage.Data.Utilities.Extensions
 {
@@ -229,6 +230,13 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadSingle(),
                 reader.ReadSingle(),
                 reader.ReadSingle());
+        }
+
+        public static MapLine2D ReadLine2D(this BinaryReader reader)
+        {
+            return new MapLine2D(
+                reader.ReadVector2(),
+                reader.ReadVector2());
         }
 
         public static IndexedTriangle ReadIndexedTri(this BinaryReader reader)

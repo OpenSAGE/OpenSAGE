@@ -2,6 +2,7 @@
 using System.IO;
 using System.Numerics;
 using System.Text;
+using OpenSage.Data.Map;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Utilities.Extensions
@@ -106,6 +107,12 @@ namespace OpenSage.Data.Utilities.Extensions
             writer.Write(value.X);
             writer.Write(value.Y);
             writer.Write(value.Z);
+        }
+
+        public static void Write(this BinaryWriter writer, in MapLine2D value)
+        {
+            writer.Write(value.V0);
+            writer.Write(value.V1);
         }
 
         public static void Write(this BinaryWriter writer, in ColorRgb value)
