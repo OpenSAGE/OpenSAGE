@@ -379,6 +379,40 @@ namespace OpenSage.Data.Tests.Map
             Assert.Equal(TileFlammability.Undefined, mapFile.BlendTileData.Flammability[1, 1]);
         }
 
+        [Fact]
+        public void BlendTileData_StandingWaterAreas()
+        {
+            var mapFile = GetMapFile();
+
+            var standingWaterArea0 = mapFile.StandingWaterAreas.Areas[0];
+
+            Assert.Equal(1u, standingWaterArea0.UniqueID);
+            Assert.Equal("Pacific Ocean", standingWaterArea0.Name);
+            Assert.Equal(string.Empty, standingWaterArea0.LayerName);
+            Assert.Equal(0.07f, standingWaterArea0.UvScrollSpeed, 2);
+            Assert.Equal(true, standingWaterArea0.UseAdditiveBlending);
+            Assert.Equal("WaterRippleBump2.tga", standingWaterArea0.BumpMapTexture);
+            Assert.Equal("SkyEnv2.tga", standingWaterArea0.SkyTexture);
+            Assert.Equal(7, standingWaterArea0.Points.Length);
+            Assert.Equal(2u, standingWaterArea0.WaterHeight);
+            Assert.Equal(string.Empty, standingWaterArea0.FxShader);
+            Assert.Equal("LUTDepthTint.tga", standingWaterArea0.DepthColors);
+
+            var standingWaterArea1 = mapFile.StandingWaterAreas.Areas[1];
+
+            Assert.Equal(2u, standingWaterArea1.UniqueID);
+            Assert.Equal("Atlantic Ocean", standingWaterArea1.Name);
+            Assert.Equal(string.Empty, standingWaterArea1.LayerName);
+            Assert.Equal(0.06f, standingWaterArea1.UvScrollSpeed, 2);
+            Assert.Equal(false, standingWaterArea1.UseAdditiveBlending);
+            Assert.Equal("WaterRippleBump.tga", standingWaterArea1.BumpMapTexture);
+            Assert.Equal("SkyEnv.tga", standingWaterArea1.SkyTexture);
+            Assert.Equal(5, standingWaterArea1.Points.Length);
+            Assert.Equal(0u, standingWaterArea1.WaterHeight);
+            Assert.Equal("WaterCaribbean.w3d", standingWaterArea1.FxShader);
+            Assert.Equal("LUTDepthTint.tga", standingWaterArea1.DepthColors);
+        }
+
         private static MapFile GetMapFile([CallerMemberName] string testName = null)
         {
             var fileName = Path.Combine("Map", "Assets", testName + ".map");
