@@ -26,7 +26,9 @@ namespace OpenSage.Data.Map
             {
                 var result = new TDerived();
 
-                result.ContentType = reader.ReadUInt32AsEnum<TContentType>();
+                // TODO: Need to make game-specific TContentType enums.
+                result.ContentType = (TContentType) (object) reader.ReadUInt32();
+                //result.ContentType = reader.ReadUInt32AsEnum<TContentType>();
 
                 if (version >= minimumVersionThatHasInternalName)
                 {
