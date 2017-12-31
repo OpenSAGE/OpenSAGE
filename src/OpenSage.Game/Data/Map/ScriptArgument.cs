@@ -20,7 +20,9 @@ namespace OpenSage.Data.Map
 
         internal static ScriptArgument Parse(BinaryReader reader)
         {
-            var argumentType = reader.ReadUInt32AsEnum<ScriptArgumentType>();
+            // TODO: Need to make game-specific ScriptArgumentType enums.
+            var argumentType = (ScriptArgumentType) reader.ReadUInt32();
+            //var argumentType = reader.ReadUInt32AsEnum<ScriptArgumentType>();
             
             int? uintValue = null;
             float? floatValue = null;
