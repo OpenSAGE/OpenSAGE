@@ -8,7 +8,8 @@ namespace OpenSage.Data.Tests
         public static void DoRoundtripTest<T>(
             Func<Stream> getOriginalStream,
             Func<Stream, T> parseCallback,
-            Action<T, Stream> serializeCallback)
+            Action<T, Stream> serializeCallback,
+            bool skipRoundtripEqualityTest = false)
         {
             byte[] originalUncompressedBytes;
             using (var originalUncompressedStream = new MemoryStream())
@@ -31,7 +32,13 @@ namespace OpenSage.Data.Tests
                 serializedBytes = serializedStream.ToArray();
             }
 
-            AssertUtility.Equal(originalUncompressedBytes, serializedBytes);
+            if (!skipRoundtripEqualityTest)
+            {
+                File.WriteAllBytes("original.bin", originalUncompressedBytes);
+                File.WriteAllBytes("serialized.bin", serializedBytes);
+
+                AssertUtility.Equal(originalUncompressedBytes, serializedBytes);
+            }
         }
     }
 }

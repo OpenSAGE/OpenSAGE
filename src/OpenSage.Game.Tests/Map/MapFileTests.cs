@@ -20,7 +20,8 @@ namespace OpenSage.Data.Tests.Map
         {
             InstalledFilesTestData.ReadFiles(".map", _output, entry =>
             {
-                // These maps have false positive differences, so ignore them.
+                // These maps have false positive differences, so ignore differences.
+                bool skipRoundtripEqualityTest = false;
                 switch (entry.FilePath)
                 {
                     // Differences in passability data, because the original file appears to have
@@ -28,7 +29,9 @@ namespace OpenSage.Data.Tests.Map
                     case @"Maps\USA07-TaskForces\USA07-TaskForces.map":
                     case @"maps\map evil shelobslair\map evil shelobslair.map": // BFME
                     case @"maps\map good shelobslair\map good shelobslair.map": // BFME
-                        return;
+                    case @"maps\map mp argonath\map mp argonath.map": // BFME II
+                        skipRoundtripEqualityTest = true;
+                        break;
                 }
 
                 using (var entryStream = entry.Open())
@@ -36,7 +39,8 @@ namespace OpenSage.Data.Tests.Map
                     TestUtility.DoRoundtripTest(
                         () => MapFile.Decompress(entryStream),
                         stream => MapFile.FromStream(stream),
-                        (mapFile, stream) => mapFile.WriteTo(stream));
+                        (mapFile, stream) => mapFile.WriteTo(stream),
+                        skipRoundtripEqualityTest);
                 }
             });
         }
@@ -459,6 +463,48 @@ namespace OpenSage.Data.Tests.Map
             Assert.Equal(0u, riverArea1.WaterHeight);
             Assert.Equal(string.Empty, riverArea1.MinimumWaterLod);
             Assert.Equal(2, riverArea1.Lines.Length);
+        }
+
+        [Fact]
+        public void BlendTileData_StandingWaveAreas()
+        {
+            var mapFile = GetMapFile();
+
+            Assert.Equal(2, mapFile.StandingWaveAreas.Areas.Length);
+
+            var standingWaveArea0 = mapFile.StandingWaveAreas.Areas[0];
+
+            Assert.Equal(1u, standingWaveArea0.UniqueID);
+            Assert.Equal("Wave Area 1", standingWaveArea0.Name);
+            Assert.Equal(string.Empty, standingWaveArea0.LayerName);
+            Assert.Equal(36u, standingWaveArea0.FinalWidth);
+            Assert.Equal(25u, standingWaveArea0.FinalHeight);
+            Assert.Equal(56u, standingWaveArea0.InitialWidthFraction);
+            Assert.Equal(86u, standingWaveArea0.InitialHeightFraction);
+            Assert.Equal(14u, standingWaveArea0.InitialVelocity);
+            Assert.Equal(2236u, standingWaveArea0.TimeToFade);
+            Assert.Equal(2018u, standingWaveArea0.TimeToCompress);
+            Assert.Equal(3709u, standingWaveArea0.TimeOffset2ndWave);
+            Assert.Equal(49u, standingWaveArea0.DistanceFromShore);
+            Assert.Equal("wave256.tga", standingWaveArea0.Texture);
+            Assert.Equal(true, standingWaveArea0.EnablePcaWave);
+
+            var standingWaveArea1 = mapFile.StandingWaveAreas.Areas[1];
+
+            Assert.Equal(2u, standingWaveArea1.UniqueID);
+            Assert.Equal("Wave Area 2", standingWaveArea1.Name);
+            Assert.Equal(string.Empty, standingWaveArea1.LayerName);
+            Assert.Equal(28u, standingWaveArea1.FinalWidth);
+            Assert.Equal(18u, standingWaveArea1.FinalHeight);
+            Assert.Equal(50u, standingWaveArea1.InitialWidthFraction);
+            Assert.Equal(100u, standingWaveArea1.InitialHeightFraction);
+            Assert.Equal(5u, standingWaveArea1.InitialVelocity);
+            Assert.Equal(2000u, standingWaveArea1.TimeToFade);
+            Assert.Equal(1000u, standingWaveArea1.TimeToCompress);
+            Assert.Equal(3000u, standingWaveArea1.TimeOffset2ndWave);
+            Assert.Equal(40u, standingWaveArea1.DistanceFromShore);
+            Assert.Equal("wave256.tga", standingWaveArea1.Texture);
+            Assert.Equal(false, standingWaveArea1.EnablePcaWave);
         }
 
         private static MapFile GetMapFile([CallerMemberName] string testName = null)

@@ -28,6 +28,9 @@ namespace OpenSage.Data.Map
 
         EndCap = 128,
 
+        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        Unknown3 = 256,
+
         BroadCurveStart = Start,
         BroadCurveEnd = End,
 
