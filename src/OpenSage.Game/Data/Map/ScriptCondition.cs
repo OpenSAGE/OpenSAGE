@@ -35,7 +35,13 @@ namespace OpenSage.Data.Map
                 assetNames,
                 MinimumVersionThatHasInternalName,
                 MinimumVersionThatHasEnabledFlag,
-                () => writer.WriteBooleanUInt32(IsInverted));
+                () =>
+                {
+                    if (Version >= MinimumVersionThatHasEnabledFlag)
+                    {
+                        writer.WriteBooleanUInt32(IsInverted);
+                    }
+                });
         }
     }
 }
