@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Map
@@ -12,36 +13,52 @@ namespace OpenSage.Data.Map
 
         public ScriptArgument[] Arguments { get; private set; }
 
-        internal static TDerived Parse(BinaryReader reader, MapParseContext context, ushort minimumVersionThatHasInternalName)
+        public bool Enabled { get; private set; }
+
+        internal static TDerived Parse(
+            BinaryReader reader,
+            MapParseContext context,
+            ushort minimumVersionThatHasInternalName,
+            ushort minimumVersionThatHasEnabledFlag,
+            Action<ushort, TDerived> derivedParse = null)
         {
             return ParseAsset(reader, context, version =>
             {
-                var contentType = reader.ReadUInt32AsEnum<TContentType>();
+                var result = new TDerived();
 
-                AssetPropertyKey internalName = null;
+                result.ContentType = reader.ReadUInt32AsEnum<TContentType>();
+
                 if (version >= minimumVersionThatHasInternalName)
                 {
-                    internalName = AssetPropertyKey.Parse(reader, context);
+                    result.InternalName = AssetPropertyKey.Parse(reader, context);
                 }
 
                 var numArguments = reader.ReadUInt32();
-                var arguments = new ScriptArgument[numArguments];
+                result.Arguments = new ScriptArgument[numArguments];
 
                 for (var i = 0; i < numArguments; i++)
                 {
-                    arguments[i] = ScriptArgument.Parse(reader);
+                    result.Arguments[i] = ScriptArgument.Parse(reader);
                 }
 
-                return new TDerived
+                result.Enabled = true;
+                if (version >= minimumVersionThatHasEnabledFlag)
                 {
-                    ContentType = contentType,
-                    InternalName = internalName,
-                    Arguments = arguments
-                };
+                    result.Enabled = reader.ReadBooleanUInt32Checked();
+                }
+
+                derivedParse?.Invoke(version, result);
+
+                return result;
             });
         }
 
-        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames, ushort minimumVersionThatHasInternalName)
+        internal void WriteTo(
+            BinaryWriter writer,
+            AssetNameCollection assetNames,
+            ushort minimumVersionThatHasInternalName,
+            ushort minimumVersionThatHasEnabledFlag,
+            Action derivedWriteTo = null)
         {
             WriteAssetTo(writer, () =>
             {
@@ -58,6 +75,13 @@ namespace OpenSage.Data.Map
                 {
                     argument.WriteTo(writer);
                 }
+
+                if (Version >= minimumVersionThatHasEnabledFlag)
+                {
+                    writer.WriteBooleanUInt32(Enabled);
+                }
+
+                derivedWriteTo?.Invoke();
             });
         }
     }
