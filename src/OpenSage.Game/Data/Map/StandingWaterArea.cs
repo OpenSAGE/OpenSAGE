@@ -69,7 +69,7 @@ namespace OpenSage.Data.Map
 
             writer.Write(WaterHeight);
             writer.WriteUInt16PrefixedAsciiString(FxShader);
-            writer.WriteUInt16PrefixedAsciiString(SkyTexture);
+            writer.WriteUInt16PrefixedAsciiString(DepthColors);
         }
     }
 }
