@@ -29,6 +29,19 @@ namespace OpenSage.Data.Utilities.Extensions
             }
         }
 
+        public static bool ReadBooleanUInt32Checked(this BinaryReader reader)
+        {
+            var result = reader.ReadBooleanChecked();
+
+            var unused = reader.ReadUInt24();
+            if (unused != 0)
+            {
+                throw new InvalidDataException();
+            }
+
+            return result;
+        }
+
         public static uint ReadBigEndianUInt32(this BinaryReader reader)
         {
             var array = reader.ReadBytes(4);

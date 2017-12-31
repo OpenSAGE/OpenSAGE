@@ -9,6 +9,14 @@ namespace OpenSage.Data.Utilities.Extensions
 {
     internal static class BinaryWriterExtensions
     {
+        public static void WriteBooleanUInt32(this BinaryWriter writer, bool value)
+        {
+            writer.Write(value);
+            writer.Write((byte) 0);
+            writer.Write((byte) 0);
+            writer.Write((byte) 0);
+        }
+
         public static void WriteUInt24(this BinaryWriter writer, uint value)
         {
             for (var i = 0; i < 3; i++)
@@ -70,20 +78,20 @@ namespace OpenSage.Data.Utilities.Extensions
             }
         }
 
-        public static void WriteSingleBitBooleanArray2D(this BinaryWriter writer, bool[,] values)
+        public static void WriteSingleBitBooleanArray2D(this BinaryWriter writer, bool[,] values, byte padValue = 0x0)
         {
             var width = values.GetLength(0);
             var height = values.GetLength(1);
 
             for (var y = 0; y < height; y++)
             {
-                byte value = 0;
+                byte value = padValue;
                 for (var x = 0; x < width; x++)
                 {
                     if (x > 0 && x % 8 == 0)
                     {
                         writer.Write(value);
-                        value = 0;
+                        value = padValue;
                     }
 
                     var boolValue = values[x, y];

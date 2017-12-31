@@ -64,13 +64,7 @@ namespace OpenSage.Data.Map
             result.TimeOffset2ndWave = reader.ReadUInt32();
             result.DistanceFromShore = reader.ReadUInt32();
             result.Texture = reader.ReadUInt16PrefixedAsciiString();
-            result.EnablePcaWave = reader.ReadBooleanChecked();
-
-            var unusedEnablePcaWaveBooleanBytes = reader.ReadUInt24();
-            if (unusedEnablePcaWaveBooleanBytes != 0)
-            {
-                throw new InvalidDataException();
-            }
+            result.EnablePcaWave = reader.ReadBooleanUInt32Checked();
 
             return result;
         }
@@ -101,9 +95,7 @@ namespace OpenSage.Data.Map
             writer.Write(TimeOffset2ndWave);
             writer.Write(DistanceFromShore);
             writer.WriteUInt16PrefixedAsciiString(Texture);
-            writer.Write(EnablePcaWave);
-
-            writer.WriteUInt24(0);
+            writer.WriteBooleanUInt32(EnablePcaWave);
         }
     }
 }

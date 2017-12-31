@@ -283,7 +283,7 @@ namespace OpenSage.Data.Map
                                     if (Version >= 18)
                                     {
                                         writer.WriteByteArray2DAsEnum(Flammability);
-                                        writer.WriteSingleBitBooleanArray2D(Visibility);
+                                        writer.WriteSingleBitBooleanArray2D(Visibility, padValue: 0xFF);
                                     }
                                 }
                             }

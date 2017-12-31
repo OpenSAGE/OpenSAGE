@@ -29,7 +29,6 @@ namespace OpenSage.Data.Tests.Map
                     case @"Maps\USA07-TaskForces\USA07-TaskForces.map":
                     case @"maps\map evil shelobslair\map evil shelobslair.map": // BFME
                     case @"maps\map good shelobslair\map good shelobslair.map": // BFME
-                    case @"maps\map mp argonath\map mp argonath.map": // BFME II
                         skipRoundtripEqualityTest = true;
                         break;
                 }
