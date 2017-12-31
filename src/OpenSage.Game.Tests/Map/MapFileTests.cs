@@ -506,6 +506,57 @@ namespace OpenSage.Data.Tests.Map
             Assert.Equal(false, standingWaveArea1.EnablePcaWave);
         }
 
+        [Fact]
+        public void BlendTileData_Scripts()
+        {
+            var mapFile = GetMapFile();
+
+            var script0 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[0];
+
+            Assert.Equal("Script - Not Sequential", script0.Name);
+            Assert.Equal(false, script0.ActionsFireSequentially);
+            Assert.Equal(false, script0.LoopActions);
+            Assert.Equal(0, script0.LoopCount);
+            Assert.Equal(SequentialScriptTarget.Unit, script0.SequentialTargetType);
+            Assert.Equal(string.Empty, script0.SequentialTargetName);
+
+            var script1 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[1];
+
+            Assert.Equal("Script - Sequential (Unit, Not Looping)", script1.Name);
+            Assert.Equal(true, script1.ActionsFireSequentially);
+            Assert.Equal(false, script1.LoopActions);
+            Assert.Equal(0, script1.LoopCount);
+            Assert.Equal(SequentialScriptTarget.Unit, script1.SequentialTargetType);
+            Assert.Equal("<This Object>", script1.SequentialTargetName);
+
+            var script2 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[2];
+
+            Assert.Equal("Script - Sequential (Team, Looping 100000)", script2.Name);
+            Assert.Equal(true, script2.ActionsFireSequentially);
+            Assert.Equal(true, script2.LoopActions);
+            Assert.Equal(99999, script2.LoopCount);
+            Assert.Equal(SequentialScriptTarget.Team, script2.SequentialTargetType);
+            Assert.Equal("<This Team>", script2.SequentialTargetName);
+
+            var script3 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[3];
+
+            Assert.Equal("Script - Sequential (Team, Looping 0)", script3.Name);
+            Assert.Equal(true, script3.ActionsFireSequentially);
+            Assert.Equal(true, script3.LoopActions);
+            Assert.Equal(-1, script3.LoopCount);
+            Assert.Equal(SequentialScriptTarget.Team, script3.SequentialTargetType);
+            Assert.Equal(string.Empty, script3.SequentialTargetName);
+
+            var script4 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[4];
+
+            Assert.Equal("Script - Sequential (Team, Looping 1)", script4.Name);
+            Assert.Equal(true, script4.ActionsFireSequentially);
+            Assert.Equal(true, script4.LoopActions);
+            Assert.Equal(0, script4.LoopCount);
+            Assert.Equal(SequentialScriptTarget.Team, script4.SequentialTargetType);
+            Assert.Equal(string.Empty, script4.SequentialTargetName);
+        }
+
         private static MapFile GetMapFile([CallerMemberName] string testName = null)
         {
             var fileName = Path.Combine("Map", "Assets", testName + ".map");

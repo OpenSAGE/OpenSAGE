@@ -29,6 +29,12 @@ namespace OpenSage.Data.Map
         /// </summary>
         public uint EvaluationInterval { get; private set; }
 
+        public bool ActionsFireSequentially { get; private set; }
+        public bool LoopActions { get; private set; }
+        public int LoopCount { get; private set; }
+        public SequentialScriptTarget SequentialTargetType { get; private set; }
+        public string SequentialTargetName { get; private set; }
+
         public ScriptOrCondition[] OrConditions { get; private set; }
 
         public ScriptAction[] ActionsIfTrue { get; private set; }
@@ -38,30 +44,46 @@ namespace OpenSage.Data.Map
         {
             return ParseAsset(reader, context, version =>
             {
-                if (version != 1 && version != 2)
+                var result = new Script
                 {
-                    throw new InvalidDataException();
+                    Name = reader.ReadUInt16PrefixedAsciiString(),
+
+                    Comment = reader.ReadUInt16PrefixedAsciiString(),
+                    ConditionsComment = reader.ReadUInt16PrefixedAsciiString(),
+                    ActionsComment = reader.ReadUInt16PrefixedAsciiString(),
+
+                    IsActive = reader.ReadBooleanChecked(),
+                    DeactivateUponSuccess = reader.ReadBooleanChecked(),
+
+                    ActiveInEasy = reader.ReadBooleanChecked(),
+                    ActiveInMedium = reader.ReadBooleanChecked(),
+                    ActiveInHard = reader.ReadBooleanChecked(),
+
+                    IsSubroutine = reader.ReadBooleanChecked()
+                };
+
+                if (version >= 2)
+                {
+                    result.EvaluationInterval = reader.ReadUInt32();
                 }
 
-                var name = reader.ReadUInt16PrefixedAsciiString();
-
-                var comment = reader.ReadUInt16PrefixedAsciiString();
-                var conditionsComment = reader.ReadUInt16PrefixedAsciiString();
-                var actionsComment = reader.ReadUInt16PrefixedAsciiString();
-
-                var isActive = reader.ReadBooleanChecked();
-                var deactivateUponSuccess = reader.ReadBooleanChecked();
-
-                var activeInEasy = reader.ReadBooleanChecked();
-                var activeInMedium = reader.ReadBooleanChecked();
-                var activeInHard = reader.ReadBooleanChecked();
-
-                var isSubroutine = reader.ReadBooleanChecked();
-
-                var evaluationInterval = 0u;
-                if (version > 1)
+                if (version >= 4)
                 {
-                    evaluationInterval = reader.ReadUInt32();
+                    result.ActionsFireSequentially = reader.ReadBooleanChecked();
+
+                    result.LoopActions = reader.ReadBooleanChecked();
+
+                    result.LoopCount = reader.ReadInt32();
+
+                    result.SequentialTargetType = reader.ReadByteAsEnum<SequentialScriptTarget>();
+
+                    result.SequentialTargetName = reader.ReadUInt16PrefixedAsciiString();
+
+                    var all = reader.ReadUInt16PrefixedAsciiString();
+                    if (all != "ALL")
+                    {
+                        throw new InvalidDataException();
+                    }
                 }
 
                 var orConditions = new List<ScriptOrCondition>();
@@ -88,25 +110,12 @@ namespace OpenSage.Data.Map
                             throw new InvalidDataException($"Unexpected asset: {assetName}");
                     }
                 });
-                
-                return new Script
-                {
-                    Name = name,
-                    Comment = comment,
-                    ConditionsComment = conditionsComment,
-                    ActionsComment = actionsComment,
-                    IsActive = isActive,
-                    DeactivateUponSuccess = deactivateUponSuccess,
-                    ActiveInEasy = activeInEasy,
-                    ActiveInMedium = activeInMedium,
-                    ActiveInHard = activeInHard,
-                    IsSubroutine = isSubroutine,
-                    EvaluationInterval = evaluationInterval,
 
-                    OrConditions = orConditions.ToArray(),
-                    ActionsIfTrue = actionsIfTrue.ToArray(),
-                    ActionsIfFalse = actionsIfFalse.ToArray()
-                };
+                result.OrConditions = orConditions.ToArray();
+                result.ActionsIfTrue = actionsIfTrue.ToArray();
+                result.ActionsIfFalse = actionsIfFalse.ToArray();
+
+                return result;
             });
         }
 
@@ -129,9 +138,19 @@ namespace OpenSage.Data.Map
 
                 writer.Write(IsSubroutine);
 
-                if (Version > 1)
+                if (Version >= 2)
                 {
                     writer.Write(EvaluationInterval);
+                }
+
+                if (Version >= 4)
+                {
+                    writer.Write(ActionsFireSequentially);
+                    writer.Write(LoopActions);
+                    writer.Write(LoopCount);
+                    writer.Write((byte) SequentialTargetType);
+                    writer.WriteUInt16PrefixedAsciiString(SequentialTargetName);
+                    writer.WriteUInt16PrefixedAsciiString("ALL");
                 }
 
                 foreach (var orCondition in OrConditions)
@@ -153,5 +172,11 @@ namespace OpenSage.Data.Map
                 }
             });
         }
+    }
+
+    public enum SequentialScriptTarget
+    {
+        Team = 0,
+        Unit = 1
     }
 }
