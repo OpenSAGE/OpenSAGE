@@ -29,7 +29,7 @@ namespace OpenSage.Data.Map
         public string Texture { get; private set; }
         public bool EnablePcaWave { get; private set; }
 
-        internal static StandingWaveArea Parse(BinaryReader reader)
+        internal static StandingWaveArea Parse(BinaryReader reader, ushort version)
         {
             var result = new StandingWaveArea
             {
@@ -64,12 +64,16 @@ namespace OpenSage.Data.Map
             result.TimeOffset2ndWave = reader.ReadUInt32();
             result.DistanceFromShore = reader.ReadUInt32();
             result.Texture = reader.ReadUInt16PrefixedAsciiString();
-            result.EnablePcaWave = reader.ReadBooleanUInt32Checked();
+
+            if (version >= 2)
+            {
+                result.EnablePcaWave = reader.ReadBooleanUInt32Checked();
+            }
 
             return result;
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer, ushort version)
         {
             writer.Write(UniqueID);
             writer.WriteUInt16PrefixedAsciiString(Name);
@@ -95,7 +99,11 @@ namespace OpenSage.Data.Map
             writer.Write(TimeOffset2ndWave);
             writer.Write(DistanceFromShore);
             writer.WriteUInt16PrefixedAsciiString(Texture);
-            writer.WriteBooleanUInt32(EnablePcaWave);
+
+            if (version >= 2)
+            {
+                writer.WriteBooleanUInt32(EnablePcaWave);
+            }
         }
     }
 }

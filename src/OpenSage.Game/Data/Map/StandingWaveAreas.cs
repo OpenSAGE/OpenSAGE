@@ -18,7 +18,7 @@ namespace OpenSage.Data.Map
 
                 for (var i = 0; i < numAreas; i++)
                 {
-                    areas[i] = StandingWaveArea.Parse(reader);
+                    areas[i] = StandingWaveArea.Parse(reader, version);
                 }
 
                 return new StandingWaveAreas
@@ -36,7 +36,7 @@ namespace OpenSage.Data.Map
 
                 foreach (var area in Areas)
                 {
-                    area.WriteTo(writer);
+                    area.WriteTo(writer, Version);
                 }
             });
         }
