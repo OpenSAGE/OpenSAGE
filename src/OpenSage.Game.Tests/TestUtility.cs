@@ -34,8 +34,8 @@ namespace OpenSage.Data.Tests
 
             if (!skipRoundtripEqualityTest)
             {
-                File.WriteAllBytes("original.bin", originalUncompressedBytes);
-                File.WriteAllBytes("serialized.bin", serializedBytes);
+                //File.WriteAllBytes("original.bin", originalUncompressedBytes);
+                //File.WriteAllBytes("serialized.bin", serializedBytes);
 
                 AssertUtility.Equal(originalUncompressedBytes, serializedBytes);
             }
