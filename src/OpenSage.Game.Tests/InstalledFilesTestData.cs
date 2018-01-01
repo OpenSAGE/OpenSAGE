@@ -18,7 +18,9 @@ namespace OpenSage.Data.Tests
 
         public static void ReadFiles(string fileExtension, ITestOutputHelper output, Action<FileSystemEntry> processFileCallback)
         {
-            var rootDirectories = SageGames.GetAll().SelectMany(Locator.FindInstallations).Select(i => i.Path);
+            var rootDirectories = SageGames.GetAll()
+                .SelectMany(Locator.FindInstallations)
+                .Select(i => i.Path);
 
             var foundAtLeastOneFile = false;
             foreach (var rootDirectory in rootDirectories.Where(x => Directory.Exists(x)))
