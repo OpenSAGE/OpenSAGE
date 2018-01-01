@@ -239,7 +239,7 @@ namespace OpenSage.Content
                                 break;
 
                             default:
-                                position.Z = heightMap.GetHeight(position.X, position.Y);
+                                position.Z += heightMap.GetHeight(position.X, position.Y);
 
                                 var objectEntity = contentManager.InstantiateObject(mapObject.TypeName);
                                 if (objectEntity != null)
