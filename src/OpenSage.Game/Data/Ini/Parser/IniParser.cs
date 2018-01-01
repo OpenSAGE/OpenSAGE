@@ -223,7 +223,7 @@ namespace OpenSage.Data.Ini.Parser
         public bool IsFloat(IniToken token)
         {
             var floatText = GetFloatText(token);
-            return !string.IsNullOrEmpty(floatText) && float.TryParse(floatText, out _);
+            return !string.IsNullOrEmpty(floatText) && ParseUtility.TryParseFloat(floatText, out _);
         }
 
         public float ScanFloat(IniToken token)
