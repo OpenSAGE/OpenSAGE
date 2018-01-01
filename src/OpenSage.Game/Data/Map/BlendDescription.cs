@@ -34,7 +34,9 @@ namespace OpenSage.Data.Map
             var rawBlendDirection = reader.ReadBytes(4);
             var blendDirection = ToBlendDirection(rawBlendDirection);
 
-            var flags = reader.ReadByteAsEnum<BlendFlags>();
+            // TODO: Figure out these flags for BFME I maps.
+            var flags = (BlendFlags) reader.ReadByte();
+            //var flags = reader.ReadByteAsEnum<BlendFlags>();
 
             var twoSided = reader.ReadBooleanChecked();
 
