@@ -562,7 +562,21 @@ namespace OpenSage.Data.Tests.Map
         {
             var mapFile = GetMapFile();
 
-            // TODO
+            var cameraAnimation0 = mapFile.CameraAnimationList.Animations[0];
+
+            Assert.Equal("Free Animation 1", cameraAnimation0.Name);
+
+            var cameraAnimation1 = mapFile.CameraAnimationList.Animations[1];
+            
+            Assert.Equal("Free Animation 2", cameraAnimation1.Name);
+
+            var cameraAnimation2 = mapFile.CameraAnimationList.Animations[2];
+
+            Assert.Equal("Look-at Animation 1", cameraAnimation2.Name);
+
+            var cameraAnimation3 = mapFile.CameraAnimationList.Animations[3];
+
+            Assert.Equal("Look-at Animation 2", cameraAnimation3.Name);
         }
 
         private static MapFile GetMapFile([CallerMemberName] string testName = null)
