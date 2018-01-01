@@ -1,4 +1,5 @@
-﻿using OpenSage.LowLevel.Graphics3D;
+﻿using System;
+using OpenSage.LowLevel.Graphics3D;
 using OpenSage.LowLevel.Graphics3D.Util;
 using SharpDX.Direct2D1;
 using SharpDX.DXGI;
@@ -112,24 +113,44 @@ namespace OpenSage.LowLevel.Graphics2D
             }
         }
 
-        private SolidColorBrush CreateBrush(in ColorRgbaF color)
+        private void PlatformFillTriangle(in RawTriangleF tri, in Texture tex, in RawMatrix3x2 transform)
         {
-            
+            using (var dxgiSurface = tex.DeviceResource.QueryInterface<Surface>())
+            using (var bitmap = new Bitmap1(_graphicsDevice.DeviceContext, dxgiSurface))
+            using (var brush = CreateImageBrush(bitmap,transform))
+            {
+                var geometry = new PathGeometry(_graphicsDevice.DeviceContext.Factory);
+                var sink = geometry.Open();
+                sink.BeginFigure(ToRawVector2(tri.X1, tri.Y1), FigureBegin.Filled);
+                sink.AddLine(ToRawVector2(tri.X2, tri.Y2));
+                sink.AddLine(ToRawVector2(tri.X3, tri.Y3));
+                sink.EndFigure(FigureEnd.Closed);
+                sink.Close();
+                _graphicsDevice.DeviceContext.FillGeometry(geometry, brush);
+            }
+        }
+
+        private SolidColorBrush CreateBrush(in ColorRgbaF color)
+        {          
             return new SolidColorBrush(_graphicsDevice.DeviceContext, color.ToRawColor4());
         }
 
-        private ImageBrush CreateImageBrush(in Image img,RawMatrix3x2 transform)
+        private ImageBrush CreateImageBrush(in Image img, in RawMatrix3x2 transform)
         {
-            var prop = new ImageBrushProperties()
+            var imageBrushProp = new ImageBrushProperties()
             {
-                ExtendModeX = ExtendMode.Clamp,
-                ExtendModeY = ExtendMode.Clamp,
-                InterpolationMode = InterpolationMode.NearestNeighbor
+                ExtendModeX = ExtendMode.Wrap,
+                ExtendModeY = ExtendMode.Wrap,
+                InterpolationMode = InterpolationMode.Linear
             };
 
-            var brush = new ImageBrush(_graphicsDevice.DeviceContext, img, prop);
+            var brushProp = new BrushProperties()
+            {
+                Transform = ToRawMatrix3x2(transform),
+                Opacity = 1.0f
+            };
 
-            brush.Transform = transform;
+            var brush = new ImageBrush(_graphicsDevice.DeviceContext, img, imageBrushProp,brushProp);
 
             return brush;
         }
@@ -137,6 +158,11 @@ namespace OpenSage.LowLevel.Graphics2D
         private static SharpDX.Mathematics.Interop.RawRectangleF ToRawRectangleF(in RawRectangleF value)
         {
             return new SharpDX.Mathematics.Interop.RawRectangleF(value.X, value.Y, value.X + value.Width, value.Y + value.Height);
+        }
+
+        private static SharpDX.Mathematics.Interop.RawMatrix3x2 ToRawMatrix3x2(in RawMatrix3x2 m)
+        {
+            return new SharpDX.Mathematics.Interop.RawMatrix3x2(m.M11, m.M12, m.M21, m.M22, m.M31, m.M32);
         }
 
         private static SharpDX.Mathematics.Interop.RawVector2 ToRawVector2(in float x,in float y)

@@ -17,16 +17,45 @@ namespace OpenSage.Gui.Apt
 {
     public sealed class ShapeComponent : EntityComponent
     {
+        private ImageMap _map;
+        private Dictionary<int, Texture> _usedTextures;
         private Texture _texture;
+        
         private Buffer<SpriteVertex> _vertexBuffer;
         private ConstantBuffer<SpriteMaterial.MaterialConstants> _materialConstantsBuffer;
 
         public Geometry Shape { get; set; }
+        public String MovieName { get; set; }
+
         public Buffer<SpriteVertex> VertexBuffer => _vertexBuffer;
         public SpriteMaterial Material { get; private set; }
 
-        public void Initialize(ContentManager contentManager)
+
+        public void Initialize(ContentManager contentManager,ImageMap map)
         {
+            _map = map;
+            _usedTextures = new Dictionary<int, Texture>();
+
+            //get all used image id's
+            var usedIds = new HashSet<int>();
+            foreach(var entry in Shape.Entries)
+            {
+                if(entry is GeometryTexturedTriangles gtt)
+                {
+                    var assignment = _map.Mapping[gtt.Image];
+
+                    if (assignment is DirectAssignment da)
+                        usedIds.Add(da.TextureId);
+                }
+            }
+
+            foreach(var id in usedIds)
+            {
+                var texturePath = "art/Textures/apt_" + MovieName + "_" + id.ToString()+".tga";
+                var loadOptions = new TextureLoadOptions() { GenerateMipMaps = false };
+                _usedTextures.Add(id, contentManager.Load<Texture>(texturePath, loadOptions));
+            }
+
             Material = new SpriteMaterial(contentManager.EffectLibrary.Sprite);
 
             _materialConstantsBuffer = new ConstantBuffer<SpriteMaterial.MaterialConstants>(contentManager.GraphicsDevice);
@@ -162,7 +191,23 @@ namespace OpenSage.Gui.Apt
                             rt.Y2 = tri.V1.Y + Shape.BoundingBox.Height;
                             rt.X3 = tri.V2.X + Shape.BoundingBox.Width;
                             rt.Y3 = tri.V2.Y + Shape.BoundingBox.Height;
-                            drawingContext.FillTriangle(rt, ToFloatColor(tt.Color));
+                            RawMatrix3x2 transform;
+                            transform.M11 = tt.Rotation.M11;
+                            transform.M12 = tt.Rotation.M12;
+                            transform.M21 = tt.Rotation.M21;
+                            transform.M22 = tt.Rotation.M22;
+                            transform.M31 = tt.Translation.X;
+                            transform.M32 = tt.Translation.Y;
+                            
+                            var assignment = _map.Mapping[tt.Image];
+                            var texId = assignment.TextureId;
+
+                            if (assignment is RectangleAssignment)
+                                throw new NotImplementedException();
+
+                            var tex = _usedTextures[texId];
+
+                            drawingContext.FillTriangle(rt, tex,transform);
                         }
                     }
                 }

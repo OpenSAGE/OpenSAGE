@@ -22,7 +22,6 @@ namespace OpenSage.Data.Apt
     public interface GeometryEntry
     {
         GeometryStyle Type { get; }
-
     }
 
     public sealed class Geometry
@@ -46,8 +45,8 @@ namespace OpenSage.Data.Apt
                 string line;
                 int image = 0;
                 float thickness = 0;
-                Matrix2x2 rotMat;
-                Vector2 translation;
+                Matrix2x2 rotMat = new Matrix2x2();
+                Vector2 translation = new Vector2();
                 ColorRgba color = new ColorRgba(0, 0, 0, 0);
                 GeometryStyle style = GeometryStyle.Undefined;
                 var tris = new List<Triangle2D>();
@@ -61,7 +60,7 @@ namespace OpenSage.Data.Apt
                         case GeometryStyle.Undefined:
                             break;
                         case GeometryStyle.TexturedTri:
-                            geometry.Entries.Add(new GeometryTexturedTriangles(tris, color));
+                            geometry.Entries.Add(new GeometryTexturedTriangles(tris, color,image,rotMat,translation));
                             tris.Clear();
                             break;
                         case GeometryStyle.SolidTri:
@@ -291,6 +290,10 @@ namespace OpenSage.Data.Apt
     {
         public ColorRgba Color { get; private set; }
         public List<Triangle2D> Triangles { get; private set; }
+        public int Image { get; private set; }
+        public Matrix2x2 Rotation { get; private set; }
+        public Vector2 Translation { get; private set; }
+
 
         public GeometryStyle Type
         {
@@ -300,10 +303,13 @@ namespace OpenSage.Data.Apt
             }
         }
 
-        public GeometryTexturedTriangles(List<Triangle2D> triangles, ColorRgba color)
+        public GeometryTexturedTriangles(List<Triangle2D> triangles, ColorRgba color, int image,Matrix2x2 rot, Vector2 translation)
         {
             Color = color;
             Triangles = new List<Triangle2D>(triangles);
+            Image = image;
+            Rotation = rot;
+            Translation = translation;
         }
     }
 }
