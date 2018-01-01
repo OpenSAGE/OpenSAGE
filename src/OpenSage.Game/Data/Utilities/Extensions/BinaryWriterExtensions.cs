@@ -85,13 +85,13 @@ namespace OpenSage.Data.Utilities.Extensions
 
             for (var y = 0; y < height; y++)
             {
-                byte value = padValue;
+                byte value = width < 8 ? padValue : (byte) 0;
                 for (var x = 0; x < width; x++)
                 {
                     if (x > 0 && x % 8 == 0)
                     {
                         writer.Write(value);
-                        value = padValue;
+                        value = (x > width - 8) ? padValue : (byte) 0;
                     }
 
                     var boolValue = values[x, y];
