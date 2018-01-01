@@ -61,7 +61,7 @@ namespace OpenSage.Data.Big
 
         private void Read()
         {
-            var fourCc = _reader.ReadUInt32().ToFourCcString();
+            var fourCc = _reader.ReadFourCc();
             switch (fourCc)
             {
                 case "BIGF":

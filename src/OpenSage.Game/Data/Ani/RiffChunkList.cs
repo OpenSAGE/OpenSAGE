@@ -11,7 +11,7 @@ namespace OpenSage.Data.Ani
 
         internal static RiffChunkList Parse(BinaryReader reader, long endPosition)
         {
-            var listType = reader.ReadUInt32().ToFourCcString();
+            var listType = reader.ReadFourCc();
 
             var chunks = new List<RiffChunk>();
             while (reader.BaseStream.Position < endPosition)

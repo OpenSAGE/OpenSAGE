@@ -117,6 +117,14 @@ namespace OpenSage.Data.Utilities.Extensions
             writer.Write(value.Z);
         }
 
+        public static void Write(this BinaryWriter writer, in Quaternion value)
+        {
+            writer.Write(value.X);
+            writer.Write(value.Y);
+            writer.Write(value.Z);
+            writer.Write(value.W);
+        }
+
         public static void Write(this BinaryWriter writer, in MapLine2D value)
         {
             writer.Write(value.V0);
@@ -135,6 +143,29 @@ namespace OpenSage.Data.Utilities.Extensions
             writer.Write(value.R);
             writer.Write(value.G);
             writer.Write(value.B);
+        }
+
+        public static void WriteFourCc(this BinaryWriter writer, string fourCc, bool bigEndian = false)
+        {
+            if (string.IsNullOrEmpty(fourCc) || fourCc.Length != 4)
+            {
+                throw new ArgumentException();
+            }
+
+            if (bigEndian)
+            {
+                writer.Write(fourCc[3]);
+                writer.Write(fourCc[2]);
+                writer.Write(fourCc[1]);
+                writer.Write(fourCc[0]);
+            }
+            else
+            {
+                writer.Write(fourCc[0]);
+                writer.Write(fourCc[1]);
+                writer.Write(fourCc[2]);
+                writer.Write(fourCc[3]);
+            }
         }
     }
 }

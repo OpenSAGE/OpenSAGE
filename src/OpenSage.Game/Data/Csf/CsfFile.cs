@@ -14,8 +14,8 @@ namespace OpenSage.Data.Csf
             using (var stream = entry.Open())
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
-                var fourCc = reader.ReadUInt32().ToFourCcString();
-                if (fourCc != " FSC")
+                var fourCc = reader.ReadFourCc(bigEndian: true);
+                if (fourCc != "CSF ")
                 {
                     throw new InvalidDataException();
                 }

@@ -557,6 +557,14 @@ namespace OpenSage.Data.Tests.Map
             Assert.Equal(string.Empty, script4.SequentialTargetName);
         }
 
+        [Fact]
+        public void BlendTileData_CameraAnimationLists()
+        {
+            var mapFile = GetMapFile();
+
+            // TODO
+        }
+
         private static MapFile GetMapFile([CallerMemberName] string testName = null)
         {
             var fileName = Path.Combine("Map", "Assets", testName + ".map");

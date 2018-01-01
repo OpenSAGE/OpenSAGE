@@ -11,8 +11,8 @@ namespace OpenSage.Data.Csf
 
         internal static CsfLabel Parse(BinaryReader reader)
         {
-            var fourCc = reader.ReadUInt32().ToFourCcString();
-            if (fourCc != " LBL")
+            var fourCc = reader.ReadFourCc(bigEndian: true);
+            if (fourCc != "LBL ")
             {
                 throw new InvalidDataException();
             }

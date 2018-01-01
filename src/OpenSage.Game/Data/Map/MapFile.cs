@@ -72,7 +72,7 @@ namespace OpenSage.Data.Map
         {
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
-                var compressionFlag = reader.ReadUInt32().ToFourCcString();
+                var compressionFlag = reader.ReadFourCc();
 
                 uint decompressedSize;
                 switch (compressionFlag)
@@ -116,7 +116,7 @@ namespace OpenSage.Data.Map
 
             using (var reader = new BinaryReader(dataStream, Encoding.ASCII, true))
             {
-                var compressionFlag = reader.ReadUInt32().ToFourCcString();
+                var compressionFlag = reader.ReadFourCc();
 
                 if (compressionFlag != FourCcUncompressed)
                 {

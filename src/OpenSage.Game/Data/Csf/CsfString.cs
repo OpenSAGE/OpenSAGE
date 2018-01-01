@@ -10,8 +10,8 @@ namespace OpenSage.Data.Csf
 
         internal static CsfString Parse(BinaryReader reader)
         {
-            var fourCc = reader.ReadUInt32().ToFourCcString();
-            if (fourCc != " RTS" && fourCc != "WRTS")
+            var fourCc = reader.ReadFourCc(bigEndian: true);
+            if (fourCc != "STR " && fourCc != "STRW")
             {
                 throw new InvalidDataException();
             }
@@ -19,7 +19,7 @@ namespace OpenSage.Data.Csf
             var value = reader.ReadUInt32PrefixedNegatedUnicodeString();
 
             string extraValue = null;
-            if (fourCc == "WRTS")
+            if (fourCc == "STRW")
             {
                 extraValue = reader.ReadUInt32PrefixedAsciiString();
             }

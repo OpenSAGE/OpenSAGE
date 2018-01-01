@@ -12,7 +12,7 @@ namespace OpenSage.Data.Ani
 
         internal static RiffChunk Parse(BinaryReader reader)
         {
-            var chunkType = reader.ReadUInt32().ToFourCcString();
+            var chunkType = reader.ReadFourCc();
             var chunkSize = reader.ReadUInt32();
 
             var endPosition = reader.BaseStream.Position + chunkSize;

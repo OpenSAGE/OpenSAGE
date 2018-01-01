@@ -41,8 +41,8 @@ namespace OpenSage.Data.Dds
             using (var stream = entry.Open())
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
-                var magic = reader.ReadUInt32();
-                return magic.ToFourCcString() == "DDS ";
+                var magic = reader.ReadFourCc();
+                return magic == "DDS ";
             }
         }
 
@@ -51,8 +51,8 @@ namespace OpenSage.Data.Dds
             using (var stream = entry.Open())
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
-                var magic = reader.ReadUInt32();
-                if (magic.ToFourCcString() != "DDS ")
+                var magic = reader.ReadFourCc();
+                if (magic != "DDS ")
                 {
                     throw new InvalidDataException();
                 }
