@@ -86,7 +86,7 @@ namespace OpenSage.DataViewer.UI.Viewers
                     throw new NotSupportedException();
             }
 
-            var bmpData = BmpUtility.PrependBmpHeader(
+            var bmpData = PngUtility.ConvertToPng(
                 unpackedData,
                 width,
                 height);

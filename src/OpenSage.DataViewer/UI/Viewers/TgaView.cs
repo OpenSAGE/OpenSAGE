@@ -14,7 +14,7 @@ namespace OpenSage.DataViewer.UI.Viewers
 
             var data = TgaFile.ConvertPixelsToRgba8(tgaFile);
 
-            var bmpData = BmpUtility.PrependBmpHeader(
+            var bmpData = PngUtility.ConvertToPng(
                 data,
                 tgaFile.Header.Width,
                 tgaFile.Header.Height);
