@@ -49,8 +49,8 @@ namespace OpenSage.Data.Tests.Big
                 {
                     Assert.Equal(9334, firstEntryStream.Length);
 
-                    var buffer = new byte[firstEntryStream.Length];
-                    var readBytes = firstEntryStream.Read(buffer, 0, 10000);
+                    var buffer = new byte[10000];
+                    var readBytes = firstEntryStream.Read(buffer, 0, buffer.Length);
                     Assert.Equal(9334, readBytes);
                 }
             }
