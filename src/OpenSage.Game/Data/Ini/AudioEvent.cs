@@ -10,9 +10,10 @@ namespace OpenSage.Data.Ini
         public float Volume { get; private set; } = 100;
         public int VolumeShift { get; private set; }
         public int MinVolume { get; private set; }
+        public int PlayPercent { get; private set; }
         public int Limit { get; private set; }
         public AudioPriority Priority { get; private set; } = AudioPriority.Normal;
-        public AudioTypeFlags Type { get; private set; }
+        public BitArray<AudioTypeFlags> Type { get; private set; }
         public AudioControlFlags Control { get; private set; }
         public float MinRange { get; private set; }
         public float MaxRange { get; private set; }
@@ -28,9 +29,10 @@ namespace OpenSage.Data.Ini
             { "Volume", (parser, x) => x.Volume = parser.ParseFloat() },
             { "VolumeShift", (parser, x) => x.VolumeShift = parser.ParseInteger() },
             { "MinVolume", (parser, x) => x.MinVolume = parser.ParseInteger() },
+            { "PlayPercent", (parser, x) => x.PlayPercent = parser.ParseInteger() },
             { "Limit", (parser, x) => x.Limit = parser.ParseInteger() },
             { "Priority", (parser, x) => x.Priority = parser.ParseEnum<AudioPriority>() },
-            { "Type", (parser, x) => x.Type = parser.ParseEnumFlags<AudioTypeFlags>() },
+            { "Type", (parser, x) => x.Type = parser.ParseEnumBitArray<AudioTypeFlags>() },
             { "Control", (parser, x) => x.Control = parser.ParseEnumFlags<AudioControlFlags>() },
             { "MinRange", (parser, x) => x.MinRange = parser.ParseFloat() },
             { "MaxRange", (parser, x) => x.MaxRange = parser.ParseFloat() },
@@ -115,34 +117,31 @@ namespace OpenSage.Data.Ini
         Critical
     }
 
-    [Flags]
     public enum AudioTypeFlags
     {
-        None = 0,
-
         [IniEnum("DEFAULT")]
-        Default = 1 << 0,
+        Default,
 
         [IniEnum("world")]
-        World = 1 << 1,
+        World,
 
         [IniEnum("shrouded")]
-        Shrouded = 1 << 2,
+        Shrouded,
 
         [IniEnum("everyone")]
-        Everyone = 1 << 3,
+        Everyone,
 
         [IniEnum("ui")]
-        UI = 1 << 4,
+        UI,
 
         [IniEnum("player")]
-        Player = 1 << 5,
+        Player,
 
         [IniEnum("global")]
-        Global = 1 << 6,
+        Global,
 
         [IniEnum("voice")]
-        Voice = 1 << 7
+        Voice
     }
 
     [Flags]

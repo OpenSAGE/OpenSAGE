@@ -70,6 +70,7 @@ namespace OpenSage.Data.Ini
         public List<ShellMenuScheme> ShellMenuSchemes { get; } = new List<ShellMenuScheme>();
         public List<SpecialPower> SpecialPowers { get; } = new List<SpecialPower>();
         public List<StaticGameLod> StaticGameLods { get; } = new List<StaticGameLod>();
+        public List<LoadSubsystem> Subsystems { get; } = new List<LoadSubsystem>();
         public List<TerrainTexture> TerrainTextures { get; } = new List<TerrainTexture>();
         public List<Upgrade> Upgrades { get; } = new List<Upgrade>();
         public List<Video> Videos { get; } = new List<Video>();

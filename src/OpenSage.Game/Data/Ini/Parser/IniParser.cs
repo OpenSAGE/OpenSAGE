@@ -45,6 +45,7 @@ namespace OpenSage.Data.Ini.Parser
             { "LivingWorldCampaign", (parser, context) => context.LivingWorldCampaigns.Add(LivingWorldCampaign.Parse(parser)) },
             { "LivingWorldPlayerArmy", (parser, context) => context.LivingWorldPlayerArmies.Add(LivingWorldPlayerArmy.Parse(parser)) },
             { "LivingWorldRegionCampaign", (parser, context) => context.LivingWorldRegionCampaigns.Add(LivingWorldRegionCampaign.Parse(parser)) },
+            { "LoadSubsystem", (parser, context) => context.Subsystems.Add(LoadSubsystem.Parse(parser)) },
             { "Locomotor", (parser, context) => context.Locomotors.Add(Locomotor.Parse(parser)) },
             { "LODPreset", (parser, context) => context.LodPresets.Add(LodPreset.Parse(parser)) },
             { "MapCache", (parser, context) => context.MapCaches.Add(MapCache.Parse(parser)) },
