@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data;
+using OpenSage.Utilities.Extensions;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
@@ -39,7 +40,7 @@ namespace OpenSage.Game.Tests
         static GameTestDiscoverer()
         {
             var locator = new RegistryInstallationLocator();
-            InstalledGames = new HashSet<SageGame>(SageGames.GetAll().Where(game => locator.FindInstallations(game).Any()));
+            InstalledGames = SageGames.GetAll().Where(game => locator.FindInstallations(game).Any()).ToSet();
         }
     }
 }
