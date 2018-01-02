@@ -55,6 +55,23 @@ namespace OpenSage.Data.Apt
                         case ConstantEntryType.Number:
                             constEntry.Value = entryValue;
                             break;
+                        case ConstantEntryType.Unknown1:
+                            // TODO
+                            break;
+                        case ConstantEntryType.Unknown2:
+                            // TODO
+                            break;
+                        case ConstantEntryType.Unknown3:
+                            // TODO
+                            break;
+                        case ConstantEntryType.Unknown4:
+                            // TODO
+                            break;
+                        case ConstantEntryType.Unknown5:
+                            // TODO
+                            break;
+                        default:
+                            throw new InvalidDataException();
                     }
 
                     data.Entries.Add(constEntry);
@@ -69,7 +86,17 @@ namespace OpenSage.Data.Apt
     {
         Undef = 0,
         String = 1,
+
+        // TODO: Used in BFME I
+        Unknown1 = 3,
+
         Number = 4,
+
+        // TODO: Used in BFME I
+        Unknown2 = 5,
+        Unknown3 = 6,
+        Unknown4 = 7,
+        Unknown5 = 8
     }
 
     public sealed class ConstantEntry
