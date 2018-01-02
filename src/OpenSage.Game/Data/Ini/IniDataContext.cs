@@ -115,7 +115,7 @@ namespace OpenSage.Data.Ini
                 source = reader.ReadToEnd();
             }
 
-            var parser = new IniParser(source, entry.FilePath, this);
+            var parser = new IniParser(source, entry, this);
             parser.ParseFile();
 
             _alreadyLoaded.Add(entry.FilePath);

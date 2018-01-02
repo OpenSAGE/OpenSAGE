@@ -3,7 +3,47 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
-    public sealed class AudioEvent
+    public abstract class BaseSingleSound
+    {
+        public string Name { get; protected set; }
+
+        public float Volume { get; private set; } = 100;
+        public int VolumeShift { get; private set; }
+        public int MinVolume { get; private set; }
+        public int Limit { get; private set; }
+        public AudioPriority Priority { get; private set; } = AudioPriority.Normal;
+        public AudioTypeFlags Type { get; private set; }
+        public AudioControlFlags Control { get; private set; }
+        public float MinRange { get; private set; }
+        public float MaxRange { get; private set; }
+        public int LowPassCutoff { get; private set; }
+        public int ReverbEffectLevel { get; private set; }
+        public int DryLevel { get; private set; }
+        public AudioVolumeSlider SubmixSlider { get; private set; }
+        public FloatRange PitchShift { get; private set; }
+        public IntRange Delay { get; private set; }
+
+        internal static readonly IniParseTable<BaseSingleSound> FieldParseTable = new IniParseTable<BaseSingleSound>
+        {
+            { "Volume", (parser, x) => x.Volume = parser.ParseFloat() },
+            { "VolumeShift", (parser, x) => x.VolumeShift = parser.ParseInteger() },
+            { "MinVolume", (parser, x) => x.MinVolume = parser.ParseInteger() },
+            { "Limit", (parser, x) => x.Limit = parser.ParseInteger() },
+            { "Priority", (parser, x) => x.Priority = parser.ParseEnum<AudioPriority>() },
+            { "Type", (parser, x) => x.Type = parser.ParseEnumFlags<AudioTypeFlags>() },
+            { "Control", (parser, x) => x.Control = parser.ParseEnumFlags<AudioControlFlags>() },
+            { "MinRange", (parser, x) => x.MinRange = parser.ParseFloat() },
+            { "MaxRange", (parser, x) => x.MaxRange = parser.ParseFloat() },
+            { "LowPassCutoff", (parser, x) => x.LowPassCutoff = parser.ParseInteger() },
+            { "ReverbEffectLevel", (parser, x) => x.MaxRange = parser.ParseInteger() },
+            { "DryLevel", (parser, x) => x.MaxRange = parser.ParseInteger() },
+            { "SubmixSlider", (parser, x) => x.SubmixSlider = parser.ParseEnum<AudioVolumeSlider>() },
+            { "PitchShift", (parser, x) => x.PitchShift = FloatRange.Parse(parser) },
+            { "Delay", (parser, x) => x.Delay = IntRange.Parse(parser) },
+        };
+    }
+
+    public sealed class AudioEvent : BaseSingleSound
     {
         internal static AudioEvent Parse(IniParser parser)
         {
@@ -12,44 +52,19 @@ namespace OpenSage.Data.Ini
                 FieldParseTable);
         }
 
-        private static readonly IniParseTable<AudioEvent> FieldParseTable = new IniParseTable<AudioEvent>
-        {
-            { "Priority", (parser, x) => x.Priority = parser.ParseEnum<AudioPriority>() },
-            { "Control", (parser, x) => x.Control = parser.ParseEnumFlags<AudioControlFlags>() },
-            { "Sounds", (parser, x) => x.Sounds = parser.ParseAssetReferenceArray() },
-            { "Attack", (parser, x) => x.Attack = parser.ParseAssetReferenceArray() },
-            { "Decay", (parser, x) => x.Decay = parser.ParseAssetReferenceArray() },
-            { "PitchShift", (parser, x) => x.PitchShift = FloatRange.Parse(parser) },
-            { "Delay", (parser, x) => x.Delay = IntRange.Parse(parser) },
-            { "LoopCount", (parser, x) => x.LoopCount = parser.ParseInteger() },
-            { "VolumeShift", (parser, x) => x.VolumeShift = parser.ParseInteger() },
-            { "Volume", (parser, x) => x.Volume = parser.ParseInteger() },
-            { "MinVolume", (parser, x) => x.MinVolume = parser.ParseInteger() },
-            { "LowPassCutoff", (parser, x) => x.LowPassCutoff = parser.ParseInteger() },
-            { "Limit", (parser, x) => x.Limit = parser.ParseInteger() },
-            { "MinRange", (parser, x) => x.MinRange = parser.ParseFloat() },
-            { "MaxRange", (parser, x) => x.MaxRange = parser.ParseFloat() },
-            { "Type", (parser, x) => x.Type = parser.ParseEnumFlags<AudioTypeFlags>() },
-        };
+        private static new readonly IniParseTable<AudioEvent> FieldParseTable = BaseSingleSound.FieldParseTable
+            .Concat(new IniParseTable<AudioEvent>
+            {
+                { "Sounds", (parser, x) => x.Sounds = parser.ParseAssetReferenceArray() },
+                { "Attack", (parser, x) => x.Attack = parser.ParseAssetReferenceArray() },
+                { "Decay", (parser, x) => x.Decay = parser.ParseAssetReferenceArray() },
+                { "LoopCount", (parser, x) => x.LoopCount = parser.ParseInteger() },
+            });
 
-        public string Name { get; private set; }
-
-        public AudioPriority Priority { get; private set; } = AudioPriority.Normal;
-        public AudioControlFlags Control { get; private set; }
         public string[] Sounds { get; private set; }
         public string[] Attack { get; private set; }
         public string[] Decay { get; private set; }
-        public FloatRange PitchShift { get; private set; }
-        public IntRange Delay { get; private set; }
         public int LoopCount { get; private set; }
-        public int VolumeShift { get; private set; }
-        public int Volume { get; private set; } = 100;
-        public int MinVolume { get; private set; }
-        public int LowPassCutoff { get; private set; }
-        public int Limit { get; private set; }
-        public float MinRange { get; private set; }
-        public float MaxRange { get; private set; }
-        public AudioTypeFlags Type { get; private set; }
     }
 
     public struct IntRange
@@ -105,26 +120,29 @@ namespace OpenSage.Data.Ini
     {
         None = 0,
 
+        [IniEnum("DEFAULT")]
+        Default = 1 << 0,
+
         [IniEnum("world")]
-        World = 1 << 0,
+        World = 1 << 1,
 
         [IniEnum("shrouded")]
-        Shrouded = 1 << 1,
+        Shrouded = 1 << 2,
 
         [IniEnum("everyone")]
-        Everyone = 1 << 2,
+        Everyone = 1 << 3,
 
         [IniEnum("ui")]
-        UI = 1 << 3,
+        UI = 1 << 4,
 
         [IniEnum("player")]
-        Player = 1 << 4,
+        Player = 1 << 5,
 
         [IniEnum("global")]
-        Global = 1 << 5,
+        Global = 1 << 6,
 
         [IniEnum("voice")]
-        Voice = 1 << 6
+        Voice = 1 << 7
     }
 
     [Flags]
@@ -142,6 +160,9 @@ namespace OpenSage.Data.Ini
         Interrupt = 1 << 2,
 
         [IniEnum("random")]
-        Random = 1 << 3
+        Random = 1 << 3,
+
+        [IniEnum("RANDOMSTART")]
+        RandomStart = 1 << 4
     }
 }

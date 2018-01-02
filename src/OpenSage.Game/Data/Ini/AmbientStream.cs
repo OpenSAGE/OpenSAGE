@@ -1,10 +1,9 @@
-﻿using System;
-using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
     [AddedIn(SageGame.BattleForMiddleEarth)]
-    public sealed class AmbientStream
+    public sealed class AmbientStream : BaseSingleSound
     {
         internal static AmbientStream Parse(IniParser parser)
         {
@@ -13,17 +12,22 @@ namespace OpenSage.Data.Ini
                 FieldParseTable);
         }
 
-        private static readonly IniParseTable<AmbientStream> FieldParseTable = new IniParseTable<AmbientStream>
-        {
-            { "Filename", (parser, x) => x.FileName = parser.ParseFileName() },
-            { "Volume", (parser, x) => x.Volume = parser.ParseFloat() },
-            { "Type", (parser, x) => x.Type = parser.ParseEnumFlags<AudioTypeFlags>() }
-        };
+        private static new readonly IniParseTable<AmbientStream> FieldParseTable = BaseSingleSound.FieldParseTable
+            .Concat(new IniParseTable<AmbientStream>
+            {
+                { "Filename", (parser, x) => x.Filename = parser.ParseFileName() },
+            });
 
-        public string Name { get; private set; }
+        public string Filename { get; private set; }
+    }
 
-        public string FileName { get; private set; }
-        public float Volume { get; private set; }
-        public AudioTypeFlags Type { get; private set; }
+    [AddedIn(SageGame.BattleForMiddleEarth)]
+    public enum AudioVolumeSlider
+    {
+        [IniEnum("MUSIC")]
+        Music,
+
+        [IniEnum("AMBIENT")]
+        Ambient
     }
 }

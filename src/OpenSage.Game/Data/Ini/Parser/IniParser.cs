@@ -57,12 +57,14 @@ namespace OpenSage.Data.Ini.Parser
             { "MultiplayerSettings", (parser, context) => context.MultiplayerSettings = MultiplayerSettings.Parse(parser) },
             { "MultiplayerStartingMoneyChoice", (parser, context) => context.MultiplayerStartingMoneyChoices.Add(MultiplayerStartingMoneyChoice.Parse(parser)) },
             { "MusicTrack", (parser, context) => context.MusicTracks.Add(MusicTrack.Parse(parser)) },
+            { "NewEvaEvent", (parser, context) => context.EvaEvents.Add(EvaEvent.Parse(parser)) },
             { "Object", (parser, context) => context.Objects.Add(ObjectDefinition.Parse(parser)) },
             { "ObjectReskin", (parser, context) => context.Objects.Add(ObjectDefinition.ParseReskin(parser)) },
             { "ObjectCreationList", (parser, context) => context.ObjectCreationLists.Add(ObjectCreationList.Parse(parser)) },
             { "OnlineChatColors", (parser, context) => context.OnlineChatColors = OnlineChatColors.Parse(parser) },
             { "ParticleSystem", (parser, context) => context.ParticleSystems.Add(ParticleSystemDefinition.Parse(parser)) },
             { "PlayerTemplate", (parser, context) => context.PlayerTemplates.Add(PlayerTemplate.Parse(parser)) },
+            { "PredefinedEvaEvent", (parser, context) => context.EvaEvents.Add(EvaEvent.Parse(parser)) },
             { "Rank", (parser, context) => context.Ranks.Add(Rank.Parse(parser)) },
             { "Road", (parser, context) => context.Roads.Add(Road.Parse(parser)) },
             { "ReallyLowMHz", (parser, context) => context.ReallyLowMHz = ReallyLowMHz.Parse(parser) },
@@ -100,12 +102,12 @@ namespace OpenSage.Data.Ini.Parser
 
         public IniTokenPosition CurrentPosition => _tokenReader.CurrentPosition;
 
-        public IniParser(string source, string fileName, IniDataContext dataContext)
+        public IniParser(string source, FileSystemEntry entry, IniDataContext dataContext)
         {
-            _directory = Path.GetDirectoryName(fileName);
+            _directory = Path.GetDirectoryName(entry.FilePath);
             _dataContext = dataContext;
 
-            _tokenReader = new TokenReader(source, fileName);
+            _tokenReader = new TokenReader(source, Path.Combine(entry.FileSystem.RootDirectory, entry.FilePath));
 
             _currentBlockOrFieldStack = new Stack<string>();
         }

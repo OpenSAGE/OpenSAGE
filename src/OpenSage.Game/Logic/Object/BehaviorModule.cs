@@ -38,6 +38,7 @@ namespace OpenSage.Logic.Object
             { "PropagandaTowerBehavior", PropagandaTowerBehaviorModuleData.Parse },
             { "RailroadBehavior", RailroadBehaviorModuleData.Parse },
             { "RebuildHoleBehavior", RebuildHoleBehaviorModuleData.Parse },
+            { "ShareExperienceBehavior", ShareExperienceBehaviorModuleData.Parse },
             { "SlowDeathBehavior", SlowDeathBehaviorModuleData.Parse },
             { "SpawnBehavior", SpawnBehaviorModuleData.Parse },
             { "SupplyWarehouseCripplingBehavior", SupplyWarehouseCripplingBehaviorModuleData.Parse },
@@ -112,6 +113,7 @@ namespace OpenSage.Logic.Object
             // Update
             { "AnimationSteeringUpdate", AnimationSteeringUpdateModuleData.Parse },
             { "AssistedTargetingUpdate", AssistedTargetingUpdateModuleData.Parse },
+            { "AttributeModifierPoolUpdate", AttributeModifierPoolUpdateModuleData.Parse },
             { "AutoDepositUpdate", AutoDepositUpdateModuleData.Parse },
             { "AutoFindHealingUpdate", AutoFindHealingUpdateModuleData.Parse },
             { "BaseRegenerateUpdate", BaseRegenerateUpdateModuleData.Parse },
@@ -166,6 +168,7 @@ namespace OpenSage.Logic.Object
             { "SupplyCenterDockUpdate", SupplyCenterDockUpdateModuleData.Parse },
             { "SupplyCenterProductionExitUpdate", SupplyCenterProductionExitUpdateModuleData.Parse },
             { "SupplyWarehouseDockUpdate", SupplyWarehouseDockUpdateModuleData.Parse },
+            { "TemporarilyDefectUpdate", TemporarilyDefectUpdateModuleData.Parse },
             { "TensileFormationUpdate", TensileFormationUpdateModuleData.Parse },
             { "ToppleUpdate", ToppleUpdateModuleData.Parse },
             { "WaveGuideUpdate", WaveGuideUpdateModuleData.Parse },
@@ -189,6 +192,7 @@ namespace OpenSage.Logic.Object
 
             // Upgrade
             { "ArmorUpgrade", ArmorUpgradeModuleData.Parse },
+            { "AttributeModifierUpgrade", AttributeModifierUpgradeModuleData.Parse },
             { "CommandSetUpgrade", CommandSetUpgradeModuleData.Parse },
             { "CostModifierUpgrade", CostModifierUpgradeModuleData.Parse },
             { "ExperienceScalarUpgrade", ExperienceScalarUpgradeModuleData.Parse },

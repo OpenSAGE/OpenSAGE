@@ -2,7 +2,7 @@
 
 namespace OpenSage.Data.Ini
 {
-    public sealed class MusicTrack
+    public sealed class MusicTrack : BaseSingleSound
     {
         internal static MusicTrack Parse(IniParser parser)
         {
@@ -11,15 +11,12 @@ namespace OpenSage.Data.Ini
                 FieldParseTable);
         }
 
-        private static readonly IniParseTable<MusicTrack> FieldParseTable = new IniParseTable<MusicTrack>
-        {
-            { "Filename", (parser, x) => x.Filename = parser.ParseFileName() },
-            { "Volume", (parser, x) => x.Volume = parser.ParseFloat() }
-        };
-
-        public string Name { get; private set; }
+        private static new readonly IniParseTable<MusicTrack> FieldParseTable = BaseSingleSound.FieldParseTable
+            .Concat(new IniParseTable<MusicTrack>
+            {
+                { "Filename", (parser, x) => x.Filename = parser.ParseFileName() },
+            });
 
         public string Filename { get; private set; }
-        public float Volume { get; private set; } = 100;
     }
 }
