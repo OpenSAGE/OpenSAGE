@@ -127,15 +127,15 @@ namespace OpenSage.Data.Apt
                         case 1:
                             map.Mapping.Add(image,new DirectAssignment(texture));
                             break;
-                        case 5:
+                        case 4:
                             Rectangle rect = new Rectangle(
+                                Convert.ToInt32(assigment[0]),
                                 Convert.ToInt32(assigment[1]),
                                 Convert.ToInt32(assigment[2]),
-                                Convert.ToInt32(assigment[3]),
-                                Convert.ToInt32(assigment[4])
+                                Convert.ToInt32(assigment[3])
                                 );
 
-                            map.Mapping.Add(image, new RectangleAssignment(texture,rect));
+                            map.Mapping.Add(image, new RectangleAssignment(image,rect));
                             break;
                         default:
                             throw new InvalidDataException();

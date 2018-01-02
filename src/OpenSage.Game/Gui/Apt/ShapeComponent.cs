@@ -44,8 +44,7 @@ namespace OpenSage.Gui.Apt
                 {
                     var assignment = _map.Mapping[gtt.Image];
 
-                    if (assignment is DirectAssignment da)
-                        usedIds.Add(da.TextureId);
+                    usedIds.Add(assignment.TextureId);
                 }
             }
 
@@ -116,7 +115,7 @@ namespace OpenSage.Gui.Apt
             var top = (Frame.Y / (float) windowSize.Height) * 2 - 1;
             var right = ((Frame.X + Frame.Width) / (float) windowSize.Width) * 2 - 1;
             var bottom = ((Frame.Y + Frame.Height) / (float) windowSize.Height) * 2 - 1;
-
+           
             var vertices = new[]
             {
                 new SpriteVertex(new Vector2(left, top * -1), new Vector2(0, 0)),
@@ -158,10 +157,10 @@ namespace OpenSage.Gui.Apt
                         foreach(var line in l.Lines)
                         {
                             RawLineF rl;
-                            rl.X1 = line.V0.X + Shape.BoundingBox.Width;
-                            rl.Y1 = line.V0.Y + Shape.BoundingBox.Height;
-                            rl.X2 = line.V1.X + Shape.BoundingBox.Width;
-                            rl.Y2 = line.V1.Y + Shape.BoundingBox.Height;
+                            rl.X1 = line.V0.X;
+                            rl.Y1 = line.V0.Y;
+                            rl.X2 = line.V1.X;
+                            rl.Y2 = line.V1.Y;
                             rl.Thickness = l.Thickness;
                             drawingContext.DrawLine(rl, ToFloatColor(l.Color));
                         }                     
@@ -171,12 +170,12 @@ namespace OpenSage.Gui.Apt
                         foreach(var tri in st.Triangles)
                         {
                             RawTriangleF rt;
-                            rt.X1 = tri.V0.X + Shape.BoundingBox.Width;
-                            rt.Y1 = tri.V0.Y + Shape.BoundingBox.Height;
-                            rt.X2 = tri.V1.X + Shape.BoundingBox.Width;
-                            rt.Y2 = tri.V1.Y + Shape.BoundingBox.Height;
-                            rt.X3 = tri.V2.X + Shape.BoundingBox.Width;
-                            rt.Y3 = tri.V2.Y + Shape.BoundingBox.Height;
+                            rt.X1 = tri.V0.X;
+                            rt.Y1 = tri.V0.Y;
+                            rt.X2 = tri.V1.X;
+                            rt.Y2 = tri.V1.Y;
+                            rt.X3 = tri.V2.X;
+                            rt.Y3 = tri.V2.Y;
                             drawingContext.FillTriangle(rt, ToFloatColor(st.Color));
                         }
                     }
@@ -185,25 +184,25 @@ namespace OpenSage.Gui.Apt
                         foreach (var tri in tt.Triangles)
                         {
                             RawTriangleF rt;
-                            rt.X1 = tri.V0.X + Shape.BoundingBox.Width;
-                            rt.Y1 = tri.V0.Y + Shape.BoundingBox.Height;
-                            rt.X2 = tri.V1.X + Shape.BoundingBox.Width;
-                            rt.Y2 = tri.V1.Y + Shape.BoundingBox.Height;
-                            rt.X3 = tri.V2.X + Shape.BoundingBox.Width;
-                            rt.Y3 = tri.V2.Y + Shape.BoundingBox.Height;
+                            rt.X1 = tri.V0.X;
+                            rt.Y1 = tri.V0.Y;
+                            rt.X2 = tri.V1.X;
+                            rt.Y2 = tri.V1.Y;
+                            rt.X3 = tri.V2.X;
+                            rt.Y3 = tri.V2.Y;
                             RawMatrix3x2 transform;
                             transform.M11 = tt.Rotation.M11;
                             transform.M12 = tt.Rotation.M12;
                             transform.M21 = tt.Rotation.M21;
                             transform.M22 = tt.Rotation.M22;
-                            transform.M31 = tt.Translation.X;
-                            transform.M32 = tt.Translation.Y;
+                            transform.M31 = -tt.Translation.X;
+                            transform.M32 = -tt.Translation.Y;
                             
                             var assignment = _map.Mapping[tt.Image];
                             var texId = assignment.TextureId;
 
-                            if (assignment is RectangleAssignment)
-                                throw new NotImplementedException();
+                            //if (assignment is RectangleAssignment)
+                            //    throw new NotImplementedException();
 
                             var tex = _usedTextures[texId];
 
