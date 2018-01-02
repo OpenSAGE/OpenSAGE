@@ -38,6 +38,7 @@ namespace OpenSage.Data.Ini
         public DrawGroupInfo DrawGroupInfo { get; internal set; }
         public List<DynamicGameLod> DynamicGameLods { get; } = new List<DynamicGameLod>();
         public List<EvaEvent> EvaEvents { get; } = new List<EvaEvent>();
+        public List<FactionVictoryData> FactionVictoryDatas { get; } = new List<FactionVictoryData>();
         public List<FXList> FXLists { get; } = new List<FXList>();
         public GameData GameData { get; internal set; }
         public List<HeaderTemplate> HeaderTemplates { get; } = new List<HeaderTemplate>();
@@ -73,8 +74,10 @@ namespace OpenSage.Data.Ini
         public List<LoadSubsystem> Subsystems { get; } = new List<LoadSubsystem>();
         public List<TerrainTexture> TerrainTextures { get; } = new List<TerrainTexture>();
         public List<Upgrade> Upgrades { get; } = new List<Upgrade>();
+        public List<VictorySystemData> VictorySystemDatas { get; } = new List<VictorySystemData>();
         public List<Video> Videos { get; } = new List<Video>();
         public List<WaterSet> WaterSets { get; } = new List<WaterSet>();
+        public List<WaterTextureList> WaterTextureLists { get; } = new List<WaterTextureList>();
         public WaterTransparency WaterTransparency { get; internal set; }
         public List<Weapon> Weapons { get; } = new List<Weapon>();
         public Weather Weather { get; internal set; }
