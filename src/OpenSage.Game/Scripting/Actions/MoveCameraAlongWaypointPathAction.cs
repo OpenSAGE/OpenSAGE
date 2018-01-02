@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Settings;
 using ScriptAction = OpenSage.Data.Map.ScriptAction;
@@ -9,7 +8,6 @@ namespace OpenSage.Scripting.Actions
     public sealed class MoveCameraAlongWaypointPathAction : MapScriptAction
     {
         private readonly WaypointPath _waypointPath;
-        private readonly Vector3 _direction;
         private readonly TimeSpan _duration;
         private readonly float _shutter;
 
@@ -17,9 +15,9 @@ namespace OpenSage.Scripting.Actions
 
         public MoveCameraAlongWaypointPathAction(ScriptAction action, SceneSettings sceneSettings)
         {
-            _waypointPath = sceneSettings.WaypointPaths[action.Arguments[0].StringValue];
+            var firstNode = sceneSettings.Waypoints[action.Arguments[0].StringValue];
 
-            _direction = _waypointPath.End.Position - _waypointPath.Start.Position;
+            _waypointPath = sceneSettings.WaypointPaths[firstNode];
 
             _duration = TimeSpan.FromSeconds(action.Arguments[1].FloatValue.Value);
 

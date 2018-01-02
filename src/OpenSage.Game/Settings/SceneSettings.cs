@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Effects;
+using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Settings
 {
@@ -16,8 +18,7 @@ namespace OpenSage.Settings
         internal LightSettings CurrentLightingConfiguration => LightingConfigurations[TimeOfDay];
 
         public WaypointCollection Waypoints { get; set; }
-
-        public Dictionary<string, WaypointPath> WaypointPaths { get; }
+        public WaypointPathCollection WaypointPaths { get; set; }
 
         public SceneSettings()
         {
@@ -46,7 +47,7 @@ namespace OpenSage.Settings
             TimeOfDay = TimeOfDay.Morning;
 
             Waypoints = new WaypointCollection(new Waypoint[0]);
-            WaypointPaths = new Dictionary<string, WaypointPath>();
+            WaypointPaths = new WaypointPathCollection(new WaypointPath[0]);
         }
     }
 
@@ -80,11 +81,42 @@ namespace OpenSage.Settings
         public string Name { get; }
         public Vector3 Position { get; }
 
-        public Waypoint(uint id, string name, Vector3 position)
+        public IEnumerable<string> PathLabels { get; }
+
+        public Waypoint(uint id, string name, Vector3 position, IEnumerable<string> pathLabels = null)
         {
             ID = id;
             Name = name;
             Position = position;
+
+            PathLabels = pathLabels != null
+                ? pathLabels.WhereNot(string.IsNullOrWhiteSpace).ToSet()
+                : Enumerable.Empty<string>();
+        }
+    }
+
+    public sealed class WaypointPathCollection
+    {
+        private readonly Dictionary<string, WaypointPath> _waypointPathsByLabel;
+        private readonly Dictionary<Waypoint, WaypointPath> _waypointPathsByFirstNode;
+
+        public WaypointPath this[Waypoint firstNode] => _waypointPathsByFirstNode[firstNode];
+        public WaypointPath this[string label] => _waypointPathsByLabel[label];
+
+        public WaypointPathCollection(IEnumerable<WaypointPath> paths)
+        {
+            _waypointPathsByLabel = new Dictionary<string, WaypointPath>();
+            _waypointPathsByFirstNode = new Dictionary<Waypoint, WaypointPath>();
+
+            foreach (var path in paths)
+            {
+                foreach (var label in path.Start.PathLabels)
+                {
+                    _waypointPathsByLabel[label] = path;
+                }
+
+                _waypointPathsByFirstNode[path.Start] = path;
+            }
         }
     }
 

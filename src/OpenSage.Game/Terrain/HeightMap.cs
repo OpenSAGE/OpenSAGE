@@ -17,11 +17,20 @@ namespace OpenSage.Terrain
 
         public float GetHeight(int x, int y) => _heightMapData.Elevations[x, y] * _verticalScale;
 
+        /// <summary>
+        /// Gets height at the given world space coordinate.
+        /// Returns 0 if the coordinate is out of bounds.
+        /// </summary>
         public float GetHeight(float x, float y)
         {
             // convert coordinates to heightmap scale
             x = x / HorizontalScale + _heightMapData.BorderWidth;
             y = y / HorizontalScale + _heightMapData.BorderWidth;
+
+            if (x >= Width || y >= Height || x < 0 || y < 0)
+            {
+                return 0;
+            }
 
             // get integer and fractional parts of coordinates
             int nIntX0 = MathUtility.FloorToInt(x);

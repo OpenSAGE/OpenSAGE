@@ -100,14 +100,14 @@ namespace OpenSage.Content
                 // TODO
             }
 
-            foreach (var waypointPath in mapFile.WaypointsList.WaypointPaths)
+            var waypointPaths = mapFile.WaypointsList.WaypointPaths.Select(path =>
             {
-                var start = result.Settings.Waypoints[waypointPath.StartWaypointID];
-                var end = result.Settings.Waypoints[waypointPath.EndWaypointID];
+                var start = result.Settings.Waypoints[path.StartWaypointID];
+                var end = result.Settings.Waypoints[path.EndWaypointID];
+                return new Settings.WaypointPath(start, end);
+            }).ToList();
 
-                result.Settings.WaypointPaths[start.Name] = new Settings.WaypointPath(
-                    start, end);
-            }
+            result.Settings.WaypointPaths = new WaypointPathCollection(waypointPaths);
 
             var scriptsEntity = new Entity();
             result.Entities.Add(scriptsEntity);
@@ -214,6 +214,29 @@ namespace OpenSage.Content
             return result;
         }
 
+        private static Waypoint CreateWaypoint(MapObject mapObject)
+        {
+            var waypointID = (uint) mapObject.Properties["waypointID"].Value;
+            var waypointName = (string) mapObject.Properties["waypointName"].Value;
+
+            string[] pathLabels = null;
+
+            var label1 = mapObject.Properties["waypointPathLabel1"];
+
+            // It seems that if one of the label properties exists, all of them do
+            if (label1 != null)
+            {
+                pathLabels = new[]
+                {
+                    (string) label1.Value,
+                    (string) mapObject.Properties["waypointPathLabel2"].Value,
+                    (string) mapObject.Properties["waypointPathLabel3"].Value
+                };
+            }
+
+            return new Waypoint(waypointID, waypointName, mapObject.Position, pathLabels);
+        }
+
         private static void LoadObjects(
             ContentManager contentManager,
             Entity objectsEntity, 
@@ -233,12 +256,11 @@ namespace OpenSage.Content
                         switch (mapObject.TypeName)
                         {
                             case "*Waypoints/Waypoint":
-                                var waypointID = (uint) mapObject.Properties["waypointID"].Value;
-                                var waypointName = (string) mapObject.Properties["waypointName"].Value;
-                                waypoints.Add(new Waypoint(waypointID, waypointName, position));
+                                waypoints.Add(CreateWaypoint(mapObject));
                                 break;
 
                             default:
+                                // TODO: Handle locomotors when they're implemented.
                                 position.Z += heightMap.GetHeight(position.X, position.Y);
 
                                 var objectEntity = contentManager.InstantiateObject(mapObject.TypeName);

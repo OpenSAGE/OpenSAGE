@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Data
 {
@@ -111,7 +112,7 @@ namespace OpenSage.Data
         private IEnumerable<string> GetValidPaths(IEnumerable<string> paths)
         {
             return paths
-                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .WhereNot(string.IsNullOrWhiteSpace)
                 .Distinct()
                 .Where(Directory.Exists);
         }
