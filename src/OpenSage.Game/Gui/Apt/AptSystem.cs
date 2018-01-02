@@ -69,21 +69,6 @@ namespace OpenSage.Gui.Apt
             }
         }
 
-
-
-        private static void DoActionRecursive(UIElement element, Func<UIElement, bool> action)
-        {
-            if (!action(element))
-            {
-                return;
-            }
-
-            foreach (var child in element.Children)
-            {
-                DoActionRecursive(child, action);
-            }
-        }
-
         public override void Update(GameTime gameTime)
         {
           

@@ -19,20 +19,20 @@ namespace OpenSage.Data.Apt
         Line
     }
 
-    public interface GeometryEntry
+    public interface IGeometryEntry
     {
         GeometryStyle Type { get; }
     }
 
     public sealed class Geometry
     {
-        public List<GeometryEntry> Entries { get; private set; }
+        public List<IGeometryEntry> Entries { get; private set; }
         public RectangleF BoundingBox { get; private set; }
 
 
         public Geometry()
         {
-            Entries = new List<GeometryEntry>();
+            Entries = new List<IGeometryEntry>();
         }
 
         public static Geometry FromFileSystemEntry(FileSystemEntry entry)
@@ -60,11 +60,11 @@ namespace OpenSage.Data.Apt
                         case GeometryStyle.Undefined:
                             break;
                         case GeometryStyle.TexturedTri:
-                            geometry.Entries.Add(new GeometryTexturedTriangles(tris, color,image,rotMat,translation));
+                            geometry.Entries.Add(new GeometryTexturedTriangles(new List<Triangle2D>(tris), color, image, rotMat, translation));
                             tris.Clear();
                             break;
                         case GeometryStyle.SolidTri:
-                            geometry.Entries.Add(new GeometrySolidTriangles(tris, color));
+                            geometry.Entries.Add(new GeometrySolidTriangles(new List<Triangle2D>(tris), color));
                             tris.Clear();
                             break;
                         case GeometryStyle.Line:
@@ -184,58 +184,58 @@ namespace OpenSage.Data.Apt
 
             foreach (var entry in Entries)
             {
-                if (entry is GeometryLines gl)
+                switch (entry)
                 {
-                    foreach (var line in gl.Lines)
-                    {
-                        if (line.V0.X < topLeft.X) topLeft.X = line.V0.X;
-                        if (line.V1.X < topLeft.X) topLeft.X = line.V1.X;
-                        if (line.V0.Y < topLeft.Y) topLeft.Y = line.V0.Y;
-                        if (line.V1.Y < topLeft.Y) topLeft.Y = line.V1.Y;
+                    case GeometryLines gl:
+                        foreach (var line in gl.Lines)
+                        {
+                            if (line.V0.X < topLeft.X) topLeft.X = line.V0.X;
+                            if (line.V1.X < topLeft.X) topLeft.X = line.V1.X;
+                            if (line.V0.Y < topLeft.Y) topLeft.Y = line.V0.Y;
+                            if (line.V1.Y < topLeft.Y) topLeft.Y = line.V1.Y;
 
-                        if (line.V0.X > botRight.X) botRight.X = line.V0.X;
-                        if (line.V1.X > botRight.X) botRight.X = line.V1.X;
-                        if (line.V0.Y > botRight.Y) botRight.Y = line.V0.Y;
-                        if (line.V1.Y > botRight.Y) botRight.Y = line.V1.Y;
-                    }
-                }
-                else if (entry is GeometrySolidTriangles gst)
-                {
-                    foreach (var tri in gst.Triangles)
-                    {
-                        if (tri.V0.X < topLeft.X) topLeft.X = tri.V0.X;
-                        if (tri.V1.X < topLeft.X) topLeft.X = tri.V1.X;
-                        if (tri.V2.X < topLeft.X) topLeft.X = tri.V2.X;
-                        if (tri.V0.Y < topLeft.Y) topLeft.Y = tri.V0.Y;
-                        if (tri.V1.Y < topLeft.Y) topLeft.Y = tri.V1.Y;
-                        if (tri.V2.Y < topLeft.Y) topLeft.Y = tri.V2.Y;
+                            if (line.V0.X > botRight.X) botRight.X = line.V0.X;
+                            if (line.V1.X > botRight.X) botRight.X = line.V1.X;
+                            if (line.V0.Y > botRight.Y) botRight.Y = line.V0.Y;
+                            if (line.V1.Y > botRight.Y) botRight.Y = line.V1.Y;
+                        }
+                        break;
+                    case GeometrySolidTriangles gst:
+                        foreach (var tri in gst.Triangles)
+                        {
+                            if (tri.V0.X < topLeft.X) topLeft.X = tri.V0.X;
+                            if (tri.V1.X < topLeft.X) topLeft.X = tri.V1.X;
+                            if (tri.V2.X < topLeft.X) topLeft.X = tri.V2.X;
+                            if (tri.V0.Y < topLeft.Y) topLeft.Y = tri.V0.Y;
+                            if (tri.V1.Y < topLeft.Y) topLeft.Y = tri.V1.Y;
+                            if (tri.V2.Y < topLeft.Y) topLeft.Y = tri.V2.Y;
 
-                        if (tri.V0.X > botRight.X) botRight.X = tri.V0.X;
-                        if (tri.V1.X > botRight.X) botRight.X = tri.V1.X;
-                        if (tri.V2.X > botRight.X) botRight.X = tri.V2.X;
-                        if (tri.V0.Y > botRight.Y) botRight.Y = tri.V0.Y;
-                        if (tri.V1.Y > botRight.Y) botRight.Y = tri.V1.Y;
-                        if (tri.V2.Y > botRight.Y) botRight.Y = tri.V2.Y;
-                    }
-                }
-                else if (entry is GeometryTexturedTriangles gtt)
-                {
-                    foreach (var tri in gtt.Triangles)
-                    {
-                        if (tri.V0.X < topLeft.X) topLeft.X = tri.V0.X;
-                        if (tri.V1.X < topLeft.X) topLeft.X = tri.V1.X;
-                        if (tri.V2.X < topLeft.X) topLeft.X = tri.V2.X;
-                        if (tri.V0.Y < topLeft.Y) topLeft.Y = tri.V0.Y;
-                        if (tri.V1.Y < topLeft.Y) topLeft.Y = tri.V1.Y;
-                        if (tri.V2.Y < topLeft.Y) topLeft.Y = tri.V2.Y;
+                            if (tri.V0.X > botRight.X) botRight.X = tri.V0.X;
+                            if (tri.V1.X > botRight.X) botRight.X = tri.V1.X;
+                            if (tri.V2.X > botRight.X) botRight.X = tri.V2.X;
+                            if (tri.V0.Y > botRight.Y) botRight.Y = tri.V0.Y;
+                            if (tri.V1.Y > botRight.Y) botRight.Y = tri.V1.Y;
+                            if (tri.V2.Y > botRight.Y) botRight.Y = tri.V2.Y;
+                        }
+                        break;
+                    case GeometryTexturedTriangles gtt:
+                        foreach (var tri in gtt.Triangles)
+                        {
+                            if (tri.V0.X < topLeft.X) topLeft.X = tri.V0.X;
+                            if (tri.V1.X < topLeft.X) topLeft.X = tri.V1.X;
+                            if (tri.V2.X < topLeft.X) topLeft.X = tri.V2.X;
+                            if (tri.V0.Y < topLeft.Y) topLeft.Y = tri.V0.Y;
+                            if (tri.V1.Y < topLeft.Y) topLeft.Y = tri.V1.Y;
+                            if (tri.V2.Y < topLeft.Y) topLeft.Y = tri.V2.Y;
 
-                        if (tri.V0.X > botRight.X) botRight.X = tri.V0.X;
-                        if (tri.V1.X > botRight.X) botRight.X = tri.V1.X;
-                        if (tri.V2.X > botRight.X) botRight.X = tri.V2.X;
-                        if (tri.V0.Y > botRight.Y) botRight.Y = tri.V0.Y;
-                        if (tri.V1.Y > botRight.Y) botRight.Y = tri.V1.Y;
-                        if (tri.V2.Y > botRight.Y) botRight.Y = tri.V2.Y;
-                    }
+                            if (tri.V0.X > botRight.X) botRight.X = tri.V0.X;
+                            if (tri.V1.X > botRight.X) botRight.X = tri.V1.X;
+                            if (tri.V2.X > botRight.X) botRight.X = tri.V2.X;
+                            if (tri.V0.Y > botRight.Y) botRight.Y = tri.V0.Y;
+                            if (tri.V1.Y > botRight.Y) botRight.Y = tri.V1.Y;
+                            if (tri.V2.Y > botRight.Y) botRight.Y = tri.V2.Y;
+                        }
+                        break;
                 }
             }
 
@@ -244,39 +244,25 @@ namespace OpenSage.Data.Apt
         }
     }
 
-    public struct GeometrySolidTriangles : GeometryEntry
+    public class GeometrySolidTriangles : IGeometryEntry
     {
-        public ColorRgba Color { get; private set; }
-        public List<Triangle2D> Triangles { get; private set; }
-
-        public GeometryStyle Type
-        {
-            get
-            {
-                return GeometryStyle.SolidTri;
-            }
-        }
-
+        public ColorRgba Color { get; }
+        public List<Triangle2D> Triangles { get; }
+        public GeometryStyle Type => GeometryStyle.SolidTri;
+        
         public GeometrySolidTriangles(List<Triangle2D> triangles, ColorRgba color)
         {
             Color = color;
-            Triangles = new List<Triangle2D>(triangles);
+            Triangles = triangles;
         }
     }
 
-    public struct GeometryLines : GeometryEntry
+    public class GeometryLines : IGeometryEntry
     {
-        public ColorRgba Color { get; private set; }
-        public float Thickness { get; private set; }
-        public List<Line2D> Lines { get; private set; }
-
-        public GeometryStyle Type
-        {
-            get
-            {
-                return GeometryStyle.Line;
-            }
-        }
+        public ColorRgba Color { get; }
+        public float Thickness { get; }
+        public List<Line2D> Lines { get; }
+        public GeometryStyle Type => GeometryStyle.Line;
 
         public GeometryLines(List<Line2D> lines, ColorRgba color, float thickness)
         {
@@ -286,27 +272,19 @@ namespace OpenSage.Data.Apt
         }
     }
 
-    public struct GeometryTexturedTriangles : GeometryEntry
+    public class GeometryTexturedTriangles : IGeometryEntry
     {
-        public ColorRgba Color { get; private set; }
-        public List<Triangle2D> Triangles { get; private set; }
-        public int Image { get; private set; }
-        public Matrix2x2 Rotation { get; private set; }
-        public Vector2 Translation { get; private set; }
+        public ColorRgba Color { get; }
+        public List<Triangle2D> Triangles { get; }
+        public int Image { get; }
+        public Matrix2x2 Rotation { get; }
+        public Vector2 Translation { get; }
+        public GeometryStyle Type => GeometryStyle.TexturedTri;
 
-
-        public GeometryStyle Type
-        {
-            get
-            {
-                return GeometryStyle.TexturedTri;
-            }
-        }
-
-        public GeometryTexturedTriangles(List<Triangle2D> triangles, ColorRgba color, int image,Matrix2x2 rot, Vector2 translation)
+        public GeometryTexturedTriangles(List<Triangle2D> triangles, ColorRgba color, int image, Matrix2x2 rot, Vector2 translation)
         {
             Color = color;
-            Triangles = new List<Triangle2D>(triangles);
+            Triangles = triangles;
             Image = image;
             Rotation = rot;
             Translation = translation;

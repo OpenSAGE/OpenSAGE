@@ -25,7 +25,7 @@ namespace OpenSage.Mathematics
             return new ColorRgba((byte) (value.R * scale), (byte) (value.G * scale), (byte) (value.B * scale), (byte) (value.A * scale));
         }
 
-        public ColorRgbaF ToColorRgba()
+        public ColorRgbaF ToColorRgbaF()
         {
             return new ColorRgbaF(R / 255.0f, G / 255.0f, B / 255.0f, A / 255.0f);
         }

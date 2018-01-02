@@ -357,7 +357,7 @@ namespace OpenSage.Gui.Wnd.Elements
 
             var activeState = _stateConfigurations[_currentState];
 
-            var clearColour = _backgroundColorOverride?.ToColorRgba()
+            var clearColour = _backgroundColorOverride?.ToColorRgbaF()
                 ?? activeState.BackgroundColor
                 ?? new ColorRgbaF(0, 0, 0, 0);
 
@@ -392,7 +392,7 @@ namespace OpenSage.Gui.Wnd.Elements
 
                 if (_overlayColorOverride != null)
                 {
-                    var overlayColor = _overlayColorOverride.Value.ToColorRgba();
+                    var overlayColor = _overlayColorOverride.Value.ToColorRgbaF();
                     overlayColor.A *= Opacity;
 
                     drawingContext.FillRectangle(
@@ -420,7 +420,7 @@ namespace OpenSage.Gui.Wnd.Elements
                     
                     using (var textFormat = new TextFormat(HostPlatform.GraphicsDevice2D, fontName, fontSize * _scale, fontBold ? FontWeight.Bold : FontWeight.Normal, _textAlignment))
                     {
-                        var textColor = activeState.TextColor.ToColorRgba();
+                        var textColor = activeState.TextColor.ToColorRgbaF();
                         textColor.A *= TextOpacity;
 
                         var rect = new RawRectangleF { X = 0, Y = 0, Width = Frame.Width, Height = Frame.Height };

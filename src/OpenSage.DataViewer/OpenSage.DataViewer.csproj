@@ -3,7 +3,6 @@
     <TargetFramework>net462</TargetFramework>
     <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
     <LangVersion>latest</LangVersion>
-    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Resources\AppIcon.ico" />

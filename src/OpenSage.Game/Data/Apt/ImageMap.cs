@@ -9,59 +9,33 @@ using OpenSage.Mathematics;
 namespace OpenSage.Data.Apt
 {
 
-    public interface ImageAssignment
+    public interface IImageAssignment
     {
         bool HasBounds { get; }
         int TextureId { get; }
     }
 
-    public struct DirectAssignment : ImageAssignment
+    public class DirectAssignment : IImageAssignment
     {
         private int _textureId;
 
-        public bool HasBounds
-        {
-            get
-            {
-                return false;
-            }
-        }
-
-        public int TextureId
-        {
-            get
-            {
-                return _textureId;
-            }
-        }
-
+        public bool HasBounds => false;
+        public int TextureId => _textureId;
+       
         public DirectAssignment(int texture)
         {
             _textureId = texture;
         }
     }
 
-    public struct RectangleAssignment : ImageAssignment
+    public class RectangleAssignment : IImageAssignment
     {
         private int _textureId;
         private Rectangle _textureRect;
 
-        public bool HasBounds
-        {
-            get
-            {
-                return true;
-            }
-        }
-
-        public int TextureId
-        {
-            get
-            {
-                return _textureId;
-            }
-        }
-
+        public bool HasBounds => true;
+        public int TextureId => _textureId;
+        
         public Rectangle TextureRectangle
         {
             get
@@ -79,11 +53,11 @@ namespace OpenSage.Data.Apt
 
     public sealed class ImageMap
     {
-        public Dictionary<int, ImageAssignment> Mapping;
+        public Dictionary<int, IImageAssignment> Mapping;
 
         public ImageMap()
         {
-            Mapping = new Dictionary<int, ImageAssignment>();
+            Mapping = new Dictionary<int, IImageAssignment>();
         }
 
         public static ImageMap FromFileSystemEntry(FileSystemEntry entry)
