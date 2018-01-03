@@ -27,7 +27,6 @@ namespace OpenSage.Gui.Apt
         public Buffer<SpriteVertex> VertexBuffer => _vertexBuffer;
         public SpriteMaterial Material { get; private set; }
 
-
         public void Initialize(ContentManager contentManager, ImageMap map)
         {
             _map = map;
@@ -186,10 +185,10 @@ namespace OpenSage.Gui.Apt
                                 rt.X3 = tri.V2.X;
                                 rt.Y3 = tri.V2.Y;
                                 RawMatrix3x2 transform;
-                                transform.M11 = tt.Rotation.M11;
-                                transform.M12 = tt.Rotation.M12;
-                                transform.M21 = tt.Rotation.M21;
-                                transform.M22 = tt.Rotation.M22;
+                                transform.M11 = tt.RotScale.M11;
+                                transform.M12 = tt.RotScale.M12;
+                                transform.M21 = tt.RotScale.M21;
+                                transform.M22 = tt.RotScale.M22;
                                 transform.M31 = -tt.Translation.X;
                                 transform.M32 = -tt.Translation.Y;
 

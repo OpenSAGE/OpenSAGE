@@ -4,7 +4,7 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Apt.Characters
 {
-    public sealed class Movie : Character
+    public sealed class Movie : Character, IPlayable
     {
         public List<Frame> Frames { get; private set; }
         public List<Character> Characters { get; private set; }

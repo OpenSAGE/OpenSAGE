@@ -36,7 +36,7 @@ namespace OpenSage.Content
         public TranslationManager TranslationManager { get; }
 
         public ContentManager(
-            FileSystem fileSystem, 
+            FileSystem fileSystem,
             GraphicsDevice graphicsDevice,
             GraphicsDevice2D graphicsDevice2D,
             SageGame sageGame)
@@ -56,7 +56,9 @@ namespace OpenSage.Content
                 { typeof(Scene), AddDisposable(new MapLoader()) },
                 { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
                 { typeof(WndTopLevelWindow), AddDisposable(new WindowLoader(this)) },
-                { typeof(ShapeComponent), AddDisposable(new ShapeLoader(this)) }
+                { typeof(ShapeComponent), AddDisposable(new ShapeLoader(this)) },
+                { typeof(AptComponent), AddDisposable(new AptLoader(this)) }
+
             };
 
             _cachedObjects = new Dictionary<string, object>();
@@ -81,8 +83,8 @@ namespace OpenSage.Content
         }
 
         public T Load<T>(
-            string[] filePaths, 
-            LoadOptions options = null, 
+            string[] filePaths,
+            LoadOptions options = null,
             bool fallbackToPlaceholder = true)
             where T : class
         {
@@ -101,7 +103,7 @@ namespace OpenSage.Content
         }
 
         public T Load<T>(
-            string filePath, 
+            string filePath,
             LoadOptions options = null,
             bool fallbackToPlaceholder = true)
             where T : class
@@ -112,7 +114,7 @@ namespace OpenSage.Content
             }
 
             var type = typeof(T);
-            
+
             if (!_contentLoaders.TryGetValue(type, out var contentLoader))
             {
                 throw new Exception($"Could not finder content loader for type '{type.FullName}'");

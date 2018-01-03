@@ -294,6 +294,15 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadByte());
         }
 
+        public static ColorRgba ReadColorRgba(this BinaryReader reader)
+        {
+            return new ColorRgba(
+                reader.ReadByte(),
+                reader.ReadByte(),
+                reader.ReadByte(),
+                reader.ReadByte());
+        }
+
         public static string ReadStringAtOffset(this BinaryReader reader)
         {
             var stringOffset = reader.ReadUInt32();
@@ -383,6 +392,44 @@ namespace OpenSage.Data.Utilities.Extensions
             return bigEndian
                 ? new string(new[] { d, c, b, a })
                 : new string(new[] { a, b, c, d });
+        }
+
+        public static TEnum ReadByteAsEnumFlags<TEnum>(this BinaryReader reader)
+           where TEnum : struct
+        {
+            var value = reader.ReadByte();
+            var enumValue = (TEnum)Enum.ToObject(typeof(TEnum), value);
+
+            return enumValue;
+        }
+
+        public static TEnum ReadUInt16AsEnumFlags<TEnum>(this BinaryReader reader)
+          where TEnum : struct
+        {
+            var value = reader.ReadUInt16();
+            var enumValue = (TEnum) Enum.ToObject(typeof(TEnum), value);
+
+            return enumValue;
+        }
+
+        public static TEnum ReadUInt32AsEnumFlags<TEnum>(this BinaryReader reader)
+         where TEnum : struct
+        {
+            var value = reader.ReadUInt32();
+            var enumValue = (TEnum) Enum.ToObject(typeof(TEnum), value);
+
+            return enumValue;
+        }
+
+        public static Matrix2x2 ReadMatrix2x2(this BinaryReader reader)
+        {
+            return new Matrix2x2()
+            {
+                M11 = reader.ReadSingle(),
+                M12 = reader.ReadSingle(),
+                M21 = reader.ReadSingle(),
+                M22 = reader.ReadSingle()
+            };
         }
     }
 }

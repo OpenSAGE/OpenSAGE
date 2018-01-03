@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using OpenSage.Data.Utilities.Extensions;
 
@@ -20,12 +21,16 @@ namespace OpenSage.Data.Apt.Characters
         Video = 12
     };
 
+    public interface IPlayable
+    {
+        List<Frame> Frames { get; }
+    }
+
     //base class for all characters used in apt
     public class Character
     {
         private const uint SIGNATURE = 0x09876543;
         public AptFile Container { get; private set; }
-
 
         public static Character Create(BinaryReader reader, AptFile container)
         {
@@ -36,7 +41,6 @@ namespace OpenSage.Data.Apt.Characters
 
             if (sig != SIGNATURE)
                 throw new InvalidDataException();
-
 
             switch (type)
             {

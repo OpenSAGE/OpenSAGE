@@ -9,7 +9,6 @@ namespace OpenSage.Data.Apt.Characters
         public Vector4 Bounds { get; private set; }
         public uint Geometry { get; private set; }
 
-
         public static Shape Parse(BinaryReader reader)
         {
             var shape = new Shape();

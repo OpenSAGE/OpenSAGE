@@ -40,6 +40,9 @@ namespace OpenSage.DataViewer.UI
                 case ".cur":
                     return new AniView(entry, _getGame());
 
+                case ".apt":
+                    return new AptView(entry, _getGame());
+
                 case ".bmp":
                     return new BmpView(entry);
 
