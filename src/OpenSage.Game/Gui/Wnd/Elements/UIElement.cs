@@ -145,6 +145,8 @@ namespace OpenSage.Gui.Wnd.Elements
             }
         }
 
+        public bool HideImage { get; set; }
+
         protected UIElement()
         {
             _stateConfigurations = new Dictionary<UIElementState, UIElementStateConfiguration>();
@@ -367,7 +369,7 @@ namespace OpenSage.Gui.Wnd.Elements
 
                 drawingContext.Clear(clearColour);
 
-                if (activeState.ImageTexture != null)
+                if (activeState.ImageTexture != null && !HideImage)
                 {
                     drawingContext.DrawImage(
                         activeState.ImageTexture,

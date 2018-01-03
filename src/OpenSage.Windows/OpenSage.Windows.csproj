@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+    <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>OpenSage.Windows</RootNamespace>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\AppIcon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SharpDX.Desktop" Version="4.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenSage.Game\OpenSage.Game.csproj" />
+    <ProjectReference Include="..\OpenSage.LowLevel\OpenSage.LowLevel.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+</Project>
