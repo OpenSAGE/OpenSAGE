@@ -43,6 +43,8 @@ namespace OpenSage.Data.Ini
         public List<ExperienceLevel> ExperienceLevels { get; } = new List<ExperienceLevel>();
         public List<ExperienceScalarTable> ExperienceScalarTables { get; } = new List<ExperienceScalarTable>();
         public List<FactionVictoryData> FactionVictoryDatas { get; } = new List<FactionVictoryData>();
+        public List<FontDefaultSetting> FontDefaultSettings { get; } = new List<FontDefaultSetting>();
+        public List<FontSubstitution> FontSubstitutions { get; } = new List<FontSubstitution>();
         public List<FXList> FXLists { get; } = new List<FXList>();
         public GameData GameData { get; internal set; }
         public List<HeaderTemplate> HeaderTemplates { get; } = new List<HeaderTemplate>();

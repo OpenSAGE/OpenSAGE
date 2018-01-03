@@ -43,6 +43,8 @@ namespace OpenSage.Data.Ini.Parser
             { "ExperienceScalarTable", (parser, context) => context.ExperienceScalarTables.Add(ExperienceScalarTable.Parse(parser)) },
             { "FactionVictoryData", (parser, context) => context.FactionVictoryDatas.Add(FactionVictoryData.Parse(parser)) },
             { "FireEffect", (parser, context) => context.Environment.FireEffect = RingEffect.Parse(parser) },
+            { "FontDefaultSettings", (parser, context) => context.FontDefaultSettings.Add(FontDefaultSetting.Parse(parser)) },
+            { "FontSubstitution", (parser, context) => context.FontSubstitutions.Add(FontSubstitution.Parse(parser)) },
             { "FXList", (parser, context) => context.FXLists.Add(FXList.Parse(parser)) },
             { "GameData", (parser, context) => context.GameData = GameData.Parse(parser) },
             { "GlowEffect", (parser, context) => context.Environment.GlowEffect = GlowEffect.Parse(parser) },
@@ -200,6 +202,10 @@ namespace OpenSage.Data.Ini.Parser
         public int ScanInteger(IniToken token) => Convert.ToInt32(token.Text);
 
         public int ParseInteger() => ScanInteger(GetNextToken());
+
+        public uint ScanUnsignedInteger(IniToken token) => Convert.ToUInt32(token.Text);
+
+        public uint ParseUnsignedInteger() => ScanUnsignedInteger(GetNextToken());
 
         private long ScanLong(IniToken token) => Convert.ToInt64(token.Text);
 

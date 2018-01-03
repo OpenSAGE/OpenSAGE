@@ -14,18 +14,41 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<FXList> FieldParseTable = new IniParseTable<FXList>
         {
+            { "BuffNugget", (parser, x) => x.Items.Add(BuffNugget.Parse(parser)) },
+            { "CameraShakerVolume", (parser, x) => x.Items.Add(CameraShakerVolumeFXNugget.Parse(parser)) },
+            { "DynamicDecal", (parser, x) => x.Items.Add(DynamicDecalFXNugget.Parse(parser)) },
+            { "EvaEvent", (parser, x) => x.Items.Add(EvaEventFXNugget.Parse(parser)) },
             { "FXListAtBonePos", (parser, x) => x.Items.Add(FXListAtBonePosFXListItem.Parse(parser)) },
             { "LightPulse", (parser, x) => x.Items.Add(LightPulseFXListItem.Parse(parser)) },
             { "ParticleSystem", (parser, x) => x.Items.Add(ParticleSystemFXListItem.Parse(parser)) },
             { "Sound", (parser, x) => x.Items.Add(SoundFXListItem.Parse(parser)) },
             { "TerrainScorch", (parser, x) => x.Items.Add(TerrainScorchFXListItem.Parse(parser)) },
+            { "TintDrawable", (parser, x) => x.Items.Add(TintDrawableFXNugget.Parse(parser)) },
             { "Tracer", (parser, x) => x.Items.Add(TracerFXListItem.Parse(parser)) },
-            { "ViewShake", (parser, x) => x.Items.Add(ViewShakeFXListItem.Parse(parser)) }
+            { "ViewShake", (parser, x) => x.Items.Add(ViewShakeFXListItem.Parse(parser)) },
+
+            { "PlayEvenIfShrouded", (parser, x) => x.PlayEvenIfShrouded = parser.ParseBoolean() },
+
+            {
+                "CullingInfo",
+                (parser, x) =>
+                {
+                    x.CullTracking = parser.ParseAttributeFloat("TrackingSeconds");
+                    x.CullTrackingMin = parser.ParseAttributeInteger("StartCullingAbove");
+                    x.CullTrackingMax = parser.ParseAttributeInteger("CullAllAbove");
+                }
+            }
         };
 
         public string Name { get; private set; }
 
         public List<FXListItem> Items { get; } = new List<FXListItem>();
+
+        public bool PlayEvenIfShrouded { get; private set; }
+
+        public float CullTracking { get; private set; }
+        public int CullTrackingMin { get; private set; }
+        public int CullTrackingMax { get; private set; }
     }
 
     public abstract class FXListItem
@@ -35,14 +58,12 @@ namespace OpenSage.Data.Ini
 
     public sealed class ParticleSystemFXListItem : FXListItem
     {
-        internal static ParticleSystemFXListItem Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static ParticleSystemFXListItem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<ParticleSystemFXListItem> FieldParseTable = new IniParseTable<ParticleSystemFXListItem>
         {
             { "AttachToObject", (parser, x) => x.AttachToObject = parser.ParseBoolean() },
+            { "AttachToBone", (parser, x) => x.AttachToBone = parser.ParseBoneName() },
             { "Count", (parser, x) => x.Count = parser.ParseInteger() },
             { "CreateAtGroundHeight", (parser, x) => x.CreateAtGroundHeight = parser.ParseBoolean() },
             { "Height", (parser, x) => x.Height = RandomVariable.Parse(parser) },
@@ -57,6 +78,10 @@ namespace OpenSage.Data.Ini
         };
 
         public bool AttachToObject { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public string AttachToBone { get; private set; }
+
         public int Count { get; private set; } = 1;
         public bool CreateAtGroundHeight { get; private set; }
         public RandomVariable Height { get; private set; }
@@ -72,10 +97,7 @@ namespace OpenSage.Data.Ini
 
     public sealed class SoundFXListItem : FXListItem
     {
-        internal static SoundFXListItem Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static SoundFXListItem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<SoundFXListItem> FieldParseTable = new IniParseTable<SoundFXListItem>
         {
@@ -87,10 +109,7 @@ namespace OpenSage.Data.Ini
 
     public sealed class LightPulseFXListItem : FXListItem
     {
-        internal static LightPulseFXListItem Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static LightPulseFXListItem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<LightPulseFXListItem> FieldParseTable = new IniParseTable<LightPulseFXListItem>
         {
@@ -110,10 +129,7 @@ namespace OpenSage.Data.Ini
 
     public sealed class ViewShakeFXListItem : FXListItem
     {
-        internal static ViewShakeFXListItem Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static ViewShakeFXListItem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<ViewShakeFXListItem> FieldParseTable = new IniParseTable<ViewShakeFXListItem>
         {
@@ -125,10 +141,7 @@ namespace OpenSage.Data.Ini
 
     public sealed class FXListAtBonePosFXListItem : FXListItem
     {
-        internal static FXListAtBonePosFXListItem Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static FXListAtBonePosFXListItem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<FXListAtBonePosFXListItem> FieldParseTable = new IniParseTable<FXListAtBonePosFXListItem>
         {
@@ -144,10 +157,7 @@ namespace OpenSage.Data.Ini
 
     public sealed class TerrainScorchFXListItem : FXListItem
     {
-        internal static TerrainScorchFXListItem Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static TerrainScorchFXListItem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<TerrainScorchFXListItem> FieldParseTable = new IniParseTable<TerrainScorchFXListItem>
         {
@@ -161,10 +171,7 @@ namespace OpenSage.Data.Ini
 
     public sealed class TracerFXListItem : FXListItem
     {
-        internal static TracerFXListItem Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static TracerFXListItem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<TracerFXListItem> FieldParseTable = new IniParseTable<TracerFXListItem>
         {
@@ -184,6 +191,129 @@ namespace OpenSage.Data.Ini
         public float Width { get; private set; }
     }
 
+    [AddedIn(SageGame.BattleForMiddleEarth)]
+    public sealed class BuffNugget : FXListItem
+    {
+        internal static BuffNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<BuffNugget> FieldParseTable = new IniParseTable<BuffNugget>
+        {
+            { "BuffType", (parser, x) => x.BuffType = parser.ParseIdentifier() },
+            { "BuffThingTemplate", (parser, x) => x.BuffThingTemplate = parser.ParseAssetReference() },
+            { "BuffInfantryTemplate", (parser, x) => x.BuffInfantryTemplate = parser.ParseAssetReference() },
+            { "BuffCavalryTemplate", (parser, x) => x.BuffCavalryTemplate = parser.ParseAssetReference() },
+            { "BuffTrollTemplate", (parser, x) => x.BuffTrollTemplate = parser.ParseAssetReference() },
+            { "BuffOrcTemplate", (parser, x) => x.BuffOrcTemplate = parser.ParseAssetReference() },
+            { "IsComplexBuff", (parser, x) => x.IsComplexBuff = parser.ParseBoolean() },
+            { "BuffLifeTime", (parser, x) => x.BuffLifeTime = parser.ParseUnsignedInteger() },
+            { "Extrusion", (parser, x) => x.Extrusion = parser.ParseFloat() },
+            { "Color", (parser, x) => x.Color = IniColorRgb.Parse(parser) },
+        };
+
+        public string BuffType { get; private set; }
+        public string BuffThingTemplate { get; private set; }
+        public string BuffInfantryTemplate { get; private set; }
+        public string BuffCavalryTemplate { get; private set; }
+        public string BuffTrollTemplate { get; private set; }
+        public string BuffOrcTemplate { get; private set; }
+        public bool IsComplexBuff { get; private set; }
+        public uint BuffLifeTime { get; private set; }
+        public float Extrusion { get; private set; }
+        public IniColorRgb Color { get; private set; }
+    }
+
+    [AddedIn(SageGame.BattleForMiddleEarth)]
+    public sealed class CameraShakerVolumeFXNugget : FXListItem
+    {
+        internal static CameraShakerVolumeFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<CameraShakerVolumeFXNugget> FieldParseTable = new IniParseTable<CameraShakerVolumeFXNugget>
+        {
+            { "Radius", (parser, x) => x.Radius = parser.ParseInteger() },
+            { "Duration_Seconds", (parser, x) => x.Duration = parser.ParseFloat() },
+            { "Amplitude_Degrees", (parser, x) => x.Amplitude = parser.ParseFloat() }
+        };
+
+        public int Radius { get; private set; }
+        public float Duration { get; private set; }
+        public float Amplitude { get; private set; }
+    }
+
+    [AddedIn(SageGame.BattleForMiddleEarth)]
+    public sealed class DynamicDecalFXNugget : FXListItem
+    {
+        internal static DynamicDecalFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<DynamicDecalFXNugget> FieldParseTable = new IniParseTable<DynamicDecalFXNugget>
+        {
+            { "DecalName", (parser, x) => x.DecalName = parser.ParseAssetReference() },
+            { "Size", (parser, x) => x.Size = parser.ParseInteger() },
+            { "Color", (parser, x) => x.Color = IniColorRgb.Parse(parser) },
+
+            { "OpacityStart", (parser, x) => x.OpacityStart = parser.ParseInteger() },
+            { "OpacityFadeTimeOne", (parser, x) => x.OpacityFadeTimeOne = parser.ParseInteger() },
+            { "OpacityPeak", (parser, x) => x.OpacityPeak = parser.ParseInteger() },
+            { "OpacityPeakTime", (parser, x) => x.OpacityPeakTime = parser.ParseInteger() },
+            { "OpacityFadeTimeTwo", (parser, x) => x.OpacityFadeTimeTwo = parser.ParseInteger() },
+            { "OpacityEnd", (parser, x) => x.OpacityEnd = parser.ParseInteger() },
+
+            { "StartingDelay", (parser, x) => x.StartingDelay = parser.ParseInteger() },
+            { "Lifetime", (parser, x) => x.Lifetime = parser.ParseInteger() },
+        };
+
+        public string DecalName { get; private set; }
+        public int Size { get; private set; }
+        public IniColorRgb Color { get; private set; }
+
+        public int OpacityStart { get; private set; }
+        public int OpacityFadeTimeOne { get; private set; }
+        public int OpacityPeak { get; private set; }
+        public int OpacityPeakTime { get; private set; }
+        public int OpacityFadeTimeTwo { get; private set; }
+        public int OpacityEnd { get; private set; }
+
+        public int StartingDelay { get; private set; }
+        public int Lifetime { get; private set; }
+    }
+
+    [AddedIn(SageGame.BattleForMiddleEarth)]
+    public sealed class EvaEventFXNugget : FXListItem
+    {
+        internal static EvaEventFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<EvaEventFXNugget> FieldParseTable = new IniParseTable<EvaEventFXNugget>
+        {
+            { "EvaEventOwner", (parser, x) => x.EvaEventOwner = parser.ParseAssetReference() },
+            { "EvaEventAlly", (parser, x) => x.EvaEventAlly = parser.ParseAssetReference() }
+        };
+
+        public string EvaEventOwner { get; private set; }
+        public string EvaEventAlly { get; private set; }
+    }
+
+    [AddedIn(SageGame.BattleForMiddleEarth)]
+    public sealed class TintDrawableFXNugget : FXListItem
+    {
+        internal static TintDrawableFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<TintDrawableFXNugget> FieldParseTable = new IniParseTable<TintDrawableFXNugget>
+        {
+            { "Color", (parser, x) => x.Color = IniColorRgb.Parse(parser) },
+            { "PreColorTime", (parser, x) => x.PreColorTime = parser.ParseInteger() },
+            { "PostColorTime", (parser, x) => x.PostColorTime = parser.ParseInteger() },
+            { "SustainedColorTime", (parser, x) => x.SustainedColorTime = parser.ParseInteger() },
+            { "Frequency", (parser, x) => x.Frequency = parser.ParseInteger() },
+            { "Amplitude", (parser, x) => x.Amplitude = parser.ParseInteger() },
+        };
+
+        public IniColorRgb Color { get; private set; }
+        public int PreColorTime { get; private set; }
+        public int PostColorTime { get; private set; }
+        public int SustainedColorTime { get; private set; }
+        public int Frequency { get; private set; }
+        public int Amplitude { get; private set; }
+    }
+
     public enum ViewShakeType
     {
         [IniEnum("SUBTLE")]
@@ -196,7 +326,10 @@ namespace OpenSage.Data.Ini
         Strong,
 
         [IniEnum("SEVERE")]
-        Severe
+        Severe,
+
+        [IniEnum("CINE_EXTREME"), AddedIn(SageGame.BattleForMiddleEarth)]
+        CineExtreme
     }
 
     public enum TerrainScorchType
