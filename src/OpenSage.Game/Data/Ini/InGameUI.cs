@@ -187,21 +187,35 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<RadiusDecalTemplate> FieldParseTable = new IniParseTable<RadiusDecalTemplate>
         {
             { "Texture", (parser, x) => x.Texture = parser.ParseFileName() },
+            { "Texture2", (parser, x) => x.Texture2 = parser.ParseFileName() },
             { "Style", (parser, x) => x.Style = parser.ParseEnum<RadiusDecalStyle>() },
             { "OpacityMin", (parser, x) => x.OpacityMin = parser.ParsePercentage() },
             { "OpacityMax", (parser, x) => x.OpacityMax = parser.ParsePercentage() },
             { "OpacityThrobTime", (parser, x) => x.OpacityThrobTime = parser.ParseInteger() },
             { "Color", (parser, x) => x.Color = parser.ParseColorRgba() },
-            { "OnlyVisibleToOwningPlayer", (parser, x) => x.OnlyVisibleToOwningPlayer = parser.ParseBoolean() }
+            { "OnlyVisibleToOwningPlayer", (parser, x) => x.OnlyVisibleToOwningPlayer = parser.ParseBoolean() },
+            { "MinRadius", (parser, x) => x.MinRadius = parser.ParseInteger() },
+            { "MaxRadius", (parser, x) => x.MaxRadius = parser.ParseInteger() },
+            { "MaxSelectedUnits", (parser, x) => x.MaxSelectedUnits = parser.ParseInteger() },
         };
 
         public string Texture { get; private set; }
+        public string Texture2 { get; private set; }
         public RadiusDecalStyle Style { get; private set; }
         public float OpacityMin { get; private set; }
         public float OpacityMax { get; private set; }
         public int OpacityThrobTime { get; private set; }
         public ColorRgba Color { get; private set; }
         public bool OnlyVisibleToOwningPlayer { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int MinRadius { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int MaxRadius { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int MaxSelectedUnits { get; private set; }
     }
 
     public enum RadiusDecalStyle
@@ -210,6 +224,9 @@ namespace OpenSage.Data.Ini
         ShadowAlphaDecal,
 
         [IniEnum("SHADOW_ADDITIVE_DECAL")]
-        ShadowAdditiveDecal
+        ShadowAdditiveDecal,
+
+        [IniEnum("SHADOW_MERGE_DECAL"), AddedIn(SageGame.BattleForMiddleEarth)]
+        ShadowMergeDecal
     }
 }

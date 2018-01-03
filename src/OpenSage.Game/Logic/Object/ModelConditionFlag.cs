@@ -366,5 +366,26 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("WEAPONLOCK_SECONDARY"), AddedIn(SageGame.BattleForMiddleEarth)]
         WeaponLockSecondary,
+
+        [IniEnum("EMOTION_TAUNTING"), AddedIn(SageGame.BattleForMiddleEarth)]
+        EmotionTaunting,
+
+        [IniEnum("EMOTION_ALERT"), AddedIn(SageGame.BattleForMiddleEarth)]
+        EmotionAlert,
+
+        [IniEnum("EMOTION_CELEBRATING"), AddedIn(SageGame.BattleForMiddleEarth)]
+        EmotionCelebrating,
+
+        [IniEnum("EMOTION_UNCONTROLLABLY_AFRAID"), AddedIn(SageGame.BattleForMiddleEarth)]
+        EmotionUncontrollablyAfraid,
+
+        [IniEnum("EMOTION_TERROR"), AddedIn(SageGame.BattleForMiddleEarth)]
+        EmotionTerror,
+
+        [IniEnum("EMOTION_POINTING"), AddedIn(SageGame.BattleForMiddleEarth)]
+        EmotionPointing,
+
+        [IniEnum("EMOTION_DOOM"), AddedIn(SageGame.BattleForMiddleEarth)]
+        EmotionDoom,
     }
 }

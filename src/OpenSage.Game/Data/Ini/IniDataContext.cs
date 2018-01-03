@@ -37,7 +37,11 @@ namespace OpenSage.Data.Ini
         public List<DialogEvent> DialogEvents { get; } = new List<DialogEvent>();
         public DrawGroupInfo DrawGroupInfo { get; internal set; }
         public List<DynamicGameLod> DynamicGameLods { get; } = new List<DynamicGameLod>();
+        public List<EmotionNugget> EmotionNuggets { get; } = new List<EmotionNugget>();
+        public Environment Environment { get; } = new Environment();
         public List<EvaEvent> EvaEvents { get; } = new List<EvaEvent>();
+        public List<ExperienceLevel> ExperienceLevels { get; } = new List<ExperienceLevel>();
+        public List<ExperienceScalarTable> ExperienceScalarTables { get; } = new List<ExperienceScalarTable>();
         public List<FactionVictoryData> FactionVictoryDatas { get; } = new List<FactionVictoryData>();
         public List<FXList> FXLists { get; } = new List<FXList>();
         public GameData GameData { get; internal set; }
@@ -52,6 +56,7 @@ namespace OpenSage.Data.Ini
         public List<MapCache> MapCaches { get; } = new List<MapCache>();
         public List<MappedImage> MappedImages { get; } = new List<MappedImage>();
         public MiscAudio MiscAudio { get; internal set; }
+        public MiscEvaData MiscEvaData { get; internal set; }
         public List<ModifierList> ModifierLists { get; } = new List<ModifierList>();
         public List<MouseCursor> MouseCursors { get; } = new List<MouseCursor>();
         public MouseData MouseData { get; internal set; }
@@ -69,6 +74,7 @@ namespace OpenSage.Data.Ini
         public int ReallyLowMHz { get; internal set; }
         public List<Science> Sciences { get; } = new List<Science>();
         public List<ShellMenuScheme> ShellMenuSchemes { get; } = new List<ShellMenuScheme>();
+        public List<SkyboxTextureSet> SkyboxTextureSets { get; } = new List<SkyboxTextureSet>();
         public List<SpecialPower> SpecialPowers { get; } = new List<SpecialPower>();
         public List<StaticGameLod> StaticGameLods { get; } = new List<StaticGameLod>();
         public List<LoadSubsystem> Subsystems { get; } = new List<LoadSubsystem>();

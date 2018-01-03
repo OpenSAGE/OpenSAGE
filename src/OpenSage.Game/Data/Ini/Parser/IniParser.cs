@@ -25,6 +25,7 @@ namespace OpenSage.Data.Ini.Parser
             { "Campaign", (parser, context) => context.Campaigns.Add(Campaign.Parse(parser)) },
             { "ChallengeGenerals", (parser, context) => context.ChallengeGenerals = ChallengeGenerals.Parse(parser) },
             { "ChildObject", (parser, context) => context.Objects.Add(ChildObject.Parse(parser)) },
+            { "CloudEffect", (parser, context) => context.Environment.CloudEffect = CloudEffect.Parse(parser) },
             { "CommandButton", (parser, context) => context.CommandButtons.Add(CommandButton.Parse(parser)) },
             { "CommandMap", (parser, context) => context.CommandMaps.Add(CommandMap.Parse(parser)) },
             { "CommandSet", (parser, context) => context.CommandSets.Add(CommandSet.Parse(parser)) },
@@ -36,10 +37,15 @@ namespace OpenSage.Data.Ini.Parser
             { "DialogEvent", (parser, context) => context.DialogEvents.Add(DialogEvent.Parse(parser)) },
             { "DrawGroupInfo", (parser, context) => context.DrawGroupInfo = DrawGroupInfo.Parse(parser) },
             { "DynamicGameLOD", (parser, context) => context.DynamicGameLods.Add(DynamicGameLod.Parse(parser)) },
+            { "EmotionNugget", (parser, context) => context.EmotionNuggets.Add(EmotionNugget.Parse(parser)) },
             { "EvaEvent", (parser, context) => context.EvaEvents.Add(EvaEvent.Parse(parser)) },
+            { "ExperienceLevel", (parser, context) => context.ExperienceLevels.Add(ExperienceLevel.Parse(parser)) },
+            { "ExperienceScalarTable", (parser, context) => context.ExperienceScalarTables.Add(ExperienceScalarTable.Parse(parser)) },
             { "FactionVictoryData", (parser, context) => context.FactionVictoryDatas.Add(FactionVictoryData.Parse(parser)) },
+            { "FireEffect", (parser, context) => context.Environment.FireEffect = RingEffect.Parse(parser) },
             { "FXList", (parser, context) => context.FXLists.Add(FXList.Parse(parser)) },
             { "GameData", (parser, context) => context.GameData = GameData.Parse(parser) },
+            { "GlowEffect", (parser, context) => context.Environment.GlowEffect = GlowEffect.Parse(parser) },
             { "HeaderTemplate", (parser, context) => context.HeaderTemplates.Add(HeaderTemplate.Parse(parser)) },
             { "InGameUI", (parser, context) => context.InGameUI = InGameUI.Parse(parser) },
             { "Language", (parser, context) => context.Language = Language.Parse(parser) },
@@ -52,6 +58,7 @@ namespace OpenSage.Data.Ini.Parser
             { "MapCache", (parser, context) => context.MapCaches.Add(MapCache.Parse(parser)) },
             { "MappedImage", (parser, context) => context.MappedImages.Add(MappedImage.Parse(parser)) },
             { "MiscAudio", (parser, context) => context.MiscAudio = MiscAudio.Parse(parser) },
+            { "MiscEvaData", (parser, context) => context.MiscEvaData = MiscEvaData.Parse(parser) },
             { "ModifierList", (parser, context) => context.ModifierLists.Add(ModifierList.Parse(parser)) },
             { "Mouse", (parser, context) => context.MouseData = MouseData.Parse(parser) },
             { "MouseCursor", (parser, context) => context.MouseCursors.Add(MouseCursor.Parse(parser)) },
@@ -68,10 +75,12 @@ namespace OpenSage.Data.Ini.Parser
             { "PlayerTemplate", (parser, context) => context.PlayerTemplates.Add(PlayerTemplate.Parse(parser)) },
             { "PredefinedEvaEvent", (parser, context) => context.EvaEvents.Add(EvaEvent.Parse(parser)) },
             { "Rank", (parser, context) => context.Ranks.Add(Rank.Parse(parser)) },
+            { "RingEffect", (parser, context) => context.Environment.RingEffect = RingEffect.Parse(parser) },
             { "Road", (parser, context) => context.Roads.Add(Road.Parse(parser)) },
             { "ReallyLowMHz", (parser, context) => context.ReallyLowMHz = ReallyLowMHz.Parse(parser) },
             { "Science", (parser, context) => context.Sciences.Add(Science.Parse(parser)) },
             { "ShellMenuScheme", (parser, context) => context.ShellMenuSchemes.Add(ShellMenuScheme.Parse(parser)) },
+            { "SkyboxTextureSet", (parser, context) => context.SkyboxTextureSets.Add(SkyboxTextureSet.Parse(parser)) },
             { "SpecialPower", (parser, context) => context.SpecialPowers.Add(SpecialPower.Parse(parser)) },
             { "StaticGameLOD", (parser, context) => context.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
             { "Terrain", (parser, context) => context.TerrainTextures.Add(TerrainTexture.Parse(parser)) },
@@ -238,6 +247,19 @@ namespace OpenSage.Data.Ini.Parser
         }
 
         public float ParseFloat() => ScanFloat(GetNextToken());
+
+        public float[] ParseFloatArray()
+        {
+            var result = new List<float>();
+
+            IniToken? token;
+            while ((token = GetNextTokenOptional()) != null)
+            {
+                result.Add(ScanFloat(token.Value));
+            }
+
+            return result.ToArray();
+        }
 
         private float ScanPercentage(IniToken token) => ScanFloat(token);
 
