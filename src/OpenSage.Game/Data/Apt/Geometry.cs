@@ -68,7 +68,7 @@ namespace OpenSage.Data.Apt
                             tris.Clear();
                             break;
                         case GeometryStyle.Line:
-                            geometry.Entries.Add(new GeometryLines(lines, color, thickness));
+                            geometry.Entries.Add(new GeometryLines(new List<Line2D>(lines), color, thickness));
                             lines.Clear();
                             break;
                     }
@@ -267,7 +267,7 @@ namespace OpenSage.Data.Apt
         public GeometryLines(List<Line2D> lines, ColorRgba color, float thickness)
         {
             Color = color;
-            Lines = new List<Line2D>(lines);
+            Lines = lines;
             Thickness = thickness;
         }
     }

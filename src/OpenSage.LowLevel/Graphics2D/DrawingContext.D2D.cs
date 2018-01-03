@@ -164,7 +164,7 @@ namespace OpenSage.LowLevel.Graphics2D
             return new SharpDX.Mathematics.Interop.RawMatrix3x2(m.M11, m.M12, m.M21, m.M22, m.M31, m.M32);
         }
 
-        private static SharpDX.Mathematics.Interop.RawVector2 ToRawVector2(in float x, in float y)
+        private static SharpDX.Mathematics.Interop.RawVector2 ToRawVector2(float x, float y)
         {
             return new SharpDX.Mathematics.Interop.RawVector2(x, y);
         }
