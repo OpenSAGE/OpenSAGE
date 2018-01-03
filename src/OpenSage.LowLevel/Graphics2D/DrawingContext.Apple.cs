@@ -25,8 +25,23 @@ namespace OpenSage.LowLevel.Graphics2D
         {
             
         }
-
+    
         private void PlatformDrawRectangle(in RawRectangleF rect, in ColorRgbaF strokeColor, float strokeWidth)
+        {
+
+        }
+
+        private void PlatformDrawLine(in RawLineF line, in ColorRgbaF strokeColor)
+        {
+
+        }
+
+        private void PlatformFillTriangle(in RawTriangleF tri, in ColorRgbaF fillColor)
+        {
+
+        }
+
+        private void PlatformFillTriangle(in RawTriangleF tri, in Texture tex, in RawMatrix3x2 mat)
         {
 
         }

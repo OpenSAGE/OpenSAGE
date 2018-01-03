@@ -45,7 +45,7 @@ namespace OpenSage.Graphics.Rendering
 
             var renderPassDescriptor = new RenderPassDescriptor();
 
-            var clearColor = context.Camera.BackgroundColor.ToColorRgba();
+            var clearColor = context.Camera.BackgroundColor.ToColorRgbaF();
 
             renderPassDescriptor.SetRenderTargetDescriptor(
                 context.RenderTarget,

@@ -1,4 +1,4 @@
-﻿using OpenSage.Data;
+using OpenSage.Data;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Tests;
 using Xunit;

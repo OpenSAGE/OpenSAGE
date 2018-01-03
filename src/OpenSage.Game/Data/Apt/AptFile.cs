@@ -13,6 +13,7 @@ namespace OpenSage.Data.Apt
         internal bool IsEmpty = true;
         internal string MovieName;
         internal FileSystem FileSystem;
+        internal ImageMap ImageMap;
 
         private AptFile(ConstantData constants, FileSystem filesystem, string name)
         {
@@ -33,12 +34,18 @@ namespace OpenSage.Data.Apt
             //set first character to itself
             Movie.Characters[0] = Movie;
 
+            //load the corresponding image map
+            var datPath = MovieName + ".dat";
+            var datEntry = FileSystem.GetFile(datPath);
+            ImageMap = ImageMap.FromFileSystemEntry(datEntry);
+
             //resolve geometries
             foreach (Shape shape in Movie.Characters.FindAll((x)=>x is Shape))
             {
                 var ruPath = MovieName + "_geometry/" + shape.Geometry + ".ru";
                 var shapeEntry = FileSystem.GetFile(ruPath);
                 var shapeGeometry = Geometry.FromFileSystemEntry(shapeEntry);
+                
             }
 
 

@@ -110,12 +110,12 @@ namespace OpenSage.Gui.Wnd.Elements
 
             if (!wndWindow.Status.HasFlag(WndWindowStatusFlags.Image))
             {
-                BackgroundColor = wndDrawData.Items[0].Color.ToColorRgbaF();
+                BackgroundColor = ConversionExtensions.ToColorRgbaF(wndDrawData.Items[0].Color);
             }
 
             if (BackgroundColor != null || wndWindow.Status.HasFlag(WndWindowStatusFlags.Border))
             {
-                BorderColor = wndDrawData.Items[0].BorderColor.ToColorRgbaF();
+                BorderColor = ConversionExtensions.ToColorRgbaF(wndDrawData.Items[0].BorderColor);
             }
 
             if (image != null)

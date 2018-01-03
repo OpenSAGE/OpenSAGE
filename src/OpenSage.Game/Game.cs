@@ -6,6 +6,7 @@ using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
+using OpenSage.Gui.Apt;
 using OpenSage.Gui.Wnd;
 using OpenSage.Input;
 using OpenSage.Logic.Object;
@@ -41,6 +42,16 @@ namespace OpenSage
         /// Gets the GUI system.
         /// </summary>
         public WndSystem Wnd { get; }
+
+        /// <summary>
+        /// Gets the GUI system.
+        /// </summary>
+        public AptSystem Apt { get; }
+
+        /// <summary>
+        /// Gets the GUI system.
+        /// </summary>
+        public ShapeSystem Shape { get; }
 
         /// <summary>
         /// Gets the input system.
@@ -119,6 +130,10 @@ namespace OpenSage
             AddDisposable(new UpdateableSystem(this));
 
             Wnd = AddDisposable(new WndSystem(this));
+
+            Apt = AddDisposable(new AptSystem(this));
+
+            Shape = AddDisposable(new ShapeSystem(this));
 
             Graphics = AddDisposable(new GraphicsSystem(this));
 

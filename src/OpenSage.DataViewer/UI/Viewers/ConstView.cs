@@ -6,11 +6,11 @@ using OpenSage.Data.Apt;
 
 namespace OpenSage.DataViewer.UI.Viewers
 {
-    public sealed class ConstViewer : GridView
+    public sealed class ConstView : GridView
     {
         private readonly FileSystemEntry _entry;
 
-        public ConstViewer(FileSystemEntry entry)
+        public ConstView(FileSystemEntry entry)
         {
             _entry = entry;
 

@@ -51,7 +51,7 @@ namespace OpenSage.DataViewer.UI
                     return new DdsView(entry);
 
                 case ".const":
-                    return new ConstViewer(entry);
+                    return new ConstView(entry);
 
                 case ".csf":
                     return new CsfView(entry);
@@ -61,6 +61,9 @@ namespace OpenSage.DataViewer.UI
 
                 case ".map":
                     return new MapView(entry, _getGame());
+
+                case ".ru":
+                    return new RuView(entry, _getGame());
 
                 case ".tga":
                     return new TgaView(entry);
