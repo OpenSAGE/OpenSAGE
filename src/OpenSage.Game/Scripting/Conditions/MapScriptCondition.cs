@@ -85,6 +85,7 @@ namespace OpenSage.Scripting.Conditions
             switch (_operator)
             {
                 case CounterOperator.EqualTo: return a == b;
+                case CounterOperator.GreaterThan: return a > b;
                 default: throw new NotImplementedException(_operator.ToString());
             }
         }
@@ -92,7 +93,8 @@ namespace OpenSage.Scripting.Conditions
         // TODO: Handle other operators
         private enum CounterOperator
         {
-            EqualTo = 2
+            EqualTo = 2,
+            GreaterThan = 4
         }
     }
 }
