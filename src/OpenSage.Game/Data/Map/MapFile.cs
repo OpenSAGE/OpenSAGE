@@ -102,7 +102,16 @@ namespace OpenSage.Data.Map
                         {
                             throw new InvalidDataException();
                         }
-                        return new DeflateStream(reader.BaseStream, CompressionMode.Decompress);
+                        // DeflateStream doesn't support .Position or .Length, so to simplify
+                        // the rest of the map loading process, we decompress it to a MemoryStream
+                        // here. Not optimal, but only used on one 187kb map so it doesn't matter.
+                        var result = new MemoryStream((int) decompressedSize);
+                        using (var deflateStream = new DeflateStream(reader.BaseStream, CompressionMode.Decompress))
+                        {
+                            deflateStream.CopyTo(result);
+                        }
+                        result.Position = 0;
+                        return result;
 
                     default:
                         throw new NotSupportedException();
