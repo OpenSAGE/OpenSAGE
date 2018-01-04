@@ -6,7 +6,6 @@ using System.Windows.Forms;
 using SharpDX.Windows;
 
 using OpenSage.Data;
-using OpenSage.Gui.Wnd;
 using OpenSage.LowLevel;
 
 namespace OpenSage
@@ -65,16 +64,10 @@ namespace OpenSage
         private static void SetupInitialScene(Game game)
         {
             var mainMenuScene = game.ContentManager.Load<Scene>("maps\\ShellMap1\\ShellMap1.map");
-            var mainMenuWindow = game.ContentManager.Load<GuiWindow>("Window\\Menus\\MainMenu.wnd");
-
-            // Since we're loading the shell map, we can hide the static background.
-            mainMenuWindow.Root.HideImage = true;
-
-            var mainMenuEntity = new Entity();
-            mainMenuEntity.Components.Add(new WndComponent { Window = mainMenuWindow });
-            mainMenuScene.Entities.Add(mainMenuEntity);
-
             game.Scene = mainMenuScene;
+
+            game.Wnd.OpenWindow("Menus\\MainMenu.wnd");
+
             game.Scripting.Active = true;
         }
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using OpenSage.Data.Ini;
 using OpenSage.Gui.Wnd.Elements;
 using OpenSage.LowLevel.Graphics2D;
+using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd
@@ -41,6 +42,11 @@ namespace OpenSage.Gui.Wnd
             window.Root.FindChild("MainMenu.wnd:ButtonChinaLoadGame").Hide();
 
             _doneMainMenuFadeIn = false;
+        }
+
+        public static void W3DNoDraw(UIElement element, GraphicsDevice device)
+        {
+            // TODO: Render normally if shell map is not loaded.
         }
 
         public static void MainMenuSystem(UIElement element, GuiWindowMessage message, UIElementCallbackContext context)
