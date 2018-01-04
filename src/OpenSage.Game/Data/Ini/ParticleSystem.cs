@@ -200,12 +200,12 @@ namespace OpenSage.Data.Ini
             return new RgbColorKeyframe
             {
                 Color = IniColorRgb.Parse(parser),
-                Time = parser.ParseInteger()
+                Time = parser.ParseUnsignedInteger()
             };
         }
 
         public IniColorRgb Color;
-        public int Time;
+        public uint Time;
     }
 
     public enum ParticleSystemShader
@@ -223,7 +223,16 @@ namespace OpenSage.Data.Ini
         Additive,
 
         [IniEnum("MULTIPLY")]
-        Multiply
+        Multiply,
+
+        [IniEnum("W3D_EMISSIVE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        W3dEmissive,
+
+        [IniEnum("W3D_ALPHA"), AddedIn(SageGame.BattleForMiddleEarth)]
+        W3dAlpha,
+
+        [IniEnum("W3D_DIFFUSE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        W3dDiffuse,
     }
 
     public enum ParticleSystemType
@@ -238,7 +247,10 @@ namespace OpenSage.Data.Ini
         Drawable,
 
         [IniEnum("STREAK")]
-        Streak
+        Streak,
+
+        [IniEnum("SMUDGE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        Smudge,
     }
 
     public enum ParticleVelocityType

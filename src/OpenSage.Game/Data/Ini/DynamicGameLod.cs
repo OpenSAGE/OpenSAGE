@@ -8,7 +8,7 @@ namespace OpenSage.Data.Ini
         internal static DynamicGameLod Parse(IniParser parser)
         {
             return parser.ParseTopLevelNamedBlock(
-                (x, name) => x.Level = (DynamicGameLodLevel) Enum.Parse(typeof(DynamicGameLodLevel), name),
+                (x, name) => x.Level = (GameLodType) Enum.Parse(typeof(GameLodType), name),
                 FieldParseTable);
         }
 
@@ -22,7 +22,7 @@ namespace OpenSage.Data.Ini
             { "MinParticleSkipPriority", (parser, x) => x.MinParticleSkipPriority = parser.ParseEnum<ParticleSystemPriority>() },
         };
 
-        public DynamicGameLodLevel Level { get; private set; }
+        public GameLodType Level { get; private set; }
 
         public int MinimumFps { get; private set; }
         public int ParticleSkipMask { get; private set; }
@@ -30,14 +30,6 @@ namespace OpenSage.Data.Ini
         public float SlowDeathScale { get; private set; }
         public ParticleSystemPriority MinParticlePriority { get; private set; }
         public ParticleSystemPriority MinParticleSkipPriority { get; private set; }
-    }
-
-    public enum DynamicGameLodLevel
-    {
-        Low,
-        Medium,
-        High,
-        VeryHigh
     }
 
     public enum ParticleSystemPriority

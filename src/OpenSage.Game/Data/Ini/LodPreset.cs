@@ -8,7 +8,7 @@ namespace OpenSage.Data.Ini
         {
             return new LodPreset
             {
-                Level = parser.ParseEnum<StaticGameLodLevel>(),
+                Level = parser.ParseEnum<GameLodType>(),
                 CpuType = parser.ParseEnum<CpuType>(),
                 MHz = parser.ParseInteger(),
                 GpuType = parser.ParseEnum<GpuType>(),
@@ -16,7 +16,7 @@ namespace OpenSage.Data.Ini
             };
         }
 
-        public StaticGameLodLevel Level { get; private set; }
+        public GameLodType Level { get; private set; }
         public CpuType CpuType { get; private set; }
         public int MHz { get; private set; }
         public GpuType GpuType { get; private set; }

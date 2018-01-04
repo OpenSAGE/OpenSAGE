@@ -19,6 +19,8 @@ namespace OpenSage.Data.Ini
         public AnimationSoundClientBehaviorGlobalSetting AnimationSoundClientBehaviorGlobalSetting { get; internal set; }
         public List<Armor> Armors { get; } = new List<Armor>();
         public List<AudioEvent> AudioEvents { get; } = new List<AudioEvent>();
+        public List<AudioLod> AudioLods { get; } = new List<AudioLod>();
+        public int AudioLowMHz { get; internal set; }
         public AudioSettings AudioSettings { get; internal set; }
         public List<BannerType> BannerTypes { get; } = new List<BannerType>();
         public BannerUI BannerUI { get; internal set; }
@@ -46,6 +48,7 @@ namespace OpenSage.Data.Ini
         public List<FontDefaultSetting> FontDefaultSettings { get; } = new List<FontDefaultSetting>();
         public List<FontSubstitution> FontSubstitutions { get; } = new List<FontSubstitution>();
         public List<FXList> FXLists { get; } = new List<FXList>();
+        public List<FXParticleSystemTemplate> FXParticleSystems { get; } = new List<FXParticleSystemTemplate>();
         public GameData GameData { get; internal set; }
         public List<HeaderTemplate> HeaderTemplates { get; } = new List<HeaderTemplate>();
         public InGameUI InGameUI { get; internal set; }

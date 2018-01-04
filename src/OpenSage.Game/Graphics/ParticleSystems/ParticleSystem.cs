@@ -506,7 +506,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
     internal sealed class ParticleColorKeyframe
     {
-        public int Time;
+        public uint Time;
         public Vector3 Color;
 
         public ParticleColorKeyframe(RgbColorKeyframe keyframe)

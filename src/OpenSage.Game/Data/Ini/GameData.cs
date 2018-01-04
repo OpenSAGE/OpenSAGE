@@ -561,6 +561,10 @@ namespace OpenSage.Data.Ini
             { "FogOfWarOn", (parser, x) => x.FogOfWarOn = parser.ParseBoolean() },
             { "ShowCollisionExtents", (parser, x) => x.ShowCollisionExtents = parser.ParseBoolean() },
 
+            { "DebugAerialTileWidth", (parser, x) => x.DebugAerialTileWidth = parser.ParseInteger() },
+            { "DebugAerialTileDuration", (parser, x) => x.DebugAerialTileDuration = parser.ParseInteger() },
+            { "DebugAerialTileColor", (parser, x) => x.DebugAerialTileColor = IniColorRgb.Parse(parser) },
+
             { "DebugProjectileTileWidth", (parser, x) => x.DebugProjectileTileWidth = parser.ParseInteger() },
             { "DebugProjectileTileDuration", (parser, x) => x.DebugProjectileTileDuration = parser.ParseInteger() },
             { "DebugProjectileTileColor", (parser, x) => x.DebugProjectileTileColor = IniColorRgb.Parse(parser) },
@@ -1463,6 +1467,15 @@ namespace OpenSage.Data.Ini
         public bool ShroudOn { get; private set; }
         public bool FogOfWarOn { get; private set; }
         public bool ShowCollisionExtents { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int DebugAerialTileWidth { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int DebugAerialTileDuration { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public IniColorRgb DebugAerialTileColor { get; private set; }
 
         public int DebugProjectileTileWidth { get; private set; }
         public int DebugProjectileTileDuration { get; private set; }

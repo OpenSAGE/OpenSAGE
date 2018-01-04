@@ -25,6 +25,7 @@ namespace OpenSage.Data.Tests.Ini
                     case "buttonsets.ini": // Doesn't seem to be used?
                     case "scripts.ini": // Only needed by World Builder?
                     case "commandmapdebug.ini": // Only applies to DEBUG and INTERNAL builds
+                    case "fxparticlesystemcustom.ini": // Don't know if this is used, it uses Emitter property not used elsewhere
                         return;
                 }
 

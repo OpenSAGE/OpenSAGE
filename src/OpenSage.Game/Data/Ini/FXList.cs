@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Data.Ini
 {
@@ -14,12 +15,15 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<FXList> FieldParseTable = new IniParseTable<FXList>
         {
+            { "AttachedModel", (parser, x) => x.Items.Add(AttachedModelFXNugget.Parse(parser)) },
             { "BuffNugget", (parser, x) => x.Items.Add(BuffNugget.Parse(parser)) },
             { "CameraShakerVolume", (parser, x) => x.Items.Add(CameraShakerVolumeFXNugget.Parse(parser)) },
+            { "CursorParticleSystem", (parser, x) => x.Items.Add(CursorParticleSystemFXNugget.Parse(parser)) },
             { "DynamicDecal", (parser, x) => x.Items.Add(DynamicDecalFXNugget.Parse(parser)) },
             { "EvaEvent", (parser, x) => x.Items.Add(EvaEventFXNugget.Parse(parser)) },
             { "FXListAtBonePos", (parser, x) => x.Items.Add(FXListAtBonePosFXListItem.Parse(parser)) },
             { "LightPulse", (parser, x) => x.Items.Add(LightPulseFXListItem.Parse(parser)) },
+            { "ParticleSysBone", (parser, x) => x.Items.Add(FXParticleSysBoneNugget.Parse(parser)) },
             { "ParticleSystem", (parser, x) => x.Items.Add(ParticleSystemFXListItem.Parse(parser)) },
             { "Sound", (parser, x) => x.Items.Add(SoundFXListItem.Parse(parser)) },
             { "TerrainScorch", (parser, x) => x.Items.Add(TerrainScorchFXListItem.Parse(parser)) },
@@ -53,14 +57,31 @@ namespace OpenSage.Data.Ini
 
     public abstract class FXListItem
     {
-        
+        internal static readonly IniParseTable<FXListItem> FXListItemFieldParseTable = new IniParseTable<FXListItem>
+        {
+            { "ExcludedSourceModelConditions", (parser, x) => x.ExcludedSourceModelConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
+            { "RequiredSourceModelConditions", (parser, x) => x.RequiredSourceModelConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
+            { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) },
+            { "SourceObjectFilter", (parser, x) => x.SourceObjectFilter = ObjectFilter.Parse(parser) },
+            { "StopIfNuggetPlayed", (parser, x) => x.StopIfNuggetPlayed = parser.ParseBoolean() }
+        };
+
+        public BitArray<ModelConditionFlag> ExcludedSourceModelConditions { get; private set; }
+        public BitArray<ModelConditionFlag> RequiredSourceModelConditions { get; private set; }
+
+        // TODO: What is the difference between ObjectFilter and SourceObjectFilter?
+        // BFME I's fxlist.ini uses both.
+        public ObjectFilter ObjectFilter { get; private set; }
+        public ObjectFilter SourceObjectFilter { get; private set; }
+
+        public bool StopIfNuggetPlayed { get; private set; }
     }
 
     public sealed class ParticleSystemFXListItem : FXListItem
     {
         internal static ParticleSystemFXListItem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<ParticleSystemFXListItem> FieldParseTable = new IniParseTable<ParticleSystemFXListItem>
+        private static readonly IniParseTable<ParticleSystemFXListItem> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<ParticleSystemFXListItem>
         {
             { "AttachToObject", (parser, x) => x.AttachToObject = parser.ParseBoolean() },
             { "AttachToBone", (parser, x) => x.AttachToBone = parser.ParseBoneName() },
@@ -75,7 +96,16 @@ namespace OpenSage.Data.Ini
             { "Ricochet", (parser, x) => x.Ricochet = parser.ParseBoolean() },
             { "RotateY", (parser, x) => x.RotateY = parser.ParseInteger() },
             { "UseCallersRadius", (parser, x) => x.UseCallersRadius = parser.ParseBoolean() },
-        };
+            { "CreateBoneOverride", (parser, x) => x.CreateBoneOverride = parser.ParseBoneName() },
+            { "TargetBoneOverride", (parser, x) => x.TargetBoneOverride = parser.ParseBoneName() },
+            { "UseTargetOffset", (parser, x) => x.UseTargetOffset = parser.ParseBoolean() },
+            { "TargetOffset", (parser, x) => x.TargetOffset = Coord3D.Parse(parser) },
+            { "TargetCoeff", (parser, x) => x.TargetCoeff = parser.ParseInteger() },
+            { "SystemLife", (parser, x) => x.SystemLife = parser.ParseInteger() },
+            { "SetTargetMatrix", (parser, x) => x.SetTargetMatrix = parser.ParseBoolean() },
+            { "OnlyIfOnLand", (parser, x) => x.OnlyIfOnLand = parser.ParseBoolean() },
+            { "OnlyIfOnWater", (parser, x) => x.OnlyIfOnWater = parser.ParseBoolean() },
+        });
 
         public bool AttachToObject { get; private set; }
 
@@ -93,16 +123,43 @@ namespace OpenSage.Data.Ini
         public bool Ricochet { get; private set; }
         public int RotateY { get; private set; }
         public bool UseCallersRadius { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public string CreateBoneOverride { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public string TargetBoneOverride { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool UseTargetOffset { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public Coord3D TargetOffset { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int TargetCoeff { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public int SystemLife { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool SetTargetMatrix { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool OnlyIfOnLand { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool OnlyIfOnWater { get; private set; }
     }
 
     public sealed class SoundFXListItem : FXListItem
     {
         internal static SoundFXListItem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<SoundFXListItem> FieldParseTable = new IniParseTable<SoundFXListItem>
+        private static readonly IniParseTable<SoundFXListItem> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<SoundFXListItem>
         {
-            { "Name", (parser, x) => x.Name = parser.ParseAssetReference() },
-        };
+            { "Name", (parser, x) => x.Name = parser.ParseAssetReference() }
+        });
 
         public string Name { get; private set; }
     }
@@ -111,14 +168,14 @@ namespace OpenSage.Data.Ini
     {
         internal static LightPulseFXListItem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<LightPulseFXListItem> FieldParseTable = new IniParseTable<LightPulseFXListItem>
+        private static readonly IniParseTable<LightPulseFXListItem> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<LightPulseFXListItem>
         {
             { "Color", (parser, x) => x.Color = IniColorRgb.Parse(parser) },
             { "Radius", (parser, x) => x.Radius = parser.ParseInteger() },
             { "RadiusAsPercentOfObjectSize", (parser, x) => x.RadiusAsPercentOfObjectSize = parser.ParsePercentage() },
             { "IncreaseTime", (parser, x) => x.IncreaseTime = parser.ParseInteger() },
             { "DecreaseTime", (parser, x) => x.DecreaseTime = parser.ParseInteger() }
-        };
+        });
 
         public IniColorRgb Color { get; private set; }
         public int Radius { get; private set; }
@@ -131,10 +188,10 @@ namespace OpenSage.Data.Ini
     {
         internal static ViewShakeFXListItem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<ViewShakeFXListItem> FieldParseTable = new IniParseTable<ViewShakeFXListItem>
+        private static readonly IniParseTable<ViewShakeFXListItem> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<ViewShakeFXListItem>
         {
             { "Type", (parser, x) => x.Type = parser.ParseEnum<ViewShakeType>() }
-        };
+        });
 
         public ViewShakeType Type { get; private set; }
     }
@@ -143,12 +200,12 @@ namespace OpenSage.Data.Ini
     {
         internal static FXListAtBonePosFXListItem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<FXListAtBonePosFXListItem> FieldParseTable = new IniParseTable<FXListAtBonePosFXListItem>
+        private static readonly IniParseTable<FXListAtBonePosFXListItem> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<FXListAtBonePosFXListItem>
         {
             { "FX", (parser, x) => x.FX = parser.ParseAssetReference() },
             { "BoneName", (parser, x) => x.BoneName = parser.ParseAssetReference() },
             { "OrientToBone", (parser, x) => x.OrientToBone = parser.ParseBoolean() }
-        };
+        });
 
         public string FX { get; private set; }
         public string BoneName { get; private set; }
@@ -159,11 +216,11 @@ namespace OpenSage.Data.Ini
     {
         internal static TerrainScorchFXListItem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<TerrainScorchFXListItem> FieldParseTable = new IniParseTable<TerrainScorchFXListItem>
+        private static readonly IniParseTable<TerrainScorchFXListItem> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<TerrainScorchFXListItem>
         {
             { "Type", (parser, x) => x.Type = parser.ParseEnum<TerrainScorchType>() },
             { "Radius", (parser, x) => x.Radius = parser.ParseInteger() }
-        };
+        });
 
         public TerrainScorchType Type { get; private set; }
         public int Radius { get; private set; }
@@ -173,7 +230,7 @@ namespace OpenSage.Data.Ini
     {
         internal static TracerFXListItem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<TracerFXListItem> FieldParseTable = new IniParseTable<TracerFXListItem>
+        private static readonly IniParseTable<TracerFXListItem> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<TracerFXListItem>
         {
             { "Color", (parser, x) => x.Color = IniColorRgb.Parse(parser) },
             { "DecayAt", (parser, x) => x.DecayAt = parser.ParseFloat() },
@@ -181,7 +238,7 @@ namespace OpenSage.Data.Ini
             { "Probability", (parser, x) => x.Probability = parser.ParseFloat() },
             { "Speed", (parser, x) => x.Speed = parser.ParseInteger() },
             { "Width", (parser, x) => x.Width = parser.ParseFloat() },
-        };
+        });
 
         public IniColorRgb Color { get; private set; }
         public float DecayAt { get; private set; }
@@ -196,7 +253,7 @@ namespace OpenSage.Data.Ini
     {
         internal static BuffNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<BuffNugget> FieldParseTable = new IniParseTable<BuffNugget>
+        private static readonly IniParseTable<BuffNugget> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<BuffNugget>
         {
             { "BuffType", (parser, x) => x.BuffType = parser.ParseIdentifier() },
             { "BuffThingTemplate", (parser, x) => x.BuffThingTemplate = parser.ParseAssetReference() },
@@ -208,7 +265,7 @@ namespace OpenSage.Data.Ini
             { "BuffLifeTime", (parser, x) => x.BuffLifeTime = parser.ParseUnsignedInteger() },
             { "Extrusion", (parser, x) => x.Extrusion = parser.ParseFloat() },
             { "Color", (parser, x) => x.Color = IniColorRgb.Parse(parser) },
-        };
+        });
 
         public string BuffType { get; private set; }
         public string BuffThingTemplate { get; private set; }
@@ -227,12 +284,12 @@ namespace OpenSage.Data.Ini
     {
         internal static CameraShakerVolumeFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<CameraShakerVolumeFXNugget> FieldParseTable = new IniParseTable<CameraShakerVolumeFXNugget>
+        private static readonly IniParseTable<CameraShakerVolumeFXNugget> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<CameraShakerVolumeFXNugget>
         {
             { "Radius", (parser, x) => x.Radius = parser.ParseInteger() },
             { "Duration_Seconds", (parser, x) => x.Duration = parser.ParseFloat() },
             { "Amplitude_Degrees", (parser, x) => x.Amplitude = parser.ParseFloat() }
-        };
+        });
 
         public int Radius { get; private set; }
         public float Duration { get; private set; }
@@ -244,11 +301,12 @@ namespace OpenSage.Data.Ini
     {
         internal static DynamicDecalFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<DynamicDecalFXNugget> FieldParseTable = new IniParseTable<DynamicDecalFXNugget>
+        private static readonly IniParseTable<DynamicDecalFXNugget> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<DynamicDecalFXNugget>
         {
             { "DecalName", (parser, x) => x.DecalName = parser.ParseAssetReference() },
             { "Size", (parser, x) => x.Size = parser.ParseInteger() },
             { "Color", (parser, x) => x.Color = IniColorRgb.Parse(parser) },
+            { "Offset", (parser, x) => x.Offset = Coord2D.Parse(parser) },
 
             { "OpacityStart", (parser, x) => x.OpacityStart = parser.ParseInteger() },
             { "OpacityFadeTimeOne", (parser, x) => x.OpacityFadeTimeOne = parser.ParseInteger() },
@@ -259,11 +317,12 @@ namespace OpenSage.Data.Ini
 
             { "StartingDelay", (parser, x) => x.StartingDelay = parser.ParseInteger() },
             { "Lifetime", (parser, x) => x.Lifetime = parser.ParseInteger() },
-        };
+        });
 
         public string DecalName { get; private set; }
         public int Size { get; private set; }
         public IniColorRgb Color { get; private set; }
+        public Coord2D Offset { get; private set; }
 
         public int OpacityStart { get; private set; }
         public int OpacityFadeTimeOne { get; private set; }
@@ -281,11 +340,11 @@ namespace OpenSage.Data.Ini
     {
         internal static EvaEventFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<EvaEventFXNugget> FieldParseTable = new IniParseTable<EvaEventFXNugget>
+        private static readonly IniParseTable<EvaEventFXNugget> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<EvaEventFXNugget>
         {
             { "EvaEventOwner", (parser, x) => x.EvaEventOwner = parser.ParseAssetReference() },
             { "EvaEventAlly", (parser, x) => x.EvaEventAlly = parser.ParseAssetReference() }
-        };
+        });
 
         public string EvaEventOwner { get; private set; }
         public string EvaEventAlly { get; private set; }
@@ -296,22 +355,76 @@ namespace OpenSage.Data.Ini
     {
         internal static TintDrawableFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<TintDrawableFXNugget> FieldParseTable = new IniParseTable<TintDrawableFXNugget>
+        private static readonly IniParseTable<TintDrawableFXNugget> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<TintDrawableFXNugget>
         {
             { "Color", (parser, x) => x.Color = IniColorRgb.Parse(parser) },
             { "PreColorTime", (parser, x) => x.PreColorTime = parser.ParseInteger() },
             { "PostColorTime", (parser, x) => x.PostColorTime = parser.ParseInteger() },
             { "SustainedColorTime", (parser, x) => x.SustainedColorTime = parser.ParseInteger() },
-            { "Frequency", (parser, x) => x.Frequency = parser.ParseInteger() },
-            { "Amplitude", (parser, x) => x.Amplitude = parser.ParseInteger() },
-        };
+            { "Frequency", (parser, x) => x.Frequency = parser.ParseFloat() },
+            { "Amplitude", (parser, x) => x.Amplitude = parser.ParseFloat() },
+        });
 
         public IniColorRgb Color { get; private set; }
         public int PreColorTime { get; private set; }
         public int PostColorTime { get; private set; }
         public int SustainedColorTime { get; private set; }
-        public int Frequency { get; private set; }
-        public int Amplitude { get; private set; }
+        public float Frequency { get; private set; }
+        public float Amplitude { get; private set; }
+    }
+
+    [AddedIn(SageGame.BattleForMiddleEarth)]
+    public sealed class FXParticleSysBoneNugget : FXListItem
+    {
+        internal static FXParticleSysBoneNugget Parse(IniParser parser)
+        {
+            return new FXParticleSysBoneNugget
+            {
+                Bone = parser.ParseBoneName(),
+                Particle = parser.ParseAssetReference(),
+                FollowBone = parser.ParseAttributeBoolean("FollowBone")
+            };
+        }
+
+        public string Bone { get; private set; }
+        public string Particle { get; private set; }
+        public bool FollowBone { get; private set; }
+    }
+
+    [AddedIn(SageGame.BattleForMiddleEarth)]
+    public sealed class AttachedModelFXNugget : FXListItem
+    {
+        internal static AttachedModelFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<AttachedModelFXNugget> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<AttachedModelFXNugget>
+        {
+            { "Modelname", (parser, x) => x.ModelName = parser.ParseAssetReference() }
+        });
+
+        public string ModelName { get; private set; }
+    }
+
+    [AddedIn(SageGame.BattleForMiddleEarth)]
+    public sealed class CursorParticleSystemFXNugget : FXListItem
+    {
+        internal static CursorParticleSystemFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<CursorParticleSystemFXNugget> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<CursorParticleSystemFXNugget>
+        {
+            { "Anim2DTemplateName", (parser, x) => x.Anim2DTemplateName = parser.ParseAssetReference() },
+            { "BurstCount", (parser, x) => x.BurstCount = parser.ParseInteger() },
+            { "ParticleLife", (parser, x) => x.ParticleLife = RandomVariable.Parse(parser) },
+            { "SystemLife", (parser, x) => x.SystemLife = RandomVariable.Parse(parser) },
+            { "DriftVelX", (parser, x) => x.DriftVelX = RandomVariable.Parse(parser) },
+            { "DriftVelY", (parser, x) => x.DriftVelY = RandomVariable.Parse(parser) },
+        });
+
+        public string Anim2DTemplateName { get; private set; }
+        public int BurstCount { get; private set; }
+        public RandomVariable ParticleLife { get; private set; }
+        public RandomVariable SystemLife { get; private set; }
+        public RandomVariable DriftVelX { get; private set; }
+        public RandomVariable DriftVelY { get; private set; }
     }
 
     public enum ViewShakeType

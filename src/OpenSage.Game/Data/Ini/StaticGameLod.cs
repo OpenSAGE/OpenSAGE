@@ -8,7 +8,7 @@ namespace OpenSage.Data.Ini
         internal static StaticGameLod Parse(IniParser parser)
         {
             return parser.ParseTopLevelNamedBlock(
-                (x, name) => x.Level = (StaticGameLodLevel) Enum.Parse(typeof(StaticGameLodLevel), name),
+                (x, name) => x.Level = (GameLodType) Enum.Parse(typeof(GameLodType), name),
                 FieldParseTable);
         }
 
@@ -21,6 +21,8 @@ namespace OpenSage.Data.Ini
             { "StreamCount", (parser, x) => x.StreamCount = parser.ParseInteger() },
             { "MaxParticleCount", (parser, x) => x.MaxParticleCount = parser.ParseInteger() },
             { "UseShadowVolumes", (parser, x) => x.UseShadowVolumes = parser.ParseBoolean() },
+            { "UseAnisotropic", (parser, x) => x.UseAnisotropic = parser.ParseBoolean() },
+            { "UsePixelShaders", (parser, x) => x.UsePixelShaders = parser.ParseBoolean() },
             { "UseShadowDecals", (parser, x) => x.UseShadowDecals = parser.ParseBoolean() },
             { "UseCloudMap", (parser, x) => x.UseCloudMap = parser.ParseBoolean() },
             { "UseLightMap", (parser, x) => x.UseLightMap = parser.ParseBoolean() },
@@ -30,11 +32,16 @@ namespace OpenSage.Data.Ini
             { "MaxTankTrackFadeDelay", (parser, x) => x.MaxTankTrackFadeDelay = parser.ParseInteger() },
             { "UseBuildupScaffolds", (parser, x) => x.UseBuildupScaffolds = parser.ParseBoolean() },
             { "UseTreeSway", (parser, x) => x.UseTreeSway = parser.ParseBoolean() },
+            { "ShowProps", (parser, x) => x.ShowProps = parser.ParseBoolean() },
+            { "UseHighQualityVideo", (parser, x) => x.UseHighQualityVideo = parser.ParseBoolean() },
             { "UseEmissiveNightMaterials", (parser, x) => x.UseEmissiveNightMaterials = parser.ParseBoolean() },
             { "TextureReductionFactor", (parser, x) => x.TextureReductionFactor = parser.ParseInteger() },
+            { "AnimationDetail", (parser, x) => x.AnimationDetail = parser.ParseEnum<AnimationLodType>() },
+            { "MinParticlePriority", (parser, x) => x.MinParticlePriority = parser.ParseEnum<ParticleSystemPriority>() },
+            { "MinParticleSkipPriority", (parser, x) => x.MinParticleSkipPriority = parser.ParseEnum<ParticleSystemPriority>() },
         };
 
-        public StaticGameLodLevel Level { get; private set; }
+        public GameLodType Level { get; private set; }
 
         public int MinimumFps { get; private set; }
         public int MinimumProcessorFps { get; private set; }
@@ -43,6 +50,13 @@ namespace OpenSage.Data.Ini
         public int StreamCount { get; private set; }
         public int MaxParticleCount { get; private set; }
         public bool UseShadowVolumes { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool UseAnisotropic { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool UsePixelShaders { get; private set; }
+
         public bool UseShadowDecals { get; private set; }
         public bool UseCloudMap { get; private set; }
         public bool UseLightMap { get; private set; }
@@ -52,12 +66,30 @@ namespace OpenSage.Data.Ini
         public int MaxTankTrackFadeDelay { get; private set; }
         public bool UseBuildupScaffolds { get; private set; }
         public bool UseTreeSway { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool ShowProps { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool UseHighQualityVideo { get; private set; }
+
         public bool UseEmissiveNightMaterials { get; private set; }
         public int TextureReductionFactor { get; private set; }
+
+        public AnimationLodType AnimationDetail { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public ParticleSystemPriority MinParticlePriority { get; private set; }
+
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public ParticleSystemPriority MinParticleSkipPriority { get; private set; }
     }
 
-    public enum StaticGameLodLevel
+    public enum GameLodType
     {
+        [IniEnum("VeryLow"), AddedIn(SageGame.BattleForMiddleEarth)]
+        VeryLow,
+
         [IniEnum("LOW")]
         Low,
 
@@ -65,6 +97,31 @@ namespace OpenSage.Data.Ini
         Medium,
 
         [IniEnum("HIGH")]
-        High
+        High,
+
+        [IniEnum("VeryHigh")]
+        VeryHigh,
+
+        [IniEnum("UltraHigh"), AddedIn(SageGame.BattleForMiddleEarth)]
+        UltraHigh,
+    }
+
+    [AddedIn(SageGame.BattleForMiddleEarth)]
+    public enum AnimationLodType
+    {
+        [IniEnum("VeryLow")]
+        VeryLow,
+
+        [IniEnum("Low")]
+        Low,
+
+        [IniEnum("Medium")]
+        Medium,
+
+        [IniEnum("High")]
+        High,
+
+        [IniEnum("UltraHigh")]
+        UltraHigh,
     }
 }
