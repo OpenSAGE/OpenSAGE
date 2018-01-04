@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenSage.Scripting.Actions;
 using OpenSage.Scripting.Conditions;
 
@@ -103,6 +104,7 @@ namespace OpenSage.Scripting
                         : _actionsIfFalse;
                     foreach (var action in actions)
                     {
+                        Console.WriteLine("Queueing: {0}", action);
                         _currentActions.Add(action);
                     }
                     _state = ScriptState.Running;
@@ -114,6 +116,7 @@ namespace OpenSage.Scripting
                 var result = action.Execute(context);
                 if (result == ScriptExecutionResult.Finished)
                 {
+                    Console.WriteLine("Finished {0}", action);
                     _actionsToRemove.Add(action);
                 }
             }
@@ -135,6 +138,16 @@ namespace OpenSage.Scripting
                 _currentActions.Clear();
                 _currentConditionValue = null;
             }
+        }
+
+        internal void Restart()
+        {
+            foreach (var action in _actionsIfTrue.Concat(_actionsIfFalse))
+            {
+                action.Reset();
+            }
+
+            _state = ScriptState.NotStarted;
         }
     }
 }

@@ -1,8 +1,12 @@
-﻿namespace OpenSage.Scripting
+﻿using System.Collections.Generic;
+
+namespace OpenSage.Scripting
 {
     public sealed class MapScriptGroup
     {
         private readonly MapScript[] _scripts;
+
+        public IEnumerable<MapScript> Scripts => _scripts;
 
         private enum ScriptGroupState
         {

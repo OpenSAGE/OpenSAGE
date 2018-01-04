@@ -14,6 +14,7 @@ namespace OpenSage.Scripting.Conditions
             { ScriptConditionType.Flag, (c, s) => new FlagCondition(c) },
             { ScriptConditionType.True, (c, s) => new TrueCondition() },
             { ScriptConditionType.TimerExpired, (c, s) => new TimerExpiredCondition(c) },
+            { ScriptConditionType.Counter, (c, s) => new CompareCounterCondition(c) }
         };
 
         public static MapScriptCondition Create(ScriptCondition condition, SceneSettings sceneSettings)

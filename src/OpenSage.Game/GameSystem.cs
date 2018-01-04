@@ -50,7 +50,8 @@ namespace OpenSage
                 componentList.Remove(component);
         }
 
-        internal virtual void OnSceneChange() {
+        internal virtual void OnSceneChange()
+        {
             foreach (var componentList in _componentLists.Values)
                 componentList.Clear();
         }

@@ -100,8 +100,8 @@ namespace OpenSage.Settings
         private readonly Dictionary<string, WaypointPath> _waypointPathsByLabel;
         private readonly Dictionary<Waypoint, WaypointPath> _waypointPathsByFirstNode;
 
-        public WaypointPath this[Waypoint firstNode] => _waypointPathsByFirstNode[firstNode];
-        public WaypointPath this[string label] => _waypointPathsByLabel[label];
+        public WaypointPath this[Waypoint firstNode] => _waypointPathsByFirstNode.TryGetValue(firstNode, out var path) ? path : null;
+        public WaypointPath this[string label] => _waypointPathsByLabel.TryGetValue(label, out var path) ? path : null;
 
         public WaypointPathCollection(IEnumerable<WaypointPath> paths)
         {
@@ -118,8 +118,23 @@ namespace OpenSage.Settings
                 _waypointPathsByFirstNode[path.Start] = path;
             }
         }
+
+        /// <summary>
+        /// Iterates through the waypoint path, starting at given node.
+        /// </summary>
+        public IEnumerable<Waypoint> GetFullPath(Waypoint node)
+        {
+            while (node != null)
+            {
+                yield return node;
+                node = this[node]?.End;
+            }
+        }
+
+        public IEnumerable<Waypoint> GetFullPath(string label) => GetFullPath(this[label]?.Start);
     }
 
+    // Note: this is not actually a path despite the name, just a node of a doubly linked list.
     public sealed class WaypointPath
     {
         public Waypoint Start { get; }

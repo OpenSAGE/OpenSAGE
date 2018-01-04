@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Map;
+﻿using System;
+using OpenSage.Data.Map;
 
 namespace OpenSage.Scripting.Conditions
 {
@@ -54,6 +55,44 @@ namespace OpenSage.Scripting.Conditions
         {
             return context.Scripting.Timers.TryGetValue(_timerName, out var timer)
                 && timer.Expired;
+        }
+    }
+
+    public sealed class CompareCounterCondition : MapScriptCondition
+    {
+        private readonly string _counterName;
+        private readonly CounterOperator _operator;
+        private readonly int _comparedValue;
+
+        public CompareCounterCondition(ScriptCondition condition)
+        {
+            _counterName = condition.Arguments[0].StringValue;
+            _operator = (CounterOperator) condition.Arguments[1].IntValue.Value;
+            _comparedValue = condition.Arguments[2].IntValue.Value;
+        }
+
+        public override bool Evaluate(ScriptExecutionContext context)
+        {
+            if (!context.Scripting.Counters.TryGetValue(_counterName, out var counterValue))
+            {
+                return false;
+            }
+            return EvaluateOperator(counterValue, _comparedValue);
+        }
+
+        private bool EvaluateOperator(int a, int b)
+        {
+            switch (_operator)
+            {
+                case CounterOperator.EqualTo: return a == b;
+                default: throw new NotImplementedException(_operator.ToString());
+            }
+        }
+
+        // TODO: Handle other operators
+        private enum CounterOperator
+        {
+            EqualTo = 2
         }
     }
 }
