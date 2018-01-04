@@ -11,16 +11,15 @@ namespace OpenSage.LowLevel.Graphics2D
 
         private void PlatformConstruct(GraphicsDevice graphicsDevice)
         {
-            using (var dxgiDevice = graphicsDevice.Device.QueryInterface<SharpDX.DXGI.Device>())
-            {
-                var debugLevel = DebugLevel.None;
+            var debugLevel = DebugLevel.None;
 #if DEBUG
-                debugLevel = DebugLevel.Warning;
+            debugLevel = DebugLevel.Warning;
 #endif
 
-                var factory = AddDisposable(new Factory1(FactoryType.SingleThreaded, debugLevel));
-                var device = AddDisposable(new Device(factory, dxgiDevice));
-
+            using (var dxgiDevice = graphicsDevice.Device.QueryInterface<SharpDX.DXGI.Device>())
+            using (var factory = new Factory1(FactoryType.SingleThreaded, debugLevel))
+            using (var device = new Device(factory, dxgiDevice))
+            {
                 DeviceContext = AddDisposable(new DeviceContext(device, DeviceContextOptions.None));
             }
 

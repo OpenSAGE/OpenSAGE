@@ -1,10 +1,8 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.LowLevel.Graphics3D.Util;
 using SharpDX.Direct2D1;
 using SharpDX.DXGI;
-using SharpDX.Mathematics.Interop;
 
 namespace OpenSage.LowLevel.Graphics2D
 {
@@ -17,9 +15,10 @@ namespace OpenSage.LowLevel.Graphics2D
         {
             _graphicsDevice = graphicsDevice;
 
-            var dxgiSurface = targetTexture.DeviceResource.QueryInterface<Surface>();
-
-            _bitmap = AddDisposable(new Bitmap1(graphicsDevice.DeviceContext, dxgiSurface));
+            using (var dxgiSurface = targetTexture.DeviceResource.QueryInterface<Surface>())
+            {
+                _bitmap = AddDisposable(new Bitmap1(graphicsDevice.DeviceContext, dxgiSurface));
+            }
         }
 
         private void PlatformBegin()
@@ -102,15 +101,18 @@ namespace OpenSage.LowLevel.Graphics2D
         private void PlatformFillTriangle(in RawTriangleF tri, in ColorRgbaF fillColor)
         {
             using (var brush = CreateBrush(fillColor))
+            using (var geometry = new PathGeometry(_graphicsDevice.DeviceContext.Factory))
             {
-                var geometry = new PathGeometry(_graphicsDevice.DeviceContext.Factory);
-                var sink = geometry.Open();
-                sink.BeginFigure(ToRawVector2(tri.X1, tri.Y1), FigureBegin.Filled);
-                sink.SetFillMode(SharpDX.Direct2D1.FillMode.Winding);
-                sink.AddLine(ToRawVector2(tri.X2, tri.Y2));
-                sink.AddLine(ToRawVector2(tri.X3, tri.Y3));
-                sink.EndFigure(FigureEnd.Closed);
-                sink.Close();
+                using (var sink = geometry.Open())
+                {
+                    sink.BeginFigure(ToRawVector2(tri.X1, tri.Y1), FigureBegin.Filled);
+                    sink.SetFillMode(SharpDX.Direct2D1.FillMode.Winding);
+                    sink.AddLine(ToRawVector2(tri.X2, tri.Y2));
+                    sink.AddLine(ToRawVector2(tri.X3, tri.Y3));
+                    sink.EndFigure(FigureEnd.Closed);
+                    sink.Close();
+                }
+
                 _graphicsDevice.DeviceContext.FillGeometry(geometry, brush);
             }
         }
@@ -118,20 +120,25 @@ namespace OpenSage.LowLevel.Graphics2D
         private void PlatformFillTriangle(in RawTriangleF triangle, Texture texture, in RawMatrix3x2 transform)
         {
             if (texture.MipMapCount > 1)
+            {
                 throw new InvalidDataException("Texture is not allowed to have Mipmaps for Direct2D!");
+            }
 
             using (var dxgiSurface = texture.DeviceResource.QueryInterface<Surface>())
             using (var bitmap = new Bitmap1(_graphicsDevice.DeviceContext, dxgiSurface))
             using (var brush = CreateImageBrush(bitmap, transform))
+            using (var geometry = new PathGeometry(_graphicsDevice.DeviceContext.Factory))
             {
-                var geometry = new PathGeometry(_graphicsDevice.DeviceContext.Factory);
-                var sink = geometry.Open();
-                sink.SetFillMode(SharpDX.Direct2D1.FillMode.Winding);
-                sink.BeginFigure(ToRawVector2(triangle.X1, triangle.Y1), FigureBegin.Filled);
-                sink.AddLine(ToRawVector2(triangle.X2, triangle.Y2));
-                sink.AddLine(ToRawVector2(triangle.X3, triangle.Y3));
-                sink.EndFigure(FigureEnd.Closed);
-                sink.Close();
+                using (var sink = geometry.Open())
+                {
+                    sink.SetFillMode(SharpDX.Direct2D1.FillMode.Winding);
+                    sink.BeginFigure(ToRawVector2(triangle.X1, triangle.Y1), FigureBegin.Filled);
+                    sink.AddLine(ToRawVector2(triangle.X2, triangle.Y2));
+                    sink.AddLine(ToRawVector2(triangle.X3, triangle.Y3));
+                    sink.EndFigure(FigureEnd.Closed);
+                    sink.Close();
+                }
+
                 _graphicsDevice.DeviceContext.FillGeometry(geometry, brush);
             }
         }
@@ -149,9 +156,7 @@ namespace OpenSage.LowLevel.Graphics2D
                 Opacity = 1.0f
             };
 
-            var brush = new BitmapBrush1(_graphicsDevice.DeviceContext, image, brushProp);
-
-            return brush;
+            return new BitmapBrush1(_graphicsDevice.DeviceContext, image, brushProp);
         }
 
         private static SharpDX.Mathematics.Interop.RawRectangleF ToRawRectangleF(in RawRectangleF value)
