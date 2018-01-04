@@ -298,14 +298,16 @@ namespace OpenSage.Content
         {
             const int numTilesPerPatch = TerrainComponent.PatchSize - 1;
 
-            var numPatchesX = heightMap.Width / numTilesPerPatch;
-            if (heightMap.Width % numTilesPerPatch != 0)
+            var heightMapWidthMinusOne = heightMap.Width - 1;
+            var numPatchesX = heightMapWidthMinusOne / numTilesPerPatch;
+            if (heightMapWidthMinusOne % numTilesPerPatch != 0)
             {
                 numPatchesX += 1;
             }
 
-            var numPatchesY = heightMap.Height / numTilesPerPatch;
-            if (heightMap.Height % numTilesPerPatch != 0)
+            var heightMapHeightMinusOne = heightMap.Height - 1;
+            var numPatchesY = heightMapHeightMinusOne / numTilesPerPatch;
+            if (heightMapHeightMinusOne % numTilesPerPatch != 0)
             {
                 numPatchesY += 1;
             }
