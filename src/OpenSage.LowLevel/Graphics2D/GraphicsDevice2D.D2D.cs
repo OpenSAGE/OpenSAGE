@@ -13,7 +13,7 @@ namespace OpenSage.LowLevel.Graphics2D
         {
             var debugLevel = DebugLevel.None;
 #if DEBUG
-            debugLevel = DebugLevel.Warning;
+            debugLevel = DebugLevel.Information;
 #endif
 
             using (var dxgiDevice = graphicsDevice.Device.QueryInterface<SharpDX.DXGI.Device>())

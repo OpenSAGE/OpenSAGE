@@ -64,6 +64,29 @@ namespace OpenSage.Gui.Apt
             Material.SetMaterialConstants(_materialConstantsBuffer.Buffer);
         }
 
+        protected override void Destroy()
+        {
+            base.Destroy();
+
+            if (_texture != null)
+            {
+                _texture.Dispose();
+                _texture = null;
+            }
+
+            if (_vertexBuffer != null)
+            {
+                _vertexBuffer.Dispose();
+                _vertexBuffer = null;
+            }
+
+            if (_materialConstantsBuffer != null)
+            {
+                _materialConstantsBuffer.Dispose();
+                _materialConstantsBuffer = null;
+            }
+        }
+
         private static Rectangle CalculateFrame(in RectangleF shapeBounding, in Size viewportSize, out float scale)
         {
             // Figure out the ratio.
@@ -102,6 +125,12 @@ namespace OpenSage.Gui.Apt
 
             var frame = CalculateFrame(Shape.BoundingBox, windowSize, out _scale);
 
+            if (_texture != null)
+            {
+                _texture.Dispose();
+                _texture = null;
+            }
+
             _texture = Texture.CreateTexture2D(
                 gd,
                 PixelFormat.Rgba8UNorm,
@@ -125,6 +154,13 @@ namespace OpenSage.Gui.Apt
                 new SpriteVertex(new Vector2(right, bottom * -1), new Vector2(1, 1)),
                 new SpriteVertex(new Vector2(left, bottom * -1), new Vector2(0, 1))
             };
+
+            if (_vertexBuffer != null)
+            {
+                _vertexBuffer.Dispose();
+                _vertexBuffer = null;
+            }
+
             _vertexBuffer = Buffer<SpriteVertex>.CreateStatic(
                 gd,
                 vertices,

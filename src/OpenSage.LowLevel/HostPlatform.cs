@@ -17,6 +17,8 @@ namespace OpenSage.LowLevel
         public static void Stop()
         {
             GraphicsDevice2D.Dispose();
+            GraphicsDevice2D = null;
+
             GraphicsDevice.Dispose();
             GraphicsDevice = null;
         }
