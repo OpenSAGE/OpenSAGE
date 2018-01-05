@@ -53,7 +53,7 @@ namespace OpenSage
 
         private static Icon GetIcon()
         {
-            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("OpenSage.Windows.Resources.AppIcon.ico"))
+            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("OpenSage.Launcher.Windows.Resources.AppIcon.ico"))
             {
                 return new Icon(stream);
             }
