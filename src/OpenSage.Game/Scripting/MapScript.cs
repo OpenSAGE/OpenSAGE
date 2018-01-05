@@ -55,7 +55,7 @@ namespace OpenSage.Scripting
             _currentActions = new List<MapScriptAction>(Math.Max(actionsIfTrue.Count, actionsIfFalse.Count));
             _actionsToRemove = new List<MapScriptAction>(_currentActions.Count);
 
-            _previousEvaluationTime = TimeSpan.MinValue;
+            _previousEvaluationTime = TimeSpan.Zero;
 
             if (isInitiallyActive)
             {

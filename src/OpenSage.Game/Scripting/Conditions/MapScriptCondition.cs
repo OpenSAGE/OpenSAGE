@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using OpenSage.Data.Map;
 
 namespace OpenSage.Scripting.Conditions
@@ -73,28 +74,32 @@ namespace OpenSage.Scripting.Conditions
 
         public override bool Evaluate(ScriptExecutionContext context)
         {
-            if (!context.Scripting.Counters.TryGetValue(_counterName, out var counterValue))
-            {
-                return false;
-            }
-            return EvaluateOperator(counterValue, _comparedValue);
+            return context.Scripting.Counters.TryGetValue(_counterName, out var counterValue) &&
+                   EvaluateOperator(counterValue);
         }
 
-        private bool EvaluateOperator(int a, int b)
+        private bool EvaluateOperator(int x)
         {
             switch (_operator)
             {
-                case CounterOperator.EqualTo: return a == b;
-                case CounterOperator.GreaterThan: return a > b;
+                case CounterOperator.LessThan: return x < _comparedValue;
+                case CounterOperator.LessOrEqual: return x <= _comparedValue;
+                case CounterOperator.EqualTo: return x == _comparedValue;
+                case CounterOperator.GreaterOrEqual: return x >= _comparedValue;
+                case CounterOperator.GreaterThan: return x > _comparedValue;
+                case CounterOperator.NotEqual: return x != _comparedValue;
                 default: throw new NotImplementedException(_operator.ToString());
             }
         }
 
-        // TODO: Handle other operators
         private enum CounterOperator
         {
+            LessThan = 0,
+            LessOrEqual = 1,
             EqualTo = 2,
-            GreaterThan = 4
+            GreaterOrEqual = 3,
+            GreaterThan = 4,
+            NotEqual = 5
         }
     }
 }
