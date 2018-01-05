@@ -165,13 +165,19 @@ namespace OpenSage.Gui.Wnd
             base.Update(gameTime);
         }
 
-        internal GuiWindow OpenWindow(string wndFileName)
+        public GuiWindow OpenWindow(string wndFileName)
         {
             var wndFilePath = Path.Combine("Window", wndFileName);
+            var window = Game.ContentManager.Load<GuiWindow>(wndFilePath);
+
+            if (window == null)
+            {
+                throw new Exception($"Window file {wndFilePath} was not found.");
+            }
 
             var guiComponent = new WndComponent
             {
-                Window = Game.ContentManager.Load<GuiWindow>(wndFilePath)
+                Window = window
             };
 
             var entity = new Entity();
