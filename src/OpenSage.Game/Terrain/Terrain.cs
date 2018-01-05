@@ -1,27 +1,32 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using System.Runtime.InteropServices;
+using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Terrain
 {
-    public sealed class TerrainComponent : EntityComponent
+    public sealed class Terrain
     {
         internal const int PatchSize = 17;
 
-        public HeightMap HeightMap { get; set; }
+        public HeightMap HeightMap { get; }
+
+        public IReadOnlyList<TerrainPatch> Patches { get; }
+
+        internal Terrain(HeightMap heightMap, List<TerrainPatch> patches)
+        {
+            HeightMap = heightMap;
+            Patches = patches;
+        }
 
         public Vector3? Intersect(Ray ray)
         {
-            if (ray.Intersects(BoundingBox) == null)
-            {
-                return null;
-            }
-
             float? closestIntersection = null;
 
-            foreach (var patchComponent in Entity.GetComponents<TerrainPatchComponent>())
+            foreach (var patch in Patches)
             {
-                patchComponent.Intersect(ray, ref closestIntersection);
+                patch.Intersect(ray, ref closestIntersection);
             }
 
             if (closestIntersection == null)
@@ -30,6 +35,14 @@ namespace OpenSage.Terrain
             }
 
             return ray.Position + (ray.Direction * closestIntersection.Value);
+        }
+
+        internal void BuildRenderList(RenderList renderList)
+        {
+            foreach (var patch in Patches)
+            {
+                patch.BuildRenderList(renderList);
+            }
         }
     }
 

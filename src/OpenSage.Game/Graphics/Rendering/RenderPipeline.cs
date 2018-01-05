@@ -36,6 +36,8 @@ namespace OpenSage.Graphics.Rendering
         {
             _renderList.Clear();
 
+            context.Scene.Scene3D?.World.Terrain.BuildRenderList(_renderList);
+
             foreach (var system in context.Game.GameSystems)
             {
                 system.BuildRenderList(_renderList);

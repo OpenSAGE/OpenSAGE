@@ -24,6 +24,8 @@ namespace OpenSage
 
         public OpenSage.Data.Map.MapFile MapFile { get; set; }
 
+        public Scene3D Scene3D { get; set; }
+
         public Scene()
         {
             Entities = new SceneEntitiesCollection(this);

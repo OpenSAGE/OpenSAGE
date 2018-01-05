@@ -7,7 +7,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Terrain
 {
-    public sealed class TerrainPatchComponent : RenderableComponent
+    public sealed class TerrainPatch : ICullable
     {
         private readonly Buffer<TerrainVertex> _vertexBuffer;
         private readonly Buffer<ushort> _indexBuffer;
@@ -16,13 +16,15 @@ namespace OpenSage.Terrain
 
         public Rectangle Bounds { get; }
 
-        internal override BoundingBox LocalBoundingBox { get; }
-
-        public override BoundingBox BoundingBox { get; }
+        public BoundingBox BoundingBox { get; }
 
         public Triangle[] Triangles { get; }
 
-        internal TerrainPatchComponent(
+        bool ICullable.VisibleInHierarchy => true;
+
+        BoundingBox ICullable.BoundingBox => BoundingBox;
+
+        internal TerrainPatch(
             TerrainMaterial terrainMaterial,
             Rectangle patchBounds,
             Buffer<TerrainVertex> vertexBuffer,
@@ -37,7 +39,6 @@ namespace OpenSage.Terrain
             _vertexBuffer = vertexBuffer;
             _indexBuffer = indexBuffer;
 
-            LocalBoundingBox = boundingBox;
             BoundingBox = boundingBox;
             Triangles = triangles;
         }
@@ -70,7 +71,7 @@ namespace OpenSage.Terrain
             }
         }
 
-        internal override void BuildRenderList(RenderList renderList)
+        internal void BuildRenderList(RenderList renderList)
         {
             renderList.Opaque.AddRenderItemDrawIndexed(
                 _terrainMaterial,
@@ -78,7 +79,7 @@ namespace OpenSage.Terrain
                 null,
                 CullFlags.None,
                 this,
-                Transform.LocalToWorldMatrix,
+                Matrix4x4.Identity,
                 0,
                 _indexBuffer.ElementCount,
                 _indexBuffer);

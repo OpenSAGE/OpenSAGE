@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
-using OpenSage.Terrain;
 
 namespace OpenSage.Graphics
 {
@@ -10,7 +9,6 @@ namespace OpenSage.Graphics
         private readonly RenderContext _renderContext;
 
         private readonly List<MeshComponent> _meshes;
-        private readonly List<TerrainPatchComponent> _terrainPatches;
 
         private readonly CameraInputMessageHandler _cameraInputMessageHandler;
         private CameraInputState _cameraInputState;
@@ -21,7 +19,6 @@ namespace OpenSage.Graphics
             : base(game)
         {
             RegisterComponentList(_meshes = new List<MeshComponent>());
-            RegisterComponentList(_terrainPatches = new List<TerrainPatchComponent>());
 
             _renderContext = new RenderContext();
 
@@ -40,10 +37,6 @@ namespace OpenSage.Graphics
         internal override void BuildRenderList(RenderList renderList)
         {
             foreach (var renderable in _meshes)
-            {
-                renderable.BuildRenderList(renderList);
-            }
-            foreach (var renderable in _terrainPatches)
             {
                 renderable.BuildRenderList(renderList);
             }

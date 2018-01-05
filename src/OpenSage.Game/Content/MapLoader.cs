@@ -37,14 +37,6 @@ namespace OpenSage.Content
             var heightMap = new HeightMap(mapFile.HeightMapData);
             result.HeightMap = heightMap;
 
-            var terrainEntity = new Entity();
-            result.Entities.Add(terrainEntity);
-
-            terrainEntity.Components.Add(new TerrainComponent
-            {
-                HeightMap = heightMap
-            });
-
             var indexBufferCache = AddDisposable(new TerrainPatchIndexBufferCache(contentManager.GraphicsDevice));
 
             var tileDataTexture = AddDisposable(CreateTileDataTexture(
@@ -74,13 +66,18 @@ namespace OpenSage.Content
             terrainMaterial.SetTextureDetails(textureDetailsBuffer);
             terrainMaterial.SetTextureArray(textureArray);
 
-            CreatePatches(
+            var terrainPatches = CreatePatches(
                 contentManager.GraphicsDevice,
-                terrainEntity,
                 heightMap,
                 mapFile.BlendTileData,
                 terrainMaterial,
                 indexBufferCache);
+
+            var terrain = new Terrain.Terrain(heightMap, terrainPatches);
+
+            var world = new World(terrain);
+
+            result.Scene3D = new Scene3D(world);
 
             var objectsEntity = new Entity();
             result.Entities.Add(objectsEntity);
@@ -288,15 +285,14 @@ namespace OpenSage.Content
             sceneSettings.Waypoints = new WaypointCollection(waypoints);
         }
 
-        private void CreatePatches(
+        private List<TerrainPatch> CreatePatches(
             GraphicsDevice graphicsDevice,
-            Entity terrainEntity,
             HeightMap heightMap,
             BlendTileData blendTileData,
             TerrainMaterial terrainMaterial,
             TerrainPatchIndexBufferCache indexBufferCache)
         {
-            const int numTilesPerPatch = TerrainComponent.PatchSize - 1;
+            const int numTilesPerPatch = Terrain.Terrain.PatchSize - 1;
 
             var heightMapWidthMinusOne = heightMap.Width - 1;
             var numPatchesX = heightMapWidthMinusOne / numTilesPerPatch;
@@ -312,6 +308,8 @@ namespace OpenSage.Content
                 numPatchesY += 1;
             }
 
+            var patches = new List<TerrainPatch>();
+
             for (var y = 0; y < numPatchesY; y++)
             {
                 for (var x = 0; x < numPatchesX; x++)
@@ -322,10 +320,10 @@ namespace OpenSage.Content
                     var patchBounds = new Rectangle(
                         patchX,
                         patchY,
-                        Math.Min(TerrainComponent.PatchSize, heightMap.Width - patchX),
-                        Math.Min(TerrainComponent.PatchSize, heightMap.Height - patchY));
+                        Math.Min(Terrain.Terrain.PatchSize, heightMap.Width - patchX),
+                        Math.Min(Terrain.Terrain.PatchSize, heightMap.Height - patchY));
 
-                    terrainEntity.Components.Add(CreatePatch(
+                    patches.Add(CreatePatch(
                         terrainMaterial,
                         heightMap,
                         blendTileData,
@@ -334,9 +332,11 @@ namespace OpenSage.Content
                         indexBufferCache));
                 }
             }
+
+            return patches;
         }
 
-        private TerrainPatchComponent CreatePatch(
+        private TerrainPatch CreatePatch(
             TerrainMaterial terrainMaterial,
             HeightMap heightMap,
             BlendTileData blendTileData,
@@ -357,7 +357,7 @@ namespace OpenSage.Content
                 out var boundingBox,
                 out var triangles));
 
-            return new TerrainPatchComponent(
+            return new TerrainPatch(
                 terrainMaterial,
                 patchBounds,
                 vertexBuffer,
