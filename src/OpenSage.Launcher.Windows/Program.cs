@@ -2,13 +2,11 @@
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-
 using SharpDX.Windows;
-
 using OpenSage.Data;
 using OpenSage.LowLevel;
 
-namespace OpenSage
+namespace OpenSage.Launcher
 {
     public static class Program
     {
