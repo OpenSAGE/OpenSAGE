@@ -83,6 +83,21 @@ namespace OpenSage.Gui.Wnd
             }
         }
 
+        public static void QuitMessageBoxSystem(WndWindow element, GuiWindowMessage message, UIElementCallbackContext context)
+        {
+            switch (message.MessageType)
+            {
+                case GuiWindowMessageType.SelectedButton:
+                    switch (message.Element.Name)
+                    {
+                        case "QuitMessageBox.wnd:ButtonCancel":
+                            context.WindowManager.PopWindow();
+                            break;
+                    }
+                    break;
+            }
+        }
+
         public static void PassSelectedButtonsToParentSystem(WndWindow element, GuiWindowMessage message, UIElementCallbackContext context)
         {
             if (message.MessageType != GuiWindowMessageType.SelectedButton)
