@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Graphics.Effects;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Apt
 {
