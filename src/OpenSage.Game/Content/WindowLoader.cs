@@ -1,5 +1,4 @@
-﻿using System;
-using OpenSage.Data;
+﻿using OpenSage.Data;
 using OpenSage.Data.Wnd;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Elements;
@@ -57,51 +56,7 @@ namespace OpenSage.Content
 
         private static UIElement CreateElementRecursive(WndWindowDefinition wndWindow, ContentManager contentManager)
         {
-            UIElement createElement()
-            {
-                switch (wndWindow.WindowType)
-                {
-                    case WndWindowType.GenericWindow:
-                        return new GenericWindow();
-
-                    case WndWindowType.PushButton:
-                        return new PushButton();
-
-                    case WndWindowType.StaticText:
-                        return new StaticText();
-
-                    case WndWindowType.EntryField:
-                        return new EntryField();
-
-                    case WndWindowType.CheckBox:
-                        return new CheckBox();
-
-                    case WndWindowType.ComboBox:
-                        return new ComboBox();
-
-                    case WndWindowType.HorizontalSlider:
-                        return new HorizontalSlider();
-
-                    case WndWindowType.VerticalSlider:
-                        return new VerticalSlider();
-
-                    case WndWindowType.ListBox:
-                        return new ListBox();
-
-                    case WndWindowType.ProgressBar:
-                        return new ProgressBar();
-
-                    case WndWindowType.RadioButton:
-                        return new RadioButton();
-
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-
-            var result = createElement();
-
-            result.Initialize(wndWindow, contentManager);
+            var result = new UIElement(wndWindow, contentManager);
 
             foreach (var childWindow in wndWindow.ChildWindows)
             {

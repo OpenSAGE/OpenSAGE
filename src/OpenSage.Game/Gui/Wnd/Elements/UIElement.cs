@@ -14,11 +14,9 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd.Elements
 {
-    public abstract partial class UIElement : DisposableBase
+    public sealed partial class UIElement : DisposableBase
     {
-        private bool _initialized;
-
-        private WndWindowDefinition _wndWindow;
+        private readonly WndWindowDefinition _wndWindow;
 
         private Texture _texture;
         private Buffer<SpriteVertex> _vertexBuffer;
@@ -38,7 +36,7 @@ namespace OpenSage.Gui.Wnd.Elements
 
         private float _scale;
 
-        private HeaderTemplate _headerTemplate;
+        private readonly HeaderTemplate _headerTemplate;
 
         private string _text;
         public string Text
@@ -145,46 +143,9 @@ namespace OpenSage.Gui.Wnd.Elements
             }
         }
 
-        protected UIElement()
+        public UIElement(WndWindowDefinition wndWindow, ContentManager contentManager)
         {
             _stateConfigurations = new Dictionary<UIElementState, UIElementStateConfiguration>();
-        }
-
-        public UIElement FindChild(string name)
-        {
-            foreach (var child in Children)
-            {
-                if (child.Name == name)
-                {
-                    return child;
-                }
-
-                var foundChild = child.FindChild(name);
-                if (foundChild != null)
-                {
-                    return foundChild;
-                }
-            }
-
-            return null;
-        }
-
-        public void Show()
-        {
-            Visible = true;
-        }
-
-        public void Hide()
-        {
-            Visible = false;
-        }
-
-        public void Initialize(WndWindowDefinition wndWindow, ContentManager contentManager)
-        {
-            if (_initialized)
-            {
-                throw new InvalidOperationException();
-            }
 
             _wndWindow = wndWindow;
             _needsRender = true;
@@ -254,8 +215,35 @@ namespace OpenSage.Gui.Wnd.Elements
             Material.SetMaterialConstants(_materialConstantsBuffer.Buffer);
 
             // TODO
+        }
 
-            _initialized = true;
+        public UIElement FindChild(string name)
+        {
+            foreach (var child in Children)
+            {
+                if (child.Name == name)
+                {
+                    return child;
+                }
+
+                var foundChild = child.FindChild(name);
+                if (foundChild != null)
+                {
+                    return foundChild;
+                }
+            }
+
+            return null;
+        }
+
+        public void Show()
+        {
+            Visible = true;
+        }
+
+        public void Hide()
+        {
+            Visible = false;
         }
 
         public void CreateSizeDependentResources(ContentManager contentManager, in Size windowSize)
@@ -328,7 +316,7 @@ namespace OpenSage.Gui.Wnd.Elements
             return new Rectangle(posX, posY, newWidth, newHeight);
         }
 
-        protected void Invalidate()
+        private void Invalidate()
         {
             _needsRender = true;
         }
@@ -428,15 +416,11 @@ namespace OpenSage.Gui.Wnd.Elements
                     }
                 }
 
-                OnRender(drawingContext);
-
                 drawingContext.End();
             }
 
             _needsRender = false;
         }
-
-        protected virtual void OnRender(DrawingContext drawingContext) { }
     }
 
     internal delegate void UIElementCallback(UIElement element, GuiWindowMessage message, UIElementCallbackContext context);
