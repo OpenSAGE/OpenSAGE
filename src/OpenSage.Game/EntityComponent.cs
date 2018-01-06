@@ -3,7 +3,6 @@ using OpenSage.Content;
 using OpenSage.Graphics;
 using OpenSage.Input;
 using OpenSage.Mathematics;
-using OpenSage.Physics;
 using OpenSage.Scripting;
 
 namespace OpenSage
@@ -34,11 +33,6 @@ namespace OpenSage
         /// Gets the scripting system.
         /// </summary>
         public ScriptingSystem Scripting => Game.Scripting;
-
-        ///// <summary>
-        ///// Gets the physics system.
-        ///// </summary>
-        //public PhysicsSystem Physics => Game.Physics;
 
         public GraphicsDevice GraphicsDevice => Game.GraphicsDevice;
 
