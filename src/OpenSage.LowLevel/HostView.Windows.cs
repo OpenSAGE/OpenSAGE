@@ -36,8 +36,6 @@ namespace OpenSage.LowLevel
             Draw();
 
             base.OnPaint(e);
-
-            Invalidate();
         }
 
         private void Draw()
