@@ -111,22 +111,18 @@ namespace OpenSage.Graphics.Animation
 
             _currentTimeValue = time;
 
-            for (var i = 0; i < _animation.Clips.Length; i++)
+            foreach (var clip in _animation.Clips)
             {
                 Keyframe? previous = null;
                 Keyframe? next = null;
-
-                var clip = _animation.Clips[i];
 
                 if (clip.Bone >= _boneTransforms.Length)
                 {
                     continue;
                 }
 
-                for (var j = 0; j < clip.Keyframes.Length; j++)
+                foreach (var keyframe in clip.Keyframes)
                 {
-                    var keyframe = clip.Keyframes[j];
-
                     if (keyframe.Time > _currentTimeValue)
                     {
                         next = keyframe;
