@@ -49,6 +49,10 @@ namespace OpenSage.Gui.Wnd
                 case WndWindowMessageType.SelectedButton:
                     switch (message.Element.Name)
                     {
+                        case "MainMenu.wnd:ButtonOptions":
+                            context.WindowManager.PushWindow(@"Menus\OptionsMenu.wnd");
+                            break;
+
                         case "MainMenu.wnd:ButtonExit":
                             var exitWindow = context.WindowManager.PushWindow(@"Menus\QuitMessageBox.wnd");
                             exitWindow.Root.FindChild("QuitMessageBox.wnd:StaticTextTitle").Text = "EXIT?";
@@ -84,6 +88,21 @@ namespace OpenSage.Gui.Wnd
                     switch (message.Element.Name)
                     {
                         case "QuitMessageBox.wnd:ButtonCancel":
+                            context.WindowManager.PopWindow();
+                            break;
+                    }
+                    break;
+            }
+        }
+
+        public static void OptionsMenuSystem(WndWindow element, WndWindowMessage message, UIElementCallbackContext context)
+        {
+            switch (message.MessageType)
+            {
+                case WndWindowMessageType.SelectedButton:
+                    switch (message.Element.Name)
+                    {
+                        case "OptionsMenu.wnd:ButtonBack":
                             context.WindowManager.PopWindow();
                             break;
                     }
