@@ -2,6 +2,7 @@
 ============================================================
 
 ![Build Status](https://img.shields.io/vso/build/timjones/bd04a18a-bd7f-4ef5-b994-60a0f4270afa/1.svg)
+[![Discord Chat](https://img.shields.io/discord/398393968234332161.svg)](https://discord.gg/G2FhZUT)
 
 **OpenSAGE**: a free, open source re-implementation of [SAGE](https://en.wikipedia.org/wiki/SAGE_(game_engine)), the 3D 
 real time strategy (RTS) engine used in Command & Conquer™: Generals and other 
@@ -30,24 +31,31 @@ Here's a rough roadmap:
 * [x] `.ani`
 * [x] `.dds`
 * [x] `.tga`
+* [x] `.const`
+* [ ] `.apt`
 
 ### Rendering
 
 * [x] Render 3D models loaded from `.w3d`, including animations
-* [x] Render maps loaded from `.map`
+* [ ] Render maps loaded from `.map` (in progress)
 * [ ] Render particle systems (in progress)
 * [ ] Render GUI loaded from `.wnd` (in progress)
 
 ### Game logic
 
 * [ ] AI - Path finding, base building, fighting
-* [ ] Scripting engine
+* [ ] Scripting engine (in progress)
 * [ ] Physics engine
 * [ ] Weapons
 * [ ] Locomotors
 * [ ] Input (keyboard, mouse)
 * [ ] Network play
 * [ ] Much more...
+
+### Platforms
+
+* [ ] Mac
+* [ ] Linux
 
 ## Legal disclaimers
 
@@ -58,8 +66,9 @@ Here's a rough roadmap:
   You can purchase [Command & Conquer: The Ultimate Collection through Origin](https://www.origin.com/twn/en-us/store/command-and-conquer/command-and-conquer-the-ultimate-collection/ultimate-collection).
 * No reverse engineering of executable binaries has taken place. The code in this project was written based on reading data files, 
   and observing the game running. In some cases (for example refpack decompression) the code was written based on specs available on the Internet.
+* No assets from the original games are included in this repo.
 
-In summary: it's just me, trying to understand some data files that I have on my computer, in order to make sure that I can continue to play a game that I love, on new and future platforms. I believe this puts the project in the clear, legally speaking. If someone at EA disagrees, please talk to me.
+In summary: it's just me, trying to make sure that I can continue to play a game that I love, on current and future platforms. I believe this puts the project in the clear, legally speaking. If someone at EA disagrees, please talk to me.
 
 A note on the name: while Command & Conquer is a trademark of EA, SAGE is not (as far as I can tell, based on a US trademark search). "OpenSAGE" seems like a good way to make it clear what the project is about, without infringing on trademarks.
 
@@ -72,6 +81,11 @@ I later bought The First Decade on DVD, and it was this copy I wanted to install
 One thing led to another, and I found myself opening `.map` files in a hex viewer. I had the idea of recreating the game, using the original assets. This appealed to me on many levels: it's a preservation of history, it satisfies my nostalgia, and it's an extreme programming challenge.
 
 It's a vast project, and who knows how far I'll get. Hopefully we'll all have some fun along the way.
+
+## Community
+
+We have a growing [OpenSAGE Discord](https://discord.gg/G2FhZUT) community. If you have questions about the project or can't get it working,
+there's usually someone there who can help out.
 
 ## Acknowledgements
 
