@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using OpenSage.Data.Utilities.Extensions;
 
@@ -30,7 +31,10 @@ namespace OpenSage.Data.Apt
 
                 data.AptDataEntryOffset = reader.ReadUInt32();
                 var numEntries = reader.ReadUInt32();
-                reader.BaseStream.Seek(4, SeekOrigin.Current);
+                var headerSize = reader.ReadUInt32();
+
+                if (headerSize != 32)
+                    throw new InvalidDataException("Constant header must be 32 bytes");
 
                 for (var i = 0; i < numEntries; i++)
                 {
@@ -40,35 +44,33 @@ namespace OpenSage.Data.Apt
                     };
 
                     //read the number/ string offset
-                    var entryValue = reader.ReadUInt32();
+                   
 
                     switch (constEntry.Type)
                     {
                         case ConstantEntryType.Undef:
                             throw new InvalidDataException("Undefined const entry");
                         case ConstantEntryType.String:
+                            var strOffset = reader.ReadUInt32();
                             var pos = reader.BaseStream.Position;
-                            reader.BaseStream.Seek(entryValue, SeekOrigin.Begin);
+                            reader.BaseStream.Seek(strOffset, SeekOrigin.Begin);
                             constEntry.Value = reader.ReadNullTerminatedString();
                             reader.BaseStream.Seek(pos, SeekOrigin.Begin);
                             break;
-                        case ConstantEntryType.Number:
-                            constEntry.Value = entryValue;
+                        case ConstantEntryType.Register:
+                            constEntry.Value = reader.ReadUInt32();
                             break;
-                        case ConstantEntryType.Unknown1:
-                            // TODO
+                        case ConstantEntryType.Boolean:
+                            constEntry.Value = Convert.ToBoolean(reader.ReadUInt32());
                             break;
-                        case ConstantEntryType.Unknown2:
-                            // TODO
+                        case ConstantEntryType.Float:
+                            constEntry.Value = reader.ReadSingle();
                             break;
-                        case ConstantEntryType.Unknown3:
-                            // TODO
+                        case ConstantEntryType.Integer:
+                            constEntry.Value = reader.ReadInt32();
                             break;
-                        case ConstantEntryType.Unknown4:
-                            // TODO
-                            break;
-                        case ConstantEntryType.Unknown5:
-                            // TODO
+                        case ConstantEntryType.Lookup:
+                            constEntry.Value = reader.ReadUInt32();
                             break;
                         default:
                             throw new InvalidDataException();
@@ -84,19 +86,16 @@ namespace OpenSage.Data.Apt
 
     public enum ConstantEntryType
     {
+        //TODO: validate that all those types are correct
         Undef = 0,
         String = 1,
-
-        // TODO: Used in BFME I
-        Unknown1 = 3,
-
-        Number = 4,
-
-        // TODO: Used in BFME I
-        Unknown2 = 5,
-        Unknown3 = 6,
-        Unknown4 = 7,
-        Unknown5 = 8
+        Property = 2,
+        None = 3,
+        Register = 4,
+        Boolean = 5,
+        Float = 6,
+        Integer = 7,
+        Lookup = 8
     }
 
     public sealed class ConstantEntry

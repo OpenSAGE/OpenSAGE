@@ -28,7 +28,7 @@ namespace OpenSage.Data.Apt
     {
         public List<IGeometryEntry> Entries { get; private set; }
         public RectangleF BoundingBox { get; private set; }
-
+        public AptFile Container { get; internal set; }
 
         public Geometry()
         {

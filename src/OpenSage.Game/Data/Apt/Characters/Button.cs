@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.Mathematics;
@@ -19,12 +20,13 @@ namespace OpenSage.Data.Apt.Characters
         public Vector4 Bounds { get; private set; }
         public IndexedTriangle[] Triangles { get; private set; }
         public Vector2[] Vertices { get; private set; }
+        public bool IsMenu { get; private set; }
 
         public static Button Parse(BinaryReader reader)
         {
             var button = new Button();
 
-            var unknown = reader.ReadUInt32();
+            button.IsMenu = Convert.ToBoolean(reader.ReadUInt32());
             button.Bounds = reader.ReadVector4();
             var tc = reader.ReadUInt32();
             var vc = reader.ReadUInt32();

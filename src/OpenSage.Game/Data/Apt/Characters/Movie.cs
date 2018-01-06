@@ -4,14 +4,14 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Apt.Characters
 {
-    public sealed class Movie : Character, IPlayable
+    public sealed class Movie : Playable
     {
-        public List<Frame> Frames { get; private set; }
         public List<Character> Characters { get; private set; }
         public List<Import> Imports { get; private set; }
         public List<Export> Exports { get; private set; }
         public uint ScreenWidth { get; private set; }
         public uint ScreenHeight { get; private set; }
+        public uint MillisecondsPerFrame { get; private set; }
 
         public static Movie Parse(BinaryReader reader, AptFile container)
         {
@@ -23,7 +23,7 @@ namespace OpenSage.Data.Apt.Characters
 
             movie.ScreenWidth = reader.ReadUInt32();
             movie.ScreenHeight = reader.ReadUInt32();
-            var unknown2 = reader.ReadUInt32();
+            movie.MillisecondsPerFrame = reader.ReadUInt32();
 
             movie.Imports = reader.ReadListAtOffset<Import>(() => Import.Parse(reader));
             movie.Exports = reader.ReadListAtOffset<Export>(() => Export.Parse(reader));

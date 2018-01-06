@@ -15,8 +15,9 @@ namespace OpenSage.Content
         {
             //load the corresponding .dat file
             var aptFile = AptFile.FromFileSystemEntry(entry);
-
-            return new AptComponent() { Movie = aptFile };
+            var aptComponent = new AptComponent() { Apt = aptFile };
+            aptComponent.Initialize(contentManager);
+            return aptComponent;
         }
     }
 }

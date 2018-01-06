@@ -21,9 +21,9 @@ namespace OpenSage.Data.Apt.Characters
         Video = 12
     };
 
-    public interface IPlayable
+    public class Playable : Character
     {
-        List<Frame> Frames { get; }
+        public List<Frame> Frames { get; protected set; }
     }
 
     //base class for all characters used in apt
@@ -83,6 +83,9 @@ namespace OpenSage.Data.Apt.Characters
                 default:
                     throw new NotImplementedException();
             }
+
+            if(character!=null)
+                character.Container = container;
 
             return character;
         }

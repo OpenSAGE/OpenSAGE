@@ -14,9 +14,8 @@ namespace OpenSage.Gui.Apt
 {
     public sealed class ShapeComponent : EntityComponent
     {
-        private ImageMap _map;
-        private Dictionary<int, Texture> _usedTextures;
         private Texture _texture;
+        private AptContext _context;
 
         private Buffer<SpriteVertex> _vertexBuffer;
         private ConstantBuffer<SpriteMaterial.MaterialConstants> _materialConstantsBuffer;
@@ -29,27 +28,7 @@ namespace OpenSage.Gui.Apt
 
         public void Initialize(ContentManager contentManager, ImageMap map)
         {
-            _map = map;
-            _usedTextures = new Dictionary<int, Texture>();
-
-            //get all used image id's
-            var usedIds = new HashSet<int>();
-            foreach (var entry in Shape.Entries)
-            {
-                if (entry is GeometryTexturedTriangles gtt)
-                {
-                    var assignment = _map.Mapping[gtt.Image];
-
-                    usedIds.Add(assignment.TextureId);
-                }
-            }
-
-            foreach (var id in usedIds)
-            {
-                var texturePath = "art/Textures/apt_" + MovieName + "_" + id.ToString() + ".tga";
-                var loadOptions = new TextureLoadOptions() { GenerateMipMaps = false };
-                _usedTextures.Add(id, contentManager.Load<Texture>(texturePath, loadOptions));
-            }
+            _context = new AptContext(map,MovieName, contentManager);
 
             Material = new SpriteMaterial(contentManager.EffectLibrary.Sprite);
 
@@ -144,67 +123,7 @@ namespace OpenSage.Gui.Apt
 
                 drawingContext.Clear(new ColorRgbaF(0, 0, 0, 0));
 
-                foreach (var e in Shape.Entries)
-                {
-                    switch (e)
-                    {
-                        case GeometryLines l:
-                            foreach (var line in l.Lines)
-                            {
-                                RawLineF rl;
-                                rl.X1 = line.V0.X;
-                                rl.Y1 = line.V0.Y;
-                                rl.X2 = line.V1.X;
-                                rl.Y2 = line.V1.Y;
-                                rl.Thickness = l.Thickness;
-                                drawingContext.DrawLine(rl, l.Color.ToColorRgbaF());
-                            }
-                            break;
-                        case GeometrySolidTriangles st:
-                            foreach (var tri in st.Triangles)
-                            {
-                                RawTriangleF rt;
-                                rt.X1 = tri.V0.X;
-                                rt.Y1 = tri.V0.Y;
-                                rt.X2 = tri.V1.X;
-                                rt.Y2 = tri.V1.Y;
-                                rt.X3 = tri.V2.X;
-                                rt.Y3 = tri.V2.Y;
-                                drawingContext.FillTriangle(rt, st.Color.ToColorRgbaF());
-                            }
-                            break;
-                        case GeometryTexturedTriangles tt:
-
-                            foreach (var tri in tt.Triangles)
-                            {
-                                RawTriangleF rt;
-                                rt.X1 = tri.V0.X;
-                                rt.Y1 = tri.V0.Y;
-                                rt.X2 = tri.V1.X;
-                                rt.Y2 = tri.V1.Y;
-                                rt.X3 = tri.V2.X;
-                                rt.Y3 = tri.V2.Y;
-                                RawMatrix3x2 transform;
-                                transform.M11 = tt.RotScale.M11;
-                                transform.M12 = tt.RotScale.M12;
-                                transform.M21 = tt.RotScale.M21;
-                                transform.M22 = tt.RotScale.M22;
-                                transform.M31 = -tt.Translation.X;
-                                transform.M32 = -tt.Translation.Y;
-
-                                var assignment = _map.Mapping[tt.Image];
-                                var texId = assignment.TextureId;
-
-                                //if (assignment is RectangleAssignment)
-                                //    throw new NotImplementedException();
-
-                                var tex = _usedTextures[texId];
-
-                                drawingContext.FillTriangle(rt, tex, transform);
-                            }
-                            break;
-                    }
-                }
+                AptRenderer.RenderGeometry(drawingContext, _context, Shape,Matrix3x2.Identity);
 
                 drawingContext.End();
             }
