@@ -146,7 +146,7 @@ namespace OpenSage.Gui.Apt
             {
                 drawingContext.Begin();
 
-                drawingContext.Clear(new ColorRgbaF(0, 0, 0, 1));
+                drawingContext.Clear(new ColorRgbaF(0, 0, 0, 0));
 
                 foreach (var e in Shape.Entries)
                 {
