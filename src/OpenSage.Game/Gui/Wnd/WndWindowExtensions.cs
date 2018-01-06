@@ -3,9 +3,9 @@ using OpenSage.Gui.Wnd.Elements;
 
 namespace OpenSage.Gui.Wnd
 {
-    internal static class UIElementExtensions
+    internal static class WndWindowExtensions
     {
-        public static void DoActionRecursive(this UIElement element, Func<UIElement, bool> action)
+        public static void DoActionRecursive(this WndWindow element, Func<WndWindow, bool> action)
         {
             if (!action(element))
             {

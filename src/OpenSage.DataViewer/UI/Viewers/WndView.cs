@@ -26,7 +26,7 @@ namespace OpenSage.DataViewer.UI.Viewers
                 DataStore = treeItem
             };
 
-            UIElement selectedElement = null;
+            WndWindow selectedElement = null;
 
             treeView.SelectionChanged += (sender, e) =>
             {
@@ -36,7 +36,7 @@ namespace OpenSage.DataViewer.UI.Viewers
                     selectedElement = null;
                 }
 
-                selectedElement = (UIElement) ((TreeItem) treeView.SelectedItem).Tag;
+                selectedElement = (WndWindow) ((TreeItem) treeView.SelectedItem).Tag;
                 selectedElement.Highlighted = true;
             };
 
@@ -48,7 +48,7 @@ namespace OpenSage.DataViewer.UI.Viewers
             };
         }
 
-        private static TreeItem CreateTreeItemRecursive(UIElement element)
+        private static TreeItem CreateTreeItemRecursive(WndWindow element)
         {
             var result = new TreeItem
             {

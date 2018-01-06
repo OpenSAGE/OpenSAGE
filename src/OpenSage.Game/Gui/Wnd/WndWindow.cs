@@ -14,17 +14,17 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd.Elements
 {
-    public sealed partial class UIElement : DisposableBase
+    public sealed partial class WndWindow : DisposableBase
     {
         private readonly WndWindowDefinition _wndWindow;
 
         private Texture _texture;
         private Buffer<SpriteVertex> _vertexBuffer;
 
-        private readonly Dictionary<UIElementState, UIElementStateConfiguration> _stateConfigurations;
+        private readonly Dictionary<WndWindowState, WndWindowStateConfiguration> _stateConfigurations;
 
-        private UIElementState _currentState;
-        internal UIElementState CurrentState
+        private WndWindowState _currentState;
+        internal WndWindowState CurrentState
         {
             get => _currentState;
             set
@@ -78,16 +78,16 @@ namespace OpenSage.Gui.Wnd.Elements
 
         public bool Visible { get; private set; }
 
-        public UIElement Parent { get; internal set; }
+        public WndWindow Parent { get; internal set; }
 
         public WndTopLevelWindow Window { get; internal set; }
 
-        public UIElementCollection Children { get; } = new UIElementCollection();
+        public WndWindowCollection Children { get; } = new WndWindowCollection();
 
         internal UIElementCallback SystemCallback { get; private set; }
         internal UIElementCallback InputCallback { get; private set; }
         internal UIElementCallback TooltipCallback { get; private set; }
-        internal Action<UIElement, GraphicsDevice> DrawCallback { get; private set; }
+        internal Action<WndWindow, GraphicsDevice> DrawCallback { get; private set; }
 
         private ColorRgba? _backgroundColorOverride;
         public ColorRgba? BackgroundColorOverride
@@ -143,9 +143,9 @@ namespace OpenSage.Gui.Wnd.Elements
             }
         }
 
-        public UIElement(WndWindowDefinition wndWindow, ContentManager contentManager)
+        public WndWindow(WndWindowDefinition wndWindow, ContentManager contentManager)
         {
-            _stateConfigurations = new Dictionary<UIElementState, UIElementStateConfiguration>();
+            _stateConfigurations = new Dictionary<WndWindowState, WndWindowStateConfiguration>();
 
             _wndWindow = wndWindow;
             _needsRender = true;
@@ -163,9 +163,9 @@ namespace OpenSage.Gui.Wnd.Elements
                 _textAlignment = TextAlignment.Leading;
             }
 
-            void createStateConfiguration(UIElementState state)
+            void createStateConfiguration(WndWindowState state)
             {
-                _stateConfigurations[state] = AddDisposable(UIElementStateConfiguration.Create(
+                _stateConfigurations[state] = AddDisposable(WndWindowStateConfiguration.Create(
                     wndWindow,
                     state,
                     contentManager,
@@ -173,13 +173,13 @@ namespace OpenSage.Gui.Wnd.Elements
                     HostPlatform.GraphicsDevice2D));
             }
 
-            createStateConfiguration(UIElementState.Enabled);
-            createStateConfiguration(UIElementState.Highlighted);
-            createStateConfiguration(UIElementState.Disabled);
+            createStateConfiguration(WndWindowState.Enabled);
+            createStateConfiguration(WndWindowState.Highlighted);
+            createStateConfiguration(WndWindowState.Disabled);
 
             if (wndWindow.WindowType == WndWindowType.PushButton)
             {
-                createStateConfiguration(UIElementState.HighlightedPushed);
+                createStateConfiguration(WndWindowState.HighlightedPushed);
             }
 
             Visible = !wndWindow.Status.HasFlag(WndWindowStatusFlags.Hidden)
@@ -217,7 +217,7 @@ namespace OpenSage.Gui.Wnd.Elements
             // TODO
         }
 
-        public UIElement FindChild(string name)
+        public WndWindow FindChild(string name)
         {
             foreach (var child in Children)
             {
@@ -321,17 +321,17 @@ namespace OpenSage.Gui.Wnd.Elements
             _needsRender = true;
         }
 
-        private static void DefaultInput(UIElement element, GuiWindowMessage message, UIElementCallbackContext context)
+        private static void DefaultInput(WndWindow element, GuiWindowMessage message, UIElementCallbackContext context)
         {
 
         }
 
-        private static void DefaultSystem(UIElement element, GuiWindowMessage message, UIElementCallbackContext context)
+        private static void DefaultSystem(WndWindow element, GuiWindowMessage message, UIElementCallbackContext context)
         {
 
         }
 
-        private static void DefaultDraw(UIElement element, GraphicsDevice graphicsDevice)
+        private static void DefaultDraw(WndWindow element, GraphicsDevice graphicsDevice)
         {
             element.RenderImpl(graphicsDevice);
         }
@@ -423,7 +423,7 @@ namespace OpenSage.Gui.Wnd.Elements
         }
     }
 
-    internal delegate void UIElementCallback(UIElement element, GuiWindowMessage message, UIElementCallbackContext context);
+    internal delegate void UIElementCallback(WndWindow element, GuiWindowMessage message, UIElementCallbackContext context);
 
     internal sealed class UIElementCallbackContext
     {

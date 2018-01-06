@@ -44,12 +44,12 @@ namespace OpenSage.Gui.Wnd
             _doneMainMenuFadeIn = false;
         }
 
-        public static void W3DNoDraw(UIElement element, GraphicsDevice device)
+        public static void W3DNoDraw(WndWindow element, GraphicsDevice device)
         {
             // TODO: Render normally if shell map is not loaded.
         }
 
-        public static void MainMenuSystem(UIElement element, GuiWindowMessage message, UIElementCallbackContext context)
+        public static void MainMenuSystem(WndWindow element, GuiWindowMessage message, UIElementCallbackContext context)
         {
             switch (message.MessageType)
             {
@@ -71,7 +71,7 @@ namespace OpenSage.Gui.Wnd
             }
         }
 
-        public static void MainMenuInput(UIElement element, GuiWindowMessage message, UIElementCallbackContext context)
+        public static void MainMenuInput(WndWindow element, GuiWindowMessage message, UIElementCallbackContext context)
         {
             // Any input at all (mouse, keyboard) will trigger the main menu fade-in.
             if (!_doneMainMenuFadeIn)
@@ -83,7 +83,7 @@ namespace OpenSage.Gui.Wnd
             }
         }
 
-        public static void PassSelectedButtonsToParentSystem(UIElement element, GuiWindowMessage message, UIElementCallbackContext context)
+        public static void PassSelectedButtonsToParentSystem(WndWindow element, GuiWindowMessage message, UIElementCallbackContext context)
         {
             if (message.MessageType != GuiWindowMessageType.SelectedButton)
             {
@@ -93,7 +93,7 @@ namespace OpenSage.Gui.Wnd
             element.Parent.SystemCallback.Invoke(element.Parent, message, context);
         }
 
-        public static void PassMessagesToParentSystem(UIElement element, GuiWindowMessage message, UIElementCallbackContext context)
+        public static void PassMessagesToParentSystem(WndWindow element, GuiWindowMessage message, UIElementCallbackContext context)
         {
             element.Parent.SystemCallback.Invoke(element.Parent, message, context);
         }
@@ -102,9 +102,9 @@ namespace OpenSage.Gui.Wnd
     internal sealed class GuiWindowMessage
     {
         public GuiWindowMessageType MessageType { get; }
-        public UIElement Element { get; }
+        public WndWindow Element { get; }
 
-        public GuiWindowMessage(GuiWindowMessageType messageType, UIElement element)
+        public GuiWindowMessage(GuiWindowMessageType messageType, WndWindow element)
         {
             MessageType = messageType;
             Element = element;
@@ -251,7 +251,7 @@ namespace OpenSage.Gui.Wnd
             }
         }
 
-        protected UIElement Element { get; }
+        protected WndWindow Element { get; }
 
         protected abstract int FrameDuration { get; }
 
@@ -261,7 +261,7 @@ namespace OpenSage.Gui.Wnd
 
         public TimeSpan EndTime { get; }
 
-        protected WindowTransitionOperation(UIElement element, TimeSpan startTime)
+        protected WindowTransitionOperation(WndWindow element, TimeSpan startTime)
         {
             Element = element;
 
@@ -310,7 +310,7 @@ namespace OpenSage.Gui.Wnd
 
         protected override int FrameDuration => 12;
 
-        public WinFadeTransition(UIElement element, TimeSpan startTime)
+        public WinFadeTransition(WndWindow element, TimeSpan startTime)
             : base(element, startTime)
         {
             _startOpacity = element.Opacity;
@@ -336,7 +336,7 @@ namespace OpenSage.Gui.Wnd
 
         protected override int FrameDuration => 6;
 
-        public FlashTransition(UIElement element, TimeSpan startTime)
+        public FlashTransition(WndWindow element, TimeSpan startTime)
             : base(element, startTime)
         {
             _startOpacity = element.Opacity;
@@ -371,7 +371,7 @@ namespace OpenSage.Gui.Wnd
 
         protected override int FrameDuration => 12;
 
-        public ButtonFlashTransition(UIElement element, TimeSpan startTime)
+        public ButtonFlashTransition(WndWindow element, TimeSpan startTime)
             : base(element, startTime)
         {
             _startOpacity = element.Opacity;

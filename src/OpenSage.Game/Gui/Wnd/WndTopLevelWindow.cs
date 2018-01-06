@@ -7,13 +7,13 @@ namespace OpenSage.Gui.Wnd
 {
     public sealed class WndTopLevelWindow
     {
-        public UIElement Root { get; }
+        public WndWindow Root { get; }
 
         public WndWindowCallback LayoutInit { get; }
         public WndWindowCallback LayoutUpdate { get; }
         public WndWindowCallback LayoutShutdown { get; }
 
-        internal WndTopLevelWindow(WndFile wndFile, UIElement root)
+        internal WndTopLevelWindow(WndFile wndFile, WndWindow root)
         {
             Root = root;
 
@@ -22,10 +22,10 @@ namespace OpenSage.Gui.Wnd
             LayoutShutdown = CallbackUtility.GetGuiWindowCallback(wndFile.LayoutBlock.LayoutShutdown);
         }
 
-        public UIElement FindElement(Vector2 mousePosition)
+        public WndWindow FindWindow(Vector2 mousePosition)
         {
             // Finds deepest element that is visible and contains mousePosition.
-            UIElement findElementRecursive(UIElement element)
+            WndWindow findElementRecursive(WndWindow element)
             {
                 if (!element.Visible || !element.Frame.Contains(mousePosition))
                 {

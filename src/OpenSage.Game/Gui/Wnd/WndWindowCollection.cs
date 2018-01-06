@@ -2,7 +2,7 @@
 
 namespace OpenSage.Gui.Wnd.Elements
 {
-    public sealed class UIElementCollection : Collection<UIElement>
+    public sealed class WndWindowCollection : Collection<WndWindow>
     {
 
     }

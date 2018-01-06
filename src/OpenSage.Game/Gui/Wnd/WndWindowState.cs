@@ -1,6 +1,6 @@
 ﻿namespace OpenSage.Gui.Wnd.Elements
 {
-    internal enum UIElementState
+    internal enum WndWindowState
     {
         Enabled,
         Highlighted,

@@ -86,7 +86,7 @@ namespace OpenSage.Gui.Wnd
             _windowStack.Pop();
         }
 
-        public UIElement FindElement(in Vector2 mousePosition)
+        public WndWindow FindWindow(in Vector2 mousePosition)
         {
             if (_windowStack.Count == 0)
             {
@@ -95,7 +95,7 @@ namespace OpenSage.Gui.Wnd
 
             var window = _windowStack.Peek();
 
-            return window.FindElement(mousePosition);
+            return window.FindWindow(mousePosition);
         }
 
         internal void Update(GameTime gameTime)

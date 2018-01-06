@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using OpenSage.LowLevel.Graphics3D;
-using OpenSage.Graphics.Effects;
+﻿using System.Collections.Generic;
 using OpenSage.Graphics.Rendering;
-using OpenSage.Gui.Wnd.Elements;
 using OpenSage.Mathematics;
-using System.IO;
 
 namespace OpenSage.Gui.Apt
 {
@@ -13,7 +8,6 @@ namespace OpenSage.Gui.Apt
     {
         private readonly List<ShapeComponent> _guiComponents;
         private List<ShapeComponent> _renderList;
-        private readonly EffectPipelineStateHandle _pipelineStateHandle;
 
         public ShapeSystem(Game game)
             : base(game)
@@ -21,16 +15,6 @@ namespace OpenSage.Gui.Apt
             RegisterComponentList(_guiComponents = new List<ShapeComponent>());
 
             _renderList = new List<ShapeComponent>();
-
-            // TODO: Duplicated from SpriteComponent.
-            var rasterizerState = RasterizerStateDescription.CullBackSolid;
-            rasterizerState.IsFrontCounterClockwise = false;
-
-            _pipelineStateHandle = new EffectPipelineState(
-                rasterizerState,
-                DepthStencilStateDescription.None,
-                BlendStateDescription.AlphaBlend)
-                .GetHandle();
 
             switch (game.SageGame)
             {
@@ -72,7 +56,6 @@ namespace OpenSage.Gui.Apt
             }
         }
 
-
         internal override void BuildRenderList(RenderList renderList)
         {
             foreach (var shape in _guiComponents)
@@ -89,20 +72,6 @@ namespace OpenSage.Gui.Apt
             }
 
             base.BuildRenderList(renderList);
-        }
-
-
-        private static void DoActionRecursive(UIElement element, Func<UIElement, bool> action)
-        {
-            if (!action(element))
-            {
-                return;
-            }
-
-            foreach (var child in element.Children)
-            {
-                DoActionRecursive(child, action);
-            }
         }
 
         public override void Update(GameTime gameTime)

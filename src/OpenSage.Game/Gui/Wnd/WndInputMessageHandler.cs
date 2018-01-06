@@ -9,7 +9,7 @@ namespace OpenSage.Gui.Wnd
     {
         private readonly WndWindowManager _windowManager;
 
-        private UIElement _lastHighlightedElement;
+        private WndWindow _lastHighlightedElement;
 
         public WndInputMessageHandler(WndWindowManager windowManager)
         {
@@ -24,7 +24,7 @@ namespace OpenSage.Gui.Wnd
             {
                 case InputMessageType.MouseMove:
                     {
-                        var element = _windowManager.FindElement(new Vector2(message.MouseX.Value, message.MouseY.Value));
+                        var element = _windowManager.FindWindow(new Vector2(message.MouseX.Value, message.MouseY.Value));
                         if (element != _lastHighlightedElement)
                         {
                             if (_lastHighlightedElement != null)
@@ -56,7 +56,7 @@ namespace OpenSage.Gui.Wnd
 
                 case InputMessageType.MouseDown:
                     {
-                        var element = _windowManager.FindElement(new Vector2(message.MouseX.Value, message.MouseY.Value));
+                        var element = _windowManager.FindWindow(new Vector2(message.MouseX.Value, message.MouseY.Value));
                         if (element != null)
                         {
                             element.InputCallback.Invoke(
@@ -70,7 +70,7 @@ namespace OpenSage.Gui.Wnd
 
                 case InputMessageType.MouseUp:
                     {
-                        var element = _windowManager.FindElement(new Vector2(message.MouseX.Value, message.MouseY.Value));
+                        var element = _windowManager.FindWindow(new Vector2(message.MouseX.Value, message.MouseY.Value));
                         if (element != null)
                         {
                             element.InputCallback.Invoke(

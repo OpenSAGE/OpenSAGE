@@ -8,11 +8,11 @@ using System;
 
 namespace OpenSage.Gui.Wnd.Elements
 {
-    internal sealed class UIElementStateConfiguration : DisposableBase
+    internal sealed class WndWindowStateConfiguration : DisposableBase
     {
-        public static UIElementStateConfiguration Create(
+        public static WndWindowStateConfiguration Create(
             WndWindowDefinition wndWindow,
-            UIElementState state,
+            WndWindowState state,
             ContentManager contentManager,
             GraphicsDevice graphicsDevice,
             GraphicsDevice2D graphicsDevice2D)
@@ -21,20 +21,20 @@ namespace OpenSage.Gui.Wnd.Elements
             ColorRgba textColor, textColorBorder;
             switch (state)
             {
-                case UIElementState.Enabled:
+                case WndWindowState.Enabled:
                     wndDrawData = wndWindow.EnabledDrawData;
                     textColor = wndWindow.TextColor.Enabled;
                     textColorBorder = wndWindow.TextColor.EnabledBorder;
                     break;
 
-                case UIElementState.Highlighted:
-                case UIElementState.HighlightedPushed:
+                case WndWindowState.Highlighted:
+                case WndWindowState.HighlightedPushed:
                     wndDrawData = wndWindow.HiliteDrawData;
                     textColor = wndWindow.TextColor.Hilite;
                     textColorBorder = wndWindow.TextColor.HiliteBorder;
                     break;
 
-                case UIElementState.Disabled:
+                case WndWindowState.Disabled:
                     wndDrawData = wndWindow.DisabledDrawData;
                     textColor = wndWindow.TextColor.Disabled;
                     textColorBorder = wndWindow.TextColor.DisabledBorder;
@@ -51,7 +51,7 @@ namespace OpenSage.Gui.Wnd.Elements
                     case WndWindowType.PushButton:
                         switch (state)
                         {
-                            case UIElementState.HighlightedPushed:
+                            case WndWindowState.HighlightedPushed:
                                 return StretchableImage.CreatePushButtonImage(
                                     wndWindow,
                                     wndDrawData,
@@ -78,7 +78,7 @@ namespace OpenSage.Gui.Wnd.Elements
                 ? createImage()
                 : null;
 
-            return new UIElementStateConfiguration(
+            return new WndWindowStateConfiguration(
                 wndWindow,
                 textColor,
                 textColorBorder,
@@ -96,7 +96,7 @@ namespace OpenSage.Gui.Wnd.Elements
 
         public Texture ImageTexture { get; }
 
-        private UIElementStateConfiguration(
+        private WndWindowStateConfiguration(
             WndWindowDefinition wndWindow,
             ColorRgba textColor,
             ColorRgba textBorderColor,
