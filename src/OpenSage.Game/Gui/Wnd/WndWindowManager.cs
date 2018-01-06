@@ -111,7 +111,11 @@ namespace OpenSage.Gui.Wnd
             {
                 window.Root.DoActionRecursive(x =>
                 {
-                    x.DrawCallback.Invoke(x, _game.GraphicsDevice);
+                    if (x.IsInvalidated)
+                    {
+                        x.DrawCallback.Invoke(x, _game);
+                        x.IsInvalidated = false;
+                    }
                     return true;
                 });
             }

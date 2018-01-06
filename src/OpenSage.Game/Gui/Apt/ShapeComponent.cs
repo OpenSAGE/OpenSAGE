@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using OpenSage.Content;
-using OpenSage.Data.Ini;
 using OpenSage.Data.Apt;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
@@ -11,7 +9,6 @@ using OpenSage.LowLevel;
 using OpenSage.LowLevel.Graphics2D;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Mathematics;
-using OpenSage.Data.Wnd;
 
 namespace OpenSage.Gui.Apt
 {

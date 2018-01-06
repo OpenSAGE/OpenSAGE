@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using OpenSage.LowLevel.Graphics2D;
 
 namespace OpenSage.Mathematics
 {
@@ -53,6 +54,11 @@ namespace OpenSage.Mathematics
                 && point.X <= Right
                 && point.Y >= Y
                 && point.Y <= Bottom;
+        }
+
+        public RawRectangleF ToRawRectangleF()
+        {
+            return new RawRectangleF(X, Y, Width, Height);
         }
     }
 }

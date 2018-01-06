@@ -8,6 +8,7 @@ using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Apt;
+using OpenSage.LowLevel.Graphics2D;
 
 namespace OpenSage.Content
 {
@@ -19,7 +20,10 @@ namespace OpenSage.Content
 
         private readonly FileSystem _fileSystem;
 
+        private readonly Dictionary<TextFormatKey, TextFormat> _cachedTextFormats;
+
         public GraphicsDevice GraphicsDevice { get; }
+        public GraphicsDevice2D GraphicsDevice2D { get; }
 
         public SageGame SageGame { get; }
 
@@ -34,11 +38,14 @@ namespace OpenSage.Content
         public ContentManager(
             FileSystem fileSystem, 
             GraphicsDevice graphicsDevice,
+            GraphicsDevice2D graphicsDevice2D,
             SageGame sageGame)
         {
             _fileSystem = fileSystem;
 
             GraphicsDevice = graphicsDevice;
+            GraphicsDevice2D = graphicsDevice2D;
+
             SageGame = sageGame;
 
             IniDataContext = new IniDataContext(fileSystem);
@@ -57,6 +64,8 @@ namespace OpenSage.Content
             EffectLibrary = AddDisposable(new EffectLibrary(graphicsDevice));
 
             TranslationManager = new TranslationManager(fileSystem);
+
+            _cachedTextFormats = new Dictionary<TextFormatKey, TextFormat>();
         }
 
         public void Unload()
@@ -153,6 +162,37 @@ namespace OpenSage.Content
                 // TODO
                 return null;
             }
+        }
+
+        public TextFormat GetOrCreateTextFormat(string fontName, float fontSize, FontWeight fontWeight, TextAlignment textAlignment)
+        {
+            var key = new TextFormatKey
+            {
+                FontName = fontName,
+                FontSize = fontSize,
+                FontWeight = fontWeight,
+                TextAlignment = textAlignment
+            };
+
+            if (!_cachedTextFormats.TryGetValue(key, out var textFormat))
+            {
+                _cachedTextFormats.Add(key, textFormat = AddDisposable(new TextFormat(
+                    GraphicsDevice2D,
+                    fontName,
+                    fontSize,
+                    fontWeight,
+                    textAlignment)));
+            }
+
+            return textFormat;
+        }
+
+        private struct TextFormatKey
+        {
+            public string FontName;
+            public float FontSize;
+            public FontWeight FontWeight;
+            public TextAlignment TextAlignment;
         }
     }
 }

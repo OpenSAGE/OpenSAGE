@@ -36,7 +36,7 @@ namespace OpenSage.Gui.Wnd.Elements
 
         private float _scale;
 
-        private readonly HeaderTemplate _headerTemplate;
+        public WndFont TextFont { get; }
 
         private string _text;
         public string Text
@@ -60,11 +60,13 @@ namespace OpenSage.Gui.Wnd.Elements
             }
         }
 
-        private bool _needsRender;
+        internal bool IsInvalidated { get; set; }
 
         public WndWindowDefinition Definition => _wndWindow;
 
         public Rectangle Frame { get; private set; }
+
+        public Rectangle Bounds => new Rectangle(0, 0, Frame.Width, Frame.Height);
 
         public string Name => _wndWindow.Name;
 
@@ -87,7 +89,7 @@ namespace OpenSage.Gui.Wnd.Elements
         internal UIElementCallback SystemCallback { get; private set; }
         internal UIElementCallback InputCallback { get; private set; }
         internal UIElementCallback TooltipCallback { get; private set; }
-        internal Action<WndWindow, GraphicsDevice> DrawCallback { get; private set; }
+        internal Action<WndWindow, Game> DrawCallback { get; private set; }
 
         private ColorRgba? _backgroundColorOverride;
         public ColorRgba? BackgroundColorOverride
@@ -143,16 +145,28 @@ namespace OpenSage.Gui.Wnd.Elements
             }
         }
 
+        internal WndWindowStateConfiguration ActiveState => _stateConfigurations[_currentState];
+
         public WndWindow(WndWindowDefinition wndWindow, ContentManager contentManager)
         {
             _stateConfigurations = new Dictionary<WndWindowState, WndWindowStateConfiguration>();
 
             _wndWindow = wndWindow;
-            _needsRender = true;
+            Invalidate();
 
             if (wndWindow.HasHeaderTemplate)
             {
-                _headerTemplate = contentManager.IniDataContext.HeaderTemplates.First(x => x.Name == wndWindow.HeaderTemplate);
+                var headerTemplate = contentManager.IniDataContext.HeaderTemplates.First(x => x.Name == wndWindow.HeaderTemplate);
+                TextFont = new WndFont
+                {
+                    Name = headerTemplate.Font,
+                    Size = headerTemplate.Point,
+                    Bold = headerTemplate.Bold
+                };
+            }
+            else
+            {
+                TextFont = wndWindow.Font;
             }
 
             _text = contentManager.TranslationManager.Lookup(wndWindow.Text);
@@ -292,12 +306,12 @@ namespace OpenSage.Gui.Wnd.Elements
                 vertices,
                 BufferBindFlags.VertexBuffer));
 
-            _needsRender = true;
+            Invalidate();
         }
 
         private void Invalidate()
         {
-            _needsRender = true;
+            IsInvalidated = true;
         }
 
         private static void DefaultInput(WndWindow element, GuiWindowMessage message, UIElementCallbackContext context)
@@ -310,25 +324,15 @@ namespace OpenSage.Gui.Wnd.Elements
 
         }
 
-        private static void DefaultDraw(WndWindow element, GraphicsDevice graphicsDevice)
+        private static void DefaultDraw(WndWindow window, Game game)
         {
-            element.RenderImpl(graphicsDevice);
-        }
+            var activeState = window.ActiveState;
 
-        private void RenderImpl(GraphicsDevice graphicsDevice)
-        {
-            if (!_needsRender)
-            {
-                return;
-            }
-
-            var activeState = _stateConfigurations[_currentState];
-
-            var clearColour = _backgroundColorOverride?.ToColorRgbaF()
+            var clearColour = window.BackgroundColorOverride?.ToColorRgbaF()
                 ?? activeState.BackgroundColor
                 ?? new ColorRgbaF(0, 0, 0, 0);
 
-            using (var drawingContext = new DrawingContext(HostPlatform.GraphicsDevice2D, _texture))
+            using (var drawingContext = new DrawingContext(game.ContentManager.GraphicsDevice2D, window._texture))
             {
                 drawingContext.Begin();
 
@@ -339,66 +343,62 @@ namespace OpenSage.Gui.Wnd.Elements
                     drawingContext.DrawImage(
                         activeState.ImageTexture,
                         new RawRectangleF(0, 0, activeState.ImageTexture.Width, activeState.ImageTexture.Height),
-                        new RawRectangleF(0, 0, Frame.Width, Frame.Height),
+                        window.Bounds.ToRawRectangleF(),
                         true);
                 }
 
-                if (activeState.BorderColor != null || _highlighted)
+                if (activeState.BorderColor != null || window.Highlighted)
                 {
-                    var borderColor = _highlighted
+                    var borderColor = window.Highlighted
                         ? new ColorRgbaF(1f, 0.41f, 0.71f, 1)
                         : activeState.BorderColor.Value;
 
-                    var borderWidth = _highlighted ? 8 : 2;
+                    var borderWidth = window.Highlighted ? 8 : 2;
 
                     drawingContext.DrawRectangle(
-                        new RawRectangleF(0, 0, Frame.Width, Frame.Height),
+                        window.Bounds.ToRawRectangleF(),
                         borderColor,
                         borderWidth);
                 }
 
-                if (_overlayColorOverride != null)
+                if (window.OverlayColorOverride != null)
                 {
-                    var overlayColor = _overlayColorOverride.Value.ToColorRgbaF();
-                    overlayColor.A *= Opacity;
+                    var overlayColor = window.OverlayColorOverride.Value.ToColorRgbaF();
+                    overlayColor.A *= window.Opacity;
 
                     drawingContext.FillRectangle(
-                        new RawRectangleF(0, 0, Frame.Width, Frame.Height),
+                        window.Bounds.ToRawRectangleF(),
                         overlayColor);
                 }
 
-                if (!string.IsNullOrEmpty(_text))
-                {
-                    string fontName;
-                    int fontSize;
-                    bool fontBold;
-                    if (_headerTemplate != null)
-                    {
-                        fontName = _headerTemplate.Font;
-                        fontSize = _headerTemplate.Point;
-                        fontBold = _headerTemplate.Bold;
-                    }
-                    else
-                    {
-                        fontName = _wndWindow.Font.Name;
-                        fontSize = _wndWindow.Font.Size;
-                        fontBold = _wndWindow.Font.Bold;
-                    }
-                    
-                    using (var textFormat = new TextFormat(HostPlatform.GraphicsDevice2D, fontName, fontSize * _scale, fontBold ? FontWeight.Bold : FontWeight.Normal, _textAlignment))
-                    {
-                        var textColor = activeState.TextColor.ToColorRgbaF();
-                        textColor.A *= TextOpacity;
-
-                        var rect = new RawRectangleF { X = 0, Y = 0, Width = Frame.Width, Height = Frame.Height };
-                        drawingContext.DrawText(_text, textFormat, textColor, rect);
-                    }
-                }
+                DrawText(window, game, drawingContext);
 
                 drawingContext.End();
             }
+        }
 
-            _needsRender = false;
+        private static void DrawText(
+            WndWindow window,
+            Game game,
+            DrawingContext drawingContext)
+        {
+            if (!string.IsNullOrEmpty(window.Text))
+            {
+                var textFormat = game.ContentManager.GetOrCreateTextFormat(
+                    window.TextFont.Name,
+                    window.TextFont.Size * window._scale,
+                    window.TextFont.Bold ? FontWeight.Bold : FontWeight.Normal,
+                    window.TextAlignment);
+
+                var textColor = window.ActiveState.TextColor.ToColorRgbaF();
+                textColor.A *= window.TextOpacity;
+
+                drawingContext.DrawText(
+                    window.Text,
+                    textFormat,
+                    textColor,
+                    window.Bounds.ToRawRectangleF());
+            }
         }
     }
 

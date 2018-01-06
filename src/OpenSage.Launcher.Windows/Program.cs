@@ -22,7 +22,11 @@ namespace OpenSage.Launcher
 
             HostPlatform.Start();
 
-            var game = new Game(HostPlatform.GraphicsDevice, fileSystem, sageGame);
+            var game = new Game(
+                HostPlatform.GraphicsDevice,
+                HostPlatform.GraphicsDevice2D,
+                fileSystem,
+                sageGame);
 
             SetupInitialScene(game);
 

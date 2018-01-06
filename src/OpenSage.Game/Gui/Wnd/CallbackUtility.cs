@@ -16,9 +16,9 @@ namespace OpenSage.Gui.Wnd
             return GetCallback<UIElementCallback>(name);
         }
 
-        public static Action<WndWindow, GraphicsDevice> GetDrawCallback(string name)
+        public static Action<WndWindow, Game> GetDrawCallback(string name)
         {
-            return GetCallback<Action<WndWindow, GraphicsDevice>>(name);
+            return GetCallback<Action<WndWindow, Game>>(name);
         }
 
         private static TDelegate GetCallback<TDelegate>(string name)

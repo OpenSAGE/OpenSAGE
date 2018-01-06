@@ -11,6 +11,7 @@ using OpenSage.Gui.Wnd;
 using OpenSage.Input;
 using OpenSage.Logic.Object;
 using OpenSage.LowLevel;
+using OpenSage.LowLevel.Graphics2D;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Scripting;
 
@@ -95,7 +96,11 @@ namespace OpenSage
 
         public SageGame SageGame { get; }
 
-        public Game(GraphicsDevice graphicsDevice, FileSystem fileSystem, SageGame sageGame)
+        public Game(
+            GraphicsDevice graphicsDevice,
+            GraphicsDevice2D graphicsDevice2D,
+            FileSystem fileSystem,
+            SageGame sageGame)
         {
             GraphicsDevice = graphicsDevice;
             SageGame = sageGame;
@@ -110,6 +115,7 @@ namespace OpenSage
             ContentManager = AddDisposable(new ContentManager(
                 _fileSystem, 
                 graphicsDevice,
+                graphicsDevice2D,
                 sageGame));
 
             ContentManager.IniDataContext.LoadIniFile(@"Data\INI\GameData.ini");

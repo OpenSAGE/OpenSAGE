@@ -44,9 +44,9 @@ namespace OpenSage.Gui.Wnd
             _doneMainMenuFadeIn = false;
         }
 
-        public static void W3DNoDraw(WndWindow element, GraphicsDevice device)
+        public static void W3DNoDraw(WndWindow element, Game game)
         {
-            // TODO: Render normally if shell map is not loaded.
+            
         }
 
         public static void MainMenuSystem(WndWindow element, GuiWindowMessage message, UIElementCallbackContext context)
