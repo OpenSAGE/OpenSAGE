@@ -1,5 +1,6 @@
 ﻿using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Graphics.Animation;
+using System.Linq;
 
 namespace OpenSage.Graphics
 {
@@ -52,10 +53,7 @@ namespace OpenSage.Graphics
                 boneTransforms[i] = animatedBoneEntity.Transform;
             }
 
-            result.Components.Add(new ModelComponent
-            {
-                Bones = boneTransforms
-            });
+            result.Components.Add(new ModelComponent(boneTransforms, Meshes.Any(x => x.Skinned)));
 
             foreach (var mesh in Meshes)
             {

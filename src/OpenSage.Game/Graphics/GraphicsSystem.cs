@@ -8,6 +8,7 @@ namespace OpenSage.Graphics
     {
         private readonly RenderContext _renderContext;
 
+        private readonly List<ModelComponent> _models;
         private readonly List<MeshComponent> _meshes;
 
         private readonly CameraInputMessageHandler _cameraInputMessageHandler;
@@ -18,6 +19,7 @@ namespace OpenSage.Graphics
         public GraphicsSystem(Game game)
             : base(game)
         {
+            RegisterComponentList(_models = new List<ModelComponent>());
             RegisterComponentList(_meshes = new List<MeshComponent>());
 
             _renderContext = new RenderContext();
@@ -44,6 +46,11 @@ namespace OpenSage.Graphics
 
         public override void Draw(GameTime gameTime)
         {
+            foreach (var model in _models)
+            {
+                model.UpdateBoneTransforms();
+            }
+
             // TODO: Do this in Update?
             _cameraInputMessageHandler.UpdateInputState(ref _cameraInputState);
             Game.Scene.CameraController.UpdateCamera(Game.Scene.Camera, _cameraInputState, gameTime);

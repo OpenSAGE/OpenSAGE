@@ -25,9 +25,6 @@ namespace OpenSage.Graphics
 
         private readonly ConstantBuffer<MeshMaterial.MeshConstants> _meshConstantsBuffer;
 
-        private readonly Buffer<Matrix4x3> _skinningBuffer;
-        private readonly Matrix4x3[] _skinningBones;
-
         private readonly Effect _effect;
 
         public string Name { get; }
@@ -86,23 +83,12 @@ namespace OpenSage.Graphics
             _meshConstantsBuffer.Value.SkinningEnabled = isSkinned;
             _meshConstantsBuffer.Value.NumBones = numBones;
 
-            if (isSkinned)
-            {
-                _skinningBuffer = AddDisposable(Buffer<Matrix4x3>.CreateDynamicArray(
-                    graphicsDevice,
-                    (int) numBones,
-                    BufferBindFlags.ShaderResource));
-
-                _skinningBones = new Matrix4x3[numBones];
-            }
-
             foreach (var materialPass in materialPasses)
             {
                 AddDisposable(materialPass);
 
                 foreach (var meshPart in materialPass.MeshParts)
                 {
-                    meshPart.Material.SetSkinningBuffer(_skinningBuffer);
                     meshPart.Material.SetMeshConstants(_meshConstantsBuffer.Buffer);
                 }
             }
@@ -114,24 +100,6 @@ namespace OpenSage.Graphics
             if (Hidden)
             {
                 return;
-            }
-
-            if (Skinned)
-            {
-                var bones = mesh.Entity.GetComponent<ModelComponent>().Bones;
-
-                for (var i = 0; i < NumBones; i++)
-                {
-                    // Bone matrix should be relative to root bone transform.
-                    var rootBoneMatrix = bones[0].LocalToWorldMatrix;
-                    var boneMatrix = bones[i].LocalToWorldMatrix;
-
-                    var boneMatrixRelativeToRoot = boneMatrix * Matrix4x4Utility.Invert(rootBoneMatrix);
-
-                    boneMatrixRelativeToRoot.ToMatrix4x3(out _skinningBones[i]);
-                }
-
-                _skinningBuffer.SetData(_skinningBones);
             }
 
             Matrix4x4 world;
@@ -157,6 +125,12 @@ namespace OpenSage.Graphics
                 world = mesh.Transform.LocalToWorldMatrix;
             }
 
+            ModelComponent modelComponent = null;
+            if (Skinned)
+            {
+                modelComponent = mesh.Entity.GetComponent<ModelComponent>();
+            }
+
             _meshConstantsBuffer.Value.World = world;
             _meshConstantsBuffer.Update();
 
@@ -164,6 +138,8 @@ namespace OpenSage.Graphics
             {
                 foreach (var meshPart in materialPass.MeshParts)
                 {
+                    meshPart.Material.SetSkinningBuffer(modelComponent?.SkinningBuffer);
+
                     var renderQueue = meshPart.Material.PipelineState.BlendState.Enabled
                         ? renderList.Transparent
                         : renderList.Opaque;
