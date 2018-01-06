@@ -2,7 +2,6 @@
 using OpenSage.Data;
 using OpenSage.DataViewer.Controls;
 using OpenSage.Gui.Wnd;
-using OpenSage.Gui.Wnd.Elements;
 
 namespace OpenSage.DataViewer.UI.Viewers
 {

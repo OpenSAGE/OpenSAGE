@@ -1,4 +1,4 @@
-﻿namespace OpenSage.Gui.Wnd.Elements
+﻿namespace OpenSage.Gui.Wnd
 {
     internal enum WndWindowState
     {

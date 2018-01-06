@@ -1,5 +1,4 @@
 ﻿using System;
-using OpenSage.Gui.Wnd.Elements;
 
 namespace OpenSage.Gui.Wnd
 {

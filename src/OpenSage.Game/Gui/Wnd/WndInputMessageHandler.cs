@@ -1,5 +1,4 @@
-﻿using OpenSage.Gui.Wnd.Elements;
-using OpenSage.Input;
+﻿using OpenSage.Input;
 using OpenSage.LowLevel.Input;
 using System.Numerics;
 
@@ -31,7 +30,7 @@ namespace OpenSage.Gui.Wnd
                             {
                                 _lastHighlightedElement.InputCallback.Invoke(
                                     _lastHighlightedElement,
-                                    new GuiWindowMessage(GuiWindowMessageType.MouseExit, _lastHighlightedElement),
+                                    new WndWindowMessage(WndWindowMessageType.MouseExit, _lastHighlightedElement),
                                     context);
                             }
                             _lastHighlightedElement = element;
@@ -39,7 +38,7 @@ namespace OpenSage.Gui.Wnd
                             {
                                 element.InputCallback.Invoke(
                                     element,
-                                    new GuiWindowMessage(GuiWindowMessageType.MouseEnter, element),
+                                    new WndWindowMessage(WndWindowMessageType.MouseEnter, element),
                                     context);
                             }
                         }
@@ -47,7 +46,7 @@ namespace OpenSage.Gui.Wnd
                         {
                             element.InputCallback.Invoke(
                                 element,
-                                new GuiWindowMessage(GuiWindowMessageType.MouseMove, element),
+                                new WndWindowMessage(WndWindowMessageType.MouseMove, element),
                                 context);
                             return InputMessageResult.Handled;
                         }
@@ -61,7 +60,7 @@ namespace OpenSage.Gui.Wnd
                         {
                             element.InputCallback.Invoke(
                                 element,
-                                new GuiWindowMessage(GuiWindowMessageType.MouseDown, element),
+                                new WndWindowMessage(WndWindowMessageType.MouseDown, element),
                                 context);
                             return InputMessageResult.Handled;
                         }
@@ -75,7 +74,7 @@ namespace OpenSage.Gui.Wnd
                         {
                             element.InputCallback.Invoke(
                                 element,
-                                new GuiWindowMessage(GuiWindowMessageType.MouseUp, element),
+                                new WndWindowMessage(WndWindowMessageType.MouseUp, element),
                                 context);
                             return InputMessageResult.Handled;
                         }

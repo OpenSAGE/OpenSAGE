@@ -1,31 +1,31 @@
-﻿namespace OpenSage.Gui.Wnd.Elements
+﻿namespace OpenSage.Gui.Wnd
 {
     partial class WndWindow
     {
-        private static void DefaultPushButtonInput(WndWindow element, GuiWindowMessage message, UIElementCallbackContext context)
+        private static void DefaultPushButtonInput(WndWindow element, WndWindowMessage message, UIElementCallbackContext context)
         {
             // TODO: Capture input on mouse down.
             // TODO: Only fire click event when mouse was pressed and released inside same button.
 
             switch (message.MessageType)
             {
-                case GuiWindowMessageType.MouseEnter:
+                case WndWindowMessageType.MouseEnter:
                     element.CurrentState = WndWindowState.Highlighted;
                     break;
 
-                case GuiWindowMessageType.MouseExit:
+                case WndWindowMessageType.MouseExit:
                     element.CurrentState = WndWindowState.Enabled;
                     break;
 
-                case GuiWindowMessageType.MouseDown:
+                case WndWindowMessageType.MouseDown:
                     element.CurrentState = WndWindowState.HighlightedPushed;
                     break;
 
-                case GuiWindowMessageType.MouseUp:
+                case WndWindowMessageType.MouseUp:
                     element.CurrentState = WndWindowState.Highlighted;
                     element.Parent.SystemCallback.Invoke(
                         element,
-                        new GuiWindowMessage(GuiWindowMessageType.SelectedButton, element),
+                        new WndWindowMessage(WndWindowMessageType.SelectedButton, element),
                         context);
                     break;
             }

@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Wnd;
-using OpenSage.Gui.Wnd.Elements;
 
 namespace OpenSage.Gui.Wnd
 {

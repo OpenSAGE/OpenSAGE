@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using OpenSage.Graphics.Rendering;
-using OpenSage.Gui.Wnd.Elements;
+using OpenSage.Gui.Wnd.Transitions;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd

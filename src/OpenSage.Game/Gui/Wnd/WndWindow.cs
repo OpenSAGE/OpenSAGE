@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Content;
-using OpenSage.Data.Ini;
 using OpenSage.Data.Wnd;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
@@ -12,7 +11,7 @@ using OpenSage.LowLevel.Graphics2D;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Gui.Wnd.Elements
+namespace OpenSage.Gui.Wnd
 {
     public sealed partial class WndWindow : DisposableBase
     {
@@ -314,12 +313,12 @@ namespace OpenSage.Gui.Wnd.Elements
             IsInvalidated = true;
         }
 
-        private static void DefaultInput(WndWindow element, GuiWindowMessage message, UIElementCallbackContext context)
+        private static void DefaultInput(WndWindow element, WndWindowMessage message, UIElementCallbackContext context)
         {
 
         }
 
-        private static void DefaultSystem(WndWindow element, GuiWindowMessage message, UIElementCallbackContext context)
+        private static void DefaultSystem(WndWindow element, WndWindowMessage message, UIElementCallbackContext context)
         {
 
         }
@@ -402,7 +401,7 @@ namespace OpenSage.Gui.Wnd.Elements
         }
     }
 
-    internal delegate void UIElementCallback(WndWindow element, GuiWindowMessage message, UIElementCallbackContext context);
+    internal delegate void UIElementCallback(WndWindow element, WndWindowMessage message, UIElementCallbackContext context);
 
     internal sealed class UIElementCallbackContext
     {

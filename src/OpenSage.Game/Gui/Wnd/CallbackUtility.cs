@@ -1,6 +1,4 @@
 ﻿using System;
-using OpenSage.Gui.Wnd.Elements;
-using OpenSage.LowLevel.Graphics3D;
 
 namespace OpenSage.Gui.Wnd
 {
