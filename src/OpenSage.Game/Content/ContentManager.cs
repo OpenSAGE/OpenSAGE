@@ -48,7 +48,7 @@ namespace OpenSage.Content
                 { typeof(Model), AddDisposable(new ModelLoader()) },
                 { typeof(Scene), AddDisposable(new MapLoader()) },
                 { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
-                { typeof(Gui.Wnd.GuiWindow), AddDisposable(new WindowLoader(this)) },
+                { typeof(WndTopLevelWindow), AddDisposable(new WindowLoader(this)) },
                 { typeof(ShapeComponent), AddDisposable(new ShapeLoader(this)) }
             };
 

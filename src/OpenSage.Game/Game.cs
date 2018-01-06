@@ -41,11 +41,6 @@ namespace OpenSage
         /// <summary>
         /// Gets the GUI system.
         /// </summary>
-        public WndSystem Wnd { get; }
-
-        /// <summary>
-        /// Gets the GUI system.
-        /// </summary>
         public AptSystem Apt { get; }
 
         /// <summary>
@@ -129,8 +124,6 @@ namespace OpenSage
             AddDisposable(new ParticleSystemSystem(this));
             AddDisposable(new UpdateableSystem(this));
 
-            Wnd = AddDisposable(new WndSystem(this));
-
             Apt = AddDisposable(new AptSystem(this));
 
             Shape = AddDisposable(new ShapeSystem(this));
@@ -150,6 +143,7 @@ namespace OpenSage
             if (Scene != null)
             {
                 Scene.Camera.SetSwapChain(swapChain);
+                Scene.Scene2D.WndWindowManager.OnViewportSizeChanged();
             }
             foreach (var gameSystem in GameSystems)
             {
@@ -197,6 +191,8 @@ namespace OpenSage
                 if (_scene != null)
                 {
                     _scene.Game = this;
+
+                    _scene.Scene2D = new Scene2D(this);
 
                     _scene.Camera.SetSwapChain(SwapChain);
 
@@ -286,6 +282,8 @@ namespace OpenSage
         {
             foreach (var gameSystem in GameSystems)
                 gameSystem.Update(gameTime);
+
+            Scene?.Update(gameTime);
         }
 
         private void Draw(GameTime gameTime)

@@ -11,7 +11,7 @@ namespace OpenSage.Gui.Wnd.Elements
     internal sealed class UIElementStateConfiguration : DisposableBase
     {
         public static UIElementStateConfiguration Create(
-            WndWindow wndWindow,
+            WndWindowDefinition wndWindow,
             UIElementState state,
             ContentManager contentManager,
             GraphicsDevice graphicsDevice,
@@ -97,7 +97,7 @@ namespace OpenSage.Gui.Wnd.Elements
         public Texture ImageTexture { get; }
 
         private UIElementStateConfiguration(
-            WndWindow wndWindow,
+            WndWindowDefinition wndWindow,
             ColorRgba textColor,
             ColorRgba textBorderColor,
             WndDrawData wndDrawData,

@@ -6,7 +6,7 @@ using OpenSage.Gui.Wnd.Elements;
 
 namespace OpenSage.Content
 {
-    internal sealed class WindowLoader : ContentLoader<GuiWindow>
+    internal sealed class WindowLoader : ContentLoader<WndTopLevelWindow>
     {
         public WindowLoader(ContentManager contentManager)
         {
@@ -30,7 +30,7 @@ namespace OpenSage.Content
             contentManager.IniDataContext.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512\");
         }
 
-        protected override GuiWindow LoadEntry(FileSystemEntry entry, ContentManager contentManager, LoadOptions loadOptions)
+        protected override WndTopLevelWindow LoadEntry(FileSystemEntry entry, ContentManager contentManager, LoadOptions loadOptions)
         {
             var wndFile = WndFile.FromFileSystemEntry(entry);
 
@@ -38,7 +38,7 @@ namespace OpenSage.Content
                 wndFile.RootWindow, 
                 contentManager);
 
-            var window = new GuiWindow(wndFile, result);
+            var window = new WndTopLevelWindow(wndFile, result);
 
             void setWindowRecursive(UIElement element)
             {
@@ -55,7 +55,7 @@ namespace OpenSage.Content
             return window;
         }
 
-        private static UIElement CreateElementRecursive(WndWindow wndWindow, ContentManager contentManager)
+        private static UIElement CreateElementRecursive(WndWindowDefinition wndWindow, ContentManager contentManager)
         {
             UIElement createElement()
             {

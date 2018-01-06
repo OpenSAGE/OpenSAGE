@@ -64,7 +64,7 @@ namespace OpenSage.Launcher
             var mainMenuScene = game.ContentManager.Load<Scene>("maps\\ShellMap1\\ShellMap1.map");
             game.Scene = mainMenuScene;
 
-            game.Wnd.OpenWindow("Menus\\MainMenu.wnd");
+            mainMenuScene.Scene2D.WndWindowManager.PushWindow("Menus\\MainMenu.wnd");
 
             game.Scripting.Active = true;
         }

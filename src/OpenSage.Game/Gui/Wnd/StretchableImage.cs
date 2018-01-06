@@ -22,7 +22,7 @@ namespace OpenSage.Gui.Wnd
         private readonly int _height;
 
         public static StretchableImage CreateNormalImage(
-            WndWindow wndWindow,
+            WndWindowDefinition wndWindow,
             WndDrawData wndDrawData,
             ContentManager contentManager)
         {
@@ -33,7 +33,7 @@ namespace OpenSage.Gui.Wnd
         }
 
         public static StretchableImage CreatePushButtonImage(
-            WndWindow wndWindow,
+            WndWindowDefinition wndWindow,
             WndDrawData wndDrawData,
             ContentManager contentManager,
             int leftIndex,

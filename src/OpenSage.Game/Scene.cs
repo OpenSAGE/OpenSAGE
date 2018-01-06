@@ -25,6 +25,7 @@ namespace OpenSage
         public OpenSage.Data.Map.MapFile MapFile { get; set; }
 
         public Scene3D Scene3D { get; set; }
+        public Scene2D Scene2D { get; set; }
 
         public Scene()
         {
@@ -33,6 +34,11 @@ namespace OpenSage
             Camera = new CameraComponent();
 
             Teams = new Dictionary<string, Team>();
+        }
+
+        internal void Update(GameTime gameTime)
+        {
+            Scene2D.Update(gameTime);
         }
     }
 }

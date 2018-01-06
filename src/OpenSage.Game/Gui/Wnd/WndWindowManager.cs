@@ -1,0 +1,146 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Numerics;
+using OpenSage.Graphics.Rendering;
+using OpenSage.Gui.Wnd.Elements;
+using OpenSage.Mathematics;
+
+namespace OpenSage.Gui.Wnd
+{
+    public sealed class WndWindowManager
+    {
+        private readonly Game _game;
+        private readonly Stack<WndTopLevelWindow> _windowStack;
+
+        internal WindowTransitionManager TransitionManager { get; }
+
+        public WndWindowManager(Game game)
+        {
+            _game = game;
+            _windowStack = new Stack<WndTopLevelWindow>();
+
+            game.Input.MessageBuffer.Handlers.Insert(0, new WndInputMessageHandler(this));
+
+            switch (game.SageGame)
+            {
+                case SageGame.CncGenerals:
+                case SageGame.CncGeneralsZeroHour:
+                    game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\WindowTransitions.ini");
+                    TransitionManager = new WindowTransitionManager(game.ContentManager.IniDataContext.WindowTransitions);
+                    break;
+
+                default: // TODO: Handle other games.
+                    TransitionManager = new WindowTransitionManager(new List<Data.Ini.WindowTransition>());
+                    break;
+            }
+        }
+
+        public WndTopLevelWindow PushWindow(WndTopLevelWindow window)
+        {
+            CreateSizeDependentResources(window);
+
+            _windowStack.Push(window);
+
+            window.LayoutInit?.Invoke(window);
+
+            return window;
+        }
+
+        public WndTopLevelWindow PushWindow(string wndFileName)
+        {
+            var wndFilePath = Path.Combine("Window", wndFileName);
+            var window = _game.ContentManager.Load<WndTopLevelWindow>(wndFilePath);
+
+            if (window == null)
+            {
+                throw new Exception($"Window file {wndFilePath} was not found.");
+            }
+
+            return PushWindow(window);
+        }
+
+        internal void OnViewportSizeChanged()
+        {
+            foreach (var window in _windowStack)
+            {
+                CreateSizeDependentResources(window);
+            }
+        }
+
+        private void CreateSizeDependentResources(WndTopLevelWindow window)
+        {
+            var viewport = _game.Scene.Camera.Viewport;
+            var size = new Size(viewport.Width, viewport.Height);
+
+            window.Root.DoActionRecursive(
+            x =>
+            {
+                x.CreateSizeDependentResources(_game.ContentManager, size);
+                return true;
+            });
+        }
+
+        public void PopWindow()
+        {
+            _windowStack.Pop();
+        }
+
+        public UIElement FindElement(in Vector2 mousePosition)
+        {
+            if (_windowStack.Count == 0)
+            {
+                return null;
+            }
+
+            var window = _windowStack.Peek();
+
+            return window.FindElement(mousePosition);
+        }
+
+        internal void Update(GameTime gameTime)
+        {
+            foreach (var window in _windowStack)
+            {
+                window.LayoutUpdate?.Invoke(window);
+            }
+
+            TransitionManager.Update(gameTime);
+
+            foreach (var window in _windowStack)
+            {
+                window.Root.DoActionRecursive(x =>
+                {
+                    x.DrawCallback.Invoke(x, _game.GraphicsDevice);
+                    return true;
+                });
+            }
+        }
+
+        internal void BuildRenderList(RenderList renderList)
+        {
+            foreach (var window in _windowStack)
+            {
+                window.Root.DoActionRecursive(x =>
+                {
+                    if (!x.Visible)
+                    {
+                        return false;
+                    }
+
+                    renderList.Gui.AddRenderItemDraw(
+                        x.Material,
+                        x.VertexBuffer,
+                        null,
+                        CullFlags.AlwaysVisible,
+                        null,
+                        default,
+                        0,
+                        6);
+
+                    return true;
+                });
+            }
+        }
+    }
+}

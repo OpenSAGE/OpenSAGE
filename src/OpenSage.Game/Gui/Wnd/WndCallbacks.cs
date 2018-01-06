@@ -14,7 +14,7 @@ namespace OpenSage.Gui.Wnd
     {
         private static bool _doneMainMenuFadeIn;
 
-        public static void W3DMainMenuInit(GuiWindow window)
+        public static void W3DMainMenuInit(WndTopLevelWindow window)
         {
             // We'll show these later via window transitions.
             window.Root.FindChild("MainMenu.wnd:MainMenuRuler").Hide();
@@ -57,7 +57,7 @@ namespace OpenSage.Gui.Wnd
                     switch (message.Element.Name)
                     {
                         case "MainMenu.wnd:ButtonExit":
-                            var exitWindow = context.GuiSystem.OpenWindow(@"Menus\QuitMessageBox.wnd");
+                            var exitWindow = context.WindowManager.PushWindow(@"Menus\QuitMessageBox.wnd");
                             exitWindow.Root.FindChild("QuitMessageBox.wnd:StaticTextTitle").Text = "EXIT?";
                             exitWindow.Root.FindChild("QuitMessageBox.wnd:StaticTextTitle").TextAlignment = TextAlignment.Leading;
                             exitWindow.Root.FindChild("QuitMessageBox.wnd:StaticTextMessage").Text = "Are you sure you want to exit?";
@@ -76,8 +76,8 @@ namespace OpenSage.Gui.Wnd
             // Any input at all (mouse, keyboard) will trigger the main menu fade-in.
             if (!_doneMainMenuFadeIn)
             {
-                context.GuiSystem.TransitionManager.QueueTransition(null, element.Window, "MainMenuFade");
-                context.GuiSystem.TransitionManager.QueueTransition(null, element.Window, "MainMenuDefaultMenu");
+                context.WindowManager.TransitionManager.QueueTransition(null, element.Window, "MainMenuFade");
+                context.WindowManager.TransitionManager.QueueTransition(null, element.Window, "MainMenuDefaultMenu");
                 element.Window.Root.FindChild("MainMenu.wnd:MainMenuRuler").Show();
                 _doneMainMenuFadeIn = true;
             }
@@ -132,8 +132,8 @@ namespace OpenSage.Gui.Wnd
 
         private sealed class WindowTransitionRequest
         {
-            public GuiWindow From;
-            public GuiWindow To;
+            public WndTopLevelWindow From;
+            public WndTopLevelWindow To;
             public WindowTransition Transition;
         }
 
@@ -147,8 +147,8 @@ namespace OpenSage.Gui.Wnd
         }
 
         public void QueueTransition(
-            GuiWindow from,
-            GuiWindow to,
+            WndTopLevelWindow from,
+            WndTopLevelWindow to,
             string transitionName)
         {
             if (!_transitions.TryGetValue(transitionName, out var transition))
@@ -197,7 +197,7 @@ namespace OpenSage.Gui.Wnd
 
         public TimeSpan LastEndTime { get; }
 
-        public WindowTransitionState(GuiWindow window, WindowTransition transition, TimeSpan currentTime)
+        public WindowTransitionState(WndTopLevelWindow window, WindowTransition transition, TimeSpan currentTime)
         {
             _operations = transition.Windows
                 .Select(x => WindowTransitionOperation.Create(window, x, currentTime))
@@ -228,7 +228,7 @@ namespace OpenSage.Gui.Wnd
         protected static readonly ColorRgba FlashColor = new ColorRgba(255, 187, 0, 255);
 
         public static WindowTransitionOperation Create(
-            GuiWindow window,
+            WndTopLevelWindow window,
             WindowTransitionWindow transitionWindow,
             TimeSpan currentTime)
         {

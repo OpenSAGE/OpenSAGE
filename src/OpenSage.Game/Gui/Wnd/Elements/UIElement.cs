@@ -18,7 +18,7 @@ namespace OpenSage.Gui.Wnd.Elements
     {
         private bool _initialized;
 
-        private WndWindow _wndWindow;
+        private WndWindowDefinition _wndWindow;
 
         private Texture _texture;
         private Buffer<SpriteVertex> _vertexBuffer;
@@ -64,7 +64,7 @@ namespace OpenSage.Gui.Wnd.Elements
 
         private bool _needsRender;
 
-        public WndWindow Definition => _wndWindow;
+        public WndWindowDefinition Definition => _wndWindow;
 
         public Rectangle Frame { get; private set; }
 
@@ -82,7 +82,7 @@ namespace OpenSage.Gui.Wnd.Elements
 
         public UIElement Parent { get; internal set; }
 
-        public GuiWindow Window { get; internal set; }
+        public WndTopLevelWindow Window { get; internal set; }
 
         public UIElementCollection Children { get; } = new UIElementCollection();
 
@@ -179,7 +179,7 @@ namespace OpenSage.Gui.Wnd.Elements
             Visible = false;
         }
 
-        public void Initialize(WndWindow wndWindow, ContentManager contentManager)
+        public void Initialize(WndWindowDefinition wndWindow, ContentManager contentManager)
         {
             if (_initialized)
             {
@@ -443,11 +443,11 @@ namespace OpenSage.Gui.Wnd.Elements
 
     internal sealed class UIElementCallbackContext
     {
-        public WndSystem GuiSystem { get; }
+        public WndWindowManager WindowManager { get; }
 
-        public UIElementCallbackContext(WndSystem guiSystem)
+        public UIElementCallbackContext(WndWindowManager windowManager)
         {
-            GuiSystem = guiSystem;
+            WindowManager = windowManager;
         }
     }
 }

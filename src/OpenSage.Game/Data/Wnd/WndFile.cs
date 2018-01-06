@@ -11,7 +11,7 @@ namespace OpenSage.Data.Wnd
     {
         public int FileVersion { get; internal set; }
         public WndLayoutBlock LayoutBlock { get; internal set; }
-        public WndWindow RootWindow { get; internal set; }
+        public WndWindowDefinition RootWindow { get; internal set; }
 
         public static WndFile FromFileSystemEntry(FileSystemEntry entry)
         {
@@ -32,7 +32,7 @@ namespace OpenSage.Data.Wnd
         public string LayoutShutdown { get; internal set; }
     }
 
-    public sealed class WndWindow
+    public sealed class WndWindowDefinition
     {
         public WndWindowType WindowType { get; internal set; }
         public WndScreenRect ScreenRect { get; internal set; }
@@ -82,7 +82,7 @@ namespace OpenSage.Data.Wnd
         public WndDrawData ComboBoxListBoxHiliteDrawData { get; internal set; }
         public WndSliderData SliderData { get; internal set; }
 
-        public WndWindow[] ChildWindows { get; internal set; }
+        public WndWindowDefinition[] ChildWindows { get; internal set; }
 
         public bool HasHeaderTemplate => HeaderTemplate != null && !string.Equals(HeaderTemplate, "[NONE]", StringComparison.InvariantCultureIgnoreCase);
     }

@@ -38,6 +38,8 @@ namespace OpenSage.Graphics.Rendering
 
             context.Scene.Scene3D?.World.Terrain.BuildRenderList(_renderList);
 
+            context.Scene.Scene2D.WndWindowManager.BuildRenderList(_renderList);
+
             foreach (var system in context.Game.GameSystems)
             {
                 system.BuildRenderList(_renderList);

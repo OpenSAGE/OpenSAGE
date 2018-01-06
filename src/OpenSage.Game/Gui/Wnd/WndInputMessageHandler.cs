@@ -2,30 +2,29 @@
 using OpenSage.Input;
 using OpenSage.LowLevel.Input;
 using System.Numerics;
-using System.Linq;
 
 namespace OpenSage.Gui.Wnd
 {
     internal sealed class WndInputMessageHandler : InputMessageHandler
     {
-        private readonly WndSystem _guiSystem;
+        private readonly WndWindowManager _windowManager;
 
         private UIElement _lastHighlightedElement;
 
-        public WndInputMessageHandler(WndSystem guiSystem)
+        public WndInputMessageHandler(WndWindowManager windowManager)
         {
-            _guiSystem = guiSystem;
+            _windowManager = windowManager;
         }
 
         public override InputMessageResult HandleMessage(InputMessage message)
         {
-            var context = new UIElementCallbackContext(_guiSystem);
+            var context = new UIElementCallbackContext(_windowManager);
 
             switch (message.MessageType)
             {
                 case InputMessageType.MouseMove:
                     {
-                        var element = FindElement(new Vector2(message.MouseX.Value, message.MouseY.Value));
+                        var element = _windowManager.FindElement(new Vector2(message.MouseX.Value, message.MouseY.Value));
                         if (element != _lastHighlightedElement)
                         {
                             if (_lastHighlightedElement != null)
@@ -57,7 +56,7 @@ namespace OpenSage.Gui.Wnd
 
                 case InputMessageType.MouseDown:
                     {
-                        var element = FindElement(new Vector2(message.MouseX.Value, message.MouseY.Value));
+                        var element = _windowManager.FindElement(new Vector2(message.MouseX.Value, message.MouseY.Value));
                         if (element != null)
                         {
                             element.InputCallback.Invoke(
@@ -71,7 +70,7 @@ namespace OpenSage.Gui.Wnd
 
                 case InputMessageType.MouseUp:
                     {
-                        var element = FindElement(new Vector2(message.MouseX.Value, message.MouseY.Value));
+                        var element = _windowManager.FindElement(new Vector2(message.MouseX.Value, message.MouseY.Value));
                         if (element != null)
                         {
                             element.InputCallback.Invoke(
@@ -85,43 +84,6 @@ namespace OpenSage.Gui.Wnd
             }
 
             return InputMessageResult.NotHandled;
-        }
-
-        private UIElement FindElement(Vector2 mousePosition)
-        {
-            if (_guiSystem.WindowStack.Count == 0)
-            {
-                return null;
-            }
-
-            var window = _guiSystem.WindowStack.Peek();
-
-            if (window == null)
-            {
-                return null;
-            }
-
-            // Finds deepest element that is visible and contains mousePosition.
-            UIElement findElementRecursive(UIElement element)
-            {
-                if (!element.Visible || !element.Frame.Contains(mousePosition))
-                {
-                    return null;
-                }
-
-                foreach (var child in element.Children.Reverse())
-                {
-                    var found = findElementRecursive(child);
-                    if (found != null)
-                    {
-                        return found;
-                    }
-                }
-
-                return element;
-            }
-
-            return findElementRecursive(window.Root);
         }
     }
 }

@@ -200,13 +200,13 @@ namespace OpenSage.Data.Wnd.Parser
             });
         }
 
-        private WndWindow ParseWindow()
+        private WndWindowDefinition ParseWindow()
         {
             NextToken();
 
-            var result = new WndWindow();
+            var result = new WndWindowDefinition();
 
-            var childWindows = new List<WndWindow>();
+            var childWindows = new List<WndWindowDefinition>();
 
             while (Current.TokenType == WndTokenType.Identifier)
             {

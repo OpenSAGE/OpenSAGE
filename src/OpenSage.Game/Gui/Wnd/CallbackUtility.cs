@@ -6,9 +6,9 @@ namespace OpenSage.Gui.Wnd
 {
     internal static class CallbackUtility
     {
-        public static GuiWindowCallback GetGuiWindowCallback(string name)
+        public static WndWindowCallback GetGuiWindowCallback(string name)
         {
-            return GetCallback<GuiWindowCallback>(name);
+            return GetCallback<WndWindowCallback>(name);
         }
 
         public static UIElementCallback GetUIElementCallback(string name)

@@ -10,21 +10,15 @@ namespace OpenSage.DataViewer.UI.Viewers
     {
         public WndView(FileSystemEntry entry, Game game)
         {
-            var wndComponent = new WndComponent
-            {
-                Window = game.ContentManager.Load<GuiWindow>(entry.FilePath)
-            };
-
             var scene = new Scene();
-
-            var entity = new Entity();
-            entity.Components.Add(wndComponent);
-            scene.Entities.Add(entity);
 
             game.Scene = scene;
 
+            var window = game.ContentManager.Load<WndTopLevelWindow>(entry.FilePath);
+            scene.Scene2D.WndWindowManager.PushWindow(window);
+
             var treeItem = new TreeItem();
-            treeItem.Children.Add(CreateTreeItemRecursive(wndComponent.Window.Root));
+            treeItem.Children.Add(CreateTreeItemRecursive(window.Root));
 
             var treeView = new TreeView
             {
