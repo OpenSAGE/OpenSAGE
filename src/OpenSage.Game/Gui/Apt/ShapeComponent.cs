@@ -87,43 +87,15 @@ namespace OpenSage.Gui.Apt
             }
         }
 
-        private static Rectangle CalculateFrame(in RectangleF shapeBounding, in Size viewportSize, out float scale)
-        {
-            // Figure out the ratio.
-            var ratioX = viewportSize.Width / (float) shapeBounding.Width;
-            var ratioY = viewportSize.Height / (float) shapeBounding.Height;
-
-            // Use whichever multiplier is smaller.
-            var ratio = ratioX < ratioY ? ratioX : ratioY;
-
-            scale = ratio;
-
-            var originalWidth = shapeBounding.Width;
-            var originalHeight = shapeBounding.Height;
-
-            // Now we can get the new height and width
-            var newWidth = (int) Math.Round(originalWidth * ratio);
-            var newHeight = (int) Math.Round(originalHeight * ratio);
-
-            newWidth = Math.Max(newWidth, 1);
-            newHeight = Math.Max(newHeight, 1);
-
-            var newX = (int) Math.Round(shapeBounding.X * ratio);
-            var newY = (int) Math.Round(shapeBounding.Y * ratio);
-
-            // Now calculate the X,Y position of the upper-left corner 
-            // (one of these will always be zero for the top level window)
-            var posX = (int) Math.Round((viewportSize.Width - (shapeBounding.Width * ratio)) / 2);
-            var posY = (int) Math.Round((viewportSize.Height - (shapeBounding.Height * ratio)) / 2);
-
-            return new Rectangle(posX, posY, newWidth, newHeight);
-        }
-
         public void Layout(GraphicsDevice gd, in Size windowSize)
         {
             float _scale = 0.0f;
 
-            var frame = CalculateFrame(Shape.BoundingBox, windowSize, out _scale);
+            var frame = RectangleF.CalculateRectangleFittingAspectRatio(
+                Shape.BoundingBox,
+                Shape.BoundingBox.Size,
+                windowSize,
+                out _scale);
 
             if (_texture != null)
             {

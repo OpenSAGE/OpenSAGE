@@ -248,7 +248,18 @@ namespace OpenSage.Gui.Wnd.Elements
 
         public void CreateSizeDependentResources(ContentManager contentManager, in Size windowSize)
         {
-            Frame = CalculateFrame(_wndWindow.ScreenRect, windowSize, out _scale);
+            var wndScreenRect = _wndWindow.ScreenRect;
+            Frame = RectangleF.CalculateRectangleFittingAspectRatio(
+                new RectangleF(
+                    wndScreenRect.UpperLeft.X,
+                    wndScreenRect.UpperLeft.Y,
+                    wndScreenRect.BottomRight.X - wndScreenRect.UpperLeft.X,
+                    wndScreenRect.BottomRight.Y - wndScreenRect.UpperLeft.Y),
+                new SizeF(
+                    wndScreenRect.CreationResolution.Width,
+                    wndScreenRect.CreationResolution.Height),
+                windowSize,
+                out _scale);
 
             RemoveAndDispose(ref _vertexBuffer);
             RemoveAndDispose(ref _texture);
@@ -282,38 +293,6 @@ namespace OpenSage.Gui.Wnd.Elements
                 BufferBindFlags.VertexBuffer));
 
             _needsRender = true;
-        }
-
-        private static Rectangle CalculateFrame(in WndScreenRect wndScreenRect, in Size viewportSize, out float scale)
-        {
-            // Figure out the ratio.
-            var ratioX = viewportSize.Width / (float) wndScreenRect.CreationResolution.Width;
-            var ratioY = viewportSize.Height / (float) wndScreenRect.CreationResolution.Height;
-
-            // Use whichever multiplier is smaller.
-            var ratio = ratioX < ratioY ? ratioX : ratioY;
-
-            scale = ratio;
-
-            var originalWidth = wndScreenRect.BottomRight.X - wndScreenRect.UpperLeft.X;
-            var originalHeight = wndScreenRect.BottomRight.Y - wndScreenRect.UpperLeft.Y;
-
-            // Now we can get the new height and width
-            var newWidth = (int) Math.Round(originalWidth * ratio);
-            var newHeight = (int) Math.Round(originalHeight * ratio);
-
-            newWidth = Math.Max(newWidth, 1);
-            newHeight = Math.Max(newHeight, 1);
-
-            var newX = (int) Math.Round(wndScreenRect.UpperLeft.X * ratio);
-            var newY = (int) Math.Round(wndScreenRect.UpperLeft.Y * ratio);
-
-            // Now calculate the X,Y position of the upper-left corner 
-            // (one of these will always be zero for the top level window)
-            var posX = (int) Math.Round((viewportSize.Width - (wndScreenRect.CreationResolution.Width * ratio)) / 2) + newX;
-            var posY = (int) Math.Round((viewportSize.Height - (wndScreenRect.CreationResolution.Height * ratio)) / 2) + newY;
-
-            return new Rectangle(posX, posY, newWidth, newHeight);
         }
 
         private void Invalidate()
