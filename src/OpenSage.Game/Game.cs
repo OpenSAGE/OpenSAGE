@@ -128,7 +128,6 @@ namespace OpenSage
             AddDisposable(new AnimationSystem(this));
             AddDisposable(new ObjectSystem(this));
             AddDisposable(new ParticleSystemSystem(this));
-            AddDisposable(new UpdateableSystem(this));
 
             Apt = AddDisposable(new AptSystem(this));
 
