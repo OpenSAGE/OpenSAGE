@@ -116,7 +116,11 @@ namespace OpenSage.DataViewer.UI
 
             _fileSystem = installation.CreateFileSystem();
 
-            _game = new Game(HostPlatform.GraphicsDevice, _fileSystem, installation.Game);
+            _game = new Game(
+                HostPlatform.GraphicsDevice,
+                HostPlatform.GraphicsDevice2D,
+                _fileSystem,
+                installation.Game);
 
             InstallationChanged?.Invoke(this, new InstallationChangedEventArgs(installation, _fileSystem));
         }
