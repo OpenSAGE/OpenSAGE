@@ -42,7 +42,7 @@ namespace OpenSage.Game.Tests.Apt
                 Assert.NotNull(data);
 
                 //requires unmodified main menu
-                Assert.Equal(data.Entries.Count, 412);
+                Assert.Equal(412, data.Entries.Count);
             }
         }
     }

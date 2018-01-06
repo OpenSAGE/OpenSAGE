@@ -51,7 +51,7 @@ namespace OpenSage.Data.Tests.Map
 
             Assert.Equal(196u, mapFile.BlendTileData.NumTiles);
 
-            Assert.Equal(1, mapFile.BlendTileData.Textures.Length);
+            Assert.Single(mapFile.BlendTileData.Textures);
             Assert.Equal("AsphaltType1", mapFile.BlendTileData.Textures[0].Name);
             Assert.Equal(0u, mapFile.BlendTileData.Textures[0].CellStart);
             Assert.Equal(4u, mapFile.BlendTileData.Textures[0].CellCount);
@@ -345,30 +345,30 @@ namespace OpenSage.Data.Tests.Map
         {
             var mapFile = GetMapFile();
 
-            Assert.Equal(false, mapFile.BlendTileData.Impassability[0, 0]);
-            Assert.Equal(false, mapFile.BlendTileData.Impassability[0, 1]);
-            Assert.Equal(true, mapFile.BlendTileData.Impassability[1, 0]);
-            Assert.Equal(false, mapFile.BlendTileData.Impassability[1, 1]);
+            Assert.False(mapFile.BlendTileData.Impassability[0, 0]);
+            Assert.False(mapFile.BlendTileData.Impassability[0, 1]);
+            Assert.True(mapFile.BlendTileData.Impassability[1, 0]);
+            Assert.False(mapFile.BlendTileData.Impassability[1, 1]);
 
-            Assert.Equal(false, mapFile.BlendTileData.ImpassabilityToPlayers[0, 0]);
-            Assert.Equal(true, mapFile.BlendTileData.ImpassabilityToPlayers[0, 1]);
-            Assert.Equal(false, mapFile.BlendTileData.ImpassabilityToPlayers[1, 0]);
-            Assert.Equal(false, mapFile.BlendTileData.ImpassabilityToPlayers[1, 1]);
+            Assert.False(mapFile.BlendTileData.ImpassabilityToPlayers[0, 0]);
+            Assert.True(mapFile.BlendTileData.ImpassabilityToPlayers[0, 1]);
+            Assert.False(mapFile.BlendTileData.ImpassabilityToPlayers[1, 0]);
+            Assert.False(mapFile.BlendTileData.ImpassabilityToPlayers[1, 1]);
 
-            Assert.Equal(true, mapFile.BlendTileData.PassageWidths[0, 0]);
-            Assert.Equal(false, mapFile.BlendTileData.PassageWidths[0, 1]);
-            Assert.Equal(false, mapFile.BlendTileData.PassageWidths[1, 0]);
-            Assert.Equal(true, mapFile.BlendTileData.PassageWidths[1, 1]);
+            Assert.True(mapFile.BlendTileData.PassageWidths[0, 0]);
+            Assert.False(mapFile.BlendTileData.PassageWidths[0, 1]);
+            Assert.False(mapFile.BlendTileData.PassageWidths[1, 0]);
+            Assert.True(mapFile.BlendTileData.PassageWidths[1, 1]);
 
-            Assert.Equal(false, mapFile.BlendTileData.Taintability[0, 0]);
-            Assert.Equal(true, mapFile.BlendTileData.Taintability[0, 1]);
-            Assert.Equal(true, mapFile.BlendTileData.Taintability[1, 0]);
-            Assert.Equal(false, mapFile.BlendTileData.Taintability[1, 1]);
+            Assert.False(mapFile.BlendTileData.Taintability[0, 0]);
+            Assert.True(mapFile.BlendTileData.Taintability[0, 1]);
+            Assert.True(mapFile.BlendTileData.Taintability[1, 0]);
+            Assert.False(mapFile.BlendTileData.Taintability[1, 1]);
 
-            Assert.Equal(true, mapFile.BlendTileData.ExtraPassability[0, 0]);
-            Assert.Equal(false, mapFile.BlendTileData.ExtraPassability[0, 1]);
-            Assert.Equal(false, mapFile.BlendTileData.ExtraPassability[1, 0]);
-            Assert.Equal(false, mapFile.BlendTileData.ExtraPassability[1, 1]);
+            Assert.True(mapFile.BlendTileData.ExtraPassability[0, 0]);
+            Assert.False(mapFile.BlendTileData.ExtraPassability[0, 1]);
+            Assert.False(mapFile.BlendTileData.ExtraPassability[1, 0]);
+            Assert.False(mapFile.BlendTileData.ExtraPassability[1, 1]);
         }
 
         [Fact]
@@ -395,7 +395,7 @@ namespace OpenSage.Data.Tests.Map
             Assert.Equal("Pacific Ocean", standingWaterArea0.Name);
             Assert.Equal(string.Empty, standingWaterArea0.LayerName);
             Assert.Equal(0.07f, standingWaterArea0.UvScrollSpeed, 2);
-            Assert.Equal(true, standingWaterArea0.UseAdditiveBlending);
+            Assert.True(standingWaterArea0.UseAdditiveBlending);
             Assert.Equal("WaterRippleBump2.tga", standingWaterArea0.BumpMapTexture);
             Assert.Equal("SkyEnv2.tga", standingWaterArea0.SkyTexture);
             Assert.Equal(7, standingWaterArea0.Points.Length);
@@ -409,7 +409,7 @@ namespace OpenSage.Data.Tests.Map
             Assert.Equal("Atlantic Ocean", standingWaterArea1.Name);
             Assert.Equal(string.Empty, standingWaterArea1.LayerName);
             Assert.Equal(0.06f, standingWaterArea1.UvScrollSpeed, 2);
-            Assert.Equal(false, standingWaterArea1.UseAdditiveBlending);
+            Assert.False(standingWaterArea1.UseAdditiveBlending);
             Assert.Equal("WaterRippleBump.tga", standingWaterArea1.BumpMapTexture);
             Assert.Equal("SkyEnv.tga", standingWaterArea1.SkyTexture);
             Assert.Equal(5, standingWaterArea1.Points.Length);
@@ -431,7 +431,7 @@ namespace OpenSage.Data.Tests.Map
             Assert.Equal("Amazon River", riverArea0.Name);
             Assert.Equal(string.Empty, riverArea0.LayerName);
             Assert.Equal(0.07f, riverArea0.UvScrollSpeed, 2);
-            Assert.Equal(true, riverArea0.UseAdditiveBlending);
+            Assert.True(riverArea0.UseAdditiveBlending);
             Assert.Equal("TSWater.tga", riverArea0.RiverTexture);
             Assert.Equal("Noise0001.tga", riverArea0.NoiseTexture);
             Assert.Equal("TLava_Mor02.tga", riverArea0.AlphaEdgeTexture);
@@ -450,7 +450,7 @@ namespace OpenSage.Data.Tests.Map
             Assert.Equal("Hudson River", riverArea1.Name);
             Assert.Equal(string.Empty, riverArea1.LayerName);
             Assert.Equal(0.06f, riverArea1.UvScrollSpeed, 2);
-            Assert.Equal(false, riverArea1.UseAdditiveBlending);
+            Assert.False(riverArea1.UseAdditiveBlending);
             Assert.Equal("TWWater01.tga", riverArea1.RiverTexture);
             Assert.Equal("Noise0000.tga", riverArea1.NoiseTexture);
             Assert.Equal("TWAlphaEdge.tga", riverArea1.AlphaEdgeTexture);
@@ -486,7 +486,7 @@ namespace OpenSage.Data.Tests.Map
             Assert.Equal(3709u, standingWaveArea0.TimeOffset2ndWave);
             Assert.Equal(49u, standingWaveArea0.DistanceFromShore);
             Assert.Equal("wave256.tga", standingWaveArea0.Texture);
-            Assert.Equal(true, standingWaveArea0.EnablePcaWave);
+            Assert.True(standingWaveArea0.EnablePcaWave);
 
             var standingWaveArea1 = mapFile.StandingWaveAreas.Areas[1];
 
@@ -503,7 +503,7 @@ namespace OpenSage.Data.Tests.Map
             Assert.Equal(3000u, standingWaveArea1.TimeOffset2ndWave);
             Assert.Equal(40u, standingWaveArea1.DistanceFromShore);
             Assert.Equal("wave256.tga", standingWaveArea1.Texture);
-            Assert.Equal(false, standingWaveArea1.EnablePcaWave);
+            Assert.False(standingWaveArea1.EnablePcaWave);
         }
 
         [Fact]
@@ -514,8 +514,8 @@ namespace OpenSage.Data.Tests.Map
             var script0 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[0];
 
             Assert.Equal("Script - Not Sequential", script0.Name);
-            Assert.Equal(false, script0.ActionsFireSequentially);
-            Assert.Equal(false, script0.LoopActions);
+            Assert.False(script0.ActionsFireSequentially);
+            Assert.False(script0.LoopActions);
             Assert.Equal(0, script0.LoopCount);
             Assert.Equal(SequentialScriptTarget.Unit, script0.SequentialTargetType);
             Assert.Equal(string.Empty, script0.SequentialTargetName);
@@ -523,8 +523,8 @@ namespace OpenSage.Data.Tests.Map
             var script1 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[1];
 
             Assert.Equal("Script - Sequential (Unit, Not Looping)", script1.Name);
-            Assert.Equal(true, script1.ActionsFireSequentially);
-            Assert.Equal(false, script1.LoopActions);
+            Assert.True(script1.ActionsFireSequentially);
+            Assert.False(script1.LoopActions);
             Assert.Equal(0, script1.LoopCount);
             Assert.Equal(SequentialScriptTarget.Unit, script1.SequentialTargetType);
             Assert.Equal("<This Object>", script1.SequentialTargetName);
@@ -532,8 +532,8 @@ namespace OpenSage.Data.Tests.Map
             var script2 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[2];
 
             Assert.Equal("Script - Sequential (Team, Looping 100000)", script2.Name);
-            Assert.Equal(true, script2.ActionsFireSequentially);
-            Assert.Equal(true, script2.LoopActions);
+            Assert.True(script2.ActionsFireSequentially);
+            Assert.True(script2.LoopActions);
             Assert.Equal(99999, script2.LoopCount);
             Assert.Equal(SequentialScriptTarget.Team, script2.SequentialTargetType);
             Assert.Equal("<This Team>", script2.SequentialTargetName);
@@ -541,8 +541,8 @@ namespace OpenSage.Data.Tests.Map
             var script3 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[3];
 
             Assert.Equal("Script - Sequential (Team, Looping 0)", script3.Name);
-            Assert.Equal(true, script3.ActionsFireSequentially);
-            Assert.Equal(true, script3.LoopActions);
+            Assert.True(script3.ActionsFireSequentially);
+            Assert.True(script3.LoopActions);
             Assert.Equal(-1, script3.LoopCount);
             Assert.Equal(SequentialScriptTarget.Team, script3.SequentialTargetType);
             Assert.Equal(string.Empty, script3.SequentialTargetName);
@@ -550,8 +550,8 @@ namespace OpenSage.Data.Tests.Map
             var script4 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[4];
 
             Assert.Equal("Script - Sequential (Team, Looping 1)", script4.Name);
-            Assert.Equal(true, script4.ActionsFireSequentially);
-            Assert.Equal(true, script4.LoopActions);
+            Assert.True(script4.ActionsFireSequentially);
+            Assert.True(script4.LoopActions);
             Assert.Equal(0, script4.LoopCount);
             Assert.Equal(SequentialScriptTarget.Team, script4.SequentialTargetType);
             Assert.Equal(string.Empty, script4.SequentialTargetName);

@@ -77,8 +77,8 @@ namespace OpenSage.Data.Tests.W3d
 
                     if (mesh.ShaderMaterials != null)
                     {
-                        Assert.Equal(0, mesh.Materials.Length);
-                        Assert.Equal(1, mesh.MaterialPasses.Length);
+                        Assert.Empty(mesh.Materials);
+                        Assert.Single(mesh.MaterialPasses);
                     }
 
                     foreach (var materialPass in mesh.MaterialPasses)
