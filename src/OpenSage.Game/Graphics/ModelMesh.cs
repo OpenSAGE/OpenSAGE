@@ -82,6 +82,7 @@ namespace OpenSage.Graphics
             _meshConstantsBuffer = AddDisposable(new ConstantBuffer<MeshMaterial.MeshConstants>(graphicsDevice));
             _meshConstantsBuffer.Value.SkinningEnabled = isSkinned;
             _meshConstantsBuffer.Value.NumBones = numBones;
+            _meshConstantsBuffer.Update();
 
             foreach (var materialPass in materialPasses)
             {
