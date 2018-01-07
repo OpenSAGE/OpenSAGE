@@ -10,6 +10,8 @@ namespace OpenSage.Graphics.Animation
 
         private bool _playing;
 
+        private int[] _keyframeIndices;
+
         private TimeSpan _currentTimeValue;
 
         private bool[] _originalVisibilities;
@@ -26,6 +28,8 @@ namespace OpenSage.Graphics.Animation
                 _animation = value;
 
                 _currentTimeValue = TimeSpan.Zero;
+
+                _keyframeIndices = new int[value.Clips.Length];
             }
         }
 
@@ -68,6 +72,8 @@ namespace OpenSage.Graphics.Animation
 
         private void ResetBoneTransforms()
         {
+            Array.Clear(_keyframeIndices, 0, _keyframeIndices.Length);
+
             for (var i = 0; i < _boneTransforms.Length; i++)
             {
                 _boneTransforms[i].Translation = Vector3.Zero;
@@ -111,18 +117,25 @@ namespace OpenSage.Graphics.Animation
 
             _currentTimeValue = time;
 
-            foreach (var clip in _animation.Clips)
+            Keyframe? previous;
+            Keyframe? next;
+
+            for (var i = 0; i < _animation.Clips.Length; i++)
             {
-                Keyframe? previous = null;
-                Keyframe? next = null;
+                previous = null;
+                next = null;
+
+                var clip = _animation.Clips[i];
 
                 if (clip.Bone >= _boneTransforms.Length)
                 {
                     continue;
                 }
 
-                foreach (var keyframe in clip.Keyframes)
+                for (var j = _keyframeIndices[i]; j < clip.Keyframes.Length; j++)
                 {
+                    var keyframe = clip.Keyframes[j];
+
                     if (keyframe.Time > _currentTimeValue)
                     {
                         next = keyframe;
@@ -130,6 +143,7 @@ namespace OpenSage.Graphics.Animation
                     }
 
                     previous = keyframe;
+                    _keyframeIndices[i] = j;
                 }
 
                 if (previous != null)
