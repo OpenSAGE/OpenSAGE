@@ -37,9 +37,13 @@ struct VSInputSkinned
 
 cbuffer MeshConstants
 {
-    row_major matrix World;
     bool SkinningEnabled;
     uint NumBones;
+};
+
+cbuffer RenderItemConstantsVS : register(b1)
+{
+    row_major float4x4 World;
 };
 
 StructuredBuffer<float4x3> SkinningBuffer : register(t0);

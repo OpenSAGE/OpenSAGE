@@ -24,17 +24,12 @@ struct VSInput
     float2 UV       : TEXCOORD;
 };
 
-struct RenderItemConstantsVS
-{
-    row_major float4x4 World;
-};
-
 cbuffer RenderItemConstantsVS : register(b1)
 {
     row_major float4x4 World;
 };
 
-VSOutput VS(VSInput input, uniform RenderItemConstantsVS constants : register(b4))
+VSOutput VS(VSInput input)
 {
     VSOutput result;
 

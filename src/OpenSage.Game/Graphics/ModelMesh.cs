@@ -131,9 +131,6 @@ namespace OpenSage.Graphics
                 modelComponent = mesh.Entity.GetComponent<ModelComponent>();
             }
 
-            _meshConstantsBuffer.Value.World = world;
-            _meshConstantsBuffer.Update();
-
             foreach (var materialPass in MaterialPasses)
             {
                 foreach (var meshPart in materialPass.MeshParts)
