@@ -9,7 +9,7 @@ namespace OpenSage.Mathematics
         public Vector3 Min;
         public Vector3 Max;
 
-        public BoundingBox(Vector3 min, Vector3 max)
+        public BoundingBox(in Vector3 min, in Vector3 max)
         {
             Min = min;
             Max = max;
@@ -41,7 +41,7 @@ namespace OpenSage.Mathematics
             return new BoundingBox(minVec, maxVec);
         }
 
-        public static BoundingBox CreateMerged(BoundingBox original, BoundingBox additional)
+        public static BoundingBox CreateMerged(in BoundingBox original, in BoundingBox additional)
         {
             var result = new BoundingBox();
             result.Min.X = Math.Min(original.Min.X, additional.Min.X);
@@ -53,7 +53,7 @@ namespace OpenSage.Mathematics
             return result;
         }
 
-        public static BoundingBox CreateFromSphere(BoundingSphere sphere)
+        public static BoundingBox CreateFromSphere(in BoundingSphere sphere)
         {
             var corner = new Vector3(sphere.Radius);
             return new BoundingBox
@@ -106,14 +106,15 @@ namespace OpenSage.Mathematics
             }
 
             // Inline Vector3.Dot(plane.Normal, negativeVertex) + plane.D;
-            var distance = plane.Normal.X * negativeVertex.X + plane.Normal.Y * negativeVertex.Y + plane.Normal.Z * negativeVertex.Z + plane.D;
+            var planeNormal = plane.Normal;
+            var distance = planeNormal.X * negativeVertex.X + planeNormal.Y * negativeVertex.Y + planeNormal.Z * negativeVertex.Z + plane.D;
             if (distance > 0)
             {
                 return PlaneIntersectionType.Front;
             }
 
             // Inline Vector3.Dot(plane.Normal, positiveVertex) + plane.D;
-            distance = plane.Normal.X * positiveVertex.X + plane.Normal.Y * positiveVertex.Y + plane.Normal.Z * positiveVertex.Z + plane.D;
+            distance = planeNormal.X * positiveVertex.X + planeNormal.Y * positiveVertex.Y + planeNormal.Z * positiveVertex.Z + plane.D;
             if (distance < 0)
             {
                 return PlaneIntersectionType.Back;
