@@ -11,16 +11,36 @@ using OpenSage.LowLevel.Graphics3D;
 
 namespace OpenSage.Gui.Apt
 {
+    public struct ItemTransform
+    {
+        public static readonly ItemTransform None = new ItemTransform(ColorRgbaF.White, Matrix3x2.Identity);
+
+        public ColorRgbaF ColorTransform;
+        public Matrix3x2 GeometryTransform;
+
+        public ItemTransform(ColorRgbaF color, Matrix3x2 geometry)
+        {
+            ColorTransform = color;
+            GeometryTransform = geometry;
+        }
+
+        public static ItemTransform operator *(ItemTransform a, ItemTransform b)
+        {
+            return new ItemTransform(a.ColorTransform.BlendMultiply(b.ColorTransform),
+                                     a.GeometryTransform * b.GeometryTransform);
+        }
+    }
+
     public interface IDisplayItem
     {
         AptContext Context { get; }
         SpriteItem Parent { get; }
         //the underlying structure that will be used
         Character Character { get; }
-        Matrix3x2 Transform { get; }
+        ItemTransform Transform { get; set; }
 
-        void Create(Character chararacter,AptContext context, SpriteItem parent =null);
-        void Update(Matrix3x2 pTransform, GameTime gt, DrawingContext dc);
+        void Create(Character chararacter, AptContext context, SpriteItem parent = null);
+        void Update(ItemTransform pTransform, GameTime gt, DrawingContext dc);
     }
 
     public sealed class RenderItem : IDisplayItem
@@ -32,7 +52,7 @@ namespace OpenSage.Gui.Apt
         public SpriteItem Parent => _parent;
         public Character Character => _character;
         public AptContext Context => _context;
-        public Matrix3x2 Transform { get; internal set; }
+        public ItemTransform Transform { get; set; }
 
         public void Create(Character chararacter, AptContext context, SpriteItem parent = null)
         {
@@ -41,7 +61,7 @@ namespace OpenSage.Gui.Apt
             _parent = parent;
         }
 
-        public void Update(Matrix3x2 pTransform, GameTime gt, DrawingContext dc)
+        public void Update(ItemTransform pTransform, GameTime gt, DrawingContext dc)
         {
             switch(_character)
             {
@@ -65,24 +85,24 @@ namespace OpenSage.Gui.Apt
         public SpriteItem Parent => _parent;
         public Character Character => _sprite;
         public AptContext Context => _context;
-        public Matrix3x2 Transform { get; internal set; }
+        public ItemTransform Transform { get; set; }
 
         public void Create(Character chararacter, AptContext context, SpriteItem parent = null)
         {
-            _sprite = (Playable)chararacter;
+            _sprite = (Playable) chararacter;
             _context = context;
             _content = new DisplayList();
             _parent = parent;
             _currentFrame = 0;
         }
 
-        public void Update(Matrix3x2 pTransform, GameTime gt, DrawingContext dc)
+        public void Update(ItemTransform pTransform, GameTime gt, DrawingContext dc)
         {
             //get the current frame
             var frame = _sprite.Frames[_currentFrame];
 
             //process all frame items
-            foreach(var item in frame.FrameItems)
+            foreach (var item in frame.FrameItems)
             {
                 HandleFrameItem(item);
             }
@@ -91,7 +111,7 @@ namespace OpenSage.Gui.Apt
             var cTransform = pTransform * Transform;
 
             //update all subitems
-            foreach(var item in _content.Items.Values)
+            foreach (var item in _content.Items.Values)
             {
                 item.Update(cTransform, gt, dc);
             }
@@ -118,27 +138,94 @@ namespace OpenSage.Gui.Apt
 
         private void HandleFrameItem(FrameItem item)
         {
-            switch(item)
+            switch (item)
             {
                 case PlaceObject po:
-                    var character = _context.GetCharacter(po.Character,_sprite);
-                    IDisplayItem placeObject;
-                    var poTransform = new Matrix3x2(po.RotScale.M11, po.RotScale.M12,
-                                                    po.RotScale.M21, po.RotScale.M22,
-                                                    po.Translation.X, po.Translation.Y);
-
-                    if (character is Playable)
-                        placeObject = new SpriteItem() { Transform = poTransform };
-                    else
-                        placeObject = new RenderItem() { Transform = poTransform };
-
-                    placeObject.Create(character, _context, this);
-                    _content.Items[po.Depth] = placeObject;
+                    //place a new display item
+                    if (po.Flags.HasFlag(PlaceObjectFlags.HasCharacter) &&
+                       !po.Flags.HasFlag(PlaceObjectFlags.Move))
+                    {
+                        PlaceItem(po);
+                    }
+                    //modify an existing display item
+                    else if (!po.Flags.HasFlag(PlaceObjectFlags.HasCharacter) &&
+                              po.Flags.HasFlag(PlaceObjectFlags.Move))
+                    {
+                        MoveItem(po);
+                    }
+                    //this will erase an existing item and place a new item right away
+                    else if (po.Flags.HasFlag(PlaceObjectFlags.HasCharacter) &&
+                             po.Flags.HasFlag(PlaceObjectFlags.Move))
+                    {
+                        PlaceItem(po);
+                    }
                     break;
                 case RemoveObject ro:
                     _content.Items.Remove(ro.Depth);
                     break;
             }
+        }
+
+        private ItemTransform CreateTransform(PlaceObject po)
+        {
+            Matrix3x2 geoTransform;
+            if (po.Flags.HasFlag(PlaceObjectFlags.HasMatrix))
+            {
+                geoTransform = new Matrix3x2(po.RotScale.M11, po.RotScale.M12,
+                                            po.RotScale.M21, po.RotScale.M22,
+                                            po.Translation.X, po.Translation.Y);
+            }
+            else
+            {
+                geoTransform = Matrix3x2.Identity;
+            }
+
+            ColorRgbaF colorTransform;
+            if (po.Flags.HasFlag(PlaceObjectFlags.HasColorTransform))
+            {
+                colorTransform = po.Color.ToColorRgbaF();
+            }
+            else
+            {
+                colorTransform = ColorRgbaF.White;
+            }
+
+            return new ItemTransform(colorTransform, geoTransform);
+        }
+
+        private void MoveItem(PlaceObject po)
+        {
+            var displayItem = _content.Items[po.Depth];
+            var cTransform = displayItem.Transform;
+
+            if (po.Flags.HasFlag(PlaceObjectFlags.HasMatrix))
+            {
+                cTransform.GeometryTransform = new Matrix3x2(po.RotScale.M11, po.RotScale.M12,
+                                                        po.RotScale.M21, po.RotScale.M22,
+                                                        po.Translation.X, po.Translation.Y);
+            }
+
+            if (po.Flags.HasFlag(PlaceObjectFlags.HasColorTransform))
+            {
+                cTransform.ColorTransform = po.Color.ToColorRgbaF();
+            }
+
+            displayItem.Transform = cTransform;
+        }
+
+        private void PlaceItem(PlaceObject po)
+        {
+            var character = _context.GetCharacter(po.Character, _sprite);
+            var itemTransform = CreateTransform(po);
+
+            IDisplayItem displayItem;
+            if (character is Playable)
+                displayItem = new SpriteItem() { Transform = itemTransform };
+            else
+                displayItem = new RenderItem() { Transform = itemTransform };
+
+            displayItem.Create(character, _context, this);
+            _content.Items[po.Depth] = displayItem;
         }
     }
 }

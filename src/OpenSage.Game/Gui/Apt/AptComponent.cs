@@ -37,7 +37,8 @@ namespace OpenSage.Gui.Apt
             Material.SetMaterialConstants(_materialConstantsBuffer.Buffer);
 
             //First thing to do here is to initialize the display list
-            Root = new SpriteItem();
+            Root = new SpriteItem() { Transform = ItemTransform.None };
+
             Root.Create(Apt.Movie, _context);
         }
 
@@ -83,7 +84,7 @@ namespace OpenSage.Gui.Apt
                 drawingContext.Clear(new ColorRgbaF(0, 0, 0, 0));
 
                 //draw the movieclip, which has no transformation
-                Root.Update(new Matrix3x2(), gt, drawingContext);
+                Root.Update(ItemTransform.None, gt, drawingContext);
 
                 drawingContext.End();
             }

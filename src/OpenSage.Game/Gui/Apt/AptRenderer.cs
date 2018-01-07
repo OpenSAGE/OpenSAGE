@@ -13,8 +13,11 @@ namespace OpenSage.Gui.Apt
     public sealed class AptRenderer
     {
         public static void RenderGeometry(DrawingContext drawingContext,AptContext context,
-            Geometry shape, Matrix3x2 transform)
+            Geometry shape, ItemTransform transform)
         {
+            drawingContext.Transform(transform.GeometryTransform);
+            drawingContext.ColorTransform(transform.ColorTransform);
+
             foreach (var e in shape.Entries)
             {
                 switch (e)
@@ -55,7 +58,7 @@ namespace OpenSage.Gui.Apt
                             rt.Y2 = tri.V1.Y;
                             rt.X3 = tri.V2.X;
                             rt.Y3 = tri.V2.Y;
-                            RawMatrix3x2 brushTransform;
+                            Matrix3x2 brushTransform;
                             brushTransform.M11 = tt.RotScale.M11;
                             brushTransform.M12 = tt.RotScale.M12;
                             brushTransform.M21 = tt.RotScale.M21;

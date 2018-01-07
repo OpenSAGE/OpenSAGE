@@ -123,7 +123,7 @@ namespace OpenSage.Gui.Apt
 
                 drawingContext.Clear(new ColorRgbaF(0, 0, 0, 0));
 
-                AptRenderer.RenderGeometry(drawingContext, _context, Shape,Matrix3x2.Identity);
+                AptRenderer.RenderGeometry(drawingContext, _context, Shape,ItemTransform.None);
 
                 drawingContext.End();
             }
