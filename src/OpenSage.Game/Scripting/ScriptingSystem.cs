@@ -102,11 +102,16 @@ namespace OpenSage.Scripting
             }
         }
 
-        internal override void OnSceneChange()
+        internal override void OnSceneChanging()
         {
             _scriptsByName.Clear();
             Frame = 0;
-            base.OnSceneChange();
+            base.OnSceneChanging();
+        }
+
+        internal override void OnSceneChanged()
+        {
+            UpdateScriptIndex();
         }
 
         public void EnableScript(string name)

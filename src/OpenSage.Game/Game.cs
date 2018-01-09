@@ -185,7 +185,7 @@ namespace OpenSage
                 if (oldScene != null)
                 {
                     foreach (var system in GameSystems)
-                        system.OnSceneChange();
+                        system.OnSceneChanging();
 
                     RemoveComponentsRecursive(oldScene.Entities);
                     oldScene.Game = null;
@@ -208,6 +208,9 @@ namespace OpenSage
 
                     AddComponentsRecursive(_scene.Entities);
                 }
+
+                foreach (var system in GameSystems)
+                    system.OnSceneChanged();
             }
         }
 
