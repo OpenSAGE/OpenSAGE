@@ -37,6 +37,15 @@ namespace OpenSage.Data.Map
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public bool[,] Visibility { get; private set; }
 
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool[,] ImpassabilityToAirUnits { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public bool[,] Buildability { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public bool[,] TiberiumGrowability { get; private set; }
+
         public uint TextureCellCount { get; private set; }
 
         public BlendTileTexture[] Textures { get; private set; }
@@ -101,7 +110,7 @@ namespace OpenSage.Data.Map
                 result.ThreeWayBlends = reader.ReadUInt16Array2D(width, height);
                 result.CliffTextures = reader.ReadUInt16Array2D(width, height);
 
-                if (version >= 14)
+                if (version >= 14 && version < 24)
                 {
                     // TODO
                     result.Unknown = reader.ReadBytes((int) (width * height * 6));
@@ -146,6 +155,14 @@ namespace OpenSage.Data.Map
                                         if (version >= 18)
                                         {
                                             result.Visibility = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+
+                                            if (version >= 24)
+                                            {
+                                                // TODO: Are these in the right order?
+                                                result.ImpassabilityToAirUnits = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                                                result.Buildability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                                                result.TiberiumGrowability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                                            }
                                         }
                                     }
                                 }
@@ -291,6 +308,13 @@ namespace OpenSage.Data.Map
                                         if (Version >= 18)
                                         {
                                             writer.WriteSingleBitBooleanArray2D(Visibility, padValue: 0xFF);
+
+                                            if (Version >= 24)
+                                            {
+                                                writer.WriteSingleBitBooleanArray2D(ImpassabilityToAirUnits);
+                                                writer.WriteSingleBitBooleanArray2D(Buildability);
+                                                writer.WriteSingleBitBooleanArray2D(TiberiumGrowability);
+                                            }
                                         }
                                     }
                                 }
