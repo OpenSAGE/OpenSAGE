@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Map;
 using OpenSage.Scripting.Actions;
 using OpenSage.Scripting.Conditions;
 
@@ -8,39 +7,28 @@ namespace OpenSage.Scripting
 {
     public sealed class MapScript
     {
-        private readonly MapScriptConditions _conditions;
-        private readonly IReadOnlyList<MapScriptAction> _actionsIfTrue;
-        private readonly IReadOnlyList<MapScriptAction> _actionsIfFalse;
+        private readonly IReadOnlyList<ScriptOrCondition> _conditions;
+        private readonly IReadOnlyList<ScriptAction> _actionsIfTrue;
+        private readonly IReadOnlyList<ScriptAction> _actionsIfFalse;
 
-        private readonly List<MapScriptAction> _currentActions;
+        // Can this script run?
+        public bool IsActive { get; set; }
 
-        // Local to Execute(...), but here to avoid allocation every frame.
-        private readonly List<MapScriptAction> _actionsToRemove;
-
-        private enum ScriptState
-        {
-            Inactive,
-            SubroutineNotStarted,
-            NotStarted,
-            Running,
-            SubroutineRunning
-        }
-
-        private ScriptState _state;
         private bool? _currentConditionValue;
 
-        private bool _deactivateUponSuccess;
-        private uint _evaluationInterval;
+        private readonly bool _isSubroutine;
+        private readonly bool _deactivateUponSuccess;
 
-        private TimeSpan _previousEvaluationTime;
+        private readonly uint _evaluationInterval;
+        private uint? _framesSinceLastEvaluation;
 
         public string Name { get; }
 
         public MapScript(
             string name,
-            MapScriptConditions conditions,
-            IReadOnlyList<MapScriptAction> actionsIfTrue,
-            IReadOnlyList<MapScriptAction> actionsIfFalse,
+            IReadOnlyList<ScriptOrCondition> conditions,
+            IReadOnlyList<ScriptAction> actionsIfTrue,
+            IReadOnlyList<ScriptAction> actionsIfFalse,
             bool isInitiallyActive,
             bool deactivateUponSuccess,
             bool isSubroutine,
@@ -52,100 +40,96 @@ namespace OpenSage.Scripting
             _actionsIfTrue = actionsIfTrue;
             _actionsIfFalse = actionsIfFalse;
 
-            _currentActions = new List<MapScriptAction>(Math.Max(actionsIfTrue.Count, actionsIfFalse.Count));
-            _actionsToRemove = new List<MapScriptAction>(_currentActions.Count);
-
-            _previousEvaluationTime = TimeSpan.Zero;
-
-            if (isInitiallyActive)
-            {
-                _state = isSubroutine
-                    ? ScriptState.SubroutineNotStarted
-                    : ScriptState.NotStarted;
-            }
-            else
-            {
-                _state = ScriptState.Inactive;
-            }
-
+            IsActive = isInitiallyActive;
+            _isSubroutine = isSubroutine;
             _deactivateUponSuccess = deactivateUponSuccess;
-            _evaluationInterval = evaluationInterval;
+
+            _evaluationInterval = evaluationInterval * ScriptingSystem.TickRate;
+
+            _framesSinceLastEvaluation = null;
         }
 
         public void Execute(ScriptExecutionContext context)
         {
-            // TODO: _isSubroutine
+            var shouldExecute = !_isSubroutine &&
+                                IsActive &&
+                                (_evaluationInterval == 0 ||
+                                 _framesSinceLastEvaluation == null ||
+                                 _framesSinceLastEvaluation >= _evaluationInterval);
 
-            switch (_state)
+            if (!shouldExecute)
             {
-                case ScriptState.Inactive:
-                case ScriptState.SubroutineNotStarted:
-                    return;
-            }
-
-            if (_evaluationInterval > 0)
-            {
-                var numSeconds = (context.UpdateTime.TotalGameTime - _previousEvaluationTime).TotalSeconds;
-                if (numSeconds < _evaluationInterval)
+                // There's no need to increment _framesSinceLastEvaluation if _evaluationInterval is not used
+                if (_evaluationInterval > 0 && _framesSinceLastEvaluation < _evaluationInterval)
                 {
-                    return;
+                    _framesSinceLastEvaluation++;
                 }
+
+                return;
             }
 
-            _previousEvaluationTime = context.UpdateTime.TotalGameTime;
+            _framesSinceLastEvaluation = 0;
 
-            switch (_state)
-            {
-                case ScriptState.NotStarted:
-                    _currentConditionValue = _conditions.Evaluate(context);
-                    _currentActions.Clear();
-                    var actions = _currentConditionValue.Value
-                        ? _actionsIfTrue
-                        : _actionsIfFalse;
-                    foreach (var action in actions)
-                    {
-                        _currentActions.Add(action);
-                    }
-                    _state = ScriptState.Running;
-                    break;
-            }
-
-            foreach (var action in _currentActions)
-            {
-                var result = action.Execute(context);
-                if (result == ScriptExecutionResult.Finished)
-                {
-                    _actionsToRemove.Add(action);
-                }
-            }
-
-            foreach (var actionToRemove in _actionsToRemove)
-            {
-                _currentActions.Remove(actionToRemove);
-                actionToRemove.Reset();
-            }
-
-            _actionsToRemove.Clear();
-
-            if (_currentActions.Count == 0)
-            {
-                _state = _deactivateUponSuccess && _currentConditionValue.Value
-                    ? ScriptState.Inactive
-                    : ScriptState.NotStarted;
-
-                _currentActions.Clear();
-                _currentConditionValue = null;
-            }
+            RunActions(context);
         }
 
-        internal void Restart()
+        public void ExecuteAsSubroutine(ScriptExecutionContext context)
         {
-            foreach (var action in _actionsIfTrue.Concat(_actionsIfFalse))
+            // Note: _evaluationInterval is checked here for compatiblity.
+            // See Systems >> Scripting >> Subroutines in OpenSAGE docs for more information.
+            var shouldExecute = _isSubroutine && IsActive && _evaluationInterval == 0;
+
+            if (shouldExecute)
             {
-                action.Reset();
+                RunActions(context);
+            }
+        }
+
+        private void RunActions(ScriptExecutionContext context)
+        {
+            _currentConditionValue = EvaluateConditions(context);
+
+            var actions = _currentConditionValue.Value
+                ? _actionsIfTrue
+                : _actionsIfFalse;
+
+            foreach (var action in actions)
+            {
+                var executor = ActionLookup.Get(action);
+                var result = executor(action, context);
+                if (result is ActionResult.ActionContinuation coroutine)
+                {
+                    context.Scripting.AddCoroutine(coroutine);
+                }
             }
 
-            _state = ScriptState.NotStarted;
+            if (_deactivateUponSuccess)
+            {
+                IsActive = false;
+            }
         }
+
+        private bool EvaluateConditions(ScriptExecutionContext context)
+        {
+            bool AllConditionsTrue(ScriptCondition[] conditions)
+            {
+                foreach (var condition in conditions)
+                {
+                    var result = ConditionLookup.Get(condition)(condition, context);
+                    if (!result) return false;
+                }
+
+                return true;
+            }
+
+            foreach (var orCondition in _conditions)
+            {
+                var result = AllConditionsTrue(orCondition.Conditions);
+                if (result) return true;
+            }
+
+            return false;
+        }
+
     }
 }

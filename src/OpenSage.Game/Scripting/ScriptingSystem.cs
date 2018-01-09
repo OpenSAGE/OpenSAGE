@@ -1,32 +1,59 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Map;
 
 namespace OpenSage.Scripting
 {
+    public delegate bool ScriptingCondition(ScriptCondition condition, ScriptExecutionContext context);
+    public delegate ActionResult ScriptingAction(ScriptAction action, ScriptExecutionContext context);
+
+    // type ActionResult = ActionFinished | ActionContinuation
+    public class ActionResult
+    {
+        public static readonly ActionResult Finished = new ActionFinished();
+
+        // This is a zero-sized type which is used to signal that action execution has finished.
+        public sealed class ActionFinished : ActionResult { }
+
+        // This is effectively a stackless coroutine - update runs for one cycle, and then yields control back to the scripting system.
+        public abstract class ActionContinuation : ActionResult
+        {
+            public abstract ActionResult Execute(ScriptExecutionContext context);
+        }
+    }
+
     public sealed class ScriptingSystem : GameSystem
     {
+        // How many updates are performed per second?
+        public const int TickRate = 30;
+
         private readonly List<ScriptComponent> _scripts;
         private readonly Dictionary<string, MapScript> _scriptsByName;
 
         private readonly ScriptExecutionContext _executionContext;
 
-        public Dictionary<string, int> Counters { get; }
+        private readonly List<ActionResult.ActionContinuation> _activeCoroutines;
+        private readonly List<ActionResult.ActionContinuation> _finishedCoroutines;
+
         public Dictionary<string, bool> Flags { get; }
-        public Dictionary<string, ScriptTimer> Timers { get; }
+        public CounterCollection Counters { get; }
+        public TimerCollection Timers { get; }
 
         public bool Active { get; set; }
 
-        public ScriptingSystem(Game game) 
-            : base(game)
+        public ScriptingSystem(Game game) : base(game)
         {
             RegisterComponentList(_scripts = new List<ScriptComponent>());
 
-            Counters = new Dictionary<string, int>();
             Flags = new Dictionary<string, bool>();
-            Timers = new Dictionary<string, ScriptTimer>();
+            Counters = new CounterCollection();
+            Timers = new TimerCollection(Counters);
 
             _executionContext = new ScriptExecutionContext(game);
+
             _scriptsByName = new Dictionary<string, MapScript>();
+
+            _activeCoroutines = new List<ActionResult.ActionContinuation>();
+            _finishedCoroutines = new List<ActionResult.ActionContinuation>();
         }
 
         internal override void OnEntityComponentAdded(EntityComponent component)
@@ -71,58 +98,57 @@ namespace OpenSage.Scripting
             }
         }
 
-        internal void RestartScript(string name)
-        {
-            _scriptsByName.TryGetValue(name, out var script);
-            script?.Restart();
-        }
-
-        public override void Update(GameTime gameTime)
-        {
-            if (Active)
-            {
-                // TODO: Timers should always update their counters 30 times a second.
-                // TODO: Make sure timer updates are never missed, as some scripts may rely on specific values.
-                foreach (var kv in Timers)
-                {
-                    var name = kv.Key;
-                    var timer = kv.Value;
-
-                    if (gameTime.TotalGameTime >= timer.ExpirationTime)
-                    {
-                        Counters[name] = 0;
-                        timer.Expired = true;
-                        // TODO: Should we remove expired timers on the next frame?
-                    }
-                    else
-                    {
-                        // TODO: Should this be rounded up, rounded down, or truncated?
-                        Counters[name] = (int) (timer.ExpirationTime.TotalSeconds - gameTime.TotalGameTime.TotalSeconds);
-                    }
-                }
-
-                foreach (var scriptComponent in _scripts)
-                {
-                    scriptComponent.Execute(_executionContext);
-                }
-            }
-        }
-
         internal override void OnSceneChange()
         {
             _scriptsByName.Clear();
             base.OnSceneChange();
         }
-    }
 
-    public sealed class ScriptTimer
-    {
-        public TimeSpan ExpirationTime { get; }
-        public bool Expired { get; internal set; }
-
-        public ScriptTimer(TimeSpan expirationTime)
+        public void EnableScript(string name)
         {
-            ExpirationTime = expirationTime;
+            if (_scriptsByName.TryGetValue(name, out var mapScript))
+            {
+                mapScript.IsActive = true;
+            }
+        }
+
+        public void DisableScript(string name)
+        {
+            if (_scriptsByName.TryGetValue(name, out var mapScript))
+            {
+                mapScript.IsActive = false;
+            }
+        }
+
+        public void AddCoroutine(ActionResult.ActionContinuation coroutine)
+        {
+            _activeCoroutines.Add(coroutine);
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+            if (!Active) return;
+
+            foreach (var coroutine in _activeCoroutines)
+            {
+                var result = coroutine.Execute(_executionContext);
+                if (result is ActionResult.ActionFinished)
+                {
+                    _finishedCoroutines.Add(coroutine);
+                }
+            }
+
+            foreach (var coroutine in _finishedCoroutines)
+            {
+                _activeCoroutines.Remove(coroutine);
+            }
+
+            foreach (var scriptComponent in _scripts)
+            {
+                scriptComponent.Execute(_executionContext);
+            }
+
+            Timers.Update();
         }
     }
 }
