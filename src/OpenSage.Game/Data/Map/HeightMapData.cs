@@ -96,6 +96,12 @@ namespace OpenSage.Data.Map
                     writer.Write(perimeter.Height);
                 }
 
+                if (Version >= 6)
+                {
+                    writer.Write(WidthExcludingBorder);
+                    writer.Write(HeightExcludingBorder);
+                }
+
                 writer.Write(Area);
 
                 for (var y = 0; y < Height; y++)
