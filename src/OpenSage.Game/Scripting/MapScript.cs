@@ -103,7 +103,9 @@ namespace OpenSage.Scripting
                 }
             }
 
-            if (_deactivateUponSuccess)
+            var shouldDeactivate = _deactivateUponSuccess && actions.Count > 0;
+
+            if (shouldDeactivate)
             {
                 IsActive = false;
             }

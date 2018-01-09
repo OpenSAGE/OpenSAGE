@@ -40,6 +40,10 @@ namespace OpenSage.Scripting
 
         public bool Active { get; set; }
 
+        public ulong Frame { get; private set; }
+
+        private bool _30hzHack = true;
+
         public ScriptingSystem(Game game) : base(game)
         {
             RegisterComponentList(_scripts = new List<ScriptComponent>());
@@ -101,6 +105,7 @@ namespace OpenSage.Scripting
         internal override void OnSceneChange()
         {
             _scriptsByName.Clear();
+            Frame = 0;
             base.OnSceneChange();
         }
 
@@ -127,6 +132,10 @@ namespace OpenSage.Scripting
 
         public override void Update(GameTime gameTime)
         {
+            // TODO: Remove this hack when we have separate update and render loops.
+            _30hzHack = !_30hzHack;
+            if (_30hzHack) return;
+
             if (!Active) return;
 
             foreach (var coroutine in _activeCoroutines)
@@ -149,6 +158,8 @@ namespace OpenSage.Scripting
             }
 
             Timers.Update();
+
+            Frame++;
         }
     }
 }

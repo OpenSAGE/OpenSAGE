@@ -8,17 +8,11 @@ namespace OpenSage.Scripting
 
         public IEnumerable<MapScript> Scripts => _scripts;
 
-        private enum ScriptGroupState
-        {
-            Inactive,
-            SubroutineNotStarted,
-            Active,
-            SubroutineActive
-        }
-
-        private ScriptGroupState _state;
-
         public string Name { get; }
+
+        public bool IsActive { get; set; }
+
+        private readonly bool _isSubroutine;
 
         public MapScriptGroup(
             string name,
@@ -27,31 +21,14 @@ namespace OpenSage.Scripting
             bool isSubroutine)
         {
             Name = name;
-
             _scripts = scripts;
-
-            if (isInitiallyActive)
-            {
-                _state = isSubroutine
-                    ? ScriptGroupState.SubroutineNotStarted
-                    : ScriptGroupState.Active;
-            }
-            else
-            {
-                _state = ScriptGroupState.Inactive;
-            }
+            IsActive = isInitiallyActive;
+            _isSubroutine = isSubroutine;
         }
 
         public void Execute(ScriptExecutionContext context)
         {
-            // TODO: _isSubroutine
-
-            switch (_state)
-            {
-                case ScriptGroupState.Inactive:
-                case ScriptGroupState.SubroutineNotStarted:
-                    return;
-            }
+            if (_isSubroutine || !IsActive) return;
 
             foreach (var script in _scripts)
             {

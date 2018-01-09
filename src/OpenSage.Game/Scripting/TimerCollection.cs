@@ -27,8 +27,7 @@ namespace OpenSage.Scripting
                 {
                     _expiredTimers.Add(timer);
                 }
-
-                if (state == TimerState.Running)
+                else if (state == TimerState.Running)
                 {
                     _counters[timer] = counterValue - 1;
                 }
