@@ -31,6 +31,12 @@ namespace OpenSage.Data
                     case SageGame.BattleForMiddleEarthII:
                         return "Battle for Middle-earth II";
 
+                    case SageGame.Cnc3:
+                        return "C&C 3: Tiberium Wars";
+
+                    case SageGame.Cnc3KanesWrath:
+                        return "C&C 3: Kane's Wrath";
+
                     default:
                         throw new InvalidOperationException($"{Game} is not supported.");
                 }
@@ -74,6 +80,9 @@ namespace OpenSage.Data
         private static readonly (string, string)[] BfmeKeys = { (@"SOFTWARE\Electronic Arts\EA Games\The Battle for Middle-earth", "InstallPath") };
         private static readonly (string, string)[] BfmeIIKeys = { (@"SOFTWARE\Electronic Arts\Electronic Arts\The Battle for Middle-earth II", "InstallPath") };
 
+        private static readonly (string, string)[] Cnc3Keys = { (@"SOFTWARE\Electronic Arts\Electronic Arts\Command and Conquer 3", "InstallPath") };
+        private static readonly (string, string)[] Cnc3KanesWrathKeys = { (@"SOFTWARE\Electronic Arts\Electronic Arts\Command and Conquer 3 Kanes Wrath", "InstallPath") };
+
         private static IEnumerable<(string keyName, string valueName)> GetRegistryKeysForGame(SageGame game)
         {
             switch (game)
@@ -89,6 +98,12 @@ namespace OpenSage.Data
 
                 case SageGame.BattleForMiddleEarthII:
                     return BfmeIIKeys;
+
+                case SageGame.Cnc3:
+                    return Cnc3Keys;
+
+                case SageGame.Cnc3KanesWrath:
+                    return Cnc3KanesWrathKeys;
 
                 default:
                     return Enumerable.Empty<(string, string)>();

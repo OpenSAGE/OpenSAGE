@@ -261,9 +261,22 @@ namespace OpenSage
                     cursorFileName += ".ani";
                 }
 
-                var aniFilePath = Path.Combine(_fileSystem.RootDirectory, "Data", "Cursors", cursorFileName);
+                string cursorDirectory;
+                switch (SageGame)
+                {
+                    case SageGame.Cnc3:
+                        // TODO: Get version number dynamically.
+                        cursorDirectory = Path.Combine("RetailExe", "1.0", "Data", "Cursors");
+                        break;
 
-                _cachedCursors[cursorName] = cursor = AddDisposable(new HostCursor(aniFilePath));
+                    default:
+                        cursorDirectory = Path.Combine("Data", "Cursors");
+                        break;
+                }
+
+                var cursorFilePath = Path.Combine(_fileSystem.RootDirectory, cursorDirectory, cursorFileName);
+
+                _cachedCursors[cursorName] = cursor = AddDisposable(new HostCursor(cursorFilePath));
             }
 
             SetCursor(cursor);
