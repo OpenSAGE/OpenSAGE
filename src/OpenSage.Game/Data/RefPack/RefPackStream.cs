@@ -27,6 +27,23 @@ namespace OpenSage.Data.RefPack
             set => throw new NotImplementedException();
         }
 
+        public static bool IsProbablyRefPackCompressed(byte[] data)
+        {
+            var headerByte1 = data[0];
+            if ((headerByte1 & 0b00111110) != 0b00010000)
+            {
+                return false;
+            }
+
+            var headerByte2 = data[1];
+            if (headerByte2 != 0b11111011)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public RefPackStream(Stream compressedStream)
         {
             _stream = compressedStream;
@@ -35,14 +52,18 @@ namespace OpenSage.Data.RefPack
 
             var headerByte1 = compressedStream.ReadByte();
             if ((headerByte1 & 0b00111110) != 0b00010000)
+            {
                 throw new InvalidDataException();
+            }
 
-            var largeFilesFlag = (headerByte1 & 0b1000000) != 0;
+            var largeFilesFlag = (headerByte1 & 0b10000000) != 0;
             var compressedSizePresent = (headerByte1 & 0b00000001) != 0;
 
             var headerByte2 = compressedStream.ReadByte();
             if (headerByte2 != 0b11111011)
+            {
                 throw new InvalidDataException();
+            }
 
             int readBigEndianSize()
             {
@@ -186,6 +207,12 @@ namespace OpenSage.Data.RefPack
         private void CopyReferencedData(int referencedDataLength, int referencedDataDistance)
         {
             var referencedDataIndex = _nextOutputPosition - referencedDataDistance;
+
+            if (referencedDataIndex < 0)
+            {
+                throw new InvalidOperationException();
+            }
+
             while (referencedDataLength-- > 0)
             {
                 _output[_nextOutputPosition++] = _output[referencedDataIndex++];
