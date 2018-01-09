@@ -11,12 +11,19 @@ namespace OpenSage.Data.Map
 
         public uint Width { get; private set; }
         public uint Height { get; private set; }
+
         public uint BorderWidth { get; private set; }
 
         /// <summary>
         /// Relative to BorderWidth.
         /// </summary>
         public HeightMapPerimeter[] Perimeters { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public uint WidthExcludingBorder { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public uint HeightExcludingBorder { get; private set; }
 
         public uint Area { get; private set; }
         public ushort[,] Elevations { get; private set; }
@@ -25,49 +32,50 @@ namespace OpenSage.Data.Map
         {
             return ParseAsset(reader, context, version =>
             {
-                var mapWidth = reader.ReadUInt32();
-                var mapHeight = reader.ReadUInt32();
+                var result = new HeightMapData
+                {
+                    Width = reader.ReadUInt32(),
+                    Height = reader.ReadUInt32(),
 
-                var borderWidth = reader.ReadUInt32();
+                    BorderWidth = reader.ReadUInt32()
+                };
 
                 var perimeterCount = reader.ReadUInt32();
-                var perimeters = new HeightMapPerimeter[perimeterCount];
+                result.Perimeters = new HeightMapPerimeter[perimeterCount];
 
                 for (var i = 0; i < perimeterCount; i++)
                 {
-                    perimeters[i] = new HeightMapPerimeter
+                    result.Perimeters[i] = new HeightMapPerimeter
                     {
                         Width = reader.ReadUInt32(),
                         Height = reader.ReadUInt32()
                     };
                 }
 
-                var area = reader.ReadUInt32();
-                if (mapWidth * mapHeight != area)
+                if (version >= 6)
+                {
+                    result.WidthExcludingBorder = reader.ReadUInt32();
+                    result.HeightExcludingBorder = reader.ReadUInt32();
+                }
+
+                result.Area = reader.ReadUInt32();
+                if (result.Width * result.Height != result.Area)
                 {
                     throw new InvalidDataException();
                 }
 
-                var elevations = new ushort[mapWidth, mapHeight];
-                for (var y = 0; y < mapHeight; y++)
+                result.Elevations = new ushort[result.Width, result.Height];
+                for (var y = 0; y < result.Height; y++)
                 {
-                    for (var x = 0; x < mapWidth; x++)
+                    for (var x = 0; x < result.Width; x++)
                     {
-                        elevations[x, y] = version >= 5
+                        result.Elevations[x, y] = version >= 5
                             ? reader.ReadUInt16()
                             : reader.ReadByte();
                     }
                 }
 
-                return new HeightMapData
-                {
-                    Width = mapWidth,
-                    Height = mapHeight,
-                    BorderWidth = borderWidth,
-                    Perimeters = perimeters,
-                    Area = area,
-                    Elevations = elevations
-                };
+                return result;
             });
         }
 
