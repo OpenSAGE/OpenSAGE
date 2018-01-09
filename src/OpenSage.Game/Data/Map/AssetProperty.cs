@@ -31,6 +31,11 @@ namespace OpenSage.Data.Map
                     value = reader.ReadUInt16PrefixedAsciiString();
                     break;
 
+                case AssetPropertyType.Unknown:
+                    // Seems exactly the same as AsciiString?
+                    value = reader.ReadUInt16PrefixedAsciiString();
+                    break;
+
                 case AssetPropertyType.UnicodeString:
                     value = reader.ReadUInt16PrefixedUnicodeString();
                     break;
