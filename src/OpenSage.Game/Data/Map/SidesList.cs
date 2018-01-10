@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Map
 {
@@ -6,7 +7,7 @@ namespace OpenSage.Data.Map
     {
         public const string AssetName = "SidesList";
 
-        public byte Unknown { get; private set; }
+        public bool Unknown { get; private set; }
 
         public Player[] Players { get; private set; }
         public Team[] Teams { get; private set; }
@@ -16,14 +17,10 @@ namespace OpenSage.Data.Map
         {
             return ParseAsset(reader, context, version =>
             {
-                var unknown = (byte) 0;
+                var unknown = false;
                 if (version >= 6)
                 {
-                    unknown = reader.ReadByte();
-                    if (unknown != 0 && unknown != 1)
-                    {
-                        throw new InvalidDataException();
-                    }
+                    unknown = reader.ReadBooleanChecked();
                 }
 
                 var numPlayers = reader.ReadUInt32();
@@ -31,7 +28,7 @@ namespace OpenSage.Data.Map
 
                 for (var i = 0; i < numPlayers; i++)
                 {
-                    players[i] = Player.Parse(reader, context);
+                    players[i] = Player.Parse(reader, context, version);
                 }
 
                 if (version >= 5)
@@ -91,7 +88,7 @@ namespace OpenSage.Data.Map
 
                 foreach (var player in Players)
                 {
-                    player.WriteTo(writer, assetNames);
+                    player.WriteTo(writer, assetNames, Version);
                 }
 
                 if (Version >= 5)

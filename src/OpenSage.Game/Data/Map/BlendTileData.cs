@@ -276,7 +276,7 @@ namespace OpenSage.Data.Map
                 writer.WriteUInt16Array2D(ThreeWayBlends);
                 writer.WriteUInt16Array2D(CliffTextures);
 
-                if (Version >= 14)
+                if (Version >= 14 && Version < 24)
                 {
                     writer.Write(Unknown);
                 }

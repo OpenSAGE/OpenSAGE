@@ -12,7 +12,7 @@ namespace OpenSage.Data.Map
         public string BuildingName { get; private set; }
         public byte[] Unknown2 { get; private set; }
 
-        internal static BuildListItem2 Parse(BinaryReader reader)
+        internal static BuildListItem2 Parse(BinaryReader reader, ushort version)
         {
             var unknown = reader.ReadUInt16();
             if (unknown != 0)
@@ -22,7 +22,7 @@ namespace OpenSage.Data.Map
 
             var buildingName = reader.ReadUInt16PrefixedAsciiString();
 
-            var unknown2 = reader.ReadBytes(30); // TODO
+            var unknown2 = reader.ReadBytes(version >= 1 ? 31 : 30); // TODO
 
             return new BuildListItem2
             {

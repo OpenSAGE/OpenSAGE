@@ -43,7 +43,7 @@ namespace OpenSage.Data.Map
                 byte[] unknown = null;
                 if (version >= 7)
                 {
-                    unknown = reader.ReadBytes(44);
+                    unknown = reader.ReadBytes(version >= 9 ? 4 : 44);
                 }
 
                 ColorRgbF? noCloudFactor = null;

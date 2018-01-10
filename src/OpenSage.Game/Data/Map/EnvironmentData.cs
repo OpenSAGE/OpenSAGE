@@ -10,10 +10,13 @@ namespace OpenSage.Data.Map
         public float WaterMaxAlphaDepth { get; private set; }
         public float DeepWaterAlpha { get; private set; }
 
-        public byte Unknown { get; private set; }
+        public bool Unknown { get; private set; }
 
         public string MacroTexture { get; private set; }
         public string CloudTexture { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public string UnknownTexture { get; private set; }
 
         internal static EnvironmentData Parse(BinaryReader reader, MapParseContext context)
         {
@@ -27,14 +30,15 @@ namespace OpenSage.Data.Map
                     result.DeepWaterAlpha = reader.ReadSingle();
                 }
 
-                result.Unknown = reader.ReadByte();
-                if (result.Unknown != 0 && result.Unknown != 1)
-                {
-                    throw new InvalidDataException();
-                }
+                result.Unknown = reader.ReadBooleanChecked();
 
                 result.MacroTexture = reader.ReadUInt16PrefixedAsciiString();
                 result.CloudTexture = reader.ReadUInt16PrefixedAsciiString();
+
+                if (version >= 4)
+                {
+                    result.UnknownTexture = reader.ReadUInt16PrefixedAsciiString();
+                }
 
                 return result;
             });
@@ -54,6 +58,11 @@ namespace OpenSage.Data.Map
 
                 writer.WriteUInt16PrefixedAsciiString(MacroTexture);
                 writer.WriteUInt16PrefixedAsciiString(CloudTexture);
+
+                if (Version >= 4)
+                {
+                    writer.WriteUInt16PrefixedAsciiString(UnknownTexture);
+                }
             });
         }
     }

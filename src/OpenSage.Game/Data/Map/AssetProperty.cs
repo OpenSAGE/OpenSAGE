@@ -73,6 +73,10 @@ namespace OpenSage.Data.Map
                     writer.WriteUInt16PrefixedAsciiString((string) Value);
                     break;
 
+                case AssetPropertyType.Unknown:
+                    writer.WriteUInt16PrefixedAsciiString((string) Value);
+                    break;
+
                 case AssetPropertyType.UnicodeString:
                     writer.WriteUInt16PrefixedUnicodeString((string) Value);
                     break;

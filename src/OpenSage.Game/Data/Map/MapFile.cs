@@ -43,6 +43,12 @@ namespace OpenSage.Data.Map
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public TriggerAreas TriggerAreas { get; private set; }
 
+        [AddedIn(SageGame.Cnc3)]
+        public GlobalWaterSettings GlobalWaterSettings { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public FogSettings FogSettings { get; private set; }
+
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public StandingWaterAreas StandingWaterAreas { get; private set; }
 
@@ -218,6 +224,14 @@ namespace OpenSage.Data.Map
                         result.TriggerAreas = TriggerAreas.Parse(reader, context);
                         break;
 
+                    case GlobalWaterSettings.AssetName:
+                        result.GlobalWaterSettings = GlobalWaterSettings.Parse(reader, context);
+                        break;
+
+                    case FogSettings.AssetName:
+                        result.FogSettings = FogSettings.Parse(reader, context);
+                        break;
+
                     case StandingWaterAreas.AssetName:
                         result.StandingWaterAreas = StandingWaterAreas.Parse(reader, context);
                         break;
@@ -297,6 +311,12 @@ namespace OpenSage.Data.Map
 
         private void WriteMapDataTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
+            if (AssetList != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(AssetList.AssetName));
+                AssetList.WriteTo(writer);
+            }
+
             writer.Write(assetNames.GetOrCreateAssetIndex(HeightMapData.AssetName));
             HeightMapData.WriteTo(writer);
 
@@ -352,6 +372,18 @@ namespace OpenSage.Data.Map
             {
                 writer.Write(assetNames.GetOrCreateAssetIndex(TriggerAreas.AssetName));
                 TriggerAreas.WriteTo(writer);
+            }
+
+            if (GlobalWaterSettings != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(GlobalWaterSettings.AssetName));
+                GlobalWaterSettings.WriteTo(writer);
+            }
+
+            if (FogSettings != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(FogSettings.AssetName));
+                FogSettings.WriteTo(writer);
             }
 
             if (StandingWaterAreas != null)

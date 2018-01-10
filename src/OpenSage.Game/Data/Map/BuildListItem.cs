@@ -13,55 +13,46 @@ namespace OpenSage.Data.Map
         public bool StructureAlreadyBuilt { get; private set; }
         public uint Rebuilds { get; private set; }
         public string Script { get; private set; }
-        public uint StartingHealth { get; private set; }
         public bool Unknown1 { get; private set; }
+        public uint StartingHealth { get; private set; }
         public bool Unknown2 { get; private set; }
         public bool Unknown3 { get; private set; }
+        public bool Unknown4 { get; private set; }
 
-        internal static BuildListItem Parse(BinaryReader reader)
+        internal static BuildListItem Parse(BinaryReader reader, ushort version)
         {
-            var buildingName = reader.ReadUInt16PrefixedAsciiString();
-
-            var name = reader.ReadUInt16PrefixedAsciiString();
-
-            var position = reader.ReadVector3();
-            var angle = reader.ReadSingle();
-
-            var structureAlreadyBuilt = reader.ReadBooleanChecked();
-
-            var rebuilds = reader.ReadUInt32();
-
-            var script = reader.ReadUInt16PrefixedAsciiString();
-
-            var startingHealth = reader.ReadUInt32();
-
-            // One of these unknown booleans is the "Unsellable" checkbox in Building Properties.
-            var unknown1 = reader.ReadBooleanChecked();
-            var unknown2 = reader.ReadBooleanChecked();
-
-            var unknown3 = reader.ReadBooleanChecked();
-            if (!unknown3)
+            var result = new BuildListItem
             {
-                throw new InvalidDataException();
+                BuildingName = reader.ReadUInt16PrefixedAsciiString(),
+
+                Name = reader.ReadUInt16PrefixedAsciiString(),
+
+                Position = reader.ReadVector3(),
+                Angle = reader.ReadSingle(),
+
+                StructureAlreadyBuilt = reader.ReadBooleanChecked(),
+
+                Rebuilds = reader.ReadUInt32(),
+
+                Script = reader.ReadUInt16PrefixedAsciiString()
+            };
+
+            if (version >= 6)
+            {
+                result.Unknown1 = reader.ReadBooleanChecked();
             }
 
-            return new BuildListItem
-            {
-                BuildingName = buildingName,
-                Name = name,
-                Position = position,
-                Angle = angle,
-                StructureAlreadyBuilt = structureAlreadyBuilt,
-                Rebuilds = rebuilds,
-                Script = script,
-                StartingHealth = startingHealth,
-                Unknown1 = unknown1,
-                Unknown2 = unknown2,
-                Unknown3 = unknown3
-            };
+            result.StartingHealth = reader.ReadUInt32();
+
+            // One of these unknown booleans is the "Unsellable" checkbox in Building Properties.
+            result.Unknown1 = reader.ReadBooleanChecked();
+            result.Unknown2 = reader.ReadBooleanChecked();
+            result.Unknown3 = reader.ReadBooleanChecked();
+
+            return result;
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer, ushort version)
         {
             writer.WriteUInt16PrefixedAsciiString(BuildingName);
 
@@ -76,11 +67,16 @@ namespace OpenSage.Data.Map
 
             writer.WriteUInt16PrefixedAsciiString(Script);
 
+            if (version >= 6)
+            {
+                writer.Write(Unknown1);
+            }
+
             writer.Write(StartingHealth);
 
-            writer.Write(Unknown1);
             writer.Write(Unknown2);
             writer.Write(Unknown3);
+            writer.Write(Unknown4);
         }
     }
 }

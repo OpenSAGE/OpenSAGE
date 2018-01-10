@@ -17,7 +17,7 @@ namespace OpenSage.Data.Map
                 
                 for (var i = 0; i < numBuildLists; i++)
                 {
-                    buildLists[i] = BuildList.Parse(reader, context);
+                    buildLists[i] = BuildList.Parse(reader, context, version);
                 }
 
                 return new BuildLists
@@ -35,7 +35,7 @@ namespace OpenSage.Data.Map
 
                 foreach (var buildList in Items)
                 {
-                    buildList.WriteTo(writer, assetNames);
+                    buildList.WriteTo(writer, assetNames, Version);
                 }
             });
         }

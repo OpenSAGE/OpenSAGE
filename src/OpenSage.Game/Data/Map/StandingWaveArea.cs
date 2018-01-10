@@ -54,20 +54,23 @@ namespace OpenSage.Data.Map
                 throw new InvalidDataException();
             }
 
-            result.FinalWidth = reader.ReadUInt32();
-            result.FinalHeight = reader.ReadUInt32();
-            result.InitialWidthFraction = reader.ReadUInt32();
-            result.InitialHeightFraction = reader.ReadUInt32();
-            result.InitialVelocity = reader.ReadUInt32();
-            result.TimeToFade = reader.ReadUInt32();
-            result.TimeToCompress = reader.ReadUInt32();
-            result.TimeOffset2ndWave = reader.ReadUInt32();
-            result.DistanceFromShore = reader.ReadUInt32();
-            result.Texture = reader.ReadUInt16PrefixedAsciiString();
-
-            if (version >= 2)
+            if (version < 3)
             {
-                result.EnablePcaWave = reader.ReadBooleanUInt32Checked();
+                result.FinalWidth = reader.ReadUInt32();
+                result.FinalHeight = reader.ReadUInt32();
+                result.InitialWidthFraction = reader.ReadUInt32();
+                result.InitialHeightFraction = reader.ReadUInt32();
+                result.InitialVelocity = reader.ReadUInt32();
+                result.TimeToFade = reader.ReadUInt32();
+                result.TimeToCompress = reader.ReadUInt32();
+                result.TimeOffset2ndWave = reader.ReadUInt32();
+                result.DistanceFromShore = reader.ReadUInt32();
+                result.Texture = reader.ReadUInt16PrefixedAsciiString();
+
+                if (version == 2)
+                {
+                    result.EnablePcaWave = reader.ReadBooleanUInt32Checked();
+                }
             }
 
             return result;
@@ -89,20 +92,23 @@ namespace OpenSage.Data.Map
 
             writer.Write((uint) 0);
 
-            writer.Write(FinalWidth);
-            writer.Write(FinalHeight);
-            writer.Write(InitialWidthFraction);
-            writer.Write(InitialHeightFraction);
-            writer.Write(InitialVelocity);
-            writer.Write(TimeToFade);
-            writer.Write(TimeToCompress);
-            writer.Write(TimeOffset2ndWave);
-            writer.Write(DistanceFromShore);
-            writer.WriteUInt16PrefixedAsciiString(Texture);
-
-            if (version >= 2)
+            if (version < 3)
             {
-                writer.WriteBooleanUInt32(EnablePcaWave);
+                writer.Write(FinalWidth);
+                writer.Write(FinalHeight);
+                writer.Write(InitialWidthFraction);
+                writer.Write(InitialHeightFraction);
+                writer.Write(InitialVelocity);
+                writer.Write(TimeToFade);
+                writer.Write(TimeToCompress);
+                writer.Write(TimeOffset2ndWave);
+                writer.Write(DistanceFromShore);
+                writer.WriteUInt16PrefixedAsciiString(Texture);
+
+                if (version == 2)
+                {
+                    writer.WriteBooleanUInt32(EnablePcaWave);
+                }
             }
         }
     }

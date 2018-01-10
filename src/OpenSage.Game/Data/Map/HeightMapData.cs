@@ -17,13 +17,7 @@ namespace OpenSage.Data.Map
         /// <summary>
         /// Relative to BorderWidth.
         /// </summary>
-        public HeightMapPerimeter[] Perimeters { get; private set; }
-
-        [AddedIn(SageGame.Cnc3)]
-        public uint WidthExcludingBorder { get; private set; }
-
-        [AddedIn(SageGame.Cnc3)]
-        public uint HeightExcludingBorder { get; private set; }
+        public HeightMapBorder[] Borders { get; private set; }
 
         public uint Area { get; private set; }
         public ushort[,] Elevations { get; private set; }
@@ -40,22 +34,12 @@ namespace OpenSage.Data.Map
                     BorderWidth = reader.ReadUInt32()
                 };
 
-                var perimeterCount = reader.ReadUInt32();
-                result.Perimeters = new HeightMapPerimeter[perimeterCount];
+                var borderCount = reader.ReadUInt32();
+                result.Borders = new HeightMapBorder[borderCount];
 
-                for (var i = 0; i < perimeterCount; i++)
+                for (var i = 0; i < borderCount; i++)
                 {
-                    result.Perimeters[i] = new HeightMapPerimeter
-                    {
-                        Width = reader.ReadUInt32(),
-                        Height = reader.ReadUInt32()
-                    };
-                }
-
-                if (version >= 6)
-                {
-                    result.WidthExcludingBorder = reader.ReadUInt32();
-                    result.HeightExcludingBorder = reader.ReadUInt32();
+                    result.Borders[i] = HeightMapBorder.Parse(reader, version);
                 }
 
                 result.Area = reader.ReadUInt32();
@@ -88,18 +72,11 @@ namespace OpenSage.Data.Map
 
                 writer.Write(BorderWidth);
 
-                writer.Write((uint) Perimeters.Length);
+                writer.Write((uint) Borders.Length);
 
-                foreach (var perimeter in Perimeters)
+                foreach (var border in Borders)
                 {
-                    writer.Write(perimeter.Width);
-                    writer.Write(perimeter.Height);
-                }
-
-                if (Version >= 6)
-                {
-                    writer.Write(WidthExcludingBorder);
-                    writer.Write(HeightExcludingBorder);
+                    border.WriteTo(writer, Version);
                 }
 
                 writer.Write(Area);
@@ -123,9 +100,55 @@ namespace OpenSage.Data.Map
     }
 
     [DebuggerDisplay("Width = {Width}, Height = {Height}")]
-    public struct HeightMapPerimeter
+    public struct HeightMapBorder
     {
-        public uint Width;
-        public uint Height;
+        [AddedIn(SageGame.Cnc3)]
+        public uint Corner1X;
+
+        [AddedIn(SageGame.Cnc3)]
+        public uint Corner1Y;
+
+        public uint Corner2X;
+        public uint Corner2Y;
+
+        internal static HeightMapBorder Parse(BinaryReader reader, ushort version)
+        {
+            if (version >= 6)
+            {
+                return new HeightMapBorder
+                {
+                    Corner1X = reader.ReadUInt32(),
+                    Corner1Y = reader.ReadUInt32(),
+                    Corner2X = reader.ReadUInt32(),
+                    Corner2Y = reader.ReadUInt32()
+                };
+            }
+            else
+            {
+                return new HeightMapBorder
+                {
+                    Corner1X = 0,
+                    Corner1Y = 0,
+                    Corner2X = reader.ReadUInt32(),
+                    Corner2Y = reader.ReadUInt32()
+                };
+            }
+        }
+
+        internal void WriteTo(BinaryWriter writer, ushort version)
+        {
+            if (version >= 6)
+            {
+                writer.Write(Corner1X);
+                writer.Write(Corner1Y);
+                writer.Write(Corner2X);
+                writer.Write(Corner2Y);
+            }
+            else
+            {
+                writer.Write(Corner2X);
+                writer.Write(Corner2Y);
+            }
+        }
     }
 }
