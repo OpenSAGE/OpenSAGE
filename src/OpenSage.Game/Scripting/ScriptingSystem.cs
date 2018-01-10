@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using OpenSage.Data.Map;
 
 namespace OpenSage.Scripting
@@ -43,6 +44,8 @@ namespace OpenSage.Scripting
         public ulong Frame { get; private set; }
 
         private bool _30hzHack = true;
+
+        public event EventHandler<ScriptingSystem> OnUpdateFinished; 
 
         public ScriptingSystem(Game game) : base(game)
         {
@@ -105,7 +108,14 @@ namespace OpenSage.Scripting
         internal override void OnSceneChanging()
         {
             _scriptsByName.Clear();
+            _activeCoroutines.Clear();
+
+            Flags.Clear();
+            Counters.Clear();
+            Timers.Clear();
+
             Frame = 0;
+
             base.OnSceneChanging();
         }
 
@@ -161,6 +171,8 @@ namespace OpenSage.Scripting
             {
                 scriptComponent.Execute(_executionContext);
             }
+
+            OnUpdateFinished?.Invoke(this, this);
 
             Timers.Update();
 

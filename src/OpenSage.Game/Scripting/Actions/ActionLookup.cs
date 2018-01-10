@@ -34,7 +34,7 @@ namespace OpenSage.Scripting.Actions
             { ScriptActionType.CameraModFinalLookToward, CameraActions.CameraModFinalLookToward },
 
             // Team
-            { ScriptActionType.TeamFollowWaypointsExact, TeamActions.TeamFollowWaypointsExact },
+            { ScriptActionType.TeamFollowWaypointsExact, TeamActions.TeamFollowWaypointsExact }
         };
 
         public static ScriptingAction Get(ScriptAction action)

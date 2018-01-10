@@ -24,5 +24,15 @@ namespace OpenSage.Scripting
             }
             set => _counters[name] = value;
         }
+
+        public void Clear()
+        {
+            _counters.Clear();
+        }
+
+        public IEnumerator<KeyValuePair<string, int>> GetEnumerator()
+        {
+            return _counters.GetEnumerator();
+        }
     }
 }

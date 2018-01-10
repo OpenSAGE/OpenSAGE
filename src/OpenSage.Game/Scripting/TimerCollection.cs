@@ -53,7 +53,17 @@ namespace OpenSage.Scripting
 
         public bool IsTimerExpired(string name) => _counters[name] < 0;
 
-        private enum TimerState
+        public void Clear()
+        {
+            _timers.Clear();
+        }
+
+        public IEnumerator<KeyValuePair<string, TimerState>> GetEnumerator()
+        {
+            return _timers.GetEnumerator();
+        }
+
+        public enum TimerState
         {
             Running,
             Paused

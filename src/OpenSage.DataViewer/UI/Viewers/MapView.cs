@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using Eto.Drawing;
 using Eto.Forms;
 using OpenSage.Data;
 using OpenSage.Data.Map;
@@ -132,6 +134,41 @@ namespace OpenSage.DataViewer.UI.Viewers
                     Text = "Start Scripts"
                 };
 
+                var statePanel = new TextArea
+                {
+                    ReadOnly = true,
+                    Height = 400
+                };
+                var stateContent = new StringBuilder();
+
+                game.Scripting.OnUpdateFinished += (sender, scripting) =>
+                {
+                    stateContent.Clear();
+
+                    stateContent.AppendLine("Counters:");
+
+                    foreach (var kv in scripting.Counters)
+                    {
+                        stateContent.AppendFormat("  {0}: {1}\n", kv.Key, kv.Value);
+                    }
+
+                    stateContent.AppendLine("Flags:");
+
+                    foreach (var kv in scripting.Flags)
+                    {
+                        stateContent.AppendFormat("  {0}: {1}\n", kv.Key, kv.Value);
+                    }
+
+                    stateContent.AppendLine("Timers:");
+
+                    foreach (var kv in scripting.Timers)
+                    {
+                        stateContent.AppendFormat("  {0}: {1} ({2})\n", kv.Key, kv.Value, scripting.Counters[kv.Key]);
+                    }
+
+                    statePanel.Text = stateContent.ToString();
+                };
+
                 return new StackLayout
                 {
                     Orientation = Orientation.Vertical,
@@ -144,12 +181,24 @@ namespace OpenSage.DataViewer.UI.Viewers
                             Padding = 10,
                             Content = toggleScriptsButton
                         },
-                        new StackLayoutItem(
-                            new TreeView
+                        new StackLayoutItem
+                        {
+                            Expand = true,
+                            Control = new Splitter
                             {
-                                DataStore = treeItem
-                            },
-                            expand: true)
+                                Orientation = Orientation.Vertical,
+                                Panel1 = new GroupBox
+                                {
+                                    Text = "Script state",
+                                    Padding = 10,
+                                    Content = statePanel
+                                },
+                                Panel2 = new TreeView
+                                {
+                                    DataStore = treeItem
+                                }
+                            }
+                        }
                     }
                 };
             }
