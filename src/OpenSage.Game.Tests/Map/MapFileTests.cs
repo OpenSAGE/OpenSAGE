@@ -29,6 +29,11 @@ namespace OpenSage.Data.Tests.Map
                     case @"Maps\USA07-TaskForces\USA07-TaskForces.map":
                     case @"maps\map evil shelobslair\map evil shelobslair.map": // BFME
                     case @"maps\map good shelobslair\map good shelobslair.map": // BFME
+                    case @"data\maps\official\map_sp_aliens_1_1_london\map_sp_aliens_1_1_london.map": // CNC3
+                    case @"data\maps\official\map_sp_gdi_2_4_nuke_facility\map_sp_gdi_2_4_nuke_facility.map": // CNC3
+                    case @"data\maps\official\map_sp_gdi_4_4_berne\map_sp_gdi_4_4_berne.map": // CNC3
+                    case @"data\maps\official\map_sp_nod_2_3_coastal_brazil\map_sp_nod_2_3_coastal_brazil.map": // CNC3
+                    case @"data\maps\official\map_sp_nod_5_5_the_tower\map_sp_nod_5_5_the_tower.map": // CNC3
                     case @"data\maps\official\map_mp_4_black1\map_mp_4_black1.map": // CNC3
                     case @"data\maps\official\metagameworld\metagameworld.map": // CNC3
                     case @"data\maps\official\metagameworldact1\metagameworldact1.map": // CNC3

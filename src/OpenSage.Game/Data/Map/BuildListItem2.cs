@@ -8,17 +8,13 @@ namespace OpenSage.Data.Map
     /// </summary>
     public sealed class BuildListItem2
     {
-        public ushort Unknown1 { get; private set; }
+        public string Unknown1 { get; private set; }
         public string BuildingName { get; private set; }
         public byte[] Unknown2 { get; private set; }
 
         internal static BuildListItem2 Parse(BinaryReader reader, ushort version)
         {
-            var unknown = reader.ReadUInt16();
-            if (unknown != 0)
-            {
-                throw new InvalidDataException();
-            }
+            var unknown = reader.ReadUInt16PrefixedAsciiString();
 
             var buildingName = reader.ReadUInt16PrefixedAsciiString();
 
@@ -34,7 +30,7 @@ namespace OpenSage.Data.Map
 
         internal void WriteTo(BinaryWriter writer)
         {
-            writer.Write(Unknown1);
+            writer.WriteUInt16PrefixedAsciiString(Unknown1);
             writer.WriteUInt16PrefixedAsciiString(BuildingName);
             writer.Write(Unknown2);
         }

@@ -30,11 +30,7 @@ namespace OpenSage.Data.Map
                 Position = reader.ReadVector3(),
                 Angle = reader.ReadSingle(),
 
-                StructureAlreadyBuilt = reader.ReadBooleanChecked(),
-
-                Rebuilds = reader.ReadUInt32(),
-
-                Script = reader.ReadUInt16PrefixedAsciiString()
+                StructureAlreadyBuilt = reader.ReadBooleanChecked()
             };
 
             if (version >= 6)
@@ -42,12 +38,16 @@ namespace OpenSage.Data.Map
                 result.Unknown1 = reader.ReadBooleanChecked();
             }
 
+            result.Rebuilds = reader.ReadUInt32();
+
+            result.Script = reader.ReadUInt16PrefixedAsciiString();
+
             result.StartingHealth = reader.ReadUInt32();
 
             // One of these unknown booleans is the "Unsellable" checkbox in Building Properties.
-            result.Unknown1 = reader.ReadBooleanChecked();
             result.Unknown2 = reader.ReadBooleanChecked();
             result.Unknown3 = reader.ReadBooleanChecked();
+            result.Unknown4 = reader.ReadBooleanChecked();
 
             return result;
         }

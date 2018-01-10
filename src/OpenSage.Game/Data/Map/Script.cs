@@ -45,6 +45,8 @@ namespace OpenSage.Data.Map
         public SequentialScriptTarget SequentialTargetType { get; private set; }
         public string SequentialTargetName { get; private set; }
 
+        public string Unknown { get; private set; }
+
         public ScriptOrCondition[] OrConditions { get; private set; }
 
         public ScriptAction[] ActionsIfTrue { get; private set; }
@@ -100,8 +102,8 @@ namespace OpenSage.Data.Map
 
                     result.SequentialTargetName = reader.ReadUInt16PrefixedAsciiString();
 
-                    var all = reader.ReadUInt16PrefixedAsciiString();
-                    if (all != "ALL")
+                    result.Unknown = reader.ReadUInt16PrefixedAsciiString();
+                    if (result.Unknown != "ALL" && result.Unknown != "Planning")
                     {
                         throw new InvalidDataException();
                     }
@@ -177,7 +179,7 @@ namespace OpenSage.Data.Map
                     writer.Write(LoopCount);
                     writer.Write((byte) SequentialTargetType);
                     writer.WriteUInt16PrefixedAsciiString(SequentialTargetName);
-                    writer.WriteUInt16PrefixedAsciiString("ALL");
+                    writer.WriteUInt16PrefixedAsciiString(Unknown);
                 }
 
                 foreach (var orCondition in OrConditions)
