@@ -19,7 +19,7 @@ namespace OpenSage.Data.Map
         public bool Unknown3 { get; private set; }
         public bool Unknown4 { get; private set; }
 
-        internal static BuildListItem Parse(BinaryReader reader, ushort version)
+        internal static BuildListItem Parse(BinaryReader reader, ushort version, ushort versionThatHasUnknownBoolean)
         {
             var result = new BuildListItem
             {
@@ -33,7 +33,7 @@ namespace OpenSage.Data.Map
                 StructureAlreadyBuilt = reader.ReadBooleanChecked()
             };
 
-            if (version >= 6)
+            if (version >= versionThatHasUnknownBoolean)
             {
                 result.Unknown1 = reader.ReadBooleanChecked();
             }
@@ -52,7 +52,7 @@ namespace OpenSage.Data.Map
             return result;
         }
 
-        internal void WriteTo(BinaryWriter writer, ushort version)
+        internal void WriteTo(BinaryWriter writer, ushort version, ushort versionThatHasUnknownBoolean)
         {
             writer.WriteUInt16PrefixedAsciiString(BuildingName);
 
@@ -67,7 +67,7 @@ namespace OpenSage.Data.Map
 
             writer.WriteUInt16PrefixedAsciiString(Script);
 
-            if (version >= 6)
+            if (version >= versionThatHasUnknownBoolean)
             {
                 writer.Write(Unknown1);
             }

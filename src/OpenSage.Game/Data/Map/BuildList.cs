@@ -16,7 +16,7 @@ namespace OpenSage.Data.Map
         [AddedIn(SageGame.Cnc3)]
         public string FactionName { get; private set; }
 
-        public BuildListItem2[] Items { get; private set; }
+        public BuildListItem[] Items { get; private set; }
 
         internal static BuildList Parse(BinaryReader reader, MapParseContext context, ushort version)
         {
@@ -32,11 +32,11 @@ namespace OpenSage.Data.Map
             }
 
             var numBuildListItems = reader.ReadUInt32();
-            result.Items = new BuildListItem2[numBuildListItems];
+            result.Items = new BuildListItem[numBuildListItems];
 
             for (var i = 0; i < numBuildListItems; i++)
             {
-                result.Items[i] = BuildListItem2.Parse(reader, version);
+                result.Items[i] = BuildListItem.Parse(reader, version, 1);
             }
 
             return result;
@@ -57,7 +57,7 @@ namespace OpenSage.Data.Map
 
             foreach (var buildListItem in Items)
             {
-                buildListItem.WriteTo(writer);
+                buildListItem.WriteTo(writer, version, 1);
             }
         }
     }
