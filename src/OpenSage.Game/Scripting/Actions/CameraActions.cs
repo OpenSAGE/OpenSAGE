@@ -95,7 +95,7 @@ namespace OpenSage.Scripting.Actions
             if (_animation == null)
             {
                 _animation = context.Scene.CameraController.StartAnimation(
-                    context.Scene.Camera.View.Translation,
+                    context.Scene.CameraController.TerrainPosition,
                     _targetWaypoint.Position,
                     context.UpdateTime.TotalGameTime,
                     _duration);
