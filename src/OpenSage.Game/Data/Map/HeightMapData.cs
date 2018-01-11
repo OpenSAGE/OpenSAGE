@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 
 namespace OpenSage.Data.Map
 {
@@ -8,6 +7,25 @@ namespace OpenSage.Data.Map
         public const string AssetName = "HeightMapData";
 
         public bool ElevationsAre16Bit => Version >= 5;
+
+        // Gathered from heights in World Builder's status bar compared to heightmap data.
+        // In Generals, heights are stored as uint8 (max 255), and scaled by 0.625 (max 159.375)
+        // In BFME, heights are stored in uint16 (max 65536), and scaled by 0.00625 (max 409.6)
+        // In C&C3, heights are stored in uint16 (max 65536), and scaled by 0.0390625 (max 2560)
+        public float VerticalScale
+        {
+            get
+            {
+                if (!ElevationsAre16Bit)
+                {
+                    return 0.625f;
+                }
+
+                return Version >= 6
+                    ? 0.0390625f
+                    : 0.00625f;
+            }
+        }
 
         public uint Width { get; private set; }
         public uint Height { get; private set; }
@@ -99,7 +117,6 @@ namespace OpenSage.Data.Map
         }
     }
 
-    [DebuggerDisplay("Width = {Width}, Height = {Height}")]
     public struct HeightMapBorder
     {
         [AddedIn(SageGame.Cnc3)]
