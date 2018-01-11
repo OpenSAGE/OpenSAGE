@@ -393,7 +393,7 @@ namespace OpenSage.Data.Tests.Map
         }
 
         [Fact]
-        public void BlendTileData_StandingWaterAreas()
+        public void StandingWaterAreas()
         {
             var mapFile = GetMapFile();
 
@@ -429,7 +429,7 @@ namespace OpenSage.Data.Tests.Map
         }
 
         [Fact]
-        public void BlendTileData_RiverAreas()
+        public void RiverAreas()
         {
             var mapFile = GetMapFile();
 
@@ -475,7 +475,7 @@ namespace OpenSage.Data.Tests.Map
         }
 
         [Fact]
-        public void BlendTileData_StandingWaveAreas()
+        public void StandingWaveAreas()
         {
             var mapFile = GetMapFile();
 
@@ -517,7 +517,7 @@ namespace OpenSage.Data.Tests.Map
         }
 
         [Fact]
-        public void BlendTileData_Scripts()
+        public void Scripts()
         {
             var mapFile = GetMapFile();
 
@@ -568,7 +568,7 @@ namespace OpenSage.Data.Tests.Map
         }
 
         [Fact]
-        public void BlendTileData_CameraAnimationLists()
+        public void CameraAnimationLists()
         {
             var mapFile = GetMapFile();
 
@@ -658,6 +658,16 @@ namespace OpenSage.Data.Tests.Map
             Assert.Equal(17u, script9.EvaluationInterval);
             Assert.True(script9.UsesEvaluationIntervalType);
             Assert.Equal(EvaluationIntervalType.Any, script9.EvaluationIntervalType);
+        }
+
+        [Fact]
+        public void BuildLists()
+        {
+            var mapFile = GetMapFile();
+
+            Assert.Equal(2, mapFile.BuildLists.Items.Length);
+
+            Assert.Equal(6, mapFile.BuildLists.Items[0].Items.Length);
         }
 
         private static MapFile GetMapFile([CallerMemberName] string testName = null)
