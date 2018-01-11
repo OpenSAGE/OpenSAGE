@@ -17,5 +17,12 @@ namespace OpenSage.Scripting.Actions
             context.Scripting.DisableScript(scriptName);
             return ActionResult.Finished;
         }
+
+        public static ActionResult CallSubroutine(ScriptAction action, ScriptExecutionContext context)
+        {
+            var scriptName = action.Arguments[0].StringValue;
+            context.Scripting.ExecuteSubroutine(scriptName);
+            return ActionResult.Finished;
+        }
     }
 }

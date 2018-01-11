@@ -140,6 +140,14 @@ namespace OpenSage.Scripting
             }
         }
 
+        public void ExecuteSubroutine(string name)
+        {
+            if (_scriptsByName.TryGetValue(name, out var mapScript))
+            {
+                mapScript.ExecuteAsSubroutine(_executionContext);
+            }
+        }
+
         public void AddCoroutine(ActionResult.ActionContinuation coroutine)
         {
             _activeCoroutines.Add(coroutine);
