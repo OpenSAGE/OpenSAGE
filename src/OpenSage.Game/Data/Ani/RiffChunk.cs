@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Ani
@@ -17,10 +18,11 @@ namespace OpenSage.Data.Ani
 
             var endPosition = reader.BaseStream.Position + chunkSize;
 
-            // If this is the RIFF chunk, the chunk size includes the chunk type and chunk size values.
+            // If this is the RIFF chunk, the chunk size *should* includes the chunk type and chunk size values,
+            // but that's not true for all SAGE cursors.
             if (chunkType == "RIFF")
             {
-                endPosition -= 8;
+                endPosition = Math.Min(endPosition, reader.BaseStream.Length);
             }
 
             RiffChunkContent content;

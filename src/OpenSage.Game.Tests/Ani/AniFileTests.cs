@@ -21,7 +21,7 @@ namespace OpenSage.Data.Tests.Ani
                 switch (entry.FilePath)
                 {
                     // BFME cursors - don't know how to parse them yet.
-                    case @"data\cursors\Beam.ani":
+                    // They seem to be "raw" - no RIFF container.
                     case @"data\cursors\magnify.ani":
                     case @"data\cursors\sccmagic.ani":
                         return;

@@ -16,17 +16,10 @@ namespace OpenSage.Data.Ani
         {
             var startPosition = reader.BaseStream.Position;
 
+            // Should be 0, but isn't always.
             var reserved = reader.ReadUInt16();
-            if (reserved != 0)
-            {
-                throw new InvalidDataException();
-            }
 
             var type = reader.ReadUInt16AsEnum<IconType>();
-            if (type != IconType.Cur)
-            {
-                throw new InvalidDataException();
-            }
 
             var numImages = reader.ReadUInt16();
             if (numImages != 1)

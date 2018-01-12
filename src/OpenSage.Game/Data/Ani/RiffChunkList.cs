@@ -14,9 +14,22 @@ namespace OpenSage.Data.Ani
             var listType = reader.ReadFourCc();
 
             var chunks = new List<RiffChunk>();
-            while (reader.BaseStream.Position < endPosition)
+
+            // Skip to the end of unknown list chunks.
+            switch (listType)
             {
-                chunks.Add(RiffChunk.Parse(reader));
+                case "ACON":
+                case "fram":
+                case "INFO":
+                    while (reader.BaseStream.Position < endPosition)
+                    {
+                        chunks.Add(RiffChunk.Parse(reader));
+                    }
+                    break;
+
+                default:
+                    reader.ReadBytes((int) (endPosition - reader.BaseStream.Position));
+                    break;
             }
 
             return new RiffChunkList
