@@ -9,7 +9,9 @@ namespace OpenSage
         BattleForMiddleEarth,
         BattleForMiddleEarthII,
         Cnc3,
-        Cnc3KanesWrath
+        Cnc3KanesWrath,
+        Ra3,
+        Ra3Uprising
     }
 
     public static class SageGames
@@ -22,6 +24,8 @@ namespace OpenSage
             yield return SageGame.BattleForMiddleEarthII;
             yield return SageGame.Cnc3;
             yield return SageGame.Cnc3KanesWrath;
+            yield return SageGame.Ra3;
+            yield return SageGame.Ra3Uprising;
         }
     }
 }

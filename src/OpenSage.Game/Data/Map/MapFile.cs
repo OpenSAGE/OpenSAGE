@@ -14,6 +14,9 @@ namespace OpenSage.Data.Map
         [AddedIn(SageGame.Cnc3)]
         public AssetList AssetList { get; private set; }
 
+        [AddedIn(SageGame.Ra3)]
+        public GlobalVersion GlobalVersion { get; private set; }
+
         public HeightMapData HeightMapData { get; private set; }
         public BlendTileData BlendTileData { get; private set; }
         public WorldInfo WorldInfo { get; private set; }
@@ -176,6 +179,10 @@ namespace OpenSage.Data.Map
                         result.AssetList = AssetList.Parse(reader, context);
                         break;
 
+                    case GlobalVersion.AssetName:
+                        result.GlobalVersion = GlobalVersion.Parse(reader, context);
+                        break;
+
                     case HeightMapData.AssetName:
                         result.HeightMapData = HeightMapData.Parse(reader, context);
                         break;
@@ -315,6 +322,12 @@ namespace OpenSage.Data.Map
             {
                 writer.Write(assetNames.GetOrCreateAssetIndex(AssetList.AssetName));
                 AssetList.WriteTo(writer);
+            }
+
+            if (GlobalVersion != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(GlobalVersion.AssetName));
+                GlobalVersion.WriteTo(writer);
             }
 
             writer.Write(assetNames.GetOrCreateAssetIndex(HeightMapData.AssetName));

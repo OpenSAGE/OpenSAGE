@@ -37,6 +37,12 @@ namespace OpenSage.Data
                     case SageGame.Cnc3KanesWrath:
                         return "C&C 3: Kane's Wrath";
 
+                    case SageGame.Ra3:
+                        return "C&C: Red Alert 3";
+
+                    case SageGame.Ra3Uprising:
+                        return "C&C: Red Alert 3 Uprising";
+
                     default:
                         throw new InvalidOperationException($"{Game} is not supported.");
                 }
@@ -83,6 +89,9 @@ namespace OpenSage.Data
         private static readonly (string, string)[] Cnc3Keys = { (@"SOFTWARE\Electronic Arts\Electronic Arts\Command and Conquer 3", "InstallPath") };
         private static readonly (string, string)[] Cnc3KanesWrathKeys = { (@"SOFTWARE\Electronic Arts\Electronic Arts\Command and Conquer 3 Kanes Wrath", "InstallPath") };
 
+        private static readonly (string, string)[] Ra3Keys = { (@"SOFTWARE\Electronic Arts\Electronic Arts\Red Alert 3", "Install Dir") };
+        private static readonly (string, string)[] Ra3UprisingKeys = { (@"SOFTWARE\Electronic Arts\Electronic Arts\Red Alert 3 Uprising", "Install Dir") };
+
         private static IEnumerable<(string keyName, string valueName)> GetRegistryKeysForGame(SageGame game)
         {
             switch (game)
@@ -104,6 +113,12 @@ namespace OpenSage.Data
 
                 case SageGame.Cnc3KanesWrath:
                     return Cnc3KanesWrathKeys;
+
+                case SageGame.Ra3:
+                    return Ra3Keys;
+
+                case SageGame.Ra3Uprising:
+                    return Ra3UprisingKeys;
 
                 default:
                     return Enumerable.Empty<(string, string)>();
