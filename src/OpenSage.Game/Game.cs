@@ -118,8 +118,17 @@ namespace OpenSage
                 graphicsDevice2D,
                 sageGame));
 
-            ContentManager.IniDataContext.LoadIniFile(@"Data\INI\GameData.ini");
-            ContentManager.IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
+            switch (sageGame)
+            {
+                case SageGame.Ra3:
+                case SageGame.Ra3Uprising:
+                    break;
+
+                default:
+                    ContentManager.IniDataContext.LoadIniFile(@"Data\INI\GameData.ini");
+                    ContentManager.IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
+                    break;
+            }
 
             GameSystems = new List<GameSystem>();
 
@@ -254,6 +263,10 @@ namespace OpenSage
             if (!_cachedCursors.TryGetValue(cursorName, out var cursor))
             {
                 var mouseCursor = ContentManager.IniDataContext.MouseCursors.Find(x => x.Name == cursorName);
+                if (mouseCursor == null)
+                {
+                    return;
+                }
 
                 var cursorFileName = mouseCursor.Image;
                 if (string.IsNullOrEmpty(Path.GetExtension(cursorFileName)))
