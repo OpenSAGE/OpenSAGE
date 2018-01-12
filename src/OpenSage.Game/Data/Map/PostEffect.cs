@@ -81,6 +81,10 @@ namespace OpenSage.Data.Map
 
             switch (result.Type)
             {
+                case "Float":
+                    result.Data = reader.ReadSingle();
+                    break;
+
                 case "Float4":
                     result.Data = reader.ReadVector4();
                     break;
@@ -107,6 +111,10 @@ namespace OpenSage.Data.Map
 
             switch (Type)
             {
+                case "Float":
+                    writer.Write((float) Data);
+                    break;
+
                 case "Float4":
                     writer.Write((Vector4) Data);
                     break;
