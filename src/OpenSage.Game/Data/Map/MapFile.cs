@@ -52,6 +52,9 @@ namespace OpenSage.Data.Map
         [AddedIn(SageGame.Cnc3)]
         public FogSettings FogSettings { get; private set; }
 
+        [AddedIn(SageGame.Ra3)]
+        public MissionHotSpots MissionHotSpots { get; private set; }
+
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public StandingWaterAreas StandingWaterAreas { get; private set; }
 
@@ -239,6 +242,10 @@ namespace OpenSage.Data.Map
                         result.FogSettings = FogSettings.Parse(reader, context);
                         break;
 
+                    case MissionHotSpots.AssetName:
+                        result.MissionHotSpots = MissionHotSpots.Parse(reader, context);
+                        break;
+
                     case StandingWaterAreas.AssetName:
                         result.StandingWaterAreas = StandingWaterAreas.Parse(reader, context);
                         break;
@@ -397,6 +404,12 @@ namespace OpenSage.Data.Map
             {
                 writer.Write(assetNames.GetOrCreateAssetIndex(FogSettings.AssetName));
                 FogSettings.WriteTo(writer);
+            }
+
+            if (MissionHotSpots != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(MissionHotSpots.AssetName));
+                MissionHotSpots.WriteTo(writer);
             }
 
             if (StandingWaterAreas != null)
