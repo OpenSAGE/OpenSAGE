@@ -203,11 +203,8 @@ namespace OpenSage.Data.Map
                     result.Textures[i] = BlendTileTexture.Parse(reader);
                 }
 
+                // Can be a variety of values, don't know what it means.
                 result.MagicValue1 = reader.ReadUInt32();
-                if (result.MagicValue1 != 0 && result.MagicValue1 != 0xCDCDCDCD && result.MagicValue1 != 0x4341502d)
-                {
-                    throw new InvalidDataException();
-                }
 
                 result.MagicValue2 = reader.ReadUInt32();
                 if (result.MagicValue2 != 0)
