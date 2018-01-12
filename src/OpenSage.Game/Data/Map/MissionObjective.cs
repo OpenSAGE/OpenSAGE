@@ -38,6 +38,8 @@ namespace OpenSage.Data.Map
     public enum MissionObjectiveType : uint
     {
         Attack = 0,
+        Unknown1 = 1,
+        Unknown2 = 2,
         Build = 3,
         Capture = 4,
         Move = 5,
