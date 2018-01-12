@@ -29,6 +29,9 @@ namespace OpenSage.Data.Map
         public string Texture { get; private set; }
         public bool EnablePcaWave { get; private set; }
 
+        [AddedIn(SageGame.Ra3)]
+        public string WaveParticleFXName { get; private set; }
+
         internal static StandingWaveArea Parse(BinaryReader reader, ushort version)
         {
             var result = new StandingWaveArea
@@ -73,6 +76,11 @@ namespace OpenSage.Data.Map
                 }
             }
 
+            if (version >= 4)
+            {
+                result.WaveParticleFXName = reader.ReadUInt16PrefixedAsciiString();
+            }
+
             return result;
         }
 
@@ -109,6 +117,11 @@ namespace OpenSage.Data.Map
                 {
                     writer.WriteBooleanUInt32(EnablePcaWave);
                 }
+            }
+
+            if (version >= 4)
+            {
+                writer.WriteUInt16PrefixedAsciiString(WaveParticleFXName);
             }
         }
     }
