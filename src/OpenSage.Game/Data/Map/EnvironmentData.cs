@@ -30,7 +30,10 @@ namespace OpenSage.Data.Map
                     result.DeepWaterAlpha = reader.ReadSingle();
                 }
 
-                result.Unknown = reader.ReadBooleanChecked();
+                if (version < 5)
+                {
+                    result.Unknown = reader.ReadBooleanChecked();
+                }
 
                 result.MacroTexture = reader.ReadUInt16PrefixedAsciiString();
                 result.CloudTexture = reader.ReadUInt16PrefixedAsciiString();
@@ -54,7 +57,10 @@ namespace OpenSage.Data.Map
                     writer.Write(DeepWaterAlpha);
                 }
 
-                writer.Write(Unknown);
+                if (Version < 5)
+                {
+                    writer.Write(Unknown);
+                }
 
                 writer.WriteUInt16PrefixedAsciiString(MacroTexture);
                 writer.WriteUInt16PrefixedAsciiString(CloudTexture);
