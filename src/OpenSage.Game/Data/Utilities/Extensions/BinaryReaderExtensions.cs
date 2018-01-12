@@ -152,6 +152,21 @@ namespace OpenSage.Data.Utilities.Extensions
             return result;
         }
 
+        public static byte[,] ReadByteArray2D(this BinaryReader reader, uint width, uint height)
+        {
+            var result = new byte[width, height];
+
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    result[x, y] = reader.ReadByte();
+                }
+            }
+
+            return result;
+        }
+
         public static bool[,] ReadSingleBitBooleanArray2D(this BinaryReader reader, uint width, uint height)
         {
             var result = new bool[width, height];

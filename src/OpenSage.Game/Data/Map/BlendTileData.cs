@@ -46,6 +46,9 @@ namespace OpenSage.Data.Map
         [AddedIn(SageGame.Cnc3)]
         public bool[,] TiberiumGrowability { get; private set; }
 
+        [AddedIn(SageGame.Ra3)]
+        public byte[,] DynamicShrubberyDensity { get; private set; }
+
         public uint TextureCellCount { get; private set; }
 
         public BlendTileTexture[] Textures { get; private set; }
@@ -143,7 +146,7 @@ namespace OpenSage.Data.Map
                     result.PassageWidths = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
                 }
 
-                if (version >= 14)
+                if (version >= 14 && version < 27)
                 {
                     result.Taintability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
                 }
@@ -153,7 +156,7 @@ namespace OpenSage.Data.Map
                     result.ExtraPassability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
                 }
 
-                if (version >= 16)
+                if (version >= 16 && version < 27)
                 {
                     result.Flammability = reader.ReadByteArray2DAsEnum<TileFlammability>(heightMapData.Width, heightMapData.Height);
                 }
@@ -166,9 +169,14 @@ namespace OpenSage.Data.Map
                 if (version >= 24)
                 {
                     // TODO: Are these in the right order?
-                    result.ImpassabilityToAirUnits = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
                     result.Buildability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                    result.ImpassabilityToAirUnits = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
                     result.TiberiumGrowability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                }
+
+                if (version >= 27)
+                {
+                    result.DynamicShrubberyDensity = reader.ReadByteArray2D(heightMapData.Width, heightMapData.Height);
                 }
 
                 result.TextureCellCount = reader.ReadUInt32();
@@ -196,7 +204,7 @@ namespace OpenSage.Data.Map
                 }
 
                 result.MagicValue1 = reader.ReadUInt32();
-                if (result.MagicValue1 != 0)
+                if (result.MagicValue1 != 0 && result.MagicValue1 != 0xCDCDCDCD)
                 {
                     throw new InvalidDataException();
                 }
@@ -296,7 +304,7 @@ namespace OpenSage.Data.Map
                     writer.WriteSingleBitBooleanArray2D(PassageWidths);
                 }
 
-                if (Version >= 14)
+                if (Version >= 14 && Version < 27)
                 {
                     writer.WriteSingleBitBooleanArray2D(Taintability);
                 }
@@ -306,7 +314,7 @@ namespace OpenSage.Data.Map
                     writer.WriteSingleBitBooleanArray2D(ExtraPassability);
                 }
 
-                if (Version >= 16)
+                if (Version >= 16 && Version < 27)
                 {
                     writer.WriteByteArray2DAsEnum(Flammability);
                 }
@@ -318,9 +326,15 @@ namespace OpenSage.Data.Map
 
                 if (Version >= 24)
                 {
-                    writer.WriteSingleBitBooleanArray2D(ImpassabilityToAirUnits);
+                    // TODO: Are these in the right order?
                     writer.WriteSingleBitBooleanArray2D(Buildability);
+                    writer.WriteSingleBitBooleanArray2D(ImpassabilityToAirUnits);
                     writer.WriteSingleBitBooleanArray2D(TiberiumGrowability);
+                }
+
+                if (Version >= 27)
+                {
+                    writer.WriteByteArray2D(DynamicShrubberyDensity);
                 }
 
                 writer.Write(TextureCellCount);

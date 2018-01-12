@@ -78,6 +78,20 @@ namespace OpenSage.Data.Utilities.Extensions
             }
         }
 
+        public static void WriteByteArray2D(this BinaryWriter writer, byte[,] values)
+        {
+            var width = values.GetLength(0);
+            var height = values.GetLength(1);
+
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    writer.Write(values[x, y]);
+                }
+            }
+        }
+
         public static void WriteSingleBitBooleanArray2D(this BinaryWriter writer, bool[,] values, byte padValue = 0x0)
         {
             var width = values.GetLength(0);
