@@ -22,7 +22,7 @@ namespace OpenSage.Data.Map
 
             result.TerrainSun = GlobalLight.Parse(reader);
 
-            if (version < 11)
+            if (version < 10)
             {
                 result.ObjectSun = GlobalLight.Parse(reader);
 
@@ -34,7 +34,7 @@ namespace OpenSage.Data.Map
 
             result.TerrainAccent1 = GlobalLight.Parse(reader);
 
-            if (version < 11)
+            if (version < 10)
             {
                 result.ObjectAccent1 = GlobalLight.Parse(reader);
 
@@ -46,7 +46,7 @@ namespace OpenSage.Data.Map
 
             result.TerrainAccent2 = GlobalLight.Parse(reader);
 
-            if (version < 11)
+            if (version < 10)
             {
                 result.ObjectAccent2 = GlobalLight.Parse(reader);
 
@@ -63,7 +63,7 @@ namespace OpenSage.Data.Map
         {
             TerrainSun.WriteTo(writer);
 
-            if (version < 11)
+            if (version < 10)
             {
                 ObjectSun.WriteTo(writer);
 
@@ -75,7 +75,7 @@ namespace OpenSage.Data.Map
 
             TerrainAccent1.WriteTo(writer);
 
-            if (version < 11)
+            if (version < 10)
             {
                 ObjectAccent1.WriteTo(writer);
 
@@ -87,7 +87,7 @@ namespace OpenSage.Data.Map
 
             TerrainAccent2.WriteTo(writer);
 
-            if (version < 11)
+            if (version < 10)
             {
                 ObjectAccent2.WriteTo(writer);
 
