@@ -103,7 +103,7 @@ namespace OpenSage.Data.Map
                     result.SequentialTargetName = reader.ReadUInt16PrefixedAsciiString();
 
                     result.Unknown = reader.ReadUInt16PrefixedAsciiString();
-                    if (result.Unknown != "ALL" && result.Unknown != "Planning")
+                    if (result.Unknown != "ALL" && result.Unknown != "Planning" && result.Unknown != "X")
                     {
                         throw new InvalidDataException();
                     }
