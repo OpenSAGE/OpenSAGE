@@ -55,6 +55,9 @@ namespace OpenSage.Data.Map
         [AddedIn(SageGame.Ra3)]
         public MissionHotSpots MissionHotSpots { get; private set; }
 
+        [AddedIn(SageGame.Ra3)]
+        public MissionObjectives MissionObjectives { get; private set; }
+
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public StandingWaterAreas StandingWaterAreas { get; private set; }
 
@@ -246,6 +249,10 @@ namespace OpenSage.Data.Map
                         result.MissionHotSpots = MissionHotSpots.Parse(reader, context);
                         break;
 
+                    case MissionObjectives.AssetName:
+                        result.MissionObjectives = MissionObjectives.Parse(reader, context);
+                        break;
+
                     case StandingWaterAreas.AssetName:
                         result.StandingWaterAreas = StandingWaterAreas.Parse(reader, context);
                         break;
@@ -410,6 +417,12 @@ namespace OpenSage.Data.Map
             {
                 writer.Write(assetNames.GetOrCreateAssetIndex(MissionHotSpots.AssetName));
                 MissionHotSpots.WriteTo(writer);
+            }
+
+            if (MissionObjectives != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(MissionObjectives.AssetName));
+                MissionObjectives.WriteTo(writer);
             }
 
             if (StandingWaterAreas != null)
