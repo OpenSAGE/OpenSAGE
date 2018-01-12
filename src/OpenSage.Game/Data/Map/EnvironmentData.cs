@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Map
@@ -17,6 +18,9 @@ namespace OpenSage.Data.Map
 
         [AddedIn(SageGame.Cnc3)]
         public string UnknownTexture { get; private set; }
+
+        [AddedIn(SageGame.Ra3Uprising)]
+        public string UnknownTexture2 { get; private set; }
 
         internal static EnvironmentData Parse(BinaryReader reader, MapParseContext context)
         {
@@ -41,6 +45,11 @@ namespace OpenSage.Data.Map
                 if (version >= 4)
                 {
                     result.UnknownTexture = reader.ReadUInt16PrefixedAsciiString();
+                }
+
+                if (version >= 6)
+                {
+                    result.UnknownTexture2 = reader.ReadUInt16PrefixedAsciiString();
                 }
 
                 return result;
@@ -68,6 +77,11 @@ namespace OpenSage.Data.Map
                 if (Version >= 4)
                 {
                     writer.WriteUInt16PrefixedAsciiString(UnknownTexture);
+                }
+
+                if (Version >= 6)
+                {
+                    writer.WriteUInt16PrefixedAsciiString(UnknownTexture2);
                 }
             });
         }
