@@ -11,6 +11,12 @@ namespace OpenSage.Data.Map
     {
         internal const string FourCcUncompressed = "CkMp";
 
+        [AddedIn(SageGame.Cnc3)]
+        public AssetList AssetList { get; private set; }
+
+        [AddedIn(SageGame.Ra3)]
+        public GlobalVersion GlobalVersion { get; private set; }
+
         public HeightMapData HeightMapData { get; private set; }
         public BlendTileData BlendTileData { get; private set; }
         public WorldInfo WorldInfo { get; private set; }
@@ -39,6 +45,18 @@ namespace OpenSage.Data.Map
 
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public TriggerAreas TriggerAreas { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public GlobalWaterSettings GlobalWaterSettings { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public FogSettings FogSettings { get; private set; }
+
+        [AddedIn(SageGame.Ra3)]
+        public MissionHotSpots MissionHotSpots { get; private set; }
+
+        [AddedIn(SageGame.Ra3)]
+        public MissionObjectives MissionObjectives { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public StandingWaterAreas StandingWaterAreas { get; private set; }
@@ -163,6 +181,14 @@ namespace OpenSage.Data.Map
             {
                 switch (assetName)
                 {
+                    case AssetList.AssetName:
+                        result.AssetList = AssetList.Parse(reader, context);
+                        break;
+
+                    case GlobalVersion.AssetName:
+                        result.GlobalVersion = GlobalVersion.Parse(reader, context);
+                        break;
+
                     case HeightMapData.AssetName:
                         result.HeightMapData = HeightMapData.Parse(reader, context);
                         break;
@@ -180,7 +206,7 @@ namespace OpenSage.Data.Map
                         break;
 
                     case SidesList.AssetName:
-                        result.SidesList = SidesList.Parse(reader, context);
+                        result.SidesList = SidesList.Parse(reader, context, result.AssetList != null);
                         break;
 
                     case LibraryMapLists.AssetName:
@@ -196,7 +222,7 @@ namespace OpenSage.Data.Map
                         break;
 
                     case BuildLists.AssetName:
-                        result.BuildLists = BuildLists.Parse(reader, context);
+                        result.BuildLists = BuildLists.Parse(reader, context, result.AssetList != null);
                         break;
 
                     case ObjectsList.AssetName:
@@ -209,6 +235,22 @@ namespace OpenSage.Data.Map
 
                     case TriggerAreas.AssetName:
                         result.TriggerAreas = TriggerAreas.Parse(reader, context);
+                        break;
+
+                    case GlobalWaterSettings.AssetName:
+                        result.GlobalWaterSettings = GlobalWaterSettings.Parse(reader, context);
+                        break;
+
+                    case FogSettings.AssetName:
+                        result.FogSettings = FogSettings.Parse(reader, context);
+                        break;
+
+                    case MissionHotSpots.AssetName:
+                        result.MissionHotSpots = MissionHotSpots.Parse(reader, context);
+                        break;
+
+                    case MissionObjectives.AssetName:
+                        result.MissionObjectives = MissionObjectives.Parse(reader, context);
                         break;
 
                     case StandingWaterAreas.AssetName:
@@ -290,6 +332,18 @@ namespace OpenSage.Data.Map
 
         private void WriteMapDataTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
+            if (AssetList != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(AssetList.AssetName));
+                AssetList.WriteTo(writer);
+            }
+
+            if (GlobalVersion != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(GlobalVersion.AssetName));
+                GlobalVersion.WriteTo(writer);
+            }
+
             writer.Write(assetNames.GetOrCreateAssetIndex(HeightMapData.AssetName));
             HeightMapData.WriteTo(writer);
 
@@ -306,7 +360,7 @@ namespace OpenSage.Data.Map
             }
 
             writer.Write(assetNames.GetOrCreateAssetIndex(SidesList.AssetName));
-            SidesList.WriteTo(writer, assetNames);
+            SidesList.WriteTo(writer, assetNames, AssetList != null);
 
             if (LibraryMapLists != null)
             {
@@ -329,7 +383,7 @@ namespace OpenSage.Data.Map
             if (BuildLists != null)
             {
                 writer.Write(assetNames.GetOrCreateAssetIndex(BuildLists.AssetName));
-                BuildLists.WriteTo(writer, assetNames);
+                BuildLists.WriteTo(writer, assetNames, AssetList != null);
             }
 
             writer.Write(assetNames.GetOrCreateAssetIndex(ObjectsList.AssetName));
@@ -345,6 +399,30 @@ namespace OpenSage.Data.Map
             {
                 writer.Write(assetNames.GetOrCreateAssetIndex(TriggerAreas.AssetName));
                 TriggerAreas.WriteTo(writer);
+            }
+
+            if (GlobalWaterSettings != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(GlobalWaterSettings.AssetName));
+                GlobalWaterSettings.WriteTo(writer);
+            }
+
+            if (FogSettings != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(FogSettings.AssetName));
+                FogSettings.WriteTo(writer);
+            }
+
+            if (MissionHotSpots != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(MissionHotSpots.AssetName));
+                MissionHotSpots.WriteTo(writer);
+            }
+
+            if (MissionObjectives != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(MissionObjectives.AssetName));
+                MissionObjectives.WriteTo(writer);
             }
 
             if (StandingWaterAreas != null)

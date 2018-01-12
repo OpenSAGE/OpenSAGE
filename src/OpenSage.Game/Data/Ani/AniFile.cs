@@ -92,9 +92,6 @@ namespace OpenSage.Data.Ani
                                     iconIndex++;
                                 }
                                 break;
-
-                            default:
-                                throw new InvalidDataException();
                         }
                         break;
 

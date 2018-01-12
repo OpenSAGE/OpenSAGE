@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 
 namespace OpenSage.Data.Map
 {
@@ -9,14 +8,34 @@ namespace OpenSage.Data.Map
 
         public bool ElevationsAre16Bit => Version >= 5;
 
+        // Gathered from heights in World Builder's status bar compared to heightmap data.
+        // In Generals, heights are stored as uint8 (max 255), and scaled by 0.625 (max 159.375)
+        // In BFME, heights are stored in uint16 (max 65536), and scaled by 0.00625 (max 409.6)
+        // In C&C3, heights are stored in uint16 (max 65536), and scaled by 0.0390625 (max 2560)
+        public float VerticalScale
+        {
+            get
+            {
+                if (!ElevationsAre16Bit)
+                {
+                    return 0.625f;
+                }
+
+                return Version >= 6
+                    ? 0.0390625f
+                    : 0.00625f;
+            }
+        }
+
         public uint Width { get; private set; }
         public uint Height { get; private set; }
+
         public uint BorderWidth { get; private set; }
 
         /// <summary>
         /// Relative to BorderWidth.
         /// </summary>
-        public HeightMapPerimeter[] Perimeters { get; private set; }
+        public HeightMapBorder[] Borders { get; private set; }
 
         public uint Area { get; private set; }
         public ushort[,] Elevations { get; private set; }
@@ -25,49 +44,40 @@ namespace OpenSage.Data.Map
         {
             return ParseAsset(reader, context, version =>
             {
-                var mapWidth = reader.ReadUInt32();
-                var mapHeight = reader.ReadUInt32();
-
-                var borderWidth = reader.ReadUInt32();
-
-                var perimeterCount = reader.ReadUInt32();
-                var perimeters = new HeightMapPerimeter[perimeterCount];
-
-                for (var i = 0; i < perimeterCount; i++)
+                var result = new HeightMapData
                 {
-                    perimeters[i] = new HeightMapPerimeter
-                    {
-                        Width = reader.ReadUInt32(),
-                        Height = reader.ReadUInt32()
-                    };
+                    Width = reader.ReadUInt32(),
+                    Height = reader.ReadUInt32(),
+
+                    BorderWidth = reader.ReadUInt32()
+                };
+
+                var borderCount = reader.ReadUInt32();
+                result.Borders = new HeightMapBorder[borderCount];
+
+                for (var i = 0; i < borderCount; i++)
+                {
+                    result.Borders[i] = HeightMapBorder.Parse(reader, version);
                 }
 
-                var area = reader.ReadUInt32();
-                if (mapWidth * mapHeight != area)
+                result.Area = reader.ReadUInt32();
+                if (result.Width * result.Height != result.Area)
                 {
                     throw new InvalidDataException();
                 }
 
-                var elevations = new ushort[mapWidth, mapHeight];
-                for (var y = 0; y < mapHeight; y++)
+                result.Elevations = new ushort[result.Width, result.Height];
+                for (var y = 0; y < result.Height; y++)
                 {
-                    for (var x = 0; x < mapWidth; x++)
+                    for (var x = 0; x < result.Width; x++)
                     {
-                        elevations[x, y] = version >= 5
+                        result.Elevations[x, y] = version >= 5
                             ? reader.ReadUInt16()
                             : reader.ReadByte();
                     }
                 }
 
-                return new HeightMapData
-                {
-                    Width = mapWidth,
-                    Height = mapHeight,
-                    BorderWidth = borderWidth,
-                    Perimeters = perimeters,
-                    Area = area,
-                    Elevations = elevations
-                };
+                return result;
             });
         }
 
@@ -80,12 +90,11 @@ namespace OpenSage.Data.Map
 
                 writer.Write(BorderWidth);
 
-                writer.Write((uint) Perimeters.Length);
+                writer.Write((uint) Borders.Length);
 
-                foreach (var perimeter in Perimeters)
+                foreach (var border in Borders)
                 {
-                    writer.Write(perimeter.Width);
-                    writer.Write(perimeter.Height);
+                    border.WriteTo(writer, Version);
                 }
 
                 writer.Write(Area);
@@ -108,10 +117,55 @@ namespace OpenSage.Data.Map
         }
     }
 
-    [DebuggerDisplay("Width = {Width}, Height = {Height}")]
-    public struct HeightMapPerimeter
+    public struct HeightMapBorder
     {
-        public uint Width;
-        public uint Height;
+        [AddedIn(SageGame.Cnc3)]
+        public uint Corner1X;
+
+        [AddedIn(SageGame.Cnc3)]
+        public uint Corner1Y;
+
+        public uint Corner2X;
+        public uint Corner2Y;
+
+        internal static HeightMapBorder Parse(BinaryReader reader, ushort version)
+        {
+            if (version >= 6)
+            {
+                return new HeightMapBorder
+                {
+                    Corner1X = reader.ReadUInt32(),
+                    Corner1Y = reader.ReadUInt32(),
+                    Corner2X = reader.ReadUInt32(),
+                    Corner2Y = reader.ReadUInt32()
+                };
+            }
+            else
+            {
+                return new HeightMapBorder
+                {
+                    Corner1X = 0,
+                    Corner1Y = 0,
+                    Corner2X = reader.ReadUInt32(),
+                    Corner2Y = reader.ReadUInt32()
+                };
+            }
+        }
+
+        internal void WriteTo(BinaryWriter writer, ushort version)
+        {
+            if (version >= 6)
+            {
+                writer.Write(Corner1X);
+                writer.Write(Corner1Y);
+                writer.Write(Corner2X);
+                writer.Write(Corner2Y);
+            }
+            else
+            {
+                writer.Write(Corner2X);
+                writer.Write(Corner2Y);
+            }
+        }
     }
 }

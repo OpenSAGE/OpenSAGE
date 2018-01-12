@@ -34,11 +34,15 @@ namespace OpenSage.Data.Map
         public ColorRgb Color { get; private set; }
         public float Alpha { get; private set; }
         public uint WaterHeight { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public string RiverType { get; private set; }
+
         public string MinimumWaterLod { get; private set; }
 
         public MapLine2D[] Lines { get; private set; }
 
-        internal static RiverArea Parse(BinaryReader reader)
+        internal static RiverArea Parse(BinaryReader reader, ushort version)
         {
             var result = new RiverArea
             {
@@ -62,6 +66,12 @@ namespace OpenSage.Data.Map
 
             result.Alpha = reader.ReadSingle();
             result.WaterHeight = reader.ReadUInt32();
+
+            if (version >= 3)
+            {
+                result.RiverType = reader.ReadUInt16PrefixedAsciiString();
+            }
+
             result.MinimumWaterLod = reader.ReadUInt16PrefixedAsciiString();
 
             var numLines = reader.ReadUInt32();
@@ -75,7 +85,7 @@ namespace OpenSage.Data.Map
             return result;
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        internal void WriteTo(BinaryWriter writer, ushort version)
         {
             writer.Write(UniqueID);
             writer.WriteUInt16PrefixedAsciiString(Name);
@@ -90,6 +100,12 @@ namespace OpenSage.Data.Map
             writer.Write((byte) 0);
             writer.Write(Alpha);
             writer.Write(WaterHeight);
+
+            if (version >= 3)
+            {
+                writer.WriteUInt16PrefixedAsciiString(RiverType);
+            }
+
             writer.WriteUInt16PrefixedAsciiString(MinimumWaterLod);
 
             writer.Write((uint) Lines.Length);

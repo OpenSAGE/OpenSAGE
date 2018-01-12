@@ -16,7 +16,15 @@ namespace OpenSage.Graphics.ParticleSystems
 
             _deadParticleSystems = new List<ParticleSystem>();
 
-            game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\ParticleSystem.ini");
+            switch (game.SageGame)
+            {
+                case SageGame.CncGenerals:
+                case SageGame.CncGeneralsZeroHour:
+                case SageGame.BattleForMiddleEarth:
+                case SageGame.BattleForMiddleEarthII:
+                    game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\ParticleSystem.ini");
+                    break;
+            }
         }
 
         public override void Update(GameTime gameTime)

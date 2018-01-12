@@ -59,6 +59,9 @@ namespace OpenSage.DataViewer.UI
                 case ".ini":
                     return new IniView(entry, _getGame());
 
+                case ".manifest":
+                    return new ManifestView(entry);
+
                 case ".map":
                     return new MapView(entry, _getGame());
 

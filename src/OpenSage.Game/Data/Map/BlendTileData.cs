@@ -37,6 +37,18 @@ namespace OpenSage.Data.Map
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public bool[,] Visibility { get; private set; }
 
+        [AddedIn(SageGame.BattleForMiddleEarth)]
+        public bool[,] ImpassabilityToAirUnits { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public bool[,] Buildability { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public bool[,] TiberiumGrowability { get; private set; }
+
+        [AddedIn(SageGame.Ra3)]
+        public byte[,] DynamicShrubberyDensity { get; private set; }
+
         public uint TextureCellCount { get; private set; }
 
         public BlendTileTexture[] Textures { get; private set; }
@@ -101,7 +113,7 @@ namespace OpenSage.Data.Map
                 result.ThreeWayBlends = reader.ReadUInt16Array2D(width, height);
                 result.CliffTextures = reader.ReadUInt16Array2D(width, height);
 
-                if (version >= 14)
+                if (version >= 14 && version < 24)
                 {
                     // TODO
                     result.Unknown = reader.ReadBytes((int) (width * height * 6));
@@ -122,36 +134,49 @@ namespace OpenSage.Data.Map
 
                     // If terrain is passable, there's a 0 in the data file.
                     result.Impassability = reader.ReadSingleBitBooleanArray2D(passabilityWidth, heightMapData.Height);
+                }
 
-                    if (version >= 10)
-                    {
-                        result.ImpassabilityToPlayers = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                if (version >= 10)
+                {
+                    result.ImpassabilityToPlayers = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                }
 
-                        if (version >= 11)
-                        {
-                            result.PassageWidths = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                if (version >= 11)
+                {
+                    result.PassageWidths = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                }
 
-                            if (version >= 14)
-                            {
-                                result.Taintability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                if (version >= 14 && version < 25)
+                {
+                    result.Taintability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                }
 
-                                if (version >= 15)
-                                {
-                                    result.ExtraPassability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                if (version >= 15)
+                {
+                    result.ExtraPassability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                }
 
-                                    if (version >= 16)
-                                    {
-                                        result.Flammability = reader.ReadByteArray2DAsEnum<TileFlammability>(heightMapData.Width, heightMapData.Height);
+                if (version >= 16 && version < 25)
+                {
+                    result.Flammability = reader.ReadByteArray2DAsEnum<TileFlammability>(heightMapData.Width, heightMapData.Height);
+                }
 
-                                        if (version >= 18)
-                                        {
-                                            result.Visibility = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                if (version >= 18)
+                {
+                    result.Visibility = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                }
+
+                if (version >= 24)
+                {
+                    // TODO: Are these in the right order?
+                    result.Buildability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                    result.ImpassabilityToAirUnits = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                    result.TiberiumGrowability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
+                }
+
+                if (version >= 25)
+                {
+                    result.DynamicShrubberyDensity = reader.ReadByteArray2D(heightMapData.Width, heightMapData.Height);
                 }
 
                 result.TextureCellCount = reader.ReadUInt32();
@@ -178,11 +203,8 @@ namespace OpenSage.Data.Map
                     result.Textures[i] = BlendTileTexture.Parse(reader);
                 }
 
+                // Can be a variety of values, don't know what it means.
                 result.MagicValue1 = reader.ReadUInt32();
-                if (result.MagicValue1 != 0)
-                {
-                    throw new InvalidDataException();
-                }
 
                 result.MagicValue2 = reader.ReadUInt32();
                 if (result.MagicValue2 != 0)
@@ -259,7 +281,7 @@ namespace OpenSage.Data.Map
                 writer.WriteUInt16Array2D(ThreeWayBlends);
                 writer.WriteUInt16Array2D(CliffTextures);
 
-                if (Version >= 14)
+                if (Version >= 14 && Version < 24)
                 {
                     writer.Write(Unknown);
                 }
@@ -267,36 +289,49 @@ namespace OpenSage.Data.Map
                 if (Version > 6)
                 {
                     writer.WriteSingleBitBooleanArray2D(Impassability);
+                }
 
-                    if (Version >= 10)
-                    {
-                        writer.WriteSingleBitBooleanArray2D(ImpassabilityToPlayers);
+                if (Version >= 10)
+                {
+                    writer.WriteSingleBitBooleanArray2D(ImpassabilityToPlayers);
+                }
 
-                        if (Version >= 11)
-                        {
-                            writer.WriteSingleBitBooleanArray2D(PassageWidths);
+                if (Version >= 11)
+                {
+                    writer.WriteSingleBitBooleanArray2D(PassageWidths);
+                }
 
-                            if (Version >= 14)
-                            {
-                                writer.WriteSingleBitBooleanArray2D(Taintability);
+                if (Version >= 14 && Version < 25)
+                {
+                    writer.WriteSingleBitBooleanArray2D(Taintability);
+                }
 
-                                if (Version >= 15)
-                                {
-                                    writer.WriteSingleBitBooleanArray2D(ExtraPassability);
+                if (Version >= 15)
+                {
+                    writer.WriteSingleBitBooleanArray2D(ExtraPassability);
+                }
 
-                                    if (Version >= 16)
-                                    {
-                                        writer.WriteByteArray2DAsEnum(Flammability);
+                if (Version >= 16 && Version < 25)
+                {
+                    writer.WriteByteArray2DAsEnum(Flammability);
+                }
 
-                                        if (Version >= 18)
-                                        {
-                                            writer.WriteSingleBitBooleanArray2D(Visibility, padValue: 0xFF);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                if (Version >= 18)
+                {
+                    writer.WriteSingleBitBooleanArray2D(Visibility, padValue: 0xFF);
+                }
+
+                if (Version >= 24)
+                {
+                    // TODO: Are these in the right order?
+                    writer.WriteSingleBitBooleanArray2D(Buildability);
+                    writer.WriteSingleBitBooleanArray2D(ImpassabilityToAirUnits);
+                    writer.WriteSingleBitBooleanArray2D(TiberiumGrowability);
+                }
+
+                if (Version >= 25)
+                {
+                    writer.WriteByteArray2D(DynamicShrubberyDensity);
                 }
 
                 writer.Write(TextureCellCount);

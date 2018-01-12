@@ -82,12 +82,7 @@ namespace OpenSage.Terrain
         {
             _heightMapData = heightMapData;
 
-            // Gathered from heights in World Builder's status bar compared to heightmap data.
-            // In Generals, heights are stored as uint8, and scaled by 0.625
-            // In BFME, heights are stored in uint16, and scale by 0.00625
-            _verticalScale = heightMapData.ElevationsAre16Bit
-                ? 0.00625f
-                : 0.625f;
+            _verticalScale = heightMapData.VerticalScale;
 
             Width = (int) heightMapData.Width;
             Height = (int) heightMapData.Height;

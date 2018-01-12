@@ -41,9 +41,9 @@ namespace OpenSage.Data.Map
 
                 // TODO: BFME. Overbright? Bloom?
                 byte[] unknown = null;
-                if (version >= 7)
+                if (version >= 7 && version < 11)
                 {
-                    unknown = reader.ReadBytes(44);
+                    unknown = reader.ReadBytes(version >= 9 ? 4 : 44);
                 }
 
                 ColorRgbF? noCloudFactor = null;
@@ -76,7 +76,7 @@ namespace OpenSage.Data.Map
 
                 ShadowColor.WriteTo(writer);
 
-                if (Version >= 7)
+                if (Version >= 7 && Version < 11)
                 {
                     writer.Write(Unknown);
                 }

@@ -16,6 +16,7 @@ namespace OpenSage.Data.Ini
             { "ShellMapName", (parser, x) => x.ShellMapName = parser.ParseString() },
             { "MapName", (parser, x) => x.MapName = parser.ParseString() },
             { "MoveHintName", (parser, x) => x.MoveHintName = parser.ParseString() },
+            { "MoveHintZBias", (parser, x) => x.MoveHintZBias = parser.ParseFloat() },
             { "ShowProps", (parser, x) => x.ShowProps = parser.ParseBoolean() },
             { "UseTrees", (parser, x) => x.UseTrees = parser.ParseBoolean() },
             { "UseFPSLimit", (parser, x) => x.UseFpsLimit = parser.ParseBoolean() },
@@ -127,6 +128,8 @@ namespace OpenSage.Data.Ini
             { "VertexWaterAttenuationC4", (parser, x) => x.VertexWaterAttenuationC4 = parser.ParseFloat() },
             { "VertexWaterAttenuationRange4", (parser, x) => x.VertexWaterAttenuationRange4 = parser.ParseFloat() },
 
+            { "TimeAfterDamageUntilRepairAllowed", (parser, x) => x.TimeAfterDamageUntilRepairAllowed = parser.ParseInteger() },
+
             { "DownwindAngle", (parser, x) => x.DownwindAngle = parser.ParseFloat() },
             { "DrawSkyBox", (parser, x) => x.DrawSkyBox = parser.ParseBoolean() },
             { "SkyBoxPositionZ", (parser, x) => x.SkyBoxPositionZ = parser.ParseFloat() },
@@ -140,6 +143,9 @@ namespace OpenSage.Data.Ini
             { "CameraLockHeightDelta", (parser, x) => x.CameraLockHeightDelta = parser.ParseFloat() },
             { "CameraTerrainSampleRadiusForHeight", (parser, x) => x.CameraTerrainSampleRadiusForHeight = parser.ParseFloat() },
 
+            { "JoypadScrollScalar", (parser, x) => x.JoypadScrollScalar = parser.ParseFloat() },
+            { "CursorMagnetismMode", (parser, x) => x.CursorMagnetismMode = parser.ParseInteger() },
+
             { "CameraPitch", (parser, x) => x.CameraPitch = parser.ParseFloat() },
             { "CameraYaw", (parser, x) => x.CameraYaw = parser.ParseFloat() },
             { "CameraHeight", (parser, x) => x.CameraHeight = parser.ParseFloat() },
@@ -148,6 +154,7 @@ namespace OpenSage.Data.Ini
             { "UseCameraInReplay", (parser, x) => x.UseCameraInReplay = parser.ParseBoolean() },
             { "CameraAdjustSpeed", (parser, x) => x.CameraAdjustSpeed = parser.ParseFloat() },
             { "ScrollAmountCutoff", (parser, x) => x.ScrollAmountCutoff = parser.ParseFloat() },
+            { "ScrollPitchMultiplier", (parser, x) => x.ScrollPitchMultiplier = parser.ParseFloat() },
             { "EnforceMaxCameraHeight", (parser, x) => x.EnforceMaxCameraHeight = parser.ParseBoolean() },
             { "TerrainHeightAtEdgeOfMap", (parser, x) => x.TerrainHeightAtEdgeOfMap = parser.ParseFloat() },
             { "UnitDamagedThreshold", (parser, x) => x.UnitDamagedThreshold = parser.ParseFloat() },
@@ -342,7 +349,11 @@ namespace OpenSage.Data.Ini
             { "HandicapBuildSpeed100", (parser, x) => x.HandicapBuildSpeed100 = parser.ParsePercentage() },
 
             { "ValuePerSupplyBox", (parser, x) => x.ValuePerSupplyBox = parser.ParseInteger() },
+            { "SupplyBoxesPerTibCrystal", (parser, x) => x.SupplyBoxesPerTibCrystal = parser.ParseInteger() },
             { "SupplyBoxesPerTree", (parser, x) => x.SupplyBoxesPerTree = parser.ParseInteger() },
+
+            { "GameSpeedFactor", (parser, x) => x.GameSpeedFactor = parser.ParseFloat() },
+            { "MinimalGameSpeedFactor", (parser, x) => x.MinimalGameSpeedFactor = parser.ParseFloat() },
 
             { "BuildSpeed", (parser, x) => x.BuildSpeed = parser.ParseFloat() },
             { "MinDistFromEdgeOfMapForBuild", (parser, x) => x.MinDistFromEdgeOfMapForBuild = parser.ParseFloat() },
@@ -501,6 +512,7 @@ namespace OpenSage.Data.Ini
             { "TutorialObjective", (parser, x) => x.TutorialObjective = parser.ParseLocalizedStringKey() },
 
             { "BasicTutorialMap", (parser, x) => x.BasicTutorialMap = parser.ParseFileName() },
+            { "BasicTutorialMapConsole", (parser, x) => x.BasicTutorialMapConsole = parser.ParseFileName() },
             { "BasicTutorialLoadScreenStillImage", (parser, x) => x.BasicTutorialLoadScreenStillImage = parser.ParseAssetReference() },
             { "BasicTutorialLoadScreenMusicTrack", (parser, x) => x.BasicTutorialLoadScreenMusicTrack = parser.ParseAssetReference() },
             { "BasicTutorialObjective", (parser, x) => x.BasicTutorialObjective = parser.ParseLocalizedStringKey() },
@@ -509,6 +521,7 @@ namespace OpenSage.Data.Ini
             { "AdvancedTutorialMap", (parser, x) => x.AdvancedTutorialMap = parser.ParseFileName() },
             { "AdvancedTutorialLoadScreenStillImage", (parser, x) => x.AdvancedTutorialLoadScreenStillImage = parser.ParseAssetReference() },
             { "AdvancedTutorialLoadScreenMusicTrack", (parser, x) => x.AdvancedTutorialLoadScreenMusicTrack = parser.ParseAssetReference() },
+            { "AdvancedTutorialLoadMovie", (parser, x) => x.AdvancedTutorialLoadMovie = parser.ParseAssetReference() },
             { "AdvancedTutorialObjective", (parser, x) => x.AdvancedTutorialObjective = parser.ParseLocalizedStringKey() },
             { "AdvancedTutorialMillisecondsAfterStartToStartFadeUp", (parser, x) => x.AdvancedTutorialMillisecondsAfterStartToStartFadeUp = parser.ParseInteger() },
 
@@ -520,8 +533,8 @@ namespace OpenSage.Data.Ini
             { "ScoreKeeper_HeroesVettedMultiplier", (parser, x) => x.ScoreKeeper_HeroesVettedMultiplier = parser.ParseInteger() },
             { "ScoreKeeper_UnitsVettedMultiplier", (parser, x) => x.ScoreKeeper_UnitsVettedMultiplier = parser.ParseInteger() },
             { "ScoreKeeper_ObjectivesCompletedMultiplier", (parser, x) => x.ScoreKeeper_ObjectivesCompletedMultiplier = parser.ParseInteger() },
-            { "ScoreKeeper_SuppliesCollectedMultiplier", (parser, x) => x.ScoreKeeper_SuppliesCollectedMultiplier = parser.ParseInteger() },
-            { "ScoreKeeper_SkillPointsMultiplier", (parser, x) => x.ScoreKeeper_SkillPointsMultiplier = parser.ParseInteger() },
+            { "ScoreKeeper_SuppliesCollectedMultiplier", (parser, x) => x.ScoreKeeper_SuppliesCollectedMultiplier = parser.ParseFloat() },
+            { "ScoreKeeper_SkillPointsMultiplier", (parser, x) => x.ScoreKeeper_SkillPointsMultiplier = parser.ParseFloat() },
             { "ScoreKeeper_PowerPointsMultiplier", (parser, x) => x.ScoreKeeper_PowerPointsMultiplier = parser.ParseInteger() },
             { "ScoreKeeper_RegionCommandPointsMultiplier", (parser, x) => x.ScoreKeeper_RegionCommandPointsMultiplier = parser.ParseInteger() },
             { "ScoreKeeper_RegionResourcesMultiplier", (parser, x) => x.ScoreKeeper_RegionResourcesMultiplier = parser.ParseInteger() },
@@ -539,6 +552,7 @@ namespace OpenSage.Data.Ini
             { "GarrisonedRangeMultiplier", (parser, x) => x.GarrisonedRangeMultiplier = parser.ParseFloat() },
 
             { "MaxPathfindCellsPerFrame", (parser, x) => x.MaxPathfindCellsPerFrame = parser.ParseInteger() },
+            { "MaxPathfindCellsPerPhase", (parser, x) => x.MaxPathfindCellsPerPhase = parser.ParseInteger() },
             { "MaxCellsFindMeleeEngagementLocation", (parser, x) => x.MaxCellsFindMeleeEngagementLocation = parser.ParseInteger() },
             { "MaxCellsAdjustDestination", (parser, x) => x.MaxCellsAdjustDestination = parser.ParseInteger() },
             { "MaxCellsAdjustHordeMeleeDestination", (parser, x) => x.MaxCellsAdjustHordeMeleeDestination = parser.ParseInteger() },
@@ -554,6 +568,8 @@ namespace OpenSage.Data.Ini
             { "MaxCellsToExamineTowardsGoal", (parser, x) => x.MaxCellsToExamineTowardsGoal = parser.ParseInteger() },
 
             { "NumMinutesBeforePlayersCanTransferMoney", (parser, x) => x.NumMinutesBeforePlayersCanTransferMoney = parser.ParseInteger() },
+
+            { "NumFilmImages", (parser, x) => x.NumFilmImages = parser.ParseInteger() },
 
             { "StateMachineDebug", (parser, x) => x.StateMachineDebug = parser.ParseBoolean() },
             { "UseCameraConstraints", (parser, x) => x.UseCameraConstraints = parser.ParseBoolean() },
@@ -589,6 +605,9 @@ namespace OpenSage.Data.Ini
         public string ShellMapName { get; private set; }
         public string MapName { get; private set; }
         public string MoveHintName { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public float MoveHintZBias { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public bool ShowProps { get; private set; }
@@ -725,6 +744,9 @@ namespace OpenSage.Data.Ini
         public float VertexWaterAttenuationC4 { get; private set; }
         public float VertexWaterAttenuationRange4 { get; private set; }
 
+        [AddedIn(SageGame.Cnc3)]
+        public int TimeAfterDamageUntilRepairAllowed { get; private set; }
+
         public float DownwindAngle { get; private set; }
         public bool DrawSkyBox { get; private set; }
         public float SkyBoxPositionZ { get; private set; }
@@ -751,6 +773,12 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public float CameraTerrainSampleRadiusForHeight { get; private set; }
 
+        [AddedIn(SageGame.Cnc3)]
+        public float JoypadScrollScalar { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public int CursorMagnetismMode { get; private set; }
+
         public float CameraPitch { get; private set; }
         public float CameraYaw { get; private set; }
         public float CameraHeight { get; private set; }
@@ -762,6 +790,10 @@ namespace OpenSage.Data.Ini
 
         public float CameraAdjustSpeed { get; private set; }
         public float ScrollAmountCutoff { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public float ScrollPitchMultiplier { get; private set; }
+
         public bool EnforceMaxCameraHeight { get; private set; }
         public float TerrainHeightAtEdgeOfMap { get; private set; }
         public float UnitDamagedThreshold { get; private set; }
@@ -1072,8 +1104,17 @@ namespace OpenSage.Data.Ini
 
         public int ValuePerSupplyBox { get; private set; }
 
+        [AddedIn(SageGame.Cnc3)]
+        public int SupplyBoxesPerTibCrystal { get; private set; }
+
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public int SupplyBoxesPerTree { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public float GameSpeedFactor { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public float MinimalGameSpeedFactor { get; private set; }
 
         public float BuildSpeed { get; private set; }
         public float MinDistFromEdgeOfMapForBuild { get; private set; }
@@ -1321,6 +1362,9 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public string BasicTutorialMap { get; private set; }
 
+        [AddedIn(SageGame.Cnc3)]
+        public string BasicTutorialMapConsole { get; private set; }
+
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public string BasicTutorialLoadScreenStillImage { get; private set; }
 
@@ -1341,6 +1385,9 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public string AdvancedTutorialLoadScreenMusicTrack { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public string AdvancedTutorialLoadMovie { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public string AdvancedTutorialObjective { get; private set; }
@@ -1373,10 +1420,10 @@ namespace OpenSage.Data.Ini
         public int ScoreKeeper_ObjectivesCompletedMultiplier { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
-        public int ScoreKeeper_SuppliesCollectedMultiplier { get; private set; }
+        public float ScoreKeeper_SuppliesCollectedMultiplier { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarthII)]
-        public int ScoreKeeper_SkillPointsMultiplier { get; private set; }
+        public float ScoreKeeper_SkillPointsMultiplier { get; private set; }
 
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public int ScoreKeeper_PowerPointsMultiplier { get; private set; }
@@ -1420,6 +1467,9 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public int MaxPathfindCellsPerFrame { get; private set; }
 
+        [AddedIn(SageGame.Cnc3)]
+        public int MaxPathfindCellsPerPhase { get; private set; }
+
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public int MaxCellsFindMeleeEngagementLocation { get; private set; }
 
@@ -1461,6 +1511,9 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         public int NumMinutesBeforePlayersCanTransferMoney { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public int NumFilmImages { get; private set; }
 
         public bool StateMachineDebug { get; private set; }
         public bool UseCameraConstraints { get; private set; }

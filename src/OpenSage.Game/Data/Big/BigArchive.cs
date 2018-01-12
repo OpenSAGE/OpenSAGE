@@ -89,7 +89,10 @@ namespace OpenSage.Data.Big
                 var entry = new BigArchiveEntry(this, entryName, entryOffset, entrySize);
 
                 _entries.Add(entry);
-                _entriesDictionary.Add(entryName, entry);
+
+                // Overwrite any previous entries with the same name.
+                // Yes, at least one .big file has entries with duplicate names.
+                _entriesDictionary[entryName] = entry;
             }
         }
 

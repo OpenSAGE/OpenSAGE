@@ -24,11 +24,24 @@ namespace OpenSage.Data.Tests.Map
                 bool skipRoundtripEqualityTest = false;
                 switch (entry.FilePath)
                 {
-                    // Differences in passability data, because the original file appears to have
-                    // un-initialized (random) values for partial passability bytes beyond the map width.
+                    // Differences in passability data, because the original files have unusual
+                    // values for partial passability bytes beyond the map width.
                     case @"Maps\USA07-TaskForces\USA07-TaskForces.map":
                     case @"maps\map evil shelobslair\map evil shelobslair.map": // BFME
                     case @"maps\map good shelobslair\map good shelobslair.map": // BFME
+                    case @"data\maps\official\map_sp_aliens_1_1_london\map_sp_aliens_1_1_london.map": // CNC3
+                    case @"data\maps\official\map_sp_gdi_2_4_nuke_facility\map_sp_gdi_2_4_nuke_facility.map": // CNC3
+                    case @"data\maps\official\map_sp_gdi_4_4_berne\map_sp_gdi_4_4_berne.map": // CNC3
+                    case @"data\maps\official\map_sp_nod_2_3_coastal_brazil\map_sp_nod_2_3_coastal_brazil.map": // CNC3
+                    case @"data\maps\official\map_sp_nod_5_5_the_tower\map_sp_nod_5_5_the_tower.map": // CNC3
+                    case @"data\maps\official\map_mp_4_black1\map_mp_4_black1.map": // CNC3
+                    case @"data\maps\official\metagameworld\metagameworld.map": // CNC3
+                    case @"data\maps\official\metagameworldact1\metagameworldact1.map": // CNC3
+                    case @"data\maps\official\metagameworldact2\metagameworldact2.map": // CNC3
+                    case @"data\maps\official\metagameworldact3\metagameworldact3.map": // CNC3
+                    case @"data\maps\official\map_mp_4_ssmith2-remix\map_mp_4_ssmith2-remix.map": // RA3
+                    case @"data\maps\official\camp_j09_amsterdam_bass\camp_j09_amsterdam_bass.map": // RA3
+                    case @"data\maps\official\tutorial_protocols_smith\tutorial_protocols_smith.map": // RA3
                         skipRoundtripEqualityTest = true;
                         break;
                 }
@@ -383,7 +396,48 @@ namespace OpenSage.Data.Tests.Map
         }
 
         [Fact]
-        public void BlendTileData_StandingWaterAreas()
+        public void BlendTileData_Tiles()
+        {
+            var mapFile = GetMapFile();
+
+            Assert.False(mapFile.BlendTileData.Impassability[0, 0]);
+            Assert.True(mapFile.BlendTileData.Impassability[1, 0]);
+            Assert.False(mapFile.BlendTileData.Impassability[2, 0]);
+            Assert.False(mapFile.BlendTileData.Impassability[3, 0]);
+
+            Assert.False(mapFile.BlendTileData.ImpassabilityToPlayers[0, 0]);
+            Assert.False(mapFile.BlendTileData.ImpassabilityToPlayers[1, 0]);
+            Assert.True(mapFile.BlendTileData.ImpassabilityToPlayers[2, 0]);
+            Assert.False(mapFile.BlendTileData.ImpassabilityToPlayers[3, 0]);
+
+            Assert.False(mapFile.BlendTileData.ImpassabilityToAirUnits[0, 0]);
+            Assert.False(mapFile.BlendTileData.ImpassabilityToAirUnits[1, 0]);
+            Assert.False(mapFile.BlendTileData.ImpassabilityToAirUnits[2, 0]);
+            Assert.False(mapFile.BlendTileData.ImpassabilityToAirUnits[3, 0]);
+
+            Assert.True(mapFile.BlendTileData.PassageWidths[0, 0]);
+            Assert.False(mapFile.BlendTileData.PassageWidths[1, 0]);
+
+            Assert.False(mapFile.BlendTileData.ExtraPassability[0, 0]);
+            Assert.False(mapFile.BlendTileData.ExtraPassability[1, 0]);
+            Assert.False(mapFile.BlendTileData.ExtraPassability[2, 0]);
+            Assert.True(mapFile.BlendTileData.ExtraPassability[3, 0]);
+
+            Assert.True(mapFile.BlendTileData.Visibility[0, 0]);
+            Assert.False(mapFile.BlendTileData.Visibility[1, 0]);
+
+            Assert.False(mapFile.BlendTileData.Buildability[0, 0]);
+            Assert.True(mapFile.BlendTileData.Buildability[1, 0]);
+
+            Assert.False(mapFile.BlendTileData.TiberiumGrowability[0, 0]);
+            Assert.True(mapFile.BlendTileData.TiberiumGrowability[1, 0]);
+
+            Assert.Equal(100, mapFile.BlendTileData.DynamicShrubberyDensity[0, 0]);
+            Assert.Equal(0, mapFile.BlendTileData.DynamicShrubberyDensity[1, 0]);
+        }
+
+        [Fact]
+        public void StandingWaterAreas()
         {
             var mapFile = GetMapFile();
 
@@ -419,7 +473,7 @@ namespace OpenSage.Data.Tests.Map
         }
 
         [Fact]
-        public void BlendTileData_RiverAreas()
+        public void RiverAreas()
         {
             var mapFile = GetMapFile();
 
@@ -465,7 +519,7 @@ namespace OpenSage.Data.Tests.Map
         }
 
         [Fact]
-        public void BlendTileData_StandingWaveAreas()
+        public void StandingWaveAreas()
         {
             var mapFile = GetMapFile();
 
@@ -507,7 +561,7 @@ namespace OpenSage.Data.Tests.Map
         }
 
         [Fact]
-        public void BlendTileData_Scripts()
+        public void Scripts()
         {
             var mapFile = GetMapFile();
 
@@ -558,7 +612,7 @@ namespace OpenSage.Data.Tests.Map
         }
 
         [Fact]
-        public void BlendTileData_CameraAnimationLists()
+        public void CameraAnimationLists()
         {
             var mapFile = GetMapFile();
 
@@ -577,6 +631,87 @@ namespace OpenSage.Data.Tests.Map
             var cameraAnimation3 = mapFile.CameraAnimationList.Animations[3];
 
             Assert.Equal("Look-at Animation 2", cameraAnimation3.Name);
+        }
+
+        [Fact]
+        public void Scripts_EvaluationIntervals()
+        {
+            var mapFile = GetMapFile();
+
+            Assert.Equal(9, mapFile.PlayerScriptsList.ScriptLists[0].Scripts.Length);
+
+            var script1 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[0];
+
+            Assert.Equal("Script 1 - Every Frame", script1.Name);
+            Assert.Equal(0u, script1.EvaluationInterval);
+            Assert.False(script1.UsesEvaluationIntervalType);
+            Assert.Equal(EvaluationIntervalType.FrameOrSeconds, script1.EvaluationIntervalType);
+
+            var script2 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[1];
+
+            Assert.Equal("Script 2 - Every 23 Seconds", script2.Name);
+            Assert.Equal(23u, script2.EvaluationInterval);
+            Assert.False(script2.UsesEvaluationIntervalType);
+            Assert.Equal(EvaluationIntervalType.FrameOrSeconds, script2.EvaluationIntervalType);
+
+            var script3 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[2];
+
+            Assert.Equal("Script 3 - Every 11 [blank]", script3.Name);
+            Assert.Equal(11u, script3.EvaluationInterval);
+            Assert.True(script3.UsesEvaluationIntervalType);
+            Assert.Equal(EvaluationIntervalType.FrameOrSeconds, script3.EvaluationIntervalType);
+
+            var script4 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[3];
+
+            Assert.Equal("Script 4 - Every 12 Operations", script4.Name);
+            Assert.Equal(12u, script4.EvaluationInterval);
+            Assert.True(script4.UsesEvaluationIntervalType);
+            Assert.Equal(EvaluationIntervalType.Operation, script4.EvaluationIntervalType);
+
+            var script5 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[4];
+
+            Assert.Equal("Script 5 - Every 13 Move Forces", script5.Name);
+            Assert.Equal(13u, script5.EvaluationInterval);
+            Assert.True(script5.UsesEvaluationIntervalType);
+            Assert.Equal(EvaluationIntervalType.MoveForces, script5.EvaluationIntervalType);
+
+            var script6 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[5];
+
+            Assert.Equal("Script 6 - Every 14 Battle", script6.Name);
+            Assert.Equal(14u, script6.EvaluationInterval);
+            Assert.True(script6.UsesEvaluationIntervalType);
+            Assert.Equal(EvaluationIntervalType.Battle, script6.EvaluationIntervalType);
+
+            var script7 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[6];
+
+            Assert.Equal("Script 7 - Every 15 Upkeep", script7.Name);
+            Assert.Equal(15u, script7.EvaluationInterval);
+            Assert.True(script7.UsesEvaluationIntervalType);
+            Assert.Equal(EvaluationIntervalType.Upkeep, script7.EvaluationIntervalType);
+
+            var script8 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[7];
+
+            Assert.Equal("Script 8 - Every 16 Complete", script8.Name);
+            Assert.Equal(16u, script8.EvaluationInterval);
+            Assert.True(script8.UsesEvaluationIntervalType);
+            Assert.Equal(EvaluationIntervalType.Complete, script8.EvaluationIntervalType);
+
+            var script9 = mapFile.PlayerScriptsList.ScriptLists[0].Scripts[8];
+
+            Assert.Equal("Script 9 - Every 17 Any", script9.Name);
+            Assert.Equal(17u, script9.EvaluationInterval);
+            Assert.True(script9.UsesEvaluationIntervalType);
+            Assert.Equal(EvaluationIntervalType.Any, script9.EvaluationIntervalType);
+        }
+
+        [Fact]
+        public void BuildLists()
+        {
+            var mapFile = GetMapFile();
+
+            Assert.Equal(2, mapFile.BuildLists.Items.Length);
+
+            Assert.Equal(6, mapFile.BuildLists.Items[1].Items.Length);
         }
 
         private static MapFile GetMapFile([CallerMemberName] string testName = null)

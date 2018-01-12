@@ -7,6 +7,7 @@ namespace OpenSage.Data.Map
     public sealed class TriggerArea
     {
         public string Name { get; private set; }
+        public string LayerName { get; private set; }
         public uint ID { get; private set; }
         public Vector2[] Points { get; private set; }
 
@@ -14,11 +15,7 @@ namespace OpenSage.Data.Map
         {
             var name = reader.ReadUInt16PrefixedAsciiString();
 
-            var unknown1 = reader.ReadUInt16();
-            if (unknown1 != 0)
-            {
-                throw new InvalidDataException();
-            }
+            var layerName = reader.ReadUInt16PrefixedAsciiString();
 
             var id = reader.ReadUInt32();
 
@@ -39,6 +36,7 @@ namespace OpenSage.Data.Map
             return new TriggerArea
             {
                 Name = name,
+                LayerName = layerName,
                 ID = id,
                 Points = points
             };
@@ -48,7 +46,7 @@ namespace OpenSage.Data.Map
         {
             writer.WriteUInt16PrefixedAsciiString(Name);
 
-            writer.Write((ushort) 0);
+            writer.WriteUInt16PrefixedAsciiString(LayerName);
 
             writer.Write(ID);
 

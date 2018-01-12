@@ -29,11 +29,23 @@ namespace OpenSage.Data.Map
         /// </summary>
         public uint EvaluationInterval { get; private set; }
 
+        /// <summary>
+        /// True if script uses of the new evaluation interval types:
+        /// every X Operations, Move Forces, etc.
+        /// </summary>
+        [AddedIn(SageGame.Cnc3)]
+        public bool UsesEvaluationIntervalType { get; private set; }
+
+        [AddedIn(SageGame.Cnc3)]
+        public EvaluationIntervalType EvaluationIntervalType { get; private set; }
+
         public bool ActionsFireSequentially { get; private set; }
         public bool LoopActions { get; private set; }
         public int LoopCount { get; private set; }
         public SequentialScriptTarget SequentialTargetType { get; private set; }
         public string SequentialTargetName { get; private set; }
+
+        public string Unknown { get; private set; }
 
         public ScriptOrCondition[] OrConditions { get; private set; }
 
@@ -65,6 +77,17 @@ namespace OpenSage.Data.Map
                 if (version >= 2)
                 {
                     result.EvaluationInterval = reader.ReadUInt32();
+
+                    if (version >= 5)
+                    {
+                        result.UsesEvaluationIntervalType = reader.ReadBooleanChecked();
+
+                        result.EvaluationIntervalType = reader.ReadUInt32AsEnum<EvaluationIntervalType>();
+                    }
+                    else
+                    {
+                        result.EvaluationIntervalType = EvaluationIntervalType.FrameOrSeconds;
+                    }
                 }
 
                 if (version >= 4)
@@ -79,8 +102,8 @@ namespace OpenSage.Data.Map
 
                     result.SequentialTargetName = reader.ReadUInt16PrefixedAsciiString();
 
-                    var all = reader.ReadUInt16PrefixedAsciiString();
-                    if (all != "ALL")
+                    result.Unknown = reader.ReadUInt16PrefixedAsciiString();
+                    if (result.Unknown != "ALL" && result.Unknown != "Planning" && result.Unknown != "X")
                     {
                         throw new InvalidDataException();
                     }
@@ -141,6 +164,12 @@ namespace OpenSage.Data.Map
                 if (Version >= 2)
                 {
                     writer.Write(EvaluationInterval);
+
+                    if (Version >= 5)
+                    {
+                        writer.Write(UsesEvaluationIntervalType);
+                        writer.Write((uint) EvaluationIntervalType);
+                    }
                 }
 
                 if (Version >= 4)
@@ -150,7 +179,7 @@ namespace OpenSage.Data.Map
                     writer.Write(LoopCount);
                     writer.Write((byte) SequentialTargetType);
                     writer.WriteUInt16PrefixedAsciiString(SequentialTargetName);
-                    writer.WriteUInt16PrefixedAsciiString("ALL");
+                    writer.WriteUInt16PrefixedAsciiString(Unknown);
                 }
 
                 foreach (var orCondition in OrConditions)
@@ -178,5 +207,16 @@ namespace OpenSage.Data.Map
     {
         Team = 0,
         Unit = 1
+    }
+
+    public enum EvaluationIntervalType
+    {
+        Operation = 0,
+        MoveForces = 1,
+        Battle = 2,
+        Upkeep = 3,
+        Complete = 4,
+        Any = 5,
+        FrameOrSeconds = 6
     }
 }
