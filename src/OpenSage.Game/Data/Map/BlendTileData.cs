@@ -146,7 +146,7 @@ namespace OpenSage.Data.Map
                     result.PassageWidths = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
                 }
 
-                if (version >= 14 && version < 27)
+                if (version >= 14 && version < 25)
                 {
                     result.Taintability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
                 }
@@ -156,7 +156,7 @@ namespace OpenSage.Data.Map
                     result.ExtraPassability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
                 }
 
-                if (version >= 16 && version < 27)
+                if (version >= 16 && version < 25)
                 {
                     result.Flammability = reader.ReadByteArray2DAsEnum<TileFlammability>(heightMapData.Width, heightMapData.Height);
                 }
@@ -174,7 +174,7 @@ namespace OpenSage.Data.Map
                     result.TiberiumGrowability = reader.ReadSingleBitBooleanArray2D(heightMapData.Width, heightMapData.Height);
                 }
 
-                if (version >= 27)
+                if (version >= 25)
                 {
                     result.DynamicShrubberyDensity = reader.ReadByteArray2D(heightMapData.Width, heightMapData.Height);
                 }
@@ -204,7 +204,7 @@ namespace OpenSage.Data.Map
                 }
 
                 result.MagicValue1 = reader.ReadUInt32();
-                if (result.MagicValue1 != 0 && result.MagicValue1 != 0xCDCDCDCD)
+                if (result.MagicValue1 != 0 && result.MagicValue1 != 0xCDCDCDCD && result.MagicValue1 != 0x4341502d)
                 {
                     throw new InvalidDataException();
                 }
@@ -304,7 +304,7 @@ namespace OpenSage.Data.Map
                     writer.WriteSingleBitBooleanArray2D(PassageWidths);
                 }
 
-                if (Version >= 14 && Version < 27)
+                if (Version >= 14 && Version < 25)
                 {
                     writer.WriteSingleBitBooleanArray2D(Taintability);
                 }
@@ -314,7 +314,7 @@ namespace OpenSage.Data.Map
                     writer.WriteSingleBitBooleanArray2D(ExtraPassability);
                 }
 
-                if (Version >= 16 && Version < 27)
+                if (Version >= 16 && Version < 25)
                 {
                     writer.WriteByteArray2DAsEnum(Flammability);
                 }
@@ -332,7 +332,7 @@ namespace OpenSage.Data.Map
                     writer.WriteSingleBitBooleanArray2D(TiberiumGrowability);
                 }
 
-                if (Version >= 27)
+                if (Version >= 25)
                 {
                     writer.WriteByteArray2D(DynamicShrubberyDensity);
                 }
