@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Mathematics;
 using OpenSage.Content;
@@ -48,22 +49,17 @@ namespace OpenSage.Graphics.Cameras
             set { _terrainPosition = new Vector3(value.X, value.Y, 0); }
         }
 
-        public CameraAnimation StartAnimation(
-            Vector3 startPosition,
-            Vector3 endPosition,
-            TimeSpan startTime,
-            TimeSpan duration)
+        public CameraAnimation StartAnimation(IReadOnlyList<Vector3> points, TimeSpan startTime, TimeSpan duration)
         {
             EndAnimation();
 
             return _animation = new CameraAnimation(
-                 startPosition,
-                 endPosition,
-                 _lookDirection,
-                 startTime,
-                 duration,
-                 Pitch,
-                 _zoom);
+                points,
+                _lookDirection,
+                startTime,
+                duration,
+                Pitch,
+                _zoom);
         }
 
         public CameraAnimation CurrentAnimation => _animation;
@@ -106,6 +102,11 @@ namespace OpenSage.Graphics.Cameras
         void ICameraController.ModFinalLookToward(in Vector3 position)
         {
             CurrentAnimation.SetFinalLookToward(position);
+        }
+
+        void ICameraController.ModLookToward(in Vector3 position)
+        {
+            CurrentAnimation.SetLookToward(position);
         }
 
         private static float GetKeyMovement(in CameraInputState inputState, Key positive, Key negative)

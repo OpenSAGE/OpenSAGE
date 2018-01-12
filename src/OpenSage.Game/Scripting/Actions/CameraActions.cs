@@ -55,6 +55,17 @@ namespace OpenSage.Scripting.Actions
             return ActionResult.Finished;
         }
 
+        
+        public static ActionResult CameraModLookToward(ScriptAction action, ScriptExecutionContext context)
+        {
+            var waypointName = action.Arguments[0].StringValue;
+            var waypoint = context.Scene.Settings.Waypoints[waypointName];
+
+            context.Scene.CameraController.ModLookToward(waypoint.Position);
+
+            return ActionResult.Finished;
+        }
+
         public static ActionResult MoveCameraTo(ScriptAction action, ScriptExecutionContext context)
         {
             var targetWaypoint = context.Scene.Settings.Waypoints[action.Arguments[0].StringValue];
@@ -95,8 +106,7 @@ namespace OpenSage.Scripting.Actions
             if (_animation == null)
             {
                 _animation = context.Scene.CameraController.StartAnimation(
-                    context.Scene.CameraController.TerrainPosition,
-                    _targetWaypoint.Position,
+                    new[] {context.Scene.CameraController.TerrainPosition, _targetWaypoint.Position},
                     context.UpdateTime.TotalGameTime,
                     _duration);
             }
@@ -112,7 +122,6 @@ namespace OpenSage.Scripting.Actions
         private readonly TimeSpan _totalDuration;
 
         private CameraAnimation _animation;
-        private int _currentNode;
 
         public MoveCameraAlongWaypointPathAction(List<Waypoint> path, TimeSpan totalDuration, float shutter)
         {
@@ -124,24 +133,19 @@ namespace OpenSage.Scripting.Actions
 
         public override ActionResult Execute(ScriptExecutionContext context)
         {
-            if (_animation != null && !_animation.Finished) return this;
+            if (_animation == null)
+            {
+                // TODO: Avoid allocating this list?
+                // TODO: Does the real engine start the animation from the current position? 
+                var pathWithCurrentPos = new List<Vector3> {context.Scene.CameraController.TerrainPosition};
+                pathWithCurrentPos.AddRange(_path.Select(waypoint => waypoint.Position));
 
-            if (_currentNode >= _path.Count - 1) return ActionResult.Finished;
+                _animation = context.Scene.CameraController.StartAnimation(
+                    pathWithCurrentPos,
+                    context.UpdateTime.TotalGameTime, _totalDuration);
+            }
 
-            var start = _path[_currentNode];
-            var end = _path[++_currentNode];
-
-            // TODO: Test if this is the right "algorithm", or if the animation duration is relative to the distance between nodes.
-            var duration = new TimeSpan(_totalDuration.Ticks / _path.Count - 1);
-
-            // TODO: StartAnimation should probably take the entire path at once, so it can perform interpolation.
-            _animation = context.Scene.CameraController.StartAnimation(
-                start.Position,
-                end.Position,
-                context.UpdateTime.TotalGameTime,
-                duration);
-
-            return this;
+            return _animation.Finished ? ActionResult.Finished : this;
         }
     }
 }

@@ -33,6 +33,7 @@ namespace OpenSage.Scripting.Actions
             { ScriptActionType.CameraModSetFinalZoom, CameraActions.CameraModSetFinalZoom },
             { ScriptActionType.CameraModSetFinalPitch, CameraActions.CameraModSetFinalPitch },
             { ScriptActionType.CameraModFinalLookToward, CameraActions.CameraModFinalLookToward },
+            { ScriptActionType.CameraModLookToward, CameraActions.CameraModLookToward },
 
             // Team
             { ScriptActionType.TeamFollowWaypointsExact, TeamActions.TeamFollowWaypointsExact }
