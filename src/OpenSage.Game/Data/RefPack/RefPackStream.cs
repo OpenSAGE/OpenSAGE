@@ -29,6 +29,11 @@ namespace OpenSage.Data.RefPack
 
         public static bool IsProbablyRefPackCompressed(byte[] data)
         {
+            if (data.Length < 2)
+            {
+                return false;
+            }
+
             var headerByte1 = data[0];
             if ((headerByte1 & 0b00111110) != 0b00010000)
             {
