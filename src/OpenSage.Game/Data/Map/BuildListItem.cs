@@ -19,7 +19,7 @@ namespace OpenSage.Data.Map
         public bool Unknown3 { get; private set; }
         public bool Unknown4 { get; private set; }
 
-        internal static BuildListItem Parse(BinaryReader reader, ushort version, ushort versionThatHasUnknownBoolean)
+        internal static BuildListItem Parse(BinaryReader reader, ushort version, ushort versionThatHasUnknownBoolean, bool mapHasAssetList)
         {
             var result = new BuildListItem
             {
@@ -33,7 +33,9 @@ namespace OpenSage.Data.Map
                 StructureAlreadyBuilt = reader.ReadBooleanChecked()
             };
 
-            if (version >= versionThatHasUnknownBoolean)
+            // BFME and C&C3 both used v1 for this chunk, but C&C3 has an extra boolean here.
+            // If the map file has an AssetList chunk, we assume it's C&C3.
+            if (mapHasAssetList && version >= versionThatHasUnknownBoolean)
             {
                 result.Unknown1 = reader.ReadBooleanChecked();
             }
@@ -52,7 +54,7 @@ namespace OpenSage.Data.Map
             return result;
         }
 
-        internal void WriteTo(BinaryWriter writer, ushort version, ushort versionThatHasUnknownBoolean)
+        internal void WriteTo(BinaryWriter writer, ushort version, ushort versionThatHasUnknownBoolean, bool mapHasAssetList)
         {
             writer.WriteUInt16PrefixedAsciiString(BuildingName);
 
@@ -63,14 +65,14 @@ namespace OpenSage.Data.Map
 
             writer.Write(StructureAlreadyBuilt);
 
-            writer.Write(Rebuilds);
-
-            writer.WriteUInt16PrefixedAsciiString(Script);
-
-            if (version >= versionThatHasUnknownBoolean)
+            if (mapHasAssetList && version >= versionThatHasUnknownBoolean)
             {
                 writer.Write(Unknown1);
             }
+
+            writer.Write(Rebuilds);
+
+            writer.WriteUInt16PrefixedAsciiString(Script);
 
             writer.Write(StartingHealth);
 

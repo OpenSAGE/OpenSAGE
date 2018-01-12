@@ -7,7 +7,7 @@ namespace OpenSage.Data.Map
         public AssetPropertyCollection Properties { get; private set; }
         public BuildListItem[] BuildList { get; private set; }
 
-        internal static Player Parse(BinaryReader reader, MapParseContext context, ushort version)
+        internal static Player Parse(BinaryReader reader, MapParseContext context, ushort version, bool mapHasAssetList)
         {
             var result = new Player
             {
@@ -19,7 +19,7 @@ namespace OpenSage.Data.Map
 
             for (var i = 0; i < numBuildListItems; i++)
             {
-                buildListItems[i] = BuildListItem.Parse(reader, version, 6);
+                buildListItems[i] = BuildListItem.Parse(reader, version, 6, mapHasAssetList);
             }
 
             result.BuildList = buildListItems;
@@ -27,7 +27,7 @@ namespace OpenSage.Data.Map
             return result;
         }
 
-        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames, ushort version)
+        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames, ushort version, bool mapHasAssetList)
         {
             Properties.WriteTo(writer, assetNames);
 
@@ -35,7 +35,7 @@ namespace OpenSage.Data.Map
 
             foreach (var buildListItem in BuildList)
             {
-                buildListItem.WriteTo(writer, version, 6);
+                buildListItem.WriteTo(writer, version, 6, mapHasAssetList);
             }
         }
     }

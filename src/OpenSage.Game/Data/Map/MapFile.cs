@@ -193,7 +193,7 @@ namespace OpenSage.Data.Map
                         break;
 
                     case SidesList.AssetName:
-                        result.SidesList = SidesList.Parse(reader, context);
+                        result.SidesList = SidesList.Parse(reader, context, result.AssetList != null);
                         break;
 
                     case LibraryMapLists.AssetName:
@@ -209,7 +209,7 @@ namespace OpenSage.Data.Map
                         break;
 
                     case BuildLists.AssetName:
-                        result.BuildLists = BuildLists.Parse(reader, context);
+                        result.BuildLists = BuildLists.Parse(reader, context, result.AssetList != null);
                         break;
 
                     case ObjectsList.AssetName:
@@ -333,7 +333,7 @@ namespace OpenSage.Data.Map
             }
 
             writer.Write(assetNames.GetOrCreateAssetIndex(SidesList.AssetName));
-            SidesList.WriteTo(writer, assetNames);
+            SidesList.WriteTo(writer, assetNames, AssetList != null);
 
             if (LibraryMapLists != null)
             {
@@ -356,7 +356,7 @@ namespace OpenSage.Data.Map
             if (BuildLists != null)
             {
                 writer.Write(assetNames.GetOrCreateAssetIndex(BuildLists.AssetName));
-                BuildLists.WriteTo(writer, assetNames);
+                BuildLists.WriteTo(writer, assetNames, AssetList != null);
             }
 
             writer.Write(assetNames.GetOrCreateAssetIndex(ObjectsList.AssetName));

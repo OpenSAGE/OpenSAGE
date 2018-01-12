@@ -13,7 +13,7 @@ namespace OpenSage.Data.Map
         public Team[] Teams { get; private set; }
         public PlayerScriptsList PlayerScripts { get; private set; }
 
-        internal static SidesList Parse(BinaryReader reader, MapParseContext context)
+        internal static SidesList Parse(BinaryReader reader, MapParseContext context, bool mapHasAssetList)
         {
             return ParseAsset(reader, context, version =>
             {
@@ -28,7 +28,7 @@ namespace OpenSage.Data.Map
 
                 for (var i = 0; i < numPlayers; i++)
                 {
-                    players[i] = Player.Parse(reader, context, version);
+                    players[i] = Player.Parse(reader, context, version, mapHasAssetList);
                 }
 
                 if (version >= 5)
@@ -75,7 +75,7 @@ namespace OpenSage.Data.Map
             });
         }
 
-        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)
+        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames, bool mapHasAssetList)
         {
             WriteAssetTo(writer, () =>
             {
@@ -88,7 +88,7 @@ namespace OpenSage.Data.Map
 
                 foreach (var player in Players)
                 {
-                    player.WriteTo(writer, assetNames, Version);
+                    player.WriteTo(writer, assetNames, Version, mapHasAssetList);
                 }
 
                 if (Version >= 5)

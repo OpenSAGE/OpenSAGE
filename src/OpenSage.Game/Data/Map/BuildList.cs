@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Map
@@ -6,23 +8,25 @@ namespace OpenSage.Data.Map
     public sealed class BuildList
     {
         /// <summary>
-        /// Used in v1
+        /// Used in BFME
         /// </summary>
         public AssetPropertyKey FactionNameProperty { get; private set; }
 
         /// <summary>
-        /// Used in > v1
+        /// Used in >= C&C3
         /// </summary>
         [AddedIn(SageGame.Cnc3)]
         public string FactionName { get; private set; }
 
         public BuildListItem[] Items { get; private set; }
 
-        internal static BuildList Parse(BinaryReader reader, MapParseContext context, ushort version)
+        internal static BuildList Parse(BinaryReader reader, MapParseContext context, ushort version, bool mapHasAssetList)
         {
             var result = new BuildList();
 
-            if (version >= 1)
+            // BFME and C&C3 both used v1 for this chunk, but store the faction name differently :(
+            // If the map file has an AssetList chunk, we assume it's C&C3.
+            if (mapHasAssetList)
             {
                 result.FactionName = reader.ReadUInt16PrefixedAsciiString();
             }
@@ -36,15 +40,15 @@ namespace OpenSage.Data.Map
 
             for (var i = 0; i < numBuildListItems; i++)
             {
-                result.Items[i] = BuildListItem.Parse(reader, version, 1);
+                result.Items[i] = BuildListItem.Parse(reader, version, 1, mapHasAssetList);
             }
 
             return result;
         }
 
-        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames, ushort version)
+        internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames, ushort version, bool mapHasAssetList)
         {
-            if (version >= 1)
+            if (mapHasAssetList)
             {
                 writer.WriteUInt16PrefixedAsciiString(FactionName);
             }
@@ -57,7 +61,7 @@ namespace OpenSage.Data.Map
 
             foreach (var buildListItem in Items)
             {
-                buildListItem.WriteTo(writer, version, 1);
+                buildListItem.WriteTo(writer, version, 1, mapHasAssetList);
             }
         }
     }
