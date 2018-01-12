@@ -39,6 +39,9 @@ namespace OpenSage.Data.Tests.Map
                     case @"data\maps\official\metagameworldact1\metagameworldact1.map": // CNC3
                     case @"data\maps\official\metagameworldact2\metagameworldact2.map": // CNC3
                     case @"data\maps\official\metagameworldact3\metagameworldact3.map": // CNC3
+                    case @"data\maps\official\map_mp_4_ssmith2-remix\map_mp_4_ssmith2-remix.map": // RA3
+                    case @"data\maps\official\camp_j09_amsterdam_bass\camp_j09_amsterdam_bass.map": // RA3
+                    case @"data\maps\official\tutorial_protocols_smith\tutorial_protocols_smith.map": // RA3
                         skipRoundtripEqualityTest = true;
                         break;
                 }

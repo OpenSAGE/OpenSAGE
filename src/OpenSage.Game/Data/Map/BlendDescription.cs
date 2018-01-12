@@ -31,14 +31,17 @@ namespace OpenSage.Data.Map
         {
             var secondaryTextureTile = reader.ReadUInt32();
 
+            // TODO: These bytes are all 221 for at least one RA3 map.
             var rawBlendDirection = reader.ReadBytes(4);
             var blendDirection = ToBlendDirection(rawBlendDirection);
 
             // TODO: Figure out these flags for BFME I maps.
+            // TODO: This is 221 for at least one RA3 map.
             var flags = (BlendFlags) reader.ReadByte();
             //var flags = reader.ReadByteAsEnum<BlendFlags>();
 
-            var twoSided = reader.ReadBooleanChecked();
+            // TODO: This is 221 for at least one RA3 map.
+            var twoSided = reader.ReadBoolean(); // reader.ReadBooleanChecked();
 
             var magicValue1 = reader.ReadUInt32();
             if (magicValue1 != MagicValue1_1 && magicValue1 != MagicValue1_2)
