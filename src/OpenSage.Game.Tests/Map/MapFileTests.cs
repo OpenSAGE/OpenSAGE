@@ -393,6 +393,47 @@ namespace OpenSage.Data.Tests.Map
         }
 
         [Fact]
+        public void BlendTileData_Tiles()
+        {
+            var mapFile = GetMapFile();
+
+            Assert.False(mapFile.BlendTileData.Impassability[0, 0]);
+            Assert.True(mapFile.BlendTileData.Impassability[1, 0]);
+            Assert.False(mapFile.BlendTileData.Impassability[2, 0]);
+            Assert.False(mapFile.BlendTileData.Impassability[3, 0]);
+
+            Assert.False(mapFile.BlendTileData.ImpassabilityToPlayers[0, 0]);
+            Assert.False(mapFile.BlendTileData.ImpassabilityToPlayers[1, 0]);
+            Assert.True(mapFile.BlendTileData.ImpassabilityToPlayers[2, 0]);
+            Assert.False(mapFile.BlendTileData.ImpassabilityToPlayers[3, 0]);
+
+            Assert.False(mapFile.BlendTileData.ImpassabilityToAirUnits[0, 0]);
+            Assert.False(mapFile.BlendTileData.ImpassabilityToAirUnits[1, 0]);
+            Assert.False(mapFile.BlendTileData.ImpassabilityToAirUnits[2, 0]);
+            Assert.False(mapFile.BlendTileData.ImpassabilityToAirUnits[3, 0]);
+
+            Assert.True(mapFile.BlendTileData.PassageWidths[0, 0]);
+            Assert.False(mapFile.BlendTileData.PassageWidths[1, 0]);
+
+            Assert.False(mapFile.BlendTileData.ExtraPassability[0, 0]);
+            Assert.False(mapFile.BlendTileData.ExtraPassability[1, 0]);
+            Assert.False(mapFile.BlendTileData.ExtraPassability[2, 0]);
+            Assert.True(mapFile.BlendTileData.ExtraPassability[3, 0]);
+
+            Assert.True(mapFile.BlendTileData.Visibility[0, 0]);
+            Assert.False(mapFile.BlendTileData.Visibility[1, 0]);
+
+            Assert.False(mapFile.BlendTileData.Buildability[0, 0]);
+            Assert.True(mapFile.BlendTileData.Buildability[1, 0]);
+
+            Assert.False(mapFile.BlendTileData.TiberiumGrowability[0, 0]);
+            Assert.True(mapFile.BlendTileData.TiberiumGrowability[1, 0]);
+
+            Assert.Equal(100, mapFile.BlendTileData.DynamicShrubberyDensity[0, 0]);
+            Assert.Equal(0, mapFile.BlendTileData.DynamicShrubberyDensity[1, 0]);
+        }
+
+        [Fact]
         public void StandingWaterAreas()
         {
             var mapFile = GetMapFile();
@@ -667,7 +708,7 @@ namespace OpenSage.Data.Tests.Map
 
             Assert.Equal(2, mapFile.BuildLists.Items.Length);
 
-            Assert.Equal(6, mapFile.BuildLists.Items[0].Items.Length);
+            Assert.Equal(6, mapFile.BuildLists.Items[1].Items.Length);
         }
 
         private static MapFile GetMapFile([CallerMemberName] string testName = null)
