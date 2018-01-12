@@ -18,73 +18,83 @@ namespace OpenSage.Data.Map
 
         internal static GlobalLightingConfiguration Parse(BinaryReader reader, uint version)
         {
-            var terrainSun = GlobalLight.Parse(reader);
-            var objectSun = GlobalLight.Parse(reader);
+            var result = new GlobalLightingConfiguration();
 
-            GlobalLight infantrySun = null;
-            if (version >= 7)
+            result.TerrainSun = GlobalLight.Parse(reader);
+
+            if (version < 11)
             {
-                infantrySun = GlobalLight.Parse(reader);
+                result.ObjectSun = GlobalLight.Parse(reader);
+
+                if (version >= 7)
+                {
+                    result.InfantrySun = GlobalLight.Parse(reader);
+                }
             }
 
-            var terrainAccent1 = GlobalLight.Parse(reader);
-            var objectAccent1 = GlobalLight.Parse(reader);
+            result.TerrainAccent1 = GlobalLight.Parse(reader);
 
-            GlobalLight infantryAccent1 = null;
-            if (version >= 7)
+            if (version < 11)
             {
-                infantryAccent1 = GlobalLight.Parse(reader);
+                result.ObjectAccent1 = GlobalLight.Parse(reader);
+
+                if (version >= 7)
+                {
+                    result.InfantryAccent1 = GlobalLight.Parse(reader);
+                }
             }
 
-            var terrainAccent2 = GlobalLight.Parse(reader);
-            var objectAccent2 = GlobalLight.Parse(reader);
+            result.TerrainAccent2 = GlobalLight.Parse(reader);
 
-            GlobalLight infantryAccent2 = null;
-            if (version >= 7)
+            if (version < 11)
             {
-                infantryAccent2 = GlobalLight.Parse(reader);
+                result.ObjectAccent2 = GlobalLight.Parse(reader);
+
+                if (version >= 7)
+                {
+                    result.InfantryAccent2 = GlobalLight.Parse(reader);
+                }
             }
 
-            return new GlobalLightingConfiguration
-            {
-                TerrainSun = terrainSun,
-                ObjectSun = objectSun,
-                InfantrySun = infantrySun,
-
-                TerrainAccent1 = terrainAccent1,
-                TerrainAccent2 = terrainAccent2,
-                InfantryAccent1 = infantryAccent1,
-
-                ObjectAccent1 = objectAccent1,
-                ObjectAccent2 = objectAccent2,
-                InfantryAccent2 = infantryAccent2
-            };
+            return result;
         }
 
         internal void WriteTo(BinaryWriter writer, uint version)
         {
             TerrainSun.WriteTo(writer);
-            ObjectSun.WriteTo(writer);
 
-            if (version >= 7)
+            if (version < 11)
             {
-                InfantrySun.WriteTo(writer);
+                ObjectSun.WriteTo(writer);
+
+                if (version >= 7)
+                {
+                    InfantrySun.WriteTo(writer);
+                }
             }
 
             TerrainAccent1.WriteTo(writer);
-            ObjectAccent1.WriteTo(writer);
 
-            if (version >= 7)
+            if (version < 11)
             {
-                InfantryAccent1.WriteTo(writer);
+                ObjectAccent1.WriteTo(writer);
+
+                if (version >= 7)
+                {
+                    InfantryAccent1.WriteTo(writer);
+                }
             }
 
             TerrainAccent2.WriteTo(writer);
-            ObjectAccent2.WriteTo(writer);
 
-            if (version >= 7)
+            if (version < 11)
             {
-                InfantryAccent2.WriteTo(writer);
+                ObjectAccent2.WriteTo(writer);
+
+                if (version >= 7)
+                {
+                    InfantryAccent2.WriteTo(writer);
+                }
             }
         }
     }
