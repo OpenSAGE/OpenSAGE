@@ -47,6 +47,12 @@ namespace OpenSage.Data.Map
 
         public string Unknown { get; private set; }
 
+        [AddedIn(SageGame.Ra3Uprising)]
+        public int Unknown2 { get; private set; }
+
+        [AddedIn(SageGame.Ra3Uprising)]
+        public ushort Unknown3 { get; private set; }
+
         public ScriptOrCondition[] OrConditions { get; private set; }
 
         public ScriptAction[] ActionsIfTrue { get; private set; }
@@ -78,7 +84,7 @@ namespace OpenSage.Data.Map
                 {
                     result.EvaluationInterval = reader.ReadUInt32();
 
-                    if (version >= 5)
+                    if (version == 5)
                     {
                         result.UsesEvaluationIntervalType = reader.ReadBooleanChecked();
 
@@ -104,6 +110,17 @@ namespace OpenSage.Data.Map
 
                     result.Unknown = reader.ReadUInt16PrefixedAsciiString();
                     if (result.Unknown != "ALL" && result.Unknown != "Planning" && result.Unknown != "X")
+                    {
+                        throw new InvalidDataException();
+                    }
+                }
+
+                if (version >= 6)
+                {
+                    result.Unknown2 = reader.ReadInt32();
+
+                    result.Unknown3 = reader.ReadUInt16();
+                    if (result.Unknown3 != 0)
                     {
                         throw new InvalidDataException();
                     }
@@ -165,7 +182,7 @@ namespace OpenSage.Data.Map
                 {
                     writer.Write(EvaluationInterval);
 
-                    if (Version >= 5)
+                    if (Version == 5)
                     {
                         writer.Write(UsesEvaluationIntervalType);
                         writer.Write((uint) EvaluationIntervalType);
@@ -180,6 +197,12 @@ namespace OpenSage.Data.Map
                     writer.Write((byte) SequentialTargetType);
                     writer.WriteUInt16PrefixedAsciiString(SequentialTargetName);
                     writer.WriteUInt16PrefixedAsciiString(Unknown);
+                }
+
+                if (Version >= 6)
+                {
+                    writer.Write(Unknown2);
+                    writer.Write(Unknown3);
                 }
 
                 foreach (var orCondition in OrConditions)

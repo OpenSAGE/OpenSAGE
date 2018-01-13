@@ -42,6 +42,11 @@ namespace OpenSage.Data.Tests.Map
                     case @"data\maps\official\map_mp_4_ssmith2-remix\map_mp_4_ssmith2-remix.map": // RA3
                     case @"data\maps\official\camp_j09_amsterdam_bass\camp_j09_amsterdam_bass.map": // RA3
                     case @"data\maps\official\tutorial_protocols_smith\tutorial_protocols_smith.map": // RA3
+                    case @"data\maps\official\camp_ep01_a01_igaprefecture_davis\camp_ep01_a01_igaprefecture_davis.map": // RA3 Uprising
+                    case @"data\maps\official\camp_ep01_j03_vladivostok_smith\camp_ep01_j03_vladivostok_smith.map": // RA3 Uprising
+                    case @"data\maps\official\camp_ep01_s03_yucatan_stewart\camp_ep01_s03_yucatan_stewart.map": // RA3 Uprising
+                    case @"data\maps\official\map_mp_3_feasel1\map_mp_3_feasel1.map": // RA3 Uprising
+                    case @"data\maps\official\tutorial_protocols_smith_360\tutorial_protocols_smith_360.map": // RA3 Uprising
                         skipRoundtripEqualityTest = true;
                         break;
                 }
