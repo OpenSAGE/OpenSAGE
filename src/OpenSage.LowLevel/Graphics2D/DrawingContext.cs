@@ -1,4 +1,5 @@
-﻿using OpenSage.LowLevel.Graphics3D;
+﻿using System.Numerics;
+using OpenSage.LowLevel.Graphics3D;
 
 namespace OpenSage.LowLevel.Graphics2D
 {
@@ -44,14 +45,24 @@ namespace OpenSage.LowLevel.Graphics2D
             PlatformFillTriangle(triangle, fillColor);
         }
 
-        public void FillTriangle(in RawTriangleF triangle, Texture texture,RawMatrix3x2 transform)
+        public void FillTriangle(in RawTriangleF triangle, Texture texture, in Matrix3x2 brushTransform)
         {
-            PlatformFillTriangle(triangle, texture, transform);
+            PlatformFillTriangle(triangle, texture, brushTransform);
         }
 
         public void FillRectangle(in RawRectangleF rect, in ColorRgbaF fillColor)
         {
             PlatformFillRectangle(rect, fillColor);
+        }
+
+        public void Transform(in Matrix3x2 transform)
+        {
+            PlatformTransform(transform);
+        }
+
+        public void ColorTransform(in ColorRgbaF color)
+        {
+            PlatformColorTransform(color);
         }
 
         public void End()

@@ -14,6 +14,7 @@ namespace OpenSage.Data.Apt
         internal string MovieName;
         internal FileSystem FileSystem;
         internal ImageMap ImageMap;
+        internal Dictionary<uint, Geometry> GeometryMap;
 
         private AptFile(ConstantData constants, FileSystem filesystem, string name)
         {
@@ -40,14 +41,15 @@ namespace OpenSage.Data.Apt
             ImageMap = ImageMap.FromFileSystemEntry(datEntry);
 
             //resolve geometries
+            GeometryMap = new Dictionary<uint, Geometry>();
             foreach (Shape shape in Movie.Characters.FindAll((x)=>x is Shape))
             {
                 var ruPath = MovieName + "_geometry/" + shape.Geometry + ".ru";
                 var shapeEntry = FileSystem.GetFile(ruPath);
                 var shapeGeometry = Geometry.FromFileSystemEntry(shapeEntry);
-                
+                shapeGeometry.Container = this;
+                GeometryMap[shape.Geometry] = shapeGeometry;
             }
-
 
             var importDict = new Dictionary<string, AptFile>();
 

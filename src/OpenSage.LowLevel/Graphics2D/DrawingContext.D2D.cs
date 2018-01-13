@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Numerics;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.LowLevel.Graphics3D.Util;
 using SharpDX.Direct2D1;
@@ -10,10 +11,12 @@ namespace OpenSage.LowLevel.Graphics2D
     {
         private GraphicsDevice2D _graphicsDevice;
         private Bitmap1 _bitmap;
+        private ColorRgbaF _colorTransform;
 
         private void PlatformConstruct(GraphicsDevice2D graphicsDevice, Texture targetTexture)
         {
             _graphicsDevice = graphicsDevice;
+            _colorTransform = ColorRgbaF.White;
 
             using (var dxgiSurface = targetTexture.DeviceResource.QueryInterface<Surface>())
             {
@@ -117,7 +120,7 @@ namespace OpenSage.LowLevel.Graphics2D
             }
         }
 
-        private void PlatformFillTriangle(in RawTriangleF triangle, Texture texture, in RawMatrix3x2 transform)
+        private void PlatformFillTriangle(in RawTriangleF triangle, Texture texture, in Matrix3x2 brushTransform)
         {
             if (texture.MipMapCount > 1)
             {
@@ -126,7 +129,7 @@ namespace OpenSage.LowLevel.Graphics2D
 
             using (var dxgiSurface = texture.DeviceResource.QueryInterface<Surface>())
             using (var bitmap = new Bitmap1(_graphicsDevice.DeviceContext, dxgiSurface))
-            using (var brush = CreateImageBrush(bitmap, transform))
+            using (var brush = CreateImageBrush(bitmap, brushTransform))
             using (var geometry = new PathGeometry(_graphicsDevice.DeviceContext.Factory))
             {
                 using (var sink = geometry.Open())
@@ -143,19 +146,31 @@ namespace OpenSage.LowLevel.Graphics2D
             }
         }
 
-        private SolidColorBrush CreateBrush(in ColorRgbaF color)
+        private void PlatformTransform(in Matrix3x2 matrix)
         {
-            return new SolidColorBrush(_graphicsDevice.DeviceContext, color.ToRawColor4());
+            _graphicsDevice.DeviceContext.Transform = ToRawMatrix3x2(matrix);
         }
 
-        private BitmapBrush1 CreateImageBrush(in Bitmap1 image, in RawMatrix3x2 transform)
+        private void PlatformColorTransform(in ColorRgbaF color)
+        {
+            _colorTransform = color;
+        }
+
+        private SolidColorBrush CreateBrush(in ColorRgbaF color)
+        {
+            var outColor = _colorTransform.BlendMultiply(color);
+
+            return new SolidColorBrush(_graphicsDevice.DeviceContext, outColor.ToRawColor4());
+        }
+
+        private BitmapBrush1 CreateImageBrush(in Bitmap1 image, in Matrix3x2 transform)
         {
             var brushProp = new BrushProperties()
             {
                 Transform = ToRawMatrix3x2(transform),
-                Opacity = 1.0f
+                Opacity = _colorTransform.A
             };
-
+            
             return new BitmapBrush1(_graphicsDevice.DeviceContext, image, brushProp);
         }
 
@@ -164,7 +179,7 @@ namespace OpenSage.LowLevel.Graphics2D
             return new SharpDX.Mathematics.Interop.RawRectangleF(value.X, value.Y, value.X + value.Width, value.Y + value.Height);
         }
 
-        private static SharpDX.Mathematics.Interop.RawMatrix3x2 ToRawMatrix3x2(in RawMatrix3x2 m)
+        private static SharpDX.Mathematics.Interop.RawMatrix3x2 ToRawMatrix3x2(in Matrix3x2 m)
         {
             return new SharpDX.Mathematics.Interop.RawMatrix3x2(m.M11, m.M12, m.M21, m.M22, m.M31, m.M32);
         }

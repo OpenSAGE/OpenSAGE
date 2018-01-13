@@ -28,7 +28,7 @@ namespace OpenSage.Data.Apt
     {
         public List<IGeometryEntry> Entries { get; private set; }
         public RectangleF BoundingBox { get; private set; }
-
+        public AptFile Container { get; internal set; }
 
         public Geometry()
         {
@@ -277,7 +277,7 @@ namespace OpenSage.Data.Apt
         public ColorRgba Color { get; }
         public List<Triangle2D> Triangles { get; }
         public int Image { get; }
-        public Matrix2x2 Rotation { get; }
+        public Matrix2x2 RotScale { get; }
         public Vector2 Translation { get; }
         public GeometryStyle Type => GeometryStyle.TexturedTri;
 
@@ -286,7 +286,7 @@ namespace OpenSage.Data.Apt
             Color = color;
             Triangles = triangles;
             Image = image;
-            Rotation = rot;
+            RotScale = rot;
             Translation = translation;
         }
     }

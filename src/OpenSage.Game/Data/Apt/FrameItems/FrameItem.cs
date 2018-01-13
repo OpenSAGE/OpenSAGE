@@ -17,7 +17,7 @@ namespace OpenSage.Data.Apt.FrameItems
     {
         public static FrameItem Create(BinaryReader reader)
         {
-            FrameItem frameitem = null;
+            FrameItem frameItem = null;
 
             var type = reader.ReadUInt32AsEnum<FrameItemType>();
 
@@ -26,18 +26,22 @@ namespace OpenSage.Data.Apt.FrameItems
                 case FrameItemType.Action:
                     break;
                 case FrameItemType.FrameLabel:
+                    frameItem = FrameLabel.Parse(reader);
                     break;
                 case FrameItemType.PlaceObject:
+                    frameItem = PlaceObject.Parse(reader);
                     break;
                 case FrameItemType.RemoveObject:
+                    frameItem = RemoveObject.Parse(reader);
                     break;
                 case FrameItemType.BackgroundColor:
+                    frameItem = BackgroundColor.Parse(reader);
                     break;
                 case FrameItemType.InitAction:
                     break;
             }
 
-            return frameitem;
+            return frameItem;
         }
     }
 }

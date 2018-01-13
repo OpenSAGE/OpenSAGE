@@ -50,7 +50,7 @@ namespace OpenSage.DataViewer.UI.Viewers
             {
                 Index = index.ToString();
 
-                if (entry.Type == ConstantEntryType.Number)
+                if (entry.Type == ConstantEntryType.Register)
                     Value = Convert.ToUInt32(entry.Value).ToString();
                 else
                     Value = Convert.ToString(entry.Value);

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Graphics.Effects;
+using OpenSage.Mathematics;
+using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Gui.Apt
 {
@@ -58,18 +60,44 @@ namespace OpenSage.Gui.Apt
 
         internal override void OnSwapChainChanged()
         {
+            if (Game.Scene == null)
+                return;
+
+            var viewport = Game.Scene.Camera.Viewport;
+            var size = new Size(viewport.Width, viewport.Height);
+
             foreach (var guiComponent in _guiComponents)
             {
-                //CreateSizeDependentResources(guiComponent);
+                guiComponent.Layout(Game.GraphicsDevice, size);
             }
+        }
+
+        internal override void BuildRenderList(RenderList renderList)
+        {
+            foreach (var component in _guiComponents)
+            {
+                renderList.Gui.AddRenderItemDraw(
+                    component.Material,
+                    component.VertexBuffer,
+                    null,
+                    CullFlags.AlwaysVisible,
+                    null,
+                    default,
+                    0,
+                    6);
+            }
+
+            base.BuildRenderList(renderList);
         }
 
         public override void Update(GameTime gameTime)
         {
-          
-            base.Update(gameTime);
-        }
+            foreach(var component in _guiComponents)
+            {
+                component.Update(gameTime, Game.GraphicsDevice);
+            }
 
-       
+            base.Update(gameTime);
+        }      
     }
 }

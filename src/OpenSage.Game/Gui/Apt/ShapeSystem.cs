@@ -83,7 +83,5 @@ namespace OpenSage.Gui.Apt
 
             base.Update(gameTime);
         }
-
-
     }
 }
