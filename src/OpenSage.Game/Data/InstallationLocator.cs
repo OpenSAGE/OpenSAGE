@@ -49,6 +49,36 @@ namespace OpenSage.Data
             }
         }
 
+        public string LauncherImagePath
+        {
+            get
+            {
+                switch (Game)
+                {
+                    case SageGame.CncGenerals:
+                    case SageGame.CncGeneralsZeroHour:
+                        return @"Install_Final.bmp";
+
+                    // TODO: Needs to be localised?
+                    case SageGame.BattleForMiddleEarth:
+                        return "englishsplash.jpg";
+
+                    // TODO: Needs to be localised?
+                    case SageGame.BattleForMiddleEarthII:
+                        return "EnglishSplash.jpg";
+
+                    case SageGame.Cnc3:
+                    case SageGame.Cnc3KanesWrath:
+                    case SageGame.Ra3:
+                    case SageGame.Ra3Uprising:
+                        return @"Launcher\splash.bmp";
+
+                    default:
+                        throw new InvalidOperationException($"{Game} is not supported.");
+                }
+            }
+        }
+
         public GameInstallation(SageGame game, string path, string secondaryPath = null)
         {
             Game = game;

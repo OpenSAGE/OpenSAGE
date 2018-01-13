@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Eto.Drawing;
 using Eto.Forms;
@@ -14,6 +15,7 @@ namespace OpenSage.DataViewer.UI
         public event EventHandler<InstallationChangedEventArgs> InstallationChanged;
 
         private readonly ButtonMenuItem _installationsMenuItem;
+        private readonly ImageView _installationImageView;
 
         private GameInstallation _installation;
         private FileSystem _fileSystem;
@@ -61,9 +63,13 @@ namespace OpenSage.DataViewer.UI
                 Items =
                 {
                     _installationsMenuItem,
-				},
+                },
                 QuitItem = quitCommand
             };
+
+            _installationImageView = new ImageView();
+            _installationImageView.Width = 250;
+            _installationImageView.Height = 187;
 
             var contentView = new ContentView(() => _game);
 
@@ -73,9 +79,13 @@ namespace OpenSage.DataViewer.UI
                 contentView.SetContent(e.Entry);
             };
 
+            var sidebar = new TableLayout(
+                _installationImageView,
+                filesList);
+
             Content = new Splitter
             {
-                Panel1 = filesList,
+                Panel1 = sidebar,
                 Panel2 = contentView
             };
         }
@@ -121,6 +131,17 @@ namespace OpenSage.DataViewer.UI
                 HostPlatform.GraphicsDevice2D,
                 _fileSystem,
                 installation.Game);
+
+            var launcherImagePath = installation.LauncherImagePath;
+            if (launcherImagePath != null)
+            {
+                var fullImagePath = Path.Combine(installation.Path, launcherImagePath);
+                _installationImageView.Image = new Bitmap(fullImagePath);
+            }
+            else
+            {
+                _installationImageView.Image = null;
+            }
 
             InstallationChanged?.Invoke(this, new InstallationChangedEventArgs(installation, _fileSystem));
         }
