@@ -278,6 +278,7 @@ namespace OpenSage
                 switch (SageGame)
                 {
                     case SageGame.Cnc3:
+                    case SageGame.Cnc3KanesWrath:
                         // TODO: Get version number dynamically.
                         cursorDirectory = Path.Combine("RetailExe", "1.0", "Data", "Cursors");
                         break;
