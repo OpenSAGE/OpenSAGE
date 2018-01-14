@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.Mathematics;
@@ -21,6 +22,12 @@ namespace OpenSage.Data.Map
         public MapColorArgb ShadowColor { get; private set; }
 
         public byte[] Unknown { get; private set; }
+
+        [AddedIn(SageGame.Cnc4)]
+        public Vector3? Unknown2 { get; private set; }
+
+        [AddedIn(SageGame.Cnc4)]
+        public MapColorArgb? Unknown3 { get; private set; }
 
         public ColorRgbF? NoCloudFactor { get; private set; }
 
@@ -46,6 +53,14 @@ namespace OpenSage.Data.Map
                     unknown = reader.ReadBytes(version >= 9 ? 4 : 44);
                 }
 
+                Vector3? unknown2 = null;
+                MapColorArgb? unknown3 = null;
+                if (version >= 12)
+                {
+                    unknown2 = reader.ReadVector3();
+                    unknown3 = MapColorArgb.Parse(reader);
+                }
+
                 ColorRgbF? noCloudFactor = null;
                 if (version >= 8)
                 {
@@ -58,6 +73,8 @@ namespace OpenSage.Data.Map
                     LightingConfigurations = lightingConfigurations,
                     ShadowColor = shadowColor,
                     Unknown = unknown,
+                    Unknown2 = unknown2,
+                    Unknown3 = unknown3,
                     NoCloudFactor = noCloudFactor
                 };
             });
@@ -79,6 +96,12 @@ namespace OpenSage.Data.Map
                 if (Version >= 7 && Version < 11)
                 {
                     writer.Write(Unknown);
+                }
+
+                if (Version >= 12)
+                {
+                    writer.Write(Unknown2.Value);
+                    Unknown3.Value.WriteTo(writer);
                 }
 
                 if (Version >= 8)
