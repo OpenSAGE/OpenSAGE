@@ -11,7 +11,8 @@ namespace OpenSage
         Cnc3,
         Cnc3KanesWrath,
         Ra3,
-        Ra3Uprising
+        Ra3Uprising,
+        Cnc4
     }
 
     public static class SageGames
@@ -26,6 +27,7 @@ namespace OpenSage
             yield return SageGame.Cnc3KanesWrath;
             yield return SageGame.Ra3;
             yield return SageGame.Ra3Uprising;
+            yield return SageGame.Cnc4;
         }
     }
 }

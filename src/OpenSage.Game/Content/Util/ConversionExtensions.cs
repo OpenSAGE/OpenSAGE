@@ -255,10 +255,12 @@ namespace OpenSage.Content.Util
                 },
                 ObjectLights = new LightingConstants
                 {
-                    Light0 = ToLight(mapLightingConfiguration.ObjectSun),
-                    Light1 = ToLight(mapLightingConfiguration.ObjectAccent1),
-                    Light2 = ToLight(mapLightingConfiguration.ObjectAccent2),
+                    // RA3 and later only had one light defined per time of day.
+                    Light0 = ToLight(mapLightingConfiguration.ObjectSun ?? mapLightingConfiguration.TerrainSun),
+                    Light1 = ToLight(mapLightingConfiguration.ObjectAccent1 ?? mapLightingConfiguration.TerrainAccent1),
+                    Light2 = ToLight(mapLightingConfiguration.ObjectAccent2 ?? mapLightingConfiguration.TerrainAccent2),
                 }
+                // TODO: Infantry lights
             };
         }
 

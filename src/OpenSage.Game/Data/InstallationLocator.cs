@@ -43,6 +43,9 @@ namespace OpenSage.Data
                     case SageGame.Ra3Uprising:
                         return "C&C: Red Alert 3 Uprising";
 
+                    case SageGame.Cnc4:
+                        return "C&C 4";
+
                     default:
                         throw new InvalidOperationException($"{Game} is not supported.");
                 }
@@ -72,6 +75,11 @@ namespace OpenSage.Data
                     case SageGame.Ra3:
                     case SageGame.Ra3Uprising:
                         return @"Launcher\splash.bmp";
+
+                    // TODO: Don't think there is a standalone splash image.
+                    // Probably part of the launcher that shows the EA login screen.
+                    case SageGame.Cnc4:
+                        return null;
 
                     default:
                         throw new InvalidOperationException($"{Game} is not supported.");
@@ -112,7 +120,7 @@ namespace OpenSage.Data
             (@"SOFTWARE\Electronic Arts\EA Games\Command and Conquer The First Decade", "zh_folder"),
             (@"SOFTWARE\Electronic Arts\EA Games\Command and Conquer Generals Zero Hour", "InstallPath")
         };
-
+        
         private static readonly (string, string)[] BfmeKeys = { (@"SOFTWARE\Electronic Arts\EA Games\The Battle for Middle-earth", "InstallPath") };
         private static readonly (string, string)[] BfmeIIKeys = { (@"SOFTWARE\Electronic Arts\Electronic Arts\The Battle for Middle-earth II", "InstallPath") };
 
@@ -121,6 +129,12 @@ namespace OpenSage.Data
 
         private static readonly (string, string)[] Ra3Keys = { (@"SOFTWARE\Electronic Arts\Electronic Arts\Red Alert 3", "Install Dir") };
         private static readonly (string, string)[] Ra3UprisingKeys = { (@"SOFTWARE\Electronic Arts\Electronic Arts\Red Alert 3 Uprising", "Install Dir") };
+
+        private static readonly (string, string)[] Cnc4Keys =
+            {
+                (@"SOFTWARE\EA Games\Command Conquer 4 Tiberian Twilight", "Install Dir"), // Origin
+                (@"SOFTWARE\Electronic Arts\command and conquer 4", "install dir") // Steam
+            };
 
         private static IEnumerable<(string keyName, string valueName)> GetRegistryKeysForGame(SageGame game)
         {
@@ -149,6 +163,9 @@ namespace OpenSage.Data
 
                 case SageGame.Ra3Uprising:
                     return Ra3UprisingKeys;
+
+                case SageGame.Cnc4:
+                    return Cnc4Keys;
 
                 default:
                     return Enumerable.Empty<(string, string)>();

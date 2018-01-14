@@ -23,7 +23,18 @@ namespace OpenSage.Content
     {
         protected override Scene LoadEntry(FileSystemEntry entry, ContentManager contentManager, LoadOptions loadOptions)
         {
-            contentManager.IniDataContext.LoadIniFile(@"Data\INI\Terrain.ini");
+            switch (contentManager.SageGame)
+            {
+                case SageGame.Ra3:
+                case SageGame.Ra3Uprising:
+                case SageGame.Cnc4:
+                    // TODO
+                    break;
+
+                default:
+                    contentManager.IniDataContext.LoadIniFile(@"Data\INI\Terrain.ini");
+                    break;
+            }
 
             var mapFile = MapFile.FromFileSystemEntry(entry);
 

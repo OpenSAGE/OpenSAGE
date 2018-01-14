@@ -122,6 +122,7 @@ namespace OpenSage
             {
                 case SageGame.Ra3:
                 case SageGame.Ra3Uprising:
+                case SageGame.Cnc4:
                     break;
 
                 default:
