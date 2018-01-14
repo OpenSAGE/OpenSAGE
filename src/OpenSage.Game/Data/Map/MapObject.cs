@@ -29,7 +29,7 @@ namespace OpenSage.Data.Map
                 {
                     Position = reader.ReadVector3(),
                     Angle = reader.ReadSingle(),
-                    RoadType = reader.ReadUInt32AsEnum<RoadType>(),
+                    RoadType = reader.ReadUInt32AsEnumFlags<RoadType>(),
                     TypeName = reader.ReadUInt16PrefixedAsciiString(),
                     Properties = AssetPropertyCollection.Parse(reader, context)
                 };

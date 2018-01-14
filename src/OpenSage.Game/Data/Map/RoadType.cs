@@ -1,6 +1,4 @@
 ﻿using System;
-using System.IO;
-using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Map
 {
@@ -18,35 +16,17 @@ namespace OpenSage.Data.Map
         Unknown1 = 16,
         Unknown2 = 32,
 
-        Unknown1_Angled = Unknown1 | Angled,
-        Unknown2_Angled = Unknown2 | Angled,
-
         TightCurve = 64,
-
-        Unknown1_TightCurve = Unknown1 | TightCurve,
-        Unknown2_TightCurve = Unknown2 | TightCurve,
 
         EndCap = 128,
 
         [AddedIn(SageGame.BattleForMiddleEarthII)]
         Unknown3 = 256,
 
+        [AddedIn(SageGame.Cnc4)]
+        Unknown4 = 512,
+
         BroadCurveStart = Start,
-        BroadCurveEnd = End,
-
-        AngledStart = Angled | Start,
-        AngledEnd = Angled | End,
-
-        TightCurveStart = TightCurve | Start,
-        TightCurveEnd = TightCurve | End,
-
-        BroadCurveEndCapStart = BroadCurveStart | EndCap,
-        BroadCurveEndCapEnd = BroadCurveEnd | EndCap,
-
-        AngledEndCapStart = AngledStart | EndCap,
-        AngledEndCapEnd = AngledEnd | EndCap,
-
-        TightCurveEndCapStart = TightCurveStart | EndCap,
-        TightCurveEndCapEnd = TightCurveEnd | EndCap
+        BroadCurveEnd = End
     }
 }

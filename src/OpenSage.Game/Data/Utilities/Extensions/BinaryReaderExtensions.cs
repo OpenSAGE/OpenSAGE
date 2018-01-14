@@ -422,8 +422,9 @@ namespace OpenSage.Data.Utilities.Extensions
           where TEnum : struct
         {
             var value = reader.ReadUInt16();
-            var enumValue = (TEnum) Enum.ToObject(typeof(TEnum), value);
+            VerifyEnumFlags<TEnum>(value, 16);
 
+            var enumValue = (TEnum) Enum.ToObject(typeof(TEnum), value);
             return enumValue;
         }
 
@@ -431,9 +432,24 @@ namespace OpenSage.Data.Utilities.Extensions
          where TEnum : struct
         {
             var value = reader.ReadUInt32();
-            var enumValue = (TEnum) Enum.ToObject(typeof(TEnum), value);
+            VerifyEnumFlags<TEnum>(value, 32);
 
+            var enumValue = (TEnum) Enum.ToObject(typeof(TEnum), value);
             return enumValue;
+        }
+
+        private static void VerifyEnumFlags<TEnum>(uint value, int sizeOfTValue)
+            where TEnum : struct
+        {
+            for (var i = 1; i < sizeOfTValue; i++)
+            {
+                var maskedValue = value & (1 << i);
+                var enumBitValue = (TEnum) Enum.ToObject(typeof(TEnum), maskedValue);
+                if (!EnumUtility.IsValueDefined(enumBitValue))
+                {
+                    throw new InvalidDataException($"Undefined value for flags enum {typeof(TEnum).Name}: {value}");
+                }
+            }
         }
 
         public static Matrix2x2 ReadMatrix2x2(this BinaryReader reader)
