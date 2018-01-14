@@ -24,7 +24,7 @@ namespace OpenSage.Data.Map
 
         internal static EnvironmentData Parse(BinaryReader reader, MapParseContext context)
         {
-            return ParseAsset(reader, context, version =>
+            return ParseAsset(reader, context, (version, endPosition) =>
             {
                 var result = new EnvironmentData();
 
@@ -47,7 +47,8 @@ namespace OpenSage.Data.Map
                     result.UnknownTexture = reader.ReadUInt16PrefixedAsciiString();
                 }
 
-                if (version >= 6)
+                // Both RA3 Uprising and C&C4 used v6 for this chunk, but RA3 Uprising had an extra texture here.
+                if (version >= 6 && reader.BaseStream.Position < endPosition)
                 {
                     result.UnknownTexture2 = reader.ReadUInt16PrefixedAsciiString();
                 }
@@ -79,7 +80,7 @@ namespace OpenSage.Data.Map
                     writer.WriteUInt16PrefixedAsciiString(UnknownTexture);
                 }
 
-                if (Version >= 6)
+                if (Version >= 6 && UnknownTexture2 != null)
                 {
                     writer.WriteUInt16PrefixedAsciiString(UnknownTexture2);
                 }

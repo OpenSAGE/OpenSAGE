@@ -8,6 +8,12 @@ namespace OpenSage.Data.Map
         internal static T ParseAsset<T>(BinaryReader reader, MapParseContext context, AssetParseCallback<T> parseCallback)
             where T : Asset
         {
+            return ParseAsset(reader, context, (version, endPosition) => parseCallback(version));
+        }
+
+        internal static T ParseAsset<T>(BinaryReader reader, MapParseContext context, AssetParseCallback2<T> parseCallback)
+            where T : Asset
+        {
             var assetVersion = reader.ReadUInt16();
 
             var dataSize = reader.ReadUInt32();
@@ -16,7 +22,7 @@ namespace OpenSage.Data.Map
 
             context.PushAsset(typeof(T).Name, endPosition);
 
-            var result = parseCallback(assetVersion);
+            var result = parseCallback(assetVersion, endPosition);
 
             result.StartPosition = startPosition;
             result.EndPosition = endPosition;
@@ -74,6 +80,9 @@ namespace OpenSage.Data.Map
     }
 
     internal delegate T AssetParseCallback<T>(ushort assetVersion)
+        where T : Asset;
+
+    internal delegate T AssetParseCallback2<T>(ushort assetVersion, long endPosition)
         where T : Asset;
 
     internal delegate void AssetsParseCallback(string assetName);
