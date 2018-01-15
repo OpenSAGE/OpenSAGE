@@ -441,13 +441,22 @@ namespace OpenSage.Data.Utilities.Extensions
         private static void VerifyEnumFlags<TEnum>(uint value, int sizeOfTValue)
             where TEnum : struct
         {
+            if (value == 0 && !EnumUtility.IsValueDefined((TEnum) Enum.ToObject(typeof(TEnum), value)))
+            {
+                throw new InvalidDataException($"Undefined value for flags enum {typeof(TEnum).Name}: 0");
+            }
+
             for (var i = 1; i < sizeOfTValue; i++)
             {
                 var maskedValue = value & (1 << i);
+                if (maskedValue == 0)
+                {
+                    continue;
+                }
                 var enumBitValue = (TEnum) Enum.ToObject(typeof(TEnum), maskedValue);
                 if (!EnumUtility.IsValueDefined(enumBitValue))
                 {
-                    throw new InvalidDataException($"Undefined value for flags enum {typeof(TEnum).Name}: {value}");
+                    throw new InvalidDataException($"Undefined value for flags enum {typeof(TEnum).Name}: {enumBitValue}");
                 }
             }
         }
