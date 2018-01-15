@@ -1,4 +1,4 @@
-﻿using OpenSage.Data.Apt.Characters;
+﻿﻿using OpenSage.Data.Apt.Characters;
 
 namespace OpenSage.Gui.Apt
 {

@@ -266,7 +266,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                 }
             }
             _reader.BaseStream.Seek(current, SeekOrigin.Begin);
-
         }
     }
 }

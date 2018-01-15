@@ -7,6 +7,7 @@ namespace OpenSage.Gui.Apt
 {
     public sealed class AptRenderer
     {
+
         public static void RenderText(DrawingContext2D drawingContext, AptContext context,
             Text text, ItemTransform transform)
         {
