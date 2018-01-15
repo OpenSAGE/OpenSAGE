@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>    
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net462</TargetFramework>    
+    <RootNamespace>OpenSage.Tests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <None Update="Map\Assets\*.map">
+    <None Update="Data\Map\Assets\*.map">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Wak\Assets\*.wak">
+    <None Update="Data\Wak\Assets\*.wak">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
