@@ -2,12 +2,10 @@
 using System.Linq;
 using Eto.Drawing;
 using Eto.Forms;
-using OpenSage.LowLevel.Graphics3D.Util.BlockCompression;
-using OpenSage.Content;
-using OpenSage.Data;
 using OpenSage.Data.Dds;
 using OpenSage.DataViewer.Framework;
 using OpenSage.LowLevel.Graphics3D;
+using OpenSage.LowLevel.Graphics3D.Util.BlockCompression;
 
 namespace OpenSage.DataViewer.UI.Viewers
 {
@@ -16,9 +14,9 @@ namespace OpenSage.DataViewer.UI.Viewers
         private readonly DdsFile _ddsFile;
         private readonly ListBox _listBox;
 
-        public DdsView(FileSystemEntry entry)
+        public DdsView(DdsFile ddsFile)
         {
-            _ddsFile = DdsFile.FromFileSystemEntry(entry);
+            _ddsFile = ddsFile;
 
             var mipMaps = _ddsFile.MipMaps
                 .Select((x, i) => new DdsMipMapInfo($"MipMap {i}", i, x))
@@ -81,6 +79,12 @@ namespace OpenSage.DataViewer.UI.Viewers
                         unpackedData[unpackedDataIndex++] = 255;
                     }
                     break;
+
+                case LowLevel.Graphics3D.PixelFormat.Rgba8UNorm:
+                    {
+                        unpackedData = ddsMipMapInfo.MipMap.Data;
+                        break;
+                    }
 
                 default:
                     throw new NotSupportedException();

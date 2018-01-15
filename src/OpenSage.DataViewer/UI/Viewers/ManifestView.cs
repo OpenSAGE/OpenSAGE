@@ -1,4 +1,6 @@
-﻿using Eto.Forms;
+﻿using System;
+using System.Collections.Generic;
+using Eto.Forms;
 using OpenSage.Data;
 using OpenSage.Data.StreamFS;
 
@@ -6,33 +8,32 @@ namespace OpenSage.DataViewer.UI.Viewers
 {
     public sealed class ManifestView : Splitter
     {
-        public ManifestView(FileSystemEntry entry)
+        public ManifestView(FileSystemEntry entry, Func<Game> getGame)
         {
             var gameStream = new GameStream(entry);
 
-            var rootTreeItem = new TreeItem();
-
-            var assetsTreeItem = new TreeItem { Text = "Assets" };
-            rootTreeItem.Children.Add(assetsTreeItem);
-            assetsTreeItem.Expanded = true;
+            var assetItems = new List<ListItem>();
             foreach (var asset in gameStream.ManifestFile.Assets)
             {
-                assetsTreeItem.Children.Add(new TreeItem
+                assetItems.Add(new TreeItem
                 {
                     Text = asset.Name,
                     Tag = asset
                 });
             }
 
-            var treeView = new TreeView
+            var contentView = new ContentView(getGame);
+
+            var listBox = new ListBox
             {
                 Width = 200,
-                DataStore = rootTreeItem
+                DataStore = gameStream.ManifestFile.Assets,
+                ItemTextBinding = Binding.Property((Asset x) => x.Name)
             };
-            //listBox.SelectedValueChanged += (sender, e) => { };
-            Panel1 = treeView;
+            listBox.SelectedValueChanged += (sender, e) => contentView.SetContent((Asset) listBox.SelectedValue);
+            Panel1 = listBox;
 
-            Panel2 = new Panel();
+            Panel2 = contentView;
         }
     }
 }

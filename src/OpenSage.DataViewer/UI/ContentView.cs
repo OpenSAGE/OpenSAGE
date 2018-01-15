@@ -3,6 +3,7 @@ using System.IO;
 using Eto.Forms;
 using OpenSage.Data;
 using OpenSage.Data.Dds;
+using OpenSage.Data.StreamFS;
 using OpenSage.Data.Tga;
 using OpenSage.DataViewer.UI.Viewers;
 
@@ -17,7 +18,7 @@ namespace OpenSage.DataViewer.UI
             _getGame = getGame;
         }
 
-        public void SetContent(FileSystemEntry entry)
+        private void SetContent<TContent>(TContent content, Func<TContent, Control> createControl)
         {
             if (Content != null)
             {
@@ -26,13 +27,18 @@ namespace OpenSage.DataViewer.UI
                 existingContent.Dispose();
             }
 
-            if (entry != null)
+            if (content != null)
             {
-                Content = CreateControl(entry);
+                Content = createControl(content);
             }
         }
 
-        private Control CreateControl(FileSystemEntry entry)
+        public void SetContent(FileSystemEntry entry)
+        {
+            SetContent(entry, CreateControlForFileSystemEntry);
+        }
+
+        private Control CreateControlForFileSystemEntry(FileSystemEntry entry)
         {
             switch (Path.GetExtension(entry.FilePath).ToLower())
             {
@@ -51,7 +57,7 @@ namespace OpenSage.DataViewer.UI
                     {
                         goto case ".tga";
                     }
-                    return new DdsView(entry);
+                    return new DdsView(DdsFile.FromFileSystemEntry(entry));
 
                 case ".const":
                     return new ConstView(entry);
@@ -63,7 +69,7 @@ namespace OpenSage.DataViewer.UI
                     return new IniView(entry, _getGame());
 
                 case ".manifest":
-                    return new ManifestView(entry);
+                    return new ManifestView(entry, _getGame);
 
                 case ".map":
                     return new MapView(entry, _getGame());
@@ -82,6 +88,23 @@ namespace OpenSage.DataViewer.UI
 
                 case ".wnd":
                     return new WndView(entry, _getGame());
+
+                default:
+                    return null;
+            }
+        }
+
+        public void SetContent(Asset asset)
+        {
+            SetContent(asset, CreateControlForAsset);
+        }
+
+        private Control CreateControlForAsset(Asset asset)
+        {
+            switch (asset.Header.TypeId)
+            {
+                case 0x21E727DA: // Texture
+                    return new DdsView((DdsFile) asset.InstanceData);
 
                 default:
                     return null;

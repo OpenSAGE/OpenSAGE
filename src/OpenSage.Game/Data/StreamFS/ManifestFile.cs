@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using OpenSage.Data.Utilities.Extensions;
@@ -42,6 +43,13 @@ namespace OpenSage.Data.StreamFS
                     result.AssetReferences[i] = AssetReference.Parse(reader);
                 }
 
+                foreach (var asset in result.Assets)
+                {
+                    asset.AssetReferences = result.AssetReferences.AsSpan().Slice(
+                        (int) asset.Header.AssetReferenceOffset / AssetReference.SizeInBytes,
+                        (int) asset.Header.AssetReferenceCount);
+                }
+
                 {
                     var endPosition = stream.Position + result.Header.ReferencedManifestNameBufferSize;
                     var manifestReferences = new List<ManifestReference>();
@@ -73,20 +81,6 @@ namespace OpenSage.Data.StreamFS
                     }
                 }
 
-                var instanceDataOffset = 4u;
-                var relocationDataOffset = 4u;
-                var importsDataOffset = 4u;
-                foreach (var asset in result.Assets)
-                {
-                    asset.InstanceDataOffset = instanceDataOffset;
-                    asset.RelocationDataOffset = relocationDataOffset;
-                    asset.ImportsDataOffset = importsDataOffset;
-
-                    instanceDataOffset += asset.Header.InstanceDataSize;
-                    relocationDataOffset += asset.Header.RelocationDataSize;
-                    importsDataOffset += asset.Header.ImportsDataSize;
-                }
-
                 return result;
             }
         }
@@ -113,27 +107,57 @@ namespace OpenSage.Data.StreamFS
         public string Name { get; internal set; }
         public string SourceFileName { get; internal set; }
 
-        public uint InstanceDataOffset { get; internal set; }
-        public uint RelocationDataOffset { get; internal set; }
-        public uint ImportsDataOffset { get; internal set; }
+        public object InstanceData { get; internal set; }
 
-        public byte[] InstanceData { get; internal set; }
+        /// <summary>
+        /// This are indices into InstanceData, and should be used to update
+        /// the pointer at InstanceData[reloValue],
+        /// from being relative to the start of InstanceData,
+        /// to being an absolute pointer.
+        /// In C++ it would be:
+        /// asset.InstanceData[reloValue] += asset.InstanceData;
+        /// </summary>
+        public uint[] Relocations { get; internal set; }
+
+        /// <summary>
+        /// List of indices in InstanceData at which to set pointers to the corresponding
+        /// assets in AssetReferences.
+        /// </summary>
+        public AssetImport[] Imports { get; internal set; }
+
+        public Span<AssetReference> AssetReferences { get; internal set; }
     }
 
-    public sealed class AssetReference
+    public sealed class AssetImport
+    {
+        public uint InstanceDataIndex { get; }
+        public Asset ImportedAsset { get; }
+
+        internal AssetImport(uint instanceDataIndex, Asset importedAsset)
+        {
+            InstanceDataIndex = instanceDataIndex;
+            ImportedAsset = importedAsset;
+        }
+    }
+
+    public readonly struct AssetReference
     {
         internal const int SizeInBytes = sizeof(uint) * 2;
 
-        public uint TypeId { get; private set; }
-        public uint InstanceId { get; private set; }
+        public readonly uint TypeId;
+        public readonly uint InstanceId;
+
+        internal AssetReference(uint typeId, uint instanceId)
+        {
+            TypeId = typeId;
+            InstanceId = instanceId;
+        }
 
         internal static AssetReference Parse(BinaryReader reader)
         {
-            return new AssetReference
-            {
-                TypeId = reader.ReadUInt32(),
-                InstanceId = reader.ReadUInt32()
-            };
+            return new AssetReference(
+                reader.ReadUInt32(),
+                reader.ReadUInt32());
         }
     }
 

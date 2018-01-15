@@ -30,6 +30,9 @@ namespace OpenSage.Data.Dds
                     case DdsImageFormat.Rg8SNorm:
                         return PixelFormat.Rg8SNorm;
 
+                    case DdsImageFormat.Rgba8:
+                        return PixelFormat.Rgba8UNorm;
+
                     default:
                         throw new NotSupportedException();
                 }
@@ -49,6 +52,13 @@ namespace OpenSage.Data.Dds
         public static DdsFile FromFileSystemEntry(FileSystemEntry entry)
         {
             using (var stream = entry.Open())
+            {
+                return FromStream(stream);
+            }
+        }
+
+        public static DdsFile FromStream(Stream stream)
+        {
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
             {
                 var magic = reader.ReadFourCc();
@@ -67,6 +77,10 @@ namespace OpenSage.Data.Dds
                 else if (header.PixelFormat.Flags.HasFlag(DdsPixelFormatFlags.BumpDuDv))
                 {
                     imageFormat = DdsImageFormat.Rg8SNorm;
+                }
+                else if (header.PixelFormat.Flags.HasFlag(DdsPixelFormatFlags.Rgb))
+                {
+                    imageFormat = DdsImageFormat.Rgba8;
                 }
                 else
                 {
@@ -92,9 +106,18 @@ namespace OpenSage.Data.Dds
                 var height = header.Height;
                 for (var i = 0; i < mipMapCount; i++)
                 {
-                    var surfaceInfo = GetSurfaceInfo(width, height, imageFormat);
+                    var surfaceInfo = GetSurfaceInfo(width, height, imageFormat, header);
 
                     var mipMapData = reader.ReadBytes((int) surfaceInfo.NumBytes);
+
+                    // Set alpha bytes for 32-bit rgb images that don't include alpha data.
+                    if (imageFormat == DdsImageFormat.Rgba8 && !header.PixelFormat.Flags.HasFlag(DdsPixelFormatFlags.AlphaPixels))
+                    {
+                        for (var j = 0; j < mipMapData.Length; j += 4)
+                        {
+                            mipMapData[j + 3] = 255;
+                        }
+                    }
 
                     mipMaps[i] = new DdsMipMap(mipMapData, surfaceInfo.RowBytes);
 
@@ -132,11 +155,22 @@ namespace OpenSage.Data.Dds
             }
         }
 
-        private static SurfaceInfo GetSurfaceInfo(uint width, uint height, DdsImageFormat format)
+        private static SurfaceInfo GetSurfaceInfo(uint width, uint height, DdsImageFormat format, DdsHeader header)
         {
             if (format == DdsImageFormat.Rg8SNorm)
             {
                 var rowBytes = (width * 16 + 7) / 8; // round up to nearest byte
+                return new SurfaceInfo
+                {
+                    RowBytes = rowBytes,
+                    NumRows = height,
+                    NumBytes = rowBytes * height
+                };
+            }
+
+            if (format == DdsImageFormat.Rgba8)
+            {
+                var rowBytes = width * (header.PixelFormat.RgbBitCount / 8);
                 return new SurfaceInfo
                 {
                     RowBytes = rowBytes,
