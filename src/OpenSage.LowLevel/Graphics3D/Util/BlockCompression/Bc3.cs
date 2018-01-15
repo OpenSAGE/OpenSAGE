@@ -67,7 +67,7 @@
                     result[(y * resultStride) + (x + 3)] = alpha;
 
                     x += 4;
-                    if (j > 0 && j % 4 == 0)
+                    if (j == 3)
                     {
                         x = resultX;
                         y++;
