@@ -726,7 +726,7 @@ namespace OpenSage.Tests.Data.Map
 
         private static MapFile GetMapFile([CallerMemberName] string testName = null)
         {
-            var fileName = Path.Combine("Map", "Assets", testName + ".map");
+            var fileName = Path.Combine("Data", "Map", "Assets", testName + ".map");
 
             using (var entryStream = File.OpenRead(fileName))
             {
