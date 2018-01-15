@@ -41,7 +41,8 @@ namespace OpenSage.Data
 
                     foreach (var entry in archive.Entries)
                     {
-                        _fileTable[entry.FullName] = new FileSystemEntry(this, entry.FullName, entry.Length, entry.Open);
+                        var filePath = NormalizeFilePath(entry.FullName);
+                        _fileTable[filePath] = new FileSystemEntry(this, filePath, entry.Length, entry.Open);
                     }
                 }
                 else
@@ -56,8 +57,17 @@ namespace OpenSage.Data
             }
         }
 
+        private static string NormalizeFilePath(string filePath)
+        {
+            return filePath
+                .Replace('/', Path.DirectorySeparatorChar)
+                .Replace('\\', Path.DirectorySeparatorChar);
+        }
+
         public FileSystemEntry GetFile(string filePath)
         {
+            filePath = NormalizeFilePath(filePath);
+
             if (_fileTable.TryGetValue(filePath, out var file))
             {
                 return file;
@@ -101,7 +111,9 @@ namespace OpenSage.Data
         public void Dispose()
         {
             foreach (var archive in _bigArchives)
+            {
                 archive.Dispose();
+            }
             _bigArchives.Clear();
         }
     }

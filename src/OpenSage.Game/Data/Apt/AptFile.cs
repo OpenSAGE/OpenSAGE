@@ -23,7 +23,7 @@ namespace OpenSage.Data.Apt
             MovieName = name;
         }
 
-        private void Parse(BinaryReader reader)
+        private void Parse(BinaryReader reader, string parentDirectory)
         {
             //jump to the entry offset
             var entryOffset = Constants.AptDataEntryOffset;
@@ -36,7 +36,7 @@ namespace OpenSage.Data.Apt
             Movie.Characters[0] = Movie;
 
             //load the corresponding image map
-            var datPath = MovieName + ".dat";
+            var datPath = Path.Combine(parentDirectory, MovieName + ".dat");
             var datEntry = FileSystem.GetFile(datPath);
             ImageMap = ImageMap.FromFileSystemEntry(datEntry);
 
@@ -44,7 +44,7 @@ namespace OpenSage.Data.Apt
             GeometryMap = new Dictionary<uint, Geometry>();
             foreach (Shape shape in Movie.Characters.FindAll((x)=>x is Shape))
             {
-                var ruPath = MovieName + "_geometry/" + shape.Geometry + ".ru";
+                var ruPath = Path.Combine(parentDirectory, MovieName + "_geometry", + shape.Geometry + ".ru");
                 var shapeEntry = FileSystem.GetFile(ruPath);
                 var shapeGeometry = Geometry.FromFileSystemEntry(shapeEntry);
                 shapeGeometry.Container = this;
@@ -65,7 +65,7 @@ namespace OpenSage.Data.Apt
                 }
                 else
                 {
-                    var importEntry = FileSystem.GetFile(Path.ChangeExtension(import.Movie, ".apt"));
+                    var importEntry = FileSystem.GetFile(Path.Combine(parentDirectory, Path.ChangeExtension(import.Movie, ".apt")));
                     importApt = AptFile.FromFileSystemEntry(importEntry);
                     importDict[import.Movie] = importApt;
                 }
@@ -97,7 +97,7 @@ namespace OpenSage.Data.Apt
                 var aptName = Path.GetFileNameWithoutExtension(entry.FilePath);
 
                 var apt = new AptFile(constFile, entry.FileSystem, aptName);
-                apt.Parse(reader);
+                apt.Parse(reader, Path.GetDirectoryName(entry.FilePath));
 
                 return apt;
             }
