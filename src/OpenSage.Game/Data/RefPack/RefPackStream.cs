@@ -97,7 +97,14 @@ namespace OpenSage.Data.RefPack
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            throw new NotSupportedException();
+            if (origin != SeekOrigin.Current || offset > 0)
+            {
+                throw new NotSupportedException();
+            }
+
+            _currentOutputPosition += (int) offset;
+
+            return _currentOutputPosition;
         }
 
         public override void SetLength(long value)
