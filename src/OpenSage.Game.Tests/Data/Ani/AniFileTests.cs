@@ -2,7 +2,7 @@
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Data.Tests.Ani
+namespace OpenSage.Tests.Data.Ani
 {
     public class AniFileTests
     {

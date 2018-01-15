@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace OpenSage.Data.Tests
+namespace OpenSage.Tests.Data
 {
     internal static class AssertUtility
     {

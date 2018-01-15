@@ -2,7 +2,7 @@
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Data.Tests.Csf
+namespace OpenSage.Tests.Data.Csf
 {
     public class CsfFileTests
     {

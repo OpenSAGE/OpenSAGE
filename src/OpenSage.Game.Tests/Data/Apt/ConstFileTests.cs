@@ -1,12 +1,11 @@
 ﻿using System.IO;
-using OpenSage.Data.Big;
+using OpenSage.Data;
 using OpenSage.Data.Apt;
+using OpenSage.Data.Big;
 using Xunit;
 using Xunit.Abstractions;
-using OpenSage.Data.Tests;
-using OpenSage.Data;
 
-namespace OpenSage.Game.Tests.Apt
+namespace OpenSage.Tests.Data.Apt
 {
     public class ConstFileTests
     {

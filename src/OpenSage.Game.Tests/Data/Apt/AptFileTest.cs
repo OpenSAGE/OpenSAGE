@@ -1,10 +1,9 @@
-using OpenSage.Data;
+﻿using OpenSage.Data;
 using OpenSage.Data.Apt;
-using OpenSage.Data.Tests;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Game.Tests.Apt
+namespace OpenSage.Tests.Data.Apt
 {
     public class AptFileTests
     {

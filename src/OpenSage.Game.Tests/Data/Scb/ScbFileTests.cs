@@ -3,7 +3,7 @@ using OpenSage.Data.Scb;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Data.Tests.Scb
+namespace OpenSage.Tests.Data.Scb
 {
     public class ScbFileTests
     {

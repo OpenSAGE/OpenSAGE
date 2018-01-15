@@ -2,7 +2,7 @@
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Data.Tests.Dds
+namespace OpenSage.Tests.Data.Dds
 {
     public class DdsFileTests
     {

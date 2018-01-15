@@ -5,7 +5,7 @@ using OpenSage.Utilities.Extensions;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace OpenSage.Game.Tests
+namespace OpenSage.Tests
 {
     public sealed class GameTestDiscoverer : IXunitTestCaseDiscoverer
     {

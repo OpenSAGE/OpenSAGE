@@ -3,7 +3,7 @@ using OpenSage.Data.Wak;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Data.Tests.Wak
+namespace OpenSage.Tests.Data.Wak
 {
     public class WakFileTests
     {

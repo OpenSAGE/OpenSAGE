@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using OpenSage.Data;
 using Xunit.Abstractions;
 
-namespace OpenSage.Data.Tests
+namespace OpenSage.Tests.Data
 {
     internal static class InstalledFilesTestData
     {
@@ -13,7 +14,7 @@ namespace OpenSage.Data.Tests
         {
             Locator = new RegistryInstallationLocator();
         }
-
+        
         public static string GetInstallationDirectory(SageGame game) => Locator.FindInstallations(game).First().Path;
 
         public static void ReadFiles(string fileExtension, ITestOutputHelper output, Action<FileSystemEntry> processFileCallback)

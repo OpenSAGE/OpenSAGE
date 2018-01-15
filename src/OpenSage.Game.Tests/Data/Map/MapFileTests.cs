@@ -4,7 +4,7 @@ using OpenSage.Data.Map;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Data.Tests.Map
+namespace OpenSage.Tests.Data.Map
 {
     public class MapFileTests
     {

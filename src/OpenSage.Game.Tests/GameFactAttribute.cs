@@ -3,9 +3,9 @@ using System.Linq;
 using Xunit;
 using Xunit.Sdk;
 
-namespace OpenSage.Game.Tests
+namespace OpenSage.Tests
 {
-    [XunitTestCaseDiscoverer("OpenSage.Game.Tests.GameTestDiscoverer", "OpenSage.Game.Tests")]
+    [XunitTestCaseDiscoverer("OpenSage.Tests.GameTestDiscoverer", "OpenSage.Game.Tests")]
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class GameFactAttribute : FactAttribute
     {

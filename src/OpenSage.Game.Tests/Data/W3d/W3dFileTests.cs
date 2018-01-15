@@ -1,10 +1,11 @@
 ﻿using System.IO;
+using OpenSage.Data;
 using OpenSage.Data.Big;
 using OpenSage.Data.W3d;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Data.Tests.W3d
+namespace OpenSage.Tests.Data.W3d
 {
     public class W3dFileTests
     {
@@ -134,7 +135,7 @@ namespace OpenSage.Data.Tests.W3d
             });
         }
 
-        [Fact]
+        [GameFact(SageGame.CncGeneralsZeroHour)]
         public void LoadW3dFromBigFile()
         {
             var bigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(SageGame.CncGeneralsZeroHour), "W3DZH.big");

@@ -1,9 +1,8 @@
 ﻿using System.IO;
 using OpenSage.Data.Big;
-using OpenSage.Game.Tests;
 using Xunit;
 
-namespace OpenSage.Data.Tests.Big
+namespace OpenSage.Tests.Data.Big
 {
     public class BigArchiveTests
     {

@@ -2,7 +2,7 @@
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Data.Tests.Bik
+namespace OpenSage.Tests.Data.Bik
 {
     public class BinkFileTests
     {

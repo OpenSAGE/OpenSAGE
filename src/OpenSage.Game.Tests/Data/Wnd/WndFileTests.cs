@@ -2,7 +2,7 @@
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Data.Tests.Wnd
+namespace OpenSage.Tests.Data.Wnd
 {
     public class WndFileTests
     {

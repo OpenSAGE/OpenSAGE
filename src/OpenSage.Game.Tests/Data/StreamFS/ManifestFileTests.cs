@@ -1,9 +1,8 @@
 ﻿using OpenSage.Data.StreamFS;
-using OpenSage.Data.Tests;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Game.Tests.StreamFS
+namespace OpenSage.Tests.Data.StreamFS
 {
     public class ManifestFileTests
     {
@@ -14,7 +13,7 @@ namespace OpenSage.Game.Tests.StreamFS
             _output = output;
         }
 
-        [GameFact(SageGame.Cnc3, SageGame.Cnc3KanesWrath)]
+        [GameFact(SageGame.Cnc3, SageGame.Cnc3KanesWrath, SageGame.Ra3, SageGame.Ra3Uprising, SageGame.Cnc4)]
         public void CanReadManifestFiles()
         {
             InstalledFilesTestData.ReadFiles(".manifest", _output, entry =>

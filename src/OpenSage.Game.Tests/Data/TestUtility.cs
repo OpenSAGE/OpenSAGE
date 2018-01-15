@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace OpenSage.Data.Tests
+namespace OpenSage.Tests.Data
 {
     internal static class TestUtility
     {

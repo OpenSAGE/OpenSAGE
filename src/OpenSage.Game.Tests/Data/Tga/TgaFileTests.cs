@@ -2,7 +2,7 @@
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Data.Tests.Tga
+namespace OpenSage.Tests.Data.Tga
 {
     public class TgaFileTests
     {

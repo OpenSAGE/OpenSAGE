@@ -4,7 +4,7 @@ using OpenSage.Logic.Object;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OpenSage.Data.Tests.Ini
+namespace OpenSage.Tests.Data.Ini
 {
     public class IniFileTests
     {
