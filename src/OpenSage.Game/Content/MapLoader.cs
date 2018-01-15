@@ -10,8 +10,6 @@ using OpenSage.Data.Map;
 using OpenSage.Data.Tga;
 using OpenSage.Mathematics;
 using OpenSage.Scripting;
-using OpenSage.Scripting.Actions;
-using OpenSage.Scripting.Conditions;
 using OpenSage.Settings;
 using OpenSage.Terrain;
 using SixLabors.ImageSharp;
@@ -173,53 +171,18 @@ namespace OpenSage.Content
 
         private static MapScript CreateMapScript(Script script, SceneSettings sceneSettings)
         {
-            var conditions = CreateMapScriptConditions(script.OrConditions, sceneSettings);
-
-            var actionsIfTrue = CreateMapScriptActions(script.ActionsIfTrue, sceneSettings);
-            var actionsIfFalse = CreateMapScriptActions(script.ActionsIfFalse, sceneSettings);
+            var actionsIfTrue = script.ActionsIfTrue;
+            var actionsIfFalse = script.ActionsIfFalse;
 
             return new MapScript(
                 script.Name,
-                conditions,
+                script.OrConditions,
                 actionsIfTrue,
                 actionsIfFalse,
                 script.IsActive,
                 script.DeactivateUponSuccess,
                 script.IsSubroutine,
                 script.EvaluationInterval);
-        }
-
-        private static MapScriptConditions CreateMapScriptConditions(ScriptOrCondition[] orConditions, SceneSettings sceneSettings)
-        {
-            var result = new MapScriptOrCondition[orConditions.Length];
-
-            for (var i = 0; i < orConditions.Length; i++)
-            {
-                var orCondition = orConditions[i];
-
-                var andConditions = new MapScriptCondition[orCondition.Conditions.Length];
-
-                for (var j = 0; j < andConditions.Length; j++)
-                {
-                    andConditions[j] = MapScriptConditionFactory.Create(orCondition.Conditions[j], sceneSettings);
-                }
-
-                result[i] = new MapScriptOrCondition(andConditions);
-            }
-
-            return new MapScriptConditions(result);
-        }
-
-        private static List<MapScriptAction> CreateMapScriptActions(ScriptAction[] actions, SceneSettings sceneSettings)
-        {
-            var result = new List<MapScriptAction>(actions.Length);
-
-            for (var i = 0; i < actions.Length; i++)
-            {
-                result.Add(MapScriptActionFactory.Create(actions[i], sceneSettings, result));
-            }
-
-            return result;
         }
 
         private static Waypoint CreateWaypoint(MapObject mapObject)

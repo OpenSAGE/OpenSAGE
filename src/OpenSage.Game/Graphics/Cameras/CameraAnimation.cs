@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Mathematics;
 
@@ -6,11 +7,11 @@ namespace OpenSage.Graphics.Cameras
 {
     public sealed class CameraAnimation
     {
-        private readonly Vector3 _startPosition;
-        private readonly Vector3 _endPosition;
+        private readonly IReadOnlyList<Vector3> _points;
 
         private readonly Vector3 _startDirection;
         private Vector3? _endDirection;
+        private Vector3? _lookToward;
 
         private readonly TimeSpan _startTime;
         private readonly TimeSpan _duration;
@@ -25,17 +26,14 @@ namespace OpenSage.Graphics.Cameras
         public bool Finished { get; internal set; }
 
         public CameraAnimation(
-            Vector3 startPosition,
-            Vector3 endPosition,
+            IReadOnlyList<Vector3> points,
             Vector3 startDirection,
             TimeSpan startTime,
             TimeSpan duration,
             float startPitch,
             float startZoom)
         {
-            _startPosition = startPosition;
-            _endPosition = endPosition;
-
+            _points = points;
             _startDirection = startDirection;
 
             _startTime = startTime;
@@ -48,7 +46,8 @@ namespace OpenSage.Graphics.Cameras
 
         public void SetFinalLookToward(Vector3 lookToward)
         {
-            _endDirection = Vector3.Normalize(lookToward - _endPosition);
+            var endPosition = _points[_points.Count - 1];
+            _endDirection = Vector3.Normalize(lookToward - endPosition);
         }
 
         public void SetFinalPitch(float endPitch)
@@ -61,24 +60,44 @@ namespace OpenSage.Graphics.Cameras
             _endZoom = endZoom;
         }
 
+        public void SetLookToward(Vector3 lookToward)
+        {
+            _lookToward = lookToward;
+        }
+
         internal void Update(RtsCameraController camera, GameTime gameTime)
         {
             var currentTimeFraction = (float) ((gameTime.TotalGameTime - _startTime).TotalSeconds / _duration.TotalSeconds);
             currentTimeFraction = Math.Min(currentTimeFraction, 1);
 
-            var movementDirection = _endPosition - _startPosition;
+            var pos = currentTimeFraction * (_points.Count - 1);
+            var integralPart = (int) Math.Truncate(pos);
+            var decimalPart = pos - integralPart;
 
-            var currentPosition = _startPosition + movementDirection * currentTimeFraction;
+            // TODO: Not sure how right this is
+            // Near the end of the path 2-3 points are the same, so the movement becomes more linear?
+            var point1 = integralPart;
+            var point2 = Math.Min(point1 + 1, _points.Count - 1);
+            var point0 = Math.Max(point1 - 1, 0);
+            var point3 = Math.Min(point2 + 1, _points.Count - 1);
 
-            camera.TerrainPosition = currentPosition;
+            camera.TerrainPosition = Interpolation.CatmullRom(
+                _points[point0],
+                _points[point1],
+                _points[point2],
+                _points[point3],
+                decimalPart);
 
-            if (_endDirection != null)
+            if (_lookToward != null)
+            {
+                var lookDirection = Vector3.Normalize(_lookToward.Value - camera.TerrainPosition);
+                camera.SetLookDirection(lookDirection);
+            }
+            else if (_endDirection != null)
             {
                 var lookDirection = Vector3.Normalize(Vector3Utility.Slerp(_startDirection, _endDirection.Value, currentTimeFraction));
 
                 camera.SetLookDirection(lookDirection);
-
-                //camera.TerrainPosition = Vector3Utility.Slerp(_startPosition + _startDirection, _endPosition + _endDirection.Value, currentTimeFraction);
             }
 
             if (_endPitch != null)

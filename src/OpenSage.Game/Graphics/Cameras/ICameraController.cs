@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace OpenSage.Graphics.Cameras
@@ -15,10 +16,10 @@ namespace OpenSage.Graphics.Cameras
         void ModSetFinalPitch(float finalPitch);
         void ModSetFinalZoom(float finalZoom);
         void ModFinalLookToward(in Vector3 position);
+        void ModLookToward(in Vector3 position);
 
         CameraAnimation StartAnimation(
-            Vector3 startPosition,
-            Vector3 endPosition,
+            IReadOnlyList<Vector3> points,
             TimeSpan startTime,
             TimeSpan duration);
 

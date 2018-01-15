@@ -1,7 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
-using OpenSage.Input;
-using OpenSage.LowLevel.Input;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Cameras.Controllers
@@ -94,7 +93,12 @@ namespace OpenSage.Graphics.Cameras.Controllers
             throw new NotImplementedException();
         }
 
-        CameraAnimation ICameraController.StartAnimation(Vector3 startPosition, Vector3 endPosition, TimeSpan startTime, TimeSpan duration)
+        public void ModLookToward(in Vector3 position)
+        {
+            throw new NotImplementedException();
+        }
+
+        CameraAnimation ICameraController.StartAnimation(IReadOnlyList<Vector3> points, TimeSpan startTime, TimeSpan duration)
         {
             throw new NotImplementedException();
         }
