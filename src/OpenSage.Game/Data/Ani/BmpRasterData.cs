@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace OpenSage.Data.Ani
 {
@@ -14,6 +13,10 @@ namespace OpenSage.Data.Ani
             {
                 case 24:
                     pixels = new byte[width * height * 3];
+                    break;
+
+                case 32:
+                    pixels = new byte[width * height * 4];
                     break;
 
                 default:
@@ -38,6 +41,21 @@ namespace OpenSage.Data.Ani
                             pixels[index + 2] = reader.ReadByte();
 
                             readBytes += 3;
+                        }
+                        break;
+
+                    case 32:
+                        for (var x = 0; x < width; x++)
+                        {
+                            // Invert y, because DIB data is stored bottom-to-top.
+                            var index = ((height - 1 - y) * width * 4) + (x * 4);
+
+                            pixels[index + 0] = reader.ReadByte();
+                            pixels[index + 1] = reader.ReadByte();
+                            pixels[index + 2] = reader.ReadByte();
+                            pixels[index + 3] = reader.ReadByte();
+
+                            readBytes += 4;
                         }
                         break;
 

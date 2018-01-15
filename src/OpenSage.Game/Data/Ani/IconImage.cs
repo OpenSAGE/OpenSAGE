@@ -28,6 +28,7 @@ namespace OpenSage.Data.Ani
                     break;
 
                 case 24:
+                case 32:
                     numColorTableEntries = (int) infoHeader.ColorsUsed;
                     break;
 
