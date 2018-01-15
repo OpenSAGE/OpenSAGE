@@ -6,7 +6,10 @@ namespace OpenSage.Data.Scb
 {
     public sealed class ScbFile
     {
+        public ScriptImportSize ScriptImportSize { get; private set; }
         public PlayerScriptsList PlayerScripts { get; private set; }
+        public NamedCameras NamedCameras { get; private set; }
+        public CameraAnimationList CameraAnimationList { get; private set; }
         public ScriptsPlayers Players { get; private set; }
         public ObjectsList ObjectsList { get; private set; }
         public PolygonTriggers PolygonTriggers { get; private set; }
@@ -32,8 +35,20 @@ namespace OpenSage.Data.Scb
             {
                 switch (assetName)
                 {
+                    case ScriptImportSize.AssetName:
+                        result.ScriptImportSize = ScriptImportSize.Parse(reader, context);
+                        break;
+
                     case PlayerScriptsList.AssetName:
                         result.PlayerScripts = PlayerScriptsList.Parse(reader, context);
+                        break;
+
+                    case NamedCameras.AssetName:
+                        result.NamedCameras = NamedCameras.Parse(reader, context);
+                        break;
+
+                    case CameraAnimationList.AssetName:
+                        result.CameraAnimationList = CameraAnimationList.Parse(reader, context);
                         break;
 
                     case ScriptsPlayers.AssetName:
@@ -93,8 +108,26 @@ namespace OpenSage.Data.Scb
 
         private void WriteMapDataTo(BinaryWriter writer, AssetNameCollection assetNames)
         {
+            if (ScriptImportSize != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(ScriptImportSize.AssetName));
+                ScriptImportSize.WriteTo(writer, assetNames);
+            }
+
             writer.Write(assetNames.GetOrCreateAssetIndex(PlayerScriptsList.AssetName));
             PlayerScripts.WriteTo(writer, assetNames);
+
+            if (NamedCameras != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(NamedCameras.AssetName));
+                NamedCameras.WriteTo(writer);
+            }
+
+            if (CameraAnimationList != null)
+            {
+                writer.Write(assetNames.GetOrCreateAssetIndex(CameraAnimationList.AssetName));
+                CameraAnimationList.WriteTo(writer);
+            }
 
             writer.Write(assetNames.GetOrCreateAssetIndex(ScriptsPlayers.AssetName));
             Players.WriteTo(writer);
