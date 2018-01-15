@@ -30,7 +30,7 @@ namespace OpenSage.Tests.Data.Wak
         public void Test()
         {
             WakFile wakFile;
-            using (var fileStream = File.OpenRead(@"Wak\Assets\Test.wak"))
+            using (var fileStream = File.OpenRead(Path.Combine("Data", "Wak", "Assets", "Test.wak")))
             {
                 wakFile = WakFile.Parse(fileStream);
             }
