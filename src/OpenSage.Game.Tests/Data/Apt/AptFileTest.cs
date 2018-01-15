@@ -19,6 +19,11 @@ namespace OpenSage.Tests.Data.Apt
         {
             InstalledFilesTestData.ReadFiles(".apt", _output, entry =>
             {
+                if (entry.FilePath.Contains("MOD SDK"))
+                {
+                    return;
+                }
+
                 var aptFile = AptFile.FromFileSystemEntry(entry);
 
                 Assert.NotNull(aptFile);
