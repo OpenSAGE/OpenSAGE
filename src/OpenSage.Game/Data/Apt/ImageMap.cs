@@ -89,7 +89,7 @@ namespace OpenSage.Data.Apt
                     var image = Convert.ToInt32(list.First());
 
                     //second entry is the texture id and optionally bounds
-                    var assigment = list.Last().Split(' ');
+                    var assigment = list.Last().Split(new[] { ' ', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
 
                     if (assigment.Length < 1)
                         throw new InvalidDataException();
