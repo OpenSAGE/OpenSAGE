@@ -215,7 +215,7 @@ float4 PS(PSInput input) : SV_Target
     DoLighting(lightingParams, diffuseColor, specularColor);
 
     float3 textureColor = SampleBlendedTextures(input.UV);
-
+    diffuseColor = float3(0.1, 0.1, 0.1);
     return float4(
         diffuseColor * textureColor,
         1);

@@ -1,18 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Numerics;
 using OpenSage.Data.Apt;
+using OpenSage.Data.Apt.Characters;
 using OpenSage.LowLevel.Graphics2D;
-using OpenSage.LowLevel.Graphics3D;
 
 namespace OpenSage.Gui.Apt
 {
     public sealed class AptRenderer
     {
-        public static void RenderGeometry(DrawingContext drawingContext,AptContext context,
+        public static void RenderText(DrawingContext drawingContext, AptContext context,
+            Text text, ItemTransform transform)
+        {
+            drawingContext.Transform(transform.GeometryTransform);
+            drawingContext.ColorTransform(transform.ColorTransform);
+
+            var content = context.ContentManager;
+            var textFormat = content.GetOrCreateTextFormat("Arial", text.FontHeight,
+                FontWeight.Normal, TextAlignment.Center);
+
+            var bounds = new RawRectangleF(text.Bounds.X, text.Bounds.Y, text.Bounds.Z, text.Bounds.W);
+
+            drawingContext.DrawText(text.Content, textFormat, text.Color.ToColorRgbaF(), bounds);
+        }
+
+        public static void RenderGeometry(DrawingContext drawingContext, AptContext context,
             Geometry shape, ItemTransform transform)
         {
             drawingContext.Transform(transform.GeometryTransform);

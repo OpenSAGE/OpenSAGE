@@ -318,6 +318,13 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadByte());
         }
 
+        public static void Align(this BinaryReader reader, uint aligment)
+        {
+            var pos = reader.BaseStream.Position;
+            var missing = aligment - (pos % aligment);
+            reader.BaseStream.Seek(missing, SeekOrigin.Current);
+        }
+
         public static string ReadStringAtOffset(this BinaryReader reader)
         {
             var stringOffset = reader.ReadUInt32();

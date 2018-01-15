@@ -32,7 +32,7 @@ float4 PS(VSOutputSimple input) : SV_Target
     float4 color = float4(ColorEmissive.rgb, 1);
 
     color *= Texture_0.Sample(Sampler, uv);
-
+    color = float4(1,0,0, 1);
     // TODO: Fog.
 
     return color;

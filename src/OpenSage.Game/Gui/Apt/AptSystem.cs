@@ -32,7 +32,7 @@ namespace OpenSage.Gui.Apt
                 case SageGame.BattleForMiddleEarthII:
                     break;
                 default: // TODO: Handle other games.
-                    
+
                     break;
             }
         }
@@ -53,7 +53,7 @@ namespace OpenSage.Gui.Apt
 
         internal override void OnEntityComponentRemoved(EntityComponent component)
         {
-           
+
 
             base.OnEntityComponentRemoved(component);
         }
@@ -92,12 +92,12 @@ namespace OpenSage.Gui.Apt
 
         public override void Update(GameTime gameTime)
         {
-            foreach(var component in _guiComponents)
+            foreach (var component in _guiComponents)
             {
                 component.Update(gameTime, Game.GraphicsDevice);
             }
 
             base.Update(gameTime);
-        }      
+        }
     }
 }
