@@ -33,9 +33,8 @@ namespace OpenSage.Data.Big
             {
                 var refPackStream = new RefPackStream(bufferedBigStream);
 
-                // TODO: Could wrap RefPackStream in (another) BufferedStream, to improve performance.
-                // But we'd need to implement a proper Seek method on RefPackStream.
-                return refPackStream;
+                // Wrap RefPackStream in (another) BufferedStream, to improve performance.
+                return new BufferedStream(refPackStream);
             }
 
             return bufferedBigStream;

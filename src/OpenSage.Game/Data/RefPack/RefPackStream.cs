@@ -8,7 +8,7 @@ namespace OpenSage.Data.RefPack
     public class RefPackStream : Stream
     {
         private readonly Stream _stream;
-        private readonly byte[] _output;
+        private readonly RefPackOutputBuffer _output;
         private int _currentOutputPosition;
         private int _nextOutputPosition;
         private bool _eof;
@@ -22,7 +22,9 @@ namespace OpenSage.Data.RefPack
         /// </summary>
         public override bool CanSeek => true;
 
-        public override long Length => _output.Length;
+        public long CompressedLength { get; }
+
+        public override long Length { get; }
 
         public override long Position
         {
@@ -94,26 +96,37 @@ namespace OpenSage.Data.RefPack
 
             if (compressedSizePresent)
             {
-                var compressedSize = readBigEndianSize();
+                CompressedLength = readBigEndianSize();
             }
+
             var decompressedSize = readBigEndianSize();
 
-            _output = new byte[decompressedSize];
+            Length = decompressedSize;
+
+            _output = new RefPackOutputBuffer(decompressedSize);
         }
 
-        public override void Flush()
-        {
-            
-        }
+        public override void Flush() { }
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            if (origin != SeekOrigin.Current || offset > 0)
+            if (origin != SeekOrigin.Current || Math.Abs(offset) > RefPackOutputBuffer.MaxByteReadCount)
             {
                 throw new NotSupportedException();
             }
 
-            _currentOutputPosition += (int) offset;
+            if (offset > 0)
+            {
+                while (!_eof && _currentOutputPosition + offset > _nextOutputPosition)
+                {
+                    ExecuteCommand();
+                }
+                _currentOutputPosition += (int) offset;
+            }
+            else
+            {
+                _currentOutputPosition += (int) offset;
+            }
 
             return _currentOutputPosition;
         }
@@ -125,14 +138,19 @@ namespace OpenSage.Data.RefPack
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            var actualCount = Math.Min(count, _output.Length - _currentOutputPosition);
+            if (count > RefPackOutputBuffer.MaxByteReadCount)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            var actualCount = (int) Math.Min(count, Length - _currentOutputPosition);
 
             while (!_eof && _currentOutputPosition + actualCount > _nextOutputPosition)
             {
                 ExecuteCommand();
             }
 
-            Array.Copy(_output, _currentOutputPosition, buffer, offset, actualCount);
+            _output.CopyTo(_currentOutputPosition, buffer, offset, actualCount);
             _currentOutputPosition += actualCount;
 
             return actualCount;
@@ -221,11 +239,17 @@ namespace OpenSage.Data.RefPack
 
         private void CopyProceeding(int proceedingDataLength)
         {
-            var bytesRead = _stream.Read(_output, _nextOutputPosition, proceedingDataLength);
+            if (proceedingDataLength > 112)
+            {
+                throw new InvalidDataException();
+            }
+
+            var bytesRead = _output.ReadFrom(_stream, _nextOutputPosition, proceedingDataLength);
             if (bytesRead != proceedingDataLength)
             {
                 throw new InvalidDataException();
             }
+
             _nextOutputPosition += proceedingDataLength;
         }
 
@@ -237,21 +261,20 @@ namespace OpenSage.Data.RefPack
             }
 
             // Max value for referencedDataDistance is 131072.
-            // We use that fact to only keep that number of bytes around in the output buffer.
+            // We use that fact to limit the number of bytes around in the output buffer.
             // If this isn't the case, things will break.
-            if (referencedDataDistance > 131072)
+            if (referencedDataDistance > RefPackOutputBuffer.MaxReferencedDataDistance)
             {
                 throw new InvalidDataException();
             }
 
-            var referencedDataIndex = _nextOutputPosition - referencedDataDistance;
-
-            // Copy bytes 1 at a time because it's valid for the referenced data pointer
+            // We need to copy bytes 1 at a time because it's valid for the referenced data pointer
             // to overrun into the initial value of the output data pointer.
-            while (referencedDataLength-- > 0)
-            {
-                _output[_nextOutputPosition++] = _output[referencedDataIndex++];
-            }
+            // Equivalently, we can copy and paste referencedDataDistance bytes until we reach the right length.
+            _output.CopyFromReferencedData(
+                referencedDataDistance,
+                ref _nextOutputPosition,
+                referencedDataLength);
         }
 
         public override void Write(byte[] buffer, int offset, int count)
