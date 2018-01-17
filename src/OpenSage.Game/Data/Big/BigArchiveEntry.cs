@@ -22,7 +22,7 @@ namespace OpenSage.Data.Big
 
         public Stream Open()
         {
-            var bigStream = new BigStream(this, _offset);
+            var bigStream = new BigArchiveEntryStream(this, _offset);
 
             // Wrapping BigStream in a BufferedStream significantly improves performance.
             var bufferedBigStream = new BufferedStream(bigStream);

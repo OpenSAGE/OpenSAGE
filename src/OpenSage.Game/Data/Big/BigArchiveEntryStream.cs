@@ -3,14 +3,14 @@ using System.IO;
 
 namespace OpenSage.Data.Big
 {
-    public class BigStream : Stream
+    public class BigArchiveEntryStream : Stream
     {
         private readonly BigArchiveEntry _entry;
         private readonly BigArchive _archive;
         private readonly uint _offset;
         private bool _locked;
 
-        public BigStream(BigArchiveEntry entry, uint offset)
+        public BigArchiveEntryStream(BigArchiveEntry entry, uint offset)
         {
             _entry = entry;
             _archive = entry.Archive;
