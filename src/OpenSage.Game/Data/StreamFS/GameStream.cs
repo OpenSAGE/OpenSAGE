@@ -26,72 +26,115 @@ namespace OpenSage.Data.StreamFS
                 _assetReferenceToAssetLookup[assetReference] = asset;
             }
 
-            ParseStreamFile(".bin", reader =>
+            // Parse .bin, .relo, and .imp files simultaneously.
+            ParseStreamFile(".bin", 3132817408u, binReader =>
             {
-                foreach (var asset in ManifestFile.Assets)
+                ParseStreamFile(".relo", 3133014016u, reloReader =>
                 {
-                    if (AssetTypeCatalog.TryGetAssetType(asset.Header.TypeId, out var assetType))
+                    ParseStreamFile(".imp", 3132162048u, impReader =>
                     {
-                        asset.InstanceData = assetType.Parse(asset, reader);
-                    }
-                    else
-                    {
-                        asset.InstanceData = reader.ReadBytes((int) asset.Header.InstanceDataSize);
-                    }
-                }
-            });
-
-            // Relocations
-            ParseStreamFile(".relo", reader =>
-            {
-                foreach (var asset in ManifestFile.Assets)
-                {
-                    if (asset.Header.RelocationDataSize != 0)
-                    {
-                        var numRelocations = asset.Header.RelocationDataSize / sizeof(uint) - 1;
-                        asset.Relocations = new uint[numRelocations];
-                        for (var i = 0; i < numRelocations; i++)
+                        foreach (var asset in ManifestFile.Assets)
                         {
-                            asset.Relocations[i] = reader.ReadUInt32();
-                        }
-                        var lastValue = reader.ReadUInt32();
-                        if (lastValue != 0xFFFFFFFF)
-                        {
-                            throw new InvalidDataException();
-                        }
-                    }
-                }
-            });
+                            ReadBinReloImpData(
+                                binReader,
+                                reloReader,
+                                impReader,
+                                asset,
+                                out var instanceData,
+                                out var relocationData,
+                                out var imports);
 
-            // Imports
-            ParseStreamFile(".imp", reader =>
-            {
-                foreach (var asset in ManifestFile.Assets)
-                {
-                    if (asset.Header.ImportsDataSize > 0)
-                    {
-                        var numImports = asset.Header.ImportsDataSize / sizeof(uint) - 1;
-                        asset.Imports = new AssetImport[numImports];
-                        for (var i = 0; i < numImports; i++)
-                        {
-                            var importData = reader.ReadUInt32();
+                            if (instanceData.Length == 0)
+                            {
+                                continue;
+                            }
 
-                            ref var assetReference = ref asset.AssetReferences[i];
-                            var referencedAsset = FindAsset(assetReference);
-
-                            asset.Imports[i] = new AssetImport(importData, referencedAsset);
+                            if (AssetReaderCatalog.TryGetAssetReader(asset.Header.TypeId, out var assetReader))
+                            {
+                                using (var instanceDataStream = new MemoryStream(instanceData, false))
+                                using (var instanceDataReader = new BinaryReader(instanceDataStream, Encoding.ASCII, true))
+                                {
+                                    asset.InstanceData = assetReader.Parse(asset, instanceDataReader, relocationData, imports);
+                                }
+                            }
+                            else
+                            {
+                                // TODO
+                            }
                         }
-                        var lastValue = reader.ReadUInt32();
-                        if (lastValue != 0xFFFFFFFF)
-                        {
-                            throw new InvalidDataException();
-                        }
-                    }
-                }
+                    });
+                });
             });
         }
 
-        private void ParseStreamFile(string extension, Action<BinaryReader> callback)
+        private void ReadBinReloImpData(
+            BinaryReader binReader,
+            BinaryReader reloReader,
+            BinaryReader impReader,
+            Asset asset,
+            out byte[] instanceData,
+            out uint[] relocationData,
+            out AssetImport[] imports)
+        {
+            if (asset.Header.InstanceDataSize > 0)
+            {
+                instanceData = binReader.ReadBytes((int) asset.Header.InstanceDataSize);
+            }
+            else
+            {
+                instanceData = new byte[0];
+            }
+
+            uint[] readRelocationOrImportData(BinaryReader reader, uint dataSize)
+            {
+                uint[] result;
+                if (dataSize > 0)
+                {
+                    var numValues = dataSize / sizeof(uint) - 1;
+                    result = new uint[numValues];
+                    for (var i = 0; i < numValues; i++)
+                    {
+                        result[i] = reader.ReadUInt32();
+                    }
+                    var lastValue = reader.ReadUInt32();
+                    if (lastValue != 0xFFFFFFFF)
+                    {
+                        throw new InvalidDataException();
+                    }
+                }
+                else
+                {
+                    result = new uint[0];
+                }
+                return result;
+            }
+
+            // These are indices into InstanceData, and should be used to update
+            // the pointer at InstanceData[reloValue],
+            // from being relative to the start of InstanceData,
+            // to being an absolute pointer.
+            // In C++ it would be:
+            // asset.InstanceData[reloValue] += asset.InstanceData;
+            relocationData = readRelocationOrImportData(reloReader, asset.Header.RelocationDataSize);
+
+            // List of indices in InstanceData at which to set pointers to the corresponding
+            // assets in AssetReferences.
+            var importData = readRelocationOrImportData(impReader, asset.Header.ImportsDataSize);
+            if (importData.Length > asset.AssetReferences.Length)
+            {
+                throw new InvalidDataException();
+            }
+            imports = new AssetImport[importData.Length];
+            for (var i = 0; i < importData.Length; i++)
+            {
+                ref var assetReference = ref asset.AssetReferences[i];
+                var referencedAsset = FindAsset(assetReference);
+
+                imports[i] = new AssetImport(importData[i], referencedAsset);
+            }
+        }
+
+        private void ParseStreamFile(string extension, uint streamTypeChecksum, Action<BinaryReader> callback)
         {
             var streamFilePath = Path.ChangeExtension(ManifestFileEntry.FilePath, extension);
             var streamFileEntry = ManifestFileEntry.FileSystem.GetFile(streamFilePath);
@@ -103,6 +146,15 @@ namespace OpenSage.Data.StreamFS
             using (var binaryStream = streamFileEntry.Open())
             using (var reader = new BinaryReader(binaryStream, Encoding.ASCII, true))
             {
+                if (ManifestFile.Header.Version == 7)
+                {
+                    var typeChecksum = reader.ReadUInt32();
+                    if (typeChecksum != streamTypeChecksum)
+                    {
+                        throw new InvalidDataException();
+                    }
+                }
+
                 var checksum = reader.ReadUInt32();
                 if (checksum != ManifestFile.Header.StreamChecksum)
                 {

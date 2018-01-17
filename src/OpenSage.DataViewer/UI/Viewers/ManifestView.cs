@@ -26,7 +26,7 @@ namespace OpenSage.DataViewer.UI.Viewers
 
             var listBox = new ListBox
             {
-                Width = 200,
+                Width = 300,
                 DataStore = gameStream.ManifestFile.Assets,
                 ItemTextBinding = Binding.Property((Asset x) => x.Name)
             };

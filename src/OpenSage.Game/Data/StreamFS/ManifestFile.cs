@@ -23,9 +23,15 @@ namespace OpenSage.Data.StreamFS
                     Header = ManifestHeader.Parse(reader)
                 };
 
-                if (result.Header.Version != 5)
+                switch (result.Header.Version)
                 {
-                    throw new System.NotImplementedException();
+                    case 5:
+                    case 6:
+                    case 7:
+                        break;
+
+                    default:
+                        throw new InvalidDataException();
                 }
 
                 result.Assets = new Asset[result.Header.AssetCount];
@@ -33,7 +39,7 @@ namespace OpenSage.Data.StreamFS
                 {
                     result.Assets[i] = new Asset
                     {
-                        Header = AssetEntry.Parse(reader)
+                        Header = AssetEntry.Parse(reader, result.Header.Version)
                     };
                 }
 
@@ -104,26 +110,12 @@ namespace OpenSage.Data.StreamFS
     {
         public AssetEntry Header { get; internal set; }
 
+        public AssetType AssetType => (AssetType) Header.TypeId;
+
         public string Name { get; internal set; }
         public string SourceFileName { get; internal set; }
 
         public object InstanceData { get; internal set; }
-
-        /// <summary>
-        /// This are indices into InstanceData, and should be used to update
-        /// the pointer at InstanceData[reloValue],
-        /// from being relative to the start of InstanceData,
-        /// to being an absolute pointer.
-        /// In C++ it would be:
-        /// asset.InstanceData[reloValue] += asset.InstanceData;
-        /// </summary>
-        public uint[] Relocations { get; internal set; }
-
-        /// <summary>
-        /// List of indices in InstanceData at which to set pointers to the corresponding
-        /// assets in AssetReferences.
-        /// </summary>
-        public AssetImport[] Imports { get; internal set; }
 
         public Span<AssetReference> AssetReferences { get; internal set; }
     }
@@ -175,9 +167,11 @@ namespace OpenSage.Data.StreamFS
         public uint RelocationDataSize { get; private set; }
         public uint ImportsDataSize { get; private set; }
 
-        internal static AssetEntry Parse(BinaryReader reader)
+        public bool IsTokenized { get; private set; }
+
+        internal static AssetEntry Parse(BinaryReader reader, ushort manifestVersion)
         {
-            return new AssetEntry
+            var result = new AssetEntry
             {
                 TypeId = reader.ReadUInt32(),
                 InstanceId = reader.ReadUInt32(),
@@ -191,6 +185,13 @@ namespace OpenSage.Data.StreamFS
                 RelocationDataSize = reader.ReadUInt32(),
                 ImportsDataSize = reader.ReadUInt32(),
             };
+
+            if (manifestVersion >= 6)
+            {
+                result.IsTokenized = reader.ReadBooleanUInt32Checked();
+            }
+
+            return result;
         }
     }
 
@@ -198,7 +199,9 @@ namespace OpenSage.Data.StreamFS
     {
         public bool IsBigEndian { get; private set; }
         public bool IsLinked { get; private set; }
+
         public ushort Version { get; private set; }
+
         public uint StreamChecksum { get; private set; }
         public uint AllTypesHash { get; private set; }
         public uint AssetCount { get; private set; }
@@ -217,9 +220,32 @@ namespace OpenSage.Data.StreamFS
         {
             var result = new ManifestHeader();
 
-            result.IsBigEndian = reader.ReadBooleanChecked();
-            result.IsLinked = reader.ReadBooleanChecked();
-            result.Version = reader.ReadUInt16();
+            var testValue = reader.ReadUInt32();
+            if (testValue == 0)
+            {
+                result.Version = reader.ReadUInt16();
+
+                if (result.Version != 7)
+                {
+                    throw new InvalidDataException();
+                }
+
+                result.IsBigEndian = reader.ReadBooleanChecked();
+                result.IsLinked = reader.ReadBooleanChecked();
+            }
+            else
+            {
+                reader.BaseStream.Seek(-4, SeekOrigin.Current);
+
+                result.IsBigEndian = reader.ReadBooleanChecked();
+                result.IsLinked = reader.ReadBooleanChecked();
+                result.Version = reader.ReadUInt16();
+
+                if (result.Version != 5 && result.Version != 6)
+                {
+                    throw new InvalidDataException();
+                }
+            }
 
             result.StreamChecksum = reader.ReadUInt32();
             result.AllTypesHash = reader.ReadUInt32();

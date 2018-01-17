@@ -101,9 +101,9 @@ namespace OpenSage.DataViewer.UI
 
         private Control CreateControlForAsset(Asset asset)
         {
-            switch (asset.Header.TypeId)
+            switch (asset.AssetType)
             {
-                case 0x21E727DA: // Texture
+                case AssetType.Texture:
                     return new DdsView((DdsFile) asset.InstanceData);
 
                 default:

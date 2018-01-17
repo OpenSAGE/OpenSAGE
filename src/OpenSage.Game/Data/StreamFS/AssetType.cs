@@ -5,38 +5,44 @@ using OpenSage.Data.Dds;
 
 namespace OpenSage.Data.StreamFS
 {
-    public static class AssetTypeCatalog
+    // TODO: This is only valid if the same TypeIds mean the same thing across games.
+    public enum AssetType : uint
     {
-        private static readonly Dictionary<uint, AssetType> _assetTypes;
+        Texture = 0x21E727DA
+    }
 
-        static AssetTypeCatalog()
+    public static class AssetReaderCatalog
+    {
+        private static readonly Dictionary<AssetType, AssetReader> _assetReaders;
+
+        static AssetReaderCatalog()
         {
-            var assetTypes = new AssetType[]
+            var assetReaders = new AssetReader[]
             {
-                new TextureAssetType()
+                new TextureReader()
             };
 
-            _assetTypes = assetTypes.ToDictionary(x => x.TypeId);
+            _assetReaders = assetReaders.ToDictionary(x => x.AssetType);
         }
 
-        public static bool TryGetAssetType(uint typeId, out AssetType assetType)
+        public static bool TryGetAssetReader(uint typeId, out AssetReader assetReader)
         {
-            return _assetTypes.TryGetValue(typeId, out assetType);
+            return _assetReaders.TryGetValue((AssetType) typeId, out assetReader);
         }
     }
 
-    public abstract class AssetType
+    public abstract class AssetReader
     {
-        public abstract uint TypeId { get; }
+        public abstract AssetType AssetType { get; }
 
-        public abstract object Parse(Asset asset, BinaryReader reader);
+        public abstract object Parse(Asset asset, BinaryReader reader, uint[] relocations, AssetImport[] imports);
     }
 
-    public sealed class TextureAssetType : AssetType
+    public sealed class TextureReader : AssetReader
     {
-        public override uint TypeId { get; } = 0x21E727DA;
+        public override AssetType AssetType => AssetType.Texture;
 
-        public override object Parse(Asset asset, BinaryReader reader)
+        public override object Parse(Asset asset, BinaryReader reader, uint[] relocations, AssetImport[] imports)
         {
             var zero = reader.ReadUInt32();
             if (zero != 0)
