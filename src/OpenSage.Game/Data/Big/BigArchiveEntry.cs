@@ -22,24 +22,23 @@ namespace OpenSage.Data.Big
 
         public Stream Open()
         {
-            // TODO: Use System.IO.MemoryMappedFiles
-            using (var bigStream = new BigStream(this, _offset))
+            var bigStream = new BigStream(this, _offset);
+
+            // Wrapping BigStream in a BufferedStream significantly improves performance.
+            var bufferedBigStream = new BufferedStream(bigStream);
+
+            // Check for refpack compression header.
+            // C&C3 started using refpack compression for .big archive entries.
+            if (RefPackStream.IsProbablyRefPackCompressed(bufferedBigStream))
             {
-                var result = new MemoryStream((int) Length);
+                var refPackStream = new RefPackStream(bufferedBigStream);
 
-                bigStream.CopyTo(result);
-
-                result.Position = 0;
-
-                // Check for refpack compression header.
-                // C&C3 started using refpack compression for .big archive entries.
-                if (RefPackStream.IsProbablyRefPackCompressed(result.GetBuffer()))
-                {
-                    return new RefPackStream(result);
-                }
-
-                return result;
+                // TODO: Could wrap RefPackStream in (another) BufferedStream, to improve performance.
+                // But we'd need to implement a proper Seek method on RefPackStream.
+                return refPackStream;
             }
+
+            return bufferedBigStream;
         }
     }
 }

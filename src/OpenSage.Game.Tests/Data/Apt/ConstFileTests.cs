@@ -32,8 +32,7 @@ namespace OpenSage.Tests.Data.Apt
         {
             var bigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(SageGame.BattleForMiddleEarthII), "apt/MainMenu.big");
 
-            using (var bigStream = File.OpenRead(bigFilePath))
-            using (var bigArchive = new BigArchive(bigStream))
+            using (var bigArchive = new BigArchive(bigFilePath))
             {
                 var entry = bigArchive.GetEntry(@"MainMenu.const");
 

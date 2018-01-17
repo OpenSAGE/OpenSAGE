@@ -140,8 +140,7 @@ namespace OpenSage.Tests.Data.W3d
         {
             var bigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(SageGame.CncGeneralsZeroHour), "W3DZH.big");
         
-            using (var bigStream = File.OpenRead(bigFilePath))
-            using (var bigArchive = new BigArchive(bigStream))
+            using (var bigArchive = new BigArchive(bigFilePath))
             {
                 var entry = bigArchive.GetEntry(@"Art\W3D\ABBarracks_AC.W3D");
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using OpenSage.Data.Big;
 
 namespace OpenSage.Data
@@ -34,8 +35,7 @@ namespace OpenSage.Data
                 var ext = Path.GetExtension(file).ToLower();
                 if (ext == ".big")
                 {
-                    var bigStream = File.OpenRead(file);
-                    var archive = new BigArchive(bigStream);
+                    var archive = new BigArchive(file);
 
                     _bigArchives.Add(archive);
 

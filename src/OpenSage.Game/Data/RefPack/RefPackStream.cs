@@ -17,7 +17,10 @@ namespace OpenSage.Data.RefPack
 
         public override bool CanWrite => false;
 
-        public override bool CanSeek => false;
+        /// <summary>
+        /// Can only seek backwards from the current position.
+        /// </summary>
+        public override bool CanSeek => true;
 
         public override long Length => _output.Length;
 
@@ -27,26 +30,34 @@ namespace OpenSage.Data.RefPack
             set => throw new NotImplementedException();
         }
 
-        public static bool IsProbablyRefPackCompressed(byte[] data)
+        public static bool IsProbablyRefPackCompressed(Stream stream)
         {
-            if (data.Length < 2)
+            if (stream.Length < 2)
             {
                 return false;
             }
 
-            var headerByte1 = data[0];
-            if ((headerByte1 & 0b00111110) != 0b00010000)
+            var position = stream.Position;
+            try
             {
-                return false;
-            }
+                var headerByte1 = stream.ReadByte();
+                if ((headerByte1 & 0b00111110) != 0b00010000)
+                {
+                    return false;
+                }
 
-            var headerByte2 = data[1];
-            if (headerByte2 != 0b11111011)
+                var headerByte2 = stream.ReadByte();
+                if (headerByte2 != 0b11111011)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+            finally
             {
-                return false;
+                stream.Position = position;
             }
-
-            return true;
         }
 
         public RefPackStream(Stream compressedStream)
@@ -210,21 +221,33 @@ namespace OpenSage.Data.RefPack
 
         private void CopyProceeding(int proceedingDataLength)
         {
-            while (proceedingDataLength-- > 0)
+            var bytesRead = _stream.Read(_output, _nextOutputPosition, proceedingDataLength);
+            if (bytesRead != proceedingDataLength)
             {
-                _output[_nextOutputPosition++] = (byte) _stream.ReadByte();
+                throw new InvalidDataException();
             }
+            _nextOutputPosition += proceedingDataLength;
         }
 
         private void CopyReferencedData(int referencedDataLength, int referencedDataDistance)
         {
-            var referencedDataIndex = _nextOutputPosition - referencedDataDistance;
-
-            if (referencedDataIndex < 0)
+            if (referencedDataDistance > _nextOutputPosition || referencedDataDistance <= 0)
             {
-                throw new InvalidOperationException();
+                throw new InvalidDataException();
             }
 
+            // Max value for referencedDataDistance is 131072.
+            // We use that fact to only keep that number of bytes around in the output buffer.
+            // If this isn't the case, things will break.
+            if (referencedDataDistance > 131072)
+            {
+                throw new InvalidDataException();
+            }
+
+            var referencedDataIndex = _nextOutputPosition - referencedDataDistance;
+
+            // Copy bytes 1 at a time because it's valid for the referenced data pointer
+            // to overrun into the initial value of the output data pointer.
             while (referencedDataLength-- > 0)
             {
                 _output[_nextOutputPosition++] = _output[referencedDataIndex++];

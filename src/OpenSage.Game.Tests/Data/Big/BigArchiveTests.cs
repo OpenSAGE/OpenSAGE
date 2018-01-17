@@ -16,8 +16,7 @@ namespace OpenSage.Tests.Data.Big
         [GameFact(SageGame.CncGeneralsZeroHour)]
         public void OpenBigArchive()
         {
-            using (var bigStream = File.OpenRead(_bigFilePath))
-            using (var bigArchive = new BigArchive(bigStream))
+            using (var bigArchive = new BigArchive(_bigFilePath))
             {
                 Assert.Equal(4432, bigArchive.Entries.Count);
             }
@@ -26,8 +25,7 @@ namespace OpenSage.Tests.Data.Big
         [GameFact(SageGame.CncGeneralsZeroHour)]
         public void ReadFirstEntry()
         {
-            using (var bigStream = File.OpenRead(_bigFilePath))
-            using (var bigArchive = new BigArchive(bigStream))
+            using (var bigArchive = new BigArchive(_bigFilePath))
             {
                 var firstEntry = bigArchive.Entries[0];
 
@@ -39,8 +37,7 @@ namespace OpenSage.Tests.Data.Big
         [GameFact(SageGame.CncGeneralsZeroHour)]
         public void ReadFirstEntryStream()
         {
-            using (var bigStream = File.OpenRead(_bigFilePath))
-            using (var bigArchive = new BigArchive(bigStream))
+            using (var bigArchive = new BigArchive(_bigFilePath))
             {
                 var firstEntry = bigArchive.Entries[0];
 
@@ -58,8 +55,7 @@ namespace OpenSage.Tests.Data.Big
         [GameFact(SageGame.CncGeneralsZeroHour)]
         public void GetEntryByName()
         {
-            using (var bigStream = File.OpenRead(_bigFilePath))
-            using (var bigArchive = new BigArchive(bigStream))
+            using (var bigArchive = new BigArchive(_bigFilePath))
             {
                 var entry = bigArchive.GetEntry(@"Art\W3D\ABBarracks_AC.W3D");
 

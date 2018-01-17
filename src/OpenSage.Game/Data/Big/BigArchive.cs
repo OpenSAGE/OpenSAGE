@@ -1,50 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Text;
 using System.Threading;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Big
 {
-    public class BigArchive : IDisposable
+    public class BigArchive : DisposableBase
     {
         private readonly object _lockObject = new object();
 
-        private readonly Stream _stream;
-        private readonly bool _leaveOpen;
-        private readonly BinaryReader _reader;
+        private readonly FileStream _stream;
 
         private readonly List<BigArchiveEntry> _entries;
         private readonly Dictionary<string, BigArchiveEntry> _entriesDictionary;
 
-        public IReadOnlyList<BigArchiveEntry> Entries => _entries;
-
         internal Stream Stream => _stream;
+
+        public string FilePath { get; }
+
+        public IReadOnlyList<BigArchiveEntry> Entries => _entries;
 
         public BigArchiveVersion Version { get; private set; }
 
-        public BigArchive(Stream stream, bool leaveOpen = false)
+        public BigArchive(string filePath)
         {
-            _stream = stream ?? throw new ArgumentNullException(nameof(stream));
-            _leaveOpen = leaveOpen;
-
-            if (!_stream.CanRead)
-            {
-                throw new ArgumentException("Stream is not readable.");
-            }
-
-            if (!_stream.CanSeek)
-            {
-                throw new ArgumentException("Stream is not seekable.");
-            }
-
-            _stream.Seek(0, SeekOrigin.Begin);
-
-            _reader = new BinaryReader(_stream);
+            FilePath = filePath;
 
             _entries = new List<BigArchiveEntry>();
             _entriesDictionary = new Dictionary<string, BigArchiveEntry>();
+
+            _stream = AddDisposable(new FileStream(
+                filePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read));
 
             Read();
         }
@@ -61,38 +52,41 @@ namespace OpenSage.Data.Big
 
         private void Read()
         {
-            var fourCc = _reader.ReadFourCc();
-            switch (fourCc)
+            using (var reader = new BinaryReader(_stream, Encoding.ASCII, true))
             {
-                case "BIGF":
-                    Version = BigArchiveVersion.BigF;
-                    break;
+                var fourCc = reader.ReadFourCc();
+                switch (fourCc)
+                {
+                    case "BIGF":
+                        Version = BigArchiveVersion.BigF;
+                        break;
 
-                case "BIG4":
-                    Version = BigArchiveVersion.Big4;
-                    break;
+                    case "BIG4":
+                        Version = BigArchiveVersion.Big4;
+                        break;
 
-                default:
-                    throw new InvalidDataException($"Not a supported BIG format: {fourCc}");
-            }
+                    default:
+                        throw new InvalidDataException($"Not a supported BIG format: {fourCc}");
+                }
 
-            _reader.ReadBigEndianUInt32(); // Archive Size
-            var numEntries = _reader.ReadBigEndianUInt32();
-            _reader.ReadBigEndianUInt32(); // First File Offset
+                reader.ReadBigEndianUInt32(); // Archive Size
+                var numEntries = reader.ReadBigEndianUInt32();
+                reader.ReadBigEndianUInt32(); // First File Offset
 
-            for (var i = 0; i < numEntries; i++)
-            {
-                var entryOffset = _reader.ReadBigEndianUInt32();
-                var entrySize = _reader.ReadBigEndianUInt32();
-                var entryName = _reader.ReadNullTerminatedString();
+                for (var i = 0; i < numEntries; i++)
+                {
+                    var entryOffset = reader.ReadBigEndianUInt32();
+                    var entrySize = reader.ReadBigEndianUInt32();
+                    var entryName = reader.ReadNullTerminatedString();
 
-                var entry = new BigArchiveEntry(this, entryName, entryOffset, entrySize);
+                    var entry = new BigArchiveEntry(this, entryName, entryOffset, entrySize);
 
-                _entries.Add(entry);
+                    _entries.Add(entry);
 
-                // Overwrite any previous entries with the same name.
-                // Yes, at least one .big file has entries with duplicate names.
-                _entriesDictionary[entryName] = entry;
+                    // Overwrite any previous entries with the same name.
+                    // Yes, at least one .big file has entries with duplicate names.
+                    _entriesDictionary[entryName] = entry;
+                }
             }
         }
 
@@ -105,21 +99,6 @@ namespace OpenSage.Data.Big
 
             _entriesDictionary.TryGetValue(entryName, out var result);
             return result;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_leaveOpen)
-            {
-                _stream.Dispose();
-                _reader.Dispose();
-            }
         }
     }
 
