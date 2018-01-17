@@ -9,7 +9,10 @@ namespace OpenSage.Data.Dds
     public sealed class DdsFile
     {
         public DdsHeader Header { get; private set; }
+        public DdsTextureDimension Dimension { get; private set; }
         public DdsImageFormat ImageFormat { get; private set; }
+        public uint ArraySize { get; private set; }
+        public uint MipMapCount { get; private set; }
         public DdsMipMap[] MipMaps { get; private set; }
 
         public PixelFormat PixelFormat
@@ -87,11 +90,20 @@ namespace OpenSage.Data.Dds
                     throw new InvalidDataException();
                 }
 
-                if (header.Flags.HasFlag(DdsHeaderFlags.Depth)
-                    || header.Caps2.HasFlag(DdsCaps2.CubeMap)
-                    || header.Caps2.HasFlag(DdsCaps2.Volume))
+                var dimension = DdsTextureDimension.Texture2D;
+                var arraySize = 1u;
+                if (header.Flags.HasFlag(DdsHeaderFlags.Depth) && header.Caps2.HasFlag(DdsCaps2.Volume))
                 {
-                    throw new NotSupportedException();
+                    dimension = DdsTextureDimension.Texture3D;
+                }
+                else if (header.Caps2.HasFlag(DdsCaps2.CubeMap))
+                {
+                    dimension = DdsTextureDimension.TextureCube;
+                    if (!header.Caps2.HasFlag(DdsCaps2.AllCubeMapFaces))
+                    {
+                        throw new InvalidDataException();
+                    }
+                    arraySize = 6;
                 }
 
                 var mipMapCount = header.MipMapCount;
@@ -100,38 +112,51 @@ namespace OpenSage.Data.Dds
                     mipMapCount = 1;
                 }
 
-                var mipMaps = new DdsMipMap[mipMapCount];
+                var mipMaps = new DdsMipMap[mipMapCount * arraySize];
 
-                var width = header.Width;
-                var height = header.Height;
-                for (var i = 0; i < mipMapCount; i++)
+                for (var arrayIndex = 0; arrayIndex < arraySize; arrayIndex++)
                 {
-                    var surfaceInfo = GetSurfaceInfo(width, height, imageFormat, header);
-
-                    var mipMapData = reader.ReadBytes((int) surfaceInfo.NumBytes);
-
-                    // Set alpha bytes for 32-bit rgb images that don't include alpha data.
-                    if (imageFormat == DdsImageFormat.Rgba8 && !header.PixelFormat.Flags.HasFlag(DdsPixelFormatFlags.AlphaPixels))
+                    var width = header.Width;
+                    var height = header.Height;
+                    var depth = Math.Max(header.Depth, 1);
+                    for (var i = 0; i < mipMapCount; i++)
                     {
-                        for (var j = 0; j < mipMapData.Length; j += 4)
+                        var surfaceInfo = GetSurfaceInfo(width, height, imageFormat, header);
+
+                        var numSurfaceBytes = surfaceInfo.NumBytes * depth;
+                        var mipMapData = reader.ReadBytes((int) numSurfaceBytes);
+
+                        // Set alpha bytes for 32-bit rgb images that don't include alpha data.
+                        if (imageFormat == DdsImageFormat.Rgba8 && !header.PixelFormat.Flags.HasFlag(DdsPixelFormatFlags.AlphaPixels))
                         {
-                            mipMapData[j + 3] = 255;
+                            for (var j = 0; j < mipMapData.Length; j += 4)
+                            {
+                                mipMapData[j + 3] = 255;
+                            }
                         }
+
+                        mipMaps[(arrayIndex * mipMapCount) + i] = new DdsMipMap(
+                            mipMapData,
+                            surfaceInfo.RowBytes,
+                            surfaceInfo.NumBytes);
+
+                        width >>= 1;
+                        height >>= 1;
+                        depth >>= 1;
+
+                        width = Math.Max(width, 1);
+                        height = Math.Max(height, 1);
+                        depth = Math.Max(depth, 1);
                     }
-
-                    mipMaps[i] = new DdsMipMap(mipMapData, surfaceInfo.RowBytes);
-
-                    width >>= 1;
-                    height >>= 1;
-
-                    width = Math.Max(width, 1);
-                    height = Math.Max(height, 1);
                 }
 
                 return new DdsFile
                 {
                     Header = header,
+                    Dimension = dimension,
                     ImageFormat = imageFormat,
+                    ArraySize = arraySize,
+                    MipMapCount = mipMapCount,
                     MipMaps = mipMaps
                 };
             }
@@ -149,28 +174,38 @@ namespace OpenSage.Data.Dds
 
                 case "DXT5":
                     return DdsImageFormat.Bc3;
-
-                default:
-                    throw new NotSupportedException();
             }
+
+            switch (fourCc)
+            {
+                case 113:
+                    return DdsImageFormat.Rgba16Float;
+
+            }
+
+            throw new NotSupportedException();
         }
 
         private static SurfaceInfo GetSurfaceInfo(uint width, uint height, DdsImageFormat format, DdsHeader header)
         {
-            if (format == DdsImageFormat.Rg8SNorm)
+            uint rowBytes = 0;
+            switch (format)
             {
-                var rowBytes = (width * 16 + 7) / 8; // round up to nearest byte
-                return new SurfaceInfo
-                {
-                    RowBytes = rowBytes,
-                    NumRows = height,
-                    NumBytes = rowBytes * height
-                };
+                case DdsImageFormat.Rg8SNorm:
+                    rowBytes = (width * 16 + 7) / 8; // round up to nearest byte
+                    break;
+
+                case DdsImageFormat.Rgba8:
+                    rowBytes = width * (header.PixelFormat.RgbBitCount / 8);
+                    break;
+
+                case DdsImageFormat.Rgba16Float:
+                    rowBytes = width * 4;
+                    break;
             }
 
-            if (format == DdsImageFormat.Rgba8)
+            if (rowBytes > 0)
             {
-                var rowBytes = width * (header.PixelFormat.RgbBitCount / 8);
                 return new SurfaceInfo
                 {
                     RowBytes = rowBytes,
@@ -221,5 +256,12 @@ namespace OpenSage.Data.Dds
             public uint RowBytes;
             public uint NumRows;
         }
+    }
+
+    public enum DdsTextureDimension
+    {
+        Texture2D,
+        Texture3D,
+        TextureCube
     }
 }

@@ -6,6 +6,7 @@
         Bc2,
         Bc3,
         Rg8SNorm,
-        Rgba8
+        Rgba8,
+        Rgba16Float
     }
 }
