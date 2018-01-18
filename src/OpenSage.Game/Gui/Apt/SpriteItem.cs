@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Numerics;
+using OpenSage.Data.Apt.Characters;
+using OpenSage.Data.Apt.FrameItems;
+using OpenSage.LowLevel.Graphics2D;
+using OpenSage.LowLevel.Graphics3D;
 
 namespace OpenSage.Gui.Apt
 {

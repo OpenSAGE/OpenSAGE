@@ -11,7 +11,8 @@ namespace OpenSage.Gui.Apt.ActionScript
         String,
         Constant,
         Integer,
-        Short
+        Short,
+        Undefined
     }
 
     public struct Value
@@ -22,7 +23,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public int Number;
         public double Decimal;
 
-        public static Value Constant(uint id)
+        public static Value FromConstant(uint id)
         {
             var v = new Value();
             v.Type = ValueType.Constant;
@@ -30,6 +31,27 @@ namespace OpenSage.Gui.Apt.ActionScript
             return v;
         }
 
+        public static Value FromString(string str)
+        {
+            var v = new Value();
+            v.Type = ValueType.String;
+            v.String = str;
+            return v;
+        }
 
+        public static Value FromInteger(int num)
+        {
+            var v = new Value();
+            v.Type = ValueType.Integer;
+            v.Number = num;
+            return v;
+        }
+
+        public static Value Undefined()
+        {
+            var v = new Value();
+            v.Type = ValueType.Undefined;
+            return v;
+        }
     }
 }

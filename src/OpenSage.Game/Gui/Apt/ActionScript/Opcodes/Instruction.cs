@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace OpenSage.Gui.Apt.ActionScript
+namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
     public enum InstructionType :  byte
     {
@@ -37,7 +34,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         GetVariable = 0x1C,
         SetVariable = 0x1D,
         SetTarget2 = 0x20,
-        StringConcant = 0x21,
+        StringConcat = 0x21,
         GetProperty = 0x22,
         SetProperty = 0x23,
         CloneSprite = 0x24,
@@ -153,7 +150,9 @@ namespace OpenSage.Gui.Apt.ActionScript
         EA_PushShort = 0xB6,
         EA_PushLong = 0xB7,
         EA_BranchIfFalse = 0xB8,
-        EA_PushRegister = 0xB9
+        EA_PushRegister = 0xB9,
+
+        Padding =0xFF
     }
 
     public class InstructionAlignment
@@ -183,8 +182,30 @@ namespace OpenSage.Gui.Apt.ActionScript
     public interface IInstruction
     {        
         InstructionType Type { get; }
+        //the size in bytes for this instruction (not including the opcode size)
+        uint Size { get; }
 
         List<Value> Parameters { get; set; }
         void Execute();
+    }
+
+    public sealed class Padding : IInstruction
+    {
+        public InstructionType Type => InstructionType.Padding;
+        public bool Aligned => false;
+        public uint Size { get; private set; }
+
+        public List<Value> Parameters { get => throw new NotImplementedException();
+                                        set => throw new NotImplementedException(); }
+
+        public void Execute()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Padding(uint size)
+        {
+            Size = size;
+        }
     }
 }

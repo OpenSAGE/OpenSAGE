@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenSage.Gui.Apt.ActionScript;
+using OpenSage.Gui.Apt.ActionScript.Opcodes;
 
 namespace OpenSage.Data.Apt.FrameItems
 {
