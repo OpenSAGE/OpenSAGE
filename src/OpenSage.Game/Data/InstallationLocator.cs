@@ -68,7 +68,7 @@ namespace OpenSage.Data
 
                     // TODO: Needs to be localised?
                     case SageGame.BattleForMiddleEarthII:
-                        return "GermanSplash.jpg";
+                        return "EnglishSplash.jpg";
 
                     case SageGame.Cnc3:
                     case SageGame.Cnc3KanesWrath:
