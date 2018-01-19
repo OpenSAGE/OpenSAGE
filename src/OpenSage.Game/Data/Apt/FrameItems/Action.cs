@@ -7,7 +7,7 @@ namespace OpenSage.Data.Apt.FrameItems
 {
     public sealed class Action : FrameItem
     {
-        public List<IInstruction> Instructions { get; private set; }
+        public List<InstructionBase> Instructions { get; private set; }
 
         public static Action Parse(BinaryReader reader)
         {

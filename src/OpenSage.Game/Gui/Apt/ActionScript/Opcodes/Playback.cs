@@ -4,42 +4,46 @@ using System.Collections.Generic;
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
     //start the current object playback
-    public sealed class Play : IInstruction
+    public sealed class Play : InstructionBase
     {
-        public InstructionType Type => InstructionType.Play;
-        public List<Value> Parameters { get; set; }
-        public bool Aligned => true;
-        public uint Size => 0;
+        public override InstructionType Type => InstructionType.Play;
 
-        public void Execute()
+        public override void Execute()
         {
             throw new NotImplementedException();
         }
     }
 
     //stop the current object playback
-    public sealed class Stop : IInstruction
+    public sealed class Stop : InstructionBase
     {
-        public InstructionType Type => InstructionType.Stop;
-        public List<Value> Parameters { get; set; }
-        public bool Aligned => true;
-        public uint Size => 0;
+        public override InstructionType Type => InstructionType.Stop;
 
-        public void Execute()
+        public override void Execute()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    //jump to a specifc frame number
+    public sealed class GotoFrame : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.GotoFrame;
+        public override uint Size => 4;
+
+        public override void Execute()
         {
             throw new NotImplementedException();
         }
     }
 
     //jump to a specifc frame label
-    public sealed class GotoLabel : IInstruction
+    public sealed class GotoLabel : InstructionBase
     {
-        public InstructionType Type => InstructionType.Stop;
-        public List<Value> Parameters { get; set; }
-        public bool Aligned => true;
-        public uint Size => 4;
+        public override InstructionType Type => InstructionType.GotoLabel;
+        public override uint Size => 4;
 
-        public void Execute()
+        public override void Execute()
         {
             throw new NotImplementedException();
         }

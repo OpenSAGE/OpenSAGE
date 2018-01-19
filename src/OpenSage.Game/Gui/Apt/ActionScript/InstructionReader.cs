@@ -14,13 +14,13 @@ namespace OpenSage.Gui.Apt.ActionScript
         private BinaryReader _reader;
         private uint _offset;
 
-        public List<IInstruction> Instructions { get; private set; }
+        public List<InstructionBase> Instructions { get; private set; }
 
         public InstructionReader(Stream input)
         {
             _reader = new BinaryReader(input);
             _offset = _reader.ReadUInt32();
-            Instructions = new List<IInstruction>();
+            Instructions = new List<InstructionBase>();
         }
 
         public void Parse()
@@ -44,7 +44,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                     }
                 }
 
-                IInstruction instruction = null;
+                InstructionBase instruction = null;
                 List<Value> parameters = new List<Value>();
 
                 switch (type)
@@ -54,22 +54,40 @@ namespace OpenSage.Gui.Apt.ActionScript
                         break;
                     case InstructionType.Stop:
                         instruction = new Stop();
-                        break;                
+                        break;
+                    case InstructionType.Add:
+                        instruction = new Add();
+                        break;
+                    case InstructionType.Subtract:
+                        instruction = new Subtract();
+                        break;
+                    case InstructionType.Multiply:
+                        instruction = new Multiply();
+                        break;
+                    case InstructionType.Divide:
+                        instruction = new Divide();
+                        break;
                     case InstructionType.Not:
                         instruction = new Not();
                         break;
                     case InstructionType.Pop:
                         instruction = new Pop();
                         break;
+                    case InstructionType.SetVariable:
+                        instruction = new SetVariable();
+                        break;
                     case InstructionType.StringConcat:
                         instruction = new StringConcat();
-                        break;                 
+                        break;
+                    case InstructionType.GetProperty:
+                        instruction = new GetProperty();
+                        break;
                     case InstructionType.Trace:
                         instruction = new Trace();
                         break;
                     case InstructionType.Return:
                         instruction = new Return();
-                        break;              
+                        break;
                     case InstructionType.Add2:
                         instruction = new Add2();
                         break;
@@ -84,7 +102,10 @@ namespace OpenSage.Gui.Apt.ActionScript
                         break;
                     case InstructionType.SetMember:
                         instruction = new SetMember();
-                        break;                
+                        break;
+                    case InstructionType.EA_PushThis:
+                        instruction = new PushThis();
+                        break;
                     case InstructionType.EA_PushZero:
                         instruction = new PushZero();
                         break;
@@ -94,8 +115,17 @@ namespace OpenSage.Gui.Apt.ActionScript
                     case InstructionType.EA_CallMethodPop:
                         instruction = new CallMethodPop();
                         break;
+                    case InstructionType.Greater:
+                        instruction = new Greater();
+                        break;
+                    case InstructionType.EA_PushThisVar:
+                        instruction = new PushThisVar();
+                        break;
                     case InstructionType.EA_PushGlobalVar:
                         instruction = new PushGlobalVar();
+                        break;
+                    case InstructionType.EA_ZeroVar:
+                        instruction = new ZeroVar();
                         break;
                     case InstructionType.EA_PushTrue:
                         instruction = new PushTrue();
@@ -105,6 +135,10 @@ namespace OpenSage.Gui.Apt.ActionScript
                         break;
                     case InstructionType.EA_PushUndefined:
                         instruction = new PushUndefined();
+                        parameters.Add(Value.FromInteger(_reader.ReadInt32()));
+                        break;
+                    case InstructionType.GotoFrame:
+                        instruction = new GotoFrame();
                         break;
                     case InstructionType.GetURL:
                         instruction = new GetUrl();
@@ -190,6 +224,10 @@ namespace OpenSage.Gui.Apt.ActionScript
                         instruction = new GetStringMember();
                         parameters.Add(Value.FromString(_reader.ReadStringAtOffset()));
                         break;
+                    case InstructionType.EA_SetStringMember:
+                        instruction = new SetStringMember();
+                        parameters.Add(Value.FromString(_reader.ReadStringAtOffset()));
+                        break;
                     case InstructionType.EA_PushValueOfVar:
                         instruction = new PushValueOfVar();
                         //the constant id that should be pushed
@@ -201,6 +239,15 @@ namespace OpenSage.Gui.Apt.ActionScript
                         break;
                     case InstructionType.EA_CallNamedMethodPop:
                         instruction = new CallNamedMethodPop();
+                        parameters.Add(Value.FromConstant(_reader.ReadByte()));
+                        break;
+                    case InstructionType.EA_PushFloat:
+                        instruction = new PushFloat();
+                        parameters.Add(Value.FromFloat(_reader.ReadSingle()));
+                        break;
+                    case InstructionType.EA_PushByte:
+                        instruction = new PushByte();
+                        parameters.Add(Value.FromInteger(_reader.ReadByte()));
                         break;
                     case InstructionType.End:
                         parsing = false;

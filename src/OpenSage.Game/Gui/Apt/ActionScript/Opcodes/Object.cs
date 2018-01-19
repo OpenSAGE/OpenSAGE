@@ -4,66 +4,64 @@ using System.Collections.Generic;
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
     //pop one object name from the stack and member name is retrieved from constantpool
-    public sealed class GetNamedMember : IInstruction
+    public sealed class GetNamedMember : InstructionBase
     {
-        public InstructionType Type => InstructionType.EA_GetNamedMember;
-        public List<Value> Parameters { get; set; }
-        public bool Aligned => false;
-        public uint Size => 1;
+        public override InstructionType Type => InstructionType.EA_GetNamedMember;
+        public override uint Size => 1;
 
-        public void Execute()
+        public override void Execute()
         {
             throw new NotImplementedException();
         }
     }
 
-    public sealed class SetMember : IInstruction
+    public sealed class SetMember : InstructionBase
     {
-        public InstructionType Type => InstructionType.SetMember;
-        public List<Value> Parameters { get; set; }
-        public bool Aligned => false;
-        public uint Size => 0;
+        public override InstructionType Type => InstructionType.SetMember;
 
-        public void Execute()
+        public override void Execute()
         {
             throw new NotImplementedException();
         }
     }
 
-    public sealed class GetMember : IInstruction
+    public sealed class GetMember : InstructionBase
     {
-        public InstructionType Type => InstructionType.SetMember;
-        public List<Value> Parameters { get; set; }
-        public bool Aligned => false;
-        public uint Size => 0;
+        public override InstructionType Type => InstructionType.SetMember;
 
-        public void Execute()
+        public override void Execute()
         {
             throw new NotImplementedException();
         }
     }
 
-    public sealed class GetStringVar : IInstruction
+    public sealed class GetProperty : InstructionBase
     {
-        public InstructionType Type => InstructionType.EA_GetStringVar;
-        public List<Value> Parameters { get; set; }
-        public bool Aligned => false;
-        public uint Size => 4;
+        public override InstructionType Type => InstructionType.GetProperty;
 
-        public void Execute()
+        public override void Execute()
         {
             throw new NotImplementedException();
         }
     }
 
-    public sealed class GetStringMember : IInstruction
+    public sealed class GetStringMember : InstructionBase
     {
-        public InstructionType Type => InstructionType.EA_GetStringMember;
-        public List<Value> Parameters { get; set; }
-        public bool Aligned => false;
-        public uint Size => 4;
+        public override InstructionType Type => InstructionType.EA_GetStringMember;
+        public override uint Size => 4;
 
-        public void Execute()
+        public override void Execute()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class SetStringMember : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.EA_SetStringMember;
+        public override uint Size => 4;
+
+        public override void Execute()
         {
             throw new NotImplementedException();
         }

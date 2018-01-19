@@ -12,6 +12,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         Constant,
         Integer,
         Short,
+        Float,
         Undefined
     }
 
@@ -44,6 +45,14 @@ namespace OpenSage.Gui.Apt.ActionScript
             var v = new Value();
             v.Type = ValueType.Integer;
             v.Number = num;
+            return v;
+        }
+
+        public static Value FromFloat(float num)
+        {
+            var v = new Value();
+            v.Type = ValueType.Float;
+            v.Decimal = num;
             return v;
         }
 

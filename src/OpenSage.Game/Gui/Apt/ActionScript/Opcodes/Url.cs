@@ -3,28 +3,23 @@ using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
-    public sealed class GetUrl : IInstruction
+    public sealed class GetUrl : InstructionBase
     {
-        public InstructionType Type => InstructionType.GetURL2;
-        public List<Value> Parameters { get; set; }
-        public bool Aligned => false;
-        public uint Size => 8;
+        public override InstructionType Type => InstructionType.GetURL2;
+        public override uint Size => 8;
 
-        public void Execute()
+        public override void Execute()
         {
             throw new NotImplementedException();
         }
     }
 
     //stack based get url
-    public sealed class GetUrl2 : IInstruction
+    public sealed class GetUrl2 : InstructionBase
     {
-        public InstructionType Type => InstructionType.GetURL2;
-        public List<Value> Parameters { get; set; }
-        public bool Aligned => false;
-        public uint Size => 0;
+        public override InstructionType Type => InstructionType.GetURL2;
 
-        public void Execute()
+        public override void Execute()
         {
             throw new NotImplementedException();
         }

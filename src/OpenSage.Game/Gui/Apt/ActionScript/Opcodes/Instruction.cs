@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
-    public enum InstructionType :  byte
+    public enum InstructionType : byte
     {
         //Playback related instructions
         End = 0x00,
@@ -152,14 +152,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         EA_BranchIfFalse = 0xB8,
         EA_PushRegister = 0xB9,
 
-        Padding =0xFF
+        Padding = 0xFF
     }
 
     public class InstructionAlignment
     {
         public static bool IsAligned(InstructionType type)
         {
-            switch(type)
+            switch (type)
             {
                 case InstructionType.DefineFunction:
                 case InstructionType.DefineFunction2:
@@ -172,6 +172,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 case InstructionType.EA_PushString:
                 case InstructionType.EA_GetStringVar:
                 case InstructionType.EA_GetStringMember:
+                case InstructionType.EA_SetStringMember:
                     return true;
             }
 
@@ -179,26 +180,28 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    public interface IInstruction
-    {        
-        InstructionType Type { get; }
+    public abstract class InstructionBase
+    {
+        public abstract InstructionType Type { get; }
         //the size in bytes for this instruction (not including the opcode size)
-        uint Size { get; }
+        public virtual uint Size { get { return 0; } set { } }
+        public virtual List<Value> Parameters { get; set; }
 
-        List<Value> Parameters { get; set; }
-        void Execute();
+        public abstract void Execute();
     }
 
-    public sealed class Padding : IInstruction
+    public sealed class Padding : InstructionBase
     {
-        public InstructionType Type => InstructionType.Padding;
-        public bool Aligned => false;
-        public uint Size { get; private set; }
+        public override InstructionType Type => InstructionType.Padding;
+        public override uint Size { get; set; }
 
-        public List<Value> Parameters { get => throw new NotImplementedException();
-                                        set => throw new NotImplementedException(); }
+        public override List<Value> Parameters
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
 
-        public void Execute()
+        public override void Execute()
         {
             throw new NotImplementedException();
         }
