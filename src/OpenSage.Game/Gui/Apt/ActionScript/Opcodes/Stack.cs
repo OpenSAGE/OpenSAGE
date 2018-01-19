@@ -17,7 +17,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-
     /// <summary>
     /// Push a float to the stack
     /// </summary>
