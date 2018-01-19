@@ -7,6 +7,8 @@ using OpenSage.Mathematics;
 using System.Linq;
 using System.Collections.Generic;
 using OpenSage.Data.Map;
+using OpenSage.Data.Apt.Characters;
+using OpenSage.Gui.Apt.ActionScript;
 
 namespace OpenSage.Data.Utilities.Extensions
 {
@@ -275,6 +277,30 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadUInt16());
         }
 
+        public static ButtonRecord ReadButtonRecord(this BinaryReader reader)
+        {
+            return new ButtonRecord(
+                reader.ReadUInt32AsEnumFlags<ButtonRecordFlags>(),
+                reader.ReadUInt32(),
+                reader.ReadInt32(),
+                reader.ReadMatrix2x2(),
+                reader.ReadVector2(),
+                reader.ReadColorRgba(),
+                reader.ReadVector4()
+                );
+        }
+
+        public static ButtonAction ReadButtonAction(this BinaryReader reader)
+        {
+            var flags = reader.ReadByteAsEnumFlags<ButtonActionFlags>();
+            var input = reader.ReadUInt16AsEnum<ButtonInput>();
+            var reserved = reader.ReadByte();
+            var instructionReader = new InstructionReader(reader.BaseStream);
+            instructionReader.Parse();
+
+            return new ButtonAction(flags,input,reserved, instructionReader.Instructions);
+        }
+
         public static Quaternion ReadQuaternion(this BinaryReader reader)
         {
             return new Quaternion(
@@ -342,7 +368,7 @@ namespace OpenSage.Data.Utilities.Extensions
             return str;
         }
 
-        public static List<T> ReadListAtOffset<T>(this BinaryReader reader, Func<T> creator, bool ptr = false) where T : class
+        public static List<T> ReadListAtOffset<T>(this BinaryReader reader, Func<T> creator, bool ptr = false)
         {
             var capacity = reader.ReadInt32();
             List<T> result = new List<T>(capacity);
@@ -356,7 +382,7 @@ namespace OpenSage.Data.Utilities.Extensions
 
             for (var i = 0; i < capacity; i++)
             {
-                T item = null;
+                T item = default(T);
                 if (!ptr)
                 {
                     item = creator();

@@ -39,6 +39,7 @@ namespace OpenSage.Data.Apt.FrameItems
                     frameItem = BackgroundColor.Parse(reader);
                     break;
                 case FrameItemType.InitAction:
+                    frameItem = InitAction.Parse(reader);
                     break;
             }
 
