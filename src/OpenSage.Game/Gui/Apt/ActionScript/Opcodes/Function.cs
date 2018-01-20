@@ -3,7 +3,10 @@ using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
-    //declare a function that will be declared in the current context
+    /// <summary>
+    /// Declare a new named or anonymous function (depending on function name) that will either be
+    /// pushed to stack or set as a variable. 
+    /// </summary>
     public sealed class DefineFunction : InstructionBase
     {
         public override InstructionType Type => InstructionType.DefineFunction;
@@ -15,7 +18,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //return out of the current function
+    /// <summary>
+    /// Return out of the current function back to the calling point
+    /// </summary>
     public sealed class Return : InstructionBase
     {
         public override InstructionType Type => InstructionType.Return;
@@ -26,7 +31,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //call a method and pass arguments to it. Everything is popped from stack
+    /// <summary>
+    /// Call an anonymous method that is on the stack. Function arguments are also popped from the stack
+    /// </summary>
     public sealed class CallMethodPop : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_CallMethodPop;
@@ -37,7 +44,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //call a method and pass arguments to it. Everything is popped from stack
+    /// <summary>
+    /// Call a named method that is in the current scope. Function arguments are popped from the stack
+    /// </summary>
     public sealed class CallNamedMethodPop : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_CallNamedMethodPop;

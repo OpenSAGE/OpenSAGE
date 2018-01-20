@@ -3,7 +3,9 @@ using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
-    //push a string to stack
+    /// <summary>
+    /// Push a string to the stack
+    /// </summary>
     public sealed class PushString : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_PushString;
@@ -15,7 +17,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //push a float to stack
+
+    /// <summary>
+    /// Push a float to the stack
+    /// </summary>
     public sealed class PushFloat : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_PushFloat;
@@ -27,7 +32,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //read a constant entry and push it to stack
+    /// <summary>
+    /// Read a constant from the pool and push it to stack
+    /// </summary>
     public sealed class PushConstantByte : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_PushConstantByte;
@@ -39,7 +46,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //read a byte and push it to the stack
+    /// <summary>
+    /// Read a byte and push it to the stack
+    /// </summary>
     public sealed class PushByte : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_PushByte;
@@ -51,7 +60,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //read a constant entry and push the variable with that name to the stack
+    /// <summary>
+    /// Read the variable name from the pool and push that variable's value to the stack
+    /// </summary>
     public sealed class PushValueOfVar : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_PushValueOfVar;
@@ -63,7 +74,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //push an undefined value to the stack
+    /// <summary>
+    /// Push an undefined value to the stack
+    /// </summary>
     public sealed class PushUndefined : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_PushUndefined;
@@ -74,7 +87,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //push a false boolean to the stack
+    /// <summary>
+    /// Push a boolean with value false to the stack
+    /// </summary>
     public sealed class PushFalse : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_PushFalse;
@@ -85,7 +100,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //push a zero integer to the stack
+    /// <summary>
+    /// Push an integer with value zero to the stack
+    /// </summary>
     public sealed class PushZero : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_PushZero;
@@ -96,7 +113,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //push the current object to the stack
+    /// <summary>
+    /// Push the current object to the stack
+    /// </summary>
     public sealed class PushThis : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_PushThis;
@@ -107,7 +126,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //push the current object to the stack
+    /// <summary>
+    /// Push the current object to the stack
+    /// </summary>
     public sealed class PushThisVar : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_PushThisVar;
@@ -118,7 +139,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //push a one integer to the stack
+    /// <summary>
+    /// Push an integer with value one to the stack
+    /// </summary>
     public sealed class PushOne : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_PushOne;
@@ -129,7 +152,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //push a true boolean to the stack
+    /// <summary>
+    /// Push a boolean with value true to the stack
+    /// </summary>
     public sealed class PushTrue : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_PushTrue;
@@ -140,7 +165,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //get multiple variables and push them to the stack
+    /// <summary>
+    /// Get multiple variables from the pool and push them to the stack
+    /// </summary>
     public sealed class PushData : InstructionBase
     {
         public override InstructionType Type => InstructionType.PushData;
@@ -151,7 +178,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //push the zero variable to the stack
+    /// <summary>
+    /// Push a zero variable to the stack
+    /// </summary>
     public sealed class ZeroVar : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_ZeroVar;
@@ -162,7 +191,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //push the global variable to the stack
+    /// <summary>
+    /// Push the global object to the stack
+    /// </summary>
     public sealed class PushGlobalVar : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_PushGlobalVar;
@@ -173,7 +204,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //push the variable currently on top once more
+    /// <summary>
+    /// Pop a value from the stack and push it twice
+    /// </summary>
     public sealed class PushDuplicate : InstructionBase
     {
         public override InstructionType Type => InstructionType.PushDuplicate;
@@ -184,7 +217,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //pop a value from the stack
+    /// <summary>
+    /// Pop a value from the stack
+    /// </summary>
     public sealed class Pop : InstructionBase
     {
         public override InstructionType Type => InstructionType.Pop;

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
-    //this Add can also concatenate strings. Pop values from stack
+    /// <summary>
+    /// Pop two strings from the stack and concatenate them
+    /// </summary>
     public sealed class StringConcat : InstructionBase
     {
         public override InstructionType Type => InstructionType.StringConcat;

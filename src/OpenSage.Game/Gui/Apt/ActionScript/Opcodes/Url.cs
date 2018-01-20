@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
+    /// <summary>
+    /// Used to get variables from the engine (?)
+    /// </summary>
     public sealed class GetUrl : InstructionBase
     {
         public override InstructionType Type => InstructionType.GetURL2;
@@ -14,7 +17,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //stack based get url
+    /// <summary>
+    /// Used to get variables from the engine (?) (stack based)
+    /// </summary>
     public sealed class GetUrl2 : InstructionBase
     {
         public override InstructionType Type => InstructionType.GetURL2;

@@ -9,6 +9,9 @@ using OpenSage.Gui.Apt.ActionScript.Opcodes;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
+    /// <summary>
+    /// Reads a list of instructions from a stream
+    /// </summary>
     public sealed class InstructionReader
     {
         private BinaryReader _reader;
@@ -98,7 +101,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                         instruction = new PushDuplicate();
                         break;
                     case InstructionType.GetMember:
-                        instruction = new SetMember();
+                        instruction = new GetMember();
                         break;
                     case InstructionType.SetMember:
                         instruction = new SetMember();

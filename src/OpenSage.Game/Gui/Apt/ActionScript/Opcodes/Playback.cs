@@ -3,7 +3,9 @@ using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
-    //start the current object playback
+    /// <summary>
+    /// Start playback of the current object (must be sprite)
+    /// </summary>
     public sealed class Play : InstructionBase
     {
         public override InstructionType Type => InstructionType.Play;
@@ -14,7 +16,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //stop the current object playback
+    /// <summary>
+    /// Stop playback of the current object (must be sprite)
+    /// </summary>
     public sealed class Stop : InstructionBase
     {
         public override InstructionType Type => InstructionType.Stop;
@@ -25,7 +29,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //jump to a specifc frame number
+    /// <summary>
+    /// Jump to a specific frame number (must be sprite)
+    /// </summary>
     public sealed class GotoFrame : InstructionBase
     {
         public override InstructionType Type => InstructionType.GotoFrame;
@@ -37,7 +43,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //jump to a specifc frame label
+    /// <summary>
+    /// Jump to a labeled frame (must be sprite)
+    /// </summary>
     public sealed class GotoLabel : InstructionBase
     {
         public override InstructionType Type => InstructionType.GotoLabel;

@@ -29,10 +29,18 @@ namespace OpenSage.Gui.Apt
     {
         AptContext Context { get; }
         SpriteItem Parent { get; }
-        //the underlying structure that will be used
         Character Character { get; }
         ItemTransform Transform { get; set; }
 
+        /// <summary>
+        /// Create a new DisplayItem
+        /// </summary>
+        /// <param name="chararacter"></param>
+        /// The template character that is used for this Item
+        /// <param name="context"></param>
+        /// Contains information about the AptFile where this is part of
+        /// <param name="parent"></param>
+        /// The parent displayitem (which must be a SpriteItem)
         void Create(Character chararacter, AptContext context, SpriteItem parent = null);
         void Update(ItemTransform pTransform, GameTime gt, DrawingContext dc);
     }

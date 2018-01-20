@@ -3,13 +3,30 @@ using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
+    /// <summary>
+    /// All known instruction types that are used in Apt
+    /// </summary>
     public enum InstructionType : byte
     {
-        //Playback related instructions
+        /// <summary>
+        /// End the current instruction stream
+        /// </summary>
         End = 0x00,
+        /// <summary>
+        /// Go to the next frame of the current object (must be sprite)
+        /// </summary>
         NextFrame = 0x04,
+        /// <summary>
+        /// Go to the previous frame of the current object (must be sprite)
+        /// </summary>
         PrevFrame = 0x05,
+        /// <summary>
+        /// Start playback of current object (must be sprite)
+        /// </summary>
         Play = 0x06,
+        /// <summary>
+        /// Stop playback of current object (must be sprite)
+        /// </summary>
         Stop = 0x07,
         ToggleQuality = 0x08,
         StopSounds = 0x09,
@@ -155,6 +172,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         Padding = 0xFF
     }
 
+    /// <summary>
+    /// Helper class that tells wether or not an instruction needs a 4-byte alignment
+    /// </summary>
     public class InstructionAlignment
     {
         public static bool IsAligned(InstructionType type)
@@ -180,6 +200,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
+    /// <summary>
+    /// The baseclass used for all Instructions. Set default variables accordingly
+    /// </summary>
     public abstract class InstructionBase
     {
         public abstract InstructionType Type { get; }
@@ -190,6 +213,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public abstract void Execute();
     }
 
+    /// <summary>
+    /// This padding does exist in the InstructionStream because of alignment requirements of some instructions
+    /// </summary>
     public sealed class Padding : InstructionBase
     {
         public override InstructionType Type => InstructionType.Padding;

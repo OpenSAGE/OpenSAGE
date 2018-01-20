@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
-    //pop a value from stack, convert it to boolean and invert it
+    /// <summary>
+    /// Pop a value from stack, convert it to boolean. Push the inverted value back to stack
+    /// </summary>
     public sealed class Not : InstructionBase
     {
         public override InstructionType Type => InstructionType.Not;
@@ -17,7 +19,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //pop two values from stack and do a greater comparison
+    //Pop two values A,B from stack and check if B is greater A (reverse stack order)
     public sealed class Greater : InstructionBase
     {
         public override InstructionType Type => InstructionType.Greater;

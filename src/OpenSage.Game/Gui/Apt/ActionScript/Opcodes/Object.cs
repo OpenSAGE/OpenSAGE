@@ -3,7 +3,10 @@ using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
-    //pop one object name from the stack and member name is retrieved from constantpool
+    /// <summary>
+    /// Pop an object from stack and retrieve the member name from the pool. Push the member of
+    /// the object to stack.
+    /// </summary>
     public sealed class GetNamedMember : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_GetNamedMember;
@@ -15,6 +18,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
+    /// <summary>
+    /// set the member of a specific object (everything on stack)
+    /// </summary>
     public sealed class SetMember : InstructionBase
     {
         public override InstructionType Type => InstructionType.SetMember;
@@ -25,6 +31,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
+    /// <summary>
+    /// get the member of a specific object. Result will be pushed to stack
+    /// </summary>
     public sealed class GetMember : InstructionBase
     {
         public override InstructionType Type => InstructionType.SetMember;

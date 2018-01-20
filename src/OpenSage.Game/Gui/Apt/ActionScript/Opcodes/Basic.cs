@@ -3,7 +3,9 @@ using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
-    //declare a pool of constants that will be used in the following code
+    /// <summary>
+    /// Declare a pool of constants that will be used in the current scope. Mostly used at start.
+    /// </summary>
     public sealed class ConstantPool : InstructionBase
     {
         public override InstructionType Type => InstructionType.ConstantPool;
@@ -15,7 +17,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //print a string (pop from stack) to console. Used for debugging
+    /// <summary>
+    /// Pop a string from stack and print it to console. Used for debug purposes.
+    /// </summary>
     public sealed class Trace : InstructionBase
     {
         public override InstructionType Type => InstructionType.Trace;
@@ -26,7 +30,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //set a register to a stack value
+    /// <summary>
+    /// Pop a value from stack and store it inside a register
+    /// </summary>
     public sealed class SetRegister : InstructionBase
     {
         public override InstructionType Type => InstructionType.SetRegister;
@@ -38,6 +44,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
+    /// <summary>
+    /// Get a variable from the current object and push it to the stack
+    /// </summary>
     public sealed class GetStringVar : InstructionBase
     {
         public override InstructionType Type => InstructionType.EA_GetStringVar;
@@ -49,7 +58,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //pop variable name and value from the stack and set it
+    /// <summary>
+    /// Pops variable name and value from the stack. Then set the variable to that value.
+    /// </summary>
     public sealed class SetVariable : InstructionBase
     {
         public override InstructionType Type => InstructionType.SetVariable;

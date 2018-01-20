@@ -3,7 +3,9 @@ using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
-    //simple add instruction
+    /// <summary>
+    /// An instruction that pops two values and adds them. Result on stack
+    /// </summary>
     public sealed class Add : InstructionBase
     {
         public override InstructionType Type => InstructionType.Add;
@@ -14,7 +16,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //simple subtract instruction
+    /// <summary>
+    /// An instruction that pops two values and subtracts them. Result on stack
+    /// </summary>
     public sealed class Subtract : InstructionBase
     {
         public override InstructionType Type => InstructionType.Subtract;
@@ -25,7 +29,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //this add can also concatenate strings. Pop values from stack
+    /// <summary>
+    /// Pop two values from stack and add them. Can concatenate strings. Result on stack
+    /// </summary>
     public sealed class Add2 : InstructionBase
     {
         public override InstructionType Type => InstructionType.Add2;
@@ -36,7 +42,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //multiply two numbers that are popped from the stack (as float) and push the result
+    /// <summary>
+    /// Pop two values from stack, convert them to float and then multiply them. Result on stack
+    /// </summary>
     public sealed class Multiply : InstructionBase
     {
         public override InstructionType Type => InstructionType.Multiply;
@@ -47,7 +55,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //divide two numbers that are popped from the stack (as float) and push the result
+    /// <summary>
+    /// Pop two values from stack, convert them to float and then divide them. Result on stack
+    /// </summary>
     public sealed class Divide : InstructionBase
     {
         public override InstructionType Type => InstructionType.Divide;
@@ -58,7 +68,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //this equal can also compare strings
+    /// <summary>
+    /// Pop two values from stack and check them for equality. Does work with strings. Result on stack
+    /// </summary>
     public sealed class Equals2 : InstructionBase
     {
         public override InstructionType Type => InstructionType.Equals2;

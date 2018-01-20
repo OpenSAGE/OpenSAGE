@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
 using OpenSage.Mathematics;
 
@@ -38,6 +39,19 @@ namespace OpenSage.Data.Apt.Characters
             Translation = translation;
             Color = color;
             Unknown = unknown;
+        }
+
+        public static ButtonRecord Parse(BinaryReader reader)
+        {
+            return new ButtonRecord(
+                reader.ReadUInt32AsEnumFlags<ButtonRecordFlags>(),
+                reader.ReadUInt32(),
+                reader.ReadInt32(),
+                reader.ReadMatrix2x2(),
+                reader.ReadVector2(),
+                reader.ReadColorRgba(),
+                reader.ReadVector4()
+                );
         }
     }
 
@@ -83,6 +97,17 @@ namespace OpenSage.Data.Apt.Characters
             Reserved = res;
             Instructions = instructions;
         }
+
+        public static ButtonAction Parse(BinaryReader reader)
+        {
+            var flags = reader.ReadByteAsEnumFlags<ButtonActionFlags>();
+            var input = reader.ReadUInt16AsEnum<ButtonInput>();
+            var reserved = reader.ReadByte();
+            var instructionReader = new InstructionReader(reader.BaseStream);
+            instructionReader.Parse();
+
+            return new ButtonAction(flags, input, reserved, instructionReader.Instructions);
+        }
     }
 
     public sealed class Button : Character
@@ -106,9 +131,9 @@ namespace OpenSage.Data.Apt.Characters
             button.Triangles = reader.ReadFixedSizeArrayAtOffset<IndexedTriangle>(() => reader.ReadIndexedTri(), tc);
 
             //TODO: read actionscript related stuff and buttonrecords
-            button.Records = reader.ReadListAtOffset<ButtonRecord>(() => reader.ReadButtonRecord());
+            button.Records = reader.ReadListAtOffset<ButtonRecord>(() => ButtonRecord.Parse(reader));
 
-            button.Actions = reader.ReadListAtOffset<ButtonAction>(() => reader.ReadButtonAction());
+            button.Actions = reader.ReadListAtOffset<ButtonAction>(() => ButtonAction.Parse(reader));
             return button;
         }
     }

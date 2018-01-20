@@ -3,7 +3,9 @@ using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
-    //branch to a relative offset if the value on stack is true
+    /// <summary>
+    /// Pops a bool from the stack. If the bool is true jump to the byte offset (parameter)
+    /// </summary>
     public sealed class BranchIfTrue : InstructionBase
     {
         public override InstructionType Type => InstructionType.BranchIfTtrue;
@@ -15,7 +17,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //branch to a relative offset
+    // <summary>
+    /// Jump to the byte offset (parameter)
+    /// </summary>
     public sealed class BranchAlways : InstructionBase
     {
         public override InstructionType Type => InstructionType.BranchAlways;
