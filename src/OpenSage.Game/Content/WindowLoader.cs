@@ -6,8 +6,12 @@ namespace OpenSage.Content
 {
     internal sealed class WindowLoader : ContentLoader<WndTopLevelWindow>
     {
-        public WindowLoader(ContentManager contentManager)
+        private readonly WndCallbackResolver _wndCallbackResolver;
+
+        public WindowLoader(ContentManager contentManager, WndCallbackResolver wndCallbackResolver)
         {
+            _wndCallbackResolver = wndCallbackResolver;
+
             switch (contentManager.SageGame)
             {
                 case SageGame.CncGenerals:
@@ -34,9 +38,10 @@ namespace OpenSage.Content
 
             var result = CreateElementRecursive(
                 wndFile.RootWindow, 
-                contentManager);
+                contentManager,
+                _wndCallbackResolver);
 
-            var window = new WndTopLevelWindow(wndFile, result);
+            var window = new WndTopLevelWindow(wndFile, result, _wndCallbackResolver);
 
             void setWindowRecursive(WndWindow element)
             {
@@ -53,13 +58,13 @@ namespace OpenSage.Content
             return window;
         }
 
-        private static WndWindow CreateElementRecursive(WndWindowDefinition wndWindow, ContentManager contentManager)
+        private static WndWindow CreateElementRecursive(WndWindowDefinition wndWindow, ContentManager contentManager, WndCallbackResolver wndCallbackResolver)
         {
-            var result = new WndWindow(wndWindow, contentManager);
+            var result = new WndWindow(wndWindow, contentManager, wndCallbackResolver);
 
             foreach (var childWindow in wndWindow.ChildWindows)
             {
-                var child = CreateElementRecursive(childWindow, contentManager);
+                var child = CreateElementRecursive(childWindow, contentManager, wndCallbackResolver);
                 child.Parent = result;
                 result.Children.Add(child);
             }

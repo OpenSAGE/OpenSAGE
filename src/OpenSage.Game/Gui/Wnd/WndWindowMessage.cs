@@ -1,6 +1,6 @@
 ﻿namespace OpenSage.Gui.Wnd
 {
-    internal sealed class WndWindowMessage
+    public sealed class WndWindowMessage
     {
         public WndWindowMessageType MessageType { get; }
         public WndWindow Element { get; }

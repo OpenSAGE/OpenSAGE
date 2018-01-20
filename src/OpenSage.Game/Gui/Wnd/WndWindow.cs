@@ -85,7 +85,7 @@ namespace OpenSage.Gui.Wnd
 
         public WndWindowCollection Children { get; } = new WndWindowCollection();
 
-        internal UIElementCallback SystemCallback { get; private set; }
+        public UIElementCallback SystemCallback { get; private set; }
         internal UIElementCallback InputCallback { get; private set; }
         internal UIElementCallback TooltipCallback { get; private set; }
         internal Action<WndWindow, Game> DrawCallback { get; private set; }
@@ -146,7 +146,7 @@ namespace OpenSage.Gui.Wnd
 
         internal WndWindowStateConfiguration ActiveState => _stateConfigurations[_currentState];
 
-        public WndWindow(WndWindowDefinition wndWindow, ContentManager contentManager)
+        public WndWindow(WndWindowDefinition wndWindow, ContentManager contentManager, WndCallbackResolver callbackResolver)
         {
             _stateConfigurations = new Dictionary<WndWindowState, WndWindowStateConfiguration>();
 
@@ -198,9 +198,9 @@ namespace OpenSage.Gui.Wnd
             Visible = !wndWindow.Status.HasFlag(WndWindowStatusFlags.Hidden)
                 && wndWindow.InputCallback != "GameWinBlockInput"; // TODO: This isn't right.
 
-            SystemCallback = CallbackUtility.GetUIElementCallback(wndWindow.SystemCallback) ?? DefaultSystem;
+            SystemCallback = callbackResolver.GetUIElementCallback(wndWindow.SystemCallback) ?? DefaultSystem;
 
-            InputCallback = CallbackUtility.GetUIElementCallback(wndWindow.InputCallback);
+            InputCallback = callbackResolver.GetUIElementCallback(wndWindow.InputCallback);
             if (InputCallback == null)
             {
                 switch (wndWindow.WindowType)
@@ -215,9 +215,9 @@ namespace OpenSage.Gui.Wnd
                 }
             }
 
-            TooltipCallback = CallbackUtility.GetUIElementCallback(wndWindow.TooltipCallback);
+            TooltipCallback = callbackResolver.GetUIElementCallback(wndWindow.TooltipCallback);
 
-            DrawCallback = CallbackUtility.GetDrawCallback(wndWindow.DrawCallback) ?? DefaultDraw;
+            DrawCallback = callbackResolver.GetDrawCallback(wndWindow.DrawCallback) ?? DefaultDraw;
 
             Material = new SpriteMaterial(contentManager.EffectLibrary.Sprite);
 
@@ -401,9 +401,9 @@ namespace OpenSage.Gui.Wnd
         }
     }
 
-    internal delegate void UIElementCallback(WndWindow element, WndWindowMessage message, UIElementCallbackContext context);
+    public delegate void UIElementCallback(WndWindow element, WndWindowMessage message, UIElementCallbackContext context);
 
-    internal sealed class UIElementCallbackContext
+    public sealed class UIElementCallbackContext
     {
         public WndWindowManager WindowManager { get; }
 

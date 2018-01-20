@@ -5,7 +5,7 @@ using OpenSage.Data.Ini;
 
 namespace OpenSage.Gui.Wnd.Transitions
 {
-    internal sealed class WindowTransitionManager
+    public sealed class WindowTransitionManager
     {
         private readonly Dictionary<string, WindowTransition> _transitions;
 

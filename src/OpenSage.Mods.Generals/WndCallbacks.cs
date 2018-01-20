@@ -1,8 +1,8 @@
-﻿using OpenSage.LowLevel.Graphics2D;
+﻿using OpenSage.Gui.Wnd;
+using OpenSage.LowLevel.Graphics2D;
 
-namespace OpenSage.Gui.Wnd
+namespace OpenSage.Mods.Generals
 {
-    // TODO: This class should move to a Generals-specific csproj.
     internal static class WndCallbacks
     {
         private static bool _doneMainMenuFadeIn;

@@ -12,13 +12,13 @@ namespace OpenSage.Gui.Wnd
         public WndWindowCallback LayoutUpdate { get; }
         public WndWindowCallback LayoutShutdown { get; }
 
-        internal WndTopLevelWindow(WndFile wndFile, WndWindow root)
+        internal WndTopLevelWindow(WndFile wndFile, WndWindow root, WndCallbackResolver callbackResolver)
         {
             Root = root;
 
-            LayoutInit = CallbackUtility.GetGuiWindowCallback(wndFile.LayoutBlock.LayoutInit);
-            LayoutUpdate = CallbackUtility.GetGuiWindowCallback(wndFile.LayoutBlock.LayoutUpdate);
-            LayoutShutdown = CallbackUtility.GetGuiWindowCallback(wndFile.LayoutBlock.LayoutShutdown);
+            LayoutInit = callbackResolver.GetGuiWindowCallback(wndFile.LayoutBlock.LayoutInit);
+            LayoutUpdate = callbackResolver.GetGuiWindowCallback(wndFile.LayoutBlock.LayoutUpdate);
+            LayoutShutdown = callbackResolver.GetGuiWindowCallback(wndFile.LayoutBlock.LayoutShutdown);
         }
 
         public WndWindow FindWindow(Vector2 mousePosition)

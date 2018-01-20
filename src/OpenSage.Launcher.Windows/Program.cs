@@ -1,10 +1,10 @@
 ﻿using System.Drawing;
-using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using SharpDX.Windows;
 using OpenSage.Data;
 using OpenSage.LowLevel;
+using OpenSage.Mods.BuiltIn;
 
 namespace OpenSage.Launcher
 {
@@ -12,21 +12,11 @@ namespace OpenSage.Launcher
     {
         public static void Main(string[] args)
         {
-            // TODO: Get this from a launch parameter.
-            const SageGame sageGame = SageGame.CncGenerals;
-
-            // TODO: Support other locators.
-            var locator = new RegistryInstallationLocator();
-            var installation = locator.FindInstallations(sageGame).First();
-            var fileSystem = installation.CreateFileSystem();
-
             HostPlatform.Start();
 
-            var game = new Game(
-                HostPlatform.GraphicsDevice,
-                HostPlatform.GraphicsDevice2D,
-                fileSystem,
-                sageGame);
+            // TODO: Get the game from a launch parameter.
+            // TODO: Support other locators.
+            var game = GameFactory.CreateGame(GameDefinition.FromGame(SageGame.CncGenerals), new RegistryInstallationLocator());
 
             SetupInitialScene(game);
 
