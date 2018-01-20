@@ -19,6 +19,7 @@
     <PackageReference Include="Eto.Forms" Version="2.3.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\OpenSage.Mods.BuiltIn\OpenSage.Mods.BuiltIn.csproj" />
     <ProjectReference Include="..\OpenSage.Game\OpenSage.Game.csproj" />
   </ItemGroup>
 </Project>

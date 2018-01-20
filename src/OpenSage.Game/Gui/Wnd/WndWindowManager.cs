@@ -13,7 +13,7 @@ namespace OpenSage.Gui.Wnd
         private readonly Game _game;
         private readonly Stack<WndTopLevelWindow> _windowStack;
 
-        internal WindowTransitionManager TransitionManager { get; }
+        public WindowTransitionManager TransitionManager { get; }
 
         public WndWindowManager(Game game)
         {

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data;
+using OpenSage.Mods.BuiltIn;
 using OpenSage.Utilities.Extensions;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -11,7 +12,7 @@ namespace OpenSage.Tests
     {
         private readonly IMessageSink _diagnosticMessageSink;
 
-        private static readonly ISet<SageGame> InstalledGames;
+        private static readonly ISet<IGameDefinition> InstalledGames;
 
         public GameTestDiscoverer(IMessageSink diagnosticMessageSink)
         {
@@ -24,12 +25,14 @@ namespace OpenSage.Tests
             var game = (SageGame) arguments[0];
             var otherGames = (SageGame[]) arguments[1];
 
-            var games = new[] { game }.Union(otherGames).ToArray();
+            var games = new[] { game }.Union(otherGames).Select(GameDefinition.FromGame).ToArray();
 
             if (!InstalledGames.Any(x => games.Contains(x)))
             {
+                var gameNames = string.Join(", ", games.Select(definition => definition.DisplayName));
+
                 _diagnosticMessageSink.OnMessage(
-                    new DiagnosticMessage($"Skipped test {testMethod.TestClass.Class.Name}.{testMethod.Method.Name}, because it requires one or more of the following games to be installed: {string.Join(", ", games)}.")
+                    new DiagnosticMessage($"Skipped test {testMethod.TestClass.Class.Name}.{testMethod.Method.Name}, because it requires one or more of the following games to be installed: {gameNames}.")
                 );
                 yield break;
             }
@@ -40,7 +43,7 @@ namespace OpenSage.Tests
         static GameTestDiscoverer()
         {
             var locator = new RegistryInstallationLocator();
-            InstalledGames = SageGames.GetAll().Where(game => locator.FindInstallations(game).Any()).ToSet();
+            InstalledGames = GameDefinition.All.Where(game => locator.FindInstallations(game).Any()).ToSet();
         }
     }
 }

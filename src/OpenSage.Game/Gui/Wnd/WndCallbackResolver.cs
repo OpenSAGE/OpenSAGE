@@ -2,24 +2,31 @@
 
 namespace OpenSage.Gui.Wnd
 {
-    internal static class CallbackUtility
+    public class WndCallbackResolver
     {
-        public static WndWindowCallback GetGuiWindowCallback(string name)
+        private readonly Type _type;
+
+        internal WndCallbackResolver(Type wndCallbacksType)
+        {
+            _type = wndCallbacksType;
+        }
+
+        internal WndWindowCallback GetGuiWindowCallback(string name)
         {
             return GetCallback<WndWindowCallback>(name);
         }
 
-        public static UIElementCallback GetUIElementCallback(string name)
+        internal UIElementCallback GetUIElementCallback(string name)
         {
             return GetCallback<UIElementCallback>(name);
         }
 
-        public static Action<WndWindow, Game> GetDrawCallback(string name)
+        internal Action<WndWindow, Game> GetDrawCallback(string name)
         {
             return GetCallback<Action<WndWindow, Game>>(name);
         }
 
-        private static TDelegate GetCallback<TDelegate>(string name)
+        private TDelegate GetCallback<TDelegate>(string name)
             where TDelegate : class
         {
             if (string.Equals(name, "[None]", StringComparison.InvariantCultureIgnoreCase))
@@ -27,7 +34,7 @@ namespace OpenSage.Gui.Wnd
                 return null;
             }
 
-            var callbackMethod = typeof(WndCallbacks).GetMethod(name);
+            var callbackMethod = _type.GetMethod(name);
             if (callbackMethod == null) // TODO: Should never be null, but will be during development.
             {
                 return null;

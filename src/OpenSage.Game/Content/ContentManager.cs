@@ -39,7 +39,8 @@ namespace OpenSage.Content
             FileSystem fileSystem,
             GraphicsDevice graphicsDevice,
             GraphicsDevice2D graphicsDevice2D,
-            SageGame sageGame)
+            SageGame sageGame,
+            WndCallbackResolver wndCallbackResolver)
         {
             _fileSystem = fileSystem;
 
@@ -55,7 +56,7 @@ namespace OpenSage.Content
                 { typeof(Model), AddDisposable(new ModelLoader()) },
                 { typeof(Scene), AddDisposable(new MapLoader()) },
                 { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
-                { typeof(WndTopLevelWindow), AddDisposable(new WindowLoader(this)) },
+                { typeof(WndTopLevelWindow), AddDisposable(new WindowLoader(this, wndCallbackResolver)) },
                 { typeof(ShapeComponent), AddDisposable(new ShapeLoader(this)) },
                 { typeof(AptComponent), AddDisposable(new AptLoader(this)) }
 

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenSage.Game\OpenSage.Game.csproj" />
+    <ProjectReference Include="..\OpenSage.Mods.BfmeII\OpenSage.Mods.BfmeII.csproj" />
+    <ProjectReference Include="..\OpenSage.Mods.Bfme\OpenSage.Mods.Bfme.csproj" />
+    <ProjectReference Include="..\OpenSage.Mods.Cnc3\OpenSage.Mods.Cnc3.csproj" />
+    <ProjectReference Include="..\OpenSage.Mods.Cnc4\OpenSage.Mods.Cnc4.csproj" />
+    <ProjectReference Include="..\OpenSage.Mods.Generals\OpenSage.Mods.Generals.csproj" />
+    <ProjectReference Include="..\OpenSage.Mods.Ra3\OpenSage.Mods.Ra3.csproj" />
+  </ItemGroup>
+</Project>

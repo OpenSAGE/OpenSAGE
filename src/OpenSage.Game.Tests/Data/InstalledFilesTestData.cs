@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using OpenSage.Data;
+using OpenSage.Mods.BuiltIn;
 using Xunit.Abstractions;
 
 namespace OpenSage.Tests.Data
@@ -14,12 +15,16 @@ namespace OpenSage.Tests.Data
         {
             Locator = new RegistryInstallationLocator();
         }
-        
-        public static string GetInstallationDirectory(SageGame game) => Locator.FindInstallations(game).First().Path;
+
+        public static string GetInstallationDirectory(SageGame game)
+        {
+            var definition = GameDefinition.FromGame(game);
+            return Locator.FindInstallations(definition).First().Path;
+        }
 
         public static void ReadFiles(string fileExtension, ITestOutputHelper output, Action<FileSystemEntry> processFileCallback)
         {
-            var rootDirectories = SageGames.GetAll()
+            var rootDirectories = GameDefinition.All
                 .SelectMany(Locator.FindInstallations)
                 .Select(i => i.Path);
 

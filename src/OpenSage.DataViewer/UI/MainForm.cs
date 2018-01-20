@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Eto.Drawing;
 using Eto.Forms;
 using OpenSage.Data;
 using OpenSage.DataViewer.Framework;
-using OpenSage.LowLevel;
 
 namespace OpenSage.DataViewer.UI
 {
@@ -38,12 +35,12 @@ namespace OpenSage.DataViewer.UI
             _installationsMenuItem = new ButtonMenuItem { Text = "&Installation" };
             RadioCommand firstInstallationCommand = null;
 
-            var installations = FindInstallations();
+            var installations = InstallationUtility.FindInstallations();
             foreach (var installation in installations)
             {
                 var installationCommand = new RadioCommand((sender, e) => ChangeInstallation(installation))
                 {
-                    MenuText = installation.DisplayName.Replace("&", "&&")
+                    MenuText = installation.Game.DisplayName.Replace("&", "&&")
                 };
 
                 if (firstInstallationCommand == null)
@@ -100,14 +97,6 @@ namespace OpenSage.DataViewer.UI
             base.OnShown(e);
         }
 
-        private static IEnumerable<GameInstallation> FindInstallations()
-        {
-            var locator = new RegistryInstallationLocator();
-
-            return SageGames.GetAll()
-                .SelectMany(locator.FindInstallations);
-        }
-
         private void ChangeInstallation(GameInstallation installation)
         {
             _installation = installation;
@@ -124,15 +113,9 @@ namespace OpenSage.DataViewer.UI
                 _game = null;
             }
 
-            _fileSystem = installation.CreateFileSystem();
+            _game = GameFactory.CreateGame(installation);
 
-            _game = new Game(
-                HostPlatform.GraphicsDevice,
-                HostPlatform.GraphicsDevice2D,
-                _fileSystem,
-                installation.Game);
-
-            var launcherImagePath = installation.LauncherImagePath;
+            var launcherImagePath = installation.Game.LauncherImagePath;
             if (launcherImagePath != null)
             {
                 var fullImagePath = Path.Combine(installation.Path, launcherImagePath);
@@ -143,7 +126,7 @@ namespace OpenSage.DataViewer.UI
                 _installationImageView.Image = null;
             }
 
-            InstallationChanged?.Invoke(this, new InstallationChangedEventArgs(installation, _fileSystem));
+            InstallationChanged?.Invoke(this, new InstallationChangedEventArgs(installation, _game.ContentManager.FileSystem));
         }
     }
 }

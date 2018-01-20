@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Graphics;
@@ -21,6 +23,7 @@ namespace OpenSage
     {
         private readonly FileSystem _fileSystem;
         private readonly GameTimer _gameTimer;
+        private readonly WndCallbackResolver _wndCallbackResolver;
 
         private readonly Dictionary<string, HostCursor> _cachedCursors;
         private HostCursor _currentCursor;
@@ -100,7 +103,8 @@ namespace OpenSage
             GraphicsDevice graphicsDevice,
             GraphicsDevice2D graphicsDevice2D,
             FileSystem fileSystem,
-            SageGame sageGame)
+            SageGame sageGame,
+            Type wndCallbacksType)
         {
             GraphicsDevice = graphicsDevice;
             SageGame = sageGame;
@@ -112,12 +116,15 @@ namespace OpenSage
 
             _cachedCursors = new Dictionary<string, HostCursor>();
 
+            _wndCallbackResolver = new WndCallbackResolver(wndCallbacksType);
+
             ContentManager = AddDisposable(new ContentManager(
                 _fileSystem, 
                 graphicsDevice,
                 graphicsDevice2D,
-                sageGame));
-
+                sageGame,
+                _wndCallbackResolver));
+            
             switch (sageGame)
             {
                 case SageGame.Ra3:
