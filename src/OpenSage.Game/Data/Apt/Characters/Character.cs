@@ -58,8 +58,10 @@ namespace OpenSage.Data.Apt.Characters
                     character = Shape.Parse(reader);
                     break;
                 case CharacterType.Text:
+                    character = Text.Parse(reader);
                     break;
                 case CharacterType.Font:
+                    character = Font.Parse(reader);
                     break;
                 case CharacterType.Button:
                     character = Button.Parse(reader);

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenSage.Content;
+﻿using OpenSage.Content;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.LowLevel.Graphics3D;
@@ -16,6 +11,7 @@ namespace OpenSage.Gui.Apt
         private ImageMap _imageMap;
         private string _movieName;
 
+        public ContentManager ContentManager => _contentManager;
         public ConstantData Constants { get; set; }
         //Time per frame in milliseconds
         public uint MillisecondsPerFrame { get; set; }
@@ -29,7 +25,7 @@ namespace OpenSage.Gui.Apt
         }
 
         //constructor to be used without an apt file
-        public AptContext(ImageMap imageMap, string movieName,ContentManager contentManager)
+        public AptContext(ImageMap imageMap, string movieName, ContentManager contentManager)
         {
             _contentManager = contentManager;
             _imageMap = imageMap;
@@ -37,7 +33,7 @@ namespace OpenSage.Gui.Apt
         }
 
         //need this to handle import/export correctly
-        public Character GetCharacter(int id,Character callee)
+        public Character GetCharacter(int id, Character callee)
         {
             //the movie where this character is in
             var movie = callee.Container.Movie;

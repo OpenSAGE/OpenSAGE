@@ -318,6 +318,18 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadByte());
         }
 
+        public static uint Align(this BinaryReader reader, uint aligment)
+        {
+            var pos = reader.BaseStream.Position;
+            var calign = ((uint) pos % aligment);
+            if (calign == 0)
+                return 0;
+
+            var missing = aligment - calign;
+            reader.BaseStream.Seek(missing, SeekOrigin.Current);
+            return missing;
+        }
+
         public static string ReadStringAtOffset(this BinaryReader reader)
         {
             var stringOffset = reader.ReadUInt32();
@@ -330,7 +342,7 @@ namespace OpenSage.Data.Utilities.Extensions
             return str;
         }
 
-        public static List<T> ReadListAtOffset<T>(this BinaryReader reader, Func<T> creator, bool ptr = false) where T : class
+        public static List<T> ReadListAtOffset<T>(this BinaryReader reader, Func<T> creator, bool ptr = false)
         {
             var capacity = reader.ReadInt32();
             List<T> result = new List<T>(capacity);
@@ -344,7 +356,7 @@ namespace OpenSage.Data.Utilities.Extensions
 
             for (var i = 0; i < capacity; i++)
             {
-                T item = null;
+                T item = default(T);
                 if (!ptr)
                 {
                     item = creator();

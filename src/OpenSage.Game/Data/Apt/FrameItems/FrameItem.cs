@@ -24,6 +24,7 @@ namespace OpenSage.Data.Apt.FrameItems
             switch (type)
             {
                 case FrameItemType.Action:
+                    frameItem = Action.Parse(reader);
                     break;
                 case FrameItemType.FrameLabel:
                     frameItem = FrameLabel.Parse(reader);
@@ -38,6 +39,7 @@ namespace OpenSage.Data.Apt.FrameItems
                     frameItem = BackgroundColor.Parse(reader);
                     break;
                 case FrameItemType.InitAction:
+                    frameItem = InitAction.Parse(reader);
                     break;
             }
 
