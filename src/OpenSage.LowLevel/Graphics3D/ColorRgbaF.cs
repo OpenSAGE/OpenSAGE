@@ -21,14 +21,15 @@ namespace OpenSage.LowLevel.Graphics3D
             A = a;
         }
 
-        public ColorRgbaF BlendMultiply(in ColorRgbaF color)
+        public static ColorRgbaF operator*(in ColorRgbaF value1, in ColorRgbaF value2)
         {
-            ColorRgbaF result;
-            result.R = R * color.R;
-            result.G = G * color.G;
-            result.B = B * color.B;
-            result.A = A * color.A;
-            return result;
+            return new ColorRgbaF
+            {
+                R = value1.R * value2.R,
+                G = value1.R * value2.G,
+                B = value1.R * value2.B,
+                A = value1.R * value2.A
+            };
         }
     }
 }

@@ -11,7 +11,6 @@ namespace OpenSage.Gui.Apt
             Text text, ItemTransform transform)
         {
             drawingContext.Transform(transform.GeometryTransform);
-            drawingContext.ColorTransform(transform.ColorTransform);
 
             var content = context.ContentManager;
             var textFormat = content.GetOrCreateTextFormat("Arial", text.FontHeight,
@@ -19,14 +18,17 @@ namespace OpenSage.Gui.Apt
 
             var bounds = new RawRectangleF(text.Bounds.X, text.Bounds.Y, text.Bounds.Z, text.Bounds.W);
 
-            drawingContext.DrawText(text.Content, textFormat, text.Color.ToColorRgbaF(), bounds);
+            drawingContext.DrawText(
+                text.Content,
+                textFormat,
+                text.Color.ToColorRgbaF() * transform.ColorTransform,
+                bounds);
         }
 
         public static void RenderGeometry(DrawingContext drawingContext, AptContext context,
             Geometry shape, ItemTransform transform)
         {
             drawingContext.Transform(transform.GeometryTransform);
-            drawingContext.ColorTransform(transform.ColorTransform);
 
             foreach (var e in shape.Entries)
             {
@@ -41,7 +43,7 @@ namespace OpenSage.Gui.Apt
                             rl.X2 = line.V1.X;
                             rl.Y2 = line.V1.Y;
                             rl.Thickness = l.Thickness;
-                            drawingContext.DrawLine(rl, l.Color.ToColorRgbaF());
+                            drawingContext.DrawLine(rl, l.Color.ToColorRgbaF() * transform.ColorTransform);
                         }
                         break;
                     case GeometrySolidTriangles st:
@@ -54,7 +56,7 @@ namespace OpenSage.Gui.Apt
                             rt.Y2 = tri.V1.Y;
                             rt.X3 = tri.V2.X;
                             rt.Y3 = tri.V2.Y;
-                            drawingContext.FillTriangle(rt, st.Color.ToColorRgbaF());
+                            drawingContext.FillTriangle(rt, st.Color.ToColorRgbaF() * transform.ColorTransform);
                         }
                         break;
                     case GeometryTexturedTriangles tt:
@@ -81,7 +83,7 @@ namespace OpenSage.Gui.Apt
 
                             var tex = context.GetTexture(tt.Image, shape);
 
-                            drawingContext.FillTriangle(rt, tex, brushTransform);
+                            drawingContext.FillTriangle(rt, tex, transform.ColorTransform, brushTransform);
                         }
                         break;
                 }

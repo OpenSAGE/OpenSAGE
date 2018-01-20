@@ -20,7 +20,7 @@ namespace OpenSage.Gui.Apt
 
         public static ItemTransform operator *(ItemTransform a, ItemTransform b)
         {
-            return new ItemTransform(a.ColorTransform.BlendMultiply(b.ColorTransform),
+            return new ItemTransform(a.ColorTransform * b.ColorTransform,
                                      a.GeometryTransform * b.GeometryTransform);
         }
     }
