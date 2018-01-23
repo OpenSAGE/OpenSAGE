@@ -27,6 +27,7 @@ namespace OpenSage.Gui.Apt
             Root = new SpriteItem() { Transform = ItemTransform.None };
 
             Root.Create(Apt.Movie, _context);
+            _context.Root = Root;
         }
 
         public void Layout(GraphicsDevice gd, in Size windowSize)

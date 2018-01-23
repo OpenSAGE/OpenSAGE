@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using OpenSage.Data.Apt.Characters;
+using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.LowLevel.Graphics3D;
 
 namespace OpenSage.Gui.Apt
@@ -30,6 +31,7 @@ namespace OpenSage.Gui.Apt
         SpriteItem Parent { get; }
         Character Character { get; }
         ItemTransform Transform { get; set; }
+        ObjectContext ScriptObject { get; }
 
         /// <summary>
         /// Create a new DisplayItem

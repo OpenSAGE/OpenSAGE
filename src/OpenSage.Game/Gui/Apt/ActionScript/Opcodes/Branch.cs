@@ -8,10 +8,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// </summary>
     public sealed class BranchIfTrue : InstructionBase
     {
-        public override InstructionType Type => InstructionType.BranchIfTtrue;
+        public override InstructionType Type => InstructionType.BranchIfTrue;
         public override uint Size => 4;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
         }
@@ -25,7 +25,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.BranchAlways;
         public override uint Size => 4;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
         }

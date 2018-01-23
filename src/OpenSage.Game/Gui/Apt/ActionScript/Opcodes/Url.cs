@@ -8,10 +8,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// </summary>
     public sealed class GetUrl : InstructionBase
     {
-        public override InstructionType Type => InstructionType.GetURL2;
+        public override InstructionType Type => InstructionType.GetURL;
         public override uint Size => 8;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
         }
@@ -24,7 +24,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.GetURL2;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
         }

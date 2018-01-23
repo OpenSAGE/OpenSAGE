@@ -1,6 +1,8 @@
-﻿﻿using System.Numerics;
+using System.Numerics;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
+using System.Collections.Generic;
+using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.LowLevel.Graphics3D;
 
 namespace OpenSage.Gui.Apt
@@ -13,11 +15,19 @@ namespace OpenSage.Gui.Apt
         private int _currentFrame;
         private AptContext _context;
         private GameTime _lastUpdate;
+        private ObjectContext _scriptObject;
+
+        /// <summary>
+        /// required, because actions are always executed at the end of each frame
+        /// </summary>
+        private List<Action> _actionList;
 
         public SpriteItem Parent => _parent;
         public Character Character => _sprite;
         public AptContext Context => _context;
         public ItemTransform Transform { get; set; }
+
+        public ObjectContext ScriptObject => _scriptObject;
 
         public void Create(Character chararacter, AptContext context, SpriteItem parent = null)
         {
@@ -26,6 +36,8 @@ namespace OpenSage.Gui.Apt
             _content = new DisplayList();
             _parent = parent;
             _currentFrame = 0;
+            _scriptObject = new ObjectContext(this);
+            _actionList = new List<Action>();
         }
 
         public void Update(ItemTransform pTransform, GameTime gt, DrawingContext2D dc)
@@ -38,6 +50,13 @@ namespace OpenSage.Gui.Apt
             {
                 HandleFrameItem(item);
             }
+
+            //execute all actions now
+            foreach (var action in _actionList)
+            {
+                _context.ActionScriptVM.Execute(action.Instructions, _scriptObject);
+            }
+            _actionList.Clear();
 
             //calculate the transform for this element
             var cTransform = pTransform * Transform;
@@ -94,6 +113,9 @@ namespace OpenSage.Gui.Apt
                     break;
                 case RemoveObject ro:
                     _content.Items.Remove(ro.Depth);
+                    break;
+                case Action action:
+                    _actionList.Add(action);
                     break;
             }
         }
@@ -157,6 +179,13 @@ namespace OpenSage.Gui.Apt
                 displayItem = new RenderItem() { Transform = itemTransform };
 
             displayItem.Create(character, _context, this);
+
+            //add this object as an AS property
+            if(po.Flags.HasFlag(PlaceObjectFlags.HasName))
+            {
+                _scriptObject.Properties[po.Name] = Value.FromObject(displayItem.ScriptObject);
+            }
+
             _content.Items[po.Depth] = displayItem;
         }
     }
