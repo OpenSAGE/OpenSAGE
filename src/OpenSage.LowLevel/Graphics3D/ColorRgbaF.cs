@@ -21,7 +21,7 @@ namespace OpenSage.LowLevel.Graphics3D
             A = a;
         }
 
-        public static ColorRgbaF operator*(in ColorRgbaF value1, in ColorRgbaF value2)
+        public static ColorRgbaF operator*(ColorRgbaF value1, ColorRgbaF value2)
         {
             return new ColorRgbaF
             {
