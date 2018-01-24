@@ -1,31 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net462;xamarinmac20</TargetFrameworks>
+    <TargetFramework>net462</TargetFramework>
     <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  
+  </PropertyGroup>  
   <ItemGroup>
-    <PackageReference Include="MSBuild.Sdk.Extras" Version="1.1.0" PrivateAssets="All" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="**\*.D3D11.cs;**\*.D2D.cs;**\*.Windows.cs;**\*.Metal.cs;**\*.Apple.cs;**\*.macOS.cs" />
-    <None Include="**\*.D3D11.cs;**\*.D2D.cs;**\*.Windows.cs;**\*.Metal.cs;**\*.Apple.cs;**\*.macOS.cs" />
-  </ItemGroup>
-  
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
     <PackageReference Include="SharpDX.Desktop" Version="4.0.1" />
     <PackageReference Include="SharpDX.Direct3D11" Version="4.0.1" />
     <PackageReference Include="SharpDX.D3DCompiler" Version="4.0.1" />
     <PackageReference Include="SharpDX.Direct2D1" Version="4.0.1" />
     <Reference Include="System.Windows.Forms" />
-    <Compile Include="**\*.D3D11.cs;**\*.D2D.cs;**\*.Windows.cs" />
   </ItemGroup>
-  
-  <ItemGroup Condition=" '$(TargetFramework)' == 'xamarinmac20' ">
-    <Reference Include="System.Numerics" />
-    <Compile Include="**\*.Metal.cs;**\*.Apple.cs;**\*.macOS.cs" />
-  </ItemGroup>
-
-  <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
 </Project>
