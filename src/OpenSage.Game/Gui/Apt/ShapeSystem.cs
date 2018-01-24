@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Apt
@@ -27,21 +27,6 @@ namespace OpenSage.Gui.Apt
             }
         }
 
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
-
-        internal override void OnEntityComponentAdded(EntityComponent component)
-        {
-            base.OnEntityComponentAdded(component);
-        }
-
-        internal override void OnEntityComponentRemoved(EntityComponent component)
-        {
-            base.OnEntityComponentRemoved(component);
-        }
-
         internal override void OnSwapChainChanged()
         {
             if (Game.Scene == null)
@@ -56,22 +41,12 @@ namespace OpenSage.Gui.Apt
             }
         }
 
-        internal override void BuildRenderList(RenderList renderList)
+        internal void Render(SpriteBatch spriteBatch)
         {
             foreach (var shape in _guiComponents)
             {
-                renderList.Gui.AddRenderItemDraw(
-                    shape.Material,
-                    shape.VertexBuffer,
-                    null,
-                    CullFlags.AlwaysVisible,
-                    null,
-                    default,
-                    0,
-                    6);
+                shape.Render(spriteBatch);
             }
-
-            base.BuildRenderList(renderList);
         }
 
         public override void Update(GameTime gameTime)

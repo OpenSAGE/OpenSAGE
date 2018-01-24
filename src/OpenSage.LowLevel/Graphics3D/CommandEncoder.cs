@@ -96,7 +96,7 @@
             PlatformSetVertexBuffer(bufferIndex, vertexBuffer);
         }
 
-        public void SetViewport(Viewport viewport)
+        public void SetViewport(in Viewport viewport)
         {
             PlatformSetViewport(viewport);
         }

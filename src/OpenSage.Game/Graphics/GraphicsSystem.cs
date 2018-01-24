@@ -29,7 +29,7 @@ namespace OpenSage.Graphics
 
         public override void Initialize()
         {
-            _renderPipeline = new RenderPipeline(Game.GraphicsDevice);
+            _renderPipeline = new RenderPipeline(Game);
 
             Game.Input.MessageBuffer.Handlers.Add(_cameraInputMessageHandler);
 

@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
 using OpenSage.LowLevel.Graphics3D;
 
 namespace OpenSage.Graphics.Effects
@@ -8,21 +9,22 @@ namespace OpenSage.Graphics.Effects
         public SpriteMaterial(Effect effect)
             : base(effect)
         {
-            SetProperty("Sampler", effect.GraphicsDevice.SamplerPointClamp);
-
-            // TODO: Clean this up.
-            var rasterizerState = RasterizerStateDescription.CullBackSolid;
-            rasterizerState.IsFrontCounterClockwise = false;
+            SetSampler(effect.GraphicsDevice.SamplerPointClamp);
 
             PipelineState = new EffectPipelineState(
-                rasterizerState,
+                RasterizerStateDescription.CullNoneSolid,
                 DepthStencilStateDescription.None,
                 BlendStateDescription.AlphaBlend);
         }
 
-        public void SetMaterialConstants(Buffer<MaterialConstants> buffer)
+        public void SetMaterialConstantsVS(Buffer<MaterialConstantsVS> buffer)
         {
-            SetProperty("MaterialConstants", buffer);
+            SetProperty("MaterialConstantsVS", buffer);
+        }
+
+        public void SetSampler(SamplerState samplerState)
+        {
+            SetProperty("Sampler", samplerState);
         }
 
         public void SetTexture(Texture texture)
@@ -31,9 +33,9 @@ namespace OpenSage.Graphics.Effects
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct MaterialConstants
+        public struct MaterialConstantsVS
         {
-            public float Opacity;
+            public Matrix4x4 Projection;
         }
     }
 }

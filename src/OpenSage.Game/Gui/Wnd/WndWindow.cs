@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Wnd;
 using OpenSage.Graphics;
-using OpenSage.Graphics.Effects;
-using OpenSage.LowLevel;
-using OpenSage.LowLevel.Graphics2D;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Mathematics;
 
@@ -18,7 +14,7 @@ namespace OpenSage.Gui.Wnd
         private readonly WndWindowDefinition _wndWindow;
 
         private Texture _texture;
-        private Buffer<SpriteVertex> _vertexBuffer;
+        private DrawingContext2D _primitiveBatch;
 
         private readonly Dictionary<WndWindowState, WndWindowStateConfiguration> _stateConfigurations;
 
@@ -71,12 +67,6 @@ namespace OpenSage.Gui.Wnd
 
         public string DisplayName => $"{Name} ({_wndWindow.WindowType}, {(Visible ? "Visible" : "Hidden")})";
 
-        public Buffer<SpriteVertex> VertexBuffer => _vertexBuffer;
-
-        private ConstantBuffer<SpriteMaterial.MaterialConstants> _materialConstantsBuffer;
-
-        public SpriteMaterial Material { get; private set; }
-
         public bool Visible { get; private set; }
 
         public WndWindow Parent { get; internal set; }
@@ -112,15 +102,7 @@ namespace OpenSage.Gui.Wnd
             }
         }
 
-        public float Opacity
-        {
-            get => _materialConstantsBuffer.Value.Opacity;
-            set
-            {
-                _materialConstantsBuffer.Value.Opacity = value;
-                _materialConstantsBuffer.Update();
-            }
-        }
+        public float Opacity { get; set; } = 1;
 
         private float _textOpacity = 1;
         public float TextOpacity
@@ -181,9 +163,7 @@ namespace OpenSage.Gui.Wnd
                 _stateConfigurations[state] = AddDisposable(WndWindowStateConfiguration.Create(
                     wndWindow,
                     state,
-                    contentManager,
-                    contentManager.GraphicsDevice,
-                    HostPlatform.GraphicsDevice2D));
+                    contentManager));
             }
 
             createStateConfiguration(WndWindowState.Enabled);
@@ -218,16 +198,6 @@ namespace OpenSage.Gui.Wnd
             TooltipCallback = callbackResolver.GetUIElementCallback(wndWindow.TooltipCallback);
 
             DrawCallback = callbackResolver.GetDrawCallback(wndWindow.DrawCallback) ?? DefaultDraw;
-
-            Material = new SpriteMaterial(contentManager.EffectLibrary.Sprite);
-
-            _materialConstantsBuffer = AddDisposable(new ConstantBuffer<SpriteMaterial.MaterialConstants>(contentManager.GraphicsDevice));
-            _materialConstantsBuffer.Value.Opacity = 1;
-            _materialConstantsBuffer.Update();
-
-            Material.SetMaterialConstants(_materialConstantsBuffer.Buffer);
-
-            // TODO
         }
 
         public WndWindow FindChild(string name)
@@ -274,7 +244,7 @@ namespace OpenSage.Gui.Wnd
                 windowSize,
                 out _scale);
 
-            RemoveAndDispose(ref _vertexBuffer);
+            RemoveAndDispose(ref _primitiveBatch);
             RemoveAndDispose(ref _texture);
 
             _texture = AddDisposable(Texture.CreateTexture2D(
@@ -284,26 +254,7 @@ namespace OpenSage.Gui.Wnd
                 Frame.Height,
                 TextureBindFlags.ShaderResource | TextureBindFlags.RenderTarget));
 
-            Material.SetTexture(_texture);
-
-            var left = (Frame.X / (float) windowSize.Width) * 2 - 1;
-            var top = (Frame.Y / (float) windowSize.Height) * 2 - 1;
-            var right = ((Frame.X + Frame.Width) / (float) windowSize.Width) * 2 - 1;
-            var bottom = ((Frame.Y + Frame.Height) / (float) windowSize.Height) * 2 - 1;
-
-            var vertices = new[]
-            {
-                new SpriteVertex(new Vector2(left, top * -1), new Vector2(0, 0)),
-                new SpriteVertex(new Vector2(right, top * -1), new Vector2(1, 0)),
-                new SpriteVertex(new Vector2(left, bottom * -1), new Vector2(0, 1)),
-                new SpriteVertex(new Vector2(right, top * -1), new Vector2(1, 0)),
-                new SpriteVertex(new Vector2(right, bottom * -1), new Vector2(1, 1)),
-                new SpriteVertex(new Vector2(left, bottom * -1), new Vector2(0, 1))
-            };
-            _vertexBuffer = AddDisposable(Buffer<SpriteVertex>.CreateStatic(
-                contentManager.GraphicsDevice,
-                vertices,
-                BufferBindFlags.VertexBuffer));
+            _primitiveBatch = AddDisposable(new DrawingContext2D(contentManager, _texture));
 
             Invalidate();
         }
@@ -331,73 +282,79 @@ namespace OpenSage.Gui.Wnd
                 ?? activeState.BackgroundColor
                 ?? new ColorRgbaF(0, 0, 0, 0);
 
-            using (var drawingContext = new DrawingContext(game.ContentManager.GraphicsDevice2D, window._texture))
+            window._primitiveBatch.Begin(game.GraphicsDevice.SamplerLinearClamp, clearColour);
+
+            if (activeState.ImageTexture != null)
             {
-                drawingContext.Begin();
-
-                drawingContext.Clear(clearColour);
-
-                if (activeState.ImageTexture != null)
-                {
-                    drawingContext.DrawImage(
-                        activeState.ImageTexture,
-                        new RawRectangleF(0, 0, activeState.ImageTexture.Width, activeState.ImageTexture.Height),
-                        window.Bounds.ToRawRectangleF(),
-                        true);
-                }
-
-                if (activeState.BorderColor != null || window.Highlighted)
-                {
-                    var borderColor = window.Highlighted
-                        ? new ColorRgbaF(1f, 0.41f, 0.71f, 1)
-                        : activeState.BorderColor.Value;
-
-                    var borderWidth = window.Highlighted ? 8 : 2;
-
-                    drawingContext.DrawRectangle(
-                        window.Bounds.ToRawRectangleF(),
-                        borderColor,
-                        borderWidth);
-                }
-
-                if (window.OverlayColorOverride != null)
-                {
-                    var overlayColor = window.OverlayColorOverride.Value.ToColorRgbaF();
-                    overlayColor.A *= window.Opacity;
-
-                    drawingContext.FillRectangle(
-                        window.Bounds.ToRawRectangleF(),
-                        overlayColor);
-                }
-
-                DrawText(window, game, drawingContext);
-
-                drawingContext.End();
+                window._primitiveBatch.DrawImage(
+                    activeState.ImageTexture,
+                    new Rectangle(0, 0, activeState.ImageTexture.Width, activeState.ImageTexture.Height),
+                    window.Bounds);
             }
+
+            if (activeState.BorderColor != null || window.Highlighted)
+            {
+                var borderColor = window.Highlighted
+                    ? new ColorRgbaF(1f, 0.41f, 0.71f, 1)
+                    : activeState.BorderColor.Value;
+
+                var borderWidth = window.Highlighted ? 4 : 1;
+
+                window._primitiveBatch.DrawRectangle(
+                    window.Bounds.ToRectangleF(),
+                    borderColor,
+                    borderWidth);
+            }
+
+            if (window.OverlayColorOverride != null)
+            {
+                var overlayColor = window.OverlayColorOverride.Value.ToColorRgbaF();
+                overlayColor.A *= window.Opacity;
+
+                window._primitiveBatch.FillRectangle(
+                    window.Bounds,
+                    overlayColor);
+            }
+
+            DrawText(window, game, window._primitiveBatch);
+
+            window._primitiveBatch.End();
         }
 
         private static void DrawText(
             WndWindow window,
             Game game,
-            DrawingContext drawingContext)
+            DrawingContext2D drawingContext)
         {
             if (!string.IsNullOrEmpty(window.Text))
             {
-                var textFormat = game.ContentManager.GetOrCreateTextFormat(
+                var font = game.ContentManager.GetOrCreateFont(
                     window.TextFont.Name,
                     window.TextFont.Size * window._scale,
-                    window.TextFont.Bold ? FontWeight.Bold : FontWeight.Normal,
-                    window.TextAlignment);
+                    window.TextFont.Bold ? FontWeight.Bold : FontWeight.Normal);
 
                 var textColor = window.ActiveState.TextColor.ToColorRgbaF();
                 textColor.A *= window.TextOpacity;
 
                 drawingContext.DrawText(
                     window.Text,
-                    textFormat,
+                    font,
+                    window.TextAlignment,
                     textColor,
-                    window.Bounds.ToRawRectangleF());
+                    window.Bounds.ToRectangleF());
             }
+        }
+
+        internal void Render(SpriteBatch spriteBatch)
+        {
+            var color = ColorRgbaF.White;
+            color.A = Opacity;
+
+            spriteBatch.DrawImage(
+                _texture,
+                null,
+                Frame.ToRectangleF(),
+                color);
         }
     }
 

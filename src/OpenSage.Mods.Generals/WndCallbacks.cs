@@ -1,5 +1,5 @@
-﻿using OpenSage.Gui.Wnd;
-using OpenSage.LowLevel.Graphics2D;
+﻿using OpenSage.Gui;
+using OpenSage.Gui.Wnd;
 
 namespace OpenSage.Mods.Generals
 {

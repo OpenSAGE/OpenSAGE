@@ -4,7 +4,6 @@ using System.Linq;
 using OpenSage.Content;
 using OpenSage.Content.Util;
 using OpenSage.Data.Wnd;
-using OpenSage.LowLevel.Graphics2D;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Mathematics;
 
@@ -118,50 +117,50 @@ namespace OpenSage.Gui.Wnd
                 croppedBitmapRight);
         }
 
-        internal Texture RenderToTexture(GraphicsDevice graphicsDevice, GraphicsDevice2D graphicsDevice2D)
+        internal Texture RenderToTexture(ContentManager contentManager)
         {
             var imageTexture = Texture.CreateTexture2D(
-                graphicsDevice,
+                contentManager.GraphicsDevice,
                 PixelFormat.Rgba8UNorm,
                 _totalWidth,
                 _height,
                 TextureBindFlags.ShaderResource | TextureBindFlags.RenderTarget);
 
-            using (var drawingContext = new DrawingContext(graphicsDevice2D, imageTexture))
+            imageTexture.DebugName = "StretchableImage";
+
+            using (var drawingContext = new DrawingContext2D(contentManager, imageTexture))
             {
-                drawingContext.Begin();
+                drawingContext.Begin(
+                    contentManager.GraphicsDevice.SamplerPointClamp,
+                    ColorRgbaF.Transparent);
 
                 switch (_mode)
                 {
                     case StretchableImageMode.Normal:
                         drawingContext.DrawImage(
                            _croppedBitmapLeft.Bitmap,
-                           ToRawRectangleF(_croppedBitmapLeft.SourceRect),
-                           new RawRectangleF(0, 0, _totalWidth, _height),
-                           false);
+                           _croppedBitmapLeft.SourceRect,
+                           new Rectangle(0, 0, _totalWidth, _height));
                         break;
 
                     case StretchableImageMode.Stretchable:
                         var leftWidth = _croppedBitmapLeft.SourceRect.Width;
                         var rightWidth = _croppedBitmapRight.SourceRect.Width;
-                        var leftRect = new RawRectangleF(0, 0, leftWidth, _height);
+                        var leftRect = new Rectangle(0, 0, leftWidth, _height);
                         drawingContext.DrawImage(
                            _croppedBitmapLeft.Bitmap,
-                           ToRawRectangleF(_croppedBitmapLeft.SourceRect),
-                           leftRect,
-                           false);
-                        var middleRect = new RawRectangleF(leftRect.Right, 0, _totalWidth - leftWidth - rightWidth, _height);
+                           _croppedBitmapLeft.SourceRect,
+                           leftRect);
+                        var middleRect = new Rectangle(leftRect.Right, 0, _totalWidth - leftWidth - rightWidth, _height);
                         drawingContext.DrawImage(
                            _croppedBitmapMiddle.Bitmap,
-                           ToRawRectangleF(_croppedBitmapMiddle.SourceRect),
-                           middleRect,
-                           false);
-                        var rightRect = new RawRectangleF(middleRect.Right, 0, rightWidth, _height);
+                           _croppedBitmapMiddle.SourceRect,
+                           middleRect);
+                        var rightRect = new Rectangle(middleRect.Right, 0, rightWidth, _height);
                         drawingContext.DrawImage(
                            _croppedBitmapRight.Bitmap,
-                           ToRawRectangleF(_croppedBitmapRight.SourceRect),
-                           rightRect,
-                           false);
+                           _croppedBitmapRight.SourceRect,
+                           rightRect);
                         break;
 
                     default:
@@ -172,11 +171,6 @@ namespace OpenSage.Gui.Wnd
             }
 
             return imageTexture;
-        }
-
-        private static RawRectangleF ToRawRectangleF(in Rectangle value)
-        {
-            return new RawRectangleF(value.X, value.Y, value.Width, value.Height);
         }
     }
 
