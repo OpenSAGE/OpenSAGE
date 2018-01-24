@@ -6,9 +6,10 @@ using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
-using OpenSage.Gui.Wnd;
+using OpenSage.Gui;
 using OpenSage.Gui.Apt;
-using OpenSage.LowLevel.Graphics2D;
+using OpenSage.Gui.Wnd;
+using SixLabors.Fonts;
 
 namespace OpenSage.Content
 {
@@ -20,10 +21,9 @@ namespace OpenSage.Content
 
         private readonly FileSystem _fileSystem;
 
-        private readonly Dictionary<TextFormatKey, TextFormat> _cachedTextFormats;
+        private readonly Dictionary<FontKey, Font> _cachedFonts;
 
         public GraphicsDevice GraphicsDevice { get; }
-        public GraphicsDevice2D GraphicsDevice2D { get; }
 
         public SageGame SageGame { get; }
 
@@ -38,14 +38,12 @@ namespace OpenSage.Content
         public ContentManager(
             FileSystem fileSystem,
             GraphicsDevice graphicsDevice,
-            GraphicsDevice2D graphicsDevice2D,
             SageGame sageGame,
             WndCallbackResolver wndCallbackResolver)
         {
             _fileSystem = fileSystem;
 
             GraphicsDevice = graphicsDevice;
-            GraphicsDevice2D = graphicsDevice2D;
 
             SageGame = sageGame;
 
@@ -68,7 +66,7 @@ namespace OpenSage.Content
 
             TranslationManager = new TranslationManager(fileSystem);
 
-            _cachedTextFormats = new Dictionary<TextFormatKey, TextFormat>();
+            _cachedFonts = new Dictionary<FontKey, Font>();
         }
 
         public void Unload()
@@ -167,35 +165,40 @@ namespace OpenSage.Content
             }
         }
 
-        public TextFormat GetOrCreateTextFormat(string fontName, float fontSize, FontWeight fontWeight, TextAlignment textAlignment)
+        public Font GetOrCreateFont(string fontName, float fontSize, FontWeight fontWeight)
         {
-            var key = new TextFormatKey
+            var key = new FontKey
             {
                 FontName = fontName,
                 FontSize = fontSize,
-                FontWeight = fontWeight,
-                TextAlignment = textAlignment
+                FontWeight = fontWeight
             };
 
-            if (!_cachedTextFormats.TryGetValue(key, out var textFormat))
+            if (!_cachedFonts.TryGetValue(key, out var font))
             {
-                _cachedTextFormats.Add(key, textFormat = AddDisposable(new TextFormat(
-                    GraphicsDevice2D,
+                if (!SystemFonts.TryFind(fontName, out var fontFamily))
+                {
+                    fontName = "Arial";
+                }
+
+                var fontStyle = fontWeight == FontWeight.Bold
+                    ? FontStyle.Bold
+                    : FontStyle.Regular;
+
+                _cachedFonts.Add(key, font = SystemFonts.CreateFont(
                     fontName,
                     fontSize,
-                    fontWeight,
-                    textAlignment)));
+                    fontStyle));
             }
 
-            return textFormat;
+            return font;
         }
 
-        private struct TextFormatKey
+        private struct FontKey
         {
             public string FontName;
             public float FontSize;
             public FontWeight FontWeight;
-            public TextAlignment TextAlignment;
         }
     }
 }

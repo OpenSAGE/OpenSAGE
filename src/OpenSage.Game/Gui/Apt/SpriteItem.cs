@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
-using OpenSage.LowLevel.Graphics2D;
 using OpenSage.LowLevel.Graphics3D;
 
 namespace OpenSage.Gui.Apt
@@ -29,7 +28,7 @@ namespace OpenSage.Gui.Apt
             _currentFrame = 0;
         }
 
-        public void Update(ItemTransform pTransform, GameTime gt, DrawingContext dc)
+        public void Update(ItemTransform pTransform, GameTime gt, DrawingContext2D dc)
         {
             //get the current frame
             var frame = _sprite.Frames[_currentFrame];

@@ -18,9 +18,13 @@ namespace OpenSage.Graphics.Rendering
         private readonly ConstantBuffer<LightingConstants> _globalLightingTerrainBuffer;
         private readonly ConstantBuffer<LightingConstants> _globalLightingObjectBuffer;
 
-        public RenderPipeline(GraphicsDevice graphicsDevice)
+        private readonly SpriteBatch _spriteBatch;
+
+        public RenderPipeline(Game game)
         {
             _renderList = new RenderList();
+
+            var graphicsDevice = game.GraphicsDevice;
 
             _depthStencilBufferCache = AddDisposable(new DepthStencilBufferCache(graphicsDevice));
 
@@ -30,6 +34,8 @@ namespace OpenSage.Graphics.Rendering
             _globalConstantBufferPS = AddDisposable(new ConstantBuffer<GlobalConstantsPS>(graphicsDevice));
             _globalLightingTerrainBuffer = AddDisposable(new ConstantBuffer<LightingConstants>(graphicsDevice));
             _globalLightingObjectBuffer = AddDisposable(new ConstantBuffer<LightingConstants>(graphicsDevice));
+
+            _spriteBatch = AddDisposable(new SpriteBatch(game.ContentManager));
         }
 
         public void Execute(RenderContext context)
@@ -37,8 +43,6 @@ namespace OpenSage.Graphics.Rendering
             _renderList.Clear();
 
             context.Scene.Scene3D?.World.Terrain.BuildRenderList(_renderList);
-
-            context.Scene.Scene2D.WndWindowManager.BuildRenderList(_renderList);
 
             foreach (var system in context.Game.GameSystems)
             {
@@ -141,7 +145,19 @@ namespace OpenSage.Graphics.Rendering
             doRenderPass(_renderList.Opaque);
             doRenderPass(_renderList.Transparent);
 
-            doRenderPass(_renderList.Gui);
+            // GUI
+            {
+                _spriteBatch.Begin(
+                    commandEncoder,
+                    context.GraphicsDevice.SamplerLinearClamp,
+                    context.Camera.Viewport);
+
+                context.Scene.Scene2D.WndWindowManager.Render(_spriteBatch);
+                context.Game.Shape.Render(_spriteBatch);
+                context.Game.Apt.Render(_spriteBatch);
+
+                _spriteBatch.End();
+            }
 
             commandEncoder.Close();
 

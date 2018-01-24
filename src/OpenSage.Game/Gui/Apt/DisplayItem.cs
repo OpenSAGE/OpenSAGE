@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using OpenSage.Data.Apt.Characters;
-using OpenSage.LowLevel.Graphics2D;
 using OpenSage.LowLevel.Graphics3D;
 
 namespace OpenSage.Gui.Apt
@@ -42,6 +41,6 @@ namespace OpenSage.Gui.Apt
         /// <param name="parent"></param>
         /// The parent displayitem (which must be a SpriteItem)
         void Create(Character chararacter, AptContext context, SpriteItem parent = null);
-        void Update(ItemTransform pTransform, GameTime gt, DrawingContext dc);
+        void Update(ItemTransform pTransform, GameTime gt, DrawingContext2D dc);
     }
 }

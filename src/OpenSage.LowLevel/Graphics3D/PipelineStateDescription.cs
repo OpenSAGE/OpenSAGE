@@ -33,6 +33,9 @@
         public static readonly RasterizerStateDescription CullBackWireframe = new RasterizerStateDescription(
             FillMode.Wireframe, true, CullMode.CullBack);
 
+        public static readonly RasterizerStateDescription CullNoneSolid = new RasterizerStateDescription(
+            FillMode.Solid, true, CullMode.None);
+
         public FillMode FillMode;
         public bool IsFrontCounterClockwise;
         public CullMode CullMode;

@@ -1,10 +1,9 @@
-﻿using OpenSage.LowLevel.Graphics3D;
+﻿using System;
+using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Content;
 using OpenSage.Content.Util;
 using OpenSage.Data.Wnd;
 using OpenSage.Mathematics;
-using OpenSage.LowLevel.Graphics2D;
-using System;
 
 namespace OpenSage.Gui.Wnd
 {
@@ -13,9 +12,7 @@ namespace OpenSage.Gui.Wnd
         public static WndWindowStateConfiguration Create(
             WndWindowDefinition wndWindow,
             WndWindowState state,
-            ContentManager contentManager,
-            GraphicsDevice graphicsDevice,
-            GraphicsDevice2D graphicsDevice2D)
+            ContentManager contentManager)
         {
             WndDrawData wndDrawData;
             ColorRgba textColor, textColorBorder;
@@ -84,8 +81,7 @@ namespace OpenSage.Gui.Wnd
                 textColorBorder,
                 wndDrawData,
                 image,
-                graphicsDevice,
-                graphicsDevice2D);
+                contentManager);
         }
 
         public ColorRgba TextColor { get; }
@@ -102,8 +98,7 @@ namespace OpenSage.Gui.Wnd
             ColorRgba textBorderColor,
             WndDrawData wndDrawData,
             StretchableImage image,
-            GraphicsDevice graphicsDevice,
-            GraphicsDevice2D graphicsDevice2D)
+            ContentManager contentManager)
         {
             TextColor = textColor;
             TextBorderColor = textBorderColor;
@@ -120,7 +115,7 @@ namespace OpenSage.Gui.Wnd
 
             if (image != null)
             {
-                ImageTexture = AddDisposable(image.RenderToTexture(graphicsDevice, graphicsDevice2D));
+                ImageTexture = AddDisposable(image.RenderToTexture(contentManager));
             }
         }
     }

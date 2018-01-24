@@ -75,13 +75,11 @@ namespace OpenSage.Graphics.Rendering
     {
         public readonly RenderBucket Opaque = new RenderBucket();
         public readonly RenderBucket Transparent = new RenderBucket();
-        public readonly RenderBucket Gui = new RenderBucket();
 
         public void Clear()
         {
             Opaque.Clear();
             Transparent.Clear();
-            Gui.Clear();
         }
     }
 }

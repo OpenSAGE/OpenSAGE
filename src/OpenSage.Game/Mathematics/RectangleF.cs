@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
@@ -28,6 +29,11 @@ namespace OpenSage.Mathematics
         public float Height;
 
         public SizeF Size => new SizeF(Width, Height);
+
+        public float Left => X;
+        public float Right => X + Width;
+        public float Top => Y;
+        public float Bottom => Y + Height;
 
         /// <summary>
         /// Creates a new <see cref="RectangleF"/>.
@@ -77,6 +83,14 @@ namespace OpenSage.Mathematics
             var posY = (int) Math.Round((viewportSize.Height - (boundsSize.Height * ratio)) / 2.0) + newY;
 
             return new Rectangle(posX, posY, newWidth, newHeight);
+        }
+
+        public static RectangleF Transform(in RectangleF rect, in Matrix3x2 matrix)
+        {
+            var position = Vector2.Transform(new Vector2(rect.X, rect.Y), matrix);
+            var size = Vector2.TransformNormal(new Vector2(rect.Width, rect.Height), matrix);
+
+            return new RectangleF(position.X, position.Y, size.X, size.Y);
         }
     }
 }

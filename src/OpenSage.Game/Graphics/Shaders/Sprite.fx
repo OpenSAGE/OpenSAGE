@@ -1,26 +1,35 @@
+struct VSInput
+{
+    float3 Position : POSITION;
+    float2 UV : TEXCOORD;
+    float4 Color : COLOR;
+};
+
 struct PSInput
 {
     float4 Position  : SV_POSITION;
     float2 TexCoords : TEXCOORD;
+    float4 Color     : COLOR;
 };
 
-PSInput VS(float2 position : POSITION, float2 uv : TEXCOORD)
+cbuffer MaterialConstantsVS
+{
+    row_major matrix Projection;
+};
+
+PSInput VS(VSInput input)
 {
     PSInput output;
 
-    output.Position = float4(position, 0, 1);
-    output.TexCoords = uv;
+    output.Position = mul(float4(input.Position, 1), Projection);
+    output.TexCoords = input.UV;
+    output.Color = input.Color;
 
     return output;
 }
 
 Texture2D<float4> Texture : register(t0);
 SamplerState Sampler : register(s0);
-
-cbuffer MaterialConstants : register(b2)
-{
-    float Opacity;
-};
 
 float4 PS(PSInput input) : SV_TARGET
 {
@@ -29,7 +38,7 @@ float4 PS(PSInput input) : SV_TARGET
         input.TexCoords,
         0);
 
-    textureColor.a *= Opacity;
+    textureColor *= input.Color;
 
     return textureColor;
 }

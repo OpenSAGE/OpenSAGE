@@ -7,24 +7,20 @@ namespace OpenSage.Graphics
     [StructLayout(LayoutKind.Sequential)]
     public struct SpriteVertex
     {
-        public Vector2 Position;
+        public Vector3 Position;
         public Vector2 UV;
-
-        public SpriteVertex(Vector2 position, Vector2 uv)
-        {
-            Position = position;
-            UV = uv;
-        }
+        public ColorRgbaF Color;
 
         public static readonly VertexDescriptor VertexDescriptor = new VertexDescriptor(
             new[]
             {
-                new VertexAttributeDescription("POSITION", 0, VertexFormat.Float2, 0, 0),
-                new VertexAttributeDescription("TEXCOORD", 0, VertexFormat.Float2, 8, 0)
+                new VertexAttributeDescription("POSITION", 0, VertexFormat.Float3, 0, 0),
+                new VertexAttributeDescription("TEXCOORD", 0, VertexFormat.Float2, 12, 0),
+                new VertexAttributeDescription("COLOR", 0, VertexFormat.Float4, 20, 0)
             },
             new[]
             {
-                new VertexLayoutDescription(InputClassification.PerVertexData, 16)
+                new VertexLayoutDescription(InputClassification.PerVertexData, 32)
             });
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Graphics;
@@ -13,7 +12,6 @@ using OpenSage.Gui.Wnd;
 using OpenSage.Input;
 using OpenSage.Logic.Object;
 using OpenSage.LowLevel;
-using OpenSage.LowLevel.Graphics2D;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Scripting;
 
@@ -101,7 +99,6 @@ namespace OpenSage
 
         public Game(
             GraphicsDevice graphicsDevice,
-            GraphicsDevice2D graphicsDevice2D,
             FileSystem fileSystem,
             SageGame sageGame,
             Type wndCallbacksType)
@@ -121,7 +118,6 @@ namespace OpenSage
             ContentManager = AddDisposable(new ContentManager(
                 _fileSystem, 
                 graphicsDevice,
-                graphicsDevice2D,
                 sageGame,
                 _wndCallbackResolver));
             

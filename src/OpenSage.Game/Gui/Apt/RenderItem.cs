@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenSage.Data.Apt.Characters;
-using OpenSage.LowLevel.Graphics2D;
+﻿using OpenSage.Data.Apt.Characters;
 
 namespace OpenSage.Gui.Apt
 {
@@ -26,7 +20,7 @@ namespace OpenSage.Gui.Apt
             _parent = parent;
         }
 
-        public void Update(ItemTransform pTransform, GameTime gt, DrawingContext dc)
+        public void Update(ItemTransform pTransform, GameTime gt, DrawingContext2D dc)
         {
             switch (_character)
             {

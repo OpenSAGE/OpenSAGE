@@ -260,6 +260,15 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadSingle());
         }
 
+        public static RectangleF ReadRectangleF(this BinaryReader reader)
+        {
+            return new RectangleF(
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle());
+        }
+
         public static MapLine2D ReadLine2D(this BinaryReader reader)
         {
             return new MapLine2D(

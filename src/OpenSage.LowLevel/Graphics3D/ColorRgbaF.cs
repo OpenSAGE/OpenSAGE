@@ -26,9 +26,9 @@ namespace OpenSage.LowLevel.Graphics3D
             return new ColorRgbaF
             {
                 R = value1.R * value2.R,
-                G = value1.R * value2.G,
-                B = value1.R * value2.B,
-                A = value1.R * value2.A
+                G = value1.G * value2.G,
+                B = value1.B * value2.B,
+                A = value1.A * value2.A
             };
         }
     }

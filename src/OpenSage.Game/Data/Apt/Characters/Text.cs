@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.Mathematics;
 
@@ -8,7 +7,7 @@ namespace OpenSage.Data.Apt.Characters
 {
     public sealed class Text : Character
     {
-        public Vector4 Bounds { get; private set; }
+        public RectangleF Bounds { get; private set; }
         public uint Font { get; private set; }
         public uint Alignment { get; private set; }
         public ColorRgba Color { get; private set; }
@@ -22,7 +21,7 @@ namespace OpenSage.Data.Apt.Characters
         public static Text Parse(BinaryReader reader)
         {
             var text = new Text();
-            text.Bounds = reader.ReadVector4();
+            text.Bounds = reader.ReadRectangleF();
             text.Font = reader.ReadUInt32();
             text.Alignment = reader.ReadUInt32();
             text.Color = reader.ReadColorRgba();

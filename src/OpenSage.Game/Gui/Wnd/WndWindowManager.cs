@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
+using OpenSage.Graphics;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Gui.Wnd.Transitions;
 using OpenSage.Mathematics;
@@ -121,9 +123,10 @@ namespace OpenSage.Gui.Wnd
             }
         }
 
-        internal void BuildRenderList(RenderList renderList)
+        internal void Render(SpriteBatch spriteBatch)
         {
-            foreach (var window in _windowStack)
+            // TODO: Try to avoid using LINQ here.
+            foreach (var window in _windowStack.Reverse())
             {
                 window.Root.DoActionRecursive(x =>
                 {
@@ -132,15 +135,7 @@ namespace OpenSage.Gui.Wnd
                         return false;
                     }
 
-                    renderList.Gui.AddRenderItemDraw(
-                        x.Material,
-                        x.VertexBuffer,
-                        null,
-                        CullFlags.AlwaysVisible,
-                        null,
-                        default,
-                        0,
-                        6);
+                    x.Render(spriteBatch);
 
                     return true;
                 });
