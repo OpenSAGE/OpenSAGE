@@ -1,12 +1,12 @@
-﻿using Eto.Forms;
+﻿using System.IO;
+using Eto.Forms;
 using OpenSage.Data;
-using OpenSage.Data.Apt;
 using OpenSage.DataViewer.Controls;
 using OpenSage.Gui.Apt;
 
 namespace OpenSage.DataViewer.UI.Viewers
 {
-    public sealed class RuView : GameControl
+    public sealed class RuView : Splitter
     {
         public RuView(FileSystemEntry entry, Game game)
         {
@@ -18,9 +18,23 @@ namespace OpenSage.DataViewer.UI.Viewers
             scene.Entities.Add(entity);
 
             game.Scene = scene;
-            Game = game;
-        }
 
-       
+            string ruText;
+            using (var fileStream = entry.Open())
+            using (var streamReader = new StreamReader(fileStream))
+                ruText = streamReader.ReadToEnd();
+
+            Panel1 = new TextBox
+            {
+                ReadOnly = true,
+                Width = 250,
+                Text = ruText
+            };
+
+            Panel2 = new GameControl
+            {
+                Game = game
+            };
+        }
     }
 }

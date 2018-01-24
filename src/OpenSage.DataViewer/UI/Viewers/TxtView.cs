@@ -8,7 +8,7 @@ namespace OpenSage.DataViewer.UI.Viewers
     {
         public TxtView(FileSystemEntry entry)
         {
-            var textBox = new TextBox();
+            var textBox = new TextBox { ReadOnly = true };
             
             using (var fileStream = entry.Open())
             using (var streamReader = new StreamReader(fileStream))
