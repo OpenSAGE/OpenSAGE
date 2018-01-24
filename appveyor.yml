@@ -4,6 +4,7 @@ configuration: Release
 install:
 - ps: >-
     cd src
+    
     nuget restore OpenSage.sln
 build:
   project: src/OpenSage.sln
