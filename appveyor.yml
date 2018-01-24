@@ -1,0 +1,10 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+configuration: Release
+install:
+- ps: >-
+    cd src
+    nuget restore OpenSage.sln
+build:
+  project: src/OpenSage.sln
+  verbosity: minimal
