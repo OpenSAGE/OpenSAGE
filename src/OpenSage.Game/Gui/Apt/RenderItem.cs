@@ -15,6 +15,7 @@ namespace OpenSage.Gui.Apt
         public AptContext Context => _context;
         public ItemTransform Transform { get; set; }
         public ObjectContext ScriptObject => _scriptObject;
+        public string Name { get; set; }
 
         public void Create(Character chararacter, AptContext context, SpriteItem parent = null)
         {
@@ -43,6 +44,17 @@ namespace OpenSage.Gui.Apt
                     AptRenderer.RenderGeometry(dc, _context, geometry, pTransform);
                     break;
                 case Text t:
+                    if(t.Value.Length>0)
+                    {
+                        var val = ScriptObject.ResolveValue(t.Value);
+                        if (val.Type != ValueType.Undefined)
+                            t.Content = val.ToString();
+                    }
+
+                    //localize our content
+                    t.Content = t.Content.Replace("$", "APT:");
+                    t.Content = _context.ContentManager.TranslationManager.Lookup(t.Content);
+
                     AptRenderer.RenderText(dc, _context, t, pTransform);
                     break;
             }

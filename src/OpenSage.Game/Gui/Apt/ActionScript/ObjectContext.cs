@@ -58,7 +58,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
             if (!Variables.TryGetValue(name, out result))
             {
-                Debug.WriteLine("Undefined variable: " + name);
+                Debug.WriteLine("[WARN] Undefined variable: " + name);
                 result = Value.Undefined();
             }
 
@@ -121,6 +121,25 @@ namespace OpenSage.Gui.Apt.ActionScript
                     Variables["textColor"] = Value.FromString(t.Color.ToHex());
                     break;
             }
+        }
+
+        /// <summary>
+        /// used by text
+        /// </summary>
+        /// <param name="value">value name</param>
+        /// <returns></returns>
+        public Value ResolveValue(string value)
+        {
+            var path = value.Split('.');
+            var obj = this;
+
+            if(path.Length>1)
+            {
+                if (path[0] == "_parent")
+                    obj = Item.Parent.Parent.ScriptObject;
+            }
+
+            return obj.GetMember(path[1]);
         }
     }
 }

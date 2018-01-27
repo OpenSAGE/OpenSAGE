@@ -64,6 +64,42 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     /// <summary>
+    /// Declare a new named or anonymous function (depending on function name) that will either be
+    /// pushed to stack or set as a variable. 
+    /// </summary>
+    public sealed class DefineFunction2 : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.DefineFunction;
+        public override uint Size => 20;
+
+        public override void Execute(ActionContext context)
+        {
+            var name = Parameters[0].ToString();
+            var nParams = Parameters[1].ToInteger();
+            var size = Parameters[2 + nParams].ToInteger();
+
+            //create a list of parameters
+            var paramList = Parameters
+                .Skip(2)
+                .Take(nParams)
+                .ToList();
+
+            //get all the instructions
+            var code = context.Stream.GetInstructions(size);
+
+            var func = new Function() { Parameters = paramList, Instructions = code };
+            var funcVal = Value.FromFunction(func);
+
+            if (name.Length > 0)
+                context.Scope.Variables[name] = funcVal;
+            //anonymous function/lambda function
+            else
+                context.Stack.Push(funcVal);
+        }
+    }
+
+
+    /// <summary>
     /// Return out of the current function back to the calling point
     /// </summary>
     public sealed class Return : InstructionBase

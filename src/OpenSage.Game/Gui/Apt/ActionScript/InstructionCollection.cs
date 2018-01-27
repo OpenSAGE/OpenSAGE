@@ -187,6 +187,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                         instruction = new GotoLabel();
                         parameters.Add(Value.FromString(_reader.ReadStringAtOffset()));
                         break;
+                    case InstructionType.DefineFunction2:
+                        instruction = new DefineFunction();
+                        break;
                     case InstructionType.PushData:
                         {
                             instruction = new PushData();

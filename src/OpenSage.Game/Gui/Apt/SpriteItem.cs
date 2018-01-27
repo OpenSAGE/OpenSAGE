@@ -25,6 +25,7 @@ namespace OpenSage.Gui.Apt
         private ObjectContext _scriptObject;
         private PlayState _state;
         private Dictionary<string, uint> _frameLabels;
+        public string Name { get; set; }
 
         /// <summary>
         /// required, because actions are always executed at the end of each frame
@@ -251,6 +252,7 @@ namespace OpenSage.Gui.Apt
             if (po.Flags.HasFlag(PlaceObjectFlags.HasName))
             {
                 _scriptObject.Variables[po.Name] = Value.FromObject(displayItem.ScriptObject);
+                displayItem.Name = po.Name;
             }
 
             _content.Items[po.Depth] = displayItem;

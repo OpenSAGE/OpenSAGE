@@ -15,7 +15,7 @@ namespace OpenSage.Data.Apt.Characters
         public bool ReadOnly { get; private set; }
         public bool Multiline { get; private set; }
         public bool WordWrap { get; private set; }
-        public string Content { get; private set; }
+        public string Content { get; internal set; }
         public string Value { get; private set; }
 
         public static Text Parse(BinaryReader reader)

@@ -35,6 +35,7 @@ namespace OpenSage.Gui.Apt
         Character Character { get; }
         ItemTransform Transform { get; set; }
         ObjectContext ScriptObject { get; }
+        string Name { get; set; }
 
         /// <summary>
         /// Create a new DisplayItem
