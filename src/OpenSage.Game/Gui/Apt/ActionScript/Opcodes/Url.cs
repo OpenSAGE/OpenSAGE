@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -13,7 +13,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var target = Parameters[0].ToString();
+            var url = Parameters[1].ToString();
+
+            Debug.WriteLine("[URL] Target: " + target + " URL: " + url);
         }
     }
 
@@ -26,7 +29,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var target = context.Stack.Pop().ToString();
+            var url = context.Stack.Pop().ToString();
+
+            Debug.WriteLine("[URL2] Target: " + target + " URL: " + url);
         }
     }
 }

@@ -1,25 +1,24 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
-    /// <summary>
-    /// Reads a list of instructions from a stream
-    /// </summary>
-    public sealed class InstructionReader
+    public sealed class InstructionCollection : Collection<InstructionBase>
     {
         private BinaryReader _reader;
         private uint _offset;
 
-        public List<InstructionBase> Instructions { get; private set; }
-
-        public InstructionReader(Stream input)
+        public InstructionCollection(Stream input)
         {
             _reader = new BinaryReader(input);
             _offset = _reader.ReadUInt32();
-            Instructions = new List<InstructionBase>();
+        }
+
+        public InstructionCollection(IList<InstructionBase> list) : base(list)
+        {
         }
 
         public void Parse()
@@ -41,7 +40,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                     var padding = _reader.Align(4);
                     if (padding > 0)
                     {
-                        Instructions.Add(new Padding(padding));
+                        Items.Add(new Padding(padding));
                         if (branched)
                         {
                             branchBytes -= (int) padding;
@@ -50,11 +49,10 @@ namespace OpenSage.Gui.Apt.ActionScript
                             {
                                 branched = false;
                                 branchBytes = 0;
-                            }                            
+                            }
                         }
                     }
                 }
-
 
                 InstructionBase instruction = null;
                 List<Value> parameters = new List<Value>();
@@ -162,6 +160,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                         break;
                     case InstructionType.GotoFrame:
                         instruction = new GotoFrame();
+                        parameters.Add(Value.FromInteger(_reader.ReadInt32()));
                         break;
                     case InstructionType.GetURL:
                         instruction = new GetUrl();
@@ -200,7 +199,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                                 parameters.Add(Value.FromConstant(constant));
                             }
                         }
-                        break;                 
+                        break;
                     case InstructionType.BranchAlways:
                         instruction = new BranchAlways();
                         if (!branched)
@@ -325,17 +324,17 @@ namespace OpenSage.Gui.Apt.ActionScript
                 if (instruction != null)
                 {
                     instruction.Parameters = parameters;
-                    Instructions.Add(instruction);
+                    Items.Add(instruction);
                 }
 
-                if(branched)
+                if (branched)
                 {
-                    branchBytes -= (int)instruction.Size + 1;
+                    branchBytes -= (int) instruction.Size + 1;
 
                     if (branchBytes <= 0)
                     {
                         branched = false;
-                    }                    
+                    }
                 }
             }
             _reader.BaseStream.Seek(current, SeekOrigin.Begin);

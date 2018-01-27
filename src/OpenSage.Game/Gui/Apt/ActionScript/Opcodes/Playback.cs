@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -12,7 +11,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            if (context.Scope.Item is SpriteItem si)
+            {
+                si.Play();
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
         }
     }
 
@@ -25,7 +31,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            if(context.Scope.Item is SpriteItem si)
+            {
+                si.Stop();
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
         }
     }
 

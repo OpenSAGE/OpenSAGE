@@ -5,7 +5,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 {
     public sealed class Function
     {
-        public List<InstructionBase> Instructions { get; set; }
+        public InstructionCollection Instructions { get; set; }
         public List<Value> Parameters { get; set; }
 
 

@@ -1,4 +1,4 @@
-using OpenSage.Data.Apt.Characters;
+﻿using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
 
 namespace OpenSage.Gui.Apt
@@ -36,6 +36,11 @@ namespace OpenSage.Gui.Apt
                     AptRenderer.RenderText(dc, _context, t, pTransform);
                     break;
             }
+        }
+
+        public void RunActions(GameTime gt)
+        {
+
         }
     }
 }

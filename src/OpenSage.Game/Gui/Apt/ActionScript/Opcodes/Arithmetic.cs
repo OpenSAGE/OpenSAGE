@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -38,7 +37,15 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            //pop two values
+            var a = context.Stack.Pop();
+            var b = context.Stack.Pop();
+
+            if (!(a.Type == ValueType.String || a.Type == ValueType.Undefined) ||
+                !(b.Type == ValueType.String || b.Type == ValueType.Undefined))
+                throw new NotImplementedException();
+
+            context.Stack.Push(Value.FromString(b.ToString() + a.ToString()));
         }
     }
 
@@ -69,7 +76,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     /// <summary>
-    /// Pop two values from stack and check them for equality. Does work with strings. Result on stack
+    /// Pop two values from stack and check them for equality. Does work with types. Result on stack
     /// </summary>
     public sealed class Equals2 : InstructionBase
     {
@@ -77,7 +84,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var a = context.Stack.Pop();
+            var b = context.Stack.Pop();
+            bool eq = a.Equals(b);
+            context.Stack.Push(Value.FromBoolean(eq));
+
         }
     }
 

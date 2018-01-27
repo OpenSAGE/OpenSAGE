@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -20,7 +19,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //pop the object
             var objectVal = context.Stack.Pop();
 
-            var valueVal =  objectVal.ToObject().GetMember(member);
+            var valueVal =  objectVal.ResolveRegister(context).ToObject().GetMember(member);
             context.Stack.Push(valueVal);
         }
     }
@@ -41,7 +40,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //pop the object
             var objectVal = context.Stack.Pop();
 
-            var obj = objectVal.ToObject();
+            //make sure that potential register values are resolved:
+            var obj = objectVal.ResolveRegister(context).ToObject();
+
             obj.Variables[memberVal.ToString()] = valueVal;
         }
     }
@@ -125,9 +126,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //pop the object
             var objectVal = context.Stack.Pop();
 
-            var valueVal = objectVal.ToObject().Properties[memberVal.ToString()];
+            var valueVal = objectVal.ToObject().GetMember(memberVal.ToString());
 
-            context.Stack.Push(memberVal);
+            context.Stack.Push(valueVal);
         }
     }
 

@@ -9,15 +9,15 @@ namespace OpenSage.Data.Apt.FrameItems
     public sealed class InitAction : FrameItem
     {
         public uint Sprite { get; private set; }
-        public List<InstructionBase> Instructions { get; private set; }
+        public InstructionCollection Instructions { get; private set; }
 
         public static InitAction Parse(BinaryReader reader)
         {
             var action = new InitAction();
             action.Sprite = reader.ReadUInt32();
-            var instructionReader = new InstructionReader(reader.BaseStream);
-            instructionReader.Parse();
-            action.Instructions = instructionReader.Instructions;
+            var instructions = new InstructionCollection(reader.BaseStream);
+            instructions.Parse();
+            action.Instructions = instructions;
             return action;
         }
     }

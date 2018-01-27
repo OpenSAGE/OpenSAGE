@@ -59,6 +59,7 @@ namespace OpenSage.Gui.Apt
             //    Matrix3x2.CreateScale(_scale));
             var transform = ItemTransform.None;
             Root.Update(transform, gt, _primitiveBatch);
+            Root.RunActions(gt);
 
             _primitiveBatch.End();
         }

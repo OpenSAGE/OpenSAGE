@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -32,10 +32,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
             for(int i=0;i<Parameters.Count;++i)
             {
-                Parameters[i].Resolve(context);
+                pool.Add(Parameters[i].ResolveConstant(context));
             }
-
-            pool.InsertRange(0, Parameters);
         }
     }
 
@@ -48,12 +46,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            Debug.WriteLine("[TRACE] "+ context.Stack.Pop().ToString());
         }
     }
 
     /// <summary>
-    /// Pop a value from stack and store it inside a register
+    /// Get a value from stack and store it inside a register
     /// </summary>
     public sealed class SetRegister : InstructionBase
     {
@@ -62,7 +60,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            //get the value from the stack
+            var val = context.Stack.Peek();
+
+            //store the value inside the specified register
+            var reg = Parameters[0].ToInteger();
+            context.Registers[reg] = val;
         }
     }   
 }

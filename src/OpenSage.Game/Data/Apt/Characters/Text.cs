@@ -26,9 +26,9 @@ namespace OpenSage.Data.Apt.Characters
             text.Alignment = reader.ReadUInt32();
             text.Color = reader.ReadColorRgba();
             text.FontHeight = reader.ReadSingle();
-            text.ReadOnly = Convert.ToBoolean(reader.ReadUInt32());
-            text.Multiline = Convert.ToBoolean(reader.ReadUInt32());
-            text.WordWrap = Convert.ToBoolean(reader.ReadUInt32());
+            text.ReadOnly = reader.ReadBooleanUInt32Checked();
+            text.Multiline = reader.ReadBooleanUInt32Checked();
+            text.WordWrap = reader.ReadBooleanUInt32Checked();
             text.Content = reader.ReadStringAtOffset();
             text.Value = reader.ReadStringAtOffset();
             return text;

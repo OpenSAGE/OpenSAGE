@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -56,7 +55,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Parameters[0]);
         }
     }
 
@@ -70,7 +69,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Parameters[0]);
         }
     }
 
@@ -87,8 +86,17 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var id = Parameters[0].ToInteger();
             var str = context.Scope.Constants[id].ToString();
 
-            //check if this a special object, like _root, _parent etc.
-            Value result = context.GetObject(str);
+            Value result;
+
+            if (context.CheckParameter(str))
+            {
+                result = context.GetParameter(str);
+            }
+            else
+            {
+                //check if this a special object, like _root, _parent etc.
+                result = context.GetObject(str);
+            }
 
             if (result == null)
                 throw new InvalidOperationException();
@@ -106,7 +114,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Value.Undefined());
         }
     }
 
@@ -119,7 +127,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Value.FromBoolean(false));
         }
     }
 
@@ -132,7 +140,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Value.FromInteger(0));
         }
     }
 
@@ -158,7 +166,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Value.FromObject(context.Scope));
         }
     }
 
@@ -171,7 +179,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Value.FromInteger(1));
         }
     }
 
@@ -184,7 +192,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Value.FromBoolean(true));
         }
     }
 
@@ -198,7 +206,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            foreach (var constant in Parameters)
+            {               
+                context.Stack.Push(constant.ResolveConstant(context));
+            }
         }
     }
 
@@ -224,7 +235,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Value.FromObject(context.Global));
         }
     }
 
@@ -237,7 +248,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var val = context.Stack.Peek();
+            context.Stack.Push(val);
         }
     }
 
@@ -250,7 +262,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Pop();
         }
     }
 

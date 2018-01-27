@@ -44,5 +44,6 @@ namespace OpenSage.Gui.Apt
         /// The parent displayitem (which must be a SpriteItem)
         void Create(Character chararacter, AptContext context, SpriteItem parent = null);
         void Update(ItemTransform pTransform, GameTime gt, DrawingContext2D dc);
+        void RunActions(GameTime gt);
     }
 }

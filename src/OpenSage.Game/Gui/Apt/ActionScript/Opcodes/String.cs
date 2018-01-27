@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -11,8 +10,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.StringConcat;
 
         public override void Execute(ActionContext context)
-        {
-            throw new NotImplementedException();
+        { 
+            var a = context.Stack.Pop();
+            var b = context.Stack.Pop();
+
+            if (a.Type != ValueType.String || b.Type != ValueType.String)
+                throw new InvalidOperationException();
+
+            context.Stack.Push(Value.FromString(b.ToString() + a.ToString()));
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -13,7 +12,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var cond = context.Stack.Pop().ToBoolean();
+
+            //when the condition is true make the stream jump
+            if (cond)
+                context.Stream.Branch(Parameters[0].ToInteger());
         }
     }
 
