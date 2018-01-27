@@ -13,7 +13,9 @@ namespace OpenSage.Gui.Wnd
     public sealed class WndWindowManager
     {
         private readonly Game _game;
+
         private readonly Stack<WndTopLevelWindow> _windowStack;
+        public int OpenWindowCount => _windowStack.Count;
 
         public WindowTransitionManager TransitionManager { get; }
 

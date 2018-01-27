@@ -1,4 +1,5 @@
-﻿using OpenSage.Gui;
+﻿﻿using System.Linq;
+using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
 
 namespace OpenSage.Mods.Generals
@@ -13,17 +14,26 @@ namespace OpenSage.Mods.Generals
             window.Root.FindChild("MainMenu.wnd:MainMenuRuler").Hide();
             window.Root.FindChild("MainMenu.wnd:MainMenuRuler").Opacity = 0;
 
-            window.Root.FindChild("MainMenu.wnd:MapBorder2").Opacity = 0;
-            foreach (var button in window.Root.FindChild("MainMenu.wnd:EarthMap2").Children)
+            var initiallyHiddenSections = new[]
             {
-                button.Opacity = 0;
-                button.TextOpacity = 0;
-            }
+                "MainMenu.wnd:MapBorder",
+                "MainMenu.wnd:MapBorder1",
+                "MainMenu.wnd:MapBorder2",
+                "MainMenu.wnd:MapBorder3",
+                "MainMenu.wnd:MapBorder4"
+            };
 
-            window.Root.FindChild("MainMenu.wnd:MapBorder").Hide();
-            window.Root.FindChild("MainMenu.wnd:MapBorder1").Hide();
-            window.Root.FindChild("MainMenu.wnd:MapBorder3").Hide();
-            window.Root.FindChild("MainMenu.wnd:MapBorder4").Hide();
+            foreach (var controlName in initiallyHiddenSections)
+            {
+                var control = window.Root.FindChild(controlName);
+                control.Opacity = 0;
+
+                foreach (var button in control.Children.First().Children)
+                {
+                    button.Opacity = 0;
+                    button.TextOpacity = 0;
+                }
+            }
 
             window.Root.FindChild("MainMenu.wnd:ButtonUSARecentSave").Hide();
             window.Root.FindChild("MainMenu.wnd:ButtonUSALoadGame").Hide();
@@ -33,6 +43,8 @@ namespace OpenSage.Mods.Generals
 
             window.Root.FindChild("MainMenu.wnd:ButtonChinaRecentSave").Hide();
             window.Root.FindChild("MainMenu.wnd:ButtonChinaLoadGame").Hide();
+
+            // TODO: Show faction icons when WinScaleUpTransition is implemented.
 
             _doneMainMenuFadeIn = false;
         }
@@ -44,11 +56,46 @@ namespace OpenSage.Mods.Generals
 
         public static void MainMenuSystem(WndWindow element, WndWindowMessage message, UIElementCallbackContext context)
         {
+            void QueueTransition(string transition)
+            {
+                context.WindowManager.TransitionManager.QueueTransition(null, element.Window, transition);
+            }
+
             switch (message.MessageType)
             {
                 case WndWindowMessageType.SelectedButton:
                     switch (message.Element.Name)
                     {
+                        case "MainMenu.wnd:ButtonSinglePlayer":
+                            QueueTransition("MainMenuDefaultMenuBack");
+                            QueueTransition("MainMenuSinglePlayerMenu");
+                            break;
+
+                        case "MainMenu.wnd:ButtonSingleBack":
+                            QueueTransition("MainMenuSinglePlayerMenuBack");
+                            QueueTransition("MainMenuDefaultMenu");
+                            break;
+
+                        case "MainMenu.wnd:ButtonMultiplayer":
+                            QueueTransition("MainMenuDefaultMenuBack");
+                            QueueTransition("MainMenuMultiPlayerMenu");
+                            break;
+
+                        case "MainMenu.wnd:ButtonMultiBack":
+                            QueueTransition("MainMenuMultiPlayerMenuReverse");
+                            QueueTransition("MainMenuDefaultMenu");
+                            break;
+
+                        case "MainMenu.wnd:ButtonLoadReplay":
+                            QueueTransition("MainMenuDefaultMenuBack");
+                            QueueTransition("MainMenuLoadReplayMenu");
+                            break;
+
+                        case "MainMenu.wnd:ButtonLoadReplayBack":
+                            QueueTransition("MainMenuLoadReplayMenuBack");
+                            QueueTransition("MainMenuDefaultMenu");
+                            break;
+
                         case "MainMenu.wnd:ButtonOptions":
                             context.WindowManager.PushWindow(@"Menus\OptionsMenu.wnd");
                             break;
