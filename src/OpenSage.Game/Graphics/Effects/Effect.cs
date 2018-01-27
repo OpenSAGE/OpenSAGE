@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.LowLevel.Graphics3D;
+using OpenSage.Utilities.Extensions;
 using Buffer = OpenSage.LowLevel.Graphics3D.Buffer;
 
 namespace OpenSage.Graphics.Effects
@@ -41,22 +42,40 @@ namespace OpenSage.Graphics.Effects
         public Effect(
             GraphicsDevice graphicsDevice,
             string shaderName,
-            VertexDescriptor vertexDescriptor)
+            VertexDescriptor vertexDescriptor,
+            bool useNewShaders = false)
         {
             _graphicsDevice = graphicsDevice;
 
             ID = _nextID++;
 
-            using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream($"OpenSage.Graphics.Shaders.{shaderName}.fxo"))
-            using (var shaderReader = new BinaryReader(shaderStream))
+            if (useNewShaders)
             {
-                var vertexShaderBytecodeLength = shaderReader.ReadInt32();
-                var vertexShaderBytecode = shaderReader.ReadBytes(vertexShaderBytecodeLength);
-                _vertexShader = AddDisposable(new Shader(graphicsDevice, shaderName + "VS", vertexShaderBytecode));
+                using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream($"OpenSage.Graphics.Shaders.Compiled.{shaderName}-vertex.hlsl.bytes"))
+                {
+                    var vertexShaderBytecode = shaderStream.ReadAllBytes();
+                    _vertexShader = AddDisposable(new Shader(graphicsDevice, "VS", vertexShaderBytecode));
+                }
 
-                var pixelShaderBytecodeLength = shaderReader.ReadInt32();
-                var pixelShaderBytecode = shaderReader.ReadBytes(pixelShaderBytecodeLength);
-                _pixelShader = AddDisposable(new Shader(graphicsDevice, shaderName + "PS", pixelShaderBytecode));
+                using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream($"OpenSage.Graphics.Shaders.Compiled.{shaderName}-fragment.hlsl.bytes"))
+                {
+                    var pixelShaderBytecode = shaderStream.ReadAllBytes();
+                    _pixelShader = AddDisposable(new Shader(graphicsDevice, "PS", pixelShaderBytecode));
+                }
+            }
+            else
+            {
+                using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream($"OpenSage.Graphics.Shaders.{shaderName}.fxo"))
+                using (var shaderReader = new BinaryReader(shaderStream))
+                {
+                    var vertexShaderBytecodeLength = shaderReader.ReadInt32();
+                    var vertexShaderBytecode = shaderReader.ReadBytes(vertexShaderBytecodeLength);
+                    _vertexShader = AddDisposable(new Shader(graphicsDevice, shaderName + "VS", vertexShaderBytecode));
+
+                    var pixelShaderBytecodeLength = shaderReader.ReadInt32();
+                    var pixelShaderBytecode = shaderReader.ReadBytes(pixelShaderBytecodeLength);
+                    _pixelShader = AddDisposable(new Shader(graphicsDevice, shaderName + "PS", pixelShaderBytecode));
+                }
             }
 
             _cachedPipelineStates = new Dictionary<EffectPipelineStateHandle, PipelineState>();

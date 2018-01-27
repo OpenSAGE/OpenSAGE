@@ -6,12 +6,16 @@
     <RootNamespace>OpenSage</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
+    <AssetsDir>$(MSBuildThisFileDirectory)Assets</AssetsDir>
+    <ShaderOutputPath>$(MSBuildThisFileDirectory)\obj\Shaders.Generated</ShaderOutputPath>
   </PropertyGroup>
   
   <ItemGroup>
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0002" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0002" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+    <PackageReference Include="ShaderGen.Primitives" Version="1.1.0-gd961cf2e51" />
+    <PackageReference Include="ShaderGen.Build" Version="1.1.0-gd961cf2e51" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,4 +31,13 @@
   </ItemGroup>
 
   <Import Project="..\..\build\OpenSage.EffectCompiler.targets" />
+
+  <Target Name="EmbedGeneratedShaderContent"
+          AfterTargets="AssignTargetPaths">
+    <ItemGroup>
+      <EmbeddedResource Include="@(GeneratedShader)">
+         <LogicalName>OpenSage.Graphics.Shaders.Compiled.%(FileName)%(Extension)</LogicalName>
+      </EmbeddedResource>
+    </ItemGroup>
+  </Target>
 </Project>
