@@ -65,7 +65,19 @@ namespace OpenSage.Gui.Apt
             }
         }
 
-        public void Update(ItemTransform pTransform, GameTime gt, DrawingContext2D dc)
+        public void Render(ItemTransform pTransform,DrawingContext2D dc)
+        {
+            //calculate the transform for this element
+            var cTransform = pTransform * Transform;
+
+            //render all subitems
+            foreach (var item in _content.Items.Values)
+            {
+                item.Render(cTransform, dc);
+            }
+        }
+
+        public void Update(GameTime gt)
         {
             if (IsNewFrame(gt))
             {
@@ -77,21 +89,18 @@ namespace OpenSage.Gui.Apt
                 {
                     HandleFrameItem(item);
                 }
-
-                //calculate the transform for this element
-                var cTransform = pTransform * Transform;
-
-                //update all subitems
-                foreach (var item in _content.Items.Values)
-                {
-                    item.Update(cTransform, gt, dc);
-                }
-
+                           
                 _currentFrame++;
 
                 //reset to the start, we are looping by default
                 if (_currentFrame >= _sprite.Frames.Count)
                     _currentFrame = 0;
+            }
+
+            //update all subitems
+            foreach (var item in _content.Items.Values)
+            {
+                item.Update(gt);
             }
         }
 
@@ -107,7 +116,13 @@ namespace OpenSage.Gui.Apt
 
         public void Goto(string label)
         {
+            Debug.WriteLine("[INFO] Goto: "+ label);
             _currentFrame = _frameLabels[label];
+        }
+
+        public void GotoFrame(int frame)
+        {
+            _currentFrame = (uint)frame;
         }
 
         private bool IsNewFrame(GameTime gt)
@@ -121,9 +136,8 @@ namespace OpenSage.Gui.Apt
             if (_state != PlayState.PLAYING)
                 return false;
 
-            if ((gt.TotalGameTime - _lastUpdate.TotalGameTime).Milliseconds > _context.MillisecondsPerFrame)
+            if ((gt.TotalGameTime - _lastUpdate.TotalGameTime).Milliseconds >= _context.MillisecondsPerFrame)
             {
-                Debug.WriteLine("New frame");
                 _lastUpdate = gt;
                 return true;
             }
@@ -166,16 +180,19 @@ namespace OpenSage.Gui.Apt
 
         private ItemTransform CreateTransform(PlaceObject po)
         {
-            Matrix3x2 geoTransform;
+            Matrix3x2 geoRotate;
+            Vector2 geoTranslate;
             if (po.Flags.HasFlag(PlaceObjectFlags.HasMatrix))
             {
-                geoTransform = new Matrix3x2(po.RotScale.M11, po.RotScale.M12,
+                geoRotate = new Matrix3x2(po.RotScale.M11, po.RotScale.M12,
                                             po.RotScale.M21, po.RotScale.M22,
-                                            po.Translation.X, po.Translation.Y);
+                                            0,0);
+                geoTranslate = new Vector2(po.Translation.X, po.Translation.Y);
             }
             else
             {
-                geoTransform = Matrix3x2.Identity;
+                geoRotate = Matrix3x2.Identity;
+                geoTranslate = Vector2.Zero;
             }
 
             ColorRgbaF colorTransform;
@@ -188,7 +205,7 @@ namespace OpenSage.Gui.Apt
                 colorTransform = ColorRgbaF.White;
             }
 
-            return new ItemTransform(colorTransform, geoTransform);
+            return new ItemTransform(colorTransform, geoRotate,geoTranslate);
         }
 
         private void MoveItem(PlaceObject po)
@@ -198,9 +215,10 @@ namespace OpenSage.Gui.Apt
 
             if (po.Flags.HasFlag(PlaceObjectFlags.HasMatrix))
             {
-                cTransform.GeometryTransform = new Matrix3x2(po.RotScale.M11, po.RotScale.M12,
+                cTransform.GeometryRotation = new Matrix3x2(po.RotScale.M11, po.RotScale.M12,
                                                         po.RotScale.M21, po.RotScale.M22,
-                                                        po.Translation.X, po.Translation.Y);
+                                                        0,0);
+                cTransform.GeometryTranslation = new Vector2(po.Translation.X, po.Translation.Y);
             }
 
             if (po.Flags.HasFlag(PlaceObjectFlags.HasColorTransform))

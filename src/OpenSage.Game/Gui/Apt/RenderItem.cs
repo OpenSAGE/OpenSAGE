@@ -24,7 +24,17 @@ namespace OpenSage.Gui.Apt
             _scriptObject = new ObjectContext(this);
         }
 
-        public void Update(ItemTransform pTransform, GameTime gt, DrawingContext2D dc)
+        public void Update(GameTime gt)
+        {
+
+        }
+
+        public void RunActions(GameTime gt)
+        {
+
+        }
+
+        public void Render(ItemTransform pTransform, DrawingContext2D dc)
         {
             switch (_character)
             {
@@ -36,11 +46,6 @@ namespace OpenSage.Gui.Apt
                     AptRenderer.RenderText(dc, _context, t, pTransform);
                     break;
             }
-        }
-
-        public void RunActions(GameTime gt)
-        {
-
         }
     }
 }

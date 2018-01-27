@@ -52,7 +52,15 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var frame = Parameters[0].ToInteger();
+            if (context.Scope.Item is SpriteItem si)
+            {
+                si.GotoFrame(frame);
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
         }
     }
 
