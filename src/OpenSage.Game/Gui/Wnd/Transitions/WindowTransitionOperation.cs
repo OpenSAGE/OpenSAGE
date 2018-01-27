@@ -27,6 +27,12 @@ namespace OpenSage.Gui.Wnd.Transitions
                 case WindowTransitionStyle.ButtonFlash:
                     return new ButtonFlashTransition(element, startTime);
 
+                case WindowTransitionStyle.WinScaleUp:
+                    return new WinScaleUpTransition(element, startTime);
+
+                case WindowTransitionStyle.ReverseSound:
+                    return new ReverseSoundTransition(element, startTime);
+
                 default:
                     throw new NotImplementedException();
             }

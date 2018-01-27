@@ -80,6 +80,15 @@ namespace OpenSage.Gui.Wnd
                         }
                         break;
                     }
+
+                case InputMessageType.KeyDown:
+                    {
+                        if (message.Key == Key.Escape && _windowManager.OpenWindowCount > 1)
+                        {
+                            _windowManager.PopWindow();
+                        }
+                        break;
+                    }
             }
 
             return InputMessageResult.NotHandled;

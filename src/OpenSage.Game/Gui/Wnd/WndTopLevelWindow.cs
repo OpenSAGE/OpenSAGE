@@ -26,7 +26,7 @@ namespace OpenSage.Gui.Wnd
             // Finds deepest element that is visible and contains mousePosition.
             WndWindow findElementRecursive(WndWindow element)
             {
-                if (!element.Visible || !element.Frame.Contains(mousePosition))
+                if (!element.Visible || element.Opacity != 1 || !element.Frame.Contains(mousePosition))
                 {
                     return null;
                 }
