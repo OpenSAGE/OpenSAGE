@@ -61,7 +61,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 Debug.WriteLine("Undefined variable: " + name);
                 result = Value.Undefined();
             }
-                
+
             return result;
         }
 
@@ -72,7 +72,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public bool IsBuiltInFunction(string name)
         {
-            switch(name)
+            switch (name)
             {
                 case "stop":
                     return Item is SpriteItem;
@@ -91,10 +91,10 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <param name="name"><function name/param>
         public void CallBuiltInFunction(string name, List<Value> args, ActionContext context)
         {
-            switch(Item)
+            switch (Item)
             {
                 case SpriteItem si:
-                    switch(name)
+                    switch (name)
                     {
                         case "stop":
                             si.Stop();
@@ -115,7 +115,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         private void InitializeProperties()
         {
             //TODO: avoid new fancy switch
-            switch(Item.Character)
+            switch (Item.Character)
             {
                 case Text t:
                     Variables["textColor"] = Value.FromString(t.Color.ToHex());

@@ -31,7 +31,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            if(context.Scope.Item is SpriteItem si)
+            if (context.Scope.Item is SpriteItem si)
             {
                 si.Stop();
             }

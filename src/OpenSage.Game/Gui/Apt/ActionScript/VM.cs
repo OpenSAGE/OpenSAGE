@@ -28,12 +28,12 @@ namespace OpenSage.Gui.Apt.ActionScript
 
             var paramList = new Dictionary<string, Value>();
 
-            for (var i=0;i<func.Parameters.Count;++i)
+            for (var i = 0; i < func.Parameters.Count; ++i)
             {
                 var name = func.Parameters[i].ToString();
                 bool provided = i < args.Count;
 
-                paramList[name] =  provided ? args[i] : Value.Undefined();
+                paramList[name] = provided ? args[i] : Value.Undefined();
             }
 
             var context = new ActionContext(4)

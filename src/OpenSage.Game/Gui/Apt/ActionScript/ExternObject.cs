@@ -11,7 +11,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public override Value GetMember(string name)
         {
-            switch(name)
+            switch (name)
             {
                 case "InGame":
                     return Value.FromBoolean(false);

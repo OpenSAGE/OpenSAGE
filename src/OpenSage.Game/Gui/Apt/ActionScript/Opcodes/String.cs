@@ -10,7 +10,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.StringConcat;
 
         public override void Execute(ActionContext context)
-        { 
+        {
             var a = context.Stack.Pop();
             var b = context.Stack.Pop();
 

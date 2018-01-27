@@ -207,7 +207,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             foreach (var constant in Parameters)
-            {               
+            {
                 context.Stack.Push(constant.ResolveConstant(context));
             }
         }

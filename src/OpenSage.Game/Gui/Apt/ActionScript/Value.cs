@@ -138,7 +138,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public ObjectContext ToObject()
         {
-            if(Type ==ValueType.Undefined)
+            if (Type == ValueType.Undefined)
             {
                 Debug.WriteLine("[ERROR] cannot convert to object!");
                 return null;

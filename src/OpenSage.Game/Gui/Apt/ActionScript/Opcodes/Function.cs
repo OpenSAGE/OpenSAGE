@@ -7,9 +7,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
     public static class FunctionCommon
     {
-        public static void ExecuteFunction(string funcName,List<Value> args, ObjectContext scope, ActionContext context)
+        public static void ExecuteFunction(string funcName, List<Value> args, ObjectContext scope, ActionContext context)
         {
-            if(scope==null)
+            if (scope == null)
             {
                 Debug.WriteLine("[ERROR] cannot execute function \"" + funcName + "\" on null object");
                 return;
@@ -100,7 +100,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var id = Parameters[0].ToInteger();
-            var funcName = context.Scope.Constants[id].ToString();        
+            var funcName = context.Scope.Constants[id].ToString();
             var obj = context.Stack.Pop().ResolveRegister(context).ToObject();
             var argCount = context.Stack.Pop().ToInteger();
 

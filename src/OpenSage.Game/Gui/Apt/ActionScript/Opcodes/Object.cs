@@ -19,7 +19,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //pop the object
             var objectVal = context.Stack.Pop();
 
-            var valueVal =  objectVal.ResolveRegister(context).ToObject().GetMember(member);
+            var valueVal = objectVal.ResolveRegister(context).ToObject().GetMember(member);
             context.Stack.Push(valueVal);
         }
     }

@@ -49,9 +49,9 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             uint size = 0;
 
-            for(int i=0;i<instr;++i)
+            for (int i = 0; i < instr; ++i)
             {
-                size+=_instructions[i].Size;
+                size += _instructions[i].Size;
 
                 if (_instructions[i].Type != InstructionType.Padding)
                     ++size;
@@ -71,7 +71,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             int bytesCount = 0;
             int instrCount = 0;
 
-            while(bytesCount < bytes)
+            while (bytesCount < bytes)
             {
                 var instr = _instructions[_position + instrCount];
                 bytesCount += (int) instr.Size;

@@ -30,7 +30,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var pool = context.Scope.Constants;
             pool.Clear();
 
-            for(int i=0;i<Parameters.Count;++i)
+            for (int i = 0; i < Parameters.Count; ++i)
             {
                 pool.Add(Parameters[i].ResolveConstant(context));
             }
@@ -46,7 +46,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            Debug.WriteLine("[TRACE] "+ context.Stack.Pop().ToString());
+            Debug.WriteLine("[TRACE] " + context.Stack.Pop().ToString());
         }
     }
 
@@ -67,5 +67,5 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var reg = Parameters[0].ToInteger();
             context.Registers[reg] = val;
         }
-    }   
+    }
 }
