@@ -32,7 +32,7 @@ Here's a rough roadmap:
 * [x] `.dds`
 * [x] `.tga`
 * [x] `.const`
-* [ ] `.apt`
+* [x] `.apt`
 
 ### Rendering
 
@@ -43,8 +43,9 @@ Here's a rough roadmap:
 
 ### Game logic
 
-* [ ] AI - Path finding, base building, fighting
 * [ ] Scripting engine (in progress)
+* [ ] APT virtual machine (in progress)
+* [ ] AI - Path finding, base building, fighting
 * [ ] Physics engine
 * [ ] Weapons
 * [ ] Locomotors
@@ -54,6 +55,7 @@ Here's a rough roadmap:
 
 ### Platforms
 
+* [x] Windows
 * [ ] Mac
 * [ ] Linux
 
@@ -64,11 +66,12 @@ Here's a rough roadmap:
 * OpenSAGE is nowhere near playable yet, but when it is and you want to play Generals or Zero Hour with it,
   you will need to have a legally acquired installation of one of those games. OpenSAGE uses data files from the original games. 
   You can purchase [Command & Conquer: The Ultimate Collection through Origin](https://www.origin.com/twn/en-us/store/command-and-conquer/command-and-conquer-the-ultimate-collection/ultimate-collection).
-* No reverse engineering of executable binaries has taken place. The code in this project was written based on reading data files, 
+* This is a blackbox re-implementation project. The code in this project was written based on reading data files, 
   and observing the game running. In some cases (for example refpack decompression) the code was written based on specs available on the Internet.
+  I believe puts the project in the clear, legally speaking. If someone at EA disagrees, please talk to me.
+* If you want to contribute to this repository, your contribution must be either your own original code, or open source code with a
+  clear acknowledgement of its origin. No code that was acquired through reverse engineering executable binaries will be accepted.
 * No assets from the original games are included in this repo.
-
-In summary: it's just me, trying to make sure that I can continue to play a game that I love, on current and future platforms. I believe this puts the project in the clear, legally speaking. If someone at EA disagrees, please talk to me.
 
 A note on the name: while Command & Conquer is a trademark of EA, SAGE is not (as far as I can tell, based on a US trademark search). "OpenSAGE" seems like a good way to make it clear what the project is about, without infringing on trademarks.
 
@@ -107,7 +110,6 @@ and artistically.)
 These projects have similar goals:
 
 * [Arda](https://github.com/feliwir/arda)
-* [Thyme](https://github.com/TheAssemblyArmada/Thyme)
 * [smx-smx/openSage](https://github.com/smx-smx/openSage)
 
 [OpenRA](http://www.openra.net/) already does for the Westwood RTS games what I hope to do for the EA-era RTS games with OpenSAGE.
