@@ -1,13 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
-  </PropertyGroup>  
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="SharpDX.Desktop" Version="4.0.1" />
-    <PackageReference Include="SharpDX.Direct3D11" Version="4.0.1" />
-    <PackageReference Include="SharpDX.D3DCompiler" Version="4.0.1" />
-    <PackageReference Include="SharpDX.Direct2D1" Version="4.0.1" />
-    <Reference Include="System.Windows.Forms" />
+    <PackageReference Include="SharpDX.Desktop" Version="4.0.1" NoWarn="NU1701" />
+    <PackageReference Include="SharpDX.Direct3D11" Version="4.0.1" NoWarn="NU1701" />
+    <PackageReference Include="SharpDX.D3DCompiler" Version="4.0.1" NoWarn="NU1701" />
+    <PackageReference Include="SharpDX.Direct2D1" Version="4.0.1" NoWarn="NU1701" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.4.0" />
   </ItemGroup>
 </Project>

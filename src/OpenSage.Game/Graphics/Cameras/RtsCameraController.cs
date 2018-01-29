@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Mathematics;
 using OpenSage.Content;
-using OpenSage.LowLevel.Input;
+using OpenSage.Input;
 
 namespace OpenSage.Graphics.Cameras
 {

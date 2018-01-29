@@ -2,7 +2,7 @@
   <Import Project="..\..\build\OpenSage.EffectCompiler.props" />
   
   <PropertyGroup>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>OpenSage</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
@@ -11,15 +11,13 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <PackageReference Include="Microsoft.Win32.Registry" Version="4.4.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0002" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0002" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
     <PackageReference Include="ShaderGen.Primitives" Version="1.1.0-gd961cf2e51" />
     <PackageReference Include="ShaderGen.Build" Version="1.1.0-gd961cf2e51" PrivateAssets="All" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,8 +30,7 @@
 
   <Import Project="..\..\build\OpenSage.EffectCompiler.targets" />
 
-  <Target Name="EmbedGeneratedShaderContent"
-          AfterTargets="AssignTargetPaths">
+  <Target Name="EmbedGeneratedShaderContent" AfterTargets="AssignTargetPaths">
     <ItemGroup>
       <EmbeddedResource Include="@(GeneratedShader)">
          <LogicalName>OpenSage.Graphics.Shaders.Compiled.%(FileName)%(Extension)</LogicalName>

@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Eto.Drawing;
 using Eto.Forms;
 using OpenSage.Data;
 using OpenSage.Data.Map;
@@ -11,28 +11,14 @@ namespace OpenSage.DataViewer.UI.Viewers
 {
     public sealed class MapView : Splitter
     {
-        public MapView(FileSystemEntry entry, Game game)
+        public MapView(FileSystemEntry entry, Func<IntPtr, Game> createGame)
         {
-            game.Scene = game.ContentManager.Load<Scene>(entry.FilePath);
-
             var mapPanelDropDown = new DropDown
             {
-                DataStore = new MapPanel[]
-                {
-                    new GeneralPanel(),
-                    new ScriptPanel(game.Scene.MapFile.SidesList.PlayerScripts ?? game.Scene.MapFile.PlayerScriptsList),
-                },
                 ItemTextBinding = Binding.Property((MapPanel l) => l.Name)
             };
 
             var mapPanel = new Panel();
-
-            mapPanelDropDown.SelectedValueChanged += (sender, e) =>
-            {
-                mapPanel.Content = ((MapPanel) mapPanelDropDown.SelectedValue).CreateControl(game);
-            };
-
-            mapPanelDropDown.SelectedIndex = 0;
 
             Panel1 = new StackLayout
             {
@@ -48,7 +34,27 @@ namespace OpenSage.DataViewer.UI.Viewers
 
             Panel2 = new GameControl
             {
-                Game = game
+                CreateGame = h =>
+                {
+                    var game = createGame(h);
+
+                    game.Scene = game.ContentManager.Load<Scene>(entry.FilePath);
+
+                    mapPanelDropDown.DataStore = new MapPanel[]
+                    {
+                        new GeneralPanel(),
+                        new ScriptPanel(game.Scene.MapFile.SidesList.PlayerScripts ?? game.Scene.MapFile.PlayerScriptsList),
+                    };
+
+                    mapPanelDropDown.SelectedValueChanged += (sender, e) =>
+                    {
+                        mapPanel.Content = ((MapPanel) mapPanelDropDown.SelectedValue).CreateControl(game);
+                    };
+
+                    mapPanelDropDown.SelectedIndex = 0;
+
+                    return game;
+                }
             };
         }
 

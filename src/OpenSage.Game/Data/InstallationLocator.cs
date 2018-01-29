@@ -54,6 +54,7 @@ namespace OpenSage.Data
         IEnumerable<GameInstallation> FindInstallations(IGameDefinition game);
     }
 
+    // TODO: Move this to the Platform project.
     public class RegistryInstallationLocator : IInstallationLocator
     {
         private static string GetRegistryValue(RegistryKeyPath keyPath)

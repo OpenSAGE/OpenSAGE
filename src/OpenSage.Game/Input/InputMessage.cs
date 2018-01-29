@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OpenSage.LowLevel.Input
+﻿namespace OpenSage.Input
 {
     public sealed class InputMessage
     {
@@ -13,13 +11,13 @@ namespace OpenSage.LowLevel.Input
         public int? MouseY { get; }
         public int? MouseScrollWheelDelta { get; }
 
-        internal InputMessage(InputMessageType keyboardMessageType, Key key)
+        public InputMessage(InputMessageType keyboardMessageType, Key key)
         {
             MessageType = keyboardMessageType;
             Key = key;
         }
 
-        internal InputMessage(InputMessageType mouseMessageType, MouseButton? button, int x, int y, int mouseScrollWheelDelta)
+        public InputMessage(InputMessageType mouseMessageType, MouseButton? button, int x, int y, int mouseScrollWheelDelta)
         {
             MessageType = mouseMessageType;
             MouseButton = button;

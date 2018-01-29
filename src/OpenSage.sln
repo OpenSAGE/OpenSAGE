@@ -15,23 +15,25 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.DataViewer.Windows
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.LowLevel", "OpenSage.LowLevel\OpenSage.LowLevel.csproj", "{AA6CCAEB-CC90-4463-A67E-336580BCD036}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Launcher.Windows", "OpenSage.Launcher.Windows\OpenSage.Launcher.Windows.csproj", "{67E44279-E8BB-455E-96B0-ADD3E07CF68F}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mods.Generals", "OpenSage.Mods.Generals\OpenSage.Mods.Generals.csproj", "{57942CDD-AEF9-4D0D-B3F4-3FBE4461A649}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Mods.BuiltIn", "OpenSage.Mods.BuiltIn\OpenSage.Mods.BuiltIn.csproj", "{2FD188F9-80B0-4197-ADBF-FF793E45EAD7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mods.BuiltIn", "OpenSage.Mods.BuiltIn\OpenSage.Mods.BuiltIn.csproj", "{2FD188F9-80B0-4197-ADBF-FF793E45EAD7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Mods.Cnc3", "OpenSage.Mods.Cnc3\OpenSage.Mods.Cnc3.csproj", "{569D0E40-2A02-41FC-908D-40C6FCCB7DAB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mods.Cnc3", "OpenSage.Mods.Cnc3\OpenSage.Mods.Cnc3.csproj", "{569D0E40-2A02-41FC-908D-40C6FCCB7DAB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Mods.Ra3", "OpenSage.Mods.Ra3\OpenSage.Mods.Ra3.csproj", "{0F3ECCD2-AEBC-4775-9337-7B07EC9D1070}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mods.Ra3", "OpenSage.Mods.Ra3\OpenSage.Mods.Ra3.csproj", "{0F3ECCD2-AEBC-4775-9337-7B07EC9D1070}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Mods.Cnc4", "OpenSage.Mods.Cnc4\OpenSage.Mods.Cnc4.csproj", "{47798A99-BE2D-401F-AF78-79CA16B8A132}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mods.Cnc4", "OpenSage.Mods.Cnc4\OpenSage.Mods.Cnc4.csproj", "{47798A99-BE2D-401F-AF78-79CA16B8A132}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Mods.Bfme", "OpenSage.Mods.Bfme\OpenSage.Mods.Bfme.csproj", "{0521E24E-859B-4F7A-BE23-9CBC53A14595}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mods.Bfme", "OpenSage.Mods.Bfme\OpenSage.Mods.Bfme.csproj", "{0521E24E-859B-4F7A-BE23-9CBC53A14595}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Mods.BfmeII", "OpenSage.Mods.BfmeII\OpenSage.Mods.BfmeII.csproj", "{771E6271-64F9-4BB4-9E38-DF4DA0029898}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mods.BfmeII", "OpenSage.Mods.BfmeII\OpenSage.Mods.BfmeII.csproj", "{771E6271-64F9-4BB4-9E38-DF4DA0029898}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mods", "Mods", "{9410748F-ABB1-45AF-98E3-98858A8C0010}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Platform", "OpenSage.Platform\OpenSage.Platform.csproj", "{9F140B62-CA22-46B3-BEFB-AD046275C3ED}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Launcher", "OpenSage.Launcher\OpenSage.Launcher.csproj", "{1B444162-022A-4E69-A9D3-00582CCE5586}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,10 +61,6 @@ Global
 		{AA6CCAEB-CC90-4463-A67E-336580BCD036}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA6CCAEB-CC90-4463-A67E-336580BCD036}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA6CCAEB-CC90-4463-A67E-336580BCD036}.Release|Any CPU.Build.0 = Release|Any CPU
-		{67E44279-E8BB-455E-96B0-ADD3E07CF68F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{67E44279-E8BB-455E-96B0-ADD3E07CF68F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{67E44279-E8BB-455E-96B0-ADD3E07CF68F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{67E44279-E8BB-455E-96B0-ADD3E07CF68F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{57942CDD-AEF9-4D0D-B3F4-3FBE4461A649}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{57942CDD-AEF9-4D0D-B3F4-3FBE4461A649}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57942CDD-AEF9-4D0D-B3F4-3FBE4461A649}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -91,6 +89,14 @@ Global
 		{771E6271-64F9-4BB4-9E38-DF4DA0029898}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{771E6271-64F9-4BB4-9E38-DF4DA0029898}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{771E6271-64F9-4BB4-9E38-DF4DA0029898}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F140B62-CA22-46B3-BEFB-AD046275C3ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F140B62-CA22-46B3-BEFB-AD046275C3ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F140B62-CA22-46B3-BEFB-AD046275C3ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F140B62-CA22-46B3-BEFB-AD046275C3ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B444162-022A-4E69-A9D3-00582CCE5586}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B444162-022A-4E69-A9D3-00582CCE5586}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B444162-022A-4E69-A9D3-00582CCE5586}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B444162-022A-4E69-A9D3-00582CCE5586}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

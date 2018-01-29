@@ -11,7 +11,6 @@ using OpenSage.Gui.Apt;
 using OpenSage.Gui.Wnd;
 using OpenSage.Input;
 using OpenSage.Logic.Object;
-using OpenSage.LowLevel;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Scripting;
 
@@ -23,15 +22,15 @@ namespace OpenSage
         private readonly GameTimer _gameTimer;
         private readonly WndCallbackResolver _wndCallbackResolver;
 
-        private readonly Dictionary<string, HostCursor> _cachedCursors;
-        private HostCursor _currentCursor;
+        private readonly Dictionary<string, Cursor> _cachedCursors;
+        private Cursor _currentCursor;
 
         private Scene _scene;
 
         public ContentManager ContentManager { get; private set; }
 
         public GraphicsDevice GraphicsDevice { get; }
-        internal SwapChain SwapChain { get; private set; }
+        internal SwapChain SwapChain { get; }
 
         internal List<GameSystem> GameSystems { get; }
 
@@ -66,42 +65,18 @@ namespace OpenSage
 
         public bool IsActive { get; set; }
 
-        private HostView _hostView;
-        internal HostView HostView
-        {
-            get => _hostView;
-            set
-            {
-                _hostView = value;
-
-                if (value != null)
-                {
-                    Input.MessageBuffer.SetHostView(value);
-
-                    SetSwapChain(value.SwapChain);
-                    ResetElapsedTime();
-
-                    _hostView.SetCursor(_currentCursor);
-                }
-                else
-                {
-                    Input.MessageBuffer.SetHostView(null);
-
-                    Scene = null;
-                    ContentManager.Unload();
-
-                    SetSwapChain(null);
-                }
-            }
-        }
+        public bool IsRunning { get; private set; }
 
         public SageGame SageGame { get; }
+
+        public GameWindow Window { get; }
 
         public Game(
             GraphicsDevice graphicsDevice,
             FileSystem fileSystem,
             SageGame sageGame,
-            Type wndCallbacksType)
+            Type wndCallbacksType,
+            Func<GameWindow> createGameWindow)
         {
             GraphicsDevice = graphicsDevice;
             SageGame = sageGame;
@@ -111,9 +86,36 @@ namespace OpenSage
             _gameTimer = AddDisposable(new GameTimer());
             _gameTimer.Start();
 
-            _cachedCursors = new Dictionary<string, HostCursor>();
+            _cachedCursors = new Dictionary<string, Cursor>();
 
             _wndCallbackResolver = new WndCallbackResolver(wndCallbacksType);
+
+            Window = AddDisposable(createGameWindow());
+
+            SwapChain = AddDisposable(new SwapChain(
+                GraphicsDevice,
+                Window.NativeWindowHandle,
+                3,
+                Math.Max(Window.ClientBounds.Width, 1),
+                Math.Max(Window.ClientBounds.Height, 1)));
+
+            Window.ClientSizeChanged += (sender, e) =>
+            {
+                SwapChain.Resize(Window.ClientBounds.Width, Window.ClientBounds.Height);
+
+                if (Scene != null)
+                {
+                    Scene.Camera.OnWindowSizeChanged(Window);
+                    Scene.Scene2D.WndWindowManager.OnViewportSizeChanged();
+                }
+
+                foreach (var gameSystem in GameSystems)
+                {
+                    gameSystem.OnSwapChainChanged();
+                }
+            };
+
+            ResetElapsedTime();
 
             ContentManager = AddDisposable(new ContentManager(
                 _fileSystem, 
@@ -153,20 +155,8 @@ namespace OpenSage
             GameSystems.ForEach(gs => gs.Initialize());
 
             SetCursor("Arrow");
-        }
 
-        public void SetSwapChain(SwapChain swapChain)
-        {
-            SwapChain = swapChain;
-            if (Scene != null)
-            {
-                Scene.Camera.SetSwapChain(swapChain);
-                Scene.Scene2D.WndWindowManager.OnViewportSizeChanged();
-            }
-            foreach (var gameSystem in GameSystems)
-            {
-                gameSystem.OnSwapChainChanged();
-            }
+            IsRunning = true;
         }
 
         public void ResetElapsedTime()
@@ -212,7 +202,7 @@ namespace OpenSage
 
                     _scene.Scene2D = new Scene2D(this);
 
-                    _scene.Camera.SetSwapChain(SwapChain);
+                    _scene.Camera.OnWindowSizeChanged(Window);
 
                     if (_scene.CameraController == null)
                     {
@@ -258,11 +248,11 @@ namespace OpenSage
         }
 
         // Needed by Data Viewer.
-        public void SetCursor(HostCursor cursor)
+        public void SetCursor(Cursor cursor)
         {
             _currentCursor = cursor;
 
-            HostView?.SetCursor(cursor);
+            Window.SetCursor(cursor);
         }
 
         public void SetCursor(string cursorName)
@@ -297,7 +287,7 @@ namespace OpenSage
 
                 var cursorFilePath = Path.Combine(_fileSystem.RootDirectory, cursorDirectory, cursorFileName);
 
-                _cachedCursors[cursorName] = cursor = AddDisposable(new HostCursor(cursorFilePath));
+                _cachedCursors[cursorName] = cursor = AddDisposable(Platform.CurrentPlatform.CreateCursor(cursorFilePath));
             }
 
             SetCursor(cursor);
@@ -305,6 +295,17 @@ namespace OpenSage
 
         public void Tick()
         {
+            if (!IsRunning)
+            {
+                return;
+            }
+
+            if (!Window.PumpEvents())
+            {
+                IsRunning = false;
+                return;
+            }
+
             _gameTimer.Update();
 
             var gameTime = _gameTimer.CurrentGameTime;

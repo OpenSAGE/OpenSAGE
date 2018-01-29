@@ -11,7 +11,7 @@ namespace OpenSage.DataViewer.UI.Viewers
     {
         private readonly ListBox _listBox;
 
-        public IniView(FileSystemEntry entry, Game game)
+        public IniView(FileSystemEntry entry, Func<IntPtr, Game> createGame)
         {
             var iniDataContext = new IniDataContext(entry.FileSystem);
             iniDataContext.LoadIniFile(entry);
@@ -20,12 +20,12 @@ namespace OpenSage.DataViewer.UI.Viewers
 
             foreach (var objectDefinition in iniDataContext.Objects)
             {
-                subObjects.Add(new IniEntry(objectDefinition.Name, () => new ObjectDefinitionView(game, objectDefinition)));
+                subObjects.Add(new IniEntry(objectDefinition.Name, () => new ObjectDefinitionView(createGame, objectDefinition)));
             }
 
             foreach (var particleSystem in iniDataContext.ParticleSystems)
             {
-                subObjects.Add(new IniEntry(particleSystem.Name, () => new ParticleSystemView(game, particleSystem)));
+                subObjects.Add(new IniEntry(particleSystem.Name, () => new ParticleSystemView(createGame, particleSystem)));
             }
 
             _listBox = new ListBox

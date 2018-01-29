@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OpenSage.LowLevel.Input
+namespace OpenSage.Input
 {
     public sealed class InputMessageEventArgs : EventArgs
     {

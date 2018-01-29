@@ -1,4 +1,5 @@
-﻿using Eto.Forms;
+﻿using System;
+using Eto.Forms;
 using OpenSage.Data;
 using OpenSage.DataViewer.Controls;
 using OpenSage.Gui.Wnd;
@@ -7,17 +8,11 @@ namespace OpenSage.DataViewer.UI.Viewers
 {
     public sealed class WndView : Splitter
     {
-        public WndView(FileSystemEntry entry, Game game)
+        public WndView(FileSystemEntry entry, Func<IntPtr, Game> createGame)
         {
             var scene = new Scene();
 
-            game.Scene = scene;
-
-            var window = game.ContentManager.Load<WndTopLevelWindow>(entry.FilePath);
-            scene.Scene2D.WndWindowManager.PushWindow(window);
-
-            var treeItem = new TreeItem();
-            treeItem.Children.Add(CreateTreeItemRecursive(window.Root));
+            var treeItem = new TreeItem();            
 
             var treeView = new TreeView
             {
@@ -43,7 +38,19 @@ namespace OpenSage.DataViewer.UI.Viewers
 
             Panel2 = new GameControl
             {
-                Game = game
+                CreateGame = h =>
+                {
+                    var game = createGame(h);
+
+                    game.Scene = scene;
+
+                    var window = game.ContentManager.Load<WndTopLevelWindow>(entry.FilePath);
+                    scene.Scene2D.WndWindowManager.PushWindow(window);
+
+                    treeItem.Children.Add(CreateTreeItemRecursive(window.Root));
+
+                    return game;
+                }
             };
         }
 

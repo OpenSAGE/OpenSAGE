@@ -8,7 +8,7 @@ namespace OpenSage.DataViewer.UI.Viewers
 {
     public sealed class ManifestView : Splitter
     {
-        public ManifestView(FileSystemEntry entry, Func<Game> getGame)
+        public ManifestView(FileSystemEntry entry, Func<GameInstallation> getInstallation, Func<FileSystem> getFileSystem)
         {
             var gameStream = new GameStream(entry);
 
@@ -22,7 +22,7 @@ namespace OpenSage.DataViewer.UI.Viewers
                 });
             }
 
-            var contentView = new ContentView(getGame);
+            var contentView = new ContentView(getInstallation, getFileSystem);
 
             var listBox = new ListBox
             {

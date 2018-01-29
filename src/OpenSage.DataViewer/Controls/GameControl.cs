@@ -1,4 +1,5 @@
-﻿using Eto;
+﻿using System;
+using Eto;
 using Eto.Forms;
 
 namespace OpenSage.DataViewer.Controls
@@ -8,15 +9,15 @@ namespace OpenSage.DataViewer.Controls
     {
         private new IGameControl Handler => (IGameControl) base.Handler;
 
-        public Game Game
+        public Func<IntPtr, Game> CreateGame
         {
-            get { return Handler.Game; }
-            set { Handler.Game = value; }
+            get { return Handler.CreateGame; }
+            set { Handler.CreateGame = value; }
         }
 
         public interface IGameControl : IHandler
         {
-            Game Game { get; set; }
+            Func<IntPtr, Game> CreateGame { get; set; }
         }
     }
 }

@@ -16,7 +16,6 @@ namespace OpenSage.DataViewer.UI
 
         private GameInstallation _installation;
         private FileSystem _fileSystem;
-        private Game _game;
 
         public MainForm()
         {
@@ -68,7 +67,7 @@ namespace OpenSage.DataViewer.UI
             _installationImageView.Width = 250;
             _installationImageView.Height = 187;
 
-            var contentView = new ContentView(() => _game);
+            var contentView = new ContentView(() => _installation, () => _fileSystem);
 
             var filesList = new FilesList(this) { Width = 250 };
             filesList.SelectedFileChanged += (sender, e) =>
@@ -107,14 +106,6 @@ namespace OpenSage.DataViewer.UI
                 _fileSystem = null;
             }
 
-            if (_game != null)
-            {
-                _game.Dispose();
-                _game = null;
-            }
-
-            _game = GameFactory.CreateGame(installation);
-
             var launcherImagePath = installation.Game.LauncherImagePath;
             if (launcherImagePath != null)
             {
@@ -126,7 +117,16 @@ namespace OpenSage.DataViewer.UI
                 _installationImageView.Image = null;
             }
 
-            InstallationChanged?.Invoke(this, new InstallationChangedEventArgs(installation, _game.ContentManager.FileSystem));
+            _fileSystem = installation.CreateFileSystem();
+
+            InstallationChanged?.Invoke(this, new InstallationChangedEventArgs(installation, _fileSystem));
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            _fileSystem?.Dispose();
+
+            base.Dispose(disposing);
         }
     }
 }

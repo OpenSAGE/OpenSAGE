@@ -23,7 +23,15 @@ namespace OpenSage.Mathematics
             Height = height;
         }
 
-        public bool Intersects(Rectangle value)
+        public Rectangle(in Point2D location, in Size size)
+        {
+            X = location.X;
+            Y = location.Y;
+            Width = size.Width;
+            Height = size.Height;
+        }
+
+        public bool Intersects(in Rectangle value)
         {
             return value.Left < Right &&
                 Left < value.Right &&

@@ -4,18 +4,21 @@ using Eto.Forms;
 using OpenSage.Data;
 using OpenSage.Data.Dds;
 using OpenSage.Data.StreamFS;
-using OpenSage.Data.Tga;
 using OpenSage.DataViewer.UI.Viewers;
 
 namespace OpenSage.DataViewer.UI
 {
     public sealed class ContentView : Panel
     {
-        private readonly Func<Game> _getGame;
+        private readonly Func<GameInstallation> _getInstallation;
+        private readonly Func<FileSystem> _getFileSystem;
 
-        public ContentView(Func<Game> getGame)
+        private Game _game;
+
+        public ContentView(Func<GameInstallation> getInstallation, Func<FileSystem> getFileSystem)
         {
-            _getGame = getGame;
+            _getInstallation = getInstallation;
+            _getFileSystem = getFileSystem;
         }
 
         private void SetContent<TContent>(TContent content, Func<TContent, Control> createControl)
@@ -40,14 +43,24 @@ namespace OpenSage.DataViewer.UI
 
         private Control CreateControlForFileSystemEntry(FileSystemEntry entry)
         {
+            Game getGame(IntPtr windowHandle)
+            {
+                _game = GameFactory.CreateGame(
+                    _getInstallation(),
+                    _getFileSystem(),
+                    () => OpenSage.Platform.CurrentPlatform.CreateWindow(windowHandle));
+
+                return _game;
+            }
+
             switch (Path.GetExtension(entry.FilePath).ToLower())
             {
                 case ".ani":
                 case ".cur":
-                    return new AniView(entry, _getGame());
+                    return new AniView(entry, getGame);
 
                 case ".apt":
-                    return new AptView(entry, _getGame());
+                    return new AptView(entry, getGame);
 
                 case ".bmp":
                     return new BmpView(entry);
@@ -66,16 +79,16 @@ namespace OpenSage.DataViewer.UI
                     return new CsfView(entry);
 
                 case ".ini":
-                    return new IniView(entry, _getGame());
+                    return new IniView(entry, getGame);
 
                 case ".manifest":
-                    return new ManifestView(entry, _getGame);
+                    return new ManifestView(entry, _getInstallation, _getFileSystem);
 
                 case ".map":
-                    return new MapView(entry, _getGame());
+                    return new MapView(entry, getGame);
 
                 case ".ru":
-                    return new RuView(entry, _getGame());
+                    return new RuView(entry, getGame);
 
                 case ".tga":
                     return new TgaView(entry);
@@ -84,10 +97,10 @@ namespace OpenSage.DataViewer.UI
                     return new TxtView(entry);
 
                 case ".w3d":
-                    return new W3dView(entry, _getGame());
+                    return new W3dView(entry, getGame);
 
                 case ".wnd":
-                    return new WndView(entry, _getGame());
+                    return new WndView(entry, getGame);
 
                 default:
                     return null;
@@ -116,6 +129,9 @@ namespace OpenSage.DataViewer.UI
             var content = Content;
             Content = null;
             content?.Dispose();
+
+            _game?.Dispose();
+            _game = null;
 
             base.Dispose(disposing);
         }

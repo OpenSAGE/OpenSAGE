@@ -7,7 +7,7 @@
         public InputSystem(Game game)
             : base(game)
         {
-            MessageBuffer = AddDisposable(new InputMessageBuffer());
+            MessageBuffer = AddDisposable(new InputMessageBuffer(game.Window));
         }
 
         public override void Update(GameTime gameTime)

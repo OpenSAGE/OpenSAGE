@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.DataViewer.Controls;
 using OpenSage.Graphics.Cameras.Controllers;
@@ -8,7 +9,7 @@ namespace OpenSage.DataViewer.UI.Viewers.Ini
 {
     public sealed class ParticleSystemView : GameControl
     {
-        public ParticleSystemView(Game game, ParticleSystemDefinition particleSystemDefinition)
+        public ParticleSystemView(Func<IntPtr, Game> createGame, ParticleSystemDefinition particleSystemDefinition)
         {
             var scene = new Scene();
 
@@ -20,9 +21,14 @@ namespace OpenSage.DataViewer.UI.Viewers.Ini
                 Vector3.Zero,
                 200);
 
-            game.Scene = scene;
+            CreateGame = h =>
+            {
+                var game = createGame(h);
 
-            Game = game;
+                game.Scene = scene;
+
+                return game;
+            };
         }
     }
 }

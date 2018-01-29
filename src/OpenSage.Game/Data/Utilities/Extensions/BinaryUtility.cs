@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Text;
+﻿using System.Text;
 
 namespace OpenSage.Data.Utilities.Extensions
 {
@@ -7,6 +6,8 @@ namespace OpenSage.Data.Utilities.Extensions
     {
         static BinaryUtility()
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
             AnsiEncoding = Encoding.GetEncoding(1252);
         }
 

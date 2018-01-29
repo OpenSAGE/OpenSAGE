@@ -10,6 +10,7 @@ namespace OpenSage
     {
         public static Game CreateGame(IGameDefinition definition,
             IInstallationLocator installationLocator,
+            Func<GameWindow> createWindow,
             GraphicsDevice graphicsDevice = null)
         {
             var installation = installationLocator
@@ -21,14 +22,19 @@ namespace OpenSage
                 throw new Exception($"No installations for {definition.Game} could be found.");
             }
 
-            return CreateGame(installation, graphicsDevice);
+            return CreateGame(
+                installation,
+                installation.CreateFileSystem(),
+                createWindow,
+                graphicsDevice);
         }
 
-        public static Game CreateGame(GameInstallation installation,
+        public static Game CreateGame(
+            GameInstallation installation,
+            FileSystem fileSystem,
+            Func<GameWindow> createWindow,
             GraphicsDevice graphicsDevice = null)
         {
-            var fileSystem = installation.CreateFileSystem();
-
             if (graphicsDevice == null)
             {
                 graphicsDevice = HostPlatform.GraphicsDevice;
@@ -40,7 +46,8 @@ namespace OpenSage
                 graphicsDevice,
                 fileSystem,
                 definition.Game,
-                definition.WndCallbackType);
+                definition.WndCallbackType,
+                createWindow);
         }
     }
 }

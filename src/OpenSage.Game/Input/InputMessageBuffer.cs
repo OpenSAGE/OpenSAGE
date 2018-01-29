@@ -1,48 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using OpenSage.LowLevel;
-using OpenSage.LowLevel.Input;
+﻿using System.Collections.Generic;
 
 namespace OpenSage.Input
 {
-    public sealed class InputMessageBuffer : IDisposable
+    public sealed class InputMessageBuffer : DisposableBase
     {
         private readonly Queue<InputMessage> _messageQueue;
 
-        private HostView _hostView;
-
         public List<InputMessageHandler> Handlers { get; }
 
-        public InputMessageBuffer()
+        public InputMessageBuffer(GameWindow window)
         {
             _messageQueue = new Queue<InputMessage>();
 
             Handlers = new List<InputMessageHandler>();
-        }
 
-        internal void SetHostView(HostView hostView)
-        {
-            DetachFromHostView();
+            window.InputMessageReceived += OnInputMessage;
 
-            if (hostView != null)
-            {
-                hostView.InputMessage += OnInputMessage;
-                _hostView = hostView;
-            }
+            AddDisposeAction(() => window.InputMessageReceived -= OnInputMessage);
         }
 
         private void OnInputMessage(object sender, InputMessageEventArgs e)
         {
             _messageQueue.Enqueue(e.Message);
-        }
-
-        private void DetachFromHostView()
-        {
-            if (_hostView != null)
-            {
-                _hostView.InputMessage -= OnInputMessage;
-                _hostView = null;
-            }
         }
 
         internal void PropagateMessages()
@@ -59,11 +38,6 @@ namespace OpenSage.Input
                     }
                 }
             }
-        }
-
-        public void Dispose()
-        {
-            DetachFromHostView();
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using OpenSage.Input;
-using OpenSage.LowLevel.Input;
 using System.Numerics;
 
 namespace OpenSage.Gui.Wnd

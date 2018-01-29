@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using OpenSage.LowLevel.Input;
+using OpenSage.Input;
 
 namespace OpenSage.Data.Ini.Parser
 {

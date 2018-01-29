@@ -47,13 +47,5 @@ namespace OpenSage.DataViewer.UI
         {
             SelectedFileChanged?.Invoke(this, new FileSystemEntryEventArgs((FileSystemEntry) _listBox.SelectedValue));
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            _fileSystem?.Dispose();
-            _fileSystem = null;
-
-            base.Dispose(disposing);
-        }
     }
 }

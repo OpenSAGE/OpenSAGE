@@ -8,38 +8,48 @@ namespace OpenSage.DataViewer.Windows.Controls
 {
     internal sealed class GameControlHandler : WpfFrameworkElement<WindowsFormsHost, GameControl, Eto.Forms.Control.ICallback>, GameControl.IGameControl
     {
-        private readonly GameView _gameView;
+        private Game _game;
+
+        public Func<IntPtr, Game> CreateGame { get; set; }
 
         public GameControlHandler()
         {
-            _gameView = new GameView();
+            var control = new System.Windows.Forms.Control
+            {
+                Width = 100,
+                Height = 100
+            };
 
-            System.Windows.Media.CompositionTarget.Rendering += OnRendering;
+            control.HandleCreated += (sender, e) =>
+            {
+                _game = CreateGame(control.Handle);
+                System.Windows.Media.CompositionTarget.Rendering += OnRendering;
+            };
+
+            control.MouseDown += (sender, e) =>
+            {
+                control.Focus();
+            };
 
             Control = new WindowsFormsHost
             {
-                Child = _gameView
+                Child = control
             };
-        }
-
-        private void OnRendering(object sender, EventArgs e)
-        {
-            _gameView.Invalidate();
         }
 
         public override void OnUnLoad(EventArgs e)
         {
-            base.OnUnLoad(e);
-
             System.Windows.Media.CompositionTarget.Rendering -= OnRendering;
+            _game = null;
+
+            base.OnUnLoad(e);
+        }
+
+        private void OnRendering(object sender, EventArgs e)
+        {
+            _game?.Tick();
         }
 
         public override Color BackgroundColor { get => Colors.Transparent; set { } }
-
-        public Game Game
-        {
-            get => _gameView.Game;
-            set => _gameView.Game = value;
-        }
     }
 }

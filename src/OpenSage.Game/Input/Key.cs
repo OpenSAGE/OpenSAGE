@@ -1,4 +1,4 @@
-﻿namespace OpenSage.LowLevel.Input
+﻿namespace OpenSage.Input
 {
     public enum Key
     {

@@ -5,6 +5,11 @@
     <ApplicationIcon>..\OpenSage.DataViewer\Resources\AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="..\..\..\..\..\.nuget\packages\veldrid.sdl2\4.0.0\runtimes\win-x64\native\SDL2.dll" Link="SDL2.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Eto.Platform.Wpf" Version="2.3.0" />
   </ItemGroup>
   <ItemGroup>
@@ -16,5 +21,10 @@
     <Reference Include="WindowsBase" />
     <Reference Include="WindowsFormsIntegration" />
     <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Program.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
   </ItemGroup>
 </Project>

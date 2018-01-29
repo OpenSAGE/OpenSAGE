@@ -8,6 +8,9 @@ namespace OpenSage.Graphics.Cameras
     {
         private readonly BoundingFrustum _frustum;
 
+        // TODO: Remove this.
+        private GameWindow _window;
+
         private RectangleF _normalizedViewportRectangle;
         private float _nearPlaneDistance;
         private float _farPlaneDistance;
@@ -17,8 +20,6 @@ namespace OpenSage.Graphics.Cameras
         private Matrix4x4? _cachedProjectionMatrix;
 
         private bool _boundingFrustumDirty = true;
-
-        private SwapChain _swapChain;
 
         /// <summary>
         /// Initializes a new instance of this class.
@@ -103,9 +104,9 @@ namespace OpenSage.Graphics.Cameras
             }
         }
 
-        internal void SetSwapChain(SwapChain swapChain)
+        internal void OnWindowSizeChanged(GameWindow window)
         {
-            _swapChain = swapChain;
+            _window = window;
 
             ClearCachedProjectionMatrix();
             ClearCachedViewport();
@@ -178,8 +179,8 @@ namespace OpenSage.Graphics.Cameras
             {
                 if (_viewport == null)
                 {
-                    var pixelWidth = _swapChain?.BackBufferWidth ?? 400;
-                    var pixelHeight = _swapChain?.BackBufferHeight ?? 400;
+                    var pixelWidth = _window?.ClientBounds.Width ?? 400;
+                    var pixelHeight = _window?.ClientBounds.Height ?? 400;
 
                     var bounds = new Rectangle(
                         (int) (NormalizedViewportRectangle.X * pixelWidth),

@@ -1,5 +1,4 @@
-﻿using OpenSage.LowLevel.Input;
-using OpenSage.Input;
+﻿using OpenSage.Input;
 using System.Collections.Generic;
 
 namespace OpenSage.Graphics.Cameras

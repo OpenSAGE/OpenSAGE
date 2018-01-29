@@ -1,6 +1,4 @@
-﻿using OpenSage.LowLevel.Input;
-
-namespace OpenSage.Input
+﻿namespace OpenSage.Input
 {
     public abstract class InputMessageHandler
     {

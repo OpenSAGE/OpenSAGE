@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Numerics;
 using Eto.Forms;
 using OpenSage.Data.Ini;
@@ -13,7 +14,7 @@ namespace OpenSage.DataViewer.UI.Viewers.Ini
         private readonly ListBox _listBox;
         private readonly ObjectComponent _objectComponent;
 
-        public ObjectDefinitionView(Game game, ObjectDefinition objectDefinition)
+        public ObjectDefinitionView(Func<IntPtr, Game> createGame, ObjectDefinition objectDefinition)
         {
             var scene = new Scene();
 
@@ -24,8 +25,6 @@ namespace OpenSage.DataViewer.UI.Viewers.Ini
             scene.CameraController = new ArcballCameraController(
                 Vector3.Zero,
                 200);
-
-            game.Scene = scene;
 
             _listBox = new ListBox();
             _listBox.Width = 200;
@@ -42,7 +41,14 @@ namespace OpenSage.DataViewer.UI.Viewers.Ini
 
             Panel2 = new GameControl
             {
-                Game = game
+                CreateGame = h =>
+                {
+                    var game = createGame(h);
+
+                    game.Scene = scene;
+
+                    return game;
+                }
             };
         }
 

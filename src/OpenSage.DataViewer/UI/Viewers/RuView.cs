@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Eto.Forms;
 using OpenSage.Data;
 using OpenSage.DataViewer.Controls;
@@ -8,16 +9,10 @@ namespace OpenSage.DataViewer.UI.Viewers
 {
     public sealed class RuView : Splitter
     {
-        public RuView(FileSystemEntry entry, Game game)
+        public RuView(FileSystemEntry entry, Func<IntPtr, Game> createGame)
         {
             var scene = new Scene();
             var entity = new Entity();
-
-            var guiComponent = game.ContentManager.Load<ShapeComponent>(entry.FilePath);
-            entity.Components.Add(guiComponent);
-            scene.Entities.Add(entity);
-
-            game.Scene = scene;
 
             string ruText;
             using (var fileStream = entry.Open())
@@ -33,7 +28,18 @@ namespace OpenSage.DataViewer.UI.Viewers
 
             Panel2 = new GameControl
             {
-                Game = game
+                CreateGame = h =>
+                {
+                    var game = createGame(h);
+
+                    var guiComponent = game.ContentManager.Load<ShapeComponent>(entry.FilePath);
+                    entity.Components.Add(guiComponent);
+                    scene.Entities.Add(entity);
+
+                    game.Scene = scene;
+
+                    return game;
+                }
             };
         }
     }
