@@ -19,6 +19,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         Float,
         Object,
         Function,
+        Array,
         Undefined
     }
 
@@ -32,6 +33,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         private double _decimal;
         private ObjectContext _object;
         private Function _function;
+        private Value[] _array;
 
         public Value ResolveRegister(ActionContext context)
         {
@@ -80,6 +82,13 @@ namespace OpenSage.Gui.Apt.ActionScript
             return v;
         }
 
+        public static Value FromArray(Value[] array)
+        {
+            var v = new Value();
+            v.Type = ValueType.Array;
+            v._array = array;
+            return v;
+        }
 
         public static Value FromRegister(uint num)
         {
@@ -138,12 +147,6 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public ObjectContext ToObject()
         {
-            if (Type == ValueType.Undefined)
-            {
-                Debug.WriteLine("[ERROR] cannot convert to object!");
-                return null;
-            }
-
             if (Type != ValueType.Object)
                 throw new InvalidOperationException();
 
@@ -216,6 +219,9 @@ namespace OpenSage.Gui.Apt.ActionScript
             {
                 case ValueType.Undefined:
                     result = true;
+                    break;
+                case ValueType.String:
+                    result = (b._string == _string);
                     break;
                 default:
                     throw new NotImplementedException();

@@ -4,15 +4,15 @@ using System.IO;
 using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.Gui.Apt.ActionScript;
-using OpenSage.Gui.Apt.ActionScript.Opcodes;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Apt.Characters
 {
 
     [Flags]
-    public enum ButtonRecordFlags : uint
+    public enum ButtonRecordFlags : byte
     {
+        None = 0,
         StateUp = 1,
         StateOver = 2,
         StateDown = 4,
@@ -29,7 +29,7 @@ namespace OpenSage.Data.Apt.Characters
         public ColorRgba Color;
         public Vector4 Unknown;
 
-        public ButtonRecord(ButtonRecordFlags flags, uint character, int depth, Matrix2x2 rotscale,
+        public ButtonRecord(ButtonRecordFlags flags,uint reserved, uint character, int depth, Matrix2x2 rotscale,
             Vector2 translation, ColorRgba color, Vector4 unknown)
         {
             Flags = flags;
@@ -44,7 +44,8 @@ namespace OpenSage.Data.Apt.Characters
         public static ButtonRecord Parse(BinaryReader reader)
         {
             return new ButtonRecord(
-                reader.ReadUInt32AsEnumFlags<ButtonRecordFlags>(),
+                reader.ReadByteAsEnumFlags<ButtonRecordFlags>(),
+                reader.ReadUInt24(),
                 reader.ReadUInt32(),
                 reader.ReadInt32(),
                 reader.ReadMatrix2x2(),
@@ -123,7 +124,7 @@ namespace OpenSage.Data.Apt.Characters
         {
             var button = new Button();
 
-            button.IsMenu = reader.ReadBooleanUInt32Checked();
+            button.IsMenu = Convert.ToBoolean(reader.ReadUInt32());
             button.Bounds = reader.ReadVector4();
             var tc = reader.ReadUInt32();
             var vc = reader.ReadUInt32();

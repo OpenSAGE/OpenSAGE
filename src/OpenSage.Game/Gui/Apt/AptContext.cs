@@ -12,9 +12,8 @@ namespace OpenSage.Gui.Apt
         private ImageMap _imageMap;
         private string _movieName;
         private VM _avm;
-        private SpriteItem _root;
-
-        public VM ActionScriptVM => _avm;
+    
+        public VM AVM => _avm;
         public ContentManager ContentManager => _contentManager;
         public ConstantData Constants { get; set; }
         //Time per frame in milliseconds

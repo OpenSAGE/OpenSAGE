@@ -79,7 +79,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         CallFunction = 0x3D,
         Return = 0x3E,
         Modulo = 0x3F,
-        New = 0x40,
+        NewObject = 0x40,
         Var = 0x41,
         InitArray = 0x42,
         InitObject = 0x43,
@@ -194,6 +194,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 case InstructionType.GotoFrame:
                 case InstructionType.EA_PushString:
                 case InstructionType.EA_GetStringVar:
+                case InstructionType.EA_SetStringVar:
                 case InstructionType.EA_GetStringMember:
                 case InstructionType.EA_SetStringMember:
                     return true;

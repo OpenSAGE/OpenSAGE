@@ -20,7 +20,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             _extern = new ExternObject();
         }
 
-        public void Execute(Function func, List<Value> args, ObjectContext scope)
+        public void Execute(Function func, Value[] args, ObjectContext scope)
         {
             var code = func.Instructions;
 
@@ -31,12 +31,12 @@ namespace OpenSage.Gui.Apt.ActionScript
             for (var i = 0; i < func.Parameters.Count; ++i)
             {
                 var name = func.Parameters[i].ToString();
-                bool provided = i < args.Count;
+                bool provided = i < args.Length;
 
                 paramList[name] = provided ? args[i] : Value.Undefined();
             }
 
-            var context = new ActionContext(4)
+            var context = new ActionContext(func.NumberRegisters)
             {
                 Global = _global,
                 Scope = scope,

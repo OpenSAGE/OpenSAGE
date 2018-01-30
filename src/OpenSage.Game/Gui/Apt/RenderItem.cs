@@ -46,7 +46,7 @@ namespace OpenSage.Gui.Apt
                 case Text t:
                     if(t.Value.Length>0)
                     {
-                        var val = ScriptObject.ResolveValue(t.Value);
+                        var val = ScriptObject.ResolveValue(t.Value,ScriptObject);
                         if (val.Type != ValueType.Undefined)
                             t.Content = val.ToString();
                     }

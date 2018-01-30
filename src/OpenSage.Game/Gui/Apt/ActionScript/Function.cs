@@ -7,7 +7,6 @@ namespace OpenSage.Gui.Apt.ActionScript
     {
         public InstructionCollection Instructions { get; set; }
         public List<Value> Parameters { get; set; }
-
-
+        public int NumberRegisters { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using OpenSage.Data.Utilities.Extensions;
@@ -86,6 +87,12 @@ namespace OpenSage.Gui.Apt.ActionScript
                     case InstructionType.Pop:
                         instruction = new Pop();
                         break;
+                    case InstructionType.ToInteger:
+                        instruction = new ToInteger();
+                        break;
+                    case InstructionType.GetVariable:
+                        instruction = new GetVariable();
+                        break;
                     case InstructionType.SetVariable:
                         instruction = new SetVariable();
                         break;
@@ -98,11 +105,29 @@ namespace OpenSage.Gui.Apt.ActionScript
                     case InstructionType.Trace:
                         instruction = new Trace();
                         break;
+                    case InstructionType.Delete:
+                        instruction = new Delete();
+                        break;
+                    case InstructionType.Delete2:
+                        instruction = new Delete2();
+                        break;
+                    case InstructionType.DefineLocal:
+                        instruction = new DefineLocal();
+                        break;
                     case InstructionType.CallFunction:
                         instruction = new CallFunction();
                         break;
                     case InstructionType.Return:
                         instruction = new Return();
+                        break;
+                    case InstructionType.NewObject:
+                        instruction = new NewObject();
+                        break;
+                    case InstructionType.InitArray:
+                        instruction = new InitArray();
+                        break;
+                    case InstructionType.InitObject:
+                        instruction = new InitObject();
                         break;
                     case InstructionType.Add2:
                         instruction = new Add2();
@@ -113,6 +138,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                     case InstructionType.Equals2:
                         instruction = new Equals2();
                         break;
+                    case InstructionType.ToString:
+                        instruction = new ToString();
+                        break;
                     case InstructionType.PushDuplicate:
                         instruction = new PushDuplicate();
                         break;
@@ -121,6 +149,12 @@ namespace OpenSage.Gui.Apt.ActionScript
                         break;
                     case InstructionType.SetMember:
                         instruction = new SetMember();
+                        break;
+                    case InstructionType.Increment:
+                        instruction = new Increment();
+                        break;
+                    case InstructionType.CallMethod:
+                        instruction = new CallMethod();
                         break;
                     case InstructionType.EA_PushThis:
                         instruction = new PushThis();
@@ -155,6 +189,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                     case InstructionType.EA_PushFalse:
                         instruction = new PushFalse();
                         break;
+                    case InstructionType.EA_PushNull:
+                        instruction = new PushNull();
+                        break;
                     case InstructionType.EA_PushUndefined:
                         instruction = new PushUndefined();
                         break;
@@ -188,7 +225,30 @@ namespace OpenSage.Gui.Apt.ActionScript
                         parameters.Add(Value.FromString(_reader.ReadStringAtOffset()));
                         break;
                     case InstructionType.DefineFunction2:
-                        instruction = new DefineFunction();
+                        {
+                            instruction = new DefineFunction2();
+                            var name = _reader.ReadStringAtOffset();
+                            var nParams = _reader.ReadUInt32();
+                            var nRegisters = _reader.ReadByte();
+                            var flags = _reader.ReadUInt16();
+                            _reader.ReadByte();
+
+                            //list of parameter strings
+                            var paramList = _reader.ReadFixedSizeListAtOffset<string>(() => _reader.ReadStringAtOffset(),nParams);
+
+                            parameters.Add(Value.FromString(name));
+                            parameters.Add(Value.FromInteger((int)nParams));
+                            parameters.Add(Value.FromInteger((int)nRegisters));
+                            parameters.Add(Value.FromInteger((int)flags));
+                            foreach (var param in paramList)
+                            {
+                                parameters.Add(Value.FromString(param));
+                            }
+                            //body size of the function
+                            parameters.Add(Value.FromInteger(_reader.ReadInt32()));
+                            //skip 8 bytes
+                            _reader.ReadUInt64();
+                        }
                         break;
                     case InstructionType.PushData:
                         {
@@ -225,21 +285,23 @@ namespace OpenSage.Gui.Apt.ActionScript
                         instruction = new GetUrl2();
                         break;
                     case InstructionType.DefineFunction:
-                        instruction = new DefineFunction();
-                        var name = _reader.ReadStringAtOffset();
-                        //list of parameter strings
-                        var paramList = _reader.ReadListAtOffset<string>(() => _reader.ReadStringAtOffset());
-
-                        parameters.Add(Value.FromString(name));
-                        parameters.Add(Value.FromInteger(paramList.Count));
-                        foreach (var param in paramList)
                         {
-                            parameters.Add(Value.FromString(param));
+                            instruction = new DefineFunction();
+                            var name = _reader.ReadStringAtOffset();
+                            //list of parameter strings
+                            var paramList = _reader.ReadListAtOffset<string>(() => _reader.ReadStringAtOffset());
+
+                            parameters.Add(Value.FromString(name));
+                            parameters.Add(Value.FromInteger(paramList.Count));
+                            foreach (var param in paramList)
+                            {
+                                parameters.Add(Value.FromString(param));
+                            }
+                            //body size of the function
+                            parameters.Add(Value.FromInteger(_reader.ReadInt32()));
+                            //skip 8 bytes
+                            _reader.ReadUInt64();
                         }
-                        //body size of the function
-                        parameters.Add(Value.FromInteger(_reader.ReadInt32()));
-                        //skip 8 bytes
-                        _reader.ReadUInt64();
                         break;
                     case InstructionType.BranchIfTrue:
                         instruction = new BranchIfTrue();
@@ -259,6 +321,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                             parameters.Add(Value.FromInteger(_reader.ReadInt32()));
                         }
                         break;
+                    case InstructionType.GotoFrame2:
+                        throw new NotImplementedException();
+                        break;
                     case InstructionType.EA_PushString:
                         instruction = new PushString();
                         //the constant id that should be pushed
@@ -271,6 +336,10 @@ namespace OpenSage.Gui.Apt.ActionScript
                         break;
                     case InstructionType.EA_GetStringVar:
                         instruction = new GetStringVar();
+                        parameters.Add(Value.FromString(_reader.ReadStringAtOffset()));
+                        break;
+                    case InstructionType.EA_SetStringVar:
+                        instruction = new SetStringMember();
                         parameters.Add(Value.FromString(_reader.ReadStringAtOffset()));
                         break;
                     case InstructionType.EA_GetStringMember:

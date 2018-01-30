@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenSage.Gui.Apt.ActionScript.Library;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
@@ -54,24 +55,65 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             Value obj = null;
 
-            switch (name)
+            if(Builtin.IsBuiltInVariable(name))
             {
-                case "_root":
-                    obj = Value.FromObject(Apt.Root.ScriptObject);
-                    break;
-                case "extern":
-                    obj = Value.FromObject(Apt.ActionScriptVM.ExternObject);
-                    break;
-                case "_parent":
-                    throw new NotImplementedException();
-                    break;
-                //string must be a variable of current scope
-                default:
-                    obj = Scope.GetMember(name);
-                    break;
+                obj = Builtin.GetBuiltInVariable(name, Scope);
+            }
+            else
+            {
+                obj = Scope.GetMember(name);
             }
 
             return obj;
+        }
+
+        /// <summary>
+        /// Get the current target path
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public Value GetTarget(string target)
+        {
+            //empty target means the current scope
+            if (target.Length == 0)
+                return Value.FromObject(Scope);
+
+            //depending on wether or not this is a relative path or not
+            ObjectContext obj = target.First()=='/' ? Apt.Root.ScriptObject : Scope;
+
+            foreach(var part in target.Split('/'))
+            {
+                if (part == "..")
+                {
+                    obj = obj.Item.Parent.ScriptObject;
+                }
+                else
+                {
+                    obj = obj.Variables[part].ToObject();
+                }
+            }
+
+            return Value.FromObject(obj);
+        }
+
+        /// <summary>
+        /// Call an object constructor. Either builtin or defined earlier
+        /// </summary>
+        /// <param name="constructor"></param>
+        /// <returns></returns>
+        public Value ConstructObject(string name,Value[] args)
+        {
+            Value result = null;
+            if(Builtin.IsBuiltInClass(name))
+            {
+                result = Builtin.GetBuiltInClass(name,args);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+
+            return result;
         }
     }
 }

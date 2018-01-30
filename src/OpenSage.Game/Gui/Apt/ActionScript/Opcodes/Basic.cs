@@ -68,4 +68,90 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             context.Registers[reg] = val;
         }
     }
+
+    /// <summary>
+    /// Initializes an array from the stack
+    /// </summary>
+    public sealed class InitArray : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.InitArray;
+
+        public override void Execute(ActionContext context)
+        {
+            var nArgs = context.Stack.Pop().ToInteger();
+            Value[] args = new Value[nArgs];
+
+            for(int i = 0;i<nArgs;++i)
+            {
+                args[i] = context.Stack.Pop();
+            }
+
+            context.Stack.Push(Value.FromArray(args));
+        }
+    }
+
+    /// <summary>
+    /// Pops a property name and an object from the stack. Then deletes the property in that object
+    /// </summary>
+    public sealed class Delete : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.Delete;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Pops a property name from the stack. Then deletes the property
+    /// </summary>
+    public sealed class Delete2 : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.Delete2;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Pops name & value. Then set the variable. If value is already defined, overwrite it
+    /// </summary>
+    public sealed class DefineLocal : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.DefineLocal;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Pops a value from the stack, converts it to integer and pushes it back
+    /// </summary>
+    public sealed class ToInteger : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.ToInteger;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Pops a value from the stack, converts it to integer and pushes it back
+    /// </summary>
+    public sealed class ToString : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.ToString;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

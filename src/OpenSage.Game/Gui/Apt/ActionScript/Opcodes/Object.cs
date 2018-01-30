@@ -70,6 +70,22 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     /// <summary>
+    /// Pops variable name and pushes the corresponding variable back to stack
+    /// </summary>
+    public sealed class GetVariable : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.GetVariable;
+
+        public override void Execute(ActionContext context)
+        {
+            //pop the value
+            var variableName = context.Stack.Pop();
+            var variable = context.Scope.Variables[variableName.ToString()];
+            context.Stack.Push(variable);
+        }
+    }
+
+    /// <summary>
     /// Pops variable name and value from the stack. Then set the variable to that value.
     /// </summary>
     public sealed class SetVariable : InstructionBase
@@ -100,18 +116,25 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
+    /// <summary>
+    /// get a property and push it to the stack
+    /// </summary>
     public sealed class GetProperty : InstructionBase
     {
         public override InstructionType Type => InstructionType.GetProperty;
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var property = context.Stack.Pop();
+            var target = context.GetTarget(context.Stack.Pop().ToString());
+
+            var prop = target.ToObject().GetProperty(property.ToInteger());
+            context.Stack.Push(prop);
         }
     }
 
     /// <summary>
-    /// just pushes a string to stack it seems like
+    /// Pops an object from the stack and retrieves a member variable which is pushed to stack
     /// </summary>
     public sealed class GetStringMember : InstructionBase
     {
@@ -136,6 +159,43 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.EA_SetStringMember;
         public override uint Size => 4;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Create a new object by calling it's constructor
+    /// </summary>
+    public sealed class NewObject : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.NewObject;
+
+        public override void Execute(ActionContext context)
+        {
+            var name = context.Stack.Pop().ToString();
+            var nArgs = context.Stack.Pop().ToInteger();
+
+            Value[] args = new Value[nArgs];
+
+            for (int i = 0; i < nArgs; ++i)
+            {
+                args[i] = context.Stack.Pop();
+            }
+
+            var obj = context.ConstructObject(name,args);
+            context.Stack.Push(obj);
+        }
+    }
+
+    /// <summary>
+    /// Initializes an object from the stack
+    /// </summary>
+    public sealed class InitObject : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.InitObject;
 
         public override void Execute(ActionContext context)
         {

@@ -132,6 +132,19 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     /// <summary>
+    /// Push a null value false to the stack
+    /// </summary>
+    public sealed class PushNull : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.EA_PushNull;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
     /// Push an integer with value zero to the stack
     /// </summary>
     public sealed class PushZero : InstructionBase

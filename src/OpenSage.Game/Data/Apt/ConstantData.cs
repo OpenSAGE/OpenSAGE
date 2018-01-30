@@ -61,7 +61,7 @@ namespace OpenSage.Data.Apt
                             constEntry.Value = reader.ReadUInt32();
                             break;
                         case ConstantEntryType.Boolean:
-                            constEntry.Value = Convert.ToBoolean(reader.ReadUInt32());
+                            constEntry.Value = reader.ReadBooleanUInt32Checked();
                             break;
                         case ConstantEntryType.Float:
                             constEntry.Value = reader.ReadSingle();
@@ -71,13 +71,6 @@ namespace OpenSage.Data.Apt
                             break;
                         case ConstantEntryType.Lookup:
                             constEntry.Value = reader.ReadUInt32();
-                            break;
-                        case ConstantEntryType.None:
-                            constEntry.Value = reader.ReadUInt32();
-                            if ((uint) constEntry.Value != 0)
-                            {
-                                throw new InvalidDataException();
-                            }
                             break;
                         default:
                             throw new InvalidDataException();

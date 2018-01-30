@@ -263,7 +263,7 @@ namespace OpenSage.Gui.Apt
             //execute all actions now
             foreach (var action in _actionList)
             {
-                _context.ActionScriptVM.Execute(action.Instructions, _scriptObject);
+                _context.AVM.Execute(action.Instructions, _scriptObject);
             }
             _actionList.Clear();
 
