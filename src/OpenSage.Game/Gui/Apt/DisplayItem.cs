@@ -7,13 +7,13 @@ namespace OpenSage.Gui.Apt
 {
     public struct ItemTransform
     {
-        public static readonly ItemTransform None = new ItemTransform(ColorRgbaF.White, Matrix3x2.Identity,Vector2.Zero);
+        public static readonly ItemTransform None = new ItemTransform(ColorRgbaF.White, Matrix3x2.Identity, Vector2.Zero);
 
         public ColorRgbaF ColorTransform;
         public Matrix3x2 GeometryRotation;
         public Vector2 GeometryTranslation;
 
-        public ItemTransform(ColorRgbaF color, Matrix3x2 rotation,Vector2 translation)
+        public ItemTransform(ColorRgbaF color, Matrix3x2 rotation, Vector2 translation)
         {
             ColorTransform = color;
             GeometryRotation = rotation;

@@ -17,10 +17,10 @@ namespace OpenSage.Gui.Apt.ActionScript
         public Dictionary<string, Value> Params { get; set; }
 
 
-        public ActionContext(int reg = 0)
+        public ActionContext(int numRegisters = 0)
         {
             Stack = new Stack<Value>();
-            Registers = new Value[reg];
+            Registers = new Value[numRegisters];
             Params = new Dictionary<string, Value>();
         }
 

@@ -31,11 +31,17 @@ namespace OpenSage.Gui.Apt.ActionScript
         public InstructionBase GetInstruction()
         {
             if (_position - 1 > _instructions.Count)
+            {
                 throw new IndexOutOfRangeException();
+            }
+
 
             //skip any possible padding
             if (_instructions[_position].Type == InstructionType.Padding)
+            {
                 ++_position;
+            }
+
 
             return _instructions[_position++];
         }
@@ -54,7 +60,10 @@ namespace OpenSage.Gui.Apt.ActionScript
                 size += _instructions[i].Size;
 
                 if (_instructions[i].Type != InstructionType.Padding)
+                {
                     ++size;
+                }
+
             }
 
             return size;
