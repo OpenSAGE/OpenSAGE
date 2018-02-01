@@ -1,29 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
-    /// <summary>
-    /// Reads a list of instructions from a stream
-    /// </summary>
-    public sealed class InstructionReader
+    public sealed class InstructionCollection : Collection<InstructionBase>
     {
         private BinaryReader _reader;
         private uint _offset;
 
-        public List<InstructionBase> Instructions { get; private set; }
-
-        public InstructionReader(Stream input)
+        public InstructionCollection(Stream input)
         {
             _reader = new BinaryReader(input);
             _offset = _reader.ReadUInt32();
-            Instructions = new List<InstructionBase>();
+        }
+
+        public InstructionCollection(IList<InstructionBase> list) : base(list)
+        {
         }
 
         public void Parse()
@@ -31,6 +26,8 @@ namespace OpenSage.Gui.Apt.ActionScript
             var current = _reader.BaseStream.Position;
             _reader.BaseStream.Seek(_offset, SeekOrigin.Begin);
             bool parsing = true;
+            bool branched = false;
+            int branchBytes = 0;
 
             while (parsing)
             {
@@ -43,7 +40,17 @@ namespace OpenSage.Gui.Apt.ActionScript
                     var padding = _reader.Align(4);
                     if (padding > 0)
                     {
-                        Instructions.Add(new Padding(padding));
+                        Items.Add(new Padding(padding));
+                        if (branched)
+                        {
+                            branchBytes -= (int) padding;
+
+                            if (branchBytes <= 0)
+                            {
+                                branched = false;
+                                branchBytes = 0;
+                            }
+                        }
                     }
                 }
 
@@ -52,6 +59,9 @@ namespace OpenSage.Gui.Apt.ActionScript
 
                 switch (type)
                 {
+                    case InstructionType.ToNumber:
+                        instruction = new ToNumber();
+                        break;
                     case InstructionType.Play:
                         instruction = new Play();
                         break;
@@ -88,11 +98,17 @@ namespace OpenSage.Gui.Apt.ActionScript
                     case InstructionType.Trace:
                         instruction = new Trace();
                         break;
+                    case InstructionType.CallFunction:
+                        instruction = new CallFunction();
+                        break;
                     case InstructionType.Return:
                         instruction = new Return();
                         break;
                     case InstructionType.Add2:
                         instruction = new Add2();
+                        break;
+                    case InstructionType.LessThan2:
+                        instruction = new LessThan2();
                         break;
                     case InstructionType.Equals2:
                         instruction = new Equals2();
@@ -114,6 +130,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                         break;
                     case InstructionType.EA_PushOne:
                         instruction = new PushOne();
+                        break;
+                    case InstructionType.EA_CallFunc:
+                        instruction = new CallFunc();
                         break;
                     case InstructionType.EA_CallMethodPop:
                         instruction = new CallMethodPop();
@@ -138,10 +157,10 @@ namespace OpenSage.Gui.Apt.ActionScript
                         break;
                     case InstructionType.EA_PushUndefined:
                         instruction = new PushUndefined();
-                        parameters.Add(Value.FromInteger(_reader.ReadInt32()));
                         break;
                     case InstructionType.GotoFrame:
                         instruction = new GotoFrame();
+                        parameters.Add(Value.FromInteger(_reader.ReadInt32()));
                         break;
                     case InstructionType.GetURL:
                         instruction = new GetUrl();
@@ -168,6 +187,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                         instruction = new GotoLabel();
                         parameters.Add(Value.FromString(_reader.ReadStringAtOffset()));
                         break;
+                    case InstructionType.DefineFunction2:
+                        instruction = new DefineFunction();
+                        break;
                     case InstructionType.PushData:
                         {
                             instruction = new PushData();
@@ -179,6 +201,24 @@ namespace OpenSage.Gui.Apt.ActionScript
                             {
                                 parameters.Add(Value.FromConstant(constant));
                             }
+                        }
+                        break;
+                    case InstructionType.BranchAlways:
+                        instruction = new BranchAlways();
+                        if (!branched)
+                        {
+                            branchBytes = _reader.ReadInt32();
+                            parameters.Add(Value.FromInteger(branchBytes));
+
+                            if (branchBytes > 0)
+                            {
+                                branchBytes += (int) instruction.Size + 1;
+                                branched = true;
+                            }
+                        }
+                        else
+                        {
+                            parameters.Add(Value.FromInteger(_reader.ReadInt32()));
                         }
                         break;
                     case InstructionType.GetURL2:
@@ -201,13 +241,23 @@ namespace OpenSage.Gui.Apt.ActionScript
                         //skip 8 bytes
                         _reader.ReadUInt64();
                         break;
-                    case InstructionType.BranchAlways:
+                    case InstructionType.BranchIfTrue:
                         instruction = new BranchIfTrue();
-                        parameters.Add(Value.FromInteger(_reader.ReadInt32()));
-                        break;
-                    case InstructionType.BranchIfTtrue:
-                        instruction = new BranchIfTrue();
-                        parameters.Add(Value.FromInteger(_reader.ReadInt32()));
+                        if (!branched)
+                        {
+                            branchBytes = _reader.ReadInt32();
+                            parameters.Add(Value.FromInteger(branchBytes));
+
+                            if (branchBytes > 0)
+                            {
+                                branchBytes += (int) instruction.Size + 1;
+                                branched = true;
+                            }
+                        }
+                        else
+                        {
+                            parameters.Add(Value.FromInteger(_reader.ReadInt32()));
+                        }
                         break;
                     case InstructionType.EA_PushString:
                         instruction = new PushString();
@@ -240,6 +290,14 @@ namespace OpenSage.Gui.Apt.ActionScript
                         instruction = new GetNamedMember();
                         parameters.Add(Value.FromConstant(_reader.ReadByte()));
                         break;
+                    case InstructionType.EA_CallNamedFuncPop:
+                        instruction = new CallNamedFuncPop();
+                        parameters.Add(Value.FromConstant(_reader.ReadByte()));
+                        break;
+                    case InstructionType.EA_CallNamedFunc:
+                        instruction = new CallNamedFunc();
+                        parameters.Add(Value.FromConstant(_reader.ReadByte()));
+                        break;
                     case InstructionType.EA_CallNamedMethodPop:
                         instruction = new CallNamedMethodPop();
                         parameters.Add(Value.FromConstant(_reader.ReadByte()));
@@ -252,8 +310,15 @@ namespace OpenSage.Gui.Apt.ActionScript
                         instruction = new PushByte();
                         parameters.Add(Value.FromInteger(_reader.ReadByte()));
                         break;
+                    case InstructionType.EA_PushShort:
+                        instruction = new PushShort();
+                        parameters.Add(Value.FromInteger(_reader.ReadUInt16()));
+                        break;
                     case InstructionType.End:
-                        parsing = false;
+                        instruction = new End();
+
+                        if (!branched)
+                            parsing = false;
                         break;
                     default:
                         throw new InvalidDataException("Unimplemented bytecode instruction:" + type.ToString());
@@ -262,11 +327,20 @@ namespace OpenSage.Gui.Apt.ActionScript
                 if (instruction != null)
                 {
                     instruction.Parameters = parameters;
-                    Instructions.Add(instruction);
+                    Items.Add(instruction);
+                }
+
+                if (branched)
+                {
+                    branchBytes -= (int) instruction.Size + 1;
+
+                    if (branchBytes <= 0)
+                    {
+                        branched = false;
+                    }
                 }
             }
             _reader.BaseStream.Seek(current, SeekOrigin.Begin);
-
         }
     }
 }

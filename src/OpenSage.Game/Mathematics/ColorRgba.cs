@@ -1,4 +1,5 @@
-﻿using OpenSage.LowLevel.Graphics3D;
+﻿using System;
+using OpenSage.LowLevel.Graphics3D;
 
 namespace OpenSage.Mathematics
 {
@@ -28,6 +29,14 @@ namespace OpenSage.Mathematics
         public ColorRgbaF ToColorRgbaF()
         {
             return new ColorRgbaF(R / 255.0f, G / 255.0f, B / 255.0f, A / 255.0f);
+        }
+
+        public string ToHex()
+        {
+            byte[] data = { R,G,B,A };
+
+            string hex = BitConverter.ToString(data).Replace("-", string.Empty);
+            return hex;
         }
     }
 }

@@ -15,7 +15,7 @@ namespace OpenSage.Data.Apt.Characters
         public bool ReadOnly { get; private set; }
         public bool Multiline { get; private set; }
         public bool WordWrap { get; private set; }
-        public string Content { get; private set; }
+        public string Content { get; internal set; }
         public string Value { get; private set; }
 
         public static Text Parse(BinaryReader reader)
@@ -26,9 +26,9 @@ namespace OpenSage.Data.Apt.Characters
             text.Alignment = reader.ReadUInt32();
             text.Color = reader.ReadColorRgba();
             text.FontHeight = reader.ReadSingle();
-            text.ReadOnly = Convert.ToBoolean(reader.ReadUInt32());
-            text.Multiline = Convert.ToBoolean(reader.ReadUInt32());
-            text.WordWrap = Convert.ToBoolean(reader.ReadUInt32());
+            text.ReadOnly = reader.ReadBooleanUInt32Checked();
+            text.Multiline = reader.ReadBooleanUInt32Checked();
+            text.WordWrap = reader.ReadBooleanUInt32Checked();
             text.Content = reader.ReadStringAtOffset();
             text.Value = reader.ReadStringAtOffset();
             return text;

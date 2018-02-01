@@ -1,8 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
+    /// <summary>
+    /// End the execution of the current Action
+    /// </summary>
+    public sealed class End : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.End;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     /// <summary>
     /// Declare a pool of constants that will be used in the current scope. Mostly used at start.
     /// </summary>
@@ -11,9 +24,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.ConstantPool;
         public override uint Size => 8;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            //create a new constantpool
+            var pool = context.Scope.Constants;
+            pool.Clear();
+
+            for (int i = 0; i < Parameters.Count; ++i)
+            {
+                pool.Add(Parameters[i].ResolveConstant(context));
+            }
         }
     }
 
@@ -24,51 +44,28 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.Trace;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            Debug.WriteLine("[TRACE] " + context.Stack.Pop().ToString());
         }
     }
 
     /// <summary>
-    /// Pop a value from stack and store it inside a register
+    /// Get a value from stack and store it inside a register
     /// </summary>
     public sealed class SetRegister : InstructionBase
     {
         public override InstructionType Type => InstructionType.SetRegister;
         public override uint Size => 4;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
-        }
-    }
+            //get the value from the stack
+            var val = context.Stack.Peek();
 
-    /// <summary>
-    /// Get a variable from the current object and push it to the stack
-    /// </summary>
-    public sealed class GetStringVar : InstructionBase
-    {
-        public override InstructionType Type => InstructionType.EA_GetStringVar;
-        public override uint Size => 4;
-
-        public override void Execute()
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    /// <summary>
-    /// Pops variable name and value from the stack. Then set the variable to that value.
-    /// </summary>
-    public sealed class SetVariable : InstructionBase
-    {
-        public override InstructionType Type => InstructionType.SetVariable;
-        public override uint Size => 0;
-
-        public override void Execute()
-        {
-            throw new NotImplementedException();
+            //store the value inside the specified register
+            var reg = Parameters[0].ToInteger();
+            context.Registers[reg] = val;
         }
     }
 }

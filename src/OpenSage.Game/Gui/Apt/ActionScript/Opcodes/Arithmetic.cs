@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -10,7 +9,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.Add;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
         }
@@ -23,7 +22,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.Subtract;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
         }
@@ -36,9 +35,17 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.Add2;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            //pop two values
+            var a = context.Stack.Pop();
+            var b = context.Stack.Pop();
+
+            if (!(a.Type == ValueType.String || a.Type == ValueType.Undefined) ||
+                !(b.Type == ValueType.String || b.Type == ValueType.Undefined))
+                throw new NotImplementedException();
+
+            context.Stack.Push(Value.FromString(b.ToString() + a.ToString()));
         }
     }
 
@@ -49,7 +56,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.Multiply;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
         }
@@ -62,20 +69,37 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.Divide;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
         }
     }
 
     /// <summary>
-    /// Pop two values from stack and check them for equality. Does work with strings. Result on stack
+    /// Pop two values from stack and check them for equality. Does work with types. Result on stack
     /// </summary>
     public sealed class Equals2 : InstructionBase
     {
         public override InstructionType Type => InstructionType.Equals2;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
+        {
+            var a = context.Stack.Pop();
+            var b = context.Stack.Pop();
+            bool eq = a.Equals(b);
+            context.Stack.Push(Value.FromBoolean(eq));
+
+        }
+    }
+
+    /// <summary>
+    /// Pop two values from stack and check them for equality. Does work with strings. Result on stack
+    /// </summary>
+    public sealed class LessThan2 : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.LessThan2;
+
+        public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
         }

@@ -27,6 +27,7 @@ namespace OpenSage.Gui.Apt
             Root = new SpriteItem() { Transform = ItemTransform.None };
 
             Root.Create(Apt.Movie, _context);
+            _context.Root = Root;
         }
 
         public void Layout(GraphicsDevice gd, in Size windowSize)
@@ -57,7 +58,9 @@ namespace OpenSage.Gui.Apt
             //    ColorRgbaF.White,
             //    Matrix3x2.CreateScale(_scale));
             var transform = ItemTransform.None;
-            Root.Update(transform, gt, _primitiveBatch);
+            Root.Update(gt);
+            Root.RunActions(gt);
+            Root.Render(transform, _primitiveBatch);
 
             _primitiveBatch.End();
         }

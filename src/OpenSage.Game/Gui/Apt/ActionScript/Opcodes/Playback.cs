@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -10,9 +9,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.Play;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            if (context.Scope.Item is SpriteItem si)
+            {
+                si.Play();
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
         }
     }
 
@@ -23,9 +29,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.Stop;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            if (context.Scope.Item is SpriteItem si)
+            {
+                si.Stop();
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
         }
     }
 
@@ -37,9 +50,17 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.GotoFrame;
         public override uint Size => 4;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var frame = Parameters[0].ToInteger();
+            if (context.Scope.Item is SpriteItem si)
+            {
+                si.GotoFrame(frame);
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
         }
     }
 
@@ -51,7 +72,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.GotoLabel;
         public override uint Size => 4;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
         }

@@ -64,7 +64,7 @@ namespace OpenSage.Content
 
             EffectLibrary = AddDisposable(new EffectLibrary(graphicsDevice));
 
-            TranslationManager = new TranslationManager(fileSystem);
+            TranslationManager = new TranslationManager(fileSystem, sageGame);
 
             _cachedFonts = new Dictionary<FontKey, Font>();
         }

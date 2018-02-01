@@ -87,10 +87,10 @@ namespace OpenSage.Data.Apt.Characters
         public ButtonActionFlags Flags;
         public ButtonInput KeyCode;
         public Byte Reserved;
-        public List<InstructionBase> Instructions;
+        public InstructionCollection Instructions;
 
         public ButtonAction(ButtonActionFlags flags, ButtonInput input, Byte res,
-            List<InstructionBase> instructions)
+            InstructionCollection instructions)
         {
             Flags = flags;
             KeyCode = input;
@@ -103,10 +103,10 @@ namespace OpenSage.Data.Apt.Characters
             var flags = reader.ReadByteAsEnumFlags<ButtonActionFlags>();
             var input = reader.ReadUInt16AsEnum<ButtonInput>();
             var reserved = reader.ReadByte();
-            var instructionReader = new InstructionReader(reader.BaseStream);
-            instructionReader.Parse();
+            var instructions = new InstructionCollection(reader.BaseStream);
+            instructions.Parse();
 
-            return new ButtonAction(flags, input, reserved, instructionReader.Instructions);
+            return new ButtonAction(flags, input, reserved, instructions);
         }
     }
 
@@ -123,7 +123,7 @@ namespace OpenSage.Data.Apt.Characters
         {
             var button = new Button();
 
-            button.IsMenu = Convert.ToBoolean(reader.ReadUInt32());
+            button.IsMenu = reader.ReadBooleanUInt32Checked();
             button.Bounds = reader.ReadVector4();
             var tc = reader.ReadUInt32();
             var vc = reader.ReadUInt32();

@@ -145,7 +145,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         BranchAlways = 0x99,
         GetURL2 = 0x9A,
         DefineFunction = 0x9B,
-        BranchIfTtrue = 0x9D,
+        BranchIfTrue = 0x9D,
         CallFrame = 0x9E,
         GotoFrame2 = 0x9F,
         //EA instructions
@@ -184,11 +184,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 case InstructionType.DefineFunction:
                 case InstructionType.DefineFunction2:
                 case InstructionType.ConstantPool:
-                case InstructionType.BranchIfTtrue:
+                case InstructionType.BranchIfTrue:
+                case InstructionType.BranchAlways:
                 case InstructionType.PushData:
                 case InstructionType.GetURL:
                 case InstructionType.GotoLabel:
                 case InstructionType.SetRegister:
+                case InstructionType.SetTarget:
+                case InstructionType.GotoFrame:
                 case InstructionType.EA_PushString:
                 case InstructionType.EA_GetStringVar:
                 case InstructionType.EA_GetStringMember:
@@ -210,7 +213,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public virtual uint Size { get { return 0; } set { } }
         public virtual List<Value> Parameters { get; set; }
 
-        public abstract void Execute();
+        public abstract void Execute(ActionContext context);
     }
 
     /// <summary>
@@ -227,7 +230,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             set => throw new NotImplementedException();
         }
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
         }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -11,12 +10,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.EA_PushString;
         public override uint Size => 4;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Parameters[0]);
         }
     }
-
 
     /// <summary>
     /// Push a float to the stack
@@ -26,7 +24,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.EA_PushFloat;
         public override uint Size => 4;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
         }
@@ -40,9 +38,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.EA_PushConstantByte;
         public override uint Size => 1;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var id = Parameters[0].ToInteger();
+            context.Stack.Push(context.Scope.Constants[id]);
         }
     }
 
@@ -54,9 +53,23 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.EA_PushByte;
         public override uint Size => 1;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Parameters[0]);
+        }
+    }
+
+    /// <summary>
+    /// Read a short and push it to the stack
+    /// </summary>
+    public sealed class PushShort : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.EA_PushShort;
+        public override uint Size => 2;
+
+        public override void Execute(ActionContext context)
+        {
+            context.Stack.Push(Parameters[0]);
         }
     }
 
@@ -68,9 +81,27 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override InstructionType Type => InstructionType.EA_PushValueOfVar;
         public override uint Size => 1;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var id = Parameters[0].ToInteger();
+            var str = context.Scope.Constants[id].ToString();
+
+            Value result;
+
+            if (context.CheckParameter(str))
+            {
+                result = context.GetParameter(str);
+            }
+            else
+            {
+                //check if this a special object, like _root, _parent etc.
+                result = context.GetObject(str);
+            }
+
+            if (result == null)
+                throw new InvalidOperationException();
+
+            context.Stack.Push(result);
         }
     }
 
@@ -81,9 +112,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.EA_PushUndefined;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Value.Undefined());
         }
     }
 
@@ -94,9 +125,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.EA_PushFalse;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Value.FromBoolean(false));
         }
     }
 
@@ -107,9 +138,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.EA_PushZero;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Value.FromInteger(0));
         }
     }
 
@@ -120,7 +151,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.EA_PushThis;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
         }
@@ -133,9 +164,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.EA_PushThisVar;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Value.FromObject(context.Scope));
         }
     }
 
@@ -146,9 +177,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.EA_PushOne;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Value.FromInteger(1));
         }
     }
 
@@ -159,9 +190,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.EA_PushTrue;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Value.FromBoolean(true));
         }
     }
 
@@ -171,10 +202,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     public sealed class PushData : InstructionBase
     {
         public override InstructionType Type => InstructionType.PushData;
+        public override uint Size => 8;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            foreach (var constant in Parameters)
+            {
+                context.Stack.Push(constant.ResolveConstant(context));
+            }
         }
     }
 
@@ -185,7 +220,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.EA_ZeroVar;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
         }
@@ -198,9 +233,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.EA_PushGlobalVar;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stack.Push(Value.FromObject(context.Global));
         }
     }
 
@@ -211,9 +246,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.PushDuplicate;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var val = context.Stack.Peek();
+            context.Stack.Push(val);
         }
     }
 
@@ -224,7 +260,20 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.Pop;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
+        {
+            context.Stack.Pop();
+        }
+    }
+
+    /// <summary>
+    /// Pop a value from the stack and convert it to number push it back
+    /// </summary>
+    public sealed class ToNumber : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.ToNumber;
+
+        public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
         }

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -8,12 +8,15 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// </summary>
     public sealed class GetUrl : InstructionBase
     {
-        public override InstructionType Type => InstructionType.GetURL2;
+        public override InstructionType Type => InstructionType.GetURL;
         public override uint Size => 8;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var target = Parameters[0].ToString();
+            var url = Parameters[1].ToString();
+
+            Debug.WriteLine("[URL] Target: " + target + " URL: " + url);
         }
     }
 
@@ -24,9 +27,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.GetURL2;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var target = context.Stack.Pop().ToString();
+            var url = context.Stack.Pop().ToString();
+
+            Debug.WriteLine("[URL2] Target: " + target + " URL: " + url);
         }
     }
 }

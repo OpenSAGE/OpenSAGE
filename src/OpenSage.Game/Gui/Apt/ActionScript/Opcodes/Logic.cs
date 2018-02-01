@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -13,9 +9,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.Not;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var val = context.Stack.Pop();
+            var boolVal = val.ToBoolean();
+            context.Stack.Push(Value.FromBoolean(!boolVal));
         }
     }
 
@@ -24,7 +22,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     {
         public override InstructionType Type => InstructionType.Greater;
 
-        public override void Execute()
+        public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
         }

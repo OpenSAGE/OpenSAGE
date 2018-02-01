@@ -7,23 +7,29 @@ namespace OpenSage.Gui.Apt
 {
     public sealed class AptRenderer
     {
+
         public static void RenderText(DrawingContext2D drawingContext, AptContext context,
             Text text, ItemTransform transform)
         {
             var content = context.ContentManager;
             var font = content.GetOrCreateFont("Arial", text.FontHeight, FontWeight.Normal);
+            var matrix = transform.GeometryRotation;
+            matrix.Translation = transform.GeometryTranslation;
 
             drawingContext.DrawText(
                 text.Content,
                 font,
                 TextAlignment.Center,
                 text.Color.ToColorRgbaF() * transform.ColorTransform,
-                RectangleF.Transform(text.Bounds, transform.GeometryTransform));
+                RectangleF.Transform(text.Bounds, matrix));
         }
 
         public static void RenderGeometry(DrawingContext2D drawingContext, AptContext context,
             Geometry shape, ItemTransform transform)
         {
+            var matrix = transform.GeometryRotation;
+            matrix.Translation = transform.GeometryTranslation;
+
             foreach (var e in shape.Entries)
             {
                 switch (e)
@@ -34,7 +40,7 @@ namespace OpenSage.Gui.Apt
                             foreach (var line in l.Lines)
                             {
                                 drawingContext.DrawLine(
-                                    Line2D.Transform(line, transform.GeometryTransform),
+                                    Line2D.Transform(line, matrix),
                                     l.Thickness,
                                     color);
                             }
@@ -47,7 +53,7 @@ namespace OpenSage.Gui.Apt
                             foreach (var tri in st.Triangles)
                             {
                                 drawingContext.FillTriangle(
-                                    Triangle2D.Transform(tri, transform.GeometryTransform),
+                                    Triangle2D.Transform(tri, matrix),
                                     color);
                             }
                             break;
@@ -75,7 +81,7 @@ namespace OpenSage.Gui.Apt
                                 drawingContext.FillTriangle(
                                     tex,
                                     Triangle2D.Transform(tri, coordinatesTransform),
-                                    Triangle2D.Transform(tri, transform.GeometryTransform),
+                                    Triangle2D.Transform(tri, matrix),
                                     transform.ColorTransform);
                             }
                             break;
