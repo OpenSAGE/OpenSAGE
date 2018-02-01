@@ -20,6 +20,8 @@ namespace OpenSage
 
             result.AddComponent(new ObjectComponent());
 
+            ColliderComponent.AddColliders(result, objectDefinition);
+
             foreach (var draw in objectDefinition.Draws)
             {
                 var drawEntity = new Entity();

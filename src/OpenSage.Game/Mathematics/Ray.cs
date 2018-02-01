@@ -14,89 +14,30 @@ namespace OpenSage.Mathematics
             Direction = direction;
         }
 
-        // From https://github.com/MonoGame/MonoGame/blob/develop/MonoGame.Framework/Ray.cs
-        // which in turn was adapted from http://www.scratchapixel.com/lessons/3d-basic-lessons/lesson-7-intersecting-simple-shapes/ray-box-intersection/
-        public float? Intersects(BoundingBox box)
+        public bool Intersects(in BoundingBox box, out float t)
         {
-            const float Epsilon = 1e-6f;
+            // Based on https://tavianator.com/fast-branchless-raybounding-box-intersections/
 
-            float? tMin = null, tMax = null;
+            var tMin = float.MinValue;
+            var tMax = float.MaxValue;
 
-            if (Math.Abs(Direction.X) < Epsilon)
-            {
-                if (Position.X < box.Min.X || Position.X > box.Max.X)
-                    return null;
-            }
-            else
-            {
-                tMin = (box.Min.X - Position.X) / Direction.X;
-                tMax = (box.Max.X - Position.X) / Direction.X;
+            var v1 = (box.Min - Position) / Direction;
+            var v2 = (box.Max - Position) / Direction;
 
-                if (tMin > tMax)
-                {
-                    var temp = tMin;
-                    tMin = tMax;
-                    tMax = temp;
-                }
-            }
+            var vMin = Vector3.Min(v1, v2);
+            var vMax = Vector3.Max(v1, v2);
 
-            if (Math.Abs(Direction.Y) < Epsilon)
-            {
-                if (Position.Y < box.Min.Y || Position.Y > box.Max.Y)
-                    return null;
-            }
-            else
-            {
-                var tMinY = (box.Min.Y - Position.Y) / Direction.Y;
-                var tMaxY = (box.Max.Y - Position.Y) / Direction.Y;
+            tMin = Math.Max(tMin, vMin.X);
+            tMin = Math.Max(tMin, vMin.Y);
+            tMin = Math.Max(tMin, vMin.Z);
 
-                if (tMinY > tMaxY)
-                {
-                    var temp = tMinY;
-                    tMinY = tMaxY;
-                    tMaxY = temp;
-                }
+            tMax = Math.Min(tMax, vMax.X);
+            tMax = Math.Min(tMax, vMax.Y);
+            tMax = Math.Min(tMax, vMax.Z);
 
-                if ((tMin.HasValue && tMin > tMaxY) || (tMax.HasValue && tMinY > tMax))
-                    return null;
+            t = tMin;
 
-                if (!tMin.HasValue || tMinY > tMin) tMin = tMinY;
-                if (!tMax.HasValue || tMaxY < tMax) tMax = tMaxY;
-            }
-
-            if (Math.Abs(Direction.Z) < Epsilon)
-            {
-                if (Position.Z < box.Min.Z || Position.Z > box.Max.Z)
-                    return null;
-            }
-            else
-            {
-                var tMinZ = (box.Min.Z - Position.Z) / Direction.Z;
-                var tMaxZ = (box.Max.Z - Position.Z) / Direction.Z;
-
-                if (tMinZ > tMaxZ)
-                {
-                    var temp = tMinZ;
-                    tMinZ = tMaxZ;
-                    tMaxZ = temp;
-                }
-
-                if ((tMin.HasValue && tMin > tMaxZ) || (tMax.HasValue && tMinZ > tMax))
-                    return null;
-
-                if (!tMin.HasValue || tMinZ > tMin) tMin = tMinZ;
-                if (!tMax.HasValue || tMaxZ < tMax) tMax = tMaxZ;
-            }
-
-            // having a positive tMin and a negative tMax means the ray is inside the box
-            // we expect the intesection distance to be 0 in that case
-            if ((tMin.HasValue && tMin < 0) && tMax > 0) return 0;
-
-            // a negative tMin means that the intersection point is behind the ray's origin
-            // we discard these as not hitting the AABB
-            if (tMin < 0) return null;
-
-            return tMin;
+            return tMax >= tMin;
         }
 
         public float? Intersects(ref Plane plane)
@@ -120,6 +61,11 @@ namespace OpenSage.Mathematics
             }
 
             return result;
+        }
+
+        public Ray Transform(Matrix4x4 world)
+        {
+            return new Ray(Vector3.Transform(Position, world), Vector3.TransformNormal(Direction, world));
         }
 
         /// <summary>
@@ -191,6 +137,11 @@ namespace OpenSage.Mathematics
 
             result = rayDistance;
             return true;
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(Position)}: {Position}, {nameof(Direction)}: {Direction}";
         }
     }
 }

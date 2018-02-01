@@ -47,7 +47,7 @@ namespace OpenSage.Terrain
             Ray ray,
             ref float? closestIntersection)
         {
-            if (ray.Intersects(BoundingBox) == null)
+            if (!ray.Intersects(BoundingBox, out var _))
             {
                 return;
             }
