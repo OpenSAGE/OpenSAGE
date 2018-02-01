@@ -40,6 +40,41 @@ namespace OpenSage.Mathematics
             return tMax >= tMin;
         }
 
+        public bool Intersects(in BoundingSphere sphere, out float t)
+        {
+            // Based on https://gamedev.stackexchange.com/a/96469
+
+            var p = Position - sphere.Center;
+
+            var rSquared = sphere.Radius * sphere.Radius;
+            var pDot = Vector3.Dot(p, Direction);
+
+            if (pDot > 0 || Vector3.Dot(p, p) < rSquared)
+            {
+                t = 0;
+                return false;
+            }
+
+            var a = p - pDot * Direction;
+
+            var aSquared = Vector3.Dot(a, a);
+
+            if (aSquared > rSquared)
+            {
+                t = 0;
+                return false;
+            }
+
+            var h = (float) Math.Sqrt(rSquared - aSquared);
+            var i = a - h * Direction;
+
+            // Intersection point. Could be useful?
+            // var intersection = Position + i;
+
+            t = i.Length();
+            return true;
+        }
+
         public float? Intersects(ref Plane plane)
         {
             var den = Vector3.Dot(Direction, plane.Normal);

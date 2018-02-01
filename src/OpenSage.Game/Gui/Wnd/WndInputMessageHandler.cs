@@ -85,6 +85,7 @@ namespace OpenSage.Gui.Wnd
                         if (message.Key == Key.Escape && _windowManager.OpenWindowCount > 1)
                         {
                             _windowManager.PopWindow();
+                            return InputMessageResult.Handled;
                         }
                         break;
                     }

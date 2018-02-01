@@ -22,7 +22,7 @@ namespace OpenSage.Logic
             {
                 case InputMessageType.MouseMove:
                     _mousePosition = new Vector2(message.MouseX.Value, message.MouseY.Value);
-                    return InputMessageResult.NotHandled;
+                    break;
                 case InputMessageType.MouseDown:
                     _mouseWasDown = _mouseIsDown;
 
@@ -30,14 +30,13 @@ namespace OpenSage.Logic
                     {
                         return InputMessageResult.Handled;
                     }
-
-                    return InputMessageResult.NotHandled;
+                    break;
                 case InputMessageType.MouseUp:
                     _mouseWasDown = false;
                     _mouseIsDown = false;
-                    return InputMessageResult.NotHandled;
-                default: return InputMessageResult.NotHandled;
+                    break;
             }
+            return InputMessageResult.NotHandled;
         }
     }
 }
