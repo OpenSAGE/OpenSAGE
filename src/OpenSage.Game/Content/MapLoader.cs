@@ -607,8 +607,8 @@ namespace OpenSage.Content
                             0, 0, 0,
                             mipLevel,
                             i,
-                            (uint) imageSharpTexture.Images[i].Width,
-                            (uint) imageSharpTexture.Images[i].Height,
+                            (uint) imageSharpTexture.Images[mipLevel].Width,
+                            (uint) imageSharpTexture.Images[mipLevel].Height,
                             1,
                             1);
                     }
