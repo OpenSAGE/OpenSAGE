@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
-using OpenSage.LowLevel.Graphics3D;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Apt
 {

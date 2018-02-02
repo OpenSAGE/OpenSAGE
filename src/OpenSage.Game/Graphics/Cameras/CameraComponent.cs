@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Graphics.Cameras
 {
@@ -125,7 +125,7 @@ namespace OpenSage.Graphics.Cameras
                     var fieldOfView = 2 * MathUtility.Atan(0.5f * height / _focalLength);
 
                     _cachedProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
-                        fieldOfView, Viewport.AspectRatio,
+                        fieldOfView, Viewport.Width / Viewport.Height,
                         NearPlaneDistance, FarPlaneDistance);
                 }
 
@@ -196,7 +196,9 @@ namespace OpenSage.Graphics.Cameras
                         viewportBounds.X,
                         viewportBounds.Y,
                         viewportBounds.Width,
-                        viewportBounds.Height);
+                        viewportBounds.Height,
+                        0,
+                        1);
                 }
 
                 return _viewport.Value;

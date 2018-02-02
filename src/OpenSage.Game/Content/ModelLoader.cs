@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using OpenSage.LowLevel.Graphics3D;
-using OpenSage.LowLevel.Graphics3D.Util;
 using OpenSage.Content.Util;
 using OpenSage.Data;
 using OpenSage.Data.W3d;
@@ -12,6 +10,9 @@ using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Effects;
 using OpenSage.Mathematics;
+using OpenSage.Utilities;
+using OpenSage.Utilities.Extensions;
+using Veldrid;
 
 namespace OpenSage.Content
 {
@@ -136,7 +137,16 @@ namespace OpenSage.Content
                 var shaderMaterialID = w3dMesh.MaterialPasses[0].ShaderMaterialId.Value;
                 w3dShaderMaterial = w3dMesh.ShaderMaterials.Materials[(int) shaderMaterialID];
                 var effectName = w3dShaderMaterial.Header.TypeName.Replace(".fx", string.Empty);
-                effect = contentManager.EffectLibrary.GetEffect(effectName, MeshVertex.VertexDescriptor);
+
+                if (effectName != "Simple")
+                {
+                    throw new NotImplementedException();
+                }
+
+                effect = contentManager.EffectLibrary.GetEffect(
+                    effectName,
+                    MeshVertex.VertexDescriptors,
+                    SimpleMaterial.ResourceLayoutDescriptions);
             }
             else
             {
@@ -325,95 +335,103 @@ namespace OpenSage.Content
             var meshParts = new List<ModelMeshPart>();
 
             // TODO: Extract state properties from shader material.
-            var rasterizerState = RasterizerStateDescription.CullBackSolid;
-            var depthState = DepthStencilStateDescription.Default;
-            var blendState = BlendStateDescription.Opaque;
+            var rasterizerState = RasterizerStateDescription.Default;
+            var depthState = DepthStencilStateDescription.DepthOnlyLessEqual;
+            var blendState = BlendStateDescriptionUtility.SingleBlendOpaque;
 
-            var material = new ShaderMaterial(effect);
+            // TODO_VELDRID: Handle shader materials generically.
+
+            var material = new ShaderMaterial(
+                effect,
+                SimpleMaterial.SlotSampler,
+                SimpleMaterial.SlotSkinningBuffer,
+                SimpleMaterial.SlotMeshConstants);
 
             material.PipelineState = new EffectPipelineState(
                 rasterizerState,
                 depthState,
                 blendState);
 
-            var materialConstantsResourceBinding = effect.GetParameter("MaterialConstants").ResourceBinding;
-            var materialConstantsBuffer = AddDisposable(OpenSage.LowLevel.Graphics3D.Buffer.CreateDynamic(
-                contentManager.GraphicsDevice, 
-                (uint) materialConstantsResourceBinding.ConstantBufferSizeInBytes,
-                BufferBindFlags.ConstantBuffer));
+            throw new NotImplementedException();
 
-            var materialConstantsBytes = new byte[materialConstantsResourceBinding.ConstantBufferSizeInBytes];
+            //var materialConstantsResourceBinding = effect.GetParameter(SimpleMaterial.SlotMaterialConstants).ResourceBinding;
+            //var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateBuffer(
+            //    new BufferDescription(
+            //        (uint) materialConstantsResourceBinding.ConstantBufferSizeInBytes,
+            //        BufferUsage.UniformBuffer | BufferUsage.Dynamic)));
 
-            void setMaterialConstant<T>(string name, T value)
-                where T : struct
-            {
-                var constantBufferField = materialConstantsResourceBinding.GetConstantBufferField(name);
+            //var materialConstantsBytes = new byte[materialConstantsResourceBinding.ConstantBufferSizeInBytes];
 
-                var valueBytes = StructInteropUtility.ToBytes(ref value);
+            //void setMaterialConstant<T>(string name, T value)
+            //    where T : struct
+            //{
+            //    var constantBufferField = materialConstantsResourceBinding.GetConstantBufferField(name);
 
-                if (valueBytes.Length != constantBufferField.Size)
-                {
-                    throw new InvalidOperationException();
-                }
+            //    var valueBytes = StructInteropUtility.ToBytes(ref value);
 
-                System.Buffer.BlockCopy(
-                    valueBytes,
-                    0,
-                    materialConstantsBytes,
-                    constantBufferField.Offset,
-                    constantBufferField.Size);
-            }
+            //    if (valueBytes.Length != constantBufferField.Size)
+            //    {
+            //        throw new InvalidOperationException();
+            //    }
 
-            foreach (var w3dShaderProperty in w3dShaderMaterial.Properties)
-            {
-                switch (w3dShaderProperty.PropertyType)
-                {
-                    case W3dShaderMaterialPropertyType.Texture:
-                        var texture = CreateTexture(contentManager, w3dShaderProperty.StringValue);
-                        material.SetProperty(w3dShaderProperty.PropertyName, texture);
-                        break;
+            //    System.Buffer.BlockCopy(
+            //        valueBytes,
+            //        0,
+            //        materialConstantsBytes,
+            //        constantBufferField.Offset,
+            //        constantBufferField.Size);
+            //}
 
-                    case W3dShaderMaterialPropertyType.Bool:
-                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Bool);
-                        break;
+            //foreach (var w3dShaderProperty in w3dShaderMaterial.Properties)
+            //{
+            //    switch (w3dShaderProperty.PropertyType)
+            //    {
+            //        case W3dShaderMaterialPropertyType.Texture:
+            //            var texture = CreateTexture(contentManager, w3dShaderProperty.StringValue);
+            //            material.SetProperty(w3dShaderProperty.PropertyName, texture);
+            //            break;
 
-                    case W3dShaderMaterialPropertyType.Color:
-                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Color);
-                        break;
+            //        case W3dShaderMaterialPropertyType.Bool:
+            //            setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Bool);
+            //            break;
 
-                    case W3dShaderMaterialPropertyType.Float:
-                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Float);
-                        break;
+            //        case W3dShaderMaterialPropertyType.Color:
+            //            setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Color);
+            //            break;
 
-                    case W3dShaderMaterialPropertyType.Vector2:
-                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector2);
-                        break;
+            //        case W3dShaderMaterialPropertyType.Float:
+            //            setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Float);
+            //            break;
 
-                    case W3dShaderMaterialPropertyType.Vector3:
-                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector3);
-                        break;
+            //        case W3dShaderMaterialPropertyType.Vector2:
+            //            setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector2);
+            //            break;
 
-                    case W3dShaderMaterialPropertyType.Int:
-                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Int);
-                        break;
+            //        case W3dShaderMaterialPropertyType.Vector3:
+            //            setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector3);
+            //            break;
 
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
+            //        case W3dShaderMaterialPropertyType.Int:
+            //            setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Int);
+            //            break;
 
-            materialConstantsBuffer.SetData(materialConstantsBytes);
-            material.SetProperty("MaterialConstants", materialConstantsBuffer);
+            //        default:
+            //            throw new NotSupportedException();
+            //    }
+            //}
 
-            meshParts.Add(new ModelMeshPart(
-                0,
-                w3dMesh.Header.NumTris * 3,
-                material));
+            //contentManager.GraphicsDevice.UpdateBuffer(materialConstantsBuffer, 0, materialConstantsBytes);
+            //material.SetProperty("MaterialConstants", materialConstantsBuffer);
 
-            return new ModelMeshMaterialPass(
-                contentManager.GraphicsDevice,
-                texCoords,
-                meshParts);
+            //meshParts.Add(new ModelMeshPart(
+            //    0,
+            //    w3dMesh.Header.NumTris * 3,
+            //    material));
+
+            //return new ModelMeshMaterialPass(
+            //    contentManager.GraphicsDevice,
+            //    texCoords,
+            //    meshParts);
         }
 
         // One ModelMeshMaterialPass for each W3D_CHUNK_MATERIAL_PASS
@@ -636,23 +654,25 @@ namespace OpenSage.Content
         {
             var w3dShader = w3dMesh.Shaders[shaderID];
 
-            var rasterizerState = RasterizerStateDescription.CullBackSolid;
+            var rasterizerState = RasterizerStateDescription.Default;
             rasterizerState.CullMode = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.TwoSided)
-                ? CullMode.None
-                : CullMode.CullBack;
+                ? FaceCullMode.None
+                : FaceCullMode.Back;
 
-            var depthState = DepthStencilStateDescription.Default;
-            depthState.IsDepthEnabled = true;
-            depthState.IsDepthWriteEnabled = w3dShader.DepthMask == W3dShaderDepthMask.WriteEnable;
+            var depthState = DepthStencilStateDescription.DepthOnlyLessEqual;
+            depthState.DepthWriteEnabled = w3dShader.DepthMask == W3dShaderDepthMask.WriteEnable;
             depthState.DepthComparison = w3dShader.DepthCompare.ToComparison();
 
-            var blendState = BlendStateDescription.Opaque;
-            blendState.Enabled = w3dShader.SrcBlend != W3dShaderSrcBlendFunc.One
-                || w3dShader.DestBlend != W3dShaderDestBlendFunc.Zero;
-            blendState.SourceBlend = w3dShader.SrcBlend.ToBlend();
-            blendState.SourceAlphaBlend = w3dShader.SrcBlend.ToBlend();
-            blendState.DestinationBlend = w3dShader.DestBlend.ToBlend(false);
-            blendState.DestinationAlphaBlend = w3dShader.DestBlend.ToBlend(true);
+            var blendState = new BlendStateDescription(
+                RgbaFloat.White,
+                new BlendAttachmentDescription(
+                    w3dShader.SrcBlend != W3dShaderSrcBlendFunc.One || w3dShader.DestBlend != W3dShaderDestBlendFunc.Zero,
+                    w3dShader.SrcBlend.ToBlend(),
+                    w3dShader.DestBlend.ToBlend(false),
+                    BlendFunction.Add,
+                    w3dShader.SrcBlend.ToBlend(),
+                    w3dShader.DestBlend.ToBlend(true),
+                    BlendFunction.Add));
 
             var effectMaterial = new FixedFunctionMaterial(contentManager.EffectLibrary.FixedFunction);
 
@@ -661,15 +681,14 @@ namespace OpenSage.Content
                 depthState,
                 blendState);
 
-            var materialConstantsBuffer = AddDisposable(Buffer<FixedFunctionMaterial.MaterialConstants>.CreateStatic(
-                contentManager.GraphicsDevice,
+            var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
                 new FixedFunctionMaterial.MaterialConstants
                 {
                     Material = vertexMaterials[vertexMaterialID],
                     Shading = shadingConfigurations[shaderID],
                     NumTextureStages = numTextureStages
                 },
-                BufferBindFlags.ConstantBuffer));
+                BufferUsage.UniformBuffer));
 
             effectMaterial.SetMaterialConstants(materialConstantsBuffer);
             effectMaterial.SetTexture0(CreateTexture(contentManager, w3dMesh, textureIndex0));

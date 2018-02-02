@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Terrain;
+using Veldrid;
 
 namespace OpenSage.Graphics.Effects
 {
-    public sealed class EffectLibrary : GraphicsObject
+    public sealed class EffectLibrary : DisposableBase
     {
         private readonly GraphicsDevice _graphicsDevice;
         private readonly Dictionary<string, Effect> _effects;
@@ -23,33 +23,41 @@ namespace OpenSage.Graphics.Effects
             FixedFunction = AddDisposable(new Effect(
                 graphicsDevice,
                 "FixedFunction",
-                MeshVertex.VertexDescriptor));
+                MeshVertex.VertexDescriptors,
+                FixedFunctionMaterial.ResourceLayoutDescriptions));
 
             Particle = AddDisposable(new Effect(
                 graphicsDevice,
                 "Particle",
-                ParticleVertex.VertexDescriptor));
+                ParticleVertex.VertexDescriptor,
+                ParticleMaterial.ResourceLayoutDescriptions));
 
             Sprite = AddDisposable(new Effect(
                 graphicsDevice,
                 "Sprite",
                 SpriteVertex.VertexDescriptor,
+                SpriteMaterial.ResourceLayoutDescriptions,
                 true));
 
             Terrain = AddDisposable(new Effect(
                 graphicsDevice,
                 "Terrain",
-                TerrainVertex.VertexDescriptor));
+                TerrainVertex.VertexDescriptor,
+                TerrainMaterial.ResourceLayoutDescriptions));
         }
 
-        public Effect GetEffect(string name, VertexDescriptor vertexDescriptor)
+        public Effect GetEffect(
+            string name,
+            VertexLayoutDescription[] vertexDescriptors,
+            ResourceLayoutElementDescription[] resourceLayoutDescriptions)
         {
             if (!_effects.TryGetValue(name, out var effect))
             {
                 _effects[name] = effect = AddDisposable(new Effect(
                     _graphicsDevice,
                     name,
-                    vertexDescriptor));
+                    vertexDescriptors,
+                    resourceLayoutDescriptions));
             }
             return effect;
         }

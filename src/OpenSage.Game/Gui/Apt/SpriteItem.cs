@@ -1,10 +1,10 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Numerics;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
-using System.Collections.Generic;
 using OpenSage.Gui.Apt.ActionScript;
-using OpenSage.LowLevel.Graphics3D;
-using System.Diagnostics;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Apt
 {

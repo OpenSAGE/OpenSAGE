@@ -1,3 +1,5 @@
+#define GLOBAL_CONSTANTS_PS_REGISTER b2
+
 #include "Common.hlsli"
 #include "MeshCommon.hlsli"
 
@@ -16,7 +18,7 @@ struct PSInputFixedFunction
 
 VSOutputFixedFunction VS(VSInputSkinned input)
 {
-    VSOutputFixedFunction result = (VSOutputFixedFunction)0;
+    VSOutputFixedFunction result = (VSOutputFixedFunction) 0;
 
     VSSkinnedInstanced(input, result.VSOutput, result.TransferCommon);
 
@@ -25,6 +27,7 @@ VSOutputFixedFunction VS(VSInputSkinned input)
 
 #define SPECULAR_ENABLED
 #define LIGHTING_TYPE Object
+#define LIGHTING_CONSTANTS_REGISTER b5
 #include "Lighting.hlsli"
 
 struct TextureMapping
@@ -66,7 +69,7 @@ struct ShadingConfiguration
     bool AlphaTest;
 };
 
-cbuffer MaterialConstants : register(b2)
+cbuffer MaterialConstants : register(b6)
 {
     uint NumTextureStages;
     VertexMaterial Material;
@@ -92,8 +95,8 @@ cbuffer MaterialConstants : register(b2)
 #define SECONDARY_TEXTURE_BLEND_INV_SCALE    3
 #define SECONDARY_TEXTURE_BLEND_DETAIL_BLEND 4
 
-Texture2D<float4> Texture0 : register(t0);
-Texture2D<float4> Texture1 : register(t1);
+Texture2D<float4> Texture0 : register(t1);
+Texture2D<float4> Texture1 : register(t2);
 
 SamplerState Sampler : register(s0);
 

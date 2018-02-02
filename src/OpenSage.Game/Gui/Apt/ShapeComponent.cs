@@ -2,8 +2,8 @@
 using OpenSage.Content;
 using OpenSage.Data.Apt;
 using OpenSage.Graphics;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Gui.Apt
 {
@@ -56,12 +56,14 @@ namespace OpenSage.Gui.Apt
                 _texture = null;
             }
 
-            _texture = Texture.CreateTexture2D(
-                gd,
-                PixelFormat.Rgba8UNorm,
-                _frame.Width,
-                _frame.Height,
-                TextureBindFlags.ShaderResource | TextureBindFlags.RenderTarget);
+            _texture = gd.ResourceFactory.CreateTexture(
+                TextureDescription.Texture2D(
+                    (uint) _frame.Width,
+                    (uint) _frame.Height,
+                    1,
+                    1,
+                    PixelFormat.R8_G8_B8_A8_UNorm,
+                    TextureUsage.Sampled | TextureUsage.RenderTarget));
 
             if (_primitiveBatch != null)
             {
@@ -74,7 +76,7 @@ namespace OpenSage.Gui.Apt
 
         public void Draw(GraphicsDevice gd)
         {
-            _primitiveBatch.Begin(gd.SamplerLinearClamp, ColorRgbaF.Transparent);
+            _primitiveBatch.Begin(ContentManager.LinearClampSampler, ColorRgbaF.Transparent);
 
             AptRenderer.RenderGeometry(_primitiveBatch, _context, Shape, ItemTransform.None);
 

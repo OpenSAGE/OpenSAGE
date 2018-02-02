@@ -1,5 +1,4 @@
 ﻿using System;
-using OpenSage.LowLevel.Graphics3D;
 
 namespace OpenSage.Mathematics
 {

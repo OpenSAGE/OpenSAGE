@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Graphics.Effects;
-using OpenSage.LowLevel.Graphics3D;
+using Veldrid;
 
 namespace OpenSage.Graphics.Rendering
 {
@@ -24,8 +24,8 @@ namespace OpenSage.Graphics.Rendering
 
         public void AddRenderItemDraw(
             EffectMaterial material,
-            Buffer vertexBuffer0,
-            Buffer vertexBuffer1,
+            DeviceBuffer vertexBuffer0,
+            DeviceBuffer vertexBuffer1,
             CullFlags cullFlags,
             ICullable cullable,
             in Matrix4x4 world,
@@ -47,14 +47,14 @@ namespace OpenSage.Graphics.Rendering
 
         public void AddRenderItemDrawIndexed(
             EffectMaterial material,
-            Buffer vertexBuffer0,
-            Buffer vertexBuffer1,
+            DeviceBuffer vertexBuffer0,
+            DeviceBuffer vertexBuffer1,
             CullFlags cullFlags,
             ICullable cullable,
             in Matrix4x4 world,
             uint startIndex,
             uint indexCount,
-            Buffer<ushort> indexBuffer)
+            DeviceBuffer indexBuffer)
         {
             RenderItems.Add(new RenderItem(
                 material,

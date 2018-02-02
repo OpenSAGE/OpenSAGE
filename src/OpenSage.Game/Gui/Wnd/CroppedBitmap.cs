@@ -1,5 +1,5 @@
-﻿using OpenSage.LowLevel.Graphics3D;
-using OpenSage.Mathematics;
+﻿using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Gui.Wnd
 {

@@ -47,6 +47,8 @@ namespace OpenSage
 
         private readonly IntPtr _sdlWindowHandle;
 
+        private IntPtr _nativeWindowHandle;
+
         private Point2D _cachedPosition;
         private Size _cachedSize;
 
@@ -58,7 +60,7 @@ namespace OpenSage
             set => Sdl2Native.SDL_ShowCursor(value ? Sdl2Native.SDL_ENABLE : Sdl2Native.SDL_DISABLE);
         }
 
-        public override IntPtr NativeWindowHandle => GetUnderlyingWindowHandle();
+        public override IntPtr NativeWindowHandle => _nativeWindowHandle;
 
         public Sdl2GameWindow(IntPtr windowsWindowHandle)
         {
@@ -81,6 +83,8 @@ namespace OpenSage
         {
             RefreshCachedPosition();
             RefreshCachedSize();
+
+            _nativeWindowHandle = GetUnderlyingWindowHandle();
 
             Sdl2Native.SDL_ShowWindow(_sdlWindowHandle);
         }

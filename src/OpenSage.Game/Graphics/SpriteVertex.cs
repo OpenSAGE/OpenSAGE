@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.LowLevel.Graphics3D;
+using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Graphics
 {
@@ -11,16 +12,9 @@ namespace OpenSage.Graphics
         public Vector2 UV;
         public ColorRgbaF Color;
 
-        public static readonly VertexDescriptor VertexDescriptor = new VertexDescriptor(
-            new[]
-            {
-                new VertexAttributeDescription("POSITION", 0, VertexFormat.Float3, 0, 0),
-                new VertexAttributeDescription("TEXCOORD", 0, VertexFormat.Float2, 12, 0),
-                new VertexAttributeDescription("COLOR", 0, VertexFormat.Float4, 20, 0)
-            },
-            new[]
-            {
-                new VertexLayoutDescription(InputClassification.PerVertexData, 32)
-            });
+        public static readonly VertexLayoutDescription VertexDescriptor = new VertexLayoutDescription(
+            new VertexElementDescription("POSITION", VertexElementSemantic.Position, VertexElementFormat.Float3),
+            new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
+            new VertexElementDescription("COLOR", VertexElementSemantic.Color, VertexElementFormat.Float4));
     }
 }

@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Graphics.Effects;
 using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Graphics.Rendering
 {
@@ -10,7 +10,6 @@ namespace OpenSage.Graphics.Rendering
     {
         private readonly RenderList _renderList;
 
-        private readonly DepthStencilBufferCache _depthStencilBufferCache;
         private readonly ConstantBuffer<GlobalConstantsShared> _globalConstantBufferShared;
         private readonly ConstantBuffer<GlobalConstantsVS> _globalConstantBufferVS;
         private readonly ConstantBuffer<GlobalConstantsPS> _globalConstantBufferPS;
@@ -25,8 +24,6 @@ namespace OpenSage.Graphics.Rendering
             _renderList = new RenderList();
 
             var graphicsDevice = game.GraphicsDevice;
-
-            _depthStencilBufferCache = AddDisposable(new DepthStencilBufferCache(graphicsDevice));
 
             _globalConstantBufferShared = AddDisposable(new ConstantBuffer<GlobalConstantsShared>(graphicsDevice));
             _globalConstantBufferVS = AddDisposable(new ConstantBuffer<GlobalConstantsVS>(graphicsDevice));
@@ -49,26 +46,17 @@ namespace OpenSage.Graphics.Rendering
                 system.BuildRenderList(_renderList);
             }
 
-            var commandBuffer = context.GraphicsDevice.CommandQueue.GetCommandBuffer();
+            // TODO: Should these be re-used?
+            var commandEncoder = context.GraphicsDevice.ResourceFactory.CreateCommandList();
 
-            var renderPassDescriptor = new RenderPassDescriptor();
+            commandEncoder.Begin();
 
-            var clearColor = context.Camera.BackgroundColor.ToColorRgbaF();
+            commandEncoder.SetFramebuffer(context.RenderTarget);
 
-            renderPassDescriptor.SetRenderTargetDescriptor(
-                context.RenderTarget,
-                LoadAction.Clear,
-                clearColor);
+            commandEncoder.ClearColorTarget(0, context.Camera.BackgroundColor.ToColorRgbaF().ToRgbaFloat());
+            commandEncoder.ClearDepthStencil(1);
 
-            var depthStencilBuffer = _depthStencilBufferCache.Get(
-                context.SwapChain.BackBufferWidth,
-                context.SwapChain.BackBufferHeight);
-
-            renderPassDescriptor.SetDepthStencilDescriptor(depthStencilBuffer);
-
-            var commandEncoder = commandBuffer.GetCommandEncoder(renderPassDescriptor);
-
-            commandEncoder.SetViewport(context.Camera.Viewport);
+            commandEncoder.SetViewport(0, context.Camera.Viewport);
 
             UpdateGlobalConstantBuffers(commandEncoder, context);
 
@@ -92,7 +80,10 @@ namespace OpenSage.Graphics.Rendering
 
                         effect.Begin(commandEncoder);
 
-                        SetDefaultConstantBuffers(effect);
+                        renderItem.Material.Apply(context.RenderTarget.OutputDescription);
+                        renderItem.Effect.Apply(commandEncoder);
+
+                        SetDefaultConstantBuffers(renderItem.Material);
                     }
 
                     if (lastRenderItem == null || lastRenderItem.Value.VertexBuffer0 != renderItem.VertexBuffer0)
@@ -102,36 +93,43 @@ namespace OpenSage.Graphics.Rendering
 
                     if (lastRenderItem == null || lastRenderItem.Value.VertexBuffer1 != renderItem.VertexBuffer1)
                     {
-                        commandEncoder.SetVertexBuffer(1, renderItem.VertexBuffer1);
+                        if (renderItem.VertexBuffer1 != null)
+                        {
+                            commandEncoder.SetVertexBuffer(1, renderItem.VertexBuffer1);
+                        }
                     }
 
-                    var renderItemConstantsVSParameter = renderItem.Effect.GetParameter("RenderItemConstantsVS", throwIfMissing: false);
-                    if (renderItemConstantsVSParameter != null)
+                    if (renderItem.Material.SlotRenderItemConstantsVS != null)
                     {
                         _renderItemConstantsBufferVS.Value.World = renderItem.World;
                         _renderItemConstantsBufferVS.Update();
-                        renderItemConstantsVSParameter.SetData(_renderItemConstantsBufferVS.Buffer);
+
+                        renderItem.Material.SetProperty(
+                            renderItem.Material.SlotRenderItemConstantsVS.Value,
+                            _renderItemConstantsBufferVS.Buffer);
                     }
 
-                    renderItem.Material.Apply();
-
+                    renderItem.Material.Apply(context.RenderTarget.OutputDescription);
                     renderItem.Effect.Apply(commandEncoder);
 
                     switch (renderItem.DrawCommand)
                     {
                         case DrawCommand.Draw:
                             commandEncoder.Draw(
-                                PrimitiveType.TriangleList,
+                                renderItem.VertexCount,
+                                1,
                                 renderItem.VertexStart,
-                                renderItem.VertexCount);
+                                0);
                             break;
 
                         case DrawCommand.DrawIndexed:
+                            commandEncoder.SetIndexBuffer(renderItem.IndexBuffer, IndexFormat.UInt16);
                             commandEncoder.DrawIndexed(
-                                PrimitiveType.TriangleList,
                                 renderItem.IndexCount,
-                                renderItem.IndexBuffer,
-                                renderItem.StartIndex);
+                                1,
+                                renderItem.StartIndex,
+                                0,
+                                0);
                             break;
 
                         default:
@@ -149,7 +147,8 @@ namespace OpenSage.Graphics.Rendering
             {
                 _spriteBatch.Begin(
                     commandEncoder,
-                    context.GraphicsDevice.SamplerLinearClamp,
+                    context.Game.ContentManager.LinearClampSampler,
+                    context.RenderTarget.OutputDescription,
                     context.Camera.Viewport);
 
                 context.Scene.Scene2D.WndWindowManager.Render(_spriteBatch);
@@ -159,30 +158,35 @@ namespace OpenSage.Graphics.Rendering
                 _spriteBatch.End();
             }
 
-            commandEncoder.Close();
+            commandEncoder.End();
 
-            commandBuffer.CommitAndPresent(context.SwapChain);
+            context.GraphicsDevice.SubmitCommands(commandEncoder);
+
+            context.GraphicsDevice.DisposeWhenIdle(commandEncoder);
+
+            context.GraphicsDevice.SwapBuffers();
         }
 
-        private void SetDefaultConstantBuffers(Effect effect)
+        private void SetDefaultConstantBuffers(EffectMaterial material)
         {
-            void setDefaultConstantBuffer(string name, Buffer buffer)
+            void setDefaultConstantBuffer(uint? slot, DeviceBuffer buffer)
             {
-                var parameter = effect.GetParameter(name, throwIfMissing: false);
-                if (parameter != null)
+                if (slot == null)
                 {
-                    parameter.SetData(buffer);
+                    return;
                 }
+
+                material.SetProperty(slot.Value, buffer);
             }
 
-            setDefaultConstantBuffer("GlobalConstantsShared", _globalConstantBufferShared.Buffer);
-            setDefaultConstantBuffer("GlobalConstantsVS", _globalConstantBufferVS.Buffer);
-            setDefaultConstantBuffer("GlobalConstantsPS", _globalConstantBufferPS.Buffer);
-            setDefaultConstantBuffer("LightingConstants_Object", _globalLightingObjectBuffer.Buffer);
-            setDefaultConstantBuffer("LightingConstants_Terrain", _globalLightingTerrainBuffer.Buffer);
+            setDefaultConstantBuffer(material.SlotGlobalConstantsShared, _globalConstantBufferShared.Buffer);
+            setDefaultConstantBuffer(material.SlotGlobalConstantsVS, _globalConstantBufferVS.Buffer);
+            setDefaultConstantBuffer(material.SlotGlobalConstantsPS, _globalConstantBufferPS.Buffer);
+            setDefaultConstantBuffer(material.SlotLightingConstants_Object, _globalLightingObjectBuffer.Buffer);
+            setDefaultConstantBuffer(material.SlotLightingConstants_Terrain, _globalLightingTerrainBuffer.Buffer);
         }
 
-        private void UpdateGlobalConstantBuffers(CommandEncoder commandEncoder, RenderContext context)
+        private void UpdateGlobalConstantBuffers(CommandList commandEncoder, RenderContext context)
         {
             var cameraPosition = Matrix4x4Utility.Invert(context.Camera.View).Translation;
 
@@ -193,7 +197,7 @@ namespace OpenSage.Graphics.Rendering
             _globalConstantBufferVS.Update();
 
             _globalConstantBufferPS.Value.TimeInSeconds = (float) context.GameTime.TotalGameTime.TotalSeconds;
-            _globalConstantBufferPS.Value.ViewportSize = context.Camera.Viewport.Size;
+            _globalConstantBufferPS.Value.ViewportSize = new Vector2(context.Camera.Viewport.Width, context.Camera.Viewport.Height);
             _globalConstantBufferPS.Update();
 
             _globalLightingTerrainBuffer.Value = context.Scene.Settings.CurrentLightingConfiguration.TerrainLights;
@@ -202,7 +206,7 @@ namespace OpenSage.Graphics.Rendering
             _globalLightingObjectBuffer.Update();
         }
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Size = 16)]
         private struct GlobalConstantsShared
         {
             public Vector3 CameraPosition;
@@ -220,7 +224,7 @@ namespace OpenSage.Graphics.Rendering
             public Matrix4x4 World;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Size = 16)]
         private struct GlobalConstantsPS
         {
             public float TimeInSeconds;

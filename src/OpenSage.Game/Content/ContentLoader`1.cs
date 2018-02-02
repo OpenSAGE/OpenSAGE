@@ -1,5 +1,4 @@
-﻿using OpenSage.LowLevel.Graphics3D;
-using OpenSage.Data;
+﻿using OpenSage.Data;
 
 namespace OpenSage.Content
 {

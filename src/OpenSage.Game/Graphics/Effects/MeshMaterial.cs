@@ -1,28 +1,31 @@
 ﻿using System.Runtime.InteropServices;
-using OpenSage.LowLevel.Graphics3D;
-using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Graphics.Effects
 {
     public abstract class MeshMaterial : EffectMaterial
     {
+        protected abstract uint SlotSampler { get; }
+        protected abstract uint SlotSkinningBuffer { get; }
+        protected abstract uint SlotMeshConstants { get; }
+
         protected MeshMaterial(Effect effect)
             : base(effect)
         {
-            SetProperty("Sampler", effect.GraphicsDevice.SamplerAnisotropicWrap);
+            SetProperty(SlotSampler, effect.GraphicsDevice.Aniso4xSampler);
         }
 
-        public void SetSkinningBuffer(Buffer<Matrix4x3> skinningBuffer)
+        public void SetSkinningBuffer(DeviceBuffer skinningBuffer)
         {
-            SetProperty("SkinningBuffer", skinningBuffer);
+            SetProperty(SlotSkinningBuffer, skinningBuffer);
         }
 
-        public void SetMeshConstants(Buffer<MeshConstants> meshConstants)
+        public void SetMeshConstants(DeviceBuffer meshConstants)
         {
-            SetProperty("MeshConstants", meshConstants);
+            SetProperty(SlotMeshConstants, meshConstants);
         }
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Size = 16)]
         public struct MeshConstants
         {
             public bool SkinningEnabled;

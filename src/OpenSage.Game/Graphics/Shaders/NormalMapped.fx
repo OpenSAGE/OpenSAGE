@@ -24,6 +24,7 @@ VSOutputSimple VS(VSInputSkinned input)
 
 //#define SPECULAR_ENABLED
 #define LIGHTING_TYPE Object
+#define LIGHTING_CONSTANTS_REGISTER b5
 #include "Lighting.hlsli"
 
 cbuffer MaterialConstants : register(b2)

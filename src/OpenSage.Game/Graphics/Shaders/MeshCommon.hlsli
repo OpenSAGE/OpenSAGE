@@ -23,25 +23,25 @@ struct VSInputSkinned
 {
     float3 Position : POSITION;
     float3 Normal   : NORMAL;
-    float3 Tangent  : TANGENT;
-    float3 Binormal : BINORMAL;
-    uint BoneIndex  : BLENDINDICES;
+    float3 Tangent  : TEXCOORD0;
+    float3 Binormal : TEXCOORD1;
+    uint BoneIndex  : TEXCOORD2;
 
-    float2 UV0      : TEXCOORD0;
-    float2 UV1      : TEXCOORD1;
+    float2 UV0      : TEXCOORD3;
+    float2 UV1      : TEXCOORD4;
 };
 
 ///////////////////////////////
 // Buffers
 ///////////////////////////////
 
-cbuffer MeshConstants
+cbuffer MeshConstants : register(b3)
 {
     bool SkinningEnabled;
     uint NumBones;
 };
 
-cbuffer RenderItemConstantsVS : register(b1)
+cbuffer RenderItemConstantsVS : register(b4)
 {
     row_major float4x4 World;
 };

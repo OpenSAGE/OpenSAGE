@@ -10,7 +10,7 @@ struct Light
 
 #define CONCAT(a, b) a ## b
 
-cbuffer CONCAT(LightingConstants_, LIGHTING_TYPE) : register(b1)
+cbuffer CONCAT(LightingConstants_, LIGHTING_TYPE) : register(LIGHTING_CONSTANTS_REGISTER)
 {
     Light Lights[NUM_LIGHTS];
 };

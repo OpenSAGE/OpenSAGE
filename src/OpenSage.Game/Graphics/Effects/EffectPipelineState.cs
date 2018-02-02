@@ -1,4 +1,4 @@
-﻿using OpenSage.LowLevel.Graphics3D;
+﻿using Veldrid;
 
 namespace OpenSage.Graphics.Effects
 {
@@ -12,20 +12,34 @@ namespace OpenSage.Graphics.Effects
 
         public BlendStateDescription BlendState { get; }
 
+        public OutputDescription OutputDescription { get; }
+
         public EffectPipelineState(
             RasterizerStateDescription rasterizerState,
             DepthStencilStateDescription depthStencilState,
-            BlendStateDescription blendState)
+            BlendStateDescription blendState,
+            OutputDescription outputDescription = default) // TODO: Ugly.
         {
             RasterizerState = rasterizerState;
             DepthStencilState = depthStencilState;
             BlendState = blendState;
+
+            OutputDescription = outputDescription;
 
             // TODO: This is a bit ugly.
             _handle = null;
             _handle = EffectPipelineStateFactory.GetHandle(ref this);
         }
 
-        public EffectPipelineStateHandle GetHandle() => _handle;
+        public EffectPipelineStateHandle GetHandle(in OutputDescription outputDescription)
+        {
+            var clone = new EffectPipelineState(
+                RasterizerState,
+                DepthStencilState,
+                BlendState,
+                outputDescription);
+
+            return clone._handle;
+        }
     }
 }

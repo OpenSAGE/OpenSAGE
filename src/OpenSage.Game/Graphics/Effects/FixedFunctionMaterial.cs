@@ -1,11 +1,21 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.LowLevel.Graphics3D;
+using Veldrid;
 
 namespace OpenSage.Graphics.Effects
 {
     public sealed class FixedFunctionMaterial : MeshMaterial
     {
+        public override uint? SlotGlobalConstantsShared => 0;
+        public override uint? SlotGlobalConstantsVS => 1;
+        public override uint? SlotGlobalConstantsPS => 2;
+        public override uint? SlotRenderItemConstantsVS => 4;
+        public override uint? SlotLightingConstants_Object => 6;
+
+        protected override uint SlotSampler => 10;
+        protected override uint SlotSkinningBuffer => 5;
+        protected override uint SlotMeshConstants => 3;
+
         public FixedFunctionMaterial(Effect effect)
             : base(effect)
         {
@@ -14,20 +24,20 @@ namespace OpenSage.Graphics.Effects
 
         public void SetTexture0(Texture texture)
         {
-            SetProperty("Texture0", texture);
+            SetProperty(8, texture);
         }
 
         public void SetTexture1(Texture texture)
         {
-            SetProperty("Texture1", texture);
+            SetProperty(9, texture);
         }
 
-        public void SetMaterialConstants(Buffer<MaterialConstants> materialConstants)
+        public void SetMaterialConstants(DeviceBuffer materialConstants)
         {
-            SetProperty("MaterialConstants", materialConstants);
+            SetProperty(3, materialConstants);
         }
 
-        [StructLayout(LayoutKind.Explicit)]
+        [StructLayout(LayoutKind.Explicit, Size = 240)]
         public struct MaterialConstants
         {
             [FieldOffset(0)]
@@ -151,5 +161,27 @@ namespace OpenSage.Graphics.Effects
             InvScale = 3,
             DetailBlend = 4
         }
+
+        public static ResourceLayoutElementDescription[] ResourceLayoutDescriptions = new[]
+        {
+            new ResourceLayoutElementDescription("GlobalConstantsShared", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+            new ResourceLayoutElementDescription("GlobalConstantsVS", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+            new ResourceLayoutElementDescription("GlobalConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment),
+
+            new ResourceLayoutElementDescription("MeshConstants", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+
+            new ResourceLayoutElementDescription("RenderItemConstantsVS", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+
+            new ResourceLayoutElementDescription("SkinningBuffer", ResourceKind.StructuredBufferReadOnly, ShaderStages.Vertex),
+
+            new ResourceLayoutElementDescription("LightingConstants_Object", ResourceKind.UniformBuffer, ShaderStages.Fragment),
+
+            new ResourceLayoutElementDescription("MaterialConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment),
+
+            new ResourceLayoutElementDescription("Texture0", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+            new ResourceLayoutElementDescription("Texture1", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+
+            new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment)
+        };
     }
 }

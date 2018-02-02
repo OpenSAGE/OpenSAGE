@@ -1,5 +1,5 @@
-﻿using OpenSage.LowLevel.Graphics3D;
-using OpenSage.Mathematics;
+﻿using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Graphics
 {
@@ -9,7 +9,7 @@ namespace OpenSage.Graphics
 
         private Matrix4x3[] _skinningBones;
 
-        internal Buffer<Matrix4x3> SkinningBuffer;
+        internal DeviceBuffer SkinningBuffer;
 
         public TransformComponent[] Bones { get; }
 
@@ -28,10 +28,10 @@ namespace OpenSage.Graphics
 
             if (_hasSkinnedMeshes)
             {
-                SkinningBuffer = Buffer<Matrix4x3>.CreateDynamicArray(
-                    GraphicsDevice,
-                    Bones.Length,
-                    BufferBindFlags.ShaderResource);
+                SkinningBuffer = GraphicsDevice.ResourceFactory.CreateBuffer(
+                    new BufferDescription(
+                        (uint) (48 * Bones.Length),
+                        BufferUsage.StructuredBufferReadOnly | BufferUsage.Dynamic));
 
                 _skinningBones = new Matrix4x3[Bones.Length];
             }
@@ -62,7 +62,7 @@ namespace OpenSage.Graphics
                 boneMatrixRelativeToRoot.ToMatrix4x3(out _skinningBones[i]);
             }
 
-            SkinningBuffer.SetData(_skinningBones);
+            GraphicsDevice.UpdateBuffer(SkinningBuffer, 0, _skinningBones);
         }
     }
 }

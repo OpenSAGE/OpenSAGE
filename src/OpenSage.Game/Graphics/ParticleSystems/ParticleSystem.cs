@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics.Effects;
@@ -13,6 +12,8 @@ using OpenSage.Graphics.ParticleSystems.VolumeTypes;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Util;
 using OpenSage.Mathematics;
+using OpenSage.Utilities.Extensions;
+using Veldrid;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
@@ -38,10 +39,11 @@ namespace OpenSage.Graphics.ParticleSystems
         private Particle[] _particles;
         private List<int> _deadList;
 
-        private Buffer<ParticleVertex> _vertexBuffer;
+        private DeviceBuffer _vertexBuffer;
         private ParticleVertex[] _vertices;
 
-        private Buffer<ushort> _indexBuffer;
+        private DeviceBuffer _indexBuffer;
+        private uint _numIndices;
 
         public ParticleSystemDefinition Definition { get; }
 
@@ -71,8 +73,10 @@ namespace OpenSage.Graphics.ParticleSystems
             var blendState = GetBlendState(Definition.Shader);
 
             _particleMaterial.PipelineState = new EffectPipelineState(
-                RasterizerStateDescription.CullBackSolid,
-                DepthStencilStateDescription.DepthRead,
+                // TODO_VELDRID
+                //RasterizerStateDescription.Default,
+                RasterizerStateDescriptionUtility.CullNoneSolid,
+                DepthStencilStateDescriptionUtility.DepthRead,
                 blendState);
 
             _initialDelay = Definition.InitialDelay.GetRandomInt();
@@ -114,14 +118,15 @@ namespace OpenSage.Graphics.ParticleSystems
             _deadList = new List<int>();
             _deadList.AddRange(Enumerable.Range(0, maxParticles));
 
-            _vertexBuffer = Buffer<ParticleVertex>.CreateDynamicArray(
-                GraphicsDevice,
-                maxParticles * 4,
-                BufferBindFlags.VertexBuffer);
+            var numVertices = maxParticles * 4;
+            _vertexBuffer = GraphicsDevice.ResourceFactory.CreateBuffer(
+                new BufferDescription(
+                    (uint) (ParticleVertex.VertexDescriptor.Stride * maxParticles * 4),
+                    BufferUsage.VertexBuffer | BufferUsage.Dynamic));
 
-            _vertices = new ParticleVertex[_vertexBuffer.ElementCount];
+            _vertices = new ParticleVertex[numVertices];
 
-            _indexBuffer = CreateIndexBuffer(GraphicsDevice, maxParticles);
+            _indexBuffer = CreateIndexBuffer(GraphicsDevice, maxParticles, out _numIndices);
 
             State = ParticleSystemState.Active;
         }
@@ -139,19 +144,20 @@ namespace OpenSage.Graphics.ParticleSystems
             switch (shader)
             {
                 case ParticleSystemShader.Alpha:
-                    return BlendStateDescription.AlphaBlend;
+                    return BlendStateDescription.SingleAlphaBlend;
 
                 case ParticleSystemShader.Additive:
-                    return BlendStateDescription.Additive;
+                    return BlendStateDescriptionUtility.SingleAdditive;
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(shader));
             }
         }
 
-        private static Buffer<ushort> CreateIndexBuffer(GraphicsDevice graphicsDevice, int maxParticles)
+        private static DeviceBuffer CreateIndexBuffer(GraphicsDevice graphicsDevice, int maxParticles, out uint numIndices)
         {
-            var indices = new ushort[maxParticles * 2 * 3]; // Two triangles per particle.
+            numIndices = (uint) maxParticles * 2 * 3; // Two triangles per particle.
+            var indices = new ushort[numIndices]; 
             var indexCounter = 0;
             for (ushort i = 0; i < maxParticles * 4; i += 4)
             {
@@ -164,10 +170,9 @@ namespace OpenSage.Graphics.ParticleSystems
                 indices[indexCounter++] = (ushort) (i + 3);
             }
 
-            var result = Buffer<ushort>.CreateStatic(
-                graphicsDevice,
+            var result = graphicsDevice.CreateStaticBuffer(
                 indices,
-                BufferBindFlags.IndexBuffer);
+                BufferUsage.IndexBuffer);
 
             return result;
         }
@@ -454,7 +459,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 _vertices[vertexIndex++] = particleVertex;
             }
 
-            _vertexBuffer.SetData(_vertices);
+            GraphicsDevice.UpdateBuffer(_vertexBuffer, 0, _vertices);
         }
 
         internal override void BuildRenderList(RenderList renderList)
@@ -467,7 +472,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 this,
                 Transform.LocalToWorldMatrix,
                 0,
-                _indexBuffer.ElementCount,
+                _numIndices,
                 _indexBuffer);
         }
     }
@@ -481,20 +486,12 @@ namespace OpenSage.Graphics.ParticleSystems
         public float Alpha;
         public float AngleZ;
 
-        public static readonly VertexDescriptor VertexDescriptor = new VertexDescriptor(
-             new[]
-             {
-                    new VertexAttributeDescription("POSITION", 0, VertexFormat.Float3, 0, 0),
-                    new VertexAttributeDescription("TEXCOORD", 0, VertexFormat.Float, 12, 0),
-                    new VertexAttributeDescription("TEXCOORD", 1, VertexFormat.Float3, 16, 0),
-                    new VertexAttributeDescription("TEXCOORD", 2, VertexFormat.Float, 28, 0),
-                    new VertexAttributeDescription("TEXCOORD", 3, VertexFormat.Float, 32, 0),
-
-             },
-             new[]
-             {
-                    new VertexLayoutDescription(InputClassification.PerVertexData, 36)
-             });
+        public static readonly VertexLayoutDescription VertexDescriptor = new VertexLayoutDescription(
+            new VertexElementDescription("POSITION", VertexElementSemantic.Position, VertexElementFormat.Float3),
+            new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float1),
+            new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+            new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float1),
+            new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float1));
     }
 
     public enum ParticleSystemState

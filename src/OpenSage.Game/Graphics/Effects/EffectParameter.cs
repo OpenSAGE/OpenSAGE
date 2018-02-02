@@ -1,117 +1,37 @@
-﻿using System;
-using OpenSage.LowLevel.Graphics3D;
-using Buffer = OpenSage.LowLevel.Graphics3D.Buffer;
+﻿using Veldrid;
 
 namespace OpenSage.Graphics.Effects
 {
-    internal sealed class EffectParameter : GraphicsObject
+    internal sealed class EffectParameter : DisposableBase
     {
-        private object _data;
-        private bool _isDirty;
+        private readonly ResourceLayoutElementDescription _layoutDescription;
+        private readonly uint _slot;
 
-        public ShaderResourceBinding ResourceBinding { get; }
+        private ResourceSet _data;
 
-        public string Name => ResourceBinding.Name;
+        public string Name => _layoutDescription.Name;
 
-        public EffectParameter(GraphicsDevice graphicsDevice, ShaderResourceBinding resourceBinding)
+        public ResourceLayout ResourceLayout { get; }
+
+        public EffectParameter(GraphicsDevice graphicsDevice, in ResourceLayoutElementDescription layoutDescription, uint slot)
         {
-            ResourceBinding = resourceBinding;
+            _layoutDescription = layoutDescription;
+            _slot = slot;
+
+            var description = new ResourceLayoutDescription(layoutDescription);
+
+            ResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+                ref description));
         }
 
-        public void ResetDirty()
+        public void SetData(ResourceSet resourceSet)
         {
-            _isDirty = true;
+            _data = resourceSet;
         }
 
-        public void SetData(object data)
+        public void ApplyChanges(CommandList commandEncoder)
         {
-            if (ReferenceEquals(_data, data))
-            {
-                return;
-            }
-
-            _data = data;
-            _isDirty = true;
-        }
-
-        public void ApplyChanges(CommandEncoder commandEncoder)
-        {
-            if (!_isDirty)
-            {
-                return;
-            }
-
-            switch (ResourceBinding.ResourceType)
-            {
-                case ShaderResourceType.ConstantBuffer:
-                    switch (ResourceBinding.ShaderType)
-                    {
-                        case ShaderType.VertexShader:
-                            commandEncoder.SetVertexShaderConstantBuffer(ResourceBinding.Slot, (Buffer) _data);
-                            break;
-
-                        case ShaderType.PixelShader:
-                            commandEncoder.SetPixelShaderConstantBuffer(ResourceBinding.Slot, (Buffer) _data);
-                            break;
-
-                        default:
-                            throw new InvalidOperationException();
-                    }
-                    break;
-
-                case ShaderResourceType.StructuredBuffer:
-                    switch (ResourceBinding.ShaderType)
-                    {
-                        case ShaderType.VertexShader:
-                            commandEncoder.SetVertexShaderStructuredBuffer(ResourceBinding.Slot, (Buffer) _data);
-                            break;
-
-                        case ShaderType.PixelShader:
-                            commandEncoder.SetPixelShaderStructuredBuffer(ResourceBinding.Slot, (Buffer) _data);
-                            break;
-
-                        default:
-                            throw new InvalidOperationException();
-                    }
-                    break;
-
-                case ShaderResourceType.Texture:
-                    switch (ResourceBinding.ShaderType)
-                    {
-                        case ShaderType.VertexShader:
-                            commandEncoder.SetVertexShaderTexture(ResourceBinding.Slot, (Texture) _data);
-                            break;
-
-                        case ShaderType.PixelShader:
-                            commandEncoder.SetPixelShaderTexture(ResourceBinding.Slot, (Texture) _data);
-                            break;
-
-                        default:
-                            throw new InvalidOperationException();
-                    }
-                    break;
-
-                case ShaderResourceType.Sampler:
-                    switch (ResourceBinding.ShaderType)
-                    {
-                        case ShaderType.VertexShader:
-                            commandEncoder.SetVertexShaderSampler(ResourceBinding.Slot, (SamplerState) _data);
-                            break;
-
-                        case ShaderType.PixelShader:
-                            commandEncoder.SetPixelShaderSampler(ResourceBinding.Slot, (SamplerState) _data);
-                            break;
-
-                        default:
-                            throw new InvalidOperationException();
-                    }
-                    break;
-
-                default:
-                    throw new InvalidOperationException();
-            }
-
-            _isDirty = false;
+            commandEncoder.SetGraphicsResourceSet(_slot, _data);
         }
     }
 }

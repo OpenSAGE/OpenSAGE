@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using OpenSage.LowLevel.Graphics3D;
+using OpenSage.Utilities.Extensions;
+using Veldrid;
 
 namespace OpenSage.Graphics
 {
@@ -7,17 +8,16 @@ namespace OpenSage.Graphics
     {
         public IReadOnlyList<ModelMeshPart> MeshParts { get; set; }
 
-        internal Buffer<MeshVertex.TexCoords> TexCoordVertexBuffer;
+        internal DeviceBuffer TexCoordVertexBuffer;
 
         internal ModelMeshMaterialPass(
             GraphicsDevice graphicsDevice,
             MeshVertex.TexCoords[] texCoords,
             IReadOnlyList<ModelMeshPart> meshParts)
         {
-            TexCoordVertexBuffer = AddDisposable(Buffer<MeshVertex.TexCoords>.CreateStatic(
-                graphicsDevice,
+            TexCoordVertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
                 texCoords,
-                BufferBindFlags.VertexBuffer));
+                BufferUsage.VertexBuffer));
 
             MeshParts = meshParts;
         }

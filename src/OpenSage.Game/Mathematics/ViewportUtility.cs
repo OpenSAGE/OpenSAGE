@@ -1,4 +1,4 @@
-﻿using OpenSage.LowLevel.Graphics3D;
+﻿using Veldrid;
 
 namespace OpenSage.Mathematics
 {
@@ -6,7 +6,11 @@ namespace OpenSage.Mathematics
     {
         public static Rectangle Bounds(this Viewport viewport)
         {
-            return new Rectangle(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+            return new Rectangle(
+                (int) viewport.X,
+                (int) viewport.Y,
+                (int) viewport.Width,
+                (int) viewport.Height);
         }
     }
 }

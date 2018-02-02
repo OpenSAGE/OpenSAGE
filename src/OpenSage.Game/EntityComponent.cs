@@ -1,9 +1,9 @@
-﻿using OpenSage.LowLevel.Graphics3D;
-using OpenSage.Content;
+﻿using OpenSage.Content;
 using OpenSage.Graphics;
 using OpenSage.Input;
 using OpenSage.Mathematics;
 using OpenSage.Scripting;
+using Veldrid;
 
 namespace OpenSage
 {

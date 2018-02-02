@@ -37,7 +37,7 @@ namespace OpenSage.Content
             var wndFile = WndFile.FromFileSystemEntry(entry);
 
             var result = CreateElementRecursive(
-                wndFile.RootWindow, 
+                wndFile.RootWindow,
                 contentManager,
                 _wndCallbackResolver);
 

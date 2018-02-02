@@ -1,29 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Utilities.Extensions;
-using Buffer = OpenSage.LowLevel.Graphics3D.Buffer;
+using Veldrid;
 
 namespace OpenSage.Graphics.Effects
 {
-    public sealed class Effect : GraphicsObject
+    public sealed class Effect : DisposableBase
     {
         private static byte _nextID = 0;
 
         private readonly GraphicsDevice _graphicsDevice;
 
-        private VertexDescriptor _vertexDescriptor;
+        private VertexLayoutDescription[] _vertexDescriptors;
         private readonly Shader _vertexShader;
         private readonly Shader _pixelShader;
 
-        private readonly Dictionary<EffectPipelineStateHandle, PipelineState> _cachedPipelineStates;
+        private readonly ResourceLayout[] _resourceLayouts;
 
-        private readonly Dictionary<string, EffectParameter> _parameters;
+        private readonly Dictionary<EffectPipelineStateHandle, Pipeline> _cachedPipelineStates;
+
+        private readonly EffectParameter[] _parameters;
 
         private EffectPipelineStateHandle _pipelineStateHandle;
-        private PipelineState _pipelineState;
+        private Pipeline _pipelineState;
 
         private EffectDirtyFlags _dirtyFlags;
 
@@ -42,7 +42,19 @@ namespace OpenSage.Graphics.Effects
         public Effect(
             GraphicsDevice graphicsDevice,
             string shaderName,
-            VertexDescriptor vertexDescriptor,
+            VertexLayoutDescription vertexDescriptor,
+            ResourceLayoutElementDescription[] resourceLayoutDescriptions,
+            bool useNewShaders = false)
+            : this(graphicsDevice, shaderName, new[] { vertexDescriptor }, resourceLayoutDescriptions, useNewShaders)
+        {
+
+        }
+
+        public Effect(
+            GraphicsDevice graphicsDevice,
+            string shaderName,
+            VertexLayoutDescription[] vertexDescriptors,
+            ResourceLayoutElementDescription[] resourceLayoutDescriptions,
             bool useNewShaders = false)
         {
             _graphicsDevice = graphicsDevice;
@@ -54,13 +66,13 @@ namespace OpenSage.Graphics.Effects
                 using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream($"OpenSage.Graphics.Shaders.Compiled.{shaderName}-vertex.hlsl.bytes"))
                 {
                     var vertexShaderBytecode = shaderStream.ReadAllBytes();
-                    _vertexShader = AddDisposable(new Shader(graphicsDevice, "VS", vertexShaderBytecode));
+                    _vertexShader = AddDisposable(graphicsDevice.ResourceFactory.CreateShader(new ShaderDescription(ShaderStages.Vertex, vertexShaderBytecode, "VS")));
                 }
 
                 using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream($"OpenSage.Graphics.Shaders.Compiled.{shaderName}-fragment.hlsl.bytes"))
                 {
                     var pixelShaderBytecode = shaderStream.ReadAllBytes();
-                    _pixelShader = AddDisposable(new Shader(graphicsDevice, "PS", pixelShaderBytecode));
+                    _pixelShader = AddDisposable(graphicsDevice.ResourceFactory.CreateShader(new ShaderDescription(ShaderStages.Fragment, pixelShaderBytecode, "PS")));
                 }
             }
             else
@@ -70,53 +82,47 @@ namespace OpenSage.Graphics.Effects
                 {
                     var vertexShaderBytecodeLength = shaderReader.ReadInt32();
                     var vertexShaderBytecode = shaderReader.ReadBytes(vertexShaderBytecodeLength);
-                    _vertexShader = AddDisposable(new Shader(graphicsDevice, shaderName + "VS", vertexShaderBytecode));
+                    _vertexShader = AddDisposable(graphicsDevice.ResourceFactory.CreateShader(new ShaderDescription(ShaderStages.Vertex, vertexShaderBytecode, "VS")));
 
                     var pixelShaderBytecodeLength = shaderReader.ReadInt32();
                     var pixelShaderBytecode = shaderReader.ReadBytes(pixelShaderBytecodeLength);
-                    _pixelShader = AddDisposable(new Shader(graphicsDevice, shaderName + "PS", pixelShaderBytecode));
+                    _pixelShader = AddDisposable(graphicsDevice.ResourceFactory.CreateShader(new ShaderDescription(ShaderStages.Fragment, pixelShaderBytecode, "PS")));
                 }
             }
 
-            _cachedPipelineStates = new Dictionary<EffectPipelineStateHandle, PipelineState>();
+            _cachedPipelineStates = new Dictionary<EffectPipelineStateHandle, Pipeline>();
 
-            _vertexDescriptor = vertexDescriptor;
+            _vertexDescriptors = vertexDescriptors;
 
-            _parameters = _vertexShader.ResourceBindings
-                .Concat(_pixelShader.ResourceBindings)
-                .Select(x => AddDisposable(new EffectParameter(graphicsDevice, x)))
-                .ToDictionary(x => x.Name);
-        }
-
-        internal EffectParameter GetParameter(string name, bool throwIfMissing = true)
-        {
-            if (!_parameters.TryGetValue(name, out var result) && throwIfMissing)
+            _parameters = new EffectParameter[resourceLayoutDescriptions.Length];
+            _resourceLayouts = new ResourceLayout[_parameters.Length];
+            for (var i = 0u; i < _resourceLayouts.Length; i++)
             {
-                throw new Exception($"Missing parameter named {name}");
+                _parameters[i] = AddDisposable(new EffectParameter(graphicsDevice, resourceLayoutDescriptions[i], i));
+                _resourceLayouts[i] = _parameters[i].ResourceLayout;
             }
-            return result;
         }
 
-        public void Begin(CommandEncoder commandEncoder)
+        internal EffectParameter GetParameter(uint slot)
+        {
+            return _parameters[slot];
+        }
+
+        public void Begin(CommandList commandEncoder)
         {
             _dirtyFlags |= EffectDirtyFlags.PipelineState;
-
-            foreach (var parameter in _parameters.Values)
-            {
-                parameter.ResetDirty();
-            }
         }
 
-        public void Apply(CommandEncoder commandEncoder)
+        public void Apply(CommandList commandEncoder)
         {
             if (_dirtyFlags.HasFlag(EffectDirtyFlags.PipelineState))
             {
-                commandEncoder.SetPipelineState(_pipelineState);
+                commandEncoder.SetPipeline(_pipelineState);
 
                 _dirtyFlags &= ~EffectDirtyFlags.PipelineState;
             }
 
-            foreach (var parameter in _parameters.Values)
+            foreach (var parameter in _parameters)
             {
                 parameter.ApplyChanges(commandEncoder);
             }
@@ -134,50 +140,25 @@ namespace OpenSage.Graphics.Effects
             _dirtyFlags |= EffectDirtyFlags.PipelineState;
         }
 
-        private PipelineState GetPipelineState(EffectPipelineStateHandle pipelineStateHandle)
+        private Pipeline GetPipelineState(EffectPipelineStateHandle pipelineStateHandle)
         {
             if (!_cachedPipelineStates.TryGetValue(pipelineStateHandle, out var result))
             {
-                var description = PipelineStateDescription.Default;
+                var description = new GraphicsPipelineDescription(
+                    pipelineStateHandle.EffectPipelineState.BlendState,
+                    pipelineStateHandle.EffectPipelineState.DepthStencilState,
+                    pipelineStateHandle.EffectPipelineState.RasterizerState,
+                    PrimitiveTopology.TriangleList,
+                    new ShaderSetDescription(
+                        _vertexDescriptors,
+                        new[] { _vertexShader, _pixelShader }),
+                    _resourceLayouts,
+                    pipelineStateHandle.EffectPipelineState.OutputDescription);
 
-                description.RenderTargetFormat = _graphicsDevice.BackBufferFormat;
-                description.VertexDescriptor = _vertexDescriptor;
-                description.VertexShader = _vertexShader;
-                description.PixelShader = _pixelShader;
-
-                description.RasterizerState = pipelineStateHandle.EffectPipelineState.RasterizerState;
-                description.DepthStencilState = pipelineStateHandle.EffectPipelineState.DepthStencilState;
-                description.BlendState = pipelineStateHandle.EffectPipelineState.BlendState;
-
-                _cachedPipelineStates[pipelineStateHandle] = result = AddDisposable(new PipelineState(_graphicsDevice, description));
+                _cachedPipelineStates[pipelineStateHandle] = result = AddDisposable(_graphicsDevice.ResourceFactory.CreateGraphicsPipeline(ref description));
             }
 
             return result;
-        }
-
-        private void SetValueImpl(string name, object value)
-        {
-            if (!_parameters.TryGetValue(name, out var parameter))
-            {
-                throw new InvalidOperationException();
-            }
-
-            parameter.SetData(value);
-        }
-
-        public void SetValue(string name, Buffer buffer)
-        {
-            SetValueImpl(name, buffer);
-        }
-
-        public void SetValue(string name, Texture texture)
-        {
-            SetValueImpl(name, texture);
-        }
-
-        public void SetValue(string name, SamplerState sampler)
-        {
-            SetValueImpl(name, sampler);
         }
     }
 }

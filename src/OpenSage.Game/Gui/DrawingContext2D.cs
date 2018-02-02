@@ -1,22 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using OpenSage.Content;
 using OpenSage.Graphics;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Mathematics;
 using OpenSage.Utilities;
+using OpenSage.Utilities.Extensions;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.PixelFormats;
+using Veldrid;
 
 namespace OpenSage.Gui
 {
     public sealed class DrawingContext2D : DisposableBase
     {
         private readonly GraphicsDevice _graphicsDevice;
-        private readonly RenderTarget _renderTarget;
+        private readonly Framebuffer _renderTarget;
         private readonly Texture _solidWhiteTexture;
 
         private readonly SpriteBatch _spriteBatch;
@@ -24,17 +26,13 @@ namespace OpenSage.Gui
         private readonly ResourcePool<Image<Bgra32>, ImageKey> _textImagePool;
         private readonly ResourcePool<Texture, ImageKey> _textTexturePool;
 
-        // TODO: Remove this.
-        private readonly List<Texture> _texturesToDispose;
-
         private struct ImageKey
         {
             public int Width;
             public int Height;
         }
 
-        private CommandBuffer _commandBuffer;
-        private CommandEncoder _commandEncoder;
+        private CommandList _commandEncoder;
 
         public DrawingContext2D(
             ContentManager contentManager,
@@ -42,61 +40,60 @@ namespace OpenSage.Gui
         {
             _graphicsDevice = contentManager.GraphicsDevice;
 
-            _renderTarget = AddDisposable(new RenderTarget(
-                contentManager.GraphicsDevice,
-                targetTexture));
+            _renderTarget = AddDisposable(_graphicsDevice.ResourceFactory.CreateFramebuffer(
+                new FramebufferDescription(null, targetTexture)));
 
-            _solidWhiteTexture = AddDisposable(Texture.CreateTexture2D(
-                contentManager.GraphicsDevice,
-                PixelFormat.Rgba8UNorm,
+            _solidWhiteTexture = AddDisposable(_graphicsDevice.CreateStaticTexture2D(
                 1,
                 1,
-                new[]
-                {
-                    new TextureMipMapData
-                    {
-                        BytesPerRow = 4,
-                        Data = new byte[] { 255, 255, 255, 255 }
-                    }
-                }));
+                new TextureMipMapData(
+                    new byte[] { 255, 255, 255, 255 },
+                    4, 4, 1, 1),
+                PixelFormat.R8_G8_B8_A8_UNorm));
 
             _spriteBatch = AddDisposable(new SpriteBatch(contentManager));
 
             _textImagePool = AddDisposable(new ResourcePool<Image<Bgra32>, ImageKey>(key =>
                 new Image<Bgra32>(key.Width, key.Height)));
 
-            _textTexturePool = AddDisposable(new ResourcePool<Texture, ImageKey>(key => Texture.CreateTexture2D(
-                contentManager.GraphicsDevice,
-                PixelFormat.Bgra8UNorm,
-                key.Width,
-                key.Height,
-                TextureBindFlags.ShaderResource)));
-
-            _texturesToDispose = new List<Texture>();
+            _textTexturePool = AddDisposable(new ResourcePool<Texture, ImageKey>(key =>
+                _graphicsDevice.ResourceFactory.CreateTexture(
+                    TextureDescription.Texture2D(
+                        (uint) key.Width,
+                        (uint) key.Height,
+                        1,
+                        1,
+                        PixelFormat.B8_G8_R8_A8_UNorm,
+                        TextureUsage.Sampled))));
         }
 
         public void Begin(
-            SamplerState samplerState,
+            Sampler samplerState,
             in ColorRgbaF clearColor)
         {
-            _commandBuffer = _graphicsDevice.CommandQueue.GetCommandBuffer();
+            // TODO: Should command lists be re-used?
+            _commandEncoder = _graphicsDevice.ResourceFactory.CreateCommandList();
 
-            var renderPassDescriptor = new RenderPassDescriptor();
-            renderPassDescriptor.SetRenderTargetDescriptor(
-                _renderTarget,
-                LoadAction.Clear,
-                clearColor);
+            _commandEncoder.Begin();
 
-            _commandEncoder = _commandBuffer.GetCommandEncoder(renderPassDescriptor);
+            _commandEncoder.SetFramebuffer(_renderTarget);
+
+            _commandEncoder.ClearColorTarget(0, clearColor.ToRgbaFloat());
 
             var viewport = new Viewport(
                 0, 0,
-                _renderTarget.Texture.Width,
-                _renderTarget.Texture.Height);
+                _renderTarget.Width,
+                _renderTarget.Height,
+                0,
+                1);
 
-            _commandEncoder.SetViewport(viewport);
+            _commandEncoder.SetViewport(0, ref viewport);
 
-            _spriteBatch.Begin(_commandEncoder, samplerState, viewport);
+            _spriteBatch.Begin(
+                _commandEncoder,
+                samplerState,
+                _renderTarget.OutputDescription,
+                viewport);
         }
 
         public void DrawImage(Texture texture, in Rectangle sourceRect, in Rectangle destinationRect)
@@ -104,7 +101,7 @@ namespace OpenSage.Gui
             _spriteBatch.DrawImage(texture, sourceRect, destinationRect.ToRectangleF(), ColorRgbaF.White);
         }
 
-        public void DrawText(string text, Font font, TextAlignment textAlignment, ColorRgbaF color, RectangleF rect)
+        public unsafe void DrawText(string text, Font font, TextAlignment textAlignment, ColorRgbaF color, RectangleF rect)
         {
             var image = _textImagePool.Acquire(new ImageKey
             {
@@ -114,7 +111,7 @@ namespace OpenSage.Gui
 
             image.Mutate(x =>
             {
-                x.BackgroundColor(new Bgra32(0, 0, 0, 0));
+                x.Fill(new Bgra32(0, 0, 0, 0));
 
                 var location = new SixLabors.Primitives.PointF(0, rect.Height / 2.0f);
 
@@ -141,30 +138,31 @@ namespace OpenSage.Gui
             });
 
             // Draw image to texture.
-            // TODO: This is terribly inefficient. Don't create texture every time.
-            // Should use DangerousGetPinnableReferenceToPixelBuffer
-            var pixelData = image.SavePixelData();
-
-            var texture = Texture.CreateTexture2D(
-                _graphicsDevice,
-                PixelFormat.Bgra8UNorm,
-                image.Width,
-                image.Height,
-                new[]
+            fixed (void* pin = &image.DangerousGetPinnableReferenceToPixelBuffer())
+            {
+                var texture = _textTexturePool.Acquire(new ImageKey
                 {
-                    new TextureMipMapData
-                    {
-                        BytesPerRow = image.Width * 4,
-                        Data = pixelData
-                    }
+                    Width = image.Width,
+                    Height = image.Height
                 });
-            _texturesToDispose.Add(texture);
 
-            _spriteBatch.DrawImage(
-                texture,
-                null,
-                rect,
-                ColorRgbaF.White);
+                _graphicsDevice.UpdateTexture(
+                    texture,
+                    new IntPtr(pin),
+                    (uint) (image.Width * image.Height * 4),
+                    0, 0, 0,
+                    texture.Width,
+                    texture.Height,
+                    1,
+                    0,
+                    0);
+
+                _spriteBatch.DrawImage(
+                    texture,
+                    null,
+                    rect,
+                    ColorRgbaF.White);
+            }
         }
 
         public void DrawRectangle(in RectangleF rect, ColorRgbaF strokeColor, float strokeWidth)
@@ -233,17 +231,14 @@ namespace OpenSage.Gui
         {
             _spriteBatch.End();
 
-            foreach (var texture in _texturesToDispose)
-            {
-                texture.Dispose();
-            }
-            _texturesToDispose.Clear();
-
             _textTexturePool.ReleaseAll();
             _textImagePool.ReleaseAll();
 
-            _commandEncoder.Close();
-            _commandBuffer.Commit();
+            _commandEncoder.End();
+
+            _graphicsDevice.SubmitCommands(_commandEncoder);
+
+            _graphicsDevice.DisposeWhenIdle(_commandEncoder);
         }
     }
 

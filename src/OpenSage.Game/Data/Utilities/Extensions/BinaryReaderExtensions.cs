@@ -1,5 +1,4 @@
-﻿using OpenSage.LowLevel.Graphics3D;
-using System;
+﻿using System;
 using System.IO;
 using System.Numerics;
 using System.Text;

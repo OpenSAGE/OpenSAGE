@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
-using System.Threading.Tasks;
 using System.Numerics;
 using OpenSage.Mathematics;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Data.Utilities;
 
 namespace OpenSage.Data.Apt

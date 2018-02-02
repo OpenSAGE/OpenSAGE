@@ -75,7 +75,7 @@ namespace OpenSage.Gui.Wnd
         private void CreateSizeDependentResources(WndTopLevelWindow window)
         {
             var viewport = _game.Scene.Camera.Viewport;
-            var size = new Size(viewport.Width, viewport.Height);
+            var size = new Size((int) viewport.Width, (int) viewport.Height);
 
             window.Root.DoActionRecursive(
             x =>

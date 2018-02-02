@@ -24,7 +24,7 @@ struct VSInput
     float2 UV       : TEXCOORD;
 };
 
-cbuffer RenderItemConstantsVS : register(b1)
+cbuffer RenderItemConstantsVS
 {
     row_major float4x4 World;
 };
@@ -46,6 +46,7 @@ VSOutput VS(VSInput input)
 }
 
 #define LIGHTING_TYPE Terrain
+#define LIGHTING_CONSTANTS_REGISTER b5
 #include "Lighting.hlsli"
 
 #define BLEND_DIRECTION_TOWARDS_RIGHT     1
@@ -53,7 +54,7 @@ VSOutput VS(VSInput input)
 #define BLEND_DIRECTION_TOWARDS_TOP_RIGHT 4
 #define BLEND_DIRECTION_TOWARDS_TOP_LEFT  8
 
-Texture2D<uint4> TileData : register(t0);
+Texture2D<uint4> TileData;
 
 struct CliffInfo
 {
@@ -63,7 +64,7 @@ struct CliffInfo
     float2 TopLeftUV;
 };
 
-StructuredBuffer<CliffInfo> CliffDetails : register(t1);
+StructuredBuffer<CliffInfo> CliffDetails;
 
 struct TextureInfo
 {
@@ -71,11 +72,11 @@ struct TextureInfo
     uint CellSize;
 };
 
-StructuredBuffer<TextureInfo> TextureDetails : register(t2);
+StructuredBuffer<TextureInfo> TextureDetails;
 
-Texture2DArray<float4> Textures : register(t3);
+Texture2DArray<float4> Textures;
 
-SamplerState Sampler : register(s0);
+SamplerState Sampler;
 
 float3 SampleTexture(
     int textureIndex,

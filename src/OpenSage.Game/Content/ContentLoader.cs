@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Data;
 
 namespace OpenSage.Content
 {
-    internal abstract class ContentLoader : GraphicsObject
+    internal abstract class ContentLoader : DisposableBase
     {
         public virtual object PlaceholderValue => null;
 

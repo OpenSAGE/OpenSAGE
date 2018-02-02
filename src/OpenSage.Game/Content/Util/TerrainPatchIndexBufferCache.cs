@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
-using OpenSage.LowLevel.Graphics3D;
+using OpenSage.Utilities.Extensions;
+using Veldrid;
 
 namespace OpenSage.Content.Util
 {
-    internal sealed class TerrainPatchIndexBufferCache : GraphicsObject
+    internal sealed class TerrainPatchIndexBufferCache : DisposableBase
     {
         private struct CacheEntry
         {
-            public Buffer<ushort> Buffer;
+            public DeviceBuffer Buffer;
             public ushort[] Indices;
         }
 
@@ -20,7 +21,7 @@ namespace OpenSage.Content.Util
             _cachedIndexBuffers = new Dictionary<TerrainPatchSize, CacheEntry>();
         }
 
-        public Buffer<ushort> GetIndexBuffer(
+        public DeviceBuffer GetIndexBuffer(
             int width, 
             int height, 
             out ushort[] indices)
@@ -47,7 +48,7 @@ namespace OpenSage.Content.Util
 
         public uint CalculateNumIndices(int width, int height) => (uint) ((width - 1) * (height - 1) * 6);
 
-        private Buffer<ushort> CreateIndexBuffer(
+        private DeviceBuffer CreateIndexBuffer(
             TerrainPatchSize size,
             out ushort[] indices)
         {
@@ -76,10 +77,7 @@ namespace OpenSage.Content.Util
                 }
             }
 
-            return Buffer<ushort>.CreateStatic(
-                _graphicsDevice,
-                indices,
-                BufferBindFlags.IndexBuffer);
+            return _graphicsDevice.CreateStaticBuffer(indices, BufferUsage.IndexBuffer);
         }
 
         private struct TerrainPatchSize
