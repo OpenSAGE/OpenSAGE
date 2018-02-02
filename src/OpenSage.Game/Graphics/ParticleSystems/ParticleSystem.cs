@@ -73,10 +73,8 @@ namespace OpenSage.Graphics.ParticleSystems
             var blendState = GetBlendState(Definition.Shader);
 
             _particleMaterial.PipelineState = new EffectPipelineState(
-                // TODO_VELDRID
-                //RasterizerStateDescription.Default,
-                RasterizerStateDescriptionUtility.CullNoneSolid,
-                DepthStencilStateDescriptionUtility.DepthRead,
+                RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
+                DepthStencilStateDescription.DepthOnlyLessEqualRead,
                 blendState);
 
             _initialDelay = Definition.InitialDelay.GetRandomInt();
@@ -147,7 +145,7 @@ namespace OpenSage.Graphics.ParticleSystems
                     return BlendStateDescription.SingleAlphaBlend;
 
                 case ParticleSystemShader.Additive:
-                    return BlendStateDescriptionUtility.SingleAdditive;
+                    return BlendStateDescription.SingleAdditiveBlend;
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(shader));

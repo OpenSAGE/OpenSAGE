@@ -34,7 +34,7 @@ namespace OpenSage.Graphics.Effects
 
         public void SetMaterialConstants(DeviceBuffer materialConstants)
         {
-            SetProperty(3, materialConstants);
+            SetProperty(7, materialConstants);
         }
 
         [StructLayout(LayoutKind.Explicit, Size = 240)]

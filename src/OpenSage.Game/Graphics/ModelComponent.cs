@@ -31,7 +31,8 @@ namespace OpenSage.Graphics
                 SkinningBuffer = GraphicsDevice.ResourceFactory.CreateBuffer(
                     new BufferDescription(
                         (uint) (48 * Bones.Length),
-                        BufferUsage.StructuredBufferReadOnly | BufferUsage.Dynamic));
+                        BufferUsage.StructuredBufferReadOnly | BufferUsage.Dynamic,
+                        48));
 
                 _skinningBones = new Matrix4x3[Bones.Length];
             }

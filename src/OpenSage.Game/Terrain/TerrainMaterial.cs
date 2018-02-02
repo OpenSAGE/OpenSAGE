@@ -17,9 +17,9 @@ namespace OpenSage.Terrain
             SetProperty(8, effect.GraphicsDevice.Aniso4xSampler);
 
             PipelineState = new EffectPipelineState(
-                RasterizerStateDescription.Default,
+                RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
                 DepthStencilStateDescription.DepthOnlyLessEqual,
-                BlendStateDescriptionUtility.SingleBlendOpaque);
+                BlendStateDescription.SingleDisabled);
         }
 
         public void SetTileData(Texture tileDataTexture)

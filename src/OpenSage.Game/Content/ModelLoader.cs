@@ -335,9 +335,9 @@ namespace OpenSage.Content
             var meshParts = new List<ModelMeshPart>();
 
             // TODO: Extract state properties from shader material.
-            var rasterizerState = RasterizerStateDescription.Default;
+            var rasterizerState = RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise;
             var depthState = DepthStencilStateDescription.DepthOnlyLessEqual;
-            var blendState = BlendStateDescriptionUtility.SingleBlendOpaque;
+            var blendState = BlendStateDescription.SingleDisabled;
 
             // TODO_VELDRID: Handle shader materials generically.
 
@@ -583,7 +583,7 @@ namespace OpenSage.Content
                 var combinedIds = getExpandedVertexMaterialIDs()
                     .Zip(getExpandedShaderIds(), (x, y) => new { VertexMaterialID = x, ShaderID = y })
                     .Zip(getExpandedTextureIds(textureStage0?.TextureIds), (x, y) => new { x.VertexMaterialID, x.ShaderID, TextureIndex0 = y })
-                    .Zip(getExpandedTextureIds(textureStage1?.TextureIds), (x, y) => new { x.VertexMaterialID, x.ShaderID, x.TextureIndex0, TextureIndex1 = y });
+                    .Zip(getExpandedTextureIds(textureStage1?.TextureIds), (x, y) => new CombinedMaterialPermutation { VertexMaterialID = x.VertexMaterialID, ShaderID = x.ShaderID, TextureIndex0 = x.TextureIndex0, TextureIndex1 = y });
 
                 var combinedId = combinedIds.First();
                 var startIndex = 0u;
@@ -638,6 +638,24 @@ namespace OpenSage.Content
                 meshParts);
         }
 
+        private struct CombinedMaterialPermutation
+        {
+            public uint VertexMaterialID;
+            public uint ShaderID;
+            public uint? TextureIndex0;
+            public uint? TextureIndex1;
+
+            public static bool operator==(CombinedMaterialPermutation l, CombinedMaterialPermutation r)
+            {
+                return l.VertexMaterialID == r.VertexMaterialID
+                    && l.ShaderID == r.ShaderID
+                    && l.TextureIndex0 == r.TextureIndex0
+                    && l.TextureIndex1 == r.TextureIndex1;
+            }
+
+            public static bool operator !=(CombinedMaterialPermutation l, CombinedMaterialPermutation r) => !(l == r);
+        }
+
         // One ModelMeshPart for each unique shader in a W3D_CHUNK_MATERIAL_PASS.
         private ModelMeshPart CreateModelMeshPart(
             ContentManager contentManager,
@@ -654,7 +672,7 @@ namespace OpenSage.Content
         {
             var w3dShader = w3dMesh.Shaders[shaderID];
 
-            var rasterizerState = RasterizerStateDescription.Default;
+            var rasterizerState = RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise;
             rasterizerState.CullMode = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.TwoSided)
                 ? FaceCullMode.None
                 : FaceCullMode.Back;

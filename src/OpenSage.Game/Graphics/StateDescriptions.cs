@@ -2,28 +2,10 @@
 
 namespace OpenSage.Graphics
 {
-    // TODO: See if these can go into Veldrid.
-
-    internal static class BlendStateDescriptionUtility
-    {
-        public static BlendStateDescription SingleBlendOpaque;
-        public static BlendStateDescription SingleAdditive;
-
-        static BlendStateDescriptionUtility()
-        {
-            SingleBlendOpaque = new BlendStateDescription(
-                RgbaFloat.White,
-                new BlendAttachmentDescription { BlendEnabled = false });
-
-            SingleAdditive = new BlendStateDescription(
-                RgbaFloat.White,
-                BlendAttachmentDescription.AdditiveBlend);
-        }
-    }
-
     internal static class RasterizerStateDescriptionUtility
     {
         public static RasterizerStateDescription CullNoneSolid;
+        public static RasterizerStateDescription DefaultFrontIsCounterClockwise;
 
         static RasterizerStateDescriptionUtility()
         {
@@ -33,16 +15,13 @@ namespace OpenSage.Graphics
                 FrontFace.Clockwise,
                 true,
                 false);
-        }
-    }
 
-    internal static class DepthStencilStateDescriptionUtility
-    {
-        public static DepthStencilStateDescription DepthRead;
-
-        static DepthStencilStateDescriptionUtility()
-        {
-            DepthRead = new DepthStencilStateDescription(true, false, ComparisonKind.LessEqual);
+            DefaultFrontIsCounterClockwise = new RasterizerStateDescription(
+                FaceCullMode.Back,
+                PolygonFillMode.Solid,
+                FrontFace.CounterClockwise,
+                true,
+                false);
         }
     }
 }
