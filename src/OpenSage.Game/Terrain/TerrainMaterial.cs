@@ -52,7 +52,7 @@ namespace OpenSage.Terrain
             new ResourceLayoutElementDescription("LightingConstants_Terrain", ResourceKind.UniformBuffer, ShaderStages.Fragment),
 
             new ResourceLayoutElementDescription("TileData", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-            new ResourceLayoutElementDescription("CliffDetails", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+            new ResourceLayoutElementDescription("CliffDetails", ResourceKind.StructuredBufferReadOnly, ShaderStages.Fragment),
             new ResourceLayoutElementDescription("TextureDetails", ResourceKind.StructuredBufferReadOnly, ShaderStages.Fragment),
             new ResourceLayoutElementDescription("Textures", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
 

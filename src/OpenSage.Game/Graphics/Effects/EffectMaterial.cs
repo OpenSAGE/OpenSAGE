@@ -68,10 +68,13 @@ namespace OpenSage.Graphics.Effects
             SetProperty(slot, view);
         }
 
-        public void Apply(in OutputDescription outputDescription)
+        public void ApplyPipelineState(in OutputDescription outputDescription)
         {
             Effect.SetPipelineState(PipelineState.GetHandle(outputDescription));
+        }
 
+        public void ApplyProperties()
+        {
             foreach (var property in _properties.Values)
             {
                 property.Parameter.SetData(property.Data);
@@ -85,6 +88,7 @@ namespace OpenSage.Graphics.Effects
 
         // TODO_VELDRID: Remove this. It's only temporary, until we switch properly to ResourceSets.
         private readonly Dictionary<BindableResource, ResourceSet> _cachedResourceSets;
+        private ResourceSet _nullResourceSet;
 
         public EffectParameter Parameter { get; }
 
@@ -103,7 +107,12 @@ namespace OpenSage.Graphics.Effects
         {
             if (resource == null)
             {
-                Data = null;
+                if (_nullResourceSet == null)
+                {
+                    _nullResourceSet = AddDisposable(_graphicsDevice.ResourceFactory.CreateResourceSet(
+                        new ResourceSetDescription(Parameter.ResourceLayout, new BindableResource[] { null })));
+                }
+                Data = _nullResourceSet;
                 return;
             }
 

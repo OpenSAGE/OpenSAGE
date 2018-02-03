@@ -94,7 +94,7 @@ namespace OpenSage.Content
             result.Entities.Add(objectsEntity);
             LoadObjects(
                 contentManager,
-                objectsEntity, 
+                objectsEntity,
                 heightMap,
                 mapFile.ObjectsList.Objects,
                 result.Settings);
@@ -338,6 +338,7 @@ namespace OpenSage.Content
                 patchBounds,
                 vertexBuffer,
                 indexBuffer,
+                (uint) indices.Length,
                 triangles,
                 boundingBox);
         }

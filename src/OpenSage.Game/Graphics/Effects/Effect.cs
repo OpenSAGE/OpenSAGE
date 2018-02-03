@@ -118,7 +118,7 @@ namespace OpenSage.Graphics.Effects
             }
         }
 
-        public void Apply(CommandList commandEncoder)
+        public void ApplyPipelineState(CommandList commandEncoder)
         {
             if (_dirtyFlags.HasFlag(EffectDirtyFlags.PipelineState))
             {
@@ -126,7 +126,10 @@ namespace OpenSage.Graphics.Effects
 
                 _dirtyFlags &= ~EffectDirtyFlags.PipelineState;
             }
+        }
 
+        public void ApplyParameters(CommandList commandEncoder)
+        {
             foreach (var parameter in _parameters)
             {
                 parameter.ApplyChanges(commandEncoder);

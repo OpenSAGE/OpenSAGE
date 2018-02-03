@@ -13,7 +13,7 @@ cbuffer GlobalConstantsVS : register(b1)
 };
 
 #if !defined(GLOBAL_CONSTANTS_PS_REGISTER)
-#define GLOBAL_CONSTANTS_PS_REGISTER b0
+#define GLOBAL_CONSTANTS_PS_REGISTER b10
 #endif
 
 cbuffer GlobalConstantsPS : register(GLOBAL_CONSTANTS_PS_REGISTER)

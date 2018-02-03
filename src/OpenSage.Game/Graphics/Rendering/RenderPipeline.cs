@@ -80,10 +80,13 @@ namespace OpenSage.Graphics.Rendering
 
                         effect.Begin(commandEncoder);
 
-                        renderItem.Material.Apply(context.RenderTarget.OutputDescription);
-                        renderItem.Effect.Apply(commandEncoder);
-
                         SetDefaultConstantBuffers(renderItem.Material);
+                    }
+
+                    if (lastRenderItem == null || lastRenderItem.Value.Material != renderItem.Material)
+                    {
+                        renderItem.Material.ApplyPipelineState(context.RenderTarget.OutputDescription);
+                        renderItem.Effect.ApplyPipelineState(commandEncoder);
                     }
 
                     if (lastRenderItem == null || lastRenderItem.Value.VertexBuffer0 != renderItem.VertexBuffer0)
@@ -109,8 +112,8 @@ namespace OpenSage.Graphics.Rendering
                             _renderItemConstantsBufferVS.Buffer);
                     }
 
-                    renderItem.Material.Apply(context.RenderTarget.OutputDescription);
-                    renderItem.Effect.Apply(commandEncoder);
+                    renderItem.Material.ApplyProperties();
+                    renderItem.Effect.ApplyParameters(commandEncoder);
 
                     switch (renderItem.DrawCommand)
                     {

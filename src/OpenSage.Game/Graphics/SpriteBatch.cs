@@ -201,9 +201,11 @@ namespace OpenSage.Graphics
 
                 _material.SetTexture(batchItem.Texture);
 
-                _material.Apply(_outputDescription);
+                _material.ApplyPipelineState(_outputDescription);
+                _material.ApplyProperties();
 
-                _material.Effect.Apply(_commandEncoder);
+                _material.Effect.ApplyPipelineState(_commandEncoder);
+                _material.Effect.ApplyParameters(_commandEncoder);
 
                 var indexCount = batchItem.ItemType == SpriteBatchItemType.Quad ? 6u : 3u;
 

@@ -28,6 +28,11 @@ namespace OpenSage.Graphics.Effects
 
         public void SetData(ResourceSet resourceSet)
         {
+            if (ReferenceEquals(_data, resourceSet))
+            {
+                return;
+            }
+
             _data = resourceSet;
             _dirty = true;
         }

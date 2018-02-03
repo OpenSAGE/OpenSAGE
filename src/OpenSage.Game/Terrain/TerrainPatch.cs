@@ -10,6 +10,7 @@ namespace OpenSage.Terrain
     {
         private readonly DeviceBuffer _vertexBuffer;
         private readonly DeviceBuffer _indexBuffer;
+        private readonly uint _numIndices;
 
         private readonly TerrainMaterial _terrainMaterial;
 
@@ -28,6 +29,7 @@ namespace OpenSage.Terrain
             Rectangle patchBounds,
             DeviceBuffer vertexBuffer,
             DeviceBuffer indexBuffer,
+            uint numIndices,
             Triangle[] triangles,
             BoundingBox boundingBox)
         {
@@ -37,6 +39,7 @@ namespace OpenSage.Terrain
 
             _vertexBuffer = vertexBuffer;
             _indexBuffer = indexBuffer;
+            _numIndices = numIndices;
 
             BoundingBox = boundingBox;
             Triangles = triangles;
@@ -80,7 +83,7 @@ namespace OpenSage.Terrain
                 this,
                 Matrix4x4.Identity,
                 0,
-                (uint) Triangles.Length * 3,
+                _numIndices,
                 _indexBuffer);
         }
     }
