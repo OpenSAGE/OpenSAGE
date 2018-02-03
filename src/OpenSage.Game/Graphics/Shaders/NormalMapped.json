@@ -1,0 +1,154 @@
+﻿{
+  "ResourceBindings": [
+    {
+      "Name": "GlobalConstantsShared",
+      "Type": "UniformBuffer",
+      "Register": 0,
+      "Stages": [ "Vertex", "Fragment" ],
+      "Size": 16,
+      "Fields": [
+        {
+          "Name": "CameraPosition",
+          "Type": "Float3",
+          "Offset": 0,
+          "Size": 12
+        }
+      ]
+    },
+    {
+      "Name": "GlobalConstantsVS",
+      "Type": "UniformBuffer",
+      "Register": 1,
+      "Stages": [ "Vertex" ],
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "ViewProjection",
+          "Type": "Float4x4",
+          "Offset": 0,
+          "Size": 64
+        }
+      ]
+    },
+    {
+      "Name": "MeshConstants",
+      "Type": "UniformBuffer",
+      "Register": 2,
+      "Stages": [ "Vertex" ],
+      "Size": 16,
+      "Fields": [
+        {
+          "Name": "SkinningEnabled",
+          "Type": "Bool",
+          "Offset": 0,
+          "Size": 4
+        },
+        {
+          "Name": "NumBones",
+          "Type": "Uint",
+          "Offset": 4,
+          "Size": 4
+        }
+      ]
+    },
+    {
+      "Name": "RenderItemConstantsVS",
+      "Type": "UniformBuffer",
+      "Register": 3,
+      "Stages": [ "Vertex" ],
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "World",
+          "Type": "Float4x4",
+          "Offset": 0,
+          "Size": 64
+        }
+      ]
+    },
+    {
+      "Name": "SkinningBuffer",
+      "Type": "StructuredBufferReadOnly",
+      "Register": 0,
+      "Stages": [ "Vertex" ]
+    },
+    {
+      "Name": "LightingConstants_Object",
+      "Type": "UniformBuffer",
+      "Register": 4,
+      "Stages": [ "Fragment" ],
+      "Size": 144,
+      "Fields": [
+        {
+          "Name": "Lights",
+          "Type": "Struct",
+          "Offset": 0,
+          "Size": 144
+        }
+      ]
+    },
+    {
+      "Name": "MaterialConstants",
+      "Type": "UniformBuffer",
+      "Register": 5,
+      "Stages": [ "Fragment" ],
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "BumpScale",
+          "Type": "Float",
+          "Offset": 0,
+          "Size": 4
+        },
+        {
+          "Name": "SpecularExponent",
+          "Type": "Float",
+          "Offset": 4,
+          "Size": 4
+        },
+        {
+          "Name": "AlphaTestEnable",
+          "Type": "Bool",
+          "Offset": 8,
+          "Size": 4
+        },
+        {
+          "Name": "AmbientColor",
+          "Type": "Float4",
+          "Offset": 16,
+          "Size": 16
+        },
+        {
+          "Name": "DiffuseColor",
+          "Type": "Float4",
+          "Offset": 32,
+          "Size": 16
+        },
+        {
+          "Name": "SpecularColor",
+          "Type": "Float4",
+          "Offset": 48,
+          "Size": 16
+        }
+      ]
+    },
+    {
+      "Name": "DiffuseTexture",
+      "Type": "TextureReadOnly",
+      "Register": 0,
+      "Stages": [ "Fragment" ]
+    },
+    {
+      "Name": "NormalMap",
+      "Type": "TextureReadOnly",
+      "Register": 1,
+      "Stages": [ "Fragment" ]
+    },
+    {
+      "Name": "Sampler",
+      "Type": "Sampler",
+      "Register": 0,
+      "Stages": [ "Fragment" ]
+    }
+  ]
+}

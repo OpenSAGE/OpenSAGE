@@ -38,12 +38,5 @@ namespace OpenSage.Graphics.Effects
         {
             public Matrix4x4 Projection;
         }
-
-        public static ResourceLayoutElementDescription[] ResourceLayoutDescriptions = new[]
-        {
-            new ResourceLayoutElementDescription("ProjectionBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-            new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment),
-            new ResourceLayoutElementDescription("Texture", ResourceKind.TextureReadOnly, ShaderStages.Fragment)
-        };
     }
 }

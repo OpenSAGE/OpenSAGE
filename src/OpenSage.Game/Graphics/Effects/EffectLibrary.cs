@@ -23,41 +23,35 @@ namespace OpenSage.Graphics.Effects
             FixedFunction = AddDisposable(new Effect(
                 graphicsDevice,
                 "FixedFunction",
-                MeshVertex.VertexDescriptors,
-                FixedFunctionMaterial.ResourceLayoutDescriptions));
+                MeshVertex.VertexDescriptors));
 
             Particle = AddDisposable(new Effect(
                 graphicsDevice,
                 "Particle",
-                ParticleVertex.VertexDescriptor,
-                ParticleMaterial.ResourceLayoutDescriptions));
+                ParticleVertex.VertexDescriptor));
 
             Sprite = AddDisposable(new Effect(
                 graphicsDevice,
                 "Sprite",
                 SpriteVertex.VertexDescriptor,
-                SpriteMaterial.ResourceLayoutDescriptions,
                 true));
 
             Terrain = AddDisposable(new Effect(
                 graphicsDevice,
                 "Terrain",
-                TerrainVertex.VertexDescriptor,
-                TerrainMaterial.ResourceLayoutDescriptions));
+                TerrainVertex.VertexDescriptor));
         }
 
         public Effect GetEffect(
             string name,
-            VertexLayoutDescription[] vertexDescriptors,
-            ResourceLayoutElementDescription[] resourceLayoutDescriptions)
+            VertexLayoutDescription[] vertexDescriptors)
         {
             if (!_effects.TryGetValue(name, out var effect))
             {
                 _effects[name] = effect = AddDisposable(new Effect(
                     _graphicsDevice,
                     name,
-                    vertexDescriptors,
-                    resourceLayoutDescriptions));
+                    vertexDescriptors));
             }
             return effect;
         }

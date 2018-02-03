@@ -138,15 +138,9 @@ namespace OpenSage.Content
                 w3dShaderMaterial = w3dMesh.ShaderMaterials.Materials[(int) shaderMaterialID];
                 var effectName = w3dShaderMaterial.Header.TypeName.Replace(".fx", string.Empty);
 
-                if (effectName != "Simple")
-                {
-                    throw new NotImplementedException();
-                }
-
                 effect = contentManager.EffectLibrary.GetEffect(
                     effectName,
-                    MeshVertex.VertexDescriptors,
-                    SimpleMaterial.ResourceLayoutDescriptions);
+                    MeshVertex.VertexDescriptors);
             }
             else
             {

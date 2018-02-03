@@ -12,6 +12,7 @@
   
   <ItemGroup>
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.4.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0002" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0002" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
@@ -24,6 +25,10 @@
 
   <ItemGroup>
     <EffectShader Include="**\*.fx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Graphics\Shaders\*.json" />
   </ItemGroup>
 
   <Import Project="..\..\build\OpenSage.EffectCompiler.targets" />

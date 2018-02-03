@@ -1,0 +1,109 @@
+﻿{
+  "ResourceBindings": [
+    {
+      "Name": "GlobalConstantsShared",
+      "Type": "UniformBuffer",
+      "Register": 0,
+      "Stages": "Vertex, Fragment",
+      "Size": 16,
+      "Fields": [
+        {
+          "Name": "CameraPosition",
+          "Type": "Float3",
+          "Offset": 0,
+          "Size": 12
+        }
+      ]
+    },
+    {
+      "Name": "GlobalConstantsVS",
+      "Type": "UniformBuffer",
+      "Register": 1,
+      "Stages": "Vertex",
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "ViewProjection",
+          "Type": "Float4x4",
+          "Offset": 0,
+          "Size": 64
+        }
+      ]
+    },
+    {
+      "Name": "MeshConstants",
+      "Type": "UniformBuffer",
+      "Register": 2,
+      "Stages": "Vertex",
+      "Size": 16,
+      "Fields": [
+        {
+          "Name": "SkinningEnabled",
+          "Type": "Bool",
+          "Offset": 0,
+          "Size": 4
+        },
+        {
+          "Name": "NumBones",
+          "Type": "Uint",
+          "Offset": 4,
+          "Size": 4
+        }
+      ]
+    },
+    {
+      "Name": "RenderItemConstantsVS",
+      "Type": "UniformBuffer",
+      "Register": 3,
+      "Stages": "Vertex",
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "World",
+          "Type": "Float4x4",
+          "Offset": 0,
+          "Size": 64
+        }
+      ]
+    },
+    {
+      "Name": "SkinningBuffer",
+      "Type": "StructuredBufferReadOnly",
+      "Register": 0,
+      "Stages": [ "Vertex" ]
+    },
+    {
+      "Name": "MaterialConstants",
+      "Type": "UniformBuffer",
+      "Register": 4,
+      "Stages": [ "Fragment" ],
+      "Size": 32,
+      "Fields": [
+        {
+          "Name": "ColorEmissive",
+          "Type": "Float4",
+          "Offset": 0,
+          "Size": 16
+        },
+        {
+          "Name": "TexCoordTransform_0",
+          "Type": "Float4",
+          "Offset": 0,
+          "Size": 16
+        }
+      ]
+    },
+    {
+      "Name": "Texture_0",
+      "Type": "TextureReadOnly",
+      "Register": 1,
+      "Stages": [ "Fragment" ]
+    },
+    {
+      "Name": "Sampler",
+      "Type": "Sampler",
+      "Register": 0,
+      "Stages": [ "Fragment" ]
+    }
+  ]
+}

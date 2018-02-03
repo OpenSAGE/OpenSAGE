@@ -22,7 +22,7 @@ cbuffer MaterialConstants : register(b2)
     float4 TexCoordTransform_0;
 };
 
-Texture2D<float4> Texture_0 : register(t0);
+Texture2D<float4> Texture_0 : register(t1);
 SamplerState Sampler : register(s0);
 
 float4 PS(VSOutputSimple input) : SV_Target

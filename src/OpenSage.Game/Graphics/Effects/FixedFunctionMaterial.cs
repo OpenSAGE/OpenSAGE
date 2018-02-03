@@ -161,27 +161,5 @@ namespace OpenSage.Graphics.Effects
             InvScale = 3,
             DetailBlend = 4
         }
-
-        public static ResourceLayoutElementDescription[] ResourceLayoutDescriptions = new[]
-        {
-            new ResourceLayoutElementDescription("GlobalConstantsShared", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment),
-            new ResourceLayoutElementDescription("GlobalConstantsVS", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-            new ResourceLayoutElementDescription("GlobalConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment),
-
-            new ResourceLayoutElementDescription("MeshConstants", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-
-            new ResourceLayoutElementDescription("RenderItemConstantsVS", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-
-            new ResourceLayoutElementDescription("SkinningBuffer", ResourceKind.StructuredBufferReadOnly, ShaderStages.Vertex),
-
-            new ResourceLayoutElementDescription("LightingConstants_Object", ResourceKind.UniformBuffer, ShaderStages.Fragment),
-
-            new ResourceLayoutElementDescription("MaterialConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment),
-
-            new ResourceLayoutElementDescription("Texture0", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-            new ResourceLayoutElementDescription("Texture1", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-
-            new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment)
-        };
     }
 }

@@ -41,22 +41,5 @@ namespace OpenSage.Terrain
         {
             SetProperty(7, textureArray);
         }
-
-        public static ResourceLayoutElementDescription[] ResourceLayoutDescriptions = new[]
-        {
-            new ResourceLayoutElementDescription("GlobalConstantsShared", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment),
-            new ResourceLayoutElementDescription("GlobalConstantsVS", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-
-            new ResourceLayoutElementDescription("RenderItemConstantsVS", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-            
-            new ResourceLayoutElementDescription("LightingConstants_Terrain", ResourceKind.UniformBuffer, ShaderStages.Fragment),
-
-            new ResourceLayoutElementDescription("TileData", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-            new ResourceLayoutElementDescription("CliffDetails", ResourceKind.StructuredBufferReadOnly, ShaderStages.Fragment),
-            new ResourceLayoutElementDescription("TextureDetails", ResourceKind.StructuredBufferReadOnly, ShaderStages.Fragment),
-            new ResourceLayoutElementDescription("Textures", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-
-            new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment)
-        };
     }
 }

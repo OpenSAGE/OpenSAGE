@@ -19,16 +19,5 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             SetProperty(4, texture);
         }
-
-        public static ResourceLayoutElementDescription[] ResourceLayoutDescriptions = new[]
-        {
-            new ResourceLayoutElementDescription("GlobalConstantsShared", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment),
-            new ResourceLayoutElementDescription("GlobalConstantsVS", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-
-            new ResourceLayoutElementDescription("RenderItemConstantsVS", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-
-            new ResourceLayoutElementDescription("LinearSampler", ResourceKind.Sampler, ShaderStages.Fragment),
-            new ResourceLayoutElementDescription("ParticleTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment)
-        };
     }
 }

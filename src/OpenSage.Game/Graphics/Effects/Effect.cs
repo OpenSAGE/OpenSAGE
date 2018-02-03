@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
 
@@ -43,9 +44,8 @@ namespace OpenSage.Graphics.Effects
             GraphicsDevice graphicsDevice,
             string shaderName,
             VertexLayoutDescription vertexDescriptor,
-            ResourceLayoutElementDescription[] resourceLayoutDescriptions,
             bool useNewShaders = false)
-            : this(graphicsDevice, shaderName, new[] { vertexDescriptor }, resourceLayoutDescriptions, useNewShaders)
+            : this(graphicsDevice, shaderName, new[] { vertexDescriptor }, useNewShaders)
         {
 
         }
@@ -54,12 +54,22 @@ namespace OpenSage.Graphics.Effects
             GraphicsDevice graphicsDevice,
             string shaderName,
             VertexLayoutDescription[] vertexDescriptors,
-            ResourceLayoutElementDescription[] resourceLayoutDescriptions,
             bool useNewShaders = false)
         {
             _graphicsDevice = graphicsDevice;
 
             ID = _nextID++;
+
+            var shaderDefinition = ShaderDefinitions.GetShaderDefinition(shaderName);
+            var resourceLayoutDescriptions = new ResourceLayoutElementDescription[shaderDefinition.ResourceBindings.Length];
+            for (var i = 0; i < shaderDefinition.ResourceBindings.Length; i++)
+            {
+                var resourceBinding = shaderDefinition.ResourceBindings[i];
+                resourceLayoutDescriptions[i] = new ResourceLayoutElementDescription(
+                    resourceBinding.Name,
+                    resourceBinding.Type,
+                    resourceBinding.Stages);
+            }
 
             if (useNewShaders)
             {

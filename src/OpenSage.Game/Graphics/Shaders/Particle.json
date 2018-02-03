@@ -1,0 +1,61 @@
+﻿{
+  "ResourceBindings": [
+    {
+      "Name": "GlobalConstantsShared",
+      "Type": "UniformBuffer",
+      "Register": 0,
+      "Stages": "Vertex, Fragment",
+      "Size": 16,
+      "Fields": [
+        {
+          "Name": "CameraPosition",
+          "Type": "Float3",
+          "Offset": 0,
+          "Size": 12
+        }
+      ]
+    },
+    {
+      "Name": "GlobalConstantsVS",
+      "Type": "UniformBuffer",
+      "Register": 1,
+      "Stages": "Vertex",
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "ViewProjection",
+          "Type": "Float4x4",
+          "Offset": 0,
+          "Size": 64
+        }
+      ]
+    },
+    {
+      "Name": "RenderItemConstantsVS",
+      "Type": "UniformBuffer",
+      "Register": 2,
+      "Stages": "Vertex",
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "World",
+          "Type": "Float4x4",
+          "Offset": 0,
+          "Size": 64
+        }
+      ]
+    },
+    {
+      "Name": "LinearSampler",
+      "Type": "Sampler",
+      "Register": 0,
+      "Stages": "Fragment"
+    },
+    {
+      "Name": "ParticleTexture",
+      "Type": "TextureReadOnly",
+      "Register": 0,
+      "Stages": "Fragment"
+    }
+  ]
+}

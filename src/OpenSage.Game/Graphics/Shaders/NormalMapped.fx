@@ -24,10 +24,10 @@ VSOutputSimple VS(VSInputSkinned input)
 
 //#define SPECULAR_ENABLED
 #define LIGHTING_TYPE Object
-#define LIGHTING_CONSTANTS_REGISTER b5
+#define LIGHTING_CONSTANTS_REGISTER b4
 #include "Lighting.hlsli"
 
-cbuffer MaterialConstants : register(b2)
+cbuffer MaterialConstants : register(b5)
 {
     float BumpScale;
     float SpecularExponent;
