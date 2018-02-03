@@ -10,6 +10,8 @@ namespace OpenSage.Graphics.Rendering
     {
         private readonly RenderList _renderList;
 
+        private readonly CommandList _commandList;
+
         private readonly ConstantBuffer<GlobalConstantsShared> _globalConstantBufferShared;
         private readonly ConstantBuffer<GlobalConstantsVS> _globalConstantBufferVS;
         private readonly ConstantBuffer<GlobalConstantsPS> _globalConstantBufferPS;
@@ -33,6 +35,8 @@ namespace OpenSage.Graphics.Rendering
             _globalLightingObjectBuffer = AddDisposable(new ConstantBuffer<LightingConstants>(graphicsDevice));
 
             _spriteBatch = AddDisposable(new SpriteBatch(game.ContentManager));
+
+            _commandList = AddDisposable(graphicsDevice.ResourceFactory.CreateCommandList());
         }
 
         public void Execute(RenderContext context)
@@ -46,8 +50,7 @@ namespace OpenSage.Graphics.Rendering
                 system.BuildRenderList(_renderList);
             }
 
-            // TODO: Should these be re-used?
-            var commandEncoder = context.GraphicsDevice.ResourceFactory.CreateCommandList();
+            var commandEncoder = _commandList;
 
             commandEncoder.Begin();
 
@@ -164,8 +167,6 @@ namespace OpenSage.Graphics.Rendering
             commandEncoder.End();
 
             context.GraphicsDevice.SubmitCommands(commandEncoder);
-
-            context.GraphicsDevice.DisposeWhenIdle(commandEncoder);
 
             context.GraphicsDevice.SwapBuffers();
         }
