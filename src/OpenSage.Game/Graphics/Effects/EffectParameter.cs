@@ -9,6 +9,8 @@ namespace OpenSage.Graphics.Effects
 
         private ResourceSet _data;
 
+        private bool _dirty;
+
         public string Name => _layoutDescription.Name;
 
         public ResourceLayout ResourceLayout { get; }
@@ -27,11 +29,24 @@ namespace OpenSage.Graphics.Effects
         public void SetData(ResourceSet resourceSet)
         {
             _data = resourceSet;
+            _dirty = true;
+        }
+
+        internal void SetDirty()
+        {
+            _dirty = true;
         }
 
         public void ApplyChanges(CommandList commandEncoder)
         {
+            if (!_dirty)
+            {
+                return;
+            }
+
             commandEncoder.SetGraphicsResourceSet(_slot, _data);
+
+            _dirty = false;
         }
     }
 }

@@ -78,10 +78,20 @@ namespace OpenSage.Graphics
                 indices,
                 BufferUsage.IndexBuffer));
 
+            var commandEncoder = graphicsDevice.ResourceFactory.CreateCommandList();
+
+            commandEncoder.Begin();
+
             _meshConstantsBuffer = AddDisposable(new ConstantBuffer<MeshMaterial.MeshConstants>(graphicsDevice));
             _meshConstantsBuffer.Value.SkinningEnabled = isSkinned;
             _meshConstantsBuffer.Value.NumBones = numBones;
-            _meshConstantsBuffer.Update();
+            _meshConstantsBuffer.Update(commandEncoder);
+
+            commandEncoder.End();
+
+            graphicsDevice.SubmitCommands(commandEncoder);
+
+            graphicsDevice.DisposeWhenIdle(commandEncoder);
 
             foreach (var materialPass in materialPasses)
             {

@@ -67,7 +67,7 @@ namespace OpenSage.Graphics
                0,
                0,
                -1);
-            _materialConstantsVSBuffer.Update();
+            _materialConstantsVSBuffer.Update(commandEncoder);
 
             _material.SetMaterialConstantsVS(_materialConstantsVSBuffer.Buffer);
 

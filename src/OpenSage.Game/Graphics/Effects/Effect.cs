@@ -111,6 +111,11 @@ namespace OpenSage.Graphics.Effects
         public void Begin(CommandList commandEncoder)
         {
             _dirtyFlags |= EffectDirtyFlags.PipelineState;
+
+            foreach (var parameter in _parameters)
+            {
+                parameter.SetDirty();
+            }
         }
 
         public void Apply(CommandList commandEncoder)

@@ -22,9 +22,9 @@ namespace OpenSage.Graphics.Effects
                     BufferUsage.UniformBuffer | BufferUsage.Dynamic)));
         }
 
-        public void Update()
+        public void Update(CommandList commandList)
         {
-            _graphicsDevice.UpdateBuffer(Buffer, 0, ref Value);
+            commandList.UpdateBuffer(Buffer, 0, ref Value);
         }
     }
 }

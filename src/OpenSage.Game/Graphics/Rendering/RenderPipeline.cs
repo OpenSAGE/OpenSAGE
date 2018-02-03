@@ -102,7 +102,7 @@ namespace OpenSage.Graphics.Rendering
                     if (renderItem.Material.SlotRenderItemConstantsVS != null)
                     {
                         _renderItemConstantsBufferVS.Value.World = renderItem.World;
-                        _renderItemConstantsBufferVS.Update();
+                        _renderItemConstantsBufferVS.Update(commandEncoder);
 
                         renderItem.Material.SetProperty(
                             renderItem.Material.SlotRenderItemConstantsVS.Value,
@@ -191,19 +191,19 @@ namespace OpenSage.Graphics.Rendering
             var cameraPosition = Matrix4x4Utility.Invert(context.Camera.View).Translation;
 
             _globalConstantBufferShared.Value.CameraPosition = cameraPosition;
-            _globalConstantBufferShared.Update();
+            _globalConstantBufferShared.Update(commandEncoder);
 
             _globalConstantBufferVS.Value.ViewProjection = context.Camera.View * context.Camera.Projection;
-            _globalConstantBufferVS.Update();
+            _globalConstantBufferVS.Update(commandEncoder);
 
             _globalConstantBufferPS.Value.TimeInSeconds = (float) context.GameTime.TotalGameTime.TotalSeconds;
             _globalConstantBufferPS.Value.ViewportSize = new Vector2(context.Camera.Viewport.Width, context.Camera.Viewport.Height);
-            _globalConstantBufferPS.Update();
+            _globalConstantBufferPS.Update(commandEncoder);
 
             _globalLightingTerrainBuffer.Value = context.Scene.Settings.CurrentLightingConfiguration.TerrainLights;
             _globalLightingObjectBuffer.Value = context.Scene.Settings.CurrentLightingConfiguration.ObjectLights;
-            _globalLightingTerrainBuffer.Update();
-            _globalLightingObjectBuffer.Update();
+            _globalLightingTerrainBuffer.Update(commandEncoder);
+            _globalLightingObjectBuffer.Update(commandEncoder);
         }
 
         [StructLayout(LayoutKind.Sequential, Size = 16)]
