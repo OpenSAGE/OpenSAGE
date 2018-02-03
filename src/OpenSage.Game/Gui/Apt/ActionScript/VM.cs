@@ -20,30 +20,55 @@ namespace OpenSage.Gui.Apt.ActionScript
             _extern = new ExternObject();
         }
 
-        public void Execute(Function func, Value[] args, ObjectContext scope)
+        public Value Execute(Function func, Value[] args, ObjectContext scope)
         {
             var code = func.Instructions;
 
             var stream = new InstructionStream(code);
-
-            var paramList = new Dictionary<string, Value>();
-
-            for (var i = 0; i < func.Parameters.Count; ++i)
-            {
-                var name = func.Parameters[i].ToString();
-                bool provided = i < args.Length;
-
-                paramList[name] = provided ? args[i] : Value.Undefined();
-            }
 
             var context = new ActionContext(func.NumberRegisters)
             {
                 Global = _global,
                 Scope = scope,
                 Apt = scope.Item.Context,
-                Stream = stream,
-                Params = paramList
+                Stream = stream
             };
+
+            //parameters in the old version are just stored as local variables
+            if (!func.IsNewVersion)
+            {
+                for (var i = 0; i < func.Parameters.Count; ++i)
+                {
+                    var name = func.Parameters[i].ToString();
+                    bool provided = i < args.Length;
+
+                    context.Params[name] = provided ? args[i] : Value.Undefined();
+                }
+            }
+            else
+            {
+                for (var i = 0; i < func.Parameters.Count; i+=2)
+                {
+                    var reg = func.Parameters[i].ToInteger();
+                    var name = func.Parameters[i+1].ToString();
+                    var argIndex = i / 2;
+                    bool provided = (argIndex) < args.Length;
+
+                    if (reg != 0)
+                    {
+                        context.Registers[reg] = provided ? args[argIndex] : Value.Undefined();
+                    }
+                    else
+                    {
+                        context.Params[name] = provided ? args[argIndex] : Value.Undefined();
+                    }
+                }
+            }
+
+            if (func.IsNewVersion)
+            {
+                context.Preload(func.Flags);
+            }           
 
             var instr = stream.GetInstruction();
 
@@ -51,11 +76,16 @@ namespace OpenSage.Gui.Apt.ActionScript
             {
                 instr.Execute(context);
 
+                if (context.Return)
+                    return context.Stack.Pop();
+
                 if (stream.IsFinished())
                     break;
 
                 instr = stream.GetInstruction();
             }
+
+            return Value.Undefined();
         }
 
         public void Execute(InstructionCollection code, ObjectContext scope)

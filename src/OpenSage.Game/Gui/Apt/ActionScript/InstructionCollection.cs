@@ -63,6 +63,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                     case InstructionType.ToNumber:
                         instruction = new ToNumber();
                         break;
+                    case InstructionType.NextFrame:
+                        instruction = new NextFrame();
+                        break;
                     case InstructionType.Play:
                         instruction = new Play();
                         break;
@@ -83,6 +86,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                         break;
                     case InstructionType.Not:
                         instruction = new Not();
+                        break;
+                    case InstructionType.StringEquals:
+                        instruction = new StringEquals();
                         break;
                     case InstructionType.Pop:
                         instruction = new Pop();
@@ -127,6 +133,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                         instruction = new InitArray();
                         break;
                     case InstructionType.InitObject:
+                        instruction = new InitObject();
+                        break;
+                    case InstructionType.TypeOf:
                         instruction = new InitObject();
                         break;
                     case InstructionType.Add2:
@@ -230,11 +239,14 @@ namespace OpenSage.Gui.Apt.ActionScript
                             var name = _reader.ReadStringAtOffset();
                             var nParams = _reader.ReadUInt32();
                             var nRegisters = _reader.ReadByte();
-                            var flags = _reader.ReadUInt16();
-                            _reader.ReadByte();
+                            var flags = _reader.ReadUInt24();
 
                             //list of parameter strings
-                            var paramList = _reader.ReadFixedSizeListAtOffset<string>(() => _reader.ReadStringAtOffset(),nParams);
+                            var paramList = _reader.ReadFixedSizeListAtOffset<FunctionArgument>(() => new FunctionArgument()
+                            {
+                                Register = _reader.ReadInt32(),
+                                Parameter = _reader.ReadStringAtOffset(),
+                            },nParams);
 
                             parameters.Add(Value.FromString(name));
                             parameters.Add(Value.FromInteger((int)nParams));
@@ -242,7 +254,8 @@ namespace OpenSage.Gui.Apt.ActionScript
                             parameters.Add(Value.FromInteger((int)flags));
                             foreach (var param in paramList)
                             {
-                                parameters.Add(Value.FromString(param));
+                                parameters.Add(Value.FromInteger(param.Register));
+                                parameters.Add(Value.FromString(param.Parameter));
                             }
                             //body size of the function
                             parameters.Add(Value.FromInteger(_reader.ReadInt32()));
@@ -322,7 +335,8 @@ namespace OpenSage.Gui.Apt.ActionScript
                         }
                         break;
                     case InstructionType.GotoFrame2:
-                        throw new NotImplementedException();
+                        instruction = new GotoFrame2();
+                        parameters.Add(Value.FromInteger(_reader.ReadByte()));
                         break;
                     case InstructionType.EA_PushString:
                         instruction = new PushString();

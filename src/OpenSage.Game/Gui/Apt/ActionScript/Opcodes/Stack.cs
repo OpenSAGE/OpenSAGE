@@ -92,9 +92,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             {
                 result = context.GetParameter(str);
             }
+            else if(context.CheckLocal(str))
+            {
+                result = context.GetLocal(str);
+            }
             else
             {
-                //check if this a special object, like _root, _parent etc.
                 result = context.GetObject(str);
             }
 

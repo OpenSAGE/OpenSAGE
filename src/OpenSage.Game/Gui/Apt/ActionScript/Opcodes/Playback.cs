@@ -65,6 +65,23 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     /// <summary>
+    /// Jump to a specific frame (label or number) and start playing or stop
+    /// </summary>
+    public sealed class GotoFrame2 : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.GotoFrame2;
+        public override uint Size => 1;
+
+        public override void Execute(ActionContext context)
+        {
+            bool play = Convert.ToBoolean(Parameters[0].ToInteger() & 0x01);
+            var frame = context.Stack.Pop();
+
+            throw new InvalidOperationException();           
+        }
+    }
+
+    /// <summary>
     /// Jump to a labeled frame (must be sprite)
     /// </summary>
     public sealed class GotoLabel : InstructionBase
@@ -75,6 +92,26 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// NextFrame 
+    /// </summary>
+    public sealed class NextFrame : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.NextFrame;
+
+        public override void Execute(ActionContext context)
+        {
+            if (context.Scope.Item is SpriteItem si)
+            {
+                si.NextFrame();
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
         }
     }
 }

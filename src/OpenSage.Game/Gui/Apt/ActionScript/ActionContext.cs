@@ -16,13 +16,16 @@ namespace OpenSage.Gui.Apt.ActionScript
         public Stack<Value> Stack { get; set; }
         public Value[] Registers { get; set; }
         public Dictionary<string, Value> Params { get; set; }
-
+        public Dictionary<string, Value> Locals { get; set; }
+        public bool Return { get; set; }
 
         public ActionContext(int numRegisters = 0)
         {
             Stack = new Stack<Value>();
             Registers = new Value[numRegisters];
             Params = new Dictionary<string, Value>();
+            Locals = new Dictionary<string, Value>();
+            Return = false;
         }
 
         /// <summary>
@@ -44,6 +47,27 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             return Params[name];
         }
+
+        /// <summary>
+        /// Check if a specific string is a local value to this context
+        /// </summary>
+        /// <param name="name">variable name</param>
+        /// <returns></returns>
+        public bool CheckLocal(string name)
+        {
+            return Locals.ContainsKey(name);
+        }
+
+        /// <summary>
+        /// Returns the value of a local variable. Must be used with CheckLocal
+        /// </summary>
+        /// <param name="name">local name</param>
+        /// <returns></returns>
+        public Value GetLocal(string name)
+        {
+            return Locals[name];
+        }
+
 
         /// <summary>
         /// Checks for special handled/global objects. After that checks for child objects of the
@@ -85,7 +109,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             {
                 if (part == "..")
                 {
-                    obj = obj.Item.Parent.ScriptObject;
+                    obj = obj.GetParent();
                 }
                 else
                 {
@@ -114,6 +138,65 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Preload specified variables
+        /// </summary>
+        /// <param name="flags">the flags</param>
+        public void Preload(FunctionPreloadFlags flags)
+        {
+            //preloaded variables start at register 1
+            int reg = 1;
+
+            //order is important
+            if (flags.HasFlag(FunctionPreloadFlags.PreloadThis))
+            {
+                Registers[reg] = Value.FromObject(Scope);
+                ++reg;
+            }
+            if (flags.HasFlag(FunctionPreloadFlags.PreloadArguments))
+            {
+                throw new NotImplementedException();
+            }
+            if (flags.HasFlag(FunctionPreloadFlags.PreloadSuper))
+            {
+                throw new NotImplementedException();
+            }
+            if (flags.HasFlag(FunctionPreloadFlags.PreloadRoot))
+            {
+                Registers[reg] = Value.FromObject(Apt.Root.ScriptObject);
+                ++reg;
+            }
+            if (flags.HasFlag(FunctionPreloadFlags.PreloadParent))
+            {
+                Registers[reg] = Value.FromObject(Scope.GetParent());
+                ++reg;
+            }
+            if (flags.HasFlag(FunctionPreloadFlags.PreloadGlobal))
+            {
+                Registers[reg] = Value.FromObject(Apt.AVM.GlobalObject);
+                ++reg;
+            }
+            if (flags.HasFlag(FunctionPreloadFlags.PreloadExtern))
+            {
+                Registers[reg] = Value.FromObject(Apt.AVM.ExternObject);
+                ++reg;
+            }
+            if (!flags.HasFlag(FunctionPreloadFlags.SupressSuper))
+            {
+                throw new NotImplementedException();
+            }
+
+            if (!flags.HasFlag(FunctionPreloadFlags.SupressArguments))
+            {
+                throw new NotImplementedException();
+            }
+
+            if (!flags.HasFlag(FunctionPreloadFlags.SupressThis))
+            {
+                Locals["this"] = Value.FromObject(Scope);
+            }
         }
     }
 }

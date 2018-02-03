@@ -29,10 +29,13 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var target = context.Stack.Pop().ToString();
+            var target = context.Stack.Pop();
             var url = context.Stack.Pop().ToString();
 
-            Debug.WriteLine("[URL2] Target: " + target + " URL: " + url);
+            if(target.Type==ValueType.String)
+                Debug.WriteLine("[URL2] Target: " + target + " URL: " + url);
+            else
+                Debug.WriteLine("[URL2] URL: " + url);
         }
     }
 }

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace OpenSage.Gui.Apt.ActionScript.Library
 {
+    /// <summary>
+    /// This class is meant to access builtin variables and return the corresponding value
+    /// </summary>
     public sealed class Builtin
     {
         private static readonly Dictionary<string, Func<Value[], Value>> _builtinClasses;

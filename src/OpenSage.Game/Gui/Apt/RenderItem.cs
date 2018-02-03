@@ -23,6 +23,7 @@ namespace OpenSage.Gui.Apt
             _context = context;
             _parent = parent;
             _scriptObject = new ObjectContext(this);
+            Name = "";
         }
 
         public void Update(GameTime gt)

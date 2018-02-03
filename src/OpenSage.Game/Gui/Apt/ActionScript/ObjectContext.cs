@@ -121,6 +121,18 @@ namespace OpenSage.Gui.Apt.ActionScript
             return obj.GetMember(path[1]);
         }
 
+        public ObjectContext GetParent()
+        {
+            ObjectContext result = null;
+
+            if(Item.Parent!=null)
+            {
+                result = Item.Parent.ScriptObject;
+            }
+
+            return result;
+        }
+
         public Value GetProperty(int property)
         {
             var type = (PropertyType)property;
@@ -131,6 +143,11 @@ namespace OpenSage.Gui.Apt.ActionScript
                 case PropertyType.Target:
                     result = Value.FromString(GetTargetPath());
                     break;
+                case PropertyType.Name:
+                    result = Value.FromString(Item.Name);
+                    break;
+                default:
+                    throw new NotImplementedException();
             }
 
             return result;
@@ -140,15 +157,15 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// Calculates the absolute target path
         /// </summary>
         /// <returns>the target</returns>
-        internal string GetTargetPath()
+        private string GetTargetPath()
         {
             string path;
 
-            if (Item.Parent == null)
+            if (GetParent() == null)
                 path = "/";
             else
             {
-                path = Item.Parent.ScriptObject.GetTargetPath();
+                path = GetParent().GetTargetPath();
                 path += Item.Name;
             }
 

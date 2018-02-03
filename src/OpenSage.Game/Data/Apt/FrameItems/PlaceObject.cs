@@ -1,11 +1,54 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Apt.FrameItems
 {
+    public enum ClipEventFlags : uint
+    {
+        KeyUp = 0x800000,
+        KeyDown = 0x400000,
+        MouseUp = 0x200000,
+        MouseDown = 0x100000,
+        MouseMove = 0x080000,
+        Unload = 0x040000,
+        EnterFrame = 0x020000,
+        Load = 0x010000,
+        DragOver = 0x008000,
+        RollOut = 0x004000,
+        RollOver = 0x002000,
+        ReleaseOutside = 0x001000,
+        Release = 0x000800,
+        Press = 0x000400,
+        Initialize = 0x000200,
+        Data = 0x000100,
+        Construct = 0x000004,
+        KeyPress = 0x000002,
+        DragOut = 0x000001,
+    }
+
+    public sealed class ClipEvent
+    {
+        public ClipEventFlags Flags { get; private set; }
+        public InstructionCollection Instructions { get; private set; }
+
+        public static ClipEvent Parse(BinaryReader reader)
+        {
+            var ev = new ClipEvent();           
+            ev.Flags = reader.ReadUInt24AsEnum<ClipEventFlags>();
+            var keycode = reader.ReadByte();
+            var offsetToNext = reader.ReadUInt32();
+            //var keycode = reader.ReadByte();
+            ev.Instructions = new InstructionCollection(reader.BaseStream);
+            ev.Instructions.Parse();
+            return ev;
+        }
+    }
+
     [FlagsAttribute]
     public enum PlaceObjectFlags : byte
     {
@@ -30,6 +73,7 @@ namespace OpenSage.Data.Apt.FrameItems
         public float Ratio { get; private set; }
         public string Name { get; private set; }
         public int ClipDepth { get; private set; }
+        public List<ClipEvent> ClipEvents{ get; private set; }
 
         public static PlaceObject Parse(BinaryReader reader)
         {
@@ -74,7 +118,17 @@ namespace OpenSage.Data.Apt.FrameItems
 
             placeobject.ClipDepth = reader.ReadInt32();
 
-            //TODO: add clip actions
+            if (placeobject.Flags.HasFlag(PlaceObjectFlags.HasClipAction))
+            {
+                var poaOffset = reader.ReadUInt32();
+                if (poaOffset!=0)
+                {
+                    var oldOffset = reader.BaseStream.Position;
+                    reader.BaseStream.Seek(poaOffset, SeekOrigin.Begin);
+                    placeobject.ClipEvents = reader.ReadListAtOffset<ClipEvent>(() => ClipEvent.Parse(reader));
+                    reader.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
+                }
+            }
 
             return placeobject;
         }

@@ -21,9 +21,21 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             }
             else
             {
-                var func = scope.GetMember(funcName).ToFunction();
-                var vm = context.Apt.AVM;
-                vm.Execute(func, args, scope);
+                var funcVal = scope.GetMember(funcName);
+
+                if (funcVal.Type != ValueType.Undefined)
+                {
+                    var func = funcVal.ToFunction();
+                    var vm = context.Apt.AVM;
+                    var ret = vm.Execute(func, args, scope);
+
+                    if (ret.Type != ValueType.Undefined)
+                        context.Stack.Push(ret);
+                }
+                else
+                {
+                    Debug.WriteLine("[WARN] can't find function: " + funcName);
+                }
             }
         }
     }
@@ -52,7 +64,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //get all the instructions
             var code = context.Stream.GetInstructions(size);
 
-            var func = new Function() { Parameters = paramList, Instructions = code, NumberRegisters = 4 };
+            var func = new Function() { Parameters = paramList,
+                                        Instructions = code,
+                                        NumberRegisters = 4,
+                                        IsNewVersion = false };
+
             var funcVal = Value.FromFunction(func);
 
             if (name.Length > 0)
@@ -77,19 +93,24 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var name = Parameters[0].ToString();
             var nParams = Parameters[1].ToInteger();
             var nRegisters = Parameters[2].ToInteger();
-            var flags = Parameters[3].ToInteger();
-            var size = Parameters[4 + nParams].ToInteger();
+            FunctionPreloadFlags flags = (FunctionPreloadFlags) Parameters[3].ToInteger();
+            var size = Parameters[4 + nParams * 2].ToInteger();
 
             //create a list of parameters
             var paramList = Parameters
                 .Skip(4)
-                .Take(nParams)
+                .Take(nParams * 2)
                 .ToList();
 
             //get all the instructions
             var code = context.Stream.GetInstructions(size);
 
-            var func = new Function() { Parameters = paramList, Instructions = code, NumberRegisters = nRegisters };
+            var func = new Function() { Parameters = paramList,
+                                        Instructions = code,
+                                        NumberRegisters = nRegisters,
+                                        Flags = flags,
+                                        IsNewVersion = true};
+
             var funcVal = Value.FromFunction(func);
 
             if (name.Length > 0)
@@ -110,7 +131,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Return = true;
         }
     }
 
@@ -136,7 +157,18 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var funcName = context.Stack.Pop().ToString();
+            var obj = context.Stack.Pop().ToObject();
+
+            var argCount = context.Stack.Pop().ToInteger();
+
+            var args = new Value[argCount];
+            for (int i = 0; i < argCount; ++i)
+            {
+                args[i] = context.Stack.Pop();
+            }
+
+            FunctionCommon.ExecuteFunction(funcName, args, obj, context);
         }
     }
 

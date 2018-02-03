@@ -49,6 +49,7 @@ namespace OpenSage.Gui.Apt
             _actionList = new List<Action>();
             _frameLabels = new Dictionary<string, uint>();
             _state = PlayState.PLAYING;
+            Name = "";
 
             //fill the frameLabels in advance
             foreach (var frame in _sprite.Frames)
@@ -124,6 +125,11 @@ namespace OpenSage.Gui.Apt
         public void GotoFrame(int frame)
         {
             _currentFrame = (uint)frame;
+        }
+
+        public void NextFrame()
+        {
+            _currentFrame++;
         }
 
         private bool IsNewFrame(GameTime gt)

@@ -125,7 +125,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var value = context.Stack.Pop();
+            var varName = context.Stack.Pop().ToString();
+
+            context.Locals[varName] = value;
         }
     }
 

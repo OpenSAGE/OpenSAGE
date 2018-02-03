@@ -30,7 +30,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            context.Stream.Branch(Parameters[0].ToInteger());
         }
     }
 }

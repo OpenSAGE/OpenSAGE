@@ -211,6 +211,14 @@ namespace OpenSage.Data.Utilities.Extensions
             return EnumUtility.CastValueAsEnum<uint, TEnum>(value);
         }
 
+        public static TEnum ReadUInt24AsEnum<TEnum>(this BinaryReader reader)
+           where TEnum : struct
+        {
+            var value = reader.ReadUInt24();
+
+            return EnumUtility.CastValueAsEnum<uint, TEnum>(value);
+        }
+
         public static TEnum ReadUInt16AsEnum<TEnum>(this BinaryReader reader)
             where TEnum : struct
         {

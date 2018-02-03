@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenSage.Data.Apt.Characters;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -34,14 +35,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             //pop the value
-            var valueVal = context.Stack.Pop();
+            var valueVal = context.Stack.Pop().ResolveRegister(context);
             //pop the member name
-            var memberVal = context.Stack.Pop();
+            var memberVal = context.Stack.Pop().ResolveRegister(context);
             //pop the object
-            var objectVal = context.Stack.Pop();
+            var objectVal = context.Stack.Pop().ResolveRegister(context);
 
             //make sure that potential register values are resolved:
-            var obj = objectVal.ResolveRegister(context).ToObject();
+            var obj = objectVal.ToObject();
 
             obj.Variables[memberVal.ToString()] = valueVal;
         }
@@ -200,6 +201,51 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Pops a value from the stack pushes it's type as a string to stack
+    /// </summary>
+    public sealed class TypeOf : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.TypeOf;
+
+        public override void Execute(ActionContext context)
+        {
+            var val = context.Stack.Pop();
+            Value result = null;
+
+            switch (val.Type)
+            {
+                case ValueType.String:
+                    result = Value.FromString("string");
+                    break;
+                case ValueType.Boolean:
+                    result = Value.FromString("boolean");
+                    break;
+                case ValueType.Integer:
+                case ValueType.Short:
+                case ValueType.Float:
+                    result = Value.FromString("number");
+                    break;
+                case ValueType.Object:
+                    if(val.ToObject().Item.Character is Movie)
+                        result = Value.FromString("movieclip");
+                    else
+                        result = Value.FromString("object");
+                    break;
+                case ValueType.Function:
+                    result = Value.FromString("function");
+                    break;
+                case ValueType.Undefined:
+                    result = Value.FromString("undefined");
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+
+            context.Stack.Push(result);
         }
     }
 }
