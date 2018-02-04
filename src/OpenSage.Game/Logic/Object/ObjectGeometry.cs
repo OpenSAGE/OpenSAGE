@@ -4,6 +4,8 @@ namespace OpenSage.Logic.Object
 {
     public enum ObjectGeometry
     {
+        None,
+
         [IniEnum("BOX")]
         Box,
 

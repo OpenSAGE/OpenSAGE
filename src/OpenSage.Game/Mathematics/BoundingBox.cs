@@ -122,5 +122,10 @@ namespace OpenSage.Mathematics
 
             return PlaneIntersectionType.Intersecting;
         }
+
+        public override string ToString()
+        {
+            return $"{nameof(Min)}: {Min}, {nameof(Max)}: {Max}";
+        }
     }
 }

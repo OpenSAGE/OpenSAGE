@@ -10,6 +10,7 @@ using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Wnd;
 using OpenSage.Input;
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Scripting;
@@ -58,6 +59,12 @@ namespace OpenSage
         /// Gets the scripting system.
         /// </summary>
         public ScriptingSystem Scripting { get; }
+
+        // TODO: Remove this when we have other ways of testing colliders.
+        /// <summary>
+        /// Gets the debug entity picker system.
+        /// </summary>
+        public DebugEntityPickerSystem EntityPicker { get; }
 
         public int FrameCount { get; private set; }
 
@@ -151,6 +158,8 @@ namespace OpenSage
             Graphics = AddDisposable(new GraphicsSystem(this));
 
             Scripting = AddDisposable(new ScriptingSystem(this));
+
+            EntityPicker = AddDisposable(new DebugEntityPickerSystem(this));
 
             GameSystems.ForEach(gs => gs.Initialize());
 
