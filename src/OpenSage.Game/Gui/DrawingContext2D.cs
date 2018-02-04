@@ -65,15 +65,14 @@ namespace OpenSage.Gui
                         1,
                         PixelFormat.B8_G8_R8_A8_UNorm,
                         TextureUsage.Sampled))));
+
+            _commandEncoder = AddDisposable(_graphicsDevice.ResourceFactory.CreateCommandList());
         }
 
         public void Begin(
             Sampler samplerState,
             in ColorRgbaF clearColor)
         {
-            // TODO: Should command lists be re-used?
-            _commandEncoder = _graphicsDevice.ResourceFactory.CreateCommandList();
-
             _commandEncoder.Begin();
 
             _commandEncoder.SetFramebuffer(_renderTarget);
@@ -237,8 +236,6 @@ namespace OpenSage.Gui
             _commandEncoder.End();
 
             _graphicsDevice.SubmitCommands(_commandEncoder);
-
-            _graphicsDevice.DisposeWhenIdle(_commandEncoder);
         }
     }
 

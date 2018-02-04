@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenSage.Data.Apt;
+using OpenSage.Data.Utilities;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
@@ -206,6 +207,14 @@ namespace OpenSage.Gui.Apt.ActionScript
                 throw new InvalidOperationException();
 
             return _string;
+        }
+
+        public TEnum ToEnum<TEnum>() where TEnum : struct
+        {
+            if (Type != ValueType.Integer)
+                throw new InvalidOperationException();
+
+            return EnumUtility.CastValueAsEnum<int,TEnum>(_number);
         }
 
         public bool Equals(Value b)

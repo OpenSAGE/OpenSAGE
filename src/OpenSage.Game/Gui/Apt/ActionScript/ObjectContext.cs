@@ -154,7 +154,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             return result;
         }
 
-        public void SetProperty(PropertyType property,Value val)
+        public void SetProperty(PropertyType property, Value val)
         {
             switch (property)
             {

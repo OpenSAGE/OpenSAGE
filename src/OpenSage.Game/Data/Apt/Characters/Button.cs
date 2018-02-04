@@ -124,7 +124,7 @@ namespace OpenSage.Data.Apt.Characters
         {
             var button = new Button();
 
-            button.IsMenu = Convert.ToBoolean(reader.ReadUInt32());
+            button.IsMenu = reader.ReadBooleanUInt32Checked();
             button.Bounds = reader.ReadVector4();
             var tc = reader.ReadUInt32();
             var vc = reader.ReadUInt32();
