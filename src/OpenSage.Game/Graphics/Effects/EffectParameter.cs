@@ -1,24 +1,30 @@
-﻿using Veldrid;
+﻿using OpenSage.Graphics.Shaders;
+using Veldrid;
 
 namespace OpenSage.Graphics.Effects
 {
     internal sealed class EffectParameter : DisposableBase
     {
-        private readonly ResourceLayoutElementDescription _layoutDescription;
         private readonly uint _slot;
 
         private ResourceSet _data;
 
         private bool _dirty;
 
-        public string Name => _layoutDescription.Name;
+        public string Name => ResourceBinding.Name;
 
+        public ResourceBinding ResourceBinding { get; }
         public ResourceLayout ResourceLayout { get; }
 
-        public EffectParameter(GraphicsDevice graphicsDevice, in ResourceLayoutElementDescription layoutDescription, uint slot)
+        public EffectParameter(
+            GraphicsDevice graphicsDevice,
+            ResourceBinding resourceBinding,
+            in ResourceLayoutElementDescription layoutDescription,
+            uint slot)
         {
-            _layoutDescription = layoutDescription;
             _slot = slot;
+
+            ResourceBinding = resourceBinding;
 
             var description = new ResourceLayoutDescription(layoutDescription);
 

@@ -6,15 +6,10 @@ namespace OpenSage.Terrain
 {
     public sealed class TerrainMaterial : EffectMaterial
     {
-        public override uint? SlotGlobalConstantsShared => 0;
-        public override uint? SlotGlobalConstantsVS => 1;
-        public override uint? SlotRenderItemConstantsVS => 2;
-        public override uint? SlotLightingConstants_Terrain => 3;
-
         public TerrainMaterial(Effect effect)
             : base(effect)
         {
-            SetProperty(8, effect.GraphicsDevice.Aniso4xSampler);
+            SetProperty("Sampler", effect.GraphicsDevice.Aniso4xSampler);
 
             PipelineState = new EffectPipelineState(
                 RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
@@ -24,22 +19,22 @@ namespace OpenSage.Terrain
 
         public void SetTileData(Texture tileDataTexture)
         {
-            SetProperty(4, tileDataTexture);
+            SetProperty("TileData", tileDataTexture);
         }
 
         public void SetCliffDetails(DeviceBuffer cliffDetailsBuffer)
         {
-            SetProperty(5, cliffDetailsBuffer);
+            SetProperty("CliffDetails", cliffDetailsBuffer);
         }
 
         public void SetTextureDetails(DeviceBuffer textureDetailsBuffer)
         {
-            SetProperty(6, textureDetailsBuffer);
+            SetProperty("TextureDetails", textureDetailsBuffer);
         }
 
         public void SetTextureArray(Texture textureArray)
         {
-            SetProperty(7, textureArray);
+            SetProperty("Textures", textureArray);
         }
     }
 }

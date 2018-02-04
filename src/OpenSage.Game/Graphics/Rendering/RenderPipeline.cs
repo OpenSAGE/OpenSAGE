@@ -105,13 +105,14 @@ namespace OpenSage.Graphics.Rendering
                         }
                     }
 
-                    if (renderItem.Material.SlotRenderItemConstantsVS != null)
+                    var renderItemConstantsVSParameter = renderItem.Effect.GetParameter("RenderItemConstantsVS");
+                    if (renderItemConstantsVSParameter != null)
                     {
                         _renderItemConstantsBufferVS.Value.World = renderItem.World;
                         _renderItemConstantsBufferVS.Update(commandEncoder);
 
                         renderItem.Material.SetProperty(
-                            renderItem.Material.SlotRenderItemConstantsVS.Value,
+                            "RenderItemConstantsVS",
                             _renderItemConstantsBufferVS.Buffer);
                     }
 
@@ -173,21 +174,20 @@ namespace OpenSage.Graphics.Rendering
 
         private void SetDefaultConstantBuffers(EffectMaterial material)
         {
-            void setDefaultConstantBuffer(uint? slot, DeviceBuffer buffer)
+            void setDefaultConstantBuffer(string name, DeviceBuffer buffer)
             {
-                if (slot == null)
+                var parameter = material.Effect.GetParameter(name, throwIfMissing: false);
+                if (parameter != null)
                 {
-                    return;
+                    material.SetProperty(name, buffer);
                 }
-
-                material.SetProperty(slot.Value, buffer);
             }
 
-            setDefaultConstantBuffer(material.SlotGlobalConstantsShared, _globalConstantBufferShared.Buffer);
-            setDefaultConstantBuffer(material.SlotGlobalConstantsVS, _globalConstantBufferVS.Buffer);
-            setDefaultConstantBuffer(material.SlotGlobalConstantsPS, _globalConstantBufferPS.Buffer);
-            setDefaultConstantBuffer(material.SlotLightingConstants_Object, _globalLightingObjectBuffer.Buffer);
-            setDefaultConstantBuffer(material.SlotLightingConstants_Terrain, _globalLightingTerrainBuffer.Buffer);
+            setDefaultConstantBuffer("GlobalConstantsShared", _globalConstantBufferShared.Buffer);
+            setDefaultConstantBuffer("GlobalConstantsVS", _globalConstantBufferVS.Buffer);
+            setDefaultConstantBuffer("GlobalConstantsPS", _globalConstantBufferPS.Buffer);
+            setDefaultConstantBuffer("LightingConstants_Object", _globalLightingObjectBuffer.Buffer);
+            setDefaultConstantBuffer("LightingConstants_Terrain", _globalLightingTerrainBuffer.Buffer);
         }
 
         private void UpdateGlobalConstantBuffers(CommandList commandEncoder, RenderContext context)

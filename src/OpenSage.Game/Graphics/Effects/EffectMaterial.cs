@@ -7,7 +7,7 @@ namespace OpenSage.Graphics.Effects
     {
         private static ushort _nextID = 0;
 
-        private readonly Dictionary<uint, EffectMaterialProperty> _properties;
+        private readonly Dictionary<string, EffectMaterialProperty> _properties;
 
         // TODO_VELDRID: Remove this.
         private readonly Dictionary<Texture, TextureView> _cachedTextureViews;
@@ -18,13 +18,6 @@ namespace OpenSage.Graphics.Effects
 
         public ushort ID { get; }
 
-        public virtual uint? SlotRenderItemConstantsVS => null;
-        public virtual uint? SlotGlobalConstantsShared => null;
-        public virtual uint? SlotGlobalConstantsVS => null;
-        public virtual uint? SlotGlobalConstantsPS => null;
-        public virtual uint? SlotLightingConstants_Object => null;
-        public virtual uint? SlotLightingConstants_Terrain => null;
-
         public EffectMaterial(Effect effect)
         {
             // TODO: This can overflow.
@@ -32,32 +25,32 @@ namespace OpenSage.Graphics.Effects
 
             Effect = effect;
 
-            _properties = new Dictionary<uint, EffectMaterialProperty>();
+            _properties = new Dictionary<string, EffectMaterialProperty>();
 
             _cachedTextureViews = new Dictionary<Texture, TextureView>();
         }
 
-        private EffectMaterialProperty EnsureProperty(uint slot)
+        private EffectMaterialProperty EnsureProperty(string name)
         {
-            if (!_properties.TryGetValue(slot, out var property))
+            if (!_properties.TryGetValue(name, out var property))
             {
-                var parameter = Effect.GetParameter(slot);
-                _properties[slot] = property = AddDisposable(new EffectMaterialProperty(Effect.GraphicsDevice, parameter));
+                var parameter = Effect.GetParameter(name);
+                _properties[name] = property = AddDisposable(new EffectMaterialProperty(Effect.GraphicsDevice, parameter));
             }
             return property;
         }
 
-        public void SetProperty(uint slot, BindableResource resource)
+        public void SetProperty(string name, BindableResource resource)
         {
-            var property = EnsureProperty(slot);
+            var property = EnsureProperty(name);
             property.SetData(resource);
         }
 
-        public void SetProperty(uint slot, Texture texture)
+        public void SetProperty(string name, Texture texture)
         {
             if (texture == null)
             {
-                SetProperty(slot, (BindableResource) null);
+                SetProperty(name, (BindableResource) null);
                 return;
             }
 
@@ -65,7 +58,7 @@ namespace OpenSage.Graphics.Effects
             {
                 _cachedTextureViews.Add(texture, view = AddDisposable(Effect.GraphicsDevice.ResourceFactory.CreateTextureView(texture)));
             }
-            SetProperty(slot, view);
+            SetProperty(name, view);
         }
 
         public void ApplyPipelineState(in OutputDescription outputDescription)

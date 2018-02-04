@@ -4,7 +4,7 @@
       "Name": "GlobalConstantsShared",
       "Type": "UniformBuffer",
       "Register": 0,
-      "Stages": [ "Vertex", "Fragment" ],
+      "Stages": "Vertex, Fragment",
       "Size": 16,
       "Fields": [
         {
@@ -19,7 +19,7 @@
       "Name": "GlobalConstantsVS",
       "Type": "UniformBuffer",
       "Register": 1,
-      "Stages": [ "Vertex" ],
+      "Stages": "Vertex",
       "Size": 64,
       "Fields": [
         {
@@ -34,7 +34,7 @@
       "Name": "MeshConstants",
       "Type": "UniformBuffer",
       "Register": 2,
-      "Stages": [ "Vertex" ],
+      "Stages": "Vertex",
       "Size": 16,
       "Fields": [
         {
@@ -55,7 +55,7 @@
       "Name": "RenderItemConstantsVS",
       "Type": "UniformBuffer",
       "Register": 3,
-      "Stages": [ "Vertex" ],
+      "Stages": "Vertex",
       "Size": 64,
       "Fields": [
         {
@@ -70,13 +70,13 @@
       "Name": "SkinningBuffer",
       "Type": "StructuredBufferReadOnly",
       "Register": 0,
-      "Stages": [ "Vertex" ]
+      "Stages": "Vertex"
     },
     {
       "Name": "LightingConstants_Object",
       "Type": "UniformBuffer",
       "Register": 4,
-      "Stages": [ "Fragment" ],
+      "Stages": "Fragment",
       "Size": 144,
       "Fields": [
         {
@@ -91,7 +91,7 @@
       "Name": "MaterialConstants",
       "Type": "UniformBuffer",
       "Register": 5,
-      "Stages": [ "Fragment" ],
+      "Stages": "Fragment",
       "Size": 64,
       "Fields": [
         {
@@ -136,19 +136,19 @@
       "Name": "DiffuseTexture",
       "Type": "TextureReadOnly",
       "Register": 0,
-      "Stages": [ "Fragment" ]
+      "Stages": "Fragment"
     },
     {
       "Name": "NormalMap",
       "Type": "TextureReadOnly",
       "Register": 1,
-      "Stages": [ "Fragment" ]
+      "Stages": "Fragment"
     },
     {
       "Name": "Sampler",
       "Type": "Sampler",
       "Register": 0,
-      "Stages": [ "Fragment" ]
+      "Stages": "Fragment"
     }
   ]
 }

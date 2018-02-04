@@ -333,99 +333,91 @@ namespace OpenSage.Content
             var depthState = DepthStencilStateDescription.DepthOnlyLessEqual;
             var blendState = BlendStateDescription.SingleDisabled;
 
-            // TODO_VELDRID: Handle shader materials generically.
-
-            var material = new ShaderMaterial(
-                effect,
-                SimpleMaterial.SlotSampler,
-                SimpleMaterial.SlotSkinningBuffer,
-                SimpleMaterial.SlotMeshConstants);
+            var material = new ShaderMaterial(effect);
 
             material.PipelineState = new EffectPipelineState(
                 rasterizerState,
                 depthState,
                 blendState);
 
-            throw new NotImplementedException();
+            var materialConstantsResourceBinding = effect.GetParameter("MaterialConstants").ResourceBinding;
+            var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateBuffer(
+                new BufferDescription(
+                    (uint) materialConstantsResourceBinding.Size,
+                    BufferUsage.UniformBuffer | BufferUsage.Dynamic)));
 
-            //var materialConstantsResourceBinding = effect.GetParameter(SimpleMaterial.SlotMaterialConstants).ResourceBinding;
-            //var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateBuffer(
-            //    new BufferDescription(
-            //        (uint) materialConstantsResourceBinding.ConstantBufferSizeInBytes,
-            //        BufferUsage.UniformBuffer | BufferUsage.Dynamic)));
+            var materialConstantsBytes = new byte[materialConstantsResourceBinding.Size];
 
-            //var materialConstantsBytes = new byte[materialConstantsResourceBinding.ConstantBufferSizeInBytes];
+            void setMaterialConstant<T>(string name, T value)
+                where T : struct
+            {
+                var constantBufferField = materialConstantsResourceBinding.GetField(name);
 
-            //void setMaterialConstant<T>(string name, T value)
-            //    where T : struct
-            //{
-            //    var constantBufferField = materialConstantsResourceBinding.GetConstantBufferField(name);
+                var valueBytes = StructInteropUtility.ToBytes(ref value);
 
-            //    var valueBytes = StructInteropUtility.ToBytes(ref value);
+                if (valueBytes.Length != constantBufferField.Size)
+                {
+                    throw new InvalidOperationException();
+                }
 
-            //    if (valueBytes.Length != constantBufferField.Size)
-            //    {
-            //        throw new InvalidOperationException();
-            //    }
+                Buffer.BlockCopy(
+                    valueBytes,
+                    0,
+                    materialConstantsBytes,
+                    constantBufferField.Offset,
+                    constantBufferField.Size);
+            }
 
-            //    System.Buffer.BlockCopy(
-            //        valueBytes,
-            //        0,
-            //        materialConstantsBytes,
-            //        constantBufferField.Offset,
-            //        constantBufferField.Size);
-            //}
+            foreach (var w3dShaderProperty in w3dShaderMaterial.Properties)
+            {
+                switch (w3dShaderProperty.PropertyType)
+                {
+                    case W3dShaderMaterialPropertyType.Texture:
+                        var texture = CreateTexture(contentManager, w3dShaderProperty.StringValue);
+                        material.SetProperty(w3dShaderProperty.PropertyName, texture);
+                        break;
 
-            //foreach (var w3dShaderProperty in w3dShaderMaterial.Properties)
-            //{
-            //    switch (w3dShaderProperty.PropertyType)
-            //    {
-            //        case W3dShaderMaterialPropertyType.Texture:
-            //            var texture = CreateTexture(contentManager, w3dShaderProperty.StringValue);
-            //            material.SetProperty(w3dShaderProperty.PropertyName, texture);
-            //            break;
+                    case W3dShaderMaterialPropertyType.Bool:
+                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Bool);
+                        break;
 
-            //        case W3dShaderMaterialPropertyType.Bool:
-            //            setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Bool);
-            //            break;
+                    case W3dShaderMaterialPropertyType.Color:
+                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Color);
+                        break;
 
-            //        case W3dShaderMaterialPropertyType.Color:
-            //            setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Color);
-            //            break;
+                    case W3dShaderMaterialPropertyType.Float:
+                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Float);
+                        break;
 
-            //        case W3dShaderMaterialPropertyType.Float:
-            //            setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Float);
-            //            break;
+                    case W3dShaderMaterialPropertyType.Vector2:
+                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector2);
+                        break;
 
-            //        case W3dShaderMaterialPropertyType.Vector2:
-            //            setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector2);
-            //            break;
+                    case W3dShaderMaterialPropertyType.Vector3:
+                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector3);
+                        break;
 
-            //        case W3dShaderMaterialPropertyType.Vector3:
-            //            setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector3);
-            //            break;
+                    case W3dShaderMaterialPropertyType.Int:
+                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Int);
+                        break;
 
-            //        case W3dShaderMaterialPropertyType.Int:
-            //            setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Int);
-            //            break;
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
 
-            //        default:
-            //            throw new NotSupportedException();
-            //    }
-            //}
+            contentManager.GraphicsDevice.UpdateBuffer(materialConstantsBuffer, 0, materialConstantsBytes);
+            material.SetProperty("MaterialConstants", materialConstantsBuffer);
 
-            //contentManager.GraphicsDevice.UpdateBuffer(materialConstantsBuffer, 0, materialConstantsBytes);
-            //material.SetProperty("MaterialConstants", materialConstantsBuffer);
+            meshParts.Add(new ModelMeshPart(
+                0,
+                w3dMesh.Header.NumTris * 3,
+                material));
 
-            //meshParts.Add(new ModelMeshPart(
-            //    0,
-            //    w3dMesh.Header.NumTris * 3,
-            //    material));
-
-            //return new ModelMeshMaterialPass(
-            //    contentManager.GraphicsDevice,
-            //    texCoords,
-            //    meshParts);
+            return new ModelMeshMaterialPass(
+                contentManager.GraphicsDevice,
+                texCoords,
+                meshParts);
         }
 
         // One ModelMeshMaterialPass for each W3D_CHUNK_MATERIAL_PASS

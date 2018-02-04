@@ -20,17 +20,17 @@ namespace OpenSage.Graphics.Effects
 
         public void SetMaterialConstantsVS(DeviceBuffer value)
         {
-            SetProperty(0, value);
+            SetProperty("ProjectionBuffer", value);
         }
 
         public void SetSampler(Sampler samplerState)
         {
-            SetProperty(1, samplerState);
+            SetProperty("Sampler", samplerState);
         }
 
         public void SetTexture(Texture texture)
         {
-            SetProperty(2, texture);
+            SetProperty("Texture", texture);
         }
 
         [StructLayout(LayoutKind.Sequential)]

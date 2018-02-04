@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
 using Veldrid;
@@ -39,6 +40,11 @@ namespace OpenSage.Graphics.Shaders
         public ShaderStages Stages { get; set; }
         public uint Size { get; set; }
         public UniformBufferField[] Fields { get; set; }
+
+        public UniformBufferField GetField(string name)
+        {
+            return Fields.First(x => x.Name == name);
+        }
     }
 
     internal enum ResourceBindingType
@@ -53,8 +59,8 @@ namespace OpenSage.Graphics.Shaders
     {
         public string Name { get; set; }
         public UniformBufferFieldType Type { get; set; }
-        public uint Offset { get; set; }
-        public uint Size { get; set; }
+        public int Offset { get; set; }
+        public int Size { get; set; }
     }
 
     internal enum UniformBufferFieldType

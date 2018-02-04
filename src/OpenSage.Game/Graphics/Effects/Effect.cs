@@ -21,7 +21,7 @@ namespace OpenSage.Graphics.Effects
 
         private readonly Dictionary<EffectPipelineStateHandle, Pipeline> _cachedPipelineStates;
 
-        private readonly EffectParameter[] _parameters;
+        private readonly Dictionary<string, EffectParameter> _parameters;
 
         private EffectPipelineStateHandle _pipelineStateHandle;
         private Pipeline _pipelineState;
@@ -60,17 +60,6 @@ namespace OpenSage.Graphics.Effects
 
             ID = _nextID++;
 
-            var shaderDefinition = ShaderDefinitions.GetShaderDefinition(shaderName);
-            var resourceLayoutDescriptions = new ResourceLayoutElementDescription[shaderDefinition.ResourceBindings.Length];
-            for (var i = 0; i < shaderDefinition.ResourceBindings.Length; i++)
-            {
-                var resourceBinding = shaderDefinition.ResourceBindings[i];
-                resourceLayoutDescriptions[i] = new ResourceLayoutElementDescription(
-                    resourceBinding.Name,
-                    resourceBinding.Type,
-                    resourceBinding.Stages);
-            }
-
             if (useNewShaders)
             {
                 using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream($"OpenSage.Graphics.Shaders.Compiled.{shaderName}-vertex.hlsl.bytes"))
@@ -104,25 +93,51 @@ namespace OpenSage.Graphics.Effects
 
             _vertexDescriptors = vertexDescriptors;
 
-            _parameters = new EffectParameter[resourceLayoutDescriptions.Length];
-            _resourceLayouts = new ResourceLayout[_parameters.Length];
-            for (var i = 0u; i < _resourceLayouts.Length; i++)
+            var shaderDefinition = ShaderDefinitions.GetShaderDefinition(shaderName);
+
+            _parameters = new Dictionary<string, EffectParameter>();
+            _resourceLayouts = new ResourceLayout[shaderDefinition.ResourceBindings.Length];
+
+            for (var i = 0u; i < shaderDefinition.ResourceBindings.Length; i++)
             {
-                _parameters[i] = AddDisposable(new EffectParameter(graphicsDevice, resourceLayoutDescriptions[i], i));
-                _resourceLayouts[i] = _parameters[i].ResourceLayout;
+                var resourceBinding = shaderDefinition.ResourceBindings[i];
+                var resourceLayoutDescription = new ResourceLayoutElementDescription(
+                    resourceBinding.Name,
+                    resourceBinding.Type,
+                    resourceBinding.Stages);
+
+                var parameter = AddDisposable(new EffectParameter(
+                    graphicsDevice,
+                    resourceBinding,
+                    resourceLayoutDescription,
+                    i));
+
+                _parameters[parameter.Name] = parameter;
+                _resourceLayouts[i] = parameter.ResourceLayout;
             }
         }
 
-        internal EffectParameter GetParameter(uint slot)
+        internal EffectParameter GetParameter(string name, bool throwIfMissing = true)
         {
-            return _parameters[slot];
+            if (!_parameters.TryGetValue(name, out var result))
+            {
+                if (throwIfMissing)
+                {
+                    throw new InvalidOperationException($"Could not find parameter with name '{name}'.");
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            return result;
         }
 
         public void Begin(CommandList commandEncoder)
         {
             _dirtyFlags |= EffectDirtyFlags.PipelineState;
 
-            foreach (var parameter in _parameters)
+            foreach (var parameter in _parameters.Values)
             {
                 parameter.SetDirty();
             }
@@ -140,7 +155,7 @@ namespace OpenSage.Graphics.Effects
 
         public void ApplyParameters(CommandList commandEncoder)
         {
-            foreach (var parameter in _parameters)
+            foreach (var parameter in _parameters.Values)
             {
                 parameter.ApplyChanges(commandEncoder);
             }

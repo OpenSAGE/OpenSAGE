@@ -6,16 +6,6 @@ namespace OpenSage.Graphics.Effects
 {
     public sealed class FixedFunctionMaterial : MeshMaterial
     {
-        public override uint? SlotGlobalConstantsShared => 0;
-        public override uint? SlotGlobalConstantsVS => 1;
-        public override uint? SlotGlobalConstantsPS => 2;
-        public override uint? SlotRenderItemConstantsVS => 4;
-        public override uint? SlotLightingConstants_Object => 6;
-
-        protected override uint SlotSampler => 10;
-        protected override uint SlotSkinningBuffer => 5;
-        protected override uint SlotMeshConstants => 3;
-
         public FixedFunctionMaterial(Effect effect)
             : base(effect)
         {
@@ -24,17 +14,17 @@ namespace OpenSage.Graphics.Effects
 
         public void SetTexture0(Texture texture)
         {
-            SetProperty(8, texture);
+            SetProperty("Texture0", texture);
         }
 
         public void SetTexture1(Texture texture)
         {
-            SetProperty(9, texture);
+            SetProperty("Texture1", texture);
         }
 
         public void SetMaterialConstants(DeviceBuffer materialConstants)
         {
-            SetProperty(7, materialConstants);
+            SetProperty("MaterialConstants", materialConstants);
         }
 
         [StructLayout(LayoutKind.Explicit, Size = 240)]
