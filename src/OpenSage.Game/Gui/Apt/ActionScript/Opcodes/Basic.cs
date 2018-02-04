@@ -157,4 +157,20 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             throw new NotImplementedException();
         }
     }
+
+
+    /// <summary>
+    /// Pops an object from stack and enumerates it's slots
+    /// </summary>
+    public sealed class Enumerate2 : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.Enumerate2;
+
+        public override void Execute(ActionContext context)
+        {
+            var obj = context.Stack.Pop();
+
+            throw new NotImplementedException();
+        }
+    }
 }

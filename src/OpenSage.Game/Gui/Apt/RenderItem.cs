@@ -16,6 +16,7 @@ namespace OpenSage.Gui.Apt
         public ItemTransform Transform { get; set; }
         public ObjectContext ScriptObject => _scriptObject;
         public string Name { get; set; }
+        public bool Visible { get; set; }
 
         public void Create(Character chararacter, AptContext context, SpriteItem parent = null)
         {
@@ -24,6 +25,7 @@ namespace OpenSage.Gui.Apt
             _parent = parent;
             _scriptObject = new ObjectContext(this);
             Name = "";
+            Visible = true;
         }
 
         public void Update(GameTime gt)
@@ -38,6 +40,9 @@ namespace OpenSage.Gui.Apt
 
         public void Render(ItemTransform pTransform, DrawingContext2D dc)
         {
+            if (!Visible)
+                return;
+
             switch (_character)
             {
                 case Shape s:

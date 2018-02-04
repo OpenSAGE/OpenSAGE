@@ -108,6 +108,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                     case InstructionType.GetProperty:
                         instruction = new GetProperty();
                         break;
+                    case InstructionType.SetProperty:
+                        instruction = new SetProperty();
+                        break;
                     case InstructionType.Trace:
                         instruction = new Trace();
                         break;
@@ -165,6 +168,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                     case InstructionType.CallMethod:
                         instruction = new CallMethod();
                         break;
+                    case InstructionType.Enumerate2:
+                        instruction = new Enumerate2();
+                        break;
                     case InstructionType.EA_PushThis:
                         instruction = new PushThis();
                         break;
@@ -179,6 +185,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                         break;
                     case InstructionType.EA_CallMethodPop:
                         instruction = new CallMethodPop();
+                        break;
+                    case InstructionType.BitwiseXOr:
+                        instruction = new BitwiseXOr();
                         break;
                     case InstructionType.Greater:
                         instruction = new Greater();

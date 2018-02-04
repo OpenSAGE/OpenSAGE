@@ -105,12 +105,14 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             var path = value.Split('.');
             var obj = this;
+            var member = path.First();
 
             if(path.Length>1)
             {
                 if (Builtin.IsBuiltInVariable(path.First()))
                 {
                     obj = Builtin.GetBuiltInVariable(path.First(),ctx).ToObject();
+                    member = path[1];
                 }
                 else
                 {
@@ -118,7 +120,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 }
             }
 
-            return obj.GetMember(path[1]);
+            return obj.GetMember(member);
         }
 
         public ObjectContext GetParent()
@@ -133,12 +135,11 @@ namespace OpenSage.Gui.Apt.ActionScript
             return result;
         }
 
-        public Value GetProperty(int property)
+        public Value GetProperty(PropertyType property)
         {
-            var type = (PropertyType)property;
             Value result = null;
 
-            switch (type)
+            switch (property)
             {
                 case PropertyType.Target:
                     result = Value.FromString(GetTargetPath());
@@ -151,6 +152,18 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
 
             return result;
+        }
+
+        public void SetProperty(PropertyType property,Value val)
+        {
+            switch (property)
+            {
+                case PropertyType.Visible:
+                    Item.Visible = val.ToBoolean();
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         /// <summary>

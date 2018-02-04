@@ -27,4 +27,19 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             throw new NotImplementedException();
         }
     }
+
+    //Pop two values A,B from stack and check if B is greater A (reverse stack order)
+    public sealed class BitwiseXOr : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.BitwiseXOr;
+
+        public override void Execute(ActionContext context)
+        {
+            var a = context.Stack.Pop().ToInteger();
+            var b = context.Stack.Pop().ToInteger();
+            var result = Value.FromInteger(a ^ b);
+
+            context.Stack.Push(result);
+        }
+    }
 }

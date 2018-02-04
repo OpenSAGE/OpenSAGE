@@ -128,9 +128,28 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             var property = context.Stack.Pop();
             var target = context.GetTarget(context.Stack.Pop().ToString());
+            var type = (PropertyType) property.ToInteger();
 
-            var prop = target.ToObject().GetProperty(property.ToInteger());
+            var prop = target.ToObject().GetProperty(type);
             context.Stack.Push(prop);
+        }
+    }
+
+    /// <summary>
+    /// set a property. Get value, name and object from stack
+    /// </summary>
+    public sealed class SetProperty : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.SetProperty;
+
+        public override void Execute(ActionContext context)
+        {
+            var value = context.Stack.Pop();
+            var property = context.Stack.Pop();
+            var type = (PropertyType) property.ToInteger();
+            var target = context.GetTarget(context.Stack.Pop().ToString());
+
+            target.ToObject().SetProperty(type, value);
         }
     }
 

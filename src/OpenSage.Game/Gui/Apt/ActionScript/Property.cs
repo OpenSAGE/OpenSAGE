@@ -12,7 +12,7 @@ namespace OpenSage.Gui.Apt.ActionScript
     /// </summary>
     public enum PropertyType
     {
-        X,
+        X = 0,
         Y,
         XScale,
         YScale,

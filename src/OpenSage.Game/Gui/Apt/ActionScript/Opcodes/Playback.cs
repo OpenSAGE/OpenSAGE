@@ -91,7 +91,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var label = Parameters[0].ToString();
+
+            if (context.Scope.Item is SpriteItem si)
+                si.Goto(label);
+            else
+                throw new InvalidOperationException();
         }
     }
 

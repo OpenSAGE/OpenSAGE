@@ -26,6 +26,7 @@ namespace OpenSage.Gui.Apt
         private PlayState _state;
         private Dictionary<string, uint> _frameLabels;
         public string Name { get; set; }
+        public bool Visible { get; set; }
 
         /// <summary>
         /// required, because actions are always executed at the end of each frame
@@ -50,6 +51,7 @@ namespace OpenSage.Gui.Apt
             _frameLabels = new Dictionary<string, uint>();
             _state = PlayState.PLAYING;
             Name = "";
+            Visible = true;
 
             //fill the frameLabels in advance
             foreach (var frame in _sprite.Frames)
@@ -69,6 +71,9 @@ namespace OpenSage.Gui.Apt
 
         public void Render(ItemTransform pTransform,DrawingContext2D dc)
         {
+            if (!Visible)
+                return;
+
             //calculate the transform for this element
             var cTransform = pTransform * Transform;
 
