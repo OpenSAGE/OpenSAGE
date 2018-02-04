@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using OpenSage.Content;
 using Veldrid;
 
 namespace OpenSage.Graphics.Effects
@@ -7,6 +9,7 @@ namespace OpenSage.Graphics.Effects
     {
         private static ushort _nextID = 0;
 
+        private readonly ContentManager _contentManager;
         private readonly Dictionary<string, EffectMaterialProperty> _properties;
 
         // TODO_VELDRID: Remove this.
@@ -18,10 +21,12 @@ namespace OpenSage.Graphics.Effects
 
         public ushort ID { get; }
 
-        public EffectMaterial(Effect effect)
+        public EffectMaterial(ContentManager contentManager, Effect effect)
         {
             // TODO: This can overflow.
             ID = _nextID++;
+
+            _contentManager = contentManager;
 
             Effect = effect;
 
@@ -43,6 +48,18 @@ namespace OpenSage.Graphics.Effects
         public void SetProperty(string name, BindableResource resource)
         {
             var property = EnsureProperty(name);
+            if (resource == null)
+            {
+                switch (property.Parameter.ResourceBinding.Type)
+                {
+                    case ResourceKind.StructuredBufferReadOnly:
+                        resource = _contentManager.GetNullStructuredBuffer(property.Parameter.ResourceBinding.Size);
+                        break;
+
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
             property.SetData(resource);
         }
 
@@ -50,8 +67,8 @@ namespace OpenSage.Graphics.Effects
         {
             if (texture == null)
             {
-                SetProperty(name, (BindableResource) null);
-                return;
+                // TODO: This only supports Texture2D shader parameters.
+                texture = _contentManager.NullTexture;
             }
 
             if (!_cachedTextureViews.TryGetValue(texture, out var view))
@@ -81,7 +98,6 @@ namespace OpenSage.Graphics.Effects
 
         // TODO_VELDRID: Remove this. It's only temporary, until we switch properly to ResourceSets.
         private readonly Dictionary<BindableResource, ResourceSet> _cachedResourceSets;
-        private ResourceSet _nullResourceSet;
 
         public EffectParameter Parameter { get; }
 
@@ -100,13 +116,7 @@ namespace OpenSage.Graphics.Effects
         {
             if (resource == null)
             {
-                if (_nullResourceSet == null)
-                {
-                    _nullResourceSet = AddDisposable(_graphicsDevice.ResourceFactory.CreateResourceSet(
-                        new ResourceSetDescription(Parameter.ResourceLayout, new BindableResource[] { null })));
-                }
-                Data = _nullResourceSet;
-                return;
+                throw new ArgumentNullException(nameof(resource));
             }
 
             if (!_cachedResourceSets.TryGetValue(resource, out var result))

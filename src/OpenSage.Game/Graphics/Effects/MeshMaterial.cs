@@ -1,12 +1,13 @@
 ﻿using System.Runtime.InteropServices;
+using OpenSage.Content;
 using Veldrid;
 
 namespace OpenSage.Graphics.Effects
 {
     public abstract class MeshMaterial : EffectMaterial
     {
-        protected MeshMaterial(Effect effect)
-            : base(effect)
+        protected MeshMaterial(ContentManager contentManager, Effect effect)
+            : base(contentManager, effect)
         {
             SetProperty("Sampler", effect.GraphicsDevice.Aniso4xSampler);
         }

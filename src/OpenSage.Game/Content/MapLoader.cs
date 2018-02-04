@@ -70,7 +70,7 @@ namespace OpenSage.Content
 
             var textureDetailsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticStructuredBuffer(textureDetails));
 
-            var terrainMaterial = new TerrainMaterial(contentManager.EffectLibrary.Terrain);
+            var terrainMaterial = new TerrainMaterial(contentManager, contentManager.EffectLibrary.Terrain);
 
             terrainMaterial.SetTileData(tileDataTexture);
             terrainMaterial.SetCliffDetails(cliffDetailsBuffer);

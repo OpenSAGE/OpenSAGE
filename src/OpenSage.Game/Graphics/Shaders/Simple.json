@@ -70,7 +70,8 @@
       "Name": "SkinningBuffer",
       "Type": "StructuredBufferReadOnly",
       "Register": 0,
-      "Stages": "Vertex"
+      "Stages": "Vertex",
+      "Size": 48
     },
     {
       "Name": "MaterialConstants",

@@ -333,7 +333,7 @@ namespace OpenSage.Content
             var depthState = DepthStencilStateDescription.DepthOnlyLessEqual;
             var blendState = BlendStateDescription.SingleDisabled;
 
-            var material = new ShaderMaterial(effect);
+            var material = new ShaderMaterial(contentManager, effect);
 
             material.PipelineState = new EffectPipelineState(
                 rasterizerState,
@@ -678,7 +678,7 @@ namespace OpenSage.Content
                     w3dShader.DestBlend.ToBlend(true),
                     BlendFunction.Add));
 
-            var effectMaterial = new FixedFunctionMaterial(contentManager.EffectLibrary.FixedFunction);
+            var effectMaterial = new FixedFunctionMaterial(contentManager, contentManager.EffectLibrary.FixedFunction);
 
             effectMaterial.PipelineState = new EffectPipelineState(
                 rasterizerState,

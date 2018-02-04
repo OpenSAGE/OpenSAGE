@@ -1,4 +1,5 @@
-﻿using OpenSage.Graphics;
+﻿using OpenSage.Content;
+using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
 using Veldrid;
 
@@ -6,8 +7,8 @@ namespace OpenSage.Terrain
 {
     public sealed class TerrainMaterial : EffectMaterial
     {
-        public TerrainMaterial(Effect effect)
-            : base(effect)
+        public TerrainMaterial(ContentManager contentManager, Effect effect)
+            : base(contentManager, effect)
         {
             SetProperty("Sampler", effect.GraphicsDevice.Aniso4xSampler);
 

@@ -1,13 +1,14 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
+using OpenSage.Content;
 using Veldrid;
 
 namespace OpenSage.Graphics.Effects
 {
     public sealed class FixedFunctionMaterial : MeshMaterial
     {
-        public FixedFunctionMaterial(Effect effect)
-            : base(effect)
+        public FixedFunctionMaterial(ContentManager contentManager, Effect effect)
+            : base(contentManager, effect)
         {
             
         }

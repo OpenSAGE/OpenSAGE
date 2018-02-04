@@ -8,7 +8,7 @@ namespace OpenSage.Graphics.Effects
     public sealed class SpriteMaterial : EffectMaterial
     {
         public SpriteMaterial(ContentManager contentManager, Effect effect)
-            : base(effect)
+            : base(contentManager, effect)
         {
             SetSampler(contentManager.PointClampSampler);
 

@@ -23,6 +23,8 @@ namespace OpenSage.Content
 
         private readonly Dictionary<FontKey, Font> _cachedFonts;
 
+        private readonly Dictionary<uint, DeviceBuffer> _cachedNullStructuredBuffers;
+
         public GraphicsDevice GraphicsDevice { get; }
 
         public SageGame SageGame { get; }
@@ -31,6 +33,8 @@ namespace OpenSage.Content
 
         public Sampler LinearClampSampler { get; }
         public Sampler PointClampSampler { get; }
+
+        public Texture NullTexture { get; }
 
         public FileSystem FileSystem => _fileSystem;
 
@@ -84,6 +88,23 @@ namespace OpenSage.Content
             pointClampSamplerDescription.AddressModeW = SamplerAddressMode.Clamp;
             PointClampSampler = AddDisposable(
                 graphicsDevice.ResourceFactory.CreateSampler(ref pointClampSamplerDescription));
+
+            NullTexture = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(TextureDescription.Texture2D(1, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Sampled)));
+
+            _cachedNullStructuredBuffers = new Dictionary<uint, DeviceBuffer>();
+        }
+
+        internal DeviceBuffer GetNullStructuredBuffer(uint size)
+        {
+            if (!_cachedNullStructuredBuffers.TryGetValue(size, out var result))
+            {
+                _cachedNullStructuredBuffers.Add(size, result = AddDisposable(GraphicsDevice.ResourceFactory.CreateBuffer(
+                    new BufferDescription(
+                        size,
+                        BufferUsage.StructuredBufferReadOnly,
+                        size))));
+            }
+            return result;
         }
 
         public void Unload()

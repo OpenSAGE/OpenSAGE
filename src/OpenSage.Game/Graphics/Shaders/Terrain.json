@@ -70,7 +70,8 @@
       "Name": "CliffDetails",
       "Type": "StructuredBufferReadOnly",
       "Register": 1,
-      "Stages": "Fragment"
+      "Stages": "Fragment",
+      "Size": 32
     },
     {
       "Name": "TextureDetails",
