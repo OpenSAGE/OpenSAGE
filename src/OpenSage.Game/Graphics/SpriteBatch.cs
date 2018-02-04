@@ -1,8 +1,9 @@
 ﻿using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Graphics.Effects;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Mathematics;
+using OpenSage.Utilities.Extensions;
+using Veldrid;
 
 namespace OpenSage.Graphics
 {
@@ -11,47 +12,49 @@ namespace OpenSage.Graphics
         private readonly GraphicsDevice _graphicsDevice;
         private readonly SpriteMaterial _material;
         private readonly ConstantBuffer<SpriteMaterial.MaterialConstantsVS> _materialConstantsVSBuffer;
-        private readonly Buffer<SpriteVertex> _vertexBuffer;
+        private readonly DeviceBuffer _vertexBuffer;
         private readonly SpriteVertex[] _vertices;
-        private readonly Buffer<ushort> _indexBuffer;
+        private readonly DeviceBuffer _indexBuffer;
 
         private const int InitialBatchSize = 256;
         private SpriteBatchItem[] _batchItems;
         private int _currentBatchIndex;
 
-        private CommandEncoder _commandEncoder;
+        private CommandList _commandEncoder;
+
+        private OutputDescription _outputDescription;
 
         public SpriteBatch(ContentManager contentManager)
         {
             _graphicsDevice = contentManager.GraphicsDevice;
 
-            _material = new SpriteMaterial(contentManager.EffectLibrary.Sprite);
+            _material = AddDisposable(new SpriteMaterial(contentManager, contentManager.EffectLibrary.Sprite));
 
             _materialConstantsVSBuffer = AddDisposable(new ConstantBuffer<SpriteMaterial.MaterialConstantsVS>(contentManager.GraphicsDevice));
 
             _material.SetMaterialConstantsVS(_materialConstantsVSBuffer.Buffer);
 
-            _vertexBuffer = AddDisposable(Buffer<SpriteVertex>.CreateDynamicArray(
-                contentManager.GraphicsDevice,
-                4,
-                BufferBindFlags.VertexBuffer));
+            _vertexBuffer = AddDisposable(_graphicsDevice.ResourceFactory.CreateBuffer(
+                new BufferDescription(SpriteVertex.VertexDescriptor.Stride * 4, BufferUsage.VertexBuffer | BufferUsage.Dynamic)));
 
             _vertices = new SpriteVertex[4]; // Order is TL, TR, BL, BR
 
-            _indexBuffer = AddDisposable(Buffer<ushort>.CreateStatic(
-                contentManager.GraphicsDevice,
+            _indexBuffer = AddDisposable(_graphicsDevice.CreateStaticBuffer(
                 new ushort[] { 0, 1, 2, 2, 1, 3 },
-                BufferBindFlags.IndexBuffer));
+                BufferUsage.IndexBuffer));
 
             _batchItems = new SpriteBatchItem[InitialBatchSize];
         }
 
         public void Begin(
-            CommandEncoder commandEncoder,
-            SamplerState samplerState,
+            CommandList commandEncoder,
+            Sampler samplerState,
+            in OutputDescription outputDescription,
             in Viewport viewport)
         {
             _commandEncoder = commandEncoder;
+
+            _outputDescription = outputDescription;
 
             _material.Effect.Begin(_commandEncoder);
 
@@ -64,7 +67,7 @@ namespace OpenSage.Graphics
                0,
                0,
                -1);
-            _materialConstantsVSBuffer.Update();
+            _materialConstantsVSBuffer.Update(commandEncoder);
 
             _material.SetMaterialConstantsVS(_materialConstantsVSBuffer.Buffer);
 
@@ -91,7 +94,7 @@ namespace OpenSage.Graphics
 
             batchItem.Texture = image;
 
-            var sourceRectangle = sourceRect ?? new Rectangle(0, 0, image.Width, image.Height);
+            var sourceRectangle = sourceRect ?? new Rectangle(0, 0, (int) image.Width, (int) image.Height);
 
             var texCoordTL = new Vector2(
                 sourceRectangle.Left / (float) image.Width,
@@ -125,7 +128,7 @@ namespace OpenSage.Graphics
 
             batchItem.Texture = image;
 
-            var sourceRectangle = sourceRect ?? new Rectangle(0, 0, image.Width, image.Height);
+            var sourceRectangle = sourceRect ?? new Rectangle(0, 0, (int) image.Width, (int) image.Height);
 
             var texCoordTL = new Vector2(
                 sourceRectangle.Left / (float) image.Width,
@@ -192,23 +195,23 @@ namespace OpenSage.Graphics
                 _vertices[2] = batchItem.VertexBL;
                 _vertices[3] = batchItem.VertexBR;
 
-                _vertexBuffer.SetData(_vertices);
+                _commandEncoder.UpdateBuffer(_vertexBuffer, 0, _vertices);
 
                 _commandEncoder.SetVertexBuffer(0, _vertexBuffer);
 
                 _material.SetTexture(batchItem.Texture);
 
-                _material.Apply();
+                _material.ApplyPipelineState(_outputDescription);
+                _material.ApplyProperties();
 
-                _material.Effect.Apply(_commandEncoder);
+                _material.Effect.ApplyPipelineState(_commandEncoder);
+                _material.Effect.ApplyParameters(_commandEncoder);
 
                 var indexCount = batchItem.ItemType == SpriteBatchItemType.Quad ? 6u : 3u;
 
-                _commandEncoder.DrawIndexed(
-                    PrimitiveType.TriangleList,
-                    indexCount,
-                    _indexBuffer,
-                    0);
+                _commandEncoder.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
+
+                _commandEncoder.DrawIndexed(indexCount);
             }
         }
 

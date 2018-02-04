@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Data.W3d;
@@ -11,53 +10,54 @@ using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Effects;
 using OpenSage.Mathematics;
 using OpenSage.Settings;
+using Veldrid;
 
 namespace OpenSage.Content.Util
 {
     internal static class ConversionExtensions
     {
-        public static Blend ToBlend(this W3dShaderSrcBlendFunc value)
+        public static BlendFactor ToBlend(this W3dShaderSrcBlendFunc value)
         {
             switch (value)
             {
                 case W3dShaderSrcBlendFunc.Zero:
-                    return Blend.Zero;
+                    return BlendFactor.Zero;
 
                 case W3dShaderSrcBlendFunc.One:
-                    return Blend.One;
+                    return BlendFactor.One;
 
                 case W3dShaderSrcBlendFunc.SrcAlpha:
-                    return Blend.SrcAlpha;
+                    return BlendFactor.SourceAlpha;
 
                 case W3dShaderSrcBlendFunc.OneMinusSrcAlpha:
-                    return Blend.OneMinusSrcAlpha;
+                    return BlendFactor.InverseSourceAlpha;
 
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        public static Blend ToBlend(this W3dShaderDestBlendFunc value, bool alpha)
+        public static BlendFactor ToBlend(this W3dShaderDestBlendFunc value, bool alpha)
         {
             switch (value)
             {
                 case W3dShaderDestBlendFunc.Zero:
-                    return Blend.Zero;
+                    return BlendFactor.Zero;
 
                 case W3dShaderDestBlendFunc.One:
-                    return Blend.One;
+                    return BlendFactor.One;
 
                 case W3dShaderDestBlendFunc.SrcAlpha:
-                    return Blend.SrcAlpha;
+                    return BlendFactor.SourceAlpha;
 
                 case W3dShaderDestBlendFunc.OneMinusSrcAlpha:
-                    return Blend.OneMinusSrcAlpha;
+                    return BlendFactor.InverseSourceAlpha;
 
                 case W3dShaderDestBlendFunc.SrcColor:
-                    return alpha ? Blend.SrcAlpha : Blend.SrcColor;
+                    return alpha ? BlendFactor.SourceAlpha : BlendFactor.SourceColor;
 
                 case W3dShaderDestBlendFunc.OneMinusSrcColor:
-                    return alpha ? Blend.OneMinusSrcAlpha : Blend.OneMinusSrcColor;
+                    return alpha ? BlendFactor.InverseSourceAlpha : BlendFactor.InverseSourceColor;
 
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -274,33 +274,33 @@ namespace OpenSage.Content.Util
             };
         }
 
-        public static Comparison ToComparison(this W3dShaderDepthCompare value)
+        public static ComparisonKind ToComparison(this W3dShaderDepthCompare value)
         {
             switch (value)
             {
                 case W3dShaderDepthCompare.PassNever:
-                    return Comparison.Never;
+                    return ComparisonKind.Never;
 
                 case W3dShaderDepthCompare.PassLess:
-                    return Comparison.Less;
+                    return ComparisonKind.Less;
 
                 case W3dShaderDepthCompare.PassEqual:
-                    return Comparison.Equal;
+                    return ComparisonKind.Equal;
 
                 case W3dShaderDepthCompare.PassLEqual:
-                    return Comparison.LessEqual;
+                    return ComparisonKind.LessEqual;
 
                 case W3dShaderDepthCompare.PassGreater:
-                    return Comparison.Greater;
+                    return ComparisonKind.Greater;
 
                 case W3dShaderDepthCompare.PassNotEqual:
-                    return Comparison.NotEqual;
+                    return ComparisonKind.NotEqual;
 
                 case W3dShaderDepthCompare.PassGEqual:
-                    return Comparison.GreaterEqual;
+                    return ComparisonKind.GreaterEqual;
 
                 case W3dShaderDepthCompare.PassAlways:
-                    return Comparison.Always;
+                    return ComparisonKind.Always;
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(value));

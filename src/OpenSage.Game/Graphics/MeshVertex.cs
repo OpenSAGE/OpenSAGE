@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.LowLevel.Graphics3D;
+using Veldrid;
 
 namespace OpenSage.Graphics
 {
@@ -23,22 +23,18 @@ namespace OpenSage.Graphics
             public Vector2 UV1;
         }
 
-        public static readonly VertexDescriptor VertexDescriptor = new VertexDescriptor(
-            new[]
-            {
-                new VertexAttributeDescription("POSITION", 0, VertexFormat.Float3, 0, 0),
-                new VertexAttributeDescription("NORMAL", 0, VertexFormat.Float3, 12, 0),
-                new VertexAttributeDescription("TANGENT", 0, VertexFormat.Float3, 24, 0),
-                new VertexAttributeDescription("BINORMAL", 0, VertexFormat.Float3, 36, 0),
-                new VertexAttributeDescription("BLENDINDICES", 0, VertexFormat.UInt, 48, 0),
+        public static readonly VertexLayoutDescription[] VertexDescriptors = new[]
+        {
+            new VertexLayoutDescription(
+                new VertexElementDescription("POSITION", VertexElementSemantic.Position, VertexElementFormat.Float3),
+                new VertexElementDescription("NORMAL", VertexElementSemantic.Normal, VertexElementFormat.Float3),
+                new VertexElementDescription("TANGENT", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+                new VertexElementDescription("BINORMAL", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+                new VertexElementDescription("BLENDINDICES", VertexElementSemantic.TextureCoordinate, VertexElementFormat.UInt1)),
 
-                new VertexAttributeDescription("TEXCOORD", 0, VertexFormat.Float2, 0, 1),
-                new VertexAttributeDescription("TEXCOORD", 1, VertexFormat.Float2, 8, 1)
-            },
-            new[]
-            {
-                new VertexLayoutDescription(InputClassification.PerVertexData, 52),
-                new VertexLayoutDescription(InputClassification.PerVertexData, 16)
-            });
+            new VertexLayoutDescription(
+                new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
+                new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2))
+        };
     }
 }

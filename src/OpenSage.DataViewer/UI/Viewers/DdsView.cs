@@ -4,8 +4,9 @@ using Eto.Drawing;
 using Eto.Forms;
 using OpenSage.Data.Dds;
 using OpenSage.DataViewer.Framework;
-using OpenSage.LowLevel.Graphics3D;
-using OpenSage.LowLevel.Graphics3D.Util.BlockCompression;
+using OpenSage.DataViewer.Framework.BlockCompression;
+using OpenSage.Utilities;
+using PixelFormat = Veldrid.PixelFormat;
 
 namespace OpenSage.DataViewer.UI.Viewers
 {
@@ -36,9 +37,9 @@ namespace OpenSage.DataViewer.UI.Viewers
         {
             public string Name { get; }
             public int Level { get; }
-            public DdsMipMap MipMap { get; }
+            public TextureMipMapData MipMap { get; }
 
-            public DdsMipMapInfo(string name, int level, DdsMipMap mipMap)
+            public DdsMipMapInfo(string name, int level, in TextureMipMapData mipMap)
             {
                 Name = name;
                 Level = level;
@@ -50,25 +51,24 @@ namespace OpenSage.DataViewer.UI.Viewers
         {
             var ddsMipMapInfo = (DdsMipMapInfo) _listBox.SelectedValue;
 
-            var width = Texture.CalculateMipMapSize(ddsMipMapInfo.Level, (int) _ddsFile.Header.Width);
-            var height = Texture.CalculateMipMapSize(ddsMipMapInfo.Level, (int) _ddsFile.Header.Height);
+            var width = ddsMipMapInfo.MipMap.Width;
+            var height = ddsMipMapInfo.MipMap.Height;
 
             byte[] unpackedData;
             switch (_ddsFile.PixelFormat)
             {
-                case LowLevel.Graphics3D.PixelFormat.Bc1:
-                case LowLevel.Graphics3D.PixelFormat.Bc2:
-                case LowLevel.Graphics3D.PixelFormat.Bc3:
+                case PixelFormat.BC1_Rgb_UNorm:
+                case PixelFormat.BC1_Rgba_UNorm:
+                case PixelFormat.BC2_UNorm:
+                case PixelFormat.BC3_UNorm:
                     unpackedData = BlockCompressionUtility.Decompress(
                         _ddsFile.PixelFormat,
                         ddsMipMapInfo.MipMap.Data,
                         (int) ddsMipMapInfo.MipMap.RowPitch,
                         out _);
-                    width = Math.Max(width, 4);
-                    height = Math.Max(height, 4);
                     break;
 
-                case LowLevel.Graphics3D.PixelFormat.Rg8SNorm:
+                case PixelFormat.R8_G8_SNorm:
                     unpackedData = new byte[width * height * 4];
                     var unpackedDataIndex = 0;
                     for (var i = 0; i < ddsMipMapInfo.MipMap.Data.Length; i += 2)
@@ -80,7 +80,7 @@ namespace OpenSage.DataViewer.UI.Viewers
                     }
                     break;
 
-                case LowLevel.Graphics3D.PixelFormat.Rgba8UNorm:
+                case PixelFormat.R8_G8_B8_A8_UNorm:
                     {
                         unpackedData = ddsMipMapInfo.MipMap.Data;
                         break;
@@ -92,8 +92,8 @@ namespace OpenSage.DataViewer.UI.Viewers
 
             var bmpData = PngUtility.ConvertToPng(
                 unpackedData,
-                width,
-                height);
+                (int) width,
+                (int) height);
 
             Panel2 = new ImageView
             {

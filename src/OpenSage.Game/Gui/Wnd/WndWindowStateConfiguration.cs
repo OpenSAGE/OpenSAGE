@@ -1,9 +1,9 @@
 ﻿using System;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Content;
 using OpenSage.Content.Util;
 using OpenSage.Data.Wnd;
 using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Gui.Wnd
 {

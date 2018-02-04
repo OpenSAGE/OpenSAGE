@@ -2,8 +2,8 @@
 using OpenSage.Content;
 using OpenSage.Data.Apt;
 using OpenSage.Graphics;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Gui.Apt
 {
@@ -39,19 +39,21 @@ namespace OpenSage.Gui.Apt
             //    out _scale);
             _frame = new Rectangle(0, 0, 1024, 768);
 
-            _texture = Texture.CreateTexture2D(
-                gd,
-                PixelFormat.Rgba8UNorm,
-                _frame.Width,
-                _frame.Height,
-                TextureBindFlags.ShaderResource | TextureBindFlags.RenderTarget);
+            _texture = gd.ResourceFactory.CreateTexture(
+                TextureDescription.Texture2D(
+                    (uint) _frame.Width,
+                    (uint) _frame.Height,
+                    1,
+                    1,
+                    PixelFormat.R8_G8_B8_A8_UNorm,
+                    TextureUsage.Sampled | TextureUsage.RenderTarget));
 
             _primitiveBatch = new DrawingContext2D(ContentManager, _texture);
         }
 
         public void Update(GameTime gt, GraphicsDevice gd)
         {
-            _primitiveBatch.Begin(gd.SamplerLinearClamp, ColorRgbaF.Transparent);
+            _primitiveBatch.Begin(ContentManager.LinearClampSampler, ColorRgbaF.Transparent);
 
             //draw the movieclip.
             //var transform = new ItemTransform(

@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Data;
 using OpenSage.Data.Dds;
 using OpenSage.Data.Tga;
+using OpenSage.Utilities;
+using OpenSage.Utilities.Extensions;
+using SixLabors.ImageSharp;
+using Veldrid;
+using Veldrid.ImageSharp;
 
 namespace OpenSage.Content
 {
@@ -14,8 +18,13 @@ namespace OpenSage.Content
 
         public TextureLoader(GraphicsDevice graphicsDevice)
         {
-            var texture = AddDisposable(Texture.CreatePlaceholderTexture2D(graphicsDevice));
-            texture.DebugName = "Placeholder Texture";
+            var texture = AddDisposable(graphicsDevice.CreateStaticTexture2D(
+                1, 1,
+                new TextureMipMapData(
+                    new byte[] { 255, 105, 180, 255 },
+                    4, 4, 1, 1),
+                PixelFormat.R8_G8_B8_A8_UNorm));
+            texture.Name = "Placeholder Texture";
             PlaceholderValue = AddDisposable(texture);
         }
 
@@ -31,7 +40,7 @@ namespace OpenSage.Content
 
             Texture applyDebugName(Texture texture)
             {
-                texture.DebugName = entry.FilePath;
+                texture.Name = entry.FilePath;
                 return texture;
             }
 
@@ -63,57 +72,14 @@ namespace OpenSage.Content
             GraphicsDevice graphicsDevice,
             DdsFile ddsFile)
         {
-            var mipMapData = new TextureMipMapData[ddsFile.Header.MipMapCount];
+            var width = ddsFile.Header.Width;
+            var height = ddsFile.Header.Height;
 
-            for (var i = 0; i < ddsFile.Header.MipMapCount; i++)
-            {
-                mipMapData[i] = new TextureMipMapData
-                {
-                    Data = ddsFile.MipMaps[i].Data,
-                    BytesPerRow = (int) ddsFile.MipMaps[i].RowPitch
-                };
-            }
-
-            var width = (int) ddsFile.Header.Width;
-            var height = (int) ddsFile.Header.Height;
-
-            // BC3 texture dimensions need to be aligned to a multiple of 4.
-            if (ddsFile.ImageFormat == DdsImageFormat.Bc3)
-            {
-                width = Math.Max(width, 4);
-                height = Math.Max(height, 4);
-            }
-
-            return Texture.CreateTexture2D(
-                graphicsDevice,
-                ddsFile.PixelFormat,
+            return graphicsDevice.CreateStaticTexture2D(
                 width,
                 height,
-                mipMapData);
-        }
-
-        public static TextureMipMapData[] GetData(TgaFile tgaFile, bool generateMipMaps)
-        {
-            var data = TgaFile.ConvertPixelsToRgba8(tgaFile);
-
-            if (generateMipMaps)
-            {
-                return MipMapUtility.GenerateMipMaps(
-                    tgaFile.Header.Width,
-                    tgaFile.Header.Height,
-                    data);
-            }
-            else
-            {
-                return new[]
-                {
-                    new TextureMipMapData
-                    {
-                        Data = data,
-                        BytesPerRow = tgaFile.Header.Width * 4
-                    }
-                };
-            }
+                ddsFile.MipMaps,
+                ddsFile.PixelFormat);
         }
 
         private static Texture CreateTextureFromTga(
@@ -121,14 +87,21 @@ namespace OpenSage.Content
             TgaFile tgaFile,
             bool generateMipMaps)
         {
-            var mipMapData = GetData(tgaFile, generateMipMaps);
+            var rgbaData = TgaFile.ConvertPixelsToRgba8(tgaFile);
 
-            return Texture.CreateTexture2D(
-                graphicsDevice,
-                PixelFormat.Rgba8UNorm,
+            using (var tgaImage = Image.LoadPixelData<Rgba32>(
+                rgbaData,
                 tgaFile.Header.Width,
-                tgaFile.Header.Height,
-                mipMapData);
+                tgaFile.Header.Height))
+            {
+                var imageSharpTexture = new ImageSharpTexture(
+                    tgaImage,
+                    generateMipMaps);
+
+                return imageSharpTexture.CreateDeviceTexture(
+                    graphicsDevice,
+                    graphicsDevice.ResourceFactory);
+            }
         }
     }
 

@@ -1,16 +1,16 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.LowLevel.Graphics3D;
-using OpenSage.Graphics;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Terrain
 {
     public sealed class TerrainPatch : ICullable
     {
-        private readonly Buffer<TerrainVertex> _vertexBuffer;
-        private readonly Buffer<ushort> _indexBuffer;
+        private readonly DeviceBuffer _vertexBuffer;
+        private readonly DeviceBuffer _indexBuffer;
+        private readonly uint _numIndices;
 
         private readonly TerrainMaterial _terrainMaterial;
 
@@ -27,8 +27,9 @@ namespace OpenSage.Terrain
         internal TerrainPatch(
             TerrainMaterial terrainMaterial,
             Rectangle patchBounds,
-            Buffer<TerrainVertex> vertexBuffer,
-            Buffer<ushort> indexBuffer,
+            DeviceBuffer vertexBuffer,
+            DeviceBuffer indexBuffer,
+            uint numIndices,
             Triangle[] triangles,
             BoundingBox boundingBox)
         {
@@ -38,6 +39,7 @@ namespace OpenSage.Terrain
 
             _vertexBuffer = vertexBuffer;
             _indexBuffer = indexBuffer;
+            _numIndices = numIndices;
 
             BoundingBox = boundingBox;
             Triangles = triangles;
@@ -81,7 +83,7 @@ namespace OpenSage.Terrain
                 this,
                 Matrix4x4.Identity,
                 0,
-                _indexBuffer.ElementCount,
+                _numIndices,
                 _indexBuffer);
         }
     }
@@ -93,16 +95,9 @@ namespace OpenSage.Terrain
         public Vector3 Normal;
         public Vector2 UV;
 
-        public static readonly VertexDescriptor VertexDescriptor = new VertexDescriptor(
-            new[]
-            {
-                new VertexAttributeDescription("POSITION", 0, VertexFormat.Float3, 0, 0),
-                new VertexAttributeDescription("NORMAL", 0, VertexFormat.Float3, 12, 0),
-                new VertexAttributeDescription("TEXCOORD", 0, VertexFormat.Float2, 24, 0)
-            },
-            new[]
-            {
-                new VertexLayoutDescription(InputClassification.PerVertexData, 32)
-            });
+        public static readonly VertexLayoutDescription VertexDescriptor = new VertexLayoutDescription(
+            new VertexElementDescription("POSITION", VertexElementSemantic.Position, VertexElementFormat.Float3),
+            new VertexElementDescription("NORMAL", VertexElementSemantic.Normal, VertexElementFormat.Float3),
+            new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
     }
 }

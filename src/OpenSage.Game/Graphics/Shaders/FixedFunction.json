@@ -1,0 +1,158 @@
+﻿{
+  "ResourceBindings": [
+    {
+      "Name": "GlobalConstantsShared",
+      "Type": "UniformBuffer",
+      "Register": 0,
+      "Stages": "Vertex, Fragment",
+      "Size": 16,
+      "Fields": [
+        {
+          "Name": "CameraPosition",
+          "Type": "Float3",
+          "Offset": 0,
+          "Size": 12
+        }
+      ]
+    },
+    {
+      "Name": "GlobalConstantsVS",
+      "Type": "UniformBuffer",
+      "Register": 1,
+      "Stages": "Vertex",
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "ViewProjection",
+          "Type": "Float4x4",
+          "Offset": 0,
+          "Size": 64
+        }
+      ]
+    },
+    {
+      "Name": "GlobalConstantsPS",
+      "Type": "UniformBuffer",
+      "Register": 2,
+      "Stages": "Fragment",
+      "Size": 16,
+      "Fields": [
+        {
+          "Name": "TimeInSeconds",
+          "Type": "Float",
+          "Offset": 0,
+          "Size": 4
+        },
+        {
+          "Name": "ViewportSize",
+          "Type": "Float2",
+          "Offset": 4,
+          "Size": 4
+        }
+      ]
+    },
+    {
+      "Name": "MeshConstants",
+      "Type": "UniformBuffer",
+      "Register": 3,
+      "Stages": "Vertex",
+      "Size": 16,
+      "Fields": [
+        {
+          "Name": "SkinningEnabled",
+          "Type": "Bool",
+          "Offset": 0,
+          "Size": 4
+        },
+        {
+          "Name": "NumBones",
+          "Type": "Uint",
+          "Offset": 4,
+          "Size": 4
+        }
+      ]
+    },
+    {
+      "Name": "RenderItemConstantsVS",
+      "Type": "UniformBuffer",
+      "Register": 4,
+      "Stages": "Vertex",
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "World",
+          "Type": "Float4x4",
+          "Offset": 0,
+          "Size": 64
+        }
+      ]
+    },
+    {
+      "Name": "SkinningBuffer",
+      "Type": "StructuredBufferReadOnly",
+      "Register": 0,
+      "Stages": "Vertex",
+      "Size": 48
+    },
+    {
+      "Name": "LightingConstants_Object",
+      "Type": "UniformBuffer",
+      "Register": 5,
+      "Stages": "Fragment",
+      "Size": 144,
+      "Fields": [
+        {
+          "Name": "Lights",
+          "Type": "Struct",
+          "Offset": 0,
+          "Size": 144
+        }
+      ]
+    },
+    {
+      "Name": "MaterialConstants",
+      "Type": "UniformBuffer",
+      "Register": 6,
+      "Stages": "Fragment",
+      "Size": 240,
+      "Fields": [
+        {
+          "Name": "NumTextureStages",
+          "Type": "Uint",
+          "Offset": 0,
+          "Size": 4
+        },
+        {
+          "Name": "Material",
+          "Type": "Struct",
+          "Offset": 16,
+          "Size": 192
+        },
+        {
+          "Name": "Shading",
+          "Type": "Struct",
+          "Offset": 208,
+          "Size": 32
+        }
+      ]
+    },
+    {
+      "Name": "Texture0",
+      "Type": "TextureReadOnly",
+      "Register": 1,
+      "Stages": "Fragment"
+    },
+    {
+      "Name": "Texture1",
+      "Type": "TextureReadOnly",
+      "Register": 2,
+      "Stages": "Fragment"
+    },
+    {
+      "Name": "Sampler",
+      "Type": "Sampler",
+      "Register": 0,
+      "Stages": "Fragment"
+    }
+  ]
+}

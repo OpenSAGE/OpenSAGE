@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
 using OpenSage.Data;
-using OpenSage.LowLevel;
-using OpenSage.LowLevel.Graphics3D;
+using Veldrid;
 
 namespace OpenSage
 {
@@ -10,8 +9,7 @@ namespace OpenSage
     {
         public static Game CreateGame(IGameDefinition definition,
             IInstallationLocator installationLocator,
-            Func<GameWindow> createWindow,
-            GraphicsDevice graphicsDevice = null)
+            Func<GameWindow> createWindow)
         {
             var installation = installationLocator
                 .FindInstallations(definition)
@@ -25,25 +23,17 @@ namespace OpenSage
             return CreateGame(
                 installation,
                 installation.CreateFileSystem(),
-                createWindow,
-                graphicsDevice);
+                createWindow);
         }
 
         public static Game CreateGame(
             GameInstallation installation,
             FileSystem fileSystem,
-            Func<GameWindow> createWindow,
-            GraphicsDevice graphicsDevice = null)
+            Func<GameWindow> createWindow)
         {
-            if (graphicsDevice == null)
-            {
-                graphicsDevice = HostPlatform.GraphicsDevice;
-            }
-
             var definition = installation.Game;
 
             return new Game(
-                graphicsDevice,
                 fileSystem,
                 definition.Game,
                 definition.WndCallbackType,

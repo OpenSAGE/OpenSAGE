@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
@@ -10,10 +9,11 @@ using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Wnd;
 using SixLabors.Fonts;
+using Veldrid;
 
 namespace OpenSage.Content
 {
-    public sealed class ContentManager : GraphicsObject
+    public sealed class ContentManager : DisposableBase
     {
         private readonly Dictionary<Type, ContentLoader> _contentLoaders;
 
@@ -23,11 +23,18 @@ namespace OpenSage.Content
 
         private readonly Dictionary<FontKey, Font> _cachedFonts;
 
+        private readonly Dictionary<uint, DeviceBuffer> _cachedNullStructuredBuffers;
+
         public GraphicsDevice GraphicsDevice { get; }
 
         public SageGame SageGame { get; }
 
         public EffectLibrary EffectLibrary { get; }
+
+        public Sampler LinearClampSampler { get; }
+        public Sampler PointClampSampler { get; }
+
+        public Texture NullTexture { get; }
 
         public FileSystem FileSystem => _fileSystem;
 
@@ -67,6 +74,37 @@ namespace OpenSage.Content
             TranslationManager = new TranslationManager(fileSystem, sageGame);
 
             _cachedFonts = new Dictionary<FontKey, Font>();
+
+            var linearClampSamplerDescription = SamplerDescription.Linear;
+            linearClampSamplerDescription.AddressModeU = SamplerAddressMode.Clamp;
+            linearClampSamplerDescription.AddressModeV = SamplerAddressMode.Clamp;
+            linearClampSamplerDescription.AddressModeW = SamplerAddressMode.Clamp;
+            LinearClampSampler = AddDisposable(
+                graphicsDevice.ResourceFactory.CreateSampler(ref linearClampSamplerDescription));
+
+            var pointClampSamplerDescription = SamplerDescription.Point;
+            pointClampSamplerDescription.AddressModeU = SamplerAddressMode.Clamp;
+            pointClampSamplerDescription.AddressModeV = SamplerAddressMode.Clamp;
+            pointClampSamplerDescription.AddressModeW = SamplerAddressMode.Clamp;
+            PointClampSampler = AddDisposable(
+                graphicsDevice.ResourceFactory.CreateSampler(ref pointClampSamplerDescription));
+
+            NullTexture = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(TextureDescription.Texture2D(1, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Sampled)));
+
+            _cachedNullStructuredBuffers = new Dictionary<uint, DeviceBuffer>();
+        }
+
+        internal DeviceBuffer GetNullStructuredBuffer(uint size)
+        {
+            if (!_cachedNullStructuredBuffers.TryGetValue(size, out var result))
+            {
+                _cachedNullStructuredBuffers.Add(size, result = AddDisposable(GraphicsDevice.ResourceFactory.CreateBuffer(
+                    new BufferDescription(
+                        size,
+                        BufferUsage.StructuredBufferReadOnly,
+                        size))));
+            }
+            return result;
         }
 
         public void Unload()

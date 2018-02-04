@@ -4,8 +4,8 @@ using System.Linq;
 using OpenSage.Content;
 using OpenSage.Data.Wnd;
 using OpenSage.Graphics;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Gui.Wnd
 {
@@ -247,12 +247,14 @@ namespace OpenSage.Gui.Wnd
             RemoveAndDispose(ref _primitiveBatch);
             RemoveAndDispose(ref _texture);
 
-            _texture = AddDisposable(Texture.CreateTexture2D(
-                contentManager.GraphicsDevice,
-                PixelFormat.Rgba8UNorm,
-                Frame.Width,
-                Frame.Height,
-                TextureBindFlags.ShaderResource | TextureBindFlags.RenderTarget));
+            _texture = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateTexture(
+                TextureDescription.Texture2D(
+                    (uint) Frame.Width,
+                    (uint) Frame.Height,
+                    1,
+                    1,
+                    PixelFormat.R8_G8_B8_A8_UNorm,
+                    TextureUsage.Sampled | TextureUsage.RenderTarget)));
 
             _primitiveBatch = AddDisposable(new DrawingContext2D(contentManager, _texture));
 
@@ -282,13 +284,13 @@ namespace OpenSage.Gui.Wnd
                 ?? activeState.BackgroundColor
                 ?? new ColorRgbaF(0, 0, 0, 0);
 
-            window._primitiveBatch.Begin(game.GraphicsDevice.SamplerLinearClamp, clearColour);
+            window._primitiveBatch.Begin(game.ContentManager.LinearClampSampler, clearColour);
 
             if (activeState.ImageTexture != null)
             {
                 window._primitiveBatch.DrawImage(
                     activeState.ImageTexture,
-                    new Rectangle(0, 0, activeState.ImageTexture.Width, activeState.ImageTexture.Height),
+                    new Rectangle(0, 0, (int) activeState.ImageTexture.Width, (int) activeState.ImageTexture.Height),
                     window.Bounds);
             }
 

@@ -1,8 +1,8 @@
 ﻿using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.W3d
 {

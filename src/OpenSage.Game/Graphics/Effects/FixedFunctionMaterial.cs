@@ -1,13 +1,14 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.LowLevel.Graphics3D;
+using OpenSage.Content;
+using Veldrid;
 
 namespace OpenSage.Graphics.Effects
 {
     public sealed class FixedFunctionMaterial : MeshMaterial
     {
-        public FixedFunctionMaterial(Effect effect)
-            : base(effect)
+        public FixedFunctionMaterial(ContentManager contentManager, Effect effect)
+            : base(contentManager, effect)
         {
             
         }
@@ -22,12 +23,12 @@ namespace OpenSage.Graphics.Effects
             SetProperty("Texture1", texture);
         }
 
-        public void SetMaterialConstants(Buffer<MaterialConstants> materialConstants)
+        public void SetMaterialConstants(DeviceBuffer materialConstants)
         {
             SetProperty("MaterialConstants", materialConstants);
         }
 
-        [StructLayout(LayoutKind.Explicit)]
+        [StructLayout(LayoutKind.Explicit, Size = 240)]
         public struct MaterialConstants
         {
             [FieldOffset(0)]

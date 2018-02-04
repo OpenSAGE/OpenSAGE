@@ -1,22 +1,22 @@
-﻿using OpenSage.LowLevel.Graphics3D;
-using System.Numerics;
+﻿using System.Numerics;
 using OpenSage.Graphics.Effects;
+using OpenSage.Utilities.Extensions;
+using Veldrid;
 
 namespace OpenSage.Graphics
 {
     public sealed class ModelMeshShaderPass : DisposableBase
     {
-        internal Buffer<Vector2> TexCoordVertexBuffer;
+        internal DeviceBuffer TexCoordVertexBuffer;
 
         internal ModelMeshShaderPass(
             GraphicsDevice graphicsDevice,
             Vector2[] texCoords,
             Effect effect)
         {
-            TexCoordVertexBuffer = AddDisposable(Buffer<Vector2>.CreateStatic(
-                graphicsDevice,
+            TexCoordVertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
                 texCoords,
-                BufferBindFlags.VertexBuffer));
+                BufferUsage.VertexBuffer));
         }
     }
 }

@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.DataViewer", "Open
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.DataViewer.Windows", "OpenSage.DataViewer.Windows\OpenSage.DataViewer.Windows.csproj", "{1D432BD6-B14F-4008-88B3-E3DC52AC7380}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.LowLevel", "OpenSage.LowLevel\OpenSage.LowLevel.csproj", "{AA6CCAEB-CC90-4463-A67E-336580BCD036}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mods.Generals", "OpenSage.Mods.Generals\OpenSage.Mods.Generals.csproj", "{57942CDD-AEF9-4D0D-B3F4-3FBE4461A649}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mods.BuiltIn", "OpenSage.Mods.BuiltIn\OpenSage.Mods.BuiltIn.csproj", "{2FD188F9-80B0-4197-ADBF-FF793E45EAD7}"
@@ -57,10 +55,6 @@ Global
 		{1D432BD6-B14F-4008-88B3-E3DC52AC7380}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D432BD6-B14F-4008-88B3-E3DC52AC7380}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D432BD6-B14F-4008-88B3-E3DC52AC7380}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AA6CCAEB-CC90-4463-A67E-336580BCD036}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AA6CCAEB-CC90-4463-A67E-336580BCD036}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AA6CCAEB-CC90-4463-A67E-336580BCD036}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AA6CCAEB-CC90-4463-A67E-336580BCD036}.Release|Any CPU.Build.0 = Release|Any CPU
 		{57942CDD-AEF9-4D0D-B3F4-3FBE4461A649}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{57942CDD-AEF9-4D0D-B3F4-3FBE4461A649}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57942CDD-AEF9-4D0D-B3F4-3FBE4461A649}.Release|Any CPU.ActiveCfg = Release|Any CPU

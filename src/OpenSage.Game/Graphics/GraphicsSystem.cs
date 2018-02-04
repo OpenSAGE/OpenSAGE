@@ -60,8 +60,7 @@ namespace OpenSage.Graphics
             _renderContext.Graphics = this;
             _renderContext.Camera = Game.Scene.Camera;
             _renderContext.Scene = Game.Scene;
-            _renderContext.SwapChain = Game.SwapChain;
-            _renderContext.RenderTarget = Game.SwapChain.GetNextRenderTarget();
+            _renderContext.RenderTarget = Game.GraphicsDevice.SwapchainFramebuffer;
             _renderContext.GameTime = gameTime;
 
             _renderPipeline.Execute(_renderContext);

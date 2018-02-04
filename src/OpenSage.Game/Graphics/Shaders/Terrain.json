@@ -1,0 +1,95 @@
+﻿{
+  "ResourceBindings": [
+    {
+      "Name": "GlobalConstantsShared",
+      "Type": "UniformBuffer",
+      "Register": 0,
+      "Stages": "Vertex, Fragment",
+      "Size": 16,
+      "Fields": [
+        {
+          "Name": "CameraPosition",
+          "Type": "Float3",
+          "Offset": 0,
+          "Size": 12
+        }
+      ]
+    },
+    {
+      "Name": "GlobalConstantsVS",
+      "Type": "UniformBuffer",
+      "Register": 1,
+      "Stages": "Vertex",
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "ViewProjection",
+          "Type": "Float4x4",
+          "Offset": 0,
+          "Size": 64
+        }
+      ]
+    },
+    {
+      "Name": "RenderItemConstantsVS",
+      "Type": "UniformBuffer",
+      "Register": 2,
+      "Stages": "Vertex",
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "World",
+          "Type": "Float4x4",
+          "Offset": 0,
+          "Size": 64
+        }
+      ]
+    },
+    {
+      "Name": "LightingConstants_Terrain",
+      "Type": "UniformBuffer",
+      "Register": 3,
+      "Stages": "Fragment",
+      "Size": 144,
+      "Fields": [
+        {
+          "Name": "Lights",
+          "Type": "Struct",
+          "Offset": 0,
+          "Size": 144
+        }
+      ]
+    },
+    {
+      "Name": "TileData",
+      "Type": "TextureReadOnly",
+      "Register": 0,
+      "Stages": "Fragment"
+    },
+    {
+      "Name": "CliffDetails",
+      "Type": "StructuredBufferReadOnly",
+      "Register": 1,
+      "Stages": "Fragment",
+      "Size": 32
+    },
+    {
+      "Name": "TextureDetails",
+      "Type": "StructuredBufferReadOnly",
+      "Register": 2,
+      "Stages": "Fragment"
+    },
+    {
+      "Name": "Textures",
+      "Type": "TextureReadOnly",
+      "Register": 3,
+      "Stages": "Fragment"
+    },
+    {
+      "Name": "Sampler",
+      "Type": "Sampler",
+      "Register": 0,
+      "Stages": "Fragment"
+    }
+  ]
+}

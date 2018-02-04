@@ -1,5 +1,4 @@
 ﻿using OpenSage.Data;
-using OpenSage.LowLevel;
 using OpenSage.Mods.BuiltIn;
 
 namespace OpenSage.Launcher
@@ -8,8 +7,6 @@ namespace OpenSage.Launcher
     {
         public static void Main(string[] args)
         {
-            HostPlatform.Start();
-
             Platform.CurrentPlatform = new Sdl2Platform();
             Platform.CurrentPlatform.Start();
 
@@ -31,7 +28,6 @@ namespace OpenSage.Launcher
             }
 
             Platform.CurrentPlatform.Stop();
-            HostPlatform.Stop();
         }
 
         // TODO: Extract this logic into a game-specific DLL, or make the scene and menu configurable.

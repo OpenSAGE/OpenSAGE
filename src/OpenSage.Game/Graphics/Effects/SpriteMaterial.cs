@@ -1,28 +1,29 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.LowLevel.Graphics3D;
+using OpenSage.Content;
+using Veldrid;
 
 namespace OpenSage.Graphics.Effects
 {
     public sealed class SpriteMaterial : EffectMaterial
     {
-        public SpriteMaterial(Effect effect)
-            : base(effect)
+        public SpriteMaterial(ContentManager contentManager, Effect effect)
+            : base(contentManager, effect)
         {
-            SetSampler(effect.GraphicsDevice.SamplerPointClamp);
+            SetSampler(contentManager.PointClampSampler);
 
             PipelineState = new EffectPipelineState(
-                RasterizerStateDescription.CullNoneSolid,
-                DepthStencilStateDescription.None,
-                BlendStateDescription.AlphaBlend);
+                RasterizerStateDescriptionUtility.CullNoneSolid,
+                DepthStencilStateDescription.Disabled,
+                BlendStateDescription.SingleAlphaBlend);
         }
 
-        public void SetMaterialConstantsVS(Buffer<MaterialConstantsVS> buffer)
+        public void SetMaterialConstantsVS(DeviceBuffer value)
         {
-            SetProperty("ProjectionBuffer", buffer);
+            SetProperty("ProjectionBuffer", value);
         }
 
-        public void SetSampler(SamplerState samplerState)
+        public void SetSampler(Sampler samplerState)
         {
             SetProperty("Sampler", samplerState);
         }

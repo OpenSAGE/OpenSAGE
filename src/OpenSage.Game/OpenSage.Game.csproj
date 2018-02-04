@@ -12,20 +12,23 @@
   
   <ItemGroup>
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.4.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0002" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0002" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
     <PackageReference Include="ShaderGen.Primitives" Version="1.1.0-gd961cf2e51" />
     <PackageReference Include="ShaderGen.Build" Version="1.1.0-gd961cf2e51" PrivateAssets="All" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\OpenSage.LowLevel\OpenSage.LowLevel.csproj" />
+    <PackageReference Include="Veldrid" Version="4.0.1-g91c1be0372" />
+    <PackageReference Include="Veldrid.ImageSharp" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <EffectShader Include="**\*.fx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Graphics\Shaders\*.json" />
   </ItemGroup>
 
   <Import Project="..\..\build\OpenSage.EffectCompiler.targets" />

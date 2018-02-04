@@ -1,8 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Utilities;
+using Veldrid;
 
 namespace OpenSage.Data.Dds
 {
@@ -13,7 +14,7 @@ namespace OpenSage.Data.Dds
         public DdsImageFormat ImageFormat { get; private set; }
         public uint ArraySize { get; private set; }
         public uint MipMapCount { get; private set; }
-        public DdsMipMap[] MipMaps { get; private set; }
+        public TextureMipMapData[] MipMaps { get; private set; }
 
         public PixelFormat PixelFormat
         {
@@ -21,20 +22,21 @@ namespace OpenSage.Data.Dds
             {
                 switch (ImageFormat)
                 {
+                    // TODO_VELDRID: Should this be Rgba or Rgb?
                     case DdsImageFormat.Bc1:
-                        return PixelFormat.Bc1;
+                        return PixelFormat.BC1_Rgba_UNorm;
 
                     case DdsImageFormat.Bc2:
-                        return PixelFormat.Bc2;
+                        return PixelFormat.BC2_UNorm;
 
                     case DdsImageFormat.Bc3:
-                        return PixelFormat.Bc3;
+                        return PixelFormat.BC3_UNorm;
 
                     case DdsImageFormat.Rg8SNorm:
-                        return PixelFormat.Rg8SNorm;
+                        return PixelFormat.R8_G8_SNorm;
 
                     case DdsImageFormat.Rgba8:
-                        return PixelFormat.Rgba8UNorm;
+                        return PixelFormat.R8_G8_B8_A8_UNorm;
 
                     default:
                         throw new NotSupportedException();
@@ -106,13 +108,17 @@ namespace OpenSage.Data.Dds
                     arraySize = 6;
                 }
 
+                var isCompressed = imageFormat == DdsImageFormat.Bc1
+                    || imageFormat == DdsImageFormat.Bc2
+                    || imageFormat == DdsImageFormat.Bc3;
+
                 var mipMapCount = header.MipMapCount;
                 if (mipMapCount == 0)
                 {
                     mipMapCount = 1;
                 }
 
-                var mipMaps = new DdsMipMap[mipMapCount * arraySize];
+                var mipMaps = new TextureMipMapData[mipMapCount * arraySize];
 
                 for (var arrayIndex = 0; arrayIndex < arraySize; arrayIndex++)
                 {
@@ -135,17 +141,29 @@ namespace OpenSage.Data.Dds
                             }
                         }
 
-                        mipMaps[(arrayIndex * mipMapCount) + i] = new DdsMipMap(
+                        mipMaps[(arrayIndex * mipMapCount) + i] = new TextureMipMapData(
                             mipMapData,
                             surfaceInfo.RowBytes,
-                            surfaceInfo.NumBytes);
+                            surfaceInfo.NumBytes,
+                            width,
+                            height);
 
                         width >>= 1;
                         height >>= 1;
                         depth >>= 1;
 
-                        width = Math.Max(width, 1);
-                        height = Math.Max(height, 1);
+                        if (isCompressed)
+                        {
+                            // Align width and height to multiple of 4.
+                            width = (width + 3) / 4 * 4;
+                            height = (height + 3) / 4 * 4;
+                        }
+                        else
+                        {
+                            width = Math.Max(width, 1);
+                            height = Math.Max(height, 1);
+                        }
+
                         depth = Math.Max(depth, 1);
                     }
                 }
@@ -230,17 +248,8 @@ namespace OpenSage.Data.Dds
                     throw new ArgumentOutOfRangeException();
             }
 
-            var numBlocksWide = 0u;
-            if (width > 0)
-            {
-                numBlocksWide = Math.Max(1, (width + 3) / 4);
-            }
-
-            var numBlocksHigh = 0u;
-            if (height > 0)
-            {
-                numBlocksHigh = Math.Max(1, (height + 3) / 4);
-            }
+            var numBlocksWide = width / 4;
+            var numBlocksHigh = height / 4;
 
             return new SurfaceInfo
             {

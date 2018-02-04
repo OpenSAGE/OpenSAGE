@@ -1,19 +1,21 @@
-﻿using OpenSage.LowLevel.Graphics3D;
+﻿using OpenSage.Content;
+using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
+using Veldrid;
 
 namespace OpenSage.Terrain
 {
     public sealed class TerrainMaterial : EffectMaterial
     {
-        public TerrainMaterial(Effect effect)
-            : base(effect)
+        public TerrainMaterial(ContentManager contentManager, Effect effect)
+            : base(contentManager, effect)
         {
-            SetProperty("Sampler", effect.GraphicsDevice.SamplerAnisotropicWrap);
+            SetProperty("Sampler", effect.GraphicsDevice.Aniso4xSampler);
 
             PipelineState = new EffectPipelineState(
-                RasterizerStateDescription.CullBackSolid,
-                DepthStencilStateDescription.Default,
-                BlendStateDescription.Opaque);
+                RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
+                DepthStencilStateDescription.DepthOnlyLessEqual,
+                BlendStateDescription.SingleDisabled);
         }
 
         public void SetTileData(Texture tileDataTexture)
@@ -21,12 +23,12 @@ namespace OpenSage.Terrain
             SetProperty("TileData", tileDataTexture);
         }
 
-        public void SetCliffDetails(Buffer<CliffInfo> cliffDetailsBuffer)
+        public void SetCliffDetails(DeviceBuffer cliffDetailsBuffer)
         {
             SetProperty("CliffDetails", cliffDetailsBuffer);
         }
 
-        public void SetTextureDetails(Buffer<TextureInfo> textureDetailsBuffer)
+        public void SetTextureDetails(DeviceBuffer textureDetailsBuffer)
         {
             SetProperty("TextureDetails", textureDetailsBuffer);
         }

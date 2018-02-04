@@ -12,8 +12,8 @@ using OpenSage.Gui.Wnd;
 using OpenSage.Input;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Scripting;
+using Veldrid;
 
 namespace OpenSage
 {
@@ -31,7 +31,6 @@ namespace OpenSage
         public ContentManager ContentManager { get; private set; }
 
         public GraphicsDevice GraphicsDevice { get; }
-        internal SwapChain SwapChain { get; }
 
         internal List<GameSystem> GameSystems { get; }
 
@@ -79,13 +78,25 @@ namespace OpenSage
         public GameWindow Window { get; }
 
         public Game(
-            GraphicsDevice graphicsDevice,
             FileSystem fileSystem,
             SageGame sageGame,
             Type wndCallbacksType,
             Func<GameWindow> createGameWindow)
         {
-            GraphicsDevice = graphicsDevice;
+            Window = AddDisposable(createGameWindow());
+
+#if DEBUG
+            const bool debug = true;
+#else
+            const bool debug = false;
+#endif
+
+            GraphicsDevice = AddDisposable(GraphicsDevice.CreateD3D11(
+                new GraphicsDeviceOptions(debug, PixelFormat.D32_Float_S8_UInt, true),
+                Window.NativeWindowHandle,
+                (uint) Window.ClientBounds.Width,
+                (uint) Window.ClientBounds.Height));
+
             SageGame = sageGame;
 
             _fileSystem = fileSystem;
@@ -97,18 +108,11 @@ namespace OpenSage
 
             _wndCallbackResolver = new WndCallbackResolver(wndCallbacksType);
 
-            Window = AddDisposable(createGameWindow());
-
-            SwapChain = AddDisposable(new SwapChain(
-                GraphicsDevice,
-                Window.NativeWindowHandle,
-                3,
-                Math.Max(Window.ClientBounds.Width, 1),
-                Math.Max(Window.ClientBounds.Height, 1)));
-
             Window.ClientSizeChanged += (sender, e) =>
             {
-                SwapChain.Resize(Window.ClientBounds.Width, Window.ClientBounds.Height);
+                GraphicsDevice.ResizeMainWindow(
+                    (uint) Window.ClientBounds.Width,
+                    (uint) Window.ClientBounds.Height);
 
                 if (Scene != null)
                 {
@@ -126,7 +130,7 @@ namespace OpenSage
 
             ContentManager = AddDisposable(new ContentManager(
                 _fileSystem, 
-                graphicsDevice,
+                GraphicsDevice,
                 sageGame,
                 _wndCallbackResolver));
             

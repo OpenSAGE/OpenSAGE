@@ -4,8 +4,8 @@ using System.Linq;
 using OpenSage.Content;
 using OpenSage.Content.Util;
 using OpenSage.Data.Wnd;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Gui.Wnd
 {
@@ -119,19 +119,21 @@ namespace OpenSage.Gui.Wnd
 
         internal Texture RenderToTexture(ContentManager contentManager)
         {
-            var imageTexture = Texture.CreateTexture2D(
-                contentManager.GraphicsDevice,
-                PixelFormat.Rgba8UNorm,
-                _totalWidth,
-                _height,
-                TextureBindFlags.ShaderResource | TextureBindFlags.RenderTarget);
+            var imageTexture = contentManager.GraphicsDevice.ResourceFactory.CreateTexture(
+                TextureDescription.Texture2D(
+                    (uint) _totalWidth,
+                    (uint) _height,
+                    1,
+                    1,
+                    PixelFormat.R8_G8_B8_A8_UNorm,
+                    TextureUsage.Sampled | TextureUsage.RenderTarget));
 
-            imageTexture.DebugName = "StretchableImage";
+            imageTexture.Name = "StretchableImage";
 
             using (var drawingContext = new DrawingContext2D(contentManager, imageTexture))
             {
                 drawingContext.Begin(
-                    contentManager.GraphicsDevice.SamplerPointClamp,
+                    contentManager.PointClampSampler,
                     ColorRgbaF.Transparent);
 
                 switch (_mode)

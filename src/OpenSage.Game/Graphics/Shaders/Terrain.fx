@@ -24,7 +24,7 @@ struct VSInput
     float2 UV       : TEXCOORD;
 };
 
-cbuffer RenderItemConstantsVS : register(b1)
+cbuffer RenderItemConstantsVS : register(b2)
 {
     row_major float4x4 World;
 };
@@ -46,6 +46,7 @@ VSOutput VS(VSInput input)
 }
 
 #define LIGHTING_TYPE Terrain
+#define LIGHTING_CONSTANTS_REGISTER b3
 #include "Lighting.hlsli"
 
 #define BLEND_DIRECTION_TOWARDS_RIGHT     1

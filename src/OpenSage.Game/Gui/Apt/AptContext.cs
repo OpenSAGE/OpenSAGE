@@ -2,7 +2,7 @@
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
-using OpenSage.LowLevel.Graphics3D;
+using Veldrid;
 
 namespace OpenSage.Gui.Apt
 {

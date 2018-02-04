@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Content.Util;
 using OpenSage.Data;
 using OpenSage.Data.Map;
@@ -12,13 +11,19 @@ using OpenSage.Mathematics;
 using OpenSage.Scripting;
 using OpenSage.Settings;
 using OpenSage.Terrain;
+using OpenSage.Utilities;
+using OpenSage.Utilities.Extensions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using Veldrid;
+using Veldrid.ImageSharp;
 
 namespace OpenSage.Content
 {
     internal sealed class MapLoader : ContentLoader<Scene>
     {
+        private static readonly IResampler MapTextureResampler = new Lanczos2Resampler();
+
         protected override Scene LoadEntry(FileSystemEntry entry, ContentManager contentManager, LoadOptions loadOptions)
         {
             switch (contentManager.SageGame)
@@ -63,12 +68,9 @@ namespace OpenSage.Content
                 out var textureArray,
                 out var textureDetails);
 
-            var textureDetailsBuffer = AddDisposable(Buffer<TextureInfo>.CreateStatic(
-                contentManager.GraphicsDevice,
-                textureDetails,
-                BufferBindFlags.ShaderResource));
+            var textureDetailsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticStructuredBuffer(textureDetails));
 
-            var terrainMaterial = new TerrainMaterial(contentManager.EffectLibrary.Terrain);
+            var terrainMaterial = new TerrainMaterial(contentManager, contentManager.EffectLibrary.Terrain);
 
             terrainMaterial.SetTileData(tileDataTexture);
             terrainMaterial.SetCliffDetails(cliffDetailsBuffer);
@@ -92,7 +94,7 @@ namespace OpenSage.Content
             result.Entities.Add(objectsEntity);
             LoadObjects(
                 contentManager,
-                objectsEntity, 
+                objectsEntity,
                 heightMap,
                 mapFile.ObjectsList.Objects,
                 result.Settings);
@@ -336,11 +338,12 @@ namespace OpenSage.Content
                 patchBounds,
                 vertexBuffer,
                 indexBuffer,
+                (uint) indices.Length,
                 triangles,
                 boundingBox);
         }
 
-        private static Buffer<TerrainVertex> CreateVertexBuffer(
+        private static DeviceBuffer CreateVertexBuffer(
            GraphicsDevice graphicsDevice,
            HeightMap heightMap,
            Rectangle patchBounds,
@@ -397,10 +400,7 @@ namespace OpenSage.Content
                 }
             }
 
-            return Buffer<TerrainVertex>.CreateStatic(
-                graphicsDevice,
-                vertices,
-                BufferBindFlags.VertexBuffer);
+            return graphicsDevice.CreateStaticBuffer(vertices, BufferUsage.VertexBuffer);
         }
 
         private static Texture CreateTileDataTexture(
@@ -441,22 +441,21 @@ namespace OpenSage.Content
                 }
             }
 
-            byte[] textureIDsByteArray = new byte[tileData.Length * sizeof(uint)];
-            System.Buffer.BlockCopy(tileData, 0, textureIDsByteArray, 0, tileData.Length * sizeof(uint));
+            var textureIDsByteArray = new byte[tileData.Length * sizeof(uint)];
+            Buffer.BlockCopy(tileData, 0, textureIDsByteArray, 0, tileData.Length * sizeof(uint));
 
-            return Texture.CreateTexture2D(
-                graphicsDevice,
-                PixelFormat.Rgba32UInt,
-                heightMap.Width,
-                heightMap.Height,
-                new[]
-                {
-                    new TextureMipMapData
-                    {
-                        BytesPerRow = heightMap.Width * sizeof(uint) * 4,
-                        Data = textureIDsByteArray
-                    }
-                });
+            var rowPitch = (uint) heightMap.Width * sizeof(uint) * 4;
+
+            return graphicsDevice.CreateStaticTexture2D(
+                (uint) heightMap.Width,
+                (uint) heightMap.Height,
+                new TextureMipMapData(
+                    textureIDsByteArray,
+                    rowPitch,
+                    rowPitch * (uint) heightMap.Height,
+                    (uint) heightMap.Width,
+                    (uint) heightMap.Height),
+                PixelFormat.R32_G32_B32_A32_UInt);
         }
 
         private static BlendData GetBlendData(
@@ -497,7 +496,7 @@ namespace OpenSage.Content
             public byte Flags;
         }
 
-        private static Buffer<CliffInfo> CreateCliffDetails(
+        private static DeviceBuffer CreateCliffDetails(
             GraphicsDevice graphicsDevice,
             MapFile mapFile)
         {
@@ -517,10 +516,7 @@ namespace OpenSage.Content
             }
 
             return cliffDetails.Length > 0
-                ? Buffer<CliffInfo>.CreateStatic(
-                    graphicsDevice,
-                    cliffDetails,
-                    BufferBindFlags.ShaderResource)
+                ? graphicsDevice.CreateStaticStructuredBuffer(cliffDetails)
                 : null;
         }
 
@@ -532,10 +528,10 @@ namespace OpenSage.Content
         {
             var graphicsDevice = contentManager.GraphicsDevice;
 
-            var numTextures = blendTileData.Textures.Length;
+            var numTextures = (uint) blendTileData.Textures.Length;
 
-            var textureInfo = new (int size, FileSystemEntry entry)[numTextures];
-            var largestTextureSize = int.MinValue;
+            var textureInfo = new(uint size, FileSystemEntry entry)[numTextures];
+            var largestTextureSize = uint.MinValue;
 
             textureDetails = new TextureInfo[numTextures];
 
@@ -547,7 +543,7 @@ namespace OpenSage.Content
                 var texturePath = Path.Combine("Art", "Terrain", terrainType.Texture);
                 var entry = contentManager.FileSystem.GetFile(texturePath);
 
-                var size = TgaFile.GetSquareTextureSize(entry);
+                var size = (uint) TgaFile.GetSquareTextureSize(entry);
 
                 textureInfo[i] = (size, entry);
 
@@ -563,50 +559,73 @@ namespace OpenSage.Content
                 };
             }
 
-            textureArray = AddDisposable(Texture.CreateTexture2DArray(
-                graphicsDevice,
-                PixelFormat.Rgba8UNorm,
-                numTextures,
-                MipMapUtility.CalculateMipMapCount(largestTextureSize, largestTextureSize),
-                largestTextureSize,
-                largestTextureSize));
+            textureArray = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(
+                TextureDescription.Texture2D(
+                    largestTextureSize,
+                    largestTextureSize,
+                    MipMapUtility.CalculateMipMapCount(largestTextureSize, largestTextureSize),
+                    numTextures,
+                    PixelFormat.R8_G8_B8_A8_UNorm,
+                    TextureUsage.Sampled)));
 
-            for (var i = 0; i < numTextures; i++)
+            var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
+            commandList.Begin();
+
+            var texturesToDispose = new List<Texture>();
+
+            for (var i = 0u; i < numTextures; i++)
             {
                 var tgaFile = TgaFile.FromFileSystemEntry(textureInfo[i].entry);
-                var originalData = TextureLoader.GetData(tgaFile, false)[0].Data;
+                var originalData = TgaFile.ConvertPixelsToRgba8(tgaFile);
 
-                byte[] resizedData;
-                if (tgaFile.Header.Width == largestTextureSize)
+                using (var tgaImage = Image.LoadPixelData<Rgba32>(
+                    originalData,
+                    tgaFile.Header.Width,
+                    tgaFile.Header.Height))
                 {
-                    resizedData = originalData;
-                }
-                else
-                {
-                    using (var tgaImage = Image.LoadPixelData<Rgba32>(originalData, tgaFile.Header.Width, tgaFile.Header.Height))
+                    if (tgaFile.Header.Width != largestTextureSize)
                     {
                         tgaImage.Mutate(x => x
-                            .Resize(largestTextureSize, largestTextureSize, new Lanczos2Resampler()));
+                            .Resize((int) largestTextureSize, (int) largestTextureSize, MapTextureResampler));
+                    }
 
-                        resizedData = tgaImage.SavePixelData();
+                    var imageSharpTexture = new ImageSharpTexture(tgaImage);
+
+                    var sourceTexture = imageSharpTexture.CreateDeviceTexture(
+                        graphicsDevice,
+                        graphicsDevice.ResourceFactory);
+
+                    texturesToDispose.Add(sourceTexture);
+
+                    for (var mipLevel = 0u; mipLevel < imageSharpTexture.MipLevels; mipLevel++)
+                    {
+                        commandList.CopyTexture(
+                            sourceTexture,
+                            0, 0, 0,
+                            mipLevel,
+                            0,
+                            textureArray,
+                            0, 0, 0,
+                            mipLevel,
+                            i,
+                            (uint) imageSharpTexture.Images[mipLevel].Width,
+                            (uint) imageSharpTexture.Images[mipLevel].Height,
+                            1,
+                            1);
                     }
                 }
-
-                var resizedMipMaps = MipMapUtility.GenerateMipMaps(
-                    largestTextureSize,
-                    largestTextureSize,
-                    resizedData);
-
-                using (var sourceTexture = Texture.CreateTexture2D(
-                    graphicsDevice,
-                    PixelFormat.Rgba8UNorm,
-                    largestTextureSize,
-                    largestTextureSize,
-                    resizedMipMaps))
-                {
-                    textureArray.CopyFromTexture(sourceTexture, i);
-                }
             }
+
+            commandList.End();
+
+            graphicsDevice.SubmitCommands(commandList);
+
+            foreach (var texture in texturesToDispose)
+            {
+                graphicsDevice.DisposeWhenIdle(texture);
+            }
+
+            graphicsDevice.DisposeWhenIdle(commandList);
         }
     }
 }

@@ -1,8 +1,9 @@
 ﻿using System.Numerics;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Mathematics;
+using OpenSage.Utilities.Extensions;
+using Veldrid;
 
 namespace OpenSage.Graphics
 {
@@ -16,12 +17,12 @@ namespace OpenSage.Graphics
     ///     - MeshParts[]: One for each unique PipelineState in a material pass.
     ///                    StartIndex, IndexCount, PipelineState, AlphaTest, Texturing
     /// </summary>
-    public sealed class ModelMesh : GraphicsObject
+    public sealed class ModelMesh : DisposableBase
     {
         internal const int MaxBones = 100;
 
-        private readonly Buffer<MeshVertex.Basic> _vertexBuffer;
-        private readonly Buffer<ushort> _indexBuffer;
+        private readonly DeviceBuffer _vertexBuffer;
+        private readonly DeviceBuffer _indexBuffer;
 
         private readonly ConstantBuffer<MeshMaterial.MeshConstants> _meshConstantsBuffer;
 
@@ -69,20 +70,28 @@ namespace OpenSage.Graphics
 
             _effect = effect;
 
-            _vertexBuffer = AddDisposable(Buffer<MeshVertex.Basic>.CreateStatic(
-                graphicsDevice,
+            _vertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
                 vertices,
-                BufferBindFlags.VertexBuffer));
+                BufferUsage.VertexBuffer));
 
-            _indexBuffer = AddDisposable(Buffer<ushort>.CreateStatic(
-                graphicsDevice,
+            _indexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
                 indices,
-                BufferBindFlags.IndexBuffer));
+                BufferUsage.IndexBuffer));
+
+            var commandEncoder = graphicsDevice.ResourceFactory.CreateCommandList();
+
+            commandEncoder.Begin();
 
             _meshConstantsBuffer = AddDisposable(new ConstantBuffer<MeshMaterial.MeshConstants>(graphicsDevice));
             _meshConstantsBuffer.Value.SkinningEnabled = isSkinned;
             _meshConstantsBuffer.Value.NumBones = numBones;
-            _meshConstantsBuffer.Update();
+            _meshConstantsBuffer.Update(commandEncoder);
+
+            commandEncoder.End();
+
+            graphicsDevice.SubmitCommands(commandEncoder);
+
+            graphicsDevice.DisposeWhenIdle(commandEncoder);
 
             foreach (var materialPass in materialPasses)
             {
@@ -138,7 +147,7 @@ namespace OpenSage.Graphics
                 {
                     meshPart.Material.SetSkinningBuffer(modelComponent?.SkinningBuffer);
 
-                    var renderQueue = meshPart.Material.PipelineState.BlendState.Enabled
+                    var renderQueue = meshPart.Material.PipelineState.BlendState.AttachmentStates[0].BlendEnabled
                         ? renderList.Transparent
                         : renderList.Opaque;
 

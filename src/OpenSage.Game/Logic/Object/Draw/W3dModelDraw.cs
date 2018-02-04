@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
-using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.ParticleSystems;
 
 namespace OpenSage.Logic.Object

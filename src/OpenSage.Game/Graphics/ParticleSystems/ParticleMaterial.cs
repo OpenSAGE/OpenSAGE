@@ -1,14 +1,15 @@
-﻿using OpenSage.LowLevel.Graphics3D;
+﻿using OpenSage.Content;
 using OpenSage.Graphics.Effects;
+using Veldrid;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
     public sealed class ParticleMaterial : EffectMaterial
     {
-        public ParticleMaterial(Effect effect)
-            : base(effect)
+        public ParticleMaterial(ContentManager contentManager, Effect effect)
+            : base(contentManager, effect)
         {
-            SetProperty("LinearSampler", effect.GraphicsDevice.SamplerLinearWrap);
+            SetProperty("LinearSampler", effect.GraphicsDevice.LinearSampler);
         }
 
         public void SetTexture(Texture texture)

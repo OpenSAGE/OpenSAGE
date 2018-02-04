@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Terrain;
+using Veldrid;
 
 namespace OpenSage.Graphics.Effects
 {
-    public sealed class EffectLibrary : GraphicsObject
+    public sealed class EffectLibrary : DisposableBase
     {
         private readonly GraphicsDevice _graphicsDevice;
         private readonly Dictionary<string, Effect> _effects;
@@ -23,7 +23,7 @@ namespace OpenSage.Graphics.Effects
             FixedFunction = AddDisposable(new Effect(
                 graphicsDevice,
                 "FixedFunction",
-                MeshVertex.VertexDescriptor));
+                MeshVertex.VertexDescriptors));
 
             Particle = AddDisposable(new Effect(
                 graphicsDevice,
@@ -42,14 +42,16 @@ namespace OpenSage.Graphics.Effects
                 TerrainVertex.VertexDescriptor));
         }
 
-        public Effect GetEffect(string name, VertexDescriptor vertexDescriptor)
+        public Effect GetEffect(
+            string name,
+            VertexLayoutDescription[] vertexDescriptors)
         {
             if (!_effects.TryGetValue(name, out var effect))
             {
                 _effects[name] = effect = AddDisposable(new Effect(
                     _graphicsDevice,
                     name,
-                    vertexDescriptor));
+                    vertexDescriptors));
             }
             return effect;
         }

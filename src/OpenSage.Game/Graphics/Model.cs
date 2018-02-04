@@ -1,10 +1,9 @@
-﻿using OpenSage.LowLevel.Graphics3D;
-using OpenSage.Graphics.Animation;
+﻿using OpenSage.Graphics.Animation;
 using System.Linq;
 
 namespace OpenSage.Graphics
 {
-    public sealed class Model : GraphicsObject
+    public sealed class Model : DisposableBase
     {
         public ModelBone[] Bones { get; }
         public ModelMesh[] Meshes { get; }

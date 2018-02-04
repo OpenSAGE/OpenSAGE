@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Apt.Characters

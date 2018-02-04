@@ -1,5 +1,5 @@
-﻿using OpenSage.LowLevel.Graphics3D;
-using OpenSage.Graphics.Cameras;
+﻿using OpenSage.Graphics.Cameras;
+using Veldrid;
 
 namespace OpenSage.Graphics.Rendering
 {
@@ -9,13 +9,12 @@ namespace OpenSage.Graphics.Rendering
         public GraphicsDevice GraphicsDevice { get; internal set; }
         public GraphicsSystem Graphics { get; internal set; }
 
-        public SwapChain SwapChain { get; internal set; }
-        public CommandEncoder CommandEncoder { get; internal set; }
+        public CommandList CommandEncoder { get; internal set; }
 
         public Scene Scene { get; set; }
         public CameraComponent Camera { get; set; }
 
-        public RenderTarget RenderTarget { get; set; }
+        public Framebuffer RenderTarget { get; set; }
 
         public GameTime GameTime { get; set; }
 

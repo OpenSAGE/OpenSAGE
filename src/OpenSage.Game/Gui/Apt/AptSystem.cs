@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using OpenSage.LowLevel.Graphics3D;
 using OpenSage.Graphics.Effects;
 using OpenSage.Mathematics;
 using OpenSage.Graphics;
@@ -15,16 +14,6 @@ namespace OpenSage.Gui.Apt
             : base(game)
         {
             RegisterComponentList(_guiComponents = new List<AptComponent>());
-
-            // TODO: Duplicated from SpriteComponent.
-            var rasterizerState = RasterizerStateDescription.CullBackSolid;
-            rasterizerState.IsFrontCounterClockwise = false;
-
-            _pipelineStateHandle = new EffectPipelineState(
-                rasterizerState,
-                DepthStencilStateDescription.None,
-                BlendStateDescription.AlphaBlend)
-                .GetHandle();
 
             switch (game.SageGame)
             {
@@ -43,7 +32,7 @@ namespace OpenSage.Gui.Apt
                 return;
 
             var viewport = Game.Scene.Camera.Viewport;
-            var size = new Size(viewport.Width, viewport.Height);
+            var size = new Size((int) viewport.Width, (int) viewport.Height);
 
             foreach (var guiComponent in _guiComponents)
             {

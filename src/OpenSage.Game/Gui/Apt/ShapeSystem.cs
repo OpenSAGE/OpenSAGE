@@ -33,7 +33,7 @@ namespace OpenSage.Gui.Apt
                 return;
 
             var viewport = Game.Scene.Camera.Viewport;
-            var size = new Size(viewport.Width, viewport.Height);
+            var size = new Size((int) viewport.Width, (int) viewport.Height);
 
             foreach (var shape in _guiComponents)
             {
