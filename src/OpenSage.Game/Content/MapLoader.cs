@@ -70,7 +70,7 @@ namespace OpenSage.Content
 
             var textureDetailsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticStructuredBuffer(textureDetails));
 
-            var terrainMaterial = new TerrainMaterial(contentManager, contentManager.EffectLibrary.Terrain);
+            var terrainMaterial = AddDisposable(new TerrainMaterial(contentManager, contentManager.EffectLibrary.Terrain));
 
             terrainMaterial.SetTileData(tileDataTexture);
             terrainMaterial.SetCliffDetails(cliffDetailsBuffer);
@@ -626,6 +626,11 @@ namespace OpenSage.Content
             }
 
             graphicsDevice.DisposeWhenIdle(commandList);
+        }
+
+        private static uint CalculateMipMapCount(uint width, uint height)
+        {
+            return 1u + (uint) Math.Floor(Math.Log(Math.Max(width, height), 2));
         }
     }
 }
