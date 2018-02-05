@@ -333,17 +333,18 @@ namespace OpenSage.Content
             var depthState = DepthStencilStateDescription.DepthOnlyLessEqual;
             var blendState = BlendStateDescription.SingleDisabled;
 
-            var material = new ShaderMaterial(contentManager, effect);
-
-            material.PipelineState = new EffectPipelineState(
-                rasterizerState,
-                depthState,
-                blendState);
+            var material = new ShaderMaterial(contentManager, effect)
+            {
+                PipelineState = new EffectPipelineState(
+                    rasterizerState,
+                    depthState,
+                    blendState)
+            };
 
             var materialConstantsResourceBinding = effect.GetParameter("MaterialConstants").ResourceBinding;
             var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateBuffer(
                 new BufferDescription(
-                    (uint) materialConstantsResourceBinding.Size,
+                    materialConstantsResourceBinding.Size,
                     BufferUsage.UniformBuffer | BufferUsage.Dynamic)));
 
             var materialConstantsBytes = new byte[materialConstantsResourceBinding.Size];
@@ -631,6 +632,29 @@ namespace OpenSage.Content
             public uint? TextureIndex0;
             public uint? TextureIndex1;
 
+            public override bool Equals(object obj)
+            {
+                if (!(obj is CombinedMaterialPermutation))
+                {
+                    return false;
+                }
+
+                var permutation = (CombinedMaterialPermutation) obj;
+
+                return this == permutation;
+            }
+
+            public override int GetHashCode()
+            {
+                var hashCode = -493973629;
+                hashCode = hashCode * -1521134295 + base.GetHashCode();
+                hashCode = hashCode * -1521134295 + VertexMaterialID.GetHashCode();
+                hashCode = hashCode * -1521134295 + ShaderID.GetHashCode();
+                hashCode = hashCode * -1521134295 + EqualityComparer<uint?>.Default.GetHashCode(TextureIndex0);
+                hashCode = hashCode * -1521134295 + EqualityComparer<uint?>.Default.GetHashCode(TextureIndex1);
+                return hashCode;
+            }
+
             public static bool operator==(CombinedMaterialPermutation l, CombinedMaterialPermutation r)
             {
                 return l.VertexMaterialID == r.VertexMaterialID
@@ -678,12 +702,13 @@ namespace OpenSage.Content
                     w3dShader.DestBlend.ToBlend(true),
                     BlendFunction.Add));
 
-            var effectMaterial = new FixedFunctionMaterial(contentManager, contentManager.EffectLibrary.FixedFunction);
-
-            effectMaterial.PipelineState = new EffectPipelineState(
-                rasterizerState,
-                depthState,
-                blendState);
+            var effectMaterial = new FixedFunctionMaterial(contentManager, contentManager.EffectLibrary.FixedFunction)
+            {
+                PipelineState = new EffectPipelineState(
+                    rasterizerState,
+                    depthState,
+                    blendState)
+            };
 
             var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
                 new FixedFunctionMaterial.MaterialConstants
