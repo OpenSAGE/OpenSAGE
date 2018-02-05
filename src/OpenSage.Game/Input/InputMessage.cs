@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Input
+﻿using Veldrid;
+
+namespace OpenSage.Input
 {
     public sealed class InputMessage
     {

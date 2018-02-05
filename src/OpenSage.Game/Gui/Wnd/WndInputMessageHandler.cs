@@ -1,5 +1,6 @@
 ﻿using OpenSage.Input;
 using System.Numerics;
+using Veldrid;
 
 namespace OpenSage.Gui.Wnd
 {

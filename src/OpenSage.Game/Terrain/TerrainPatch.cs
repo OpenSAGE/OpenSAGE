@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
 using Veldrid;
+using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Terrain
 {

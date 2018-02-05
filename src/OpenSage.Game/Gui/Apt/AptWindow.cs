@@ -3,6 +3,7 @@ using OpenSage.Data.Apt;
 using OpenSage.Graphics;
 using OpenSage.Mathematics;
 using Veldrid;
+using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Gui.Apt
 {

@@ -17,6 +17,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using Veldrid;
 using Veldrid.ImageSharp;
+using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Content
 {

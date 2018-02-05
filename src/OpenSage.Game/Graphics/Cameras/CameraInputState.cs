@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Input;
+using Veldrid;
 
 namespace OpenSage.Graphics.Cameras
 {

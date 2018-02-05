@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using OpenSage.Mathematics;
 using Veldrid;
+using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Graphics.Cameras
 {

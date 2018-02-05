@@ -6,6 +6,7 @@ using OpenSage.Content.Util;
 using OpenSage.Data.Wnd;
 using OpenSage.Mathematics;
 using Veldrid;
+using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Gui.Wnd
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using OpenSage.Input;
+using Veldrid;
 
 namespace OpenSage.Data.Ini.Parser
 {
@@ -14,17 +14,17 @@ namespace OpenSage.Data.Ini.Parser
         {
             CachedEnumMap.Add(typeof(Key), new Dictionary<string, Enum>
             {
-                { "KEY_NONE", Key.None },
-                { "KEY_0", Key.D0 },
-                { "KEY_1", Key.D1 },
-                { "KEY_2", Key.D2 },
-                { "KEY_3", Key.D3 },
-                { "KEY_4", Key.D4 },
-                { "KEY_5", Key.D5 },
-                { "KEY_6", Key.D6 },
-                { "KEY_7", Key.D7 },
-                { "KEY_8", Key.D8 },
-                { "KEY_9", Key.D9 },
+                { "KEY_NONE", Key.Unknown },
+                { "KEY_0", Key.Number0 },
+                { "KEY_1", Key.Number1 },
+                { "KEY_2", Key.Number2 },
+                { "KEY_3", Key.Number3 },
+                { "KEY_4", Key.Number4 },
+                { "KEY_5", Key.Number5 },
+                { "KEY_6", Key.Number6 },
+                { "KEY_7", Key.Number7 },
+                { "KEY_8", Key.Number8 },
+                { "KEY_9", Key.Number9 },
                 { "KEY_F1", Key.F1 },
                 { "KEY_F2", Key.F2 },
                 { "KEY_F3", Key.F3 },
@@ -67,32 +67,32 @@ namespace OpenSage.Data.Ini.Parser
                 { "KEY_X", Key.X },
                 { "KEY_Y", Key.Y },
                 { "KEY_Z", Key.Z },
-                { "KEY_LBRACKET", Key.LeftBracket },
-                { "KEY_RBRACKET", Key.RightBracket },
+                { "KEY_LBRACKET", Key.BracketLeft },
+                { "KEY_RBRACKET", Key.BracketRight },
                 { "KEY_COMMA", Key.Comma },
                 { "KEY_PERIOD", Key.Period },
-                { "KEY_BACKSLASH", Key.Backslash },
+                { "KEY_BACKSLASH", Key.BackSlash },
                 { "KEY_SLASH", Key.Slash },
                 { "KEY_SPACE", Key.Space },
                 { "KEY_ENTER", Key.Enter },
                 { "KEY_TAB", Key.Tab },
                 { "KEY_DEL", Key.Delete },
                 { "KEY_ESC", Key.Escape },
-                { "KEY_TICK", Key.Tick },
-                { "KEY_BACKSPACE", Key.Backspace },
+                { "KEY_TICK", Key.Grave },
+                { "KEY_BACKSPACE", Key.BackSpace },
                 { "KEY_MINUS", Key.Minus },
-                { "KEY_EQUAL", Key.Equal },
-                { "KEY_KP0", Key.NumPad0 },
-                { "KEY_KP1", Key.NumPad1 },
-                { "KEY_KP2", Key.NumPad2 },
-                { "KEY_KP3", Key.NumPad3 },
-                { "KEY_KP4", Key.NumPad4 },
-                { "KEY_KP5", Key.NumPad5 },
-                { "KEY_KP6", Key.NumPad6 },
-                { "KEY_KP7", Key.NumPad7 },
-                { "KEY_KP8", Key.NumPad8 },
-                { "KEY_KP9", Key.NumPad9 },
-                { "KEY_KPSLASH", Key.NumPadDivide },
+                { "KEY_EQUAL", Key.Plus },
+                { "KEY_KP0", Key.Keypad0 },
+                { "KEY_KP1", Key.Keypad1 },
+                { "KEY_KP2", Key.Keypad2 },
+                { "KEY_KP3", Key.Keypad3 },
+                { "KEY_KP4", Key.Keypad4 },
+                { "KEY_KP5", Key.Keypad5 },
+                { "KEY_KP6", Key.Keypad6 },
+                { "KEY_KP7", Key.Keypad7 },
+                { "KEY_KP8", Key.Keypad8 },
+                { "KEY_KP9", Key.Keypad9 },
+                { "KEY_KPSLASH", Key.KeypadDivide },
             });
         }
 

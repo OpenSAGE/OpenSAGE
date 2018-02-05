@@ -12,6 +12,7 @@ using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.PixelFormats;
 using Veldrid;
+using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Gui
 {

@@ -4,6 +4,7 @@ using OpenSage.Graphics.Effects;
 using OpenSage.Mathematics;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
+using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Graphics
 {

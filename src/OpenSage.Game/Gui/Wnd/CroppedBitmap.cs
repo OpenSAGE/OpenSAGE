@@ -1,5 +1,5 @@
-﻿using OpenSage.Mathematics;
-using Veldrid;
+﻿using Veldrid;
+using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Gui.Wnd
 {

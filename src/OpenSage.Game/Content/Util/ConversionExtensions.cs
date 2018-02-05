@@ -11,6 +11,7 @@ using OpenSage.Graphics.Effects;
 using OpenSage.Mathematics;
 using OpenSage.Settings;
 using Veldrid;
+using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Content.Util
 {
