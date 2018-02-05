@@ -26,29 +26,32 @@ namespace OpenSage.Tests.Data
         {
             var rootDirectories = GameDefinition.All
                 .SelectMany(Locator.FindInstallations)
-                .Select(i => i.Path);
+                .Select(i => i.Path)
+                .Where(x => Directory.Exists(x))
+                .ToList();
 
             var foundAtLeastOneFile = false;
-            foreach (var rootDirectory in rootDirectories.Where(x => Directory.Exists(x)))
+            foreach (var rootDirectory in rootDirectories)
             {
-                var fileSystem = new FileSystem(rootDirectory);
-
-                foreach (var file in fileSystem.Files)
+                using (var fileSystem = new FileSystem(rootDirectory))
                 {
-                    if (Path.GetExtension(file.FilePath).ToLower() != fileExtension)
+                    foreach (var file in fileSystem.Files)
                     {
-                        continue;
+                        if (Path.GetExtension(file.FilePath).ToLower() != fileExtension)
+                        {
+                            continue;
+                        }
+
+                        output.WriteLine($"Reading file {file.FilePath}.");
+
+                        processFileCallback(file);
+
+                        foundAtLeastOneFile = true;
                     }
-
-                    output.WriteLine($"Reading file {file.FilePath}.");
-
-                    processFileCallback(file);
-
-                    foundAtLeastOneFile = true;
                 }
             }
 
-            if (!foundAtLeastOneFile)
+            if (rootDirectories.Count > 0 && !foundAtLeastOneFile)
             {
                 throw new Exception($"No files were found matching file extension {fileExtension}");
             }
