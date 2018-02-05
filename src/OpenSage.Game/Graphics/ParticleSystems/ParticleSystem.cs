@@ -131,6 +131,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
         protected override void Destroy()
         {
+            _particleMaterial.Dispose();
+
             _indexBuffer.Dispose();
             _vertexBuffer.Dispose();
 
