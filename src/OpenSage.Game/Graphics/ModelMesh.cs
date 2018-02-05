@@ -99,6 +99,7 @@ namespace OpenSage.Graphics
 
                 foreach (var meshPart in materialPass.MeshParts)
                 {
+                    AddDisposable(meshPart.Material);
                     meshPart.Material.SetMeshConstants(_meshConstantsBuffer.Buffer);
                 }
             }
