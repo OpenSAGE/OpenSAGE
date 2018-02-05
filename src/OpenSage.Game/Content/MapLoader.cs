@@ -563,7 +563,7 @@ namespace OpenSage.Content
                 TextureDescription.Texture2D(
                     largestTextureSize,
                     largestTextureSize,
-                    MipMapUtility.CalculateMipMapCount(largestTextureSize, largestTextureSize),
+                    CalculateMipMapCount(largestTextureSize, largestTextureSize),
                     numTextures,
                     PixelFormat.R8_G8_B8_A8_UNorm,
                     TextureUsage.Sampled)));
