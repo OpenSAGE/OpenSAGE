@@ -11,6 +11,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public override Value GetMember(string name)
         {
+            //Mostly no idea what those mean, but they are all booleans
             switch (name)
             {
                 case "InGame":
@@ -19,6 +20,12 @@ namespace OpenSage.Gui.Apt.ActionScript
                     return Value.FromBoolean(false);
                 case "InDreamMachineDemo":
                     return Value.FromBoolean(false);
+                case "PalantirMinLOD":
+                    return Value.FromBoolean(false);
+                case "MinLOD":
+                    return Value.FromBoolean(false);
+                case "DoTrace":
+                    return Value.FromBoolean(true);
                 default:
                     throw new NotImplementedException();
             }

@@ -38,8 +38,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             //pop two values
-            var a = context.Stack.Pop();
-            var b = context.Stack.Pop();
+            var a = context.Stack.Pop().ResolveRegister(context);
+            var b = context.Stack.Pop().ResolveRegister(context);
 
             if (!(a.Type == ValueType.String || a.Type == ValueType.Undefined) ||
                 !(b.Type == ValueType.String || b.Type == ValueType.Undefined))
@@ -98,6 +98,19 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     public sealed class LessThan2 : InstructionBase
     {
         public override InstructionType Type => InstructionType.LessThan2;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Pop a value from stack, increments it and pushes it back
+    /// </summary>
+    public sealed class Increment : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.Increment;
 
         public override void Execute(ActionContext context)
         {

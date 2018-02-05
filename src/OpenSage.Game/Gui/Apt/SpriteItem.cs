@@ -26,6 +26,7 @@ namespace OpenSage.Gui.Apt
         private PlayState _state;
         private Dictionary<string, uint> _frameLabels;
         public string Name { get; set; }
+        public bool Visible { get; set; }
 
         /// <summary>
         /// required, because actions are always executed at the end of each frame
@@ -49,6 +50,8 @@ namespace OpenSage.Gui.Apt
             _actionList = new List<Action>();
             _frameLabels = new Dictionary<string, uint>();
             _state = PlayState.PLAYING;
+            Name = "";
+            Visible = true;
 
             //fill the frameLabels in advance
             foreach (var frame in _sprite.Frames)
@@ -68,6 +71,9 @@ namespace OpenSage.Gui.Apt
 
         public void Render(ItemTransform pTransform,DrawingContext2D dc)
         {
+            if (!Visible)
+                return;
+
             //calculate the transform for this element
             var cTransform = pTransform * Transform;
 
@@ -124,6 +130,11 @@ namespace OpenSage.Gui.Apt
         public void GotoFrame(int frame)
         {
             _currentFrame = (uint)frame;
+        }
+
+        public void NextFrame()
+        {
+            _currentFrame++;
         }
 
         private bool IsNewFrame(GameTime gt)
@@ -263,7 +274,7 @@ namespace OpenSage.Gui.Apt
             //execute all actions now
             foreach (var action in _actionList)
             {
-                _context.ActionScriptVM.Execute(action.Instructions, _scriptObject);
+                _context.AVM.Execute(action.Instructions, _scriptObject);
             }
             _actionList.Clear();
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenSage.Data.Apt.Characters;
+using OpenSage.Gui.Apt.ActionScript.Library;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
@@ -70,46 +71,18 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// </summary>
         /// <param name="name">function name</param>
         /// <returns></returns>
-        public bool IsBuiltInFunction(string name)
+        public virtual bool IsBuiltInFunction(string name)
         {
-            switch (name)
-            {
-                case "stop":
-                    return Item is SpriteItem;
-                case "setInterval":
-                    return Item is SpriteItem;
-                case "gotoAndPlay":
-                    return Item is SpriteItem;
-                default:
-                    return false;
-            }
+            return Builtin.IsBuiltInFunction(name);
         }
 
         /// <summary>
         /// Execute a builtin function maybe move builtin functions elsewhere
         /// </summary>
         /// <param name="name"><function name/param>
-        public void CallBuiltInFunction(string name, List<Value> args, ActionContext context)
+        public virtual void CallBuiltInFunction(string name, Value[] args)
         {
-            switch (Item)
-            {
-                case SpriteItem si:
-                    switch (name)
-                    {
-                        case "stop":
-                            si.Stop();
-                            break;
-                        case "setInterval":
-                            break;
-                        case "gotoAndPlay":
-                            si.Goto(args[0].ToString());
-                            si.Play();
-                            break;
-                    }
-                    break;
-                case RenderItem ri:
-                    break;
-            }
+            Builtin.CallBuiltInFunction(name, this, args);
         }
 
         private void InitializeProperties()
@@ -128,18 +101,88 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// </summary>
         /// <param name="value">value name</param>
         /// <returns></returns>
-        public Value ResolveValue(string value)
+        public Value ResolveValue(string value,ObjectContext ctx)
         {
             var path = value.Split('.');
             var obj = this;
+            var member = path.First();
 
             if(path.Length>1)
             {
-                if (path[0] == "_parent")
-                    obj = Item.Parent.Parent.ScriptObject;
+                if (Builtin.IsBuiltInVariable(path.First()))
+                {
+                    obj = Builtin.GetBuiltInVariable(path.First(),ctx).ToObject();
+                    member = path[1];
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
             }
 
-            return obj.GetMember(path[1]);
+            return obj.GetMember(member);
+        }
+
+        public ObjectContext GetParent()
+        {
+            ObjectContext result = null;
+
+            if(Item.Parent!=null)
+            {
+                result = Item.Parent.ScriptObject;
+            }
+
+            return result;
+        }
+
+        public Value GetProperty(PropertyType property)
+        {
+            Value result = null;
+
+            switch (property)
+            {
+                case PropertyType.Target:
+                    result = Value.FromString(GetTargetPath());
+                    break;
+                case PropertyType.Name:
+                    result = Value.FromString(Item.Name);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+
+            return result;
+        }
+
+        public void SetProperty(PropertyType property, Value val)
+        {
+            switch (property)
+            {
+                case PropertyType.Visible:
+                    Item.Visible = val.ToBoolean();
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// Calculates the absolute target path
+        /// </summary>
+        /// <returns>the target</returns>
+        private string GetTargetPath()
+        {
+            string path;
+
+            if (GetParent() == null)
+                path = "/";
+            else
+            {
+                path = GetParent().GetTargetPath();
+                path += Item.Name;
+            }
+
+            return path;
         }
     }
 }

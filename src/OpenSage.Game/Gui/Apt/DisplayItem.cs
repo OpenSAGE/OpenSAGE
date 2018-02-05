@@ -36,6 +36,7 @@ namespace OpenSage.Gui.Apt
         ItemTransform Transform { get; set; }
         ObjectContext ScriptObject { get; }
         string Name { get; set; }
+        bool Visible { get; set; }
 
         /// <summary>
         /// Create a new DisplayItem

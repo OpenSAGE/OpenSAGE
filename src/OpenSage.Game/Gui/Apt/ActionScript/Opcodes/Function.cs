@@ -7,7 +7,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
     public static class FunctionCommon
     {
-        public static void ExecuteFunction(string funcName, List<Value> args, ObjectContext scope, ActionContext context)
+        public static void ExecuteFunction(string funcName, Value[] args, ObjectContext scope, ActionContext context)
         {
             if (scope == null)
             {
@@ -17,13 +17,25 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
             if (scope.IsBuiltInFunction(funcName))
             {
-                scope.CallBuiltInFunction(funcName, args, context);
+                scope.CallBuiltInFunction(funcName, args);
             }
             else
             {
-                var func = scope.GetMember(funcName).ToFunction();
-                var vm = context.Apt.ActionScriptVM;
-                vm.Execute(func, args, scope);
+                var funcVal = scope.GetMember(funcName);
+
+                if (funcVal.Type != ValueType.Undefined)
+                {
+                    var func = funcVal.ToFunction();
+                    var vm = context.Apt.AVM;
+                    var ret = vm.Execute(func, args, scope);
+
+                    if (ret.Type != ValueType.Undefined)
+                        context.Stack.Push(ret);
+                }
+                else
+                {
+                    Debug.WriteLine("[WARN] can't find function: " + funcName);
+                }
             }
         }
     }
@@ -52,7 +64,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //get all the instructions
             var code = context.Stream.GetInstructions(size);
 
-            var func = new Function() { Parameters = paramList, Instructions = code };
+            var func = new Function() { Parameters = paramList,
+                                        Instructions = code,
+                                        NumberRegisters = 4,
+                                        IsNewVersion = false };
+
             var funcVal = Value.FromFunction(func);
 
             if (name.Length > 0)
@@ -69,25 +85,32 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// </summary>
     public sealed class DefineFunction2 : InstructionBase
     {
-        public override InstructionType Type => InstructionType.DefineFunction;
-        public override uint Size => 20;
+        public override InstructionType Type => InstructionType.DefineFunction2;
+        public override uint Size => 28;
 
         public override void Execute(ActionContext context)
         {
             var name = Parameters[0].ToString();
             var nParams = Parameters[1].ToInteger();
-            var size = Parameters[2 + nParams].ToInteger();
+            var nRegisters = Parameters[2].ToInteger();
+            FunctionPreloadFlags flags = (FunctionPreloadFlags) Parameters[3].ToInteger();
+            var size = Parameters[4 + nParams * 2].ToInteger();
 
             //create a list of parameters
             var paramList = Parameters
-                .Skip(2)
-                .Take(nParams)
+                .Skip(4)
+                .Take(nParams * 2)
                 .ToList();
 
             //get all the instructions
             var code = context.Stream.GetInstructions(size);
 
-            var func = new Function() { Parameters = paramList, Instructions = code };
+            var func = new Function() { Parameters = paramList,
+                                        Instructions = code,
+                                        NumberRegisters = nRegisters,
+                                        Flags = flags,
+                                        IsNewVersion = true};
+
             var funcVal = Value.FromFunction(func);
 
             if (name.Length > 0)
@@ -108,6 +131,19 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
+            context.Return = true;
+        }
+    }
+
+    /// <summary>
+    /// Call an anonymous method that is on the stack. Function arguments are also popped from the stack
+    /// </summary>
+    public sealed class CallMethod : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.CallMethod;
+
+        public override void Execute(ActionContext context)
+        {
             throw new NotImplementedException();
         }
     }
@@ -121,7 +157,18 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var funcName = context.Stack.Pop().ToString();
+            var obj = context.Stack.Pop().ToObject();
+
+            var argCount = context.Stack.Pop().ToInteger();
+
+            var args = new Value[argCount];
+            for (int i = 0; i < argCount; ++i)
+            {
+                args[i] = context.Stack.Pop();
+            }
+
+            FunctionCommon.ExecuteFunction(funcName, args, obj, context);
         }
     }
 
@@ -140,10 +187,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var obj = context.Stack.Pop().ResolveRegister(context).ToObject();
             var argCount = context.Stack.Pop().ToInteger();
 
-            var args = new List<Value>();
+            var args = new Value[argCount];
             for (int i = 0; i < argCount; ++i)
             {
-                args.Add(context.Stack.Pop());
+                args[i] = context.Stack.Pop();
             }
 
             FunctionCommon.ExecuteFunction(funcName, args, obj, context);
@@ -163,7 +210,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var id = Parameters[0].ToInteger();
             var funcName = context.Scope.Constants[id].ToString();
 
-            var args = new List<Value>();
+            var args = new Value[0];
 
             FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
         }
@@ -183,10 +230,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var funcName = context.Scope.Constants[id].ToString();
             var argCount = context.Stack.Pop().ToInteger();
 
-            var args = new List<Value>();
+            var args = new Value[argCount];
             for (int i = 0; i < argCount; ++i)
             {
-                args.Add(context.Stack.Pop());
+                args[i] = context.Stack.Pop();
             }
 
             FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);

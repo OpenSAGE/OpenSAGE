@@ -76,7 +76,7 @@ namespace OpenSage.Graphics
 
         private ref SpriteBatchItem CreateBatchItem()
         {
-            if (_currentBatchIndex > _batchItems.Length)
+            if (_currentBatchIndex >= _batchItems.Length)
             {
                 System.Array.Resize(ref _batchItems, _batchItems.Length * 2);
             }

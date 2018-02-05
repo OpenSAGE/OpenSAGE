@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenSage.Data.Apt.Characters;
 
 namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 {
@@ -34,14 +35,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             //pop the value
-            var valueVal = context.Stack.Pop();
+            var valueVal = context.Stack.Pop().ResolveRegister(context);
             //pop the member name
-            var memberVal = context.Stack.Pop();
+            var memberVal = context.Stack.Pop().ResolveRegister(context);
             //pop the object
-            var objectVal = context.Stack.Pop();
+            var objectVal = context.Stack.Pop().ResolveRegister(context);
 
             //make sure that potential register values are resolved:
-            var obj = objectVal.ResolveRegister(context).ToObject();
+            var obj = objectVal.ToObject();
 
             obj.Variables[memberVal.ToString()] = valueVal;
         }
@@ -66,6 +67,22 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 throw new InvalidOperationException();
 
             context.Stack.Push(result);
+        }
+    }
+
+    /// <summary>
+    /// Pops variable name and pushes the corresponding variable back to stack
+    /// </summary>
+    public sealed class GetVariable : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.GetVariable;
+
+        public override void Execute(ActionContext context)
+        {
+            //pop the value
+            var variableName = context.Stack.Pop();
+            var variable = context.Scope.Variables[variableName.ToString()];
+            context.Stack.Push(variable);
         }
     }
 
@@ -100,18 +117,42 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
+    /// <summary>
+    /// get a property and push it to the stack
+    /// </summary>
     public sealed class GetProperty : InstructionBase
     {
         public override InstructionType Type => InstructionType.GetProperty;
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var property = context.Stack.Pop().ToEnum<PropertyType>();
+            var target = context.GetTarget(context.Stack.Pop().ToString());
+
+            var prop = target.ToObject().GetProperty(property);
+            context.Stack.Push(prop);
         }
     }
 
     /// <summary>
-    /// just pushes a string to stack it seems like
+    /// set a property. Get value, name and object from stack
+    /// </summary>
+    public sealed class SetProperty : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.SetProperty;
+
+        public override void Execute(ActionContext context)
+        {
+            var value = context.Stack.Pop();
+            var property = context.Stack.Pop().ToEnum<PropertyType>();
+            var target = context.GetTarget(context.Stack.Pop().ToString());
+
+            target.ToObject().SetProperty(property, value);
+        }
+    }
+
+    /// <summary>
+    /// Pops an object from the stack and retrieves a member variable which is pushed to stack
     /// </summary>
     public sealed class GetStringMember : InstructionBase
     {
@@ -140,6 +181,88 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Create a new object by calling it's constructor
+    /// </summary>
+    public sealed class NewObject : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.NewObject;
+
+        public override void Execute(ActionContext context)
+        {
+            var name = context.Stack.Pop().ToString();
+            var nArgs = context.Stack.Pop().ToInteger();
+
+            Value[] args = new Value[nArgs];
+
+            for (int i = 0; i < nArgs; ++i)
+            {
+                args[i] = context.Stack.Pop();
+            }
+
+            var obj = context.ConstructObject(name,args);
+            context.Stack.Push(obj);
+        }
+    }
+
+    /// <summary>
+    /// Initializes an object from the stack
+    /// </summary>
+    public sealed class InitObject : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.InitObject;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Pops a value from the stack pushes it's type as a string to stack
+    /// </summary>
+    public sealed class TypeOf : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.TypeOf;
+
+        public override void Execute(ActionContext context)
+        {
+            var val = context.Stack.Pop();
+            Value result = null;
+
+            switch (val.Type)
+            {
+                case ValueType.String:
+                    result = Value.FromString("string");
+                    break;
+                case ValueType.Boolean:
+                    result = Value.FromString("boolean");
+                    break;
+                case ValueType.Integer:
+                case ValueType.Short:
+                case ValueType.Float:
+                    result = Value.FromString("number");
+                    break;
+                case ValueType.Object:
+                    if(val.ToObject().Item.Character is Movie)
+                        result = Value.FromString("movieclip");
+                    else
+                        result = Value.FromString("object");
+                    break;
+                case ValueType.Function:
+                    result = Value.FromString("function");
+                    break;
+                case ValueType.Undefined:
+                    result = Value.FromString("undefined");
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+
+            context.Stack.Push(result);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenSage.Gui.Apt.ActionScript.Library;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {
@@ -15,13 +16,16 @@ namespace OpenSage.Gui.Apt.ActionScript
         public Stack<Value> Stack { get; set; }
         public Value[] Registers { get; set; }
         public Dictionary<string, Value> Params { get; set; }
-
+        public Dictionary<string, Value> Locals { get; set; }
+        public bool Return { get; set; }
 
         public ActionContext(int numRegisters = 0)
         {
             Stack = new Stack<Value>();
             Registers = new Value[numRegisters];
             Params = new Dictionary<string, Value>();
+            Locals = new Dictionary<string, Value>();
+            Return = false;
         }
 
         /// <summary>
@@ -45,6 +49,27 @@ namespace OpenSage.Gui.Apt.ActionScript
         }
 
         /// <summary>
+        /// Check if a specific string is a local value to this context
+        /// </summary>
+        /// <param name="name">variable name</param>
+        /// <returns></returns>
+        public bool CheckLocal(string name)
+        {
+            return Locals.ContainsKey(name);
+        }
+
+        /// <summary>
+        /// Returns the value of a local variable. Must be used with CheckLocal
+        /// </summary>
+        /// <param name="name">local name</param>
+        /// <returns></returns>
+        public Value GetLocal(string name)
+        {
+            return Locals[name];
+        }
+
+
+        /// <summary>
         /// Checks for special handled/global objects. After that checks for child objects of the
         /// current object
         /// </summary>
@@ -54,24 +79,124 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             Value obj = null;
 
-            switch (name)
+            if(Builtin.IsBuiltInVariable(name))
             {
-                case "_root":
-                    obj = Value.FromObject(Apt.Root.ScriptObject);
-                    break;
-                case "extern":
-                    obj = Value.FromObject(Apt.ActionScriptVM.ExternObject);
-                    break;
-                case "_parent":
-                    throw new NotImplementedException();
-                    break;
-                //string must be a variable of current scope
-                default:
-                    obj = Scope.GetMember(name);
-                    break;
+                obj = Builtin.GetBuiltInVariable(name, Scope);
+            }
+            else
+            {
+                obj = Scope.GetMember(name);
             }
 
             return obj;
+        }
+
+        /// <summary>
+        /// Get the current target path
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public Value GetTarget(string target)
+        {
+            //empty target means the current scope
+            if (target.Length == 0)
+                return Value.FromObject(Scope);
+
+            //depending on wether or not this is a relative path or not
+            ObjectContext obj = target.First()=='/' ? Apt.Root.ScriptObject : Scope;
+
+            foreach(var part in target.Split('/'))
+            {
+                if (part == "..")
+                {
+                    obj = obj.GetParent();
+                }
+                else
+                {
+                    obj = obj.Variables[part].ToObject();
+                }
+            }
+
+            return Value.FromObject(obj);
+        }
+
+        /// <summary>
+        /// Call an object constructor. Either builtin or defined earlier
+        /// </summary>
+        /// <param name="constructor"></param>
+        /// <returns></returns>
+        public Value ConstructObject(string name,Value[] args)
+        {
+            Value result = null;
+            if(Builtin.IsBuiltInClass(name))
+            {
+                result = Builtin.GetBuiltInClass(name,args);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Preload specified variables
+        /// </summary>
+        /// <param name="flags">the flags</param>
+        public void Preload(FunctionPreloadFlags flags)
+        {
+            //preloaded variables start at register 1
+            int reg = 1;
+
+            //order is important
+            if (flags.HasFlag(FunctionPreloadFlags.PreloadThis))
+            {
+                Registers[reg] = Value.FromObject(Scope);
+                ++reg;
+            }
+            if (flags.HasFlag(FunctionPreloadFlags.PreloadArguments))
+            {
+                throw new NotImplementedException();
+            }
+            if (flags.HasFlag(FunctionPreloadFlags.PreloadSuper))
+            {
+                throw new NotImplementedException();
+            }
+            if (flags.HasFlag(FunctionPreloadFlags.PreloadRoot))
+            {
+                Registers[reg] = Value.FromObject(Apt.Root.ScriptObject);
+                ++reg;
+            }
+            if (flags.HasFlag(FunctionPreloadFlags.PreloadParent))
+            {
+                Registers[reg] = Value.FromObject(Scope.GetParent());
+                ++reg;
+            }
+            if (flags.HasFlag(FunctionPreloadFlags.PreloadGlobal))
+            {
+                Registers[reg] = Value.FromObject(Apt.AVM.GlobalObject);
+                ++reg;
+            }
+            if (flags.HasFlag(FunctionPreloadFlags.PreloadExtern))
+            {
+                Registers[reg] = Value.FromObject(Apt.AVM.ExternObject);
+                ++reg;
+            }
+            if (!flags.HasFlag(FunctionPreloadFlags.SupressSuper))
+            {
+                throw new NotImplementedException();
+            }
+
+            if (!flags.HasFlag(FunctionPreloadFlags.SupressArguments))
+            {
+                throw new NotImplementedException();
+            }
+
+            if (!flags.HasFlag(FunctionPreloadFlags.SupressThis))
+            {
+                Locals["this"] = Value.FromObject(Scope);
+            }
         }
     }
 }

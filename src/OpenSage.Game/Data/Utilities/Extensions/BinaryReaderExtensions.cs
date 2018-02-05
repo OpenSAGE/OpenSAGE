@@ -211,6 +211,14 @@ namespace OpenSage.Data.Utilities.Extensions
             return EnumUtility.CastValueAsEnum<uint, TEnum>(value);
         }
 
+        public static TEnum ReadUInt24AsEnum<TEnum>(this BinaryReader reader)
+           where TEnum : struct
+        {
+            var value = reader.ReadUInt24();
+
+            return EnumUtility.CastValueAsEnum<uint, TEnum>(value);
+        }
+
         public static TEnum ReadUInt16AsEnum<TEnum>(this BinaryReader reader)
             where TEnum : struct
         {
@@ -392,6 +400,28 @@ namespace OpenSage.Data.Utilities.Extensions
 
             //jump back to where we came from
             reader.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
+            return result;
+        }
+
+        public static List<T> ReadFixedSizeListAtOffset<T>(this BinaryReader reader, Func<T> creator, uint size) where T : class
+        {
+            List<T> result = new List<T>((int)size);
+
+            //get the offset
+            var listOffset = reader.ReadUInt32();
+            var oldOffset = reader.BaseStream.Position;
+
+            //jump to the location and read the data
+            reader.BaseStream.Seek(listOffset, SeekOrigin.Begin);
+
+            for (var i = 0; i < size; i++)
+            {
+                result.Add(creator());
+            }
+
+            //jump back to where we came from
+            reader.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
+
             return result;
         }
 

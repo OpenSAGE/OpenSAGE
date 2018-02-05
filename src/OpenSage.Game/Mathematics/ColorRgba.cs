@@ -37,5 +37,20 @@ namespace OpenSage.Mathematics
             string hex = BitConverter.ToString(data).Replace("-", string.Empty);
             return hex;
         }
+
+        public void FromHex(string hexString)
+        {
+            var hexVal = Convert.ToUInt32(hexString, 16);
+            bool hasAlpha = hexString.Length > 8;
+
+            B = (byte) (hexVal        & 0xFF);
+            G = (byte) (hexVal >>   8 & 0xFF);
+            R = (byte) (hexVal >>  16 & 0xFF);
+
+            if (hasAlpha)
+            {
+                A = (byte) (hexVal >> 24 & 0xFF);
+            }
+        }
     }
 }

@@ -92,9 +92,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             {
                 result = context.GetParameter(str);
             }
+            else if(context.CheckLocal(str))
+            {
+                result = context.GetLocal(str);
+            }
             else
             {
-                //check if this a special object, like _root, _parent etc.
                 result = context.GetObject(str);
             }
 
@@ -128,6 +131,19 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             context.Stack.Push(Value.FromBoolean(false));
+        }
+    }
+
+    /// <summary>
+    /// Push a null value false to the stack
+    /// </summary>
+    public sealed class PushNull : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.EA_PushNull;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
         }
     }
 
