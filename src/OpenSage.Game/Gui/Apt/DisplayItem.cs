@@ -13,7 +13,7 @@ namespace OpenSage.Gui.Apt
         public Matrix3x2 GeometryRotation;
         public Vector2 GeometryTranslation;
 
-        public ItemTransform(ColorRgbaF color, Matrix3x2 rotation, Vector2 translation)
+        public ItemTransform(in ColorRgbaF color, in Matrix3x2 rotation, in Vector2 translation)
         {
             ColorTransform = color;
             GeometryRotation = rotation;
