@@ -33,7 +33,7 @@ namespace OpenSage
 
     public sealed class Sdl2Cursor : Cursor
     {
-        private readonly IntPtr _sdlCursorHandle;
+        //private readonly IntPtr _sdlCursorHandle;
 
         public Sdl2Cursor()
         {
