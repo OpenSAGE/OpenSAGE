@@ -1,8 +1,8 @@
 ![OpenSAGE](/art/opensage-logo.png)
 ============================================================
 
-![Build Status](https://img.shields.io/vso/build/timjones/bd04a18a-bd7f-4ef5-b994-60a0f4270afa/1.svg)
-[![Discord Chat](https://img.shields.io/discord/398393968234332161.svg)](https://discord.gg/G2FhZUT)
+[![Build Status](https://img.shields.io/appveyor/ci/tgjones/opensage.svg?logo=appveyor)](https://ci.appveyor.com/project/tgjones/opensage)
+[![Discord Chat](https://img.shields.io/discord/398393968234332161.svg?logo=discord)](https://discord.gg/G2FhZUT)
 
 **OpenSAGE**: a free, open source re-implementation of [SAGE](https://en.wikipedia.org/wiki/SAGE_(game_engine)), the 3D 
 real time strategy (RTS) engine used in Command & Conquer™: Generals and other 
