@@ -15,10 +15,10 @@ namespace OpenSage.Graphics
         /// <returns></returns>
         public static Vector3 Project(
             this Viewport viewport,
-            Vector3 source,
-            Matrix4x4 projection,
-            Matrix4x4 view,
-            Matrix4x4 world)
+            in Vector3 source,
+            in Matrix4x4 projection,
+            in Matrix4x4 view,
+            in Matrix4x4 world)
         {
             var matrix = world * view * projection;
             Vector3 vector = Vector3.Transform(source, matrix);
@@ -46,9 +46,9 @@ namespace OpenSage.Graphics
         public static Vector3 Unproject(
             this Viewport viewport,
             Vector3 source,
-            Matrix4x4 projection,
-            Matrix4x4 view,
-            Matrix4x4 world)
+            in Matrix4x4 projection,
+            in Matrix4x4 view,
+            in Matrix4x4 world)
         {
             if (!Matrix4x4.Invert(Matrix4x4.Multiply(Matrix4x4.Multiply(world, view), projection), out var matrix))
             {
