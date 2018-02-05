@@ -46,7 +46,7 @@ namespace OpenSage.Content
 
         public string Lookup(string key)
         {
-            var label = _csfFile.Labels.FirstOrDefault(x => x.Name == key);
+            var label = _csfFile?.Labels.FirstOrDefault(x => x.Name == key);
             return label?.Strings[0].Value ?? key;
         }
     }
