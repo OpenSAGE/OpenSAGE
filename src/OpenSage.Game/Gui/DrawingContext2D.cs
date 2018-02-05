@@ -108,10 +108,15 @@ namespace OpenSage.Gui
                 Height = (int) Math.Ceiling(rect.Height)
             });
 
+            // Clear image to transparent.
+            // TODO: Don't need to do this for a newly created image.
+            fixed (void* pin = &image.DangerousGetPinnableReferenceToPixelBuffer())
+            {
+                Unsafe.InitBlock(pin, 0, (uint) (image.Width * image.Height * 4));
+            }
+
             image.Mutate(x =>
             {
-                x.Fill(new Bgra32(0, 0, 0, 0));
-
                 var location = new SixLabors.Primitives.PointF(0, rect.Height / 2.0f);
 
                 // TODO: Vertical centering is not working properly.
