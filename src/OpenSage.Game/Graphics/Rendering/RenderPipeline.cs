@@ -158,9 +158,9 @@ namespace OpenSage.Graphics.Rendering
                     context.RenderTarget.OutputDescription,
                     context.Camera.Viewport);
 
-                context.Scene.Scene2D.WndWindowManager.Render(_spriteBatch);
-                context.Game.Shape.Render(_spriteBatch);
-                context.Game.Apt.Render(_spriteBatch);
+                context.Scene.Scene2D.Render(_spriteBatch);
+
+                context.Game.RaiseRendering2D(new Rendering2DEventArgs(_spriteBatch));
 
                 _spriteBatch.End();
             }

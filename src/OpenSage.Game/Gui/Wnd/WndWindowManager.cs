@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics;
-using OpenSage.Graphics.Rendering;
 using OpenSage.Gui.Wnd.Transitions;
 using OpenSage.Mathematics;
 

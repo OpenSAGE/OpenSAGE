@@ -7,7 +7,7 @@ using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
-using OpenSage.Gui.Apt;
+using OpenSage.Graphics.Rendering;
 using OpenSage.Gui.Wnd;
 using OpenSage.Input;
 using OpenSage.Logic;
@@ -19,6 +19,13 @@ namespace OpenSage
 {
     public sealed class Game : DisposableBase
     {
+        public event EventHandler<Rendering2DEventArgs> Rendering2D;
+
+        internal void RaiseRendering2D(Rendering2DEventArgs args)
+        {
+            Rendering2D?.Invoke(this, args);
+        }
+
         private readonly FileSystem _fileSystem;
         private readonly GameTimer _gameTimer;
         private readonly WndCallbackResolver _wndCallbackResolver;
@@ -38,16 +45,6 @@ namespace OpenSage
         /// Gets the graphics system.
         /// </summary>
         public GraphicsSystem Graphics { get; }
-
-        /// <summary>
-        /// Gets the GUI system.
-        /// </summary>
-        public AptSystem Apt { get; }
-
-        /// <summary>
-        /// Gets the GUI system.
-        /// </summary>
-        public ShapeSystem Shape { get; }
 
         /// <summary>
         /// Gets the input system.
@@ -118,6 +115,7 @@ namespace OpenSage
                 {
                     Scene.Camera.OnWindowSizeChanged(Window);
                     Scene.Scene2D.WndWindowManager.OnViewportSizeChanged();
+                    Scene.Scene2D.AptWindowManager.OnViewportSizeChanged();
                 }
 
                 foreach (var gameSystem in GameSystems)
@@ -155,10 +153,6 @@ namespace OpenSage
             AddDisposable(new ObjectSystem(this));
             AddDisposable(new ParticleSystemSystem(this));
 
-            Apt = AddDisposable(new AptSystem(this));
-
-            Shape = AddDisposable(new ShapeSystem(this));
-
             Graphics = AddDisposable(new GraphicsSystem(this));
 
             Scripting = AddDisposable(new ScriptingSystem(this));
@@ -175,16 +169,6 @@ namespace OpenSage
         public void ResetElapsedTime()
         {
             _gameTimer.Reset();
-        }
-
-        public void Activate()
-        {
-            // TODO: Unpause everything.
-        }
-
-        public void Deactivate()
-        {
-            // TODO: Pause everything.
         }
 
         public Scene Scene
@@ -329,6 +313,13 @@ namespace OpenSage
             Draw(gameTime);
 
             FrameCount += 1;
+        }
+
+        protected override void Dispose(bool disposeManagedResources)
+        {
+            GraphicsDevice.WaitForIdle();
+
+            base.Dispose(disposeManagedResources);
         }
 
         private void Update(GameTime gameTime)

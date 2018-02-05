@@ -10,17 +10,15 @@ namespace OpenSage.DataViewer.UI.Viewers
         public AptView(FileSystemEntry entry, Func<IntPtr, Game> createGame)
         {
             var scene = new Scene();
-            var entity = new Entity();
             
             CreateGame = h =>
             {
                 var game = createGame(h);
 
-                var guiComponent = game.ContentManager.Load<AptComponent>(entry.FilePath);
-                entity.Components.Add(guiComponent);
-                scene.Entities.Add(entity);
-
                 game.Scene = scene;
+
+                var aptWindow = game.ContentManager.Load<AptWindow>(entry.FilePath);
+                scene.Scene2D.AptWindowManager.PushWindow(aptWindow);
 
                 return game;
             };

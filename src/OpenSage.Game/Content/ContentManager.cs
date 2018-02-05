@@ -62,9 +62,7 @@ namespace OpenSage.Content
                 { typeof(Scene), AddDisposable(new MapLoader()) },
                 { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
                 { typeof(WndTopLevelWindow), AddDisposable(new WindowLoader(this, wndCallbackResolver)) },
-                { typeof(ShapeComponent), AddDisposable(new ShapeLoader(this)) },
-                { typeof(AptComponent), AddDisposable(new AptLoader(this)) }
-
+                { typeof(AptWindow), AddDisposable(new AptLoader()) }
             };
 
             _cachedObjects = new Dictionary<string, object>();
