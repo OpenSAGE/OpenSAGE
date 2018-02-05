@@ -3,6 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
     <LangVersion>latest</LangVersion>
+    <NoWarn>NU1701</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Resources\AppIcon.ico" />
