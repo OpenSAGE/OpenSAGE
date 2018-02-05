@@ -17,17 +17,5 @@ namespace OpenSage.Graphics.Rendering
         public Framebuffer RenderTarget { get; set; }
 
         public GameTime GameTime { get; set; }
-
-        //public IReadOnlyList<RenderableComponent> Renderables { get; private set; }
-
-        //public Action<RenderEffectPassCollection, RenderableComponent> EffectParametersCallback { get; set; }
-        //public Stack<string> PermutationDefines { get; private set; }
-        //public RenderPass CurrentPass;
-
-        public RenderContext()
-        {
-            //PermutationDefines = new Stack<string>();
-            //Renderables = new List<RenderableComponent>();
-        }
     }
 }
