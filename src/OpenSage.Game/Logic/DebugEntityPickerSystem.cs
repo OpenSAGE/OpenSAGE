@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Numerics;
+﻿using System.Numerics;
 using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic
@@ -8,12 +7,11 @@ namespace OpenSage.Logic
     public sealed class DebugEntityPickerSystem : GameSystem
     {
         private readonly Game _game;
-        private readonly List<ColliderComponent> _colliders;
 
-        public DebugEntityPickerSystem(Game game) : base(game)
+        public DebugEntityPickerSystem(Game game)
+            : base(game)
         {
             _game = game;
-            _colliders = new List<ColliderComponent>();
         }
 
         public override void Initialize()
@@ -21,40 +19,36 @@ namespace OpenSage.Logic
             _game.Input.MessageBuffer.Handlers.Insert(0, new DebugEntityPickerMessageHandler(this));
         }
 
-        internal override void OnEntityComponentAdded(EntityComponent component)
-        {
-            base.OnEntityComponentAdded(component);
-
-            if (component is ColliderComponent collider)
-            {
-                _colliders.Add(collider);
-            }
-        }
-
         public bool OnClickPosition(Vector2 position)
         {
-            var cameraRay = Game.Scene.Camera.ScreenPointToRay(position);
+            if (Game.Scene3D == null)
+            {
+                return false;
+            }
 
-            ColliderComponent closestCollider = null;
+            var cameraRay = Game.Scene3D.Camera.ScreenPointToRay(position);
+
+            GameObject closestGameObject = null;
             var closestDepth = float.MaxValue;
 
-            foreach (var collider in _colliders)
+            foreach (var gameObject in Game.Scene3D.GameObjects.Items)
             {
-                if (!collider.Intersects(cameraRay, out var depth) || depth > closestDepth)
+                var collider = gameObject.Collider;
+                if (collider == null || !collider.Intersects(cameraRay, out var depth) || depth > closestDepth)
                 {
                     continue;
                 }
 
                 closestDepth = depth;
-                closestCollider = collider;
+                closestGameObject = gameObject;
             }
 
-            if (closestCollider == null)
+            if (closestGameObject == null)
             {
                 return false;
             }
 
-            closestCollider.Transform.LocalScale = new Vector3(0.5f, 0.5f, 0.5f);
+            closestGameObject.Transform.Scale = 0.5f;
             return true;
         }
     }

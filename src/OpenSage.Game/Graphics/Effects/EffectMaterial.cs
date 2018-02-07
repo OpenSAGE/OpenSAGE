@@ -78,9 +78,9 @@ namespace OpenSage.Graphics.Effects
             SetProperty(name, view);
         }
 
-        public void ApplyPipelineState(in OutputDescription outputDescription)
+        public void ApplyPipelineState()
         {
-            Effect.SetPipelineState(PipelineState.GetHandle(outputDescription));
+            Effect.SetPipelineState(PipelineState.Handle);
         }
 
         public void ApplyProperties()

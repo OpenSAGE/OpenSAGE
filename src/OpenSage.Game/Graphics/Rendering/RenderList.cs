@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Graphics.Effects;
+using OpenSage.Mathematics;
 using Veldrid;
 
 namespace OpenSage.Graphics.Rendering
 {
-    internal sealed class RenderBucket
+    public sealed class RenderBucket
     {
         public readonly List<RenderItem> RenderItems;
         public readonly List<RenderItem> CulledItems;
@@ -27,7 +28,7 @@ namespace OpenSage.Graphics.Rendering
             DeviceBuffer vertexBuffer0,
             DeviceBuffer vertexBuffer1,
             CullFlags cullFlags,
-            ICullable cullable,
+            in BoundingBox boundingBox,
             in Matrix4x4 world,
             uint vertexStart,
             uint vertexCount)
@@ -37,7 +38,7 @@ namespace OpenSage.Graphics.Rendering
                 vertexBuffer0,
                 vertexBuffer1,
                 cullFlags,
-                cullable,
+                boundingBox,
                 world,
                 DrawCommand.Draw,
                 vertexStart,
@@ -50,7 +51,7 @@ namespace OpenSage.Graphics.Rendering
             DeviceBuffer vertexBuffer0,
             DeviceBuffer vertexBuffer1,
             CullFlags cullFlags,
-            ICullable cullable,
+            in BoundingBox boundingBox,
             in Matrix4x4 world,
             uint startIndex,
             uint indexCount,
@@ -61,7 +62,7 @@ namespace OpenSage.Graphics.Rendering
                 vertexBuffer0,
                 vertexBuffer1,
                 cullFlags,
-                cullable,
+                boundingBox,
                 world,
                 DrawCommand.DrawIndexed,
                 0, 0,
@@ -71,7 +72,7 @@ namespace OpenSage.Graphics.Rendering
         }
     }
 
-    internal sealed class RenderList
+    public sealed class RenderList
     {
         public readonly RenderBucket Opaque = new RenderBucket();
         public readonly RenderBucket Transparent = new RenderBucket();

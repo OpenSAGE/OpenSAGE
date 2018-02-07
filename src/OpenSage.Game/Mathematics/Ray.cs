@@ -98,9 +98,11 @@ namespace OpenSage.Mathematics
             return result;
         }
 
-        public Ray Transform(Matrix4x4 world)
+        public Ray Transform(in Matrix4x4 world)
         {
-            return new Ray(Vector3.Transform(Position, world), Vector3.TransformNormal(Direction, world));
+            return new Ray(
+                Vector3.Transform(Position, world),
+                Vector3.TransformNormal(Direction, world));
         }
 
         /// <summary>
@@ -112,7 +114,7 @@ namespace OpenSage.Mathematics
         /// Journal of Graphics Tools, volume 2, "Fast, Minimum Storage Ray-Triangle
         /// Intersection".
         public bool Intersects(
-            ref Triangle triangle,
+            in Triangle triangle,
             out float? result)
         {
             // Compute vectors along two edges of the triangle.

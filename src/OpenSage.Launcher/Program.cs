@@ -34,10 +34,10 @@ namespace OpenSage.Launcher
         // TODO: Implement fast startup, where the shellmap is not loaded.
         private static void SetupInitialScene(Game game)
         {
-            var mainMenuScene = game.ContentManager.Load<Scene>("maps\\ShellMap1\\ShellMap1.map");
-            game.Scene = mainMenuScene;
+            var mainMenuScene = game.ContentManager.Load<Scene3D>("maps\\ShellMap1\\ShellMap1.map");
+            game.Scene3D = mainMenuScene;
 
-            mainMenuScene.Scene2D.WndWindowManager.PushWindow("Menus\\MainMenu.wnd");
+            game.Scene2D.WndWindowManager.PushWindow("Menus\\MainMenu.wnd");
 
             game.Scripting.Active = true;
         }

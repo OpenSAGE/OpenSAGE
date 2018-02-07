@@ -6,34 +6,19 @@ using Veldrid;
 namespace OpenSage.Graphics.Rendering
 {
     [System.Flags]
-    internal enum CullFlags
+    public enum CullFlags
     {
         None = 0,
         AlwaysVisible = 0x1
     }
 
-    internal enum DrawCommand
+    public enum DrawCommand
     {
         Draw,
         DrawIndexed
     }
 
-    //internal readonly struct DrawItem
-    //{
-    //    public readonly Matrix4x4 World;
-
-    //    public readonly Buffer VertexBuffer0;
-    //    public readonly Buffer VertexBuffer1;
-
-    //    public readonly EffectMaterial Material;
-
-    //    public readonly uint IndexCount;
-    //    public readonly uint NumInstances;
-    //    public readonly Buffer<ushort> IndexBuffer;
-    //    public readonly uint StartIndex;
-    //}
-
-    internal readonly struct RenderItem : System.IComparable<RenderItem>
+    public readonly struct RenderItem : System.IComparable<RenderItem>
     {
         public readonly Effect Effect;
 
@@ -43,7 +28,7 @@ namespace OpenSage.Graphics.Rendering
         public readonly DeviceBuffer VertexBuffer1;
 
         public readonly CullFlags CullFlags;
-        public readonly ICullable Cullable;
+        public readonly BoundingBox BoundingBox;
 
         public readonly Matrix4x4 World;
 
@@ -65,7 +50,7 @@ namespace OpenSage.Graphics.Rendering
             DeviceBuffer vertexBuffer0,
             DeviceBuffer vertexBuffer1,
             CullFlags cullFlags,
-            ICullable cullable,
+            in BoundingBox boundingBox,
             in Matrix4x4 world,
             DrawCommand drawCommand,
 
@@ -82,7 +67,7 @@ namespace OpenSage.Graphics.Rendering
             VertexBuffer0 = vertexBuffer0;
             VertexBuffer1 = vertexBuffer1;
             CullFlags = cullFlags;
-            Cullable = cullable;
+            BoundingBox = boundingBox;
             World = world;
             DrawCommand = drawCommand;
 
@@ -107,11 +92,5 @@ namespace OpenSage.Graphics.Rendering
         {
             return Key.CompareTo(other.Key);
         }
-    }
-
-    internal interface ICullable
-    {
-        bool VisibleInHierarchy { get; }
-        BoundingBox BoundingBox { get; }
     }
 }

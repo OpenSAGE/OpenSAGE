@@ -18,7 +18,7 @@ namespace OpenSage.Content
 {
     internal sealed class ModelLoader : ContentLoader<Model>
     {
-        protected override Model LoadEntry(FileSystemEntry entry, ContentManager contentManager, LoadOptions loadOptions)
+        protected override Model LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
         {
             var w3dFile = W3dFile.FromFileSystemEntry(entry);
 
@@ -338,7 +338,8 @@ namespace OpenSage.Content
                 PipelineState = new EffectPipelineState(
                     rasterizerState,
                     depthState,
-                    blendState)
+                    blendState,
+                    contentManager.GraphicsDevice.SwapchainFramebuffer.OutputDescription)
             };
 
             var materialConstantsResourceBinding = effect.GetParameter("MaterialConstants").ResourceBinding;
@@ -707,7 +708,8 @@ namespace OpenSage.Content
                 PipelineState = new EffectPipelineState(
                     rasterizerState,
                     depthState,
-                    blendState)
+                    blendState,
+                    contentManager.GraphicsDevice.SwapchainFramebuffer.OutputDescription)
             };
 
             var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(

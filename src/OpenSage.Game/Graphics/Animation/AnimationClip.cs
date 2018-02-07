@@ -13,13 +13,4 @@
             Keyframes = keyframes;
         }
     }
-
-    public enum AnimationClipType
-    {
-        TranslationX,
-        TranslationY,
-        TranslationZ,
-        Quaternion,
-        Visibility
-    }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
@@ -9,18 +8,15 @@ using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Settings
 {
-    public sealed class SceneSettings
+    public sealed class WorldLighting
     {
-        public Dictionary<TimeOfDay, LightSettings> LightingConfigurations { get; set; }
+        public IReadOnlyDictionary<TimeOfDay, LightSettings> LightingConfigurations { get; }
 
         public TimeOfDay TimeOfDay { get; set; }
 
-        internal LightSettings CurrentLightingConfiguration => LightingConfigurations[TimeOfDay];
+        public LightSettings CurrentLightingConfiguration => LightingConfigurations[TimeOfDay];
 
-        public WaypointCollection Waypoints { get; set; }
-        public WaypointPathCollection WaypointPaths { get; set; }
-
-        public SceneSettings()
+        public static WorldLighting CreateDefault()
         {
             var lights = new LightingConstants
             {
@@ -32,7 +28,7 @@ namespace OpenSage.Settings
                 }
             };
 
-            LightingConfigurations = new Dictionary<TimeOfDay, LightSettings>
+            var lightingConfigurations = new Dictionary<TimeOfDay, LightSettings>
             {
                 {
                     TimeOfDay.Morning,
@@ -44,10 +40,15 @@ namespace OpenSage.Settings
                 }
             };
 
-            TimeOfDay = TimeOfDay.Morning;
+            return new WorldLighting(lightingConfigurations, TimeOfDay.Morning);
+        }
 
-            Waypoints = new WaypointCollection(new Waypoint[0]);
-            WaypointPaths = new WaypointPathCollection(new WaypointPath[0]);
+        public WorldLighting(
+            IReadOnlyDictionary<TimeOfDay, LightSettings> lightingConfigurations,
+            TimeOfDay timeOfDay)
+        {
+            LightingConfigurations = lightingConfigurations;
+            TimeOfDay = timeOfDay;
         }
     }
 
@@ -59,13 +60,17 @@ namespace OpenSage.Settings
         public Waypoint this[string name] => _waypointsByName[name];
         public Waypoint this[uint id] => _waypointsByID[id];
 
-        public WaypointCollection(IEnumerable<Waypoint> waypoints)
+        public WaypointCollection()
         {
             // Note that we explicitly allow duplicate waypoint names.
 
             _waypointsByName = new Dictionary<string, Waypoint>();
             _waypointsByID = new Dictionary<uint, Waypoint>();
+        }
 
+        public WaypointCollection(IEnumerable<Waypoint> waypoints)
+            : this()
+        {
             foreach (var waypoint in waypoints)
             {
                 _waypointsByName[waypoint.Name] = waypoint;
@@ -103,11 +108,15 @@ namespace OpenSage.Settings
         public WaypointPath this[Waypoint firstNode] => _waypointPathsByFirstNode.TryGetValue(firstNode, out var path) ? path : null;
         public WaypointPath this[string label] => _waypointPathsByLabel.TryGetValue(label, out var path) ? path : null;
 
-        public WaypointPathCollection(IEnumerable<WaypointPath> paths)
+        public WaypointPathCollection()
         {
             _waypointPathsByLabel = new Dictionary<string, WaypointPath>();
             _waypointPathsByFirstNode = new Dictionary<Waypoint, WaypointPath>();
+        }
 
+        public WaypointPathCollection(IEnumerable<WaypointPath> paths)
+            : this()
+        {
             foreach (var path in paths)
             {
                 foreach (var label in path.Start.PathLabels)

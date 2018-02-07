@@ -41,7 +41,7 @@ namespace OpenSage.Gui.Wnd
 
         public WndTopLevelWindow PushWindow(WndTopLevelWindow window)
         {
-            CreateSizeDependentResources(window);
+            CreateSizeDependentResources(window, _game.Window.ClientBounds.Size);
 
             _windowStack.Push(window);
 
@@ -63,23 +63,20 @@ namespace OpenSage.Gui.Wnd
             return PushWindow(window);
         }
 
-        internal void OnViewportSizeChanged()
+        internal void OnViewportSizeChanged(in Size newSize)
         {
             foreach (var window in _windowStack)
             {
-                CreateSizeDependentResources(window);
+                CreateSizeDependentResources(window, newSize);
             }
         }
 
-        private void CreateSizeDependentResources(WndTopLevelWindow window)
+        private void CreateSizeDependentResources(WndTopLevelWindow window, Size newSize)
         {
-            var viewport = _game.Scene.Camera.Viewport;
-            var size = new Size((int) viewport.Width, (int) viewport.Height);
-
             window.Root.DoActionRecursive(
             x =>
             {
-                x.CreateSizeDependentResources(_game.ContentManager, size);
+                x.CreateSizeDependentResources(_game.ContentManager, newSize);
                 return true;
             });
         }

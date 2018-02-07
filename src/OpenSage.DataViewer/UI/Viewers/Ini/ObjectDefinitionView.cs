@@ -6,38 +6,21 @@ using OpenSage.Data.Ini;
 using OpenSage.DataViewer.Controls;
 using OpenSage.Graphics.Cameras.Controllers;
 using OpenSage.Logic.Object;
+using OpenSage.Settings;
 
 namespace OpenSage.DataViewer.UI.Viewers.Ini
 {
     public sealed class ObjectDefinitionView : Splitter
     {
-        private readonly ListBox _listBox;
-        private readonly ObjectComponent _objectComponent;
-
         public ObjectDefinitionView(Func<IntPtr, Game> createGame, ObjectDefinition objectDefinition)
         {
-            var scene = new Scene();
-
-            var objectEntity = Entity.FromObjectDefinition(objectDefinition);
-            _objectComponent = objectEntity.GetComponent<ObjectComponent>();
-            scene.Entities.Add(objectEntity);
-
-            scene.CameraController = new ArcballCameraController(
-                Vector3.Zero,
-                200);
-
-            _listBox = new ListBox();
-            _listBox.Width = 200;
-            _listBox.ItemTextBinding = Binding.Property((BitArray<ModelConditionFlag> x) => x.DisplayName);
-            _listBox.SelectedValueChanged += (sender, e) =>
+            var listBox = new ListBox
             {
-                var modelConditionState = (BitArray<ModelConditionFlag>) _listBox.SelectedValue;
-                _objectComponent.SetModelConditionFlags(modelConditionState);
+                Width = 200,
+                ItemTextBinding = Binding.Property((BitArray<ModelConditionFlag> x) => x.DisplayName)
             };
-            _listBox.DataStore = _objectComponent.ModelConditionStates.ToList();
-            _listBox.SelectedIndex = 0;
 
-            Panel1 = _listBox;
+            Panel1 = listBox;
 
             Panel2 = new GameControl
             {
@@ -45,7 +28,27 @@ namespace OpenSage.DataViewer.UI.Viewers.Ini
                 {
                     var game = createGame(h);
 
-                    game.Scene = scene;
+                    var gameObjects = new GameObjectCollection(game.ContentManager);
+                    var gameObject = gameObjects.Add(objectDefinition);
+
+                    listBox.SelectedValueChanged += (sender, e) =>
+                    {
+                        var modelConditionState = (BitArray<ModelConditionFlag>) listBox.SelectedValue;
+                        gameObject.SetModelConditionFlags(modelConditionState);
+                    };
+                    listBox.DataStore = gameObject.ModelConditionStates.ToList();
+                    listBox.SelectedIndex = 0;
+
+                    game.Scene3D = new Scene3D(
+                        game,
+                        new ArcballCameraController(Vector3.Zero, 200),
+                        null,
+                        null,
+                        null,
+                        gameObjects,
+                        new WaypointCollection(),
+                        new WaypointPathCollection(),
+                        WorldLighting.CreateDefault());
 
                     return game;
                 }

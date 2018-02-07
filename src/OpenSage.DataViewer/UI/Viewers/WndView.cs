@@ -10,8 +10,6 @@ namespace OpenSage.DataViewer.UI.Viewers
     {
         public WndView(FileSystemEntry entry, Func<IntPtr, Game> createGame)
         {
-            var scene = new Scene();
-
             var treeItem = new TreeItem();            
 
             var treeView = new TreeView
@@ -42,10 +40,8 @@ namespace OpenSage.DataViewer.UI.Viewers
                 {
                     var game = createGame(h);
 
-                    game.Scene = scene;
-
                     var window = game.ContentManager.Load<WndTopLevelWindow>(entry.FilePath);
-                    scene.Scene2D.WndWindowManager.PushWindow(window);
+                    game.Scene2D.WndWindowManager.PushWindow(window);
 
                     treeItem.Children.Add(CreateTreeItemRecursive(window.Root));
 

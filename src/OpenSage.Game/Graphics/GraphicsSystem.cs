@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using OpenSage.Graphics.Cameras;
-using OpenSage.Graphics.Rendering;
+﻿using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Graphics
 {
@@ -8,72 +6,34 @@ namespace OpenSage.Graphics
     {
         private readonly RenderContext _renderContext;
 
-        private readonly List<ModelComponent> _models;
-        private readonly List<MeshComponent> _meshes;
-
-        private readonly CameraInputMessageHandler _cameraInputMessageHandler;
-        private CameraInputState _cameraInputState;
-
         private RenderPipeline _renderPipeline;
 
         public GraphicsSystem(Game game)
             : base(game)
         {
-            RegisterComponentList(_models = new List<ModelComponent>());
-            RegisterComponentList(_meshes = new List<MeshComponent>());
-
             _renderContext = new RenderContext();
-
-            _cameraInputMessageHandler = new CameraInputMessageHandler();
         }
 
         public override void Initialize()
         {
-            _renderPipeline = new RenderPipeline(Game);
-
-            Game.Input.MessageBuffer.Handlers.Add(_cameraInputMessageHandler);
+            _renderPipeline = AddDisposable(new RenderPipeline(Game));
 
             base.Initialize();
         }
 
-        internal override void BuildRenderList(RenderList renderList)
-        {
-            foreach (var renderable in _meshes)
-            {
-                renderable.BuildRenderList(renderList);
-            }
-        }
-
         public override void Draw(GameTime gameTime)
         {
-            foreach (var model in _models)
-            {
-                model.UpdateBoneTransforms();
-            }
-
-            // TODO: Do this in Update?
-            _cameraInputMessageHandler.UpdateInputState(ref _cameraInputState);
-            Game.Scene.CameraController.UpdateCamera(Game.Scene.Camera, _cameraInputState, gameTime);
-
             _renderContext.Game = Game;
             _renderContext.GraphicsDevice = Game.GraphicsDevice;
             _renderContext.Graphics = this;
-            _renderContext.Camera = Game.Scene.Camera;
-            _renderContext.Scene = Game.Scene;
+            _renderContext.Camera = Game.Scene3D?.Camera;
+            _renderContext.Scene = Game.Scene3D;
             _renderContext.RenderTarget = Game.GraphicsDevice.SwapchainFramebuffer;
             _renderContext.GameTime = gameTime;
 
             _renderPipeline.Execute(_renderContext);
 
             base.Draw(gameTime);
-        }
-
-        protected override void Dispose(bool disposeManagedResources)
-        {
-            _renderPipeline.Dispose();
-            _renderPipeline = null;
-
-            base.Dispose(disposeManagedResources);
         }
     }
 }

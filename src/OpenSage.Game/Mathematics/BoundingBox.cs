@@ -123,6 +123,18 @@ namespace OpenSage.Mathematics
             return PlaneIntersectionType.Intersecting;
         }
 
+        public BoundingBox Transform(in Matrix4x4 matrix)
+        {
+            // TODO: There's almost certainly a better solution than this, to generate a tighter bounding box.
+            BoundingBox transformedBoundingBox;
+            transformedBoundingBox.Min = Vector3.Transform(Min, matrix);
+            transformedBoundingBox.Max = Vector3.Transform(Max, matrix);
+
+            var boundingSphere = BoundingSphere.CreateFromBoundingBox(transformedBoundingBox);
+
+            return CreateFromSphere(boundingSphere);
+        }
+
         public override string ToString()
         {
             return $"{nameof(Min)}: {Min}, {nameof(Max)}: {Max}";

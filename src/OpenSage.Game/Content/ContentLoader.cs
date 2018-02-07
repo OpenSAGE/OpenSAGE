@@ -12,6 +12,6 @@ namespace OpenSage.Content
             yield return filePath;
         }
 
-        public abstract object Load(FileSystemEntry entry, ContentManager contentManager, LoadOptions loadOptions);
+        public abstract object Load(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions);
     }
 }

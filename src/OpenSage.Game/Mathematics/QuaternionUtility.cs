@@ -13,7 +13,7 @@ namespace OpenSage.Mathematics
             return q;
         }
 
-        public static Quaternion FromEuler(Vector3 euler)
+        public static Quaternion FromEuler(in Vector3 euler)
         {
             return FromEuler(euler.X, euler.Y, euler.Z);
         }
@@ -38,7 +38,7 @@ namespace OpenSage.Mathematics
                 c1c2 * c3 - s1s2 * s3);
         }
 
-        public static Vector3 ToEuler(Quaternion q)
+        public static Vector3 ToEuler(in Quaternion q)
         {
             // https://code.google.com/p/3d-editor-toolkit/source/browse/trunk/PureCpp/MathCore/Quaternion.cpp
 
@@ -76,7 +76,7 @@ namespace OpenSage.Mathematics
             return v;
         }
 
-        public static Quaternion CreateRotation(Vector3 fromDirection, Vector3 toDirection)
+        public static Quaternion CreateRotation(in Vector3 fromDirection, in Vector3 toDirection)
         {
             // http://stackoverflow.com/questions/1171849/finding-quaternion-representing-the-rotation-from-one-vector-to-another
             var dotProduct = Vector3.Dot(fromDirection, toDirection);
@@ -84,7 +84,7 @@ namespace OpenSage.Mathematics
             return Quaternion.Normalize(new Quaternion(Vector3.Cross(fromDirection, toDirection), scalarPart));
         }
 
-        public static Quaternion CreateLookRotation(Vector3 forward, Vector3 up)
+        public static Quaternion CreateLookRotation(in Vector3 forward, Vector3 up)
         {
             if (forward == up)
                 up = Vector3.UnitY;
@@ -92,7 +92,7 @@ namespace OpenSage.Mathematics
             return Quaternion.CreateFromRotationMatrix(Matrix4x4Utility.Invert(matrix));
         }
 
-        public static Quaternion CreateLookRotation(Vector3 forward)
+        public static Quaternion CreateLookRotation(in Vector3 forward)
         {
             return CreateLookRotation(forward, Vector3.UnitZ);
         }

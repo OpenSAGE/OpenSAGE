@@ -34,7 +34,7 @@ namespace OpenSage.Content
             yield return Path.ChangeExtension(filePath, ".tga");
         }
 
-        protected override Texture LoadEntry(FileSystemEntry entry, ContentManager contentManager, LoadOptions loadOptions)
+        protected override Texture LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
         {
             var generateMipMaps = (loadOptions as TextureLoadOptions)?.GenerateMipMaps ?? true;
 

@@ -8,7 +8,7 @@
 
         public GameTime UpdateTime => _game.UpdateTime;
 
-        public Scene Scene => _game.Scene;
+        public Scene3D Scene => _game.Scene3D;
 
         public ScriptExecutionContext(Game game)
         {

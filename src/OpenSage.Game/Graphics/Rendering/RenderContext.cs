@@ -11,7 +11,7 @@ namespace OpenSage.Graphics.Rendering
 
         public CommandList CommandEncoder { get; internal set; }
 
-        public Scene Scene { get; set; }
+        public Scene3D Scene { get; set; }
         public CameraComponent Camera { get; set; }
 
         public Framebuffer RenderTarget { get; set; }

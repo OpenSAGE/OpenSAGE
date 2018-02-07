@@ -2,16 +2,21 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
+using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
+using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class W3dModelDraw : DrawableComponent
+    public sealed class W3dModelDraw : DrawModule
     {
+        private readonly ContentManager _contentManager;
         private readonly W3dModelDrawModuleData _data;
 
         private readonly List<ModelConditionState> _conditionStates;
@@ -19,24 +24,31 @@ namespace OpenSage.Logic.Object
 
         private ModelConditionState _activeConditionState;
 
+        private W3dModelDrawConditionState _activeModelDrawConditionState;
+
         public override IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates
         {
             get
             {
-                if (_data.DefaultConditionState != null)
-                {
-                    yield return _data.DefaultConditionState.ConditionFlags;
-                }
+                yield return _defaultConditionState.ConditionFlags;
 
-                foreach (var conditionState in _data.ConditionStates)
+                foreach (var conditionState in _conditionStates)
                 {
                     yield return conditionState.ConditionFlags;
                 }
             }
         }
 
-        public W3dModelDraw(W3dModelDrawModuleData data)
+        internal override IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
         {
+            return (_activeModelDrawConditionState != null)
+                ? _activeModelDrawConditionState.AttachedParticleSystems
+                : Enumerable.Empty<AttachedParticleSystem>();
+        }
+
+        internal W3dModelDraw(ContentManager contentManager, W3dModelDrawModuleData data)
+        {
+            _contentManager = contentManager;
             _data = data;
 
             _conditionStates = new List<ModelConditionState>();
@@ -64,11 +76,6 @@ namespace OpenSage.Logic.Object
                     throw new InvalidOperationException();
                 }
             }
-        }
-
-        protected override void Start()
-        {
-            base.Start();
 
             SetActiveConditionState(_defaultConditionState);
         }
@@ -80,11 +87,13 @@ namespace OpenSage.Logic.Object
                 return;
             }
 
-            Entity.Transform.Children.Clear();
+            RemoveAndDispose(ref _activeModelDrawConditionState);
 
             _activeConditionState = conditionState;
 
-            Entity.AddChild(CreateModelDrawConditionStateEntity(conditionState));
+            _activeModelDrawConditionState = AddDisposable(
+                CreateModelDrawConditionStateInstance(
+                    conditionState));
         }
 
         public override void UpdateConditionState(BitArray<ModelConditionFlag> flags)
@@ -111,22 +120,20 @@ namespace OpenSage.Logic.Object
             SetActiveConditionState(bestConditionState);
         }
 
-        private Entity CreateModelDrawConditionStateEntity(ModelConditionState conditionState)
+        private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState)
         {
-            var result = new Entity();
-
-            Entity modelEntity = null;
+            ModelInstance modelInstance = null;
             if (!string.Equals(conditionState.Model, "NONE", StringComparison.OrdinalIgnoreCase))
             {
                 var w3dFilePath = Path.Combine("Art", "W3D", conditionState.Model + ".W3D");
-                var model = ContentManager.Load<Model>(w3dFilePath);
+                var model = _contentManager.Load<Model>(w3dFilePath);
                 if (model != null)
                 {
-                    result.AddChild(modelEntity = model.CreateEntity());
+                    modelInstance = model.CreateInstance(_contentManager.GraphicsDevice);
                 }
             }
 
-            if (modelEntity != null)
+            if (modelInstance != null)
             {
                 // TODO: Multiple animations. Shouldn't play all of them. I think
                 // we should randomly choose one of them?
@@ -139,13 +146,13 @@ namespace OpenSage.Logic.Object
                     var splitName = firstAnimation.Animation.Split('.');
 
                     var w3dFilePath = Path.Combine("Art", "W3D", splitName[0] + ".W3D");
-                    var model = ContentManager.Load<Model>(w3dFilePath);
+                    var model = _contentManager.Load<Model>(w3dFilePath);
 
                     if (model.Animations.Length == 0)
                     {
                         // TODO: What is the actual algorithm here?
                         w3dFilePath = Path.Combine("Art", "W3D", splitName[1] + ".W3D");
-                        model = ContentManager.Load<Model>(w3dFilePath);
+                        model = _contentManager.Load<Model>(w3dFilePath);
                     }
 
                     if (model != null)
@@ -155,37 +162,102 @@ namespace OpenSage.Logic.Object
                         {
                             // TODO: Should this ever be null?
 
-                            var animationComponent = new AnimationComponent
-                            {
-                                Animation = animation
-                            };
+                            var animationInstance = new AnimationInstance(modelInstance, animation);
 
-                            modelEntity.Components.Add(animationComponent);
+                            modelInstance.AnimationInstances.Add(animationInstance);
 
-                            animationComponent.Play();
+                            animationInstance.Play();
                         }
                     }
                 }
             }
 
-            if (modelEntity != null)
+            var particleSystems = new List<ParticleSystem>();
+            if (modelInstance != null)
             {
                 foreach (var particleSysBone in conditionState.ParticleSysBones)
                 {
-                    var particleSystemDefinition = ContentManager.IniDataContext.ParticleSystems.First(x => x.Name == particleSysBone.ParticleSystem);
-                    var bone = modelEntity.GetComponent<ModelComponent>().Bones.FirstOrDefault(x => string.Equals(x.Entity.Name, particleSysBone.BoneName, StringComparison.OrdinalIgnoreCase));
+                    var particleSystemDefinition = _contentManager.IniDataContext.ParticleSystems.First(x => x.Name == particleSysBone.ParticleSystem);
+                    var bone = modelInstance.Model.Bones.FirstOrDefault(x => string.Equals(x.Name, particleSysBone.BoneName, StringComparison.OrdinalIgnoreCase));
                     if (bone == null)
                     {
                         // TODO: Should this ever happen?
                         continue;
                     }
 
-                    var particleSystem = new ParticleSystem(particleSystemDefinition);
-                    bone.Entity.Components.Add(particleSystem);
+                    particleSystems.Add(new ParticleSystem(
+                        _contentManager,
+                        particleSystemDefinition,
+                        () => modelInstance.AbsoluteBoneTransforms[bone.Index]));
                 }
             }
 
-            return result;
+            return modelInstance != null
+               ? new W3dModelDrawConditionState(modelInstance, particleSystems)
+               : null;
+        }
+
+        internal override void Update(GameTime gameTime)
+        {
+            _activeModelDrawConditionState?.Update(gameTime);
+        }
+
+        internal override void SetWorldMatrix(in Matrix4x4 worldMatrix)
+        {
+            _activeModelDrawConditionState?.SetWorldMatrix(worldMatrix);
+        }
+
+        internal override void BuildRenderList(RenderList renderList, CameraComponent camera)
+        {
+            _activeModelDrawConditionState?.BuildRenderList(renderList, camera);
+        }
+    }
+
+    internal sealed class W3dModelDrawConditionState : DisposableBase
+    {
+        private readonly ModelInstance _modelInstance;
+
+        public IReadOnlyList<AttachedParticleSystem> AttachedParticleSystems { get; }
+
+        public W3dModelDrawConditionState(ModelInstance modelInstance, IEnumerable<ParticleSystem> particleSystems)
+        {
+            _modelInstance = AddDisposable(modelInstance);
+
+            var attachedParticleSystems = new List<AttachedParticleSystem>();
+            foreach (var particleSystem in particleSystems)
+            {
+                AddDisposable(particleSystem);
+
+                attachedParticleSystems.Add(new AttachedParticleSystem(
+                    particleSystem,
+                    x =>
+                    {
+                        attachedParticleSystems.Remove(x);
+                        RemoveToDispose(particleSystem);
+                        particleSystem.Dispose();
+                    }));
+            }
+            AttachedParticleSystems = attachedParticleSystems;
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            _modelInstance.Update(gameTime);
+
+            foreach (var attachedParticleSystem in AttachedParticleSystems)
+            {
+                attachedParticleSystem.ParticleSystem.Update(gameTime);
+            }
+        }
+
+        public void SetWorldMatrix(in Matrix4x4 worldMatrix)
+        {
+            _modelInstance.SetWorldMatrix(worldMatrix);
+        }
+
+        public void BuildRenderList(RenderList renderList, CameraComponent camera)
+        {
+            _modelInstance.BuildRenderList(renderList, camera);
         }
     }
 
@@ -266,6 +338,11 @@ namespace OpenSage.Logic.Object
             var aliasedConditionState = lastConditionState.Clone(conditionFlags);
 
             ConditionStates.Add(aliasedConditionState);
+        }
+
+        internal override DrawModule CreateDrawModule(ContentManager contentManager)
+        {
+            return new W3dModelDraw(contentManager, this);
         }
     }
 

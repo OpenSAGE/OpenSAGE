@@ -56,15 +56,10 @@ namespace OpenSage.DataViewer.UI.Viewers
 
                     game.Window.ClientSizeChanged += (sender, e) =>
                     {
-                        var viewport = game.Scene.Camera.Viewport;
-                        var size = new Size((int) viewport.Width, (int) viewport.Height);
-
                         shapeRenderer.Update(
                             game.GraphicsDevice,
-                            size);
+                            game.Window.ClientBounds.Size);
                     };
-
-                    game.Scene = new Scene();
 
                     return game;
                 }

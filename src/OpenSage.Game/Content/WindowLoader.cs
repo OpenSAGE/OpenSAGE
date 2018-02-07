@@ -32,7 +32,7 @@ namespace OpenSage.Content
             contentManager.IniDataContext.LoadIniFiles(@"Data\INI\MappedImages\TextureSize_512\");
         }
 
-        protected override WndTopLevelWindow LoadEntry(FileSystemEntry entry, ContentManager contentManager, LoadOptions loadOptions)
+        protected override WndTopLevelWindow LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
         {
             var wndFile = WndFile.FromFileSystemEntry(entry);
 
