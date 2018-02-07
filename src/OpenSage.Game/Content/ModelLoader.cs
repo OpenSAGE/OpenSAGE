@@ -338,7 +338,8 @@ namespace OpenSage.Content
                 PipelineState = new EffectPipelineState(
                     rasterizerState,
                     depthState,
-                    blendState)
+                    blendState,
+                    contentManager.GraphicsDevice.SwapchainFramebuffer.OutputDescription)
             };
 
             var materialConstantsResourceBinding = effect.GetParameter("MaterialConstants").ResourceBinding;
@@ -707,7 +708,8 @@ namespace OpenSage.Content
                 PipelineState = new EffectPipelineState(
                     rasterizerState,
                     depthState,
-                    blendState)
+                    blendState,
+                    contentManager.GraphicsDevice.SwapchainFramebuffer.OutputDescription)
             };
 
             var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(

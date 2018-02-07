@@ -23,13 +23,11 @@ namespace OpenSage.Graphics
 
         private CommandList _commandEncoder;
 
-        private OutputDescription _outputDescription;
-
-        public SpriteBatch(ContentManager contentManager)
+        public SpriteBatch(ContentManager contentManager, in OutputDescription outputDescription)
         {
             _graphicsDevice = contentManager.GraphicsDevice;
 
-            _material = AddDisposable(new SpriteMaterial(contentManager, contentManager.EffectLibrary.Sprite));
+            _material = AddDisposable(new SpriteMaterial(contentManager, contentManager.EffectLibrary.Sprite, outputDescription));
 
             _materialConstantsVSBuffer = AddDisposable(new ConstantBuffer<SpriteMaterial.MaterialConstantsVS>(contentManager.GraphicsDevice));
 
@@ -50,12 +48,9 @@ namespace OpenSage.Graphics
         public void Begin(
             CommandList commandEncoder,
             Sampler samplerState,
-            in OutputDescription outputDescription,
             in Viewport viewport)
         {
             _commandEncoder = commandEncoder;
-
-            _outputDescription = outputDescription;
 
             _material.Effect.Begin(_commandEncoder);
 
@@ -202,7 +197,7 @@ namespace OpenSage.Graphics
 
                 _material.SetTexture(batchItem.Texture);
 
-                _material.ApplyPipelineState(_outputDescription);
+                _material.ApplyPipelineState();
                 _material.ApplyProperties();
 
                 _material.Effect.ApplyPipelineState(_commandEncoder);

@@ -11,7 +11,7 @@ namespace OpenSage.Graphics.Effects
             Handles = new Dictionary<EffectPipelineState, EffectPipelineStateHandle>();
         }
 
-        public static EffectPipelineStateHandle GetHandle(ref EffectPipelineState state)
+        public static EffectPipelineStateHandle GetHandle(in EffectPipelineState state)
         {
             lock (Handles)
             {

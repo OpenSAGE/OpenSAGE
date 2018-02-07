@@ -52,7 +52,7 @@ namespace OpenSage.Gui
                     4, 4, 1, 1),
                 PixelFormat.R8_G8_B8_A8_UNorm));
 
-            _spriteBatch = AddDisposable(new SpriteBatch(contentManager));
+            _spriteBatch = AddDisposable(new SpriteBatch(contentManager, _renderTarget.OutputDescription));
 
             _textImagePool = AddDisposable(new ResourcePool<Image<Bgra32>, ImageKey>(key =>
                 new Image<Bgra32>(key.Width, key.Height)));
@@ -92,7 +92,6 @@ namespace OpenSage.Gui
             _spriteBatch.Begin(
                 _commandEncoder,
                 samplerState,
-                _renderTarget.OutputDescription,
                 viewport);
         }
 

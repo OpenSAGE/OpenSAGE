@@ -34,7 +34,7 @@ namespace OpenSage.Graphics.Rendering
             _globalLightingTerrainBuffer = AddDisposable(new ConstantBuffer<LightingConstants>(graphicsDevice));
             _globalLightingObjectBuffer = AddDisposable(new ConstantBuffer<LightingConstants>(graphicsDevice));
 
-            _spriteBatch = AddDisposable(new SpriteBatch(game.ContentManager));
+            _spriteBatch = AddDisposable(new SpriteBatch(game.ContentManager, graphicsDevice.SwapchainFramebuffer.OutputDescription));
 
             _commandList = AddDisposable(graphicsDevice.ResourceFactory.CreateCommandList());
         }
@@ -92,7 +92,7 @@ namespace OpenSage.Graphics.Rendering
 
                     if (lastRenderItem == null || lastRenderItem.Value.Material != renderItem.Material)
                     {
-                        renderItem.Material.ApplyPipelineState(context.RenderTarget.OutputDescription);
+                        renderItem.Material.ApplyPipelineState();
                         renderItem.Effect.ApplyPipelineState(commandEncoder);
                     }
 
@@ -159,7 +159,6 @@ namespace OpenSage.Graphics.Rendering
                 _spriteBatch.Begin(
                     commandEncoder,
                     context.Game.ContentManager.LinearClampSampler,
-                    context.RenderTarget.OutputDescription,
                     context.Game.Viewport);
 
                 context.Game.Scene2D.Render(_spriteBatch);

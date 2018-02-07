@@ -10,12 +10,13 @@ namespace OpenSage.Terrain
         public TerrainMaterial(ContentManager contentManager, Effect effect)
             : base(contentManager, effect)
         {
-            SetProperty("Sampler", effect.GraphicsDevice.Aniso4xSampler);
+            SetProperty("Sampler", contentManager.GraphicsDevice.Aniso4xSampler);
 
             PipelineState = new EffectPipelineState(
                 RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
                 DepthStencilStateDescription.DepthOnlyLessEqual,
-                BlendStateDescription.SingleDisabled);
+                BlendStateDescription.SingleDisabled,
+                contentManager.GraphicsDevice.SwapchainFramebuffer.OutputDescription);
         }
 
         public void SetTileData(Texture tileDataTexture)

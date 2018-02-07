@@ -79,7 +79,8 @@ namespace OpenSage.Graphics.ParticleSystems
             _particleMaterial.PipelineState = new EffectPipelineState(
                 RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
                 DepthStencilStateDescription.DepthOnlyLessEqualRead,
-                blendState);
+                blendState,
+                contentManager.GraphicsDevice.SwapchainFramebuffer.OutputDescription);
 
             _initialDelay = Definition.InitialDelay.GetRandomInt();
 

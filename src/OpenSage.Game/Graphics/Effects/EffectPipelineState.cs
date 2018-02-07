@@ -2,23 +2,23 @@
 
 namespace OpenSage.Graphics.Effects
 {
-    public struct EffectPipelineState
+    public readonly struct EffectPipelineState
     {
-        private EffectPipelineStateHandle _handle;
+        public readonly RasterizerStateDescription RasterizerState;
 
-        public RasterizerStateDescription RasterizerState { get; }
+        public readonly DepthStencilStateDescription DepthStencilState;
 
-        public DepthStencilStateDescription DepthStencilState { get; }
+        public readonly BlendStateDescription BlendState;
 
-        public BlendStateDescription BlendState { get; }
+        public readonly OutputDescription OutputDescription;
 
-        public OutputDescription OutputDescription { get; }
+        public readonly EffectPipelineStateHandle Handle;
 
         public EffectPipelineState(
             RasterizerStateDescription rasterizerState,
             DepthStencilStateDescription depthStencilState,
             BlendStateDescription blendState,
-            OutputDescription outputDescription = default) // TODO: Ugly.
+            OutputDescription outputDescription)
         {
             RasterizerState = rasterizerState;
             DepthStencilState = depthStencilState;
@@ -26,20 +26,8 @@ namespace OpenSage.Graphics.Effects
 
             OutputDescription = outputDescription;
 
-            // TODO: This is a bit ugly.
-            _handle = null;
-            _handle = EffectPipelineStateFactory.GetHandle(ref this);
-        }
-
-        public EffectPipelineStateHandle GetHandle(in OutputDescription outputDescription)
-        {
-            var clone = new EffectPipelineState(
-                RasterizerState,
-                DepthStencilState,
-                BlendState,
-                outputDescription);
-
-            return clone._handle;
+            Handle = null;
+            Handle = EffectPipelineStateFactory.GetHandle(this);
         }
     }
 }
