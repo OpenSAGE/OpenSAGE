@@ -4,7 +4,6 @@ using System.IO;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Graphics;
-using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Gui.Wnd;
 using OpenSage.Input;
@@ -154,11 +153,19 @@ namespace OpenSage
                     break;
             }
 
+            switch (sageGame)
+            {
+                case SageGame.CncGenerals:
+                case SageGame.CncGeneralsZeroHour:
+                case SageGame.BattleForMiddleEarth:
+                case SageGame.BattleForMiddleEarthII:
+                    ContentManager.IniDataContext.LoadIniFile(@"Data\INI\ParticleSystem.ini");
+                    break;
+            }
+
             GameSystems = new List<GameSystem>();
 
             Input = AddDisposable(new InputSystem(this));
-
-            AddDisposable(new ParticleSystemSystem(this));
 
             Graphics = AddDisposable(new GraphicsSystem(this));
 

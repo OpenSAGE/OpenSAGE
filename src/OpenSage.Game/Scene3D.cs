@@ -14,6 +14,8 @@ namespace OpenSage
         private readonly CameraInputMessageHandler _cameraInputMessageHandler;
         private CameraInputState _cameraInputState;
 
+        private readonly ParticleSystemManager _particleSystemManager;
+
         public CameraComponent Camera { get; }
 
         public ICameraController CameraController { get; set; }
@@ -67,6 +69,8 @@ namespace OpenSage
             _cameraInputMessageHandler = new CameraInputMessageHandler();
             game.Input.MessageBuffer.Handlers.Add(_cameraInputMessageHandler);
             AddDisposeAction(() => game.Input.MessageBuffer.Handlers.Remove(_cameraInputMessageHandler));
+
+            _particleSystemManager = AddDisposable(new ParticleSystemManager(game, this));
         }
 
         internal void Update(GameTime gameTime)
@@ -75,6 +79,8 @@ namespace OpenSage
             {
                 gameObject.Update(gameTime);
             }
+
+            _particleSystemManager.Update(gameTime);
 
             _cameraInputMessageHandler.UpdateInputState(ref _cameraInputState);
             CameraController.UpdateCamera(Camera, _cameraInputState, gameTime);
@@ -88,6 +94,8 @@ namespace OpenSage
             {
                 gameObject.BuildRenderList(renderList, camera);
             }
+
+            _particleSystemManager.BuildRenderList(renderList);
         }
     }
 }

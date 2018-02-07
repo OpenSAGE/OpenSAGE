@@ -3,35 +3,22 @@ using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
-    public sealed class ParticleSystemSystem : GameSystem
+    internal sealed class ParticleSystemManager : DisposableBase
     {
+        private readonly Scene3D _scene;
         private readonly List<AttachedParticleSystem> _deadParticleSystems;
 
-        public ParticleSystemSystem(Game game)
-            : base(game)
+        public ParticleSystemManager(Game game, Scene3D scene)
         {
-            _deadParticleSystems = new List<AttachedParticleSystem>();
+            _scene = scene;
 
-            switch (game.SageGame)
-            {
-                case SageGame.CncGenerals:
-                case SageGame.CncGeneralsZeroHour:
-                case SageGame.BattleForMiddleEarth:
-                case SageGame.BattleForMiddleEarthII:
-                    game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\ParticleSystem.ini");
-                    break;
-            }
+            _deadParticleSystems = new List<AttachedParticleSystem>();
         }
 
-        public override void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
-            if (Game.Scene3D == null)
-            {
-                return;
-            }
-
             // TODO: This could be more efficient if we knew upfront about all particle systems.
-            foreach (var attachedParticleSystem in Game.Scene3D.GetAllAttachedParticleSystems())
+            foreach (var attachedParticleSystem in _scene.GetAllAttachedParticleSystems())
             {
                 var particleSystem = attachedParticleSystem.ParticleSystem;
 
@@ -51,15 +38,10 @@ namespace OpenSage.Graphics.ParticleSystems
             _deadParticleSystems.Clear();
         }
 
-        internal override void BuildRenderList(RenderList renderList)
+        public void BuildRenderList(RenderList renderList)
         {
-            if (Game.Scene3D == null)
-            {
-                return;
-            }
-
             // TODO: Keep particle count under GameData.MaxParticleCount
-            foreach (var attachedParticleSystem in Game.Scene3D.GetAllAttachedParticleSystems())
+            foreach (var attachedParticleSystem in _scene.GetAllAttachedParticleSystems())
             {
                 var worldMatrix = attachedParticleSystem.ParticleSystem.GetWorldMatrix();
 
