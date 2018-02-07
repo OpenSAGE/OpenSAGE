@@ -1,22 +1,16 @@
 ﻿using System.Numerics;
 using OpenSage.Mathematics;
-using Veldrid;
-using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Graphics.Cameras
 {
     public sealed class CameraComponent
     {
+        private readonly Game _game;
+
         private readonly BoundingFrustum _frustum;
 
-        // TODO: Remove this.
-        private GameWindow _window;
-
-        private RectangleF _normalizedViewportRectangle;
         private float _nearPlaneDistance;
         private float _farPlaneDistance;
-
-        private Viewport? _viewport;
 
         private Matrix4x4? _cachedProjectionMatrix;
 
@@ -25,10 +19,11 @@ namespace OpenSage.Graphics.Cameras
         /// <summary>
         /// Initializes a new instance of this class.
         /// </summary>
-        public CameraComponent()
+        public CameraComponent(Game game)
         {
+            _game = game;
             _frustum = new BoundingFrustum(Matrix4x4.Identity);
-            _normalizedViewportRectangle = new RectangleF(0, 0, 1, 1);
+
             NearPlaneDistance = 0.125f;
             FarPlaneDistance = 5000.0f;
         }
@@ -76,20 +71,6 @@ namespace OpenSage.Graphics.Cameras
             }
         }
 
-        /// <summary>
-        /// Gets or sets the normalized viewport rectangle for this camera. For example, this can 
-        /// be used to implement split-screen or a rear view mirror for an in-car view.
-        /// </summary>
-        public RectangleF NormalizedViewportRectangle
-        {
-            get { return _normalizedViewportRectangle; }
-            set
-            {
-                _normalizedViewportRectangle = value;
-                ClearCachedViewport();
-            }
-        }
-
         private Matrix4x4 _view;
 
         /// <summary>
@@ -105,12 +86,9 @@ namespace OpenSage.Graphics.Cameras
             }
         }
 
-        internal void OnWindowSizeChanged(GameWindow window)
+        internal void OnViewportSizeChanged()
         {
-            _window = window;
-
             ClearCachedProjectionMatrix();
-            ClearCachedViewport();
         }
 
         /// <summary>
@@ -126,7 +104,7 @@ namespace OpenSage.Graphics.Cameras
                     var fieldOfView = 2 * MathUtility.Atan(0.5f * height / _focalLength);
 
                     _cachedProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
-                        fieldOfView, Viewport.Width / Viewport.Height,
+                        fieldOfView, _game.Viewport.Width / _game.Viewport.Height,
                         NearPlaneDistance, FarPlaneDistance);
                 }
 
@@ -148,70 +126,7 @@ namespace OpenSage.Graphics.Cameras
                 ClearCachedProjectionMatrix();
             }
         }
-
-        /// <summary>
-        /// Gets or sets how the render target (either backbuffer or texture)
-        /// will be cleared prior to rendering.
-        /// </summary>
-        public CameraClearType ClearType { get; set; } = CameraClearType.DepthAndColor;
-
-        /// <summary>
-        /// Gets or sets the culling mask for this camera.
-        /// </summary>
-        /// <remarks>
-        /// The culling mask is a bit mask that is compared against <see cref="GameEntity.Layer"/>
-        /// to determine whether a given <see cref="GameEntity"/> should be rendered by this camera.
-        /// </remarks>
-        public int CullingMask { get; set; } = int.MaxValue;
-
-        /// <summary>
-        /// Gets or sets the background color for this camera. Only used when
-        /// <see cref="ClearType"/> is set to <see cref="CameraClearType.DepthAndColor"/>.
-        /// </summary>
-        public ColorRgba BackgroundColor { get; set; } = ColorRgba.DimGray;
-
-        /// <summary>
-        /// Gets the viewport for this camera, which defines the area on the screen
-        /// that the camera will project into.
-        /// </summary>
-        public Viewport Viewport
-        {
-            get
-            {
-                if (_viewport == null)
-                {
-                    var pixelWidth = _window?.ClientBounds.Width ?? 400;
-                    var pixelHeight = _window?.ClientBounds.Height ?? 400;
-
-                    var bounds = new Rectangle(
-                        (int) (NormalizedViewportRectangle.X * pixelWidth),
-                        (int) (NormalizedViewportRectangle.Y * pixelHeight),
-                        (int) (NormalizedViewportRectangle.Width * pixelWidth),
-                        (int) (NormalizedViewportRectangle.Height * pixelHeight));
-
-                    var maximumViewportBounds = new Rectangle(0, 0, pixelWidth, pixelHeight);
-
-                    var viewportBounds = Rectangle.Intersect(maximumViewportBounds, bounds);
-
-                    _viewport = new Viewport(
-                        viewportBounds.X,
-                        viewportBounds.Y,
-                        viewportBounds.Width,
-                        viewportBounds.Height,
-                        0,
-                        1);
-                }
-
-                return _viewport.Value;
-            }
-        }
-
-        private void ClearCachedViewport()
-        {
-            _viewport = null;
-            ClearCachedProjectionMatrix();
-        }
-
+        
         private void ClearCachedProjectionMatrix()
         {
             _cachedProjectionMatrix = null;
@@ -225,8 +140,8 @@ namespace OpenSage.Graphics.Cameras
         /// <returns></returns>
         public Ray ScreenPointToRay(Vector2 position)
         {
-            var near = Viewport.Unproject(new Vector3(position, 0), Projection, View, Matrix4x4.Identity);
-            var far = Viewport.Unproject(new Vector3(position, 1), Projection, View, Matrix4x4.Identity);
+            var near = _game.Viewport.Unproject(new Vector3(position, 0), Projection, View, Matrix4x4.Identity);
+            var far = _game.Viewport.Unproject(new Vector3(position, 1), Projection, View, Matrix4x4.Identity);
 
             return new Ray(near, Vector3.Normalize(far - near));
         }
@@ -236,7 +151,7 @@ namespace OpenSage.Graphics.Cameras
         /// </summary>
         public Vector3 WorldToScreenPoint(Vector3 position)
         {
-            return Viewport.Project(position, Projection, View, Matrix4x4.Identity);
+            return _game.Viewport.Project(position, Projection, View, Matrix4x4.Identity);
         }
 
         internal Rectangle? WorldToScreenRectangle(Vector3 position, Size screenSize)
@@ -244,7 +159,7 @@ namespace OpenSage.Graphics.Cameras
             var screenPosition = WorldToScreenPoint(position);
 
             // Check if point is behind camera, or too far away.
-            if (screenPosition.Z < Viewport.MinDepth || screenPosition.Z > Viewport.MaxDepth)
+            if (screenPosition.Z < _game.Viewport.MinDepth || screenPosition.Z > _game.Viewport.MaxDepth)
                 return null;
 
             return new Rectangle(

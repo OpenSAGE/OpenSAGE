@@ -86,6 +86,8 @@ namespace OpenSage.Data.Map
         [AddedIn(SageGame.BattleForMiddleEarth)]
         public SkyboxSettings SkyboxSettings { get; private set; }
 
+        public PlayerScriptsList GetPlayerScriptsList() => SidesList.PlayerScripts ?? PlayerScriptsList;
+
         public static Stream Decompress(Stream stream)
         {
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))

@@ -17,19 +17,24 @@ using Veldrid;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
-    public sealed class ParticleSystem : RenderableComponent
+    public sealed class ParticleSystem : DisposableBase
     {
-        private IVelocityType _velocityType;
-        private IVolumeType _volumeType;
+        private readonly Func<Matrix4x4> _getWorldMatrix;
 
-        private ParticleMaterial _particleMaterial;
+        private readonly GraphicsDevice _graphicsDevice;
+
+        private readonly IVelocityType _velocityType;
+        private readonly IVolumeType _volumeType;
+
+        private readonly ParticleMaterial _particleMaterial;
 
         private int _initialDelay;
 
-        private float _startSizeRate;
+        private readonly float _startSizeRate;
+
         private float _startSize;
 
-        private List<ParticleColorKeyframe> _colorKeyframes;
+        private readonly List<ParticleColorKeyframe> _colorKeyframes;
 
         private TimeSpan _nextUpdate;
 
@@ -49,25 +54,24 @@ namespace OpenSage.Graphics.ParticleSystems
 
         public ParticleSystemState State { get; private set; }
 
-        // TODO
-        internal override BoundingBox LocalBoundingBox => BoundingBox.CreateFromSphere(new BoundingSphere(Transform.LocalPosition, 100));
-
-        public ParticleSystem(ParticleSystemDefinition definition)
+        public ParticleSystem(
+            ContentManager contentManager,
+            ParticleSystemDefinition definition,
+            Func<Matrix4x4> getWorldMatrix)
         {
             Definition = definition;
-        }
 
-        protected override void Start()
-        {
-            base.Start();
+            _getWorldMatrix = getWorldMatrix;
 
-            _particleMaterial = new ParticleMaterial(ContentManager, ContentManager.EffectLibrary.Particle);
+            _graphicsDevice = contentManager.GraphicsDevice;
+
+            _particleMaterial = AddDisposable(new ParticleMaterial(contentManager, contentManager.EffectLibrary.Particle));
 
             _velocityType = VelocityTypeUtility.GetImplementation(Definition.VelocityType);
             _volumeType = VolumeTypeUtility.GetImplementation(Definition.VolumeType);
 
             var texturePath = Path.Combine("Art", "Textures", Definition.ParticleName);
-            var texture = ContentManager.Load<Texture>(texturePath);
+            var texture = contentManager.Load<Texture>(texturePath);
             _particleMaterial.SetTexture(texture);
 
             var blendState = GetBlendState(Definition.Shader);
@@ -117,26 +121,19 @@ namespace OpenSage.Graphics.ParticleSystems
             _deadList.AddRange(Enumerable.Range(0, maxParticles));
 
             var numVertices = maxParticles * 4;
-            _vertexBuffer = GraphicsDevice.ResourceFactory.CreateBuffer(
+            _vertexBuffer = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateBuffer(
                 new BufferDescription(
                     (uint) (ParticleVertex.VertexDescriptor.Stride * maxParticles * 4),
-                    BufferUsage.VertexBuffer | BufferUsage.Dynamic));
+                    BufferUsage.VertexBuffer | BufferUsage.Dynamic)));
 
             _vertices = new ParticleVertex[numVertices];
 
-            _indexBuffer = CreateIndexBuffer(GraphicsDevice, maxParticles, out _numIndices);
+            _indexBuffer = AddDisposable(CreateIndexBuffer(
+                contentManager.GraphicsDevice,
+                maxParticles,
+                out _numIndices));
 
             State = ParticleSystemState.Active;
-        }
-
-        protected override void Destroy()
-        {
-            _particleMaterial.Dispose();
-
-            _indexBuffer.Dispose();
-            _vertexBuffer.Dispose();
-
-            base.Destroy();
         }
 
         private static BlendStateDescription GetBlendState(ParticleSystemShader shader)
@@ -184,7 +181,7 @@ namespace OpenSage.Graphics.ParticleSystems
             return (int) Definition.BurstCount.High + (int) Math.Ceiling(((Definition.Lifetime.High) / (Definition.BurstDelay.Low + 1)) * Definition.BurstCount.High);
         }
 
-        internal void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             if (gameTime.TotalGameTime < _nextUpdate)
             {
@@ -459,18 +456,20 @@ namespace OpenSage.Graphics.ParticleSystems
                 _vertices[vertexIndex++] = particleVertex;
             }
 
-            GraphicsDevice.UpdateBuffer(_vertexBuffer, 0, _vertices);
+            _graphicsDevice.UpdateBuffer(_vertexBuffer, 0, _vertices);
         }
 
-        internal override void BuildRenderList(RenderList renderList)
+        public Matrix4x4 GetWorldMatrix() => _getWorldMatrix();
+
+        public void BuildRenderList(RenderList renderList, in Matrix4x4 worldMatrix)
         {
             renderList.Transparent.AddRenderItemDrawIndexed(
                 _particleMaterial,
                 _vertexBuffer,
                 null,
                 CullFlags.None,
-                this,
-                Transform.LocalToWorldMatrix,
+                BoundingBox.CreateFromSphere(new BoundingSphere(worldMatrix.Translation, 100)), // TODO
+                worldMatrix,
                 0,
                 _numIndices,
                 _indexBuffer);
@@ -512,4 +511,5 @@ namespace OpenSage.Graphics.ParticleSystems
             Color = keyframe.Color.ToVector3();
         }
     }
+    
 }

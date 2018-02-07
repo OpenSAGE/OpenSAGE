@@ -43,12 +43,16 @@ namespace OpenSage.Graphics.Rendering
         {
             _renderList.Clear();
 
-            context.Scene.Scene3D?.World.Terrain.BuildRenderList(_renderList);
+            context.Scene?.BuildRenderList(_renderList, context.Camera);
 
             foreach (var system in context.Game.GameSystems)
             {
                 system.BuildRenderList(_renderList);
             }
+
+            context.Game.RaiseBuildingRenderList(new BuildingRenderListEventArgs(
+                _renderList,
+                context.Camera));
 
             var commandEncoder = _commandList;
 
@@ -56,10 +60,10 @@ namespace OpenSage.Graphics.Rendering
 
             commandEncoder.SetFramebuffer(context.RenderTarget);
 
-            commandEncoder.ClearColorTarget(0, context.Camera.BackgroundColor.ToColorRgbaF().ToRgbaFloat());
+            commandEncoder.ClearColorTarget(0, ColorRgba.DimGray.ToColorRgbaF().ToRgbaFloat());
             commandEncoder.ClearDepthStencil(1);
 
-            commandEncoder.SetViewport(0, context.Camera.Viewport);
+            commandEncoder.SetViewport(0, context.Game.Viewport);
 
             UpdateGlobalConstantBuffers(commandEncoder, context);
 
@@ -156,9 +160,9 @@ namespace OpenSage.Graphics.Rendering
                     commandEncoder,
                     context.Game.ContentManager.LinearClampSampler,
                     context.RenderTarget.OutputDescription,
-                    context.Camera.Viewport);
+                    context.Game.Viewport);
 
-                context.Scene.Scene2D.Render(_spriteBatch);
+                context.Game.Scene2D.Render(_spriteBatch);
 
                 context.Game.RaiseRendering2D(new Rendering2DEventArgs(_spriteBatch));
 
@@ -192,22 +196,28 @@ namespace OpenSage.Graphics.Rendering
 
         private void UpdateGlobalConstantBuffers(CommandList commandEncoder, RenderContext context)
         {
-            var cameraPosition = Matrix4x4Utility.Invert(context.Camera.View).Translation;
+            if (context.Camera != null)
+            {
+                var cameraPosition = Matrix4x4Utility.Invert(context.Camera.View).Translation;
 
-            _globalConstantBufferShared.Value.CameraPosition = cameraPosition;
-            _globalConstantBufferShared.Update(commandEncoder);
+                _globalConstantBufferShared.Value.CameraPosition = cameraPosition;
+                _globalConstantBufferShared.Update(commandEncoder);
 
-            _globalConstantBufferVS.Value.ViewProjection = context.Camera.View * context.Camera.Projection;
-            _globalConstantBufferVS.Update(commandEncoder);
+                _globalConstantBufferVS.Value.ViewProjection = context.Camera.View * context.Camera.Projection;
+                _globalConstantBufferVS.Update(commandEncoder);
+            }
 
             _globalConstantBufferPS.Value.TimeInSeconds = (float) context.GameTime.TotalGameTime.TotalSeconds;
-            _globalConstantBufferPS.Value.ViewportSize = new Vector2(context.Camera.Viewport.Width, context.Camera.Viewport.Height);
+            _globalConstantBufferPS.Value.ViewportSize = new Vector2(context.Game.Viewport.Width, context.Game.Viewport.Height);
             _globalConstantBufferPS.Update(commandEncoder);
 
-            _globalLightingTerrainBuffer.Value = context.Scene.Settings.CurrentLightingConfiguration.TerrainLights;
-            _globalLightingObjectBuffer.Value = context.Scene.Settings.CurrentLightingConfiguration.ObjectLights;
-            _globalLightingTerrainBuffer.Update(commandEncoder);
-            _globalLightingObjectBuffer.Update(commandEncoder);
+            if (context.Scene != null)
+            {
+                _globalLightingTerrainBuffer.Value = context.Scene.Lighting.CurrentLightingConfiguration.TerrainLights;
+                _globalLightingObjectBuffer.Value = context.Scene.Lighting.CurrentLightingConfiguration.ObjectLights;
+                _globalLightingTerrainBuffer.Update(commandEncoder);
+                _globalLightingObjectBuffer.Update(commandEncoder);
+            }
         }
 
         [StructLayout(LayoutKind.Sequential, Size = 16)]

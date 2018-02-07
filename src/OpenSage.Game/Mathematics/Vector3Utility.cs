@@ -27,5 +27,23 @@ namespace OpenSage.Mathematics
                                          // The final result.
             return ((start * MathUtility.Cos(theta)) + (RelativeVec * MathUtility.Sin(theta)));
         }
+
+        public static Vector3 WithX(this Vector3 vector, float x)
+        {
+            vector.X = x;
+            return vector;
+        }
+
+        public static Vector3 WithY(this Vector3 vector, float y)
+        {
+            vector.Y = y;
+            return vector;
+        }
+
+        public static Vector3 WithZ(this Vector3 vector, float z)
+        {
+            vector.Z = z;
+            return vector;
+        }
     }
 }

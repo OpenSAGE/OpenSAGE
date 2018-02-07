@@ -8,6 +8,7 @@ using OpenSage.Graphics.Effects;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Wnd;
+using OpenSage.Logic.Object;
 using SixLabors.Fonts;
 using Veldrid;
 
@@ -15,6 +16,8 @@ namespace OpenSage.Content
 {
     public sealed class ContentManager : DisposableBase
     {
+        private readonly Game _game;
+
         private readonly Dictionary<Type, ContentLoader> _contentLoaders;
 
         private readonly Dictionary<string, object> _cachedObjects;
@@ -43,11 +46,13 @@ namespace OpenSage.Content
         public TranslationManager TranslationManager { get; }
 
         public ContentManager(
+            Game game,
             FileSystem fileSystem,
             GraphicsDevice graphicsDevice,
             SageGame sageGame,
             WndCallbackResolver wndCallbackResolver)
         {
+            _game = game;
             _fileSystem = fileSystem;
 
             GraphicsDevice = graphicsDevice;
@@ -59,7 +64,7 @@ namespace OpenSage.Content
             _contentLoaders = new Dictionary<Type, ContentLoader>
             {
                 { typeof(Model), AddDisposable(new ModelLoader()) },
-                { typeof(Scene), AddDisposable(new MapLoader()) },
+                { typeof(Scene3D), AddDisposable(new MapLoader()) },
                 { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
                 { typeof(WndTopLevelWindow), AddDisposable(new WindowLoader(this, wndCallbackResolver)) },
                 { typeof(AptWindow), AddDisposable(new AptLoader()) }
@@ -167,7 +172,7 @@ namespace OpenSage.Content
 
             if (entry != null)
             {
-                asset = contentLoader.Load(entry, this, options);
+                asset = contentLoader.Load(entry, this, _game, options);
 
                 if (asset is IDisposable d)
                 {
@@ -184,7 +189,7 @@ namespace OpenSage.Content
             return (T) asset;
         }
 
-        public Entity InstantiateObject(string typeName)
+        public GameObject InstantiateObject(string typeName)
         {
             // TODO: Don't do this every time.
             IniDataContext.LoadIniFiles(@"Data\INI\Object");
@@ -192,7 +197,7 @@ namespace OpenSage.Content
             var objectDefinition = IniDataContext.Objects.FirstOrDefault(x => x.Name == typeName);
             if (objectDefinition != null)
             {
-                return Entity.FromObjectDefinition(objectDefinition);
+                return new GameObject(objectDefinition, this);
             }
             else
             {

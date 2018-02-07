@@ -14,12 +14,7 @@ namespace OpenSage.Graphics.Rendering
                     continue;
                 }
 
-                if (!renderItem.Cullable.VisibleInHierarchy)
-                {
-                    continue;
-                }
-
-                if (!context.Camera.BoundingFrustum.Intersects(renderItem.Cullable.BoundingBox))
+                if (!context.Camera.BoundingFrustum.Intersects(renderItem.BoundingBox))
                 {
                     continue;
                 }

@@ -7,6 +7,8 @@ using OpenSage.Content.Util;
 using OpenSage.Data;
 using OpenSage.Data.Map;
 using OpenSage.Data.Tga;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Scripting;
 using OpenSage.Settings;
@@ -21,11 +23,11 @@ using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Content
 {
-    internal sealed class MapLoader : ContentLoader<Scene>
+    internal sealed class MapLoader : ContentLoader<Scene3D>
     {
         private static readonly IResampler MapTextureResampler = new Lanczos2Resampler();
 
-        protected override Scene LoadEntry(FileSystemEntry entry, ContentManager contentManager, LoadOptions loadOptions)
+        protected override Scene3D LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
         {
             switch (contentManager.SageGame)
             {
@@ -42,15 +44,7 @@ namespace OpenSage.Content
 
             var mapFile = MapFile.FromFileSystemEntry(entry);
 
-            var result = new Scene();
-
-            result.MapFile = mapFile;
-
-            result.Settings.LightingConfigurations = mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary();
-            result.Settings.TimeOfDay = mapFile.GlobalLighting.Time;
-
             var heightMap = new HeightMap(mapFile.HeightMapData);
-            result.HeightMap = heightMap;
 
             var indexBufferCache = AddDisposable(new TerrainPatchIndexBufferCache(contentManager.GraphicsDevice));
 
@@ -87,18 +81,12 @@ namespace OpenSage.Content
 
             var terrain = new Terrain.Terrain(heightMap, terrainPatches);
 
-            var world = new World(terrain);
-
-            result.Scene3D = new Scene3D(world);
-
-            var objectsEntity = new Entity();
-            result.Entities.Add(objectsEntity);
             LoadObjects(
                 contentManager,
-                objectsEntity,
                 heightMap,
                 mapFile.ObjectsList.Objects,
-                result.Settings);
+                out var waypoints,
+                out var gameObjects);
 
             foreach (var team in mapFile.SidesList.Teams ?? mapFile.Teams.Items)
             {
@@ -109,70 +97,77 @@ namespace OpenSage.Content
                 // TODO
             }
 
-            var waypointPaths = mapFile.WaypointsList.WaypointPaths.Select(path =>
-            {
-                var start = result.Settings.Waypoints[path.StartWaypointID];
-                var end = result.Settings.Waypoints[path.EndWaypointID];
-                return new Settings.WaypointPath(start, end);
-            }).ToList();
+            var lighting = new WorldLighting(
+                mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
+                mapFile.GlobalLighting.Time);
 
-            result.Settings.WaypointPaths = new WaypointPathCollection(waypointPaths);
-
-            var scriptsEntity = new Entity();
-            result.Entities.Add(scriptsEntity);
+            var waypointPaths = new WaypointPathCollection(mapFile.WaypointsList.WaypointPaths
+                .Select(path =>
+                {
+                    var start = waypoints[path.StartWaypointID];
+                    var end = waypoints[path.EndWaypointID];
+                    return new Settings.WaypointPath(start, end);
+                }));
 
             // TODO: Don't hardcode this.
             // Perhaps add one ScriptComponent for the neutral player, 
             // and one for the active player.
-            var scriptList = (mapFile.SidesList.PlayerScripts ?? mapFile.PlayerScriptsList).ScriptLists[0];
-            AddScripts(scriptsEntity, scriptList, result.Settings);
+            var scriptList = mapFile.GetPlayerScriptsList().ScriptLists[0];
+            var mapScripts = CreateScripts(scriptList);
 
-            return result;
+            return new Scene3D(
+                game,
+                new RtsCameraController(contentManager),
+                mapFile,
+                terrain,
+                mapScripts,
+                gameObjects,
+                waypoints,
+                waypointPaths,
+                lighting);
         }
 
-        private void AddScripts(Entity scriptsEntity, ScriptList scriptList, SceneSettings sceneSettings)
+        private MapScriptCollection CreateScripts(ScriptList scriptList)
         {
-            scriptsEntity.AddComponent(new ScriptComponent
-            {
-                ScriptGroups = CreateMapScriptGroups(scriptList.ScriptGroups, sceneSettings),
-                Scripts = CreateMapScripts(scriptList.Scripts, sceneSettings)
-            });
+            return new MapScriptCollection(
+                CreateMapScriptGroups(scriptList.ScriptGroups),
+                CreateMapScripts(scriptList.Scripts));
         }
 
-        private static MapScriptGroup[] CreateMapScriptGroups(ScriptGroup[] scriptGroups, SceneSettings sceneSettings)
+        private static MapScriptGroup[] CreateMapScriptGroups(ScriptGroup[] scriptGroups)
         {
             var result = new MapScriptGroup[scriptGroups.Length];
 
             for (var i = 0; i < result.Length; i++)
             {
-                result[i] = CreateMapScriptGroup(scriptGroups[i], sceneSettings);
+                result[i] = CreateMapScriptGroup(scriptGroups[i]);
             }
 
             return result;
         }
 
-        private static MapScriptGroup CreateMapScriptGroup(ScriptGroup scriptGroup, SceneSettings sceneSettings)
+        private static MapScriptGroup CreateMapScriptGroup(ScriptGroup scriptGroup)
         {
             return new MapScriptGroup(
                 scriptGroup.Name,
-                CreateMapScripts(scriptGroup.Scripts, sceneSettings),
+                CreateMapScripts(scriptGroup.Scripts),
                 scriptGroup.IsActive,
                 scriptGroup.IsSubroutine);
         }
 
-        private static MapScript[] CreateMapScripts(Script[] scripts, SceneSettings sceneSettings)
+        private static MapScript[] CreateMapScripts(Script[] scripts)
         {
             var result = new MapScript[scripts.Length];
 
             for (var i = 0; i < scripts.Length; i++)
             {
-                result[i] = CreateMapScript(scripts[i], sceneSettings);
+                result[i] = CreateMapScript(scripts[i]);
             }
 
             return result;
         }
 
-        private static MapScript CreateMapScript(Script script, SceneSettings sceneSettings)
+        private static MapScript CreateMapScript(Script script)
         {
             var actionsIfTrue = script.ActionsIfTrue;
             var actionsIfFalse = script.ActionsIfFalse;
@@ -213,12 +208,13 @@ namespace OpenSage.Content
 
         private static void LoadObjects(
             ContentManager contentManager,
-            Entity objectsEntity, 
             HeightMap heightMap,
             MapObject[] mapObjects,
-            SceneSettings sceneSettings)
+            out WaypointCollection waypointCollection,
+            out GameObjectCollection gameObjects)
         {
             var waypoints = new List<Waypoint>();
+            gameObjects = new GameObjectCollection(contentManager);
 
             foreach (var mapObject in mapObjects)
             {
@@ -237,13 +233,11 @@ namespace OpenSage.Content
                                 // TODO: Handle locomotors when they're implemented.
                                 position.Z += heightMap.GetHeight(position.X, position.Y);
 
-                                var objectEntity = contentManager.InstantiateObject(mapObject.TypeName);
-                                if (objectEntity != null)
+                                var gameObject = gameObjects.Add(mapObject.TypeName);
+                                if (gameObject != null)
                                 {
-                                    objectEntity.Transform.LocalPosition = position;
-                                    objectEntity.Transform.LocalEulerAngles = new Vector3(0, 0, mapObject.Angle);
-
-                                    objectsEntity.AddChild(objectEntity);
+                                    gameObject.Transform.Translation = position;
+                                    gameObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, mapObject.Angle);
                                 }
                                 else
                                 {
@@ -259,7 +253,7 @@ namespace OpenSage.Content
                 }
             }
 
-            sceneSettings.Waypoints = new WaypointCollection(waypoints);
+            waypointCollection = new WaypointCollection(waypoints);
         }
 
         private List<TerrainPatch> CreatePatches(

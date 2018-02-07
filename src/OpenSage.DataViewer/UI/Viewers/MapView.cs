@@ -38,12 +38,12 @@ namespace OpenSage.DataViewer.UI.Viewers
                 {
                     var game = createGame(h);
 
-                    game.Scene = game.ContentManager.Load<Scene>(entry.FilePath);
+                    game.Scene3D = game.ContentManager.Load<Scene3D>(entry.FilePath);
 
                     mapPanelDropDown.DataStore = new MapPanel[]
                     {
                         new GeneralPanel(),
-                        new ScriptPanel(game.Scene.MapFile.SidesList.PlayerScripts ?? game.Scene.MapFile.PlayerScriptsList),
+                        new ScriptPanel(game.Scene3D.MapFile.GetPlayerScriptsList()),
                     };
 
                     mapPanelDropDown.SelectedValueChanged += (sender, e) =>
@@ -87,7 +87,7 @@ namespace OpenSage.DataViewer.UI.Viewers
 
                 timesOfDayList.SelectedValueChanged += (sender, e) =>
                 {
-                    game.Scene.Settings.TimeOfDay = (TimeOfDay) timesOfDayList.SelectedValue;
+                    game.Scene3D.Lighting.TimeOfDay = (TimeOfDay) timesOfDayList.SelectedValue;
                 };
 
                 timesOfDayList.SelectedIndex = 1;

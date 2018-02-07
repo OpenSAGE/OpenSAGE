@@ -5,6 +5,8 @@ namespace OpenSage.Mathematics
     [StructLayout(LayoutKind.Sequential)]
     public struct Matrix4x3
     {
+        public const int SizeInBytes = 48;
+
         public float M11;
         public float M21;
         public float M31;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 using Eto.Forms;
 using OpenSage.Data;
@@ -10,6 +9,9 @@ using OpenSage.DataViewer.Controls;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras.Controllers;
+using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
+using OpenSage.Settings;
 
 namespace OpenSage.DataViewer.UI.Viewers
 {
@@ -20,9 +22,11 @@ namespace OpenSage.DataViewer.UI.Viewers
 
         public W3dView(FileSystemEntry entry, Func<IntPtr, Game> createGame)
         {
-            _listBox = new ListBox();
-            _listBox.Width = 250;
-            _listBox.ItemTextBinding = Binding.Property((W3dItem v) => v.Name);
+            _listBox = new ListBox
+            {
+                Width = 250,
+                ItemTextBinding = Binding.Property((W3dItem v) => v.Name)
+            };
             _listBox.SelectedValueChanged += OnSelectedValueChanged;
             Panel1 = _listBox;
 
@@ -34,25 +38,44 @@ namespace OpenSage.DataViewer.UI.Viewers
                 {
                     var game = createGame(h);
 
-                    var scene = new Scene();
+                    var modelInstance = game.ContentManager
+                        .Load<Model>(entry.FilePath)
+                        .CreateInstance(game.GraphicsDevice);
 
-                    var modelEntity = game.ContentManager.Load<Model>(entry.FilePath).CreateEntity();
-                    scene.Entities.Add(modelEntity);
+                    game.Updating += (sender, e) =>
+                    {
+                        modelInstance.Update(e.GameTime);
+                    };
 
-                    var enclosingBoundingBox = modelEntity.GetEnclosingBoundingBox();
-                    scene.CameraController = new ArcballCameraController(
+                    game.BuildingRenderList += (sender, e) =>
+                    {
+                        modelInstance.SetWorldMatrix(Matrix4x4.Identity);
+                        modelInstance.BuildRenderList(e.RenderList, e.Camera);
+                    };
+
+                    var enclosingBoundingBox = GetEnclosingBoundingBox(modelInstance);
+
+                    var cameraController = new ArcballCameraController(
                         enclosingBoundingBox.GetCenter(),
                         Vector3.Distance(enclosingBoundingBox.Min, enclosingBoundingBox.Max));
 
-                    game.Scene = scene;
+                    game.Scene3D = new Scene3D(
+                        game,
+                        cameraController,
+                        null,
+                        null,
+                        null,
+                        new GameObjectCollection(game.ContentManager),
+                        new WaypointCollection(),
+                        new WaypointPathCollection(),
+                        WorldLighting.CreateDefault());
 
-                    var animations = new List<AnimationComponent>();
-                    animations.AddRange(modelEntity.Components.OfType<AnimationComponent>());
+                    var animations = new List<AnimationInstance>(modelInstance.AnimationInstances);
 
                     var w3dFile = W3dFile.FromFileSystemEntry(entry);
 
                     // If this is a skin file, load "external" animations.
-                    var externalAnimations = new List<AnimationComponent>();
+                    var externalAnimations = new List<AnimationInstance>();
                     if (w3dFile.HLod != null && w3dFile.HLod.Header.Name.EndsWith("_SKN", StringComparison.OrdinalIgnoreCase))
                     {
                         var namePrefix = w3dFile.HLod.Header.Name.Substring(0, w3dFile.HLod.Header.Name.LastIndexOf('_') + 1);
@@ -68,12 +91,9 @@ namespace OpenSage.DataViewer.UI.Viewers
                             var animationModel = game.ContentManager.Load<Model>(animationFileEntry.FilePath);
                             foreach (var animation in animationModel.Animations)
                             {
-                                var externalAnimationComponent = new AnimationComponent
-                                {
-                                    Animation = animation
-                                };
-                                modelEntity.Components.Add(externalAnimationComponent);
-                                externalAnimations.Add(externalAnimationComponent);
+                                var externalAnimationInstance = new AnimationInstance(modelInstance, animation);
+                                modelInstance.AnimationInstances.Add(externalAnimationInstance);
+                                externalAnimations.Add(externalAnimationInstance);
                             }
                         }
                     }
@@ -129,26 +149,52 @@ namespace OpenSage.DataViewer.UI.Viewers
 
         private sealed class W3dAnimationItem : W3dItem
         {
-            private readonly AnimationComponent _animationComponent;
+            private readonly AnimationInstance _animationInstance;
 
             public override string Name { get; }
 
-            public W3dAnimationItem(AnimationComponent animation, string groupName)
+            public W3dAnimationItem(AnimationInstance animationInstance, string groupName)
             {
-                _animationComponent = animation;
+                _animationInstance = animationInstance;
 
-                Name = $"{groupName} - {animation.Animation.Name}";
+                Name = $"{groupName} - {_animationInstance.Animation.Name}";
             }
 
             public override void Activate()
             {
-                _animationComponent.Play();
+                _animationInstance.Play();
             }
 
             public override void Deactivate()
             {
-                _animationComponent.Stop();
+                _animationInstance.Stop();
             }
+        }
+
+        private static BoundingBox GetEnclosingBoundingBox(ModelInstance modelInstance)
+        {
+            var boundingBox = default(BoundingBox);
+
+            var first = true;
+            foreach (var mesh in modelInstance.Model.Meshes)
+            {
+                var transformedBoundingBox = mesh.BoundingBox.Transform(
+                    modelInstance.ModelBoneInstances[mesh.ParentBone.Index].Matrix);
+
+                if (first)
+                {
+                    boundingBox = transformedBoundingBox;
+                    first = false;
+                }
+                else
+                {
+                    boundingBox = BoundingBox.CreateMerged(
+                        boundingBox,
+                        transformedBoundingBox);
+                }
+            }
+
+            return boundingBox;
         }
     }
 }

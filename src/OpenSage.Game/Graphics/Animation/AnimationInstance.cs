@@ -1,36 +1,29 @@
-﻿using OpenSage.Mathematics;
-using System;
+﻿using System;
 using System.Numerics;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Animation
 {
-    public sealed class AnimationComponent : EntityComponent
+    public sealed class AnimationInstance
     {
-        private TransformComponent[] _bones;
+        private readonly int[] _keyframeIndices;
 
-        private bool _playing;
-
-        private int[] _keyframeIndices;
+        private readonly ModelBoneInstance[] _boneInstances;
 
         private TimeSpan _currentTimeValue;
 
-        private bool[] _originalVisibilities;
+        private bool _playing;
 
-        private Transform[] _boneTransforms;
+        public Animation Animation { get; }
 
-        private Animation _animation;
-
-        public Animation Animation
+        public AnimationInstance(ModelInstance modelInstance, Animation animation)
         {
-            get { return _animation; }
-            set
-            {
-                _animation = value;
+            Animation = animation;
 
-                _currentTimeValue = TimeSpan.Zero;
+            _boneInstances = modelInstance.ModelBoneInstances;
 
-                _keyframeIndices = new int[value.Clips.Length];
-            }
+            _keyframeIndices = new int[animation.Clips.Length];
+            _currentTimeValue = TimeSpan.Zero;
         }
 
         public void Play()
@@ -40,20 +33,7 @@ namespace OpenSage.Graphics.Animation
                 return;
             }
 
-            var modelComponent = Entity.GetComponent<ModelComponent>();
-            if (modelComponent.Bones != _bones)
-            {
-                _bones = modelComponent.Bones;
-                _originalVisibilities = new bool[_bones.Length];
-                _boneTransforms = new Transform[_bones.Length];
-            }
-
             ResetBoneTransforms();
-
-            for (var i = 0; i < _bones.Length; i++)
-            {
-                _originalVisibilities[i] = _bones[i].Entity.Visible;
-            }
 
             _playing = true;
         }
@@ -74,12 +54,12 @@ namespace OpenSage.Graphics.Animation
         {
             Array.Clear(_keyframeIndices, 0, _keyframeIndices.Length);
 
-            for (var i = 0; i < _boneTransforms.Length; i++)
+            for (var i = 0; i < _boneInstances.Length; i++)
             {
-                _boneTransforms[i].Translation = Vector3.Zero;
-                _boneTransforms[i].Rotation = Quaternion.Identity;
+                _boneInstances[i].AnimatedOffset.Translation = Vector3.Zero;
+                _boneInstances[i].AnimatedOffset.Rotation = Quaternion.Identity;
 
-                _bones[i].Entity.Visible = true;
+                _boneInstances[i].Visible = true;
             }
         }
 
@@ -91,12 +71,6 @@ namespace OpenSage.Graphics.Animation
             }
 
             UpdateBoneTransforms(gameTime);
-
-            for (var i = 0; i < _boneTransforms.Length; i++)
-            {
-                _bones[i].LocalPosition = _boneTransforms[i].Translation;
-                _bones[i].LocalRotation = _boneTransforms[i].Rotation;
-            }
         }
 
         private void UpdateBoneTransforms(GameTime gameTime)
@@ -104,9 +78,9 @@ namespace OpenSage.Graphics.Animation
             var time = _currentTimeValue + gameTime.ElapsedGameTime;
 
             // If we reached the end, loop back to the start.
-            while (time >= _animation.Duration)
+            while (time >= Animation.Duration)
             {
-                time -= _animation.Duration;
+                time -= Animation.Duration;
             }
 
             // If we've just moved backwards, reset the keyframe indices.
@@ -120,14 +94,14 @@ namespace OpenSage.Graphics.Animation
             Keyframe? previous;
             Keyframe? next;
 
-            for (var i = 0; i < _animation.Clips.Length; i++)
+            for (var i = 0; i < Animation.Clips.Length; i++)
             {
                 previous = null;
                 next = null;
 
-                var clip = _animation.Clips[i];
+                var clip = Animation.Clips[i];
 
-                if (clip.Bone >= _boneTransforms.Length)
+                if (clip.Bone >= _boneInstances.Length)
                 {
                     continue;
                 }
@@ -148,12 +122,20 @@ namespace OpenSage.Graphics.Animation
 
                 if (previous != null)
                 {
-                    Evaluate(clip, previous.Value, next ?? previous.Value, _currentTimeValue);
+                    Evaluate(
+                        clip,
+                        previous.Value,
+                        next ?? previous.Value,
+                        _currentTimeValue);
                 }
             }
         }
 
-        private void Evaluate(AnimationClip clip, Keyframe previous, Keyframe next, TimeSpan currentTime)
+        private void Evaluate(
+            AnimationClip clip,
+            in Keyframe previous,
+            in Keyframe next,
+            TimeSpan currentTime)
         {
             var progress = (float) (currentTime - previous.Time).TotalMilliseconds;
             var duration = (float) (next.Time - previous.Time).TotalMilliseconds;
@@ -162,49 +144,45 @@ namespace OpenSage.Graphics.Animation
                 ? progress / duration
                 : 0;
 
+            var animatedOffset = _boneInstances[clip.Bone].AnimatedOffset;
+
             switch (clip.ClipType)
             {
                 case AnimationClipType.TranslationX:
-                    _boneTransforms[clip.Bone].Translation.X = MathUtility.Lerp(
+                    animatedOffset.Translation = animatedOffset.Translation.WithX(MathUtility.Lerp(
                         previous.Value.FloatValue,
                         next.Value.FloatValue,
-                        amount);
+                        amount));
                     break;
 
                 case AnimationClipType.TranslationY:
-                    _boneTransforms[clip.Bone].Translation.Y = MathUtility.Lerp(
+                    animatedOffset.Translation = animatedOffset.Translation.WithY(MathUtility.Lerp(
                         previous.Value.FloatValue,
                         next.Value.FloatValue,
-                        amount);
+                        amount));
                     break;
 
                 case AnimationClipType.TranslationZ:
-                    _boneTransforms[clip.Bone].Translation.Z = MathUtility.Lerp(
+                    animatedOffset.Translation = animatedOffset.Translation.WithZ(MathUtility.Lerp(
                         previous.Value.FloatValue,
                         next.Value.FloatValue,
-                        amount);
+                        amount));
                     break;
 
                 case AnimationClipType.Quaternion:
-                    _boneTransforms[clip.Bone].Rotation = Quaternion.Lerp(
+                    _boneInstances[clip.Bone].AnimatedOffset.Rotation = Quaternion.Lerp(
                         previous.Value.Quaternion,
                         next.Value.Quaternion,
                         amount);
                     break;
 
                 case AnimationClipType.Visibility:
-                    _bones[clip.Bone].Entity.Visible = previous.Value.BoolValue;
+                    _boneInstances[clip.Bone].Visible = previous.Value.BoolValue;
                     break;
 
                 default:
                     throw new InvalidOperationException();
             }
         }
-    }
-
-    public struct Transform
-    {
-        public Vector3 Translation;
-        public Quaternion Rotation;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
@@ -42,7 +43,7 @@ namespace OpenSage.Graphics
         public bool Hidden { get; }
         public bool CameraOriented { get; }
 
-        public ModelMesh(
+        internal ModelMesh(
             GraphicsDevice graphicsDevice,
             string name,
             MeshVertex.Basic[] vertices,
@@ -106,47 +107,61 @@ namespace OpenSage.Graphics
             MaterialPasses = materialPasses;
         }
 
-        internal void BuildRenderList(RenderList renderList, MeshComponent mesh)
+        internal void BuildRenderList(
+            RenderList renderList,
+            CameraComponent camera,
+            ModelInstance modelInstance,
+            in Matrix4x4 modelTransform)
         {
             if (Hidden)
             {
                 return;
             }
 
+            if (!modelInstance.BoneVisibilities[ParentBone.Index])
+            {
+                return;
+            }
+
+            var meshWorldMatrix = Skinned
+                ? modelTransform
+                : modelInstance.AbsoluteBoneTransforms[ParentBone.Index];
+
             Matrix4x4 world;
             if (CameraOriented)
             {
-                var localToWorldMatrix = mesh.Transform.LocalToWorldMatrix;
+                // TODO: I don't think this is correct yet.
 
-                var viewInverse = Matrix4x4Utility.Invert(mesh.Game.Scene.Camera.View);
+                var localToWorldMatrix = meshWorldMatrix;
+
+                var viewInverse = Matrix4x4Utility.Invert(camera.View);
                 var cameraPosition = viewInverse.Translation;
 
                 var toCamera = Vector3.Normalize(Vector3.TransformNormal(
-                    cameraPosition - mesh.Transform.WorldPosition,
-                    mesh.Transform.WorldToLocalMatrix));
+                    cameraPosition - meshWorldMatrix.Translation,
+                    Matrix4x4Utility.Invert(meshWorldMatrix)));
 
                 toCamera.Z = 0;
 
-                var cameraOrientedRotation = Matrix4x4.CreateFromQuaternion(QuaternionUtility.CreateRotation(Vector3.UnitX, toCamera));
+                var cameraOrientedRotation = Matrix4x4.CreateFromQuaternion(
+                    QuaternionUtility.CreateRotation(
+                        Vector3.UnitX,
+                        toCamera));
 
                 world = cameraOrientedRotation * localToWorldMatrix;
             }
             else
             {
-                world = mesh.Transform.LocalToWorldMatrix;
+                world = meshWorldMatrix;
             }
 
-            ModelComponent modelComponent = null;
-            if (Skinned)
-            {
-                modelComponent = mesh.Entity.GetComponent<ModelComponent>();
-            }
+            var meshBoundingBox = BoundingBox.Transform(world); // TODO: Not right for skinned meshes
 
             foreach (var materialPass in MaterialPasses)
             {
                 foreach (var meshPart in materialPass.MeshParts)
                 {
-                    meshPart.Material.SetSkinningBuffer(modelComponent?.SkinningBuffer);
+                    meshPart.Material.SetSkinningBuffer(modelInstance.SkinningBuffer);
 
                     var renderQueue = meshPart.Material.PipelineState.BlendState.AttachmentStates[0].BlendEnabled
                         ? renderList.Transparent
@@ -157,7 +172,7 @@ namespace OpenSage.Graphics
                         _vertexBuffer,
                         materialPass.TexCoordVertexBuffer,
                         CullFlags.None,
-                        mesh,
+                        meshBoundingBox,
                         world,
                         meshPart.StartIndex,
                         meshPart.IndexCount,

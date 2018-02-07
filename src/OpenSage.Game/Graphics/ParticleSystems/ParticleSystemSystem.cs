@@ -5,16 +5,12 @@ namespace OpenSage.Graphics.ParticleSystems
 {
     public sealed class ParticleSystemSystem : GameSystem
     {
-        private readonly List<ParticleSystem> _particleSystems;
-
-        private readonly List<ParticleSystem> _deadParticleSystems;
+        private readonly List<AttachedParticleSystem> _deadParticleSystems;
 
         public ParticleSystemSystem(Game game)
             : base(game)
         {
-            RegisterComponentList(_particleSystems = new List<ParticleSystem>());
-
-            _deadParticleSystems = new List<ParticleSystem>();
+            _deadParticleSystems = new List<AttachedParticleSystem>();
 
             switch (game.SageGame)
             {
@@ -29,21 +25,27 @@ namespace OpenSage.Graphics.ParticleSystems
 
         public override void Update(GameTime gameTime)
         {
-            for (var i = 0; i < _particleSystems.Count; i++)
+            if (Game.Scene3D == null)
             {
-                var particleSystem = _particleSystems[i];
+                return;
+            }
+
+            // TODO: This could be more efficient if we knew upfront about all particle systems.
+            foreach (var attachedParticleSystem in Game.Scene3D.GetAllAttachedParticleSystems())
+            {
+                var particleSystem = attachedParticleSystem.ParticleSystem;
 
                 particleSystem.Update(gameTime);
 
                 if (particleSystem.State == ParticleSystemState.Dead)
                 {
-                    _deadParticleSystems.Add(particleSystem);
+                    _deadParticleSystems.Add(attachedParticleSystem);
                 }
             }
 
             foreach (var deadParticleSystem in _deadParticleSystems)
             {
-                deadParticleSystem.Entity.Components.Remove(deadParticleSystem);
+                deadParticleSystem.Detach();
             }
 
             _deadParticleSystems.Clear();
@@ -51,9 +53,19 @@ namespace OpenSage.Graphics.ParticleSystems
 
         internal override void BuildRenderList(RenderList renderList)
         {
-            foreach (var particleSystem in _particleSystems)
+            if (Game.Scene3D == null)
             {
-                particleSystem.BuildRenderList(renderList);
+                return;
+            }
+
+            // TODO: Keep particle count under GameData.MaxParticleCount
+            foreach (var attachedParticleSystem in Game.Scene3D.GetAllAttachedParticleSystems())
+            {
+                var worldMatrix = attachedParticleSystem.ParticleSystem.GetWorldMatrix();
+
+                attachedParticleSystem.ParticleSystem.BuildRenderList(
+                    renderList,
+                    worldMatrix);
             }
         }
     }

@@ -10,49 +10,15 @@ namespace OpenSage.Graphics
 
         public ModelBone Parent { get; }
 
-        private Vector3 _translation;
-        public Vector3 Translation
-        {
-            get => _translation;
-            set
-            {
-                _translation = value;
-                _cachedTransform = null;
-            }
-        }
+        public Transform Transform { get; }
 
-        private Quaternion _rotation;
-        public Quaternion Rotation
-        {
-            get => _rotation;
-            set
-            {
-                _rotation = value;
-                _cachedTransform = null;
-            }
-        }
-
-        private Matrix4x4? _cachedTransform;
-        public Matrix4x4 Transform
-        {
-            get
-            {
-                if (_cachedTransform == null)
-                {
-                    _cachedTransform = Matrix4x4.CreateFromQuaternion(_rotation) * Matrix4x4.CreateTranslation(_translation);
-                }
-                return _cachedTransform.Value;
-            }
-        }
-
-        internal ModelBone(int index, string name, ModelBone parent, Vector3 translation, Quaternion rotation)
+        internal ModelBone(int index, string name, ModelBone parent, in Vector3 translation, in Quaternion rotation)
         {
             Index = index;
             Name = name;
             Parent = parent;
 
-            _translation = translation;
-            _rotation = rotation;
+            Transform = new Transform(translation, rotation);
         }
     }
 }

@@ -12,10 +12,10 @@ namespace OpenSage.Scripting.Actions
     {
         public static ActionResult SetupCamera(ScriptAction action, ScriptExecutionContext context)
         {
-            var positionWaypoint = context.Scene.Settings.Waypoints[action.Arguments[0].StringValue];
+            var positionWaypoint = context.Scene.Waypoints[action.Arguments[0].StringValue];
             var zoom = action.Arguments[1].FloatValue.Value;
             var pitch = action.Arguments[2].FloatValue.Value;
-            var targetWaypoint = context.Scene.Settings.Waypoints[action.Arguments[3].StringValue];
+            var targetWaypoint = context.Scene.Waypoints[action.Arguments[3].StringValue];
 
             context.Scene.CameraController.EndAnimation();
 
@@ -48,7 +48,7 @@ namespace OpenSage.Scripting.Actions
         public static ActionResult CameraModFinalLookToward(ScriptAction action, ScriptExecutionContext context)
         {
             var waypointName = action.Arguments[0].StringValue;
-            var waypoint = context.Scene.Settings.Waypoints[waypointName];
+            var waypoint = context.Scene.Waypoints[waypointName];
 
             context.Scene.CameraController.ModFinalLookToward(waypoint.Position);
 
@@ -59,7 +59,7 @@ namespace OpenSage.Scripting.Actions
         public static ActionResult CameraModLookToward(ScriptAction action, ScriptExecutionContext context)
         {
             var waypointName = action.Arguments[0].StringValue;
-            var waypoint = context.Scene.Settings.Waypoints[waypointName];
+            var waypoint = context.Scene.Waypoints[waypointName];
 
             context.Scene.CameraController.ModLookToward(waypoint.Position);
 
@@ -68,7 +68,7 @@ namespace OpenSage.Scripting.Actions
 
         public static ActionResult MoveCameraTo(ScriptAction action, ScriptExecutionContext context)
         {
-            var targetWaypoint = context.Scene.Settings.Waypoints[action.Arguments[0].StringValue];
+            var targetWaypoint = context.Scene.Waypoints[action.Arguments[0].StringValue];
             var duration = TimeSpan.FromSeconds(action.Arguments[1].FloatValue.Value);
             var shutter = action.Arguments[2].FloatValue.Value;
 
@@ -77,8 +77,8 @@ namespace OpenSage.Scripting.Actions
 
         public static ActionResult MoveCameraAlongWaypointPath(ScriptAction action, ScriptExecutionContext context)
         {
-            var firstNode = context.Scene.Settings.Waypoints[action.Arguments[0].StringValue];
-            var path = context.Scene.Settings.WaypointPaths.GetFullPath(firstNode).ToList();
+            var firstNode = context.Scene.Waypoints[action.Arguments[0].StringValue];
+            var path = context.Scene.WaypointPaths.GetFullPath(firstNode).ToList();
             var totalDuration = TimeSpan.FromSeconds(action.Arguments[1].FloatValue.Value);
             var shutter = action.Arguments[2].FloatValue.Value;
 

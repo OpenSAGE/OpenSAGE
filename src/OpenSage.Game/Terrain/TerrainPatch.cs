@@ -7,7 +7,7 @@ using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Terrain
 {
-    public sealed class TerrainPatch : ICullable
+    public sealed class TerrainPatch
     {
         private readonly DeviceBuffer _vertexBuffer;
         private readonly DeviceBuffer _indexBuffer;
@@ -20,10 +20,6 @@ namespace OpenSage.Terrain
         public BoundingBox BoundingBox { get; }
 
         public Triangle[] Triangles { get; }
-
-        bool ICullable.VisibleInHierarchy => true;
-
-        BoundingBox ICullable.BoundingBox => BoundingBox;
 
         internal TerrainPatch(
             TerrainMaterial terrainMaterial,
@@ -57,7 +53,7 @@ namespace OpenSage.Terrain
 
             for (var i = 0; i < Triangles.Length; i++)
             {
-                if (ray.Intersects(ref Triangles[i], out var intersection))
+                if (ray.Intersects(Triangles[i], out var intersection))
                 {
                     if (closestIntersection != null)
                     {
@@ -81,7 +77,7 @@ namespace OpenSage.Terrain
                 _vertexBuffer,
                 null,
                 CullFlags.None,
-                this,
+                BoundingBox,
                 Matrix4x4.Identity,
                 0,
                 _numIndices,

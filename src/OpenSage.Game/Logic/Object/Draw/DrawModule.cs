@@ -1,18 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Graphics.Cameras;
+using OpenSage.Graphics.ParticleSystems;
+using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Logic.Object
 {
-    public abstract class DrawableComponent : EntityComponent
+    public abstract class DrawModule : DisposableBase
     {
         public abstract IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; }
+
+        internal virtual IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
+        {
+            yield break;
+        }
 
         public virtual void UpdateConditionState(BitArray<ModelConditionFlag> flags)
         {
 
         }
+
+        internal abstract void Update(GameTime gameTime);
+
+        internal abstract void SetWorldMatrix(in Matrix4x4 worldMatrix);
+
+        internal abstract void BuildRenderList(RenderList renderList, CameraComponent camera);
     }
 
     public abstract class DrawModuleData : ModuleData
@@ -41,5 +57,7 @@ namespace OpenSage.Logic.Object
             { "W3DTreeDraw", W3dTreeDrawModuleData.Parse },
             { "W3DTruckDraw", W3dTruckDrawModuleData.Parse },
         };
+
+        internal virtual DrawModule CreateDrawModule(ContentManager contentManager) => null; // TODO: Make this abstract.
     }
 }

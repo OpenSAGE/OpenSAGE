@@ -6,7 +6,7 @@ namespace OpenSage.Content
 {
     internal sealed class AptLoader : ContentLoader<AptWindow>
     {
-        protected override AptWindow LoadEntry(FileSystemEntry entry, ContentManager contentManager, LoadOptions loadOptions)
+        protected override AptWindow LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
         {
             var aptFile = AptFile.FromFileSystemEntry(entry);
             return AddDisposable(new AptWindow(contentManager, aptFile));

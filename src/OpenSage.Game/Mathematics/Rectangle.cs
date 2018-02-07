@@ -10,6 +10,8 @@ namespace OpenSage.Mathematics
         public readonly int Width;
         public readonly int Height;
 
+        public Size Size => new Size(Width, Height);
+
         public int Left => X;
         public int Right => X + Width;
         public int Top => Y;

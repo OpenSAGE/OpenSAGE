@@ -27,13 +27,14 @@ namespace OpenSage.Scripting
         // How many updates are performed per second?
         public const int TickRate = 30;
 
-        private readonly List<ScriptComponent> _scripts;
-        private readonly Dictionary<string, MapScript> _scriptsByName;
-
         private readonly ScriptExecutionContext _executionContext;
 
         private readonly List<ActionResult.ActionContinuation> _activeCoroutines;
         private readonly List<ActionResult.ActionContinuation> _finishedCoroutines;
+
+        private bool _30hzHack = true;
+
+        private MapScriptCollection _mapScripts;
 
         public Dictionary<string, bool> Flags { get; }
         public CounterCollection Counters { get; }
@@ -43,71 +44,22 @@ namespace OpenSage.Scripting
 
         public ulong Frame { get; private set; }
 
-        private bool _30hzHack = true;
-
         public event EventHandler<ScriptingSystem> OnUpdateFinished; 
 
         public ScriptingSystem(Game game) : base(game)
         {
-            RegisterComponentList(_scripts = new List<ScriptComponent>());
-
             Flags = new Dictionary<string, bool>();
             Counters = new CounterCollection();
             Timers = new TimerCollection(Counters);
 
             _executionContext = new ScriptExecutionContext(game);
 
-            _scriptsByName = new Dictionary<string, MapScript>();
-
             _activeCoroutines = new List<ActionResult.ActionContinuation>();
             _finishedCoroutines = new List<ActionResult.ActionContinuation>();
         }
 
-        internal override void OnEntityComponentAdded(EntityComponent component)
-        {
-            if (component is ScriptComponent)
-            {
-                UpdateScriptIndex();
-            }
-            base.OnEntityComponentAdded(component);
-        }
-
-        internal override void OnEntityComponentRemoved(EntityComponent component)
-        {
-            if (component is ScriptComponent)
-            {
-                UpdateScriptIndex();
-            }
-            base.OnEntityComponentRemoved(component);
-        }
-
-        // Note: This is only updated when ScriptComponents are added or removed.
-        // Since ScriptComponent is not immutable, it can be modified and thus contain
-        // scripts that are not included in the index. 
-        private void UpdateScriptIndex()
-        {
-            _scriptsByName.Clear();
-
-            foreach (var component in _scripts)
-            {
-                foreach (var script in component.Scripts)
-                {
-                    _scriptsByName[script.Name] = script;
-                }
-
-                foreach (var scriptGroup in component.ScriptGroups)
-                {
-                    foreach (var script in scriptGroup.Scripts)
-                    {
-                        _scriptsByName[script.Name] = script;
-                    }
-                }
-            }
-        }
-
         internal override void OnSceneChanging()
         {
-            _scriptsByName.Clear();
             _activeCoroutines.Clear();
 
             Flags.Clear();
@@ -115,18 +67,17 @@ namespace OpenSage.Scripting
             Timers.Clear();
 
             Frame = 0;
-
-            base.OnSceneChanging();
         }
 
         internal override void OnSceneChanged()
         {
-            UpdateScriptIndex();
+            _mapScripts = Game.Scene3D?.Scripts;
         }
 
         public void EnableScript(string name)
         {
-            if (_scriptsByName.TryGetValue(name, out var mapScript))
+            var mapScript = _mapScripts?.FindScript(name);
+            if (mapScript != null)
             {
                 mapScript.IsActive = true;
             }
@@ -134,7 +85,8 @@ namespace OpenSage.Scripting
 
         public void DisableScript(string name)
         {
-            if (_scriptsByName.TryGetValue(name, out var mapScript))
+            var mapScript = _mapScripts?.FindScript(name);
+            if (mapScript != null)
             {
                 mapScript.IsActive = false;
             }
@@ -142,7 +94,8 @@ namespace OpenSage.Scripting
 
         public void ExecuteSubroutine(string name)
         {
-            if (_scriptsByName.TryGetValue(name, out var mapScript))
+            var mapScript = _mapScripts?.FindScript(name);
+            if (mapScript != null)
             {
                 mapScript.ExecuteAsSubroutine(_executionContext);
             }
@@ -155,11 +108,19 @@ namespace OpenSage.Scripting
 
         public override void Update(GameTime gameTime)
         {
+            if (_mapScripts == null)
+            {
+                return;
+            }
+
             // TODO: Remove this hack when we have separate update and render loops.
             _30hzHack = !_30hzHack;
             if (_30hzHack) return;
 
-            if (!Active) return;
+            if (!Active)
+            {
+                return;
+            }
 
             foreach (var coroutine in _activeCoroutines)
             {
@@ -175,10 +136,7 @@ namespace OpenSage.Scripting
                 _activeCoroutines.Remove(coroutine);
             }
 
-            foreach (var scriptComponent in _scripts)
-            {
-                scriptComponent.Execute(_executionContext);
-            }
+            _mapScripts.Execute(_executionContext);
 
             OnUpdateFinished?.Invoke(this, this);
 

@@ -20,25 +20,22 @@ namespace OpenSage.Gui.Apt
 
         public void PushWindow(AptWindow window)
         {
-            CreateSizeDependentResources(window);
+            CreateSizeDependentResources(window, _game.Window.ClientBounds.Size);
 
             _windowStack.Push(window);
         }
 
-        internal void OnViewportSizeChanged()
+        internal void OnViewportSizeChanged(in Size newSize)
         {
             foreach (var window in _windowStack)
             {
-                CreateSizeDependentResources(window);
+                CreateSizeDependentResources(window, newSize);
             }
         }
 
-        private void CreateSizeDependentResources(AptWindow window)
+        private void CreateSizeDependentResources(AptWindow window, in Size newSize)
         {
-            var viewport = _game.Scene.Camera.Viewport;
-            var size = new Size((int) viewport.Width, (int) viewport.Height);
-
-            window.Layout(_game.GraphicsDevice, size);
+            window.Layout(_game.GraphicsDevice, newSize);
         }
 
         internal void Update(GameTime gameTime)

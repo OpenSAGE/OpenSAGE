@@ -4,14 +4,11 @@ using System.IO;
 using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Graphics;
-using OpenSage.Graphics.Animation;
-using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Gui.Wnd;
 using OpenSage.Input;
 using OpenSage.Logic;
-using OpenSage.Logic.Object;
 using OpenSage.Scripting;
 using Veldrid;
 
@@ -19,11 +16,18 @@ namespace OpenSage
 {
     public sealed class Game : DisposableBase
     {
+        public event EventHandler<GameUpdatingEventArgs> Updating;
         public event EventHandler<Rendering2DEventArgs> Rendering2D;
+        public event EventHandler<BuildingRenderListEventArgs> BuildingRenderList;
 
         internal void RaiseRendering2D(Rendering2DEventArgs args)
         {
             Rendering2D?.Invoke(this, args);
+        }
+
+        internal void RaiseBuildingRenderList(BuildingRenderListEventArgs args)
+        {
+            BuildingRenderList?.Invoke(this, args);
         }
 
         private readonly FileSystem _fileSystem;
@@ -32,8 +36,6 @@ namespace OpenSage
 
         private readonly Dictionary<string, Cursor> _cachedCursors;
         private Cursor _currentCursor;
-
-        private Scene _scene;
 
         public ContentManager ContentManager { get; private set; }
 
@@ -74,6 +76,31 @@ namespace OpenSage
 
         public GameWindow Window { get; }
 
+        public Viewport Viewport { get; private set; }
+
+        public Scene2D Scene2D { get; }
+
+        private Scene3D _scene3D;
+        public Scene3D Scene3D
+        {
+            get => _scene3D;
+            set
+            {
+                foreach (var gameSystem in GameSystems)
+                {
+                    gameSystem.OnSceneChanging();
+                }
+
+                RemoveAndDispose(ref _scene3D);
+                _scene3D = AddDisposable(value);
+
+                foreach (var gameSystem in GameSystems)
+                {
+                    gameSystem.OnSceneChanged();
+                }
+            }
+        }
+
         public Game(
             FileSystem fileSystem,
             SageGame sageGame,
@@ -105,28 +132,10 @@ namespace OpenSage
 
             _wndCallbackResolver = new WndCallbackResolver(wndCallbacksType);
 
-            Window.ClientSizeChanged += (sender, e) =>
-            {
-                GraphicsDevice.ResizeMainWindow(
-                    (uint) Window.ClientBounds.Width,
-                    (uint) Window.ClientBounds.Height);
-
-                if (Scene != null)
-                {
-                    Scene.Camera.OnWindowSizeChanged(Window);
-                    Scene.Scene2D.WndWindowManager.OnViewportSizeChanged();
-                    Scene.Scene2D.AptWindowManager.OnViewportSizeChanged();
-                }
-
-                foreach (var gameSystem in GameSystems)
-                {
-                    gameSystem.OnSwapChainChanged();
-                }
-            };
-
             ResetElapsedTime();
 
             ContentManager = AddDisposable(new ContentManager(
+                this,
                 _fileSystem, 
                 GraphicsDevice,
                 sageGame,
@@ -149,8 +158,6 @@ namespace OpenSage
 
             Input = AddDisposable(new InputSystem(this));
 
-            AddDisposable(new AnimationSystem(this));
-            AddDisposable(new ObjectSystem(this));
             AddDisposable(new ParticleSystemSystem(this));
 
             Graphics = AddDisposable(new GraphicsSystem(this));
@@ -159,6 +166,11 @@ namespace OpenSage
 
             EntityPicker = AddDisposable(new DebugEntityPickerSystem(this));
 
+            Scene2D = new Scene2D(this);
+
+            Window.ClientSizeChanged += OnWindowClientSizeChanged;
+            OnWindowClientSizeChanged(this, EventArgs.Empty);
+
             GameSystems.ForEach(gs => gs.Initialize());
 
             SetCursor("Arrow");
@@ -166,82 +178,31 @@ namespace OpenSage
             IsRunning = true;
         }
 
+        private void OnWindowClientSizeChanged(object sender, EventArgs e)
+        {
+            var newSize = Window.ClientBounds.Size;
+
+            GraphicsDevice.ResizeMainWindow(
+                (uint) newSize.Width,
+                (uint) newSize.Height);
+
+            Viewport = new Viewport(
+                0,
+                0,
+                newSize.Width,
+                newSize.Height,
+                0,
+                1);
+
+            Scene2D.WndWindowManager.OnViewportSizeChanged(newSize);
+            Scene2D.AptWindowManager.OnViewportSizeChanged(newSize);
+
+            Scene3D?.Camera.OnViewportSizeChanged();
+        }
+
         public void ResetElapsedTime()
         {
             _gameTimer.Reset();
-        }
-
-        public Scene Scene
-        {
-            get { return _scene; }
-            set
-            {
-                var oldScene = _scene;
-                if (oldScene == value)
-                {
-                    return;
-                }
-
-                if (oldScene != null)
-                {
-                    foreach (var system in GameSystems)
-                        system.OnSceneChanging();
-
-                    RemoveComponentsRecursive(oldScene.Entities);
-                    oldScene.Game = null;
-                }
-
-                _scene = value;
-
-                if (_scene != null)
-                {
-                    _scene.Game = this;
-
-                    _scene.Scene2D = new Scene2D(this);
-
-                    _scene.Camera.OnWindowSizeChanged(Window);
-
-                    if (_scene.CameraController == null)
-                    {
-                        _scene.CameraController = new RtsCameraController(ContentManager);
-                    }
-
-                    AddComponentsRecursive(_scene.Entities);
-                }
-
-                foreach (var system in GameSystems)
-                    system.OnSceneChanged();
-            }
-        }
-
-        private void RemoveComponentsRecursive(IEnumerable<Entity> entities)
-        {
-            foreach (var entity in entities)
-            {
-                RemoveComponentsRecursive(entity);
-            }
-        }
-
-        internal void RemoveComponentsRecursive(Entity entity)
-        {
-            OnEntityComponentsRemoved(entity.Components);
-
-            RemoveComponentsRecursive(entity.GetChildren());
-        }
-
-        private void AddComponentsRecursive(IEnumerable<Entity> entities)
-        {
-            foreach (var entity in entities)
-            {
-                AddComponentsRecursive(entity);
-            }
-        }
-
-        internal void AddComponentsRecursive(Entity entity)
-        {
-            OnEntityComponentsAdded(entity.Components);
-
-            AddComponentsRecursive(entity.GetChildren());
         }
 
         // Needed by Data Viewer.
@@ -324,37 +285,23 @@ namespace OpenSage
 
         private void Update(GameTime gameTime)
         {
-            foreach (var gameSystem in GameSystems)
-                gameSystem.Update(gameTime);
+            Updating?.Invoke(this, new GameUpdatingEventArgs(gameTime));
 
-            Scene?.Update(gameTime);
+            foreach (var gameSystem in GameSystems)
+            {
+                gameSystem.Update(gameTime);
+            }
+
+            Scene2D.Update(gameTime);
+
+            Scene3D?.Update(gameTime);
         }
 
         private void Draw(GameTime gameTime)
         {
             foreach (var gameSystem in GameSystems)
+            {
                 gameSystem.Draw(gameTime);
-        }
-
-        internal void OnEntityComponentsAdded(IEnumerable<EntityComponent> components)
-        {
-            foreach (var component in components)
-            {
-                component.Initialize();
-
-                foreach (var system in GameSystems)
-                    system.OnEntityComponentAdded(component);
-            }
-        }
-
-        internal void OnEntityComponentsRemoved(IEnumerable<EntityComponent> components)
-        {
-            foreach (var component in components)
-            {
-                component.Uninitialize();
-
-                foreach (var system in GameSystems)
-                    system.OnEntityComponentRemoved(component);
             }
         }
     }
