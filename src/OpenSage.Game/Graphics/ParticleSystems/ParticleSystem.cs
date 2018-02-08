@@ -17,10 +17,11 @@ using Veldrid;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
-    public delegate ref readonly Matrix4x4 GetMatrixReferenceDelegate();
 
     public sealed class ParticleSystem : DisposableBase
     {
+        public delegate ref readonly Matrix4x4 GetMatrixReferenceDelegate();
+
         private readonly GetMatrixReferenceDelegate _getWorldMatrix;
 
         private readonly GraphicsDevice _graphicsDevice;
@@ -43,14 +44,14 @@ namespace OpenSage.Graphics.ParticleSystems
         private int _timer;
         private int _nextBurst;
 
-        private Particle[] _particles;
-        private List<int> _deadList;
+        private readonly Particle[] _particles;
+        private readonly List<int> _deadList;
 
-        private DeviceBuffer _vertexBuffer;
-        private ParticleVertex[] _vertices;
+        private readonly DeviceBuffer _vertexBuffer;
+        private readonly ParticleVertex[] _vertices;
 
-        private DeviceBuffer _indexBuffer;
-        private uint _numIndices;
+        private readonly DeviceBuffer _indexBuffer;
+        private readonly uint _numIndices;
 
         public ParticleSystemDefinition Definition { get; }
 
@@ -311,11 +312,6 @@ namespace OpenSage.Graphics.ParticleSystems
 
             particle.VelocityDamping = Definition.VelocityDamping.GetRandomFloat();
 
-            RandomiseAlphaKeyframes(ref particle);
-        }
-
-        private void RandomiseAlphaKeyframes(ref Particle particle)
-        {
             var alphaKeyframes = particle.AlphaKeyframes;
             alphaKeyframes.Clear();
 
@@ -369,7 +365,7 @@ namespace OpenSage.Graphics.ParticleSystems
             particle.AngleZ += particle.AngularRateZ;
             particle.AngularRateZ *= particle.AngularDamping;
 
-            FindKeyFrames(particle.Timer, _colorKeyframes, out var nextC, out var prevC);
+            FindKeyframes(particle.Timer, _colorKeyframes, out var nextC, out var prevC);
 
             if (!prevC.Equals(nextC))
             {
@@ -387,7 +383,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
             if (particle.AlphaKeyframes.Count > 1)
             {
-                FindKeyFrames(particle.Timer, particle.AlphaKeyframes, out var nextA, out var prevA);
+                FindKeyframes(particle.Timer, particle.AlphaKeyframes, out var nextA, out var prevA);
 
                 if (!prevA.Equals(nextA))
                 {
@@ -407,10 +403,10 @@ namespace OpenSage.Graphics.ParticleSystems
             particle.Timer += 1;
         }
 
-        private static void FindKeyFrames<TKeyFrame>(int timer,
-            IReadOnlyList<TKeyFrame> keyFrames,
-            out TKeyFrame next, out TKeyFrame prev)
-            where TKeyFrame : struct, IParticleKeyframe
+        private static void FindKeyframes<T>(int timer,
+            IReadOnlyList<T> keyFrames,
+            out T next, out T prev)
+            where T : struct, IParticleKeyframe
         {
             prev = keyFrames[0];
             next = prev;
@@ -455,7 +451,7 @@ namespace OpenSage.Graphics.ParticleSystems
             _graphicsDevice.UpdateBuffer(_vertexBuffer, 0, _vertices);
         }
 
-        public Matrix4x4 GetWorldMatrix() => _getWorldMatrix();
+        public ref readonly Matrix4x4 GetWorldMatrix() => ref _getWorldMatrix();
 
         public void BuildRenderList(RenderList renderList, in Matrix4x4 worldMatrix)
         {
