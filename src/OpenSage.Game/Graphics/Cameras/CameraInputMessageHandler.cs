@@ -22,7 +22,7 @@ namespace OpenSage.Graphics.Cameras
             switch (message.MessageType)
             {
                 case InputMessageType.MouseMove:
-                    if (_leftMouseDown)
+                    if (_leftMouseDown || _rightMouseDown)
                     {
                         _deltaX += message.MouseX.Value - _lastX;
                         _deltaY += message.MouseY.Value - _lastY;

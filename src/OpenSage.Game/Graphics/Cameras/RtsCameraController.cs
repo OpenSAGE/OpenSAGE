@@ -129,8 +129,17 @@ namespace OpenSage.Graphics.Cameras
 
             ZoomCamera(-inputState.ScrollWheelValue);
 
-            var forwards = GetKeyMovement(inputState, Key.Up, Key.Down);
-            var right = GetKeyMovement(inputState, Key.Right, Key.Left);
+            float forwards, right;
+            if (inputState.RightMouseDown)
+            {
+                forwards = -inputState.DeltaY;
+                right = inputState.DeltaX;
+            }
+            else
+            {
+                forwards = GetKeyMovement(inputState, Key.Up, Key.Down);
+                right = GetKeyMovement(inputState, Key.Right, Key.Left);
+            }
             PanCamera(forwards, right);
 
             if (_animation != null)

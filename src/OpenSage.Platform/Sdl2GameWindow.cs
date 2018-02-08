@@ -122,7 +122,7 @@ namespace OpenSage
                 null,
                 _lastMouseX,
                 _lastMouseY,
-                (int) (args.WheelDelta * 50)));
+                (int) (args.WheelDelta * 100)));
         }
 
         public override void SetCursor(Cursor cursor)
