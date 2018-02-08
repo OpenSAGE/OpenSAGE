@@ -188,7 +188,7 @@ namespace OpenSage.Logic.Object
                     particleSystems.Add(new ParticleSystem(
                         _contentManager,
                         particleSystemDefinition,
-                        () => modelInstance.AbsoluteBoneTransforms[bone.Index]));
+                        () => ref modelInstance.AbsoluteBoneTransforms[bone.Index]));
                 }
             }
 

@@ -31,10 +31,10 @@ namespace OpenSage.Graphics.ParticleSystems
         public float Alpha;
     }
 
-    internal sealed class ParticleAlphaKeyframe
+    internal readonly struct ParticleAlphaKeyframe : IParticleKeyframe
     {
-        public int Time;
-        public float Alpha;
+        public int Time { get; }
+        public readonly float Alpha;
 
         public ParticleAlphaKeyframe(RandomAlphaKeyframe keyframe)
         {

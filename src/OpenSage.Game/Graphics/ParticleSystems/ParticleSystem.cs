@@ -17,9 +17,11 @@ using Veldrid;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
+    public delegate ref readonly Matrix4x4 GetMatrixReferenceDelegate();
+
     public sealed class ParticleSystem : DisposableBase
     {
-        private readonly Func<Matrix4x4> _getWorldMatrix;
+        private readonly GetMatrixReferenceDelegate _getWorldMatrix;
 
         private readonly GraphicsDevice _graphicsDevice;
 
@@ -57,7 +59,7 @@ namespace OpenSage.Graphics.ParticleSystems
         public ParticleSystem(
             ContentManager contentManager,
             ParticleSystemDefinition definition,
-            Func<Matrix4x4> getWorldMatrix)
+            GetMatrixReferenceDelegate getWorldMatrix)
         {
             Definition = definition;
 
@@ -115,6 +117,7 @@ namespace OpenSage.Graphics.ParticleSystems
             _particles = new Particle[maxParticles];
             for (var i = 0; i < _particles.Length; i++)
             {
+                _particles[i].AlphaKeyframes = new List<ParticleAlphaKeyframe>();
                 _particles[i].Dead = true;
             }
 
@@ -308,7 +311,13 @@ namespace OpenSage.Graphics.ParticleSystems
 
             particle.VelocityDamping = Definition.VelocityDamping.GetRandomFloat();
 
-            var alphaKeyframes = particle.AlphaKeyframes = new List<ParticleAlphaKeyframe>();
+            RandomiseAlphaKeyframes(ref particle);
+        }
+
+        private void RandomiseAlphaKeyframes(ref Particle particle)
+        {
+            var alphaKeyframes = particle.AlphaKeyframes;
+            alphaKeyframes.Clear();
 
             if (Definition.Alpha1 != null)
             {
@@ -360,29 +369,12 @@ namespace OpenSage.Graphics.ParticleSystems
             particle.AngleZ += particle.AngularRateZ;
             particle.AngularRateZ *= particle.AngularDamping;
 
-            ParticleColorKeyframe nextC = null;
-            ParticleColorKeyframe prevC = null;
-            foreach (var colorKeyframe in _colorKeyframes)
-            {
-                if (colorKeyframe.Time >= particle.Timer)
-                {
-                    nextC = colorKeyframe;
-                    break;
-                }
-                prevC = colorKeyframe;
-            }
-            if (prevC == null)
-            {
-                prevC = _colorKeyframes[0];
-            }
-            if (nextC == null)
-            {
-                nextC = prevC;
-            }
-            if (prevC != nextC)
+            FindKeyFrames(particle.Timer, _colorKeyframes, out var nextC, out var prevC);
+
+            if (!prevC.Equals(nextC))
             {
                 var colorInterpoland = (float) (particle.Timer - prevC.Time) / (nextC.Time - prevC.Time);
-                particle.Color = Vector3Utility.Lerp(ref prevC.Color, ref nextC.Color, colorInterpoland);
+                particle.Color = Vector3Utility.Lerp(in prevC.Color, in nextC.Color, colorInterpoland);
             }
             else
             {
@@ -395,26 +387,9 @@ namespace OpenSage.Graphics.ParticleSystems
 
             if (particle.AlphaKeyframes.Count > 1)
             {
-                ParticleAlphaKeyframe nextA = null;
-                ParticleAlphaKeyframe prevA = null;
-                foreach (var alphaKeyframe in particle.AlphaKeyframes)
-                {
-                    if (alphaKeyframe.Time >= particle.Timer)
-                    {
-                        nextA = alphaKeyframe;
-                        break;
-                    }
-                    prevA = alphaKeyframe;
-                }
-                if (prevA == null)
-                {
-                    prevA = particle.AlphaKeyframes[0];
-                }
-                if (nextA == null)
-                {
-                    nextA = prevA;
-                }
-                if (prevA != nextA)
+                FindKeyFrames(particle.Timer, particle.AlphaKeyframes, out var nextA, out var prevA);
+
+                if (!prevA.Equals(nextA))
                 {
                     var alphaInterpoland = (float) (particle.Timer - prevA.Time) / (nextA.Time - prevA.Time);
                     particle.Alpha = MathUtility.Lerp(prevA.Alpha, nextA.Alpha, alphaInterpoland);
@@ -430,6 +405,26 @@ namespace OpenSage.Graphics.ParticleSystems
             }
 
             particle.Timer += 1;
+        }
+
+        private static void FindKeyFrames<TKeyFrame>(int timer,
+            IReadOnlyList<TKeyFrame> keyFrames,
+            out TKeyFrame next, out TKeyFrame prev)
+            where TKeyFrame : struct, IParticleKeyframe
+        {
+            prev = keyFrames[0];
+            next = prev;
+
+            foreach (var keyFrame in keyFrames)
+            {
+                if (keyFrame.Time >= timer)
+                {
+                    next = keyFrame;
+                    break;
+                }
+
+                prev = keyFrame;
+            }
         }
 
         private void UpdateVertexBuffer()
@@ -501,10 +496,10 @@ namespace OpenSage.Graphics.ParticleSystems
         Dead
     }
 
-    internal sealed class ParticleColorKeyframe
+    internal readonly struct ParticleColorKeyframe : IParticleKeyframe
     {
-        public uint Time;
-        public Vector3 Color;
+        public int Time { get; }
+        public readonly Vector3 Color;
 
         public ParticleColorKeyframe(RgbColorKeyframe keyframe)
         {
@@ -512,5 +507,9 @@ namespace OpenSage.Graphics.ParticleSystems
             Color = keyframe.Color.ToVector3();
         }
     }
-    
+
+    internal interface IParticleKeyframe
+    {
+        int Time { get; }
+    }
 }
