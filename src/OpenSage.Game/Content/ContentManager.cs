@@ -198,6 +198,8 @@ namespace OpenSage.Content
                 asset = contentLoader.PlaceholderValue;
             }
 
+            GraphicsDevice.WaitForIdle();
+
             return (T) asset;
         }
 

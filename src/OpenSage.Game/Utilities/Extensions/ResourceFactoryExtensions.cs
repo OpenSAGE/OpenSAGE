@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Veldrid;
 
@@ -117,8 +116,6 @@ namespace OpenSage.Utilities.Extensions
             for (var level = 0u; level < mipMapLevels; level++)
             {
                 var mipMap = mipMapData[level];
-                //var data = mipMapData[level].Data;
-                //var rowWidth = mipMapData[level].RowPitch;
 
                 fixed (void* pin = mipMap.Data)
                 {
@@ -132,28 +129,6 @@ namespace OpenSage.Utilities.Extensions
                         1,
                         level,
                         0);
-                    //var map = graphicsDevice.Map(staging, MapMode.Write, level);
-
-                    ////if (rowWidth == map.RowPitch)
-                    ////{
-                    ////    Unsafe.CopyBlock(map.Data.ToPointer(), pin, (uint) data.Length);
-                    ////}
-                    ////else
-                    //{
-                    //    var packedHeight = staging.CalculateMipMapHeight(level);
-                    //    if (pixelFormat == PixelFormat.BC3_UNorm)
-                    //    {
-                    //        packedHeight = (packedHeight + 3) / 4; // TODO_VELDRID
-                    //    }
-                    //    for (uint y = 0; y < packedHeight; y++)
-                    //    {
-                    //        var dstStart = (byte*) map.Data.ToPointer() + y * map.RowPitch;
-                    //        var srcStart = (byte*) pin + y * rowWidth;
-                    //        Unsafe.CopyBlock(dstStart, srcStart, rowWidth);
-                    //    }
-                    //}
-
-                    //graphicsDevice.Unmap(staging, level);
 
                     commandList.CopyTexture(
                         staging, 0, 0, 0, level, 0,

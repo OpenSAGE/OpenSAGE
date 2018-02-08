@@ -127,6 +127,8 @@ namespace OpenSage.Content
                     terrain.HeightMap.Height / 2)
             };
 
+            contentManager.GraphicsDevice.WaitForIdle();
+
             return new Scene3D(
                 game,
                 cameraController,
@@ -263,6 +265,8 @@ namespace OpenSage.Content
                         // TODO: Roads.
                         break;
                 }
+
+                contentManager.GraphicsDevice.WaitForIdle();
             }
 
             waypointCollection = new WaypointCollection(waypoints);
@@ -633,6 +637,8 @@ namespace OpenSage.Content
             }
 
             graphicsDevice.DisposeWhenIdle(commandList);
+
+            graphicsDevice.WaitForIdle();
         }
 
         private static uint CalculateMipMapCount(uint width, uint height)
