@@ -19,6 +19,8 @@ namespace OpenSage.Terrain
                 contentManager.GraphicsDevice.SwapchainFramebuffer.OutputDescription);
         }
 
+        public override LightingType LightingType => LightingType.Terrain;
+
         public void SetTileData(Texture tileDataTexture)
         {
             SetProperty("TileData", tileDataTexture);

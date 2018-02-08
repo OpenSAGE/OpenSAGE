@@ -9,6 +9,8 @@ using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Wnd;
 using OpenSage.Logic.Object;
+using OpenSage.Utilities;
+using OpenSage.Utilities.Extensions;
 using SixLabors.Fonts;
 using Veldrid;
 
@@ -38,6 +40,8 @@ namespace OpenSage.Content
         public Sampler PointClampSampler { get; }
 
         public Texture NullTexture { get; }
+
+        public Texture SolidWhiteTexture { get; }
 
         public FileSystem FileSystem => _fileSystem;
 
@@ -95,6 +99,14 @@ namespace OpenSage.Content
             NullTexture = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(TextureDescription.Texture2D(1, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Sampled)));
 
             _cachedNullStructuredBuffers = new Dictionary<uint, DeviceBuffer>();
+
+            SolidWhiteTexture = AddDisposable(graphicsDevice.CreateStaticTexture2D(
+                1,
+                1,
+                new TextureMipMapData(
+                    new byte[] { 255, 255, 255, 255 },
+                    4, 4, 1, 1),
+                PixelFormat.R8_G8_B8_A8_UNorm));
         }
 
         internal DeviceBuffer GetNullStructuredBuffer(uint size)

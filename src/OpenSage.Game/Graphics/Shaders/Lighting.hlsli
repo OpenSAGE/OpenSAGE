@@ -8,9 +8,12 @@ struct Light
 
 #define NUM_LIGHTS 3
 
-#define CONCAT(a, b) a ## b
+cbuffer Global_LightingConstantsVS : register(LIGHTING_CONSTANTS_VS_REGISTER)
+{
+    row_major float4x4 CloudShadowMatrix;
+};
 
-cbuffer CONCAT(LightingConstants_, LIGHTING_TYPE) : register(LIGHTING_CONSTANTS_REGISTER)
+cbuffer Global_LightingConstantsPS : register(LIGHTING_CONSTANTS_PS_REGISTER)
 {
     Light Lights[NUM_LIGHTS];
 };

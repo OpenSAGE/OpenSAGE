@@ -21,6 +21,8 @@ namespace OpenSage.Graphics.Effects
 
         public ushort ID { get; }
 
+        public virtual LightingType LightingType => LightingType.None;
+
         public EffectMaterial(ContentManager contentManager, Effect effect)
         {
             // TODO: This can overflow.

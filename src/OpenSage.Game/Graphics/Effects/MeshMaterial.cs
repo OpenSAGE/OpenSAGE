@@ -22,6 +22,8 @@ namespace OpenSage.Graphics.Effects
             SetProperty("MeshConstants", meshConstants);
         }
 
+        public override LightingType LightingType => LightingType.Object;
+
         [StructLayout(LayoutKind.Sequential, Size = 16)]
         public struct MeshConstants
         {

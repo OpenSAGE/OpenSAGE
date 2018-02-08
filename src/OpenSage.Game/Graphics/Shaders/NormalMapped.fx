@@ -1,4 +1,13 @@
 #include "Common.hlsli"
+
+//#define SPECULAR_ENABLED
+#define LIGHTING_CONSTANTS_VS_REGISTER b4
+#define LIGHTING_CONSTANTS_PS_REGISTER b5
+#include "Lighting.hlsli"
+
+#define MESH_CONSTANTS_REGISTER b2
+#define RENDER_ITEM_CONSTANTS_VS_REGISTER b3
+#define CLOUD_TEXTURE_REGISTER t3
 #include "MeshCommon.hlsli"
 
 struct VSOutputSimple
@@ -22,12 +31,7 @@ VSOutputSimple VS(VSInputSkinned input)
     return result;
 }
 
-//#define SPECULAR_ENABLED
-#define LIGHTING_TYPE Object
-#define LIGHTING_CONSTANTS_REGISTER b4
-#include "Lighting.hlsli"
-
-cbuffer MaterialConstants : register(b5)
+cbuffer MaterialConstants : register(b6)
 {
     float BumpScale;
     float SpecularExponent;
@@ -37,8 +41,8 @@ cbuffer MaterialConstants : register(b5)
     float4 SpecularColor;
 };
 
-Texture2D<float4> DiffuseTexture : register(t0);
-Texture2D<float4> NormalMap : register(t1);
+Texture2D<float4> DiffuseTexture : register(t1);
+Texture2D<float4> NormalMap : register(t2);
 
 SamplerState Sampler : register(s0);
 
@@ -84,6 +88,9 @@ float4 PS(VSOutputSimple input) : SV_Target
     float3 objectColor = diffuseTextureColor.rgb * diffuseColor;
 
     objectColor += specularColor;
+
+    float3 cloudColor = GetCloudColor(Sampler, input.TransferCommon.CloudUV);
+    objectColor *= cloudColor;
 
     return float4(
         objectColor,

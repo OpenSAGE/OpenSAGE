@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
+using OpenSage.Data.Map;
 using OpenSage.Graphics.Effects;
 using OpenSage.Mathematics;
 using Veldrid;
@@ -16,8 +17,10 @@ namespace OpenSage.Graphics.Rendering
         private readonly ConstantBuffer<GlobalConstantsVS> _globalConstantBufferVS;
         private readonly ConstantBuffer<GlobalConstantsPS> _globalConstantBufferPS;
         private readonly ConstantBuffer<RenderItemConstantsVS> _renderItemConstantsBufferVS;
-        private readonly ConstantBuffer<LightingConstants> _globalLightingTerrainBuffer;
-        private readonly ConstantBuffer<LightingConstants> _globalLightingObjectBuffer;
+        private readonly ConstantBuffer<LightingConstantsVS> _globalLightingVSTerrainBuffer;
+        private readonly ConstantBuffer<LightingConstantsPS> _globalLightingPSTerrainBuffer;
+        private readonly ConstantBuffer<LightingConstantsVS> _globalLightingVSObjectBuffer;
+        private readonly ConstantBuffer<LightingConstantsPS> _globalLightingPSObjectBuffer;
 
         private readonly SpriteBatch _spriteBatch;
 
@@ -31,8 +34,10 @@ namespace OpenSage.Graphics.Rendering
             _globalConstantBufferVS = AddDisposable(new ConstantBuffer<GlobalConstantsVS>(graphicsDevice));
             _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<RenderItemConstantsVS>(graphicsDevice));
             _globalConstantBufferPS = AddDisposable(new ConstantBuffer<GlobalConstantsPS>(graphicsDevice));
-            _globalLightingTerrainBuffer = AddDisposable(new ConstantBuffer<LightingConstants>(graphicsDevice));
-            _globalLightingObjectBuffer = AddDisposable(new ConstantBuffer<LightingConstants>(graphicsDevice));
+            _globalLightingVSTerrainBuffer = AddDisposable(new ConstantBuffer<LightingConstantsVS>(graphicsDevice));
+            _globalLightingPSTerrainBuffer = AddDisposable(new ConstantBuffer<LightingConstantsPS>(graphicsDevice));
+            _globalLightingVSObjectBuffer = AddDisposable(new ConstantBuffer<LightingConstantsVS>(graphicsDevice));
+            _globalLightingPSObjectBuffer = AddDisposable(new ConstantBuffer<LightingConstantsPS>(graphicsDevice));
 
             _spriteBatch = AddDisposable(new SpriteBatch(game.ContentManager, graphicsDevice.SwapchainFramebuffer.OutputDescription));
 
@@ -67,6 +72,18 @@ namespace OpenSage.Graphics.Rendering
 
             UpdateGlobalConstantBuffers(commandEncoder, context);
 
+            Texture cloudTexture;
+            if (context.Scene != null
+                && context.Scene.Lighting.TimeOfDay != TimeOfDay.Night
+                && context.Scene.Terrain != null)
+            {
+                cloudTexture = context.Scene.Terrain.CloudTexture;
+            }
+            else
+            {
+                cloudTexture = context.Game.ContentManager.SolidWhiteTexture;
+            }
+
             void doRenderPass(RenderBucket bucket)
             {
                 Culler.Cull(bucket.RenderItems, bucket.CulledItems, context);
@@ -88,6 +105,12 @@ namespace OpenSage.Graphics.Rendering
                         effect.Begin(commandEncoder);
 
                         SetDefaultConstantBuffers(renderItem.Material);
+
+                        var cloudTextureParameter = renderItem.Effect.GetParameter("Global_CloudTexture", throwIfMissing: false);
+                        if (cloudTextureParameter != null)
+                        {
+                            renderItem.Material.SetProperty("Global_CloudTexture", cloudTexture);
+                        }
                     }
 
                     if (lastRenderItem == null || lastRenderItem.Value.Material != renderItem.Material)
@@ -189,40 +212,78 @@ namespace OpenSage.Graphics.Rendering
             setDefaultConstantBuffer("GlobalConstantsShared", _globalConstantBufferShared.Buffer);
             setDefaultConstantBuffer("GlobalConstantsVS", _globalConstantBufferVS.Buffer);
             setDefaultConstantBuffer("GlobalConstantsPS", _globalConstantBufferPS.Buffer);
-            setDefaultConstantBuffer("LightingConstants_Object", _globalLightingObjectBuffer.Buffer);
-            setDefaultConstantBuffer("LightingConstants_Terrain", _globalLightingTerrainBuffer.Buffer);
+
+            switch (material.LightingType)
+            {
+                case LightingType.Terrain:
+                    setDefaultConstantBuffer("Global_LightingConstantsVS", _globalLightingVSTerrainBuffer.Buffer);
+                    setDefaultConstantBuffer("Global_LightingConstantsPS", _globalLightingPSTerrainBuffer.Buffer);
+                    break;
+
+                case LightingType.Object:
+                    setDefaultConstantBuffer("Global_LightingConstantsVS", _globalLightingVSObjectBuffer.Buffer);
+                    setDefaultConstantBuffer("Global_LightingConstantsPS", _globalLightingPSObjectBuffer.Buffer);
+                    break;
+            }
         }
 
         private void UpdateGlobalConstantBuffers(CommandList commandEncoder, RenderContext context)
         {
-            if (context.Camera != null)
+            var cloudShadowView = Matrix4x4.CreateLookAt(
+                Vector3.Zero,
+                Vector3.Normalize(new Vector3(0, 0.2f, -1)),
+                Vector3.UnitY);
+
+            var cloudShadowProjection = Matrix4x4.CreateOrthographic(1, 1, 0, 1);
+
+            var lightingConstantsVS = new LightingConstantsVS
+            {
+                CloudShadowMatrix = cloudShadowView * cloudShadowProjection
+            };
+
+            if (context.Scene != null)
             {
                 var cameraPosition = Matrix4x4Utility.Invert(context.Camera.View).Translation;
 
                 _globalConstantBufferShared.Value.CameraPosition = cameraPosition;
+                _globalConstantBufferShared.Value.TimeInSeconds = (float) context.GameTime.TotalGameTime.TotalSeconds;
                 _globalConstantBufferShared.Update(commandEncoder);
 
                 _globalConstantBufferVS.Value.ViewProjection = context.Camera.View * context.Camera.Projection;
                 _globalConstantBufferVS.Update(commandEncoder);
+
+                void updateLightingBuffer(
+                    ConstantBuffer<LightingConstantsVS> bufferVS,
+                    ConstantBuffer<LightingConstantsPS> bufferPS,
+                    in LightingConstantsPS constantsPS)
+                {
+                    bufferVS.Value = lightingConstantsVS;
+                    bufferVS.Update(commandEncoder);
+
+                    bufferPS.Value = constantsPS;
+                    bufferPS.Update(commandEncoder);
+                }
+
+                updateLightingBuffer(
+                    _globalLightingVSTerrainBuffer,
+                    _globalLightingPSTerrainBuffer,
+                    context.Scene.Lighting.CurrentLightingConfiguration.TerrainLightsPS);
+
+                updateLightingBuffer(
+                    _globalLightingVSObjectBuffer,
+                    _globalLightingPSObjectBuffer,
+                    context.Scene.Lighting.CurrentLightingConfiguration.ObjectLightsPS);
             }
 
-            _globalConstantBufferPS.Value.TimeInSeconds = (float) context.GameTime.TotalGameTime.TotalSeconds;
             _globalConstantBufferPS.Value.ViewportSize = new Vector2(context.Game.Viewport.Width, context.Game.Viewport.Height);
             _globalConstantBufferPS.Update(commandEncoder);
-
-            if (context.Scene != null)
-            {
-                _globalLightingTerrainBuffer.Value = context.Scene.Lighting.CurrentLightingConfiguration.TerrainLights;
-                _globalLightingObjectBuffer.Value = context.Scene.Lighting.CurrentLightingConfiguration.ObjectLights;
-                _globalLightingTerrainBuffer.Update(commandEncoder);
-                _globalLightingObjectBuffer.Update(commandEncoder);
-            }
         }
 
         [StructLayout(LayoutKind.Sequential, Size = 16)]
         private struct GlobalConstantsShared
         {
             public Vector3 CameraPosition;
+            public float TimeInSeconds;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -240,7 +301,6 @@ namespace OpenSage.Graphics.Rendering
         [StructLayout(LayoutKind.Sequential, Size = 16)]
         private struct GlobalConstantsPS
         {
-            public float TimeInSeconds;
             public Vector2 ViewportSize;
         }
     }

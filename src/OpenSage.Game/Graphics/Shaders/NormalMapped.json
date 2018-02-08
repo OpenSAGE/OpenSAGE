@@ -12,6 +12,12 @@
           "Type": "Float3",
           "Offset": 0,
           "Size": 12
+        },
+        {
+          "Name": "TimeInSeconds",
+          "Type": "Float",
+          "Offset": 0,
+          "Size": 4
         }
       ]
     },
@@ -74,9 +80,24 @@
       "Size": 48
     },
     {
-      "Name": "LightingConstants_Object",
+      "Name": "Global_LightingConstantsVS",
       "Type": "UniformBuffer",
       "Register": 4,
+      "Stages": "Vertex",
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "CloudShadowMatrix",
+          "Type": "Float4x4",
+          "Offset": 0,
+          "Size": 64
+        }
+      ]
+    },
+    {
+      "Name": "Global_LightingConstantsPS",
+      "Type": "UniformBuffer",
+      "Register": 5,
       "Stages": "Fragment",
       "Size": 144,
       "Fields": [
@@ -91,7 +112,7 @@
     {
       "Name": "MaterialConstants",
       "Type": "UniformBuffer",
-      "Register": 5,
+      "Register": 6,
       "Stages": "Fragment",
       "Size": 64,
       "Fields": [
@@ -136,13 +157,19 @@
     {
       "Name": "DiffuseTexture",
       "Type": "TextureReadOnly",
-      "Register": 0,
+      "Register": 1,
       "Stages": "Fragment"
     },
     {
       "Name": "NormalMap",
       "Type": "TextureReadOnly",
-      "Register": 1,
+      "Register": 2,
+      "Stages": "Fragment"
+    },
+    {
+      "Name": "Global_CloudTexture",
+      "Type": "TextureReadOnly",
+      "Register": 3,
       "Stages": "Fragment"
     },
     {

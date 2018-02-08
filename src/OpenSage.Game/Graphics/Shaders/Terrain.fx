@@ -1,10 +1,18 @@
 #include "Common.hlsli"
 
+#define LIGHTING_CONSTANTS_VS_REGISTER b3
+#define LIGHTING_CONSTANTS_PS_REGISTER b4
+#include "Lighting.hlsli"
+
+#define CLOUD_TEXTURE_REGISTER t4
+#include "Clouds.hlsli"
+
 struct PSInputBase
 {
     float3 WorldPosition : TEXCOORD0;
     float3 WorldNormal   : TEXCOORD1;
     float2 UV            : TEXCOORD2;
+    float2 CloudUV       : TEXCOORD3;
 };
 
 struct VSOutput : PSInputBase
@@ -42,12 +50,10 @@ VSOutput VS(VSInput input)
 
     result.UV = input.UV;
 
+    result.CloudUV = GetCloudUV(result.WorldPosition);
+
     return result;
 }
-
-#define LIGHTING_TYPE Terrain
-#define LIGHTING_CONSTANTS_REGISTER b3
-#include "Lighting.hlsli"
 
 #define BLEND_DIRECTION_TOWARDS_RIGHT     1
 #define BLEND_DIRECTION_TOWARDS_TOP       2
@@ -217,7 +223,9 @@ float4 PS(PSInput input) : SV_Target
 
     float3 textureColor = SampleBlendedTextures(input.UV);
 
+    float3 cloudColor = GetCloudColor(Sampler, input.CloudUV);
+
     return float4(
-        diffuseColor * textureColor,
+        diffuseColor * textureColor * cloudColor,
         1);
 }

@@ -44,13 +44,7 @@ namespace OpenSage.Gui
             _renderTarget = AddDisposable(_graphicsDevice.ResourceFactory.CreateFramebuffer(
                 new FramebufferDescription(null, targetTexture)));
 
-            _solidWhiteTexture = AddDisposable(_graphicsDevice.CreateStaticTexture2D(
-                1,
-                1,
-                new TextureMipMapData(
-                    new byte[] { 255, 255, 255, 255 },
-                    4, 4, 1, 1),
-                PixelFormat.R8_G8_B8_A8_UNorm));
+            _solidWhiteTexture = contentManager.SolidWhiteTexture;
 
             _spriteBatch = AddDisposable(new SpriteBatch(contentManager, _renderTarget.OutputDescription));
 

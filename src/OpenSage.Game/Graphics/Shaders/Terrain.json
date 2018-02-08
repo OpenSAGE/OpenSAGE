@@ -12,6 +12,12 @@
           "Type": "Float3",
           "Offset": 0,
           "Size": 12
+        },
+        {
+          "Name": "TimeInSeconds",
+          "Type": "Float",
+          "Offset": 0,
+          "Size": 4
         }
       ]
     },
@@ -46,9 +52,24 @@
       ]
     },
     {
-      "Name": "LightingConstants_Terrain",
+      "Name": "Global_LightingConstantsVS",
       "Type": "UniformBuffer",
       "Register": 3,
+      "Stages": "Vertex",
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "CloudShadowMatrix",
+          "Type": "Float4x4",
+          "Offset": 0,
+          "Size": 64
+        }
+      ]
+    },
+    {
+      "Name": "Global_LightingConstantsPS",
+      "Type": "UniformBuffer",
+      "Register": 4,
       "Stages": "Fragment",
       "Size": 144,
       "Fields": [
@@ -83,6 +104,12 @@
       "Name": "Textures",
       "Type": "TextureReadOnly",
       "Register": 3,
+      "Stages": "Fragment"
+    },
+    {
+      "Name": "Global_CloudTexture",
+      "Type": "TextureReadOnly",
+      "Register": 4,
       "Stages": "Fragment"
     },
     {

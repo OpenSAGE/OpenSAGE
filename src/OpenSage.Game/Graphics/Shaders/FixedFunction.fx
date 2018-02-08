@@ -1,6 +1,14 @@
 #define GLOBAL_CONSTANTS_PS_REGISTER b2
-
 #include "Common.hlsli"
+
+#define SPECULAR_ENABLED
+#define LIGHTING_CONSTANTS_VS_REGISTER b5
+#define LIGHTING_CONSTANTS_PS_REGISTER b6
+#include "Lighting.hlsli"
+
+#define MESH_CONSTANTS_REGISTER b3
+#define RENDER_ITEM_CONSTANTS_VS_REGISTER b4
+#define CLOUD_TEXTURE_REGISTER t3
 #include "MeshCommon.hlsli"
 
 struct VSOutputFixedFunction
@@ -24,11 +32,6 @@ VSOutputFixedFunction VS(VSInputSkinned input)
 
     return result;
 }
-
-#define SPECULAR_ENABLED
-#define LIGHTING_TYPE Object
-#define LIGHTING_CONSTANTS_REGISTER b5
-#include "Lighting.hlsli"
 
 struct TextureMapping
 {
@@ -69,7 +72,7 @@ struct ShadingConfiguration
     bool AlphaTest;
 };
 
-cbuffer MaterialConstants : register(b6)
+cbuffer MaterialConstants : register(b7)
 {
     uint NumTextureStages;
     VertexMaterial Material;
@@ -273,7 +276,9 @@ float4 PS(PSInputFixedFunction input) : SV_Target
         objectColor += specularColor;
     }
 
+    float3 cloudColor = GetCloudColor(Sampler, input.TransferCommon.CloudUV);
+
     return float4(
-        objectColor,
+        objectColor * cloudColor,
         Material.Opacity * diffuseTextureColor.a);
 }

@@ -1,3 +1,5 @@
+#include "Clouds.hlsli"
+
 ///////////////////////////////
 // Structures
 ///////////////////////////////
@@ -8,6 +10,7 @@ struct PSInputCommon
     float3 WorldNormal   : TEXCOORD1;
     float2 UV0           : TEXCOORD2;
     float2 UV1           : TEXCOORD3;
+    float2 CloudUV       : TEXCOORD4;
 };
 
 struct VSOutputCommon
@@ -35,13 +38,13 @@ struct VSInputSkinned
 // Buffers
 ///////////////////////////////
 
-cbuffer MeshConstants : register(b3)
+cbuffer MeshConstants : register(MESH_CONSTANTS_REGISTER)
 {
     bool SkinningEnabled;
     uint NumBones;
 };
 
-cbuffer RenderItemConstantsVS : register(b4)
+cbuffer RenderItemConstantsVS : register(RENDER_ITEM_CONSTANTS_VS_REGISTER)
 {
     row_major float4x4 World;
 };
@@ -75,4 +78,6 @@ void VSSkinnedInstanced(
 
     psInput.UV0 = input.UV0;
     psInput.UV1 = input.UV1;
+
+    psInput.CloudUV = GetCloudUV(psInput.WorldPosition);
 }

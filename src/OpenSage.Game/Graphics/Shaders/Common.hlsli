@@ -5,6 +5,7 @@
 cbuffer GlobalConstantsShared : register(b0)
 {
     float3 CameraPosition;
+    float TimeInSeconds;
 };
 
 cbuffer GlobalConstantsVS : register(b1)
@@ -18,7 +19,6 @@ cbuffer GlobalConstantsVS : register(b1)
 
 cbuffer GlobalConstantsPS : register(GLOBAL_CONSTANTS_PS_REGISTER)
 {
-    float TimeInSeconds;
     float2 ViewportSize;
 };
 

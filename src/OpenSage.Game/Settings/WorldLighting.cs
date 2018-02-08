@@ -18,25 +18,21 @@ namespace OpenSage.Settings
 
         public static WorldLighting CreateDefault()
         {
-            var lights = new LightingConstants
+            var lights = new LightingConstantsPS
             {
                 Light0 = new Light
                 {
                     Ambient = new Vector3(0.3f, 0.3f, 0.3f),
                     Direction = Vector3.Normalize(new Vector3(-0.3f, 0.2f, -0.8f)),
                     Color = new Vector3(0.7f, 0.7f, 0.8f)
-                }
+                },
             };
 
             var lightingConfigurations = new Dictionary<TimeOfDay, LightSettings>
             {
                 {
                     TimeOfDay.Morning,
-                    new LightSettings
-                    {
-                        TerrainLights = lights,
-                        ObjectLights = lights
-                    }
+                    new LightSettings(lights, lights)
                 }
             };
 

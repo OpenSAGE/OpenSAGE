@@ -79,7 +79,12 @@ namespace OpenSage.Content
                 terrainMaterial,
                 indexBufferCache);
 
-            var terrain = new Terrain.Terrain(heightMap, terrainPatches);
+            // TODO: Look at EnvironmentData if it exists.
+            var cloudTexture = contentManager.Load<Texture>(Path.Combine("Art", "Textures", "tscloudmed.dds"));
+
+            // TODO: Macro texture.
+
+            var terrain = new Terrain.Terrain(heightMap, terrainPatches, cloudTexture);
 
             LoadObjects(
                 contentManager,
@@ -115,9 +120,16 @@ namespace OpenSage.Content
             var scriptList = mapFile.GetPlayerScriptsList().ScriptLists[0];
             var mapScripts = CreateScripts(scriptList);
 
+            var cameraController = new RtsCameraController(contentManager)
+            {
+                TerrainPosition = terrain.HeightMap.GetPosition(
+                    terrain.HeightMap.Width / 2,
+                    terrain.HeightMap.Height / 2)
+            };
+
             return new Scene3D(
                 game,
-                new RtsCameraController(contentManager),
+                cameraController,
                 mapFile,
                 terrain,
                 mapScripts,

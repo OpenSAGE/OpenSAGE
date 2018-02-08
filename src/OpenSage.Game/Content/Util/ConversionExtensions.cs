@@ -246,15 +246,14 @@ namespace OpenSage.Content.Util
 
         private static LightSettings ToLightSettings(this GlobalLightingConfiguration mapLightingConfiguration)
         {
-            return new LightSettings
-            {
-                TerrainLights = new LightingConstants
+            return new LightSettings(
+                new LightingConstantsPS
                 {
                     Light0 = ToLight(mapLightingConfiguration.TerrainSun),
                     Light1 = ToLight(mapLightingConfiguration.TerrainAccent1),
                     Light2 = ToLight(mapLightingConfiguration.TerrainAccent2),
                 },
-                ObjectLights = new LightingConstants
+                new LightingConstantsPS
                 {
                     // RA3 and later only had one light defined per time of day.
                     Light0 = ToLight(mapLightingConfiguration.ObjectSun ?? mapLightingConfiguration.TerrainSun),
@@ -262,7 +261,7 @@ namespace OpenSage.Content.Util
                     Light2 = ToLight(mapLightingConfiguration.ObjectAccent2 ?? mapLightingConfiguration.TerrainAccent2),
                 }
                 // TODO: Infantry lights
-            };
+                );
         }
 
         private static Light ToLight(GlobalLight mapLight)

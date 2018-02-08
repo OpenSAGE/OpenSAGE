@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Terrain
 {
@@ -14,10 +15,13 @@ namespace OpenSage.Terrain
 
         public IReadOnlyList<TerrainPatch> Patches { get; }
 
-        internal Terrain(HeightMap heightMap, List<TerrainPatch> patches)
+        public Texture CloudTexture { get; }
+
+        internal Terrain(HeightMap heightMap, List<TerrainPatch> patches, Texture cloudTexture)
         {
             HeightMap = heightMap;
             Patches = patches;
+            CloudTexture = cloudTexture;
         }
 
         public Vector3? Intersect(Ray ray)
