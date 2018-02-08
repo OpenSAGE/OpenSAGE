@@ -75,6 +75,7 @@ namespace OpenSage.Graphics.Rendering
             Texture cloudTexture;
             if (context.Scene != null
                 && context.Scene.Lighting.TimeOfDay != TimeOfDay.Night
+                && context.Scene.Lighting.EnableCloudShadows
                 && context.Scene.Terrain != null)
             {
                 cloudTexture = context.Scene.Terrain.CloudTexture;
@@ -96,6 +97,8 @@ namespace OpenSage.Graphics.Rendering
                 bucket.CulledItems.Sort();
 
                 RenderItem? lastRenderItem = null;
+                Matrix4x4? lastWorld = null;
+
                 foreach (var renderItem in bucket.CulledItems)
                 {
                     if (lastRenderItem == null || lastRenderItem.Value.Effect != renderItem.Effect)
@@ -135,8 +138,13 @@ namespace OpenSage.Graphics.Rendering
                     var renderItemConstantsVSParameter = renderItem.Effect.GetParameter("RenderItemConstantsVS");
                     if (renderItemConstantsVSParameter != null)
                     {
-                        _renderItemConstantsBufferVS.Value.World = renderItem.World;
-                        _renderItemConstantsBufferVS.Update(commandEncoder);
+                        if (lastWorld == null || lastWorld.Value != renderItem.World)
+                        {
+                            _renderItemConstantsBufferVS.Value.World = renderItem.World;
+                            _renderItemConstantsBufferVS.Update(commandEncoder);
+
+                            lastWorld = renderItem.World;
+                        }
 
                         renderItem.Material.SetProperty(
                             "RenderItemConstantsVS",

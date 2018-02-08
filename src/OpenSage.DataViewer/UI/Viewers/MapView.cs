@@ -92,14 +92,33 @@ namespace OpenSage.DataViewer.UI.Viewers
 
                 timesOfDayList.SelectedIndex = 1;
 
-                return new GroupBox
+                var cloudShadowsCheckBox = new CheckBox
                 {
-                    Text = "Time of day",
-                    Padding = 10,
-                    Content = new StackLayout
+                    Text = "Enable Cloud Shadows",
+                    Checked = game.Scene3D.Lighting.EnableCloudShadows
+                };
+                cloudShadowsCheckBox.CheckedChanged += (sender, e) =>
+                {
+                    game.Scene3D.Lighting.EnableCloudShadows = cloudShadowsCheckBox.Checked ?? false;
+                };
+
+                return new StackLayout
+                {
+                    Orientation = Orientation.Vertical,
+                    HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                    Items =
                     {
-                        Orientation = Orientation.Vertical,
-                        Items = { timesOfDayList }
+                        new GroupBox
+                        {
+                            Text = "Time of day",
+                            Padding = 10,
+                            Content = new StackLayout
+                            {
+                                Orientation = Orientation.Vertical,
+                                Items = { timesOfDayList }
+                            }
+                        },
+                        cloudShadowsCheckBox
                     }
                 };
             }

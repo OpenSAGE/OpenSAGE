@@ -14,6 +14,8 @@ namespace OpenSage.Settings
 
         public TimeOfDay TimeOfDay { get; set; }
 
+        public bool EnableCloudShadows { get; set; } = true;
+
         public LightSettings CurrentLightingConfiguration => LightingConfigurations[TimeOfDay];
 
         public static WorldLighting CreateDefault()
