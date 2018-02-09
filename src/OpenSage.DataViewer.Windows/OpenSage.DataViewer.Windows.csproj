@@ -5,7 +5,7 @@
     <ApplicationIcon>..\OpenSage.DataViewer\Resources\AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="$(NuGetPackageRoot)\veldrid.sdl2\4.0.1-g1c54d15be7\runtimes\win-x64\native\SDL2.dll" Link="SDL2.dll">
+    <Content Include="$(NuGetPackageRoot)\veldrid.sdl2\4.1.0-g9dfc41af8e\runtimes\win-x64\native\SDL2.dll" Link="SDL2.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
