@@ -248,7 +248,7 @@ float4 PS(PSInput input) : SV_Target
     float3 cloudColor = GetCloudColor(Sampler, input.CloudUV);
 
     float2 macroTextureUV = GetMacroTextureUV(input.WorldPosition);
-    float3 macroTextureColor = MacroTexture.Sample(Sampler, macroTextureUV);
+    float3 macroTextureColor = MacroTexture.Sample(Sampler, macroTextureUV).rgb;
 
     return float4(
         diffuseColor * textureColor * cloudColor * macroTextureColor,
