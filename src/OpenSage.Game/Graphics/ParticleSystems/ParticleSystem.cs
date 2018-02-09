@@ -66,6 +66,14 @@ namespace OpenSage.Graphics.ParticleSystems
 
             _getWorldMatrix = getWorldMatrix;
 
+            var maxParticles = CalculateMaxParticles();
+
+            // If this system never emits any particles, there's no reason to fully initialise it.
+            if (maxParticles == 0)
+            {
+                return;
+            }
+
             _graphicsDevice = contentManager.GraphicsDevice;
 
             _particleMaterial = AddDisposable(new ParticleMaterial(contentManager, contentManager.EffectLibrary.Particle));
@@ -112,8 +120,6 @@ namespace OpenSage.Graphics.ParticleSystems
             addColorKeyframe(Definition.Color6, Definition.Color5);
             addColorKeyframe(Definition.Color7, Definition.Color6);
             addColorKeyframe(Definition.Color8, Definition.Color7);
-
-            var maxParticles = CalculateMaxParticles();
 
             _particles = new Particle[maxParticles];
             for (var i = 0; i < _particles.Length; i++)
@@ -188,6 +194,11 @@ namespace OpenSage.Graphics.ParticleSystems
 
         public void Update(GameTime gameTime)
         {
+            if (_particles == null)
+            {
+                return;
+            }
+
             if (gameTime.TotalGameTime < _nextUpdate)
             {
                 return;
@@ -455,6 +466,11 @@ namespace OpenSage.Graphics.ParticleSystems
 
         public void BuildRenderList(RenderList renderList, in Matrix4x4 worldMatrix)
         {
+            if (_particles == null)
+            {
+                return;
+            }
+
             renderList.Transparent.AddRenderItemDrawIndexed(
                 _particleMaterial,
                 _vertexBuffer,
