@@ -11,6 +11,9 @@ namespace OpenSage.DataViewer.UI.Viewers.Ini
 {
     public sealed class ParticleSystemView : GameControl
     {
+        // We need to copy the identity matrix so that we can pass it by reference.
+        private static readonly Matrix4x4 WorldIdentity = Matrix4x4.Identity;
+
         public ParticleSystemView(Func<IntPtr, Game> createGame, ParticleSystemDefinition particleSystemDefinition)
         {
             CreateGame = h =>
@@ -20,7 +23,7 @@ namespace OpenSage.DataViewer.UI.Viewers.Ini
                 var particleSystem = new ParticleSystem(
                     game.ContentManager,
                     particleSystemDefinition,
-                    () => Matrix4x4.Identity);
+                    () => ref WorldIdentity);
 
                 game.Updating += (sender, e) =>
                 {
