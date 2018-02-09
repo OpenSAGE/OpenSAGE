@@ -1,4 +1,6 @@
-﻿using OpenSage.Content;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
+using OpenSage.Content;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
 using Veldrid;
@@ -21,6 +23,11 @@ namespace OpenSage.Terrain
 
         public override LightingType LightingType => LightingType.Terrain;
 
+        public void SetMaterialConstants(DeviceBuffer materialConstantsBuffer)
+        {
+            SetProperty("TerrainMaterialConstants", materialConstantsBuffer);
+        }
+
         public void SetTileData(Texture tileDataTexture)
         {
             SetProperty("TileData", tileDataTexture);
@@ -39,6 +46,24 @@ namespace OpenSage.Terrain
         public void SetTextureArray(Texture textureArray)
         {
             SetProperty("Textures", textureArray);
+        }
+
+        public void SetMacroTexture(Texture macroTexture)
+        {
+            SetProperty("MacroTexture", macroTexture);
+        }
+
+        [StructLayout(LayoutKind.Explicit, Size = 32)]
+        public struct TerrainMaterialConstants
+        {
+            [FieldOffset(0)]
+            public Vector2 MapBorderWidth;
+
+            [FieldOffset(8)]
+            public Vector2 MapSize;
+
+            [FieldOffset(16)]
+            public bool IsMacroTextureStretched;
         }
     }
 }

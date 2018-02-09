@@ -55,6 +55,13 @@ VSOutput VS(VSInput input)
     return result;
 }
 
+cbuffer TerrainMaterialConstants : register(b5)
+{
+    float2 MapBorderWidth;
+    float2 MapSize;
+    bool IsMacroTextureStretched;
+};
+
 #define BLEND_DIRECTION_TOWARDS_RIGHT     1
 #define BLEND_DIRECTION_TOWARDS_TOP       2
 #define BLEND_DIRECTION_TOWARDS_TOP_RIGHT 4
@@ -81,6 +88,8 @@ struct TextureInfo
 StructuredBuffer<TextureInfo> TextureDetails : register(t2);
 
 Texture2DArray<float4> Textures : register(t3);
+
+Texture2D<float4> MacroTexture : register(t5);
 
 SamplerState Sampler : register(s0);
 
@@ -210,6 +219,19 @@ float3 SampleBlendedTextures(float2 uv)
             blendFactor2);
 }
 
+float2 GetMacroTextureUV(float3 worldPosition)
+{
+    if (IsMacroTextureStretched)
+    {
+        return (worldPosition.xy + MapBorderWidth) / float2(MapSize.x, -MapSize.y);
+    }
+    else
+    {
+        float macroTextureScale = 1 / 660.0;
+        return worldPosition.xy * float2(macroTextureScale, -macroTextureScale);
+    }
+}
+
 float4 PS(PSInput input) : SV_Target
 {
     LightingParameters lightingParams;
@@ -225,7 +247,10 @@ float4 PS(PSInput input) : SV_Target
 
     float3 cloudColor = GetCloudColor(Sampler, input.CloudUV);
 
+    float2 macroTextureUV = GetMacroTextureUV(input.WorldPosition);
+    float3 macroTextureColor = MacroTexture.Sample(Sampler, macroTextureUV);
+
     return float4(
-        diffuseColor * textureColor * cloudColor,
+        diffuseColor * textureColor * cloudColor * macroTextureColor,
         1);
 }

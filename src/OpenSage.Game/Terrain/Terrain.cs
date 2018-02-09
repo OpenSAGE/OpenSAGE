@@ -9,6 +9,9 @@ namespace OpenSage.Terrain
 {
     public sealed class Terrain
     {
+        private readonly Texture _macroTexture;
+        private readonly Texture _whiteTexture;
+
         internal const int PatchSize = 17;
 
         public HeightMap HeightMap { get; }
@@ -17,11 +20,23 @@ namespace OpenSage.Terrain
 
         public Texture CloudTexture { get; }
 
-        internal Terrain(HeightMap heightMap, List<TerrainPatch> patches, Texture cloudTexture)
+        public Texture WhiteTexture { get; }
+
+        public bool EnableMacroTexture { get; set; } = true;
+
+        internal Terrain(
+            HeightMap heightMap,
+            List<TerrainPatch> patches,
+            Texture cloudTexture,
+            Texture macroTexture,
+            Texture whiteTexture)
         {
             HeightMap = heightMap;
             Patches = patches;
             CloudTexture = cloudTexture;
+
+            _macroTexture = macroTexture;
+            _whiteTexture = whiteTexture;
         }
 
         public Vector3? Intersect(Ray ray)
@@ -45,7 +60,9 @@ namespace OpenSage.Terrain
         {
             foreach (var patch in Patches)
             {
-                patch.BuildRenderList(renderList);
+                patch.BuildRenderList(
+                    renderList,
+                    EnableMacroTexture ? _macroTexture : _whiteTexture);
             }
         }
     }

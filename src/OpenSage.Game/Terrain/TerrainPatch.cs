@@ -70,8 +70,10 @@ namespace OpenSage.Terrain
             }
         }
 
-        internal void BuildRenderList(RenderList renderList)
+        internal void BuildRenderList(RenderList renderList, Texture macroTexture)
         {
+            _terrainMaterial.SetMacroTexture(macroTexture);
+
             renderList.Opaque.AddRenderItemDrawIndexed(
                 _terrainMaterial,
                 _vertexBuffer,

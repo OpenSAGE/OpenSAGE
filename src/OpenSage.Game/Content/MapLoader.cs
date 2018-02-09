@@ -79,12 +79,29 @@ namespace OpenSage.Content
                 terrainMaterial,
                 indexBufferCache);
 
-            // TODO: Look at EnvironmentData if it exists.
-            var cloudTexture = contentManager.Load<Texture>(Path.Combine("Art", "Textures", "tscloudmed.dds"));
+            var cloudTextureName = mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds";
+            var cloudTexture = contentManager.Load<Texture>(Path.Combine("Art", "Textures", cloudTextureName));
 
-            // TODO: Macro texture.
+            var macroTextureName = mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds";
+            var macroTexture = contentManager.Load<Texture>(Path.Combine("Art", "Textures", macroTextureName));
 
-            var terrain = new Terrain.Terrain(heightMap, terrainPatches, cloudTexture);
+            var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
+                new TerrainMaterial.TerrainMaterialConstants
+                {
+                    MapBorderWidth = new Vector2(mapFile.HeightMapData.BorderWidth, mapFile.HeightMapData.BorderWidth) * HeightMap.HorizontalScale,
+                    MapSize = new Vector2(mapFile.HeightMapData.Width, mapFile.HeightMapData.Height) * HeightMap.HorizontalScale,
+                    IsMacroTextureStretched = false // TODO: This must be one of the EnvironmentData unknown values.
+                },
+                BufferUsage.UniformBuffer));
+
+            terrainMaterial.SetMaterialConstants(materialConstantsBuffer);
+
+            var terrain = new Terrain.Terrain(
+                heightMap,
+                terrainPatches,
+                cloudTexture,
+                macroTexture,
+                contentManager.SolidWhiteTexture);
 
             LoadObjects(
                 contentManager,

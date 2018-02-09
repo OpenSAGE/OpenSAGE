@@ -82,6 +82,33 @@
       ]
     },
     {
+      "Name": "TerrainMaterialConstants",
+      "Type": "UniformBuffer",
+      "Register": 5,
+      "Stages": "Fragment",
+      "Size": 32,
+      "Fields": [
+        {
+          "Name": "MapBorderWidth",
+          "Type": "Float2",
+          "Offset": 0,
+          "Size": 8
+        },
+        {
+          "Name": "MapSize",
+          "Type": "Float2",
+          "Offset": 8,
+          "Size": 8
+        },
+        {
+          "Name": "IsMacroTextureStretched",
+          "Type": "Bool",
+          "Offset": 16,
+          "Size": 4
+        }
+      ]
+    },
+    {
       "Name": "TileData",
       "Type": "TextureReadOnly",
       "Register": 0,
@@ -110,6 +137,12 @@
       "Name": "Global_CloudTexture",
       "Type": "TextureReadOnly",
       "Register": 4,
+      "Stages": "Fragment"
+    },
+    {
+      "Name": "MacroTexture",
+      "Type": "TextureReadOnly",
+      "Register": 5,
       "Stages": "Fragment"
     },
     {
