@@ -58,6 +58,20 @@ namespace OpenSage.DataViewer.UI.Viewers
             };
         }
 
+        protected override void OnUnLoad(EventArgs e)
+        {
+            var panel1 = Panel1;
+            Panel1 = null;
+            panel1.Dispose();
+
+            var panel2 = Panel2;
+            Panel2 = null;
+            ((GameControl) panel2).CreateGame = null;
+            panel2.Dispose();
+
+            base.OnUnLoad(e);
+        }
+
         private static IEnumerable<TimeOfDay> GetTimesOfDay()
         {
             yield return TimeOfDay.Morning;
@@ -102,6 +116,16 @@ namespace OpenSage.DataViewer.UI.Viewers
                     game.Scene3D.Lighting.EnableCloudShadows = cloudShadowsCheckBox.Checked ?? false;
                 };
 
+                var macroTextureCheckBox = new CheckBox
+                {
+                    Text = "Enable Macro Texture",
+                    Checked = game.Scene3D.Terrain.EnableMacroTexture
+                };
+                macroTextureCheckBox.CheckedChanged += (sender, e) =>
+                {
+                    game.Scene3D.Terrain.EnableMacroTexture = macroTextureCheckBox.Checked ?? false;
+                };
+
                 return new StackLayout
                 {
                     Orientation = Orientation.Vertical,
@@ -118,7 +142,8 @@ namespace OpenSage.DataViewer.UI.Viewers
                                 Items = { timesOfDayList }
                             }
                         },
-                        cloudShadowsCheckBox
+                        cloudShadowsCheckBox,
+                        macroTextureCheckBox
                     }
                 };
             }

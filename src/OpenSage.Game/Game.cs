@@ -288,6 +288,8 @@ namespace OpenSage
             GraphicsDevice.WaitForIdle();
 
             base.Dispose(disposeManagedResources);
+
+            GC.Collect();
         }
 
         private void Update(GameTime gameTime)

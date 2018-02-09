@@ -19,7 +19,7 @@
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
     <PackageReference Include="ShaderGen.Primitives" Version="1.1.0-gd961cf2e51" />
     <PackageReference Include="ShaderGen.Build" Version="1.1.0-gd961cf2e51" PrivateAssets="All" />
-    <PackageReference Include="Veldrid" Version="4.0.1-g91c1be0372" />
+    <PackageReference Include="Veldrid" Version="4.1.0-g9dfc41af8e" />
     <PackageReference Include="Veldrid.ImageSharp" Version="4.0.0" />
     <PackageReference Include="Veldrid.SDL2" Version="4.0.1-g1c54d15be7" />
   </ItemGroup>
