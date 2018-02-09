@@ -20,6 +20,7 @@ namespace OpenSage.DataViewer.UI
         public MainForm()
         {
             ClientSize = new Size(1024, 768);
+            Maximize();
 
             Title = "OpenSAGE Data Viewer";
 
