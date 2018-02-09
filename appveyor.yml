@@ -9,3 +9,8 @@ install:
 build:
   project: src/OpenSage.sln
   verbosity: minimal
+artifacts:
+- path: src\OpenSage.DataViewer.Windows\bin\Release\net462\*.*
+  name: Data Viewer
+- path: src\OpenSage.Launcher\bin\Release\netcoreapp2.0\*.*
+  name: Launcher
