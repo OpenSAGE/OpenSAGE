@@ -7,6 +7,11 @@
     <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
 
+  <!-- TODO: Remove this once we can publish a standalone app -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <CopyLocalLockFileAssemblies>True</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+  
   <ItemGroup>
     <EmbeddedResource Include="Resources\AppIcon.ico" />
   </ItemGroup>
