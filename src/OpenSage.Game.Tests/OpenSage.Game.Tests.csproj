@@ -7,6 +7,9 @@
     <None Update="Data\Map\Assets\*.map">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Data\Rep\Assets\*.rep">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Data\Wak\Assets\*.wak">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -72,6 +72,20 @@ namespace OpenSage.Data.Utilities.Extensions
             return sb.ToString();
         }
 
+        public static string ReadNullTerminatedAsciiString(this BinaryReader reader)
+        {
+            var sb = new StringBuilder();
+
+            var bytes = new List<byte>();
+            byte b;
+            while ((b = reader.ReadByte()) != '\0')
+            {
+                bytes.Add(b);
+            }
+
+            return Encoding.ASCII.GetString(bytes.ToArray());
+        }
+
         public static string ReadUInt16PrefixedAsciiString(this BinaryReader reader)
         {
             var length = reader.ReadUInt16();
@@ -274,6 +288,13 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadSingle(),
                 reader.ReadSingle(),
                 reader.ReadSingle());
+        }
+
+        public static Point2D ReadPoint2D(this BinaryReader reader)
+        {
+            return new Point2D(
+                reader.ReadInt32(),
+                reader.ReadInt32());
         }
 
         public static MapLine2D ReadLine2D(this BinaryReader reader)
