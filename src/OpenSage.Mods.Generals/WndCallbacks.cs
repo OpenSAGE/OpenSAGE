@@ -96,6 +96,10 @@ namespace OpenSage.Mods.Generals
                             QueueTransition("MainMenuDefaultMenu");
                             break;
 
+                        case "MainMenu.wnd:ButtonReplay":
+                            context.WindowManager.SetWindow(@"Menus\ReplayMenu.wnd");
+                            break;
+
                         case "MainMenu.wnd:ButtonOptions":
                             context.WindowManager.PushWindow(@"Menus\OptionsMenu.wnd");
                             break;
@@ -151,6 +155,26 @@ namespace OpenSage.Mods.Generals
                     {
                         case "OptionsMenu.wnd:ButtonBack":
                             context.WindowManager.PopWindow();
+                            break;
+                    }
+                    break;
+            }
+        }
+
+        public static void ReplayMenuSystem(WndWindow element, WndWindowMessage message, UIElementCallbackContext context)
+        {
+            switch (message.MessageType)
+            {
+                case WndWindowMessageType.SelectedButton:
+                    switch (message.Element.Name)
+                    {
+                        case "ReplayMenu.wnd:ButtonLoadReplay":
+                            // TODO
+                            break;
+
+                        case "ReplayMenu.wnd:ButtonBack":
+                            context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
+                            // TODO: Go back to Replay sub-menu
                             break;
                     }
                     break;

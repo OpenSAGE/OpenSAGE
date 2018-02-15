@@ -366,10 +366,12 @@ namespace OpenSage.Gui.Wnd
     public sealed class UIElementCallbackContext
     {
         public WndWindowManager WindowManager { get; }
+        public Game Game { get; }
 
-        public UIElementCallbackContext(WndWindowManager windowManager)
+        public UIElementCallbackContext(WndWindowManager windowManager, Game game)
         {
             WindowManager = windowManager;
+            Game = game;
         }
     }
 }

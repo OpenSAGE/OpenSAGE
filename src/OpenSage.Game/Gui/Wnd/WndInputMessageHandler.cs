@@ -7,17 +7,19 @@ namespace OpenSage.Gui.Wnd
     internal sealed class WndInputMessageHandler : InputMessageHandler
     {
         private readonly WndWindowManager _windowManager;
+        private readonly Game _game;
 
         private WndWindow _lastHighlightedElement;
 
-        public WndInputMessageHandler(WndWindowManager windowManager)
+        public WndInputMessageHandler(WndWindowManager windowManager, Game game)
         {
             _windowManager = windowManager;
+            _game = game;
         }
 
         public override InputMessageResult HandleMessage(InputMessage message)
         {
-            var context = new UIElementCallbackContext(_windowManager);
+            var context = new UIElementCallbackContext(_windowManager, _game);
 
             switch (message.MessageType)
             {

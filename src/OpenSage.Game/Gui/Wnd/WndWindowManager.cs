@@ -23,7 +23,7 @@ namespace OpenSage.Gui.Wnd
             _game = game;
             _windowStack = new Stack<WndTopLevelWindow>();
 
-            game.Input.MessageBuffer.Handlers.Insert(0, new WndInputMessageHandler(this));
+            game.Input.MessageBuffer.Handlers.Insert(0, new WndInputMessageHandler(this, _game));
 
             switch (game.SageGame)
             {
@@ -61,6 +61,15 @@ namespace OpenSage.Gui.Wnd
             }
 
             return PushWindow(window);
+        }
+
+        public WndTopLevelWindow SetWindow(string wndFileName)
+        {
+            // TODO: Handle transitions between windows.
+
+            PopWindow();
+
+            return PushWindow(wndFileName);
         }
 
         internal void OnViewportSizeChanged(in Size newSize)
