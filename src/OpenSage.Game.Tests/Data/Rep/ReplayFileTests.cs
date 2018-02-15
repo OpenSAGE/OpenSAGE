@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using OpenSage.Data;
 using OpenSage.Data.Rep;
@@ -25,13 +24,21 @@ namespace OpenSage.Tests.Data.Rep
 
             Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
             Assert.Equal(366, replayFile.Header.NumTimecodes);
-            Assert.Equal((ushort) 366, replayFile.Chunks.Last().Header.Timecode);
             Assert.Equal(616, replayFile.Chunks.Count);
 
-            foreach (var chunk in replayFile.Chunks)
-            {
-                _output.WriteLine($"{chunk.Header.Timecode.ToString().PadLeft(5, ' ')}, {chunk.Header.Number}. {chunk.Message}");
-            }
+            WriteMessages(replayFile);
+        }
+
+        [Fact]
+        public void Test_002_BuildPowerPlant()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(1474, replayFile.Header.NumTimecodes);
+            Assert.Equal(1735, replayFile.Chunks.Count);
+
+            WriteMessages(replayFile);
         }
 
         private static ReplayFile LoadReplayFile([CallerMemberName] string testName = null)
@@ -40,6 +47,14 @@ namespace OpenSage.Tests.Data.Rep
             {
                 var entry = fileSystem.GetFile(testName + ".rep");
                 return ReplayFile.FromFileSystemEntry(entry);
+            }
+        }
+
+        private void WriteMessages(ReplayFile replayFile)
+        {
+            foreach (var chunk in replayFile.Chunks)
+            {
+                _output.WriteLine($"{chunk.Header.Timecode.ToString().PadLeft(5, ' ')}, {chunk.Header.Number}. {chunk.Message}");
             }
         }
     }

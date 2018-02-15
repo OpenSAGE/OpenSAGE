@@ -26,6 +26,11 @@ namespace OpenSage.Data.Rep
                 }
                 result.Chunks = chunks;
 
+                if (result.Header.NumTimecodes != chunks[chunks.Count - 1].Header.Timecode)
+                {
+                    throw new InvalidDataException();
+                }
+
                 return result;
             }
         }
