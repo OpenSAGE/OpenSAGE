@@ -53,6 +53,18 @@ namespace OpenSage.Tests.Data.Rep
             WriteMessages(replayFile);
         }
 
+        [Fact]
+        public void Test_004_TrainInfantry()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(1693, replayFile.Header.NumTimecodes);
+            Assert.Equal(1797, replayFile.Chunks.Count);
+
+            WriteMessages(replayFile);
+        }
+
         private static ReplayFile LoadReplayFile([CallerMemberName] string testName = null)
         {
             using (var fileSystem = new FileSystem(Path.Combine(Environment.CurrentDirectory, "Data", "Rep", "Assets")))

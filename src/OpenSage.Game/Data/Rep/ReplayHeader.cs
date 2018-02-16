@@ -24,7 +24,17 @@ namespace OpenSage.Data.Rep
         public ushort VersionMinor { get; private set; }
         public ushort VersionMajor { get; private set; }
 
-        public string Information { get; private set; }
+        // Maybe a hash of... something.
+        public byte[] UnknownHash { get; private set; }
+
+        public ReplayMetadata Metadata { get; private set; }
+
+        public ushort Unknown1 { get; private set; }
+        public uint Unknown2 { get; private set; }
+        public uint Unknown3 { get; private set; }
+        public uint Unknown4 { get; private set; }
+
+        public uint GameSpeed { get; private set; }
 
         internal static ReplayHeader Parse(BinaryReader reader)
         {
@@ -66,16 +76,17 @@ namespace OpenSage.Data.Rep
             result.VersionMinor = reader.ReadUInt16();
             result.VersionMajor = reader.ReadUInt16();
 
-            var unknown = reader.ReadBytes(8);
+            result.UnknownHash = reader.ReadBytes(8);
 
-            result.Information = reader.ReadNullTerminatedAsciiString();
+            result.Metadata = ReplayMetadata.Parse(reader);
 
-            var x = reader.ReadUInt16();
+            result.Unknown1 = reader.ReadUInt16();
 
-            var y1 = reader.ReadUInt32();
-            var y2 = reader.ReadUInt32();
-            var y3 = reader.ReadUInt32();
-            var y4 = reader.ReadUInt32();
+            result.Unknown2 = reader.ReadUInt32();
+            result.Unknown3 = reader.ReadUInt32();
+            result.Unknown4 = reader.ReadUInt32();
+
+            result.GameSpeed = reader.ReadUInt32();
 
             return result;
         }

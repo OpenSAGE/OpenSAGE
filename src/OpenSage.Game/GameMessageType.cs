@@ -5,6 +5,7 @@
         Unknown27 = 27,
         SetSelection = 1001,
         ClearSelection = 1003,
+        SetRallyPoint = 1043,
         CreateUnit = 1047,
         BuildObject = 1049,
         MoveTo = 1068,
