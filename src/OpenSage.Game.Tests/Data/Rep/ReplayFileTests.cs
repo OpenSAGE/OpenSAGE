@@ -41,6 +41,18 @@ namespace OpenSage.Tests.Data.Rep
             WriteMessages(replayFile);
         }
 
+        [Fact]
+        public void Test_003_BuildPowerPlantAndDozer()
+        {
+            var replayFile = LoadReplayFile();
+
+            Assert.Equal(ReplayGameType.Generals, replayFile.Header.GameType);
+            Assert.Equal(1211, replayFile.Header.NumTimecodes);
+            Assert.Equal(1416, replayFile.Chunks.Count);
+
+            WriteMessages(replayFile);
+        }
+
         private static ReplayFile LoadReplayFile([CallerMemberName] string testName = null)
         {
             using (var fileSystem = new FileSystem(Path.Combine(Environment.CurrentDirectory, "Data", "Rep", "Assets")))

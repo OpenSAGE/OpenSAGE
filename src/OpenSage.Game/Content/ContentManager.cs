@@ -206,6 +206,7 @@ namespace OpenSage.Content
         public GameObject InstantiateObject(string typeName)
         {
             // TODO: Don't do this every time.
+            IniDataContext.LoadIniFiles(@"Data\INI\Default\Object.ini");
             IniDataContext.LoadIniFiles(@"Data\INI\Object");
 
             var objectDefinition = IniDataContext.Objects.FirstOrDefault(x => x.Name == typeName);
