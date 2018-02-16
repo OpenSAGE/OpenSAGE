@@ -1,10 +1,9 @@
-﻿using OpenSage.Input;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Veldrid;
 
 namespace OpenSage.Graphics.Cameras
 {
-    public sealed class CameraInputMessageHandler : InputMessageHandler
+    public sealed class CameraInputMessageHandler : GameMessageHandler
     {
         private readonly List<Key> _pressedKeys = new List<Key>();
 
@@ -17,75 +16,84 @@ namespace OpenSage.Graphics.Cameras
 
         private int _scrollWheelValue;
 
-        public override InputMessageResult HandleMessage(InputMessage message)
+        public override GameMessageResult HandleMessage(GameMessage message)
         {
             switch (message.MessageType)
             {
-                case InputMessageType.MouseMove:
-                    if (_leftMouseDown || _rightMouseDown)
+                case GameMessageType.MouseMove:
                     {
-                        _deltaX += message.MouseX.Value - _lastX;
-                        _deltaY += message.MouseY.Value - _lastY;
+                        var position = message.Arguments[0].Value.ScreenPosition;
+                        if (_leftMouseDown || _rightMouseDown)
+                        {
+                            _deltaX += position.X - _lastX;
+                            _deltaY += position.Y - _lastY;
 
-                        _lastX = message.MouseX.Value;
-                        _lastY = message.MouseY.Value;
+                            _lastX = position.X;
+                            _lastY = position.Y;
+                        }
+                        break;
                     }
-                    break;
 
-                case InputMessageType.MouseDown:
-                    _lastX = message.MouseX.Value;
-                    _lastY = message.MouseY.Value;
-
-                    switch (message.MouseButton)
+                case GameMessageType.MouseLeftButtonDown:
+                case GameMessageType.MouseMiddleButtonDown:
+                case GameMessageType.MouseRightButtonDown:
                     {
-                        case MouseButton.Left:
-                            _leftMouseDown = true;
-                            break;
+                        var position = message.Arguments[0].Value.ScreenPosition;
+                        _lastX = position.X;
+                        _lastY = position.Y;
 
-                        case MouseButton.Middle:
-                            _middleMouseDown = true;
-                            break;
+                        switch (message.MessageType)
+                        {
+                            case GameMessageType.MouseLeftButtonDown:
+                                _leftMouseDown = true;
+                                break;
 
-                        case MouseButton.Right:
-                            _rightMouseDown = true;
-                            break;
+                            case GameMessageType.MouseMiddleButtonDown:
+                                _middleMouseDown = true;
+                                break;
+
+                            case GameMessageType.MouseRightButtonDown:
+                                _rightMouseDown = true;
+                                break;
+                        }
+                        break;
                     }
+
+                case GameMessageType.MouseLeftButtonUp:
+                    _leftMouseDown = false;
                     break;
 
-                case InputMessageType.MouseUp:
-                    switch (message.MouseButton)
+                case GameMessageType.MouseMiddleButtonUp:
+                    _middleMouseDown = false;
+                    break;
+
+                case GameMessageType.MouseRightButtonUp:
+                    _rightMouseDown = false;
+                    break;
+
+                case GameMessageType.MouseWheel:
+                    _scrollWheelValue += message.Arguments[0].Value.Integer;
+                    break;
+
+                case GameMessageType.KeyDown:
                     {
-                        case MouseButton.Left:
-                            _leftMouseDown = false;
-                            break;
-
-                        case MouseButton.Middle:
-                            _middleMouseDown = false;
-                            break;
-
-                        case MouseButton.Right:
-                            _rightMouseDown = false;
-                            break;
+                        var key = (Key) message.Arguments[0].Value.Integer;
+                        if (!_pressedKeys.Contains(key))
+                        {
+                            _pressedKeys.Add(key);
+                        }
+                        break;
                     }
-                    break;
 
-                case InputMessageType.MouseWheel:
-                    _scrollWheelValue += message.MouseScrollWheelDelta.Value;
-                    break;
-
-                case InputMessageType.KeyDown:
-                    if (!_pressedKeys.Contains(message.Key.Value))
+                case GameMessageType.KeyUp:
                     {
-                        _pressedKeys.Add(message.Key.Value);
+                        var key = (Key) message.Arguments[0].Value.Integer;
+                        _pressedKeys.Remove(key);
+                        break;
                     }
-                    break;
-
-                case InputMessageType.KeyUp:
-                    _pressedKeys.Remove(message.Key.Value);
-                    break;
             }
 
-            return InputMessageResult.Handled;
+            return GameMessageResult.Handled;
         }
 
         public void UpdateInputState(ref CameraInputState state)

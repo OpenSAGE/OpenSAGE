@@ -40,17 +40,14 @@ namespace OpenSage
 
         public GraphicsDevice GraphicsDevice { get; }
 
+        public GameMessageBuffer MessageBuffer { get; }
+
         internal List<GameSystem> GameSystems { get; }
 
         /// <summary>
         /// Gets the graphics system.
         /// </summary>
         public GraphicsSystem Graphics { get; }
-
-        /// <summary>
-        /// Gets the input system.
-        /// </summary>
-        public InputSystem Input { get; }
 
         /// <summary>
         /// Gets the scripting system.
@@ -120,6 +117,8 @@ namespace OpenSage
                 (uint) Window.ClientBounds.Width,
                 (uint) Window.ClientBounds.Height));
 
+            MessageBuffer = AddDisposable(new GameMessageBuffer(Window));
+
             SageGame = sageGame;
 
             _fileSystem = fileSystem;
@@ -164,8 +163,6 @@ namespace OpenSage
             }
 
             GameSystems = new List<GameSystem>();
-
-            Input = AddDisposable(new InputSystem(this));
 
             Graphics = AddDisposable(new GraphicsSystem(this));
 
@@ -294,6 +291,8 @@ namespace OpenSage
 
         private void Update(GameTime gameTime)
         {
+            MessageBuffer.PropagateMessages();
+
             Updating?.Invoke(this, new GameUpdatingEventArgs(gameTime));
 
             foreach (var gameSystem in GameSystems)

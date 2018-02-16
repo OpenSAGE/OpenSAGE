@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using System.Numerics;
 using OpenSage.Data.Wnd;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd
 {
@@ -21,7 +21,7 @@ namespace OpenSage.Gui.Wnd
             LayoutShutdown = callbackResolver.GetGuiWindowCallback(wndFile.LayoutBlock.LayoutShutdown);
         }
 
-        public WndWindow FindWindow(Vector2 mousePosition)
+        public WndWindow FindWindow(Point2D mousePosition)
         {
             // Finds deepest element that is visible and contains mousePosition.
             WndWindow findElementRecursive(WndWindow element)

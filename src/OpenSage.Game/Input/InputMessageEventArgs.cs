@@ -4,9 +4,9 @@ namespace OpenSage.Input
 {
     public sealed class InputMessageEventArgs : EventArgs
     {
-        public InputMessage Message { get; }
+        public GameMessage Message { get; }
 
-        public InputMessageEventArgs(InputMessage message)
+        public InputMessageEventArgs(GameMessage message)
         {
             Message = message;
         }

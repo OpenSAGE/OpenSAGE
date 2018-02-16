@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Input;
+using OpenSage.Mathematics;
 using Veldrid;
 using Veldrid.Sdl2;
 using Rectangle = OpenSage.Mathematics.Rectangle;
@@ -11,7 +12,7 @@ namespace OpenSage
     {
         private readonly Sdl2Window _window;
 
-        private readonly Queue<InputMessage> _messageQueue = new Queue<InputMessage>();
+        private readonly Queue<GameMessage> _messageQueue = new Queue<GameMessage>();
 
         private bool _closing;
         private int _lastMouseX;
@@ -73,56 +74,86 @@ namespace OpenSage
 
         private void HandleKeyDown(KeyEvent evt)
         {
-            _messageQueue.Enqueue(new InputMessage(
-                InputMessageType.KeyDown,
-                evt.Key));
+            var message = new GameMessage(GameMessageType.KeyDown);
+            message.AddIntegerArgument((int) evt.Key);
+            _messageQueue.Enqueue(message);
         }
 
         private void HandleKeyUp(KeyEvent evt)
         {
-            _messageQueue.Enqueue(new InputMessage(
-                InputMessageType.KeyUp,
-                evt.Key));
+            var message = new GameMessage(GameMessageType.KeyUp);
+            message.AddIntegerArgument((int) evt.Key);
+            _messageQueue.Enqueue(message);
         }
 
         private void HandleMouseDown(MouseEvent evt)
         {
-            _messageQueue.Enqueue(new InputMessage(
-                InputMessageType.MouseDown,
-                evt.MouseButton,
-                _lastMouseX,
-                _lastMouseY,
-                0));
+            GameMessageType? getMessageType()
+            {
+                switch (evt.MouseButton)
+                {
+                    case MouseButton.Left:
+                        return GameMessageType.MouseLeftButtonDown;
+                    case MouseButton.Middle:
+                        return GameMessageType.MouseMiddleButtonDown;
+                    case MouseButton.Right:
+                        return GameMessageType.MouseRightButtonDown;
+                    default:
+                        return null;
+                }
+            }
+
+            var messageType = getMessageType();
+            if (messageType == null)
+            {
+                return;
+            }
+
+            var message = new GameMessage(messageType.Value);
+            message.AddScreenPositionArgument(new Point2D(_lastMouseX, _lastMouseY));
+            _messageQueue.Enqueue(message);
         }
 
         private void HandleMouseUp(MouseEvent evt)
         {
-            _messageQueue.Enqueue(new InputMessage(
-                InputMessageType.MouseUp,
-                evt.MouseButton,
-                _lastMouseX,
-                _lastMouseY,
-                0));
+            GameMessageType? getMessageType()
+            {
+                switch (evt.MouseButton)
+                {
+                    case MouseButton.Left:
+                        return GameMessageType.MouseLeftButtonUp;
+                    case MouseButton.Middle:
+                        return GameMessageType.MouseMiddleButtonUp;
+                    case MouseButton.Right:
+                        return GameMessageType.MouseRightButtonUp;
+                    default:
+                        return null;
+                }
+            }
+
+            var messageType = getMessageType();
+            if (messageType == null)
+            {
+                return;
+            }
+
+            var message = new GameMessage(messageType.Value);
+            message.AddScreenPositionArgument(new Point2D(_lastMouseX, _lastMouseY));
+            _messageQueue.Enqueue(message);
         }
 
         private void HandleMouseMove(MouseMoveEventArgs args)
         {
-            _messageQueue.Enqueue(new InputMessage(
-                InputMessageType.MouseMove,
-                null,
-                args.State.X,
-                args.State.Y,
-                0));
+            var message = new GameMessage(GameMessageType.MouseMove);
+            message.AddScreenPositionArgument(new Point2D(args.State.X, args.State.Y));
+            _messageQueue.Enqueue(message);
         }
 
         private void HandleMouseWheel(MouseWheelEventArgs args)
         {
-            _messageQueue.Enqueue(new InputMessage(
-                InputMessageType.MouseWheel,
-                null,
-                _lastMouseX,
-                _lastMouseY,
-                (int) (args.WheelDelta * 100)));
+            var message = new GameMessage(GameMessageType.MouseWheel);
+            message.AddIntegerArgument((int) (args.WheelDelta * 100));
+            _messageQueue.Enqueue(message);
         }
 
         public override void SetCursor(Cursor cursor)
@@ -134,6 +165,8 @@ namespace OpenSage
         {
             // TODO: Use inputSnapshot instead of events?
             var inputSnapshot = _window.PumpEvents();
+
+            // TODO: This isn't right, it means button events might not have the right position.
             _lastMouseX = (int) inputSnapshot.MousePosition.X;
             _lastMouseY = (int) inputSnapshot.MousePosition.Y;
 

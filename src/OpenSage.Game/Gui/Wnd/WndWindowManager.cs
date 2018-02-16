@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using OpenSage.Graphics;
 using OpenSage.Gui.Wnd.Transitions;
 using OpenSage.Mathematics;
@@ -23,7 +22,7 @@ namespace OpenSage.Gui.Wnd
             _game = game;
             _windowStack = new Stack<WndTopLevelWindow>();
 
-            game.Input.MessageBuffer.Handlers.Insert(0, new WndInputMessageHandler(this, _game));
+            game.MessageBuffer.Handlers.Insert(0, new WndInputMessageHandler(this, _game));
 
             switch (game.SageGame)
             {
@@ -95,7 +94,7 @@ namespace OpenSage.Gui.Wnd
             _windowStack.Pop();
         }
 
-        public WndWindow FindWindow(in Vector2 mousePosition)
+        public WndWindow FindWindow(in Point2D mousePosition)
         {
             if (_windowStack.Count == 0)
             {

@@ -57,7 +57,7 @@ namespace OpenSage.Mathematics
             }
         }
 
-        public bool Contains(in Vector2 point)
+        public bool Contains(in Point2D point)
         {
             return point.X >= X
                 && point.X <= Right

@@ -1,9 +1,8 @@
 ﻿using System.Numerics;
-using OpenSage.Input;
 
 namespace OpenSage.Logic
 {
-    public sealed class DebugEntityPickerMessageHandler : InputMessageHandler
+    public sealed class DebugEntityPickerMessageHandler : GameMessageHandler
     {
         private readonly DebugEntityPickerSystem _system;
 
@@ -16,27 +15,28 @@ namespace OpenSage.Logic
             _system = system;
         }
 
-        public override InputMessageResult HandleMessage(InputMessage message)
+        public override GameMessageResult HandleMessage(GameMessage message)
         {
             switch (message.MessageType)
             {
-                case InputMessageType.MouseMove:
-                    _mousePosition = new Vector2(message.MouseX.Value, message.MouseY.Value);
+                case GameMessageType.MouseMove:
+                    var position = message.Arguments[0].Value.ScreenPosition;
+                    _mousePosition = new Vector2(position.X, position.Y);
                     break;
-                case InputMessageType.MouseDown:
+                case GameMessageType.MouseLeftButtonDown:
                     _mouseWasDown = _mouseIsDown;
 
                     if (!_mouseWasDown && _system.OnClickPosition(_mousePosition))
                     {
-                        return InputMessageResult.Handled;
+                        return GameMessageResult.Handled;
                     }
                     break;
-                case InputMessageType.MouseUp:
+                case GameMessageType.MouseLeftButtonUp:
                     _mouseWasDown = false;
                     _mouseIsDown = false;
                     break;
             }
-            return InputMessageResult.NotHandled;
+            return GameMessageResult.NotHandled;
         }
     }
 }

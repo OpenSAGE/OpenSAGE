@@ -10,6 +10,18 @@
         MoveTo = 1068,
         SetCameraPosition = 1092,
         Checksum = 1095,
-        Unknown1097 = 1097
+        Unknown1097 = 1097,
+
+        // Input messages
+        KeyDown = 5000,
+        KeyUp,
+        MouseLeftButtonDown,
+        MouseLeftButtonUp,
+        MouseMiddleButtonDown,
+        MouseMiddleButtonUp,
+        MouseRightButtonDown,
+        MouseRightButtonUp,
+        MouseMove,
+        MouseWheel
     }
 }
