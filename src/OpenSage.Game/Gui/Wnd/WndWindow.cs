@@ -300,7 +300,7 @@ namespace OpenSage.Gui.Wnd
 
         protected virtual void DefaultSystemOverride(WndWindowMessage message, UIElementCallbackContext context) { }
 
-        protected void DefaultDraw(WndWindow window, Game game)
+        public static void DefaultDraw(WndWindow window, Game game)
         {
             var activeState = window.ActiveState;
 

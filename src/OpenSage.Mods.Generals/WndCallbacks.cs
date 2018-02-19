@@ -55,7 +55,11 @@ namespace OpenSage.Mods.Generals
 
         public static void W3DNoDraw(WndWindow element, Game game)
         {
-            
+            // Draw the main menu background if no map is loaded.
+            if (element.Name == "MainMenu.wnd:MainMenuParent" && game.Scene3D == null)
+            {
+                WndWindow.DefaultDraw(element, game);
+            }
         }
 
         public static void MainMenuSystem(WndWindow element, WndWindowMessage message, UIElementCallbackContext context)
