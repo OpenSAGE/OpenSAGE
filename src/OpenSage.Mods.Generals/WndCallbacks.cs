@@ -1,6 +1,10 @@
-﻿﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
+using OpenSage.Data;
+using OpenSage.Data.Rep;
 using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
+using OpenSage.Network;
 
 namespace OpenSage.Mods.Generals
 {
@@ -8,7 +12,7 @@ namespace OpenSage.Mods.Generals
     {
         private static bool _doneMainMenuFadeIn;
 
-        public static void W3DMainMenuInit(WndTopLevelWindow window)
+        public static void W3DMainMenuInit(WndTopLevelWindow window, Game game)
         {
             // We'll show these later via window transitions.
             window.Root.FindChild("MainMenu.wnd:MainMenuRuler").Hide();
@@ -161,6 +165,40 @@ namespace OpenSage.Mods.Generals
             }
         }
 
+        private static FileSystem GetReplaysFileSystem(Game game) => new FileSystem(Path.Combine(game.UserDataFolder, "Replays"));
+
+        public static void ReplayMenuInit(WndTopLevelWindow window, Game game)
+        {
+            var listBox = (WndWindowListBox) window.Root.FindChild("ReplayMenu.wnd:ListboxReplayFiles");
+
+            using (var fileSystem = GetReplaysFileSystem(game))
+            {
+                listBox.ListBoxItems.Clear();
+
+                foreach (var file in fileSystem.Files)
+                {
+                    var replayFile = ReplayFile.FromFileSystemEntry(file, onlyHeader: true);
+
+                    listBox.ListBoxItems.Add(new WndListBoxItem
+                    {
+                        DataItem = file.FilePath,
+                        ColumnData = new[]
+                        {
+                            replayFile.Header.Filename, // Path.GetFileNameWithoutExtension(file.FilePath),
+                            $"{replayFile.Header.Timestamp.Hour.ToString("D2")}:{replayFile.Header.Timestamp.Minute.ToString("D2")}",
+                            replayFile.Header.Version,
+                            replayFile.Header.Metadata.MapFile.Replace("maps/", string.Empty)
+                        }
+                    });
+                }
+            }
+        }
+
+        public static void ReplayMenuShutdown(WndTopLevelWindow window, Game game)
+        {
+            // TODO
+        }
+
         public static void ReplayMenuSystem(WndWindow element, WndWindowMessage message, UIElementCallbackContext context)
         {
             switch (message.MessageType)
@@ -169,7 +207,27 @@ namespace OpenSage.Mods.Generals
                     switch (message.Element.Name)
                     {
                         case "ReplayMenu.wnd:ButtonLoadReplay":
-                            // TODO
+                            // TODO: Handle no selected item.
+                            var listBox = (WndWindowListBox) element.Window.Root.FindChild("ReplayMenu.wnd:ListboxReplayFiles");
+                            ReplayFile replayFile;
+                            using (var fileSystem = GetReplaysFileSystem(context.Game))
+                            {
+                                var replayFileEntry = fileSystem.GetFile((string) listBox.ListBoxItems[listBox.SelectedIndex].DataItem);
+                                replayFile = ReplayFile.FromFileSystemEntry(replayFileEntry);
+                            }
+
+                            // TODO: This probably isn't right.
+                            var mapFilenameParts = replayFile.Header.Metadata.MapFile.Split('/');
+                            var mapFilename = $"Maps\\{mapFilenameParts[1]}\\{mapFilenameParts[1]}.map";
+
+                            // TODO: Loading screen.
+                            context.Game.Scene3D = context.Game.ContentManager.Load<Scene3D>(mapFilename);
+                            context.Game.NetworkMessageBuffer = new NetworkMessageBuffer(
+                                context.Game,
+                                new ReplayConnection(replayFile));
+
+                            context.Game.Scene2D.WndWindowManager.PopWindow();
+
                             break;
 
                         case "ReplayMenu.wnd:ButtonBack":

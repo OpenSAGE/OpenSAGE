@@ -21,9 +21,9 @@ namespace OpenSage.Gui.Wnd
             return GetCallback<UIElementCallback>(name);
         }
 
-        internal Action<WndWindow, Game> GetDrawCallback(string name)
+        internal UIElementDrawCallback GetDrawCallback(string name)
         {
-            return GetCallback<Action<WndWindow, Game>>(name);
+            return GetCallback<UIElementDrawCallback>(name);
         }
 
         private TDelegate GetCallback<TDelegate>(string name)

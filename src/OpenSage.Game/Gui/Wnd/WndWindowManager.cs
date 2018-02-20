@@ -22,7 +22,7 @@ namespace OpenSage.Gui.Wnd
             _game = game;
             _windowStack = new Stack<WndTopLevelWindow>();
 
-            game.MessageBuffer.Handlers.Insert(0, new WndInputMessageHandler(this, _game));
+            game.InputMessageBuffer.Handlers.Insert(0, new WndInputMessageHandler(this, _game));
 
             switch (game.SageGame)
             {
@@ -44,7 +44,7 @@ namespace OpenSage.Gui.Wnd
 
             _windowStack.Push(window);
 
-            window.LayoutInit?.Invoke(window);
+            window.LayoutInit?.Invoke(window, _game);
 
             return window;
         }
@@ -66,7 +66,10 @@ namespace OpenSage.Gui.Wnd
         {
             // TODO: Handle transitions between windows.
 
-            PopWindow();
+            if (_windowStack.Count > 0)
+            {
+                PopWindow();
+            }
 
             return PushWindow(wndFileName);
         }
@@ -110,7 +113,7 @@ namespace OpenSage.Gui.Wnd
         {
             foreach (var window in _windowStack)
             {
-                window.LayoutUpdate?.Invoke(window);
+                window.LayoutUpdate?.Invoke(window, _game);
             }
 
             TransitionManager.Update(gameTime);

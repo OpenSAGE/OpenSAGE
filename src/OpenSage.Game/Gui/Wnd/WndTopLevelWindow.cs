@@ -47,5 +47,5 @@ namespace OpenSage.Gui.Wnd
         }
     }
 
-    public delegate void WndWindowCallback(WndTopLevelWindow window);
+    public delegate void WndWindowCallback(WndTopLevelWindow window, Game game);
 }

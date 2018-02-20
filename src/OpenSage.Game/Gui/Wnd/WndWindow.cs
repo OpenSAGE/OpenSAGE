@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Content;
 using OpenSage.Data.Wnd;
@@ -10,14 +9,17 @@ using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Gui.Wnd
 {
-    public sealed partial class WndWindow : DisposableBase
+    public partial class WndWindow : DisposableBase
     {
         private readonly WndWindowDefinition _wndWindow;
+        private readonly ContentManager _contentManager;
 
         private Texture _texture;
         private DrawingContext2D _primitiveBatch;
 
         private readonly Dictionary<WndWindowState, WndWindowStateConfiguration> _stateConfigurations;
+
+        internal DrawingContext2D PrimitiveBatch => _primitiveBatch;
 
         private WndWindowState _currentState;
         internal WndWindowState CurrentState
@@ -32,7 +34,22 @@ namespace OpenSage.Gui.Wnd
 
         private float _scale;
 
+        protected float Scale => _scale;
+
         public WndFont TextFont { get; }
+
+        internal SixLabors.Fonts.Font GetFont() =>
+            _contentManager.GetOrCreateFont(
+                TextFont.Name,
+                TextFont.Size * _scale,
+                TextFont.Bold ? FontWeight.Bold : FontWeight.Normal);
+
+        internal ColorRgbaF GetTextColor()
+        {
+            var textColor = ActiveState.TextColor.ToColorRgbaF();
+            textColor.A *= TextOpacity;
+            return textColor;
+        }
 
         private string _text;
         public string Text
@@ -79,7 +96,7 @@ namespace OpenSage.Gui.Wnd
         public UIElementCallback SystemCallback { get; private set; }
         internal UIElementCallback InputCallback { get; private set; }
         internal UIElementCallback TooltipCallback { get; private set; }
-        internal Action<WndWindow, Game> DrawCallback { get; private set; }
+        internal UIElementDrawCallback DrawCallback { get; private set; }
 
         private ColorRgba? _backgroundColorOverride;
         public ColorRgba? BackgroundColorOverride
@@ -129,12 +146,36 @@ namespace OpenSage.Gui.Wnd
 
         internal WndWindowStateConfiguration ActiveState => _stateConfigurations[_currentState];
 
-        public WndWindow(WndWindowDefinition wndWindow, ContentManager contentManager, WndCallbackResolver callbackResolver)
+        public static WndWindow Create(WndWindowDefinition wndWindow, ContentManager contentManager, WndCallbackResolver callbackResolver)
+        {
+            switch (wndWindow.WindowType)
+            {
+                case WndWindowType.GenericWindow:
+                    return new WndWindowGenericWindow(wndWindow, contentManager, callbackResolver);
+
+                case WndWindowType.ListBox:
+                    return new WndWindowListBox(wndWindow, contentManager, callbackResolver);
+
+                case WndWindowType.PushButton:
+                    return new WndWindowPushButton(wndWindow, contentManager, callbackResolver);
+
+                case WndWindowType.StaticText:
+                    return new WndWindowStaticText(wndWindow, contentManager, callbackResolver);
+
+                default:
+                    // TODO: Implement other window types.
+                    return new WndWindowGenericWindow(wndWindow, contentManager, callbackResolver);
+            }
+        }
+
+        protected WndWindow(WndWindowDefinition wndWindow, ContentManager contentManager, WndCallbackResolver callbackResolver)
         {
             _stateConfigurations = new Dictionary<WndWindowState, WndWindowStateConfiguration>();
 
             _wndWindow = wndWindow;
             Invalidate();
+
+            _contentManager = contentManager;
 
             if (wndWindow.HasHeaderTemplate)
             {
@@ -154,47 +195,25 @@ namespace OpenSage.Gui.Wnd
             _text = contentManager.TranslationManager.Lookup(wndWindow.Text);
 
             _textAlignment = TextAlignment.Center;
-            if (wndWindow.WindowType == WndWindowType.StaticText && !wndWindow.StaticTextData.Centered)
-            {
-                _textAlignment = TextAlignment.Leading;
-            }
 
             void createStateConfiguration(WndWindowState state)
             {
-                _stateConfigurations[state] = AddDisposable(WndWindowStateConfiguration.Create(
+                _stateConfigurations[state] = WndWindowStateConfiguration.Create(
                     wndWindow,
                     state,
-                    contentManager));
+                    contentManager);
             }
 
             createStateConfiguration(WndWindowState.Enabled);
             createStateConfiguration(WndWindowState.Highlighted);
             createStateConfiguration(WndWindowState.Disabled);
 
-            if (wndWindow.WindowType == WndWindowType.PushButton)
-            {
-                createStateConfiguration(WndWindowState.HighlightedPushed);
-            }
-
             Visible = !wndWindow.Status.HasFlag(WndWindowStatusFlags.Hidden)
                 && wndWindow.InputCallback != "GameWinBlockInput"; // TODO: This isn't right.
 
             SystemCallback = callbackResolver.GetUIElementCallback(wndWindow.SystemCallback) ?? DefaultSystem;
 
-            InputCallback = callbackResolver.GetUIElementCallback(wndWindow.InputCallback);
-            if (InputCallback == null)
-            {
-                switch (wndWindow.WindowType)
-                {
-                    case WndWindowType.PushButton:
-                        InputCallback = DefaultPushButtonInput;
-                        break;
-
-                    default:
-                        InputCallback = DefaultInput;
-                        break;
-                }
-            }
+            InputCallback = callbackResolver.GetUIElementCallback(wndWindow.InputCallback) ?? DefaultInput;
 
             TooltipCallback = callbackResolver.GetUIElementCallback(wndWindow.TooltipCallback);
 
@@ -262,22 +281,26 @@ namespace OpenSage.Gui.Wnd
             Invalidate();
         }
 
-        private void Invalidate()
+        protected void Invalidate()
         {
             IsInvalidated = true;
         }
 
-        private static void DefaultInput(WndWindow element, WndWindowMessage message, UIElementCallbackContext context)
+        protected void DefaultInput(WndWindow element, WndWindowMessage message, UIElementCallbackContext context)
         {
-
+            DefaultInputOverride(message, context);
         }
 
-        private static void DefaultSystem(WndWindow element, WndWindowMessage message, UIElementCallbackContext context)
-        {
+        protected virtual void DefaultInputOverride(WndWindowMessage message, UIElementCallbackContext context) { }
 
+        protected void DefaultSystem(WndWindow element, WndWindowMessage message, UIElementCallbackContext context)
+        {
+            DefaultSystemOverride(message, context);
         }
 
-        private static void DefaultDraw(WndWindow window, Game game)
+        protected virtual void DefaultSystemOverride(WndWindowMessage message, UIElementCallbackContext context) { }
+
+        protected void DefaultDraw(WndWindow window, Game game)
         {
             var activeState = window.ActiveState;
 
@@ -285,14 +308,21 @@ namespace OpenSage.Gui.Wnd
                 ?? activeState.BackgroundColor
                 ?? new ColorRgbaF(0, 0, 0, 0);
 
-            window._primitiveBatch.Begin(game.ContentManager.LinearClampSampler, clearColour);
+            window.PrimitiveBatch.Begin(game.ContentManager.LinearClampSampler, clearColour);
 
-            if (activeState.ImageTexture != null)
+            DefaultDrawOverride(game);
+
+            if (!string.IsNullOrEmpty(Text))
             {
-                window._primitiveBatch.DrawImage(
-                    activeState.ImageTexture,
-                    new Rectangle(0, 0, (int) activeState.ImageTexture.Width, (int) activeState.ImageTexture.Height),
-                    window.Bounds);
+                var font = GetFont();
+                var textColor = GetTextColor();
+
+                PrimitiveBatch.DrawText(
+                    Text,
+                    font,
+                    TextAlignment,
+                    textColor,
+                    Bounds.ToRectangleF());
             }
 
             if (activeState.BorderColor != null || window.Highlighted)
@@ -303,7 +333,7 @@ namespace OpenSage.Gui.Wnd
 
                 var borderWidth = window.Highlighted ? 4 : 1;
 
-                window._primitiveBatch.DrawRectangle(
+                window.PrimitiveBatch.DrawRectangle(
                     window.Bounds.ToRectangleF(),
                     borderColor,
                     borderWidth);
@@ -314,39 +344,15 @@ namespace OpenSage.Gui.Wnd
                 var overlayColor = window.OverlayColorOverride.Value.ToColorRgbaF();
                 overlayColor.A *= window.Opacity;
 
-                window._primitiveBatch.FillRectangle(
+                window.PrimitiveBatch.FillRectangle(
                     window.Bounds,
                     overlayColor);
             }
 
-            DrawText(window, game, window._primitiveBatch);
-
-            window._primitiveBatch.End();
+            window.PrimitiveBatch.End();
         }
 
-        private static void DrawText(
-            WndWindow window,
-            Game game,
-            DrawingContext2D drawingContext)
-        {
-            if (!string.IsNullOrEmpty(window.Text))
-            {
-                var font = game.ContentManager.GetOrCreateFont(
-                    window.TextFont.Name,
-                    window.TextFont.Size * window._scale,
-                    window.TextFont.Bold ? FontWeight.Bold : FontWeight.Normal);
-
-                var textColor = window.ActiveState.TextColor.ToColorRgbaF();
-                textColor.A *= window.TextOpacity;
-
-                drawingContext.DrawText(
-                    window.Text,
-                    font,
-                    window.TextAlignment,
-                    textColor,
-                    window.Bounds.ToRectangleF());
-            }
-        }
+        protected virtual void DefaultDrawOverride(Game game) { }
 
         internal void Render(SpriteBatch spriteBatch)
         {
@@ -359,7 +365,16 @@ namespace OpenSage.Gui.Wnd
                 Frame.ToRectangleF(),
                 color);
         }
+
+        public Point2D PointToClient(in Point2D topLevelWindowPosition)
+        {
+            return new Point2D(
+                topLevelWindowPosition.X - Frame.X,
+                topLevelWindowPosition.Y - Frame.Y);
+        }
     }
+
+    public delegate void UIElementDrawCallback(WndWindow window, Game game);
 
     public delegate void UIElementCallback(WndWindow element, WndWindowMessage message, UIElementCallbackContext context);
 

@@ -60,7 +60,7 @@ namespace OpenSage.Content
 
         private static WndWindow CreateElementRecursive(WndWindowDefinition wndWindow, ContentManager contentManager, WndCallbackResolver wndCallbackResolver)
         {
-            var result = new WndWindow(wndWindow, contentManager, wndCallbackResolver);
+            var result = WndWindow.Create(wndWindow, contentManager, wndCallbackResolver);
 
             foreach (var childWindow in wndWindow.ChildWindows)
             {

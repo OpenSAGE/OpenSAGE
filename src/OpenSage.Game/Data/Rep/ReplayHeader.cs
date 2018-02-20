@@ -53,13 +53,14 @@ namespace OpenSage.Data.Rep
                 result.NumTimecodes = reader.ReadUInt16();
 
                 var zero = reader.ReadBytes(12);
-                for (var i = 0; i < zero.Length; i++)
-                {
-                    if (zero[i] != 0)
-                    {
-                        throw new InvalidDataException();
-                    }
-                }
+                // TODO
+                //for (var i = 0; i < zero.Length; i++)
+                //{
+                //    if (zero[i] != 0)
+                //    {
+                //        throw new InvalidDataException();
+                //    }
+                //}
             }
             else
             {

@@ -4,7 +4,6 @@
     {
         Enabled,
         Highlighted,
-        HighlightedPushed,
         Disabled,
     }
 }

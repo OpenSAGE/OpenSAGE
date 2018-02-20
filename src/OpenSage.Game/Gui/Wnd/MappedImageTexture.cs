@@ -3,14 +3,14 @@ using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Gui.Wnd
 {
-    public sealed class CroppedBitmap
+    internal sealed class MappedImageTexture
     {
-        public readonly Texture Bitmap;
+        public readonly Texture Texture;
         public readonly Rectangle SourceRect;
 
-        public CroppedBitmap(Texture texture, in Rectangle sourceRect)
+        public MappedImageTexture(Texture texture, in Rectangle sourceRect)
         {
-            Bitmap = texture;
+            Texture = texture;
             SourceRect = sourceRect;
         }
     }

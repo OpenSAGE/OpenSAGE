@@ -49,6 +49,8 @@ namespace OpenSage.Content
 
         public TranslationManager TranslationManager { get; }
 
+        internal WndImageTextureCache WndImageTextureCache { get; }
+
         public ContentManager(
             Game game,
             FileSystem fileSystem,
@@ -107,6 +109,8 @@ namespace OpenSage.Content
                     new byte[] { 255, 255, 255, 255 },
                     4, 4, 1, 1),
                 PixelFormat.R8_G8_B8_A8_UNorm));
+
+            WndImageTextureCache = AddDisposable(new WndImageTextureCache(this, new MappedImageManager(this)));
         }
 
         internal DeviceBuffer GetNullStructuredBuffer(uint size)
