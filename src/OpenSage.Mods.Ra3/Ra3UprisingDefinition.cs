@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Data;
+using OpenSage.Gui;
 
 namespace OpenSage.Mods.Ra3
 {
@@ -18,6 +19,8 @@ namespace OpenSage.Mods.Ra3
         {
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\Red Alert 3 Uprising", "Install Dir")
         };
+
+        public IMainMenuSource MainMenu { get; }
 
         public static Ra3UprisingDefinition Instance { get; } = new Ra3UprisingDefinition();
     }

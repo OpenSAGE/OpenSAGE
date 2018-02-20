@@ -51,16 +51,15 @@ namespace OpenSage.Mods.Generals
             // TODO: Show faction icons when WinScaleUpTransition is implemented.
 
             _doneMainMenuFadeIn = false;
-        }
 
-        public static void W3DNoDraw(WndWindow element, Game game)
-        {
-            // Draw the main menu background if no map is loaded.
-            if (element.Name == "MainMenu.wnd:MainMenuParent" && game.Scene3D == null)
+            if (game.Scene3D == null)
             {
-                WndWindow.DefaultDraw(element, game);
+                // Draw the main menu background if no map is loaded.
+                window.Root.DrawCallback = window.Root.DefaultDraw;
             }
         }
+
+        public static void W3DNoDraw(WndWindow element, Game game) { }
 
         public static void MainMenuSystem(WndWindow element, WndWindowMessage message, UIElementCallbackContext context)
         {

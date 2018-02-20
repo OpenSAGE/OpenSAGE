@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Content;
 using OpenSage.Data.Wnd;
@@ -96,7 +97,7 @@ namespace OpenSage.Gui.Wnd
         public UIElementCallback SystemCallback { get; private set; }
         internal UIElementCallback InputCallback { get; private set; }
         internal UIElementCallback TooltipCallback { get; private set; }
-        internal UIElementDrawCallback DrawCallback { get; private set; }
+        public UIElementDrawCallback DrawCallback { get; set; }
 
         private ColorRgba? _backgroundColorOverride;
         public ColorRgba? BackgroundColorOverride
@@ -300,7 +301,7 @@ namespace OpenSage.Gui.Wnd
 
         protected virtual void DefaultSystemOverride(WndWindowMessage message, UIElementCallbackContext context) { }
 
-        public static void DefaultDraw(WndWindow window, Game game)
+        public void DefaultDraw(WndWindow window, Game game)
         {
             var activeState = window.ActiveState;
 

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Data;
+using OpenSage.Gui;
+using OpenSage.Gui.Wnd;
 
 namespace OpenSage.Mods.Generals
 {
@@ -18,6 +20,8 @@ namespace OpenSage.Mods.Generals
         {
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\Generals", "InstallPath")
         };
+
+        public IMainMenuSource MainMenu => new WndMainMenuSource(@"Menus\MainMenu.wnd");
 
         public static GeneralsDefinition Instance { get; } = new GeneralsDefinition();
     }

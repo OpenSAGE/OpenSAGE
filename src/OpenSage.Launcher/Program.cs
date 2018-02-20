@@ -2,6 +2,7 @@
 using OpenSage.Mods.BuiltIn;
 using System.CommandLine;
 using System.Linq;
+using OpenSage.Gui.Wnd;
 
 namespace OpenSage.Launcher
 {
@@ -31,10 +32,13 @@ namespace OpenSage.Launcher
             Platform.CurrentPlatform = new Sdl2Platform();
             Platform.CurrentPlatform.Start();
 
+            var definition = GameDefinition.FromGame(startupGame);
+            var locator = new RegistryInstallationLocator();
+
             // TODO: Support other locators.
             var game = GameFactory.CreateGame(
-                GameDefinition.FromGame(startupGame),
-                new RegistryInstallationLocator(),
+                definition,
+                locator,
                 // TODO: Read game version from assembly metadata or .git folder
                 () => Platform.CurrentPlatform.CreateWindow("OpenSAGE (master)", 100, 100, 1024, 768));
 
@@ -48,8 +52,7 @@ namespace OpenSage.Launcher
                 game.Scripting.Active = true;
             }
 
-            // TODO: Configure this per-game, and make it work with APT.
-            game.Scene2D.WndWindowManager.PushWindow("Menus\\MainMenu.wnd");
+            definition.MainMenu?.AddToScene(game.ContentManager, game.Scene2D);
 
             while (game.IsRunning)
             {

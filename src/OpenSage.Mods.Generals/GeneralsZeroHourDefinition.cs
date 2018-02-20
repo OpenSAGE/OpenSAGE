@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Data;
+using OpenSage.Gui;
+using OpenSage.Gui.Wnd;
 
 namespace OpenSage.Mods.Generals
 {
@@ -20,6 +22,8 @@ namespace OpenSage.Mods.Generals
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\Command and Conquer Generals Zero Hour", "InstallPath"),
             new RegistryKeyPath(@"SOFTWARE\EA Games\Command and Conquer Generals Zero Hour", "Install Dir", "Command and Conquer Generals Zero Hour\\")
         };
+
+        public IMainMenuSource MainMenu => new WndMainMenuSource(@"Menus\MainMenu.wnd");
 
         public static GeneralsZeroHourDefinition Instance { get; } = new GeneralsZeroHourDefinition();
     }
