@@ -92,5 +92,13 @@ namespace OpenSage.Mathematics
 
             return new RectangleF(position.X, position.Y, size.X, size.Y);
         }
+
+        public bool Contains(in Point2D point)
+        {
+            return point.X >= X
+                && point.X <= Right
+                && point.Y >= Y
+                && point.Y <= Bottom;
+        }
     }
 }
