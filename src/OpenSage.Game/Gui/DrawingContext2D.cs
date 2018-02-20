@@ -89,9 +89,25 @@ namespace OpenSage.Gui
                 viewport);
         }
 
-        public void DrawImage(Texture texture, in Rectangle sourceRect, in Rectangle destinationRect)
+        public void DrawImage(Texture texture, in Rectangle? sourceRect, in Rectangle destinationRect)
         {
             _spriteBatch.DrawImage(texture, sourceRect, destinationRect.ToRectangleF(), ColorRgbaF.White);
+        }
+
+        public SizeF MeasureText(string text, Font font, TextAlignment textAlignment, float width)
+        {
+            var textSize = TextMeasurer.Measure(
+                text,
+                new RendererOptions(font)
+                {
+                    WrappingWidth = width,
+                    HorizontalAlignment = textAlignment == TextAlignment.Center
+                        ? HorizontalAlignment.Center
+                        : HorizontalAlignment.Left,
+                    VerticalAlignment = VerticalAlignment.Center
+                });
+
+            return new SizeF(textSize.Width, textSize.Height);
         }
 
         public unsafe void DrawText(string text, Font font, TextAlignment textAlignment, ColorRgbaF color, RectangleF rect)
