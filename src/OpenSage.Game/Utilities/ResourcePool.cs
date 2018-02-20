@@ -30,19 +30,19 @@ namespace OpenSage.Utilities
             T result;
             if (available.Count == 0)
             {
-                available.Add(result = AddDisposable(_creator(key)));
+                result = AddDisposable(_creator(key));
             }
             else
             {
                 result = available[available.Count - 1];
                 available.RemoveAt(available.Count - 1);
-
-                if (!_leased.TryGetValue(key, out var leased))
-                {
-                    _leased.Add(key, leased = new List<T>());
-                }
-                leased.Add(result);
             }
+
+            if (!_leased.TryGetValue(key, out var leased))
+            {
+                _leased.Add(key, leased = new List<T>());
+            }
+            leased.Add(result);
 
             return result;
         }
