@@ -458,7 +458,7 @@ namespace OpenSage.Data.Ini
 
             { "KeyboardCameraRotateSpeed", (parser, x) => x.KeyboardCameraRotateSpeed = parser.ParseFloat() },
 
-            { "UserDataLeafName", (parser, x) => x.UserDataLeafName = parser.ParseString() },
+            { "UserDataLeafName", (parser, x) => x.UserDataLeafName = parser.ParseQuotedString() },
 
             { "DefaultVoiceAttackChargeTimeout", (parser, x) => x.DefaultVoiceAttackChargeTimeout = parser.ParseInteger() },
             { "DefaultMaxDistanceForEngaged", (parser, x) => x.DefaultMaxDistanceForEngaged = parser.ParseInteger() },
