@@ -12,7 +12,7 @@ namespace OpenSage
     {
         private readonly Sdl2Window _window;
 
-        private readonly Queue<GameMessage> _messageQueue = new Queue<GameMessage>();
+        private readonly Queue<InputMessage> _messageQueue = new Queue<InputMessage>();
 
         private bool _closing;
         private int _lastMouseX;
@@ -74,30 +74,28 @@ namespace OpenSage
 
         private void HandleKeyDown(KeyEvent evt)
         {
-            var message = new GameMessage(GameMessageType.KeyDown);
-            message.AddIntegerArgument((int) evt.Key);
+            var message = InputMessage.CreateKeyDown(evt.Key);
             _messageQueue.Enqueue(message);
         }
 
         private void HandleKeyUp(KeyEvent evt)
         {
-            var message = new GameMessage(GameMessageType.KeyUp);
-            message.AddIntegerArgument((int) evt.Key);
+            var message = InputMessage.CreateKeyUp(evt.Key);
             _messageQueue.Enqueue(message);
         }
 
         private void HandleMouseDown(MouseEvent evt)
         {
-            GameMessageType? getMessageType()
+            InputMessageType? getMessageType()
             {
                 switch (evt.MouseButton)
                 {
                     case MouseButton.Left:
-                        return GameMessageType.MouseLeftButtonDown;
+                        return InputMessageType.MouseLeftButtonDown;
                     case MouseButton.Middle:
-                        return GameMessageType.MouseMiddleButtonDown;
+                        return InputMessageType.MouseMiddleButtonDown;
                     case MouseButton.Right:
-                        return GameMessageType.MouseRightButtonDown;
+                        return InputMessageType.MouseRightButtonDown;
                     default:
                         return null;
                 }
@@ -109,23 +107,22 @@ namespace OpenSage
                 return;
             }
 
-            var message = new GameMessage(messageType.Value);
-            message.AddScreenPositionArgument(new Point2D(_lastMouseX, _lastMouseY));
+            var message = InputMessage.CreateMouseButton(messageType.Value, new Point2D(_lastMouseX, _lastMouseY));
             _messageQueue.Enqueue(message);
         }
 
         private void HandleMouseUp(MouseEvent evt)
         {
-            GameMessageType? getMessageType()
+            InputMessageType? getMessageType()
             {
                 switch (evt.MouseButton)
                 {
                     case MouseButton.Left:
-                        return GameMessageType.MouseLeftButtonUp;
+                        return InputMessageType.MouseLeftButtonUp;
                     case MouseButton.Middle:
-                        return GameMessageType.MouseMiddleButtonUp;
+                        return InputMessageType.MouseMiddleButtonUp;
                     case MouseButton.Right:
-                        return GameMessageType.MouseRightButtonUp;
+                        return InputMessageType.MouseRightButtonUp;
                     default:
                         return null;
                 }
@@ -137,22 +134,19 @@ namespace OpenSage
                 return;
             }
 
-            var message = new GameMessage(messageType.Value);
-            message.AddScreenPositionArgument(new Point2D(_lastMouseX, _lastMouseY));
+            var message = InputMessage.CreateMouseButton(messageType.Value, new Point2D(_lastMouseX, _lastMouseY));
             _messageQueue.Enqueue(message);
         }
 
         private void HandleMouseMove(MouseMoveEventArgs args)
         {
-            var message = new GameMessage(GameMessageType.MouseMove);
-            message.AddScreenPositionArgument(new Point2D(args.State.X, args.State.Y));
+            var message = InputMessage.CreateMouseMove(new Point2D(args.State.X, args.State.Y));
             _messageQueue.Enqueue(message);
         }
 
         private void HandleMouseWheel(MouseWheelEventArgs args)
         {
-            var message = new GameMessage(GameMessageType.MouseWheel);
-            message.AddIntegerArgument((int) (args.WheelDelta * 100));
+            var message = InputMessage.CreateMouseWheel((int) (args.WheelDelta * 100));
             _messageQueue.Enqueue(message);
         }
 

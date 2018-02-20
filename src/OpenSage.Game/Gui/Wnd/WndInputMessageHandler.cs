@@ -1,10 +1,11 @@
 ﻿using System.Numerics;
+using OpenSage.Input;
 using OpenSage.Mathematics;
 using Veldrid;
 
 namespace OpenSage.Gui.Wnd
 {
-    internal sealed class WndInputMessageHandler : GameMessageHandler
+    internal sealed class WndInputMessageHandler : InputMessageHandler
     {
         private readonly WndWindowManager _windowManager;
         private readonly Game _game;
@@ -17,15 +18,15 @@ namespace OpenSage.Gui.Wnd
             _game = game;
         }
 
-        public override GameMessageResult HandleMessage(GameMessage message)
+        public override InputMessageResult HandleMessage(InputMessage message)
         {
             var context = new UIElementCallbackContext(_windowManager, _game);
 
             switch (message.MessageType)
             {
-                case GameMessageType.MouseMove:
+                case InputMessageType.MouseMove:
                     {
-                        var element = _windowManager.FindWindow(message.Arguments[0].Value.ScreenPosition);
+                        var element = _windowManager.FindWindow(message.Value.MousePosition);
                         if (element != _lastHighlightedElement)
                         {
                             if (_lastHighlightedElement != null)
@@ -46,55 +47,57 @@ namespace OpenSage.Gui.Wnd
                         }
                         if (element != null)
                         {
+                            var mousePosition = element?.PointToClient(message.Value.MousePosition);
                             element.InputCallback.Invoke(
                                 element,
-                                new WndWindowMessage(WndWindowMessageType.MouseMove, element),
+                                new WndWindowMessage(WndWindowMessageType.MouseMove, element, mousePosition),
                                 context);
-                            return GameMessageResult.Handled;
+                            return InputMessageResult.Handled;
                         }
                         break;
                     }
 
-                case GameMessageType.MouseLeftButtonDown:
+                case InputMessageType.MouseLeftButtonDown:
                     {
-                        var element = _windowManager.FindWindow(message.Arguments[0].Value.ScreenPosition);
+                        var element = _windowManager.FindWindow(message.Value.MousePosition);
+                        if (element != null)
+                        {
+                            var mousePosition = element.PointToClient(message.Value.MousePosition);
+                            element.InputCallback.Invoke(
+                                element,
+                                new WndWindowMessage(WndWindowMessageType.MouseDown, element, mousePosition),
+                                context);
+                            return InputMessageResult.Handled;
+                        }
+                        break;
+                    }
+
+                case InputMessageType.MouseLeftButtonUp:
+                    {
+                        var element = _windowManager.FindWindow(message.Value.MousePosition);
                         if (element != null)
                         {
                             element.InputCallback.Invoke(
                                 element,
-                                new WndWindowMessage(WndWindowMessageType.MouseDown, element),
+                                new WndWindowMessage(WndWindowMessageType.MouseUp, element, message.Value.MousePosition),
                                 context);
-                            return GameMessageResult.Handled;
+                            return InputMessageResult.Handled;
                         }
                         break;
                     }
 
-                case GameMessageType.MouseLeftButtonUp:
+                case InputMessageType.KeyDown:
                     {
-                        var element = _windowManager.FindWindow(message.Arguments[0].Value.ScreenPosition);
-                        if (element != null)
-                        {
-                            element.InputCallback.Invoke(
-                                element,
-                                new WndWindowMessage(WndWindowMessageType.MouseUp, element),
-                                context);
-                            return GameMessageResult.Handled;
-                        }
-                        break;
-                    }
-
-                case GameMessageType.KeyDown:
-                    {
-                        if ((Key) message.Arguments[0].Value.Integer == Key.Escape && _windowManager.OpenWindowCount > 1)
+                        if (message.Value.Key == Key.Escape && _windowManager.OpenWindowCount > 1)
                         {
                             _windowManager.PopWindow();
-                            return GameMessageResult.Handled;
+                            return InputMessageResult.Handled;
                         }
                         break;
                     }
             }
 
-            return GameMessageResult.NotHandled;
+            return InputMessageResult.NotHandled;
         }
     }
 }

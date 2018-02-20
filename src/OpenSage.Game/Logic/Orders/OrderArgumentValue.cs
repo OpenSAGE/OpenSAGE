@@ -2,10 +2,10 @@
 using System.Runtime.InteropServices;
 using OpenSage.Mathematics;
 
-namespace OpenSage
+namespace OpenSage.Logic.Orders
 {
     [StructLayout(LayoutKind.Explicit)]
-    public struct GameMessageArgumentValue
+    public struct OrderArgumentValue
     {
         [FieldOffset(0)]
         public int Integer;

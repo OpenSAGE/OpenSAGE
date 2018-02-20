@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Text;
 
-namespace OpenSage
+namespace OpenSage.Logic.Orders
 {
-    public sealed class GameMessageArgument
+    public sealed class OrderArgument
     {
-        public readonly GameMessageArgumentType ArgumentType;
-        public readonly GameMessageArgumentValue Value;
+        public OrderArgumentType ArgumentType { get; }
+        public readonly OrderArgumentValue Value;
 
-        internal GameMessageArgument(
-            GameMessageArgumentType argumentType,
-            in GameMessageArgumentValue value)
+        internal OrderArgument(
+            OrderArgumentType argumentType,
+            in OrderArgumentValue value)
         {
             ArgumentType = argumentType;
             Value = value;
@@ -24,27 +24,27 @@ namespace OpenSage
 
             switch (ArgumentType)
             {
-                case GameMessageArgumentType.Integer:
+                case OrderArgumentType.Integer:
                     sb.Append(Value.Integer.ToString());
                     break;
 
-                case GameMessageArgumentType.Float:
+                case OrderArgumentType.Float:
                     sb.Append(Value.Float.ToString());
                     break;
 
-                case GameMessageArgumentType.Boolean:
+                case OrderArgumentType.Boolean:
                     sb.Append(Value.Boolean.ToString());
                     break;
 
-                case GameMessageArgumentType.ObjectId:
+                case OrderArgumentType.ObjectId:
                     sb.Append(Value.ObjectId.ToString());
                     break;
 
-                case GameMessageArgumentType.Position:
+                case OrderArgumentType.Position:
                     sb.Append(Value.Position.ToString());
                     break;
 
-                case GameMessageArgumentType.ScreenPosition:
+                case OrderArgumentType.ScreenPosition:
                     sb.Append(Value.ScreenPosition.ToString());
                     break;
 

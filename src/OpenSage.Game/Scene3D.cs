@@ -67,8 +67,8 @@ namespace OpenSage
             Lighting = lighting;
 
             _cameraInputMessageHandler = new CameraInputMessageHandler();
-            game.MessageBuffer.Handlers.Add(_cameraInputMessageHandler);
-            AddDisposeAction(() => game.MessageBuffer.Handlers.Remove(_cameraInputMessageHandler));
+            game.InputMessageBuffer.Handlers.Add(_cameraInputMessageHandler);
+            AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_cameraInputMessageHandler));
 
             _particleSystemManager = AddDisposable(new ParticleSystemManager(game, this));
         }

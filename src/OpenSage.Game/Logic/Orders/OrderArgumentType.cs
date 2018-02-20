@@ -1,6 +1,6 @@
-﻿namespace OpenSage
+﻿namespace OpenSage.Logic.Orders
 {
-    public enum GameMessageArgumentType : byte
+    public enum OrderArgumentType : byte
     {
         Integer = 0,
         Float = 1,

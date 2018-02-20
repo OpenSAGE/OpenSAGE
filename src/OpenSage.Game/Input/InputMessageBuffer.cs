@@ -1,19 +1,18 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Input;
 
-namespace OpenSage
+namespace OpenSage.Input
 {
-    public sealed class GameMessageBuffer : DisposableBase
+    public sealed class InputMessageBuffer : DisposableBase
     {
-        private readonly Queue<GameMessage> _messageQueue;
+        private readonly Queue<InputMessage> _messageQueue;
 
-        public List<GameMessageHandler> Handlers { get; }
+        public List<InputMessageHandler> Handlers { get; }
 
-        public GameMessageBuffer(GameWindow window)
+        internal InputMessageBuffer(GameWindow window)
         {
-            _messageQueue = new Queue<GameMessage>();
+            _messageQueue = new Queue<InputMessage>();
 
-            Handlers = new List<GameMessageHandler>();
+            Handlers = new List<InputMessageHandler>();
 
             window.InputMessageReceived += OnInputMessage;
 
@@ -25,15 +24,14 @@ namespace OpenSage
             _messageQueue.Enqueue(e.Message);
         }
 
-        internal void PropagateMessages()
+        internal void PumpEvents()
         {
             while (_messageQueue.Count > 0)
             {
                 var message = _messageQueue.Dequeue();
-
                 foreach (var handler in Handlers)
                 {
-                    if (handler.HandleMessage(message) == GameMessageResult.Handled)
+                    if (handler.HandleMessage(message) == InputMessageResult.Handled)
                     {
                         break;
                     }

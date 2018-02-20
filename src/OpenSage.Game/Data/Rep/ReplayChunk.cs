@@ -1,13 +1,14 @@
 ﻿using System;
 using System.IO;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Logic.Orders;
 
 namespace OpenSage.Data.Rep
 {
     public sealed class ReplayChunk
     {
         public ReplayChunkHeader Header { get; private set; }
-        public GameMessage Message { get; private set; }
+        public Order Order { get; private set; }
 
         internal static ReplayChunk Parse(BinaryReader reader)
         {
@@ -19,14 +20,14 @@ namespace OpenSage.Data.Rep
             var numUniqueArgumentTypes = reader.ReadByte();
 
             // Pairs of {argument type, count}.
-            var argumentCounts = new (GameMessageArgumentType argumentType, byte count)[numUniqueArgumentTypes];
+            var argumentCounts = new (OrderArgumentType argumentType, byte count)[numUniqueArgumentTypes];
             for (var i = 0; i < numUniqueArgumentTypes; i++)
             {
-                argumentCounts[i] = (reader.ReadByteAsEnum<GameMessageArgumentType>(), reader.ReadByte());
+                argumentCounts[i] = (reader.ReadByteAsEnum<OrderArgumentType>(), reader.ReadByte());
             }
 
-            var message = new GameMessage(result.Header.MessageType);
-            result.Message = message;
+            var order = new Order(result.Header.Number, result.Header.OrderType);
+            result.Order = order;
 
             for (var i = 0; i < numUniqueArgumentTypes; i++)
             {
@@ -37,28 +38,28 @@ namespace OpenSage.Data.Rep
                 {
                     switch (argumentType)
                     {
-                        case GameMessageArgumentType.Integer:
-                            message.AddIntegerArgument(reader.ReadInt32());
+                        case OrderArgumentType.Integer:
+                            order.AddIntegerArgument(reader.ReadInt32());
                             break;
 
-                        case GameMessageArgumentType.Float:
-                            message.AddFloatArgument(reader.ReadSingle());
+                        case OrderArgumentType.Float:
+                            order.AddFloatArgument(reader.ReadSingle());
                             break;
 
-                        case GameMessageArgumentType.Boolean:
-                            message.AddBooleanArgument(reader.ReadBooleanChecked());
+                        case OrderArgumentType.Boolean:
+                            order.AddBooleanArgument(reader.ReadBooleanChecked());
                             break;
 
-                        case GameMessageArgumentType.ObjectId:
-                            message.AddObjectIdArgument(reader.ReadUInt32());
+                        case OrderArgumentType.ObjectId:
+                            order.AddObjectIdArgument(reader.ReadUInt32());
                             break;
 
-                        case GameMessageArgumentType.Position:
-                            message.AddPositionArgument(reader.ReadVector3());
+                        case OrderArgumentType.Position:
+                            order.AddPositionArgument(reader.ReadVector3());
                             break;
 
-                        case GameMessageArgumentType.ScreenPosition:
-                            message.AddScreenPositionArgument(reader.ReadPoint2D());
+                        case OrderArgumentType.ScreenPosition:
+                            order.AddScreenPositionArgument(reader.ReadPoint2D());
                             break;
 
                         default:

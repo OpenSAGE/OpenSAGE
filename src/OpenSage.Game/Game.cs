@@ -8,6 +8,7 @@ using OpenSage.Graphics.Rendering;
 using OpenSage.Gui.Wnd;
 using OpenSage.Input;
 using OpenSage.Logic;
+using OpenSage.Network;
 using OpenSage.Scripting;
 using Veldrid;
 
@@ -40,7 +41,7 @@ namespace OpenSage
 
         public GraphicsDevice GraphicsDevice { get; }
 
-        public GameMessageBuffer MessageBuffer { get; }
+        public InputMessageBuffer InputMessageBuffer { get; }
 
         internal List<GameSystem> GameSystems { get; }
 
@@ -70,6 +71,26 @@ namespace OpenSage
 
         public SageGame SageGame { get; }
 
+        public string UserDataLeafName
+        {
+            get
+            {
+                // TODO: Move this to IGameDefinition?
+                switch (SageGame)
+                {
+                    case SageGame.CncGeneralsZeroHour:
+                        return "Command and Conquer Generals Zero Hour Data";
+
+                    default:
+                        return ContentManager.IniDataContext.GameData.UserDataLeafName;
+                }
+            }
+        }
+
+        public string UserDataFolder => Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+            UserDataLeafName);
+
         public GameWindow Window { get; }
 
         public Viewport Viewport { get; private set; }
@@ -97,6 +118,17 @@ namespace OpenSage
             }
         }
 
+        private NetworkMessageBuffer _networkMessageBuffer;
+        public NetworkMessageBuffer NetworkMessageBuffer
+        {
+            get => _networkMessageBuffer;
+            set
+            {
+                _networkMessageBuffer?.Dispose();
+                _networkMessageBuffer = value;
+            }
+        }
+
         public Game(
             FileSystem fileSystem,
             SageGame sageGame,
@@ -117,7 +149,7 @@ namespace OpenSage
                 (uint) Window.ClientBounds.Width,
                 (uint) Window.ClientBounds.Height));
 
-            MessageBuffer = AddDisposable(new GameMessageBuffer(Window));
+            InputMessageBuffer = AddDisposable(new InputMessageBuffer(Window));
 
             SageGame = sageGame;
 
@@ -291,7 +323,9 @@ namespace OpenSage
 
         private void Update(GameTime gameTime)
         {
-            MessageBuffer.PropagateMessages();
+            InputMessageBuffer.PumpEvents();
+
+            NetworkMessageBuffer?.Tick();
 
             Updating?.Invoke(this, new GameUpdatingEventArgs(gameTime));
 

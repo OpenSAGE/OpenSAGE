@@ -9,7 +9,7 @@ namespace OpenSage.Data.Rep
         public ReplayHeader Header { get; private set; }
         public IReadOnlyList<ReplayChunk> Chunks { get; private set; }
 
-        public static ReplayFile FromFileSystemEntry(FileSystemEntry entry)
+        public static ReplayFile FromFileSystemEntry(FileSystemEntry entry, bool onlyHeader = false)
         {
             using (var stream = entry.Open())
             using (var reader = new BinaryReader(stream, Encoding.Unicode, true))
@@ -18,6 +18,11 @@ namespace OpenSage.Data.Rep
                 {
                     Header = ReplayHeader.Parse(reader)
                 };
+
+                if (onlyHeader)
+                {
+                    return result;
+                }
 
                 var chunks = new List<ReplayChunk>();
                 while (reader.BaseStream.Position < reader.BaseStream.Length)

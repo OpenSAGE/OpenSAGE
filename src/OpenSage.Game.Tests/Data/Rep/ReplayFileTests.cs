@@ -26,7 +26,7 @@ namespace OpenSage.Tests.Data.Rep
             Assert.Equal(366, replayFile.Header.NumTimecodes);
             Assert.Equal(616, replayFile.Chunks.Count);
 
-            WriteMessages(replayFile);
+            WriteOrders(replayFile);
         }
 
         [Fact]
@@ -38,7 +38,7 @@ namespace OpenSage.Tests.Data.Rep
             Assert.Equal(1474, replayFile.Header.NumTimecodes);
             Assert.Equal(1735, replayFile.Chunks.Count);
 
-            WriteMessages(replayFile);
+            WriteOrders(replayFile);
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace OpenSage.Tests.Data.Rep
             Assert.Equal(1211, replayFile.Header.NumTimecodes);
             Assert.Equal(1416, replayFile.Chunks.Count);
 
-            WriteMessages(replayFile);
+            WriteOrders(replayFile);
         }
 
         [Fact]
@@ -62,7 +62,7 @@ namespace OpenSage.Tests.Data.Rep
             Assert.Equal(1693, replayFile.Header.NumTimecodes);
             Assert.Equal(1797, replayFile.Chunks.Count);
 
-            WriteMessages(replayFile);
+            WriteOrders(replayFile);
         }
 
         private static ReplayFile LoadReplayFile([CallerMemberName] string testName = null)
@@ -74,11 +74,11 @@ namespace OpenSage.Tests.Data.Rep
             }
         }
 
-        private void WriteMessages(ReplayFile replayFile)
+        private void WriteOrders(ReplayFile replayFile)
         {
             foreach (var chunk in replayFile.Chunks)
             {
-                _output.WriteLine($"{chunk.Header.Timecode.ToString().PadLeft(5, ' ')}, {chunk.Header.Number}. {chunk.Message}");
+                _output.WriteLine($"{chunk.Header.Timecode.ToString().PadLeft(5, ' ')}, {chunk.Header.Number}. {chunk.Order}");
             }
         }
     }
