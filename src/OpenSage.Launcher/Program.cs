@@ -2,7 +2,6 @@
 using OpenSage.Mods.BuiltIn;
 using System.CommandLine;
 using System.Linq;
-using OpenSage.Gui.Wnd;
 
 namespace OpenSage.Launcher
 {
@@ -11,19 +10,19 @@ namespace OpenSage.Launcher
         public static void Main(string[] args)
         {
             var noShellMap = false;
-            var startupGame = SageGame.CncGenerals;
+            var definition = GameDefinition.FromGame(SageGame.CncGenerals);
 
             ArgumentSyntax.Parse(args, syntax =>
             {
-                syntax.DefineOption("noshellmap", ref noShellMap, false,
-                    "Disables loading the shell map, speeding up startup time.");
+                syntax.DefineOption("noshellmap", ref noShellMap, false, "Disables loading the shell map, speeding up startup time.");
 
                 string gameName = null;
-                var availableMods = GameDefinition.All.Select(def => def.Game.ToString());
-                syntax.DefineOption("game", ref gameName, false,
-                    $"Chooses which game to start. Valid options: {string.Join(", ", availableMods)}");
+                var availableGames = string.Join(", ", GameDefinition.All.Select(def => def.Game.ToString()));
 
-                if (!TryGetGameByName(gameName, out startupGame))
+                syntax.DefineOption("game", ref gameName, false, $"Chooses which game to start. Valid options: {availableGames}");
+
+                // If a game has been specified, make sure it's valid.
+                if (gameName != null && !GameDefinition.TryGetByName(gameName, out definition))
                 {
                     syntax.ReportError($"Unknown game: {gameName}");
                 }
@@ -32,26 +31,20 @@ namespace OpenSage.Launcher
             Platform.CurrentPlatform = new Sdl2Platform();
             Platform.CurrentPlatform.Start();
 
-            var definition = GameDefinition.FromGame(startupGame);
+            // TODO: Support other locators.
             var locator = new RegistryInstallationLocator();
 
-            // TODO: Support other locators.
             var game = GameFactory.CreateGame(
                 definition,
                 locator,
                 // TODO: Read game version from assembly metadata or .git folder
+                // TODO: Set window icon.
                 () => Platform.CurrentPlatform.CreateWindow("OpenSAGE (master)", 100, 100, 1024, 768));
 
-            // TODO: Set window icon.
+            game.Configuration.LoadShellMap = !noShellMap;
 
-            if (!noShellMap)
-            {
-                var shellMapName = game.ContentManager.IniDataContext.GameData.ShellMapName;
-                var mainMenuScene = game.ContentManager.Load<Scene3D>(shellMapName);
-                game.Scene3D = mainMenuScene;
-                game.Scripting.Active = true;
-            }
 
+            // The main menu also loads the shell map.
             definition.MainMenu?.AddToScene(game.ContentManager, game.Scene2D);
 
             while (game.IsRunning)
@@ -60,19 +53,6 @@ namespace OpenSage.Launcher
             }
 
             Platform.CurrentPlatform.Stop();
-        }
-
-        private static bool TryGetGameByName(string name, out SageGame game)
-        {
-            // TODO: Use a short identifier defined in IGameDefinition instead of stringified SageGame
-            var gameOrNull = GameDefinition.All.SingleOrDefault(def => def.Game.ToString().ToLower() == name)?.Game;
-            if (gameOrNull == null)
-            {
-                game = SageGame.CncGenerals;
-                return false;
-            }
-            game = gameOrNull.Value;
-            return true;
         }
     }
 }

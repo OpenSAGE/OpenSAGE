@@ -14,6 +14,19 @@ namespace OpenSage.Mods.Generals
 
         public static void W3DMainMenuInit(WndTopLevelWindow window, Game game)
         {
+            if (game.Configuration.LoadShellMap)
+            {
+                var shellMapName = game.ContentManager.IniDataContext.GameData.ShellMapName;
+                var mainMenuScene = game.ContentManager.Load<Scene3D>(shellMapName);
+                game.Scene3D = mainMenuScene;
+                game.Scripting.Active = true;
+            }
+            else
+            {
+                // Draw the main menu background if no map is loaded.
+                window.Root.DrawCallback = window.Root.DefaultDraw;
+            }
+
             // We'll show these later via window transitions.
             window.Root.FindChild("MainMenu.wnd:MainMenuRuler").Hide();
             window.Root.FindChild("MainMenu.wnd:MainMenuRuler").Opacity = 0;
@@ -51,12 +64,6 @@ namespace OpenSage.Mods.Generals
             // TODO: Show faction icons when WinScaleUpTransition is implemented.
 
             _doneMainMenuFadeIn = false;
-
-            if (game.Scene3D == null)
-            {
-                // Draw the main menu background if no map is loaded.
-                window.Root.DrawCallback = window.Root.DefaultDraw;
-            }
         }
 
         public static void W3DNoDraw(WndWindow element, Game game) { }

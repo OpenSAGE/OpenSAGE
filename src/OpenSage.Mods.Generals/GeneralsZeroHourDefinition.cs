@@ -23,7 +23,7 @@ namespace OpenSage.Mods.Generals
             new RegistryKeyPath(@"SOFTWARE\EA Games\Command and Conquer Generals Zero Hour", "Install Dir", "Command and Conquer Generals Zero Hour\\")
         };
 
-        public IMainMenuSource MainMenu => new WndMainMenuSource(@"Menus\MainMenu.wnd");
+        public IMainMenuSource MainMenu { get; } = new WndMainMenuSource(@"Menus\MainMenu.wnd");
 
         public static GeneralsZeroHourDefinition Instance { get; } = new GeneralsZeroHourDefinition();
     }

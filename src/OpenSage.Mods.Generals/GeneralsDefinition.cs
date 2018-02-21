@@ -21,7 +21,7 @@ namespace OpenSage.Mods.Generals
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\Generals", "InstallPath")
         };
 
-        public IMainMenuSource MainMenu => new WndMainMenuSource(@"Menus\MainMenu.wnd");
+        public IMainMenuSource MainMenu { get; } = new WndMainMenuSource(@"Menus\MainMenu.wnd");
 
         public static GeneralsDefinition Instance { get; } = new GeneralsDefinition();
     }

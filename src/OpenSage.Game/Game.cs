@@ -71,6 +71,8 @@ namespace OpenSage
 
         public SageGame SageGame { get; }
 
+        public Configuration Configuration { get; private set; }
+
         public string UserDataLeafName
         {
             get
@@ -135,6 +137,9 @@ namespace OpenSage
             Type wndCallbacksType,
             Func<GameWindow> createGameWindow)
         {
+            // TODO: Should we receive this as an argument? Do we need configuration in this constructor?
+            Configuration = new Configuration();
+
             Window = AddDisposable(createGameWindow());
 
 #if DEBUG
@@ -170,7 +175,8 @@ namespace OpenSage
                 GraphicsDevice,
                 sageGame,
                 _wndCallbackResolver));
-            
+
+            // TODO: Add these into IGameDefinition? Should we preload all ini files?
             switch (sageGame)
             {
                 case SageGame.Ra3:
