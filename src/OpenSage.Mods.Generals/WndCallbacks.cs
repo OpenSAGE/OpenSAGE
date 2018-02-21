@@ -14,14 +14,7 @@ namespace OpenSage.Mods.Generals
 
         public static void W3DMainMenuInit(WndTopLevelWindow window, Game game)
         {
-            if (game.Configuration.LoadShellMap)
-            {
-                var shellMapName = game.ContentManager.IniDataContext.GameData.ShellMapName;
-                var mainMenuScene = game.ContentManager.Load<Scene3D>(shellMapName);
-                game.Scene3D = mainMenuScene;
-                game.Scripting.Active = true;
-            }
-            else
+            if (!game.Configuration.LoadShellMap)
             {
                 // Draw the main menu background if no map is loaded.
                 window.Root.DrawCallback = window.Root.DefaultDraw;

@@ -5,6 +5,7 @@ using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
 using OpenSage.Input;
 using OpenSage.Logic;
@@ -69,7 +70,8 @@ namespace OpenSage
 
         public bool IsRunning { get; private set; }
 
-        public SageGame SageGame { get; }
+        public IGameDefinition Definition { get; }
+        public SageGame SageGame => Definition.Game;
 
         public Configuration Configuration { get; private set; }
 
@@ -132,9 +134,8 @@ namespace OpenSage
         }
 
         public Game(
+            IGameDefinition definition,
             FileSystem fileSystem,
-            SageGame sageGame,
-            Type wndCallbacksType,
             Func<GameWindow> createGameWindow)
         {
             // TODO: Should we receive this as an argument? Do we need configuration in this constructor?
@@ -156,7 +157,7 @@ namespace OpenSage
 
             InputMessageBuffer = AddDisposable(new InputMessageBuffer(Window));
 
-            SageGame = sageGame;
+            Definition = definition;
 
             _fileSystem = fileSystem;
 
@@ -165,7 +166,7 @@ namespace OpenSage
 
             _cachedCursors = new Dictionary<string, Cursor>();
 
-            _wndCallbackResolver = new WndCallbackResolver(wndCallbacksType);
+            _wndCallbackResolver = new WndCallbackResolver(definition.WndCallbackType);
 
             ResetElapsedTime();
 
@@ -173,11 +174,11 @@ namespace OpenSage
                 this,
                 _fileSystem, 
                 GraphicsDevice,
-                sageGame,
+                SageGame,
                 _wndCallbackResolver));
 
             // TODO: Add these into IGameDefinition? Should we preload all ini files?
-            switch (sageGame)
+            switch (SageGame)
             {
                 case SageGame.Ra3:
                 case SageGame.Ra3Uprising:
@@ -190,7 +191,7 @@ namespace OpenSage
                     break;
             }
 
-            switch (sageGame)
+            switch (SageGame)
             {
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
@@ -291,6 +292,19 @@ namespace OpenSage
             }
 
             SetCursor(cursor);
+        }
+
+        public void ShowMainMenu()
+        {
+            if (Configuration.LoadShellMap)
+            {
+                var shellMapName = ContentManager.IniDataContext.GameData.ShellMapName;
+                var mainMenuScene = ContentManager.Load<Scene3D>(shellMapName);
+                Scene3D = mainMenuScene;
+                Scripting.Active = true;
+            }
+
+            Definition.MainMenu.AddToScene(ContentManager, Scene2D);
         }
 
         public void Tick()

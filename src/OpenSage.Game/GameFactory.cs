@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using OpenSage.Data;
-using Veldrid;
 
 namespace OpenSage
 {
@@ -20,10 +19,7 @@ namespace OpenSage
                 throw new Exception($"No installations for {definition.Game} could be found.");
             }
 
-            return CreateGame(
-                installation,
-                installation.CreateFileSystem(),
-                createWindow);
+            return CreateGame(installation, installation.CreateFileSystem(), createWindow);
         }
 
         public static Game CreateGame(
@@ -32,12 +28,7 @@ namespace OpenSage
             Func<GameWindow> createWindow)
         {
             var definition = installation.Game;
-
-            return new Game(
-                fileSystem,
-                definition.Game,
-                definition.WndCallbackType,
-                createWindow);
+            return new Game(definition, fileSystem, createWindow);
         }
     }
 }

@@ -42,10 +42,7 @@ namespace OpenSage.Launcher
                 () => Platform.CurrentPlatform.CreateWindow("OpenSAGE (master)", 100, 100, 1024, 768));
 
             game.Configuration.LoadShellMap = !noShellMap;
-
-
-            // The main menu also loads the shell map.
-            definition.MainMenu?.AddToScene(game.ContentManager, game.Scene2D);
+            game.ShowMainMenu();
 
             while (game.IsRunning)
             {
