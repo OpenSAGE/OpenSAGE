@@ -96,6 +96,9 @@ namespace OpenSage.DataViewer.UI
                 case ".txt":
                     return new TxtView(entry);
 
+                case ".wav":
+                    return new WavView(entry);
+
                 case ".w3d":
                     return new W3dView(entry, getGame);
 
