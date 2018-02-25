@@ -15,7 +15,22 @@ namespace OpenSage.Graphics.Effects
             PipelineState = new EffectPipelineState(
                 RasterizerStateDescriptionUtility.CullNoneSolid,
                 DepthStencilStateDescription.Disabled,
-                BlendStateDescription.SingleAlphaBlend,
+                new BlendStateDescription
+                {
+                    AttachmentStates = new[]
+                    {
+                        new BlendAttachmentDescription
+                        {
+                            BlendEnabled = true,
+                            SourceColorFactor = BlendFactor.SourceAlpha,
+                            DestinationColorFactor = BlendFactor.InverseSourceAlpha,
+                            ColorFunction = BlendFunction.Add,
+                            SourceAlphaFactor = BlendFactor.One,
+                            DestinationAlphaFactor = BlendFactor.InverseSourceAlpha,
+                            AlphaFunction = BlendFunction.Add
+                        }
+                    }
+                },
                 outputDescription);
         }
 
