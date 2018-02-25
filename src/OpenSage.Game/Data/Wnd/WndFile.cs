@@ -130,9 +130,9 @@ namespace OpenSage.Data.Wnd
 
     public struct WndScreenRect
     {
-        public WndPoint UpperLeft;
-        public WndPoint BottomRight;
-        public WndSize CreationResolution;
+        public Point2D UpperLeft;
+        public Point2D BottomRight;
+        public Size CreationResolution;
     }
 
     [Flags]
@@ -183,27 +183,6 @@ namespace OpenSage.Data.Wnd
         public ColorRgba DisabledBorder { get; internal set; }
         public ColorRgba Hilite { get; internal set; }
         public ColorRgba HiliteBorder { get; internal set; }
-    }
-
-    public struct WndPoint
-    {
-        internal static WndPoint Parse(IniParser parser)
-        {
-            return new WndPoint
-            {
-                X = parser.ParseAttributeInteger("X"),
-                Y = parser.ParseAttributeInteger("Y")
-            };
-        }
-
-        public int X;
-        public int Y;
-    }
-
-    public struct WndSize
-    {
-        public int Width;
-        public int Height;
     }
 
     public sealed class WndDrawData

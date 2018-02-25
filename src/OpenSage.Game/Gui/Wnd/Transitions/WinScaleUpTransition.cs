@@ -1,11 +1,12 @@
 ﻿using System;
+using OpenSage.Gui.Wnd.Controls;
 
 namespace OpenSage.Gui.Wnd.Transitions
 {
     // TODO: Implement.
     internal class WinScaleUpTransition : WindowTransitionOperation
     {
-        public WinScaleUpTransition(WndWindow element, TimeSpan startTime) : base(element, startTime) { }
+        public WinScaleUpTransition(Control element, TimeSpan startTime) : base(element, startTime) { }
 
         protected override int FrameDuration => 6;
 

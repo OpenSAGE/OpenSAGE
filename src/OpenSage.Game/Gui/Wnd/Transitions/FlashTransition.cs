@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd.Transitions
@@ -13,7 +14,7 @@ namespace OpenSage.Gui.Wnd.Transitions
 
         protected override int FrameDuration => 6;
 
-        public FlashTransition(WndWindow element, TimeSpan startTime)
+        public FlashTransition(Control element, TimeSpan startTime)
             : base(element, startTime)
         {
             _startOpacity = element.Opacity;
@@ -29,7 +30,7 @@ namespace OpenSage.Gui.Wnd.Transitions
 
             Element.BackgroundColorOverride = progress < 0.5f
                 ? FlashColor
-                : Element.Definition.EnabledDrawData.Items[0].Color;
+                : Element.BackgroundColor;
         }
 
         protected override void OnFinish()

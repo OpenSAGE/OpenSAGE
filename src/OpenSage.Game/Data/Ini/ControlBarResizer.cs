@@ -1,5 +1,6 @@
 ﻿using OpenSage.Data.Ini.Parser;
 using OpenSage.Data.Wnd;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -14,13 +15,13 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<ControlBarResizer> FieldParseTable = new IniParseTable<ControlBarResizer>
         {
-            { "AltPosition", (parser, x) => x.AltPosition = WndPoint.Parse(parser) },
-            { "AltSize", (parser, x) => x.AltSize = WndPoint.Parse(parser) }
+            { "AltPosition", (parser, x) => x.AltPosition = parser.ParsePoint() },
+            { "AltSize", (parser, x) => x.AltSize = parser.ParsePoint() }
         };
 
         public string Name { get; private set; }
 
-        public WndPoint AltPosition { get; private set; }
-        public WndPoint AltSize { get; private set; }
+        public Point2D AltPosition { get; private set; }
+        public Point2D AltSize { get; private set; }
     }
 }

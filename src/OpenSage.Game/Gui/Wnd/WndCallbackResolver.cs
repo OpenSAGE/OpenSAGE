@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenSage.Gui.Wnd.Controls;
 
 namespace OpenSage.Gui.Wnd
 {
@@ -11,19 +12,19 @@ namespace OpenSage.Gui.Wnd
             _type = wndCallbacksType;
         }
 
-        internal WndWindowCallback GetGuiWindowCallback(string name)
+        internal WindowCallback GetWindowCallback(string name)
         {
-            return GetCallback<WndWindowCallback>(name);
+            return GetCallback<WindowCallback>(name);
         }
 
-        internal UIElementCallback GetUIElementCallback(string name)
+        internal ControlCallback GetControlCallback(string name)
         {
-            return GetCallback<UIElementCallback>(name);
+            return GetCallback<ControlCallback>(name);
         }
 
-        internal UIElementDrawCallback GetDrawCallback(string name)
+        internal ControlDrawCallback GetControlDrawCallback(string name)
         {
-            return GetCallback<UIElementDrawCallback>(name);
+            return GetCallback<ControlDrawCallback>(name);
         }
 
         private TDelegate GetCallback<TDelegate>(string name)

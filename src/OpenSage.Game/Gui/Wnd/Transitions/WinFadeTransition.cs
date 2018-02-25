@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd.Transitions
@@ -10,7 +11,7 @@ namespace OpenSage.Gui.Wnd.Transitions
 
         protected override int FrameDuration => 12;
 
-        public WinFadeTransition(WndWindow element, TimeSpan startTime)
+        public WinFadeTransition(Control element, TimeSpan startTime)
             : base(element, startTime)
         {
             _startOpacity = element.Opacity;

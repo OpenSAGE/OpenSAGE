@@ -1,182 +1,261 @@
-﻿using System.Collections.Generic;
-using OpenSage.Content;
-using OpenSage.Data.Wnd;
-using OpenSage.Mathematics;
-using Veldrid;
+﻿//using System;
+//using System.Collections.Generic;
+//using OpenSage.Content;
+//using OpenSage.Data.Wnd;
+//using OpenSage.Mathematics;
+//using Veldrid;
 
-namespace OpenSage.Gui.Wnd
-{
-    public sealed class WndWindowListBox : WndWindow
-    {
-        private readonly ListBoxImages _images;
+//namespace OpenSage.Gui.Wnd
+//{
+//    public sealed class WndWindowListBox : WndWindow
+//    {
+//        private readonly ImageButton _upButton;
+//        private readonly ImageButton _downButton;
+//        private readonly ImageButton _thumb;
 
-        public List<WndListBoxItem> ListBoxItems { get; } = new List<WndListBoxItem>();
+//        private readonly ListBoxImages _images;
+//        private readonly ListBoxImages _imagesHighlighted;
 
-        private int _selectedIndex;
-        public int SelectedIndex
-        {
-            get => _selectedIndex;
-            set
-            {
-                _selectedIndex = value;
-                Invalidate();
-            }
-        }
+//        public List<WndListBoxItem> ListBoxItems { get; } = new List<WndListBoxItem>();
 
-        internal WndWindowListBox(WndWindowDefinition wndWindow, ContentManager contentManager, WndCallbackResolver callbackResolver)
-            : base(wndWindow, contentManager, callbackResolver)
-        {
-            _selectedIndex = -1;
+//        private int _selectedIndex;
+//        public int SelectedIndex
+//        {
+//            get => _selectedIndex;
+//            set
+//            {
+//                _selectedIndex = value;
+//                Invalidate();
+//            }
+//        }
 
-            _images = new ListBoxImages
-            {
-                SelectedItem = contentManager.WndImageTextureCache.GetStretchableTexture(
-                    wndWindow,
-                    wndWindow.EnabledDrawData,
-                    1, 3, 2)
-            };
-        }
+//        internal WndWindowListBox(WndWindowDefinition wndWindow, ContentManager contentManager, WndCallbackResolver callbackResolver)
+//            : base(wndWindow, contentManager, callbackResolver)
+//        {
+//            _selectedIndex = -1;
 
-        protected override void DefaultInputOverride(WndWindowMessage message, UIElementCallbackContext context)
-        {
-            switch (message.MessageType)
-            {
-                case WndWindowMessageType.MouseEnter:
-                    CurrentState = WndWindowState.Highlighted;
-                    break;
+//            ImageButton createButton(WndDrawData enabledDrawData, WndDrawData hiliteDrawData, Action onClick)
+//            {
+//                return new ImageButton(
+//                    contentManager.WndImageTextureCache.GetNormalTexture(
+//                        enabledDrawData,
+//                        0),
+//                    contentManager.WndImageTextureCache.GetNormalTexture(
+//                        hiliteDrawData,
+//                        0),
+//                    onClick,
+//                    Invalidate);
+//            }
 
-                case WndWindowMessageType.MouseExit:
-                    CurrentState = WndWindowState.Enabled;
-                    break;
+//            _upButton = createButton(
+//                wndWindow.ListBoxEnabledUpButtonDrawData,
+//                wndWindow.ListBoxHiliteUpButtonDrawData,
+//                ScrollUp);
 
-                case WndWindowMessageType.MouseDown:
-                    var itemBounds = GetItemBounds();
-                    for (var i = 0; i < itemBounds.Length; i++)
-                    {
-                        if (itemBounds[i].Bounds.Contains(message.MousePosition))
-                        {
-                            SelectedIndex = i;
-                            break;
-                        }
-                    }
-                    break;
+//            _downButton = createButton(
+//                wndWindow.ListBoxEnabledDownButtonDrawData,
+//                wndWindow.ListBoxHiliteDownButtonDrawData,
+//                ScrollDown);
 
-                case WndWindowMessageType.MouseUp:
-                    break;
-            }
-        }
+//            _thumb = createButton(
+//                wndWindow.SliderThumbEnabledDrawData,
+//                wndWindow.SliderThumbHiliteDrawData,
+//                () => { }); // TODO
 
-        private ListBoxItemDimension[] GetItemBounds()
-        {
-            var horizontalPadding = 3 * Scale;
-            var availableWidth = Bounds.Width - (Definition.ListBoxData.ColumnWidths.Length + 1) * horizontalPadding;
+//            _images = new ListBoxImages
+//            {
+//                SelectedItem = contentManager.WndImageTextureCache.GetStretchableTexture(
+//                    wndWindow,
+//                    wndWindow.EnabledDrawData,
+//                    1, 3, 2)
+//            };
 
-            float calculateColumnWidth(int column)
-            {
-                return (Definition.ListBoxData.ColumnWidths[column] / 100.0f) * availableWidth;
-            }
+//            _imagesHighlighted = new ListBoxImages
+//            {
+//                SelectedItem = contentManager.WndImageTextureCache.GetStretchableTexture(
+//                    wndWindow,
+//                    wndWindow.HiliteDrawData,
+//                    1, 3, 2)
+//            };
+//        }
 
-            var font = GetFont();
+//        private void ScrollUp()
+//        {
+//            // TODO
+//        }
 
-            var result = new ListBoxItemDimension[ListBoxItems.Count];
+//        private void ScrollDown()
+//        {
+//            // TODO
+//        }
 
-            var y = 0f;
-            for (var i = 0; i < ListBoxItems.Count; i++)
-            {
-                var item = ListBoxItems[i];
+//        protected override void CreateSizeDependentResourcesOverride(in Size windowSize)
+//        {
+//            _upButton.Frame = new RectangleF(
+//                Bounds.Width - _upButton.TextureSize.Width * Scale,
+//                0,
+//                _upButton.TextureSize.Width * Scale,
+//                _upButton.TextureSize.Height * Scale);
 
-                var itemHeight = float.MinValue;
-                for (var column = 0; column < Definition.ListBoxData.Columns; column++)
-                {
-                    var textSize = PrimitiveBatch.MeasureText(
-                        item.ColumnData[column],
-                        font,
-                        TextAlignment.Leading,
-                        calculateColumnWidth(column));
+//            _thumb.Frame = new RectangleF(
+//                _upButton.Frame.X,
+//                _upButton.Frame.Bottom,
+//                _thumb.TextureSize.Width * Scale,
+//                _thumb.TextureSize.Height * Scale);
 
-                    if (textSize.Height > itemHeight)
-                    {
-                        itemHeight = textSize.Height;
-                    }
-                }
+//            _downButton.Frame = new RectangleF(
+//                Bounds.Width - _downButton.TextureSize.Width * Scale,
+//                Bounds.Height - _downButton.TextureSize.Height * Scale,
+//                _downButton.TextureSize.Width * Scale,
+//                _downButton.TextureSize.Height * Scale);
+//        }
 
-                result[i] = new ListBoxItemDimension
-                {
-                    Bounds = new RectangleF(0, y, Bounds.Width, itemHeight),
-                    ColumnBounds = new RectangleF[Definition.ListBoxData.Columns]
-                };
+//        protected override void DefaultInputOverride(WndWindowMessage message, UIElementCallbackContext context)
+//        {
+//            _upButton.HandleInput(message);
+//            _downButton.HandleInput(message);
+//            _thumb.HandleInput(message);
 
-                var x = horizontalPadding;
-                for (var column = 0; column < Definition.ListBoxData.Columns; column++)
-                {
-                    var columnWidth = calculateColumnWidth(column);
+//            switch (message.MessageType)
+//            {
+//                case WndWindowMessageType.MouseEnter:
+//                    CurrentState = WndWindowState.Highlighted;
+//                    break;
 
-                    result[i].ColumnBounds[column] = new RectangleF(x, y, columnWidth, itemHeight);
+//                case WndWindowMessageType.MouseExit:
+//                    CurrentState = WndWindowState.Enabled;
+//                    break;
 
-                    x += columnWidth + horizontalPadding;
-                }
+//                case WndWindowMessageType.MouseUp:
+//                    var itemBounds = GetItemBounds();
+//                    for (var i = 0; i < itemBounds.Length; i++)
+//                    {
+//                        if (itemBounds[i].Bounds.Contains(message.MousePosition))
+//                        {
+//                            SelectedIndex = i;
+//                            break;
+//                        }
+//                    }
+//                    break;
+//            }
+//        }
 
-                y += itemHeight;
-            }
+//        private ListBoxItemDimension[] GetItemBounds()
+//        {
+//            var horizontalPadding = 3 * Scale;
+//            var availableWidth = Bounds.Width -
+//                ((Definition.ListBoxData.ColumnWidths.Length + 1) * horizontalPadding) -
+//                _upButton.Frame.Width;
 
-            return result;
-        }
+//            float calculateColumnWidth(int column)
+//            {
+//                return (Definition.ListBoxData.ColumnWidths[column] / 100.0f) * availableWidth;
+//            }
 
-        private sealed class ListBoxItemDimension
-        {
-            public RectangleF Bounds;
-            public RectangleF[] ColumnBounds;
-        }
+//            var font = GetFont();
 
-        protected override void DefaultDrawOverride(Game game)
-        {
-            var activeState = ActiveState;
+//            var result = new ListBoxItemDimension[ListBoxItems.Count];
 
-            var font = GetFont();
-            var textColor = GetTextColor();
+//            var y = 0f;
+//            for (var i = 0; i < ListBoxItems.Count; i++)
+//            {
+//                var item = ListBoxItems[i];
 
-            // TODO: Scrolling
+//                var itemHeight = float.MinValue;
+//                for (var column = 0; column < Definition.ListBoxData.Columns; column++)
+//                {
+//                    var textSize = PrimitiveBatch.MeasureText(
+//                        item.ColumnData[column],
+//                        font,
+//                        TextAlignment.Leading,
+//                        calculateColumnWidth(column));
 
-            var itemBounds = GetItemBounds();
+//                    if (textSize.Height > itemHeight)
+//                    {
+//                        itemHeight = textSize.Height;
+//                    }
+//                }
 
-            for (var i = 0; i < itemBounds.Length; i++)
-            {
-                var item = ListBoxItems[i];
+//                result[i] = new ListBoxItemDimension
+//                {
+//                    Bounds = new RectangleF(0, y, Bounds.Width, itemHeight),
+//                    ColumnBounds = new RectangleF[Definition.ListBoxData.Columns]
+//                };
 
-                if (i == _selectedIndex)
-                {
-                    var bounds = itemBounds[i].Bounds;
-                    PrimitiveBatch.DrawImage(
-                        _images.SelectedItem,
-                        null,
-                        new Mathematics.Rectangle((int) bounds.X, (int) bounds.Y, (int) bounds.Width, (int) bounds.Height));
-                }
+//                var x = horizontalPadding;
+//                for (var column = 0; column < Definition.ListBoxData.Columns; column++)
+//                {
+//                    var columnWidth = calculateColumnWidth(column);
 
-                for (var column = 0; column < Definition.ListBoxData.Columns; column++)
-                {
-                    PrimitiveBatch.DrawText(
-                        item.ColumnData[column],
-                        font,
-                        TextAlignment.Leading,
-                        textColor,
-                        itemBounds[i].ColumnBounds[column]);
-                }
-            }
-        }
+//                    result[i].ColumnBounds[column] = new RectangleF(x, y, columnWidth, itemHeight);
 
-        private sealed class ListBoxImages
-        {
-            public Texture SelectedItem;
-            public Texture UpButton;
-            public Texture DownButton;
-            public Texture Slider;
-            public Texture Thumb;
-        }
-    }
+//                    x += columnWidth + horizontalPadding;
+//                }
 
-    public sealed class WndListBoxItem
-    {
-        public object DataItem { get; set; }
-        public string[] ColumnData { get; set; }
-    }
-}
+//                y += itemHeight;
+//            }
+
+//            return result;
+//        }
+
+//        private sealed class ListBoxItemDimension
+//        {
+//            public RectangleF Bounds;
+//            public RectangleF[] ColumnBounds;
+//        }
+
+//        protected override void DefaultDrawOverride(Game game)
+//        {
+//            var activeState = ActiveState;
+
+//            var imageSet = (CurrentState == WndWindowState.Highlighted)
+//                ? _imagesHighlighted
+//                : _images;
+
+//            var font = GetFont();
+//            var textColor = StateConfigurations[WndWindowState.Disabled].TextColor.ToColorRgbaF();
+
+//            // TODO: Scrolling
+
+//            var itemBounds = GetItemBounds();
+
+//            for (var i = 0; i < itemBounds.Length; i++)
+//            {
+//                var item = ListBoxItems[i];
+
+//                if (i == _selectedIndex)
+//                {
+//                    PrimitiveBatch.DrawImage(
+//                        imageSet.SelectedItem,
+//                        null,
+//                        itemBounds[i].Bounds);
+//                }
+
+//                for (var column = 0; column < Definition.ListBoxData.Columns; column++)
+//                {
+//                    PrimitiveBatch.DrawText(
+//                        item.ColumnData[column],
+//                        font,
+//                        TextAlignment.Leading,
+//                        textColor,
+//                        itemBounds[i].ColumnBounds[column]);
+//                }
+//            }
+
+//            _upButton.Draw(PrimitiveBatch);
+//            _downButton.Draw(PrimitiveBatch);
+//            _thumb.Draw(PrimitiveBatch);
+//        }
+
+//        private sealed class ListBoxImages
+//        {
+//            public Texture SelectedItem;
+//        }
+//    }
+
+//    public sealed class WndListBoxItem
+//    {
+//        public object DataItem { get; set; }
+//        public string[] ColumnData { get; set; }
+//    }
+//}

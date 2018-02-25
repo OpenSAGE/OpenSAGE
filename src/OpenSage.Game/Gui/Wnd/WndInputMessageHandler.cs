@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Input;
 using OpenSage.Mathematics;
 using Veldrid;
@@ -10,7 +11,7 @@ namespace OpenSage.Gui.Wnd
         private readonly WndWindowManager _windowManager;
         private readonly Game _game;
 
-        private WndWindow _lastHighlightedElement;
+        private Control _lastHighlightedElement;
 
         public WndInputMessageHandler(WndWindowManager windowManager, Game game)
         {
@@ -20,13 +21,13 @@ namespace OpenSage.Gui.Wnd
 
         public override InputMessageResult HandleMessage(InputMessage message)
         {
-            var context = new UIElementCallbackContext(_windowManager, _game);
+            var context = new ControlCallbackContext(_windowManager, _game);
 
             switch (message.MessageType)
             {
                 case InputMessageType.MouseMove:
                     {
-                        var element = _windowManager.FindWindow(message.Value.MousePosition);
+                        var element = _windowManager.FindControl(message.Value.MousePosition);
                         if (element != _lastHighlightedElement)
                         {
                             if (_lastHighlightedElement != null)
@@ -59,7 +60,7 @@ namespace OpenSage.Gui.Wnd
 
                 case InputMessageType.MouseLeftButtonDown:
                     {
-                        var element = _windowManager.FindWindow(message.Value.MousePosition);
+                        var element = _windowManager.FindControl(message.Value.MousePosition);
                         if (element != null)
                         {
                             var mousePosition = element.PointToClient(message.Value.MousePosition);
@@ -74,7 +75,7 @@ namespace OpenSage.Gui.Wnd
 
                 case InputMessageType.MouseLeftButtonUp:
                     {
-                        var element = _windowManager.FindWindow(message.Value.MousePosition);
+                        var element = _windowManager.FindControl(message.Value.MousePosition);
                         if (element != null)
                         {
                             element.InputCallback.Invoke(

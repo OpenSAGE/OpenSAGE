@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
@@ -10,6 +9,7 @@ namespace OpenSage.Mathematics
         public readonly int Width;
         public readonly int Height;
 
+        public Point2D Location => new Point2D(X, Y);
         public Size Size => new Size(Width, Height);
 
         public int Left => X;

@@ -1,4 +1,7 @@
-﻿namespace OpenSage.Mathematics
+﻿using System;
+using System.Numerics;
+
+namespace OpenSage.Mathematics
 {
     public struct Point2D
     {
@@ -16,6 +19,14 @@
         public override string ToString()
         {
             return $"<{X}, {Y}>";
+        }
+
+        public static Point2D Transform(in Point2D point, in Matrix3x2 matrix)
+        {
+            var result = Vector2.Transform(new Vector2(point.X, point.Y), matrix);
+            return new Point2D(
+                (int) Math.Round(result.X),
+                (int) Math.Round(result.Y));
         }
     }
 }

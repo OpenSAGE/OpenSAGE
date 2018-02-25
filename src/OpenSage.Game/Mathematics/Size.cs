@@ -7,6 +7,8 @@ namespace OpenSage.Mathematics
     /// </summary>
     public struct Size : IEquatable<Size>
     {
+        public static readonly Size Zero = new Size(0, 0);
+
         /// <summary>
         /// Gets or sets the width.
         /// </summary>
@@ -82,5 +84,7 @@ namespace OpenSage.Mathematics
         {
             return !left.Equals(right);
         }
+
+        public SizeF ToSizeF() => new SizeF(Width, Height);
     }
 }

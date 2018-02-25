@@ -7,12 +7,11 @@ namespace OpenSage.Gui.Apt
 {
     public sealed class AptRenderer
     {
-
         public static void RenderText(DrawingContext2D drawingContext, AptContext context,
             Text text, ItemTransform transform)
         {
             var content = context.ContentManager;
-            var font = content.GetOrCreateFont("Arial", text.FontHeight, FontWeight.Normal);
+            var font = new DrawingFont("Arial", text.FontHeight, false);
             var matrix = transform.GeometryRotation;
             matrix.Translation = transform.GeometryTranslation;
 

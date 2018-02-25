@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data.Ini;
+using OpenSage.Gui.Wnd.Controls;
 
 namespace OpenSage.Gui.Wnd.Transitions
 {
@@ -13,8 +14,8 @@ namespace OpenSage.Gui.Wnd.Transitions
 
         private sealed class WindowTransitionRequest
         {
-            public WndTopLevelWindow From;
-            public WndTopLevelWindow To;
+            public Window From;
+            public Window To;
             public WindowTransition Transition;
         }
 
@@ -28,8 +29,8 @@ namespace OpenSage.Gui.Wnd.Transitions
         }
 
         public void QueueTransition(
-            WndTopLevelWindow from,
-            WndTopLevelWindow to,
+            Window from,
+            Window to,
             string transitionName)
         {
             if (!_transitions.TryGetValue(transitionName, out var transition))

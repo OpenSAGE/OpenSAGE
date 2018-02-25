@@ -480,18 +480,18 @@ namespace OpenSage.Data.Wnd.Parser
             return result;
         }
 
-        private WndPoint ParsePoint()
+        private Point2D ParsePoint()
         {
-            return new WndPoint
+            return new Point2D
             {
                 X = NextIntegerLiteralTokenValue(),
                 Y = NextIntegerLiteralTokenValue()
             };
         }
 
-        private WndSize ParseSize()
+        private Size ParseSize()
         {
-            return new WndSize
+            return new Size
             {
                 Width = NextIntegerLiteralTokenValue(),
                 Height = NextIntegerLiteralTokenValue()

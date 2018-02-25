@@ -1,9 +1,9 @@
 ﻿using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
 
-namespace OpenSage.Gui.Wnd
+namespace OpenSage.Gui.Wnd.Images
 {
-    internal sealed class MappedImageTexture
+    public sealed class MappedImageTexture
     {
         public readonly Texture Texture;
         public readonly Rectangle SourceRect;
