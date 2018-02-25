@@ -171,7 +171,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
         public Control GetSelfOrDescendantAtPoint(in Point2D windowPoint)
         {
-            if (!Enabled || !Visible || Opacity != 1)
+            if (!Enabled || !Visible)
             {
                 return null;
             }
@@ -191,7 +191,9 @@ namespace OpenSage.Gui.Wnd.Controls
                 }
             }
 
-            return this;
+            return (Opacity == 1)
+                ? this
+                : null;
         }
 
         public virtual Size GetPreferredSize(Size proposedSize) => Size.Zero;
