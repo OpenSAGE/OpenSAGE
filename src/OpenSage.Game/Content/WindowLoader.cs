@@ -140,6 +140,11 @@ namespace OpenSage.Content
 
             result.Visible = !wndWindow.Status.HasFlag(WndWindowStatusFlags.Hidden);
 
+            if (wndWindow.Status.HasFlag(WndWindowStatusFlags.SeeThru))
+            {
+                result.Opacity = 0;
+            }
+
             if (wndWindow.HasHeaderTemplate)
             {
                 var headerTemplate = contentManager.IniDataContext.HeaderTemplates.First(x => x.Name == wndWindow.HeaderTemplate);
