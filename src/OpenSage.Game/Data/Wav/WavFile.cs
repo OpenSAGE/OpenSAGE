@@ -68,9 +68,10 @@ namespace OpenSage.Data.Wav
         private WaveData _data;
         private byte[] _buffer;
 
-        public uint Size => _data.SubChunkSize;
-        public uint Fequency => _format.SampleRate;
-        public uint Channels => _format.NumChannels;
+        public int Size =>  (int)_data.SubChunkSize;
+        public int Fequency => (int)_format.SampleRate;
+        public int Channels => _format.NumChannels;
+        public int BitsPerSample => _format.BitsPerSample;
         public byte[] Buffer => _buffer;
 
         public void Parse(BinaryReader reader)

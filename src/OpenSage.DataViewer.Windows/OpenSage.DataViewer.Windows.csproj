@@ -8,6 +8,9 @@
     <Content Include="$(NuGetPackageRoot)\veldrid.sdl2\4.1.0-g9dfc41af8e\runtimes\win-x64\native\SDL2.dll" Link="SDL2.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="$(NuGetPackageRoot)openal-cs\1.0.0\runtimes\win-x64\native\soft_oal.dll" Link="soft_oal.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Eto.Platform.Wpf" Version="2.3.0" />
