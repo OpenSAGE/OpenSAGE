@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿﻿using System.Collections.Generic;
 using OpenSage.Data;
 using OpenSage.Gui;
 
@@ -15,5 +15,6 @@ namespace OpenSage
         IEnumerable<RegistryKeyPath> RegistryKeys { get; }
 
         IMainMenuSource MainMenu { get; }
+        string Identifier { get; }
     }
 }

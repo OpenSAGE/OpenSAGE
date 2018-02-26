@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿﻿using System.Collections.Generic;
 using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
@@ -17,6 +17,8 @@ namespace OpenSage.Mods.Generals
         {
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\Generals", "InstallPath")
         };
+        
+        public string Identifier { get; } = "cnc_generals";
 
         public IMainMenuSource MainMenu { get; } = new WndMainMenuSource(@"Menus\MainMenu.wnd");
 

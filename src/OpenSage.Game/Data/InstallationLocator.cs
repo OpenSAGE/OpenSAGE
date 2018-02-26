@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using System;
+using Microsoft.Win32;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -52,6 +53,21 @@ namespace OpenSage.Data
     public interface IInstallationLocator
     {
         IEnumerable<GameInstallation> FindInstallations(IGameDefinition game);
+    }
+
+    public class EnvironmentInstallationLocator : IInstallationLocator
+    {
+        public IEnumerable<GameInstallation> FindInstallations(IGameDefinition game)
+        {
+            String path = Environment.GetEnvironmentVariable(game.Identifier.ToUpper() + "_PATH");
+
+            if (path == null)            
+                return new GameInstallation[]{};
+
+            var installations = new GameInstallation[]{new GameInstallation(game, path)};
+
+            return installations;
+        }
     }
 
     // TODO: Move this to the Platform project.

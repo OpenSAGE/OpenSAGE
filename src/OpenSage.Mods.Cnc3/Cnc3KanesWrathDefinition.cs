@@ -16,6 +16,8 @@ namespace OpenSage.Mods.CnC3
         {
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\Command and Conquer 3 Kanes Wrath", "InstallPath")
         };
+        
+        public string Identifier { get; } = "cnc3_kw";
 
         public IMainMenuSource MainMenu { get; }
 
