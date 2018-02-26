@@ -71,6 +71,7 @@ namespace OpenSage.Audio
 
         public void RemoveSource(AudioSource source)
         {
+            source.Dispose();
             _sources.Remove(source);
         }
     }

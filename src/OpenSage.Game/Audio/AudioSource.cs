@@ -5,11 +5,11 @@ using OpenAL;
 
 namespace OpenSage.Audio
 {
-    public sealed class AudioSource
+    public sealed class AudioSource : DisposableBase
     {
         private uint _handle;
         private bool _looping = false;
-        private AudioBuffer _buffer;
+        private TimeSpan _duration;
 
         public AudioSource()
         {
@@ -20,13 +20,19 @@ namespace OpenSage.Audio
         public AudioSource(AudioBuffer buffer) : this()
         {
             AL10.alSourcei(_handle, AL10.AL_BUFFER, (int)buffer.Handle);
-            _buffer = buffer;
+            buffer.UsageList.Add(this);
+            _duration = buffer.Duration;
         }
 
-        ~AudioSource()
+        protected override void Dispose(bool disposeManagedResources)
         {
-            Stop();
-            AL10.alDeleteSources(1, ref _handle);
+            if (_handle > 0)
+            {
+                Stop();
+                AL10.alDeleteSources(1, ref _handle);
+                base.Dispose(disposeManagedResources);
+                _handle = 0;
+            }
         }
 
         public bool Looping
