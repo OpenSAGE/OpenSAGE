@@ -110,8 +110,14 @@ namespace OpenSage.DataViewer.UI
             var launcherImagePath = installation.Game.LauncherImagePath;
             if (launcherImagePath != null)
             {
-                var fullImagePath = Path.Combine(installation.Path, launcherImagePath);
-                _installationImageView.Image = new Bitmap(fullImagePath);
+                var images = Directory.GetFiles(installation.Path, launcherImagePath, SearchOption.TopDirectoryOnly);
+
+                if (images.Length > 0)
+                {
+                    _installationImageView.Image = new Bitmap(images[0]);
+                }
+
+                _installationImageView.Image = null;
             }
             else
             {

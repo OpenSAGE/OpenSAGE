@@ -12,8 +12,7 @@ namespace OpenSage.Mods.BFME
 
         public Type WndCallbackType => null;
 
-        // TODO: Localise?
-        public string LauncherImagePath => "englishsplash.jpg";
+        public string LauncherImagePath => "*splash.jpg";
 
         public IEnumerable<RegistryKeyPath> RegistryKeys { get; } = new[]
         {
