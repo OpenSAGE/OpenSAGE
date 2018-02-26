@@ -34,7 +34,15 @@ namespace OpenSage.Data
                 var ext = Path.GetExtension(file).ToLower();
                 if (ext == ".big")
                 {
-                    var archive = new BigArchive(file);
+                    BigArchive archive;
+                    try
+                    {
+                        archive = new BigArchive(file);
+                    }
+                    catch (Exception e)
+                    {
+                        continue;
+                    }
 
                     _bigArchives.Add(archive);
 
