@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Data;
+using OpenSage.Gui;
 
 namespace OpenSage.Mods.BFME
 {
@@ -19,6 +20,8 @@ namespace OpenSage.Mods.BFME
         {
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\The Battle for Middle-earth", "InstallPath")
         };
+
+        public IMainMenuSource MainMenu { get; }
 
         public static BfmeDefinition Instance { get; } = new BfmeDefinition();
     }

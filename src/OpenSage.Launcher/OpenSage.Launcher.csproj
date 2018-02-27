@@ -13,6 +13,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="0.1.0-preview2-180220-2" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\OpenSage.Game\OpenSage.Game.csproj" />

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Data;
+using OpenSage.Gui;
+using OpenSage.Gui.Apt;
 
 namespace OpenSage.Mods.BfmeII
 {
@@ -19,6 +21,8 @@ namespace OpenSage.Mods.BfmeII
         {
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\The Battle for Middle-earth II", "InstallPath")
         };
+
+        public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");
 
         public static BfmeIIDefinition Instance { get; } = new BfmeIIDefinition();
     }

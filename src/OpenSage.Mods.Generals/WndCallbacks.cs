@@ -14,6 +14,12 @@ namespace OpenSage.Mods.Generals
 
         public static void W3DMainMenuInit(WndTopLevelWindow window, Game game)
         {
+            if (!game.Configuration.LoadShellMap)
+            {
+                // Draw the main menu background if no map is loaded.
+                window.Root.DrawCallback = window.Root.DefaultDraw;
+            }
+
             // We'll show these later via window transitions.
             window.Root.FindChild("MainMenu.wnd:MainMenuRuler").Hide();
             window.Root.FindChild("MainMenu.wnd:MainMenuRuler").Opacity = 0;
@@ -53,10 +59,7 @@ namespace OpenSage.Mods.Generals
             _doneMainMenuFadeIn = false;
         }
 
-        public static void W3DNoDraw(WndWindow element, Game game)
-        {
-            
-        }
+        public static void W3DNoDraw(WndWindow element, Game game) { }
 
         public static void MainMenuSystem(WndWindow element, WndWindowMessage message, UIElementCallbackContext context)
         {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Data;
+using OpenSage.Gui;
 
 namespace OpenSage.Mods.Cnc4
 {
@@ -19,6 +20,8 @@ namespace OpenSage.Mods.Cnc4
             new RegistryKeyPath(@"SOFTWARE\EA Games\Command Conquer 4 Tiberian Twilight", "Install Dir"), // Origin
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\command and conquer 4", "install dir") // Steam
         };
+
+        public IMainMenuSource MainMenu { get; }
 
         public static Cnc4Definition Instance { get; } = new Cnc4Definition();
     }

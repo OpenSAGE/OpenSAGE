@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Data;
+using OpenSage.Gui;
 
 namespace OpenSage
 {
@@ -15,5 +16,7 @@ namespace OpenSage
         string LauncherImagePath { get; }
 
         IEnumerable<RegistryKeyPath> RegistryKeys { get; }
+
+        IMainMenuSource MainMenu { get; }
     }
 }
