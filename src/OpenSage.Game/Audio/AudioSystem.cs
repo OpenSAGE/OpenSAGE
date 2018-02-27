@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using OpenAL;
+using OpenSage.Data.Wav;
 
 namespace OpenSage.Audio
 {
@@ -48,16 +49,18 @@ namespace OpenSage.Audio
             _sources = new List<AudioSource>();
         }
 
-        ~AudioSystem()
+        protected override void Dispose(bool disposeManagedResources)
         {
             ALC10.alcMakeContextCurrent(IntPtr.Zero);
             ALC10.alcDestroyContext(_context);
             ALC10.alcCloseDevice(_device);
         }
 
-        public AudioSource AddSource(AudioBuffer buffer,bool loop=false)
+        public AudioSource PlayFile(string fileName,bool loop=false)
         {
-            var source = new AudioSource(buffer);
+            var file = Game.ContentManager.Load<WavFile>(fileName);
+            var buffer = AddDisposable(new AudioBuffer(file));
+            var source = AddDisposable(new AudioSource(buffer));
 
             if(loop)
             {
@@ -67,12 +70,6 @@ namespace OpenSage.Audio
             _sources.Add(source);
 
             return source;
-        }
-
-        public void RemoveSource(AudioSource source)
-        {
-            source.Dispose();
-            _sources.Remove(source);
         }
     }
 }

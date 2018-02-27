@@ -4,12 +4,12 @@ using OpenSage.Data.Wav;
 
 namespace OpenSage.Content
 {
-    internal sealed class WavLoader : ContentLoader<AudioBuffer>
+    internal sealed class WavLoader : ContentLoader<WavFile>
     {
-        protected override AudioBuffer LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
+        protected override WavFile LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
         {
-            var aptFile = WavFile.FromFileSystemEntry(entry);
-            return AddDisposable(new AudioBuffer(contentManager, aptFile));
+            var wavFile = WavFile.FromFileSystemEntry(entry);
+            return wavFile;
         }
     }
 }

@@ -10,19 +10,16 @@ namespace OpenSage.Audio
     public sealed class AudioBuffer : DisposableBase
     {
         private uint _handle;
-        private List<AudioSource> _usageList;
 
-        public List<AudioSource> UsageList => _usageList;
         public uint Handle => _handle;
 
         public AudioBuffer()
         {
             AL10.alGenBuffers(1, out _handle);
             AudioSystem.alCheckError();
-            _usageList = new List<AudioSource>();
         }
 
-        public AudioBuffer(ContentManager contentManager, WavFile wavFile) : this()
+        public AudioBuffer(WavFile wavFile) : this()
         {
             int format = 0;
 
@@ -65,42 +62,33 @@ namespace OpenSage.Audio
             AudioSystem.alCheckError();
         }
 
-        public TimeSpan Duration
+        public TimeSpan GetDuration()
         {
-            get
-            {
-                int sizeInBytes;
-                int channels;
-                int bits;
-                int lengthInSamples;
-                AL10.alGetBufferi(_handle, AL10.AL_SIZE, out sizeInBytes);
-                AL10.alGetBufferi(_handle, AL10.AL_CHANNELS, out channels);
-                AL10.alGetBufferi(_handle, AL10.AL_BITS, out bits);
+            int sizeInBytes;
+            int channels;
+            int bits;
+            int lengthInSamples;
+            AL10.alGetBufferi(_handle, AL10.AL_SIZE, out sizeInBytes);
+            AL10.alGetBufferi(_handle, AL10.AL_CHANNELS, out channels);
+            AL10.alGetBufferi(_handle, AL10.AL_BITS, out bits);
 
-                lengthInSamples = sizeInBytes * 8 / (channels * bits);
+            lengthInSamples = sizeInBytes * 8 / (channels * bits);
 
-                int frequency;
+            int frequency;
 
-                AL10.alGetBufferi(_handle, AL10.AL_FREQUENCY, out frequency);
-                return TimeSpan.FromSeconds(lengthInSamples / (float) frequency);
-            }         
+            AL10.alGetBufferi(_handle, AL10.AL_FREQUENCY, out frequency);
+            return TimeSpan.FromSeconds(lengthInSamples / (float) frequency);
         }
 
         protected override void Dispose(bool disposeManagedResources)
         {
             if (_handle > 0)
             {
-                for(int i=0;i<_usageList.Count;++i)
-                {
-                    _usageList[i].Dispose();
-                }
-
                 AL10.alDeleteBuffers(1, ref _handle);
                 AudioSystem.alCheckError();
                 _handle = 0;
-                
-                base.Dispose(disposeManagedResources);
             }
+            base.Dispose(disposeManagedResources);
         }
     }
 }

@@ -20,8 +20,7 @@ namespace OpenSage.Audio
         public AudioSource(AudioBuffer buffer) : this()
         {
             AL10.alSourcei(_handle, AL10.AL_BUFFER, (int)buffer.Handle);
-            buffer.UsageList.Add(this);
-            _duration = buffer.Duration;
+            _duration = buffer.GetDuration();
         }
 
         protected override void Dispose(bool disposeManagedResources)
@@ -29,10 +28,10 @@ namespace OpenSage.Audio
             if (_handle > 0)
             {
                 Stop();
-                AL10.alDeleteSources(1, ref _handle);
-                base.Dispose(disposeManagedResources);
+                AL10.alDeleteSources(1, ref _handle);              
                 _handle = 0;
             }
+            base.Dispose(disposeManagedResources);
         }
 
         public bool Looping

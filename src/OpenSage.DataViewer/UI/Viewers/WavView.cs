@@ -12,7 +12,6 @@ namespace OpenSage.DataViewer.UI.Viewers
     class WavView : GameControl
     {
         WavFile _file;
-        AudioSource _source;
         Game _game;
 
         public WavView(FileSystemEntry entry, Func<IntPtr, Game> createGame)
@@ -21,18 +20,12 @@ namespace OpenSage.DataViewer.UI.Viewers
             CreateGame = h =>
             {
                 _game = createGame(h);
-
-                var wavFile = _game.ContentManager.Load<AudioBuffer>(entry.FilePath);
-                var source = _game.Audio.AddSource(wavFile, true);
+            
+                var source = _game.Audio.PlayFile(entry.FilePath, true);
                 source.Play();
 
                 return _game;
             };         
-        }
-
-        ~WavView()
-        {
-            _game.Audio.RemoveSource(_source);
         }
     }
 }
