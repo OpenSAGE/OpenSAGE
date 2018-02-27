@@ -2,7 +2,7 @@
 using Eto.Forms;
 using OpenSage.Data;
 using OpenSage.DataViewer.Controls;
-using OpenSage.Gui.Wnd;
+using OpenSage.Mathematics;
 
 namespace OpenSage.DataViewer.UI.Viewers
 {
@@ -18,18 +18,27 @@ namespace OpenSage.DataViewer.UI.Viewers
                 DataStore = treeItem
             };
 
-            //Gui.Wnd.Controls.Control selectedElement = null;
+            var originalBorderColor = ColorRgbaF.Transparent;
+            var originalBorderWidth = 1;
+
+            Gui.Wnd.Controls.Control selectedElement = null;
 
             treeView.SelectionChanged += (sender, e) =>
             {
-                //if (selectedElement != null)
-                //{
-                //    selectedElement.Highlighted = false;
-                //    selectedElement = null;
-                //}
+                if (selectedElement != null)
+                {
+                    selectedElement.BorderColor = originalBorderColor;
+                    selectedElement.BorderWidth = originalBorderWidth;
+                    selectedElement = null;
+                }
 
-                //selectedElement = (Gui.Wnd.Controls.Control) ((TreeItem) treeView.SelectedItem).Tag;
-                //selectedElement.Highlighted = true;
+                selectedElement = (Gui.Wnd.Controls.Control) ((TreeItem) treeView.SelectedItem).Tag;
+
+                originalBorderColor = selectedElement.BorderColor;
+                originalBorderWidth = selectedElement.BorderWidth;
+
+                selectedElement.BorderColor = new ColorRgbaF(1f, 0.41f, 0.71f, 1);
+                selectedElement.BorderWidth = 4;
             };
 
             Panel1 = treeView;
