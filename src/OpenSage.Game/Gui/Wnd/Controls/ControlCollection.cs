@@ -43,6 +43,8 @@ namespace OpenSage.Gui.Wnd.Controls
             }
 
             base.ClearItems();
+
+            _owner.InvalidateLayout();
         }
 
         protected override void InsertItem(int index, Control item)
@@ -56,6 +58,9 @@ namespace OpenSage.Gui.Wnd.Controls
             SetWindowRecursive(item, _owner.Window);
 
             base.InsertItem(index, item);
+
+            item.InvalidateLayout();
+            _owner.InvalidateLayout();
         }
 
         protected override void RemoveItem(int index)
@@ -64,6 +69,8 @@ namespace OpenSage.Gui.Wnd.Controls
             SetWindowRecursive(this[index], null);
 
             base.RemoveItem(index);
+
+            _owner.InvalidateLayout();
         }
 
         protected override void SetItem(int index, Control item)
@@ -77,6 +84,9 @@ namespace OpenSage.Gui.Wnd.Controls
             SetWindowRecursive(item, _owner.Window);
 
             base.SetItem(index, item);
+
+            item.InvalidateLayout();
+            _owner.InvalidateLayout();
         }
 
         internal static void SetWindowRecursive(Control control, Window window)

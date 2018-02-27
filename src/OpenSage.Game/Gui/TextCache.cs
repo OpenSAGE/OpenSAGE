@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Text;
 using OpenSage.Content;
 using OpenSage.Mathematics;
 using OpenSage.Utilities;
@@ -19,7 +18,7 @@ namespace OpenSage.Gui
         private struct TextKey
         {
             public string Text;
-            public DrawingFont Font;
+            public Font Font;
             public TextAlignment Alignment;
             public ColorRgbaF Color;
             public SizeF Size;
@@ -48,7 +47,7 @@ namespace OpenSage.Gui
                 new Image<Bgra32>(key.Width, key.Height)));
         }
 
-        public Texture GetTextTexture(string text, in DrawingFont font, TextAlignment textAlignment, ColorRgbaF color, SizeF size)
+        public Texture GetTextTexture(string text, Font font, TextAlignment textAlignment, ColorRgbaF color, SizeF size)
         {
             var key = new TextKey
             {
@@ -70,11 +69,7 @@ namespace OpenSage.Gui
         private unsafe Texture CreateTexture(TextKey key)
         {
             var size = key.Size;
-
-            var actualFont = _contentManager.GetOrCreateFont(
-                key.Font.Name,
-                key.Font.Size,
-                key.Font.Bold ? FontWeight.Bold : FontWeight.Normal);
+            var actualFont = key.Font;
 
             var image = _textImagePool.Acquire(new ImageKey
             {

@@ -1,19 +1,45 @@
-﻿using Rectangle = OpenSage.Mathematics.Rectangle;
+﻿using System;
+using OpenSage.Mathematics;
+using Veldrid;
+using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Gui.Wnd.Images
 {
-    public sealed class Image : ImageBase
+    public sealed class Image
     {
-        private readonly MappedImageTexture _texture;
+        private readonly Func<Size, Texture> _createTexture;
+        private Texture _texture;
+        private Size _size;
 
-        public Image(MappedImageTexture texture)
+        public Size NaturalSize { get; }
+
+        internal Image(in Size naturalSize, Func<Size, Texture> createTexture)
         {
-            _texture = texture;
+            NaturalSize = naturalSize;
+            _createTexture = createTexture;
         }
 
-        public override void Draw(DrawingContext2D drawingContext, in Rectangle destinationRect)
+        internal void SetSize(in Size size)
         {
-            drawingContext.DrawImage(_texture.Texture, _texture.SourceRect, destinationRect);
+            if (_size == size)
+            {
+                return;
+            }
+
+            if (_texture != null)
+            {
+                _texture.Dispose();
+                _texture = null;
+            }
+
+            _texture = _createTexture(size);
+
+            _size = size;
+        }
+
+        internal void Draw(DrawingContext2D drawingContext, in Rectangle destinationRect)
+        {
+            drawingContext.DrawImage(_texture, null, destinationRect);
         }
     }
 }

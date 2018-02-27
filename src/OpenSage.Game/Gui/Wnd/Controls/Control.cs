@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
+using SixLabors.Fonts;
 
 namespace OpenSage.Gui.Wnd.Controls
 {
@@ -66,7 +68,9 @@ namespace OpenSage.Gui.Wnd.Controls
             }
         }
 
+        // TODO: Exclude BorderWidth.
         public Rectangle ClientRectangle => new Rectangle(0, 0, _bounds.Width, _bounds.Height);
+        public Size ClientSize => new Size(_bounds.Width, _bounds.Height);
 
         public int Left
         {
@@ -108,13 +112,13 @@ namespace OpenSage.Gui.Wnd.Controls
 
         public string Text { get; set; }
 
-        public DrawingFont Font { get; set; }
+        public virtual Font Font { get; set; }
 
         public ColorRgbaF BackgroundColor { get; set; } = ColorRgbaF.Transparent;
         public ColorRgbaF? HoverBackgroundColor { get; set; }
         public ColorRgbaF? DisabledBackgroundColor { get; set; }
 
-        public ColorRgbaF TextColor { get; set; } = ColorRgbaF.Black;
+        public virtual ColorRgbaF TextColor { get; set; } = ColorRgbaF.Black;
         public ColorRgbaF? HoverTextColor { get; set; }
         public ColorRgbaF? DisabledTextColor { get; set; }
 
@@ -122,9 +126,38 @@ namespace OpenSage.Gui.Wnd.Controls
         public ColorRgbaF? HoverTextShadowColor { get; set; }
         public ColorRgbaF? DisabledTextShadowColor { get; set; }
 
-        public ImageBase BackgroundImage { get; set; }
-        public ImageBase HoverBackgroundImage { get; set; }
-        public ImageBase DisabledBackgroundImage { get; set; }
+        private Image _backgroundImage;
+        public Image BackgroundImage
+        {
+            get => _backgroundImage;
+            set
+            {
+                _backgroundImage = value;
+                InvalidateLayout();
+            }
+        }
+
+        private Image _hoverBackgroundImage;
+        public Image HoverBackgroundImage
+        {
+            get => _hoverBackgroundImage;
+            set
+            {
+                _hoverBackgroundImage = value;
+                InvalidateLayout();
+            }
+        }
+
+        private Image _disabledBackgroundImage;
+        public Image DisabledBackgroundImage
+        {
+            get => _disabledBackgroundImage;
+            set
+            {
+                _disabledBackgroundImage = value;
+                InvalidateLayout();
+            }
+        }
 
         public int BorderWidth { get; set; } = 0;
 
@@ -169,15 +202,20 @@ namespace OpenSage.Gui.Wnd.Controls
             return result;
         }
 
-        public Control GetSelfOrDescendantAtPoint(in Point2D windowPoint)
+        public bool HitTest(in Point2D windowPoint)
         {
-            if (!Enabled || !Visible)
+            if (!Enabled || !Visible || Opacity != 1)
             {
-                return null;
+                return false;
             }
 
             var clientPoint = PointToClient(windowPoint);
-            if (!ClientRectangle.Contains(clientPoint))
+            return ClientRectangle.Contains(clientPoint);
+        }
+
+        public Control GetSelfOrDescendantAtPoint(in Point2D windowPoint)
+        {
+            if (!HitTest(windowPoint))
             {
                 return null;
             }
@@ -191,23 +229,63 @@ namespace OpenSage.Gui.Wnd.Controls
                 }
             }
 
-            return (Opacity == 1)
-                ? this
-                : null;
+            return this;
+        }
+
+        public Control[] GetSelfOrDescendantsAtPoint(in Point2D windowPoint)
+        {
+            var localWindowPoint = windowPoint;
+
+            var result = new List<Control>();
+
+            void findRecursive(Control control)
+            {
+                if (!control.HitTest(localWindowPoint))
+                {
+                    return;
+                }
+
+                foreach (var child in control.Controls)
+                {
+                    findRecursive(child);
+                }
+
+                result.Add(control);
+            }
+
+            findRecursive(this);
+
+            return result.ToArray();
         }
 
         public virtual Size GetPreferredSize(Size proposedSize) => Size.Zero;
 
         public void Layout()
         {
-            LayoutOverride();
+            if (_needsLayout)
+            {
+                BackgroundImage?.SetSize(ClientSize);
+                HoverBackgroundImage?.SetSize(ClientSize);
+                DisabledBackgroundImage?.SetSize(ClientSize);
+
+                LayoutOverride();
+
+                _needsLayout = false;
+            }
+
+            foreach (var child in Controls)
+            {
+                child.Layout();
+            }
         }
 
         protected virtual void LayoutOverride() { }
 
-        public void Invalidate()
-        {
+        private bool _needsLayout = true;
 
+        public void InvalidateLayout()
+        {
+            _needsLayout = true;
         }
 
         private void DefaultDraw(Control control, DrawingContext2D drawingContext)
@@ -307,6 +385,16 @@ namespace OpenSage.Gui.Wnd.Controls
 
         protected void DrawText(DrawingContext2D drawingContext, TextAlignment textAlignment)
         {
+            DrawText(drawingContext, textAlignment, ClientRectangle);
+        }
+
+        protected void DrawText(DrawingContext2D drawingContext, TextAlignment textAlignment, in Rectangle rect)
+        {
+            DrawText(drawingContext, Text, textAlignment, rect);
+        }
+
+        protected void DrawText(DrawingContext2D drawingContext, string text, TextAlignment textAlignment, in Rectangle rect)
+        {
             var color = TextColor;
 
             if (!Enabled)
@@ -325,7 +413,7 @@ namespace OpenSage.Gui.Wnd.Controls
                 Font,
                 textAlignment,
                 color,
-                ClientRectangle);
+                rect);
         }
 
         private void DefaultInput(Control control, WndWindowMessage message, ControlCallbackContext context)

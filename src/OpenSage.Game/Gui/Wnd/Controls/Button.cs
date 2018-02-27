@@ -1,10 +1,26 @@
-﻿using OpenSage.Gui.Wnd.Images;
+﻿using System;
+using OpenSage.Gui.Wnd.Images;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd.Controls
 {
     public class Button : Control
     {
-        public ImageBase PushedBackgroundImage { get; set; }
+        public event EventHandler Click;
+
+        public Image PushedBackgroundImage { get; set; }
+
+        public override Size GetPreferredSize(Size proposedSize)
+        {
+            return (BackgroundImage != null)
+                ? BackgroundImage.NaturalSize
+                : Size.Zero;
+        }
+
+        protected override void LayoutOverride()
+        {
+            PushedBackgroundImage?.SetSize(Size);
+        }
 
         protected override void DrawOverride(DrawingContext2D drawingContext)
         {
@@ -31,12 +47,19 @@ namespace OpenSage.Gui.Wnd.Controls
             switch (message.MessageType)
             {
                 case WndWindowMessageType.MouseUp:
-                    Parent.SystemCallback.Invoke(
-                        this,
-                        new WndWindowMessage(WndWindowMessageType.SelectedButton, this),
-                        context);
+                    RaiseClick(context);
                     break;
             }
+        }
+
+        private void RaiseClick(ControlCallbackContext context)
+        {
+            Click?.Invoke(this, EventArgs.Empty);
+
+            Parent.SystemCallback.Invoke(
+                this,
+                new WndWindowMessage(WndWindowMessageType.SelectedButton, this),
+                context);
         }
     }
 }

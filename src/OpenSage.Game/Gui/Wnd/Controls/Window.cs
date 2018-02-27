@@ -65,7 +65,9 @@ namespace OpenSage.Gui.Wnd.Controls
 
         internal void UpdateTexture()
         {
-            _drawingContext.Begin(_contentManager.PointClampSampler, ColorRgbaF.Transparent);
+            Layout();
+
+            _drawingContext.Begin(_contentManager.LinearClampSampler, ColorRgbaF.Transparent);
 
             _drawingContext.PushTransform(_rootTransform);
 

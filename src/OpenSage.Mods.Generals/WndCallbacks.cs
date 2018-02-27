@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using OpenSage.Data;
 using OpenSage.Data.Rep;
@@ -177,24 +178,24 @@ namespace OpenSage.Mods.Generals
 
             using (var fileSystem = GetReplaysFileSystem(game))
             {
-                listBox.Items.Clear();
+                var newItems = new List<ListBoxDataItem>();
 
                 foreach (var file in fileSystem.Files)
                 {
                     var replayFile = ReplayFile.FromFileSystemEntry(file, onlyHeader: true);
 
-                    listBox.Items.Add(new ListBoxItem
-                    {
-                        DataItem = file.FilePath,
-                        ColumnData = new[]
+                    newItems.Add(new ListBoxDataItem(
+                        file.FilePath,
+                        new[]
                         {
                             replayFile.Header.Filename, // Path.GetFileNameWithoutExtension(file.FilePath),
                             $"{replayFile.Header.Timestamp.Hour.ToString("D2")}:{replayFile.Header.Timestamp.Minute.ToString("D2")}",
                             replayFile.Header.Version,
                             replayFile.Header.Metadata.MapFile.Replace("maps/", string.Empty)
-                        }
-                    });
+                        }));
                 }
+
+                listBox.Items = newItems.ToArray();
             }
         }
 

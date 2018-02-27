@@ -94,7 +94,7 @@ namespace OpenSage.Gui.Wnd
             popped.Dispose();
         }
 
-        public Control FindControl(in Point2D mousePosition)
+        public Control GetControlAtPoint(in Point2D mousePosition)
         {
             if (_windowStack.Count == 0)
             {
@@ -104,6 +104,18 @@ namespace OpenSage.Gui.Wnd
             var window = _windowStack.Peek();
 
             return window.GetSelfOrDescendantAtPoint(mousePosition);
+        }
+
+        public Control[] GetControlsAtPoint(in Point2D mousePosition)
+        {
+            if (_windowStack.Count == 0)
+            {
+                return new Control[0];
+            }
+
+            var window = _windowStack.Peek();
+
+            return window.GetSelfOrDescendantsAtPoint(mousePosition);
         }
 
         internal void Update(GameTime gameTime)

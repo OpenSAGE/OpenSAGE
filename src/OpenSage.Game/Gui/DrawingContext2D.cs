@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using OpenSage.Content;
 using OpenSage.Graphics;
 using OpenSage.Mathematics;
-using OpenSage.Utilities;
 using SixLabors.Fonts;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.Drawing;
-using SixLabors.ImageSharp.PixelFormats;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
 
@@ -34,12 +27,6 @@ namespace OpenSage.Gui
         private readonly Stack<float> _opacityStack;
         private float _currentOpacity;
 
-        private struct ImageKey
-        {
-            public int Width;
-            public int Height;
-        }
-
         private CommandList _commandEncoder;
 
         public DrawingContext2D(
@@ -61,10 +48,10 @@ namespace OpenSage.Gui
             _commandEncoder = AddDisposable(_graphicsDevice.ResourceFactory.CreateCommandList());
 
             _transformStack = new Stack<Matrix3x2>();
-            _transformStack.Push(Matrix3x2.Identity);
+            PushTransform(Matrix3x2.Identity);
 
             _opacityStack = new Stack<float>();
-            _opacityStack.Push(1);
+            PushOpacity(1);
         }
 
         public void Begin(
@@ -161,7 +148,7 @@ namespace OpenSage.Gui
                 color);
         }
 
-        public SizeF MeasureText(string text, Font font, TextAlignment textAlignment, float width)
+        public static SizeF MeasureText(string text, Font font, TextAlignment textAlignment, float width)
         {
             var textSize = TextMeasurer.Measure(
                 text,
@@ -177,14 +164,19 @@ namespace OpenSage.Gui
             return new SizeF(textSize.Width, textSize.Height);
         }
 
-        public unsafe void DrawText(string text, in DrawingFont font, TextAlignment textAlignment, in ColorRgbaF color, in Rectangle rect)
+        public unsafe void DrawText(string text, Font font, TextAlignment textAlignment, in ColorRgbaF color, in Rectangle rect)
         {
             DrawText(text, font, textAlignment, color, rect.ToRectangleF());
         }
 
-        public unsafe void DrawText(string text, in DrawingFont font, TextAlignment textAlignment, in ColorRgbaF color, in RectangleF rect)
+        public unsafe void DrawText(string text, Font font, TextAlignment textAlignment, in ColorRgbaF color, in RectangleF rect)
         {
-            var actualFont = new DrawingFont(font.Name, font.Size * _currentScale, font.Bold);
+            if (string.IsNullOrEmpty(text))
+            {
+                return;
+            }
+
+            var actualFont = _contentManager.GetOrCreateFont(font.Name, font.Size * _currentScale, font.Bold ? FontWeight.Bold : FontWeight.Normal);
             var actualRect = RectangleF.Transform(rect, _currentTransform);
 
             var actualColor = color;
@@ -297,19 +289,5 @@ namespace OpenSage.Gui
     {
         Normal,
         Bold
-    }
-
-    public readonly struct DrawingFont
-    {
-        public readonly string Name;
-        public readonly float Size;
-        public readonly bool Bold;
-
-        public DrawingFont(string name, float size, bool bold)
-        {
-            Name = name;
-            Size = size;
-            Bold = bold;
-        }
     }
 }

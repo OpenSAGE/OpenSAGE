@@ -1,7 +1,7 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Linq;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Input;
-using OpenSage.Mathematics;
 using Veldrid;
 
 namespace OpenSage.Gui.Wnd
@@ -11,7 +11,7 @@ namespace OpenSage.Gui.Wnd
         private readonly WndWindowManager _windowManager;
         private readonly Game _game;
 
-        private Control _lastHighlightedElement;
+        private readonly List<Control> _lastMouseOverControls = new List<Control>();
 
         public WndInputMessageHandler(WndWindowManager windowManager, Game game)
         {
@@ -27,40 +27,47 @@ namespace OpenSage.Gui.Wnd
             {
                 case InputMessageType.MouseMove:
                     {
-                        var element = _windowManager.FindControl(message.Value.MousePosition);
-                        if (element != _lastHighlightedElement)
+                        var mouseOverControls = _windowManager.GetControlsAtPoint(message.Value.MousePosition).ToList();
+                        foreach (var control in _lastMouseOverControls)
                         {
-                            if (_lastHighlightedElement != null)
+                            if (!mouseOverControls.Contains(control))
                             {
-                                _lastHighlightedElement.InputCallback.Invoke(
-                                    _lastHighlightedElement,
-                                    new WndWindowMessage(WndWindowMessageType.MouseExit, _lastHighlightedElement),
-                                    context);
-                            }
-                            _lastHighlightedElement = element;
-                            if (element != null)
-                            {
-                                element.InputCallback.Invoke(
-                                    element,
-                                    new WndWindowMessage(WndWindowMessageType.MouseEnter, element),
+                                control.InputCallback.Invoke(
+                                    control,
+                                    new WndWindowMessage(WndWindowMessageType.MouseExit, control),
                                     context);
                             }
                         }
-                        if (element != null)
+                        foreach (var control in mouseOverControls)
                         {
-                            var mousePosition = element?.PointToClient(message.Value.MousePosition);
-                            element.InputCallback.Invoke(
-                                element,
-                                new WndWindowMessage(WndWindowMessageType.MouseMove, element, mousePosition),
+                            if (!_lastMouseOverControls.Contains(control))
+                            {
+                                control.InputCallback.Invoke(
+                                    control,
+                                    new WndWindowMessage(WndWindowMessageType.MouseEnter, control),
+                                    context);
+                            }
+                        }
+
+                        _lastMouseOverControls.Clear();
+                        _lastMouseOverControls.AddRange(mouseOverControls);
+
+                        foreach (var control in mouseOverControls)
+                        {
+                            var mousePosition = control.PointToClient(message.Value.MousePosition);
+                            control.InputCallback.Invoke(
+                                control,
+                                new WndWindowMessage(WndWindowMessageType.MouseMove, control, mousePosition),
                                 context);
-                            return InputMessageResult.Handled;
                         }
-                        break;
+                        return mouseOverControls.Count > 0
+                            ? InputMessageResult.Handled
+                            : InputMessageResult.NotHandled;
                     }
 
                 case InputMessageType.MouseLeftButtonDown:
                     {
-                        var element = _windowManager.FindControl(message.Value.MousePosition);
+                        var element = _windowManager.GetControlAtPoint(message.Value.MousePosition);
                         if (element != null)
                         {
                             var mousePosition = element.PointToClient(message.Value.MousePosition);
@@ -75,12 +82,13 @@ namespace OpenSage.Gui.Wnd
 
                 case InputMessageType.MouseLeftButtonUp:
                     {
-                        var element = _windowManager.FindControl(message.Value.MousePosition);
+                        var element = _windowManager.GetControlAtPoint(message.Value.MousePosition);
                         if (element != null)
                         {
+                            var mousePosition = element.PointToClient(message.Value.MousePosition);
                             element.InputCallback.Invoke(
                                 element,
-                                new WndWindowMessage(WndWindowMessageType.MouseUp, element, message.Value.MousePosition),
+                                new WndWindowMessage(WndWindowMessageType.MouseUp, element, mousePosition),
                                 context);
                             return InputMessageResult.Handled;
                         }

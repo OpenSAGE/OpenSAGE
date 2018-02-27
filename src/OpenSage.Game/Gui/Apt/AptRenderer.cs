@@ -11,7 +11,7 @@ namespace OpenSage.Gui.Apt
             Text text, ItemTransform transform)
         {
             var content = context.ContentManager;
-            var font = new DrawingFont("Arial", text.FontHeight, false);
+            var font = context.ContentManager.GetOrCreateFont("Arial", text.FontHeight, FontWeight.Normal);
             var matrix = transform.GeometryRotation;
             matrix.Translation = transform.GeometryTranslation;
 
