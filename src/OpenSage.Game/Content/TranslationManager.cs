@@ -18,8 +18,9 @@ namespace OpenSage.Content
                 case SageGame.CncGeneralsZeroHour:
                     csfEntry = fileSystem.GetFile(@"Data\English\generals.csf");
                     break;
-                case SageGame.BattleForMiddleEarth:
-                case SageGame.BattleForMiddleEarthII:
+                case SageGame.Bfme:
+                case SageGame.Bfme2:
+                case SageGame.Bfme2Rotwk:
                     csfEntry = fileSystem.GetFile(@"lotr.csf");
                     break;
                 case SageGame.Cnc3:

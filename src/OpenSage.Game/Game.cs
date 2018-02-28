@@ -201,8 +201,9 @@ namespace OpenSage
             {
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
-                case SageGame.BattleForMiddleEarth:
-                case SageGame.BattleForMiddleEarthII:
+                case SageGame.Bfme:
+                case SageGame.Bfme2:
+                case SageGame.Bfme2Rotwk:
                     ContentManager.IniDataContext.LoadIniFile(@"Data\INI\ParticleSystem.ini");
                     break;
             }

@@ -2,7 +2,7 @@
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FactionVictoryData
     {
         internal static FactionVictoryData Parse(IniParser parser)

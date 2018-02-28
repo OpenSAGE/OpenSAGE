@@ -35,31 +35,31 @@ namespace OpenSage.Logic.Object
         public int MinMoney { get; private set; }
         public int MaxMoney { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string ExecuteFX { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float PorterChance { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float BannerChance { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float LevelUpChance { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float LevelUpRadius { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float ResourceChance { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int MinResource { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int MaxResource { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool AllowAIPickup { get; private set; }
     }
 }

@@ -28,7 +28,7 @@ namespace OpenSage.Data.Ini
 
         public bool SnowEnabled { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool IsSnowing { get; private set; }
 
         public string SnowTexture { get; private set; }

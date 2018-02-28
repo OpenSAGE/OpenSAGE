@@ -2,7 +2,7 @@
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class MiscEvaData
     {
         internal static MiscEvaData Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);

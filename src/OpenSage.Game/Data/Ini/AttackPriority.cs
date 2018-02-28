@@ -3,7 +3,7 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class AttackPriority
     {
         internal static AttackPriority Parse(IniParser parser)
@@ -25,7 +25,7 @@ namespace OpenSage.Data.Ini
         public List<AttackPriorityTarget> Targets { get; } = new List<AttackPriorityTarget>();
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class AttackPriorityTarget
     {
         internal static AttackPriorityTarget Parse(IniParser parser)

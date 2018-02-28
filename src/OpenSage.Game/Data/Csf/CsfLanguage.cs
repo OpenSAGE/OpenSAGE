@@ -11,6 +11,7 @@
         Japanese = 6,
         Unknown = 7,
         Korean = 8,
-        Chinese = 9
+        Chinese = 9,
+        EnglishInternational = 23
     }
 }

@@ -22,10 +22,10 @@ namespace OpenSage.Logic.Object
         public bool AddsOwnerVeterancy { get; private set; }
         public bool IsPilot { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string ExecuteFX { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int AffectsUpToLevel { get; private set; }
     }
 }

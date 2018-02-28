@@ -2,7 +2,7 @@
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class AnimationSoundClientBehaviorGlobalSetting
     {
         internal static AnimationSoundClientBehaviorGlobalSetting Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);

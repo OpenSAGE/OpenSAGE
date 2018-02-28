@@ -3,7 +3,7 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class WaterTextureList
     {
         internal static WaterTextureList Parse(IniParser parser)

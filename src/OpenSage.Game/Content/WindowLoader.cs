@@ -24,11 +24,12 @@ namespace OpenSage.Content
                     contentManager.IniDataContext.LoadIniFile(@"Data\English\HeaderTemplate.ini");
                     break;
 
-                case SageGame.BattleForMiddleEarth:
+                case SageGame.Bfme:
                     contentManager.IniDataContext.LoadIniFile(@"lang\english\headertemplate.ini");
                     break;
 
-                case SageGame.BattleForMiddleEarthII:
+                case SageGame.Bfme2:
+                case SageGame.Bfme2Rotwk:
                     contentManager.IniDataContext.LoadIniFile(@"headertemplate.ini");
                     break;
             }

@@ -40,7 +40,7 @@ namespace OpenSage.Data.Ini
             { "HelpBoxDescriptionFont", (parser, x) => x.HelpBoxDescriptionFont = WndFont.Parse(parser) },
         };
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string ThousandSeparator { get; private set; }
 
         public List<string> LocalFontFiles { get; } = new List<string>();
@@ -55,7 +55,7 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int MilitaryCaptionDelayMS { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public WndFont AudioSubtitleFont { get; private set; }
 
         public WndFont SuperweaponCountdownNormalFont { get; private set; }
@@ -73,16 +73,16 @@ namespace OpenSage.Data.Ini
         public WndFont CreditsNormalFont { get; private set; }
         public float ResolutionFontAdjustment { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public WndFont HelpBoxNameFont { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public WndFont HelpBoxCostFont { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public WndFont HelpBoxShortcutFont { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public WndFont HelpBoxDescriptionFont { get; private set; }
     }
 }

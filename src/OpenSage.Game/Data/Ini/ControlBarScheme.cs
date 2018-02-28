@@ -122,7 +122,7 @@ namespace OpenSage.Data.Ini
         public ColorRgba ButtonBorderUpgradeColor { get; private set; }
         public ColorRgba ButtonBorderSystemColor { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public ColorRgba ButtonBorderAlteredColor { get; private set; }
 
         public string GenBarButtonIn { get; private set; }

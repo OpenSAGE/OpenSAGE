@@ -2,7 +2,7 @@
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FontDefaultSetting
     {
         internal static FontDefaultSetting Parse(IniParser parser)

@@ -82,7 +82,7 @@ namespace OpenSage.Data.Ini
         public string MusicFolder { get; private set; }
         public string StreamingFolder { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string AmbientStreamFolder { get; private set; }
 
         public string SoundsExtension { get; private set; }
@@ -92,43 +92,43 @@ namespace OpenSage.Data.Ini
         public int OutputBits { get; private set; }
         public int OutputChannels { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int MixaheadLatency { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int MixaheadLatencyDuringMovies { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int _3DBufferLengthMS { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int _3DBufferCallbackCallsPerBufferLength { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ForceResetTimeSeconds { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int EmergencyResetTimeSeconds { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string MusicScriptLibraryName { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int AutomaticSubtitleDurationMS { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int AutomaticSubtitleWindowWidth { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int AutomaticSubtitleLines { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public ColorRgba AutomaticSubtitleWindowColor { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public ColorRgba AutomaticSubtitleTextColor { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int PositionDeltaForReverbRecheck { get; private set; }
 
         public int SampleCount2D { get; private set; }
@@ -141,20 +141,20 @@ namespace OpenSage.Data.Ini
         public int AudioFootprintInBytes { get; private set; }
         public int MinSampleVolume { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int AmbientStreamHysteresisVolume { get; private set; }
 
         public float Relative2DVolume { get; private set; }
 
         public float DefaultSoundVolume { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float DefaultAmbientVolume { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float DefaultMovieVolume { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float DefaultVoiceVolume { get; private set; }
 
         public float Default3DSoundVolume { get; private set; }
@@ -171,16 +171,16 @@ namespace OpenSage.Data.Ini
 
         public float MicrophoneMaxPercentageBetweenGroundAndCamera { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float MicrophonePreferredFractionCameraToGround { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float MicrophoneMinDistanceToCamera { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float MicrophoneMaxDistanceToCamera { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float MicrophonePullTowardsTerrainLookAtPointPercent { get; private set; }
 
         public float ZoomMinDistance { get; private set; }
@@ -188,13 +188,13 @@ namespace OpenSage.Data.Ini
 
         public float ZoomSoundVolumePercentageAmount { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float LivingWorldMicrophonePreferredFractionCameraToGround { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float LivingWorldMicrophoneMaxDistanceToCamera { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float LivingWorldZoomMaxDistance { get; private set; }
     }
 }

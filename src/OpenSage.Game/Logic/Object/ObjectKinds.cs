@@ -359,46 +359,46 @@
         [IniEnum("REJECT_UNMANNED"), AddedIn(SageGame.CncGeneralsZeroHour)]
         RejectUnmanned,
 
-        [IniEnum("TACTICAL_MARKER"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("TACTICAL_MARKER"), AddedIn(SageGame.Bfme)]
         TacticalMarker,
 
-        [IniEnum("CAVALRY"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("CAVALRY"), AddedIn(SageGame.Bfme)]
         Cavalry,
 
-        [IniEnum("MONSTER"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        [IniEnum("MONSTER"), AddedIn(SageGame.Bfme2)]
         Monster,
 
-        [IniEnum("MACHINE"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        [IniEnum("MACHINE"), AddedIn(SageGame.Bfme2)]
         Machine,
 
-        [IniEnum("HORDE"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        [IniEnum("HORDE"), AddedIn(SageGame.Bfme2)]
         Horde,
 
-        [IniEnum("IGNORE_FOR_VICTORY"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        [IniEnum("IGNORE_FOR_VICTORY"), AddedIn(SageGame.Bfme2)]
         IgnoreForVictory,
 
-        [IniEnum("ECONOMY_STRUCTURE"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        [IniEnum("ECONOMY_STRUCTURE"), AddedIn(SageGame.Bfme2)]
         EconomyStructure,
 
-        [IniEnum("WALL_UPGRADE"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        [IniEnum("WALL_UPGRADE"), AddedIn(SageGame.Bfme2)]
         WallUpgrade,
 
-        [IniEnum("WALL_HUB"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        [IniEnum("WALL_HUB"), AddedIn(SageGame.Bfme2)]
         WallHub,
 
-        [IniEnum("WALL_SEGMENT"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        [IniEnum("WALL_SEGMENT"), AddedIn(SageGame.Bfme2)]
         WallSegment,
 
-        [IniEnum("NOT_AUTOACQUIRABLE"), AddedIn(SageGame.BattleForMiddleEarthII)]
+        [IniEnum("NOT_AUTOACQUIRABLE"), AddedIn(SageGame.Bfme2)]
         NotAutoAcquirable,
 
-        [IniEnum("BLOCKING_GATE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("BLOCKING_GATE"), AddedIn(SageGame.Bfme)]
         BlockingGate,
 
-        [IniEnum("ENVIRONMENT"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("ENVIRONMENT"), AddedIn(SageGame.Bfme)]
         Environment,
 
-        [IniEnum("CREEP"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("CREEP"), AddedIn(SageGame.Bfme)]
         Creep,
     }
 }

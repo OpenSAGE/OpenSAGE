@@ -3,7 +3,7 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class BannerUI
     {
         internal static BannerUI Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
@@ -18,7 +18,7 @@ namespace OpenSage.Data.Ini
         public List<BannerUnitCategory> UnitCategories { get; } = new List<BannerUnitCategory>();
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class BannerUnitCategory
     {
         internal static BannerUnitCategory Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);

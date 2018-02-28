@@ -100,19 +100,19 @@ namespace OpenSage.Data.Ini
             { "AttackPriority", (parser, x) => x.AttackPriorities.Add(AttackPriority.Parse(parser)) },
         };
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool UseLowLodTrees { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float LowLodTreeScale { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string LowLodTreeName { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string LowLodTreeNameNoGrab { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string LowLodTreeNameNoHarvest { get; private set; }
 
         public float StructureSeconds { get; private set; }
@@ -158,34 +158,34 @@ namespace OpenSage.Data.Ini
         public float MinDistanceForGroup { get; private set; }
         public float DistanceRequiresGroup { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float FormationEnemyDistance { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float FormationColumnWidth { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float FormationRowDepth { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float FormationSquadSpacing { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int FormationColumns { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool UseFormations { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool WaitForOthers { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float NarrowPassageScale { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool HordesWaitForHordes { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool AttackMoveUsesFormations { get; private set; }
 
         public int InfantryPathfindDiameter { get; private set; }
@@ -197,16 +197,16 @@ namespace OpenSage.Data.Ini
         public float AIDozerBoredRadiusModifier { get; private set; }
         public bool AICrushesInfantry { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float MeleeApproachDist { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float MeleeApproachTolerance { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float MeleeAcquireLimitDist { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float WadeWaterDepth { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -215,23 +215,23 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public float RetaliationFriendsRadius { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float ChaseFromBehindLimit { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool ForceHordesToLowLod { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool AllowForestFires { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float CastleSiegeStandBackDistance { get; private set; }
 
         public List<AISideInfo> SideInfos { get; } = new List<AISideInfo>();
 
         public List<AISkirmishBuildList> SkirmishBuildLists { get; } = new List<AISkirmishBuildList>();
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public List<AttackPriority> AttackPriorities { get; } = new List<AttackPriority>();
     }
 

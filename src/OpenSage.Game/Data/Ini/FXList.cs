@@ -109,7 +109,7 @@ namespace OpenSage.Data.Ini
 
         public bool AttachToObject { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string AttachToBone { get; private set; }
 
         public int Count { get; private set; } = 1;
@@ -124,31 +124,31 @@ namespace OpenSage.Data.Ini
         public int RotateY { get; private set; }
         public bool UseCallersRadius { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string CreateBoneOverride { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string TargetBoneOverride { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool UseTargetOffset { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public Coord3D TargetOffset { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int TargetCoeff { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int SystemLife { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool SetTargetMatrix { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool OnlyIfOnLand { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool OnlyIfOnWater { get; private set; }
     }
 
@@ -248,7 +248,7 @@ namespace OpenSage.Data.Ini
         public float Width { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class BuffNugget : FXListItem
     {
         internal static BuffNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -279,7 +279,7 @@ namespace OpenSage.Data.Ini
         public IniColorRgb Color { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class CameraShakerVolumeFXNugget : FXListItem
     {
         internal static CameraShakerVolumeFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -296,7 +296,7 @@ namespace OpenSage.Data.Ini
         public float Amplitude { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class DynamicDecalFXNugget : FXListItem
     {
         internal static DynamicDecalFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -335,7 +335,7 @@ namespace OpenSage.Data.Ini
         public int Lifetime { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class EvaEventFXNugget : FXListItem
     {
         internal static EvaEventFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -350,7 +350,7 @@ namespace OpenSage.Data.Ini
         public string EvaEventAlly { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class TintDrawableFXNugget : FXListItem
     {
         internal static TintDrawableFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -373,7 +373,7 @@ namespace OpenSage.Data.Ini
         public float Amplitude { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleSysBoneNugget : FXListItem
     {
         internal static FXParticleSysBoneNugget Parse(IniParser parser)
@@ -391,7 +391,7 @@ namespace OpenSage.Data.Ini
         public bool FollowBone { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class AttachedModelFXNugget : FXListItem
     {
         internal static AttachedModelFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -404,7 +404,7 @@ namespace OpenSage.Data.Ini
         public string ModelName { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class CursorParticleSystemFXNugget : FXListItem
     {
         internal static CursorParticleSystemFXNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -441,7 +441,7 @@ namespace OpenSage.Data.Ini
         [IniEnum("SEVERE")]
         Severe,
 
-        [IniEnum("CINE_EXTREME"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("CINE_EXTREME"), AddedIn(SageGame.Bfme)]
         CineExtreme
     }
 

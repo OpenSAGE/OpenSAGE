@@ -79,76 +79,76 @@ namespace OpenSage.Data.Ini
         public WeaponSlot WeaponSlot { get; private set; }
         public string UnitSpecificSound { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string UnitSpecificSound2 { get; private set; }
 
         public int MaxShotsToFire { get; private set; }
         public string Object { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool InPalantir { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool DoubleClick { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public ModelConditionFlag? FlagsUsedForToggle { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool AutoAbility { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string SetAutoAbilityUnitSound { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float AutoDelay { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool AffectsAllies { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool NeedDamagedTarget { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float PresetRange { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public BitArray<ModelConditionFlag> DisableOnModelCondition { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public BitArray<ModelConditionFlag> EnableOnModelCondition { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string CommandTrigger { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public WeaponSlot? WeaponSlotToggle1 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public WeaponSlot? WeaponSlotToggle2 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string NeededUpgrade { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string BuildUpgrades { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool Radial { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool IsClickable { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool ShowProductionCount { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public BitArray<ObjectKinds> AffectsKindOf { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool RequiresValidContainer { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string LacksPrerequisiteLabel { get; private set; }
     }
 
@@ -253,61 +253,61 @@ namespace OpenSage.Data.Ini
         [IniEnum("SPECIAL_POWER_CONSTRUCT_FROM_SHORTCUT"), AddedIn(SageGame.CncGeneralsZeroHour)]
         SpecialPowerConstructFromShortcut,
 
-        [IniEnum("HORDE_TOGGLE_FORMATION"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("HORDE_TOGGLE_FORMATION"), AddedIn(SageGame.Bfme)]
         HordeToggleFormation,
 
-        [IniEnum("TOGGLE_WEAPONSET"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("TOGGLE_WEAPONSET"), AddedIn(SageGame.Bfme)]
         ToggleWeaponSet,
 
-        [IniEnum("WAKE_AUTO_PICKUP"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("WAKE_AUTO_PICKUP"), AddedIn(SageGame.Bfme)]
         WakeAutoPickup,
 
-        [IniEnum("BLOODTHIRSTY"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("BLOODTHIRSTY"), AddedIn(SageGame.Bfme)]
         Bloodthirsty,
 
-        [IniEnum("MONSTERDOCK"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("MONSTERDOCK"), AddedIn(SageGame.Bfme)]
         MonsterDock,
 
-        [IniEnum("CREW_EVACUATE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("CREW_EVACUATE"), AddedIn(SageGame.Bfme)]
         CrewEvacuate,
 
-        [IniEnum("TOGGLE_WEAPON"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("TOGGLE_WEAPON"), AddedIn(SageGame.Bfme)]
         ToggleWeapon,
 
-        [IniEnum("EVACUATE_CONTESTED"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("EVACUATE_CONTESTED"), AddedIn(SageGame.Bfme)]
         EvacuateContested,
 
-        [IniEnum("FOUNDATION_CONSTRUCT"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("FOUNDATION_CONSTRUCT"), AddedIn(SageGame.Bfme)]
         FoundationConstruct,
 
-        [IniEnum("CASTLE_UNPACK"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("CASTLE_UNPACK"), AddedIn(SageGame.Bfme)]
         CastleUnpack,
 
-        [IniEnum("CASTLE_UNPACK_EXPLICIT_OBJECT"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("CASTLE_UNPACK_EXPLICIT_OBJECT"), AddedIn(SageGame.Bfme)]
         CastleUnpackExplicitObject,
 
-        [IniEnum("CASTLE_UPGRADE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("CASTLE_UPGRADE"), AddedIn(SageGame.Bfme)]
         CastleUpgrade,
 
-        [IniEnum("REVIVE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("REVIVE"), AddedIn(SageGame.Bfme)]
         Revive,
 
-        [IniEnum("FOUNDATION_CONSTRUCT_CANCEL"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("FOUNDATION_CONSTRUCT_CANCEL"), AddedIn(SageGame.Bfme)]
         FoundationConstructCancel,
 
-        [IniEnum("SPELL_BOOK"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("SPELL_BOOK"), AddedIn(SageGame.Bfme)]
         SpellBook,
 
-        [IniEnum("ONE_RING"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("ONE_RING"), AddedIn(SageGame.Bfme)]
         OneRing,
 
-        [IniEnum("TOGGLE_NO_AUTO_ACQUIRE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("TOGGLE_NO_AUTO_ACQUIRE"), AddedIn(SageGame.Bfme)]
         ToggleNoAutoAcquire,
 
-        [IniEnum("TOGGLE_GATE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("TOGGLE_GATE"), AddedIn(SageGame.Bfme)]
         ToggleGate,
 
-        [IniEnum("START_SELF_REPAIR"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("START_SELF_REPAIR"), AddedIn(SageGame.Bfme)]
         StartSelfRepair,
     }
 
@@ -386,43 +386,43 @@ namespace OpenSage.Data.Ini
         [IniEnum("MUST_BE_STOPPED"), AddedIn(SageGame.CncGeneralsZeroHour)]
         MustBeStopped,
 
-        [IniEnum("TOGGLE_IMAGE_ON_FORMATION"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("TOGGLE_IMAGE_ON_FORMATION"), AddedIn(SageGame.Bfme)]
         ToggleImageOnFormation,
 
-        [IniEnum("TOGGLE_IMAGE_ON_WEAPONSET"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("TOGGLE_IMAGE_ON_WEAPONSET"), AddedIn(SageGame.Bfme)]
         ToggleImageOnWeaponSet,
 
-        [IniEnum("ALLOW_SHRUBBERY_TARGET"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("ALLOW_SHRUBBERY_TARGET"), AddedIn(SageGame.Bfme)]
         AllowShrubberyTarget,
 
-        [IniEnum("ALLOW_ROCK_TARGET"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("ALLOW_ROCK_TARGET"), AddedIn(SageGame.Bfme)]
         AllowRockTarget,
 
-        [IniEnum("NONPRESSABLE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("NONPRESSABLE"), AddedIn(SageGame.Bfme)]
         NonPressable,
 
-        [IniEnum("CANCELABLE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("CANCELABLE"), AddedIn(SageGame.Bfme)]
         Cancelable,
 
-        [IniEnum("UNMOUNTED_ONLY"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("UNMOUNTED_ONLY"), AddedIn(SageGame.Bfme)]
         UnmountedOnly,
 
-        [IniEnum("MOUNTED_ONLY"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("MOUNTED_ONLY"), AddedIn(SageGame.Bfme)]
         MountedOnly,
 
-        [IniEnum("ON_GROUND_ONLY"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("ON_GROUND_ONLY"), AddedIn(SageGame.Bfme)]
         OnGroundOnly,
 
-        [IniEnum("HIDE_WHILE_DISABLED"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("HIDE_WHILE_DISABLED"), AddedIn(SageGame.Bfme)]
         HideWhileDisabled,
 
-        [IniEnum("NO_PLAY_UNIT_SPECIFIC_SOUND_FOR_AUTO_ABILITY"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("NO_PLAY_UNIT_SPECIFIC_SOUND_FOR_AUTO_ABILITY"), AddedIn(SageGame.Bfme)]
         NoPlayUnitSpecificSoundForAutoAbility,
 
-        [IniEnum("TOGGLE_IMAGE_ON_WEAPON"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("TOGGLE_IMAGE_ON_WEAPON"), AddedIn(SageGame.Bfme)]
         ToggleImageOnWeapon,
 
-        [IniEnum("NEEDS_CASTLE_KINDOF"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("NEEDS_CASTLE_KINDOF"), AddedIn(SageGame.Bfme)]
         NeedsCastleKindOf,
     }
 
@@ -440,7 +440,7 @@ namespace OpenSage.Data.Ini
 
     public enum CommandButtonRadiusCursorType
     {
-        [IniEnum("NONE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("NONE"), AddedIn(SageGame.Bfme)]
         None,
 
         [IniEnum("DAISYCUTTER")]
@@ -530,91 +530,91 @@ namespace OpenSage.Data.Ini
         [IniEnum("HELIX_NAPALM_BOMB"), AddedIn(SageGame.CncGeneralsZeroHour)]
         HelixNapalmBomb,
 
-        [IniEnum("FIRE_BREATH"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("FIRE_BREATH"), AddedIn(SageGame.Bfme)]
         FireBreath,
 
-        [IniEnum("TRAINING"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("TRAINING"), AddedIn(SageGame.Bfme)]
         Training,
 
-        [IniEnum("SUMMON_OATH_BREAKERS"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("SUMMON_OATH_BREAKERS"), AddedIn(SageGame.Bfme)]
         SummonOathBreakers,
 
-        [IniEnum("KINGS_FAVOR"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("KINGS_FAVOR"), AddedIn(SageGame.Bfme)]
         KingsFavor,
 
-        [IniEnum("CAPTAIN_OF_GONDOR"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("CAPTAIN_OF_GONDOR"), AddedIn(SageGame.Bfme)]
         CaptainOfGondor,
 
-        [IniEnum("ARROWSTORM"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("ARROWSTORM"), AddedIn(SageGame.Bfme)]
         ArrowStorm,
 
-        [IniEnum("ATHELAS"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("ATHELAS"), AddedIn(SageGame.Bfme)]
         Athelas,
 
-        [IniEnum("ARCHERY_TRAINING"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("ARCHERY_TRAINING"), AddedIn(SageGame.Bfme)]
         ArcheryTraining,
 
-        [IniEnum("LIGHTNING_SWORD"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("LIGHTNING_SWORD"), AddedIn(SageGame.Bfme)]
         LightningSword,
 
-        [IniEnum("LEAP"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("LEAP"), AddedIn(SageGame.Bfme)]
         Leap,
 
-        [IniEnum("FELL_BEAST_SWOOP"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("FELL_BEAST_SWOOP"), AddedIn(SageGame.Bfme)]
         FellBeastSwoop,
 
-        [IniEnum("EAGLE_SWOOP"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("EAGLE_SWOOP"), AddedIn(SageGame.Bfme)]
         EagleSwoop,
 
-        [IniEnum("REVEAL_MAP_AREA"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("REVEAL_MAP_AREA"), AddedIn(SageGame.Bfme)]
         RevealMapArea,
 
-        [IniEnum("WAR_CHANT"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("WAR_CHANT"), AddedIn(SageGame.Bfme)]
         WarChant,
 
-        [IniEnum("INDUSTRY"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("INDUSTRY"), AddedIn(SageGame.Bfme)]
         Industry,
 
-        [IniEnum("DEVASTATION"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("DEVASTATION"), AddedIn(SageGame.Bfme)]
         Devastation,
 
-        [IniEnum("TAINT"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("TAINT"), AddedIn(SageGame.Bfme)]
         Taint,
 
-        [IniEnum("EYE_OF_SAURON"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("EYE_OF_SAURON"), AddedIn(SageGame.Bfme)]
         EyeOfSauron,
 
-        [IniEnum("SUMMON_BALROG"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("SUMMON_BALROG"), AddedIn(SageGame.Bfme)]
         SummonBalrog,
 
-        [IniEnum("HEAL"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("HEAL"), AddedIn(SageGame.Bfme)]
         Heal,
 
-        [IniEnum("ELVEN_ALLIES"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("ELVEN_ALLIES"), AddedIn(SageGame.Bfme)]
         ElvenAllies,
 
-        [IniEnum("ROHAN_ALLIES"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("ROHAN_ALLIES"), AddedIn(SageGame.Bfme)]
         RohanAllies,
 
-        [IniEnum("ELVEN_WOOD"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("ELVEN_WOOD"), AddedIn(SageGame.Bfme)]
         ElvenWood,
 
-        [IniEnum("ENT_ALLIES"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("ENT_ALLIES"), AddedIn(SageGame.Bfme)]
         EntAllies,
 
-        [IniEnum("ARMY_OF_THE_DEAD"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("ARMY_OF_THE_DEAD"), AddedIn(SageGame.Bfme)]
         ArmyOfTheDead,
 
-        [IniEnum("EAGLE_ALLIES"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("EAGLE_ALLIES"), AddedIn(SageGame.Bfme)]
         EagleAllies,
 
-        [IniEnum("PALANTIR_VISION"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("PALANTIR_VISION"), AddedIn(SageGame.Bfme)]
         PalantirVision,
 
-        [IniEnum("SPEECH_CRAFT"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("SPEECH_CRAFT"), AddedIn(SageGame.Bfme)]
         SpeechCraft,
 
-        [IniEnum("DOMINATE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("DOMINATE"), AddedIn(SageGame.Bfme)]
         Dominate,
     }
 }

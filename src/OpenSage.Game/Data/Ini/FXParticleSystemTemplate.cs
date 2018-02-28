@@ -4,7 +4,7 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleSystemTemplate
     {
         internal static FXParticleSystemTemplate Parse(IniParser parser)
@@ -159,7 +159,7 @@ namespace OpenSage.Data.Ini
         public FXParticleEventBase Event { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleColor
     {
         internal static FXParticleColor Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -189,7 +189,7 @@ namespace OpenSage.Data.Ini
         public RandomVariable ColorScale { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleAlpha
     {
         internal static FXParticleAlpha Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -216,13 +216,13 @@ namespace OpenSage.Data.Ini
         public RandomAlphaKeyframe Alpha8 { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public abstract class FXParticleUpdateBase
     {
 
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleUpdateDefault : FXParticleUpdateBase
     {
         internal static FXParticleUpdateDefault Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -245,7 +245,7 @@ namespace OpenSage.Data.Ini
         public FXParticleSystemRotationType Rotation { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleUpdateRenderObject : FXParticleUpdateBase
     {
         internal static FXParticleUpdateRenderObject Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -290,7 +290,7 @@ namespace OpenSage.Data.Ini
         public FXParticleSystemRotationType Rotation { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public enum FXParticleSystemRotationType
     {
         [IniEnum("ROTATE_X")]
@@ -306,13 +306,13 @@ namespace OpenSage.Data.Ini
         RotateV
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public abstract class FXParticlePhysicsBase
     {
 
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleDefaultPhysics : FXParticlePhysicsBase
     {
         internal static FXParticleDefaultPhysics Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -329,7 +329,7 @@ namespace OpenSage.Data.Ini
         public Coord3D DriftVelocity { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public class FXParticleDrawBase
     {
         internal static FXParticleDrawBase Parse(IniParser parser) => parser.ParseBlock(BaseFieldParseTable);
@@ -337,7 +337,7 @@ namespace OpenSage.Data.Ini
         internal static readonly IniParseTable<FXParticleDrawBase> BaseFieldParseTable = new IniParseTable<FXParticleDrawBase>();
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleDrawRenderObject : FXParticleDrawBase
     {
         internal new static FXParticleDrawRenderObject Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -345,7 +345,7 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<FXParticleDrawRenderObject> FieldParseTable = BaseFieldParseTable.Concat(new IniParseTable<FXParticleDrawRenderObject>());
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleDrawStreak : FXParticleDrawBase
     {
         internal new static FXParticleDrawStreak Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -353,7 +353,7 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<FXParticleDrawStreak> FieldParseTable = BaseFieldParseTable.Concat(new IniParseTable<FXParticleDrawStreak>());
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleDrawButterfly : FXParticleDrawBase
     {
         internal new static FXParticleDrawButterfly Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -361,7 +361,7 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<FXParticleDrawButterfly> FieldParseTable = BaseFieldParseTable.Concat(new IniParseTable<FXParticleDrawButterfly>());
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleDrawLightning : FXParticleDrawBase
     {
         internal new static FXParticleDrawLightning Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -378,7 +378,7 @@ namespace OpenSage.Data.Ini
         public RandomVariable OffsetZ { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleDrawQuad : FXParticleDrawBase
     {
         internal new static FXParticleDrawQuad Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -386,7 +386,7 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<FXParticleDrawQuad> FieldParseTable = BaseFieldParseTable.Concat(new IniParseTable<FXParticleDrawQuad>());
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleWind
     {
         internal static FXParticleWind Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -421,13 +421,13 @@ namespace OpenSage.Data.Ini
         public float TurbulenceFrequency { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public abstract class FXParticleEmissionVelocityBase
     {
 
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleEmissionVelocityCylinder : FXParticleEmissionVelocityBase
     {
         internal static FXParticleEmissionVelocityCylinder Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -442,7 +442,7 @@ namespace OpenSage.Data.Ini
         public RandomVariable Normal { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleEmissionVelocityOrtho : FXParticleEmissionVelocityBase
     {
         internal static FXParticleEmissionVelocityOrtho Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -459,7 +459,7 @@ namespace OpenSage.Data.Ini
         public RandomVariable Z { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleEmissionVelocityOutward : FXParticleEmissionVelocityBase
     {
         internal static FXParticleEmissionVelocityOutward Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -474,7 +474,7 @@ namespace OpenSage.Data.Ini
         public RandomVariable OtherSpeed { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public class FXParticleEmissionVelocitySphere : FXParticleEmissionVelocityBase
     {
         internal static FXParticleEmissionVelocitySphere Parse(IniParser parser) => parser.ParseBlock(SphereFieldParseTable);
@@ -487,7 +487,7 @@ namespace OpenSage.Data.Ini
         public RandomVariable Speed { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleEmissionVelocityHemisphere : FXParticleEmissionVelocitySphere
     {
         internal new static FXParticleEmissionVelocityHemisphere Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -495,7 +495,7 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<FXParticleEmissionVelocityHemisphere> FieldParseTable = SphereFieldParseTable.Concat(new IniParseTable<FXParticleEmissionVelocityHemisphere>());
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public abstract class FXParticleEmissionVolumeBase
     {
         internal static readonly IniParseTable<FXParticleEmissionVolumeBase> BaseFieldParseTable = new IniParseTable<FXParticleEmissionVolumeBase>
@@ -506,7 +506,7 @@ namespace OpenSage.Data.Ini
         public bool IsHollow { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleEmissionVolumeCylinder : FXParticleEmissionVolumeBase
     {
         internal static FXParticleEmissionVolumeCylinder Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -523,7 +523,7 @@ namespace OpenSage.Data.Ini
         public Coord3D Offset { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleEmissionVolumeLine : FXParticleEmissionVolumeBase
     {
         internal static FXParticleEmissionVolumeLine Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -538,7 +538,7 @@ namespace OpenSage.Data.Ini
         public Coord3D EndPoint { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleEmissionVolumeSphere : FXParticleEmissionVolumeBase
     {
         internal static FXParticleEmissionVolumeSphere Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -551,7 +551,7 @@ namespace OpenSage.Data.Ini
         public float Radius { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleEmissionVolumeBox : FXParticleEmissionVolumeBase
     {
         internal static FXParticleEmissionVolumeBox Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -564,7 +564,7 @@ namespace OpenSage.Data.Ini
         public Coord3D HalfSize { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleEmissionVolumePoint : FXParticleEmissionVolumeBase
     {
         internal static FXParticleEmissionVolumePoint Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -572,7 +572,7 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<FXParticleEmissionVolumePoint> FieldParseTable = BaseFieldParseTable.Concat(new IniParseTable<FXParticleEmissionVolumePoint>());
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleEmissionVolumeLightning : FXParticleEmissionVolumeBase
     {
         internal static FXParticleEmissionVolumeLightning Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -595,7 +595,7 @@ namespace OpenSage.Data.Ini
         public RandomVariable Phase3 { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public abstract class FXParticleEventBase
     {
         internal static readonly IniParseTable<FXParticleEventBase> BaseFieldParseTable = new IniParseTable<FXParticleEventBase>
@@ -610,7 +610,7 @@ namespace OpenSage.Data.Ini
         public bool KillAfterEvent { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleEventCollision : FXParticleEventBase
     {
         internal static FXParticleEventCollision Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);

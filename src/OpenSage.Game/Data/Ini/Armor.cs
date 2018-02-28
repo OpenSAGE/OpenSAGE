@@ -23,7 +23,7 @@ namespace OpenSage.Data.Ini
         /// <summary>
         /// Scales all damage done to this unit.
         /// </summary>
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float DamageScalar { get; private set; }
 
         public List<ArmorValue> Values { get; } = new List<ArmorValue>();

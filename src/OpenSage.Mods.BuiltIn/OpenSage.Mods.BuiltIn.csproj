@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\OpenSage.Game\OpenSage.Game.csproj" />
-    <ProjectReference Include="..\OpenSage.Mods.BfmeII\OpenSage.Mods.BfmeII.csproj" />
+    <ProjectReference Include="..\OpenSage.Mods.Bfme2\OpenSage.Mods.Bfme2.csproj" />
     <ProjectReference Include="..\OpenSage.Mods.Bfme\OpenSage.Mods.Bfme.csproj" />
     <ProjectReference Include="..\OpenSage.Mods.Cnc3\OpenSage.Mods.Cnc3.csproj" />
     <ProjectReference Include="..\OpenSage.Mods.Cnc4\OpenSage.Mods.Cnc4.csproj" />
