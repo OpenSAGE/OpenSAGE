@@ -288,7 +288,7 @@ namespace OpenSage.Gui.Wnd.Controls
             _needsLayout = true;
         }
 
-        private void DefaultDraw(Control control, DrawingContext2D drawingContext)
+        public void DefaultDraw(Control control, DrawingContext2D drawingContext)
         {
             drawingContext.PushOpacity(Opacity);
 
