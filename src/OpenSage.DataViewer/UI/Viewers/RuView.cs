@@ -6,7 +6,6 @@ using OpenSage.Content;
 using OpenSage.Data;
 using OpenSage.Data.Apt;
 using OpenSage.DataViewer.Controls;
-using OpenSage.Graphics;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Mathematics;
@@ -52,7 +51,7 @@ namespace OpenSage.DataViewer.UI.Viewers
                         imageMap,
                         movieName);
 
-                    game.Rendering2D += (sender, e) => shapeRenderer.Render(e.SpriteBatch);
+                    game.Rendering2D += (sender, e) => shapeRenderer.Render(e.DrawingContext);
 
                     game.Window.ClientSizeChanged += (sender, e) =>
                     {
@@ -72,8 +71,6 @@ namespace OpenSage.DataViewer.UI.Viewers
             private readonly AptContext _context;
             private readonly ContentManager _contentManager;
 
-            private Texture _texture;
-            private DrawingContext2D _primitiveBatch;
             private Mathematics.Rectangle _frame;
             private float _scale;
 
@@ -92,56 +89,29 @@ namespace OpenSage.DataViewer.UI.Viewers
             {
                 var shapeBoundingBox = _shape.BoundingBox;
 
-                var translation = new Vector2(-shapeBoundingBox.X, -shapeBoundingBox.Y);
-
-                shapeBoundingBox.X += translation.X;
-                shapeBoundingBox.Y += translation.Y;
-
                 _frame = RectangleF.CalculateRectangleFittingAspectRatio(
                     shapeBoundingBox,
                     shapeBoundingBox.Size,
                     windowSize,
                     out _scale);
+            }
+
+            public void Render(DrawingContext2D drawingContext)
+            {
+                var shapeBoundingBox = _shape.BoundingBox;
+
+                var translation = new Vector2(-shapeBoundingBox.X, -shapeBoundingBox.Y);
 
                 var itemTransform = new ItemTransform(
                     ColorRgbaF.White,
                     Matrix3x2.CreateScale(_scale, _scale),
                     translation);
 
-                RemoveAndDispose(ref _texture);
-                RemoveAndDispose(ref _primitiveBatch);
-
-                _texture = AddDisposable(gd.ResourceFactory.CreateTexture(
-                    TextureDescription.Texture2D(
-                        (uint) _frame.Width,
-                        (uint) _frame.Height,
-                        1,
-                        1,
-                        PixelFormat.R8_G8_B8_A8_UNorm,
-                        TextureUsage.Sampled | TextureUsage.RenderTarget)));
-
-                _primitiveBatch = AddDisposable(new DrawingContext2D(_contentManager, _texture));
-
-                _primitiveBatch.Begin(
-                    _contentManager.LinearClampSampler,
-                    ColorRgbaF.Transparent);
-
                 AptRenderer.RenderGeometry(
-                    _primitiveBatch,
+                    drawingContext,
                     _context,
                     _shape,
                     itemTransform);
-
-                _primitiveBatch.End();
-            }
-
-            public void Render(SpriteBatch spriteBatch)
-            {
-                spriteBatch.DrawImage(
-                    _texture,
-                    null,
-                    _frame.ToRectangleF(),
-                    ColorRgbaF.White);
             }
         }
     }

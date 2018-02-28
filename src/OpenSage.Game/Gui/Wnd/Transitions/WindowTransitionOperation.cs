@@ -1,19 +1,20 @@
 ﻿using System;
 using OpenSage.Data.Ini;
+using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd.Transitions
 {
     internal abstract class WindowTransitionOperation
     {
-        protected static readonly ColorRgba FlashColor = new ColorRgba(255, 187, 0, 255);
+        protected static readonly ColorRgbaF FlashColor = new ColorRgba(255, 187, 0, 255).ToColorRgbaF();
 
         public static WindowTransitionOperation Create(
-            WndTopLevelWindow window,
+            Window window,
             WindowTransitionWindow transitionWindow,
             TimeSpan currentTime)
         {
-            var element = window.Root.FindChild(transitionWindow.WinName);
+            var element = window.Controls.FindControl(transitionWindow.WinName);
             var startTime = currentTime + TimeSpan.FromSeconds(transitionWindow.FrameDelay / 30.0f);
 
             switch (transitionWindow.Style)
@@ -38,7 +39,7 @@ namespace OpenSage.Gui.Wnd.Transitions
             }
         }
 
-        protected WndWindow Element { get; }
+        protected Control Element { get; }
 
         protected abstract int FrameDuration { get; }
 
@@ -48,7 +49,7 @@ namespace OpenSage.Gui.Wnd.Transitions
 
         public TimeSpan EndTime { get; }
 
-        protected WindowTransitionOperation(WndWindow element, TimeSpan startTime)
+        protected WindowTransitionOperation(Control element, TimeSpan startTime)
         {
             Element = element;
 

@@ -1,4 +1,5 @@
 ﻿using OpenSage.Graphics;
+using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Wnd;
 
@@ -21,10 +22,10 @@ namespace OpenSage
             AptWindowManager.Update(gameTime);
         }
 
-        internal void Render(SpriteBatch spriteBatch)
+        internal void Render(DrawingContext2D drawingContext)
         {
-            WndWindowManager.Render(spriteBatch);
-            AptWindowManager.Render(spriteBatch);
+            WndWindowManager.Render(drawingContext);
+            AptWindowManager.Render(drawingContext);
         }
     }
 }

@@ -335,6 +335,15 @@ namespace OpenSage.Data.Ini.Parser
             };
         }
 
+        public Point2D ParsePoint()
+        {
+            return new Point2D
+            {
+                X = ParseAttributeInteger("X"),
+                Y = ParseAttributeInteger("Y")
+            };
+        }
+
         public IniToken GetNextToken(char[] separators = null)
         {
             var result = GetNextTokenOptional(separators);

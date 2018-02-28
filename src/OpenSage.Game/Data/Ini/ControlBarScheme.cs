@@ -16,7 +16,7 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<ControlBarScheme> FieldParseTable = new IniParseTable<ControlBarScheme>
         {
-            { "ScreenCreationRes", (parser, x) => x.ScreenCreationRes = WndPoint.Parse(parser) },
+            { "ScreenCreationRes", (parser, x) => x.ScreenCreationRes = parser.ParsePoint() },
             { "Side", (parser, x) => x.Side = parser.ParseAssetReference() },
             { "QueueButtonImage", (parser, x) => x.QueueButtonImage = parser.ParseFileName() },
             { "RightHUDImage", (parser, x) => x.RightHudImage = parser.ParseAssetReference() },
@@ -72,34 +72,34 @@ namespace OpenSage.Data.Ini
             { "MinMaxButtonHightlited", (parser, x) => x.MinMaxButtonHighlighted = parser.ParseAssetReference() },
             { "MinMaxButtonPushed", (parser, x) => x.MinMaxButtonPushed = parser.ParseAssetReference() },
 
-            { "MinMaxUL", (parser, x) => x.MinMaxUL = WndPoint.Parse(parser) },
-            { "MinMaxLR", (parser, x) => x.MinMaxLR = WndPoint.Parse(parser) },
+            { "MinMaxUL", (parser, x) => x.MinMaxUL = parser.ParsePoint() },
+            { "MinMaxLR", (parser, x) => x.MinMaxLR = parser.ParsePoint() },
 
-            { "GeneralUL", (parser, x) => x.GeneralUL = WndPoint.Parse(parser) },
-            { "GeneralLR", (parser, x) => x.GeneralLR = WndPoint.Parse(parser) },
+            { "GeneralUL", (parser, x) => x.GeneralUL = parser.ParsePoint() },
+            { "GeneralLR", (parser, x) => x.GeneralLR = parser.ParsePoint() },
 
-            { "UAttackUL", (parser, x) => x.UAttackUL = WndPoint.Parse(parser) },
-            { "UAttackLR", (parser, x) => x.UAttackLR = WndPoint.Parse(parser) },
+            { "UAttackUL", (parser, x) => x.UAttackUL = parser.ParsePoint() },
+            { "UAttackLR", (parser, x) => x.UAttackLR = parser.ParsePoint() },
 
-            { "OptionsUL", (parser, x) => x.OptionsUL = WndPoint.Parse(parser) },
-            { "OptionsLR", (parser, x) => x.OptionsLR = WndPoint.Parse(parser) },
+            { "OptionsUL", (parser, x) => x.OptionsUL = parser.ParsePoint() },
+            { "OptionsLR", (parser, x) => x.OptionsLR = parser.ParsePoint() },
 
-            { "WorkerUL", (parser, x) => x.WorkerUL = WndPoint.Parse(parser) },
-            { "WorkerLR", (parser, x) => x.WorkerLR = WndPoint.Parse(parser) },
+            { "WorkerUL", (parser, x) => x.WorkerUL = parser.ParsePoint() },
+            { "WorkerLR", (parser, x) => x.WorkerLR = parser.ParsePoint() },
 
-            { "ChatUL", (parser, x) => x.ChatUL = WndPoint.Parse(parser) },
-            { "ChatLR", (parser, x) => x.ChatLR = WndPoint.Parse(parser) },
+            { "ChatUL", (parser, x) => x.ChatUL = parser.ParsePoint() },
+            { "ChatLR", (parser, x) => x.ChatLR = parser.ParsePoint() },
 
-            { "BeaconUL", (parser, x) => x.BeaconUL = WndPoint.Parse(parser) },
-            { "BeaconLR", (parser, x) => x.BeaconLR = WndPoint.Parse(parser) },
+            { "BeaconUL", (parser, x) => x.BeaconUL = parser.ParsePoint() },
+            { "BeaconLR", (parser, x) => x.BeaconLR = parser.ParsePoint() },
 
-            { "PowerBarUL", (parser, x) => x.PowerBarUL = WndPoint.Parse(parser) },
-            { "PowerBarLR", (parser, x) => x.PowerBarLR = WndPoint.Parse(parser) },
+            { "PowerBarUL", (parser, x) => x.PowerBarUL = parser.ParsePoint() },
+            { "PowerBarLR", (parser, x) => x.PowerBarLR = parser.ParsePoint() },
 
             { "ExpBarForegroundImage", (parser, x) => x.ExpBarForegroundImage = parser.ParseAssetReference() },
 
-            { "MoneyUL", (parser, x) => x.MoneyUL = WndPoint.Parse(parser) },
-            { "MoneyLR", (parser, x) => x.MoneyLR = WndPoint.Parse(parser) },
+            { "MoneyUL", (parser, x) => x.MoneyUL = parser.ParsePoint() },
+            { "MoneyLR", (parser, x) => x.MoneyLR = parser.ParsePoint() },
 
             { "GenArrow", (parser, x) => x.GenArrow = parser.ParseAssetReference() },
             { "CommandMarkerImage", (parser, x) => x.CommandMarkerImage = parser.ParseAssetReference() },
@@ -111,7 +111,7 @@ namespace OpenSage.Data.Ini
 
         public string Name { get; private set; }
 
-        public WndPoint ScreenCreationRes { get; private set; }
+        public Point2D ScreenCreationRes { get; private set; }
         public string Side { get; private set; }
         public string QueueButtonImage { get; private set; }
         public string RightHudImage { get; private set; }
@@ -169,27 +169,27 @@ namespace OpenSage.Data.Ini
         public string MinMaxButtonHighlighted { get; private set; }
         public string MinMaxButtonPushed { get; private set; }
 
-        public WndPoint MinMaxUL { get; private set; }
-        public WndPoint MinMaxLR { get; private set; }
-        public WndPoint GeneralUL { get; private set; }
-        public WndPoint GeneralLR { get; private set; }
-        public WndPoint UAttackUL { get; private set; }
-        public WndPoint UAttackLR { get; private set; }
+        public Point2D MinMaxUL { get; private set; }
+        public Point2D MinMaxLR { get; private set; }
+        public Point2D GeneralUL { get; private set; }
+        public Point2D GeneralLR { get; private set; }
+        public Point2D UAttackUL { get; private set; }
+        public Point2D UAttackLR { get; private set; }
 
-        public WndPoint OptionsUL { get; private set; }
-        public WndPoint OptionsLR { get; private set; }
-        public WndPoint WorkerUL { get; private set; }
-        public WndPoint WorkerLR { get; private set; }
-        public WndPoint ChatUL { get; private set; }
-        public WndPoint ChatLR { get; private set; }
-        public WndPoint BeaconUL { get; private set; }
-        public WndPoint BeaconLR { get; private set; }
+        public Point2D OptionsUL { get; private set; }
+        public Point2D  OptionsLR { get; private set; }
+        public Point2D  WorkerUL { get; private set; }
+        public Point2D  WorkerLR { get; private set; }
+        public Point2D  ChatUL { get; private set; }
+        public Point2D  ChatLR { get; private set; }
+        public Point2D  BeaconUL { get; private set; }
+        public Point2D  BeaconLR { get; private set; }
 
-        public WndPoint PowerBarUL { get; private set; }
-        public WndPoint PowerBarLR { get; private set; }
+        public Point2D PowerBarUL { get; private set; }
+        public Point2D PowerBarLR { get; private set; }
         public string ExpBarForegroundImage { get; private set; }
-        public WndPoint MoneyUL { get; private set; }
-        public WndPoint MoneyLR { get; private set; }
+        public Point2D MoneyUL { get; private set; }
+        public Point2D MoneyLR { get; private set; }
 
         public string GenArrow { get; private set; }
         public string CommandMarkerImage { get; private set; }
@@ -209,14 +209,14 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<ControlBarImagePart> FieldParseTable = new IniParseTable<ControlBarImagePart>
         {
-            { "Position", (parser, x) => x.Position = WndPoint.Parse(parser) },
-            { "Size", (parser, x) => x.Size = WndPoint.Parse(parser) },
+            { "Position", (parser, x) => x.Position = parser.ParsePoint() },
+            { "Size", (parser, x) => x.Size = parser.ParsePoint() },
             { "ImageName", (parser, x) => x.ImageName = parser.ParseAssetReference() },
             { "Layer", (parser, x) => x.Layer = parser.ParseInteger() }
         };
 
-        public WndPoint Position { get; private set; }
-        public WndPoint Size { get; private set; }
+        public Point2D Position { get; private set; }
+        public Point2D Size { get; private set; }
         public string ImageName { get; private set; }
         public int Layer { get; private set; }
     }

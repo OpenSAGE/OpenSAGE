@@ -2,7 +2,7 @@
 using Eto.Forms;
 using OpenSage.Data;
 using OpenSage.DataViewer.Controls;
-using OpenSage.Gui.Wnd;
+using OpenSage.Mathematics;
 
 namespace OpenSage.DataViewer.UI.Viewers
 {
@@ -18,18 +18,27 @@ namespace OpenSage.DataViewer.UI.Viewers
                 DataStore = treeItem
             };
 
-            WndWindow selectedElement = null;
+            var originalBorderColor = ColorRgbaF.Transparent;
+            var originalBorderWidth = 1;
+
+            Gui.Wnd.Controls.Control selectedElement = null;
 
             treeView.SelectionChanged += (sender, e) =>
             {
                 if (selectedElement != null)
                 {
-                    selectedElement.Highlighted = false;
+                    selectedElement.BorderColor = originalBorderColor;
+                    selectedElement.BorderWidth = originalBorderWidth;
                     selectedElement = null;
                 }
 
-                selectedElement = (WndWindow) ((TreeItem) treeView.SelectedItem).Tag;
-                selectedElement.Highlighted = true;
+                selectedElement = (Gui.Wnd.Controls.Control) ((TreeItem) treeView.SelectedItem).Tag;
+
+                originalBorderColor = selectedElement.BorderColor;
+                originalBorderWidth = selectedElement.BorderWidth;
+
+                selectedElement.BorderColor = new ColorRgbaF(1f, 0.41f, 0.71f, 1);
+                selectedElement.BorderWidth = 4;
             };
 
             Panel1 = treeView;
@@ -40,7 +49,7 @@ namespace OpenSage.DataViewer.UI.Viewers
                 {
                     var game = createGame(h);
 
-                    var window = game.ContentManager.Load<WndTopLevelWindow>(entry.FilePath);
+                    var window = game.ContentManager.Load<Gui.Wnd.Controls.Window>(entry.FilePath, new Content.LoadOptions { CacheAsset = false });
                     game.Scene2D.WndWindowManager.PushWindow(window);
 
                     treeItem.Children.Add(CreateTreeItemRecursive(window.Root));
@@ -50,7 +59,7 @@ namespace OpenSage.DataViewer.UI.Viewers
             };
         }
 
-        private static TreeItem CreateTreeItemRecursive(WndWindow element)
+        private static TreeItem CreateTreeItemRecursive(Gui.Wnd.Controls.Control element)
         {
             var result = new TreeItem
             {
@@ -59,7 +68,7 @@ namespace OpenSage.DataViewer.UI.Viewers
                 Tag = element
             };
 
-            foreach (var childElement in element.Children)
+            foreach (var childElement in element.Controls)
             {
                 result.Children.Add(CreateTreeItemRecursive(childElement));
             }

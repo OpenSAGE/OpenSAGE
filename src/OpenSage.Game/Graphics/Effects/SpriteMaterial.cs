@@ -7,7 +7,7 @@ namespace OpenSage.Graphics.Effects
 {
     public sealed class SpriteMaterial : EffectMaterial
     {
-        public SpriteMaterial(ContentManager contentManager, Effect effect, in OutputDescription outputDescription)
+        public SpriteMaterial(ContentManager contentManager, Effect effect, in BlendStateDescription blendStateDescription, in OutputDescription outputDescription)
             : base(contentManager, effect)
         {
             SetSampler(contentManager.PointClampSampler);
@@ -15,7 +15,7 @@ namespace OpenSage.Graphics.Effects
             PipelineState = new EffectPipelineState(
                 RasterizerStateDescriptionUtility.CullNoneSolid,
                 DepthStencilStateDescription.Disabled,
-                BlendStateDescription.SingleAlphaBlend,
+                blendStateDescription,
                 outputDescription);
         }
 

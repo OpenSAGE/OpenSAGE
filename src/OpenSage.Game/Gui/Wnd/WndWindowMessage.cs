@@ -1,16 +1,17 @@
-﻿using OpenSage.Mathematics;
+﻿using OpenSage.Gui.Wnd.Controls;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd
 {
     public sealed class WndWindowMessage
     {
         public WndWindowMessageType MessageType { get; }
-        public WndWindow Element { get; }
+        public Control Element { get; }
         public Point2D MousePosition { get; }
 
         public WndWindowMessage(
             WndWindowMessageType messageType,
-            WndWindow element,
+            Control element,
             in Point2D? mousePosition = null)
         {
             MessageType = messageType;

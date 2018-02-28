@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Graphics;
+using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Transitions;
 using OpenSage.Mathematics;
 
@@ -12,7 +13,7 @@ namespace OpenSage.Gui.Wnd
     {
         private readonly Game _game;
 
-        private readonly Stack<WndTopLevelWindow> _windowStack;
+        private readonly Stack<Window> _windowStack;
         public int OpenWindowCount => _windowStack.Count;
 
         public WindowTransitionManager TransitionManager { get; }
@@ -20,7 +21,7 @@ namespace OpenSage.Gui.Wnd
         public WndWindowManager(Game game)
         {
             _game = game;
-            _windowStack = new Stack<WndTopLevelWindow>();
+            _windowStack = new Stack<Window>();
 
             game.InputMessageBuffer.Handlers.Insert(0, new WndInputMessageHandler(this, _game));
 
@@ -38,9 +39,9 @@ namespace OpenSage.Gui.Wnd
             }
         }
 
-        public WndTopLevelWindow PushWindow(WndTopLevelWindow window)
+        public Window PushWindow(Window window)
         {
-            CreateSizeDependentResources(window, _game.Window.ClientBounds.Size);
+            window.Size = _game.Window.ClientBounds.Size;
 
             _windowStack.Push(window);
 
@@ -49,10 +50,10 @@ namespace OpenSage.Gui.Wnd
             return window;
         }
 
-        public WndTopLevelWindow PushWindow(string wndFileName)
+        public Window PushWindow(string wndFileName)
         {
             var wndFilePath = Path.Combine("Window", wndFileName);
-            var window = _game.ContentManager.Load<WndTopLevelWindow>(wndFilePath);
+            var window = _game.ContentManager.Load<Window>(wndFilePath, new Content.LoadOptions { CacheAsset = false });
 
             if (window == null)
             {
@@ -62,7 +63,7 @@ namespace OpenSage.Gui.Wnd
             return PushWindow(window);
         }
 
-        public WndTopLevelWindow SetWindow(string wndFileName)
+        public Window SetWindow(string wndFileName)
         {
             // TODO: Handle transitions between windows.
 
@@ -78,26 +79,22 @@ namespace OpenSage.Gui.Wnd
         {
             foreach (var window in _windowStack)
             {
-                CreateSizeDependentResources(window, newSize);
+                window.Size = newSize;
             }
         }
 
-        private void CreateSizeDependentResources(WndTopLevelWindow window, Size newSize)
+        private void CreateSizeDependentResources(Window window, Size newSize)
         {
-            window.Root.DoActionRecursive(
-            x =>
-            {
-                x.CreateSizeDependentResources(_game.ContentManager, newSize);
-                return true;
-            });
+            window.Size = newSize;
         }
 
         public void PopWindow()
         {
-            _windowStack.Pop();
+            var popped = _windowStack.Pop();
+            popped.Dispose();
         }
 
-        public WndWindow FindWindow(in Point2D mousePosition)
+        public Control GetControlAtPoint(in Point2D mousePosition)
         {
             if (_windowStack.Count == 0)
             {
@@ -106,7 +103,19 @@ namespace OpenSage.Gui.Wnd
 
             var window = _windowStack.Peek();
 
-            return window.FindWindow(mousePosition);
+            return window.GetSelfOrDescendantAtPoint(mousePosition);
+        }
+
+        public Control[] GetControlsAtPoint(in Point2D mousePosition)
+        {
+            if (_windowStack.Count == 0)
+            {
+                return new Control[0];
+            }
+
+            var window = _windowStack.Peek();
+
+            return window.GetSelfOrDescendantsAtPoint(mousePosition);
         }
 
         internal void Update(GameTime gameTime)
@@ -120,34 +129,16 @@ namespace OpenSage.Gui.Wnd
 
             foreach (var window in _windowStack)
             {
-                window.Root.DoActionRecursive(x =>
-                {
-                    if (x.IsInvalidated)
-                    {
-                        x.DrawCallback.Invoke(x, _game);
-                        x.IsInvalidated = false;
-                    }
-                    return true;
-                });
+                window.Update();
             }
         }
 
-        internal void Render(SpriteBatch spriteBatch)
+        internal void Render(DrawingContext2D drawingContext)
         {
             // TODO: Try to avoid using LINQ here.
             foreach (var window in _windowStack.Reverse())
             {
-                window.Root.DoActionRecursive(x =>
-                {
-                    if (!x.Visible)
-                    {
-                        return false;
-                    }
-
-                    x.Render(spriteBatch);
-
-                    return true;
-                });
+                window.Render(drawingContext);
             }
         }
     }

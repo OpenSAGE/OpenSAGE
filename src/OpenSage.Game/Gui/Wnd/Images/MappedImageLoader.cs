@@ -4,13 +4,13 @@ using OpenSage.Content;
 using OpenSage.Content.Util;
 using Veldrid;
 
-namespace OpenSage.Gui.Wnd
+namespace OpenSage.Gui.Wnd.Images
 {
-    internal sealed class MappedImageManager
+    internal sealed class MappedImageLoader
     {
         private readonly ContentManager _contentManager;
 
-        public MappedImageManager(ContentManager contentManager)
+        public MappedImageLoader(ContentManager contentManager)
         {
             _contentManager = contentManager;
         }

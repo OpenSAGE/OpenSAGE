@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Wnd.Transitions
@@ -12,7 +13,7 @@ namespace OpenSage.Gui.Wnd.Transitions
 
         protected override int FrameDuration => 12;
 
-        public ButtonFlashTransition(WndWindow element, TimeSpan startTime)
+        public ButtonFlashTransition(Control element, TimeSpan startTime)
             : base(element, startTime)
         {
             _startOpacity = element.Opacity;
@@ -28,31 +29,31 @@ namespace OpenSage.Gui.Wnd.Transitions
                     _endOpacity,
                     progress / 3 * FrameDuration);
 
-                Element.OverlayColorOverride = FlashColor;
+                Element.OverlayColor = FlashColor;
             }
             else if (progress < 8.0f / FrameDuration)
             {
                 Element.Opacity = _endOpacity;
 
                 var overlayColor = FlashColor;
-                overlayColor.A = (byte) MathUtility.Lerp(
-                    _endOpacity * 255,
-                    _startOpacity * 255,
+                overlayColor.A = MathUtility.Lerp(
+                    _endOpacity,
+                    _startOpacity,
                     (progress - 3.0f / FrameDuration) / 8 * FrameDuration);
 
-                Element.OverlayColorOverride = overlayColor;
+                Element.OverlayColor = overlayColor;
             }
             else if (progress < 10.0f / FrameDuration)
             {
                 // Nothing
                 Element.Opacity = _endOpacity;
-                Element.OverlayColorOverride = null;
+                Element.OverlayColor = null;
                 Element.BackgroundColorOverride = null;
             }
             else
             {
                 Element.Opacity = _endOpacity;
-                Element.OverlayColorOverride = null;
+                Element.OverlayColor = null;
                 Element.TextOpacity = MathUtility.Lerp(
                     _startOpacity,
                     _endOpacity,
@@ -64,7 +65,7 @@ namespace OpenSage.Gui.Wnd.Transitions
         {
             Element.Opacity = _endOpacity;
             Element.TextOpacity = _endOpacity;
-            Element.OverlayColorOverride = null;
+            Element.OverlayColor = null;
             Element.BackgroundColorOverride = null;
         }
     }

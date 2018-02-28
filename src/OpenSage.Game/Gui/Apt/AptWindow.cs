@@ -1,6 +1,5 @@
 ﻿using OpenSage.Content;
 using OpenSage.Data.Apt;
-using OpenSage.Graphics;
 using OpenSage.Mathematics;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
@@ -12,8 +11,6 @@ namespace OpenSage.Gui.Apt
         private readonly ContentManager _contentManager;
         private readonly AptContext _context;
 
-        private Texture _texture;
-        private DrawingContext2D _primitiveBatch;
         private Rectangle _frame;
         //private float _scale;
 
@@ -41,25 +38,16 @@ namespace OpenSage.Gui.Apt
             //    windowSize,
             //    out _scale);
             _frame = new Rectangle(0, 0, 1024, 768);
-
-            _texture = gd.ResourceFactory.CreateTexture(
-                TextureDescription.Texture2D(
-                    (uint) _frame.Width,
-                    (uint) _frame.Height,
-                    1,
-                    1,
-                    PixelFormat.R8_G8_B8_A8_UNorm,
-                    TextureUsage.Sampled | TextureUsage.RenderTarget));
-
-            _primitiveBatch = new DrawingContext2D(_contentManager, _texture);
         }
 
         internal void Update(GameTime gt, GraphicsDevice gd)
         {
-            _primitiveBatch.Begin(
-                _contentManager.LinearClampSampler,
-                ColorRgbaF.Transparent);
+            Root.Update(gt);
+            Root.RunActions(gt);
+        }
 
+        internal void Render(DrawingContext2D drawingContext)
+        {
             //draw the movieclip.
             //var transform = new ItemTransform(
             //    ColorRgbaF.White,
@@ -67,20 +55,7 @@ namespace OpenSage.Gui.Apt
             //    Vector2.Zero);
             var transform = ItemTransform.None;
 
-            Root.Update(gt);
-            Root.RunActions(gt);
-            Root.Render(transform, _primitiveBatch);
-
-            _primitiveBatch.End();
-        }
-
-        internal void Render(SpriteBatch spriteBatch)
-        {
-            spriteBatch.DrawImage(
-                _texture,
-                null,
-                _frame.ToRectangleF(),
-                ColorRgbaF.White);
+            Root.Render(transform, drawingContext);
         }
     }
 }

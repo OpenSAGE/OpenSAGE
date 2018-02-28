@@ -8,6 +8,7 @@ namespace OpenSage.Mathematics
     {
         public static readonly ColorRgbaF Transparent = new ColorRgbaF();
         public static readonly ColorRgbaF White = new ColorRgbaF(1.0f, 1.0f, 1.0f, 1.0f);
+        public static readonly ColorRgbaF Black = new ColorRgbaF(0.0f, 0.0f, 0.0f, 1.0f);
 
         public float R;
         public float G;

@@ -8,6 +8,8 @@ using OpenSage.Graphics.Effects;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Wnd;
+using OpenSage.Gui.Wnd.Controls;
+using OpenSage.Gui.Wnd.Images;
 using OpenSage.Logic.Object;
 using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
@@ -49,7 +51,7 @@ namespace OpenSage.Content
 
         public TranslationManager TranslationManager { get; }
 
-        internal WndImageTextureCache WndImageTextureCache { get; }
+        internal WndImageLoader WndImageLoader { get; }
 
         public ContentManager(
             Game game,
@@ -72,7 +74,7 @@ namespace OpenSage.Content
                 { typeof(Model), AddDisposable(new ModelLoader()) },
                 { typeof(Scene3D), AddDisposable(new MapLoader()) },
                 { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
-                { typeof(WndTopLevelWindow), AddDisposable(new WindowLoader(this, wndCallbackResolver)) },
+                { typeof(Window), AddDisposable(new WindowLoader(this, wndCallbackResolver)) },
                 { typeof(AptWindow), AddDisposable(new AptLoader()) }
             };
 
@@ -110,7 +112,7 @@ namespace OpenSage.Content
                     4, 4, 1, 1),
                 PixelFormat.R8_G8_B8_A8_UNorm));
 
-            WndImageTextureCache = AddDisposable(new WndImageTextureCache(this, new MappedImageManager(this)));
+            WndImageLoader = AddDisposable(new WndImageLoader(this, new MappedImageLoader(this)));
         }
 
         internal DeviceBuffer GetNullStructuredBuffer(uint size)
@@ -195,7 +197,11 @@ namespace OpenSage.Content
                     AddDisposable(d);
                 }
 
-                _cachedObjects.Add(filePath, asset);
+                var shouldCacheAsset = options?.CacheAsset ?? true;
+                if (shouldCacheAsset)
+                {
+                    _cachedObjects.Add(filePath, asset);
+                }
             }
             else if (fallbackToPlaceholder)
             {

@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Effects;
+using OpenSage.Gui;
 using OpenSage.Mathematics;
 using Veldrid;
 
@@ -22,7 +23,7 @@ namespace OpenSage.Graphics.Rendering
         private readonly ConstantBuffer<LightingConstantsVS> _globalLightingVSObjectBuffer;
         private readonly ConstantBuffer<LightingConstantsPS> _globalLightingPSObjectBuffer;
 
-        private readonly SpriteBatch _spriteBatch;
+        private readonly DrawingContext2D _drawingContext;
 
         public RenderPipeline(Game game)
         {
@@ -39,9 +40,12 @@ namespace OpenSage.Graphics.Rendering
             _globalLightingVSObjectBuffer = AddDisposable(new ConstantBuffer<LightingConstantsVS>(graphicsDevice));
             _globalLightingPSObjectBuffer = AddDisposable(new ConstantBuffer<LightingConstantsPS>(graphicsDevice));
 
-            _spriteBatch = AddDisposable(new SpriteBatch(game.ContentManager, graphicsDevice.SwapchainFramebuffer.OutputDescription));
-
             _commandList = AddDisposable(graphicsDevice.ResourceFactory.CreateCommandList());
+
+            _drawingContext = AddDisposable(new DrawingContext2D(
+                game.ContentManager,
+                BlendStateDescription.SingleAlphaBlend,
+                graphicsDevice.SwapchainFramebuffer.OutputDescription));
         }
 
         public void Execute(RenderContext context)
@@ -187,16 +191,16 @@ namespace OpenSage.Graphics.Rendering
 
             // GUI
             {
-                _spriteBatch.Begin(
+                _drawingContext.Begin(
                     commandEncoder,
                     context.Game.ContentManager.LinearClampSampler,
-                    context.Game.Viewport);
+                    new SizeF(context.Game.Viewport.Width, context.Game.Viewport.Height));
 
-                context.Game.Scene2D.Render(_spriteBatch);
+                context.Game.Scene2D.Render(_drawingContext);
 
-                context.Game.RaiseRendering2D(new Rendering2DEventArgs(_spriteBatch));
+                context.Game.RaiseRendering2D(new Rendering2DEventArgs(_drawingContext));
 
-                _spriteBatch.End();
+                _drawingContext.End();
             }
 
             commandEncoder.End();

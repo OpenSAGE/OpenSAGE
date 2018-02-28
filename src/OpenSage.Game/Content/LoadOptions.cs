@@ -1,7 +1,8 @@
 ﻿namespace OpenSage.Content
 {
-    public abstract class LoadOptions
+    public class LoadOptions
     {
-
+        // TODO: Refactor this, it's not a good API.
+        public bool CacheAsset { get; set; } = true;
     }
 }

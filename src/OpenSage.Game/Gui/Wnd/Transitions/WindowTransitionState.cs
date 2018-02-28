@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data.Ini;
+using OpenSage.Gui.Wnd.Controls;
 
 namespace OpenSage.Gui.Wnd.Transitions
 {
@@ -11,7 +12,7 @@ namespace OpenSage.Gui.Wnd.Transitions
 
         public TimeSpan LastEndTime { get; }
 
-        public WindowTransitionState(WndTopLevelWindow window, WindowTransition transition, TimeSpan currentTime)
+        public WindowTransitionState(Window window, WindowTransition transition, TimeSpan currentTime)
         {
             _operations = transition.Windows
                 .Select(x => WindowTransitionOperation.Create(window, x, currentTime))
