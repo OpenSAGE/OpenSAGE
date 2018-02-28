@@ -2,10 +2,12 @@
 using System.IO;
 using System.Linq;
 using OpenSage.Data;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Rep;
 using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
+using OpenSage.Mathematics;
 using OpenSage.Network;
 
 namespace OpenSage.Mods.Generals
@@ -80,6 +82,10 @@ namespace OpenSage.Mods.Generals
                             QueueTransition("MainMenuSinglePlayerMenu");
                             break;
 
+                        case "MainMenu.wnd:ButtonSkirmish":
+                            context.WindowManager.SetWindow(@"Menus\SkirmishGameOptionsMenu.wnd");
+                            break;
+
                         case "MainMenu.wnd:ButtonSingleBack":
                             QueueTransition("MainMenuSinglePlayerMenuBack");
                             QueueTransition("MainMenuDefaultMenu");
@@ -111,6 +117,10 @@ namespace OpenSage.Mods.Generals
 
                         case "MainMenu.wnd:ButtonOptions":
                             context.WindowManager.PushWindow(@"Menus\OptionsMenu.wnd");
+                            break;
+
+                        case "MainMenu.wnd:ButtonCredits":
+                            context.WindowManager.SetWindow(@"Menus\CreditsMenu.wnd");
                             break;
 
                         case "MainMenu.wnd:ButtonExit":
@@ -242,6 +252,87 @@ namespace OpenSage.Mods.Generals
                     }
                     break;
             }
+        }
+
+        public static void SkirmishGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+        {
+            switch (message.MessageType)
+            {
+                case WndWindowMessageType.SelectedButton:
+                    switch (message.Element.Name)
+                    {
+                        case "SkirmishGameOptionsMenu.wnd:ButtonSelectMap":
+                            context.WindowManager.PushWindow(@"Menus\SkirmishMapSelectMenu.wnd");
+                            break;
+
+                        case "SkirmishGameOptionsMenu.wnd:ButtonBack":
+                            context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
+                            // TODO: Go back to Single Player sub-menu
+                            break;
+                    }
+                    break;
+            }
+        }
+
+        public static void SkirmishMapSelectMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+        {
+            switch (message.MessageType)
+            {
+                case WndWindowMessageType.SelectedButton:
+                    switch (message.Element.Name)
+                    {
+                        case "SkirmishMapSelectMenu.wnd:ButtonBack":
+                            context.WindowManager.PopWindow();
+                            break;
+                    }
+                    break;
+            }
+        }
+
+        public static void CreditsMenuInit(Window window, Game game)
+        {
+            game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\Credits.ini");
+
+            var control = window.Controls.FindControl("CreditsMenu.wnd:WinTextDraw");
+
+            // TODO
+            control.Text = string.Empty;
+            foreach (var line in game.ContentManager.IniDataContext.Credits.Lines)
+            {
+                switch (line)
+                {
+                    case CreditStyleLine sl:
+                        break;
+
+                    case CreditTextLine tl:
+                        control.Text += game.ContentManager.TranslationManager.Lookup(tl.Text) + System.Environment.NewLine;
+                        break;
+
+                    case CreditBlankLine bl:
+                        control.Text += System.Environment.NewLine;
+                        break;
+                }
+            }
+        }
+
+        public static void CreditsMenuUpdate(Window window, Game game)
+        {
+
+        }
+
+        public static void CreditsMenuInput(Control control, WndWindowMessage message, ControlCallbackContext context)
+        {
+            context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
+        }
+
+        public static void W3DCreditsMenuDraw(Control control, DrawingContext2D drawingContext)
+        {
+            drawingContext.DrawText(
+                control.Text,
+                control.Font,
+                TextAlignment.Center,
+                ColorRgbaF.White,
+                control.ClientRectangle);
         }
 
         public static void PassSelectedButtonsToParentSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
