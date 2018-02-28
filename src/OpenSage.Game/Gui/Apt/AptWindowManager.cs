@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using OpenSage.Graphics;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Apt
@@ -46,12 +45,12 @@ namespace OpenSage.Gui.Apt
             }
         }
 
-        internal void Render(SpriteBatch spriteBatch)
+        internal void Render(DrawingContext2D drawingContext)
         {
             // TODO: Try to avoid using LINQ here.
             foreach (var window in _windowStack.Reverse())
             {
-                window.Render(spriteBatch);
+                window.Render(drawingContext);
             }
         }
     }

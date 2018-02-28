@@ -13,7 +13,6 @@ namespace OpenSage.Gui
     {
         private readonly ContentManager _contentManager;
         private readonly GraphicsDevice _graphicsDevice;
-        private readonly Framebuffer _renderTarget;
         private readonly Texture _solidWhiteTexture;
 
         private readonly SpriteBatch _spriteBatch;
@@ -27,25 +26,21 @@ namespace OpenSage.Gui
         private readonly Stack<float> _opacityStack;
         private float _currentOpacity;
 
-        private CommandList _commandEncoder;
+        private CommandList _commandList;
 
         public DrawingContext2D(
             ContentManager contentManager,
-            Texture targetTexture)
+            in BlendStateDescription blendStateDescription,
+            in OutputDescription outputDescription)
         {
             _contentManager = contentManager;
             _graphicsDevice = contentManager.GraphicsDevice;
 
-            _renderTarget = AddDisposable(_graphicsDevice.ResourceFactory.CreateFramebuffer(
-                new FramebufferDescription(null, targetTexture)));
-
             _solidWhiteTexture = contentManager.SolidWhiteTexture;
 
-            _spriteBatch = AddDisposable(new SpriteBatch(contentManager, _renderTarget.OutputDescription));
+            _spriteBatch = AddDisposable(new SpriteBatch(contentManager, blendStateDescription, outputDescription));
 
             _textCache = AddDisposable(new TextCache(contentManager));
-
-            _commandEncoder = AddDisposable(_graphicsDevice.ResourceFactory.CreateCommandList());
 
             _transformStack = new Stack<Matrix3x2>();
             PushTransform(Matrix3x2.Identity);
@@ -55,28 +50,14 @@ namespace OpenSage.Gui
         }
 
         public void Begin(
+            CommandList commandList,
             Sampler samplerState,
-            in ColorRgbaF clearColor)
+            in SizeF outputSize)
         {
-            _commandEncoder.Begin();
-
-            _commandEncoder.SetFramebuffer(_renderTarget);
-
-            _commandEncoder.ClearColorTarget(0, clearColor.ToRgbaFloat());
-
-            var viewport = new Viewport(
-                0, 0,
-                _renderTarget.Width,
-                _renderTarget.Height,
-                0,
-                1);
-
-            _commandEncoder.SetViewport(0, ref viewport);
-
             _spriteBatch.Begin(
-                _commandEncoder,
+                commandList,
                 samplerState,
-                viewport);
+                outputSize);
         }
 
         public void PushTransform(in Matrix3x2 transform)
@@ -272,10 +253,6 @@ namespace OpenSage.Gui
         public void End()
         {
             _spriteBatch.End();
-
-            _commandEncoder.End();
-
-            _graphicsDevice.SubmitCommands(_commandEncoder);
         }
     }
 

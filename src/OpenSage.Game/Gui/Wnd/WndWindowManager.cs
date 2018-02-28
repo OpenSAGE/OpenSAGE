@@ -129,16 +129,16 @@ namespace OpenSage.Gui.Wnd
 
             foreach (var window in _windowStack)
             {
-                window.UpdateTexture();
+                window.Update();
             }
         }
 
-        internal void Render(SpriteBatch spriteBatch)
+        internal void Render(DrawingContext2D drawingContext)
         {
             // TODO: Try to avoid using LINQ here.
             foreach (var window in _windowStack.Reverse())
             {
-                window.Render(spriteBatch);
+                window.Render(drawingContext);
             }
         }
     }

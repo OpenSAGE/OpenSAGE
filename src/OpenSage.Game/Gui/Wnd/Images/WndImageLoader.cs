@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using OpenSage.Content;
 using OpenSage.Data.Wnd;
+using OpenSage.Graphics;
 using OpenSage.Mathematics;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
@@ -50,12 +51,13 @@ namespace OpenSage.Gui.Wnd.Images
                     {
                         result = CreateTexture(
                             cacheKey,
-                            drawingContext =>
+                            spriteBatch =>
                             {
-                                drawingContext.DrawImage(
+                                spriteBatch.DrawImage(
                                     mappedImageTexture.Texture,
                                     mappedImageTexture.SourceRect,
-                                    new Rectangle(Point2D.Zero, size));
+                                    new Rectangle(Point2D.Zero, size).ToRectangleF(),
+                                    ColorRgbaF.White);
                             });
 
                         _cache.Add(cacheKey, result);
@@ -106,25 +108,28 @@ namespace OpenSage.Gui.Wnd.Images
                     {
                         result = CreateTexture(
                             cacheKey,
-                            drawingContext =>
+                            spriteBatch =>
                             {
                                 var leftWidth = leftMappedImageTexture.SourceRect.Width;
                                 var rightWidth = rightMappedImageTexture.SourceRect.Width;
                                 var leftRect = new Rectangle(0, 0, leftWidth, cacheKey.DestinationSize.Height);
-                                drawingContext.DrawImage(
+                                spriteBatch.DrawImage(
                                    leftMappedImageTexture.Texture,
                                    leftMappedImageTexture.SourceRect,
-                                   leftRect);
+                                   leftRect.ToRectangleF(),
+                                   ColorRgbaF.White);
                                 var middleRect = new Rectangle(leftRect.Right, 0, cacheKey.DestinationSize.Width - leftWidth - rightWidth, cacheKey.DestinationSize.Height);
-                                drawingContext.DrawImage(
+                                spriteBatch.DrawImage(
                                    middleMappedImageTexture.Texture,
                                    middleMappedImageTexture.SourceRect,
-                                   middleRect);
+                                   middleRect.ToRectangleF(),
+                                   ColorRgbaF.White);
                                 var rightRect = new Rectangle(middleRect.Right, 0, rightWidth, cacheKey.DestinationSize.Height);
-                                drawingContext.DrawImage(
+                                spriteBatch.DrawImage(
                                    rightMappedImageTexture.Texture,
                                    rightMappedImageTexture.SourceRect,
-                                   rightRect);
+                                   rightRect.ToRectangleF(),
+                                   ColorRgbaF.White);
                             });
 
                         _cache.Add(cacheKey, result);
@@ -151,9 +156,11 @@ namespace OpenSage.Gui.Wnd.Images
 
         private Texture CreateTexture(
             in WndImageKey imageKey,
-            Action<DrawingContext2D> drawCallback)
+            Action<SpriteBatch> drawCallback)
         {
-            var imageTexture = AddDisposable(_contentManager.GraphicsDevice.ResourceFactory.CreateTexture(
+            var graphicsDevice = _contentManager.GraphicsDevice;
+
+            var imageTexture = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(
                 TextureDescription.Texture2D(
                     (uint) imageKey.DestinationSize.Width,
                     (uint) imageKey.DestinationSize.Height,
@@ -164,16 +171,38 @@ namespace OpenSage.Gui.Wnd.Images
 
             imageTexture.Name = "WndImage";
 
-            using (var drawingContext = new DrawingContext2D(_contentManager, imageTexture))
-            {
-                drawingContext.Begin(
-                    _contentManager.PointClampSampler,
-                    ColorRgbaF.Transparent);
+            var framebuffer = graphicsDevice.ResourceFactory.CreateFramebuffer(new FramebufferDescription(null, imageTexture));
+            var spriteBatch = new SpriteBatch(_contentManager, BlendStateDescription.SingleDisabled, framebuffer.OutputDescription);
+            var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
 
-                drawCallback(drawingContext);
+            commandList.Begin();
 
-                drawingContext.End();
-            }
+            commandList.SetFramebuffer(framebuffer);
+
+            spriteBatch.Begin(
+                commandList,
+                _contentManager.PointClampSampler,
+                new SizeF(imageTexture.Width, imageTexture.Height));
+
+            spriteBatch.DrawImage(
+                _contentManager.SolidWhiteTexture,
+                null,
+                new RectangleF(0, 0, imageTexture.Width, imageTexture.Height),
+                ColorRgbaF.Transparent);
+
+            drawCallback(spriteBatch);
+
+            spriteBatch.End();
+
+            commandList.End();
+
+            graphicsDevice.SubmitCommands(commandList);
+
+            graphicsDevice.DisposeWhenIdle(commandList);
+            graphicsDevice.DisposeWhenIdle(spriteBatch);
+            graphicsDevice.DisposeWhenIdle(framebuffer);
+
+            graphicsDevice.WaitForIdle();
 
             return imageTexture;
         }

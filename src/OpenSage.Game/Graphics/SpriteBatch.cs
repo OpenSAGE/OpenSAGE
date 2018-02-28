@@ -23,11 +23,15 @@ namespace OpenSage.Graphics
 
         private CommandList _commandEncoder;
 
-        public SpriteBatch(ContentManager contentManager, in OutputDescription outputDescription)
+        public SpriteBatch(ContentManager contentManager, in BlendStateDescription blendStateDescription, in OutputDescription outputDescription)
         {
             _graphicsDevice = contentManager.GraphicsDevice;
 
-            _material = AddDisposable(new SpriteMaterial(contentManager, contentManager.EffectLibrary.Sprite, outputDescription));
+            _material = AddDisposable(new SpriteMaterial(
+                contentManager,
+                contentManager.EffectLibrary.Sprite,
+                blendStateDescription,
+                outputDescription));
 
             _materialConstantsVSBuffer = AddDisposable(new ConstantBuffer<SpriteMaterial.MaterialConstantsVS>(contentManager.GraphicsDevice));
 
@@ -48,7 +52,7 @@ namespace OpenSage.Graphics
         public void Begin(
             CommandList commandEncoder,
             Sampler samplerState,
-            in Viewport viewport)
+            in SizeF outputSize)
         {
             _commandEncoder = commandEncoder;
 
@@ -58,8 +62,8 @@ namespace OpenSage.Graphics
 
             _materialConstantsVSBuffer.Value.Projection = Matrix4x4.CreateOrthographicOffCenter(
                0,
-               viewport.Width,
-               viewport.Height,
+               outputSize.Width,
+               outputSize.Height,
                0,
                0,
                -1);
