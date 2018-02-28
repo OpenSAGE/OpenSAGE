@@ -15,13 +15,10 @@ namespace OpenSage.Content
             switch (game)
             {
                 case SageGame.CncGenerals:
+                case SageGame.CncGeneralsZeroHour:
                     csfEntry = fileSystem.GetFile(@"Data\English\generals.csf");
                     break;
-                case SageGame.CncGeneralsZeroHour:
-                    break;
                 case SageGame.BattleForMiddleEarth:
-                    csfEntry = fileSystem.GetFile(@"lotr.csf");
-                    break;
                 case SageGame.BattleForMiddleEarthII:
                     csfEntry = fileSystem.GetFile(@"lotr.csf");
                     break;
