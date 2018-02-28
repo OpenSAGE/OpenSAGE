@@ -12,6 +12,8 @@ namespace OpenSage.Audio
         private IntPtr _context;
 
         private List<AudioSource> _sources;
+        private Dictionary<string, AudioBuffer> _files;
+
 
         internal static void alCheckError()
         {
@@ -47,19 +49,36 @@ namespace OpenSage.Audio
             alcCheckError();
 
             _sources = new List<AudioSource>();
+            _files = new Dictionary<string, AudioBuffer>();
         }
 
         protected override void Dispose(bool disposeManagedResources)
         {
+            base.Dispose(disposeManagedResources);
+            _sources.Clear();
+            _files.Clear();
+
+
             ALC10.alcMakeContextCurrent(IntPtr.Zero);
             ALC10.alcDestroyContext(_context);
             ALC10.alcCloseDevice(_device);
+          
         }
 
         public AudioSource PlayFile(string fileName,bool loop=false)
         {
-            var file = Game.ContentManager.Load<WavFile>(fileName);
-            var buffer = AddDisposable(new AudioBuffer(file));
+            AudioBuffer buffer = null;
+            if (!_files.ContainsKey(fileName))
+            {
+                var file = Game.ContentManager.Load<WavFile>(fileName);
+                buffer = AddDisposable(new AudioBuffer(file));
+                _files[fileName] = buffer;
+            }
+            else
+            {
+                buffer = _files[fileName];
+            }
+
             var source = AddDisposable(new AudioSource(buffer));
 
             if(loop)

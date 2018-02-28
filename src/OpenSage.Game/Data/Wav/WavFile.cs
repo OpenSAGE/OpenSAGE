@@ -91,10 +91,17 @@ namespace OpenSage.Data.Wav
                 throw new InvalidDataException("Invalid .wav file!");
             }
 
+            if(_format.AudioFormat!=1)
+            {
+                throw new NotSupportedException("Invalid .wav compression!");
+            }
+
+            //probably a compressed format
             if (_format.SubChunkSize > 16)
-                reader.BaseStream.Seek(2, SeekOrigin.Current);
-
-
+            {
+                reader.BaseStream.Seek(_format.SubChunkSize - 16, SeekOrigin.Current);
+            }
+                
             _data = WaveData.Parse(reader);
 
             if (new string(_data.SubChunkID) != "data")
