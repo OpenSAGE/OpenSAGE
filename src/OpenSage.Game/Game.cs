@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using OpenSage.Content;
+using OpenSage.Audio;
 using OpenSage.Data;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Rendering;
@@ -61,6 +62,11 @@ namespace OpenSage
         /// Gets the debug entity picker system.
         /// </summary>
         public DebugEntityPickerSystem EntityPicker { get; }
+
+        /// <summary>
+        /// Gets the audio system
+        /// </summary>
+        public AudioSystem Audio { get; }
 
         public int FrameCount { get; private set; }
 
@@ -202,6 +208,8 @@ namespace OpenSage
             }
 
             GameSystems = new List<GameSystem>();
+
+            Audio = AddDisposable(new AudioSystem(this));
 
             Graphics = AddDisposable(new GraphicsSystem(this));
 

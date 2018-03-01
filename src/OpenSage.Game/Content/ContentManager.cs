@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenSage.Audio;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
+using OpenSage.Data.Wav;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
 using OpenSage.Gui;
@@ -75,7 +77,8 @@ namespace OpenSage.Content
                 { typeof(Scene3D), AddDisposable(new MapLoader()) },
                 { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
                 { typeof(Window), AddDisposable(new WindowLoader(this, wndCallbackResolver)) },
-                { typeof(AptWindow), AddDisposable(new AptLoader()) }
+                { typeof(AptWindow), AddDisposable(new AptLoader()) },
+                { typeof(WavFile), AddDisposable(new WavLoader()) },
             };
 
             _cachedObjects = new Dictionary<string, object>();
