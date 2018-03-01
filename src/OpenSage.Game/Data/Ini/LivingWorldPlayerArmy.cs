@@ -3,7 +3,7 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldPlayerArmy
     {
         internal static LivingWorldPlayerArmy Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -30,7 +30,7 @@ namespace OpenSage.Data.Ini
         public List<LivingWorldPlayerArmyEntry> ArmyEntries { get; } = new List<LivingWorldPlayerArmyEntry>();
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldPlayerArmyEntry
     {
         internal static LivingWorldPlayerArmyEntry Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);

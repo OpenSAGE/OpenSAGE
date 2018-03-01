@@ -7,7 +7,7 @@ namespace OpenSage.Mods.BFME
 {
     public class BfmeDefinition : IGameDefinition
     {
-        public SageGame Game => SageGame.BattleForMiddleEarth;
+        public SageGame Game => SageGame.Bfme;
         public string DisplayName => "The Lord of the Rings (tm): The Battle for Middle-earth (tm)";
         public IGameDefinition BaseGame => null;
 

@@ -20,7 +20,7 @@ namespace OpenSage.Data.Map
 
         EndCap = 128,
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         Unknown3 = 256,
 
         [AddedIn(SageGame.Cnc4)]

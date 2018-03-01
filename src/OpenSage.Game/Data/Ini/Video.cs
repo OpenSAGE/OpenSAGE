@@ -24,10 +24,10 @@ namespace OpenSage.Data.Ini
         public string Filename { get; private set; }
         public string Comment { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int Volume { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool IsDefault { get; private set; }
     }
 }

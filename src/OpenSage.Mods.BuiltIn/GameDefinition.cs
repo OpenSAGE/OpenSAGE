@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Mods.Generals;
 using OpenSage.Mods.BFME;
-using OpenSage.Mods.BfmeII;
+using OpenSage.Mods.Bfme2;
 using OpenSage.Mods.Cnc4;
 using OpenSage.Mods.CnC3;
 using OpenSage.Mods.Ra3;
@@ -31,8 +31,9 @@ namespace OpenSage.Mods.BuiltIn
             {
                 [SageGame.CncGenerals] = GeneralsDefinition.Instance,
                 [SageGame.CncGeneralsZeroHour] = GeneralsZeroHourDefinition.Instance,
-                [SageGame.BattleForMiddleEarth] = BfmeDefinition.Instance,
-                [SageGame.BattleForMiddleEarthII] = BfmeIIDefinition.Instance,
+                [SageGame.Bfme] = BfmeDefinition.Instance,
+                [SageGame.Bfme2] = Bfme2Definition.Instance,
+                [SageGame.Bfme2Rotwk] = Bfme2RotwkDefinition.Instance,
                 [SageGame.Cnc3] = Cnc3Definition.Instance,
                 [SageGame.Cnc3KanesWrath] = Cnc3KanesWrathDefinition.Instance,
                 [SageGame.Ra3] = Ra3Definition.Instance,

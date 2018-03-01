@@ -29,7 +29,7 @@ namespace OpenSage.Data.Ini
         public UpgradeType Type { get; private set; } = UpgradeType.Player;
         public string DisplayName { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string Tooltip { get; private set; }
 
         public float BuildTime { get; private set; }

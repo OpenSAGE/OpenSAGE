@@ -343,49 +343,49 @@ namespace OpenSage.Logic.Object
         [IniEnum("TAKING_DAMAGE"), AddedIn(SageGame.CncGeneralsZeroHour)]
         TakingDamage,
 
-        [IniEnum("HERO"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("HERO"), AddedIn(SageGame.Bfme)]
         Hero,
 
-        [IniEnum("UPGRADE_ECONOMY_BONUS"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("UPGRADE_ECONOMY_BONUS"), AddedIn(SageGame.Bfme)]
         UpgradeEconomyBonus,
 
-        [IniEnum("WAR_CHANT"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("WAR_CHANT"), AddedIn(SageGame.Bfme)]
         WarChant,
 
-        [IniEnum("JUST_BUILT"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("JUST_BUILT"), AddedIn(SageGame.Bfme)]
         JustBuilt,
 
-        [IniEnum("EMOTION_AFRAID"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("EMOTION_AFRAID"), AddedIn(SageGame.Bfme)]
         EmotionAfraid,
 
-        [IniEnum("WEAPONSET_TOGGLE_1"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("WEAPONSET_TOGGLE_1"), AddedIn(SageGame.Bfme)]
         WeaponSetToggle1,
 
-        [IniEnum("MOUNTED"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("MOUNTED"), AddedIn(SageGame.Bfme)]
         Mounted,
 
-        [IniEnum("WEAPONLOCK_SECONDARY"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("WEAPONLOCK_SECONDARY"), AddedIn(SageGame.Bfme)]
         WeaponLockSecondary,
 
-        [IniEnum("EMOTION_TAUNTING"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("EMOTION_TAUNTING"), AddedIn(SageGame.Bfme)]
         EmotionTaunting,
 
-        [IniEnum("EMOTION_ALERT"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("EMOTION_ALERT"), AddedIn(SageGame.Bfme)]
         EmotionAlert,
 
-        [IniEnum("EMOTION_CELEBRATING"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("EMOTION_CELEBRATING"), AddedIn(SageGame.Bfme)]
         EmotionCelebrating,
 
-        [IniEnum("EMOTION_UNCONTROLLABLY_AFRAID"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("EMOTION_UNCONTROLLABLY_AFRAID"), AddedIn(SageGame.Bfme)]
         EmotionUncontrollablyAfraid,
 
-        [IniEnum("EMOTION_TERROR"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("EMOTION_TERROR"), AddedIn(SageGame.Bfme)]
         EmotionTerror,
 
-        [IniEnum("EMOTION_POINTING"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("EMOTION_POINTING"), AddedIn(SageGame.Bfme)]
         EmotionPointing,
 
-        [IniEnum("EMOTION_DOOM"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("EMOTION_DOOM"), AddedIn(SageGame.Bfme)]
         EmotionDoom,
     }
 }

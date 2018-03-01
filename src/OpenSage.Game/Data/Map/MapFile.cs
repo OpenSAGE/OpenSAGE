@@ -21,21 +21,21 @@ namespace OpenSage.Data.Map
         public BlendTileData BlendTileData { get; private set; }
         public WorldInfo WorldInfo { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public MPPositionList MPPositionList { get; private set; }
 
         public SidesList SidesList { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public LibraryMapLists LibraryMapLists { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public Teams Teams { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public PlayerScriptsList PlayerScriptsList { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public BuildLists BuildLists { get; private set; }
 
         public ObjectsList ObjectsList { get; private set; }
@@ -43,7 +43,7 @@ namespace OpenSage.Data.Map
         // Either PolygonTriggers (Generals, ZH, BFME I) or TriggerAreas + StandingWaterAreas + RiverAreas + StandingWaveAreas (BFME II and later)
         public PolygonTriggers PolygonTriggers { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public TriggerAreas TriggerAreas { get; private set; }
 
         [AddedIn(SageGame.Cnc3)]
@@ -58,32 +58,32 @@ namespace OpenSage.Data.Map
         [AddedIn(SageGame.Ra3)]
         public MissionObjectives MissionObjectives { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public StandingWaterAreas StandingWaterAreas { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public RiverAreas RiverAreas { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public StandingWaveAreas StandingWaveAreas { get; private set; }
 
         public GlobalLighting GlobalLighting { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public PostEffectsChunk PostEffectsChunk { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public EnvironmentData EnvironmentData { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public NamedCameras NamedCameras { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public CameraAnimationList CameraAnimationList { get; private set; }
 
         public WaypointsList WaypointsList { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public SkyboxSettings SkyboxSettings { get; private set; }
 
         public PlayerScriptsList GetPlayerScriptsList() => SidesList.PlayerScripts ?? PlayerScriptsList;

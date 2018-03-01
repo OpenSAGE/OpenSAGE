@@ -16,7 +16,7 @@ namespace OpenSage.Tests.Data.Apt
             _output = output;
         }
 
-        [GameFact(SageGame.BattleForMiddleEarth, SageGame.BattleForMiddleEarthII)]
+        [GameFact(SageGame.Bfme, SageGame.Bfme2, SageGame.Bfme2Rotwk)]
         public void CanReadConstFiles()
         {
             InstalledFilesTestData.ReadFiles(".const", _output, entry =>
@@ -27,10 +27,10 @@ namespace OpenSage.Tests.Data.Apt
             });
         }
 
-        [GameFact(SageGame.BattleForMiddleEarthII)]
+        [GameFact(SageGame.Bfme2)]
         public void CheckEntryCount()
         {
-            var bigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(SageGame.BattleForMiddleEarthII), "apt/MainMenu.big");
+            var bigFilePath = Path.Combine(InstalledFilesTestData.GetInstallationDirectory(SageGame.Bfme2), "apt/MainMenu.big");
 
             using (var bigArchive = new BigArchive(bigFilePath))
             {

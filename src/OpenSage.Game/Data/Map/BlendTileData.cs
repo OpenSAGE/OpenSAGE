@@ -19,25 +19,25 @@ namespace OpenSage.Data.Map
 
         public bool[,] Impassability { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool[,] ImpassabilityToPlayers { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool[,] PassageWidths { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool[,] Taintability { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool[,] ExtraPassability { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public TileFlammability[,] Flammability { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public bool[,] Visibility { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool[,] ImpassabilityToAirUnits { get; private set; }
 
         [AddedIn(SageGame.Cnc3)]
@@ -363,7 +363,7 @@ namespace OpenSage.Data.Map
         }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarthII)]
+    [AddedIn(SageGame.Bfme2)]
     public enum TileFlammability
     {
         FireResistant = 0,

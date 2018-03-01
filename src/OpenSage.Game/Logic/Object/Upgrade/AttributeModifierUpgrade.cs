@@ -2,7 +2,7 @@
 
 namespace OpenSage.Logic.Object
 {
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class AttributeModifierUpgradeModuleData : UpgradeModuleData
     {
         internal static AttributeModifierUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);

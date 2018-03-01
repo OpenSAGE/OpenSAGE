@@ -3,7 +3,7 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FontSubstitution
     {
         internal static FontSubstitution Parse(IniParser parser)
@@ -27,7 +27,7 @@ namespace OpenSage.Data.Ini
         public List<Substitution> Substitutions { get; } = new List<Substitution>();
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class Substitution
     {
         public int Size { get; private set; }

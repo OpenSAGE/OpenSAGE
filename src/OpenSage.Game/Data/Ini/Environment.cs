@@ -2,7 +2,7 @@
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class Environment
     {
         public CloudEffect CloudEffect { get; internal set; }
@@ -11,7 +11,7 @@ namespace OpenSage.Data.Ini
         public RingEffect RingEffect { get; internal set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class GlowEffect
     {
         internal static GlowEffect Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
@@ -42,7 +42,7 @@ namespace OpenSage.Data.Ini
         public bool MultipassGlowEnabled { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class RingEffect
     {
         internal static RingEffect Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
@@ -75,7 +75,7 @@ namespace OpenSage.Data.Ini
         public int BaseBlurDiameter { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class CloudEffect
     {
         internal static CloudEffect Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);

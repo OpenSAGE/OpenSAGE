@@ -2,7 +2,7 @@
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class AmbientStream : BaseSingleSound
     {
         internal static AmbientStream Parse(IniParser parser)
@@ -21,7 +21,7 @@ namespace OpenSage.Data.Ini
         public string Filename { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public enum AudioVolumeSlider
     {
         [IniEnum("MUSIC")]

@@ -3,7 +3,7 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldCampaign
     {
         internal static LivingWorldCampaign Parse(IniParser parser)
@@ -27,7 +27,7 @@ namespace OpenSage.Data.Ini
         public List<LivingWorldCampaignAct> Acts { get; } = new List<LivingWorldCampaignAct>();
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldCampaignAct
     {
         internal static LivingWorldCampaignAct Parse(IniParser parser)
@@ -64,13 +64,13 @@ namespace OpenSage.Data.Ini
         public List<LivingWorldCampaignActNugget> Nuggets { get; } = new List<LivingWorldCampaignActNugget>();
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public abstract class LivingWorldCampaignActNugget
     {
 
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldCampaignActWorldText : LivingWorldCampaignActNugget
     {
         internal static LivingWorldCampaignActWorldText Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -85,7 +85,7 @@ namespace OpenSage.Data.Ini
         public string StringTag { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldCampaignActAudioEvent : LivingWorldCampaignActNugget
     {
         internal static LivingWorldCampaignActAudioEvent Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -102,7 +102,7 @@ namespace OpenSage.Data.Ini
         public bool SummaryEvent { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldCampaignActDespawnArmy : LivingWorldCampaignActNugget
     {
         internal static LivingWorldCampaignActDespawnArmy Parse(IniParser parser) => new LivingWorldCampaignActDespawnArmy { Name = parser.ParseAssetReference() };
@@ -110,7 +110,7 @@ namespace OpenSage.Data.Ini
         public string Name { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldCampaignActSplineCamera : LivingWorldCampaignActNugget
     {
         internal static LivingWorldCampaignActSplineCamera Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -125,7 +125,7 @@ namespace OpenSage.Data.Ini
         public List<LivingWorldControlPoint> ControlPoints { get; } = new List<LivingWorldControlPoint>();
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldCampaignActSpawnArmy : LivingWorldCampaignActNugget
     {
         internal static LivingWorldCampaignActSpawnArmy Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -158,7 +158,7 @@ namespace OpenSage.Data.Ini
         public bool IsCity { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldCampaignActToggleArmyControl : LivingWorldCampaignActNugget
     {
         internal static LivingWorldCampaignActToggleArmyControl Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -173,7 +173,7 @@ namespace OpenSage.Data.Ini
         public bool PlayerControl { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldCampaignActEnableRegion : LivingWorldCampaignActNugget
     {
         internal static LivingWorldCampaignActEnableRegion Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -186,7 +186,7 @@ namespace OpenSage.Data.Ini
         public string Region { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldCampaignActMoveArmy : LivingWorldCampaignActNugget
     {
         internal static LivingWorldCampaignActMoveArmy Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -207,7 +207,7 @@ namespace OpenSage.Data.Ini
         public float MoveSpeed { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldCampaignActForceBattle : LivingWorldCampaignActNugget
     {
         internal static LivingWorldCampaignActForceBattle Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -226,7 +226,7 @@ namespace OpenSage.Data.Ini
         public Coord2D ArmyAttackDirection { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldCampaignActEyeTowerPoints : LivingWorldCampaignActNugget
     {
         internal static LivingWorldCampaignActEyeTowerPoints Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -239,7 +239,7 @@ namespace OpenSage.Data.Ini
         public List<Coord2D> LookPoints { get; } = new List<Coord2D>();
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldCampaignActMoveCamera : LivingWorldCampaignActNugget
     {
         internal static LivingWorldCampaignActMoveCamera Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -258,7 +258,7 @@ namespace OpenSage.Data.Ini
         public float ScrollTime { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldCampaignActModifyArmyEntry : LivingWorldCampaignActNugget
     {
         internal static LivingWorldCampaignActModifyArmyEntry Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -275,7 +275,7 @@ namespace OpenSage.Data.Ini
         public string NewUnitTemplate { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldCampaignActMergePlayerArmy : LivingWorldCampaignActNugget
     {
         internal static LivingWorldCampaignActMergePlayerArmy Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -294,7 +294,7 @@ namespace OpenSage.Data.Ini
         public bool SplitArmy { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldCampaignActRegionReinforcements : LivingWorldCampaignActNugget
     {
         internal static LivingWorldCampaignActRegionReinforcements Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);

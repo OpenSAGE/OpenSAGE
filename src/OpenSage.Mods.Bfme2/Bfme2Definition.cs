@@ -4,11 +4,11 @@ using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 
-namespace OpenSage.Mods.BfmeII
+namespace OpenSage.Mods.Bfme2
 {
-    public class BfmeIIDefinition : IGameDefinition
+    public class Bfme2Definition : IGameDefinition
     {
-        public SageGame Game => SageGame.BattleForMiddleEarthII;
+        public SageGame Game => SageGame.Bfme2;
         public string DisplayName => "The Lord of the Rings (tm): The Battle for Middle-earth (tm) II";
         public IGameDefinition BaseGame => null;
 
@@ -24,6 +24,6 @@ namespace OpenSage.Mods.BfmeII
 
         public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");
 
-        public static BfmeIIDefinition Instance { get; } = new BfmeIIDefinition();
+        public static Bfme2Definition Instance { get; } = new Bfme2Definition();
     }
 }

@@ -4,7 +4,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldRegionCampaign
     {
         internal static LivingWorldRegionCampaign Parse(IniParser parser)
@@ -80,7 +80,7 @@ namespace OpenSage.Data.Ini
         public List<LivingWorldRegionCampaignRegion> Regions { get; } = new List<LivingWorldRegionCampaignRegion>();
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldRegionCampaignEffect
     {
         internal static LivingWorldRegionCampaignEffect Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -95,7 +95,7 @@ namespace OpenSage.Data.Ini
         public List<LivingWorldControlPoint> ControlPoints { get; } = new List<LivingWorldControlPoint>();
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldControlPoint
     {
         internal static LivingWorldControlPoint Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -125,7 +125,7 @@ namespace OpenSage.Data.Ini
         public float Time { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldRegionCampaignRegion
     {
         internal static LivingWorldRegionCampaignRegion Parse(IniParser parser)
@@ -201,7 +201,7 @@ namespace OpenSage.Data.Ini
         public List<Coord2D> ArmyPlacementPositions { get; } = new List<Coord2D>();
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldRegionCampaignRegionSkirmishOpponent
     {
         internal static LivingWorldRegionCampaignRegionSkirmishOpponent Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);

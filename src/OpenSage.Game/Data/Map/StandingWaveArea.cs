@@ -4,7 +4,7 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Map
 {
-    [AddedIn(SageGame.BattleForMiddleEarthII)]
+    [AddedIn(SageGame.Bfme2)]
     public sealed class StandingWaveArea
     {
         public uint UniqueID { get; private set; }

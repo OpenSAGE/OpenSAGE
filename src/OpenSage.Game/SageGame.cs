@@ -4,8 +4,9 @@
     {
         CncGenerals,
         CncGeneralsZeroHour,
-        BattleForMiddleEarth,
-        BattleForMiddleEarthII,
+        Bfme,
+        Bfme2,
+        Bfme2Rotwk,
         Cnc3,
         Cnc3KanesWrath,
         Ra3,

@@ -208,13 +208,13 @@ namespace OpenSage.Data.Ini
         public ColorRgba Color { get; private set; }
         public bool OnlyVisibleToOwningPlayer { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int MinRadius { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int MaxRadius { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int MaxSelectedUnits { get; private set; }
     }
 
@@ -226,7 +226,7 @@ namespace OpenSage.Data.Ini
         [IniEnum("SHADOW_ADDITIVE_DECAL")]
         ShadowAdditiveDecal,
 
-        [IniEnum("SHADOW_MERGE_DECAL"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("SHADOW_MERGE_DECAL"), AddedIn(SageGame.Bfme)]
         ShadowMergeDecal
     }
 }

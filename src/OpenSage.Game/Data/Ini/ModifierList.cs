@@ -7,7 +7,7 @@ namespace OpenSage.Data.Ini
     /// <summary>
     /// A set of bonuses that can given together as a package.
     /// </summary>
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class ModifierList
     {
         internal static ModifierList Parse(IniParser parser)
@@ -51,7 +51,7 @@ namespace OpenSage.Data.Ini
         public ModifierUpgrade? Upgrade { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public struct Modifier
     {
         internal static Modifier Parse(IniParser parser)
@@ -67,7 +67,7 @@ namespace OpenSage.Data.Ini
         public float Amount;
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public struct ModifierUpgrade
     {
         internal static ModifierUpgrade Parse(IniParser parser)
@@ -83,7 +83,7 @@ namespace OpenSage.Data.Ini
         public int Delay;
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public enum ModifierCategory
     {
         [IniEnum("LEADERSHIP")]
@@ -105,7 +105,7 @@ namespace OpenSage.Data.Ini
         Level
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public enum ModifierType
     {
         [IniEnum("ARMOR")]

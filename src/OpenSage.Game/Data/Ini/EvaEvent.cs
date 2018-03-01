@@ -31,12 +31,12 @@ namespace OpenSage.Data.Ini
         public int Priority { get; private set; }
         public int TimeBetweenChecksMS { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int TimeBetweenEventsMS { get; private set; }
 
         public int ExpirationTimeMS { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int QuietTimeMS { get; private set; }
 
         public List<EvaSideSound> SideSounds { get; } = new List<EvaSideSound>();

@@ -2,7 +2,7 @@
 
 namespace OpenSage.Logic.Object
 {
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class TemporarilyDefectUpdateModuleData : UpdateModuleData
     {
         internal static TemporarilyDefectUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);

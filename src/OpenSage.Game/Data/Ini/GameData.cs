@@ -599,7 +599,9 @@ namespace OpenSage.Data.Ini
             { "DebugCashValueMapTileDuration", (parser, x) => x.DebugCashValueMapTileDuration = parser.ParseInteger() },
             { "MaxDebugCashValueMapValue", (parser, x) => x.MaxDebugCashValueMapValue = parser.ParseInteger() },
 
-            { "VTune", (parser, x) => x.VTune = parser.ParseBoolean() }
+            { "VTune", (parser, x) => x.VTune = parser.ParseBoolean() },
+
+            { "ShellMapOn", (parser, x) => x.ShellMapOn = parser.ParseBoolean() }
         };
 
         public string ShellMapName { get; private set; }
@@ -609,17 +611,17 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.Cnc3)]
         public float MoveHintZBias { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool ShowProps { get; private set; }
 
         public bool UseTrees { get; private set; }
         public bool UseFpsLimit { get; private set; }
         public int FramesPerSecondLimit { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool UseHighQualityVideo { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool DisablePixelShader { get; private set; }
 
         public int ChipsetType { get; private set; }
@@ -627,14 +629,14 @@ namespace OpenSage.Data.Ini
         public bool Wireframe { get; private set; }
         public bool UseCloudMap { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public bool AllowTreeFading { get; private set; }
 
         public bool UseLightMap { get; private set; }
         public bool BilinearTerrainTex { get; private set; }
         public bool TrilinearTerrainTex { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool AnisotropicTerrainTex { get; private set; }
 
         public bool MultiPassTerrain { get; private set; }
@@ -654,19 +656,19 @@ namespace OpenSage.Data.Ini
         public bool UseShadowVolumes { get; private set; }
         public bool UseShadowDecals { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public bool UseShadowMapping { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool ShowSelectedUnitMarker { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool UseSimpleHordeDecals { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool UseSimpleMergeDecals { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float OpacityOfSimpleMergeDecals { get; private set; }
 
         public bool UseBehindBuildingMarker { get; private set; }
@@ -752,25 +754,25 @@ namespace OpenSage.Data.Ini
         public float SkyBoxPositionZ { get; private set; }
         public float SkyBoxScale { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float DefaultCameraMinHeight { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float DefaultCameraMaxHeight { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float DefaultCameraPitchAngle { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float DefaultCameraYawAngle { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float DefaultCameraScrollSpeedScalar { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float CameraLockHeightDelta { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float CameraTerrainSampleRadiusForHeight { get; private set; }
 
         [AddedIn(SageGame.Cnc3)]
@@ -785,7 +787,7 @@ namespace OpenSage.Data.Ini
         public float MaxCameraHeight { get; private set; }
         public float MinCameraHeight { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool UseCameraInReplay { get; private set; }
 
         public float CameraAdjustSpeed { get; private set; }
@@ -804,7 +806,7 @@ namespace OpenSage.Data.Ini
 
         public float PartitionCellSize { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float TerrainResourceCellSize { get; private set; }
 
         public float ParticleScale { get; private set; }
@@ -854,10 +856,10 @@ namespace OpenSage.Data.Ini
         public float GetHealedAnimationTime { get; private set; }
         public float GetHealedAnimationZRise { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string GenericDamageFieldName { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string GenericDamageWarningName { get; private set; }
 
         public int MaxTerrainTracks { get; private set; }
@@ -934,172 +936,172 @@ namespace OpenSage.Data.Ini
         public int MaxRoadIndex { get; private set; }
         public int MaxRoadTypes { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int GoodCommandPointLimit { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int EvilCommandPointLimit { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int PowerLimit { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float ResourceMultiplierLimit { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int InitialMaxRingLevel { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public bool SkipMapUnroll { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float ResourceBonusMultiplier { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public CommandPoints GoodCommandPoints { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public CommandPoints EvilCommandPoints { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int GoodCommandPointsBonus { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int EvilCommandPointsBonus { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public CommandPoints GoodCommandPointsAI { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public CommandPoints EvilCommandPointsAI { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public CommandPoints GoodCommandPointsMP2 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public CommandPoints EvilCommandPointsMP2 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public CommandPoints GoodCommandPointsMP3 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public CommandPoints EvilCommandPointsMP3 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public CommandPoints GoodCommandPointsMP4 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public CommandPoints EvilCommandPointsMP4 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public CommandPoints GoodCommandPointsMP5 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public CommandPoints EvilCommandPointsMP5 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public CommandPoints GoodCommandPointsMP6 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public CommandPoints EvilCommandPointsMP6 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public CommandPoints GoodCommandPointsMP7 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public CommandPoints EvilCommandPointsMP7 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public CommandPoints GoodCommandPointsMP8 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public CommandPoints EvilCommandPointsMP8 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public CommandPoints GoodCommandPointsMP56 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public CommandPoints EvilCommandPointsMP56 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public CommandPoints GoodCommandPointsMP78 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public CommandPoints EvilCommandPointsMP78 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public MultiPlayerTuningFactor MultiPlayMoneyMult { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public MultiPlayerTuningFactor MultiPlayUnitXPMult { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public MultiPlayerTuningFactor MultiPlayBuildingXPMult { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public MultiPlayerTuningFactor MultiPlayUnitSpeedMult { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public MultiPlayerTuningFactor MultiPlayBuildingSpeedMult { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed5 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed10 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed15 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed20 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed25 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed30 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed35 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed40 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed45 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed50 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed55 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed60 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed65 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed70 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed75 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed80 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed85 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed90 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed95 { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float HandicapBuildSpeed100 { get; private set; }
 
         public int ValuePerSupplyBox { get; private set; }
@@ -1107,7 +1109,7 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.Cnc3)]
         public int SupplyBoxesPerTibCrystal { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int SupplyBoxesPerTree { get; private set; }
 
         [AddedIn(SageGame.Cnc3)]
@@ -1140,10 +1142,10 @@ namespace OpenSage.Data.Ini
         public float HorizontalScrollSpeedFactor { get; private set; }
         public float VerticalScrollSpeedFactor { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float ScreenEdgeScrollSpeedFactor { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float ScreenEdgeScrollRampTime { get; private set; }
 
         public float KeyboardScrollSpeedFactor { get; private set; }
@@ -1162,7 +1164,7 @@ namespace OpenSage.Data.Ini
         public float HumanSoloPlayerHealthBonusNormal { get; private set; }
         public float HumanSoloPlayerHealthBonusHard { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float AttributeModifierArmorMaxBonus { get; private set; }
 
         public int GroupSelectMinSelectSize { get; private set; }
@@ -1170,7 +1172,7 @@ namespace OpenSage.Data.Ini
         public float GroupSelectVolumeIncrement { get; private set; }
         public int MaxUnitSelectSounds { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float DamageRadiusMinimumForSplash { get; private set; }
 
         public float SelectionFlashSaturationFactor { get; private set; }
@@ -1207,16 +1209,16 @@ namespace OpenSage.Data.Ini
         public byte FogAlpha { get; private set; }
         public byte ShroudAlpha { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool TaintOn { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public IniColorRgb TaintColor { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public byte TaintAlpha { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public IniColorRgb ElvenWoodColor { get; private set; }
 
         public int NetworkFpsHistoryLength { get; private set; }
@@ -1233,283 +1235,283 @@ namespace OpenSage.Data.Ini
 
         public string UserDataLeafName { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int DefaultVoiceAttackChargeTimeout { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int DefaultMaxDistanceForEngaged { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int DefaultEngagedStateTimeout { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int AnimationSharingCap { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int AnimationSharingFrameTolerance { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float AnimationSharingSpeedTolerance { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float AnimationSharingWorryThreshold { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float AnimationSharingDrasticThreshold { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string ParticleCursorAnim2DTemplateName { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ParticleCursorBurstCount { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public RandomVariable ParticleCursorBurstFactor { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float ParticleCursorStopBurstFactor { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ParticleCursorBurstFrequency { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public RandomVariable ParticleCursorParticleLife { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public RandomVariable ParticleCursorSystemLife { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public RandomVariable ParticleCursorDriftVelX { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public RandomVariable ParticleCursorDriftVelY { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public RandomVariable ParticleCursorVelocityDrag { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public RandomVariable ParticleCursorParticleSize { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool ParticleCursorPerFrameSize { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public byte ParticleCursorAlpha { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public Coord2D ParticleCursorOffset { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public Coord2D ProgressMovieOffset { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public Coord2D ProgressMovieSize { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool UseHelpTextSystem { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool EnableHouseColor { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public ObjectFilter TreeFadeObjectFilter { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public ObjectFilter CamouflageDetectorObjectFilter { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public ObjectFilter VeterancyPipDrawObjectFilter { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int ReinvisibilityDelay { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float InvisibilityOpacityMin { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float InvisibilityOpacityMax { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int InvisibilityOpacityCycleFrames { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int BuilderFadeOutTime { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int BuilderFadeInTime { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int BuilderMoveFromNewStructureDistance { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int MaxCastleRadius { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public ObjectFilter VictoryConditionStructureObjectFilter { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public ObjectFilter VictoryConditionUnitObjectFilter { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string TutorialMap { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string TutorialLoadMovie { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public string TutorialObjective { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public string BasicTutorialMap { get; private set; }
 
         [AddedIn(SageGame.Cnc3)]
         public string BasicTutorialMapConsole { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public string BasicTutorialLoadScreenStillImage { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public string BasicTutorialLoadScreenMusicTrack { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public string BasicTutorialObjective { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int BasicTutorialMillisecondsAfterStartToStartFadeUp { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public string AdvancedTutorialMap { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public string AdvancedTutorialLoadScreenStillImage { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public string AdvancedTutorialLoadScreenMusicTrack { get; private set; }
 
         [AddedIn(SageGame.Cnc3)]
         public string AdvancedTutorialLoadMovie { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public string AdvancedTutorialObjective { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int AdvancedTutorialMillisecondsAfterStartToStartFadeUp { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public ObjectFilter ObjectsThatScore { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ScoreKeeper_UnitsBuiltMultiplier { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ScoreKeeper_UnitsDestroyedMultiplier { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ScoreKeeper_StructuresBuiltMultiplier { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ScoreKeeper_StructuresDestroyedMultiplier { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ScoreKeeper_HeroesVettedMultiplier { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ScoreKeeper_UnitsVettedMultiplier { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ScoreKeeper_ObjectivesCompletedMultiplier { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float ScoreKeeper_SuppliesCollectedMultiplier { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float ScoreKeeper_SkillPointsMultiplier { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ScoreKeeper_PowerPointsMultiplier { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ScoreKeeper_RegionCommandPointsMultiplier { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ScoreKeeper_RegionResourcesMultiplier { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ScoreKeeper_RegionPowerPointsMultiplier { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ScoreKeeper_TimeTakenMultiplier { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ScoreKeeper_TimeTakenMaximumScore { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ScoreKeeper_TimeTakenMinimumScore { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ScoreKeeper_TotalVictoryRequiredScore { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ScoreKeeper_NormalVictoryRequiredScore { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int ScoreKeeper_NormalVictoryRequiredObjectivesPercentage { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float ScoreKeeper_PlayerEliminatedMultiplier { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int TintUnitIfPathingForMoreThan { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public float GarrisonedRangeMultiplier { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int MaxPathfindCellsPerFrame { get; private set; }
 
         [AddedIn(SageGame.Cnc3)]
         public int MaxPathfindCellsPerPhase { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int MaxCellsFindMeleeEngagementLocation { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int MaxCellsAdjustDestination { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int MaxCellsAdjustHordeMeleeDestination { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int MaxCellsAdjustTargetDestination { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int MaxCellsAdjustToPossibleDestination { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int MaxCellsAdjustToMeleeDestination { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int MaxCellsAdjustToNearestGroundCell { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int MaxCellsAdjustToNearestValidCell { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int MaxCellsPatchPath { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int MaxCellsFindPathLimit { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int MaxCellsFindAttackPath { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int MaxCellsFindAttackPathSideways { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int MaxCellsToExamineTowardsGoal { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarthII)]
+        [AddedIn(SageGame.Bfme2)]
         public int NumMinutesBeforePlayersCanTransferMoney { get; private set; }
 
         [AddedIn(SageGame.Cnc3)]
@@ -1521,13 +1523,13 @@ namespace OpenSage.Data.Ini
         public bool FogOfWarOn { get; private set; }
         public bool ShowCollisionExtents { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int DebugAerialTileWidth { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public int DebugAerialTileDuration { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public IniColorRgb DebugAerialTileColor { get; private set; }
 
         public int DebugProjectileTileWidth { get; private set; }
@@ -1549,6 +1551,9 @@ namespace OpenSage.Data.Ini
         public int MaxDebugCashValueMapValue { get; private set; }
 
         public bool VTune { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool ShellMapOn { get; private set; }
     }
 
     public enum BodyDamageType
@@ -1703,7 +1708,7 @@ namespace OpenSage.Data.Ini
         FrenzyThree,
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class MultiPlayerTuningFactor
     {
         internal static MultiPlayerTuningFactor Parse(IniParser parser)
@@ -1731,7 +1736,7 @@ namespace OpenSage.Data.Ini
         public float MP8 { get; private set; }
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarthII)]
+    [AddedIn(SageGame.Bfme2)]
     public struct CommandPoints
     {
         internal static CommandPoints Parse(IniParser parser)

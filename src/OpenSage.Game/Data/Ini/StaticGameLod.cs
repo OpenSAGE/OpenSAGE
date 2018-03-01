@@ -51,10 +51,10 @@ namespace OpenSage.Data.Ini
         public int MaxParticleCount { get; private set; }
         public bool UseShadowVolumes { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool UseAnisotropic { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool UsePixelShaders { get; private set; }
 
         public bool UseShadowDecals { get; private set; }
@@ -67,10 +67,10 @@ namespace OpenSage.Data.Ini
         public bool UseBuildupScaffolds { get; private set; }
         public bool UseTreeSway { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool ShowProps { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public bool UseHighQualityVideo { get; private set; }
 
         public bool UseEmissiveNightMaterials { get; private set; }
@@ -78,16 +78,16 @@ namespace OpenSage.Data.Ini
 
         public AnimationLodType AnimationDetail { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public ParticleSystemPriority MinParticlePriority { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public ParticleSystemPriority MinParticleSkipPriority { get; private set; }
     }
 
     public enum GameLodType
     {
-        [IniEnum("VeryLow"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("VeryLow"), AddedIn(SageGame.Bfme)]
         VeryLow,
 
         [IniEnum("LOW")]
@@ -102,11 +102,11 @@ namespace OpenSage.Data.Ini
         [IniEnum("VeryHigh")]
         VeryHigh,
 
-        [IniEnum("UltraHigh"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("UltraHigh"), AddedIn(SageGame.Bfme)]
         UltraHigh,
     }
 
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public enum AnimationLodType
     {
         [IniEnum("VeryLow")]

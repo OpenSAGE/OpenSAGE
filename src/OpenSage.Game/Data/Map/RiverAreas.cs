@@ -2,7 +2,7 @@
 
 namespace OpenSage.Data.Map
 {
-    [AddedIn(SageGame.BattleForMiddleEarthII)]
+    [AddedIn(SageGame.Bfme2)]
     public sealed class RiverAreas : Asset
     {
         public const string AssetName = "RiverAreas";

@@ -159,13 +159,13 @@ namespace OpenSage.Data.Ini
         public bool IsParticleUpTowardsEmitter { get; private set; }
         public ParticleSystemWindMotion WindMotion { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float WindStrength { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float WindFullStrengthDist { get; private set; }
 
-        [AddedIn(SageGame.BattleForMiddleEarth)]
+        [AddedIn(SageGame.Bfme)]
         public float WindZeroStrengthDist { get; private set; }
 
         public float WindAngleChangeMin { get; private set; }
@@ -225,13 +225,13 @@ namespace OpenSage.Data.Ini
         [IniEnum("MULTIPLY")]
         Multiply,
 
-        [IniEnum("W3D_EMISSIVE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("W3D_EMISSIVE"), AddedIn(SageGame.Bfme)]
         W3dEmissive,
 
-        [IniEnum("W3D_ALPHA"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("W3D_ALPHA"), AddedIn(SageGame.Bfme)]
         W3dAlpha,
 
-        [IniEnum("W3D_DIFFUSE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("W3D_DIFFUSE"), AddedIn(SageGame.Bfme)]
         W3dDiffuse,
     }
 
@@ -249,7 +249,7 @@ namespace OpenSage.Data.Ini
         [IniEnum("STREAK")]
         Streak,
 
-        [IniEnum("SMUDGE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("SMUDGE"), AddedIn(SageGame.Bfme)]
         Smudge,
     }
 
@@ -303,7 +303,7 @@ namespace OpenSage.Data.Ini
         [IniEnum("PingPong")]
         PingPong,
 
-        [IniEnum("Circular"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("Circular"), AddedIn(SageGame.Bfme)]
         Circular
     }
 }

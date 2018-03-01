@@ -14,7 +14,7 @@ namespace OpenSage.Tests.Data.Apt
             _output = output;
         }
 
-        [GameFact(SageGame.BattleForMiddleEarth, SageGame.BattleForMiddleEarthII)]
+        [GameFact(SageGame.Bfme, SageGame.Bfme2, SageGame.Bfme2Rotwk)]
         public void CanReadAptFiles()
         {
             InstalledFilesTestData.ReadFiles(".apt", _output, entry =>
@@ -30,10 +30,10 @@ namespace OpenSage.Tests.Data.Apt
             });
         }
 
-        [GameFact(SageGame.BattleForMiddleEarthII)]
+        [GameFact(SageGame.Bfme2)]
         public void CheckEntryCount()
         {
-            var fileSystem = new FileSystem(InstalledFilesTestData.GetInstallationDirectory(SageGame.BattleForMiddleEarthII));
+            var fileSystem = new FileSystem(InstalledFilesTestData.GetInstallationDirectory(SageGame.Bfme2));
             var entry = fileSystem.GetFile(@"MainMenu.apt");
 
             var data = AptFile.FromFileSystemEntry(entry);

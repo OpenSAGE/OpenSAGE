@@ -116,73 +116,73 @@
         [IniEnum("KILL_GARRISONED"), AddedIn(SageGame.CncGeneralsZeroHour)]
         KillGarrisoned,
 
-        [IniEnum("SLASH"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("SLASH"), AddedIn(SageGame.Bfme)]
         Slash,
 
-        [IniEnum("PIERCE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("PIERCE"), AddedIn(SageGame.Bfme)]
         Pierce,
 
-        [IniEnum("URUK"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("URUK"), AddedIn(SageGame.Bfme)]
         Uruk,
 
-        [IniEnum("HERO"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("HERO"), AddedIn(SageGame.Bfme)]
         Hero,
 
-        [IniEnum("HERO_RANGED"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("HERO_RANGED"), AddedIn(SageGame.Bfme)]
         HeroRanged,
 
-        [IniEnum("SIEGE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("SIEGE"), AddedIn(SageGame.Bfme)]
         Siege,
 
-        [IniEnum("SPECIALIST"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("SPECIALIST"), AddedIn(SageGame.Bfme)]
         Specialist,
 
-        [IniEnum("MAGIC"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("MAGIC"), AddedIn(SageGame.Bfme)]
         Magic,
 
-        [IniEnum("STRUCTURAL"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("STRUCTURAL"), AddedIn(SageGame.Bfme)]
         Structural,
 
-        [IniEnum("CHOP"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("CHOP"), AddedIn(SageGame.Bfme)]
         Chop,
 
-        [IniEnum("FORCE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("FORCE"), AddedIn(SageGame.Bfme)]
         Force,
 
-        [IniEnum("FLY_INTO"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("FLY_INTO"), AddedIn(SageGame.Bfme)]
         FlyInto,
 
-        [IniEnum("GOOD_ARROW_PIERCE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("GOOD_ARROW_PIERCE"), AddedIn(SageGame.Bfme)]
         GoodArrowPierce,
 
-        [IniEnum("EVIL_ARROW_PIERCE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("EVIL_ARROW_PIERCE"), AddedIn(SageGame.Bfme)]
         EvilArrowPierce,
 
-        [IniEnum("SWORD_SLASH"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("SWORD_SLASH"), AddedIn(SageGame.Bfme)]
         SwordSlash,
 
-        [IniEnum("WITCH_KING_MORGUL_BLADE"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("WITCH_KING_MORGUL_BLADE"), AddedIn(SageGame.Bfme)]
         WitchKingMorgulBlade,
 
-        [IniEnum("REFLECTED"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("REFLECTED"), AddedIn(SageGame.Bfme)]
         Reflected,
 
-        [IniEnum("BALROG_SWORD"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("BALROG_SWORD"), AddedIn(SageGame.Bfme)]
         BalrogSword,
 
-        [IniEnum("BALROG_WHIP"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("BALROG_WHIP"), AddedIn(SageGame.Bfme)]
         BalrogWhip,
 
-        [IniEnum("ELECTRIC"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("ELECTRIC"), AddedIn(SageGame.Bfme)]
         Electric,
 
-        [IniEnum("GIMLI_LEAP"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("GIMLI_LEAP"), AddedIn(SageGame.Bfme)]
         GimliLeap,
 
-        [IniEnum("BIG_ROCK"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("BIG_ROCK"), AddedIn(SageGame.Bfme)]
         BigRock,
 
-        [IniEnum("CLUBBING"), AddedIn(SageGame.BattleForMiddleEarth)]
+        [IniEnum("CLUBBING"), AddedIn(SageGame.Bfme)]
         Clubbing,
     }
 }

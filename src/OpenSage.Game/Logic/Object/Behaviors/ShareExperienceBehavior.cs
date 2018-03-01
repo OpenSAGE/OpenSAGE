@@ -3,7 +3,7 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    [AddedIn(SageGame.BattleForMiddleEarth)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class ShareExperienceBehaviorModuleData : UpdateModuleData
     {
         internal static ShareExperienceBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
