@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
-using OpenSage.Data.Wnd;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
@@ -22,7 +21,7 @@ namespace OpenSage.Data.Ini
             { "NormalColor", (parser, x) => x.NormalColor = parser.ParseColorRgba() },
 
             { "Style", (parser, x) => x.Lines.Add(new CreditStyleLine(parser.ParseEnum<CreditStyle>())) },
-            { "Text", (parser, x) => x.Lines.Add(new CreditTextLine(parser.ParseString())) },
+            { "Text", (parser, x) => x.Lines.Add(new CreditTextLine(parser.ParseQuotedString())) },
             { "Blank", (parser, x) => x.Lines.Add(new CreditBlankLine()) }
         };
 
