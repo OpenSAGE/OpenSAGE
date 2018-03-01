@@ -39,6 +39,8 @@ namespace OpenSage.Gui.Wnd.Controls
 
         public string DisplayName => $"{Name} ({GetType().Name}, {(Visible ? "Visible" : "Hidden")}, Opacity {Opacity})";
 
+        public object Tag { get; set; }
+
         public bool Visible { get; set; } = true;
 
         public void Show() => Visible = true;

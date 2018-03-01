@@ -133,5 +133,14 @@ namespace OpenSage.Mathematics
                 && point.Y >= Y
                 && point.Y <= Bottom;
         }
+
+        public bool IntersectsWith(in RectangleF rect)
+        {
+            return
+                (rect.Left <= Right) &&
+                (rect.Right >= Left) &&
+                (rect.Top <= Bottom) &&
+                (rect.Bottom >= Top);
+        }
     }
 }
