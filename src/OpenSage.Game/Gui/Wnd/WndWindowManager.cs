@@ -67,7 +67,7 @@ namespace OpenSage.Gui.Wnd
         {
             // TODO: Handle transitions between windows.
 
-            if (_windowStack.Count > 0)
+            while (_windowStack.Count > 0)
             {
                 PopWindow();
             }

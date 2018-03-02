@@ -20,28 +20,31 @@ namespace OpenSage.Network
             _orderProcessor = new OrderProcessor(game);
         }
 
-        public void AddLocalMessage(Order message)
+        public void AddLocalOrder(Order order)
         {
-            _localOrders.Add(message);
+            _localOrders.Add(order);
         }
 
         internal void Tick()
         {
             _connection.Receive(
                 _netFrameNumber,
-                (frame, message) =>
+                (frame, order) =>
                 {
-                    if (!_frameOrders.TryGetValue(frame, out var messages))
+                    if (!_frameOrders.TryGetValue(frame, out var orders))
                     {
-                        _frameOrders.Add(frame, messages = new List<Order>());
+                        _frameOrders.Add(frame, orders = new List<Order>());
                     }
-                    messages.Add(message);
+                    orders.Add(order);
                 });
 
             _connection.Send(_netFrameNumber, _localOrders);
             _localOrders.Clear();
 
-            _orderProcessor.Process(_frameOrders[_netFrameNumber]);
+            if (_frameOrders.TryGetValue(_netFrameNumber, out var frameOrders))
+            {
+                _orderProcessor.Process(frameOrders);
+            }
 
             _netFrameNumber++;
         }

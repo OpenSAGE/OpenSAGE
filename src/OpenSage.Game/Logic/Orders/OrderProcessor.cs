@@ -20,10 +20,7 @@ namespace OpenSage.Logic.Orders
                     // TODO
 
                     case OrderType.Unknown27:
-                        // TODO
-                        _game.Scene3D = null;
-                        _game.NetworkMessageBuffer = null;
-                        _game.Scene2D.WndWindowManager.SetWindow(@"Menus\MainMenu.wnd");
+                        _game.EndGame();
                         break;
                 }
             }

@@ -227,6 +227,7 @@ namespace OpenSage.Mods.Generals
                     {
                         case "ReplayMenu.wnd:ButtonLoadReplay":
                             // TODO: Handle no selected item.
+
                             var listBox = (ListBox) control.Window.Controls.FindControl("ReplayMenu.wnd:ListboxReplayFiles");
                             ReplayFile replayFile;
                             using (var fileSystem = GetReplaysFileSystem(context.Game))
@@ -239,13 +240,9 @@ namespace OpenSage.Mods.Generals
                             var mapFilenameParts = replayFile.Header.Metadata.MapFile.Split('/');
                             var mapFilename = $"Maps\\{mapFilenameParts[1]}\\{mapFilenameParts[1]}.map";
 
-                            // TODO: Loading screen.
-                            context.Game.Scene3D = context.Game.ContentManager.Load<Scene3D>(mapFilename);
-                            context.Game.NetworkMessageBuffer = new NetworkMessageBuffer(
-                                context.Game,
-                                new ReplayConnection(replayFile));
-
                             context.Game.Scene2D.WndWindowManager.PopWindow();
+
+                            context.Game.StartGame(mapFilename, new ReplayConnection(replayFile));
 
                             break;
 
@@ -267,6 +264,13 @@ namespace OpenSage.Mods.Generals
                     {
                         case "SkirmishGameOptionsMenu.wnd:ButtonSelectMap":
                             context.WindowManager.PushWindow(@"Menus\SkirmishMapSelectMenu.wnd");
+                            break;
+
+                        case "SkirmishGameOptionsMenu.wnd:ButtonStart":
+                            context.Game.Scene2D.WndWindowManager.PopWindow();
+                            context.Game.StartGame(
+                                @"maps\Alpine Assault\Alpine Assault.map", // TODO
+                                new EchoConnection());
                             break;
 
                         case "SkirmishGameOptionsMenu.wnd:ButtonBack":

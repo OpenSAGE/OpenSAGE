@@ -132,7 +132,7 @@ namespace OpenSage
         public NetworkMessageBuffer NetworkMessageBuffer
         {
             get => _networkMessageBuffer;
-            set
+            private set
             {
                 _networkMessageBuffer?.Dispose();
                 _networkMessageBuffer = value;
@@ -314,6 +314,23 @@ namespace OpenSage
             }
 
             Definition.MainMenu.AddToScene(ContentManager, Scene2D);
+        }
+
+        public void StartGame(string mapFileName, IConnection connection)
+        {
+            // TODO: Loading screen.
+            Scene3D = ContentManager.Load<Scene3D>(mapFileName);
+            NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
+
+            Scene2D.WndWindowManager.SetWindow("ControlBar.wnd");
+        }
+
+        public void EndGame()
+        {
+            // TODO
+            Scene3D = null;
+            NetworkMessageBuffer = null;
+            Scene2D.WndWindowManager.SetWindow(@"Menus\MainMenu.wnd");
         }
 
         public void Tick()
