@@ -172,7 +172,7 @@ namespace OpenSage
 
             _cachedCursors = new Dictionary<string, Cursor>();
 
-            _wndCallbackResolver = new WndCallbackResolver(definition.WndCallbackType);
+            _wndCallbackResolver = new WndCallbackResolver();
 
             ResetElapsedTime();
 

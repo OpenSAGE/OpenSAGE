@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
@@ -11,8 +10,6 @@ namespace OpenSage.Mods.Bfme2
         public SageGame Game => SageGame.Bfme2Rotwk;
         public string DisplayName => "The Lord of the Rings (tm): The Battle for Middle-earth (tm) II: The Rise of the Witch-king";
         public IGameDefinition BaseGame => Bfme2Definition.Instance;
-
-        public Type WndCallbackType => null;
 
         // TODO: Localise?
         public string LauncherImagePath => "EnglishSplash.jpg";
