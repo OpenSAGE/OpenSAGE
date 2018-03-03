@@ -14,6 +14,8 @@ using OpenSage.Network;
 using OpenSage.Scripting;
 using Veldrid;
 
+using Player = OpenSage.Logic.Player;
+
 namespace OpenSage
 {
     public sealed class Game : DisposableBase
@@ -321,6 +323,21 @@ namespace OpenSage
             // TODO: Loading screen.
             Scene3D = ContentManager.Load<Scene3D>(mapFileName);
             NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
+
+            // TODO: This is not the right place for this.
+            ContentManager.IniDataContext.LoadIniFile(@"Data\INI\PlayerTemplate.ini");
+
+            // TODO: We need to receive the player list from UI.
+            var usa = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Name == "FactionAmerica");
+            var gla = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Name == "FactionGLA");
+
+            var localPlayer = Player.FromTemplate(usa, ContentManager);
+
+            Scene3D.SetPlayers(new List<Player>
+            {
+                localPlayer,
+                Player.FromTemplate(gla, ContentManager)
+            }, localPlayer);
 
             Scene2D.WndWindowManager.SetWindow("ControlBar.wnd");
         }

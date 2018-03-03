@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
@@ -6,6 +8,8 @@ using OpenSage.Graphics.Rendering;
 using OpenSage.Logic.Object;
 using OpenSage.Scripting;
 using OpenSage.Settings;
+
+using Player = OpenSage.Logic.Player;
 
 namespace OpenSage
 {
@@ -32,6 +36,12 @@ namespace OpenSage
         public WaypointPathCollection WaypointPaths { get; set; }
 
         public WorldLighting Lighting { get; }
+
+        // TODO: Move these to a World class?
+        // TODO: Encapsulate this into a custom collection?
+        public IReadOnlyList<Player> Players => _players;
+        private List<Player> _players;
+        public Player LocalPlayer { get; private set; }
 
         internal IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
         {
@@ -71,6 +81,22 @@ namespace OpenSage
             AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_cameraInputMessageHandler));
 
             _particleSystemManager = AddDisposable(new ParticleSystemManager(game, this));
+
+            _players = new List<Player>();
+        }
+
+        public void SetPlayers(IEnumerable<Player> players, Player localPlayer)
+        {
+            _players = players.ToList();
+
+            if (!_players.Contains(localPlayer))
+            {
+                throw new ArgumentException(
+                    $"Argument {nameof(localPlayer)} should be included in {nameof(players)}",
+                    nameof(localPlayer));
+            }
+
+            LocalPlayer = localPlayer;
         }
 
         internal void Update(GameTime gameTime)
