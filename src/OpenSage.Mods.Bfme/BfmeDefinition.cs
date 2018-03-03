@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using OpenSage.Data;
 using OpenSage.Gui;
 
@@ -10,8 +9,6 @@ namespace OpenSage.Mods.BFME
         public SageGame Game => SageGame.Bfme;
         public string DisplayName => "The Lord of the Rings (tm): The Battle for Middle-earth (tm)";
         public IGameDefinition BaseGame => null;
-
-        public Type WndCallbackType => null;
 
         // TODO: Localise?
         public string LauncherImagePath => "englishsplash.jpg";

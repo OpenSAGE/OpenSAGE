@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using OpenSage.Data;
 using OpenSage.Gui;
 
@@ -10,8 +9,6 @@ namespace OpenSage.Mods.Cnc4
         public SageGame Game => SageGame.Cnc4;
         public string DisplayName => "Command & Conquer (tm) 4: Tiberian Twilight";
         public IGameDefinition BaseGame => null;
-
-        public Type WndCallbackType => null;
 
         public string LauncherImagePath => null;
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using OpenSage.Data;
 using OpenSage.Gui;
 
@@ -10,8 +9,6 @@ namespace OpenSage.Mods.CnC3
         public SageGame Game => SageGame.Cnc3;
         public string DisplayName => "Command & Conquer (tm) 3: Tiberium Wars";
         public IGameDefinition BaseGame => null;
-
-        public Type WndCallbackType => null;
 
         public string LauncherImagePath => @"Launcher\splash.bmp";
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using OpenSage.Data;
 using OpenSage.Gui;
 
@@ -10,8 +9,6 @@ namespace OpenSage.Mods.Ra3
         public SageGame Game => SageGame.Ra3Uprising;
         public string DisplayName => "Command & Conquer (tm): Red Alert (tm) 3 Uprising";
         public IGameDefinition BaseGame => null;
-
-        public Type WndCallbackType => null;
 
         public string LauncherImagePath => @"Launcher\splash.bmp";
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using OpenSage.Data;
 using OpenSage.Gui;
 
@@ -10,8 +9,6 @@ namespace OpenSage
         SageGame Game { get; }
         string DisplayName { get; }
         IGameDefinition BaseGame { get; }
-
-        Type WndCallbackType { get; }
 
         string LauncherImagePath { get; }
 

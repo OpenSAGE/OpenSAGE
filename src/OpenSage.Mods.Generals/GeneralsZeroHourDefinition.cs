@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
@@ -11,8 +10,6 @@ namespace OpenSage.Mods.Generals
         public SageGame Game => SageGame.CncGeneralsZeroHour;
         public string DisplayName => "Command & Conquer (tm): Generals - Zero Hour";
         public IGameDefinition BaseGame => GeneralsDefinition.Instance;
-
-        public Type WndCallbackType => typeof(WndCallbacks);
 
         public string LauncherImagePath => "Install_Final.bmp";
 

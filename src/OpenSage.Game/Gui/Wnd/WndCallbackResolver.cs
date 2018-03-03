@@ -1,15 +1,33 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using OpenSage.Gui.Wnd.Controls;
 
 namespace OpenSage.Gui.Wnd
 {
     public class WndCallbackResolver
     {
-        private readonly Type _type;
+        private readonly Dictionary<string, MethodInfo> _callbackCache;
 
-        internal WndCallbackResolver(Type wndCallbacksType)
+        internal WndCallbackResolver()
         {
-            _type = wndCallbacksType;
+            _callbackCache = new Dictionary<string, MethodInfo>();
+
+            // TODO: Filter by mod, perhaps using parameter to [WndCallbacks]?
+            // At the moment callbacks from all mods are lumped together.
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                foreach (var type in assembly.GetTypes())
+                {
+                    if (type.GetCustomAttributes(typeof(WndCallbacksAttribute), false).Length > 0)
+                    {
+                        foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.Public))
+                        {
+                            _callbackCache.Add(method.Name, method);
+                        }
+                    }
+                }
+            }
         }
 
         internal WindowCallback GetWindowCallback(string name)
@@ -35,13 +53,13 @@ namespace OpenSage.Gui.Wnd
                 return null;
             }
 
-            var callbackMethod = _type.GetMethod(name);
-            if (callbackMethod == null) // TODO: Should never be null, but will be during development.
+            if (!_callbackCache.TryGetValue(name, out var method))
             {
+                // TODO: Shouldn't happen, but will during development. We should log a warning.
                 return null;
             }
 
-            return (TDelegate) (object) Delegate.CreateDelegate(typeof(TDelegate), callbackMethod);
+            return (TDelegate) (object) Delegate.CreateDelegate(typeof(TDelegate), method);
         }
     }
 }
