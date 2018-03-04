@@ -62,17 +62,17 @@ namespace OpenSage.Gui.Wnd.Controls
                     return;
                 }
 
+                drawingContext.PushTransform(Matrix3x2.CreateTranslation(control.Bounds.X, control.Bounds.Y));
+
                 control.DrawCallback(control, drawingContext);
 
                 // Draw child controls.
                 foreach (var child in control.Controls)
                 {
-                    drawingContext.PushTransform(Matrix3x2.CreateTranslation(child.Bounds.X, child.Bounds.Y));
-
                     drawControlRecursive(child);
-
-                    drawingContext.PopTransform();
                 }
+
+                drawingContext.PopTransform();
             }
 
             drawControlRecursive(Root);

@@ -1,10 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using OpenSage.Data.Ini.Parser;
-using OpenSage.Data.Wnd;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
+    public sealed class ControlBarSchemeCollection : Collection<ControlBarScheme>
+    {
+        public ControlBarScheme FindBySide(string side)
+        {
+            // Based on a comment in PlayerTemplate.ini about how control bar schemes are chosen.
+            return this.FirstOrDefault(x => x.Side == side)
+                ?? this.FirstOrDefault(x => x.Side == "Observer")
+                ?? throw new InvalidOperationException("No ControlBarScheme could be found for the specified side, and no ControlBarScheme for the Observer side could be found either.");
+        }
+    }
+
     public sealed class ControlBarScheme
     {
         internal static ControlBarScheme Parse(IniParser parser)

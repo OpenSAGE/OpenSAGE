@@ -34,7 +34,12 @@ namespace OpenSage.Gui.Wnd.Images
             WndDrawData wndDrawData,
             int index)
         {
-            var leftImage = wndDrawData.Items[index].Image;
+            return CreateNormalImage(wndDrawData.Items[index].Image);
+        }
+
+        public Image CreateNormalImage(string mappedImageName)
+        {
+            var leftImage = mappedImageName;
             var mappedImageTexture = GetMappedImage(leftImage);
 
             if (mappedImageTexture != null)

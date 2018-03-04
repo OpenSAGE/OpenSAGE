@@ -32,7 +32,7 @@ namespace OpenSage.Data.Ini
         public List<CommandMap> CommandMaps { get; } = new List<CommandMap>();
         public List<CommandSet> CommandSets { get; } = new List<CommandSet>();
         public List<ControlBarResizer> ControlBarResizers { get; } = new List<ControlBarResizer>();
-        public List<ControlBarScheme> ControlBarSchemes { get; } = new List<ControlBarScheme>();
+        public ControlBarSchemeCollection ControlBarSchemes { get; } = new ControlBarSchemeCollection();
         public List<CrateData> CrateDatas { get; } = new List<CrateData>();
         public Credits Credits { get; internal set; }
         public List<DamageFX> DamageFXs { get; } = new List<DamageFX>();

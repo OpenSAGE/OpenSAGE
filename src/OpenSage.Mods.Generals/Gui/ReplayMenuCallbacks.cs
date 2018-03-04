@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using OpenSage.Data;
 using OpenSage.Data.Rep;
@@ -69,7 +70,11 @@ namespace OpenSage.Mods.Generals.Gui
 
                             context.Game.Scene2D.WndWindowManager.PopWindow();
 
-                            context.Game.StartGame(mapFilename, new ReplayConnection(replayFile));
+                            context.Game.StartGame(
+                                mapFilename,
+                                new ReplayConnection(replayFile),
+                                new[] { "Observer" }, // TODO
+                                0);
 
                             break;
 
