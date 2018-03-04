@@ -318,28 +318,37 @@ namespace OpenSage
             Definition.MainMenu.AddToScene(ContentManager, Scene2D);
         }
 
-        public void StartGame(string mapFileName, IConnection connection)
+        // TODO: Pass full player details, not just side.
+        public void StartGame(string mapFileName, IConnection connection, string[] sides, int localPlayerIndex)
         {
             // TODO: Loading screen.
             Scene3D = ContentManager.Load<Scene3D>(mapFileName);
             NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
 
             // TODO: This is not the right place for this.
+            ContentManager.IniDataContext.LoadIniFile(@"Data\INI\ControlBarScheme.ini");
             ContentManager.IniDataContext.LoadIniFile(@"Data\INI\PlayerTemplate.ini");
 
-            // TODO: We need to receive the player list from UI.
-            var usa = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Name == "FactionAmerica");
-            var gla = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Name == "FactionGLA");
-
-            var localPlayer = Player.FromTemplate(usa, ContentManager);
-
-            Scene3D.SetPlayers(new List<Player>
+            var players = new Player[sides.Length];
+            for (var i = 0; i < sides.Length; i++)
             {
-                localPlayer,
-                Player.FromTemplate(gla, ContentManager)
-            }, localPlayer);
+                var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == sides[i]);
+                players[i] = Player.FromTemplate(playerTemplate, ContentManager);
+            }
 
-            Scene2D.WndWindowManager.SetWindow("ControlBar.wnd");
+            Scene3D.SetPlayers(players, players[localPlayerIndex]);
+
+            var controlBarWindow = Scene2D.WndWindowManager.SetWindow("ControlBar.wnd");
+
+            // TODO: Move the following code to a ControlBar class.
+            var controlBarScheme = ContentManager.IniDataContext.ControlBarSchemes.FindBySide(sides[localPlayerIndex]);
+
+            // TODO: I don't think this is how it works. The "Munkee" control is probably just for design-time preview.
+            // I think we should use ImagePart.Position and ImagePart.Size to render the control bar background image,
+            // probably not as part of the wnd control tree.
+            var munkee = controlBarWindow.Controls.FindControl("ControlBar.wnd:Munkee");
+            munkee.DrawCallback = munkee.DefaultDraw;
+            munkee.BackgroundImage = ContentManager.WndImageLoader.CreateNormalImage(controlBarScheme.ImageParts[0].ImageName);
         }
 
         public void EndGame()

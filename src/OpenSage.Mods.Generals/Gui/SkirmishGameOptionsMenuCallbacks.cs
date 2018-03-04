@@ -22,7 +22,9 @@ namespace OpenSage.Mods.Generals.Gui
                             context.Game.Scene2D.WndWindowManager.PopWindow();
                             context.Game.StartGame(
                                 @"maps\Alpine Assault\Alpine Assault.map", // TODO
-                                new EchoConnection());
+                                new EchoConnection(),
+                                new[] { "America" }, // TODO: We need to receive the player list from UI.
+                                0); 
                             break;
 
                         case "SkirmishGameOptionsMenu.wnd:ButtonBack":
