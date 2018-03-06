@@ -19,7 +19,9 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using Veldrid;
 using Veldrid.ImageSharp;
+using Player = OpenSage.Logic.Player;
 using Rectangle = OpenSage.Mathematics.Rectangle;
+using Team = OpenSage.Logic.Team;
 
 namespace OpenSage.Content
 {
@@ -110,13 +112,25 @@ namespace OpenSage.Content
                 out var waypoints,
                 out var gameObjects);
 
+            // TODO: Store this somewhere.
+            var teams = new List<Team>();
+
             foreach (var team in mapFile.SidesList.Teams ?? mapFile.Teams.Items)
             {
                 var name = (string) team.Properties["teamName"].Value;
                 var owner = (string) team.Properties["teamOwner"].Value;
                 var isSingleton = (bool) team.Properties["teamIsSingleton"].Value;
 
-                // TODO
+                teams.Add(new Team(name, owner, isSingleton));
+            }
+
+            // TODO: Store this somewhere.
+            var players = new List<Player>();
+
+            foreach (var player in mapFile.SidesList.Players)
+            {
+                // TODO: Parse properties
+                players.Add(new Player() { });
             }
 
             var lighting = new WorldLighting(

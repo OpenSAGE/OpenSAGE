@@ -7,20 +7,12 @@ using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Logic
 {
-    // TODO: Abstract this out, or try to include all factions from every game?
-    public enum Side
-    {
-        Civilian,
-        Observer,
-        America,
-        China,
-        GLA
-    }
-
     public class Player
     {
         public string Name { get; private set; }
-        public Side Side { get; private set; }
+        public string DisplayName { get; private set; }
+
+        public string Side { get; private set; }
 
         public uint Money { get; set; }
 
@@ -54,16 +46,25 @@ namespace OpenSage.Logic
             // TODO: Use rest of the properties from the template
             return new Player
             {
-                Side = ParseSide(template.Side),
-                Name = content.TranslationManager.Lookup(template.DisplayName),
+                Side = template.Side,
+                Name = template.Name,
+                DisplayName = content.TranslationManager.Lookup(template.DisplayName),
                 Money = (uint) template.StartMoney
             };
         }
+    }
 
-        private static Side ParseSide(string side)
+    public class Team
+    {
+        public string Name { get; }
+        public string Owner { get; }
+        public bool IsSingleton { get; }
+
+        public Team(string name, string owner, bool isSingleton)
         {
-            // TODO: Validate.
-            return (Side) Enum.Parse(typeof(Side), side);
+            Name = name;
+            Owner = owner;
+            IsSingleton = isSingleton;
         }
     }
 }

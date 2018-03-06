@@ -10,6 +10,7 @@ using OpenSage.Scripting;
 using OpenSage.Settings;
 
 using Player = OpenSage.Logic.Player;
+using Team = OpenSage.Logic.Team;
 
 namespace OpenSage
 {
@@ -36,6 +37,9 @@ namespace OpenSage
         public WaypointPathCollection WaypointPaths { get; set; }
 
         public WorldLighting Lighting { get; }
+
+        public IReadOnlyList<Team> Teams => _teams;
+        private List<Team> _teams;
 
         // TODO: Move these to a World class?
         // TODO: Encapsulate this into a custom collection?
@@ -82,6 +86,7 @@ namespace OpenSage
 
             _particleSystemManager = AddDisposable(new ParticleSystemManager(game, this));
 
+            _teams = new List<Team>();
             _players = new List<Player>();
         }
 
