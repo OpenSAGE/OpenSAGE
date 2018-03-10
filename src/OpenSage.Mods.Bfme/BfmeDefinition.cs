@@ -17,6 +17,8 @@ namespace OpenSage.Mods.BFME
         {
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\The Battle for Middle-earth", "InstallPath")
         };
+        
+        public string Identifier { get; } = "bfme";
 
         public IMainMenuSource MainMenu { get; }
 

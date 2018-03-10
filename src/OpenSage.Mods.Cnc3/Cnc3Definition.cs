@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿﻿using System.Collections.Generic;
 using OpenSage.Data;
 using OpenSage.Gui;
 
@@ -16,6 +16,8 @@ namespace OpenSage.Mods.CnC3
         {
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\Command and Conquer 3", "InstallPath")
         };
+        
+        public string Identifier { get; } = "cnc3";
 
         public IMainMenuSource MainMenu { get; }
 
