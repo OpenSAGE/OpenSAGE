@@ -113,25 +113,12 @@ namespace OpenSage.Content
                 out var gameObjects);
 
             // TODO: Store this somewhere.
-            var teams = new List<Team>();
-
-            foreach (var team in mapFile.SidesList.Teams ?? mapFile.Teams.Items)
-            {
-                var name = (string) team.Properties["teamName"].Value;
-                var owner = (string) team.Properties["teamOwner"].Value;
-                var isSingleton = (bool) team.Properties["teamIsSingleton"].Value;
-
-                teams.Add(new Team(name, owner, isSingleton));
-            }
+            var players = Player.FromMapData(mapFile.SidesList.Players, contentManager).ToList();
 
             // TODO: Store this somewhere.
-            var players = new List<Player>();
-
-            foreach (var player in mapFile.SidesList.Players)
-            {
-                // TODO: Parse properties
-                players.Add(new Player() { });
-            }
+            var teams = (mapFile.SidesList.Teams ?? mapFile.Teams.Items)
+                .Select(team => Team.FromMapData(team, players))
+                .ToList();
 
             var lighting = new WorldLighting(
                 mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),

@@ -323,6 +323,12 @@ namespace OpenSage
         {
             // TODO: Loading screen.
             Scene3D = ContentManager.Load<Scene3D>(mapFileName);
+
+            if (Scene3D == null)
+            {
+                throw new Exception($"Failed to load Scene3D \"{mapFileName}\"");
+            }
+
             NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
 
             // TODO: This is not the right place for this.
