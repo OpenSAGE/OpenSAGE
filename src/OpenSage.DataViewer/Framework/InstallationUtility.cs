@@ -13,7 +13,7 @@ namespace OpenSage.DataViewer.Framework
         {
             IInstallationLocator locator;
 
-            if (Environment.OSVersion.Platform == PlatformID.Win32Windows)
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
                 locator = new RegistryInstallationLocator();
             }
