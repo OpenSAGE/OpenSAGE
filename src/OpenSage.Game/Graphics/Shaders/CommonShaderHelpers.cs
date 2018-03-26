@@ -27,5 +27,10 @@ namespace OpenSage.Graphics.Shaders
         }
 
         public const float AlphaTestThreshold = 0x60 / (float) 0xFF;
+
+        public static Vector3 TransformNormal(Vector3 v, Matrix4x4 m)
+        {
+            return Vector4.Transform(new Vector4(v, 0), m).XYZ();
+        }
     }
 }

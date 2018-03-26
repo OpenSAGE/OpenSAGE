@@ -1,6 +1,7 @@
 ﻿//using System.Numerics;
 //using ShaderGen;
 //using static ShaderGen.ShaderBuiltins;
+//using static OpenSage.Graphics.Shaders.CloudHelpers;
 //using static OpenSage.Graphics.Shaders.CommonShaderHelpers;
 //using static OpenSage.Graphics.Shaders.LightingHelpers;
 //using static OpenSage.Graphics.Shaders.MeshShaderHelpers;
@@ -120,7 +121,8 @@
 //                MeshConstants.NumBones,
 //                RenderItemConstantsVS.World,
 //                GlobalConstantsVS.ViewProjection,
-//                Global_LightingConstantsVS.CloudShadowMatrix);
+//                Global_LightingConstantsVS.CloudShadowMatrix,
+//                GlobalConstantsShared.TimeInSeconds);
 
 //            output.UV0 = input.UV0;
 //            output.UV1 = input.UV1;
@@ -315,7 +317,7 @@
 //                objectColor += specularColor;
 //            }
 
-//            var cloudColor = CloudHelpers.GetCloudColor(
+//            var cloudColor = GetCloudColor(
 //                Global_CloudTexture,
 //                Sampler,
 //                input.CloudUV);

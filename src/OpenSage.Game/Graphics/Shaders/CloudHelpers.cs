@@ -9,7 +9,7 @@ namespace OpenSage.Graphics.Shaders
         public static Vector2 GetCloudUV(
             Vector3 worldPosition,
             Matrix4x4 cloudShadowMatrix,
-            uint timeInSeconds)
+            float timeInSeconds)
         {
             // TODO: Wasteful to do a whole matrix-multiply here when we only need xy.
             var lightSpacePos = Vector4.Transform(worldPosition, cloudShadowMatrix).XY();
@@ -25,8 +25,7 @@ namespace OpenSage.Graphics.Shaders
             SamplerResource samplerState,
             Vector2 cloudUV)
         {
-            return Vector3.Zero;
-            //return Sample(cloudTexture, samplerState, cloudUV).XYZ();
+            return Sample(cloudTexture, samplerState, cloudUV).XYZ();
         }
     }
 }

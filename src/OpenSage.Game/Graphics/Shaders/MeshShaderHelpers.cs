@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using ShaderGen;
+using static OpenSage.Graphics.Shaders.CommonShaderHelpers;
 
 namespace OpenSage.Graphics.Shaders
 {
@@ -42,14 +43,14 @@ namespace OpenSage.Graphics.Shaders
             Matrix4x4 world,
             Matrix4x4 viewProjection,
             Matrix4x4 cloudShadowMatrix,
-            uint timeInSeconds)
+            float timeInSeconds)
         {
             if (skinningEnabled == 1)
             {
                 var skinning = skinningBuffer[input.BoneIndex];
 
                 input.Position = Vector3.Transform(input.Position, skinning);
-                input.Normal = Vector3.TransformNormal(input.Normal, skinning);
+                input.Normal = TransformNormal(input.Normal, skinning);
             }
 
             var worldPositionHomogeneous = Vector4.Transform(input.Position, world);
@@ -58,7 +59,7 @@ namespace OpenSage.Graphics.Shaders
 
             worldPosition = worldPositionHomogeneous.XYZ();
 
-            worldNormal = Vector3.TransformNormal(input.Normal, world);
+            worldNormal = TransformNormal(input.Normal, world);
 
             cloudUV = CloudHelpers.GetCloudUV(
                 worldPosition,
