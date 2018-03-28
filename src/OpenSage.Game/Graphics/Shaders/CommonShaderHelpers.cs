@@ -26,7 +26,11 @@ namespace OpenSage.Graphics.Shaders
             public Vector2 ViewportSize;
         }
 
-        public const float AlphaTestThreshold = 0x60 / (float) 0xFF;
+        public static bool FailsAlphaTest(float alpha)
+        {
+            // 0x60 / 0xFF = 0.37647
+            return alpha < 0.37647f;
+        }
 
         public static Vector3 TransformNormal(Vector3 v, Matrix4x4 m)
         {

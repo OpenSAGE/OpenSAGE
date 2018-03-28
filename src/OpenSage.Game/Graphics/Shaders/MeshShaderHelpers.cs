@@ -30,6 +30,14 @@ namespace OpenSage.Graphics.Shaders
         {
             public Matrix4x4 World;
         }
+        
+        public static void GetSkinnedVertexData(
+            ref VertexInput input,
+            Matrix4x4 skinning)
+        {
+            input.Position = Vector3.Transform(input.Position, skinning);
+            input.Normal = TransformNormal(input.Normal, skinning);
+        }
 
         public static void VSSkinnedInstanced(
             VertexInput input,
@@ -37,22 +45,11 @@ namespace OpenSage.Graphics.Shaders
             out Vector3 worldPosition,
             out Vector3 worldNormal,
             out Vector2 cloudUV,
-            StructuredBuffer<Matrix4x4> skinningBuffer,
-            uint skinningEnabled,
-            uint numBones,
             Matrix4x4 world,
             Matrix4x4 viewProjection,
             Matrix4x4 cloudShadowMatrix,
             float timeInSeconds)
         {
-            if (skinningEnabled == 1)
-            {
-                var skinning = skinningBuffer[input.BoneIndex];
-
-                input.Position = Vector3.Transform(input.Position, skinning);
-                input.Normal = TransformNormal(input.Normal, skinning);
-            }
-
             var worldPositionHomogeneous = Vector4.Transform(input.Position, world);
 
             position = Vector4.Transform(worldPositionHomogeneous, viewProjection);

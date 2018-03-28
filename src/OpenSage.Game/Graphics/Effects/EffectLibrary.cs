@@ -23,7 +23,8 @@ namespace OpenSage.Graphics.Effects
             FixedFunction = AddDisposable(new Effect(
                 graphicsDevice,
                 "FixedFunction",
-                MeshVertex.VertexDescriptors));
+                MeshVertex.VertexDescriptors,
+                true));
 
             Particle = AddDisposable(new Effect(
                 graphicsDevice,

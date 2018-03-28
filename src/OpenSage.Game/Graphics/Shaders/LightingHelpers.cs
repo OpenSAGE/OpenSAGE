@@ -11,8 +11,6 @@ namespace OpenSage.Graphics.Shaders
             public Matrix4x4 CloudShadowMatrix;
         }
 
-        public const int NumLights = 3;
-
         public struct Light
         {
             public Vector3 Ambient;
@@ -27,15 +25,15 @@ namespace OpenSage.Graphics.Shaders
             public Light[] Lights;
         }
 
-        internal struct LightingParameters
-        {
-            public Vector3 WorldPosition;
-            public Vector3 WorldNormal;
-            public Vector3 MaterialAmbient;
-            public Vector3 MaterialDiffuse;
-            public Vector3 MaterialSpecular;
-            public float MaterialShininess;
-        }
+        //public struct LightingParameters
+        //{
+        //    public Vector3 WorldPosition;
+        //    public Vector3 WorldNormal;
+        //    public Vector3 MaterialAmbient;
+        //    public Vector3 MaterialDiffuse;
+        //    public Vector3 MaterialSpecular;
+        //    public float MaterialShininess;
+        //}
 
         public static Vector3 CalculateViewVector(Vector3 cameraPosition, Vector3 worldPosition)
         {
@@ -44,7 +42,13 @@ namespace OpenSage.Graphics.Shaders
 
         internal static void DoLighting(
             Global_LightingConstantsPS lightingConstantsPS,
-            LightingParameters lightingParams,
+            // TODO: Replace this with LightingParameters struct, once "internal" structs are supported
+            Vector3 worldPosition,
+            Vector3 worldNormal,
+            Vector3 materialAmbient,
+            Vector3 materialDiffuse,
+            Vector3 materialSpecular,
+            float materialShininess,
             Vector3 cameraPosition,
             bool specularEnabled,
             out Vector3 diffuseColor,
@@ -53,24 +57,24 @@ namespace OpenSage.Graphics.Shaders
             diffuseColor = Vector3.Zero;
             specularColor = Vector3.Zero;
 
-            for (var i = 0; i < NumLights; i++)
+            for (var i = 0; i < 3 /* NumLights */; i++)
             {
                 var light = lightingConstantsPS.Lights[i];
 
-                var ambient = light.Ambient * lightingParams.MaterialAmbient;
+                var ambient = light.Ambient * materialAmbient;
 
                 var diffuse =
-                    Saturate(Vector3.Dot(lightingParams.WorldNormal, -light.Direction)) *
-                    lightingParams.MaterialDiffuse;
+                    Saturate(Vector3.Dot(worldNormal, -light.Direction)) *
+                    materialDiffuse;
 
                 if (specularEnabled)
                 {
-                    var v = CalculateViewVector(cameraPosition, lightingParams.WorldPosition);
+                    var v = CalculateViewVector(cameraPosition, worldPosition);
                     var h = Vector3.Normalize(v - light.Direction);
                     specularColor +=
-                        Saturate(Vector3.Dot(lightingParams.WorldNormal, h)) *
-                        lightingParams.MaterialShininess *
-                        lightingParams.MaterialSpecular *
+                        Saturate(Vector3.Dot(worldNormal, h)) *
+                        materialShininess *
+                        materialSpecular *
                         light.Color;
                 }
 

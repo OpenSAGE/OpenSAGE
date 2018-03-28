@@ -60,15 +60,17 @@ namespace OpenSage.Graphics.Shaders
         {
             VertexOutput output;
 
+            if (MeshConstants.SkinningEnabled == 1)
+            {
+                GetSkinnedVertexData(ref input, SkinningBuffer[input.BoneIndex]);
+            }
+
             VSSkinnedInstanced(
                 input,
                 out output.Position,
                 out output.WorldPosition,
                 out output.WorldNormal,
                 out output.CloudUV,
-                SkinningBuffer,
-                MeshConstants.SkinningEnabled,
-                MeshConstants.NumBones,
                 RenderItemConstantsVS.World,
                 GlobalConstantsVS.ViewProjection,
                 Global_LightingConstantsVS.CloudShadowMatrix,
