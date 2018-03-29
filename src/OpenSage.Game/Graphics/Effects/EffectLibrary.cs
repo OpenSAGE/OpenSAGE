@@ -23,20 +23,17 @@ namespace OpenSage.Graphics.Effects
             FixedFunction = AddDisposable(new Effect(
                 graphicsDevice,
                 "FixedFunction",
-                MeshVertex.VertexDescriptors,
-                true));
+                MeshVertex.VertexDescriptors));
 
             Particle = AddDisposable(new Effect(
                 graphicsDevice,
                 "Particle",
-                ParticleVertex.VertexDescriptor,
-                true));
+                ParticleVertex.VertexDescriptor));
 
             Sprite = AddDisposable(new Effect(
                 graphicsDevice,
                 "Sprite",
-                SpriteVertex.VertexDescriptor,
-                true));
+                SpriteVertex.VertexDescriptor));
 
             Terrain = AddDisposable(new Effect(
                 graphicsDevice,
