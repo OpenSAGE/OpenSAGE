@@ -29,7 +29,8 @@ namespace OpenSage.Graphics.Effects
             Particle = AddDisposable(new Effect(
                 graphicsDevice,
                 "Particle",
-                ParticleVertex.VertexDescriptor));
+                ParticleVertex.VertexDescriptor,
+                true));
 
             Sprite = AddDisposable(new Effect(
                 graphicsDevice,

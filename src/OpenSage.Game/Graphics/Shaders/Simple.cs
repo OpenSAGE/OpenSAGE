@@ -14,12 +14,12 @@ namespace OpenSage.Graphics.Shaders
     {
         public struct VertexOutput
         {
-            [SystemPositionSemantic] public Vector4 Position;
-
             [TextureCoordinateSemantic] public Vector3 WorldPosition;
             [TextureCoordinateSemantic] public Vector3 WorldNormal;
             [TextureCoordinateSemantic] public Vector2 UV0;
             [TextureCoordinateSemantic] public Vector2 CloudUV;
+
+            [SystemPositionSemantic] public Vector4 Position;
         }
 
         public struct PixelInput

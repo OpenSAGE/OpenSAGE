@@ -14,8 +14,6 @@ namespace OpenSage.Graphics.Shaders
     {
         public struct VertexOutput
         {
-            [SystemPositionSemantic] public Vector4 Position;
-
             [TextureCoordinateSemantic] public Vector3 WorldPosition;
             [TextureCoordinateSemantic] public Vector3 WorldNormal;
             [TextureCoordinateSemantic] public Vector2 UV0;
@@ -23,6 +21,8 @@ namespace OpenSage.Graphics.Shaders
 
             [TextureCoordinateSemantic] public Vector3 WorldTangent;
             [TextureCoordinateSemantic] public Vector3 WorldBinormal;
+
+            [SystemPositionSemantic] public Vector4 Position;
         }
 
         public struct PixelInput
@@ -31,6 +31,7 @@ namespace OpenSage.Graphics.Shaders
             [TextureCoordinateSemantic] public Vector3 WorldNormal;
             [TextureCoordinateSemantic] public Vector2 UV0;
             [TextureCoordinateSemantic] public Vector2 CloudUV;
+
             [TextureCoordinateSemantic] public Vector3 WorldTangent;
             [TextureCoordinateSemantic] public Vector3 WorldBinormal;
         }
