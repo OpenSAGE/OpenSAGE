@@ -12,7 +12,7 @@ namespace OpenSage.Graphics.Effects
 
         public T Value;
 
-        public ConstantBuffer(GraphicsDevice graphicsDevice)
+        public ConstantBuffer(GraphicsDevice graphicsDevice, string name = null)
         {
             _graphicsDevice = graphicsDevice;
 
@@ -20,6 +20,8 @@ namespace OpenSage.Graphics.Effects
                 new BufferDescription(
                     (uint) Marshal.SizeOf<T>(),
                     BufferUsage.UniformBuffer | BufferUsage.Dynamic)));
+
+            Buffer.Name = name;
         }
 
         public void Update(CommandList commandList)

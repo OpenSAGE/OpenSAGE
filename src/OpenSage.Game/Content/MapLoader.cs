@@ -436,7 +436,8 @@ namespace OpenSage.Content
             MapFile mapFile,
             HeightMap heightMap)
         {
-            var tileData = new uint[heightMap.Width * heightMap.Height * 4];
+            // TODO: Should be uint, once ShaderGen supports it.
+            var tileData = new float[heightMap.Width * heightMap.Height * 4];
 
             var tileDataIndex = 0;
             for (var y = 0; y < heightMap.Height; y++)
@@ -469,10 +470,10 @@ namespace OpenSage.Content
                 }
             }
 
-            var textureIDsByteArray = new byte[tileData.Length * sizeof(uint)];
-            Buffer.BlockCopy(tileData, 0, textureIDsByteArray, 0, tileData.Length * sizeof(uint));
+            var textureIDsByteArray = new byte[tileData.Length * sizeof(float)];
+            Buffer.BlockCopy(tileData, 0, textureIDsByteArray, 0, tileData.Length * sizeof(float));
 
-            var rowPitch = (uint) heightMap.Width * sizeof(uint) * 4;
+            var rowPitch = (uint) heightMap.Width * sizeof(float) * 4;
 
             return graphicsDevice.CreateStaticTexture2D(
                 (uint) heightMap.Width,
@@ -483,7 +484,7 @@ namespace OpenSage.Content
                     rowPitch * (uint) heightMap.Height,
                     (uint) heightMap.Width,
                     (uint) heightMap.Height),
-                PixelFormat.R32_G32_B32_A32_UInt);
+                PixelFormat.R32_G32_B32_A32_Float);
         }
 
         private static BlendData GetBlendData(

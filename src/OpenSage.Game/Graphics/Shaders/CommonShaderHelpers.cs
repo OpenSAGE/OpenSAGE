@@ -34,7 +34,7 @@ namespace OpenSage.Graphics.Shaders
 
         public static Vector3 TransformNormal(Vector3 v, Matrix4x4 m)
         {
-            return Vector4.Transform(new Vector4(v, 0), m).XYZ();
+            return (Vector4.Transform(new Vector4(v, 0), m)).XYZ();
         }
     }
 }

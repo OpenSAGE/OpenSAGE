@@ -44,7 +44,7 @@ namespace OpenSage.Graphics.Shaders
 
         private Vector4 ComputePosition(Vector3 particlePosition, float size, float angle, Vector2 quadPosition)
         {
-            var particlePosWS = Vector4.Transform(new Vector4(particlePosition, 1), RenderItemConstantsVS.World).XYZ();
+            var particlePosWS = (Vector4.Transform(new Vector4(particlePosition, 1), RenderItemConstantsVS.World)).XYZ();
 
             var toEye = Vector3.Normalize(GlobalConstantsShared.CameraPosition - particlePosWS);
             var up = new Vector3(Cos(angle), 0, Sin(angle));
@@ -66,7 +66,7 @@ namespace OpenSage.Graphics.Shaders
             // | / |
             // 2 - 3
 
-            var quadVertexID = Mod(VertexID, 4);
+            var quadVertexID = (uint) Mod(VertexID, 4);
 
             // TODO: This workaround is only because ShaderGen doesn't yet support const arrays.
             var vertexUVPos = Vector4.Zero;

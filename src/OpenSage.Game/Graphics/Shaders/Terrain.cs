@@ -32,20 +32,13 @@ namespace OpenSage.Graphics.Shaders
 
         public GlobalConstantsVS GlobalConstantsVS;
 
-        public GlobalConstantsPS GlobalConstantsPS;
-
         public Global_LightingConstantsVS Global_LightingConstantsVS;
 
         public Global_LightingConstantsPS Global_LightingConstantsPS;
 
         public Texture2DResource Global_CloudTexture;
 
-        public struct RenderItemConstantsVSType
-        {
-            public Matrix4x4 World;
-        }
-
-        public RenderItemConstantsVSType RenderItemConstantsVS;
+        public MeshShaderHelpers.RenderItemConstantsVS RenderItemConstantsVS;
 
         public struct TerrainMaterialConstantsType
         {
@@ -87,7 +80,7 @@ namespace OpenSage.Graphics.Shaders
         {
             PixelInput output;
 
-            var worldPosition = Vector4.Transform(new Vector4(input.Position, 1), RenderItemConstantsVS.World).XYZ();
+            var worldPosition = (Vector4.Transform(new Vector4(input.Position, 1), RenderItemConstantsVS.World)).XYZ();
 
             output.Position = Vector4.Transform(new Vector4(worldPosition, 1), GlobalConstantsVS.ViewProjection);
             output.WorldPosition = worldPosition;
@@ -105,7 +98,7 @@ namespace OpenSage.Graphics.Shaders
         }
 
         private Vector3 SampleTexture(
-            int textureIndex,
+            uint textureIndex,
             Vector2 uv,
             Vector2 ddxUV,
             Vector2 ddyUV)
@@ -124,14 +117,19 @@ namespace OpenSage.Graphics.Shaders
                 ddxUV / textureInfo.CellSize,
                 ddyUV / textureInfo.CellSize);
 
-            return diffuseTextureColor.rgb;
+            return diffuseTextureColor.XYZ();
         }
 
         private float CalculateDiagonalBlendFactor(Vector2 fracUV, bool twoSided)
         {
-            return twoSided
-                ? 1 - Saturate((fracUV.X + fracUV.Y) - 1)
-                : Saturate(1 - (fracUV.X + fracUV.Y));
+            if (twoSided)
+            {
+                return 1 - Saturate((fracUV.X + fracUV.Y) - 1);
+            }
+            else
+            {
+                return Saturate(1 - (fracUV.X + fracUV.Y));
+            }
         }
 
         private float CalculateBlendFactor(
@@ -186,7 +184,7 @@ namespace OpenSage.Graphics.Shaders
 
         private Vector3 SampleBlendedTextures(Vector2 uv)
         {
-            var tileDatum = Load(TileData, uv, 0);
+            var tileDatum = Load(TileData, Sampler, uv, 0);
 
             var fracUV = Frac(uv);
 
@@ -219,8 +217,8 @@ namespace OpenSage.Graphics.Shaders
             var textureColor1 = SampleTexture(textureIndex1, uv, ddxUV, ddyUV);
             var textureColor2 = SampleTexture(textureIndex2, uv, ddxUV, ddyUV);
 
-            float blendFactor1 = CalculateBlendFactor(blendDirection1, blendFlags1, fracUV);
-            float blendFactor2 = CalculateBlendFactor(blendDirection2, blendFlags2, fracUV);
+            var blendFactor1 = CalculateBlendFactor(blendDirection1, blendFlags1, fracUV);
+            var blendFactor2 = CalculateBlendFactor(blendDirection2, blendFlags2, fracUV);
 
             return
                 Lerp(

@@ -12,7 +12,7 @@ namespace OpenSage.Graphics.Shaders
             float timeInSeconds)
         {
             // TODO: Wasteful to do a whole matrix-multiply here when we only need xy.
-            var lightSpacePos = Vector4.Transform(worldPosition, cloudShadowMatrix).XY();
+            var lightSpacePos = (Vector4.Transform(worldPosition, cloudShadowMatrix)).XY();
 
             var cloudTextureScale = new Vector2(1 / 660.0f, 1 / 660.0f); // TODO: Read this from Weather.ini
             var offset = Frac(timeInSeconds * new Vector2(-0.012f, -0.018f)); // TODO: Read this from Weather.ini
