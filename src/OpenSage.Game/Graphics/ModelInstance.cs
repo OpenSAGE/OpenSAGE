@@ -34,7 +34,7 @@ namespace OpenSage.Graphics
 
         private readonly bool _hasSkinnedMeshes;
 
-        private readonly Matrix4x3[] _skinningBones;
+        private readonly Matrix4x4[] _skinningBones;
 
         internal DeviceBuffer SkinningBuffer;
 
@@ -71,11 +71,11 @@ namespace OpenSage.Graphics
             {
                 SkinningBuffer = AddDisposable(graphicsDevice.ResourceFactory.CreateBuffer(
                     new BufferDescription(
-                        (uint) (Matrix4x3.SizeInBytes * model.Bones.Length),
+                        (uint) (64 * model.Bones.Length),
                         BufferUsage.StructuredBufferReadOnly | BufferUsage.Dynamic,
-                        Matrix4x3.SizeInBytes)));
+                        64)));
 
-                _skinningBones = new Matrix4x3[model.Bones.Length];
+                _skinningBones = new Matrix4x4[model.Bones.Length];
             }
 
             AnimationInstances = new List<AnimationInstance>();
@@ -122,7 +122,8 @@ namespace OpenSage.Graphics
             // to Matrix4x3 to send to shader.
             for (var i = 0; i < Model.Bones.Length; i++)
             {
-                RelativeBoneTransforms[i].ToMatrix4x3(out _skinningBones[i]);
+                _skinningBones[i] = RelativeBoneTransforms[i];
+                //RelativeBoneTransforms[i].ToMatrix4x3(out _skinningBones[i]);
             }
 
             _graphicsDevice.UpdateBuffer(SkinningBuffer, 0, _skinningBones);

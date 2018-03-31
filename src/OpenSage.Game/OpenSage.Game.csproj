@@ -1,6 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\build\OpenSage.EffectCompiler.props" />
-  
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>OpenSage</RootNamespace>
@@ -18,22 +16,16 @@
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0002" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
-    <PackageReference Include="ShaderGen.Primitives" Version="1.1.0-gd961cf2e51" />
-    <PackageReference Include="ShaderGen.Build" Version="1.1.0-gd961cf2e51" PrivateAssets="All" />
-    <PackageReference Include="Veldrid" Version="4.1.0-g9dfc41af8e" />
-    <PackageReference Include="Veldrid.ImageSharp" Version="4.0.0" />
-    <PackageReference Include="Veldrid.SDL2" Version="4.1.0-g9dfc41af8e" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EffectShader Include="**\*.fx" />
+    <PackageReference Include="ShaderGen.Primitives" Version="1.2.0-g54cf9ed144" />
+    <PackageReference Include="ShaderGen.Build" Version="1.2.0-g54cf9ed144" PrivateAssets="All" />
+    <PackageReference Include="Veldrid" Version="4.1.4" />
+    <PackageReference Include="Veldrid.ImageSharp" Version="4.1.4" />
+    <PackageReference Include="Veldrid.SDL2" Version="4.1.4" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Graphics\Shaders\*.json" />
   </ItemGroup>
-
-  <Import Project="..\..\build\OpenSage.EffectCompiler.targets" />
 
   <Target Name="EmbedGeneratedShaderContent" AfterTargets="AssignTargetPaths">
     <ItemGroup>

@@ -1,7 +1,7 @@
 ﻿{
   "ResourceBindings": [
     {
-      "Name": "GlobalConstantsShared",
+      "Name": "GlobalConstantsSharedBuffer",
       "Type": "UniformBuffer",
       "Register": 0,
       "Stages": "Vertex, Fragment",
@@ -16,7 +16,7 @@
       ]
     },
     {
-      "Name": "GlobalConstantsVS",
+      "Name": "GlobalConstantsVSBuffer",
       "Type": "UniformBuffer",
       "Register": 1,
       "Stages": "Vertex",
@@ -31,7 +31,7 @@
       ]
     },
     {
-      "Name": "RenderItemConstantsVS",
+      "Name": "RenderItemConstantsVSBuffer",
       "Type": "UniformBuffer",
       "Register": 2,
       "Stages": "Vertex",
@@ -46,7 +46,7 @@
       ]
     },
     {
-      "Name": "LinearSampler",
+      "Name": "Sampler",
       "Type": "Sampler",
       "Register": 0,
       "Stages": "Fragment"

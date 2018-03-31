@@ -1,7 +1,7 @@
 ﻿{
   "ResourceBindings": [
     {
-      "Name": "GlobalConstantsShared",
+      "Name": "GlobalConstantsSharedBuffer",
       "Type": "UniformBuffer",
       "Register": 0,
       "Stages": "Vertex, Fragment",
@@ -22,7 +22,7 @@
       ]
     },
     {
-      "Name": "GlobalConstantsVS",
+      "Name": "GlobalConstantsVSBuffer",
       "Type": "UniformBuffer",
       "Register": 1,
       "Stages": "Vertex",
@@ -37,24 +37,9 @@
       ]
     },
     {
-      "Name": "RenderItemConstantsVS",
+      "Name": "Global_LightingConstantsVSBuffer",
       "Type": "UniformBuffer",
       "Register": 2,
-      "Stages": "Vertex",
-      "Size": 64,
-      "Fields": [
-        {
-          "Name": "World",
-          "Type": "Float4x4",
-          "Offset": 0,
-          "Size": 64
-        }
-      ]
-    },
-    {
-      "Name": "Global_LightingConstantsVS",
-      "Type": "UniformBuffer",
-      "Register": 3,
       "Stages": "Vertex",
       "Size": 64,
       "Fields": [
@@ -67,9 +52,9 @@
       ]
     },
     {
-      "Name": "Global_LightingConstantsPS",
+      "Name": "Global_LightingConstantsPSBuffer",
       "Type": "UniformBuffer",
-      "Register": 4,
+      "Register": 3,
       "Stages": "Fragment",
       "Size": 144,
       "Fields": [
@@ -82,7 +67,28 @@
       ]
     },
     {
-      "Name": "TerrainMaterialConstants",
+      "Name": "Global_CloudTexture",
+      "Type": "TextureReadOnly",
+      "Register": 0,
+      "Stages": "Fragment"
+    },
+    {
+      "Name": "RenderItemConstantsVSBuffer",
+      "Type": "UniformBuffer",
+      "Register": 4,
+      "Stages": "Vertex",
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "World",
+          "Type": "Float4x4",
+          "Offset": 0,
+          "Size": 64
+        }
+      ]
+    },
+    {
+      "Name": "TerrainMaterialConstantsBuffer",
       "Type": "UniformBuffer",
       "Register": 5,
       "Stages": "Fragment",
@@ -102,7 +108,7 @@
         },
         {
           "Name": "IsMacroTextureStretched",
-          "Type": "Bool",
+          "Type": "Uint",
           "Offset": 16,
           "Size": 4
         }
@@ -111,30 +117,24 @@
     {
       "Name": "TileData",
       "Type": "TextureReadOnly",
-      "Register": 0,
+      "Register": 1,
       "Stages": "Fragment"
     },
     {
       "Name": "CliffDetails",
       "Type": "StructuredBufferReadOnly",
-      "Register": 1,
+      "Register": 2,
       "Stages": "Fragment",
       "Size": 32
     },
     {
       "Name": "TextureDetails",
       "Type": "StructuredBufferReadOnly",
-      "Register": 2,
-      "Stages": "Fragment"
-    },
-    {
-      "Name": "Textures",
-      "Type": "TextureReadOnly",
       "Register": 3,
       "Stages": "Fragment"
     },
     {
-      "Name": "Global_CloudTexture",
+      "Name": "Textures",
       "Type": "TextureReadOnly",
       "Register": 4,
       "Stages": "Fragment"

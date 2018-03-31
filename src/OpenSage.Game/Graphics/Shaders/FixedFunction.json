@@ -1,7 +1,7 @@
 ﻿{
   "ResourceBindings": [
     {
-      "Name": "GlobalConstantsShared",
+      "Name": "GlobalConstantsSharedBuffer",
       "Type": "UniformBuffer",
       "Register": 0,
       "Stages": "Vertex, Fragment",
@@ -22,7 +22,7 @@
       ]
     },
     {
-      "Name": "GlobalConstantsVS",
+      "Name": "GlobalConstantsVSBuffer",
       "Type": "UniformBuffer",
       "Register": 1,
       "Stages": "Vertex",
@@ -37,7 +37,7 @@
       ]
     },
     {
-      "Name": "GlobalConstantsPS",
+      "Name": "GlobalConstantsPSBuffer",
       "Type": "UniformBuffer",
       "Register": 2,
       "Stages": "Fragment",
@@ -52,9 +52,39 @@
       ]
     },
     {
-      "Name": "MeshConstants",
+      "Name": "Global_LightingConstantsVSBuffer",
       "Type": "UniformBuffer",
       "Register": 3,
+      "Stages": "Vertex",
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "CloudShadowMatrix",
+          "Type": "Float4x4",
+          "Offset": 0,
+          "Size": 64
+        }
+      ]
+    },
+    {
+      "Name": "Global_LightingConstantsPSBuffer",
+      "Type": "UniformBuffer",
+      "Register": 4,
+      "Stages": "Fragment",
+      "Size": 144,
+      "Fields": [
+        {
+          "Name": "Lights",
+          "Type": "Struct",
+          "Offset": 0,
+          "Size": 144
+        }
+      ]
+    },
+    {
+      "Name": "MeshConstantsBuffer",
+      "Type": "UniformBuffer",
+      "Register": 5,
       "Stages": "Vertex",
       "Size": 16,
       "Fields": [
@@ -73,9 +103,9 @@
       ]
     },
     {
-      "Name": "RenderItemConstantsVS",
+      "Name": "RenderItemConstantsVSBuffer",
       "Type": "UniformBuffer",
-      "Register": 4,
+      "Register": 6,
       "Stages": "Vertex",
       "Size": 64,
       "Fields": [
@@ -88,44 +118,20 @@
       ]
     },
     {
+      "Name": "Global_CloudTexture",
+      "Type": "TextureReadOnly",
+      "Register": 0,
+      "Stages": "Fragment"
+    },
+    {
       "Name": "SkinningBuffer",
       "Type": "StructuredBufferReadOnly",
-      "Register": 0,
+      "Register": 1,
       "Stages": "Vertex",
-      "Size": 48
+      "Size": 64
     },
     {
-      "Name": "Global_LightingConstantsVS",
-      "Type": "UniformBuffer",
-      "Register": 5,
-      "Stages": "Vertex",
-      "Size": 64,
-      "Fields": [
-        {
-          "Name": "CloudShadowMatrix",
-          "Type": "Float4x4",
-          "Offset": 0,
-          "Size": 64
-        }
-      ]
-    },
-    {
-      "Name": "Global_LightingConstantsPS",
-      "Type": "UniformBuffer",
-      "Register": 6,
-      "Stages": "Fragment",
-      "Size": 144,
-      "Fields": [
-        {
-          "Name": "Lights",
-          "Type": "Struct",
-          "Offset": 0,
-          "Size": 144
-        }
-      ]
-    },
-    {
-      "Name": "MaterialConstants",
+      "Name": "MaterialConstantsBuffer",
       "Type": "UniformBuffer",
       "Register": 7,
       "Stages": "Fragment",
@@ -154,17 +160,11 @@
     {
       "Name": "Texture0",
       "Type": "TextureReadOnly",
-      "Register": 1,
-      "Stages": "Fragment"
-    },
-    {
-      "Name": "Texture1",
-      "Type": "TextureReadOnly",
       "Register": 2,
       "Stages": "Fragment"
     },
     {
-      "Name": "Global_CloudTexture",
+      "Name": "Texture1",
       "Type": "TextureReadOnly",
       "Register": 3,
       "Stages": "Fragment"

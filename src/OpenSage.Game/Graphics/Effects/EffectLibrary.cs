@@ -33,8 +33,7 @@ namespace OpenSage.Graphics.Effects
             Sprite = AddDisposable(new Effect(
                 graphicsDevice,
                 "Sprite",
-                SpriteVertex.VertexDescriptor,
-                true));
+                SpriteVertex.VertexDescriptor));
 
             Terrain = AddDisposable(new Effect(
                 graphicsDevice,

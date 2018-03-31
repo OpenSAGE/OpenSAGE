@@ -31,14 +31,14 @@ namespace OpenSage.Graphics.Rendering
 
             var graphicsDevice = game.GraphicsDevice;
 
-            _globalConstantBufferShared = AddDisposable(new ConstantBuffer<GlobalConstantsShared>(graphicsDevice));
-            _globalConstantBufferVS = AddDisposable(new ConstantBuffer<GlobalConstantsVS>(graphicsDevice));
-            _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<RenderItemConstantsVS>(graphicsDevice));
-            _globalConstantBufferPS = AddDisposable(new ConstantBuffer<GlobalConstantsPS>(graphicsDevice));
-            _globalLightingVSTerrainBuffer = AddDisposable(new ConstantBuffer<LightingConstantsVS>(graphicsDevice));
-            _globalLightingPSTerrainBuffer = AddDisposable(new ConstantBuffer<LightingConstantsPS>(graphicsDevice));
-            _globalLightingVSObjectBuffer = AddDisposable(new ConstantBuffer<LightingConstantsVS>(graphicsDevice));
-            _globalLightingPSObjectBuffer = AddDisposable(new ConstantBuffer<LightingConstantsPS>(graphicsDevice));
+            _globalConstantBufferShared = AddDisposable(new ConstantBuffer<GlobalConstantsShared>(graphicsDevice, "GlobalConstantsSharedBuffer"));
+            _globalConstantBufferVS = AddDisposable(new ConstantBuffer<GlobalConstantsVS>(graphicsDevice, "GlobalConstantsVSBuffer"));
+            _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<RenderItemConstantsVS>(graphicsDevice, "RenderItemConstantsVSBuffer"));
+            _globalConstantBufferPS = AddDisposable(new ConstantBuffer<GlobalConstantsPS>(graphicsDevice, "GlobalConstantsPSBuffer"));
+            _globalLightingVSTerrainBuffer = AddDisposable(new ConstantBuffer<LightingConstantsVS>(graphicsDevice, "Global_LightingConstantsVSBuffer (terrain)"));
+            _globalLightingPSTerrainBuffer = AddDisposable(new ConstantBuffer<LightingConstantsPS>(graphicsDevice, "Global_LightingConstantsPSBuffer (terrain)"));
+            _globalLightingVSObjectBuffer = AddDisposable(new ConstantBuffer<LightingConstantsVS>(graphicsDevice, "Global_LightingConstantsVSBuffer (objects)"));
+            _globalLightingPSObjectBuffer = AddDisposable(new ConstantBuffer<LightingConstantsPS>(graphicsDevice, "Global_LightingConstantsPSBuffer (objects)"));
 
             _commandList = AddDisposable(graphicsDevice.ResourceFactory.CreateCommandList());
 
@@ -139,7 +139,7 @@ namespace OpenSage.Graphics.Rendering
                         }
                     }
 
-                    var renderItemConstantsVSParameter = renderItem.Effect.GetParameter("RenderItemConstantsVS");
+                    var renderItemConstantsVSParameter = renderItem.Effect.GetParameter("RenderItemConstantsVSBuffer");
                     if (renderItemConstantsVSParameter != null)
                     {
                         if (lastWorld == null || lastWorld.Value != renderItem.World)
@@ -151,7 +151,7 @@ namespace OpenSage.Graphics.Rendering
                         }
 
                         renderItem.Material.SetProperty(
-                            "RenderItemConstantsVS",
+                            "RenderItemConstantsVSBuffer",
                             _renderItemConstantsBufferVS.Buffer);
                     }
 
@@ -221,20 +221,20 @@ namespace OpenSage.Graphics.Rendering
                 }
             }
 
-            setDefaultConstantBuffer("GlobalConstantsShared", _globalConstantBufferShared.Buffer);
-            setDefaultConstantBuffer("GlobalConstantsVS", _globalConstantBufferVS.Buffer);
-            setDefaultConstantBuffer("GlobalConstantsPS", _globalConstantBufferPS.Buffer);
+            setDefaultConstantBuffer("GlobalConstantsSharedBuffer", _globalConstantBufferShared.Buffer);
+            setDefaultConstantBuffer("GlobalConstantsVSBuffer", _globalConstantBufferVS.Buffer);
+            setDefaultConstantBuffer("GlobalConstantsPSBuffer", _globalConstantBufferPS.Buffer);
 
             switch (material.LightingType)
             {
                 case LightingType.Terrain:
-                    setDefaultConstantBuffer("Global_LightingConstantsVS", _globalLightingVSTerrainBuffer.Buffer);
-                    setDefaultConstantBuffer("Global_LightingConstantsPS", _globalLightingPSTerrainBuffer.Buffer);
+                    setDefaultConstantBuffer("Global_LightingConstantsVSBuffer", _globalLightingVSTerrainBuffer.Buffer);
+                    setDefaultConstantBuffer("Global_LightingConstantsPSBuffer", _globalLightingPSTerrainBuffer.Buffer);
                     break;
 
                 case LightingType.Object:
-                    setDefaultConstantBuffer("Global_LightingConstantsVS", _globalLightingVSObjectBuffer.Buffer);
-                    setDefaultConstantBuffer("Global_LightingConstantsPS", _globalLightingPSObjectBuffer.Buffer);
+                    setDefaultConstantBuffer("Global_LightingConstantsVSBuffer", _globalLightingVSObjectBuffer.Buffer);
+                    setDefaultConstantBuffer("Global_LightingConstantsPSBuffer", _globalLightingPSObjectBuffer.Buffer);
                     break;
             }
         }

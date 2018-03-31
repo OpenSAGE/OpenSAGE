@@ -9,7 +9,7 @@ namespace OpenSage.Graphics.ParticleSystems
         public ParticleMaterial(ContentManager contentManager, Effect effect)
             : base(contentManager, effect)
         {
-            SetProperty("LinearSampler", effect.GraphicsDevice.LinearSampler);
+            SetProperty("Sampler", effect.GraphicsDevice.LinearSampler);
         }
 
         public void SetTexture(Texture texture)

@@ -19,7 +19,7 @@ namespace OpenSage.Graphics.Effects
 
         public void SetMeshConstants(DeviceBuffer meshConstants)
         {
-            SetProperty("MeshConstants", meshConstants);
+            SetProperty("MeshConstantsBuffer", meshConstants);
         }
 
         public override LightingType LightingType => LightingType.Object;
