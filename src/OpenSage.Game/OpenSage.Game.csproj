@@ -1,6 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\build\OpenSage.EffectCompiler.props" />
-  
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>OpenSage</RootNamespace>
@@ -26,14 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EffectShader Include="**\*.fx" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Graphics\Shaders\*.json" />
   </ItemGroup>
-
-  <Import Project="..\..\build\OpenSage.EffectCompiler.targets" />
 
   <Target Name="EmbedGeneratedShaderContent" AfterTargets="AssignTargetPaths">
     <ItemGroup>
