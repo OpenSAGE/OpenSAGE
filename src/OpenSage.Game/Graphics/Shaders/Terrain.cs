@@ -253,7 +253,7 @@ namespace OpenSage.Graphics.Shaders
                 input.WorldPosition,
                 input.WorldNormal,
                 Vector3.One,
-                Vector3.Zero,
+                Vector3.One,
                 Vector3.Zero,
                 0,
                 GlobalConstantsShared.CameraPosition,
