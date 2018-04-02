@@ -155,6 +155,9 @@ namespace OpenSage
 
         private void HandleMouseMove(MouseMoveEventArgs args)
         {
+            _lastMouseX = args.State.X;
+            _lastMouseY = args.State.Y;
+
             var message = InputMessage.CreateMouseMove(new Point2D(args.State.X, args.State.Y));
             _messageQueue.Enqueue(message);
         }
@@ -172,12 +175,7 @@ namespace OpenSage
 
         public bool PumpEvents()
         {
-            // TODO: Use inputSnapshot instead of events?
-            var inputSnapshot = _window.PumpEvents();
-
-            // TODO: This isn't right, it means button events might not have the right position.
-            _lastMouseX = (int) inputSnapshot.MousePosition.X;
-            _lastMouseY = (int) inputSnapshot.MousePosition.Y;
+            _window.PumpEvents();
 
             if (_closing)
             {
