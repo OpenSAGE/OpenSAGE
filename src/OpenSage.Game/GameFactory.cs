@@ -8,7 +8,7 @@ namespace OpenSage
     {
         public static Game CreateGame(IGameDefinition definition,
             IInstallationLocator installationLocator,
-            Func<GameWindow> createWindow)
+            GameWindow window)
         {
             var installation = installationLocator
                 .FindInstallations(definition)
@@ -19,16 +19,16 @@ namespace OpenSage
                 throw new Exception($"No installations for {definition.Game} could be found.");
             }
 
-            return CreateGame(installation, installation.CreateFileSystem(), createWindow);
+            return CreateGame(installation, installation.CreateFileSystem(), window);
         }
 
         public static Game CreateGame(
             GameInstallation installation,
             FileSystem fileSystem,
-            Func<GameWindow> createWindow)
+            GameWindow window)
         {
             var definition = installation.Game;
-            return new Game(definition, fileSystem, createWindow);
+            return new Game(definition, fileSystem, window);
         }
     }
 }
