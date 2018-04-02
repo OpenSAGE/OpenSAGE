@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 using ImGuiNET;
 using OpenSage.Data;
 using OpenSage.Mods.BuiltIn;
+using OpenSage.Viewer.Util;
 
 namespace OpenSage.Viewer.UI
 {
@@ -19,7 +20,8 @@ namespace OpenSage.Viewer.UI
         private List<FileSystemEntry> _files;
         private int _currentFile;
 
-        private byte[] _dataInput = new byte[32];
+        private byte[] _searchTextBuffer = new byte[32];
+        private byte[] _filePathBuffer = new byte[1024];
 
         private ContentView _contentView;
 
@@ -30,7 +32,7 @@ namespace OpenSage.Viewer.UI
             ChangeInstallation(_installations.FirstOrDefault());
         }
 
-        public unsafe void Draw()
+        public void Draw()
         {
             ImGui.SetNextWindowPos(Vector2.Zero, Condition.Always, Vector2.Zero);
             ImGui.SetNextWindowSize(new Vector2(1024, 768), Condition.Always);
@@ -54,39 +56,71 @@ namespace OpenSage.Viewer.UI
 
             ImGui.BeginChild("sidebar", new Vector2(250, 0), true, 0);
 
-            TextEditCallback callback = (data) =>
-            {
-                int* p_cursor_pos = (int*) data->UserData;
-                if (!data->HasSelection())
-                    *p_cursor_pos = data->CursorPos;
-                return 0;
-            };
-
-            ImGui.InputText("Search", _dataInput, (uint) _dataInput.Length, InputTextFlags.Default, callback);
-
-            var searchText = Encoding.UTF8.GetString(_dataInput).TrimEnd('\0');
+            ImGuiUtility.InputText("Search", _searchTextBuffer, out var searchText);
 
             for (var i = 0; i < _files.Count; i++)
             {
-                if (!string.IsNullOrEmpty(searchText) && _files[i].FilePath.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) < 0)
+                var entry = _files[i];
+
+                if (!string.IsNullOrEmpty(searchText) && entry.FilePath.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) < 0)
                 {
                     continue;
                 }
 
-                if (ImGui.Selectable(_files[i].FilePath, i == _currentFile))
+                if (ImGui.Selectable(entry.FilePath, i == _currentFile))
                 {
                     _currentFile = i;
 
                     RemoveAndDispose(ref _contentView);
 
-                    _contentView = AddDisposable(new ContentView(_files[i]));
+                    _contentView = AddDisposable(new ContentView(entry));
                 }
+
+                var shouldOpenSaveDialog = false;
 
                 if (ImGui.BeginPopupContextItem("context" + i))
                 {
+                    _currentFile = i;
+
                     if (ImGui.Selectable("Export..."))
                     {
-                        // TODO
+                        //ImGui.CloseCurrentPopup();
+                        shouldOpenSaveDialog = true;
+                    }
+
+                    ImGui.EndPopup();
+                }
+
+                var exportId = "Export##ExportDialog" + i;
+                if (shouldOpenSaveDialog)
+                {
+                    ImGui.OpenPopup(exportId);
+                }
+
+                if (ImGui.BeginPopupModal(exportId, WindowFlags.AlwaysAutoResize))
+                {
+                    ImGuiUtility.InputText("File Path", _filePathBuffer, out var filePath);
+
+                    if (ImGui.Button("Save"))
+                    {
+                        using (var entryStream = entry.Open())
+                        {
+                            using (var fileStream = File.OpenWrite(filePath))
+                            {
+                                entryStream.CopyTo(fileStream);
+                            }
+                        }
+
+                        ImGui.CloseCurrentPopup();
+                    }
+
+                    ImGui.SetItemDefaultFocus();
+
+                    ImGui.SameLine();
+
+                    if (ImGui.Button("Cancel"))
+                    {
+                        ImGui.CloseCurrentPopup();
                     }
 
                     ImGui.EndPopup();
