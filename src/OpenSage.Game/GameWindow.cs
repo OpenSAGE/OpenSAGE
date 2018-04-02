@@ -188,9 +188,11 @@ namespace OpenSage
             // TODO
         }
 
+        public InputSnapshot CurrentInputSnapshot { get; private set; }
+
         public bool PumpEvents()
         {
-            _window.PumpEvents();
+            CurrentInputSnapshot = _window.PumpEvents();
 
             if (_closing)
             {
