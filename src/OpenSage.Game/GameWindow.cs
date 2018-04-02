@@ -25,6 +25,8 @@ namespace OpenSage
             ClientSizeChanged?.Invoke(this, EventArgs.Empty);
         }
 
+        public GraphicsDevice GraphicsDevice { get; private set; }
+
         public Rectangle ClientBounds
         {
             get
@@ -46,9 +48,6 @@ namespace OpenSage
             get => _window.CursorVisible;
             set => _window.CursorVisible = value;
         }
-
-        // TODO: Remove this once we switch to Veldrid.
-        public IntPtr NativeWindowHandle => _window.Handle;
 
         public GameWindow(IntPtr windowsWindowHandle)
         {
@@ -75,6 +74,18 @@ namespace OpenSage
             _window.Resized += HandleResized;
 
             _window.Closing += HandleClosing;
+
+#if DEBUG
+            const bool debug = true;
+#else
+            const bool debug = false;
+#endif
+
+            GraphicsDevice = AddDisposable(GraphicsDevice.CreateD3D11(
+                new GraphicsDeviceOptions(debug, PixelFormat.D32_Float_S8_UInt, true),
+                _window.Handle,
+                (uint) _window.Bounds.Width,
+                (uint) _window.Bounds.Height));
         }
 
         private void HandleClosing()
@@ -84,6 +95,10 @@ namespace OpenSage
 
         private void HandleResized()
         {
+            GraphicsDevice.ResizeMainWindow(
+                (uint) _window.Bounds.Width,
+                (uint) _window.Bounds.Height);
+
             RaiseClientSizeChanged();
         }
 
@@ -194,6 +209,8 @@ namespace OpenSage
         {
             // TODO: This isn't right.
             _window.Close();
+
+            GraphicsDevice.WaitForIdle();
 
             base.Dispose(disposeManagedResources);
         }

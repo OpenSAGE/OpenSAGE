@@ -6,7 +6,6 @@ using OpenSage.Audio;
 using OpenSage.Data;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Rendering;
-using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
 using OpenSage.Input;
 using OpenSage.Logic;
@@ -153,17 +152,7 @@ namespace OpenSage
 
             Window = window;
 
-#if DEBUG
-            const bool debug = true;
-#else
-            const bool debug = false;
-#endif
-
-            GraphicsDevice = AddDisposable(GraphicsDevice.CreateD3D11(
-                new GraphicsDeviceOptions(debug, PixelFormat.D32_Float_S8_UInt, true),
-                Window.NativeWindowHandle,
-                (uint) Window.ClientBounds.Width,
-                (uint) Window.ClientBounds.Height));
+            GraphicsDevice = window.GraphicsDevice;
 
             InputMessageBuffer = AddDisposable(new InputMessageBuffer(Window));
 
@@ -237,10 +226,6 @@ namespace OpenSage
         private void OnWindowClientSizeChanged(object sender, EventArgs e)
         {
             var newSize = Window.ClientBounds.Size;
-
-            GraphicsDevice.ResizeMainWindow(
-                (uint) newSize.Width,
-                (uint) newSize.Height);
 
             Viewport = new Viewport(
                 0,
@@ -410,8 +395,6 @@ namespace OpenSage
 
         protected override void Dispose(bool disposeManagedResources)
         {
-            GraphicsDevice.WaitForIdle();
-
             base.Dispose(disposeManagedResources);
 
             GC.Collect();
