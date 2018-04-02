@@ -7,13 +7,12 @@ namespace OpenSage.DataViewer
         public DataViewerApplication(Eto.Platform platform)
             : base(platform)
         {
-            OpenSage.Platform.CurrentPlatform = new Sdl2Platform();
-            OpenSage.Platform.CurrentPlatform.Start();
+            OpenSage.Platform.Start();
         }
 
         protected override void Dispose(bool disposing)
         {
-            OpenSage.Platform.CurrentPlatform.Stop();
+            OpenSage.Platform.Stop();
 
             base.Dispose(disposing);
         }

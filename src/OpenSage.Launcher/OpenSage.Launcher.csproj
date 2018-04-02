@@ -19,7 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\OpenSage.Game\OpenSage.Game.csproj" />
     <ProjectReference Include="..\OpenSage.Mods.BuiltIn\OpenSage.Mods.BuiltIn.csproj" />
-    <ProjectReference Include="..\OpenSage.Platform\OpenSage.Platform.csproj" />
   </ItemGroup>
 
 </Project>
