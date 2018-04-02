@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Veldrid.ImGui" Version="4.1.4" />
+    <PackageReference Include="Veldrid.ImageSharp" Version="4.1.4" />
   </ItemGroup>
 
   <ItemGroup>

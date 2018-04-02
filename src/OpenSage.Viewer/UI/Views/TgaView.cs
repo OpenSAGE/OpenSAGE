@@ -1,37 +1,18 @@
-﻿using System;
-using System.Numerics;
-using ImGuiNET;
-using OpenSage.Data;
-using Veldrid;
+﻿using Veldrid;
 
 namespace OpenSage.Viewer.UI.Views
 {
-    internal sealed class TgaView : IView
+    internal sealed class TgaView : ImageView
     {
-        private readonly IntPtr _imagePointer;
-
-        public TgaView(
-            GraphicsDevice graphicsDevice,
-            ImGuiRenderer renderer,
-            Game game,
-            FileSystemEntry entry)
+        public TgaView(AssetViewContext context)
+            : base(context)
         {
-            var texture = game.ContentManager.Load<Texture>(entry.FilePath);
-
-            _imagePointer = renderer.GetOrCreateImGuiBinding(
-                graphicsDevice.ResourceFactory,
-                texture);
+            
         }
 
-        public void Draw()
+        protected override Texture GetTexture(AssetViewContext context)
         {
-            ImGui.Image(
-                _imagePointer,
-                ImGui.GetContentRegionAvailable(),
-                Vector2.Zero,
-                Vector2.One,
-                Vector4.One,
-                Vector4.Zero);
+            return context.Game.ContentManager.Load<Texture>(context.Entry);
         }
     }
 }

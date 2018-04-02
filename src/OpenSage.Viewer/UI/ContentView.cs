@@ -10,37 +10,24 @@ namespace OpenSage.Viewer.UI
     {
         private readonly FileSystemEntry _entry;
 
-        private readonly IView _view;
+        private readonly AssetView _assetView;
 
-        public ContentView(
-            GraphicsDevice graphicsDevice,
-            ImGuiRenderer renderer,
-            Game game,
-            FileSystemEntry entry)
+        public ContentView(AssetViewContext context)
         {
-            _entry = entry;
+            _entry = context.Entry;
 
-            _view = CreateViewForFileSystemEntry(
-                graphicsDevice,
-                renderer,
-                game,
-                entry);
+            _assetView = CreateViewForFileSystemEntry(context);
         }
 
-        private IView CreateViewForFileSystemEntry(
-            GraphicsDevice graphicsDevice,
-            ImGuiRenderer renderer,
-            Game game,
-            FileSystemEntry entry)
+        private AssetView CreateViewForFileSystemEntry(AssetViewContext context)
         {
-            switch (Path.GetExtension(entry.FilePath).ToLower())
+            switch (Path.GetExtension(context.Entry.FilePath).ToLower())
             {
+                case ".bmp":
+                    return new BmpView(context);
+
                 case ".tga":
-                    return new TgaView(
-                        graphicsDevice,
-                        renderer,
-                        game,
-                        entry);
+                    return new TgaView(context);
 
                 default:
                     return null;
@@ -51,9 +38,9 @@ namespace OpenSage.Viewer.UI
         {
             ImGui.Text(_entry.FilePath);
 
-            if (_view != null)
+            if (_assetView != null)
             {
-                _view.Draw();
+                _assetView.Draw();
             }
             else
             {

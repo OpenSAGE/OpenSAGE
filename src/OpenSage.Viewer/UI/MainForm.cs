@@ -82,10 +82,7 @@ namespace OpenSage.Viewer.UI
                     RemoveAndDispose(ref _contentView);
 
                     _contentView = AddDisposable(new ContentView(
-                        _game.GraphicsDevice,
-                        _imGuiRenderer,
-                        _game,
-                        entry));
+                        new Views.AssetViewContext(_game, _imGuiRenderer, entry)));
                 }
 
                 var shouldOpenSaveDialog = false;
