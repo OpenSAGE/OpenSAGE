@@ -21,7 +21,7 @@ namespace OpenSage.Viewer
 
                 gameTimer.Start();
 
-                var mainForm = new MainForm();
+                var mainForm = new MainForm(window, imGuiRenderer);
 
                 while (true)
                 {

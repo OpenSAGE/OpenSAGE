@@ -7,15 +7,20 @@ using ImGuiNET;
 using OpenSage.Data;
 using OpenSage.Mods.BuiltIn;
 using OpenSage.Viewer.Util;
+using Veldrid;
 
 namespace OpenSage.Viewer.UI
 {
     internal sealed class MainForm : DisposableBase
     {
+        private readonly GameWindow _gameWindow;
+        private readonly ImGuiRenderer _imGuiRenderer;
+
         private readonly List<GameInstallation> _installations;
 
         private GameInstallation _selectedInstallation;
         private FileSystem _fileSystem;
+        private Game _game;
 
         private List<FileSystemEntry> _files;
         private int _currentFile;
@@ -25,8 +30,11 @@ namespace OpenSage.Viewer.UI
 
         private ContentView _contentView;
 
-        public MainForm()
+        public MainForm(GameWindow gameWindow, ImGuiRenderer imGuiRenderer)
         {
+            _gameWindow = gameWindow;
+            _imGuiRenderer = imGuiRenderer;
+
             _installations = GameInstallation.FindAll(GameDefinition.All).ToList();
 
             ChangeInstallation(_installations.FirstOrDefault());
@@ -73,7 +81,11 @@ namespace OpenSage.Viewer.UI
 
                     RemoveAndDispose(ref _contentView);
 
-                    _contentView = AddDisposable(new ContentView(entry));
+                    _contentView = AddDisposable(new ContentView(
+                        _game.GraphicsDevice,
+                        _imGuiRenderer,
+                        _game,
+                        entry));
                 }
 
                 var shouldOpenSaveDialog = false;
@@ -146,6 +158,7 @@ namespace OpenSage.Viewer.UI
 
             RemoveAndDispose(ref _contentView);
             _files = null;
+            RemoveAndDispose(ref _game);
             RemoveAndDispose(ref _fileSystem);
 
             if (installation == null)
@@ -168,6 +181,11 @@ namespace OpenSage.Viewer.UI
             _fileSystem = AddDisposable(installation.CreateFileSystem());
 
             _files = _fileSystem.Files.OrderBy(x => x.FilePath).ToList();
+
+            _game = AddDisposable(GameFactory.CreateGame(
+                installation,
+                _fileSystem,
+                _gameWindow));
 
             //InstallationChanged?.Invoke(this, new InstallationChangedEventArgs(installation, _fileSystem));
         }
