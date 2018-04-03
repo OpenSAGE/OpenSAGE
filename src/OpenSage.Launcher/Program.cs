@@ -40,30 +40,34 @@ namespace OpenSage.Launcher
 
             // TODO: Read game version from assembly metadata or .git folder
             // TODO: Set window icon.
-            var gameWindow = new GameWindow("OpenSAGE (master)", 100, 100, 1024, 768, 0);
-
-            var game = GameFactory.CreateGame(
-                definition,
-                locator,
-                gameWindow);
-
-            game.Configuration.LoadShellMap = !noShellMap;
-
-            if (mapName == null)
+            using (var gameWindow = new GameWindow("OpenSAGE (master)", 100, 100, 1024, 768, 0))
+            using (var gamePanel = GamePanel.FromGameWindow(gameWindow))
             {
-                game.ShowMainMenu();
-            }
-            else
-            {
-                game.StartGame(mapName, new EchoConnection(), new[] {"America", "GLA"}, 0);
-            }
+                var game = GameFactory.CreateGame(
+                    definition,
+                    locator,
+                    gamePanel);
 
-            while (game.IsRunning)
-            {
-                game.Tick();
-            }
+                game.Configuration.LoadShellMap = !noShellMap;
 
-            gameWindow.Dispose();
+                if (mapName == null)
+                {
+                    game.ShowMainMenu();
+                }
+                else
+                {
+                    game.StartGame(mapName, new EchoConnection(), new[] {"America", "GLA"}, 0);
+                }
+
+                while (game.IsRunning)
+                {
+                    if (!gameWindow.PumpEvents())
+                    {
+                        break;
+                    }
+                    game.Tick();
+                }
+            }
 
             Platform.Stop();
         }

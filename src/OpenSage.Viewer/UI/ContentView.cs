@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using ImGuiNET;
 using OpenSage.Data;
 using OpenSage.Viewer.UI.Views;
 
@@ -10,6 +9,8 @@ namespace OpenSage.Viewer.UI
         private readonly FileSystemEntry _entry;
 
         private readonly AssetView _assetView;
+
+        public FileSystemEntry Entry => _entry;
 
         public ContentView(AssetViewContext context)
         {
@@ -38,8 +39,6 @@ namespace OpenSage.Viewer.UI
 
         public void Draw()
         {
-            ImGui.Text(_entry.FilePath);
-
             if (_assetView != null)
             {
                 _assetView.Draw();

@@ -6,6 +6,7 @@ using System.Numerics;
 using ImGuiNET;
 using OpenSage.Data;
 using OpenSage.Mods.BuiltIn;
+using OpenSage.Viewer.Framework;
 using OpenSage.Viewer.Util;
 using Veldrid;
 
@@ -20,6 +21,7 @@ namespace OpenSage.Viewer.UI
 
         private GameInstallation _selectedInstallation;
         private FileSystem _fileSystem;
+        private ImGuiGamePanel _gamePanel;
         private Game _game;
 
         private List<FileSystemEntry> _files;
@@ -38,11 +40,6 @@ namespace OpenSage.Viewer.UI
             _installations = GameInstallation.FindAll(GameDefinition.All).ToList();
 
             ChangeInstallation(_installations.FirstOrDefault());
-        }
-
-        public void Update()
-        {
-            _game.Tick();
         }
 
         public void Draw()
@@ -85,6 +82,8 @@ namespace OpenSage.Viewer.UI
                     _currentFile = i;
 
                     RemoveAndDispose(ref _contentView);
+
+                    _game.ContentManager.Unload();
 
                     _contentView = AddDisposable(new ContentView(
                         new Views.AssetViewContext(_game, _imGuiRenderer, entry)));
@@ -147,7 +146,15 @@ namespace OpenSage.Viewer.UI
 
             ImGui.BeginChild("content");
 
-            _contentView?.Draw();
+            if (_contentView != null)
+            {
+                ImGui.Text(_contentView.Entry.FilePath);
+
+                var availableSize = ImGui.GetContentRegionAvailable();
+                _gamePanel.EnsureSize((uint) availableSize.X, (uint) availableSize.Y);
+
+                _contentView.Draw();
+            }
 
             ImGui.EndChild();
 
@@ -161,6 +168,7 @@ namespace OpenSage.Viewer.UI
             RemoveAndDispose(ref _contentView);
             _files = null;
             RemoveAndDispose(ref _game);
+            RemoveAndDispose(ref _gamePanel);
             RemoveAndDispose(ref _fileSystem);
 
             if (installation == null)
@@ -184,10 +192,13 @@ namespace OpenSage.Viewer.UI
 
             _files = _fileSystem.Files.OrderBy(x => x.FilePath).ToList();
 
+            _gamePanel = AddDisposable(new ImGuiGamePanel(_gameWindow.GraphicsDevice));
+            _gamePanel.EnsureSize(100, 100);
+
             _game = AddDisposable(GameFactory.CreateGame(
                 installation,
                 _fileSystem,
-                _gameWindow));
+                _gamePanel));
 
             //InstallationChanged?.Invoke(this, new InstallationChangedEventArgs(installation, _fileSystem));
         }

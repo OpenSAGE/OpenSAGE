@@ -19,7 +19,7 @@ namespace OpenSage.Gui.Apt
 
         public void PushWindow(AptWindow window)
         {
-            CreateSizeDependentResources(window, _game.Window.ClientBounds.Size);
+            CreateSizeDependentResources(window, _game.Panel.ClientBounds.Size);
 
             _windowStack.Push(window);
         }
