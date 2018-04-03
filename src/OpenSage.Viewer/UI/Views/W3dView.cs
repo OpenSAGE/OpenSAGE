@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using ImGuiNET;
 using OpenSage.Data.W3d;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
@@ -15,6 +16,9 @@ namespace OpenSage.Viewer.UI.Views
 {
     internal sealed class W3dView : GameView
     {
+        private readonly List<W3dItem> _subObjects;
+        private W3dItem _selectedItem;
+
         public W3dView(AssetViewContext context)
             : base(context)
         {
@@ -81,6 +85,93 @@ namespace OpenSage.Viewer.UI.Views
                         externalAnimations.Add(externalAnimationInstance);
                     }
                 }
+            }
+
+            _subObjects = new List<W3dItem>();
+
+            _subObjects.Add(new W3dModelItem());
+
+            foreach (var animation in animations)
+            {
+                _subObjects.Add(new W3dAnimationItem(animation, "Animation"));
+            }
+
+            foreach (var animation in externalAnimations)
+            {
+                _subObjects.Add(new W3dAnimationItem(animation, "External Animation"));
+            }
+
+            ActivateItem(_subObjects[0]);
+        }
+
+        public override void Draw()
+        {
+            ImGui.BeginChild("w3d", new Vector2(250, 0), true, 0);
+
+            foreach (var subObject in _subObjects)
+            {
+                if (ImGui.Selectable(subObject.Name, subObject == _selectedItem))
+                {
+                    ActivateItem(subObject);
+                }
+            }
+
+            ImGui.EndChild();
+
+            ImGui.SameLine();
+
+            base.Draw();
+        }
+
+        private void ActivateItem(W3dItem item)
+        {
+            if (_selectedItem != null)
+            {
+                _selectedItem.Deactivate();
+                _selectedItem = null;
+            }
+
+            if (item != null)
+            {
+                _selectedItem = item;
+                _selectedItem.Activate();
+            }
+        }
+
+        private abstract class W3dItem
+        {
+            public abstract string Name { get; }
+
+            public virtual void Activate() { }
+            public virtual void Deactivate() { }
+        }
+
+        private sealed class W3dModelItem : W3dItem
+        {
+            public override string Name { get; } = "Model";
+        }
+
+        private sealed class W3dAnimationItem : W3dItem
+        {
+            private readonly AnimationInstance _animationInstance;
+
+            public override string Name { get; }
+
+            public W3dAnimationItem(AnimationInstance animationInstance, string groupName)
+            {
+                _animationInstance = animationInstance;
+
+                Name = $"{groupName} - {_animationInstance.Animation.Name}";
+            }
+
+            public override void Activate()
+            {
+                _animationInstance.Play();
+            }
+
+            public override void Deactivate()
+            {
+                _animationInstance.Stop();
             }
         }
 

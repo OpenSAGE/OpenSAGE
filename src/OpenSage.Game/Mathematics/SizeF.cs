@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Mathematics
+﻿using System.Numerics;
+
+namespace OpenSage.Mathematics
 {
     public struct SizeF
     {
@@ -11,6 +13,16 @@
         {
             Width = width;
             Height = height;
+        }
+
+        public static Size CalculateSizeFittingAspectRatio(SizeF size, Size availableSize)
+        {
+            var rect = RectangleF.CalculateRectangleFittingAspectRatio(
+                new RectangleF(Vector2.Zero, size),
+                size,
+                availableSize);
+
+            return rect.Size;
         }
     }
 }

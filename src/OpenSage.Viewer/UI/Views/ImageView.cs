@@ -26,18 +26,15 @@ namespace OpenSage.Viewer.UI.Views
 
         public override void Draw()
         {
-            var textureBounds = new RectangleF(0, 0, _texture.Width, _texture.Height);
-
             var availableSize = ImGui.GetContentRegionAvailable();
 
-            var rect = RectangleF.CalculateRectangleFittingAspectRatio(
-                textureBounds,
-                textureBounds.Size,
+            var size = SizeF.CalculateSizeFittingAspectRatio(
+                new SizeF(_texture.Width, _texture.Height),
                 new Size((int) availableSize.X, (int) availableSize.Y));
 
             ImGui.Image(
                 _imagePointer,
-                new Vector2(rect.Width, rect.Height),
+                new Vector2(size.Width, size.Height),
                 Vector2.Zero,
                 Vector2.One,
                 Vector4.One,

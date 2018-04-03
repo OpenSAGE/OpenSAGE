@@ -5,10 +5,12 @@ using System.Linq;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Data;
+using OpenSage.Mathematics;
 using OpenSage.Mods.BuiltIn;
 using OpenSage.Viewer.Framework;
 using OpenSage.Viewer.Util;
 using Veldrid;
+using Veldrid.ImageSharp;
 
 namespace OpenSage.Viewer.UI
 {
@@ -20,6 +22,7 @@ namespace OpenSage.Viewer.UI
         private readonly List<GameInstallation> _installations;
 
         private GameInstallation _selectedInstallation;
+        private Texture _launcherImage;
         private FileSystem _fileSystem;
         private ImGuiGamePanel _gamePanel;
         private Game _game;
@@ -66,6 +69,23 @@ namespace OpenSage.Viewer.UI
 
             ImGui.BeginChild("sidebar", new Vector2(250, 0), true, 0);
 
+            if (_launcherImage != null)
+            {
+                var availableSize = ImGui.GetContentRegionAvailable();
+
+                var launcherImageSize = SizeF.CalculateSizeFittingAspectRatio(
+                    new SizeF(_launcherImage.Width, _launcherImage.Height),
+                    new Size((int) availableSize.X, (int) availableSize.Y));
+
+                ImGui.Image(
+                    _imGuiRenderer.GetOrCreateImGuiBinding(_gameWindow.GraphicsDevice.ResourceFactory, _launcherImage),
+                    new Vector2(launcherImageSize.Width, launcherImageSize.Height),
+                    Vector2.Zero,
+                    Vector2.One,
+                    Vector4.One,
+                    Vector4.Zero);
+            }
+
             ImGuiUtility.InputText("Search", _searchTextBuffer, out var searchText);
 
             for (var i = 0; i < _files.Count; i++)
@@ -97,7 +117,6 @@ namespace OpenSage.Viewer.UI
 
                     if (ImGui.Selectable("Export..."))
                     {
-                        //ImGui.CloseCurrentPopup();
                         shouldOpenSaveDialog = true;
                     }
 
@@ -170,6 +189,7 @@ namespace OpenSage.Viewer.UI
             RemoveAndDispose(ref _game);
             RemoveAndDispose(ref _gamePanel);
             RemoveAndDispose(ref _fileSystem);
+            RemoveAndDispose(ref _launcherImage);
 
             if (installation == null)
             {
@@ -177,16 +197,13 @@ namespace OpenSage.Viewer.UI
                 return;
             }
 
-            //var launcherImagePath = installation.Game.LauncherImagePath;
-            //if (launcherImagePath != null)
-            //{
-            //    var fullImagePath = Path.Combine(installation.Path, launcherImagePath);
-            //    _installationImageView.Image = new Bitmap(fullImagePath);
-            //}
-            //else
-            //{
-            //    _installationImageView.Image = null;
-            //}
+            var launcherImagePath = installation.Game.LauncherImagePath;
+            if (launcherImagePath != null)
+            {
+                var fullImagePath = Path.Combine(installation.Path, launcherImagePath);
+                _launcherImage = AddDisposable(new ImageSharpTexture(fullImagePath).CreateDeviceTexture(
+                    _gameWindow.GraphicsDevice, _gameWindow.GraphicsDevice.ResourceFactory));
+            }
 
             _fileSystem = AddDisposable(installation.CreateFileSystem());
 
