@@ -2,7 +2,6 @@
 using ImGuiNET;
 using OpenSage.Data;
 using OpenSage.Viewer.UI.Views;
-using Veldrid;
 
 namespace OpenSage.Viewer.UI
 {
@@ -28,6 +27,9 @@ namespace OpenSage.Viewer.UI
 
                 case ".tga":
                     return new TgaView(context);
+
+                case ".w3d":
+                    return new W3dView(context);
 
                 default:
                     return null;

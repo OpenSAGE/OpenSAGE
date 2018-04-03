@@ -1,5 +1,6 @@
 ﻿using OpenSage.Viewer.UI;
 using Veldrid;
+using Veldrid.Sdl2;
 
 namespace OpenSage.Viewer
 {
@@ -9,7 +10,7 @@ namespace OpenSage.Viewer
         {
             Platform.Start();
 
-            using (var window = new GameWindow("OpenSAGE Viewer", 100, 100, 1024, 768))
+            using (var window = new GameWindow("OpenSAGE Viewer", 100, 100, 1024, 768, SDL_WindowFlags.Resizable))
             using (var commandList = window.GraphicsDevice.ResourceFactory.CreateCommandList())
             using (var imGuiRenderer = new ImGuiRenderer(window.GraphicsDevice, window.GraphicsDevice.MainSwapchain.Framebuffer.OutputDescription, 1024, 768))
             using (var gameTimer = new GameTimer())
@@ -27,16 +28,18 @@ namespace OpenSage.Viewer
                 {
                     commandList.Begin();
 
-                    commandList.SetFramebuffer(window.GraphicsDevice.MainSwapchain.Framebuffer);
-
-                    commandList.ClearColorTarget(0, RgbaFloat.Clear);
-
                     gameTimer.Update();
 
                     if (!window.PumpEvents())
                     {
                         break;
                     }
+
+                    mainForm.Update();
+
+                    commandList.SetFramebuffer(window.GraphicsDevice.MainSwapchain.Framebuffer);
+
+                    commandList.ClearColorTarget(0, RgbaFloat.Clear);
 
                     imGuiRenderer.Update(
                         (float) gameTimer.CurrentGameTime.ElapsedGameTime.TotalSeconds,

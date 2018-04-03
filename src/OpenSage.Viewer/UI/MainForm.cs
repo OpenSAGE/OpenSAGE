@@ -40,10 +40,15 @@ namespace OpenSage.Viewer.UI
             ChangeInstallation(_installations.FirstOrDefault());
         }
 
+        public void Update()
+        {
+            _game.Tick();
+        }
+
         public void Draw()
         {
             ImGui.SetNextWindowPos(Vector2.Zero, Condition.Always, Vector2.Zero);
-            ImGui.SetNextWindowSize(new Vector2(1024, 768), Condition.Always);
+            ImGui.SetNextWindowSize(new Vector2(_gameWindow.ClientBounds.Width, _gameWindow.ClientBounds.Height), Condition.Always);
 
             ImGui.BeginWindow("OpenSAGE Viewer", WindowFlags.MenuBar | WindowFlags.NoTitleBar);
 
