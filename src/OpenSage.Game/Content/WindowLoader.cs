@@ -46,10 +46,11 @@ namespace OpenSage.Content
                 wndFile.RootWindow,
                 contentManager,
                 _wndCallbackResolver,
-                Point2D.Zero);
+                wndFile.RootWindow.ScreenRect.UpperLeft);
 
             return new Window(wndFile.RootWindow.ScreenRect.CreationResolution, rootControl, contentManager)
             {
+                Bounds = wndFile.RootWindow.ScreenRect.ToRectangle(),
                 LayoutInit = _wndCallbackResolver.GetWindowCallback(wndFile.LayoutBlock.LayoutInit),
                 LayoutUpdate = _wndCallbackResolver.GetWindowCallback(wndFile.LayoutBlock.LayoutUpdate),
                 LayoutShutdown = _wndCallbackResolver.GetWindowCallback(wndFile.LayoutBlock.LayoutShutdown)

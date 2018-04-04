@@ -34,7 +34,7 @@ namespace OpenSage.Gui.Wnd.Controls
         protected override void OnSizeChanged(in Size newSize)
         {
             _rootTransform = RectangleF.CalculateTransformForRectangleFittingAspectRatio(
-                new RectangleF(Vector2.Zero, _creationResolution.ToSizeF()),
+                Bounds.ToRectangleF(),
                 _creationResolution.ToSizeF(),
                 newSize);
 
