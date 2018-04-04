@@ -21,7 +21,10 @@ namespace OpenSage.Graphics.Effects
                     (uint) Marshal.SizeOf<T>(),
                     BufferUsage.UniformBuffer | BufferUsage.Dynamic)));
 
-            Buffer.Name = name;
+            if (name != null)
+            {
+                Buffer.Name = name;
+            }
         }
 
         public void Update(CommandList commandList)
