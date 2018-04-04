@@ -1,4 +1,5 @@
-﻿using System.CommandLine;
+using System;
+using System.CommandLine;
 using System.Linq;
 using OpenSage.Data;
 using OpenSage.Mods.BuiltIn;
@@ -36,8 +37,10 @@ namespace OpenSage.Launcher
             Platform.CurrentPlatform = new Sdl2Platform();
             Platform.CurrentPlatform.Start();
 
-            // TODO: Support other locators.
-            var locator = new RegistryInstallationLocator();
+            // TODO: Use all locators to find a valid installation.
+            var locator = Environment.OSVersion.Platform == PlatformID.Win32NT
+                ? (IInstallationLocator) new RegistryInstallationLocator()
+                : new EnvironmentInstallationLocator();
 
             var game = GameFactory.CreateGame(
                 definition,
