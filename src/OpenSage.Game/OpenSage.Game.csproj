@@ -16,11 +16,12 @@
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0002" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
-    <PackageReference Include="ShaderGen.Primitives" Version="1.2.0-g3d7c31d49f" />
-    <PackageReference Include="ShaderGen.Build" Version="1.2.0-g3d7c31d49f" PrivateAssets="All" />
+    <PackageReference Include="ShaderGen.Primitives" Version="1.2.0-g246e4b283c" />
+    <PackageReference Include="ShaderGen.Build" Version="1.2.0-g246e4b283c" PrivateAssets="All" />
     <PackageReference Include="Veldrid" Version="4.1.4" />
     <PackageReference Include="Veldrid.ImageSharp" Version="4.1.4" />
     <PackageReference Include="Veldrid.SDL2" Version="4.1.4" />
+    <PackageReference Include="Veldrid.StartupUtilities" Version="4.1.4" />
   </ItemGroup>
 
   <ItemGroup>

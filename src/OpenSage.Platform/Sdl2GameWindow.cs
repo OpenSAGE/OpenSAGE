@@ -12,6 +12,8 @@ namespace OpenSage
     {
         private readonly Sdl2Window _window;
 
+        public override Sdl2Window Sdl2Window => _window;
+
         private readonly Queue<InputMessage> _messageQueue = new Queue<InputMessage>();
 
         private bool _closing;
