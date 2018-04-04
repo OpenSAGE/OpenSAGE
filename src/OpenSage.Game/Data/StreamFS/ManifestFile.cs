@@ -51,7 +51,8 @@ namespace OpenSage.Data.StreamFS
 
                 foreach (var asset in result.Assets)
                 {
-                    asset.AssetReferences = result.AssetReferences.AsSpan().Slice(
+                    asset.AssetReferences = new ArraySegment<AssetReference>(
+                        result.AssetReferences,
                         (int) asset.Header.AssetReferenceOffset / AssetReference.SizeInBytes,
                         (int) asset.Header.AssetReferenceCount);
                 }
@@ -117,7 +118,7 @@ namespace OpenSage.Data.StreamFS
 
         public object InstanceData { get; internal set; }
 
-        public Span<AssetReference> AssetReferences { get; internal set; }
+        public IList<AssetReference> AssetReferences { get; internal set; }
     }
 
     public sealed class AssetImport
