@@ -26,8 +26,8 @@ namespace OpenSage.Gui.Wnd.Images
             var texture = _contentManager.Load<Texture>(
                 new[]
                 {
-                    Path.Combine(@"Data\English\Art\Textures", mappedImage.Texture),
-                    Path.Combine(@"Art\Textures", mappedImage.Texture)
+                    Path.Combine("Data", "English", "Art", "Textures", mappedImage.Texture),
+                    Path.Combine("Art", "Textures", mappedImage.Texture)
                 },
                 new TextureLoadOptions { GenerateMipMaps = false });
 

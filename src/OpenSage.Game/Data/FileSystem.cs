@@ -41,7 +41,7 @@ namespace OpenSage.Data
                     foreach (var entry in archive.Entries)
                     {
                         var filePath = NormalizeFilePath(entry.FullName);
-                        _fileTable[filePath] = new FileSystemEntry(this, filePath, entry.Length, entry.Open);
+                        _fileTable[filePath] = new FileSystemEntry(this, NormalizeFilePath(filePath), entry.Length, entry.Open);
                     }
                 }
                 else
@@ -51,7 +51,7 @@ namespace OpenSage.Data
                     {
                         relativePath = relativePath.Substring(1);
                     }
-                    _fileTable[relativePath] = new FileSystemEntry(this, relativePath, (uint) new FileInfo(file).Length, () => File.OpenRead(file));
+                    _fileTable[relativePath] = new FileSystemEntry(this, NormalizeFilePath(relativePath), (uint) new FileInfo(file).Length, () => File.OpenRead(file));
                 }
             }
         }
@@ -77,6 +77,8 @@ namespace OpenSage.Data
 
         public FileSystemEntry SearchFile(string fileName, params string[] searchFolders)
         {
+            fileName = NormalizeFilePath(fileName);
+
             foreach (var searchFolder in searchFolders)
             {
                 if (_fileTable.TryGetValue(Path.Combine(searchFolder, fileName), out var file))
@@ -90,6 +92,8 @@ namespace OpenSage.Data
 
         public IEnumerable<FileSystemEntry> GetFiles(string folderPath)
         {
+            folderPath = NormalizeFilePath(folderPath);
+
             foreach (var entry in _fileTable.Values)
             {
                 if (entry.FilePath.StartsWith(folderPath))
