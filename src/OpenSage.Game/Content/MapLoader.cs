@@ -105,20 +105,21 @@ namespace OpenSage.Content
                 macroTexture,
                 contentManager.SolidWhiteTexture);
 
-            LoadObjects(
-                contentManager,
-                heightMap,
-                mapFile.ObjectsList.Objects,
-                out var waypoints,
-                out var gameObjects);
-
             // TODO: Store this somewhere.
-            var players = Player.FromMapData(mapFile.SidesList.Players, contentManager).ToList();
+            var players = Player.FromMapData(mapFile.SidesList.Players, contentManager).ToArray();
 
             // TODO: Store this somewhere.
             var teams = (mapFile.SidesList.Teams ?? mapFile.Teams.Items)
                 .Select(team => Team.FromMapData(team, players))
-                .ToList();
+                .ToArray();
+
+            LoadObjects(
+                contentManager,
+                heightMap,
+                mapFile.ObjectsList.Objects,
+                teams,
+                out var waypoints,
+                out var gameObjects);
 
             var lighting = new WorldLighting(
                 mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
@@ -222,10 +223,8 @@ namespace OpenSage.Content
 
             string[] pathLabels = null;
 
-            var label1 = mapObject.Properties["waypointPathLabel1"];
-
             // It seems that if one of the label properties exists, all of them do
-            if (label1 != null)
+            if (mapObject.Properties.TryGetValue("waypointPathLabel1", out var label1))
             {
                 pathLabels = new[]
                 {
@@ -238,10 +237,42 @@ namespace OpenSage.Content
             return new Waypoint(waypointID, waypointName, mapObject.Position, pathLabels);
         }
 
+        private static GameObject CreateGameObject(MapObject mapObject, Team[] teams, ContentManager contentManager)
+        {
+            var gameObject = contentManager.InstantiateObject(mapObject.TypeName);
+
+            // TODO: Is there any valid case where we'd want to return null instead of throwing an exception?
+            if (gameObject == null)
+            {
+                return null;
+            }
+
+            // TODO: If the object doesn't have a health value, how do we initialise it?
+            if (gameObject.Definition.Body is ActiveBodyModuleData body)
+            {
+                var healthMultiplier = mapObject.Properties.TryGetValue("objectInitialHealth", out var health)
+                    ? (uint) health.Value / 100.0f
+                    : 1.0f;
+
+                // TODO: Should we use InitialHealth or MaximumHealth here?
+                var initialHealth = body.InitialHealth * healthMultiplier;
+                gameObject.Health = (decimal) initialHealth;
+            }
+
+            if (mapObject.Properties.TryGetValue("originalOwner", out var teamName))
+            {
+                var team = teams.First(t => t.Name == (string) teamName.Value);
+                gameObject.Owner = team;
+            }
+
+            return gameObject;
+        }
+
         private static void LoadObjects(
             ContentManager contentManager,
             HeightMap heightMap,
             MapObject[] mapObjects,
+            Team[] teams,
             out WaypointCollection waypointCollection,
             out GameObjectCollection gameObjects)
         {
@@ -265,16 +296,16 @@ namespace OpenSage.Content
                                 // TODO: Handle locomotors when they're implemented.
                                 position.Z += heightMap.GetHeight(position.X, position.Y);
 
-                                var gameObject = gameObjects.Add(mapObject.TypeName);
+                                var gameObject = CreateGameObject(mapObject, teams, contentManager);
+
                                 if (gameObject != null)
                                 {
                                     gameObject.Transform.Translation = position;
                                     gameObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, mapObject.Angle);
+
+                                    gameObjects.Add(gameObject);
                                 }
-                                else
-                                {
-                                    // TODO
-                                }
+
                                 break;
                         }
                         break;

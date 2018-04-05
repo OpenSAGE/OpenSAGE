@@ -22,6 +22,11 @@ namespace OpenSage.Logic.Object
 
         public Collider Collider { get; }
 
+        // TODO: This could use a smaller fixed point type.
+        public decimal Health { get; set; }
+
+        public Team Owner { get; set; }
+
         public GameObject(ObjectDefinition objectDefinition, ContentManager contentManager)
         {
             Definition = objectDefinition;

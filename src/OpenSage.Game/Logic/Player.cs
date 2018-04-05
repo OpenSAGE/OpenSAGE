@@ -67,7 +67,7 @@ namespace OpenSage.Logic
 
             var isHuman = (bool) mapPlayer.Properties["playerIsHuman"].Value;
 
-            var colorRgb = mapPlayer.Properties["playerColor"]?.Value as uint?;
+            var colorRgb = mapPlayer.Properties.GetPropOrNull("playerColor")?.Value as uint?;
 
             ColorRgb color;
 
@@ -106,8 +106,10 @@ namespace OpenSage.Logic
             {
                 var player = FromMapData(mapPlayer, content);
                 players[player.Name] = player;
-                allies[player.Name] = (mapPlayer.Properties["playerAllies"].Value as string)?.Split(' ');
-                enemies[player.Name] = (mapPlayer.Properties["playerEnemies"].Value as string)?.Split(' ');
+                allies[player.Name] =
+                    (mapPlayer.Properties.GetPropOrNull("playerAllies")?.Value as string)?.Split(' ');
+                enemies[player.Name] =
+                    (mapPlayer.Properties.GetPropOrNull("playerEnemies")?.Value as string)?.Split(' ');
             }
 
             foreach (var (name, player) in players)
