@@ -1,7 +1,8 @@
-﻿using OpenSage.Data;
-using OpenSage.Mods.BuiltIn;
-using System.CommandLine;
+﻿using System.CommandLine;
 using System.Linq;
+using OpenSage.Data;
+using OpenSage.Mods.BuiltIn;
+using OpenSage.Network;
 
 namespace OpenSage.Launcher
 {
@@ -11,6 +12,7 @@ namespace OpenSage.Launcher
         {
             var noShellMap = false;
             var definition = GameDefinition.FromGame(SageGame.CncGenerals);
+            string mapName = null;
 
             ArgumentSyntax.Parse(args, syntax =>
             {
@@ -26,6 +28,9 @@ namespace OpenSage.Launcher
                 {
                     syntax.ReportError($"Unknown game: {gameName}");
                 }
+
+                syntax.DefineOption("map", ref mapName, false,
+                    "Immediately starts a new skirmish with default settings in the specified map. The map file must be specified with the full path.");
             });
 
             Platform.CurrentPlatform = new Sdl2Platform();
@@ -42,7 +47,15 @@ namespace OpenSage.Launcher
                 () => Platform.CurrentPlatform.CreateWindow("OpenSAGE (master)", 100, 100, 1024, 768));
 
             game.Configuration.LoadShellMap = !noShellMap;
-            game.ShowMainMenu();
+
+            if (mapName == null)
+            {
+                game.ShowMainMenu();
+            }
+            else
+            {
+                game.StartGame(mapName, new EchoConnection(), new[] {"America", "GLA"}, 0);
+            }
 
             while (game.IsRunning)
             {
