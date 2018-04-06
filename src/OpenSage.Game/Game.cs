@@ -83,25 +83,21 @@ namespace OpenSage
 
         public Configuration Configuration { get; private set; }
 
-        public string UserDataLeafName
+        public string UserDataFolder
         {
             get
             {
-                // TODO: Move this to IGameDefinition?
-                switch (SageGame)
-                {
-                    case SageGame.CncGeneralsZeroHour:
-                        return "Command and Conquer Generals Zero Hour Data";
+                var dataLeafName = ContentManager.IniDataContext.GameData.UserDataLeafName ??
+                                   Definition.UserDataLeafNameFallback;
 
-                    default:
-                        return ContentManager.IniDataContext.GameData.UserDataLeafName;
+                if (dataLeafName == null)
+                {
+                    return null;
                 }
+
+                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), dataLeafName);
             }
         }
-
-        public string UserDataFolder => Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            UserDataLeafName);
 
         public GamePanel Panel { get; }
 
@@ -156,8 +152,6 @@ namespace OpenSage
 
             Definition = definition;
 
-            _fileSystem = fileSystem;
-
             _gameTimer = AddDisposable(new GameTimer());
             _gameTimer.Start();
 
@@ -167,13 +161,21 @@ namespace OpenSage
 
             ResetElapsedTime();
 
+            // We need to load GameData.ini in order to mount the user data folder.
+            // So we'll have to bootstrap the file system:
+            // 1. Mount the base file system (without user folder)
+            // 2. Load GameData.ini
+            // 3. Create a new file system which uses UserDataFolder as the root folder
+            //    and wraps the base file system.
+            // 4. Replace the file system in ContentManager with the new one.
+
             ContentManager = AddDisposable(new ContentManager(
                 this,
-                _fileSystem, 
+                fileSystem, 
                 GraphicsDevice,
                 SageGame,
                 _wndCallbackResolver));
-
+            
             // TODO: Add these into IGameDefinition? Should we preload all ini files?
             switch (SageGame)
             {
@@ -186,6 +188,16 @@ namespace OpenSage
                     ContentManager.IniDataContext.LoadIniFile(@"Data\INI\GameData.ini");
                     ContentManager.IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
                     break;
+            }
+
+            if (Directory.Exists(UserDataFolder))
+            {
+                _fileSystem = new FileSystem(UserDataFolder, fileSystem);
+                ContentManager.FileSystem = _fileSystem;
+            }
+            else
+            {
+                _fileSystem = fileSystem;
             }
 
             switch (SageGame)

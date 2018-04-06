@@ -18,5 +18,8 @@ namespace OpenSage
         IControlBarSource ControlBar { get; }
 
         string Identifier { get; }
+
+        // This is used as the fallback if UserDataLeafName is not present in GameData.ini.
+        string UserDataLeafNameFallback { get; }
     }
 }

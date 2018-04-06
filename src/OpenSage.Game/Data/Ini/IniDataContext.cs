@@ -8,7 +8,14 @@ namespace OpenSage.Data.Ini
 {
     public sealed class IniDataContext
     {
-        private readonly FileSystem _fileSystem;
+        private FileSystem _fileSystem;
+
+        // Note that this is set-only.
+        // We want ContentManager to be able to update this, but there's no valid reason to read this from outside.
+        internal FileSystem FileSystem
+        {
+            set => _fileSystem = value;
+        }
 
         // TODO: Remove this once we can load all INI files upfront.
         private readonly List<string> _alreadyLoaded = new List<string>();

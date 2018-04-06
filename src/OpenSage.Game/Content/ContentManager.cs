@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenSage.Audio;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Wav;
@@ -28,7 +27,7 @@ namespace OpenSage.Content
 
         private readonly Dictionary<string, object> _cachedObjects;
 
-        private readonly FileSystem _fileSystem;
+        private FileSystem _fileSystem;
 
         private readonly Dictionary<FontKey, Font> _cachedFonts;
 
@@ -47,7 +46,15 @@ namespace OpenSage.Content
 
         public Texture SolidWhiteTexture { get; }
 
-        public FileSystem FileSystem => _fileSystem;
+        public FileSystem FileSystem
+        {
+            get => _fileSystem;
+            set
+            {
+                _fileSystem = value;
+                IniDataContext.FileSystem = _fileSystem;
+            }
+        }
 
         public IniDataContext IniDataContext { get; }
 
@@ -88,6 +95,9 @@ namespace OpenSage.Content
 
             EffectLibrary = AddDisposable(new EffectLibrary(graphicsDevice));
 
+            // NOTE: If one day TranslationManager starts storing the file system
+            // instead of reading everything in the constructor, we'd need to be
+            // able to update the reference.
             TranslationManager = new TranslationManager(fileSystem, sageGame);
 
             _cachedFonts = new Dictionary<FontKey, Font>();

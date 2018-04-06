@@ -19,6 +19,8 @@ namespace OpenSage.Mods.Ra3
 
         public string Identifier { get; } = "ra3_uprising";
 
+        public string UserDataLeafNameFallback { get; }
+
         public IMainMenuSource MainMenu { get; }
         public IControlBarSource ControlBar { get; }
 

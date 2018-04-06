@@ -20,6 +20,8 @@ namespace OpenSage.Mods.BFME
 
         public string Identifier { get; } = "bfme";
 
+        public string UserDataLeafNameFallback { get; }
+
         public IMainMenuSource MainMenu { get; }
         public IControlBarSource ControlBar { get; }
 

@@ -21,6 +21,8 @@ namespace OpenSage.Mods.Bfme2
 
         public string Identifier { get; } = "bfme2";
 
+        public string UserDataLeafNameFallback { get; }
+
         public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");
         public IControlBarSource ControlBar { get; }
 

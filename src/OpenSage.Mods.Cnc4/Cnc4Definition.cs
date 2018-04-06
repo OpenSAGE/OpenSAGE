@@ -20,6 +20,8 @@ namespace OpenSage.Mods.Cnc4
 
         public string Identifier { get; } = "cnc4";
 
+        public string UserDataLeafNameFallback { get; }
+
         public IMainMenuSource MainMenu { get; }
         public IControlBarSource ControlBar { get; }
 

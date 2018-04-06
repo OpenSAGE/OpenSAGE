@@ -23,6 +23,8 @@ namespace OpenSage.Mods.Generals
 
         public string Identifier { get; } = "cnc_generals_zh";
 
+        public string UserDataLeafNameFallback { get; } = "Command and Conquer Generals Zero Hour Data";
+
         public IMainMenuSource MainMenu { get; } = new WndMainMenuSource(@"Menus\MainMenu.wnd");
         public IControlBarSource ControlBar { get; } = new GeneralsControlBarSource();
 

@@ -21,6 +21,8 @@ namespace OpenSage.Mods.Generals
 
         public string Identifier { get; } = "cnc_generals";
 
+        public string UserDataLeafNameFallback { get; } = "Command and Conquer Generals Data";
+
         public IMainMenuSource MainMenu { get; } = new WndMainMenuSource(@"Menus\MainMenu.wnd");
         public IControlBarSource ControlBar { get; } = new GeneralsControlBarSource();
 

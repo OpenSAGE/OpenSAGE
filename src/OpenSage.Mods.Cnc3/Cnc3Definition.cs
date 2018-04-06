@@ -19,6 +19,8 @@ namespace OpenSage.Mods.CnC3
 
         public string Identifier { get; } = "cnc3";
 
+        public string UserDataLeafNameFallback { get; }
+
         public IMainMenuSource MainMenu { get; }
         public IControlBarSource ControlBar { get; }
 
