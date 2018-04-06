@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using OpenSage.Content.Util;
 using OpenSage.Data;
 using OpenSage.Data.Map;
@@ -16,6 +17,7 @@ using OpenSage.Terrain;
 using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Processing;
 using Veldrid;
 using Veldrid.ImageSharp;
@@ -652,7 +654,8 @@ namespace OpenSage.Content
 
                     var imageSharpTexture = new ImageSharpTexture(tgaImage);
 
-                    var sourceTexture = imageSharpTexture.CreateDeviceTexture(
+                    var sourceTexture = CreateTextureViaStaging(
+                        imageSharpTexture,
                         graphicsDevice,
                         graphicsDevice.ResourceFactory);
 
@@ -689,6 +692,44 @@ namespace OpenSage.Content
             graphicsDevice.DisposeWhenIdle(commandList);
 
             graphicsDevice.WaitForIdle();
+        }
+
+        private unsafe Texture CreateTextureViaStaging(ImageSharpTexture texture, GraphicsDevice gd, ResourceFactory factory)
+        {
+            Texture staging = factory.CreateTexture(
+                TextureDescription.Texture2D(texture.Width, texture.Height, texture.MipLevels, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Staging));
+
+            CommandList cl = gd.ResourceFactory.CreateCommandList();
+            cl.Begin();
+            for (uint level = 0; level < texture.MipLevels; level++)
+            {
+                Image<Rgba32> image = texture.Images[level];
+                fixed (void* pin = &image.DangerousGetPinnableReferenceToPixelBuffer())
+                {
+                    MappedResource map = gd.Map(staging, MapMode.Write, level);
+                    uint rowWidth = (uint)(image.Width * 4);
+                    if (rowWidth == map.RowPitch)
+                    {
+                        Unsafe.CopyBlock(map.Data.ToPointer(), pin, (uint)(image.Width * image.Height * 4));
+                    }
+                    else
+                    {
+                        for (uint y = 0; y < image.Height; y++)
+                        {
+                            byte* dstStart = (byte*)map.Data.ToPointer() + y * map.RowPitch;
+                            byte* srcStart = (byte*)pin + y * rowWidth;
+                            Unsafe.CopyBlock(dstStart, srcStart, rowWidth);
+                        }
+                    }
+                    gd.Unmap(staging, level);
+                }
+            }
+            cl.End();
+
+            gd.SubmitCommands(cl);
+            gd.DisposeWhenIdle(cl);
+
+            return staging;
         }
 
         private static uint CalculateMipMapCount(uint width, uint height)
