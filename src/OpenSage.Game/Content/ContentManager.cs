@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
+using OpenSage.Data.Rep;
 using OpenSage.Data.Wav;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
@@ -89,6 +90,7 @@ namespace OpenSage.Content
                 { typeof(Window), AddDisposable(new WindowLoader(this, wndCallbackResolver)) },
                 { typeof(AptWindow), AddDisposable(new AptLoader()) },
                 { typeof(WavFile), AddDisposable(new WavLoader()) },
+                { typeof(ReplayFile), AddDisposable(new ReplayLoader()) }
             };
 
             _cachedObjects = new Dictionary<string, object>();
