@@ -105,10 +105,8 @@ namespace OpenSage.Content
                 macroTexture,
                 contentManager.SolidWhiteTexture);
 
-            // TODO: Store this somewhere.
             var players = Player.FromMapData(mapFile.SidesList.Players, contentManager).ToArray();
 
-            // TODO: Store this somewhere.
             var teams = (mapFile.SidesList.Teams ?? mapFile.Teams.Items)
                 .Select(team => Team.FromMapData(team, players))
                 .ToArray();
