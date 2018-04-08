@@ -73,7 +73,7 @@ namespace OpenSage.Mods.Generals.Gui
                             context.Game.StartGame(
                                 mapFilename,
                                 new ReplayConnection(replayFile),
-                                new[] { "Observer" }, // TODO
+                                new[] { "America", "Observer" }, // TODO
                                 0);
 
                             break;

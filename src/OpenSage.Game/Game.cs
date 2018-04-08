@@ -15,6 +15,8 @@ using OpenSage.Scripting;
 using Veldrid;
 
 using Player = OpenSage.Logic.Player;
+using System.Numerics;
+using OpenSage.Mathematics;
 
 namespace OpenSage
 {
@@ -340,6 +342,22 @@ namespace OpenSage
             {
                 var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == sides[i]);
                 players[i] = Player.FromTemplate(playerTemplate, ContentManager);
+
+                var playerIndex = 2; // TODO
+                var player1StartPosition = Scene3D.Waypoints[$"Player_{playerIndex}_Start"].Position;
+                player1StartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(player1StartPosition.X, player1StartPosition.Y);
+
+                if (playerTemplate.StartingBuilding != null)
+                {
+                    var startingBuilding = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingBuilding));
+                    startingBuilding.Transform.Translation = player1StartPosition;
+                    startingBuilding.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathUtility.ToRadians(startingBuilding.Definition.PlacementViewAngle));
+
+                    var startingUnit0 = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingUnit0));
+                    var startingUnit0Position = player1StartPosition;
+                    startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.GeometryMajorRadius;
+                    startingUnit0.Transform.Translation = startingUnit0Position;
+                }
             }
 
             Scene3D.SetPlayers(players, players[localPlayerIndex]);
