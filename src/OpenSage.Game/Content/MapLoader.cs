@@ -157,7 +157,9 @@ namespace OpenSage.Content
                 gameObjects,
                 waypoints,
                 waypointPaths,
-                lighting);
+                lighting,
+                players,
+                teams);
         }
 
         private MapScriptCollection CreateScripts(ScriptList scriptList)
