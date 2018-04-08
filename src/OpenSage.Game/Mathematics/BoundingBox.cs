@@ -146,34 +146,40 @@ namespace OpenSage.Mathematics
             return $"{nameof(Min)}: {Min}, {nameof(Max)}: {Max}";
         }
 
+        /// <summary>
+        /// Converts the bounding box from world space into a screen space bounding rectangle.
+        /// </summary>
         public Rectangle ToScreenRectangle(CameraComponent camera)
         {
-            var corners = new[]
-            {
-                // Bottom plane
-                Min,
-                Min.WithX(Max.X),
-                Min.WithY(Max.Y),
-                Max.WithZ(Min.Z),
-                // Top plane
-                Max,
-                Max.WithX(Min.X),
-                Max.WithY(Min.Y),
-                Min.WithZ(Max.Z)
-            };
-
             var topLeft = new Vector3(float.MaxValue);
             var bottomRight = new Vector3(float.MinValue);
 
-            for (var i = 0; i < corners.Length; i++)
+            unsafe
             {
-                var screenPos = camera.WorldToScreenPoint(corners[i]);
-                topLeft = Vector3.Min(topLeft, screenPos);
-                bottomRight = Vector3.Max(bottomRight, screenPos);
+                // TODO: This should work with Span without unsafe in C# 7.2, but doesn't?
+                var vertices = stackalloc Vector3[8];
+
+                // Bottom plane
+                vertices[0] = Min;
+                vertices[1] = Min.WithX(Max.X);
+                vertices[2] = Min.WithY(Max.Y);
+                vertices[3] = Max.WithZ(Min.Z);
+
+                // Top plane
+                vertices[4] = Max;
+                vertices[5] = Max.WithX(Min.X);
+                vertices[6] = Max.WithY(Min.Y);
+                vertices[7] = Min.WithZ(Max.Z);
+
+                for (var i = 0; i < 8; i++)
+                {
+                    var screenPos = camera.WorldToScreenPoint(vertices[i]);
+                    topLeft = Vector3.Min(topLeft, screenPos);
+                    bottomRight = Vector3.Max(bottomRight, screenPos);
+                }
             }
 
             var size = bottomRight - topLeft;
-
             return new Rectangle((int) topLeft.X, (int) topLeft.Y, (int) size.X, (int) size.Y);
         }
     }
