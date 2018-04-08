@@ -20,7 +20,7 @@ namespace OpenSage
         private readonly CameraInputMessageHandler _cameraInputMessageHandler;
         private CameraInputState _cameraInputState;
 
-        private readonly UnitSelectionInputHandler _unitSelectionInputHandler;
+        private readonly SelectionInputHandler _selectionInputHandler;
 
         private readonly ParticleSystemManager _particleSystemManager;
 
@@ -85,9 +85,9 @@ namespace OpenSage
             WaypointPaths = waypointPaths;
             Lighting = lighting;
 
-            _unitSelectionInputHandler = new UnitSelectionInputHandler(game.UnitSelection);
-            game.InputMessageBuffer.Handlers.Insert(0, _unitSelectionInputHandler);
-            AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_unitSelectionInputHandler));
+            _selectionInputHandler = new SelectionInputHandler(game.Selection);
+            game.InputMessageBuffer.Handlers.Insert(0, _selectionInputHandler);
+            AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_selectionInputHandler));
 
             _cameraInputMessageHandler = new CameraInputMessageHandler();
             game.InputMessageBuffer.Handlers.Add(_cameraInputMessageHandler);

@@ -4,14 +4,14 @@ using Veldrid;
 
 namespace OpenSage.Logic
 {
-    public class UnitSelectionInputHandler : InputMessageHandler
+    public class SelectionInputHandler : InputMessageHandler
     {
-        private readonly UnitSelectionSystem _system;
+        private readonly SelectionSystem _system;
 
         private Point2D _mousePos;
         private bool _altDown;
 
-        public UnitSelectionInputHandler(UnitSelectionSystem system)
+        public SelectionInputHandler(SelectionSystem system)
         {
             _system = system;
         }

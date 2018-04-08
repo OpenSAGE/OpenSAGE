@@ -8,7 +8,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Logic
 {
-    public sealed class UnitSelectionSystem : GameSystem
+    public sealed class SelectionSystem : GameSystem
     {
         private enum SelectionStatus
         {
@@ -42,7 +42,7 @@ namespace OpenSage.Logic
             }
         }
 
-        public UnitSelectionSystem(Game game) : base(game)
+        public SelectionSystem(Game game) : base(game)
         {
             _selectionGui = game.Scene2D.SelectionGui;
             _selectedObjects = new List<GameObject>();
