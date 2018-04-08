@@ -5,6 +5,7 @@ using Eto.Forms;
 using OpenSage.Data.Ini;
 using OpenSage.DataViewer.Controls;
 using OpenSage.Graphics.Cameras.Controllers;
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Settings;
 
@@ -48,7 +49,9 @@ namespace OpenSage.DataViewer.UI.Viewers.Ini
                         gameObjects,
                         new WaypointCollection(),
                         new WaypointPathCollection(),
-                        WorldLighting.CreateDefault());
+                        WorldLighting.CreateDefault(),
+                        Array.Empty<Player>(),
+                        Array.Empty<Team>());
 
                     return game;
                 }

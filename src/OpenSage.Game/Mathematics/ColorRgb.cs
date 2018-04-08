@@ -12,5 +12,14 @@
             G = g;
             B = b;
         }
+
+        public static ColorRgb FromUInt32(uint rgb)
+        {
+            var r = (byte) (rgb >> 16 & 0xFF);
+            var g = (byte) (rgb >> 8 & 0xFF);
+            var b = (byte) (rgb & 0xFF);
+
+            return new ColorRgb(r, g, b);
+        }
     }
 }

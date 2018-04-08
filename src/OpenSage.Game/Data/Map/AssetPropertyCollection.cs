@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 
 namespace OpenSage.Data.Map
 {
-    public sealed class AssetPropertyCollection : Collection<AssetProperty>
+    public sealed class AssetPropertyCollection : KeyedCollection<string, AssetProperty>
     {
         internal static AssetPropertyCollection Parse(BinaryReader reader, MapParseContext context)
         {
@@ -20,12 +19,28 @@ namespace OpenSage.Data.Map
             return new AssetPropertyCollection(result);
         }
 
-        public AssetProperty this[string name] => this.FirstOrDefault(x => x.Key.Name == name);
-
         internal AssetPropertyCollection(IList<AssetProperty> list)
-            : base(list)
         {
+            foreach (var property in list)
+            {
+                Add(property);
+            }
+        }
 
+        protected override string GetKeyForItem(AssetProperty item)
+        {
+            return item.Key.Name;
+        }
+
+        // TODO: Remove this if we retarget the library to .NET Core 2.0
+        public bool TryGetValue(string key, out AssetProperty value)
+        {
+            return Dictionary.TryGetValue(key, out value);
+        }
+
+        public AssetProperty GetPropOrNull(string key)
+        {
+            return TryGetValue(key, out var value) ? value : null;
         }
 
         internal void WriteTo(BinaryWriter writer, AssetNameCollection assetNames)

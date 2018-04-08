@@ -10,6 +10,7 @@ using OpenSage.Scripting;
 using OpenSage.Settings;
 
 using Player = OpenSage.Logic.Player;
+using Team = OpenSage.Logic.Team;
 
 namespace OpenSage
 {
@@ -37,6 +38,9 @@ namespace OpenSage
 
         public WorldLighting Lighting { get; }
 
+        public IReadOnlyList<Team> Teams => _teams;
+        private List<Team> _teams;
+
         // TODO: Move these to a World class?
         // TODO: Encapsulate this into a custom collection?
         public IReadOnlyList<Player> Players => _players;
@@ -63,7 +67,9 @@ namespace OpenSage
             GameObjectCollection gameObjects,
             WaypointCollection waypoints,
             WaypointPathCollection waypointPaths,
-            WorldLighting lighting)
+            WorldLighting lighting,
+            Player[] players,
+            Team[] teams)
         {
             Camera = new CameraComponent(game);
             CameraController = cameraController;
@@ -82,7 +88,10 @@ namespace OpenSage
 
             _particleSystemManager = AddDisposable(new ParticleSystemManager(game, this));
 
-            _players = new List<Player>();
+            _players = players.ToList();
+            _teams = teams.ToList();
+            // TODO: This is completely wrong.
+            LocalPlayer = _players[0];
         }
 
         public void SetPlayers(IEnumerable<Player> players, Player localPlayer)
@@ -97,6 +106,10 @@ namespace OpenSage
             }
 
             LocalPlayer = localPlayer;
+
+            // TODO: What to do with teams?
+            // Teams refer to old Players and therefore they will not be collected by GC
+            // (+ objects will have invalid owners)
         }
 
         internal void Update(GameTime gameTime)

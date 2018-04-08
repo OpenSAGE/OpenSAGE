@@ -34,5 +34,12 @@ namespace OpenSage.Logic.Object
 
             return gameObject;
         }
+
+        public GameObject Add(GameObject gameObject)
+        {
+            AddDisposable(gameObject);
+            _items.Add(gameObject);
+            return gameObject;
+        }
     }
 }
