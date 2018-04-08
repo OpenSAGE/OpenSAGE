@@ -65,6 +65,8 @@ namespace OpenSage
         /// </summary>
         public DebugEntityPickerSystem EntityPicker { get; }
 
+        public UnitSelectionSystem UnitSelection { get; }
+
         /// <summary>
         /// Gets the audio system
         /// </summary>
@@ -221,6 +223,8 @@ namespace OpenSage
             EntityPicker = AddDisposable(new DebugEntityPickerSystem(this));
 
             Scene2D = new Scene2D(this);
+
+            UnitSelection = AddDisposable(new UnitSelectionSystem(this));
 
             Window.ClientSizeChanged += OnWindowClientSizeChanged;
             OnWindowClientSizeChanged(this, EventArgs.Empty);

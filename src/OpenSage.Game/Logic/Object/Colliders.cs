@@ -53,6 +53,7 @@ namespace OpenSage.Logic.Object
 
     public class BoxCollider : Collider
     {
+        public ref readonly BoundingBox Bounds => ref _bounds;
         private readonly BoundingBox _bounds;
 
         public BoxCollider(ObjectDefinition def, Transform transform)

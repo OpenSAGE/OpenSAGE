@@ -5,6 +5,7 @@ using OpenSage.Data.Map;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Scripting;
 using OpenSage.Settings;
@@ -18,6 +19,8 @@ namespace OpenSage
     {
         private readonly CameraInputMessageHandler _cameraInputMessageHandler;
         private CameraInputState _cameraInputState;
+
+        private readonly UnitSelectionInputHandler _unitSelectionInputHandler;
 
         private readonly ParticleSystemManager _particleSystemManager;
 
@@ -81,6 +84,10 @@ namespace OpenSage
             Waypoints = waypoints;
             WaypointPaths = waypointPaths;
             Lighting = lighting;
+
+            _unitSelectionInputHandler = new UnitSelectionInputHandler(game.UnitSelection);
+            game.InputMessageBuffer.Handlers.Add(_unitSelectionInputHandler);
+            AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_unitSelectionInputHandler));
 
             _cameraInputMessageHandler = new CameraInputMessageHandler();
             game.InputMessageBuffer.Handlers.Add(_cameraInputMessageHandler);

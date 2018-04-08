@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using OpenSage.Graphics.Cameras;
 
 namespace OpenSage.Mathematics
 {
@@ -138,6 +139,18 @@ namespace OpenSage.Mathematics
         public override string ToString()
         {
             return $"{nameof(Min)}: {Min}, {nameof(Max)}: {Max}";
+        }
+
+        public Rectangle ToScreenRectangle(CameraComponent camera)
+        {
+            var screenMin = camera.WorldToScreenPoint(Min);
+            var screenMax = camera.WorldToScreenPoint(Max);
+
+            var min = Vector3.Min(screenMin, screenMax);
+            var max = Vector3.Max(screenMin, screenMax);
+            var size = max - min;
+
+            return new Rectangle((int) min.X, (int) min.Y, (int) size.X, (int) size.Y);
         }
     }
 }
