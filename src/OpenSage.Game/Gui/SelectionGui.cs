@@ -5,8 +5,8 @@ namespace OpenSage.Gui
 {
     public sealed class SelectionGui
     {
-        public Rectangle SelectionRect { get; set; }
-        public bool Selecting { get; set; }
+        public Rectangle SelectionRectangle { get; set; }
+        public bool SelectionBoxVisible { get; set; }
 
         public List<Rectangle> DebugOverlays;
 
@@ -23,10 +23,10 @@ namespace OpenSage.Gui
                 context.DrawRectangle(overlay.ToRectangleF(), ColorRgbaF.Black, 2);
             }
 
-            if (Selecting)
+            if (SelectionBoxVisible)
             {
-                context.FillRectangle(SelectionRect, new ColorRgbaF(1, 1, 1, 0.1f));
-                context.DrawRectangle(SelectionRect.ToRectangleF(), ColorRgbaF.Black, 2);
+                context.FillRectangle(SelectionRectangle, new ColorRgbaF(1, 1, 1, 0.1f));
+                context.DrawRectangle(SelectionRectangle.ToRectangleF(), ColorRgbaF.Black, 2);
             }
         }
     }

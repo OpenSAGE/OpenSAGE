@@ -27,9 +27,9 @@ namespace OpenSage
 
         internal void Render(DrawingContext2D drawingContext)
         {
+            SelectionGui.Draw(drawingContext);
             WndWindowManager.Render(drawingContext);
             AptWindowManager.Render(drawingContext);
-            SelectionGui.Draw(drawingContext);
         }
     }
 }

@@ -86,7 +86,7 @@ namespace OpenSage
             Lighting = lighting;
 
             _unitSelectionInputHandler = new UnitSelectionInputHandler(game.UnitSelection);
-            game.InputMessageBuffer.Handlers.Add(_unitSelectionInputHandler);
+            game.InputMessageBuffer.Handlers.Insert(0, _unitSelectionInputHandler);
             AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_unitSelectionInputHandler));
 
             _cameraInputMessageHandler = new CameraInputMessageHandler();

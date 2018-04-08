@@ -1,7 +1,6 @@
 ﻿using OpenSage.Input;
 using OpenSage.Mathematics;
 using Veldrid;
-using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Logic
 {
@@ -10,23 +9,7 @@ namespace OpenSage.Logic
         private readonly UnitSelectionSystem _system;
 
         private Point2D _mousePos;
-        private Point2D _startPos;
-        private Point2D _endPos;
-
-        private bool _leftButtonDown;
         private bool _altDown;
-
-        private Rectangle SelectionRect
-        {
-            get
-            {
-                var topLeft = Point2D.Min(_startPos, _endPos);
-                var bottomRight = Point2D.Max(_startPos, _endPos);
-
-                return new Rectangle(topLeft,
-                    new Size(bottomRight.X - topLeft.X, bottomRight.Y - topLeft.Y));
-            }
-        }
 
         public UnitSelectionInputHandler(UnitSelectionSystem system)
         {
@@ -40,10 +23,9 @@ namespace OpenSage.Logic
                 case InputMessageType.MouseMove:
                     _mousePos = message.Value.MousePosition;
 
-                    if (_leftButtonDown)
+                    if (_system.Selecting)
                     {
-                        _endPos = _mousePos;
-                        _system.UpdateSelectionUi(SelectionRect);
+                        _system.OnDragSelection(_mousePos);
                     }
 
                     break;
@@ -55,19 +37,12 @@ namespace OpenSage.Logic
                         break;
                     }
 
-                    _leftButtonDown = true;
-                    _startPos = _mousePos;
-                    _endPos = _startPos;
-                    _system.UpdateSelectionUi(SelectionRect);
-                    _system.Selecting = true;
+                    _system.OnStartDragSelection(_mousePos);
                     return InputMessageResult.Handled;
                 case InputMessageType.MouseLeftButtonUp:
-                    _leftButtonDown = false;
-
                     if (_system.Selecting)
                     {
-                        _system.SelectObjectsInRectangle(SelectionRect);
-                        _system.Selecting = false;
+                        _system.OnEndDragSelection();
                     }
 
                     break;

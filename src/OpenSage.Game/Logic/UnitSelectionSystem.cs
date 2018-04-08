@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 using OpenSage.Gui;
@@ -9,32 +10,77 @@ namespace OpenSage.Logic
 {
     public sealed class UnitSelectionSystem : GameSystem
     {
+        private enum SelectionStatus
+        {
+            NotSelecting,
+            SingleSelecting,
+            MultiSelecting
+        }
+
+        // TODO: Find out if there's an INI setting for this.
+        // If not, add this to our custom settings when we have those.
+        // This should probably scale with resolution.
+        private const int BoxSelectionMinimumSize = 30;
+
         private readonly SelectionGui _selectionGui;
-        private List<GameObject> _selectedObjects;
+        private readonly List<GameObject> _selectedObjects;
+
+        private Point2D _startPoint;
+        private Point2D _endPoint;
+        private SelectionStatus _status = SelectionStatus.NotSelecting;
+        public bool Selecting => _status != SelectionStatus.NotSelecting;
+
+        private Rectangle SelectionRect
+        {
+            get
+            {
+                var topLeft = Point2D.Min(_startPoint, _endPoint);
+                var bottomRight = Point2D.Max(_startPoint, _endPoint);
+
+                return new Rectangle(topLeft,
+                    new Size(bottomRight.X - topLeft.X, bottomRight.Y - topLeft.Y));
+            }
+        }
 
         public UnitSelectionSystem(Game game) : base(game)
         {
             _selectionGui = game.Scene2D.SelectionGui;
-        }
-
-        public bool Selecting
-        {
-            get => _selectionGui.Selecting;
-            set => _selectionGui.Selecting = value;
-        }
-
-        public void UpdateSelectionUi(Rectangle rect)
-        {
-            _selectionGui.SelectionRect = rect;
-        }
-
-        public void SelectObjectsInRectangle(Rectangle rect)
-        {
             _selectedObjects = new List<GameObject>();
+        }
 
+        public void OnStartDragSelection(Point2D startPoint)
+        {
+            _status = SelectionStatus.SingleSelecting;
+            _startPoint = startPoint;
+            _endPoint = startPoint;
+            _selectionGui.SelectionRectangle = SelectionRect;
+        }
+
+        public void OnDragSelection(Point2D point)
+        {
+            _endPoint = point;
+
+            var rect = SelectionRect;
+
+            // If either dimension is under 50 pixels, don't show the box selector.
+            if (!_selectionGui.SelectionBoxVisible && UseBoxSelectionForRect(rect))
+            {
+                _status = SelectionStatus.MultiSelecting;
+                // Note that the box can be scaled down after this.
+                _selectionGui.SelectionBoxVisible = true;
+            }
+
+            _selectionGui.SelectionRectangle = rect;
+        }
+
+        public void OnEndDragSelection()
+        {
+            // TODO: Handle multi / single selection
+
+            _selectedObjects.Clear();
             _selectionGui.DebugOverlays.Clear();
 
-            var boxFrustum = GetSelectionFrustum(rect);
+            var boxFrustum = GetSelectionFrustum(SelectionRect);
 
             // TODO: Optimize with a quadtree / use frustum culling?
             foreach (var gameObject in Game.Scene3D.GameObjects.Items)
@@ -43,7 +89,7 @@ namespace OpenSage.Logic
                 {
                     var worldBox = box.Bounds.Transform(gameObject.Transform.Matrix);
 
-                    if (boxFrustum.Contains(worldBox) == ContainmentType.Contains)
+                    if (boxFrustum.Intersects(worldBox))
                     {
                         _selectedObjects.Add(gameObject);
                         _selectionGui.DebugOverlays.Add(worldBox.ToScreenRectangle(Game.Scene3D.Camera));
@@ -60,6 +106,14 @@ namespace OpenSage.Logic
                 }
                 Debug.WriteLine("");
             }
+
+            _selectionGui.SelectionBoxVisible = false;
+            _status = SelectionStatus.NotSelecting;
+        }
+
+        private static bool UseBoxSelectionForRect(Rectangle rect)
+        {
+            return Math.Max(rect.Width, rect.Height) >= BoxSelectionMinimumSize;
         }
 
         // Based on
@@ -70,7 +124,7 @@ namespace OpenSage.Logic
             var viewportSize = new Vector2(viewport.Width, viewport.Height);
  
             var rectSize = new Vector2(rect.Width, rect.Height);
-            var rectSizeHalf = (rectSize / 2f);
+            var rectSizeHalf = rectSize / 2f;
             var rectCenter = new Vector2(rect.Left, rect.Top) + rectSizeHalf;
 
             var sizeDivisor = rectSize / viewportSize;
