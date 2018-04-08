@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OpenSage.Mathematics
+﻿namespace OpenSage.Mathematics
 {
     public struct ColorRgb
     {
