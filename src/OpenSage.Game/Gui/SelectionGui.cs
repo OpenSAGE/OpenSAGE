@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Graphics.Cameras;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui
@@ -8,19 +9,20 @@ namespace OpenSage.Gui
         public Rectangle SelectionRectangle { get; set; }
         public bool SelectionBoxVisible { get; set; }
 
-        public List<Rectangle> DebugOverlays;
+        public List<BoundingBox> SelectedObjects { get; set; }
 
         public SelectionGui()
         {
-            DebugOverlays = new List<Rectangle>();
+            SelectedObjects = new List<BoundingBox>();
         }
 
-        public void Draw(DrawingContext2D context)
+        public void Draw(DrawingContext2D context, CameraComponent camera)
         {
-            foreach (var overlay in DebugOverlays)
+            foreach (var box in SelectedObjects)
             {
-                context.FillRectangle(overlay, new ColorRgbaF(1, 0, 0, 0.2f));
-                context.DrawRectangle(overlay.ToRectangleF(), ColorRgbaF.Black, 2);
+                var rect = box.ToScreenRectangle(camera);
+                context.FillRectangle(rect, new ColorRgbaF(1, 0, 0, 0.2f));
+                context.DrawRectangle(rect.ToRectangleF(), ColorRgbaF.Black, 2);
             }
 
             if (SelectionBoxVisible)

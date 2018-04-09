@@ -16,7 +16,7 @@ namespace OpenSage.Logic
 
         public override void Initialize()
         {
-            _game.InputMessageBuffer.Handlers.Insert(0, new DebugEntityPickerMessageHandler(this));
+
         }
 
         public bool OnClickPosition(Vector2 position)

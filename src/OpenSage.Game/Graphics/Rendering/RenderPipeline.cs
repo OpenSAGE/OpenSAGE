@@ -189,13 +189,14 @@ namespace OpenSage.Graphics.Rendering
             doRenderPass(_renderList.Opaque);
             doRenderPass(_renderList.Transparent);
 
-            // GUI
+            // GUI and camera-dependent 2D elements
             {
                 _drawingContext.Begin(
                     commandEncoder,
                     context.Game.ContentManager.LinearClampSampler,
                     new SizeF(context.Game.Viewport.Width, context.Game.Viewport.Height));
 
+                context.Game.Scene3D.Render(_drawingContext);
                 context.Game.Scene2D.Render(_drawingContext);
 
                 context.Game.RaiseRendering2D(new Rendering2DEventArgs(_drawingContext));

@@ -21,7 +21,7 @@ namespace OpenSage.Logic
         // This should probably scale with resolution.
         private const int BoxSelectionMinimumSize = 30;
 
-        private readonly SelectionGui _selectionGui;
+        private SelectionGui SelectionGui => Game.Scene3D.SelectionGui;
         private readonly List<GameObject> _selectedObjects;
 
         private Point2D _startPoint;
@@ -43,7 +43,6 @@ namespace OpenSage.Logic
 
         public SelectionSystem(Game game) : base(game)
         {
-            _selectionGui = game.Scene2D.SelectionGui;
             _selectedObjects = new List<GameObject>();
         }
 
@@ -52,7 +51,7 @@ namespace OpenSage.Logic
             _status = SelectionStatus.SingleSelecting;
             _startPoint = startPoint;
             _endPoint = startPoint;
-            _selectionGui.SelectionRectangle = SelectionRect;
+            SelectionGui.SelectionRectangle = SelectionRect;
         }
 
         public void OnDragSelection(Point2D point)
@@ -66,10 +65,10 @@ namespace OpenSage.Logic
             {
                 _status = SelectionStatus.MultiSelecting;
                 // Note that the box can be scaled down after this.
-                _selectionGui.SelectionBoxVisible = true;
+                SelectionGui.SelectionBoxVisible = true;
             }
 
-            _selectionGui.SelectionRectangle = rect;
+            SelectionGui.SelectionRectangle = rect;
         }
 
         public void OnEndDragSelection()
@@ -77,7 +76,7 @@ namespace OpenSage.Logic
             // TODO: Handle multi / single selection
 
             _selectedObjects.Clear();
-            _selectionGui.DebugOverlays.Clear();
+            SelectionGui.SelectedObjects.Clear();
 
             if (_status == SelectionStatus.SingleSelecting)
             {
@@ -88,7 +87,7 @@ namespace OpenSage.Logic
                 MultiSelect();
             }
 
-            _selectionGui.SelectionBoxVisible = false;
+            SelectionGui.SelectionBoxVisible = false;
             _status = SelectionStatus.NotSelecting;
         }
 
@@ -121,7 +120,7 @@ namespace OpenSage.Logic
                 if (closestObject.Collider is BoxCollider box)
                 {
                     var worldBox = box.Bounds.Transform(closestObject.Transform.Matrix);
-                    _selectionGui.DebugOverlays.Add(worldBox.ToScreenRectangle(Game.Scene3D.Camera));
+                    SelectionGui.SelectedObjects.Add(worldBox);
                 }
             }
         }
@@ -146,7 +145,7 @@ namespace OpenSage.Logic
                     if (boxFrustum.Intersects(worldBox))
                     {
                         _selectedObjects.Add(gameObject);
-                        _selectionGui.DebugOverlays.Add(worldBox.ToScreenRectangle(Game.Scene3D.Camera));
+                        SelectionGui.SelectedObjects.Add(worldBox);
                     }
                 }
             }
