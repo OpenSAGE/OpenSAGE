@@ -27,6 +27,8 @@ namespace OpenSage.Logic.Object
 
         public Team Owner { get; set; }
 
+        public bool IsSelectable { get; set; }
+
         public GameObject(ObjectDefinition objectDefinition, ContentManager contentManager)
         {
             Definition = objectDefinition;

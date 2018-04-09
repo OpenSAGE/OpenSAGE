@@ -85,6 +85,11 @@ namespace OpenSage.Logic
             // TODO: Optimize with a quadtree / use frustum culling?
             foreach (var gameObject in Game.Scene3D.GameObjects.Items)
             {
+                if (!gameObject.IsSelectable)
+                {
+                    continue;
+                }
+
                 if (gameObject.Collider is BoxCollider box)
                 {
                     var worldBox = box.Bounds.Transform(gameObject.Transform.Matrix);
@@ -95,16 +100,6 @@ namespace OpenSage.Logic
                         _selectionGui.DebugOverlays.Add(worldBox.ToScreenRectangle(Game.Scene3D.Camera));
                     }
                 }
-            }
-
-            if (_selectedObjects.Count > 0)
-            {
-                Debug.WriteLine("Objects: ");
-                foreach (var obj in _selectedObjects)
-                {
-                    Debug.WriteLine(obj.Definition.Name);
-                }
-                Debug.WriteLine("");
             }
 
             _selectionGui.SelectionBoxVisible = false;
