@@ -7,6 +7,7 @@ using OpenSage.Data.W3d;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Settings;
@@ -57,7 +58,9 @@ namespace OpenSage.Viewer.UI.Views
                 new GameObjectCollection(game.ContentManager),
                 new WaypointCollection(),
                 new WaypointPathCollection(),
-                WorldLighting.CreateDefault());
+                WorldLighting.CreateDefault(),
+                Array.Empty<Player>(),
+                Array.Empty<Team>());
 
             var animations = new List<AnimationInstance>(modelInstance.AnimationInstances);
 
