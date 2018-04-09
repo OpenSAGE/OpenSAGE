@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Numerics;
 using OpenSage.Gui;
 using OpenSage.Logic.Object;
@@ -63,7 +62,7 @@ namespace OpenSage.Logic
             var rect = SelectionRect;
 
             // If either dimension is under 50 pixels, don't show the box selector.
-            if (!_selectionGui.SelectionBoxVisible && UseBoxSelectionForRect(rect))
+            if (_status != SelectionStatus.MultiSelecting && UseBoxSelectionForRect(rect))
             {
                 _status = SelectionStatus.MultiSelecting;
                 // Note that the box can be scaled down after this.
@@ -80,6 +79,55 @@ namespace OpenSage.Logic
             _selectedObjects.Clear();
             _selectionGui.DebugOverlays.Clear();
 
+            if (_status == SelectionStatus.SingleSelecting)
+            {
+                SingleSelect();
+            }
+            else
+            {
+                MultiSelect();
+            }
+
+            _selectionGui.SelectionBoxVisible = false;
+            _status = SelectionStatus.NotSelecting;
+        }
+
+        private void SingleSelect()
+        {
+            var ray = Game.Scene3D.Camera.ScreenPointToRay(new Vector2(_startPoint.X, _startPoint.Y));
+
+            var closestDepth = float.MaxValue;
+            GameObject closestObject = null;
+
+            foreach (var gameObject in Game.Scene3D.GameObjects.Items)
+            {
+                if (!gameObject.IsSelectable || gameObject.Collider == null)
+                {
+                    continue;
+                }
+
+                if (gameObject.Collider.Intersects(ray, out var depth) && depth < closestDepth)
+                {
+                    closestDepth = depth;
+                    closestObject = gameObject;
+                }
+            }
+
+            if (closestObject != null)
+            {
+                _selectedObjects.Add(closestObject);
+
+                // TODO: Support other colliders
+                if (closestObject.Collider is BoxCollider box)
+                {
+                    var worldBox = box.Bounds.Transform(closestObject.Transform.Matrix);
+                    _selectionGui.DebugOverlays.Add(worldBox.ToScreenRectangle(Game.Scene3D.Camera));
+                }
+            }
+        }
+
+        private void MultiSelect()
+        {
             var boxFrustum = GetSelectionFrustum(SelectionRect);
 
             // TODO: Optimize with a quadtree / use frustum culling?
@@ -90,6 +138,7 @@ namespace OpenSage.Logic
                     continue;
                 }
 
+                // TODO: Support other colliders
                 if (gameObject.Collider is BoxCollider box)
                 {
                     var worldBox = box.Bounds.Transform(gameObject.Transform.Matrix);
@@ -101,9 +150,6 @@ namespace OpenSage.Logic
                     }
                 }
             }
-
-            _selectionGui.SelectionBoxVisible = false;
-            _status = SelectionStatus.NotSelecting;
         }
 
         private static bool UseBoxSelectionForRect(Rectangle rect)
