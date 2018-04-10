@@ -12,21 +12,27 @@ namespace OpenSage.Viewer.UI.Views
             _context = context;
         }
 
-        public override void Draw()
+        public override void Draw(ref bool isGameViewFocused)
         {
             _context.Game.Tick();
+
+            ImGuiNative.igSetItemAllowOverlap();
 
             var imagePointer = _context.ImGuiRenderer.GetOrCreateImGuiBinding(
                 _context.GraphicsDevice.ResourceFactory,
                 _context.Game.Panel.Framebuffer.ColorTargets[0].Target);
 
-            ImGui.Image(
+            if (ImGui.ImageButton(
                 imagePointer,
                 ImGui.GetContentRegionAvailable(),
                 Vector2.Zero,
                 Vector2.One,
-                Vector4.One,
-                Vector4.Zero);
+                0,
+                Vector4.Zero,
+                Vector4.One))
+            {
+                isGameViewFocused = true;
+            }
         }
     }
 }

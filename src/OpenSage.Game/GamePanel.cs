@@ -17,7 +17,7 @@ namespace OpenSage
 
         public abstract Rectangle ClientBounds { get; }
 
-        public event EventHandler<InputMessageEventArgs> InputMessageReceived; // TODO
+        public abstract event EventHandler<InputMessageEventArgs> InputMessageReceived;
 
         public void SetCursor(Cursor cursor)
         {
@@ -43,6 +43,12 @@ namespace OpenSage
             }
 
             public override Rectangle ClientBounds => _window.ClientBounds;
+
+            public override event EventHandler<InputMessageEventArgs> InputMessageReceived
+            {
+                add => _window.InputMessageReceived += value;
+                remove => _window.InputMessageReceived -= value;
+            }
 
             public GameWindowPanel(GameWindow window)
             {

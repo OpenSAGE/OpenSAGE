@@ -1,4 +1,6 @@
 ﻿using System;
+using ImGuiNET;
+using OpenSage.Input;
 using Veldrid;
 
 namespace OpenSage.Viewer.Framework
@@ -24,9 +26,28 @@ namespace OpenSage.Viewer.Framework
 
         public override event EventHandler ClientSizeChanged;
 
-        public ImGuiGamePanel(GraphicsDevice graphicsDevice)
+        public override event EventHandler<InputMessageEventArgs> InputMessageReceived;
+
+        public bool IsGameViewActive { get; set; }
+
+        public ImGuiGamePanel(GameWindow gameWindow)
         {
-            _graphicsDevice = graphicsDevice;
+            _graphicsDevice = gameWindow.GraphicsDevice;
+
+            gameWindow.InputMessageReceived += OnInputMessageReceived;
+
+            AddDisposeAction(() => gameWindow.InputMessageReceived -= OnInputMessageReceived);
+        }
+
+        private void OnInputMessageReceived(object sender, InputMessageEventArgs e)
+        {
+            if (!IsGameViewActive)
+            {
+                return;
+            }
+
+            // TODO: Map mouse position.
+            InputMessageReceived?.Invoke(this, e);
         }
 
         public void EnsureSize(uint width, uint height)

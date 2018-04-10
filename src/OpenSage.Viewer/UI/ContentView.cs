@@ -37,11 +37,11 @@ namespace OpenSage.Viewer.UI
             }
         }
 
-        public void Draw()
+        public void Draw(ref bool isGameViewFocused)
         {
             if (_assetView != null)
             {
-                _assetView.Draw();
+                _assetView.Draw(ref isGameViewFocused);
             }
             else
             {

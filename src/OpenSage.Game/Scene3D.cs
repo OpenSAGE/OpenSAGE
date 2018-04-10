@@ -91,7 +91,7 @@ namespace OpenSage
             _players = players.ToList();
             _teams = teams.ToList();
             // TODO: This is completely wrong.
-            LocalPlayer = _players[0];
+            LocalPlayer = _players.FirstOrDefault();
         }
 
         public void SetPlayers(IEnumerable<Player> players, Player localPlayer)

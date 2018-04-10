@@ -107,7 +107,7 @@ namespace OpenSage.Viewer.UI.Views
             ActivateItem(_subObjects[0]);
         }
 
-        public override void Draw()
+        public override void Draw(ref bool isGameViewFocused)
         {
             ImGui.BeginChild("w3d", new Vector2(250, 0), true, 0);
 
@@ -123,7 +123,7 @@ namespace OpenSage.Viewer.UI.Views
 
             ImGui.SameLine();
 
-            base.Draw();
+            base.Draw(ref isGameViewFocused);
         }
 
         private void ActivateItem(W3dItem item)

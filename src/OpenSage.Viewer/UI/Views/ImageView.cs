@@ -24,7 +24,7 @@ namespace OpenSage.Viewer.UI.Views
 
         protected abstract Texture GetTexture(AssetViewContext context);
 
-        public override void Draw()
+        public override void Draw(ref bool isGameViewFocused)
         {
             var availableSize = ImGui.GetContentRegionAvailable();
 

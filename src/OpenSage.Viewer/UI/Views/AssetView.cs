@@ -2,6 +2,6 @@
 {
     internal abstract class AssetView : DisposableBase
     {
-        public abstract void Draw();
+        public abstract void Draw(ref bool isGameViewFocused);
     }
 }

@@ -1,4 +1,8 @@
-﻿using OpenSage.Viewer.UI;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using OpenSage.Viewer.UI;
 using Veldrid;
 using Veldrid.Sdl2;
 
@@ -27,6 +31,9 @@ namespace OpenSage.Viewer
 
                 using (var mainForm = new MainForm(window, imGuiRenderer))
                 {
+                    var emptyInputSnapshot = new EmptyInputSnapshot();
+                    var isGameViewFocused = false;
+
                     while (true)
                     {
                         commandList.Begin();
@@ -42,11 +49,23 @@ namespace OpenSage.Viewer
 
                         commandList.ClearColorTarget(0, RgbaFloat.Clear);
 
+                        if (isGameViewFocused)
+                        {
+                            if (window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.Escape))
+                            {
+                                isGameViewFocused = false;
+                            }
+                        }
+
+                        var inputSnapshot = isGameViewFocused
+                            ? emptyInputSnapshot
+                            : window.CurrentInputSnapshot;
+
                         imGuiRenderer.Update(
                             (float) gameTimer.CurrentGameTime.ElapsedGameTime.TotalSeconds,
-                            window.CurrentInputSnapshot);
+                            inputSnapshot);
 
-                        mainForm.Draw();
+                        mainForm.Draw(ref isGameViewFocused);
 
                         imGuiRenderer.Render(window.GraphicsDevice, commandList);
 
@@ -60,6 +79,21 @@ namespace OpenSage.Viewer
             }
 
             Platform.Stop();
+        }
+
+        private sealed class EmptyInputSnapshot : InputSnapshot
+        {
+            public IReadOnlyList<KeyEvent> KeyEvents { get; } = Array.Empty<KeyEvent>();
+
+            public IReadOnlyList<MouseEvent> MouseEvents { get; } = Array.Empty<MouseEvent>();
+
+            public IReadOnlyList<char> KeyCharPresses { get; } = Array.Empty<char>();
+
+            public Vector2 MousePosition { get; } = new Vector2(-100, -100);
+
+            public float WheelDelta { get; } = 0;
+
+            public bool IsMouseDown(MouseButton button) => false;
         }
     }
 }

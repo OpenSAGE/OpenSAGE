@@ -45,8 +45,10 @@ namespace OpenSage.Viewer.UI
             ChangeInstallation(_installations.FirstOrDefault());
         }
 
-        public void Draw()
+        public void Draw(ref bool isGameViewFocused)
         {
+            _gamePanel.IsGameViewActive = isGameViewFocused;
+
             ImGui.SetNextWindowPos(Vector2.Zero, Condition.Always, Vector2.Zero);
             ImGui.SetNextWindowSize(new Vector2(_gameWindow.ClientBounds.Width, _gameWindow.ClientBounds.Height), Condition.Always);
 
@@ -172,7 +174,7 @@ namespace OpenSage.Viewer.UI
                 var availableSize = ImGui.GetContentRegionAvailable();
                 _gamePanel.EnsureSize((uint) availableSize.X, (uint) availableSize.Y);
 
-                _contentView.Draw();
+                _contentView.Draw(ref isGameViewFocused);
             }
 
             ImGui.EndChild();
@@ -209,7 +211,7 @@ namespace OpenSage.Viewer.UI
 
             _files = _fileSystem.Files.OrderBy(x => x.FilePath).ToList();
 
-            _gamePanel = AddDisposable(new ImGuiGamePanel(_gameWindow.GraphicsDevice));
+            _gamePanel = AddDisposable(new ImGuiGamePanel(_gameWindow));
             _gamePanel.EnsureSize(100, 100);
 
             _game = AddDisposable(GameFactory.CreateGame(
