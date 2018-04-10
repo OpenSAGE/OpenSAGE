@@ -149,7 +149,7 @@ namespace OpenSage.Mathematics
         /// <summary>
         /// Converts the bounding box from world space into a screen space bounding rectangle.
         /// </summary>
-        public Rectangle ToScreenRectangle(CameraComponent camera)
+        public Rectangle GetBoundingRectangle(CameraComponent camera)
         {
             var topLeft = new Vector3(float.MaxValue);
             var bottomRight = new Vector3(float.MinValue);

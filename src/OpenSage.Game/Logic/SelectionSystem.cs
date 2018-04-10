@@ -61,7 +61,7 @@ namespace OpenSage.Logic
             var rect = SelectionRect;
 
             // If either dimension is under 50 pixels, don't show the box selector.
-            if (_status != SelectionStatus.MultiSelecting && UseBoxSelectionForRect(rect))
+            if (_status != SelectionStatus.MultiSelecting && UseBoxSelection(rect))
             {
                 _status = SelectionStatus.MultiSelecting;
                 // Note that the box can be scaled down after this.
@@ -115,13 +115,7 @@ namespace OpenSage.Logic
             if (closestObject != null)
             {
                 _selectedObjects.Add(closestObject);
-
-                // TODO: Support other colliders
-                if (closestObject.Collider is BoxCollider box)
-                {
-                    var worldBox = box.Bounds.Transform(closestObject.Transform.Matrix);
-                    SelectionGui.SelectedObjects.Add(worldBox);
-                }
+                SelectionGui.SelectedObjects.Add(closestObject.Collider);
             }
         }
 
@@ -132,26 +126,21 @@ namespace OpenSage.Logic
             // TODO: Optimize with a quadtree / use frustum culling?
             foreach (var gameObject in Game.Scene3D.GameObjects.Items)
             {
-                if (!gameObject.IsSelectable)
+                if (!gameObject.IsSelectable || gameObject.Collider == null)
                 {
                     continue;
                 }
 
                 // TODO: Support other colliders
-                if (gameObject.Collider is BoxCollider box)
+                if (gameObject.Collider.Intersects(boxFrustum))
                 {
-                    var worldBox = box.Bounds.Transform(gameObject.Transform.Matrix);
-
-                    if (boxFrustum.Intersects(worldBox))
-                    {
-                        _selectedObjects.Add(gameObject);
-                        SelectionGui.SelectedObjects.Add(worldBox);
-                    }
+                    _selectedObjects.Add(gameObject);
+                    SelectionGui.SelectedObjects.Add(gameObject.Collider);
                 }
             }
         }
 
-        private static bool UseBoxSelectionForRect(Rectangle rect)
+        private static bool UseBoxSelection(Rectangle rect)
         {
             return Math.Max(rect.Width, rect.Height) >= BoxSelectionMinimumSize;
         }
