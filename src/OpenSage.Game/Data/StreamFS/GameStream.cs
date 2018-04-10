@@ -127,8 +127,7 @@ namespace OpenSage.Data.StreamFS
             imports = new AssetImport[importData.Length];
             for (var i = 0; i < importData.Length; i++)
             {
-                var assetReference = asset.AssetReferences[i];
-                var referencedAsset = FindAsset(assetReference);
+                var referencedAsset = FindAsset(asset.AssetReferences[i]);
 
                 imports[i] = new AssetImport(importData[i], referencedAsset);
             }

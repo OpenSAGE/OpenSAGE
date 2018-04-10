@@ -1,21 +1,17 @@
-﻿using System;
+﻿using Veldrid.Sdl2;
 
 namespace OpenSage
 {
     public static class Platform
     {
-        public static IPlatform CurrentPlatform;
-    }
+        public static void Start()
+        {
+            Sdl2Native.SDL_Init(SDLInitFlags.Video);
+        }
 
-    public interface IPlatform
-    {
-        void Start();
-        void Stop();
-
-        GameWindow CreateWindow(IntPtr windowsWindowHandle);
-
-        GameWindow CreateWindow(string title, int x, int y, int width, int height);
-
-        Cursor CreateCursor(string filePath);
+        public static void Stop()
+        {
+            // ?
+        }
     }
 }

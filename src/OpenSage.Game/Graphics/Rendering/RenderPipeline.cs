@@ -45,7 +45,7 @@ namespace OpenSage.Graphics.Rendering
             _drawingContext = AddDisposable(new DrawingContext2D(
                 game.ContentManager,
                 BlendStateDescription.SingleAlphaBlend,
-                graphicsDevice.SwapchainFramebuffer.OutputDescription));
+                game.Panel.Framebuffer.OutputDescription));
         }
 
         public void Execute(RenderContext context)

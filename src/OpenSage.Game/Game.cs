@@ -6,7 +6,6 @@ using OpenSage.Audio;
 using OpenSage.Data;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Rendering;
-using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
 using OpenSage.Input;
 using OpenSage.Logic;
@@ -105,7 +104,7 @@ namespace OpenSage
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
             UserDataLeafName);
 
-        public GameWindow Window { get; }
+        public GamePanel Panel { get; }
 
         public Viewport Viewport { get; private set; }
 
@@ -146,26 +145,16 @@ namespace OpenSage
         public Game(
             IGameDefinition definition,
             FileSystem fileSystem,
-            Func<GameWindow> createGameWindow)
+            GamePanel panel)
         {
             // TODO: Should we receive this as an argument? Do we need configuration in this constructor?
             Configuration = new Configuration();
 
-            Window = AddDisposable(createGameWindow());
+            Panel = panel;
 
-#if DEBUG
-            const bool debug = true;
-#else
-            const bool debug = false;
-#endif
+            GraphicsDevice = panel.GraphicsDevice;
 
-            GraphicsDevice = AddDisposable(GraphicsDevice.CreateD3D11(
-                new GraphicsDeviceOptions(debug, PixelFormat.D32_Float_S8_UInt, true),
-                Window.NativeWindowHandle,
-                (uint) Window.ClientBounds.Width,
-                (uint) Window.ClientBounds.Height));
-
-            InputMessageBuffer = AddDisposable(new InputMessageBuffer(Window));
+            InputMessageBuffer = AddDisposable(new InputMessageBuffer(panel));
 
             Definition = definition;
 
@@ -224,7 +213,7 @@ namespace OpenSage
 
             Scene2D = new Scene2D(this);
 
-            Window.ClientSizeChanged += OnWindowClientSizeChanged;
+            Panel.ClientSizeChanged += OnWindowClientSizeChanged;
             OnWindowClientSizeChanged(this, EventArgs.Empty);
 
             GameSystems.ForEach(gs => gs.Initialize());
@@ -236,11 +225,7 @@ namespace OpenSage
 
         private void OnWindowClientSizeChanged(object sender, EventArgs e)
         {
-            var newSize = Window.ClientBounds.Size;
-
-            GraphicsDevice.ResizeMainWindow(
-                (uint) newSize.Width,
-                (uint) newSize.Height);
+            var newSize = Panel.ClientBounds.Size;
 
             Viewport = new Viewport(
                 0,
@@ -266,7 +251,7 @@ namespace OpenSage
         {
             _currentCursor = cursor;
 
-            Window.SetCursor(cursor);
+            Panel.SetCursor(cursor);
         }
 
         public void SetCursor(string cursorName)
@@ -301,7 +286,7 @@ namespace OpenSage
 
                 var cursorFilePath = Path.Combine(_fileSystem.RootDirectory, cursorDirectory, cursorFileName);
 
-                _cachedCursors[cursorName] = cursor = AddDisposable(Platform.CurrentPlatform.CreateCursor(cursorFilePath));
+                _cachedCursors[cursorName] = cursor = AddDisposable(new Cursor(cursorFilePath));
             }
 
             SetCursor(cursor);
@@ -390,11 +375,11 @@ namespace OpenSage
                 return;
             }
 
-            if (!Window.PumpEvents())
-            {
-                IsRunning = false;
-                return;
-            }
+            //if (!Window.PumpEvents())
+            //{
+            //    IsRunning = false;
+            //    return;
+            //}
 
             _gameTimer.Update();
 
@@ -410,8 +395,6 @@ namespace OpenSage
 
         protected override void Dispose(bool disposeManagedResources)
         {
-            GraphicsDevice.WaitForIdle();
-
             base.Dispose(disposeManagedResources);
 
             GC.Collect();

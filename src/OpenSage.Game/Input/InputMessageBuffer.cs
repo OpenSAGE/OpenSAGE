@@ -8,15 +8,15 @@ namespace OpenSage.Input
 
         public List<InputMessageHandler> Handlers { get; }
 
-        internal InputMessageBuffer(GameWindow window)
+        internal InputMessageBuffer(GamePanel panel)
         {
             _messageQueue = new Queue<InputMessage>();
 
             Handlers = new List<InputMessageHandler>();
 
-            window.InputMessageReceived += OnInputMessage;
+            panel.InputMessageReceived += OnInputMessage;
 
-            AddDisposeAction(() => window.InputMessageReceived -= OnInputMessage);
+            AddDisposeAction(() => panel.InputMessageReceived -= OnInputMessage);
         }
 
         private void OnInputMessage(object sender, InputMessageEventArgs e)

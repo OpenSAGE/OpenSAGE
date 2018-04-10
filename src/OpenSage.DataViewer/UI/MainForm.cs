@@ -4,6 +4,7 @@ using Eto.Drawing;
 using Eto.Forms;
 using OpenSage.Data;
 using OpenSage.DataViewer.Framework;
+using OpenSage.Mods.BuiltIn;
 
 namespace OpenSage.DataViewer.UI
 {
@@ -35,7 +36,7 @@ namespace OpenSage.DataViewer.UI
             _installationsMenuItem = new ButtonMenuItem { Text = "&Installation" };
             RadioCommand firstInstallationCommand = null;
 
-            var installations = InstallationUtility.FindInstallations();
+            var installations = GameInstallation.FindAll(GameDefinition.All);
             foreach (var installation in installations)
             {
                 var installationCommand = new RadioCommand((sender, e) => ChangeInstallation(installation))

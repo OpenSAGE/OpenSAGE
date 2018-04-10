@@ -1,4 +1,5 @@
-﻿using OpenSage.Graphics.Rendering;
+﻿using System;
+using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Graphics
 {
@@ -16,9 +17,18 @@ namespace OpenSage.Graphics
 
         public override void Initialize()
         {
-            _renderPipeline = AddDisposable(new RenderPipeline(Game));
+            Game.Panel.FramebufferChanged += OnFramebufferChanged;
+
+            OnFramebufferChanged(this, EventArgs.Empty);
 
             base.Initialize();
+        }
+
+        private void OnFramebufferChanged(object sender, EventArgs e)
+        {
+            RemoveAndDispose(ref _renderPipeline);
+
+            _renderPipeline = AddDisposable(new RenderPipeline(Game));
         }
 
         public override void Draw(GameTime gameTime)
@@ -28,7 +38,7 @@ namespace OpenSage.Graphics
             _renderContext.Graphics = this;
             _renderContext.Camera = Game.Scene3D?.Camera;
             _renderContext.Scene = Game.Scene3D;
-            _renderContext.RenderTarget = Game.GraphicsDevice.SwapchainFramebuffer;
+            _renderContext.RenderTarget = Game.Panel.Framebuffer;
             _renderContext.GameTime = gameTime;
 
             _renderPipeline.Execute(_renderContext);

@@ -169,11 +169,6 @@ namespace OpenSage.Content
             bool fallbackToPlaceholder = true)
             where T : class
         {
-            if (_cachedObjects.TryGetValue(filePath, out var asset))
-            {
-                return (T) asset;
-            }
-
             var type = typeof(T);
 
             if (!_contentLoaders.TryGetValue(type, out var contentLoader))
@@ -193,22 +188,45 @@ namespace OpenSage.Content
 
             if (entry != null)
             {
-                asset = contentLoader.Load(entry, this, _game, options);
-
-                if (asset is IDisposable d)
-                {
-                    AddDisposable(d);
-                }
-
-                var shouldCacheAsset = options?.CacheAsset ?? true;
-                if (shouldCacheAsset)
-                {
-                    _cachedObjects.Add(filePath, asset);
-                }
+                return Load<T>(entry, options);
             }
             else if (fallbackToPlaceholder)
             {
-                asset = contentLoader.PlaceholderValue;
+                return (T) contentLoader.PlaceholderValue;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public T Load<T>(
+            FileSystemEntry entry,
+            LoadOptions options = null)
+        {
+            if (_cachedObjects.TryGetValue(entry.FilePath, out var asset))
+            {
+                return (T) asset;
+            }
+
+            var type = typeof(T);
+
+            if (!_contentLoaders.TryGetValue(type, out var contentLoader))
+            {
+                throw new Exception($"Could not finder content loader for type '{type.FullName}'");
+            }
+
+            asset = contentLoader.Load(entry, this, _game, options);
+
+            if (asset is IDisposable d)
+            {
+                AddDisposable(d);
+            }
+
+            var shouldCacheAsset = options?.CacheAsset ?? true;
+            if (shouldCacheAsset)
+            {
+                _cachedObjects.Add(entry.FilePath, asset);
             }
 
             GraphicsDevice.WaitForIdle();

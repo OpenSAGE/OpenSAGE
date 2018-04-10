@@ -13,6 +13,8 @@ namespace OpenSage.DataViewer.UI
         private readonly Func<GameInstallation> _getInstallation;
         private readonly Func<FileSystem> _getFileSystem;
 
+        private GameWindow _gameWindow;
+
         private Game _game;
 
         public ContentView(Func<GameInstallation> getInstallation, Func<FileSystem> getFileSystem)
@@ -45,10 +47,15 @@ namespace OpenSage.DataViewer.UI
         {
             Game getGame(IntPtr windowHandle)
             {
+                if (_gameWindow == null)
+                {
+                    _gameWindow = new GameWindow(windowHandle);
+                }
+
                 _game = GameFactory.CreateGame(
                     _getInstallation(),
                     _getFileSystem(),
-                    () => OpenSage.Platform.CurrentPlatform.CreateWindow(windowHandle));
+                    GamePanel.FromGameWindow(_gameWindow));
 
                 return _game;
             }
@@ -135,6 +142,9 @@ namespace OpenSage.DataViewer.UI
 
             _game?.Dispose();
             _game = null;
+
+            _gameWindow?.Dispose();
+            _gameWindow = null;
 
             base.Dispose(disposing);
         }

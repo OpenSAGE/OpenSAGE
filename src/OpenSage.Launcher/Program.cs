@@ -33,36 +33,43 @@ namespace OpenSage.Launcher
                     "Immediately starts a new skirmish with default settings in the specified map. The map file must be specified with the full path.");
             });
 
-            Platform.CurrentPlatform = new Sdl2Platform();
-            Platform.CurrentPlatform.Start();
+            Platform.Start();
 
             // TODO: Support other locators.
             var locator = new RegistryInstallationLocator();
 
-            var game = GameFactory.CreateGame(
-                definition,
-                locator,
-                // TODO: Read game version from assembly metadata or .git folder
-                // TODO: Set window icon.
-                () => Platform.CurrentPlatform.CreateWindow("OpenSAGE (master)", 100, 100, 1024, 768));
-
-            game.Configuration.LoadShellMap = !noShellMap;
-
-            if (mapName == null)
+            // TODO: Read game version from assembly metadata or .git folder
+            // TODO: Set window icon.
+            using (var gameWindow = new GameWindow("OpenSAGE (master)", 100, 100, 1024, 768, 0))
+            using (var gamePanel = GamePanel.FromGameWindow(gameWindow))
             {
-                game.ShowMainMenu();
-            }
-            else
-            {
-                game.StartGame(mapName, new EchoConnection(), new[] {"America", "GLA"}, 0);
+                var game = GameFactory.CreateGame(
+                    definition,
+                    locator,
+                    gamePanel);
+
+                game.Configuration.LoadShellMap = !noShellMap;
+
+                if (mapName == null)
+                {
+                    game.ShowMainMenu();
+                }
+                else
+                {
+                    game.StartGame(mapName, new EchoConnection(), new[] {"America", "GLA"}, 0);
+                }
+
+                while (game.IsRunning)
+                {
+                    if (!gameWindow.PumpEvents())
+                    {
+                        break;
+                    }
+                    game.Tick();
+                }
             }
 
-            while (game.IsRunning)
-            {
-                game.Tick();
-            }
-
-            Platform.CurrentPlatform.Stop();
+            Platform.Stop();
         }
     }
 }
