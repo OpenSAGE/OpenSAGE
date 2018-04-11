@@ -4,6 +4,7 @@ using System.Linq;
 using OpenSage.Data;
 using OpenSage.Mods.BuiltIn;
 using OpenSage.Network;
+using Veldrid;
 
 namespace OpenSage.Launcher
 {
@@ -14,9 +15,24 @@ namespace OpenSage.Launcher
             var noShellMap = false;
             var definition = GameDefinition.FromGame(SageGame.CncGenerals);
             string mapName = null;
+            GraphicsBackend? preferredBackend = null;
 
             ArgumentSyntax.Parse(args, syntax =>
             {
+                string preferredBackendString = null;
+                syntax.DefineOption("renderer", ref preferredBackendString, false, $"Choose which renderer backend should be used. Valid options: {string.Join(",", Enum.GetNames(typeof(GraphicsBackend)))}");
+                if (preferredBackendString != null)
+                {
+                    if (Enum.TryParse<GraphicsBackend>(preferredBackendString, out var preferredBackendTemp))
+                    {
+                        preferredBackend = preferredBackendTemp;
+                    }
+                    else
+                    {
+                        syntax.ReportError($"Unknown renderer backend: {preferredBackendString}");
+                    }
+                }
+
                 syntax.DefineOption("noshellmap", ref noShellMap, false, "Disables loading the shell map, speeding up startup time.");
 
                 string gameName = null;
@@ -47,7 +63,8 @@ namespace OpenSage.Launcher
                 locator,
                 // TODO: Read game version from assembly metadata or .git folder
                 // TODO: Set window icon.
-                () => Platform.CurrentPlatform.CreateWindow("OpenSAGE (master)", 100, 100, 1024, 768));
+                () => Platform.CurrentPlatform.CreateWindow("OpenSAGE (master)", 100, 100, 1024, 768),
+                preferredBackend);
 
             game.Configuration.LoadShellMap = !noShellMap;
 
