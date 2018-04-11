@@ -162,7 +162,10 @@ namespace OpenSage
 
             GraphicsDevice = AddDisposable(VeldridStartup.CreateGraphicsDevice(
                 Window.Sdl2Window,
-                new GraphicsDeviceOptions(debug, PixelFormat.D32_Float_S8_UInt, true)));
+                new GraphicsDeviceOptions(debug, PixelFormat.D32_Float_S8_UInt, true)
+                { 
+                    ResourceBindingModel = ResourceBindingModel.Improved
+                }));
 
             InputMessageBuffer = AddDisposable(new InputMessageBuffer(Window));
 
