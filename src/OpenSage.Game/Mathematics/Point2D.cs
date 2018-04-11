@@ -28,5 +28,15 @@ namespace OpenSage.Mathematics
                 (int) Math.Round(result.X),
                 (int) Math.Round(result.Y));
         }
+
+        public static Point2D Min(in Point2D a, in Point2D b)
+        {
+            return new Point2D(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y));
+        }
+
+        public static Point2D Max(in Point2D a, in Point2D b)
+        {
+            return new Point2D(Math.Max(a.X, b.X), Math.Max(a.Y, b.Y));
+        }
     }
 }

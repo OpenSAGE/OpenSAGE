@@ -6,7 +6,6 @@ using OpenSage.Audio;
 using OpenSage.Data;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Rendering;
-using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
 using OpenSage.Input;
 using OpenSage.Logic;
@@ -62,11 +61,10 @@ namespace OpenSage
         /// </summary>
         public ScriptingSystem Scripting { get; }
 
-        // TODO: Remove this when we have other ways of testing colliders.
         /// <summary>
-        /// Gets the debug entity picker system.
+        /// Gets the selection system.
         /// </summary>
-        public DebugEntityPickerSystem EntityPicker { get; }
+        public SelectionSystem Selection { get; }
 
         /// <summary>
         /// Gets the audio system
@@ -235,9 +233,9 @@ namespace OpenSage
 
             Scripting = AddDisposable(new ScriptingSystem(this));
 
-            EntityPicker = AddDisposable(new DebugEntityPickerSystem(this));
-
             Scene2D = new Scene2D(this);
+
+            Selection = AddDisposable(new SelectionSystem(this));
 
             Window.ClientSizeChanged += OnWindowClientSizeChanged;
             OnWindowClientSizeChanged(this, EventArgs.Empty);

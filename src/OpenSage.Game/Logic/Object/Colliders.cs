@@ -1,33 +1,38 @@
 ﻿using System;
 using System.Numerics;
+using OpenSage.Graphics.Cameras;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
     public abstract class Collider
     {
-        private readonly Transform _transform;
+        protected readonly Transform Transform;
 
         protected Collider(Transform transform)
         {
-            _transform = transform;
+            Transform = transform;
         }
 
         public bool Intersects(in Ray ray, out float depth)
         {
-            var transformedRay = ray.Transform(_transform.MatrixInverse);
+            var transformedRay = ray.Transform(Transform.MatrixInverse);
 
             if (IntersectsTransformedRay(transformedRay, out depth))
             {
                 // Assumes uniform scaling
-                depth *= _transform.Scale;
+                depth *= Transform.Scale;
                 return true;
             }
 
             return false;
         }
 
+        public abstract bool Intersects(in BoundingFrustum frustum);
+
         protected abstract bool IntersectsTransformedRay(in Ray ray, out float depth);
+
+        public abstract Rectangle GetBoundingRectangle(CameraComponent camera);
 
         public static Collider Create(ObjectDefinition definition, Transform transform)
         {
@@ -67,6 +72,18 @@ namespace OpenSage.Logic.Object
         {
             return transformedRay.Intersects(_bounds, out depth);
         }
+
+        public override bool Intersects(in BoundingFrustum frustum)
+        {
+            var worldBounds = _bounds.Transform(Transform.Matrix);
+            return frustum.Intersects(worldBounds);
+        }
+
+        public override Rectangle GetBoundingRectangle(CameraComponent camera)
+        {
+            var worldBounds = _bounds.Transform(Transform.Matrix);
+            return worldBounds.GetBoundingRectangle(camera);
+        }
     }
 
     public class SphereCollider : Collider
@@ -82,6 +99,20 @@ namespace OpenSage.Logic.Object
         protected override bool IntersectsTransformedRay(in Ray transformedRay, out float depth)
         {
             return transformedRay.Intersects(_bounds, out depth);
+        }
+
+        public override bool Intersects(in BoundingFrustum frustum)
+        {
+            var worldBounds = _bounds.Transform(Transform.Matrix);
+            return frustum.Intersects(worldBounds);
+        }
+
+        public override Rectangle GetBoundingRectangle(CameraComponent camera)
+        {
+            // TODO: Implement this.
+            // Or don't, since Generals has only 4 spherical selectable objects,
+            // and all of them are debug objects.
+            return new Rectangle(0, 0, 0, 0);
         }
     }
 
@@ -105,6 +136,18 @@ namespace OpenSage.Logic.Object
         protected override bool IntersectsTransformedRay(in Ray transformedRay, out float depth)
         {
             return transformedRay.Intersects(_bounds, out depth);
+        }
+
+        public override bool Intersects(in BoundingFrustum frustum)
+        {
+            var worldBounds = _bounds.Transform(Transform.Matrix);
+            return frustum.Intersects(worldBounds);
+        }
+
+        public override Rectangle GetBoundingRectangle(CameraComponent camera)
+        {
+            var worldBounds = _bounds.Transform(Transform.Matrix);
+            return worldBounds.GetBoundingRectangle(camera);
         }
     }
 }

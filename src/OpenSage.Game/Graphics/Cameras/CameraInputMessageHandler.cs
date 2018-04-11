@@ -24,7 +24,7 @@ namespace OpenSage.Graphics.Cameras
                 case InputMessageType.MouseMove:
                     {
                         var position = message.Value.MousePosition;
-                        if (_leftMouseDown || _rightMouseDown)
+                        if (_leftMouseDown || _rightMouseDown || _middleMouseDown)
                         {
                             _deltaX += position.X - _lastX;
                             _deltaY += position.Y - _lastY;

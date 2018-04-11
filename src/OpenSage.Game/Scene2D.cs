@@ -1,5 +1,4 @@
-﻿using OpenSage.Graphics;
-using OpenSage.Gui;
+﻿using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Wnd;
 

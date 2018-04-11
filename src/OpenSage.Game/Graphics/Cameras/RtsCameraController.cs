@@ -122,7 +122,7 @@ namespace OpenSage.Graphics.Cameras
 
         void ICameraController.UpdateCamera(CameraComponent camera, in CameraInputState inputState, GameTime gameTime)
         {
-            if (inputState.LeftMouseDown)
+            if (inputState.LeftMouseDown && inputState.PressedKeys.Contains(Key.AltLeft) || inputState.MiddleMouseDown)
             {
                 RotateCamera(inputState.DeltaX, inputState.DeltaY);
             }

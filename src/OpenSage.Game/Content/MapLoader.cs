@@ -270,6 +270,11 @@ namespace OpenSage.Content
                 gameObject.Owner = team;
             }
 
+            if (mapObject.Properties.TryGetValue("objectSelectable", out var selectable))
+            {
+                gameObject.IsSelectable = (bool) selectable.Value;
+            }
+
             return gameObject;
         }
 

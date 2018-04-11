@@ -5,6 +5,8 @@ using OpenSage.Data.Map;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Gui;
+using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Scripting;
 using OpenSage.Settings;
@@ -18,6 +20,9 @@ namespace OpenSage
     {
         private readonly CameraInputMessageHandler _cameraInputMessageHandler;
         private CameraInputState _cameraInputState;
+
+        private readonly SelectionInputHandler _selectionInputHandler;
+        public SelectionGui SelectionGui { get; }
 
         private readonly ParticleSystemManager _particleSystemManager;
 
@@ -82,6 +87,11 @@ namespace OpenSage
             WaypointPaths = waypointPaths;
             Lighting = lighting;
 
+            SelectionGui = new SelectionGui();
+            _selectionInputHandler = new SelectionInputHandler(game.Selection);
+            game.InputMessageBuffer.Handlers.Add(_selectionInputHandler);
+            AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_selectionInputHandler));
+
             _cameraInputMessageHandler = new CameraInputMessageHandler();
             game.InputMessageBuffer.Handlers.Add(_cameraInputMessageHandler);
             AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_cameraInputMessageHandler));
@@ -135,6 +145,12 @@ namespace OpenSage
             }
 
             _particleSystemManager.BuildRenderList(renderList);
+        }
+
+        // This is for drawing 2D elements which depend on the Scene3D, e.g tooltips and health bars.
+        internal void Render(DrawingContext2D drawingContext)
+        {
+            SelectionGui.Draw(drawingContext, Camera);
         }
     }
 }
