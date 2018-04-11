@@ -94,7 +94,7 @@ namespace OpenSage.Graphics.Cameras
                     }
             }
 
-            return InputMessageResult.NotHandled;
+            return InputMessageResult.Handled;
         }
 
         public void UpdateInputState(ref CameraInputState state)
