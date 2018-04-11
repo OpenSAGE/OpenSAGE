@@ -7,8 +7,9 @@ using OpenSage.Utilities;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Text;
 using Veldrid;
 
 namespace OpenSage.Gui
@@ -94,14 +95,6 @@ namespace OpenSage.Gui
                 var color = key.Color;
 
                 x.DrawText(
-                    key.Text,
-                    actualFont,
-                    new Bgra32(
-                        (byte) (color.R * 255.0f),
-                        (byte) (color.G * 255.0f),
-                        (byte) (color.B * 255.0f),
-                        (byte) (color.A * 255.0f)),
-                    location,
                     new TextGraphicsOptions
                     {
                         WrapTextWidth = size.Width,
@@ -109,7 +102,15 @@ namespace OpenSage.Gui
                             ? HorizontalAlignment.Center
                             : HorizontalAlignment.Left,
                         VerticalAlignment = VerticalAlignment.Center
-                    });
+                    },
+                    key.Text,
+                    actualFont,
+                    new Bgra32(
+                        (byte) (color.R * 255.0f),
+                        (byte) (color.G * 255.0f),
+                        (byte) (color.B * 255.0f),
+                        (byte) (color.A * 255.0f)),
+                    location);
             });
 
             Texture texture;

@@ -7,6 +7,7 @@ using OpenSage.Data.Tga;
 using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using Veldrid;
 using Veldrid.ImageSharp;
 
