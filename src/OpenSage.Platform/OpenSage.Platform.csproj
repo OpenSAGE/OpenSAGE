@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Veldrid.SDL2" Version="4.2.0-beta1-g0a3934c9d9" />
+    <PackageReference Include="Veldrid.SDL2" Version="4.2.0-beta1-g25db1e07d8" />
   </ItemGroup>
 
   <ItemGroup>
