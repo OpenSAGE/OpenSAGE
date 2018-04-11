@@ -56,6 +56,8 @@ namespace OpenSage.Logic.Object
                 .ToList();
 
             SetModelConditionFlags(new BitArray<ModelConditionFlag>());
+
+            IsSelectable = Definition.KindOf?.Get(ObjectKinds.Selectable) ?? false;
         }
 
         internal IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
