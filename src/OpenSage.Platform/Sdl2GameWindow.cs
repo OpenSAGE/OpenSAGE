@@ -45,7 +45,7 @@ namespace OpenSage
 
         public Sdl2GameWindow(string title, int x, int y, int width, int height)
         {
-            _window = new Sdl2Window(title, x, y, width, height, (SDL_WindowFlags) 0, false);
+            _window = new Sdl2Window(title, x, y, width, height, SDL_WindowFlags.OpenGL, false);
             AfterWindowCreated();
         }
 
