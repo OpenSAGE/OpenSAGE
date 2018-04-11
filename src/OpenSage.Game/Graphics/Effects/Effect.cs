@@ -106,8 +106,8 @@ namespace OpenSage.Graphics.Effects
             {
                 case GraphicsBackend.Direct3D11: return ".hlsl.bytes";
                 case GraphicsBackend.Metal: return ".metallib";
-                case GraphicsBackend.Vulkan: return ".450.glsl";
-                case GraphicsBackend.OpenGL: return "330.glsl";
+                case GraphicsBackend.Vulkan: return ".450.glsl.spv";
+                case GraphicsBackend.OpenGL: return ".330.glsl";
                 default: throw new InvalidOperationException("Invalid Graphics backend: " + backend);
             }
         }
