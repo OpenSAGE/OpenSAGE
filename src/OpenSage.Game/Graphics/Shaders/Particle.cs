@@ -66,7 +66,7 @@ namespace OpenSage.Graphics.Shaders
             // | / |
             // 2 - 3
 
-            var quadVertexID = (uint) Mod(VertexID, 4);
+            var quadVertexID = (uint) Mod((float) VertexID, 4f);
 
             // TODO: This workaround is only because ShaderGen doesn't yet support const arrays.
             var vertexUVPos = Vector4.Zero;

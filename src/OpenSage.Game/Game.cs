@@ -13,6 +13,7 @@ using OpenSage.Logic;
 using OpenSage.Network;
 using OpenSage.Scripting;
 using Veldrid;
+using Veldrid.StartupUtilities;
 
 using Player = OpenSage.Logic.Player;
 using System.Numerics;
@@ -146,7 +147,8 @@ namespace OpenSage
         public Game(
             IGameDefinition definition,
             FileSystem fileSystem,
-            Func<GameWindow> createGameWindow)
+            Func<GameWindow> createGameWindow,
+            GraphicsBackend? preferredBackend)
         {
             // TODO: Should we receive this as an argument? Do we need configuration in this constructor?
             Configuration = new Configuration();
@@ -159,11 +161,24 @@ namespace OpenSage
             const bool debug = false;
 #endif
 
-            GraphicsDevice = AddDisposable(GraphicsDevice.CreateD3D11(
-                new GraphicsDeviceOptions(debug, PixelFormat.D32_Float_S8_UInt, true),
-                Window.NativeWindowHandle,
-                (uint) Window.ClientBounds.Width,
-                (uint) Window.ClientBounds.Height));
+            var graphicsDeviceOptions = new GraphicsDeviceOptions(debug, PixelFormat.D32_Float_S8_UInt, true)
+            { 
+                ResourceBindingModel = ResourceBindingModel.Improved
+            };
+
+            if (preferredBackend != null)
+            {
+                GraphicsDevice = AddDisposable(VeldridStartup.CreateGraphicsDevice(
+                    Window.Sdl2Window,
+                    graphicsDeviceOptions,
+                    preferredBackend.Value));
+            }
+            else
+            {
+                GraphicsDevice = AddDisposable(VeldridStartup.CreateGraphicsDevice(
+                    Window.Sdl2Window,
+                    graphicsDeviceOptions));
+            }
 
             InputMessageBuffer = AddDisposable(new InputMessageBuffer(Window));
 

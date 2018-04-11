@@ -12,15 +12,16 @@
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="OpenAL-CS" Version="1.0.0" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0002" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0002" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0003" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0003" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
-    <PackageReference Include="ShaderGen.Primitives" Version="1.2.0-g54cf9ed144" />
-    <PackageReference Include="ShaderGen.Build" Version="1.2.0-g54cf9ed144" PrivateAssets="All" />
-    <PackageReference Include="Veldrid" Version="4.1.4" />
-    <PackageReference Include="Veldrid.ImageSharp" Version="4.1.4" />
-    <PackageReference Include="Veldrid.SDL2" Version="4.1.4" />
+    <PackageReference Include="ShaderGen.Primitives" Version="1.2.0-g4bf25fc276" />
+    <PackageReference Include="ShaderGen.Build" Version="1.2.0-g4bf25fc276" PrivateAssets="All" />
+    <PackageReference Include="Veldrid" Version="4.2.0-beta1-g0a3934c9d9" />
+    <PackageReference Include="Veldrid.ImageSharp" Version="4.2.0-beta1-g0a3934c9d9" />
+    <PackageReference Include="Veldrid.SDL2" Version="4.2.0-beta1-g0a3934c9d9" />
+    <PackageReference Include="Veldrid.StartupUtilities" Version="4.2.0-beta1-g0a3934c9d9" />
   </ItemGroup>
 
   <ItemGroup>

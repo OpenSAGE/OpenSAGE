@@ -71,7 +71,9 @@ namespace OpenSage.Graphics.Shaders
         public struct VertexMaterial
         {
             public Vector3 Ambient;
+            float _Padding1;
             public Vector3 Diffuse;
+            float _Padding2;
             public Vector3 Specular;
             public float Shininess;
             public Vector3 Emissive;
@@ -94,6 +96,7 @@ namespace OpenSage.Graphics.Shaders
         public struct MaterialConstantsType
         {
             public uint NumTextureStages;
+            Vector3 _Padding;
             public VertexMaterial Material;
             public ShadingConfiguration Shading;
         }
@@ -145,20 +148,27 @@ namespace OpenSage.Graphics.Shaders
             switch (textureMapping.MappingType)
             {
                 case 0: // TEXTURE_MAPPING_UV
+                {
                     uv = new Vector2(uv.X, 1 - uv.Y);
                     break;
+                }
 
                 case 1: // TEXTURE_MAPPING_ENVIRONMENT
+                {
                     uv = (Vector3.Reflect(viewVector, worldNormal).XY() / 2.0f) + new Vector2(0.5f, 0.5f);
                     break;
+                }
 
                 case 2: // TEXTURE_MAPPING_LINEAR_OFFSET
+                {
                     var offset = textureMapping.UVPerSec * t;
                     uv = new Vector2(uv.X, 1 - uv.Y) + offset;
                     uv *= textureMapping.UVScale;
                     break;
+                }
 
                 case 3: // TEXTURE_MAPPING_ROTATE
+                {
                     var angle = textureMapping.Speed * t * twoPi;
                     var s = Sin(angle);
                     var c = Cos(angle);
@@ -174,24 +184,32 @@ namespace OpenSage.Graphics.Shaders
                     uv *= textureMapping.UVScale;
 
                     break;
+                }
 
                 case 4: // TEXTURE_MAPPING_SINE_LINEAR_OFFSET
+                {
                     uv.X += textureMapping.UVAmplitude.X * Sin(textureMapping.UVFrequency.X * t * twoPi - textureMapping.UVPhase.X * twoPi);
                     uv.Y += textureMapping.UVAmplitude.Y * Cos(textureMapping.UVFrequency.Y * t * twoPi - textureMapping.UVPhase.Y * twoPi);
                     break;
+                }
 
                 case 5: // TEXTURE_MAPPING_SCREEN
+                {
                     uv = (screenPosition / GlobalConstantsPS.ViewportSize) * textureMapping.UVScale;
                     break;
+                }
 
                 case 6: // TEXTURE_MAPPING_SCALE
+                {
                     uv *= textureMapping.UVScale;
                     break;
+                }
 
                 case 7: // TEXTURE_MAPPING_GRID
+                {
                     uv = new Vector2(uv.X, 1 - uv.Y);
                     // TODO: This should really use a uint overload of Pow.
-                    var numFramesPerSide = Pow(2, textureMapping.Log2Width);
+                    var numFramesPerSide = Pow(2f, textureMapping.Log2Width);
                     var numFrames = numFramesPerSide * numFramesPerSide;
                     var currentFrame = Mod(t * textureMapping.FPS, numFrames);
                     var currentFrameU = Mod(currentFrame, numFramesPerSide);
@@ -199,6 +217,7 @@ namespace OpenSage.Graphics.Shaders
                     uv.X += currentFrameU / numFramesPerSide;
                     uv.Y += currentFrameV / numFramesPerSide;
                     break;
+                }
             }
 
             return Sample(diffuseTexture, Sampler, uv);

@@ -57,13 +57,16 @@ namespace OpenSage.Graphics.Effects
 
             ID = _nextID++;
 
-            using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream($"OpenSage.Graphics.Shaders.Compiled.{shaderName}-vertex.hlsl.bytes"))
+            const string shaderNamespace = "OpenSage.Graphics.Shaders.Compiled";
+            var shaderCodeExtension = GetBytecodeExtension(graphicsDevice.BackendType);
+
+            using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream($"{shaderNamespace}.{shaderName}-vertex{shaderCodeExtension}"))
             {
                 var vertexShaderBytecode = shaderStream.ReadAllBytes();
                 _vertexShader = AddDisposable(graphicsDevice.ResourceFactory.CreateShader(new ShaderDescription(ShaderStages.Vertex, vertexShaderBytecode, "VS")));
             }
 
-            using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream($"OpenSage.Graphics.Shaders.Compiled.{shaderName}-fragment.hlsl.bytes"))
+            using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream($"{shaderNamespace}.{shaderName}-fragment{shaderCodeExtension}"))
             {
                 var pixelShaderBytecode = shaderStream.ReadAllBytes();
                 _pixelShader = AddDisposable(graphicsDevice.ResourceFactory.CreateShader(new ShaderDescription(ShaderStages.Fragment, pixelShaderBytecode, "PS")));
@@ -94,6 +97,18 @@ namespace OpenSage.Graphics.Effects
 
                 _parameters[parameter.Name] = parameter;
                 _resourceLayouts[i] = parameter.ResourceLayout;
+            }
+        }
+
+        private static string GetBytecodeExtension(GraphicsBackend backend)
+        {
+            switch (backend)
+            {
+                case GraphicsBackend.Direct3D11: return ".hlsl.bytes";
+                case GraphicsBackend.Metal: return ".metallib";
+                case GraphicsBackend.Vulkan: return ".450.glsl.spv";
+                case GraphicsBackend.OpenGL: return ".330.glsl";
+                default: throw new InvalidOperationException("Invalid Graphics backend: " + backend);
             }
         }
 

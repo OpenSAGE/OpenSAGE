@@ -14,9 +14,11 @@ namespace OpenSage.Graphics.Shaders
         public struct Light
         {
             public Vector3 Ambient;
+            float _Padding1;
             public Vector3 Color;
+            float _Padding2;
             public Vector3 Direction;
-            float _Padding;
+            float _Padding3;
         }
 
         public struct Global_LightingConstantsPS

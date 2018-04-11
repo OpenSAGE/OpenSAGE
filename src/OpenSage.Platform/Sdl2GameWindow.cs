@@ -12,6 +12,8 @@ namespace OpenSage
     {
         private readonly Sdl2Window _window;
 
+        public override Sdl2Window Sdl2Window => _window;
+
         private readonly Queue<InputMessage> _messageQueue = new Queue<InputMessage>();
 
         private bool _closing;
@@ -43,7 +45,7 @@ namespace OpenSage
 
         public Sdl2GameWindow(string title, int x, int y, int width, int height)
         {
-            _window = new Sdl2Window(title, x, y, width, height, (SDL_WindowFlags) 0, false);
+            _window = new Sdl2Window(title, x, y, width, height, SDL_WindowFlags.OpenGL, false);
             AfterWindowCreated();
         }
 
