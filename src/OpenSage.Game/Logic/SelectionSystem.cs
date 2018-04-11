@@ -73,8 +73,6 @@ namespace OpenSage.Logic
 
         public void OnEndDragSelection()
         {
-            // TODO: Handle multi / single selection
-
             _selectedObjects.Clear();
             SelectionGui.SelectedObjects.Clear();
 
