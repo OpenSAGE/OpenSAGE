@@ -13,6 +13,8 @@ namespace OpenSage.Gui.Wnd
 
         private readonly List<Control> _lastMouseOverControls = new List<Control>();
 
+        public override HandlingPriority Priority => HandlingPriority.UIPriority;
+
         public WndInputMessageHandler(WndWindowManager windowManager, Game game)
         {
             _windowManager = windowManager;

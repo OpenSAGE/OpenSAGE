@@ -9,7 +9,7 @@ namespace OpenSage.Logic
 {
     public sealed class SelectionSystem : GameSystem
     {
-        private enum SelectionStatus
+        public enum SelectionStatus
         {
             NotSelecting,
             SingleSelecting,
@@ -26,8 +26,9 @@ namespace OpenSage.Logic
 
         private Point2D _startPoint;
         private Point2D _endPoint;
-        private SelectionStatus _status = SelectionStatus.NotSelecting;
-        public bool Selecting => _status != SelectionStatus.NotSelecting;
+
+        public SelectionStatus Status { get; private set; } = SelectionStatus.NotSelecting;
+        public bool Selecting => Status != SelectionStatus.NotSelecting;
 
         private Rectangle SelectionRect
         {
@@ -48,7 +49,7 @@ namespace OpenSage.Logic
 
         public void OnStartDragSelection(Point2D startPoint)
         {
-            _status = SelectionStatus.SingleSelecting;
+            Status = SelectionStatus.SingleSelecting;
             _startPoint = startPoint;
             _endPoint = startPoint;
             SelectionGui.SelectionRectangle = SelectionRect;
@@ -61,9 +62,9 @@ namespace OpenSage.Logic
             var rect = SelectionRect;
 
             // If either dimension is under 50 pixels, don't show the box selector.
-            if (_status != SelectionStatus.MultiSelecting && UseBoxSelection(rect))
+            if (Status != SelectionStatus.MultiSelecting && UseBoxSelection(rect))
             {
-                _status = SelectionStatus.MultiSelecting;
+                Status = SelectionStatus.MultiSelecting;
                 // Note that the box can be scaled down after this.
                 SelectionGui.SelectionBoxVisible = true;
             }
@@ -76,7 +77,7 @@ namespace OpenSage.Logic
             _selectedObjects.Clear();
             SelectionGui.SelectedObjects.Clear();
 
-            if (_status == SelectionStatus.SingleSelecting)
+            if (Status == SelectionStatus.SingleSelecting)
             {
                 SingleSelect();
             }
@@ -86,7 +87,7 @@ namespace OpenSage.Logic
             }
 
             SelectionGui.SelectionBoxVisible = false;
-            _status = SelectionStatus.NotSelecting;
+            Status = SelectionStatus.NotSelecting;
         }
 
         private void SingleSelect()

@@ -11,6 +11,10 @@ namespace OpenSage.Logic
         private Point2D _mousePos;
         private bool _altDown;
 
+        public override HandlingPriority Priority => _system.Status == SelectionSystem.SelectionStatus.MultiSelecting
+            ? HandlingPriority.BoxSelectionPriority
+            : HandlingPriority.SelectionPriority;
+
         public SelectionMessageHandler(SelectionSystem system)
         {
             _system = system;
