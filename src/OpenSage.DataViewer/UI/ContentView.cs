@@ -48,7 +48,7 @@ namespace OpenSage.DataViewer.UI
                 _game = GameFactory.CreateGame(
                     _getInstallation(),
                     _getFileSystem(),
-                    () => OpenSage.Platform.CurrentPlatform.CreateWindow(windowHandle));
+                    () => new GameWindow(windowHandle));
 
                 return _game;
             }

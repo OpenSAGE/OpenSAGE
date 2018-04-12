@@ -29,7 +29,7 @@ namespace OpenSage.DataViewer.UI.Viewers
                     CreateGame = h =>
                     {
                         var game = createGame(h);
-                        _cursor = OpenSage.Platform.CurrentPlatform.CreateCursor(Path.Combine(game.ContentManager.FileSystem.RootDirectory, entry.FilePath));
+                        _cursor = new Cursor(Path.Combine(game.ContentManager.FileSystem.RootDirectory, entry.FilePath));
                         game.SetCursor(_cursor);
                         return game;
                     },

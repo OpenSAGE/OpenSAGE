@@ -314,7 +314,7 @@ namespace OpenSage
 
                 var cursorFilePath = Path.Combine(_fileSystem.RootDirectory, cursorDirectory, cursorFileName);
 
-                _cachedCursors[cursorName] = cursor = AddDisposable(Platform.CurrentPlatform.CreateCursor(cursorFilePath));
+                _cachedCursors[cursorName] = cursor = AddDisposable(new Cursor(cursorFilePath));
             }
 
             SetCursor(cursor);
