@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using OpenSage.Data;
-using Veldrid;
 
 namespace OpenSage
 {
@@ -9,8 +8,7 @@ namespace OpenSage
     {
         public static Game CreateGame(IGameDefinition definition,
             IInstallationLocator installationLocator,
-            GameWindow window,
-            GraphicsBackend? preferredBackend = null)
+            GameWindow window)
         {
             var installation = installationLocator
                 .FindInstallations(definition)
@@ -24,22 +22,19 @@ namespace OpenSage
             return CreateGame(
                 installation, 
                 installation.CreateFileSystem(), 
-                window,
-                preferredBackend);
+                window);
         }
 
         public static Game CreateGame(
             GameInstallation installation,
             FileSystem fileSystem,
-            GameWindow window,
-            GraphicsBackend? preferredBackend = null)
+            GameWindow window)
         {
             var definition = installation.Game;
             return new Game(
                 definition, 
                 fileSystem, 
-                window,
-                preferredBackend);
+                window);
         }
     }
 }
