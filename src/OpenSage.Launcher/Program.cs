@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.CommandLine;
 using System.Linq;
 using OpenSage.Data;
@@ -50,8 +50,7 @@ namespace OpenSage.Launcher
                     "Immediately starts a new skirmish with default settings in the specified map. The map file must be specified with the full path.");
             });
 
-            Platform.CurrentPlatform = new Sdl2Platform();
-            Platform.CurrentPlatform.Start();
+            Platform.Start();
 
             // TODO: Use all locators to find a valid installation.
             var locator = Environment.OSVersion.Platform == PlatformID.Win32NT
@@ -63,7 +62,7 @@ namespace OpenSage.Launcher
                 locator,
                 // TODO: Read game version from assembly metadata or .git folder
                 // TODO: Set window icon.
-                () => Platform.CurrentPlatform.CreateWindow("OpenSAGE (master)", 100, 100, 1024, 768),
+                () => new GameWindow("OpenSAGE (master)", 100, 100, 1024, 768),
                 preferredBackend);
 
             game.Configuration.LoadShellMap = !noShellMap;
@@ -82,7 +81,7 @@ namespace OpenSage.Launcher
                 game.Tick();
             }
 
-            Platform.CurrentPlatform.Stop();
+            Platform.Stop();
         }
     }
 }
