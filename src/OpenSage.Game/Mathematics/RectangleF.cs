@@ -63,6 +63,14 @@ namespace OpenSage.Mathematics
         public static Rectangle CalculateRectangleFittingAspectRatio(
             in RectangleF rect,
             in SizeF boundsSize,
+            in Size viewportSize)
+        {
+            return CalculateRectangleFittingAspectRatio(rect, boundsSize, viewportSize, out _);
+        }
+
+        public static Rectangle CalculateRectangleFittingAspectRatio(
+            in RectangleF rect,
+            in SizeF boundsSize,
             in Size viewportSize,
             out float scale)
         {

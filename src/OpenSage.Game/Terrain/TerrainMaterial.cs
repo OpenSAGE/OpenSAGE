@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using OpenSage.Content;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
+using OpenSage.Graphics.Rendering;
 using Veldrid;
 
 namespace OpenSage.Terrain
@@ -18,7 +19,7 @@ namespace OpenSage.Terrain
                 RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
                 DepthStencilStateDescription.DepthOnlyLessEqual,
                 BlendStateDescription.SingleDisabled,
-                contentManager.GraphicsDevice.SwapchainFramebuffer.OutputDescription);
+                RenderPipeline.GameOutputDescription);
         }
 
         public override LightingType LightingType => LightingType.Terrain;

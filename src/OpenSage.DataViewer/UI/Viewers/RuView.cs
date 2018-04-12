@@ -53,11 +53,11 @@ namespace OpenSage.DataViewer.UI.Viewers
 
                     game.Rendering2D += (sender, e) => shapeRenderer.Render(e.DrawingContext);
 
-                    game.Window.ClientSizeChanged += (sender, e) =>
+                    game.Panel.ClientSizeChanged += (sender, e) =>
                     {
                         shapeRenderer.Update(
                             game.GraphicsDevice,
-                            game.Window.ClientBounds.Size);
+                            game.Panel.ClientBounds.Size);
                     };
 
                     return game;

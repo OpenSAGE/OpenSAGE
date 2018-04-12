@@ -10,6 +10,10 @@ namespace OpenSage.Graphics.Rendering
 {
     internal sealed class RenderPipeline : DisposableBase
     {
+        public static readonly OutputDescription GameOutputDescription = new OutputDescription(
+            new OutputAttachmentDescription(PixelFormat.D32_Float_S8_UInt),
+            new OutputAttachmentDescription(PixelFormat.B8_G8_R8_A8_UNorm));
+
         private readonly RenderList _renderList;
 
         private readonly CommandList _commandList;
@@ -45,7 +49,7 @@ namespace OpenSage.Graphics.Rendering
             _drawingContext = AddDisposable(new DrawingContext2D(
                 game.ContentManager,
                 BlendStateDescription.SingleAlphaBlend,
-                graphicsDevice.SwapchainFramebuffer.OutputDescription));
+                GameOutputDescription));
         }
 
         public void Execute(RenderContext context)

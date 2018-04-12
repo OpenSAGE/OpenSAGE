@@ -8,7 +8,7 @@ namespace OpenSage
     {
         public static Game CreateGame(
             IGameDefinition definition,
-            GameWindow window)
+            GamePanel panel)
         {
             var installation = GameInstallation
                 .FindAll(new[] { definition })
@@ -22,19 +22,19 @@ namespace OpenSage
             return CreateGame(
                 installation, 
                 installation.CreateFileSystem(), 
-                window);
+                panel);
         }
 
         public static Game CreateGame(
             GameInstallation installation,
             FileSystem fileSystem,
-            GameWindow window)
+            GamePanel panel)
         {
             var definition = installation.Game;
             return new Game(
                 definition, 
                 fileSystem, 
-                window);
+                panel);
         }
     }
 }
