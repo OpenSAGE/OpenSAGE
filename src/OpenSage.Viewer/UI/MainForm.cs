@@ -171,8 +171,14 @@ namespace OpenSage.Viewer.UI
             {
                 ImGui.Text(_contentView.Entry.FilePath);
 
+                var windowPos = ImGui.GetWindowPosition();
                 var availableSize = ImGui.GetContentRegionAvailable();
-                _gamePanel.EnsureSize((uint) availableSize.X, (uint) availableSize.Y);
+                _gamePanel.EnsureFrame(
+                    new Mathematics.Rectangle(
+                        (int) windowPos.X,
+                        (int) windowPos.Y,
+                        (int) availableSize.X,
+                        (int) availableSize.Y));
 
                 _contentView.Draw(ref isGameViewFocused);
             }
@@ -212,7 +218,7 @@ namespace OpenSage.Viewer.UI
             _files = _fileSystem.Files.OrderBy(x => x.FilePath).ToList();
 
             _gamePanel = AddDisposable(new ImGuiGamePanel(_gameWindow));
-            _gamePanel.EnsureSize(100, 100);
+            _gamePanel.EnsureFrame(new Mathematics.Rectangle(0, 0, 100, 100));
 
             _game = AddDisposable(GameFactory.CreateGame(
                 installation,
