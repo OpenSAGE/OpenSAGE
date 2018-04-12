@@ -26,6 +26,9 @@ namespace OpenSage.Viewer.UI
                 case ".bmp":
                     return new BmpView(context);
 
+                case ".map":
+                    return new MapView(context);
+
                 case ".tga":
                     return new TgaView(context);
 
