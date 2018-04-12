@@ -57,13 +57,14 @@ namespace OpenSage.Launcher
                 ? (IInstallationLocator) new RegistryInstallationLocator()
                 : new EnvironmentInstallationLocator();
 
+            // TODO: Read game version from assembly metadata or .git folder
+            // TODO: Set window icon.
+            var window = new GameWindow("OpenSAGE (master)", 100, 100, 1024, 768, preferredBackend);
+
             var game = GameFactory.CreateGame(
                 definition,
                 locator,
-                // TODO: Read game version from assembly metadata or .git folder
-                // TODO: Set window icon.
-                () => new GameWindow("OpenSAGE (master)", 100, 100, 1024, 768),
-                preferredBackend);
+                window);
 
             game.Configuration.LoadShellMap = !noShellMap;
 
@@ -80,6 +81,9 @@ namespace OpenSage.Launcher
             {
                 game.Tick();
             }
+
+            game.Dispose();
+            window.Dispose();
 
             Platform.Stop();
         }

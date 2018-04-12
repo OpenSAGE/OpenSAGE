@@ -12,7 +12,6 @@ using OpenSage.Logic;
 using OpenSage.Network;
 using OpenSage.Scripting;
 using Veldrid;
-using Veldrid.StartupUtilities;
 
 using Player = OpenSage.Logic.Player;
 using System.Numerics;
@@ -145,38 +144,13 @@ namespace OpenSage
         public Game(
             IGameDefinition definition,
             FileSystem fileSystem,
-            Func<GameWindow> createGameWindow,
-            GraphicsBackend? preferredBackend)
+            GameWindow window)
         {
             // TODO: Should we receive this as an argument? Do we need configuration in this constructor?
             Configuration = new Configuration();
 
-            Window = AddDisposable(createGameWindow());
-
-#if DEBUG
-            const bool debug = true;
-#else
-            const bool debug = false;
-#endif
-
-            var graphicsDeviceOptions = new GraphicsDeviceOptions(debug, PixelFormat.D32_Float_S8_UInt, true)
-            { 
-                ResourceBindingModel = ResourceBindingModel.Improved
-            };
-
-            if (preferredBackend != null)
-            {
-                GraphicsDevice = AddDisposable(VeldridStartup.CreateGraphicsDevice(
-                    Window.Sdl2Window,
-                    graphicsDeviceOptions,
-                    preferredBackend.Value));
-            }
-            else
-            {
-                GraphicsDevice = AddDisposable(VeldridStartup.CreateGraphicsDevice(
-                    Window.Sdl2Window,
-                    graphicsDeviceOptions));
-            }
+            Window = window;
+            GraphicsDevice = window.GraphicsDevice;
 
             InputMessageBuffer = AddDisposable(new InputMessageBuffer(Window));
 
@@ -250,10 +224,6 @@ namespace OpenSage
         private void OnWindowClientSizeChanged(object sender, EventArgs e)
         {
             var newSize = Window.ClientBounds.Size;
-
-            GraphicsDevice.ResizeMainWindow(
-                (uint) newSize.Width,
-                (uint) newSize.Height);
 
             Viewport = new Viewport(
                 0,
@@ -423,8 +393,6 @@ namespace OpenSage
 
         protected override void Dispose(bool disposeManagedResources)
         {
-            GraphicsDevice.WaitForIdle();
-
             base.Dispose(disposeManagedResources);
 
             GC.Collect();

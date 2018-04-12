@@ -4,6 +4,7 @@ using OpenSage.Input;
 using OpenSage.Mathematics;
 using Veldrid;
 using Veldrid.Sdl2;
+using Veldrid.StartupUtilities;
 using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage
@@ -12,7 +13,7 @@ namespace OpenSage
     {
         public event EventHandler ClientSizeChanged;
 
-        public Sdl2Window Sdl2Window { get; }
+        private readonly Sdl2Window _window;
 
         private readonly Queue<InputMessage> _messageQueue = new Queue<InputMessage>();
 
@@ -25,11 +26,13 @@ namespace OpenSage
             ClientSizeChanged?.Invoke(this, EventArgs.Empty);
         }
 
+        public GraphicsDevice GraphicsDevice { get; private set; }
+
         public Rectangle ClientBounds
         {
             get
             {
-                var result = Sdl2Window.Bounds;
+                var result = _window.Bounds;
                 return new Rectangle(0, 0, result.Width, result.Height);
             }
         }
@@ -43,38 +46,63 @@ namespace OpenSage
 
         public bool IsMouseVisible
         {
-            get => Sdl2Window.CursorVisible;
-            set => Sdl2Window.CursorVisible = value;
+            get => _window.CursorVisible;
+            set => _window.CursorVisible = value;
         }
 
         // TODO: Remove this once we switch to Veldrid.
-        public IntPtr NativeWindowHandle => Sdl2Window.Handle;
+        public IntPtr NativeWindowHandle => _window.Handle;
 
         public GameWindow(IntPtr windowsWindowHandle)
         {
-            Sdl2Window = new Sdl2Window(windowsWindowHandle, false);
-            AfterWindowCreated();
+            _window = new Sdl2Window(windowsWindowHandle, false);
+            AfterWindowCreated(null);
         }
 
-        public GameWindow(string title, int x, int y, int width, int height)
+        public GameWindow(string title, int x, int y, int width, int height, GraphicsBackend? preferredBackend)
         {
-            Sdl2Window = new Sdl2Window(title, x, y, width, height, (SDL_WindowFlags) 0, false);
-            AfterWindowCreated();
+            _window = new Sdl2Window(title, x, y, width, height, SDL_WindowFlags.OpenGL, false);
+            AfterWindowCreated(preferredBackend);
         }
 
-        private void AfterWindowCreated()
+        private void AfterWindowCreated(GraphicsBackend? preferredBackend)
         {
-            Sdl2Window.KeyDown += HandleKeyDown;
-            Sdl2Window.KeyUp += HandleKeyUp;
+            _window.KeyDown += HandleKeyDown;
+            _window.KeyUp += HandleKeyUp;
 
-            Sdl2Window.MouseDown += HandleMouseDown;
-            Sdl2Window.MouseUp += HandleMouseUp;
-            Sdl2Window.MouseMove += HandleMouseMove;
-            Sdl2Window.MouseWheel += HandleMouseWheel;
+            _window.MouseDown += HandleMouseDown;
+            _window.MouseUp += HandleMouseUp;
+            _window.MouseMove += HandleMouseMove;
+            _window.MouseWheel += HandleMouseWheel;
 
-            Sdl2Window.Resized += HandleResized;
+            _window.Resized += HandleResized;
 
-            Sdl2Window.Closing += HandleClosing;
+            _window.Closing += HandleClosing;
+
+#if DEBUG
+            const bool debug = true;
+#else
+            const bool debug = false;
+#endif
+
+            var graphicsDeviceOptions = new GraphicsDeviceOptions(debug, PixelFormat.D32_Float_S8_UInt, true)
+            {
+                ResourceBindingModel = ResourceBindingModel.Improved
+            };
+
+            if (preferredBackend != null)
+            {
+                GraphicsDevice = AddDisposable(VeldridStartup.CreateGraphicsDevice(
+                    _window,
+                    graphicsDeviceOptions,
+                    preferredBackend.Value));
+            }
+            else
+            {
+                GraphicsDevice = AddDisposable(VeldridStartup.CreateGraphicsDevice(
+                    _window,
+                    graphicsDeviceOptions));
+            }
         }
 
         private void HandleClosing()
@@ -84,6 +112,10 @@ namespace OpenSage
 
         private void HandleResized()
         {
+            GraphicsDevice.ResizeMainWindow(
+                (uint) _window.Bounds.Width,
+                (uint) _window.Bounds.Height);
+
             RaiseClientSizeChanged();
         }
 
@@ -155,6 +187,9 @@ namespace OpenSage
 
         private void HandleMouseMove(MouseMoveEventArgs args)
         {
+            _lastMouseX = args.State.X;
+            _lastMouseY = args.State.Y;
+
             var message = InputMessage.CreateMouseMove(new Point2D(args.State.X, args.State.Y));
             _messageQueue.Enqueue(message);
         }
@@ -172,12 +207,7 @@ namespace OpenSage
 
         public bool PumpEvents()
         {
-            // TODO: Use inputSnapshot instead of events?
-            var inputSnapshot = Sdl2Window.PumpEvents();
-
-            // TODO: This isn't right, it means button events might not have the right position.
-            _lastMouseX = (int) inputSnapshot.MousePosition.X;
-            _lastMouseY = (int) inputSnapshot.MousePosition.Y;
+            _window.PumpEvents();
 
             if (_closing)
             {
@@ -195,7 +225,9 @@ namespace OpenSage
         protected override void Dispose(bool disposeManagedResources)
         {
             // TODO: This isn't right.
-            Sdl2Window.Close();
+            _window.Close();
+
+            GraphicsDevice.WaitForIdle();
 
             base.Dispose(disposeManagedResources);
         }
