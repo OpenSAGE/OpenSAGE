@@ -145,13 +145,13 @@ namespace OpenSage
         public Game(
             IGameDefinition definition,
             FileSystem fileSystem,
-            Func<GameWindow> createGameWindow,
+            GameWindow window,
             GraphicsBackend? preferredBackend)
         {
             // TODO: Should we receive this as an argument? Do we need configuration in this constructor?
             Configuration = new Configuration();
 
-            Window = AddDisposable(createGameWindow());
+            Window = window;
 
 #if DEBUG
             const bool debug = true;

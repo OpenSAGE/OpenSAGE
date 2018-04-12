@@ -9,7 +9,7 @@ namespace OpenSage
     {
         public static Game CreateGame(IGameDefinition definition,
             IInstallationLocator installationLocator,
-            Func<GameWindow> createWindow,
+            GameWindow window,
             GraphicsBackend? preferredBackend = null)
         {
             var installation = installationLocator
@@ -24,21 +24,21 @@ namespace OpenSage
             return CreateGame(
                 installation, 
                 installation.CreateFileSystem(), 
-                createWindow,
+                window,
                 preferredBackend);
         }
 
         public static Game CreateGame(
             GameInstallation installation,
             FileSystem fileSystem,
-            Func<GameWindow> createWindow,
+            GameWindow window,
             GraphicsBackend? preferredBackend = null)
         {
             var definition = installation.Game;
             return new Game(
                 definition, 
                 fileSystem, 
-                createWindow,
+                window,
                 preferredBackend);
         }
     }
