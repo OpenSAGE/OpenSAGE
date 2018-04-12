@@ -6,12 +6,12 @@ namespace OpenSage
 {
     public static class GameFactory
     {
-        public static Game CreateGame(IGameDefinition definition,
-            IInstallationLocator installationLocator,
+        public static Game CreateGame(
+            IGameDefinition definition,
             GameWindow window)
         {
-            var installation = installationLocator
-                .FindInstallations(definition)
+            var installation = GameInstallation
+                .FindAll(new[] { definition })
                 .FirstOrDefault();
 
             if (installation == null)
