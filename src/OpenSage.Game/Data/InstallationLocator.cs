@@ -26,6 +26,13 @@ namespace OpenSage.Data
 
     public sealed class GameInstallation
     {
+        public static IEnumerable<GameInstallation> FindAll(IEnumerable<IGameDefinition> gameDefinitions)
+        {
+            return InstallationLocators
+                .GetAllForPlatform()
+                .SelectMany(x => gameDefinitions.SelectMany(y => x.FindInstallations(y)));
+        }
+
         public IGameDefinition Game { get; }
         public string Path { get; }
 
@@ -125,6 +132,19 @@ namespace OpenSage.Data
                 .ToList();
 
             return installations;
+        }
+    }
+
+    public static class InstallationLocators
+    {
+        public static IEnumerable<IInstallationLocator> GetAllForPlatform()
+        {
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                yield return new RegistryInstallationLocator();
+            }
+
+            yield return new EnvironmentInstallationLocator();
         }
     }
 }

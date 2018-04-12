@@ -52,19 +52,11 @@ namespace OpenSage.Launcher
 
             Platform.Start();
 
-            // TODO: Use all locators to find a valid installation.
-            var locator = Environment.OSVersion.Platform == PlatformID.Win32NT
-                ? (IInstallationLocator) new RegistryInstallationLocator()
-                : new EnvironmentInstallationLocator();
-
             // TODO: Read game version from assembly metadata or .git folder
             // TODO: Set window icon.
             var window = new GameWindow("OpenSAGE (master)", 100, 100, 1024, 768, preferredBackend);
 
-            var game = GameFactory.CreateGame(
-                definition,
-                locator,
-                window);
+            var game = GameFactory.CreateGame(definition, window);
 
             game.Configuration.LoadShellMap = !noShellMap;
 
