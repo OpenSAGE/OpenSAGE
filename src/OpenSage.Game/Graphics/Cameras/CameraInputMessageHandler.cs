@@ -18,7 +18,7 @@ namespace OpenSage.Graphics.Cameras
         private int _scrollWheelValue;
 
         public override HandlingPriority Priority =>
-            _rightMouseDown || _middleMouseDown || (_leftMouseDown && _pressedKeys.Contains(Key.AltLeft))
+            _rightMouseDown || _middleMouseDown || _pressedKeys.Contains(Key.AltLeft)
                 ? HandlingPriority.MoveCameraPriority
                 : HandlingPriority.CameraPriority;
 

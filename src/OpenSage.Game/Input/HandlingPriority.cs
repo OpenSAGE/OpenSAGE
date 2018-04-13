@@ -5,7 +5,7 @@
         CameraPriority,
         SelectionPriority,
         UIPriority,
-        MoveCameraPriority,
-        BoxSelectionPriority
+        BoxSelectionPriority,
+        MoveCameraPriority
     }
 }
