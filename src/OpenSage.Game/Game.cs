@@ -326,8 +326,7 @@ namespace OpenSage
                 var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == sides[i]);
                 players[i] = Player.FromTemplate(playerTemplate, ContentManager);
 
-                var playerIndex = 2; // TODO
-                var player1StartPosition = Scene3D.Waypoints[$"Player_{playerIndex}_Start"].Position;
+                var player1StartPosition = Scene3D.Waypoints[$"Player_{i + 1}_Start"].Position;
                 player1StartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(player1StartPosition.X, player1StartPosition.Y);
 
                 if (playerTemplate.StartingBuilding != null)
@@ -345,17 +344,8 @@ namespace OpenSage
 
             Scene3D.SetPlayers(players, players[localPlayerIndex]);
 
-            var controlBarWindow = Scene2D.WndWindowManager.SetWindow("ControlBar.wnd");
-
-            // TODO: Move the following code to a ControlBar class.
-            var controlBarScheme = ContentManager.IniDataContext.ControlBarSchemes.FindBySide(sides[localPlayerIndex]);
-
-            // TODO: I don't think this is how it works. The "Munkee" control is probably just for design-time preview.
-            // I think we should use ImagePart.Position and ImagePart.Size to render the control bar background image,
-            // probably not as part of the wnd control tree.
-            var munkee = controlBarWindow.Controls.FindControl("ControlBar.wnd:Munkee");
-            munkee.DrawCallback = munkee.DefaultDraw;
-            munkee.BackgroundImage = ContentManager.WndImageLoader.CreateNormalImage(controlBarScheme.ImageParts[0].ImageName);
+            var controlBar = WndControlBar.Create(sides[localPlayerIndex], Scene2D.WndWindowManager, ContentManager);
+            Scene2D.ControlBar = controlBar;
         }
 
         public void EndGame()

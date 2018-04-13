@@ -344,6 +344,15 @@ namespace OpenSage.Data.Ini.Parser
             };
         }
 
+        public Size ParseSize()
+        {
+            return new Size
+            {
+                Width = ParseAttributeInteger("X"),
+                Height = ParseAttributeInteger("Y")
+            };
+        }
+
         public IniToken GetNextToken(char[] separators = null)
         {
             var result = GetNextTokenOptional(separators);

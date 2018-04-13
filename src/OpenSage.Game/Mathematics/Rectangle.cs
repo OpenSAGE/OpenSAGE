@@ -57,6 +57,11 @@ namespace OpenSage.Mathematics
             }
         }
 
+        public static Rectangle FromCorners(in Point2D topLeft, in Point2D bottomRight)
+        {
+            return new Rectangle(topLeft, (bottomRight - topLeft).ToSize());
+        }
+
         public bool Contains(in Point2D point)
         {
             return point.X >= X
