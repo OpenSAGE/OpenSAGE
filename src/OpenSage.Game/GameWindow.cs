@@ -26,7 +26,7 @@ namespace OpenSage
             ClientSizeChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public GraphicsDevice GraphicsDevice { get; private set; }
+        public GraphicsDevice GraphicsDevice { get; }
 
         public Rectangle ClientBounds
         {
@@ -50,20 +50,10 @@ namespace OpenSage
             set => _window.CursorVisible = value;
         }
 
-        public GameWindow(IntPtr windowsWindowHandle)
-        {
-            _window = new Sdl2Window(windowsWindowHandle, false);
-            AfterWindowCreated(null);
-        }
-
         public GameWindow(string title, int x, int y, int width, int height, GraphicsBackend? preferredBackend, SDL_WindowFlags windowFlags = 0)
         {
             _window = new Sdl2Window(title, x, y, width, height, windowFlags | SDL_WindowFlags.OpenGL, false);
-            AfterWindowCreated(preferredBackend);
-        }
 
-        private void AfterWindowCreated(GraphicsBackend? preferredBackend)
-        {
             _window.KeyDown += HandleKeyDown;
             _window.KeyUp += HandleKeyUp;
 
