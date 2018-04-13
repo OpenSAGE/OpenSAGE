@@ -88,7 +88,11 @@ namespace OpenSage.Viewer.UI
                     Vector4.Zero);
             }
 
-            ImGuiUtility.InputText("Search", _searchTextBuffer, out var searchText);
+            ImGui.PushItemWidth(-1);
+            ImGuiUtility.InputText("##search", _searchTextBuffer, out var searchText);
+            ImGui.PopItemWidth();
+
+            ImGui.BeginChild("files list", true, 0);
 
             for (var i = 0; i < _files.Count; i++)
             {
@@ -162,14 +166,17 @@ namespace OpenSage.Viewer.UI
             }
 
             ImGui.EndChild();
+            ImGui.EndChild();
 
             ImGui.SameLine();
 
-            ImGui.BeginChild("content");
-
             if (_contentView != null)
             {
+                ImGui.BeginChild("content");
+
                 ImGui.Text(_contentView.Entry.FilePath);
+
+                ImGui.BeginChild("content view");
 
                 var windowPos = ImGui.GetWindowPosition();
                 var availableSize = ImGui.GetContentRegionAvailable();
@@ -181,9 +188,10 @@ namespace OpenSage.Viewer.UI
                         (int) availableSize.Y));
 
                 _contentView.Draw(ref isGameViewFocused);
-            }
 
-            ImGui.EndChild();
+                ImGui.EndChild();
+                ImGui.EndChild();
+            }
 
             ImGui.EndWindow();
         }

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using ImGuiNET;
 using OpenSage.Data;
 using OpenSage.Viewer.UI.Views;
 
@@ -16,15 +17,30 @@ namespace OpenSage.Viewer.UI
         {
             _entry = context.Entry;
 
-            _assetView = CreateViewForFileSystemEntry(context);
+            _assetView = AddDisposable(CreateViewForFileSystemEntry(context));
         }
 
-        private AssetView CreateViewForFileSystemEntry(AssetViewContext context)
+        private static AssetView CreateViewForFileSystemEntry(AssetViewContext context)
         {
             switch (Path.GetExtension(context.Entry.FilePath).ToLower())
             {
+                case ".ani":
+                    return new AniView(context);
+
+                case ".apt":
+                    return new AptView(context);
+
                 case ".bmp":
                     return new BmpView(context);
+
+                case ".const":
+                    return new ConstView(context);
+
+                case ".csf":
+                    return new CsfView(context);
+
+                case ".dds":
+                    return new DdsView(context);
 
                 case ".map":
                     return new MapView(context);
@@ -32,8 +48,17 @@ namespace OpenSage.Viewer.UI
                 case ".tga":
                     return new TgaView(context);
 
+                case ".txt":
+                    return new TxtView(context);
+
                 case ".w3d":
                     return new W3dView(context);
+
+                case ".wav":
+                    return new WavView(context);
+
+                case ".wnd":
+                    return new WndView(context);
 
                 default:
                     return null;
@@ -48,7 +73,7 @@ namespace OpenSage.Viewer.UI
             }
             else
             {
-                // TODO
+                ImGui.TextDisabled("No preview has been implemented for this content type.");
             }
         }
     }

@@ -24,6 +24,11 @@ namespace OpenSage.Gui.Apt
             _windowStack.Push(window);
         }
 
+        public void PopWindow()
+        {
+            _windowStack.Pop();
+        }
+
         internal void OnViewportSizeChanged(in Size newSize)
         {
             foreach (var window in _windowStack)
