@@ -39,6 +39,9 @@ namespace OpenSage.Viewer.UI
                 case ".dds":
                     return new DdsView(context);
 
+                case ".ini":
+                    return new IniView(context);
+
                 case ".map":
                     return new MapView(context);
 

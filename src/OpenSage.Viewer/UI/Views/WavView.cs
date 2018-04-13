@@ -22,6 +22,7 @@ namespace OpenSage.Viewer.UI.Views
                 if (ImGui.Button("Stop"))
                 {
                     _source.Stop();
+                    _playing = false;
                 }
             }
             else
@@ -29,6 +30,7 @@ namespace OpenSage.Viewer.UI.Views
                 if (ImGui.Button("Play"))
                 {
                     _source.Play();
+                    _playing = true;
                 }
             }
         }
