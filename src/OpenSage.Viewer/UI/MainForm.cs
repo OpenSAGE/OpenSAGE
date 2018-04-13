@@ -174,7 +174,7 @@ namespace OpenSage.Viewer.UI
             {
                 ImGui.BeginChild("content");
 
-                ImGui.Text(_contentView.Entry.FilePath);
+                ImGui.Text(_contentView.DisplayName);
 
                 ImGui.BeginChild("content view");
 

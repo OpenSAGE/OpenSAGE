@@ -1,23 +1,20 @@
 ﻿using System.IO;
 using ImGuiNET;
-using OpenSage.Data;
+using OpenSage.Data.StreamFS;
 using OpenSage.Viewer.UI.Views;
 
 namespace OpenSage.Viewer.UI
 {
     internal sealed class ContentView : DisposableBase
     {
-        private readonly FileSystemEntry _entry;
-
         private readonly AssetView _assetView;
 
-        public FileSystemEntry Entry => _entry;
+        public string DisplayName { get; }
 
         public ContentView(AssetViewContext context)
         {
-            _entry = context.Entry;
-
             _assetView = AddDisposable(CreateViewForFileSystemEntry(context));
+            DisplayName = context.Entry.FilePath;
         }
 
         private static AssetView CreateViewForFileSystemEntry(AssetViewContext context)
@@ -44,6 +41,9 @@ namespace OpenSage.Viewer.UI
 
                 case ".map":
                     return new MapView(context);
+
+                case ".manifest":
+                    return new ManifestView(context);
 
                 case ".ru":
                     return new RuView(context);
