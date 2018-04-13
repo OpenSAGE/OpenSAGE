@@ -45,6 +45,9 @@ namespace OpenSage.Viewer.UI
                 case ".map":
                     return new MapView(context);
 
+                case ".ru":
+                    return new RuView(context);
+
                 case ".tga":
                     return new TgaView(context);
 
