@@ -1,4 +1,5 @@
 ﻿using OpenSage.Content;
+using OpenSage.Data.Ini;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Logic;
@@ -8,18 +9,64 @@ namespace OpenSage.Gui.Wnd
 {
     public sealed class WndControlBar
     {
+        private enum ControlBarSize
+        {
+            Maximized,
+            Minimized
+        }
+
+        // How much the control bar should be moved down when minimized?
+        private const int MinimizeOffset = 120;
+
+        private readonly ContentManager _contentManager;
+
+        private readonly ControlBarScheme _scheme;
+
+        private readonly Window _background;
         private readonly Window _window;
 
         private readonly Label _moneyDisplay;
         private readonly Control _powerBar;
         private readonly Control _expBar;
 
-        private WndControlBar(Window window, Label moneyDisplay, Control powerBar, Control expBar)
+        private readonly Button _resize;
+
+        private readonly Image _resizeDownBackground;
+        private readonly Image _resizeDownHover;
+        private readonly Image _resizeDownPushed;
+
+        private readonly Image _resizeUpBackground;
+        private readonly Image _resizeUpHover;
+        private readonly Image _resizeUpPushed;
+
+        private ControlBarSize _size = ControlBarSize.Maximized;
+
+        private Control FindControl(string name) => _window.Controls.FindControl($"ControlBar.wnd:{name}");
+        private Image LoadImage(string path) => _contentManager.WndImageLoader.CreateNormalImage(path);
+
+        private WndControlBar(Window background, Window window, ControlBarScheme scheme, ContentManager contentManager)
         {
+            _background = background;
             _window = window;
-            _moneyDisplay = moneyDisplay;
-            _powerBar = powerBar;
-            _expBar = expBar;
+            _scheme = scheme;
+            _contentManager = contentManager;
+
+            _moneyDisplay = FindControl("MoneyDisplay") as Label;
+            _moneyDisplay.Text = "$ 0";
+            _powerBar = FindControl("PowerWindow");
+            _expBar = FindControl("GeneralsExp");
+
+            _resize = FindControl("ButtonLarge") as Button;
+
+            _resizeDownBackground = LoadImage(_scheme.ToggleButtonDownOn);
+            _resizeDownHover = LoadImage(_scheme.ToggleButtonDownIn);
+            _resizeDownPushed = LoadImage(_scheme.ToggleButtonDownPushed);
+
+            _resizeUpBackground = LoadImage(_scheme.ToggleButtonUpOn);
+            _resizeUpHover = LoadImage(_scheme.ToggleButtonUpIn);
+            _resizeUpPushed = LoadImage(_scheme.ToggleButtonUpPushed);
+
+            UpdateResizeButtonStyle();
         }
 
         public void UpdateState(Player player)
@@ -27,22 +74,63 @@ namespace OpenSage.Gui.Wnd
             _moneyDisplay.Text = $"$ {player.Money}";
         }
 
-        public static WndControlBar Create(string side, WndWindowManager windowManager, ContentManager contentManager)
+        public void ToggleSize()
+        {
+            if (_size == ControlBarSize.Maximized)
+            {
+                _window.Top += MinimizeOffset;
+                _background.Top += MinimizeOffset;
+                _size = ControlBarSize.Minimized;
+            }
+            else
+            {
+                _window.Top -= MinimizeOffset;
+                _background.Top -= MinimizeOffset;
+                _size = ControlBarSize.Maximized;
+            }
+
+            UpdateResizeButtonStyle();
+        }
+
+        public void UpdateResizeButtonStyle()
+        {
+            if (_size == ControlBarSize.Maximized)
+            {
+                _resize.BackgroundImage = _resizeDownBackground;
+                _resize.HoverBackgroundImage = _resizeDownHover;
+                _resize.PushedBackgroundImage = _resizeDownPushed;
+            }
+            else
+            {
+                _resize.BackgroundImage = _resizeUpBackground;
+                _resize.HoverBackgroundImage = _resizeUpHover;
+                _resize.PushedBackgroundImage = _resizeUpPushed;
+            }
+        }
+
+        public void Display(WndWindowManager windowManager)
+        {
+            windowManager.PushWindow(_background);
+            windowManager.PushWindow(_window);
+        }
+
+        public static WndControlBar Create(string side, ContentManager contentManager)
         {
             var scheme = contentManager.IniDataContext.ControlBarSchemes.FindBySide(side);
 
-            var background = new Control();
-            background.Name = "OpenSAGE:ControlBarBackground";
-
             // TODO: Support multiple image parts?
+            // Generals only uses one image part.
             var imagePart = scheme.ImageParts[0];
-            background.Bounds = new Rectangle(imagePart.Position, imagePart.Size);
-            background.BackgroundImage = CreateImage(imagePart.ImageName);
+
+            var background = new Control
+            {
+                Name = "OpenSAGE:ControlBarBackground",
+                Bounds = new Rectangle(imagePart.Position, imagePart.Size),
+                BackgroundImage = CreateImage(imagePart.ImageName)
+            };
 
             var backgroundWindow = new Window(scheme.ScreenCreationRes, background, contentManager);
-            windowManager.PushWindow(backgroundWindow);
-
-            var controlBarWindow = windowManager.PushWindow("ControlBar.wnd");
+            var controlBarWindow = contentManager.Load<Window>("Window/ControlBar.wnd");
 
             Control FindControl(string name) => controlBarWindow.Controls.FindControl($"ControlBar.wnd:{name}");
             Image CreateImage(string path) => contentManager.WndImageLoader.CreateNormalImage(path);
@@ -74,7 +162,7 @@ namespace OpenSage.Gui.Wnd
                 return control;
             }
 
-            Button ApplyButtonScheme(string name, string coordPrefix, string texturePrefix)
+            void ApplyButtonScheme(string name, string coordPrefix, string texturePrefix)
             {
                 var button = ApplyBounds(name, coordPrefix) as Button;
 
@@ -86,22 +174,22 @@ namespace OpenSage.Gui.Wnd
                 button.DisabledBackgroundImage = LoadImage("Disabled");
                 button.HoverBackgroundImage = LoadImage("Highlighted");
                 button.PushedBackgroundImage = LoadImage("Pushed");
-
-                return button;
             }
 
-            var money = ApplyBounds("MoneyDisplay", "Money") as Label;
-            money.Text = "$ 0";
-
-            var power = ApplyBounds("PowerWindow", "PowerBar");
+            ApplyBounds("MoneyDisplay", "Money");
+            ApplyBounds("PowerWindow", "PowerBar");
 
             ApplyButtonScheme("ButtonOptions", "Options", "OptionsButton");
-            ApplyButtonScheme("ButtonGeneral", "General", "GeneralButton");
             ApplyButtonScheme("ButtonPlaceBeacon", "Beacon", "BeaconButton");
             ApplyButtonScheme("PopupCommunicator", "Chat", "BuddyButton");
-
             ApplyButtonScheme("ButtonIdleWorker", "Worker", "IdleWorkerButton");
-            ApplyButtonScheme("ButtonLarge", "MinMax", "MinMaxButton");
+
+            ApplyButtonScheme("ButtonGeneral", "General", "GeneralButton");
+            // Textures are set by ControlBar
+            ApplyBounds("ButtonLarge", "MinMax");
+
+            // TODO: Hide left HUD until we implement the minimap.
+            FindControl("LeftHUD").Hide();
 
             var rightHud = FindControl("RightHUD");
             rightHud.BorderWidth = 0;
@@ -113,11 +201,9 @@ namespace OpenSage.Gui.Wnd
                 control.Hide();
             }
 
-            var expBar = FindControl("GeneralsExp");
-            var expBarForeground = FindControl("ExpBarForeground");
-            expBarForeground.BackgroundImage = CreateImage(scheme.ExpBarForegroundImage);
+            FindControl("ExpBarForeground").BackgroundImage = CreateImage(scheme.ExpBarForegroundImage);
 
-            return new WndControlBar(controlBarWindow, money, power, expBar);
+            return new WndControlBar(backgroundWindow, controlBarWindow, scheme, contentManager);
         }
     }
 }

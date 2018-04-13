@@ -344,8 +344,9 @@ namespace OpenSage
 
             Scene3D.SetPlayers(players, players[localPlayerIndex]);
 
-            var controlBar = WndControlBar.Create(sides[localPlayerIndex], Scene2D.WndWindowManager, ContentManager);
+            var controlBar = WndControlBar.Create(sides[localPlayerIndex], ContentManager);
             Scene2D.ControlBar = controlBar;
+            Scene2D.ControlBar.Display(Scene2D.WndWindowManager);
         }
 
         public void EndGame()
