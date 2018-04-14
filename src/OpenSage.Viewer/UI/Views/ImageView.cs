@@ -20,8 +20,6 @@ namespace OpenSage.Viewer.UI.Views
             _textureViews = new Dictionary<TextureViewDescription, TextureView>();
 
             _texture = GetTexture(context);
-
-            AddDisposeAction(() => context.ImGuiRenderer.ClearCachedImageResources());
         }
 
         protected abstract Texture GetTexture(AssetViewContext context);

@@ -28,7 +28,7 @@ namespace OpenSage.Viewer.UI
         private Game _game;
 
         private List<FileSystemEntry> _files;
-        private int _currentFile;
+        private int _currentFile = -1;
 
         private byte[] _searchTextBuffer = new byte[32];
         private byte[] _filePathBuffer = new byte[1024];
@@ -193,6 +193,8 @@ namespace OpenSage.Viewer.UI
         {
             _selectedInstallation = installation;
 
+            _imGuiRenderer.ClearCachedImageResources();
+
             RemoveAndDispose(ref _contentView);
             _files = null;
             RemoveAndDispose(ref _game);
@@ -217,6 +219,8 @@ namespace OpenSage.Viewer.UI
             _fileSystem = AddDisposable(installation.CreateFileSystem());
 
             _files = _fileSystem.Files.OrderBy(x => x.FilePath).ToList();
+
+            _currentFile = -1;
 
             _gamePanel = AddDisposable(new ImGuiGamePanel(_gameWindow));
             _gamePanel.EnsureFrame(new Mathematics.Rectangle(0, 0, 100, 100));
