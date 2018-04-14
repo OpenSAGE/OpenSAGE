@@ -214,8 +214,11 @@ namespace OpenSage.Viewer.UI
             if (launcherImagePath != null)
             {
                 var fullImagePath = Path.Combine(installation.Path, launcherImagePath);
-                _launcherImage = AddDisposable(new ImageSharpTexture(fullImagePath).CreateDeviceTexture(
-                    _gameWindow.GraphicsDevice, _gameWindow.GraphicsDevice.ResourceFactory));
+                if (File.Exists(fullImagePath))
+                {
+                    _launcherImage = AddDisposable(new ImageSharpTexture(fullImagePath).CreateDeviceTexture(
+                        _gameWindow.GraphicsDevice, _gameWindow.GraphicsDevice.ResourceFactory));
+                }
             }
 
             _fileSystem = AddDisposable(installation.CreateFileSystem());
