@@ -20,7 +20,7 @@ namespace OpenSage.Mods.Generals.Gui
                     switch (message.Element.Name)
                     {
                         case "ControlBar.wnd:ButtonLarge":
-                            context.Game.Scene2D.ControlBar.ToggleSize();
+                            ((GeneralsControlBar) context.Game.Scene2D.ControlBar).ToggleSize();
                             break;
                         case "ControlBar.wnd:ButtonOptions":
                             context.WindowManager.PushWindow("Menus/QuitMenu.wnd");

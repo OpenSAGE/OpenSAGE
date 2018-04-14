@@ -34,12 +34,12 @@ namespace OpenSage.Mathematics
             return new Size(X, Y);
         }
 
-        public static Point2D operator+(in Point2D a, in Point2D b)
+        public static Point2D operator+(Point2D a, Point2D b)
         {
             return new Point2D(a.X + b.X, a.Y + b.Y);
         }
 
-        public static Point2D operator-(in Point2D a, in Point2D b)
+        public static Point2D operator-(Point2D a, Point2D b)
         {
             return new Point2D(a.X - b.X, a.Y - b.Y);
         }

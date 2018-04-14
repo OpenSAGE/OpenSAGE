@@ -17,10 +17,11 @@ namespace OpenSage.Mods.Cnc4
             new RegistryKeyPath(@"SOFTWARE\EA Games\Command Conquer 4 Tiberian Twilight", "Install Dir"), // Origin
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\command and conquer 4", "install dir") // Steam
         };
-        
+
         public string Identifier { get; } = "cnc4";
 
         public IMainMenuSource MainMenu { get; }
+        public IControlBarSource ControlBar { get; }
 
         public static Cnc4Definition Instance { get; } = new Cnc4Definition();
     }

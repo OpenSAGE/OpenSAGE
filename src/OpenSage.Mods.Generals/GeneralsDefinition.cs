@@ -2,6 +2,7 @@
 using OpenSage.Data;
 using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
+using OpenSage.Mods.Generals.Gui;
 
 namespace OpenSage.Mods.Generals
 {
@@ -17,10 +18,11 @@ namespace OpenSage.Mods.Generals
         {
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\Generals", "InstallPath")
         };
-        
+
         public string Identifier { get; } = "cnc_generals";
 
         public IMainMenuSource MainMenu { get; } = new WndMainMenuSource(@"Menus\MainMenu.wnd");
+        public IControlBarSource ControlBar { get; } = new GeneralsControlBarSource();
 
         public static GeneralsDefinition Instance { get; } = new GeneralsDefinition();
     }

@@ -1,13 +1,15 @@
 ﻿using OpenSage.Content;
 using OpenSage.Data.Ini;
+using OpenSage.Gui;
+using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Gui.Wnd
+namespace OpenSage.Mods.Generals.Gui
 {
-    public sealed class WndControlBar
+    public sealed class GeneralsControlBar : IControlBar
     {
         private enum ControlBarSize
         {
@@ -58,10 +60,10 @@ namespace OpenSage.Gui.Wnd
 
         private ControlBarSize _size = ControlBarSize.Maximized;
 
+        private Image LoadImage(string name) => _contentManager.WndImageLoader.CreateNormalImage(name);
         private Control FindControl(string name) => _window.Controls.FindControl($"ControlBar.wnd:{name}");
-        private Image LoadImage(string path) => _contentManager.WndImageLoader.CreateNormalImage(path);
 
-        private WndControlBar(Window background, Window window, ControlBarScheme scheme, ContentManager contentManager)
+        public GeneralsControlBar(Window background, Window window, ControlBarScheme scheme, ContentManager contentManager)
         {
             _background = background;
             _window = window;
@@ -117,7 +119,7 @@ namespace OpenSage.Gui.Wnd
             UpdateResizeButtonStyle();
         }
 
-        public void UpdateResizeButtonStyle()
+        private void UpdateResizeButtonStyle()
         {
             if (_size == ControlBarSize.Maximized)
             {
@@ -133,14 +135,75 @@ namespace OpenSage.Gui.Wnd
             }
         }
 
-        public void PushWindows(WndWindowManager windowManager)
+        public void AddToScene(Scene2D scene2D)
         {
-            windowManager.PushWindow(_background);
-            windowManager.PushWindow(_window);
+            scene2D.WndWindowManager.PushWindow(_background);
+            scene2D.WndWindowManager.PushWindow(_window);
         }
 
-        public static WndControlBar Create(string side, ContentManager contentManager)
+        private abstract class ControlBarState
         {
+            public abstract void OnEnterState(GeneralsControlBar controlBar);
+            public abstract void Update(Player player, GeneralsControlBar controlBar);
+
+            public static ControlBarState Default { get; } = new DefaultControlBarState();
+        }
+
+        private sealed class DefaultControlBarState : ControlBarState
+        {
+            public override void OnEnterState(GeneralsControlBar controlBar)
+            {
+                foreach (var control in controlBar._center.Controls)
+                {
+                    control.Hide();
+                }
+
+                foreach (var control in controlBar._right.Controls)
+                {
+                    control.Hide();
+                }
+            }
+
+            public override void Update(Player player, GeneralsControlBar controlBar)
+            {
+
+            }
+        }
+
+        private sealed class SelectedControlBarState : ControlBarState
+        {
+            public override void OnEnterState(GeneralsControlBar controlBar)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            public override void Update(Player player, GeneralsControlBar controlBar)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
+
+        private sealed class UnderConstructionControlBarState : ControlBarState
+        {
+            public override void OnEnterState(GeneralsControlBar controlBar)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            public override void Update(Player player, GeneralsControlBar controlBar)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
+    }
+
+    public sealed class GeneralsControlBarSource : IControlBarSource
+    {
+        public IControlBar Create(string side, ContentManager contentManager)
+        {
+            // TODO: This is not the best place for this.
+            contentManager.IniDataContext.LoadIniFile(@"Data\INI\ControlBarScheme.ini");
+
             var scheme = contentManager.IniDataContext.ControlBarSchemes.FindBySide(side);
 
             // TODO: Support multiple image parts?
@@ -151,14 +214,14 @@ namespace OpenSage.Gui.Wnd
             {
                 Name = "OpenSAGE:ControlBarBackground",
                 Bounds = new Rectangle(imagePart.Position, imagePart.Size),
-                BackgroundImage = CreateImage(imagePart.ImageName)
+                BackgroundImage = LoadImage(imagePart.ImageName)
             };
 
             var backgroundWindow = new Window(scheme.ScreenCreationRes, background, contentManager);
-            var controlBarWindow = contentManager.Load<Window>("Window/ControlBar.wnd", new LoadOptions { CacheAsset = false});
+            var controlBarWindow = contentManager.Load<Window>("Window/ControlBar.wnd", new LoadOptions { CacheAsset = false });
 
             Control FindControl(string name) => controlBarWindow.Controls.FindControl($"ControlBar.wnd:{name}");
-            Image CreateImage(string path) => contentManager.WndImageLoader.CreateNormalImage(path);
+            Image LoadImage(string path) => contentManager.WndImageLoader.CreateNormalImage(path);
 
             // TODO: Implement under attack indicator.
             FindControl("WinUAttack").Hide();
@@ -184,14 +247,14 @@ namespace OpenSage.Gui.Wnd
             {
                 var button = ApplyBounds(name, coordPrefix) as Button;
 
-                Image LoadImage(string state) =>
-                    CreateImage(
+                Image LoadImageForState(string state) =>
+                    LoadImage(
                         (string) schemeType.GetProperty($"{texturePrefix}{state}")?.GetValue(scheme));
 
-                button.BackgroundImage = LoadImage("Enable");
-                button.DisabledBackgroundImage = LoadImage("Disabled");
-                button.HoverBackgroundImage = LoadImage("Highlighted");
-                button.PushedBackgroundImage = LoadImage("Pushed");
+                button.BackgroundImage = LoadImageForState("Enable");
+                button.DisabledBackgroundImage = LoadImageForState("Disabled");
+                button.HoverBackgroundImage = LoadImageForState("Highlighted");
+                button.PushedBackgroundImage = LoadImageForState("Pushed");
             }
 
             ApplyBounds("MoneyDisplay", "Money");
@@ -212,66 +275,11 @@ namespace OpenSage.Gui.Wnd
             var rightHud = FindControl("RightHUD");
             rightHud.BorderWidth = 0;
             rightHud.BackgroundColor = ColorRgbaF.Transparent;
-            rightHud.BackgroundImage = CreateImage(scheme.RightHudImage);
+            rightHud.BackgroundImage = LoadImage(scheme.RightHudImage);
 
-            FindControl("ExpBarForeground").BackgroundImage = CreateImage(scheme.ExpBarForegroundImage);
+            FindControl("ExpBarForeground").BackgroundImage = LoadImage(scheme.ExpBarForegroundImage);
 
-            return new WndControlBar(backgroundWindow, controlBarWindow, scheme, contentManager);
-        }
-
-        private abstract class ControlBarState
-        {
-            public abstract void OnEnterState(WndControlBar controlBar);
-            public abstract void Update(Player player, WndControlBar controlBar);
-
-            public static ControlBarState Default { get; } = new DefaultControlBarState();
-        }
-
-        private sealed class DefaultControlBarState : ControlBarState
-        {
-            public override void OnEnterState(WndControlBar controlBar)
-            {
-                foreach (var control in controlBar._center.Controls)
-                {
-                    control.Hide();
-                }
-
-                foreach (var control in controlBar._right.Controls)
-                {
-                    control.Hide();
-                }
-            }
-
-            public override void Update(Player player, WndControlBar controlBar)
-            {
-
-            }
-        }
-
-        private sealed class SelectedControlBarState : ControlBarState
-        {
-            public override void OnEnterState(WndControlBar controlBar)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            public override void Update(Player player, WndControlBar controlBar)
-            {
-                throw new System.NotImplementedException();
-            }
-        }
-
-        private sealed class UnderConstructionControlBarState : ControlBarState
-        {
-            public override void OnEnterState(WndControlBar controlBar)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            public override void Update(Player player, WndControlBar controlBar)
-            {
-                throw new System.NotImplementedException();
-            }
+            return new GeneralsControlBar(backgroundWindow, controlBarWindow, scheme, contentManager);
         }
     }
 }

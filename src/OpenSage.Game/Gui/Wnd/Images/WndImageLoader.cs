@@ -9,7 +9,7 @@ using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage.Gui.Wnd.Images
 {
-    internal sealed class WndImageLoader : DisposableBase
+    public sealed class WndImageLoader : DisposableBase
     {
         private struct WndImageKey
         {

@@ -317,7 +317,6 @@ namespace OpenSage
             NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
 
             // TODO: This is not the right place for this.
-            ContentManager.IniDataContext.LoadIniFile(@"Data\INI\ControlBarScheme.ini");
             ContentManager.IniDataContext.LoadIniFile(@"Data\INI\PlayerTemplate.ini");
 
             var players = new Player[sides.Length];
@@ -344,9 +343,11 @@ namespace OpenSage
 
             Scene3D.SetPlayers(players, players[localPlayerIndex]);
 
-            var controlBar = WndControlBar.Create(sides[localPlayerIndex], ContentManager);
-            Scene2D.ControlBar = controlBar;
-            Scene2D.ControlBar.PushWindows(Scene2D.WndWindowManager);
+            if (Definition.ControlBar != null)
+            {
+                Scene2D.ControlBar = Definition.ControlBar.Create(sides[localPlayerIndex], ContentManager);
+                Scene2D.ControlBar.AddToScene(Scene2D);
+            }
         }
 
         public void EndGame()
