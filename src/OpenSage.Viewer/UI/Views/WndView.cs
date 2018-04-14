@@ -44,6 +44,8 @@ namespace OpenSage.Viewer.UI.Views
                 if (ImGui.TreeNodeEx(control.DisplayName, TreeNodeFlags.DefaultOpen))
                 {
                     SelectControl(control);
+
+                    ImGui.TreePop();
                 }
 
                 foreach (var child in control.Controls)
