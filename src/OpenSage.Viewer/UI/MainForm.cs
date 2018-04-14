@@ -54,20 +54,22 @@ namespace OpenSage.Viewer.UI
 
             ImGui.BeginWindow("OpenSAGE Viewer", WindowFlags.MenuBar | WindowFlags.NoTitleBar);
 
-            ImGui.BeginMainMenuBar();
-            if (ImGui.BeginMenu("Installation"))
+            if (ImGui.BeginMenuBar())
             {
-                foreach (var installation in _installations)
+                if (ImGui.BeginMenu("Installation"))
                 {
-                    if (ImGui.MenuItem(installation.Game.DisplayName, null, _selectedInstallation == installation, true))
+                    foreach (var installation in _installations)
                     {
-                        ChangeInstallation(installation);
+                        if (ImGui.MenuItem(installation.Game.DisplayName, null, _selectedInstallation == installation, true))
+                        {
+                            ChangeInstallation(installation);
+                        }
                     }
-                }
 
-                ImGui.EndMenu();
+                    ImGui.EndMenu();
+                }
+                ImGui.EndMenuBar();
             }
-            ImGui.EndMainMenuBar();
 
             ImGui.BeginChild("sidebar", new Vector2(250, 0), true, 0);
 
