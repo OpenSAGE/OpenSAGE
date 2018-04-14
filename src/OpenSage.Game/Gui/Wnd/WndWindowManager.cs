@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using OpenSage.Graphics;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Transitions;
 using OpenSage.Mathematics;
@@ -23,7 +22,7 @@ namespace OpenSage.Gui.Wnd
             _game = game;
             _windowStack = new Stack<Window>();
 
-            game.InputMessageBuffer.Handlers.Insert(0, new WndInputMessageHandler(this, _game));
+            game.InputMessageBuffer.Handlers.Add(new WndInputMessageHandler(this, _game));
 
             switch (game.SageGame)
             {

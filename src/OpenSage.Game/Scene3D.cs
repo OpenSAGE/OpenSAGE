@@ -21,7 +21,7 @@ namespace OpenSage
         private readonly CameraInputMessageHandler _cameraInputMessageHandler;
         private CameraInputState _cameraInputState;
 
-        private readonly SelectionInputHandler _selectionInputHandler;
+        private readonly SelectionMessageHandler _selectionMessageHandler;
         public SelectionGui SelectionGui { get; }
 
         private readonly ParticleSystemManager _particleSystemManager;
@@ -88,9 +88,9 @@ namespace OpenSage
             Lighting = lighting;
 
             SelectionGui = new SelectionGui();
-            _selectionInputHandler = new SelectionInputHandler(game.Selection);
-            game.InputMessageBuffer.Handlers.Add(_selectionInputHandler);
-            AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_selectionInputHandler));
+            _selectionMessageHandler = new SelectionMessageHandler(game.Selection);
+            game.InputMessageBuffer.Handlers.Add(_selectionMessageHandler);
+            AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_selectionMessageHandler));
 
             _cameraInputMessageHandler = new CameraInputMessageHandler();
             game.InputMessageBuffer.Handlers.Add(_cameraInputMessageHandler);

@@ -2,6 +2,7 @@
 using System.Linq;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Input;
+using OpenSage.Mathematics;
 using Veldrid;
 
 namespace OpenSage.Gui.Wnd
@@ -13,6 +14,8 @@ namespace OpenSage.Gui.Wnd
 
         private readonly List<Control> _lastMouseOverControls = new List<Control>();
 
+        public override HandlingPriority Priority => HandlingPriority.UIPriority;
+
         public WndInputMessageHandler(WndWindowManager windowManager, Game game)
         {
             _windowManager = windowManager;
@@ -21,6 +24,20 @@ namespace OpenSage.Gui.Wnd
 
         public override InputMessageResult HandleMessage(InputMessage message)
         {
+            bool GetControlAtPoint(in Point2D mousePosition, out Control control, out Point2D controlRelativePosition)
+            {
+                control = _windowManager.GetControlAtPoint(mousePosition);
+
+                if (control != null)
+                {
+                    controlRelativePosition = control.PointToClient(mousePosition);
+                    return true;
+                }
+
+                controlRelativePosition = Point2D.Zero;;
+                return false;
+            }
+
             var context = new ControlCallbackContext(_windowManager, _game);
 
             switch (message.MessageType)
@@ -67,10 +84,8 @@ namespace OpenSage.Gui.Wnd
 
                 case InputMessageType.MouseLeftButtonDown:
                     {
-                        var element = _windowManager.GetControlAtPoint(message.Value.MousePosition);
-                        if (element != null)
+                        if (GetControlAtPoint(message.Value.MousePosition, out var element, out var mousePosition))
                         {
-                            var mousePosition = element.PointToClient(message.Value.MousePosition);
                             element.InputCallback.Invoke(
                                 element,
                                 new WndWindowMessage(WndWindowMessageType.MouseDown, element, mousePosition),
@@ -82,10 +97,8 @@ namespace OpenSage.Gui.Wnd
 
                 case InputMessageType.MouseLeftButtonUp:
                     {
-                        var element = _windowManager.GetControlAtPoint(message.Value.MousePosition);
-                        if (element != null)
+                        if (GetControlAtPoint(message.Value.MousePosition, out var element, out var mousePosition))
                         {
-                            var mousePosition = element.PointToClient(message.Value.MousePosition);
                             element.InputCallback.Invoke(
                                 element,
                                 new WndWindowMessage(WndWindowMessageType.MouseUp, element, mousePosition),
@@ -94,6 +107,17 @@ namespace OpenSage.Gui.Wnd
                         }
                         break;
                     }
+
+                // For the time being, just consume right and middle click events so that they don't go through controls:
+                case InputMessageType.MouseRightButtonUp:
+                case InputMessageType.MouseRightButtonDown:
+                case InputMessageType.MouseMiddleButtonDown:
+                case InputMessageType.MouseMiddleButtonUp:
+                {
+                    return GetControlAtPoint(message.Value.MousePosition, out var _, out var _)
+                        ? InputMessageResult.Handled
+                        : InputMessageResult.NotHandled;
+                }
 
                 case InputMessageType.KeyDown:
                     {

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace OpenSage.Input
 {
@@ -29,7 +31,7 @@ namespace OpenSage.Input
             while (_messageQueue.Count > 0)
             {
                 var message = _messageQueue.Dequeue();
-                foreach (var handler in Handlers)
+                foreach (var handler in PriorityOrderedHandlers())
                 {
                     if (handler.HandleMessage(message) == InputMessageResult.Handled)
                     {
@@ -38,5 +40,29 @@ namespace OpenSage.Input
                 }
             }
         }
+
+        private IEnumerable<InputMessageHandler> PriorityOrderedHandlers()
+        {
+            var requiredPriority = HighestPriority;
+
+            while (requiredPriority >= LowestPriority)
+            {
+                foreach (var handler in Handlers)
+                {
+                    if (handler.Priority == (HandlingPriority) requiredPriority)
+                    {
+                        yield return handler;
+                    }
+                }
+
+                requiredPriority--;
+            }
+        }
+
+        private static readonly int HighestPriority =
+            Enum.GetValues(typeof(HandlingPriority)).Cast<int>().Max();
+
+        private static readonly int LowestPriority =
+            Enum.GetValues(typeof(HandlingPriority)).Cast<int>().Min();
     }
 }
