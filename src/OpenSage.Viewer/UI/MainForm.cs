@@ -112,7 +112,7 @@ namespace OpenSage.Viewer.UI
                     _game.ContentManager.Unload();
 
                     _contentView = AddDisposable(new ContentView(
-                        new Views.AssetViewContext(_game, _imGuiRenderer, entry)));
+                        new Views.AssetViewContext(_game, _gamePanel, _imGuiRenderer, entry)));
                 }
 
                 var shouldOpenSaveDialog = false;
@@ -177,15 +177,6 @@ namespace OpenSage.Viewer.UI
                 ImGui.Text(_contentView.DisplayName);
 
                 ImGui.BeginChild("content view");
-
-                var windowPos = ImGui.GetWindowPosition();
-                var availableSize = ImGui.GetContentRegionAvailable();
-                _gamePanel.EnsureFrame(
-                    new Mathematics.Rectangle(
-                        (int) windowPos.X,
-                        (int) windowPos.Y,
-                        (int) availableSize.X,
-                        (int) availableSize.Y));
 
                 _contentView.Draw(ref isGameViewFocused);
 

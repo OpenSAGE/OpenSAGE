@@ -14,6 +14,15 @@ namespace OpenSage.Viewer.UI.Views
 
         public override void Draw(ref bool isGameViewFocused)
         {
+            var windowPos = ImGui.GetWindowPosition();
+            var availableSize = ImGui.GetContentRegionAvailable();
+            _context.GamePanel.EnsureFrame(
+                new Mathematics.Rectangle(
+                    (int) windowPos.X,
+                    (int) windowPos.Y,
+                    (int) availableSize.X,
+                    (int) availableSize.Y));
+
             _context.Game.Tick();
 
             ImGuiNative.igSetItemAllowOverlap();

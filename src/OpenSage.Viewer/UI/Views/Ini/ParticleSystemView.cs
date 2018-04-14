@@ -20,10 +20,10 @@ namespace OpenSage.Viewer.UI.Views.Ini
         {
             var game = context.Game;
 
-            var particleSystem = new ParticleSystem(
+            var particleSystem = AddDisposable(new ParticleSystem(
                 game.ContentManager,
                 particleSystemDefinition,
-                () => ref WorldIdentity);
+                () => ref WorldIdentity));
 
             void onUpdating(object sender, GameUpdatingEventArgs e)
             {
