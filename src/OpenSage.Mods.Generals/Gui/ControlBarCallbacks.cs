@@ -22,6 +22,9 @@ namespace OpenSage.Mods.Generals.Gui
                         case "ControlBar.wnd:ButtonLarge":
                             context.Game.Scene2D.ControlBar.ToggleSize();
                             break;
+                        case "ControlBar.wnd:ButtonOptions":
+                            context.WindowManager.PushWindow("Menus/QuitMenu.wnd");
+                            break;
                     }
                     break;
             }

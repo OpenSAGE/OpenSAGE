@@ -346,7 +346,7 @@ namespace OpenSage
 
             var controlBar = WndControlBar.Create(sides[localPlayerIndex], ContentManager);
             Scene2D.ControlBar = controlBar;
-            Scene2D.ControlBar.Display(Scene2D.WndWindowManager);
+            Scene2D.ControlBar.PushWindows(Scene2D.WndWindowManager);
         }
 
         public void EndGame()

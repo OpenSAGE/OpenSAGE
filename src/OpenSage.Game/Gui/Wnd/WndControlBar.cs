@@ -22,11 +22,28 @@ namespace OpenSage.Gui.Wnd
 
         private readonly ControlBarScheme _scheme;
 
+        private ControlBarState _state;
+
+        private ControlBarState State
+        {
+            get => _state;
+            set
+            {
+                _state = value;
+                _state.OnEnterState(this);
+            }
+        }
+
         private readonly Window _background;
         private readonly Window _window;
 
+        private readonly Control _center;
+        private readonly Control _right;
+
         private readonly Label _moneyDisplay;
+        // TODO: Change this to a ProgressBar when they are implemented.
         private readonly Control _powerBar;
+        // TODO: Change this to a ProgressBar when they are implemented.
         private readonly Control _expBar;
 
         private readonly Button _resize;
@@ -51,6 +68,9 @@ namespace OpenSage.Gui.Wnd
             _scheme = scheme;
             _contentManager = contentManager;
 
+            _center = FindControl("CenterBackground");
+            _right = FindControl("RightHUD");
+
             _moneyDisplay = FindControl("MoneyDisplay") as Label;
             _moneyDisplay.Text = "$ 0";
             _powerBar = FindControl("PowerWindow");
@@ -67,11 +87,16 @@ namespace OpenSage.Gui.Wnd
             _resizeUpPushed = LoadImage(_scheme.ToggleButtonUpPushed);
 
             UpdateResizeButtonStyle();
+
+            State = ControlBarState.Default;
         }
 
-        public void UpdateState(Player player)
+        // TODO: This should be called at every logic tick.
+        // TODO: This takes a player as the state information. Do we need any other state?
+        public void Update(Player player)
         {
             _moneyDisplay.Text = $"$ {player.Money}";
+            State.Update(player, this);
         }
 
         public void ToggleSize()
@@ -108,7 +133,7 @@ namespace OpenSage.Gui.Wnd
             }
         }
 
-        public void Display(WndWindowManager windowManager)
+        public void PushWindows(WndWindowManager windowManager)
         {
             windowManager.PushWindow(_background);
             windowManager.PushWindow(_window);
@@ -119,7 +144,7 @@ namespace OpenSage.Gui.Wnd
             var scheme = contentManager.IniDataContext.ControlBarSchemes.FindBySide(side);
 
             // TODO: Support multiple image parts?
-            // Generals only uses one image part.
+            // Generals always uses exactly one image part.
             var imagePart = scheme.ImageParts[0];
 
             var background = new Control
@@ -134,13 +159,6 @@ namespace OpenSage.Gui.Wnd
 
             Control FindControl(string name) => controlBarWindow.Controls.FindControl($"ControlBar.wnd:{name}");
             Image CreateImage(string path) => contentManager.WndImageLoader.CreateNormalImage(path);
-
-            var center = FindControl("CenterBackground");
-
-            foreach (var control in center.Controls)
-            {
-                control.Hide();
-            }
 
             // TODO: Implement under attack indicator.
             FindControl("WinUAttack").Hide();
@@ -196,14 +214,64 @@ namespace OpenSage.Gui.Wnd
             rightHud.BackgroundColor = ColorRgbaF.Transparent;
             rightHud.BackgroundImage = CreateImage(scheme.RightHudImage);
 
-            foreach (var control in rightHud.Controls)
-            {
-                control.Hide();
-            }
-
             FindControl("ExpBarForeground").BackgroundImage = CreateImage(scheme.ExpBarForegroundImage);
 
             return new WndControlBar(backgroundWindow, controlBarWindow, scheme, contentManager);
+        }
+
+        private abstract class ControlBarState
+        {
+            public abstract void OnEnterState(WndControlBar controlBar);
+            public abstract void Update(Player player, WndControlBar controlBar);
+
+            public static ControlBarState Default { get; } = new DefaultControlBarState();
+        }
+
+        private sealed class DefaultControlBarState : ControlBarState
+        {
+            public override void OnEnterState(WndControlBar controlBar)
+            {
+                foreach (var control in controlBar._center.Controls)
+                {
+                    control.Hide();
+                }
+
+                foreach (var control in controlBar._right.Controls)
+                {
+                    control.Hide();
+                }
+            }
+
+            public override void Update(Player player, WndControlBar controlBar)
+            {
+
+            }
+        }
+
+        private sealed class SelectedControlBarState : ControlBarState
+        {
+            public override void OnEnterState(WndControlBar controlBar)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            public override void Update(Player player, WndControlBar controlBar)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
+
+        private sealed class UnderConstructionControlBarState : ControlBarState
+        {
+            public override void OnEnterState(WndControlBar controlBar)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            public override void Update(Player player, WndControlBar controlBar)
+            {
+                throw new System.NotImplementedException();
+            }
         }
     }
 }
