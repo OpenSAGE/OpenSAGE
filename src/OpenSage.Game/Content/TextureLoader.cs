@@ -45,7 +45,7 @@ namespace OpenSage.Content
                 return texture;
             }
 
-            switch (Path.GetExtension(entry.FilePath).ToLower())
+            switch (Path.GetExtension(entry.FilePath).ToLowerInvariant())
             {
                 case ".dds":
                     if (!DdsFile.IsDdsFile(entry))

@@ -276,7 +276,7 @@ namespace OpenSage.Data.Ini.Parser
 
         private bool ScanBoolean(IniToken token)
         {
-            switch (token.Text.ToUpper())
+            switch (token.Text.ToUpperInvariant())
             {
                 case "YES":
                     return true;

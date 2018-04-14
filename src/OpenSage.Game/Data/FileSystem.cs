@@ -31,7 +31,7 @@ namespace OpenSage.Data
 
             foreach (var file in Directory.GetFiles(rootDirectory, "*.*", SearchOption.AllDirectories))
             {
-                var ext = Path.GetExtension(file).ToLower();
+                var ext = Path.GetExtension(file).ToLowerInvariant();
                 if (ext == ".big")
                 {
                     var archive = new BigArchive(file);

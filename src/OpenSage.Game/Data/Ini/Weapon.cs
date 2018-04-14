@@ -203,7 +203,7 @@ namespace OpenSage.Data.Ini
                 };
             }
 
-            if (token.Text.ToUpper() != "MIN")
+            if (token.Text.ToUpperInvariant() != "MIN")
             {
                 throw new IniParseException($"Unexpected range duration: {token.Text}", token.Position);
             }
