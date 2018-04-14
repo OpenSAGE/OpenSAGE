@@ -52,6 +52,7 @@ namespace OpenSage.Viewer.UI
             ImGui.SetNextWindowPos(Vector2.Zero, Condition.Always, Vector2.Zero);
             ImGui.SetNextWindowSize(new Vector2(_gameWindow.ClientBounds.Width, _gameWindow.ClientBounds.Height), Condition.Always);
 
+            ImGui.PushStyleVar(StyleVar.WindowRounding, 0);
             ImGui.BeginWindow("OpenSAGE Viewer", WindowFlags.MenuBar | WindowFlags.NoTitleBar);
 
             if (ImGui.BeginMenuBar())
@@ -187,6 +188,7 @@ namespace OpenSage.Viewer.UI
             }
 
             ImGui.EndWindow();
+            ImGui.PopStyleVar();
         }
 
         private void ChangeInstallation(GameInstallation installation)
@@ -212,8 +214,11 @@ namespace OpenSage.Viewer.UI
             if (launcherImagePath != null)
             {
                 var fullImagePath = Path.Combine(installation.Path, launcherImagePath);
-                _launcherImage = AddDisposable(new ImageSharpTexture(fullImagePath).CreateDeviceTexture(
-                    _gameWindow.GraphicsDevice, _gameWindow.GraphicsDevice.ResourceFactory));
+                if (File.Exists(fullImagePath))
+                {
+                    _launcherImage = AddDisposable(new ImageSharpTexture(fullImagePath).CreateDeviceTexture(
+                        _gameWindow.GraphicsDevice, _gameWindow.GraphicsDevice.ResourceFactory));
+                }
             }
 
             _fileSystem = AddDisposable(installation.CreateFileSystem());

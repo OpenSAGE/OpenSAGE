@@ -39,26 +39,21 @@ namespace OpenSage.Viewer.UI.Views
 
         private void DrawControlTreeItemRecursive(Control control)
         {
-            if (control.Controls.Count > 0)
-            {
-                if (ImGui.TreeNodeEx(control.DisplayName, TreeNodeFlags.DefaultOpen))
-                {
-                    SelectControl(control);
-                }
+            var opened = ImGui.TreeNodeEx(control.DisplayName, TreeNodeFlags.DefaultOpen | TreeNodeFlags.OpenOnDoubleClick);
 
+            if (ImGuiNative.igIsItemClicked(0))
+            {
+                SelectControl(control);
+            }
+
+            if (opened)
+            {
                 foreach (var child in control.Controls)
                 {
                     DrawControlTreeItemRecursive(child);
                 }
-            }
-            else
-            {
-                ImGui.Bullet();
 
-                if (ImGui.Selectable(control.DisplayName))
-                {
-                    SelectControl(control);
-                }
+                ImGui.TreePop();
             }
         }
 
