@@ -69,5 +69,29 @@ namespace OpenSage.Mathematics
         {
             return new RectangleF(X, Y, Width, Height);
         }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Rectangle))
+            {
+                return false;
+            }
+
+            var rectangle = (Rectangle) obj;
+            return X == rectangle.X &&
+                   Y == rectangle.Y &&
+                   Width == rectangle.Width &&
+                   Height == rectangle.Height;
+        }
+
+        public static bool operator ==(Rectangle rectangle1, Rectangle rectangle2)
+        {
+            return rectangle1.Equals(rectangle2);
+        }
+
+        public static bool operator !=(Rectangle rectangle1, Rectangle rectangle2)
+        {
+            return !(rectangle1 == rectangle2);
+        }
     }
 }

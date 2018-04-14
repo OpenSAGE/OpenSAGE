@@ -19,9 +19,14 @@ namespace OpenSage.Gui.Apt
 
         public void PushWindow(AptWindow window)
         {
-            CreateSizeDependentResources(window, _game.Window.ClientBounds.Size);
+            CreateSizeDependentResources(window, _game.Panel.ClientBounds.Size);
 
             _windowStack.Push(window);
+        }
+
+        public void PopWindow()
+        {
+            _windowStack.Pop();
         }
 
         internal void OnViewportSizeChanged(in Size newSize)

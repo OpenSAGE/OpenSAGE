@@ -103,7 +103,7 @@ namespace OpenSage
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
             UserDataLeafName);
 
-        public GameWindow Window { get; }
+        public GamePanel Panel { get; }
 
         public Viewport Viewport { get; private set; }
 
@@ -144,15 +144,15 @@ namespace OpenSage
         public Game(
             IGameDefinition definition,
             FileSystem fileSystem,
-            GameWindow window)
+            GamePanel panel)
         {
             // TODO: Should we receive this as an argument? Do we need configuration in this constructor?
             Configuration = new Configuration();
 
-            Window = window;
-            GraphicsDevice = window.GraphicsDevice;
+            Panel = panel;
+            GraphicsDevice = panel.GraphicsDevice;
 
-            InputMessageBuffer = AddDisposable(new InputMessageBuffer(Window));
+            InputMessageBuffer = AddDisposable(new InputMessageBuffer(panel));
 
             Definition = definition;
 
@@ -211,7 +211,7 @@ namespace OpenSage
 
             Selection = AddDisposable(new SelectionSystem(this));
 
-            Window.ClientSizeChanged += OnWindowClientSizeChanged;
+            Panel.ClientSizeChanged += OnWindowClientSizeChanged;
             OnWindowClientSizeChanged(this, EventArgs.Empty);
 
             GameSystems.ForEach(gs => gs.Initialize());
@@ -223,7 +223,7 @@ namespace OpenSage
 
         private void OnWindowClientSizeChanged(object sender, EventArgs e)
         {
-            var newSize = Window.ClientBounds.Size;
+            var newSize = Panel.ClientBounds.Size;
 
             Viewport = new Viewport(
                 0,
@@ -249,7 +249,7 @@ namespace OpenSage
         {
             _currentCursor = cursor;
 
-            Window.SetCursor(cursor);
+            Panel.SetCursor(cursor);
         }
 
         public void SetCursor(string cursorName)
@@ -370,12 +370,6 @@ namespace OpenSage
         {
             if (!IsRunning)
             {
-                return;
-            }
-
-            if (!Window.PumpEvents())
-            {
-                IsRunning = false;
                 return;
             }
 

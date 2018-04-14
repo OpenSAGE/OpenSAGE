@@ -91,7 +91,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
                 DepthStencilStateDescription.DepthOnlyLessEqualRead,
                 blendState,
-                contentManager.GraphicsDevice.SwapchainFramebuffer.OutputDescription);
+                RenderPipeline.GameOutputDescription);
 
             _initialDelay = Definition.InitialDelay.GetRandomInt();
 

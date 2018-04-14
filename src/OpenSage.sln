@@ -3,15 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataViewer", "DataViewer", "{AE478DD6-82D8-4E1B-B5FB-931427823167}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Game", "OpenSage.Game\OpenSage.Game.csproj", "{65414137-B69D-42ED-9950-0428974D54CE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Game.Tests", "OpenSage.Game.Tests\OpenSage.Game.Tests.csproj", "{3516CD25-8B80-4956-9726-640CC915E4AC}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.DataViewer", "OpenSage.DataViewer\OpenSage.DataViewer.csproj", "{46EDA15B-7300-4FD6-A4FD-66810C3B5B75}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.DataViewer.Windows", "OpenSage.DataViewer.Windows\OpenSage.DataViewer.Windows.csproj", "{1D432BD6-B14F-4008-88B3-E3DC52AC7380}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Mods.Generals", "OpenSage.Mods.Generals\OpenSage.Mods.Generals.csproj", "{57942CDD-AEF9-4D0D-B3F4-3FBE4461A649}"
 EndProject
@@ -31,6 +25,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mods", "Mods", "{9410748F-A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Launcher", "OpenSage.Launcher\OpenSage.Launcher.csproj", "{1B444162-022A-4E69-A9D3-00582CCE5586}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Viewer", "OpenSage.Viewer\OpenSage.Viewer.csproj", "{1474CCFF-383B-4D41-AF25-A2E91DD62E5D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,14 +41,6 @@ Global
 		{3516CD25-8B80-4956-9726-640CC915E4AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3516CD25-8B80-4956-9726-640CC915E4AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3516CD25-8B80-4956-9726-640CC915E4AC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{46EDA15B-7300-4FD6-A4FD-66810C3B5B75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{46EDA15B-7300-4FD6-A4FD-66810C3B5B75}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{46EDA15B-7300-4FD6-A4FD-66810C3B5B75}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{46EDA15B-7300-4FD6-A4FD-66810C3B5B75}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1D432BD6-B14F-4008-88B3-E3DC52AC7380}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1D432BD6-B14F-4008-88B3-E3DC52AC7380}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1D432BD6-B14F-4008-88B3-E3DC52AC7380}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1D432BD6-B14F-4008-88B3-E3DC52AC7380}.Release|Any CPU.Build.0 = Release|Any CPU
 		{57942CDD-AEF9-4D0D-B3F4-3FBE4461A649}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{57942CDD-AEF9-4D0D-B3F4-3FBE4461A649}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57942CDD-AEF9-4D0D-B3F4-3FBE4461A649}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -85,13 +73,15 @@ Global
 		{1B444162-022A-4E69-A9D3-00582CCE5586}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B444162-022A-4E69-A9D3-00582CCE5586}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B444162-022A-4E69-A9D3-00582CCE5586}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1474CCFF-383B-4D41-AF25-A2E91DD62E5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1474CCFF-383B-4D41-AF25-A2E91DD62E5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1474CCFF-383B-4D41-AF25-A2E91DD62E5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1474CCFF-383B-4D41-AF25-A2E91DD62E5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{46EDA15B-7300-4FD6-A4FD-66810C3B5B75} = {AE478DD6-82D8-4E1B-B5FB-931427823167}
-		{1D432BD6-B14F-4008-88B3-E3DC52AC7380} = {AE478DD6-82D8-4E1B-B5FB-931427823167}
 		{57942CDD-AEF9-4D0D-B3F4-3FBE4461A649} = {9410748F-ABB1-45AF-98E3-98858A8C0010}
 		{2FD188F9-80B0-4197-ADBF-FF793E45EAD7} = {9410748F-ABB1-45AF-98E3-98858A8C0010}
 		{569D0E40-2A02-41FC-908D-40C6FCCB7DAB} = {9410748F-ABB1-45AF-98E3-98858A8C0010}

@@ -9,6 +9,7 @@ using OpenSage.Data.W3d;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Effects;
+using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
 using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
@@ -339,7 +340,7 @@ namespace OpenSage.Content
                     rasterizerState,
                     depthState,
                     blendState,
-                    contentManager.GraphicsDevice.SwapchainFramebuffer.OutputDescription)
+                    RenderPipeline.GameOutputDescription)
             };
 
             var materialConstantsResourceBinding = effect.GetParameter("MaterialConstants").ResourceBinding;
@@ -709,7 +710,7 @@ namespace OpenSage.Content
                     rasterizerState,
                     depthState,
                     blendState,
-                    contentManager.GraphicsDevice.SwapchainFramebuffer.OutputDescription)
+                    RenderPipeline.GameOutputDescription)
             };
 
             var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(

@@ -40,7 +40,7 @@ namespace OpenSage.Gui.Wnd
 
         public Window PushWindow(Window window)
         {
-            window.Size = _game.Window.ClientBounds.Size;
+            window.Size = _game.Panel.ClientBounds.Size;
 
             _windowStack.Push(window);
 
