@@ -15,11 +15,11 @@ build:
   project: src/OpenSage.sln
   verbosity: minimal
 artifacts:
-- path: src\OpenSage.DataViewer.Windows\bin\Release\net462
+- path: src\OpenSage.Viewer\bin\Release\netcoreapp2.0
   name: Data Viewer
 - path: src\OpenSage.Launcher\bin\Release\netcoreapp2.0
   name: Launcher
 
 test_script:
-  - OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:"test --logger:trx;LogFileName=results.trx /p:DebugType=full C:\projects\opensage\src\OpenSage.Game.Tests\OpenSage.Game.Tests.csproj" -output:".\OpenSage_coverage.xml"
+  - OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:"test --logger:trx;LogFileName=results.trx /p:DebugType=full C:\projects\opensage\src\OpenSage.Game.Tests\OpenSage.Game.Tests.csproj" -filter:"+[OpenSage.Game*]* -[OpenSage.Game.Tests*]*" -output:".\OpenSage_coverage.xml"
   - codecov -f "OpenSage_coverage.xml
