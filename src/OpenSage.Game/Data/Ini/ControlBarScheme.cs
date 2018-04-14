@@ -29,7 +29,7 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<ControlBarScheme> FieldParseTable = new IniParseTable<ControlBarScheme>
         {
-            { "ScreenCreationRes", (parser, x) => x.ScreenCreationRes = parser.ParsePoint() },
+            { "ScreenCreationRes", (parser, x) => x.ScreenCreationRes = parser.ParseSize() },
             { "Side", (parser, x) => x.Side = parser.ParseAssetReference() },
             { "QueueButtonImage", (parser, x) => x.QueueButtonImage = parser.ParseFileName() },
             { "RightHUDImage", (parser, x) => x.RightHudImage = parser.ParseAssetReference() },
@@ -124,7 +124,7 @@ namespace OpenSage.Data.Ini
 
         public string Name { get; private set; }
 
-        public Point2D ScreenCreationRes { get; private set; }
+        public Size ScreenCreationRes { get; private set; }
         public string Side { get; private set; }
         public string QueueButtonImage { get; private set; }
         public string RightHudImage { get; private set; }
@@ -223,13 +223,13 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<ControlBarImagePart> FieldParseTable = new IniParseTable<ControlBarImagePart>
         {
             { "Position", (parser, x) => x.Position = parser.ParsePoint() },
-            { "Size", (parser, x) => x.Size = parser.ParsePoint() },
+            { "Size", (parser, x) => x.Size = parser.ParseSize() },
             { "ImageName", (parser, x) => x.ImageName = parser.ParseAssetReference() },
             { "Layer", (parser, x) => x.Layer = parser.ParseInteger() }
         };
 
         public Point2D Position { get; private set; }
-        public Point2D Size { get; private set; }
+        public Size Size { get; private set; }
         public string ImageName { get; private set; }
         public int Layer { get; private set; }
     }

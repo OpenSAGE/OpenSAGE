@@ -1,8 +1,6 @@
 ﻿using System.Numerics;
 using OpenSage.Content;
-using OpenSage.Graphics;
 using OpenSage.Mathematics;
-using Veldrid;
 
 namespace OpenSage.Gui.Wnd.Controls
 {

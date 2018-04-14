@@ -53,7 +53,7 @@ namespace OpenSage.Content
 
         public TranslationManager TranslationManager { get; }
 
-        internal WndImageLoader WndImageLoader { get; }
+        public WndImageLoader WndImageLoader { get; }
 
         public ContentManager(
             Game game,

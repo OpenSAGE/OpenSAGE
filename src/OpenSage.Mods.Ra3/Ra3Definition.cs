@@ -16,10 +16,11 @@ namespace OpenSage.Mods.Ra3
         {
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\Red Alert 3", "Install Dir"),
         };
-        
+
         public string Identifier { get; } = "ra3";
 
         public IMainMenuSource MainMenu { get; }
+        public IControlBarSource ControlBar { get; }
 
         public static Ra3Definition Instance { get; } = new Ra3Definition();
     }

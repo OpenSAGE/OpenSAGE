@@ -16,10 +16,11 @@ namespace OpenSage.Mods.Ra3
         {
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\Red Alert 3 Uprising", "Install Dir")
         };
-        
+
         public string Identifier { get; } = "ra3_uprising";
 
         public IMainMenuSource MainMenu { get; }
+        public IControlBarSource ControlBar { get; }
 
         public static Ra3UprisingDefinition Instance { get; } = new Ra3UprisingDefinition();
     }

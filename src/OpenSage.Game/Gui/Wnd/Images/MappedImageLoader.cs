@@ -6,7 +6,7 @@ using Veldrid;
 
 namespace OpenSage.Gui.Wnd.Images
 {
-    internal sealed class MappedImageLoader
+    public sealed class MappedImageLoader
     {
         private readonly ContentManager _contentManager;
 

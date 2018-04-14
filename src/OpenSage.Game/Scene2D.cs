@@ -8,6 +8,7 @@ namespace OpenSage
     {
         public WndWindowManager WndWindowManager { get; }
         public AptWindowManager AptWindowManager { get; }
+        public IControlBar ControlBar { get; set; }
 
         public Scene2D(Game game)
         {

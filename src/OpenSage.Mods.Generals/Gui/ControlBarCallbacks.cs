@@ -11,5 +11,23 @@ namespace OpenSage.Mods.Generals.Gui
         {
 
         }
+
+        public static void ControlBarSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+        {
+            switch (message.MessageType)
+            {
+                case WndWindowMessageType.SelectedButton:
+                    switch (message.Element.Name)
+                    {
+                        case "ControlBar.wnd:ButtonLarge":
+                            ((GeneralsControlBar) context.Game.Scene2D.ControlBar).ToggleSize();
+                            break;
+                        case "ControlBar.wnd:ButtonOptions":
+                            context.WindowManager.PushWindow("Menus/QuitMenu.wnd");
+                            break;
+                    }
+                    break;
+            }
+        }
     }
 }

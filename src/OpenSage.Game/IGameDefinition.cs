@@ -15,6 +15,8 @@ namespace OpenSage
         IEnumerable<RegistryKeyPath> RegistryKeys { get; }
 
         IMainMenuSource MainMenu { get; }
+        IControlBarSource ControlBar { get; }
+
         string Identifier { get; }
     }
 }
