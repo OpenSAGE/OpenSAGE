@@ -118,16 +118,6 @@ namespace OpenSage.Gui.Wnd
                         ? InputMessageResult.Handled
                         : InputMessageResult.NotHandled;
                 }
-
-                case InputMessageType.KeyDown:
-                    {
-                        if (message.Value.Key == Key.Escape && _windowManager.OpenWindowCount > 1)
-                        {
-                            _windowManager.PopWindow();
-                            return InputMessageResult.Handled;
-                        }
-                        break;
-                    }
             }
 
             return InputMessageResult.NotHandled;

@@ -155,7 +155,7 @@ namespace OpenSage.Gui.Wnd
             };
 
             var backgroundWindow = new Window(scheme.ScreenCreationRes, background, contentManager);
-            var controlBarWindow = contentManager.Load<Window>("Window/ControlBar.wnd");
+            var controlBarWindow = contentManager.Load<Window>("Window/ControlBar.wnd", new LoadOptions { CacheAsset = false});
 
             Control FindControl(string name) => controlBarWindow.Controls.FindControl($"ControlBar.wnd:{name}");
             Image CreateImage(string path) => contentManager.WndImageLoader.CreateNormalImage(path);
