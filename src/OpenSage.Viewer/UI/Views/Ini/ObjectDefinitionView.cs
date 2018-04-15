@@ -31,6 +31,7 @@ namespace OpenSage.Viewer.UI.Views.Ini
                 new ArcballCameraController(Vector3.Zero, 200),
                 null,
                 null,
+                Array.Empty<Terrain.Road>(),
                 null,
                 gameObjects,
                 new WaypointCollection(),

@@ -84,7 +84,7 @@ namespace OpenSage.Data.Ini.Parser
             { "PredefinedEvaEvent", (parser, context) => context.EvaEvents.Add(EvaEvent.Parse(parser)) },
             { "Rank", (parser, context) => context.Ranks.Add(Rank.Parse(parser)) },
             { "RingEffect", (parser, context) => context.Environment.RingEffect = RingEffect.Parse(parser) },
-            { "Road", (parser, context) => context.Roads.Add(Road.Parse(parser)) },
+            { "Road", (parser, context) => context.RoadTemplates.Add(RoadTemplate.Parse(parser)) },
             { "ReallyLowMHz", (parser, context) => context.ReallyLowMHz = parser.ParseInteger() },
             { "Science", (parser, context) => context.Sciences.Add(Science.Parse(parser)) },
             { "ShellMenuScheme", (parser, context) => context.ShellMenuSchemes.Add(ShellMenuScheme.Parse(parser)) },

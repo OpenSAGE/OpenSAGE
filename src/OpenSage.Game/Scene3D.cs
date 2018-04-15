@@ -34,6 +34,8 @@ namespace OpenSage
 
         public Terrain.Terrain Terrain { get; }
 
+        public Terrain.Road[] Roads { get; }
+
         public MapScriptCollection Scripts { get; }
 
         public GameObjectCollection GameObjects { get; }
@@ -68,6 +70,7 @@ namespace OpenSage
             ICameraController cameraController,
             MapFile mapFile,
             Terrain.Terrain terrain,
+            Terrain.Road[] roads,
             MapScriptCollection scripts,
             GameObjectCollection gameObjects,
             WaypointCollection waypoints,
@@ -81,6 +84,7 @@ namespace OpenSage
 
             MapFile = mapFile;
             Terrain = terrain;
+            Roads = roads;
             Scripts = scripts;
             GameObjects = AddDisposable(gameObjects);
             Waypoints = waypoints;
