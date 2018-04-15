@@ -24,37 +24,45 @@ namespace OpenSage.Terrain
         internal Road(
             ContentManager contentManager,
             RoadTemplate template,
-            in Vector3 startPosition,
-            in Vector3 endPosition)
+            Vector3 startPosition,
+            Vector3 endPosition)
         {
+            startPosition.Z += 1f;
+            endPosition.Z += 1f;
+
+            var direction = Vector3.Normalize(endPosition - startPosition);
+            var centerToEdgeDirection = Vector3.Cross(Vector3.UnitZ, direction);
+
+            var halfWidth = template.RoadWidth / 2;
+
             var vertices = new RoadVertex[4];
 
             vertices[0] = new RoadVertex
             {
-                Position = startPosition,
+                Position = startPosition - centerToEdgeDirection * halfWidth,
                 Normal = Vector3.UnitZ,
                 UV = new Vector2(0, 0), // TODO
             };
 
             vertices[1] = new RoadVertex
             {
-                Position = startPosition + new Vector3(template.RoadWidth, 0, 0),
+                Position = startPosition + centerToEdgeDirection * halfWidth,
                 Normal = Vector3.UnitZ,
-                UV = new Vector2(1, 0), // TODO
+                UV = new Vector2(0, 0.324f), // TODO
             };
 
             vertices[2] = new RoadVertex
             {
-                Position = endPosition,
+                Position = endPosition - centerToEdgeDirection * halfWidth,
                 Normal = Vector3.UnitZ,
-                UV = new Vector2(0, 1), // TODO
+                UV = new Vector2(1, 0), // TODO
             };
 
             vertices[3] = new RoadVertex
             {
-                Position = endPosition + new Vector3(template.RoadWidth, 0, 0),
+                Position = endPosition + centerToEdgeDirection * halfWidth,
                 Normal = Vector3.UnitZ,
-                UV = new Vector2(1, 1), // TODO
+                UV = new Vector2(1, 0.324f), // TODO
             };
 
             _boundingBox = BoundingBox.CreateFromPoints(vertices.Select(x => x.Position));
