@@ -143,6 +143,11 @@ namespace OpenSage
         {
             Terrain?.BuildRenderList(renderList);
 
+            foreach (var road in Roads)
+            {
+                road.BuildRenderList(renderList);
+            }
+
             foreach (var gameObject in GameObjects.Items)
             {
                 gameObject.BuildRenderList(renderList, camera);

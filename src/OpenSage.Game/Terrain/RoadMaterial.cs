@@ -1,4 +1,5 @@
 ﻿using OpenSage.Content;
+using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
 using Veldrid;
@@ -13,9 +14,9 @@ namespace OpenSage.Terrain
             SetProperty("Sampler", contentManager.GraphicsDevice.Aniso4xSampler);
 
             PipelineState = new EffectPipelineState(
-                RasterizerStateDescription.Default,
-                DepthStencilStateDescription.DepthOnlyLessEqual,
-                BlendStateDescription.SingleDisabled,
+                RasterizerStateDescriptionUtility.CullNoneSolid, // TODO
+                DepthStencilStateDescription.DepthOnlyLessEqualRead,
+                BlendStateDescription.SingleAlphaBlend,
                 RenderPipeline.GameOutputDescription);
         }
 

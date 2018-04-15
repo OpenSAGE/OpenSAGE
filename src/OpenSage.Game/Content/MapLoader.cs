@@ -297,7 +297,9 @@ namespace OpenSage.Content
             for (var i = 0; i < mapObjects.Length; i++)
             {
                 var mapObject = mapObjects[i];
+
                 var position = mapObject.Position;
+                position.Z += heightMap.GetHeight(position.X, position.Y);
 
                 switch (mapObject.RoadType)
                 {
@@ -309,9 +311,6 @@ namespace OpenSage.Content
                                 break;
 
                             default:
-                                // TODO: Handle locomotors when they're implemented.
-                                position.Z += heightMap.GetHeight(position.X, position.Y);
-
                                 var gameObject = CreateGameObject(mapObject, teams, contentManager);
 
                                 if (gameObject != null)
@@ -328,12 +327,14 @@ namespace OpenSage.Content
 
                     default:
                         var roadEnd = mapObjects[++i];
+
                         var roadEndPosition = roadEnd.Position;
-                        
+                        roadEndPosition.Z += heightMap.GetHeight(roadEndPosition.X, roadEndPosition.Y);
+
                         var roadTemplate = contentManager.IniDataContext.RoadTemplates.Find(x => x.Name == mapObject.TypeName);
 
                         roadsList.Add(AddDisposable(new Road(
-                            contentManager.GraphicsDevice,
+                            contentManager,
                             roadTemplate,
                             position,
                             roadEndPosition)));

@@ -1,5 +1,8 @@
-﻿using System.Numerics;
+﻿using System.IO;
+using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
@@ -19,26 +22,69 @@ namespace OpenSage.Terrain
         private readonly RoadMaterial _material;
 
         internal Road(
-            GraphicsDevice graphicsDevice,
+            ContentManager contentManager,
             RoadTemplate template,
             in Vector3 startPosition,
             in Vector3 endPosition)
         {
             var vertices = new RoadVertex[4];
 
-            //_boundingBox = BoundingBox.CreateFromPoints();
+            vertices[0] = new RoadVertex
+            {
+                Position = startPosition,
+                Normal = Vector3.UnitZ,
+                UV = new Vector2(0, 0), // TODO
+            };
 
-            _vertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
+            vertices[1] = new RoadVertex
+            {
+                Position = startPosition + new Vector3(template.RoadWidth, 0, 0),
+                Normal = Vector3.UnitZ,
+                UV = new Vector2(1, 0), // TODO
+            };
+
+            vertices[2] = new RoadVertex
+            {
+                Position = endPosition,
+                Normal = Vector3.UnitZ,
+                UV = new Vector2(0, 1), // TODO
+            };
+
+            vertices[3] = new RoadVertex
+            {
+                Position = endPosition + new Vector3(template.RoadWidth, 0, 0),
+                Normal = Vector3.UnitZ,
+                UV = new Vector2(1, 1), // TODO
+            };
+
+            _boundingBox = BoundingBox.CreateFromPoints(vertices.Select(x => x.Position));
+
+            _vertexBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
                 vertices,
                 BufferUsage.VertexBuffer));
 
-            _numIndices = 6;
+            var indices = new ushort[]
+            {
+                0,
+                1,
+                2,
+                1,
+                2,
+                3
+            };
 
-            var indices = new ushort[_numIndices];
+            _numIndices = (uint) indices.Length;
 
-            _indexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
+            _indexBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
                 indices,
                 BufferUsage.IndexBuffer));
+
+            _material = AddDisposable(new RoadMaterial(
+                contentManager,
+                contentManager.EffectLibrary.Road));
+
+            var texture = contentManager.Load<Texture>(Path.Combine("Art", "Textures", template.Texture));
+            _material.SetTexture(texture);
         }
 
         internal void BuildRenderList(RenderList renderList)

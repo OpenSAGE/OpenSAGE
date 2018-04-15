@@ -14,6 +14,7 @@ namespace OpenSage.Graphics.Effects
         public Effect Particle { get; }
         public Effect Sprite { get; }
         public Effect Terrain { get; }
+        public Effect Road { get; }
 
         public EffectLibrary(GraphicsDevice graphicsDevice)
         {
@@ -39,6 +40,11 @@ namespace OpenSage.Graphics.Effects
                 graphicsDevice,
                 "Terrain",
                 TerrainVertex.VertexDescriptor));
+
+            Road = AddDisposable(new Effect(
+                graphicsDevice,
+                "RoadShader",
+                RoadVertex.VertexDescriptor));
         }
 
         public Effect GetEffect(
