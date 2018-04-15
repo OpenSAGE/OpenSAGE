@@ -19,7 +19,7 @@ namespace OpenSage.Data.Ini
                 {
                     continue;
                 }
-                else if (token.Value.Text.ToUpper() == IniParser.EndToken)
+                else if (token.Value.Text.ToUpperInvariant() == IniParser.EndToken)
                 {
                     break;
                 }

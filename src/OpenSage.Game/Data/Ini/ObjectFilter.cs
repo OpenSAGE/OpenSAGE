@@ -12,7 +12,7 @@ namespace OpenSage.Data.Ini
             IniToken? token;
             if ((token = parser.GetNextTokenOptional()) != null)
             {
-                var stringValue = token.Value.Text.ToUpper();
+                var stringValue = token.Value.Text.ToUpperInvariant();
                 switch (stringValue)
                 {
                     case "ALL":
@@ -39,7 +39,7 @@ namespace OpenSage.Data.Ini
 
             while ((token = parser.GetNextTokenOptional()) != null)
             {
-                var stringValue = token.Value.Text.ToUpper();
+                var stringValue = token.Value.Text.ToUpperInvariant();
                 
                 bool isInclude;
                 switch (stringValue[0])

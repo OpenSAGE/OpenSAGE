@@ -37,7 +37,7 @@ namespace OpenSage.Tests.Data
                 {
                     foreach (var file in fileSystem.Files)
                     {
-                        if (Path.GetExtension(file.FilePath).ToLower() != fileExtension)
+                        if (Path.GetExtension(file.FilePath).ToLowerInvariant() != fileExtension)
                         {
                             continue;
                         }

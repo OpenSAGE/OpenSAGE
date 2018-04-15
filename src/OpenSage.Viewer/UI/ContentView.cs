@@ -19,7 +19,7 @@ namespace OpenSage.Viewer.UI
 
         private static AssetView CreateViewForFileSystemEntry(AssetViewContext context)
         {
-            switch (Path.GetExtension(context.Entry.FilePath).ToLower())
+            switch (Path.GetExtension(context.Entry.FilePath).ToLowerInvariant())
             {
                 case ".ani":
                     return new AniView(context);
