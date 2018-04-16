@@ -335,6 +335,7 @@ namespace OpenSage.Content
 
                         roadsList.Add(AddDisposable(new Road(
                             contentManager,
+                            heightMap,
                             roadTemplate,
                             position,
                             roadEndPosition)));
