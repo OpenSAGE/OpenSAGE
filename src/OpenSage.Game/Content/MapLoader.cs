@@ -332,13 +332,18 @@ namespace OpenSage.Content
                         roadEndPosition.Z += heightMap.GetHeight(roadEndPosition.X, roadEndPosition.Y);
 
                         var roadTemplate = contentManager.IniDataContext.RoadTemplates.Find(x => x.Name == mapObject.TypeName);
+                        if (roadTemplate != null)
+                        {
+                            roadsList.Add(AddDisposable(new Road(
+                                contentManager,
+                                heightMap,
+                                roadTemplate,
+                                position,
+                                roadEndPosition)));
+                        }
 
-                        roadsList.Add(AddDisposable(new Road(
-                            contentManager,
-                            heightMap,
-                            roadTemplate,
-                            position,
-                            roadEndPosition)));
+                        // TODO: Bridges.
+
                         break;
                 }
 
