@@ -33,12 +33,15 @@ namespace OpenSage
         public MapFile MapFile { get; set; }
 
         public Terrain.Terrain Terrain { get; }
+        public bool ShowTerrain { get; set; } = true;
 
         public Terrain.Road[] Roads { get; }
+        public bool ShowRoads { get; set; } = true;
 
         public MapScriptCollection Scripts { get; }
 
         public GameObjectCollection GameObjects { get; }
+        public bool ShowObjects { get; set; } = true;
 
         public WaypointCollection Waypoints { get; set; }
         public WaypointPathCollection WaypointPaths { get; set; }
@@ -141,16 +144,25 @@ namespace OpenSage
 
         internal void BuildRenderList(RenderList renderList, CameraComponent camera)
         {
-            Terrain?.BuildRenderList(renderList);
-
-            foreach (var road in Roads)
+            if (ShowTerrain)
             {
-                road.BuildRenderList(renderList);
+                Terrain?.BuildRenderList(renderList);
             }
 
-            foreach (var gameObject in GameObjects.Items)
+            if (ShowRoads)
             {
-                gameObject.BuildRenderList(renderList, camera);
+                foreach (var road in Roads)
+                {
+                    road.BuildRenderList(renderList);
+                }
+            }
+
+            if (ShowObjects)
+            {
+                foreach (var gameObject in GameObjects.Items)
+                {
+                    gameObject.BuildRenderList(renderList, camera);
+                }
             }
 
             _particleSystemManager.BuildRenderList(renderList);
