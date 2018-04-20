@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Logic.Object;
 
@@ -10,8 +14,7 @@ namespace OpenSage.Data.Ini
     {
         private readonly FileSystem _fileSystem;
 
-        // TODO: Remove this once we can load all INI files upfront.
-        private readonly List<string> _alreadyLoaded = new List<string>();
+        private readonly ConcurrentDictionary<string, object> _alreadyLoaded = new ConcurrentDictionary<string, object>();
 
         public AIData AIData { get; internal set; }
         public List<AmbientStream> AmbientStreams { get; } = new List<AmbientStream>();
@@ -97,9 +100,20 @@ namespace OpenSage.Data.Ini
 
         internal Dictionary<string, IniToken> Defines { get; } = new Dictionary<string, IniToken>();
 
+        private readonly BlockingCollection<FileSystemEntry> _iniLoadingQueue = new BlockingCollection<FileSystemEntry>();
+        private readonly Dictionary<string, TaskCompletionSource<object>> _loadingStatus = new Dictionary<string, TaskCompletionSource<object>>();
+
+        private readonly object _iniLoadingQueueLock = new object();
+        private readonly Thread _iniLoadingThread;
+
         public IniDataContext(FileSystem fileSystem)
         {
             _fileSystem = fileSystem;
+
+            _iniLoadingThread = new Thread(LoadScheduledIniFiles);
+            _iniLoadingThread.Name = "INI loading thread";
+            _iniLoadingThread.IsBackground = true;
+            _iniLoadingThread.Start();
         }
 
         public void LoadIniFiles(string folder)
@@ -115,9 +129,60 @@ namespace OpenSage.Data.Ini
             LoadIniFile(_fileSystem.GetFile(filePath));
         }
 
+        public void PreloadIniFile(string filePath)
+        {
+            PreloadIniFile(_fileSystem.GetFile(filePath));
+        }
+
+        public void PreloadIniFile(FileSystemEntry entry)
+        {
+            lock (_iniLoadingQueueLock)
+            {
+                _iniLoadingQueue.Add(entry);
+                _loadingStatus[entry.FilePath] = new TaskCompletionSource<object>();
+            }
+        }
+
+        public Task WaitIniFile(string filePath)
+        {
+            TaskCompletionSource<object> tcs;
+
+            lock (_iniLoadingQueueLock)
+            {
+                if (_alreadyLoaded.ContainsKey(filePath))
+                {
+                    return Task.CompletedTask;
+                }
+
+                // In theory this should never fail, because we have the lock.
+                if (!_loadingStatus.TryGetValue(filePath, out tcs))
+                {
+                    throw new Exception($"No loading job for {filePath}.");
+                }
+            }
+
+            return tcs.Task;
+        }
+
+        private void LoadScheduledIniFiles()
+        {
+            while (true)
+            {
+                var entry = _iniLoadingQueue.Take();
+                LoadIniFileInternal(entry);
+            }
+        }
+
         public void LoadIniFile(FileSystemEntry entry)
         {
-            if (_alreadyLoaded.Contains(entry.FilePath))
+            PreloadIniFile(entry);
+            WaitIniFile(entry.FilePath).Wait();
+        }
+
+
+        public void LoadIniFileInternal(FileSystemEntry entry)
+        {
+            if (_alreadyLoaded.ContainsKey(entry.FilePath))
             {
                 return;
             }
@@ -133,7 +198,11 @@ namespace OpenSage.Data.Ini
             var parser = new IniParser(source, entry, this);
             parser.ParseFile();
 
-            _alreadyLoaded.Add(entry.FilePath);
+            lock (_iniLoadingQueueLock)
+            {
+                _alreadyLoaded[entry.FilePath] = null;
+                _loadingStatus[entry.FilePath].SetResult(null);
+            }
         }
     }
 }

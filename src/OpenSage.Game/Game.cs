@@ -183,8 +183,8 @@ namespace OpenSage
                     break;
 
                 default:
-                    ContentManager.IniDataContext.LoadIniFile(@"Data\INI\GameData.ini");
-                    ContentManager.IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
+                    ContentManager.IniDataContext.PreloadIniFile(@"Data\INI\GameData.ini");
+                    ContentManager.IniDataContext.PreloadIniFile(@"Data\INI\Mouse.ini");
                     break;
             }
 
@@ -195,7 +195,7 @@ namespace OpenSage
                 case SageGame.Bfme:
                 case SageGame.Bfme2:
                 case SageGame.Bfme2Rotwk:
-                    ContentManager.IniDataContext.LoadIniFile(@"Data\INI\ParticleSystem.ini");
+                    ContentManager.IniDataContext.PreloadIniFile(@"Data\INI\ParticleSystem.ini");
                     break;
             }
 
@@ -294,6 +294,7 @@ namespace OpenSage
         {
             if (Configuration.LoadShellMap)
             {
+                ContentManager.IniDataContext.WaitIniFile(@"Data\INI\GameData.ini").Wait();
                 var shellMapName = ContentManager.IniDataContext.GameData.ShellMapName;
                 var mainMenuScene = ContentManager.Load<Scene3D>(shellMapName);
                 Scene3D = mainMenuScene;
