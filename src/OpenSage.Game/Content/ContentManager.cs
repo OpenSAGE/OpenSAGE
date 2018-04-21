@@ -55,6 +55,8 @@ namespace OpenSage.Content
 
         public WndImageLoader WndImageLoader { get; }
 
+        public SubsystemConfigurationLoader SubsystemConfiguration { get; }
+
         public ContentManager(
             Game game,
             FileSystem fileSystem,
@@ -71,8 +73,7 @@ namespace OpenSage.Content
 
             IniDataContext = new IniDataContext(fileSystem);
 
-            IniDataContext.LoadIniFiles(@"Data\INI\Default\Object.ini");
-            IniDataContext.LoadIniFiles(@"Data\INI\Object");
+            SubsystemConfiguration = new SubsystemConfigurationLoader(game.Definition, fileSystem, IniDataContext);
 
             _contentLoaders = new Dictionary<Type, ContentLoader>
             {

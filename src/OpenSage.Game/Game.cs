@@ -174,30 +174,7 @@ namespace OpenSage
                 SageGame,
                 _wndCallbackResolver));
 
-            // TODO: Add these into IGameDefinition? Should we preload all ini files?
-            switch (SageGame)
-            {
-                case SageGame.Ra3:
-                case SageGame.Ra3Uprising:
-                case SageGame.Cnc4:
-                    break;
-
-                default:
-                    ContentManager.IniDataContext.PreloadIniFile(@"Data\INI\GameData.ini");
-                    ContentManager.IniDataContext.PreloadIniFile(@"Data\INI\Mouse.ini");
-                    break;
-            }
-
-            switch (SageGame)
-            {
-                case SageGame.CncGenerals:
-                case SageGame.CncGeneralsZeroHour:
-                case SageGame.Bfme:
-                case SageGame.Bfme2:
-                case SageGame.Bfme2Rotwk:
-                    ContentManager.IniDataContext.PreloadIniFile(@"Data\INI\ParticleSystem.ini");
-                    break;
-            }
+            ContentManager.SubsystemConfiguration.Preload(Subsystem.Core);
 
             GameSystems = new List<GameSystem>();
 
@@ -294,7 +271,7 @@ namespace OpenSage
         {
             if (Configuration.LoadShellMap)
             {
-                ContentManager.IniDataContext.WaitIniFile(@"Data\INI\GameData.ini").Wait();
+                ContentManager.SubsystemConfiguration.EnsureLoaded(Subsystem.Core);
                 var shellMapName = ContentManager.IniDataContext.GameData.ShellMapName;
                 var mainMenuScene = ContentManager.Load<Scene3D>(shellMapName);
                 Scene3D = mainMenuScene;
@@ -307,6 +284,11 @@ namespace OpenSage
         // TODO: Pass full player details, not just side.
         public void StartGame(string mapFileName, IConnection connection, string[] sides, int localPlayerIndex)
         {
+            // TODO: This is not the right place for this:
+            ContentManager.SubsystemConfiguration.Preload(Subsystem.PlayerCreation);
+            ContentManager.SubsystemConfiguration.EnsureLoaded(Subsystem.ParticleSystems);
+            ContentManager.SubsystemConfiguration.EnsureLoaded(Subsystem.ObjectCreation);
+
             // TODO: Loading screen.
             Scene3D = ContentManager.Load<Scene3D>(mapFileName);
 
@@ -318,7 +300,7 @@ namespace OpenSage
             NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
 
             // TODO: This is not the right place for this.
-            ContentManager.IniDataContext.LoadIniFile(@"Data\INI\PlayerTemplate.ini");
+            ContentManager.SubsystemConfiguration.EnsureLoaded(Subsystem.PlayerCreation);
 
             var players = new Player[sides.Length];
             for (var i = 0; i < sides.Length; i++)
@@ -331,6 +313,9 @@ namespace OpenSage
 
                 if (playerTemplate.StartingBuilding != null)
                 {
+                    ContentManager.SubsystemConfiguration.EnsureLoaded(Subsystem.ObjectCreation);
+                    ContentManager.SubsystemConfiguration.EnsureLoaded(Subsystem.ParticleSystems);
+
                     var startingBuilding = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingBuilding));
                     startingBuilding.Transform.Translation = player1StartPosition;
                     startingBuilding.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathUtility.ToRadians(startingBuilding.Definition.PlacementViewAngle));

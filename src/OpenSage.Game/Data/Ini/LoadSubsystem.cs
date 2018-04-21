@@ -21,9 +21,9 @@ namespace OpenSage.Data.Ini
             { "InitPath", (parser, x) => x.InitPaths.Add(parser.ParseFileName()) },
         };
 
-        public string Name { get; private set; }
+        public string Name { get; internal set; }
 
-        public SubsystemLoader Loader { get; private set; }
+        public SubsystemLoader Loader { get; internal set; }
         public List<string> InitFiles { get; } = new List<string>();
         public List<string> InitFilesDebug { get; } = new List<string>();
         public List<string> InitPaths { get; } = new List<string>();
