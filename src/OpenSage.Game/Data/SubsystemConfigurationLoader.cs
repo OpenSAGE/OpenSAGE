@@ -92,8 +92,8 @@ namespace OpenSage.Data
                         case SageGame.CncGeneralsZeroHour: return "Core";
 
                         case SageGame.Bfme2: return "TheWritableGlobalData";
-                        default: return null;
                     }
+                    break;
                 case Subsystem.ObjectCreation:
                     switch (_gameDefinition.Game)
                     {
@@ -101,8 +101,8 @@ namespace OpenSage.Data
                         case SageGame.CncGeneralsZeroHour: return "ObjectCreation";
 
                         case SageGame.Bfme2: return "TheThingFactory";
-                        default: return null;
                     }
+                    break;
                 case Subsystem.PlayerCreation:
                     switch (_gameDefinition.Game)
                     {
@@ -110,11 +110,18 @@ namespace OpenSage.Data
                         case SageGame.CncGeneralsZeroHour: return "PlayerCreation";
 
                         case SageGame.Bfme2: return "ThePlayerTemplateStore";
-                        default: return null;
                     }
-                case Subsystem.Terrain:
                     break;
-                case Subsystem.Roads:
+                case Subsystem.TerrainTypes:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.CncGenerals:
+                        case SageGame.CncGeneralsZeroHour: return "Terrain";
+
+                        case SageGame.Bfme2: return "TheTerrainTypes";
+                    }
+                    break;
+                case Subsystem.RoadTypes:
                     break;
                 case Subsystem.ParticleSystems:
                     switch (_gameDefinition.Game)
@@ -123,8 +130,8 @@ namespace OpenSage.Data
                         case SageGame.CncGeneralsZeroHour: return "ParticleSystems";
 
                         case SageGame.Bfme2: return "TheParticleSystemManager";
-                        default: return null;
                     }
+                    break;
                 case Subsystem.Wnd:
                     break;
                 default:
@@ -150,6 +157,15 @@ namespace OpenSage.Data
                         @"Data\INI\Default\GameData.ini",
                         @"Data\INI\GameData.ini",
                         @"Data\INI\Mouse.ini"
+                    }
+                },
+                new LoadSubsystem
+                {
+                    Name = "Terrain",
+                    InitFiles =
+                    {
+                        @"Data\INI\Default\Terrain.ini",
+                        @"Data\INI\Terrain.ini"
                     }
                 },
                 new LoadSubsystem
@@ -192,8 +208,8 @@ namespace OpenSage.Data
         Core,
         ObjectCreation,
         PlayerCreation,
-        Terrain,
-        Roads,
+        TerrainTypes,
+        RoadTypes,
         ParticleSystems,
         Wnd
     }

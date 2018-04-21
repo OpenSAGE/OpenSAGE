@@ -36,19 +36,6 @@ namespace OpenSage.Content
 
         protected override Scene3D LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
         {
-            switch (contentManager.SageGame)
-            {
-                case SageGame.Ra3:
-                case SageGame.Ra3Uprising:
-                case SageGame.Cnc4:
-                    // TODO
-                    break;
-
-                default:
-                    contentManager.IniDataContext.LoadIniFile(@"Data\INI\Terrain.ini");
-                    break;
-            }
-
             var mapFile = MapFile.FromFileSystemEntry(entry);
 
             var heightMap = new HeightMap(mapFile.HeightMapData);
@@ -605,6 +592,8 @@ namespace OpenSage.Content
             var largestTextureSize = uint.MinValue;
 
             textureDetails = new TextureInfo[numTextures];
+
+            contentManager.SubsystemConfiguration.EnsureLoaded(Subsystem.TerrainTypes);
 
             for (var i = 0; i < numTextures; i++)
             {
