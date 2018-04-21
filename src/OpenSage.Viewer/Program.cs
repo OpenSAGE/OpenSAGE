@@ -17,7 +17,7 @@ namespace OpenSage.Viewer
             const int initialWidth = 1024;
             const int initialHeight = 768;
 
-            using (var window = new GameWindow("OpenSAGE Viewer", 100, 100, initialWidth, initialHeight, null, SDL_WindowFlags.Resizable))
+            using (var window = new GameWindow("OpenSAGE Viewer", 100, 100, initialWidth, initialHeight, null))
             using (var commandList = window.GraphicsDevice.ResourceFactory.CreateCommandList())
             using (var imGuiRenderer = new ImGuiRenderer(window.GraphicsDevice, window.GraphicsDevice.MainSwapchain.Framebuffer.OutputDescription, initialWidth, initialHeight))
             using (var gameTimer = new GameTimer())

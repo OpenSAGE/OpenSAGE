@@ -14,6 +14,7 @@ namespace OpenSage
         public event EventHandler ClientSizeChanged;
 
         private readonly Sdl2Window _window;
+        private readonly GraphicsDevice _device;
 
         private readonly Queue<InputMessage> _messageQueue = new Queue<InputMessage>();
 
@@ -26,7 +27,7 @@ namespace OpenSage
             ClientSizeChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public GraphicsDevice GraphicsDevice { get; }
+        public GraphicsDevice GraphicsDevice => _device;
 
         public Rectangle ClientBounds
         {
@@ -50,9 +51,38 @@ namespace OpenSage
             set => _window.CursorVisible = value;
         }
 
-        public GameWindow(string title, int x, int y, int width, int height, GraphicsBackend? preferredBackend, SDL_WindowFlags windowFlags = 0)
-        {
-            _window = new Sdl2Window(title, x, y, width, height, windowFlags | SDL_WindowFlags.OpenGL, false);
+        public GameWindow(string title, int x, int y, int width, int height, GraphicsBackend? preferredBackend)
+        {          
+#if DEBUG
+            const bool debug = true;
+#else
+            const bool debug = false;
+#endif
+
+            var graphicsDeviceOptions = new GraphicsDeviceOptions(debug, PixelFormat.D32_Float_S8_UInt, true)
+            {
+                ResourceBindingModel = ResourceBindingModel.Improved
+            };
+
+            var windowCreateInfo = new WindowCreateInfo(x, y, width, height, WindowState.Normal, title);
+
+            if (preferredBackend != null)
+            {
+                VeldridStartup.CreateWindowAndGraphicsDevice(
+                    windowCreateInfo,
+                    graphicsDeviceOptions,
+                    preferredBackend.Value,
+                    out _window,
+                    out _device);
+            }
+            else
+            {
+                VeldridStartup.CreateWindowAndGraphicsDevice(
+                    windowCreateInfo,
+                    graphicsDeviceOptions,
+                    out _window,
+                    out _device);
+            }
 
             _window.KeyDown += HandleKeyDown;
             _window.KeyUp += HandleKeyUp;
@@ -65,31 +95,6 @@ namespace OpenSage
             _window.Resized += HandleResized;
 
             _window.Closing += HandleClosing;
-
-#if DEBUG
-            const bool debug = true;
-#else
-            const bool debug = false;
-#endif
-
-            var graphicsDeviceOptions = new GraphicsDeviceOptions(debug, PixelFormat.D32_Float_S8_UInt, true)
-            {
-                ResourceBindingModel = ResourceBindingModel.Improved
-            };
-
-            if (preferredBackend != null)
-            {
-                GraphicsDevice = AddDisposable(VeldridStartup.CreateGraphicsDevice(
-                    _window,
-                    graphicsDeviceOptions,
-                    preferredBackend.Value));
-            }
-            else
-            {
-                GraphicsDevice = AddDisposable(VeldridStartup.CreateGraphicsDevice(
-                    _window,
-                    graphicsDeviceOptions));
-            }
         }
 
         private void HandleClosing()
