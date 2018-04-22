@@ -5,7 +5,12 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <AssetsDir>$(MSBuildThisFileDirectory)Assets</AssetsDir>
+
+    <ShaderJsonIntermediateDirectory>$(MSBuildThisFileDirectory)\obj\Shaders.Json</ShaderJsonIntermediateDirectory>
+
     <ShaderOutputPath>$(MSBuildThisFileDirectory)\obj\Shaders.Generated</ShaderOutputPath>
+    <ShaderProcessorAssembly>$(MSBuildThisFileDirectory)\..\OpenSage.Game.Shaders.Processor\bin\$(Configuration)\netcoreapp2.0\OpenSage.Game.Shaders.Processor.dll</ShaderProcessorAssembly>
+    <ShaderProcessorArgs>$(ShaderJsonIntermediateDirectory)</ShaderProcessorArgs>
   </PropertyGroup>
   
   <ItemGroup>
@@ -25,13 +30,31 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Graphics\Shaders\*.json" />
+    <!--<EmbeddedResource Include="Graphics\Shaders\*.json" />-->
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenSage.Game.Shaders.Shared\OpenSage.Game.Shaders.Shared.csproj" />
+  </ItemGroup>
+  
+  <Target Name="PrepareShaderJsonDirectory" BeforeTargets="GenerateShaderCode">
+    <RemoveDir Directories="$(ShaderJsonIntermediateDirectory)" />
+    <MakeDir Directories="$(ShaderJsonIntermediateDirectory)" />
+  </Target>
 
   <Target Name="EmbedGeneratedShaderContent" AfterTargets="AssignTargetPaths">
     <ItemGroup>
       <EmbeddedResource Include="@(GeneratedShader)">
          <LogicalName>OpenSage.Graphics.Shaders.Compiled.%(FileName)%(Extension)</LogicalName>
+      </EmbeddedResource>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="EmbedGeneratedShaderJson" AfterTargets="AssignTargetPaths">
+    <ItemGroup>
+      <AllJsonFiles Include="$(ShaderJsonIntermediateDirectory)\**\*.json" />
+      <EmbeddedResource Include="@(AllJsonFiles)">
+        <LogicalName>OpenSage.Graphics.Shaders.Config.%(FileName)%(Extension)</LogicalName>
       </EmbeddedResource>
     </ItemGroup>
   </Target>
