@@ -14,7 +14,6 @@ namespace OpenSage
         public event EventHandler ClientSizeChanged;
 
         private readonly Sdl2Window _window;
-        private readonly GraphicsDevice _device;
 
         private readonly Queue<InputMessage> _messageQueue = new Queue<InputMessage>();
 
@@ -27,7 +26,7 @@ namespace OpenSage
             ClientSizeChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public GraphicsDevice GraphicsDevice => _device;
+        public GraphicsDevice GraphicsDevice { get; }
 
         public Rectangle ClientBounds
         {
@@ -52,7 +51,7 @@ namespace OpenSage
         }
 
         public GameWindow(string title, int x, int y, int width, int height, GraphicsBackend? preferredBackend)
-        {          
+        {
 #if DEBUG
             const bool debug = true;
 #else
@@ -65,6 +64,8 @@ namespace OpenSage
             };
 
             var windowCreateInfo = new WindowCreateInfo(x, y, width, height, WindowState.Normal, title);
+            GraphicsDevice device;
+
 
             if (preferredBackend != null)
             {
@@ -73,7 +74,7 @@ namespace OpenSage
                     graphicsDeviceOptions,
                     preferredBackend.Value,
                     out _window,
-                    out _device);
+                    out device);
             }
             else
             {
@@ -81,8 +82,11 @@ namespace OpenSage
                     windowCreateInfo,
                     graphicsDeviceOptions,
                     out _window,
-                    out _device);
+                    out device);
             }
+
+            GraphicsDevice = device;
+            AddDisposable(GraphicsDevice);
 
             _window.KeyDown += HandleKeyDown;
             _window.KeyUp += HandleKeyUp;
