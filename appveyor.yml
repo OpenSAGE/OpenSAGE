@@ -1,11 +1,14 @@
-version: 1.0.{build}
 image: Visual Studio 2017
-configuration: Release
-install:
-- ps: >-
-    cd src
-    
-    nuget restore OpenSage.sln
+
+branches:
+  only:
+    - master
+
+init:
+  - git config --global core.autocrlf true
+
+build_script:
+  - ps: .\build.ps1 -Target "AppVeyor"
 
 before_build:
   - choco install opencover.portable
@@ -23,3 +26,8 @@ artifacts:
 test_script:
   - OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:"test --logger:trx;LogFileName=results.trx /p:DebugType=full C:\projects\opensage\src\OpenSage.Game.Tests\OpenSage.Game.Tests.csproj" -filter:"+[OpenSage*]* -[*.Tests*]*" -oldStyle -output:".\OpenSage_coverage.xml"
   - codecov -f "OpenSage_coverage.xml
+
+test: off
+
+cache:
+- tools -> build.cake
