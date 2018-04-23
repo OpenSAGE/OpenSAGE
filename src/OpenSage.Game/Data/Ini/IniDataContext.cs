@@ -51,6 +51,7 @@ namespace OpenSage.Data.Ini
         public List<FXParticleSystemTemplate> FXParticleSystems { get; } = new List<FXParticleSystemTemplate>();
         public GameData GameData { get; internal set; }
         public List<HeaderTemplate> HeaderTemplates { get; } = new List<HeaderTemplate>();
+        public List<HouseColor> HouseColors { get; } = new List<HouseColor>();
         public InGameUI InGameUI { get; internal set; }
         public Language Language { get; internal set; }
         public List<LivingWorldCampaign> LivingWorldCampaigns { get; } = new List<LivingWorldCampaign>();

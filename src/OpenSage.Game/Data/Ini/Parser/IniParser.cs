@@ -52,6 +52,7 @@ namespace OpenSage.Data.Ini.Parser
             { "GameData", (parser, context) => context.GameData = GameData.Parse(parser) },
             { "GlowEffect", (parser, context) => context.Environment.GlowEffect = GlowEffect.Parse(parser) },
             { "HeaderTemplate", (parser, context) => context.HeaderTemplates.Add(HeaderTemplate.Parse(parser)) },
+            { "HouseColor", (parser, context) => context.HouseColors.Add(HouseColor.Parse(parser)) },
             { "InGameUI", (parser, context) => context.InGameUI = InGameUI.Parse(parser) },
             { "Language", (parser, context) => context.Language = Language.Parse(parser) },
             { "LivingWorldCampaign", (parser, context) => context.LivingWorldCampaigns.Add(LivingWorldCampaign.Parse(parser)) },
