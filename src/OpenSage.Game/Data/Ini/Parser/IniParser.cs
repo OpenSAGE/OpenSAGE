@@ -55,6 +55,8 @@ namespace OpenSage.Data.Ini.Parser
             { "HouseColor", (parser, context) => context.HouseColors.Add(HouseColor.Parse(parser)) },
             { "InGameUI", (parser, context) => context.InGameUI = InGameUI.Parse(parser) },
             { "Language", (parser, context) => context.Language = Language.Parse(parser) },
+            { "LargeGroupAudioMap", (parser, context) => context.LargeGroupAudioMaps.Add(LargeGroupAudioMap.Parse(parser)) },
+            { "LargeGroupAudioUnusedKnownKeys", (parser, context) => context.LargeGroupAudioUnusedKnownKeys = LargeGroupAudioUnusedKnownKeys.Parse(parser) },
             { "LivingWorldCampaign", (parser, context) => context.LivingWorldCampaigns.Add(LivingWorldCampaign.Parse(parser)) },
             { "LivingWorldPlayerArmy", (parser, context) => context.LivingWorldPlayerArmies.Add(LivingWorldPlayerArmy.Parse(parser)) },
             { "LivingWorldRegionCampaign", (parser, context) => context.LivingWorldRegionCampaigns.Add(LivingWorldRegionCampaign.Parse(parser)) },

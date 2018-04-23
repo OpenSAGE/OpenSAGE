@@ -387,5 +387,53 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("EMOTION_DOOM"), AddedIn(SageGame.Bfme)]
         EmotionDoom,
+
+        [IniEnum("WADING"), AddedIn(SageGame.Bfme)]
+        Wading,
+
+        [IniEnum("ENGAGED"), AddedIn(SageGame.Bfme)]
+        Engaged,
+
+        [IniEnum("STUNNED"), AddedIn(SageGame.Bfme)]
+        Stunned,
+
+        [IniEnum("STUNNED_STANDING_UP"), AddedIn(SageGame.Bfme)]
+        StunnedStandingUp,
+
+        [IniEnum("STUNNED_FLAILING"), AddedIn(SageGame.Bfme)]
+        StunnedFlailing,
+
+        [IniEnum("FIRING_OR_PREATTACK_A"), AddedIn(SageGame.Bfme)]
+        FiringOrPreAttackA,
+
+        [IniEnum("THROWN_PROJECTILE"), AddedIn(SageGame.Bfme)]
+        ThrownProjectile,
+
+        [IniEnum("PASSENGER"), AddedIn(SageGame.Bfme)]
+        Passenger,
+
+        [IniEnum("GUARDING"), AddedIn(SageGame.Bfme)]
+        Guarding,
+
+        [IniEnum("EMOTION_QUARRELSOME"), AddedIn(SageGame.Bfme)]
+        EmotionQuarrelsome,
+
+        [IniEnum("DECELERATE"), AddedIn(SageGame.Bfme)]
+        Decelerate,
+
+        [IniEnum("ACCELERATE"), AddedIn(SageGame.Bfme)]
+        Accelerate,
+
+        [IniEnum("TURN_LEFT"), AddedIn(SageGame.Bfme)]
+        TurnLeft,
+
+        [IniEnum("TURN_RIGHT"), AddedIn(SageGame.Bfme)]
+        TurnRight,
+
+        [IniEnum("BACKING_UP"), AddedIn(SageGame.Bfme)]
+        BackingUp,
+
+        [IniEnum("CHANT_FOR_GROND"), AddedIn(SageGame.Bfme)]
+        ChantForGrond,
     }
 }
