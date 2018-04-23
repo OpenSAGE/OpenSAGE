@@ -71,9 +71,17 @@ namespace OpenSage.Graphics.Shaders
         public struct VertexMaterial
         {
             public Vector3 Ambient;
-            float _Padding1;
+
+#pragma warning disable CS0169
+            private float _padding1;
+#pragma warning restore CS0169
+
             public Vector3 Diffuse;
-            float _Padding2;
+
+#pragma warning disable CS0169
+            private float _padding2;
+#pragma warning restore CS0169
+
             public Vector3 Specular;
             public float Shininess;
             public Vector3 Emissive;
@@ -96,7 +104,11 @@ namespace OpenSage.Graphics.Shaders
         public struct MaterialConstantsType
         {
             public uint NumTextureStages;
-            Vector3 _Padding;
+
+#pragma warning disable CS0169
+            private Vector3 _padding;
+#pragma warning restore CS0169
+            
             public VertexMaterial Material;
             public ShadingConfiguration Shading;
         }

@@ -37,7 +37,11 @@ namespace OpenSage.Tests
                 yield break;
             }
 
-            yield return new XunitTestCase(_diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod);
+            yield return new XunitTestCase(
+                _diagnosticMessageSink,
+                discoveryOptions.MethodDisplayOrDefault(),
+                TestMethodDisplayOptions.All,
+                testMethod);
         }
 
         static GameTestDiscoverer()

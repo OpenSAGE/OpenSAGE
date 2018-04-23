@@ -118,15 +118,15 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void CreditsMenuInput(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
-            switch (message.MessageType)
-            {
-                //case WndWindowMessageType.KeyDown:
-                //    if (message.Key == Key.Escape)
-                //    {
-                //        context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
-                //    }
-                //    break;
-            }
+            //switch (message.MessageType)
+            //{
+            //    case WndWindowMessageType.KeyDown:
+            //        if (message.Key == Key.Escape)
+            //        {
+            //            context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
+            //        }
+            //        break;
+            //}
         }
 
         public static void W3DCreditsMenuDraw(Control control, DrawingContext2D drawingContext)

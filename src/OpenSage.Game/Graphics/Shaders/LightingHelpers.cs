@@ -14,11 +14,22 @@ namespace OpenSage.Graphics.Shaders
         public struct Light
         {
             public Vector3 Ambient;
-            float _Padding1;
+
+#pragma warning disable CS0169
+            private readonly float _padding1;
+#pragma warning restore CS0169
+            
             public Vector3 Color;
-            float _Padding2;
+
+#pragma warning disable CS0169
+            private readonly float _padding2;
+#pragma warning restore CS0169
+
             public Vector3 Direction;
-            float _Padding3;
+
+#pragma warning disable CS0169
+            private readonly float _padding3;
+#pragma warning restore CS0169
         }
 
         public struct Global_LightingConstantsPS

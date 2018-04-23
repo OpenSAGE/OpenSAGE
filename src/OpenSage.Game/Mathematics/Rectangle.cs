@@ -45,11 +45,11 @@ namespace OpenSage.Mathematics
         {
             if (value1.Intersects(value2))
             {
-                int right_side = Math.Min(value1.X + value1.Width, value2.X + value2.Width);
-                int left_side = Math.Max(value1.X, value2.X);
-                int top_side = Math.Max(value1.Y, value2.Y);
-                int bottom_side = Math.Min(value1.Y + value1.Height, value2.Y + value2.Height);
-                return new Rectangle(left_side, top_side, right_side - left_side, bottom_side - top_side);
+                var rightSide = Math.Min(value1.X + value1.Width, value2.X + value2.Width);
+                var leftSide = Math.Max(value1.X, value2.X);
+                var topSide = Math.Max(value1.Y, value2.Y);
+                var bottomSize = Math.Min(value1.Y + value1.Height, value2.Y + value2.Height);
+                return new Rectangle(leftSide, topSide, rightSide - leftSide, bottomSize - topSide);
             }
             else
             {
@@ -87,6 +87,16 @@ namespace OpenSage.Mathematics
                    Y == rectangle.Y &&
                    Width == rectangle.Width &&
                    Height == rectangle.Height;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 466501756;
+            hashCode = hashCode * -1521134295 + X.GetHashCode();
+            hashCode = hashCode * -1521134295 + Y.GetHashCode();
+            hashCode = hashCode * -1521134295 + Width.GetHashCode();
+            hashCode = hashCode * -1521134295 + Height.GetHashCode();
+            return hashCode;
         }
 
         public static bool operator ==(Rectangle rectangle1, Rectangle rectangle2)
