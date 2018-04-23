@@ -26,8 +26,6 @@ namespace OpenSage.Gui
         private readonly Stack<float> _opacityStack;
         private float _currentOpacity;
 
-        private CommandList _commandList;
-
         public DrawingContext2D(
             ContentManager contentManager,
             in BlendStateDescription blendStateDescription,

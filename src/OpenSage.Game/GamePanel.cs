@@ -30,7 +30,9 @@ namespace OpenSage
         {
             private readonly GameWindow _window;
 
+#pragma warning disable CS0067
             public override event EventHandler FramebufferChanged;
+#pragma warning restore CS0067
 
             public override GraphicsDevice GraphicsDevice => _window.GraphicsDevice;
 
