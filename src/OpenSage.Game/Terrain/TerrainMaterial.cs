@@ -26,7 +26,7 @@ namespace OpenSage.Terrain
 
         public void SetMaterialConstants(DeviceBuffer materialConstantsBuffer)
         {
-            SetProperty("TerrainMaterialConstantsBuffer", materialConstantsBuffer);
+            SetProperty("TerrainMaterialConstants", materialConstantsBuffer);
         }
 
         public void SetTileData(Texture tileDataTexture)

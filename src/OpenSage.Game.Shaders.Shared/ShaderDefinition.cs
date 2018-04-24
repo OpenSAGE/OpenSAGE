@@ -8,7 +8,23 @@ namespace OpenSage.Graphics.Shaders
 {
     public class ShaderDefinition
     {
+        public static ShaderDefinition FromJson(string json)
+        {
+            return JsonConvert.DeserializeObject<ShaderDefinition>(json);
+        }
+
         public List<ResourceBinding> ResourceBindings { get; set; } = new List<ResourceBinding>();
+
+        public string ToJson()
+        {
+            return JsonConvert.SerializeObject(
+                this,
+                new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+        }
     }
 
     public class ResourceBinding

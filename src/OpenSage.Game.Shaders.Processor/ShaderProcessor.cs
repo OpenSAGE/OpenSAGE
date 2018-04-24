@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
 using ShaderGen;
 using Veldrid;
 
@@ -34,12 +33,7 @@ namespace OpenSage.Graphics.Shaders.Processor
             }
 
             var path = Path.Combine(UserArgs, input.SetName + ".json");
-            var json = JsonConvert.SerializeObject(shaderDefinition,
-                new JsonSerializerSettings
-                {
-                    Formatting = Formatting.Indented,
-                    NullValueHandling = NullValueHandling.Ignore
-                });
+            var json = shaderDefinition.ToJson();
             File.WriteAllText(path, json);
         }
 
@@ -83,7 +77,13 @@ namespace OpenSage.Graphics.Shaders.Processor
 
                             uniformBufferField.Name = field.Name;
                             uniformBufferField.Offset = offset;
-                            uniformBufferField.Size = model.GetTypeSize(field.Type);
+
+                            var fieldSize = model.GetTypeSize(field.Type);
+                            if (field.IsArray)
+                            {
+                                fieldSize *= field.ArrayElementCount;
+                            }
+                            uniformBufferField.Size = fieldSize;
 
                             offset += uniformBufferField.Size;
                         }

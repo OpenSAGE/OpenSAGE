@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Newtonsoft.Json;
 
 namespace OpenSage.Graphics.Shaders
 {
@@ -13,11 +12,10 @@ namespace OpenSage.Graphics.Shaders
         {
             if (!Cache.TryGetValue(name, out var result))
             {
-                using (var jsonStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(ShaderDefinitions), name + ".json"))
+                using (var jsonStream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"OpenSage.Graphics.Shaders.Config.{name}.json"))
                 using (var jsonStreamReader = new StreamReader(jsonStream))
                 {
-                    var shaderDefinitionJson = jsonStreamReader.ReadToEnd();
-                    result = JsonConvert.DeserializeObject<ShaderDefinition>(shaderDefinitionJson);
+                    result = ShaderDefinition.FromJson(jsonStreamReader.ReadToEnd());
                 }
                 Cache.Add(name, result);
             }

@@ -21,7 +21,7 @@ namespace OpenSage.Graphics.Effects
 
         public void SetMaterialConstantsVS(DeviceBuffer value)
         {
-            SetProperty("ProjectionBuffer", value);
+            SetProperty("Projection", value);
         }
 
         public void SetSampler(Sampler samplerState)
