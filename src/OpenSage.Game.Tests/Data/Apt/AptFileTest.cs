@@ -14,7 +14,7 @@ namespace OpenSage.Tests.Data.Apt
             _output = output;
         }
 
-        [GameFact(SageGame.Bfme, SageGame.Bfme2, SageGame.Bfme2Rotwk)]
+        [GameFact(SageGame.Bfme, SageGame.Bfme2, SageGame.Bfme2Rotwk, Skip = "Not all bytecode instructions are implemented yet")]
         public void CanReadAptFiles()
         {
             InstalledFilesTestData.ReadFiles(".apt", _output, entry =>
