@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="Veldrid" Version="4.2.0-beta1-gb1cbac39e2" />
+    <PackageReference Include="Veldrid" Version="$(VeldridVersion)" />
   </ItemGroup>
 
 </Project>
