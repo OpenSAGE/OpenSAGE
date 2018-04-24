@@ -66,25 +66,28 @@ namespace OpenSage.Graphics.Shaders.Processor
             switch (resourceBinding.Type)
             {
                 case ResourceKind.StructuredBufferReadOnly:
-                    //resourceBinding.Size = (uint) model.GetTypeSize(resource.ValueType);
+                    resourceBinding.Size = (uint) model.GetTypeSize(resource.ValueType);
                     break;
 
                 case ResourceKind.UniformBuffer:
                     resourceBinding.Fields = new List<UniformBufferField>();
-                    //resourceBinding.Size = (uint) model.GetTypeSize(resource.ValueType);
-                    //var structureDefinition = model.GetStructureDefinition(resource.ValueType);
-                    //var offset = 0;
-                    //foreach (var field in structureDefinition.Fields)
-                    //{
-                    //    var uniformBufferField = new UniformBufferField();
-                    //    resourceBinding.Fields.Add(uniformBufferField);
+                    resourceBinding.Size = (uint) model.GetTypeSize(resource.ValueType);
+                    var structureDefinition = model.GetStructureDefinition(resource.ValueType);
+                    if (structureDefinition != null) // Uniform buffers can be of built-in type
+                    {
+                        var offset = 0;
+                        foreach (var field in structureDefinition.Fields)
+                        {
+                            var uniformBufferField = new UniformBufferField();
+                            resourceBinding.Fields.Add(uniformBufferField);
 
-                    //    uniformBufferField.Name = field.Name;
-                    //    uniformBufferField.Offset = offset;
-                    //    uniformBufferField.Size = model.GetTypeSize(field.Type);
+                            uniformBufferField.Name = field.Name;
+                            uniformBufferField.Offset = offset;
+                            uniformBufferField.Size = model.GetTypeSize(field.Type);
 
-                    //    offset += uniformBufferField.Size;
-                    //}
+                            offset += uniformBufferField.Size;
+                        }
+                    }
                     break;
             }
 

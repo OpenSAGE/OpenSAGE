@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ShaderGen" Version="1.2.0-g4bf25fc276" />
+    <PackageReference Include="ShaderGen" Version="$(ShaderGenVersion)" />
   </ItemGroup>
 
   <ItemGroup>

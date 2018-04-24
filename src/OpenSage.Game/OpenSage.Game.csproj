@@ -3,7 +3,6 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>OpenSage</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>latest</LangVersion>
     <AssetsDir>$(MSBuildThisFileDirectory)Assets</AssetsDir>
 
     <ShaderJsonIntermediateDirectory>$(MSBuildThisFileDirectory)\obj\Shaders.Json</ShaderJsonIntermediateDirectory>
@@ -21,12 +20,12 @@
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0003" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
-    <PackageReference Include="ShaderGen.Primitives" Version="1.2.0-g4bf25fc276" />
-    <PackageReference Include="ShaderGen.Build" Version="1.2.0-g4bf25fc276" PrivateAssets="All" />
-    <PackageReference Include="Veldrid" Version="4.2.0-beta1-gb1cbac39e2" />
-    <PackageReference Include="Veldrid.ImageSharp" Version="4.2.0-beta1-gb1cbac39e2" />
-    <PackageReference Include="Veldrid.SDL2" Version="4.2.0-beta1-gb1cbac39e2" />
-    <PackageReference Include="Veldrid.StartupUtilities" Version="4.2.0-beta1-gb1cbac39e2" />
+    <PackageReference Include="ShaderGen.Primitives" Version="$(ShaderGenVersion)" />
+    <PackageReference Include="ShaderGen.Build" Version="$(ShaderGenVersion)" PrivateAssets="All" />
+    <PackageReference Include="Veldrid" Version="$(VeldridVersion)" />
+    <PackageReference Include="Veldrid.ImageSharp" Version="$(VeldridVersion)" />
+    <PackageReference Include="Veldrid.SDL2" Version="$(VeldridVersion)" />
+    <PackageReference Include="Veldrid.StartupUtilities" Version="$(VeldridVersion)" />
   </ItemGroup>
 
   <ItemGroup>
