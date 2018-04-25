@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using OpenSage.Data.Ini;
 using OpenSage.Logic.Object;
+using OpenSage.Mods.BuiltIn;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -18,7 +19,13 @@ namespace OpenSage.Tests.Data.Ini
         [Fact]
         public void CanReadIniFiles()
         {
-            InstalledFilesTestData.ReadFiles(".ini", _output, entry =>
+            // TODO: Finish INI parsing for BFME and subsequent games.
+            var gameDefinitions = new[]
+            {
+                GameDefinition.FromGame(SageGame.CncGenerals),
+                GameDefinition.FromGame(SageGame.CncGeneralsZeroHour)
+            };
+            InstalledFilesTestData.ReadFiles(".ini", _output, gameDefinitions, entry =>
             {
                 switch (Path.GetFileName(entry.FilePath).ToLowerInvariant())
                 {
@@ -26,6 +33,7 @@ namespace OpenSage.Tests.Data.Ini
                     case "scripts.ini": // Only needed by World Builder?
                     case "commandmapdebug.ini": // Only applies to DEBUG and INTERNAL builds
                     case "fxparticlesystemcustom.ini": // Don't know if this is used, it uses Emitter property not used elsewhere
+                    case "lightpoints.ini": // Don't know if this is used.
                         return;
                 }
 

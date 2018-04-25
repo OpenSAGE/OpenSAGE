@@ -33,5 +33,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("TOPPLED")]
         Toppled,
+
+        [IniEnum("INSIDE_GARRISON"), AddedIn(SageGame.Bfme)]
+        InsideGarrison,
     }
 }

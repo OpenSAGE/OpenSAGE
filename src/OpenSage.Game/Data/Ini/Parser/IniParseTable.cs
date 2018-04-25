@@ -57,4 +57,28 @@ namespace OpenSage.Data.Ini.Parser
             return true;
         }
     }
+
+    internal sealed class CompositeFieldParserProvider<T> : IIniFieldParserProvider<T>
+    {
+        private readonly IIniFieldParserProvider<T>[] _providers;
+
+        public CompositeFieldParserProvider(params IIniFieldParserProvider<T>[] providers)
+        {
+            _providers = providers;
+        }
+
+        bool IIniFieldParserProvider<T>.TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser)
+        {
+            foreach (var provider in _providers)
+            {
+                if (provider.TryGetFieldParser(fieldName, out fieldParser))
+                {
+                    return true;
+                }
+            }
+
+            fieldParser = null;
+            return false;
+        }
+    }
 }

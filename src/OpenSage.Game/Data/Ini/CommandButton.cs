@@ -507,7 +507,7 @@ namespace OpenSage.Data.Ini
         AttackDamageArea,
 
         [IniEnum("SUPERWEAPON_SCATTER_AREA")]
-        SuperweaponScatterAreaRadiusCursor,
+        SuperweaponScatterArea,
 
         [IniEnum("FRIENDLY_SPECIALPOWER")]
         FriendlySpecialPower,

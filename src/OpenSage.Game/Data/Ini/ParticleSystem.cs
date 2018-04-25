@@ -200,12 +200,12 @@ namespace OpenSage.Data.Ini
             return new RgbColorKeyframe
             {
                 Color = IniColorRgb.Parse(parser),
-                Time = parser.ParseInteger()
+                Time = parser.ParseLong()
             };
         }
 
         public IniColorRgb Color;
-        public int Time;
+        public long Time;
     }
 
     public enum ParticleSystemShader

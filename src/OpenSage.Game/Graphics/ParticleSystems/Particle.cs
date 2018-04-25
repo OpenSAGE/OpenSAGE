@@ -33,7 +33,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
     internal readonly struct ParticleAlphaKeyframe : IParticleKeyframe
     {
-        public int Time { get; }
+        public long Time { get; }
         public readonly float Alpha;
 
         public ParticleAlphaKeyframe(RandomAlphaKeyframe keyframe)

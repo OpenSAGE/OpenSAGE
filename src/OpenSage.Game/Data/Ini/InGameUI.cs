@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
-using OpenSage.Data.Wnd;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
@@ -23,6 +22,7 @@ namespace OpenSage.Data.Ini
 
             { "MilitaryCaptionColor", (parser, x) => x.MilitaryCaptionColor = parser.ParseColorRgba() },
             { "MilitaryCaptionPosition", (parser, x) => x.MilitaryCaptionPosition = Coord2D.Parse(parser) },
+            { "MilitaryCaptionCentered", (parser, x) => x.MilitaryCaptionCentered = parser.ParseBoolean() },
             { "MilitaryCaptionTitleFont", (parser, x) => x.MilitaryCaptionTitleFont = parser.ParseString() },
             { "MilitaryCaptionTitlePointSize", (parser, x) => x.MilitaryCaptionTitlePointSize = parser.ParseInteger() },
             { "MilitaryCaptionTitleBold", (parser, x) => x.MilitaryCaptionTitleBold = parser.ParseBoolean() },
@@ -33,6 +33,11 @@ namespace OpenSage.Data.Ini
 
             { "MilitaryCaptionRandomizeTyping", (parser, x) => x.MilitaryCaptionRandomizeTyping = parser.ParseBoolean() },
             { "MilitaryCaptionDelayMS", (parser, x) => x.MilitaryCaptionDelayMS = parser.ParseInteger() },
+
+            { "DrawableCaptionFont", (parser, x) => x.DrawableCaptionFont = parser.ParseString() },
+            { "DrawableCaptionPointSize", (parser, x) => x.DrawableCaptionPointSize = parser.ParseInteger() },
+            { "DrawableCaptionBold", (parser, x) => x.DrawableCaptionBold = parser.ParseBoolean() },
+            { "DrawableCaptionColor", (parser, x) => x.DrawableCaptionColor = IniColorRgb.Parse(parser) },
 
             { "SuperweaponCountdownPosition", (parser, x) => x.SuperweaponCountdownPosition = Coord2D.Parse(parser) },
             { "SuperweaponCountdownFlashDuration", (parser, x) => x.SuperweaponCountdownFlashDuration = parser.ParseInteger() },
@@ -60,6 +65,26 @@ namespace OpenSage.Data.Ini
             { "NamedTimerCountdownReadyBold", (parser, x) => x.NamedTimerCountdownReadyBold = parser.ParseBoolean() },
             { "NamedTimerCountdownReadyColor", (parser, x) => x.NamedTimerCountdownReadyColor = IniColorRgb.Parse(parser) },
 
+            { "HelpBoxNameFont", (parser, x) => x.HelpBoxNameFont = parser.ParseString() },
+            { "HelpBoxNamePointSize", (parser, x) => x.HelpBoxNamePointSize = parser.ParseInteger() },
+            { "HelpBoxNameBold", (parser, x) => x.HelpBoxNameBold = parser.ParseBoolean() },
+            { "HelpBoxNameColor", (parser, x) => x.HelpBoxNameColor = IniColorRgb.Parse(parser) },
+
+            { "HelpBoxCostFont", (parser, x) => x.HelpBoxCostFont = parser.ParseString() },
+            { "HelpBoxCostPointSize", (parser, x) => x.HelpBoxCostPointSize = parser.ParseInteger() },
+            { "HelpBoxCostBold", (parser, x) => x.HelpBoxCostBold = parser.ParseBoolean() },
+            { "HelpBoxCostColor", (parser, x) => x.HelpBoxCostColor = IniColorRgb.Parse(parser) },
+
+            { "HelpBoxShortcutFont", (parser, x) => x.HelpBoxShortcutFont = parser.ParseString() },
+            { "HelpBoxShortcutPointSize", (parser, x) => x.HelpBoxShortcutPointSize = parser.ParseInteger() },
+            { "HelpBoxShortcutBold", (parser, x) => x.HelpBoxShortcutBold = parser.ParseBoolean() },
+            { "HelpBoxShortcutColor", (parser, x) => x.HelpBoxShortcutColor = IniColorRgb.Parse(parser) },
+
+            { "HelpBoxDescriptionFont", (parser, x) => x.HelpBoxDescriptionFont = parser.ParseString() },
+            { "HelpBoxDescriptionPointSize", (parser, x) => x.HelpBoxDescriptionPointSize = parser.ParseInteger() },
+            { "HelpBoxDescriptionBold", (parser, x) => x.HelpBoxDescriptionBold = parser.ParseBoolean() },
+            { "HelpBoxDescriptionColor", (parser, x) => x.HelpBoxDescriptionColor = IniColorRgb.Parse(parser) },
+
             { "FloatingTextTimeOut", (parser, x) => x.FloatingTextTimeOut = parser.ParseInteger() },
             { "FloatingTextMoveUpSpeed", (parser, x) => x.FloatingTextMoveUpSpeed = parser.ParseInteger() },
             { "FloatingTextVanishRate", (parser, x) => x.FloatingTextVanishRate = parser.ParseInteger() },
@@ -68,9 +93,11 @@ namespace OpenSage.Data.Ini
             { "MoveRMBScrollAnchor", (parser, x) => x.MoveRmbScrollAnchor = parser.ParseBoolean() },
             { "PopupMessageColor", (parser, x) => x.PopupMessageColor = parser.ParseColorRgba() },
 
+            { "UnitHelpTextDelay", (parser, x) => x.UnitHelpTextDelay = parser.ParseFloat() },
+
             { "SpyDroneRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.SpyDrone)) },
             { "AttackScatterAreaRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.AttackScatterArea)) },
-            { "SuperweaponScatterAreaRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.SuperweaponScatterAreaRadiusCursor)) },
+            { "SuperweaponScatterAreaRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.SuperweaponScatterArea)) },
             { "AttackDamageAreaRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.AttackDamageArea)) },
             { "AttackContinueAreaRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.AttackContinueArea)) },
             { "GuardAreaRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.GuardArea)) },
@@ -99,6 +126,36 @@ namespace OpenSage.Data.Ini
             { "HelixNapalmBombRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.HelixNapalmBomb)) },
             { "ClearMinesRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.ClearMines)) },
             { "AmbulanceRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Ambulance)) },
+
+            // Following set were added in BFME.
+            { "ArrowStormRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.ArrowStorm)) },
+            { "TrainingRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Training)) },
+            { "ArcheryTrainingRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.ArcheryTraining)) },
+            { "SummonBalrogRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.SummonBalrog)) },
+            { "LightningSwordRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.LightningSword)) },
+            { "FireBreathRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.FireBreath)) },
+            { "LeapRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Leap)) },
+            { "SummonOathBreakersRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.SummonOathBreakers)) },
+            { "AthelasRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Athelas)) },
+            { "FellBeastSwoopRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.FellBeastSwoop)) },
+            { "EagleSwoopRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.EagleSwoop)) },
+            { "IndustryRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Industry)) },
+            { "DevastationRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Devastation)) },
+            { "TaintRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Taint)) },
+            { "EyeOfSauronRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.EyeOfSauron)) },
+            { "HealRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Heal)) },
+            { "ElvenAlliesRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.ElvenAllies)) },
+            { "RohanAlliesRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.RohanAllies)) },
+            { "ElvenWoodRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.ElvenWood)) },
+            { "EntAlliesRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.EntAllies)) },
+            { "ArmyOfTheDeadRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.ArmyOfTheDead)) },
+            { "EagleAlliesRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.EagleAllies)) },
+            { "KingsFavorRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.KingsFavor)) },
+            { "DominateRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Dominate)) },
+            { "SpeechCraftRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.SpeechCraft)) },
+            { "CaptainOfGondorRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.CaptainOfGondor)) },
+            { "WarChantRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.WarChant)) },
+            { "PalantirVisionRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.PalantirVision)) },
         };
 
         public int MaxSelectionSize { get; private set; }
@@ -113,6 +170,10 @@ namespace OpenSage.Data.Ini
 
         public ColorRgba MilitaryCaptionColor { get; private set; }
         public Coord2D MilitaryCaptionPosition { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool MilitaryCaptionCentered { get; private set; }
+
         public string MilitaryCaptionTitleFont { get; private set; }
         public int MilitaryCaptionTitlePointSize { get; private set; }
         public bool MilitaryCaptionTitleBold { get; private set; }
@@ -123,6 +184,18 @@ namespace OpenSage.Data.Ini
 
         public bool MilitaryCaptionRandomizeTyping { get; private set; }
         public int MilitaryCaptionDelayMS { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string DrawableCaptionFont { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int DrawableCaptionPointSize { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool DrawableCaptionBold { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public IniColorRgb DrawableCaptionColor { get; private set; }
 
         public Coord2D SuperweaponCountdownPosition { get; private set; }
         public int SuperweaponCountdownFlashDuration { get; private set; }
@@ -150,6 +223,54 @@ namespace OpenSage.Data.Ini
         public bool NamedTimerCountdownReadyBold { get; private set; }
         public IniColorRgb NamedTimerCountdownReadyColor { get; private set; }
 
+        [AddedIn(SageGame.Bfme)]
+        public string HelpBoxNameFont { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int HelpBoxNamePointSize { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool HelpBoxNameBold { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public IniColorRgb HelpBoxNameColor { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string HelpBoxCostFont { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int HelpBoxCostPointSize { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool HelpBoxCostBold { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public IniColorRgb HelpBoxCostColor { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string HelpBoxShortcutFont { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int HelpBoxShortcutPointSize { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool HelpBoxShortcutBold { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public IniColorRgb HelpBoxShortcutColor { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string HelpBoxDescriptionFont { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int HelpBoxDescriptionPointSize { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool HelpBoxDescriptionBold { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public IniColorRgb HelpBoxDescriptionColor { get; private set; }
+
         public int FloatingTextTimeOut { get; private set; }
         public int FloatingTextMoveUpSpeed { get; private set; }
         public int FloatingTextVanishRate { get; private set; }
@@ -157,6 +278,9 @@ namespace OpenSage.Data.Ini
         public bool DrawRmbScrollAnchor { get; private set; }
         public bool MoveRmbScrollAnchor { get; private set; }
         public ColorRgba PopupMessageColor { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float UnitHelpTextDelay { get; private set; }
 
         public List<RadiusCursor> RadiusCursors { get; } = new List<RadiusCursor>();
     }

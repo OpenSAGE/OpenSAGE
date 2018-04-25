@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Data;
@@ -24,7 +25,12 @@ namespace OpenSage.Tests.Data
 
         public static void ReadFiles(string fileExtension, ITestOutputHelper output, Action<FileSystemEntry> processFileCallback)
         {
-            var rootDirectories = GameDefinition.All
+            ReadFiles(fileExtension, output, GameDefinition.All, processFileCallback);
+        }
+
+        public static void ReadFiles(string fileExtension, ITestOutputHelper output, IEnumerable<IGameDefinition> gameDefinitions, Action<FileSystemEntry> processFileCallback)
+        {
+            var rootDirectories = gameDefinitions
                 .SelectMany(Locator.FindInstallations)
                 .Select(i => i.Path)
                 .Where(x => Directory.Exists(x))
