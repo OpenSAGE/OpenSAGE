@@ -50,9 +50,43 @@ namespace OpenSage
             set => _window.CursorVisible = value;
         }
 
-        public GameWindow(string title, int x, int y, int width, int height, GraphicsBackend? preferredBackend, SDL_WindowFlags windowFlags = 0)
+        public GameWindow(string title, int x, int y, int width, int height, GraphicsBackend? preferredBackend)
         {
-            _window = new Sdl2Window(title, x, y, width, height, windowFlags | SDL_WindowFlags.OpenGL, false);
+#if DEBUG
+            const bool debug = true;
+#else
+            const bool debug = false;
+#endif
+
+            var graphicsDeviceOptions = new GraphicsDeviceOptions(debug, PixelFormat.D32_Float_S8_UInt, true)
+            {
+                ResourceBindingModel = ResourceBindingModel.Improved
+            };
+
+            var windowCreateInfo = new WindowCreateInfo(x, y, width, height, WindowState.Normal, title);
+            GraphicsDevice device;
+
+
+            if (preferredBackend != null)
+            {
+                VeldridStartup.CreateWindowAndGraphicsDevice(
+                    windowCreateInfo,
+                    graphicsDeviceOptions,
+                    preferredBackend.Value,
+                    out _window,
+                    out device);
+            }
+            else
+            {
+                VeldridStartup.CreateWindowAndGraphicsDevice(
+                    windowCreateInfo,
+                    graphicsDeviceOptions,
+                    out _window,
+                    out device);
+            }
+
+            GraphicsDevice = device;
+            AddDisposable(GraphicsDevice);
 
             _window.KeyDown += HandleKeyDown;
             _window.KeyUp += HandleKeyUp;
@@ -65,31 +99,6 @@ namespace OpenSage
             _window.Resized += HandleResized;
 
             _window.Closing += HandleClosing;
-
-#if DEBUG
-            const bool debug = true;
-#else
-            const bool debug = false;
-#endif
-
-            var graphicsDeviceOptions = new GraphicsDeviceOptions(debug, PixelFormat.D32_Float_S8_UInt, true)
-            {
-                ResourceBindingModel = ResourceBindingModel.Improved
-            };
-
-            if (preferredBackend != null)
-            {
-                GraphicsDevice = AddDisposable(VeldridStartup.CreateGraphicsDevice(
-                    _window,
-                    graphicsDeviceOptions,
-                    preferredBackend.Value));
-            }
-            else
-            {
-                GraphicsDevice = AddDisposable(VeldridStartup.CreateGraphicsDevice(
-                    _window,
-                    graphicsDeviceOptions));
-            }
         }
 
         private void HandleClosing()
