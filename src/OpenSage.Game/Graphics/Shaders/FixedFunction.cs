@@ -73,13 +73,13 @@ namespace OpenSage.Graphics.Shaders
             public Vector3 Ambient;
 
 #pragma warning disable CS0169
-            private float _padding1;
+            private readonly float _padding1;
 #pragma warning restore CS0169
 
             public Vector3 Diffuse;
 
 #pragma warning disable CS0169
-            private float _padding2;
+            private readonly float _padding2;
 #pragma warning restore CS0169
 
             public Vector3 Specular;
@@ -106,7 +106,7 @@ namespace OpenSage.Graphics.Shaders
             public uint NumTextureStages;
 
 #pragma warning disable CS0169
-            private Vector3 _padding;
+            private readonly Vector3 _padding;
 #pragma warning restore CS0169
             
             public VertexMaterial Material;
@@ -238,16 +238,6 @@ namespace OpenSage.Graphics.Shaders
         [FragmentShader]
         public Vector4 PS(PixelInput input)
         {
-            //LightingParameters lightingParams;
-            //lightingParams.WorldPosition = input.WorldPosition;
-            //lightingParams.WorldNormal = input.WorldNormal;
-            //lightingParams.MaterialAmbient = MaterialConstants.Material.Ambient;
-            //lightingParams.MaterialDiffuse = MaterialConstants.Material.Diffuse;
-            //lightingParams.MaterialSpecular = MaterialConstants.Material.Specular;
-            //lightingParams.MaterialShininess = MaterialConstants.Material.Shininess;
-
-            Vector3 diffuseColor;
-            Vector3 specularColor;
             DoLighting(
                 Global_LightingConstantsPS,
                 input.WorldPosition,
@@ -258,8 +248,8 @@ namespace OpenSage.Graphics.Shaders
                 MaterialConstants.Material.Shininess,
                 GlobalConstantsShared.CameraPosition,
                 true,
-                out diffuseColor,
-                out specularColor);
+                out var diffuseColor,
+                out var specularColor);
 
             Vector4 diffuseTextureColor;
             if (MaterialConstants.Shading.TexturingEnabled == 1)

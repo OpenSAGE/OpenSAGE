@@ -246,8 +246,6 @@ namespace OpenSage.Graphics.Shaders
         [FragmentShader]
         public Vector4 PS(PixelInput input)
         {
-            Vector3 diffuseColor;
-            Vector3 specularColor;
             DoLighting(
                 Global_LightingConstantsPS,
                 input.WorldPosition,
@@ -258,8 +256,8 @@ namespace OpenSage.Graphics.Shaders
                 0,
                 GlobalConstantsShared.CameraPosition,
                 false,
-                out diffuseColor,
-                out specularColor);
+                out var diffuseColor,
+                out var specularColor);
 
             var textureColor = SampleBlendedTextures(input.UV);
 
