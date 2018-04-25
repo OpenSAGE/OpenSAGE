@@ -8,7 +8,7 @@
     <ShaderJsonIntermediateDirectory>$(MSBuildThisFileDirectory)\obj\Shaders.Json</ShaderJsonIntermediateDirectory>
 
     <ShaderOutputPath>$(MSBuildThisFileDirectory)\obj\Shaders.Generated</ShaderOutputPath>
-    <ShaderProcessorAssembly>$(MSBuildThisFileDirectory)\..\OpenSage.Game.Shaders.Processor\bin\$(Configuration)\netcoreapp2.0\OpenSage.Game.Shaders.Processor.dll</ShaderProcessorAssembly>
+    <ShaderProcessorAssembly>$(MSBuildThisFileDirectory)\..\OpenSage.Game.Shaders.Processor\bin\$(Configuration)\netstandard2.0\OpenSage.Game.Shaders.Processor.dll</ShaderProcessorAssembly>
     <ShaderProcessorArgs>$(ShaderJsonIntermediateDirectory)</ShaderProcessorArgs>
   </PropertyGroup>
   
