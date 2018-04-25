@@ -3,35 +3,52 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>OpenSage</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>latest</LangVersion>
     <AssetsDir>$(MSBuildThisFileDirectory)Assets</AssetsDir>
+
+    <ShaderJsonIntermediateDirectory>$(MSBuildThisFileDirectory)\obj\Shaders.Json</ShaderJsonIntermediateDirectory>
+
     <ShaderOutputPath>$(MSBuildThisFileDirectory)\obj\Shaders.Generated</ShaderOutputPath>
+    <ShaderProcessorAssembly>$(MSBuildThisFileDirectory)\..\OpenSage.Game.Shaders.Processor\bin\$(Configuration)\netstandard2.0\OpenSage.Game.Shaders.Processor.dll</ShaderProcessorAssembly>
+    <ShaderProcessorArgs>$(ShaderJsonIntermediateDirectory)</ShaderProcessorArgs>
   </PropertyGroup>
   
   <ItemGroup>
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.4.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="OpenAL-CS" Version="1.0.9" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0003" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0003" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
-    <PackageReference Include="ShaderGen.Primitives" Version="1.2.0-g4bf25fc276" />
-    <PackageReference Include="ShaderGen.Build" Version="1.2.0-g4bf25fc276" PrivateAssets="All" />
-    <PackageReference Include="Veldrid" Version="4.2.0-beta1-gb1cbac39e2" />
-    <PackageReference Include="Veldrid.ImageSharp" Version="4.2.0-beta1-gb1cbac39e2" />
-    <PackageReference Include="Veldrid.SDL2" Version="4.2.0-beta1-gb1cbac39e2" />
-    <PackageReference Include="Veldrid.StartupUtilities" Version="4.2.0-beta1-gb1cbac39e2" />
+    <PackageReference Include="ShaderGen.Primitives" Version="$(ShaderGenVersion)" />
+    <PackageReference Include="ShaderGen.Build" Version="$(ShaderGenVersion)" PrivateAssets="All" />
+    <PackageReference Include="Veldrid" Version="$(VeldridVersion)" />
+    <PackageReference Include="Veldrid.ImageSharp" Version="$(VeldridVersion)" />
+    <PackageReference Include="Veldrid.SDL2" Version="$(VeldridVersion)" />
+    <PackageReference Include="Veldrid.StartupUtilities" Version="$(VeldridVersion)" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Graphics\Shaders\*.json" />
+    <ProjectReference Include="..\OpenSage.Game.Shaders.Shared\OpenSage.Game.Shaders.Shared.csproj" />
   </ItemGroup>
+  
+  <Target Name="PrepareShaderJsonDirectory" BeforeTargets="GenerateShaderCode">
+    <RemoveDir Directories="$(ShaderJsonIntermediateDirectory)" />
+    <MakeDir Directories="$(ShaderJsonIntermediateDirectory)" />
+  </Target>
 
   <Target Name="EmbedGeneratedShaderContent" AfterTargets="AssignTargetPaths">
     <ItemGroup>
       <EmbeddedResource Include="@(GeneratedShader)">
          <LogicalName>OpenSage.Graphics.Shaders.Compiled.%(FileName)%(Extension)</LogicalName>
+      </EmbeddedResource>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="EmbedGeneratedShaderJson" AfterTargets="AssignTargetPaths">
+    <ItemGroup>
+      <AllJsonFiles Include="$(ShaderJsonIntermediateDirectory)\**\*.json" />
+      <EmbeddedResource Include="@(AllJsonFiles)">
+        <LogicalName>OpenSage.Graphics.Shaders.Config.%(FileName)%(Extension)</LogicalName>
       </EmbeddedResource>
     </ItemGroup>
   </Target>

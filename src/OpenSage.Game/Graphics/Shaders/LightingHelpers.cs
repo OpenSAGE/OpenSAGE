@@ -32,21 +32,13 @@ namespace OpenSage.Graphics.Shaders
 #pragma warning restore CS0169
         }
 
+        //public const int NumLights;
+
         public struct Global_LightingConstantsPS
         {
             [ArraySize(3)] // NumLights
             public Light[] Lights;
         }
-
-        //public struct LightingParameters
-        //{
-        //    public Vector3 WorldPosition;
-        //    public Vector3 WorldNormal;
-        //    public Vector3 MaterialAmbient;
-        //    public Vector3 MaterialDiffuse;
-        //    public Vector3 MaterialSpecular;
-        //    public float MaterialShininess;
-        //}
 
         public static Vector3 CalculateViewVector(Vector3 cameraPosition, Vector3 worldPosition)
         {
@@ -55,7 +47,6 @@ namespace OpenSage.Graphics.Shaders
 
         internal static void DoLighting(
             Global_LightingConstantsPS lightingConstantsPS,
-            // TODO: Replace this with LightingParameters struct, once "internal" structs are supported
             Vector3 worldPosition,
             Vector3 worldNormal,
             Vector3 materialAmbient,

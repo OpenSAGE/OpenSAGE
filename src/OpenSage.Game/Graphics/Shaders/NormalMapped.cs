@@ -116,8 +116,6 @@ namespace OpenSage.Graphics.Shaders
 
             var worldSpaceNormal = TransformNormal(tangentSpaceNormal, tangentToWorldSpace);
 
-            Vector3 diffuseColor;
-            Vector3 specularColor;
             DoLighting(
                 Global_LightingConstantsPS,
                 input.WorldPosition,
@@ -128,8 +126,8 @@ namespace OpenSage.Graphics.Shaders
                 MaterialConstants.SpecularExponent,
                 GlobalConstantsShared.CameraPosition,
                 false, //TODO: true,
-                out diffuseColor,
-                out specularColor);
+                out var diffuseColor,
+                out var specularColor);
 
             var diffuseTextureColor = Sample(DiffuseTexture, Sampler, uv);
 

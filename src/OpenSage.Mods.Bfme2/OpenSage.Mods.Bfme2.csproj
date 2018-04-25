@@ -1,9 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
-    <RootNamespace>OpenSage.Mods.Bfme2</RootNamespace>
-    <AssemblyName>OpenSage.Mods.Bfme2</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\OpenSage.Game\OpenSage.Game.csproj" />

@@ -79,11 +79,11 @@ namespace OpenSage.Graphics.Effects
             var shaderDefinition = ShaderDefinitions.GetShaderDefinition(shaderName);
 
             _parameters = new Dictionary<string, EffectParameter>();
-            _resourceLayouts = new ResourceLayout[shaderDefinition.ResourceBindings.Length];
+            _resourceLayouts = new ResourceLayout[shaderDefinition.ResourceBindings.Count];
 
-            for (var i = 0u; i < shaderDefinition.ResourceBindings.Length; i++)
+            for (var i = 0u; i < shaderDefinition.ResourceBindings.Count; i++)
             {
-                var resourceBinding = shaderDefinition.ResourceBindings[i];
+                var resourceBinding = shaderDefinition.ResourceBindings[(int) i];
                 var resourceLayoutDescription = new ResourceLayoutElementDescription(
                     resourceBinding.Name,
                     resourceBinding.Type,
