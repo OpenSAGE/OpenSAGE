@@ -14,6 +14,11 @@ namespace OpenSage.Graphics.Rendering
             new OutputAttachmentDescription(PixelFormat.D32_Float_S8_UInt),
             new OutputAttachmentDescription(PixelFormat.B8_G8_R8_A8_UNorm));
 
+        public const PixelFormat ShadowMapPixelFormat = PixelFormat.D32_Float_S8_UInt;
+
+        public static readonly OutputDescription DepthPassDescription = new OutputDescription(
+            new OutputAttachmentDescription(ShadowMapPixelFormat));
+
         private readonly RenderList _renderList;
 
         private readonly CommandList _commandList;
@@ -28,6 +33,8 @@ namespace OpenSage.Graphics.Rendering
         private readonly ConstantBuffer<LightingConstantsPS> _globalLightingPSObjectBuffer;
 
         private readonly DrawingContext2D _drawingContext;
+
+        private readonly Framebuffer _shadowMapFramebuffer;
 
         public RenderPipeline(Game game)
         {
@@ -50,6 +57,20 @@ namespace OpenSage.Graphics.Rendering
                 game.ContentManager,
                 BlendStateDescription.SingleAlphaBlend,
                 GameOutputDescription));
+
+            const int shadowMapSize = 1024;
+            const int numCascades = 4;
+            var depthTexture = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(
+                TextureDescription.Texture2D(
+                    shadowMapSize,
+                    shadowMapSize,
+                    1,
+                    numCascades,
+                    ShadowMapPixelFormat,
+                    TextureUsage.DepthStencil | TextureUsage.Sampled)));
+
+            _shadowMapFramebuffer = AddDisposable(graphicsDevice.ResourceFactory.CreateFramebuffer(
+                new FramebufferDescription(depthTexture)));
         }
 
         public void Execute(RenderContext context)
