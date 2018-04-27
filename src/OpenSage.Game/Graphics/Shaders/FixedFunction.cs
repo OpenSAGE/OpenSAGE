@@ -52,12 +52,24 @@ namespace OpenSage.Graphics.Shaders
 
         public StructuredBuffer<Matrix4x4> SkinningBuffer;
 
+        public enum TextureMappingType : uint
+        {
+            Uv = 0,
+            Environment = 1,
+            LinearOffset = 2,
+            Rotate = 3,
+            SineLinearOffset = 4,
+            Screen = 5,
+            Scale = 6,
+            Grid = 7
+        }
+
         public struct TextureMapping
         {
-            public uint MappingType;
+            public TextureMappingType MappingType;
 
             public float Speed;
-            public float FPS;
+            public float Fps;
             public uint Log2Width;
 
             public Vector2 UVPerSec;
@@ -91,24 +103,44 @@ namespace OpenSage.Graphics.Shaders
             public TextureMapping TextureMappingStage1;
         }
 
+        public enum DiffuseLightingType : uint
+        {
+            Disable = 0,
+            Modulate = 1,
+            Add = 2
+        }
+
+        public enum SecondaryTextureBlend : uint
+        {
+            Disable = 0,
+            Detail = 1,
+            Scale = 2,
+            InvScale = 3,
+            DetailBlend = 4
+        }
+
         public struct ShadingConfiguration
         {
-            public uint DiffuseLightingType;
+            public DiffuseLightingType DiffuseLightingType;
             public /*bool*/ uint SpecularEnabled;
             public /*bool*/ uint TexturingEnabled;
-            public uint SecondaryTextureColorBlend;
-            public uint SecondaryTextureAlphaBlend;
+            public SecondaryTextureBlend SecondaryTextureColorBlend;
+            public SecondaryTextureBlend SecondaryTextureAlphaBlend;
             public /*bool*/ uint AlphaTest;
+
+#pragma warning disable CS0169
+            private readonly Vector2 _padding;
+#pragma warning restore CS0169
         }
 
         public struct MaterialConstantsType
         {
-            public uint NumTextureStages;
-
 #pragma warning disable CS0169
             private readonly Vector3 _padding;
 #pragma warning restore CS0169
-            
+
+            public uint NumTextureStages;
+
             public VertexMaterial Material;
             public ShadingConfiguration Shading;
         }
@@ -159,19 +191,19 @@ namespace OpenSage.Graphics.Shaders
 
             switch (textureMapping.MappingType)
             {
-                case 0: // TEXTURE_MAPPING_UV
+                case TextureMappingType.Uv:
                 {
                     uv = new Vector2(uv.X, 1 - uv.Y);
                     break;
                 }
 
-                case 1: // TEXTURE_MAPPING_ENVIRONMENT
+                case TextureMappingType.Environment:
                 {
                     uv = (Vector3.Reflect(viewVector, worldNormal).XY() / 2.0f) + new Vector2(0.5f, 0.5f);
                     break;
                 }
 
-                case 2: // TEXTURE_MAPPING_LINEAR_OFFSET
+                case TextureMappingType.LinearOffset:
                 {
                     var offset = textureMapping.UVPerSec * t;
                     uv = new Vector2(uv.X, 1 - uv.Y) + offset;
@@ -179,7 +211,7 @@ namespace OpenSage.Graphics.Shaders
                     break;
                 }
 
-                case 3: // TEXTURE_MAPPING_ROTATE
+                case TextureMappingType.Rotate:
                 {
                     var angle = textureMapping.Speed * t * twoPi;
                     var s = Sin(angle);
@@ -198,32 +230,32 @@ namespace OpenSage.Graphics.Shaders
                     break;
                 }
 
-                case 4: // TEXTURE_MAPPING_SINE_LINEAR_OFFSET
+                case TextureMappingType.SineLinearOffset:
                 {
                     uv.X += textureMapping.UVAmplitude.X * Sin(textureMapping.UVFrequency.X * t * twoPi - textureMapping.UVPhase.X * twoPi);
                     uv.Y += textureMapping.UVAmplitude.Y * Cos(textureMapping.UVFrequency.Y * t * twoPi - textureMapping.UVPhase.Y * twoPi);
                     break;
                 }
 
-                case 5: // TEXTURE_MAPPING_SCREEN
+                case TextureMappingType.Screen:
                 {
                     uv = (screenPosition / GlobalConstantsPS.ViewportSize) * textureMapping.UVScale;
                     break;
                 }
 
-                case 6: // TEXTURE_MAPPING_SCALE
+                case TextureMappingType.Scale:
                 {
                     uv *= textureMapping.UVScale;
                     break;
                 }
 
-                case 7: // TEXTURE_MAPPING_GRID
+                case TextureMappingType.Grid:
                 {
                     uv = new Vector2(uv.X, 1 - uv.Y);
                     // TODO: This should really use a uint overload of Pow.
                     var numFramesPerSide = Pow(2f, textureMapping.Log2Width);
                     var numFrames = numFramesPerSide * numFramesPerSide;
-                    var currentFrame = Mod(t * textureMapping.FPS, numFrames);
+                    var currentFrame = Mod(t * textureMapping.Fps, numFrames);
                     var currentFrameU = Mod(currentFrame, numFramesPerSide);
                     var currentFrameV = currentFrame / numFramesPerSide;
                     uv.X += currentFrameU / numFramesPerSide;
@@ -272,25 +304,25 @@ namespace OpenSage.Graphics.Shaders
 
                     switch (MaterialConstants.Shading.SecondaryTextureColorBlend)
                     {
-                        case 1: // SECONDARY_TEXTURE_BLEND_DETAIL
+                        case SecondaryTextureBlend.Detail:
                             diffuseTextureColor = new Vector4(
                                 secondaryTextureColor.XYZ(),
                                 diffuseTextureColor.W);
                             break;
 
-                        case 2: // SECONDARY_TEXTURE_BLEND_SCALE
+                        case SecondaryTextureBlend.Scale:
                             diffuseTextureColor = new Vector4(
                                 diffuseTextureColor.XYZ() * secondaryTextureColor.XYZ(),
                                 diffuseTextureColor.W);
                             break;
 
-                        case 3: // SECONDARY_TEXTURE_BLEND_INV_SCALE
+                        case SecondaryTextureBlend.InvScale:
                             diffuseTextureColor = new Vector4(
                                 (Vector3.One - diffuseTextureColor.XYZ()) * secondaryTextureColor.XYZ(),
                                 diffuseTextureColor.W);
                             break;
 
-                        case 4: // SECONDARY_TEXTURE_BLEND_DETAIL_BLEND
+                        case SecondaryTextureBlend.DetailBlend:
                             // (otherAlpha)*local + (~otherAlpha)*other
                             diffuseTextureColor = new Vector4(
                                 (secondaryTextureColor.X * diffuseTextureColor.XYZ()) + ((1 - secondaryTextureColor.X) * secondaryTextureColor.XYZ()),
@@ -300,15 +332,15 @@ namespace OpenSage.Graphics.Shaders
 
                     switch (MaterialConstants.Shading.SecondaryTextureAlphaBlend)
                     {
-                        case 1: // SECONDARY_TEXTURE_BLEND_DETAIL
+                        case SecondaryTextureBlend.Detail:
                             diffuseTextureColor.W = secondaryTextureColor.W;
                             break;
 
-                        case 2: // SECONDARY_TEXTURE_BLEND_SCALE:
+                        case SecondaryTextureBlend.Scale:
                             diffuseTextureColor.W *= secondaryTextureColor.W;
                             break;
 
-                        case 3: // SECONDARY_TEXTURE_BLEND_INV_SCALE
+                        case SecondaryTextureBlend.InvScale:
                             diffuseTextureColor.W += (1 - diffuseTextureColor.W) * secondaryTextureColor.W;
                             break;
                     }
@@ -333,11 +365,11 @@ namespace OpenSage.Graphics.Shaders
 
             switch (MaterialConstants.Shading.DiffuseLightingType)
             {
-                case 1: // DIFFUSE_LIGHTING_MODULATE
+                case DiffuseLightingType.Modulate:
                     objectColor *= totalObjectLighting;
                     break;
 
-                case 2: // DIFFUSE_LIGHTING_ADD
+                case DiffuseLightingType.Add:
                     objectColor += totalObjectLighting;
                     break;
             }

@@ -10,6 +10,7 @@ using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
@@ -151,7 +152,7 @@ namespace OpenSage.Content
 
             var vertexMaterials = CreateMaterials(w3dMesh);
 
-            var shadingConfigurations = new FixedFunctionMaterial.ShadingConfiguration[w3dMesh.Shaders.Length];
+            var shadingConfigurations = new FixedFunction.ShadingConfiguration[w3dMesh.Shaders.Length];
             for (var i = 0; i < shadingConfigurations.Length; i++)
             {
                 shadingConfigurations[i] = CreateShadingConfiguration(w3dMesh.Shaders[i]);
@@ -202,22 +203,22 @@ namespace OpenSage.Content
                 cameraOriented);
         }
 
-        private static FixedFunctionMaterial.ShadingConfiguration CreateShadingConfiguration(W3dShader w3dShader)
+        private static FixedFunction.ShadingConfiguration CreateShadingConfiguration(W3dShader w3dShader)
         {
-            return new FixedFunctionMaterial.ShadingConfiguration
+            return new FixedFunction.ShadingConfiguration
             {
                 DiffuseLightingType = w3dShader.PrimaryGradient.ToDiffuseLightingType(),
-                SpecularEnabled = w3dShader.SecondaryGradient == W3dShaderSecondaryGradient.Enable,
-                TexturingEnabled = w3dShader.Texturing == W3dShaderTexturing.Enable,
+                SpecularEnabled = (w3dShader.SecondaryGradient == W3dShaderSecondaryGradient.Enable) ? 1u : 0u,
+                TexturingEnabled = (w3dShader.Texturing == W3dShaderTexturing.Enable) ? 1u : 0u,
                 SecondaryTextureColorBlend = w3dShader.DetailColorFunc.ToSecondaryTextureBlend(),
                 SecondaryTextureAlphaBlend = w3dShader.DetailAlphaFunc.ToSecondaryTextureBlend(),
-                AlphaTest = w3dShader.AlphaTest == W3dShaderAlphaTest.Enable
+                AlphaTest = (w3dShader.AlphaTest == W3dShaderAlphaTest.Enable) ? 1u : 0u
             };
         }
 
-        private static FixedFunctionMaterial.VertexMaterial[] CreateMaterials(W3dMesh w3dMesh)
+        private static FixedFunction.VertexMaterial[] CreateMaterials(W3dMesh w3dMesh)
         {
-            var vertexMaterials = new FixedFunctionMaterial.VertexMaterial[w3dMesh.Materials.Length];
+            var vertexMaterials = new FixedFunction.VertexMaterial[w3dMesh.Materials.Length];
 
             for (var i = 0; i < w3dMesh.Materials.Length; i++)
             {
@@ -428,8 +429,8 @@ namespace OpenSage.Content
             ContentManager contentManager,
             W3dMesh w3dMesh,
             W3dMaterialPass w3dMaterialPass,
-            FixedFunctionMaterial.VertexMaterial[] vertexMaterials,
-            FixedFunctionMaterial.ShadingConfiguration[] shadingConfigurations)
+            FixedFunction.VertexMaterial[] vertexMaterials,
+            FixedFunction.ShadingConfiguration[] shadingConfigurations)
         {
             var hasTextureStage0 = w3dMaterialPass.TextureStages.Count > 0;
             var textureStage0 = hasTextureStage0
@@ -674,8 +675,8 @@ namespace OpenSage.Content
             uint startIndex,
             uint indexCount,
             W3dMesh w3dMesh,
-            FixedFunctionMaterial.VertexMaterial[] vertexMaterials,
-            FixedFunctionMaterial.ShadingConfiguration[] shadingConfigurations,
+            FixedFunction.VertexMaterial[] vertexMaterials,
+            FixedFunction.ShadingConfiguration[] shadingConfigurations,
             uint vertexMaterialID,
             uint shaderID,
             uint numTextureStages,
@@ -714,7 +715,7 @@ namespace OpenSage.Content
             };
 
             var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
-                new FixedFunctionMaterial.MaterialConstants
+                new FixedFunction.MaterialConstantsType
                 {
                     Material = vertexMaterials[vertexMaterialID],
                     Shading = shadingConfigurations[shaderID],

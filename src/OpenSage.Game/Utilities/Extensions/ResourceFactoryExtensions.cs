@@ -28,6 +28,11 @@ namespace OpenSage.Utilities.Extensions
         {
             var bufferSize = (uint) (data.Length * Marshal.SizeOf<T>());
 
+            if (usage == BufferUsage.UniformBuffer)
+            {
+                bufferSize = GetUniformBufferSize(bufferSize);
+            }
+
             var staging = graphicsDevice.ResourceFactory.CreateBuffer(
                 new BufferDescription(bufferSize, BufferUsage.Staging, 0));
 
@@ -56,6 +61,16 @@ namespace OpenSage.Utilities.Extensions
             graphicsDevice.DisposeWhenIdle(staging);
 
             return result;
+        }
+
+        /// <summary>
+        /// Buffer sizes must be multiples of 16.
+        /// </summary>
+        private static uint GetUniformBufferSize(uint size)
+        {
+            return (size % 16 == 0)
+                ? size
+                : (16 - size % 16) + size;
         }
 
         public static DeviceBuffer CreateStaticStructuredBuffer<T>(

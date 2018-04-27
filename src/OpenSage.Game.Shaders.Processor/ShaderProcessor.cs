@@ -41,10 +41,11 @@ namespace OpenSage.Graphics.Shaders.Processor
             ShaderModel model,
             ResourceDefinition resource)
         {
-            var resourceBinding = new ResourceBinding();
-
-            resourceBinding.Name = resource.Name;
-            resourceBinding.Type = GetResourceKind(resource.ResourceKind);
+            var resourceBinding = new ResourceBinding
+            {
+                Name = resource.Name,
+                Type = GetResourceKind(resource.ResourceKind)
+            };
 
             var shaderStages = ShaderStages.None;
             if (model.VertexResources.Contains(resource))

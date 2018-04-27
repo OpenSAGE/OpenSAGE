@@ -39,6 +39,20 @@ namespace OpenSage.Graphics.Shaders
             input.Normal = TransformNormal(input.Normal, skinning);
         }
 
+        public static void VSSkinnedInstancedPositionOnly(
+            VertexInput input,
+            out Vector4 position,
+            out Vector3 worldPosition,
+            Matrix4x4 world,
+            Matrix4x4 viewProjection)
+        {
+            var worldPositionHomogeneous = Vector4.Transform(input.Position, world);
+
+            position = Vector4.Transform(worldPositionHomogeneous, viewProjection);
+
+            worldPosition = worldPositionHomogeneous.XYZ();
+        }
+
         public static void VSSkinnedInstanced(
             VertexInput input,
             out Vector4 position,
@@ -50,11 +64,12 @@ namespace OpenSage.Graphics.Shaders
             Matrix4x4 cloudShadowMatrix,
             float timeInSeconds)
         {
-            var worldPositionHomogeneous = Vector4.Transform(input.Position, world);
-
-            position = Vector4.Transform(worldPositionHomogeneous, viewProjection);
-
-            worldPosition = worldPositionHomogeneous.XYZ();
+            VSSkinnedInstancedPositionOnly(
+                input,
+                out position,
+                out worldPosition,
+                world,
+                viewProjection);
 
             worldNormal = TransformNormal(input.Normal, world);
 

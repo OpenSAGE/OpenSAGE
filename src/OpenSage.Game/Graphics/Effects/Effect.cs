@@ -9,10 +9,7 @@ namespace OpenSage.Graphics.Effects
     public sealed class Effect : DisposableBase
     {
         private static byte _nextID = 0;
-
-        private readonly GraphicsDevice _graphicsDevice;
-
-        private VertexLayoutDescription[] _vertexDescriptors;
+        private readonly VertexLayoutDescription[] _vertexDescriptors;
         private readonly Shader _vertexShader;
         private readonly Shader _pixelShader;
 
@@ -27,8 +24,7 @@ namespace OpenSage.Graphics.Effects
 
         private EffectDirtyFlags _dirtyFlags;
 
-        public GraphicsDevice GraphicsDevice => _graphicsDevice;
-
+        public GraphicsDevice GraphicsDevice { get; }
         public byte ID { get; }
 
         [Flags]
@@ -42,35 +38,28 @@ namespace OpenSage.Graphics.Effects
         public Effect(
             GraphicsDevice graphicsDevice,
             string shaderName,
-            VertexLayoutDescription vertexDescriptor)
-            : this(graphicsDevice, shaderName, new[] { vertexDescriptor })
+            params VertexLayoutDescription[] vertexDescriptors)
         {
-
-        }
-
-        public Effect(
-            GraphicsDevice graphicsDevice,
-            string shaderName,
-            VertexLayoutDescription[] vertexDescriptors)
-        {
-            _graphicsDevice = graphicsDevice;
+            GraphicsDevice = graphicsDevice;
 
             ID = _nextID++;
 
-            const string shaderNamespace = "OpenSage.Graphics.Shaders.Compiled";
             var shaderCodeExtension = GetBytecodeExtension(graphicsDevice.BackendType);
 
-            using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream($"{shaderNamespace}.{shaderName}-vertex{shaderCodeExtension}"))
+            Shader CreateShader(ShaderStages shaderStage, string entryPoint)
             {
-                var vertexShaderBytecode = shaderStream.ReadAllBytes();
-                _vertexShader = AddDisposable(graphicsDevice.ResourceFactory.CreateShader(new ShaderDescription(ShaderStages.Vertex, vertexShaderBytecode, "VS")));
+                var embeddedResourceName = $"OpenSage.Graphics.Shaders.Compiled.{shaderName}-{shaderStage.ToString().ToLowerInvariant()}{shaderCodeExtension}";
+                using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream(embeddedResourceName))
+                {
+                    var shaderBytecode = shaderStream.ReadAllBytes();
+                    var shader = graphicsDevice.ResourceFactory.CreateShader(new ShaderDescription(shaderStage, shaderBytecode, entryPoint));
+                    shader.Name = shaderName;
+                    return shader;
+                }
             }
 
-            using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream($"{shaderNamespace}.{shaderName}-fragment{shaderCodeExtension}"))
-            {
-                var pixelShaderBytecode = shaderStream.ReadAllBytes();
-                _pixelShader = AddDisposable(graphicsDevice.ResourceFactory.CreateShader(new ShaderDescription(ShaderStages.Fragment, pixelShaderBytecode, "PS")));
-            }
+            _vertexShader = AddDisposable(CreateShader(ShaderStages.Vertex, "VS"));
+            _pixelShader = AddDisposable(CreateShader(ShaderStages.Fragment, "PS"));
 
             _cachedPipelineStates = new Dictionary<EffectPipelineStateHandle, Pipeline>();
 
@@ -183,7 +172,7 @@ namespace OpenSage.Graphics.Effects
                     _resourceLayouts,
                     pipelineStateHandle.EffectPipelineState.OutputDescription);
 
-                _cachedPipelineStates[pipelineStateHandle] = result = AddDisposable(_graphicsDevice.ResourceFactory.CreateGraphicsPipeline(ref description));
+                _cachedPipelineStates[pipelineStateHandle] = result = AddDisposable(GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(ref description));
             }
 
             return result;

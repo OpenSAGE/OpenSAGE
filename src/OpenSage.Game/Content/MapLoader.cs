@@ -704,28 +704,34 @@ namespace OpenSage.Content
 
         private unsafe Texture CreateTextureViaStaging(ImageSharpTexture texture, GraphicsDevice gd, ResourceFactory factory)
         {
-            Texture staging = factory.CreateTexture(
-                TextureDescription.Texture2D(texture.Width, texture.Height, texture.MipLevels, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Staging));
+            var staging = factory.CreateTexture(
+                TextureDescription.Texture2D(
+                    texture.Width,
+                    texture.Height,
+                    texture.MipLevels,
+                    1,
+                    PixelFormat.R8_G8_B8_A8_UNorm,
+                    TextureUsage.Staging));
 
-            CommandList cl = gd.ResourceFactory.CreateCommandList();
+            var cl = gd.ResourceFactory.CreateCommandList();
             cl.Begin();
             for (uint level = 0; level < texture.MipLevels; level++)
             {
-                Image<Rgba32> image = texture.Images[level];
+                var image = texture.Images[level];
                 fixed (void* pin = &image.DangerousGetPinnableReferenceToPixelBuffer())
                 {
-                    MappedResource map = gd.Map(staging, MapMode.Write, level);
-                    uint rowWidth = (uint)(image.Width * 4);
+                    var map = gd.Map(staging, MapMode.Write, level);
+                    var rowWidth = (uint) (image.Width * 4);
                     if (rowWidth == map.RowPitch)
                     {
-                        Unsafe.CopyBlock(map.Data.ToPointer(), pin, (uint)(image.Width * image.Height * 4));
+                        Unsafe.CopyBlock(map.Data.ToPointer(), pin, (uint) (image.Width * image.Height * 4));
                     }
                     else
                     {
                         for (uint y = 0; y < image.Height; y++)
                         {
-                            byte* dstStart = (byte*)map.Data.ToPointer() + y * map.RowPitch;
-                            byte* srcStart = (byte*)pin + y * rowWidth;
+                            var dstStart = (byte*) map.Data.ToPointer() + y * map.RowPitch;
+                            var srcStart = (byte*) pin + y * rowWidth;
                             Unsafe.CopyBlock(dstStart, srcStart, rowWidth);
                         }
                     }

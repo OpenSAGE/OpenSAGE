@@ -32,11 +32,11 @@ namespace OpenSage.Graphics.Shaders
 #pragma warning restore CS0169
         }
 
-        //public const int NumLights;
+        public const int NumLights = 3;
 
         public struct Global_LightingConstantsPS
         {
-            [ArraySize(3)] // NumLights
+            [ArraySize(NumLights)]
             public Light[] Lights;
         }
 

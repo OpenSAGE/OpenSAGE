@@ -103,7 +103,7 @@ namespace OpenSage.Graphics.Shaders
             Vector2 ddxUV,
             Vector2 ddyUV)
         {
-            TextureInfo textureInfo = TextureDetails[textureIndex];
+            var textureInfo = TextureDetails[textureIndex];
 
             var scaledUV = uv / textureInfo.CellSize;
 
@@ -122,14 +122,9 @@ namespace OpenSage.Graphics.Shaders
 
         private float CalculateDiagonalBlendFactor(Vector2 fracUV, bool twoSided)
         {
-            if (twoSided)
-            {
-                return 1 - Saturate((fracUV.X + fracUV.Y) - 1);
-            }
-            else
-            {
-                return Saturate(1 - (fracUV.X + fracUV.Y));
-            }
+            return twoSided
+                ? 1 - Saturate((fracUV.X + fracUV.Y) - 1)
+                : Saturate(1 - (fracUV.X + fracUV.Y));
         }
 
         private float CalculateBlendFactor(

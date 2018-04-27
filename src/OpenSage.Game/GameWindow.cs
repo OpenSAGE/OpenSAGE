@@ -64,29 +64,15 @@ namespace OpenSage
             };
 
             var windowCreateInfo = new WindowCreateInfo(x, y, width, height, WindowState.Normal, title);
-            GraphicsDevice device;
 
+            VeldridStartup.CreateWindowAndGraphicsDevice(
+                windowCreateInfo,
+                graphicsDeviceOptions,
+                preferredBackend ?? VeldridStartup.GetPlatformDefaultBackend(),
+                out _window,
+                out var graphicsDevice);
 
-            if (preferredBackend != null)
-            {
-                VeldridStartup.CreateWindowAndGraphicsDevice(
-                    windowCreateInfo,
-                    graphicsDeviceOptions,
-                    preferredBackend.Value,
-                    out _window,
-                    out device);
-            }
-            else
-            {
-                VeldridStartup.CreateWindowAndGraphicsDevice(
-                    windowCreateInfo,
-                    graphicsDeviceOptions,
-                    out _window,
-                    out device);
-            }
-
-            GraphicsDevice = device;
-            AddDisposable(GraphicsDevice);
+            GraphicsDevice = AddDisposable(graphicsDevice);
 
             _window.KeyDown += HandleKeyDown;
             _window.KeyUp += HandleKeyUp;

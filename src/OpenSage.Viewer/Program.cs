@@ -4,7 +4,6 @@ using System.Linq;
 using System.Numerics;
 using OpenSage.Viewer.UI;
 using Veldrid;
-using Veldrid.Sdl2;
 
 namespace OpenSage.Viewer
 {
