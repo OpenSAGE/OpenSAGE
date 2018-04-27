@@ -43,8 +43,8 @@ namespace OpenSage
 
         public WorldLighting Lighting { get; }
 
+        private readonly List<Team> _teams;
         public IReadOnlyList<Team> Teams => _teams;
-        private List<Team> _teams;
 
         // TODO: Move these to a World class?
         // TODO: Encapsulate this into a custom collection?

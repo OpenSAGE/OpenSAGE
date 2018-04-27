@@ -21,8 +21,8 @@ namespace OpenSage.Graphics
             in Matrix4x4 world)
         {
             var matrix = world * view * projection;
-            Vector3 vector = Vector3.Transform(source, matrix);
-            float a = (((source.X * matrix.M14) + (source.Y * matrix.M24)) + (source.Z * matrix.M34)) + matrix.M44;
+            var vector = Vector3.Transform(source, matrix);
+            var a = (((source.X * matrix.M14) + (source.Y * matrix.M24)) + (source.Z * matrix.M34)) + matrix.M44;
             if (!WithinEpsilon(a, 1f))
             {
                 vector.X = vector.X / a;
@@ -58,8 +58,8 @@ namespace OpenSage.Graphics
             source.X = (((source.X - viewport.X) / viewport.Width) * 2f) - 1f;
             source.Y = -((((source.Y - viewport.Y) / viewport.Height) * 2f) - 1f);
             source.Z = (source.Z - viewport.MinDepth) / (viewport.MaxDepth - viewport.MinDepth);
-            Vector3 vector = Vector3.Transform(source, matrix);
-            float a = (((source.X * matrix.M14) + (source.Y * matrix.M24)) + (source.Z * matrix.M34)) + matrix.M44;
+            var vector = Vector3.Transform(source, matrix);
+            var a = (((source.X * matrix.M14) + (source.Y * matrix.M24)) + (source.Z * matrix.M34)) + matrix.M44;
             if (!WithinEpsilon(a, 1f))
             {
                 vector.X = vector.X / a;
@@ -71,7 +71,7 @@ namespace OpenSage.Graphics
 
         private static bool WithinEpsilon(float a, float b)
         {
-            float diff = a - b;
+            var diff = a - b;
             return (-1.401298E-45f <= diff) && (diff <= float.Epsilon);
         }
     }

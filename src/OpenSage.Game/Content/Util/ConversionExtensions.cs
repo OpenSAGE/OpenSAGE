@@ -8,6 +8,7 @@ using OpenSage.Data.W3d;
 using OpenSage.Data.Wnd;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Effects;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 using OpenSage.Settings;
 using Veldrid;
@@ -70,9 +71,9 @@ namespace OpenSage.Content.Util
             return new Vector3(value.R / 255.0f, value.G / 255.0f, value.B / 255.0f);
         }
 
-        public static FixedFunctionMaterial.VertexMaterial ToVertexMaterial(this W3dVertexMaterial w3dVertexMaterial, W3dMaterial w3dMaterial)
+        public static FixedFunction.VertexMaterial ToVertexMaterial(this W3dVertexMaterial w3dVertexMaterial, W3dMaterial w3dMaterial)
         {
-            return new FixedFunctionMaterial.VertexMaterial
+            return new FixedFunction.VertexMaterial
             {
                 Ambient = w3dVertexMaterial.Ambient.ToVector3(),
                 Diffuse = w3dVertexMaterial.Diffuse.ToVector3(),
@@ -89,9 +90,9 @@ namespace OpenSage.Content.Util
             };
         }
 
-        private static FixedFunctionMaterial.TextureMapping CreateTextureMapping(W3dVertexMappingType mappingType, W3dVertexMapperArgs args)
+        private static FixedFunction.TextureMapping CreateTextureMapping(W3dVertexMappingType mappingType, W3dVertexMapperArgs args)
         {
-            return new FixedFunctionMaterial.TextureMapping
+            return new FixedFunction.TextureMapping
             {
                 MappingType = mappingType.ToTextureMappingType(),
                 UVPerSec = new Vector2
@@ -130,53 +131,53 @@ namespace OpenSage.Content.Util
             };
         }
 
-        private static FixedFunctionMaterial.TextureMappingType ToTextureMappingType(this W3dVertexMappingType value)
+        private static FixedFunction.TextureMappingType ToTextureMappingType(this W3dVertexMappingType value)
         {
             switch (value)
             {
                 case W3dVertexMappingType.Uv:
-                    return FixedFunctionMaterial.TextureMappingType.Uv;
+                    return FixedFunction.TextureMappingType.Uv;
 
                 case W3dVertexMappingType.Environment:
                 case W3dVertexMappingType.CheapEnvironment:
-                    return FixedFunctionMaterial.TextureMappingType.Environment;
+                    return FixedFunction.TextureMappingType.Environment;
 
                 case W3dVertexMappingType.LinearOffset:
-                    return FixedFunctionMaterial.TextureMappingType.LinearOffset;
+                    return FixedFunction.TextureMappingType.LinearOffset;
 
                 case W3dVertexMappingType.Rotate:
-                    return FixedFunctionMaterial.TextureMappingType.Rotate;
+                    return FixedFunction.TextureMappingType.Rotate;
 
                 case W3dVertexMappingType.SineLinearOffset:
-                    return FixedFunctionMaterial.TextureMappingType.SineLinearOffset;
+                    return FixedFunction.TextureMappingType.SineLinearOffset;
 
                 case W3dVertexMappingType.Screen:
-                    return FixedFunctionMaterial.TextureMappingType.Screen;
+                    return FixedFunction.TextureMappingType.Screen;
 
                 case W3dVertexMappingType.Scale:
-                    return FixedFunctionMaterial.TextureMappingType.Scale;
+                    return FixedFunction.TextureMappingType.Scale;
 
                 case W3dVertexMappingType.Grid:
-                    return FixedFunctionMaterial.TextureMappingType.Grid;
+                    return FixedFunction.TextureMappingType.Grid;
 
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        public static FixedFunctionMaterial.DiffuseLightingType ToDiffuseLightingType(this W3dShaderPrimaryGradient value)
+        public static FixedFunction.DiffuseLightingType ToDiffuseLightingType(this W3dShaderPrimaryGradient value)
         {
             switch (value)
             {
                 case W3dShaderPrimaryGradient.Disable:
-                    return FixedFunctionMaterial.DiffuseLightingType.Disable;
+                    return FixedFunction.DiffuseLightingType.Disable;
 
                 case W3dShaderPrimaryGradient.Modulate:
                 case W3dShaderPrimaryGradient.Enable:
-                    return FixedFunctionMaterial.DiffuseLightingType.Modulate;
+                    return FixedFunction.DiffuseLightingType.Modulate;
 
                 case W3dShaderPrimaryGradient.Add:
-                    return FixedFunctionMaterial.DiffuseLightingType.Add;
+                    return FixedFunction.DiffuseLightingType.Add;
 
                 case W3dShaderPrimaryGradient.BumpEnvMap:
                     throw new NotImplementedException();
@@ -186,21 +187,21 @@ namespace OpenSage.Content.Util
             }
         }
 
-        public static FixedFunctionMaterial.SecondaryTextureBlend ToSecondaryTextureBlend(this W3dShaderDetailColorFunc value)
+        public static FixedFunction.SecondaryTextureBlend ToSecondaryTextureBlend(this W3dShaderDetailColorFunc value)
         {
             switch (value)
             {
                 case W3dShaderDetailColorFunc.Disable:
-                    return FixedFunctionMaterial.SecondaryTextureBlend.Disable;
+                    return FixedFunction.SecondaryTextureBlend.Disable;
                     
                 case W3dShaderDetailColorFunc.Detail:
-                    return FixedFunctionMaterial.SecondaryTextureBlend.Detail;
+                    return FixedFunction.SecondaryTextureBlend.Detail;
 
                 case W3dShaderDetailColorFunc.Scale:
-                    return FixedFunctionMaterial.SecondaryTextureBlend.Scale;
+                    return FixedFunction.SecondaryTextureBlend.Scale;
 
                 case W3dShaderDetailColorFunc.InvScale:
-                    return FixedFunctionMaterial.SecondaryTextureBlend.InvScale;
+                    return FixedFunction.SecondaryTextureBlend.InvScale;
 
                 case W3dShaderDetailColorFunc.Add:
                 case W3dShaderDetailColorFunc.Sub:
@@ -209,28 +210,28 @@ namespace OpenSage.Content.Util
                     throw new NotImplementedException();
 
                 case W3dShaderDetailColorFunc.DetailBlend:
-                    return FixedFunctionMaterial.SecondaryTextureBlend.DetailBlend;
+                    return FixedFunction.SecondaryTextureBlend.DetailBlend;
 
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        public static FixedFunctionMaterial.SecondaryTextureBlend ToSecondaryTextureBlend(this W3dShaderDetailAlphaFunc value)
+        public static FixedFunction.SecondaryTextureBlend ToSecondaryTextureBlend(this W3dShaderDetailAlphaFunc value)
         {
             switch (value)
             {
                 case W3dShaderDetailAlphaFunc.Disable:
-                    return FixedFunctionMaterial.SecondaryTextureBlend.Disable;
+                    return FixedFunction.SecondaryTextureBlend.Disable;
 
                 case W3dShaderDetailAlphaFunc.Detail:
-                    return FixedFunctionMaterial.SecondaryTextureBlend.Detail;
+                    return FixedFunction.SecondaryTextureBlend.Detail;
 
                 case W3dShaderDetailAlphaFunc.Scale:
-                    return FixedFunctionMaterial.SecondaryTextureBlend.Scale;
+                    return FixedFunction.SecondaryTextureBlend.Scale;
 
                 case W3dShaderDetailAlphaFunc.InvScale:
-                    return FixedFunctionMaterial.SecondaryTextureBlend.InvScale;
+                    return FixedFunction.SecondaryTextureBlend.InvScale;
 
                 default:
                     throw new ArgumentOutOfRangeException();

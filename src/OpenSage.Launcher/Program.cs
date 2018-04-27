@@ -1,7 +1,6 @@
 ﻿using System;
 using System.CommandLine;
 using System.Linq;
-using OpenSage.Data;
 using OpenSage.Mods.BuiltIn;
 using OpenSage.Network;
 using Veldrid;
