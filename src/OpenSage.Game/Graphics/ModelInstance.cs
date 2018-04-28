@@ -141,7 +141,7 @@ namespace OpenSage.Graphics
 
         public void BuildRenderList(
             RenderList renderList,
-            CameraComponent camera)
+            PerspectiveCamera camera)
         {
             foreach (var mesh in Model.Meshes)
             {

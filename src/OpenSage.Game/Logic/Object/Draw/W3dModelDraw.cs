@@ -207,7 +207,7 @@ namespace OpenSage.Logic.Object
             _activeModelDrawConditionState?.SetWorldMatrix(worldMatrix);
         }
 
-        internal override void BuildRenderList(RenderList renderList, CameraComponent camera)
+        internal override void BuildRenderList(RenderList renderList, PerspectiveCamera camera)
         {
             _activeModelDrawConditionState?.BuildRenderList(renderList, camera);
         }
@@ -255,7 +255,7 @@ namespace OpenSage.Logic.Object
             _modelInstance.SetWorldMatrix(worldMatrix);
         }
 
-        public void BuildRenderList(RenderList renderList, CameraComponent camera)
+        public void BuildRenderList(RenderList renderList, PerspectiveCamera camera)
         {
             _modelInstance.BuildRenderList(renderList, camera);
         }

@@ -32,7 +32,7 @@ namespace OpenSage.Logic.Object
 
         protected abstract bool IntersectsTransformedRay(in Ray ray, out float depth);
 
-        public abstract Rectangle GetBoundingRectangle(CameraComponent camera);
+        public abstract Rectangle GetBoundingRectangle(PerspectiveCamera camera);
 
         public static Collider Create(ObjectDefinition definition, Transform transform)
         {
@@ -79,7 +79,7 @@ namespace OpenSage.Logic.Object
             return frustum.Intersects(worldBounds);
         }
 
-        public override Rectangle GetBoundingRectangle(CameraComponent camera)
+        public override Rectangle GetBoundingRectangle(PerspectiveCamera camera)
         {
             var worldBounds = _bounds.Transform(Transform.Matrix);
             return worldBounds.GetBoundingRectangle(camera);
@@ -107,7 +107,7 @@ namespace OpenSage.Logic.Object
             return frustum.Intersects(worldBounds);
         }
 
-        public override Rectangle GetBoundingRectangle(CameraComponent camera)
+        public override Rectangle GetBoundingRectangle(PerspectiveCamera camera)
         {
             // TODO: Implement this.
             // Or don't, since Generals has only 4 spherical selectable objects,
@@ -144,7 +144,7 @@ namespace OpenSage.Logic.Object
             return frustum.Intersects(worldBounds);
         }
 
-        public override Rectangle GetBoundingRectangle(CameraComponent camera)
+        public override Rectangle GetBoundingRectangle(PerspectiveCamera camera)
         {
             var worldBounds = _bounds.Transform(Transform.Matrix);
             return worldBounds.GetBoundingRectangle(camera);

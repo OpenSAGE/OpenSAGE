@@ -44,5 +44,7 @@ namespace OpenSage.Graphics.Shaders
 
         [FragmentShader]
         public void PS(VertexOutput input) { }
+
+        // TODO: Alpha testing
     }
 }

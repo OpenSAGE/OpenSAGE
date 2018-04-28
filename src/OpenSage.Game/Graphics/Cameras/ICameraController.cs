@@ -25,6 +25,6 @@ namespace OpenSage.Graphics.Cameras
 
         void EndAnimation();
 
-        void UpdateCamera(CameraComponent camera, in CameraInputState inputState, GameTime gameTime);
+        void UpdateCamera(PerspectiveCamera camera, in CameraInputState inputState, GameTime gameTime);
     }
 }

@@ -112,7 +112,7 @@ namespace OpenSage.Graphics
 
         internal void BuildRenderList(
             RenderList renderList,
-            CameraComponent camera,
+            PerspectiveCamera camera,
             ModelInstance modelInstance,
             in Matrix4x4 modelTransform)
         {
