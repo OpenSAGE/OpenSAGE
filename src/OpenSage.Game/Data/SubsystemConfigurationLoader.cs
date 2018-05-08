@@ -8,7 +8,6 @@ namespace OpenSage.Data
 {
     public class SubsystemConfigurationLoader
     {
-
         private readonly IGameDefinition _gameDefinition;
         private readonly FileSystem _fileSystem;
         private readonly IniDataContext _iniDataContext;
@@ -195,6 +194,16 @@ namespace OpenSage.Data
                     {
                         @"Data\INI\Default\PlayerTemplate.ini",
                         @"Data\INI\PlayerTemplate.ini"
+                    }
+                },
+                new LoadSubsystem
+                {
+                    Name = "Wnd",
+                    InitFiles =
+                    {
+                        @"Data\INI\WindowTransitions.ini",
+                        @"Data\English\HeaderTemplate.ini",
+                        @"Data\INI\ControlBarScheme.ini"
                     }
                 }
             };
