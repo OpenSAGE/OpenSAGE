@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CommandLine;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -11,12 +12,31 @@ namespace OpenSage.Viewer
     {
         public static void Main(string[] args)
         {
+            GraphicsBackend? preferredBackend = null;
+
+            ArgumentSyntax.Parse(args, syntax =>
+            {
+                string preferredBackendString = null;
+                syntax.DefineOption("renderer", ref preferredBackendString, false, $"Choose which renderer backend should be used. Valid options: {string.Join(",", Enum.GetNames(typeof(GraphicsBackend)))}");
+                if (preferredBackendString != null)
+                {
+                    if (Enum.TryParse<GraphicsBackend>(preferredBackendString, out var preferredBackendTemp))
+                    {
+                        preferredBackend = preferredBackendTemp;
+                    }
+                    else
+                    {
+                        syntax.ReportError($"Unknown renderer backend: {preferredBackendString}");
+                    }
+                }              
+            });
+
             Platform.Start();
 
             const int initialWidth = 1024;
             const int initialHeight = 768;
 
-            using (var window = new GameWindow("OpenSAGE Viewer", 100, 100, initialWidth, initialHeight, null))
+            using (var window = new GameWindow("OpenSAGE Viewer", 100, 100, initialWidth, initialHeight, preferredBackend))
             using (var commandList = window.GraphicsDevice.ResourceFactory.CreateCommandList())
             using (var imGuiRenderer = new ImGuiRenderer(window.GraphicsDevice, window.GraphicsDevice.MainSwapchain.Framebuffer.OutputDescription, initialWidth, initialHeight))
             using (var gameTimer = new GameTimer())
