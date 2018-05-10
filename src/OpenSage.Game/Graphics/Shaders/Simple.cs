@@ -60,7 +60,7 @@ namespace OpenSage.Graphics.Shaders
         {
             VertexOutput output;
 
-            if (MeshConstants.SkinningEnabled == 1)
+            if (MeshConstants.SkinningEnabled == 1u)
             {
                 GetSkinnedVertexData(ref input, SkinningBuffer[input.BoneIndex]);
             }

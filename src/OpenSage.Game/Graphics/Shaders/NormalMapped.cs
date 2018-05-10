@@ -74,7 +74,7 @@ namespace OpenSage.Graphics.Shaders
         {
             VertexOutput output;
 
-            if (MeshConstants.SkinningEnabled == 1)
+            if (MeshConstants.SkinningEnabled == 1u)
             {
                 GetSkinnedVertexData(ref input, SkinningBuffer[input.BoneIndex]);
             }
@@ -131,7 +131,7 @@ namespace OpenSage.Graphics.Shaders
 
             var diffuseTextureColor = Sample(DiffuseTexture, Sampler, uv);
 
-            if (MaterialConstants.AlphaTestEnable == 1)
+            if (MaterialConstants.AlphaTestEnable == 1u)
             {
                 if (FailsAlphaTest(diffuseTextureColor.W))
                 {
