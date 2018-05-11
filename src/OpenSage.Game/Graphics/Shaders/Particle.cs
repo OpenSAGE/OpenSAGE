@@ -72,19 +72,19 @@ namespace OpenSage.Graphics.Shaders
             var vertexUVPos = Vector4.Zero;
             switch (quadVertexID)
             {
-                case 0:
+                case 0u:
                     vertexUVPos = new Vector4(0, 1, -1, -1);
                     break;
 
-                case 1:
+                case 1u:
                     vertexUVPos = new Vector4(0, 0, -1, 1);
                     break;
 
-                case 2:
+                case 2u:
                     vertexUVPos = new Vector4(1, 1, 1, -1);
                     break;
 
-                case 3:
+                case 3u:
                     vertexUVPos = new Vector4(1, 0, 1, 1);
                     break;
             }
