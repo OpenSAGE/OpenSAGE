@@ -157,7 +157,7 @@ namespace OpenSage.Graphics.Shaders
         {
             VertexOutput output;
 
-            if (MeshConstants.SkinningEnabled == 1)
+            if (MeshConstants.SkinningEnabled == 1u)
             {
                 GetSkinnedVertexData(ref input, SkinningBuffer[input.BoneIndex]);
             }
@@ -284,7 +284,7 @@ namespace OpenSage.Graphics.Shaders
                 out var specularColor);
 
             Vector4 diffuseTextureColor;
-            if (MaterialConstants.Shading.TexturingEnabled == 1)
+            if (MaterialConstants.Shading.TexturingEnabled == 1u)
             {
                 var v = CalculateViewVector(GlobalConstantsShared.CameraPosition, input.WorldPosition);
 
@@ -294,7 +294,7 @@ namespace OpenSage.Graphics.Shaders
                     Texture0,
                     v);
 
-                if (MaterialConstants.NumTextureStages > 1)
+                if (MaterialConstants.NumTextureStages > 1u)
                 {
                     var secondaryTextureColor = SampleTexture(
                         input.WorldNormal, input.UV1, input.ScreenPosition.XY(),
@@ -346,7 +346,7 @@ namespace OpenSage.Graphics.Shaders
                     }
                 }
 
-                if (MaterialConstants.Shading.AlphaTest == 1)
+                if (MaterialConstants.Shading.AlphaTest == 1u)
                 {
                     if (FailsAlphaTest(diffuseTextureColor.W))
                     {
@@ -374,7 +374,7 @@ namespace OpenSage.Graphics.Shaders
                     break;
             }
 
-            if (MaterialConstants.Shading.SpecularEnabled == 1)
+            if (MaterialConstants.Shading.SpecularEnabled == 1u)
             {
                 objectColor += specularColor;
             }

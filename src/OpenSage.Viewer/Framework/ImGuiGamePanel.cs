@@ -107,7 +107,7 @@ namespace OpenSage.Viewer.Framework
                     height,
                     1,
                     1,
-                    PixelFormat.D32_Float_S8_UInt,
+                    PixelFormat.D24_UNorm_S8_UInt,
                     TextureUsage.DepthStencil)));
 
             _gameFramebuffer = AddDisposable(_graphicsDevice.ResourceFactory.CreateFramebuffer(

@@ -184,7 +184,7 @@ namespace OpenSage.Graphics.Shaders
             var fracUV = Frac(uv);
 
             var cliffTextureIndex = (uint) tileDatum.Z;
-            if (cliffTextureIndex != 0)
+            if (cliffTextureIndex != 0u)
             {
                 var cliffInfo = CliffDetails[cliffTextureIndex - 1];
 
@@ -227,7 +227,7 @@ namespace OpenSage.Graphics.Shaders
 
         private Vector2 GetMacroTextureUV(Vector3 worldPosition)
         {
-            if (TerrainMaterialConstants.IsMacroTextureStretched == 1)
+            if (TerrainMaterialConstants.IsMacroTextureStretched == 1u)
             {
                 return (worldPosition.XY() + TerrainMaterialConstants.MapBorderWidth) / new Vector2(TerrainMaterialConstants.MapSize.X, -TerrainMaterialConstants.MapSize.Y);
             }

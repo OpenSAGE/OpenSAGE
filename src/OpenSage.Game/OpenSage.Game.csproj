@@ -14,7 +14,7 @@
   
   <ItemGroup>
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.4.0" />
-    <PackageReference Include="OpenAL-CS" Version="1.0.9" />
+    <PackageReference Include="OpenAL-CS" Version="1.0.10" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0003" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0003" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />

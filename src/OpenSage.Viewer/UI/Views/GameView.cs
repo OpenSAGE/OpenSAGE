@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using ImGuiNET;
+using Veldrid;
 
 namespace OpenSage.Viewer.UI.Views
 {
@@ -10,6 +11,19 @@ namespace OpenSage.Viewer.UI.Views
         protected GameView(AssetViewContext context)
         {
             _context = context;
+        }
+
+        private Vector2 GetTopLeftUV()
+        {
+            return _context.GraphicsDevice.BackendType == GraphicsBackend.OpenGL ?
+                new Vector2(0, 1) :
+                new Vector2(0, 0);
+        }
+        private Vector2 GetBottomRightUV()
+        {
+            return _context.GraphicsDevice.BackendType == GraphicsBackend.OpenGL ?
+                new Vector2(1, 0) :
+                new Vector2(1, 1);
         }
 
         public override void Draw(ref bool isGameViewFocused)
@@ -34,8 +48,8 @@ namespace OpenSage.Viewer.UI.Views
             if (ImGui.ImageButton(
                 imagePointer,
                 ImGui.GetContentRegionAvailable(),
-                Vector2.Zero,
-                Vector2.One,
+                GetTopLeftUV(),
+                GetBottomRightUV(),
                 0,
                 Vector4.Zero,
                 Vector4.One))
