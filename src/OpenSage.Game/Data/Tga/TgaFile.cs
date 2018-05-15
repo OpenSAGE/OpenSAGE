@@ -138,7 +138,7 @@ namespace OpenSage.Data.Tga
             }
         }
 
-        public static byte[] ConvertPixelsToRgba8(TgaFile tgaFile)
+        public static byte[] ConvertPixelsToRgba8(TgaFile tgaFile,bool alphaToOpaque=false)
         {
             var pixelSize = tgaFile.Header.ImagePixelSize;
             var data = tgaFile.Data;
@@ -205,7 +205,14 @@ namespace OpenSage.Data.Tga
                             result[resultIndex++] = data[i + 2]; // R
                             result[resultIndex++] = data[i + 1]; // G
                             result[resultIndex++] = data[i + 0]; // B
-                            result[resultIndex++] = data[i + 3]; // A
+                            if (alphaToOpaque)
+                            {
+                                result[resultIndex++] = 255; // A
+                            }
+                            else
+                            {
+                                result[resultIndex++] = data[i + 3]; // A
+                            }
                         }
                         return result;
                     }

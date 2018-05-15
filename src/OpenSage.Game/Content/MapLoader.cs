@@ -647,7 +647,7 @@ namespace OpenSage.Content
             for (var i = 0u; i < numTextures; i++)
             {
                 var tgaFile = TgaFile.FromFileSystemEntry(textureInfo[i].entry);
-                var originalData = TgaFile.ConvertPixelsToRgba8(tgaFile);
+                var originalData = TgaFile.ConvertPixelsToRgba8(tgaFile,true);
 
                 using (var tgaImage = Image.LoadPixelData<Rgba32>(
                     originalData,
