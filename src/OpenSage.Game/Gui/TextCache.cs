@@ -106,9 +106,9 @@ namespace OpenSage.Gui
                     key.Text,
                     actualFont,
                     new Bgra32(
-                        (byte) (color.R * 255.0f),
-                        (byte) (color.G * 255.0f),
                         (byte) (color.B * 255.0f),
+                        (byte) (color.G * 255.0f),
+                        (byte) (color.R * 255.0f),
                         (byte) (color.A * 255.0f)),
                     location);
             });
@@ -124,7 +124,7 @@ namespace OpenSage.Gui
                         (uint) image.Height,
                         1,
                         1,
-                        PixelFormat.B8_G8_R8_A8_UNorm,
+                        PixelFormat.R8_G8_B8_A8_UNorm,
                         TextureUsage.Sampled));
 
                 _graphicsDevice.UpdateTexture(
