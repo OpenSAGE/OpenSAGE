@@ -138,7 +138,7 @@ namespace OpenSage.Data.Tga
             }
         }
 
-        public static byte[] ConvertPixelsToRgba8(TgaFile tgaFile,bool alphaToOpaque=false)
+        public static byte[] ConvertPixelsToRgba8(TgaFile tgaFile, bool alphaToOpaque = false)
         {
             var pixelSize = tgaFile.Header.ImagePixelSize;
             var data = tgaFile.Data;

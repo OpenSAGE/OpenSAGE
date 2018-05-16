@@ -530,9 +530,9 @@ namespace OpenSage.Content
         }
 
         private static BlendData GetBlendData(
-            MapFile mapFile, 
-            int x, int y, 
-            ushort blendIndex, 
+            MapFile mapFile,
+            int x, int y,
+            ushort blendIndex,
             byte baseTextureIndex)
         {
             if (blendIndex > 0)
@@ -647,7 +647,7 @@ namespace OpenSage.Content
             for (var i = 0u; i < numTextures; i++)
             {
                 var tgaFile = TgaFile.FromFileSystemEntry(textureInfo[i].entry);
-                var originalData = TgaFile.ConvertPixelsToRgba8(tgaFile,true);
+                var originalData = TgaFile.ConvertPixelsToRgba8(tgaFile, true);
 
                 using (var tgaImage = Image.LoadPixelData<Rgba32>(
                     originalData,
