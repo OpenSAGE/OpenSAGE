@@ -15,15 +15,15 @@ namespace OpenSage.Viewer.UI.Views
 
         private Vector2 GetTopLeftUV()
         {
-            return _context.GraphicsDevice.BackendType == GraphicsBackend.OpenGL ?
-                new Vector2(0, 1) :
-                new Vector2(0, 0);
+            return _context.GraphicsDevice.IsUvOriginTopLeft ?
+                new Vector2(0, 0) :
+                new Vector2(0, 1);
         }
         private Vector2 GetBottomRightUV()
         {
-            return _context.GraphicsDevice.BackendType == GraphicsBackend.OpenGL ?
-                new Vector2(1, 0) :
-                new Vector2(1, 1);
+            return _context.GraphicsDevice.IsUvOriginTopLeft ?
+                new Vector2(1, 1) :
+                new Vector2(1, 0);
         }
 
         public override void Draw(ref bool isGameViewFocused)

@@ -84,11 +84,39 @@ namespace OpenSage.Graphics
             return ref _batchItems[_currentBatchIndex++];
         }
 
+        private Vector2 GetTopLeftUV(Rectangle src, Texture img, bool flipped)
+        {
+            return new Vector2(src.Left / (float) img.Width, flipped ?
+                (src.Bottom / (float) img.Height) :
+                (src.Top / (float) img.Height));
+        }
+
+        private Vector2 GetBottomRightUV(Rectangle src, Texture img, bool flipped)
+        {
+            return new Vector2(src.Right / (float) img.Width, flipped ?
+                (src.Top / (float) img.Height) :
+                (src.Bottom / (float) img.Height));
+        }
+
+        private Triangle2D GetTriangleUV(Triangle2D src, Texture img, bool flipped)
+        {
+            return new Triangle2D
+            {
+                V0 = new Vector2(src.V0.X / img.Width,
+                flipped ? 1 - (src.V0.Y / img.Height) : src.V0.Y / img.Height),
+                V1 = new Vector2(src.V1.X / img.Width,
+                flipped ? 1 - (src.V1.Y / img.Height) : src.V1.Y / img.Height),
+                V2 = new Vector2(src.V2.X / img.Width,
+                flipped ? 1 - (src.V2.Y / img.Height) : src.V2.Y / img.Height),
+            };
+        }
+
         public void DrawImage(
             Texture image,
             in Rectangle? sourceRect,
             in RectangleF destinationRect,
-            in ColorRgbaF color)
+            in ColorRgbaF color,
+            in bool flipped = false)
         {
             ref var batchItem = ref CreateBatchItem();
 
@@ -96,13 +124,8 @@ namespace OpenSage.Graphics
 
             var sourceRectangle = sourceRect ?? new Rectangle(0, 0, (int) image.Width, (int) image.Height);
 
-            var texCoordTL = new Vector2(
-                sourceRectangle.Left / (float) image.Width,
-                sourceRectangle.Top / (float) image.Height);
-
-            var texCoordBR = new Vector2(
-                sourceRectangle.Right / (float) image.Width,
-                sourceRectangle.Bottom / (float) image.Height);
+            var texCoordTL = GetTopLeftUV(sourceRectangle, image, flipped);
+            var texCoordBR = GetBottomRightUV(sourceRectangle, image, flipped);
 
             batchItem.Set(
                 destinationRect.X,
@@ -122,7 +145,8 @@ namespace OpenSage.Graphics
             float rotation,
             Vector2 origin,
             in Vector2 scale,
-            in ColorRgbaF color)
+            in ColorRgbaF color,
+            in bool flipped = false)
         {
             ref var batchItem = ref CreateBatchItem();
 
@@ -130,13 +154,8 @@ namespace OpenSage.Graphics
 
             var sourceRectangle = sourceRect ?? new Rectangle(0, 0, (int) image.Width, (int) image.Height);
 
-            var texCoordTL = new Vector2(
-                sourceRectangle.Left / (float) image.Width,
-                sourceRectangle.Top / (float) image.Height);
-
-            var texCoordBR = new Vector2(
-                sourceRectangle.Right / (float) image.Width,
-                sourceRectangle.Bottom / (float) image.Height);
+            var texCoordTL = GetTopLeftUV(sourceRectangle, image, flipped);
+            var texCoordBR = GetBottomRightUV(sourceRectangle, image, flipped);
 
             var width = sourceRectangle.Width * scale.X;
             var height = sourceRectangle.Height * scale.Y;
@@ -162,18 +181,14 @@ namespace OpenSage.Graphics
             Texture texture,
             in Triangle2D sourceTriangle,
             in Triangle2D destinationTriangle,
-            in ColorRgbaF tintColor)
+            in ColorRgbaF tintColor,
+            in bool flipped = false)
         {
             ref var batchItem = ref CreateBatchItem();
 
             batchItem.Texture = texture;
 
-            var textureCoordinates = new Triangle2D
-            {
-                V0 = new Vector2(sourceTriangle.V0.X / texture.Width, sourceTriangle.V0.Y / texture.Height),
-                V1 = new Vector2(sourceTriangle.V1.X / texture.Width, sourceTriangle.V1.Y / texture.Height),
-                V2 = new Vector2(sourceTriangle.V2.X / texture.Width, sourceTriangle.V2.Y / texture.Height)
-            };
+            var textureCoordinates = GetTriangleUV(sourceTriangle, texture, flipped);
 
             batchItem.Set(
                 destinationTriangle,

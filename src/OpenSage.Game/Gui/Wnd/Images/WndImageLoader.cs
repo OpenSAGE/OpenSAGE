@@ -44,6 +44,8 @@ namespace OpenSage.Gui.Wnd.Images
 
             if (mappedImageTexture != null)
             {
+                bool requiresFlip = !_contentManager.GraphicsDevice.IsUvOriginTopLeft;
+
                 return new Image(mappedImageTexture.SourceRect.Size, size =>
                 {
                     var cacheKey = new WndImageKey
@@ -69,7 +71,7 @@ namespace OpenSage.Gui.Wnd.Images
                     }
 
                     return result;
-                });
+                }, requiresFlip);
             }
             else
             {
@@ -99,6 +101,8 @@ namespace OpenSage.Gui.Wnd.Images
                     leftMappedImageTexture.SourceRect.Width + middleMappedImageTexture.SourceRect.Width + rightMappedImageTexture.SourceRect.Width,
                     leftMappedImageTexture.SourceRect.Height);
 
+                bool requiresFlip = !_contentManager.GraphicsDevice.IsUvOriginTopLeft;
+
                 return new Image(naturalSize, size =>
                 {
                     var cacheKey = new WndImageKey
@@ -122,19 +126,22 @@ namespace OpenSage.Gui.Wnd.Images
                                    leftMappedImageTexture.Texture,
                                    leftMappedImageTexture.SourceRect,
                                    leftRect.ToRectangleF(),
-                                   ColorRgbaF.White);
+                                   ColorRgbaF.White,
+                                   requiresFlip);
                                 var middleRect = new Rectangle(leftRect.Right, 0, cacheKey.DestinationSize.Width - leftWidth - rightWidth, cacheKey.DestinationSize.Height);
                                 spriteBatch.DrawImage(
                                    middleMappedImageTexture.Texture,
                                    middleMappedImageTexture.SourceRect,
                                    middleRect.ToRectangleF(),
-                                   ColorRgbaF.White);
+                                   ColorRgbaF.White,
+                                   requiresFlip);
                                 var rightRect = new Rectangle(middleRect.Right, 0, rightWidth, cacheKey.DestinationSize.Height);
                                 spriteBatch.DrawImage(
                                    rightMappedImageTexture.Texture,
                                    rightMappedImageTexture.SourceRect,
                                    rightRect.ToRectangleF(),
-                                   ColorRgbaF.White);
+                                   ColorRgbaF.White,
+                                   requiresFlip);
                             });
 
                         _cache.Add(cacheKey, result);
