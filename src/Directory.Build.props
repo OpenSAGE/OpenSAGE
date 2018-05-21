@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <ShaderGenVersion>1.2.0-g5adf8817a8</ShaderGenVersion>
-    <VeldridVersion>4.3.0-g7271deedf9 </VeldridVersion>
+    <ShaderGenVersion>1.2.100-beta2-gfab524daa3</ShaderGenVersion>
+    <VeldridVersion>4.3.0-beta1-0020-gec8a923c30</VeldridVersion>
   </PropertyGroup>
 </Project>
