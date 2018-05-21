@@ -11,6 +11,10 @@
     <ShaderProcessorAssembly>$(MSBuildThisFileDirectory)\..\OpenSage.Game.Shaders.Processor\bin\$(Configuration)\netstandard2.0\OpenSage.Game.Shaders.Processor.dll</ShaderProcessorAssembly>
     <ShaderProcessorArgs>$(ShaderJsonIntermediateDirectory)</ShaderProcessorArgs>
   </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Fonts\Roboto-Bold.ttf" />
+    <EmbeddedResource Include="Content\Fonts\Roboto-Regular.ttf" />
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.4.0" />

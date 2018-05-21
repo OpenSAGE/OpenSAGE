@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using OpenSage.Audio;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
@@ -32,7 +33,12 @@ namespace OpenSage.Content
 
         private readonly Dictionary<FontKey, Font> _cachedFonts;
 
+        private readonly string _fallbackSystemFont = "Arial";
+        private readonly string _fallbackEmbeddedFont = "Roboto";
+
         private readonly Dictionary<uint, DeviceBuffer> _cachedNullStructuredBuffers;
+
+        private FontCollection _fallbackFonts;
 
         public GraphicsDevice GraphicsDevice { get; }
 
@@ -119,6 +125,13 @@ namespace OpenSage.Content
                 PixelFormat.R8_G8_B8_A8_UNorm));
 
             WndImageLoader = AddDisposable(new WndImageLoader(this, new MappedImageLoader(this)));
+
+            _fallbackFonts = new FontCollection();
+            var assembly = Assembly.GetExecutingAssembly();
+            var fontStream = assembly.GetManifestResourceStream($"OpenSage.Content.Fonts.{_fallbackEmbeddedFont}-Regular.ttf");
+            _fallbackFonts.Install(fontStream);
+            fontStream = assembly.GetManifestResourceStream($"OpenSage.Content.Fonts.{_fallbackEmbeddedFont}-Bold.ttf");
+            _fallbackFonts.Install(fontStream);
         }
 
         internal DeviceBuffer GetNullStructuredBuffer(uint size)
@@ -244,19 +257,39 @@ namespace OpenSage.Content
 
             if (!_cachedFonts.TryGetValue(key, out var font))
             {
+                bool embeddedFallback = false;
+
                 if (!SystemFonts.TryFind(fontName, out var fontFamily))
                 {
-                    fontName = "Arial";
+                    //First try to load a fallback system font (Arial)
+                    if (SystemFonts.TryFind(_fallbackSystemFont, out fontFamily))
+                    {
+                        fontName = _fallbackSystemFont;
+                    }
+                    //If this fails use an embedded fallback font (Roboto)
+                    else
+                    {
+                        embeddedFallback = true;
+                    }
                 }
 
                 var fontStyle = fontWeight == FontWeight.Bold
                     ? FontStyle.Bold
                     : FontStyle.Regular;
 
-                _cachedFonts.Add(key, font = SystemFonts.CreateFont(
-                    fontName,
-                    fontSize,
-                    fontStyle));
+                if (!embeddedFallback)
+                {
+                    font = SystemFonts.CreateFont(fontName,
+                                                fontSize,
+                                                fontStyle);
+                }
+                else
+                {
+                    font = _fallbackFonts.CreateFont(_fallbackEmbeddedFont,
+                                                    fontSize,
+                                                    fontStyle);
+                }
+                _cachedFonts.Add(key, font);
             }
 
             return font;
