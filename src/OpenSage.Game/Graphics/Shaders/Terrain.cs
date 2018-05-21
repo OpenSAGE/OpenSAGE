@@ -132,20 +132,20 @@ namespace OpenSage.Graphics.Shaders
             uint blendFlags,
             Vector2 fracUV)
         {
-            var flipped = (blendFlags & 1) == 1;
-            var twoSided = (blendFlags & 2) == 2;
+            var flipped = (blendFlags & 1u) == 1u;
+            var twoSided = (blendFlags & 2u) == 2u;
 
             if (flipped)
             {
                 switch (blendDirection)
                 {
-                    case 1: // BLEND_DIRECTION_TOWARDS_RIGHT:
+                    case 1u: // BLEND_DIRECTION_TOWARDS_RIGHT:
                         fracUV.X = 1 - fracUV.X;
                         break;
 
-                    case 2: // BLEND_DIRECTION_TOWARDS_TOP:
-                    case 4: // BLEND_DIRECTION_TOWARDS_TOP_RIGHT:
-                    case 8: // BLEND_DIRECTION_TOWARDS_TOP_LEFT:
+                    case 2u: // BLEND_DIRECTION_TOWARDS_TOP:
+                    case 4u: // BLEND_DIRECTION_TOWARDS_TOP_RIGHT:
+                    case 8u: // BLEND_DIRECTION_TOWARDS_TOP_LEFT:
                         fracUV.Y = 1 - fracUV.Y;
                         break;
                 }
@@ -155,20 +155,20 @@ namespace OpenSage.Graphics.Shaders
 
             switch (blendDirection)
             {
-                case 1: // BLEND_DIRECTION_TOWARDS_RIGHT:
+                case 1u: // BLEND_DIRECTION_TOWARDS_RIGHT:
                     blendFactor = fracUV.X;
                     break;
 
-                case 2: // BLEND_DIRECTION_TOWARDS_TOP:
+                case 2u: // BLEND_DIRECTION_TOWARDS_TOP:
                     blendFactor = fracUV.Y;
                     break;
 
-                case 4: // BLEND_DIRECTION_TOWARDS_TOP_RIGHT:
+                case 4u: // BLEND_DIRECTION_TOWARDS_TOP_RIGHT:
                     fracUV = Vector2.One - fracUV;
                     blendFactor = CalculateDiagonalBlendFactor(fracUV, twoSided);
                     break;
 
-                case 8: // BLEND_DIRECTION_TOWARDS_TOP_LEFT:
+                case 8u: // BLEND_DIRECTION_TOWARDS_TOP_LEFT:
                     fracUV.Y = 1 - fracUV.Y;
                     blendFactor = CalculateDiagonalBlendFactor(fracUV, twoSided);
                     break;
@@ -186,7 +186,7 @@ namespace OpenSage.Graphics.Shaders
             var cliffTextureIndex = (uint) tileDatum.Z;
             if (cliffTextureIndex != 0u)
             {
-                var cliffInfo = CliffDetails[cliffTextureIndex - 1];
+                var cliffInfo = CliffDetails[(int)cliffTextureIndex - 1];
 
                 var uvXBottom = Lerp(cliffInfo.BottomLeftUV, cliffInfo.BottomRightUV, fracUV.X);
                 var uvXTop = Lerp(cliffInfo.TopLeftUV, cliffInfo.TopRightUV, fracUV.X);
@@ -198,15 +198,15 @@ namespace OpenSage.Graphics.Shaders
             var ddyUV = Ddy(uv);
 
             var packedTextureIndices = (uint) tileDatum.X;
-            var textureIndex0 = packedTextureIndices & 0xFF;
-            var textureIndex1 = (packedTextureIndices >> 8) & 0xFF;
-            var textureIndex2 = (packedTextureIndices >> 16) & 0xFF;
+            var textureIndex0 = packedTextureIndices & 0xFFu;
+            var textureIndex1 = (packedTextureIndices >> 8) & 0xFFu;
+            var textureIndex2 = (packedTextureIndices >> 16) & 0xFFu;
 
             var packedBlendInfo = (uint) tileDatum.Y;
-            var blendDirection1 = packedBlendInfo & 0xFF;
-            var blendFlags1 = (packedBlendInfo >> 8) & 0xFF;
-            var blendDirection2 = (packedBlendInfo >> 16) & 0xFF;
-            var blendFlags2 = (packedBlendInfo >> 24) & 0xFF;
+            var blendDirection1 = packedBlendInfo & 0xFFu;
+            var blendFlags1 = (packedBlendInfo >> 8) & 0xFFu;
+            var blendDirection2 = (packedBlendInfo >> 16) & 0xFFu;
+            var blendFlags2 = (packedBlendInfo >> 24) & 0xFFu;
 
             var textureColor0 = SampleTexture(textureIndex0, uv, ddxUV, ddyUV);
             var textureColor1 = SampleTexture(textureIndex1, uv, ddxUV, ddyUV);

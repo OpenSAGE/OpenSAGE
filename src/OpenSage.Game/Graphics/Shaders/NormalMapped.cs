@@ -57,6 +57,7 @@ namespace OpenSage.Graphics.Shaders
             public float BumpScale;
             public float SpecularExponent;
             public uint /*bool*/ AlphaTestEnable;
+            public uint Padding;
             public Vector4 AmbientColor;
             public Vector4 DiffuseColor;
             public Vector4 SpecularColor;
