@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Utilities.Extensions;
+using SharpShaderCompiler;
 using Veldrid;
 
 namespace OpenSage.Graphics.Effects
@@ -44,18 +46,45 @@ namespace OpenSage.Graphics.Effects
 
             ID = _nextID++;
 
-            var shaderCodeExtension = GetBytecodeExtension(graphicsDevice.BackendType);
+            var shaderBytecodeExtension = GetBytecodeExtension(graphicsDevice.BackendType);
+            var shaderTextExtension = GetTextExtension(graphicsDevice.BackendType);
+            var resources = typeof(Effect).Assembly.GetManifestResourceNames();
 
             Shader CreateShader(ShaderStages shaderStage, string entryPoint)
             {
-                var embeddedResourceName = $"OpenSage.Graphics.Shaders.Compiled.{shaderName}-{shaderStage.ToString().ToLowerInvariant()}{shaderCodeExtension}";
-                using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream(embeddedResourceName))
+                var basename = $"OpenSage.Graphics.Shaders.Compiled.{shaderName}-{shaderStage.ToString().ToLowerInvariant()}";
+                var bytecodeShaderName = basename + shaderBytecodeExtension;
+                var textShaderName = basename + shaderTextExtension;
+                Stream shaderStream = null;
+
+                //Check if we have a binary shader
+                if (Array.Find(resources, s => s.Equals(bytecodeShaderName)) != null)
                 {
-                    var shaderBytecode = shaderStream.ReadAllBytes();
-                    var shader = graphicsDevice.ResourceFactory.CreateShader(new ShaderDescription(shaderStage, shaderBytecode, entryPoint));
-                    shader.Name = shaderName;
-                    return shader;
+                    shaderStream = typeof(Effect).Assembly.GetManifestResourceStream(bytecodeShaderName);
                 }
+                //We only have a text shader
+                else
+                {
+                    if (graphicsDevice.BackendType == GraphicsBackend.Vulkan)
+                    {
+                        shaderStream = CompileVulkan(textShaderName);
+                    }
+                    else
+                    {
+                        shaderStream = typeof(Effect).Assembly.GetManifestResourceStream(textShaderName);
+                    }
+                }
+
+#if DEBUG
+                const bool debug = true;
+#else
+                const bool debug = false;
+#endif
+
+                var shaderBytes = shaderStream.ReadAllBytes();
+                var shader = graphicsDevice.ResourceFactory.CreateShader(new ShaderDescription(shaderStage, shaderBytes, entryPoint, debug));
+                shader.Name = shaderName;
+                return shader;
             }
 
             _vertexShader = AddDisposable(CreateShader(ShaderStages.Vertex, "VS"));
@@ -96,6 +125,18 @@ namespace OpenSage.Graphics.Effects
                 case GraphicsBackend.Direct3D11: return ".hlsl.bytes";
                 case GraphicsBackend.Metal: return ".metallib";
                 case GraphicsBackend.Vulkan: return ".450.glsl.spv";
+                case GraphicsBackend.OpenGL: return ".330.glsl";
+                default: throw new InvalidOperationException("Invalid Graphics backend: " + backend);
+            }
+        }
+
+        private static string GetTextExtension(GraphicsBackend backend)
+        {
+            switch (backend)
+            {
+                case GraphicsBackend.Direct3D11: return ".hlsl";
+                case GraphicsBackend.Metal: return ".metal";
+                case GraphicsBackend.Vulkan: return ".450.glsl";
                 case GraphicsBackend.OpenGL: return ".330.glsl";
                 default: throw new InvalidOperationException("Invalid Graphics backend: " + backend);
             }
@@ -177,5 +218,27 @@ namespace OpenSage.Graphics.Effects
 
             return result;
         }
+
+        private Stream CompileVulkan(string resourceName)
+        {
+            var resourceStream = typeof(Effect).Assembly.GetManifestResourceStream(resourceName);
+            var c = new ShaderCompiler();
+            var o = new CompileOptions();
+
+            //Set our compile options
+            o.Language = CompileOptions.InputLanguage.GLSL;
+            o.Optimization = CompileOptions.OptimizationLevel.Performance;
+            o.Target = CompileOptions.Environment.Vulkan;
+
+            var r = c.Compile(resourceStream, ShaderCompiler.Stage.Vertex, o, resourceName);
+
+            if(r.CompileStatus!=CompileResult.Status.Success)
+            {
+                throw new InvalidDataException("Vulkan shader failed to compile: " + r.ErrorMessage);
+            }
+
+            return new MemoryStream(r.GetBytes());
+        }
+
     }
 }
