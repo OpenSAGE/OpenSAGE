@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Utilities.Extensions;
-using SharpShaderCompiler;
 using Veldrid;
 
 namespace OpenSage.Graphics.Effects
@@ -65,14 +64,7 @@ namespace OpenSage.Graphics.Effects
                 //We only have a text shader
                 else
                 {
-                    if (graphicsDevice.BackendType == GraphicsBackend.Vulkan)
-                    {
-                        shaderStream = CompileVulkan(textShaderName);
-                    }
-                    else
-                    {
-                        shaderStream = typeof(Effect).Assembly.GetManifestResourceStream(textShaderName);
-                    }
+                    shaderStream = typeof(Effect).Assembly.GetManifestResourceStream(textShaderName);
                 }
 
 #if DEBUG
@@ -218,27 +210,5 @@ namespace OpenSage.Graphics.Effects
 
             return result;
         }
-
-        private Stream CompileVulkan(string resourceName)
-        {
-            var resourceStream = typeof(Effect).Assembly.GetManifestResourceStream(resourceName);
-            var c = new ShaderCompiler();
-            var o = new CompileOptions();
-
-            //Set our compile options
-            o.Language = CompileOptions.InputLanguage.GLSL;
-            o.Optimization = CompileOptions.OptimizationLevel.Performance;
-            o.Target = CompileOptions.Environment.Vulkan;
-
-            var r = c.Compile(resourceStream, ShaderCompiler.Stage.Vertex, o, resourceName);
-
-            if(r.CompileStatus!=CompileResult.Status.Success)
-            {
-                throw new InvalidDataException("Vulkan shader failed to compile: " + r.ErrorMessage);
-            }
-
-            return new MemoryStream(r.GetBytes());
-        }
-
     }
 }

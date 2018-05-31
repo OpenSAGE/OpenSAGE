@@ -19,11 +19,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.4.0" />
     <PackageReference Include="OpenAL-CS" Version="1.0.10" />
-    <PackageReference Include="SharpShaderCompiler" Version="1.0.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0003" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0003" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
-    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="ShaderGen.Primitives" Version="$(ShaderGenVersion)" />
     <PackageReference Include="ShaderGen.Build" Version="$(ShaderGenVersion)" PrivateAssets="All" />
     <PackageReference Include="Veldrid" Version="$(VeldridVersion)" />
@@ -43,7 +42,8 @@
 
   <Target Name="EmbedGeneratedShaderContent" AfterTargets="AssignTargetPaths">
     <ItemGroup>
-      <EmbeddedResource Include="@(GeneratedShader)">
+      <AllShaderFiles Include="$(ShaderOutputPath)\**\*" />
+      <EmbeddedResource Include="@(AllShaderFiles)">
          <LogicalName>OpenSage.Graphics.Shaders.Compiled.%(FileName)%(Extension)</LogicalName>
       </EmbeddedResource>
     </ItemGroup>
