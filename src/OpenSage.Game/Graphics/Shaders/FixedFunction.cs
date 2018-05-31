@@ -5,6 +5,7 @@ using static OpenSage.Graphics.Shaders.CloudHelpers;
 using static OpenSage.Graphics.Shaders.CommonShaderHelpers;
 using static OpenSage.Graphics.Shaders.LightingHelpers;
 using static OpenSage.Graphics.Shaders.MeshShaderHelpers;
+using static OpenSage.Graphics.Shaders.ShadowHelpers;
 
 [assembly: ShaderSet("FixedFunction", "OpenSage.Graphics.Shaders.FixedFunction.VS", "OpenSage.Graphics.Shaders.FixedFunction.PS")]
 
@@ -21,6 +22,7 @@ namespace OpenSage.Graphics.Shaders
             [TextureCoordinateSemantic] public Vector2 UV0;
             [TextureCoordinateSemantic] public Vector2 UV1;
             [TextureCoordinateSemantic] public Vector2 CloudUV;
+            [TextureCoordinateSemantic] public float ViewDepth;
         }
 
         public struct PixelInput
@@ -32,6 +34,7 @@ namespace OpenSage.Graphics.Shaders
             [TextureCoordinateSemantic] public Vector2 UV0;
             [TextureCoordinateSemantic] public Vector2 UV1;
             [TextureCoordinateSemantic] public Vector2 CloudUV;
+            [TextureCoordinateSemantic] public float ViewDepth;
         }
 
         public GlobalConstantsShared GlobalConstantsShared;
@@ -43,6 +46,8 @@ namespace OpenSage.Graphics.Shaders
         public Global_LightingConstantsVS Global_LightingConstantsVS;
 
         public Global_LightingConstantsPS Global_LightingConstantsPS;
+
+        public Global_ShadowConstantsPS Global_ShadowConstantsPS;
 
         public Texture2DResource Global_CloudTexture;
 
@@ -152,6 +157,9 @@ namespace OpenSage.Graphics.Shaders
 
         public SamplerResource Sampler;
 
+        public DepthTexture2DArrayResource Global_ShadowMap;
+        public SamplerComparisonResource Global_ShadowSampler;
+
         [VertexShader]
         public VertexOutput VS(VertexInput input)
         {
@@ -175,6 +183,8 @@ namespace OpenSage.Graphics.Shaders
 
             output.UV0 = input.UV0;
             output.UV1 = input.UV1;
+
+            output.ViewDepth = output.Position.W;
 
             return output;
         }
@@ -282,6 +292,18 @@ namespace OpenSage.Graphics.Shaders
                 true,
                 out var diffuseColor,
                 out var specularColor);
+
+            var lightDirection = Global_LightingConstantsPS.Lights[0].Direction;
+            var nDotL = Saturate(Vector3.Dot(input.WorldNormal, lightDirection));
+            //var shadowVisibility = ShadowVisibility(
+            //    input.WorldPosition,
+            //    input.ViewDepth,
+            //    nDotL,
+            //    input.WorldNormal,
+            //    Global_ShadowConstantsPS,
+            //    Global_ShadowMap,
+            //    Global_ShadowSampler);
+            //diffuseColor *= shadowVisibility;
 
             Vector4 diffuseTextureColor;
             if (MaterialConstants.Shading.TexturingEnabled == 1)

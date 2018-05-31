@@ -18,7 +18,7 @@ namespace OpenSage.Graphics.Cameras
             set
             {
                 _focalLength = value;
-                UpdateProjection();
+                SetProjectionDirty();
             }
         }
 
@@ -84,7 +84,7 @@ namespace OpenSage.Graphics.Cameras
 
         internal void OnViewportSizeChanged()
         {
-            UpdateProjection();
+            SetProjectionDirty();
         }
     }
 }

@@ -106,9 +106,12 @@ namespace OpenSage.Graphics.Shaders.Processor
                 case ShaderResourceKind.Texture2DArray:
                 case ShaderResourceKind.TextureCube:
                 case ShaderResourceKind.Texture2DMS:
+                case ShaderResourceKind.DepthTexture2D:
+                case ShaderResourceKind.DepthTexture2DArray:
                     return ResourceKind.TextureReadOnly;
 
                 case ShaderResourceKind.Sampler:
+                case ShaderResourceKind.SamplerComparison:
                     return ResourceKind.Sampler;
                     
                 case ShaderResourceKind.StructuredBuffer:

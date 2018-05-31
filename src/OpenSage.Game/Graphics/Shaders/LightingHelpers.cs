@@ -61,7 +61,7 @@ namespace OpenSage.Graphics.Shaders
             diffuseColor = Vector3.Zero;
             specularColor = Vector3.Zero;
 
-            for (var i = 0; i < 3 /* NumLights */; i++)
+            for (var i = 0; i < NumLights; i++)
             {
                 var light = lightingConstantsPS.Lights[i];
 

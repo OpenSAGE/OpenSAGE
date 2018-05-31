@@ -31,6 +31,8 @@ namespace OpenSage.Mathematics
             return value;
         }
 
+        public static float Round(float value) => (float) Math.Round(value);
+
         public static float Cos(float f) => (float) Math.Cos(f);
 
         public static float Sin(float f) => (float) Math.Sin(f);

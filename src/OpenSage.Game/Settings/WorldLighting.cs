@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Effects;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Settings
@@ -15,6 +16,8 @@ namespace OpenSage.Settings
         public TimeOfDay TimeOfDay { get; set; }
 
         public bool EnableCloudShadows { get; set; } = true;
+
+        public ShadowSettings ShadowSettings { get; } = new ShadowSettings();
 
         public LightSettings CurrentLightingConfiguration => LightingConfigurations[TimeOfDay];
 
@@ -48,6 +51,16 @@ namespace OpenSage.Settings
             LightingConfigurations = lightingConfigurations;
             TimeOfDay = timeOfDay;
         }
+    }
+
+    public sealed class ShadowSettings
+    {
+        public bool VisualizeCascades { get; set; } = false;
+        public bool FilterAcrossCascades { get; set; } = true;
+        public ShadowHelpers.ShadowMapFilterSize FilterSize { get; set; } = ShadowHelpers.ShadowMapFilterSize.Seven;
+        public float[] SplitDistances { get; } = new[] { 0.05f, 0.15f, 0.5f, 1.0f };
+        public float Bias { get; set; } = 0.002f;
+        public float OffsetScale { get; set; } = 0.0f;
     }
 
     public sealed class WaypointCollection

@@ -15,7 +15,7 @@ namespace OpenSage.Graphics.Cameras
             set
             {
                 _minX = value;
-                UpdateProjection();
+                SetProjectionDirty();
             }
         }
 
@@ -25,7 +25,7 @@ namespace OpenSage.Graphics.Cameras
             set
             {
                 _minY = value;
-                UpdateProjection();
+                SetProjectionDirty();
             }
         }
 
@@ -35,7 +35,7 @@ namespace OpenSage.Graphics.Cameras
             set
             {
                 _maxX = value;
-                UpdateProjection();
+                SetProjectionDirty();
             }
         }
 
@@ -45,7 +45,7 @@ namespace OpenSage.Graphics.Cameras
             set
             {
                 _maxY = value;
-                UpdateProjection();
+                SetProjectionDirty();
             }
         }
 
@@ -61,7 +61,7 @@ namespace OpenSage.Graphics.Cameras
             NearPlaneDistance = nearZ;
             FarPlaneDistance = farZ;
 
-            UpdateProjection();
+            SetProjectionDirty();
         }
 
         protected override void CreateProjection(out Matrix4x4 projection)
