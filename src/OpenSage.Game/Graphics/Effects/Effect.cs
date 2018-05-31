@@ -74,6 +74,7 @@ namespace OpenSage.Graphics.Effects
 #endif
 
                 var shaderBytes = shaderStream.ReadAllBytes();
+                shaderStream.Dispose();
                 var shader = graphicsDevice.ResourceFactory.CreateShader(new ShaderDescription(shaderStage, shaderBytes, entryPoint, debug));
                 shader.Name = shaderName;
                 return shader;
