@@ -59,12 +59,12 @@ namespace OpenSage.Graphics.Effects
                 //Check if we have a binary shader
                 if (Array.Find(resources, s => s.Equals(bytecodeShaderName)) != null)
                 {
-                    shaderStream = typeof(Effect).Assembly.GetManifestResourceStream(bytecodeShaderName);
+                    shaderStream = AddDisposable(typeof(Effect).Assembly.GetManifestResourceStream(bytecodeShaderName));
                 }
                 //We only have a text shader
                 else
                 {
-                    shaderStream = typeof(Effect).Assembly.GetManifestResourceStream(textShaderName);
+                    shaderStream = AddDisposable(typeof(Effect).Assembly.GetManifestResourceStream(textShaderName));
                 }
 
 #if DEBUG
