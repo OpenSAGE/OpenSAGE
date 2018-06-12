@@ -14,7 +14,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.Packaging.Tools.Trimming" Version="1.1.0-preview1-26611-01" />
+    <PackageReference Include="Microsoft.Packaging.Tools.Trimming" Version="1.1.0-preview1-26228-01" />
     <PackageReference Include="System.CommandLine" Version="0.1.0-preview2-180220-2" />
   </ItemGroup>
 
