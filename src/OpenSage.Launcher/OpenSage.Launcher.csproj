@@ -5,6 +5,8 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <RuntimeIdentifiers>win-x64;osx-64;ubuntu-x64</RuntimeIdentifiers>
     <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
+    <TrimUnusedDependencies>true</TrimUnusedDependencies>
+    <RootPackageReference>false</RootPackageReference>
   </PropertyGroup>
   
   <ItemGroup>
@@ -12,6 +14,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <PackageReference Include="Microsoft.Packaging.Tools.Trimming" Version="1.1.0-preview1-26611-01" />
     <PackageReference Include="System.CommandLine" Version="0.1.0-preview2-180220-2" />
   </ItemGroup>
 
