@@ -65,10 +65,17 @@ namespace OpenSage
 
             var windowCreateInfo = new WindowCreateInfo(x, y, width, height, WindowState.Normal, title);
 
+            var backend = preferredBackend ?? VeldridStartup.GetPlatformDefaultBackend();
+            if(backend==GraphicsBackend.Vulkan)
+            {
+                Console.WriteLine("Vulkan backend not working yet. Falling back to OpenGL!");
+                backend = GraphicsBackend.OpenGL;
+            }
+
             VeldridStartup.CreateWindowAndGraphicsDevice(
                 windowCreateInfo,
                 graphicsDeviceOptions,
-                preferredBackend ?? VeldridStartup.GetPlatformDefaultBackend(),
+                backend,
                 out _window,
                 out var graphicsDevice);
 

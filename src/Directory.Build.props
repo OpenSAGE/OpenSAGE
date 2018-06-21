@@ -2,6 +2,6 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <ShaderGenVersion>1.2.100-beta2-gfab524daa3</ShaderGenVersion>
-    <VeldridVersion>4.3.0-beta1-0031-g841a11acef</VeldridVersion>
+    <VeldridVersion>4.3.3</VeldridVersion>
   </PropertyGroup>
 </Project>
