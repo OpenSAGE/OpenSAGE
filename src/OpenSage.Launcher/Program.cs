@@ -1,6 +1,7 @@
 ﻿using System;
 using System.CommandLine;
 using System.Linq;
+using OpenSage.Data;
 using OpenSage.Mods.BuiltIn;
 using OpenSage.Network;
 using Veldrid;
@@ -49,13 +50,30 @@ namespace OpenSage.Launcher
                     "Immediately starts a new skirmish with default settings in the specified map. The map file must be specified with the full path.");
             });
 
+            var installation = GameInstallation
+                .FindAll(new[] { definition })
+                .FirstOrDefault();
+
+            if (installation == null)
+            {
+                Console.WriteLine($"OpenSAGE was unable to find any installations of {definition.DisplayName}.\n");
+
+                Console.WriteLine("You can manually specify the installation path by setting the following environment variable:");
+                Console.WriteLine($"\t{definition.Identifier.ToUpper()}_PATH=<installation path>\n");
+
+                Console.WriteLine("OpenSAGE doesn't yet detect every released version of every game. Please report undetected versions to our GitHub page:");
+                Console.WriteLine("\thttps://github.com/OpenSAGE/OpenSAGE/issues");
+
+                Environment.Exit(1);
+            }
+
             Platform.Start();
 
             // TODO: Read game version from assembly metadata or .git folder
             // TODO: Set window icon.
             using (var window = new GameWindow("OpenSAGE (master)", 100, 100, 1024, 768, preferredBackend))
             using (var gamePanel = GamePanel.FromGameWindow(window))
-            using (var game = GameFactory.CreateGame(definition, gamePanel))
+            using (var game = GameFactory.CreateGame(installation, installation.CreateFileSystem(), gamePanel))
             {
                 game.Configuration.LoadShellMap = !noShellMap;
 
@@ -74,10 +92,9 @@ namespace OpenSage.Launcher
                     {
                         break;
                     }
+
                     game.Tick();
                 }
-
-                game.Dispose();
             }
 
             Platform.Stop();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -41,20 +42,11 @@ namespace OpenSage.Viewer.UI
             _imGuiRenderer = imGuiRenderer;
 
             _installations = GameInstallation.FindAll(GameDefinition.All).ToList();
-
             ChangeInstallation(_installations.FirstOrDefault());
         }
 
-        public void Draw(ref bool isGameViewFocused)
+        private void DrawMainUi(ref bool isGameViewFocused)
         {
-            _gamePanel.IsGameViewActive = isGameViewFocused;
-
-            ImGui.SetNextWindowPos(Vector2.Zero, Condition.Always, Vector2.Zero);
-            ImGui.SetNextWindowSize(new Vector2(_gameWindow.ClientBounds.Width, _gameWindow.ClientBounds.Height), Condition.Always);
-
-            ImGui.PushStyleVar(StyleVar.WindowRounding, 0);
-            ImGui.BeginWindow("OpenSAGE Viewer", WindowFlags.MenuBar | WindowFlags.NoTitleBar);
-
             if (ImGui.BeginMenuBar())
             {
                 if (ImGui.BeginMenu("Installation"))
@@ -185,6 +177,53 @@ namespace OpenSage.Viewer.UI
 
                 ImGui.EndChild();
                 ImGui.EndChild();
+            }
+        }
+
+        private void DrawNoGamesUi()
+        {
+            ImGui.BeginChild("content", false, WindowFlags.AlwaysAutoResize);
+            ImGui.Text("OpenSAGE was unable to find any game installations.\n");
+
+            ImGui.Spacing();
+
+            ImGui.Text("You can manually specify installation paths by setting any of the following environment variables:");
+
+            foreach (var gameDefinition in GameDefinition.All)
+            {
+                ImGui.Text($"  {gameDefinition.Identifier.ToUpper()}_PATH=<installation path>");
+            }
+
+            ImGui.Spacing();
+
+            ImGui.Text("OpenSAGE doesn't yet detect every released version of every game. Please report undetected versions to ");
+            ImGui.SameLine();
+            if (ImGui.SmallButton("our GitHub page."))
+            {
+                Process.Start(new ProcessStartInfo("https://github.com/OpenSAGE/OpenSAGE/issues")
+                {
+                    UseShellExecute = true
+                });
+            }
+            ImGui.EndChild();
+        }
+
+        public void Draw(ref bool isGameViewFocused)
+        {
+            ImGui.SetNextWindowPos(Vector2.Zero, Condition.Always, Vector2.Zero);
+            ImGui.SetNextWindowSize(new Vector2(_gameWindow.ClientBounds.Width, _gameWindow.ClientBounds.Height), Condition.Always);
+
+            ImGui.PushStyleVar(StyleVar.WindowRounding, 0);
+            ImGui.BeginWindow("OpenSAGE Viewer", WindowFlags.MenuBar | WindowFlags.NoTitleBar);
+
+            if (_gamePanel != null)
+            {
+                _gamePanel.IsGameViewActive = isGameViewFocused;
+                DrawMainUi(ref isGameViewFocused);
+            }
+            else
+            {
+                DrawNoGamesUi();
             }
 
             ImGui.EndWindow();
