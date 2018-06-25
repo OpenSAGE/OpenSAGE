@@ -57,10 +57,12 @@ Here's a rough roadmap:
 ### Platforms
 
 * [x] Windows
+  * OpenGL 4.3
+  * Direct3D 11
 * [x] Mac
+  * Metal 2 (requires macOS High Sierra)
 * [x] Linux
-
-All platforms support OpenGL. Additionally, Windows defaults to Direct3D 11 and MacOS defaults to Metal 2.
+  * OpenGL 4.3
 
 ## Legal disclaimers
 
