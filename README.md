@@ -57,8 +57,12 @@ Here's a rough roadmap:
 ### Platforms
 
 * [x] Windows
-* [ ] Mac
-* [ ] Linux
+  * OpenGL 4.3
+  * Direct3D 11
+* [x] Mac
+  * Metal 2 (requires macOS High Sierra)
+* [x] Linux
+  * OpenGL 4.3
 
 ## Legal disclaimers
 
