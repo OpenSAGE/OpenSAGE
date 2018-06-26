@@ -21,11 +21,11 @@ namespace OpenSage.Content
             {
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
-                    contentManager.IniDataContext.LoadIniFile(@"Data\English\HeaderTemplate.ini");
+                    contentManager.IniDataContext.LoadIniFile($@"Data\{LanguageSetting.Current}\HeaderTemplate.ini");
                     break;
 
                 case SageGame.Bfme:
-                    contentManager.IniDataContext.LoadIniFile(@"lang\english\headertemplate.ini");
+                    contentManager.IniDataContext.LoadIniFile($@"lang\{LanguageSetting.Current}\headertemplate.ini");
                     break;
 
                 case SageGame.Bfme2:

@@ -16,7 +16,7 @@ namespace OpenSage.Content
             {
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
-                    csfEntry = fileSystem.GetFile(@"Data\English\generals.csf");
+                    csfEntry = fileSystem.GetFile($@"Data\{LanguageSetting.Current}\generals.csf");
                     break;
                 case SageGame.Bfme:
                 case SageGame.Bfme2:

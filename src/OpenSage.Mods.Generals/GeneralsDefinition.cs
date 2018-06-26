@@ -16,7 +16,8 @@ namespace OpenSage.Mods.Generals
 
         public IEnumerable<RegistryKeyPath> RegistryKeys { get; } = new[]
         {
-            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\Generals", "InstallPath")
+            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\Generals", "InstallPath"),
+            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\Generals", "Language")
         };
 
         public string Identifier { get; } = "cnc_generals";

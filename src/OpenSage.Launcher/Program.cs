@@ -68,6 +68,7 @@ namespace OpenSage.Launcher
             }
 
             Platform.Start();
+            LanguageSetting.ReadFromRegistry(definition);
 
             // TODO: Read game version from assembly metadata or .git folder
             // TODO: Set window icon.
