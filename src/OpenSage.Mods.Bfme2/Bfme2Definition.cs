@@ -19,6 +19,8 @@ namespace OpenSage.Mods.Bfme2
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\The Battle for Middle-earth II", "InstallPath")
         };
 
+        public IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; }
+
         public string Identifier { get; } = "bfme2";
 
         public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");

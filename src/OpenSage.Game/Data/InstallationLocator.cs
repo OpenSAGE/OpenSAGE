@@ -107,7 +107,7 @@ namespace OpenSage.Data
                 }
             }
 
-            var paths = game.RegistryKeys.Select(RegistryReader.GetRegistryValue);
+            var paths = game.RegistryKeys.Select(RegistryUtility.GetRegistryValue);
 
             var installations = GetValidPaths(paths)
                 .Select(p => new GameInstallation(game, p, baseGameInstallation))

@@ -17,6 +17,8 @@ namespace OpenSage.Mods.CnC3
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\Command and Conquer 3", "InstallPath")
         };
 
+        public IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; }
+
         public string Identifier { get; } = "cnc3";
 
         public IMainMenuSource MainMenu { get; }

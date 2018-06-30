@@ -4,7 +4,7 @@ using OpenSage.Data;
 
 namespace OpenSage.Utilities
 {
-    public static class RegistryReader
+    public static class RegistryUtility
     {
         public static string GetRegistryValue(RegistryKeyPath keyPath)
         {
