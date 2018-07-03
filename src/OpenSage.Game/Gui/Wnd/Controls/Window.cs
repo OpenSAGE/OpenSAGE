@@ -1,6 +1,8 @@
-﻿using System.Numerics;
+﻿using System.Linq;
+using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Mathematics;
+using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Gui.Wnd.Controls
 {
@@ -76,6 +78,18 @@ namespace OpenSage.Gui.Wnd.Controls
             drawControlRecursive(Root);
 
             drawingContext.PopTransform();
+        }
+
+        /// <summary>
+        /// Ensure only one ComboBox is open at the same time
+        /// </summary>
+        public void CloseOpenComboBoxes()
+        {
+            var openComboBoxes = Controls.FindControlsByType<ComboBox>().Where(i=>i.IsDropDownOpen);
+            foreach (var openComboBox in openComboBoxes)
+            {
+                openComboBox.IsDropDownOpen = false;
+            }
         }
     }
 

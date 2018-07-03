@@ -87,6 +87,12 @@ namespace OpenSage.Content
                             TextBoxHoverBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxEditBoxHiliteDrawData, 0, 2, 1),
                             TextBoxDisabledBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxEditBoxDisabledDrawData, 0, 2, 1),
 
+                            ListBoxBackgroundColor = wndWindow.ComboBoxListBoxEnabledDrawData.Items[0].Color.ToColorRgbaF(),
+                            ListBoxBorderColor = wndWindow.ComboBoxListBoxEnabledDrawData.Items[0].BorderColor.ToColorRgbaF(),
+                            DropDownSelectedItemBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxListBoxEnabledDrawData, 1, 3, 2),
+                            DropDownSelectedItemHoverBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxListBoxHiliteDrawData, 1, 3, 2),
+                            ListBoxDisabledBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxListBoxDisabledDrawData, 1, 3, 2),
+
                             DropDownButtonImage = imageLoader.CreateNormalImage(wndWindow.ComboBoxDropDownButtonEnabledDrawData, 0),
 
                             DropDownUpButtonImage = imageLoader.CreateNormalImage(wndWindow.ListBoxEnabledUpButtonDrawData, 0),
@@ -97,8 +103,6 @@ namespace OpenSage.Content
 
                             DropDownThumbImage = imageLoader.CreateNormalImage(wndWindow.SliderThumbEnabledDrawData, 0),
                             DropDownThumbHoverImage = imageLoader.CreateNormalImage(wndWindow.SliderThumbHiliteDrawData, 0),
-
-                            DropDownSelectedItemBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.HiliteDrawData, 1, 3, 2)
                         };
 
                     case WndWindowType.HorizontalSlider:

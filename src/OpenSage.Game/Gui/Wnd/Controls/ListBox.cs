@@ -175,6 +175,7 @@ namespace OpenSage.Gui.Wnd.Controls
             var itemsWidth = IsScrollBarVisible
                 ? _upButton.Left
                 : ClientSize.Width;
+            
             _itemsArea.Bounds = new Rectangle(
                 0,
                 0,
@@ -239,7 +240,7 @@ namespace OpenSage.Gui.Wnd.Controls
             }
         }
 
-        private void UpdateSelectedItem()
+        public void UpdateSelectedItem()
         {
             for (var i = 0; i < _items.Length; i++)
             {

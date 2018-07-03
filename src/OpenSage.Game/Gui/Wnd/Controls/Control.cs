@@ -204,7 +204,7 @@ namespace OpenSage.Gui.Wnd.Controls
             return result;
         }
 
-        public bool HitTest(in Point2D windowPoint)
+        public virtual bool HitTest(in Point2D windowPoint)
         {
             if (!Enabled || !Visible || Opacity != 1)
             {
@@ -255,7 +255,7 @@ namespace OpenSage.Gui.Wnd.Controls
                 result.Add(control);
             }
 
-            findRecursive(this);
+            findRecursive(this.Window ?? this);
 
             return result.ToArray();
         }

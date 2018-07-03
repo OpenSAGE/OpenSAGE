@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
@@ -34,6 +35,25 @@ namespace OpenSage.Gui.Wnd.Controls
             get => _editBox.DisabledBackgroundImage;
             set => _editBox.DisabledBackgroundImage = value;
         }
+
+        public ColorRgbaF ListBoxBackgroundColor
+        {
+            get => _listBox.BackgroundColor;
+            set => _listBox.BackgroundColor = value;
+        }
+
+        public ColorRgbaF ListBoxBorderColor
+        {
+            get => _listBox.BorderColor;
+            set => _listBox.BorderColor = value;
+        }
+
+        public Image ListBoxDisabledBackgroundImage
+        {
+            get => _listBox.DisabledBackgroundImage;
+            set => _listBox.DisabledBackgroundImage = value;
+        }
+
 
         public Image DropDownButtonImage
         {
@@ -101,12 +121,19 @@ namespace OpenSage.Gui.Wnd.Controls
             set => _listBox.SelectedItemBackgroundImage = value;
         }
 
+        public Image DropDownSelectedItemHoverBackgroundImage
+        {
+            get => _listBox.SelectedItemHoverBackgroundImage;
+            set => _listBox.SelectedItemHoverBackgroundImage = value;
+        }
+
         public override Font Font
         {
             set
             {
                 base.Font = value;
                 _listBox.Font = value;
+                _editBox.Font = value;
             }
         }
 
@@ -116,6 +143,7 @@ namespace OpenSage.Gui.Wnd.Controls
             {
                 base.TextColor = value;
                 _listBox.TextColor = value;
+                _editBox.TextColor = value;
             }
         }
 
@@ -131,12 +159,32 @@ namespace OpenSage.Gui.Wnd.Controls
             _listBox = new ListBox();
             _listBox.SelectedIndexChanged += OnSelectedIndexChanged;
             _listBox.Visible = false;
+            _listBox.IsScrollBarVisible = false; // i think its not the right way, but until we see any combobox with slider it can be placed here
+            _listBox.ColumnWidths = new[] { 100 }; // ComboBox has always 100% width because we only have 1 Column
             Controls.Add(_listBox);
+        }
+
+        public override bool HitTest(in Point2D windowPoint)
+        {
+            if (!Enabled || !Visible || Opacity != 1)
+            {
+                return false;
+            }
+
+            var clientPoint = PointToClient(windowPoint);
+            if (!IsDropDownOpen)
+            {
+                return ClientRectangle.Contains(clientPoint);
+            }
+
+            return ClientRectangle.Contains(clientPoint) || _listBox.Bounds.Contains(clientPoint);
+
         }
 
         private void OnDropDownButtonClick(object sender, EventArgs e)
         {
-            IsDropDownOpen = true;
+            this.Window.CloseOpenComboBoxes();
+            IsDropDownOpen = !IsDropDownOpen;
         }
 
         private void OnSelectedIndexChanged(object sender, EventArgs e)
@@ -144,6 +192,7 @@ namespace OpenSage.Gui.Wnd.Controls
             _editBox.Text = SelectedIndex != -1
                 ? Items[SelectedIndex].ColumnData[0]
                 : null;
+            IsDropDownOpen = false;
         }
 
         protected override void LayoutOverride()
@@ -161,11 +210,13 @@ namespace OpenSage.Gui.Wnd.Controls
                 _dropDownButton.Bounds.X,
                 ClientSize.Height);
 
+            //TODO:: This is not working very well.The hight is not correct
+            var itemsHight = (int) Font.Size * Items.Length;
             _listBox.Bounds = new Rectangle(
                 0,
                 ClientSize.Height,
                 ClientSize.Width,
-                200); // TODO
+                itemsHight);
         }
 
         protected override void Dispose(bool disposeManagedResources)
