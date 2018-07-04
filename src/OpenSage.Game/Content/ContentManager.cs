@@ -81,9 +81,7 @@ namespace OpenSage.Content
             IniDataContext.LoadIniFiles(@"Data\INI\Object");
             IniDataContext.LoadIniFiles(@"Data\INI\multiplayer.ini");
 
-            //german2 has an Maps folder - english has an maps folder
-            //so we need to deal with different spells in different versions
-            IniDataContext.LoadIniFile(@"Maps\MapCache.ini", @"maps\MapCache.ini");
+            IniDataContext.LoadIniFile(@"maps\MapCache.ini");
 
             _contentLoaders = new Dictionary<Type, ContentLoader>
             {

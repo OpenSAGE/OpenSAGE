@@ -118,13 +118,6 @@ namespace OpenSage.Data.Ini
             LoadIniFile(_fileSystem.GetFile(filePath));
         }
 
-        public void LoadIniFile(string filePath, string alternativePath)
-        {
-            var file = _fileSystem.GetFile(filePath) ?? _fileSystem.GetFile(alternativePath);
-
-            LoadIniFile(file);
-        }
-        
         public void LoadIniFile(FileSystemEntry entry)
         {
             if (_alreadyLoaded.Contains(entry.FilePath))

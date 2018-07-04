@@ -178,13 +178,13 @@ namespace OpenSage.Gui.Wnd.Controls
             }
 
             return ClientRectangle.Contains(clientPoint) || _listBox.Bounds.Contains(clientPoint);
-
         }
 
         private void OnDropDownButtonClick(object sender, EventArgs e)
         {
+            bool nextState = !IsDropDownOpen;
             this.Window.CloseOpenComboBoxes();
-            IsDropDownOpen = !IsDropDownOpen;
+            IsDropDownOpen = nextState;
         }
 
         private void OnSelectedIndexChanged(object sender, EventArgs e)
@@ -210,13 +210,13 @@ namespace OpenSage.Gui.Wnd.Controls
                 _dropDownButton.Bounds.X,
                 ClientSize.Height);
 
-            //TODO:: This is not working very well.The hight is not correct
-            var itemsHight = (int) Font.Size * Items.Length;
+            //TODO:: This is not working very well.The height is not correct
+            var itemsHeight = (int) Font.Size * Items.Length;
             _listBox.Bounds = new Rectangle(
                 0,
                 ClientSize.Height,
                 ClientSize.Width,
-                itemsHight);
+                itemsHeight);
         }
 
         protected override void Dispose(bool disposeManagedResources)
