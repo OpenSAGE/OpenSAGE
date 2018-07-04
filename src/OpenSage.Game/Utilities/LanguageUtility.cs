@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -19,7 +18,7 @@ namespace OpenSage.Utilities
         /// <returns>language as string</returns>
         public static string ReadCurrentLanguage(IGameDefinition gameDefinition, string rootDirectory)
         {
-            if (Environment.OSVersion.Platform == PlatformID.Win32Windows)
+            if (PlatformUtility.IsWindowsPlatform())
             {
                 if (gameDefinition.LanguageRegistryKeys != null && gameDefinition.LanguageRegistryKeys.Any())
                 {
