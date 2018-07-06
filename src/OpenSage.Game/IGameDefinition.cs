@@ -13,7 +13,8 @@ namespace OpenSage
         string LauncherImagePath { get; }
 
         IEnumerable<RegistryKeyPath> RegistryKeys { get; }
-
+        IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; }
+        
         IMainMenuSource MainMenu { get; }
         IControlBarSource ControlBar { get; }
 

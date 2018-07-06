@@ -19,6 +19,8 @@ namespace OpenSage.Mods.Bfme2
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\The Lord of the Rings, The Rise of the Witch-king", "InstallPath") 
         };
 
+        public IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; }
+
         public string Identifier { get; } = "bfme2_rotwk";
 
         public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");

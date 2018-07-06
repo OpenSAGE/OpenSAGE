@@ -3,6 +3,7 @@ using Microsoft.Win32;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Data
@@ -80,25 +81,6 @@ namespace OpenSage.Data
     // TODO: Move this to the Platform project.
     public class RegistryInstallationLocator : IInstallationLocator
     {
-        private static string GetRegistryValue(RegistryKeyPath keyPath)
-        {
-            // 64-bit Windows uses a separate registry for 32-bit and 64-bit applications.
-            // On a 64-bit system Registry.GetValue uses the 64-bit registry by default, which is why we have to read the value the "long way".
-            using (var baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
-            {
-                using (var key = baseKey.OpenSubKey(keyPath.Key, false))
-                {
-                    var value = key?.GetValue(keyPath.ValueName, null) as string;
-
-                    if (value != null && keyPath.Append != null)
-                    {
-                        value = Path.Combine(value, keyPath.Append);
-                    }
-
-                    return value;
-                }
-            }
-        }
 
         // Validates paths to directories. Removes duplicates.
         private static IEnumerable<string> GetValidPaths(IEnumerable<string> paths)
@@ -125,7 +107,7 @@ namespace OpenSage.Data
                 }
             }
 
-            var paths = game.RegistryKeys.Select(GetRegistryValue);
+            var paths = game.RegistryKeys.Select(RegistryUtility.GetRegistryValue);
 
             var installations = GetValidPaths(paths)
                 .Select(p => new GameInstallation(game, p, baseGameInstallation))

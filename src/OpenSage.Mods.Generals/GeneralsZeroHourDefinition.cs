@@ -21,6 +21,13 @@ namespace OpenSage.Mods.Generals
             new RegistryKeyPath(@"SOFTWARE\EA Games\Command and Conquer Generals Zero Hour", "Install Dir", "Command and Conquer Generals Zero Hour\\")
         };
 
+        public IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; } = new[]
+        {
+            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\Command and Conquer The First Decade", "Language"),
+            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\Command and Conquer Generals Zero Hour", "Language"),
+            new RegistryKeyPath(@"SOFTWARE\EA Games\Command and Conquer Generals Zero Hour", "Language")
+        };
+
         public string Identifier { get; } = "cnc_generals_zh";
 
         public IMainMenuSource MainMenu { get; } = new WndMainMenuSource(@"Menus\MainMenu.wnd");

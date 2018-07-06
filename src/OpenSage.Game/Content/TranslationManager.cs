@@ -8,7 +8,7 @@ namespace OpenSage.Content
     {
         private readonly CsfFile _csfFile;
 
-        public TranslationManager(FileSystem fileSystem,SageGame game)
+        public TranslationManager(FileSystem fileSystem, SageGame game, string language)
         {
             FileSystemEntry csfEntry = null;
 
@@ -16,7 +16,7 @@ namespace OpenSage.Content
             {
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
-                    csfEntry = fileSystem.GetFile(@"Data\English\generals.csf");
+                    csfEntry = fileSystem.GetFile($@"Data\{language}\generals.csf");
                     break;
                 case SageGame.Bfme:
                 case SageGame.Bfme2:

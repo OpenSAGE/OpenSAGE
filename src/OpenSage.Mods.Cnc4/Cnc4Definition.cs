@@ -18,6 +18,8 @@ namespace OpenSage.Mods.Cnc4
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\command and conquer 4", "install dir") // Steam
         };
 
+        public IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; }
+
         public string Identifier { get; } = "cnc4";
 
         public IMainMenuSource MainMenu { get; }

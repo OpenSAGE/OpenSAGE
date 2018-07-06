@@ -75,6 +75,8 @@ namespace OpenSage.Content
 
             SageGame = sageGame;
 
+            string language = LanguageUtility.ReadCurrentLanguage(game.Definition, fileSystem.RootDirectory);
+
             IniDataContext = new IniDataContext(fileSystem);
 
             IniDataContext.LoadIniFiles(@"Data\INI\Default\Object.ini");
@@ -85,7 +87,7 @@ namespace OpenSage.Content
                 { typeof(Model), AddDisposable(new ModelLoader()) },
                 { typeof(Scene3D), AddDisposable(new MapLoader()) },
                 { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
-                { typeof(Window), AddDisposable(new WindowLoader(this, wndCallbackResolver)) },
+                { typeof(Window), AddDisposable(new WindowLoader(this, wndCallbackResolver, language)) },
                 { typeof(AptWindow), AddDisposable(new AptLoader()) },
                 { typeof(WavFile), AddDisposable(new WavLoader()) },
             };
@@ -94,7 +96,7 @@ namespace OpenSage.Content
 
             EffectLibrary = AddDisposable(new EffectLibrary(graphicsDevice));
 
-            TranslationManager = new TranslationManager(fileSystem, sageGame);
+            TranslationManager = new TranslationManager(fileSystem, sageGame, language);
 
             _cachedFonts = new Dictionary<FontKey, Font>();
 

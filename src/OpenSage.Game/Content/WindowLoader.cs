@@ -13,7 +13,7 @@ namespace OpenSage.Content
     {
         private readonly WndCallbackResolver _wndCallbackResolver;
 
-        public WindowLoader(ContentManager contentManager, WndCallbackResolver wndCallbackResolver)
+        public WindowLoader(ContentManager contentManager, WndCallbackResolver wndCallbackResolver, string language)
         {
             _wndCallbackResolver = wndCallbackResolver;
 
@@ -21,11 +21,11 @@ namespace OpenSage.Content
             {
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
-                    contentManager.IniDataContext.LoadIniFile(@"Data\English\HeaderTemplate.ini");
+                    contentManager.IniDataContext.LoadIniFile($@"Data\{language}\HeaderTemplate.ini");
                     break;
 
                 case SageGame.Bfme:
-                    contentManager.IniDataContext.LoadIniFile(@"lang\english\headertemplate.ini");
+                    contentManager.IniDataContext.LoadIniFile($@"lang\{language}\headertemplate.ini");
                     break;
 
                 case SageGame.Bfme2:
