@@ -180,7 +180,7 @@ namespace OpenSage.Data.Wav
                 throw new InvalidDataException("Invalid .wav DVI ADPCM data!");
             }
             int numBlocks = size / blockSize;
-            var buffer = new byte[samplesPerBlock * 4 * numBlocks];
+            var buffer = new byte[samplesPerBlock * 2 * numBlocks];
             using (var memoryStream = new MemoryStream(buffer))
             using (var writer = new BinaryWriter(memoryStream))
             {
