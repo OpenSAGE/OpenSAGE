@@ -13,7 +13,7 @@ namespace OpenSage.Launcher
         public static void Main(string[] args)
         {
             var noShellMap = false;
-            var definition = GameDefinition.FromGame(SageGame.CncGeneralsZeroHour);
+            var definition = GameDefinition.FromGame(SageGame.CncGenerals);
             string mapName = null;
             GraphicsBackend? preferredBackend = null;
 
