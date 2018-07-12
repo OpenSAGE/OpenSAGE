@@ -1,4 +1,6 @@
-﻿using System;
+﻿using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Mathematics;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -8,24 +10,24 @@ namespace OpenSage.Data.Wav
     // Supported WAV compression formats
     enum AudioFormatType : UInt16
     {
-        Microsoft = 0x01,
+        Pcm = 0x01,
         DviAdpcm  = 0x11,
     }
 
     struct RiffHeader
     {
-        public char[] ChunkId;
+        public string ChunkId;
         public UInt32 ChunkSize;
-        public char[] Format;
+        public string Format;
 
         public static RiffHeader Parse(BinaryReader reader)
         {
             var header = new RiffHeader();
-            header.ChunkId = reader.ReadChars(4);
+            header.ChunkId = reader.ReadFourCc();
             header.ChunkSize = reader.ReadUInt32();
-            header.Format = reader.ReadChars(4);
-            if (new string(header.ChunkId) != "RIFF" ||
-                new string(header.Format) != "WAVE")
+            header.Format = reader.ReadFourCc();
+            if (header.ChunkId != "RIFF" ||
+                header.Format != "WAVE")
             {
                 throw new InvalidDataException("Invalid or missing .wav file header!");
             }
@@ -35,7 +37,7 @@ namespace OpenSage.Data.Wav
 
     struct WaveFormat
     {
-        public char[] SubChunkID;
+        public string SubChunkID;
         public UInt32 SubChunkSize;
         public UInt16 AudioFormat;
         public UInt16 NumChannels;
@@ -49,8 +51,8 @@ namespace OpenSage.Data.Wav
         public static WaveFormat Parse(BinaryReader reader)
         {
             var format = new WaveFormat();
-            format.SubChunkID = reader.ReadChars(4);
-            if (new string(format.SubChunkID) != "fmt ")
+            format.SubChunkID = reader.ReadFourCc();
+            if (format.SubChunkID != "fmt ")
             {
                 throw new InvalidDataException("Invalid or missing .wav file format chunk!");
             }
@@ -63,7 +65,7 @@ namespace OpenSage.Data.Wav
             format.BitsPerSample = reader.ReadUInt16();
             switch ((AudioFormatType) format.AudioFormat)
             {
-                case AudioFormatType.Microsoft:
+                case AudioFormatType.Pcm:
                     format.ExtraBytesSize = 0;
                     format.ExtraBytes = new byte[0];
                     break;
@@ -88,7 +90,7 @@ namespace OpenSage.Data.Wav
 
     struct WaveFact
     {
-        public char[] SubChunkID;
+        public string SubChunkID;
         public UInt32 SubChunkSize;
         // Technically this chunk could contain arbitrary data. But in practice
         // it only ever contains a single UInt32 representing the number of
@@ -98,8 +100,8 @@ namespace OpenSage.Data.Wav
         public static WaveFact Parse(BinaryReader reader)
         {
             var fact = new WaveFact();
-            fact.SubChunkID = reader.ReadChars(4);
-            if (new string(fact.SubChunkID) != "fact")
+            fact.SubChunkID = reader.ReadFourCc();
+            if (fact.SubChunkID != "fact")
             {
                 throw new InvalidDataException("Invalid or missing .wav file fact chunk!");
             }
@@ -115,14 +117,14 @@ namespace OpenSage.Data.Wav
 
     struct WaveData
     {
-        public char[] SubChunkID; //should contain the word data
-        public UInt32 SubChunkSize; //Stores the size of the data block
+        public string SubChunkID; // should contain the word data
+        public UInt32 SubChunkSize; // Stores the size of the data block
 
         public static WaveData Parse(BinaryReader reader)
         {
             var data = new WaveData();
-            data.SubChunkID = reader.ReadChars(4);
-            if (new string(data.SubChunkID) != "data")
+            data.SubChunkID = reader.ReadFourCc();
+            if (data.SubChunkID != "data")
             {
                 throw new InvalidDataException("Invalid or missing .wav file data chunk!");
             }
@@ -131,36 +133,41 @@ namespace OpenSage.Data.Wav
         }
     };
 
-    public sealed class WavFile
+    internal abstract class WavParser
     {
-        private RiffHeader _header;
-        private WaveFormat _format;
-        private WaveFact _fact;
-        private WaveData _data;
-        private byte[] _buffer;
+        public abstract byte[] Parse(BinaryReader reader, int size, WaveFormat format);
 
-        public int Size => _buffer.Length;
-        public int Frequency => (int)_format.SampleRate;
-        public int AudioFormat => _format.AudioFormat;
-        public int Channels => _format.NumChannels;
-        public int BitsPerSample => _format.BitsPerSample;
-        public byte[] Buffer => _buffer;
+        public static WavParser GetParser(AudioFormatType type)
+        {
+            switch(type)
+            {
+                case AudioFormatType.Pcm: return new PcmParser();
+                case AudioFormatType.DviAdpcm: return new DviAdpcmParser();
+                default: throw new NotSupportedException("Invalid or unknown .wav compression format!");
+            }
+        }
+    }
 
+    internal class PcmParser : WavParser
+    {
+        public override byte[] Parse(BinaryReader reader, int size, WaveFormat format)
+        {
+            return reader.ReadBytes(size);
+        }
+    }
+
+    internal class DviAdpcmParser : WavParser
+    {
         private int ByteToInt16(byte[] packed)
         {
             // This is always little endian, unlike the C# builtin for unpacking a byte array.
             return (packed[1] << 8) | packed[0];
         }
 
-        private byte[] ParseMicrosoft(BinaryReader reader, int size)
+        public override byte[] Parse(BinaryReader reader, int size, WaveFormat format)
         {
-            return reader.ReadBytes(size);
-        }
-        
-        private byte[] ParseDviAdpcm(BinaryReader reader, int size, int samplesPerBlock)
-        {
-            var imaIndexTable = new int[16] {
-              -1, -1, -1, -1, 2, 4, 6, 8,
+            int samplesPerBlock = ByteToInt16(format.ExtraBytes);
+            var imaIndexTable = new int[8] {
               -1, -1, -1, -1, 2, 4, 6, 8
             };
             var imaStepTable = new int[89] {
@@ -194,24 +201,38 @@ namespace OpenSage.Data.Wav
                     for (int j = 0; j < (samplesPerBlock - 1) / 2; j++)
                     {
                         byte packed = reader.ReadByte();
-                        byte nibble_low = (byte) (packed & 0xF);
-                        byte nibble_high = (byte) (packed >> 4);
-                        foreach (var nibble in new byte[] { nibble_low , nibble_high })
+                        Span<byte> nibbles = stackalloc byte[2];
+                        nibbles[0] = (byte) (packed & 0xF);
+                        nibbles[1] = (byte) (packed >> 4);
+                        foreach (var nibble in nibbles)
                         {
-                            stepTableIndex += imaIndexTable[nibble];
-                            if (stepTableIndex > 88) stepTableIndex = 88;
-                            if (stepTableIndex < 0) stepTableIndex = 0;
+                            stepTableIndex += imaIndexTable[nibble & 0x7];
+                            stepTableIndex = MathUtility.Clamp(stepTableIndex, 0, 88);
                             byte sign = (byte) (nibble & 8);
                             byte delta = (byte) (nibble & 7);
                             int diff = step >> 3;
-                            if ((delta & 4) != 0) diff += step;
-                            if ((delta & 2) != 0) diff += (step >> 1);
-                            if ((delta & 1) != 0) diff += (step >> 2);
-                            if (sign != 0) sample -= diff;
-                            else sample += diff;
+                            if ((delta & 4) != 0)
+                            {
+                                diff += step;
+                            }
+                            if ((delta & 2) != 0)
+                            {
+                                diff += (step >> 1);
+                            }
+                            if ((delta & 1) != 0)
+                            {
+                                diff += (step >> 2);
+                            }
+                            if (sign != 0)
+                            {
+                                sample -= diff;
+                            }
+                            else
+                            {
+                                sample += diff;
+                            }
                             step = imaStepTable[stepTableIndex];
-                            if (sample > 0xFFFF) sample = 0xFFFF;
-                            if (sample < -0xFFFF) sample = -0xFFFF;
+                            sample = MathUtility.Clamp(sample, -32768, 32767);
                             writer.Write((Int16) sample);
                         }
                     }
@@ -219,34 +240,44 @@ namespace OpenSage.Data.Wav
             }
             return buffer;
         }
+    }
+
+    public sealed class WavFile
+    {
+        private RiffHeader _header;
+        private WaveFormat _format;
+        private WaveFact _fact;
+        private WaveData _data;
+        private byte[] _buffer;
+
+        public int Size => _buffer.Length;
+        public int Frequency => (int)_format.SampleRate;
+        public int AudioFormat => _format.AudioFormat;
+        public int Channels => _format.NumChannels;
+        public int BitsPerSample => IsCompressed() ? 16 : _format.BitsPerSample;
+        public byte[] Buffer => _buffer;
+
+        private bool IsCompressed()
+        {
+            // Anything not raw PCM is compressed
+            return (AudioFormatType) AudioFormat != AudioFormatType.Pcm;
+        }
 
         public void Parse(BinaryReader reader)
         {
             _header = RiffHeader.Parse(reader);
             _format = WaveFormat.Parse(reader);
 
-            // Every format except the original Microsoft format must have a fact chunk
-            if ((AudioFormatType) _format.AudioFormat != AudioFormatType.Microsoft)
+            // Every format except the original PCM format must have a fact chunk
+            if ((AudioFormatType) _format.AudioFormat != AudioFormatType.Pcm)
             {
                 _fact = WaveFact.Parse(reader);
             }
 
             _data = WaveData.Parse(reader);
-            switch ((AudioFormatType) _format.AudioFormat)
-            {
-                case AudioFormatType.Microsoft:
-                    _buffer = ParseMicrosoft(reader, (int) _data.SubChunkSize);
-                    break;
-                case AudioFormatType.DviAdpcm:
-                    _buffer = ParseDviAdpcm(reader,
-                                            (int) _data.SubChunkSize,
-                                            ByteToInt16(_format.ExtraBytes));
-                    break;
-                default:
-                    // Should never happen (since it should throw on parse)
-                    _buffer = new byte[0];
-                    throw new NotSupportedException("Invalid or unknown .wav compression format!");
-            }
+            _buffer = WavParser
+                .GetParser((AudioFormatType)_format.AudioFormat)
+                .Parse(reader, (int) _data.SubChunkSize, _format);
         }
 
         public static WavFile FromFileSystemEntry(FileSystemEntry entry)

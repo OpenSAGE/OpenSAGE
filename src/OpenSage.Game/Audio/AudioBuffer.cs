@@ -22,45 +22,38 @@ namespace OpenSage.Audio
         public AudioBuffer(WavFile wavFile) : this()
         {
             int format = 0;
-            if ((AudioFormatType) wavFile.AudioFormat != AudioFormatType.Microsoft)
+            switch (wavFile.Channels)
             {
-                format = AL10.AL_FORMAT_MONO16;
-            }
-            else
-            {
-                switch (wavFile.Channels)
-                {
-                    case 1:
+                case 1:
+                    {
+                        switch (wavFile.BitsPerSample)
                         {
-                            switch (wavFile.BitsPerSample)
-                            {
-                                case 8:
-                                    format = AL10.AL_FORMAT_MONO8;
-                                    break;
-                                case 16:
-                                    format = AL10.AL_FORMAT_MONO16;
-                                    break;
-                                default:
-                                    throw new NotSupportedException("Invalid audio format!");
-                            }
+                            case 8:
+                                format = AL10.AL_FORMAT_MONO8;
+                                break;
+                            case 16:
+                                format = AL10.AL_FORMAT_MONO16;
+                                break;
+                            default:
+                                throw new NotSupportedException("Invalid audio format!");
                         }
-                        break;
-                    case 2:
+                    }
+                    break;
+                case 2:
+                    {
+                        switch (wavFile.BitsPerSample)
                         {
-                            switch (wavFile.BitsPerSample)
-                            {
-                                case 8:
-                                    format = AL10.AL_FORMAT_STEREO8;
-                                    break;
-                                case 16:
-                                    format = AL10.AL_FORMAT_STEREO16;
-                                    break;
-                                default:
-                                    throw new NotSupportedException("Invalid audio format!");
-                            }
+                            case 8:
+                                format = AL10.AL_FORMAT_STEREO8;
+                                break;
+                            case 16:
+                                format = AL10.AL_FORMAT_STEREO16;
+                                break;
+                            default:
+                                throw new NotSupportedException("Invalid audio format!");
                         }
-                        break;
-                }
+                    }
+                    break;
             }
 
             AL10.alBufferData(_handle, format, wavFile.Buffer, wavFile.Size, wavFile.Frequency);
