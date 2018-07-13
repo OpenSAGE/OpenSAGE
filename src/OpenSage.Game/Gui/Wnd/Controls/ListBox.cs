@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
@@ -96,6 +97,12 @@ namespace OpenSage.Gui.Wnd.Controls
             set => _itemsArea.SelectedIndex = value;
         }
 
+        public int MaxDisplay
+        {
+            get => _itemsArea.MaxDisplay;
+            set => _itemsArea.MaxDisplay = value;
+        }
+
         public override Font Font
         {
             set
@@ -134,12 +141,12 @@ namespace OpenSage.Gui.Wnd.Controls
 
         private void OnUpButtonClick(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            _itemsArea.CurrentStartIndex = Math.Max(_itemsArea.CurrentStartIndex - 1, 0);
         }
 
         private void OnDownButtonClick(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            _itemsArea.CurrentStartIndex = Math.Min(_itemsArea.CurrentStartIndex + 1, Items.Length - MaxDisplay);
         }
 
         private void OnThumbClick(object sender, EventArgs e)
@@ -166,12 +173,19 @@ namespace OpenSage.Gui.Wnd.Controls
                 downButtonSize.Height);
 
             var thumbSize = _thumb.GetPreferredSize(infiniteSize);
+            var thumbHeight = thumbSize.Height;
+            if (IsScrollBarVisible)
+            {
+                var fullHeight = _downButton.Bounds.Top - _upButton.Bounds.Bottom;
+                thumbHeight = (int)Math.Max((float)fullHeight / (float)Items.Length * (float)MaxDisplay, 1); //TODO:: We currently have a problem with the propotions of the elements
+            }
+            
             _thumb.Bounds = new Rectangle(
                 ClientRectangle.Right - thumbSize.Width,
                 _upButton.Bounds.Bottom,
                 thumbSize.Width,
-                thumbSize.Height);
-
+                thumbHeight);
+            
             var itemsWidth = IsScrollBarVisible
                 ? _upButton.Left
                 : ClientSize.Width;
@@ -197,6 +211,8 @@ namespace OpenSage.Gui.Wnd.Controls
     {
         public object DataItem { get; }
         public string[] ColumnData { get; }
+
+        public int ListBoxItemHeight { get; set; }
 
         public ListBoxDataItem(object dataItem, string[] columnData)
         {
@@ -228,6 +244,17 @@ namespace OpenSage.Gui.Wnd.Controls
             }
         }
 
+        private int _currentStartIndex = 0;
+        public int CurrentStartIndex
+        {
+            get => _currentStartIndex;
+            set
+            {
+                _currentStartIndex = value;
+                InvalidateLayout();
+            }
+        }
+
         private int _selectedIndex = -1;
         public int SelectedIndex
         {
@@ -237,6 +264,17 @@ namespace OpenSage.Gui.Wnd.Controls
                 _selectedIndex = value;
                 UpdateSelectedItem();
                 SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        private int _maxDisplay = -1;
+        public int MaxDisplay
+        {
+            get => _maxDisplay;
+            set
+            {
+                _maxDisplay = value;
+                InvalidateLayout();
             }
         }
 
@@ -288,12 +326,26 @@ namespace OpenSage.Gui.Wnd.Controls
 
         protected override void LayoutOverride()
         {
+            var stillVisible = MaxDisplay == -1 ? Items.Length : MaxDisplay;
             var y = 0;
+            if (Controls.Any())
+            {
+                y = _currentStartIndex * Controls.First().GetPreferredSize(ClientSize).Height * -1;
+            }
 
             foreach (var child in Controls)
             {
-                var childHeight = child.GetPreferredSize(ClientSize).Height;
-
+                var childHeight = child.GetPreferredSize(ClientSize).Height; ;
+                if (y >= 0 && stillVisible > 0)
+                {
+                    child.Visible = true;
+                    stillVisible--;
+                }
+                else
+                {
+                    child.Visible = false;
+                }
+                
                 child.Bounds = new Rectangle(0, y, ClientSize.Width, childHeight);
 
                 y += childHeight;
@@ -330,11 +382,12 @@ namespace OpenSage.Gui.Wnd.Controls
         {
             _parent = parent;
             _item = item;
+            _item.ListBoxItemHeight = GetPreferredSize(ClientSize).Height;
         }
-
+        
         private ListBoxItemDimension GetItemBounds(in Size proposedSize)
         {
-            if (proposedSize == _lastProposedSize)
+            if (proposedSize == _lastProposedSize && _cachedDimension != null)
             {
                 return _cachedDimension;
             }
@@ -348,7 +401,6 @@ namespace OpenSage.Gui.Wnd.Controls
             }
 
             var font = _parent.Font;
-
             var itemHeight = int.MinValue;
             for (var column = 0; column < _parent.ColumnWidths.Length; column++)
             {

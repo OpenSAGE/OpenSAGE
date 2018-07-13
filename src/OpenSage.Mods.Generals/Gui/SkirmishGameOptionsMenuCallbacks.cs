@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
-using OpenSage.Mathematics;
 using OpenSage.Network;
 using OpenSage.Utilities.Extensions;
 
@@ -61,12 +60,15 @@ namespace OpenSage.Mods.Generals.Gui
                 "Team:0", "Team:1", "Team:2", "Team:3", "Team:4"
             });
 
-            //Maybe we can selcet the data by linq with prefix SIDE:
-            FillComboBoxOptions(ComboBoxPlayerTemplatePrefix, new[]
+            var playableSides = game.ContentManager.IniDataContext.PlayerTemplates.FindAll(i => i.PlayableSide);
+            if(playableSides.Count > 0)
             {
-                "GUI:RandomSide", "SIDE:America", "SIDE:China", "SIDE:GLA"
-            });
+                var sideList = playableSides.Select(i => i.DisplayName).ToList();
+                sideList.Insert(0, "GUI:RandomSide");
 
+                FillComboBoxOptions(ComboBoxPlayerTemplatePrefix, sideList.ToArray());
+            }
+            
             //Maybe we can selcet the data by linq with prefix Color:
             FillComboBoxOptions(ComboBoxColorPrefix, new[]
             {

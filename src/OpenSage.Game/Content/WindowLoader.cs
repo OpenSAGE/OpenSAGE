@@ -82,6 +82,7 @@ namespace OpenSage.Content
                         var combobox = new ComboBox
                         {
                             IsEditable = wndWindow.ComboBoxData.IsEditable,
+                            MaxDisplay = wndWindow.ComboBoxData.MaxDisplay,
 
                             TextBoxBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxEditBoxEnabledDrawData, 0, 2, 1),
                             TextBoxHoverBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxEditBoxHiliteDrawData, 0, 2, 1),

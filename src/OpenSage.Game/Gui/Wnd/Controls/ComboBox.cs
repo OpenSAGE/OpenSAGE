@@ -70,7 +70,11 @@ namespace OpenSage.Gui.Wnd.Controls
         public ListBoxDataItem[] Items
         {
             get => _listBox.Items;
-            set => _listBox.Items = value;
+            set
+            {
+                _listBox.Items = value;
+                _listBox.IsScrollBarVisible = MaxDisplay < value.Length;
+            }
         }
 
         public int SelectedIndex
@@ -126,6 +130,12 @@ namespace OpenSage.Gui.Wnd.Controls
             get => _listBox.SelectedItemHoverBackgroundImage;
             set => _listBox.SelectedItemHoverBackgroundImage = value;
         }
+        
+        public int MaxDisplay
+        {
+            get => _listBox.MaxDisplay;
+            set =>_listBox.MaxDisplay = value;
+        }
 
         public override Font Font
         {
@@ -159,7 +169,6 @@ namespace OpenSage.Gui.Wnd.Controls
             _listBox = new ListBox();
             _listBox.SelectedIndexChanged += OnSelectedIndexChanged;
             _listBox.Visible = false;
-            _listBox.IsScrollBarVisible = false; // i think its not the right way, but until we see any combobox with slider it can be placed here
             _listBox.ColumnWidths = new[] { 100 }; // ComboBox has always 100% width because we only have 1 Column
             Controls.Add(_listBox);
         }
@@ -210,8 +219,7 @@ namespace OpenSage.Gui.Wnd.Controls
                 _dropDownButton.Bounds.X,
                 ClientSize.Height);
 
-            //TODO:: This is not working very well.The height is not correct
-            var itemsHeight = (int) Font.Size * Items.Length;
+            var itemsHeight = MaxDisplay >= Items.Length ? Items.Sum(i => i.ListBoxItemHeight) : MaxDisplay * Items.First().ListBoxItemHeight;
             _listBox.Bounds = new Rectangle(
                 0,
                 ClientSize.Height,
