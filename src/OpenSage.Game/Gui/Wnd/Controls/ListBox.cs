@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using OpenSage.Data.Ini;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
@@ -211,13 +212,21 @@ namespace OpenSage.Gui.Wnd.Controls
     {
         public object DataItem { get; }
         public string[] ColumnData { get; }
-
         public int ListBoxItemHeight { get; set; }
+        public ColorRgbaF TextColor { get; }
 
         public ListBoxDataItem(object dataItem, string[] columnData)
         {
             DataItem = dataItem;
             ColumnData = columnData;
+            TextColor = ((Control) dataItem).TextColor;
+        }
+
+        public ListBoxDataItem(object dataItem, string[] columnData, ColorRgbaF textColor)
+        {
+            DataItem = dataItem;
+            ColumnData = columnData;
+            TextColor = textColor;
         }
     }
 
@@ -463,7 +472,7 @@ namespace OpenSage.Gui.Wnd.Controls
                     _item.ColumnData[column],
                     _parent.Font,
                     TextAlignment.Leading,
-                    _parent.TextColor,
+                    _item.TextColor,
                     itemBounds.ColumnBounds[column]);
             }
         }

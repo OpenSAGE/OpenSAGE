@@ -201,6 +201,7 @@ namespace OpenSage.Gui.Wnd.Controls
             _editBox.Text = SelectedIndex != -1
                 ? Items[SelectedIndex].ColumnData[0]
                 : null;
+            _editBox.TextColor = Items[SelectedIndex].TextColor;
             IsDropDownOpen = false;
         }
 

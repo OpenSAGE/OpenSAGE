@@ -1,6 +1,9 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using OpenSage.Data.Ini;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
+using OpenSage.Mathematics;
 using OpenSage.Network;
 using OpenSage.Utilities.Extensions;
 
@@ -68,13 +71,16 @@ namespace OpenSage.Mods.Generals.Gui
 
                 FillComboBoxOptions(ComboBoxPlayerTemplatePrefix, sideList.ToArray());
             }
-            
-            //Maybe we can selcet the data by linq with prefix Color:
-            FillComboBoxOptions(ComboBoxColorPrefix, new[]
-            {
-                "GUI:???", "Color:Gold", "Color:Red", "Color:Green", "Color:Orange", "Color:SkyBlue", "Color:Purple", "Color:Pink"
-            });
 
+            if (game.ContentManager.IniDataContext.MultiplayerColors.Count > 0)
+            {
+                var colors = game.ContentManager.IniDataContext.MultiplayerColors.Select(i => new KeyValuePair<string, ColorRgbaF>(i.TooltipName, i.RgbColor.ToColorRgbaF())).ToList();
+                var randomColor = new KeyValuePair<string, ColorRgbaF>("GUI:???", ColorRgbaF.White);
+                colors.Insert(0, randomColor);
+
+                FillColorComboBoxOptions(colors.ToArray());
+            }
+            
             FillComboBoxOptions(ComboBoxPlayerPrefix, new[]
             {
                 "GUI:Open", "GUI:Closed", "GUI:EasyAI", "GUI:MediumAI", "GUI:HardAI"
@@ -96,6 +102,23 @@ namespace OpenSage.Mods.Generals.Gui
                 if(comboBox.Name.Length -1 != key.Length) continue;
                 ListBoxDataItem[] items = options.Select(i =>
                     new ListBoxDataItem(comboBox, new[] {_game.ContentManager.TranslationManager.Lookup(i)})).ToArray();
+                comboBox.Items = items;
+                comboBox.SelectedIndex = selectedIndex;
+            }
+        }
+
+        /// <summary>
+        /// Fill all related color ComboBoxs with the same data
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="selectedIndex"></param>
+        private static void FillColorComboBoxOptions(KeyValuePair<string, ColorRgbaF>[] options, int selectedIndex = 0)
+        {
+            var comboBoxs = _window.Controls.FindControlsStratsWith<ComboBox>(ComboBoxColorPrefix);
+            foreach (ComboBox comboBox in comboBoxs)
+            {
+                ListBoxDataItem[] items = options.Select(i =>
+                    new ListBoxDataItem(comboBox, new[] { _game.ContentManager.TranslationManager.Lookup(i.Key) }, i.Value)).ToArray();
                 comboBox.Items = items;
                 comboBox.SelectedIndex = selectedIndex;
             }
