@@ -395,7 +395,7 @@ namespace OpenSage.Gui.Wnd.Controls
             _item = item;
             _item.ListBoxItemHeight = GetPreferredSize(ClientSize).Height;
         }
-        
+
         private ListBoxItemDimension GetItemBounds(in Size proposedSize)
         {
             if (proposedSize == _lastProposedSize && _cachedDimension != null)
