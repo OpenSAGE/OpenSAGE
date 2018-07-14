@@ -2,6 +2,7 @@
 using System.Linq;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
+using OpenSage.Utilities.Extensions;
 using SixLabors.Fonts;
 
 namespace OpenSage.Gui.Wnd.Controls
@@ -192,7 +193,7 @@ namespace OpenSage.Gui.Wnd.Controls
         private void OnDropDownButtonClick(object sender, EventArgs e)
         {
             bool nextState = !IsDropDownOpen;
-            this.Window.CloseOpenComboBoxes();
+            CloseOpenComboBoxes();
             IsDropDownOpen = nextState;
         }
 
@@ -234,6 +235,18 @@ namespace OpenSage.Gui.Wnd.Controls
             _dropDownButton.Click -= OnDropDownButtonClick;
 
             base.Dispose(disposeManagedResources);
+        }
+
+        /// <summary>
+        /// Ensure only one ComboBox is open at the same time
+        /// </summary>
+        private void CloseOpenComboBoxes()
+        {
+            var openComboBoxes = GetSelfAndDescendants(Window).OfType<ComboBox>().Where(i => i.IsDropDownOpen);
+            foreach (var openComboBox in openComboBoxes)
+            {
+                openComboBox.IsDropDownOpen = false;
+            }
         }
     }
 }

@@ -1,55 +1,51 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using OpenSage.Data.Ini;
-using OpenSage.Graphics.Util;
+﻿using System.Linq;
 using OpenSage.Gui.Wnd.Controls;
-using OpenSage.Utilities.Extensions;
 using Xunit;
 
-namespace OpenSage.Tests.Utilities.Extensions
+namespace OpenSage.Tests.Gui.Wnd
 {
-    public class ControlCollectionExtensionsTests
+    public class ControlTests
     {
         [Fact]
-        public void FindControlsStratsWith_When_TowControlsMatch_Then_ReturnTowControls()
+        public void GetSelfAndDescendants_When_TowControlsMatch_Then_ReturnTowControls()
         {
             var model = BuildTestModel();
-            var result = model.FindControlsStratsWith<ComboBox>("ComboBox");
+            var result = Control.GetSelfAndDescendants(model).OfType<ComboBox>()
+                .Where(i => i.Name.StartsWith("ComboBox"));
 
-            Assert.Equal(2, result.Length);
+            Assert.Equal(2, result.Count());
         }
 
         [Fact]
-        public void FindControlsStratsWith_When_NoControlMatch_Then_ReturnEmptyArray()
+        public void GetSelfAndDescendants_When_NoControlMatch_Then_ReturnEmptyArray()
         {
             var model = BuildTestModel();
-            var result = model.FindControlsStratsWith<ComboBox>("SOME");
+            var result = Control.GetSelfAndDescendants(model).OfType<ComboBox>()
+                .Where(i => i.Name.StartsWith("Some"));
 
             Assert.Empty(result);
         }
 
         [Fact]
-        public void FindControlsByType_When_TypeControlTextBox_Then_ReturnSixControls()
+        public void GetSelfAndDescendants_When_TypeControlTextBox_Then_ReturnSixControls()
         {
             var model = BuildTestModel();
-            var result = model.FindControlsByType<TextBox>();
+            var result = Control.GetSelfAndDescendants(model).OfType<TextBox>();
 
             //4 TextBoxes and 2 from the ComboBoxes
-            Assert.Equal(6, result.Length);
+            Assert.Equal(6, result.Count());
         }
 
         [Fact]
-        public void FindControlsByType_When_NoTypeMatch_Then_ReturnEmptyArray()
+        public void GetSelfAndDescendants_When_NoTypeMatch_Then_ReturnEmptyArray()
         {
             var model = BuildTestModel();
-            var result = model.FindControlsByType<Button>(false);
+            var result = Control.GetSelfAndDescendants(model, false).OfType<Button>();
 
             Assert.Empty(result);
         }
 
-
-        private ControlCollection BuildTestModel()
+        private Control BuildTestModel()
         {
             var owner = new Control();
             owner.Name = "Window";
@@ -68,16 +64,14 @@ namespace OpenSage.Tests.Utilities.Extensions
             var cb2 = new ComboBox();
             cb2.Name = "ComboBox.2";
 
-            var collection = new ControlCollection(owner);
             tb1.Controls.Add(cb1);
             tb2.Controls.Add(tb4);
             tb3.Controls.Add(cb2);
             tb1.Controls.Add(tb3);
-            collection.Add(tb1);
-            collection.Add(tb2);
+            owner.Controls.Add(tb1);
+            owner.Controls.Add(tb2);
 
-            return collection;
+            return owner;
         }
-
     }
 }

@@ -1,5 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using OpenSage;
+using OpenSage.Gui;
+using OpenSage.Gui.Wnd;
+using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
@@ -455,6 +459,26 @@ namespace OpenSage.Gui.Wnd.Controls
             Controls.Clear();
 
             base.Dispose(disposeManagedResources);
+        }
+
+        public static IEnumerable<Control> GetSelfAndDescendants(Control baseControl, bool isRecursive = true)
+        {
+            yield return baseControl;
+
+            foreach (var child in baseControl.Controls)
+            {
+                if (isRecursive)
+                {
+                    foreach (var control in GetSelfAndDescendants(child))
+                    {
+                        yield return control;
+                    }
+                }
+                else
+                {
+                    yield return child;
+                }
+            }
         }
     }
 

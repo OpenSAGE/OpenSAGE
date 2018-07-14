@@ -50,14 +50,12 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void SkirmishGameOptionsMenuInit(Window window, Game game)
         {
-
             _window = window;
             _game = game;
 
             var playerNameTextBox =  (TextBox)_window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:TextEntryPlayerName");
             playerNameTextBox.IsReadOnly = false;
             
-
             FillComboBoxOptions(ComboBoxTeamPrefix, new[]
             {
                 "Team:0", "Team:1", "Team:2", "Team:3", "Team:4"
@@ -85,18 +83,11 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 "GUI:Open", "GUI:Closed", "GUI:EasyAI", "GUI:MediumAI", "GUI:HardAI"
             });
-
         }
 
-        /// <summary>
-        /// Fill all related ComboBoxs with the same data
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="options"></param>
-        /// <param name="selectedIndex"></param>
         private static void FillComboBoxOptions(string key, string[] options, int selectedIndex = 0)
         {
-            var comboBoxs = _window.Controls.FindControlsStratsWith<ComboBox>(key);
+            var comboBoxs = Control.GetSelfAndDescendants(_window).OfType<ComboBox>().Where(i => i.Name.StartsWith(key));
             foreach (ComboBox comboBox in comboBoxs)
             {
                 if(comboBox.Name.Length -1 != key.Length) continue;
@@ -107,14 +98,9 @@ namespace OpenSage.Mods.Generals.Gui
             }
         }
 
-        /// <summary>
-        /// Fill all related color ComboBoxs with the same data
-        /// </summary>
-        /// <param name="options"></param>
-        /// <param name="selectedIndex"></param>
         private static void FillColorComboBoxOptions(KeyValuePair<string, ColorRgbaF>[] options, int selectedIndex = 0)
         {
-            var comboBoxs = _window.Controls.FindControlsStratsWith<ComboBox>(ComboBoxColorPrefix);
+            var comboBoxs = Control.GetSelfAndDescendants(_window).OfType<ComboBox>().Where(i=>i.Name.StartsWith(ComboBoxColorPrefix));
             foreach (ComboBox comboBox in comboBoxs)
             {
                 ListBoxDataItem[] items = options.Select(i =>

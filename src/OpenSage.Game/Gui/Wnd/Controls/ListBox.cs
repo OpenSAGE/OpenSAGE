@@ -178,7 +178,9 @@ namespace OpenSage.Gui.Wnd.Controls
             if (IsScrollBarVisible)
             {
                 var fullHeight = _downButton.Bounds.Top - _upButton.Bounds.Bottom;
-                thumbHeight = (int)Math.Max((float)fullHeight / (float)Items.Length * (float)MaxDisplay, 1); //TODO:: We currently have a problem with the propotions of the elements
+                //TODO We currently have a problem with the propotions of the elements
+                //If you compare the original result with ours, you can see that our elements are larger and the text is smaller.
+                thumbHeight = (int)Math.Max((float)fullHeight / (float)Items.Length * (float)MaxDisplay, 1);
             }
             
             _thumb.Bounds = new Rectangle(
@@ -344,7 +346,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
             foreach (var child in Controls)
             {
-                var childHeight = child.GetPreferredSize(ClientSize).Height; ;
+                var childHeight = child.GetPreferredSize(ClientSize).Height;
                 if (y >= 0 && stillVisible > 0)
                 {
                     child.Visible = true;
