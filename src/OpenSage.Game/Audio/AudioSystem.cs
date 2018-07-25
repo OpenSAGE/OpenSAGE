@@ -13,7 +13,6 @@ namespace OpenSage.Audio
         private List<AudioSource> _sources;
         private Dictionary<string, AudioBuffer> _files;
 
-
         internal static void alCheckError()
         {
             int error;
