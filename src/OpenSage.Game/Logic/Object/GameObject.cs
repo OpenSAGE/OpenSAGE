@@ -26,14 +26,16 @@ namespace OpenSage.Logic.Object
         // TODO: This could use a smaller fixed point type.
         public decimal Health { get; set; }
 
-        public Team Owner { get; set; }
+        public Player Owner { get; set; }
+
+        public Team Team { get; set; }
 
         public bool IsSelectable { get; set; }
 
-        public GameObject(ObjectDefinition objectDefinition, ContentManager contentManager)
+        public GameObject(ObjectDefinition objectDefinition, ContentManager contentManager, Player owner)
         {
             Definition = objectDefinition;
-
+            Owner = owner;
             Transform = Transform.CreateIdentity();
 
             var drawModules = new List<DrawModule>();

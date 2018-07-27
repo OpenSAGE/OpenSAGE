@@ -229,6 +229,8 @@ namespace OpenSage.Content
 
             var cameraOriented = (w3dMesh.Header.Attributes & W3dMeshFlags.GeometryTypeMask) == W3dMeshFlags.GeometryTypeCameraOriented;
 
+            var hasHouseColor = w3dMesh.Header.MeshName.StartsWith("HOUSECOLOR");
+
             return new ModelMesh(
                 contentManager.GraphicsDevice,
                 w3dMesh.Header.MeshName,
@@ -238,7 +240,8 @@ namespace OpenSage.Content
                 w3dMesh.IsSkinned,
                 boundingBox,
                 w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.Hidden),
-                cameraOriented);
+                cameraOriented,
+                hasHouseColor);
         }
 
         private static FixedFunction.ShadingConfiguration CreateShadingConfiguration(W3dShader w3dShader)

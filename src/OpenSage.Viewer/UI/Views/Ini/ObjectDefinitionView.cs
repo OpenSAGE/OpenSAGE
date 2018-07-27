@@ -21,7 +21,7 @@ namespace OpenSage.Viewer.UI.Views.Ini
             : base(context)
         {
             var gameObjects = new GameObjectCollection(context.Game.ContentManager);
-            _gameObject = gameObjects.Add(objectDefinition);
+            _gameObject = gameObjects.Add(objectDefinition, context.Game.CivilianPlayer);
 
             _modelConditionStates = _gameObject.ModelConditionStates.ToList();
             _selectedIndex = 0;

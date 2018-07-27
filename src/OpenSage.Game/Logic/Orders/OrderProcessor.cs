@@ -28,7 +28,7 @@ namespace OpenSage.Logic.Orders
                         var objectDefinition = _game.ContentManager.IniDataContext.Objects[objectDefinitionId - 1];
                         var position = order.Arguments[1].Value.Position;
                         var angle = order.Arguments[2].Value.Float;
-                        var gameObject = _game.Scene3D.GameObjects.Add(objectDefinition);
+                        var gameObject = _game.Scene3D.GameObjects.Add(objectDefinition, player);
                         gameObject.Transform.Translation = position;
                         gameObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle);
                         break;
