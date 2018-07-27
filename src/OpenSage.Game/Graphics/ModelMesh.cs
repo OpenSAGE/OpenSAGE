@@ -36,6 +36,7 @@ namespace OpenSage.Graphics
 
         public bool Hidden { get; }
         public bool CameraOriented { get; }
+        public bool HasHouseColor { get; }
 
         internal ModelMesh(
             GraphicsDevice graphicsDevice,
@@ -46,7 +47,8 @@ namespace OpenSage.Graphics
             bool isSkinned,
             BoundingBox boundingBox,
             bool hidden,
-            bool cameraOriented)
+            bool cameraOriented,
+            bool hasHouseColor)
         {
             Name = name;
 
@@ -56,6 +58,7 @@ namespace OpenSage.Graphics
 
             Hidden = hidden;
             CameraOriented = cameraOriented;
+            HasHouseColor = hasHouseColor;
 
             _vertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(vertexData, BufferUsage.VertexBuffer));
 

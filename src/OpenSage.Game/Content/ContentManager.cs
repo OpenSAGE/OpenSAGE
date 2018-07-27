@@ -284,7 +284,7 @@ namespace OpenSage.Content
             var objectDefinition = IniDataContext.Objects.FirstOrDefault(x => x.Name == typeName);
             if (objectDefinition != null)
             {
-                return new GameObject(objectDefinition, this);
+                return new GameObject(objectDefinition, this, _game.CivilianPlayer);
             }
             else
             {
