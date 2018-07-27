@@ -1,4 +1,6 @@
-﻿namespace OpenSage.Mathematics
+﻿using OpenSage.Data.W3d;
+
+namespace OpenSage.Mathematics
 {
     public struct ColorRgb
     {
@@ -20,6 +22,16 @@
             var b = (byte) (rgb & 0xFF);
 
             return new ColorRgb(r, g, b);
+        }
+
+        public W3dRgb ToW3dRgb()
+        {
+            return new W3dRgb
+            {
+                R = R,
+                G = G,
+                B = B
+            };
         }
     }
 }

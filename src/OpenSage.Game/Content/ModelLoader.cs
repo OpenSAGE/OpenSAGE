@@ -20,6 +20,8 @@ namespace OpenSage.Content
 {
     internal sealed class ModelLoader : ContentLoader<Model>
     {
+        private readonly W3dRgb _defaultHouseColor = new W3dRgb { B = 255, R = 0, G = 0 };
+
         protected override Model LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
         {
             var w3dFile = W3dFile.FromFileSystemEntry(entry);
@@ -38,13 +40,15 @@ namespace OpenSage.Content
             return CreateModel(
                 contentManager,
                 w3dFile,
-                w3dHierarchy);
+                w3dHierarchy,
+                loadOptions?.HouseColor.ToW3dRgb() ?? _defaultHouseColor);
         }
 
         private Model CreateModel(
             ContentManager contentManager,
             W3dFile w3dFile,
-            W3dHierarchyDef w3dHierarchy)
+            W3dHierarchyDef w3dHierarchy,
+            W3dRgb houseColor)
         {
             ModelBone[] bones;
             if (w3dHierarchy != null)
@@ -97,6 +101,11 @@ namespace OpenSage.Content
                     bone = bones[0];
                 }
 
+                if (w3dMesh.Header.MeshName.StartsWith("HOUSECOLOR"))
+                {
+                    SetHouseColor(w3dMesh, houseColor);
+                }
+
                 meshes[i] = CreateModelMesh(
                     contentManager,
                     w3dMesh,
@@ -124,6 +133,15 @@ namespace OpenSage.Content
                 bones,
                 meshes,
                 animations);
+        }
+
+        private void SetHouseColor(W3dMesh w3dMesh, W3dRgb houseColor)
+        {
+            foreach (var w3DMaterial in w3dMesh.Materials)
+            {
+                w3DMaterial.VertexMaterialInfo.Diffuse = houseColor;
+                w3DMaterial.VertexMaterialInfo.Ambient = houseColor;
+            }
         }
 
         private ModelMesh CreateModelMesh(

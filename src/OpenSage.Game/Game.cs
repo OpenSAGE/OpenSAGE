@@ -141,6 +141,8 @@ namespace OpenSage
             }
         }
 
+        public Player CivilianPlayer { get; private set; }
+
         public Game(
             IGameDefinition definition,
             FileSystem fileSystem,
@@ -199,6 +201,9 @@ namespace OpenSage
                     break;
             }
 
+            // TODO: This is not the right place for this.
+            ContentManager.IniDataContext.LoadIniFile(@"Data\INI\PlayerTemplate.ini");
+
             GameSystems = new List<GameSystem>();
 
             Audio = AddDisposable(new AudioSystem(this));
@@ -217,6 +222,9 @@ namespace OpenSage
             GameSystems.ForEach(gs => gs.Initialize());
 
             SetCursor("Arrow");
+
+            var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == "Civilian");
+            CivilianPlayer = Player.FromTemplate(playerTemplate, ContentManager);
 
             IsRunning = true;
         }
@@ -316,10 +324,7 @@ namespace OpenSage
 
             NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
 
-            // TODO: This is not the right place for this.
-            ContentManager.IniDataContext.LoadIniFile(@"Data\INI\PlayerTemplate.ini");
-
-            var players = new Player[sides.Length];
+            var players = new Player[sides.Length + 1];
             for (var i = 0; i < sides.Length; i++)
             {
                 var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == sides[i]);
@@ -330,16 +335,18 @@ namespace OpenSage
 
                 if (playerTemplate.StartingBuilding != null)
                 {
-                    var startingBuilding = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingBuilding));
+                    var startingBuilding = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingBuilding), players[i]);
                     startingBuilding.Transform.Translation = player1StartPosition;
                     startingBuilding.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathUtility.ToRadians(startingBuilding.Definition.PlacementViewAngle));
 
-                    var startingUnit0 = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingUnit0));
+                    var startingUnit0 = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingUnit0), players[i]);
                     var startingUnit0Position = player1StartPosition;
                     startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.GeometryMajorRadius;
                     startingUnit0.Transform.Translation = startingUnit0Position;
                 }
             }
+
+            players[players.Length -1] = CivilianPlayer;
 
             Scene3D.SetPlayers(players, players[localPlayerIndex]);
 
