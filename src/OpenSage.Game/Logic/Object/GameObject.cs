@@ -26,20 +26,22 @@ namespace OpenSage.Logic.Object
         // TODO: This could use a smaller fixed point type.
         public decimal Health { get; set; }
 
-        public Team Owner { get; set; }
+        public Player Owner { get; set; }
+
+        public Team Team { get; set; }
 
         public bool IsSelectable { get; set; }
 
-        public GameObject(ObjectDefinition objectDefinition, ContentManager contentManager)
+        public GameObject(ObjectDefinition objectDefinition, ContentManager contentManager, Player owner)
         {
             Definition = objectDefinition;
-
+            Owner = owner;
             Transform = Transform.CreateIdentity();
 
             var drawModules = new List<DrawModule>();
             foreach (var drawData in objectDefinition.Draws)
             {
-                var drawModule = AddDisposable(drawData.CreateDrawModule(contentManager));
+                var drawModule = AddDisposable(drawData.CreateDrawModule(contentManager, Owner.Color));
                 if (drawModule != null)
                 {
                     // TODO: This will never be null once we've implemented all the draw modules.
@@ -114,7 +116,7 @@ namespace OpenSage.Logic.Object
 
             foreach (var drawModule in DrawModules)
             {
-                drawModule.UpdateConditionState(flags);
+                drawModule.UpdateConditionState(flags, Owner.Color);
             }
         }
 

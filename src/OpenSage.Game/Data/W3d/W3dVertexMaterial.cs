@@ -10,8 +10,8 @@ namespace OpenSage.Data.W3d
         public W3dVertexMappingType Stage0Mapping { get; private set; }
         public W3dVertexMappingType Stage1Mapping { get; private set; }
 
-        public W3dRgb Ambient { get; private set; }
-        public W3dRgb Diffuse { get; private set; }
+        public W3dRgb Ambient { get; set; }
+        public W3dRgb Diffuse { get; set; }
         public W3dRgb Specular { get; private set; }
         public W3dRgb Emissive { get; private set; }
 

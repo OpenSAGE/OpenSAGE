@@ -134,7 +134,8 @@ namespace OpenSage.Logic
                 Side = template.Side,
                 Name = template.Name,
                 DisplayName = content.TranslationManager.Lookup(template.DisplayName),
-                Money = (uint) template.StartMoney
+                Money = (uint) template.StartMoney,
+                Color = template.PreferredColor.ToColorRgb()
             };
         }
     }

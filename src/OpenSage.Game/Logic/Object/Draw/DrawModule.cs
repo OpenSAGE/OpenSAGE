@@ -7,6 +7,7 @@ using OpenSage.Data.Ini.Parser;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -19,7 +20,7 @@ namespace OpenSage.Logic.Object
             yield break;
         }
 
-        public virtual void UpdateConditionState(BitArray<ModelConditionFlag> flags)
+        public virtual void UpdateConditionState(BitArray<ModelConditionFlag> flags, ColorRgb teamColor)
         {
 
         }
@@ -65,6 +66,6 @@ namespace OpenSage.Logic.Object
             { "W3DTruckDraw", W3dTruckDrawModuleData.Parse },
         };
 
-        internal virtual DrawModule CreateDrawModule(ContentManager contentManager) => null; // TODO: Make this abstract.
+        internal virtual DrawModule CreateDrawModule(ContentManager contentManager, ColorRgb houseColor) => null; // TODO: Make this abstract.
     }
 }

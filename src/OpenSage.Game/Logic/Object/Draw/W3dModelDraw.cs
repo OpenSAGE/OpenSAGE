@@ -11,6 +11,7 @@ using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -46,7 +47,7 @@ namespace OpenSage.Logic.Object
                 : Enumerable.Empty<AttachedParticleSystem>();
         }
 
-        internal W3dModelDraw(ContentManager contentManager, W3dModelDrawModuleData data)
+        internal W3dModelDraw(ContentManager contentManager, W3dModelDrawModuleData data, ColorRgb houseColor)
         {
             _contentManager = contentManager;
             _data = data;
@@ -77,10 +78,10 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            SetActiveConditionState(_defaultConditionState);
+            SetActiveConditionState(_defaultConditionState, houseColor);
         }
 
-        private void SetActiveConditionState(ModelConditionState conditionState)
+        private void SetActiveConditionState(ModelConditionState conditionState, ColorRgb teamColor)
         {
             if (_activeConditionState == conditionState)
             {
@@ -93,10 +94,10 @@ namespace OpenSage.Logic.Object
 
             _activeModelDrawConditionState = AddDisposable(
                 CreateModelDrawConditionStateInstance(
-                    conditionState));
+                    conditionState, teamColor));
         }
 
-        public override void UpdateConditionState(BitArray<ModelConditionFlag> flags)
+        public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, ColorRgb teamColor)
         {
             ModelConditionState bestConditionState = null;
             var bestMatch = int.MinValue;
@@ -117,16 +118,17 @@ namespace OpenSage.Logic.Object
                 bestConditionState = _defaultConditionState;
             }
 
-            SetActiveConditionState(bestConditionState);
+            SetActiveConditionState(bestConditionState, teamColor);
         }
 
-        private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState)
+        private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState, ColorRgb teamColor)
         {
             ModelInstance modelInstance = null;
+            LoadOptions options = new LoadOptions { HouseColor = teamColor };
             if (!string.Equals(conditionState.Model, "NONE", StringComparison.OrdinalIgnoreCase))
             {
                 var w3dFilePath = Path.Combine("Art", "W3D", conditionState.Model + ".W3D");
-                var model = _contentManager.Load<Model>(w3dFilePath);
+                var model = _contentManager.Load<Model>(w3dFilePath, options);
                 if (model != null)
                 {
                     modelInstance = model.CreateInstance(_contentManager.GraphicsDevice);
@@ -146,13 +148,13 @@ namespace OpenSage.Logic.Object
                     var splitName = firstAnimation.Animation.Split('.');
 
                     var w3dFilePath = Path.Combine("Art", "W3D", splitName[0] + ".W3D");
-                    var model = _contentManager.Load<Model>(w3dFilePath);
+                    var model = _contentManager.Load<Model>(w3dFilePath, options);
 
                     if (model != null && model.Animations.Length == 0)
                     {
                         // TODO: What is the actual algorithm here?
                         w3dFilePath = Path.Combine("Art", "W3D", splitName[1] + ".W3D");
-                        model = _contentManager.Load<Model>(w3dFilePath);
+                        model = _contentManager.Load<Model>(w3dFilePath, options);
                     }
 
                     if (model != null)
@@ -364,9 +366,9 @@ namespace OpenSage.Logic.Object
             ConditionStates.Add(aliasedConditionState);
         }
 
-        internal override DrawModule CreateDrawModule(ContentManager contentManager)
+        internal override DrawModule CreateDrawModule(ContentManager contentManager, ColorRgb houseColor)
         {
-            return new W3dModelDraw(contentManager, this);
+            return new W3dModelDraw(contentManager, this, houseColor);
         }
     }
 
