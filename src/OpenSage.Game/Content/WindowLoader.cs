@@ -25,12 +25,12 @@ namespace OpenSage.Content
                     break;
 
                 case SageGame.Bfme:
-                    contentManager.IniDataContext.LoadIniFile($@"lang\{language}\headertemplate.ini");
+                    contentManager.IniDataContext.LoadIniFile($@"Lang\{language}\HeaderTemplate.ini");
                     break;
 
                 case SageGame.Bfme2:
                 case SageGame.Bfme2Rotwk:
-                    contentManager.IniDataContext.LoadIniFile(@"headertemplate.ini");
+                    contentManager.IniDataContext.LoadIniFile(@"HeaderTemplate.ini");
                     break;
             }
 
@@ -50,6 +50,7 @@ namespace OpenSage.Content
 
             return new Window(wndFile.RootWindow.ScreenRect.CreationResolution, rootControl, contentManager)
             {
+                Game = game,
                 Bounds = wndFile.RootWindow.ScreenRect.ToRectangle(),
                 LayoutInit = _wndCallbackResolver.GetWindowCallback(wndFile.LayoutBlock.LayoutInit),
                 LayoutUpdate = _wndCallbackResolver.GetWindowCallback(wndFile.LayoutBlock.LayoutUpdate),

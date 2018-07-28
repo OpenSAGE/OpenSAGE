@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenAL;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Wav;
 
 namespace OpenSage.Audio
@@ -12,6 +13,7 @@ namespace OpenSage.Audio
 
         private List<AudioSource> _sources;
         private Dictionary<string, AudioBuffer> _files;
+        private AudioSettings _settings;
 
         internal static void alCheckError()
         {
@@ -48,6 +50,23 @@ namespace OpenSage.Audio
 
             _sources = new List<AudioSource>();
             _files = new Dictionary<string, AudioBuffer>();
+
+            switch (game.ContentManager.SageGame)
+            {
+                case SageGame.Ra3:
+                case SageGame.Ra3Uprising:
+                case SageGame.Cnc4:
+                    // TODO
+                    break;
+
+                default:
+                    game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\AudioSettings.ini");
+                    game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\SoundEffects.ini");
+                    game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\MiscAudio.ini");
+                    break;
+            }
+
+            _settings = game.ContentManager.IniDataContext.AudioSettings;
         }
 
         protected override void Dispose(bool disposeManagedResources)
@@ -63,7 +82,7 @@ namespace OpenSage.Audio
           
         }
 
-        public AudioSource PlayFile(string fileName,bool loop=false)
+        public AudioSource GetFile(string fileName,bool loop=false)
         {
             AudioBuffer buffer = null;
             if (!_files.ContainsKey(fileName))
@@ -87,6 +106,39 @@ namespace OpenSage.Audio
             _sources.Add(source);
 
             return source;
+        }
+
+        public void PlaySound(string soundName)
+        {
+            AudioBuffer buffer = null;
+
+            AudioEvent ev = Game.ContentManager.IniDataContext.AudioEvents.Find(x => x.Name == soundName);
+            string soundPath = _settings.AudioRoot + '/' + _settings.SoundsFolder + '/' + ev.Sounds[0] + '.' +_settings.SoundsExtension;
+            soundPath = soundPath.Replace('\\', '/');
+
+            if (!_files.ContainsKey(soundPath))
+            {
+                var file = Game.ContentManager.Load<WavFile>(soundPath);
+                buffer = AddDisposable(new AudioBuffer(file));
+                _files[soundPath] = buffer;
+            }
+            else
+            {
+                buffer = _files[soundPath];
+            }
+
+            var source = AddDisposable(new AudioSource(buffer));
+                  
+            if (ev.Control.HasFlag(AudioControlFlags.Loop))
+            {
+                source.Looping = true;
+            }
+
+            //set the volume of the sound
+            source.Volume = ev.Volume;
+
+            _sources.Add(source);
+            source.Play();
         }
     }
 }
