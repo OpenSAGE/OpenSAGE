@@ -55,7 +55,6 @@ namespace OpenSage.Gui.Wnd.Controls
             set => _listBox.DisabledBackgroundImage = value;
         }
 
-
         public Image DropDownButtonImage
         {
             get => _dropDownButton.BackgroundImage;
@@ -161,6 +160,7 @@ namespace OpenSage.Gui.Wnd.Controls
         public ComboBox()
         {
             _editBox = new TextBox();
+            _editBox.Click += OnDropDownButtonClick;
             Controls.Add(_editBox);
 
             _dropDownButton = new Button();
@@ -193,7 +193,6 @@ namespace OpenSage.Gui.Wnd.Controls
         private void OnDropDownButtonClick(object sender, EventArgs e)
         {
             bool nextState = !IsDropDownOpen;
-            CloseOpenComboBoxes();
             IsDropDownOpen = nextState;
         }
 
@@ -235,18 +234,6 @@ namespace OpenSage.Gui.Wnd.Controls
             _dropDownButton.Click -= OnDropDownButtonClick;
 
             base.Dispose(disposeManagedResources);
-        }
-
-        /// <summary>
-        /// Ensure only one ComboBox is open at the same time
-        /// </summary>
-        private void CloseOpenComboBoxes()
-        {
-            var openComboBoxes = GetSelfAndDescendants(Window).OfType<ComboBox>().Where(i => i.IsDropDownOpen);
-            foreach (var openComboBox in openComboBoxes)
-            {
-                openComboBox.IsDropDownOpen = false;
-            }
         }
     }
 }

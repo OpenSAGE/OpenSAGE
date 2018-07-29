@@ -74,9 +74,13 @@ namespace OpenSage.Gui.Wnd.Controls
             }
         }
 
-        // TODO: Exclude BorderWidth.
-        public Rectangle ClientRectangle => new Rectangle(0, 0, _bounds.Width, _bounds.Height);
-        public Size ClientSize => new Size(_bounds.Width, _bounds.Height);
+        public Rectangle ClientRectangle => new Rectangle(BorderWidth,
+                                                          BorderWidth,
+                                                          _bounds.Width- BorderWidth,
+                                                          _bounds.Height- BorderWidth);
+
+        public Size ClientSize => new Size(_bounds.Width - BorderWidth,
+                                           _bounds.Height - BorderWidth);
 
         public int Left
         {
@@ -440,6 +444,7 @@ namespace OpenSage.Gui.Wnd.Controls
                     break;
 
                 case WndWindowMessageType.MouseUp:
+                    CloseOpenComboboxes(this);
                     IsMouseDown = false;
                     break;
             }
@@ -478,6 +483,17 @@ namespace OpenSage.Gui.Wnd.Controls
                 {
                     yield return child;
                 }
+            }
+        }
+
+        //TODO: check if this can be made more efficient
+        private static void CloseOpenComboboxes(Control sender)
+        {
+            var openComboBoxes = GetSelfAndDescendants(sender.Window).OfType<ComboBox>().Where(i => i.IsDropDownOpen);
+            foreach (var openComboBox in openComboBoxes)
+            {
+                if (openComboBox != sender)
+                    openComboBox.IsDropDownOpen = false;
             }
         }
     }

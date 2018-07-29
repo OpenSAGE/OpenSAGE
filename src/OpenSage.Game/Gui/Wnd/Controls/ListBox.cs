@@ -251,7 +251,7 @@ namespace OpenSage.Gui.Wnd.Controls
                     Controls.Add(new ListBoxItem(this, item));
                 }
 
-                UpdateSelectedItem();
+                SetSelectedItem();
             }
         }
 
@@ -273,8 +273,19 @@ namespace OpenSage.Gui.Wnd.Controls
             set
             {
                 _selectedIndex = value;
-                UpdateSelectedItem();
+                SetSelectedItem();
                 SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        private int _hoveredIndex = -1;
+        public int HoveredIndex
+        {
+            get => _hoveredIndex;
+            set
+            {
+                _hoveredIndex = value;
+                SetHoveredItem();
             }
         }
 
@@ -289,7 +300,7 @@ namespace OpenSage.Gui.Wnd.Controls
             }
         }
 
-        public void UpdateSelectedItem()
+        private void SetSelectedItem()
         {
             for (var i = 0; i < _items.Length; i++)
             {
@@ -297,9 +308,28 @@ namespace OpenSage.Gui.Wnd.Controls
 
                 if (i == _selectedIndex)
                 {
-                    item.BackgroundImage = IsMouseOver
-                        ? SelectedItemHoverBackgroundImage
-                        : SelectedItemBackgroundImage;
+                    item.BackgroundImage = SelectedItemBackgroundImage;
+                }
+                else
+                {
+                    item.BackgroundImage = null;
+                }
+            }
+        }
+
+        private void SetHoveredItem()
+        {
+            for (var i = 0; i < _items.Length; i++)
+            {
+                var item = (ListBoxItem) Controls[i];
+
+                if (i == _hoveredIndex)
+                {
+                    item.BackgroundImage = SelectedItemHoverBackgroundImage;
+                }
+                else if( i== _selectedIndex)
+                {
+                    item.BackgroundImage = SelectedItemBackgroundImage;
                 }
                 else
                 {
@@ -360,17 +390,6 @@ namespace OpenSage.Gui.Wnd.Controls
                 child.Bounds = new Rectangle(0, y, ClientSize.Width, childHeight);
 
                 y += childHeight;
-            }
-        }
-
-        protected override void DefaultInputOverride(WndWindowMessage message, ControlCallbackContext context)
-        {
-            switch (message.MessageType)
-            {
-                case WndWindowMessageType.MouseEnter:
-                case WndWindowMessageType.MouseExit:
-                    UpdateSelectedItem();
-                    break;
             }
         }
     }
@@ -460,6 +479,9 @@ namespace OpenSage.Gui.Wnd.Controls
             {
                 case WndWindowMessageType.MouseUp:
                     _parent.SelectedIndex = _parent.Controls.IndexOf(this);
+                    break;
+                case WndWindowMessageType.MouseEnter:
+                    _parent.HoveredIndex = _parent.Controls.IndexOf(this);
                     break;
             }
         }
