@@ -352,7 +352,7 @@ namespace OpenSage
             // TODO
             Scene3D = null;
             NetworkMessageBuffer = null;
-            Scene2D.WndWindowManager.SetWindow(@"Menus\MainMenu.wnd");
+            Panel.Close();
         }
 
         public void Tick()
