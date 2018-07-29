@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using OpenAL;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Wav;
@@ -113,8 +114,9 @@ namespace OpenSage.Audio
             AudioBuffer buffer = null;
 
             AudioEvent ev = Game.ContentManager.IniDataContext.AudioEvents.Find(x => x.Name == soundName);
-            string soundPath = _settings.AudioRoot + '/' + _settings.SoundsFolder + '/' + ev.Sounds[0] + '.' +_settings.SoundsExtension;
-            soundPath = soundPath.Replace('\\', '/');
+            string[] paths = { _settings.AudioRoot, _settings.SoundsFolder, ev.Sounds[0] };
+            string soundPath = Path.Combine(paths);
+            soundPath = Path.ChangeExtension(soundPath, _settings.SoundsExtension);
 
             if (!_files.ContainsKey(soundPath))
             {

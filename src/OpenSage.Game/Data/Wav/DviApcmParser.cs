@@ -6,19 +6,11 @@ namespace OpenSage.Data.Wav
 {
     internal class DviAdpcmParser : WavParser
     {
-        private int ByteToInt16(byte[] packed)
-        {
-            // This is always little endian, unlike the C# builtin for unpacking a byte array.
-            return (packed[1] << 8) | packed[0];
-        }
-
-        public override byte[] Parse(BinaryReader reader, int size, WaveFormat format)
-        {
-            int samplesPerBlock = ByteToInt16(format.ExtraBytes);
-            var imaIndexTable = new int[8] {
+        private static readonly int[] ImaIndexTable = new int[8] {
               -1, -1, -1, -1, 2, 4, 6, 8
             };
-            var imaStepTable = new int[89] {
+
+        private static readonly int[] ImaStepTable = new int[89] {
               7, 8, 9, 10, 11, 12, 13, 14, 16, 17,
               19, 21, 23, 25, 28, 31, 34, 37, 41, 45,
               50, 55, 60, 66, 73, 80, 88, 97, 107, 118,
@@ -29,6 +21,17 @@ namespace OpenSage.Data.Wav
               5894, 6484, 7132, 7845, 8630, 9493, 10442, 11487, 12635, 13899,
               15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767
             };
+
+        private Int16 Int16FromLittleEndianBytes(byte[] packed)
+        {
+            // This is always little endian, unlike the C# builtin for unpacking a byte array.
+            return (short)(packed[1] << 8 | packed[0]);
+        }
+
+        public override byte[] Parse(BinaryReader reader, int size, WaveFormat format)
+        {
+            int samplesPerBlock = Int16FromLittleEndianBytes(format.ExtraBytes);
+
             int blockSize = (4 + (samplesPerBlock - 1) / 2);
             if (size % blockSize != 0)
             {
@@ -44,7 +47,7 @@ namespace OpenSage.Data.Wav
                     int sample = reader.ReadInt16();
                     int stepTableIndex = reader.ReadByte();
                     byte reserved = reader.ReadByte(); // unused, commonly 0
-                    int step = imaStepTable[stepTableIndex];
+                    int step = ImaStepTable[stepTableIndex];
                     writer.Write((Int16) sample);
                     for (int j = 0; j < (samplesPerBlock - 1) / 2; j++)
                     {
@@ -54,7 +57,7 @@ namespace OpenSage.Data.Wav
                         nibbles[1] = (byte) (packed >> 4);
                         foreach (var nibble in nibbles)
                         {
-                            stepTableIndex += imaIndexTable[nibble & 0x7];
+                            stepTableIndex += ImaIndexTable[nibble & 0x7];
                             stepTableIndex = MathUtility.Clamp(stepTableIndex, 0, 88);
                             byte sign = (byte) (nibble & 8);
                             byte delta = (byte) (nibble & 7);
@@ -79,8 +82,8 @@ namespace OpenSage.Data.Wav
                             {
                                 sample += diff;
                             }
-                            step = imaStepTable[stepTableIndex];
-                            sample = MathUtility.Clamp(sample, -32768, 32767);
+                            step = ImaStepTable[stepTableIndex];
+                            sample = MathUtility.Clamp(sample, Int16.MinValue, Int16.MaxValue);
                             writer.Write((Int16) sample);
                         }
                     }
