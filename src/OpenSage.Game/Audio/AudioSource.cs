@@ -7,6 +7,7 @@ namespace OpenSage.Audio
 {
     public sealed class AudioSource : DisposableBase
     {
+        private float _volume;
         private uint _handle;
         private bool _looping = false;
         private TimeSpan _duration;
@@ -39,6 +40,16 @@ namespace OpenSage.Audio
             get { return _looping; }
             set { _looping = value;
                 AL10.alSourcei(_handle, AL10.AL_LOOPING, Convert.ToInt32(_looping));
+            }
+        }
+
+        public float Volume
+        {
+            get { return _volume; }
+            set
+            {
+                _volume = value;
+                AL10.alSourcef(_handle, AL10.AL_GAIN, value / 100.0f);
             }
         }
 
