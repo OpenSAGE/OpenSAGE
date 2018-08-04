@@ -81,6 +81,10 @@ namespace OpenSage.Content
 
             IniDataContext.LoadIniFiles(@"Data\INI\Default\Object.ini");
             IniDataContext.LoadIniFiles(@"Data\INI\Object");
+            IniDataContext.LoadIniFiles(@"Data\INI\multiplayer.ini");
+            IniDataContext.LoadIniFile(@"Data\INI\PlayerTemplate.ini");
+
+            IniDataContext.LoadIniFile(@"maps\MapCache.ini");
 
             _contentLoaders = new Dictionary<Type, ContentLoader>
             {

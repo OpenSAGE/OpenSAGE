@@ -325,9 +325,6 @@ namespace OpenSage
 
             NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
 
-            // TODO: This is not the right place for this.
-            ContentManager.IniDataContext.LoadIniFile(@"Data\INI\PlayerTemplate.ini");
-
             var players = new Player[sides.Length];
             for (var i = 0; i < sides.Length; i++)
             {

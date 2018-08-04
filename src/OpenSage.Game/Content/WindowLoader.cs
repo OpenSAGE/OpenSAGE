@@ -25,12 +25,12 @@ namespace OpenSage.Content
                     break;
 
                 case SageGame.Bfme:
-                    contentManager.IniDataContext.LoadIniFile($@"lang\{language}\headertemplate.ini");
+                    contentManager.IniDataContext.LoadIniFile($@"Lang\{language}\HeaderTemplate.ini");
                     break;
 
                 case SageGame.Bfme2:
                 case SageGame.Bfme2Rotwk:
-                    contentManager.IniDataContext.LoadIniFile(@"headertemplate.ini");
+                    contentManager.IniDataContext.LoadIniFile(@"HeaderTemplate.ini");
                     break;
             }
 
@@ -50,6 +50,7 @@ namespace OpenSage.Content
 
             return new Window(wndFile.RootWindow.ScreenRect.CreationResolution, rootControl, contentManager)
             {
+                Game = game,
                 Bounds = wndFile.RootWindow.ScreenRect.ToRectangle(),
                 LayoutInit = _wndCallbackResolver.GetWindowCallback(wndFile.LayoutBlock.LayoutInit),
                 LayoutUpdate = _wndCallbackResolver.GetWindowCallback(wndFile.LayoutBlock.LayoutUpdate),
@@ -79,13 +80,18 @@ namespace OpenSage.Content
                         };
 
                     case WndWindowType.ComboBox:
-                        return new ComboBox
+                        var combobox = new ComboBox
                         {
                             IsEditable = wndWindow.ComboBoxData.IsEditable,
+                            MaxDisplay = wndWindow.ComboBoxData.MaxDisplay,
 
                             TextBoxBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxEditBoxEnabledDrawData, 0, 2, 1),
                             TextBoxHoverBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxEditBoxHiliteDrawData, 0, 2, 1),
                             TextBoxDisabledBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxEditBoxDisabledDrawData, 0, 2, 1),
+
+                            DropDownSelectedItemBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxListBoxEnabledDrawData, 1, 3, 2),
+                            DropDownSelectedItemHoverBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxListBoxHiliteDrawData, 1, 3, 2),
+                            ListBoxDisabledBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.ComboBoxListBoxDisabledDrawData, 1, 3, 2),
 
                             DropDownButtonImage = imageLoader.CreateNormalImage(wndWindow.ComboBoxDropDownButtonEnabledDrawData, 0),
 
@@ -97,9 +103,17 @@ namespace OpenSage.Content
 
                             DropDownThumbImage = imageLoader.CreateNormalImage(wndWindow.SliderThumbEnabledDrawData, 0),
                             DropDownThumbHoverImage = imageLoader.CreateNormalImage(wndWindow.SliderThumbHiliteDrawData, 0),
-
-                            DropDownSelectedItemBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.HiliteDrawData, 1, 3, 2)
                         };
+
+                        if (wndWindow.ComboBoxListBoxEnabledDrawData.Items != null && wndWindow.ComboBoxListBoxEnabledDrawData.Items.Length > 0)
+                        {
+                            combobox.ListBoxBackgroundColor =
+                                wndWindow.ComboBoxListBoxEnabledDrawData.Items[0].Color.ToColorRgbaF();
+                            combobox.ListBoxBorderColor =
+                                wndWindow.ComboBoxListBoxEnabledDrawData.Items[0].BorderColor.ToColorRgbaF();
+                        }
+
+                        return combobox;
 
                     case WndWindowType.HorizontalSlider:
                         return new Slider

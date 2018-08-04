@@ -7,7 +7,6 @@ namespace OpenSage.Gui.Wnd.Controls
     public class Window : Control
     {
         private readonly Size _creationResolution;
-        private readonly ContentManager _contentManager;
 
         private Matrix3x2 _rootTransform;
         private Matrix3x2 _rootTransformInverse;
@@ -17,11 +16,13 @@ namespace OpenSage.Gui.Wnd.Controls
         public WindowCallback LayoutShutdown { get; set; }
 
         public Control Root { get; }
+        public Game Game { get; set; }
+        public ContentManager ContentManager { get; }
 
         public Window(in Size creationResolution, Control root, ContentManager contentManager)
         {
             _creationResolution = creationResolution;
-            _contentManager = contentManager;
+            ContentManager = contentManager;
 
             Window = this;
 

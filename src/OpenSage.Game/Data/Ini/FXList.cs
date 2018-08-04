@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -469,6 +470,11 @@ namespace OpenSage.Data.Ini
         public byte R;
         public byte G;
         public byte B;
+
+        public ColorRgbaF ToColorRgbaF()
+        {
+            return new ColorRgbaF(R / 255.0f, G / 255.0f, B / 255.0f, 1.0f);
+        }
     }
 
     public struct Coord3D
