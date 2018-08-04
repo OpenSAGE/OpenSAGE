@@ -111,7 +111,7 @@ namespace OpenSage
 
         private void HandleKeyUp(KeyEvent evt)
         {
-            var message = InputMessage.CreateKeyUp(evt.Key);
+            var message = InputMessage.CreateKeyUp(evt.Key, evt.Modifiers);
             _messageQueue.Enqueue(message);
         }
 
