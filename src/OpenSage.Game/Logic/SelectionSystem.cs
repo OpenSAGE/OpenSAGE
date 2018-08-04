@@ -22,7 +22,7 @@ namespace OpenSage.Logic
         private const int BoxSelectionMinimumSize = 30;
 
         private SelectionGui SelectionGui => Game.Scene3D.SelectionGui;
-        private readonly List<GameObject> _selectedObjects;
+        public List<GameObject> SelectedObjects { get; private set; }
 
         private Point2D _startPoint;
         private Point2D _endPoint;
@@ -44,7 +44,7 @@ namespace OpenSage.Logic
 
         public SelectionSystem(Game game) : base(game)
         {
-            _selectedObjects = new List<GameObject>();
+            SelectedObjects = new List<GameObject>();
         }
 
         public void OnStartDragSelection(Point2D startPoint)
@@ -74,7 +74,7 @@ namespace OpenSage.Logic
 
         public void OnEndDragSelection()
         {
-            _selectedObjects.Clear();
+            SelectedObjects.Clear();
             SelectionGui.SelectedObjects.Clear();
 
             if (Status == SelectionStatus.SingleSelecting)
@@ -113,7 +113,7 @@ namespace OpenSage.Logic
 
             if (closestObject != null)
             {
-                _selectedObjects.Add(closestObject);
+                SelectedObjects.Add(closestObject);
                 SelectionGui.SelectedObjects.Add(closestObject.Collider);
             }
         }
@@ -133,7 +133,7 @@ namespace OpenSage.Logic
                 // TODO: Support other colliders
                 if (gameObject.Collider.Intersects(boxFrustum))
                 {
-                    _selectedObjects.Add(gameObject);
+                    SelectedObjects.Add(gameObject);
                     SelectionGui.SelectedObjects.Add(gameObject.Collider);
                 }
             }

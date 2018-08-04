@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenSage.Data.Map;
+using OpenSage.DebugOverlay;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Gui;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
+using OpenSage.Mathematics;
 using OpenSage.Scripting;
 using OpenSage.Settings;
 
@@ -22,6 +24,11 @@ namespace OpenSage
         private CameraInputState _cameraInputState;
 
         private readonly SelectionMessageHandler _selectionMessageHandler;
+
+        private readonly ActionMessageHandler _actionMessageHandler;
+
+        private readonly DebugMessageHandler _debugMessageHandler;
+
         public SelectionGui SelectionGui { get; }
 
         private readonly ParticleSystemManager _particleSystemManager;
@@ -51,6 +58,8 @@ namespace OpenSage
         public IReadOnlyList<Player> Players => _players;
         private List<Player> _players;
         public Player LocalPlayer { get; private set; }
+        public DebugOverlay.DebugOverlay DebugOverlay { get; private set; }
+        public Pathfinder.Pathfinder Pathfinder { get; }
 
         internal IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
         {
@@ -92,9 +101,20 @@ namespace OpenSage
             game.InputMessageBuffer.Handlers.Add(_selectionMessageHandler);
             AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_selectionMessageHandler));
 
+            _actionMessageHandler = new ActionMessageHandler(game.Action);
+            game.InputMessageBuffer.Handlers.Add(_actionMessageHandler);
+            AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_actionMessageHandler));
+
             _cameraInputMessageHandler = new CameraInputMessageHandler();
             game.InputMessageBuffer.Handlers.Add(_cameraInputMessageHandler);
             AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_cameraInputMessageHandler));
+
+            DebugOverlay = new DebugOverlay.DebugOverlay(game, this);
+            game.GameSystems.Add(DebugOverlay);
+            DebugOverlay.Initialize();
+            _debugMessageHandler = new DebugMessageHandler(DebugOverlay);
+            game.InputMessageBuffer.Handlers.Add(_debugMessageHandler);
+            AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_debugMessageHandler));
 
             _particleSystemManager = AddDisposable(new ParticleSystemManager(game, this));
 
@@ -102,6 +122,11 @@ namespace OpenSage
             _teams = teams.ToList();
             // TODO: This is completely wrong.
             LocalPlayer = _players.FirstOrDefault();
+
+            Pathfinder = new Pathfinder.Pathfinder(mapFile);
+            AddDisposeAction(() => Pathfinder.Dispose());
+            Pathfinder.RemoveGridPointsForGameObjects(GameObjects);
+            DebugOverlay.AddGridPoints(Pathfinder.PassabilPoints);
         }
 
         public void SetPlayers(IEnumerable<Player> players, Player localPlayer)
@@ -151,6 +176,7 @@ namespace OpenSage
         internal void Render(DrawingContext2D drawingContext)
         {
             SelectionGui.Draw(drawingContext, Camera);
+            DebugOverlay.Draw(drawingContext, Camera);
         }
     }
 }

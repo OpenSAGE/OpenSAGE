@@ -29,6 +29,9 @@ namespace OpenSage.Logic.Object
 
         public bool IsSelectable { get; set; }
 
+        public bool IsBuilding => !Definition.Locomotors.Any();
+        public bool IsMovable => Definition.Locomotors.Any();
+
         public GameObject(ObjectDefinition objectDefinition, ContentManager contentManager)
         {
             Definition = objectDefinition;
