@@ -10,7 +10,7 @@ namespace OpenSage.Viewer.UI.Views
 
         public WavView(AssetViewContext context)
         {
-            _source = context.Game.Audio.PlayFile(context.Entry.FilePath, true);
+            _source = context.Game.Audio.GetFile(context.Entry.FilePath, true);
 
             AddDisposeAction(() => _source.Dispose());
         }

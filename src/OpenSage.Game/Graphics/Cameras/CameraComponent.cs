@@ -24,7 +24,7 @@ namespace OpenSage.Graphics.Cameras
             _game = game;
             _frustum = new BoundingFrustum(Matrix4x4.Identity);
 
-            NearPlaneDistance = 0.125f;
+            NearPlaneDistance = 4.0f;
             FarPlaneDistance = 10000.0f;
         }
 

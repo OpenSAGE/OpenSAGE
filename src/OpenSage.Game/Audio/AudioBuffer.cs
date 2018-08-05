@@ -22,7 +22,6 @@ namespace OpenSage.Audio
         public AudioBuffer(WavFile wavFile) : this()
         {
             int format = 0;
-
             switch (wavFile.Channels)
             {
                 case 1:
@@ -57,8 +56,7 @@ namespace OpenSage.Audio
                     break;
             }
 
-
-            AL10.alBufferData(_handle, format, wavFile.Buffer, wavFile.Size, wavFile.Fequency);
+            AL10.alBufferData(_handle, format, wavFile.Buffer, wavFile.Size, wavFile.Frequency);
             AudioSystem.alCheckError();
         }
 
