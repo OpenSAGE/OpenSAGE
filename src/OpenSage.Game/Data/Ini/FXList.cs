@@ -475,6 +475,11 @@ namespace OpenSage.Data.Ini
         {
             return new ColorRgbaF(R / 255.0f, G / 255.0f, B / 255.0f, 1.0f);
         }
+
+        public ColorRgb ToColorRgb()
+        {
+            return new ColorRgb(R, G , B);
+        }
     }
 
     public struct Coord3D

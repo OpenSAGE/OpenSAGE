@@ -270,12 +270,21 @@ namespace OpenSage.Graphics.Shaders
         [FragmentShader]
         public Vector4 PS(PixelInput input)
         {
+            var matAmbientColor = MaterialConstants.Material.Ambient;
+            var matDiffuseColor = MaterialConstants.Material.Diffuse;
+
+            if (MeshConstants.HasHouseColor > 0u)
+            {
+                matAmbientColor = MeshConstants.HouseColor;
+                matDiffuseColor = MeshConstants.HouseColor;
+            }
+
             DoLighting(
                 Global_LightingConstantsPS,
                 input.WorldPosition,
                 input.WorldNormal,
-                MaterialConstants.Material.Ambient,
-                MaterialConstants.Material.Diffuse,
+                matAmbientColor,
+                matDiffuseColor,
                 MaterialConstants.Material.Specular,
                 MaterialConstants.Material.Shininess,
                 GlobalConstantsShared.CameraPosition,

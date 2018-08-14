@@ -22,6 +22,8 @@ namespace OpenSage.Graphics.Shaders
 
         public struct MeshConstants
         {
+            public Vector3 HouseColor;
+            public /* bool */ uint HasHouseColor;
             public /* bool */ uint SkinningEnabled;
             public uint NumBones;
         }

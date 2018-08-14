@@ -2,6 +2,7 @@
 using System.CommandLine;
 using System.Linq;
 using OpenSage.Data;
+using OpenSage.Mathematics;
 using OpenSage.Mods.BuiltIn;
 using OpenSage.Network;
 using Veldrid;
@@ -83,7 +84,11 @@ namespace OpenSage.Launcher
                 }
                 else
                 {
-                    game.StartGame(mapName, new EchoConnection(), new[] { "America", "GLA" }, 0);
+                    game.StartGame(mapName,
+                        new EchoConnection(),
+                        new[] { "America", "GLA" },
+                        new[] { new ColorRgb(255, 0, 0), new ColorRgb(255, 255, 255) },
+                        0);
                 }
 
                 while (game.IsRunning)

@@ -121,12 +121,21 @@ namespace OpenSage.Graphics.Shaders
 
             var worldSpaceNormal = TransformNormal(tangentSpaceNormal, tangentToWorldSpace);
 
+            var matAmbientColor = MaterialConstants.AmbientColor.XYZ();
+            var matDiffuseColor = MaterialConstants.DiffuseColor.XYZ();
+
+            if (MeshConstants.HasHouseColor > 0u)
+            {
+                matAmbientColor = MeshConstants.HouseColor;
+                matDiffuseColor = MeshConstants.HouseColor;
+            }
+
             DoLighting(
                 Global_LightingConstantsPS,
                 input.WorldPosition,
                 worldSpaceNormal,
-                MaterialConstants.AmbientColor.XYZ(),
-                MaterialConstants.DiffuseColor.XYZ(),
+                matAmbientColor,
+                matDiffuseColor,
                 MaterialConstants.SpecularColor.XYZ(),
                 MaterialConstants.SpecularExponent,
                 GlobalConstantsShared.CameraPosition,

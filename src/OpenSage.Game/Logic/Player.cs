@@ -23,7 +23,7 @@ namespace OpenSage.Logic
         // TODO: Should this be derived from the player's buildings so that it doesn't get out of sync?
         public uint Energy { get; set; }
 
-        public ColorRgb Color { get; private set; }
+        public ColorRgb Color { get; set; }
 
         private HashSet<Player> _allies;
         public IReadOnlyCollection<Player> Allies => _allies;

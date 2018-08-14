@@ -101,16 +101,19 @@ namespace OpenSage.Content
                     bone = bones[0];
                 }
 
+
+                W3dRgb? meshHouseColor = null;
                 if (w3dMesh.Header.MeshName.StartsWith("HOUSECOLOR"))
                 {
-                    SetHouseColor(w3dMesh, houseColor);
+                    meshHouseColor = houseColor;
                 }
 
                 meshes[i] = CreateModelMesh(
                     contentManager,
                     w3dMesh,
                     bone,
-                    bones.Length);
+                    bones.Length,
+                    meshHouseColor);
 
                 //var meshBoundingSphere = mesh.BoundingSphere.Transform(bone.Transform);
 
@@ -135,20 +138,12 @@ namespace OpenSage.Content
                 animations);
         }
 
-        private void SetHouseColor(W3dMesh w3dMesh, W3dRgb houseColor)
-        {
-            foreach (var w3DMaterial in w3dMesh.Materials)
-            {
-                w3DMaterial.VertexMaterialInfo.Diffuse = houseColor;
-                w3DMaterial.VertexMaterialInfo.Ambient = houseColor;
-            }
-        }
-
         private ModelMesh CreateModelMesh(
             ContentManager contentManager,
             W3dMesh w3dMesh,
             ModelBone parentBone,
-            int numBones)
+            int numBones,
+            W3dRgb? houseColor)
         {
             W3dShaderMaterial w3dShaderMaterial;
             Effect effect = null;
@@ -206,6 +201,12 @@ namespace OpenSage.Content
             var isSkinned = (w3dMesh.Header.Attributes & W3dMeshFlags.GeometryTypeMask) == W3dMeshFlags.GeometryTypeSkin;
             var cameraOriented = (w3dMesh.Header.Attributes & W3dMeshFlags.GeometryTypeMask) == W3dMeshFlags.GeometryTypeCameraOriented;
 
+            Vector3? hColor = null;
+            if (houseColor.HasValue)
+            {
+                hColor = houseColor.Value.ToVector3();
+            }
+
             return new ModelMesh(
                 contentManager.GraphicsDevice,
                 w3dMesh.Header.MeshName,
@@ -218,7 +219,8 @@ namespace OpenSage.Content
                 (uint) numBones,
                 boundingBox,
                 w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.Hidden),
-                cameraOriented);
+                cameraOriented,
+                hColor);
         }
 
         private static FixedFunction.ShadingConfiguration CreateShadingConfiguration(W3dShader w3dShader)

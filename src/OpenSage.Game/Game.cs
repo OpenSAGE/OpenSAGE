@@ -312,7 +312,7 @@ namespace OpenSage
         }
 
         // TODO: Pass full player details, not just side.
-        public void StartGame(string mapFileName, IConnection connection, string[] sides, int localPlayerIndex)
+        public void StartGame(string mapFileName, IConnection connection, string[] sides, ColorRgb[] colors, int localPlayerIndex)
         {
             // TODO: Loading screen.
             Scene3D = ContentManager.Load<Scene3D>(mapFileName);
@@ -329,6 +329,7 @@ namespace OpenSage
             {
                 var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == sides[i]);
                 players[i] = Player.FromTemplate(playerTemplate, ContentManager);
+                players[i].Color = colors[i];
 
                 var player1StartPosition = Scene3D.Waypoints[$"Player_{i + 1}_Start"].Position;
                 player1StartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(player1StartPosition.X, player1StartPosition.Y);

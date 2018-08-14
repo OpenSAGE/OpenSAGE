@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
 using OpenSage.Content;
 using Veldrid;
 
@@ -24,9 +25,11 @@ namespace OpenSage.Graphics.Effects
 
         public override LightingType LightingType => LightingType.Object;
 
-        [StructLayout(LayoutKind.Sequential, Size = 16)]
+        [StructLayout(LayoutKind.Sequential, Size = 32)]
         public struct MeshConstants
         {
+            public Vector3 HouseColor;
+            public bool HasHouseColor;
             public bool SkinningEnabled;
             public uint NumBones;
         }

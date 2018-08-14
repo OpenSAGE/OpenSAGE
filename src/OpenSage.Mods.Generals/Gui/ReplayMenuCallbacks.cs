@@ -5,6 +5,7 @@ using OpenSage.Data;
 using OpenSage.Data.Rep;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
+using OpenSage.Mathematics;
 using OpenSage.Network;
 
 namespace OpenSage.Mods.Generals.Gui
@@ -74,6 +75,7 @@ namespace OpenSage.Mods.Generals.Gui
                                 mapFilename,
                                 new ReplayConnection(replayFile),
                                 new[] { "America", "Observer" }, // TODO
+                                new[] { new ColorRgb(255, 0, 0), new ColorRgb(255, 255, 255) },
                                 0);
 
                             break;
