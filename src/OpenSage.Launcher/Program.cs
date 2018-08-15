@@ -2,6 +2,7 @@
 using System.CommandLine;
 using System.Linq;
 using OpenSage.Data;
+using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Mods.BuiltIn;
 using OpenSage.Network;
@@ -84,10 +85,15 @@ namespace OpenSage.Launcher
                 }
                 else
                 {
+                    PlayerSetting[] pSettings = new[]
+                    {
+                        new PlayerSetting("America", new ColorRgb(255, 0, 0)),
+                        new PlayerSetting("GLA", new ColorRgb(255, 255, 255)),
+                    };
+
                     game.StartGame(mapName,
                         new EchoConnection(),
-                        new[] { "America", "GLA" },
-                        new[] { new ColorRgb(255, 0, 0), new ColorRgb(255, 255, 255) },
+                        pSettings,
                         0);
                 }
 

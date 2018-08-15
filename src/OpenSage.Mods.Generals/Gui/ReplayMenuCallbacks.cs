@@ -5,6 +5,7 @@ using OpenSage.Data;
 using OpenSage.Data.Rep;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
+using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Network;
 
@@ -71,11 +72,16 @@ namespace OpenSage.Mods.Generals.Gui
 
                             context.Game.Scene2D.WndWindowManager.PopWindow();
 
+                            PlayerSetting[] pSettings = new[]
+                            {
+                                new PlayerSetting("America", new ColorRgb(255, 0, 0)),
+                                new PlayerSetting("Observer", new ColorRgb(255, 255, 255)),
+                            };
+
                             context.Game.StartGame(
                                 mapFilename,
                                 new ReplayConnection(replayFile),
-                                new[] { "America", "Observer" }, // TODO
-                                new[] { new ColorRgb(255, 0, 0), new ColorRgb(255, 255, 255) },
+                                pSettings,
                                 0);
 
                             break;

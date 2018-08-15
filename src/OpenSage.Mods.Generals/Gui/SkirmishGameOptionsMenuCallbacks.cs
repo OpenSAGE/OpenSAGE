@@ -4,6 +4,7 @@ using System.Linq;
 using OpenSage.Data.Ini;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
+using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Network;
 using OpenSage.Utilities.Extensions;
@@ -32,16 +33,14 @@ namespace OpenSage.Mods.Generals.Gui
                             break;
 
                         case "SkirmishGameOptionsMenu.wnd:ButtonStart":
-                            string[] sides = null;
-                            ColorRgb[] colors = null;
-                            ParsePlayerOptions(context.Game, out sides, out colors);
+                            PlayerSetting[] settings = null;
+                            ParsePlayerSettings(context.Game, out settings);
 
                             context.Game.Scene2D.WndWindowManager.PopWindow();
                             context.Game.StartGame(
                                 @"maps\Alpine Assault\Alpine Assault.map", // TODO
                                 new EchoConnection(),
-                                sides, // TODO: We need to receive the player list from UI.
-                                colors,
+                                settings, // TODO: We need to receive the player list from UI.
                                 0);
                             break;
 
@@ -116,32 +115,79 @@ namespace OpenSage.Mods.Generals.Gui
             }
         }
 
-        //TODO: Parse player count and set stuff
-        private static void ParsePlayerOptions(Game game, out string[] sides, out ColorRgb[] colors)
+        private static int GetSelectedComboBoxIndex(string control)
         {
-            sides = new[] { "America" };
-            colors = new ColorRgb[8];
+            var playerOwnerBox = (ComboBox) _window.Controls.FindControl(control);
+            var playerOwnerList = (ListBox) playerOwnerBox.Controls[2];
+
+            return playerOwnerList.SelectedIndex;
+        }
+
+        //TODO: Parse player count and set stuff
+        private static void ParsePlayerSettings(Game game, out PlayerSetting[] settings)
+        {
+            List<PlayerSetting> settingsList = new List<PlayerSetting>();
             Random rnd = new Random();
+            int selected = 0;
 
             for (int i = 0; i < 8; i++)
             {
-                var playerColorBox = (ComboBox) _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:ComboBoxColor" + i);
-                var playerColorList = (ListBox) playerColorBox.Controls[2];
+                var setting = new PlayerSetting();
+                setting.Owner = PlayerOwner.Player;
 
-                int selected = playerColorList.SelectedIndex;
+                //Get the selected player owner
+                if (i >= 1)
+                {
+                    selected = GetSelectedComboBoxIndex("SkirmishGameOptionsMenu.wnd:ComboBoxPlayer" + i);
+
+                    if (selected >= 2)
+                    {
+                        setting.Owner = PlayerOwner.EasyAi + (selected-2);
+                    }
+                    else
+                    {
+                        //TODO: make sure the color isn't already used
+                        setting.Owner = PlayerOwner.None;
+                    }
+                }
+
+                if (setting.Owner == PlayerOwner.None)
+                {
+                    continue;
+                }
+       
+                //Get the selected player color
+                selected = GetSelectedComboBoxIndex("SkirmishGameOptionsMenu.wnd:ComboBoxColor" + i);
                 if (selected > 0)
                 {
-                    colors[i] = game.ContentManager.IniDataContext.MultiplayerColors[selected - 1].RgbColor.ToColorRgb();
+                    setting.Color = game.ContentManager.IniDataContext.MultiplayerColors[selected - 1].RgbColor.ToColorRgb();
                 }
                 else
                 {
                     //TODO: make sure the color isn't already used
                     int r = rnd.Next(game.ContentManager.IniDataContext.MultiplayerColors.Count);
-                    colors[i] = game.ContentManager.IniDataContext.MultiplayerColors[r].RgbColor.ToColorRgb();
+                    setting.Color = game.ContentManager.IniDataContext.MultiplayerColors[r].RgbColor.ToColorRgb();
                 }
 
+                //Get the selected player faction
+                selected = GetSelectedComboBoxIndex("SkirmishGameOptionsMenu.wnd:ComboBoxPlayerTemplate" + i);
+                var playableSides = game.ContentManager.IniDataContext.PlayerTemplates.FindAll(x => x.PlayableSide);
+
+                if (selected > 0)
+                {
+                    setting.Side = playableSides[selected - 1].Side;
+                }
+                else
+                {
+                    //TODO: make sure the color isn't already used
+                    int r = rnd.Next(playableSides.Count);
+                    setting.Side = playableSides[r].Side;
+                }
+
+                settingsList.Add(setting);
             }
 
+            settings = settingsList.ToArray();
         }
     }
 }

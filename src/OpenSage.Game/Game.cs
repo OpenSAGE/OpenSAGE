@@ -312,7 +312,7 @@ namespace OpenSage
         }
 
         // TODO: Pass full player details, not just side.
-        public void StartGame(string mapFileName, IConnection connection, string[] sides, ColorRgb[] colors, int localPlayerIndex)
+        public void StartGame(string mapFileName, IConnection connection, PlayerSetting[] pSettings, int localPlayerIndex)
         {
             // TODO: Loading screen.
             Scene3D = ContentManager.Load<Scene3D>(mapFileName);
@@ -324,12 +324,12 @@ namespace OpenSage
 
             NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
 
-            var players = new Player[sides.Length + 1];
-            for (var i = 0; i < sides.Length; i++)
+            var players = new Player[pSettings.Length + 1];
+            for (var i = 0; i < pSettings.Length; i++)
             {
-                var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == sides[i]);
+                var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == pSettings[i].Side);
                 players[i] = Player.FromTemplate(playerTemplate, ContentManager);
-                players[i].Color = colors[i];
+                players[i].Color = pSettings[i].Color;
 
                 var player1StartPosition = Scene3D.Waypoints[$"Player_{i + 1}_Start"].Position;
                 player1StartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(player1StartPosition.X, player1StartPosition.Y);
@@ -353,7 +353,7 @@ namespace OpenSage
 
             if (Definition.ControlBar != null)
             {
-                Scene2D.ControlBar = Definition.ControlBar.Create(sides[localPlayerIndex], ContentManager);
+                Scene2D.ControlBar = Definition.ControlBar.Create(pSettings[localPlayerIndex].Side, ContentManager);
                 Scene2D.ControlBar.AddToScene(Scene2D);
             }
         }
