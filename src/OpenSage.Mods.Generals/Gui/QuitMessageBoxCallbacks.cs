@@ -16,6 +16,9 @@ namespace OpenSage.Mods.Generals.Gui
                         case "QuitMessageBox.wnd:ButtonCancel":
                             context.WindowManager.PopWindow();
                             break;
+                        case "QuitMessageBox.wnd:ButtonOk":
+                            context.Game.EndGame();
+                            break;
                     }
                     break;
             }

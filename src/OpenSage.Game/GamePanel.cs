@@ -19,6 +19,8 @@ namespace OpenSage
 
         public abstract event EventHandler<InputMessageEventArgs> InputMessageReceived;
 
+        public abstract void Close();
+
         public void SetCursor(Cursor cursor)
         {
             // TODO
@@ -55,6 +57,11 @@ namespace OpenSage
             public GameWindowPanel(GameWindow window)
             {
                 _window = window;
+            }
+
+            public override void Close()
+            {
+                _window.Close();
             }
         }
     }

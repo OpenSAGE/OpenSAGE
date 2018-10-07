@@ -189,6 +189,11 @@ namespace OpenSage
             _messageQueue.Enqueue(message);
         }
 
+        public void Close()
+        {
+            _closing = true;
+        }
+
         public void SetCursor(Cursor cursor)
         {
             // TODO

@@ -180,19 +180,19 @@ namespace OpenSage.Gui.Wnd.Controls
                 var fullHeight = _downButton.Bounds.Top - _upButton.Bounds.Bottom;
                 //TODO We currently have a problem with the propotions of the elements
                 //If you compare the original result with ours, you can see that our elements are larger and the text is smaller.
-                thumbHeight = (int)Math.Max((float)fullHeight / (float)Items.Length * (float)MaxDisplay, 1);
+                thumbHeight = (int) Math.Max((float) fullHeight / (float) Items.Length * (float) MaxDisplay, 1);
             }
-            
+
             _thumb.Bounds = new Rectangle(
                 ClientRectangle.Right - thumbSize.Width,
                 _upButton.Bounds.Bottom,
                 thumbSize.Width,
                 thumbHeight);
-            
+
             var itemsWidth = IsScrollBarVisible
                 ? _upButton.Left
                 : ClientSize.Width;
-            
+
             _itemsArea.Bounds = new Rectangle(
                 0,
                 0,
@@ -251,7 +251,7 @@ namespace OpenSage.Gui.Wnd.Controls
                     Controls.Add(new ListBoxItem(this, item));
                 }
 
-                UpdateSelectedItem();
+                UpdateSelectedItem(0);
             }
         }
 
@@ -272,9 +272,18 @@ namespace OpenSage.Gui.Wnd.Controls
             get => _selectedIndex;
             set
             {
-                _selectedIndex = value;
-                UpdateSelectedItem();
+                UpdateSelectedItem(value);
                 SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        private int _hoveredIndex = -1;
+        public int HoveredIndex
+        {
+            get => _hoveredIndex;
+            set
+            {
+                UpdateHoveredItem(value);
             }
         }
 
@@ -289,23 +298,36 @@ namespace OpenSage.Gui.Wnd.Controls
             }
         }
 
-        public void UpdateSelectedItem()
+        private void UpdateSelectedItem(int nextIndex)
         {
-            for (var i = 0; i < _items.Length; i++)
-            {
-                var item = (ListBoxItem) Controls[i];
+            if (nextIndex == _selectedIndex) return;
 
-                if (i == _selectedIndex)
-                {
-                    item.BackgroundImage = IsMouseOver
-                        ? SelectedItemHoverBackgroundImage
-                        : SelectedItemBackgroundImage;
-                }
-                else
-                {
-                    item.BackgroundImage = null;
-                }
+            if (_selectedIndex >= 0)
+            {
+                var previousItem = Controls[_selectedIndex] as ListBoxItem;
+                previousItem.BackgroundImage = null;
             }
+
+            var nextItem = Controls[nextIndex] as ListBoxItem;
+            nextItem.BackgroundImage = SelectedItemBackgroundImage;
+
+            _selectedIndex = nextIndex;
+        }
+
+        private void UpdateHoveredItem(int nextIndex)
+        {
+            if (nextIndex == _hoveredIndex) return;
+
+            if (_hoveredIndex >= 0)
+            {
+                var previousItem = Controls[_hoveredIndex] as ListBoxItem;
+                previousItem.BackgroundImage = _hoveredIndex == _selectedIndex ? SelectedItemBackgroundImage : null;
+            }
+
+            var nextItem = Controls[nextIndex] as ListBoxItem;
+            nextItem.BackgroundImage = nextIndex == _selectedIndex ? SelectedItemHoverBackgroundImage : HoverBackgroundImage;
+
+            _hoveredIndex = nextIndex;
         }
 
         private int[] _columnWidths;
@@ -356,21 +378,10 @@ namespace OpenSage.Gui.Wnd.Controls
                 {
                     child.Visible = false;
                 }
-                
+
                 child.Bounds = new Rectangle(0, y, ClientSize.Width, childHeight);
 
                 y += childHeight;
-            }
-        }
-
-        protected override void DefaultInputOverride(WndWindowMessage message, ControlCallbackContext context)
-        {
-            switch (message.MessageType)
-            {
-                case WndWindowMessageType.MouseEnter:
-                case WndWindowMessageType.MouseExit:
-                    UpdateSelectedItem();
-                    break;
             }
         }
     }
@@ -460,6 +471,9 @@ namespace OpenSage.Gui.Wnd.Controls
             {
                 case WndWindowMessageType.MouseUp:
                     _parent.SelectedIndex = _parent.Controls.IndexOf(this);
+                    break;
+                case WndWindowMessageType.MouseEnter:
+                    _parent.HoveredIndex = _parent.Controls.IndexOf(this);
                     break;
             }
         }

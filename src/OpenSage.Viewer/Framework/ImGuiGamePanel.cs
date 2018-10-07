@@ -116,5 +116,10 @@ namespace OpenSage.Viewer.Framework
             ClientSizeChanged?.Invoke(this, EventArgs.Empty);
             FramebufferChanged?.Invoke(this, EventArgs.Empty);
         }
+
+        public override void Close()
+        {
+            Console.WriteLine("Not closing window, since running in viewer!");
+        }
     }
 }
