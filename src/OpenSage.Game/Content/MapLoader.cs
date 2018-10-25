@@ -46,6 +46,7 @@ namespace OpenSage.Content
 
                 default:
                     contentManager.IniDataContext.LoadIniFile(@"Data\INI\Terrain.ini");
+                    contentManager.IniDataContext.LoadIniFile(@"Data\INI\Roads.ini");
                     break;
             }
 
@@ -122,7 +123,8 @@ namespace OpenSage.Content
                 mapFile.ObjectsList.Objects,
                 teams,
                 out var waypoints,
-                out var gameObjects);
+                out var gameObjects,
+                out var roads);
 
             var lighting = new WorldLighting(
                 mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
@@ -156,6 +158,7 @@ namespace OpenSage.Content
                 cameraController,
                 mapFile,
                 terrain,
+                roads,
                 mapScripts,
                 gameObjects,
                 waypoints,
@@ -278,24 +281,30 @@ namespace OpenSage.Content
             return gameObject;
         }
 
-        private static void LoadObjects(
+        private void LoadObjects(
             ContentManager contentManager,
             HeightMap heightMap,
             MapObject[] mapObjects,
             Team[] teams,
             out WaypointCollection waypointCollection,
-            out GameObjectCollection gameObjects)
+            out GameObjectCollection gameObjects,
+            out Road[] roads)
         {
             var waypoints = new List<Waypoint>();
             gameObjects = new GameObjectCollection(contentManager);
+            var roadsList = new List<Road>();
 
-            foreach (var mapObject in mapObjects)
+            var roadTopology = new RoadTopology();
+
+            for (var i = 0; i < mapObjects.Length; i++)
             {
+                var mapObject = mapObjects[i];
+
+                var position = mapObject.Position;
+
                 switch (mapObject.RoadType)
                 {
                     case RoadType.None:
-                        var position = mapObject.Position;
-
                         switch (mapObject.TypeName)
                         {
                             case "*Waypoints/Waypoint":
@@ -303,7 +312,6 @@ namespace OpenSage.Content
                                 break;
 
                             default:
-                                // TODO: Handle locomotors when they're implemented.
                                 position.Z += heightMap.GetHeight(position.X, position.Y);
 
                                 var gameObject = CreateGameObject(mapObject, teams, contentManager);
@@ -320,15 +328,77 @@ namespace OpenSage.Content
                         }
                         break;
 
+                    case RoadType.BridgeStart:
+                        var bridgeEnd = mapObjects[++i];
+                        if (bridgeEnd.RoadType != RoadType.BridgeEnd)
+                        {
+                            throw new InvalidDataException();
+                        }
+                        // TODO: Bridges.
+                        break;
+
                     default:
-                        // TODO: Roads.
+                        var roadEnd = mapObjects[++i];
+                        if (!mapObject.RoadType.HasFlag(RoadType.Start)
+                            || !roadEnd.RoadType.HasFlag(RoadType.End)
+                            || mapObject.TypeName != roadEnd.TypeName)
+                        {
+                            throw new InvalidDataException();
+                        }
+                        var roadTemplate = contentManager.IniDataContext.RoadTemplates.Find(x => x.Name == mapObject.TypeName);
+                        if (roadTemplate == null)
+                        {
+                            throw new InvalidDataException($"Missing road template: {mapObject.TypeName}");
+                        }
+                        roadTopology.AddSegment(roadTemplate, mapObject, roadEnd);
                         break;
                 }
 
                 contentManager.GraphicsDevice.WaitForIdle();
             }
 
+            // The map stores road segments with no connectivity:
+            // - a segment is from point A to point B
+            // - with a road type name
+            // - and start and end curve types (angled, tight curve, broad curve).
+
+            // The goal is to create road networks of connected road segments,
+            // where a network has only a single road type.
+
+            // A road network is composed of 2 or more nodes.
+            // A network is a (potentially) cyclic graph.
+
+            // A road node has > 1 and <= 4 edges connected to it.
+            // A node can be part of multiple networks.
+
+            // An edge can only exist in one network.
+
+            // TODO: If a node stored in the map has > 4 edges, the extra edges
+            // are put into a separate network.
+
+            var networks = roadTopology.BuildNetworks();
+
+            foreach (var network in networks)
+            {
+                foreach (var edge in network.Edges)
+                {
+                    var startPosition = edge.Start.TopologyNode.Position;
+                    var endPosition = edge.End.TopologyNode.Position;
+
+                    startPosition.Z += heightMap.GetHeight(startPosition.X, startPosition.Y);
+                    endPosition.Z += heightMap.GetHeight(endPosition.X, endPosition.Y);
+
+                    roadsList.Add(AddDisposable(new Road(
+                        contentManager,
+                        heightMap,
+                        edge.TopologyEdge.Template,
+                        startPosition,
+                        endPosition)));
+                }
+            }
+
             waypointCollection = new WaypointCollection(waypoints);
+            roads = roadsList.ToArray();
         }
 
         private List<TerrainPatch> CreatePatches(

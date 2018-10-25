@@ -143,7 +143,7 @@ namespace OpenSage.Graphics.Rendering
                         }
                     }
 
-                    var renderItemConstantsVSParameter = renderItem.Effect.GetParameter("RenderItemConstantsVS");
+                    var renderItemConstantsVSParameter = renderItem.Effect.GetParameter("RenderItemConstantsVS", throwIfMissing: false);
                     if (renderItemConstantsVSParameter != null)
                     {
                         if (lastWorld == null || lastWorld.Value != renderItem.World)

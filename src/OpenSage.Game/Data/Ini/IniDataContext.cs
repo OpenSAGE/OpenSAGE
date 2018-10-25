@@ -78,7 +78,7 @@ namespace OpenSage.Data.Ini
         public List<ParticleSystemDefinition> ParticleSystems { get; } = new List<ParticleSystemDefinition>();
         public List<PlayerTemplate> PlayerTemplates { get; } = new List<PlayerTemplate>();
         public List<Rank> Ranks { get; } = new List<Rank>();
-        public List<Road> Roads { get; } = new List<Road>();
+        public List<RoadTemplate> RoadTemplates { get; } = new List<RoadTemplate>();
         public int ReallyLowMHz { get; internal set; }
         public List<Science> Sciences { get; } = new List<Science>();
         public List<ShellMenuScheme> ShellMenuSchemes { get; } = new List<ShellMenuScheme>();

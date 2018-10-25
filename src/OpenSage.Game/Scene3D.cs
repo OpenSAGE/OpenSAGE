@@ -33,10 +33,15 @@ namespace OpenSage
         public MapFile MapFile { get; set; }
 
         public Terrain.Terrain Terrain { get; }
+        public bool ShowTerrain { get; set; } = true;
+
+        public Terrain.Road[] Roads { get; }
+        public bool ShowRoads { get; set; } = true;
 
         public MapScriptCollection Scripts { get; }
 
         public GameObjectCollection GameObjects { get; }
+        public bool ShowObjects { get; set; } = true;
 
         public WaypointCollection Waypoints { get; set; }
         public WaypointPathCollection WaypointPaths { get; set; }
@@ -68,6 +73,7 @@ namespace OpenSage
             ICameraController cameraController,
             MapFile mapFile,
             Terrain.Terrain terrain,
+            Terrain.Road[] roads,
             MapScriptCollection scripts,
             GameObjectCollection gameObjects,
             WaypointCollection waypoints,
@@ -81,6 +87,7 @@ namespace OpenSage
 
             MapFile = mapFile;
             Terrain = terrain;
+            Roads = roads;
             Scripts = scripts;
             GameObjects = AddDisposable(gameObjects);
             Waypoints = waypoints;
@@ -137,11 +144,25 @@ namespace OpenSage
 
         internal void BuildRenderList(RenderList renderList, CameraComponent camera)
         {
-            Terrain?.BuildRenderList(renderList);
-
-            foreach (var gameObject in GameObjects.Items)
+            if (ShowTerrain)
             {
-                gameObject.BuildRenderList(renderList, camera);
+                Terrain?.BuildRenderList(renderList);
+            }
+
+            if (ShowRoads)
+            {
+                foreach (var road in Roads)
+                {
+                    road.BuildRenderList(renderList);
+                }
+            }
+
+            if (ShowObjects)
+            {
+                foreach (var gameObject in GameObjects.Items)
+                {
+                    gameObject.BuildRenderList(renderList, camera);
+                }
             }
 
             _particleSystemManager.BuildRenderList(renderList);

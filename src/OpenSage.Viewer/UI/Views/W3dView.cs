@@ -54,6 +54,7 @@ namespace OpenSage.Viewer.UI.Views
                 cameraController,
                 null,
                 null,
+                Array.Empty<Terrain.Road>(),
                 null,
                 new GameObjectCollection(game.ContentManager),
                 new WaypointCollection(),

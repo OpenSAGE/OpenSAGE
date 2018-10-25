@@ -13,8 +13,8 @@ namespace OpenSage.Data.Map
 
         Angled = 8,
 
-        Unknown1 = 16,
-        Unknown2 = 32,
+        BridgeStart = 16,
+        BridgeEnd = 32,
 
         TightCurve = 64,
 
@@ -24,9 +24,6 @@ namespace OpenSage.Data.Map
         Unknown3 = 256,
 
         [AddedIn(SageGame.Cnc4)]
-        Unknown4 = 512,
-
-        BroadCurveStart = Start,
-        BroadCurveEnd = End
+        Unknown4 = 512
     }
 }

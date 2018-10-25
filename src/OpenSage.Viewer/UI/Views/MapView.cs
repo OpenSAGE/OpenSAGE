@@ -72,13 +72,31 @@ namespace OpenSage.Viewer.UI.Views
 
                 ImGui.Separator();
 
+                var showTerrain = _game.Scene3D.ShowTerrain;
+                if (ImGui.Checkbox("Show terrain", ref showTerrain))
+                {
+                    _game.Scene3D.ShowTerrain = showTerrain;
+                }
+
+                var showRoads = _game.Scene3D.ShowRoads;
+                if (ImGui.Checkbox("Show roads", ref showRoads))
+                {
+                    _game.Scene3D.ShowRoads = showRoads;
+                }
+
+                var showObjects = _game.Scene3D.ShowObjects;
+                if (ImGui.Checkbox("Show objects", ref showObjects))
+                {
+                    _game.Scene3D.ShowObjects = showObjects;
+                }
+
+                ImGui.Separator();
+
                 var enableCloudShadows = lighting.EnableCloudShadows;
                 if (ImGui.Checkbox("Enable cloud shadows", ref enableCloudShadows))
                 {
                     lighting.EnableCloudShadows = enableCloudShadows;
                 }
-
-                ImGui.Separator();
 
                 var enableMacroTexture = _game.Scene3D.Terrain.EnableMacroTexture;
                 if (ImGui.Checkbox("Enable macro texture", ref enableMacroTexture))

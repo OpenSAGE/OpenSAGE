@@ -2,16 +2,16 @@
 
 namespace OpenSage.Data.Ini
 {
-    public sealed class Road
+    public sealed class RoadTemplate
     {
-        internal static Road Parse(IniParser parser)
+        internal static RoadTemplate Parse(IniParser parser)
         {
             return parser.ParseTopLevelNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }
 
-        private static readonly IniParseTable<Road> FieldParseTable = new IniParseTable<Road>
+        private static readonly IniParseTable<RoadTemplate> FieldParseTable = new IniParseTable<RoadTemplate>
         {
             { "Texture", (parser, x) => x.Texture = parser.ParseFileName() },
             { "RoadWidth", (parser, x) => x.RoadWidth = parser.ParseFloat() },
