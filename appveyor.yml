@@ -1,24 +1,39 @@
 version: 1.0.{build}
 image: Visual Studio 2017
 configuration: Release
-install:
-- ps: >-
-    cd src
-    
-    nuget restore OpenSage.sln
 
 before_build:
-  - choco install opencover.portable
-  - choco install codecov
+- choco install opencover.portable
+- choco install codecov
 
-build:
-  project: src/OpenSage.sln
-  verbosity: minimal
+build_script:
+- ps: |
+      cd $env:APPVEYOR_BUILD_FOLDER\src\OpenSage.Game.Tests
+      dotnet build -c $env.configuration -v m
+
+      cd $env:APPVEYOR_BUILD_FOLDER\src\OpenSage.Viewer
+      dotnet publish -c $env.configuration -v m -r win-x64
+      dotnet publish -c $env.configuration -v m -r osx-x64
+      dotnet publish -c $env.configuration -v m -r linux-x64
+
+      cd $env:APPVEYOR_BUILD_FOLDER\src\OpenSage.Launcher
+      dotnet publish -c $env.configuration -v m -r win-x64
+      dotnet publish -c $env.configuration -v m -r osx-x64
+      dotnet publish -c $env.configuration -v m -r linux-x64
+
 artifacts:
-- path: src\OpenSage.Viewer\bin\Release\netcoreapp2.0
-  name: Data Viewer
-- path: src\OpenSage.Launcher\bin\Release\netcoreapp2.0
-  name: Launcher
+- path: src\OpenSage.Viewer\bin\Release\netcoreapp2.0\win-x64\publish
+  name: Viewer (Windows x64)
+- path: src\OpenSage.Viewer\bin\Release\netcoreapp2.0\osx-x64\publish
+  name: Viewer (macOS)
+- path: src\OpenSage.Viewer\bin\Release\netcoreapp2.0\linux-x64\publish
+  name: Viewer (Linux x64)
+- path: src\OpenSage.Launcher\bin\Release\netcoreapp2.0\win-x64\publish
+  name: Launcher (Windows x64)
+- path: src\OpenSage.Launcher\bin\Release\netcoreapp2.0\osx-x64\publish
+  name: Launcher (macOS)
+- path: src\OpenSage.Launcher\bin\Release\netcoreapp2.0\linux-x64\publish
+  name: Launcher (Linux x64)
 
 test_script:
   - OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:"test --logger:trx;LogFileName=results.trx /p:DebugType=full C:\projects\opensage\src\OpenSage.Game.Tests\OpenSage.Game.Tests.csproj" -filter:"+[OpenSage*]* -[*.Tests*]*" -oldStyle -output:".\OpenSage_coverage.xml"
