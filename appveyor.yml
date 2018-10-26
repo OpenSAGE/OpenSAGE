@@ -11,6 +11,9 @@ build_script:
       cd $env:APPVEYOR_BUILD_FOLDER\src\OpenSage.Game.Tests
       dotnet build -c $env:configuration -v m
 
+      cd $env:APPVEYOR_BUILD_FOLDER\src\OpenSage.Game.Shaders.Processor
+      dotnet build -c $env:configuration -v m
+
       cd $env:APPVEYOR_BUILD_FOLDER\src\OpenSage.Viewer
       dotnet publish -c $env:configuration -v m -r win-x64
       dotnet publish -c $env:configuration -v m -r osx-x64
@@ -38,3 +41,6 @@ artifacts:
 test_script:
   - OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:"test --logger:trx;LogFileName=results.trx /p:DebugType=full C:\projects\opensage\src\OpenSage.Game.Tests\OpenSage.Game.Tests.csproj" -filter:"+[OpenSage*]* -[*.Tests*]*" -oldStyle -output:".\OpenSage_coverage.xml"
   - codecov -f "OpenSage_coverage.xml
+
+cache:
+– '%USERPROFILE%\.nuget\packages'
