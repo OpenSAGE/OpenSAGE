@@ -39,11 +39,11 @@ build_script:
       dotnet publish -c $env:configuration -o "$env:APPVEYOR_BUILD_FOLDER\build\artifacts\linux-x64" -v m -r linux-x64
 
 artifacts:
-- path: $env:APPVEYOR_BUILD_FOLDER\build\artifacts\win-x64
+- path: build\artifacts\win-x64
   name: win-x64
-- path: $env:APPVEYOR_BUILD_FOLDER\build\artifacts\osx-x64
+- path: build\artifacts\osx-x64
   name: osx-64
-- path: $env:APPVEYOR_BUILD_FOLDER\build\artifacts\linux-x64
+- path: build\artifacts\linux-x64
   name: linux-x64
 
 test_script:
