@@ -1,10 +1,24 @@
 version: 1.0.{build}
 image: Visual Studio 2017
 configuration: Release
+skip_tags: false
 
 before_build:
 - choco install opencover.portable
 - choco install codecov
+
+init:
+- ps: >-
+    $parsedReleaseBuildVersion = $env:APPVEYOR_REPO_TAG_NAME -Match "(\d+.\d+.\d+(.\d+)?)"
+    
+    if ($env:appveyor_repo_tag -AND $parsedReleaseBuildVersion) {
+      $env:BuildVersion = $matches[0]
+      $env:IsGithubRelease = $TRUE
+    }
+    else {
+      $env:BuildVersion = $env:appveyor_build_version
+      $env:IsGithubRelease = ""
+    }
 
 build_script:
 - ps: |
@@ -15,28 +29,22 @@ build_script:
       dotnet build -c $env:configuration -v m
 
       cd $env:APPVEYOR_BUILD_FOLDER\src\OpenSage.Viewer
-      dotnet publish -c $env:configuration -v m -r win-x64
-      dotnet publish -c $env:configuration -v m -r osx-x64
-      dotnet publish -c $env:configuration -v m -r linux-x64
+      dotnet publish -c $env:configuration -o "$env:APPVEYOR_BUILD_FOLDER\build\artifacts\win-x64" -v m -r win-x64
+      dotnet publish -c $env:configuration -o "$env:APPVEYOR_BUILD_FOLDER\build\artifacts\osx-x64" -v m -r osx-x64
+      dotnet publish -c $env:configuration -o "$env:APPVEYOR_BUILD_FOLDER\build\artifacts\linux-x64" -v m -r linux-x64
 
       cd $env:APPVEYOR_BUILD_FOLDER\src\OpenSage.Launcher
-      dotnet publish -c $env:configuration -v m -r win-x64
-      dotnet publish -c $env:configuration -v m -r osx-x64
-      dotnet publish -c $env:configuration -v m -r linux-x64
+      dotnet publish -c $env:configuration -o "$env:APPVEYOR_BUILD_FOLDER\build\artifacts\win-x64" -v m -r win-x64
+      dotnet publish -c $env:configuration -o "$env:APPVEYOR_BUILD_FOLDER\build\artifacts\osx-x64" -v m -r osx-x64
+      dotnet publish -c $env:configuration -o "$env:APPVEYOR_BUILD_FOLDER\build\artifacts\linux-x64" -v m -r linux-x64
 
 artifacts:
-- path: src\OpenSage.Viewer\bin\Release\netcoreapp2.0\win-x64\publish
-  name: Viewer (Windows x64)
-- path: src\OpenSage.Viewer\bin\Release\netcoreapp2.0\osx-x64\publish
-  name: Viewer (macOS)
-- path: src\OpenSage.Viewer\bin\Release\netcoreapp2.0\linux-x64\publish
-  name: Viewer (Linux x64)
-- path: src\OpenSage.Launcher\bin\Release\netcoreapp2.0\win-x64\publish
-  name: Launcher (Windows x64)
-- path: src\OpenSage.Launcher\bin\Release\netcoreapp2.0\osx-x64\publish
-  name: Launcher (macOS)
-- path: src\OpenSage.Launcher\bin\Release\netcoreapp2.0\linux-x64\publish
-  name: Launcher (Linux x64)
+- path: $env:APPVEYOR_BUILD_FOLDER\build\artifacts\win-x64
+  name: win-x64
+- path: $env:APPVEYOR_BUILD_FOLDER\build\artifacts\osx-x64
+  name: osx-64
+- path: $env:APPVEYOR_BUILD_FOLDER\build\artifacts\linux-x64
+  name: linux-x64
 
 test_script:
   - OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:"test --logger:trx;LogFileName=results.trx /p:DebugType=full C:\projects\opensage\src\OpenSage.Game.Tests\OpenSage.Game.Tests.csproj" -filter:"+[OpenSage*]* -[*.Tests*]*" -oldStyle -output:".\OpenSage_coverage.xml"
@@ -44,3 +52,16 @@ test_script:
 
 cache:
   - '%USERPROFILE%\.nuget\packages'
+
+deploy:
+- provider: GitHub
+  release: $(APPVEYOR_REPO_TAG_NAME)
+  auth_token:
+    secure: gd108UlSNyLViffYS7AKRgbTQXmzI6N/WgtNXFwkOsO9qGrWrAaJ853qAyv+FXp6
+  artifact:  /*\.zip/
+  description: "## Instructions\n1. Download the correct .zip file for your operating system\n2. Linux/Mac: export the path to your game path as an environment variable e.g.: `export CNC_GENERALS_PATH=~/generals/`\n3. Start the `OpenSage.Viewer` or `OpenSage.Launcher` executable\n## Viewer\nAllows you to view all game files from all detected SAGE games on your computer.\n##Launcher\nThis executable will start OpenSage with the C&C Generals game files."
+  draft: false
+  prerelease: true
+  on:
+    branch: master
+    IsGithubRelease: true
