@@ -43,4 +43,4 @@ test_script:
   - codecov -f "OpenSage_coverage.xml
 
 cache:
-– '%USERPROFILE%\.nuget\packages'
+  - '%USERPROFILE%\.nuget\packages'
