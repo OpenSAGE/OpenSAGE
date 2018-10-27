@@ -55,7 +55,10 @@ namespace OpenSage.Graphics.Effects
                 return;
             }
 
-            commandEncoder.SetGraphicsResourceSet(_slot, _data);
+            if (_data!=null)
+            {
+                commandEncoder.SetGraphicsResourceSet(_slot, _data);
+            }
 
             _dirty = false;
         }

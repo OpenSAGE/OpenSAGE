@@ -302,6 +302,8 @@ namespace OpenSage.Gui.Wnd.Controls
         {
             if (nextIndex == _selectedIndex) return;
 
+            if (nextIndex >= Controls.Count) return;
+
             if (_selectedIndex >= 0)
             {
                 var previousItem = Controls[_selectedIndex] as ListBoxItem;
