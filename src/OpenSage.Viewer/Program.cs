@@ -1,8 +1,8 @@
 ﻿using System;
-using System.CommandLine;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using CommandLine;
 using OpenSage.Viewer.UI;
 using Veldrid;
 
@@ -10,26 +10,38 @@ namespace OpenSage.Viewer
 {
     public static class Program
     {
+        //must match Veldrid.GraphicsBackends. Can be removed once nullable enums work
+        public enum Renderer : byte
+        {
+            Direct3D11 = 0,
+            Vulkan = 1,
+            OpenGL = 2,
+            Metal = 3,
+            OpenGLES = 4,
+            Default
+        }
+
+        public class Options
+        {
+            //use a string since nullable enums aren't working yet
+            [Option('r', "renderer", Default = Renderer.Default, Required = false, HelpText = "Set the renderer backend.")]
+            public Renderer Renderer { get; set; }
+        }
+
         public static void Main(string[] args)
+        {
+            CommandLine.Parser.Default.ParseArguments<Options>(args)
+              .WithParsed<Options>(opts => Run(opts));
+        }
+
+        public static void Run(Options opts)
         {
             GraphicsBackend? preferredBackend = null;
 
-            ArgumentSyntax.Parse(args, syntax =>
+            if (opts.Renderer != Renderer.Default)
             {
-                string preferredBackendString = null;
-                syntax.DefineOption("renderer", ref preferredBackendString, false, $"Choose which renderer backend should be used. Valid options: {string.Join(",", Enum.GetNames(typeof(GraphicsBackend)))}");
-                if (preferredBackendString != null)
-                {
-                    if (Enum.TryParse<GraphicsBackend>(preferredBackendString, out var preferredBackendTemp))
-                    {
-                        preferredBackend = preferredBackendTemp;
-                    }
-                    else
-                    {
-                        syntax.ReportError($"Unknown renderer backend: {preferredBackendString}");
-                    }
-                }              
-            });
+                preferredBackend = (GraphicsBackend) opts.Renderer;
+            }
 
             Platform.Start();
 
