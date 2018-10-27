@@ -113,11 +113,24 @@ namespace OpenSage.Gui.Wnd
                 case InputMessageType.MouseRightButtonDown:
                 case InputMessageType.MouseMiddleButtonDown:
                 case InputMessageType.MouseMiddleButtonUp:
-                {
-                    return GetControlAtPoint(message.Value.MousePosition, out var _, out var _)
-                        ? InputMessageResult.Handled
-                        : InputMessageResult.NotHandled;
-                }
+                    {
+                        return GetControlAtPoint(message.Value.MousePosition, out var _, out var _)
+                            ? InputMessageResult.Handled
+                            : InputMessageResult.NotHandled;
+                    }
+
+                case InputMessageType.KeyDown:
+                    {
+                        if (GetControlAtPoint(message.Value.MousePosition, out var element, out var mousePosition))
+                        {
+                            element.InputCallback.Invoke(
+                                element,
+                                new WndWindowMessage(WndWindowMessageType.KeyDown, element, mousePosition, message.Value.Key),
+                                context);
+                            return InputMessageResult.Handled;
+                        }
+                        break;
+                    }
             }
 
             return InputMessageResult.NotHandled;

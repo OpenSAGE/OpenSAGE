@@ -6,6 +6,7 @@ using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
+using Veldrid;
 
 namespace OpenSage.Mods.Generals.Gui
 {
@@ -118,15 +119,16 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static void CreditsMenuInput(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
-            //switch (message.MessageType)
-            //{
-            //    case WndWindowMessageType.KeyDown:
-            //        if (message.Key == Key.Escape)
-            //        {
-            //            context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
-            //        }
-            //        break;
-            //}
+            switch (message.MessageType)
+            {
+                case WndWindowMessageType.KeyDown:
+                    if (message.Key == Key.Escape)
+                    {
+                        //Should load a loading screen
+                        context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
+                    }
+                    break;
+            }
         }
 
         public static void W3DCreditsMenuDraw(Control control, DrawingContext2D drawingContext)
