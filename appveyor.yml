@@ -58,7 +58,7 @@ deploy:
   release: $(APPVEYOR_REPO_TAG_NAME)
   auth_token:
     secure: gd108UlSNyLViffYS7AKRgbTQXmzI6N/WgtNXFwkOsO9qGrWrAaJ853qAyv+FXp6
-  artifact:  "*.zip"
+  artifact:  build\artifacts\*.zip
   description: "## Instructions\n1. Download the correct .zip file for your operating system\n2. Linux/Mac: export the path to your game path as an environment variable e.g.: `export CNC_GENERALS_PATH=~/generals/`\n3. Start the `OpenSage.Viewer` or `OpenSage.Launcher` executable\n\n## Viewer\nAllows you to view all game files from all detected SAGE games on your computer.\n\n## Launcher\nThis executable will start OpenSAGE with the C&C Generals game files."
   draft: false
   prerelease: true
