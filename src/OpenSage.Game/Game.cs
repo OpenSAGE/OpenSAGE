@@ -174,31 +174,6 @@ namespace OpenSage
                 SageGame,
                 _wndCallbackResolver));
 
-            // TODO: Add these into IGameDefinition? Should we preload all ini files?
-            switch (SageGame)
-            {
-                case SageGame.Ra3:
-                case SageGame.Ra3Uprising:
-                case SageGame.Cnc4:
-                    break;
-
-                default:
-                    ContentManager.IniDataContext.LoadIniFile(@"Data\INI\GameData.ini");
-                    ContentManager.IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
-                    break;
-            }
-
-            switch (SageGame)
-            {
-                case SageGame.CncGenerals:
-                case SageGame.CncGeneralsZeroHour:
-                case SageGame.Bfme:
-                case SageGame.Bfme2:
-                case SageGame.Bfme2Rotwk:
-                    ContentManager.IniDataContext.LoadIniFile(@"Data\INI\ParticleSystem.ini");
-                    break;
-            }
-
             GameSystems = new List<GameSystem>();
 
             Audio = AddDisposable(new AudioSystem(this));

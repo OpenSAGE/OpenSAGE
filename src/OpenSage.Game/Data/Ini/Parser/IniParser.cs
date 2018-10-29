@@ -104,6 +104,11 @@ namespace OpenSage.Data.Ini.Parser
             { "WindowTransition", (parser, context) => context.WindowTransitions.Add(WindowTransition.Parse(parser)) },
         };
 
+        private static readonly Dictionary<string, Func<IniParser, IniToken>> MacroFunctions = new Dictionary<string, Func<IniParser, IniToken>>
+        {
+             { "#DIVIDE(", (parser) => { return parser.DivideFunc(); } },
+        };
+
         private static readonly char[] Separators = { ' ', '\n', '\r', '\t', '=' };
         private static readonly char[] SeparatorsPercent = { ' ', '\n', '\r', '\t', '=', '%' };
         public static readonly char[] SeparatorsColon = { ' ', '\n', '\r', '\t', '=', ':' };
@@ -208,6 +213,19 @@ namespace OpenSage.Data.Ini.Parser
         public int ScanInteger(IniToken token) => Convert.ToInt32(token.Text);
 
         public int ParseInteger() => ScanInteger(GetNextToken());
+
+        public int[] ParseIntegerArray()
+        {
+            var result = new List<int>();
+
+            IniToken? token;
+            while ((token = GetNextTokenOptional()) != null)
+            {
+                result.Add(ScanInteger(token.Value));
+            }
+
+            return result.ToArray();
+        }
 
         public uint ScanUnsignedInteger(IniToken token) => Convert.ToUInt32(token.Text);
 
@@ -369,7 +387,34 @@ namespace OpenSage.Data.Ini.Parser
                 return macroExpansion;
             }
 
+            if (ResolveFunc(result.Value.Text, out var funcResult))
+            {
+                return funcResult.Value;
+            }
+
             return result.Value;
+        }
+
+        private bool ResolveFunc(string text, out IniToken? resolved)
+        {
+            if (!text.StartsWith("#"))
+            {
+                resolved = null;
+                return false;
+            }
+
+            resolved = MacroFunctions[text](this);
+            return true;
+        }
+
+        private IniToken DivideFunc()
+        {
+            var a = GetNextToken();
+            var b = GetNextToken();
+
+            var result = double.Parse(a.Text) / double.Parse(b.Text);
+
+            return new IniToken(result.ToString(), a.Position);
         }
 
         public IniToken? GetNextTokenOptional(char[] separators = null)
