@@ -3,5 +3,6 @@
     <LangVersion>latest</LangVersion>
     <VeldridVersion>4.5.0-beta1-0071-g8145d9f0e8</VeldridVersion>
     <ImGuiVersion>5.65.0-beta1-0040-g8145d9f0e8</ImGuiVersion>
+    <SharpAudioVersion>0.1.0-beta1-0004-g5c7e0393c3</SharpAudioVersion>
   </PropertyGroup>
 </Project>

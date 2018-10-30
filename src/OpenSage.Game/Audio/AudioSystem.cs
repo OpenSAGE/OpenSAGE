@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using OpenAL;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Wav;
+using SharpAudio;
 
 namespace OpenSage.Audio
 {
@@ -13,44 +13,15 @@ namespace OpenSage.Audio
         private IntPtr _context;
 
         private List<AudioSource> _sources;
-        private Dictionary<string, AudioBuffer> _files;
+        private Dictionary<string, AudioBuffer> _cached;
         private AudioSettings _settings;
-
-        internal static void alCheckError()
-        {
-            int error;
-            error = AL10.alGetError();
-
-            if (error != AL10.AL_NO_ERROR)
-            {
-                throw new InvalidOperationException("AL error!");
-            }
-        }
-
-        internal void alcCheckError()
-        {
-            int error;
-            error = ALC10.alcGetError(_device);
-
-            if (error != ALC10.ALC_NO_ERROR)
-            {
-                throw new InvalidOperationException("ALC error!");
-            }
-        }
-
+        private AudioEngine _engine;
+        
         public AudioSystem(Game game) : base(game)
         {
-            _device = ALC10.alcOpenDevice("");
-            alcCheckError();
-
-            _context = ALC10.alcCreateContext(_device, null);
-            alcCheckError();
-
-            ALC10.alcMakeContextCurrent(_context);
-            alcCheckError();
-
+            _engine = AudioEngine.CreateDefault();
             _sources = new List<AudioSource>();
-            _files = new Dictionary<string, AudioBuffer>();
+            _cached = new Dictionary<string, AudioBuffer>();
 
             switch (game.ContentManager.SageGame)
             {
@@ -82,34 +53,32 @@ namespace OpenSage.Audio
         {
             base.Dispose(disposeManagedResources);
             _sources.Clear();
-            _files.Clear();
-
-
-            ALC10.alcMakeContextCurrent(IntPtr.Zero);
-            ALC10.alcDestroyContext(_context);
-            ALC10.alcCloseDevice(_device);
+            _cached.Clear();
           
+            _engine.Dispose();
         }
 
-        public AudioSource GetFile(string fileName,bool loop=false)
+        public AudioSource GetSound(string soundName, bool loop = false)
         {
             AudioBuffer buffer = null;
-            if (!_files.ContainsKey(fileName))
+            if (!_cached.ContainsKey(soundName))
             {
-                var file = Game.ContentManager.Load<WavFile>(fileName);
-                buffer = AddDisposable(new AudioBuffer(file));
-                _files[fileName] = buffer;
+                var file = Game.ContentManager.Load<WavFile>(soundName);
+
+                buffer = AddDisposable(_engine.CreateBuffer());
+                _cached[soundName] = buffer;
             }
             else
             {
-                buffer = _files[fileName];
+                buffer = _cached[soundName];
             }
 
-            var source = AddDisposable(new AudioSource(buffer));
+            var source = AddDisposable(_engine.CreateSource());
+            source.QueryBuffer(buffer);
 
             if(loop)
             {
-                source.Looping = true;
+                //source.Looping = true;
             }
 
             _sources.Add(source);
@@ -119,30 +88,12 @@ namespace OpenSage.Audio
 
         public void PlaySound(string soundName)
         {
-            AudioBuffer buffer = null;
-
             AudioEvent ev = Game.ContentManager.IniDataContext.AudioEvents.Find(x => x.Name == soundName);
             string[] paths = { _settings.AudioRoot, _settings.SoundsFolder, ev.Sounds[0] };
             string soundPath = Path.Combine(paths);
             soundPath = Path.ChangeExtension(soundPath, _settings.SoundsExtension);
 
-            if (!_files.ContainsKey(soundPath))
-            {
-                var file = Game.ContentManager.Load<WavFile>(soundPath);
-                buffer = AddDisposable(new AudioBuffer(file));
-                _files[soundPath] = buffer;
-            }
-            else
-            {
-                buffer = _files[soundPath];
-            }
-
-            var source = AddDisposable(new AudioSource(buffer));
-                  
-            if (ev.Control.HasFlag(AudioControlFlags.Loop))
-            {
-                source.Looping = true;
-            }
+            var source = GetSound(soundPath, ev.Control.HasFlag(AudioControlFlags.Loop));
 
             //set the volume of the sound
             source.Volume = ev.Volume;
