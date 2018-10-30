@@ -409,12 +409,9 @@ namespace OpenSage.Data.Ini.Parser
 
         private IniToken DivideFunc()
         {
-            var a = GetNextToken();
-            var b = GetNextToken();
+            var result = ParseFloat() / ParseFloat();
 
-            var result = double.Parse(a.Text) / double.Parse(b.Text);
-
-            return new IniToken(result.ToString(), a.Position);
+            return new IniToken(ParseUtility.ToInvariant(result), _tokenReader.CurrentPosition);
         }
 
         public IniToken? GetNextTokenOptional(char[] separators = null)

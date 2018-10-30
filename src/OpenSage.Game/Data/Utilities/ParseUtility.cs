@@ -13,5 +13,10 @@ namespace OpenSage.Data.Utilities
         {
             return float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out result);
         }
+
+        public static string ToInvariant(float number)
+        {
+            return number.ToString(CultureInfo.InvariantCulture);
+        }
     }
 }
