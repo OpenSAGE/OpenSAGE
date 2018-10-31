@@ -196,9 +196,36 @@ namespace OpenSage.Data.Ini.Parser
         {
             var text = ParseString();
 
-            //TODO complete
+            int ConvertHexNibble(char c)
+            {
+                if (c >= '0' && c <= '9')
+                {
+                    return c - '0';
+                }
+                return c - 'A' + 10;
+            }
 
-            return text;
+            var unicodeBytes = new List<byte>(text.Length / 2);
+            var i = 0;
+
+            while (i < text.Length)
+            {
+                if (text[i] == '_')
+                {
+                    var firstNibble = ConvertHexNibble(text[i + 1]);
+                    var secondNibble = ConvertHexNibble(text[i + 2]);
+                    var decodedByte = (byte) ((firstNibble << 4) | secondNibble);
+                    unicodeBytes.Add(decodedByte);
+                    i += 3;
+                }
+                else
+                {
+                    unicodeBytes.Add((byte) text[i]);
+                    i += 1;
+                }
+            }
+            
+            return Encoding.Unicode.GetString(unicodeBytes.ToArray());
         }
 
         public string ScanAssetReference(IniToken token) => token.Text;
