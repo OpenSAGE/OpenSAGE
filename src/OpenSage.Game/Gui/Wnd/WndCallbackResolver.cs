@@ -17,6 +17,9 @@ namespace OpenSage.Gui.Wnd
             // At the moment callbacks from all mods are lumped together.
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
+                if (!assembly.FullName.StartsWith("OpenSage"))
+                    continue;
+
                 foreach (var type in assembly.GetTypes())
                 {
                     if (type.GetCustomAttributes(typeof(WndCallbacksAttribute), false).Length > 0)

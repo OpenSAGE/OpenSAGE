@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Wav;
 using SharpAudio;
+using SharpAudio.Util;
+using SharpAudio.Util.Wave;
 
 namespace OpenSage.Audio
 {
@@ -58,19 +59,30 @@ namespace OpenSage.Audio
             _engine.Dispose();
         }
 
-        public AudioSource GetSound(string soundName, bool loop = false)
+        /// <summary>
+        /// Opens a cached audio file. Usually used for small audio files (.wav)
+        /// </summary>
+        /// <param name="soundPath"></param>
+        /// <param name="loop"></param>
+        /// <returns></returns>
+        public AudioSource GetSound(string soundPath, bool loop = false)
         {
             AudioBuffer buffer = null;
-            if (!_cached.ContainsKey(soundName))
+            if (!_cached.ContainsKey(soundPath))
             {
-                var file = Game.ContentManager.Load<WavFile>(soundName);
+                var entry = Game.ContentManager.FileSystem.GetFile(soundPath);
+                var decoder = new WaveDecoder(entry.Open());
+                byte[] data = null;
+                decoder.GetSamples(ref data);
 
                 buffer = AddDisposable(_engine.CreateBuffer());
-                _cached[soundName] = buffer;
+                buffer.BufferData(data, decoder.Format);
+     
+                _cached[soundPath] = buffer;
             }
             else
             {
-                buffer = _cached[soundName];
+                buffer = _cached[soundPath];
             }
 
             var source = AddDisposable(_engine.CreateSource());
@@ -84,6 +96,18 @@ namespace OpenSage.Audio
             _sources.Add(source);
 
             return source;
+        }
+
+        /// <summary>
+        /// Open a a music/audio file that gets streamed.
+        /// </summary>
+        /// <param name="streamPath"></param>
+        /// <returns></returns>
+        public SoundStream GetStream(string streamPath)
+        {
+            var entry = Game.ContentManager.FileSystem.GetFile(streamPath);
+
+            return new SoundStream(entry.Open(),_engine);
         }
 
         public void PlaySound(string soundName)
