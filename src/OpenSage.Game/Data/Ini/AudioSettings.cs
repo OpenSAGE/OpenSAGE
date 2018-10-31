@@ -208,7 +208,6 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.Bfme)]
         public float LivingWorldZoomMaxDistance { get; private set; }
 
-        //BFME2
         [AddedIn(SageGame.Bfme2)]
         public int LoopBufferLengthMS { get; private set; }
 
@@ -232,6 +231,5 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public float MinOcclusion { get; private set; }
-
     }
 }

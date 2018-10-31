@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using OpenSage.Data.Utilities;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -189,6 +190,15 @@ namespace OpenSage.Data.Ini.Parser
             var restOfQuotedString = restOfQuotedStringToken.Text.TrimEnd('"');
 
             return token.Value.Text + " " + restOfQuotedString;
+        }
+
+        public string ParseUnicodeString()
+        {
+            var text = ParseString();
+
+            //TODO complete
+
+            return text;
         }
 
         public string ScanAssetReference(IniToken token) => token.Text;
