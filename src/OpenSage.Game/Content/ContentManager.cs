@@ -87,15 +87,27 @@ namespace OpenSage.Content
                 case SageGame.Cnc4:
                     // TODO
                     break;
-                default:
+                case SageGame.CncGenerals:
+                case SageGame.CncGeneralsZeroHour:
+                case SageGame.Bfme:
+                case SageGame.Bfme2:
+                case SageGame.Bfme2Rotwk:
                     IniDataContext.LoadIniFile(@"Data\INI\GameData.ini");
+                    IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
                     IniDataContext.LoadIniFile(@"Data\INI\PlayerTemplate.ini");
                     IniDataContext.LoadIniFile(@"Maps\MapCache.ini");
-                    IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
                     IniDataContext.LoadIniFile(@"Data\INI\ParticleSystem.ini");
                     IniDataContext.LoadIniFiles(@"Data\INI\Default\Object.ini");
                     IniDataContext.LoadIniFiles(@"Data\INI\Object");
                     IniDataContext.LoadIniFiles(@"Data\INI\Multiplayer.ini");
+                    break;
+                case SageGame.Cnc3:
+                case SageGame.Cnc3KanesWrath:
+                    IniDataContext.LoadIniFile(@"Data\INI\GameData.ini");
+                    IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
+                    break;
+                default:
+
                     break;
             }
 
