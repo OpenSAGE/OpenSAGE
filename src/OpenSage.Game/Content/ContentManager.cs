@@ -79,12 +79,37 @@ namespace OpenSage.Content
 
             IniDataContext = new IniDataContext(fileSystem);
 
-            IniDataContext.LoadIniFiles(@"Data\INI\Default\Object.ini");
-            IniDataContext.LoadIniFiles(@"Data\INI\Object");
-            IniDataContext.LoadIniFiles(@"Data\INI\multiplayer.ini");
-            IniDataContext.LoadIniFile(@"Data\INI\PlayerTemplate.ini");
+            // TODO: Add these into IGameDefinition? Should we preload all ini files?
+            switch (sageGame)
+            {
+                case SageGame.Ra3:
+                case SageGame.Ra3Uprising:
+                case SageGame.Cnc4:
+                    // TODO
+                    break;
+                case SageGame.CncGenerals:
+                case SageGame.CncGeneralsZeroHour:
+                case SageGame.Bfme:
+                case SageGame.Bfme2:
+                case SageGame.Bfme2Rotwk:
+                    IniDataContext.LoadIniFile(@"Data\INI\GameData.ini");
+                    IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
+                    IniDataContext.LoadIniFile(@"Data\INI\PlayerTemplate.ini");
+                    IniDataContext.LoadIniFile(@"Maps\MapCache.ini");
+                    IniDataContext.LoadIniFile(@"Data\INI\ParticleSystem.ini");
+                    IniDataContext.LoadIniFiles(@"Data\INI\Default\Object.ini");
+                    IniDataContext.LoadIniFiles(@"Data\INI\Object");
+                    IniDataContext.LoadIniFiles(@"Data\INI\Multiplayer.ini");
+                    break;
+                case SageGame.Cnc3:
+                case SageGame.Cnc3KanesWrath:
+                    IniDataContext.LoadIniFile(@"Data\INI\GameData.ini");
+                    IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
+                    break;
+                default:
 
-            IniDataContext.LoadIniFile(@"maps\MapCache.ini");
+                    break;
+            }
 
             _contentLoaders = new Dictionary<Type, ContentLoader>
             {

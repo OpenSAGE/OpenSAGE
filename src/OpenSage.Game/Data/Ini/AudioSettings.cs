@@ -75,6 +75,17 @@ namespace OpenSage.Data.Ini
             { "LivingWorldMicrophonePreferredFractionCameraToGround", (parser, x) => x.LivingWorldMicrophonePreferredFractionCameraToGround = parser.ParsePercentage() },
             { "LivingWorldMicrophoneMaxDistanceToCamera", (parser, x) => x.LivingWorldMicrophoneMaxDistanceToCamera = parser.ParseFloat() },
             { "LivingWorldZoomMaxDistance", (parser, x) => x.LivingWorldZoomMaxDistance = parser.ParseFloat() },
+
+            { "LoopBufferLengthMS", (parser, x) => x.LoopBufferLengthMS = parser.ParseInteger() },
+            { "LoopBufferCallbackCallsPerBufferLength", (parser, x) => x.LoopBufferCallbackCallsPerBufferLength = parser.ParseInteger() },
+            { "MillisecondsPriorToPlayingToReadSoundFile", (parser, x) => x.MillisecondsPriorToPlayingToReadSoundFile = parser.ParseInteger() },
+
+            { "SuppressOcclusion", (parser, x) => x.SuppressOcclusion = parser.ParseBoolean() },
+            { "MinOcclusion", (parser, x) => x.MinOcclusion = parser.ParsePercentage() },
+
+            { "ZoomFadeDistanceForMaxEffect", (parser, x) => x.ZoomFadeDistanceForMaxEffect = parser.ParseInteger() },
+            { "ZoomFadeZeroEffectEdgeLength", (parser, x) => x.ZoomFadeZeroEffectEdgeLength = parser.ParseInteger() },
+            { "ZoomFadeFullEffectEdgeLength", (parser, x) => x.ZoomFadeFullEffectEdgeLength = parser.ParseInteger() },
         };
 
         public string AudioRoot { get; private set; }
@@ -196,5 +207,29 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public float LivingWorldZoomMaxDistance { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int LoopBufferLengthMS { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int LoopBufferCallbackCallsPerBufferLength { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int MillisecondsPriorToPlayingToReadSoundFile { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool SuppressOcclusion { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int ZoomFadeDistanceForMaxEffect { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int ZoomFadeZeroEffectEdgeLength { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int ZoomFadeFullEffectEdgeLength { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float MinOcclusion { get; private set; }
     }
 }

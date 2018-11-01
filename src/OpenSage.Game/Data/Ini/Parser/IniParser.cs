@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using OpenSage.Data.Utilities;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -104,6 +105,11 @@ namespace OpenSage.Data.Ini.Parser
             { "WindowTransition", (parser, context) => context.WindowTransitions.Add(WindowTransition.Parse(parser)) },
         };
 
+        private static readonly Dictionary<string, Func<IniParser, IniToken>> MacroFunctions = new Dictionary<string, Func<IniParser, IniToken>>
+        {
+             { "#DIVIDE(", (parser) => { return parser.DivideFunc(); } },
+        };
+
         private static readonly char[] Separators = { ' ', '\n', '\r', '\t', '=' };
         private static readonly char[] SeparatorsPercent = { ' ', '\n', '\r', '\t', '=', '%' };
         public static readonly char[] SeparatorsColon = { ' ', '\n', '\r', '\t', '=', ':' };
@@ -186,6 +192,42 @@ namespace OpenSage.Data.Ini.Parser
             return token.Value.Text + " " + restOfQuotedString;
         }
 
+        public string ParseUnicodeString()
+        {
+            var text = ParseString();
+
+            int ConvertHexNibble(char c)
+            {
+                if (c >= '0' && c <= '9')
+                {
+                    return c - '0';
+                }
+                return c - 'A' + 10;
+            }
+
+            var unicodeBytes = new List<byte>(text.Length / 2);
+            var i = 0;
+
+            while (i < text.Length)
+            {
+                if (text[i] == '_')
+                {
+                    var firstNibble = ConvertHexNibble(text[i + 1]);
+                    var secondNibble = ConvertHexNibble(text[i + 2]);
+                    var decodedByte = (byte) ((firstNibble << 4) | secondNibble);
+                    unicodeBytes.Add(decodedByte);
+                    i += 3;
+                }
+                else
+                {
+                    unicodeBytes.Add((byte) text[i]);
+                    i += 1;
+                }
+            }
+            
+            return Encoding.Unicode.GetString(unicodeBytes.ToArray());
+        }
+
         public string ScanAssetReference(IniToken token) => token.Text;
 
         public string ParseAssetReference() => ScanAssetReference(GetNextToken());
@@ -208,6 +250,19 @@ namespace OpenSage.Data.Ini.Parser
         public int ScanInteger(IniToken token) => Convert.ToInt32(token.Text);
 
         public int ParseInteger() => ScanInteger(GetNextToken());
+
+        public int[] ParseIntegerArray()
+        {
+            var result = new List<int>();
+
+            IniToken? token;
+            while ((token = GetNextTokenOptional()) != null)
+            {
+                result.Add(ScanInteger(token.Value));
+            }
+
+            return result.ToArray();
+        }
 
         public uint ScanUnsignedInteger(IniToken token) => Convert.ToUInt32(token.Text);
 
@@ -369,7 +424,31 @@ namespace OpenSage.Data.Ini.Parser
                 return macroExpansion;
             }
 
+            if (ResolveFunc(result.Value.Text, out var funcResult))
+            {
+                return funcResult.Value;
+            }
+
             return result.Value;
+        }
+
+        private bool ResolveFunc(string text, out IniToken? resolved)
+        {
+            if (!text.StartsWith("#"))
+            {
+                resolved = null;
+                return false;
+            }
+
+            resolved = MacroFunctions[text](this);
+            return true;
+        }
+
+        private IniToken DivideFunc()
+        {
+            var result = ParseFloat() / ParseFloat();
+
+            return new IniToken(ParseUtility.ToInvariant(result), _tokenReader.CurrentPosition);
         }
 
         public IniToken? GetNextTokenOptional(char[] separators = null)

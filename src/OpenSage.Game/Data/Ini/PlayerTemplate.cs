@@ -36,6 +36,7 @@ namespace OpenSage.Data.Ini
             { "EnabledImage", (parser, x) => x.EnabledImage = parser.ParseAssetReference() },
             { "BeaconName", (parser, x) => x.BeaconName = parser.ParseAssetReference() },
             { "SideIconImage", (parser, x) => x.SideIconImage = parser.ParseAssetReference() },
+            //CNC ZH
             { "ScoreScreenMusic", (parser, x) => x.ScoreScreenMusic = parser.ParseAssetReference() },
             { "OldFaction", (parser, x) => x.OldFaction = parser.ParseBoolean() },
             { "GeneralImage", (parser, x) => x.GeneralImage = parser.ParseAssetReference() },
@@ -44,6 +45,31 @@ namespace OpenSage.Data.Ini
             { "MedallionRegular", (parser, x) => x.MedallionRegular = parser.ParseAssetReference() },
             { "MedallionHilite", (parser, x) => x.MedallionHilite = parser.ParseAssetReference() },
             { "MedallionSelect", (parser, x) => x.MedallionSelect = parser.ParseAssetReference() },
+            //BFME
+            { "Evil", (parser, x) => x.PlayableSide = parser.ParseBoolean() },
+            { "MaxLevelSP", (parser, x) => x.MaxLevelSP = parser.ParseInteger() },
+            { "MaxLevelMP", (parser, x) => x.MaxLevelMP = parser.ParseInteger() },
+            { "StartingUnit1", (parser, x) => x.StartingUnit1 = parser.ParseAssetReference() },
+            { "StartingUnitOffset0", (parser, x) => x.StartingUnitOffset0 = Coord3D.Parse(parser) },
+            { "StartingUnitOffset1", (parser, x) => x.StartingUnitOffset1 = Coord3D.Parse(parser) },
+            { "StartingUnitTacticalWOTR", (parser, x) => x.StartingUnitTacticalWOTR = parser.ParseAssetReference() },
+            { "IntrinsicSciencesMP", (parser, x) => x.IntrinsicSciencesMP = parser.ParseAssetReferenceArray() },
+            { "SpellBook", (parser, x) => x.SpellBook = parser.ParseAssetReference() },
+            { "SpellBookMp", (parser, x) => x.SpellBookMp = parser.ParseAssetReference() },
+            { "PurchaseScienceCommandSet", (parser, x) => x.PurchaseScienceCommandSet = parser.ParseAssetReference() },
+            { "PurchaseScienceCommandSetMP", (parser, x) => x.PurchaseScienceCommandSetMP = parser.ParseAssetReference() },
+            { "DefaultPlayerAIType", (parser, x) => x.DefaultPlayerAIType = parser.ParseAssetReference() },
+            { "LightPointsUpSound", (parser, x) => x.LightPointsUpSound = parser.ParseAssetReference() },
+            { "ObjectiveAddedSound", (parser, x) => x.ObjectiveAddedSound = parser.ParseAssetReference() },
+            { "ObjectiveCompletedSound", (parser, x) => x.ObjectiveCompletedSound = parser.ParseAssetReference() },
+            { "InitialUpgrades", (parser, x) => x.InitialUpgrades = parser.ParseAssetReferenceArray() },
+            { "BuildableHeroesMP", (parser, x) => x.BuildableHeroesMP = parser.ParseAssetReferenceArray() },
+            { "BuildableRingHeroesMP", (parser, x) => x.BuildableRingHeroesMP = parser.ParseAssetReferenceArray() },
+            { "SpellStoreCurrentPowerLabel", (parser, x) => x.SpellStoreCurrentPowerLabel = parser.ParseAssetReference() },
+            { "SpellStoreMaximumPowerLabel", (parser, x) => x.SpellStoreMaximumPowerLabel = parser.ParseAssetReference() },
+            { "ResourceModifierObjectFilter", (parser, x) => x.ResourceModifierObjectFilter = parser.ParseString() },
+            { "ResourceModifierValues", (parser, x) => x.ResourceModifierValues = parser.ParseIntegerArray() },
+            { "MultiSelectionPortrait", (parser, x) => x.MultiSelectionPortrait = parser.ParseAssetReference() },
         };
 
         public string Name { get; private set; }
@@ -98,5 +124,77 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public string MedallionSelect { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool Evil { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int MaxLevelSP { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int MaxLevelMP { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public Coord3D StartingUnitOffset0 { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string StartingUnit1 { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public Coord3D StartingUnitOffset1 { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string[] IntrinsicSciencesMP { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string StartingUnitTacticalWOTR { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string SpellBook { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string SpellBookMp { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string PurchaseScienceCommandSet { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string PurchaseScienceCommandSetMP { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string DefaultPlayerAIType { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string LightPointsUpSound { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string  ObjectiveAddedSound { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string  ObjectiveCompletedSound { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string[] InitialUpgrades { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string[] BuildableHeroesMP { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string[] BuildableRingHeroesMP { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string SpellStoreCurrentPowerLabel { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string SpellStoreMaximumPowerLabel { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string ResourceModifierObjectFilter { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int[] ResourceModifierValues { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string MultiSelectionPortrait { get; private set; }
     }
 }

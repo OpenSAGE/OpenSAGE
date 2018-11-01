@@ -24,7 +24,7 @@ namespace OpenSage.Data.Ini
             { "extentMin", (parser, x) => x.ExtentMin = Coord3D.Parse(parser) },
             { "extentMax", (parser, x) => x.ExtentMax = Coord3D.Parse(parser) },
             { "nameLookupTag", (parser, x) => x.NameLookupTag = parser.GetNextTokenOptional()?.Text },
-            { "displayName", (parser, x) => x.DisplayName = parser.ParseIdentifier() },
+            { "displayName", (parser, x) => x.DisplayName = parser.ParseUnicodeString() },
             { "InitialCameraPosition", (parser, x) => x.InitialCameraPosition = Coord3D.Parse(parser) },
             { "Player_1_Start", (parser, x) => x.Player1Start = Coord3D.Parse(parser) },
             { "Player_2_Start", (parser, x) => x.Player2Start = Coord3D.Parse(parser) },
@@ -35,7 +35,9 @@ namespace OpenSage.Data.Ini
             { "Player_7_Start", (parser, x) => x.Player7Start = Coord3D.Parse(parser) },
             { "Player_8_Start", (parser, x) => x.Player8Start = Coord3D.Parse(parser) },
             { "techPosition", (parser, x) => x.TechPositions.Add(Coord3D.Parse(parser)) },
-            { "supplyPosition", (parser, x) => x.SupplyPositions.Add(Coord3D.Parse(parser)) }
+            { "supplyPosition", (parser, x) => x.SupplyPositions.Add(Coord3D.Parse(parser)) },
+            { "isScenarioMP", (parser, x) => x.IsScenarioMP = parser.ParseBoolean() },
+            { "description", (parser, x) => x.Description = parser.ParseUnicodeString() },
         };
 
         public string Name { get; private set; }
@@ -52,6 +54,12 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public string NameLookupTag { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool IsScenarioMP { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string Description { get; private set; }
 
         public string DisplayName { get; private set; }
         public Coord3D InitialCameraPosition { get; private set; }
