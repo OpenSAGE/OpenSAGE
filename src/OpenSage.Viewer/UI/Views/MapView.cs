@@ -55,7 +55,7 @@ namespace OpenSage.Viewer.UI.Views
         {
             ImGui.BeginChild("map panels", new Vector2(250, 0), true, 0);
 
-            if (ImGui.CollapsingHeader("General", TreeNodeFlags.DefaultOpen))
+            if (ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))
             {
                 var lighting = _game.Scene3D.Lighting;
 
@@ -63,7 +63,7 @@ namespace OpenSage.Viewer.UI.Views
                 {
                     foreach (var timeOfDay in GetTimesOfDay())
                     {
-                        if (ImGui.RadioButtonBool(timeOfDay.ToString(), lighting.TimeOfDay == timeOfDay))
+                        if (ImGui.RadioButton(timeOfDay.ToString(), lighting.TimeOfDay == timeOfDay))
                         {
                             lighting.TimeOfDay = timeOfDay;
                         }
@@ -142,7 +142,7 @@ namespace OpenSage.Viewer.UI.Views
 
         private static void DrawScriptList(int index, ScriptList scriptList)
         {
-            if (ImGui.TreeNodeEx($"Script List {index}", TreeNodeFlags.DefaultOpen))
+            if (ImGui.TreeNodeEx($"Script List {index}", ImGuiTreeNodeFlags.DefaultOpen))
             {
                 foreach (var childGroup in scriptList.ScriptGroups)
                 {
@@ -160,7 +160,7 @@ namespace OpenSage.Viewer.UI.Views
 
         private static void DrawScriptGroup(ScriptGroup scriptGroup)
         {
-            if (ImGui.TreeNodeEx(GetScriptDetails(scriptGroup.Name, scriptGroup.IsActive, scriptGroup.IsSubroutine), TreeNodeFlags.DefaultOpen))
+            if (ImGui.TreeNodeEx(GetScriptDetails(scriptGroup.Name, scriptGroup.IsActive, scriptGroup.IsSubroutine), ImGuiTreeNodeFlags.DefaultOpen))
             {
                 foreach (var childGroup in scriptGroup.Groups)
                 {

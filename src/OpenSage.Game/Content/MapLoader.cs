@@ -20,8 +20,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Transforms;
-using SixLabors.ImageSharp.Processing.Transforms.Resamplers;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using Veldrid;
 using Veldrid.ImageSharp;
 using Player = OpenSage.Logic.Player;
@@ -730,7 +729,7 @@ namespace OpenSage.Content
                             .Resize((int) largestTextureSize, (int) largestTextureSize, MapTextureResampler));
                     }
 
-                    var imageSharpTexture = new ImageSharpTexture(tgaImage);
+                    var imageSharpTexture = new ImageSharpTexture(tgaImage, true, false);
 
                     var sourceTexture = CreateTextureViaStaging(
                         imageSharpTexture,
