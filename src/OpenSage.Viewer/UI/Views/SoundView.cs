@@ -25,6 +25,8 @@ namespace OpenSage.Viewer.UI.Views
             ImGui.Text("SampleRate: " + _source.Format.SampleRate);
             ImGui.Spacing();
             ImGui.Text("Duration: " + _source.Duration);
+            float progress = (float) (_source.Position / _source.Duration);
+            ImGui.SliderFloat("", ref progress, 0.0f, 1.0f, "Position", 1.0f);
             ImGui.Spacing();
 
             if (_playing)
