@@ -29,7 +29,7 @@ namespace OpenSage.Viewer.UI.Views
         public override void Draw(ref bool isGameViewFocused)
         {
             var windowPos = ImGui.GetCursorScreenPos();
-            var availableSize = ImGui.GetContentRegionAvailable();
+            var availableSize = ImGui.GetContentRegionAvail();
             _context.GamePanel.EnsureFrame(
                 new Mathematics.Rectangle(
                     (int) windowPos.X,
@@ -47,7 +47,7 @@ namespace OpenSage.Viewer.UI.Views
 
             if (ImGui.ImageButton(
                 imagePointer,
-                ImGui.GetContentRegionAvailable(),
+                ImGui.GetContentRegionAvail(),
                 GetTopLeftUV(),
                 GetBottomRightUV(),
                 0,

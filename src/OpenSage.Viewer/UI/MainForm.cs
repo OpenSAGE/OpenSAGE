@@ -68,7 +68,7 @@ namespace OpenSage.Viewer.UI
 
             if (_launcherImage != null)
             {
-                var availableSize = ImGui.GetContentRegionAvailable();
+                var availableSize = ImGui.GetContentRegionAvail();
 
                 var launcherImageSize = SizeF.CalculateSizeFittingAspectRatio(
                     new SizeF(_launcherImage.Width, _launcherImage.Height),
@@ -87,7 +87,7 @@ namespace OpenSage.Viewer.UI
             ImGuiUtility.InputText("##search", _searchTextBuffer, out var searchText);
             ImGui.PopItemWidth();
 
-            ImGui.BeginChild("files list", true, 0);
+            ImGui.BeginChild("files list", Vector2.Zero, true);
 
             for (var i = 0; i < _files.Count; i++)
             {
@@ -130,7 +130,9 @@ namespace OpenSage.Viewer.UI
                     ImGui.OpenPopup(exportId);
                 }
 
-                if (ImGui.BeginPopupModal(exportId, WindowFlags.AlwaysAutoResize))
+                bool open = false;
+
+                if (ImGui.BeginPopupModal(exportId, ref open, ImGuiWindowFlags.AlwaysAutoResize))
                 {
                     ImGuiUtility.InputText("File Path", _filePathBuffer, out var filePath);
 
@@ -182,7 +184,7 @@ namespace OpenSage.Viewer.UI
 
         private void DrawNoGamesUi()
         {
-            ImGui.BeginChild("content", false, WindowFlags.AlwaysAutoResize);
+            ImGui.BeginChild("content", Vector2.Zero, false, ImGuiWindowFlags.AlwaysAutoResize);
             ImGui.Text("OpenSAGE was unable to find any game installations.\n");
 
             ImGui.Spacing();
@@ -210,11 +212,12 @@ namespace OpenSage.Viewer.UI
 
         public void Draw(ref bool isGameViewFocused)
         {
-            ImGui.SetNextWindowPos(Vector2.Zero, Condition.Always, Vector2.Zero);
-            ImGui.SetNextWindowSize(new Vector2(_gameWindow.ClientBounds.Width, _gameWindow.ClientBounds.Height), Condition.Always);
+            ImGui.SetNextWindowPos(Vector2.Zero, ImGuiCond.Always, Vector2.Zero);
+            ImGui.SetNextWindowSize(new Vector2(_gameWindow.ClientBounds.Width, _gameWindow.ClientBounds.Height), ImGuiCond.Always);
 
-            ImGui.PushStyleVar(StyleVar.WindowRounding, 0);
-            ImGui.BeginWindow("OpenSAGE Viewer", WindowFlags.MenuBar | WindowFlags.NoTitleBar);
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0);
+            bool open = false;
+            ImGui.Begin("OpenSAGE Viewer", ref open, ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoTitleBar);
 
             if (_gamePanel != null)
             {
@@ -226,7 +229,7 @@ namespace OpenSage.Viewer.UI
                 DrawNoGamesUi();
             }
 
-            ImGui.EndWindow();
+            ImGui.End();
             ImGui.PopStyleVar();
         }
 

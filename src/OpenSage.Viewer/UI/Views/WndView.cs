@@ -39,9 +39,9 @@ namespace OpenSage.Viewer.UI.Views
 
         private void DrawControlTreeItemRecursive(Control control)
         {
-            var opened = ImGui.TreeNodeEx(control.DisplayName, TreeNodeFlags.DefaultOpen | TreeNodeFlags.OpenOnDoubleClick);
+            var opened = ImGui.TreeNodeEx(control.DisplayName, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnDoubleClick);
 
-            if (ImGuiNative.igIsItemClicked(0))
+            if (ImGuiNative.igIsItemClicked(0)>0)
             {
                 SelectControl(control);
             }
