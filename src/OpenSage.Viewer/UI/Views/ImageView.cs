@@ -42,7 +42,6 @@ namespace OpenSage.Viewer.UI.Views
                 _context.GraphicsDevice.ResourceFactory,
                 textureView);
 
-            var availableSize = ImGui.GetContentRegionAvailable();
             var availableSize = ImGui.GetContentRegionAvail();
 
             var size = SizeF.CalculateSizeFittingAspectRatio(

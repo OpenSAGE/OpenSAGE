@@ -1,0 +1,33 @@
+<Directives>
+    <Application>
+        <Assembly Name="Commandline" Dynamic="Required All" />
+        <Assembly Name="OpenSage.Viewer">
+            <Type Name="OpenSage.Viewer.Options" Dynamic="Required All" />
+        </Assembly>
+
+        <Assembly Name="SharpDX">
+            <Type Name="SharpDX.ShadowAttribute" Dynamic="Required All" />
+            <Type Name="SharpDX.ShadowContainer" Dynamic="Required All" />
+            <Type Name="SharpDX.ComObjectShadow" Dynamic="Required All" />
+            <Type Name="SharpDX.CppObjectShadow" Dynamic="Required All" />
+            <Type Name="SharpDX.ComObject" Dynamic="Required All" />
+            <Type Name="SharpDX.CppObject" Dynamic="Required All" />
+            <Type Name="SharpDX.Win32.ComStreamProxy" Dynamic="Required All" />
+            <Type Name="SharpDX.Win32.ComStreamShadow" Dynamic="Required All" />
+        </Assembly>
+
+        <Assembly Name="SharpDX.DXGI">
+            <Type Name="SharpDX.DXGI.Device" Dynamic="Required All" />
+        </Assembly>
+
+        <Assembly Name="SharpDX.Direct3D11">
+            <Type Name="SharpDX.Direct3D11.Texture2D" Dynamic="Required All" />
+            <Type Name="SharpDX.Direct3D11.DeviceContext1" Dynamic="Required All" />
+            <Type Name="SharpDX.Direct3D11.DeviceDebug" Dynamic="Required All" />
+        </Assembly>
+
+        <Assembly Name="OpenSage.Game">
+            <Type Name="OpenSage.Data.Ini.Parser.IniParser" Dynamic="Required All" />
+        </Assembly>
+    </Application>
+</Directives>

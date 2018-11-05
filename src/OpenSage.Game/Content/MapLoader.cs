@@ -729,7 +729,7 @@ namespace OpenSage.Content
                             .Resize((int) largestTextureSize, (int) largestTextureSize, MapTextureResampler));
                     }
 
-                    var imageSharpTexture = new ImageSharpTexture(tgaImage, true, false);
+                    var imageSharpTexture = new ImageSharpTexture(tgaImage);
 
                     var sourceTexture = CreateTextureViaStaging(
                         imageSharpTexture,
