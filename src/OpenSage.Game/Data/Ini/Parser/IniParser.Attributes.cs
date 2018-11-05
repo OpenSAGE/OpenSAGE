@@ -58,7 +58,7 @@ namespace OpenSage.Data.Ini.Parser
         }
 
         public T ParseAttributeEnum<T>(string label)
-            where T : struct
+            where T : struct, IConvertible
         {
             return ParseAttribute(label, x => ParseEnum<T>(x));
         }

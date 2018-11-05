@@ -8,26 +8,26 @@ using Veldrid;
 
 namespace OpenSage.Viewer
 {
-    public static class Program
+    //must match Veldrid.GraphicsBackends. Can be removed once nullable enums work
+    public enum Renderer : byte
     {
-        //must match Veldrid.GraphicsBackends. Can be removed once nullable enums work
-        public enum Renderer : byte
-        {
-            Direct3D11 = 0,
-            Vulkan = 1,
-            OpenGL = 2,
-            Metal = 3,
-            OpenGLES = 4,
-            Default
-        }
+        Direct3D11 = 0,
+        Vulkan = 1,
+        OpenGL = 2,
+        Metal = 3,
+        OpenGLES = 4,
+        Default
+    }
 
-        public class Options
-        {
-            //use a string since nullable enums aren't working yet
-            [Option('r', "renderer", Default = Renderer.Default, Required = false, HelpText = "Set the renderer backend.")]
-            public Renderer Renderer { get; set; }
-        }
+    public class Options
+    {
+        //use a string since nullable enums aren't working yet
+        [Option('r', "renderer", Default = Renderer.Default, Required = false, HelpText = "Set the renderer backend.")]
+        public Renderer Renderer { get; set; }
+    }
 
+    public static class Program
+    {   
         public static void Main(string[] args)
         {
             CommandLine.Parser.Default.ParseArguments<Options>(args)

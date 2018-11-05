@@ -97,9 +97,10 @@ namespace OpenSage.Data.Ini.Parser
         }
 
         public static Dictionary<string, Enum> GetEnumMap<T>()
-            where T : struct
+            where T : struct, IConvertible
         {
             var enumType = typeof(T);
+
             if (!CachedEnumMap.TryGetValue(enumType, out var stringToValueMap))
             {
                 lock (CachedEnumMap)
@@ -122,7 +123,7 @@ namespace OpenSage.Data.Ini.Parser
         }
 
         private T ParseEnum<T>(Dictionary<string, T> stringToValueMap)
-            where T : struct
+            where T : struct, IConvertible
         {
             var token = GetNextToken();
 
@@ -133,13 +134,13 @@ namespace OpenSage.Data.Ini.Parser
         }
 
         public T ParseEnum<T>()
-            where T : struct
+            where T : struct, IConvertible
         {
             return ParseEnum<T>(GetNextToken());
         }
 
         public static T ParseEnum<T>(IniToken token)
-            where T : struct
+            where T : struct, IConvertible
         {
             var stringToValueMap = GetEnumMap<T>();
 
@@ -150,7 +151,7 @@ namespace OpenSage.Data.Ini.Parser
         }
 
         public T ParseEnumFlags<T>()
-            where T : struct
+            where T : struct, IConvertible
         {
             var stringToValueMap = GetEnumMap<T>();
 
@@ -170,7 +171,7 @@ namespace OpenSage.Data.Ini.Parser
         }
 
         public BitArray<T> ParseEnumBitArray<T>()
-            where T : struct
+            where T : struct, IConvertible
         {
             var stringToValueMap = GetEnumMap<T>();
 
