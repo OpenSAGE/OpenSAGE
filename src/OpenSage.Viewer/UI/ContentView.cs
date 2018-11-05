@@ -28,7 +28,7 @@ namespace OpenSage.Viewer.UI
                     return new AptView(context);
 
                 case ".bmp":
-                    return new BmpView(context);
+                    return new ImageView(context);
 
                 case ".const":
                     return new ConstView(context);
@@ -41,6 +41,9 @@ namespace OpenSage.Viewer.UI
 
                 case ".ini":
                     return new IniView(context);
+
+                case ".jpg":
+                    return new ImageView(context);
 
                 case ".map":
                     return new MapView(context);

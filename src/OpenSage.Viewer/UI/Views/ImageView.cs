@@ -3,10 +3,11 @@ using System.Numerics;
 using ImGuiNET;
 using OpenSage.Mathematics;
 using Veldrid;
+using Veldrid.ImageSharp;
 
 namespace OpenSage.Viewer.UI.Views
 {
-    internal abstract class ImageView : AssetView
+    internal class ImageView : AssetView
     {
         private readonly AssetViewContext _context;
         private readonly Texture _texture;
@@ -14,7 +15,7 @@ namespace OpenSage.Viewer.UI.Views
 
         protected Texture Texture => _texture;
 
-        protected ImageView(AssetViewContext context)
+        public ImageView(AssetViewContext context)
         {
             _context = context;
             _textureViews = new Dictionary<TextureViewDescription, TextureView>();
@@ -22,7 +23,12 @@ namespace OpenSage.Viewer.UI.Views
             _texture = GetTexture(context);
         }
 
-        protected abstract Texture GetTexture(AssetViewContext context);
+        protected virtual Texture GetTexture(AssetViewContext context)
+        {
+            return AddDisposable(new ImageSharpTexture(context.Entry.Open()).CreateDeviceTexture(
+                context.GraphicsDevice,
+                context.GraphicsDevice.ResourceFactory));
+        }
 
         protected virtual TextureViewDescription GetTextureViewDescription(Texture texture)
         {
