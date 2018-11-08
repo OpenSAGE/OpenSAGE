@@ -130,7 +130,7 @@ namespace OpenSage.Viewer.UI
                     ImGui.OpenPopup(exportId);
                 }
 
-                bool open = false;
+                bool open = true;
 
                 if (ImGui.BeginPopupModal(exportId, ref open, ImGuiWindowFlags.AlwaysAutoResize))
                 {
