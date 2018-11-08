@@ -10,16 +10,6 @@
         ZR,
         Quaternion,
 
-        TimeCodedTranslationX,
-        TimeCodedTranslationY,
-        TimeCodedTranslationZ,
-        TimeCodedQuaternion,
-
-        AdaptiveDeltaTranslationX,
-        AdaptiveDeltaTranslationY,
-        AdaptiveDeltaTranslationZ,
-        AdaptiveDeltaQuaternion,
-
         UnknownBfme
     }
 }

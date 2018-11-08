@@ -3,6 +3,7 @@
     public enum W3dCompressedAnimationFlavor : ushort
     {
         TimeCoded = 0,
-        AdaptiveDelta
+        AdaptiveDelta4,
+        AdaptiveDelta8
     }
 }

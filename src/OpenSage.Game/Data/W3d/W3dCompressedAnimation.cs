@@ -37,8 +37,8 @@ namespace OpenSage.Data.W3d
                                 timeCodedChannels.Add(W3dTimeCodedAnimationChannel.Parse(reader, header.ChunkSize));
                                 break;
 
-                            case W3dCompressedAnimationFlavor.AdaptiveDelta:
-                                adaptiveDeltaChannels.Add(W3dAdaptiveDeltaAnimationChannel.Parse(reader, header.ChunkSize));
+                            case W3dCompressedAnimationFlavor.AdaptiveDelta4:
+                                adaptiveDeltaChannels.Add(W3dAdaptiveDeltaAnimationChannel.Parse(reader, header.ChunkSize, 4));
                                 break;
 
                             default:
