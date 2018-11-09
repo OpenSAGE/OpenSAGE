@@ -10,6 +10,6 @@
         ZR,
         Quaternion,
 
-        UnknownBfme
+        UnknownBfme = 15, //probably Opacity
     }
 }

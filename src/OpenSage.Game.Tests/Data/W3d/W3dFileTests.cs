@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using OpenSage.Data;
 using OpenSage.Data.Big;
 using OpenSage.Data.W3d;
@@ -130,6 +131,11 @@ namespace OpenSage.Tests.Data.W3d
                                 Assert.Equal(1, channel.VectorLength);
                                 break;
                         }
+                    }
+
+                    if (animation.Header.Flavor == W3dCompressedAnimationFlavor.AdaptiveDelta4)
+                    {
+                        Console.WriteLine(animation.Header.Name);
                     }
                 }
             });

@@ -769,11 +769,32 @@ namespace OpenSage.Content
                 .Where(x => x.ChannelType != W3dAnimationChannelType.UnknownBfme) // Don't know what this channel means.
                 .ToList();
 
-            var clips = new AnimationClip[timeCodedChannels.Count];
+            var adaptiveDeltaChannels = w3dAnimation.AdaptiveDeltaChannels
+               .Where(x => x.ChannelType != W3dAnimationChannelType.UnknownBfme) // Don't know what this channel means.
+               .ToList();
+
+            var motionChannels = w3dAnimation.MotionChannels
+                .Where(x => x.ChannelType != W3dAnimationChannelType.UnknownBfme) // Don't know what this channel means.
+                .ToList();
+
+            var channelCount = timeCodedChannels.Count + adaptiveDeltaChannels.Count + motionChannels.Count;
+            var clips = new AnimationClip[channelCount];
 
             for (var i = 0; i < timeCodedChannels.Count; i++)
             {
                 clips[i] = CreateAnimationClip(w3dAnimation, timeCodedChannels[i]);
+            }
+
+            var timecodedAndAdaptive = timeCodedChannels.Count + adaptiveDeltaChannels.Count;
+
+            for (var i = timeCodedChannels.Count; i < timecodedAndAdaptive; ++i)
+            {
+                clips[i] = CreateAnimationClip(w3dAnimation, adaptiveDeltaChannels[i - timeCodedChannels.Count]);
+            }
+
+            for (var i = timecodedAndAdaptive; i < channelCount; ++i)
+            {
+                clips[i] = CreateAnimationClip(w3dAnimation, motionChannels[i - timecodedAndAdaptive]);
             }
 
             return new Animation(
@@ -882,6 +903,38 @@ namespace OpenSage.Content
                 var timeCodedDatum = w3dChannel.Data[i];
                 var time = TimeSpan.FromSeconds(timeCodedDatum.TimeCode / (double) w3dAnimation.Header.FrameRate);
                 keyframes[i] = CreateKeyframe(w3dChannel.ChannelType, time, ref timeCodedDatum.Value);
+            }
+
+            return new AnimationClip(w3dChannel.ChannelType.ToAnimationClipType(), bone, keyframes);
+        }
+
+        private static AnimationClip CreateAnimationClip(W3dCompressedAnimation w3dAnimation, W3dAdaptiveDeltaAnimationChannel w3dChannel)
+        {
+            var bone = w3dChannel.Pivot;
+            var data = w3dChannel.Data;
+
+            var keyframes = new Keyframe[w3dChannel.NumTimeCodes];
+
+            for (var i = 0; i < w3dChannel.NumTimeCodes; i++)
+            {
+                var time = TimeSpan.FromSeconds(i / (double) w3dAnimation.Header.FrameRate);
+                keyframes[i] = CreateKeyframe(w3dChannel.ChannelType, time, ref data[i]);
+            }
+
+            return new AnimationClip(w3dChannel.ChannelType.ToAnimationClipType(), bone, keyframes);
+        }
+
+        private static AnimationClip CreateAnimationClip(W3dCompressedAnimation w3dAnimation, W3dMotionChannel w3dChannel)
+        {
+            var bone = w3dChannel.Pivot;
+            var data = w3dChannel.Data;
+
+            var keyframes = new Keyframe[w3dChannel.NumTimeCodes];
+
+            for (var i = 0; i < w3dChannel.Data.TimeCodes.Length; i++)
+            {
+                var time = TimeSpan.FromSeconds(w3dChannel.Data.TimeCodes[i] / (double) w3dAnimation.Header.FrameRate);
+                keyframes[i] = CreateKeyframe(w3dChannel.ChannelType, time, ref w3dChannel.Data.Values[i]);
             }
 
             return new AnimationClip(w3dChannel.ChannelType.ToAnimationClipType(), bone, keyframes);

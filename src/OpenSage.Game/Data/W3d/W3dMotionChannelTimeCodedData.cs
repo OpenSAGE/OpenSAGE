@@ -4,9 +4,6 @@ namespace OpenSage.Data.W3d
 {
     public sealed class W3dMotionChannelTimeCodedData : W3dMotionChannelData
     {
-        public ushort[] TimeCodes { get; private set; }
-        public W3dAnimationChannelDatum[] Values { get; private set; }
-
         public static W3dMotionChannelTimeCodedData Parse(BinaryReader reader, ushort numTimeCodes, W3dAnimationChannelType channelType)
         {
             var keyframes = new ushort[numTimeCodes];
