@@ -69,6 +69,25 @@ namespace OpenSage.Data.Ini
         public int LoopCount { get; private set; }
     }
 
+    [AddedIn(SageGame.Bfme)]
+    public sealed class StreamedSound : BaseSingleSound
+    {
+        internal static StreamedSound Parse(IniParser parser)
+        {
+            return parser.ParseTopLevelNamedBlock(
+                (x, name) => x.Name = name,
+                FieldParseTable);
+        }
+
+        private static new readonly IniParseTable<StreamedSound> FieldParseTable = BaseSingleSound.FieldParseTable
+            .Concat(new IniParseTable<StreamedSound>
+            {
+                { "Filename", (parser, x) => x.Filename = parser.ParseAssetReference() },
+            });
+
+        public string Filename { get; private set; }
+    }
+
     public struct IntRange
     {
         internal static IntRange Parse(IniParser parser)
@@ -119,7 +138,7 @@ namespace OpenSage.Data.Ini
 
     public enum AudioTypeFlags
     {
-        [IniEnum("DEFAULT")]
+        [IniEnum("default")]
         Default,
 
         [IniEnum("world")]
@@ -141,12 +160,19 @@ namespace OpenSage.Data.Ini
         Global,
 
         [IniEnum("voice")]
-        Voice
+        Voice,
+
+        [IniEnum("enemies")]
+        Enemies,
+
+        [IniEnum("allies")]
+        Allies,
     }
 
     [Flags]
     public enum AudioControlFlags
     {
+        [IniEnum("none")]
         None = 0,
 
         [IniEnum("loop")]
@@ -161,7 +187,13 @@ namespace OpenSage.Data.Ini
         [IniEnum("random")]
         Random = 1 << 3,
 
-        [IniEnum("RANDOMSTART")]
-        RandomStart = 1 << 4
+        [IniEnum("randomstart")]
+        RandomStart = 1 << 4,
+
+        [IniEnum("fade_on_kill")]
+        FadeOnKill = 1 << 5,
+
+        [IniEnum("fade_on_start")]
+        FadeOnStart = 1 << 6,
     }
 }

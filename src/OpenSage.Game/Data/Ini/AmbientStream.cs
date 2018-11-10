@@ -27,6 +27,15 @@ namespace OpenSage.Data.Ini
         [IniEnum("MUSIC")]
         Music,
 
+        [IniEnum("MOVIE")]
+        Movie,
+
+        [IniEnum("SOUNDFX")]
+        SoundFX,
+
+        [IniEnum("VOICE")]
+        Voice,
+
         [IniEnum("AMBIENT")]
         Ambient
     }

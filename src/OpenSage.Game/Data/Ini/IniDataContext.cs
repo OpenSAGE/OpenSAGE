@@ -85,6 +85,7 @@ namespace OpenSage.Data.Ini
         public List<SkyboxTextureSet> SkyboxTextureSets { get; } = new List<SkyboxTextureSet>();
         public List<SpecialPower> SpecialPowers { get; } = new List<SpecialPower>();
         public List<StaticGameLod> StaticGameLods { get; } = new List<StaticGameLod>();
+        public List<StreamedSound> StreamedSounds { get; } = new List<StreamedSound>();
         public List<LoadSubsystem> Subsystems { get; } = new List<LoadSubsystem>();
         public List<TerrainTexture> TerrainTextures { get; } = new List<TerrainTexture>();
         public List<Upgrade> Upgrades { get; } = new List<Upgrade>();
