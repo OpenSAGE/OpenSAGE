@@ -5,7 +5,7 @@ namespace OpenSage.Data.W3d
 {
     class W3dAdaptiveDelta
     {
-        public static float[] Table = CalculateTable();
+        private static float[] Table = CalculateTable();
 
         private static float[] CalculateTable()
         {
@@ -25,7 +25,7 @@ namespace OpenSage.Data.W3d
             return result;
         }
 
-        public static sbyte[] ReadDeltaBlock(BinaryReader reader, int nBits)
+        private static sbyte[] ReadDeltaBlock(BinaryReader reader, int nBits)
         {
             var deltaBytes = new sbyte[nBits * 2];
             for (int i = 0; i < nBits * 2; ++i)
@@ -52,14 +52,14 @@ namespace OpenSage.Data.W3d
                 }
                 else if (nBits == 8)
                 {
-                    deltas[i] = (sbyte) deltaBytes[i];
+                    deltas[i] = deltaBytes[i];
                 }
             }
 
             return deltas;
         }
 
-        public static float GetValue(W3dAnimationChannelDatum datum, W3dAnimationChannelType type, int i = 0)
+        private static float GetValue(W3dAnimationChannelDatum datum, W3dAnimationChannelType type, int i = 0)
         {
             if (i > 0 && type != W3dAnimationChannelType.Quaternion)
             {
@@ -74,6 +74,7 @@ namespace OpenSage.Data.W3d
                 case W3dAnimationChannelType.XR:
                 case W3dAnimationChannelType.YR:
                 case W3dAnimationChannelType.ZR:
+                case W3dAnimationChannelType.UnknownBfme:
                     return datum.FloatValue;
                 case W3dAnimationChannelType.Quaternion:
                     switch (i)
@@ -90,13 +91,12 @@ namespace OpenSage.Data.W3d
                             throw new InvalidOperationException();
                     }
                     break;
-                case W3dAnimationChannelType.UnknownBfme:
                 default:
                     throw new NotImplementedException();
             }
         }
 
-        public static void UpdateDatum(ref W3dAnimationChannelDatum datum, float value, W3dAnimationChannelType type, int i = 0)
+        private static void UpdateDatum(ref W3dAnimationChannelDatum datum, float value, W3dAnimationChannelType type, int i = 0)
         {
             if (i > 0 && type != W3dAnimationChannelType.Quaternion)
             {
@@ -111,6 +111,7 @@ namespace OpenSage.Data.W3d
                 case W3dAnimationChannelType.XR:
                 case W3dAnimationChannelType.YR:
                 case W3dAnimationChannelType.ZR:
+                case W3dAnimationChannelType.UnknownBfme:
                     datum.FloatValue = value;
                     break;
                 case W3dAnimationChannelType.Quaternion:
@@ -130,9 +131,47 @@ namespace OpenSage.Data.W3d
                             break;
                     }
                     break;
-                case W3dAnimationChannelType.UnknownBfme:
-                    throw new NotImplementedException();
             }
+        }
+
+        public static W3dAnimationChannelDatum[] ReadAdaptiveDelta(BinaryReader reader, uint numFrames,W3dAnimationChannelType type, int vectorLen, float scale, int nBits)
+        {
+            uint count = (numFrames + 15) >> 4;
+            var data = new W3dAnimationChannelDatum[numFrames];
+
+            //First read all initial values
+            for (int k = 0; k < vectorLen; ++k)
+            {
+                var initial = reader.ReadSingle();
+                W3dAdaptiveDelta.UpdateDatum(ref data[0], initial, type, k);
+            }
+
+            //Then read the interleaved delta blocks
+            for (int i = 0; i < count; ++i)
+            {
+                for (int k = 0; k < vectorLen; ++k)
+                {
+                    var blockIndex = reader.ReadByte();
+                    var blockScale = W3dAdaptiveDelta.Table[blockIndex];
+                    var deltaScale = blockScale * scale;
+
+                    //read deltas for the next 
+                    var deltas = W3dAdaptiveDelta.ReadDeltaBlock(reader, nBits);
+
+                    for (int j = 0; j < deltas.Length; ++j)
+                    {
+                        int idx = i * 16 + j + 1;
+
+                        if (idx >= numFrames)
+                            break;
+
+                        var value = W3dAdaptiveDelta.GetValue(data[idx - 1], type, k) + deltaScale * deltas[j];
+                        W3dAdaptiveDelta.UpdateDatum(ref data[idx], value, type, k);
+                    }
+                }             
+            }
+
+            return data;
         }
     }
 }

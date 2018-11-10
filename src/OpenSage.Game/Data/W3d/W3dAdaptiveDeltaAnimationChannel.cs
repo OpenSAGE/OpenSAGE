@@ -44,39 +44,14 @@ namespace OpenSage.Data.W3d
 
             W3dAnimationChannel.ValidateChannelDataSize(result.ChannelType, result.VectorLength);
 
-            uint count = (result.NumTimeCodes + 15) >> 4;
-            result.Data = new W3dAnimationChannelDatum[result.NumTimeCodes];
-
-            for (int k = 0; k < result.VectorLength; ++k)
-            {
-                var initial = reader.ReadSingle();
-                W3dAdaptiveDelta.UpdateDatum(ref result.Data[0], initial, result.ChannelType, k);
-
-                for (int i = 0; i < count; ++i)
-                {
-                    var blockIndex = reader.ReadByte();
-                    var blockScale = W3dAdaptiveDelta.Table[blockIndex];
-                    var deltaScale = blockScale * result.Scale;
-
-                    //read deltas for the next 
-                    var deltas = W3dAdaptiveDelta.ReadDeltaBlock(reader, nBits);
-
-                    for (int j = 0; j < deltas.Length; ++j)
-                    {
-                        int idx = i * 16 + j + 1;
-
-                        if (idx >= result.NumTimeCodes)
-                            break;
-
-                        var value = W3dAdaptiveDelta.GetValue(result.Data[idx - 1],result.ChannelType,k) + deltaScale * deltas[j];
-                        W3dAdaptiveDelta.UpdateDatum(ref result.Data[idx], value, result.ChannelType,k);
-                    }
-                }
-            }
+            result.Data = W3dAdaptiveDelta.ReadAdaptiveDelta(reader,
+                                result.NumTimeCodes,
+                                result.ChannelType,
+                                result.VectorLength,
+                                result.Scale,
+                                nBits);
 
             reader.ReadBytes(3);
-
-            //reader.BaseStream.Seek(startPosition + chunkSize, SeekOrigin.Begin);
 
             return result;
         }
