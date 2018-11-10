@@ -10,6 +10,7 @@ namespace OpenSage.Mods.Cnc4
         public string DisplayName => "Command & Conquer (tm) 4: Tiberian Twilight";
         public IGameDefinition BaseGame => null;
 
+        public bool LauncherImagePrefixLang => false;
         public string LauncherImagePath => null;
 
         public IEnumerable<RegistryKeyPath> RegistryKeys { get; } = new[]

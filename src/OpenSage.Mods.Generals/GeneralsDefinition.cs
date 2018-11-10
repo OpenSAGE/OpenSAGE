@@ -12,6 +12,7 @@ namespace OpenSage.Mods.Generals
         public string DisplayName => "Command & Conquer (tm): Generals";
         public IGameDefinition BaseGame => null;
 
+        public bool LauncherImagePrefixLang => false;
         public string LauncherImagePath => "Install_Final.bmp";
 
         public IEnumerable<RegistryKeyPath> RegistryKeys { get; } = new[]

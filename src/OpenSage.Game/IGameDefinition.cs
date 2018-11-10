@@ -10,6 +10,7 @@ namespace OpenSage
         string DisplayName { get; }
         IGameDefinition BaseGame { get; }
 
+        bool LauncherImagePrefixLang { get; }
         string LauncherImagePath { get; }
 
         IEnumerable<RegistryKeyPath> RegistryKeys { get; }

@@ -8,6 +8,7 @@ using ImGuiNET;
 using OpenSage.Data;
 using OpenSage.Mathematics;
 using OpenSage.Mods.BuiltIn;
+using OpenSage.Utilities;
 using OpenSage.Viewer.Framework;
 using OpenSage.Viewer.Util;
 using Veldrid;
@@ -252,18 +253,26 @@ namespace OpenSage.Viewer.UI
                 return;
             }
 
+            _fileSystem = AddDisposable(installation.CreateFileSystem());
+
             var launcherImagePath = installation.Game.LauncherImagePath;
             if (launcherImagePath != null)
             {
-                var fullImagePath = Path.Combine(installation.Path, launcherImagePath);
-                if (File.Exists(fullImagePath))
+                var prefixLang = installation.Game.LauncherImagePrefixLang;
+                if (prefixLang)
                 {
-                    _launcherImage = AddDisposable(new ImageSharpTexture(fullImagePath).CreateDeviceTexture(
+                    var lang = LanguageUtility.ReadCurrentLanguage(installation.Game, _fileSystem.RootDirectory);
+                    launcherImagePath = lang + launcherImagePath;
+                }
+
+                var launcherImageEntry = _fileSystem.GetFile(launcherImagePath);
+
+                if (launcherImageEntry != null)
+                {
+                    _launcherImage = AddDisposable(new ImageSharpTexture(launcherImageEntry.Open()).CreateDeviceTexture(
                         _gameWindow.GraphicsDevice, _gameWindow.GraphicsDevice.ResourceFactory));
                 }
             }
-
-            _fileSystem = AddDisposable(installation.CreateFileSystem());
 
             _files = _fileSystem.Files.OrderBy(x => x.FilePath).ToList();
 

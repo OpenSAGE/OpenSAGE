@@ -12,6 +12,7 @@ namespace OpenSage.Mods.Generals
         public string DisplayName => "Command & Conquer (tm): Generals - Zero Hour";
         public IGameDefinition BaseGame => GeneralsDefinition.Instance;
 
+        public bool LauncherImagePrefixLang => false;
         public string LauncherImagePath => "Install_Final.bmp";
 
         public IEnumerable<RegistryKeyPath> RegistryKeys { get; } = new[]
