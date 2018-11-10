@@ -91,6 +91,7 @@ namespace OpenSage.Data.Ini.Parser
             { "ShellMenuScheme", (parser, context) => context.ShellMenuSchemes.Add(ShellMenuScheme.Parse(parser)) },
             { "SkyboxTextureSet", (parser, context) => context.SkyboxTextureSets.Add(SkyboxTextureSet.Parse(parser)) },
             { "SpecialPower", (parser, context) => context.SpecialPowers.Add(SpecialPower.Parse(parser)) },
+            { "StreamedSound", (parser, context) => context.StreamedSounds.Add(StreamedSound.Parse(parser)) },
             { "StaticGameLOD", (parser, context) => context.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
             { "Terrain", (parser, context) => context.TerrainTextures.Add(TerrainTexture.Parse(parser)) },
             { "Upgrade", (parser, context) => context.Upgrades.Add(Upgrade.Parse(parser)) },
