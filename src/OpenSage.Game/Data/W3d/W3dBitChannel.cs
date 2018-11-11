@@ -20,7 +20,7 @@ namespace OpenSage.Data.W3d
 
         public bool[] Data { get; private set; }
 
-        public static W3dBitChannel Parse(BinaryReader reader, uint chunkSize)
+        public static W3dBitChannel Parse(BinaryReader reader)
         {
             var result = new W3dBitChannel
             {

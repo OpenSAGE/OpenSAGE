@@ -48,13 +48,11 @@ namespace OpenSage.Data.W3d
                     break;
 
                 case W3dMotionChannelDeltaType.Delta4:
-                    // TODO
-                    reader.ReadBytes((int) (startPosition + chunkSize - reader.BaseStream.Position));
+                    result.Data = W3dMotionChannelAdaptiveDeltaData.Parse(reader, result.NumTimeCodes, result.ChannelType, result.VectorLength, 4);
                     break;
 
                 case W3dMotionChannelDeltaType.Delta8:
-                    // TODO
-                    reader.ReadBytes((int) (startPosition + chunkSize - reader.BaseStream.Position));
+                    result.Data = W3dMotionChannelAdaptiveDeltaData.Parse(reader, result.NumTimeCodes, result.ChannelType, result.VectorLength, 8);
                     break;
 
                 default:

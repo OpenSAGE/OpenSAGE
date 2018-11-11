@@ -19,7 +19,7 @@ namespace OpenSage.Data.W3d
 
         public W3dTimeCodedBitDatum[] Data { get; private set; }
 
-        public static W3dTimeCodedBitChannel Parse(BinaryReader reader, uint chunkSize)
+        public static W3dTimeCodedBitChannel Parse(BinaryReader reader)
         {
             var startPosition = reader.BaseStream.Position;
 

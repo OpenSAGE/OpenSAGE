@@ -21,7 +21,7 @@ namespace OpenSage.Data.W3d
 
         public W3dTimeCodedDatum[] Data { get; private set; }
 
-        public static W3dTimeCodedAnimationChannel Parse(BinaryReader reader, uint chunkSize)
+        public static W3dTimeCodedAnimationChannel Parse(BinaryReader reader)
         {
             var startPosition = reader.BaseStream.Position;
 

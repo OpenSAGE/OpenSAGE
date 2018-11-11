@@ -24,9 +24,9 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public float Scale { get; private set; }
 
-        public W3dTimeCodedBitDatum[] Data { get; private set; }
+        public W3dAnimationChannelDatum[] Data { get; private set; }
 
-        public static W3dAdaptiveDeltaAnimationChannel Parse(BinaryReader reader, uint chunkSize)
+        public static W3dAdaptiveDeltaAnimationChannel Parse(BinaryReader reader, int nBits)
         {
             var startPosition = reader.BaseStream.Position;
 
@@ -36,13 +36,20 @@ namespace OpenSage.Data.W3d
                 Pivot = reader.ReadUInt16(),
                 VectorLength = reader.ReadByte(),
                 ChannelType = EnumUtility.CastValueAsEnum<byte, W3dAnimationChannelType>(reader.ReadByte()),
-                Scale = reader.ReadSingle()
+                Scale = reader.ReadSingle(),
             };
 
             W3dAnimationChannel.ValidateChannelDataSize(result.ChannelType, result.VectorLength);
 
-            // TODO
-            reader.ReadBytes((int)(startPosition + chunkSize - reader.BaseStream.Position));
+            result.Data = W3dAdaptiveDelta.ReadAdaptiveDelta(reader,
+                                result.NumTimeCodes,
+                                result.ChannelType,
+                                result.VectorLength,
+                                result.Scale,
+                                nBits);
+
+            //Skip 3 unknown bytes at chunkend. Only set for quaternions.
+            reader.BaseStream.Seek(3, SeekOrigin.Current);
 
             return result;
         }
