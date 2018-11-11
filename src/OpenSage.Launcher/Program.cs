@@ -62,6 +62,8 @@ namespace OpenSage.Launcher
                 Console.WriteLine("OpenSAGE doesn't yet detect every released version of every game. Please report undetected versions to our GitHub page:");
                 Console.WriteLine("\thttps://github.com/OpenSAGE/OpenSAGE/issues");
 
+                Console.ReadLine();
+
                 Environment.Exit(1);
             }
 
