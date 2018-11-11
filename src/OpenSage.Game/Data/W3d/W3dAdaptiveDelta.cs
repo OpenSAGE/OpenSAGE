@@ -5,7 +5,7 @@ namespace OpenSage.Data.W3d
 {
     class W3dAdaptiveDelta
     {
-        private static float[] Table = CalculateTable();
+        private static readonly float[] Table = CalculateTable();
 
         private static float[] CalculateTable()
         {
@@ -52,7 +52,7 @@ namespace OpenSage.Data.W3d
                 }
                 else if (nBits == 8)
                 {
-                    var val = (byte)deltaBytes[i];
+                    var val = (byte) deltaBytes[i];
                     //do a bitflip
                     if ((val & 0x80) != 0)
                     {
@@ -62,7 +62,7 @@ namespace OpenSage.Data.W3d
                     {
                         val |= 0x80;
                     }
-                    deltas[i] = (sbyte)val;
+                    deltas[i] = (sbyte) val;
                 }
             }
 
@@ -144,10 +144,22 @@ namespace OpenSage.Data.W3d
             }
         }
 
-        public static W3dAnimationChannelDatum[] ReadAdaptiveDelta(BinaryReader reader, uint numFrames,W3dAnimationChannelType type, int vectorLen, float scale, int nBits)
+        public static W3dAnimationChannelDatum[] ReadAdaptiveDelta(BinaryReader reader, uint numFrames, W3dAnimationChannelType type, int vectorLen, float scale, int nBits)
         {
-            //when delta8 multiply the scale by 0.0625f
-            float scaleFactor = (float)(Math.Pow(2, 4) / Math.Pow(2, nBits));
+            float scaleFactor = 1.0f;
+            switch(nBits)
+            {
+                //When deltas are 8 bits large we need to scale them to the range [-16;16]
+                case 8:
+                    scaleFactor = 1 / 16.0f;
+                    break;
+                //Do nothing for 4 bit deltas since they already map to [-16;16]
+                case 4:
+                    break;
+                default:
+                    throw new InvalidOperationException("Adaptive delta only supported 4 bit & 8 bit!");
+            }
+
             uint count = (numFrames + 15) >> 4;
             var data = new W3dAnimationChannelDatum[numFrames];
 
@@ -155,7 +167,7 @@ namespace OpenSage.Data.W3d
             for (int k = 0; k < vectorLen; ++k)
             {
                 var initial = reader.ReadSingle();
-                W3dAdaptiveDelta.UpdateDatum(ref data[0], initial, type, k);
+                UpdateDatum(ref data[0], initial, type, k);
             }
 
             //Then read the interleaved delta blocks
@@ -164,23 +176,25 @@ namespace OpenSage.Data.W3d
                 for (int k = 0; k < vectorLen; ++k)
                 {
                     var blockIndex = reader.ReadByte();
-                    var blockScale = W3dAdaptiveDelta.Table[blockIndex];
+                    var blockScale = Table[blockIndex];
                     var deltaScale = blockScale * scale * scaleFactor;
 
                     //read deltas for the next 
-                    var deltas = W3dAdaptiveDelta.ReadDeltaBlock(reader, nBits);
+                    var deltas = ReadDeltaBlock(reader, nBits);
 
                     for (int j = 0; j < deltas.Length; ++j)
                     {
                         int idx = i * 16 + j + 1;
 
                         if (idx >= numFrames)
+                        {
                             break;
+                        }
 
-                        var value = W3dAdaptiveDelta.GetValue(data[idx - 1], type, k) + deltaScale * deltas[j];
-                        W3dAdaptiveDelta.UpdateDatum(ref data[idx], value, type, k);
+                        var value = GetValue(data[idx - 1], type, k) + deltaScale * deltas[j];
+                        UpdateDatum(ref data[idx], value, type, k);
                     }
-                }             
+                }
             }
 
             return data;

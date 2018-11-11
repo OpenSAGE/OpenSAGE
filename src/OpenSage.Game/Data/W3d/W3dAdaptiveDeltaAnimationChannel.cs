@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using OpenSage.Data.Utilities;
-using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
@@ -51,7 +48,8 @@ namespace OpenSage.Data.W3d
                                 result.Scale,
                                 nBits);
 
-            reader.ReadBytes(3);
+            //Skip 3 unknown bytes at chunkend. Only set for quaternions.
+            reader.BaseStream.Seek(3, SeekOrigin.Current);
 
             return result;
         }

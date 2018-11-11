@@ -911,14 +911,13 @@ namespace OpenSage.Content
         private static AnimationClip CreateAnimationClip(W3dCompressedAnimation w3dAnimation, W3dAdaptiveDeltaAnimationChannel w3dChannel)
         {
             var bone = w3dChannel.Pivot;
-            var data = w3dChannel.Data;
 
             var keyframes = new Keyframe[w3dChannel.NumTimeCodes];
 
             for (var i = 0; i < w3dChannel.NumTimeCodes; i++)
             {
                 var time = TimeSpan.FromSeconds(i / (double) w3dAnimation.Header.FrameRate);
-                keyframes[i] = CreateKeyframe(w3dChannel.ChannelType, time, ref data[i]);
+                keyframes[i] = CreateKeyframe(w3dChannel.ChannelType, time, ref w3dChannel.Data[i]);
             }
 
             return new AnimationClip(w3dChannel.ChannelType.ToAnimationClipType(), bone, keyframes);
@@ -927,7 +926,6 @@ namespace OpenSage.Content
         private static AnimationClip CreateAnimationClip(W3dCompressedAnimation w3dAnimation, W3dMotionChannel w3dChannel)
         {
             var bone = w3dChannel.Pivot;
-            var data = w3dChannel.Data;
 
             var keyframes = new Keyframe[w3dChannel.NumTimeCodes];
 

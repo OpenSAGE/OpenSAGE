@@ -542,17 +542,5 @@ namespace OpenSage.Data.Utilities.Extensions
                 M22 = reader.ReadSingle()
             };
         }
-
-        public static float[] ReadSingleArray(this BinaryReader reader, int len)
-        {
-            var result = new float[len];
-
-            for (int i = 0; i < len; ++i)
-            {
-                result[i] = reader.ReadSingle();
-            }
-
-            return result;
-        }
     }
 }
