@@ -34,11 +34,11 @@ namespace OpenSage.Data.W3d
                         switch (result.Header.Flavor)
                         {
                             case W3dCompressedAnimationFlavor.TimeCoded:
-                                timeCodedChannels.Add(W3dTimeCodedAnimationChannel.Parse(reader, header.ChunkSize));
+                                timeCodedChannels.Add(W3dTimeCodedAnimationChannel.Parse(reader));
                                 break;
 
                             case W3dCompressedAnimationFlavor.AdaptiveDelta4:
-                                adaptiveDeltaChannels.Add(W3dAdaptiveDeltaAnimationChannel.Parse(reader, header.ChunkSize, 4));
+                                adaptiveDeltaChannels.Add(W3dAdaptiveDeltaAnimationChannel.Parse(reader, 4));
                                 break;
 
                             default:
@@ -50,7 +50,7 @@ namespace OpenSage.Data.W3d
                         switch (result.Header.Flavor)
                         {
                             case W3dCompressedAnimationFlavor.TimeCoded:
-                                timeCodedBitChannels.Add(W3dTimeCodedBitChannel.Parse(reader, header.ChunkSize));
+                                timeCodedBitChannels.Add(W3dTimeCodedBitChannel.Parse(reader));
                                 break;
 
                             default:

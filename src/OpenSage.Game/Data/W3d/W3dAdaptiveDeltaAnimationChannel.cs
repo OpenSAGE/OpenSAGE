@@ -26,7 +26,7 @@ namespace OpenSage.Data.W3d
 
         public W3dAnimationChannelDatum[] Data { get; private set; }
 
-        public static W3dAdaptiveDeltaAnimationChannel Parse(BinaryReader reader, uint chunkSize, int nBits)
+        public static W3dAdaptiveDeltaAnimationChannel Parse(BinaryReader reader, int nBits)
         {
             var startPosition = reader.BaseStream.Position;
 

@@ -29,7 +29,7 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_BIT_CHANNEL:
-                        bitChannels.Add(W3dBitChannel.Parse(reader, header.ChunkSize));
+                        bitChannels.Add(W3dBitChannel.Parse(reader));
                         break;
 
                     default:
