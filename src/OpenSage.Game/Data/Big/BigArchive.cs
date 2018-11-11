@@ -54,6 +54,22 @@ namespace OpenSage.Data.Big
         {
             using (var reader = new BinaryReader(_stream, Encoding.ASCII, true))
             {
+                //Special case for empty archives/ placeholder archives
+                if (reader.BaseStream.Length < 4)
+                {
+                    var a = reader.ReadByte();
+                    var b = reader.ReadByte();
+
+                    if (a == '?' && b == '?')
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        throw new InvalidDataException($"Big archive is too small");
+                    }
+                }
+
                 var fourCc = reader.ReadFourCc();
                 switch (fourCc)
                 {

@@ -10,6 +10,7 @@ namespace OpenSage.Mods.CnC3
         public string DisplayName => "Command & Conquer (tm) 3: Tiberium Wars";
         public IGameDefinition BaseGame => null;
 
+        public bool LauncherImagePrefixLang => false;
         public string LauncherImagePath => @"Launcher\splash.bmp";
 
         public IEnumerable<RegistryKeyPath> RegistryKeys { get; } = new[]

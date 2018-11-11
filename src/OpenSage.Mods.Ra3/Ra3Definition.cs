@@ -10,6 +10,7 @@ namespace OpenSage.Mods.Ra3
         public string DisplayName => "Command & Conquer (tm): Red Alert (tm) 3";
         public IGameDefinition BaseGame => null;
 
+        public bool LauncherImagePrefixLang => false;
         public string LauncherImagePath => @"Launcher\splash.bmp";
 
         public IEnumerable<RegistryKeyPath> RegistryKeys { get; } = new[]

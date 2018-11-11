@@ -10,6 +10,7 @@ namespace OpenSage.Mods.CnC3
         public string DisplayName => "Command & Conquer (tm) 3: Kane's Wrath";
         public IGameDefinition BaseGame => Cnc3Definition.Instance;
 
+        public bool LauncherImagePrefixLang => false;
         public string LauncherImagePath => @"Launcher\splash.bmp";
 
         public IEnumerable<RegistryKeyPath> RegistryKeys { get; } = new[]

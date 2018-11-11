@@ -11,15 +11,18 @@ namespace OpenSage.Mods.Bfme2
         public string DisplayName => "The Lord of the Rings (tm): The Battle for Middle-earth (tm) II";
         public IGameDefinition BaseGame => null;
 
-        // TODO: Localise?
-        public string LauncherImagePath => "EnglishSplash.jpg";
+        public bool LauncherImagePrefixLang => true;
+        public string LauncherImagePath => "Splash.jpg";
 
         public IEnumerable<RegistryKeyPath> RegistryKeys { get; } = new[]
         {
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\The Battle for Middle-earth II", "InstallPath")
         };
 
-        public IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; }
+        public IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; } = new[]
+        {
+            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\The Battle for Middle-earth II", "Language")
+        };
 
         public string Identifier { get; } = "bfme2";
 

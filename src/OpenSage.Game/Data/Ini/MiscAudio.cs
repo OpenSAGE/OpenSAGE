@@ -20,6 +20,7 @@ namespace OpenSage.Data.Ini
             { "RadarNotifyOfflineSound", (parser, x) => x.RadarNotifyOfflineSound = parser.ParseAssetReference() },
             { "LockonTickSound", (parser, x) => x.LockonTickSound = parser.ParseAssetReference() },
             { "DefectorTimerTickSound", (parser, x) => x.DefectorTimerTickSound = parser.ParseAssetReference() },
+            { "DefectorTimerDingSound", (parser, x) => x.DefectorTimerDingSound = parser.ParseAssetReference() },
             { "AllCheerSound", (parser, x) => x.AllCheerSound = parser.ParseAssetReference() },
             { "BattleCrySound", (parser, x) => x.BattleCrySound = parser.ParseAssetReference() },
             { "GUIClickSound", (parser, x) => x.GuiClickSound = parser.ParseAssetReference() },
@@ -45,7 +46,13 @@ namespace OpenSage.Data.Ini
             { "RepairSparks", (parser, x) => x.RepairSparks = parser.ParseAssetReference() },
             { "AircraftWheelScreech", (parser, x) => x.AircraftWheelScreech = parser.ParseAssetReference() },
             { "SabotageShutDownBuilding", (parser, x) => x.SabotageShutDownBuilding = parser.ParseAssetReference() },
-            { "SabotageResetTimeBuilding", (parser, x) => x.SabotageResetTimeBuilding = parser.ParseAssetReference() }
+            { "SabotageResetTimeBuilding", (parser, x) => x.SabotageResetTimeBuilding = parser.ParseAssetReference() },
+            { "EnterCloseCombat", (parser, x) => x.EnterCloseCombat = parser.ParseAssetReference() },
+            { "ExitCloseCombat", (parser, x) => x.ExitCloseCombat = parser.ParseAssetReference() },
+            { "IncomingChatNotification", (parser, x) => x.IncomingChatNotification = parser.ParseAssetReference() },
+            { "EnabledHotKeyPressed", (parser, x) => x.EnabledHotKeyPressed = parser.ParseAssetReference() },
+            { "DisabledHotKeyPressed", (parser, x) => x.DisabledHotKeyPressed = parser.ParseAssetReference() },
+            { "LowLODShellMusic", (parser, x) => x.LowLODShellMusic = parser.ParseAssetReference() },
         };
 
         public string RadarNotifyUnitUnderAttackSound { get; private set; }
@@ -87,5 +94,26 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public string SabotageResetTimeBuilding { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string DefectorTimerDingSound { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string EnterCloseCombat { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string ExitCloseCombat { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string IncomingChatNotification { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string EnabledHotKeyPressed { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string DisabledHotKeyPressed { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string LowLODShellMusic { get; private set; }
     }
 }
