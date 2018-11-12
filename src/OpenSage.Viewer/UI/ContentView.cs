@@ -51,6 +51,9 @@ namespace OpenSage.Viewer.UI
                 case ".manifest":
                     return new ManifestView(context);
 
+                case ".png":
+                    return new ImageView(context);
+
                 case ".ru":
                     return new RuView(context);
 
