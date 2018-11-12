@@ -35,6 +35,8 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public Vector2[] TexCoords { get; private set; }
 
+        public uint[] ShaderMaterialIDs { get; private set; }
+
         public static W3dMaterialPass Parse(BinaryReader reader, uint chunkSize)
         {
             var textureStages = new List<W3dTextureStage>();
@@ -88,12 +90,15 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_SHADER_MATERIAL_ID:
+                        result.ShaderMaterialId = reader.ReadUInt32();
                         if (header.ChunkSize != sizeof(uint))
                         {
-                            // TODO: If this is thrown: this is probably an array of IDs?
-                            throw new InvalidDataException();
+                            result.ShaderMaterialIDs = new uint[header.ChunkSize / sizeof(uint) - 1];
+                            for (var count = 0; count < result.ShaderMaterialIDs.Length; count++)
+                            {
+                                result.ShaderMaterialIDs[count] = reader.ReadUInt32();
+                            }
                         }
-                        result.ShaderMaterialId = reader.ReadUInt32();
                         break;
 
                     // Normally this appears inside W3dTextureStage, but it can also

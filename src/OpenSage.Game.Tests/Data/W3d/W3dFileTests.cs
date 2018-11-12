@@ -38,8 +38,6 @@ namespace OpenSage.Tests.Data.W3d
                     case "gugandalfcrstl.w3d":
                     case "guhbtshfb_cinb.w3d":
                     case "guhbtshfb_cinc.w3d":
-                    case "kbpostgaten_al.w3d":
-                    case "kbpostgaten_am.w3d":
                     case "lwbanhfllbst.w3d":
                     case "lwbanhnazgul.w3d":
                     case "lwbanhwtchkng.w3d":
@@ -77,7 +75,7 @@ namespace OpenSage.Tests.Data.W3d
 
                     Assert.True(mesh.MaterialPasses.Length <= 3);
 
-                    Assert.True(mesh.ShaderMaterials == null || mesh.ShaderMaterials.Materials.Count == 1);
+                    Assert.True(mesh.ShaderMaterials == null || mesh.ShaderMaterials.Materials.Count >= 1);
 
                     if (mesh.ShaderMaterials != null)
                     {
