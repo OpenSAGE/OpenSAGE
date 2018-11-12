@@ -208,6 +208,7 @@ namespace OpenSage.Viewer.UI
                     UseShellExecute = true
                 });
             }
+
             ImGui.EndChild();
         }
 
