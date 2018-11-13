@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Tga;
+﻿using System.IO;
+using OpenSage.Data.Tga;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -18,6 +19,12 @@ namespace OpenSage.Tests.Data.Tga
         {
             InstalledFilesTestData.ReadFiles(".tga", _output, entry =>
             {
+                switch (Path.GetFileName(entry.FilePath))
+                {
+                    case "map ang rhudaur.tga":
+                        return; // unreferenced
+                }
+
                 var tgaFile = TgaFile.FromFileSystemEntry(entry);
 
                 var imagePixelSize = tgaFile.Header.ImagePixelSize;
