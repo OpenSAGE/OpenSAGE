@@ -42,6 +42,7 @@ namespace OpenSage.Tests.Data.W3d
                     case "lwbanhnazgul.w3d":
                     case "lwbanhwtchkng.w3d":
                     case "psupplies04.w3d":
+                    case "readonly-0-rev-2-lwbanhwitchk.w3d":
                     case "wbcave_d2a.w3d":
                     case "wbcave_d2c.w3d":
                         return; // Corrupt, or unreferenced and contain chunks that don't exist elsewhere.
@@ -74,7 +75,7 @@ namespace OpenSage.Tests.Data.W3d
 
                     Assert.True(mesh.MaterialPasses.Length <= 3);
 
-                    Assert.True(mesh.ShaderMaterials == null || mesh.ShaderMaterials.Materials.Count == 1);
+                    Assert.True(mesh.ShaderMaterials == null || mesh.ShaderMaterials.Materials.Count >= 1);
 
                     if (mesh.ShaderMaterials != null)
                     {
