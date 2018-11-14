@@ -121,6 +121,7 @@ namespace OpenSage.Graphics.Shaders
 
         public struct ShadingConfiguration
         {
+            public /* bool */ uint BlendEnabled;
             public DiffuseLightingType DiffuseLightingType;
             public /*bool*/ uint SpecularEnabled;
             public /*bool*/ uint TexturingEnabled;
@@ -129,7 +130,7 @@ namespace OpenSage.Graphics.Shaders
             public /*bool*/ uint AlphaTest;
 
 #pragma warning disable CS0169
-            private readonly Vector2 _padding;
+            private readonly float _padding;
 #pragma warning restore CS0169
         }
 
@@ -383,6 +384,15 @@ namespace OpenSage.Graphics.Shaders
                 Global_CloudTexture,
                 Sampler,
                 input.CloudUV);
+
+            // Some textures have an entirely transparent alpha channel, when they're only ever used with blending disabled.
+            // This means we would end up with A = 0 in the framebuffer, which is fine when rendering directly to the back buffer.
+            // But otherwise it causes unwanted transparent pixels, such as in the viewer. So when blending is disabled,
+            // we set A = 1 to avoid this problem.
+            if (MaterialConstants.Shading.BlendEnabled == 0)
+            {
+                diffuseTextureColor.W = 1;
+            }
 
             return new Vector4(
                 objectColor * cloudColor,
