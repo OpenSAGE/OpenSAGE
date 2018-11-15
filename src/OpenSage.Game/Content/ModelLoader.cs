@@ -207,7 +207,6 @@ namespace OpenSage.Content
         {
             return new FixedFunction.ShadingConfiguration
             {
-                BlendEnabled = (w3dShader.SrcBlend != W3dShaderSrcBlendFunc.One || w3dShader.DestBlend != W3dShaderDestBlendFunc.Zero) ? 1u : 0u,
                 DiffuseLightingType = w3dShader.PrimaryGradient.ToDiffuseLightingType(),
                 SpecularEnabled = (w3dShader.SecondaryGradient == W3dShaderSecondaryGradient.Enable) ? 1u : 0u,
                 TexturingEnabled = (w3dShader.Texturing == W3dShaderTexturing.Enable) ? 1u : 0u,
@@ -698,7 +697,7 @@ namespace OpenSage.Content
             var blendState = new BlendStateDescription(
                 RgbaFloat.White,
                 new BlendAttachmentDescription(
-                    shadingConfigurations[shaderID].BlendEnabled == 1,
+                    (w3dShader.SrcBlend != W3dShaderSrcBlendFunc.One || w3dShader.DestBlend != W3dShaderDestBlendFunc.Zero),
                     w3dShader.SrcBlend.ToBlend(),
                     w3dShader.DestBlend.ToBlend(false),
                     BlendFunction.Add,

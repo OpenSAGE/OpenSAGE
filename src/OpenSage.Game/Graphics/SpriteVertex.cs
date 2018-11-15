@@ -13,8 +13,8 @@ namespace OpenSage.Graphics
         public ColorRgbaF Color;
 
         public static readonly VertexLayoutDescription VertexDescriptor = new VertexLayoutDescription(
-            new VertexElementDescription("POSITION", VertexElementSemantic.Position, VertexElementFormat.Float3),
+            new VertexElementDescription("POSITION", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
             new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
-            new VertexElementDescription("COLOR", VertexElementSemantic.Color, VertexElementFormat.Float4));
+            new VertexElementDescription("COLOR", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
     }
 }

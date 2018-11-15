@@ -1,0 +1,165 @@
+{
+  "ResourceBindings": [
+    {
+      "Name": "GlobalConstantsShared",
+      "Type": "UniformBuffer",
+      "Stages": "Vertex, Fragment",
+      "Size": 16,
+      "Fields": [
+        {
+          "Name": "CameraPosition",
+          "Offset": 0,
+          "Size": 12
+        },
+        {
+          "Name": "TimeInSeconds",
+          "Offset": 12,
+          "Size": 4
+        }
+      ]
+    },
+    {
+      "Name": "GlobalConstantsVS",
+      "Type": "UniformBuffer",
+      "Stages": "Vertex",
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "ViewProjection",
+          "Offset": 0,
+          "Size": 64
+        }
+      ]
+    },
+    {
+      "Name": "Global_LightingConstantsVS",
+      "Type": "UniformBuffer",
+      "Stages": "Vertex",
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "CloudShadowMatrix",
+          "Offset": 0,
+          "Size": 64
+        }
+      ]
+    },
+    {
+      "Name": "MeshConstants",
+      "Type": "UniformBuffer",
+      "Stages": "Vertex",
+      "Size": 8,
+      "Fields": [
+        {
+          "Name": "SkinningEnabled",
+          "Offset": 0,
+          "Size": 4
+        },
+        {
+          "Name": "NumBones",
+          "Offset": 4,
+          "Size": 4
+        }
+      ]
+    },
+    {
+      "Name": "RenderItemConstantsVS",
+      "Type": "UniformBuffer",
+      "Stages": "Vertex",
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "World",
+          "Offset": 0,
+          "Size": 64
+        }
+      ]
+    },
+    {
+      "Name": "SkinningBuffer",
+      "Type": "StructuredBufferReadOnly",
+      "Stages": "Vertex",
+      "Size": 64
+    },
+    {
+      "Name": "Global_LightingConstantsPS",
+      "Type": "UniformBuffer",
+      "Stages": "Fragment",
+      "Size": 144,
+      "Fields": [
+        {
+          "Name": "Lights",
+          "Offset": 0,
+          "Size": 144
+        }
+      ]
+    },
+    {
+      "Name": "Global_CloudTexture",
+      "Type": "TextureReadOnly",
+      "Stages": "Fragment",
+      "Size": 0
+    },
+    {
+      "Name": "MaterialConstants",
+      "Type": "UniformBuffer",
+      "Stages": "Fragment",
+      "Size": 64,
+      "Fields": [
+        {
+          "Name": "BumpScale",
+          "Offset": 0,
+          "Size": 4
+        },
+        {
+          "Name": "SpecularExponent",
+          "Offset": 4,
+          "Size": 4
+        },
+        {
+          "Name": "AlphaTestEnable",
+          "Offset": 8,
+          "Size": 4
+        },
+        {
+          "Name": "_padding",
+          "Offset": 12,
+          "Size": 4
+        },
+        {
+          "Name": "AmbientColor",
+          "Offset": 16,
+          "Size": 16
+        },
+        {
+          "Name": "DiffuseColor",
+          "Offset": 32,
+          "Size": 16
+        },
+        {
+          "Name": "SpecularColor",
+          "Offset": 48,
+          "Size": 16
+        }
+      ]
+    },
+    {
+      "Name": "DiffuseTexture",
+      "Type": "TextureReadOnly",
+      "Stages": "Fragment",
+      "Size": 0
+    },
+    {
+      "Name": "NormalMap",
+      "Type": "TextureReadOnly",
+      "Stages": "Fragment",
+      "Size": 0
+    },
+    {
+      "Name": "Sampler",
+      "Type": "Sampler",
+      "Stages": "Fragment",
+      "Size": 0
+    }
+  ]
+}

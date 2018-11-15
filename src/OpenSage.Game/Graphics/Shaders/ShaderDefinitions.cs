@@ -12,7 +12,9 @@ namespace OpenSage.Graphics.Shaders
         {
             if (!Cache.TryGetValue(name, out var result))
             {
-                using (var jsonStream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"OpenSage.Graphics.Shaders.Config.{name}.json"))
+                var resourceName = $"OpenSage.Assets.Shaders.{name}.json";
+
+                using (var jsonStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
                 using (var jsonStreamReader = new StreamReader(jsonStream))
                 {
                     result = ShaderDefinition.FromJson(jsonStreamReader.ReadToEnd());
