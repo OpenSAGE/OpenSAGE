@@ -81,7 +81,7 @@ namespace OpenSage.Graphics.Shaders
             public /*bool*/ uint AlphaTest;
 
 #pragma warning disable CS0169
-            private readonly float _padding;
+            private readonly Vector2 _padding;
 #pragma warning restore CS0169
         }
 
