@@ -3,18 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>OpenSage</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <AssetsDir>$(MSBuildThisFileDirectory)Assets</AssetsDir>
-
-    <ShaderJsonIntermediateDirectory>$(MSBuildThisFileDirectory)\obj\Shaders.Json</ShaderJsonIntermediateDirectory>
-
-    <ShaderOutputPath>$(MSBuildThisFileDirectory)\obj\Shaders.Generated</ShaderOutputPath>
-    <ShaderProcessorAssembly>$(MSBuildThisFileDirectory)\..\OpenSage.Game.Shaders.Processor\bin\$(Configuration)\netstandard2.0\OpenSage.Game.Shaders.Processor.dll</ShaderProcessorAssembly>
-    <ShaderProcessorArgs>$(ShaderJsonIntermediateDirectory)</ShaderProcessorArgs>
   </PropertyGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Content\Fonts\Roboto-Bold.ttf" />
-    <EmbeddedResource Include="Content\Fonts\Roboto-Regular.ttf" />
-  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.4.0" />
@@ -23,37 +12,40 @@
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0004" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Include="ShaderGen.Primitives" Version="$(ShaderGenVersion)" />
-    <PackageReference Include="ShaderGen.Build" Version="$(ShaderGenVersion)" PrivateAssets="All" />
     <PackageReference Include="Veldrid" Version="$(VeldridVersion)" />
     <PackageReference Include="Veldrid.ImageSharp" Version="$(VeldridVersion)" />
     <PackageReference Include="Veldrid.SDL2" Version="$(VeldridVersion)" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="$(VeldridVersion)" />
+    <PackageReference Include="Veldrid.SPIRV" Version="1.0.0-beta4" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OpenSage.Game.Shaders.Shared\OpenSage.Game.Shaders.Shared.csproj" />
+    <EmbeddedResource Include="Content\Fonts\*.ttf" />
   </ItemGroup>
-  
-  <Target Name="PrepareShaderJsonDirectory" BeforeTargets="GenerateShaderCode">
-    <RemoveDir Directories="$(ShaderJsonIntermediateDirectory)" />
-    <MakeDir Directories="$(ShaderJsonIntermediateDirectory)" />
+
+  <ItemGroup>
+    <ShaderFiles Include="Assets\Shaders\*.vert;Assets\Shaders\*.frag" />
+    <UpToDateCheckInput Include="@(ShaderFiles)" />
+    
+    <ShaderHeaderFiles Include="Assets\Shaders\*.h" />
+    <UpToDateCheckInput Include="@(ShaderHeaderFiles)" />
+
+    <EmbeddedResource Include="Assets\Shaders\*.json" />
+  </ItemGroup>
+
+  <Target Name="CompileShaders" 
+          BeforeTargets="BeforeBuild"
+          Inputs="@(ShaderFiles);@(ShaderHeaderFiles)"
+          Outputs="@(ShaderFiles->'$(IntermediateOutputPath)Assets\Shaders\%(FileName)%(Extension).spv')">
+    <MakeDir Directories="$(IntermediateOutputPath)Assets\Shaders" />
+    <Exec Command="$(MSBuildThisFileDirectory)..\..\lib\glslangValidator.exe -I'.' -V %(ShaderFiles.Identity) -o $(IntermediateOutputPath)Assets\Shaders\%(ShaderFiles.FileName)%(ShaderFiles.Extension).spv" />
   </Target>
 
-  <Target Name="EmbedGeneratedShaderContent" AfterTargets="AssignTargetPaths">
+  <Target Name="EmbedShaders" AfterTargets="CompileShaders">
     <ItemGroup>
-      <AllShaderFiles Include="$(ShaderOutputPath)\**\*" />
-      <EmbeddedResource Include="@(AllShaderFiles)">
-         <LogicalName>OpenSage.Graphics.Shaders.Compiled.%(FileName)%(Extension)</LogicalName>
-      </EmbeddedResource>
-    </ItemGroup>
-  </Target>
-
-  <Target Name="EmbedGeneratedShaderJson" AfterTargets="AssignTargetPaths">
-    <ItemGroup>
-      <AllJsonFiles Include="$(ShaderJsonIntermediateDirectory)\**\*.json" />
-      <EmbeddedResource Include="@(AllJsonFiles)">
-        <LogicalName>OpenSage.Graphics.Shaders.Config.%(FileName)%(Extension)</LogicalName>
+      <SpvFiles Include="$(IntermediateOutputPath)Assets\Shaders\%(ShaderFiles.FileName)%(ShaderFiles.Extension).spv" />
+      <EmbeddedResource Include="@(SpvFiles)">
+        <LogicalName>OpenSage.Assets.Shaders.%(FileName)%(Extension)</LogicalName>
       </EmbeddedResource>
     </ItemGroup>
   </Target>

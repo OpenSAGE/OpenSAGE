@@ -72,6 +72,7 @@ namespace OpenSage.Terrain
     {
         public uint TextureIndex;
         public uint CellSize;
+        public Vector2 _Padding;
     }
 
     [StructLayout(LayoutKind.Sequential)]

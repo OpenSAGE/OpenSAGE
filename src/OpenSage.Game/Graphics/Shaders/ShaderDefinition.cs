@@ -14,17 +14,6 @@ namespace OpenSage.Graphics.Shaders
         }
 
         public List<ResourceBinding> ResourceBindings { get; set; } = new List<ResourceBinding>();
-
-        public string ToJson()
-        {
-            return JsonConvert.SerializeObject(
-                this,
-                new JsonSerializerSettings
-                {
-                    Formatting = Formatting.Indented,
-                    NullValueHandling = NullValueHandling.Ignore
-                });
-        }
     }
 
     public class ResourceBinding

@@ -43,7 +43,7 @@ namespace OpenSage.Graphics.Effects
 
             Road = AddDisposable(new Effect(
                 graphicsDevice,
-                "RoadShader",
+                "Road",
                 RoadVertex.VertexDescriptor));
         }
 

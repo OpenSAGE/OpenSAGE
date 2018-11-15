@@ -494,7 +494,7 @@ namespace OpenSage.Graphics.ParticleSystems
         public float AngleZ;
 
         public static readonly VertexLayoutDescription VertexDescriptor = new VertexLayoutDescription(
-            new VertexElementDescription("POSITION", VertexElementSemantic.Position, VertexElementFormat.Float3),
+            new VertexElementDescription("POSITION", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
             new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float1),
             new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
             new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float1),

@@ -548,8 +548,7 @@ namespace OpenSage.Content
             MapFile mapFile,
             HeightMap heightMap)
         {
-            // TODO: Should be uint, once ShaderGen supports it.
-            var tileData = new float[heightMap.Width * heightMap.Height * 4];
+            var tileData = new uint[heightMap.Width * heightMap.Height * 4];
 
             var tileDataIndex = 0;
             for (var y = 0; y < heightMap.Height; y++)
@@ -596,7 +595,7 @@ namespace OpenSage.Content
                     rowPitch * (uint) heightMap.Height,
                     (uint) heightMap.Width,
                     (uint) heightMap.Height),
-                PixelFormat.R32_G32_B32_A32_Float);
+                PixelFormat.R32_G32_B32_A32_UInt);
         }
 
         private static BlendData GetBlendData(
@@ -658,7 +657,8 @@ namespace OpenSage.Content
 
             return cliffDetails.Length > 0
                 ? graphicsDevice.CreateStaticStructuredBuffer(cliffDetails)
-                : null;
+                // TODO: see if we can avoid this. We need it to avoid the D3D pixel shader stage complaining about a non-raw resource
+                : graphicsDevice.CreateStaticStructuredBuffer(new CliffInfo[] { new CliffInfo() });
         }
 
         private void CreateTextures(

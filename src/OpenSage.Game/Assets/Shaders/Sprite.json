@@ -1,0 +1,23 @@
+{
+  "ResourceBindings": [
+    {
+      "Name": "Projection",
+      "Type": "UniformBuffer",
+      "Stages": "Vertex",
+      "Size": 64,
+      "Fields": []
+    },
+    {
+      "Name": "Texture",
+      "Type": "TextureReadOnly",
+      "Stages": "Fragment",
+      "Size": 0
+    },
+    {
+      "Name": "Sampler",
+      "Type": "Sampler",
+      "Stages": "Fragment",
+      "Size": 0
+    }
+  ]
+}
