@@ -10,20 +10,12 @@ namespace OpenSage.Data.Map
 
         // Gathered from heights in World Builder's status bar compared to heightmap data.
         // In Generals, heights are stored as uint8 (max 255), and scaled by 0.625 (max 159.375)
-        // In BFME, heights are stored in uint16 (max 65536), and scaled by 0.00625 (max 409.6)
-        // In C&C3, heights are stored in uint16 (max 65536), and scaled by 0.0390625 (max 2560)
+        // In BFME, BFME2, C&C3, heights are stored in uint16 (max 65536), and scaled by 0.0390625 (max 2560)
         public float VerticalScale
         {
             get
             {
-                if (!ElevationsAre16Bit)
-                {
-                    return 0.625f;
-                }
-
-                return Version >= 6
-                    ? 0.0390625f
-                    : 0.00625f;
+                return ElevationsAre16Bit ? 0.0390625f : 0.625f;
             }
         }
 
