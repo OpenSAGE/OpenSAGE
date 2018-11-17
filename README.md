@@ -34,6 +34,8 @@ Here's a rough roadmap:
 * [x] `.tga`
 * [x] `.const`
 * [x] `.apt`
+* [x] `.wav`
+* [x] `.mp3`
 
 ### Rendering
 
