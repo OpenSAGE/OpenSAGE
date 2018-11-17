@@ -42,6 +42,7 @@ namespace OpenSage.Logic.Object
             { "Side", (parser, x) => x.Side = parser.ParseAssetReference() },
             { "DisplayName", (parser, x) => x.DisplayName = parser.ParseLocalizedStringKey() },
             { "EditorSorting", (parser, x) => x.EditorSorting = parser.ParseEnumFlags<ObjectEditorSortingFlags>() },
+            { "Browser", (parser, x) => x.Browser = parser.ParseEnumFlags<ObjectBrowserFlags>() },
             { "TransportSlotCount", (parser, x) => x.TransportSlotCount = parser.ParseInteger() },
             { "VisionRange", (parser, x) => x.VisionRange = parser.ParseFloat() },
             { "ShroudRevealToAllRange", (parser, x) => x.ShroudRevealToAllRange = parser.ParseFloat() },
@@ -204,7 +205,7 @@ namespace OpenSage.Logic.Object
             { "Body", (parser, x) => x.Body = BodyModuleData.ParseBody(parser) },
             { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdateModuleData.ParseClientUpdate(parser)) },
 
-            { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSet>()] = parser.ParseAssetReferenceArray() },
+            { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSetCondition>()] = parser.ParseAssetReferenceArray() },
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "RadarPriority", (parser, x) => x.RadarPriority = parser.ParseEnum<RadarPriority>() },
             { "EnterGuard", (parser, x) => x.EnterGuard = parser.ParseBoolean() },
@@ -234,6 +235,9 @@ namespace OpenSage.Logic.Object
             { "RemoveModule", (parser, x) => x.RemoveModules.Add(parser.ParseIdentifier()) },
             { "AddModule", (parser, x) => x.AddModules.Add(AddModule.Parse(parser)) },
             { "ReplaceModule", (parser, x) => x.ReplaceModules.Add(ReplaceModule.Parse(parser)) },
+
+            { "ThreatLevel", (parser, x) => x.ThreatLevel = parser.ParseFloat() },
+            { "LocomotorSet", (parser, x) => x.LocomotorSet = LocomotorSet.Parse(parser) },
         };
 
         public string Name { get; protected set; }
@@ -253,6 +257,7 @@ namespace OpenSage.Logic.Object
         public string Side { get; private set; }
         public string DisplayName { get; private set; }
         public ObjectEditorSortingFlags EditorSorting { get; private set; }
+        public ObjectBrowserFlags Browser { get; private set; }
         public int TransportSlotCount { get; private set; }
         public float VisionRange { get; private set; }
 
@@ -628,7 +633,7 @@ namespace OpenSage.Logic.Object
         public List<DrawModuleData> Draws { get; } = new List<DrawModuleData>();
         public BodyModuleData Body { get; private set; }
         public List<ClientUpdateModuleData> ClientUpdates { get; } = new List<ClientUpdateModuleData>();
-        public Dictionary<LocomotorSet, string[]> Locomotors { get; } = new Dictionary<LocomotorSet, string[]>();
+        public Dictionary<LocomotorSetCondition, string[]> Locomotors { get; } = new Dictionary<LocomotorSetCondition, string[]>();
         public BitArray<ObjectKinds> KindOf { get; private set; }
         public RadarPriority RadarPriority { get; private set; }
 
@@ -672,6 +677,11 @@ namespace OpenSage.Logic.Object
         public List<string> RemoveModules { get; } = new List<string>();
         public List<AddModule> AddModules { get; } = new List<AddModule>();
         public List<ReplaceModule> ReplaceModules { get; } = new List<ReplaceModule>();
+
+        [AddedIn(SageGame.Bfme)]
+        public float ThreatLevel { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public LocomotorSet LocomotorSet { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

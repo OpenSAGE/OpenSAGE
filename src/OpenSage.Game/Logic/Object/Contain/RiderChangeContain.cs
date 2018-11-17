@@ -46,7 +46,7 @@ namespace OpenSage.Logic.Object
                 WeaponCondition = parser.ParseEnum<WeaponSetConditions>(),
                 ObjectStatus = parser.ParseEnum<ObjectStatus>(),
                 CommandSet = parser.ParseAssetReference(),
-                LocomotorSet = parser.ParseEnum<LocomotorSet>()
+                LocomotorSet = parser.ParseEnum<LocomotorSetCondition>()
             };
         }
 
@@ -55,6 +55,6 @@ namespace OpenSage.Logic.Object
         public WeaponSetConditions WeaponCondition { get; private set; }
         public ObjectStatus ObjectStatus { get; private set; }
         public string CommandSet { get; private set; }
-        public LocomotorSet LocomotorSet { get; private set; }
+        public LocomotorSetCondition LocomotorSet { get; private set; }
     }
 }

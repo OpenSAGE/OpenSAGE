@@ -24,10 +24,10 @@ namespace OpenSage.Logic.Object
                 { "NeedsRunway", (parser, x) => x.NeedsRunway = parser.ParseBoolean() },
                 { "KeepsParkingSpaceWhenAirborne", (parser, x) => x.KeepsParkingSpaceWhenAirborne = parser.ParseBoolean() },
                 { "SneakyOffsetWhenAttacking", (parser, x) => x.SneakyOffsetWhenAttacking = parser.ParseFloat() },
-                { "AttackLocomotorType", (parser, x) => x.AttackLocomotorType = parser.ParseEnum<LocomotorSet>() },
+                { "AttackLocomotorType", (parser, x) => x.AttackLocomotorType = parser.ParseEnum<LocomotorSetCondition>() },
                 { "AttackLocomotorPersistTime", (parser, x) => x.AttackLocomotorPersistTime = parser.ParseInteger() },
                 { "AttackersMissPersistTime", (parser, x) => x.AttackersMissPersistTime = parser.ParseInteger() },
-                { "ReturnForAmmoLocomotorType", (parser, x) => x.ReturnForAmmoLocomotorType = parser.ParseEnum<LocomotorSet>() },
+                { "ReturnForAmmoLocomotorType", (parser, x) => x.ReturnForAmmoLocomotorType = parser.ParseEnum<LocomotorSetCondition>() },
                 { "ParkingOffset", (parser, x) => x.ParkingOffset = parser.ParseInteger() },
                 { "ReturnToBaseIdleTime", (parser, x) => x.ReturnToBaseIdleTime = parser.ParseInteger() },
             });
@@ -47,10 +47,10 @@ namespace OpenSage.Logic.Object
         public bool NeedsRunway { get; private set; }
         public bool KeepsParkingSpaceWhenAirborne { get; private set; }
         public float SneakyOffsetWhenAttacking { get; private set; }
-        public LocomotorSet AttackLocomotorType { get; private set; }
+        public LocomotorSetCondition AttackLocomotorType { get; private set; }
         public int AttackLocomotorPersistTime { get; private set; }
         public int AttackersMissPersistTime { get; private set; }
-        public LocomotorSet ReturnForAmmoLocomotorType { get; private set; }
+        public LocomotorSetCondition ReturnForAmmoLocomotorType { get; private set; }
         public int ParkingOffset { get; private set; }
         public int ReturnToBaseIdleTime { get; private set; }
     }

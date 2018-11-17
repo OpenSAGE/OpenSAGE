@@ -400,5 +400,11 @@
 
         [IniEnum("CREEP"), AddedIn(SageGame.Bfme)]
         Creep,
+
+        [IniEnum("PATH_THROUGH_EACH_OTHER"), AddedIn(SageGame.Bfme)]
+        PathThroughEachOther,
+
+        [IniEnum("THROWN_OBJECT"), AddedIn(SageGame.Bfme)]
+        ThrownObject,
     }
 }

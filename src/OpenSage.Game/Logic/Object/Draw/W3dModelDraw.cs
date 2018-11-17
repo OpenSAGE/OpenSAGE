@@ -293,6 +293,8 @@ namespace OpenSage.Logic.Object
             { "InitialRecoilSpeed", (parser, x) => x.InitialRecoilSpeed = parser.ParseFloat() },
             { "MaxRecoilDistance", (parser, x) => x.MaxRecoilDistance = parser.ParseFloat() },
             { "RecoilSettleSpeed", (parser, x) => x.RecoilSettleSpeed = parser.ParseFloat() },
+            { "IdleAnimationState", (parser, x) => x.IdleAnimationState = AnimationState.Parse(parser) },
+            { "AnimationState", (parser, x) => x.AnimationStates.Add(AnimationState.Parse(parser)) },
         };
 
         public BitArray<ModelConditionFlag> IgnoreConditionStates { get; private set; }
@@ -324,6 +326,9 @@ namespace OpenSage.Logic.Object
         public float InitialRecoilSpeed { get; private set; } = 2.0f;
         public float MaxRecoilDistance { get; private set; } = 3.0f;
         public float RecoilSettleSpeed { get; private set; } = 0.065f;
+
+        public AnimationState IdleAnimationState { get; private set; }
+        public List<AnimationState> AnimationStates { get; } = new List<AnimationState>();
 
         private void ParseAliasConditionState(IniParser parser)
         {

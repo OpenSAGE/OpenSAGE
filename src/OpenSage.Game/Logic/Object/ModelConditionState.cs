@@ -29,6 +29,7 @@ namespace OpenSage.Logic.Object
         internal static readonly IniParseTable<ModelConditionState> FieldParseTable = new IniParseTable<ModelConditionState>
         {
             { "Model", (parser, x) => x.Model = parser.ParseFileName() },
+            { "Skeleton", (parser, x) => x.Skeleton = parser.ParseFileName() },
 
             { "WeaponRecoilBone", (parser, x) => x.WeaponRecoilBones.Add(BoneAttachPoint.Parse(parser)) },
             { "WeaponFireFXBone", (parser, x) => x.WeaponFireFXBones.Add(BoneAttachPoint.Parse(parser)) },
@@ -59,6 +60,9 @@ namespace OpenSage.Logic.Object
         public BitArray<ModelConditionFlag> ConditionFlags { get; private set; }
 
         public string Model { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string Skeleton { get; private set; }
 
         // Weapon bone settings
         public List<BoneAttachPoint> WeaponRecoilBones { get; private set; } = new List<BoneAttachPoint>();
