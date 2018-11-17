@@ -267,4 +267,29 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             throw new NotImplementedException();
         }
     }
+
+    /// <summary>
+    /// Call a function that is defined in the current scope
+    /// </summary>
+    public sealed class CallNamedMethod : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.EA_CallNamedMethod;
+        public override uint Size => 1;
+
+        public override void Execute(ActionContext context)
+        {
+            var id = Parameters[0].ToInteger();
+            var funcName = context.Scope.Constants[id].ToString();
+            var obj = context.Stack.Pop().ToObject();
+            var argCount = context.Stack.Pop().ToInteger();
+
+            var args = new Value[argCount];
+            for (int i = 0; i < argCount; ++i)
+            {
+                args[i] = context.Stack.Pop();
+            }
+
+            FunctionCommon.ExecuteFunction(funcName, args, obj, context);
+        }
+    }
 }
