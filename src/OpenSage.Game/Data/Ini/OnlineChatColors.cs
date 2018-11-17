@@ -38,6 +38,8 @@ namespace OpenSage.Data.Ini
             { "MapUnselected", (parser, x) => x.MapUnselected = IniColorRgb.Parse(parser) },
             { "MOTD", (parser, x) => x.Motd = IniColorRgb.Parse(parser) },
             { "MOTDHeading", (parser, x) => x.MotdHeading = IniColorRgb.Parse(parser) },
+            { "OfflinePlayerBuddy", (parser, x) => x.OfflinePlayerBuddy = IniColorRgb.Parse(parser) },
+            { "OfflinePlayerIgnored", (parser, x) => x.OfflinePlayerIgnored = IniColorRgb.Parse(parser) },
         };
 
         public IniColorRgb Default { get; private set; }
@@ -67,5 +69,9 @@ namespace OpenSage.Data.Ini
         public IniColorRgb MapUnselected { get; private set; }
         public IniColorRgb Motd { get; private set; }
         public IniColorRgb MotdHeading { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public IniColorRgb OfflinePlayerBuddy { get; private set; }
+         [AddedIn(SageGame.Bfme)]
+        public IniColorRgb OfflinePlayerIgnored { get; private set; }
     }
 }

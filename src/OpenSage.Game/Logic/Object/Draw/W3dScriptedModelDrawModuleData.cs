@@ -11,9 +11,7 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<W3dScriptedModelDrawModuleData> FieldParseTable = W3dModelDrawModuleData.FieldParseTable
             .Concat(new IniParseTable<W3dScriptedModelDrawModuleData>
             {
-                
+                { "IdleAnimationState", IdleAnimationState.Parse },
             });
-
-        
     }
 }

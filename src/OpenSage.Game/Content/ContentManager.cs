@@ -97,9 +97,9 @@ namespace OpenSage.Content
                     IniDataContext.LoadIniFile(@"Data\INI\PlayerTemplate.ini");
                     IniDataContext.LoadIniFile(@"Maps\MapCache.ini");
                     IniDataContext.LoadIniFile(@"Data\INI\ParticleSystem.ini");
-                    IniDataContext.LoadIniFiles(@"Data\INI\Default\Object.ini");
+                    IniDataContext.LoadIniFile(@"Data\INI\Default\Object.ini");
                     IniDataContext.LoadIniFiles(@"Data\INI\Object");
-                    IniDataContext.LoadIniFiles(@"Data\INI\Multiplayer.ini");
+                    IniDataContext.LoadIniFile(@"Data\INI\Multiplayer.ini");
                     break;
                 case SageGame.Cnc3:
                 case SageGame.Cnc3KanesWrath:
