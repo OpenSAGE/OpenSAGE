@@ -117,4 +117,17 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             throw new NotImplementedException();
         }
     }
+
+    /// <summary>
+    /// Pop a value from stack, increments it and pushes it back
+    /// </summary>
+    public sealed class Decrement : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.Decrement;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

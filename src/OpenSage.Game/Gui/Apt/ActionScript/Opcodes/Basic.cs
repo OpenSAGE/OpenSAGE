@@ -173,4 +173,17 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             throw new NotImplementedException();
         }
     }
+
+    /// <summary>
+    /// Pops an object from stack and enumerates it's slots
+    /// </summary>
+    public sealed class Var : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.Var;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
