@@ -36,8 +36,10 @@ namespace OpenSage.Utilities.Extensions
             var staging = graphicsDevice.ResourceFactory.CreateBuffer(
                 new BufferDescription(bufferSize, BufferUsage.Staging, 0));
 
+            var rawBuffer = usage == BufferUsage.StructuredBufferReadOnly;
+
             var result = graphicsDevice.ResourceFactory.CreateBuffer(
-                new BufferDescription(bufferSize, usage, structureByteStride));
+                new BufferDescription(bufferSize, usage, structureByteStride, rawBuffer));
 
             var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
             commandList.Begin();

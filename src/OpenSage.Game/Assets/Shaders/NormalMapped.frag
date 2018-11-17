@@ -5,19 +5,19 @@
 #include "Lighting.h"
 #include "Cloud.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsSharedUniform
+layout(set = 0, binding = 0) uniform GlobalConstantsShared
 {
-    GlobalConstantsSharedType GlobalConstantsShared;
+    GlobalConstantsSharedType _GlobalConstantsShared;
 };
 
-layout(set = 0, binding = 6) uniform GlobalLightingConstantsPSBlock
+layout(set = 0, binding = 6) uniform GlobalLightingConstantsPS
 {
-    GlobalLightingConstantsPSType GlobalLightingConstantsPS;
+    GlobalLightingConstantsPSType _GlobalLightingConstantsPS;
 };
 
 layout(set = 0, binding = 7) uniform texture2D Global_CloudTexture;
 
-struct MaterialConstantsType
+layout(set = 0, binding = 8) uniform MaterialConstants
 {
     float BumpScale;
     float SpecularExponent;
@@ -28,12 +28,7 @@ struct MaterialConstantsType
     vec4 AmbientColor;
     vec4 DiffuseColor;
     vec4 SpecularColor;
-};
-
-layout(set = 0, binding = 8) uniform MaterialConstantsBlock
-{
-    MaterialConstantsType MaterialConstants;
-};
+} _MaterialConstants;
 
 layout(set = 0, binding = 9) uniform texture2D DiffuseTexture;
 layout(set = 0, binding = 10) uniform texture2D NormalMap;
@@ -60,7 +55,7 @@ void main()
         0, 0, 0, 1);
 
     vec3 tangentSpaceNormal = (texture(sampler2D(NormalMap, Sampler), uv).xyz * 2) - vec3(1, 1, 1);
-    tangentSpaceNormal = vec3(tangentSpaceNormal.xy * MaterialConstants.BumpScale, tangentSpaceNormal.z);
+    tangentSpaceNormal = vec3(tangentSpaceNormal.xy * _MaterialConstants.BumpScale, tangentSpaceNormal.z);
     tangentSpaceNormal = normalize(tangentSpaceNormal);
 
     vec3 worldSpaceNormal = TransformNormal(tangentSpaceNormal, tangentToWorldSpace);
@@ -69,21 +64,21 @@ void main()
     vec3 specularColor;
 
     DoLighting(
-        GlobalLightingConstantsPS,
+        _GlobalLightingConstantsPS,
         in_WorldPosition,
         worldSpaceNormal,
-        MaterialConstants.AmbientColor.xyz,
-        MaterialConstants.DiffuseColor.xyz,
-        MaterialConstants.SpecularColor.xyz,
-        MaterialConstants.SpecularExponent,
-        GlobalConstantsShared.CameraPosition,
+        _MaterialConstants.AmbientColor.xyz,
+        _MaterialConstants.DiffuseColor.xyz,
+        _MaterialConstants.SpecularColor.xyz,
+        _MaterialConstants.SpecularExponent,
+        _GlobalConstantsShared.CameraPosition,
         false, // TODO: true
         diffuseColor,
         specularColor);
 
     vec4 diffuseTextureColor = texture(sampler2D(DiffuseTexture, Sampler), uv);
 
-    if (MaterialConstants.AlphaTestEnable)
+    if (_MaterialConstants.AlphaTestEnable)
     {
         if (FailsAlphaTest(diffuseTextureColor.w))
         {
@@ -100,5 +95,5 @@ void main()
 
     out_Color = vec4(
         objectColor,
-        MaterialConstants.DiffuseColor.w * diffuseTextureColor.w);
+        _MaterialConstants.DiffuseColor.w * diffuseTextureColor.w);
 }

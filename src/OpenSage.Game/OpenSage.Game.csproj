@@ -29,22 +29,21 @@
     
     <ShaderHeaderFiles Include="Assets\Shaders\*.h" />
     <UpToDateCheckInput Include="@(ShaderHeaderFiles)" />
-
-    <EmbeddedResource Include="Assets\Shaders\*.json" />
   </ItemGroup>
 
   <Target Name="CompileShaders" 
           BeforeTargets="BeforeBuild"
           Inputs="@(ShaderFiles);@(ShaderHeaderFiles)"
-          Outputs="@(ShaderFiles->'$(IntermediateOutputPath)Assets\Shaders\%(FileName)%(Extension).spv')">
+          Outputs="@(ShaderFiles->'$(IntermediateOutputPath)Assets\Shaders\%(FileName)%(Extension).spv');@(ShaderFiles->'$(IntermediateOutputPath)Assets\Shaders\%(FileName)%(Extension).json')">
     <MakeDir Directories="$(IntermediateOutputPath)Assets\Shaders" />
-    <Exec Command="$(MSBuildThisFileDirectory)..\..\lib\glslangValidator.exe -I'.' -V %(ShaderFiles.Identity) -o $(IntermediateOutputPath)Assets\Shaders\%(ShaderFiles.FileName)%(ShaderFiles.Extension).spv" />
+    <Exec Command="$(MSBuildThisFileDirectory)..\..\lib\win-x64\glslangValidator.exe -I'.' -V %(ShaderFiles.Identity) -o $(IntermediateOutputPath)Assets\Shaders\%(ShaderFiles.FileName)%(ShaderFiles.Extension).spv" />
+    <Exec Command="$(MSBuildThisFileDirectory)..\..\lib\win-x64\SPIRV-Cross.exe --output $(IntermediateOutputPath)Assets\Shaders\%(ShaderFiles.FileName)%(ShaderFiles.Extension).json $(IntermediateOutputPath)%(ShaderFiles.Identity).spv --reflect" />
   </Target>
 
   <Target Name="EmbedShaders" AfterTargets="CompileShaders">
     <ItemGroup>
-      <SpvFiles Include="$(IntermediateOutputPath)Assets\Shaders\%(ShaderFiles.FileName)%(ShaderFiles.Extension).spv" />
-      <EmbeddedResource Include="@(SpvFiles)">
+      <CompiledShaderFiles Include="$(IntermediateOutputPath)Assets\Shaders\*.*" />
+      <EmbeddedResource Include="@(CompiledShaderFiles)">
         <LogicalName>OpenSage.Assets.Shaders.%(FileName)%(Extension)</LogicalName>
       </EmbeddedResource>
     </ItemGroup>

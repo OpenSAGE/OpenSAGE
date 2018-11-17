@@ -656,8 +656,7 @@ namespace OpenSage.Content
 
             return cliffDetails.Length > 0
                 ? graphicsDevice.CreateStaticStructuredBuffer(cliffDetails)
-                // TODO: see if we can avoid this. We need it to avoid the D3D pixel shader stage complaining about a non-raw resource
-                : graphicsDevice.CreateStaticStructuredBuffer(new CliffInfo[] { new CliffInfo() });
+                : null;
         }
 
         private void CreateTextures(

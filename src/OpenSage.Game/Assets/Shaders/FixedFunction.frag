@@ -5,19 +5,19 @@
 #include "Lighting.h"
 #include "Cloud.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsSharedUniform
+layout(set = 0, binding = 0) uniform GlobalConstantsShared
 {
-    GlobalConstantsSharedType GlobalConstantsShared;
+    GlobalConstantsSharedType _GlobalConstantsShared;
 };
 
-layout(set = 0, binding = 6) uniform GlobalConstantsPSUniform
+layout(set = 0, binding = 6) uniform GlobalConstantsPS
 {
-    GlobalConstantsPSType GlobalConstantsPS;
+    GlobalConstantsPSType _GlobalConstantsPS;
 };
 
-layout(set = 0, binding = 7) uniform GlobalLightingConstantsPSBlock
+layout(set = 0, binding = 7) uniform GlobalLightingConstantsPS
 {
-    GlobalLightingConstantsPSType GlobalLightingConstantsPS;
+    GlobalLightingConstantsPSType _GlobalLightingConstantsPS;
 };
 
 layout(set = 0, binding = 8) uniform texture2D Global_CloudTexture;
@@ -88,7 +88,7 @@ struct ShadingConfiguration
     vec2 _Padding;
 };
 
-struct MaterialConstantsType
+layout(set = 0, binding = 9) uniform MaterialConstants
 {
     vec3 _Padding;
 
@@ -96,12 +96,7 @@ struct MaterialConstantsType
 
     VertexMaterial Material;
     ShadingConfiguration Shading;
-};
-
-layout(set = 0, binding = 9) uniform MaterialConstantsBlock
-{
-    MaterialConstantsType MaterialConstants;
-};
+} _MaterialConstants;
 
 layout(set = 0, binding = 10) uniform texture2D Texture0;
 layout(set = 0, binding = 11) uniform texture2D Texture1;
@@ -125,7 +120,7 @@ vec4 SampleTexture(
 {
     const float twoPi = 2 * 3.1415926535f;
 
-    float t = GlobalConstantsShared.TimeInSeconds;
+    float t = _GlobalConstantsShared.TimeInSeconds;
 
     switch (textureMapping.MappingType)
     {
@@ -177,7 +172,7 @@ vec4 SampleTexture(
 
         case TEXTURE_MAPPING_SCREEN:
         {
-            uv = (screenPosition / GlobalConstantsPS.ViewportSize) * textureMapping.UVScale;
+            uv = (screenPosition / _GlobalConstantsPS.ViewportSize) * textureMapping.UVScale;
             break;
         }
 
@@ -210,38 +205,38 @@ void main()
     vec3 specularColor;
 
     DoLighting(
-        GlobalLightingConstantsPS,
+        _GlobalLightingConstantsPS,
         in_WorldPosition,
         in_WorldNormal,
-        MaterialConstants.Material.Ambient,
-        MaterialConstants.Material.Diffuse,
-        MaterialConstants.Material.Specular,
-        MaterialConstants.Material.Shininess,
-        GlobalConstantsShared.CameraPosition,
+        _MaterialConstants.Material.Ambient,
+        _MaterialConstants.Material.Diffuse,
+        _MaterialConstants.Material.Specular,
+        _MaterialConstants.Material.Shininess,
+        _GlobalConstantsShared.CameraPosition,
         true,
         diffuseColor,
         specularColor);
 
     vec4 diffuseTextureColor;
-    if (MaterialConstants.Shading.TexturingEnabled)
+    if (_MaterialConstants.Shading.TexturingEnabled)
     {
-        vec3 v = CalculateViewVector(GlobalConstantsShared.CameraPosition, in_WorldPosition);
+        vec3 v = CalculateViewVector(_GlobalConstantsShared.CameraPosition, in_WorldPosition);
 
         diffuseTextureColor = SampleTexture(
             in_WorldNormal, in_UV0, gl_FragCoord.xy,
-            MaterialConstants.Material.TextureMappingStage0,
+            _MaterialConstants.Material.TextureMappingStage0,
             Texture0,
             v);
 
-        if (MaterialConstants.NumTextureStages > 1u)
+        if (_MaterialConstants.NumTextureStages > 1u)
         {
             vec4 secondaryTextureColor = SampleTexture(
                 in_WorldNormal, in_UV1, gl_FragCoord.xy,
-                MaterialConstants.Material.TextureMappingStage1,
+                _MaterialConstants.Material.TextureMappingStage1,
                 Texture1,
                 v);
 
-            switch (MaterialConstants.Shading.SecondaryTextureColorBlend)
+            switch (_MaterialConstants.Shading.SecondaryTextureColorBlend)
             {
                 case SECONDARY_TEXTURE_BLEND_DETAIL:
                     diffuseTextureColor = vec4(
@@ -269,7 +264,7 @@ void main()
                     break;
             }
 
-            switch (MaterialConstants.Shading.SecondaryTextureAlphaBlend)
+            switch (_MaterialConstants.Shading.SecondaryTextureAlphaBlend)
             {
                 case SECONDARY_TEXTURE_BLEND_DETAIL:
                     diffuseTextureColor.w = secondaryTextureColor.w;
@@ -285,7 +280,7 @@ void main()
             }
         }
 
-        if (MaterialConstants.Shading.AlphaTest)
+        if (_MaterialConstants.Shading.AlphaTest)
         {
             if (FailsAlphaTest(diffuseTextureColor.w))
             {
@@ -298,11 +293,11 @@ void main()
         diffuseTextureColor = vec4(1, 1, 1, 1);
     }
     
-    vec3 totalObjectLighting = saturate(diffuseColor + MaterialConstants.Material.Emissive);
+    vec3 totalObjectLighting = saturate(diffuseColor + _MaterialConstants.Material.Emissive);
 
     vec3 objectColor = diffuseTextureColor.xyz;
 
-    switch (MaterialConstants.Shading.DiffuseLightingType)
+    switch (_MaterialConstants.Shading.DiffuseLightingType)
     {
         case DIFFUSE_LIGHTING_MODULATE:
             objectColor *= totalObjectLighting;
@@ -313,7 +308,7 @@ void main()
             break;
     }
 
-    if (MaterialConstants.Shading.SpecularEnabled)
+    if (_MaterialConstants.Shading.SpecularEnabled)
     {
         objectColor += specularColor;
     }
@@ -325,5 +320,5 @@ void main()
 
     out_Color = vec4(
         objectColor * cloudColor,
-        MaterialConstants.Material.Opacity * diffuseTextureColor.w);
+        _MaterialConstants.Material.Opacity * diffuseTextureColor.w);
 }

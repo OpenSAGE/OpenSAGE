@@ -6,24 +6,24 @@
 #include "Cloud.h"
 #include "Mesh.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsSharedUniform
+layout(set = 0, binding = 0) uniform GlobalConstantsShared
 {
-    GlobalConstantsSharedType GlobalConstantsShared;
+    GlobalConstantsSharedType _GlobalConstantsShared;
 };
 
-layout(set = 0, binding = 1) uniform GlobalConstantsVSUniform
+layout(set = 0, binding = 1) uniform GlobalConstantsVS
 {
-    GlobalConstantsVSType GlobalConstantsVS;
+    GlobalConstantsVSType _GlobalConstantsVS;
 };
 
-layout(set = 0, binding = 2) uniform GlobalLightingConstantsVSUniform
+layout(set = 0, binding = 2) uniform GlobalLightingConstants
 {
-    GlobalLightingConstantsVSType GlobalLightingConstantsVS;
+    GlobalLightingConstantsVSType _GlobalLightingConstantsVS;
 };
 
-layout(set = 0, binding = 3) uniform RenderItemConstantsVSUniform
+layout(set = 0, binding = 3) uniform RenderItemConstantsVS
 {
-    RenderItemConstantsVSType RenderItemConstantsVS;
+    RenderItemConstantsVSType _RenderItemConstantsVS;
 };
 
 layout(location = 0) in vec3 in_Position;
@@ -37,16 +37,16 @@ layout(location = 3) out vec2 out_CloudUV;
 
 void main()
 {
-    out_WorldPosition = (RenderItemConstantsVS.World * vec4(in_Position, 1)).xyz;
+    out_WorldPosition = (_RenderItemConstantsVS.World * vec4(in_Position, 1)).xyz;
 
-    gl_Position = GlobalConstantsVS.ViewProjection * vec4(out_WorldPosition, 1);
+    gl_Position = _GlobalConstantsVS.ViewProjection * vec4(out_WorldPosition, 1);
 
-    out_WorldNormal = TransformNormal(in_Normal, RenderItemConstantsVS.World);
+    out_WorldNormal = TransformNormal(in_Normal, _RenderItemConstantsVS.World);
 
     out_UV = in_UV;
 
     out_CloudUV = GetCloudUV(
         out_WorldPosition,
-        GlobalLightingConstantsVS.CloudShadowMatrix,
-        GlobalConstantsShared.TimeInSeconds);
+        _GlobalLightingConstantsVS.CloudShadowMatrix,
+        _GlobalConstantsShared.TimeInSeconds);
 }

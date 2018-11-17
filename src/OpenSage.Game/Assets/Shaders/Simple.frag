@@ -4,23 +4,18 @@
 #include "Common.h"
 #include "Cloud.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsSharedUniform
+layout(set = 0, binding = 0) uniform GlobalConstantsShared
 {
-    GlobalConstantsSharedType GlobalConstantsShared;
+    GlobalConstantsSharedType _GlobalConstantsShared;
 };
 
 layout(set = 0, binding = 6) uniform texture2D Global_CloudTexture;
 
-struct MaterialConstantsType
+layout(set = 0, binding = 7) uniform MaterialConstants
 {
     vec4 ColorEmissive;
     vec4 TexCoordTransform_0;
-};
-
-layout(set = 0, binding = 7) uniform MaterialConstantsBlock
-{
-    MaterialConstantsType MaterialConstants;
-};
+} _MaterialConstants;
 
 layout(set = 0, binding = 8) uniform texture2D Texture_0;
 layout(set = 0, binding = 9) uniform sampler Sampler;
@@ -35,10 +30,10 @@ layout(location = 0) out vec4 out_Color;
 void main()
 {
     vec2 uv =
-        (in_UV0 * MaterialConstants.TexCoordTransform_0.xy) +
-        (GlobalConstantsShared.TimeInSeconds * MaterialConstants.TexCoordTransform_0.zw);
+        (in_UV0 * _MaterialConstants.TexCoordTransform_0.xy) +
+        (_GlobalConstantsShared.TimeInSeconds * _MaterialConstants.TexCoordTransform_0.zw);
 
-    vec4 color = vec4(MaterialConstants.ColorEmissive.xyz, 1);
+    vec4 color = vec4(_MaterialConstants.ColorEmissive.xyz, 1);
 
     color *= texture(sampler2D(Texture_0, Sampler), uv);
 

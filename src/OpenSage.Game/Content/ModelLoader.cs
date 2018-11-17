@@ -344,18 +344,18 @@ namespace OpenSage.Content
                     RenderPipeline.GameOutputDescription)
             };
 
-            var materialConstantsResourceBinding = effect.GetParameter("MaterialConstants").ResourceBinding;
+            var materialConstantsType = effect.GetParameter("MaterialConstants").ResourceBinding.Type;
             var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateBuffer(
                 new BufferDescription(
-                    materialConstantsResourceBinding.Size,
+                    materialConstantsType.Size,
                     BufferUsage.UniformBuffer | BufferUsage.Dynamic)));
 
-            var materialConstantsBytes = new byte[materialConstantsResourceBinding.Size];
+            var materialConstantsBytes = new byte[materialConstantsType.Size];
 
             void setMaterialConstant<T>(string name, T value)
                 where T : struct
             {
-                var constantBufferField = materialConstantsResourceBinding.GetField(name);
+                var constantBufferField = materialConstantsType.GetMember(name);
 
                 var valueBytes = StructInteropUtility.ToBytes(ref value);
 
@@ -368,8 +368,8 @@ namespace OpenSage.Content
                     valueBytes,
                     0,
                     materialConstantsBytes,
-                    constantBufferField.Offset,
-                    constantBufferField.Size);
+                    (int) constantBufferField.Offset,
+                    (int) constantBufferField.Size);
             }
 
             foreach (var w3dShaderProperty in w3dShaderMaterial.Properties)

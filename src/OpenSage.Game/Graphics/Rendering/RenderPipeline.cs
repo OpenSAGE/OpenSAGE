@@ -233,13 +233,13 @@ namespace OpenSage.Graphics.Rendering
             switch (material.LightingType)
             {
                 case LightingType.Terrain:
-                    setDefaultConstantBuffer("Global_LightingConstantsVS", _globalLightingVSTerrainBuffer.Buffer);
-                    setDefaultConstantBuffer("Global_LightingConstantsPS", _globalLightingPSTerrainBuffer.Buffer);
+                    setDefaultConstantBuffer("GlobalLightingConstantsVS", _globalLightingVSTerrainBuffer.Buffer);
+                    setDefaultConstantBuffer("GlobalLightingConstantsPS", _globalLightingPSTerrainBuffer.Buffer);
                     break;
 
                 case LightingType.Object:
-                    setDefaultConstantBuffer("Global_LightingConstantsVS", _globalLightingVSObjectBuffer.Buffer);
-                    setDefaultConstantBuffer("Global_LightingConstantsPS", _globalLightingPSObjectBuffer.Buffer);
+                    setDefaultConstantBuffer("GlobalLightingConstantsVS", _globalLightingVSObjectBuffer.Buffer);
+                    setDefaultConstantBuffer("GlobalLightingConstantsPS", _globalLightingPSObjectBuffer.Buffer);
                     break;
             }
         }

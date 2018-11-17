@@ -5,19 +5,19 @@
 #include "Lighting.h"
 #include "Cloud.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsSharedUniform
+layout(set = 0, binding = 0) uniform GlobalConstantsShared
 {
-    GlobalConstantsSharedType GlobalConstantsShared;
+    GlobalConstantsSharedType _GlobalConstantsShared;
 };
 
-layout(set = 0, binding = 1) uniform GlobalConstantsVSUniform
+layout(set = 0, binding = 1) uniform GlobalConstantsVS
 {
-    GlobalConstantsVSType GlobalConstantsVS;
+    GlobalConstantsVSType _GlobalConstantsVS;
 };
 
-layout(set = 0, binding = 2) uniform GlobalLightingConstantsVSUniform
+layout(set = 0, binding = 2) uniform GlobalLightingConstantsVS
 {
-    GlobalLightingConstantsVSType GlobalLightingConstantsVS;
+    GlobalLightingConstantsVSType _GlobalLightingConstantsVS;
 };
 
 layout(location = 0) in vec3 in_Position;
@@ -33,7 +33,7 @@ void main()
 {
     vec3 worldPosition = in_Position;
 
-    gl_Position = GlobalConstantsVS.ViewProjection * vec4(worldPosition, 1);
+    gl_Position = _GlobalConstantsVS.ViewProjection * vec4(worldPosition, 1);
     out_WorldPosition = worldPosition;
 
     out_WorldNormal = in_Normal;
@@ -42,6 +42,6 @@ void main()
 
     out_CloudUV = GetCloudUV(
         out_WorldPosition,
-        GlobalLightingConstantsVS.CloudShadowMatrix,
-        GlobalConstantsShared.TimeInSeconds);
+        _GlobalLightingConstantsVS.CloudShadowMatrix,
+        _GlobalConstantsShared.TimeInSeconds);
 }

@@ -5,14 +5,14 @@
 #include "Lighting.h"
 #include "Cloud.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsSharedUniform
+layout(set = 0, binding = 0) uniform GlobalConstantsShared
 {
-    GlobalConstantsSharedType GlobalConstantsShared;
+    GlobalConstantsSharedType _GlobalConstantsShared;
 };
 
-layout(set = 0, binding = 3) uniform GlobalLightingConstantsPSBlock
+layout(set = 0, binding = 3) uniform GlobalLightingConstantsPS
 {
-    GlobalLightingConstantsPSType GlobalLightingConstantsPS;
+    GlobalLightingConstantsPSType _GlobalLightingConstantsPS;
 };
 
 layout(set = 0, binding = 4) uniform texture2D Global_CloudTexture;
@@ -33,14 +33,14 @@ void main()
     vec3 specularColor;
 
     DoLighting(
-        GlobalLightingConstantsPS,
+        _GlobalLightingConstantsPS,
         in_WorldPosition,
         in_WorldNormal,
         vec3(1, 1, 1),
         vec3(1, 1, 1),
         vec3(0, 0, 0),
         0,
-        GlobalConstantsShared.CameraPosition,
+        _GlobalConstantsShared.CameraPosition,
         false,
         diffuseColor,
         specularColor);

@@ -89,7 +89,7 @@ namespace OpenSage.Graphics.Effects
                 var resourceBinding = shaderDefinition.ResourceBindings[(int) i];
                 var resourceLayoutDescription = new ResourceLayoutElementDescription(
                     resourceBinding.Name,
-                    resourceBinding.Type,
+                    resourceBinding.Kind,
                     resourceBinding.Stages);
 
                 var parameter = AddDisposable(new EffectParameter(

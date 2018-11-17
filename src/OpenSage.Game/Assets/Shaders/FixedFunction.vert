@@ -6,34 +6,34 @@
 #include "Cloud.h"
 #include "Mesh.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsSharedUniform
+layout(set = 0, binding = 0) uniform GlobalConstantsShared
 {
-    GlobalConstantsSharedType GlobalConstantsShared;
+    GlobalConstantsSharedType _GlobalConstantsShared;
 };
 
-layout(set = 0, binding = 1) uniform GlobalConstantsVSUniform
+layout(set = 0, binding = 1) uniform GlobalConstantsVS
 {
-    GlobalConstantsVSType GlobalConstantsVS;
+    GlobalConstantsVSType _GlobalConstantsVS;
 };
 
-layout(set = 0, binding = 2) uniform GlobalLightingConstantsVSUniform
+layout(set = 0, binding = 2) uniform GlobalLightingConstantsVS
 {
-    GlobalLightingConstantsVSType GlobalLightingConstantsVS;
+    GlobalLightingConstantsVSType _GlobalLightingConstantsVS;
 };
 
-layout(set = 0, binding = 3) uniform MeshConstantsUniform
+layout(set = 0, binding = 3) uniform MeshConstants
 {
-    MeshConstantsType MeshConstants;
+    MeshConstantsType _MeshConstants;
 };
 
-layout(set = 0, binding = 4) uniform RenderItemConstantsVSUniform
+layout(set = 0, binding = 4) uniform RenderItemConstantsVS
 {
-    RenderItemConstantsVSType RenderItemConstantsVS;
+    RenderItemConstantsVSType _RenderItemConstantsVS;
 };
 
-layout(set = 0, binding = 5) readonly buffer SkinningBufferBlock
+layout(set = 0, binding = 5) readonly buffer SkinningBuffer
 {
-    mat4 SkinningBuffer[];
+    mat4 _SkinningBuffer[];
 };
 
 MESH_VERTEX_INPUTS
@@ -49,12 +49,12 @@ void main()
     vec3 modifiedPosition = in_Position;
     vec3 modifiedNormal = in_Normal;
 
-    if (MeshConstants.SkinningEnabled)
+    if (_MeshConstants.SkinningEnabled)
     {
         GetSkinnedVertexData(
             in_Position, 
             in_Normal,
-            SkinningBuffer[in_BoneIndex],
+            _SkinningBuffer[in_BoneIndex],
             modifiedPosition,
             modifiedNormal);
     }
@@ -66,10 +66,10 @@ void main()
         out_WorldPosition,
         out_WorldNormal,
         out_CloudUV,
-        RenderItemConstantsVS.World,
-        GlobalConstantsVS.ViewProjection,
-        GlobalLightingConstantsVS.CloudShadowMatrix,
-        GlobalConstantsShared.TimeInSeconds);
+        _RenderItemConstantsVS.World,
+        _GlobalConstantsVS.ViewProjection,
+        _GlobalLightingConstantsVS.CloudShadowMatrix,
+        _GlobalConstantsShared.TimeInSeconds);
 
     out_UV0 = in_UV0;
     out_UV1 = in_UV1;

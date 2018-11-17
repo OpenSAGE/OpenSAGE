@@ -3,19 +3,19 @@
 
 #include "Common.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsSharedUniform
+layout(set = 0, binding = 0) uniform GlobalConstantsShared
 {
-    GlobalConstantsSharedType GlobalConstantsShared;
+    GlobalConstantsSharedType _GlobalConstantsShared;
 };
 
-layout(set = 0, binding = 1) uniform GlobalConstantsVSUniform
+layout(set = 0, binding = 1) uniform GlobalConstantsVS
 {
-    GlobalConstantsVSType GlobalConstantsVS;
+    GlobalConstantsVSType _GlobalConstantsVS;
 };
 
 layout(set = 0, binding = 2) uniform RenderItemConstants
 {
-    mat4 World;
+    mat4 _World;
 };
 
 layout(location = 0) in vec3 in_Position;
@@ -30,16 +30,16 @@ layout(location = 2) out float out_Alpha;
 
 vec4 ComputePosition(vec3 particlePosition, float size, float angle, vec2 quadPosition)
 {
-    vec3 particlePosWS = (World * vec4(particlePosition, 1)).xyz;
+    vec3 particlePosWS = (_World * vec4(particlePosition, 1)).xyz;
 
-    vec3 toEye = normalize(GlobalConstantsShared.CameraPosition - particlePosWS);
+    vec3 toEye = normalize(_GlobalConstantsShared.CameraPosition - particlePosWS);
     vec3 up = vec3(cos(angle), 0, sin(angle));
     vec3 right = cross(toEye, up);
     up = cross(toEye, right);
 
     particlePosWS += (right * size * quadPosition.x) + (up * size * quadPosition.y);
 
-    return GlobalConstantsVS.ViewProjection * vec4(particlePosWS, 1);
+    return _GlobalConstantsVS.ViewProjection * vec4(particlePosWS, 1);
 }
 
 void main()

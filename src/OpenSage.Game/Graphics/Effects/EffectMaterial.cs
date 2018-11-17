@@ -52,10 +52,10 @@ namespace OpenSage.Graphics.Effects
             var property = EnsureProperty(name);
             if (resource == null)
             {
-                switch (property.Parameter.ResourceBinding.Type)
+                switch (property.Parameter.ResourceBinding.Kind)
                 {
                     case ResourceKind.StructuredBufferReadOnly:
-                        resource = _contentManager.GetNullStructuredBuffer(property.Parameter.ResourceBinding.Size);
+                        resource = _contentManager.GetNullStructuredBuffer(property.Parameter.ResourceBinding.Type.Size);
                         break;
 
                     default:

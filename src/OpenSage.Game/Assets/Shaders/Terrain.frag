@@ -6,29 +6,24 @@
 #include "Cloud.h"
 #include "Lighting.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsSharedUniform
+layout(set = 0, binding = 0) uniform GlobalConstantsShared
 {
-    GlobalConstantsSharedType GlobalConstantsShared;
+    GlobalConstantsSharedType _GlobalConstantsShared;
 };
 
-layout(set = 0, binding = 4) uniform GlobalLightingConstantsPSBlock
+layout(set = 0, binding = 4) uniform GlobalLightingConstantsPS
 {
-    GlobalLightingConstantsPSType GlobalLightingConstantsPS;
+    GlobalLightingConstantsPSType _GlobalLightingConstantsPS;
 };
 
 layout(set = 0, binding = 5) uniform texture2D Global_CloudTexture;
 
-struct TerrainMaterialConstantsType
+layout(set = 0, binding = 6) uniform TerrainMaterialConstants
 {
     vec2 MapBorderWidth;
     vec2 MapSize;
     bool IsMacroTextureStretched;
-};
-
-layout(set = 0, binding = 6) uniform TerrainMaterialConstantsBlock
-{
-    TerrainMaterialConstantsType TerrainMaterialConstants;
-};
+} _TerrainMaterialConstants;
 
 layout(set = 0, binding = 7) uniform utexture2D TileData;
 
@@ -40,9 +35,9 @@ struct CliffInfo
     vec2 TopLeftUV;
 };
 
-layout(std430, set = 0, binding = 8) readonly buffer CliffDetailsBlock
+layout(std430, set = 0, binding = 8) readonly buffer CliffDetails
 {
-    CliffInfo CliffDetails[];
+    CliffInfo _CliffDetails[];
 };
 
 struct TextureInfo
@@ -52,9 +47,9 @@ struct TextureInfo
     vec2 _Padding;
 };
 
-layout(std430, set = 0, binding = 9) readonly buffer TextureDetailsBlock
+layout(std430, set = 0, binding = 9) readonly buffer TextureDetails
 {
-    TextureInfo TextureDetails[];
+    TextureInfo _TextureDetails[];
 };
 
 layout(set = 0, binding = 10) uniform texture2DArray Textures;
@@ -75,10 +70,10 @@ vec3 SampleTexture(
     vec2 ddyUV)
 {
     // Can't do this because SPIRV-Cross doesn't support it yet:
-    // TextureInfo textureInfo = TextureDetails[textureIndex];
+    // TextureInfo textureInfo = _TextureDetails[textureIndex];
 
-    uint textureDetailsCellSize = TextureDetails[textureIndex].CellSize;
-    uint textureDetailsIndex = TextureDetails[textureIndex].TextureIndex;
+    uint textureDetailsCellSize = _TextureDetails[textureIndex].CellSize;
+    uint textureDetailsIndex = _TextureDetails[textureIndex].TextureIndex;
 
     vec2 scaledUV = uv / textureDetailsCellSize;
 
@@ -169,12 +164,12 @@ vec3 SampleBlendedTextures(vec2 uv)
     if (cliffTextureIndex != 0)
     {
         // Can't do this because SPIRV-Cross doesn't support it yet:
-        // CliffInfo cliffInfo = CliffDetails[cliffTextureIndex - 1];
+        // CliffInfo cliffInfo = _CliffDetails[cliffTextureIndex - 1];
 
-        vec2 cliffBottomLeftUV = CliffDetails[cliffTextureIndex - 1].BottomLeftUV;
-        vec2 cliffBottomRightUV = CliffDetails[cliffTextureIndex - 1].BottomRightUV;
-        vec2 cliffTopLeftUV = CliffDetails[cliffTextureIndex - 1].TopLeftUV;
-        vec2 cliffTopRightUV = CliffDetails[cliffTextureIndex - 1].TopRightUV;
+        vec2 cliffBottomLeftUV = _CliffDetails[cliffTextureIndex - 1].BottomLeftUV;
+        vec2 cliffBottomRightUV = _CliffDetails[cliffTextureIndex - 1].BottomRightUV;
+        vec2 cliffTopLeftUV = _CliffDetails[cliffTextureIndex - 1].TopLeftUV;
+        vec2 cliffTopRightUV = _CliffDetails[cliffTextureIndex - 1].TopRightUV;
 
         vec2 uvXBottom = mix(cliffBottomLeftUV, cliffBottomRightUV, fracUV.x);
         vec2 uvXTop = mix(cliffTopLeftUV, cliffTopRightUV, fracUV.x);
@@ -215,11 +210,11 @@ vec3 SampleBlendedTextures(vec2 uv)
 
 vec2 GetMacroTextureUV(vec3 worldPosition)
 {
-    if (TerrainMaterialConstants.IsMacroTextureStretched)
+    if (_TerrainMaterialConstants.IsMacroTextureStretched)
     {
         return 
-            (worldPosition.xy + TerrainMaterialConstants.MapBorderWidth) / 
-            vec2(TerrainMaterialConstants.MapSize.x, -TerrainMaterialConstants.MapSize.y);
+            (worldPosition.xy + _TerrainMaterialConstants.MapBorderWidth) / 
+            vec2(_TerrainMaterialConstants.MapSize.x, -_TerrainMaterialConstants.MapSize.y);
     }
     else
     {
@@ -234,14 +229,14 @@ void main()
     vec3 specularColor;
 
     DoLighting(
-        GlobalLightingConstantsPS,
+        _GlobalLightingConstantsPS,
         in_WorldPosition,
         in_WorldNormal,
         vec3(1, 1, 1),
         vec3(1, 1, 1),
         vec3(0, 0, 0),
         0,
-        GlobalConstantsShared.CameraPosition,
+        _GlobalConstantsShared.CameraPosition,
         false,
         diffuseColor,
         specularColor);
