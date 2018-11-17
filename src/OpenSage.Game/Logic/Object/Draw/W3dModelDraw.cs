@@ -19,10 +19,10 @@ namespace OpenSage.Logic.Object
         private readonly ContentManager _contentManager;
         private readonly W3dModelDrawModuleData _data;
 
-        private readonly List<ModelConditionState> _conditionStates;
-        private readonly ModelConditionState _defaultConditionState;
+        private readonly List<ConditionState> _conditionStates;
+        private readonly ConditionState _defaultConditionState;
 
-        private ModelConditionState _activeConditionState;
+        private ConditionState _activeConditionState;
 
         private W3dModelDrawConditionState _activeModelDrawConditionState;
 
@@ -51,7 +51,7 @@ namespace OpenSage.Logic.Object
             _contentManager = contentManager;
             _data = data;
 
-            _conditionStates = new List<ModelConditionState>();
+            _conditionStates = new List<ConditionState>();
 
             if (data.DefaultConditionState != null)
             {
@@ -80,7 +80,7 @@ namespace OpenSage.Logic.Object
             SetActiveConditionState(_defaultConditionState);
         }
 
-        private void SetActiveConditionState(ModelConditionState conditionState)
+        private void SetActiveConditionState(ConditionState conditionState)
         {
             if (_activeConditionState == conditionState)
             {
@@ -98,7 +98,7 @@ namespace OpenSage.Logic.Object
 
         public override void UpdateConditionState(BitArray<ModelConditionFlag> flags)
         {
-            ModelConditionState bestConditionState = null;
+            ConditionState bestConditionState = null;
             var bestMatch = int.MinValue;
 
             // Find best matching ConditionState.
@@ -120,7 +120,7 @@ namespace OpenSage.Logic.Object
             SetActiveConditionState(bestConditionState);
         }
 
-        private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState)
+        private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ConditionState conditionState)
         {
             ModelInstance modelInstance = null;
             if (!string.Equals(conditionState.Model, "NONE", StringComparison.OrdinalIgnoreCase))
@@ -138,7 +138,7 @@ namespace OpenSage.Logic.Object
                 // TODO: Multiple animations. Shouldn't play all of them. I think
                 // we should randomly choose one of them?
                 // And there is also IdleAnimation.
-                var firstAnimation = conditionState.Animations
+                var firstAnimation = conditionState.ConditionAnimations
                     .Concat(conditionState.IdleAnimations)
                     .LastOrDefault();
                 if (firstAnimation != null)
@@ -267,17 +267,28 @@ namespace OpenSage.Logic.Object
 
         internal static readonly IniParseTable<W3dModelDrawModuleData> FieldParseTable = new IniParseTable<W3dModelDrawModuleData>
         {
-            { "DefaultConditionState", (parser, x) => parser.Temp = x.DefaultConditionState = ModelConditionState.ParseDefault(parser) },
-            { "DefaultModelConditionState", (parser, x) => parser.Temp = x.DefaultConditionState = ModelConditionState.ParseDefault(parser) },
+            { "DefaultConditionState", (parser, x) => parser.Temp = x.DefaultConditionState = ConditionState.ParseDefault(parser) },
+            { "DefaultModelConditionState", (parser, x) => parser.Temp = x.DefaultConditionState = ConditionState.ParseDefault(parser) },
+
             {
                 "ConditionState",
                 (parser, x) =>
                 {
-                    var conditionState = ModelConditionState.Parse(parser);
+                    var conditionState = ConditionState.Parse(parser);
                     x.ConditionStates.Add(conditionState);
                     parser.Temp = conditionState;
                 }
             },
+            {
+                "ModelConditionState",
+                (parser, x) =>
+                {
+                    var conditionState = ConditionState.Parse(parser);
+                    x.ConditionStates.Add(conditionState);
+                    parser.Temp = conditionState;
+                }
+            },
+
             { "IgnoreConditionStates", (parser, x) => x.IgnoreConditionStates = parser.ParseEnumBitArray<ModelConditionFlag>() },
             { "AliasConditionState", (parser, x) => x.ParseAliasConditionState(parser) },
             { "TransitionState", (parser, x) => x.TransitionStates.Add(TransitionState.Parse(parser)) },
@@ -293,13 +304,14 @@ namespace OpenSage.Logic.Object
             { "InitialRecoilSpeed", (parser, x) => x.InitialRecoilSpeed = parser.ParseFloat() },
             { "MaxRecoilDistance", (parser, x) => x.MaxRecoilDistance = parser.ParseFloat() },
             { "RecoilSettleSpeed", (parser, x) => x.RecoilSettleSpeed = parser.ParseFloat() },
+
             { "IdleAnimationState", (parser, x) => x.IdleAnimationState = AnimationState.Parse(parser) },
             { "AnimationState", (parser, x) => x.AnimationStates.Add(AnimationState.Parse(parser)) },
         };
 
         public BitArray<ModelConditionFlag> IgnoreConditionStates { get; private set; }
-        public ModelConditionState DefaultConditionState { get; private set; }
-        public List<ModelConditionState> ConditionStates { get; } = new List<ModelConditionState>();
+        public ConditionState DefaultConditionState { get; private set; }
+        public List<ConditionState> ConditionStates { get; } = new List<ConditionState>();
         public List<TransitionState> TransitionStates { get; } = new List<TransitionState>();
 
         public bool OkToChangeModelColor { get; private set; }
@@ -332,7 +344,7 @@ namespace OpenSage.Logic.Object
 
         private void ParseAliasConditionState(IniParser parser)
         {
-            var lastConditionState = parser.Temp as ModelConditionState;
+            var lastConditionState = parser.Temp as ConditionState;
             if (lastConditionState == null)
             {
                 throw new IniParseException("Cannot use AliasConditionState if there are no preceding ConditionStates", parser.CurrentPosition);

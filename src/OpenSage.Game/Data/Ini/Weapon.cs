@@ -290,7 +290,10 @@ namespace OpenSage.Data.Ini
         Extra4,
 
         [IniEnum("FADED"), AddedIn(SageGame.Bfme)]
-        Faded
+        Faded,
+
+        [IniEnum("KNOCKBACK"), AddedIn(SageGame.Bfme)]
+        Knockback
     }
 
     [Flags]

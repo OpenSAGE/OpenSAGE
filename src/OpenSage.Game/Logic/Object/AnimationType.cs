@@ -90,5 +90,7 @@ namespace OpenSage.Logic.Object
         CinematicNervousPutOnRing,
         [IniEnum("GTPA")]
         GtpA,
+        [IniEnum("STHA")]
+        SthA,
     }
 }

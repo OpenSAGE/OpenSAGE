@@ -9,6 +9,7 @@ namespace OpenSage.Data.Ini
     public sealed class IniDataContext
     {
         private readonly FileSystem _fileSystem;
+        private readonly SageGame _game;
 
         // TODO: Remove this once we can load all INI files upfront.
         private readonly List<string> _alreadyLoaded = new List<string>();
@@ -98,12 +99,12 @@ namespace OpenSage.Data.Ini
         public Weather Weather { get; internal set; }
         public List<WebpageUrl> WebpageUrls { get; } = new List<WebpageUrl>();
         public List<WindowTransition> WindowTransitions { get; } = new List<WindowTransition>();
-
         internal Dictionary<string, IniToken> Defines { get; } = new Dictionary<string, IniToken>();
 
-        public IniDataContext(FileSystem fileSystem)
+        public IniDataContext(FileSystem fileSystem, SageGame game = SageGame.CncGenerals)
         {
             _fileSystem = fileSystem;
+            _game = game;
         }
 
         public void LoadIniFiles(string folder)
@@ -134,7 +135,7 @@ namespace OpenSage.Data.Ini
                 source = reader.ReadToEnd();
             }
 
-            var parser = new IniParser(source, entry, this);
+            var parser = new IniParser(source, entry, this, _game);
             parser.ParseFile();
 
             _alreadyLoaded.Add(entry.FilePath);

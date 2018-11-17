@@ -9,7 +9,7 @@ namespace OpenSage.Logic.Object
     {
         internal static AnimationState Parse(IniParser parser)
         {
-            var stateTypeFlags = parser.ParseEnumFlags<AnimationStateTypeFlags>();
+            var stateTypeFlags = parser.ParseEnumBitArray<ModelConditionFlag>();
 
             var result = parser.ParseBlock(FieldParseTable);
 
@@ -28,7 +28,7 @@ namespace OpenSage.Logic.Object
             { "FrameForPristineBonePositions", (parser, x) => x.FrameForPristineBonePositions = parser.ParseInteger() },
         };
 
-        public AnimationStateTypeFlags TypeFlags { get; private set; }
+        public BitArray<ModelConditionFlag> TypeFlags { get; private set; }
 
         public List<Animation> Animations { get; private set; } = new List<Animation>();
         public List<ParticleSysBone> ParticleSysBones { get; private set; } = new List<ParticleSysBone>();
@@ -71,15 +71,5 @@ namespace OpenSage.Logic.Object
         public AnimationMode AnimationMode { get; private set; }
         public int AnimationPriority { get; private set; }
         public bool UseWeaponTiming { get; private set; }
-    }
-
-    
-
-    public enum AnimationMode
-    {
-        [IniEnum("LOOP")]
-        Loop,
-        [IniEnum("ONCE")]
-        Once
     }
 }

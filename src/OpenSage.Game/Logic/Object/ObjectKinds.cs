@@ -406,5 +406,8 @@
 
         [IniEnum("THROWN_OBJECT"), AddedIn(SageGame.Bfme)]
         ThrownObject,
+
+        [IniEnum("HOBBIT"), AddedIn(SageGame.Bfme)]
+        Hobbit,
     }
 }

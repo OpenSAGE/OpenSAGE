@@ -116,6 +116,7 @@ namespace OpenSage.Logic.Object
             { "AnimationSteeringUpdate", AnimationSteeringUpdateModuleData.Parse },
             { "AssistedTargetingUpdate", AssistedTargetingUpdateModuleData.Parse },
             { "AttributeModifierPoolUpdate", AttributeModifierPoolUpdateModuleData.Parse },
+            { "AttributeModifierAuraUpdate", AttributeModifierAuraUpdateModuleData.Parse },
             { "AutoDepositUpdate", AutoDepositUpdateModuleData.Parse },
             { "AutoFindHealingUpdate", AutoFindHealingUpdateModuleData.Parse },
             { "BaseRegenerateUpdate", BaseRegenerateUpdateModuleData.Parse },

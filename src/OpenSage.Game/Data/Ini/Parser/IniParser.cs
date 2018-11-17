@@ -130,10 +130,13 @@ namespace OpenSage.Data.Ini.Parser
 
         public IniTokenPosition CurrentPosition => _tokenReader.CurrentPosition;
 
-        public IniParser(string source, FileSystemEntry entry, IniDataContext dataContext)
+        public SageGame SageGame { get; private set; }
+
+        public IniParser(string source, FileSystemEntry entry, IniDataContext dataContext, SageGame game)
         {
             _directory = Path.GetDirectoryName(entry.FilePath);
             _dataContext = dataContext;
+            SageGame = game;
 
             _tokenReader = new TokenReader(source, Path.Combine(entry.FileSystem.RootDirectory, entry.FilePath));
 

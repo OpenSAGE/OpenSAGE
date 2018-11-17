@@ -239,6 +239,7 @@ namespace OpenSage.Logic.Object
 
             { "ThreatLevel", (parser, x) => x.ThreatLevel = parser.ParseFloat() },
             { "LocomotorSet", (parser, x) => x.LocomotorSet = LocomotorSet.Parse(parser) },
+            { "ThingClass", (parser, x) => x.ThingClass = parser.ParseString() },
         };
 
         public string Name { get; protected set; }
@@ -685,6 +686,9 @@ namespace OpenSage.Logic.Object
         public LocomotorSet LocomotorSet { get; private set; }
         [AddedIn(SageGame.Bfme)]
         public ClientBehaviorModuleData ClientBehavior { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string ThingClass { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

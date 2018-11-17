@@ -4,9 +4,9 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public class ModelConditionState
+    public class ConditionState
     {
-        internal static ModelConditionState ParseDefault(IniParser parser)
+        internal static ConditionState ParseDefault(IniParser parser)
         {
             var result = parser.ParseBlock(FieldParseTable);
 
@@ -15,7 +15,7 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
-        internal static ModelConditionState Parse(IniParser parser)
+        internal static ConditionState Parse(IniParser parser)
         {
             var conditionFlags = parser.ParseEnumBitArray<ModelConditionFlag>();
 
@@ -26,7 +26,7 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
-        internal static readonly IniParseTable<ModelConditionState> FieldParseTable = new IniParseTable<ModelConditionState>
+        internal static readonly IniParseTable<ConditionState> FieldParseTable = new IniParseTable<ConditionState>
         {
             { "Model", (parser, x) => x.Model = parser.ParseFileName() },
             { "Skeleton", (parser, x) => x.Skeleton = parser.ParseFileName() },
@@ -36,8 +36,7 @@ namespace OpenSage.Logic.Object
             { "WeaponMuzzleFlash", (parser, x) => x.WeaponMuzzleFlashes.Add(BoneAttachPoint.Parse(parser)) },
             { "WeaponLaunchBone", (parser, x) => x.WeaponLaunchBones.Add(BoneAttachPoint.Parse(parser)) },
             { "WeaponHideShowBone", (parser, x) => x.WeaponHideShowBones.Add(BoneAttachPoint.Parse(parser)) },
-
-            { "Animation", (parser, x) => x.Animations.Add(ObjectConditionAnimation.Parse(parser)) },
+            { "Animation", (parser, x) => x.ParseAnimation(parser) },
             { "AnimationMode", (parser, x) => x.AnimationMode = parser.ParseEnum<AnimationMode>() },
             { "AnimationSpeedFactorRange", (parser, x) => x.AnimationSpeedFactorRange = FloatRange.Parse(parser) },
             { "IdleAnimation", (parser, x) => x.IdleAnimations.Add(ObjectConditionAnimation.Parse(parser)) },
@@ -57,6 +56,18 @@ namespace OpenSage.Logic.Object
             { "WaitForStateToFinishIfPossible", (parser, x) => x.WaitForStateToFinishIfPossible = parser.ParseIdentifier() },
         };
 
+        private void ParseAnimation(IniParser parser)
+        {
+            if (parser.SageGame == SageGame.CncGenerals || parser.SageGame == SageGame.CncGeneralsZeroHour)
+            {
+                ConditionAnimations.Add(ObjectConditionAnimation.Parse(parser));
+            }
+            else
+            {
+                Animations.Add(Animation.Parse(parser));
+            }
+        }
+
         public BitArray<ModelConditionFlag> ConditionFlags { get; private set; }
 
         public string Model { get; private set; }
@@ -72,7 +83,8 @@ namespace OpenSage.Logic.Object
         public List<BoneAttachPoint> WeaponHideShowBones { get; private set; } = new List<BoneAttachPoint>();
 
         // Model animation settings
-        public List<ObjectConditionAnimation> Animations { get; private set; } = new List<ObjectConditionAnimation>();
+        public List<ObjectConditionAnimation> ConditionAnimations { get; private set; } = new List<ObjectConditionAnimation>();
+        public List<Animation> Animations { get; private set; } = new List<Animation>();
         public AnimationMode AnimationMode { get; private set; }
         public FloatRange AnimationSpeedFactorRange { get; private set; }
         public List<ObjectConditionAnimation> IdleAnimations { get; private set; } = new List<ObjectConditionAnimation>();
@@ -96,9 +108,9 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// Used by AliasConditionState.
         /// </summary>
-        public ModelConditionState Clone(BitArray<ModelConditionFlag> conditionFlags)
+        public ConditionState Clone(BitArray<ModelConditionFlag> conditionFlags)
         {
-            return new ModelConditionState
+            return new ConditionState
             {
                 ConditionFlags = conditionFlags,
 
@@ -110,7 +122,7 @@ namespace OpenSage.Logic.Object
                 WeaponLaunchBones = WeaponLaunchBones,
                 WeaponHideShowBones = WeaponHideShowBones,
 
-                Animations = Animations,
+                ConditionAnimations = ConditionAnimations,
                 AnimationMode = AnimationMode,
                 AnimationSpeedFactorRange = AnimationSpeedFactorRange,
                 IdleAnimations = IdleAnimations,

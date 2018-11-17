@@ -41,6 +41,7 @@ namespace OpenSage.Logic.Object
             { "W3DDefaultDraw", W3dDefaultDrawModuleData.Parse },
             { "W3DDependencyModelDraw", W3dDependencyModelDrawModuleData.Parse },
             { "W3DLaserDraw", W3dLaserDrawModuleData.Parse },
+            { "W3DLightDraw", W3dLightDrawModuleData.Parse },
             { "W3DModelDraw", W3dModelDrawModuleData.ParseModel },
             { "W3DOverlordAircraftDraw", W3dOverlordAircraftDraw.Parse },
             { "W3DOverlordTankDraw", W3dOverlordTankDrawModuleData.Parse },

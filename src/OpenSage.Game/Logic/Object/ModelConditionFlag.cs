@@ -435,5 +435,53 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("CHANT_FOR_GROND"), AddedIn(SageGame.Bfme)]
         ChantForGrond,
+
+        [IniEnum("WANDER"), AddedIn(SageGame.Bfme)]
+        Wander,
+
+        [IniEnum("HARVEST_PREPARATION"), AddedIn(SageGame.Bfme)]
+        HarvestPrepariation,
+
+        [IniEnum("HARVEST_ACTION"), AddedIn(SageGame.Bfme)]
+        HarvestAction,
+
+        [IniEnum("SPECIAL_ENEMY_NEAR"), AddedIn(SageGame.Bfme)]
+        SpecialEnemyNear,
+
+        [IniEnum("DEATH_1"), AddedIn(SageGame.Bfme)]
+        Death1,
+
+        [IniEnum("DEATH_2"), AddedIn(SageGame.Bfme)]
+        Death2,
+
+        [IniEnum("EMOTION_MORALE_HIGH"), AddedIn(SageGame.Bfme)]
+        EmotionMoraleHigh,
+
+        [IniEnum("HIT_REACTION"), AddedIn(SageGame.Bfme)]
+        HitReaction,
+
+        [IniEnum("HIT_LEVEL_1"), AddedIn(SageGame.Bfme)]
+        HitLevel1,
+
+        [IniEnum("SELECTED"), AddedIn(SageGame.Bfme)]
+        Selected,
+
+        [IniEnum("WEAPONLOCK_PRIMARY"), AddedIn(SageGame.Bfme)]
+        WeaponLockPrimary,
+
+        [IniEnum("FIRING_OR_PREATTACK_B"), AddedIn(SageGame.Bfme)]
+        FiringPreattackB,
+
+        [IniEnum("PACKING_TYPE_1"), AddedIn(SageGame.Bfme)]
+        PackingType1,
+
+        [IniEnum("PACKING_TYPE_2"), AddedIn(SageGame.Bfme)]
+        PackingType2,
+
+        [IniEnum("PREPARING"), AddedIn(SageGame.Bfme)]
+        Preparing,
+
+        [IniEnum("HIDDEN"), AddedIn(SageGame.Bfme)]
+        Hidden,
     }
 }

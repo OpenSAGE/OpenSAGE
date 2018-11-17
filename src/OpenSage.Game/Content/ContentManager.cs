@@ -77,7 +77,7 @@ namespace OpenSage.Content
 
             string language = LanguageUtility.ReadCurrentLanguage(game.Definition, fileSystem.RootDirectory);
 
-            IniDataContext = new IniDataContext(fileSystem);
+            IniDataContext = new IniDataContext(fileSystem, sageGame);
 
             // TODO: Add these into IGameDefinition? Should we preload all ini files?
             switch (sageGame)

@@ -14,7 +14,9 @@ namespace OpenSage.Logic.Object
             { "TurretsLinked", (parser, x) => x.TurretsLinked = parser.ParseBoolean() },
             { "AutoAcquireEnemiesWhenIdle", (parser, x) => x.AutoAcquireEnemiesWhenIdle = parser.ParseEnumBitArray<AutoAcquireEnemiesType>() },
             { "MoodAttackCheckRate", (parser, x) => x.MoodAttackCheckRate = parser.ParseInteger() },
-            { "ForbidPlayerCommands", (parser, x) => x.ForbidPlayerCommands = parser.ParseBoolean() }
+            { "ForbidPlayerCommands", (parser, x) => x.ForbidPlayerCommands = parser.ParseBoolean() },
+            { "AILuaEventsList", (parser, x) => x.AILuaEventsList = parser.ParseString() },
+            { "HoldGroundCloseRangeDistance", (parser, x) => x.HoldGroundCloseRangeDistance = parser.ParseInteger() }
         };
 
         /// <summary>
@@ -33,6 +35,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool ForbidPlayerCommands { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string AILuaEventsList { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int HoldGroundCloseRangeDistance { get; private set; }
     }
 
     public enum AutoAcquireEnemiesType
