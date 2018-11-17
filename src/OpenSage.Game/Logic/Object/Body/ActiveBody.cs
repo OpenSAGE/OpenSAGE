@@ -11,6 +11,8 @@ namespace OpenSage.Logic.Object
         {
             { "MaxHealth", (parser, x) => x.MaxHealth = parser.ParseFloat() },
             { "InitialHealth", (parser, x) => x.InitialHealth = parser.ParseFloat() },
+            { "MaxHealthDamaged", (parser, x) => x.MaxHealthDamaged = parser.ParseFloat() },
+            { "RecoveryTime", (parser, x) => x.RecoveryTime = parser.ParseFloat() },
 
             { "SubdualDamageCap", (parser, x) => x.SubdualDamageCap = parser.ParseInteger() },
             { "SubdualDamageHealRate", (parser, x) => x.SubdualDamageHealRate = parser.ParseInteger() },
@@ -19,6 +21,10 @@ namespace OpenSage.Logic.Object
 
         public float MaxHealth { get; private set; }
         public float InitialHealth { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public float MaxHealthDamaged { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public float RecoveryTime { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int SubdualDamageCap { get; private set; }

@@ -9,7 +9,7 @@ namespace OpenSage.Logic.Object
     {
         internal static AnimationState Parse(IniParser parser)
         {
-             var stateTypeFlags = parser.ParseEnumBitArray<AnimationStateTypeFlags>();
+            var stateTypeFlags = parser.ParseEnumFlags<AnimationStateTypeFlags>();
 
             var result = parser.ParseBlock(FieldParseTable);
 
@@ -22,22 +22,33 @@ namespace OpenSage.Logic.Object
         {
             { "Animation", (parser, x) => x.Animations.Add(Animation.Parse(parser)) },
             { "ParticleSysBone", (parser, x) => x.ParticleSysBones.Add(ParticleSysBone.Parse(parser)) },
-            { "Flags", (parser, x) => x.Flags = parser.ParseEnumBitArray<AnimationFlags>() },
-            //{ "BeginScript", (parser, x) => x.Flags = parser.ParseEnumBitArray<AnimationFlags>() }
+            { "Flags", (parser, x) => x.Flags = parser.ParseEnumFlags<AnimationFlags>() },
+            { "BeginScript", (parser, x) => x.Script = IniScript.Parse(parser) },
+            { "StateName", (parser, x) => x.StateName = parser.ParseString() },
+            { "FrameForPristineBonePositions", (parser, x) => x.FrameForPristineBonePositions = parser.ParseInteger() },
         };
 
-        public BitArray<AnimationStateTypeFlags> TypeFlags { get; private set; }
+        public AnimationStateTypeFlags TypeFlags { get; private set; }
 
         public List<Animation> Animations { get; private set; } = new List<Animation>();
         public List<ParticleSysBone> ParticleSysBones { get; private set; } = new List<ParticleSysBone>();
-        public BitArray<AnimationFlags> Flags { get; private set; }
+        public AnimationFlags Flags { get; private set; }
+        public IniScript Script { get; private set; }
+        public string StateName { get; private set; }
+        public int FrameForPristineBonePositions { get; private set; }
     }
 
     public sealed class Animation
     {
         internal static Animation Parse(IniParser parser)
         {
-            var animationType = parser.ParseEnum<AnimationType>();
+           
+            var animationType = AnimationType.None;
+            var token = parser.GetNextTokenOptional();
+            if (token.HasValue)
+            {
+                animationType = IniParser.ParseEnum<AnimationType>(token.Value);
+            }
 
             var result = parser.ParseBlock(FieldParseTable);
 
@@ -51,6 +62,7 @@ namespace OpenSage.Logic.Object
             { "AnimationName", (parser, x) => x.AnimationName = parser.ParseString() },
             { "AnimationMode", (parser, x) => x.AnimationMode = parser.ParseEnum<AnimationMode>() },
             { "AnimationPriority", (parser, x) => x.AnimationPriority = parser.ParseInteger() },
+            { "UseWeaponTiming", (parser, x) => x.UseWeaponTiming = parser.ParseBoolean() },
         };
 
         public AnimationType AnimationType { get; private set; }
@@ -58,6 +70,7 @@ namespace OpenSage.Logic.Object
         public string AnimationName { get; private set; }
         public AnimationMode AnimationMode { get; private set; }
         public int AnimationPriority { get; private set; }
+        public bool UseWeaponTiming { get; private set; }
     }
 
     

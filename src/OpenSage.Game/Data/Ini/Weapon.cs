@@ -287,7 +287,10 @@ namespace OpenSage.Data.Ini
         Detonated,
 
         [IniEnum("EXTRA_4"), AddedIn(SageGame.CncGeneralsZeroHour)]
-        Extra4
+        Extra4,
+
+        [IniEnum("FADED"), AddedIn(SageGame.Bfme)]
+        Faded
     }
 
     [Flags]

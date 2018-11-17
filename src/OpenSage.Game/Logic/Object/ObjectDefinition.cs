@@ -204,6 +204,7 @@ namespace OpenSage.Logic.Object
             { "Draw", (parser, x) => x.Draws.Add(DrawModuleData.ParseDrawModule(parser)) },
             { "Body", (parser, x) => x.Body = BodyModuleData.ParseBody(parser) },
             { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdateModuleData.ParseClientUpdate(parser)) },
+            { "ClientBehavior", (parser, x) => x.ClientBehavior = ClientBehaviorModuleData.ParseClientBehavior(parser) },
 
             { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSetCondition>()] = parser.ParseAssetReferenceArray() },
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
@@ -682,6 +683,8 @@ namespace OpenSage.Logic.Object
         public float ThreatLevel { get; private set; }
         [AddedIn(SageGame.Bfme)]
         public LocomotorSet LocomotorSet { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public ClientBehaviorModuleData ClientBehavior { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

@@ -15,6 +15,7 @@ namespace OpenSage.Logic.Object
             { "AllowBouncing", (parser, x) => x.AllowBouncing = parser.ParseBoolean() },
             { "KillWhenRestingOnGround", (parser, x) => x.KillWhenRestingOnGround = parser.ParseBoolean() },
             { "AllowCollideForce", (parser, x) => x.AllowCollideForce = parser.ParseBoolean() },
+            { "GravityMult", (parser, x) => x.GravityMult = parser.ParseFloat() },
         };
 
         public float Mass { get; private set; }
@@ -24,5 +25,8 @@ namespace OpenSage.Logic.Object
         public bool AllowBouncing { get; private set; }
         public bool KillWhenRestingOnGround { get; private set; }
         public bool AllowCollideForce { get; private set; } = true;
+
+        [AddedIn(SageGame.Bfme)]
+        public float GravityMult { get; private set; }
     }
 }

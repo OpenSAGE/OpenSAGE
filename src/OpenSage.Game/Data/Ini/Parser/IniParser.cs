@@ -530,7 +530,7 @@ namespace OpenSage.Data.Ini.Parser
 
         private void ParseBlockContent<T>(
             T result,
-           IIniFieldParserProvider<T> fieldParserProvider)
+           IIniFieldParserProvider<T> fieldParserProvider, string endToken = EndToken)
             where T : class, new()
         {
             var done = false;

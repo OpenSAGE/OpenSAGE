@@ -12,9 +12,83 @@ namespace OpenSage.Logic.Object
         FrontKickOnBuilding,
         [IniEnum("IDLE")]
         Idle,
+        [IniEnum("IDLA")]
+        IdlA,
+        [IniEnum("IDLB")]
+        IdlB,
+        [IniEnum("IDLC")]
+        IdlC,
         [IniEnum("MOVING")]
         Moving,
         [IniEnum("STAND")]
-        Stand,    
+        Stand,
+        [IniEnum("WALK")]
+        Walk,
+        [IniEnum("WLKA")]
+        WalkA,
+        [IniEnum("WLKB")]
+        WalkB,
+        [IniEnum("WLKC")]
+        WalkC,
+        [IniEnum("BACKINGUP")]
+        BackingUp,
+        [IniEnum("DOUBLECHOP")]
+        DoubleChop,
+        [IniEnum("SIDEWAYSCHOP")]
+        SidewaysChop,
+        [IniEnum("VERTICALCHOP")]
+        VerticalChop,
+        [IniEnum("MFDA")]
+        MfdA,
+        [IniEnum("DIEA")]
+        DieA,
+        [IniEnum("DIEB")]
+        DieB,
+        [IniEnum("FLYA")]
+        FlyA,
+        [IniEnum("LNDA")]
+        LndA,
+        [IniEnum("STANDUP")]
+        StandUp,
+        [IniEnum("FERA")]
+        FerA,
+        [IniEnum("FERB")]
+        FerB,
+        [IniEnum("CHRA")]
+        ChrA,
+        [IniEnum("CHRB")]
+        ChrB,
+        [IniEnum("TNTA")]
+        TntA,
+        [IniEnum("TAUNTING2")]
+        Taunting2,
+        [IniEnum("APPA")]
+        AppA,
+        [IniEnum("HIT_LEVEL_1_A")]
+        HitLevel1A,
+        [IniEnum("WRKA")]
+        WrkA,
+        [IniEnum("WIPENOSE")]
+        WipeNose,
+        [IniEnum("SCRATCHBACK")]
+        ScratchBack,
+        [IniEnum("ATNB")]
+        AtnB,
+        [IniEnum("ATKA")]
+        AtkA,
+        [IniEnum("ATKB")]
+        AtkB,
+        [IniEnum("ROCKTHROW")]
+        RockThrow,
+        [IniEnum("RUNA")]
+        RunA,
+        [IniEnum("RUNB")]
+        RunB,
+        [IniEnum("CINEMATICSIGH")]
+        CinematicSigh,
+        [IniEnum("CINEMATICNERVOUSPUTONRING")]
+        CinematicNervousPutOnRing,
+        [IniEnum("GTPA")]
+        GtpA,
     }
 }

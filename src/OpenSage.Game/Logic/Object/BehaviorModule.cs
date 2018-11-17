@@ -43,6 +43,8 @@ namespace OpenSage.Logic.Object
             { "SpawnBehavior", SpawnBehaviorModuleData.Parse },
             { "SupplyWarehouseCripplingBehavior", SupplyWarehouseCripplingBehaviorModuleData.Parse },
             { "TechBuildingBehavior", TechBuildingBehaviorModuleData.Parse },
+            { "BezierProjectileBehavior", BezierProjectileBehaviorData.Parse },
+            { "HitReactionBehavior", HitReactionBehaviorData.Parse },
 
             // Collide
             { "ConvertToCarBombCrateCollide", ConvertToCarBombCrateCollideModuleData.Parse },
