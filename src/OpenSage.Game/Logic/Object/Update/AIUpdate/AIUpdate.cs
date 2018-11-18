@@ -16,7 +16,9 @@ namespace OpenSage.Logic.Object
             { "MoodAttackCheckRate", (parser, x) => x.MoodAttackCheckRate = parser.ParseInteger() },
             { "ForbidPlayerCommands", (parser, x) => x.ForbidPlayerCommands = parser.ParseBoolean() },
             { "AILuaEventsList", (parser, x) => x.AILuaEventsList = parser.ParseString() },
-            { "HoldGroundCloseRangeDistance", (parser, x) => x.HoldGroundCloseRangeDistance = parser.ParseInteger() }
+            { "HoldGroundCloseRangeDistance", (parser, x) => x.HoldGroundCloseRangeDistance = parser.ParseInteger() },
+            { "MinCowerTime", (parser, x) => x.MinCowerTime = parser.ParseInteger() },
+            { "MaxCowerTime", (parser, x) => x.MaxCowerTime = parser.ParseInteger() }
         };
 
         /// <summary>
@@ -41,6 +43,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int HoldGroundCloseRangeDistance { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public int MinCowerTime { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public int MaxCowerTime { get; private set; }
     }
 
     public enum AutoAcquireEnemiesType

@@ -27,6 +27,7 @@ namespace OpenSage.Logic.Object
             { "StateName", (parser, x) => x.StateName = parser.ParseString() },
             { "FrameForPristineBonePositions", (parser, x) => x.FrameForPristineBonePositions = parser.ParseInteger() },
             { "SimilarRestart", (parser, x) => x.SimilarRestart = parser.ParseBoolean() },
+            { "EnteringStateFX", (parser, x) => x.EnteringStateFX = parser.ParseAssetReference() },
         };
 
         public BitArray<ModelConditionFlag> TypeFlags { get; private set; }
@@ -38,6 +39,7 @@ namespace OpenSage.Logic.Object
         public string StateName { get; private set; }
         public int FrameForPristineBonePositions { get; private set; }
         public bool SimilarRestart { get; private set; }
+        public string EnteringStateFX { get; private set; }
     }
 
     public sealed class Animation

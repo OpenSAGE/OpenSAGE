@@ -537,8 +537,20 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("DEATH_3"), AddedIn(SageGame.Bfme)]
         Death3,
+        
+        [IniEnum("DEATH_4"), AddedIn(SageGame.Bfme)]
+        Death4,
 
         [IniEnum("WALKING"), AddedIn(SageGame.Bfme)]
         Walking,
+
+        [IniEnum("EMOTION_LOOK_TO_SKY"), AddedIn(SageGame.Bfme)]
+        EmotionLookToSky,
+
+        [IniEnum("USER_3"), AddedIn(SageGame.Bfme)]
+        User3,
+
+        [IniEnum("SIEGE_CONTAIN"), AddedIn(SageGame.Bfme)]
+        SiegeContain,
     }
 }

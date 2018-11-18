@@ -49,6 +49,12 @@ namespace OpenSage.Logic.Object
         PassengerTypeOne = 1 << 12,
 
         [IniEnum("RAMPAGE"), AddedIn(SageGame.Bfme)]
-        Rampage = 1 << 13,
+        Rampage             = 1 << 13,
+
+        [IniEnum("CLOSE_RANGE"), AddedIn(SageGame.Bfme)]
+        CloseRange          = 1 << 14,
+
+        [IniEnum("CONTESTING_BUILDING"), AddedIn(SageGame.Bfme)]
+        ContestingBuilding  = 1 << 15,
     }
 }

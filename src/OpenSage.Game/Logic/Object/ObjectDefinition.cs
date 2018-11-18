@@ -245,6 +245,8 @@ namespace OpenSage.Logic.Object
             { "RamPower", (parser, x) => x.RamPower = parser.ParseInteger() },
             { "RamZMult", (parser, x) => x.RamZMult = parser.ParseFloat() },
             { "CommandPoints", (parser, x) => x.CommandPoints = parser.ParseInteger() },
+            { "EmotionRange", (parser, x) => x.EmotionRange = parser.ParseInteger() },
+            { "ImmuneToShockwave", (parser, x) => x.ImmuneToShockwave = parser.ParseBoolean() },
         };
 
     
@@ -706,6 +708,10 @@ namespace OpenSage.Logic.Object
         public float RamZMult { get; private set; }
         [AddedIn(SageGame.Bfme)]
         public int CommandPoints { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public int EmotionRange { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public bool ImmuneToShockwave { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
