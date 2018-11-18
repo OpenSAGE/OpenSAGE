@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Data.Ini;
@@ -8,14 +10,26 @@ namespace OpenSage.Viewer.UI.Views
 {
     internal sealed class IniView : AssetView
     {
+        private ViewMode _currentView = ViewMode.ObjectView;
+
         private readonly List<IniEntry> _subObjects;
         private IniEntry _selectedSubObject;
         private AssetView _selectedSubObjectView;
+
+        private readonly string _iniString;
 
         public IniView(AssetViewContext context)
         {
             var iniDataContext = new IniDataContext(context.Entry.FileSystem);
             iniDataContext.LoadIniFile(context.Entry);
+
+            using (var stream = context.Entry.Open())
+            {
+                using (var reader = new StreamReader(stream))
+                {
+                    _iniString = reader.ReadToEnd();
+                }
+            }
 
             _subObjects = new List<IniEntry>();
 
@@ -30,7 +44,7 @@ namespace OpenSage.Viewer.UI.Views
             }
         }
 
-        public override void Draw(ref bool isGameViewFocused)
+        private void DrawObjectMode(ref bool isGameViewFocused)
         {
             ImGui.BeginChild("ini sidebar", new Vector2(200, 0), true, 0);
 
@@ -55,6 +69,48 @@ namespace OpenSage.Viewer.UI.Views
             ImGui.SameLine();
 
             _selectedSubObjectView?.Draw(ref isGameViewFocused);
+
+        }
+
+        private void DrawTextMode()
+        {
+            ImGui.TextUnformatted(_iniString);
+        }
+
+        public override void Draw(ref bool isGameViewFocused)
+        {
+            if (ImGui.RadioButton("Object view", _currentView == ViewMode.ObjectView))
+            {
+                _currentView = ViewMode.ObjectView;
+            }
+
+            ImGui.SameLine();
+
+            if (ImGui.RadioButton("Text view", _currentView == ViewMode.TextView))
+            {
+                _currentView = ViewMode.TextView;
+            }
+
+            ImGui.BeginChild("mode view", ImGui.GetContentRegionAvail(), false, ImGuiWindowFlags.AlwaysAutoResize);
+
+            switch (_currentView)
+            {
+                case ViewMode.ObjectView:
+                    DrawObjectMode(ref isGameViewFocused);
+                    break;
+                case ViewMode.TextView:
+                    DrawTextMode();
+                    break;
+                default: throw new ArgumentOutOfRangeException();
+            }
+
+            ImGui.EndChild();
+        }
+
+        private enum ViewMode
+        {
+            ObjectView,
+            TextView
         }
     }
 }
