@@ -526,6 +526,19 @@ namespace OpenSage.Logic.Object
         [IniEnum("REACT_5"), AddedIn(SageGame.Bfme)]
         React5,
 
+        [IniEnum("WEAPONSTATE_CLOSE_RANGE"), AddedIn(SageGame.Bfme)]
+        WeaponstateCloseRange,
 
+        [IniEnum("AIM_HIGH"), AddedIn(SageGame.Bfme)]
+        AimHigh,
+
+        [IniEnum("WORLD_BUILDER"), AddedIn(SageGame.Bfme)]
+        WorldBuilder,
+
+        [IniEnum("DEATH_3"), AddedIn(SageGame.Bfme)]
+        Death3,
+
+        [IniEnum("WALKING"), AddedIn(SageGame.Bfme)]
+        Walking,
     }
 }

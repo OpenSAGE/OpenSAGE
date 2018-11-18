@@ -424,5 +424,8 @@
 
         [IniEnum("CLUB"), AddedIn(SageGame.Bfme)]
         Club,
+
+        [IniEnum("CAN_USE_SIEGE_TOWER"), AddedIn(SageGame.Bfme)]
+        CanUseSiegeTower,
     }
 }

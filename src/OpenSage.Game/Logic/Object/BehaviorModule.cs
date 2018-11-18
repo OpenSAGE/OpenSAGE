@@ -11,14 +11,17 @@ namespace OpenSage.Logic.Object
         private static readonly Dictionary<string, Func<IniParser, BehaviorModuleData>> BehaviorParseTable = new Dictionary<string, Func<IniParser, BehaviorModuleData>>
         {
             // Behavior
+            { "AimWeaponBehavior", AimWeaponBehaviorModuleData.Parse },
             { "AutoHealBehavior", AutoHealBehaviorModuleData.Parse },
             { "BattleBusSlowDeathBehavior", BattleBusSlowDeathBehaviorModuleData.Parse },
             { "BridgeBehavior", BridgeBehaviorModuleData.Parse },
             { "BridgeScaffoldBehavior", BridgeScaffoldBehaviorModuleData.Parse },
             { "BridgeTowerBehavior", BridgeTowerBehaviorModuleData.Parse },
             { "BunkerBusterBehavior", BunkerBusterBehaviorModuleData.Parse },
+            { "ClickReactionBehavior", ClickReactionBehaviorData.Parse },
             { "CountermeasuresBehavior", CountermeasuresBehaviorModuleData.Parse },
             { "DumbProjectileBehavior", DumbProjectileBehaviorModuleData.Parse },
+            { "DualWeaponBehavior", DualWeaponBehaviorModuleData.Parse },
             { "FireWeaponWhenDeadBehavior", FireWeaponWhenDeadBehaviorModuleData.Parse },
             { "FireWeaponWhenDamagedBehavior", FireWeaponWhenDamagedBehaviorModuleData.Parse },
             { "FlightDeckBehavior", FlightDeckBehaviorModuleData.Parse },
@@ -38,6 +41,7 @@ namespace OpenSage.Logic.Object
             { "PropagandaTowerBehavior", PropagandaTowerBehaviorModuleData.Parse },
             { "RailroadBehavior", RailroadBehaviorModuleData.Parse },
             { "RebuildHoleBehavior", RebuildHoleBehaviorModuleData.Parse },
+            { "RunOffMapBehavior", RunOffMapBehaviorModuleData.Parse },
             { "ShareExperienceBehavior", ShareExperienceBehaviorModuleData.Parse },
             { "SlowDeathBehavior", SlowDeathBehaviorModuleData.Parse },
             { "SpawnBehavior", SpawnBehaviorModuleData.Parse },
@@ -132,6 +136,7 @@ namespace OpenSage.Logic.Object
             { "DefaultProductionExitUpdate", DefaultProductionExitUpdateModuleData.Parse },
             { "DeletionUpdate", DeletionUpdateModuleData.Parse },
             { "DemoTrapUpdate", DemoTrapUpdateModuleData.Parse },
+            { "DetachableRiderUpdate", DetachableRiderUpdateModuleData.Parse },
             { "DynamicShroudClearingRangeUpdate", DynamicShroudClearingRangeUpdateModuleData.Parse },
             { "EMPUpdate", EmpUpdateModuleData.Parse },
             { "EnemyNearUpdate", EnemyNearUpdateModuleData.Parse },

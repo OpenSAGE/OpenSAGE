@@ -16,6 +16,9 @@ namespace OpenSage.Logic.Object
             { "KillWhenRestingOnGround", (parser, x) => x.KillWhenRestingOnGround = parser.ParseBoolean() },
             { "AllowCollideForce", (parser, x) => x.AllowCollideForce = parser.ParseBoolean() },
             { "GravityMult", (parser, x) => x.GravityMult = parser.ParseFloat() },
+            { "ShockStandingTime", (parser, x) => x.ShockStandingTime = parser.ParseInteger() },
+            { "ShockStunnedTimeLow", (parser, x) => x.ShockStunnedTimeLow = parser.ParseInteger() },
+            { "ShockStunnedTimeHigh", (parser, x) => x.ShockStunnedTimeHigh = parser.ParseInteger() },
         };
 
         public float Mass { get; private set; }
@@ -28,5 +31,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public float GravityMult { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public int ShockStandingTime { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public int ShockStunnedTimeLow { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public int ShockStunnedTimeHigh { get; private set; }
     }
 }

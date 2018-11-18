@@ -240,7 +240,14 @@ namespace OpenSage.Logic.Object
             { "ThreatLevel", (parser, x) => x.ThreatLevel = parser.ParseFloat() },
             { "LocomotorSet", (parser, x) => x.LocomotorSet = LocomotorSet.Parse(parser) },
             { "ThingClass", (parser, x) => x.ThingClass = parser.ParseString() },
+            { "MinCrushVelocityPercent", (parser, x) => x.MinCrushVelocityPercent = parser.ParseInteger() },
+            { "CrushDecelerationPercent", (parser, x) => x.CrushDecelerationPercent = parser.ParseInteger() },
+            { "RamPower", (parser, x) => x.RamPower = parser.ParseInteger() },
+            { "RamZMult", (parser, x) => x.RamZMult = parser.ParseFloat() },
+            { "CommandPoints", (parser, x) => x.CommandPoints = parser.ParseInteger() },
         };
+
+    
 
         public string Name { get; protected set; }
 
@@ -689,6 +696,16 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string ThingClass { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public int MinCrushVelocityPercent { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public int CrushDecelerationPercent { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public int RamPower { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public float RamZMult { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public int CommandPoints { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

@@ -26,6 +26,7 @@ namespace OpenSage.Logic.Object
             { "BeginScript", (parser, x) => x.Script = IniScript.Parse(parser) },
             { "StateName", (parser, x) => x.StateName = parser.ParseString() },
             { "FrameForPristineBonePositions", (parser, x) => x.FrameForPristineBonePositions = parser.ParseInteger() },
+            { "SimilarRestart", (parser, x) => x.SimilarRestart = parser.ParseBoolean() },
         };
 
         public BitArray<ModelConditionFlag> TypeFlags { get; private set; }
@@ -36,6 +37,7 @@ namespace OpenSage.Logic.Object
         public IniScript Script { get; private set; }
         public string StateName { get; private set; }
         public int FrameForPristineBonePositions { get; private set; }
+        public bool SimilarRestart { get; private set; }
     }
 
     public sealed class Animation
@@ -65,6 +67,7 @@ namespace OpenSage.Logic.Object
             { "UseWeaponTiming", (parser, x) => x.UseWeaponTiming = parser.ParseBoolean() },
             { "AnimationBlendTime", (parser, x) => x.AnimationBlendTime = parser.ParseInteger() },
             { "AnimationSpeedFactorRange", (parser, x) => x.AnimationSpeedFactorRange = FloatRange.Parse(parser) },
+            { "Distance", (parser, x) => x.Distance = parser.ParseFloat() },
         };
 
         public AnimationType AnimationType { get; private set; }
@@ -75,5 +78,7 @@ namespace OpenSage.Logic.Object
         public bool UseWeaponTiming { get; private set; }
         public int AnimationBlendTime { get; private set; }
         public FloatRange AnimationSpeedFactorRange { get; private set; }
+        public float Distance { get; private set; }
+        
     }
 }

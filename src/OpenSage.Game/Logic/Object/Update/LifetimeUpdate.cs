@@ -8,11 +8,11 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<LifetimeUpdateModuleData> FieldParseTable = new IniParseTable<LifetimeUpdateModuleData>
         {
-            { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseInteger() },
-            { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseInteger() }
+            { "MinLifetime", (parser, x) => x.MinLifetime = parser.ParseFloat() },
+            { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseFloat() }
         };
 
-        public int MinLifetime { get; private set; }
-        public int MaxLifetime { get; private set; }
+        public float MinLifetime { get; private set; }
+        public float MaxLifetime { get; private set; }
     }
 }

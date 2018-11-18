@@ -33,6 +33,7 @@ namespace OpenSage.Logic.Object
             { "FadeDelay", (parser, x) => x.FadeDelay = parser.ParseInteger() },
             { "FadeTime", (parser, x) => x.FadeTime = parser.ParseInteger() },
             { "Sound", (parser, x) => x.Sound = parser.ParseString() },
+            { "DecayBeginTime", (parser, x) => x.DecayBeginTime= parser.ParseInteger() },
         };
 
         public BitArray<DeathType> DeathTypes { get; private set; }
@@ -62,6 +63,8 @@ namespace OpenSage.Logic.Object
         public int FadeTime { get; private set; }
         [AddedIn(SageGame.Bfme)]
         public string Sound { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public int DecayBeginTime { get; private set; }
 
     }
 

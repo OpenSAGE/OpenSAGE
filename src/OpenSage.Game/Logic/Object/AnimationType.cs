@@ -12,9 +12,9 @@ namespace OpenSage.Logic.Object
         FrontKickOnBuilding,
         [IniEnum("IDLE")]
         Idle,
-        [IniEnum("IDLA")]
+        [IniEnum("IDLA", "IdleA")]
         IdlA,
-        [IniEnum("IDLB")]
+        [IniEnum("IDLB", "IdleB")]
         IdlB,
         [IniEnum("IDLC")]
         IdlC,
@@ -88,6 +88,8 @@ namespace OpenSage.Logic.Object
         AtkA,
         [IniEnum("ATKB")]
         AtkB,
+        [IniEnum("ATKC")]
+        AtkC,
         [IniEnum("ROCKTHROW")]
         RockThrow,
         [IniEnum("RUNA")]
@@ -124,6 +126,8 @@ namespace OpenSage.Logic.Object
         Charging,  
         [IniEnum("MOVING_DAMAGED")]
         MovingDamaged,
+        [IniEnum("Moving_Engaged")]
+        MovingEngaged,
         [IniEnum("RUNM")]
         RunM,
         [IniEnum("HIT_LEVEL_2")]
@@ -140,5 +144,99 @@ namespace OpenSage.Logic.Object
         ClickReact4,
         [IniEnum("CLICK_REACT_5")]
         ClickReact5,
+        [IniEnum("JustDie")]
+        JustDie,
+        [IniEnum("Land")]
+        Land,
+        [IniEnum("TerrorFromTheSky")]
+        TerrorFromTheSky,
+        [IniEnum("TurnLeft")]
+        TurnLeft,
+        [IniEnum("TurnRight")]
+        TurnRight,
+        [IniEnum("Accelerate")]
+        Accelerate,
+        [IniEnum("Decelerate")]
+        Decelerate,
+        [IniEnum("AttackA1")]
+        AttackA1,
+        [IniEnum("AttackA2")]
+        AttackA2,
+        [IniEnum("CheerA")]
+        CheerA,
+        [IniEnum("CheerB")]
+        CheerB,
+        [IniEnum("CheerC")]
+        CheerC,
+        [IniEnum("CheerD")]
+        CheerD,
+        [IniEnum("Salute")]
+        Salute,
+        [IniEnum("AtAttention")]
+        AtAttention,
+        [IniEnum("Taunting")]
+        Taunting,
+        [IniEnum("Moving_1")]
+        Moving1,
+        [IniEnum("Moving_2")]
+        Moving2,
+        [IniEnum("Splattered_On_Ground")]
+        SplatteredOnGround,
+        [IniEnum("Splattered_On_Ground_1")]
+        SplatteredOnGround1,
+        [IniEnum("Splattered_On_Ground_2")]
+        SplatteredOnGround2,
+        [IniEnum("Flaming_Death")]
+        FlamingDeath,
+        [IniEnum("Dying_1")]
+        Dying1,
+        [IniEnum("Dying_2")]
+        Dying2,
+        [IniEnum("Flying_1")]
+        Flying_1,
+        [IniEnum("Flying_2")]
+        Flying_2,
+        [IniEnum("Flying_3")]
+        Flying_3,
+        [IniEnum("Standing_Back_Up")]
+        StandingBackUp,
+        [IniEnum("StunFly")]
+        StunFly,
+        [IniEnum("DieStun")]
+        DieStun,
+        [IniEnum("DieStunB")]
+        DieStunB,
+        [IniEnum("March")]
+        March,
+        [IniEnum("Fly")]
+        Fly,
+        [IniEnum("StunDie")]
+        StundDie,
+        [IniEnum("Die")]
+        Die,
+        [IniEnum("SecondaryIdle")]
+        SecondaryIdle,
+        [IniEnum("FlyNDie")]
+        FlyNDie,
+        [IniEnum("Stunned")]
+        Stunned,
+        [IniEnum("DieAndSpawn")]
+        DieAndSpawn,
+        [IniEnum("DieAndNoSpawn")]
+        DieAndNoSpawn,
+        [IniEnum("GallopA")]
+        GallopA,
+        [IniEnum("GallopB")]
+        GallopB,
+        [IniEnum("Attack1")]
+        Attack1,
+        [IniEnum("Attack2")]
+        Attack2,
+        [IniEnum("Attack3")]
+        Attack3,
+        [IniEnum("Attack4")]
+        Attack4,
+        [IniEnum("Defend")]
+        Defend,
     }
 }

@@ -36,5 +36,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("INSIDE_GARRISON"), AddedIn(SageGame.Bfme)]
         InsideGarrison,
+
+        [IniEnum("UNSELECTABLE"), AddedIn(SageGame.Bfme)]
+        Unselectable,
     }
 }
