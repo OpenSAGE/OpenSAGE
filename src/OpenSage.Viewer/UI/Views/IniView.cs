@@ -75,6 +75,15 @@ namespace OpenSage.Viewer.UI.Views
         private void DrawTextMode()
         {
             ImGui.TextUnformatted(_iniString);
+
+            if (ImGui.BeginPopupContextItem())
+            {
+                if (ImGui.Selectable("Copy to clipboard"))
+                {
+                    ImGui.SetClipboardText(_iniString);
+                }
+                ImGui.EndPopup();
+            }
         }
 
         public override void Draw(ref bool isGameViewFocused)
