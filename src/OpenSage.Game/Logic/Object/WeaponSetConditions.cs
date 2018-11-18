@@ -44,5 +44,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("WEAPON_RIDER7")]
         WeaponRider7 = 1 << 11,
+
+        [IniEnum("PASSENGER_TYPE_ONE"), AddedIn(SageGame.Bfme)]
+        PassengerTypeOne = 1 << 12,
+
+        [IniEnum("RAMPAGE"), AddedIn(SageGame.Bfme)]
+        Rampage = 1 << 13,
     }
 }

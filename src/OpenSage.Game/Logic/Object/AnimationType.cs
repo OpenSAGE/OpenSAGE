@@ -18,6 +18,16 @@ namespace OpenSage.Logic.Object
         IdlB,
         [IniEnum("IDLC")]
         IdlC,
+        [IniEnum("IDLD")]
+        IdlD,
+        [IniEnum("IDLF")]
+        IdlF,
+        [IniEnum("IDLG")]
+        IdlG,
+        [IniEnum("IDLH")]
+        IdlH,
+        [IniEnum("IDLI")]
+        IdlI,
         [IniEnum("MOVING")]
         Moving,
         [IniEnum("STAND")]
@@ -92,5 +102,43 @@ namespace OpenSage.Logic.Object
         GtpA,
         [IniEnum("STHA")]
         SthA,
+        [IniEnum("MUMNTTROLL_GTPA")]
+        MUMntTrollGTPA,
+        [IniEnum("GRASPING_GROND_LEFTHANDED")]
+        GraspingGrondLefthanded,
+        [IniEnum("GRASPING_GROND_RIGHTHANDED")]
+        GraspingGrondRighthanded,
+        [IniEnum("SWINGING_GROND_LEFTHANDED")]
+        SwingingGrondLefthanded,
+        [IniEnum("SWINGING_GROND_RIGHTHANDED")]
+        SwingingGrondRighthanded,
+        [IniEnum("PACKING_GROND_RIGHTHANDED")]
+        PackingGrondRighthanded,
+        [IniEnum("PACKING_GROND_LEFTHANDED")]
+        PackingGrondLefthanded,
+        [IniEnum("PASSENGER_MOVING")]
+        PassengerMoving,
+        [IniEnum("PASSENGER")]
+        Passenger,
+        [IniEnum("CHARGING")]
+        Charging,  
+        [IniEnum("MOVING_DAMAGED")]
+        MovingDamaged,
+        [IniEnum("RUNM")]
+        RunM,
+        [IniEnum("HIT_LEVEL_2")]
+        HitLevel2,
+        [IniEnum("HIT_LEVEL_3")]
+        HitLevel3,
+        [IniEnum("CLICK_REACT_1")]
+        ClickReact1,
+        [IniEnum("CLICK_REACT_2")]
+        ClickReact2,
+        [IniEnum("CLICK_REACT_3")]
+        ClickReact3,
+        [IniEnum("CLICK_REACT_4")]
+        ClickReact4,
+        [IniEnum("CLICK_REACT_5")]
+        ClickReact5,
     }
 }

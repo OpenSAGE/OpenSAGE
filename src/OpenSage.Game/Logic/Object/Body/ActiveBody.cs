@@ -1,5 +1,6 @@
 ﻿using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -16,7 +17,9 @@ namespace OpenSage.Logic.Object
 
             { "SubdualDamageCap", (parser, x) => x.SubdualDamageCap = parser.ParseInteger() },
             { "SubdualDamageHealRate", (parser, x) => x.SubdualDamageHealRate = parser.ParseInteger() },
-            { "SubdualDamageHealAmount", (parser, x) => x.SubdualDamageHealAmount = parser.ParseInteger() }
+            { "SubdualDamageHealAmount", (parser, x) => x.SubdualDamageHealAmount = parser.ParseInteger() },
+            { "GrabObject", (parser, x) => x.GrabObject = parser.ParseAssetReference() },
+            { "GrabOffset", (parser, x) => x.GrabOffset = parser.ParsePoint() },
         };
 
         public float MaxHealth { get; private set; }
@@ -34,5 +37,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int SubdualDamageHealAmount { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string GrabObject { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public Point2D GrabOffset { get; private set; }
     }
+
 }

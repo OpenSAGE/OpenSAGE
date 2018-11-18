@@ -12,8 +12,10 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<W3dScriptedModelDrawModuleData>
             {
                 { "StaticModelLODMode", (parser, x) => x.StaticModelLODMode = parser.ParseBoolean() },
+                { "ShowShadowWhileContained", (parser, x) => x.ShowShadowWhileContained = parser.ParseBoolean() },
             });
 
         public bool StaticModelLODMode { get; private set; }
+        public bool ShowShadowWhileContained { get; private set; }
     }
 }

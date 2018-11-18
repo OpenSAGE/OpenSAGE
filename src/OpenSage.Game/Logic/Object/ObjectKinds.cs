@@ -409,5 +409,14 @@
 
         [IniEnum("HOBBIT"), AddedIn(SageGame.Bfme)]
         Hobbit,
+
+        [IniEnum("ROCK_VENDOR"), AddedIn(SageGame.Bfme)]
+        RockVendor,
+
+        [IniEnum("WORKING_PASSENGER"), AddedIn(SageGame.Bfme)]
+        WorkingPassenger,
+
+        [IniEnum("NO_FREEWILL_ENTER"), AddedIn(SageGame.Bfme)]
+        NoFreeWillEnter,
     }
 }

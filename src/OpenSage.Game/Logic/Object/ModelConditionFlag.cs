@@ -470,7 +470,7 @@ namespace OpenSage.Logic.Object
         WeaponLockPrimary,
 
         [IniEnum("FIRING_OR_PREATTACK_B"), AddedIn(SageGame.Bfme)]
-        FiringPreattackB,
+        FiringOrPreattackB,
 
         [IniEnum("PACKING_TYPE_1"), AddedIn(SageGame.Bfme)]
         PackingType1,
@@ -483,5 +483,49 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("HIDDEN"), AddedIn(SageGame.Bfme)]
         Hidden,
+
+        [IniEnum("BURNT_MODEL"), AddedIn(SageGame.Bfme)]
+        BurntModel,
+
+        [IniEnum("WEAPONSTATE_ONE"), AddedIn(SageGame.Bfme)]
+        WeaponstateOne,
+
+        [IniEnum("WEAPONSTATE_TWO"), AddedIn(SageGame.Bfme)]
+        WeaponstateTwo,
+
+        [IniEnum("FIRING_OR_PREATTACK_C"), AddedIn(SageGame.Bfme)]
+        FiringOrPreattackC,
+
+        [IniEnum("PASSENGER_VARIATION_1"), AddedIn(SageGame.Bfme)]
+        PassengerVariation1,
+
+        [IniEnum("PASSENGER_VARIATION_2"), AddedIn(SageGame.Bfme)]
+        PassengerVariation2,
+
+        [IniEnum("DESTROYED_WEAPON"), AddedIn(SageGame.Bfme)]
+        DestroyedWeapon,
+
+        [IniEnum("HIT_LEVEL_2"), AddedIn(SageGame.Bfme)]
+        HitLevel2,
+
+        [IniEnum("HIT_LEVEL_3"), AddedIn(SageGame.Bfme)]
+        HitLevel3,
+
+        [IniEnum("REACT_1"), AddedIn(SageGame.Bfme)]
+        React1,
+
+        [IniEnum("REACT_2"), AddedIn(SageGame.Bfme)]
+        React2,
+
+        [IniEnum("REACT_3"), AddedIn(SageGame.Bfme)]
+        React3,
+
+        [IniEnum("REACT_4"), AddedIn(SageGame.Bfme)]
+        React4,
+
+        [IniEnum("REACT_5"), AddedIn(SageGame.Bfme)]
+        React5,
+
+
     }
 }

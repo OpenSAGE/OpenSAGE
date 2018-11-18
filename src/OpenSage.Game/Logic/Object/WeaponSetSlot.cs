@@ -7,5 +7,8 @@ namespace OpenSage.Logic.Object
         public string Weapon { get; internal set; }
         public CommandSourceTypes AutoChooseSources { get; internal set; }
         public BitArray<ObjectKinds> PreferredAgainst { get; internal set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public BitArray<ObjectKinds> OnlyAgainst { get; internal set; }
     }
 }

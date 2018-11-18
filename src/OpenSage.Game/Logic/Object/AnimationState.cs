@@ -63,6 +63,8 @@ namespace OpenSage.Logic.Object
             { "AnimationMode", (parser, x) => x.AnimationMode = parser.ParseEnum<AnimationMode>() },
             { "AnimationPriority", (parser, x) => x.AnimationPriority = parser.ParseInteger() },
             { "UseWeaponTiming", (parser, x) => x.UseWeaponTiming = parser.ParseBoolean() },
+            { "AnimationBlendTime", (parser, x) => x.AnimationBlendTime = parser.ParseInteger() },
+            { "AnimationSpeedFactorRange", (parser, x) => x.AnimationSpeedFactorRange = FloatRange.Parse(parser) },
         };
 
         public AnimationType AnimationType { get; private set; }
@@ -71,5 +73,7 @@ namespace OpenSage.Logic.Object
         public AnimationMode AnimationMode { get; private set; }
         public int AnimationPriority { get; private set; }
         public bool UseWeaponTiming { get; private set; }
+        public int AnimationBlendTime { get; private set; }
+        public FloatRange AnimationSpeedFactorRange { get; private set; }
     }
 }

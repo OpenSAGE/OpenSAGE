@@ -101,6 +101,9 @@ namespace OpenSage.Logic.Object
             { "SpecialPowerCompletionDie", SpecialPowerCompletionDieModuleData.Parse },
             { "UpgradeDie", UpgradeDieModuleData.Parse },
 
+            //Module
+            { "SpecialPowerModule", SpecialPowerModuleData.Parse },
+
             // SpecialPower
             { "BaikonurLaunchPower", BaikonurLaunchPowerModuleData.Parse },
             { "CashBountyPower", CashBountyPowerModuleData.Parse },
@@ -140,9 +143,11 @@ namespace OpenSage.Logic.Object
             { "HeightDieUpdate", HeightDieUpdateModuleData.Parse },
             { "HijackerUpdate", HijackerUpdateModuleData.Parse },
             { "HordeUpdate", HordeUpdateModuleData.Parse },
+            { "LargeGroupAudioUpdate", LargeGroupAudioUpdateModuleData.Parse },
             { "LifetimeUpdate", LifetimeUpdateModuleData.Parse },
             { "MissileLauncherBuildingUpdate", MissileLauncherBuildingUpdateModuleData.Parse },
             { "MobMemberSlavedUpdate", MobMemberSlavedUpdateModuleData.Parse },
+            { "ModelConditionSpecialAbilityUpdate", ModelConditionSpecialAbilityUpdateModuleData.Parse },
             { "NeutronMissileUpdate", NeutronMissileUpdateModuleData.Parse },
             { "OCLUpdate", OCLUpdateModuleData.Parse },
             { "ParticleUplinkCannonUpdate", ParticleUplinkCannonUpdateModuleData.Parse },
@@ -160,6 +165,7 @@ namespace OpenSage.Logic.Object
             { "SmartBombTargetHomingUpdate", SmartBombTargetHomingUpdateModuleData.Parse },
             { "SpawnPointProductionExitUpdate", SpawnPointProductionExitUpdateModuleData.Parse },
             { "SpecialAbilityUpdate", SpecialAbilityUpdateModuleData.Parse },
+            { "SpecialEnemySenseUpdate", SpecialEnemySenseUpdateModuleData.Parse },
             { "SpectreGunshipUpdate", SpectreGunshipUpdateModuleData.Parse },
             { "SpectreGunshipDeploymentUpdate", SpectreGunshipDeploymentUpdateModuleData.Parse },
             { "SpyVisionUpdate", SpyVisionUpdateModuleData.Parse },
@@ -173,6 +179,7 @@ namespace OpenSage.Logic.Object
             { "SupplyWarehouseDockUpdate", SupplyWarehouseDockUpdateModuleData.Parse },
             { "TemporarilyDefectUpdate", TemporarilyDefectUpdateModuleData.Parse },
             { "TensileFormationUpdate", TensileFormationUpdateModuleData.Parse },
+            { "ToggleHiddenSpecialAbilityUpdate", ToggleHiddenSpecialAbilityUpdateModuleData.Parse },
             { "ToppleUpdate", ToppleUpdateModuleData.Parse },
             { "WaveGuideUpdate", WaveGuideUpdateModuleData.Parse },
             { "WeaponBonusUpdate", WeaponBonusUpdateModuleData.Parse },
