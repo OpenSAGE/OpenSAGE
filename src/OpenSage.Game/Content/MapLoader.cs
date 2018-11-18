@@ -301,7 +301,7 @@ namespace OpenSage.Content
 
                 var position = mapObject.Position;
 
-                switch (mapObject.RoadType)
+                switch (mapObject.RoadType & RoadType.PrimaryType)
                 {
                     case RoadType.None:
                         switch (mapObject.TypeName)
@@ -327,17 +327,27 @@ namespace OpenSage.Content
                         }
                         break;
 
+                    // TODO: Bridges.
+                    // We'll ignore them completely for now.
                     case RoadType.BridgeStart:
-                        var bridgeEnd = mapObjects[++i];
-                        if (bridgeEnd.RoadType != RoadType.BridgeEnd)
-                        {
-                            throw new InvalidDataException();
-                        }
-                        // TODO: Bridges.
+                    case RoadType.BridgeEnd:
+                        // Note for bridge implementor:
+                        // The engine silently ignores invalid bridges (e.g bridges without a start or an end)
+                        // Multiple invalid bridges can be found in e.g GLA01.
+                        // TODO: Log a warning.
                         break;
 
                     default:
                         var roadEnd = mapObjects[++i];
+
+                        // Some maps have roads with invalid start- or endpoints.
+                        // We'll skip processing them altogether.
+                        // TODO: Log a warning.
+                        if (mapObject.TypeName == "" || roadEnd.TypeName == "")
+                        {
+                            continue;
+                        }
+
                         if (!mapObject.RoadType.HasFlag(RoadType.Start)
                             || !roadEnd.RoadType.HasFlag(RoadType.End)
                             || mapObject.TypeName != roadEnd.TypeName)

@@ -24,6 +24,8 @@ namespace OpenSage.Data.Map
         Unknown3 = 256,
 
         [AddedIn(SageGame.Cnc4)]
-        Unknown4 = 512
+        Unknown4 = 512,
+
+        PrimaryType = Start | End | BridgeStart | BridgeEnd
     }
 }
