@@ -174,6 +174,13 @@ namespace OpenSage.Viewer.UI
 
                 ImGui.Text(_contentView.DisplayName);
 
+                if (isGameViewFocused)
+                {
+                    var message = "Press [ESC] to unfocus the 3D view.";
+                    ImGui.SameLine(ImGui.GetWindowWidth() - ImGui.CalcTextSize(message).X);
+                    ImGui.TextColored(new Vector4(1.0f, 0.0f, 0.0f, 1.0f), message);
+                }
+
                 ImGui.BeginChild("content view");
 
                 _contentView.Draw(ref isGameViewFocused);
