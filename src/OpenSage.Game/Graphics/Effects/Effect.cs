@@ -74,7 +74,10 @@ namespace OpenSage.Graphics.Effects
 
             _vertexShader = AddDisposable(shaders[0]);
             _pixelShader = AddDisposable(shaders[1]);
-                
+
+            _vertexShader.Name = $"{shaderName}.vert";
+            _pixelShader.Name = $"{shaderName}.frag";
+
             shaderDefinition = ShaderDefinitions.GetShaderDefinition(shaderName);
 
             _cachedPipelineStates = new Dictionary<EffectPipelineStateHandle, Pipeline>();

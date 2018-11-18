@@ -22,14 +22,14 @@ layout(set = 0, binding = 7) uniform GlobalLightingConstantsPS
 
 layout(set = 0, binding = 8) uniform texture2D Global_CloudTexture;
 
-#define TEXTURE_MAPPING_UV                 0
-#define TEXTURE_MAPPING_ENVIRONMENT        1
-#define TEXTURE_MAPPING_LINEAR_OFFSET      2
-#define TEXTURE_MAPPING_ROTATE             3
-#define TEXTURE_MAPPING_SINE_LINEAR_OFFSET 4
-#define TEXTURE_MAPPING_SCREEN             5
-#define TEXTURE_MAPPING_SCALE              6
-#define TEXTURE_MAPPING_GRID               7
+#define TEXTURE_MAPPING_UV                 0u
+#define TEXTURE_MAPPING_ENVIRONMENT        1u
+#define TEXTURE_MAPPING_LINEAR_OFFSET      2u
+#define TEXTURE_MAPPING_ROTATE             3u
+#define TEXTURE_MAPPING_SINE_LINEAR_OFFSET 4u
+#define TEXTURE_MAPPING_SCREEN             5u
+#define TEXTURE_MAPPING_SCALE              6u
+#define TEXTURE_MAPPING_GRID               7u
 
 struct TextureMapping
 {
@@ -66,15 +66,15 @@ struct VertexMaterial
     TextureMapping TextureMappingStage1;
 };
 
-#define DIFFUSE_LIGHTING_DISABLE  0
-#define DIFFUSE_LIGHTING_MODULATE 1
-#define DIFFUSE_LIGHTING_ADD      2
+#define DIFFUSE_LIGHTING_DISABLE  0u
+#define DIFFUSE_LIGHTING_MODULATE 1u
+#define DIFFUSE_LIGHTING_ADD      2u
 
-#define SECONDARY_TEXTURE_BLEND_DISABLE      0
-#define SECONDARY_TEXTURE_BLEND_DETAIL       1
-#define SECONDARY_TEXTURE_BLEND_SCALE        2
-#define SECONDARY_TEXTURE_BLEND_INV_SCALE    3
-#define SECONDARY_TEXTURE_BLEND_DETAIL_BLEND 4
+#define SECONDARY_TEXTURE_BLEND_DISABLE      0u
+#define SECONDARY_TEXTURE_BLEND_DETAIL       1u
+#define SECONDARY_TEXTURE_BLEND_SCALE        2u
+#define SECONDARY_TEXTURE_BLEND_INV_SCALE    3u
+#define SECONDARY_TEXTURE_BLEND_DETAIL_BLEND 4u
 
 struct ShadingConfiguration
 {
