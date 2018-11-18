@@ -418,5 +418,11 @@
 
         [IniEnum("NO_FREEWILL_ENTER"), AddedIn(SageGame.Bfme)]
         NoFreeWillEnter,
+
+        [IniEnum("ROCK"), AddedIn(SageGame.Bfme)]
+        Rock,
+
+        [IniEnum("CLUB"), AddedIn(SageGame.Bfme)]
+        Club,
     }
 }

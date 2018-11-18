@@ -122,6 +122,7 @@ namespace OpenSage.Logic.Object
             { "AttributeModifierAuraUpdate", AttributeModifierAuraUpdateModuleData.Parse },
             { "AutoDepositUpdate", AutoDepositUpdateModuleData.Parse },
             { "AutoFindHealingUpdate", AutoFindHealingUpdateModuleData.Parse },
+            { "AutoPickUpUpdate", AutoPickUpUpdateModuleData.Parse },
             { "BaseRegenerateUpdate", BaseRegenerateUpdateModuleData.Parse },
             { "BattlePlanUpdate", BattlePlanUpdateModuleData.Parse },
             { "BoneFXUpdate", BoneFXUpdateModuleData.Parse },
