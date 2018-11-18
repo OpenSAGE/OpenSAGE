@@ -238,5 +238,9 @@ namespace OpenSage.Logic.Object
         Attack4,
         [IniEnum("Defend")]
         Defend,
+        [IniEnum("IdleLook")]
+        IdleLook,
+        [IniEnum("WoundedIdle")]
+        WoundedIdle,
     }
 }

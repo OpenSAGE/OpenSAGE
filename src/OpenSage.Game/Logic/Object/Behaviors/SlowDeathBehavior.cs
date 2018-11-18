@@ -90,5 +90,7 @@ namespace OpenSage.Logic.Object
         Death1 = 1 << 0,
         [IniEnum("DEATH_2")]
         Death2 = 1 << 1,
+        [IniEnum("DEATH_3")]
+        Death3 = 1 << 2,
     }
 }
