@@ -30,6 +30,13 @@ namespace OpenSage.Viewer.UI.Views
         {
             var windowPos = ImGui.GetCursorScreenPos();
             var availableSize = ImGui.GetContentRegionAvail();
+
+            // If there's not enough space for the game view, don't draw anything.
+            if (availableSize.X <= 0 || availableSize.Y <= 0)
+            {
+                return;
+            }
+
             _context.GamePanel.EnsureFrame(
                 new Mathematics.Rectangle(
                     (int) windowPos.X,
