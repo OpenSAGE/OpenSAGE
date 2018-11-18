@@ -348,17 +348,21 @@ namespace OpenSage.Content
                             continue;
                         }
 
-                        if (!mapObject.RoadType.HasFlag(RoadType.Start)
-                            || !roadEnd.RoadType.HasFlag(RoadType.End)
-                            || mapObject.TypeName != roadEnd.TypeName)
+                        if (!mapObject.RoadType.HasFlag(RoadType.Start) || !roadEnd.RoadType.HasFlag(RoadType.End))
                         {
                             throw new InvalidDataException();
                         }
-                        var roadTemplate = contentManager.IniDataContext.RoadTemplates.Find(x => x.Name == mapObject.TypeName);
+
+                        // Note that we're searching with the type of either end.
+                        // This is because of weirdly corrupted roads with unmatched ends in USA04, which work fine in WB and SAGE.
+                        var roadTemplate = contentManager.IniDataContext.RoadTemplates.Find(x =>
+                            x.Name == mapObject.TypeName || x.Name == roadEnd.TypeName);
+
                         if (roadTemplate == null)
                         {
                             throw new InvalidDataException($"Missing road template: {mapObject.TypeName}");
                         }
+
                         roadTopology.AddSegment(roadTemplate, mapObject, roadEnd);
                         break;
                 }
