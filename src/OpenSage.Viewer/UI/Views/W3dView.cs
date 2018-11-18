@@ -46,7 +46,7 @@ namespace OpenSage.Viewer.UI.Views
             var enclosingBoundingBox = GetEnclosingBoundingBox(modelInstance);
 
             var cameraController = new ArcballCameraController(
-                enclosingBoundingBox.GetCenter(),
+                BoundingBox.GetCenter(enclosingBoundingBox),
                 Vector3.Distance(enclosingBoundingBox.Min, enclosingBoundingBox.Max));
 
             game.Scene3D = new Scene3D(
@@ -186,7 +186,7 @@ namespace OpenSage.Viewer.UI.Views
             var first = true;
             foreach (var mesh in modelInstance.Model.Meshes)
             {
-                var transformedBoundingBox = mesh.BoundingBox.Transform(
+                var transformedBoundingBox = BoundingBox.Transform(mesh.BoundingBox,
                     modelInstance.ModelBoneInstances[mesh.ParentBone.Index].Matrix);
 
                 if (first)

@@ -23,6 +23,7 @@ namespace OpenSage.Viewer.UI
 
         private readonly List<GameInstallation> _installations;
 
+        private bool _isVSyncEnabled;
         private GameInstallation _selectedInstallation;
         private Texture _launcherImage;
         private FileSystem _fileSystem;
@@ -40,6 +41,7 @@ namespace OpenSage.Viewer.UI
         public MainForm(GameWindow gameWindow, ImGuiRenderer imGuiRenderer)
         {
             _gameWindow = gameWindow;
+            _isVSyncEnabled = _gameWindow.GraphicsDevice.SyncToVerticalBlank;
             _imGuiRenderer = imGuiRenderer;
 
             _installations = GameInstallation.FindAll(GameDefinition.All).ToList();
@@ -60,6 +62,15 @@ namespace OpenSage.Viewer.UI
                         }
                     }
 
+                    ImGui.EndMenu();
+                }
+                if (ImGui.BeginMenu("Preferences"))
+                {
+                    bool isVSyncEnabled = _isVSyncEnabled;
+                    if (ImGui.MenuItem("VSync", null, ref isVSyncEnabled, true))
+                    {
+                        SetVSync(isVSyncEnabled);
+                    }
                     ImGui.EndMenu();
                 }
                 ImGui.EndMenuBar();
@@ -294,6 +305,15 @@ namespace OpenSage.Viewer.UI
                 _gamePanel));
 
             //InstallationChanged?.Invoke(this, new InstallationChangedEventArgs(installation, _fileSystem));
+        }
+
+        private void SetVSync(bool isEnabled)
+        {
+            if (_isVSyncEnabled != isEnabled)
+            {
+                _isVSyncEnabled = isEnabled;
+                _gameWindow.GraphicsDevice.SyncToVerticalBlank = _isVSyncEnabled;
+            }
         }
     }
 }

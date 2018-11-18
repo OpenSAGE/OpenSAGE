@@ -15,7 +15,7 @@ namespace OpenSage.Mathematics
             Height = height;
         }
 
-        public static Size CalculateSizeFittingAspectRatio(SizeF size, Size availableSize)
+        public static Size CalculateSizeFittingAspectRatio(in SizeF size, in Size availableSize)
         {
             var rect = RectangleF.CalculateRectangleFittingAspectRatio(
                 new RectangleF(Vector2.Zero, size),

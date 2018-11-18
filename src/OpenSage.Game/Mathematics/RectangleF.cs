@@ -134,21 +134,21 @@ namespace OpenSage.Mathematics
             return new RectangleF(position.X, position.Y, size.X, size.Y);
         }
 
-        public bool Contains(in Point2D point)
+        public static bool Contains(in RectangleF rectangle, in Point2D point)
         {
-            return point.X >= X
-                && point.X <= Right
-                && point.Y >= Y
-                && point.Y <= Bottom;
+            return point.X >= rectangle.X
+                && point.X <= rectangle.Right
+                && point.Y >= rectangle.Y
+                && point.Y <= rectangle.Bottom;
         }
 
-        public bool IntersectsWith(in RectangleF rect)
+        public static bool IntersectsWith(in RectangleF rectangle, in RectangleF rect)
         {
             return
-                (rect.Left <= Right) &&
-                (rect.Right >= Left) &&
-                (rect.Top <= Bottom) &&
-                (rect.Bottom >= Top);
+                (rect.Left <= rectangle.Right) &&
+                (rect.Right >= rectangle.Left) &&
+                (rect.Top <= rectangle.Bottom) &&
+                (rect.Bottom >= rectangle.Top);
         }
     }
 }

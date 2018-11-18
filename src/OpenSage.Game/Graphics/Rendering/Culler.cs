@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Rendering
 {
@@ -14,7 +15,7 @@ namespace OpenSage.Graphics.Rendering
                     continue;
                 }
 
-                if (!context.Camera.BoundingFrustum.Intersects(renderItem.BoundingBox))
+                if (!BoundingFrustum.Intersects(context.Camera.BoundingFrustum, renderItem.BoundingBox))
                 {
                     continue;
                 }

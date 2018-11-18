@@ -60,9 +60,12 @@ namespace OpenSage.Mathematics
             };
         }
 
-        public Vector3 GetCenter() => (Min + Max) / 2;
+        public static Vector3 GetCenter(in BoundingBox box)
+        {
+            return (box.Min + box.Max) / 2;
+        }
 
-        public PlaneIntersectionType Intersects(ref Plane plane)
+        public static PlaneIntersectionType Intersects(in BoundingBox box, in Plane plane)
         {
             // See http://zach.in.tu-clausthal.de/teaching/cg_literatur/lighthouse3d_view_frustum_culling/index.html
 
@@ -71,35 +74,35 @@ namespace OpenSage.Mathematics
 
             if (plane.Normal.X >= 0)
             {
-                positiveVertex.X = Max.X;
-                negativeVertex.X = Min.X;
+                positiveVertex.X = box.Max.X;
+                negativeVertex.X = box.Min.X;
             }
             else
             {
-                positiveVertex.X = Min.X;
-                negativeVertex.X = Max.X;
+                positiveVertex.X = box.Min.X;
+                negativeVertex.X = box.Max.X;
             }
 
             if (plane.Normal.Y >= 0)
             {
-                positiveVertex.Y = Max.Y;
-                negativeVertex.Y = Min.Y;
+                positiveVertex.Y = box.Max.Y;
+                negativeVertex.Y = box.Min.Y;
             }
             else
             {
-                positiveVertex.Y = Min.Y;
-                negativeVertex.Y = Max.Y;
+                positiveVertex.Y = box.Min.Y;
+                negativeVertex.Y = box.Max.Y;
             }
 
             if (plane.Normal.Z >= 0)
             {
-                positiveVertex.Z = Max.Z;
-                negativeVertex.Z = Min.Z;
+                positiveVertex.Z = box.Max.Z;
+                negativeVertex.Z = box.Min.Z;
             }
             else
             {
-                positiveVertex.Z = Min.Z;
-                negativeVertex.Z = Max.Z;
+                positiveVertex.Z = box.Min.Z;
+                negativeVertex.Z = box.Max.Z;
             }
 
             // Inline Vector3.Dot(plane.Normal, negativeVertex) + plane.D;
@@ -121,23 +124,25 @@ namespace OpenSage.Mathematics
         }
 
         // Based on http://dev.theomader.com/transform-bounding-boxes/
-        public BoundingBox Transform(in Matrix4x4 matrix)
+        public static BoundingBox Transform(in BoundingBox box, in Matrix4x4 matrix)
         {
             var right = matrix.Right();
-            var xa = right * Min.X;
-            var xb = right * Max.X;
+            var xa = right * box.Min.X;
+            var xb = right * box.Max.X;
 
             var up = matrix.Up();
-            var ya = up * Min.Y;
-            var yb = up * Max.Y;
+            var ya = up * box.Min.Y;
+            var yb = up * box.Max.Y;
 
             var backward = matrix.Backward();
-            var za = backward * Min.Z;
-            var zb = backward * Max.Z;
+            var za = backward * box.Min.Z;
+            var zb = backward * box.Max.Z;
+
+            var translation = Matrix4x4Utility.GetTranslation(matrix);
 
             return new BoundingBox(
-                Vector3.Min(xa, xb) + Vector3.Min(ya, yb) + Vector3.Min(za, zb) + matrix.Translation,
-                Vector3.Max(xa, xb) + Vector3.Max(ya, yb) + Vector3.Max(za, zb) + matrix.Translation
+                Vector3.Min(xa, xb) + Vector3.Min(ya, yb) + Vector3.Min(za, zb) + translation,
+                Vector3.Max(xa, xb) + Vector3.Max(ya, yb) + Vector3.Max(za, zb) + translation
             );
         }
 

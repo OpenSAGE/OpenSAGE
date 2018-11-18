@@ -24,7 +24,7 @@ namespace OpenSage.Mathematics
             }
         }
 
-        public BoundingFrustum(Matrix4x4 value)
+        public BoundingFrustum(in Matrix4x4 value)
         {
             _matrix = value;
             CreatePlanes();
@@ -59,12 +59,12 @@ namespace OpenSage.Mathematics
 
         public override int GetHashCode() => _matrix.GetHashCode();
 
-        public ContainmentType Contains(in BoundingBox box)
+        public static ContainmentType Contains(in BoundingFrustum frustum, in BoundingBox box)
         {
             var intersects = false;
             for (var i = 0; i < PlaneCount; ++i)
             {
-                var planeIntersectionType = box.Intersects(ref _planes[i]);
+                var planeIntersectionType = BoundingBox.Intersects(box, frustum._planes[i]);
                 switch (planeIntersectionType)
                 {
                     case PlaneIntersectionType.Front:
@@ -80,12 +80,12 @@ namespace OpenSage.Mathematics
                 : ContainmentType.Contains;
         }
 
-        public ContainmentType Contains(in BoundingSphere sphere)
+        public static ContainmentType Contains(in BoundingFrustum frustum, in BoundingSphere sphere)
         {
             var intersects = false;
             for (var i = 0; i < PlaneCount; ++i)
             {
-                var planeIntersectionType = sphere.Intersects(this._planes[i]);
+                var planeIntersectionType = BoundingSphere.Intersects(sphere, frustum._planes[i]);
                 switch (planeIntersectionType)
                 {
                     case PlaneIntersectionType.Front:
@@ -101,14 +101,14 @@ namespace OpenSage.Mathematics
                 : ContainmentType.Contains;
         }
 
-        public bool Intersects(in BoundingBox box)
+        public static bool Intersects(in BoundingFrustum frustum, in BoundingBox box)
         {
-            return Contains(box) != ContainmentType.Disjoint;
+            return Contains(frustum, box) != ContainmentType.Disjoint;
         }
 
-        public bool Intersects(in BoundingSphere sphere)
+        public static bool Intersects(in BoundingFrustum frustum, in BoundingSphere sphere)
         {
-            return Contains(sphere) != ContainmentType.Disjoint;
+            return Contains(frustum, sphere) != ContainmentType.Disjoint;
         }
 
         private void CreateCorners()

@@ -16,7 +16,7 @@ namespace OpenSage.Logic.Object
 
         public bool Intersects(in Ray ray, out float depth)
         {
-            var transformedRay = ray.Transform(Transform.MatrixInverse);
+            var transformedRay = Ray.Transform(ray, Transform.MatrixInverse);
 
             if (IntersectsTransformedRay(transformedRay, out depth))
             {
@@ -75,13 +75,13 @@ namespace OpenSage.Logic.Object
 
         public override bool Intersects(in BoundingFrustum frustum)
         {
-            var worldBounds = _bounds.Transform(Transform.Matrix);
-            return frustum.Intersects(worldBounds);
+            var worldBounds = BoundingBox.Transform(_bounds, Transform.Matrix);
+            return BoundingFrustum.Intersects(frustum, worldBounds);
         }
 
         public override Rectangle GetBoundingRectangle(CameraComponent camera)
         {
-            var worldBounds = _bounds.Transform(Transform.Matrix);
+            var worldBounds = BoundingBox.Transform(_bounds, Transform.Matrix);
             return worldBounds.GetBoundingRectangle(camera);
         }
     }
@@ -103,8 +103,8 @@ namespace OpenSage.Logic.Object
 
         public override bool Intersects(in BoundingFrustum frustum)
         {
-            var worldBounds = _bounds.Transform(Transform.Matrix);
-            return frustum.Intersects(worldBounds);
+            var worldBounds = BoundingSphere.Transform(_bounds, Transform.Matrix);
+            return BoundingFrustum.Intersects(frustum, worldBounds);
         }
 
         public override Rectangle GetBoundingRectangle(CameraComponent camera)
@@ -140,13 +140,13 @@ namespace OpenSage.Logic.Object
 
         public override bool Intersects(in BoundingFrustum frustum)
         {
-            var worldBounds = _bounds.Transform(Transform.Matrix);
-            return frustum.Intersects(worldBounds);
+            var worldBounds = BoundingBox.Transform(_bounds, Transform.Matrix);
+            return BoundingFrustum.Intersects(frustum, worldBounds);
         }
 
         public override Rectangle GetBoundingRectangle(CameraComponent camera)
         {
-            var worldBounds = _bounds.Transform(Transform.Matrix);
+            var worldBounds = BoundingBox.Transform(_bounds, Transform.Matrix);
             return worldBounds.GetBoundingRectangle(camera);
         }
     }

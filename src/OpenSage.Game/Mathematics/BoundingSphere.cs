@@ -9,13 +9,13 @@ namespace OpenSage.Mathematics
 
         public float Radius;
 
-        public BoundingSphere(Vector3 center, float radius)
+        public BoundingSphere(in Vector3 center, float radius)
         {
             Center = center;
             Radius = radius;
         }
 
-        public static BoundingSphere CreateMerged(BoundingSphere original, BoundingSphere additional)
+        public static BoundingSphere CreateMerged(in BoundingSphere original, in BoundingSphere additional)
         {
             Vector3 ocenterToaCenter = Vector3.Subtract(additional.Center, original.Center);
             float distance = ocenterToaCenter.Length();
@@ -54,12 +54,12 @@ namespace OpenSage.Mathematics
             return new BoundingSphere(center, radius);
         }
 
-        public BoundingSphere Transform(Matrix4x4 matrix)
+        public static BoundingSphere Transform(in BoundingSphere sphere, in Matrix4x4 matrix)
         {
             return new BoundingSphere
             {
-                Center = Vector3.Transform(Center, matrix),
-                Radius = Radius * (MathUtility.Sqrt(
+                Center = Vector3.Transform(sphere.Center, matrix),
+                Radius = sphere.Radius * (MathUtility.Sqrt(
                     Math.Max(
                         ((matrix.M11 * matrix.M11) + (matrix.M12 * matrix.M12)) + (matrix.M13 * matrix.M13), 
                         Math.Max(
@@ -68,13 +68,13 @@ namespace OpenSage.Mathematics
             };
         }
 
-        public PlaneIntersectionType Intersects(Plane plane)
+        public static PlaneIntersectionType Intersects(in BoundingSphere sphere, in Plane plane)
         {
-            var distance = Vector3.Dot(plane.Normal, this.Center);
+            var distance = Vector3.Dot(plane.Normal, sphere.Center);
             distance += plane.D;
-            if (distance > this.Radius)
+            if (distance > sphere.Radius)
                 return PlaneIntersectionType.Front;
-            else if (distance < -this.Radius)
+            else if (distance < -sphere.Radius)
                 return PlaneIntersectionType.Back;
             else
                 return PlaneIntersectionType.Intersecting;

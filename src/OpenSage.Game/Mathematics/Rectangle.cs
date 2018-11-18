@@ -33,17 +33,17 @@ namespace OpenSage.Mathematics
             Height = size.Height;
         }
 
-        public bool Intersects(in Rectangle value)
+        public static bool Intersects(in Rectangle rectangle, in Rectangle value)
         {
-            return value.Left < Right &&
-                Left < value.Right &&
-                value.Top < Bottom &&
-                Top < value.Bottom;
+            return value.Left < rectangle.Right &&
+                rectangle.Left < value.Right &&
+                value.Top < rectangle.Bottom &&
+                rectangle.Top < value.Bottom;
         }
 
         public static Rectangle Intersect(in Rectangle value1, in Rectangle value2)
         {
-            if (value1.Intersects(value2))
+            if (Intersects(value1, value2))
             {
                 var rightSide = Math.Min(value1.X + value1.Width, value2.X + value2.Width);
                 var leftSide = Math.Max(value1.X, value2.X);
@@ -57,7 +57,7 @@ namespace OpenSage.Mathematics
             }
         }
 
-        public static Rectangle FromCorners(Point2D topLeft, Point2D bottomRight)
+        public static Rectangle FromCorners(in Point2D topLeft, in Point2D bottomRight)
         {
             return new Rectangle(topLeft, (bottomRight - topLeft).ToSize());
         }

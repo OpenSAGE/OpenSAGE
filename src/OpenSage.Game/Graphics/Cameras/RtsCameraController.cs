@@ -185,7 +185,7 @@ namespace OpenSage.Graphics.Cameras
                 new Vector3(0, 0, cameraHeight),
                 new Vector3(0, 1, cameraHeight),
                 new Vector3(1, 0, cameraHeight));
-            var toCameraIntersectionDistance = toCameraRay.Intersects(ref plane).Value;
+            var toCameraIntersectionDistance = Ray.Intersects(toCameraRay, plane).Value;
             var newPosition = _terrainPosition - cameraToTerrainDirection * toCameraIntersectionDistance;
 
             // Pitch - 0 means top-down view.
