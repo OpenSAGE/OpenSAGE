@@ -10,7 +10,7 @@ namespace OpenSage.Viewer.UI.Views
 {
     internal sealed class IniView : AssetView
     {
-        private ViewMode _currentView = ViewMode.ObjectView;
+        private ViewMode _currentView;
 
         private readonly List<IniEntry> _subObjects;
         private IniEntry _selectedSubObject;
@@ -42,6 +42,9 @@ namespace OpenSage.Viewer.UI.Views
             {
                 _subObjects.Add(new IniEntry(particleSystem.Name, () => new ParticleSystemView(context, particleSystem)));
             }
+
+            // If we can't show this file in object view, default to text view.
+            _currentView = _subObjects.Count == 0 ? ViewMode.TextView : ViewMode.ObjectView;
         }
 
         private void DrawObjectMode(ref bool isGameViewFocused)
@@ -88,16 +91,20 @@ namespace OpenSage.Viewer.UI.Views
 
         public override void Draw(ref bool isGameViewFocused)
         {
-            if (ImGui.RadioButton("Object view", _currentView == ViewMode.ObjectView))
+            // Only show mode selection when there are objects to show.
+            if (_subObjects.Count > 0)
             {
-                _currentView = ViewMode.ObjectView;
-            }
+                if (ImGui.RadioButton("Object view", _currentView == ViewMode.ObjectView))
+                {
+                    _currentView = ViewMode.ObjectView;
+                }
 
-            ImGui.SameLine();
+                ImGui.SameLine();
 
-            if (ImGui.RadioButton("Text view", _currentView == ViewMode.TextView))
-            {
-                _currentView = ViewMode.TextView;
+                if (ImGui.RadioButton("Text view", _currentView == ViewMode.TextView))
+                {
+                    _currentView = ViewMode.TextView;
+                }
             }
 
             ImGui.BeginChild("mode view", ImGui.GetContentRegionAvail(), false, ImGuiWindowFlags.AlwaysAutoResize);
