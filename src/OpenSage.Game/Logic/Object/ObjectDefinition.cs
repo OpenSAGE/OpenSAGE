@@ -74,6 +74,8 @@ namespace OpenSage.Logic.Object
             { "VoiceSelectBattleGroup", (parser, x) => x.VoiceSelectBattleGroup = parser.ParseAssetReference() },
             { "VoiceMove", (parser, x) => x.VoiceMove = parser.ParseAssetReference() },
             { "VoiceMoveGroup", (parser, x) => x.VoiceMoveGroup = parser.ParseAssetReference() },
+            { "VoiceMoveOverWalls", (parser, x) => x.VoiceMoveOverWall = parser.ParseAssetReference() },
+            { "VoiceMoveToHigherGround", (parser, x) => x.VoiceMoveToHigherGround = parser.ParseAssetReference() },
             { "VoiceGuard", (parser, x) => x.VoiceGuard = parser.ParseAssetReference() },
             { "VoiceGuardGroup", (parser, x) => x.VoiceGuardGroup = parser.ParseAssetReference() },
             { "VoiceAttack", (parser, x) => x.VoiceAttack = parser.ParseAssetReference() },
@@ -115,6 +117,8 @@ namespace OpenSage.Logic.Object
             { "VoiceEnterStateRetreatToCastle", (parser, x) => x.VoiceEnterStateRetreatToCastle = parser.ParseAssetReference() },
             { "VoiceEnterStateMoveToCamp", (parser, x) => x.VoiceEnterStateMoveToCamp = parser.ParseAssetReference() },
             { "VoiceEnterStateMoveWhileAttacking", (parser, x) => x.VoiceEnterStateMoveWhileAttacking = parser.ParseAssetReference() },
+            { "VoiceEnterStateMoveToHigherGround", (parser, x) => x.VoiceEnterStateMoveToHigherGround = parser.ParseAssetReference() },
+            { "VoiceEnterStateMoveOverWalls", (parser, x) => x.VoiceEnterStateMoveOverWalls = parser.ParseAssetReference() },
 
             { "VoiceSelect2", (parser, x) => x.VoiceSelect2 = parser.ParseAssetReference() },
             { "VoiceSelectGroup2", (parser, x) => x.VoiceSelectGroup2 = parser.ParseAssetReference() },
@@ -187,6 +191,7 @@ namespace OpenSage.Logic.Object
             { "SoundPromotedHero", (parser, x) => x.SoundPromotedHero = parser.ParseAssetReference() },
             { "SoundFallingFromPlane", (parser, x) => x.SoundFallingFromPlane = parser.ParseAssetReference() },
             { "SoundImpact", (parser, x) => x.SoundImpact = parser.ParseAssetReference() },
+            { "SoundImpactCyclonic", (parser, x) => x.SoundImpactCyclonic = parser.ParseAssetReference() },
             { "SoundCrushing", (parser, x) => x.SoundCrushing = parser.ParseAssetReference() },
 
             { "UnitSpecificSounds", (parser, x) => x.UnitSpecificSounds = UnitSpecificAssets.Parse(parser) },
@@ -198,6 +203,9 @@ namespace OpenSage.Logic.Object
             { "VoiceAmbushTimeout", (parser, x) => x.VoiceAmbushTimeout = parser.ParseInteger() },
 
             { "EvaEnemyUnitSightedEvent", (parser, x) => x.EvaEnemyUnitSightedEvent = parser.ParseAssetReference() },
+
+            { "CampnessValue", (parser, x) => x.CampnessValue = parser.ParseEnum<Campness>() },
+            { "CampnessValueRadius", (parser, x) => x.CampnessValueRadius = parser.ParseInteger() },
 
             { "Behavior", (parser, x) => x.Behaviors.Add(BehaviorModuleData.ParseBehavior(parser)) },
             { "Draw", (parser, x) => x.Draws.Add(DrawModuleData.ParseDrawModule(parser)) },
@@ -216,6 +224,7 @@ namespace OpenSage.Logic.Object
             { "GeometryMinorRadius", (parser, x) => x.GeometryMinorRadius = parser.ParseFloat() },
             { "GeometryHeight", (parser, x) => x.GeometryHeight = parser.ParseFloat() },
             { "GeometryIsSmall", (parser, x) => x.GeometryIsSmall = parser.ParseBoolean() },
+            { "CamouflageDetectionMultiplier", (parser, x) => x.CamouflageDetectionMultiplier = parser.ParseFloat()}, 
             { "FactoryExitWidth", (parser, x) => x.FactoryExitWidth = parser.ParseInteger() },
             { "FactoryExtraBibWidth", (parser, x) => x.FactoryExtraBibWidth = parser.ParseFloat() },
             { "Shadow", (parser, x) => x.Shadow = parser.ParseEnum<ObjectShadowType>() },
@@ -322,6 +331,12 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public string VoiceMoveGroup { get; private set; }
 
+        [AddedIn(SageGame.Bfme2)]
+        public string VoiceMoveOverWall { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string VoiceMoveToHigherGround { get; private set; }
+
         public string VoiceGuard { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
@@ -425,6 +440,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string VoiceEnterStateMoveWhileAttacking { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string VoiceEnterStateMoveToHigherGround { get; private set; } 
+
+        [AddedIn(SageGame.Bfme2)]
+        public string VoiceEnterStateMoveOverWalls { get; private set; } 
 
         [AddedIn(SageGame.Bfme)]
         public string VoiceSelect2 { get; private set; }
@@ -602,6 +623,9 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public string SoundImpact { get; private set; }
 
+        [AddedIn(SageGame.Bfme2)]
+        public string SoundImpactCyclonic { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public string SoundCrushing { get; private set; }
 
@@ -622,6 +646,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string EvaEnemyUnitSightedEvent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Campness CampnessValue { get; private set; }
+        [AddedIn(SageGame.Bfme2)]
+        public int CampnessValueRadius { get; private set; }
 
         // Engineering
         public List<BehaviorModuleData> Behaviors { get; } = new List<BehaviorModuleData>();
@@ -645,6 +674,9 @@ namespace OpenSage.Logic.Object
         public float GeometryMinorRadius { get; private set; }
         public float GeometryHeight { get; private set; }
         public bool GeometryIsSmall { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float CamouflageDetectionMultiplier { get; private set; }
 
         /// <summary>
         /// Amount of space to leave for exiting units.
