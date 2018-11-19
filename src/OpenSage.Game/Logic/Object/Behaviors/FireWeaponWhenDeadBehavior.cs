@@ -1,5 +1,6 @@
 ﻿using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -15,6 +16,8 @@ namespace OpenSage.Logic.Object
                 { "DeathWeapon", (parser, x) => x.DeathWeapon = parser.ParseAssetReference() },
                 { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
                 { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
+                { "DelayTime", (parser, x) => x.DelayTime = parser.ParseInteger() },
+                { "WeaponOffset", (parser, x) => x.WeaponOffset = parser.ParsePoint3D() },
             });
 
         public ObjectStatus RequiredStatus { get; private set; }
@@ -22,5 +25,11 @@ namespace OpenSage.Logic.Object
         public string DeathWeapon { get; private set; }
         public bool StartsActive { get; private set; }
         public BitArray<DeathType> DeathTypes { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int DelayTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public Point3D WeaponOffset { get; private set; }
     }
 }

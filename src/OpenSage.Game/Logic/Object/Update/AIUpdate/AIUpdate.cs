@@ -20,7 +20,8 @@ namespace OpenSage.Logic.Object
             { "MinCowerTime", (parser, x) => x.MinCowerTime = parser.ParseInteger() },
             { "MaxCowerTime", (parser, x) => x.MaxCowerTime = parser.ParseInteger() },
             { "CanAttackWhileContained", (parser, x) => x.CanAttackWhileContained = parser.ParseBoolean() },
-
+            { "RampageTime", (parser, x) => x.RampageTime = parser.ParseInteger() },
+            { "TimeToEjectPassengersOnRampage", (parser, x) => x.TimeToEjectPassengersOnRampage = parser.ParseInteger() },
         };
 
         /// <summary>
@@ -45,12 +46,21 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int HoldGroundCloseRangeDistance { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public int MinCowerTime { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public int MaxCowerTime { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public bool CanAttackWhileContained { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int RampageTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int TimeToEjectPassengersOnRampage  { get; private set; }
     }
 
     public enum AutoAcquireEnemiesType

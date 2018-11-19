@@ -11,7 +11,9 @@ namespace OpenSage.Logic.Object
         {
             { "Weapon", (parser, x) => x.Weapon = parser.ParseAssetReference() },
             { "ExclusiveWeaponDelay", (parser, x) => x.ExclusiveWeaponDelay = parser.ParseInteger() },
-            { "InitialDelay", (parser, x) => x.InitialDelay = parser.ParseInteger() }
+            { "InitialDelay", (parser, x) => x.InitialDelay = parser.ParseInteger() },
+            { "ChargingModeTrigger", (parser, x) => x.ChargingModeTrigger = parser.ParseBoolean() },
+            { "AliveOnly", (parser, x) => x.AliveOnly = parser.ParseBoolean() }
         };
 
         public string Weapon { get; private set; }
@@ -21,5 +23,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int InitialDelay { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ChargingModeTrigger { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool AliveOnly { get; private set; }
     }
 }

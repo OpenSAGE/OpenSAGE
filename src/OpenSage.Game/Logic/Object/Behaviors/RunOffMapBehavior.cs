@@ -11,8 +11,11 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<RunOffMapBehaviorModuleData> FieldParseTable = new IniParseTable<RunOffMapBehaviorModuleData>
         {
             { "RequiresSpecificTrigger", (parser, x) => x.RequiresSpecificTrigger = parser.ParseBoolean() },
+            { "RunOffMapWaypointName", (parser, x) => x.RunOffMapWaypointName = parser.ParseIdentifier() },
         };
 
         public bool RequiresSpecificTrigger { get; private set; }
+
+        public string RunOffMapWaypointName { get; private set; }
     }
 }

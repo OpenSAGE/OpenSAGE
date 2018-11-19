@@ -48,12 +48,11 @@ namespace OpenSage.Logic.Object
     {
         internal static Animation Parse(IniParser parser)
         {
-           
-            var animationType = AnimationType.None;
             var token = parser.GetNextTokenOptional();
+            var animationType = "";
             if (token.HasValue)
             {
-                animationType = IniParser.ParseEnum<AnimationType>(token.Value);
+                animationType = token.Value.Text;
             }
 
             var result = parser.ParseBlock(FieldParseTable);
@@ -74,7 +73,7 @@ namespace OpenSage.Logic.Object
             { "Distance", (parser, x) => x.Distance = parser.ParseFloat() },
         };
 
-        public AnimationType AnimationType { get; private set; }
+        public string AnimationType { get; private set; }
 
         public string AnimationName { get; private set; }
         public AnimationMode AnimationMode { get; private set; }

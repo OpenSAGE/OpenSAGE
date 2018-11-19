@@ -39,5 +39,14 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("UNSELECTABLE"), AddedIn(SageGame.Bfme)]
         Unselectable,
+
+        [IniEnum("DEATH_1"), AddedIn(SageGame.Bfme)]
+        Death1,
+
+        [IniEnum("DEATH_2"), AddedIn(SageGame.Bfme)]
+        Death2,
+
+        [IniEnum("DEATH_3"), AddedIn(SageGame.Bfme)]
+        Death3,
     }
 }
