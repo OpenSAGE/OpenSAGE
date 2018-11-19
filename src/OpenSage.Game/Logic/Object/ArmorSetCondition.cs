@@ -15,5 +15,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("CRATE_UPGRADE_TWO"), AddedIn(SageGame.CncGeneralsZeroHour)]
         CrateUpgradeTwo,
+
+        [IniEnum("ALTERNATE_FORMATION"), AddedIn(SageGame.Bfme)]
+        AlternateFormation,
     }
 }

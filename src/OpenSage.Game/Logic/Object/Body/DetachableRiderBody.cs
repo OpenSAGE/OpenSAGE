@@ -12,9 +12,11 @@ namespace OpenSage.Logic.Object
             {
                 { "HealthPercentageWhenRiderDies", (parser, x) => x.HealthPercentageWhenRiderDies = parser.ParsePercentage() },
                 { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
+                { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseString() },
             });
 
         public float HealthPercentageWhenRiderDies { get; internal set; }
         public bool StartsActive { get; internal set; }
+        public string TriggeredBy { get; internal set; }
     }
 }

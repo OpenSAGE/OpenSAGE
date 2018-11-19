@@ -263,6 +263,9 @@ namespace OpenSage.Logic.Object
             { "ImmuneToShockwave", (parser, x) => x.ImmuneToShockwave = parser.ParseBoolean() },
             { "ShowHealthInSelectionDecal", (parser, x) => x.ShowHealthInSelectionDecal = parser.ParseBoolean() },
             { "DeadCollideSize", (parser, x) => x.DeadCollideSize = parser.ParseEnum<CollideSize>() },
+            { "CrushKnockback", (parser, x) => x.CrushKnockback = parser.ParseInteger() },
+            { "CrushZFactor", (parser, x) => x.CrushZFactor = parser.ParseFloat() },
+            { "BountyValue", (parser, x) => x.BountyValue = parser.ParseInteger() },
         };
 
     
@@ -779,6 +782,15 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public CollideSize DeadCollideSize { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int CrushKnockback { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float CrushZFactor { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int BountyValue { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

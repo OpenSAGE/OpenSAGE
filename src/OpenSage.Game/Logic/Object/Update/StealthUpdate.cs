@@ -33,6 +33,7 @@ namespace OpenSage.Logic.Object
             { "EnemyDetectionEvaEvent", (parser, x) => x.EnemyDetectionEvaEvent = parser.ParseAssetReference() },
             { "OwnDetectionEvaEvent", (parser, x) => x.OwnDetectionEvaEvent = parser.ParseAssetReference() },
             { "UseRiderStealth", (parser, x) => x.UseRiderStealth = parser.ParseBoolean() },
+            { "DetectedByAnyoneRange", (parser, x) => x.DetectedByAnyoneRange = parser.ParseInteger() },
         };
 
         public int StealthDelay { get; private set; }
@@ -62,5 +63,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool UseRiderStealth { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int DetectedByAnyoneRange { get; private set; }
     }
 }

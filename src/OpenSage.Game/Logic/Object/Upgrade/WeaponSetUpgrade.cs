@@ -12,6 +12,31 @@ namespace OpenSage.Logic.Object
         internal static WeaponSetUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static new readonly IniParseTable<WeaponSetUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
-            .Concat(new IniParseTable<WeaponSetUpgradeModuleData>());
+            .Concat(new IniParseTable<WeaponSetUpgradeModuleData>()
+            {
+                { "CustomAnimAndDuration", (parser, x) => x.CustomAnimAndDuration = CustomAnimAndDuration.Parse(parser) },
+            });
+
+        [AddedIn(SageGame.Bfme)]
+        public CustomAnimAndDuration CustomAnimAndDuration { get; internal set; }
+        
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public sealed class CustomAnimAndDuration
+    {
+        internal static CustomAnimAndDuration Parse(IniParser parser)
+        {
+            return new CustomAnimAndDuration()
+            {
+                AnimState = parser.ParseAttributeEnum<ModelConditionFlag>("AnimState"),
+                AnimTime = parser.ParseAttributeInteger("AnimTime"),
+                TriggerTime = parser.ParseAttributeInteger("TriggerTime")
+            };
+        }
+
+        public ModelConditionFlag AnimState { get; private set; }
+        public int AnimTime { get; private set; }
+        public int TriggerTime { get; private set; }
     }
 }

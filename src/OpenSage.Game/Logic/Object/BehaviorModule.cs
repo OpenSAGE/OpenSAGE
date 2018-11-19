@@ -18,6 +18,7 @@ namespace OpenSage.Logic.Object
             { "BridgeScaffoldBehavior", BridgeScaffoldBehaviorModuleData.Parse },
             { "BridgeTowerBehavior", BridgeTowerBehaviorModuleData.Parse },
             { "BunkerBusterBehavior", BunkerBusterBehaviorModuleData.Parse },
+            { "CastleMemberBehavior", CastleMemberBehaviorModuleData.Parse },
             { "ClearanceTestingSlowDeathBehavior", ClearanceTestingSlowDeathBehaviorModuleData.Parse },
             { "ClickReactionBehavior", ClickReactionBehaviorData.Parse },
             { "CountermeasuresBehavior", CountermeasuresBehaviorModuleData.Parse },
@@ -27,6 +28,7 @@ namespace OpenSage.Logic.Object
             { "FireWeaponWhenDamagedBehavior", FireWeaponWhenDamagedBehaviorModuleData.Parse },
             { "FlightDeckBehavior", FlightDeckBehaviorModuleData.Parse },
             { "GenerateMinefieldBehavior", GenerateMinefieldBehaviorModuleData.Parse },
+            { "GettingBuiltBehavior", GettingBuiltBehaviorModuleData.Parse },
             { "GrantStealthBehavior", GrantStealthBehaviorModuleData.Parse },
             { "HelicopterSlowDeathBehavior", HelicopterSlowDeathBehaviorModuleData.Parse },
             { "InstantDeathBehavior", InstantDeathBehaviorModuleData.Parse },
@@ -51,6 +53,7 @@ namespace OpenSage.Logic.Object
             { "BezierProjectileBehavior", BezierProjectileBehaviorData.Parse },
             { "HitReactionBehavior", HitReactionBehaviorData.Parse },
             { "HordeTransportContain", HordeTransportContainBehaviorData.Parse },
+            { "HordeMemberCollide", HordeMemberCollideBehaviorData.Parse },
 
             // Collide
             { "ConvertToCarBombCrateCollide", ConvertToCarBombCrateCollideModuleData.Parse },

@@ -59,5 +59,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("SPECIAL_UPGRADE"), AddedIn(SageGame.Bfme)]
         SpecialUpgrade      = 1 << 16,
+
+        [IniEnum("WEAPONSET_TOGGLE_1"), AddedIn(SageGame.Bfme)]
+        WeaponsetToggle1    = 1 << 17,
     }
 }

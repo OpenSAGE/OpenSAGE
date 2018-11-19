@@ -433,5 +433,17 @@
 
         [IniEnum("PATH_THROUGH_INFANTRY"), AddedIn(SageGame.Bfme)]
         PathThroughInfantry,
+
+        [IniEnum("NEED_BASE_FOUNDATION"), AddedIn(SageGame.Bfme)]
+        NeedBaseFoundation,
+
+        [IniEnum("GARRISON"), AddedIn(SageGame.Bfme)]
+        Garrison,
+
+        [IniEnum("CHUNK_VENDOR"), AddedIn(SageGame.Bfme)]
+        ChunkVendor,
+
+        [IniEnum("URUK"), AddedIn(SageGame.Bfme)]
+        Uruk,
     }
 }

@@ -579,5 +579,17 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("DECAY"), AddedIn(SageGame.Bfme)]
         Decay,
+
+        [IniEnum("CLUB"), AddedIn(SageGame.Bfme)]
+        Club,
+
+        [IniEnum("POST_RUBBLE"), AddedIn(SageGame.Bfme)]
+        PostRubble,
+
+        [IniEnum("USER_4"), AddedIn(SageGame.Bfme)]
+        User4,
+
+        [IniEnum("USER_5"), AddedIn(SageGame.Bfme)]
+        User5,
     }
 }

@@ -17,12 +17,18 @@ namespace OpenSage.Logic.Object
                 { "ShowShadowWhileContained", (parser, x) => x.ShowShadowWhileContained = parser.ParseBoolean() },
                 { "RandomTexture", (parser, x) => x.RandomTextures.Add(RandomTexture.Parse(parser)) },
                 { "WallBoundsMesh", (parser, x) => x.WallBoundsMesh = parser.ParseAssetReference() },
+                { "UseStandardModelNames", (parser, x) => x.UseStandardModelNames = parser.ParseBoolean() },
+                { "RampMesh1", (parser, x) => x.RampMesh1 = parser.ParseAssetReference() },
+                { "RampMesh2", (parser, x) => x.RampMesh2 = parser.ParseAssetReference() },
             });
 
         public bool StaticModelLODMode { get; private set; }
         public bool ShowShadowWhileContained { get; private set; }
         public List<RandomTexture> RandomTextures { get; private set; } = new List<RandomTexture>();
         public string WallBoundsMesh { get; private set; }
+        public bool UseStandardModelNames { get; private set; }
+        public string RampMesh1 { get; private set; }
+        public string RampMesh2 { get; private set; }
     }
 
     public sealed class RandomTexture

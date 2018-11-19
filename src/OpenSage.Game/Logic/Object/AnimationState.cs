@@ -71,6 +71,7 @@ namespace OpenSage.Logic.Object
             { "AnimationBlendTime", (parser, x) => x.AnimationBlendTime = parser.ParseInteger() },
             { "AnimationSpeedFactorRange", (parser, x) => x.AnimationSpeedFactorRange = FloatRange.Parse(parser) },
             { "Distance", (parser, x) => x.Distance = parser.ParseFloat() },
+            { "AnimationMustCompleteBlend", (parser, x) => x.AnimationMustCompleteBlend = parser.ParseBoolean() },
         };
 
         public string AnimationType { get; private set; }
@@ -82,6 +83,7 @@ namespace OpenSage.Logic.Object
         public int AnimationBlendTime { get; private set; }
         public FloatRange AnimationSpeedFactorRange { get; private set; }
         public float Distance { get; private set; }
+        public bool AnimationMustCompleteBlend { get; private set; }
     }
 
     public sealed class FXEvent
