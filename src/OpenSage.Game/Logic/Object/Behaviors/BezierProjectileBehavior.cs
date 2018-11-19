@@ -31,6 +31,7 @@ namespace OpenSage.Logic.Object
             { "GroundBounceWeapon", (parser, x) => x.GroundBounceWeapon = parser.ParseAssetReference() },
             { "DetonateCallsKill", (parser, x) => x.DetonateCallsKill = parser.ParseBoolean() },
             { "FlightPathAdjustDistPerSecond", (parser, x) => x.FlightPathAdjustDistPerSecond = parser.ParseInteger() },
+            { "CurveFlattenMinDist", (parser, x) => x.CurveFlattenMinDist = parser.ParseFloat() },
         };
 
         public int FirstHeight { get; private set; }
@@ -53,5 +54,6 @@ namespace OpenSage.Logic.Object
         public string GroundBounceWeapon { get; private set; }
         public bool DetonateCallsKill { get; private set; }
         public int FlightPathAdjustDistPerSecond { get; private set; }
+        public float CurveFlattenMinDist { get; private set; }
     }
 }

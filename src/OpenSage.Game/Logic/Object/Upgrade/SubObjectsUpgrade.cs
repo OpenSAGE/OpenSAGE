@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -14,9 +15,13 @@ namespace OpenSage.Logic.Object
             {
                 { "ShowSubObjects", (parser, x) => x.ShowSubObjects = parser.ParseAssetReferenceArray() },
                 { "HideSubObjects", (parser, x) => x.HideSubObjects = parser.ParseAssetReferenceArray() },
+                { "UpgradeTexture", (parser, x) => x.UpgradeTextures.Add(RandomTexture.Parse(parser)) },
             });
 
         public string[] ShowSubObjects { get; private set; }
         public string[] HideSubObjects { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public List<RandomTexture> UpgradeTextures { get; private set; } = new List<RandomTexture>();
     }
 }

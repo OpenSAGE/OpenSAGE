@@ -445,5 +445,27 @@
 
         [IniEnum("URUK"), AddedIn(SageGame.Bfme)]
         Uruk,
+
+        [IniEnum("ARMY_SUMMARY"), AddedIn(SageGame.Bfme)]
+        ArmySummary,
+
+        [IniEnum("CASTLE_KEEP"), AddedIn(SageGame.Bfme)]
+        CastleKeep,
+
+        [IniEnum("MOVE_ONLY"), AddedIn(SageGame.Bfme)]
+        MoveOnly,
+
+        [IniEnum("HIDE_IF_FOGGED"), AddedIn(SageGame.Bfme)]
+        HideIfFogged,
+
+        [IniEnum("BASE_FOUNDATION"), AddedIn(SageGame.Bfme)]
+        BaseFoundation,
+
+        [IniEnum("CASTLE_CENTER"), AddedIn(SageGame.Bfme)]
+        CastleCenter,
+
+        [IniEnum("BASE_SITE"), AddedIn(SageGame.Bfme)]
+        BaseSite,
+
     }
 }

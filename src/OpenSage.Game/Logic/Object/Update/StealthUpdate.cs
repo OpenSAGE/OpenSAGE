@@ -34,6 +34,9 @@ namespace OpenSage.Logic.Object
             { "OwnDetectionEvaEvent", (parser, x) => x.OwnDetectionEvaEvent = parser.ParseAssetReference() },
             { "UseRiderStealth", (parser, x) => x.UseRiderStealth = parser.ParseBoolean() },
             { "DetectedByAnyoneRange", (parser, x) => x.DetectedByAnyoneRange = parser.ParseInteger() },
+            { "RemoveTerrainRestrictionOnUpgrade", (parser, x) => x.RemoveTerrainRestrictionOnUpgrade = parser.ParseString() },
+            { "RevealWeaponSets", (parser, x) => x.RevealWeaponSets = parser.ParseEnumFlags<WeaponSetConditions>() },
+            { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
         };
 
         public int StealthDelay { get; private set; }
@@ -66,5 +69,14 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int DetectedByAnyoneRange { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string RemoveTerrainRestrictionOnUpgrade { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public WeaponSetConditions RevealWeaponSets { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool StartsActive { get; private set; }
     }
 }

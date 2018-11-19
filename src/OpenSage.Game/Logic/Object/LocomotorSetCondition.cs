@@ -29,6 +29,9 @@ namespace OpenSage.Logic.Object
         Sluggish,
 
         [IniEnum("SET_ENRAGED")]
-        Enraged
+        Enraged,
+
+        [IniEnum("SET_SCARED")]
+        Scared,
     }
 }

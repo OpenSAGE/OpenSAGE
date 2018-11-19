@@ -225,6 +225,7 @@ namespace OpenSage.Logic.Object
             { "DisplayColor", (parser, x) => x.DisplayColor = IniColorRgb.Parse(parser) },
             { "Scale", (parser, x) => x.Scale = parser.ParseFloat() },
             { "Geometry", (parser, x) => x.Geometry = parser.ParseEnum<ObjectGeometry>() },
+            { "GeometryName", (parser, x) => x.GeometryName = parser.ParseString() },
             { "GeometryOther", (parser, x) => x.OtherGeometrys.Add(OtherGeometry.Parse(parser)) },
             { "GeometryMajorRadius", (parser, x) => x.GeometryMajorRadius = parser.ParseFloat() },
             { "GeometryMinorRadius", (parser, x) => x.GeometryMinorRadius = parser.ParseFloat() },
@@ -696,6 +697,9 @@ namespace OpenSage.Logic.Object
         public IniColorRgb DisplayColor { get; private set; }
         public float Scale { get; private set; }
         public ObjectGeometry Geometry { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string GeometryName { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public List<OtherGeometry> OtherGeometrys { get; private set; } = new List<OtherGeometry>(); //for crushing/squishing detection

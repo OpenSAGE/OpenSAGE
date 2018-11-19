@@ -591,5 +591,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("USER_5"), AddedIn(SageGame.Bfme)]
         User5,
+
+        [IniEnum("AWAY_FROM_TREES"), AddedIn(SageGame.Bfme)]
+        AwayFromTrees,
     }
 }
