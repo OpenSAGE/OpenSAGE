@@ -165,6 +165,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                     case InstructionType.Increment:
                         instruction = new Increment();
                         break;
+                    case InstructionType.Decrement:
+                        instruction = new Decrement();
+                        break;
                     case InstructionType.CallMethod:
                         instruction = new CallMethod();
                         break;
@@ -411,6 +414,14 @@ namespace OpenSage.Gui.Apt.ActionScript
 
                         if (!branched)
                             parsing = false;
+                        break;
+                    case InstructionType.EA_CallNamedMethod:
+                        instruction = new CallNamedMethod();
+                        parameters.Add(Value.FromConstant(_reader.ReadByte()));
+                        break;
+                    case InstructionType.Var:
+                        instruction = new Var();
+
                         break;
                     default:
                         throw new InvalidDataException("Unimplemented bytecode instruction:" + type.ToString());
