@@ -18,7 +18,9 @@ namespace OpenSage.Logic.Object
             { "AILuaEventsList", (parser, x) => x.AILuaEventsList = parser.ParseString() },
             { "HoldGroundCloseRangeDistance", (parser, x) => x.HoldGroundCloseRangeDistance = parser.ParseInteger() },
             { "MinCowerTime", (parser, x) => x.MinCowerTime = parser.ParseInteger() },
-            { "MaxCowerTime", (parser, x) => x.MaxCowerTime = parser.ParseInteger() }
+            { "MaxCowerTime", (parser, x) => x.MaxCowerTime = parser.ParseInteger() },
+            { "CanAttackWhileContained", (parser, x) => x.CanAttackWhileContained = parser.ParseBoolean() },
+
         };
 
         /// <summary>
@@ -47,6 +49,8 @@ namespace OpenSage.Logic.Object
         public int MinCowerTime { get; private set; }
         [AddedIn(SageGame.Bfme)]
         public int MaxCowerTime { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public bool CanAttackWhileContained { get; private set; }
     }
 
     public enum AutoAcquireEnemiesType

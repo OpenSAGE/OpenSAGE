@@ -18,6 +18,7 @@ namespace OpenSage.Logic.Object
             { "BridgeScaffoldBehavior", BridgeScaffoldBehaviorModuleData.Parse },
             { "BridgeTowerBehavior", BridgeTowerBehaviorModuleData.Parse },
             { "BunkerBusterBehavior", BunkerBusterBehaviorModuleData.Parse },
+            { "ClearanceTestingSlowDeathBehavior", ClearanceTestingSlowDeathBehaviorModuleData.Parse },
             { "ClickReactionBehavior", ClickReactionBehaviorData.Parse },
             { "CountermeasuresBehavior", CountermeasuresBehaviorModuleData.Parse },
             { "DumbProjectileBehavior", DumbProjectileBehaviorModuleData.Parse },

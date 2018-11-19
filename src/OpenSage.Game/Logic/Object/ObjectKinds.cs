@@ -427,5 +427,8 @@
 
         [IniEnum("CAN_USE_SIEGE_TOWER"), AddedIn(SageGame.Bfme)]
         CanUseSiegeTower,
+
+        [IniEnum("ARCHER"), AddedIn(SageGame.Bfme)]
+        Archer,
     }
 }

@@ -301,6 +301,8 @@ namespace OpenSage.Logic.Object
             { "ExtraPublicBone", (parser, x) => x.ExtraPublicBones.Add(parser.ParseBoneName()) },
             { "AttachToBoneInAnotherModule", (parser, x) => x.AttachToBoneInAnotherModule = parser.ParseBoneName() },
             { "TrackMarks", (parser, x) => x.TrackMarks = parser.ParseFileName() },
+            { "TrackMarksLeftBone", (parser, x) => x.TrackMarksLeftBone = parser.ParseAssetReference() },
+            { "TrackMarksRightBone", (parser, x) => x.TrackMarksRightBone = parser.ParseAssetReference() },
             { "InitialRecoilSpeed", (parser, x) => x.InitialRecoilSpeed = parser.ParseFloat() },
             { "MaxRecoilDistance", (parser, x) => x.MaxRecoilDistance = parser.ParseFloat() },
             { "RecoilSettleSpeed", (parser, x) => x.RecoilSettleSpeed = parser.ParseFloat() },
@@ -334,6 +336,11 @@ namespace OpenSage.Logic.Object
         public string AttachToBoneInAnotherModule { get; private set; }
 
         public string TrackMarks { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string TrackMarksLeftBone { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public string TrackMarksRightBone { get; private set; }
 
         public float InitialRecoilSpeed { get; private set; } = 2.0f;
         public float MaxRecoilDistance { get; private set; } = 3.0f;

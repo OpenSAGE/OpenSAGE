@@ -10,17 +10,17 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("FRONTKICKONBUILDING")]
         FrontKickOnBuilding,
-        [IniEnum("IDLE")]
-        Idle,
         [IniEnum("IDLA", "IdleA")]
         IdlA,
         [IniEnum("IDLB", "IdleB")]
         IdlB,
-        [IniEnum("IDLC")]
+        [IniEnum("IDLC", "IdleC")]
         IdlC,
-        [IniEnum("IDLD")]
+        [IniEnum("IDLD", "IdleD")]
         IdlD,
-        [IniEnum("IDLF")]
+        [IniEnum("IDLE", "IdleE")]
+        IdlE,
+        [IniEnum("IDLF", "IdleF")]
         IdlF,
         [IniEnum("IDLG")]
         IdlG,
@@ -28,8 +28,6 @@ namespace OpenSage.Logic.Object
         IdlH,
         [IniEnum("IDLI")]
         IdlI,
-        [IniEnum("MOVING")]
-        Moving,
         [IniEnum("STAND")]
         Stand,
         [IniEnum("WALK")]
@@ -84,12 +82,16 @@ namespace OpenSage.Logic.Object
         ScratchBack,
         [IniEnum("ATNB")]
         AtnB,
-        [IniEnum("ATKA")]
+        [IniEnum("ATKA", "AttackA")]
         AtkA,
-        [IniEnum("ATKB")]
+        [IniEnum("ATKB", "AttackB")]
         AtkB,
-        [IniEnum("ATKC")]
+        [IniEnum("ATKC", "AttackC")]
         AtkC,
+        [IniEnum("ATKD", "AttackD")]
+        AtkD,
+        [IniEnum("ATKE", "AttackE")]
+        AtkE,
         [IniEnum("ROCKTHROW")]
         RockThrow,
         [IniEnum("RUNA")]
@@ -123,8 +125,14 @@ namespace OpenSage.Logic.Object
         [IniEnum("PASSENGER")]
         Passenger,
         [IniEnum("CHARGING")]
-        Charging,  
-        [IniEnum("MOVING_DAMAGED")]
+        Charging,
+        [IniEnum("Move", "MOVING")]
+        Move,
+        [IniEnum("Move1", "Moving_1")]
+        Move1,
+        [IniEnum("Move2", "Moving_2")]
+        Move2,
+        [IniEnum("MOVING_DAMAGED", "Move_Damaged")]
         MovingDamaged,
         [IniEnum("Moving_Engaged")]
         MovingEngaged,
@@ -150,9 +158,9 @@ namespace OpenSage.Logic.Object
         Land,
         [IniEnum("TerrorFromTheSky")]
         TerrorFromTheSky,
-        [IniEnum("TurnLeft")]
+        [IniEnum("TurnLeft", "TurningLeft")]
         TurnLeft,
-        [IniEnum("TurnRight")]
+        [IniEnum("TurnRight", "TurningRight")]
         TurnRight,
         [IniEnum("Accelerate")]
         Accelerate,
@@ -176,11 +184,7 @@ namespace OpenSage.Logic.Object
         AtAttention,
         [IniEnum("Taunting")]
         Taunting,
-        [IniEnum("Moving_1")]
-        Moving1,
-        [IniEnum("Moving_2")]
-        Moving2,
-        [IniEnum("Splattered_On_Ground")]
+        [IniEnum("Splattered_On_Ground", "Splatted_On_Ground")]
         SplatteredOnGround,
         [IniEnum("Splattered_On_Ground_1")]
         SplatteredOnGround1,
@@ -188,9 +192,9 @@ namespace OpenSage.Logic.Object
         SplatteredOnGround2,
         [IniEnum("Flaming_Death")]
         FlamingDeath,
-        [IniEnum("Dying_1")]
+        [IniEnum("Dying_1", "Die1")]
         Dying1,
-        [IniEnum("Dying_2")]
+        [IniEnum("Dying_2", "Die2")]
         Dying2,
         [IniEnum("Flying_1")]
         Flying_1,
@@ -202,15 +206,13 @@ namespace OpenSage.Logic.Object
         StandingBackUp,
         [IniEnum("StunFly")]
         StunFly,
-        [IniEnum("DieStun")]
-        DieStun,
         [IniEnum("DieStunB")]
         DieStunB,
         [IniEnum("March")]
         March,
         [IniEnum("Fly")]
         Fly,
-        [IniEnum("StunDie")]
+        [IniEnum("StunDie", "DieStun")]
         StundDie,
         [IniEnum("Die")]
         Die,
@@ -336,10 +338,6 @@ namespace OpenSage.Logic.Object
         Wiggle,
         [IniEnum("SelectedIDLA")]
         SelectedIdlA,
-        [IniEnum("Move_Damaged")]
-        MoveDamaged,
-        [IniEnum("Splatted_On_Ground")]
-        SplattedOnGround,
         [IniEnum("Taunting3")]
         Taunting3,
         [IniEnum("RCTA")]
@@ -366,5 +364,28 @@ namespace OpenSage.Logic.Object
         GUsiegTrebDieB,
         [IniEnum("GUSiegTreb_DIEA")]
         GUsiegTrebDieA,
+        [IniEnum("GUSiegTreRk")]
+        GUsiegTreRk,
+        [IniEnum("RousingSpeech")]
+        RousingSpeech,
+        [IniEnum("DamagedIdle")]
+        DamagedIdle,
+        [IniEnum("Idle1")]
+        Idle1,
+        [IniEnum("MUCatapult_FP01")]
+        MUCatapultFP01,
+        [IniEnum("Wander1")]
+        Wander1,
+        [IniEnum("Wander2")]
+        Wander2,
+        [IniEnum("Fire")]
+        Fire,
+        [IniEnum("StunFlail")]
+        StunFlail,
+        [IniEnum("SLTA")]
+        SLTA,
+        [IniEnum("GUARD_CHEER")]
+        GuardCheer,
+
     }
 }

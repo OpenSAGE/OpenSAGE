@@ -12,9 +12,10 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<AimWeaponBehaviorModuleData>
             {
                 { "AimHighThreshold", (parser, x) => x.AimHighThreshold = parser.ParseFloat() },
-               
+                { "AimLowThreshold", (parser, x) => x.AimLowThreshold = parser.ParseFloat() },
             });
 
         public float AimHighThreshold { get; internal set; }
+        public float AimLowThreshold { get; internal set; }
     }
 }

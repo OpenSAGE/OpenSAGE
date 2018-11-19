@@ -406,6 +406,25 @@ namespace OpenSage.Data.Ini.Parser
             };
         }
 
+        public Point2Df ParsePoint2Df()
+        {
+            return new Point2Df
+            {
+                X = ParseAttributeFloat("X"),
+                Y = ParseAttributeFloat("Y")
+            };
+        }
+
+        public Point3D ParsePoint3D()
+        {
+            return new Point3D
+            {
+                X = ParseAttributeInteger("X"),
+                Y = ParseAttributeInteger("Y"),
+                Z = ParseAttributeInteger("Z")
+            };
+        }
+
         public Size ParseSize()
         {
             return new Size

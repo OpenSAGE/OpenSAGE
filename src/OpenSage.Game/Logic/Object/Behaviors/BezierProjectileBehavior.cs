@@ -26,7 +26,11 @@ namespace OpenSage.Logic.Object
             { "BounceFirstPercentIndent", (parser, x) => x.BounceFirstPercentIndent = parser.ParsePercentage() },
             { "BounceSecondPercentIndent", (parser, x) => x.BounceSecondPercentIndet = parser.ParsePercentage() },
             { "GroundHitFX", (parser, x) => x.GroundHitFX = parser.ParseAssetReference() },
+            { "GroundHitWeapon", (parser, x) => x.GroundHitWeapon = parser.ParseAssetReference() },
             { "GroundBounceFX", (parser, x) => x.GroundBounceFX = parser.ParseAssetReference() },
+            { "GroundBounceWeapon", (parser, x) => x.GroundBounceWeapon = parser.ParseAssetReference() },
+            { "DetonateCallsKill", (parser, x) => x.DetonateCallsKill = parser.ParseBoolean() },
+            { "FlightPathAdjustDistPerSecond", (parser, x) => x.FlightPathAdjustDistPerSecond = parser.ParseInteger() },
         };
 
         public int FirstHeight { get; private set; }
@@ -44,6 +48,10 @@ namespace OpenSage.Logic.Object
         public float BounceFirstPercentIndent { get; private set; }
         public float BounceSecondPercentIndet { get; private set; }
         public string GroundHitFX { get; private set; }
+        public string GroundHitWeapon { get; private set; }
         public string GroundBounceFX { get; private set; }
+        public string GroundBounceWeapon { get; private set; }
+        public bool DetonateCallsKill { get; private set; }
+        public int FlightPathAdjustDistPerSecond { get; private set; }
     }
 }

@@ -552,5 +552,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("SIEGE_CONTAIN"), AddedIn(SageGame.Bfme)]
         SiegeContain,
+
+        [IniEnum("USING_SPECIAL_ABILITY"), AddedIn(SageGame.Bfme)]
+        UsingSpecialAbility,
+
+        [IniEnum("AIM_LOW"), AddedIn(SageGame.Bfme)]
+        AimLow,
     }
 }

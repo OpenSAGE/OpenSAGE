@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -218,6 +219,7 @@ namespace OpenSage.Logic.Object
             { "GeometryMinorRadius", (parser, x) => x.GeometryMinorRadius = parser.ParseFloat() },
             { "GeometryHeight", (parser, x) => x.GeometryHeight = parser.ParseFloat() },
             { "GeometryIsSmall", (parser, x) => x.GeometryIsSmall = parser.ParseBoolean() },
+            { "GeometryRotationAnchorOffset", (parser, x) => x.GeometryRotationAnchorOffset = parser.ParsePoint2Df() },
             { "FactoryExitWidth", (parser, x) => x.FactoryExitWidth = parser.ParseInteger() },
             { "FactoryExtraBibWidth", (parser, x) => x.FactoryExtraBibWidth = parser.ParseFloat() },
             { "Shadow", (parser, x) => x.Shadow = parser.ParseEnum<ObjectShadowType>() },
@@ -662,6 +664,9 @@ namespace OpenSage.Logic.Object
         public float GeometryHeight { get; private set; }
         public bool GeometryIsSmall { get; private set; }
 
+        [AddedIn(SageGame.Bfme)]
+        public Point2Df GeometryRotationAnchorOffset { get; private set; }
+
         /// <summary>
         /// Amount of space to leave for exiting units.
         /// </summary>
@@ -712,6 +717,7 @@ namespace OpenSage.Logic.Object
         public int EmotionRange { get; private set; }
         [AddedIn(SageGame.Bfme)]
         public bool ImmuneToShockwave { get; private set; }
+
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
