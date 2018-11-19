@@ -28,6 +28,7 @@ namespace OpenSage.Logic.Object
             { "FrameForPristineBonePositions", (parser, x) => x.FrameForPristineBonePositions = parser.ParseInteger() },
             { "SimilarRestart", (parser, x) => x.SimilarRestart = parser.ParseBoolean() },
             { "EnteringStateFX", (parser, x) => x.EnteringStateFX = parser.ParseAssetReference() },
+            { "FXEvent", (parser, x) => x.FXEvents.Add(FXEvent.Parse(parser)) },
         };
 
         public BitArray<ModelConditionFlag> TypeFlags { get; private set; }
@@ -40,6 +41,7 @@ namespace OpenSage.Logic.Object
         public int FrameForPristineBonePositions { get; private set; }
         public bool SimilarRestart { get; private set; }
         public string EnteringStateFX { get; private set; }
+        public List<FXEvent> FXEvents { get; private set; } = new List<FXEvent>();
     }
 
     public sealed class Animation
@@ -81,6 +83,20 @@ namespace OpenSage.Logic.Object
         public int AnimationBlendTime { get; private set; }
         public FloatRange AnimationSpeedFactorRange { get; private set; }
         public float Distance { get; private set; }
-        
+    }
+
+    public sealed class FXEvent
+    {
+        internal static FXEvent Parse(IniParser parser)
+        {
+            return new FXEvent()
+            {
+                Frame = parser.ParseAttributeInteger("Frame"),
+                FX = parser.ParseAttributeIdentifier("Name")
+            };
+        }
+
+        public int Frame { get; private set; }
+        public string FX { get; private set; }
     }
 }

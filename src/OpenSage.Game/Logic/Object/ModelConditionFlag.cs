@@ -457,6 +457,9 @@ namespace OpenSage.Logic.Object
         [IniEnum("EMOTION_MORALE_HIGH"), AddedIn(SageGame.Bfme)]
         EmotionMoraleHigh,
 
+        [IniEnum("EMOTION_MORALE_LOW"), AddedIn(SageGame.Bfme)]
+        EmotionMoraleLow,
+
         [IniEnum("HIT_REACTION"), AddedIn(SageGame.Bfme)]
         HitReaction,
 
@@ -558,5 +561,23 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("AIM_LOW"), AddedIn(SageGame.Bfme)]
         AimLow,
+
+        [IniEnum("RUNNING_OFF_MAP"), AddedIn(SageGame.Bfme)]
+        RunningOffMap,
+
+        [IniEnum("TURN_LEFT_HIGH_SPEED"), AddedIn(SageGame.Bfme)]
+        TurnLeftHighSpeed,
+
+        [IniEnum("TURN_RIGHT_HIGH_SPEED"), AddedIn(SageGame.Bfme)]
+        TurnRightHighSpeed,
+
+        [IniEnum("WEAPONSET_RAMPAGE"), AddedIn(SageGame.Bfme)]
+        WeaponsetRampage,
+
+        [IniEnum("CHARGING"), AddedIn(SageGame.Bfme)]
+        Charging,
+
+        [IniEnum("DECAY"), AddedIn(SageGame.Bfme)]
+        Decay,
     }
 }

@@ -52,6 +52,8 @@ namespace OpenSage.Logic.Object
             { "CrushableLevel", (parser, x) => x.CrushableLevel = parser.ParseInteger() },
             { "BuildCost", (parser, x) => x.BuildCost = parser.ParseInteger() },
             { "BuildTime", (parser, x) => x.BuildTime = parser.ParseFloat() },
+            { "BuildFadeInOnCreateList", (parser, x) => x.BuildFadeInOnCreateList = parser.ParseIdentifier() },
+            { "BuildFadeInOnCreateTime", (parser, x) => x.BuildFadeInOnCreateTime = parser.ParseInteger() },
             { "RefundValue", (parser, x) => x.RefundValue = parser.ParseInteger() },
             { "EnergyProduction", (parser, x) => x.EnergyProduction = parser.ParseInteger() },
             { "EnergyBonus", (parser, x) => x.EnergyBonus = parser.ParseInteger() },
@@ -249,6 +251,7 @@ namespace OpenSage.Logic.Object
             { "CommandPoints", (parser, x) => x.CommandPoints = parser.ParseInteger() },
             { "EmotionRange", (parser, x) => x.EmotionRange = parser.ParseInteger() },
             { "ImmuneToShockwave", (parser, x) => x.ImmuneToShockwave = parser.ParseBoolean() },
+            { "ShowHealthInSelectionDecal", (parser, x) => x.ShowHealthInSelectionDecal = parser.ParseBoolean() },
         };
 
     
@@ -696,28 +699,45 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public float ThreatLevel { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public LocomotorSet LocomotorSet { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public ClientBehaviorModuleData ClientBehavior { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string ThingClass { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public int MinCrushVelocityPercent { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public int CrushDecelerationPercent { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public int RamPower { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public float RamZMult { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public int CommandPoints { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public int EmotionRange { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public bool ImmuneToShockwave { get; private set; }
 
+        [AddedIn(SageGame.Bfme)]
+        public bool ShowHealthInSelectionDecal { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string BuildFadeInOnCreateList { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int BuildFadeInOnCreateTime { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

@@ -56,5 +56,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("CONTESTING_BUILDING"), AddedIn(SageGame.Bfme)]
         ContestingBuilding  = 1 << 15,
+
+        [IniEnum("SPECIAL_UPGRADE"), AddedIn(SageGame.Bfme)]
+        SpecialUpgrade      = 1 << 16,
     }
 }

@@ -430,5 +430,8 @@
 
         [IniEnum("ARCHER"), AddedIn(SageGame.Bfme)]
         Archer,
+
+        [IniEnum("PATH_THROUGH_INFANTRY"), AddedIn(SageGame.Bfme)]
+        PathThroughInfantry,
     }
 }

@@ -74,6 +74,8 @@ namespace OpenSage.Logic.Object
         AppA,
         [IniEnum("HIT_LEVEL_1_A")]
         HitLevel1A,
+        [IniEnum("HIT_LEVEL_2_A")]
+        HitLevel2A,
         [IniEnum("WRKA")]
         WrkA,
         [IniEnum("WIPENOSE")]
@@ -196,6 +198,10 @@ namespace OpenSage.Logic.Object
         Dying1,
         [IniEnum("Dying_2", "Die2")]
         Dying2,
+        [IniEnum("Dying_3", "Die3")]
+        Dying3,
+        [IniEnum("Dying_4", "Die4")]
+        Dying4,
         [IniEnum("Flying_1")]
         Flying_1,
         [IniEnum("Flying_2")]
@@ -386,6 +392,23 @@ namespace OpenSage.Logic.Object
         SLTA,
         [IniEnum("GUARD_CHEER")]
         GuardCheer,
-
+        [IniEnum("MoveIt")]
+        MoveIt,
+        [IniEnum("Turn")]
+        Turn,
+        [IniEnum("Rampage")]
+        Rampage,
+        [IniEnum("Charge")]
+        Charge,
+        [IniEnum("dead1")]
+        Dead1,
+        [IniEnum("dead2")]
+        Dead2,
+        [IniEnum("dead3")]
+        Dead3,
+        [IniEnum("Transition")]
+        Transition,
+        [IniEnum("Being_Built")]
+        BeingBuilt,
     }
 }
