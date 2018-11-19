@@ -26,6 +26,9 @@ namespace OpenSage.Logic.Object
         Supersonic,
 
         [IniEnum("SET_SLUGGISH")]
-        Sluggish
+        Sluggish,
+
+        [IniEnum("SET_ENRAGED")]
+        Enraged
     }
 }

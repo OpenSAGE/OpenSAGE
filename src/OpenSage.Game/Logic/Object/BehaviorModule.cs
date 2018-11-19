@@ -50,6 +50,7 @@ namespace OpenSage.Logic.Object
             { "TechBuildingBehavior", TechBuildingBehaviorModuleData.Parse },
             { "BezierProjectileBehavior", BezierProjectileBehaviorData.Parse },
             { "HitReactionBehavior", HitReactionBehaviorData.Parse },
+            { "HordeTransportContain", HordeTransportContainBehaviorData.Parse },
 
             // Collide
             { "ConvertToCarBombCrateCollide", ConvertToCarBombCrateCollideModuleData.Parse },

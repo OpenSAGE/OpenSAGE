@@ -43,6 +43,7 @@ namespace OpenSage.Logic.Object
             { "ApproachRequiresLOS", (parser, x) => x.ApproachRequiresLOS = parser.ParseBoolean() },
             { "NeedToFaceTarget", (parser, x) => x.NeedToFaceTarget = parser.ParseBoolean() },
             { "PersistenceRequiresRecharge", (parser, x) => x.PersistenceRequiresRecharge = parser.ParseBoolean() },
+            { "ChargeAttackSpeedBoost", (parser, x) => x.ChargeAttackSpeedBoost = parser.ParseBoolean() },
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -80,5 +81,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool PersistenceRequiresRecharge { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ChargeAttackSpeedBoost { get; private set; }
     }
 }

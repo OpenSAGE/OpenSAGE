@@ -225,6 +225,7 @@ namespace OpenSage.Logic.Object
             { "DisplayColor", (parser, x) => x.DisplayColor = IniColorRgb.Parse(parser) },
             { "Scale", (parser, x) => x.Scale = parser.ParseFloat() },
             { "Geometry", (parser, x) => x.Geometry = parser.ParseEnum<ObjectGeometry>() },
+            { "GeometryOther", (parser, x) => x.OtherGeometrys.Add(OtherGeometry.Parse(parser)) },
             { "GeometryMajorRadius", (parser, x) => x.GeometryMajorRadius = parser.ParseFloat() },
             { "GeometryMinorRadius", (parser, x) => x.GeometryMinorRadius = parser.ParseFloat() },
             { "GeometryHeight", (parser, x) => x.GeometryHeight = parser.ParseFloat() },
@@ -261,6 +262,7 @@ namespace OpenSage.Logic.Object
             { "EmotionRange", (parser, x) => x.EmotionRange = parser.ParseInteger() },
             { "ImmuneToShockwave", (parser, x) => x.ImmuneToShockwave = parser.ParseBoolean() },
             { "ShowHealthInSelectionDecal", (parser, x) => x.ShowHealthInSelectionDecal = parser.ParseBoolean() },
+            { "DeadCollideSize", (parser, x) => x.DeadCollideSize = parser.ParseEnum<CollideSize>() },
         };
 
     
@@ -691,6 +693,10 @@ namespace OpenSage.Logic.Object
         public IniColorRgb DisplayColor { get; private set; }
         public float Scale { get; private set; }
         public ObjectGeometry Geometry { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public List<OtherGeometry> OtherGeometrys { get; private set; } = new List<OtherGeometry>(); //for crushing/squishing detection
+
         public float GeometryMajorRadius { get; private set; }
         public float GeometryMinorRadius { get; private set; }
         public float GeometryHeight { get; private set; }
@@ -770,6 +776,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int BuildFadeInOnCreateTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public CollideSize DeadCollideSize { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -877,5 +886,36 @@ namespace OpenSage.Logic.Object
         public string Name { get; private set; }
 
         public ModuleData Module { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public sealed class OtherGeometry
+    {
+        internal static OtherGeometry Parse(IniParser parser)
+        {
+            return new OtherGeometry()
+            {
+                GeomType = parser.ParseAttributeEnum<ObjectGeometry>("GeomType"),
+                IsSmall = parser.ParseAttributeBoolean("IsSmall"),
+                Height = parser.ParseAttributeInteger("Height"),
+                MajorRadius = parser.ParseAttributeInteger("MajorRadius"),
+                MinorRadius = parser.ParseAttributeInteger("MinorRadius"),
+                OffsetX = parser.ParseAttributeInteger("OffsetX")
+            };
+        }
+
+        public ObjectGeometry GeomType { get; private set; }
+        public bool IsSmall { get; private set; }
+        public int Height { get; private set; }
+        public int MajorRadius { get; private set; }
+        public int MinorRadius { get; private set; }
+        public int OffsetX { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public enum CollideSize
+    {
+        [IniEnum("LARGE")]
+        Large,
     }
 }

@@ -12,5 +12,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("SHADOW_DECAL")]
         ShadowDecal,
+
+        [IniEnum("SHADOW_VOLUME_NON_SELF_1")]
+        ShadowVolumeNonSelf1,
+
+        [IniEnum("SHADOW_VOLUME_NON_SELF_2")]
+        ShadowVolumeNonSelf2,
     }
 }

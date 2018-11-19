@@ -26,14 +26,14 @@ namespace OpenSage.Logic.Object
             { "FlingForceVariance", (parser, x) => x.FlingForceVariance = parser.ParseInteger() },
             { "FlingPitch", (parser, x) => x.FlingPitch = parser.ParseInteger() },
             { "FlingPitchVariance", (parser, x) => x.FlingPitchVariance = parser.ParseInteger() },
-
             { "OCL", (parser, x) => x.OCLs[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseAssetReference() },
             { "FX", (parser, x) => x.FXs[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseAssetReference() },
             { "Weapon", (parser, x) => x.Weapons[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseAssetReference() },
             { "FadeDelay", (parser, x) => x.FadeDelay = parser.ParseInteger() },
             { "FadeTime", (parser, x) => x.FadeTime = parser.ParseInteger() },
             { "Sound", (parser, x) => x.Sound = parser.ParseString() },
-            { "DecayBeginTime", (parser, x) => x.DecayBeginTime= parser.ParseInteger() },
+            { "DecayBeginTime", (parser, x) => x.DecayBeginTime = parser.ParseInteger() },
+            { "ShadowWhenDead", (parser, x) => x.ShadowWhenDead = parser.ParseBoolean() },
         };
 
         public BitArray<DeathType> DeathTypes { get; private set; }
@@ -59,12 +59,18 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int FadeDelay { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public int FadeTime { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public string Sound { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public int DecayBeginTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ShadowWhenDead { get; private set; }
 
     }
 
