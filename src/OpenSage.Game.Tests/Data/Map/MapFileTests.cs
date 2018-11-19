@@ -215,14 +215,14 @@ namespace OpenSage.Tests.Data.Map
 
                     if (y == 2 && (x == 1 || x == 2 || x == 3 || x == 4))
                     {
-                        Assert.NotEqual(0, mapFile.BlendTileData.ThreeWayBlends[x, y]);
+                        Assert.NotEqual(0u, mapFile.BlendTileData.ThreeWayBlends[x, y]);
                     }
                     else
                     {
-                        Assert.Equal(0, mapFile.BlendTileData.ThreeWayBlends[x, y]);
+                        Assert.Equal(0u, mapFile.BlendTileData.ThreeWayBlends[x, y]);
                     }
 
-                    Assert.Equal(0, mapFile.BlendTileData.CliffTextures[x, y]);
+                    Assert.Equal(0u, mapFile.BlendTileData.CliffTextures[x, y]);
                 }
             }
 

@@ -63,6 +63,33 @@ namespace OpenSage.Data.Utilities.Extensions
             }
         }
 
+        public static void WriteUIntArray2D(this BinaryWriter writer, uint[,] values, uint bitSize)
+        {
+            var width = values.GetLength(0);
+            var height = values.GetLength(1);
+
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    var value = values[x, y];
+                    switch (bitSize)
+                    {
+                        case 16:
+                            writer.Write((ushort) value);
+                            break;
+
+                        case 32:
+                            writer.Write(value);
+                            break;
+
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(bitSize));
+                    }
+                }
+            }
+        }
+
         public static void WriteByteArray2DAsEnum<TEnum>(this BinaryWriter writer, TEnum[,] values)
             where TEnum : struct
         {
