@@ -301,7 +301,7 @@ namespace OpenSage.Content
 
                 var position = mapObject.Position;
 
-                switch (mapObject.RoadType)
+                switch (mapObject.RoadType & RoadType.PrimaryType)
                 {
                     case RoadType.None:
                         switch (mapObject.TypeName)
@@ -327,28 +327,42 @@ namespace OpenSage.Content
                         }
                         break;
 
+                    // TODO: Bridges.
+                    // We'll ignore them completely for now.
                     case RoadType.BridgeStart:
-                        var bridgeEnd = mapObjects[++i];
-                        if (bridgeEnd.RoadType != RoadType.BridgeEnd)
-                        {
-                            throw new InvalidDataException();
-                        }
-                        // TODO: Bridges.
+                    case RoadType.BridgeEnd:
+                        // Note for bridge implementor:
+                        // The engine silently ignores invalid bridges (e.g bridges without a start or an end)
+                        // Multiple invalid bridges can be found in e.g GLA01.
+                        // TODO: Log a warning.
                         break;
 
                     default:
                         var roadEnd = mapObjects[++i];
-                        if (!mapObject.RoadType.HasFlag(RoadType.Start)
-                            || !roadEnd.RoadType.HasFlag(RoadType.End)
-                            || mapObject.TypeName != roadEnd.TypeName)
+
+                        // Some maps have roads with invalid start- or endpoints.
+                        // We'll skip processing them altogether.
+                        // TODO: Log a warning.
+                        if (mapObject.TypeName == "" || roadEnd.TypeName == "")
+                        {
+                            continue;
+                        }
+
+                        if (!mapObject.RoadType.HasFlag(RoadType.Start) || !roadEnd.RoadType.HasFlag(RoadType.End))
                         {
                             throw new InvalidDataException();
                         }
-                        var roadTemplate = contentManager.IniDataContext.RoadTemplates.Find(x => x.Name == mapObject.TypeName);
+
+                        // Note that we're searching with the type of either end.
+                        // This is because of weirdly corrupted roads with unmatched ends in USA04, which work fine in WB and SAGE.
+                        var roadTemplate = contentManager.IniDataContext.RoadTemplates.Find(x =>
+                            x.Name == mapObject.TypeName || x.Name == roadEnd.TypeName);
+
                         if (roadTemplate == null)
                         {
                             throw new InvalidDataException($"Missing road template: {mapObject.TypeName}");
                         }
+
                         roadTopology.AddSegment(roadTemplate, mapObject, roadEnd);
                         break;
                 }
