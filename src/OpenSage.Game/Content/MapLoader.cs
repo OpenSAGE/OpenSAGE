@@ -615,7 +615,7 @@ namespace OpenSage.Content
         private static BlendData GetBlendData(
             MapFile mapFile,
             int x, int y,
-            ushort blendIndex,
+            uint blendIndex,
             byte baseTextureIndex)
         {
             if (blendIndex > 0)

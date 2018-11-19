@@ -149,6 +149,36 @@ namespace OpenSage.Data.Utilities.Extensions
             return result;
         }
 
+        public static uint[,] ReadUIntArray2D(this BinaryReader reader, uint width, uint height, uint bitSize)
+        {
+            var result = new uint[width, height];
+
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    uint value;
+                    switch (bitSize)
+                    {
+                        case 16:
+                            value = reader.ReadUInt16();
+                            break;
+
+                        case 32:
+                            value = reader.ReadUInt32();
+                            break;
+
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(bitSize));
+                    }
+
+                    result[x, y] = value;
+                }
+            }
+
+            return result;
+        }
+
         public static TEnum[,] ReadByteArray2DAsEnum<TEnum>(this BinaryReader reader, uint width, uint height)
             where TEnum : struct
         {
