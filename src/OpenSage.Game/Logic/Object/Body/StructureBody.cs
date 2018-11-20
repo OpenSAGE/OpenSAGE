@@ -18,7 +18,6 @@ namespace OpenSage.Logic.Object
                 { "GrabFX", (parser, x) => x.GrabFX = parser.ParseAssetReference() },
                 { "GrabDamage", (parser, x) => x.GrabDamage = parser.ParseInteger() },
                 { "MaxHealthReallyDamaged", (parser, x) => x.MaxHealthReallyDamaged = parser.ParseFloat() },
-                { "DamageCreationList", (parser, x) => x.DamageCreationLists.Add(DamageCreationList.Parse(parser)) },
             });
 
         [AddedIn(SageGame.Bfme)]
@@ -30,25 +29,6 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public float MaxHealthReallyDamaged { get; private set; }
 
-        [AddedIn(SageGame.Bfme)]
-        public List<DamageCreationList> DamageCreationLists { get; private set; } = new List<DamageCreationList>();
+      
      }
-
-    [AddedIn(SageGame.Bfme)]
-    public sealed class DamageCreationList
-    {
-        internal static DamageCreationList Parse(IniParser parser)
-        {
-            return new DamageCreationList()
-            {
-                Object = parser.ParseAssetReference(),
-                ObjectKind = parser.ParseEnum<ObjectKinds>(),
-                Unknown = parser.ParseString()
-            };
-        }
-
-        public string Object { get; internal set; }
-        public ObjectKinds ObjectKind { get; internal set; }
-        public string Unknown { get; internal set; }
-    }
 }

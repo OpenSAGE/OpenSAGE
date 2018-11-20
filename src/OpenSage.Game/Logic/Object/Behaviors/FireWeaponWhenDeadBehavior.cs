@@ -14,7 +14,6 @@ namespace OpenSage.Logic.Object
                 { "RequiredStatus", (parser, x) => x.RequiredStatus = parser.ParseEnum<ObjectStatus>() },
                 { "ExemptStatus", (parser, x) => x.ExemptStatus = parser.ParseEnum<ObjectStatus>() },
                 { "DeathWeapon", (parser, x) => x.DeathWeapon = parser.ParseAssetReference() },
-                { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
                 { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
                 { "DelayTime", (parser, x) => x.DelayTime = parser.ParseInteger() },
                 { "WeaponOffset", (parser, x) => x.WeaponOffset = parser.ParsePoint3D() },
@@ -23,7 +22,6 @@ namespace OpenSage.Logic.Object
         public ObjectStatus RequiredStatus { get; private set; }
         public ObjectStatus ExemptStatus { get; private set; }
         public string DeathWeapon { get; private set; }
-        public bool StartsActive { get; private set; }
         public BitArray<DeathType> DeathTypes { get; private set; }
 
         [AddedIn(SageGame.Bfme)]

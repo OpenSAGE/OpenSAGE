@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class SpyVisionSpecialPowerModuleData : SpecialPowerModuleData
     {
-        internal static SpyVisionSpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static new SpyVisionSpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static new readonly IniParseTable<SpyVisionSpecialPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
             .Concat(new IniParseTable<SpyVisionSpecialPowerModuleData>

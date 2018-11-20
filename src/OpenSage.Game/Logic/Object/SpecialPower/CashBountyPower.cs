@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class CashBountyPowerModuleData : SpecialPowerModuleData
     {
-        internal static CashBountyPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static new CashBountyPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static new readonly IniParseTable<CashBountyPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
             .Concat(new IniParseTable<CashBountyPowerModuleData>

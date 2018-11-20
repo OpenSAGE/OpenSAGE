@@ -434,9 +434,9 @@ namespace OpenSage.Data.Ini.Parser
         {
             return new Point3D
             {
-                X = ParseAttributeInteger("X"),
-                Y = ParseAttributeInteger("Y"),
-                Z = ParseAttributeInteger("Z")
+                X = ParseAttributeFloat("X"),
+                Y = ParseAttributeFloat("Y"),
+                Z = ParseAttributeFloat("Z")
             };
         }
 

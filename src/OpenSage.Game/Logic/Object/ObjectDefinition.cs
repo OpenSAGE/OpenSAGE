@@ -239,6 +239,8 @@ namespace OpenSage.Logic.Object
 
             { "GeometryOther", (parser, x) => x.OtherGeometrys.Add(Geometry.Parse(parser)) },
 
+            { "GeometryContactPoint", (parser, x) => x.GeometryContactPoints.Add(GeometryContactPoint.Parse(parser)) },
+
             { "CamouflageDetectionMultiplier", (parser, x) => x.CamouflageDetectionMultiplier = parser.ParseFloat()}, 
             { "FactoryExitWidth", (parser, x) => x.FactoryExitWidth = parser.ParseInteger() },
             { "FactoryExtraBibWidth", (parser, x) => x.FactoryExtraBibWidth = parser.ParseFloat() },
@@ -274,6 +276,7 @@ namespace OpenSage.Logic.Object
             { "CrushKnockback", (parser, x) => x.CrushKnockback = parser.ParseInteger() },
             { "CrushZFactor", (parser, x) => x.CrushZFactor = parser.ParseFloat() },
             { "BountyValue", (parser, x) => x.BountyValue = parser.ParseInteger() },
+            { "Description", (parser, x) => x.Description = parser.ParseLocalizedStringKey() },
         };
 
     
@@ -800,6 +803,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int BountyValue { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public List<GeometryContactPoint> GeometryContactPoints { get; private set; } = new List<GeometryContactPoint>();
+
+        [AddedIn(SageGame.Bfme)]
+        public string Description { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -948,5 +957,36 @@ namespace OpenSage.Logic.Object
     {
         [IniEnum("LARGE")]
         Large,
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public sealed class GeometryContactPoint
+    {
+        internal static GeometryContactPoint Parse(IniParser parser)
+        {
+            return new GeometryContactPoint()
+            {
+                X = parser.ParseAttributeFloat("X"),
+                Y = parser.ParseAttributeFloat("Y"),
+                Z = parser.ParseAttributeFloat("Z"),
+                Type = parser.ParseEnumFlags<ContactPointType>()
+            };
+        }
+
+        public float X { get; internal set; }
+        public float Y { get; internal set; }
+        public float Z { get; internal set; }
+        public ContactPointType Type { get; internal set; }
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public enum ContactPointType
+    {
+        None = 0,
+
+        [IniEnum("Repair")]
+        Repair,
+        [IniEnum("Swoop")]
+        Swoop,
     }
 }

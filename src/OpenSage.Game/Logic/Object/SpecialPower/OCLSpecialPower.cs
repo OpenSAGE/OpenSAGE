@@ -6,7 +6,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class OCLSpecialPowerModuleData : SpecialPowerModuleData
     {
-        internal static OCLSpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static new OCLSpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static new readonly IniParseTable<OCLSpecialPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
             .Concat(new IniParseTable<OCLSpecialPowerModuleData>

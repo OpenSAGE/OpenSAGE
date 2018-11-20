@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
@@ -11,10 +12,14 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<CostModifierUpgradeModuleData>
             {
                 { "EffectKindOf", (parser, x) => x.EffectKindOf = parser.ParseEnum<ObjectKinds>() },
-                { "Percentage", (parser, x) => x.Percentage = parser.ParsePercentage() }
+                { "Percentage", (parser, x) => x.Percentages.Add(parser.ParsePercentage()) },
+                { "LabelForPalantirString", (parser, x) => x.LabelForPalantirString = parser.ParseLocalizedStringKey() },
             });
 
         public ObjectKinds EffectKindOf { get; private set; }
-        public float Percentage { get; private set; }
+        public List<float> Percentages { get; private set; } = new List<float>();
+
+        [AddedIn(SageGame.Bfme)]
+        public string LabelForPalantirString { get; private set; }
     }
 }

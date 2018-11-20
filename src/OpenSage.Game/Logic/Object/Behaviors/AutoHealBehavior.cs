@@ -13,7 +13,6 @@ namespace OpenSage.Logic.Object
                 { "HealingAmount", (parser, x) => x.HealingAmount = parser.ParseInteger() },
                 { "HealingDelay", (parser, x) => x.HealingDelay = parser.ParseInteger() },
                 { "AffectsWholePlayer", (parser, x) => x.AffectsWholePlayer = parser.ParseBoolean() },
-                { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
                 { "KindOf", (parser, x) => x.KindOf = parser.ParseEnum<ObjectKinds>() },
                 { "ForbiddenKindOf", (parser, x) => x.ForbiddenKindOf = parser.ParseEnum<ObjectKinds>() },
                 { "StartHealingDelay", (parser, x) => x.StartHealingDelay = parser.ParseInteger() },
@@ -25,7 +24,6 @@ namespace OpenSage.Logic.Object
         public int HealingAmount { get; private set; }
         public int HealingDelay { get; private set; }
         public bool AffectsWholePlayer { get; private set; }
-        public bool StartsActive { get; private set; }
         public ObjectKinds KindOf { get; private set; }
         public ObjectKinds ForbiddenKindOf { get; private set; }
         public int StartHealingDelay { get; private set; }
