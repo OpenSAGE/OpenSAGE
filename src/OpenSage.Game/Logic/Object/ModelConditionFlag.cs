@@ -594,5 +594,17 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("AWAY_FROM_TREES"), AddedIn(SageGame.Bfme)]
         AwayFromTrees,
+
+        [IniEnum("DESTROYED_FRONT"), AddedIn(SageGame.Bfme)]
+        DestroyedFront,
+
+        [IniEnum("DESTROYED_RIGHT"), AddedIn(SageGame.Bfme)]
+        DestroyedRight,
+
+        [IniEnum("DESTROYED_LEFT"), AddedIn(SageGame.Bfme)]
+        DestroyedLeft,
+
+        [IniEnum("DESTROYED_BACK"), AddedIn(SageGame.Bfme)]
+        DestroyedBack,
     }
 }

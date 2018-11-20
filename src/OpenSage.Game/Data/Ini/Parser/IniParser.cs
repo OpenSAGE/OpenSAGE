@@ -251,6 +251,21 @@ namespace OpenSage.Data.Ini.Parser
 
         public bool IsInteger(IniToken token) => int.TryParse(token.Text, out _);
 
+        public int GetIntegerOptional()
+        {
+            var token = GetNextTokenOptional();
+            if (!token.HasValue)
+            {
+                return 0;
+            }
+
+            if (_dataContext.Defines.TryGetValue(token.Value.Text, out var macroExpansion))
+            {
+                token =  macroExpansion;
+            }
+            return ScanInteger(token.Value);
+        }
+
         public int ScanInteger(IniToken token) => Convert.ToInt32(token.Text);
 
         public int ParseInteger() => ScanInteger(GetNextToken());

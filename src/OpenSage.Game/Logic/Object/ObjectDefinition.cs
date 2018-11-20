@@ -76,6 +76,7 @@ namespace OpenSage.Logic.Object
             { "VoiceSelectGroup", (parser, x) => x.VoiceSelectGroup = parser.ParseAssetReference() },
             { "VoiceSelectBattle", (parser, x) => x.VoiceSelectBattle = parser.ParseAssetReference() },
             { "VoiceSelectBattleGroup", (parser, x) => x.VoiceSelectBattleGroup = parser.ParseAssetReference() },
+            { "VoiceSelectUnderConstruction", (parser, x) => x.VoiceSelectUnderConstruction = parser.ParseAssetReference() },
             { "VoiceMove", (parser, x) => x.VoiceMove = parser.ParseAssetReference() },
             { "VoiceMoveGroup", (parser, x) => x.VoiceMoveGroup = parser.ParseAssetReference() },
             { "VoiceMoveOverWalls", (parser, x) => x.VoiceMoveOverWall = parser.ParseAssetReference() },
@@ -352,6 +353,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string VoiceSelectBattleGroup { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string VoiceSelectUnderConstruction { get; private set; }
 
         public string VoiceMove { get; private set; }
 
