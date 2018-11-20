@@ -21,5 +21,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("SHADOW_VOLUME_NEW")]
         ShadowVolumeNew,
+
+        [IniEnum("SHADOW_ADDITIVE_DECAL")]
+        ShadowAdditiveDecal,
     }
 }

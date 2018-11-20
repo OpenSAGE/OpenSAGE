@@ -15,7 +15,7 @@ namespace OpenSage.Logic.Object
                 { "Ambient", (parser, x) => x.Ambient = parser.ParseColorRgba() },
                 { "Diffuse", (parser, x) => x.Diffuse = parser.ParseColorRgba() },
                 { "Radius", (parser, x) => x.Radius = parser.ParseInteger() },
-                { "Intensity", (parser, x) => x.Intensity = parser.ParseInteger() },
+                { "Intensity", (parser, x) => x.Intensity = parser.ParseFloat() },
                 { "FlickerAmplitude", (parser, x) => x.FlickerAmplitude = parser.ParseFloat() },
                 { "FlickerFrequency", (parser, x) => x.FlickerFrequency = parser.ParseFloat() }
             });
@@ -23,7 +23,7 @@ namespace OpenSage.Logic.Object
         public ColorRgba Ambient { get; private set; }
 		public ColorRgba Diffuse { get; private set; }
         public int Radius { get; private set; }
-        public int Intensity { get; private set; }
+        public float Intensity { get; private set; }
         public float FlickerAmplitude { get; private set; }
         public float FlickerFrequency { get; private set; }
     }

@@ -22,6 +22,8 @@ namespace OpenSage.Logic.Object
             { "AngleFX", (parser, x) => x.AngleFX = StructureToppleAngleFX.Parse(parser) },
             { "ToppleDoneFX", (parser, x) => x.ToppleDoneFX = parser.ParseAssetReference() },
             { "CrushingWeaponName", (parser, x) => x.CrushingWeaponName = parser.ParseAssetReference() },
+            { "ToppleAccelerationFactor", (parser, x) => x.ToppleAccelerationFactor = parser.ParseFloat() },
+            { "ForceToppleAngle", (parser, x) => x.ForceToppleAngle = parser.ParseInteger() },
         };
 
         public int MinToppleDelay { get; private set; }
@@ -37,6 +39,12 @@ namespace OpenSage.Logic.Object
         public StructureToppleAngleFX AngleFX { get; private set; }
         public string ToppleDoneFX { get; private set; }
         public string CrushingWeaponName { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float ToppleAccelerationFactor { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ForceToppleAngle { get; private set; }
     }
 
     public struct StructureToppleAngleFX

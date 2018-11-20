@@ -492,6 +492,9 @@
         IndustryAffected,
 
         [IniEnum("NONOCCLUDING"), AddedIn(SageGame.Bfme)]
-        NonOccluding
+        NonOccluding,
+
+        [IniEnum("OPTIMIZED_PROP"), AddedIn(SageGame.Bfme)]
+        OptimizedProp,
     }
 }

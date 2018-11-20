@@ -237,6 +237,7 @@ namespace OpenSage.Logic.Object
             { "GeometryOffset", (parser, x) => x.CurrentGeometry.Offset = parser.ParsePoint3D() },
             { "GeometryRotationAnchorOffset", (parser, x) => x.CurrentGeometry.RotationAnchorOffset = parser.ParsePoint2Df() },
             { "GeometryActive", (parser, x) => x.CurrentGeometry.IsActive = parser.ParseBoolean() },
+            { "GeometryFrontAngle", (parser, x) => x.CurrentGeometry.FrontAngle = parser.ParseFloat() },
 
             { "GeometryOther", (parser, x) => x.OtherGeometries.Add(Geometry.Parse(parser)) },
 
@@ -249,6 +250,7 @@ namespace OpenSage.Logic.Object
             { "ShadowTexture", (parser, x) => x.ShadowTexture = parser.ParseAssetReference() },
             { "ShadowSizeX", (parser, x) => x.ShadowSizeX = parser.ParseInteger() },
             { "ShadowSizeY", (parser, x) => x.ShadowSizeY = parser.ParseInteger() },
+            { "ShadowMaxHeight", (parser, x) => x.ShadowMaxHeight = parser.ParseInteger() },
             { "InstanceScaleFuzziness", (parser, x) => x.InstanceScaleFuzziness = parser.ParseFloat() },
             { "BuildCompletion", (parser, x) => x.BuildCompletion = parser.ParseAssetReference() },
             { "BuildVariations", (parser, x) => x.BuildVariations = parser.ParseAssetReferenceArray() },
@@ -746,6 +748,9 @@ namespace OpenSage.Logic.Object
         public string ShadowTexture { get; private set; }
         public int ShadowSizeX { get; private set; }
         public int ShadowSizeY { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowMaxHeight { get; private set; }
         public float InstanceScaleFuzziness { get; private set; }
         public string BuildCompletion { get; private set; }
         public string[] BuildVariations { get; private set; }
@@ -962,6 +967,7 @@ namespace OpenSage.Logic.Object
         public Point3D Offset { get; set; }
         public Point2Df RotationAnchorOffset { get; set; }
         public bool IsActive { get; set; }
+        public float FrontAngle { get; set; }
     }
 
     [AddedIn(SageGame.Bfme)]
