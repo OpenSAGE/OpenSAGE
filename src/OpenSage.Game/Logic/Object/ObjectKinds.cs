@@ -467,5 +467,8 @@
         [IniEnum("BASE_SITE"), AddedIn(SageGame.Bfme)]
         BaseSite,
 
+        [IniEnum("CATAPULT_ROCK"), AddedIn(SageGame.Bfme)]
+        CatapultRock,
+
     }
 }

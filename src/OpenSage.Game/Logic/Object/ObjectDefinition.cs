@@ -225,14 +225,20 @@ namespace OpenSage.Logic.Object
             { "HijackGuard", (parser, x) => x.HijackGuard = parser.ParseBoolean() },
             { "DisplayColor", (parser, x) => x.DisplayColor = IniColorRgb.Parse(parser) },
             { "Scale", (parser, x) => x.Scale = parser.ParseFloat() },
-            { "Geometry", (parser, x) => x.Geometry = parser.ParseEnum<ObjectGeometry>() },
-            { "GeometryName", (parser, x) => x.GeometryName = parser.ParseString() },
-            { "GeometryOther", (parser, x) => x.OtherGeometrys.Add(OtherGeometry.Parse(parser)) },
-            { "GeometryMajorRadius", (parser, x) => x.GeometryMajorRadius = parser.ParseFloat() },
-            { "GeometryMinorRadius", (parser, x) => x.GeometryMinorRadius = parser.ParseFloat() },
-            { "GeometryHeight", (parser, x) => x.GeometryHeight = parser.ParseFloat() },
-            { "GeometryIsSmall", (parser, x) => x.GeometryIsSmall = parser.ParseBoolean() },
-            { "GeometryRotationAnchorOffset", (parser, x) => x.GeometryRotationAnchorOffset = parser.ParsePoint2Df() },
+
+            { "Geometry", (parser, x) => x.CurrentGeometry.Type = parser.ParseEnum<ObjectGeometry>() },
+            { "AdditionalGeometry", (parser, x) => x.AdditionalGeometry = new Geometry(parser.ParseEnum<ObjectGeometry>()) },
+
+            { "GeometryName", (parser, x) => x.CurrentGeometry.Name = parser.ParseString() },
+            { "GeometryMajorRadius", (parser, x) => x.CurrentGeometry.MajorRadius = parser.ParseFloat() },
+            { "GeometryMinorRadius", (parser, x) => x.CurrentGeometry.MinorRadius = parser.ParseFloat() },
+            { "GeometryHeight", (parser, x) => x.CurrentGeometry.Height = parser.ParseFloat() },
+            { "GeometryIsSmall", (parser, x) => x.CurrentGeometry.IsSmall = parser.ParseBoolean() },
+            { "GeometryOffset", (parser, x) => x.CurrentGeometry.Offset = parser.ParsePoint3D() },
+            { "GeometryRotationAnchorOffset", (parser, x) => x.CurrentGeometry.RotationAnchorOffset = parser.ParsePoint2Df() },
+
+            { "GeometryOther", (parser, x) => x.OtherGeometrys.Add(Geometry.Parse(parser)) },
+
             { "CamouflageDetectionMultiplier", (parser, x) => x.CamouflageDetectionMultiplier = parser.ParseFloat()}, 
             { "FactoryExitWidth", (parser, x) => x.FactoryExitWidth = parser.ParseInteger() },
             { "FactoryExtraBibWidth", (parser, x) => x.FactoryExtraBibWidth = parser.ParseFloat() },
@@ -700,21 +706,16 @@ namespace OpenSage.Logic.Object
 
         public IniColorRgb DisplayColor { get; private set; }
         public float Scale { get; private set; }
-        public ObjectGeometry Geometry { get; private set; }
+
+        private Geometry CurrentGeometry => AdditionalGeometry ?? (Geometry ?? new Geometry());
+
+        public Geometry Geometry { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string GeometryName { get; private set; }
+        public Geometry AdditionalGeometry {  get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public List<OtherGeometry> OtherGeometrys { get; private set; } = new List<OtherGeometry>(); //for crushing/squishing detection
-
-        public float GeometryMajorRadius { get; private set; }
-        public float GeometryMinorRadius { get; private set; }
-        public float GeometryHeight { get; private set; }
-        public bool GeometryIsSmall { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public Point2Df GeometryRotationAnchorOffset { get; private set; }
+        public List<Geometry> OtherGeometrys { get; private set; } = new List<Geometry>(); //for crushing/squishing detection
 
         [AddedIn(SageGame.Bfme2)]
         public float CamouflageDetectionMultiplier { get; private set; }
@@ -909,13 +910,20 @@ namespace OpenSage.Logic.Object
     }
 
     [AddedIn(SageGame.Bfme)]
-    public sealed class OtherGeometry
+    public sealed class Geometry
     {
-        internal static OtherGeometry Parse(IniParser parser)
+        public Geometry() { }
+
+        public Geometry(ObjectGeometry type)
         {
-            return new OtherGeometry()
+            Type = type;
+        }
+
+        internal static Geometry Parse(IniParser parser)
+        {
+            return new Geometry()
             {
-                GeomType = parser.ParseAttributeEnum<ObjectGeometry>("GeomType"),
+                Type = parser.ParseAttributeEnum<ObjectGeometry>("GeomType"),
                 IsSmall = parser.ParseAttributeBoolean("IsSmall"),
                 Height = parser.ParseAttributeInteger("Height"),
                 MajorRadius = parser.ParseAttributeInteger("MajorRadius"),
@@ -924,12 +932,15 @@ namespace OpenSage.Logic.Object
             };
         }
 
-        public ObjectGeometry GeomType { get; private set; }
-        public bool IsSmall { get; private set; }
-        public int Height { get; private set; }
-        public int MajorRadius { get; private set; }
-        public int MinorRadius { get; private set; }
-        public int OffsetX { get; private set; }
+        public string Name { get; set; }
+        public ObjectGeometry Type { get; set; }
+        public bool IsSmall { get; set; }
+        public float Height { get; set; }
+        public float MajorRadius { get; set; }
+        public float MinorRadius { get; set; }
+        public int OffsetX { get; set; }
+        public Point3D Offset { get; set; }
+        public Point2Df RotationAnchorOffset { get; set; }
     }
 
     [AddedIn(SageGame.Bfme)]
