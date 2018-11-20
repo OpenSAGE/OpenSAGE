@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using OpenSage.Audio;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Wav;
@@ -24,6 +23,8 @@ namespace OpenSage.Content
     public sealed class ContentManager : DisposableBase
     {
         private readonly Game _game;
+
+        public ISubsystemLoader SubsystemLoader { get; }
 
         private readonly Dictionary<Type, ContentLoader> _contentLoaders;
 
@@ -79,14 +80,16 @@ namespace OpenSage.Content
 
             IniDataContext = new IniDataContext(fileSystem, sageGame);
 
-            // TODO: Add these into IGameDefinition? Should we preload all ini files?
+            SubsystemLoader = Content.SubsystemLoader.Create(game.Definition, _fileSystem, IniDataContext);
+            SubsystemLoader.Load(Subsystem.Core);
+
+            // TODO: Move this somewhere else.
+            // Subsystem.Core should load mouse config, but that isn't the case with at least BFME2.
+            IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
+
+            // TODO: Defer subsystem loading until necessary
             switch (sageGame)
             {
-                case SageGame.Ra3:
-                case SageGame.Ra3Uprising:
-                case SageGame.Cnc4:
-                    // TODO
-                    break;
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
                 case SageGame.Bfme:
@@ -107,7 +110,6 @@ namespace OpenSage.Content
                     IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
                     break;
                 default:
-
                     break;
             }
 

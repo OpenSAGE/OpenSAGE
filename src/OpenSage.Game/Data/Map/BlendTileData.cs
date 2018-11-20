@@ -11,11 +11,9 @@ namespace OpenSage.Data.Map
         public uint NumTiles { get; private set; }
 
         public ushort[,] Tiles { get; private set; }
-        public ushort[,] Blends { get; private set; }
-        public ushort[,] ThreeWayBlends { get; private set; }
-        public ushort[,] CliffTextures { get; private set; }
-
-        public byte[] Unknown { get; private set; }
+        public uint[,] Blends { get; private set; }
+        public uint[,] ThreeWayBlends { get; private set; }
+        public uint[,] CliffTextures { get; private set; }
 
         public bool[,] Impassability { get; private set; }
 
@@ -109,15 +107,11 @@ namespace OpenSage.Data.Map
                 }
 
                 result.Tiles = reader.ReadUInt16Array2D(width, height);
-                result.Blends = reader.ReadUInt16Array2D(width, height);
-                result.ThreeWayBlends = reader.ReadUInt16Array2D(width, height);
-                result.CliffTextures = reader.ReadUInt16Array2D(width, height);
 
-                if (version >= 14 && version < 24)
-                {
-                    // TODO
-                    result.Unknown = reader.ReadBytes((int) (width * height * 6));
-                }
+                var blendBitSize = GetBlendBitSize(version);
+                result.Blends = reader.ReadUIntArray2D(width, height, blendBitSize);
+                result.ThreeWayBlends = reader.ReadUIntArray2D(width, height, blendBitSize);
+                result.CliffTextures = reader.ReadUIntArray2D(width, height, blendBitSize);
 
                 if (version > 6)
                 {
@@ -270,6 +264,13 @@ namespace OpenSage.Data.Map
             return textureIndices;
         }
 
+        private static uint GetBlendBitSize(ushort version)
+        {
+            return version >= 14 && version < 24
+                ? 32u
+                : 16u;
+        }
+
         internal void WriteTo(BinaryWriter writer)
         {
             WriteAssetTo(writer, () =>
@@ -277,14 +278,11 @@ namespace OpenSage.Data.Map
                 writer.Write(NumTiles);
 
                 writer.WriteUInt16Array2D(Tiles);
-                writer.WriteUInt16Array2D(Blends);
-                writer.WriteUInt16Array2D(ThreeWayBlends);
-                writer.WriteUInt16Array2D(CliffTextures);
 
-                if (Version >= 14 && Version < 24)
-                {
-                    writer.Write(Unknown);
-                }
+                var blendBitSize = GetBlendBitSize(Version);
+                writer.WriteUIntArray2D(Blends, blendBitSize);
+                writer.WriteUIntArray2D(ThreeWayBlends, blendBitSize);
+                writer.WriteUIntArray2D(CliffTextures, blendBitSize);
 
                 if (Version > 6)
                 {

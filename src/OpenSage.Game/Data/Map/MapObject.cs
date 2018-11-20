@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Map
 {
+    [DebuggerDisplay("{TypeName} ({Position})")]
     public sealed class MapObject : Asset
     {
         public const string AssetName = "Object";
