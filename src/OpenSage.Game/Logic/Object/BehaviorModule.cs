@@ -127,6 +127,7 @@ namespace OpenSage.Logic.Object
             { "DefectorSpecialPower", DefectorSpecialPowerModuleData.Parse },
             { "FireWeaponPower", FireWeaponPowerModuleData.Parse },
             { "OCLSpecialPower", OCLSpecialPowerModuleData.Parse },
+            { "SiegeDeployHordeSpecialPower", SiegeDeployHordeSpecialPowerModuleData.Parse },
             { "SpecialAbility", SpecialAbilityModuleData.Parse },
             { "SpyVisionSpecialPower", SpyVisionSpecialPowerModuleData.Parse },
 
@@ -150,6 +151,7 @@ namespace OpenSage.Logic.Object
             { "DemoTrapUpdate", DemoTrapUpdateModuleData.Parse },
             { "DetachableRiderUpdate", DetachableRiderUpdateModuleData.Parse },
             { "DynamicShroudClearingRangeUpdate", DynamicShroudClearingRangeUpdateModuleData.Parse },
+            { "EmotionTrackerUpdate", EmotionTrackerUpdateModuleData.Parse },
             { "EMPUpdate", EmpUpdateModuleData.Parse },
             { "EnemyNearUpdate", EnemyNearUpdateModuleData.Parse },
             { "FireOCLAfterWeaponCooldownUpdate", FireOCLAfterWeaponCooldownUpdateModuleData.Parse },
@@ -210,6 +212,7 @@ namespace OpenSage.Logic.Object
             { "DeployStyleAIUpdate", DeployStyleAIUpdateModuleData.Parse },
             { "DozerAIUpdate", DozerAIUpdateModuleData.Parse },
             { "HackInternetAIUpdate", HackInternetAIUpdateModuleData.Parse },
+            { "HordeAIUpdate", HordeAIUpdateModuleData.Parse },
             { "JetAIUpdate", JetAIUpdateModuleData.Parse },
             { "MissileAIUpdate", MissileAIUpdateModuleData.Parse },
             { "RailedTransportAIUpdate", RailedTransportAIUpdateModuleData.Parse },

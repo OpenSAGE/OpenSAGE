@@ -606,5 +606,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("DESTROYED_BACK"), AddedIn(SageGame.Bfme)]
         DestroyedBack,
+
+        [IniEnum("EMOTION_COWER"), AddedIn(SageGame.Bfme)]
+        EmotionCower,
+
+        [IniEnum("HORDE_EMPTY"), AddedIn(SageGame.Bfme)]
+        HordeEmptyf,
     }
 }

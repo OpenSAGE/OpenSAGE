@@ -496,5 +496,8 @@
 
         [IniEnum("OPTIMIZED_PROP"), AddedIn(SageGame.Bfme)]
         OptimizedProp,
+
+        [IniEnum("MELEE_HORDE"), AddedIn(SageGame.Bfme)]
+        MeleeHorde,
     }
 }

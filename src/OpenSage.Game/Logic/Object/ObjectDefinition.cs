@@ -280,6 +280,9 @@ namespace OpenSage.Logic.Object
             { "CrushZFactor", (parser, x) => x.CrushZFactor = parser.ParseFloat() },
             { "BountyValue", (parser, x) => x.BountyValue = parser.ParseInteger() },
             { "Description", (parser, x) => x.Description = parser.ParseLocalizedStringKey() },
+
+            { "FormationWidth", (parser, x) => x.FormationWidth = parser.ParseInteger() },
+            { "FormationDepth", (parser, x) => x.FormationDepth = parser.ParseInteger() },
         };
 
     
@@ -825,6 +828,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string Description { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int FormationWidth { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int FormationDepth { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

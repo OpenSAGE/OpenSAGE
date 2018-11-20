@@ -26,6 +26,7 @@ namespace OpenSage.Logic.Object
                 { "AlphaCameraFadeInnerRadius", (parser, x) => x.AlphaCameraFadeInnerRadius = parser.ParseInteger() },
                 { "AlphaCameraAtInnerRadius", (parser, x) => x.AlphaCameraAtInnerRadius = parser.ParsePercentage() },
                 { "UseDefaultAnimation", (parser, x) => x.UseDefaultAnimation = parser.ParseBoolean() },
+                { "DependencySharedModelFlags", (parser, x) => x.DependencySharedModelFlags = parser.ParseEnumBitArray<ModelConditionFlag>() },
             });
 
         public bool StaticModelLODMode { get; private set; }
@@ -41,6 +42,7 @@ namespace OpenSage.Logic.Object
 	    public int AlphaCameraFadeInnerRadius { get; private set; }
 	    public float AlphaCameraAtInnerRadius { get; private set; }
         public bool UseDefaultAnimation { get; private set; }
+        public BitArray<ModelConditionFlag> DependencySharedModelFlags { get; private set; }
     }
 
     public sealed class RandomTexture
