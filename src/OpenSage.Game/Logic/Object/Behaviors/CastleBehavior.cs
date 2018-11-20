@@ -20,6 +20,12 @@ namespace OpenSage.Logic.Object
             { "MaxCastleRadius", (parser, x) => x.MaxCastleRadius = parser.ParseFloat() },
             { "FadeTime", (parser, x) => x.FadeTime = parser.ParseFloat() },
             { "ScanDistance", (parser, x) => x.ScanDistance = parser.ParseInteger() },
+            { "PreBuiltList", (parser, x) => x.PreBuiltList = PreBuildObject.Parse(parser) },
+            { "PreBuiltPlyr", (parser, x) => x.PreBuiltPlayer = parser.ParseString() },
+            { "FilterCrew", (parser, x) => x.FilterCrew = ObjectFilter.Parse(parser) },
+            { "CrewReleaseFX", (parser, x) => x.CrewReleaseFX = parser.ParseAssetReference() },
+            { "CrewPrepareFX", (parser, x) => x.CrewPrepareFX = parser.ParseAssetReference() },
+            { "CrewPrepareInterval", (parser, x) => x.CrewPrepareInterval = parser.ParseInteger() },
         };
 
         public List<Side> SidesAllowed { get; internal set; } = new List<Side>();
@@ -30,21 +36,24 @@ namespace OpenSage.Logic.Object
         public float MaxCastleRadius { get; private set; }
         public float FadeTime { get; private set; }
         public int ScanDistance { get; private set; }
+        public PreBuildObject PreBuiltList { get; private set; }
+        public string PreBuiltPlayer { get; private set; }
+        public ObjectFilter FilterCrew { get; private set; }
+        public string CrewReleaseFX { get; private set; }
+        public string CrewPrepareFX { get; private set; }
+        public int CrewPrepareInterval { get; private set; }
     }
 
     public sealed class Faction
     {
         internal static Faction Parse(IniParser parser)
         {
-            var result = new Faction();
-            result.FactionName = parser.ParseString();
-            result.Camp = parser.ParseAssetReference();
-
-            var unknown = parser.GetNextTokenOptional();
-            if (unknown.HasValue)
+            var result = new Faction
             {
-                result.MaybeStartMoney = parser.ScanInteger(unknown.Value);
-            }
+                FactionName = parser.ParseString(),
+                Camp = parser.ParseAssetReference(),
+                MaybeStartMoney = parser.GetIntegerOptional()
+            };
             return result;
         }
 
@@ -66,6 +75,21 @@ namespace OpenSage.Logic.Object
 
         public string SideName { get; internal set; }
         public CommandSourceTypes CommandSourceTypes { get; private set; }
+    }
+
+    public sealed class PreBuildObject
+    {
+        internal static PreBuildObject Parse(IniParser parser)
+        {
+            return new PreBuildObject()
+            {
+                ObjectName = parser.ParseAssetReference(),
+                Count = parser.ParseInteger()
+            };
+        }
+
+        public string ObjectName { get; internal set; }
+        public int Count { get; private set; }
     }
 
 

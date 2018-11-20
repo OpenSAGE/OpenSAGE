@@ -9,10 +9,14 @@ namespace OpenSage.Logic.Object
             { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReferenceArray() },
             { "ConflictsWith", (parser, x) => x.ConflictsWith = parser.ParseAssetReferenceArray() },
             { "RequiresAllTriggers", (parser, x) => x.RequiresAllTriggers = parser.ParseBoolean() },
+            { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
         };
 
         public string[] TriggeredBy { get; private set; }
         public string[] ConflictsWith { get; private set; }
         public bool RequiresAllTriggers { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool StartsActive { get; private set; }
     }
 }

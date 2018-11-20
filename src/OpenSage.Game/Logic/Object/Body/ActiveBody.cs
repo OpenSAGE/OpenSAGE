@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Mathematics;
 
@@ -20,6 +21,7 @@ namespace OpenSage.Logic.Object
             { "SubdualDamageHealAmount", (parser, x) => x.SubdualDamageHealAmount = parser.ParseInteger() },
             { "GrabObject", (parser, x) => x.GrabObject = parser.ParseAssetReference() },
             { "GrabOffset", (parser, x) => x.GrabOffset = parser.ParsePoint() },
+            { "DamageCreationList", (parser, x) => x.DamageCreationLists.Add(DamageCreationList.Parse(parser)) },
         };
 
         public float MaxHealth { get; private set; }
@@ -40,8 +42,29 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string GrabObject { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public Point2D GrabOffset { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public List<DamageCreationList> DamageCreationLists { get; private set; } = new List<DamageCreationList>();
     }
 
+    [AddedIn(SageGame.Bfme)]
+    public sealed class DamageCreationList
+    {
+        internal static DamageCreationList Parse(IniParser parser)
+        {
+            return new DamageCreationList()
+            {
+                Object = parser.ParseAssetReference(),
+                ObjectKind = parser.ParseEnum<ObjectKinds>(),
+                Unknown = parser.ParseString()
+            };
+        }
+
+        public string Object { get; internal set; }
+        public ObjectKinds ObjectKind { get; internal set; }
+        public string Unknown { get; internal set; }
+    }
 }

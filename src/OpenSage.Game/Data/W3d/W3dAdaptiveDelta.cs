@@ -100,7 +100,6 @@ namespace OpenSage.Data.W3d
                         default:
                             throw new InvalidOperationException();
                     }
-                    break;
                 default:
                     throw new NotImplementedException();
             }

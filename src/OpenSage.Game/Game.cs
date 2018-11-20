@@ -308,7 +308,7 @@ namespace OpenSage
 
                     var startingUnit0 = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingUnit0));
                     var startingUnit0Position = player1StartPosition;
-                    startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.GeometryMajorRadius;
+                    startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
                     startingUnit0.Transform.Translation = startingUnit0Position;
                 }
             }

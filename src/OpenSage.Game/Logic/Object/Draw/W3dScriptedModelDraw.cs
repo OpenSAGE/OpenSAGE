@@ -20,6 +20,7 @@ namespace OpenSage.Logic.Object
                 { "UseStandardModelNames", (parser, x) => x.UseStandardModelNames = parser.ParseBoolean() },
                 { "RampMesh1", (parser, x) => x.RampMesh1 = parser.ParseAssetReference() },
                 { "RampMesh2", (parser, x) => x.RampMesh2 = parser.ParseAssetReference() },
+                { "MultiPlayerOnly", (parser, x) => x.MultiPlayerOnly = parser.ParseBoolean() },
             });
 
         public bool StaticModelLODMode { get; private set; }
@@ -29,6 +30,7 @@ namespace OpenSage.Logic.Object
         public bool UseStandardModelNames { get; private set; }
         public string RampMesh1 { get; private set; }
         public string RampMesh2 { get; private set; }
+        public bool MultiPlayerOnly { get; private set; }
     }
 
     public sealed class RandomTexture

@@ -10,8 +10,6 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<FireWeaponWhenDamagedBehaviorModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
             .Concat(new IniParseTable<FireWeaponWhenDamagedBehaviorModuleData>
             {
-                { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
-
                 { "ContinuousWeaponDamaged", (parser, x) => x.ContinuousWeaponDamaged = parser.ParseAssetReference() },
                 { "ContinuousWeaponReallyDamaged", (parser, x) => x.ContinuousWeaponReallyDamaged = parser.ParseAssetReference() },
 
@@ -22,8 +20,6 @@ namespace OpenSage.Logic.Object
                 { "DamageTypes", (parser, x) => x.DamageTypes = parser.ParseEnumBitArray<DamageType>() },
                 { "DamageAmount", (parser, x) => x.DamageAmount = parser.ParseInteger() }
             });
-
-        public bool StartsActive { get; private set; }
 
         public string ContinuousWeaponDamaged { get; private set; }
         public string ContinuousWeaponReallyDamaged { get; private set; }

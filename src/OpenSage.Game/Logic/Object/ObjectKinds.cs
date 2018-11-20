@@ -467,5 +467,25 @@
         [IniEnum("BASE_SITE"), AddedIn(SageGame.Bfme)]
         BaseSite,
 
+        [IniEnum("CATAPULT_ROCK"), AddedIn(SageGame.Bfme)]
+        CatapultRock,
+
+        [IniEnum("GONDORTOWNSMAN"), AddedIn(SageGame.Bfme)]
+        GondorTownsman,
+
+        [IniEnum("GONDORTOWNSMANTORCH"), AddedIn(SageGame.Bfme)]
+        GondorTownsmanTorch,
+
+        [IniEnum("GONDORTOWNSWOMAN"), AddedIn(SageGame.Bfme)]
+        GondorTownsWoman,
+
+        [IniEnum("GONDORTOWNSPAIR"), AddedIn(SageGame.Bfme)]
+        GondorTownsPair,
+
+        [IniEnum("SUPPLY_GATHERING_CENTER"), AddedIn(SageGame.Bfme)]
+        SupplyGatheringCenter,
+
+        [IniEnum("FS_CASH_PRODUCER"), AddedIn(SageGame.Bfme)]
+        FSCashProducer,
     }
 }

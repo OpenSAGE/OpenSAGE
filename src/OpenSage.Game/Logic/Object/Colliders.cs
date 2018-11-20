@@ -36,7 +36,7 @@ namespace OpenSage.Logic.Object
 
         public static Collider Create(ObjectDefinition definition, Transform transform)
         {
-            switch (definition.Geometry)
+            switch (definition.Geometry.Type)
             {
                 case ObjectGeometry.Box:
                     return new BoxCollider(definition, transform);
@@ -63,8 +63,8 @@ namespace OpenSage.Logic.Object
         public BoxCollider(ObjectDefinition def, Transform transform)
             : base(transform)
         {
-            var min = new Vector3(-def.GeometryMajorRadius, -def.GeometryMinorRadius, 0);
-            var max = new Vector3(def.GeometryMajorRadius, def.GeometryMinorRadius, def.GeometryHeight);
+            var min = new Vector3(-def.Geometry.MajorRadius, -def.Geometry.MinorRadius, 0);
+            var max = new Vector3(def.Geometry.MajorRadius, def.Geometry.MinorRadius, def.Geometry.Height);
             _bounds = new BoundingBox(min, max);
         }
 
@@ -93,7 +93,7 @@ namespace OpenSage.Logic.Object
         public SphereCollider(ObjectDefinition def, Transform transform)
             : base(transform)
         {
-            _bounds = new BoundingSphere(Vector3.Zero, def.GeometryMajorRadius);
+            _bounds = new BoundingSphere(Vector3.Zero, def.Geometry.MajorRadius);
         }
 
         protected override bool IntersectsTransformedRay(in Ray transformedRay, out float depth)
@@ -125,8 +125,8 @@ namespace OpenSage.Logic.Object
         public CylinderCollider(ObjectDefinition def, Transform transform)
             : base(transform)
         {
-            var radius = def.GeometryMajorRadius;
-            var height = def.GeometryHeight;
+            var radius = def.Geometry.MajorRadius;
+            var height = def.Geometry.Height;
 
             _bounds = new BoundingBox(
                 new Vector3(-radius, -radius, 0),

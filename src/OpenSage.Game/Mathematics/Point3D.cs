@@ -7,11 +7,11 @@ namespace OpenSage.Mathematics
     {
         public static readonly Point3D Zero = new Point3D(0, 0, 0);
 
-        public int X;
-        public int Y;
-        public int Z;
+        public float X;
+        public float Y;
+        public float Z;
 
-        public Point3D(int x, int y, int z)
+        public Point3D(float x, float y, float z)
         {
             X = x;
             Y = y;

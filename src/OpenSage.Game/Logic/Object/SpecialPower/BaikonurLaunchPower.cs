@@ -4,7 +4,7 @@ namespace OpenSage.Logic.Object
 {
     public sealed class BaikonurLaunchPowerModuleData : SpecialPowerModuleData
     {
-        internal static BaikonurLaunchPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static new BaikonurLaunchPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static new readonly IniParseTable<BaikonurLaunchPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
             .Concat(new IniParseTable<BaikonurLaunchPowerModuleData>
