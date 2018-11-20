@@ -226,8 +226,8 @@ namespace OpenSage.Logic.Object
             { "DisplayColor", (parser, x) => x.DisplayColor = IniColorRgb.Parse(parser) },
             { "Scale", (parser, x) => x.Scale = parser.ParseFloat() },
 
-            { "Geometry", (parser, x) => x.CurrentGeometry.Type = parser.ParseEnum<ObjectGeometry>() },
-            { "AdditionalGeometry", (parser, x) => x.AdditionalGeometry = new Geometry(parser.ParseEnum<ObjectGeometry>()) },
+            { "Geometry", (parser, x) => x.Geometry =  new Geometry(parser.ParseEnum<ObjectGeometry>()) },
+            { "AdditionalGeometry", (parser, x) => x.AdditionalGeometries.Add(new Geometry(parser.ParseEnum<ObjectGeometry>())) },
 
             { "GeometryName", (parser, x) => x.CurrentGeometry.Name = parser.ParseString() },
             { "GeometryMajorRadius", (parser, x) => x.CurrentGeometry.MajorRadius = parser.ParseFloat() },
@@ -236,8 +236,9 @@ namespace OpenSage.Logic.Object
             { "GeometryIsSmall", (parser, x) => x.CurrentGeometry.IsSmall = parser.ParseBoolean() },
             { "GeometryOffset", (parser, x) => x.CurrentGeometry.Offset = parser.ParsePoint3D() },
             { "GeometryRotationAnchorOffset", (parser, x) => x.CurrentGeometry.RotationAnchorOffset = parser.ParsePoint2Df() },
+            { "GeometryActive", (parser, x) => x.CurrentGeometry.IsActive = parser.ParseBoolean() },
 
-            { "GeometryOther", (parser, x) => x.OtherGeometrys.Add(Geometry.Parse(parser)) },
+            { "GeometryOther", (parser, x) => x.OtherGeometries.Add(Geometry.Parse(parser)) },
 
             { "GeometryContactPoint", (parser, x) => x.GeometryContactPoints.Add(GeometryContactPoint.Parse(parser)) },
 
@@ -710,15 +711,25 @@ namespace OpenSage.Logic.Object
         public IniColorRgb DisplayColor { get; private set; }
         public float Scale { get; private set; }
 
-        private Geometry CurrentGeometry => AdditionalGeometry ?? (Geometry ?? new Geometry());
+        private Geometry CurrentGeometry
+        {
+            get
+            {
+                if (AdditionalGeometries.Count > 0)
+                {
+                    return AdditionalGeometries[AdditionalGeometries.Count - 1];
+                }
+                return Geometry ?? new Geometry();
+            }
+        }
 
         public Geometry Geometry { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public Geometry AdditionalGeometry {  get; private set; }
+        public List<Geometry> AdditionalGeometries {  get; private set; } = new List<Geometry>();
 
         [AddedIn(SageGame.Bfme)]
-        public List<Geometry> OtherGeometrys { get; private set; } = new List<Geometry>(); //for crushing/squishing detection
+        public List<Geometry> OtherGeometries { get; private set; } = new List<Geometry>(); //for crushing/squishing detection
 
         [AddedIn(SageGame.Bfme2)]
         public float CamouflageDetectionMultiplier { get; private set; }
@@ -950,6 +961,7 @@ namespace OpenSage.Logic.Object
         public int OffsetX { get; set; }
         public Point3D Offset { get; set; }
         public Point2Df RotationAnchorOffset { get; set; }
+        public bool IsActive { get; set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -988,5 +1000,9 @@ namespace OpenSage.Logic.Object
         Repair,
         [IniEnum("Swoop")]
         Swoop,
+        [IniEnum("Grab")]
+        Grab,
+        [IniEnum("Ram")]
+        Ram,
     }
 }

@@ -51,5 +51,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("CAN_ATTACK"), AddedIn(SageGame.Bfme)]
         CanAttack,
+
+        [IniEnum("BLOODTHIRSTY"), AddedIn(SageGame.Bfme)]
+        BloodThirsty,
     }
 }

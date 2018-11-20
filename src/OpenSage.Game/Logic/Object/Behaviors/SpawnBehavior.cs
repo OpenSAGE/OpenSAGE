@@ -19,7 +19,8 @@ namespace OpenSage.Logic.Object
                 { "ExitByBudding", (parser, x) => x.ExitByBudding = parser.ParseBoolean() },
                 { "InitialBurst", (parser, x) => x.InitialBurst = parser.ParseInteger() },
                 { "AggregateHealth", (parser, x) => x.AggregateHealth = parser.ParseBoolean() },
-                { "SlavesHaveFreeWill", (parser, x) => x.SlavesHaveFreeWill = parser.ParseBoolean() }
+                { "SlavesHaveFreeWill", (parser, x) => x.SlavesHaveFreeWill = parser.ParseBoolean() },
+                { "RespectCommandLimit", (parser, x) => x.RespectCommandLimit = parser.ParseBoolean() }
             });
 
         public int SpawnNumber { get; private set; }
@@ -34,5 +35,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool SlavesHaveFreeWill { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool RespectCommandLimit { get; private set; }
     }
 }

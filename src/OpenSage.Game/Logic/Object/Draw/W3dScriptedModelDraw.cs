@@ -21,6 +21,10 @@ namespace OpenSage.Logic.Object
                 { "RampMesh1", (parser, x) => x.RampMesh1 = parser.ParseAssetReference() },
                 { "RampMesh2", (parser, x) => x.RampMesh2 = parser.ParseAssetReference() },
                 { "MultiPlayerOnly", (parser, x) => x.MultiPlayerOnly = parser.ParseBoolean() },
+                { "RaisedWallMesh", (parser, x) => x.RaisedWallMesh = parser.ParseAssetReference() },
+                { "AlphaCameraFadeOuterRadius", (parser, x) => x.AlphaCameraFadeOuterRadius = parser.ParseInteger() },
+                { "AlphaCameraFadeInnerRadius", (parser, x) => x.AlphaCameraFadeInnerRadius = parser.ParseInteger() },
+                { "AlphaCameraAtInnerRadius", (parser, x) => x.AlphaCameraAtInnerRadius = parser.ParsePercentage() },
             });
 
         public bool StaticModelLODMode { get; private set; }
@@ -31,6 +35,10 @@ namespace OpenSage.Logic.Object
         public string RampMesh1 { get; private set; }
         public string RampMesh2 { get; private set; }
         public bool MultiPlayerOnly { get; private set; }
+        public string RaisedWallMesh { get; private set; }
+        public int AlphaCameraFadeOuterRadius { get; private set; }
+	    public int AlphaCameraFadeInnerRadius { get; private set; }
+	    public float AlphaCameraAtInnerRadius { get; private set; }
     }
 
     public sealed class RandomTexture

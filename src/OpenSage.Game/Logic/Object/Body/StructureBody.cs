@@ -17,18 +17,12 @@ namespace OpenSage.Logic.Object
             {
                 { "GrabFX", (parser, x) => x.GrabFX = parser.ParseAssetReference() },
                 { "GrabDamage", (parser, x) => x.GrabDamage = parser.ParseInteger() },
-                { "MaxHealthReallyDamaged", (parser, x) => x.MaxHealthReallyDamaged = parser.ParseFloat() },
             });
 
         [AddedIn(SageGame.Bfme)]
         public string GrabFX { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int GrabDamage { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public float MaxHealthReallyDamaged { get; private set; }
-
-      
+        public int GrabDamage { get; private set; } 
      }
 }

@@ -21,7 +21,6 @@ namespace OpenSage.Logic.Object
             { "BunkerBusterBehavior", BunkerBusterBehaviorModuleData.Parse },
             { "CastleBehavior", CastleBehaviorModuleData.Parse },
             { "CastleMemberBehavior", CastleMemberBehaviorModuleData.Parse },
-            { "CivilianSpawnCollide", CivilianSpawnCollideBehaviorModuleData.Parse },
             { "ClearanceTestingSlowDeathBehavior", ClearanceTestingSlowDeathBehaviorModuleData.Parse },
             { "ClickReactionBehavior", ClickReactionBehaviorData.Parse },
             { "CountermeasuresBehavior", CountermeasuresBehaviorModuleData.Parse },
@@ -30,6 +29,7 @@ namespace OpenSage.Logic.Object
             { "FireWeaponWhenDeadBehavior", FireWeaponWhenDeadBehaviorModuleData.Parse },
             { "FireWeaponWhenDamagedBehavior", FireWeaponWhenDamagedBehaviorModuleData.Parse },
             { "FlightDeckBehavior", FlightDeckBehaviorModuleData.Parse },
+            { "GateOpenAndCloseBehavior", GateOpenAndCloseBehaviorModuleData.Parse },
             { "GenerateMinefieldBehavior", GenerateMinefieldBehaviorModuleData.Parse },
             { "GettingBuiltBehavior", GettingBuiltBehaviorModuleData.Parse },
             { "GrantStealthBehavior", GrantStealthBehaviorModuleData.Parse },
@@ -55,13 +55,13 @@ namespace OpenSage.Logic.Object
             { "TechBuildingBehavior", TechBuildingBehaviorModuleData.Parse },
             { "BezierProjectileBehavior", BezierProjectileBehaviorData.Parse },
             { "HitReactionBehavior", HitReactionBehaviorData.Parse },
-            { "HordeTransportContain", HordeTransportContainBehaviorData.Parse },
-            { "HordeMemberCollide", HordeMemberCollideBehaviorData.Parse },
 
             // Collide
+            { "CivilianSpawnCollide", CivilianSpawnCollideModuleData.Parse },
             { "ConvertToCarBombCrateCollide", ConvertToCarBombCrateCollideModuleData.Parse },
             { "ConvertToHijackedVehicleCrateCollide", ConvertToHijackedVehicleCrateCollideModuleData.Parse },
             { "FireWeaponCollide", FireWeaponCollideModuleData.Parse },
+            { "HordeMemberCollide", HordeMemberCollideModuleData.Parse },
             { "MoneyCrateCollide", MoneyCrateCollideModuleData.Parse },
             { "SabotageCommandCenterCrateCollide", SabotageCommandCenterCrateCollideModuleData.Parse },
             { "SabotageFakeBuildingCrateCollide", SabotageFakeBuildingCrateCollideModuleData.Parse },
@@ -79,11 +79,13 @@ namespace OpenSage.Logic.Object
             { "GarrisonContain", GarrisonContainModuleData.Parse },
             { "HealContain", HealContainModuleData.Parse },
             { "HelixContain", HelixContainModuleData.Parse },
+            { "HordeTransportContain", HordeTransportContainModuleData.Parse },
             { "InternetHackContain", InternetHackContainModuleData.Parse },
             { "OverlordContain", OverlordContainModuleData.Parse },
             { "ParachuteContain", ParachuteContainModuleData.Parse },
             { "RailedTransportContain", RailedTransportContainModuleData.Parse },
             { "RiderChangeContain", RiderChangeContainModuleData.Parse },
+            { "SlaughterHordeContain", SlaughterHordeContainModuleData.Parse },
             { "TransportContain", TransportContainModuleData.Parse },
             { "TunnelContain", TunnelContainModuleData.Parse },
 
@@ -98,6 +100,7 @@ namespace OpenSage.Logic.Object
 
             // Damage
             { "BoneFXDamage", BoneFXDamageModuleData.Parse },
+            { "EvacuateDamage", EvacuateDamageModuleData.Parse },
             { "TransitionDamageFX", TransitionDamageFXModuleData.Parse },
 
             // Die
@@ -221,6 +224,7 @@ namespace OpenSage.Logic.Object
             { "CommandSetUpgrade", CommandSetUpgradeModuleData.Parse },
             { "CostModifierUpgrade", CostModifierUpgradeModuleData.Parse },
             { "ExperienceScalarUpgrade", ExperienceScalarUpgradeModuleData.Parse },
+            { "GeometryUpgrade", GeometryUpgradeModuleData.Parse },
             { "GrantScienceUpgrade", GrantScienceUpgradeModuleData.Parse },
             { "LocomotorSetUpgrade", LocomotorSetUpgradeModuleData.Parse },
             { "ModelConditionUpgrade", ModelConditionUpgradeModuleData.Parse },

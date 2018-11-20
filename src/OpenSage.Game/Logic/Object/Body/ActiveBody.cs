@@ -14,6 +14,7 @@ namespace OpenSage.Logic.Object
             { "MaxHealth", (parser, x) => x.MaxHealth = parser.ParseFloat() },
             { "InitialHealth", (parser, x) => x.InitialHealth = parser.ParseFloat() },
             { "MaxHealthDamaged", (parser, x) => x.MaxHealthDamaged = parser.ParseFloat() },
+            { "MaxHealthReallyDamaged", (parser, x) => x.MaxHealthReallyDamaged = parser.ParseFloat() },
             { "RecoveryTime", (parser, x) => x.RecoveryTime = parser.ParseFloat() },
 
             { "SubdualDamageCap", (parser, x) => x.SubdualDamageCap = parser.ParseInteger() },
@@ -48,6 +49,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public List<DamageCreationList> DamageCreationLists { get; private set; } = new List<DamageCreationList>();
+
+        [AddedIn(SageGame.Bfme)]
+        public float MaxHealthReallyDamaged { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

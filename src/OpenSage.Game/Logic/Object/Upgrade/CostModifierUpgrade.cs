@@ -14,6 +14,8 @@ namespace OpenSage.Logic.Object
                 { "EffectKindOf", (parser, x) => x.EffectKindOf = parser.ParseEnum<ObjectKinds>() },
                 { "Percentage", (parser, x) => x.Percentages.Add(parser.ParsePercentage()) },
                 { "LabelForPalantirString", (parser, x) => x.LabelForPalantirString = parser.ParseLocalizedStringKey() },
+                { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) },
+                { "UpgradeDiscount", (parser, x) => x.UpgradeDiscount = parser.ParseBoolean() }
             });
 
         public ObjectKinds EffectKindOf { get; private set; }
@@ -21,5 +23,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string LabelForPalantirString { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public ObjectFilter ObjectFilter { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool UpgradeDiscount { get; private set; }
     }
 }

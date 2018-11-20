@@ -10,6 +10,7 @@ namespace OpenSage.Logic.Object
             { "ConflictsWith", (parser, x) => x.ConflictsWith = parser.ParseAssetReferenceArray() },
             { "RequiresAllTriggers", (parser, x) => x.RequiresAllTriggers = parser.ParseBoolean() },
             { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
+            { "Description", (parser, x) => x.Description = parser.ParseLocalizedStringKey() }
         };
 
         public string[] TriggeredBy { get; private set; }
@@ -18,5 +19,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool StartsActive { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string Description { get; private set; }
     }
 }

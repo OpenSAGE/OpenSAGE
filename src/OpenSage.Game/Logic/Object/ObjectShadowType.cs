@@ -18,5 +18,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("SHADOW_VOLUME_NON_SELF_2")]
         ShadowVolumeNonSelf2,
+
+        [IniEnum("SHADOW_VOLUME_NEW")]
+        ShadowVolumeNew,
     }
 }

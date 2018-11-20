@@ -4,11 +4,11 @@ using OpenSage.Data.Ini.Parser;
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public class HordeTransportContainBehaviorData : BehaviorModuleData
+    public class HordeTransportContainModuleData : BehaviorModuleData
     {
-        internal static HordeTransportContainBehaviorData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static HordeTransportContainModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal static readonly IniParseTable<HordeTransportContainBehaviorData> FieldParseTable = new IniParseTable<HordeTransportContainBehaviorData>
+        internal static readonly IniParseTable<HordeTransportContainModuleData> FieldParseTable = new IniParseTable<HordeTransportContainModuleData>
         {
            { "ObjectStatusOfContained", (parser, x) => x.ObjectStatusOfContained = parser.ParseEnumBitArray<ObjectStatus>() },
            { "Slots", (parser, x) => x.Slots = parser.ParseInteger() },

@@ -487,5 +487,11 @@
 
         [IniEnum("FS_CASH_PRODUCER"), AddedIn(SageGame.Bfme)]
         FSCashProducer,
+
+        [IniEnum("INDUSTRY_AFFECTED"), AddedIn(SageGame.Bfme)]
+        IndustryAffected,
+
+        [IniEnum("NONOCCLUDING"), AddedIn(SageGame.Bfme)]
+        NonOccluding
     }
 }
