@@ -18,5 +18,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("ALTERNATE_FORMATION"), AddedIn(SageGame.Bfme)]
         AlternateFormation,
+
+        [IniEnum("AS_TOWER"), AddedIn(SageGame.Bfme)]
+        AsTower,
     }
 }

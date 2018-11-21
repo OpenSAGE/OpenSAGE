@@ -499,5 +499,8 @@
 
         [IniEnum("MELEE_HORDE"), AddedIn(SageGame.Bfme)]
         MeleeHorde,
+
+        [IniEnum("ARMY_OF_DEAD"), AddedIn(SageGame.Bfme)]
+        ArmyOfDead,
     }
 }

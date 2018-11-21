@@ -618,5 +618,15 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("UPGRADE_NUMENOR_STONEWORK"), AddedIn(SageGame.Bfme)]
         UpgradeNumenorStonework,
+
+        [IniEnum("UPGRADE_TREBUCHET"), AddedIn(SageGame.Bfme)]
+        UpgradeTrebuchet,
+
+        [IniEnum("UPGRADE_POSTERN_GATE"), AddedIn(SageGame.Bfme)]
+        UpgradePosternGate,
+
+        [IniEnum("UPGRADE_GARRISON"), AddedIn(SageGame.Bfme)]
+        UpgradeGarrison,
+
     }
 }

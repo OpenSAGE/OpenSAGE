@@ -12,7 +12,7 @@ namespace OpenSage.Logic.Object
         private static readonly Dictionary<string, Func<IniParser, ClientBehaviorModuleData>> ClientBehaviorParseTable = new Dictionary<string, Func<IniParser, ClientBehaviorModuleData>>
         {
             { "AnimationSoundClientBehavior", AnimationSoundClientBehaviorData.Parse },
-          
+            { "UpgradeSoundSelectorClientBehavior", UpgradeSoundSelectorClientBehaviorData.Parse }
         };
     }
 }

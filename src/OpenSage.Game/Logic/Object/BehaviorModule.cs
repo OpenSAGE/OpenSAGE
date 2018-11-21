@@ -26,6 +26,7 @@ namespace OpenSage.Logic.Object
             { "CountermeasuresBehavior", CountermeasuresBehaviorModuleData.Parse },
             { "DumbProjectileBehavior", DumbProjectileBehaviorModuleData.Parse },
             { "DualWeaponBehavior", DualWeaponBehaviorModuleData.Parse },
+            { "DynamicPortalBehaviour", DynamicPortalBehaviorModuleData.Parse },
             { "FireWeaponWhenDeadBehavior", FireWeaponWhenDeadBehaviorModuleData.Parse },
             { "FireWeaponWhenDamagedBehavior", FireWeaponWhenDamagedBehaviorModuleData.Parse },
             { "FlightDeckBehavior", FlightDeckBehaviorModuleData.Parse },
