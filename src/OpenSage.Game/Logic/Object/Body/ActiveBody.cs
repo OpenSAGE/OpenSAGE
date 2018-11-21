@@ -23,6 +23,8 @@ namespace OpenSage.Logic.Object
             { "GrabObject", (parser, x) => x.GrabObject = parser.ParseAssetReference() },
             { "GrabOffset", (parser, x) => x.GrabOffset = parser.ParsePoint() },
             { "DamageCreationList", (parser, x) => x.DamageCreationLists.Add(DamageCreationList.Parse(parser)) },
+            { "GrabFX", (parser, x) => x.GrabFX = parser.ParseAssetReference() },
+            { "GrabDamage", (parser, x) => x.GrabDamage = parser.ParseInteger() },
         };
 
         public float MaxHealth { get; private set; }
@@ -52,6 +54,13 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public float MaxHealthReallyDamaged { get; private set; }
+
+        
+        [AddedIn(SageGame.Bfme)]
+        public string GrabFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int GrabDamage { get; private set; } 
     }
 
     [AddedIn(SageGame.Bfme)]

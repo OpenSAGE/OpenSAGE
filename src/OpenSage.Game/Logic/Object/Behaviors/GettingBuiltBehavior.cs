@@ -14,11 +14,15 @@ namespace OpenSage.Logic.Object
             { "SelfBuildingLoop", (parser, x) => x.SelfBuildingLoop = parser.ParseString() },
             { "SelfRepairFromDamageLoop", (parser, x) => x.SelfRepairFromDamageLoop = parser.ParseString() },
             { "SelfRepairFromRubbleLoop", (parser, x) => x.SelfRepairFromRubbleLoop = parser.ParseString() },
+            { "SpawnTimer", (parser, x) => x.SpawnTimer = parser.ParseFloat() },
+            { "RebuildTimeSeconds", (parser, x) => x.RebuildTimeSeconds = parser.ParseFloat() }
         };
 
         public string WorkerName { get; private set; }
         public string SelfBuildingLoop { get; private set; }
         public string SelfRepairFromDamageLoop { get; private set; }
         public string SelfRepairFromRubbleLoop { get; private set; }
+        public float SpawnTimer { get; private set; }
+        public float RebuildTimeSeconds { get; private set; }
     }
 }

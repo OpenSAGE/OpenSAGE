@@ -50,7 +50,7 @@ namespace OpenSage.Logic.Object
             { "ShroudClearingRange", (parser, x) => x.ShroudClearingRange = parser.ParseFloat() },
             { "CrusherLevel", (parser, x) => x.CrusherLevel = parser.ParseInteger() },
             { "CrushableLevel", (parser, x) => x.CrushableLevel = parser.ParseInteger() },
-            { "BuildCost", (parser, x) => x.BuildCost = parser.ParseInteger() },
+            { "BuildCost", (parser, x) => x.BuildCost = parser.ParseFloat() },
             { "BuildTime", (parser, x) => x.BuildTime = parser.ParseFloat() },
             { "BuildFadeInOnCreateList", (parser, x) => x.BuildFadeInOnCreateList = parser.ParseIdentifier() },
             { "BuildFadeInOnCreateTime", (parser, x) => x.BuildFadeInOnCreateTime = parser.ParseInteger() },
@@ -283,6 +283,7 @@ namespace OpenSage.Logic.Object
 
             { "FormationWidth", (parser, x) => x.FormationWidth = parser.ParseInteger() },
             { "FormationDepth", (parser, x) => x.FormationDepth = parser.ParseInteger() },
+            { "KeepSelectableWhenDead", (parser, x) => x.KeepSelectableWhenDead = parser.ParseBoolean() },
         };
 
     
@@ -314,7 +315,7 @@ namespace OpenSage.Logic.Object
         public float ShroudClearingRange { get; private set; }
         public int CrusherLevel { get; private set; }
         public int CrushableLevel { get; private set; }
-        public int BuildCost { get; private set; }
+        public float BuildCost { get; private set; }
 
         /// <summary>
         /// Build time in seconds.
@@ -834,6 +835,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int FormationDepth { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool KeepSelectableWhenDead { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

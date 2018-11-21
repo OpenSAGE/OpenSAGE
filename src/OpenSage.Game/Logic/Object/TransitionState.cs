@@ -27,10 +27,14 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<TransitionState>()
             {
                 { "FXEvent", (parser, x) => x.FXEvents.Add(FXEvent.Parse(parser)) },
+                { "EnteringStateFX", (parser, x) => x.EnteringStateFX = parser.ParseAssetReference() },
             });
 
         public string FromTransitionKey { get; private set; }
         public string ToTransitionKey { get; private set; }
         public List<FXEvent> FXEvents { get; private set; } = new List<FXEvent>();
+
+        [AddedIn(SageGame.Bfme)]
+        public string EnteringStateFX { get; private set; }
     }
 }

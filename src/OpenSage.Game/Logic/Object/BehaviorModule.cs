@@ -49,6 +49,7 @@ namespace OpenSage.Logic.Object
             { "RebuildHoleBehavior", RebuildHoleBehaviorModuleData.Parse },
             { "RunOffMapBehavior", RunOffMapBehaviorModuleData.Parse },
             { "ShareExperienceBehavior", ShareExperienceBehaviorModuleData.Parse },
+            { "SiegeDockingBehavior", SiegeDockingBehaviorModuleData.Parse },
             { "SlowDeathBehavior", SlowDeathBehaviorModuleData.Parse },
             { "SpawnBehavior", SpawnBehaviorModuleData.Parse },
             { "SupplyWarehouseCripplingBehavior", SupplyWarehouseCripplingBehaviorModuleData.Parse },

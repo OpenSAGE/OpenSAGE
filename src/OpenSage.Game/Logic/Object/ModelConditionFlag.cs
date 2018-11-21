@@ -611,6 +611,12 @@ namespace OpenSage.Logic.Object
         EmotionCower,
 
         [IniEnum("HORDE_EMPTY"), AddedIn(SageGame.Bfme)]
-        HordeEmptyf,
+        HordeEmpty,
+
+        [IniEnum("BASE_BUILD"), AddedIn(SageGame.Bfme)]
+        BaseBuild,
+
+        [IniEnum("UPGRADE_NUMENOR_STONEWORK"), AddedIn(SageGame.Bfme)]
+        UpgradeNumenorStonework,
     }
 }
