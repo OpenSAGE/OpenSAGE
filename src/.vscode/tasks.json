@@ -1,14 +1,15 @@
 {
-    "version": "2.0.0",
+    "version": "0.1.0",
+    "command": "dotnet",
+    "isShellCommand": true,
+    "args": [],
     "tasks": [
         {
-            "label": "build",
-            "command": "dotnet",
-            "type": "process",
+            "taskName": "build",
             "args": [
-                "build",
-                "${workspaceFolder}"
+                "${workspaceRoot}/OpenZH.Data.Tests/OpenZH.Data.Tests.csproj"
             ],
+            "isBuildCommand": true,
             "problemMatcher": "$msCompile"
         }
     ]

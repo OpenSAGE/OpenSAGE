@@ -5,32 +5,24 @@
    "version": "0.2.0",
    "configurations": [
         {
-            "name": "Launch Viewer",
+            "name": ".NET Core Launch (console)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/OpenSage.Viewer/bin/Debug/netcoreapp2.0/OpenSage.Viewer.dll",
+            "program": "${workspaceRoot}/OpenZH.Data.Tests/bin/Debug/netcoreapp1.1/OpenZH.Data.Tests.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/OpenSage.Viewer",
+            "cwd": "${workspaceRoot}/OpenZH.Data.Tests",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "internalConsole",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart"
         },
         {
-            "name": "Launch Game",
+            "name": ".NET Core Attach",
             "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",
-            // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/OpenSage.Launcher/bin/Debug/netcoreapp2.0/OpenSage.Launcher.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/OpenSage.Launcher",
-            // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
-            "console": "internalConsole",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart"
-        },
+            "request": "attach",
+            "processId": "${command:pickProcess}"
+        }
     ]
 }
