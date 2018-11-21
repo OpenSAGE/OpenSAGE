@@ -27,6 +27,25 @@ namespace OpenSage.Data.Ini.Parser
             return parseValue();
         }
 
+        public bool ParseAttributeOptional<T>(string label, Func<T> parseValue, out T parsed)
+        {
+            var nameToken = GetNextTokenOptional(SeparatorsColon);
+
+            if (nameToken == null)
+            {
+                parsed = default;
+                return false;
+            }
+
+            if (!string.Equals(nameToken.Value.Text, label, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new IniParseException($"Expected attribute name '{label}'", nameToken.Value.Position);
+            }
+
+            parsed = parseValue();
+            return true;
+        }
+
         public int ParseAttributeInteger(string label)
         {
             return ParseAttribute(label, ScanInteger);
