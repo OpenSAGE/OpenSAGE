@@ -106,6 +106,7 @@ namespace OpenSage.Content
                 case Subsystem.Core:
                     switch (_gameDefinition.Game)
                     {
+                        case SageGame.Bfme:
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
                             yield return "TheWritableGlobalData";
@@ -121,6 +122,7 @@ namespace OpenSage.Content
                 case Subsystem.ObjectCreation:
                     switch (_gameDefinition.Game)
                     {
+                        case SageGame.Bfme:
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
                             yield return "TheThingFactory";
@@ -134,6 +136,7 @@ namespace OpenSage.Content
                 case Subsystem.Players:
                     switch (_gameDefinition.Game)
                     {
+                        case SageGame.Bfme:
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
                         case SageGame.Cnc3:
@@ -145,6 +148,7 @@ namespace OpenSage.Content
                 case Subsystem.Terrain:
                     switch (_gameDefinition.Game)
                     {
+                        case SageGame.Bfme:
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
                         case SageGame.Cnc3:
@@ -157,6 +161,7 @@ namespace OpenSage.Content
                 case Subsystem.ParticleSystems:
                     switch (_gameDefinition.Game)
                     {
+                        case SageGame.Bfme:
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
                             yield return "TheParticleSystemManager";
@@ -172,6 +177,7 @@ namespace OpenSage.Content
                 case Subsystem.Multiplayer:
                     switch (_gameDefinition.Game)
                     {
+                        case SageGame.Bfme:
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
                             yield return "TheMultiplayerSettings";
