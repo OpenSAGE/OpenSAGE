@@ -79,6 +79,7 @@ namespace OpenSage.Logic.Object
             { "GarrisonContain", GarrisonContainModuleData.Parse },
             { "HealContain", HealContainModuleData.Parse },
             { "HelixContain", HelixContainModuleData.Parse },
+            { "HordeContain", HordeContainModuleData.Parse },
             { "HordeTransportContain", HordeTransportContainModuleData.Parse },
             { "InternetHackContain", InternetHackContainModuleData.Parse },
             { "OverlordContain", OverlordContainModuleData.Parse },

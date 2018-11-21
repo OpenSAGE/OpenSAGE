@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini.Parser
 {
@@ -55,6 +56,16 @@ namespace OpenSage.Data.Ini.Parser
         public float ParseAttributeFloat(string label)
         {
             return ParseAttribute(label, ScanFloat);
+        }
+
+        public Point2D ParseAttributePoint2D(string label)
+        {
+            return ParseAttribute(label, ParsePoint);
+        }
+
+        public Point2Df ParseAttributePoint2Df(string label)
+        {
+            return ParseAttribute(label, ParsePoint2Df);
         }
     }
 }
