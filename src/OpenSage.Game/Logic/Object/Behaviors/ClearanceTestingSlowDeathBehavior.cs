@@ -1,6 +1,6 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Numerics;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
-using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -19,7 +19,7 @@ namespace OpenSage.Logic.Object
                 { "ClearanceGeometryMinorRadius", (parser, x) => x.ClearanceGeometryMinorRadius = parser.ParseFloat() },
                 { "ClearanceGeometryHeight", (parser, x) => x.ClearanceGeometryHeight = parser.ParseFloat() },
                 { "ClearanceGeometryIsSmall", (parser, x) => x.ClearanceGeometryIsSmall = parser.ParseBoolean() },
-                { "ClearanceGeometryOffset", (parser, x) => x.ClearanceGeometryOffset = parser.ParsePoint3D() },
+                { "ClearanceGeometryOffset", (parser, x) => x.ClearanceGeometryOffset = parser.ParseVector3() },
                 { "ClearanceMaxHeight", (parser, x) => x.ClearanceMaxHeight = parser.ParseInteger() },
                 { "ClearanceMinHeight", (parser, x) => x.ClearanceMinHeight = parser.ParseInteger() },
                 { "ClearanceMaxHeightFraction", (parser, x) => x.ClearanceMaxHeightFraction = parser.ParseFloat() },
@@ -33,7 +33,7 @@ namespace OpenSage.Logic.Object
         public float ClearanceGeometryMinorRadius { get; internal set; }
         public float ClearanceGeometryHeight { get; internal set; }
         public bool ClearanceGeometryIsSmall { get; internal set; }
-        public Point3D ClearanceGeometryOffset { get; internal set; }
+        public Vector3 ClearanceGeometryOffset { get; internal set; }
         public int ClearanceMaxHeight { get; internal set; }
         public int ClearanceMinHeight { get; internal set; }
         public float ClearanceMinHeightFraction { get; internal set; }

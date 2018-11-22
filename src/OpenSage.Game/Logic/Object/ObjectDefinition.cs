@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Mathematics;
@@ -234,8 +235,8 @@ namespace OpenSage.Logic.Object
             { "GeometryMinorRadius", (parser, x) => x.CurrentGeometry.MinorRadius = parser.ParseFloat() },
             { "GeometryHeight", (parser, x) => x.CurrentGeometry.Height = parser.ParseFloat() },
             { "GeometryIsSmall", (parser, x) => x.CurrentGeometry.IsSmall = parser.ParseBoolean() },
-            { "GeometryOffset", (parser, x) => x.CurrentGeometry.Offset = parser.ParsePoint3D() },
-            { "GeometryRotationAnchorOffset", (parser, x) => x.CurrentGeometry.RotationAnchorOffset = parser.ParsePoint2Df() },
+            { "GeometryOffset", (parser, x) => x.CurrentGeometry.Offset = parser.ParseVector3() },
+            { "GeometryRotationAnchorOffset", (parser, x) => x.CurrentGeometry.RotationAnchorOffset = parser.ParseVector2() },
             { "GeometryActive", (parser, x) => x.CurrentGeometry.IsActive = parser.ParseBoolean() },
             { "GeometryFrontAngle", (parser, x) => x.CurrentGeometry.FrontAngle = parser.ParseFloat() },
 
@@ -977,8 +978,8 @@ namespace OpenSage.Logic.Object
         public float MajorRadius { get; set; }
         public float MinorRadius { get; set; }
         public int OffsetX { get; set; }
-        public Point3D Offset { get; set; }
-        public Point2Df RotationAnchorOffset { get; set; }
+        public Vector3 Offset { get; set; }
+        public Vector2 RotationAnchorOffset { get; set; }
         public bool IsActive { get; set; }
         public float FrontAngle { get; set; }
     }

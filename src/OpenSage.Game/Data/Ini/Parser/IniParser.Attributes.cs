@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini.Parser
@@ -82,9 +83,9 @@ namespace OpenSage.Data.Ini.Parser
             return ParseAttribute(label, ParsePoint);
         }
 
-        public Point2Df ParseAttributePoint2Df(string label)
+        public Vector2 ParseAttributeVector2(string label)
         {
-            return ParseAttribute(label, ParsePoint2Df);
+            return ParseAttribute(label, ParseVector2);
         }
     }
 }

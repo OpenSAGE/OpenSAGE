@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Mathematics;
@@ -89,12 +90,12 @@ namespace OpenSage.Logic.Object
             return new BannerCarrierPosition
             {
                 UnitType = parser.ParseAttributeIdentifier("UnitType"),
-                Position = parser.ParseAttributePoint2Df("Pos")
+                Position = parser.ParseAttributeVector2("Pos")
             };
         }
 
         public string UnitType { get; private set; }
-        public Point2Df Position { get; private set; }
+        public Vector2 Position { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

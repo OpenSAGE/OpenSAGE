@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using System.Text;
 using OpenSage.Data.Utilities;
 using OpenSage.Logic.Object;
@@ -421,18 +422,18 @@ namespace OpenSage.Data.Ini.Parser
             };
         }
 
-        public Point2Df ParsePoint2Df()
+        public Vector2 ParseVector2()
         {
-            return new Point2Df
+            return new Vector2
             {
                 X = ParseAttributeFloat("X"),
                 Y = ParseAttributeFloat("Y")
             };
         }
 
-        public Point3D ParsePoint3D()
+        public Vector3 ParseVector3()
         {
-            return new Point3D
+            return new Vector3
             {
                 X = ParseAttributeFloat("X"),
                 Y = ParseAttributeFloat("Y"),
