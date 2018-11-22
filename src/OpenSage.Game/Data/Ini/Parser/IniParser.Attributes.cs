@@ -87,5 +87,10 @@ namespace OpenSage.Data.Ini.Parser
         {
             return ParseAttribute(label, ParseVector2);
         }
+
+        public Vector3 ParseAttributeVector3(string label)
+        {
+            return ParseAttribute(label, ParseVector3);
+        }
     }
 }

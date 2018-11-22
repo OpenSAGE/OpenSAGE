@@ -17,6 +17,7 @@ namespace OpenSage.Logic.Object
             { "Range", (parser, x) => x.Range = parser.ParseInteger() },
             { "TargetEnemy", (parser, x) => x.TargetEnemy = parser.ParseBoolean() },
             { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) },
+            { "ConflictsWith", (parser, x) => x.ConflictsWith = parser.ParseAssetReferenceArray() },
         };
 
         public bool StartsActive { get; private set; }
@@ -26,5 +27,6 @@ namespace OpenSage.Logic.Object
         public int Range { get; private set; }
         public bool TargetEnemy	{ get; private set; }
         public ObjectFilter ObjectFilter { get; private set; }
+        public string[] ConflictsWith { get; private set; }
     }
 }

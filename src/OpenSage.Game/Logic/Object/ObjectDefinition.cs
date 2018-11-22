@@ -285,6 +285,9 @@ namespace OpenSage.Logic.Object
             { "FormationWidth", (parser, x) => x.FormationWidth = parser.ParseInteger() },
             { "FormationDepth", (parser, x) => x.FormationDepth = parser.ParseInteger() },
             { "KeepSelectableWhenDead", (parser, x) => x.KeepSelectableWhenDead = parser.ParseBoolean() },
+            { "LiveCameraOffset", (parser, x) => x.LiveCameraOffset = parser.ParseVector3() },
+            { "LiveCameraPitch", (parser, x) => x.LiveCameraPitch = parser.ParseFloat() },
+            { "EvaEventDieOwner", (parser, x) => x.EvaEventDieOwner = parser.ParseAssetReference() }
         };
 
     
@@ -839,6 +842,15 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool KeepSelectableWhenDead { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public Vector3 LiveCameraOffset { get; private set; }
+        
+        [AddedIn(SageGame.Bfme)]
+        public float LiveCameraPitch { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string EvaEventDieOwner { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

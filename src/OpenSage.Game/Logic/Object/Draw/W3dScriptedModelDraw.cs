@@ -28,6 +28,9 @@ namespace OpenSage.Logic.Object
                 { "UseDefaultAnimation", (parser, x) => x.UseDefaultAnimation = parser.ParseBoolean() },
                 { "DependencySharedModelFlags", (parser, x) => x.DependencySharedModelFlags = parser.ParseEnumBitArray<ModelConditionFlag>() },
                 { "AffectedByStealth", (parser, x) => x.AffectedByStealth = parser.ParseBoolean() },
+                { "StaticSortLevelWhileFading", (parser, x) => x.StaticSortLevelWhileFading = parser.ParseInteger() },
+                { "GlowEnabled", (parser, x) => x.GlowEnabled = parser.ParseBoolean() },
+                { "GlowEmissive", (parser, x) => x.GlowEmissive = parser.ParseBoolean() }
             });
 
         public bool StaticModelLODMode { get; private set; }
@@ -45,6 +48,9 @@ namespace OpenSage.Logic.Object
         public bool UseDefaultAnimation { get; private set; }
         public BitArray<ModelConditionFlag> DependencySharedModelFlags { get; private set; }
         public bool AffectedByStealth { get; private set; }
+        public int StaticSortLevelWhileFading { get; private set; }
+        public bool GlowEnabled { get; private set; }
+		public bool GlowEmissive { get; private set; }
     }
 
     public sealed class RandomTexture

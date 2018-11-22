@@ -602,7 +602,7 @@ namespace OpenSage.Data.Ini.Parser
                         _currentBlockOrFieldStack.Push(fieldName);
 
                         fieldParser(this, result);
-
+                        
                         _currentBlockOrFieldStack.Pop();
                     }
                     else

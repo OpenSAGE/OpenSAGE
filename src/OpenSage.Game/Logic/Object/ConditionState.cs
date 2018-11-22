@@ -54,6 +54,8 @@ namespace OpenSage.Logic.Object
 
             { "TransitionKey", (parser, x) => x.TransitionKey = parser.ParseIdentifier() },
             { "WaitForStateToFinishIfPossible", (parser, x) => x.WaitForStateToFinishIfPossible = parser.ParseIdentifier() },
+
+            { "OverrideTooltip", (parser, x) => x.OverrideTooltip = parser.ParseAssetReference() },
         };
 
         private void ParseAnimation(IniParser parser)
@@ -104,6 +106,9 @@ namespace OpenSage.Logic.Object
 
         public string TransitionKey { get; private set; }
         public string WaitForStateToFinishIfPossible { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string OverrideTooltip { get; private set; }
 
         /// <summary>
         /// Used by AliasConditionState.

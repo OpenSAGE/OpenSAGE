@@ -628,5 +628,11 @@ namespace OpenSage.Logic.Object
         [IniEnum("UPGRADE_GARRISON"), AddedIn(SageGame.Bfme)]
         UpgradeGarrison,
 
+        [IniEnum("LEVELED"), AddedIn(SageGame.Bfme)]
+        Leveled,
+
+        [IniEnum("SPECIAL_POWER_1"), AddedIn(SageGame.Bfme)]
+        SpecialPower1,
+
     }
 }

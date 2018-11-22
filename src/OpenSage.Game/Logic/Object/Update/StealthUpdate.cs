@@ -33,10 +33,11 @@ namespace OpenSage.Logic.Object
             { "EnemyDetectionEvaEvent", (parser, x) => x.EnemyDetectionEvaEvent = parser.ParseAssetReference() },
             { "OwnDetectionEvaEvent", (parser, x) => x.OwnDetectionEvaEvent = parser.ParseAssetReference() },
             { "UseRiderStealth", (parser, x) => x.UseRiderStealth = parser.ParseBoolean() },
-            { "DetectedByAnyoneRange", (parser, x) => x.DetectedByAnyoneRange = parser.ParseInteger() },
+            { "DetectedByAnyoneRange", (parser, x) => x.DetectedByAnyoneRange = parser.ParseFloat() },
             { "RemoveTerrainRestrictionOnUpgrade", (parser, x) => x.RemoveTerrainRestrictionOnUpgrade = parser.ParseString() },
             { "RevealWeaponSets", (parser, x) => x.RevealWeaponSets = parser.ParseEnumFlags<WeaponSetConditions>() },
             { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
+            { "DetectedByFriendliesOnly", (parser, x) => x.DetectedByFriendliesOnly = parser.ParseBoolean() },
         };
 
         public int StealthDelay { get; private set; }
@@ -68,7 +69,7 @@ namespace OpenSage.Logic.Object
         public bool UseRiderStealth { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int DetectedByAnyoneRange { get; private set; }
+        public float DetectedByAnyoneRange { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string RemoveTerrainRestrictionOnUpgrade { get; private set; }
@@ -78,5 +79,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool StartsActive { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool DetectedByFriendliesOnly { get; private set; }
     }
 }

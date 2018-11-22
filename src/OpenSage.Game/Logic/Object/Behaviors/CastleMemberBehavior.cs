@@ -15,6 +15,8 @@ namespace OpenSage.Logic.Object
             { "CampDestroyedOwnerEvaEvent", (parser, x) => x.CampDestroyedOwnerEvaEvent = parser.ParseAssetReference() },
             { "CampDestroyedAllyEvaEvent", (parser, x) => x.CampDestroyedAllyEvaEvent = parser.ParseAssetReference() },
             { "CampDestroyedAttackerEvaEvent", (parser, x) => x.CampDestroyedAttackerEvaEvent = parser.ParseAssetReference() },
+            { "StoreUpgradePrice", (parser, x) => x.StoreUpgradePrice = parser.ParseBoolean() },
+            { "BeingBuiltSound", (parser, x) => x.BeingBuiltSound = parser.ParseAssetReference() }
         };
 
         public bool CountsForEvaCastleBreached { get; internal set; }
@@ -23,5 +25,7 @@ namespace OpenSage.Logic.Object
         public string CampDestroyedOwnerEvaEvent { get; internal set; }
         public string CampDestroyedAllyEvaEvent { get; internal set; }
         public string CampDestroyedAttackerEvaEvent { get; internal set; }
+        public bool StoreUpgradePrice { get; internal set; }
+        public string BeingBuiltSound { get; internal set; }
     }
 }

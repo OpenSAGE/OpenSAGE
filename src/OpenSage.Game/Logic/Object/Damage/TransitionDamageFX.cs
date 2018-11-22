@@ -1,4 +1,6 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Collections.Generic;
+using System.Numerics;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
@@ -42,6 +44,14 @@ namespace OpenSage.Logic.Object
             { "RubbleParticleSystem5", (parser, x) => x.RubbleParticleSystem5 = TransitionDamageParticleSystem.Parse(parser) },
             { "RubbleParticleSystem6", (parser, x) => x.RubbleParticleSystem6 = TransitionDamageParticleSystem.Parse(parser) },
             { "RubbleParticleSystem7", (parser, x) => x.RubbleParticleSystem7 = TransitionDamageParticleSystem.Parse(parser) },
+
+            { "RubbleNeighbor", (parser, x) => x.RubbleNeighbors.Add(RubbleNeighbor.Parse(parser)) },
+            { "PristineShowSubObject", (parser, x) => x.PristineShowSubObject = parser.ParseAssetReferenceArray() },
+            { "PristineHideSubObject", (parser, x) => x.PristineHideSubObject = parser.ParseAssetReferenceArray() },
+            { "DamagedShowSubObject", (parser, x) => x.DamagedShowSubObject = parser.ParseAssetReferenceArray() },
+            { "DamagedHideSubObject", (parser, x) => x.DamagedHideSubObject = parser.ParseAssetReferenceArray() },
+            { "ReallyDamagedHideSubObject", (parser, x) => x.ReallyDamagedHideSubObject = parser.ParseAssetReferenceArray() },
+            { "ReallyDamagedShowSubObject", (parser, x) => x.ReallyDamagedShowSubObject = parser.ParseAssetReferenceArray() },
         };
 
         public BitArray<DamageType> DamageFXTypes { get; private set; }
@@ -77,6 +87,27 @@ namespace OpenSage.Logic.Object
         public TransitionDamageParticleSystem RubbleParticleSystem5 { get; private set; }
         public TransitionDamageParticleSystem RubbleParticleSystem6 { get; private set; }
         public TransitionDamageParticleSystem RubbleParticleSystem7 { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public List<RubbleNeighbor> RubbleNeighbors { get; private set; } = new List<RubbleNeighbor>();
+
+        [AddedIn(SageGame.Bfme)]
+        public string[] PristineShowSubObject { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string[] PristineHideSubObject { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string[] DamagedShowSubObject { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string[] DamagedHideSubObject { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string[] ReallyDamagedShowSubObject { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string[] ReallyDamagedHideSubObject { get; private set; }
     }
 
     public sealed class TransitionDamageFXList
@@ -109,5 +140,23 @@ namespace OpenSage.Logic.Object
         public string Bone { get; private set; }
         public bool RandomBone { get; private set; }
         public string ParticleSystem { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public sealed class RubbleNeighbor
+    {
+        internal static RubbleNeighbor Parse(IniParser parser)
+        {
+            var result = new RubbleNeighbor();
+            result.Offset = parser.ParseAttributeVector3("NeighborOffset");
+            result.SubObjects.Add(parser.ParseAttributeIdentifier("SubObject"));
+            result.SubObjects.Add(parser.ParseAttributeIdentifier("SubObject"));
+            result.OCL = parser.ParseAttributeIdentifier("OCL");
+            return result;
+        }
+
+        public Vector3 Offset { get; internal set; }
+        public List<string> SubObjects { get; internal set; } = new List<string>();
+        public string OCL { get; internal set; }
     }
 }

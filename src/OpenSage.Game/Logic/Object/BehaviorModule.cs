@@ -51,6 +51,7 @@ namespace OpenSage.Logic.Object
             { "RunOffMapBehavior", RunOffMapBehaviorModuleData.Parse },
             { "ShareExperienceBehavior", ShareExperienceBehaviorModuleData.Parse },
             { "SiegeDockingBehavior", SiegeDockingBehaviorModuleData.Parse },
+            { "SlaveWatcherBehavior", SlaveWatcherBehaviorModuleData.Parse },
             { "SlowDeathBehavior", SlowDeathBehaviorModuleData.Parse },
             { "SpawnBehavior", SpawnBehaviorModuleData.Parse },
             { "SupplyWarehouseCripplingBehavior", SupplyWarehouseCripplingBehaviorModuleData.Parse },
@@ -116,6 +117,7 @@ namespace OpenSage.Logic.Object
             { "FXListDie", FXListDieModuleData.Parse },
             { "KeepObjectDie", KeepObjectDieModuleData.Parse },
             { "RebuildHoleExposeDie", RebuildHoleExposeDieModuleData.Parse },
+            { "RefundDie", RefundDieModuleData.Parse },
             { "SpecialPowerCompletionDie", SpecialPowerCompletionDieModuleData.Parse },
             { "UpgradeDie", UpgradeDieModuleData.Parse },
 
@@ -204,6 +206,7 @@ namespace OpenSage.Logic.Object
             { "TensileFormationUpdate", TensileFormationUpdateModuleData.Parse },
             { "ToggleHiddenSpecialAbilityUpdate", ToggleHiddenSpecialAbilityUpdateModuleData.Parse },
             { "ToppleUpdate", ToppleUpdateModuleData.Parse },
+            { "WallUpgradeUpdate", WallUpgradeUpdateModuleData.Parse },
             { "WaveGuideUpdate", WaveGuideUpdateModuleData.Parse },
             { "WeaponBonusUpdate", WeaponBonusUpdateModuleData.Parse },
 
@@ -214,6 +217,7 @@ namespace OpenSage.Logic.Object
             { "DeliverPayloadAIUpdate", DeliverPayloadAIUpdateModuleData.Parse },
             { "DeployStyleAIUpdate", DeployStyleAIUpdateModuleData.Parse },
             { "DozerAIUpdate", DozerAIUpdateModuleData.Parse },
+            { "FoundationAIUpdate", FoundationAIUpdateModuleData.Parse },
             { "HackInternetAIUpdate", HackInternetAIUpdateModuleData.Parse },
             { "HordeAIUpdate", HordeAIUpdateModuleData.Parse },
             { "JetAIUpdate", JetAIUpdateModuleData.Parse },

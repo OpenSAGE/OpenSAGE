@@ -502,5 +502,18 @@
 
         [IniEnum("ARMY_OF_DEAD"), AddedIn(SageGame.Bfme)]
         ArmyOfDead,
+
+        [IniEnum("INERT_SHROUD_REVEALER"), AddedIn(SageGame.Bfme)]
+        InertShroudRevealer,
+
+        [IniEnum("MADE_OF_METAL"), AddedIn(SageGame.Bfme)]
+        MadeOfMetal,
+
+        [IniEnum("VITAL_FOR_BASE_SURVIVAL"), AddedIn(SageGame.Bfme)]
+        VitalForBaseSurvival,
+
+        [IniEnum("MADE_OF_WOOD"), AddedIn(SageGame.Bfme)]
+        MadeOfWood,
+
     }
 }
