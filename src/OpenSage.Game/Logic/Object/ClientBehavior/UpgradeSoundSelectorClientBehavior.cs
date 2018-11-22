@@ -26,22 +26,10 @@ namespace OpenSage.Logic.Object
         internal static readonly IniParseTable<SoundUpgrade> FieldParseTable = new IniParseTable<SoundUpgrade>
         {
             { "VoiceSelect", (parser, x) => x.VoiceSelect = parser.ParseAssetReference() },
-            { "ExcludedUpgrades", (parser, x) => x.ExcludedUpgrades = ParseExcludedUpgrades(parser) }
+            { "ExcludedUpgrades", (parser, x) => x.ExcludedUpgrades = parser.ParseAssetReferenceArray() }
         };
 
-        private static List<string> ParseExcludedUpgrades(IniParser parser)
-        {
-            var result = new List<string>();
-            var upgrade = parser.ParseString();
-            while (upgrade != string.Empty)
-            {
-                result.Add(upgrade);
-                upgrade = parser.ParseString();
-            }
-            return result;
-        }
-
         public string VoiceSelect { get; internal set; }
-        public List<string> ExcludedUpgrades { get; internal set; } = new List<string>();
+        public string[] ExcludedUpgrades { get; internal set; }
     }
 }

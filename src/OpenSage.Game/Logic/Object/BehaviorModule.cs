@@ -227,6 +227,7 @@ namespace OpenSage.Logic.Object
             // Upgrade
             { "ArmorUpgrade", ArmorUpgradeModuleData.Parse },
             { "AttributeModifierUpgrade", AttributeModifierUpgradeModuleData.Parse },
+            { "AudioLoopUpgrade", AudioLoopUpgradeModuleData.Parse },
             { "CommandSetUpgrade", CommandSetUpgradeModuleData.Parse },
             { "CostModifierUpgrade", CostModifierUpgradeModuleData.Parse },
             { "ExperienceScalarUpgrade", ExperienceScalarUpgradeModuleData.Parse },

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
-using OpenSage.Logic.Object;
 
 namespace OpenSage.Logic.Object
 {
@@ -20,6 +19,10 @@ namespace OpenSage.Logic.Object
             { "NumberOfBones", (parser, x) => x.NumberOfBones = parser.ParseInteger() },
             { "WayPoint", (parser, x) => x.WayPoints.Add(WayPoint.Parse(parser)) },
             { "Link", (parser, x) => x.Links.Add(Link.Parse(parser)) },
+            { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReferenceArray() },
+            { "ConflictsWith", (parser, x) => x.ConflictsWith = parser.ParseAssetReferenceArray() },
+            { "CustomAnimAndDuration", (parser, x) => x.CustomAnimAndDuration = CustomAnimAndDuration.Parse(parser) },
+            { "ActivationDelaySeconds", (parser, x) => x.ActivationDelaySeconds = parser.ParseFloat() },
         };
 
         public bool GenerateNow { get; internal set; }
@@ -30,6 +33,10 @@ namespace OpenSage.Logic.Object
 		public int NumberOfBones { get; internal set; }
 		public List<WayPoint> WayPoints { get; internal set; } = new List<WayPoint>();
         public List<Link> Links { get; internal set; } = new List<Link>();
+        public string[] TriggeredBy { get; private set; }
+        public string[] ConflictsWith { get; private set; }
+        public CustomAnimAndDuration CustomAnimAndDuration { get; internal set; }
+        public float ActivationDelaySeconds { get; internal set; }
     }
 
     public enum WayPointType
@@ -40,7 +47,10 @@ namespace OpenSage.Logic.Object
         PreClimb,
 
         [IniEnum("Climb")]
-        Climb
+        Climb,
+
+        [IniEnum("Walk")]
+        Walk
     }
 
     public sealed class WayPoint

@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using System.Numerics;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -13,8 +14,32 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<ObjectCreationUpgradeModuleData>
             {
                 { "UpgradeObject", (parser, x) => x.UpgradeObject = parser.ParseAssetReference() },
+                { "Delay", (parser, x) => x.Delay = parser.ParseFloat() },
+                { "RemoveUpgrade", (parser, x) => x.RemoveUpgrade = parser.ParseAssetReference() },
+                { "GrantUpgrade", (parser, x) => x.GrantUpgrade = parser.ParseAssetReference() },
+                { "DestroyWhenSold", (parser, x) => x.DestroyWhenSold = parser.ParseBoolean() },
+                { "DeathAnimAndDuration", (parser, x) => x.DeathAnimAndDuration = CustomAnimAndDuration.Parse(parser) },
+                { "Offset", (parser, x) => x.Offset = parser.ParseVector3() },
+                { "ThingToSpawn", (parser, x) => x.ThingToSpawn = parser.ParseAssetReference() },
+                { "FadeInTime", (parser, x) => x.FadeInTime = parser.ParseInteger() }
             });
 
         public string UpgradeObject { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public float Delay { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public string RemoveUpgrade { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public string GrantUpgrade { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public bool DestroyWhenSold { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public CustomAnimAndDuration DeathAnimAndDuration { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public Vector3 Offset { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public string ThingToSpawn { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public int FadeInTime { get; private set; }
     }
 }
