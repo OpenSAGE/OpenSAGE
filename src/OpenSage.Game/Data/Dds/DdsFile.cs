@@ -124,13 +124,26 @@ namespace OpenSage.Data.Dds
                 {
                     var width = header.Width;
                     var height = header.Height;
+
+                    if (isCompressed)
+                    {
+                        // Ensure width and height are multiple of 4.
+                        width = (width + 3) / 4 * 4;
+                        height = (height + 3) / 4 * 4;
+                    }
+
                     var depth = Math.Max(header.Depth, 1);
+
                     for (var i = 0; i < mipMapCount; i++)
                     {
                         var surfaceInfo = GetSurfaceInfo(width, height, imageFormat, header);
 
                         var numSurfaceBytes = surfaceInfo.NumBytes * depth;
                         var mipMapData = reader.ReadBytes((int) numSurfaceBytes);
+                        if (mipMapData.Length != numSurfaceBytes)
+                        {
+                            throw new InvalidDataException();
+                        }
 
                         // Set alpha bytes for 32-bit rgb images that don't include alpha data.
                         if (imageFormat == DdsImageFormat.Rgba8 && !header.PixelFormat.Flags.HasFlag(DdsPixelFormatFlags.AlphaPixels))
@@ -154,9 +167,12 @@ namespace OpenSage.Data.Dds
 
                         if (isCompressed)
                         {
-                            // Align width and height to multiple of 4.
-                            width = (width + 3) / 4 * 4;
-                            height = (height + 3) / 4 * 4;
+                            // Round width and height down to multiple of 4.
+                            width -= width % 4;
+                            height -= height % 4;
+
+                            width = Math.Max(width, 4);
+                            height = Math.Max(height, 4);
                         }
                         else
                         {
