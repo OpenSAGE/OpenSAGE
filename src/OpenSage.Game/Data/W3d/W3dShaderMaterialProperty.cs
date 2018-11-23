@@ -2,7 +2,6 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Data.Utilities.Extensions;
-using OpenSage.Mathematics;
 
 namespace OpenSage.Data.W3d
 {
@@ -42,8 +41,8 @@ namespace OpenSage.Data.W3d
                     value.Vector3 = reader.ReadVector3();
                     break;
 
-                case W3dShaderMaterialPropertyType.Color:
-                    value.Color = reader.ReadColorRgbaF();
+                case W3dShaderMaterialPropertyType.Vector4:
+                    value.Vector4 = reader.ReadVector4();
                     break;
 
                 case W3dShaderMaterialPropertyType.Int:
@@ -80,9 +79,9 @@ namespace OpenSage.Data.W3d
         public Vector3 Vector3;
 
         [FieldOffset(0)]
-        public int Int;
+        public Vector4 Vector4;
 
         [FieldOffset(0)]
-        public ColorRgbaF Color;
+        public int Int;
     }
 }
