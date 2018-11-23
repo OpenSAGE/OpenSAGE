@@ -4,7 +4,7 @@ namespace OpenSage.Graphics.Shaders
 {
     public static class FixedFunction
     {
-        public enum TextureMappingType : uint
+        public enum TextureMappingType 
         {
             Uv = 0,
             Environment = 1,
@@ -22,7 +22,7 @@ namespace OpenSage.Graphics.Shaders
 
             public float Speed;
             public float Fps;
-            public uint Log2Width;
+            public int Log2Width;
 
             public Vector2 UVPerSec;
             public Vector2 UVScale;
@@ -55,14 +55,14 @@ namespace OpenSage.Graphics.Shaders
             public TextureMapping TextureMappingStage1;
         }
 
-        public enum DiffuseLightingType : uint
+        public enum DiffuseLightingType 
         {
             Disable = 0,
             Modulate = 1,
             Add = 2
         }
 
-        public enum SecondaryTextureBlend : uint
+        public enum SecondaryTextureBlend
         {
             Disable = 0,
             Detail = 1,
@@ -91,7 +91,7 @@ namespace OpenSage.Graphics.Shaders
             private readonly Vector3 _padding;
 #pragma warning restore CS0169
 
-            public uint NumTextureStages;
+            public int NumTextureStages;
 
             public VertexMaterial Material;
             public ShadingConfiguration Shading;

@@ -22,22 +22,22 @@ layout(set = 0, binding = 7) uniform GlobalLightingConstantsPS
 
 layout(set = 0, binding = 8) uniform texture2D Global_CloudTexture;
 
-#define TEXTURE_MAPPING_UV                 0u
-#define TEXTURE_MAPPING_ENVIRONMENT        1u
-#define TEXTURE_MAPPING_LINEAR_OFFSET      2u
-#define TEXTURE_MAPPING_ROTATE             3u
-#define TEXTURE_MAPPING_SINE_LINEAR_OFFSET 4u
-#define TEXTURE_MAPPING_SCREEN             5u
-#define TEXTURE_MAPPING_SCALE              6u
-#define TEXTURE_MAPPING_GRID               7u
+#define TEXTURE_MAPPING_UV                 0
+#define TEXTURE_MAPPING_ENVIRONMENT        1
+#define TEXTURE_MAPPING_LINEAR_OFFSET      2
+#define TEXTURE_MAPPING_ROTATE             3
+#define TEXTURE_MAPPING_SINE_LINEAR_OFFSET 4
+#define TEXTURE_MAPPING_SCREEN             5
+#define TEXTURE_MAPPING_SCALE              6
+#define TEXTURE_MAPPING_GRID               7
 
 struct TextureMapping
 {
-    uint MappingType;
+    int MappingType;
 
     float Speed;
     float Fps;
-    uint Log2Width;
+    int Log2Width;
 
     vec2 UVPerSec;
     vec2 UVScale;
@@ -66,23 +66,23 @@ struct VertexMaterial
     TextureMapping TextureMappingStage1;
 };
 
-#define DIFFUSE_LIGHTING_DISABLE  0u
-#define DIFFUSE_LIGHTING_MODULATE 1u
-#define DIFFUSE_LIGHTING_ADD      2u
+#define DIFFUSE_LIGHTING_DISABLE  0
+#define DIFFUSE_LIGHTING_MODULATE 1
+#define DIFFUSE_LIGHTING_ADD      2
 
-#define SECONDARY_TEXTURE_BLEND_DISABLE      0u
-#define SECONDARY_TEXTURE_BLEND_DETAIL       1u
-#define SECONDARY_TEXTURE_BLEND_SCALE        2u
-#define SECONDARY_TEXTURE_BLEND_INV_SCALE    3u
-#define SECONDARY_TEXTURE_BLEND_DETAIL_BLEND 4u
+#define SECONDARY_TEXTURE_BLEND_DISABLE      0
+#define SECONDARY_TEXTURE_BLEND_DETAIL       1
+#define SECONDARY_TEXTURE_BLEND_SCALE        2
+#define SECONDARY_TEXTURE_BLEND_INV_SCALE    3
+#define SECONDARY_TEXTURE_BLEND_DETAIL_BLEND 4
 
 struct ShadingConfiguration
 {
-    uint DiffuseLightingType;
+    int DiffuseLightingType;
     bool SpecularEnabled;
     bool TexturingEnabled;
-    uint SecondaryTextureColorBlend;
-    uint SecondaryTextureAlphaBlend;
+    int SecondaryTextureColorBlend;
+    int SecondaryTextureAlphaBlend;
     bool AlphaTest;
 
     vec2 _Padding;
@@ -92,7 +92,7 @@ layout(set = 0, binding = 9) uniform MaterialConstants
 {
     vec3 _Padding;
 
-    uint NumTextureStages;
+    int NumTextureStages;
 
     VertexMaterial Material;
     ShadingConfiguration Shading;
@@ -185,11 +185,11 @@ vec4 SampleTexture(
         case TEXTURE_MAPPING_GRID:
         {
             uv = vec2(uv.x, 1 - uv.y);
-            uint numFramesPerSide = uint(pow(2u, textureMapping.Log2Width));
-            uint numFrames = numFramesPerSide * numFramesPerSide;
-            uint currentFrame = uint(mod(t * textureMapping.Fps, numFrames));
-            uint currentFrameU = uint(mod(currentFrame, numFramesPerSide));
-            uint currentFrameV = currentFrame / numFramesPerSide;
+            int numFramesPerSide = int(pow(2, textureMapping.Log2Width));
+            int numFrames = numFramesPerSide * numFramesPerSide;
+            int currentFrame = int(mod(t * textureMapping.Fps, numFrames));
+            int currentFrameU = int(mod(currentFrame, numFramesPerSide));
+            int currentFrameV = currentFrame / numFramesPerSide;
             uv.x += currentFrameU / numFramesPerSide;
             uv.y += currentFrameV / numFramesPerSide;
             break;
@@ -228,7 +228,7 @@ void main()
             Texture0,
             v);
 
-        if (_MaterialConstants.NumTextureStages > 1u)
+        if (_MaterialConstants.NumTextureStages > 1)
         {
             vec4 secondaryTextureColor = SampleTexture(
                 in_WorldNormal, in_UV1, gl_FragCoord.xy,

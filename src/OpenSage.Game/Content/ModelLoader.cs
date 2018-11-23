@@ -719,7 +719,7 @@ namespace OpenSage.Content
                 {
                     Material = vertexMaterials[vertexMaterialID],
                     Shading = shadingConfigurations[shaderID],
-                    NumTextureStages = numTextureStages
+                    NumTextureStages = (int)numTextureStages
                 },
                 BufferUsage.UniformBuffer));
 

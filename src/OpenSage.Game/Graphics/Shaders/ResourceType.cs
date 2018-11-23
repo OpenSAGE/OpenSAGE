@@ -14,6 +14,8 @@ namespace OpenSage.Graphics.Shaders
             new ResourceType("sampler", 0),
 
             new ResourceType("float", 4),
+
+            new ResourceType("int", 4),
             new ResourceType("uint", 4),
 
             new ResourceType("vec2", 8),
