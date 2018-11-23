@@ -14,6 +14,7 @@ namespace OpenSage.Data.StreamFS.AssetReaders
                 new TextureReader(),
                 new W3dCollisionBoxReader(),
                 new W3dHierarchyReader(),
+                new W3dMeshReader(),
             };
 
             _assetReaders = assetReaders.ToDictionary(x => x.AssetType);
