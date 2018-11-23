@@ -72,7 +72,7 @@ namespace OpenSage.Graphics
 
             _effect = effect;
 
-            _vertexBuffer = AddDisposable(graphicsDevice.CreateVertexBuffer(vertexData));
+            _vertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(vertexData, BufferUsage.VertexBuffer));
 
             _indexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
                 indices,

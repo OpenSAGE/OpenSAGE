@@ -14,14 +14,27 @@ namespace OpenSage.Utilities.Extensions
             where T : struct
         {
             return graphicsDevice.CreateStaticBuffer(
-                new[] { data },
+                new ReadOnlySpan<T>(new[] { data }),
                 usage,
                 structureByteStride);
         }
 
-        public static DeviceBuffer CreateStaticBuffer<T>(
+        public static unsafe DeviceBuffer CreateStaticBuffer<T>(
             this GraphicsDevice graphicsDevice,
             T[] data,
+            BufferUsage usage,
+            uint structureByteStride = 0u)
+            where T : struct
+        {
+            return graphicsDevice.CreateStaticBuffer(
+                new ReadOnlySpan<T>(data),
+                usage,
+                structureByteStride);
+        }
+
+        public static unsafe DeviceBuffer CreateStaticBuffer<T>(
+            this GraphicsDevice graphicsDevice,
+            ReadOnlySpan<T> data,
             BufferUsage usage,
             uint structureByteStride = 0u)
             where T : struct
@@ -44,45 +57,9 @@ namespace OpenSage.Utilities.Extensions
             var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
             commandList.Begin();
 
-            var map = graphicsDevice.Map<T>(staging, MapMode.Write, 0);
-
-            for (var i = 0; i < data.Length; i++)
-            {
-                map[i] = data[i];
-            }
-
-            graphicsDevice.Unmap(staging, 0);
-
-            commandList.CopyBuffer(staging, 0, result, 0, bufferSize);
-
-            commandList.End();
-
-            graphicsDevice.SubmitCommands(commandList);
-
-            graphicsDevice.DisposeWhenIdle(commandList);
-            graphicsDevice.DisposeWhenIdle(staging);
-
-            return result;
-        }
-
-        public static unsafe DeviceBuffer CreateVertexBuffer(
-            this GraphicsDevice graphicsDevice,
-            ReadOnlySpan<byte> data)
-        {
-            var bufferSize = (uint) data.Length;
-
-            var staging = graphicsDevice.ResourceFactory.CreateBuffer(
-                new BufferDescription(bufferSize, BufferUsage.Staging, 0));
-
-            var result = graphicsDevice.ResourceFactory.CreateBuffer(
-                new BufferDescription(bufferSize, BufferUsage.VertexBuffer, 0));
-
-            var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
-            commandList.Begin();
-
             var map = graphicsDevice.Map(staging, MapMode.Write, 0);
 
-            var destinationSpan = new Span<byte>(map.Data.ToPointer(), (int) bufferSize);
+            var destinationSpan = new Span<T>(map.Data.ToPointer(), (int) bufferSize);
             data.CopyTo(destinationSpan);
 
             graphicsDevice.Unmap(staging, 0);
