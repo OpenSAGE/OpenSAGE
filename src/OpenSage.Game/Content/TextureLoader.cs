@@ -20,7 +20,7 @@ namespace OpenSage.Content
         public TextureLoader(GraphicsDevice graphicsDevice)
         {
             var texture = AddDisposable(graphicsDevice.CreateStaticTexture2D(
-                1, 1,
+                1, 1, 1,
                 new TextureMipMapData(
                     new byte[] { 255, 105, 180, 255 },
                     4, 4, 1, 1),
@@ -79,8 +79,10 @@ namespace OpenSage.Content
             return graphicsDevice.CreateStaticTexture2D(
                 width,
                 height,
+                1,
                 ddsFile.MipMaps,
-                ddsFile.PixelFormat);
+                ddsFile.PixelFormat,
+                false);
         }
 
         private static Texture CreateTextureFromTga(

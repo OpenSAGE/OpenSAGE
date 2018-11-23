@@ -88,26 +88,28 @@ namespace OpenSage.Utilities.Extensions
 
         public unsafe static Texture CreateStaticTexture2D(
             this GraphicsDevice graphicsDevice,
-            uint width, uint height,
+            uint width, uint height, uint arrayLayers,
             in TextureMipMapData mipMapData,
             PixelFormat pixelFormat)
         {
             return graphicsDevice.CreateStaticTexture2D(
-                width, height,
+                width, height, arrayLayers,
                 new[]
                 {
                     mipMapData
                 },
-                pixelFormat);
+                pixelFormat,
+                false);
         }
 
         public unsafe static Texture CreateStaticTexture2D(
             this GraphicsDevice graphicsDevice,
-            uint width, uint height,
+            uint width, uint height, uint arrayLayers,
             TextureMipMapData[] mipMapData,
-            PixelFormat pixelFormat)
+            PixelFormat pixelFormat,
+            bool isCubemap)
         {
-            var mipMapLevels = (uint) mipMapData.Length;
+            var mipMapLevels = (uint) mipMapData.Length / arrayLayers;
 
             var staging = graphicsDevice.ResourceFactory.CreateTexture(
                 TextureDescription.Texture2D(
@@ -118,41 +120,53 @@ namespace OpenSage.Utilities.Extensions
                     pixelFormat,
                     TextureUsage.Staging));
 
+            var usage = TextureUsage.Sampled;
+            if (isCubemap)
+            {
+                usage |= TextureUsage.Cubemap;
+            }
+
             var result = graphicsDevice.ResourceFactory.CreateTexture(
                 TextureDescription.Texture2D(
                     width,
                     height,
                     mipMapLevels,
-                    1,
+                    arrayLayers,
                     pixelFormat,
-                    TextureUsage.Sampled));
+                    usage));
 
             var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
             commandList.Begin();
 
-            for (var level = 0u; level < mipMapLevels; level++)
+            for (var arrayLayer = 0u; arrayLayer < arrayLayers; arrayLayer++)
             {
-                var mipMap = mipMapData[level];
-
-                fixed (void* pin = mipMap.Data)
+                for (var level = 0u; level < mipMapLevels; level++)
                 {
-                    graphicsDevice.UpdateTexture(
-                        staging,
-                        new IntPtr(pin),
-                        (uint) mipMap.Data.Length,
-                        0, 0, 0,
-                        mipMap.Width,
-                        mipMap.Height,
-                        1,
-                        level,
-                        0);
+                    var mipMap = mipMapData[(arrayLayer * mipMapLevels) + level];
 
-                    commandList.CopyTexture(
-                        staging, 0, 0, 0, level, 0,
-                        result, 0, 0, 0, level, 0,
-                        mipMap.Width,
-                        mipMap.Height,
-                        1, 1);
+                    var mipMapWidth = Math.Min(width, mipMap.Width);
+                    var mipMapHeight = Math.Min(height, mipMap.Height);
+
+                    fixed (void* pin = mipMap.Data)
+                    {
+                        graphicsDevice.UpdateTexture(
+                            staging,
+                            new IntPtr(pin),
+                            (uint) mipMap.Data.Length,
+                            0, 0, 0,
+                            mipMapWidth,
+                            mipMapHeight,
+                            1,
+                            level,
+                            0);
+
+                        commandList.CopyTexture(
+                            staging, 0, 0, 0, level, 0,
+                            result, 0, 0, 0, level, arrayLayer,
+                            mipMapWidth,
+                            mipMapHeight,
+                            1, 1);
+                    }
                 }
             }
 
@@ -166,6 +180,4 @@ namespace OpenSage.Utilities.Extensions
             return result;
         }
     }
-
-    
 }

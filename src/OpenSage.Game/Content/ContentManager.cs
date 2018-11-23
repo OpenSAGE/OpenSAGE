@@ -143,8 +143,7 @@ namespace OpenSage.Content
             _cachedNullStructuredBuffers = new Dictionary<uint, DeviceBuffer>();
 
             SolidWhiteTexture = AddDisposable(graphicsDevice.CreateStaticTexture2D(
-                1,
-                1,
+                1, 1, 1,
                 new TextureMipMapData(
                     new byte[] { 255, 255, 255, 255 },
                     4, 4, 1, 1),
