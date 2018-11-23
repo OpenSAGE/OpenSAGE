@@ -19,7 +19,7 @@ namespace OpenSage.Utilities.Extensions
                 structureByteStride);
         }
 
-        public static unsafe DeviceBuffer CreateStaticBuffer<T>(
+        public static DeviceBuffer CreateStaticBuffer<T>(
             this GraphicsDevice graphicsDevice,
             T[] data,
             BufferUsage usage,
