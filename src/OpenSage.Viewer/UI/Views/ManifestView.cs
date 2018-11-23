@@ -12,7 +12,7 @@ namespace OpenSage.Viewer.UI.Views
 
         public ManifestView(AssetViewContext context)
         {
-            _gameStream = new GameStream(context.Entry);
+            _gameStream = new GameStream(context.Entry, context.Game);
         }
 
         public override void Draw(ref bool isGameViewFocused)
