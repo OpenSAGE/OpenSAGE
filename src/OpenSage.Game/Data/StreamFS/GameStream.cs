@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using OpenSage.Data.StreamFS.AssetReaders;
 
 namespace OpenSage.Data.StreamFS
 {
@@ -12,7 +13,7 @@ namespace OpenSage.Data.StreamFS
         public FileSystemEntry ManifestFileEntry { get; }
         public ManifestFile ManifestFile { get; }
 
-        public GameStream(FileSystemEntry manifestFileEntry)
+        public GameStream(FileSystemEntry manifestFileEntry, Game game)
         {
             ManifestFileEntry = manifestFileEntry;
             ManifestFile = ManifestFile.FromFileSystemEntry(manifestFileEntry);
@@ -25,6 +26,8 @@ namespace OpenSage.Data.StreamFS
                     asset.Header.InstanceId);
                 _assetReferenceToAssetLookup[assetReference] = asset;
             }
+
+            var assetParseContext = new AssetParseContext(game);
 
             // Parse .bin, .relo, and .imp files simultaneously.
             ParseStreamFile(".bin", 3132817408u, binReader =>
@@ -54,7 +57,13 @@ namespace OpenSage.Data.StreamFS
                                 using (var instanceDataStream = new MemoryStream(instanceData, false))
                                 using (var instanceDataReader = new BinaryReader(instanceDataStream, Encoding.ASCII, true))
                                 {
-                                    asset.InstanceData = assetReader.Parse(asset, instanceDataReader, relocationData, imports);
+                                    var zero = instanceDataReader.ReadUInt32();
+                                    if (zero != 0)
+                                    {
+                                        throw new InvalidDataException();
+                                    }
+
+                                    asset.InstanceData = assetReader.Parse(asset, instanceDataReader, imports, assetParseContext);
                                 }
                             }
                             else
@@ -74,7 +83,7 @@ namespace OpenSage.Data.StreamFS
             Asset asset,
             out byte[] instanceData,
             out uint[] relocationData,
-            out AssetImport[] imports)
+            out AssetImportCollection imports)
         {
             if (asset.Header.InstanceDataSize > 0)
             {
@@ -124,14 +133,15 @@ namespace OpenSage.Data.StreamFS
             {
                 throw new InvalidDataException();
             }
-            imports = new AssetImport[importData.Length];
+            var tempImports = new AssetImport[importData.Length];
             for (var i = 0; i < importData.Length; i++)
             {
                 var assetReference = asset.AssetReferences[i];
                 var referencedAsset = FindAsset(assetReference);
 
-                imports[i] = new AssetImport(importData[i], referencedAsset);
+                tempImports[i] = new AssetImport(importData[i], referencedAsset);
             }
+            imports = new AssetImportCollection(tempImports);
         }
 
         private void ParseStreamFile(string extension, uint streamTypeChecksum, Action<BinaryReader> callback)
