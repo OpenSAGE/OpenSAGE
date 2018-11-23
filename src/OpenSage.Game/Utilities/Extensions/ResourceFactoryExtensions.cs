@@ -65,6 +65,40 @@ namespace OpenSage.Utilities.Extensions
             return result;
         }
 
+        public static unsafe DeviceBuffer CreateVertexBuffer(
+            this GraphicsDevice graphicsDevice,
+            ReadOnlySpan<byte> data)
+        {
+            var bufferSize = (uint) data.Length;
+
+            var staging = graphicsDevice.ResourceFactory.CreateBuffer(
+                new BufferDescription(bufferSize, BufferUsage.Staging, 0));
+
+            var result = graphicsDevice.ResourceFactory.CreateBuffer(
+                new BufferDescription(bufferSize, BufferUsage.VertexBuffer, 0));
+
+            var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
+            commandList.Begin();
+
+            var map = graphicsDevice.Map(staging, MapMode.Write, 0);
+
+            var destinationSpan = new Span<byte>(map.Data.ToPointer(), (int) bufferSize);
+            data.CopyTo(destinationSpan);
+
+            graphicsDevice.Unmap(staging, 0);
+
+            commandList.CopyBuffer(staging, 0, result, 0, bufferSize);
+
+            commandList.End();
+
+            graphicsDevice.SubmitCommands(commandList);
+
+            graphicsDevice.DisposeWhenIdle(commandList);
+            graphicsDevice.DisposeWhenIdle(staging);
+
+            return result;
+        }
+
         /// <summary>
         /// Buffer sizes must be multiples of 16.
         /// </summary>

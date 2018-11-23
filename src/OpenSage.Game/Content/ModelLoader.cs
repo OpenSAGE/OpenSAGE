@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using OpenSage.Content.Util;
 using OpenSage.Data;
 using OpenSage.Data.W3d;
@@ -191,7 +192,7 @@ namespace OpenSage.Content
             return new ModelMesh(
                 contentManager.GraphicsDevice,
                 w3dMesh.Header.MeshName,
-                CreateVertices(w3dMesh, isSkinned),
+                MemoryMarshal.AsBytes(new ReadOnlySpan<MeshVertex.Basic>(CreateVertices(w3dMesh, isSkinned))),
                 CreateIndices(w3dMesh),
                 effect,
                 materialPasses,
@@ -297,11 +298,11 @@ namespace OpenSage.Content
 
         private static ushort[] CreateIndices(W3dMesh w3dMesh)
         {
-            var numIndices = (uint) w3dMesh.Triangles.Length * 3;
-            var indices = new ushort[numIndices];
+            var triangles = w3dMesh.Triangles.AsSpan();
+            var indices = new ushort[(uint) triangles.Length * 3];
 
             var indexIndex = 0;
-            foreach (var triangle in w3dMesh.Triangles)
+            foreach (ref readonly var triangle in triangles)
             {
                 indices[indexIndex++] = (ushort) triangle.VIndex0;
                 indices[indexIndex++] = (ushort) triangle.VIndex1;
