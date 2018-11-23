@@ -42,6 +42,7 @@ namespace OpenSage.Logic.Object
             var result = new Emotion();
             if (secondToken.HasValue)
             {
+                result = parser.ParseBlock(FieldParseTable);
                 result.Type = IniParser.ParseEnum<EmotionType>(firstToken);
                 result.EmotionName = parser.ScanAssetReference(secondToken.Value);
             }
@@ -53,8 +54,14 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
+        internal static readonly IniParseTable<Emotion> FieldParseTable = new IniParseTable<Emotion>
+        {
+            { "AttributeModifier", (parser, x) => x.AttributeModifier = parser.ParseAssetReference() },
+        };
+
         public EmotionType Type { get; internal set; }
         public string EmotionName { get; internal set; }
+        public string AttributeModifier { get; internal set; }
     }
 
     public enum EmotionType
