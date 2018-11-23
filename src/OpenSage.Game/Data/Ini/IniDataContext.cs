@@ -101,7 +101,7 @@ namespace OpenSage.Data.Ini
         public List<WindowTransition> WindowTransitions { get; } = new List<WindowTransition>();
         internal Dictionary<string, IniToken> Defines { get; } = new Dictionary<string, IniToken>();
 
-        public IniDataContext(FileSystem fileSystem, SageGame game = SageGame.CncGenerals)
+        public IniDataContext(FileSystem fileSystem, SageGame game)
         {
             _fileSystem = fileSystem;
             _game = game;

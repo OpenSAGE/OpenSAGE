@@ -37,7 +37,8 @@ namespace OpenSage.Tests.Data.Ini
                         return;
                 }
 
-                var dataContext = new IniDataContext(entry.FileSystem);
+                var sageGame = SageGame.CncGenerals; // TODO
+                var dataContext = new IniDataContext(entry.FileSystem, sageGame);
 
                 // BFME I and II need to have GameData.ini loaded before any other INI files,
                 // because GameData.ini contains global macro definitions.

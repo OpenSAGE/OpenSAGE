@@ -90,24 +90,16 @@ namespace OpenSage.Content
             // TODO: Defer subsystem loading until necessary
             switch (sageGame)
             {
+                // Only load these INI files for a subset of games, because we can't parse them for others yet.
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
                 case SageGame.Bfme:
                 case SageGame.Bfme2:
                 case SageGame.Bfme2Rotwk:
-                    IniDataContext.LoadIniFile(@"Data\INI\GameData.ini");
-                    IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
-                    IniDataContext.LoadIniFile(@"Data\INI\PlayerTemplate.ini");
-                    IniDataContext.LoadIniFile(@"Maps\MapCache.ini");
-                    IniDataContext.LoadIniFile(@"Data\INI\ParticleSystem.ini");
-                    IniDataContext.LoadIniFile(@"Data\INI\Default\Object.ini");
-                    IniDataContext.LoadIniFiles(@"Data\INI\Object");
-                    IniDataContext.LoadIniFile(@"Data\INI\Multiplayer.ini");
-                    break;
-                case SageGame.Cnc3:
-                case SageGame.Cnc3KanesWrath:
-                    IniDataContext.LoadIniFile(@"Data\INI\GameData.ini");
-                    IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
+                    SubsystemLoader.Load(Subsystem.Players);
+                    SubsystemLoader.Load(Subsystem.ParticleSystems);
+                    SubsystemLoader.Load(Subsystem.ObjectCreation);
+                    SubsystemLoader.Load(Subsystem.Multiplayer);
                     break;
                 default:
                     break;
