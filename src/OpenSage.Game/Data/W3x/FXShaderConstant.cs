@@ -63,7 +63,7 @@ namespace OpenSage.Data.W3x
                     break;
 
                 case FXShaderConstantType.Texture:
-                    result.TextureValue = imports.GetImportedDataAtPosition<Texture>(reader.BaseStream.Position);
+                    result.TextureValue = imports.GetImportedData<Texture>(reader);
                     break;
 
                 default:

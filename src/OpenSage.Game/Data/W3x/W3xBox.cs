@@ -4,7 +4,7 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3x
 {
-    public sealed class W3xBox
+    public sealed class W3xBox : W3xRenderObject
     {
         public Vector3 Center { get; private set; }
         public Vector3 Extent { get; private set; }

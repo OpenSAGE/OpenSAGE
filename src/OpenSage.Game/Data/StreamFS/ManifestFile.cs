@@ -142,9 +142,15 @@ namespace OpenSage.Data.StreamFS
         {
         }
 
-        public T GetImportedDataAtPosition<T>(long position)
+        public T GetImportedData<T>(BinaryReader reader)
         {
+            var position = reader.BaseStream.Position;
+
+            // I thought this might be the import index, but doesn't seem so.
+            var unknown = reader.ReadUInt32();
+            
             var import = this.First(x => x.InstanceDataIndex == position);
+
             return (T) import.ImportedAsset?.InstanceData;
         }
     }
