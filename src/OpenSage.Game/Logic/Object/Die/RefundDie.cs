@@ -17,7 +17,7 @@ namespace OpenSage.Logic.Object
             });
 
         public string UpgradeRequired { get; internal set; }
-		public ObjectFilter BuildingRequired { get; internal set; }
-		public float RefundPercent { get; internal set; }
+        public ObjectFilter BuildingRequired { get; internal set; }
+        public float RefundPercent { get; internal set; }
     }
 }

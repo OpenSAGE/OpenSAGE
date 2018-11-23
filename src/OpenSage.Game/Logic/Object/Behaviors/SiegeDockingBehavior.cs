@@ -8,9 +8,6 @@ namespace OpenSage.Logic.Object
     {
         internal static SiegeDockingBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<SiegeDockingBehaviorModuleData> FieldParseTable = new IniParseTable<SiegeDockingBehaviorModuleData>
-        {
-          
-        };
+        private static readonly IniParseTable<SiegeDockingBehaviorModuleData> FieldParseTable = new IniParseTable<SiegeDockingBehaviorModuleData>();
     }
 }

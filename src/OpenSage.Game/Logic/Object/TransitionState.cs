@@ -3,7 +3,7 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public sealed class TransitionState : ConditionState
+    public sealed class TransitionState : ModelConditionState
     {
         internal static new TransitionState Parse(IniParser parser)
         {
@@ -23,7 +23,7 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
-        private static new readonly IniParseTable<TransitionState> FieldParseTable = ConditionState.FieldParseTable
+        private static new readonly IniParseTable<TransitionState> FieldParseTable = ModelConditionState.FieldParseTable
             .Concat(new IniParseTable<TransitionState>()
             {
                 { "FXEvent", (parser, x) => x.FXEvents.Add(FXEvent.Parse(parser)) },

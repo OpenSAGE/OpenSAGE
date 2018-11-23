@@ -26,12 +26,12 @@ namespace OpenSage.Logic.Object
         };
 
         public bool GenerateNow { get; internal set; }
-		public BitArray<ObjectKinds> AllowKindOf { get; internal set; }
-		public BitArray<ObjectKinds> RejectKindOf { get; internal set; }
-		public bool AllowEnemies { get; internal set; }
-		public string BonePrefix { get; internal set; }
-		public int NumberOfBones { get; internal set; }
-		public List<WayPoint> WayPoints { get; internal set; } = new List<WayPoint>();
+        public BitArray<ObjectKinds> AllowKindOf { get; internal set; }
+        public BitArray<ObjectKinds> RejectKindOf { get; internal set; }
+        public bool AllowEnemies { get; internal set; }
+        public string BonePrefix { get; internal set; }
+        public int NumberOfBones { get; internal set; }
+        public List<WayPoint> WayPoints { get; internal set; } = new List<WayPoint>();
         public List<Link> Links { get; internal set; } = new List<Link>();
         public string[] TriggeredBy { get; private set; }
         public string[] ConflictsWith { get; private set; }

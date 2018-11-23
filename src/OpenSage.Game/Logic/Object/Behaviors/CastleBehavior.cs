@@ -91,6 +91,4 @@ namespace OpenSage.Logic.Object
         public string ObjectName { get; internal set; }
         public int Count { get; private set; }
     }
-
-
 }

@@ -25,20 +25,28 @@ namespace OpenSage.Logic.Object
             });
 
         public string UpgradeObject { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public float Delay { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public string RemoveUpgrade { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public string GrantUpgrade { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public bool DestroyWhenSold { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public CustomAnimAndDuration DeathAnimAndDuration { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public Vector3 Offset { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public string ThingToSpawn { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public int FadeInTime { get; private set; }
     }

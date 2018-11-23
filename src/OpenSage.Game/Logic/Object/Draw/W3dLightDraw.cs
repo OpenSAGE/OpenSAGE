@@ -21,7 +21,7 @@ namespace OpenSage.Logic.Object
             });
 
         public ColorRgba Ambient { get; private set; }
-		public ColorRgba Diffuse { get; private set; }
+        public ColorRgba Diffuse { get; private set; }
         public int Radius { get; private set; }
         public float Intensity { get; private set; }
         public float FlickerAmplitude { get; private set; }

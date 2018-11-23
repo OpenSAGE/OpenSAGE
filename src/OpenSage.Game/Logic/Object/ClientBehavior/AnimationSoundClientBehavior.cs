@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using OpenSage.Data.Ini;
+﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
@@ -17,6 +15,6 @@ namespace OpenSage.Logic.Object
         };
 
         public int MaxUpdateRangeCap { get; private set; }
-		public List<AnimationSoundData> AnimationSounds { get; private set; } = new List<AnimationSoundData>();
+        public List<AnimationSoundData> AnimationSounds { get; private set; } = new List<AnimationSoundData>();
     }
 }

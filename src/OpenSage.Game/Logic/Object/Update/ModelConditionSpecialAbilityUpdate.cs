@@ -23,7 +23,7 @@ namespace OpenSage.Logic.Object
         public int UnpackTime { get; private set; }
         public int PreparationTime { get; private set; }
         public int PersistentPrepTime { get; private set; }
-		public int PackTime { get; private set; }
+        public int PackTime { get; private set; }
         public int AwardXPForTriggering { get; private set; }
     }
 }

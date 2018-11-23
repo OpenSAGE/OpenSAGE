@@ -37,8 +37,6 @@ namespace OpenSage.Logic.Object
         };
 
         public BitArray<DeathType> DeathTypes { get; private set; }
-        [AddedIn(SageGame.Bfme)]
-        public DeathFlags DeathFlags { get; private set; }
         public BitArray<ObjectStatus> RequiredStatus { get; private set; }
         public BitArray<ObjectStatus> ExemptStatus { get; private set; }
         public int ProbabilityModifier { get; private set; }
@@ -56,6 +54,9 @@ namespace OpenSage.Logic.Object
         public Dictionary<SlowDeathPhase, string> OCLs { get; } = new Dictionary<SlowDeathPhase, string>();
         public Dictionary<SlowDeathPhase, string> FXs { get; } = new Dictionary<SlowDeathPhase, string>();
         public Dictionary<SlowDeathPhase, string> Weapons { get; } = new Dictionary<SlowDeathPhase, string>();
+
+        [AddedIn(SageGame.Bfme)]
+        public DeathFlags DeathFlags { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public int FadeDelay { get; private set; }
@@ -94,10 +95,13 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("DEATH_1")]
         Death1 = 1 << 0,
+
         [IniEnum("DEATH_2")]
         Death2 = 1 << 1,
+
         [IniEnum("DEATH_3")]
         Death3 = 1 << 2,
+
         [IniEnum("DEATH_4")]
         Death4 = 1 << 3,
     }

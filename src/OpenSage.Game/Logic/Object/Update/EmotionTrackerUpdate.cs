@@ -22,13 +22,13 @@ namespace OpenSage.Logic.Object
             { "HeroScanDistance", (parser, x) => x.HeroScanDistance = parser.ParseInteger() }
         };
         public int TauntAndPointDistance { get; internal set; }
-		public int TauntAndPointUpdateDelay	{ get; internal set; }
-		public ObjectFilter TauntAndPointExcluded { get; internal set; }
- 		public ObjectFilter AfraidOf { get; internal set; }
+        public int TauntAndPointUpdateDelay	{ get; internal set; }
+        public ObjectFilter TauntAndPointExcluded { get; internal set; }
+        public ObjectFilter AfraidOf { get; internal set; }
         public ObjectFilter AlwaysAfraidOf { get; internal set; }
- 		public ObjectFilter PointAt { get; internal set; }
-		public int FearScanDistance { get; internal set; }
-		public List<Emotion> Emotions { get; internal set; } = new List<Emotion>();
+        public ObjectFilter PointAt { get; internal set; }
+        public int FearScanDistance { get; internal set; }
+        public List<Emotion> Emotions { get; internal set; } = new List<Emotion>();
         public int HeroScanDistance { get; internal set; }
     }
 
@@ -39,26 +39,19 @@ namespace OpenSage.Logic.Object
             var firstToken = parser.GetNextToken();
             var secondToken = parser.GetNextTokenOptional();
 
-            Emotion result;
+            var result = new Emotion();
             if (secondToken.HasValue)
             {
-                result = parser.ParseBlock(FieldParseTable);
                 result.Type = IniParser.ParseEnum<EmotionType>(firstToken);
                 result.EmotionName = parser.ScanAssetReference(secondToken.Value);
             }
             else
             {
-                result = new Emotion();
                 result.Type = EmotionType.None;
                 result.EmotionName = parser.ScanAssetReference(firstToken);
             }
             return result;
         }
-
-        internal static readonly IniParseTable<Emotion> FieldParseTable = new IniParseTable<Emotion>
-        {
-            //{ "AnimationName", (parser, x) => x.AnimationName = parser.ParseString() },
-        };
 
         public EmotionType Type { get; internal set; }
         public string EmotionName { get; internal set; }

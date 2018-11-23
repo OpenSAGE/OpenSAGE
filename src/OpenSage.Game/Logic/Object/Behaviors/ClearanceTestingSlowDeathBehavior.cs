@@ -14,12 +14,12 @@ namespace OpenSage.Logic.Object
             {
                 { "MinKillerAngle", (parser, x) => x.MinKillerAngle = parser.ParseInteger() },
                 { "MaxKillerAngle", (parser, x) => x.MaxKillerAngle = parser.ParseInteger() },
-                { "ClearanceGeometry", (parser, x) => x.ClearanceGeometry = parser.ParseEnum<ClearanceGeometry>() },
-                { "ClearanceGeometryMajorRadius", (parser, x) => x.ClearanceGeometryMajorRadius = parser.ParseFloat() },
-                { "ClearanceGeometryMinorRadius", (parser, x) => x.ClearanceGeometryMinorRadius = parser.ParseFloat() },
-                { "ClearanceGeometryHeight", (parser, x) => x.ClearanceGeometryHeight = parser.ParseFloat() },
-                { "ClearanceGeometryIsSmall", (parser, x) => x.ClearanceGeometryIsSmall = parser.ParseBoolean() },
-                { "ClearanceGeometryOffset", (parser, x) => x.ClearanceGeometryOffset = parser.ParseVector3() },
+                { "ClearanceGeometry", (parser, x) => x.ClearanceGeometry = new Geometry(parser.ParseEnum<ObjectGeometry>()) },
+                { "ClearanceGeometryMajorRadius", (parser, x) => x.ClearanceGeometry.MajorRadius = parser.ParseFloat() },
+                { "ClearanceGeometryMinorRadius", (parser, x) => x.ClearanceGeometry.MinorRadius = parser.ParseFloat() },
+                { "ClearanceGeometryHeight", (parser, x) => x.ClearanceGeometry.Height = parser.ParseFloat() },
+                { "ClearanceGeometryIsSmall", (parser, x) => x.ClearanceGeometry.IsSmall = parser.ParseBoolean() },
+                { "ClearanceGeometryOffset", (parser, x) => x.ClearanceGeometry.Offset = parser.ParseVector3() },
                 { "ClearanceMaxHeight", (parser, x) => x.ClearanceMaxHeight = parser.ParseInteger() },
                 { "ClearanceMinHeight", (parser, x) => x.ClearanceMinHeight = parser.ParseInteger() },
                 { "ClearanceMaxHeightFraction", (parser, x) => x.ClearanceMaxHeightFraction = parser.ParseFloat() },
@@ -28,21 +28,10 @@ namespace OpenSage.Logic.Object
 
         public int MinKillerAngle { get; internal set; }
         public int MaxKillerAngle { get; internal set; }
-        public ClearanceGeometry ClearanceGeometry { get; internal set; }
-        public float ClearanceGeometryMajorRadius { get; internal set; }
-        public float ClearanceGeometryMinorRadius { get; internal set; }
-        public float ClearanceGeometryHeight { get; internal set; }
-        public bool ClearanceGeometryIsSmall { get; internal set; }
-        public Vector3 ClearanceGeometryOffset { get; internal set; }
+        public Geometry ClearanceGeometry { get; internal set; }
         public int ClearanceMaxHeight { get; internal set; }
         public int ClearanceMinHeight { get; internal set; }
         public float ClearanceMinHeightFraction { get; internal set; }
         public float ClearanceMaxHeightFraction { get; internal set; }
-    }
-
-    public enum ClearanceGeometry
-    {
-        [IniEnum("Box")]
-        Box,
     }
 }

@@ -4,9 +4,9 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    public class ConditionState
+    public class ModelConditionState
     {
-        internal static ConditionState ParseDefault(IniParser parser)
+        internal static ModelConditionState ParseDefault(IniParser parser)
         {
             var result = parser.ParseBlock(FieldParseTable);
 
@@ -15,7 +15,7 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
-        internal static ConditionState Parse(IniParser parser)
+        internal static ModelConditionState Parse(IniParser parser)
         {
             var conditionFlags = parser.ParseEnumBitArray<ModelConditionFlag>();
 
@@ -26,7 +26,7 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
-        internal static readonly IniParseTable<ConditionState> FieldParseTable = new IniParseTable<ConditionState>
+        internal static readonly IniParseTable<ModelConditionState> FieldParseTable = new IniParseTable<ModelConditionState>
         {
             { "Model", (parser, x) => x.Model = parser.ParseFileName() },
             { "Skeleton", (parser, x) => x.Skeleton = parser.ParseFileName() },
@@ -113,9 +113,9 @@ namespace OpenSage.Logic.Object
         /// <summary>
         /// Used by AliasConditionState.
         /// </summary>
-        public ConditionState Clone(BitArray<ModelConditionFlag> conditionFlags)
+        public ModelConditionState Clone(BitArray<ModelConditionFlag> conditionFlags)
         {
-            return new ConditionState
+            return new ModelConditionState
             {
                 ConditionFlags = conditionFlags,
 

@@ -15,6 +15,8 @@ namespace OpenSage.Logic.Object
 
         public string SpecialPowerTemplate { get; private set; }
         public bool StartsPaused { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
         public bool UpdateModuleStartsAttack { get; private set; }
     }
 }

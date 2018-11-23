@@ -43,6 +43,6 @@ namespace OpenSage.Logic.Object
         CirithUngol             = 1 << 10,
 
         [IniEnum("LOTHLORIEN"), AddedIn(SageGame.Bfme)]
-        Lothlorien             = 1 << 11,
+        Lothlorien              = 1 << 11,
     }
 }

@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object
 {
     /// <summary>
     /// Treats the first death as a state change. Triggers the Use of SECOND_LIFE 
-    /// ConditionState/ArmorSet and allows the use of the BattleBusSlowDeathBehavior module.
+    /// ModelConditionState/ArmorSet and allows the use of the BattleBusSlowDeathBehavior module.
     /// </summary>
     [AddedIn(SageGame.CncGeneralsZeroHour)]
     public sealed class UndeadBodyModuleData : ActiveBodyModuleData

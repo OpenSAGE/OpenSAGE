@@ -19,10 +19,10 @@ namespace OpenSage.Logic.Object
         private readonly ContentManager _contentManager;
         private readonly W3dModelDrawModuleData _data;
 
-        private readonly List<ConditionState> _conditionStates;
-        private readonly ConditionState _defaultConditionState;
+        private readonly List<ModelConditionState> _conditionStates;
+        private readonly ModelConditionState _defaultConditionState;
 
-        private ConditionState _activeConditionState;
+        private ModelConditionState _activeConditionState;
 
         private W3dModelDrawConditionState _activeModelDrawConditionState;
 
@@ -51,7 +51,7 @@ namespace OpenSage.Logic.Object
             _contentManager = contentManager;
             _data = data;
 
-            _conditionStates = new List<ConditionState>();
+            _conditionStates = new List<ModelConditionState>();
 
             if (data.DefaultConditionState != null)
             {
@@ -80,7 +80,7 @@ namespace OpenSage.Logic.Object
             SetActiveConditionState(_defaultConditionState);
         }
 
-        private void SetActiveConditionState(ConditionState conditionState)
+        private void SetActiveConditionState(ModelConditionState conditionState)
         {
             if (_activeConditionState == conditionState)
             {
@@ -98,10 +98,10 @@ namespace OpenSage.Logic.Object
 
         public override void UpdateConditionState(BitArray<ModelConditionFlag> flags)
         {
-            ConditionState bestConditionState = null;
+            ModelConditionState bestConditionState = null;
             var bestMatch = int.MinValue;
 
-            // Find best matching ConditionState.
+            // Find best matching ModelConditionState.
             foreach (var conditionState in _conditionStates)
             {
                 var match = conditionState.ConditionFlags.And(flags).NumBitsSet;
@@ -120,7 +120,7 @@ namespace OpenSage.Logic.Object
             SetActiveConditionState(bestConditionState);
         }
 
-        private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ConditionState conditionState)
+        private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState)
         {
             ModelInstance modelInstance = null;
             if (!string.Equals(conditionState.Model, "NONE", StringComparison.OrdinalIgnoreCase))
@@ -267,14 +267,14 @@ namespace OpenSage.Logic.Object
 
         internal static readonly IniParseTable<W3dModelDrawModuleData> FieldParseTable = new IniParseTable<W3dModelDrawModuleData>
         {
-            { "DefaultConditionState", (parser, x) => parser.Temp = x.DefaultConditionState = ConditionState.ParseDefault(parser) },
-            { "DefaultModelConditionState", (parser, x) => parser.Temp = x.DefaultConditionState = ConditionState.ParseDefault(parser) },
+            { "DefaultConditionState", (parser, x) => parser.Temp = x.DefaultConditionState = ModelConditionState.ParseDefault(parser) },
+            { "DefaultModelConditionState", (parser, x) => parser.Temp = x.DefaultConditionState = ModelConditionState.ParseDefault(parser) },
 
             {
                 "ConditionState",
                 (parser, x) =>
                 {
-                    var conditionState = ConditionState.Parse(parser);
+                    var conditionState = ModelConditionState.Parse(parser);
                     x.ConditionStates.Add(conditionState);
                     parser.Temp = conditionState;
                 }
@@ -283,7 +283,7 @@ namespace OpenSage.Logic.Object
                 "ModelConditionState",
                 (parser, x) =>
                 {
-                    var conditionState = ConditionState.Parse(parser);
+                    var conditionState = ModelConditionState.Parse(parser);
                     x.ConditionStates.Add(conditionState);
                     parser.Temp = conditionState;
                 }
@@ -312,8 +312,8 @@ namespace OpenSage.Logic.Object
         };
 
         public BitArray<ModelConditionFlag> IgnoreConditionStates { get; private set; }
-        public ConditionState DefaultConditionState { get; private set; }
-        public List<ConditionState> ConditionStates { get; } = new List<ConditionState>();
+        public ModelConditionState DefaultConditionState { get; private set; }
+        public List<ModelConditionState> ConditionStates { get; } = new List<ModelConditionState>();
         public List<TransitionState> TransitionStates { get; } = new List<TransitionState>();
 
         public bool OkToChangeModelColor { get; private set; }
@@ -351,7 +351,7 @@ namespace OpenSage.Logic.Object
 
         private void ParseAliasConditionState(IniParser parser)
         {
-            var lastConditionState = parser.Temp as ConditionState;
+            var lastConditionState = parser.Temp as ModelConditionState;
             if (lastConditionState == null)
             {
                 throw new IniParseException("Cannot use AliasConditionState if there are no preceding ConditionStates", parser.CurrentPosition);

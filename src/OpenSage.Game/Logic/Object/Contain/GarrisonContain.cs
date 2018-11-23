@@ -6,7 +6,7 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Hardcoded to use the GarrisonGun object definition for the weapons pointing from the object 
     /// when occupants are firing and these are drawn at bones named FIREPOINT. Also, it Allows use 
-    /// of the GARRISONED Model ConditionState.
+    /// of the GARRISONED Model ModelConditionState.
     /// </summary>
     public class GarrisonContainModuleData : OpenContainModuleData
     {

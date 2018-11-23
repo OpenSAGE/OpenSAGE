@@ -29,11 +29,7 @@ namespace OpenSage.Logic.Object
 
         public float MaxHealth { get; private set; }
         public float InitialHealth { get; private set; }
-        [AddedIn(SageGame.Bfme)]
-        public float MaxHealthDamaged { get; private set; }
-        [AddedIn(SageGame.Bfme)]
-        public float RecoveryTime { get; private set; }
-
+       
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int SubdualDamageCap { get; private set; }
 
@@ -42,6 +38,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public int SubdualDamageHealAmount { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float MaxHealthDamaged { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float RecoveryTime { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string GrabObject { get; private set; }
@@ -54,7 +56,6 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public float MaxHealthReallyDamaged { get; private set; }
-
         
         [AddedIn(SageGame.Bfme)]
         public string GrabFX { get; private set; }

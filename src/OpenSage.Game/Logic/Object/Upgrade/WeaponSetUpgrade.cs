@@ -5,7 +5,7 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Triggers use of PLAYER_UPGRADE WeaponSet on this object.
     /// Allows the use of WeaponUpgradeSound within UnitSpecificSounds section of the object.
-    /// Allows the use of the WEAPONSET_PLAYER_UPGRADE ConditionState.
+    /// Allows the use of the WEAPONSET_PLAYER_UPGRADE ModelConditionState.
     /// </summary>
     public sealed class WeaponSetUpgradeModuleData : UpgradeModuleData
     {

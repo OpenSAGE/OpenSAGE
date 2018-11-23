@@ -2,6 +2,7 @@
 
 namespace OpenSage.Logic.Object
 {
+    [AddedIn(SageGame.Bfme)]
     public sealed class ToggleHiddenSpecialAbilityUpdateModuleData : UpdateModuleData
     {
         internal static ToggleHiddenSpecialAbilityUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -20,12 +21,12 @@ namespace OpenSage.Logic.Object
         };
 
         public string SpecialPowerTemplate { get; private set; }
-		public int UnpackingVariation { get; private set; }
+        public int UnpackingVariation { get; private set; }
         public double StartAbilityRange { get; private set; }
         public int UnpackTime { get; private set; }
-		public int PreparationTime { get; private set; }
-		public int PersistentPrepTime { get; private set; }
-		public int PackTime { get; private set; }
-		public int AwardXPForTriggering { get; private set; }
+        public int PreparationTime { get; private set; }
+        public int PersistentPrepTime { get; private set; }
+        public int PackTime { get; private set; }
+        public int AwardXPForTriggering { get; private set; }
     }
 }

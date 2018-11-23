@@ -25,7 +25,7 @@ namespace OpenSage.Logic.Object
                 { "SupplyWarehouseScanDistance", (parser, x) => x.SupplyWarehouseScanDistance = parser.ParseInteger() },
                 { "SuppliesDepletedVoice", (parser, x) => x.SuppliesDepletedVoice = parser.ParseAssetReference() },
                 { "UpgradedSupplyBoost", (parser, x) => x.UpgradedSupplyBoost = parser.ParseInteger() },
-                { "SpecialContactPoints", (parser, x) => x.SpecialContactPoints = parser.ParseEnumFlags<SpecialContactPoints>() },
+                { "SpecialContactPoints", (parser, x) => x.SpecialContactPoints = parser.ParseEnumBitArray<ContactPointType>() },
                 { "HarvestTrees", (parser, x) => x.HarvestTrees = parser.ParseBoolean() },
                 { "HarvestActivationRange", (parser, x) => x.HarvestActivationRange = parser.ParseInteger() },
                 { "HarvestPreparationTime", (parser, x) => x.HarvestPreparationTime = parser.ParseInteger() },
@@ -45,24 +45,18 @@ namespace OpenSage.Logic.Object
         public int UpgradedSupplyBoost { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public SpecialContactPoints SpecialContactPoints { get; private set; }
+        public BitArray<ContactPointType> SpecialContactPoints { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public bool HarvestTrees { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public int HarvestActivationRange { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public int HarvestPreparationTime { get; private set; }
-          [AddedIn(SageGame.Bfme)]
+
+        [AddedIn(SageGame.Bfme)]
         public int HarvestActionTime { get; private set; }
-    }
-
-    [AddedIn(SageGame.Bfme)]
-    [Flags]
-    public enum SpecialContactPoints
-    {
-        None = 0,
-
-        [IniEnum("REPAIR")]
-        Repair = 1 << 0,
     }
 }

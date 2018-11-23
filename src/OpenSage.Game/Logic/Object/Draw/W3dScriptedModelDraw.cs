@@ -43,14 +43,14 @@ namespace OpenSage.Logic.Object
         public bool MultiPlayerOnly { get; private set; }
         public string RaisedWallMesh { get; private set; }
         public int AlphaCameraFadeOuterRadius { get; private set; }
-	    public int AlphaCameraFadeInnerRadius { get; private set; }
-	    public float AlphaCameraAtInnerRadius { get; private set; }
+        public int AlphaCameraFadeInnerRadius { get; private set; }
+        public float AlphaCameraAtInnerRadius { get; private set; }
         public bool UseDefaultAnimation { get; private set; }
         public BitArray<ModelConditionFlag> DependencySharedModelFlags { get; private set; }
         public bool AffectedByStealth { get; private set; }
         public int StaticSortLevelWhileFading { get; private set; }
         public bool GlowEnabled { get; private set; }
-		public bool GlowEmissive { get; private set; }
+        public bool GlowEmissive { get; private set; }
     }
 
     public sealed class RandomTexture

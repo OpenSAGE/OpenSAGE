@@ -71,7 +71,7 @@ namespace OpenSage.Data.Ini
         public IniColorRgb MotdHeading { get; private set; }
         [AddedIn(SageGame.Bfme)]
         public IniColorRgb OfflinePlayerBuddy { get; private set; }
-         [AddedIn(SageGame.Bfme)]
+        [AddedIn(SageGame.Bfme)]
         public IniColorRgb OfflinePlayerIgnored { get; private set; }
     }
 }

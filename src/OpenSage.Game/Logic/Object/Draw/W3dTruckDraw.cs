@@ -8,7 +8,7 @@ namespace OpenSage.Logic.Object
     /// UnitSpecificSounds section of the object.
     /// 
     /// This module also includes automatic logic for showing and hiding of HEADLIGHT bones in and 
-    /// out of the NIGHT ConditionState.
+    /// out of the NIGHT ModelConditionState.
     /// </summary>
     public class W3dTruckDrawModuleData : W3dModelDrawModuleData
     {
