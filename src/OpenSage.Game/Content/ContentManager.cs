@@ -93,13 +93,14 @@ namespace OpenSage.Content
                 // Only load these INI files for a subset of games, because we can't parse them for others yet.
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
-                case SageGame.Bfme:
-                case SageGame.Bfme2:
-                case SageGame.Bfme2Rotwk:
                     SubsystemLoader.Load(Subsystem.Players);
                     SubsystemLoader.Load(Subsystem.ParticleSystems);
                     SubsystemLoader.Load(Subsystem.ObjectCreation);
                     SubsystemLoader.Load(Subsystem.Multiplayer);
+                    break;
+                case SageGame.Bfme:
+                case SageGame.Bfme2:
+                case SageGame.Bfme2Rotwk:
                     break;
                 default:
                     break;
