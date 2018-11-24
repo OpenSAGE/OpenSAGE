@@ -22,9 +22,6 @@ init:
 
 build_script:
 - ps: |
-      cd $env:APPVEYOR_BUILD_FOLDER\src\OpenSage.Game.Shaders.Processor
-      dotnet build -c $env:configuration -v m
-      
       cd $env:APPVEYOR_BUILD_FOLDER\src\OpenSage.Game.Tests
       dotnet build -c $env:configuration -v m
 
