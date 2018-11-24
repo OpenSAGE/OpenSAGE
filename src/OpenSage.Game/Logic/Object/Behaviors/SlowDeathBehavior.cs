@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 
@@ -11,6 +12,7 @@ namespace OpenSage.Logic.Object
         internal static readonly IniParseTable<SlowDeathBehaviorModuleData> FieldParseTable = new IniParseTable<SlowDeathBehaviorModuleData>
         {
             { "DeathTypes", (parser, x) => x.DeathTypes = parser.ParseEnumBitArray<DeathType>() },
+            { "DeathFlags", (parser, x) => x.DeathFlags = parser.ParseEnumFlags<DeathFlags>() },
             { "RequiredStatus", (parser, x) => x.RequiredStatus = parser.ParseEnumBitArray<ObjectStatus>() },
             { "ExemptStatus", (parser, x) => x.ExemptStatus = parser.ParseEnumBitArray<ObjectStatus>() },
             { "ProbabilityModifier", (parser, x) => x.ProbabilityModifier = parser.ParseInteger() },
@@ -24,10 +26,14 @@ namespace OpenSage.Logic.Object
             { "FlingForceVariance", (parser, x) => x.FlingForceVariance = parser.ParseInteger() },
             { "FlingPitch", (parser, x) => x.FlingPitch = parser.ParseInteger() },
             { "FlingPitchVariance", (parser, x) => x.FlingPitchVariance = parser.ParseInteger() },
-
             { "OCL", (parser, x) => x.OCLs[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseAssetReference() },
             { "FX", (parser, x) => x.FXs[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseAssetReference() },
             { "Weapon", (parser, x) => x.Weapons[parser.ParseEnum<SlowDeathPhase>()] = parser.ParseAssetReference() },
+            { "FadeDelay", (parser, x) => x.FadeDelay = parser.ParseInteger() },
+            { "FadeTime", (parser, x) => x.FadeTime = parser.ParseInteger() },
+            { "Sound", (parser, x) => x.Sound = parser.ParseString() },
+            { "DecayBeginTime", (parser, x) => x.DecayBeginTime = parser.ParseInteger() },
+            { "ShadowWhenDead", (parser, x) => x.ShadowWhenDead = parser.ParseBoolean() },
         };
 
         public BitArray<DeathType> DeathTypes { get; private set; }
@@ -48,6 +54,25 @@ namespace OpenSage.Logic.Object
         public Dictionary<SlowDeathPhase, string> OCLs { get; } = new Dictionary<SlowDeathPhase, string>();
         public Dictionary<SlowDeathPhase, string> FXs { get; } = new Dictionary<SlowDeathPhase, string>();
         public Dictionary<SlowDeathPhase, string> Weapons { get; } = new Dictionary<SlowDeathPhase, string>();
+
+        [AddedIn(SageGame.Bfme)]
+        public DeathFlags DeathFlags { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int FadeDelay { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int FadeTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string Sound { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int DecayBeginTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ShadowWhenDead { get; private set; }
+
     }
 
     public enum SlowDeathPhase
@@ -60,5 +85,24 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("FINAL")]
         Final
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    [Flags]
+    public enum DeathFlags
+    {
+        None = 0,
+
+        [IniEnum("DEATH_1")]
+        Death1 = 1 << 0,
+
+        [IniEnum("DEATH_2")]
+        Death2 = 1 << 1,
+
+        [IniEnum("DEATH_3")]
+        Death3 = 1 << 2,
+
+        [IniEnum("DEATH_4")]
+        Death4 = 1 << 3,
     }
 }

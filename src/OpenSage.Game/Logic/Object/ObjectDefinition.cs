@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -42,14 +44,17 @@ namespace OpenSage.Logic.Object
             { "Side", (parser, x) => x.Side = parser.ParseAssetReference() },
             { "DisplayName", (parser, x) => x.DisplayName = parser.ParseLocalizedStringKey() },
             { "EditorSorting", (parser, x) => x.EditorSorting = parser.ParseEnumFlags<ObjectEditorSortingFlags>() },
+            { "Browser", (parser, x) => x.Browser = parser.ParseEnumFlags<ObjectBrowserFlags>() },
             { "TransportSlotCount", (parser, x) => x.TransportSlotCount = parser.ParseInteger() },
             { "VisionRange", (parser, x) => x.VisionRange = parser.ParseFloat() },
             { "ShroudRevealToAllRange", (parser, x) => x.ShroudRevealToAllRange = parser.ParseFloat() },
             { "ShroudClearingRange", (parser, x) => x.ShroudClearingRange = parser.ParseFloat() },
             { "CrusherLevel", (parser, x) => x.CrusherLevel = parser.ParseInteger() },
             { "CrushableLevel", (parser, x) => x.CrushableLevel = parser.ParseInteger() },
-            { "BuildCost", (parser, x) => x.BuildCost = parser.ParseInteger() },
+            { "BuildCost", (parser, x) => x.BuildCost = parser.ParseFloat() },
             { "BuildTime", (parser, x) => x.BuildTime = parser.ParseFloat() },
+            { "BuildFadeInOnCreateList", (parser, x) => x.BuildFadeInOnCreateList = parser.ParseIdentifier() },
+            { "BuildFadeInOnCreateTime", (parser, x) => x.BuildFadeInOnCreateTime = parser.ParseInteger() },
             { "RefundValue", (parser, x) => x.RefundValue = parser.ParseInteger() },
             { "EnergyProduction", (parser, x) => x.EnergyProduction = parser.ParseInteger() },
             { "EnergyBonus", (parser, x) => x.EnergyBonus = parser.ParseInteger() },
@@ -72,8 +77,11 @@ namespace OpenSage.Logic.Object
             { "VoiceSelectGroup", (parser, x) => x.VoiceSelectGroup = parser.ParseAssetReference() },
             { "VoiceSelectBattle", (parser, x) => x.VoiceSelectBattle = parser.ParseAssetReference() },
             { "VoiceSelectBattleGroup", (parser, x) => x.VoiceSelectBattleGroup = parser.ParseAssetReference() },
+            { "VoiceSelectUnderConstruction", (parser, x) => x.VoiceSelectUnderConstruction = parser.ParseAssetReference() },
             { "VoiceMove", (parser, x) => x.VoiceMove = parser.ParseAssetReference() },
             { "VoiceMoveGroup", (parser, x) => x.VoiceMoveGroup = parser.ParseAssetReference() },
+            { "VoiceMoveOverWalls", (parser, x) => x.VoiceMoveOverWall = parser.ParseAssetReference() },
+            { "VoiceMoveToHigherGround", (parser, x) => x.VoiceMoveToHigherGround = parser.ParseAssetReference() },
             { "VoiceGuard", (parser, x) => x.VoiceGuard = parser.ParseAssetReference() },
             { "VoiceGuardGroup", (parser, x) => x.VoiceGuardGroup = parser.ParseAssetReference() },
             { "VoiceAttack", (parser, x) => x.VoiceAttack = parser.ParseAssetReference() },
@@ -115,6 +123,8 @@ namespace OpenSage.Logic.Object
             { "VoiceEnterStateRetreatToCastle", (parser, x) => x.VoiceEnterStateRetreatToCastle = parser.ParseAssetReference() },
             { "VoiceEnterStateMoveToCamp", (parser, x) => x.VoiceEnterStateMoveToCamp = parser.ParseAssetReference() },
             { "VoiceEnterStateMoveWhileAttacking", (parser, x) => x.VoiceEnterStateMoveWhileAttacking = parser.ParseAssetReference() },
+            { "VoiceEnterStateMoveToHigherGround", (parser, x) => x.VoiceEnterStateMoveToHigherGround = parser.ParseAssetReference() },
+            { "VoiceEnterStateMoveOverWalls", (parser, x) => x.VoiceEnterStateMoveOverWalls = parser.ParseAssetReference() },
 
             { "VoiceSelect2", (parser, x) => x.VoiceSelect2 = parser.ParseAssetReference() },
             { "VoiceSelectGroup2", (parser, x) => x.VoiceSelectGroup2 = parser.ParseAssetReference() },
@@ -187,6 +197,7 @@ namespace OpenSage.Logic.Object
             { "SoundPromotedHero", (parser, x) => x.SoundPromotedHero = parser.ParseAssetReference() },
             { "SoundFallingFromPlane", (parser, x) => x.SoundFallingFromPlane = parser.ParseAssetReference() },
             { "SoundImpact", (parser, x) => x.SoundImpact = parser.ParseAssetReference() },
+            { "SoundImpactCyclonic", (parser, x) => x.SoundImpactCyclonic = parser.ParseAssetReference() },
             { "SoundCrushing", (parser, x) => x.SoundCrushing = parser.ParseAssetReference() },
 
             { "UnitSpecificSounds", (parser, x) => x.UnitSpecificSounds = UnitSpecificAssets.Parse(parser) },
@@ -199,29 +210,48 @@ namespace OpenSage.Logic.Object
 
             { "EvaEnemyUnitSightedEvent", (parser, x) => x.EvaEnemyUnitSightedEvent = parser.ParseAssetReference() },
 
+            { "CampnessValue", (parser, x) => x.CampnessValue = parser.ParseEnum<Campness>() },
+            { "CampnessValueRadius", (parser, x) => x.CampnessValueRadius = parser.ParseInteger() },
+
             { "Behavior", (parser, x) => x.Behaviors.Add(BehaviorModuleData.ParseBehavior(parser)) },
             { "Draw", (parser, x) => x.Draws.Add(DrawModuleData.ParseDrawModule(parser)) },
             { "Body", (parser, x) => x.Body = BodyModuleData.ParseBody(parser) },
             { "ClientUpdate", (parser, x) => x.ClientUpdates.Add(ClientUpdateModuleData.ParseClientUpdate(parser)) },
+            { "ClientBehavior", (parser, x) => x.ClientBehavior = ClientBehaviorModuleData.ParseClientBehavior(parser) },
 
-            { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSet>()] = parser.ParseAssetReferenceArray() },
+            { "Locomotor", (parser, x) => x.Locomotors[parser.ParseEnum<LocomotorSetCondition>()] = parser.ParseAssetReferenceArray() },
             { "KindOf", (parser, x) => x.KindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "RadarPriority", (parser, x) => x.RadarPriority = parser.ParseEnum<RadarPriority>() },
             { "EnterGuard", (parser, x) => x.EnterGuard = parser.ParseBoolean() },
             { "HijackGuard", (parser, x) => x.HijackGuard = parser.ParseBoolean() },
             { "DisplayColor", (parser, x) => x.DisplayColor = IniColorRgb.Parse(parser) },
             { "Scale", (parser, x) => x.Scale = parser.ParseFloat() },
-            { "Geometry", (parser, x) => x.Geometry = parser.ParseEnum<ObjectGeometry>() },
-            { "GeometryMajorRadius", (parser, x) => x.GeometryMajorRadius = parser.ParseFloat() },
-            { "GeometryMinorRadius", (parser, x) => x.GeometryMinorRadius = parser.ParseFloat() },
-            { "GeometryHeight", (parser, x) => x.GeometryHeight = parser.ParseFloat() },
-            { "GeometryIsSmall", (parser, x) => x.GeometryIsSmall = parser.ParseBoolean() },
+
+            { "Geometry", (parser, x) => x.Geometry =  new Geometry(parser.ParseEnum<ObjectGeometry>()) },
+            { "AdditionalGeometry", (parser, x) => x.AdditionalGeometries.Add(new Geometry(parser.ParseEnum<ObjectGeometry>())) },
+
+            { "GeometryName", (parser, x) => x.CurrentGeometry.Name = parser.ParseString() },
+            { "GeometryMajorRadius", (parser, x) => x.CurrentGeometry.MajorRadius = parser.ParseFloat() },
+            { "GeometryMinorRadius", (parser, x) => x.CurrentGeometry.MinorRadius = parser.ParseFloat() },
+            { "GeometryHeight", (parser, x) => x.CurrentGeometry.Height = parser.ParseFloat() },
+            { "GeometryIsSmall", (parser, x) => x.CurrentGeometry.IsSmall = parser.ParseBoolean() },
+            { "GeometryOffset", (parser, x) => x.CurrentGeometry.Offset = parser.ParseVector3() },
+            { "GeometryRotationAnchorOffset", (parser, x) => x.CurrentGeometry.RotationAnchorOffset = parser.ParseVector2() },
+            { "GeometryActive", (parser, x) => x.CurrentGeometry.IsActive = parser.ParseBoolean() },
+            { "GeometryFrontAngle", (parser, x) => x.CurrentGeometry.FrontAngle = parser.ParseFloat() },
+
+            { "GeometryOther", (parser, x) => x.OtherGeometries.Add(Geometry.Parse(parser)) },
+
+            { "GeometryContactPoint", (parser, x) => x.GeometryContactPoints.Add(GeometryContactPoint.Parse(parser)) },
+
+            { "CamouflageDetectionMultiplier", (parser, x) => x.CamouflageDetectionMultiplier = parser.ParseFloat()}, 
             { "FactoryExitWidth", (parser, x) => x.FactoryExitWidth = parser.ParseInteger() },
             { "FactoryExtraBibWidth", (parser, x) => x.FactoryExtraBibWidth = parser.ParseFloat() },
             { "Shadow", (parser, x) => x.Shadow = parser.ParseEnum<ObjectShadowType>() },
             { "ShadowTexture", (parser, x) => x.ShadowTexture = parser.ParseAssetReference() },
             { "ShadowSizeX", (parser, x) => x.ShadowSizeX = parser.ParseInteger() },
             { "ShadowSizeY", (parser, x) => x.ShadowSizeY = parser.ParseInteger() },
+            { "ShadowMaxHeight", (parser, x) => x.ShadowMaxHeight = parser.ParseInteger() },
             { "InstanceScaleFuzziness", (parser, x) => x.InstanceScaleFuzziness = parser.ParseFloat() },
             { "BuildCompletion", (parser, x) => x.BuildCompletion = parser.ParseAssetReference() },
             { "BuildVariations", (parser, x) => x.BuildVariations = parser.ParseAssetReferenceArray() },
@@ -234,7 +264,33 @@ namespace OpenSage.Logic.Object
             { "RemoveModule", (parser, x) => x.RemoveModules.Add(parser.ParseIdentifier()) },
             { "AddModule", (parser, x) => x.AddModules.Add(AddModule.Parse(parser)) },
             { "ReplaceModule", (parser, x) => x.ReplaceModules.Add(ReplaceModule.Parse(parser)) },
+
+            { "ThreatLevel", (parser, x) => x.ThreatLevel = parser.ParseFloat() },
+            { "LocomotorSet", (parser, x) => x.LocomotorSet = LocomotorSet.Parse(parser) },
+            { "ThingClass", (parser, x) => x.ThingClass = parser.ParseString() },
+            { "MinCrushVelocityPercent", (parser, x) => x.MinCrushVelocityPercent = parser.ParseInteger() },
+            { "CrushDecelerationPercent", (parser, x) => x.CrushDecelerationPercent = parser.ParseInteger() },
+            { "RamPower", (parser, x) => x.RamPower = parser.ParseInteger() },
+            { "RamZMult", (parser, x) => x.RamZMult = parser.ParseFloat() },
+            { "CommandPoints", (parser, x) => x.CommandPoints = parser.ParseInteger() },
+            { "EmotionRange", (parser, x) => x.EmotionRange = parser.ParseInteger() },
+            { "ImmuneToShockwave", (parser, x) => x.ImmuneToShockwave = parser.ParseBoolean() },
+            { "ShowHealthInSelectionDecal", (parser, x) => x.ShowHealthInSelectionDecal = parser.ParseBoolean() },
+            { "DeadCollideSize", (parser, x) => x.DeadCollideSize = parser.ParseEnum<CollideSize>() },
+            { "CrushKnockback", (parser, x) => x.CrushKnockback = parser.ParseInteger() },
+            { "CrushZFactor", (parser, x) => x.CrushZFactor = parser.ParseFloat() },
+            { "BountyValue", (parser, x) => x.BountyValue = parser.ParseInteger() },
+            { "Description", (parser, x) => x.Description = parser.ParseLocalizedStringKey() },
+
+            { "FormationWidth", (parser, x) => x.FormationWidth = parser.ParseInteger() },
+            { "FormationDepth", (parser, x) => x.FormationDepth = parser.ParseInteger() },
+            { "KeepSelectableWhenDead", (parser, x) => x.KeepSelectableWhenDead = parser.ParseBoolean() },
+            { "LiveCameraOffset", (parser, x) => x.LiveCameraOffset = parser.ParseVector3() },
+            { "LiveCameraPitch", (parser, x) => x.LiveCameraPitch = parser.ParseFloat() },
+            { "EvaEventDieOwner", (parser, x) => x.EvaEventDieOwner = parser.ParseAssetReference() }
         };
+
+    
 
         public string Name { get; protected set; }
 
@@ -253,6 +309,7 @@ namespace OpenSage.Logic.Object
         public string Side { get; private set; }
         public string DisplayName { get; private set; }
         public ObjectEditorSortingFlags EditorSorting { get; private set; }
+        public ObjectBrowserFlags Browser { get; private set; }
         public int TransportSlotCount { get; private set; }
         public float VisionRange { get; private set; }
 
@@ -262,7 +319,7 @@ namespace OpenSage.Logic.Object
         public float ShroudClearingRange { get; private set; }
         public int CrusherLevel { get; private set; }
         public int CrushableLevel { get; private set; }
-        public int BuildCost { get; private set; }
+        public float BuildCost { get; private set; }
 
         /// <summary>
         /// Build time in seconds.
@@ -317,10 +374,19 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public string VoiceSelectBattleGroup { get; private set; }
 
+        [AddedIn(SageGame.Bfme)]
+        public string VoiceSelectUnderConstruction { get; private set; }
+
         public string VoiceMove { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string VoiceMoveGroup { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string VoiceMoveOverWall { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string VoiceMoveToHigherGround { get; private set; }
 
         public string VoiceGuard { get; private set; }
 
@@ -425,6 +491,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string VoiceEnterStateMoveWhileAttacking { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string VoiceEnterStateMoveToHigherGround { get; private set; } 
+
+        [AddedIn(SageGame.Bfme2)]
+        public string VoiceEnterStateMoveOverWalls { get; private set; } 
 
         [AddedIn(SageGame.Bfme)]
         public string VoiceSelect2 { get; private set; }
@@ -602,6 +674,9 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public string SoundImpact { get; private set; }
 
+        [AddedIn(SageGame.Bfme2)]
+        public string SoundImpactCyclonic { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public string SoundCrushing { get; private set; }
 
@@ -623,12 +698,17 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public string EvaEnemyUnitSightedEvent { get; private set; }
 
+        [AddedIn(SageGame.Bfme2)]
+        public Campness CampnessValue { get; private set; }
+        [AddedIn(SageGame.Bfme2)]
+        public int CampnessValueRadius { get; private set; }
+
         // Engineering
         public List<BehaviorModuleData> Behaviors { get; } = new List<BehaviorModuleData>();
         public List<DrawModuleData> Draws { get; } = new List<DrawModuleData>();
         public BodyModuleData Body { get; private set; }
         public List<ClientUpdateModuleData> ClientUpdates { get; } = new List<ClientUpdateModuleData>();
-        public Dictionary<LocomotorSet, string[]> Locomotors { get; } = new Dictionary<LocomotorSet, string[]>();
+        public Dictionary<LocomotorSetCondition, string[]> Locomotors { get; } = new Dictionary<LocomotorSetCondition, string[]>();
         public BitArray<ObjectKinds> KindOf { get; private set; }
         public RadarPriority RadarPriority { get; private set; }
 
@@ -640,11 +720,29 @@ namespace OpenSage.Logic.Object
 
         public IniColorRgb DisplayColor { get; private set; }
         public float Scale { get; private set; }
-        public ObjectGeometry Geometry { get; private set; }
-        public float GeometryMajorRadius { get; private set; }
-        public float GeometryMinorRadius { get; private set; }
-        public float GeometryHeight { get; private set; }
-        public bool GeometryIsSmall { get; private set; }
+
+        private Geometry CurrentGeometry
+        {
+            get
+            {
+                if (AdditionalGeometries.Count > 0)
+                {
+                    return AdditionalGeometries[AdditionalGeometries.Count - 1];
+                }
+                return Geometry ?? new Geometry();
+            }
+        }
+
+        public Geometry Geometry { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public List<Geometry> AdditionalGeometries {  get; private set; } = new List<Geometry>();
+
+        [AddedIn(SageGame.Bfme)]
+        public List<Geometry> OtherGeometries { get; private set; } = new List<Geometry>(); //for crushing/squishing detection
+
+        [AddedIn(SageGame.Bfme2)]
+        public float CamouflageDetectionMultiplier { get; private set; }
 
         /// <summary>
         /// Amount of space to leave for exiting units.
@@ -658,6 +756,9 @@ namespace OpenSage.Logic.Object
         public string ShadowTexture { get; private set; }
         public int ShadowSizeX { get; private set; }
         public int ShadowSizeY { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowMaxHeight { get; private set; }
         public float InstanceScaleFuzziness { get; private set; }
         public string BuildCompletion { get; private set; }
         public string[] BuildVariations { get; private set; }
@@ -672,6 +773,84 @@ namespace OpenSage.Logic.Object
         public List<string> RemoveModules { get; } = new List<string>();
         public List<AddModule> AddModules { get; } = new List<AddModule>();
         public List<ReplaceModule> ReplaceModules { get; } = new List<ReplaceModule>();
+
+        [AddedIn(SageGame.Bfme)]
+        public float ThreatLevel { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public LocomotorSet LocomotorSet { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public ClientBehaviorModuleData ClientBehavior { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string ThingClass { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int MinCrushVelocityPercent { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int CrushDecelerationPercent { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int RamPower { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float RamZMult { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int CommandPoints { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int EmotionRange { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ImmuneToShockwave { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ShowHealthInSelectionDecal { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string BuildFadeInOnCreateList { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int BuildFadeInOnCreateTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public CollideSize DeadCollideSize { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int CrushKnockback { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float CrushZFactor { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int BountyValue { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public List<GeometryContactPoint> GeometryContactPoints { get; private set; } = new List<GeometryContactPoint>();
+
+        [AddedIn(SageGame.Bfme)]
+        public string Description { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int FormationWidth { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int FormationDepth { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool KeepSelectableWhenDead { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public Vector3 LiveCameraOffset { get; private set; }
+        
+        [AddedIn(SageGame.Bfme)]
+        public float LiveCameraPitch { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string EvaEventDieOwner { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -779,5 +958,83 @@ namespace OpenSage.Logic.Object
         public string Name { get; private set; }
 
         public ModuleData Module { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public sealed class Geometry
+    {
+        public Geometry() { }
+
+        public Geometry(ObjectGeometry type)
+        {
+            Type = type;
+        }
+
+        internal static Geometry Parse(IniParser parser)
+        {
+            return new Geometry()
+            {
+                Type = parser.ParseAttributeEnum<ObjectGeometry>("GeomType"),
+                IsSmall = parser.ParseAttributeBoolean("IsSmall"),
+                Height = parser.ParseAttributeInteger("Height"),
+                MajorRadius = parser.ParseAttributeInteger("MajorRadius"),
+                MinorRadius = parser.ParseAttributeInteger("MinorRadius"),
+                OffsetX = parser.ParseAttributeInteger("OffsetX")
+            };
+        }
+
+        public string Name { get; set; }
+        public ObjectGeometry Type { get; set; }
+        public bool IsSmall { get; set; }
+        public float Height { get; set; }
+        public float MajorRadius { get; set; }
+        public float MinorRadius { get; set; }
+        public int OffsetX { get; set; }
+        public Vector3 Offset { get; set; }
+        public Vector2 RotationAnchorOffset { get; set; }
+        public bool IsActive { get; set; }
+        public float FrontAngle { get; set; }
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public enum CollideSize
+    {
+        [IniEnum("LARGE")]
+        Large,
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public sealed class GeometryContactPoint
+    {
+        internal static GeometryContactPoint Parse(IniParser parser)
+        {
+            return new GeometryContactPoint()
+            {
+                X = parser.ParseAttributeFloat("X"),
+                Y = parser.ParseAttributeFloat("Y"),
+                Z = parser.ParseAttributeFloat("Z"),
+                Type = parser.ParseEnumFlags<ContactPointType>()
+            };
+        }
+
+        public float X { get; internal set; }
+        public float Y { get; internal set; }
+        public float Z { get; internal set; }
+        public ContactPointType Type { get; internal set; }
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public enum ContactPointType
+    {
+        None = 0,
+
+        [IniEnum("Repair")]
+        Repair,
+        [IniEnum("Swoop")]
+        Swoop,
+        [IniEnum("Grab")]
+        Grab,
+        [IniEnum("Ram")]
+        Ram,
     }
 }

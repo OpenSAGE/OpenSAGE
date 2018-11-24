@@ -20,7 +20,7 @@ namespace OpenSage.Viewer.UI.Views
 
         public IniView(AssetViewContext context)
         {
-            var iniDataContext = new IniDataContext(context.Entry.FileSystem);
+            var iniDataContext = new IniDataContext(context.Entry.FileSystem, context.Game.SageGame);
             iniDataContext.LoadIniFile(context.Entry);
 
             using (var stream = context.Entry.Open())

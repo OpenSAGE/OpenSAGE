@@ -96,7 +96,7 @@ namespace OpenSage.Data
 
             foreach (var entry in _fileTable.Values)
             {
-                if (entry.FilePath.StartsWith(folderPath))
+                if (entry.FilePath.StartsWith(folderPath, StringComparison.InvariantCultureIgnoreCase))
                 {
                     yield return entry;
                 }

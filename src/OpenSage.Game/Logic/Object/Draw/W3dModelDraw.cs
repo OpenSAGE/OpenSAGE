@@ -101,7 +101,7 @@ namespace OpenSage.Logic.Object
             ModelConditionState bestConditionState = null;
             var bestMatch = int.MinValue;
 
-            // Find best matching ConditionState.
+            // Find best matching ModelConditionState.
             foreach (var conditionState in _conditionStates)
             {
                 var match = conditionState.ConditionFlags.And(flags).NumBitsSet;
@@ -138,7 +138,7 @@ namespace OpenSage.Logic.Object
                 // TODO: Multiple animations. Shouldn't play all of them. I think
                 // we should randomly choose one of them?
                 // And there is also IdleAnimation.
-                var firstAnimation = conditionState.Animations
+                var firstAnimation = conditionState.ConditionAnimations
                     .Concat(conditionState.IdleAnimations)
                     .LastOrDefault();
                 if (firstAnimation != null)
@@ -269,6 +269,7 @@ namespace OpenSage.Logic.Object
         {
             { "DefaultConditionState", (parser, x) => parser.Temp = x.DefaultConditionState = ModelConditionState.ParseDefault(parser) },
             { "DefaultModelConditionState", (parser, x) => parser.Temp = x.DefaultConditionState = ModelConditionState.ParseDefault(parser) },
+
             {
                 "ConditionState",
                 (parser, x) =>
@@ -278,6 +279,16 @@ namespace OpenSage.Logic.Object
                     parser.Temp = conditionState;
                 }
             },
+            {
+                "ModelConditionState",
+                (parser, x) =>
+                {
+                    var conditionState = ModelConditionState.Parse(parser);
+                    x.ConditionStates.Add(conditionState);
+                    parser.Temp = conditionState;
+                }
+            },
+
             { "IgnoreConditionStates", (parser, x) => x.IgnoreConditionStates = parser.ParseEnumBitArray<ModelConditionFlag>() },
             { "AliasConditionState", (parser, x) => x.ParseAliasConditionState(parser) },
             { "TransitionState", (parser, x) => x.TransitionStates.Add(TransitionState.Parse(parser)) },
@@ -290,9 +301,14 @@ namespace OpenSage.Logic.Object
             { "ExtraPublicBone", (parser, x) => x.ExtraPublicBones.Add(parser.ParseBoneName()) },
             { "AttachToBoneInAnotherModule", (parser, x) => x.AttachToBoneInAnotherModule = parser.ParseBoneName() },
             { "TrackMarks", (parser, x) => x.TrackMarks = parser.ParseFileName() },
+            { "TrackMarksLeftBone", (parser, x) => x.TrackMarksLeftBone = parser.ParseAssetReference() },
+            { "TrackMarksRightBone", (parser, x) => x.TrackMarksRightBone = parser.ParseAssetReference() },
             { "InitialRecoilSpeed", (parser, x) => x.InitialRecoilSpeed = parser.ParseFloat() },
             { "MaxRecoilDistance", (parser, x) => x.MaxRecoilDistance = parser.ParseFloat() },
             { "RecoilSettleSpeed", (parser, x) => x.RecoilSettleSpeed = parser.ParseFloat() },
+
+            { "IdleAnimationState", (parser, x) => x.IdleAnimationState = AnimationState.Parse(parser) },
+            { "AnimationState", (parser, x) => x.AnimationStates.Add(AnimationState.Parse(parser)) },
         };
 
         public BitArray<ModelConditionFlag> IgnoreConditionStates { get; private set; }
@@ -321,9 +337,17 @@ namespace OpenSage.Logic.Object
 
         public string TrackMarks { get; private set; }
 
+        [AddedIn(SageGame.Bfme)]
+        public string TrackMarksLeftBone { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public string TrackMarksRightBone { get; private set; }
+
         public float InitialRecoilSpeed { get; private set; } = 2.0f;
         public float MaxRecoilDistance { get; private set; } = 3.0f;
         public float RecoilSettleSpeed { get; private set; } = 0.065f;
+
+        public AnimationState IdleAnimationState { get; private set; }
+        public List<AnimationState> AnimationStates { get; } = new List<AnimationState>();
 
         private void ParseAliasConditionState(IniParser parser)
         {

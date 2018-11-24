@@ -400,5 +400,120 @@
 
         [IniEnum("CREEP"), AddedIn(SageGame.Bfme)]
         Creep,
+
+        [IniEnum("PATH_THROUGH_EACH_OTHER"), AddedIn(SageGame.Bfme)]
+        PathThroughEachOther,
+
+        [IniEnum("THROWN_OBJECT"), AddedIn(SageGame.Bfme)]
+        ThrownObject,
+
+        [IniEnum("HOBBIT"), AddedIn(SageGame.Bfme)]
+        Hobbit,
+
+        [IniEnum("ROCK_VENDOR"), AddedIn(SageGame.Bfme)]
+        RockVendor,
+
+        [IniEnum("WORKING_PASSENGER"), AddedIn(SageGame.Bfme)]
+        WorkingPassenger,
+
+        [IniEnum("NO_FREEWILL_ENTER"), AddedIn(SageGame.Bfme)]
+        NoFreeWillEnter,
+
+        [IniEnum("ROCK"), AddedIn(SageGame.Bfme)]
+        Rock,
+
+        [IniEnum("CLUB"), AddedIn(SageGame.Bfme)]
+        Club,
+
+        [IniEnum("CAN_USE_SIEGE_TOWER"), AddedIn(SageGame.Bfme)]
+        CanUseSiegeTower,
+
+        [IniEnum("ARCHER"), AddedIn(SageGame.Bfme)]
+        Archer,
+
+        [IniEnum("PATH_THROUGH_INFANTRY"), AddedIn(SageGame.Bfme)]
+        PathThroughInfantry,
+
+        [IniEnum("NEED_BASE_FOUNDATION"), AddedIn(SageGame.Bfme)]
+        NeedBaseFoundation,
+
+        [IniEnum("GARRISON"), AddedIn(SageGame.Bfme)]
+        Garrison,
+
+        [IniEnum("CHUNK_VENDOR"), AddedIn(SageGame.Bfme)]
+        ChunkVendor,
+
+        [IniEnum("URUK"), AddedIn(SageGame.Bfme)]
+        Uruk,
+
+        [IniEnum("ARMY_SUMMARY"), AddedIn(SageGame.Bfme)]
+        ArmySummary,
+
+        [IniEnum("CASTLE_KEEP"), AddedIn(SageGame.Bfme)]
+        CastleKeep,
+
+        [IniEnum("MOVE_ONLY"), AddedIn(SageGame.Bfme)]
+        MoveOnly,
+
+        [IniEnum("HIDE_IF_FOGGED"), AddedIn(SageGame.Bfme)]
+        HideIfFogged,
+
+        [IniEnum("BASE_FOUNDATION"), AddedIn(SageGame.Bfme)]
+        BaseFoundation,
+
+        [IniEnum("CASTLE_CENTER"), AddedIn(SageGame.Bfme)]
+        CastleCenter,
+
+        [IniEnum("BASE_SITE"), AddedIn(SageGame.Bfme)]
+        BaseSite,
+
+        [IniEnum("CATAPULT_ROCK"), AddedIn(SageGame.Bfme)]
+        CatapultRock,
+
+        [IniEnum("GONDORTOWNSMAN"), AddedIn(SageGame.Bfme)]
+        GondorTownsman,
+
+        [IniEnum("GONDORTOWNSMANTORCH"), AddedIn(SageGame.Bfme)]
+        GondorTownsmanTorch,
+
+        [IniEnum("GONDORTOWNSWOMAN"), AddedIn(SageGame.Bfme)]
+        GondorTownsWoman,
+
+        [IniEnum("GONDORTOWNSPAIR"), AddedIn(SageGame.Bfme)]
+        GondorTownsPair,
+
+        [IniEnum("SUPPLY_GATHERING_CENTER"), AddedIn(SageGame.Bfme)]
+        SupplyGatheringCenter,
+
+        [IniEnum("FS_CASH_PRODUCER"), AddedIn(SageGame.Bfme)]
+        FSCashProducer,
+
+        [IniEnum("INDUSTRY_AFFECTED"), AddedIn(SageGame.Bfme)]
+        IndustryAffected,
+
+        [IniEnum("NONOCCLUDING"), AddedIn(SageGame.Bfme)]
+        NonOccluding,
+
+        [IniEnum("OPTIMIZED_PROP"), AddedIn(SageGame.Bfme)]
+        OptimizedProp,
+
+        [IniEnum("MELEE_HORDE"), AddedIn(SageGame.Bfme)]
+        MeleeHorde,
+
+        [IniEnum("ARMY_OF_DEAD"), AddedIn(SageGame.Bfme)]
+        ArmyOfDead,
+
+        [IniEnum("INERT_SHROUD_REVEALER"), AddedIn(SageGame.Bfme)]
+        InertShroudRevealer,
+
+        [IniEnum("MADE_OF_METAL"), AddedIn(SageGame.Bfme)]
+        MadeOfMetal,
+
+        [IniEnum("VITAL_FOR_BASE_SURVIVAL"), AddedIn(SageGame.Bfme)]
+        VitalForBaseSurvival,
+
+        [IniEnum("MADE_OF_WOOD"), AddedIn(SageGame.Bfme)]
+        MadeOfWood,
+
     }
 }

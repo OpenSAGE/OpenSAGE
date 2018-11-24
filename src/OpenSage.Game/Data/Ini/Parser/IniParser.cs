@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using System.Text;
 using OpenSage.Data.Utilities;
 using OpenSage.Logic.Object;
@@ -130,10 +131,13 @@ namespace OpenSage.Data.Ini.Parser
 
         public IniTokenPosition CurrentPosition => _tokenReader.CurrentPosition;
 
-        public IniParser(string source, FileSystemEntry entry, IniDataContext dataContext)
+        public SageGame SageGame { get; private set; }
+
+        public IniParser(string source, FileSystemEntry entry, IniDataContext dataContext, SageGame game)
         {
             _directory = Path.GetDirectoryName(entry.FilePath);
             _dataContext = dataContext;
+            SageGame = game;
 
             _tokenReader = new TokenReader(source, Path.Combine(entry.FileSystem.RootDirectory, entry.FilePath));
 
@@ -247,6 +251,21 @@ namespace OpenSage.Data.Ini.Parser
         }
 
         public bool IsInteger(IniToken token) => int.TryParse(token.Text, out _);
+
+        public int GetIntegerOptional()
+        {
+            var token = GetNextTokenOptional();
+            if (!token.HasValue)
+            {
+                return 0;
+            }
+
+            if (_dataContext.Defines.TryGetValue(token.Value.Text, out var macroExpansion))
+            {
+                token =  macroExpansion;
+            }
+            return ScanInteger(token.Value);
+        }
 
         public int ScanInteger(IniToken token) => Convert.ToInt32(token.Text);
 
@@ -403,6 +422,25 @@ namespace OpenSage.Data.Ini.Parser
             };
         }
 
+        public Vector2 ParseVector2()
+        {
+            return new Vector2
+            {
+                X = ParseAttributeFloat("X"),
+                Y = ParseAttributeFloat("Y")
+            };
+        }
+
+        public Vector3 ParseVector3()
+        {
+            return new Vector3
+            {
+                X = ParseAttributeFloat("X"),
+                Y = ParseAttributeFloat("Y"),
+                Z = ParseAttributeFloat("Z")
+            };
+        }
+
         public Size ParseSize()
         {
             return new Size
@@ -530,7 +568,7 @@ namespace OpenSage.Data.Ini.Parser
 
         private void ParseBlockContent<T>(
             T result,
-           IIniFieldParserProvider<T> fieldParserProvider)
+           IIniFieldParserProvider<T> fieldParserProvider, string endToken = EndToken)
             where T : class, new()
         {
             var done = false;
@@ -564,7 +602,7 @@ namespace OpenSage.Data.Ini.Parser
                         _currentBlockOrFieldStack.Push(fieldName);
 
                         fieldParser(this, result);
-
+                        
                         _currentBlockOrFieldStack.Pop();
                     }
                     else

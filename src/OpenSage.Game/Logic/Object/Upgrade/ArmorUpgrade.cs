@@ -10,6 +10,11 @@ namespace OpenSage.Logic.Object
         internal static ArmorUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static new readonly IniParseTable<ArmorUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
-            .Concat(new IniParseTable<ArmorUpgradeModuleData>());
+            .Concat(new IniParseTable<ArmorUpgradeModuleData>()
+            {
+                { "ArmorSetFlag", (parser, x) => x.ArmorSetFlag = parser.ParseEnum<ArmorSetCondition>() },
+            });
+
+        public ArmorSetCondition ArmorSetFlag { get; private set; }
     }
 }

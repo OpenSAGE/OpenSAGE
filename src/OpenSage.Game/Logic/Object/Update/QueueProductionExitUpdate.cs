@@ -13,6 +13,7 @@ namespace OpenSage.Logic.Object
             { "NaturalRallyPoint", (parser, x) => x.NaturalRallyPoint = Coord3D.Parse(parser) },
             { "ExitDelay", (parser, x) => x.ExitDelay = parser.ParseInteger() },
             { "InitialBurst", (parser, x) => x.InitialBurst = parser.ParseInteger() },
+            { "PlacementViewAngle", (parser, x) => x.PlacementViewAngle = parser.ParseInteger() },
         };
 
         public Coord3D UnitCreatePoint { get; private set; }
@@ -28,5 +29,8 @@ namespace OpenSage.Logic.Object
         public int ExitDelay { get; private set; }
 
         public int InitialBurst { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int PlacementViewAngle { get; private set; }
     }
 }

@@ -29,14 +29,14 @@ namespace OpenSage.Logic.Object
         internal static readonly IniParseTable<ModelConditionState> FieldParseTable = new IniParseTable<ModelConditionState>
         {
             { "Model", (parser, x) => x.Model = parser.ParseFileName() },
+            { "Skeleton", (parser, x) => x.Skeleton = parser.ParseFileName() },
 
             { "WeaponRecoilBone", (parser, x) => x.WeaponRecoilBones.Add(BoneAttachPoint.Parse(parser)) },
             { "WeaponFireFXBone", (parser, x) => x.WeaponFireFXBones.Add(BoneAttachPoint.Parse(parser)) },
             { "WeaponMuzzleFlash", (parser, x) => x.WeaponMuzzleFlashes.Add(BoneAttachPoint.Parse(parser)) },
             { "WeaponLaunchBone", (parser, x) => x.WeaponLaunchBones.Add(BoneAttachPoint.Parse(parser)) },
             { "WeaponHideShowBone", (parser, x) => x.WeaponHideShowBones.Add(BoneAttachPoint.Parse(parser)) },
-
-            { "Animation", (parser, x) => x.Animations.Add(ObjectConditionAnimation.Parse(parser)) },
+            { "Animation", (parser, x) => x.ParseAnimation(parser) },
             { "AnimationMode", (parser, x) => x.AnimationMode = parser.ParseEnum<AnimationMode>() },
             { "AnimationSpeedFactorRange", (parser, x) => x.AnimationSpeedFactorRange = FloatRange.Parse(parser) },
             { "IdleAnimation", (parser, x) => x.IdleAnimations.Add(ObjectConditionAnimation.Parse(parser)) },
@@ -54,11 +54,28 @@ namespace OpenSage.Logic.Object
 
             { "TransitionKey", (parser, x) => x.TransitionKey = parser.ParseIdentifier() },
             { "WaitForStateToFinishIfPossible", (parser, x) => x.WaitForStateToFinishIfPossible = parser.ParseIdentifier() },
+
+            { "OverrideTooltip", (parser, x) => x.OverrideTooltip = parser.ParseAssetReference() },
         };
+
+        private void ParseAnimation(IniParser parser)
+        {
+            if (parser.SageGame == SageGame.CncGenerals || parser.SageGame == SageGame.CncGeneralsZeroHour)
+            {
+                ConditionAnimations.Add(ObjectConditionAnimation.Parse(parser));
+            }
+            else
+            {
+                Animations.Add(Animation.Parse(parser));
+            }
+        }
 
         public BitArray<ModelConditionFlag> ConditionFlags { get; private set; }
 
         public string Model { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string Skeleton { get; private set; }
 
         // Weapon bone settings
         public List<BoneAttachPoint> WeaponRecoilBones { get; private set; } = new List<BoneAttachPoint>();
@@ -68,7 +85,8 @@ namespace OpenSage.Logic.Object
         public List<BoneAttachPoint> WeaponHideShowBones { get; private set; } = new List<BoneAttachPoint>();
 
         // Model animation settings
-        public List<ObjectConditionAnimation> Animations { get; private set; } = new List<ObjectConditionAnimation>();
+        public List<ObjectConditionAnimation> ConditionAnimations { get; private set; } = new List<ObjectConditionAnimation>();
+        public List<Animation> Animations { get; private set; } = new List<Animation>();
         public AnimationMode AnimationMode { get; private set; }
         public FloatRange AnimationSpeedFactorRange { get; private set; }
         public List<ObjectConditionAnimation> IdleAnimations { get; private set; } = new List<ObjectConditionAnimation>();
@@ -89,6 +107,9 @@ namespace OpenSage.Logic.Object
         public string TransitionKey { get; private set; }
         public string WaitForStateToFinishIfPossible { get; private set; }
 
+        [AddedIn(SageGame.Bfme)]
+        public string OverrideTooltip { get; private set; }
+
         /// <summary>
         /// Used by AliasConditionState.
         /// </summary>
@@ -106,7 +127,7 @@ namespace OpenSage.Logic.Object
                 WeaponLaunchBones = WeaponLaunchBones,
                 WeaponHideShowBones = WeaponHideShowBones,
 
-                Animations = Animations,
+                ConditionAnimations = ConditionAnimations,
                 AnimationMode = AnimationMode,
                 AnimationSpeedFactorRange = AnimationSpeedFactorRange,
                 IdleAnimations = IdleAnimations,

@@ -20,6 +20,8 @@ namespace OpenSage.Logic.Object
 
             { "OCL", (parser, x) => x.OCLs[parser.ParseEnum<StructureCollapsePhase>()] = parser.ParseAssetReference() },
             { "FXList", (parser, x) => x.FXLists[parser.ParseEnum<StructureCollapsePhase>()] = parser.ParseAssetReference() },
+            { "DestroyObjectWhenDone", (parser, x) => x.DestroyObjectWhenDone = parser.ParseBoolean() },
+            { "CollapseHeight", (parser, x) => x.CollapseHeight = parser.ParseInteger() },
         };
 
         public int MinCollapseDelay { get; private set; }
@@ -32,6 +34,12 @@ namespace OpenSage.Logic.Object
 
         public Dictionary<StructureCollapsePhase, string> OCLs { get; } = new Dictionary<StructureCollapsePhase, string>();
         public Dictionary<StructureCollapsePhase, string> FXLists { get; } = new Dictionary<StructureCollapsePhase, string>();
+
+        [AddedIn(SageGame.Bfme)]
+        public bool DestroyObjectWhenDone { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int CollapseHeight { get; private set; }
     }
 
     public enum StructureCollapsePhase
@@ -46,6 +54,9 @@ namespace OpenSage.Logic.Object
         Burst,
 
         [IniEnum("FINAL")]
-        Final
+        Final,
+
+        [IniEnum("ALMOST_FINAL"), AddedIn(SageGame.Bfme)]
+        AlmostFinal
     }
 }

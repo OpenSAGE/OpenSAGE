@@ -10,7 +10,7 @@ namespace OpenSage.Logic.Object
     /// </summary>
     public sealed class CashHackSpecialPowerModuleData : SpecialPowerModuleData
     {
-        internal static CashHackSpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static new CashHackSpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static new readonly IniParseTable<CashHackSpecialPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
             .Concat(new IniParseTable<CashHackSpecialPowerModuleData>

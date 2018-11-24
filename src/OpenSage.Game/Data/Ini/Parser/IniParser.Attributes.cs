@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Numerics;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini.Parser
 {
@@ -24,6 +26,25 @@ namespace OpenSage.Data.Ini.Parser
             }
 
             return parseValue();
+        }
+
+        public bool ParseAttributeOptional<T>(string label, Func<T> parseValue, out T parsed)
+        {
+            var nameToken = GetNextTokenOptional(SeparatorsColon);
+
+            if (nameToken == null)
+            {
+                parsed = default;
+                return false;
+            }
+
+            if (!string.Equals(nameToken.Value.Text, label, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new IniParseException($"Expected attribute name '{label}'", nameToken.Value.Position);
+            }
+
+            parsed = parseValue();
+            return true;
         }
 
         public int ParseAttributeInteger(string label)
@@ -55,6 +76,21 @@ namespace OpenSage.Data.Ini.Parser
         public float ParseAttributeFloat(string label)
         {
             return ParseAttribute(label, ScanFloat);
+        }
+
+        public Point2D ParseAttributePoint2D(string label)
+        {
+            return ParseAttribute(label, ParsePoint);
+        }
+
+        public Vector2 ParseAttributeVector2(string label)
+        {
+            return ParseAttribute(label, ParseVector2);
+        }
+
+        public Vector3 ParseAttributeVector3(string label)
+        {
+            return ParseAttribute(label, ParseVector3);
         }
     }
 }

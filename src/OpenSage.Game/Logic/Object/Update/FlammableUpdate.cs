@@ -21,6 +21,8 @@ namespace OpenSage.Logic.Object
             { "AflameDamageDelay", (parser, x) => x.AflameDamageDelay = parser.ParseInteger() },
             { "BurnedDelay", (parser, x) => x.BurnedDelay = parser.ParseInteger() },
             { "BurningSoundName", (parser, x) => x.BurningSoundName = parser.ParseAssetReference() },
+            { "BurnContained", (parser, x) => x.BurnContained = parser.ParseBoolean() },
+            { "FireFXList", (parser, x) => x.FireFXList = parser.ParseAttributeIdentifier("FX") },
         };
 
         /// <summary>
@@ -51,5 +53,11 @@ namespace OpenSage.Logic.Object
         public int BurnedDelay { get; private set; }
 
         public string BurningSoundName { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool BurnContained { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string FireFXList { get; private set; }
     }
 }

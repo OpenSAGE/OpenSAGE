@@ -36,5 +36,26 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("INSIDE_GARRISON"), AddedIn(SageGame.Bfme)]
         InsideGarrison,
+
+        [IniEnum("UNSELECTABLE"), AddedIn(SageGame.Bfme)]
+        Unselectable,
+
+        [IniEnum("DEATH_1"), AddedIn(SageGame.Bfme)]
+        Death1,
+
+        [IniEnum("DEATH_2"), AddedIn(SageGame.Bfme)]
+        Death2,
+
+        [IniEnum("DEATH_3"), AddedIn(SageGame.Bfme)]
+        Death3,
+        
+        [IniEnum("DEATH_4"), AddedIn(SageGame.Bfme)]
+        Death4,
+
+        [IniEnum("CAN_ATTACK"), AddedIn(SageGame.Bfme)]
+        CanAttack,
+
+        [IniEnum("BLOODTHIRSTY"), AddedIn(SageGame.Bfme)]
+        BloodThirsty,
     }
 }

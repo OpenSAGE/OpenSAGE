@@ -1,4 +1,7 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -11,5 +14,5 @@ namespace OpenSage.Logic.Object
 
         private static new readonly IniParseTable<StructureBodyModuleData> FieldParseTable = ActiveBodyModuleData.FieldParseTable
             .Concat(new IniParseTable<StructureBodyModuleData>());
-    }
+     }
 }

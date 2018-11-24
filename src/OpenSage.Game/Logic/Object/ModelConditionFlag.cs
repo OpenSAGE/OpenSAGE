@@ -435,5 +435,204 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("CHANT_FOR_GROND"), AddedIn(SageGame.Bfme)]
         ChantForGrond,
+
+        [IniEnum("WANDER"), AddedIn(SageGame.Bfme)]
+        Wander,
+
+        [IniEnum("HARVEST_PREPARATION"), AddedIn(SageGame.Bfme)]
+        HarvestPrepariation,
+
+        [IniEnum("HARVEST_ACTION"), AddedIn(SageGame.Bfme)]
+        HarvestAction,
+
+        [IniEnum("SPECIAL_ENEMY_NEAR"), AddedIn(SageGame.Bfme)]
+        SpecialEnemyNear,
+
+        [IniEnum("DEATH_1"), AddedIn(SageGame.Bfme)]
+        Death1,
+
+        [IniEnum("DEATH_2"), AddedIn(SageGame.Bfme)]
+        Death2,
+
+        [IniEnum("EMOTION_MORALE_HIGH"), AddedIn(SageGame.Bfme)]
+        EmotionMoraleHigh,
+
+        [IniEnum("EMOTION_MORALE_LOW"), AddedIn(SageGame.Bfme)]
+        EmotionMoraleLow,
+
+        [IniEnum("HIT_REACTION"), AddedIn(SageGame.Bfme)]
+        HitReaction,
+
+        [IniEnum("HIT_LEVEL_1"), AddedIn(SageGame.Bfme)]
+        HitLevel1,
+
+        [IniEnum("SELECTED"), AddedIn(SageGame.Bfme)]
+        Selected,
+
+        [IniEnum("WEAPONLOCK_PRIMARY"), AddedIn(SageGame.Bfme)]
+        WeaponLockPrimary,
+
+        [IniEnum("FIRING_OR_PREATTACK_B"), AddedIn(SageGame.Bfme)]
+        FiringOrPreattackB,
+
+        [IniEnum("PACKING_TYPE_1"), AddedIn(SageGame.Bfme)]
+        PackingType1,
+
+        [IniEnum("PACKING_TYPE_2"), AddedIn(SageGame.Bfme)]
+        PackingType2,
+
+        [IniEnum("PREPARING"), AddedIn(SageGame.Bfme)]
+        Preparing,
+
+        [IniEnum("HIDDEN"), AddedIn(SageGame.Bfme)]
+        Hidden,
+
+        [IniEnum("BURNT_MODEL"), AddedIn(SageGame.Bfme)]
+        BurntModel,
+
+        [IniEnum("WEAPONSTATE_ONE"), AddedIn(SageGame.Bfme)]
+        WeaponstateOne,
+
+        [IniEnum("WEAPONSTATE_TWO"), AddedIn(SageGame.Bfme)]
+        WeaponstateTwo,
+
+        [IniEnum("FIRING_OR_PREATTACK_C"), AddedIn(SageGame.Bfme)]
+        FiringOrPreattackC,
+
+        [IniEnum("PASSENGER_VARIATION_1"), AddedIn(SageGame.Bfme)]
+        PassengerVariation1,
+
+        [IniEnum("PASSENGER_VARIATION_2"), AddedIn(SageGame.Bfme)]
+        PassengerVariation2,
+
+        [IniEnum("DESTROYED_WEAPON"), AddedIn(SageGame.Bfme)]
+        DestroyedWeapon,
+
+        [IniEnum("HIT_LEVEL_2"), AddedIn(SageGame.Bfme)]
+        HitLevel2,
+
+        [IniEnum("HIT_LEVEL_3"), AddedIn(SageGame.Bfme)]
+        HitLevel3,
+
+        [IniEnum("REACT_1"), AddedIn(SageGame.Bfme)]
+        React1,
+
+        [IniEnum("REACT_2"), AddedIn(SageGame.Bfme)]
+        React2,
+
+        [IniEnum("REACT_3"), AddedIn(SageGame.Bfme)]
+        React3,
+
+        [IniEnum("REACT_4"), AddedIn(SageGame.Bfme)]
+        React4,
+
+        [IniEnum("REACT_5"), AddedIn(SageGame.Bfme)]
+        React5,
+
+        [IniEnum("WEAPONSTATE_CLOSE_RANGE"), AddedIn(SageGame.Bfme)]
+        WeaponstateCloseRange,
+
+        [IniEnum("AIM_HIGH"), AddedIn(SageGame.Bfme)]
+        AimHigh,
+
+        [IniEnum("WORLD_BUILDER"), AddedIn(SageGame.Bfme)]
+        WorldBuilder,
+
+        [IniEnum("DEATH_3"), AddedIn(SageGame.Bfme)]
+        Death3,
+        
+        [IniEnum("DEATH_4"), AddedIn(SageGame.Bfme)]
+        Death4,
+
+        [IniEnum("WALKING"), AddedIn(SageGame.Bfme)]
+        Walking,
+
+        [IniEnum("EMOTION_LOOK_TO_SKY"), AddedIn(SageGame.Bfme)]
+        EmotionLookToSky,
+
+        [IniEnum("USER_3"), AddedIn(SageGame.Bfme)]
+        User3,
+
+        [IniEnum("SIEGE_CONTAIN"), AddedIn(SageGame.Bfme)]
+        SiegeContain,
+
+        [IniEnum("USING_SPECIAL_ABILITY"), AddedIn(SageGame.Bfme)]
+        UsingSpecialAbility,
+
+        [IniEnum("AIM_LOW"), AddedIn(SageGame.Bfme)]
+        AimLow,
+
+        [IniEnum("RUNNING_OFF_MAP"), AddedIn(SageGame.Bfme)]
+        RunningOffMap,
+
+        [IniEnum("TURN_LEFT_HIGH_SPEED"), AddedIn(SageGame.Bfme)]
+        TurnLeftHighSpeed,
+
+        [IniEnum("TURN_RIGHT_HIGH_SPEED"), AddedIn(SageGame.Bfme)]
+        TurnRightHighSpeed,
+
+        [IniEnum("WEAPONSET_RAMPAGE"), AddedIn(SageGame.Bfme)]
+        WeaponsetRampage,
+
+        [IniEnum("CHARGING"), AddedIn(SageGame.Bfme)]
+        Charging,
+
+        [IniEnum("DECAY"), AddedIn(SageGame.Bfme)]
+        Decay,
+
+        [IniEnum("CLUB"), AddedIn(SageGame.Bfme)]
+        Club,
+
+        [IniEnum("POST_RUBBLE"), AddedIn(SageGame.Bfme)]
+        PostRubble,
+
+        [IniEnum("USER_4"), AddedIn(SageGame.Bfme)]
+        User4,
+
+        [IniEnum("USER_5"), AddedIn(SageGame.Bfme)]
+        User5,
+
+        [IniEnum("AWAY_FROM_TREES"), AddedIn(SageGame.Bfme)]
+        AwayFromTrees,
+
+        [IniEnum("DESTROYED_FRONT"), AddedIn(SageGame.Bfme)]
+        DestroyedFront,
+
+        [IniEnum("DESTROYED_RIGHT"), AddedIn(SageGame.Bfme)]
+        DestroyedRight,
+
+        [IniEnum("DESTROYED_LEFT"), AddedIn(SageGame.Bfme)]
+        DestroyedLeft,
+
+        [IniEnum("DESTROYED_BACK"), AddedIn(SageGame.Bfme)]
+        DestroyedBack,
+
+        [IniEnum("EMOTION_COWER"), AddedIn(SageGame.Bfme)]
+        EmotionCower,
+
+        [IniEnum("HORDE_EMPTY"), AddedIn(SageGame.Bfme)]
+        HordeEmpty,
+
+        [IniEnum("BASE_BUILD"), AddedIn(SageGame.Bfme)]
+        BaseBuild,
+
+        [IniEnum("UPGRADE_NUMENOR_STONEWORK"), AddedIn(SageGame.Bfme)]
+        UpgradeNumenorStonework,
+
+        [IniEnum("UPGRADE_TREBUCHET"), AddedIn(SageGame.Bfme)]
+        UpgradeTrebuchet,
+
+        [IniEnum("UPGRADE_POSTERN_GATE"), AddedIn(SageGame.Bfme)]
+        UpgradePosternGate,
+
+        [IniEnum("UPGRADE_GARRISON"), AddedIn(SageGame.Bfme)]
+        UpgradeGarrison,
+
+        [IniEnum("LEVELED"), AddedIn(SageGame.Bfme)]
+        Leveled,
+
+        [IniEnum("SPECIAL_POWER_1"), AddedIn(SageGame.Bfme)]
+        SpecialPower1,
+
     }
 }

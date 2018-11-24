@@ -37,6 +37,9 @@ namespace OpenSage.Logic.Object
         Debris         = 0x100,
 
         [IniEnum("SHRUBBERY")]
-        Shrubbery      = 0x200
+        Shrubbery      = 0x200,
+
+        [IniEnum("UNIT")]
+        UNIT           = 0x300,
     }
 }

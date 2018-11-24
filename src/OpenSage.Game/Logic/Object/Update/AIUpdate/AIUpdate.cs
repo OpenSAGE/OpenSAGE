@@ -14,7 +14,15 @@ namespace OpenSage.Logic.Object
             { "TurretsLinked", (parser, x) => x.TurretsLinked = parser.ParseBoolean() },
             { "AutoAcquireEnemiesWhenIdle", (parser, x) => x.AutoAcquireEnemiesWhenIdle = parser.ParseEnumBitArray<AutoAcquireEnemiesType>() },
             { "MoodAttackCheckRate", (parser, x) => x.MoodAttackCheckRate = parser.ParseInteger() },
-            { "ForbidPlayerCommands", (parser, x) => x.ForbidPlayerCommands = parser.ParseBoolean() }
+            { "ForbidPlayerCommands", (parser, x) => x.ForbidPlayerCommands = parser.ParseBoolean() },
+            { "AILuaEventsList", (parser, x) => x.AILuaEventsList = parser.ParseString() },
+            { "HoldGroundCloseRangeDistance", (parser, x) => x.HoldGroundCloseRangeDistance = parser.ParseInteger() },
+            { "MinCowerTime", (parser, x) => x.MinCowerTime = parser.ParseInteger() },
+            { "MaxCowerTime", (parser, x) => x.MaxCowerTime = parser.ParseInteger() },
+            { "CanAttackWhileContained", (parser, x) => x.CanAttackWhileContained = parser.ParseBoolean() },
+            { "RampageTime", (parser, x) => x.RampageTime = parser.ParseInteger() },
+            { "TimeToEjectPassengersOnRampage", (parser, x) => x.TimeToEjectPassengersOnRampage = parser.ParseInteger() },
+            { "AttackPriority", (parser, x) => x.AttackPriority = parser.ParseString() },
         };
 
         /// <summary>
@@ -33,6 +41,30 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool ForbidPlayerCommands { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string AILuaEventsList { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int HoldGroundCloseRangeDistance { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int MinCowerTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int MaxCowerTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool CanAttackWhileContained { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int RampageTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int TimeToEjectPassengersOnRampage  { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string AttackPriority { get; private set; }
     }
 
     public enum AutoAcquireEnemiesType

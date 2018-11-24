@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
@@ -31,6 +32,14 @@ namespace OpenSage.Logic.Object
                 { "ArmedRidersUpgradeMyWeaponSet", (parser, x) => x.ArmedRidersUpgradeMyWeaponSet = parser.ParseBoolean() },
                 { "WeaponBonusPassedToPassengers", (parser, x) => x.WeaponBonusPassedToPassengers = parser.ParseBoolean() },
                 { "DelayExitInAir", (parser, x) => x.DelayExitInAir = parser.ParseBoolean() },
+                { "ObjectStatusOfContained", (parser, x) => x.ObjectStatusOfContained = parser.ParseEnumBitArray<ObjectStatus>() },
+                { "PassengerFilter", (parser, x) => x.PassengerFilter = ObjectFilter.Parse(parser) },
+                { "ShowPips", (parser, x) => x.ShowPips = parser.ParseBoolean() },
+                { "TypeOneForWeaponSet", (parser, x) => x.TypeOneForWeaponSet = parser.ParseEnum<ObjectKinds>() },
+                { "TypeTwoForWeaponSet", (parser, x) => x.TypeTwoForWeaponSet = parser.ParseEnum<ObjectKinds>() },
+                { "TypeOneForWeaponState", (parser, x) => x.TypeOneForWeaponState = parser.ParseEnum<ObjectKinds>() },
+                { "TypeTwoForWeaponState", (parser, x) => x.TypeTwoForWeaponState = parser.ParseEnum<ObjectKinds>() },
+                { "PassengerBonePrefix", (parser, x) => x.PassengerBonePrefixes.Add(PassengerBonePrefix.Parse(parser)) },
             });
 
         public bool PassengersAllowedToFire { get; private set; }
@@ -60,5 +69,36 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool DelayExitInAir { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public ObjectFilter PassengerFilter { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public bool ShowPips { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public ObjectKinds TypeOneForWeaponSet { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public ObjectKinds TypeTwoForWeaponSet { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public ObjectKinds TypeOneForWeaponState { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public ObjectKinds TypeTwoForWeaponState { get; private set; }
+        [AddedIn(SageGame.Bfme)]
+        public List<PassengerBonePrefix> PassengerBonePrefixes { get; } = new List<PassengerBonePrefix>();
+    }
+
+    public sealed class PassengerBonePrefix
+    {
+        internal static PassengerBonePrefix Parse(IniParser parser)
+        {
+            var result = new PassengerBonePrefix();
+            result.BoneName = parser.ParseAttribute("PassengerBone", parser.ScanBoneName);
+            result.ObjectKind = parser.ParseAttributeEnum<ObjectKinds>("KindOf");
+            return result;
+        }
+
+        public string BoneName { get; private set; }
+        public ObjectKinds ObjectKind { get; private set; }
     }
 }

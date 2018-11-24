@@ -11,6 +11,8 @@ namespace OpenSage.Logic.Object
         private static readonly Dictionary<string, Func<IniParser, BodyModuleData>> BodyParseTable = new Dictionary<string, Func<IniParser, BodyModuleData>>
         {
             { "ActiveBody", ActiveBodyModuleData.Parse },
+            { "DelayedDeathBody", DelayedDeathBodyModuleData.Parse },
+            { "DetachableRiderBody", DetachableRiderBodyModuleData.Parse },
             { "HighlanderBody", HighlanderBodyModuleData.Parse },
             { "HiveStructureBody", HiveStructureBodyModuleData.Parse },
             { "ImmortalBody", ImmortalBodyModuleData.Parse },
