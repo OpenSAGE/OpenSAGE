@@ -1,4 +1,5 @@
 ﻿using OpenSage.Content;
+using Veldrid;
 
 namespace OpenSage.Graphics.Effects
 {
@@ -8,6 +9,11 @@ namespace OpenSage.Graphics.Effects
             : base(contentManager, effect)
         {
             
+        }
+
+        public void SetMaterialConstants(DeviceBuffer buffer)
+        {
+            SetProperty("MaterialConstants", buffer);
         }
     }
 }

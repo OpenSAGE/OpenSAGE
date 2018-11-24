@@ -16,9 +16,9 @@ namespace OpenSage.Tests.Data.StreamFS
         [GameFact(SageGame.Cnc3, SageGame.Cnc3KanesWrath, SageGame.Ra3, SageGame.Ra3Uprising, SageGame.Cnc4)]
         public void CanReadManifestFiles()
         {
-            InstalledFilesTestData.ReadFiles(".manifest", _output, entry =>
+            InstalledFilesTestData.ReadFiles(".manifest", _output, (game, entry) =>
             {
-                var gameStream = new GameStream(entry);
+                var gameStream = new GameStream(entry, game);
 
                 Assert.NotNull(gameStream);
             });

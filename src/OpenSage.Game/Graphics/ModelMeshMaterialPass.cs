@@ -15,9 +15,12 @@ namespace OpenSage.Graphics
             MeshVertex.TexCoords[] texCoords,
             IReadOnlyList<ModelMeshPart> meshParts)
         {
-            TexCoordVertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
-                texCoords,
-                BufferUsage.VertexBuffer));
+            if (texCoords != null)
+            {
+                TexCoordVertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
+                    texCoords,
+                    BufferUsage.VertexBuffer));
+            }
 
             MeshParts = meshParts;
         }

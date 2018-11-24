@@ -602,6 +602,7 @@ namespace OpenSage.Content
             return graphicsDevice.CreateStaticTexture2D(
                 (uint) heightMap.Width,
                 (uint) heightMap.Height,
+                1u,
                 new TextureMipMapData(
                     textureIDsByteArray,
                     rowPitch,

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Text;
 using OpenSage.Data.Utilities.Extensions;
 
@@ -130,6 +132,26 @@ namespace OpenSage.Data.StreamFS
         {
             InstanceDataIndex = instanceDataIndex;
             ImportedAsset = importedAsset;
+        }
+    }
+
+    public sealed class AssetImportCollection : ReadOnlyCollection<AssetImport>
+    {
+        public AssetImportCollection(IList<AssetImport> list)
+            : base(list)
+        {
+        }
+
+        public T GetImportedData<T>(BinaryReader reader)
+        {
+            var position = reader.BaseStream.Position;
+
+            // I thought this might be the import index, but doesn't seem so.
+            var unknown = reader.ReadUInt32();
+            
+            var import = this.First(x => x.InstanceDataIndex == position);
+
+            return (T) import.ImportedAsset?.InstanceData;
         }
     }
 

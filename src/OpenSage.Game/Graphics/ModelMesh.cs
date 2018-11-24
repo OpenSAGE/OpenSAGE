@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
@@ -46,7 +47,7 @@ namespace OpenSage.Graphics
         internal ModelMesh(
             GraphicsDevice graphicsDevice,
             string name,
-            MeshVertex.Basic[] vertices,
+            ReadOnlySpan<byte> vertexData,
             ushort[] indices,
             Effect effect,
             ModelMeshMaterialPass[] materialPasses,
@@ -71,9 +72,7 @@ namespace OpenSage.Graphics
 
             _effect = effect;
 
-            _vertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
-                vertices,
-                BufferUsage.VertexBuffer));
+            _vertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(vertexData, BufferUsage.VertexBuffer));
 
             _indexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
                 indices,

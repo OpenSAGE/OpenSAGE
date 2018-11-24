@@ -6,7 +6,7 @@
         Float = 2,
         Vector2 = 3,
         Vector3 = 4,
-        Color = 5,
+        Vector4 = 5,
         Int = 6,
         Bool = 7
     }

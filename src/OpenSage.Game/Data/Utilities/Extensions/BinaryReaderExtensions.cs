@@ -409,6 +409,21 @@ namespace OpenSage.Data.Utilities.Extensions
             return str;
         }
 
+        public static string ReadUInt32PrefixedAsciiStringAtOffset(this BinaryReader reader)
+        {
+            var length = reader.ReadUInt32();
+
+            var stringOffset = reader.ReadUInt32();
+            var oldOffset = reader.BaseStream.Position;
+
+            reader.BaseStream.Seek(stringOffset, SeekOrigin.Begin);
+            var str = Encoding.ASCII.GetString(reader.ReadBytes((int) length));
+            reader.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
+
+            return str;
+        }
+
+        // TODO: remove this in favour of ReadArrayAtOffset
         public static List<T> ReadListAtOffset<T>(this BinaryReader reader, Func<T> creator, bool ptr = false)
         {
             var capacity = reader.ReadInt32();
@@ -454,6 +469,89 @@ namespace OpenSage.Data.Utilities.Extensions
             return result;
         }
 
+        public static T[] ReadArrayAtOffset<T>(this BinaryReader reader, Func<T> creator, bool ptr = false)
+        {
+            var capacity = reader.ReadInt32();
+            var result = new T[capacity];
+
+            //get the offset
+            var listOffset = reader.ReadUInt32();
+            var oldOffset = reader.BaseStream.Position;
+
+            //jump to the location and read the data
+            reader.BaseStream.Seek(listOffset, SeekOrigin.Begin);
+
+            for (var i = 0; i < capacity; i++)
+            {
+                T item = default(T);
+                if (!ptr)
+                {
+                    item = creator();
+                }
+                else
+                {
+                    //read the adress of the object first
+                    var itemOffset = reader.ReadUInt32();
+
+                    //if offset is 0 this item must be null
+                    if (!itemOffset.Equals(0))
+                    {
+                        var oldOffset2 = reader.BaseStream.Position;
+
+                        //jump to the location and read the data
+                        reader.BaseStream.Seek(itemOffset, SeekOrigin.Begin);
+                        item = creator();
+
+                        reader.BaseStream.Seek(oldOffset2, SeekOrigin.Begin);
+                    }
+                }
+
+                result[i] = item;
+            }
+
+            //jump back to where we came from
+            reader.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
+            return result;
+        }
+
+        public static void ReadAtOffset(this BinaryReader reader, Action callback)
+        {
+            //get the offset
+            var listOffset = reader.ReadUInt32();
+            var oldOffset = reader.BaseStream.Position;
+            
+            //jump to the location and read the data
+            reader.BaseStream.Seek(listOffset, SeekOrigin.Begin);
+
+            callback();
+
+            //jump back to where we came from
+            reader.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
+        }
+
+        public static T ReadAtOffset<T>(this BinaryReader reader, Func<T> callback)
+        {
+            //get the offset
+            var listOffset = reader.ReadUInt32();
+
+            if (listOffset == 0)
+            {
+                return default(T);
+            }
+
+            var oldOffset = reader.BaseStream.Position;
+
+            //jump to the location and read the data
+            reader.BaseStream.Seek(listOffset, SeekOrigin.Begin);
+
+            var result = callback();
+
+            //jump back to where we came from
+            reader.BaseStream.Seek(oldOffset, SeekOrigin.Begin);
+
+            return result;
+        }
+
         public static List<T> ReadFixedSizeListAtOffset<T>(this BinaryReader reader, Func<T> creator, uint size) where T : class
         {
             List<T> result = new List<T>((int)size);
@@ -476,7 +574,7 @@ namespace OpenSage.Data.Utilities.Extensions
             return result;
         }
 
-        public static T[] ReadFixedSizeArrayAtOffset<T>(this BinaryReader reader, Func<T> creator, uint size) where T : struct
+        public static T[] ReadFixedSizeArrayAtOffset<T>(this BinaryReader reader, Func<T> creator, uint size)
         {
             var arr = new T[size];
 

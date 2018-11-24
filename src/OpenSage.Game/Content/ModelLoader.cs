@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using OpenSage.Content.Util;
 using OpenSage.Data;
 using OpenSage.Data.W3d;
@@ -191,7 +192,7 @@ namespace OpenSage.Content
             return new ModelMesh(
                 contentManager.GraphicsDevice,
                 w3dMesh.Header.MeshName,
-                CreateVertices(w3dMesh, isSkinned),
+                MemoryMarshal.AsBytes(new ReadOnlySpan<MeshVertex.Basic>(CreateVertices(w3dMesh, isSkinned))),
                 CreateIndices(w3dMesh),
                 effect,
                 materialPasses,
@@ -297,11 +298,11 @@ namespace OpenSage.Content
 
         private static ushort[] CreateIndices(W3dMesh w3dMesh)
         {
-            var numIndices = (uint) w3dMesh.Triangles.Length * 3;
-            var indices = new ushort[numIndices];
+            var triangles = w3dMesh.Triangles.AsSpan();
+            var indices = new ushort[(uint) triangles.Length * 3];
 
             var indexIndex = 0;
-            foreach (var triangle in w3dMesh.Triangles)
+            foreach (ref readonly var triangle in triangles)
             {
                 indices[indexIndex++] = (ushort) triangle.VIndex0;
                 indices[indexIndex++] = (ushort) triangle.VIndex1;
@@ -344,33 +345,7 @@ namespace OpenSage.Content
                     RenderPipeline.GameOutputDescription)
             };
 
-            var materialConstantsType = effect.GetParameter("MaterialConstants").ResourceBinding.Type;
-            var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateBuffer(
-                new BufferDescription(
-                    materialConstantsType.Size,
-                    BufferUsage.UniformBuffer | BufferUsage.Dynamic)));
-
-            var materialConstantsBytes = new byte[materialConstantsType.Size];
-
-            void setMaterialConstant<T>(string name, T value)
-                where T : struct
-            {
-                var constantBufferField = materialConstantsType.GetMember(name);
-
-                var valueBytes = StructInteropUtility.ToBytes(ref value);
-
-                if (valueBytes.Length != constantBufferField.Size)
-                {
-                    throw new InvalidOperationException();
-                }
-
-                Buffer.BlockCopy(
-                    valueBytes,
-                    0,
-                    materialConstantsBytes,
-                    (int) constantBufferField.Offset,
-                    (int) constantBufferField.Size);
-            }
+            var materialConstantsBuilder = new ShaderMaterialConstantsBuilder(effect);
 
             foreach (var w3dShaderProperty in w3dShaderMaterial.Properties)
             {
@@ -382,27 +357,27 @@ namespace OpenSage.Content
                         break;
 
                     case W3dShaderMaterialPropertyType.Bool:
-                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Bool);
-                        break;
-
-                    case W3dShaderMaterialPropertyType.Color:
-                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Color);
+                        materialConstantsBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Bool);
                         break;
 
                     case W3dShaderMaterialPropertyType.Float:
-                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Float);
+                        materialConstantsBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Float);
                         break;
 
                     case W3dShaderMaterialPropertyType.Vector2:
-                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector2);
+                        materialConstantsBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector2);
                         break;
 
                     case W3dShaderMaterialPropertyType.Vector3:
-                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector3);
+                        materialConstantsBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector3);
+                        break;
+
+                    case W3dShaderMaterialPropertyType.Vector4:
+                        materialConstantsBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector4);
                         break;
 
                     case W3dShaderMaterialPropertyType.Int:
-                        setMaterialConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Int);
+                        materialConstantsBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Int);
                         break;
 
                     default:
@@ -410,8 +385,7 @@ namespace OpenSage.Content
                 }
             }
 
-            contentManager.GraphicsDevice.UpdateBuffer(materialConstantsBuffer, 0, materialConstantsBytes);
-            material.SetProperty("MaterialConstants", materialConstantsBuffer);
+            material.SetMaterialConstants(AddDisposable(materialConstantsBuilder.CreateBuffer()));
 
             meshParts.Add(new ModelMeshPart(
                 0,

@@ -81,11 +81,25 @@ namespace OpenSage.Content
             IniDataContext = new IniDataContext(fileSystem, sageGame);
 
             SubsystemLoader = Content.SubsystemLoader.Create(game.Definition, _fileSystem, IniDataContext);
-            SubsystemLoader.Load(Subsystem.Core);
 
-            // TODO: Move this somewhere else.
-            // Subsystem.Core should load mouse config, but that isn't the case with at least BFME2.
-            IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
+            switch (sageGame)
+            {
+                // Only load these INI files for a subset of games, because we can't parse them for others yet.
+                case SageGame.CncGenerals:
+                case SageGame.CncGeneralsZeroHour:
+                case SageGame.Bfme:
+                case SageGame.Bfme2:
+                case SageGame.Bfme2Rotwk:
+                    SubsystemLoader.Load(Subsystem.Core);
+
+                    // TODO: Move this somewhere else.
+                    // Subsystem.Core should load mouse config, but that isn't the case with at least BFME2.
+                    IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
+
+                    break;
+                default:
+                    break;
+            }
 
             // TODO: Defer subsystem loading until necessary
             switch (sageGame)
@@ -97,10 +111,6 @@ namespace OpenSage.Content
                     SubsystemLoader.Load(Subsystem.ParticleSystems);
                     SubsystemLoader.Load(Subsystem.ObjectCreation);
                     SubsystemLoader.Load(Subsystem.Multiplayer);
-                    break;
-                case SageGame.Bfme:
-                case SageGame.Bfme2:
-                case SageGame.Bfme2Rotwk:
                     break;
                 default:
                     break;
@@ -143,8 +153,7 @@ namespace OpenSage.Content
             _cachedNullStructuredBuffers = new Dictionary<uint, DeviceBuffer>();
 
             SolidWhiteTexture = AddDisposable(graphicsDevice.CreateStaticTexture2D(
-                1,
-                1,
+                1, 1, 1,
                 new TextureMipMapData(
                     new byte[] { 255, 255, 255, 255 },
                     4, 4, 1, 1),

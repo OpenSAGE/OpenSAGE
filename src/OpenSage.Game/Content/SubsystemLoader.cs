@@ -224,10 +224,19 @@ namespace OpenSage.Content
             switch (gameDefinition.Game)
             {
                 case SageGame.CncGenerals:
-                case SageGame.CncGeneralsZeroHour: return new GeneralsSubsystemLoader(iniDataContext);
+                case SageGame.CncGeneralsZeroHour:
+                    return new GeneralsSubsystemLoader(iniDataContext);
 
-                // TODO: Do all the other games use configured subsystems?
-                default: return new ConfiguredSubsystemLoader(gameDefinition, fileSystem, iniDataContext);
+                case SageGame.Bfme:
+                case SageGame.Bfme2:
+                case SageGame.Bfme2Rotwk:
+                case SageGame.Cnc3:
+                case SageGame.Cnc3KanesWrath:
+                    return new ConfiguredSubsystemLoader(gameDefinition, fileSystem, iniDataContext);
+
+                default:
+                    // TODO: Implement subsystem loader for new XML-based format used in RA3 and beyond.
+                    return null;
             }
         }
     }
