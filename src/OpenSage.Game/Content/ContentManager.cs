@@ -168,7 +168,8 @@ namespace OpenSage.Content
                     new BufferDescription(
                         size,
                         BufferUsage.StructuredBufferReadOnly,
-                        size))));
+                        size,
+                        true))));
             }
             return result;
         }

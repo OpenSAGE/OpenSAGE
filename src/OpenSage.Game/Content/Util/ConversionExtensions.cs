@@ -127,7 +127,7 @@ namespace OpenSage.Content.Util
                 },
                 Speed = args.Speed,
                 Fps = args.FPS,
-                Log2Width = (uint) args.Log2Width
+                Log2Width = args.Log2Width
             };
         }
 

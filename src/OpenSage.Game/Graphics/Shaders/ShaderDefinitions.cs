@@ -12,14 +12,25 @@ namespace OpenSage.Graphics.Shaders
         {
             if (!Cache.TryGetValue(name, out var result))
             {
-                using (var jsonStream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"OpenSage.Graphics.Shaders.Config.{name}.json"))
-                using (var jsonStreamReader = new StreamReader(jsonStream))
-                {
-                    result = ShaderDefinition.FromJson(jsonStreamReader.ReadToEnd());
-                }
+                var vertJson = ReadJson(name, "vert");
+                var fragJson = ReadJson(name, "frag");
+
+                result = ShaderDefinition.FromJson(vertJson, fragJson);
+
                 Cache.Add(name, result);
             }
             return result;
+        }
+
+        private static string ReadJson(string name, string type)
+        {
+            var resourceName = $"OpenSage.Assets.Shaders.{name}.{type}.json";
+
+            using (var jsonStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
+            using (var jsonStreamReader = new StreamReader(jsonStream))
+            {
+                return jsonStreamReader.ReadToEnd();
+            }
         }
     }
 }

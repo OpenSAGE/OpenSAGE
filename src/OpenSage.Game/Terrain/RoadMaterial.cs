@@ -8,6 +8,8 @@ namespace OpenSage.Terrain
 {
     public sealed class RoadMaterial : EffectMaterial
     {
+        public override LightingType LightingType => LightingType.Terrain;
+
         public RoadMaterial(ContentManager contentManager, Effect effect)
             : base(contentManager, effect)
         {

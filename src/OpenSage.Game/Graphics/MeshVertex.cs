@@ -26,8 +26,8 @@ namespace OpenSage.Graphics
         public static readonly VertexLayoutDescription[] VertexDescriptors = new[]
         {
             new VertexLayoutDescription(
-                new VertexElementDescription("POSITION", VertexElementSemantic.Position, VertexElementFormat.Float3),
-                new VertexElementDescription("NORMAL", VertexElementSemantic.Normal, VertexElementFormat.Float3),
+                new VertexElementDescription("POSITION", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+                new VertexElementDescription("NORMAL", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
                 new VertexElementDescription("TANGENT", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
                 new VertexElementDescription("BINORMAL", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
                 new VertexElementDescription("BLENDINDICES", VertexElementSemantic.TextureCoordinate, VertexElementFormat.UInt1)),

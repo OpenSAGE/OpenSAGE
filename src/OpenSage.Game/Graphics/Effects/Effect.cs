@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
+using Veldrid.SPIRV;
 
 namespace OpenSage.Graphics.Effects
 {
@@ -45,49 +45,44 @@ namespace OpenSage.Graphics.Effects
 
             ID = _nextID++;
 
-            var shaderBytecodeExtension = GetBytecodeExtension(graphicsDevice.BackendType);
-            var shaderTextExtension = GetTextExtension(graphicsDevice.BackendType);
-            var resources = typeof(Effect).Assembly.GetManifestResourceNames();
-
-            Shader CreateShader(ShaderStages shaderStage, string entryPoint)
-            {
-                var basename = $"OpenSage.Graphics.Shaders.Compiled.{shaderName}-{shaderStage.ToString().ToLowerInvariant()}";
-                var bytecodeShaderName = basename + shaderBytecodeExtension;
-                var textShaderName = basename + shaderTextExtension;
-                Stream shaderStream = null;
-
-                //Check if we have a binary shader
-                if (Array.Find(resources, s => s.Equals(bytecodeShaderName)) != null)
-                {
-                    shaderStream = typeof(Effect).Assembly.GetManifestResourceStream(bytecodeShaderName);
-                }
-                //We only have a text shader
-                else
-                {
-                    shaderStream = typeof(Effect).Assembly.GetManifestResourceStream(textShaderName);
-                }
-
 #if DEBUG
-                const bool debug = true;
+            const bool debug = true;
 #else
-                const bool debug = false;
+            const bool debug = false;
 #endif
 
-                var shaderBytes = shaderStream.ReadAllBytes();
-                shaderStream.Dispose();
-                var shader = graphicsDevice.ResourceFactory.CreateShader(new ShaderDescription(shaderStage, shaderBytes, entryPoint, debug));
-                shader.Name = shaderName;
-                return shader;
+            ShaderDefinition shaderDefinition;
+
+            var resources = typeof(Effect).Assembly.GetManifestResourceNames();
+
+            byte[] ReadShader(string shaderType)
+            {
+                var bytecodeShaderName = $"OpenSage.Assets.Shaders.{shaderName}.{shaderType}.spv";
+                using (var shaderStream = typeof(Effect).Assembly.GetManifestResourceStream(bytecodeShaderName))
+                {
+                    return shaderStream.ReadAllBytes();
+                }
             }
 
-            _vertexShader = AddDisposable(CreateShader(ShaderStages.Vertex, "VS"));
-            _pixelShader = AddDisposable(CreateShader(ShaderStages.Fragment, "PS"));
+            var vsBytes = ReadShader("vert");
+            var fsBytes = ReadShader("frag");
+
+            var shaders = graphicsDevice.ResourceFactory.CreateFromSpirv(
+                new ShaderDescription(ShaderStages.Vertex, vsBytes, "main", debug),
+                new ShaderDescription(ShaderStages.Fragment, fsBytes, "main", debug),
+                new CrossCompileOptions());
+
+            _vertexShader = AddDisposable(shaders[0]);
+            _pixelShader = AddDisposable(shaders[1]);
+
+            _vertexShader.Name = $"{shaderName}.vert";
+            _pixelShader.Name = $"{shaderName}.frag";
+
+            shaderDefinition = ShaderDefinitions.GetShaderDefinition(shaderName);
 
             _cachedPipelineStates = new Dictionary<EffectPipelineStateHandle, Pipeline>();
 
             _vertexDescriptors = vertexDescriptors;
-
-            var shaderDefinition = ShaderDefinitions.GetShaderDefinition(shaderName);
 
             _parameters = new Dictionary<string, EffectParameter>();
             _resourceLayouts = new ResourceLayout[shaderDefinition.ResourceBindings.Count];
@@ -97,7 +92,7 @@ namespace OpenSage.Graphics.Effects
                 var resourceBinding = shaderDefinition.ResourceBindings[(int) i];
                 var resourceLayoutDescription = new ResourceLayoutElementDescription(
                     resourceBinding.Name,
-                    resourceBinding.Type,
+                    resourceBinding.Kind,
                     resourceBinding.Stages);
 
                 var parameter = AddDisposable(new EffectParameter(
@@ -108,30 +103,6 @@ namespace OpenSage.Graphics.Effects
 
                 _parameters[parameter.Name] = parameter;
                 _resourceLayouts[i] = parameter.ResourceLayout;
-            }
-        }
-
-        private static string GetBytecodeExtension(GraphicsBackend backend)
-        {
-            switch (backend)
-            {
-                case GraphicsBackend.Direct3D11: return ".hlsl.bytes";
-                case GraphicsBackend.Metal: return ".metallib";
-                case GraphicsBackend.Vulkan: return ".450.glsl.spv";
-                case GraphicsBackend.OpenGL: return ".330.glsl";
-                default: throw new InvalidOperationException("Invalid Graphics backend: " + backend);
-            }
-        }
-
-        private static string GetTextExtension(GraphicsBackend backend)
-        {
-            switch (backend)
-            {
-                case GraphicsBackend.Direct3D11: return ".hlsl";
-                case GraphicsBackend.Metal: return ".metal";
-                case GraphicsBackend.Vulkan: return ".450.glsl";
-                case GraphicsBackend.OpenGL: return ".330.glsl";
-                default: throw new InvalidOperationException("Invalid Graphics backend: " + backend);
             }
         }
 

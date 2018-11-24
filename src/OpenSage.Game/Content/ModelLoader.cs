@@ -344,18 +344,18 @@ namespace OpenSage.Content
                     RenderPipeline.GameOutputDescription)
             };
 
-            var materialConstantsResourceBinding = effect.GetParameter("MaterialConstants").ResourceBinding;
+            var materialConstantsType = effect.GetParameter("MaterialConstants").ResourceBinding.Type;
             var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateBuffer(
                 new BufferDescription(
-                    materialConstantsResourceBinding.Size,
+                    materialConstantsType.Size,
                     BufferUsage.UniformBuffer | BufferUsage.Dynamic)));
 
-            var materialConstantsBytes = new byte[materialConstantsResourceBinding.Size];
+            var materialConstantsBytes = new byte[materialConstantsType.Size];
 
             void setMaterialConstant<T>(string name, T value)
                 where T : struct
             {
-                var constantBufferField = materialConstantsResourceBinding.GetField(name);
+                var constantBufferField = materialConstantsType.GetMember(name);
 
                 var valueBytes = StructInteropUtility.ToBytes(ref value);
 
@@ -368,8 +368,8 @@ namespace OpenSage.Content
                     valueBytes,
                     0,
                     materialConstantsBytes,
-                    constantBufferField.Offset,
-                    constantBufferField.Size);
+                    (int) constantBufferField.Offset,
+                    (int) constantBufferField.Size);
             }
 
             foreach (var w3dShaderProperty in w3dShaderMaterial.Properties)
@@ -697,7 +697,7 @@ namespace OpenSage.Content
             var blendState = new BlendStateDescription(
                 RgbaFloat.White,
                 new BlendAttachmentDescription(
-                    w3dShader.SrcBlend != W3dShaderSrcBlendFunc.One || w3dShader.DestBlend != W3dShaderDestBlendFunc.Zero,
+                    (w3dShader.SrcBlend != W3dShaderSrcBlendFunc.One || w3dShader.DestBlend != W3dShaderDestBlendFunc.Zero),
                     w3dShader.SrcBlend.ToBlend(),
                     w3dShader.DestBlend.ToBlend(false),
                     BlendFunction.Add,
@@ -719,7 +719,7 @@ namespace OpenSage.Content
                 {
                     Material = vertexMaterials[vertexMaterialID],
                     Shading = shadingConfigurations[shaderID],
-                    NumTextureStages = numTextureStages
+                    NumTextureStages = (int)numTextureStages
                 },
                 BufferUsage.UniformBuffer));
 
