@@ -7,13 +7,11 @@ namespace OpenSage.Data.StreamFS.AssetReaders
     {
         public GraphicsDevice GraphicsDevice { get; }
         public EffectLibrary EffectLibrary { get; }
-        public SageGame Game { get; }
 
         public AssetParseContext(Game game)
         {
             GraphicsDevice = game.GraphicsDevice;
             EffectLibrary = game.ContentManager.EffectLibrary;
-            Game = game.SageGame;
         }
     }
 }

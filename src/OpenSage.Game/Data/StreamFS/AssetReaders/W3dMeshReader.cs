@@ -18,7 +18,7 @@ namespace OpenSage.Data.StreamFS.AssetReaders
 
         public override object Parse(Asset asset, BinaryReader reader, AssetImportCollection imports, AssetParseContext context)
         {
-            return W3xMesh.Parse(reader, imports, context);
+            return W3xMesh.Parse(reader, imports, asset.Header);
 
             //var effectName = shaderName.Replace(".fx", string.Empty);
 

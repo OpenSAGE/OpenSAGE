@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Numerics;
+using OpenSage.Data.StreamFS;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3x
@@ -12,20 +13,17 @@ namespace OpenSage.Data.W3x
         public Vector3 Translation { get; private set; }
         public Quaternion Rotation { get; private set; }
 
-        public static W3xPivot Parse(BinaryReader reader, SageGame game)
+        public static W3xPivot Parse(BinaryReader reader, AssetEntry header)
         {
             string name = null;
             uint? nameID = null;
-            switch (game)
+            switch (header.TypeHash)
             {
-                case SageGame.Cnc3:
-                case SageGame.Cnc3KanesWrath:
+                case 1002596986u: // Cnc3
                     name = reader.ReadUInt32PrefixedAsciiStringAtOffset();
                     break;
 
-                case SageGame.Ra3:
-                case SageGame.Ra3Uprising:
-                case SageGame.Cnc4:
+                case 3985956449u: // Ra3
                     nameID = reader.ReadUInt32();
                     break;
 

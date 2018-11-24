@@ -9,7 +9,7 @@ namespace OpenSage.Data.StreamFS.AssetReaders
 
         public override object Parse(Asset asset, BinaryReader reader, AssetImportCollection imports, AssetParseContext context)
         {
-            return W3xHierarchy.Parse(reader, context.Game);
+            return W3xHierarchy.Parse(reader, asset.Header);
         }
     }
 }

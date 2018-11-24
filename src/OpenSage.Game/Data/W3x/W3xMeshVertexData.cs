@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using OpenSage.Data.StreamFS.AssetReaders;
+using OpenSage.Data.StreamFS;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3x
@@ -13,7 +13,7 @@ namespace OpenSage.Data.W3x
         public VertexDescription VertexDescription { get; private set; }
         public ushort[] BoneNumbers { get; private set; }
 
-        internal static W3xMeshVertexData Parse(BinaryReader reader, AssetParseContext context)
+        internal static W3xMeshVertexData Parse(BinaryReader reader, AssetEntry header)
         {
             var vertexCount = reader.ReadUInt32();
             var vertexSize = reader.ReadUInt32();
@@ -25,16 +25,14 @@ namespace OpenSage.Data.W3x
                 VertexData = reader.ReadAtOffset(() => reader.ReadBytes((int) (vertexCount * vertexSize)))
             };
 
-            switch (context.Game)
+            switch (header.TypeHash)
             {
-                case SageGame.Cnc3:
-                case SageGame.Cnc3KanesWrath:
+                case 3386369912u: // Cnc3
+                case 1750982594u: // Cnc3KanesWrath - not sure what changed
                     result.VertexDescription = D3d9VertexDescription.Parse(reader);
                     break;
 
-                case SageGame.Ra3:
-                case SageGame.Ra3Uprising:
-                case SageGame.Cnc4:
+                case 3448375452u: // Ra3 and above
                     result.VertexDescription = RnaVertexDescription.Parse(reader);
                     break;
 

@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using OpenSage.Data.StreamFS;
-using OpenSage.Data.StreamFS.AssetReaders;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.Mathematics;
 
@@ -19,11 +18,11 @@ namespace OpenSage.Data.W3x
         public bool CastShadow { get; private set; }
         public byte SortLevel { get; private set; }
 
-        internal static W3xMesh Parse(BinaryReader reader, AssetImportCollection imports, AssetParseContext context)
+        internal static W3xMesh Parse(BinaryReader reader, AssetImportCollection imports, AssetEntry header)
         {
             var result = new W3xMesh
             {
-                VertexData = reader.ReadAtOffset(() => W3xMeshVertexData.Parse(reader, context)),
+                VertexData = reader.ReadAtOffset(() => W3xMeshVertexData.Parse(reader, header)),
                 GeometryType = reader.ReadUInt32AsEnum<MeshGeometryType>(),
                 BoundingBox = new BoundingBox(reader.ReadVector3(), reader.ReadVector3())
             };
