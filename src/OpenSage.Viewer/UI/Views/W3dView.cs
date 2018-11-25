@@ -46,7 +46,7 @@ namespace OpenSage.Viewer.UI.Views
             var enclosingBoundingBox = GetEnclosingBoundingBox(modelInstance);
 
             var cameraController = new ArcballCameraController(
-                BoundingBox.GetCenter(enclosingBoundingBox),
+                enclosingBoundingBox.GetCenter(),
                 Vector3.Distance(enclosingBoundingBox.Min, enclosingBoundingBox.Max));
 
             game.Scene3D = new Scene3D(

@@ -3,10 +3,10 @@ using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
-    public struct Ray
+    public readonly struct Ray
     {
-        public Vector3 Position;
-        public Vector3 Direction;
+        public readonly Vector3 Position;
+        public readonly Vector3 Direction;
 
         public Ray(in Vector3 position, in Vector3 direction)
         {
@@ -75,15 +75,15 @@ namespace OpenSage.Mathematics
             return true;
         }
 
-        public static float? Intersects(in Ray ray, in Plane plane)
+        public float? Intersects(in Plane plane)
         {
-            var den = Vector3.Dot(ray.Direction, plane.Normal);
+            var den = Vector3.Dot(Direction, plane.Normal);
             if (Math.Abs(den) < 0.00001f)
             {
                 return null;
             }
 
-            var result = (-plane.D - Vector3.Dot(plane.Normal, ray.Position)) / den;
+            var result = (-plane.D - Vector3.Dot(plane.Normal, Position)) / den;
 
             if (result < 0.0f)
             {
@@ -113,8 +113,7 @@ namespace OpenSage.Mathematics
         /// developed by Tomas Moller and Ben Trumbore, which was published in the
         /// Journal of Graphics Tools, volume 2, "Fast, Minimum Storage Ray-Triangle
         /// Intersection".
-        public static bool Intersects(
-            in Ray ray,
+        public bool Intersects(
             in Triangle triangle,
             out float? result)
         {
@@ -123,7 +122,7 @@ namespace OpenSage.Mathematics
             var edge2 = Vector3.Subtract(triangle.V2, triangle.V0);
 
             // Compute the determinant.
-            var directionCrossEdge2 = Vector3.Cross(ray.Direction, edge2);
+            var directionCrossEdge2 = Vector3.Cross(Direction, edge2);
 
             var determinant = Vector3.Dot(edge1, directionCrossEdge2);
 
@@ -137,7 +136,7 @@ namespace OpenSage.Mathematics
             float inverseDeterminant = 1.0f / determinant;
 
             // Calculate the U parameter of the intersection point.
-            var distanceVector = Vector3.Subtract(ray.Position, triangle.V0);
+            var distanceVector = Vector3.Subtract(Position, triangle.V0);
 
             var triangleU = Vector3.Dot(distanceVector, directionCrossEdge2);
             triangleU *= inverseDeterminant;
@@ -152,7 +151,7 @@ namespace OpenSage.Mathematics
             // Calculate the V parameter of the intersection point.
             var distanceCrossEdge1 = Vector3.Cross(distanceVector, edge1);
 
-            var triangleV = Vector3.Dot(ray.Direction, distanceCrossEdge1);
+            var triangleV = Vector3.Dot(Direction, distanceCrossEdge1);
             triangleV *= inverseDeterminant;
 
             // Make sure it is inside the triangle.

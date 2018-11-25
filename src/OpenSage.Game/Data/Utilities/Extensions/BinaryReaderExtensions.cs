@@ -662,13 +662,11 @@ namespace OpenSage.Data.Utilities.Extensions
 
         public static Matrix2x2 ReadMatrix2x2(this BinaryReader reader)
         {
-            return new Matrix2x2()
-            {
-                M11 = reader.ReadSingle(),
-                M12 = reader.ReadSingle(),
-                M21 = reader.ReadSingle(),
-                M22 = reader.ReadSingle()
-            };
+            return new Matrix2x2(
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle());
         }
     }
 }

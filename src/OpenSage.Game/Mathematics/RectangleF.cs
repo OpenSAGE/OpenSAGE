@@ -6,27 +6,27 @@ namespace OpenSage.Mathematics
     /// <summary>
     /// Describes a floating-point rectangle.
     /// </summary>
-    public struct RectangleF
+    public readonly struct RectangleF
     {
         /// <summary>
-        /// Gets or sets the x component of the <see cref="RectangleF"/>.
+        /// Gets the x component of the <see cref="RectangleF"/>.
         /// </summary>
-        public float X;
+        public readonly float X;
 
         /// <summary>
-        /// Gets or sets the x component of the <see cref="RectangleF"/>.
+        /// Gets the x component of the <see cref="RectangleF"/>.
         /// </summary>
-        public float Y;
+        public readonly float Y;
 
         /// <summary>
-        /// Gets or sets the width of the <see cref="RectangleF"/>.
+        /// Gets the width of the <see cref="RectangleF"/>.
         /// </summary>
-        public float Width;
+        public readonly float Width;
 
         /// <summary>
-        /// Gets or sets the height of the <see cref="RectangleF"/>.
+        /// Gets the height of the <see cref="RectangleF"/>.
         /// </summary>
-        public float Height;
+        public readonly float Height;
 
         public SizeF Size => new SizeF(Width, Height);
 
@@ -134,21 +134,26 @@ namespace OpenSage.Mathematics
             return new RectangleF(position.X, position.Y, size.X, size.Y);
         }
 
-        public static bool Contains(in RectangleF rectangle, in Point2D point)
+        public bool Contains(in Point2D point)
         {
-            return point.X >= rectangle.X
-                && point.X <= rectangle.Right
-                && point.Y >= rectangle.Y
-                && point.Y <= rectangle.Bottom;
+            return point.X >= X
+                && point.X <= Right
+                && point.Y >= Y
+                && point.Y <= Bottom;
         }
 
-        public static bool IntersectsWith(in RectangleF rectangle, in RectangleF rect)
+        public bool IntersectsWith(in RectangleF rect)
         {
             return
-                (rect.Left <= rectangle.Right) &&
-                (rect.Right >= rectangle.Left) &&
-                (rect.Top <= rectangle.Bottom) &&
-                (rect.Bottom >= rectangle.Top);
+                (rect.Left <= Right) &&
+                (rect.Right >= Left) &&
+                (rect.Top <= Bottom) &&
+                (rect.Bottom >= Top);
+        }
+
+        public RectangleF WithY(float y)
+        {
+            return new RectangleF(X, y, Width, Height);
         }
     }
 }

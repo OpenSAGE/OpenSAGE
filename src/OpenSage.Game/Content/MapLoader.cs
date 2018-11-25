@@ -536,20 +536,16 @@ namespace OpenSage.Content
                 for (var x = 0; x < patchBounds.Width - 1; x++)
                 {
                     // Triangle 1
-                    triangles[triangleIndex++] = new Triangle
-                    {
-                        V0 = points[indices[indexIndex++]],
-                        V1 = points[indices[indexIndex++]],
-                        V2 = points[indices[indexIndex++]]
-                    };
+                    triangles[triangleIndex++] = new Triangle(
+                        points[indices[indexIndex++]],
+                        points[indices[indexIndex++]],
+                        points[indices[indexIndex++]]);
 
                     // Triangle 2
-                    triangles[triangleIndex++] = new Triangle
-                    {
-                        V0 = points[indices[indexIndex++]],
-                        V1 = points[indices[indexIndex++]],
-                        V2 = points[indices[indexIndex++]]
-                    };
+                    triangles[triangleIndex++] = new Triangle(
+                        points[indices[indexIndex++]],
+                        points[indices[indexIndex++]],
+                        points[indices[indexIndex++]]);
                 }
             }
 

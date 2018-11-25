@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Apt.ActionScript.Library
@@ -16,7 +14,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
         {
             //list of builtin functions
             _builtinFunctions = new Dictionary<string, Action<ObjectContext, Value[]>>();
-            _builtinFunctions["setRGB"] = (ObjectContext ctx, Value[] args) => { _color.FromHex(args.First().ToString()); };
+            _builtinFunctions["setRGB"] = (ObjectContext ctx, Value[] args) => { _color = ColorRgba.FromHex(_color, args.First().ToString()); };
         }
 
         public override bool IsBuiltInFunction(string name)

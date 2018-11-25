@@ -1,10 +1,10 @@
 ﻿namespace OpenSage.Mathematics
 {
-    public struct ColorRgb
+    public readonly struct ColorRgb
     {
-        public byte R;
-        public byte G;
-        public byte B;
+        public readonly byte R;
+        public readonly byte G;
+        public readonly byte B;
 
         public ColorRgb(byte r, byte g, byte b)
         {

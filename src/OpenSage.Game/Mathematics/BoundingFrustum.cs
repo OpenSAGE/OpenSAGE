@@ -64,7 +64,7 @@ namespace OpenSage.Mathematics
             var intersects = false;
             for (var i = 0; i < PlaneCount; ++i)
             {
-                var planeIntersectionType = BoundingBox.Intersects(box, frustum._planes[i]);
+                var planeIntersectionType = box.Intersects(frustum._planes[i]);
                 switch (planeIntersectionType)
                 {
                     case PlaneIntersectionType.Front:
@@ -85,7 +85,7 @@ namespace OpenSage.Mathematics
             var intersects = false;
             for (var i = 0; i < PlaneCount; ++i)
             {
-                var planeIntersectionType = BoundingSphere.Intersects(sphere, frustum._planes[i]);
+                var planeIntersectionType = sphere.Intersects(frustum._planes[i]);
                 switch (planeIntersectionType)
                 {
                     case PlaneIntersectionType.Front:

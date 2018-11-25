@@ -5,19 +5,19 @@ namespace OpenSage.Mathematics
     /// <summary>
     /// Describes an integer size.
     /// </summary>
-    public struct Size : IEquatable<Size>
+    public readonly struct Size : IEquatable<Size>
     {
         public static readonly Size Zero = new Size(0, 0);
 
         /// <summary>
-        /// Gets or sets the width.
+        /// Gets the width.
         /// </summary>
-        public int Width;
+        public readonly int Width;
 
         /// <summary>
-        /// Gets or sets the height.
+        /// Gets the height.
         /// </summary>
-        public int Height;
+        public readonly int Height;
 
         /// <summary>
         /// Initializes a new instance of <see cref="Size"/>.

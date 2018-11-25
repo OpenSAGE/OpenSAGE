@@ -201,8 +201,7 @@ namespace OpenSage.Gui.Wnd.Controls
             if (Parent != null)
             {
                 result = Parent.PointToClient(point);
-                result.X -= _bounds.X;
-                result.Y -= _bounds.Y;
+                result = new Point2D(result.X - _bounds.X, result.Y - _bounds.Y);
             }
             else
             {
@@ -386,7 +385,7 @@ namespace OpenSage.Gui.Wnd.Controls
             }
 
             var overlayColor = OverlayColor.Value;
-            overlayColor.A *= Opacity;
+            overlayColor = overlayColor.WithA(overlayColor.A * TextOpacity);
 
             drawingContext.FillRectangle(
                 ClientRectangle,
@@ -416,7 +415,7 @@ namespace OpenSage.Gui.Wnd.Controls
                 color = HoverTextColor ?? color;
             }
 
-            color.A *= TextOpacity;
+            color = color.WithA(color.A * TextOpacity);
 
             drawingContext.DrawText(
                 Text,

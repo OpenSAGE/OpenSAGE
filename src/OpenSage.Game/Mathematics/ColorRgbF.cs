@@ -1,10 +1,10 @@
 ﻿namespace OpenSage.Mathematics
 {
-    public struct ColorRgbF
+    public readonly struct ColorRgbF
     {
-        public float R;
-        public float G;
-        public float B;
+        public readonly float R;
+        public readonly float G;
+        public readonly float B;
 
         public ColorRgbF(float r, float g, float b)
         {

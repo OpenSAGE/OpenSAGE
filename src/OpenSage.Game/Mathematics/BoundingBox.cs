@@ -5,10 +5,10 @@ using OpenSage.Graphics.Cameras;
 
 namespace OpenSage.Mathematics
 {
-    public struct BoundingBox
+    public readonly struct BoundingBox
     {
-        public Vector3 Min;
-        public Vector3 Max;
+        public readonly Vector3 Min;
+        public readonly Vector3 Max;
 
         public BoundingBox(in Vector3 min, in Vector3 max)
         {
@@ -42,30 +42,25 @@ namespace OpenSage.Mathematics
 
         public static BoundingBox CreateMerged(in BoundingBox original, in BoundingBox additional)
         {
-            var result = new BoundingBox
-            {
-                Min = Vector3.Min(original.Min, additional.Min),
-                Max = Vector3.Max(original.Max, additional.Max)
-            };
-            return result;
+            return new BoundingBox(
+                Vector3.Min(original.Min, additional.Min),
+                Vector3.Max(original.Max, additional.Max));
         }
 
         public static BoundingBox CreateFromSphere(in BoundingSphere sphere)
         {
             var corner = new Vector3(sphere.Radius);
-            return new BoundingBox
-            {
-                Min = sphere.Center - corner,
-                Max = sphere.Center + corner
-            };
+            return new BoundingBox(
+                sphere.Center - corner,
+                sphere.Center + corner);
         }
 
-        public static Vector3 GetCenter(in BoundingBox box)
+        public Vector3 GetCenter()
         {
-            return (box.Min + box.Max) / 2;
+            return (Min + Max) / 2;
         }
 
-        public static PlaneIntersectionType Intersects(in BoundingBox box, in Plane plane)
+        public PlaneIntersectionType Intersects(in Plane plane)
         {
             // See http://zach.in.tu-clausthal.de/teaching/cg_literatur/lighthouse3d_view_frustum_culling/index.html
 
@@ -74,35 +69,35 @@ namespace OpenSage.Mathematics
 
             if (plane.Normal.X >= 0)
             {
-                positiveVertex.X = box.Max.X;
-                negativeVertex.X = box.Min.X;
+                positiveVertex.X = Max.X;
+                negativeVertex.X = Min.X;
             }
             else
             {
-                positiveVertex.X = box.Min.X;
-                negativeVertex.X = box.Max.X;
+                positiveVertex.X = Min.X;
+                negativeVertex.X = Max.X;
             }
 
             if (plane.Normal.Y >= 0)
             {
-                positiveVertex.Y = box.Max.Y;
-                negativeVertex.Y = box.Min.Y;
+                positiveVertex.Y = Max.Y;
+                negativeVertex.Y = Min.Y;
             }
             else
             {
-                positiveVertex.Y = box.Min.Y;
-                negativeVertex.Y = box.Max.Y;
+                positiveVertex.Y = Min.Y;
+                negativeVertex.Y = Max.Y;
             }
 
             if (plane.Normal.Z >= 0)
             {
-                positiveVertex.Z = box.Max.Z;
-                negativeVertex.Z = box.Min.Z;
+                positiveVertex.Z = Max.Z;
+                negativeVertex.Z = Min.Z;
             }
             else
             {
-                positiveVertex.Z = box.Min.Z;
-                negativeVertex.Z = box.Max.Z;
+                positiveVertex.Z = Min.Z;
+                negativeVertex.Z = Max.Z;
             }
 
             // Inline Vector3.Dot(plane.Normal, negativeVertex) + plane.D;

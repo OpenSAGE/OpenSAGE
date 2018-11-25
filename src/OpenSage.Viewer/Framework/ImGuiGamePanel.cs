@@ -49,8 +49,7 @@ namespace OpenSage.Viewer.Framework
             Point2D getPositionInPanel()
             {
                 var pos = e.Message.Value.MousePosition;
-                pos.X -= _frame.X;
-                pos.Y -= _frame.Y;
+                pos = new Point2D(pos.X - _frame.X, pos.Y - _frame.Y);
                 return pos;
             }
 

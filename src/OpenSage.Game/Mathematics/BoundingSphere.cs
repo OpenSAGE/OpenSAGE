@@ -3,11 +3,11 @@ using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
-    public struct BoundingSphere
+    public readonly struct BoundingSphere
     {
-        public Vector3 Center;
+        public readonly Vector3 Center;
 
-        public float Radius;
+        public readonly float Radius;
 
         public BoundingSphere(in Vector3 center, float radius)
         {
@@ -34,11 +34,9 @@ namespace OpenSage.Mathematics
             float Rightradius = Math.Max(original.Radius + distance, additional.Radius);
             ocenterToaCenter = ocenterToaCenter + (((leftRadius - Rightradius) / (2 * ocenterToaCenter.Length())) * ocenterToaCenter);
 
-            return new BoundingSphere
-            {
-                Center = original.Center + ocenterToaCenter,
-                Radius = (leftRadius + Rightradius) / 2
-            };
+            return new BoundingSphere(
+                original.Center + ocenterToaCenter,
+                (leftRadius + Rightradius) / 2);
         }
 
         public static BoundingSphere CreateFromBoundingBox(BoundingBox box)
@@ -56,25 +54,23 @@ namespace OpenSage.Mathematics
 
         public static BoundingSphere Transform(in BoundingSphere sphere, in Matrix4x4 matrix)
         {
-            return new BoundingSphere
-            {
-                Center = Vector3.Transform(sphere.Center, matrix),
-                Radius = sphere.Radius * (MathUtility.Sqrt(
+            return new BoundingSphere(
+                Vector3.Transform(sphere.Center, matrix),
+                sphere.Radius * (MathUtility.Sqrt(
                     Math.Max(
-                        ((matrix.M11 * matrix.M11) + (matrix.M12 * matrix.M12)) + (matrix.M13 * matrix.M13), 
+                        ((matrix.M11 * matrix.M11) + (matrix.M12 * matrix.M12)) + (matrix.M13 * matrix.M13),
                         Math.Max(
-                            ((matrix.M21 * matrix.M21) + (matrix.M22 * matrix.M22)) + (matrix.M23 * matrix.M23), 
-                            ((matrix.M31 * matrix.M31) + (matrix.M32 * matrix.M32)) + (matrix.M33 * matrix.M33)))))
-            };
+                            ((matrix.M21 * matrix.M21) + (matrix.M22 * matrix.M22)) + (matrix.M23 * matrix.M23),
+                            ((matrix.M31 * matrix.M31) + (matrix.M32 * matrix.M32)) + (matrix.M33 * matrix.M33))))));
         }
 
-        public static PlaneIntersectionType Intersects(in BoundingSphere sphere, in Plane plane)
+        public PlaneIntersectionType Intersects(in Plane plane)
         {
-            var distance = Vector3.Dot(plane.Normal, sphere.Center);
+            var distance = Vector3.Dot(plane.Normal, Center);
             distance += plane.D;
-            if (distance > sphere.Radius)
+            if (distance > Radius)
                 return PlaneIntersectionType.Front;
-            else if (distance < -sphere.Radius)
+            else if (distance < -Radius)
                 return PlaneIntersectionType.Back;
             else
                 return PlaneIntersectionType.Intersecting;

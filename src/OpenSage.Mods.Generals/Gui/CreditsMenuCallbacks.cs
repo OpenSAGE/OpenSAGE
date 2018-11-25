@@ -138,9 +138,9 @@ namespace OpenSage.Mods.Generals.Gui
             foreach (var item in data.Items)
             {
                 var rect = item.Rect;
-                rect.Y += data.CurrentY;
+                rect = rect.WithY(rect.Y + data.CurrentY);
 
-                if (!RectangleF.IntersectsWith(control.ClientRectangle.ToRectangleF(), rect))
+                if (!control.ClientRectangle.ToRectangleF().IntersectsWith(rect))
                 {
                     continue;
                 }

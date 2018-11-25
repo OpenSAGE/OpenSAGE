@@ -53,7 +53,7 @@ namespace OpenSage.Terrain
 
             for (var i = 0; i < Triangles.Length; i++)
             {
-                if (Ray.Intersects(ray, Triangles[i], out var intersection))
+                if (ray.Intersects(Triangles[i], out var intersection))
                 {
                     if (closestIntersection != null)
                     {
