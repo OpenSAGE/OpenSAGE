@@ -21,7 +21,10 @@ namespace OpenSage.Logic.Object
             { "MaxQueueEntries", (parser, x) => x.MaxQueueEntries = parser.ParseInteger() },
             { "QuantityModifier", (parser, x) => x.QuantityModifier = Object.QuantityModifier.Parse(parser) },
 
-            { "DisabledTypesToProcess", (parser, x) => x.DisabledTypesToProcess = parser.ParseEnumBitArray<DisabledType>() }
+            { "DisabledTypesToProcess", (parser, x) => x.DisabledTypesToProcess = parser.ParseEnumBitArray<DisabledType>() },
+            { "VeteranUnitsFromVeteranFactory", (parser, x) => x.VeteranUnitsFromVeteranFactory = parser.ParseBoolean() },
+            { "SetBonusModelConditionOnSpeedBonus", (parser, x) => x.SetBonusModelConditionOnSpeedBonus = parser.ParseBoolean() },
+            { "BonusForType", (parser, x) => x.BonusForType = parser.ParseString() }
         };
 
         /// <summary>
@@ -41,6 +44,15 @@ namespace OpenSage.Logic.Object
         public QuantityModifier? QuantityModifier { get; private set; }
 
         public BitArray<DisabledType> DisabledTypesToProcess { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool VeteranUnitsFromVeteranFactory { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool SetBonusModelConditionOnSpeedBonus { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string BonusForType { get; private set; }
     }
 
     public struct QuantityModifier

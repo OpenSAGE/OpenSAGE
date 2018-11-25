@@ -515,5 +515,13 @@
         [IniEnum("MADE_OF_WOOD"), AddedIn(SageGame.Bfme)]
         MadeOfWood,
 
+        [IniEnum("DO_NOT_CLASSIFY"), AddedIn(SageGame.Bfme)]
+        DoNotClassify,
+
+        [IniEnum("FACE_AWAY_FROM_CASTLE_KEEP"), AddedIn(SageGame.Bfme)]
+        FaceAwayFromCastleKeep,
+
+        [IniEnum("MADE_OF_DIRT"), AddedIn(SageGame.Bfme)]
+        MadeOfDirt,
     }
 }

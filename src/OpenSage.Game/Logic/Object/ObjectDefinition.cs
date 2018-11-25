@@ -242,7 +242,7 @@ namespace OpenSage.Logic.Object
 
             { "GeometryOther", (parser, x) => x.OtherGeometries.Add(Geometry.Parse(parser)) },
 
-            { "GeometryContactPoint", (parser, x) => x.GeometryContactPoints.Add(GeometryContactPoint.Parse(parser)) },
+            { "GeometryContactPoint", (parser, x) => x.GeometryContactPoints.Add(ContactPoint.Parse(parser)) },
 
             { "CamouflageDetectionMultiplier", (parser, x) => x.CamouflageDetectionMultiplier = parser.ParseFloat()}, 
             { "FactoryExitWidth", (parser, x) => x.FactoryExitWidth = parser.ParseInteger() },
@@ -287,7 +287,9 @@ namespace OpenSage.Logic.Object
             { "KeepSelectableWhenDead", (parser, x) => x.KeepSelectableWhenDead = parser.ParseBoolean() },
             { "LiveCameraOffset", (parser, x) => x.LiveCameraOffset = parser.ParseVector3() },
             { "LiveCameraPitch", (parser, x) => x.LiveCameraPitch = parser.ParseFloat() },
-            { "EvaEventDieOwner", (parser, x) => x.EvaEventDieOwner = parser.ParseAssetReference() }
+            { "EvaEventDieOwner", (parser, x) => x.EvaEventDieOwner = parser.ParseAssetReference() },
+            { "AttackContactPoint", (parser, x) => x.AttackContactPoints.Add(ContactPoint.Parse(parser)) },
+            { "RemoveTerrainRadius", (parser, x) => x.RemoveTerrainRadius = parser.ParseFloat() }
         };
 
     
@@ -829,7 +831,7 @@ namespace OpenSage.Logic.Object
         public int BountyValue { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public List<GeometryContactPoint> GeometryContactPoints { get; private set; } = new List<GeometryContactPoint>();
+        public List<ContactPoint> GeometryContactPoints { get; private set; } = new List<ContactPoint>();
 
         [AddedIn(SageGame.Bfme)]
         public string Description { get; private set; }
@@ -851,6 +853,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string EvaEventDieOwner { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public List<ContactPoint> AttackContactPoints { get; private set; } = new List<ContactPoint>();
+
+        [AddedIn(SageGame.Bfme)]
+        public float RemoveTerrainRadius { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -1004,11 +1012,11 @@ namespace OpenSage.Logic.Object
     }
 
     [AddedIn(SageGame.Bfme)]
-    public sealed class GeometryContactPoint
+    public sealed class ContactPoint
     {
-        internal static GeometryContactPoint Parse(IniParser parser)
+        internal static ContactPoint Parse(IniParser parser)
         {
-            return new GeometryContactPoint()
+            return new ContactPoint()
             {
                 X = parser.ParseAttributeFloat("X"),
                 Y = parser.ParseAttributeFloat("Y"),

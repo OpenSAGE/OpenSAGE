@@ -12,11 +12,13 @@ namespace OpenSage.Logic.Object
             {
                 { "ModelName", (parser, x) => x.ModelName = parser.ParseAssetReference() },
                 { "StaticModelLODMode", (parser, x) => x.StaticModelLODMode = parser.ParseBoolean() },
-                { "StartHidden", (parser, x) => x.StartHidden = parser.ParseBoolean() }
+                { "StartHidden", (parser, x) => x.StartHidden = parser.ParseBoolean() },
+                { "ForceToBack", (parser, x) => x.ForceToBack = parser.ParseBoolean() }
             });
 
         public string ModelName { get; internal set; }
         public bool StaticModelLODMode { get; internal set; }
         public bool StartHidden { get; internal set; }
+        public bool ForceToBack { get; internal set; }
     }
 }
