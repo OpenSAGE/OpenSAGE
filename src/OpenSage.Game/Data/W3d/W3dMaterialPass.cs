@@ -88,8 +88,9 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_SHADER_MATERIAL_ID:
-                        if(header.ChunkSize != sizeof(uint))
+                        if (header.ChunkSize != sizeof(uint))
                         {
+                            // TODO: If this is thrown: this is an array of IDs
                             throw new InvalidDataException();
                         }
                         result.ShaderMaterialId = reader.ReadUInt32();
