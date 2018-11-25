@@ -67,10 +67,17 @@ namespace OpenSage.Data
     {
         public IEnumerable<GameInstallation> FindInstallations(IGameDefinition game)
         {
-            String path = Environment.GetEnvironmentVariable(game.Identifier.ToUpperInvariant() + "_PATH");
+            var identifier = game.Identifier.ToUpperInvariant() + "_PATH";
+            var path = Environment.GetEnvironmentVariable(identifier);
 
-            if (path == null)            
+            if (path == null)
+            {
+                path = Environment.GetEnvironmentVariable(identifier, EnvironmentVariableTarget.User);
+            }
+            if (path == null || !Directory.Exists(path))
+            {
                 return new GameInstallation[]{};
+            }
 
             var installations = new GameInstallation[]{new GameInstallation(game, path)};
 
