@@ -76,7 +76,7 @@ namespace OpenSage.Logic.Object
         public override bool Intersects(in BoundingFrustum frustum)
         {
             var worldBounds = BoundingBox.Transform(_bounds, Transform.Matrix);
-            return BoundingFrustum.Intersects(frustum, worldBounds);
+            return frustum.Intersects(worldBounds);
         }
 
         public override Rectangle GetBoundingRectangle(CameraComponent camera)
@@ -104,7 +104,7 @@ namespace OpenSage.Logic.Object
         public override bool Intersects(in BoundingFrustum frustum)
         {
             var worldBounds = BoundingSphere.Transform(_bounds, Transform.Matrix);
-            return BoundingFrustum.Intersects(frustum, worldBounds);
+            return frustum.Intersects(worldBounds);
         }
 
         public override Rectangle GetBoundingRectangle(CameraComponent camera)
@@ -141,7 +141,7 @@ namespace OpenSage.Logic.Object
         public override bool Intersects(in BoundingFrustum frustum)
         {
             var worldBounds = BoundingBox.Transform(_bounds, Transform.Matrix);
-            return BoundingFrustum.Intersects(frustum, worldBounds);
+            return frustum.Intersects(worldBounds);
         }
 
         public override Rectangle GetBoundingRectangle(CameraComponent camera)
