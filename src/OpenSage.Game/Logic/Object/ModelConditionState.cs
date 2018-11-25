@@ -57,6 +57,12 @@ namespace OpenSage.Logic.Object
 
             { "OverrideTooltip", (parser, x) => x.OverrideTooltip = parser.ParseAssetReference() },
             { "FXEvent", (parser, x) => x.FXEvents.Add(FXEvent.Parse(parser)) },
+
+            { "Shadow", (parser, x) => x.Shadow = parser.ParseEnum<ObjectShadowType>() },
+            { "ShadowSizeX", (parser, x) => x.ShadowSizeX = parser.ParseInteger() },
+            { "ShadowSizeY", (parser, x) => x.ShadowSizeY = parser.ParseInteger() },
+            { "ShadowTexture", (parser, x) => x.ShadowTexture = parser.ParseAssetReference() },
+            { "ShadowMaxHeight", (parser, x) => x.ShadowMaxHeight = parser.ParseInteger() } 
         };
 
         private void ParseAnimation(IniParser parser)
@@ -113,6 +119,21 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public List<FXEvent> FXEvents { get; private set; } = new List<FXEvent>();
+
+        [AddedIn(SageGame.Bfme)]
+        public ObjectShadowType Shadow { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowSizeX { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowSizeY { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string ShadowTexture { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowMaxHeight { get; private set; }
 
         /// <summary>
         /// Used by AliasConditionState.

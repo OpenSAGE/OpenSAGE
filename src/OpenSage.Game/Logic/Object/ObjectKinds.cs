@@ -535,5 +535,11 @@
 
         [IniEnum("BANNER"), AddedIn(SageGame.Bfme)]
         Banner,
+
+        [IniEnum("DEFLECT_BY_SPECIAL_POWER"), AddedIn(SageGame.Bfme)]
+        DeflectBySpecialPower,
+
+        [IniEnum("OCL_BIT"), AddedIn(SageGame.Bfme)]
+        OCLBit,
     }
 }

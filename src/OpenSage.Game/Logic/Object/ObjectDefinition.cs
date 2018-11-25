@@ -291,7 +291,8 @@ namespace OpenSage.Logic.Object
             { "AttackContactPoint", (parser, x) => x.AttackContactPoints.Add(ContactPoint.Parse(parser)) },
             { "RemoveTerrainRadius", (parser, x) => x.RemoveTerrainRadius = parser.ParseFloat() },
             { "HealthBoxScale", (parser, x) => x.HealthBoxScale = parser.ParseFloat() },
-            { "HealthBoxHeightOffset", (parser, x) => x.HealthBoxHeightOffset = parser.ParseFloat() } 
+            { "HealthBoxHeightOffset", (parser, x) => x.HealthBoxHeightOffset = parser.ParseFloat() },
+            { "ForceLuaRegistration", (parser, x) => x.ForceLuaRegistration = parser.ParseBoolean() }
         };
 
         public string Name { get; protected set; }
@@ -865,6 +866,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public float HealthBoxHeightOffset { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ForceLuaRegistration { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

@@ -63,12 +63,4 @@ namespace OpenSage.Logic.Object
         public string EmotionName { get; internal set; }
         public string AttributeModifier { get; internal set; }
     }
-
-    public enum EmotionType
-    {
-        None = 0,
-
-        [IniEnum("OVERRIDE")]
-        Override,
-    }
 }
