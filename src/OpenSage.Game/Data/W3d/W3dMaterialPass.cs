@@ -12,7 +12,6 @@ namespace OpenSage.Data.W3d
         public uint[] ShaderIds { get; private set; }
 
         public uint? ShaderMaterialId { get; private set; }
-        public uint[] ShaderMaterialIds { get; private set; }
 
         /// <summary>
         /// per-vertex diffuse color values
@@ -89,12 +88,11 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_SHADER_MATERIAL_ID:
-                        result.ShaderMaterialIds = new uint[header.ChunkSize / sizeof(uint)];
-                        for (var count = 0; count < result.ShaderMaterialIds.Length; count++)
+                        if(header.ChunkSize != sizeof(uint))
                         {
-                            result.ShaderMaterialIds[count] = reader.ReadUInt32();
+                            throw new InvalidDataException();
                         }
-                        result.ShaderMaterialId = result.ShaderMaterialIds[0];
+                        result.ShaderMaterialId = reader.ReadUInt32();
                         break;
 
                     // Normally this appears inside W3dTextureStage, but it can also
