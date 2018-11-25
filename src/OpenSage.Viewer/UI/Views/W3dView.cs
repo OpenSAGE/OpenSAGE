@@ -186,7 +186,7 @@ namespace OpenSage.Viewer.UI.Views
             var first = true;
             foreach (var mesh in modelInstance.Model.Meshes)
             {
-                var transformedBoundingBox = mesh.BoundingBox.Transform(
+                var transformedBoundingBox = BoundingBox.Transform(mesh.BoundingBox,
                     modelInstance.ModelBoneInstances[mesh.ParentBone.Index].Matrix);
 
                 if (first)

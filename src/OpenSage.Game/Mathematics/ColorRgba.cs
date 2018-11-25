@@ -2,15 +2,15 @@
 
 namespace OpenSage.Mathematics
 {
-    public struct ColorRgba
+    public readonly struct ColorRgba
     {
         public static readonly ColorRgba White = new ColorRgba(255, 255, 255, 255);
         public static readonly ColorRgba DimGray = new ColorRgba(105, 105, 105, 255);
 
-        public byte R;
-        public byte G;
-        public byte B;
-        public byte A;
+        public readonly byte R;
+        public readonly byte G;
+        public readonly byte B;
+        public readonly byte A;
 
         public ColorRgba(byte r, byte g, byte b, byte a)
         {
@@ -38,19 +38,23 @@ namespace OpenSage.Mathematics
             return hex;
         }
 
-        public void FromHex(string hexString)
+        public static ColorRgba FromHex(in ColorRgba original, string hexString)
         {
             var hexVal = Convert.ToUInt32(hexString, 16);
             bool hasAlpha = hexString.Length > 8;
 
-            B = (byte) (hexVal        & 0xFF);
-            G = (byte) (hexVal >>   8 & 0xFF);
-            R = (byte) (hexVal >>  16 & 0xFF);
+            var a = original.A;
+
+            var b = (byte) (hexVal        & 0xFF);
+            var g = (byte) (hexVal >>   8 & 0xFF);
+            var r = (byte) (hexVal >>  16 & 0xFF);
 
             if (hasAlpha)
             {
-                A = (byte) (hexVal >> 24 & 0xFF);
+                a = (byte) (hexVal >> 24 & 0xFF);
             }
+
+            return new ColorRgba(r, g, b, a);
         }
     }
 }

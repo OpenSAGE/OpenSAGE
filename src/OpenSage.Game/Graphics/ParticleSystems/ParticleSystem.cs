@@ -288,8 +288,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
                 InitializeParticle(
                     ref newParticle,
-                    ref ray.Position,
-                    ref velocity,
+                    ray.Position,
+                    velocity,
                     _startSize);
 
                 // TODO: Is this definitely incremented per particle, not per burst?
@@ -299,8 +299,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
         private void InitializeParticle(
             ref Particle particle, 
-            ref Vector3 position, 
-            ref Vector3 velocity, 
+            in Vector3 position, 
+            in Vector3 velocity, 
             float startSize)
         {
             particle.Dead = false;

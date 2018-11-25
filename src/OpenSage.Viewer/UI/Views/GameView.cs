@@ -63,6 +63,10 @@ namespace OpenSage.Viewer.UI.Views
             {
                 isGameViewFocused = true;
             }
+            ImGui.SetCursorScreenPos(windowPos + new Vector2(1.0f));
+            ImGui.TextColored(Vector4.UnitW, $"{ImGui.GetIO().Framerate:N2} FPS");
+            ImGui.SetCursorScreenPos(windowPos);
+            ImGui.Text($"{ImGui.GetIO().Framerate:N2} FPS");
         }
     }
 }

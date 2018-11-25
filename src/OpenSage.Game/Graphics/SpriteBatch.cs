@@ -100,15 +100,10 @@ namespace OpenSage.Graphics
 
         private Triangle2D GetTriangleUV(Triangle2D src, Texture img, bool flipped)
         {
-            return new Triangle2D
-            {
-                V0 = new Vector2(src.V0.X / img.Width,
-                flipped ? 1 - (src.V0.Y / img.Height) : src.V0.Y / img.Height),
-                V1 = new Vector2(src.V1.X / img.Width,
-                flipped ? 1 - (src.V1.Y / img.Height) : src.V1.Y / img.Height),
-                V2 = new Vector2(src.V2.X / img.Width,
-                flipped ? 1 - (src.V2.Y / img.Height) : src.V2.Y / img.Height),
-            };
+            return new Triangle2D(
+                new Vector2(src.V0.X / img.Width, flipped ? 1 - (src.V0.Y / img.Height) : src.V0.Y / img.Height),
+                new Vector2(src.V1.X / img.Width, flipped ? 1 - (src.V1.Y / img.Height) : src.V1.Y / img.Height),
+                new Vector2(src.V2.X / img.Width, flipped ? 1 - (src.V2.Y / img.Height) : src.V2.Y / img.Height));
         }
 
         public void DrawImage(

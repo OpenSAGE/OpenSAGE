@@ -57,7 +57,7 @@ namespace OpenSage.Mathematics
             }
         }
 
-        public static Rectangle FromCorners(Point2D topLeft, Point2D bottomRight)
+        public static Rectangle FromCorners(in Point2D topLeft, in Point2D bottomRight)
         {
             return new Rectangle(topLeft, (bottomRight - topLeft).ToSize());
         }

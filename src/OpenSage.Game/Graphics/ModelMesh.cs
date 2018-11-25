@@ -154,7 +154,7 @@ namespace OpenSage.Graphics
                 world = meshWorldMatrix;
             }
 
-            var meshBoundingBox = BoundingBox.Transform(world); // TODO: Not right for skinned meshes
+            var meshBoundingBox = BoundingBox.Transform(BoundingBox, world); // TODO: Not right for skinned meshes
 
             foreach (var materialPass in MaterialPasses)
             {

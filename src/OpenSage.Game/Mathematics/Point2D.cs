@@ -3,12 +3,12 @@ using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
-    public struct Point2D
+    public readonly struct Point2D
     {
         public static readonly Point2D Zero = new Point2D(0, 0);
 
-        public int X;
-        public int Y;
+        public readonly int X;
+        public readonly int Y;
 
         public Point2D(int x, int y)
         {

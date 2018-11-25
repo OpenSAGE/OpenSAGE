@@ -109,8 +109,7 @@ namespace OpenSage.Gui
             in Rectangle destinationRect,
             in bool flipped = false)
         {
-            var color = ColorRgbaF.White;
-            color.A = _currentOpacity;
+            var color = ColorRgbaF.White.WithA(_currentOpacity);
 
             _spriteBatch.DrawImage(
                 texture,
@@ -126,8 +125,7 @@ namespace OpenSage.Gui
             in RectangleF destinationRect,
             in bool flipped = false)
         {
-            var color = ColorRgbaF.White;
-            color.A = _currentOpacity;
+            var color = ColorRgbaF.White.WithA(_currentOpacity);
 
             _spriteBatch.DrawImage(
                 texture,
@@ -168,8 +166,7 @@ namespace OpenSage.Gui
             var actualFont = _contentManager.GetOrCreateFont(font.Name, font.Size * _currentScale, font.Bold ? FontWeight.Bold : FontWeight.Normal);
             var actualRect = RectangleF.Transform(rect, _currentTransform);
 
-            var actualColor = color;
-            actualColor.A *= _currentOpacity;
+            var actualColor = GetModifiedColorWithCurrentOpacity(color);
 
             var texture = _textCache.GetTextTexture(text, actualFont, textAlignment, actualColor, actualRect.Size);
 
@@ -180,12 +177,12 @@ namespace OpenSage.Gui
                 ColorRgbaF.White);
         }
 
-        public void DrawRectangle(RectangleF rect, ColorRgbaF strokeColor, float strokeWidth)
+        public void DrawRectangle(RectangleF rect, in ColorRgbaF strokeColor, float strokeWidth)
         {
             rect = RectangleF.Transform(rect, _currentTransform);
             strokeWidth *= _currentScale;
 
-            strokeColor.A *= _currentOpacity;
+            var modifiedStrokeColor = GetModifiedColorWithCurrentOpacity(strokeColor);
 
             void drawLine(RectangleF lineRect)
             {
@@ -193,7 +190,7 @@ namespace OpenSage.Gui
                     _solidWhiteTexture,
                     null,
                     lineRect,
-                    strokeColor);
+                    modifiedStrokeColor);
             }
 
             drawLine(new RectangleF(rect.X, rect.Y, strokeWidth, rect.Height)); // Left
@@ -202,7 +199,12 @@ namespace OpenSage.Gui
             drawLine(new RectangleF(rect.Right - strokeWidth, rect.Y, strokeWidth, rect.Height)); // Right
         }
 
-        public void DrawLine(Line2D line, float thickness, ColorRgbaF strokeColor)
+        private ColorRgbaF GetModifiedColorWithCurrentOpacity(in ColorRgbaF color)
+        {
+            return color.WithA(color.A * _currentOpacity);
+        }
+
+        public void DrawLine(Line2D line, float thickness, in ColorRgbaF strokeColor)
         {
             line = Line2D.Transform(line, _currentTransform);
             thickness *= _currentScale;
@@ -213,8 +215,6 @@ namespace OpenSage.Gui
             var origin = new Vector2(0, 0.5f);
             var scale = new Vector2(length, thickness);
 
-            strokeColor.A *= _currentOpacity;
-
             _spriteBatch.DrawImage(
                 _solidWhiteTexture,
                 null,
@@ -222,40 +222,36 @@ namespace OpenSage.Gui
                 angle,
                 origin,
                 scale,
-                strokeColor);
+                GetModifiedColorWithCurrentOpacity(strokeColor));
         }
 
-        public void FillTriangle(in Triangle2D triangle, ColorRgbaF fillColor)
+        public void FillTriangle(in Triangle2D triangle, in ColorRgbaF fillColor)
         {
-            fillColor.A *= _currentOpacity;
+            var modifiedFillColor = fillColor.WithA(fillColor.A * _currentOpacity);
 
             _spriteBatch.DrawImage(
                 _solidWhiteTexture,
                 new Triangle2D(new Vector2(0, 1), new Vector2(0, 0), new Vector2(1, 0)),
                 Triangle2D.Transform(triangle, _currentTransform),
-                fillColor);
+                modifiedFillColor);
         }
 
-        public void FillTriangle(Texture texture, in Triangle2D sourceTriangle, in Triangle2D triangle, ColorRgbaF tintColor)
+        public void FillTriangle(Texture texture, in Triangle2D sourceTriangle, in Triangle2D triangle, in ColorRgbaF tintColor)
         {
-            tintColor.A *= _currentOpacity;
-
             _spriteBatch.DrawImage(
                 texture,
                 sourceTriangle,
                 Triangle2D.Transform(triangle, _currentTransform),
-                tintColor);
+                GetModifiedColorWithCurrentOpacity(tintColor));
         }
 
-        public void FillRectangle(in Rectangle rect, ColorRgbaF fillColor)
+        public void FillRectangle(in Rectangle rect, in ColorRgbaF fillColor)
         {
-            fillColor.A *= _currentOpacity;
-
             _spriteBatch.DrawImage(
                 _solidWhiteTexture,
                 new Rectangle(0, 0, 1, 1),
                 RectangleF.Transform(rect.ToRectangleF(), _currentTransform),
-                fillColor);
+                GetModifiedColorWithCurrentOpacity(fillColor));
         }
 
         public void End()

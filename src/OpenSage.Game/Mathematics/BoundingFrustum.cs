@@ -24,7 +24,7 @@ namespace OpenSage.Mathematics
             }
         }
 
-        public BoundingFrustum(Matrix4x4 value)
+        public BoundingFrustum(in Matrix4x4 value)
         {
             _matrix = value;
             CreatePlanes();
@@ -64,7 +64,7 @@ namespace OpenSage.Mathematics
             var intersects = false;
             for (var i = 0; i < PlaneCount; ++i)
             {
-                var planeIntersectionType = box.Intersects(ref _planes[i]);
+                var planeIntersectionType = box.Intersects(_planes[i]);
                 switch (planeIntersectionType)
                 {
                     case PlaneIntersectionType.Front:
@@ -85,7 +85,7 @@ namespace OpenSage.Mathematics
             var intersects = false;
             for (var i = 0; i < PlaneCount; ++i)
             {
-                var planeIntersectionType = sphere.Intersects(this._planes[i]);
+                var planeIntersectionType = sphere.Intersects(_planes[i]);
                 switch (planeIntersectionType)
                 {
                     case PlaneIntersectionType.Front:
@@ -113,14 +113,14 @@ namespace OpenSage.Mathematics
 
         private void CreateCorners()
         {
-            IntersectionPoint(ref this._planes[0], ref this._planes[2], ref this._planes[4], out this._corners[0]);
-            IntersectionPoint(ref this._planes[0], ref this._planes[3], ref this._planes[4], out this._corners[1]);
-            IntersectionPoint(ref this._planes[0], ref this._planes[3], ref this._planes[5], out this._corners[2]);
-            IntersectionPoint(ref this._planes[0], ref this._planes[2], ref this._planes[5], out this._corners[3]);
-            IntersectionPoint(ref this._planes[1], ref this._planes[2], ref this._planes[4], out this._corners[4]);
-            IntersectionPoint(ref this._planes[1], ref this._planes[3], ref this._planes[4], out this._corners[5]);
-            IntersectionPoint(ref this._planes[1], ref this._planes[3], ref this._planes[5], out this._corners[6]);
-            IntersectionPoint(ref this._planes[1], ref this._planes[2], ref this._planes[5], out this._corners[7]);
+            IntersectionPoint(this._planes[0], this._planes[2], this._planes[4], out this._corners[0]);
+            IntersectionPoint(this._planes[0], this._planes[3], this._planes[4], out this._corners[1]);
+            IntersectionPoint(this._planes[0], this._planes[3], this._planes[5], out this._corners[2]);
+            IntersectionPoint(this._planes[0], this._planes[2], this._planes[5], out this._corners[3]);
+            IntersectionPoint(this._planes[1], this._planes[2], this._planes[4], out this._corners[4]);
+            IntersectionPoint(this._planes[1], this._planes[3], this._planes[4], out this._corners[5]);
+            IntersectionPoint(this._planes[1], this._planes[3], this._planes[5], out this._corners[6]);
+            IntersectionPoint(this._planes[1], this._planes[2], this._planes[5], out this._corners[7]);
         }
 
         private void CreatePlanes()
@@ -140,7 +140,7 @@ namespace OpenSage.Mathematics
             this.NormalizePlane(ref this._planes[5]);
         }
 
-        private static void IntersectionPoint(ref Plane a, ref Plane b, ref Plane c, out Vector3 result)
+        private static void IntersectionPoint(in Plane a, in Plane b, in Plane c, out Vector3 result)
         {
             // Formula used
             //                d1 ( N2 * N3 ) + d2 ( N3 * N1 ) + d3 ( N1 * N2 )

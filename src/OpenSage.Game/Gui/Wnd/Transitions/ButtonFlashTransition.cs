@@ -35,11 +35,11 @@ namespace OpenSage.Gui.Wnd.Transitions
             {
                 Element.Opacity = _endOpacity;
 
-                var overlayColor = FlashColor;
-                overlayColor.A = MathUtility.Lerp(
-                    _endOpacity,
-                    _startOpacity,
-                    (progress - 3.0f / FrameDuration) / 8 * FrameDuration);
+                var overlayColor = FlashColor.WithA(
+                    MathUtility.Lerp(
+                        _endOpacity,
+                        _startOpacity,
+                        (progress - 3.0f / FrameDuration) / 8 * FrameDuration));
 
                 Element.OverlayColor = overlayColor;
             }

@@ -3,12 +3,12 @@ using System.Numerics;
 
 namespace OpenSage.Mathematics
 {
-    public struct Ray
+    public readonly struct Ray
     {
-        public Vector3 Position;
-        public Vector3 Direction;
+        public readonly Vector3 Position;
+        public readonly Vector3 Direction;
 
-        public Ray(Vector3 position, Vector3 direction)
+        public Ray(in Vector3 position, in Vector3 direction)
         {
             Position = position;
             Direction = direction;
@@ -75,7 +75,7 @@ namespace OpenSage.Mathematics
             return true;
         }
 
-        public float? Intersects(ref Plane plane)
+        public float? Intersects(in Plane plane)
         {
             var den = Vector3.Dot(Direction, plane.Normal);
             if (Math.Abs(den) < 0.00001f)
@@ -98,11 +98,11 @@ namespace OpenSage.Mathematics
             return result;
         }
 
-        public Ray Transform(in Matrix4x4 world)
+        public static Ray Transform(in Ray ray, in Matrix4x4 world)
         {
             return new Ray(
-                Vector3.Transform(Position, world),
-                Vector3.TransformNormal(Direction, world));
+                Vector3.Transform(ray.Position, world),
+                Vector3.TransformNormal(ray.Direction, world));
         }
 
         /// <summary>

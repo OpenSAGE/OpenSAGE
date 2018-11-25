@@ -404,22 +404,14 @@ namespace OpenSage.Data.Ini.Parser
                 a = ScanByte(GetNextToken(SeparatorsColon));
             }
 
-            return new ColorRgba
-            {
-                R = r,
-                G = g,
-                B = b,
-                A = a
-            };
+            return new ColorRgba(r, g, b, a);
         }
 
         public Point2D ParsePoint()
         {
-            return new Point2D
-            {
-                X = ParseAttributeInteger("X"),
-                Y = ParseAttributeInteger("Y")
-            };
+            return new Point2D(
+                ParseAttributeInteger("X"),
+                ParseAttributeInteger("Y"));
         }
 
         public Vector2 ParseVector2()
@@ -443,11 +435,9 @@ namespace OpenSage.Data.Ini.Parser
 
         public Size ParseSize()
         {
-            return new Size
-            {
-                Width = ParseAttributeInteger("X"),
-                Height = ParseAttributeInteger("Y")
-            };
+            return new Size(
+                ParseAttributeInteger("X"),
+                ParseAttributeInteger("Y"));
         }
 
         public IniToken GetNextToken(char[] separators = null)

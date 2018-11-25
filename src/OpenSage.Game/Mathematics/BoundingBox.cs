@@ -5,10 +5,10 @@ using OpenSage.Graphics.Cameras;
 
 namespace OpenSage.Mathematics
 {
-    public struct BoundingBox
+    public readonly struct BoundingBox
     {
-        public Vector3 Min;
-        public Vector3 Max;
+        public readonly Vector3 Min;
+        public readonly Vector3 Max;
 
         public BoundingBox(in Vector3 min, in Vector3 max)
         {
@@ -42,27 +42,25 @@ namespace OpenSage.Mathematics
 
         public static BoundingBox CreateMerged(in BoundingBox original, in BoundingBox additional)
         {
-            var result = new BoundingBox
-            {
-                Min = Vector3.Min(original.Min, additional.Min),
-                Max = Vector3.Max(original.Max, additional.Max)
-            };
-            return result;
+            return new BoundingBox(
+                Vector3.Min(original.Min, additional.Min),
+                Vector3.Max(original.Max, additional.Max));
         }
 
         public static BoundingBox CreateFromSphere(in BoundingSphere sphere)
         {
             var corner = new Vector3(sphere.Radius);
-            return new BoundingBox
-            {
-                Min = sphere.Center - corner,
-                Max = sphere.Center + corner
-            };
+            return new BoundingBox(
+                sphere.Center - corner,
+                sphere.Center + corner);
         }
 
-        public Vector3 GetCenter() => (Min + Max) / 2;
+        public Vector3 GetCenter()
+        {
+            return (Min + Max) / 2;
+        }
 
-        public PlaneIntersectionType Intersects(ref Plane plane)
+        public PlaneIntersectionType Intersects(in Plane plane)
         {
             // See http://zach.in.tu-clausthal.de/teaching/cg_literatur/lighthouse3d_view_frustum_culling/index.html
 
@@ -121,23 +119,25 @@ namespace OpenSage.Mathematics
         }
 
         // Based on http://dev.theomader.com/transform-bounding-boxes/
-        public BoundingBox Transform(in Matrix4x4 matrix)
+        public static BoundingBox Transform(in BoundingBox box, in Matrix4x4 matrix)
         {
             var right = matrix.Right();
-            var xa = right * Min.X;
-            var xb = right * Max.X;
+            var xa = right * box.Min.X;
+            var xb = right * box.Max.X;
 
             var up = matrix.Up();
-            var ya = up * Min.Y;
-            var yb = up * Max.Y;
+            var ya = up * box.Min.Y;
+            var yb = up * box.Max.Y;
 
             var backward = matrix.Backward();
-            var za = backward * Min.Z;
-            var zb = backward * Max.Z;
+            var za = backward * box.Min.Z;
+            var zb = backward * box.Max.Z;
+
+            var translation = Matrix4x4Utility.GetTranslation(matrix);
 
             return new BoundingBox(
-                Vector3.Min(xa, xb) + Vector3.Min(ya, yb) + Vector3.Min(za, zb) + matrix.Translation,
-                Vector3.Max(xa, xb) + Vector3.Max(ya, yb) + Vector3.Max(za, zb) + matrix.Translation
+                Vector3.Min(xa, xb) + Vector3.Min(ya, yb) + Vector3.Min(za, zb) + translation,
+                Vector3.Max(xa, xb) + Vector3.Max(ya, yb) + Vector3.Max(za, zb) + translation
             );
         }
 

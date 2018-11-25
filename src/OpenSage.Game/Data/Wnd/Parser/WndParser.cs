@@ -482,20 +482,16 @@ namespace OpenSage.Data.Wnd.Parser
 
         private Point2D ParsePoint()
         {
-            return new Point2D
-            {
-                X = NextIntegerLiteralTokenValue(),
-                Y = NextIntegerLiteralTokenValue()
-            };
+            return new Point2D(
+                NextIntegerLiteralTokenValue(),
+                NextIntegerLiteralTokenValue());
         }
 
         private Size ParseSize()
         {
-            return new Size
-            {
-                Width = NextIntegerLiteralTokenValue(),
-                Height = NextIntegerLiteralTokenValue()
-            };
+            return new Size(
+                NextIntegerLiteralTokenValue(),
+                NextIntegerLiteralTokenValue());
         }
 
         private WndWindowStatusFlags ParseStatus()
@@ -664,13 +660,11 @@ namespace OpenSage.Data.Wnd.Parser
 
         private ColorRgba ParseColor()
         {
-            return new ColorRgba
-            {
-                R = (byte) NextIntegerLiteralTokenValue(),
-                G = (byte) NextIntegerLiteralTokenValue(),
-                B = (byte) NextIntegerLiteralTokenValue(),
-                A = (byte) NextIntegerLiteralTokenValue()
-            };
+            return new ColorRgba(
+                (byte) NextIntegerLiteralTokenValue(),
+                (byte) NextIntegerLiteralTokenValue(),
+                (byte) NextIntegerLiteralTokenValue(),
+                (byte) NextIntegerLiteralTokenValue());
         }
 
         private WndDrawData ParseDrawData()
