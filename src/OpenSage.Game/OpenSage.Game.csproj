@@ -16,7 +16,7 @@
     <PackageReference Include="Veldrid.ImageSharp" Version="$(VeldridVersion)" />
     <PackageReference Include="Veldrid.SDL2" Version="$(VeldridVersion)" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="$(VeldridVersion)" />
-    <PackageReference Include="Veldrid.SPIRV" Version="1.0.2" />
+    <PackageReference Include="Veldrid.SPIRV" Version="1.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,10 +31,18 @@
     <UpToDateCheckInput Include="@(ShaderHeaderFiles)" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <GlslangValidatorPath>win-x64\glslangValidator.exe</GlslangValidatorPath>
+    <GlslangValidatorPath Condition="$([MSBuild]::IsOsPlatform('osx'))">osx-x64\glslangValidator</GlslangValidatorPath>
+
+    <SpirvCrossPath>win-x64\SPIRV-Cross.exe</SpirvCrossPath>
+    <SpirvCrossPath Condition="$([MSBuild]::IsOsPlatform('osx'))">osx-x64\spirv-cross</SpirvCrossPath>
+  </PropertyGroup>
+
   <Target Name="CompileShaders" BeforeTargets="BeforeBuild" Inputs="@(ShaderFiles);@(ShaderHeaderFiles)" Outputs="@(ShaderFiles->'$(IntermediateOutputPath)Assets\Shaders\%(FileName)%(Extension).spv');@(ShaderFiles->'$(IntermediateOutputPath)Assets\Shaders\%(FileName)%(Extension).json')">
     <MakeDir Directories="$(IntermediateOutputPath)Assets\Shaders" />
-    <Exec Command="$(MSBuildThisFileDirectory)..\..\lib\win-x64\glslangValidator.exe -I'.' -V %(ShaderFiles.Identity) -o $(IntermediateOutputPath)Assets\Shaders\%(ShaderFiles.FileName)%(ShaderFiles.Extension).spv" />
-    <Exec Command="$(MSBuildThisFileDirectory)..\..\lib\win-x64\SPIRV-Cross.exe --output $(IntermediateOutputPath)Assets\Shaders\%(ShaderFiles.FileName)%(ShaderFiles.Extension).json $(IntermediateOutputPath)%(ShaderFiles.Identity).spv --reflect" />
+    <Exec Command="$(MSBuildThisFileDirectory)..\..\lib\$(GlslangValidatorPath) -I'.' -V %(ShaderFiles.Identity) -o $(IntermediateOutputPath)Assets\Shaders\%(ShaderFiles.FileName)%(ShaderFiles.Extension).spv" />
+    <Exec Command="$(MSBuildThisFileDirectory)..\..\lib\$(SpirvCrossPath) --output $(IntermediateOutputPath)Assets\Shaders\%(ShaderFiles.FileName)%(ShaderFiles.Extension).json $(IntermediateOutputPath)%(ShaderFiles.Identity).spv --reflect" />
   </Target>
 
   <Target Name="EmbedShaders" AfterTargets="CompileShaders">

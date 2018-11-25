@@ -36,6 +36,11 @@ namespace OpenSage.Logic.Object
 
         public static Collider Create(ObjectDefinition definition, Transform transform)
         {
+            if (definition.Geometry == null)
+            {
+                return null;
+            }
+
             switch (definition.Geometry.Type)
             {
                 case ObjectGeometry.Box:
