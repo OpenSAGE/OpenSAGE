@@ -54,7 +54,7 @@ namespace OpenSage.Logic.Object
             { "BuildCost", (parser, x) => x.BuildCost = parser.ParseFloat() },
             { "BuildTime", (parser, x) => x.BuildTime = parser.ParseFloat() },
             { "BuildFadeInOnCreateList", (parser, x) => x.BuildFadeInOnCreateList = parser.ParseIdentifier() },
-            { "BuildFadeInOnCreateTime", (parser, x) => x.BuildFadeInOnCreateTime = parser.ParseInteger() },
+            { "BuildFadeInOnCreateTime", (parser, x) => x.BuildFadeInOnCreateTime = parser.ParseFloat() },
             { "RefundValue", (parser, x) => x.RefundValue = parser.ParseInteger() },
             { "EnergyProduction", (parser, x) => x.EnergyProduction = parser.ParseInteger() },
             { "EnergyBonus", (parser, x) => x.EnergyBonus = parser.ParseInteger() },
@@ -292,7 +292,9 @@ namespace OpenSage.Logic.Object
             { "RemoveTerrainRadius", (parser, x) => x.RemoveTerrainRadius = parser.ParseFloat() },
             { "HealthBoxScale", (parser, x) => x.HealthBoxScale = parser.ParseFloat() },
             { "HealthBoxHeightOffset", (parser, x) => x.HealthBoxHeightOffset = parser.ParseFloat() },
-            { "ForceLuaRegistration", (parser, x) => x.ForceLuaRegistration = parser.ParseBoolean() }
+            { "ForceLuaRegistration", (parser, x) => x.ForceLuaRegistration = parser.ParseBoolean() },
+            { "CrushRevengeWeapon", (parser, x) => x.CrushRevengeWeapon = parser.ParseAssetReference() },
+            { "EvaEventDamagedOwner", (parser, x) => x.EvaEventDamagedOwner = parser.ParseAssetReference() }
         };
 
         public string Name { get; protected set; }
@@ -817,7 +819,7 @@ namespace OpenSage.Logic.Object
         public string BuildFadeInOnCreateList { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int BuildFadeInOnCreateTime { get; private set; }
+        public float BuildFadeInOnCreateTime { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public CollideSize DeadCollideSize { get; private set; }
@@ -869,6 +871,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool ForceLuaRegistration { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string CrushRevengeWeapon { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string EvaEventDamagedOwner { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

@@ -541,5 +541,14 @@
 
         [IniEnum("OCL_BIT"), AddedIn(SageGame.Bfme)]
         OCLBit,
+
+        [IniEnum("TAINTEFFECT"), AddedIn(SageGame.Bfme)]
+        TaintEffect,
+
+        [IniEnum("GRAB_AND_DROP"), AddedIn(SageGame.Bfme)]
+        GrabAndDrop,
+
+        [IniEnum("CAN_ATTACK_WALLS"), AddedIn(SageGame.Bfme)]
+        CanAttackWalls
     }
 }

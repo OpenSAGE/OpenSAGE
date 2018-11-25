@@ -372,7 +372,13 @@ namespace OpenSage.Logic.Object
 
     public enum ModelLevelOfDetail
     {
+        [IniEnum("LOW")]
+        Low,
+
         [IniEnum("MEDIUM")]
         Medium,
+
+        [IniEnum("HIGH")]
+        High,
     }
 }

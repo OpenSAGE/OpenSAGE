@@ -25,6 +25,7 @@ namespace OpenSage.Logic.Object
             { "DamageCreationList", (parser, x) => x.DamageCreationLists.Add(DamageCreationList.Parse(parser)) },
             { "GrabFX", (parser, x) => x.GrabFX = parser.ParseAssetReference() },
             { "GrabDamage", (parser, x) => x.GrabDamage = parser.ParseInteger() },
+            { "CheerRadius", (parser, x) => x.CheerRadius = parser.ParseInteger() }
         };
 
         public float MaxHealth { get; private set; }
@@ -61,7 +62,10 @@ namespace OpenSage.Logic.Object
         public string GrabFX { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int GrabDamage { get; private set; } 
+        public int GrabDamage { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int CheerRadius { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

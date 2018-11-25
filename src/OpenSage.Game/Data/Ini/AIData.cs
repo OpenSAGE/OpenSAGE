@@ -95,7 +95,7 @@ namespace OpenSage.Data.Ini
 
             { "SideInfo", (parser, x) => x.SideInfos.Add(AISideInfo.Parse(parser)) },
 
-            { "SkirmishBuildList", (parser, x) => x.SkirmishBuildLists.Add(AISkirmishBuildList.Parse(parser)) },
+            { "SkirmishBuildList", (parser, x) => x.SkirmishBuildLists.Add(List.Parse(parser)) },
 
             { "AttackPriority", (parser, x) => x.AttackPriorities.Add(AttackPriority.Parse(parser)) },
         };
@@ -229,7 +229,7 @@ namespace OpenSage.Data.Ini
 
         public List<AISideInfo> SideInfos { get; } = new List<AISideInfo>();
 
-        public List<AISkirmishBuildList> SkirmishBuildLists { get; } = new List<AISkirmishBuildList>();
+        public List<List> SkirmishBuildLists { get; } = new List<List>();
 
         [AddedIn(SageGame.Bfme)]
         public List<AttackPriority> AttackPriorities { get; } = new List<AttackPriority>();
@@ -283,16 +283,16 @@ namespace OpenSage.Data.Ini
         public List<string> Sciences { get; } = new List<string>();
     }
 
-    public sealed class AISkirmishBuildList
+    public sealed class List
     {
-        internal static AISkirmishBuildList Parse(IniParser parser)
+        internal static List Parse(IniParser parser)
         {
             return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }
 
-        private static readonly IniParseTable<AISkirmishBuildList> FieldParseTable = new IniParseTable<AISkirmishBuildList>
+        private static readonly IniParseTable<List> FieldParseTable = new IniParseTable<List>
         {
             { "Structure", (parser, x) => x.Structures.Add(AIStructure.Parse(parser)) }
         };
