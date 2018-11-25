@@ -56,6 +56,7 @@ namespace OpenSage.Logic.Object
             { "WaitForStateToFinishIfPossible", (parser, x) => x.WaitForStateToFinishIfPossible = parser.ParseIdentifier() },
 
             { "OverrideTooltip", (parser, x) => x.OverrideTooltip = parser.ParseAssetReference() },
+            { "FXEvent", (parser, x) => x.FXEvents.Add(FXEvent.Parse(parser)) },
         };
 
         private void ParseAnimation(IniParser parser)
@@ -109,6 +110,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string OverrideTooltip { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public List<FXEvent> FXEvents { get; private set; } = new List<FXEvent>();
 
         /// <summary>
         /// Used by AliasConditionState.

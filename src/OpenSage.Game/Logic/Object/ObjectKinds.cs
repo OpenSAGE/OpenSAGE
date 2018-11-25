@@ -523,5 +523,17 @@
 
         [IniEnum("MADE_OF_DIRT"), AddedIn(SageGame.Bfme)]
         MadeOfDirt,
+
+        [IniEnum("TAINT"), AddedIn(SageGame.Bfme)]
+        Taint,
+
+        [IniEnum("MADE_OF_STONE"), AddedIn(SageGame.Bfme)]
+        MadeOfStone,
+
+        [IniEnum("BASE_DEFENSE_FOUNDATION"), AddedIn(SageGame.Bfme)]
+        BaseDefenseFoundation,
+
+        [IniEnum("BANNER"), AddedIn(SageGame.Bfme)]
+        Banner,
     }
 }

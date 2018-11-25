@@ -24,7 +24,9 @@ namespace OpenSage.Logic.Object
             { "DisabledTypesToProcess", (parser, x) => x.DisabledTypesToProcess = parser.ParseEnumBitArray<DisabledType>() },
             { "VeteranUnitsFromVeteranFactory", (parser, x) => x.VeteranUnitsFromVeteranFactory = parser.ParseBoolean() },
             { "SetBonusModelConditionOnSpeedBonus", (parser, x) => x.SetBonusModelConditionOnSpeedBonus = parser.ParseBoolean() },
-            { "BonusForType", (parser, x) => x.BonusForType = parser.ParseString() }
+            { "BonusForType", (parser, x) => x.BonusForType = parser.ParseString() },
+            { "SpeedBonusAudioLoop", (parser, x) => x.SpeedBonusAudioLoop = parser.ParseAssetReference() },
+            { "UnitInvulnerableTime", (parser, x) => x.UnitInvulnerableTime = parser.ParseInteger() }
         };
 
         /// <summary>
@@ -53,6 +55,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string BonusForType { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string SpeedBonusAudioLoop { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int UnitInvulnerableTime { get; private set; }
     }
 
     public struct QuantityModifier

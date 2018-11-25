@@ -57,5 +57,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("BLOODTHIRSTY"), AddedIn(SageGame.Bfme)]
         BloodThirsty,
+
+        [IniEnum("ENCLOSED"), AddedIn(SageGame.Bfme)]
+        Enclosed,
     }
 }

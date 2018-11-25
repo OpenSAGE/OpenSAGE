@@ -289,10 +289,10 @@ namespace OpenSage.Logic.Object
             { "LiveCameraPitch", (parser, x) => x.LiveCameraPitch = parser.ParseFloat() },
             { "EvaEventDieOwner", (parser, x) => x.EvaEventDieOwner = parser.ParseAssetReference() },
             { "AttackContactPoint", (parser, x) => x.AttackContactPoints.Add(ContactPoint.Parse(parser)) },
-            { "RemoveTerrainRadius", (parser, x) => x.RemoveTerrainRadius = parser.ParseFloat() }
+            { "RemoveTerrainRadius", (parser, x) => x.RemoveTerrainRadius = parser.ParseFloat() },
+            { "HealthBoxScale", (parser, x) => x.HealthBoxScale = parser.ParseFloat() },
+            { "HealthBoxHeightOffset", (parser, x) => x.HealthBoxHeightOffset = parser.ParseFloat() } 
         };
-
-    
 
         public string Name { get; protected set; }
 
@@ -859,6 +859,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public float RemoveTerrainRadius { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float HealthBoxScale { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float HealthBoxHeightOffset { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

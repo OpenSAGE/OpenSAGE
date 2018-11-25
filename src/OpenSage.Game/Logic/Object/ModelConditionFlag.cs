@@ -634,5 +634,10 @@ namespace OpenSage.Logic.Object
         [IniEnum("SPECIAL_POWER_1"), AddedIn(SageGame.Bfme)]
         SpecialPower1,
 
+        [IniEnum("COLLAPSING"), AddedIn(SageGame.Bfme)]
+        Collapsing,
+
+        [IniEnum("TAINT"), AddedIn(SageGame.Bfme)]
+        Taint,
     }
 }
