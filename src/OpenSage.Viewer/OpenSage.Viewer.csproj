@@ -19,22 +19,12 @@
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Packaging.Tools.Trimming" Version="1.1.0-preview1-26228-01" />
     <PackageReference Include="Veldrid.ImGui" Version="$(ImGuiVersion)" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\OpenSage.Game\OpenSage.Game.csproj" />
     <ProjectReference Include="..\OpenSage.Mods.BuiltIn\OpenSage.Mods.BuiltIn.csproj" />
-  </ItemGroup>
-
-  <!--Native dependencies that should not be trimmed!-->
-  <ItemGroup>
-    <TrimFilesRootFiles Include="SDL2.dll" />
-    <TrimFilesRootFiles Include="libsdl2.dylib" />
-    <TrimFilesRootFiles Include="cimgui.dll" />
-    <TrimFilesRootFiles Include="cimgui.dylib" />
-    <TrimFilesRootFiles Include="cimgui.so" />
   </ItemGroup>
 
 </Project>
