@@ -3,8 +3,9 @@
 #extension GL_EXT_samplerless_texture_functions : enable
 
 #include "Common.h"
-#include "Cloud.h"
 #include "Lighting.h"
+#include "Cloud.h"
+#include "Shadows.h"
 
 layout(set = 0, binding = 0) uniform GlobalConstantsShared
 {
@@ -56,10 +57,21 @@ layout(set = 0, binding = 10) uniform texture2DArray Textures;
 layout(set = 0, binding = 11) uniform texture2D MacroTexture;
 layout(set = 0, binding = 12) uniform sampler Sampler;
 
+layout(set = 0, binding = 13) uniform ShadowConstantsPS
+{
+    ShadowConstantsPSType _ShadowConstantsPS;
+};
+
+layout(set = 0, binding = 14) uniform texture2DArray Global_ShadowMap;
+layout(set = 0, binding = 15) uniform samplerShadow Global_ShadowSampler;
+
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec3 in_WorldNormal;
 layout(location = 2) in vec2 in_UV;
 layout(location = 3) in vec2 in_CloudUV;
+layout(location = 4) in float in_ViewSpaceDepth;
+
+in vec4 gl_FragCoord;
 
 layout(location = 0) out vec4 out_Color;
 
@@ -225,6 +237,17 @@ vec2 GetMacroTextureUV(vec3 worldPosition)
 
 void main()
 {
+    float nDotL = saturate(dot(in_WorldNormal, -_GlobalLightingConstantsPS.Lights[0].Direction));
+    vec3 shadowVisibility = ShadowVisibility(
+        Global_ShadowMap,
+        Global_ShadowSampler,
+        in_WorldPosition, 
+        in_ViewSpaceDepth, 
+        nDotL, 
+        in_WorldNormal, 
+        ivec2(gl_FragCoord.xy), 
+        _ShadowConstantsPS);
+
     vec3 diffuseColor;
     vec3 specularColor;
 
@@ -238,6 +261,7 @@ void main()
         0,
         _GlobalConstantsShared.CameraPosition,
         false,
+        shadowVisibility,
         diffuseColor,
         specularColor);
 

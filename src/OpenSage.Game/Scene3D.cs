@@ -26,7 +26,7 @@ namespace OpenSage
 
         private readonly ParticleSystemManager _particleSystemManager;
 
-        public CameraComponent Camera { get; }
+        public PerspectiveCamera Camera { get; }
 
         public ICameraController CameraController { get; set; }
 
@@ -82,7 +82,7 @@ namespace OpenSage
             Player[] players,
             Team[] teams)
         {
-            Camera = new CameraComponent(game);
+            Camera = new PerspectiveCamera(game);
             CameraController = cameraController;
 
             MapFile = mapFile;
@@ -142,7 +142,7 @@ namespace OpenSage
             CameraController.UpdateCamera(Camera, _cameraInputState, gameTime);
         }
 
-        internal void BuildRenderList(RenderList renderList, CameraComponent camera)
+        internal void BuildRenderList(RenderList renderList, PerspectiveCamera camera)
         {
             if (ShowTerrain)
             {

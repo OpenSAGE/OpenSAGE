@@ -88,7 +88,7 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal void BuildRenderList(RenderList renderList, CameraComponent camera)
+        internal void BuildRenderList(RenderList renderList, PerspectiveCamera camera)
         {
             foreach (var drawModule in DrawModules)
             {

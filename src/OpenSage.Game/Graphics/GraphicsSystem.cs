@@ -1,5 +1,4 @@
-﻿using System;
-using OpenSage.Graphics.Rendering;
+﻿using OpenSage.Graphics.Rendering;
 
 namespace OpenSage.Graphics
 {
@@ -8,6 +7,8 @@ namespace OpenSage.Graphics
         private readonly RenderContext _renderContext;
 
         private RenderPipeline _renderPipeline;
+
+        public ShadowSettings ShadowSettings { get; } = new ShadowSettings();
 
         public GraphicsSystem(Game game)
             : base(game)

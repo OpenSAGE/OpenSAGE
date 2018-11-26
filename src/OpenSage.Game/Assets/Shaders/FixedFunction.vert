@@ -43,6 +43,7 @@ layout(location = 1) out vec3 out_WorldNormal;
 layout(location = 2) out vec2 out_UV0;
 layout(location = 3) out vec2 out_UV1;
 layout(location = 4) out vec2 out_CloudUV;
+layout(location = 5) out float out_ViewSpaceDepth;
 
 void main()
 {
@@ -73,4 +74,6 @@ void main()
 
     out_UV0 = in_UV0;
     out_UV1 = in_UV1;
+
+    out_ViewSpaceDepth = gl_Position.z;
 }

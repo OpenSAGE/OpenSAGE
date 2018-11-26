@@ -101,6 +101,9 @@ namespace OpenSage.Graphics
                 {
                     AddDisposable(meshPart.Material);
                     meshPart.Material.SetMeshConstants(_meshConstantsBuffer.Buffer);
+
+                    AddDisposable(meshPart.DepthMaterial);
+                    meshPart.DepthMaterial.SetMeshConstants(_meshConstantsBuffer.Buffer);
                 }
             }
             MaterialPasses = materialPasses;
@@ -108,7 +111,7 @@ namespace OpenSage.Graphics
 
         internal void BuildRenderList(
             RenderList renderList,
-            CameraComponent camera,
+            PerspectiveCamera camera,
             ModelInstance modelInstance,
             in Matrix4x4 modelTransform)
         {
@@ -160,6 +163,25 @@ namespace OpenSage.Graphics
             {
                 foreach (var meshPart in materialPass.MeshParts)
                 {
+                    // Depth pass
+
+                    // TODO: Should alpha-blended meshes be included in shadow pass?
+
+                    meshPart.DepthMaterial.SetSkinningBuffer(modelInstance.SkinningBuffer);
+
+                    renderList.Shadow.AddRenderItemDrawIndexed(
+                       meshPart.DepthMaterial,
+                       _vertexBuffer,
+                       materialPass.TexCoordVertexBuffer,
+                       CullFlags.None,
+                       meshBoundingBox,
+                       world,
+                       meshPart.StartIndex,
+                       meshPart.IndexCount,
+                       _indexBuffer);
+
+                    // Standard pass
+
                     meshPart.Material.SetSkinningBuffer(modelInstance.SkinningBuffer);
 
                     var renderQueue = meshPart.Material.PipelineState.BlendState.AttachmentStates[0].BlendEnabled
