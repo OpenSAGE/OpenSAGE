@@ -50,9 +50,9 @@ namespace OpenSage.Logic.Object
         public bool AllowAlliesInside { get; private set; }
         public bool ShowPips { get; private set; }
         public ObjectFilter FadeFilter { get; private set; }
-		public bool FadePassengerOnEnter { get; private set; }
-		public int EnterFadeTime { get; private set; }
-		public bool FadePassengerOnExit { get; private set; }
-		public int ExitFadeTime { get; private set; }
+        public bool FadePassengerOnEnter { get; private set; }
+        public int EnterFadeTime { get; private set; }
+        public bool FadePassengerOnExit { get; private set; }
+        public int ExitFadeTime { get; private set; }
     }
 }
