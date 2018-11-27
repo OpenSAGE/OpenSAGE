@@ -90,7 +90,7 @@ namespace OpenSage.Graphics.Rendering
                 var cascadeExtents = maxExtents - minExtents;
 
                 // Get position of the shadow camera
-                var shadowCameraPos = frustumCenter + lightDirection * -minExtents.Z;
+                var shadowCameraPos = frustumCenter - lightDirection * -minExtents.Z;
 
                 // Come up with a new orthographic camera for the shadow caster
                 var shadowCamera = new OrthographicCamera(
@@ -173,7 +173,7 @@ namespace OpenSage.Graphics.Rendering
             var upDir = Vector3.UnitZ;
 
             // Get position of the shadow camera
-            var shadowCameraPos = frustumCenter + lightDirection * -0.5f;
+            var shadowCameraPos = frustumCenter - lightDirection * -0.5f;
 
             // Come up with a new orthographic camera for the shadow caster
             var shadowCamera = new OrthographicCamera(-0.5f, -0.5f, 0.5f, 0.5f, 0.0f, 1.0f);
