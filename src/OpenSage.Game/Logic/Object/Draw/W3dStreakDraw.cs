@@ -17,10 +17,10 @@ namespace OpenSage.Logic.Object
             { "Texture", (parser, x) => x.Texture = parser.ParseAssetReference() }
         };
 
-        public int Length { get; internal set; }
-        public int Width { get; internal set; }
-        public int NumSegments { get; internal set; }
-        public ColorRgba Color { get; internal set; }
-        public string Texture { get; internal set; }
+        public int Length { get; private set; }
+        public int Width { get; private set; }
+        public int NumSegments { get; private set; }
+        public ColorRgba Color { get; private set; }
+        public string Texture { get; private set; }
     }
 }

@@ -29,21 +29,21 @@ namespace OpenSage.Logic.Object
             { "TopAttackRadius", (parser, x) => x.TopAttackRadius = parser.ParseInteger() },
         };
 
-        public bool GenerateNow { get; internal set; }
-        public BitArray<ObjectKinds> AllowKindOf { get; internal set; }
-        public BitArray<ObjectKinds> RejectKindOf { get; internal set; }
-        public bool AllowEnemies { get; internal set; }
-        public string BonePrefix { get; internal set; }
-        public int NumberOfBones { get; internal set; }
-        public List<WayPoint> WayPoints { get; internal set; } = new List<WayPoint>();
-        public List<Link> Links { get; internal set; } = new List<Link>();
+        public bool GenerateNow { get; private set; }
+        public BitArray<ObjectKinds> AllowKindOf { get; private set; }
+        public BitArray<ObjectKinds> RejectKindOf { get; private set; }
+        public bool AllowEnemies { get; private set; }
+        public string BonePrefix { get; private set; }
+        public int NumberOfBones { get; private set; }
+        public List<WayPoint> WayPoints { get; private set; } = new List<WayPoint>();
+        public List<Link> Links { get; private set; } = new List<Link>();
         public string[] TriggeredBy { get; private set; }
         public string[] ConflictsWith { get; private set; }
-        public CustomAnimAndDuration CustomAnimAndDuration { get; internal set; }
-        public float ActivationDelaySeconds { get; internal set; }
-        public int AboveWall { get; internal set; }
-        public Vector3 TopAttackPos { get; internal set; }
-        public int TopAttackRadius { get; internal set; }
+        public CustomAnimAndDuration CustomAnimAndDuration { get; private set; }
+        public float ActivationDelaySeconds { get; private set; }
+        public int AboveWall { get; private set; }
+        public Vector3 TopAttackPos { get; private set; }
+        public int TopAttackRadius { get; private set; }
     }
 
     public enum WayPointType
@@ -71,8 +71,8 @@ namespace OpenSage.Logic.Object
             };
         }
 
-        public int Index { get; internal set; }
-        public WayPointType Type { get; internal set; }
+        public int Index { get; private set; }
+        public WayPointType Type { get; private set; }
     }
 
     public sealed class Link
@@ -88,9 +88,9 @@ namespace OpenSage.Logic.Object
             };
         }
 
-        public int From { get; internal set; }
-        public int Via1 { get; internal set; }
-        public int Via2 { get; internal set; }
-        public int To { get; internal set; }
+        public int From { get; private set; }
+        public int Via1 { get; private set; }
+        public int Via2 { get; private set; }
+        public int To { get; private set; }
     }
 }

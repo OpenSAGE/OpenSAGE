@@ -22,11 +22,11 @@ namespace OpenSage.Logic.Object
                 { "KillPassengersOnDeath", (parser, x) => x.KillPassengersOnDeath = parser.ParseBoolean() }
             });
 
-        public int ContainMax { get; internal set; }
-        public int MaxHordeCapacity { get; internal set; }
-        public Vector3 EntryPosition { get; internal set; }
-        public Vector3 EntryOffset { get; internal set; }
-        public Vector3 ExitOffset { get; internal set; }
-        public bool KillPassengersOnDeath { get; internal set; }
+        public int ContainMax { get; private set; }
+        public int MaxHordeCapacity { get; private set; }
+        public Vector3 EntryPosition { get; private set; }
+        public Vector3 EntryOffset { get; private set; }
+        public Vector3 ExitOffset { get; private set; }
+        public bool KillPassengersOnDeath { get; private set; }
     }
 }

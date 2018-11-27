@@ -66,8 +66,8 @@ namespace OpenSage.Logic.Object
             };
         }
 
-        public string CrewObject { get; internal set; }
-        public int NumMembers { get; internal set; }
+        public string CrewObject { get; private set; }
+        public int NumMembers { get; private set; }
     }
 
     public struct BoneSpecificConditionState
@@ -81,7 +81,7 @@ namespace OpenSage.Logic.Object
             };
         }
 
-        public int ID { get; internal set; }
+        public int ID { get; private set; }
         public ModelConditionFlag Condition { get; private set; }
     }
 }

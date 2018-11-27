@@ -16,6 +16,6 @@ namespace OpenSage.Logic.Object
                 { "Symbiote", (parser, x) => x.Symbiote = parser.ParseString() }
             });
 
-        public string Symbiote { get; internal set; }
+        public string Symbiote { get; private set; }
      }
 }

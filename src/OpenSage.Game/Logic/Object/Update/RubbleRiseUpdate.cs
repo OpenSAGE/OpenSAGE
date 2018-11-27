@@ -22,14 +22,14 @@ namespace OpenSage.Logic.Object
             { "FXList", (parser, x) => x.FXLists[parser.ParseEnum<StructureCollapsePhase>()] = parser.ParseAssetReference() },
         };
 
-        public int MinRubbleRiseDelay { get; internal set; }
-        public int MaxRubbleRiseDelay { get; internal set; }
-        public float RubbleRiseDamping { get; internal set; }
-        public float RubbleHeight { get; internal set; }
-        public float MaxShudder { get; internal set; }
-        public int MinBurstDelay { get; internal set; }
-        public int MaxBurstDelay { get; internal set; }
-        public int BigBurstFrequency { get; internal set; }
+        public int MinRubbleRiseDelay { get; private set; }
+        public int MaxRubbleRiseDelay { get; private set; }
+        public float RubbleRiseDamping { get; private set; }
+        public float RubbleHeight { get; private set; }
+        public float MaxShudder { get; private set; }
+        public int MinBurstDelay { get; private set; }
+        public int MaxBurstDelay { get; private set; }
+        public int BigBurstFrequency { get; private set; }
         public Dictionary<StructureCollapsePhase, string> FXLists { get; } = new Dictionary<StructureCollapsePhase, string>();
     }
 }

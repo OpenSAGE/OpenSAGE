@@ -15,6 +15,6 @@ namespace OpenSage.Logic.Object
                 { "StopPowerTemplate", (parser, x) => x.StopPowerTemplate = parser.ParseAssetReference() },
             });
 
-        public string StopPowerTemplate { get; internal set; }
+        public string StopPowerTemplate { get; private set; }
     }
 }

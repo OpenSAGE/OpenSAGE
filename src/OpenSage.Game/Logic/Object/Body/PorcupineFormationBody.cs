@@ -17,7 +17,7 @@ namespace OpenSage.Logic.Object
                 { "CrushDamageWeaponTemplate", (parser, x) => x.CrushDamageWeaponTemplate = parser.ParseAssetReference() },
             });
 
-        public string DamageWeaponTemplate { get; internal set; }
-        public string CrushDamageWeaponTemplate { get; internal set; }
+        public string DamageWeaponTemplate { get; private set; }
+        public string CrushDamageWeaponTemplate { get; private set; }
      }
 }

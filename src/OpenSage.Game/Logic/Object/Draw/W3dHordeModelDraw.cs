@@ -42,7 +42,7 @@ namespace OpenSage.Logic.Object
 
         public bool AllowMultipleModels { get; private set; }
         public int MaxRandomTextures { get; private set; }
-        public int MaxRandomAnimations { get; internal set; }
+        public int MaxRandomAnimations { get; private set; }
         public int MaxAnimFrameDelta { get; private set; }
     }
 }

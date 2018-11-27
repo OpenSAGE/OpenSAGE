@@ -15,8 +15,8 @@ namespace OpenSage.Logic.Object
                 { "PlacementIndex", (parser, x) => x.PlacementIndex = parser.ParseInteger() },
             });
 
-        public string BuildingTemplateName { get; internal set; }
-        public string PlacementPrefix {get; internal set; }
-        public int PlacementIndex { get; internal set; }
+        public string BuildingTemplateName { get; private set; }
+        public string PlacementPrefix { get; private set; }
+        public int PlacementIndex { get; private set; }
     }
 }

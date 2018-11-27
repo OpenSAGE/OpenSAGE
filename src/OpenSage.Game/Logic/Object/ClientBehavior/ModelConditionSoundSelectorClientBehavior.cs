@@ -12,7 +12,7 @@ namespace OpenSage.Logic.Object
             { "SoundState", (parser, x) => x.SoundState = SoundState.Parse(parser) }
         };
 
-        public SoundState SoundState { get; internal set; }
+        public SoundState SoundState { get; private set; }
     }
 
     public sealed class SoundState
@@ -40,18 +40,18 @@ namespace OpenSage.Logic.Object
              { "VoiceEnterStateMoveWhileAttacking", (parser, x) => x.VoiceEnterStateMoveWhileAttacking = parser.ParseAssetReference() },
         };
 
-        public ModelConditionFlag Condition { get; internal set; }
+        public ModelConditionFlag Condition { get; private set; }
 
-        public string VoiceSelect { get; internal set; }
-        public string VoiceSelect2 { get; internal set; }
-        public string VoiceSelectBattle { get; internal set; }
-        public string VoiceSelectBattle2 { get; internal set; }
-        public string VoiceMove { get; internal set; }
-        public string VoiceMove2 { get; internal set; }
-        public string VoiceMoveToCamp { get; internal set; }
-        public string VoiceMoveWhileAttacking { get; internal set; }
-        public string VoiceEnterStateMove { get; internal set; }
-        public string VoiceEnterStateMoveToCamp { get; internal set; }
-        public string VoiceEnterStateMoveWhileAttacking { get; internal set; }
+        public string VoiceSelect { get; private set; }
+        public string VoiceSelect2 { get; private set; }
+        public string VoiceSelectBattle { get; private set; }
+        public string VoiceSelectBattle2 { get; private set; }
+        public string VoiceMove { get; private set; }
+        public string VoiceMove2 { get; private set; }
+        public string VoiceMoveToCamp { get; private set; }
+        public string VoiceMoveWhileAttacking { get; private set; }
+        public string VoiceEnterStateMove { get; private set; }
+        public string VoiceEnterStateMoveToCamp { get; private set; }
+        public string VoiceEnterStateMoveWhileAttacking { get; private set; }
     }
 }

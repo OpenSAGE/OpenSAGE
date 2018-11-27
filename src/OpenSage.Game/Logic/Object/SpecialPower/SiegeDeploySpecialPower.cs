@@ -20,11 +20,11 @@ namespace OpenSage.Logic.Object
                 { "InitiateSound2", (parser, x) => x.InitiateSound2 = parser.ParseAssetReference() },
             });
 
-        public int LowerDelay { get; internal set; }
-        public int RaiseDelay { get; internal set; }
-        public bool EvacuatePassengersOnDeploy { get; internal set; }
-        public bool SkipAdjustPosition { get; internal set; }
-        public string InitiateSound { get; internal set; }
-        public string InitiateSound2 { get; internal set; }
+        public int LowerDelay { get; private set; }
+        public int RaiseDelay { get; private set; }
+        public bool EvacuatePassengersOnDeploy { get; private set; }
+        public bool SkipAdjustPosition { get; private set; }
+        public string InitiateSound { get; private set; }
+        public string InitiateSound2 { get; private set; }
     }
 }
