@@ -19,13 +19,13 @@ namespace OpenSage.Logic.Object
             { "BeingBuiltSound", (parser, x) => x.BeingBuiltSound = parser.ParseAssetReference() }
         };
 
-        public bool CountsForEvaCastleBreached { get; internal set; }
-        public string UnderAttackEvaEventIfKeep { get; internal set; }
-        public string UnderAttackAllyEvaEventIfKeep { get; internal set; }
-        public string CampDestroyedOwnerEvaEvent { get; internal set; }
-        public string CampDestroyedAllyEvaEvent { get; internal set; }
-        public string CampDestroyedAttackerEvaEvent { get; internal set; }
-        public bool StoreUpgradePrice { get; internal set; }
-        public string BeingBuiltSound { get; internal set; }
+        public bool CountsForEvaCastleBreached { get; private set; }
+        public string UnderAttackEvaEventIfKeep { get; private set; }
+        public string UnderAttackAllyEvaEventIfKeep { get; private set; }
+        public string CampDestroyedOwnerEvaEvent { get; private set; }
+        public string CampDestroyedAllyEvaEvent { get; private set; }
+        public string CampDestroyedAttackerEvaEvent { get; private set; }
+        public bool StoreUpgradePrice { get; private set; }
+        public string BeingBuiltSound { get; private set; }
     }
 }

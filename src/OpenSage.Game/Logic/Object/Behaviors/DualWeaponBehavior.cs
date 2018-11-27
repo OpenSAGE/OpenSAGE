@@ -15,6 +15,6 @@ namespace OpenSage.Logic.Object
                
             });
 
-        public int SwitchWeaponOnCloseRangeDistance { get; internal set; }
+        public int SwitchWeaponOnCloseRangeDistance { get; private set; }
     }
 }

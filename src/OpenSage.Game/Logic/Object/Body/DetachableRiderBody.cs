@@ -15,8 +15,8 @@ namespace OpenSage.Logic.Object
                 { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseString() },
             });
 
-        public float HealthPercentageWhenRiderDies { get; internal set; }
-        public bool StartsActive { get; internal set; }
-        public string TriggeredBy { get; internal set; }
+        public float HealthPercentageWhenRiderDies { get; private set; }
+        public bool StartsActive { get; private set; }
+        public string TriggeredBy { get; private set; }
     }
 }

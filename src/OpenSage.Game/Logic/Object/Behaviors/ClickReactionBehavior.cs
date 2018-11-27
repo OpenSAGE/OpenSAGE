@@ -20,11 +20,11 @@ namespace OpenSage.Logic.Object
             { "ReactionFrames5", (parser, x) => x.ReactionFrames5 = parser.ParseInteger() },
         };
 
-        public int ClickReactionTimer { get; internal set; }
-        public int ReactionFrames1 { get; internal set; }
-        public int ReactionFrames2 { get; internal set; }
-        public int ReactionFrames3 { get; internal set; }
-        public int ReactionFrames4 { get; internal set; }
-        public int ReactionFrames5 { get; internal set; }
+        public int ClickReactionTimer { get; private set; }
+        public int ReactionFrames1 { get; private set; }
+        public int ReactionFrames2 { get; private set; }
+        public int ReactionFrames3 { get; private set; }
+        public int ReactionFrames4 { get; private set; }
+        public int ReactionFrames5 { get; private set; }
     }
 }

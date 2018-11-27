@@ -26,12 +26,12 @@ namespace OpenSage.Logic.Object
                 { "ClearanceMinHeightFraction", (parser, x) => x.ClearanceMinHeightFraction = parser.ParseFloat() },
             });
 
-        public int MinKillerAngle { get; internal set; }
-        public int MaxKillerAngle { get; internal set; }
-        public Geometry ClearanceGeometry { get; internal set; }
-        public int ClearanceMaxHeight { get; internal set; }
-        public int ClearanceMinHeight { get; internal set; }
-        public float ClearanceMinHeightFraction { get; internal set; }
-        public float ClearanceMaxHeightFraction { get; internal set; }
+        public int MinKillerAngle { get; private set; }
+        public int MaxKillerAngle { get; private set; }
+        public Geometry ClearanceGeometry { get; private set; }
+        public int ClearanceMaxHeight { get; private set; }
+        public int ClearanceMinHeight { get; private set; }
+        public float ClearanceMinHeightFraction { get; private set; }
+        public float ClearanceMaxHeightFraction { get; private set; }
     }
 }

@@ -15,8 +15,8 @@ namespace OpenSage.Logic.Object
                 { "KillAfterMS", (parser, x) => x.KillAfterMS = parser.ParseInteger() }
             });
 
-        public string SoundToPlay { get; internal set; }
-        public bool KillOnDeath { get; internal set; }
-        public int KillAfterMS { get; internal set; }
+        public string SoundToPlay { get; private set; }
+        public bool KillOnDeath { get; private set; }
+        public int KillAfterMS { get; private set; }
     }
 }

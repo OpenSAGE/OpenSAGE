@@ -28,11 +28,11 @@ namespace OpenSage.Logic.Object
             { "CrewPrepareInterval", (parser, x) => x.CrewPrepareInterval = parser.ParseInteger() },
         };
 
-        public List<Side> SidesAllowed { get; internal set; } = new List<Side>();
-        public bool UseTheNewCastleSystemInsteadOfTheClunkyBuildList { get; internal set; }
-        public ObjectFilter FilterValidOwnedEntries { get; internal set; }
+        public List<Side> SidesAllowed { get;} = new List<Side>();
+        public bool UseTheNewCastleSystemInsteadOfTheClunkyBuildList { get; private set; }
+        public ObjectFilter FilterValidOwnedEntries { get; private set; }
         public bool UseSecondaryBuildList { get; private set; }
-        public List<Faction> CastleToUnpackForFactions { get; private set; } = new List<Faction>();
+        public List<Faction> CastleToUnpackForFactions { get; } = new List<Faction>();
         public float MaxCastleRadius { get; private set; }
         public float FadeTime { get; private set; }
         public int ScanDistance { get; private set; }
@@ -73,7 +73,7 @@ namespace OpenSage.Logic.Object
             };
         }
 
-        public string SideName { get; internal set; }
+        public string SideName { get; private set; }
         public CommandSourceTypes CommandSourceTypes { get; private set; }
     }
 
@@ -88,7 +88,7 @@ namespace OpenSage.Logic.Object
             };
         }
 
-        public string ObjectName { get; internal set; }
+        public string ObjectName { get; private set; }
         public int Count { get; private set; }
     }
 }

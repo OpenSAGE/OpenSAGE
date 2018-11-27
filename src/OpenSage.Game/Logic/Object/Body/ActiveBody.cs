@@ -93,8 +93,8 @@ namespace OpenSage.Logic.Object
             };
         }
 
-        public string Object { get; internal set; }
-        public ObjectKinds ObjectKind { get; internal set; }
-        public string Unknown { get; internal set; }
+        public string Object { get; private set; }
+        public ObjectKinds ObjectKind { get; private set; }
+        public string Unknown { get; private set; }
     }
 }

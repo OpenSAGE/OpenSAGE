@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object
             { "PickUpKindOf", (parser, x) => x.PickUpKindOf = parser.ParseEnumBitArray<ObjectKinds>() },
         };
 
-        public int ScanDelayTime { get; internal set; }
-        public BitArray<ObjectKinds> PickUpKindOf { get; internal set; }
+        public int ScanDelayTime { get; private set; }
+        public BitArray<ObjectKinds> PickUpKindOf { get; private set; }
     }
 }
