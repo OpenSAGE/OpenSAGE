@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
-using OpenSage.Data.Wav;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Effects;
 using OpenSage.Gui;
@@ -123,7 +122,6 @@ namespace OpenSage.Content
                 { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
                 { typeof(Window), AddDisposable(new WindowLoader(this, wndCallbackResolver, language)) },
                 { typeof(AptWindow), AddDisposable(new AptLoader()) },
-                { typeof(WavFile), AddDisposable(new WavLoader()) },
             };
 
             _cachedObjects = new Dictionary<string, object>();

@@ -66,8 +66,9 @@ namespace OpenSage.Viewer.UI
                 case ".w3d":
                     return new W3dView(context);
 
+                case ".mp3":
                 case ".wav":
-                    return new WavView(context);
+                    return new SoundView(context);
 
                 case ".wnd":
                     return new WndView(context);
