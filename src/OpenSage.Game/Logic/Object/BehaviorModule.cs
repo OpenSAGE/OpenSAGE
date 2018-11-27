@@ -91,6 +91,7 @@ namespace OpenSage.Logic.Object
             { "ParachuteContain", ParachuteContainModuleData.Parse },
             { "RailedTransportContain", RailedTransportContainModuleData.Parse },
             { "RiderChangeContain", RiderChangeContainModuleData.Parse },
+            { "SiegeEngineContain", SiegeEngineContainModuleData.Parse },
             { "SlaughterHordeContain", SlaughterHordeContainModuleData.Parse },
             { "TransportContain", TransportContainModuleData.Parse },
             { "TunnelContain", TunnelContainModuleData.Parse },
@@ -134,9 +135,11 @@ namespace OpenSage.Logic.Object
             { "DefectorSpecialPower", DefectorSpecialPowerModuleData.Parse },
             { "FireWeaponPower", FireWeaponPowerModuleData.Parse },
             { "OCLSpecialPower", OCLSpecialPowerModuleData.Parse },
+            { "SiegeDeploySpecialPower", SiegeDeploySpecialPowerModuleData.Parse },
             { "SiegeDeployHordeSpecialPower", SiegeDeployHordeSpecialPowerModuleData.Parse },
             { "SpecialAbility", SpecialAbilityModuleData.Parse },
             { "SpyVisionSpecialPower", SpyVisionSpecialPowerModuleData.Parse },
+            { "StopSpecialPower", StopSpecialPowerModuleData.Parse },
 
             // Update
             { "AnimationSteeringUpdate", AnimationSteeringUpdateModuleData.Parse },
@@ -226,6 +229,7 @@ namespace OpenSage.Logic.Object
             { "JetAIUpdate", JetAIUpdateModuleData.Parse },
             { "MissileAIUpdate", MissileAIUpdateModuleData.Parse },
             { "RailedTransportAIUpdate", RailedTransportAIUpdateModuleData.Parse },
+            { "SiegeAIUpdate", SiegeAIUpdateModuleData.Parse },
             { "SupplyTruckAIUpdate", SupplyTruckAIUpdateModuleData.Parse },
             { "TransportAIUpdate", TransportAIUpdateModuleData.Parse },
             { "WanderAIUpdate", WanderAIUpdateModuleData.Parse },

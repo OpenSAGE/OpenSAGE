@@ -23,6 +23,7 @@ namespace OpenSage.Logic.Object
             { "RampageTime", (parser, x) => x.RampageTime = parser.ParseInteger() },
             { "TimeToEjectPassengersOnRampage", (parser, x) => x.TimeToEjectPassengersOnRampage = parser.ParseInteger() },
             { "AttackPriority", (parser, x) => x.AttackPriority = parser.ParseString() },
+            { "SpecialContactPoints", (parser, x) => x.SpecialContactPoints = parser.ParseEnumBitArray<ContactPointType>() },
         };
 
         /// <summary>
@@ -65,6 +66,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string AttackPriority { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public BitArray<ContactPointType> SpecialContactPoints { get; private set; }
     }
 
     public enum AutoAcquireEnemiesType

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 
@@ -23,6 +24,9 @@ namespace OpenSage.Logic.Object
             { "ConflictsWith", (parser, x) => x.ConflictsWith = parser.ParseAssetReferenceArray() },
             { "CustomAnimAndDuration", (parser, x) => x.CustomAnimAndDuration = CustomAnimAndDuration.Parse(parser) },
             { "ActivationDelaySeconds", (parser, x) => x.ActivationDelaySeconds = parser.ParseFloat() },
+            { "AboveWall", (parser, x) => x.AboveWall = parser.ParseInteger() },
+            { "TopAttackPos", (parser, x) => x.TopAttackPos = parser.ParseVector3() },
+            { "TopAttackRadius", (parser, x) => x.TopAttackRadius = parser.ParseInteger() },
         };
 
         public bool GenerateNow { get; internal set; }
@@ -37,6 +41,9 @@ namespace OpenSage.Logic.Object
         public string[] ConflictsWith { get; private set; }
         public CustomAnimAndDuration CustomAnimAndDuration { get; internal set; }
         public float ActivationDelaySeconds { get; internal set; }
+        public int AboveWall { get; internal set; }
+        public Vector3 TopAttackPos { get; internal set; }
+        public int TopAttackRadius { get; internal set; }
     }
 
     public enum WayPointType

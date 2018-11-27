@@ -549,6 +549,21 @@
         GrabAndDrop,
 
         [IniEnum("CAN_ATTACK_WALLS"), AddedIn(SageGame.Bfme)]
-        CanAttackWalls
+        CanAttackWalls,
+
+        [IniEnum("CAN_RIDE_BATTERING_RAM"), AddedIn(SageGame.Bfme)]
+        CanRideBatteringRam,
+
+        [IniEnum("SIEGE_TOWER"), AddedIn(SageGame.Bfme)]
+        SiegeTower,
+
+        [IniEnum("SIEGE_LADDER"), AddedIn(SageGame.Bfme)]
+        SiegeLadder,
+
+        [IniEnum("CAN_RIDE_SIEGE_LADDER"), AddedIn(SageGame.Bfme)]
+        CanRideSiegeLadder,
+
+        [IniEnum("DEPLOYED_MINE"), AddedIn(SageGame.Bfme)]
+        DeployedMine,
     }
 }

@@ -24,5 +24,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("SHADOW_ADDITIVE_DECAL")]
         ShadowAdditiveDecal,
+
+        [IniEnum("SHADOW_ADDITIVE_DECAL_DYNAMIC")]
+        ShadowAdditiveDecalDynamic,
     }
 }

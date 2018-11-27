@@ -60,5 +60,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("ENCLOSED"), AddedIn(SageGame.Bfme)]
         Enclosed,
+
+        [IniEnum("UNATTACKABLE"), AddedIn(SageGame.Bfme)]
+        Unattackable,
+
+        [IniEnum("DEPLOYED"), AddedIn(SageGame.Bfme)]
+        Deployed,
     }
 }

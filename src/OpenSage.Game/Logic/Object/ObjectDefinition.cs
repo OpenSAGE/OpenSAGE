@@ -1056,11 +1056,17 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("Repair")]
         Repair,
+
         [IniEnum("Swoop")]
         Swoop,
+
         [IniEnum("Grab")]
         Grab,
+
         [IniEnum("Ram")]
         Ram,
+
+        [IniEnum("Bomb")]
+        Bomb,
     }
 }

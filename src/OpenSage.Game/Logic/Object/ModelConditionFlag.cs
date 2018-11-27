@@ -639,5 +639,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("TAINT"), AddedIn(SageGame.Bfme)]
         Taint,
+
+        [IniEnum("TRANSPORT_MOVING"), AddedIn(SageGame.Bfme)]
+        TransportMoving,
+
+        [IniEnum("WEAPON_TOGGLING"), AddedIn(SageGame.Bfme)]
+        WeaponToggling,
     }
 }
