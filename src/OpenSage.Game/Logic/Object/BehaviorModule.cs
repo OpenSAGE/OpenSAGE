@@ -126,6 +126,7 @@ namespace OpenSage.Logic.Object
 
             //Module
             { "SpecialPowerModule", SpecialPowerModuleData.Parse },
+            { "WeaponChangeSpecialPowerModule", WeaponChangeSpecialPowerModuleData.Parse },
 
             // SpecialPower
             { "BaikonurLaunchPower", BaikonurLaunchPowerModuleData.Parse },
@@ -253,6 +254,7 @@ namespace OpenSage.Logic.Object
             { "PowerPlantUpgrade", PowerPlantUpgradeModuleData.Parse },
             { "RadarUpgrade", RadarUpgradeModuleData.Parse },
             { "ReplaceObjectUpgrade", ReplaceObjectUpgradeModuleData.Parse },
+            { "StatusBitsUpgrade", StatusBitsUpgradeModuleData.Parse },
             { "StealthUpgrade", StealthUpgradeModuleData.Parse },
             { "SubObjectsUpgrade", SubObjectsUpgradeModuleData.Parse },
             { "TooltipUpgrade", ToolTipUpgradeModuleData.Parse },

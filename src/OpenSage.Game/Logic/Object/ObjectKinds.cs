@@ -565,5 +565,8 @@
 
         [IniEnum("DEPLOYED_MINE"), AddedIn(SageGame.Bfme)]
         DeployedMine,
+
+        [IniEnum("MINE_TRIGGER"), AddedIn(SageGame.Bfme)]
+        MineTrigger,
     }
 }

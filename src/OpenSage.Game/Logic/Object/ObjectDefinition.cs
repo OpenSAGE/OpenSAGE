@@ -294,7 +294,10 @@ namespace OpenSage.Logic.Object
             { "HealthBoxHeightOffset", (parser, x) => x.HealthBoxHeightOffset = parser.ParseFloat() },
             { "ForceLuaRegistration", (parser, x) => x.ForceLuaRegistration = parser.ParseBoolean() },
             { "CrushRevengeWeapon", (parser, x) => x.CrushRevengeWeapon = parser.ParseAssetReference() },
-            { "EvaEventDamagedOwner", (parser, x) => x.EvaEventDamagedOwner = parser.ParseAssetReference() }
+            { "EvaEventDamagedOwner", (parser, x) => x.EvaEventDamagedOwner = parser.ParseAssetReference() },
+            { "MountedCrusherLevel", (parser, x) => x.MountedCrusherLevel = parser.ParseInteger() },
+            { "MountedCrushableLevel", (parser, x) => x.MountedCrushableLevel = parser.ParseInteger() },
+            { "CrushWeapon", (parser, x) => x.CrushWeapon = parser.ParseAssetReference() },
         };
 
         public string Name { get; protected set; }
@@ -877,6 +880,15 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string EvaEventDamagedOwner { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int MountedCrusherLevel { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int MountedCrushableLevel { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string CrushWeapon { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

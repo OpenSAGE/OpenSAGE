@@ -645,5 +645,20 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("WEAPON_TOGGLING"), AddedIn(SageGame.Bfme)]
         WeaponToggling,
+
+        [IniEnum("FIRING_OR_RELOADING_A"), AddedIn(SageGame.Bfme)]
+        FiringOrReloadingA,
+
+        [IniEnum("UNCONTROLLABLE"), AddedIn(SageGame.Bfme)]
+        Uncontrollable,
+
+        [IniEnum("COMING_OUT_OF_FACTORY"), AddedIn(SageGame.Bfme)]
+        ComingOutOfFactory,
+
+        [IniEnum("ALTERNATE_FORMATION"), AddedIn(SageGame.Bfme)]
+        AlternateFormation,
+
+        [IniEnum("USING_COMBO_LOCOMOTOR"), AddedIn(SageGame.Bfme)]
+        UsingComboLocomotor
     }
 }

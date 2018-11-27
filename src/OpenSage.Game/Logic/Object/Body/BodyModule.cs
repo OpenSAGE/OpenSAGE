@@ -17,6 +17,7 @@ namespace OpenSage.Logic.Object
             { "HiveStructureBody", HiveStructureBodyModuleData.Parse },
             { "ImmortalBody", ImmortalBodyModuleData.Parse },
             { "InactiveBody", InactiveBodyModuleData.Parse },
+            { "PorcupineFormationBodyModule", PorcupineFormationBodyModuleData.Parse },
             { "StructureBody", StructureBodyModuleData.Parse },
             { "SymbioticStructuresBody", SymbioticStructuresBodyModuleData.Parse },
             { "UndeadBody", UndeadBodyModuleData.Parse },

@@ -33,5 +33,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("SET_SCARED")]
         Scared,
+
+        [IniEnum("SET_MOUNTED")]
+        SetMounted
     }
 }
