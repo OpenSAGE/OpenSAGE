@@ -666,5 +666,17 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("SPECIAL_WEAPON_TWO"), AddedIn(SageGame.Bfme)]
         SpecialWeaponTwo,
+
+        [IniEnum("WEAPON_TOGGLE"), AddedIn(SageGame.Bfme)]
+        WeaponToggle,
+
+        [IniEnum("EATING"), AddedIn(SageGame.Bfme)]
+        Eating,
+
+        [IniEnum("QUARRELSOME_FIGHTING"), AddedIn(SageGame.Bfme)]
+        QuarrelsomeFighting,
+
+        [IniEnum("WEAPONSTATE_CONTAINED"), AddedIn(SageGame.Bfme)]
+        WeaponstateContained
     }
 }

@@ -573,6 +573,9 @@
         HasHealthBar,
 
         [IniEnum("NOTIFY_OF_PREATTACK"), AddedIn(SageGame.Bfme)]
-        NotifyOfPreattack
+        NotifyOfPreattack,
+
+        [IniEnum("ORC"), AddedIn(SageGame.Bfme)]
+        Orc,
     }
 }
