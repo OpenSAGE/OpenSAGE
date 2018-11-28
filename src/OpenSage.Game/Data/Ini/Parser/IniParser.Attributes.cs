@@ -62,10 +62,16 @@ namespace OpenSage.Data.Ini.Parser
             return ParseAttribute(label, x => x.Text);
         }
 
+        public T ScanAttributeEnum<T>(string label, IniToken token)
+            where T : struct
+        {
+            return ParseAttribute<T>(label, ScanEnum<T>);
+        }
+
         public T ParseAttributeEnum<T>(string label)
             where T : struct
         {
-            return ParseAttribute(label, x => ParseEnum<T>(x));
+            return ParseAttribute(label, x => ScanEnum<T>(x));
         }
 
         public BitArray<T> ParseAttributeEnumBitArray<T>(string label)

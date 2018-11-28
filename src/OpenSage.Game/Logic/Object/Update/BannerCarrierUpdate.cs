@@ -34,14 +34,18 @@ namespace OpenSage.Logic.Object
         {
             var result  = new MorphCondition();
             result.UnitType = parser.ParseAttributeIdentifier("UnitType");
-            parser.ParseAttributeOptional("Locomotor", parser.ParseEnum<LocomotorSetCondition>, out var locomotor);
-            result.Locomotor = locomotor;
-            result.ModelState = parser.ParseAttributeEnumBitArray<ModelConditionFlag>("ModelState");
+
+            //TODO: find a way to parse this shit
+
+            //MorphCondition		= UnitType:IsengardWargRider		Locomotor:SET_MOUNTED	ModelState:"USER_2 MOUNTED"		
+            //MorphCondition		= UnitType:MordorHaradrimArcher			ModelState:"USER_2"
+            parser.GetNextTokenOptional();
+            parser.GetNextTokenOptional();
             return result;
         }
 
         public string UnitType { get; private set; }
         public LocomotorSetCondition Locomotor { get; private set; }
-        public BitArray<ModelConditionFlag> ModelState { get; private set; }
+        public BitArray<ModelConditionFlag> ModelStates { get; private set; }
     }
 }
