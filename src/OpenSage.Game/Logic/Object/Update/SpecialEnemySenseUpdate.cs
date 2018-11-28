@@ -16,8 +16,8 @@ namespace OpenSage.Logic.Object
            { "ScanInterval", (parser, x) => x.ScanInterval = parser.ParseInteger() },
         };
 
-        public ObjectFilter EnemyFilter { get; internal set; }
-        public int ScanRange { get; internal set; }
-        public int ScanInterval { get; internal set; }
+        public ObjectFilter EnemyFilter { get; private set; }
+        public int ScanRange { get; private set; }
+        public int ScanInterval { get; private set; }
     }
 }

@@ -634,5 +634,31 @@ namespace OpenSage.Logic.Object
         [IniEnum("SPECIAL_POWER_1"), AddedIn(SageGame.Bfme)]
         SpecialPower1,
 
+        [IniEnum("COLLAPSING"), AddedIn(SageGame.Bfme)]
+        Collapsing,
+
+        [IniEnum("TAINT"), AddedIn(SageGame.Bfme)]
+        Taint,
+
+        [IniEnum("TRANSPORT_MOVING"), AddedIn(SageGame.Bfme)]
+        TransportMoving,
+
+        [IniEnum("WEAPON_TOGGLING"), AddedIn(SageGame.Bfme)]
+        WeaponToggling,
+
+        [IniEnum("FIRING_OR_RELOADING_A"), AddedIn(SageGame.Bfme)]
+        FiringOrReloadingA,
+
+        [IniEnum("UNCONTROLLABLE"), AddedIn(SageGame.Bfme)]
+        Uncontrollable,
+
+        [IniEnum("COMING_OUT_OF_FACTORY"), AddedIn(SageGame.Bfme)]
+        ComingOutOfFactory,
+
+        [IniEnum("ALTERNATE_FORMATION"), AddedIn(SageGame.Bfme)]
+        AlternateFormation,
+
+        [IniEnum("USING_COMBO_LOCOMOTOR"), AddedIn(SageGame.Bfme)]
+        UsingComboLocomotor
     }
 }

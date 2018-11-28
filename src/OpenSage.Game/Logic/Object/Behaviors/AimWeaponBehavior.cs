@@ -15,7 +15,7 @@ namespace OpenSage.Logic.Object
                 { "AimLowThreshold", (parser, x) => x.AimLowThreshold = parser.ParseFloat() },
             });
 
-        public float AimHighThreshold { get; internal set; }
-        public float AimLowThreshold { get; internal set; }
+        public float AimHighThreshold { get; private set; }
+        public float AimLowThreshold { get; private set; }
     }
 }

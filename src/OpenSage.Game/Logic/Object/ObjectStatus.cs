@@ -57,5 +57,14 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("BLOODTHIRSTY"), AddedIn(SageGame.Bfme)]
         BloodThirsty,
+
+        [IniEnum("ENCLOSED"), AddedIn(SageGame.Bfme)]
+        Enclosed,
+
+        [IniEnum("UNATTACKABLE"), AddedIn(SageGame.Bfme)]
+        Unattackable,
+
+        [IniEnum("DEPLOYED"), AddedIn(SageGame.Bfme)]
+        Deployed,
     }
 }

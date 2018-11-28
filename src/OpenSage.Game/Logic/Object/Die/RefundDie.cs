@@ -16,8 +16,8 @@ namespace OpenSage.Logic.Object
                 { "RefundPercent", (parser, x) => x.RefundPercent = parser.ParsePercentage() }
             });
 
-        public string UpgradeRequired { get; internal set; }
-        public ObjectFilter BuildingRequired { get; internal set; }
-        public float RefundPercent { get; internal set; }
+        public string UpgradeRequired { get; private set; }
+        public ObjectFilter BuildingRequired { get; private set; }
+        public float RefundPercent { get; private set; }
     }
 }

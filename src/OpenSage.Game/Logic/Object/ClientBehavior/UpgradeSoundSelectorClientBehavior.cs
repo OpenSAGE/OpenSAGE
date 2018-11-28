@@ -15,7 +15,7 @@ namespace OpenSage.Logic.Object
             { "SoundUpgrade", (parser, x) => x.SoundUpgrades.Add(SoundUpgrade.Parse(parser)) }
         };
 
-        public List<SoundUpgrade> SoundUpgrades { get; internal set; } = new List<SoundUpgrade>();
+        public List<SoundUpgrade> SoundUpgrades { get; private set; } = new List<SoundUpgrade>();
     }
 
 
@@ -29,7 +29,7 @@ namespace OpenSage.Logic.Object
             { "ExcludedUpgrades", (parser, x) => x.ExcludedUpgrades = parser.ParseAssetReferenceArray() }
         };
 
-        public string VoiceSelect { get; internal set; }
-        public string[] ExcludedUpgrades { get; internal set; }
+        public string VoiceSelect { get; private set; }
+        public string[] ExcludedUpgrades { get; private set; }
     }
 }

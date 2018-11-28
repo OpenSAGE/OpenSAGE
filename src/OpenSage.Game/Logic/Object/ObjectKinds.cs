@@ -515,5 +515,58 @@
         [IniEnum("MADE_OF_WOOD"), AddedIn(SageGame.Bfme)]
         MadeOfWood,
 
+        [IniEnum("DO_NOT_CLASSIFY"), AddedIn(SageGame.Bfme)]
+        DoNotClassify,
+
+        [IniEnum("FACE_AWAY_FROM_CASTLE_KEEP"), AddedIn(SageGame.Bfme)]
+        FaceAwayFromCastleKeep,
+
+        [IniEnum("MADE_OF_DIRT"), AddedIn(SageGame.Bfme)]
+        MadeOfDirt,
+
+        [IniEnum("TAINT"), AddedIn(SageGame.Bfme)]
+        Taint,
+
+        [IniEnum("MADE_OF_STONE"), AddedIn(SageGame.Bfme)]
+        MadeOfStone,
+
+        [IniEnum("BASE_DEFENSE_FOUNDATION"), AddedIn(SageGame.Bfme)]
+        BaseDefenseFoundation,
+
+        [IniEnum("BANNER"), AddedIn(SageGame.Bfme)]
+        Banner,
+
+        [IniEnum("DEFLECT_BY_SPECIAL_POWER"), AddedIn(SageGame.Bfme)]
+        DeflectBySpecialPower,
+
+        [IniEnum("OCL_BIT"), AddedIn(SageGame.Bfme)]
+        OCLBit,
+
+        [IniEnum("TAINTEFFECT"), AddedIn(SageGame.Bfme)]
+        TaintEffect,
+
+        [IniEnum("GRAB_AND_DROP"), AddedIn(SageGame.Bfme)]
+        GrabAndDrop,
+
+        [IniEnum("CAN_ATTACK_WALLS"), AddedIn(SageGame.Bfme)]
+        CanAttackWalls,
+
+        [IniEnum("CAN_RIDE_BATTERING_RAM"), AddedIn(SageGame.Bfme)]
+        CanRideBatteringRam,
+
+        [IniEnum("SIEGE_TOWER"), AddedIn(SageGame.Bfme)]
+        SiegeTower,
+
+        [IniEnum("SIEGE_LADDER"), AddedIn(SageGame.Bfme)]
+        SiegeLadder,
+
+        [IniEnum("CAN_RIDE_SIEGE_LADDER"), AddedIn(SageGame.Bfme)]
+        CanRideSiegeLadder,
+
+        [IniEnum("DEPLOYED_MINE"), AddedIn(SageGame.Bfme)]
+        DeployedMine,
+
+        [IniEnum("MINE_TRIGGER"), AddedIn(SageGame.Bfme)]
+        MineTrigger,
     }
 }

@@ -25,6 +25,10 @@ namespace OpenSage.Logic.Object
             { "DamageCreationList", (parser, x) => x.DamageCreationLists.Add(DamageCreationList.Parse(parser)) },
             { "GrabFX", (parser, x) => x.GrabFX = parser.ParseAssetReference() },
             { "GrabDamage", (parser, x) => x.GrabDamage = parser.ParseInteger() },
+            { "CheerRadius", (parser, x) => x.CheerRadius = parser.ParseInteger() },
+            { "DodgePercent", (parser, x) => x.DodgePercent = parser.ParsePercentage() },
+            { "UseDefaultDamageSettings", (parser, x) => x.UseDefaultDamageSettings = parser.ParseBoolean() },
+            { "EnteringDamagedTransitionTime", (parser, x) => x.EnteringDamagedTransitionTime = parser.ParseInteger() }
         };
 
         public float MaxHealth { get; private set; }
@@ -61,7 +65,19 @@ namespace OpenSage.Logic.Object
         public string GrabFX { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int GrabDamage { get; private set; } 
+        public int GrabDamage { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int CheerRadius { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float DodgePercent { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool UseDefaultDamageSettings { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int EnteringDamagedTransitionTime { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -77,8 +93,8 @@ namespace OpenSage.Logic.Object
             };
         }
 
-        public string Object { get; internal set; }
-        public ObjectKinds ObjectKind { get; internal set; }
-        public string Unknown { get; internal set; }
+        public string Object { get; private set; }
+        public ObjectKinds ObjectKind { get; private set; }
+        public string Unknown { get; private set; }
     }
 }

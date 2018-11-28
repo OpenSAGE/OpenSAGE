@@ -16,9 +16,9 @@ namespace OpenSage.Logic.Object
             { "Civilian", (parser, x) => x.Civilian = parser.ParseEnumBitArray<ObjectKinds>() },
         };
 
-        public int SpawnDelayTime { get; internal set; }
-        public int MaximumDistance { get; internal set; }
-        public ObjectFilter RunToFilter { get; internal set; }
-        public BitArray<ObjectKinds> Civilian { get; internal set; }
+        public int SpawnDelayTime { get; private set; }
+        public int MaximumDistance { get; private set; }
+        public ObjectFilter RunToFilter { get; private set; }
+        public BitArray<ObjectKinds> Civilian { get; private set; }
     }
 }

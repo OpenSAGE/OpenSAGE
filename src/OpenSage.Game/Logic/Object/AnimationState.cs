@@ -29,6 +29,7 @@ namespace OpenSage.Logic.Object
             { "SimilarRestart", (parser, x) => x.SimilarRestart = parser.ParseBoolean() },
             { "EnteringStateFX", (parser, x) => x.EnteringStateFX = parser.ParseAssetReference() },
             { "FXEvent", (parser, x) => x.FXEvents.Add(FXEvent.Parse(parser)) },
+            { "ShareAnimation", (parser, x) => x.ShareAnimation = parser.ParseBoolean() }
         };
 
         public BitArray<ModelConditionFlag> TypeFlags { get; private set; }
@@ -42,6 +43,7 @@ namespace OpenSage.Logic.Object
         public bool SimilarRestart { get; private set; }
         public string EnteringStateFX { get; private set; }
         public List<FXEvent> FXEvents { get; private set; } = new List<FXEvent>();
+        public bool ShareAnimation { get; private set; }
     }
 
     public sealed class Animation
@@ -72,6 +74,9 @@ namespace OpenSage.Logic.Object
             { "AnimationSpeedFactorRange", (parser, x) => x.AnimationSpeedFactorRange = FloatRange.Parse(parser) },
             { "Distance", (parser, x) => x.Distance = parser.ParseFloat() },
             { "AnimationMustCompleteBlend", (parser, x) => x.AnimationMustCompleteBlend = parser.ParseBoolean() },
+            { "FadeBeginFrame", (parser, x) => x.FadeBeginFrame = parser.ParseFloat() },
+            { "FadeEndFrame", (parser, x) => x.FadeEndFrame = parser.ParseFloat() },
+            { "FadingIn", (parser, x) => x.FadingIn = parser.ParseBoolean() }
         };
 
         public string AnimationType { get; private set; }
@@ -84,6 +89,9 @@ namespace OpenSage.Logic.Object
         public FloatRange AnimationSpeedFactorRange { get; private set; }
         public float Distance { get; private set; }
         public bool AnimationMustCompleteBlend { get; private set; }
+        public float FadeBeginFrame { get; private set; }
+        public float FadeEndFrame { get; private set; }
+        public bool FadingIn { get; private set; }
     }
 
     public sealed class FXEvent

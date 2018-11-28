@@ -72,18 +72,25 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public ObjectFilter PassengerFilter { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public bool ShowPips { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public ObjectKinds TypeOneForWeaponSet { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public ObjectKinds TypeTwoForWeaponSet { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public ObjectKinds TypeOneForWeaponState { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public ObjectKinds TypeTwoForWeaponState { get; private set; }
+
         [AddedIn(SageGame.Bfme)]
         public List<PassengerBonePrefix> PassengerBonePrefixes { get; } = new List<PassengerBonePrefix>();
     }

@@ -32,6 +32,14 @@ namespace OpenSage.Logic.Object
             { "DetonateCallsKill", (parser, x) => x.DetonateCallsKill = parser.ParseBoolean() },
             { "FlightPathAdjustDistPerSecond", (parser, x) => x.FlightPathAdjustDistPerSecond = parser.ParseInteger() },
             { "CurveFlattenMinDist", (parser, x) => x.CurveFlattenMinDist = parser.ParseFloat() },
+            { "InvisibleFrames", (parser, x) => x.InvisibleFrames = parser.ParseInteger() },
+            { "PreLandingStateTime", (parser, x) => x.PreLandingStateTime = parser.ParseInteger() },
+            { "PreLandingEmotion", (parser, x) => x.PreLandingEmotion = parser.ParseEnum<EmotionType>() },
+            { "PreLandingEmotionRadius", (parser, x) => x.PreLandingEmotionRadius = parser.ParseFloat() },
+            { "FadeInTime", (parser, x) => x.FadeInTime = parser.ParseInteger() },
+            { "IgnoreTerrainHeight", (parser, x) => x.IgnoreTerrainHeight = parser.ParseBoolean() },
+            { "FirstPercentHeight", (parser, x) => x.FirstPercentHeight = parser.ParsePercentage() },
+            { "SecondPercentHeight", (parser, x) => x.SecondPercentHeight = parser.ParsePercentage() }
         };
 
         public int FirstHeight { get; private set; }
@@ -55,5 +63,13 @@ namespace OpenSage.Logic.Object
         public bool DetonateCallsKill { get; private set; }
         public int FlightPathAdjustDistPerSecond { get; private set; }
         public float CurveFlattenMinDist { get; private set; }
+        public int InvisibleFrames { get; private set; }
+        public int PreLandingStateTime { get; private set; }
+        public EmotionType PreLandingEmotion { get; private set; }
+        public float PreLandingEmotionRadius { get; private set; }
+        public int FadeInTime { get; private set; }
+        public bool IgnoreTerrainHeight { get; private set; }
+        public float FirstPercentHeight { get; private set; }
+        public float SecondPercentHeight { get; private set; }
     }
 }

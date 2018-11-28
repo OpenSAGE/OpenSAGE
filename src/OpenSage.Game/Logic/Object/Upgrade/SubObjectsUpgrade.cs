@@ -16,6 +16,8 @@ namespace OpenSage.Logic.Object
                 { "ShowSubObjects", (parser, x) => x.ShowSubObjects = parser.ParseAssetReferenceArray() },
                 { "HideSubObjects", (parser, x) => x.HideSubObjects = parser.ParseAssetReferenceArray() },
                 { "UpgradeTexture", (parser, x) => x.UpgradeTextures.Add(RandomTexture.Parse(parser)) },
+                { "RecolorHouse", (parser, x) => x.RecolorHouse = parser.ParseBoolean() },
+                { "ExcludeSubobjects", (parser, x) => x.ExcludeSubobjects = parser.ParseAssetReferenceArray() }
             });
 
         public string[] ShowSubObjects { get; private set; }
@@ -23,5 +25,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public List<RandomTexture> UpgradeTextures { get; private set; } = new List<RandomTexture>();
+
+        [AddedIn(SageGame.Bfme)]
+        public bool RecolorHouse { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string[] ExcludeSubobjects { get; private set; }
     }
 }

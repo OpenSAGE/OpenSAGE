@@ -155,8 +155,8 @@ namespace OpenSage.Logic.Object
             return result;
         }
 
-        public Vector3 Offset { get; internal set; }
-        public List<string> SubObjects { get; internal set; } = new List<string>();
-        public string OCL { get; internal set; }
+        public Vector3 Offset { get; private set; }
+        public List<string> SubObjects { get; }= new List<string>();
+        public string OCL { get; private set; }
     }
 }

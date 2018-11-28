@@ -55,6 +55,8 @@ namespace OpenSage.Data.Ini
 
     public enum EmotionType
     {
+        None = 0,
+
         [IniEnum("TAUNT")]
         Taunt,
 
@@ -83,7 +85,10 @@ namespace OpenSage.Data.Ini
         Alert,
 
         [IniEnum("QUARRELSOME")]
-        Quarrelsome
+        Quarrelsome,
+
+        [IniEnum("OVERRIDE"), AddedIn(SageGame.Bfme)]
+        Override,
     }
 
     public enum EmotionAIType

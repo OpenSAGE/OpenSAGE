@@ -15,6 +15,6 @@ namespace OpenSage.Logic.Object
             { "DeleteObjectFilter", (parser, x) => x.DeleteObjectFilter = ObjectFilter.Parse(parser) },
         };
 
-        public ObjectFilter DeleteObjectFilter { get; internal set; }
+        public ObjectFilter DeleteObjectFilter { get; private set; }
     }
 }

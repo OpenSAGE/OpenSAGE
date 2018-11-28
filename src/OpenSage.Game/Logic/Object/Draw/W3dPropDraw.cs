@@ -13,6 +13,6 @@ namespace OpenSage.Logic.Object
                  { "ModelName", (parser, x) => x.ModelName = parser.ParseAssetReference() },
             });
 
-        public string ModelName { get; internal set; }
+        public string ModelName { get; private set; }
     }
 }

@@ -15,7 +15,8 @@ namespace OpenSage.Logic.Object
             { "SelfRepairFromDamageLoop", (parser, x) => x.SelfRepairFromDamageLoop = parser.ParseString() },
             { "SelfRepairFromRubbleLoop", (parser, x) => x.SelfRepairFromRubbleLoop = parser.ParseString() },
             { "SpawnTimer", (parser, x) => x.SpawnTimer = parser.ParseFloat() },
-            { "RebuildTimeSeconds", (parser, x) => x.RebuildTimeSeconds = parser.ParseFloat() }
+            { "RebuildTimeSeconds", (parser, x) => x.RebuildTimeSeconds = parser.ParseFloat() },
+            { "RebuildWhenDead", (parser, x) => x.RebuildWhenDead = parser.ParseBoolean() }
         };
 
         public string WorkerName { get; private set; }
@@ -24,5 +25,6 @@ namespace OpenSage.Logic.Object
         public string SelfRepairFromRubbleLoop { get; private set; }
         public float SpawnTimer { get; private set; }
         public float RebuildTimeSeconds { get; private set; }
+        public bool RebuildWhenDead { get; private set; }
     }
 }

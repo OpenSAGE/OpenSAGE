@@ -13,6 +13,6 @@ namespace OpenSage.Logic.Object
                 { "DisplayName", (parser, x) => x.DisplayName = parser.ParseLocalizedStringKey() }
             });
 
-        public string DisplayName { get; internal set; }
+        public string DisplayName { get; private set; }
     }
 }

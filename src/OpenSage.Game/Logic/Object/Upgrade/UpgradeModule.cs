@@ -26,10 +26,10 @@ namespace OpenSage.Logic.Object
         public string Description { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public CustomAnimAndDuration CustomAnimAndDuration { get; internal set; }
+        public CustomAnimAndDuration CustomAnimAndDuration { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public bool ActiveDuringConstruction { get; internal set; }
+        public bool ActiveDuringConstruction { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

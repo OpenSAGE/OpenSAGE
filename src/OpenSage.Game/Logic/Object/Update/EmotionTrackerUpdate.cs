@@ -21,15 +21,15 @@ namespace OpenSage.Logic.Object
             { "AddEmotion", (parser, x) => x.Emotions.Add(Emotion.Parse(parser)) },
             { "HeroScanDistance", (parser, x) => x.HeroScanDistance = parser.ParseInteger() }
         };
-        public int TauntAndPointDistance { get; internal set; }
-        public int TauntAndPointUpdateDelay	{ get; internal set; }
-        public ObjectFilter TauntAndPointExcluded { get; internal set; }
-        public ObjectFilter AfraidOf { get; internal set; }
-        public ObjectFilter AlwaysAfraidOf { get; internal set; }
-        public ObjectFilter PointAt { get; internal set; }
-        public int FearScanDistance { get; internal set; }
-        public List<Emotion> Emotions { get; internal set; } = new List<Emotion>();
-        public int HeroScanDistance { get; internal set; }
+        public int TauntAndPointDistance { get; private set; }
+        public int TauntAndPointUpdateDelay { get; private set; }
+        public ObjectFilter TauntAndPointExcluded { get; private set; }
+        public ObjectFilter AfraidOf { get; private set; }
+        public ObjectFilter AlwaysAfraidOf { get; private set; }
+        public ObjectFilter PointAt { get; private set; }
+        public int FearScanDistance { get; private set; }
+        public List<Emotion> Emotions { get; } = new List<Emotion>();
+        public int HeroScanDistance { get; private set; }
     }
 
     public sealed class Emotion
@@ -59,16 +59,8 @@ namespace OpenSage.Logic.Object
             { "AttributeModifier", (parser, x) => x.AttributeModifier = parser.ParseAssetReference() },
         };
 
-        public EmotionType Type { get; internal set; }
-        public string EmotionName { get; internal set; }
-        public string AttributeModifier { get; internal set; }
-    }
-
-    public enum EmotionType
-    {
-        None = 0,
-
-        [IniEnum("OVERRIDE")]
-        Override,
+        public EmotionType Type { get; private set; }
+        public string EmotionName { get; private set; }
+        public string AttributeModifier { get; private set; }
     }
 }

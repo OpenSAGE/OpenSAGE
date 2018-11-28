@@ -54,7 +54,7 @@ namespace OpenSage.Logic.Object
             { "BuildCost", (parser, x) => x.BuildCost = parser.ParseFloat() },
             { "BuildTime", (parser, x) => x.BuildTime = parser.ParseFloat() },
             { "BuildFadeInOnCreateList", (parser, x) => x.BuildFadeInOnCreateList = parser.ParseIdentifier() },
-            { "BuildFadeInOnCreateTime", (parser, x) => x.BuildFadeInOnCreateTime = parser.ParseInteger() },
+            { "BuildFadeInOnCreateTime", (parser, x) => x.BuildFadeInOnCreateTime = parser.ParseFloat() },
             { "RefundValue", (parser, x) => x.RefundValue = parser.ParseInteger() },
             { "EnergyProduction", (parser, x) => x.EnergyProduction = parser.ParseInteger() },
             { "EnergyBonus", (parser, x) => x.EnergyBonus = parser.ParseInteger() },
@@ -242,7 +242,7 @@ namespace OpenSage.Logic.Object
 
             { "GeometryOther", (parser, x) => x.OtherGeometries.Add(Geometry.Parse(parser)) },
 
-            { "GeometryContactPoint", (parser, x) => x.GeometryContactPoints.Add(GeometryContactPoint.Parse(parser)) },
+            { "GeometryContactPoint", (parser, x) => x.GeometryContactPoints.Add(ContactPoint.Parse(parser)) },
 
             { "CamouflageDetectionMultiplier", (parser, x) => x.CamouflageDetectionMultiplier = parser.ParseFloat()}, 
             { "FactoryExitWidth", (parser, x) => x.FactoryExitWidth = parser.ParseInteger() },
@@ -287,10 +287,18 @@ namespace OpenSage.Logic.Object
             { "KeepSelectableWhenDead", (parser, x) => x.KeepSelectableWhenDead = parser.ParseBoolean() },
             { "LiveCameraOffset", (parser, x) => x.LiveCameraOffset = parser.ParseVector3() },
             { "LiveCameraPitch", (parser, x) => x.LiveCameraPitch = parser.ParseFloat() },
-            { "EvaEventDieOwner", (parser, x) => x.EvaEventDieOwner = parser.ParseAssetReference() }
+            { "EvaEventDieOwner", (parser, x) => x.EvaEventDieOwner = parser.ParseAssetReference() },
+            { "AttackContactPoint", (parser, x) => x.AttackContactPoints.Add(ContactPoint.Parse(parser)) },
+            { "RemoveTerrainRadius", (parser, x) => x.RemoveTerrainRadius = parser.ParseFloat() },
+            { "HealthBoxScale", (parser, x) => x.HealthBoxScale = parser.ParseFloat() },
+            { "HealthBoxHeightOffset", (parser, x) => x.HealthBoxHeightOffset = parser.ParseFloat() },
+            { "ForceLuaRegistration", (parser, x) => x.ForceLuaRegistration = parser.ParseBoolean() },
+            { "CrushRevengeWeapon", (parser, x) => x.CrushRevengeWeapon = parser.ParseAssetReference() },
+            { "EvaEventDamagedOwner", (parser, x) => x.EvaEventDamagedOwner = parser.ParseAssetReference() },
+            { "MountedCrusherLevel", (parser, x) => x.MountedCrusherLevel = parser.ParseInteger() },
+            { "MountedCrushableLevel", (parser, x) => x.MountedCrushableLevel = parser.ParseInteger() },
+            { "CrushWeapon", (parser, x) => x.CrushWeapon = parser.ParseAssetReference() },
         };
-
-    
 
         public string Name { get; protected set; }
 
@@ -814,7 +822,7 @@ namespace OpenSage.Logic.Object
         public string BuildFadeInOnCreateList { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int BuildFadeInOnCreateTime { get; private set; }
+        public float BuildFadeInOnCreateTime { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public CollideSize DeadCollideSize { get; private set; }
@@ -829,7 +837,7 @@ namespace OpenSage.Logic.Object
         public int BountyValue { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public List<GeometryContactPoint> GeometryContactPoints { get; private set; } = new List<GeometryContactPoint>();
+        public List<ContactPoint> GeometryContactPoints { get; private set; } = new List<ContactPoint>();
 
         [AddedIn(SageGame.Bfme)]
         public string Description { get; private set; }
@@ -851,6 +859,36 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string EvaEventDieOwner { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public List<ContactPoint> AttackContactPoints { get; private set; } = new List<ContactPoint>();
+
+        [AddedIn(SageGame.Bfme)]
+        public float RemoveTerrainRadius { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float HealthBoxScale { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float HealthBoxHeightOffset { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ForceLuaRegistration { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string CrushRevengeWeapon { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string EvaEventDamagedOwner { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int MountedCrusherLevel { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int MountedCrushableLevel { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string CrushWeapon { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -1004,11 +1042,11 @@ namespace OpenSage.Logic.Object
     }
 
     [AddedIn(SageGame.Bfme)]
-    public sealed class GeometryContactPoint
+    public sealed class ContactPoint
     {
-        internal static GeometryContactPoint Parse(IniParser parser)
+        internal static ContactPoint Parse(IniParser parser)
         {
-            return new GeometryContactPoint()
+            return new ContactPoint()
             {
                 X = parser.ParseAttributeFloat("X"),
                 Y = parser.ParseAttributeFloat("Y"),
@@ -1030,11 +1068,17 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("Repair")]
         Repair,
+
         [IniEnum("Swoop")]
         Swoop,
+
         [IniEnum("Grab")]
         Grab,
+
         [IniEnum("Ram")]
         Ram,
+
+        [IniEnum("Bomb")]
+        Bomb,
     }
 }

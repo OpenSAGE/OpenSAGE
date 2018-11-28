@@ -18,10 +18,10 @@ namespace OpenSage.Logic.Object
             };
 
 
-        public string[] RiderSubObjects { get; internal set; }
-        public WeaponSlot RiderlessWeaponSlot { get; internal set; }
-        public bool RiderlessHordeFlees { get; internal set; }
-        public DeathEntry DeathEntry { get; internal set; }
+        public string[] RiderSubObjects { get; private set; }
+        public WeaponSlot RiderlessWeaponSlot { get; private set; }
+        public bool RiderlessHordeFlees { get; private set; }
+        public DeathEntry DeathEntry { get; private set; }
     }
 
     public sealed class DeathEntry
@@ -35,7 +35,7 @@ namespace OpenSage.Logic.Object
             };
         }
 
-        public string AnimationState { get; internal set; }
-        public int AnimationTime { get; internal set; }
+        public string AnimationState { get; private set; }
+        public int AnimationTime { get; private set; }
     }
 }

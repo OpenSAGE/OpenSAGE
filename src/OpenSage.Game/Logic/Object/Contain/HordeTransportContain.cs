@@ -23,6 +23,14 @@ namespace OpenSage.Logic.Object
            { "ForceOrientationContainer", (parser, x) => x.ForceOrientationContainer = parser.ParseBoolean() },
            { "PassengerBonePrefix", (parser, x) => x.PassengerBonePrefix = PassengerBonePrefix.Parse(parser) },
            { "EjectPassengersOnDeath", (parser, x) => x.EjectPassengersOnDeath = parser.ParseBoolean() },
+           { "AllowOwnPlayerInsideOverride", (parser, x) => x.AllowOwnPlayerInsideOverride = parser.ParseBoolean() },
+           { "AllowAlliesInside", (parser, x) => x.AllowAlliesInside = parser.ParseBoolean() },
+           { "ShowPips", (parser, x) => x.ShowPips = parser.ParseBoolean() },
+           { "FadeFilter", (parser,x) => x.FadeFilter = ObjectFilter.Parse(parser) },
+           { "FadePassengerOnEnter", (parser, x) => x.FadePassengerOnEnter = parser.ParseBoolean() },
+           { "EnterFadeTime", (parser, x) => x.EnterFadeTime = parser.ParseInteger() },
+           { "FadePassengerOnExit", (parser, x) => x.FadePassengerOnExit = parser.ParseBoolean() },
+           { "ExitFadeTime", (parser, x) => x.ExitFadeTime = parser.ParseInteger() }
         };
 
         public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
@@ -38,5 +46,13 @@ namespace OpenSage.Logic.Object
         public bool ForceOrientationContainer { get; private set; }
         public PassengerBonePrefix PassengerBonePrefix { get; private set; }
         public bool EjectPassengersOnDeath { get; private set; }
+        public bool AllowOwnPlayerInsideOverride { get; private set; }
+        public bool AllowAlliesInside { get; private set; }
+        public bool ShowPips { get; private set; }
+        public ObjectFilter FadeFilter { get; private set; }
+        public bool FadePassengerOnEnter { get; private set; }
+        public int EnterFadeTime { get; private set; }
+        public bool FadePassengerOnExit { get; private set; }
+        public int ExitFadeTime { get; private set; }
     }
 }

@@ -17,10 +17,10 @@ namespace OpenSage.Logic.Object
                 { "RampMesh2", (parser, x) => x.RampMesh2 = parser.ParseAssetReference() },
             });
 
-        public string ShowGeometry { get; internal set; }
-        public string HideGeometry { get; internal set; }
-        public string WallBoundsMesh { get; internal set; }
-        public string RampMesh1 { get; internal set; }
-        public string RampMesh2 { get; internal set; }
+        public string ShowGeometry { get; private set; }
+        public string HideGeometry { get; private set; }
+        public string WallBoundsMesh { get; private set; }
+        public string RampMesh1 { get; private set; }
+        public string RampMesh2 { get; private set; }
     }
 }
