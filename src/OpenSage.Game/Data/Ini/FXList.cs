@@ -506,7 +506,7 @@ namespace OpenSage.Data.Ini
 
             var distributionType = parser.GetNextTokenOptional();
             result.DistributionType = (distributionType != null)
-                ? IniParser.ParseEnum<DistributionType>(distributionType.Value)
+                ? IniParser.ScanEnum<DistributionType>(distributionType.Value)
                 : DistributionType.Uniform;
 
             return result;

@@ -69,6 +69,7 @@ namespace OpenSage.Logic.Object
             { "ShadowOpacityFadeOutTime", (parser, x) => x.ShadowOpacityFadeOutTime = parser.ParseInteger() },
             { "ShadowOpacityEnd", (parser, x) => x.ShadowOpacityEnd = parser.ParseInteger() },
             { "ShadowOverrideLODVisibility", (parser, x) => x.ShadowOverrideLODVisibility = parser.ParseBoolean() },
+            { "StateName", (parser, x) => x.StateName = parser.ParseString() },
         };
 
         private void ParseAnimation(IniParser parser)
@@ -158,6 +159,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool ShadowOverrideLODVisibility { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string StateName { get; private set; }
 
         /// <summary>
         /// Used by AliasConditionState.

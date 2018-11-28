@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using OpenSage.Data.Ini;
+﻿using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
-using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -13,9 +11,11 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<RespawnBodyModuleData> FieldParseTable = ActiveBodyModuleData.FieldParseTable
             .Concat(new IniParseTable<RespawnBodyModuleData>
             {
-                { "PermanentlyKilledByFilter", (parser, x) => x.PermanentlyKilledByFilter = ObjectFilter.Parse(parser) }
+                { "PermanentlyKilledByFilter", (parser, x) => x.PermanentlyKilledByFilter = ObjectFilter.Parse(parser) },
+                { "HealingBuffFx", (parser, x) => x.HealingBuffFx = parser.ParseAssetReference() },
             });
 
         public ObjectFilter PermanentlyKilledByFilter { get; private set; }
+        public string HealingBuffFx { get; private set; }
      }
 }

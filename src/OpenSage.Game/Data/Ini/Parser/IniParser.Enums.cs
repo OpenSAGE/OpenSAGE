@@ -135,10 +135,10 @@ namespace OpenSage.Data.Ini.Parser
         public T ParseEnum<T>()
             where T : struct
         {
-            return ParseEnum<T>(GetNextToken());
+            return ScanEnum<T>(GetNextToken());
         }
 
-        public static T ParseEnum<T>(IniToken token)
+        public static T ScanEnum<T>(IniToken token)
             where T : struct
         {
             var stringToValueMap = GetEnumMap<T>();
@@ -179,7 +179,7 @@ namespace OpenSage.Data.Ini.Parser
             IniToken? token;
             while ((token = GetNextTokenOptional()) != null)
             {
-                var stringValue = token.Value.Text.ToUpperInvariant().Replace("\"", "");
+                var stringValue = token.Value.Text.ToUpperInvariant();
                 switch (stringValue)
                 {
                     case "ALL":

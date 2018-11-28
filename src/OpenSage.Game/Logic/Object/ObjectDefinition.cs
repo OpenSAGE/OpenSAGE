@@ -304,6 +304,7 @@ namespace OpenSage.Logic.Object
             { "Hotkey", (parser, x) => x.Hotkey = parser.ParseLocalizedStringKey() },
             { "PathfindDiameter", (parser, x) => x.PathfindDiameter = parser.ParseFloat() },
             { "DisplayRangedDamage", (parser, x) => x.DisplayRangedDamage = parser.ParseFloat() },
+            { "CanPathThroughGates", (parser, x) => x.CanPathThroughGates = parser.ParseBoolean() },
         };
 
         public string Name { get; protected set; }
@@ -913,6 +914,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public float DisplayRangedDamage { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool CanPathThroughGates { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

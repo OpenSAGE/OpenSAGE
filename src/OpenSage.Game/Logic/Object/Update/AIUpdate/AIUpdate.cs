@@ -26,6 +26,7 @@ namespace OpenSage.Logic.Object
             { "SpecialContactPoints", (parser, x) => x.SpecialContactPoints = parser.ParseEnumBitArray<ContactPointType>() },
             { "FadeOnPortals", (parser, x) => x.FadeOnPortals = parser.ParseBoolean() },
             { "StopChaseDistance", (parser, x) => x.StopChaseDistance = parser.ParseInteger() },
+            { "RampageRequiresAflame", (parser, x) => x.RampageRequiresAflame = parser.ParseBoolean() },
         };
 
         /// <summary>
@@ -77,6 +78,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int StopChaseDistance { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool RampageRequiresAflame { get; private set; }
     }
 
     public enum AutoAcquireEnemiesType

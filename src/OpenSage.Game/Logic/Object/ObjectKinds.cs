@@ -577,5 +577,20 @@
 
         [IniEnum("ORC"), AddedIn(SageGame.Bfme)]
         Orc,
+
+        [IniEnum("PORTER"), AddedIn(SageGame.Bfme)]
+        Porter,
+
+        [IniEnum("SCARY"), AddedIn(SageGame.Bfme)]
+        Scary,
+
+        [IniEnum("BIG_MONSTER"), AddedIn(SageGame.Bfme)]
+        BigMonster,
+
+        [IniEnum("SWARM_DOZER"), AddedIn(SageGame.Bfme)]
+        SwarmDozer,
+
+        [IniEnum("MOVE_FOR_NOONE"), AddedIn(SageGame.Bfme)]
+        MoveForNoOne
     }
 }

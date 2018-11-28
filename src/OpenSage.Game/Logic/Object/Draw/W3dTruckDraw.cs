@@ -39,6 +39,8 @@ namespace OpenSage.Logic.Object
                 { "Dust", (parser, x) => x.Dust = parser.ParseAssetReference() },
                 { "DirtSpray", (parser, x) => x.DirtSpray = parser.ParseAssetReference() },
                 { "PowerslideSpray", (parser, x) => x.PowerslideSpray = parser.ParseAssetReference() },
+                { "StaticModelLODMode", (parser, x) => x.StaticModelLODMode = parser.ParseBoolean() },
+                { "WadingParticleSys", (parser, x) => x.WadingParticleSys = parser.ParseString() },
             });
 
         // Settings for the attached "cab" model on the vehicle
@@ -66,5 +68,11 @@ namespace OpenSage.Logic.Object
         public string Dust { get; private set; }
         public string DirtSpray { get; private set; }
         public string PowerslideSpray { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool StaticModelLODMode { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string WadingParticleSys { get; private set; }
     }
 }
