@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace OpenSage.Data.Ini
 {
     public sealed class BitArrayEqualityComparer<TEnum> : IEqualityComparer<BitArray<TEnum>>
-        where TEnum : struct
+        where TEnum : Enum
     {
         public bool Equals(BitArray<TEnum> x, BitArray<TEnum> y)
         {
@@ -20,7 +20,7 @@ namespace OpenSage.Data.Ini
 
     // TODO: Don't use .NET's BitArray as the internal implementation.
     public sealed class BitArray<TEnum>
-        where TEnum : struct
+        where TEnum : Enum
     {
         private static readonly int NumValues = Enum.GetValues(typeof(TEnum)).Length;
 

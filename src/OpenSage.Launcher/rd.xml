@@ -33,7 +33,7 @@
         <Assembly Name="Newtonsoft.Json"  Dynamic="Required All" />
         <Assembly Name="Commandline" Dynamic="Required All" />
 
-        <Assembly Name="OpenSage.Game">
+                <Assembly Name="OpenSage.Game">
             <Type Name="OpenSage.Data.Ini.TerrainLod" Dynamic="Required All" />
             <Type Name="OpenSage.Data.Ini.TerrainLod[]" Dynamic="Required All" />
             <Type Name="OpenSage.Data.Map.TimeOfDay" Dynamic="Required All" />
@@ -96,8 +96,8 @@
             <Type Name="OpenSage.Logic.Object.SlowDeathPhase[]" Dynamic="Required All" />
             <Type Name="OpenSage.Logic.Object.AutoAcquireEnemiesType" Dynamic="Required All" />
             <Type Name="OpenSage.Logic.Object.AutoAcquireEnemiesType[]" Dynamic="Required All" />
-            <Type Name="OpenSage.Logic.Object.LocomotorSet" Dynamic="Required All" />
-            <Type Name="OpenSage.Logic.Object.LocomotorSet[]" Dynamic="Required All" />
+            <Type Name="OpenSage.Logic.Object.LocomotorSetCondition" Dynamic="Required All" />
+            <Type Name="OpenSage.Logic.Object.LocomotorSetCondition[]" Dynamic="Required All" />
             <Type Name="OpenSage.Logic.Object.OCLCreateLocation" Dynamic="Required All" />
             <Type Name="OpenSage.Logic.Object.OCLCreateLocation[]" Dynamic="Required All" />
             <Type Name="OpenSage.Logic.Object.ModelLevelOfDetail" Dynamic="Required All" />

@@ -96,8 +96,8 @@
             <Type Name="OpenSage.Logic.Object.SlowDeathPhase[]" Dynamic="Required All" />
             <Type Name="OpenSage.Logic.Object.AutoAcquireEnemiesType" Dynamic="Required All" />
             <Type Name="OpenSage.Logic.Object.AutoAcquireEnemiesType[]" Dynamic="Required All" />
-            <Type Name="OpenSage.Logic.Object.LocomotorSet" Dynamic="Required All" />
-            <Type Name="OpenSage.Logic.Object.LocomotorSet[]" Dynamic="Required All" />
+            <Type Name="OpenSage.Logic.Object.LocomotorSetCondition" Dynamic="Required All" />
+            <Type Name="OpenSage.Logic.Object.LocomotorSetCondition[]" Dynamic="Required All" />
             <Type Name="OpenSage.Logic.Object.OCLCreateLocation" Dynamic="Required All" />
             <Type Name="OpenSage.Logic.Object.OCLCreateLocation[]" Dynamic="Required All" />
             <Type Name="OpenSage.Logic.Object.ModelLevelOfDetail" Dynamic="Required All" />
