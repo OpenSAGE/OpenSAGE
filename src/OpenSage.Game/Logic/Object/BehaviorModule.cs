@@ -12,6 +12,7 @@ namespace OpenSage.Logic.Object
         {
             // Behavior
             { "AimWeaponBehavior", AimWeaponBehaviorModuleData.Parse },
+            { "AutoAbilityBehavior", AutoAbilityBehaviorModuleData.Parse },
             { "AutoHealBehavior", AutoHealBehaviorModuleData.Parse },
             { "BattleBusSlowDeathBehavior", BattleBusSlowDeathBehaviorModuleData.Parse },
             { "BridgeBehavior", BridgeBehaviorModuleData.Parse },
@@ -97,6 +98,7 @@ namespace OpenSage.Logic.Object
             { "TunnelContain", TunnelContainModuleData.Parse },
 
             // Create
+            { "ExperienceLevelCreate", ExperienceLevelCreateModuleData.Parse },
             { "GrantUpgradeCreate", GrantUpgradeCreateModuleData.Parse },
             { "LockWeaponCreate", LockWeaponCreateModuleData.Parse },
             { "PreorderCreate", PreorderCreateModuleData.Parse },
@@ -135,7 +137,10 @@ namespace OpenSage.Logic.Object
             { "CleanupAreaPower", CleanupAreaPowerModuleData.Parse },
             { "CombineHordeSpecialPower", CombineHordeSpecialPowerModuleData.Parse },
             { "DefectorSpecialPower", DefectorSpecialPowerModuleData.Parse },
+            { "DeflectSpecialPower", DeflectSpecialPowerModuleData.Parse },
+            { "DominateEnemySpecialPower", DominateEnemySpecialPowerModuleData.Parse },
             { "FireWeaponPower", FireWeaponPowerModuleData.Parse },
+            { "LevelGrantSpecialPower", LevelGrantSpecialPowerModuleData.Parse },
             { "OCLSpecialPower", OCLSpecialPowerModuleData.Parse },
             { "SiegeDeploySpecialPower", SiegeDeploySpecialPowerModuleData.Parse },
             { "SiegeDeployHordeSpecialPower", SiegeDeployHordeSpecialPowerModuleData.Parse },
@@ -174,6 +179,7 @@ namespace OpenSage.Logic.Object
             { "FlammableUpdate", FlammableUpdateModuleData.Parse },
             { "FloatUpdate", FloatUpdateModuleData.Parse },
             { "HeightDieUpdate", HeightDieUpdateModuleData.Parse },
+            { "HeroModeSpecialAbilityUpdate", HeroModeSpecialAbilityUpdateModuleData.Parse },
             { "HijackerUpdate", HijackerUpdateModuleData.Parse },
             { "HordeUpdate", HordeUpdateModuleData.Parse },
             { "LargeGroupAudioUpdate", LargeGroupAudioUpdateModuleData.Parse },
@@ -219,6 +225,7 @@ namespace OpenSage.Logic.Object
             { "WallUpgradeUpdate", WallUpgradeUpdateModuleData.Parse },
             { "WaveGuideUpdate", WaveGuideUpdateModuleData.Parse },
             { "WeaponBonusUpdate", WeaponBonusUpdateModuleData.Parse },
+            { "WeaponFireSpecialAbilityUpdate", WeaponFireSpecialAbilityUpdateModuleData.Parse },
 
             // Update/AIUpdate
             { "AIUpdateInterface", AIUpdateModuleData.Parse },

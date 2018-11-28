@@ -32,12 +32,12 @@ namespace OpenSage.Logic.Object
     {
         internal static MorphCondition Parse(IniParser parser)
         {
-            return new MorphCondition()
-            {
-                UnitType = parser.ParseAttributeIdentifier("UnitType"),
-                Locomotor = parser.ParseAttributeEnum<LocomotorSetCondition>("Locomotor"),
-                ModelState = parser.ParseAttributeEnumBitArray<ModelConditionFlag>("ModelState")
-            };
+            var result  = new MorphCondition();
+            result.UnitType = parser.ParseAttributeIdentifier("UnitType");
+            parser.ParseAttributeOptional("Locomotor", parser.ParseEnum<LocomotorSetCondition>, out var locomotor);
+            result.Locomotor = locomotor;
+            result.ModelState = parser.ParseAttributeEnumBitArray<ModelConditionFlag>("ModelState");
+            return result;
         }
 
         public string UnitType { get; private set; }

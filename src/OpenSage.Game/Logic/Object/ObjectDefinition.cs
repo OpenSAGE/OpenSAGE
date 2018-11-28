@@ -303,6 +303,7 @@ namespace OpenSage.Logic.Object
             { "ReviveText", (parser, x) => x.ReviveText = parser.ParseLocalizedStringKey() },
             { "Hotkey", (parser, x) => x.Hotkey = parser.ParseLocalizedStringKey() },
             { "PathfindDiameter", (parser, x) => x.PathfindDiameter = parser.ParseFloat() },
+            { "DisplayRangedDamage", (parser, x) => x.DisplayRangedDamage = parser.ParseFloat() },
         };
 
         public string Name { get; protected set; }
@@ -909,6 +910,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public float PathfindDiameter { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float DisplayRangedDamage { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
