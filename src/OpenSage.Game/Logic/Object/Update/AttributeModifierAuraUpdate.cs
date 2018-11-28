@@ -21,7 +21,8 @@ namespace OpenSage.Logic.Object
             { "RunWhileDead", (parser, x) => x.RunWhileDead = parser.ParseBoolean() },
             { "RequiredConditions", (parser, x) => x.RequiredConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
             { "AntiCategory", (parser, x) => x.AntiCategory = parser.ParseEnum<ModifierCategory>() },
-            { "AntiFX", (parser, x) => x.AntiFX = parser.ParseAssetReference() }
+            { "AntiFX", (parser, x) => x.AntiFX = parser.ParseAssetReference() },
+            { "AllowSelf", (parser, x) => x.AllowSelf = parser.ParseBoolean() },
         };
 
         public bool StartsActive { get; private set; }
@@ -35,6 +36,7 @@ namespace OpenSage.Logic.Object
         public bool RunWhileDead { get; private set; }
         public BitArray<ModelConditionFlag> RequiredConditions { get; private set; }
         public ModifierCategory AntiCategory { get; private set; }
-		public string AntiFX { get; private set; }
+        public string AntiFX { get; private set; }
+        public bool AllowSelf { get; private set; }
     }
 }

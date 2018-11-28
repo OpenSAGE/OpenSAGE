@@ -62,5 +62,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("WEAPONSET_TOGGLE_1"), AddedIn(SageGame.Bfme)]
         WeaponsetToggle1        = 1 << 17,
+
+        [IniEnum("WEAPONSET_HERO_MODE"), AddedIn(SageGame.Bfme)]
+        WeaponsetHeroMode       = 1 << 18,
+
+        [IniEnum("CONTAINED"), AddedIn(SageGame.Bfme)]
+        Contained               = 1 << 19,
     }
 }
