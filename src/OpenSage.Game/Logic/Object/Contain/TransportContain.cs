@@ -40,6 +40,7 @@ namespace OpenSage.Logic.Object
                 { "TypeOneForWeaponState", (parser, x) => x.TypeOneForWeaponState = parser.ParseEnum<ObjectKinds>() },
                 { "TypeTwoForWeaponState", (parser, x) => x.TypeTwoForWeaponState = parser.ParseEnum<ObjectKinds>() },
                 { "PassengerBonePrefix", (parser, x) => x.PassengerBonePrefixes.Add(PassengerBonePrefix.Parse(parser)) },
+                { "KillPassengersOnDeath", (parser, x) => x.KillPassengersOnDeath = parser.ParseBoolean() },
             });
 
         public bool PassengersAllowedToFire { get; private set; }
@@ -93,6 +94,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public List<PassengerBonePrefix> PassengerBonePrefixes { get; } = new List<PassengerBonePrefix>();
+
+        [AddedIn(SageGame.Bfme)]
+        public bool KillPassengersOnDeath { get; private set; }
     }
 
     public sealed class PassengerBonePrefix

@@ -13,11 +13,13 @@ namespace OpenSage.Logic.Object
             {
                 { "DelayedDeathTime", (parser, x) => x.DelayedDeathTime = parser.ParseInteger() },
                 { "CanRespawn", (parser, x) => x.CanRespawn = parser.ParseBoolean() },
-                { "DoHealthCheck", (parser, x) => x.DoHealthCheck = parser.ParseBoolean() }
+                { "DoHealthCheck", (parser, x) => x.DoHealthCheck = parser.ParseBoolean() },
+                { "ImmortalUntilDeathTime", (parser, x) => x.ImmortalUntilDeathTime = parser.ParseBoolean() },
             });
 
         public int DelayedDeathTime { get; private set; }
         public bool CanRespawn { get; private set; }
         public bool DoHealthCheck { get; private set; }
+        public bool ImmortalUntilDeathTime { get; private set; }
     }
 }

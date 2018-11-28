@@ -178,6 +178,7 @@ namespace OpenSage.Logic.Object
             { "FireWeaponUpdate", FireWeaponUpdateModuleData.Parse },
             { "FlammableUpdate", FlammableUpdateModuleData.Parse },
             { "FloatUpdate", FloatUpdateModuleData.Parse },
+            { "GiveUpgradeUpdate", GiveUpgradeUpdateModuleData.Parse },
             { "HeightDieUpdate", HeightDieUpdateModuleData.Parse },
             { "HeroModeSpecialAbilityUpdate", HeroModeSpecialAbilityUpdateModuleData.Parse },
             { "HijackerUpdate", HijackerUpdateModuleData.Parse },

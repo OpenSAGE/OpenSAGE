@@ -43,7 +43,7 @@ namespace OpenSage.Logic.Object
             if (secondToken.HasValue)
             {
                 result = parser.ParseBlock(FieldParseTable);
-                result.Type = IniParser.ParseEnum<EmotionType>(firstToken);
+                result.Type = IniParser.ScanEnum<EmotionType>(firstToken);
                 result.EmotionName = parser.ScanAssetReference(secondToken.Value);
             }
             else

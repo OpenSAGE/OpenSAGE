@@ -677,6 +677,12 @@ namespace OpenSage.Logic.Object
         QuarrelsomeFighting,
 
         [IniEnum("WEAPONSTATE_CONTAINED"), AddedIn(SageGame.Bfme)]
-        WeaponstateContained
+        WeaponstateContained,
+
+        [IniEnum("DIVING"), AddedIn(SageGame.Bfme)]
+        Diving,
+
+        [IniEnum("ABOUT_TO_HIT"), AddedIn(SageGame.Bfme)]
+        AboutToHit
     }
 }
