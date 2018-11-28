@@ -568,5 +568,11 @@
 
         [IniEnum("MINE_TRIGGER"), AddedIn(SageGame.Bfme)]
         MineTrigger,
+
+        [IniEnum("HAS_HEALTH_BAR"), AddedIn(SageGame.Bfme)]
+        HasHealthBar,
+
+        [IniEnum("NOTIFY_OF_PREATTACK"), AddedIn(SageGame.Bfme)]
+        NotifyOfPreattack
     }
 }

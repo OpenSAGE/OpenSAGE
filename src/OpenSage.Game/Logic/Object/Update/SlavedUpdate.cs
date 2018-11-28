@@ -8,8 +8,8 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<SlavedUpdateModuleData> FieldParseTable = new IniParseTable<SlavedUpdateModuleData>
         {
-            { "GuardMaxRange", (parser, x) => x.GuardMaxRange = parser.ParseInteger() },
-            { "GuardWanderRange", (parser, x) => x.GuardWanderRange = parser.ParseInteger() },
+            { "GuardMaxRange", (parser, x) => x.GuardMaxRange = parser.ParseFloat() },
+            { "GuardWanderRange", (parser, x) => x.GuardWanderRange = parser.ParseFloat() },
             { "AttackRange", (parser, x) => x.AttackRange = parser.ParseInteger() },
             { "AttackWanderRange", (parser, x) => x.AttackWanderRange = parser.ParseInteger() },
             { "ScoutRange", (parser, x) => x.ScoutRange = parser.ParseInteger() },
@@ -29,8 +29,8 @@ namespace OpenSage.Logic.Object
             { "StayOnSameLayerAsMaster", (parser, x) => x.StayOnSameLayerAsMaster = parser.ParseBoolean() }
         };
 
-        public int GuardMaxRange { get; private set; }
-        public int GuardWanderRange { get; private set; }
+        public float GuardMaxRange { get; private set; }
+        public float GuardWanderRange { get; private set; }
         public int AttackRange { get; private set; }
         public int AttackWanderRange { get; private set; }
         public int ScoutRange { get; private set; }

@@ -179,7 +179,7 @@ namespace OpenSage.Data.Ini.Parser
             IniToken? token;
             while ((token = GetNextTokenOptional()) != null)
             {
-                var stringValue = token.Value.Text.ToUpperInvariant();
+                var stringValue = token.Value.Text.ToUpperInvariant().Replace("\"", "");
                 switch (stringValue)
                 {
                     case "ALL":

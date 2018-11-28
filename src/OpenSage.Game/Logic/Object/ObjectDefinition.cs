@@ -298,6 +298,11 @@ namespace OpenSage.Logic.Object
             { "MountedCrusherLevel", (parser, x) => x.MountedCrusherLevel = parser.ParseInteger() },
             { "MountedCrushableLevel", (parser, x) => x.MountedCrushableLevel = parser.ParseInteger() },
             { "CrushWeapon", (parser, x) => x.CrushWeapon = parser.ParseAssetReference() },
+            { "DisplayMeleeDamage", (parser, x) => x.DisplayMeleeDamage = parser.ParseFloat() },
+            { "RecruitText", (parser, x) => x.RecruitText = parser.ParseLocalizedStringKey() },
+            { "ReviveText", (parser, x) => x.ReviveText = parser.ParseLocalizedStringKey() },
+            { "Hotkey", (parser, x) => x.Hotkey = parser.ParseLocalizedStringKey() },
+            { "PathfindDiameter", (parser, x) => x.PathfindDiameter = parser.ParseFloat() },
         };
 
         public string Name { get; protected set; }
@@ -889,6 +894,21 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string CrushWeapon { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float DisplayMeleeDamage { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string RecruitText { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string ReviveText { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string Hotkey { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float PathfindDiameter { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
