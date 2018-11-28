@@ -33,8 +33,9 @@ namespace OpenSage.Viewer.UI
         private List<FileSystemEntry> _files;
         private int _currentFile = -1;
 
-        private byte[] _searchTextBuffer = new byte[32];
-        private byte[] _filePathBuffer = new byte[1024];
+        private byte[] _searchTextBuffer;
+        private byte[] _filePathBuffer;
+        private string _searchText;
 
         private ContentView _contentView;
 
@@ -46,6 +47,31 @@ namespace OpenSage.Viewer.UI
 
             _installations = GameInstallation.FindAll(GameDefinition.All).ToList();
             ChangeInstallation(_installations.FirstOrDefault());
+        }
+
+        private void UpdateSearch(string searchText)
+        {
+            searchText = ImGuiUtility.TrimToNullByte(searchText);
+
+            if (searchText == _searchText)
+            {
+                return;
+            }
+
+            _searchText = searchText;
+
+            _files.Clear();
+
+            if (string.IsNullOrWhiteSpace(_searchText))
+            {
+                _files.AddRange(_fileSystem.Files.OrderBy(x => x.FilePath));
+            }
+            else
+            {
+                _files.AddRange(_fileSystem.Files
+                    .Where(entry => entry.FilePath.IndexOf(_searchText, StringComparison.OrdinalIgnoreCase) >= 0)
+                    .OrderBy(x => x.FilePath));
+            }
         }
 
         private void DrawMainUi(ref bool isGameViewFocused)
@@ -97,6 +123,8 @@ namespace OpenSage.Viewer.UI
 
             ImGui.PushItemWidth(-1);
             ImGuiUtility.InputText("##search", _searchTextBuffer, out var searchText);
+            UpdateSearch(searchText);
+
             ImGui.PopItemWidth();
 
             ImGui.BeginChild("files list", Vector2.Zero, true);
@@ -104,11 +132,6 @@ namespace OpenSage.Viewer.UI
             for (var i = 0; i < _files.Count; i++)
             {
                 var entry = _files[i];
-
-                if (!string.IsNullOrEmpty(searchText) && entry.FilePath.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) < 0)
-                {
-                    continue;
-                }
 
                 if (ImGui.Selectable(entry.FilePath, i == _currentFile))
                 {
@@ -150,6 +173,8 @@ namespace OpenSage.Viewer.UI
 
                     if (ImGui.Button("Save"))
                     {
+                        filePath = ImGuiUtility.TrimToNullByte(filePath);
+
                         using (var entryStream = entry.Open())
                         {
                             using (var fileStream = File.OpenWrite(filePath))
@@ -259,7 +284,7 @@ namespace OpenSage.Viewer.UI
             _imGuiRenderer.ClearCachedImageResources();
 
             RemoveAndDispose(ref _contentView);
-            _files = null;
+            _files = new List<FileSystemEntry>();
             RemoveAndDispose(ref _game);
             RemoveAndDispose(ref _gamePanel);
             RemoveAndDispose(ref _fileSystem);
@@ -267,7 +292,6 @@ namespace OpenSage.Viewer.UI
 
             if (installation == null)
             {
-                _files = new List<FileSystemEntry>();
                 return;
             }
 
@@ -292,7 +316,9 @@ namespace OpenSage.Viewer.UI
                 }
             }
 
-            _files = _fileSystem.Files.OrderBy(x => x.FilePath).ToList();
+            _searchTextBuffer = new byte[32];
+            _filePathBuffer = new byte[1024];
+            UpdateSearch(null);
 
             _currentFile = -1;
 
@@ -303,8 +329,6 @@ namespace OpenSage.Viewer.UI
                 installation,
                 _fileSystem,
                 _gamePanel));
-
-            //InstallationChanged?.Invoke(this, new InstallationChangedEventArgs(installation, _fileSystem));
         }
 
         private void SetVSync(bool isEnabled)

@@ -13,5 +13,21 @@ namespace OpenSage.Viewer.Util
 
             return temp;
         }
+
+        /// <summary>
+        /// Trims a string to only contain the data before the first null terminator.
+        /// This is necessary because imgui optimizes input clearing by replacing the first character with a zero byte.
+        /// </summary>
+        public static string TrimToNullByte(string input)
+        {
+            if (input == null)
+            {
+                return null;
+            }
+
+            var nullIndex = input.IndexOf('\0');
+
+            return nullIndex >= 0 ? input.Substring(0, nullIndex) : input;
+        }
     }
 }
