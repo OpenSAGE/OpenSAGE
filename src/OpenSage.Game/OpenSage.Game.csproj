@@ -35,9 +35,12 @@
   <PropertyGroup>
     <GlslangValidatorPath>win-x64\glslangValidator.exe</GlslangValidatorPath>
     <GlslangValidatorPath Condition="$([MSBuild]::IsOsPlatform('osx'))">osx-x64\glslangValidator</GlslangValidatorPath>
+    <GlslangValidatorPath Condition="$([MSBuild]::IsOsPlatform('linux'))">linux-x64\glslangValidator</GlslangValidatorPath>
 
     <SpirvCrossPath>win-x64\SPIRV-Cross.exe</SpirvCrossPath>
     <SpirvCrossPath Condition="$([MSBuild]::IsOsPlatform('osx'))">osx-x64\spirv-cross</SpirvCrossPath>
+    <SpirvCrossPath Condition="$([MSBuild]::IsOsPlatform('linux'))">linux-x64\spirv-cross</SpirvCrossPath>
+
   </PropertyGroup>
 
   <Target Name="CompileShaders" BeforeTargets="BeforeBuild" Inputs="@(ShaderFiles);@(ShaderHeaderFiles)" Outputs="@(ShaderFiles->'$(IntermediateOutputPath)Assets\Shaders\%(FileName)%(Extension).spv');@(ShaderFiles->'$(IntermediateOutputPath)Assets\Shaders\%(FileName)%(Extension).json')">
