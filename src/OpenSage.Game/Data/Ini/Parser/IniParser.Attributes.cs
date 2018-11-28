@@ -47,6 +47,11 @@ namespace OpenSage.Data.Ini.Parser
             return true;
         }
 
+        public float ParseAttributePercentage(string label)
+        {
+            return ParseAttribute(label, ParsePercentage);
+        }
+
         public int ParseAttributeInteger(string label)
         {
             return ParseAttribute(label, ScanInteger);
@@ -61,6 +66,12 @@ namespace OpenSage.Data.Ini.Parser
             where T : struct
         {
             return ParseAttribute(label, x => ParseEnum<T>(x));
+        }
+
+        public BitArray<T> ParseAttributeEnumBitArray<T>(string label)
+            where T : struct
+        {
+            return ParseAttribute(label, ParseEnumBitArray<T>);
         }
 
         public byte ParseAttributeByte(string label)
