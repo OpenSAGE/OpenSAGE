@@ -13,11 +13,13 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<W3dHordeModelDrawModuleData>
             {
                 { "StaticModelLODMode", (parser, x) => x.StaticModelLodMode = parser.ParseBoolean() },
-                { "LodOptions", (parser, x) => x.LodOptions.Add(LodOption.Parse(parser)) }
+                { "LodOptions", (parser, x) => x.LodOptions.Add(LodOption.Parse(parser)) },
+                { "WadingParticleSys", (parser, x) => x.WadingParticleSys = parser.ParseAssetReference() }
             });
 
-        public bool StaticModelLodMode { get; internal set; }
-        public List<LodOption> LodOptions { get; internal set; } = new List<LodOption>();
+        public bool StaticModelLodMode { get; private set; }
+        public List<LodOption> LodOptions { get; private set; } = new List<LodOption>();
+        public string WadingParticleSys { get; private set; } 
     }
 
     public sealed class LodOption

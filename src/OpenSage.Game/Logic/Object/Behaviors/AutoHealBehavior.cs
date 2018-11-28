@@ -19,6 +19,7 @@ namespace OpenSage.Logic.Object
                 { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
                 { "SingleBurst", (parser, x) => x.SingleBurst = parser.ParseBoolean() },
                 { "SkipSelfForHealing", (parser, x) => x.SkipSelfForHealing = parser.ParseBoolean() },
+                { "HealOnlyIfNotInCombat", (parser, x) => x.HealOnlyIfNotInCombat = parser.ParseBoolean() }
             });
 
         public int HealingAmount { get; private set; }
@@ -32,5 +33,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool SkipSelfForHealing { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool HealOnlyIfNotInCombat { get; private set; }
     }
 }

@@ -11,6 +11,7 @@ namespace OpenSage.Logic.Object
             { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() },
             { "StartsPaused", (parser, x) => x.StartsPaused = parser.ParseBoolean() },
             { "UpdateModuleStartsAttack", (parser, x) => x.UpdateModuleStartsAttack = parser.ParseBoolean() },
+            { "InitiateSound", (parser, x) => x.InitiateSound = parser.ParseAssetReference() },
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -18,5 +19,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool UpdateModuleStartsAttack { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string InitiateSound { get; private set; }
     }
 }

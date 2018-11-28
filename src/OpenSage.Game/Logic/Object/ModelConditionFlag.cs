@@ -659,6 +659,12 @@ namespace OpenSage.Logic.Object
         AlternateFormation,
 
         [IniEnum("USING_COMBO_LOCOMOTOR"), AddedIn(SageGame.Bfme)]
-        UsingComboLocomotor
+        UsingComboLocomotor,
+
+        [IniEnum("SPECIAL_WEAPON_ONE"), AddedIn(SageGame.Bfme)]
+        SpecialWeaponOne,
+
+        [IniEnum("SPECIAL_WEAPON_TWO"), AddedIn(SageGame.Bfme)]
+        SpecialWeaponTwo,
     }
 }
