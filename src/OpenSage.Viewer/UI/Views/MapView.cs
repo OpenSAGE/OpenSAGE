@@ -54,7 +54,7 @@ namespace OpenSage.Viewer.UI.Views
 
         public override void Draw(ref bool isGameViewFocused)
         {
-            ImGui.BeginChild("map panels", new Vector2(250, 0), true, 0);
+            ImGui.BeginChild("map panels", new Vector2(300, 0), true, 0);
 
             if (ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))
             {
@@ -115,31 +115,40 @@ namespace OpenSage.Viewer.UI.Views
                     }
                 }
 
-                ImGui.Separator();
-
-                ImGui.Text("Shadow cascades");
+                if (shadowSettings.ShadowsType != ShadowsType.None)
                 {
-                    foreach (var cascadeType in GetShadowCascades())
+                    ImGui.Separator();
+
+                    ImGui.Text("Shadow cascades");
                     {
-                        if (ImGui.RadioButton(cascadeType.ToString(), shadowSettings.ShadowMapCascades == cascadeType))
+                        foreach (var cascadeType in GetShadowCascades())
                         {
-                            shadowSettings.ShadowMapCascades = cascadeType;
+                            if (ImGui.RadioButton(cascadeType.ToString(), shadowSettings.ShadowMapCascades == cascadeType))
+                            {
+                                shadowSettings.ShadowMapCascades = cascadeType;
+                            }
                         }
                     }
-                }
 
-                ImGui.Separator();
+                    ImGui.Separator();
 
-                var stabilizeShadows = shadowSettings.StabilizeShadowCascades;
-                if (ImGui.Checkbox("Stabilize shadows", ref stabilizeShadows))
-                {
-                    shadowSettings.StabilizeShadowCascades = stabilizeShadows;
-                }
+                    var shadowDistance = shadowSettings.ShadowDistance;
+                    if (ImGui.SliderFloat("Shadow distance", ref shadowDistance, 10, 2000))
+                    {
+                        shadowSettings.ShadowDistance = shadowDistance;
+                    }
 
-                var visualizeCascades = shadowSettings.VisualizeCascades;
-                if (ImGui.Checkbox("Visualize shadow cascades", ref visualizeCascades))
-                {
-                    shadowSettings.VisualizeCascades = visualizeCascades;
+                    var stabilizeShadows = shadowSettings.StabilizeShadowCascades;
+                    if (ImGui.Checkbox("Stabilize shadows", ref stabilizeShadows))
+                    {
+                        shadowSettings.StabilizeShadowCascades = stabilizeShadows;
+                    }
+
+                    var visualizeCascades = shadowSettings.VisualizeCascades;
+                    if (ImGui.Checkbox("Visualize shadow cascades", ref visualizeCascades))
+                    {
+                        shadowSettings.VisualizeCascades = visualizeCascades;
+                    }
                 }
 
                 ImGui.Separator();
