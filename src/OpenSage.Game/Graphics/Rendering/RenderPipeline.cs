@@ -137,24 +137,28 @@ namespace OpenSage.Graphics.Rendering
 
             // Shadow map passes.
 
-            _shadowMapRenderer.RenderShadowMap(
-                scene,
-                context.GraphicsDevice,
-                ref _shadowConstants,
-                out var shadowMap,
-                (framebuffer, lightBoundingFrustum) =>
-                {
-                    commandList.SetFramebuffer(framebuffer);
+            Texture shadowMap = null;
+            if (scene.Shadows.ShadowsType != ShadowsType.None)
+            {
+                _shadowMapRenderer.RenderShadowMap(
+                    scene,
+                    context.GraphicsDevice,
+                    ref _shadowConstants,
+                    out shadowMap,
+                    (framebuffer, lightBoundingFrustum) =>
+                    {
+                        commandList.SetFramebuffer(framebuffer);
 
-                    commandList.ClearDepthStencil(1);
+                        commandList.ClearDepthStencil(1);
 
-                    commandList.SetFullViewports();
+                        commandList.SetFullViewports();
 
-                    var shadowViewProjection = lightBoundingFrustum.Matrix;
-                    UpdateGlobalConstantBuffers(commandList, shadowViewProjection);
+                        var shadowViewProjection = lightBoundingFrustum.Matrix;
+                        UpdateGlobalConstantBuffers(commandList, shadowViewProjection);
 
-                    DoRenderPass(commandList, _renderList.Shadow, lightBoundingFrustum, null, null);
-                });
+                        DoRenderPass(commandList, _renderList.Shadow, lightBoundingFrustum, null, null);
+                    });
+            }
 
             // Standard pass.
 
