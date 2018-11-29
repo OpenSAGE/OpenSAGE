@@ -88,11 +88,20 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal void BuildRenderList(RenderList renderList, PerspectiveCamera camera)
+        internal void BuildRenderList(RenderList renderList, Camera camera)
         {
+            var castsShadow = false;
+            switch (Definition.Shadow)
+            {
+                case ObjectShadowType.ShadowVolume:
+                case ObjectShadowType.ShadowVolumeNew:
+                    castsShadow = true;
+                    break;
+            }
+
             foreach (var drawModule in DrawModules)
             {
-                drawModule.BuildRenderList(renderList, camera);
+                drawModule.BuildRenderList(renderList, camera, castsShadow);
             }
         }
 

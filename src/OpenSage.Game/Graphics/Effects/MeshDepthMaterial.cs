@@ -1,5 +1,5 @@
 ﻿using OpenSage.Content;
-using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Rendering.Shadows;
 using Veldrid;
 
 namespace OpenSage.Graphics.Effects
@@ -17,7 +17,7 @@ namespace OpenSage.Graphics.Effects
                rasterizerState,
                DepthStencilStateDescription.DepthOnlyLessEqual,
                BlendStateDescription.SingleDisabled,
-               RenderPipeline.DepthPassDescription);
+               ShadowData.DepthPassDescription);
         }
     }
 }

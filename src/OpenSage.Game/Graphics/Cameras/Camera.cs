@@ -1,21 +1,33 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Mathematics;
+using Viewport = Veldrid.Viewport;
 
 namespace OpenSage.Graphics.Cameras
 {
-    public abstract class Camera
+    public sealed class Camera
     {
+        private readonly Func<Viewport> _getViewport;
+        private Viewport _viewport;
+
         private float _nearPlaneDistance;
         private float _farPlaneDistance;
 
         private Matrix4x4 _world, _projection;
 
-        protected Camera()
-        {
-            BoundingFrustum = new BoundingFrustum(Matrix4x4.Identity);
+        private float _focalLength = 25;
 
-            _nearPlaneDistance = 4.0f;
-            _farPlaneDistance = 10000.0f;
+        /// <summary>
+        /// Gets or sets a value that represents the camera's focal length in mm. 
+        /// </summary>
+        public float FocalLength
+        {
+            get { return _focalLength; }
+            set
+            {
+                _focalLength = value;
+                UpdateProjection();
+            }
         }
 
         /// <summary>
@@ -64,6 +76,19 @@ namespace OpenSage.Graphics.Cameras
 
         public Vector3 Position { get; private set; }
 
+        public Camera(Func<Viewport> getViewport)
+        {
+            _getViewport = getViewport;
+            _viewport = getViewport();
+
+            BoundingFrustum = new BoundingFrustum(Matrix4x4.Identity);
+
+            _nearPlaneDistance = 4.0f;
+            _farPlaneDistance = 10000.0f;
+
+            UpdateProjection();
+        }
+
         public void SetLookAt(in Vector3 cameraPosition, in Vector3 cameraTarget, in Vector3 up)
         {
             View = Matrix4x4.CreateLookAt(cameraPosition, cameraTarget, up);
@@ -79,21 +104,71 @@ namespace OpenSage.Graphics.Cameras
             BoundingFrustum.Matrix = ViewProjection;
         }
 
-        protected void UpdateProjection()
+        private void UpdateProjection()
         {
             CreateProjection(out _projection);
             UpdateViewProjection();
         }
 
-        protected abstract void CreateProjection(out Matrix4x4 projection);
+        private void CreateProjection(out Matrix4x4 projection)
+        {
+            const int height = 24; // Height in mm of 35mm film.
+            var fieldOfView = 2 * MathUtility.Atan(0.5f * height / _focalLength);
+
+            projection = Matrix4x4.CreatePerspectiveFieldOfView(
+                fieldOfView, _viewport.Width / _viewport.Height,
+                NearPlaneDistance, FarPlaneDistance);
+        }
 
         /// <summary>
-        /// Only used when creating shadow camera.
+        /// Creates a ray going from the camera's near plane, through the specified screen position, to the camera's far plane.
         /// </summary>
-        internal void SetProjection(in Matrix4x4 projection)
+        /// <param name="position"></param>
+        /// <returns></returns>
+        public Ray ScreenPointToRay(Vector2 position)
         {
-            _projection = projection;
-            UpdateViewProjection();
+            var near = _viewport.Unproject(new Vector3(position, 0), Projection, View, Matrix4x4.Identity);
+            var far = _viewport.Unproject(new Vector3(position, 1), Projection, View, Matrix4x4.Identity);
+
+            return new Ray(near, Vector3.Normalize(far - near));
+        }
+
+        /// <summary>
+        /// Converts a world-space point to screen-space.
+        /// </summary>
+        public Vector3 WorldToScreenPoint(Vector3 position)
+        {
+            return _viewport.Project(position, Projection, View, Matrix4x4.Identity);
+        }
+
+        internal Rectangle? WorldToScreenRectangle(in Vector3 position, in Size screenSize)
+        {
+            var screenPosition = WorldToScreenPoint(position);
+
+            // Check if point is behind camera, or too far away.
+            if (screenPosition.Z < _viewport.MinDepth || screenPosition.Z > _viewport.MaxDepth)
+                return null;
+
+            return new Rectangle(
+                (int) (screenPosition.X - screenSize.Width / 2.0f),
+                (int) (screenPosition.Y - screenSize.Height / 2.0f),
+                screenSize.Width, screenSize.Height);
+        }
+
+        /// <summary>
+        /// Converts a screen-space point to world-space. The value of <paramref name="position.Z"/>
+        /// will be used to determine the depth in camera space of the world-space point.
+        /// </summary>
+        public Vector3 ScreenToWorldPoint(Vector3 position)
+        {
+            var ray = ScreenPointToRay(new Vector2(position.X, position.Y));
+            return ray.Position + ray.Direction * position.Z;
+        }
+
+        internal void OnViewportSizeChanged()
+        {
+            _viewport = _getViewport();
+            UpdateProjection();
         }
     }
 }

@@ -17,7 +17,7 @@ namespace OpenSage.Gui
             SelectedObjects = new List<Collider>();
         }
 
-        public void Draw(DrawingContext2D context, PerspectiveCamera camera)
+        public void Draw(DrawingContext2D context, Camera camera)
         {
             foreach (var collider in SelectedObjects)
             {

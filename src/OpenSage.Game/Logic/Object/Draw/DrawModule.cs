@@ -28,7 +28,7 @@ namespace OpenSage.Logic.Object
 
         internal abstract void SetWorldMatrix(in Matrix4x4 worldMatrix);
 
-        internal abstract void BuildRenderList(RenderList renderList, PerspectiveCamera camera);
+        internal abstract void BuildRenderList(RenderList renderList, Camera camera, bool castsShadow);
     }
 
     public abstract class DrawModuleData : ModuleData

@@ -109,7 +109,7 @@ namespace OpenSage.Viewer.Framework
             throw new NotImplementedException();
         }
 
-        void ICameraController.UpdateCamera(PerspectiveCamera camera, in CameraInputState inputState, GameTime gameTime)
+        void ICameraController.UpdateCamera(Camera camera, in CameraInputState inputState, GameTime gameTime)
         {
             if (inputState.LeftMouseDown)
             {

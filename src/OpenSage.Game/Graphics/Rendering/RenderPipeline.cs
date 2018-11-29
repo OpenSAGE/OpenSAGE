@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Effects;
+using OpenSage.Graphics.Rendering.Shadows;
 using OpenSage.Gui;
 using OpenSage.Mathematics;
 using Veldrid;
@@ -14,11 +15,6 @@ namespace OpenSage.Graphics.Rendering
         public static readonly OutputDescription GameOutputDescription = new OutputDescription(
             new OutputAttachmentDescription(PixelFormat.D24_UNorm_S8_UInt),
             new OutputAttachmentDescription(PixelFormat.B8_G8_R8_A8_UNorm));
-
-        public const PixelFormat ShadowMapPixelFormat = PixelFormat.D32_Float_S8_UInt;
-
-        public static readonly OutputDescription DepthPassDescription = new OutputDescription(
-            new OutputAttachmentDescription(ShadowMapPixelFormat));
 
         private readonly RenderList _renderList;
 
@@ -35,10 +31,6 @@ namespace OpenSage.Graphics.Rendering
         private readonly ConstantBuffer<ShadowConstantsPS> _shadowConstantsPSBuffer;
 
         private readonly DrawingContext2D _drawingContext;
-
-        private readonly Texture _shadowMap;
-        private readonly Framebuffer[] _shadowMapFramebuffers;
-        private readonly BoundingFrustum[] _shadowMapFrustums;
 
         private readonly Sampler _shadowSampler;
 
@@ -69,32 +61,6 @@ namespace OpenSage.Graphics.Rendering
                 BlendStateDescription.SingleAlphaBlend,
                 GameOutputDescription));
 
-            var numCascades = ShadowMapRenderer.NumCascades;
-
-            _shadowMap = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(
-                TextureDescription.Texture2D(
-                    ShadowMapRenderer.ShadowMapSize,
-                    ShadowMapRenderer.ShadowMapSize,
-                    1,
-                    numCascades,
-                    ShadowMapPixelFormat,
-                    TextureUsage.DepthStencil | TextureUsage.Sampled)));
-
-            _shadowMapFramebuffers = new Framebuffer[numCascades];
-            for (var i = 0u; i < numCascades; i++)
-            {
-                _shadowMapFramebuffers[i] = AddDisposable(graphicsDevice.ResourceFactory.CreateFramebuffer(
-                    new FramebufferDescription(
-                        new FramebufferAttachmentDescription(_shadowMap, i),
-                        Array.Empty<FramebufferAttachmentDescription>())));
-            }
-
-            _shadowMapFrustums = new BoundingFrustum[numCascades];
-            for (var i = 0; i < numCascades; i++)
-            {
-                _shadowMapFrustums[i] = new BoundingFrustum(Matrix4x4.Identity);
-            }
-
             _shadowSampler = AddDisposable(graphicsDevice.ResourceFactory.CreateSampler(
                 new SamplerDescription(
                     SamplerAddressMode.Clamp,
@@ -108,7 +74,7 @@ namespace OpenSage.Graphics.Rendering
                     0,
                     SamplerBorderColor.OpaqueBlack)));
 
-            _shadowMapRenderer = new ShadowMapRenderer(game.Graphics.ShadowSettings);
+            _shadowMapRenderer = AddDisposable(new ShadowMapRenderer());
         }
 
         public void Execute(RenderContext context)
@@ -171,32 +137,23 @@ namespace OpenSage.Graphics.Rendering
 
             // Shadow map passes.
 
-            _shadowConstants.Bias = context.Graphics.ShadowSettings.Bias;
-            _shadowConstants.FilterAcrossCascades = context.Graphics.ShadowSettings.FilterAcrossCascades ? 1u : 0u;
-            _shadowConstants.FilterSize = context.Graphics.ShadowSettings.FixedFilterSize;
-            _shadowConstants.OffsetScale = context.Graphics.ShadowSettings.OffsetScale;
-            _shadowConstants.VisualizeCascades = context.Graphics.ShadowSettings.VisualizeCascades ? 1u : 0u;
-
-            // TODO: If self-shadowing terrain, need to use terrain light here.
-
             _shadowMapRenderer.RenderShadowMap(
-                scene.Camera,
-                scene.Lighting.CurrentLightingConfiguration.ObjectLightsPS.Light0.Direction,
+                scene,
+                context.GraphicsDevice,
                 ref _shadowConstants,
-                (cascadeIndex, shadowCamera) =>
+                out var shadowMap,
+                (framebuffer, lightBoundingFrustum) =>
                 {
-                    commandList.SetFramebuffer(_shadowMapFramebuffers[cascadeIndex]);
+                    commandList.SetFramebuffer(framebuffer);
 
                     commandList.ClearDepthStencil(1);
 
                     commandList.SetFullViewports();
 
-                    var shadowViewProjection = shadowCamera.ViewProjection;
+                    var shadowViewProjection = lightBoundingFrustum.Matrix;
                     UpdateGlobalConstantBuffers(commandList, shadowViewProjection);
 
-                    _shadowMapFrustums[cascadeIndex].Matrix = shadowViewProjection;
-
-                    DoRenderPass(commandList, _renderList.Shadow, _shadowMapFrustums[cascadeIndex], null);
+                    DoRenderPass(commandList, _renderList.Shadow, lightBoundingFrustum, null, null);
                 });
 
             // Standard pass.
@@ -213,15 +170,16 @@ namespace OpenSage.Graphics.Rendering
 
             var standardPassCameraFrustum = context.Camera.BoundingFrustum;
 
-            DoRenderPass(commandList, _renderList.Opaque, standardPassCameraFrustum, cloudTexture);
-            DoRenderPass(commandList, _renderList.Transparent, standardPassCameraFrustum, cloudTexture);
+            DoRenderPass(commandList, _renderList.Opaque, standardPassCameraFrustum, cloudTexture, shadowMap);
+            DoRenderPass(commandList, _renderList.Transparent, standardPassCameraFrustum, cloudTexture, shadowMap);
         }
 
         private void DoRenderPass(
             CommandList commandList,
             RenderBucket bucket,
             BoundingFrustum cameraFrustum,
-            Texture cloudTexture)
+            Texture cloudTexture,
+            Texture shadowMap)
         {
             Culler.Cull(bucket.RenderItems, bucket.CulledItems, cameraFrustum);
 
@@ -243,7 +201,7 @@ namespace OpenSage.Graphics.Rendering
 
                     effect.Begin(commandList);
 
-                    SetDefaultMaterialProperties(renderItem.Material, cloudTexture);
+                    SetDefaultMaterialProperties(renderItem.Material, cloudTexture, shadowMap);
                 }
 
                 if (lastRenderItem == null || lastRenderItem.Value.Material != renderItem.Material)
@@ -314,7 +272,8 @@ namespace OpenSage.Graphics.Rendering
 
         private void SetDefaultMaterialProperties(
             EffectMaterial material,
-            Texture cloudTexture)
+            Texture cloudTexture,
+            Texture shadowMap)
         {
             void setDefaultConstantBuffer(string name, DeviceBuffer buffer)
             {
@@ -353,7 +312,7 @@ namespace OpenSage.Graphics.Rendering
             var shadowMapParameter = material.Effect.GetParameter("Global_ShadowMap", throwIfMissing: false);
             if (shadowMapParameter != null)
             {
-                material.SetProperty("Global_ShadowMap", _shadowMap);
+                material.SetProperty("Global_ShadowMap", shadowMap);
                 material.SetProperty("Global_ShadowSampler", _shadowSampler);
             }
         }

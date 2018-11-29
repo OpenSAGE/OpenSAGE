@@ -2,6 +2,10 @@
 
 #define NUM_CASCADES 4
 
+#define SHADOWS_NONE 0
+#define SHADOWS_HARD 1
+#define SHADOWS_SOFT 2
+
 struct ShadowConstantsPSType
 {
     mat4 ShadowMatrix;
@@ -12,8 +16,9 @@ struct ShadowConstantsPSType
     float OffsetScale;
     bool VisualizeCascades;
     bool FilterAcrossCascades;
-    vec3 _Padding;
-    int FilterSize;
+    float ShadowDistance;
+    int ShadowsType;
+    vec2 _Padding;
 };
 
 float SampleShadowMap(
@@ -64,7 +69,17 @@ float SampleShadowMapOptimizedPCF(
 
     float sum = 0;
 
-    int filterSize = constants.FilterSize;
+    int filterSize;
+    switch (constants.ShadowsType)
+    {
+    case SHADOWS_SOFT:
+        filterSize = 5;
+        break;
+
+    default:
+        filterSize = 2;
+        break;
+    }
 
     if (filterSize == 2)
     {
@@ -235,6 +250,12 @@ vec3 ShadowVisibility(
     ShadowConstantsPSType constants)
 {
     vec3 shadowVisibility = vec3(1, 1, 1);
+
+    if (constants.ShadowsType == SHADOWS_NONE)
+    {
+        return shadowVisibility;
+    }
+
     int cascadeIdx = 0;
 
     // Figure out which cascade to sample from.
@@ -285,6 +306,11 @@ vec3 ShadowVisibility(
             shadowVisibility = mix(nextSplitVisibility, shadowVisibility, lerpAmt);
         }
     }
+
+    // Fade out shadows.
+    float fade = smoothstep(constants.ShadowDistance * 0.9, constants.ShadowDistance, depthVS);
+    shadowVisibility += vec3(fade, fade, fade);
+    shadowVisibility = saturate(shadowVisibility);
 
     return shadowVisibility;
 }

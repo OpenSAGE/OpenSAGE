@@ -8,8 +8,6 @@ namespace OpenSage.Graphics
 
         private RenderPipeline _renderPipeline;
 
-        public ShadowSettings ShadowSettings { get; } = new ShadowSettings();
-
         public GraphicsSystem(Game game)
             : base(game)
         {

@@ -139,11 +139,12 @@ namespace OpenSage.Graphics
 
         public void BuildRenderList(
             RenderList renderList,
-            PerspectiveCamera camera)
+            Camera camera,
+            bool castsShadow)
         {
             foreach (var mesh in Model.Meshes)
             {
-                mesh.BuildRenderList(renderList, camera, this, _worldMatrix);
+                mesh.BuildRenderList(renderList, camera, this, _worldMatrix, castsShadow);
             }
         }
     }
