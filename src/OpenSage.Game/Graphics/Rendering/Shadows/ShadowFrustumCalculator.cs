@@ -25,12 +25,20 @@ namespace OpenSage.Graphics.Rendering.Shadows
             ShadowData shadowData,
             ShadowSettings settings)
         {
+            var originalNearPlaneDistance = camera.NearPlaneDistance;
             var originalFarPlaneDistance = camera.FarPlaneDistance;
             try
             {
-                if (settings.ShadowDistance < camera.FarPlaneDistance)
+                // No point having the near plane closer than the ground + tallest building.
+                const int tallestBuildingHeight = 20; // This is a guess
+                if (camera.Position.Z - tallestBuildingHeight > camera.NearPlaneDistance)
                 {
-                    camera.FarPlaneDistance = settings.ShadowDistance;
+                    camera.NearPlaneDistance = camera.Position.Z - tallestBuildingHeight;
+                }
+                var maxFarPlaneDistance = camera.NearPlaneDistance + settings.ShadowDistance;
+                if (maxFarPlaneDistance < camera.FarPlaneDistance)
+                {
+                    camera.FarPlaneDistance = maxFarPlaneDistance;
                 }
 
                 var globalShadowMatrix = MakeGlobalShadowMatrix(light, camera, settings);
@@ -216,6 +224,7 @@ namespace OpenSage.Graphics.Rendering.Shadows
             }
             finally
             {
+                camera.NearPlaneDistance = originalNearPlaneDistance;
                 camera.FarPlaneDistance = originalFarPlaneDistance;
             }
         }
