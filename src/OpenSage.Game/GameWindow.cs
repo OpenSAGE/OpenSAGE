@@ -58,7 +58,10 @@ namespace OpenSage
             const bool debug = false;
 #endif
 
-            var graphicsDeviceOptions = new GraphicsDeviceOptions(debug, PixelFormat.D24_UNorm_S8_UInt, true, ResourceBindingModel.Improved);
+            var graphicsDeviceOptions = new GraphicsDeviceOptions(debug, PixelFormat.D24_UNorm_S8_UInt, true, ResourceBindingModel.Improved)
+            {
+                SwapchainSrgbFormat = false
+            };
 
             var windowCreateInfo = new WindowCreateInfo(x, y, width, height, WindowState.Normal, title);
 
