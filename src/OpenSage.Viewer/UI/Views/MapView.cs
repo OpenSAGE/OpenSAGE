@@ -54,7 +54,7 @@ namespace OpenSage.Viewer.UI.Views
 
         public override void Draw(ref bool isGameViewFocused)
         {
-            ImGui.BeginChild("map panels", new Vector2(300, 0), true, 0);
+            ImGui.BeginChild("map panels", new Vector2(350, 0), true, 0);
 
             if (ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))
             {
