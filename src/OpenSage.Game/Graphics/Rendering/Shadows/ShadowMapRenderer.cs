@@ -25,6 +25,13 @@ namespace OpenSage.Graphics.Rendering.Shadows
             out Texture shadowMap,
             Action<Framebuffer, BoundingFrustum> drawSceneCallback)
         {
+            if (scene.Shadows.ShadowsType == ShadowsType.None)
+            {
+                constants.ShadowsType = ShadowsType.None;
+                shadowMap = _shadowData.ShadowMap;
+                return;
+            }
+
             // TODO: Use terrain light for terrain self-shadowing?
             var light = scene.Lighting.CurrentLightingConfiguration.ObjectLightsPS.Light0;
 
