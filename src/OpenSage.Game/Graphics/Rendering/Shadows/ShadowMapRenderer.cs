@@ -36,7 +36,8 @@ namespace OpenSage.Graphics.Rendering.Shadows
                 && (_shadowData.ShadowMap.Width != shadowMapSize
                 || _shadowData.ShadowMap.Height != shadowMapSize
                 || _shadowData.NearPlaneDistance != scene.Camera.NearPlaneDistance
-                || _shadowData.FarPlaneDistance != scene.Camera.FarPlaneDistance))
+                || _shadowData.FarPlaneDistance != scene.Camera.FarPlaneDistance
+                || _shadowData.NumSplits != numCascades))
             {
                 RemoveAndDispose(ref _shadowData);
             }
