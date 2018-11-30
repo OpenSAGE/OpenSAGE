@@ -591,6 +591,18 @@
         SwarmDozer,
 
         [IniEnum("MOVE_FOR_NOONE"), AddedIn(SageGame.Bfme)]
-        MoveForNoOne
+        MoveForNoOne,
+
+        [IniEnum("TROLL"), AddedIn(SageGame.Bfme)]
+        Troll,
+
+        [IniEnum("TREE"), AddedIn(SageGame.Bfme)]
+        Tree,
+
+        [IniEnum("WEBBED"), AddedIn(SageGame.Bfme)]
+        Webbed,
+
+        [IniEnum("IGNORE_FOR_EVA_SPEECH_POSITION"), AddedIn(SageGame.Bfme)]
+        IgnoreForEvaSpeechPosition,
     }
 }

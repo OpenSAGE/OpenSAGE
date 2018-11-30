@@ -305,6 +305,16 @@ namespace OpenSage.Logic.Object
             { "PathfindDiameter", (parser, x) => x.PathfindDiameter = parser.ParseFloat() },
             { "DisplayRangedDamage", (parser, x) => x.DisplayRangedDamage = parser.ParseFloat() },
             { "CanPathThroughGates", (parser, x) => x.CanPathThroughGates = parser.ParseBoolean() },
+            { "ShadowSunAngle", (parser, x) => x.ShadowSunAngle = parser.ParseInteger() },
+            { "ShouldClearShotsOnIdle", (parser, x) => x.ShouldClearShotsOnIdle = parser.ParseBoolean() },
+            { "UseCrushAttack", (parser, x) => x.UseCrushAttack = parser.ParseBoolean() },
+            { "CrushAllies", (parser, x) => x.CrushAllies = parser.ParseBoolean() },
+            { "ShadowOpacityStart", (parser, x) => x.ShadowOpacityStart = parser.ParseInteger() },
+            { "ShadowOpacityFadeInTime", (parser, x) => x.ShadowOpacityFadeInTime = parser.ParseInteger() },
+            { "ShadowOpacityPeak", (parser, x) => x.ShadowOpacityPeak = parser.ParseInteger() },
+            { "ShadowOpacityFadeOutTime", (parser, x) => x.ShadowOpacityFadeOutTime = parser.ParseInteger() },
+            { "ShadowOpacityEnd", (parser, x) => x.ShadowOpacityEnd = parser.ParseInteger() },
+            { "ShadowOverrideLODVisibility", (parser, x) => x.ShadowOverrideLodVisibility = parser.ParseBoolean() }
         };
 
         public string Name { get; protected set; }
@@ -917,6 +927,36 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool CanPathThroughGates { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowSunAngle { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ShouldClearShotsOnIdle { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool UseCrushAttack { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool CrushAllies { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowOpacityStart { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowOpacityFadeInTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowOpacityPeak { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowOpacityFadeOutTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowOpacityEnd { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ShadowOverrideLodVisibility { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

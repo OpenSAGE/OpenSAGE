@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -14,6 +15,9 @@ namespace OpenSage.Logic.Object
             { "InitiateSound", (parser, x) => x.InitiateSound = parser.ParseAssetReference() },
             { "AttributeModifier", (parser, x) => x.AttributeModifier = parser.ParseAssetReference() },
             { "AttributeModifierAffectsSelf", (parser, x) => x.AttributeModifierAffectsSelf = parser.ParseBoolean() },
+            { "InitiateFX", (parser, x) => x.InitiateFX = parser.ParseAssetReference() },
+            { "AntiCategory", (parser, x) => x.AntiCategory = parser.ParseEnum<ModifierCategory>() },
+            { "AttributeModifierRange", (parser, x) => x.AttributeModifierRange = parser.ParseFloat() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -30,5 +34,14 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool AttributeModifierAffectsSelf { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string InitiateFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public ModifierCategory AntiCategory { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float AttributeModifierRange { get; private set; }
     }
 }

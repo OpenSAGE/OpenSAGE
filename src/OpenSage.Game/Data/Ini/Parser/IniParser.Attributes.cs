@@ -6,6 +6,17 @@ namespace OpenSage.Data.Ini.Parser
 {
     partial class IniParser
     {
+        public T ParseAttribute<T>(string label, Func<IniParser, T> parse)
+        {
+            var nameToken = GetNextToken(SeparatorsColon);
+            if (!string.Equals(nameToken.Text, label, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new IniParseException($"Expected attribute name '{label}'", nameToken.Position);
+            }
+
+            return parse(this);
+        }
+
         public T ParseAttribute<T>(string label, Func<IniToken, T> parseValue)
         {
             var nameToken = GetNextToken(SeparatorsColon);
