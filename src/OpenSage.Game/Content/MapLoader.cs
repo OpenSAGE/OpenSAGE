@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using OpenSage.Content.Util;
 using OpenSage.Data;
 using OpenSage.Data.Map;
@@ -797,7 +798,7 @@ namespace OpenSage.Content
             for (uint level = 0; level < texture.MipLevels; level++)
             {
                 var image = texture.Images[level];
-                fixed (void* pin = &image.DangerousGetPinnableReferenceToPixelBuffer())
+                fixed (void* pin = &MemoryMarshal.GetReference(image.GetPixelSpan()))
                 {
                     var map = gd.Map(staging, MapMode.Write, level);
                     var rowWidth = (uint) (image.Width * 4);

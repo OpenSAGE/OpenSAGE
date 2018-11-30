@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using OpenSage.Content;
 using OpenSage.Mathematics;
 using OpenSage.Utilities;
@@ -79,10 +80,7 @@ namespace OpenSage.Gui
 
             // Clear image to transparent.
             // TODO: Don't need to do this for a newly created image.
-            fixed (void* pin = &image.DangerousGetPinnableReferenceToPixelBuffer())
-            {
-                Unsafe.InitBlock(pin, 0, (uint) (image.Width * image.Height * 4));
-            }
+            image.GetPixelSpan().Clear();
 
             image.Mutate(x =>
             {
@@ -115,7 +113,7 @@ namespace OpenSage.Gui
             Texture texture;
 
             // Draw image to texture.
-            fixed (void* pin = &image.DangerousGetPinnableReferenceToPixelBuffer())
+            fixed (void* pin = &MemoryMarshal.GetReference(image.GetPixelSpan()))
             {
                 texture = _graphicsDevice.ResourceFactory.CreateTexture(
                     TextureDescription.Texture2D(
