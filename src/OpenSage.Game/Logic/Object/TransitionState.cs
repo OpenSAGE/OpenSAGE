@@ -27,6 +27,7 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<TransitionState>()
             {
                 { "EnteringStateFX", (parser, x) => x.EnteringStateFX = parser.ParseAssetReference() },
+                { "BeginScript", (parser, x) => x.Script = IniScript.Parse(parser) },
             });
 
         public string FromTransitionKey { get; private set; }
@@ -34,5 +35,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string EnteringStateFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public IniScript Script { get; private set; }
     }
 }

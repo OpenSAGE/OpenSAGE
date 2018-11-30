@@ -31,6 +31,7 @@ namespace OpenSage.Logic.Object
            { "BoneSpecificConditionState", (parser, x) => x.BoneSpecificConditionStates.Add(BoneSpecificConditionState.Parse(parser)) },
            { "ObjectStatusOfContained", (parser, x) => x.ObjectStatusOfContained = parser.ParseEnumBitArray<ObjectStatus>() },
            { "ShowPips", (parser, x) => x.ShowPips = parser.ParseBoolean() },
+           { "SpeedPercentPerCrew", (parser, x) => x.SpeedPercentPerCrew = parser.ParsePercentage() }
         };
 
         public BitArray<ObjectStatus> ObjectStatusOfCrew { get; private set; }
@@ -53,6 +54,7 @@ namespace OpenSage.Logic.Object
         public List<BoneSpecificConditionState> BoneSpecificConditionStates { get; } = new List<BoneSpecificConditionState>();
         public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
         public bool ShowPips { get; private set; }
+        public float SpeedPercentPerCrew { get; private set; }
     }
 
     public struct Crew

@@ -86,6 +86,7 @@ namespace OpenSage.Logic.Object
             { "HelixContain", HelixContainModuleData.Parse },
             { "HordeContain", HordeContainModuleData.Parse },
             { "HordeGarrisonContain", HordeGarrisonContainModuleData.Parse },
+            { "HordeSiegeEngineContain", HordeSiegeEngineContainModuleData.Parse },
             { "HordeTransportContain", HordeTransportContainModuleData.Parse },
             { "InternetHackContain", InternetHackContainModuleData.Parse },
             { "OverlordContain", OverlordContainModuleData.Parse },
@@ -110,6 +111,7 @@ namespace OpenSage.Logic.Object
             // Damage
             { "BoneFXDamage", BoneFXDamageModuleData.Parse },
             { "EvacuateDamage", EvacuateDamageModuleData.Parse },
+            { "ReflectDamage", ReflectDamageModuleData.Parse },
             { "TransitionDamageFX", TransitionDamageFXModuleData.Parse },
 
             // Die
@@ -139,7 +141,9 @@ namespace OpenSage.Logic.Object
             { "DefectorSpecialPower", DefectorSpecialPowerModuleData.Parse },
             { "DeflectSpecialPower", DeflectSpecialPowerModuleData.Parse },
             { "DominateEnemySpecialPower", DominateEnemySpecialPowerModuleData.Parse },
+            { "FellBeastSwoopPower", FellBeastSwoopPowerModuleData.Parse },
             { "FireWeaponPower", FireWeaponPowerModuleData.Parse },
+            { "GrabPassengerSpecialPower", GrabPassengerSpecialPowerModuleData.Parse },
             { "LevelGrantSpecialPower", LevelGrantSpecialPowerModuleData.Parse },
             { "OCLSpecialPower", OCLSpecialPowerModuleData.Parse },
             { "SiegeDeploySpecialPower", SiegeDeploySpecialPowerModuleData.Parse },
@@ -236,6 +240,7 @@ namespace OpenSage.Logic.Object
             { "DeployStyleAIUpdate", DeployStyleAIUpdateModuleData.Parse },
             { "DozerAIUpdate", DozerAIUpdateModuleData.Parse },
             { "FoundationAIUpdate", FoundationAIUpdateModuleData.Parse },
+            { "GiantBirdAIUpdate", GiantBirdAIUpdateModuleData.Parse },
             { "HackInternetAIUpdate", HackInternetAIUpdateModuleData.Parse },
             { "HordeAIUpdate", HordeAIUpdateModuleData.Parse },
             { "JetAIUpdate", JetAIUpdateModuleData.Parse },

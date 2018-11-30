@@ -683,6 +683,12 @@ namespace OpenSage.Logic.Object
         Diving,
 
         [IniEnum("ABOUT_TO_HIT"), AddedIn(SageGame.Bfme)]
-        AboutToHit
+        AboutToHit,
+
+        [IniEnum("PASSENGER_VARIATION_3"), AddedIn(SageGame.Bfme)]
+        PassengerVariation3,
+
+        [IniEnum("PASSENGER_VARIATION_4"), AddedIn(SageGame.Bfme)]
+        PassengerVariation4,
     }
 }
