@@ -38,6 +38,8 @@ namespace OpenSage.Graphics.Rendering
 
         private ShadowConstantsPS _shadowConstants;
 
+        public Texture ShadowMap => _shadowMapRenderer.ShadowMap;
+
         public RenderPipeline(Game game)
         {
             _renderList = new RenderList();
@@ -141,7 +143,6 @@ namespace OpenSage.Graphics.Rendering
                 scene,
                 context.GraphicsDevice,
                 ref _shadowConstants,
-                out var shadowMap,
                 (framebuffer, lightBoundingFrustum) =>
                 {
                     commandList.SetFramebuffer(framebuffer);
@@ -169,6 +170,8 @@ namespace OpenSage.Graphics.Rendering
             commandList.SetFullViewports();
 
             var standardPassCameraFrustum = context.Camera.BoundingFrustum;
+
+            var shadowMap = _shadowMapRenderer.ShadowMap;
 
             DoRenderPass(commandList, _renderList.Opaque, standardPassCameraFrustum, cloudTexture, shadowMap);
             DoRenderPass(commandList, _renderList.Transparent, standardPassCameraFrustum, cloudTexture, shadowMap);

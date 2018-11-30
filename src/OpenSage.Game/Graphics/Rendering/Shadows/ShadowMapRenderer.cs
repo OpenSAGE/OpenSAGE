@@ -12,6 +12,8 @@ namespace OpenSage.Graphics.Rendering.Shadows
 
         private ShadowData _shadowData;
 
+        public Texture ShadowMap => _shadowData?.ShadowMap;
+
         public ShadowMapRenderer()
         {
             _shadowFrustumCalculator = new ShadowFrustumCalculator();
@@ -22,16 +24,8 @@ namespace OpenSage.Graphics.Rendering.Shadows
             Scene3D scene,
             GraphicsDevice graphicsDevice,
             ref ShadowConstantsPS constants,
-            out Texture shadowMap,
             Action<Framebuffer, BoundingFrustum> drawSceneCallback)
         {
-            if (scene.Shadows.ShadowsType == ShadowsType.None)
-            {
-                constants.ShadowsType = ShadowsType.None;
-                shadowMap = _shadowData.ShadowMap;
-                return;
-            }
-
             // TODO: Use terrain light for terrain self-shadowing?
             var light = scene.Lighting.CurrentLightingConfiguration.ObjectLightsPS.Light0;
 
@@ -59,6 +53,12 @@ namespace OpenSage.Graphics.Rendering.Shadows
                     graphicsDevice));
             }
 
+            if (scene.Shadows.ShadowsType == ShadowsType.None)
+            {
+                constants.ShadowsType = ShadowsType.None;
+                return;
+            }
+
             _shadowFrustumCalculator.CalculateShadowData(
                 light,
                 scene.Camera,
@@ -76,8 +76,6 @@ namespace OpenSage.Graphics.Rendering.Shadows
                     _shadowData.ShadowMapFramebuffers[splitIndex],
                     _lightFrustum);
             }
-
-            shadowMap = _shadowData.ShadowMap;
         }
     }
 }

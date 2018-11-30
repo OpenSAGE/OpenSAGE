@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 using ImGuiNET;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Rendering.Shadows;
 using OpenSage.Scripting;
+using Veldrid;
 
 namespace OpenSage.Viewer.UI.Views
 {
@@ -12,6 +15,8 @@ namespace OpenSage.Viewer.UI.Views
     {
         private readonly Game _game;
         private readonly StringBuilder _scriptStateContent;
+
+        private readonly Dictionary<Tuple<Texture, int>, TextureView> _cachedTextureViews = new Dictionary<Tuple<Texture, int>, TextureView>();
 
         public MapView(AssetViewContext context)
             : base(context)
@@ -119,6 +124,11 @@ namespace OpenSage.Viewer.UI.Views
                 {
                     ImGui.Separator();
 
+                    var shadowMapSizes = new List<uint> { 256, 512, 1024, 2048 };
+                    var currentShadowMapSizeIndex = shadowMapSizes.IndexOf(shadowSettings.ShadowMapSize);
+                    ImGui.Combo("Shadow map size", ref currentShadowMapSizeIndex, shadowMapSizes.Select(x => x.ToString()).ToArray(), shadowMapSizes.Count);
+                    shadowSettings.ShadowMapSize = shadowMapSizes[currentShadowMapSizeIndex];
+
                     ImGui.Text("Shadow cascades");
                     {
                         foreach (var cascadeType in GetShadowCascades())
@@ -148,6 +158,31 @@ namespace OpenSage.Viewer.UI.Views
                     if (ImGui.Checkbox("Visualize shadow cascades", ref visualizeCascades))
                     {
                         shadowSettings.VisualizeCascades = visualizeCascades;
+                    }
+
+                    if (_game.Graphics.ShadowMap != null)
+                    {
+                        for (var i = 0; i < (int) _game.Graphics.ShadowMap.ArrayLayers; i++)
+                        {
+                            var shadowMapTuple = Tuple.Create(_game.Graphics.ShadowMap, i);
+                            if (!_cachedTextureViews.TryGetValue(shadowMapTuple, out var shadowMapView))
+                            {
+                                shadowMapView = AddDisposable(_game.GraphicsDevice.ResourceFactory.CreateTextureView(
+                                    new TextureViewDescription(_game.Graphics.ShadowMap, 0, 1, (uint) i, 1)));
+                                _cachedTextureViews.Add(shadowMapTuple, shadowMapView);
+                            }
+
+                            var imagePointer = Context.ImGuiRenderer.GetOrCreateImGuiBinding(
+                                Context.GraphicsDevice.ResourceFactory,
+                                shadowMapView);
+
+                            ImGui.Image(
+                                imagePointer,
+                                new Vector2(250, 250),
+                                GetTopLeftUV(),
+                                GetBottomRightUV(),
+                                Vector4.One);
+                        }
                     }
                 }
 
