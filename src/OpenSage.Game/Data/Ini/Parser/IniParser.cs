@@ -18,7 +18,12 @@ namespace OpenSage.Data.Ini.Parser
             { "Animation", (parser, context) => context.Animations.Add(Animation.Parse(parser)) },
             { "AnimationSoundClientBehaviorGlobalSetting", (parser, context) => context.AnimationSoundClientBehaviorGlobalSetting = AnimationSoundClientBehaviorGlobalSetting.Parse(parser) },
             { "Armor", (parser, context) => context.Armors.Add(Armor.Parse(parser)) },
-            { "AudioEvent", (parser, context) => context.AudioEvents.Add(AudioEvent.Parse(parser)) },
+            { "AudioEvent", (parser, context) =>
+                {
+                    var ev = AudioEvent.Parse(parser);
+                    context.AudioEvents[ev.Name] = ev;
+                }
+            },
             { "AudioLOD", (parser, context) => context.AudioLods.Add(AudioLod.Parse(parser)) },
             { "AudioLowMHz", (parser, context) => context.AudioLowMHz = parser.ParseInteger() },
             { "AudioSettings", (parser, context) => context.AudioSettings = AudioSettings.Parse(parser) },

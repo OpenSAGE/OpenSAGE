@@ -10,13 +10,10 @@ namespace OpenSage.Audio
 {
     public sealed class AudioSystem : GameSystem
     {
-        private IntPtr _device;
-        private IntPtr _context;
-
-        private List<AudioSource> _sources;
-        private Dictionary<string, AudioBuffer> _cached;
-        private AudioSettings _settings;
-        private AudioEngine _engine;
+        private readonly List<AudioSource> _sources;
+        private readonly Dictionary<string, AudioBuffer> _cached;
+        private readonly AudioSettings _settings;
+        private readonly AudioEngine _engine;
         
         public AudioSystem(Game game) : base(game)
         {
@@ -35,15 +32,12 @@ namespace OpenSage.Audio
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
                 case SageGame.Bfme:
-                //TODO: complete audiosettings for BFME
+                //TODO: complete audio settings for BFME
                 //case SageGame.Bfme2:
                 //case SageGame.Bfme2Rotwk:
                     game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\AudioSettings.ini");
                     game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\SoundEffects.ini");
                     game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\MiscAudio.ini");
-                    break;
-                default:
-
                     break;
             }
 
@@ -62,12 +56,10 @@ namespace OpenSage.Audio
         /// <summary>
         /// Opens a cached audio file. Usually used for small audio files (.wav)
         /// </summary>
-        /// <param name="soundPath"></param>
-        /// <param name="loop"></param>
-        /// <returns></returns>
         public AudioSource GetSound(string soundPath, bool loop = false)
         {
-            AudioBuffer buffer = null;
+            AudioBuffer buffer;
+
             if (!_cached.ContainsKey(soundPath))
             {
                 var entry = Game.ContentManager.FileSystem.GetFile(soundPath);
@@ -87,11 +79,7 @@ namespace OpenSage.Audio
 
             var source = AddDisposable(_engine.CreateSource());
             source.QueryBuffer(buffer);
-
-            if(loop)
-            {
-                //source.Looping = true;
-            }
+            // TODO: Implement looping
 
             _sources.Add(source);
 
@@ -101,28 +89,31 @@ namespace OpenSage.Audio
         /// <summary>
         /// Open a a music/audio file that gets streamed.
         /// </summary>
-        /// <param name="streamPath"></param>
-        /// <returns></returns>
         public SoundStream GetStream(string streamPath)
         {
             var entry = Game.ContentManager.FileSystem.GetFile(streamPath);
 
-            return new SoundStream(entry.Open(),_engine);
+            return new SoundStream(entry.Open(), _engine);
         }
 
-        public void PlaySound(string soundName)
+        public void PlayAudioEvent(string eventName)
         {
-            AudioEvent ev = Game.ContentManager.IniDataContext.AudioEvents.Find(x => x.Name == soundName);
-            string[] paths = { _settings.AudioRoot, _settings.SoundsFolder, ev.Sounds[0] };
-            string soundPath = Path.Combine(paths);
-            soundPath = Path.ChangeExtension(soundPath, _settings.SoundsExtension);
+            if (!Game.ContentManager.IniDataContext.AudioEvents.TryGetValue(eventName, out var ev))
+            {
+                // TODO: Log a warning about a missing AudioEvent
+                return;
+            }
+
+            // TODO: Remove these allocations.
+            var soundFileName = ev.Sounds[0] + _settings.SoundsExtension;
+            var soundPath = Path.Combine(_settings.AudioRoot, _settings.SoundsFolder, soundFileName);
 
             var source = GetSound(soundPath, ev.Control.HasFlag(AudioControlFlags.Loop));
-
-            //set the volume of the sound
-            source.Volume = ev.Volume;
-
             _sources.Add(source);
+
+            // Divide the volume by 100, because SAGE uses the scale [0, 100] while SharpAudio uses [0, 1]
+            source.Volume = ev.Volume / 100.0f;
+
             source.Play();
         }
     }
