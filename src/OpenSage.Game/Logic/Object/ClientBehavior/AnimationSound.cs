@@ -8,29 +8,22 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public class AnimationSoundData
     {
-        internal static AnimationSoundData Parse(IniParser parser)
-        {
-            var result = new AnimationSoundData();
-            parser.ParseAttribute("Sound", parser.ScanAssetReference);
-            parser.GetNextTokenOptional();
-            parser.GetNextTokenOptional();
-            parser.GetNextTokenOptional();
-            parser.GetNextTokenOptional();
-            return result;
+        internal static AnimationSoundData Parse(IniParser parser) => parser.ParseAttributeList(FieldParseTable);
 
-            //return new AnimationSoundData
-            //{
-            //    //TODO: parse this shit
-            //    //AnimationSound = Sound:OliphantFootStep	ExcludedMC:WADING	Animation:MUMumakil_SKL.MUMumakil_DECL4	Frames:59 68
-            //    //AnimationSound = Sound:OliphantFootstepWater	RequiredMC:WADING	Animation:MUMumakil_SKL.MUMumakil_DIEA	Frames:90
-            //    Sound = parser.ParseAttribute("Sound", parser.ScanAssetReference),
-            //    Animation = parser.ParseAttribute("Animation", parser.ScanAssetReference),
-            //    Frames = parser.ParseAttribute("Frames", parser.ParseInteger),
-            //};
-        }
+        internal static readonly IniParseTable<AnimationSoundData> FieldParseTable = new IniParseTable<AnimationSoundData>
+        {
+            { "Sound", (parser, x) => x.Sound = parser.ParseAssetReference() },
+            { "Animation", (parser, x) => x.Animations.Add(parser.ParseAssetReference()) },
+            { "Frames", (parser, x) => x.Frames.Add(parser.ParseIntegerArray()) },
+            { "ExcludedMC", (parser, x) => x.ExcludedMC = parser.ParseEnum<ModelConditionFlag>() },
+            { "RequiredMC", (parser, x) => x.RequiredMC = parser.ParseEnum<ModelConditionFlag>() }
+        };
 
         public string Sound { get; private set; }
-        public string Animation { get; private set; }
-        public int Frames { get; private set; }
+        public List<string> Animations { get; } = new List<string>();
+        public List<int[]> Frames { get; } = new List<int[]>();
+        public ModelConditionFlag ExcludedMC { get; private set; }
+        public ModelConditionFlag RequiredMC { get; private set; }
+        
     }
 }

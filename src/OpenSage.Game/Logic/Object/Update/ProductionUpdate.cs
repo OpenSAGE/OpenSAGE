@@ -26,7 +26,8 @@ namespace OpenSage.Logic.Object
             { "SetBonusModelConditionOnSpeedBonus", (parser, x) => x.SetBonusModelConditionOnSpeedBonus = parser.ParseBoolean() },
             { "BonusForType", (parser, x) => x.BonusForType = parser.ParseString() },
             { "SpeedBonusAudioLoop", (parser, x) => x.SpeedBonusAudioLoop = parser.ParseAssetReference() },
-            { "UnitInvulnerableTime", (parser, x) => x.UnitInvulnerableTime = parser.ParseInteger() }
+            { "UnitInvulnerableTime", (parser, x) => x.UnitInvulnerableTime = parser.ParseInteger() },
+            { "GiveNoXP", (parser, x) => x.GiveNoXP = parser.ParseBoolean() }
         };
 
         /// <summary>
@@ -61,6 +62,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int UnitInvulnerableTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool GiveNoXP { get; private set; }
     }
 
     public struct QuantityModifier
