@@ -48,7 +48,7 @@ namespace OpenSage.Graphics.Rendering.Shadows
                 {
                     case ShadowMapCascades.OneCascade:
                         _cascadeSplits[0] = 1.0f;
-                        _cascadeSplits[0] = 0.0f;
+                        _cascadeSplits[1] = 0.0f;
                         _cascadeSplits[2] = 0.0f;
                         _cascadeSplits[3] = 0.0f;
                         break;
