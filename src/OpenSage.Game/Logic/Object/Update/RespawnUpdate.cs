@@ -22,6 +22,7 @@ namespace OpenSage.Logic.Object
             { "ButtonImage", (parser, x) => x.ButtonImage = parser.ParseAssetReference() },
             { "RespawnRules", (parser, x) => x.RespawnRules = RespawnRules.Parse(parser) },
             { "RespawnEntry", (parser, x) => x.RespawnEntries.Add(RespawnEntry.Parse(parser)) },
+            { "RespawnAsTemplate", (parser, x) => x.RespawnAsTemplate = parser.ParseAssetReference() },
         };
 
         public ModelConditionFlag DeathAnim { get; private set; }
@@ -35,6 +36,7 @@ namespace OpenSage.Logic.Object
         public string ButtonImage { get; private set; }
         public RespawnRules RespawnRules { get; private set; }
         public List<RespawnEntry> RespawnEntries { get; } = new List<RespawnEntry>();
+        public string RespawnAsTemplate { get; private set; }
     }
 
     public sealed class RespawnRules

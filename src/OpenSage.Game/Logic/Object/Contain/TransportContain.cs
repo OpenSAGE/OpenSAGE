@@ -41,6 +41,8 @@ namespace OpenSage.Logic.Object
                 { "TypeTwoForWeaponState", (parser, x) => x.TypeTwoForWeaponState = parser.ParseEnum<ObjectKinds>() },
                 { "PassengerBonePrefix", (parser, x) => x.PassengerBonePrefixes.Add(PassengerBonePrefix.Parse(parser)) },
                 { "KillPassengersOnDeath", (parser, x) => x.KillPassengersOnDeath = parser.ParseBoolean() },
+                { "ManualPickUpFilter", (parser, x) => x.ManualPickUpFilter = ObjectFilter.Parse(parser) },
+                { "EjectPassengersOnDeath", (parser, x) => x.EjectPassengersOnDeath = parser.ParseBoolean() }
             });
 
         public bool PassengersAllowedToFire { get; private set; }
@@ -97,6 +99,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool KillPassengersOnDeath { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public ObjectFilter ManualPickUpFilter { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool EjectPassengersOnDeath { get; private set; }
     }
 
     public sealed class PassengerBonePrefix

@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -26,21 +27,28 @@ namespace OpenSage.Logic.Object
                 { "PowerslideRotationAddition", (parser, x) => x.PowerslideRotationAddition = parser.ParseFloat() },
                 { "TireRotationMultiplier", (parser, x) => x.TireRotationMultiplier = parser.ParseFloat() },
                 { "RightFrontTireBone", (parser, x) => x.RightFrontTireBone = parser.ParseBoneName() },
+                { "RightFrontTireBone2", (parser, x) => x.RightFrontTireBone2 = parser.ParseBoneName() },
                 { "LeftFrontTireBone", (parser, x) => x.LeftFrontTireBone = parser.ParseBoneName() },
+                { "LeftFrontTireBone2", (parser, x) => x.LeftFrontTireBone2 = parser.ParseBoneName() },
                 { "MidRightFrontTireBone", (parser, x) => x.MidRightFrontTireBone = parser.ParseBoneName() },
                 { "MidLeftFrontTireBone", (parser, x) => x.MidLeftFrontTireBone = parser.ParseBoneName() },
                 { "MidRightMidTireBone", (parser, x) => x.MidRightMidTireBone = parser.ParseBoneName() },
+                { "MidRightMidTireBone2", (parser, x) => x.MidRightMidTireBone2 = parser.ParseBoneName() },
                 { "MidLeftMidTireBone", (parser, x) => x.MidLeftMidTireBone = parser.ParseBoneName() },
+                { "MidLeftMidTireBone2", (parser, x) => x.MidLeftMidTireBone2 = parser.ParseBoneName() },
                 { "MidRightRearTireBone", (parser, x) => x.MidRightRearTireBone = parser.ParseBoneName() },
                 { "MidLeftRearTireBone", (parser, x) => x.MidLeftRearTireBone = parser.ParseBoneName() },
                 { "RightRearTireBone", (parser, x) => x.RightRearTireBone = parser.ParseBoneName() },
+                { "RightRearTireBone2", (parser, x) => x.RightRearTireBone2 = parser.ParseBoneName() },
                 { "LeftRearTireBone", (parser, x) => x.LeftRearTireBone = parser.ParseBoneName() },
+                { "LeftRearTireBone2", (parser, x) => x.LeftRearTireBone2 = parser.ParseBoneName() },
 
                 { "Dust", (parser, x) => x.Dust = parser.ParseAssetReference() },
                 { "DirtSpray", (parser, x) => x.DirtSpray = parser.ParseAssetReference() },
                 { "PowerslideSpray", (parser, x) => x.PowerslideSpray = parser.ParseAssetReference() },
                 { "StaticModelLODMode", (parser, x) => x.StaticModelLODMode = parser.ParseBoolean() },
                 { "WadingParticleSys", (parser, x) => x.WadingParticleSys = parser.ParseString() },
+                { "DependencySharedModelFlags", (parser, x) => x.DependencySharedModelFlags = parser.ParseEnumBitArray<ModelConditionFlag>() }
             });
 
         // Settings for the attached "cab" model on the vehicle
@@ -54,15 +62,21 @@ namespace OpenSage.Logic.Object
         public float PowerslideRotationAddition { get; private set; }
         public float TireRotationMultiplier { get; private set; }
         public string RightFrontTireBone { get; private set; }
+        public string RightFrontTireBone2 { get; private set; }
         public string LeftFrontTireBone { get; private set; }
+        public string LeftFrontTireBone2 { get; private set; }
         public string MidRightFrontTireBone { get; private set; }
         public string MidLeftFrontTireBone { get; private set; }
         public string MidRightMidTireBone { get; private set; }
+        public string MidRightMidTireBone2 { get; private set; }
         public string MidLeftMidTireBone { get; private set; }
+        public string MidLeftMidTireBone2 { get; private set; }
         public string MidRightRearTireBone { get; private set; }
         public string MidLeftRearTireBone { get; private set; }
         public string RightRearTireBone { get; private set; }
+        public string RightRearTireBone2 { get; private set; }
         public string LeftRearTireBone { get; private set; }
+        public string LeftRearTireBone2 { get; private set; }
 
         // Dust spray configuration
         public string Dust { get; private set; }
@@ -74,5 +88,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string WadingParticleSys { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public BitArray<ModelConditionFlag> DependencySharedModelFlags { get; private set; }
     }
 }

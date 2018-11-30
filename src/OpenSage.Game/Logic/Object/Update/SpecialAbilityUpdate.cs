@@ -44,6 +44,8 @@ namespace OpenSage.Logic.Object
             { "NeedToFaceTarget", (parser, x) => x.NeedToFaceTarget = parser.ParseBoolean() },
             { "PersistenceRequiresRecharge", (parser, x) => x.PersistenceRequiresRecharge = parser.ParseBoolean() },
             { "ChargeAttackSpeedBoost", (parser, x) => x.ChargeAttackSpeedBoost = parser.ParseBoolean() },
+            { "Instant", (parser, x) => x.Instant = parser.ParseBoolean() },
+            { "CustomAnimAndDuration", (parser, x) => x.GetCustomAnimAndDuration = CustomAnimAndDuration.Parse(parser) }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -84,5 +86,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool ChargeAttackSpeedBoost { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool Instant { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public CustomAnimAndDuration GetCustomAnimAndDuration { get; private set; }
     }
 }

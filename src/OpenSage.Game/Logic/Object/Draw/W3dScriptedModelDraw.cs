@@ -31,7 +31,9 @@ namespace OpenSage.Logic.Object
                 { "StaticSortLevelWhileFading", (parser, x) => x.StaticSortLevelWhileFading = parser.ParseInteger() },
                 { "GlowEnabled", (parser, x) => x.GlowEnabled = parser.ParseBoolean() },
                 { "GlowEmissive", (parser, x) => x.GlowEmissive = parser.ParseBoolean() },
-                { "HighDetailOnly", (parser, x) => x.HighDetailOnly = parser.ParseBoolean() }
+                { "HighDetailOnly", (parser, x) => x.HighDetailOnly = parser.ParseBoolean() },
+                { "WadingParticleSys", (parser, x) => x.WadingParticleSys = parser.ParseAssetReference() },
+                { "NoRotate", (parser, x) => x.NoRotate = parser.ParseBoolean() }
             });
 
         public bool StaticModelLODMode { get; private set; }
@@ -53,6 +55,8 @@ namespace OpenSage.Logic.Object
         public bool GlowEnabled { get; private set; }
         public bool GlowEmissive { get; private set; }
         public bool HighDetailOnly { get; private set; }
+        public string WadingParticleSys { get; private set; }
+        public bool NoRotate { get; private set; }
     }
 
     public sealed class RandomTexture
