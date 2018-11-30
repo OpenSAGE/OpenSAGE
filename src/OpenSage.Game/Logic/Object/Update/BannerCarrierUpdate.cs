@@ -16,7 +16,9 @@ namespace OpenSage.Logic.Object
            { "MeleeFreeBannerReSpawnTime", (parser, x) => x.MeleeFreeBannerReSpawnTime = parser.ParseInteger() },
            { "BannerMorphFX", (parser, x) => x.BannerMorphFX = parser.ParseAssetReference() },
            { "UnitSpawnFX", (parser, x) => x.UnitSpawnFX = parser.ParseAssetReference() },
-           { "MorphCondition", (parser, x) => x.MorphCondition = MorphCondition.Parse(parser) }
+           { "MorphCondition", (parser, x) => x.MorphCondition = MorphCondition.Parse(parser) },
+           { "ReplenishNearbyHorde", (parser, x) => x.ReplenishNearbyHorde = parser.ParseBoolean() },
+           { "ScanHordeDistance", (parser, x) => x.ScanHordeDistance = parser.ParseInteger() }
         };
 
         public int IdleSpawnRate { get; private set; }
@@ -26,26 +28,24 @@ namespace OpenSage.Logic.Object
         public string BannerMorphFX { get; private set; }
         public string UnitSpawnFX { get; private set; }
         public MorphCondition MorphCondition { get; private set; }
+        public bool ReplenishNearbyHorde { get; private set; }
+        public int ScanHordeDistance { get; private set; }
     }
 
     public sealed class MorphCondition
     {
-        internal static MorphCondition Parse(IniParser parser)
+        internal static MorphCondition Parse(IniParser parser) => parser.ParseAttributeList(FieldParseTable);
+
+        internal static readonly IniParseTable<MorphCondition> FieldParseTable = new IniParseTable<MorphCondition>
         {
-            var result  = new MorphCondition();
-            result.UnitType = parser.ParseAttributeIdentifier("UnitType");
-
-            //TODO: find a way to parse this shit
-
-            //MorphCondition		= UnitType:IsengardWargRider		Locomotor:SET_MOUNTED	ModelState:"USER_2 MOUNTED"		
-            //MorphCondition		= UnitType:MordorHaradrimArcher			ModelState:"USER_2"
-            parser.GetNextTokenOptional();
-            parser.GetNextTokenOptional();
-            return result;
-        }
+            { "UnitType", (parser, x) => x.UnitType = parser.ParseIdentifier() },
+            { "Locomotor", (parser, x) => x.Locomotor = parser.ParseEnum<LocomotorSetCondition>() },
+            { "ModelState", (parser, x) => x.ModelStatesString = parser.ParseString() }
+        };
 
         public string UnitType { get; private set; }
         public LocomotorSetCondition Locomotor { get; private set; }
         public BitArray<ModelConditionFlag> ModelStates { get; private set; }
+        public string ModelStatesString { get; private set; }
     }
 }

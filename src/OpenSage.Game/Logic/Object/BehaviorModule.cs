@@ -45,6 +45,7 @@ namespace OpenSage.Logic.Object
             { "NeutronMissileSlowDeathBehavior", NeutronMissileSlowDeathBehaviorModuleData.Parse },
             { "OverchargeBehavior", OverchargeBehaviorModuleData.Parse },
             { "ParkingPlaceBehavior", ParkingPlaceBehaviorModuleData.Parse },
+            { "PassiveAreaEffectBehavior", PassiveAreaEffectBehaviorModuleData.Parse },
             { "PhysicsBehavior", PhysicsBehaviorModuleData.Parse },
             { "PoisonedBehavior", PoisonedBehaviorModuleData.Parse },
             { "PropagandaTowerBehavior", PropagandaTowerBehaviorModuleData.Parse },

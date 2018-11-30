@@ -6,6 +6,45 @@ namespace OpenSage.Data.Ini.Parser
 {
     partial class IniParser
     {
+        public T ParseAttributeList<T>(
+           IIniFieldParserProvider<T> fieldParserProvider)
+           where T : class, new()
+        {
+            var result = new T();
+
+            var done = false;
+
+            while (!done)
+            {
+                if (_tokenReader.EndOfFile)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                var nameToken = GetNextTokenOptional(SeparatorsColon);
+                if (!nameToken.HasValue)
+                {
+                    break;
+                }
+
+                var fieldName = nameToken.Value.Text;
+                if (fieldParserProvider.TryGetFieldParser(fieldName, out var fieldParser))
+                {
+                    _currentBlockOrFieldStack.Push(fieldName);
+
+                    fieldParser(this, result);
+                        
+                    _currentBlockOrFieldStack.Pop();
+                }
+                else
+                {
+                    throw new IniParseException($"Unexpected field '{fieldName}' in block '{_currentBlockOrFieldStack.Peek()}'.", nameToken.Value.Position);
+                }
+            }
+
+            return result;
+        }
+
         public T ParseAttribute<T>(string label, Func<IniParser, T> parse)
         {
             var nameToken = GetNextToken(SeparatorsColon);
