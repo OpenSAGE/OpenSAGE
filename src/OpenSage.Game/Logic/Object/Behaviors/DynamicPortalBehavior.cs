@@ -77,20 +77,17 @@ namespace OpenSage.Logic.Object
 
     public sealed class Link
     {
-        internal static Link Parse(IniParser parser)
+        internal static Link Parse(IniParser parser) => parser.ParseAttributeList(FieldParseTable);
+
+        internal static readonly IniParseTable<Link> FieldParseTable = new IniParseTable<Link>
         {
-            return new Link()
-            {
-                From = parser.ParseAttributeInteger("From"),
-                Via1 = parser.ParseAttributeInteger("Via"),
-                Via2 = parser.ParseAttributeInteger("Via"),
-                To = parser.ParseAttributeInteger("To")
-            };
-        }
+            { "From", (parser, x) => x.From = parser.ParseInteger() },
+            { "Via", (parser, x) => x.Vias.Add(parser.ParseInteger()) },
+            { "To", (parser, x) => x.To = parser.ParseInteger() }
+        };
 
         public int From { get; private set; }
-        public int Via1 { get; private set; }
-        public int Via2 { get; private set; }
+        public List<int> Vias { get; } = new List<int>();
         public int To { get; private set; }
     }
 }

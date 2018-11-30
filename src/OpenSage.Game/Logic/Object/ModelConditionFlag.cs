@@ -690,5 +690,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("PASSENGER_VARIATION_4"), AddedIn(SageGame.Bfme)]
         PassengerVariation4,
+
+        [IniEnum("DESTROYED_WHILST_BEING_CONSTRUCTED"), AddedIn(SageGame.Bfme)]
+        DestroyedWhilstBeingConstructed,
     }
 }
