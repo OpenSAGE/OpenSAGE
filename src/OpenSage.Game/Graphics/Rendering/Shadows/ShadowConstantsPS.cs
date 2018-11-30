@@ -23,8 +23,9 @@ namespace OpenSage.Graphics.Rendering.Shadows
         public uint FilterAcrossCascades;
         public float ShadowDistance;
         public ShadowsType ShadowsType;
+        public uint NumSplits;
 #pragma warning disable IDE1006
-        private Vector2 _Padding;
+        private readonly float _Padding;
 #pragma warning restore IDE1006
 
         public void Set(uint numCascades, ShadowSettings settings, ShadowData data)
@@ -61,6 +62,7 @@ namespace OpenSage.Graphics.Rendering.Shadows
             FilterAcrossCascades = 1u;
             ShadowDistance = settings.ShadowDistance;
             ShadowsType = settings.ShadowsType;
+            NumSplits = numCascades;
         }
 
         private static void SetArrayData<T>(

@@ -18,7 +18,8 @@ struct ShadowConstantsPSType
     bool FilterAcrossCascades;
     float ShadowDistance;
     int ShadowsType;
-    vec2 _Padding;
+    int NumSplits;
+    float _Padding;
 };
 
 float SampleShadowMap(
@@ -259,7 +260,7 @@ vec3 ShadowVisibility(
     int cascadeIdx = 0;
 
     // Figure out which cascade to sample from.
-    for (int i = 0; i < NUM_CASCADES - 1; i++)
+    for (int i = 0; i < constants.NumSplits - 1; i++)
     {
         if (depthVS > constants.CascadeSplits[i])
         {
@@ -293,7 +294,7 @@ vec3 ShadowVisibility(
         float splitSize = cascadeIdx == 0 ? nextSplit : nextSplit - constants.CascadeSplits[cascadeIdx - 1];
         float splitDist = (nextSplit - depthVS) / splitSize;
 
-        if (splitDist <= blendThreshold && cascadeIdx != NUM_CASCADES - 1)
+        if (splitDist <= blendThreshold && cascadeIdx != constants.NumSplits - 1)
         {
             vec3 nextSplitVisibility = SampleShadowCascade(
                 shadowMap,

@@ -11,7 +11,7 @@ namespace OpenSage.Graphics.Rendering.Shadows
         /// <summary>
         /// Gets or sets the number of shadow map cascades.
         /// </summary>
-        public ShadowMapCascades ShadowMapCascades { get; set; } = ShadowMapCascades.FourCascades;
+        public ShadowMapCascades ShadowMapCascades { get; set; } = ShadowMapCascades.OneCascade;
 
         /// <summary>
         /// Gets or sets the type of shadows that are rendered.
