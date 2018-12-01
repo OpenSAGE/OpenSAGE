@@ -38,6 +38,7 @@ namespace OpenSage.Logic.Object
             { "RevealWeaponSets", (parser, x) => x.RevealWeaponSets = parser.ParseEnumFlags<WeaponSetConditions>() },
             { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
             { "DetectedByFriendliesOnly", (parser, x) => x.DetectedByFriendliesOnly = parser.ParseBoolean() },
+            { "VoiceMoveToStealthyArea", (parser, x) => x.VoiceMoveToStealthyArea = parser.ParseAssetReference() }
         };
 
         public int StealthDelay { get; private set; }
@@ -82,5 +83,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool DetectedByFriendliesOnly { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string VoiceMoveToStealthyArea { get; private set; }
     }
 }

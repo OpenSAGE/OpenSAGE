@@ -268,7 +268,7 @@ namespace OpenSage.Logic.Object
             { "ThreatLevel", (parser, x) => x.ThreatLevel = parser.ParseFloat() },
             { "LocomotorSet", (parser, x) => x.LocomotorSet = LocomotorSet.Parse(parser) },
             { "ThingClass", (parser, x) => x.ThingClass = parser.ParseString() },
-            { "MinCrushVelocityPercent", (parser, x) => x.MinCrushVelocityPercent = parser.ParseInteger() },
+            { "MinCrushVelocityPercent", (parser, x) => x.MinCrushVelocityPercent = parser.ParsePercentage() },
             { "CrushDecelerationPercent", (parser, x) => x.CrushDecelerationPercent = parser.ParseInteger() },
             { "RamPower", (parser, x) => x.RamPower = parser.ParseInteger() },
             { "RamZMult", (parser, x) => x.RamZMult = parser.ParseFloat() },
@@ -812,7 +812,7 @@ namespace OpenSage.Logic.Object
         public string ThingClass { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int MinCrushVelocityPercent { get; private set; }
+        public float MinCrushVelocityPercent { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public int CrushDecelerationPercent { get; private set; }

@@ -152,6 +152,7 @@ namespace OpenSage.Logic.Object
             { "SiegeDeploySpecialPower", SiegeDeploySpecialPowerModuleData.Parse },
             { "SiegeDeployHordeSpecialPower", SiegeDeployHordeSpecialPowerModuleData.Parse },
             { "SpecialAbility", SpecialAbilityModuleData.Parse },
+            { "SplitHordeSpecialPower", SplitHordeSpecialPowerModuleData.Parse },
             { "SpyVisionSpecialPower", SpyVisionSpecialPowerModuleData.Parse },
             { "StopSpecialPower", StopSpecialPowerModuleData.Parse },
 
@@ -267,6 +268,7 @@ namespace OpenSage.Logic.Object
             { "ExperienceScalarUpgrade", ExperienceScalarUpgradeModuleData.Parse },
             { "GeometryUpgrade", GeometryUpgradeModuleData.Parse },
             { "GrantScienceUpgrade", GrantScienceUpgradeModuleData.Parse },
+            { "LevelUpUpgrade", LevelUpUpgradeModuleData.Parse },
             { "LocomotorSetUpgrade", LocomotorSetUpgradeModuleData.Parse },
             { "ModelConditionUpgrade", ModelConditionUpgradeModuleData.Parse },
             { "MaxHealthUpgrade", MaxHealthUpgradeModuleData.Parse },
