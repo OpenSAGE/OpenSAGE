@@ -8,7 +8,11 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public class AnimationSoundData
     {
-        internal static AnimationSoundData Parse(IniParser parser) => parser.ParseAttributeList(FieldParseTable);
+        internal static AnimationSoundData Parse(IniParser parser) //=> parser.ParseAttributeList(FieldParseTable);
+        {
+            parser.ParseAssetReferenceArray();
+            return new AnimationSoundData();
+        }
 
         internal static readonly IniParseTable<AnimationSoundData> FieldParseTable = new IniParseTable<AnimationSoundData>
         {

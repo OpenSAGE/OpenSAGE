@@ -1148,5 +1148,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("Bomb")]
         Bomb,
+
+        [IniEnum("Menu")]
+        Menu,
     }
 }

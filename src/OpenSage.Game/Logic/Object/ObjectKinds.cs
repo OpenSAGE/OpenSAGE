@@ -604,5 +604,8 @@
 
         [IniEnum("IGNORE_FOR_EVA_SPEECH_POSITION"), AddedIn(SageGame.Bfme)]
         IgnoreForEvaSpeechPosition,
+
+        [IniEnum("DO_NOT_PICK_ME_WHEN_BUILDING"), AddedIn(SageGame.Bfme)]
+        DoNotPickMeWhenBuilding,
     }
 }

@@ -19,6 +19,8 @@ namespace OpenSage.Logic.Object
                 { "InitialRoster", (parser, x) => x.InitialRoster = InitialRoster.Parse(parser) },
                 { "ImmuneToClearBuildingAttacks", (parser, x) => x.ImmuneToClearBuildingAttacks = parser.ParseBoolean() },
                 { "IsEnclosingContainer", (parser, x) => x.IsEnclosingContainer = parser.ParseBoolean() },
+                { "ObjectStatusOfContained", (parser, x) => x.ObjectStatusOfContained = parser.ParseEnumBitArray<ObjectStatus>() },
+                { "PassengerFilter", (parser, x) => x.PassengerFilter = ObjectFilter.Parse(parser) }
             });
         
         public bool MobileGarrison { get; private set; }
@@ -27,6 +29,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool IsEnclosingContainer { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public ObjectFilter PassengerFilter { get; private set; }
     }
 
     public sealed class InitialRoster
