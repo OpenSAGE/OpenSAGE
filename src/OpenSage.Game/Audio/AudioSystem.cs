@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using OpenSage.Data;
 using OpenSage.Data.Ini;
 using SharpAudio;
 using SharpAudio.Util;
@@ -14,7 +15,12 @@ namespace OpenSage.Audio
         private readonly Dictionary<string, AudioBuffer> _cached;
         private readonly AudioSettings _settings;
         private readonly AudioEngine _engine;
-        
+
+        private readonly string _localisedAudioRoot;
+        private readonly string _audioRoot;
+
+        private readonly Random _random;
+
         public AudioSystem(Game game) : base(game)
         {
             _engine = AudioEngine.CreateDefault();
@@ -38,10 +44,17 @@ namespace OpenSage.Audio
                     game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\AudioSettings.ini");
                     game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\SoundEffects.ini");
                     game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\MiscAudio.ini");
+                    game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\Voice.ini");
                     break;
             }
 
             _settings = game.ContentManager.IniDataContext.AudioSettings;
+
+            _localisedAudioRoot = Path.Combine(_settings.AudioRoot, _settings.SoundsFolder, Game.ContentManager.Language);
+            _audioRoot = Path.Combine(_settings.AudioRoot, _settings.SoundsFolder);
+
+            // TODO: Sync RNG seed from replay?
+            _random = new Random();
         }
 
         protected override void Dispose(bool disposeManagedResources)
@@ -56,13 +69,12 @@ namespace OpenSage.Audio
         /// <summary>
         /// Opens a cached audio file. Usually used for small audio files (.wav)
         /// </summary>
-        public AudioSource GetSound(string soundPath, bool loop = false)
+        public AudioSource GetSound(FileSystemEntry entry, bool loop = false)
         {
             AudioBuffer buffer;
 
-            if (!_cached.ContainsKey(soundPath))
+            if (!_cached.ContainsKey(entry.FilePath))
             {
-                var entry = Game.ContentManager.FileSystem.GetFile(soundPath);
                 var decoder = new WaveDecoder(entry.Open());
                 byte[] data = null;
                 decoder.GetSamples(ref data);
@@ -70,11 +82,11 @@ namespace OpenSage.Audio
                 buffer = AddDisposable(_engine.CreateBuffer());
                 buffer.BufferData(data, decoder.Format);
      
-                _cached[soundPath] = buffer;
+                _cached[entry.FilePath] = buffer;
             }
             else
             {
-                buffer = _cached[soundPath];
+                buffer = _cached[entry.FilePath];
             }
 
             var source = AddDisposable(_engine.CreateSource());
@@ -84,6 +96,16 @@ namespace OpenSage.Audio
             _sources.Add(source);
 
             return source;
+        }
+
+        private FileSystemEntry ResolveAudioEventPath(AudioEvent ev)
+        {
+            // TODO: Try to remove these allocations.
+
+            // TOOD: Check control flag before choosing at random?
+            var soundFileName = $"{ev.Sounds[_random.Next(ev.Sounds.Length)]}.{_settings.SoundsExtension}";
+            var filePath = Path.Combine(ev.Type.Get(AudioTypeFlags.Voice) ? _localisedAudioRoot : _audioRoot, soundFileName);
+            return Game.ContentManager.FileSystem.GetFile(filePath);
         }
 
         /// <summary>
@@ -104,11 +126,15 @@ namespace OpenSage.Audio
                 return;
             }
 
-            // TODO: Remove these allocations.
-            var soundFileName = ev.Sounds[0] + _settings.SoundsExtension;
-            var soundPath = Path.Combine(_settings.AudioRoot, _settings.SoundsFolder, soundFileName);
+            var entry = ResolveAudioEventPath(ev);
 
-            var source = GetSound(soundPath, ev.Control.HasFlag(AudioControlFlags.Loop));
+            if (entry == null)
+            {
+                // TODO: Log a warning about a missing audio file.
+                return;
+            }
+
+            var source = GetSound(entry, ev.Control.HasFlag(AudioControlFlags.Loop));
             _sources.Add(source);
 
             // Divide the volume by 100, because SAGE uses the scale [0, 100] while SharpAudio uses [0, 1]

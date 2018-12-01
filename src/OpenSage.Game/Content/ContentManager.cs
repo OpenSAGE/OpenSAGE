@@ -61,6 +61,8 @@ namespace OpenSage.Content
 
         public WndImageLoader WndImageLoader { get; }
 
+        public string Language { get; }
+
         public ContentManager(
             Game game,
             FileSystem fileSystem,
@@ -75,7 +77,7 @@ namespace OpenSage.Content
 
             SageGame = sageGame;
 
-            string language = LanguageUtility.ReadCurrentLanguage(game.Definition, fileSystem.RootDirectory);
+            Language = LanguageUtility.ReadCurrentLanguage(game.Definition, fileSystem.RootDirectory);
 
             IniDataContext = new IniDataContext(fileSystem, sageGame);
 
@@ -120,7 +122,7 @@ namespace OpenSage.Content
                 { typeof(Model), AddDisposable(new ModelLoader()) },
                 { typeof(Scene3D), AddDisposable(new MapLoader()) },
                 { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
-                { typeof(Window), AddDisposable(new WindowLoader(this, wndCallbackResolver, language)) },
+                { typeof(Window), AddDisposable(new WindowLoader(this, wndCallbackResolver, Language)) },
                 { typeof(AptWindow), AddDisposable(new AptLoader()) },
             };
 
@@ -128,7 +130,7 @@ namespace OpenSage.Content
 
             EffectLibrary = AddDisposable(new EffectLibrary(graphicsDevice));
 
-            TranslationManager = new TranslationManager(fileSystem, sageGame, language);
+            TranslationManager = new TranslationManager(fileSystem, sageGame, Language);
 
             _cachedFonts = new Dictionary<FontKey, Font>();
 
