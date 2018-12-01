@@ -269,7 +269,7 @@ namespace OpenSage.Logic.Object
             { "LocomotorSet", (parser, x) => x.LocomotorSet = LocomotorSet.Parse(parser) },
             { "ThingClass", (parser, x) => x.ThingClass = parser.ParseString() },
             { "MinCrushVelocityPercent", (parser, x) => x.MinCrushVelocityPercent = parser.ParsePercentage() },
-            { "CrushDecelerationPercent", (parser, x) => x.CrushDecelerationPercent = parser.ParseInteger() },
+            { "CrushDecelerationPercent", (parser, x) => x.CrushDecelerationPercent = parser.ParsePercentage() },
             { "RamPower", (parser, x) => x.RamPower = parser.ParseInteger() },
             { "RamZMult", (parser, x) => x.RamZMult = parser.ParseFloat() },
             { "CommandPoints", (parser, x) => x.CommandPoints = parser.ParseInteger() },
@@ -815,7 +815,7 @@ namespace OpenSage.Logic.Object
         public float MinCrushVelocityPercent { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int CrushDecelerationPercent { get; private set; }
+        public float CrushDecelerationPercent { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public int RamPower { get; private set; }
@@ -1040,9 +1040,13 @@ namespace OpenSage.Logic.Object
         }
 
         private static new readonly IniParseTable<ChildObject> FieldParseTable = ObjectDefinition.FieldParseTable
-            .Concat(new IniParseTable<ChildObject>());
+            .Concat(new IniParseTable<ChildObject>
+            {
+                { "EquivalentTo", (parser, x) => x.EquivalentTo = parser.ParseString() }
+            });
 
         public string ChildOf { get; private set; }
+        public string EquivalentTo { get; private set; }
     }
 
     public sealed class ReplaceModule
