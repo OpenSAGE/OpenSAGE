@@ -33,7 +33,8 @@ namespace OpenSage.Logic.Object
                 { "GlowEmissive", (parser, x) => x.GlowEmissive = parser.ParseBoolean() },
                 { "HighDetailOnly", (parser, x) => x.HighDetailOnly = parser.ParseBoolean() },
                 { "WadingParticleSys", (parser, x) => x.WadingParticleSys = parser.ParseAssetReference() },
-                { "NoRotate", (parser, x) => x.NoRotate = parser.ParseBoolean() }
+                { "NoRotate", (parser, x) => x.NoRotate = parser.ParseBoolean() },
+                { "UseProducerTexture", (parser, x) => x.UseProducerTexture = parser.ParseBoolean() }
             });
 
         public bool StaticModelLODMode { get; private set; }
@@ -57,6 +58,7 @@ namespace OpenSage.Logic.Object
         public bool HighDetailOnly { get; private set; }
         public string WadingParticleSys { get; private set; }
         public bool NoRotate { get; private set; }
+        public bool UseProducerTexture { get; private set; }
     }
 
     public sealed class RandomTexture
