@@ -607,5 +607,8 @@
 
         [IniEnum("DO_NOT_PICK_ME_WHEN_BUILDING"), AddedIn(SageGame.Bfme)]
         DoNotPickMeWhenBuilding,
+
+        [IniEnum("COMBO_HORDE"), AddedIn(SageGame.Bfme)]
+        ComboHorde
     }
 }
