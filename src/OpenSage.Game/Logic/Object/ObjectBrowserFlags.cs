@@ -44,5 +44,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("LOTHLORIEN"), AddedIn(SageGame.Bfme)]
         Lothlorien              = 1 << 11,
+
+        [IniEnum("HELMS_DEEP"), AddedIn(SageGame.Bfme)]
+        HelmsDeep               = 1 << 12,
     }
 }
