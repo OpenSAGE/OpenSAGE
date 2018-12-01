@@ -57,10 +57,12 @@ namespace OpenSage.Logic.Object
         internal static readonly IniParseTable<Emotion> FieldParseTable = new IniParseTable<Emotion>
         {
             { "AttributeModifier", (parser, x) => x.AttributeModifier = parser.ParseAssetReference() },
+            { "Duration", (parser, x) => x.Duration = parser.ParseInteger() },
         };
 
         public EmotionType Type { get; private set; }
         public string EmotionName { get; private set; }
         public string AttributeModifier { get; private set; }
+        public int Duration { get; private set; }
     }
 }

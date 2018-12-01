@@ -38,6 +38,9 @@ namespace OpenSage.Logic.Object
         SetMounted,
 
         [IniEnum("SET_COMBO")]
-        SetCombo
+        SetCombo,
+
+        [IniEnum("SET_CONTAINED")]
+        SetContained
     }
 }
