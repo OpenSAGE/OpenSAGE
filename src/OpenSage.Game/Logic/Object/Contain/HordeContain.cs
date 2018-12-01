@@ -7,7 +7,7 @@ using OpenSage.Mathematics;
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class HordeContainModuleData : BehaviorModuleData
+    public class HordeContainModuleData : BehaviorModuleData
     {
         internal static HordeContainModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
@@ -50,7 +50,8 @@ namespace OpenSage.Logic.Object
             { "NotComboFormation", (parser, x) => x.NotComboFormation = parser.ParseBoolean() },
             { "UsePorcupineBody", (parser, x) => x.UsePorcupineBody = parser.ParseBoolean() },
             { "SplitHorde", (parser, x) => x.SplitHordes.Add(SplitHorde.Parse(parser)) },
-            { "UseMarchingAnims", (parser, x) => x.UseMarchingAnims = parser.ParseBoolean() }
+            { "UseMarchingAnims", (parser, x) => x.UseMarchingAnims = parser.ParseBoolean() },
+            { "ForcedLocomotorSet", (parser, x) => x.ForcedLocomotorSet = parser.ParseEnum<LocomotorSetCondition>() }
         };
 
         public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
@@ -91,6 +92,7 @@ namespace OpenSage.Logic.Object
         public bool UsePorcupineBody { get; private set; }
         public List<SplitHorde> SplitHordes { get; } = new List<SplitHorde>();
         public bool UseMarchingAnims { get; private set; }
+        public LocomotorSetCondition ForcedLocomotorSet { get; private set; } 
     }
 
     [AddedIn(SageGame.Bfme)]
