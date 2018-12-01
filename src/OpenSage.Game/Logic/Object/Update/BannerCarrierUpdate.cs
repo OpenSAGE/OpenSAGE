@@ -40,12 +40,11 @@ namespace OpenSage.Logic.Object
         {
             { "UnitType", (parser, x) => x.UnitType = parser.ParseIdentifier() },
             { "Locomotor", (parser, x) => x.Locomotor = parser.ParseEnum<LocomotorSetCondition>() },
-            { "ModelState", (parser, x) => x.ModelStatesString = parser.ParseString() }
+            { "ModelState", (parser, x) => x.ModelStates = parser.ParseEnumBitArray<ModelConditionFlag>(parser.ParseString()) }
         };
 
         public string UnitType { get; private set; }
         public LocomotorSetCondition Locomotor { get; private set; }
         public BitArray<ModelConditionFlag> ModelStates { get; private set; }
-        public string ModelStatesString { get; private set; }
     }
 }
