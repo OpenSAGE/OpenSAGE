@@ -693,5 +693,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("DESTROYED_WHILST_BEING_CONSTRUCTED"), AddedIn(SageGame.Bfme)]
         DestroyedWhilstBeingConstructed,
+
+        [IniEnum("ELVEN_WOOD"), AddedIn(SageGame.Bfme)]
+        ElvenWood,
     }
 }

@@ -64,5 +64,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("CREATE_AT_LOCATION")]
         CreateAtLocation,
+
+        [IniEnum("CREATE_AT_EDGE_NEAR_TARGET_AND_MOVE_TO_LOCATION"), AddedIn(SageGame.Bfme)]
+        CreateAtEdgeNearTargetAndMoveToLocation,
     }
 }
