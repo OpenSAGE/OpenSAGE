@@ -609,6 +609,12 @@
         DoNotPickMeWhenBuilding,
 
         [IniEnum("COMBO_HORDE"), AddedIn(SageGame.Bfme)]
-        ComboHorde
+        ComboHorde,
+
+        [IniEnum("SUMMONED"), AddedIn(SageGame.Bfme)]
+        Summoned,
+
+        [IniEnum("NO_FORMATION_MOVEMENT"), AddedIn(SageGame.Bfme)]
+        NoFormationMovement
     }
 }
