@@ -51,7 +51,10 @@ namespace OpenSage.Logic.Object
             { "UsePorcupineBody", (parser, x) => x.UsePorcupineBody = parser.ParseBoolean() },
             { "SplitHorde", (parser, x) => x.SplitHordes.Add(SplitHorde.Parse(parser)) },
             { "UseMarchingAnims", (parser, x) => x.UseMarchingAnims = parser.ParseBoolean() },
-            { "ForcedLocomotorSet", (parser, x) => x.ForcedLocomotorSet = parser.ParseEnum<LocomotorSetCondition>() }
+            { "ForcedLocomotorSet", (parser, x) => x.ForcedLocomotorSet = parser.ParseEnum<LocomotorSetCondition>() },
+            { "UpdateWeaponSetFlagsOnHordeToo", (parser, x) => x.UpdateWeaponSetFlagsOnHordeToo = parser.ParseBoolean() },
+            { "RankSplit", (parser, x) => x.RankSplit = parser.ParseBoolean() },
+            { "SplitHordeNumber", (parser, x) => x.SplitHordeNumber = parser.ParseInteger() },
         };
 
         public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
@@ -92,7 +95,10 @@ namespace OpenSage.Logic.Object
         public bool UsePorcupineBody { get; private set; }
         public List<SplitHorde> SplitHordes { get; } = new List<SplitHorde>();
         public bool UseMarchingAnims { get; private set; }
-        public LocomotorSetCondition ForcedLocomotorSet { get; private set; } 
+        public LocomotorSetCondition ForcedLocomotorSet { get; private set; }
+        public bool UpdateWeaponSetFlagsOnHordeToo { get; private set; }
+        public bool RankSplit { get; private set; }
+        public int SplitHordeNumber { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -130,28 +136,22 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public sealed class RankInfo
     {
-        internal static RankInfo Parse(IniParser parser)
+        internal static RankInfo Parse(IniParser parser) => parser.ParseAttributeList(FieldParseTable);
+
+        internal static readonly IniParseTable<RankInfo> FieldParseTable = new IniParseTable<RankInfo>
         {
-            var rankNumber = parser.ParseAttributeInteger("RankNumber");
-            var unitType = parser.ParseAttributeIdentifier("UnitType");
-            var positions = new List<Point2D>();
-
-            while (parser.ParseAttributeOptional("Position", parser.ParsePoint, out var position))
-            {
-                positions.Add(position);
-            }
-
-            return new RankInfo
-            {
-                RankNumber = rankNumber,
-                UnitType = unitType,
-                Positions = positions
-            };
-        }
+            { "RankNumber", (parser, x) => x.RankNumber = parser.ParseInteger() },
+            { "UnitType", (parser, x) => x.UnitType = parser.ParseIdentifier() },
+            { "Position", (parser, x) => x.Positions.Add(parser.ParseVector2()) },
+            { "RevokedWeaponCondition", (parser, x) => x.RevokedWeaponCondition = parser.ParseEnum<WeaponSetConditions>() },
+            { "GrantedWeaponCondition", (parser, x) => x.GrantedWeaponCondition = parser.ParseEnum<WeaponSetConditions>() }
+        };
 
         public int RankNumber { get; private set; }
         public string UnitType { get; private set; }
-        public List<Point2D> Positions { get; private set; }
+        public List<Vector2> Positions { get; } = new List<Vector2>();
+        public WeaponSetConditions RevokedWeaponCondition { get; private set; }
+        public WeaponSetConditions GrantedWeaponCondition { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
