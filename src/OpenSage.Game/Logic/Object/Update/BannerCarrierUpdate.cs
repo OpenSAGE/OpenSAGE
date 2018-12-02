@@ -18,7 +18,8 @@ namespace OpenSage.Logic.Object
            { "UnitSpawnFX", (parser, x) => x.UnitSpawnFX = parser.ParseAssetReference() },
            { "MorphCondition", (parser, x) => x.MorphCondition = MorphCondition.Parse(parser) },
            { "ReplenishNearbyHorde", (parser, x) => x.ReplenishNearbyHorde = parser.ParseBoolean() },
-           { "ScanHordeDistance", (parser, x) => x.ScanHordeDistance = parser.ParseInteger() }
+           { "ScanHordeDistance", (parser, x) => x.ScanHordeDistance = parser.ParseFloat() },
+           { "ReplenishAllNearbyHordes", (parser, x) => x.ReplenishAllNearbyHordes = parser.ParseBoolean() },
         };
 
         public int IdleSpawnRate { get; private set; }
@@ -29,7 +30,8 @@ namespace OpenSage.Logic.Object
         public string UnitSpawnFX { get; private set; }
         public MorphCondition MorphCondition { get; private set; }
         public bool ReplenishNearbyHorde { get; private set; }
-        public int ScanHordeDistance { get; private set; }
+        public float ScanHordeDistance { get; private set; }
+        public bool ReplenishAllNearbyHordes { get; private set; }
     }
 
     public sealed class MorphCondition
