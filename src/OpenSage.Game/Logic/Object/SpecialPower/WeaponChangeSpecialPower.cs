@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
-    [AddedIn(SageGame.CncGeneralsZeroHour)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class WeaponChangeSpecialPowerModuleData : SpecialPowerModuleData
     {
         internal static new WeaponChangeSpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
