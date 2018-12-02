@@ -12,11 +12,13 @@ namespace OpenSage.Logic.Object
             {
                 { "SunbeamObject", (parser, x) => x.SunbeamObject = parser.ParseAssetReference() },
                 { "ObjectSpacing", (parser, x) => x.ObjectSpacing = parser.ParseInteger() },
-                { "AntiFX", (parser, x) => x.AntiFX = parser.ParseAssetReference() }
+                { "AntiFX", (parser, x) => x.AntiFX = parser.ParseAssetReference() },
+                { "ReEnableAntiCategory", (parser, x) => x.ReEnableAntiCategory = parser.ParseBoolean() },
             });
 
         public string SunbeamObject { get; private set; }
         public int ObjectSpacing { get; private set; }
         public string AntiFX { get; private set; }
+        public bool ReEnableAntiCategory { get; private set; }
     }
 }
