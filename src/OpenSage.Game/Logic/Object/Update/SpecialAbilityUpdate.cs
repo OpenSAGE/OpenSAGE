@@ -47,7 +47,10 @@ namespace OpenSage.Logic.Object
             { "Instant", (parser, x) => x.Instant = parser.ParseBoolean() },
             { "CustomAnimAndDuration", (parser, x) => x.GetCustomAnimAndDuration = CustomAnimAndDuration.Parse(parser) },
             { "ContactPointOverride", (parser, x) => x.ContactPointOverride = parser.ParseEnum<ContactPointType>() },
-            { "UnpackingVariation", (parser, x) => x.UnpackingVariation = parser.ParseInteger() }
+            { "UnpackingVariation", (parser, x) => x.UnpackingVariation = parser.ParseInteger() },
+            { "TriggerAttributeModifier", (parser, x) => x.TriggerAttributeModifier = parser.ParseIdentifier() },
+            { "AttributeModifierDuration", (parser, x) => x.AttributeModifierDuration = parser.ParseInteger() },
+            { "KillAttributeModifierOnExit", (parser, x) => x.KillAttributeModifierOnExit = parser.ParseBoolean() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -100,5 +103,14 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int UnpackingVariation { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string TriggerAttributeModifier { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int AttributeModifierDuration { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool KillAttributeModifierOnExit { get; private set; }
     }
 }

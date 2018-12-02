@@ -9,11 +9,9 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<CleanupAreaPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
             .Concat(new IniParseTable<CleanupAreaPowerModuleData>
             {
-                { "MaxMoveDistanceFromLocation", (parser, x) => x.MaxMoveDistanceFromLocation = parser.ParseFloat() },
-                { "InitiateSound", (parser, x) => x.InitiateSound = parser.ParseAssetReference() }
+                { "MaxMoveDistanceFromLocation", (parser, x) => x.MaxMoveDistanceFromLocation = parser.ParseFloat() }
             });
 
         public float MaxMoveDistanceFromLocation { get; private set; }
-        public string InitiateSound { get; private set; }
     }
 }

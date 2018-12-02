@@ -15,7 +15,10 @@ namespace OpenSage.Logic.Object
             { "HeroEffectDuration", (parser, x) => x.HeroEffectDuration = parser.ParseInteger() },
             { "RequiredConditions", (parser, x) => x.RequiredConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
             { "HeroAttributeModifier", (parser, x) => x.HeroAttributeModifier = parser.ParseIdentifier() },
-            { "TriggerSound", (parser, x) => x.TriggerSound = parser.ParseAssetReference() }
+            { "TriggerSound", (parser, x) => x.TriggerSound = parser.ParseAssetReference() },
+            { "UnpackingVariation", (parser, x) => x.UnpackingVariation = parser.ParseInteger() },
+            { "PackTime", (parser, x) => x.PackTime = parser.ParseInteger() },
+            { "AwardXPForTriggering", (parser, x) => x.AwardXPForTriggering = parser.ParseInteger() },
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -24,5 +27,8 @@ namespace OpenSage.Logic.Object
         public BitArray<ModelConditionFlag> RequiredConditions { get; private set; }
         public string HeroAttributeModifier { get; private set; }
         public string TriggerSound { get; private set; }
+        public int UnpackingVariation { get; private set; }
+        public int PackTime { get; private set; }
+        public int AwardXPForTriggering { get; private set; }
     }
 }

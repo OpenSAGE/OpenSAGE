@@ -18,7 +18,8 @@ namespace OpenSage.Logic.Object
             { "AwardXPForTriggering", (parser, x) => x.AwardXPForTriggering = parser.ParseInteger() },
             { "GenerateTerror", (parser, x) => x.GenerateTerror = parser.ParseBoolean() },
             { "EmotionPulseRadius", (parser, x) => x.EmotionPulseRadius = parser.ParseInteger() },
-            { "DisableWhenWearingTheRing", (parser, x) => x.DisableWhenWearingTheRing = parser.ParseBoolean() }
+            { "DisableWhenWearingTheRing", (parser, x) => x.DisableWhenWearingTheRing = parser.ParseBoolean() },
+            { "WhichSpecialPower", (parser, x) => x.WhichSpecialPower = parser.ParseInteger() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -31,5 +32,6 @@ namespace OpenSage.Logic.Object
         public bool GenerateTerror { get; private set; }
         public int EmotionPulseRadius { get; private set; }
         public bool DisableWhenWearingTheRing { get; private set; }
+        public int WhichSpecialPower { get; private set; }
     }
 }
