@@ -143,6 +143,16 @@ namespace OpenSage.Data.Ini
             { "MaxLifetime", (parser, x) => x.MaxLifetime = parser.ParseInteger() },
             { "SkipIfSignificantlyAirborne", (parser, x) => x.SkipIfSignificantlyAirborne = parser.ParseBoolean() },
             { "DiesOnBadLand", (parser, x) => x.DiesOnBadLand = parser.ParseBoolean() },
+            { "VelocityScale", (parser, x) => x.VelocityScale = parser.ParseFloat() },
+            { "UseJustBuiltFlag", (parser, x) => x.UseJustBuiltFlag = parser.ParseBoolean() },
+            { "InheritAttributesFromSource", (parser, x) => x.InheritAttributesFromSource = parser.ParseBoolean() },
+            { "IgnoreCommandPointLimit", (parser, x) => x.IgnoreCommandPointLimit = parser.ParseBoolean() },
+            { "VeterancyLevel", (parser, x) => x.VeterancyLevel = parser.ParseInteger() },
+            { "DispositionAngle", (parser, x) => x.DispositionAngle = parser.ParseFloat() },
+            { "StartingBusyTime", (parser, x) => x.StartingBusyTime = parser.ParseInteger() },
+            { "ParticleSystem", (parser, x) => x.ParticleSystem = parser.ParseIdentifier() },
+            { "InheritScriptingName", (parser, x) => x.InheritScriptingName = parser.ParseBoolean() },
+            { "IgnoreAllObjects", (parser, x) => x.IgnoreAllObjects = parser.ParseBoolean() }
         };
 
         public string ObjectNames { get; private set; }
@@ -180,6 +190,36 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool DiesOnBadLand { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float VelocityScale { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool UseJustBuiltFlag { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool InheritAttributesFromSource { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool IgnoreCommandPointLimit { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int VeterancyLevel { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float DispositionAngle { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int StartingBusyTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string ParticleSystem { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool InheritScriptingName { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool IgnoreAllObjects { get; private set; }
     }
 
     public sealed class ApplyRandomForceObjectCreationListItem : ObjectCreationListItem
@@ -369,6 +409,24 @@ namespace OpenSage.Data.Ini
         SendItUp,
 
         [IniEnum("FLOATING")]
-        Floating
+        Floating,
+
+        [IniEnum("BUILDING_CHUNKS")]
+        BuildingChunks,
+
+        [IniEnum("FORWARD_IMPACT")]
+        ForwardImpact,
+
+        [IniEnum("SPAWN_AROUND")]
+        SpawnAround,
+
+        [IniEnum("SET_ANGLE")]
+        SetAngle,
+
+        [IniEnum("FADE_AND_DIE_ORNAMENT")]
+        FadeAndDieOrnament,
+
+        [IniEnum("ANIMATED")]
+        Animated,
     }
 }
