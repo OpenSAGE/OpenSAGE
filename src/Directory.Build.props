@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <VeldridVersion>4.5.0-beta1-0071-g8145d9f0e8</VeldridVersion>
+    <VeldridVersion>4.5.0-beta1-0099-ge170e90cb8</VeldridVersion>
     <ImGuiVersion>5.65.0-beta1-0040-g8145d9f0e8</ImGuiVersion>
     <SharpAudioVersion>0.1.0-beta1-0016-gf1593d4dc3</SharpAudioVersion>
   </PropertyGroup>

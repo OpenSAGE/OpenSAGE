@@ -73,6 +73,7 @@ void main()
         _MaterialConstants.SpecularExponent,
         _GlobalConstantsShared.CameraPosition,
         false, // TODO: true
+        vec3(1, 1, 1),
         diffuseColor,
         specularColor);
 

@@ -120,7 +120,7 @@ namespace OpenSage.Graphics.Cameras
             return 0;
         }
 
-        void ICameraController.UpdateCamera(CameraComponent camera, in CameraInputState inputState, GameTime gameTime)
+        void ICameraController.UpdateCamera(Camera camera, in CameraInputState inputState, GameTime gameTime)
         {
             if (inputState.LeftMouseDown && inputState.PressedKeys.Contains(Key.AltLeft) || inputState.MiddleMouseDown)
             {
@@ -199,7 +199,7 @@ namespace OpenSage.Graphics.Cameras
 
             var targetPosition = newPosition + lookDirection;
 
-            camera.View = Matrix4x4.CreateLookAt(
+            camera.SetLookAt(
                 newPosition,
                 targetPosition,
                 Vector3.UnitZ);

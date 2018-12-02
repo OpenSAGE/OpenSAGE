@@ -1,5 +1,5 @@
-﻿using System;
-using OpenSage.Graphics.Rendering;
+﻿using OpenSage.Graphics.Rendering;
+using Veldrid;
 
 namespace OpenSage.Graphics
 {
@@ -8,6 +8,8 @@ namespace OpenSage.Graphics
         private readonly RenderContext _renderContext;
 
         private RenderPipeline _renderPipeline;
+
+        public Texture ShadowMap => _renderPipeline.ShadowMap;
 
         public GraphicsSystem(Game game)
             : base(game)

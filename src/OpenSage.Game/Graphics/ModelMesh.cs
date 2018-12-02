@@ -101,6 +101,9 @@ namespace OpenSage.Graphics
                 {
                     AddDisposable(meshPart.Material);
                     meshPart.Material.SetMeshConstants(_meshConstantsBuffer.Buffer);
+
+                    AddDisposable(meshPart.DepthMaterial);
+                    meshPart.DepthMaterial.SetMeshConstants(_meshConstantsBuffer.Buffer);
                 }
             }
             MaterialPasses = materialPasses;
@@ -108,9 +111,10 @@ namespace OpenSage.Graphics
 
         internal void BuildRenderList(
             RenderList renderList,
-            CameraComponent camera,
+            Camera camera,
             ModelInstance modelInstance,
-            in Matrix4x4 modelTransform)
+            in Matrix4x4 modelTransform,
+            bool castsShadow)
         {
             if (Hidden)
             {
@@ -160,9 +164,32 @@ namespace OpenSage.Graphics
             {
                 foreach (var meshPart in materialPass.MeshParts)
                 {
+                    var blendEnabled = meshPart.Material.PipelineState.BlendState.AttachmentStates[0].BlendEnabled;
+
+                    // Depth pass
+
+                    // TODO: With more work, we could draw shadows for translucent and alpha-tested materials.
+                    if (!blendEnabled && castsShadow)
+                    {
+                        meshPart.DepthMaterial.SetSkinningBuffer(modelInstance.SkinningBuffer);
+
+                        renderList.Shadow.AddRenderItemDrawIndexed(
+                           meshPart.DepthMaterial,
+                           _vertexBuffer,
+                           materialPass.TexCoordVertexBuffer,
+                           CullFlags.None,
+                           meshBoundingBox,
+                           world,
+                           meshPart.StartIndex,
+                           meshPart.IndexCount,
+                           _indexBuffer);
+                    }
+
+                    // Standard pass
+
                     meshPart.Material.SetSkinningBuffer(modelInstance.SkinningBuffer);
 
-                    var renderQueue = meshPart.Material.PipelineState.BlendState.AttachmentStates[0].BlendEnabled
+                    var renderQueue = blendEnabled
                         ? renderList.Transparent
                         : renderList.Opaque;
 

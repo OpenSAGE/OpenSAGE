@@ -8,7 +8,7 @@ namespace OpenSage.Graphics.Effects
         public FixedFunctionMaterial(ContentManager contentManager, Effect effect)
             : base(contentManager, effect)
         {
-            
+            SetProperty("Sampler", effect.GraphicsDevice.Aniso4xSampler);
         }
 
         public void SetTexture0(Texture texture)

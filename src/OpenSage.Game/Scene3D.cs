@@ -5,6 +5,7 @@ using OpenSage.Data.Map;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Rendering.Shadows;
 using OpenSage.Gui;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
@@ -26,7 +27,7 @@ namespace OpenSage
 
         private readonly ParticleSystemManager _particleSystemManager;
 
-        public CameraComponent Camera { get; }
+        public Camera Camera { get; }
 
         public ICameraController CameraController { get; set; }
 
@@ -47,6 +48,8 @@ namespace OpenSage
         public WaypointPathCollection WaypointPaths { get; set; }
 
         public WorldLighting Lighting { get; }
+
+        public ShadowSettings Shadows { get; } = new ShadowSettings();
 
         private readonly List<Team> _teams;
         public IReadOnlyList<Team> Teams => _teams;
@@ -82,7 +85,7 @@ namespace OpenSage
             Player[] players,
             Team[] teams)
         {
-            Camera = new CameraComponent(game);
+            Camera = new Camera(() => game.Viewport);
             CameraController = cameraController;
 
             MapFile = mapFile;
@@ -142,7 +145,7 @@ namespace OpenSage
             CameraController.UpdateCamera(Camera, _cameraInputState, gameTime);
         }
 
-        internal void BuildRenderList(RenderList renderList, CameraComponent camera)
+        internal void BuildRenderList(RenderList renderList, Camera camera)
         {
             if (ShowTerrain)
             {

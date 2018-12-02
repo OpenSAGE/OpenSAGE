@@ -34,6 +34,7 @@ layout(location = 0) out vec3 out_WorldPosition;
 layout(location = 1) out vec3 out_WorldNormal;
 layout(location = 2) out vec2 out_UV;
 layout(location = 3) out vec2 out_CloudUV;
+layout(location = 4) out float out_ViewSpaceDepth;
 
 void main()
 {
@@ -49,4 +50,6 @@ void main()
         out_WorldPosition,
         _GlobalLightingConstantsVS.CloudShadowMatrix,
         _GlobalConstantsShared.TimeInSeconds);
+
+    out_ViewSpaceDepth = gl_Position.z;
 }

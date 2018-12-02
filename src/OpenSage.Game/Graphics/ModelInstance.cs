@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
-using OpenSage.Mathematics;
 using Veldrid;
 
 namespace OpenSage.Graphics
@@ -141,11 +139,12 @@ namespace OpenSage.Graphics
 
         public void BuildRenderList(
             RenderList renderList,
-            CameraComponent camera)
+            Camera camera,
+            bool castsShadow)
         {
             foreach (var mesh in Model.Meshes)
             {
-                mesh.BuildRenderList(renderList, camera, this, _worldMatrix);
+                mesh.BuildRenderList(renderList, camera, this, _worldMatrix, castsShadow);
             }
         }
     }

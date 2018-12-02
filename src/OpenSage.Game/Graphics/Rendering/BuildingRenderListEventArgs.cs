@@ -6,9 +6,9 @@ namespace OpenSage.Graphics.Rendering
     public sealed class BuildingRenderListEventArgs : EventArgs
     {
         public RenderList RenderList { get; }
-        public CameraComponent Camera { get; }
+        public Camera Camera { get; }
 
-        public BuildingRenderListEventArgs(RenderList renderList, CameraComponent camera)
+        public BuildingRenderListEventArgs(RenderList renderList, Camera camera)
         {
             RenderList = renderList;
             Camera = camera;

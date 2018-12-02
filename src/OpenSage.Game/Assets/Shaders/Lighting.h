@@ -35,6 +35,7 @@ void DoLighting(
     float materialShininess,
     vec3 cameraPosition,
     bool specularEnabled,
+    vec3 shadowVisibility,
     out vec3 diffuseColor,
     out vec3 specularColor)
 {
@@ -62,7 +63,14 @@ void DoLighting(
                 light.Color;
         }
 
-        diffuseColor += ambient + (diffuse * light.Color);
+        vec3 diffuseContribution = diffuse * light.Color;
+
+        if (i == 0)
+        {
+            diffuseContribution *= shadowVisibility;
+        }
+
+        diffuseColor += ambient + diffuseContribution;
     }
 
     diffuseColor = saturate(diffuseColor);

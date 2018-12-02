@@ -387,10 +387,13 @@ namespace OpenSage.Content
 
             material.SetMaterialConstants(AddDisposable(materialConstantsBuilder.CreateBuffer()));
 
+            var depthMaterial = new MeshDepthMaterial(contentManager, contentManager.EffectLibrary.MeshDepth);
+
             meshParts.Add(new ModelMeshPart(
                 0,
                 w3dMesh.Header.NumTris * 3,
-                material));
+                material,
+                depthMaterial));
 
             return new ModelMeshMaterialPass(
                 contentManager.GraphicsDevice,
@@ -701,10 +704,13 @@ namespace OpenSage.Content
             effectMaterial.SetTexture0(CreateTexture(contentManager, w3dMesh, textureIndex0));
             effectMaterial.SetTexture1(CreateTexture(contentManager, w3dMesh, textureIndex1));
 
+            var depthMaterial = new MeshDepthMaterial(contentManager, contentManager.EffectLibrary.MeshDepth);
+
             return new ModelMeshPart(
                 startIndex,
                 indexCount,
-                effectMaterial);
+                effectMaterial,
+                depthMaterial);
         }
 
         private static Animation CreateAnimation(W3dAnimation w3dAnimation)

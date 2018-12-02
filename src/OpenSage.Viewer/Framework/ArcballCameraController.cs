@@ -109,7 +109,7 @@ namespace OpenSage.Viewer.Framework
             throw new NotImplementedException();
         }
 
-        void ICameraController.UpdateCamera(CameraComponent camera, in CameraInputState inputState, GameTime gameTime)
+        void ICameraController.UpdateCamera(Camera camera, in CameraInputState inputState, GameTime gameTime)
         {
             if (inputState.LeftMouseDown)
             {
@@ -129,7 +129,7 @@ namespace OpenSage.Viewer.Framework
             position *= _zoom * _radius;
             position += _target;
 
-            camera.View = Matrix4x4.CreateLookAt(
+            camera.SetLookAt(
                 position + _translation,
                 _target + _translation,
                 Vector3.UnitZ);

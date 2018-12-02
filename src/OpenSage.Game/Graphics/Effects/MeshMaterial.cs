@@ -9,7 +9,7 @@ namespace OpenSage.Graphics.Effects
         protected MeshMaterial(ContentManager contentManager, Effect effect)
             : base(contentManager, effect)
         {
-            SetProperty("Sampler", effect.GraphicsDevice.Aniso4xSampler);
+            
         }
 
         public void SetSkinningBuffer(DeviceBuffer skinningBuffer)

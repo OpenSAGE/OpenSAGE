@@ -8,16 +8,19 @@ namespace OpenSage.Graphics
         public uint IndexCount { get; }
 
         public MeshMaterial Material { get; }
+        public MeshDepthMaterial DepthMaterial { get; }
 
         internal ModelMeshPart(
             uint startIndex, 
             uint indexCount, 
-            MeshMaterial material)
+            MeshMaterial material,
+            MeshDepthMaterial depthMaterial)
         {
             StartIndex = startIndex;
             IndexCount = indexCount;
 
             Material = material;
+            DepthMaterial = depthMaterial;
         }
     }
 }
