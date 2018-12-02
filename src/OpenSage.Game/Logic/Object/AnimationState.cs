@@ -96,16 +96,15 @@ namespace OpenSage.Logic.Object
 
     public sealed class FXEvent
     {
-        internal static FXEvent Parse(IniParser parser)
+        internal static FXEvent Parse(IniParser parser) => parser.ParseAttributeList(FieldParseTable);
+
+        internal static readonly IniParseTable<FXEvent> FieldParseTable = new IniParseTable<FXEvent>
         {
-            return new FXEvent()
-            {
-                Frame = parser.ParseAttributeInteger("Frame"),
-                FX = parser.ParseAttributeIdentifier("Name")
-            };
-        }
+            { "Frame", (parser, x) => x.Frame = parser.ParseInteger() },
+            { "Name", (parser, x) => x.Name = parser.ParseIdentifier() }
+        };
 
         public int Frame { get; private set; }
-        public string FX { get; private set; }
+        public string Name { get; private set; }
     }
 }

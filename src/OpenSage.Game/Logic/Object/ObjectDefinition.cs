@@ -314,7 +314,9 @@ namespace OpenSage.Logic.Object
             { "ShadowOpacityPeak", (parser, x) => x.ShadowOpacityPeak = parser.ParseInteger() },
             { "ShadowOpacityFadeOutTime", (parser, x) => x.ShadowOpacityFadeOutTime = parser.ParseInteger() },
             { "ShadowOpacityEnd", (parser, x) => x.ShadowOpacityEnd = parser.ParseInteger() },
-            { "ShadowOverrideLODVisibility", (parser, x) => x.ShadowOverrideLodVisibility = parser.ParseBoolean() }
+            { "ShadowOverrideLODVisibility", (parser, x) => x.ShadowOverrideLodVisibility = parser.ParseBoolean() },
+            { "EquivalentTo", (parser, x) => x.EquivalentTo = parser.ParseIdentifier() },
+            { "HeroSortOrder", (parser, x) => x.HeroSortOrder = parser.ParseInteger() }
         };
 
         public string Name { get; protected set; }
@@ -957,6 +959,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool ShadowOverrideLodVisibility { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string EquivalentTo { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int HeroSortOrder { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -1040,13 +1048,9 @@ namespace OpenSage.Logic.Object
         }
 
         private static new readonly IniParseTable<ChildObject> FieldParseTable = ObjectDefinition.FieldParseTable
-            .Concat(new IniParseTable<ChildObject>
-            {
-                { "EquivalentTo", (parser, x) => x.EquivalentTo = parser.ParseString() }
-            });
+            .Concat(new IniParseTable<ChildObject>());
 
         public string ChildOf { get; private set; }
-        public string EquivalentTo { get; private set; }
     }
 
     public sealed class ReplaceModule

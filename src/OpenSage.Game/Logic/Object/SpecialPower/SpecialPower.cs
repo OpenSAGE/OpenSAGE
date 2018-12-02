@@ -13,11 +13,16 @@ namespace OpenSage.Logic.Object
             { "StartsPaused", (parser, x) => x.StartsPaused = parser.ParseBoolean() },
             { "UpdateModuleStartsAttack", (parser, x) => x.UpdateModuleStartsAttack = parser.ParseBoolean() },
             { "InitiateSound", (parser, x) => x.InitiateSound = parser.ParseAssetReference() },
+            { "InitiateSound2", (parser, x) => x.InitiateSound2 = parser.ParseAssetReference() },
             { "AttributeModifier", (parser, x) => x.AttributeModifier = parser.ParseAssetReference() },
             { "AttributeModifierAffectsSelf", (parser, x) => x.AttributeModifierAffectsSelf = parser.ParseBoolean() },
             { "InitiateFX", (parser, x) => x.InitiateFX = parser.ParseAssetReference() },
             { "AntiCategory", (parser, x) => x.AntiCategory = parser.ParseEnum<ModifierCategory>() },
-            { "AttributeModifierRange", (parser, x) => x.AttributeModifierRange = parser.ParseFloat() }
+            { "AttributeModifierRange", (parser, x) => x.AttributeModifierRange = parser.ParseFloat() },
+            { "AttributeModifierFX", (parser, x) => x.AttributeModifierFX = parser.ParseAssetReference() },
+            { "TriggerFX", (parser, x) => x.TriggerFX = parser.ParseAssetReference() },
+            { "SetModelCondition", (parser, x) => x.SetModelCondition = parser.ParseAttributeEnum<ModelConditionFlag>("ModelConditionState") },
+            { "SetModelConditionTime", (parser, x) => x.SetModelConditionTime = parser.ParseFloat() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -43,5 +48,20 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public float AttributeModifierRange { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string AttributeModifierFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string InitiateSound2 { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string TriggerFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public ModelConditionFlag SetModelCondition { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float SetModelConditionTime { get; private set; }
     }
 }
