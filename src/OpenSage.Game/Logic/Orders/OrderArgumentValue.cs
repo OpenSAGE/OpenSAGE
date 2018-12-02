@@ -24,5 +24,8 @@ namespace OpenSage.Logic.Orders
 
         [FieldOffset(0)]
         public Point2D ScreenPosition;
+
+        [FieldOffset(0)]
+        public Rectangle ScreenRectangle;
     }
 }

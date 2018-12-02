@@ -108,5 +108,10 @@ namespace OpenSage.Mathematics
         {
             return !(rectangle1 == rectangle2);
         }
+
+        public override string ToString()
+        {
+            return $"{nameof(X)}: {X}, {nameof(Y)}: {Y}, {nameof(Width)}: {Width}, {nameof(Height)}: {Height}";
+        }
     }
 }

@@ -64,6 +64,13 @@ namespace OpenSage.Logic.Orders
                 new OrderArgumentValue { ScreenPosition = value }));
         }
 
+        public void AddScreenRectangleArgument(in Rectangle value)
+        {
+            _arguments.Add(new OrderArgument(
+                OrderArgumentType.ScreenRectangle,
+                new OrderArgumentValue {ScreenRectangle  = value}));
+        }
+
         public override string ToString()
         {
             var sb = new StringBuilder();
