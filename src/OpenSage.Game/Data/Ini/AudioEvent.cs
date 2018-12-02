@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
@@ -61,12 +62,14 @@ namespace OpenSage.Data.Ini
                 { "Attack", (parser, x) => x.Attack = parser.ParseAssetReferenceArray() },
                 { "Decay", (parser, x) => x.Decay = parser.ParseAssetReferenceArray() },
                 { "LoopCount", (parser, x) => x.LoopCount = parser.ParseInteger() },
+                { "VolumeSliderMultiplier", (parser, x) => x.VolumeSliderMultipliers.Add(VolumeSliderMultiplier.Parse(parser)) },
             });
 
         public string[] Sounds { get; private set; }
         public string[] Attack { get; private set; }
         public string[] Decay { get; private set; }
         public int LoopCount { get; private set; }
+        public List<VolumeSliderMultiplier> VolumeSliderMultipliers { get; } = new List<VolumeSliderMultiplier>();
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -116,6 +119,21 @@ namespace OpenSage.Data.Ini
 
         public float Low { get; private set; }
         public float High { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public class VolumeSliderMultiplier
+    {
+        internal static VolumeSliderMultiplier Parse(IniParser parser) => parser.ParseAttributeList(FieldParseTable);
+
+        internal static readonly IniParseTable<VolumeSliderMultiplier> FieldParseTable = new IniParseTable<VolumeSliderMultiplier>
+        {
+            { "Slider", (parser, x) => x.Slider = parser.ParseIdentifier() },
+            { "Multiplier", (parser, x) => x.Multiplier = parser.ParseInteger() },
+        };
+
+        public string Slider { get; private set; }
+        public int Multiplier { get; private set; }
     }
 
     public enum AudioPriority
