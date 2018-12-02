@@ -10,39 +10,42 @@ namespace OpenSage.Logic.Object
         None = 0,
 
         [IniEnum("MISC_MAN_MADE")]
-        MiscManMade         = 0x001,
+        MiscManMade         = 1 << 0,
 
         [IniEnum("MISC_NATURAL")]
-        MiscNatural         = 0x002,
+        MiscNatural         = 1 << 1,
 
         [IniEnum("STRUCTURE")]
-        Structure           = 0x004,
+        Structure           = 1 << 2,
 
         [IniEnum("SYSTEM")]
-        System              = 0x008,
+        System              = 1 << 3,
 
         [IniEnum("CLEARED_BY_BUILD")]
-        ClearedByBuild      = 0x010,
+        ClearedByBuild      = 1 << 4,
 
         [IniEnum("VEHICLE")]
-        Vehicle             = 0x020,
+        Vehicle             = 1 << 5,
 
         [IniEnum("INFANTRY")]
-        Infantry            = 0x040,
+        Infantry            = 1 << 6,
 
         [IniEnum("AUDIO")]
-        Audio               = 0x080,
+        Audio               = 1 << 7,
 
         [IniEnum("DEBRIS")]
-        Debris              = 0x100,
+        Debris              = 1 << 8,
 
         [IniEnum("SHRUBBERY")]
-        Shrubbery           = 0x200,
+        Shrubbery           = 1 << 9,
 
         [IniEnum("UNIT")]
-        UNIT                = 0x300,
+        UNIT                = 1 << 10,
 
         [IniEnum("EMITTERS")]
-        EMITTERS            = 0x400,
+        EMITTERS            = 1 << 11,
+
+        [IniEnum("OBSOLETE")]
+        OBSOLETE            = 1 << 12,
     }
 }

@@ -627,6 +627,24 @@
         Gimli,
 
         [IniEnum("BUILD_FOR_FREE"), AddedIn(SageGame.Bfme)]
-        BuildForFree
+        BuildForFree,
+
+        [IniEnum("SHRUB"), AddedIn(SageGame.Bfme)]
+        Shrub,
+
+        [IniEnum("NO_BASE_CAPTURE"), AddedIn(SageGame.Bfme)]
+        NoBaseCapture,
+
+        [IniEnum("CRITTER_EMITTER"), AddedIn(SageGame.Bfme)]
+        CritterEmitter,
+
+        [IniEnum("SALT_LICK"), AddedIn(SageGame.Bfme)]
+        SaltLick,
+
+        [IniEnum("ALWAYS_SHOW_HOUSE_COLOR"), AddedIn(SageGame.Bfme)]
+        AlwaysShowHouseColor,
+
+        [IniEnum("BUFF"), AddedIn(SageGame.Bfme)]
+        Buff,
     }
 }

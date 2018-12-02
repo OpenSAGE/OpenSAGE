@@ -297,6 +297,9 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("EXTRA_2"), AddedIn(SageGame.Bfme)]
         Extra2,
+
+        [IniEnum("SUPERNATURAL"), AddedIn(SageGame.Bfme)]
+        Supernatural,
     }
 
     [Flags]
