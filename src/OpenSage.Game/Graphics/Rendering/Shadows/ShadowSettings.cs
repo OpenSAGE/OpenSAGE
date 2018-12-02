@@ -16,7 +16,7 @@ namespace OpenSage.Graphics.Rendering.Shadows
         /// <summary>
         /// Gets or sets the type of shadows that are rendered.
         /// </summary>
-        public ShadowsType ShadowsType { get; set; } = ShadowsType.Soft;
+        public ShadowsType ShadowsType { get; set; } = ShadowsType.None; // TODO: Change the default to Soft.
 
         /// <summary>
         /// Gets or sets the size of the shadow map (in pixels).
