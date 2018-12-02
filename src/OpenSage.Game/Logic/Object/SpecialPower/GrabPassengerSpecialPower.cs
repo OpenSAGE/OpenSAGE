@@ -11,8 +11,10 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<GrabPassengerSpecialPowerModuleData>
             {
                 { "AllowTree", (parser, x) => x.AllowTree = parser.ParseBoolean() },
+                { "GrabRadius", (parser, x) => x.GrabRadius = parser.ParseInteger() }
             });
 
         public bool AllowTree { get; private set; }
+        public int GrabRadius { get; private set; }
     }
 }

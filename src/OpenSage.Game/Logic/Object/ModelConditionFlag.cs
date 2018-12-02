@@ -696,5 +696,23 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("ELVEN_WOOD"), AddedIn(SageGame.Bfme)]
         ElvenWood,
+
+        [IniEnum("HORDEBRAIN_NOT_STEALTHED"), AddedIn(SageGame.Bfme)]
+        HordebrainNotStealthed,
+
+        [IniEnum("AIM_NEAR"), AddedIn(SageGame.Bfme)]
+        AimNear,
+
+        [IniEnum("WEAPONSET_ENRAGED"), AddedIn(SageGame.Bfme)]
+        WeaponsetEnraged,
+
+        [IniEnum("INITIAL_ENRAGED"), AddedIn(SageGame.Bfme)]
+        InitialEnraged,
+
+        [IniEnum("GRAB_BUILDING_CHUNK"), AddedIn(SageGame.Bfme)]
+        GrabBuildingChunk,
+
+        [IniEnum("WEAPONSET_HERO_MODE"), AddedIn(SageGame.Bfme)]
+        WeaponsetHeroMode
     }
 }

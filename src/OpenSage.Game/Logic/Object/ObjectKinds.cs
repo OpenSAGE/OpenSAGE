@@ -615,6 +615,9 @@
         Summoned,
 
         [IniEnum("NO_FORMATION_MOVEMENT"), AddedIn(SageGame.Bfme)]
-        NoFormationMovement
+        NoFormationMovement,
+
+        [IniEnum("ARAGORN"), AddedIn(SageGame.Bfme)]
+        Aragorn
     }
 }

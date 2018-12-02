@@ -23,6 +23,14 @@ namespace OpenSage.Logic.Object
             { "BurningSoundName", (parser, x) => x.BurningSoundName = parser.ParseAssetReference() },
             { "BurnContained", (parser, x) => x.BurnContained = parser.ParseBoolean() },
             { "FireFXList", (parser, x) => x.FireFXList = parser.ParseAttributeIdentifier("FX") },
+            { "SwapModelWhenAflame", (parser, x) => x.SwapModelWhenAflame = parser.ParseBoolean() },
+            { "SwapModelWhenQuenched", (parser, x) => x.SwapModelWhenQuenched = parser.ParseBoolean() },
+            { "RunToWater", (parser, x) => x.RunToWater = parser.ParseBoolean() },
+            { "RunToWaterDepth", (parser, x) => x.RunToWaterDepth = parser.ParseInteger() },
+            { "RunToWaterSearchRadius", (parser, x) => x.RunToWaterSearchRadius  = parser.ParseInteger() },
+            { "RunToWaterSearchIncrement", (parser, x) => x.RunToWaterSearchIncrement = parser.ParseInteger() },
+            { "PanicLocomotorWhileAflame", (parser, x) => x.PanicLocomotorWhileAflame = parser.ParseBoolean() },
+            { "CustomAnimAndDuration", (parser, x) => x.CustomAnimAndDuration = CustomAnimAndDuration.Parse(parser) },
         };
 
         /// <summary>
@@ -59,5 +67,29 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string FireFXList { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool SwapModelWhenAflame { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool SwapModelWhenQuenched { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool RunToWater { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int RunToWaterDepth { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int RunToWaterSearchRadius { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int RunToWaterSearchIncrement { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool PanicLocomotorWhileAflame { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public CustomAnimAndDuration CustomAnimAndDuration { get; private set; }
     }
 }
