@@ -11,12 +11,16 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<CreateObjectDieModuleData>
             {
                 { "CreationList", (parser, x) => x.CreationList = parser.ParseAssetReference() },
-                { "TransferPreviousHealth", (parser, x) => x.TransferPreviousHealth = parser.ParseBoolean() }
+                { "TransferPreviousHealth", (parser, x) => x.TransferPreviousHealth = parser.ParseBoolean() },
+                { "DebrisPortionOfSelf", (parser, x) => x.DebrisPortionOfSelf = parser.ParseAssetReference() }
             });
 
         public string CreationList { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool TransferPreviousHealth { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string DebrisPortionOfSelf { get; private set; }
     }
 }

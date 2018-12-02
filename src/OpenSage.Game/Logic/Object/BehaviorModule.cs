@@ -164,6 +164,7 @@ namespace OpenSage.Logic.Object
 
             // Update
             { "AnimationSteeringUpdate", AnimationSteeringUpdateModuleData.Parse },
+            { "ArrowStormUpdate", ArrowStormUpdateModuleData.Parse },
             { "AssistedTargetingUpdate", AssistedTargetingUpdateModuleData.Parse },
             { "AttributeModifierPoolUpdate", AttributeModifierPoolUpdateModuleData.Parse },
             { "AttributeModifierAuraUpdate", AttributeModifierAuraUpdateModuleData.Parse },
@@ -173,6 +174,7 @@ namespace OpenSage.Logic.Object
             { "BannerCarrierUpdate", BannerCarrierUpdateModuleData.Parse },
             { "BaseRegenerateUpdate", BaseRegenerateUpdateModuleData.Parse },
             { "BattlePlanUpdate", BattlePlanUpdateModuleData.Parse },
+            { "BloodthirstyUpdate", BloodthirstyUpdateModuleData.Parse },
             { "BoneFXUpdate", BoneFXUpdateModuleData.Parse },
             { "CheckpointUpdate", CheckpointUpdateModuleData.Parse },
             { "CivilianSpawnUpdate", CivilianSpawnUpdateModuleData.Parse },
@@ -200,12 +202,14 @@ namespace OpenSage.Logic.Object
             { "HijackerUpdate", HijackerUpdateModuleData.Parse },
             { "HordeUpdate", HordeUpdateModuleData.Parse },
             { "LargeGroupAudioUpdate", LargeGroupAudioUpdateModuleData.Parse },
+            { "LargeGroupBonusUpdate", LargeGroupBonusUpdateModuleData.Parse },
             { "LifetimeUpdate", LifetimeUpdateModuleData.Parse },
             { "MissileLauncherBuildingUpdate", MissileLauncherBuildingUpdateModuleData.Parse },
             { "MobMemberSlavedUpdate", MobMemberSlavedUpdateModuleData.Parse },
             { "ModelConditionSpecialAbilityUpdate", ModelConditionSpecialAbilityUpdateModuleData.Parse },
             { "NeutronMissileUpdate", NeutronMissileUpdateModuleData.Parse },
             { "OCLUpdate", OCLUpdateModuleData.Parse },
+            { "OneRingPenaltyUpdate", OneRingPenaltyUpdateModuleData.Parse },
             { "ParticleUplinkCannonUpdate", ParticleUplinkCannonUpdateModuleData.Parse },
             { "PilotFindVehicleUpdate", PilotFindVehicleUpdateModuleData.Parse },
             { "PointDefenseLaserUpdate", PointDefenseLaserUpdateModuleData.Parse },
@@ -224,6 +228,7 @@ namespace OpenSage.Logic.Object
             { "SmartBombTargetHomingUpdate", SmartBombTargetHomingUpdateModuleData.Parse },
             { "SpawnPointProductionExitUpdate", SpawnPointProductionExitUpdateModuleData.Parse },
             { "SpecialAbilityUpdate", SpecialAbilityUpdateModuleData.Parse },
+            { "SpecialDisguiseUpdate", SpecialDisguiseUpdateModuleData.Parse },
             { "SpecialEnemySenseUpdate", SpecialEnemySenseUpdateModuleData.Parse },
             { "SpectreGunshipUpdate", SpectreGunshipUpdateModuleData.Parse },
             { "SpectreGunshipDeploymentUpdate", SpectreGunshipDeploymentUpdateModuleData.Parse },
@@ -245,6 +250,7 @@ namespace OpenSage.Logic.Object
             { "WaveGuideUpdate", WaveGuideUpdateModuleData.Parse },
             { "WeaponBonusUpdate", WeaponBonusUpdateModuleData.Parse },
             { "WeaponFireSpecialAbilityUpdate", WeaponFireSpecialAbilityUpdateModuleData.Parse },
+            { "WeaponModeSpecialPowerUpdate", WeaponModeSpecialPowerUpdateModuleData.Parse },
 
             // Update/AIUpdate
             { "AIUpdateInterface", AIUpdateModuleData.Parse },

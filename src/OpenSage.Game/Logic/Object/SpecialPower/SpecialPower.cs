@@ -22,7 +22,8 @@ namespace OpenSage.Logic.Object
             { "AttributeModifierFX", (parser, x) => x.AttributeModifierFX = parser.ParseAssetReference() },
             { "TriggerFX", (parser, x) => x.TriggerFX = parser.ParseAssetReference() },
             { "SetModelCondition", (parser, x) => x.SetModelCondition = parser.ParseAttributeEnum<ModelConditionFlag>("ModelConditionState") },
-            { "SetModelConditionTime", (parser, x) => x.SetModelConditionTime = parser.ParseFloat() }
+            { "SetModelConditionTime", (parser, x) => x.SetModelConditionTime = parser.ParseFloat() },
+            { "AttributeModifierAffects", (parser, x) => x.AttributeModifierAffects = ObjectFilter.Parse(parser) }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -63,5 +64,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public float SetModelConditionTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public ObjectFilter AttributeModifierAffects { get; private set; }
     }
 }

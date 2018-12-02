@@ -84,7 +84,10 @@ namespace OpenSage.Logic.Object
         Midpoint,
 
         [IniEnum("FINAL")]
-        Final
+        Final,
+
+        [IniEnum("HIT_GROUND")]
+        HitGround
     }
 
     [AddedIn(SageGame.Bfme)]

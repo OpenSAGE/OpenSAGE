@@ -19,7 +19,8 @@ namespace OpenSage.Logic.Object
             { "PointAt", (parser, x) => x.PointAt = ObjectFilter.Parse(parser) },
             { "FearScanDistance", (parser, x) => x.FearScanDistance = parser.ParseInteger() },
             { "AddEmotion", (parser, x) => x.Emotions.Add(Emotion.Parse(parser)) },
-            { "HeroScanDistance", (parser, x) => x.HeroScanDistance = parser.ParseInteger() }
+            { "HeroScanDistance", (parser, x) => x.HeroScanDistance = parser.ParseInteger() },
+            { "QuarrelProbability", (parser, x) => x.QuarrelProbability = parser.ParsePercentage() }
         };
         public int TauntAndPointDistance { get; private set; }
         public int TauntAndPointUpdateDelay { get; private set; }
@@ -30,6 +31,7 @@ namespace OpenSage.Logic.Object
         public int FearScanDistance { get; private set; }
         public List<Emotion> Emotions { get; } = new List<Emotion>();
         public int HeroScanDistance { get; private set; }
+        public float QuarrelProbability { get; private set; }
     }
 
     public sealed class Emotion

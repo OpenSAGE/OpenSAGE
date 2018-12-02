@@ -39,7 +39,9 @@ namespace OpenSage.Logic.Object
             { "FadeInTime", (parser, x) => x.FadeInTime = parser.ParseInteger() },
             { "IgnoreTerrainHeight", (parser, x) => x.IgnoreTerrainHeight = parser.ParseBoolean() },
             { "FirstPercentHeight", (parser, x) => x.FirstPercentHeight = parser.ParsePercentage() },
-            { "SecondPercentHeight", (parser, x) => x.SecondPercentHeight = parser.ParsePercentage() }
+            { "SecondPercentHeight", (parser, x) => x.SecondPercentHeight = parser.ParsePercentage() },
+            { "FinalStuckTime", (parser, x) => x.FinalStuckTime = parser.ParseInteger() },
+            { "OrientToFlightPath", (parser, x) => x.OrientToFlightPath = parser.ParseBoolean() }
         };
 
         public int FirstHeight { get; private set; }
@@ -71,5 +73,7 @@ namespace OpenSage.Logic.Object
         public bool IgnoreTerrainHeight { get; private set; }
         public float FirstPercentHeight { get; private set; }
         public float SecondPercentHeight { get; private set; }
+        public int FinalStuckTime { get; private set; }
+        public bool OrientToFlightPath { get; private set; }
     }
 }

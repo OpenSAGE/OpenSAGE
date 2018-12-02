@@ -12,9 +12,10 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<DualWeaponBehaviorModuleData>
             {
                 { "SwitchWeaponOnCloseRangeDistance", (parser, x) => x.SwitchWeaponOnCloseRangeDistance = parser.ParseInteger() },
-               
+                { "UseRealVictimRange", (parser, x) => x.UseRealVictimRange = parser.ParseBoolean() }
             });
 
         public int SwitchWeaponOnCloseRangeDistance { get; private set; }
+        public bool UseRealVictimRange { get; private set; }
     }
 }

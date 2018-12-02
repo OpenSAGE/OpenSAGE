@@ -13,8 +13,12 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<ArmorUpgradeModuleData>()
             {
                 { "ArmorSetFlag", (parser, x) => x.ArmorSetFlag = parser.ParseEnum<ArmorSetCondition>() },
+                { "IgnoreArmorUpgrade", (parser, x) => x.IgnoreArmorUpgrade = parser.ParseBoolean() }
             });
 
         public ArmorSetCondition ArmorSetFlag { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool IgnoreArmorUpgrade { get; private set; }
     }
 }

@@ -716,6 +716,36 @@ namespace OpenSage.Logic.Object
         WeaponsetHeroMode,
 
         [IniEnum("ATTACKING_STRUCTURE"), AddedIn(SageGame.Bfme)]
-        AttackingStructure
+        AttackingStructure,
+
+        [IniEnum("SPECIAL_WEAPON_THREE"), AddedIn(SageGame.Bfme)]
+        SpecialWeaponThree,
+
+        [IniEnum("EMOTION_GUNG_HO"), AddedIn(SageGame.Bfme)]
+        EmotionGungHo,
+
+        [IniEnum("RESURRECTED"), AddedIn(SageGame.Bfme)]
+        Resurrected,
+
+        [IniEnum("ONE_RING"), AddedIn(SageGame.Bfme)]
+        OneRing,
+
+        [IniEnum("PUTTING_ON_RING"), AddedIn(SageGame.Bfme)]
+        PuttingOnRing,
+
+        [IniEnum("TAKING_OFF_RING"), AddedIn(SageGame.Bfme)]
+        TakingOffRing,
+
+        [IniEnum("TURRET_ANGLE_90"), AddedIn(SageGame.Bfme)]
+        TurretAngle90,
+
+        [IniEnum("TURRET_ANGLE_180"), AddedIn(SageGame.Bfme)]
+        TurretAngle180,
+
+        [IniEnum("TURRET_ANGLE_270"), AddedIn(SageGame.Bfme)]
+        TurretAngle270,
+
+        [IniEnum("DEBUG"), AddedIn(SageGame.Bfme)]
+        Debug,
     }
 }
