@@ -21,5 +21,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("AS_TOWER"), AddedIn(SageGame.Bfme)]
         AsTower,
+
+        [IniEnum("MOUNTED"), AddedIn(SageGame.Bfme)]
+        Mounted
     }
 }

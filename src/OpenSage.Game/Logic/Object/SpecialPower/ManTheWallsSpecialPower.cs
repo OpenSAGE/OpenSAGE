@@ -7,7 +7,7 @@ namespace OpenSage.Logic.Object
     {
         internal static new ManTheWallsSpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable< ManTheWallsSpecialPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
-            .Concat(new IniParseTable< ManTheWallsSpecialPowerModuleData>());
+        private static new readonly IniParseTable<ManTheWallsSpecialPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
+            .Concat(new IniParseTable<ManTheWallsSpecialPowerModuleData>());
     }
 }
