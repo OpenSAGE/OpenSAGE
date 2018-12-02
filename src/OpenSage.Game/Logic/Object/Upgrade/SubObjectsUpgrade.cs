@@ -21,6 +21,7 @@ namespace OpenSage.Logic.Object
                 { "SkipFadeOnCreate", (parser, x) => x.SkipFadeOnCreate = parser.ParseBoolean() },
                 { "FadeTimeInSeconds", (parser, x) => x.FadeTimeInSeconds = parser.ParseFloat() },
                 { "WaitBeforeFadeInSeconds", (parser, x) => x.WaitBeforeFadeInSeconds = parser.ParseFloat() },
+                { "FXListUpgrade", (parser, x) => x.FXListUpgrade = parser.ParseAssetReference() }
             });
 
         public string[] ShowSubObjects { get; private set; }
@@ -43,5 +44,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public float WaitBeforeFadeInSeconds { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string FXListUpgrade { get; private set; }
     }
 }

@@ -316,7 +316,8 @@ namespace OpenSage.Logic.Object
             { "ShadowOpacityEnd", (parser, x) => x.ShadowOpacityEnd = parser.ParseInteger() },
             { "ShadowOverrideLODVisibility", (parser, x) => x.ShadowOverrideLodVisibility = parser.ParseBoolean() },
             { "EquivalentTo", (parser, x) => x.EquivalentTo = parser.ParseIdentifier() },
-            { "HeroSortOrder", (parser, x) => x.HeroSortOrder = parser.ParseInteger() }
+            { "HeroSortOrder", (parser, x) => x.HeroSortOrder = parser.ParseInteger() },
+            { "IsAutoBuilt", (parser, x) => x.IsAutoBuilt = parser.ParseBoolean() }
         };
 
         public string Name { get; protected set; }
@@ -965,6 +966,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int HeroSortOrder { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool IsAutoBuilt { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -1067,6 +1071,7 @@ namespace OpenSage.Logic.Object
             { "Behavior", (parser, x) => x.Module = BehaviorModuleData.ParseBehavior(parser) },
             { "Draw", (parser, x) => x.Module = DrawModuleData.ParseDrawModule(parser) },
             { "Body", (parser, x) => x.Module = BodyModuleData.ParseBody(parser) },
+            { "ClientBehavior", (parser, x) => x.Module = ClientBehaviorModuleData.ParseClientBehavior(parser) }
         };
 
         public string Name { get; private set; }

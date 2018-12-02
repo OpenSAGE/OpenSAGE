@@ -16,7 +16,8 @@ namespace OpenSage.Logic.Object
             { "PackTime", (parser, x) => x.PackTime = parser.ParseInteger() },
             { "AwardXPForTriggering", (parser, x) => x.AwardXPForTriggering = parser.ParseInteger() },
             { "OpacityTarget", (parser, x) => x.OpacityTarget = parser.ParseFloat() },
-            { "TriggerInstantlyOnCreate", (parser, x) => x.TriggerInstantlyOnCreate = parser.ParseBoolean() }
+            { "TriggerInstantlyOnCreate", (parser, x) => x.TriggerInstantlyOnCreate = parser.ParseBoolean() },
+            { "CancelDisguiseWhenDismounting", (parser, x) => x.CancelDisguiseWhenDismounting = parser.ParseBoolean() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -27,5 +28,6 @@ namespace OpenSage.Logic.Object
         public int AwardXPForTriggering { get; private set; }
         public float OpacityTarget { get; private set; }
         public bool TriggerInstantlyOnCreate { get; private set; }
+        public bool CancelDisguiseWhenDismounting { get; private set; }
     }
 }

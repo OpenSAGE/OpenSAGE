@@ -27,9 +27,6 @@ namespace OpenSage.Logic.Object
                 { "CrewFilter", (parser, x) => x.CrewFilter = ObjectFilter.Parse(parser) },
                 { "CrewMax", (parser, x) => x.CrewMax = parser.ParseInteger() },
                 { "CollidePickup", (parser, x) => x.CollidePickup = parser.ParseBoolean() },
-                { "GrabWeapon", (parser, x) => x.GrabWeapon = parser.ParseAssetReference() },
-                { "FireGrabWeaponOnVictim", (parser, x) => x.FireGrabWeaponOnVictim = parser.ParseBoolean() },
-                { "ReleaseSnappyness", (parser, x) => x.ReleaseSnappyness = parser.ParseFloat() },
             });
 
         public RiderChangeRider Rider1 { get; private set; }
@@ -60,15 +57,6 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool CollidePickup { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public string GrabWeapon { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public bool FireGrabWeaponOnVictim { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public float ReleaseSnappyness { get; private set; }
     }
 
     public sealed class RiderChangeRider

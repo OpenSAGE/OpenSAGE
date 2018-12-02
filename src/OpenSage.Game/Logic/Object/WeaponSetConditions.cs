@@ -71,5 +71,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("MOUNTED"), AddedIn(SageGame.Bfme)]
         Mounted                 = 1 << 20,
+
+        [IniEnum("WEAPONSET_ONE_RING_MODE"), AddedIn(SageGame.Bfme)]
+        WeaponsetOneRingMode    = 1 << 21,
     }
 }

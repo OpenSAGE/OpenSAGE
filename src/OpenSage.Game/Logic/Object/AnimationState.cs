@@ -101,10 +101,12 @@ namespace OpenSage.Logic.Object
         internal static readonly IniParseTable<FXEvent> FieldParseTable = new IniParseTable<FXEvent>
         {
             { "Frame", (parser, x) => x.Frame = parser.ParseInteger() },
-            { "Name", (parser, x) => x.Name = parser.ParseIdentifier() }
+            { "Name", (parser, x) => x.Name = parser.ParseIdentifier() },
+            { "FrameStop", (parser, x) => x.FrameStop = parser.ParseInteger() }
         };
 
         public int Frame { get; private set; }
         public string Name { get; private set; }
+        public int FrameStop { get; private set; }
     }
 }

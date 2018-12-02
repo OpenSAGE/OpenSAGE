@@ -43,7 +43,10 @@ namespace OpenSage.Logic.Object
                 { "KillPassengersOnDeath", (parser, x) => x.KillPassengersOnDeath = parser.ParseBoolean() },
                 { "ManualPickUpFilter", (parser, x) => x.ManualPickUpFilter = ObjectFilter.Parse(parser) },
                 { "EjectPassengersOnDeath", (parser, x) => x.EjectPassengersOnDeath = parser.ParseBoolean() },
-                { "CanGrabStructure", (parser, x) => x.CanGrabStructure = parser.ParseBoolean() }
+                { "CanGrabStructure", (parser, x) => x.CanGrabStructure = parser.ParseBoolean() },
+                { "GrabWeapon", (parser, x) => x.GrabWeapon = parser.ParseIdentifier() },
+                { "FireGrabWeaponOnVictim", (parser, x) => x.FireGrabWeaponOnVictim = parser.ParseBoolean() },
+                { "ReleaseSnappyness", (parser, x) => x.ReleaseSnappyness = parser.ParseFloat() },
             });
 
         public bool PassengersAllowedToFire { get; private set; }
@@ -109,6 +112,15 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool CanGrabStructure { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string GrabWeapon { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool FireGrabWeaponOnVictim { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float ReleaseSnappyness { get; private set; }
     }
 
     public sealed class PassengerBonePrefix

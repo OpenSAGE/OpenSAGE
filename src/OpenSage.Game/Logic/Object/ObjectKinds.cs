@@ -618,6 +618,15 @@
         NoFormationMovement,
 
         [IniEnum("ARAGORN"), AddedIn(SageGame.Bfme)]
-        Aragorn
+        Aragorn,
+
+        [IniEnum("GANDALF"), AddedIn(SageGame.Bfme)]
+        Gandalf,
+
+        [IniEnum("GIMLI"), AddedIn(SageGame.Bfme)]
+        Gimli,
+
+        [IniEnum("BUILD_FOR_FREE"), AddedIn(SageGame.Bfme)]
+        BuildForFree
     }
 }

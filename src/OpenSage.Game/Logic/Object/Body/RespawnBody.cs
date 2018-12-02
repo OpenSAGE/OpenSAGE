@@ -12,10 +12,8 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<RespawnBodyModuleData>
             {
                 { "PermanentlyKilledByFilter", (parser, x) => x.PermanentlyKilledByFilter = ObjectFilter.Parse(parser) },
-                { "HealingBuffFx", (parser, x) => x.HealingBuffFx = parser.ParseAssetReference() },
             });
 
         public ObjectFilter PermanentlyKilledByFilter { get; private set; }
-        public string HealingBuffFx { get; private set; }
      }
 }

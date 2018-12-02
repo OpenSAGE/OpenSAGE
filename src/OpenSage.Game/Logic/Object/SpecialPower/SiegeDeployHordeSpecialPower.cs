@@ -7,6 +7,11 @@ namespace OpenSage.Logic.Object
         internal static new SiegeDeployHordeSpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static new readonly IniParseTable<SiegeDeployHordeSpecialPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
-            .Concat(new IniParseTable<SiegeDeployHordeSpecialPowerModuleData>());
+            .Concat(new IniParseTable<SiegeDeployHordeSpecialPowerModuleData>
+            {
+                { "HordeDeploy", (parser, x) => x.HordeDeploy = parser.ParseBoolean() }
+            });
+
+        public bool HordeDeploy { get; private set; }
     }
 }
