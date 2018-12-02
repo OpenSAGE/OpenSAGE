@@ -43,6 +43,7 @@ namespace OpenSage.Logic.Object
             { "MinefieldBehavior", MinefieldBehaviorModuleData.Parse },
             { "NeutronBlastBehavior", NeutronBlastBehaviorModuleData.Parse },
             { "NeutronMissileSlowDeathBehavior", NeutronMissileSlowDeathBehaviorModuleData.Parse },
+            { "OathbreakersFadeAwayBehavior", OathbreakersFadeAwayBehaviorModuleData.Parse },
             { "OverchargeBehavior", OverchargeBehaviorModuleData.Parse },
             { "ParkingPlaceBehavior", ParkingPlaceBehaviorModuleData.Parse },
             { "PassiveAreaEffectBehavior", PassiveAreaEffectBehaviorModuleData.Parse },
@@ -84,6 +85,7 @@ namespace OpenSage.Logic.Object
             { "VeterancyCrateCollide", VeterancyCrateCollideModuleData.Parse },
 
             // Contain
+            { "AODHordeContain", AodHordeContainModuleData.Parse },
             { "GarrisonContain", GarrisonContainModuleData.Parse },
             { "HealContain", HealContainModuleData.Parse },
             { "HelixContain", HelixContainModuleData.Parse },
@@ -126,6 +128,7 @@ namespace OpenSage.Logic.Object
             { "DestroyDie", DestroyDieModuleData.Parse },
             { "EjectPilotDie", EjectPilotDieModuleData.Parse },
             { "FXListDie", FXListDieModuleData.Parse },
+            { "HeroDie", HeroDieModuleData.Parse },
             { "KeepObjectDie", KeepObjectDieModuleData.Parse },
             { "RebuildHoleExposeDie", RebuildHoleExposeDieModuleData.Parse },
             { "RefundDie", RefundDieModuleData.Parse },
@@ -183,6 +186,7 @@ namespace OpenSage.Logic.Object
             { "EmotionTrackerUpdate", EmotionTrackerUpdateModuleData.Parse },
             { "EMPUpdate", EmpUpdateModuleData.Parse },
             { "EnemyNearUpdate", EnemyNearUpdateModuleData.Parse },
+            { "EntEnragedUpdate", EntEnragedUpdateModuleData.Parse },
             { "FadeAndDieOrnamentUpdate", FadeAndDieOrnamentUpdateModuleData.Parse },
             { "FireOCLAfterWeaponCooldownUpdate", FireOCLAfterWeaponCooldownUpdateModuleData.Parse },
             { "FireSpreadUpdate", FireSpreadUpdateModuleData.Parse },

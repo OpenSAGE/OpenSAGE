@@ -42,7 +42,8 @@ namespace OpenSage.Logic.Object
                 { "PassengerBonePrefix", (parser, x) => x.PassengerBonePrefixes.Add(PassengerBonePrefix.Parse(parser)) },
                 { "KillPassengersOnDeath", (parser, x) => x.KillPassengersOnDeath = parser.ParseBoolean() },
                 { "ManualPickUpFilter", (parser, x) => x.ManualPickUpFilter = ObjectFilter.Parse(parser) },
-                { "EjectPassengersOnDeath", (parser, x) => x.EjectPassengersOnDeath = parser.ParseBoolean() }
+                { "EjectPassengersOnDeath", (parser, x) => x.EjectPassengersOnDeath = parser.ParseBoolean() },
+                { "CanGrabStructure", (parser, x) => x.CanGrabStructure = parser.ParseBoolean() }
             });
 
         public bool PassengersAllowedToFire { get; private set; }
@@ -105,6 +106,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool EjectPassengersOnDeath { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool CanGrabStructure { get; private set; }
     }
 
     public sealed class PassengerBonePrefix
