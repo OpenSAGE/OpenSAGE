@@ -41,5 +41,16 @@ namespace OpenSage.Logic.Object
             _items.Add(gameObject);
             return gameObject;
         }
+
+        // TODO: This is probably not how real SAGE works.
+        public int GetObjectId(GameObject gameObject)
+        {
+            return _items.IndexOf(gameObject);
+        }
+
+        public GameObject GetObjectById(int objectId)
+        {
+            return _items[objectId];
+        }
     }
 }

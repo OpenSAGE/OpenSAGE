@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Gui;
 using OpenSage.Logic.Object;
+using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic
@@ -90,6 +91,27 @@ namespace OpenSage.Logic
             Status = SelectionStatus.NotSelecting;
         }
 
+        public void SetSelectedObject(Player player, GameObject unitOrBuilding)
+        {
+            player.SelectUnits(new[] { unitOrBuilding });
+
+            if (player == Game.Scene3D.LocalPlayer)
+            {
+                SelectionGui.SelectedObjects.Add(unitOrBuilding.Collider);
+                unitOrBuilding.OnLocalSelect(Game.Audio);
+            }
+        }
+
+        public void ClearSelectedObjects(Player player)
+        {
+            player.DeselectUnits();
+
+            if (player == Game.Scene3D.LocalPlayer)
+            {
+                SelectionGui.SelectedObjects.Clear();
+            }
+        }
+
         private void SingleSelect()
         {
             var ray = Game.Scene3D.Camera.ScreenPointToRay(new Vector2(_startPoint.X, _startPoint.Y));
@@ -114,7 +136,10 @@ namespace OpenSage.Logic
             if (closestObject != null)
             {
                 _selectedObjects.Add(closestObject);
-                SelectionGui.SelectedObjects.Add(closestObject.Collider);
+
+                Game.NetworkMessageBuffer.AddLocalOrder(Order.CreateSetSelection(
+                    (uint) Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer),
+                    (uint) Game.Scene3D.GameObjects.GetObjectId(closestObject)));
             }
         }
 

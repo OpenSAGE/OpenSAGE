@@ -58,9 +58,18 @@ namespace OpenSage.Data.Ini
     {
         internal static AudioEvent Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            var audioEvent = parser.ParseTopLevelNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
+
+            // HACK for Generals: In order to know which sounds to localise, we need to check if the event was loaded from Voice.ini.
+            // Most localised sounds have the Voice audio type flag, but many don't, so we need to make sure the flag is set.
+            if (parser.CurrentPosition.File.EndsWith("Voice.ini"))
+            {
+                audioEvent.Type?.Set(AudioTypeFlags.Voice, true);
+            }
+
+            return audioEvent;
         }
 
         private static new readonly IniParseTable<AudioEvent> FieldParseTable = BaseSingleSound.FieldParseTable

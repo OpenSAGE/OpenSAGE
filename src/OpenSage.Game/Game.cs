@@ -134,7 +134,8 @@ namespace OpenSage
         public NetworkMessageBuffer NetworkMessageBuffer
         {
             get => _networkMessageBuffer;
-            private set
+            // TODO: Make this private again later.
+            set
             {
                 _networkMessageBuffer?.Dispose();
                 _networkMessageBuffer = value;

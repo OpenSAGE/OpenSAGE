@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics.Cameras;
@@ -114,6 +115,14 @@ namespace OpenSage.Logic.Object
             foreach (var drawModule in DrawModules)
             {
                 drawModule.UpdateConditionState(flags);
+            }
+        }
+
+        public void OnLocalSelect(AudioSystem gameAudio)
+        {
+            if (Definition.VoiceSelect != null)
+            {
+                gameAudio.PlayAudioEvent(Definition.VoiceSelect);
             }
         }
     }
