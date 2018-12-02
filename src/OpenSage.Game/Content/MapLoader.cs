@@ -87,11 +87,18 @@ namespace OpenSage.Content
                 terrainMaterial,
                 indexBufferCache);
 
-            var cloudTextureName = mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds";
-            var cloudTexture = contentManager.Load<Texture>(Path.Combine("Art", "Textures", cloudTextureName));
+            Texture LoadTexture(string name)
+            {
+                var texture = contentManager.Load<Texture>(Path.Combine("Art", "Textures", name), fallbackToPlaceholder: false);
+                if (texture == null)
+                {
+                    texture = contentManager.Load<Texture>(Path.Combine("Art", "CompiledTextures", name.Substring(0, 2), name));
+                }
+                return texture;
+            }
 
-            var macroTextureName = mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds";
-            var macroTexture = contentManager.Load<Texture>(Path.Combine("Art", "Textures", macroTextureName));
+            var cloudTexture = LoadTexture(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
+            var macroTexture = LoadTexture(mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds");
 
             var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
                 new TerrainMaterial.TerrainMaterialConstants
