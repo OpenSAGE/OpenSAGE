@@ -54,6 +54,11 @@ namespace OpenSage.Logic
             }
         }
 
+        public void DeselectUnits()
+        {
+            _selectedUnits.Clear();
+        }
+
         private static Player FromMapData(Data.Map.Player mapPlayer, ContentManager content)
         {
             var side = mapPlayer.Properties["playerFaction"].Value as string;

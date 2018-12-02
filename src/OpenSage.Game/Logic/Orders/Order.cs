@@ -84,5 +84,12 @@ namespace OpenSage.Logic.Orders
 
             return sb.ToString();
         }
+
+        public static Order CreateSetSelection(uint playedId, uint objectId)
+        {
+            var order = new Order(playedId, OrderType.SetSelection);
+            order.AddObjectIdArgument(objectId);
+            return order;
+        }
     }
 }

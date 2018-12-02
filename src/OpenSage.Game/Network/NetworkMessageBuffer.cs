@@ -39,6 +39,8 @@ namespace OpenSage.Network
                 });
 
             _connection.Send(_netFrameNumber, _localOrders);
+
+            _orderProcessor.Process(_localOrders);
             _localOrders.Clear();
 
             if (_frameOrders.TryGetValue(_netFrameNumber, out var frameOrders))

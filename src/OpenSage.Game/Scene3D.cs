@@ -142,6 +142,12 @@ namespace OpenSage
             // (+ objects will have invalid owners)
         }
 
+        // TODO: Move this over to a player collection?
+        public int GetPlayerIndex(Player player)
+        {
+            return _players.IndexOf(player);
+        }
+
         internal void Update(GameTime gameTime)
         {
             foreach (var gameObject in GameObjects.Items)

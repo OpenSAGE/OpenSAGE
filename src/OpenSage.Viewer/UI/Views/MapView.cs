@@ -6,6 +6,7 @@ using System.Text;
 using ImGuiNET;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Rendering.Shadows;
+using OpenSage.Network;
 using OpenSage.Scripting;
 using Veldrid;
 
@@ -22,6 +23,7 @@ namespace OpenSage.Viewer.UI.Views
             : base(context)
         {
             _game = context.Game;
+            _game.NetworkMessageBuffer = new NetworkMessageBuffer(_game, new EchoConnection());
             _game.Scene3D = _game.ContentManager.Load<Scene3D>(context.Entry.FilePath);
 
             _scriptStateContent = new StringBuilder();
