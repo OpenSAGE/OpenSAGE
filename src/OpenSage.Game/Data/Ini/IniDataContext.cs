@@ -19,7 +19,7 @@ namespace OpenSage.Data.Ini
         public List<Animation> Animations { get; } = new List<Animation>();
         public AnimationSoundClientBehaviorGlobalSetting AnimationSoundClientBehaviorGlobalSetting { get; internal set; }
         public List<Armor> Armors { get; } = new List<Armor>();
-        public List<AudioEvent> AudioEvents { get; } = new List<AudioEvent>();
+        public Dictionary<string, AudioEvent> AudioEvents { get; } = new Dictionary<string, AudioEvent>();
         public List<AudioLod> AudioLods { get; } = new List<AudioLod>();
         public int AudioLowMHz { get; internal set; }
         public AudioSettings AudioSettings { get; internal set; }
