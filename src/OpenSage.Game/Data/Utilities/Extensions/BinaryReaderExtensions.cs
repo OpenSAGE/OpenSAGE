@@ -320,6 +320,15 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadSingle());
         }
 
+        public static Rectangle ReadRectangle(this BinaryReader reader)
+        {
+            return new Rectangle(
+                reader.ReadInt32(),
+                reader.ReadInt32(),
+                reader.ReadInt32(),
+                reader.ReadInt32());
+        }
+
         public static Point2D ReadPoint2D(this BinaryReader reader)
         {
             return new Point2D(

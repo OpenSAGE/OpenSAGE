@@ -8,6 +8,7 @@
         SetRallyPoint = 1043,
         CreateUnit = 1047,
         BuildObject = 1049,
+        DrawBoxSelection = 1058,
         MoveTo = 1068,
         SetCameraPosition = 1092,
         Checksum = 1095,

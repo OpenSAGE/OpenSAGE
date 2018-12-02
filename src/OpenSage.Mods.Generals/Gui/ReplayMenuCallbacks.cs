@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using OpenSage.Data;
 using OpenSage.Data.Rep;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
+using OpenSage.Mathematics;
 using OpenSage.Network;
 
 namespace OpenSage.Mods.Generals.Gui
@@ -34,7 +34,8 @@ namespace OpenSage.Mods.Generals.Gui
                             $"{replayFile.Header.Timestamp.Hour.ToString("D2")}:{replayFile.Header.Timestamp.Minute.ToString("D2")}",
                             replayFile.Header.Version,
                             replayFile.Header.Metadata.MapFile.Replace("maps/", string.Empty)
-                        }));
+                        },
+                        ColorRgbaF.White));
                 }
 
                 listBox.Items = newItems.ToArray();

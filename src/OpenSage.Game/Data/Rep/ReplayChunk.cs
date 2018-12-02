@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.Logic.Orders;
 
 namespace OpenSage.Data.Rep
 {
+    [DebuggerDisplay("[{Header.Timecode}]: {Order.OrderType} ({Order.Arguments.Count})")]
     public sealed class ReplayChunk
     {
         public ReplayChunkHeader Header { get; private set; }
@@ -60,6 +62,10 @@ namespace OpenSage.Data.Rep
 
                         case OrderArgumentType.ScreenPosition:
                             order.AddScreenPositionArgument(reader.ReadPoint2D());
+                            break;
+
+                        case OrderArgumentType.ScreenRectangle:
+                            order.AddScreenRectangleArgument(reader.ReadRectangle());
                             break;
 
                         default:
