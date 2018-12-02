@@ -103,7 +103,8 @@ namespace OpenSage.Audio
 
             // TOOD: Check control flag before choosing at random?
             var soundFileName = $"{ev.Sounds[_random.Next(ev.Sounds.Length)]}.{_settings.SoundsExtension}";
-            var filePath = Path.Combine(ev.Type.Get(AudioTypeFlags.Voice) ? _localisedAudioRoot : _audioRoot, soundFileName);
+            var isLocalised = ev.Type?.Get(AudioTypeFlags.Voice) ?? false;
+            var filePath = Path.Combine(isLocalised ? _localisedAudioRoot : _audioRoot, soundFileName);
             return Game.ContentManager.FileSystem.GetFile(filePath);
         }
 
