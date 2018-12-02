@@ -3,7 +3,7 @@ using System.Text;
 
 namespace OpenSage.Data.Ini.Parser
 {
-    internal sealed class TokenReader
+    public sealed class TokenReader
     {
         private readonly string _source;
         private readonly string _fileName;
@@ -14,8 +14,12 @@ namespace OpenSage.Data.Ini.Parser
         private string _currentLineText;
         private int _currentLine;
         private int _currentLineCharIndex;
-        
+
         public bool EndOfFile { get; private set; }
+
+        private IniToken? _peekedToken;
+        private char[] _peekedTokenSeparators;
+        private int _nextCharIndex;
 
         public IniTokenPosition CurrentPosition => new IniTokenPosition(
             _fileName,
@@ -35,6 +39,7 @@ namespace OpenSage.Data.Ini.Parser
         {
             _currentLineText = text;
             _currentLineCharIndex = 0;
+            _peekedToken = null;
         }
 
         public void GoToNextLine()
@@ -81,34 +86,36 @@ namespace OpenSage.Data.Ini.Parser
             _currentLine++;
         }
 
-        public IniToken? NextToken(char[] separators)
+        private (IniToken?, int nextCharIndex) ReadToken(char[] separators)
         {
             if (_currentLineCharIndex >= _currentLineText.Length)
             {
-                return null;
+                return (null, _currentLineCharIndex);
             }
+
+            var nextCharIndex = _currentLineCharIndex;
 
             // Skip leading trivia.
-            while (_currentLineCharIndex < _currentLineText.Length 
-                && separators.Contains(_currentLineText[_currentLineCharIndex]))
+            while (nextCharIndex < _currentLineText.Length
+                   && separators.Contains(_currentLineText[nextCharIndex]))
             {
-                _currentLineCharIndex++;
+                nextCharIndex++;
             }
 
-            var position = CurrentPosition;
+            var position = new IniTokenPosition(_fileName, _currentLine + 1, nextCharIndex + 1);
 
-            while (_currentLineCharIndex < _currentLineText.Length 
-                && !separators.Contains(_currentLineText[_currentLineCharIndex]))
+            while (nextCharIndex < _currentLineText.Length
+                   && !separators.Contains(_currentLineText[nextCharIndex]))
             {
-                _stringBuilder.Append(_currentLineText[_currentLineCharIndex]);
-                _currentLineCharIndex++;
+                _stringBuilder.Append(_currentLineText[nextCharIndex]);
+                nextCharIndex++;
             }
 
             // Skip trailing separator.
-            if (_currentLineCharIndex < _currentLineText.Length
-                && separators.Contains(_currentLineText[_currentLineCharIndex]))
+            if (nextCharIndex < _currentLineText.Length
+                && separators.Contains(_currentLineText[nextCharIndex]))
             {
-                _currentLineCharIndex++;
+                nextCharIndex++;
             }
 
             var result = _stringBuilder.ToString();
@@ -117,10 +124,52 @@ namespace OpenSage.Data.Ini.Parser
 
             if (result.Length == 0)
             {
-                return null;
+                return (null, nextCharIndex);
             }
 
-            return new IniToken(result, position);
+            return (new IniToken(result, position), nextCharIndex);
+        }
+
+        public IniToken? PeekToken(char[] separators)
+        {
+            if (TryGetPeekedToken(separators, out var peekedToken))
+            {
+                return peekedToken;
+            }
+
+            var (token, nextIndex) = ReadToken(separators);
+            _peekedToken = token;
+            _peekedTokenSeparators = separators;
+            _nextCharIndex = nextIndex;
+            return token;
+        }
+
+        public IniToken? NextToken(char[] separators)
+        {
+            if (TryGetPeekedToken(separators, out var peekedToken))
+            {
+                _currentLineCharIndex = _nextCharIndex;
+                _peekedToken = null;
+                return peekedToken;
+            }
+
+            var (token, nextIndex) = ReadToken(separators);
+            _currentLineCharIndex = nextIndex;
+            return token;
+        }
+
+        private bool TryGetPeekedToken(char[] separators, out IniToken? token)
+        {
+            // Note that this is a reference equality check.
+            // We assume we'll use the same separator arrays for the entire parsing session.
+            if (_peekedToken.HasValue && _peekedTokenSeparators == separators)
+            {
+                token = _peekedToken;
+                return true;
+            }
+
+            token = null;
+            return false;
         }
     }
 }

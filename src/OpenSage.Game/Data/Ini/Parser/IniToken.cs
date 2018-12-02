@@ -1,9 +1,9 @@
 ﻿namespace OpenSage.Data.Ini.Parser
 {
-    internal struct IniToken
+    public struct IniToken
     {
-        public string Text;
-        public IniTokenPosition Position;
+        public readonly string Text;
+        public readonly IniTokenPosition Position;
 
         public IniToken(string text, IniTokenPosition position)
         {

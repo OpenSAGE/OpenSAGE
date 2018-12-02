@@ -490,6 +490,23 @@ namespace OpenSage.Data.Ini.Parser
             return _tokenReader.NextToken(separators ?? Separators);
         }
 
+        public IniToken? PeekNextTokenOptional(char[] separators = null)
+        {
+            return _tokenReader.PeekToken(separators ?? Separators);
+        }
+
+        public int? PeekInteger()
+        {
+            var token = PeekNextTokenOptional();
+
+            if (token.HasValue && int.TryParse(token.Value.Text, out var integer))
+            {
+                return integer;
+            }
+
+            return null;
+        }
+
         public T ParseTopLevelNamedBlock<T>(
             Action<T, string> setNameCallback,
             IIniFieldParserProvider<T> fieldParserProvider)
