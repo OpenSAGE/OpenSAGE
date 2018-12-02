@@ -26,6 +26,7 @@ namespace OpenSage.Logic.Object
             { "AttributeModifierAffects", (parser, x) => x.AttributeModifierAffects = ObjectFilter.Parse(parser) },
             { "AvailableAtStart", (parser, x) => x.AvailableAtStart = parser.ParseBoolean() },
             { "TargetAllSides", (parser, x) => x.TargetAllSides = parser.ParseBoolean() },
+            { "AffectAllies", (parser, x) => x.AffectAllies = parser.ParseBoolean() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -75,5 +76,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool AvailableAtStart { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool AffectAllies { get; private set; }
     }
 }
