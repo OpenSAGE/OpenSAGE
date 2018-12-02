@@ -121,6 +121,7 @@ namespace OpenSage.Data.StreamFS
         public object InstanceData { get; internal set; }
 
         public IList<AssetReference> AssetReferences { get; internal set; }
+        public AssetImportCollection AssetImports { get; internal set; }
     }
 
     public sealed class AssetImport
