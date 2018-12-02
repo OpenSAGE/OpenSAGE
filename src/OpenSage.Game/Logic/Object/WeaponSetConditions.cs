@@ -68,5 +68,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("CONTAINED"), AddedIn(SageGame.Bfme)]
         Contained               = 1 << 19,
+
+        [IniEnum("MOUNTED"), AddedIn(SageGame.Bfme)]
+        Mounted                 = 1 << 20,
     }
 }

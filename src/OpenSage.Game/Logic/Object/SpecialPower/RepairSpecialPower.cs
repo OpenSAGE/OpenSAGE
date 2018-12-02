@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -11,6 +9,5 @@ namespace OpenSage.Logic.Object
 
         private static new readonly IniParseTable<RepairSpecialPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
             .Concat(new IniParseTable<RepairSpecialPowerModuleData>());
-
     }
 }

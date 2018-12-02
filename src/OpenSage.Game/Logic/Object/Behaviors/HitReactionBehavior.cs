@@ -15,6 +15,7 @@ namespace OpenSage.Logic.Object
             { "HitReactionThreshold1", (parser, x) => x.HitReactionThreshold1 = parser.ParseFloat() },
             { "HitReactionThreshold2", (parser, x) => x.HitReactionThreshold2 = parser.ParseFloat() },
             { "HitReactionThreshold3", (parser, x) => x.HitReactionThreshold3 = parser.ParseFloat() },
+            { "FastHitsResetReaction", (parser, x) => x.FastHitsResetReaction = parser.ParseBoolean() }
         };
 
         public int HitReactionLifeTimer1 { get; private set; }
@@ -23,6 +24,7 @@ namespace OpenSage.Logic.Object
 
         public float HitReactionThreshold1 { get; private set; }
         public float HitReactionThreshold2 { get; private set; }
-        public float HitReactionThreshold3 { get; private set; }     
+        public float HitReactionThreshold3 { get; private set; }
+        public bool FastHitsResetReaction { get; private set; }
     }
 }

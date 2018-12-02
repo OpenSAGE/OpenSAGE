@@ -713,6 +713,9 @@ namespace OpenSage.Logic.Object
         GrabBuildingChunk,
 
         [IniEnum("WEAPONSET_HERO_MODE"), AddedIn(SageGame.Bfme)]
-        WeaponsetHeroMode
+        WeaponsetHeroMode,
+
+        [IniEnum("ATTACKING_STRUCTURE"), AddedIn(SageGame.Bfme)]
+        AttackingStructure
     }
 }

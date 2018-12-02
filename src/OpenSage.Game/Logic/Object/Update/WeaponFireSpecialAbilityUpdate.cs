@@ -22,6 +22,7 @@ namespace OpenSage.Logic.Object
             { "MustFinishAbility", (parser, x) => x.MustFinishAbility = parser.ParseBoolean() },
             { "SpecialWeapon", (parser, x) => x.SpecialWeapon = parser.ParseAssetReference() },
             { "RejectedConditions", (parser, x) => x.RejectedConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
+            { "ApproachRequiresLOS", (parser, x) => x.ApproachRequiresLos = parser.ParseBoolean() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -36,5 +37,6 @@ namespace OpenSage.Logic.Object
         public bool MustFinishAbility { get; private set; }
         public string SpecialWeapon { get; private set; }
         public BitArray<ModelConditionFlag> RejectedConditions { get; private set; }
+        public bool ApproachRequiresLos { get; private set; }
     }
 }

@@ -31,6 +31,5 @@ namespace OpenSage.Logic.Object
         public string SpawnOutFX { get; private set; }
         public bool DeliverUpgrade { get; private set; }
         public float FadeOutSpeed { get; private set; }
-
     }
 }
