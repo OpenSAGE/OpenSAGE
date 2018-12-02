@@ -47,6 +47,8 @@ namespace OpenSage.Data.StreamFS
                                 out var relocationData,
                                 out var imports);
 
+                            asset.AssetImports = imports;
+
                             if (instanceData.Length == 0)
                             {
                                 continue;
