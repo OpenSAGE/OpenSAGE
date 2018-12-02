@@ -646,5 +646,8 @@
 
         [IniEnum("BUFF"), AddedIn(SageGame.Bfme)]
         Buff,
+
+        [IniEnum("SPELL_BOOK"), AddedIn(SageGame.Bfme)]
+        SpellBook,
     }
 }
