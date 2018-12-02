@@ -747,5 +747,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("DEBUG"), AddedIn(SageGame.Bfme)]
         Debug,
+
+        [IniEnum("PACKING_TYPE_3"), AddedIn(SageGame.Bfme)]
+        PackingType3,
+
+        [IniEnum("OATH_FULLFILLED"), AddedIn(SageGame.Bfme)]
+        OathFullfilled,
     }
 }

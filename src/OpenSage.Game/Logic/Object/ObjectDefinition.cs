@@ -317,7 +317,10 @@ namespace OpenSage.Logic.Object
             { "ShadowOverrideLODVisibility", (parser, x) => x.ShadowOverrideLodVisibility = parser.ParseBoolean() },
             { "EquivalentTo", (parser, x) => x.EquivalentTo = parser.ParseIdentifier() },
             { "HeroSortOrder", (parser, x) => x.HeroSortOrder = parser.ParseInteger() },
-            { "IsAutoBuilt", (parser, x) => x.IsAutoBuilt = parser.ParseBoolean() }
+            { "IsAutoBuilt", (parser, x) => x.IsAutoBuilt = parser.ParseBoolean() },
+            { "IsGrabbable", (parser, x) => x.IsGrabbable = parser.ParseBoolean() },
+            { "IsHarvestable", (parser, x) => x.IsHarvestable = parser.ParseBoolean() },
+            { "ShadowOffsetX", (parser, x) => x.ShadowOffsetX = parser.ParseInteger() }
         };
 
         public string Name { get; protected set; }
@@ -969,6 +972,15 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool IsAutoBuilt { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool IsGrabbable { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool IsHarvestable { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowOffsetX { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

@@ -13,7 +13,8 @@ namespace OpenSage.Logic.Object
             { "ExclusiveWeaponDelay", (parser, x) => x.ExclusiveWeaponDelay = parser.ParseInteger() },
             { "InitialDelay", (parser, x) => x.InitialDelay = parser.ParseInteger() },
             { "ChargingModeTrigger", (parser, x) => x.ChargingModeTrigger = parser.ParseBoolean() },
-            { "AliveOnly", (parser, x) => x.AliveOnly = parser.ParseBoolean() }
+            { "AliveOnly", (parser, x) => x.AliveOnly = parser.ParseBoolean() },
+            { "HeroModeTrigger", (parser, x) => x.HeroModeTrigger = parser.ParseBoolean() }
         };
 
         public string Weapon { get; private set; }
@@ -29,5 +30,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool AliveOnly { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool HeroModeTrigger { get; private set; }
     }
 }
