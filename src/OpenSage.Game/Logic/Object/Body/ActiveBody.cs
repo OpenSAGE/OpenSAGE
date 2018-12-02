@@ -28,7 +28,8 @@ namespace OpenSage.Logic.Object
             { "CheerRadius", (parser, x) => x.CheerRadius = parser.ParseInteger() },
             { "DodgePercent", (parser, x) => x.DodgePercent = parser.ParsePercentage() },
             { "UseDefaultDamageSettings", (parser, x) => x.UseDefaultDamageSettings = parser.ParseBoolean() },
-            { "EnteringDamagedTransitionTime", (parser, x) => x.EnteringDamagedTransitionTime = parser.ParseInteger() }
+            { "EnteringDamagedTransitionTime", (parser, x) => x.EnteringDamagedTransitionTime = parser.ParseInteger() },
+            { "HealingBuffFx", (parser, x) => x.HealingBuffFx = parser.ParseAssetReference() }
         };
 
         public float MaxHealth { get; private set; }
@@ -78,6 +79,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int EnteringDamagedTransitionTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string HealingBuffFx { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

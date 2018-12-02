@@ -22,7 +22,10 @@ namespace OpenSage.Logic.Object
             { "MustFinishAbility", (parser, x) => x.MustFinishAbility = parser.ParseBoolean() },
             { "SpecialWeapon", (parser, x) => x.SpecialWeapon = parser.ParseAssetReference() },
             { "RejectedConditions", (parser, x) => x.RejectedConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
-            { "ApproachRequiresLOS", (parser, x) => x.ApproachRequiresLos = parser.ParseBoolean() }
+            { "ApproachRequiresLOS", (parser, x) => x.ApproachRequiresLos = parser.ParseBoolean() },
+            { "BusyForDuration", (parser, x) => x.BusyForDuration = parser.ParseInteger() },
+            { "FreezeAfterTriggerDuration", (parser, x) => x.FreezeAfterTriggerDuration = parser.ParseInteger() },
+            { "TriggerSound", (parser, x) => x.TriggerSound = parser.ParseAssetReference() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -38,5 +41,8 @@ namespace OpenSage.Logic.Object
         public string SpecialWeapon { get; private set; }
         public BitArray<ModelConditionFlag> RejectedConditions { get; private set; }
         public bool ApproachRequiresLos { get; private set; }
+        public int BusyForDuration { get; private set; }
+        public int FreezeAfterTriggerDuration { get; private set; }
+        public string TriggerSound { get; private set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
@@ -19,7 +20,10 @@ namespace OpenSage.Logic.Object
                 { "Experience", (parser, x) => x.Experience = parser.ParseInteger() },
                 { "RadiusEffect", (parser, x) => x.RadiusEffect = parser.ParseInteger() },
                 { "AcceptanceFilter", (parser, x) => x.AcceptanceFilter = ObjectFilter.Parse(parser) },
-                { "LevelFX", (parser, x) => x.LevelFX = parser.ParseAssetReference() },
+                { "LevelFX", (parser, x) => x.LevelFXs.Add(parser.ParseAssetReference()) },
+                { "UseKindOf", (parser, x) => x.UseKindOf = parser.ParseBoolean() },
+                { "AffectsKindOf", (parser, x) => x.AffectsKindOf = parser.ParseEnumBitArray<ObjectKinds>() },
+                { "PackTime", (parser, x) => x.PackTime = parser.ParseInteger() },
             });
 
         public int UnpackingVariation { get; private set; }
@@ -30,6 +34,9 @@ namespace OpenSage.Logic.Object
         public int Experience { get; private set; }
         public int RadiusEffect { get; private set; }
         public ObjectFilter AcceptanceFilter { get; private set; }
-        public string LevelFX { get; private set; }
+        public List<string> LevelFXs { get; } = new List<string>();
+        public bool UseKindOf { get; private set; }
+        public BitArray<ObjectKinds> AffectsKindOf { get; private set; }
+        public int PackTime { get; private set; }
     }
 }

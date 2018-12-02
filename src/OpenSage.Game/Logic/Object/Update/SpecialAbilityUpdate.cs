@@ -46,7 +46,8 @@ namespace OpenSage.Logic.Object
             { "ChargeAttackSpeedBoost", (parser, x) => x.ChargeAttackSpeedBoost = parser.ParseBoolean() },
             { "Instant", (parser, x) => x.Instant = parser.ParseBoolean() },
             { "CustomAnimAndDuration", (parser, x) => x.GetCustomAnimAndDuration = CustomAnimAndDuration.Parse(parser) },
-            { "ContactPointOverride", (parser, x) => x.ContactPointOverride = parser.ParseEnum<ContactPointType>() }
+            { "ContactPointOverride", (parser, x) => x.ContactPointOverride = parser.ParseEnum<ContactPointType>() },
+            { "UnpackingVariation", (parser, x) => x.UnpackingVariation = parser.ParseInteger() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -96,5 +97,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public ContactPointType ContactPointOverride { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int UnpackingVariation { get; private set; }
     }
 }

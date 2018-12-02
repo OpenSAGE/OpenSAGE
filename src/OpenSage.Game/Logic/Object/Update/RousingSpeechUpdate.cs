@@ -21,7 +21,8 @@ namespace OpenSage.Logic.Object
             { "FollowerFX", (parser, x) => x.FollowerFX = parser.ParseAssetReference() },
             { "CreateWave", (parser, x) => x.CreateWave = parser.ParseBoolean() },
             { "WaveWidth", (parser, x) => x.WaveWidth = parser.ParseInteger() },
-            { "ModifierName", (parser, x) => x.ModifierName = parser.ParseIdentifier() }
+            { "ModifierName", (parser, x) => x.ModifierName = parser.ParseIdentifier() },
+            { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) }
         };
         
         public string SpecialPowerTemplate { get; private set; }
@@ -36,5 +37,6 @@ namespace OpenSage.Logic.Object
         public bool CreateWave { get; private set; }
         public int WaveWidth { get; private set; }
         public string ModifierName { get; private set; }
+        public ObjectFilter ObjectFilter { get; private set; }
     }
 }

@@ -38,7 +38,18 @@ namespace OpenSage.Logic.Object
             { "RevealWeaponSets", (parser, x) => x.RevealWeaponSets = parser.ParseEnumFlags<WeaponSetConditions>() },
             { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
             { "DetectedByFriendliesOnly", (parser, x) => x.DetectedByFriendliesOnly = parser.ParseBoolean() },
-            { "VoiceMoveToStealthyArea", (parser, x) => x.VoiceMoveToStealthyArea = parser.ParseAssetReference() }
+            { "VoiceMoveToStealthyArea", (parser, x) => x.VoiceMoveToStealthyArea = parser.ParseAssetReference() },
+            { "VoiceEnterStateMoveToStealthyArea", (parser, x) => x.VoiceEnterStateMoveToStealthyArea = parser.ParseAssetReference() },
+            { "OneRingDelayOn", (parser, x) => x.OneRingDelayOn = parser.ParseInteger() },
+            { "OneRingDelayOff", (parser, x) => x.OneRingDelayOff = parser.ParseInteger() },
+            { "RingAnimTimeOn", (parser, x) => x.RingAnimTimeOn = parser.ParseInteger() },
+            { "RingAnimTimeOff", (parser, x) => x.RingAnimTimeOff = parser.ParseInteger() },
+            { "RingDelayAfterRemoving", (parser, x) => x.RingDelayAfterRemoving = parser.ParseInteger() },
+
+            { "BecomeStealthedFX", (parser, x) => x.BecomeStealthedFX = parser.ParseAssetReference() },
+            { "ExitStealthFX", (parser, x) => x.ExitStealthFX = parser.ParseAssetReference() },
+            { "BecomeStealthedOneRingFX", (parser, x) => x.BecomeStealthedOneRingFX = parser.ParseAssetReference() },
+            { "ExitStealthOneRingFX", (parser, x) => x.ExitStealthOneRingFX = parser.ParseAssetReference() },
         };
 
         public int StealthDelay { get; private set; }
@@ -86,5 +97,35 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string VoiceMoveToStealthyArea { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string VoiceEnterStateMoveToStealthyArea { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int OneRingDelayOn { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int OneRingDelayOff { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int RingAnimTimeOn { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int RingAnimTimeOff { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int RingDelayAfterRemoving { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string BecomeStealthedFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string ExitStealthFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string BecomeStealthedOneRingFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string ExitStealthOneRingFX { get; private set; }
     }
 }
