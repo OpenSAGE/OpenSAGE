@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace OpenSage.Logic.Orders
@@ -37,9 +38,14 @@ namespace OpenSage.Logic.Orders
                         break;
 
                     case OrderType.SetSelection:
-                        var objectId = order.Arguments[0].Value.ObjectId;
-                        var selectedObject = _game.Scene3D.GameObjects.GetObjectById((int) objectId);
-                        _game.Selection.SetSelectedObject(player, selectedObject);
+                        // TODO: First argument is an unknown boolean.
+
+                        var objectIds = order.Arguments.Skip(1)
+                            .Select(x => (int) x.Value.ObjectId)
+                            .Select(_game.Scene3D.GameObjects.GetObjectById)
+                            .ToArray();
+
+                        _game.Selection.SetSelectedObjects(player, objectIds);
                         break;
 
                     case OrderType.ClearSelection:

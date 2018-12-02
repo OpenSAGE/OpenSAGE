@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using OpenSage.Gui;
 using OpenSage.Logic.Object;
@@ -23,7 +24,6 @@ namespace OpenSage.Logic
         private const int BoxSelectionMinimumSize = 30;
 
         private SelectionGui SelectionGui => Game.Scene3D.SelectionGui;
-        private readonly List<GameObject> _selectedObjects;
 
         private Point2D _startPoint;
         private Point2D _endPoint;
@@ -43,10 +43,7 @@ namespace OpenSage.Logic
             }
         }
 
-        public SelectionSystem(Game game) : base(game)
-        {
-            _selectedObjects = new List<GameObject>();
-        }
+        public SelectionSystem(Game game) : base(game) { }
 
         public void OnStartDragSelection(Point2D startPoint)
         {
@@ -75,9 +72,6 @@ namespace OpenSage.Logic
 
         public void OnEndDragSelection()
         {
-            _selectedObjects.Clear();
-            SelectionGui.SelectedObjects.Clear();
-
             if (Status == SelectionStatus.SingleSelecting)
             {
                 SingleSelect();
@@ -91,14 +85,18 @@ namespace OpenSage.Logic
             Status = SelectionStatus.NotSelecting;
         }
 
-        public void SetSelectedObject(Player player, GameObject unitOrBuilding)
+        public void SetSelectedObjects(Player player, GameObject[] objects)
         {
-            player.SelectUnits(new[] { unitOrBuilding });
+            player.SelectUnits(objects);
 
             if (player == Game.Scene3D.LocalPlayer)
             {
-                SelectionGui.SelectedObjects.Add(unitOrBuilding.Collider);
-                unitOrBuilding.OnLocalSelect(Game.Audio);
+                objects[0].OnLocalSelect(Game.Audio);
+
+                foreach (var obj in objects)
+                {
+                    SelectionGui.SelectedObjects.Add(obj.Collider);
+                }
             }
         }
 
@@ -133,21 +131,22 @@ namespace OpenSage.Logic
                 }
             }
 
+            var playerId = (uint) Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer);
+            Game.NetworkMessageBuffer.AddLocalOrder(Order.CreateClearSelection(playerId));
+
             if (closestObject != null)
             {
-                _selectedObjects.Add(closestObject);
-
-                Game.NetworkMessageBuffer.AddLocalOrder(Order.CreateSetSelection(
-                    (uint) Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer),
-                    (uint) Game.Scene3D.GameObjects.GetObjectId(closestObject)));
+                var objectId = (uint) Game.Scene3D.GameObjects.GetObjectId(closestObject);
+                Game.NetworkMessageBuffer.AddLocalOrder(Order.CreateSetSelection(playerId, objectId));
             }
         }
 
         private void MultiSelect()
         {
             var boxFrustum = GetSelectionFrustum(SelectionRect);
+            var selectedObjectIds = new List<uint>();
 
-            // TODO: Optimize with a quadtree / use frustum culling?
+            // TODO: Optimize with frustum culling?
             foreach (var gameObject in Game.Scene3D.GameObjects.Items)
             {
                 if (!gameObject.IsSelectable || gameObject.Collider == null)
@@ -155,12 +154,19 @@ namespace OpenSage.Logic
                     continue;
                 }
 
-                // TODO: Support other colliders
                 if (gameObject.Collider.Intersects(boxFrustum))
                 {
-                    _selectedObjects.Add(gameObject);
-                    SelectionGui.SelectedObjects.Add(gameObject.Collider);
+                    var objectId = (uint) Game.Scene3D.GameObjects.GetObjectId(gameObject);
+                    selectedObjectIds.Add(objectId);
                 }
+            }
+
+            var playerId = (uint) Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer);
+            Game.NetworkMessageBuffer.AddLocalOrder(Order.CreateClearSelection(playerId));
+
+            if (selectedObjectIds.Count > 0)
+            {
+                Game.NetworkMessageBuffer.AddLocalOrder(Order.CreateSetSelection(playerId, selectedObjectIds));
             }
         }
 

@@ -92,10 +92,34 @@ namespace OpenSage.Logic.Orders
             return sb.ToString();
         }
 
+        public static Order CreateClearSelection(uint playerId)
+        {
+            return new Order(playerId, OrderType.ClearSelection);
+        }
+
         public static Order CreateSetSelection(uint playedId, uint objectId)
         {
             var order = new Order(playedId, OrderType.SetSelection);
+
+            // TODO: Figure out what this parameter means.
+            order.AddBooleanArgument(true);
             order.AddObjectIdArgument(objectId);
+
+            return order;
+        }
+
+        public static Order CreateSetSelection(uint playerId, IEnumerable<uint> objectIds)
+        {
+            var order = new Order(playerId, OrderType.SetSelection);
+
+            // TODO: Figure out what this parameter means.
+            order.AddBooleanArgument(true);
+
+            foreach (var objectId in objectIds)
+            {
+                order.AddObjectIdArgument(objectId);
+            }
+
             return order;
         }
     }
