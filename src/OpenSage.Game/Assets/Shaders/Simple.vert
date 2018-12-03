@@ -59,8 +59,8 @@ void main()
     }
 
     VSSkinnedInstanced(
-        in_Position,
-        in_Normal,
+        modifiedPosition,
+        modifiedNormal,
         gl_Position,
         out_WorldPosition,
         out_WorldNormal,
