@@ -184,5 +184,8 @@
 
         [IniEnum("CLUBBING"), AddedIn(SageGame.Bfme)]
         Clubbing,
+
+        [IniEnum("BECOME_UNDEAD"), AddedIn(SageGame.Bfme2)]
+        BecomeUndead,
     }
 }

@@ -125,6 +125,7 @@ namespace OpenSage.Logic.Object
             { "CreateCrateDie", CreateCrateDieModuleData.Parse },
             { "CreateObjectDie", CreateObjectDieModuleData.Parse },
             { "CrushDie", CrushDieModuleData.Parse },
+            { "DamageFilteredCreateObjectDie", DamageFilteredCreateObjectDieModuleData.Parse },
             { "DamDie", DamDieModuleData.Parse },
             { "DestroyDie", DestroyDieModuleData.Parse },
             { "EjectPilotDie", EjectPilotDieModuleData.Parse },
