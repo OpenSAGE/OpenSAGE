@@ -409,7 +409,7 @@ namespace OpenSage.Content
                 ? w3dMaterialPass.TextureStages[0]
                 : null;
 
-            var hasTextureStage1 = w3dMaterialPass.TextureStages.Count > 1;
+            var hasTextureStage1 = w3dMaterialPass.TextureStages.Count > 1 && w3dMaterialPass.TextureStages[1].TexCoords != null;
             var textureStage1 = hasTextureStage1
                 ? w3dMaterialPass.TextureStages[1]
                 : null;
