@@ -50,11 +50,6 @@ namespace OpenSage.Content
             ModelBone[] bones;
             if (w3dHierarchy != null)
             {
-                if (w3dHierarchy.Pivots.Length > ModelMesh.MaxBones)
-                {
-                    throw new NotSupportedException();
-                }
-
                 bones = new ModelBone[w3dHierarchy.Pivots.Length];
 
                 for (var i = 0; i < w3dHierarchy.Pivots.Length; i++)
