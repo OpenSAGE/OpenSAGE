@@ -11,7 +11,6 @@ namespace OpenSage.Viewer.Framework
         private readonly GraphicsDevice _graphicsDevice;
 
         private Texture _gameColorTarget;
-        private Texture _gameDepthTarget;
         private Framebuffer _gameFramebuffer;
 
         private Rectangle _frame;
@@ -85,7 +84,6 @@ namespace OpenSage.Viewer.Framework
             _frame = frame;
 
             RemoveAndDispose(ref _gameFramebuffer);
-            RemoveAndDispose(ref _gameDepthTarget);
             RemoveAndDispose(ref _gameColorTarget);
 
             var width = (uint) _frame.Width;
@@ -100,17 +98,8 @@ namespace OpenSage.Viewer.Framework
                     PixelFormat.B8_G8_R8_A8_UNorm,
                     TextureUsage.RenderTarget | TextureUsage.Sampled)));
 
-            _gameDepthTarget = AddDisposable(_graphicsDevice.ResourceFactory.CreateTexture(
-                TextureDescription.Texture2D(
-                    width,
-                    height,
-                    1,
-                    1,
-                    PixelFormat.D24_UNorm_S8_UInt,
-                    TextureUsage.DepthStencil)));
-
             _gameFramebuffer = AddDisposable(_graphicsDevice.ResourceFactory.CreateFramebuffer(
-                new FramebufferDescription(_gameDepthTarget, _gameColorTarget)));
+                new FramebufferDescription(null, _gameColorTarget)));
 
             ClientSizeChanged?.Invoke(this, EventArgs.Empty);
             FramebufferChanged?.Invoke(this, EventArgs.Empty);

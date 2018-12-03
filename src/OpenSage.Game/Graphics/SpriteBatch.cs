@@ -13,6 +13,7 @@ namespace OpenSage.Graphics
         private readonly GraphicsDevice _graphicsDevice;
         private readonly SpriteMaterial _material;
         private readonly ConstantBuffer<SpriteMaterial.MaterialConstantsVS> _materialConstantsVSBuffer;
+        private readonly ConstantBuffer<SpriteMaterial.SpriteConstantsPS> _spriteConstantsPSBuffer;
         private readonly DeviceBuffer _vertexBuffer;
         private readonly SpriteVertex[] _vertices;
         private readonly DeviceBuffer _indexBuffer;
@@ -37,6 +38,10 @@ namespace OpenSage.Graphics
 
             _material.SetMaterialConstantsVS(_materialConstantsVSBuffer.Buffer);
 
+            _spriteConstantsPSBuffer = AddDisposable(new ConstantBuffer<SpriteMaterial.SpriteConstantsPS>(contentManager.GraphicsDevice));
+
+            _material.SetSpriteConstantsPS(_spriteConstantsPSBuffer.Buffer);
+
             _vertexBuffer = AddDisposable(_graphicsDevice.ResourceFactory.CreateBuffer(
                 new BufferDescription(SpriteVertex.VertexDescriptor.Stride * 4, BufferUsage.VertexBuffer | BufferUsage.Dynamic)));
 
@@ -52,7 +57,8 @@ namespace OpenSage.Graphics
         public void Begin(
             CommandList commandEncoder,
             Sampler samplerState,
-            in SizeF outputSize)
+            in SizeF outputSize,
+            bool ignoreAlpha = false)
         {
             _commandEncoder = commandEncoder;
 
@@ -70,6 +76,11 @@ namespace OpenSage.Graphics
             _materialConstantsVSBuffer.Update(commandEncoder);
 
             _material.SetMaterialConstantsVS(_materialConstantsVSBuffer.Buffer);
+
+            _spriteConstantsPSBuffer.Value.IgnoreAlpha = ignoreAlpha ? 1u : 0u;
+            _spriteConstantsPSBuffer.Update(commandEncoder);
+
+            _material.SetSpriteConstantsPS(_spriteConstantsPSBuffer.Buffer);
 
             _currentBatchIndex = 0;
         }

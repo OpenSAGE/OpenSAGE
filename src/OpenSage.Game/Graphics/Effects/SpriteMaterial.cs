@@ -24,6 +24,11 @@ namespace OpenSage.Graphics.Effects
             SetProperty("Projection", value);
         }
 
+        public void SetSpriteConstantsPS(DeviceBuffer value)
+        {
+            SetProperty("SpriteConstants", value);
+        }
+
         public void SetSampler(Sampler samplerState)
         {
             SetProperty("Sampler", samplerState);
@@ -38,6 +43,13 @@ namespace OpenSage.Graphics.Effects
         public struct MaterialConstantsVS
         {
             public Matrix4x4 Projection;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct SpriteConstantsPS
+        {
+            private readonly Vector3 _Padding;
+            public uint IgnoreAlpha;
         }
     }
 }
