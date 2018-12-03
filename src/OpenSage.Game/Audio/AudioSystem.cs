@@ -38,9 +38,8 @@ namespace OpenSage.Audio
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
                 case SageGame.Bfme:
-                //TODO: complete audio settings for BFME
                 case SageGame.Bfme2:
-                //case SageGame.Bfme2Rotwk:
+                case SageGame.Bfme2Rotwk:
                     game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\AudioSettings.ini");
                     game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\SoundEffects.ini");
                     game.ContentManager.IniDataContext.LoadIniFile(@"Data\INI\MiscAudio.ini");
