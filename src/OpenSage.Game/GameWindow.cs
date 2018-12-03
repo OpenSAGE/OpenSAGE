@@ -58,7 +58,7 @@ namespace OpenSage
             const bool debug = false;
 #endif
 
-            var graphicsDeviceOptions = new GraphicsDeviceOptions(debug, PixelFormat.D24_UNorm_S8_UInt, true, ResourceBindingModel.Improved)
+            var graphicsDeviceOptions = new GraphicsDeviceOptions(debug, null, true, ResourceBindingModel.Improved)
             {
                 SwapchainSrgbFormat = false
             };

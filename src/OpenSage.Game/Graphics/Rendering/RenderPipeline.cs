@@ -38,6 +38,12 @@ namespace OpenSage.Graphics.Rendering
 
         private ShadowConstantsPS _shadowConstants;
 
+        private Texture _intermediateDepthBuffer;
+        private Texture _intermediateTexture;
+        private Framebuffer _intermediateFramebuffer;
+
+        private readonly SpriteBatch _intermediateSpriteBatch;
+
         public Texture ShadowMap => _shadowMapRenderer.ShadowMap;
 
         public RenderPipeline(Game game)
@@ -77,10 +83,35 @@ namespace OpenSage.Graphics.Rendering
                     SamplerBorderColor.OpaqueBlack)));
 
             _shadowMapRenderer = AddDisposable(new ShadowMapRenderer());
+
+            _intermediateSpriteBatch = AddDisposable(new SpriteBatch(game.ContentManager, BlendStateDescription.SingleDisabled, game.GraphicsDevice.MainSwapchain.Framebuffer.OutputDescription));
+        }
+
+        private void EnsureIntermediateFramebuffer(GraphicsDevice graphicsDevice, Framebuffer target)
+        {
+            if (_intermediateDepthBuffer != null && _intermediateDepthBuffer.Width == target.Width && _intermediateDepthBuffer.Height == target.Height)
+            {
+                return;
+            }
+
+            RemoveAndDispose(ref _intermediateDepthBuffer);
+            RemoveAndDispose(ref _intermediateTexture);
+            RemoveAndDispose(ref _intermediateFramebuffer);
+
+            _intermediateDepthBuffer = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(
+                TextureDescription.Texture2D(target.Width, target.Height, 1, 1, PixelFormat.D24_UNorm_S8_UInt, TextureUsage.DepthStencil)));
+
+            _intermediateTexture = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(
+                TextureDescription.Texture2D(target.Width, target.Height, 1, 1, target.ColorTargets[0].Target.Format, TextureUsage.RenderTarget | TextureUsage.Sampled)));
+
+            _intermediateFramebuffer = AddDisposable(graphicsDevice.ResourceFactory.CreateFramebuffer(
+                new FramebufferDescription(_intermediateDepthBuffer, _intermediateTexture)));
         }
 
         public void Execute(RenderContext context)
         {
+            EnsureIntermediateFramebuffer(context.GraphicsDevice, context.RenderTarget);
+
             _renderList.Clear();
 
             context.Scene?.BuildRenderList(_renderList, context.Camera);
@@ -115,6 +146,18 @@ namespace OpenSage.Graphics.Rendering
 
                 _drawingContext.End();
             }
+
+            _commandList.SetFramebuffer(context.RenderTarget);
+
+            _intermediateSpriteBatch.Begin(
+                _commandList,
+                context.GraphicsDevice.PointSampler,
+                new SizeF(_intermediateTexture.Width, _intermediateTexture.Height),
+                ignoreAlpha: true);
+
+            _intermediateSpriteBatch.DrawImage(_intermediateTexture, null, new Mathematics.RectangleF(0, 0, (int) _intermediateTexture.Width, (int) _intermediateTexture.Height), ColorRgbaF.White);
+
+            _intermediateSpriteBatch.End();
 
             _commandList.End();
 
@@ -159,7 +202,7 @@ namespace OpenSage.Graphics.Rendering
 
             // Standard pass.
 
-            commandList.SetFramebuffer(context.RenderTarget);
+            commandList.SetFramebuffer(_intermediateFramebuffer);
 
             UpdateGlobalConstantBuffers(commandList, scene.Camera.View * scene.Camera.Projection);
             UpdateStandardPassConstantBuffers(commandList, context);
