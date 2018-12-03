@@ -125,9 +125,15 @@ namespace OpenSage.Content.Util
                     X = args.UPhase,
                     Y = args.VPhase
                 },
+                UVStep = new Vector2
+                {
+                    X = args.UStep,
+                    Y = args.VStep,
+                },
                 Speed = args.Speed,
                 Fps = args.FPS,
-                Log2Width = args.Log2Width
+                Log2Width = args.Log2Width,
+                StepsPerSecond = args.StepsPerSecond
             };
         }
 
@@ -150,6 +156,9 @@ namespace OpenSage.Content.Util
 
                 case W3dVertexMappingType.SineLinearOffset:
                     return FixedFunction.TextureMappingType.SineLinearOffset;
+
+                case W3dVertexMappingType.StepLinearOffset:
+                    return FixedFunction.TextureMappingType.StepLinearOffset;
 
                 case W3dVertexMappingType.Screen:
                     return FixedFunction.TextureMappingType.Screen;
