@@ -24,9 +24,9 @@ namespace OpenSage.Graphics.Rendering.Shadows
         public float ShadowDistance;
         public ShadowsType ShadowsType;
         public uint NumSplits;
-#pragma warning disable IDE1006
+#pragma warning disable IDE1006, CS0169
         private readonly float _Padding;
-#pragma warning restore IDE1006
+#pragma warning restore IDE1006, CS0169
 
         public void Set(uint numCascades, ShadowSettings settings, ShadowData data)
         {
