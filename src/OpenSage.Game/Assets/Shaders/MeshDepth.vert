@@ -44,7 +44,7 @@ void main()
 
     vec3 worldPosition;
     VSSkinnedInstancedPositionOnly(
-        in_Position,
+        modifiedPosition,
         gl_Position,
         worldPosition,
         _RenderItemConstantsVS.World,
