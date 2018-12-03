@@ -159,10 +159,6 @@ namespace OpenSage.Graphics.Rendering
 
             _intermediateSpriteBatch.End();
 
-            //_commandList.SetFramebuffer(context.RenderTarget);
-
-            //_commandList.CopyTexture(_intermediateTexture, context.RenderTarget.ColorTargets[0].Target);
-
             _commandList.End();
 
             context.GraphicsDevice.SubmitCommands(_commandList);
