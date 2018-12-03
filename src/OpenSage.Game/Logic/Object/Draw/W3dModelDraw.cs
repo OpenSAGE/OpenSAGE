@@ -148,7 +148,7 @@ namespace OpenSage.Logic.Object
                     var w3dFilePath = Path.Combine("Art", "W3D", splitName[0] + ".W3D");
                     var model = _contentManager.Load<Model>(w3dFilePath);
 
-                    if (model.Animations.Length == 0)
+                    if (model != null && model.Animations.Length == 0)
                     {
                         // TODO: What is the actual algorithm here?
                         w3dFilePath = Path.Combine("Art", "W3D", splitName[1] + ".W3D");
