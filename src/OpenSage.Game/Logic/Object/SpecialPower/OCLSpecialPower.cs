@@ -17,6 +17,7 @@ namespace OpenSage.Logic.Object
                 { "ScriptedSpecialPowerOnly", (parser, x) => x.ScriptedSpecialPowerOnly = parser.ParseBoolean() },
                 { "OCLAdjustPositionToPassable", (parser, x) => x.OCLAdjustPositionToPassable = parser.ParseBoolean() },
                 { "ReferenceObject", (parser, x) => x.ReferenceObject = parser.ParseAssetReference() },
+                { "UpgradeName", (parser, x) => x.UpgradeName = parser.ParseIdentifier() },
             });
 
         public string OCL { get; private set; }
@@ -31,6 +32,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public string ReferenceObject { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string UpgradeName { get; private set; }
     }
 
     public sealed class OCLUpgradePair
@@ -64,5 +68,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("CREATE_AT_LOCATION")]
         CreateAtLocation,
+
+        [IniEnum("CREATE_AT_EDGE_NEAR_TARGET_AND_MOVE_TO_LOCATION"), AddedIn(SageGame.Bfme)]
+        CreateAtEdgeNearTargetAndMoveToLocation,
     }
 }

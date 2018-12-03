@@ -24,6 +24,7 @@ namespace OpenSage.Logic.Object
                 { "ClearanceMinHeight", (parser, x) => x.ClearanceMinHeight = parser.ParseInteger() },
                 { "ClearanceMaxHeightFraction", (parser, x) => x.ClearanceMaxHeightFraction = parser.ParseFloat() },
                 { "ClearanceMinHeightFraction", (parser, x) => x.ClearanceMinHeightFraction = parser.ParseFloat() },
+                { "DamageAmountRequired", (parser, x) => x.DamageAmountRequired = parser.ParseInteger() }
             });
 
         public int MinKillerAngle { get; private set; }
@@ -33,5 +34,6 @@ namespace OpenSage.Logic.Object
         public int ClearanceMinHeight { get; private set; }
         public float ClearanceMinHeightFraction { get; private set; }
         public float ClearanceMaxHeightFraction { get; private set; }
+        public int DamageAmountRequired { get; private set; }
     }
 }

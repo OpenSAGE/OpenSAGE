@@ -19,7 +19,9 @@ namespace OpenSage.Logic.Object
             { "PointAt", (parser, x) => x.PointAt = ObjectFilter.Parse(parser) },
             { "FearScanDistance", (parser, x) => x.FearScanDistance = parser.ParseInteger() },
             { "AddEmotion", (parser, x) => x.Emotions.Add(Emotion.Parse(parser)) },
-            { "HeroScanDistance", (parser, x) => x.HeroScanDistance = parser.ParseInteger() }
+            { "HeroScanDistance", (parser, x) => x.HeroScanDistance = parser.ParseInteger() },
+            { "QuarrelProbability", (parser, x) => x.QuarrelProbability = parser.ParsePercentage() },
+            { "IgnoreVeterancy", (parser, x) => x.IgnoreVeterancy = parser.ParseBoolean() }
         };
         public int TauntAndPointDistance { get; private set; }
         public int TauntAndPointUpdateDelay { get; private set; }
@@ -30,6 +32,8 @@ namespace OpenSage.Logic.Object
         public int FearScanDistance { get; private set; }
         public List<Emotion> Emotions { get; } = new List<Emotion>();
         public int HeroScanDistance { get; private set; }
+        public float QuarrelProbability { get; private set; }
+        public bool IgnoreVeterancy { get; private set; }
     }
 
     public sealed class Emotion
@@ -43,7 +47,7 @@ namespace OpenSage.Logic.Object
             if (secondToken.HasValue)
             {
                 result = parser.ParseBlock(FieldParseTable);
-                result.Type = IniParser.ParseEnum<EmotionType>(firstToken);
+                result.Type = IniParser.ScanEnum<EmotionType>(firstToken);
                 result.EmotionName = parser.ScanAssetReference(secondToken.Value);
             }
             else
@@ -57,10 +61,12 @@ namespace OpenSage.Logic.Object
         internal static readonly IniParseTable<Emotion> FieldParseTable = new IniParseTable<Emotion>
         {
             { "AttributeModifier", (parser, x) => x.AttributeModifier = parser.ParseAssetReference() },
+            { "Duration", (parser, x) => x.Duration = parser.ParseInteger() },
         };
 
         public EmotionType Type { get; private set; }
         public string EmotionName { get; private set; }
         public string AttributeModifier { get; private set; }
+        public int Duration { get; private set; }
     }
 }

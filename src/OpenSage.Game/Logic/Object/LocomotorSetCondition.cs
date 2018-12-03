@@ -35,6 +35,12 @@ namespace OpenSage.Logic.Object
         Scared,
 
         [IniEnum("SET_MOUNTED")]
-        SetMounted
+        SetMounted,
+
+        [IniEnum("SET_COMBO")]
+        SetCombo,
+
+        [IniEnum("SET_CONTAINED")]
+        SetContained
     }
 }

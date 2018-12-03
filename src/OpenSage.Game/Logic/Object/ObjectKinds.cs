@@ -568,5 +568,86 @@
 
         [IniEnum("MINE_TRIGGER"), AddedIn(SageGame.Bfme)]
         MineTrigger,
+
+        [IniEnum("HAS_HEALTH_BAR"), AddedIn(SageGame.Bfme)]
+        HasHealthBar,
+
+        [IniEnum("NOTIFY_OF_PREATTACK"), AddedIn(SageGame.Bfme)]
+        NotifyOfPreattack,
+
+        [IniEnum("ORC"), AddedIn(SageGame.Bfme)]
+        Orc,
+
+        [IniEnum("PORTER"), AddedIn(SageGame.Bfme)]
+        Porter,
+
+        [IniEnum("SCARY"), AddedIn(SageGame.Bfme)]
+        Scary,
+
+        [IniEnum("BIG_MONSTER"), AddedIn(SageGame.Bfme)]
+        BigMonster,
+
+        [IniEnum("SWARM_DOZER"), AddedIn(SageGame.Bfme)]
+        SwarmDozer,
+
+        [IniEnum("MOVE_FOR_NOONE"), AddedIn(SageGame.Bfme)]
+        MoveForNoOne,
+
+        [IniEnum("TROLL"), AddedIn(SageGame.Bfme)]
+        Troll,
+
+        [IniEnum("TREE"), AddedIn(SageGame.Bfme)]
+        Tree,
+
+        [IniEnum("WEBBED"), AddedIn(SageGame.Bfme)]
+        Webbed,
+
+        [IniEnum("IGNORE_FOR_EVA_SPEECH_POSITION"), AddedIn(SageGame.Bfme)]
+        IgnoreForEvaSpeechPosition,
+
+        [IniEnum("DO_NOT_PICK_ME_WHEN_BUILDING"), AddedIn(SageGame.Bfme)]
+        DoNotPickMeWhenBuilding,
+
+        [IniEnum("COMBO_HORDE"), AddedIn(SageGame.Bfme)]
+        ComboHorde,
+
+        [IniEnum("SUMMONED"), AddedIn(SageGame.Bfme)]
+        Summoned,
+
+        [IniEnum("NO_FORMATION_MOVEMENT"), AddedIn(SageGame.Bfme)]
+        NoFormationMovement,
+
+        [IniEnum("ARAGORN"), AddedIn(SageGame.Bfme)]
+        Aragorn,
+
+        [IniEnum("GANDALF"), AddedIn(SageGame.Bfme)]
+        Gandalf,
+
+        [IniEnum("GIMLI"), AddedIn(SageGame.Bfme)]
+        Gimli,
+
+        [IniEnum("BUILD_FOR_FREE"), AddedIn(SageGame.Bfme)]
+        BuildForFree,
+
+        [IniEnum("SHRUB"), AddedIn(SageGame.Bfme)]
+        Shrub,
+
+        [IniEnum("NO_BASE_CAPTURE"), AddedIn(SageGame.Bfme)]
+        NoBaseCapture,
+
+        [IniEnum("CRITTER_EMITTER"), AddedIn(SageGame.Bfme)]
+        CritterEmitter,
+
+        [IniEnum("SALT_LICK"), AddedIn(SageGame.Bfme)]
+        SaltLick,
+
+        [IniEnum("ALWAYS_SHOW_HOUSE_COLOR"), AddedIn(SageGame.Bfme)]
+        AlwaysShowHouseColor,
+
+        [IniEnum("BUFF"), AddedIn(SageGame.Bfme)]
+        Buff,
+
+        [IniEnum("SPELL_BOOK"), AddedIn(SageGame.Bfme)]
+        SpellBook,
     }
 }

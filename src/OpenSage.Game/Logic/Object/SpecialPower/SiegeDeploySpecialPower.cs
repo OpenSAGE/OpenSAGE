@@ -16,15 +16,11 @@ namespace OpenSage.Logic.Object
                 { "RaiseDelay", (parser, x) => x.RaiseDelay = parser.ParseInteger() },
                 { "EvacuatePassengersOnDeploy", (parser, x) => x.EvacuatePassengersOnDeploy = parser.ParseBoolean() },
                 { "SkipAdjustPosition", (parser, x) => x.SkipAdjustPosition = parser.ParseBoolean() },
-                { "InitiateSound", (parser, x) => x.InitiateSound = parser.ParseAssetReference() },
-                { "InitiateSound2", (parser, x) => x.InitiateSound2 = parser.ParseAssetReference() },
             });
 
         public int LowerDelay { get; private set; }
         public int RaiseDelay { get; private set; }
         public bool EvacuatePassengersOnDeploy { get; private set; }
         public bool SkipAdjustPosition { get; private set; }
-        public string InitiateSound { get; private set; }
-        public string InitiateSound2 { get; private set; }
     }
 }

@@ -38,6 +38,17 @@ namespace OpenSage.Logic.Object
              { "VoiceEnterStateMove", (parser, x) => x.VoiceEnterStateMove = parser.ParseAssetReference() },
              { "VoiceEnterStateMoveToCamp", (parser, x) => x.VoiceEnterStateMoveToCamp = parser.ParseAssetReference() },
              { "VoiceEnterStateMoveWhileAttacking", (parser, x) => x.VoiceEnterStateMoveWhileAttacking = parser.ParseAssetReference() },
+             { "VoiceAttack", (parser, x) => x.VoiceAttack = parser.ParseAssetReference() },
+             { "VoiceAttackCharge", (parser, x) => x.VoiceAttackCharge = parser.ParseAssetReference() },
+             { "VoiceAttackMachine", (parser, x) => x.VoiceAttackMachine = parser.ParseAssetReference() },
+             { "VoiceAttackStructure", (parser, x) => x.VoiceAttackStructure = parser.ParseAssetReference() },
+             { "VoiceFear", (parser, x) => x.VoiceFear = parser.ParseAssetReference() },
+             { "VoiceRetreatToCastle", (parser, x) => x.VoiceRetreatToCastle = parser.ParseAssetReference() },
+             { "VoiceGuard", (parser, x) => x.VoiceGuard = parser.ParseAssetReference() },
+             { "SoundMoveStart", (parser, x) => x.SoundMoveStart = parser.ParseAssetReference() },
+             { "SoundImpact", (parser, x) => x.SoundImpact = parser.ParseAssetReference() },
+             { "VoicePriority", (parser, x) => x.VoicePriority = parser.ParseInteger() },
+             { "UnitSpecificSounds", (parser, x) => x.UnitSpecificSounds = UnitSpecificSounds.Parse(parser) }
         };
 
         public ModelConditionFlag Condition { get; private set; }
@@ -53,5 +64,28 @@ namespace OpenSage.Logic.Object
         public string VoiceEnterStateMove { get; private set; }
         public string VoiceEnterStateMoveToCamp { get; private set; }
         public string VoiceEnterStateMoveWhileAttacking { get; private set; }
+        public string VoiceAttack { get; private set; }
+        public string VoiceAttackCharge { get; private set; }
+        public string VoiceAttackMachine { get; private set; }
+        public string VoiceAttackStructure { get; private set; }
+        public string VoiceFear { get; private set; }
+        public string VoiceRetreatToCastle { get; private set; }
+        public string VoiceGuard { get; private set; }
+        public string SoundMoveStart { get; private set; }
+        public string SoundImpact { get; private set; }
+        public int VoicePriority { get; private set; }
+        public UnitSpecificSounds UnitSpecificSounds { get; private set; }
+    }
+
+    public class UnitSpecificSounds
+    {
+        internal static UnitSpecificSounds Parse (IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        internal static readonly IniParseTable<UnitSpecificSounds> FieldParseTable = new IniParseTable<UnitSpecificSounds>
+        {
+            { "VoiceGarrison", (parser, x) => x.VoiceGarrison = parser.ParseAssetReference() },
+        };
+
+        public string VoiceGarrison { get; private set; }
     }
 }

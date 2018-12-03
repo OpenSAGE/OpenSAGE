@@ -6,6 +6,56 @@ namespace OpenSage.Data.Ini.Parser
 {
     partial class IniParser
     {
+        public T ParseAttributeList<T>(
+           IIniFieldParserProvider<T> fieldParserProvider)
+           where T : class, new()
+        {
+            var result = new T();
+
+            var done = false;
+
+            while (!done)
+            {
+                if (_tokenReader.EndOfFile)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                var nameToken = GetNextTokenOptional(SeparatorsColon);
+                if (!nameToken.HasValue)
+                {
+                    break;
+                }
+
+                var fieldName = nameToken.Value.Text;
+                if (fieldParserProvider.TryGetFieldParser(fieldName, out var fieldParser))
+                {
+                    _currentBlockOrFieldStack.Push(fieldName);
+
+                    fieldParser(this, result);
+                        
+                    _currentBlockOrFieldStack.Pop();
+                }
+                else
+                {
+                    throw new IniParseException($"Unexpected field '{fieldName}' in block '{_currentBlockOrFieldStack.Peek()}'.", nameToken.Value.Position);
+                }
+            }
+
+            return result;
+        }
+
+        public T ParseAttribute<T>(string label, Func<IniParser, T> parse)
+        {
+            var nameToken = GetNextToken(SeparatorsColon);
+            if (!string.Equals(nameToken.Text, label, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new IniParseException($"Expected attribute name '{label}'", nameToken.Position);
+            }
+
+            return parse(this);
+        }
+
         public T ParseAttribute<T>(string label, Func<IniToken, T> parseValue)
         {
             var nameToken = GetNextToken(SeparatorsColon);
@@ -47,6 +97,11 @@ namespace OpenSage.Data.Ini.Parser
             return true;
         }
 
+        public float ParseAttributePercentage(string label)
+        {
+            return ParseAttribute(label, ParsePercentage);
+        }
+
         public int ParseAttributeInteger(string label)
         {
             return ParseAttribute(label, ScanInteger);
@@ -57,10 +112,22 @@ namespace OpenSage.Data.Ini.Parser
             return ParseAttribute(label, x => x.Text);
         }
 
+        public T ScanAttributeEnum<T>(string label, IniToken token)
+            where T : struct
+        {
+            return ParseAttribute<T>(label, ScanEnum<T>);
+        }
+
         public T ParseAttributeEnum<T>(string label)
             where T : struct
         {
-            return ParseAttribute(label, x => ParseEnum<T>(x));
+            return ParseAttribute(label, x => ScanEnum<T>(x));
+        }
+
+        public BitArray<T> ParseAttributeEnumBitArray<T>(string label)
+            where T : struct
+        {
+            return ParseAttribute(label, ParseEnumBitArray<T>);
         }
 
         public byte ParseAttributeByte(string label)

@@ -17,7 +17,11 @@ namespace OpenSage.Logic.Object
                 { "HideSubObjects", (parser, x) => x.HideSubObjects = parser.ParseAssetReferenceArray() },
                 { "UpgradeTexture", (parser, x) => x.UpgradeTextures.Add(RandomTexture.Parse(parser)) },
                 { "RecolorHouse", (parser, x) => x.RecolorHouse = parser.ParseBoolean() },
-                { "ExcludeSubobjects", (parser, x) => x.ExcludeSubobjects = parser.ParseAssetReferenceArray() }
+                { "ExcludeSubobjects", (parser, x) => x.ExcludeSubobjects = parser.ParseAssetReferenceArray() },
+                { "SkipFadeOnCreate", (parser, x) => x.SkipFadeOnCreate = parser.ParseBoolean() },
+                { "FadeTimeInSeconds", (parser, x) => x.FadeTimeInSeconds = parser.ParseFloat() },
+                { "WaitBeforeFadeInSeconds", (parser, x) => x.WaitBeforeFadeInSeconds = parser.ParseFloat() },
+                { "FXListUpgrade", (parser, x) => x.FXListUpgrade = parser.ParseAssetReference() }
             });
 
         public string[] ShowSubObjects { get; private set; }
@@ -31,5 +35,17 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string[] ExcludeSubobjects { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool SkipFadeOnCreate { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float FadeTimeInSeconds { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float WaitBeforeFadeInSeconds { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string FXListUpgrade { get; private set; }
     }
 }

@@ -40,6 +40,13 @@ namespace OpenSage.Logic.Object
                 { "TypeOneForWeaponState", (parser, x) => x.TypeOneForWeaponState = parser.ParseEnum<ObjectKinds>() },
                 { "TypeTwoForWeaponState", (parser, x) => x.TypeTwoForWeaponState = parser.ParseEnum<ObjectKinds>() },
                 { "PassengerBonePrefix", (parser, x) => x.PassengerBonePrefixes.Add(PassengerBonePrefix.Parse(parser)) },
+                { "KillPassengersOnDeath", (parser, x) => x.KillPassengersOnDeath = parser.ParseBoolean() },
+                { "ManualPickUpFilter", (parser, x) => x.ManualPickUpFilter = ObjectFilter.Parse(parser) },
+                { "EjectPassengersOnDeath", (parser, x) => x.EjectPassengersOnDeath = parser.ParseBoolean() },
+                { "CanGrabStructure", (parser, x) => x.CanGrabStructure = parser.ParseBoolean() },
+                { "GrabWeapon", (parser, x) => x.GrabWeapon = parser.ParseIdentifier() },
+                { "FireGrabWeaponOnVictim", (parser, x) => x.FireGrabWeaponOnVictim = parser.ParseBoolean() },
+                { "ReleaseSnappyness", (parser, x) => x.ReleaseSnappyness = parser.ParseFloat() },
             });
 
         public bool PassengersAllowedToFire { get; private set; }
@@ -93,6 +100,27 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public List<PassengerBonePrefix> PassengerBonePrefixes { get; } = new List<PassengerBonePrefix>();
+
+        [AddedIn(SageGame.Bfme)]
+        public bool KillPassengersOnDeath { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public ObjectFilter ManualPickUpFilter { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool EjectPassengersOnDeath { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool CanGrabStructure { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string GrabWeapon { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool FireGrabWeaponOnVictim { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float ReleaseSnappyness { get; private set; }
     }
 
     public sealed class PassengerBonePrefix

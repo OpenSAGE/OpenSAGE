@@ -13,6 +13,7 @@ namespace OpenSage.Logic.Object
         {
             { "AnimationSoundClientBehavior", AnimationSoundClientBehaviorData.Parse },
             { "ModelConditionSoundSelectorClientBehavior", ModelConditionSoundSelectorClientBehaviorData.Parse },
+            { "RandomSoundSelectorClientBehavior", RandomSoundSelectorClientBehaviorData.Parse },
             { "UpgradeSoundSelectorClientBehavior", UpgradeSoundSelectorClientBehaviorData.Parse }
         };
     }

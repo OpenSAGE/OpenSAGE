@@ -11,25 +11,25 @@ namespace OpenSage.Logic.Object
         Hijacked,
 
         [IniEnum("STATUS_RIDER1")]
-        Rider1,
+        StatusRider1,
 
         [IniEnum("STATUS_RIDER2")]
-        Rider2,
+        StatusRider2,
 
         [IniEnum("STATUS_RIDER3")]
-        Rider3,
+        StatusRider3,
 
         [IniEnum("STATUS_RIDER4")]
-        Rider4,
+        StatusRider4,
 
         [IniEnum("STATUS_RIDER5")]
-        Rider5,
+        StatusRider5,
 
         [IniEnum("STATUS_RIDER6")]
-        Rider6,
+        StatusRider6,
 
         [IniEnum("STATUS_RIDER7")]
-        Rider7,
+        StatusRider7,
 
         [IniEnum("TOPPLED")]
         Toppled,
@@ -66,5 +66,14 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("DEPLOYED"), AddedIn(SageGame.Bfme)]
         Deployed,
+
+        [IniEnum("RIDER1"), AddedIn(SageGame.Bfme)]
+        Rider1,
+
+        [IniEnum("RIDER2"), AddedIn(SageGame.Bfme)]
+        Rider2,
+
+        [IniEnum("RIDERLESS"), AddedIn(SageGame.Bfme)]
+        Riderless,
     }
 }

@@ -135,10 +135,10 @@ namespace OpenSage.Data.Ini.Parser
         public T ParseEnum<T>()
             where T : struct
         {
-            return ParseEnum<T>(GetNextToken());
+            return ScanEnum<T>(GetNextToken());
         }
 
-        public static T ParseEnum<T>(IniToken token)
+        public static T ScanEnum<T>(IniToken token)
             where T : struct
         {
             var stringToValueMap = GetEnumMap<T>();
@@ -180,37 +180,60 @@ namespace OpenSage.Data.Ini.Parser
             while ((token = GetNextTokenOptional()) != null)
             {
                 var stringValue = token.Value.Text.ToUpperInvariant();
-                switch (stringValue)
-                {
-                    case "ALL":
-                        result.SetAll(true);
-                        break;
-
-                    case "NONE":
-                        result.SetAll(false);
-                        break;
-
-                    default:
-                        var value = true;
-                        
-                        if (stringValue.StartsWith("-") || stringValue.StartsWith("+"))
-                        {
-                            value = stringValue[0] == '+';
-                            stringValue = stringValue.Substring(1);
-                        }
-                        if (!stringToValueMap.TryGetValue(stringValue, out var enumValue))
-                        {
-                            throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{stringValue}'", token.Value.Position);
-                        }
-
-                        // Ugh.
-                        result.Set((T)(object)enumValue, true);
-
-                        break;
-                }
+                ParseBitValue(stringToValueMap, result, stringValue);
             }
 
             return result;
+        }
+
+        public BitArray<T> ParseEnumBitArray<T>(string valuesString)
+            where T : struct
+        {
+            var stringToValueMap = GetEnumMap<T>();
+
+            var result = new BitArray<T>();
+
+            var values = valuesString.Replace("\"", "").Split(' ');
+            for(var i = 0; i < values.Length; i++)
+            {
+                var stringValue = values[i];
+                ParseBitValue(stringToValueMap, result, stringValue);
+            }
+
+            return result;
+        }
+
+        private void ParseBitValue<T>(Dictionary<string, Enum> stringToValueMap, BitArray<T> result, string stringValue)
+            where T : struct
+        {
+            switch (stringValue)
+            {
+                case "ALL":
+                    result.SetAll(true);
+                    break;
+
+                case "NONE":
+                    result.SetAll(false);
+                    break;
+
+                default:
+                    var value = true;
+                        
+                    if (stringValue.StartsWith("-") || stringValue.StartsWith("+"))
+                    {
+                        value = stringValue[0] == '+';
+                        stringValue = stringValue.Substring(1);
+                    }
+                    if (!stringToValueMap.TryGetValue(stringValue, out var enumValue))
+                    {
+                        throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{stringValue}'", CurrentPosition);
+                    }
+
+                    // Ugh.
+                    result.Set((T)(object)enumValue, true);
+
+                    break;
+            }
         }
 
         private static string[] GetIniNames(Type enumType, Enum value)

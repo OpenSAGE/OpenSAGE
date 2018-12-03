@@ -10,7 +10,7 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<AutoHealBehaviorModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
             .Concat(new IniParseTable<AutoHealBehaviorModuleData>
             {
-                { "HealingAmount", (parser, x) => x.HealingAmount = parser.ParseInteger() },
+                { "HealingAmount", (parser, x) => x.HealingAmount = parser.ParseFloat() },
                 { "HealingDelay", (parser, x) => x.HealingDelay = parser.ParseInteger() },
                 { "AffectsWholePlayer", (parser, x) => x.AffectsWholePlayer = parser.ParseBoolean() },
                 { "KindOf", (parser, x) => x.KindOf = parser.ParseEnum<ObjectKinds>() },
@@ -19,9 +19,13 @@ namespace OpenSage.Logic.Object
                 { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
                 { "SingleBurst", (parser, x) => x.SingleBurst = parser.ParseBoolean() },
                 { "SkipSelfForHealing", (parser, x) => x.SkipSelfForHealing = parser.ParseBoolean() },
+                { "HealOnlyIfNotInCombat", (parser, x) => x.HealOnlyIfNotInCombat = parser.ParseBoolean() },
+                { "ButtonTriggered", (parser, x) => x.ButtonTriggered = parser.ParseBoolean() },
+                { "HealOnlyOthers", (parser, x) => x.HealOnlyOthers = parser.ParseBoolean() },
+                { "UnitHealPulseFX", (parser, x) => x.UnitHealPulseFX = parser.ParseAssetReference() }
             });
 
-        public int HealingAmount { get; private set; }
+        public float HealingAmount { get; private set; }
         public int HealingDelay { get; private set; }
         public bool AffectsWholePlayer { get; private set; }
         public ObjectKinds KindOf { get; private set; }
@@ -32,5 +36,17 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool SkipSelfForHealing { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool HealOnlyIfNotInCombat { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ButtonTriggered { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool HealOnlyOthers { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string UnitHealPulseFX { get; private set; }
     }
 }

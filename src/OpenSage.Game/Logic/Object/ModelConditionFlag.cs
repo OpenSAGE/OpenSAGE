@@ -659,6 +659,99 @@ namespace OpenSage.Logic.Object
         AlternateFormation,
 
         [IniEnum("USING_COMBO_LOCOMOTOR"), AddedIn(SageGame.Bfme)]
-        UsingComboLocomotor
+        UsingComboLocomotor,
+
+        [IniEnum("SPECIAL_WEAPON_ONE"), AddedIn(SageGame.Bfme)]
+        SpecialWeaponOne,
+
+        [IniEnum("SPECIAL_WEAPON_TWO"), AddedIn(SageGame.Bfme)]
+        SpecialWeaponTwo,
+
+        [IniEnum("WEAPON_TOGGLE"), AddedIn(SageGame.Bfme)]
+        WeaponToggle,
+
+        [IniEnum("EATING"), AddedIn(SageGame.Bfme)]
+        Eating,
+
+        [IniEnum("QUARRELSOME_FIGHTING"), AddedIn(SageGame.Bfme)]
+        QuarrelsomeFighting,
+
+        [IniEnum("WEAPONSTATE_CONTAINED"), AddedIn(SageGame.Bfme)]
+        WeaponstateContained,
+
+        [IniEnum("DIVING"), AddedIn(SageGame.Bfme)]
+        Diving,
+
+        [IniEnum("ABOUT_TO_HIT"), AddedIn(SageGame.Bfme)]
+        AboutToHit,
+
+        [IniEnum("PASSENGER_VARIATION_3"), AddedIn(SageGame.Bfme)]
+        PassengerVariation3,
+
+        [IniEnum("PASSENGER_VARIATION_4"), AddedIn(SageGame.Bfme)]
+        PassengerVariation4,
+
+        [IniEnum("DESTROYED_WHILST_BEING_CONSTRUCTED"), AddedIn(SageGame.Bfme)]
+        DestroyedWhilstBeingConstructed,
+
+        [IniEnum("ELVEN_WOOD"), AddedIn(SageGame.Bfme)]
+        ElvenWood,
+
+        [IniEnum("HORDEBRAIN_NOT_STEALTHED"), AddedIn(SageGame.Bfme)]
+        HordebrainNotStealthed,
+
+        [IniEnum("AIM_NEAR"), AddedIn(SageGame.Bfme)]
+        AimNear,
+
+        [IniEnum("WEAPONSET_ENRAGED"), AddedIn(SageGame.Bfme)]
+        WeaponsetEnraged,
+
+        [IniEnum("INITIAL_ENRAGED"), AddedIn(SageGame.Bfme)]
+        InitialEnraged,
+
+        [IniEnum("GRAB_BUILDING_CHUNK"), AddedIn(SageGame.Bfme)]
+        GrabBuildingChunk,
+
+        [IniEnum("WEAPONSET_HERO_MODE"), AddedIn(SageGame.Bfme)]
+        WeaponsetHeroMode,
+
+        [IniEnum("ATTACKING_STRUCTURE"), AddedIn(SageGame.Bfme)]
+        AttackingStructure,
+
+        [IniEnum("SPECIAL_WEAPON_THREE"), AddedIn(SageGame.Bfme)]
+        SpecialWeaponThree,
+
+        [IniEnum("EMOTION_GUNG_HO"), AddedIn(SageGame.Bfme)]
+        EmotionGungHo,
+
+        [IniEnum("RESURRECTED"), AddedIn(SageGame.Bfme)]
+        Resurrected,
+
+        [IniEnum("ONE_RING"), AddedIn(SageGame.Bfme)]
+        OneRing,
+
+        [IniEnum("PUTTING_ON_RING"), AddedIn(SageGame.Bfme)]
+        PuttingOnRing,
+
+        [IniEnum("TAKING_OFF_RING"), AddedIn(SageGame.Bfme)]
+        TakingOffRing,
+
+        [IniEnum("TURRET_ANGLE_90"), AddedIn(SageGame.Bfme)]
+        TurretAngle90,
+
+        [IniEnum("TURRET_ANGLE_180"), AddedIn(SageGame.Bfme)]
+        TurretAngle180,
+
+        [IniEnum("TURRET_ANGLE_270"), AddedIn(SageGame.Bfme)]
+        TurretAngle270,
+
+        [IniEnum("DEBUG"), AddedIn(SageGame.Bfme)]
+        Debug,
+
+        [IniEnum("PACKING_TYPE_3"), AddedIn(SageGame.Bfme)]
+        PackingType3,
+
+        [IniEnum("OATH_FULLFILLED"), AddedIn(SageGame.Bfme)]
+        OathFullfilled,
     }
 }

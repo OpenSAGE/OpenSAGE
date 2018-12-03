@@ -20,6 +20,8 @@ namespace OpenSage.Logic.Object
             { "ShockStunnedTimeLow", (parser, x) => x.ShockStunnedTimeLow = parser.ParseInteger() },
             { "ShockStunnedTimeHigh", (parser, x) => x.ShockStunnedTimeHigh = parser.ParseInteger() },
             { "OrientToFlightPath", (parser, x) => x.OrientToFlightPath = parser.ParseBoolean() },
+            { "FirstHeight", (parser, x) => x.FirstHeight = parser.ParseInteger() },
+            { "SecondHeight", (parser, x) => x.SecondHeight = parser.ParseInteger() }
         };
 
         public float Mass { get; private set; }
@@ -44,5 +46,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool OrientToFlightPath { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int FirstHeight { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int SecondHeight { get; private set; }
     }
 }

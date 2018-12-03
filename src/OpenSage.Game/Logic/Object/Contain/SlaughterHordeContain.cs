@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Numerics;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
@@ -16,9 +17,12 @@ namespace OpenSage.Logic.Object
                 { "CashBackPercent", (parser, x) => x.CashBackPercent = parser.ParsePercentage() },
                 { "ContainMax", (parser, x) => x.ContainMax = parser.ParseInteger() },
                 { "MaxHordeCapacity", (parser, x) => x.MaxHordeCapacity = parser.ParseInteger() },
+                { "AllowAlliesInside", (parser, x) => x.AllowAlliesInside = parser.ParseBoolean() },
                 { "AllowEnemiesInside", (parser, x) => x.AllowEnemiesInside = parser.ParseBoolean() },
                 { "AllowNeutralInside", (parser, x) => x.AllowNeutralInside = parser.ParseBoolean() },
-                { "EnterSound", (parser, x) => x.EnterSound = parser.ParseAssetReference() }
+                { "EnterSound", (parser, x) => x.EnterSound = parser.ParseAssetReference() },
+                { "EntryOffset", (parser, x) => x.EntryOffset = parser.ParseVector3() },
+                { "ExitOffset", (parser, x) => x.ExitOffset = parser.ParseVector3() },
             });
 
         public ObjectFilter PassengerFilter { get; private set; }
@@ -26,8 +30,11 @@ namespace OpenSage.Logic.Object
         public float CashBackPercent { get; private set; }
         public int ContainMax { get; private set; }
         public int MaxHordeCapacity { get; private set; }
+        public bool AllowAlliesInside { get; private set; }
         public bool AllowEnemiesInside { get; private set; }
         public bool AllowNeutralInside { get; private set; }
         public string EnterSound { get; private set; }
+        public Vector3 EntryOffset { get; private set; }
+        public Vector3 ExitOffset { get; private set; }
     }
 }

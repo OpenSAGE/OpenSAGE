@@ -44,5 +44,42 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("LOTHLORIEN"), AddedIn(SageGame.Bfme)]
         Lothlorien              = 1 << 11,
+
+        [IniEnum("HELMS_DEEP"), AddedIn(SageGame.Bfme)]
+        HelmsDeep               = 1 << 12,
+
+        [IniEnum("PROPS"), AddedIn(SageGame.Bfme)]
+        Props                   = 1 << 13,
+
+        [IniEnum("DEAD_MARSHES"), AddedIn(SageGame.Bfme)]
+        DeadMarshes             = 1 << 14,
+
+        [IniEnum("NEXT"), AddedIn(SageGame.Bfme)]
+        Next                    = 1 << 15,
+
+        [IniEnum("PATHS_OF_DEAD"), AddedIn(SageGame.Bfme)]
+        PathsOfDead             = 1 << 16,
+
+        [IniEnum("FANGORN_FOREST"), AddedIn(SageGame.Bfme)]
+        FangornForest           = 1 << 17,
+
+        [IniEnum("RIVENDELL"), AddedIn(SageGame.Bfme)]
+        Rivendell               = 1 << 18,
+
+        [IniEnum("MINAS_TIRITH"), AddedIn(SageGame.Bfme)]
+        MinasTirith             = 1 << 19,
+
+        [IniEnum("OSGILIATH"), AddedIn(SageGame.Bfme)]
+        Osgiliath               = 1 << 20,
+
+        [IniEnum("ROHAN"), AddedIn(SageGame.Bfme)]
+        Rohan                   = 1 << 21,
+
+        [IniEnum("AI"), AddedIn(SageGame.Bfme)]
+        Ai                      = 1 << 22,
+
+        [IniEnum("TACTICAL_MARKERS"), AddedIn(SageGame.Bfme)]
+        TacticalMarkers         = 1 << 23,
+
     }
 }

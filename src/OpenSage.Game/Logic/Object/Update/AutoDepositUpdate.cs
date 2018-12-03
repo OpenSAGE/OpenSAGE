@@ -13,7 +13,10 @@ namespace OpenSage.Logic.Object
             { "DepositAmount", (parser, x) => x.DepositAmount = parser.ParseInteger() },
             { "InitialCaptureBonus", (parser, x) => x.InitialCaptureBonus = parser.ParseInteger() },
             { "ActualMoney", (parser, x) => x.ActualMoney = parser.ParseBoolean() },
-            { "UpgradedBoost", (parser, x) => x.UpgradedBoost = BoostUpgrade.Parse(parser) }
+            { "UpgradedBoost", (parser, x) => x.UpgradedBoost = BoostUpgrade.Parse(parser) },
+            { "Upgrade", (parser, x) => x.Upgrade = parser.ParseAssetReference() },
+            { "UpgradeBonusPercent", (parser, x) => x.UpgradeBonusPercent = parser.ParsePercentage() },
+            { "UpgradeMustBePresent", (parser, x) => x.UpgradeMustBePresent = ObjectFilter.Parse(parser) }
         };
 
         /// <summary>
@@ -36,5 +39,14 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public BoostUpgrade UpgradedBoost { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string Upgrade { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float UpgradeBonusPercent { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public ObjectFilter UpgradeMustBePresent { get; private set; }
     }
 }

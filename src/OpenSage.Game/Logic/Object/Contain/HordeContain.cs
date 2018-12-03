@@ -7,7 +7,7 @@ using OpenSage.Mathematics;
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class HordeContainModuleData : BehaviorModuleData
+    public class HordeContainModuleData : BehaviorModuleData
     {
         internal static HordeContainModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
@@ -29,6 +29,7 @@ namespace OpenSage.Logic.Object
             { "RanksToReleaseWhenAttacking", (parser, x) => x.RanksToReleaseWhenAttacking = parser.ParseIntegerArray() },
 
             { "ComboHordes", (parser, x) => x.ComboHordes.Add(ComboHorde.Parse(parser)) },
+            { "ComboHorde", (parser, x) => x.ComboHordes.Add(ComboHorde.Parse(parser)) },
 
             { "UseSlowHordeMovement", (parser, x) => x.UseSlowHordeMovement = parser.ParseBoolean() },
 
@@ -36,7 +37,24 @@ namespace OpenSage.Logic.Object
             { "MachineAllowed", (parser, x) => x.MachineAllowed = parser.ParseBoolean() },
             { "MachineType", (parser, x) => x.MachineType = parser.ParseAssetReference() },
 
-            { "AlternateFormation", (parser, x) => x.AlternateFormation = parser.ParseAssetReference() }
+            { "AlternateFormation", (parser, x) => x.AlternateFormation = parser.ParseAssetReference() },
+
+            { "BackUpMinDelayTime", (parser, x) => x.BackUpMinDelayTime = parser.ParseInteger() },
+            { "BackUpMaxDelayTime", (parser, x) => x.BackUpMaxDelayTime = parser.ParseInteger() },
+            { "BackUpMinDistance", (parser, x) => x.BackUpMinDistance = parser.ParseInteger() },
+            { "BackUpMaxDistance", (parser, x) => x.BackUpMaxDistance = parser.ParseInteger() },
+            { "BackupPercentage", (parser, x) => x.BackupPercentage = parser.ParseFloat() },
+            { "AttributeModifiers", (parser, x) => x.AttributeModifiers = parser.ParseAssetReferenceArray() },
+            { "RanksThatStopAdvance", (parser, x) => x.RanksThatStopAdvance = parser.ParseInteger() },
+            { "RanksToJustFreeWhenAttacking", (parser, x) => x.RanksToJustFreeWhenAttacking = parser.ParseInteger() },
+            { "NotComboFormation", (parser, x) => x.NotComboFormation = parser.ParseBoolean() },
+            { "UsePorcupineBody", (parser, x) => x.UsePorcupineBody = parser.ParseBoolean() },
+            { "SplitHorde", (parser, x) => x.SplitHordes.Add(SplitHorde.Parse(parser)) },
+            { "UseMarchingAnims", (parser, x) => x.UseMarchingAnims = parser.ParseBoolean() },
+            { "ForcedLocomotorSet", (parser, x) => x.ForcedLocomotorSet = parser.ParseEnum<LocomotorSetCondition>() },
+            { "UpdateWeaponSetFlagsOnHordeToo", (parser, x) => x.UpdateWeaponSetFlagsOnHordeToo = parser.ParseBoolean() },
+            { "RankSplit", (parser, x) => x.RankSplit = parser.ParseBoolean() },
+            { "SplitHordeNumber", (parser, x) => x.SplitHordeNumber = parser.ParseInteger() },
         };
 
         public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
@@ -64,6 +82,23 @@ namespace OpenSage.Logic.Object
         public string MachineType { get; private set; }
 
         public string AlternateFormation { get; private set; }
+
+        public int BackUpMinDelayTime { get; private set; }
+        public int BackUpMaxDelayTime { get; private set; }
+        public int BackUpMinDistance { get; private set; }
+        public int BackUpMaxDistance { get; private set; }
+        public float BackupPercentage { get; private set; }
+        public string[] AttributeModifiers { get; private set; }
+        public int RanksThatStopAdvance { get; private set; }
+        public int RanksToJustFreeWhenAttacking { get; private set; }
+        public bool NotComboFormation { get; private set; }
+        public bool UsePorcupineBody { get; private set; }
+        public List<SplitHorde> SplitHordes { get; } = new List<SplitHorde>();
+        public bool UseMarchingAnims { get; private set; }
+        public LocomotorSetCondition ForcedLocomotorSet { get; private set; }
+        public bool UpdateWeaponSetFlagsOnHordeToo { get; private set; }
+        public bool RankSplit { get; private set; }
+        public int SplitHordeNumber { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -101,28 +136,22 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public sealed class RankInfo
     {
-        internal static RankInfo Parse(IniParser parser)
+        internal static RankInfo Parse(IniParser parser) => parser.ParseAttributeList(FieldParseTable);
+
+        internal static readonly IniParseTable<RankInfo> FieldParseTable = new IniParseTable<RankInfo>
         {
-            var rankNumber = parser.ParseAttributeInteger("RankNumber");
-            var unitType = parser.ParseAttributeIdentifier("UnitType");
-            var positions = new List<Point2D>();
-
-            while (parser.ParseAttributeOptional("Position", parser.ParsePoint, out var position))
-            {
-                positions.Add(position);
-            }
-
-            return new RankInfo
-            {
-                RankNumber = rankNumber,
-                UnitType = unitType,
-                Positions = positions
-            };
-        }
+            { "RankNumber", (parser, x) => x.RankNumber = parser.ParseInteger() },
+            { "UnitType", (parser, x) => x.UnitType = parser.ParseIdentifier() },
+            { "Position", (parser, x) => x.Positions.Add(parser.ParseVector2()) },
+            { "RevokedWeaponCondition", (parser, x) => x.RevokedWeaponCondition = parser.ParseEnum<WeaponSetConditions>() },
+            { "GrantedWeaponCondition", (parser, x) => x.GrantedWeaponCondition = parser.ParseEnum<WeaponSetConditions>() }
+        };
 
         public int RankNumber { get; private set; }
         public string UnitType { get; private set; }
-        public List<Point2D> Positions { get; private set; }
+        public List<Vector2> Positions { get; } = new List<Vector2>();
+        public WeaponSetConditions RevokedWeaponCondition { get; private set; }
+        public WeaponSetConditions GrantedWeaponCondition { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -141,6 +170,21 @@ namespace OpenSage.Logic.Object
         public string Target { get; private set; }
         public string Result { get; private set; }
         public string InitiateVoice { get; private set; }
+    }
 
+    [AddedIn(SageGame.Bfme)]
+    public sealed class SplitHorde 
+    {
+        internal static SplitHorde Parse(IniParser parser)
+        {
+            return new SplitHorde
+            {
+                SplitResult = parser.ParseAttributeIdentifier("SplitResult"),
+                UnitType = parser.ParseAttributeIdentifier("UnitType")
+            };
+        }
+
+        public string SplitResult { get; private set; }
+        public string UnitType { get; private set; }
     }
 }

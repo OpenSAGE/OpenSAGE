@@ -268,8 +268,8 @@ namespace OpenSage.Logic.Object
             { "ThreatLevel", (parser, x) => x.ThreatLevel = parser.ParseFloat() },
             { "LocomotorSet", (parser, x) => x.LocomotorSet = LocomotorSet.Parse(parser) },
             { "ThingClass", (parser, x) => x.ThingClass = parser.ParseString() },
-            { "MinCrushVelocityPercent", (parser, x) => x.MinCrushVelocityPercent = parser.ParseInteger() },
-            { "CrushDecelerationPercent", (parser, x) => x.CrushDecelerationPercent = parser.ParseInteger() },
+            { "MinCrushVelocityPercent", (parser, x) => x.MinCrushVelocityPercent = parser.ParsePercentage() },
+            { "CrushDecelerationPercent", (parser, x) => x.CrushDecelerationPercent = parser.ParsePercentage() },
             { "RamPower", (parser, x) => x.RamPower = parser.ParseInteger() },
             { "RamZMult", (parser, x) => x.RamZMult = parser.ParseFloat() },
             { "CommandPoints", (parser, x) => x.CommandPoints = parser.ParseInteger() },
@@ -298,6 +298,29 @@ namespace OpenSage.Logic.Object
             { "MountedCrusherLevel", (parser, x) => x.MountedCrusherLevel = parser.ParseInteger() },
             { "MountedCrushableLevel", (parser, x) => x.MountedCrushableLevel = parser.ParseInteger() },
             { "CrushWeapon", (parser, x) => x.CrushWeapon = parser.ParseAssetReference() },
+            { "DisplayMeleeDamage", (parser, x) => x.DisplayMeleeDamage = parser.ParseFloat() },
+            { "RecruitText", (parser, x) => x.RecruitText = parser.ParseLocalizedStringKey() },
+            { "ReviveText", (parser, x) => x.ReviveText = parser.ParseLocalizedStringKey() },
+            { "Hotkey", (parser, x) => x.Hotkey = parser.ParseLocalizedStringKey() },
+            { "PathfindDiameter", (parser, x) => x.PathfindDiameter = parser.ParseFloat() },
+            { "DisplayRangedDamage", (parser, x) => x.DisplayRangedDamage = parser.ParseFloat() },
+            { "CanPathThroughGates", (parser, x) => x.CanPathThroughGates = parser.ParseBoolean() },
+            { "ShadowSunAngle", (parser, x) => x.ShadowSunAngle = parser.ParseInteger() },
+            { "ShouldClearShotsOnIdle", (parser, x) => x.ShouldClearShotsOnIdle = parser.ParseBoolean() },
+            { "UseCrushAttack", (parser, x) => x.UseCrushAttack = parser.ParseBoolean() },
+            { "CrushAllies", (parser, x) => x.CrushAllies = parser.ParseBoolean() },
+            { "ShadowOpacityStart", (parser, x) => x.ShadowOpacityStart = parser.ParseInteger() },
+            { "ShadowOpacityFadeInTime", (parser, x) => x.ShadowOpacityFadeInTime = parser.ParseInteger() },
+            { "ShadowOpacityPeak", (parser, x) => x.ShadowOpacityPeak = parser.ParseInteger() },
+            { "ShadowOpacityFadeOutTime", (parser, x) => x.ShadowOpacityFadeOutTime = parser.ParseInteger() },
+            { "ShadowOpacityEnd", (parser, x) => x.ShadowOpacityEnd = parser.ParseInteger() },
+            { "ShadowOverrideLODVisibility", (parser, x) => x.ShadowOverrideLodVisibility = parser.ParseBoolean() },
+            { "EquivalentTo", (parser, x) => x.EquivalentTo = parser.ParseIdentifier() },
+            { "HeroSortOrder", (parser, x) => x.HeroSortOrder = parser.ParseInteger() },
+            { "IsAutoBuilt", (parser, x) => x.IsAutoBuilt = parser.ParseBoolean() },
+            { "IsGrabbable", (parser, x) => x.IsGrabbable = parser.ParseBoolean() },
+            { "IsHarvestable", (parser, x) => x.IsHarvestable = parser.ParseBoolean() },
+            { "ShadowOffsetX", (parser, x) => x.ShadowOffsetX = parser.ParseInteger() }
         };
 
         public string Name { get; protected set; }
@@ -795,10 +818,10 @@ namespace OpenSage.Logic.Object
         public string ThingClass { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int MinCrushVelocityPercent { get; private set; }
+        public float MinCrushVelocityPercent { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int CrushDecelerationPercent { get; private set; }
+        public float CrushDecelerationPercent { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public int RamPower { get; private set; }
@@ -889,6 +912,75 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string CrushWeapon { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float DisplayMeleeDamage { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string RecruitText { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string ReviveText { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string Hotkey { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float PathfindDiameter { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float DisplayRangedDamage { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool CanPathThroughGates { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowSunAngle { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ShouldClearShotsOnIdle { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool UseCrushAttack { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool CrushAllies { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowOpacityStart { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowOpacityFadeInTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowOpacityPeak { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowOpacityFadeOutTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowOpacityEnd { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ShadowOverrideLodVisibility { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string EquivalentTo { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int HeroSortOrder { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool IsAutoBuilt { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool IsGrabbable { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool IsHarvestable { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShadowOffsetX { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -991,6 +1083,7 @@ namespace OpenSage.Logic.Object
             { "Behavior", (parser, x) => x.Module = BehaviorModuleData.ParseBehavior(parser) },
             { "Draw", (parser, x) => x.Module = DrawModuleData.ParseDrawModule(parser) },
             { "Body", (parser, x) => x.Module = BodyModuleData.ParseBody(parser) },
+            { "ClientBehavior", (parser, x) => x.Module = ClientBehaviorModuleData.ParseClientBehavior(parser) }
         };
 
         public string Name { get; private set; }
@@ -1080,5 +1173,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("Bomb")]
         Bomb,
+
+        [IniEnum("Menu")]
+        Menu,
     }
 }

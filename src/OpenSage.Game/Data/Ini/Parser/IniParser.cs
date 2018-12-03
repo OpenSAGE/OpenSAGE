@@ -289,6 +289,18 @@ namespace OpenSage.Data.Ini.Parser
             return result.ToArray();
         }
 
+        public int[] ParseInLineIntegerArray()
+        {
+            var result = new List<int>();
+
+            while (PeekInteger() != null)
+            {
+                result.Add(ParseInteger());
+            }
+
+            return result.ToArray();
+        }
+
         public uint ScanUnsignedInteger(IniToken token) => Convert.ToUInt32(token.Text);
 
         public uint ParseUnsignedInteger() => ScanUnsignedInteger(GetNextToken());

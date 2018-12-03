@@ -13,11 +13,15 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<W3dHordeModelDrawModuleData>
             {
                 { "StaticModelLODMode", (parser, x) => x.StaticModelLodMode = parser.ParseBoolean() },
-                { "LodOptions", (parser, x) => x.LodOptions.Add(LodOption.Parse(parser)) }
+                { "LodOptions", (parser, x) => x.LodOptions.Add(LodOption.Parse(parser)) },
+                { "WadingParticleSys", (parser, x) => x.WadingParticleSys = parser.ParseAssetReference() },
+                { "RandomTexture", (parser, x) => x.RandomTextures.Add(RandomTexture.Parse(parser)) },
             });
 
-        public bool StaticModelLodMode { get; internal set; }
-        public List<LodOption> LodOptions { get; internal set; } = new List<LodOption>();
+        public bool StaticModelLodMode { get; private set; }
+        public List<LodOption> LodOptions { get; private set; } = new List<LodOption>();
+        public string WadingParticleSys { get; private set; }
+        public List<RandomTexture> RandomTextures { get; private set; } = new List<RandomTexture>();
     }
 
     public sealed class LodOption
@@ -35,7 +39,7 @@ namespace OpenSage.Logic.Object
                 { "AllowMultipleModels", (parser, x) => x.AllowMultipleModels = parser.ParseBoolean() },
                 { "MaxRandomTextures", (parser, x) => x.MaxRandomTextures = parser.ParseInteger() },
                 { "MaxRandomAnimations", (parser, x) => x.MaxRandomAnimations = parser.ParseInteger() },
-                { "MaxAnimFrameDelta", (parser, x) => x.MaxAnimFrameDelta = parser.ParseInteger() }
+                { "MaxAnimFrameDelta", (parser, x) => x.MaxAnimFrameDelta = parser.ParseInteger() },
             };
 
         public ModelLevelOfDetail Lod { get; private set; }

@@ -24,7 +24,10 @@ namespace OpenSage.Logic.Object
             { "TimeToEjectPassengersOnRampage", (parser, x) => x.TimeToEjectPassengersOnRampage = parser.ParseInteger() },
             { "AttackPriority", (parser, x) => x.AttackPriority = parser.ParseString() },
             { "SpecialContactPoints", (parser, x) => x.SpecialContactPoints = parser.ParseEnumBitArray<ContactPointType>() },
-            { "FadeOnPortals", (parser, x) => x.FadeOnPortals = parser.ParseBoolean() }
+            { "FadeOnPortals", (parser, x) => x.FadeOnPortals = parser.ParseBoolean() },
+            { "StopChaseDistance", (parser, x) => x.StopChaseDistance = parser.ParseInteger() },
+            { "RampageRequiresAflame", (parser, x) => x.RampageRequiresAflame = parser.ParseBoolean() },
+            { "MoveForNoOne", (parser, x) => x.MoveForNoOne = parser.ParseBoolean() }
         };
 
         /// <summary>
@@ -73,6 +76,15 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool FadeOnPortals { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int StopChaseDistance { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool RampageRequiresAflame { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool MoveForNoOne { get; private set; }
     }
 
     public enum AutoAcquireEnemiesType

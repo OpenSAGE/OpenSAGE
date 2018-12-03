@@ -1,5 +1,4 @@
-﻿using OpenSage.Data.Ini;
-using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -13,9 +12,11 @@ namespace OpenSage.Logic.Object
             {
                 { "AimHighThreshold", (parser, x) => x.AimHighThreshold = parser.ParseFloat() },
                 { "AimLowThreshold", (parser, x) => x.AimLowThreshold = parser.ParseFloat() },
+                { "AimNearDistance", (parser, x) => x.AimNearDistance = parser.ParseFloat() }
             });
 
         public float AimHighThreshold { get; private set; }
         public float AimLowThreshold { get; private set; }
+        public float AimNearDistance { get; private set; }
     }
 }
