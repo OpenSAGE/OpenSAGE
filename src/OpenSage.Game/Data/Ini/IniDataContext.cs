@@ -72,6 +72,7 @@ namespace OpenSage.Data.Ini
         public List<MultiplayerColor> MultiplayerColors { get; } = new List<MultiplayerColor>();
         public MultiplayerSettings MultiplayerSettings { get; internal set; }
         public List<MultiplayerStartingMoneyChoice> MultiplayerStartingMoneyChoices { get; } = new List<MultiplayerStartingMoneyChoice>();
+        public List<Multisound> Multisounds { get; } = new List<Multisound>();
         public List<MusicTrack> MusicTracks { get; } = new List<MusicTrack>();
         public List<ObjectDefinition> Objects { get; } = new List<ObjectDefinition>();
         public List<ObjectCreationList> ObjectCreationLists { get; } = new List<ObjectCreationList>();

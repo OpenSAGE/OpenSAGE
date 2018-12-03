@@ -53,6 +53,37 @@ namespace OpenSage.Data.Ini
             { "EnabledHotKeyPressed", (parser, x) => x.EnabledHotKeyPressed = parser.ParseAssetReference() },
             { "DisabledHotKeyPressed", (parser, x) => x.DisabledHotKeyPressed = parser.ParseAssetReference() },
             { "LowLODShellMusic", (parser, x) => x.LowLODShellMusic = parser.ParseAssetReference() },
+            { "GenericRadarEvent", (parser, x) => x.GenericRadarEvent = parser.ParseAssetReference() },
+            { "BeaconPlacedSound", (parser, x) => x.BeaconPlacedSound = parser.ParseAssetReference() },
+            { "BeaconPlacementFailed", (parser, x) => x.BeaconPlacementFailed = parser.ParseAssetReference() },
+            { "PrivateMessageNotification", (parser, x) => x.PrivateMessageNotification = parser.ParseAssetReference() },
+            { "BuddyMessageNotification", (parser, x) => x.BuddyMessageNotification = parser.ParseAssetReference() },
+            { "GameSpyCommunicatorOpen", (parser, x) => x.GameSpyCommunicatorOpen = parser.ParseAssetReference() },
+            { "DisabledButtonClicked", (parser, x) => x.DisabledButtonClicked = parser.ParseAssetReference() },
+            { "HighLODShellMusic", (parser, x) => x.HighLODShellMusic = parser.ParseAssetReference() },
+            { "ScoreScreenMusic", (parser, x) => x.ScoreScreenMusic = parser.ParseAssetReference() },
+            { "ShellMapLoadMusic", (parser, x) => x.ShellMapLoadMusic = parser.ParseAssetReference() },
+            { "FullScreenSubMenuMusic", (parser, x) => x.FullScreenSubMenuMusic = parser.ParseAssetReference() },
+            { "SaveFileLoadMusic", (parser, x) => x.SaveFileLoadMusic = parser.ParseAssetReference() },
+            { "CreditsMusic", (parser, x) => x.CreditsMusic = parser.ParseAssetReference() },
+            { "VolumeSampleMusic", (parser, x) => x.VolumeSampleMusic = parser.ParseAssetReference() },
+            { "VolumeSampleSoundFX", (parser, x) => x.VolumeSampleSoundFX = parser.ParseAssetReference() },
+            { "VolumeSampleVoice", (parser, x) => x.VolumeSampleVoice = parser.ParseAssetReference() },
+            { "VolumeSampleAmbient", (parser, x) => x.VolumeSampleAmbient = parser.ParseAssetReference() },
+            { "VolumeSampleMovie", (parser, x) => x.VolumeSampleMovie = parser.ParseAssetReference() },
+            { "MissionBriefingCharacterClick", (parser, x) => x.MissionBriefingCharacterClick = parser.ParseAssetReference() },
+            { "ComboBoxClick", (parser, x) => x.ComboBoxClick = parser.ParseAssetReference() },
+            { "RIFThingTemplateReloadedSound", (parser, x) => x.RIFThingTemplateReloadedSound = parser.ParseAssetReference() },
+            { "RIFObjectsRefreshedSound", (parser, x) => x.RIFObjectsRefreshedSound = parser.ParseAssetReference() },
+            { "FastForwardModeOn", (parser, x) => x.FastForwardModeOn = parser.ParseAssetReference() },
+            { "FastForwardModeOff", (parser, x) => x.FastForwardModeOff = parser.ParseAssetReference() },
+            { "RallyPointSet", (parser, x) => x.RallyPointSet = parser.ParseAssetReference() },
+            { "UnableToSetRallyPoint", (parser, x) => x.UnableToSetRallyPoint = parser.ParseAssetReference() },
+            { "PlanningModeOrderGiven", (parser, x) => x. PlanningModeOrderGiven = parser.ParseAssetReference() },
+            { "BuildingPlacementSound", (parser, x) => x.BuildingPlacementSound = parser.ParseAssetReference() },
+            { "BadBuildingPlacementSound", (parser, x) => x.BadBuildingPlacementSound = parser.ParseAssetReference() },
+            { "WallPlacementSound", (parser, x) => x.WallPlacementSound = parser.ParseAssetReference() },
+            { "TargetObjectWithSpecialPowerSound", (parser, x) => x.TargetObjectWithSpecialPowerSound = parser.ParseAssetReference() },
         };
 
         public string RadarNotifyUnitUnderAttackSound { get; private set; }
@@ -115,5 +146,98 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public string LowLODShellMusic { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string GenericRadarEvent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string BeaconPlacedSound { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string BeaconPlacementFailed { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string PrivateMessageNotification { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string BuddyMessageNotification { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string GameSpyCommunicatorOpen { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string DisabledButtonClicked { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string HighLODShellMusic { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string ScoreScreenMusic { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string ShellMapLoadMusic { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string FullScreenSubMenuMusic { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string SaveFileLoadMusic { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string CreditsMusic { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string VolumeSampleMusic { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string VolumeSampleSoundFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string VolumeSampleVoice { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string VolumeSampleAmbient { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string VolumeSampleMovie { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string MissionBriefingCharacterClick { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string ComboBoxClick { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string RIFThingTemplateReloadedSound { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string RIFObjectsRefreshedSound { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string FastForwardModeOn { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string FastForwardModeOff { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string RallyPointSet { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string UnableToSetRallyPoint { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string PlanningModeOrderGiven { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string BuildingPlacementSound { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string BadBuildingPlacementSound { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string WallPlacementSound { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string TargetObjectWithSpecialPowerSound { get; private set; }
     }
 }

@@ -86,6 +86,36 @@ namespace OpenSage.Data.Ini
             { "ZoomFadeDistanceForMaxEffect", (parser, x) => x.ZoomFadeDistanceForMaxEffect = parser.ParseInteger() },
             { "ZoomFadeZeroEffectEdgeLength", (parser, x) => x.ZoomFadeZeroEffectEdgeLength = parser.ParseInteger() },
             { "ZoomFadeFullEffectEdgeLength", (parser, x) => x.ZoomFadeFullEffectEdgeLength = parser.ParseInteger() },
+
+            { "GlobalPaddedCellReverbMultiplier", (parser, x) => x.GlobalPaddedCellReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalRoomReverbMultiplier", (parser, x) => x.GlobalRoomReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalBathroomReverbMultiplier", (parser, x) => x.GlobalBathroomReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalLivingRoomReverbMultiplier", (parser, x) => x.GlobalLivingRoomReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalStoneRoomReverbMultiplier", (parser, x) => x.GlobalStoneRoomReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalAuditoriumReverbMultiplier", (parser, x) => x.GlobalAuditoriumReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalConcertHallReverbMultiplier", (parser, x) => x.GlobalConcertHallReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalCaveReverbMultiplier", (parser, x) => x.GlobalCaveReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalArenaReverbMultiplier", (parser, x) => x.GlobalArenaReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalHangarReverbMultiplier", (parser, x) => x.GlobalHangarReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalCarpetedHallwayReverbMultiplier", (parser, x) => x.GlobalCarpetedHallwayReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalHallwayReverbMultiplier", (parser, x) => x.GlobalHallwayReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalStoneCorridorReverbMultiplier", (parser, x) => x.GlobalStoneCorridorReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalAlleyReverbMultiplier", (parser, x) => x.GlobalAlleyReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalForestReverbMultiplier", (parser, x) => x.GlobalForestReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalCityReverbMultiplier", (parser, x) => x.GlobalCityReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalMountainsReverbMultiplier", (parser, x) => x.GlobalMountainsReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalQuarryReverbMultiplier", (parser, x) => x.GlobalQuarryReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalPlainReverbMultiplier", (parser, x) => x.GlobalPlainReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalParkingLotReverbMultiplier", (parser, x) => x.GlobalParkingLotReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalSewerPipeReverbMultiplier", (parser, x) => x.GlobalSewerPipeReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalUnderwaterReverbMultiplier", (parser, x) => x.GlobalUnderwaterReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalDruggedReverbMultiplier", (parser, x) => x.GlobalDruggedReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalDizzyReverbMultiplier", (parser, x) => x.GlobalDizzyReverbMultiplier = parser.ParsePercentage() },
+            { "GlobalPsychoticReverbMultiplier", (parser, x) => x.GlobalPsychoticReverbMultiplier = parser.ParsePercentage() },
+
+            { "VoiceMoveToCampMaxCampnessAtStartPoint", (parser, x) => x.VoiceMoveToCampMaxCampnessAtStartPoint = parser.ParseInteger() },
+            { "VoiceMoveToCampMinCampnessAtEndPoint", (parser, x) => x.VoiceMoveToCampMinCampnessAtEndPoint = parser.ParseInteger() },
+            { "MinDelayBetweenEnterStateVoiceMS", (parser, x) => x.MinDelayBetweenEnterStateVoiceMS = parser.ParseInteger() },
         };
 
         public string AudioRoot { get; private set; }
@@ -231,5 +261,89 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public float MinOcclusion { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalPaddedCellReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalRoomReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalBathroomReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalLivingRoomReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalStoneRoomReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalAuditoriumReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalConcertHallReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalCaveReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalArenaReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalHangarReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalCarpetedHallwayReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalHallwayReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalStoneCorridorReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalAlleyReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalForestReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalCityReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalMountainsReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalQuarryReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalPlainReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalParkingLotReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalSewerPipeReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalUnderwaterReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalDruggedReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalDizzyReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GlobalPsychoticReverbMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int VoiceMoveToCampMaxCampnessAtStartPoint { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int VoiceMoveToCampMinCampnessAtEndPoint { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int MinDelayBetweenEnterStateVoiceMS { get; private set; }
     }
 }

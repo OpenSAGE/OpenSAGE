@@ -80,6 +80,7 @@ namespace OpenSage.Data.Ini.Parser
             { "MultiplayerColor", (parser, context) => context.MultiplayerColors.Add(MultiplayerColor.Parse(parser)) },
             { "MultiplayerSettings", (parser, context) => context.MultiplayerSettings = MultiplayerSettings.Parse(parser) },
             { "MultiplayerStartingMoneyChoice", (parser, context) => context.MultiplayerStartingMoneyChoices.Add(MultiplayerStartingMoneyChoice.Parse(parser)) },
+            { "Multisound", (parser, context) => context.Multisounds.Add(Multisound.Parse(parser)) },
             { "MusicTrack", (parser, context) => context.MusicTracks.Add(MusicTrack.Parse(parser)) },
             { "NewEvaEvent", (parser, context) => context.EvaEvents.Add(EvaEvent.Parse(parser)) },
             { "Object", (parser, context) => context.Objects.Add(ObjectDefinition.Parse(parser)) },
@@ -115,6 +116,7 @@ namespace OpenSage.Data.Ini.Parser
         private static readonly Dictionary<string, Func<IniParser, IniToken>> MacroFunctions = new Dictionary<string, Func<IniParser, IniToken>>
         {
              { "#DIVIDE(", (parser) => { return parser.DivideFunc(); } },
+             { "#ADD(", (parser) => { return parser.AddFunc(); } },
         };
 
         private static readonly char[] Separators = { ' ', '\n', '\r', '\t', '=' };
@@ -319,7 +321,7 @@ namespace OpenSage.Data.Ini.Parser
             var seenDot = false;
             foreach (var c in token.Text)
             {
-                if (!char.IsDigit(c) && c != '.' && c != '-')
+                if (!char.IsDigit(c) && c != '.' && c != '-' && c != '+')
                 {
                     break;
                 }
@@ -347,6 +349,10 @@ namespace OpenSage.Data.Ini.Parser
 
         public float ScanFloat(IniToken token)
         {
+            if (ResolveFunc(token.Text, out var funcResult))
+            {
+                token = funcResult.Value;
+            }
             return ParseUtility.ParseFloat(GetFloatText(token));
         }
 
@@ -493,7 +499,14 @@ namespace OpenSage.Data.Ini.Parser
         private IniToken DivideFunc()
         {
             var result = ParseFloat() / ParseFloat();
+            GetNextToken(); //read the ')'
+            return new IniToken(ParseUtility.ToInvariant(result), _tokenReader.CurrentPosition);
+        }
 
+        private IniToken AddFunc()
+        {
+            var result = ParseFloat() + ParseFloat();
+            GetNextToken(); //read the ')'
             return new IniToken(ParseUtility.ToInvariant(result), _tokenReader.CurrentPosition);
         }
 
