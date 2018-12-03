@@ -169,6 +169,9 @@ namespace OpenSage.Content.Util
                 case W3dVertexMappingType.Grid:
                     return FixedFunction.TextureMappingType.Grid;
 
+                case W3dVertexMappingType.Random:
+                    return FixedFunction.TextureMappingType.Random;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }

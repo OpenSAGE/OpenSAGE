@@ -32,6 +32,7 @@ layout(set = 0, binding = 8) uniform texture2D Global_CloudTexture;
 #define TEXTURE_MAPPING_SCREEN             6
 #define TEXTURE_MAPPING_SCALE              7
 #define TEXTURE_MAPPING_GRID               8
+#define TEXTURE_MAPPING_RANDOM             9
 
 struct TextureMapping
 {
@@ -217,6 +218,12 @@ vec4 SampleTexture(
             int currentFrameV = currentFrame / numFramesPerSide;
             uv.x += currentFrameU / numFramesPerSide;
             uv.y += currentFrameV / numFramesPerSide;
+            break;
+        }
+
+        case TEXTURE_MAPPING_RANDOM:
+        {
+            // TODO: Haven't seen any non-zero values to test this with yet.
             break;
         }
     }

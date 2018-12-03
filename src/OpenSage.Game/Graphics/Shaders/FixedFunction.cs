@@ -15,6 +15,7 @@ namespace OpenSage.Graphics.Shaders
             Screen = 6,
             Scale = 7,
             Grid = 8,
+            Random = 9,
         }
 
         public struct TextureMapping
