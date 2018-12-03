@@ -25,6 +25,12 @@ namespace OpenSage.Data.Ini
         public FloatRange PitchShift { get; private set; }
         public IntRange Delay { get; private set; }
 
+        [AddedIn(SageGame.Bfme2)]
+        public float[] PerFileVolumeShift { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float[] PerFilePitchShift { get; private set; }
+
         internal static readonly IniParseTable<BaseSingleSound> FieldParseTable = new IniParseTable<BaseSingleSound>
         {
             { "Volume", (parser, x) => x.Volume = parser.ParseFloat() },
@@ -43,6 +49,8 @@ namespace OpenSage.Data.Ini
             { "SubmixSlider", (parser, x) => x.SubmixSlider = parser.ParseEnum<AudioVolumeSlider>() },
             { "PitchShift", (parser, x) => x.PitchShift = FloatRange.Parse(parser) },
             { "Delay", (parser, x) => x.Delay = IntRange.Parse(parser) },
+            { "PerFileVolumeShift", (parser, x) => x.PerFileVolumeShift = parser.ParseFloatArray() },
+            { "PerFilePitchShift", (parser, x) => x.PerFilePitchShift = parser.ParseFloatArray() },
         };
     }
 
@@ -213,5 +221,8 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("fade_on_start")]
         FadeOnStart = 1 << 6,
+
+        [IniEnum("sequential"), AddedIn(SageGame.Bfme2)]
+        Sequential = 1 << 7,
     }
 }
