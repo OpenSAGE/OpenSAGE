@@ -131,6 +131,11 @@ namespace OpenSage.Graphics.Rendering
             {
                 Render3DScene(_commandList, context.Scene, context);
             }
+            else
+            {
+                _commandList.SetFramebuffer(_intermediateFramebuffer);
+                _commandList.ClearColorTarget(0, ColorRgba.DimGray.ToColorRgbaF().ToRgbaFloat());
+            }
 
             // GUI and camera-dependent 2D elements
             {
