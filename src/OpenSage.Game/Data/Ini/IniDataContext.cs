@@ -142,9 +142,11 @@ namespace OpenSage.Data.Ini
             _alreadyLoaded.Add(entry.FilePath);
         }
 
-        public FileSystem GetFileSystem()
+        public string GetIniFileContent(string filePath)
         {
-            return _fileSystem;
+            var source = _fileSystem.GetFile(filePath);
+            var streamReader = new StreamReader(source.Open());
+            return streamReader.ReadToEnd();
         }
     }
 }
