@@ -16,7 +16,7 @@ namespace OpenSage.Logic.Object
             { "RefreshDelay", (parser, x) => x.RefreshDelay = parser.ParseInteger() },
             { "Range", (parser, x) => x.Range = parser.ParseFloat() },
             { "TargetEnemy", (parser, x) => x.TargetEnemy = parser.ParseBoolean() },
-            { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) },
+            { "ObjectFilter", (parser, x) => x.ObjectFilter = parser.ParseIdentifier() },
             { "ConflictsWith", (parser, x) => x.ConflictsWith = parser.ParseAssetReferenceArray() },
             { "RunWhileDead", (parser, x) => x.RunWhileDead = parser.ParseBoolean() },
             { "RequiredConditions", (parser, x) => x.RequiredConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
@@ -33,7 +33,7 @@ namespace OpenSage.Logic.Object
         public int RefreshDelay	{ get; private set; }
         public float Range { get; private set; }
         public bool TargetEnemy	{ get; private set; }
-        public ObjectFilter ObjectFilter { get; private set; }
+        public string ObjectFilter { get; private set; }
         public string[] ConflictsWith { get; private set; }
         public bool RunWhileDead { get; private set; }
         public BitArray<ModelConditionFlag> RequiredConditions { get; private set; }

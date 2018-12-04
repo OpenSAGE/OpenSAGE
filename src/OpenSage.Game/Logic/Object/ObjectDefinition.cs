@@ -328,6 +328,13 @@ namespace OpenSage.Logic.Object
             { "EvaEventSecondDamageFarFromFirstScanRange", (parser, x) => x.EvaEventSecondDamageFarFromFirstScanRange = parser.ParseInteger() },
             { "EvaEventSecondDamageFarFromFirstTimeoutMS", (parser, x) => x.EvaEventSecondDamageFarFromFirstTimeoutMS = parser.ParseInteger() },
             { "EvaEnemyObjectSightedEvent", (parser, x) => x.EvaEnemyObjectSightedEvent = parser.ParseAssetReference() },
+            { "ShockwaveResistance", (parser, x) => x.ShockwaveResistance = parser.ParseFloat() },
+            { "VisionSide", (parser, x) => x.VisionSide = parser.ParsePercentage() },
+            { "VisionRear", (parser, x) => x.VisionRear = parser.ParsePercentage() },
+            { "VisionBonusPercentPerFoot", (parser, x) => x.VisionBonusPercentPerFoot = parser.ParsePercentage() },
+            { "MaxVisionBonusPercent", (parser, x) => x.MaxVisionBonusPercent = parser.ParsePercentage() },
+            { "VisionBonusTestRadius", (parser, x) => x.VisionBonusTestRadius = parser.ParseInteger() },
+            { "CrowdResponseKey", (parser, x) => x.CrowdResponseKey = parser.ParseIdentifier() },
         };
 
         public string Name { get; protected set; }
@@ -1009,6 +1016,27 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string EvaEnemyObjectSightedEvent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float ShockwaveResistance { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float VisionSide { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float VisionRear { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float VisionBonusPercentPerFoot { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float MaxVisionBonusPercent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int VisionBonusTestRadius { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string CrowdResponseKey { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

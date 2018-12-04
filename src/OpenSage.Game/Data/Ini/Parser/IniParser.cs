@@ -242,7 +242,13 @@ namespace OpenSage.Data.Ini.Parser
 
         public string ScanAssetReference(IniToken token) => token.Text;
 
-        public string ParseAssetReference() => ScanAssetReference(GetNextToken());
+        public string ParseAssetReference()
+        {
+            var token = GetNextTokenOptional();
+            if (token.HasValue)
+                return token.Value.Text;
+            return "";
+        }
 
         public string[] ParseAssetReferenceArray()
         {
