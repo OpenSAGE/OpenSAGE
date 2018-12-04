@@ -664,10 +664,9 @@ namespace OpenSage.Data.Ini.Parser
                 includeFileName = includeFileName.Remove(0, 3);
                 directory = directory.Substring(0, directory.LastIndexOf('\\'));
             }
+
             var path = Path.Combine(directory, includeFileName);
-            var source = _dataContext.GetFileSystem().GetFile(path);
-            var streamReader = new StreamReader(source.Open());
-            var content = streamReader.ReadToEnd();
+            var content = _dataContext.GetIniFileContent(path);
             var tokenReader = new TokenReader(content, path);
             var copy = _tokenReader;
             _tokenReader = tokenReader;
