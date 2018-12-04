@@ -27,8 +27,8 @@ namespace OpenSage.Terrain
             ContentManager contentManager,
             HeightMap heightMap,
             RoadTemplate template,
-            Vector3 startPosition,
-            Vector3 endPosition)
+            in Vector3 startPosition,
+            in Vector3 endPosition)
         {
             const float heightBias = 1f;
             const float createNewVerticesHeightDeltaThreshold = 0.002f;

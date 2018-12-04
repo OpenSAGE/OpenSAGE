@@ -39,6 +39,9 @@ namespace OpenSage
         public Terrain.Road[] Roads { get; }
         public bool ShowRoads { get; set; } = true;
 
+        public Terrain.Bridge[] Bridges { get; }
+        public bool ShowBridges { get; set; } = true;
+
         public MapScriptCollection Scripts { get; }
 
         public GameObjectCollection GameObjects { get; }
@@ -77,6 +80,7 @@ namespace OpenSage
             MapFile mapFile,
             Terrain.Terrain terrain,
             Terrain.Road[] roads,
+            Terrain.Bridge[] bridges,
             MapScriptCollection scripts,
             GameObjectCollection gameObjects,
             WaypointCollection waypoints,
@@ -91,6 +95,7 @@ namespace OpenSage
             MapFile = mapFile;
             Terrain = terrain;
             Roads = roads;
+            Bridges = bridges;
             Scripts = scripts;
             GameObjects = AddDisposable(gameObjects);
             Waypoints = waypoints;
@@ -157,6 +162,14 @@ namespace OpenSage
                 foreach (var road in Roads)
                 {
                     road.BuildRenderList(renderList);
+                }
+            }
+
+            if (ShowBridges)
+            {
+                foreach (var bridge in Bridges)
+                {
+                    bridge.BuildRenderList(renderList, camera);
                 }
             }
 

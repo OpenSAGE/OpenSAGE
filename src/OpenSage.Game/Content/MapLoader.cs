@@ -131,7 +131,8 @@ namespace OpenSage.Content
                 teams,
                 out var waypoints,
                 out var gameObjects,
-                out var roads);
+                out var roads,
+                out var bridges);
 
             var lighting = new WorldLighting(
                 mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
@@ -166,6 +167,7 @@ namespace OpenSage.Content
                 mapFile,
                 terrain,
                 roads,
+                bridges,
                 mapScripts,
                 gameObjects,
                 waypoints,
@@ -295,11 +297,13 @@ namespace OpenSage.Content
             Team[] teams,
             out WaypointCollection waypointCollection,
             out GameObjectCollection gameObjects,
-            out Road[] roads)
+            out Road[] roads,
+            out Bridge[] bridges)
         {
             var waypoints = new List<Waypoint>();
             gameObjects = new GameObjectCollection(contentManager);
             var roadsList = new List<Road>();
+            var bridgesList = new List<Bridge>();
 
             var roadTopology = new RoadTopology();
 
@@ -335,14 +339,32 @@ namespace OpenSage.Content
                         }
                         break;
 
-                    // TODO: Bridges.
-                    // We'll ignore them completely for now.
                     case RoadType.BridgeStart:
                     case RoadType.BridgeEnd:
-                        // Note for bridge implementor:
-                        // The engine silently ignores invalid bridges (e.g bridges without a start or an end)
-                        // Multiple invalid bridges can be found in e.g GLA01.
+                        // There are plenty of bridges with only a start, in Generals maps.
                         // TODO: Log a warning.
+                        if (!mapObjects[i + 1].RoadType.HasFlag(RoadType.BridgeEnd))
+                        {
+                            continue;
+                        }
+
+                        var bridgeEnd = mapObjects[++i];
+
+                        var bridgeTemplate = contentManager.IniDataContext.Bridges.Find(x => x.Name == mapObject.TypeName);
+
+                        if (bridgeTemplate == null)
+                        {
+                            throw new InvalidDataException($"Missing bridge template: {mapObject.TypeName}");
+                        }
+
+                        bridgesList.Add(AddDisposable(new Bridge(
+                            contentManager,
+                            heightMap,
+                            bridgeTemplate,
+                            mapObject.Position,
+                            bridgeEnd.Position)));
+
+                        // Multiple invalid bridges can be found in e.g GLA01.
                         break;
 
                     default:
@@ -420,6 +442,7 @@ namespace OpenSage.Content
 
             waypointCollection = new WaypointCollection(waypoints);
             roads = roadsList.ToArray();
+            bridges = bridgesList.ToArray();
         }
 
         private List<TerrainPatch> CreatePatches(
