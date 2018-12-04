@@ -37,43 +37,42 @@ namespace OpenSage.Terrain
             var bridgeRight = _model.Meshes.First(x => x.Name == "BRIDGE_RIGHT");
 
             // See how many spans we can fit in.
-            var lengthLeftUnscaled = GetLength(bridgeLeft.BoundingBox);
-            var lengthSpanUnscaled = GetLength(bridgeSpan.BoundingBox);
-            var lengthRightUnscaled = GetLength(bridgeRight.BoundingBox);
-            var lengthLeft = lengthLeftUnscaled * template.BridgeScale;
-            var lengthSpan = lengthSpanUnscaled * template.BridgeScale;
-            var lengthRight = lengthRightUnscaled * template.BridgeScale;
+            var lengthLeft = GetLength(bridgeLeft.BoundingBox) * template.BridgeScale;
+            var lengthSpan = GetLength(bridgeSpan.BoundingBox) * template.BridgeScale;
+            var lengthRight = GetLength(bridgeRight.BoundingBox) * template.BridgeScale;
 
-            var actualStartPosition = startPosition;
-            actualStartPosition.Z = heightMap.GetHeight(startPosition.X, startPosition.Y) + heightBias;
+            var startPositionWithHeight = startPosition;
+            startPositionWithHeight.Z = heightMap.GetHeight(startPosition.X, startPosition.Y) + heightBias;
 
-            var actualEndPosition = endPosition;
-            actualEndPosition.Z = heightMap.GetHeight(endPosition.X, endPosition.Y) + heightBias;
+            var endPositionWithHeight = endPosition;
+            endPositionWithHeight.Z = heightMap.GetHeight(endPosition.X, endPosition.Y) + heightBias;
 
-            var horizontalDistance = Vector3.Distance(startPosition, endPosition);
+            var distance = Vector3.Distance(startPosition, endPosition);
 
-            var lengthDesired = horizontalDistance;
+            var spanLength = distance - lengthLeft - lengthRight;
 
-            var spanLength = lengthDesired - lengthLeft - lengthRight;
-
+            // There is always at least one span in the middle of a bridge,
+            // and more if space permits.
             var numSpans = Math.Max(1, (int) (spanLength / lengthSpan));
 
             var totalLength = lengthLeft + (lengthSpan * numSpans) + lengthRight;
-            var scaleX = lengthDesired / totalLength;
+            var scaleX = distance / totalLength;
 
             // Necessary, to set RelativeBoneTransforms.
             _modelInstance.Update(new GameTime());
 
-            var rotation = QuaternionUtility.CreateRotation(Vector3.UnitX, Vector3.Normalize(endPosition - startPosition));
+            var rotationAroundZ = QuaternionUtility.CreateRotation(Vector3.UnitX, Vector3.Normalize(endPosition - startPosition));
 
-            var inclineSkew = Matrix4x4.Identity;
-            inclineSkew.M13 = (actualEndPosition.Z - actualStartPosition.Z) / horizontalDistance;
+            var inclineSkew = GetSkewMatrixForDifferentBridgeEndHeights(
+                startPositionWithHeight,
+                endPositionWithHeight,
+                distance);
 
             var worldMatrix =
                 Matrix4x4.CreateScale(template.BridgeScale) *
                 inclineSkew *
-                Matrix4x4.CreateFromQuaternion(rotation) *
-                Matrix4x4.CreateTranslation(actualStartPosition);
+                Matrix4x4.CreateFromQuaternion(rotationAroundZ) *
+                Matrix4x4.CreateTranslation(startPositionWithHeight);
 
             _modelInstance.SetWorldMatrix(worldMatrix);
 
@@ -104,6 +103,18 @@ namespace OpenSage.Terrain
         private static float GetLength(in BoundingBox box)
         {
             return box.Max.X - box.Min.X;
+        }
+
+        private static Matrix4x4 GetSkewMatrixForDifferentBridgeEndHeights(
+            in Vector3 startPosition,
+            in Vector3 endPosition,
+            float horizontalDistance)
+        {
+            // We don't want to rotate the bridge to account for different heights at each end.
+            // That would result in non-vertical bridge supports. So instead we skew it.
+            var result = Matrix4x4.Identity;
+            result.M13 = (endPosition.Z - startPosition.Z) / horizontalDistance;
+            return result;
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera)
