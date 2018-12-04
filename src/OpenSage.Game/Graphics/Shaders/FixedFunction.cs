@@ -11,9 +11,11 @@ namespace OpenSage.Graphics.Shaders
             LinearOffset = 2,
             Rotate = 3,
             SineLinearOffset = 4,
-            Screen = 5,
-            Scale = 6,
-            Grid = 7
+            StepLinearOffset = 5,
+            Screen = 6,
+            Scale = 7,
+            Grid = 8,
+            Random = 9,
         }
 
         public struct TextureMapping
@@ -30,6 +32,13 @@ namespace OpenSage.Graphics.Shaders
             public Vector2 UVAmplitude;
             public Vector2 UVFrequency;
             public Vector2 UVPhase;
+
+            public Vector2 UVStep;
+            public float StepsPerSecond;
+
+#pragma warning disable IDE1006, CS0169
+            private readonly float _Padding;
+#pragma warning restore IDE1006, CS0169
         }
 
         public struct VertexMaterial

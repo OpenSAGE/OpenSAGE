@@ -28,9 +28,11 @@ layout(set = 0, binding = 8) uniform texture2D Global_CloudTexture;
 #define TEXTURE_MAPPING_LINEAR_OFFSET      2
 #define TEXTURE_MAPPING_ROTATE             3
 #define TEXTURE_MAPPING_SINE_LINEAR_OFFSET 4
-#define TEXTURE_MAPPING_SCREEN             5
-#define TEXTURE_MAPPING_SCALE              6
-#define TEXTURE_MAPPING_GRID               7
+#define TEXTURE_MAPPING_STEP_LINEAR_OFFSET 5
+#define TEXTURE_MAPPING_SCREEN             6
+#define TEXTURE_MAPPING_SCALE              7
+#define TEXTURE_MAPPING_GRID               8
+#define TEXTURE_MAPPING_RANDOM             9
 
 struct TextureMapping
 {
@@ -46,6 +48,11 @@ struct TextureMapping
     vec2 UVAmplitude;
     vec2 UVFrequency;
     vec2 UVPhase;
+    
+    vec2 UVStep;
+    float StepsPerSecond;
+
+    float _Padding;
 };
 
 struct VertexMaterial
@@ -180,6 +187,15 @@ vec4 SampleTexture(
             break;
         }
 
+        case TEXTURE_MAPPING_STEP_LINEAR_OFFSET:
+        {
+            float steps = textureMapping.StepsPerSecond * t;
+            int integralSteps = int(floor(steps));
+            vec2 offset = textureMapping.UVStep * integralSteps;
+            uv = vec2(uv.x, 1 - uv.y) + offset;
+            break;
+        }
+
         case TEXTURE_MAPPING_SCREEN:
         {
             uv = (screenPosition / _GlobalConstantsPS.ViewportSize) * textureMapping.UVScale;
@@ -202,6 +218,12 @@ vec4 SampleTexture(
             int currentFrameV = currentFrame / numFramesPerSide;
             uv.x += currentFrameU / numFramesPerSide;
             uv.y += currentFrameV / numFramesPerSide;
+            break;
+        }
+
+        case TEXTURE_MAPPING_RANDOM:
+        {
+            // TODO: Haven't seen any non-zero values to test this with yet.
             break;
         }
     }

@@ -21,8 +21,6 @@ namespace OpenSage.Graphics
     /// </summary>
     public sealed class ModelMesh : DisposableBase
     {
-        internal const int MaxBones = 100;
-
         private readonly DeviceBuffer _vertexBuffer;
         private readonly DeviceBuffer _indexBuffer;
 
