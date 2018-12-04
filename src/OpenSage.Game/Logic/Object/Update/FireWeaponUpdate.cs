@@ -14,7 +14,8 @@ namespace OpenSage.Logic.Object
             { "InitialDelay", (parser, x) => x.InitialDelay = parser.ParseInteger() },
             { "ChargingModeTrigger", (parser, x) => x.ChargingModeTrigger = parser.ParseBoolean() },
             { "AliveOnly", (parser, x) => x.AliveOnly = parser.ParseBoolean() },
-            { "HeroModeTrigger", (parser, x) => x.HeroModeTrigger = parser.ParseBoolean() }
+            { "HeroModeTrigger", (parser, x) => x.HeroModeTrigger = parser.ParseBoolean() },
+            { "FireWeaponNugget", (parser, x) => x.FireWeaponNugget = WeaponNugget.Parse(parser) }
         };
 
         public string Weapon { get; private set; }
@@ -33,5 +34,25 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool HeroModeTrigger { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public WeaponNugget FireWeaponNugget { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public sealed class WeaponNugget
+    {
+        internal static WeaponNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<WeaponNugget> FieldParseTable = new IniParseTable<WeaponNugget>
+        {
+            { "WeaponName", (parser, x) => x.WeaponName = parser.ParseAssetReference() },
+            { "FireDelay", (parser, x) => x.FireDelay = parser.ParseInteger() },
+            { "OneShot", (parser, x) => x.OneShot = parser.ParseBoolean() },
+        };
+
+        public string WeaponName { get; private set; }
+        public int FireDelay { get; private set; }
+        public bool OneShot { get; private set; }
     }
 }

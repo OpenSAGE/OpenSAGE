@@ -17,7 +17,8 @@ namespace OpenSage.Logic.Object
             { "Bored", (parser, x) => x.Bored = parser.ParseBoolean() },
             { "BoredFilter", (parser, x) => x.BoredFilter = ObjectFilter.Parse(parser) },
             { "RunFromButton", (parser, x) => x.RunFromButton = parser.ParseBoolean() },
-            { "RunFromButtonNumber", (parser, x) => x.RunFromButtonNumber = parser.ParseInteger() }
+            { "RunFromButtonNumber", (parser, x) => x.RunFromButtonNumber = parser.ParseInteger() },
+            { "PickUpFilter", (parser, x) => x.PickUpFilter = ObjectFilter.Parse(parser) }
         };
 
         public int ScanDelayTime { get; private set; }
@@ -30,6 +31,9 @@ namespace OpenSage.Logic.Object
         public ObjectFilter BoredFilter { get; private set; }
         public bool RunFromButton { get; private set; }
         public int RunFromButtonNumber { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ObjectFilter PickUpFilter { get; private set; }
     }
 
     public sealed class EatObjectEntry

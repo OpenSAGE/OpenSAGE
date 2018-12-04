@@ -81,5 +81,11 @@ namespace OpenSage.Logic.Object
         [IniEnum("TACTICAL_MARKERS"), AddedIn(SageGame.Bfme)]
         TacticalMarkers         = 1 << 23,
 
+        [IniEnum("OBSOLETE"), AddedIn(SageGame.Bfme2)]
+        Obsolete                = 1 << 24,
+
+        [IniEnum("MINAS_MORGUL"), AddedIn(SageGame.Bfme2)]
+        Minas_Morgul            = 1 << 25,
+
     }
 }
