@@ -605,7 +605,8 @@ namespace OpenSage.Data.Ini.Parser
 
         private void ParseBlockContent<T>(
             T result,
-            IIniFieldParserProvider<T> fieldParserProvider, string endToken = EndToken)
+            IIniFieldParserProvider<T> fieldParserProvider,
+            bool isIncludedBlock = false)
             where T : class, new()
         {
             var done = false;
@@ -614,6 +615,11 @@ namespace OpenSage.Data.Ini.Parser
             {
                 if (_tokenReader.EndOfFile)
                 {
+                    if (isIncludedBlock)
+                    {
+                        done = true;
+                        continue;
+                    }
                     throw new InvalidOperationException();
                 }
 
@@ -670,7 +676,7 @@ namespace OpenSage.Data.Ini.Parser
             var tokenReader = new TokenReader(content, path);
             var copy = _tokenReader;
             _tokenReader = tokenReader;
-            ParseBlockContent(result, fieldParserProvider);
+            ParseBlockContent(result, fieldParserProvider, isIncludedBlock: true);
             _tokenReader = copy;
         }
 
