@@ -141,5 +141,10 @@ namespace OpenSage.Data.Ini
 
             _alreadyLoaded.Add(entry.FilePath);
         }
+
+        public FileSystem GetFileSystem()
+        {
+            return _fileSystem;
+        }
     }
 }
