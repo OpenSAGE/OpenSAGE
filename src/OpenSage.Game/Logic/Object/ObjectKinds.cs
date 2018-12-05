@@ -664,5 +664,20 @@
 
         [IniEnum("DOZER_FACTORY"), AddedIn(SageGame.Bfme2)]
         DozerFactory,
+
+        [IniEnum("WB_DISPLAY_SCRIPT_NAME"), AddedIn(SageGame.Bfme2)]
+        WbDisplayScriptName,
+
+        [IniEnum("OPTIMIZED_SOUND"), AddedIn(SageGame.Bfme2)]
+        OptimizedSound,
+
+        [IniEnum("BATTLE_TOWER"), AddedIn(SageGame.Bfme2)]
+        BattleTower,
+
+        [IniEnum("WALL"), AddedIn(SageGame.Bfme2)]
+        Wall,
+
+        [IniEnum("LINKED_TO_FLAG"), AddedIn(SageGame.Bfme2)]
+        LinkedToFlag,
     }
 }

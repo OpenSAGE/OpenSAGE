@@ -219,6 +219,7 @@ namespace OpenSage.Logic.Object
             { "HeroModeSpecialAbilityUpdate", HeroModeSpecialAbilityUpdateModuleData.Parse },
             { "HijackerUpdate", HijackerUpdateModuleData.Parse },
             { "HordeUpdate", HordeUpdateModuleData.Parse },
+            { "InvisibilityUpdate", InvisibilityUpdateModuleData.Parse },
             { "LargeGroupAudioUpdate", LargeGroupAudioUpdateModuleData.Parse },
             { "LargeGroupBonusUpdate", LargeGroupBonusUpdateModuleData.Parse },
             { "LifetimeUpdate", LifetimeUpdateModuleData.Parse },

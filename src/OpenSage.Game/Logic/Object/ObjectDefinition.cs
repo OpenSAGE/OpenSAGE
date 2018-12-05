@@ -337,7 +337,8 @@ namespace OpenSage.Logic.Object
             { "CrowdResponseKey", (parser, x) => x.CrowdResponseKey = parser.ParseIdentifier() },
             { "CommandPointBonus", (parser, x) => x.CommandPointBonus = parser.ParseInteger() },
             { "Flammability", (parser, x) => x.Flammability = Flammability.Parse(parser) },
-            { "ThreatBreakdown", (parser, x) => x.ThreatBreakdown = ThreatBreakdown.Parse(parser) }
+            { "ThreatBreakdown", (parser, x) => x.ThreatBreakdown = ThreatBreakdown.Parse(parser) },
+            { "DisplayNameInvisibleForEnemy", (parser, x) => x.DisplayNameInvisibleForEnemy = parser.ParseLocalizedStringKey() }
         };
 
         public string Name { get; protected set; }
@@ -1049,6 +1050,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public ThreatBreakdown ThreatBreakdown { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string DisplayNameInvisibleForEnemy { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -1247,11 +1251,11 @@ namespace OpenSage.Logic.Object
 
         internal static readonly IniParseTable<ThreatBreakdown> FieldParseTable = new IniParseTable<ThreatBreakdown>
         {
-            { "AIKindOf", (parser, x) => x.AiKindOf = parser.ParseEnum<AiKindOf>() },
+            { "AIKindOf", (parser, x) => x.AiKindOf = parser.ParseEnum<ObjectKinds>() },
         };
 
         public string ModuleTag { get; private set; }
-        public AiKindOf AiKindOf { get; private set; }
+        public ObjectKinds AiKindOf { get; private set; }
     }
 
 
@@ -1277,12 +1281,5 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("Menu")]
         Menu,
-    }
-
-    [AddedIn(SageGame.Bfme2)]
-    public enum AiKindOf
-    {
-        [IniEnum("BATTLE_TOWER")]
-        BattleTower,
     }
 }

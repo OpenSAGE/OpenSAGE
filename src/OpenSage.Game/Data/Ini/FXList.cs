@@ -519,7 +519,8 @@ namespace OpenSage.Data.Ini
     {
         [IniEnum("BIG_ROCK")]
         BigRock,
-         [IniEnum("FLAME")]
+
+        [IniEnum("FLAME")]
         Flame,
     }
 }
