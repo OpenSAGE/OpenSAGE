@@ -27,7 +27,6 @@ namespace OpenSage.Content
                 case SageGame.Bfme:
                     contentManager.IniDataContext.LoadIniFile($@"Lang\{language}\HeaderTemplate.ini");
                     break;
-
                 case SageGame.Bfme2:
                 case SageGame.Bfme2Rotwk:
                     contentManager.IniDataContext.LoadIniFile(@"HeaderTemplate.ini");

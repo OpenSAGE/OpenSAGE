@@ -753,5 +753,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("OATH_FULLFILLED"), AddedIn(SageGame.Bfme)]
         OathFullfilled,
+
+        [IniEnum("EMOTION_AMUSED"), AddedIn(SageGame.Bfme2)]
+        EmotionAmused,
     }
 }
