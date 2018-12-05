@@ -5,10 +5,16 @@
 #include "Lighting.h"
 #include "Cloud.h"
 #include "Shadows.h"
+#include "Mesh.h"
 
 layout(set = 0, binding = 0) uniform GlobalConstantsShared
 {
     GlobalConstantsSharedType _GlobalConstantsShared;
+};
+
+layout(set = 0, binding = 3) uniform MeshConstants
+{
+    MeshConstantsType _MeshConstants;
 };
 
 layout(set = 0, binding = 6) uniform GlobalConstantsPS
@@ -247,12 +253,19 @@ void main()
     vec3 diffuseColor;
     vec3 specularColor;
 
+    vec3 inputDiffuse = _MaterialConstants.Material.Diffuse;
+
+    if(_MeshConstants.HasHouseColor)
+    {
+        inputDiffuse = _MeshConstants.HouseColor;
+    }
+
     DoLighting(
         _GlobalLightingConstantsPS,
         in_WorldPosition,
         in_WorldNormal,
         _MaterialConstants.Material.Ambient,
-        _MaterialConstants.Material.Diffuse,
+        inputDiffuse,
         _MaterialConstants.Material.Specular,
         _MaterialConstants.Material.Shininess,
         _GlobalConstantsShared.CameraPosition,

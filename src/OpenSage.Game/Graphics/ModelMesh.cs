@@ -42,6 +42,9 @@ namespace OpenSage.Graphics
         public bool Hidden { get; }
         public bool CameraOriented { get; }
 
+        public bool HasHouseColor { get; }
+        public Vector3 HouseColor { get; }
+
         internal ModelMesh(
             GraphicsDevice graphicsDevice,
             string name,
@@ -54,7 +57,8 @@ namespace OpenSage.Graphics
             uint numBones,
             BoundingBox boundingBox,
             bool hidden,
-            bool cameraOriented)
+            bool cameraOriented,
+            Vector3? houseColor)
         {
             Name = name;
 
@@ -64,6 +68,11 @@ namespace OpenSage.Graphics
             BoundingBox = boundingBox;
 
             Skinned = isSkinned;
+
+            if (HasHouseColor = houseColor.HasValue)
+            {
+                HouseColor = houseColor.Value;
+            }
 
             Hidden = hidden;
             CameraOriented = cameraOriented;
@@ -83,6 +92,11 @@ namespace OpenSage.Graphics
             _meshConstantsBuffer = AddDisposable(new ConstantBuffer<MeshMaterial.MeshConstants>(graphicsDevice));
             _meshConstantsBuffer.Value.SkinningEnabled = isSkinned;
             _meshConstantsBuffer.Value.NumBones = numBones;
+            _meshConstantsBuffer.Value.HasHouseColor = houseColor.HasValue;
+            if (houseColor.HasValue)
+            {
+                _meshConstantsBuffer.Value.HouseColor = houseColor.Value;
+            }
             _meshConstantsBuffer.Update(commandEncoder);
 
             commandEncoder.End();
