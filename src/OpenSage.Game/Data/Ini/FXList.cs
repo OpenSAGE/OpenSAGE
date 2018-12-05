@@ -205,12 +205,16 @@ namespace OpenSage.Data.Ini
         {
             { "FX", (parser, x) => x.FX = parser.ParseAssetReference() },
             { "BoneName", (parser, x) => x.BoneName = parser.ParseAssetReference() },
-            { "OrientToBone", (parser, x) => x.OrientToBone = parser.ParseBoolean() }
+            { "OrientToBone", (parser, x) => x.OrientToBone = parser.ParseBoolean() },
+            { "Weather", (parser, x) => x.Weather = parser.ParseAssetReference() }
         });
 
         public string FX { get; private set; }
         public string BoneName { get; private set; }
         public bool OrientToBone { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string Weather { get; private set; }
     }
 
     public sealed class TerrainScorchFXListItem : FXListItem

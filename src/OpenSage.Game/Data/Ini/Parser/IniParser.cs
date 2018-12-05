@@ -126,7 +126,7 @@ namespace OpenSage.Data.Ini.Parser
 
         public const string EndToken = "END";
 
-        private readonly TokenReader _tokenReader;
+        private TokenReader _tokenReader;
 
         private readonly string _directory;
         private readonly IniDataContext _dataContext;
@@ -242,7 +242,13 @@ namespace OpenSage.Data.Ini.Parser
 
         public string ScanAssetReference(IniToken token) => token.Text;
 
-        public string ParseAssetReference() => ScanAssetReference(GetNextToken());
+        public string ParseAssetReference()
+        {
+            var token = GetNextTokenOptional();
+            if (token.HasValue)
+                return token.Value.Text;
+            return "";
+        }
 
         public string[] ParseAssetReferenceArray()
         {
@@ -605,7 +611,8 @@ namespace OpenSage.Data.Ini.Parser
 
         private void ParseBlockContent<T>(
             T result,
-           IIniFieldParserProvider<T> fieldParserProvider, string endToken = EndToken)
+           IIniFieldParserProvider<T> fieldParserProvider,
+           bool isIncludedBlock = false)
             where T : class, new()
         {
             var done = false;
@@ -614,7 +621,12 @@ namespace OpenSage.Data.Ini.Parser
             {
                 if (_tokenReader.EndOfFile)
                 {
-                    throw new InvalidOperationException();
+                    if (!isIncludedBlock)
+                    {
+                        throw new InvalidOperationException();
+                    }
+                    done = true;
+                    continue;
                 }
 
                 _tokenReader.GoToNextLine();
@@ -629,6 +641,10 @@ namespace OpenSage.Data.Ini.Parser
                 if (string.Equals(token.Value.Text, EndToken, StringComparison.InvariantCultureIgnoreCase))
                 {
                     done = true;
+                }
+                else if (token.Value.Text == "#include")
+                {
+                    ParseIncludedFile(result, fieldParserProvider);
                 }
                 else
                 {
@@ -648,6 +664,24 @@ namespace OpenSage.Data.Ini.Parser
                     }
                 }
             }
+        }
+
+        private void ParseIncludedFile<T>(T result, IIniFieldParserProvider<T> fieldParserProvider) where T : class, new()
+        {
+            var includeFileName = ParseQuotedString();
+            var directory = _directory;
+            while (includeFileName.StartsWith(".."))
+            {
+                includeFileName = includeFileName.Remove(0, 3);
+                directory = directory.Substring(0, directory.LastIndexOf('\\'));
+            }
+            var path = Path.Combine(directory, includeFileName);
+            var content = _dataContext.GetIniFileContent(path);
+            var tokenReader = new TokenReader(content, path);
+            var copy = _tokenReader;
+            _tokenReader = tokenReader;
+            ParseBlockContent(result, fieldParserProvider, isIncludedBlock: true);
+            _tokenReader = copy;
         }
 
         public void ParseFile()

@@ -50,7 +50,8 @@ namespace OpenSage.Logic.Object
             { "UnpackingVariation", (parser, x) => x.UnpackingVariation = parser.ParseInteger() },
             { "TriggerAttributeModifier", (parser, x) => x.TriggerAttributeModifier = parser.ParseIdentifier() },
             { "AttributeModifierDuration", (parser, x) => x.AttributeModifierDuration = parser.ParseInteger() },
-            { "KillAttributeModifierOnExit", (parser, x) => x.KillAttributeModifierOnExit = parser.ParseBoolean() }
+            { "KillAttributeModifierOnExit", (parser, x) => x.KillAttributeModifierOnExit = parser.ParseBoolean() },
+            { "IgnoreFacingCheck", (parser, x) => x.IgnoreFacingCheck = parser.ParseBoolean() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -112,5 +113,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool KillAttributeModifierOnExit { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool IgnoreFacingCheck { get; private set; }
     }
 }

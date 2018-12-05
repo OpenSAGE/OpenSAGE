@@ -16,15 +16,15 @@ namespace OpenSage.Data.Ini
             { "Surfaces", (parser, x) => x.Surfaces = parser.ParseEnumBitArray<Surface>() },
             { "Speed", (parser, x) => x.Speed = parser.ParseFloat() },
             { "SpeedDamaged", (parser, x) => x.SpeedDamaged = parser.ParseFloat() },
-            { "MinSpeed", (parser, x) => x.MinSpeed = parser.ParseInteger() },
+            { "MinSpeed", (parser, x) => x.MinSpeed = parser.ParsePercentage() },
             { "TurnRate", (parser, x) => x.TurnRate = parser.ParseFloat() },
             { "TurnRateDamaged", (parser, x) => x.TurnRateDamaged = parser.ParseFloat() },
             { "Acceleration", (parser, x) => x.Acceleration = parser.ParseFloat() },
             { "AccelerationDamaged", (parser, x) => x.AccelerationDamaged = parser.ParseFloat() },
-            { "Lift", (parser, x) => x.Lift = parser.ParseInteger() },
-            { "LiftDamaged", (parser, x) => x.LiftDamaged = parser.ParseInteger() },
+            { "Lift", (parser, x) => x.Lift = parser.ParsePercentage() },
+            { "LiftDamaged", (parser, x) => x.LiftDamaged = parser.ParsePercentage() },
             { "Braking", (parser, x) => x.Braking = parser.ParseInteger() },
-            { "MinTurnSpeed", (parser, x) => x.MinTurnSpeed = parser.ParseInteger() },
+            { "MinTurnSpeed", (parser, x) => x.MinTurnSpeed = parser.ParsePercentage() },
             { "TurnPivotOffset", (parser, x) => x.TurnPivotOffset = parser.ParseFloat() },
             { "AllowAirborneMotiveForce", (parser, x) => x.AllowAirborneMotiveForce = parser.ParseBoolean() },
             { "PreferredHeight", (parser, x) => x.PreferredHeight = parser.ParseFloat() },
@@ -81,6 +81,20 @@ namespace OpenSage.Data.Ini
             { "RudderCorrectionRate", (parser, x) => x.RudderCorrectionRate = parser.ParseFloat() },
             { "ElevatorCorrectionDegree", (parser, x) => x.ElevatorCorrectionDegree = parser.ParseFloat() },
             { "ElevatorCorrectionRate", (parser, x) => x.ElevatorCorrectionRate = parser.ParseFloat() },
+
+            { "TurnTime", (parser, x) => x.TurnTime = parser.ParseInteger() },
+            { "TurnTimeDamaged", (parser, x) => x.TurnTimeDamaged = parser.ParseInteger() },
+            { "SlowTurnRadius", (parser, x) => x.SlowTurnRadius = parser.ParseFloat() },
+            { "FastTurnRadius", (parser, x) => x.FastTurnRadius = parser.ParseFloat() },
+            { "NonDirtyTransform", (parser, x) => x.NonDirtyTransform = parser.ParseBoolean() },
+            { "PreferredAttackHeight", (parser, x) => x.PreferredAttackHeight = parser.ParseInteger() },
+            { "AeleronCorrectionDegree", (parser, x) => x.AeleronCorrectionDegree = parser.ParseFloat() },
+            { "AeleronCorrectionRate", (parser, x) => x.AeleronCorrectionRate = parser.ParseFloat() },
+            { "SwoopStandoffRadius", (parser, x) => x.SwoopStandoffRadius = parser.ParseFloat() },
+            { "SwoopStandoffHeight", (parser, x) => x.SwoopStandoffHeight = parser.ParseFloat() },
+            { "SwoopTerminalVelocity", (parser, x) => x.SwoopTerminalVelocity = parser.ParseFloat() },
+            { "SwoopAccelerationRate", (parser, x) => x.SwoopAccelerationRate = parser.ParseFloat() },
+            { "SwoopSpeedTuningFactor", (parser, x) => x.SwoopSpeedTuningFactor = parser.ParseFloat() },
         };
 
         public string Name { get; private set; }
@@ -88,15 +102,15 @@ namespace OpenSage.Data.Ini
         public BitArray<Surface> Surfaces { get; private set; }
         public float Speed { get; private set; }
         public float SpeedDamaged { get; private set; }
-        public int MinSpeed { get; private set; }
+        public float MinSpeed { get; private set; }
         public float TurnRate { get; private set; }
         public float TurnRateDamaged { get; private set; }
         public float Acceleration { get; private set; }
         public float AccelerationDamaged { get; private set; }
-        public int Lift { get; private set; }
-        public int LiftDamaged { get; private set; }
+        public float Lift { get; private set; }
+        public float LiftDamaged { get; private set; }
         public int Braking { get; private set; }
-        public int MinTurnSpeed { get; private set; }
+        public float MinTurnSpeed { get; private set; }
         public float TurnPivotOffset { get; private set; }
         public bool AllowAirborneMotiveForce { get; private set; }
         public float PreferredHeight { get; private set; }
@@ -164,6 +178,33 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public float ElevatorCorrectionRate { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int TurnTime { get; private set; }
+        [AddedIn(SageGame.Bfme2)]
+        public int TurnTimeDamaged { get; private set; }
+        [AddedIn(SageGame.Bfme2)]
+        public float SlowTurnRadius { get; private set; }
+        [AddedIn(SageGame.Bfme2)]
+        public float FastTurnRadius { get; private set; }
+        [AddedIn(SageGame.Bfme2)]
+        public bool NonDirtyTransform { get; private set; }
+        [AddedIn(SageGame.Bfme2)]
+        public int PreferredAttackHeight { get; private set; }
+        [AddedIn(SageGame.Bfme2)]
+        public float AeleronCorrectionDegree { get; private set; }
+        [AddedIn(SageGame.Bfme2)]
+        public float AeleronCorrectionRate { get; private set; }
+        [AddedIn(SageGame.Bfme2)]
+        public float SwoopStandoffRadius { get; private set; }
+        [AddedIn(SageGame.Bfme2)]
+        public float SwoopStandoffHeight { get; private set; }
+        [AddedIn(SageGame.Bfme2)]
+        public float SwoopTerminalVelocity { get; private set; }
+        [AddedIn(SageGame.Bfme2)]
+        public float SwoopAccelerationRate { get; private set; }
+        [AddedIn(SageGame.Bfme2)]
+        public float SwoopSpeedTuningFactor { get; private set; }
     }
 
     public enum LocomotorAppearance
@@ -191,6 +232,9 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("MOTORCYCLE"), AddedIn(SageGame.CncGeneralsZeroHour)]
         Motorcycle,
+
+        [IniEnum("GIANT_BIRD"), AddedIn(SageGame.Bfme2)]
+        GiantBird,
     }
 
     public enum Surface
@@ -208,7 +252,7 @@ namespace OpenSage.Data.Ini
         Air,
 
         [IniEnum("WATER")]
-        Water
+        Water,
     }
 
     public enum GroupMovementPriority
@@ -235,6 +279,9 @@ namespace OpenSage.Data.Ini
         RelativeToHighestLayer,
 
         [IniEnum("ABSOLUTE_HEIGHT")]
-        AbsoluteHeight
+        AbsoluteHeight,
+
+        [IniEnum("FIXED_ABSOLUTE_HEIGHT"), AddedIn(SageGame.Bfme2)]
+        FixedAbsoluteHeight,
     }
 }

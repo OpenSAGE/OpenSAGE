@@ -235,6 +235,7 @@ namespace OpenSage.Data.Ini
             { "AngularRateZ", (parser, x) => x.AngularRateZ = RandomVariable.Parse(parser) },
             { "AngularDamping", (parser, x) => x.AngularDamping = RandomVariable.Parse(parser) },
             { "Rotation", (parser, x) => x.Rotation = parser.ParseEnum<FXParticleSystemRotationType>() },
+            { "AngularDampingXY", (parser, x) => x.AngularDampingXY = RandomVariable.Parse(parser) },
         };
 
         public RandomVariable SizeRate { get; private set; }
@@ -243,6 +244,9 @@ namespace OpenSage.Data.Ini
         public RandomVariable AngularRateZ { get; private set; }
         public RandomVariable AngularDamping { get; private set; }
         public FXParticleSystemRotationType Rotation { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public RandomVariable AngularDampingXY { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

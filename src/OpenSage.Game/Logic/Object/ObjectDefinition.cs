@@ -320,7 +320,21 @@ namespace OpenSage.Logic.Object
             { "IsAutoBuilt", (parser, x) => x.IsAutoBuilt = parser.ParseBoolean() },
             { "IsGrabbable", (parser, x) => x.IsGrabbable = parser.ParseBoolean() },
             { "IsHarvestable", (parser, x) => x.IsHarvestable = parser.ParseBoolean() },
-            { "ShadowOffsetX", (parser, x) => x.ShadowOffsetX = parser.ParseInteger() }
+            { "ShadowOffsetX", (parser, x) => x.ShadowOffsetX = parser.ParseInteger() },
+            { "EvaEventDamagedFromShroudedSourceOwner", (parser, x) => x.EvaEventDamagedFromShroudedSourceOwner = parser.ParseAssetReference() },
+            { "EvaEventDamagedByFireOwner", (parser, x) => x.EvaEventDamagedByFireOwner = parser.ParseAssetReference() },
+            { "EvaEventAmbushed", (parser, x) => x.EvaEventAmbushed = parser.ParseAssetReference() },
+            { "EvaEventSecondDamageFarFromFirstOwner", (parser, x) => x.EvaEventSecondDamageFarFromFirstOwner = parser.ParseAssetReference() },
+            { "EvaEventSecondDamageFarFromFirstScanRange", (parser, x) => x.EvaEventSecondDamageFarFromFirstScanRange = parser.ParseInteger() },
+            { "EvaEventSecondDamageFarFromFirstTimeoutMS", (parser, x) => x.EvaEventSecondDamageFarFromFirstTimeoutMS = parser.ParseInteger() },
+            { "EvaEnemyObjectSightedEvent", (parser, x) => x.EvaEnemyObjectSightedEvent = parser.ParseAssetReference() },
+            { "ShockwaveResistance", (parser, x) => x.ShockwaveResistance = parser.ParseFloat() },
+            { "VisionSide", (parser, x) => x.VisionSide = parser.ParsePercentage() },
+            { "VisionRear", (parser, x) => x.VisionRear = parser.ParsePercentage() },
+            { "VisionBonusPercentPerFoot", (parser, x) => x.VisionBonusPercentPerFoot = parser.ParsePercentage() },
+            { "MaxVisionBonusPercent", (parser, x) => x.MaxVisionBonusPercent = parser.ParsePercentage() },
+            { "VisionBonusTestRadius", (parser, x) => x.VisionBonusTestRadius = parser.ParseInteger() },
+            { "CrowdResponseKey", (parser, x) => x.CrowdResponseKey = parser.ParseIdentifier() },
         };
 
         public string Name { get; protected set; }
@@ -981,6 +995,48 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int ShadowOffsetX { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string EvaEventDamagedFromShroudedSourceOwner { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string EvaEventDamagedByFireOwner { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string EvaEventAmbushed { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string EvaEventSecondDamageFarFromFirstOwner { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int EvaEventSecondDamageFarFromFirstScanRange { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int EvaEventSecondDamageFarFromFirstTimeoutMS { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string EvaEnemyObjectSightedEvent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float ShockwaveResistance { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float VisionSide { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float VisionRear { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float VisionBonusPercentPerFoot { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float MaxVisionBonusPercent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int VisionBonusTestRadius { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string CrowdResponseKey { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
