@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Numerics;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
@@ -9,20 +10,20 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<QueueProductionExitUpdateModuleData> FieldParseTable = new IniParseTable<QueueProductionExitUpdateModuleData>
         {
-            { "UnitCreatePoint", (parser, x) => x.UnitCreatePoint = Coord3D.Parse(parser) },
-            { "NaturalRallyPoint", (parser, x) => x.NaturalRallyPoint = Coord3D.Parse(parser) },
+            { "UnitCreatePoint", (parser, x) => x.UnitCreatePoint = parser.ParseVector3() },
+            { "NaturalRallyPoint", (parser, x) => x.NaturalRallyPoint = parser.ParseVector3() },
             { "ExitDelay", (parser, x) => x.ExitDelay = parser.ParseInteger() },
             { "InitialBurst", (parser, x) => x.InitialBurst = parser.ParseInteger() },
             { "PlacementViewAngle", (parser, x) => x.PlacementViewAngle = parser.ParseInteger() },
             { "NoExitPath", (parser, x) => x.NoExitPath = parser.ParseBoolean() }
         };
 
-        public Coord3D UnitCreatePoint { get; private set; }
+        public Vector3 UnitCreatePoint { get; private set; }
 
         /// <summary>
         /// <see cref="NaturalRallyPoint.X"/> must match <see cref="ObjectDefinition.GeometryMajorRadius"/>.
         /// </summary>
-        public Coord3D NaturalRallyPoint { get; private set; }
+        public Vector3 NaturalRallyPoint { get; private set; }
 
         /// <summary>
         /// Used for Red Guards to make them come out one at a time.

@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using System.Numerics;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
@@ -29,7 +30,7 @@ namespace OpenSage.Data.Ini
             { "Gravity", (parser, x) => x.Gravity = parser.ParseFloat() },
             { "PerParticleAttachedSystem", (parser, x) => x.PerParticleAttachedSystem = parser.ParseAssetReference() },
             { "SlaveSystem", (parser, x) => x.SlaveSystem = parser.ParseAssetReference() },
-            { "SlavePosOffset", (parser, x) => x.SlavePosOffset = Coord3D.Parse(parser) },
+            { "SlavePosOffset", (parser, x) => x.SlavePosOffset = parser.ParseVector3() },
             { "Lifetime", (parser, x) => x.Lifetime = RandomVariable.Parse(parser) },
             { "SystemLifetime", (parser, x) => x.SystemLifetime = parser.ParseInteger() },
             { "Size", (parser, x) => x.Size = RandomVariable.Parse(parser) },
@@ -56,7 +57,7 @@ namespace OpenSage.Data.Ini
             { "BurstDelay", (parser, x) => x.BurstDelay = RandomVariable.Parse(parser) },
             { "BurstCount", (parser, x) => x.BurstCount = RandomVariable.Parse(parser) },
             { "InitialDelay", (parser, x) => x.InitialDelay = RandomVariable.Parse(parser) },
-            { "DriftVelocity", (parser, x) => x.DriftVelocity = Coord3D.Parse(parser) },
+            { "DriftVelocity", (parser, x) => x.DriftVelocity = parser.ParseVector3() },
             { "VelocityType", (parser, x) => x.VelocityType = parser.ParseEnum<ParticleVelocityType>() },
             { "VelOrthoX", (parser, x) => x.VelOrthoX = RandomVariable.Parse(parser) },
             { "VelOrthoY", (parser, x) => x.VelOrthoY = RandomVariable.Parse(parser) },
@@ -68,12 +69,12 @@ namespace OpenSage.Data.Ini
             { "VelCylindricalRadial", (parser, x) => x.VelCylindricalRadial = RandomVariable.Parse(parser) },
             { "VelCylindricalNormal", (parser, x) => x.VelCylindricalNormal = RandomVariable.Parse(parser) },
             { "VolumeType", (parser, x) => x.VolumeType = parser.ParseEnum<ParticleVolumeType>() },
-            { "VolLineStart", (parser, x) => x.VolLineStart = Coord3D.Parse(parser) },
-            { "VolLineEnd", (parser, x) => x.VolLineEnd = Coord3D.Parse(parser) },
+            { "VolLineStart", (parser, x) => x.VolLineStart = parser.ParseVector3() },
+            { "VolLineEnd", (parser, x) => x.VolLineEnd = parser.ParseVector3() },
             { "VolCylinderRadius", (parser, x) => x.VolCylinderRadius = parser.ParseFloat() },
             { "VolCylinderLength", (parser, x) => x.VolCylinderLength = parser.ParseFloat() },
             { "VolSphereRadius", (parser, x) => x.VolSphereRadius = parser.ParseFloat() },
-            { "VolBoxHalfSize", (parser, x) => x.VolBoxHalfSize = Coord3D.Parse(parser) },
+            { "VolBoxHalfSize", (parser, x) => x.VolBoxHalfSize = parser.ParseVector3() },
             { "IsHollow", (parser, x) => x.IsHollow = parser.ParseBoolean() },
             { "IsGroundAligned", (parser, x) => x.IsGroundAligned = parser.ParseBoolean() },
             { "IsEmitAboveGroundOnly", (parser, x) => x.IsEmitAboveGroundOnly = parser.ParseBoolean() },
@@ -108,7 +109,7 @@ namespace OpenSage.Data.Ini
         public float Gravity { get; private set; }
         public string PerParticleAttachedSystem { get; private set; }
         public string SlaveSystem { get; private set; }
-        public Coord3D SlavePosOffset { get; private set; }
+        public Vector3 SlavePosOffset { get; private set; }
         public RandomVariable Lifetime { get; private set; }
         public int SystemLifetime { get; private set; }
         public RandomVariable Size { get; private set; }
@@ -135,7 +136,7 @@ namespace OpenSage.Data.Ini
         public RandomVariable BurstDelay { get; private set; }
         public RandomVariable BurstCount { get; private set; }
         public RandomVariable InitialDelay { get; private set; }
-        public Coord3D DriftVelocity { get; private set; }
+        public Vector3 DriftVelocity { get; private set; }
         public ParticleVelocityType VelocityType { get; private set; }
         public RandomVariable VelOrthoX { get; private set; }
         public RandomVariable VelOrthoY { get; private set; }
@@ -147,12 +148,12 @@ namespace OpenSage.Data.Ini
         public RandomVariable VelCylindricalRadial { get; private set; }
         public RandomVariable VelCylindricalNormal { get; private set; }
         public ParticleVolumeType VolumeType { get; private set; }
-        public Coord3D VolLineStart { get; private set; }
-        public Coord3D VolLineEnd { get; private set; }
+        public Vector3 VolLineStart { get; private set; }
+        public Vector3 VolLineEnd { get; private set; }
         public float VolCylinderRadius { get; private set; }
         public float VolCylinderLength { get; private set; }
         public float VolSphereRadius { get; private set; }
-        public Coord3D VolBoxHalfSize { get; private set; }
+        public Vector3 VolBoxHalfSize { get; private set; }
         public bool IsHollow { get; private set; }
         public bool IsGroundAligned { get; private set; }
         public bool IsEmitAboveGroundOnly { get; private set; }

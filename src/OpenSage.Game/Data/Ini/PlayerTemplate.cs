@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using System.Numerics;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
@@ -50,8 +51,8 @@ namespace OpenSage.Data.Ini
             { "MaxLevelSP", (parser, x) => x.MaxLevelSP = parser.ParseInteger() },
             { "MaxLevelMP", (parser, x) => x.MaxLevelMP = parser.ParseInteger() },
             { "StartingUnit1", (parser, x) => x.StartingUnit1 = parser.ParseAssetReference() },
-            { "StartingUnitOffset0", (parser, x) => x.StartingUnitOffset0 = Coord3D.Parse(parser) },
-            { "StartingUnitOffset1", (parser, x) => x.StartingUnitOffset1 = Coord3D.Parse(parser) },
+            { "StartingUnitOffset0", (parser, x) => x.StartingUnitOffset0 = parser.ParseVector3() },
+            { "StartingUnitOffset1", (parser, x) => x.StartingUnitOffset1 = parser.ParseVector3() },
             { "StartingUnitTacticalWOTR", (parser, x) => x.StartingUnitTacticalWOTR = parser.ParseAssetReference() },
             { "IntrinsicSciencesMP", (parser, x) => x.IntrinsicSciencesMP = parser.ParseAssetReferenceArray() },
             { "SpellBook", (parser, x) => x.SpellBook = parser.ParseAssetReference() },
@@ -135,13 +136,13 @@ namespace OpenSage.Data.Ini
         public int MaxLevelMP { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public Coord3D StartingUnitOffset0 { get; private set; }
+        public Vector3 StartingUnitOffset0 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string StartingUnit1 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public Coord3D StartingUnitOffset1 { get; private set; }
+        public Vector3 StartingUnitOffset1 { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string[] IntrinsicSciencesMP { get; private set; }

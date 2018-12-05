@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Mathematics;
+using System.Numerics;
 
 namespace OpenSage.Data.Ini
 {
@@ -32,7 +33,7 @@ namespace OpenSage.Data.Ini
             { "SmallArmyCommandPoints", (parser, x) => x.SmallArmyCommandPoints = parser.ParseInteger() },
             { "MediumArmyCommandPoints", (parser, x) => x.MediumArmyCommandPoints = parser.ParseInteger() },
 
-            { "ArmyPlacementPos", (parser, x) => x.ArmyPlacementPositions.Add(Coord2D.Parse(parser)) },
+            { "ArmyPlacementPos", (parser, x) => x.ArmyPlacementPositions.Add(parser.ParseVector2()) },
 
             { "EnemyBordersEffect", (parser, x) => x.EnemyBordersEffect = LivingWorldRegionCampaignEffect.Parse(parser) },
             { "FriendlyBordersEffect", (parser, x) => x.FriendlyBordersEffect = LivingWorldRegionCampaignEffect.Parse(parser) },
@@ -65,7 +66,7 @@ namespace OpenSage.Data.Ini
         public int SmallArmyCommandPoints { get; private set; }
         public int MediumArmyCommandPoints { get; private set; }
 
-        public List<Coord2D> ArmyPlacementPositions { get; } = new List<Coord2D>();
+        public List<Vector2> ArmyPlacementPositions { get; } = new List<Vector2>();
 
         public LivingWorldRegionCampaignEffect EnemyBordersEffect { get; private set; }
         public LivingWorldRegionCampaignEffect FriendlyBordersEffect { get; private set; }
@@ -102,14 +103,14 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<LivingWorldControlPoint> FieldParseTable = new IniParseTable<LivingWorldControlPoint>
         {
-            { "Position", (parser, x) => x.Position = Coord3D.Parse(parser) },
+            { "Position", (parser, x) => x.Position = parser.ParseVector3() },
             { "Angle", (parser, x) => x.Angle = parser.ParseInteger() },
             { "EaseIn", (parser, x) => x.EaseIn = parser.ParseFloat() },
             { "EaseOut", (parser, x) => x.EaseOut = parser.ParseFloat() },
             { "Time", (parser, x) => x.Time = parser.ParseFloat() }
         };
 
-        public Coord3D Position { get; private set; }
+        public Vector3 Position { get; private set; }
 
         /// <summary>
         /// Angle around Z in degrees.
@@ -149,7 +150,7 @@ namespace OpenSage.Data.Ini
             { "SkirmishMusicTrack", (parser, x) => x.SkirmishMusicTrack = parser.ParseAssetReference() },
             { "RegionPortrait", (parser, x) => x.RegionPortrait = parser.ParseAssetReference() },
             { "CustomUIPopupPoint", (parser, x) => x.CustomUIPopupPoint = parser.ParseBoolean() },
-            { "UIPopupPoint", (parser, x) => x.UIPopupPoint = Coord2D.Parse(parser) },
+            { "UIPopupPoint", (parser, x) => x.UIPopupPoint = parser.ParseVector2() },
             { "SubObject", (parser, x) => x.SubObject = parser.ParseAssetReference() },
             { "RegionBonus", (parser, x) => x.RegionBonus = parser.ParseAssetReference() },
             { "LegendaryBonus", (parser, x) => x.LegendaryBonus = parser.ParseInteger() },
@@ -158,14 +159,14 @@ namespace OpenSage.Data.Ini
             { "DisplayActNum", (parser, x) => x.DisplayActNum = parser.ParseInteger() },
             { "UnpackCamps", (parser, x) => x.UnpackCamps = parser.ParseBoolean() },
             { "CustomCenterPoint", (parser, x) => x.CustomCenterPoint = parser.ParseBoolean() },
-            { "CenterPoint", (parser, x) => x.CenterPoint = Coord2D.Parse(parser) },
+            { "CenterPoint", (parser, x) => x.CenterPoint = parser.ParseVector2() },
             { "EndOfCampaign", (parser, x) => x.EndOfCampaign = parser.ParseBoolean() },
 
             { "ConnectsTo", (parser, x) => x.ConnectsTo = parser.ParseAssetReferenceArray() },
 
             { "SkirmishOpponent", (parser, x) => x.SkirmishOpponents.Add(LivingWorldRegionCampaignRegionSkirmishOpponent.Parse(parser)) },
 
-            { "ArmyPlacementPos", (parser, x) => x.ArmyPlacementPositions.Add(Coord2D.Parse(parser)) },
+            { "ArmyPlacementPos", (parser, x) => x.ArmyPlacementPositions.Add(parser.ParseVector2()) },
         };
 
         public string Name { get; private set; }
@@ -183,7 +184,7 @@ namespace OpenSage.Data.Ini
         public string SubObject { get; private set; }
         public string RegionPortrait { get; private set; }
         public bool CustomUIPopupPoint { get; private set; }
-        public Coord2D UIPopupPoint { get; private set; }
+        public Vector2 UIPopupPoint { get; private set; }
         public string RegionBonus { get; private set; }
         public int LegendaryBonus { get; private set; }
         public int ResourceBonus { get; private set; }
@@ -191,14 +192,14 @@ namespace OpenSage.Data.Ini
         public int DisplayActNum { get; private set; }
         public bool UnpackCamps { get; private set; }
         public bool CustomCenterPoint { get; private set; }
-        public Coord2D CenterPoint { get; private set; }
+        public Vector2 CenterPoint { get; private set; }
         public bool EndOfCampaign { get; private set; }
 
         public string[] ConnectsTo { get; private set; }
 
         public List<LivingWorldRegionCampaignRegionSkirmishOpponent> SkirmishOpponents { get; } = new List<LivingWorldRegionCampaignRegionSkirmishOpponent>();
 
-        public List<Coord2D> ArmyPlacementPositions { get; } = new List<Coord2D>();
+        public List<Vector2> ArmyPlacementPositions { get; } = new List<Vector2>();
     }
 
     [AddedIn(SageGame.Bfme)]

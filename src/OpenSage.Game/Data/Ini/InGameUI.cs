@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Mathematics;
+using System.Numerics;
 
 namespace OpenSage.Data.Ini
 {
@@ -14,14 +15,14 @@ namespace OpenSage.Data.Ini
 
             { "MessageColor1", (parser, x) => x.MessageColor1 = IniColorRgb.Parse(parser) },
             { "MessageColor2", (parser, x) => x.MessageColor2 = IniColorRgb.Parse(parser) },
-            { "MessagePosition", (parser, x) => x.MessagePosition = Coord2D.Parse(parser) },
+            { "MessagePosition", (parser, x) => x.MessagePosition = parser.ParseVector2() },
             { "MessageFont", (parser, x) => x.MessageFont = parser.ParseString() },
             { "MessagePointSize", (parser, x) => x.MessagePointSize = parser.ParseInteger() },
             { "MessageBold", (parser, x) => x.MessageBold = parser.ParseBoolean() },
             { "MessageDelayMS", (parser, x) => x.MessageDelayMS = parser.ParseInteger() },
 
             { "MilitaryCaptionColor", (parser, x) => x.MilitaryCaptionColor = parser.ParseColorRgba() },
-            { "MilitaryCaptionPosition", (parser, x) => x.MilitaryCaptionPosition = Coord2D.Parse(parser) },
+            { "MilitaryCaptionPosition", (parser, x) => x.MilitaryCaptionPosition = parser.ParseVector2() },
             { "MilitaryCaptionCentered", (parser, x) => x.MilitaryCaptionCentered = parser.ParseBoolean() },
             { "MilitaryCaptionTitleFont", (parser, x) => x.MilitaryCaptionTitleFont = parser.ParseString() },
             { "MilitaryCaptionTitlePointSize", (parser, x) => x.MilitaryCaptionTitlePointSize = parser.ParseInteger() },
@@ -39,7 +40,7 @@ namespace OpenSage.Data.Ini
             { "DrawableCaptionBold", (parser, x) => x.DrawableCaptionBold = parser.ParseBoolean() },
             { "DrawableCaptionColor", (parser, x) => x.DrawableCaptionColor = IniColorRgb.Parse(parser) },
 
-            { "SuperweaponCountdownPosition", (parser, x) => x.SuperweaponCountdownPosition = Coord2D.Parse(parser) },
+            { "SuperweaponCountdownPosition", (parser, x) => x.SuperweaponCountdownPosition = parser.ParseVector2() },
             { "SuperweaponCountdownFlashDuration", (parser, x) => x.SuperweaponCountdownFlashDuration = parser.ParseInteger() },
             { "SuperweaponCountdownFlashColor", (parser, x) => x.SuperweaponCountdownFlashColor = IniColorRgb.Parse(parser) },
 
@@ -51,7 +52,7 @@ namespace OpenSage.Data.Ini
             { "SuperweaponCountdownReadyPointSize", (parser, x) => x.SuperweaponCountdownReadyPointSize = parser.ParseInteger() },
             { "SuperweaponCountdownReadyBold", (parser, x) => x.SuperweaponCountdownReadyBold = parser.ParseBoolean() },
 
-            { "NamedTimerCountdownPosition", (parser, x) => x.NamedTimerCountdownPosition = Coord2D.Parse(parser) },
+            { "NamedTimerCountdownPosition", (parser, x) => x.NamedTimerCountdownPosition = parser.ParseVector2() },
             { "NamedTimerCountdownFlashDuration", (parser, x) => x.NamedTimerCountdownFlashDuration = parser.ParseInteger() },
             { "NamedTimerCountdownFlashColor", (parser, x) => x.NamedTimerCountdownFlashColor = IniColorRgb.Parse(parser) },
 
@@ -162,14 +163,14 @@ namespace OpenSage.Data.Ini
 
         public IniColorRgb MessageColor1 { get; private set; }
         public IniColorRgb MessageColor2 { get; private set; }
-        public Coord2D MessagePosition { get; private set; }
+        public Vector2 MessagePosition { get; private set; }
         public string MessageFont { get; private set; }
         public int MessagePointSize { get; private set; }
         public bool MessageBold { get; private set; }
         public int MessageDelayMS { get; private set; }
 
         public ColorRgba MilitaryCaptionColor { get; private set; }
-        public Coord2D MilitaryCaptionPosition { get; private set; }
+        public Vector2 MilitaryCaptionPosition { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public bool MilitaryCaptionCentered { get; private set; }
@@ -197,7 +198,7 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.Bfme)]
         public IniColorRgb DrawableCaptionColor { get; private set; }
 
-        public Coord2D SuperweaponCountdownPosition { get; private set; }
+        public Vector2 SuperweaponCountdownPosition { get; private set; }
         public int SuperweaponCountdownFlashDuration { get; private set; }
         public IniColorRgb SuperweaponCountdownFlashColor { get; private set; }
 
@@ -209,7 +210,7 @@ namespace OpenSage.Data.Ini
         public int SuperweaponCountdownReadyPointSize { get; private set; }
         public bool SuperweaponCountdownReadyBold { get; private set; }
 
-        public Coord2D NamedTimerCountdownPosition { get; private set; }
+        public Vector2 NamedTimerCountdownPosition { get; private set; }
         public int NamedTimerCountdownFlashDuration { get; private set; }
         public IniColorRgb NamedTimerCountdownFlashColor { get; private set; }
 

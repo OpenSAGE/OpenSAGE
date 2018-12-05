@@ -1,4 +1,5 @@
 ﻿using OpenSage.Data.Ini.Parser;
+using System.Numerics;
 
 namespace OpenSage.Data.Ini
 {
@@ -104,9 +105,9 @@ namespace OpenSage.Data.Ini
             { "LightningIntensity", (parser, x) => x.LightningIntensity = parser.ParseFloat() },
             { "LightningShadowColor", (parser, x) => x.LightningShadowColor = IniColorRgb.Parse(parser) },
             { "LightningShadowIntensity", (parser, x) => x.LightningShadowIntensity = parser.ParseFloat() },
-            { "LightningLightPosition1", (parser, x) => x.LightningLightPosition1 = Coord2D.Parse(parser) },
-            { "LightningLightPosition2", (parser, x) => x.LightningLightPosition2 = Coord2D.Parse(parser) },
-            { "LightningLightPosition3", (parser, x) => x.LightningLightPosition3 = Coord2D.Parse(parser) },
+            { "LightningLightPosition1", (parser, x) => x.LightningLightPosition1 = parser.ParseVector2() },
+            { "LightningLightPosition2", (parser, x) => x.LightningLightPosition2 = parser.ParseVector2() },
+            { "LightningLightPosition3", (parser, x) => x.LightningLightPosition3 = parser.ParseVector2() },
             { "LightningFX", (parser, x) => x.LightningFX = parser.ParseAssetReference() },
         };
 
@@ -132,9 +133,9 @@ namespace OpenSage.Data.Ini
         public float LightningIntensity { get; private set; }
         public IniColorRgb LightningShadowColor { get; private set; }
         public float LightningShadowIntensity { get; private set; }
-        public Coord2D LightningLightPosition1 { get; private set; }
-        public Coord2D LightningLightPosition2 { get; private set; }
-        public Coord2D LightningLightPosition3 { get; private set; }
+        public Vector2 LightningLightPosition1 { get; private set; }
+        public Vector2 LightningLightPosition2 { get; private set; }
+        public Vector2 LightningLightPosition3 { get; private set; }
         public string LightningFX { get; private set; }
     }
 }

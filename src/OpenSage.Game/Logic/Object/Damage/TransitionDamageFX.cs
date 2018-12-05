@@ -116,12 +116,12 @@ namespace OpenSage.Logic.Object
         {
             return new TransitionDamageFXList
             {
-                Location = parser.ParseAttribute("Loc", () => Coord3D.Parse(parser)),
+                Location = parser.ParseAttribute("Loc", () => parser.ParseVector3()),
                 FXList = parser.ParseAttribute("FXList", parser.ScanAssetReference)
             };
         }
 
-        public Coord3D Location { get; private set; }
+        public Vector3 Location { get; private set; }
         public string FXList { get; private set; }
     }
 
