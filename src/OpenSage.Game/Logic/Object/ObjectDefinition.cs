@@ -336,7 +336,8 @@ namespace OpenSage.Logic.Object
             { "VisionBonusTestRadius", (parser, x) => x.VisionBonusTestRadius = parser.ParseInteger() },
             { "CrowdResponseKey", (parser, x) => x.CrowdResponseKey = parser.ParseIdentifier() },
             { "CommandPointBonus", (parser, x) => x.CommandPointBonus = parser.ParseInteger() },
-            { "Flammability", (parser, x) => x.Flammability = Flammability.Parse(parser) }
+            { "Flammability", (parser, x) => x.Flammability = Flammability.Parse(parser) },
+            { "ThreatBreakdown", (parser, x) => x.ThreatBreakdown = ThreatBreakdown.Parse(parser) }
         };
 
         public string Name { get; protected set; }
@@ -1045,6 +1046,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public Flammability Flammability { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ThreatBreakdown ThreatBreakdown { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -1233,6 +1237,23 @@ namespace OpenSage.Logic.Object
         public int Resistance { get; private set; }
     }
 
+    [AddedIn(SageGame.Bfme2)]
+    public sealed class ThreatBreakdown
+    {
+        internal static ThreatBreakdown Parse(IniParser parser)
+        {
+            return parser.ParseNamedBlock((x, name) => x.ModuleTag = name, FieldParseTable);
+        }
+
+        internal static readonly IniParseTable<ThreatBreakdown> FieldParseTable = new IniParseTable<ThreatBreakdown>
+        {
+            { "AIKindOf", (parser, x) => x.AiKindOf = parser.ParseEnum<AiKindOf>() },
+        };
+
+        public string ModuleTag { get; private set; }
+        public AiKindOf AiKindOf { get; private set; }
+    }
+
 
     [AddedIn(SageGame.Bfme)]
     public enum ContactPointType
@@ -1256,5 +1277,12 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("Menu")]
         Menu,
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public enum AiKindOf
+    {
+        [IniEnum("BATTLE_TOWER")]
+        BattleTower,
     }
 }

@@ -649,5 +649,20 @@
 
         [IniEnum("SPELL_BOOK"), AddedIn(SageGame.Bfme)]
         SpellBook,
+
+        [IniEnum("NEVER_CULL_FOR_MP"), AddedIn(SageGame.Bfme2)]
+        NeverCullForMP,
+
+        [IniEnum("SCALEABLE_WALL"), AddedIn(SageGame.Bfme2)]
+        ScaleableWall,
+
+        [IniEnum("DONT_HIDE_IF_FOGGED"), AddedIn(SageGame.Bfme2)]
+        DontHideIfFogged,
+
+        [IniEnum("WALL_GATE"), AddedIn(SageGame.Bfme2)]
+        WallGate,
+
+        [IniEnum("DOZER_FACTORY"), AddedIn(SageGame.Bfme2)]
+        DozerFactory,
     }
 }

@@ -25,6 +25,9 @@
         Always,
 
         [IniEnum("CAMPNESS_TECH")]
-        Tech
+        Tech,
+
+        [IniEnum("CAMPNESS_RESOURCE_BUILDING"), AddedIn(SageGame.Bfme2)]
+        CampnessResourceBuilding,
     }
 }
