@@ -621,12 +621,13 @@ namespace OpenSage.Data.Ini.Parser
             {
                 if (_tokenReader.EndOfFile)
                 {
-                    if (isIncludedBlock)
+                    if (!isIncludedBlock)
                     {
-                        done = true;
-                        continue;
+                        throw new InvalidOperationException();
                     }
-                    throw new InvalidOperationException();
+
+                    done = true;
+                    continue;
                 }
 
                 _tokenReader.GoToNextLine();
