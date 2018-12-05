@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -16,18 +15,19 @@ namespace OpenSage.Logic.Object
         public ModelCondition ModelCondition { get; private set; }
     }
 
-    public struct ModelCondition
+    public sealed class ModelCondition
     {
-        internal static ModelCondition Parse(IniParser parser)
+        internal static ModelCondition Parse(IniParser parser) => parser.ParseAttributeList(FieldParseTable);
+
+        internal static readonly IniParseTable<ModelCondition> FieldParseTable = new IniParseTable<ModelCondition>
         {
-            return new ModelCondition()
-            {
-                Required = parser.ParseAttributeEnum<ModelConditionFlag>("REQUIRED"),
-                Sound = parser.ParseAttributeIdentifier("Sound")
-            };
-        }
+            { "REQUIRED", (parser, x) => x.Required = parser.ParseEnum<ModelConditionFlag>() },
+            { "Sound", (parser, x) => x.Sound = parser.ParseAssetReference() },
+            { "EXCLUDED", (parser, x) => x.Excluded = parser.ParseEnum<ModelConditionFlag>() }
+        };
 
         public ModelConditionFlag Required { get; private set; }
+        public ModelConditionFlag Excluded { get; private set; }
         public string Sound { get; private set; }
     }
 }

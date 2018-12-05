@@ -28,6 +28,15 @@
         Tech,
 
         [IniEnum("CAMPNESS_RESOURCE_BUILDING"), AddedIn(SageGame.Bfme2)]
-        CampnessResourceBuilding,
+        ResourceBuilding,
+
+        [IniEnum("CAMPNESS_ALWAYS_CAMP"), AddedIn(SageGame.Bfme2)]
+        AlwaysCamp,
+
+        [IniEnum("CAMPNESS_DEFENSIVE_TOWER"), AddedIn(SageGame.Bfme2)]
+        DefensiveTower,
+
+        [IniEnum("CAMPNESS_TECH_BUILDING"), AddedIn(SageGame.Bfme2)]
+        TechBuilding,
     }
 }

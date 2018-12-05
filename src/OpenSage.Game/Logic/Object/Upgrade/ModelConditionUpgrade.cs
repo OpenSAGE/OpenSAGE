@@ -16,9 +16,15 @@ namespace OpenSage.Logic.Object
             {
                 { "ConditionFlag", (parser, x) => x.ConditionFlag = parser.ParseEnum<ModelConditionFlag>() },
                 { "AddConditionFlags", (parser, x) => x.AddConditionFlags = parser.ParseEnumBitArray<ModelConditionFlag>() },
+                { "Permanent", (parser, x) => x.Permanent = parser.ParseBoolean() },
             });
 
         public ModelConditionFlag ConditionFlag { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
         public BitArray<ModelConditionFlag> AddConditionFlags { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool Permanent { get; private set; }
     }
 }

@@ -15,11 +15,13 @@ namespace OpenSage.Logic.Object
                 { "MaxIncome", (parser, x) => x.MaxIncome = parser.ParseInteger() },
                 { "IncomeInterval", (parser, x) => x.IncomeInterval = parser.ParseInteger() },
                 { "HighPriority", (parser, x) => x.HighPriority = parser.ParseBoolean() },
+                { "Visible", (parser, x) => x.Visible = parser.ParseBoolean() }
             });
 
         public int Radius { get; private set; }
         public int MaxIncome { get; private set; }
         public int IncomeInterval { get; private set; }
         public bool HighPriority { get; private set; }
+        public bool Visible { get; private set; }
     }
 }

@@ -19,7 +19,8 @@ namespace OpenSage.Logic.Object
             { "SoundFinishedClosingGate", (parser, x) => x.SoundFinishedClosingGate = parser.ParseAssetReference() },
             { "TimeBeforePlayingOpenSound", (parser, x) => x.TimeBeforePlayingOpenSound = parser.ParseInteger() },
             { "TimeBeforePlayingClosedSound", (parser, x) => x.TimeBeforePlayingClosedSound = parser.ParseInteger() },
-            { "Proxy", (parser, x) => x.Proxy = parser.ParseAssetReference() }
+            { "Proxy", (parser, x) => x.Proxy = parser.ParseAssetReference() },
+            { "RepelCollidingUnits", (parser, x) => x.RepelCollidingUnits = parser.ParseBoolean() }
         };
 
         public int ResetTimeInMilliseconds { get; private set; }
@@ -32,5 +33,8 @@ namespace OpenSage.Logic.Object
         public int TimeBeforePlayingOpenSound { get; private set; }
         public int TimeBeforePlayingClosedSound { get; private set; }
         public string Proxy { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool RepelCollidingUnits { get; private set; }
     }
 }
