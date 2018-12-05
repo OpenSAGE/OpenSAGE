@@ -11,6 +11,7 @@ struct MeshConstantsType
 {
     bool SkinningEnabled;
     uint NumBones;
+    vec2 Padding;
 };
 
 struct RenderItemConstantsVSType
