@@ -1217,16 +1217,15 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme2)]
     public sealed class Flammability
     {
-        internal static Flammability Parse(IniParser parser)
+        internal static Flammability Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        internal static readonly IniParseTable<Flammability> FieldParseTable = new IniParseTable<Flammability>
         {
-            return new Flammability()
-            {
-                Fuel = parser.ParseAssetReference(),
-                MaxBurnRate = parser.ParseInteger(),
-                Decay = parser.ParseInteger(),
-                Resistance = parser.ParseInteger()
-            };
-        }
+            { "Fuel", (parser, x) => x.Fuel = parser.ParseAssetReference() },
+            { "MaxBurnRate", (parser, x) => x.MaxBurnRate = parser.ParseInteger() },
+            { "Decay", (parser, x) => x.Decay = parser.ParseInteger() },
+            { "Resistance", (parser, x) => x.Resistance = parser.ParseInteger() },
+        };
 
         public string Fuel { get; private set; }
         public int MaxBurnRate { get; private set; }

@@ -64,6 +64,7 @@ namespace OpenSage.Logic.Object
             { "TechBuildingBehavior", TechBuildingBehaviorModuleData.Parse },
             { "BezierProjectileBehavior", BezierProjectileBehaviorData.Parse },
             { "HitReactionBehavior", HitReactionBehaviorData.Parse },
+            { "TerrainResourceBehavior", TerrainResourceBehaviorModuleData.Parse },
 
             // Collide
             { "CivilianSpawnCollide", CivilianSpawnCollideModuleData.Parse },
