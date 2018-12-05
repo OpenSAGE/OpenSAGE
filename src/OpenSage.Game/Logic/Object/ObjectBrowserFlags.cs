@@ -86,5 +86,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("MINAS_MORGUL"), AddedIn(SageGame.Bfme2)]
         Minas_Morgul            = 1 << 25,
+
+        [IniEnum("SHIRE"), AddedIn(SageGame.Bfme2)]
+        Shire                   = 1 << 26,
     }
 }

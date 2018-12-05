@@ -71,6 +71,7 @@ namespace OpenSage.Logic.Object
             { "ShadowOverrideLODVisibility", (parser, x) => x.ShadowOverrideLODVisibility = parser.ParseBoolean() },
             { "StateName", (parser, x) => x.StateName = parser.ParseString() },
             { "RetainSubObjects", (parser, x) => x.RetainSubObjects = parser.ParseBoolean() },
+            { "Texture", (parser, x) => x.Textures = parser.ParseAssetReferenceArray() }
         };
 
         private void ParseAnimation(IniParser parser)
@@ -166,6 +167,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool RetainSubObjects { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string[] Textures { get; private set; }
+
 
         /// <summary>
         /// Used by AliasConditionState.

@@ -270,6 +270,7 @@ namespace OpenSage.Logic.Object
             { "WeaponModeSpecialPowerUpdate", WeaponModeSpecialPowerUpdateModuleData.Parse },
 
             // Update/AIUpdate
+            { "AISpecialPowerUpdate", AISpecialPowerUpdateModuleData.Parse },
             { "AIUpdateInterface", AIUpdateModuleData.Parse },
             { "AnimalAIUpdate", AnimalAIUpdateModuleData.Parse },
             { "AssaultTransportAIUpdate", AssaultTransportAIUpdateModuleData.Parse },

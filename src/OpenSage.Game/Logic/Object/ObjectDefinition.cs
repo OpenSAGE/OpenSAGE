@@ -335,6 +335,8 @@ namespace OpenSage.Logic.Object
             { "MaxVisionBonusPercent", (parser, x) => x.MaxVisionBonusPercent = parser.ParsePercentage() },
             { "VisionBonusTestRadius", (parser, x) => x.VisionBonusTestRadius = parser.ParseInteger() },
             { "CrowdResponseKey", (parser, x) => x.CrowdResponseKey = parser.ParseIdentifier() },
+            { "CommandPointBonus", (parser, x) => x.CommandPointBonus = parser.ParseInteger() },
+            { "Flammability", (parser, x) => x.Flammability = Flammability.Parse(parser) }
         };
 
         public string Name { get; protected set; }
@@ -1037,6 +1039,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string CrowdResponseKey { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int CommandPointBonus { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Flammability Flammability { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -1197,18 +1205,35 @@ namespace OpenSage.Logic.Object
         {
             return new ContactPoint()
             {
-                X = parser.ParseAttributeFloat("X"),
-                Y = parser.ParseAttributeFloat("Y"),
-                Z = parser.ParseAttributeFloat("Z"),
+                Position = parser.ParseVector3(),
                 Type = parser.ParseEnumFlags<ContactPointType>()
             };
         }
 
-        public float X { get; internal set; }
-        public float Y { get; internal set; }
-        public float Z { get; internal set; }
+        public Vector3 Position { get; private set; }
         public ContactPointType Type { get; internal set; }
     }
+
+    [AddedIn(SageGame.Bfme2)]
+    public sealed class Flammability
+    {
+        internal static Flammability Parse(IniParser parser)
+        {
+            return new Flammability()
+            {
+                Fuel = parser.ParseAssetReference(),
+                MaxBurnRate = parser.ParseInteger(),
+                Decay = parser.ParseInteger(),
+                Resistance = parser.ParseInteger()
+            };
+        }
+
+        public string Fuel { get; private set; }
+        public int MaxBurnRate { get; private set; }
+        public int Decay { get; private set; }
+        public int Resistance { get; private set; }
+    }
+
 
     [AddedIn(SageGame.Bfme)]
     public enum ContactPointType
