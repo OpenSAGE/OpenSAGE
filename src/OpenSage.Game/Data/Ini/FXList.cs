@@ -529,4 +529,14 @@ namespace OpenSage.Data.Ini
         [IniEnum("UNIFORM")]
         Uniform
     }
+
+    [AddedIn(SageGame.Bfme2)]
+    public enum FxType
+    {
+        [IniEnum("BIG_ROCK")]
+        BigRock,
+
+        [IniEnum("FLAME")]
+        Flame,
+    }
 }
