@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Data.Map;
+using System.Numerics;
 
 namespace OpenSage.Data.Ini
 {
@@ -200,10 +201,10 @@ namespace OpenSage.Data.Ini
 
             { "AmmoPipScaleFactor", (parser, x) => x.AmmoPipScaleFactor = parser.ParseFloat() },
             { "ContainerPipScaleFactor", (parser, x) => x.ContainerPipScaleFactor = parser.ParseFloat() },
-            { "AmmoPipScreenOffset", (parser, x) => x.AmmoPipScreenOffset = Coord2D.Parse(parser) },
-            { "ContainerPipScreenOffset", (parser, x) => x.ContainerPipScreenOffset = Coord2D.Parse(parser) },
-            { "AmmoPipWorldOffset", (parser, x) => x.AmmoPipWorldOffset = Coord3D.Parse(parser) },
-            { "ContainerPipWorldOffset", (parser, x) => x.ContainerPipWorldOffset = Coord3D.Parse(parser) },
+            { "AmmoPipScreenOffset", (parser, x) => x.AmmoPipScreenOffset = parser.ParseVector2() },
+            { "ContainerPipScreenOffset", (parser, x) => x.ContainerPipScreenOffset = parser.ParseVector2() },
+            { "AmmoPipWorldOffset", (parser, x) => x.AmmoPipWorldOffset = parser.ParseVector3() },
+            { "ContainerPipWorldOffset", (parser, x) => x.ContainerPipWorldOffset = parser.ParseVector3() },
 
             { "LevelGainAnimationName", (parser, x) => x.LevelGainAnimationName = parser.ParseAssetReference() },
             { "LevelGainAnimationTime", (parser, x) => x.LevelGainAnimationTime = parser.ParseFloat() },
@@ -230,51 +231,51 @@ namespace OpenSage.Data.Ini
 
             { "TerrainLightingMorningAmbient", (parser, x) => x.TerrainLightingMorningAmbient = IniColorRgb.Parse(parser) },
             { "TerrainLightingMorningDiffuse", (parser, x) => x.TerrainLightingMorningDiffuse = IniColorRgb.Parse(parser) },
-            { "TerrainLightingMorningLightPos", (parser, x) => x.TerrainLightingMorningLightPos = Coord3D.Parse(parser) },
+            { "TerrainLightingMorningLightPos", (parser, x) => x.TerrainLightingMorningLightPos = parser.ParseVector3() },
 
             { "TerrainLightingEveningAmbient", (parser, x) => x.TerrainLightingEveningAmbient = IniColorRgb.Parse(parser) },
             { "TerrainLightingEveningDiffuse", (parser, x) => x.TerrainLightingEveningDiffuse = IniColorRgb.Parse(parser) },
-            { "TerrainLightingEveningLightPos", (parser, x) => x.TerrainLightingEveningLightPos = Coord3D.Parse(parser) },
+            { "TerrainLightingEveningLightPos", (parser, x) => x.TerrainLightingEveningLightPos = parser.ParseVector3() },
 
             { "TerrainLightingNightAmbient", (parser, x) => x.TerrainLightingNightAmbient = IniColorRgb.Parse(parser) },
             { "TerrainLightingNightDiffuse", (parser, x) => x.TerrainLightingNightDiffuse = IniColorRgb.Parse(parser) },
-            { "TerrainLightingNightLightPos", (parser, x) => x.TerrainLightingNightLightPos = Coord3D.Parse(parser) },
+            { "TerrainLightingNightLightPos", (parser, x) => x.TerrainLightingNightLightPos = parser.ParseVector3() },
 
             { "TerrainObjectsLightingMorningAmbient", (parser, x) => x.TerrainObjectsLightingMorningAmbient = IniColorRgb.Parse(parser) },
             { "TerrainObjectsLightingMorningDiffuse", (parser, x) => x.TerrainObjectsLightingMorningDiffuse = IniColorRgb.Parse(parser) },
-            { "TerrainObjectsLightingMorningLightPos", (parser, x) => x.TerrainObjectsLightingMorningLightPos = Coord3D.Parse(parser) },
+            { "TerrainObjectsLightingMorningLightPos", (parser, x) => x.TerrainObjectsLightingMorningLightPos = parser.ParseVector3() },
 
             { "TerrainObjectsLightingEveningAmbient", (parser, x) => x.TerrainObjectsLightingEveningAmbient = IniColorRgb.Parse(parser) },
             { "TerrainObjectsLightingEveningDiffuse", (parser, x) => x.TerrainObjectsLightingEveningDiffuse = IniColorRgb.Parse(parser) },
-            { "TerrainObjectsLightingEveningLightPos", (parser, x) => x.TerrainObjectsLightingEveningLightPos = Coord3D.Parse(parser) },
+            { "TerrainObjectsLightingEveningLightPos", (parser, x) => x.TerrainObjectsLightingEveningLightPos = parser.ParseVector3() },
 
             { "TerrainObjectsLightingNightAmbient", (parser, x) => x.TerrainObjectsLightingNightAmbient = IniColorRgb.Parse(parser) },
             { "TerrainObjectsLightingNightDiffuse", (parser, x) => x.TerrainObjectsLightingNightDiffuse = IniColorRgb.Parse(parser) },
-            { "TerrainObjectsLightingNightLightPos", (parser, x) => x.TerrainObjectsLightingNightLightPos = Coord3D.Parse(parser) },
+            { "TerrainObjectsLightingNightLightPos", (parser, x) => x.TerrainObjectsLightingNightLightPos = parser.ParseVector3() },
 
             { "TerrainLightingAfternoonAmbient", (parser, x) => x.TerrainLightingAfternoonAmbient = IniColorRgb.Parse(parser) },
             { "TerrainLightingAfternoonDiffuse", (parser, x) => x.TerrainLightingAfternoonDiffuse = IniColorRgb.Parse(parser) },
-            { "TerrainLightingAfternoonLightPos", (parser, x) => x.TerrainLightingAfternoonLightPos = Coord3D.Parse(parser) },
+            { "TerrainLightingAfternoonLightPos", (parser, x) => x.TerrainLightingAfternoonLightPos = parser.ParseVector3() },
 
             { "TerrainObjectsLightingAfternoonAmbient", (parser, x) => x.TerrainObjectsLightingAfternoonAmbient = IniColorRgb.Parse(parser) },
             { "TerrainObjectsLightingAfternoonDiffuse", (parser, x) => x.TerrainObjectsLightingAfternoonDiffuse = IniColorRgb.Parse(parser) },
-            { "TerrainObjectsLightingAfternoonLightPos", (parser, x) => x.TerrainObjectsLightingAfternoonLightPos = Coord3D.Parse(parser) },
+            { "TerrainObjectsLightingAfternoonLightPos", (parser, x) => x.TerrainObjectsLightingAfternoonLightPos = parser.ParseVector3() },
 
             { "TerrainLightingAfternoonAmbient2", (parser, x) => x.TerrainLightingAfternoonAmbient2 = IniColorRgb.Parse(parser) },
             { "TerrainLightingAfternoonDiffuse2", (parser, x) => x.TerrainLightingAfternoonDiffuse2 = IniColorRgb.Parse(parser) },
-            { "TerrainLightingAfternoonLightPos2", (parser, x) => x.TerrainLightingAfternoonLightPos2 = Coord3D.Parse(parser) },
+            { "TerrainLightingAfternoonLightPos2", (parser, x) => x.TerrainLightingAfternoonLightPos2 = parser.ParseVector3() },
 
             { "TerrainObjectsLightingAfternoonAmbient2", (parser, x) => x.TerrainObjectsLightingAfternoonAmbient2 = IniColorRgb.Parse(parser) },
             { "TerrainObjectsLightingAfternoonDiffuse2", (parser, x) => x.TerrainObjectsLightingAfternoonDiffuse2 = IniColorRgb.Parse(parser) },
-            { "TerrainObjectsLightingAfternoonLightPos2", (parser, x) => x.TerrainObjectsLightingAfternoonLightPos2 = Coord3D.Parse(parser) },
+            { "TerrainObjectsLightingAfternoonLightPos2", (parser, x) => x.TerrainObjectsLightingAfternoonLightPos2 = parser.ParseVector3() },
 
             { "TerrainLightingAfternoonAmbient3", (parser, x) => x.TerrainLightingAfternoonAmbient3 = IniColorRgb.Parse(parser) },
             { "TerrainLightingAfternoonDiffuse3", (parser, x) => x.TerrainLightingAfternoonDiffuse3 = IniColorRgb.Parse(parser) },
-            { "TerrainLightingAfternoonLightPos3", (parser, x) => x.TerrainLightingAfternoonLightPos3 = Coord3D.Parse(parser) },
+            { "TerrainLightingAfternoonLightPos3", (parser, x) => x.TerrainLightingAfternoonLightPos3 = parser.ParseVector3() },
 
             { "TerrainObjectsLightingAfternoonAmbient3", (parser, x) => x.TerrainObjectsLightingAfternoonAmbient3 = IniColorRgb.Parse(parser) },
             { "TerrainObjectsLightingAfternoonDiffuse3", (parser, x) => x.TerrainObjectsLightingAfternoonDiffuse3 = IniColorRgb.Parse(parser) },
-            { "TerrainObjectsLightingAfternoonLightPos3", (parser, x) => x.TerrainObjectsLightingAfternoonLightPos3 = Coord3D.Parse(parser) },
+            { "TerrainObjectsLightingAfternoonLightPos3", (parser, x) => x.TerrainObjectsLightingAfternoonLightPos3 = parser.ParseVector3() },
 
             { "AudioOn", (parser, x) => x.AudioOn = parser.ParseBoolean() },
             { "MusicOn", (parser, x) => x.MusicOn = parser.ParseBoolean() },
@@ -482,10 +483,10 @@ namespace OpenSage.Data.Ini
             { "ParticleCursorParticleSize", (parser, x) => x.ParticleCursorParticleSize = RandomVariable.Parse(parser) },
             { "ParticleCursorPerFrameSize", (parser, x) => x.ParticleCursorPerFrameSize = parser.ParseBoolean() },
             { "ParticleCursorAlpha", (parser, x) => x.ParticleCursorAlpha = parser.ParseByte() },
-            { "ParticleCursorOffset", (parser, x) => x.ParticleCursorOffset = Coord2D.Parse(parser) },
+            { "ParticleCursorOffset", (parser, x) => x.ParticleCursorOffset = parser.ParseVector2() },
 
-            { "ProgressMovieOffset", (parser, x) => x.ProgressMovieOffset = Coord2D.Parse(parser) },
-            { "ProgressMovieSize", (parser, x) => x.ProgressMovieSize = Coord2D.Parse(parser) },
+            { "ProgressMovieOffset", (parser, x) => x.ProgressMovieOffset = parser.ParseVector2() },
+            { "ProgressMovieSize", (parser, x) => x.ProgressMovieSize = parser.ParseVector2() },
 
             { "UseHelpTextSystem", (parser, x) => x.UseHelpTextSystem = parser.ParseBoolean() },
             { "EnableHouseColor", (parser, x) => x.EnableHouseColor = parser.ParseBoolean() },
@@ -843,10 +844,10 @@ namespace OpenSage.Data.Ini
 
         public float AmmoPipScaleFactor { get; private set; }
         public float ContainerPipScaleFactor { get; private set; }
-        public Coord2D AmmoPipScreenOffset { get; private set; }
-        public Coord2D ContainerPipScreenOffset { get; private set; }
-        public Coord3D AmmoPipWorldOffset { get; private set; }
-        public Coord3D ContainerPipWorldOffset { get; private set; }
+        public Vector2 AmmoPipScreenOffset { get; private set; }
+        public Vector2 ContainerPipScreenOffset { get; private set; }
+        public Vector3 AmmoPipWorldOffset { get; private set; }
+        public Vector3 ContainerPipWorldOffset { get; private set; }
 
         public string LevelGainAnimationName { get; private set; }
         public float LevelGainAnimationTime { get; private set; }
@@ -876,51 +877,51 @@ namespace OpenSage.Data.Ini
 
         public IniColorRgb TerrainLightingMorningAmbient { get; private set; }
         public IniColorRgb TerrainLightingMorningDiffuse { get; private set; }
-        public Coord3D TerrainLightingMorningLightPos { get; private set; }
+        public Vector3 TerrainLightingMorningLightPos { get; private set; }
 
         public IniColorRgb TerrainLightingEveningAmbient { get; private set; }
         public IniColorRgb TerrainLightingEveningDiffuse { get; private set; }
-        public Coord3D TerrainLightingEveningLightPos { get; private set; }
+        public Vector3 TerrainLightingEveningLightPos { get; private set; }
 
         public IniColorRgb TerrainLightingNightAmbient { get; private set; }
         public IniColorRgb TerrainLightingNightDiffuse { get; private set; }
-        public Coord3D TerrainLightingNightLightPos { get; private set; }
+        public Vector3 TerrainLightingNightLightPos { get; private set; }
 
         public IniColorRgb TerrainObjectsLightingMorningAmbient { get; private set; }
         public IniColorRgb TerrainObjectsLightingMorningDiffuse { get; private set; }
-        public Coord3D TerrainObjectsLightingMorningLightPos { get; private set; }
+        public Vector3 TerrainObjectsLightingMorningLightPos { get; private set; }
 
         public IniColorRgb TerrainObjectsLightingEveningAmbient { get; private set; }
         public IniColorRgb TerrainObjectsLightingEveningDiffuse { get; private set; }
-        public Coord3D TerrainObjectsLightingEveningLightPos { get; private set; }
+        public Vector3 TerrainObjectsLightingEveningLightPos { get; private set; }
 
         public IniColorRgb TerrainObjectsLightingNightAmbient { get; private set; }
         public IniColorRgb TerrainObjectsLightingNightDiffuse { get; private set; }
-        public Coord3D TerrainObjectsLightingNightLightPos { get; private set; }
+        public Vector3 TerrainObjectsLightingNightLightPos { get; private set; }
 
         public IniColorRgb TerrainLightingAfternoonAmbient { get; private set; }
         public IniColorRgb TerrainLightingAfternoonDiffuse { get; private set; }
-        public Coord3D TerrainLightingAfternoonLightPos { get; private set; }
+        public Vector3 TerrainLightingAfternoonLightPos { get; private set; }
 
         public IniColorRgb TerrainObjectsLightingAfternoonAmbient { get; private set; }
         public IniColorRgb TerrainObjectsLightingAfternoonDiffuse { get; private set; }
-        public Coord3D TerrainObjectsLightingAfternoonLightPos { get; private set; }
+        public Vector3 TerrainObjectsLightingAfternoonLightPos { get; private set; }
 
         public IniColorRgb TerrainLightingAfternoonAmbient2 { get; private set; }
         public IniColorRgb TerrainLightingAfternoonDiffuse2 { get; private set; }
-        public Coord3D TerrainLightingAfternoonLightPos2 { get; private set; }
+        public Vector3 TerrainLightingAfternoonLightPos2 { get; private set; }
 
         public IniColorRgb TerrainObjectsLightingAfternoonAmbient2 { get; private set; }
         public IniColorRgb TerrainObjectsLightingAfternoonDiffuse2 { get; private set; }
-        public Coord3D TerrainObjectsLightingAfternoonLightPos2 { get; private set; }
+        public Vector3 TerrainObjectsLightingAfternoonLightPos2 { get; private set; }
 
         public IniColorRgb TerrainLightingAfternoonAmbient3 { get; private set; }
         public IniColorRgb TerrainLightingAfternoonDiffuse3 { get; private set; }
-        public Coord3D TerrainLightingAfternoonLightPos3 { get; private set; }
+        public Vector3 TerrainLightingAfternoonLightPos3 { get; private set; }
 
         public IniColorRgb TerrainObjectsLightingAfternoonAmbient3 { get; private set; }
         public IniColorRgb TerrainObjectsLightingAfternoonDiffuse3 { get; private set; }
-        public Coord3D TerrainObjectsLightingAfternoonLightPos3 { get; private set; }
+        public Vector3 TerrainObjectsLightingAfternoonLightPos3 { get; private set; }
 
         public bool AudioOn { get; private set; }
         public bool MusicOn { get; private set; }
@@ -1299,13 +1300,13 @@ namespace OpenSage.Data.Ini
         public byte ParticleCursorAlpha { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public Coord2D ParticleCursorOffset { get; private set; }
+        public Vector2 ParticleCursorOffset { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public Coord2D ProgressMovieOffset { get; private set; }
+        public Vector2 ProgressMovieOffset { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public Coord2D ProgressMovieSize { get; private set; }
+        public Vector2 ProgressMovieSize { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public bool UseHelpTextSystem { get; private set; }
@@ -1575,21 +1576,6 @@ namespace OpenSage.Data.Ini
     {
         [IniEnum("DISABLE")]
         Disable
-    }
-
-    public struct Coord2D
-    {
-        internal static Coord2D Parse(IniParser parser)
-        {
-            return new Coord2D
-            {
-                X = parser.ParseAttributeFloat("X"),
-                Y = parser.ParseAttributeFloat("Y")
-            };
-        }
-
-        public float X;
-        public float Y;
     }
 
     public sealed class WeaponBonusSet : Dictionary<WeaponBonusType, WeaponBonus>

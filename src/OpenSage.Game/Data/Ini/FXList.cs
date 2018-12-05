@@ -2,6 +2,7 @@
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
+using System.Numerics;
 
 namespace OpenSage.Data.Ini
 {
@@ -91,7 +92,7 @@ namespace OpenSage.Data.Ini
             { "Height", (parser, x) => x.Height = RandomVariable.Parse(parser) },
             { "InitialDelay", (parser, x) => x.InitialDelay = RandomVariable.Parse(parser) },
             { "Name", (parser, x) => x.Name = parser.ParseAssetReference() },
-            { "Offset", (parser, x) => x.Offset = Coord3D.Parse(parser) },
+            { "Offset", (parser, x) => x.Offset = parser.ParseVector3() },
             { "OrientToObject", (parser, x) => x.OrientToObject = parser.ParseBoolean() },
             { "Radius", (parser, x) => x.Radius = RandomVariable.Parse(parser) },
             { "Ricochet", (parser, x) => x.Ricochet = parser.ParseBoolean() },
@@ -100,7 +101,7 @@ namespace OpenSage.Data.Ini
             { "CreateBoneOverride", (parser, x) => x.CreateBoneOverride = parser.ParseBoneName() },
             { "TargetBoneOverride", (parser, x) => x.TargetBoneOverride = parser.ParseBoneName() },
             { "UseTargetOffset", (parser, x) => x.UseTargetOffset = parser.ParseBoolean() },
-            { "TargetOffset", (parser, x) => x.TargetOffset = Coord3D.Parse(parser) },
+            { "TargetOffset", (parser, x) => x.TargetOffset = parser.ParseVector3() },
             { "TargetCoeff", (parser, x) => x.TargetCoeff = parser.ParseInteger() },
             { "SystemLife", (parser, x) => x.SystemLife = parser.ParseInteger() },
             { "SetTargetMatrix", (parser, x) => x.SetTargetMatrix = parser.ParseBoolean() },
@@ -118,7 +119,7 @@ namespace OpenSage.Data.Ini
         public RandomVariable Height { get; private set; }
         public RandomVariable InitialDelay { get; private set; }
         public string Name { get; private set; }
-        public Coord3D Offset { get; private set; }
+        public Vector3 Offset { get; private set; }
         public bool OrientToObject { get; private set; }
         public RandomVariable Radius { get; private set; }
         public bool Ricochet { get; private set; }
@@ -135,7 +136,7 @@ namespace OpenSage.Data.Ini
         public bool UseTargetOffset { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public Coord3D TargetOffset { get; private set; }
+        public Vector3 TargetOffset { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public int TargetCoeff { get; private set; }
@@ -311,7 +312,7 @@ namespace OpenSage.Data.Ini
             { "DecalName", (parser, x) => x.DecalName = parser.ParseAssetReference() },
             { "Size", (parser, x) => x.Size = parser.ParseInteger() },
             { "Color", (parser, x) => x.Color = IniColorRgb.Parse(parser) },
-            { "Offset", (parser, x) => x.Offset = Coord2D.Parse(parser) },
+            { "Offset", (parser, x) => x.Offset = parser.ParseVector2() },
 
             { "OpacityStart", (parser, x) => x.OpacityStart = parser.ParseInteger() },
             { "OpacityFadeTimeOne", (parser, x) => x.OpacityFadeTimeOne = parser.ParseInteger() },
@@ -327,7 +328,7 @@ namespace OpenSage.Data.Ini
         public string DecalName { get; private set; }
         public int Size { get; private set; }
         public IniColorRgb Color { get; private set; }
-        public Coord2D Offset { get; private set; }
+        public Vector2 Offset { get; private set; }
 
         public int OpacityStart { get; private set; }
         public int OpacityFadeTimeOne { get; private set; }
@@ -479,23 +480,6 @@ namespace OpenSage.Data.Ini
         {
             return new ColorRgbaF(R / 255.0f, G / 255.0f, B / 255.0f, 1.0f);
         }
-    }
-
-    public struct Coord3D
-    {
-        internal static Coord3D Parse(IniParser parser)
-        {
-            return new Coord3D
-            {
-                X = parser.ParseAttributeFloat("X"),
-                Y = parser.ParseAttributeFloat("Y"),
-                Z = parser.ParseAttributeFloat("Z")
-            };
-        }
-
-        public float X;
-        public float Y;
-        public float Z;
     }
 
     public struct RandomVariable

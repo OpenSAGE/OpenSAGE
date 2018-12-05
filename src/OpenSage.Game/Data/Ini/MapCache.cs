@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
@@ -21,21 +22,21 @@ namespace OpenSage.Data.Ini
             { "isOfficial", (parser, x) => x.IsOfficial = parser.ParseBoolean() },
             { "isMultiplayer", (parser, x) => x.IsMultiplayer = parser.ParseBoolean() },
             { "numPlayers", (parser, x) => x.NumPlayers = parser.ParseInteger() },
-            { "extentMin", (parser, x) => x.ExtentMin = Coord3D.Parse(parser) },
-            { "extentMax", (parser, x) => x.ExtentMax = Coord3D.Parse(parser) },
+            { "extentMin", (parser, x) => x.ExtentMin = parser.ParseVector3() },
+            { "extentMax", (parser, x) => x.ExtentMax = parser.ParseVector3() },
             { "nameLookupTag", (parser, x) => x.NameLookupTag = parser.GetNextTokenOptional()?.Text },
             { "displayName", (parser, x) => x.DisplayName = parser.ParseUnicodeString() },
-            { "InitialCameraPosition", (parser, x) => x.InitialCameraPosition = Coord3D.Parse(parser) },
-            { "Player_1_Start", (parser, x) => x.Player1Start = Coord3D.Parse(parser) },
-            { "Player_2_Start", (parser, x) => x.Player2Start = Coord3D.Parse(parser) },
-            { "Player_3_Start", (parser, x) => x.Player3Start = Coord3D.Parse(parser) },
-            { "Player_4_Start", (parser, x) => x.Player4Start = Coord3D.Parse(parser) },
-            { "Player_5_Start", (parser, x) => x.Player5Start = Coord3D.Parse(parser) },
-            { "Player_6_Start", (parser, x) => x.Player6Start = Coord3D.Parse(parser) },
-            { "Player_7_Start", (parser, x) => x.Player7Start = Coord3D.Parse(parser) },
-            { "Player_8_Start", (parser, x) => x.Player8Start = Coord3D.Parse(parser) },
-            { "techPosition", (parser, x) => x.TechPositions.Add(Coord3D.Parse(parser)) },
-            { "supplyPosition", (parser, x) => x.SupplyPositions.Add(Coord3D.Parse(parser)) },
+            { "InitialCameraPosition", (parser, x) => x.InitialCameraPosition = parser.ParseVector3() },
+            { "Player_1_Start", (parser, x) => x.Player1Start = parser.ParseVector3() },
+            { "Player_2_Start", (parser, x) => x.Player2Start = parser.ParseVector3() },
+            { "Player_3_Start", (parser, x) => x.Player3Start = parser.ParseVector3() },
+            { "Player_4_Start", (parser, x) => x.Player4Start = parser.ParseVector3() },
+            { "Player_5_Start", (parser, x) => x.Player5Start = parser.ParseVector3() },
+            { "Player_6_Start", (parser, x) => x.Player6Start = parser.ParseVector3() },
+            { "Player_7_Start", (parser, x) => x.Player7Start = parser.ParseVector3() },
+            { "Player_8_Start", (parser, x) => x.Player8Start = parser.ParseVector3() },
+            { "techPosition", (parser, x) => x.TechPositions.Add(parser.ParseVector3()) },
+            { "supplyPosition", (parser, x) => x.SupplyPositions.Add(parser.ParseVector3()) },
             { "isScenarioMP", (parser, x) => x.IsScenarioMP = parser.ParseBoolean() },
             { "description", (parser, x) => x.Description = parser.ParseUnicodeString() },
         };
@@ -49,8 +50,8 @@ namespace OpenSage.Data.Ini
         public bool IsOfficial { get; private set; }
         public bool IsMultiplayer { get; private set; }
         public int NumPlayers { get; private set; }
-        public Coord3D ExtentMin { get; private set; }
-        public Coord3D ExtentMax { get; private set; }
+        public Vector3 ExtentMin { get; private set; }
+        public Vector3 ExtentMax { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public string NameLookupTag { get; private set; }
@@ -62,16 +63,16 @@ namespace OpenSage.Data.Ini
         public string Description { get; private set; }
 
         public string DisplayName { get; private set; }
-        public Coord3D InitialCameraPosition { get; private set; }
-        public Coord3D Player1Start { get; private set; }
-        public Coord3D Player2Start { get; private set; }
-        public Coord3D Player3Start { get; private set; }
-        public Coord3D Player4Start { get; private set; }
-        public Coord3D Player5Start { get; private set; }
-        public Coord3D Player6Start { get; private set; }
-        public Coord3D Player7Start { get; private set; }
-        public Coord3D Player8Start { get; private set; }
-        public List<Coord3D> TechPositions { get; } = new List<Coord3D>();
-        public List<Coord3D> SupplyPositions { get; } = new List<Coord3D>();
+        public Vector3 InitialCameraPosition { get; private set; }
+        public Vector3 Player1Start { get; private set; }
+        public Vector3 Player2Start { get; private set; }
+        public Vector3 Player3Start { get; private set; }
+        public Vector3 Player4Start { get; private set; }
+        public Vector3 Player5Start { get; private set; }
+        public Vector3 Player6Start { get; private set; }
+        public Vector3 Player7Start { get; private set; }
+        public Vector3 Player8Start { get; private set; }
+        public List<Vector3> TechPositions { get; } = new List<Vector3>();
+        public List<Vector3> SupplyPositions { get; } = new List<Vector3>();
     }
 }

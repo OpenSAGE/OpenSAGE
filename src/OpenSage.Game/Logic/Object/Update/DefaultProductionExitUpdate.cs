@@ -1,4 +1,4 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Numerics;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
@@ -9,17 +9,17 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<DefaultProductionExitUpdateModuleData> FieldParseTable = new IniParseTable<DefaultProductionExitUpdateModuleData>
         {
-            { "UnitCreatePoint", (parser, x) => x.UnitCreatePoint = Coord3D.Parse(parser) },
-            { "NaturalRallyPoint", (parser, x) => x.NaturalRallyPoint = Coord3D.Parse(parser) },
+            { "UnitCreatePoint", (parser, x) => x.UnitCreatePoint = parser.ParseVector3() },
+            { "NaturalRallyPoint", (parser, x) => x.NaturalRallyPoint = parser.ParseVector3() },
             { "UseSpawnRallyPoint", (parser, x) => x.UseSpawnRallyPoint = parser.ParseBoolean() },
         };
 
-        public Coord3D UnitCreatePoint { get; private set; }
+        public Vector3 UnitCreatePoint { get; private set; }
 
         /// <summary>
         /// <see cref="NaturalRallyPoint.X"/> must match <see cref="ObjectDefinition.GeometryMajorRadius"/>.
         /// </summary>
-        public Coord3D NaturalRallyPoint { get; private set; }
+        public Vector3 NaturalRallyPoint { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool UseSpawnRallyPoint { get; private set; }
