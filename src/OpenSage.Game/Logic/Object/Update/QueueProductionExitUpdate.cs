@@ -15,7 +15,8 @@ namespace OpenSage.Logic.Object
             { "ExitDelay", (parser, x) => x.ExitDelay = parser.ParseInteger() },
             { "InitialBurst", (parser, x) => x.InitialBurst = parser.ParseInteger() },
             { "PlacementViewAngle", (parser, x) => x.PlacementViewAngle = parser.ParseInteger() },
-            { "NoExitPath", (parser, x) => x.NoExitPath = parser.ParseBoolean() }
+            { "NoExitPath", (parser, x) => x.NoExitPath = parser.ParseBoolean() },
+            { "AllowAirborneCreation", (parser, x) => x.AllowAirborneCreation = parser.ParseBoolean() }
         };
 
         public Vector3 UnitCreatePoint { get; private set; }
@@ -37,5 +38,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool NoExitPath { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool AllowAirborneCreation { get; private set; }
     }
 }

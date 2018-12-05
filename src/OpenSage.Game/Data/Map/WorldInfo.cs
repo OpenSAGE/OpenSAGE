@@ -34,6 +34,7 @@ namespace OpenSage.Data.Map
         [IniEnum("NORMAL")]
         Normal,
 
+        [IniEnum("SNOWY")]
         Snowy
     }
 

@@ -203,20 +203,28 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public ProjectileNugget ProjectileNugget { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public DamageNugget DamageNugget { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public MetaImpactNugget MetaImpactNugget { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public int MaxWeaponSpeed { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public float HitPercentage { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public int PreAttackRandomAmount { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public bool IsAimingWeapon { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public bool AntiAirborneMonster { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public ObjectKinds FxTrigger { get; private set; }
     }

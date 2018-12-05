@@ -762,5 +762,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("BUILD_VARIATION_TWO"), AddedIn(SageGame.Bfme2)]
         BuildVariationTwo,
+
+        [IniEnum("BUILD_PLACEMENT_CURSOR"), AddedIn(SageGame.Bfme2)]
+        BuildPlacementCursor,
+
+        [IniEnum("PHANTOM_STRUCTURE"), AddedIn(SageGame.Bfme2)]
+        PhantomStructure,
     }
 }

@@ -526,7 +526,13 @@ namespace OpenSage.Data.Ini.Parser
 
         public IniToken? GetNextTokenOptional(char[] separators = null)
         {
-            return _tokenReader.NextToken(separators ?? Separators);
+            var result = _tokenReader.NextToken(separators ?? Separators);
+
+            if (result.HasValue && _dataContext.Defines.TryGetValue(result.Value.Text, out var macroExpansion))
+            {
+                return macroExpansion;
+            }
+            return result;
         }
 
         public IniToken? PeekNextTokenOptional(char[] separators = null)

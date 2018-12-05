@@ -15,8 +15,10 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<ModelConditionUpgradeModuleData>
             {
                 { "ConditionFlag", (parser, x) => x.ConditionFlag = parser.ParseEnum<ModelConditionFlag>() },
+                { "AddConditionFlags", (parser, x) => x.AddConditionFlags = parser.ParseEnumBitArray<ModelConditionFlag>() },
             });
 
         public ModelConditionFlag ConditionFlag { get; private set; }
+        public BitArray<ModelConditionFlag> AddConditionFlags { get; private set; }
     }
 }
