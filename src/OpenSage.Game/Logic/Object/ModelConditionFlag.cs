@@ -882,5 +882,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("PACKING_TYPE_4"), AddedIn(SageGame.Bfme2)]
         PackingType4,
+
+        [IniEnum("PACKING_TYPE_5"), AddedIn(SageGame.Bfme2)]
+        PackingType5,
+
+        [IniEnum("PACKING_TYPE_6"), AddedIn(SageGame.Bfme2)]
+        PackingType6,
     }
 }
