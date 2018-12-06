@@ -357,14 +357,18 @@ namespace OpenSage.Content
                             throw new InvalidDataException($"Missing bridge template: {mapObject.TypeName}");
                         }
 
-                        bridgesList.Add(AddDisposable(new Bridge(
+                        if (Bridge.TryCreateBridge(
                             contentManager,
                             heightMap,
                             bridgeTemplate,
                             mapObject.Position,
-                            bridgeEnd.Position)));
+                            bridgeEnd.Position,
+                            out var bridge))
+                        {
+                            bridgesList.Add(AddDisposable(bridge));
+                        }
 
-                        // Multiple invalid bridges can be found in e.g GLA01.
+                        
                         break;
 
                     default:
