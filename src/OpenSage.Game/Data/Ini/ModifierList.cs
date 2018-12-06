@@ -102,7 +102,10 @@ namespace OpenSage.Data.Ini
         Structure,
 
         [IniEnum("LEVEL")]
-        Level
+        Level,
+
+        [IniEnum("BUFF")]
+        Buff,
     }
 
     [AddedIn(SageGame.Bfme)]

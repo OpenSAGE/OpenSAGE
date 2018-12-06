@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -19,7 +20,8 @@ namespace OpenSage.Logic.Object
             { "GenerateTerror", (parser, x) => x.GenerateTerror = parser.ParseBoolean() },
             { "EmotionPulseRadius", (parser, x) => x.EmotionPulseRadius = parser.ParseInteger() },
             { "DisableWhenWearingTheRing", (parser, x) => x.DisableWhenWearingTheRing = parser.ParseBoolean() },
-            { "WhichSpecialPower", (parser, x) => x.WhichSpecialPower = parser.ParseInteger() }
+            { "WhichSpecialPower", (parser, x) => x.WhichSpecialPower = parser.ParseInteger() },
+            { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -33,5 +35,8 @@ namespace OpenSage.Logic.Object
         public int EmotionPulseRadius { get; private set; }
         public bool DisableWhenWearingTheRing { get; private set; }
         public int WhichSpecialPower { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ObjectFilter ObjectFilter { get; private set; }
     }
 }

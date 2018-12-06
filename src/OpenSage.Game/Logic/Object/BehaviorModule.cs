@@ -176,7 +176,9 @@ namespace OpenSage.Logic.Object
             { "SplitHordeSpecialPower", SplitHordeSpecialPowerModuleData.Parse },
             { "SpyVisionSpecialPower", SpyVisionSpecialPowerModuleData.Parse },
             { "StopSpecialPower", StopSpecialPowerModuleData.Parse },
+            { "StoreObjectsSpecialPower", StoreObjectsSpecialPowerModuleData.Parse },
             { "TaintSpecialPower", TaintSpecialPowerModuleData.Parse },
+            { "TeleportToCasterSpecialPower", TeleportToCasterSpecialPowerModuleData.Parse },
 
             // Update
             { "AnimationSteeringUpdate", AnimationSteeringUpdateModuleData.Parse },
@@ -306,6 +308,7 @@ namespace OpenSage.Logic.Object
             { "CastleUpgrade", CastleUpgradeModuleData.Parse },
             { "CommandSetUpgrade", CommandSetUpgradeModuleData.Parse },
             { "CostModifierUpgrade", CostModifierUpgradeModuleData.Parse },
+            { "DoCommandUpgrade", DoCommandUpgradeModuleData.Parse },
             { "ExperienceScalarUpgrade", ExperienceScalarUpgradeModuleData.Parse },
             { "GeometryUpgrade", GeometryUpgradeModuleData.Parse },
             { "GrantScienceUpgrade", GrantScienceUpgradeModuleData.Parse },

@@ -7,10 +7,7 @@ namespace OpenSage.Data.Ini
     {
         internal static ObjectFilter Parse(IniParser parser)
         {
-            var result = new ObjectFilter
-            {
-                Target = ObjectFilterTarget.All
-            };
+            var result = new ObjectFilter();
 
             IniToken? token;
             if ((token = parser.GetNextTokenOptional()) != null)
@@ -46,11 +43,16 @@ namespace OpenSage.Data.Ini
 
                 switch (stringValue)
                 {
-                    case "ENEMIES":
-                        result.Target = ObjectFilterTarget.Enemies;
-                        continue;
                     case "ALLIES":
-                        result.Target = ObjectFilterTarget.Allies;
+                        result.Targets.Set(ObjectFilterTargets.Allies, true);
+                        continue;
+
+                    case "ENEMIES":
+                        result.Targets.Set(ObjectFilterTargets.Enemies, true);
+                        continue;
+
+                    case "NEUTRAL":
+                        result.Targets.Set(ObjectFilterTargets.Neutral, true);
                         continue;
                 }
                 
@@ -90,7 +92,7 @@ namespace OpenSage.Data.Ini
         }
 
         public ObjectFilterRule Rule { get; private set; }
-        public ObjectFilterTarget Target { get; private set; }
+        public BitArray<ObjectFilterTargets> Targets { get; } = new BitArray<ObjectFilterTargets>();
         public BitArray<ObjectKinds> Include { get; } = new BitArray<ObjectKinds>();
         public BitArray<ObjectKinds> Exclude { get; } = new BitArray<ObjectKinds>();
         public IReadOnlyList<string> IncludeThings { get; private set; }
@@ -104,10 +106,10 @@ namespace OpenSage.Data.Ini
         None
     }
 
-    public enum ObjectFilterTarget
+    public enum ObjectFilterTargets
     {
-        All,
         Enemies,
-        Allies
+        Allies,
+        Neutral
     }
 }
