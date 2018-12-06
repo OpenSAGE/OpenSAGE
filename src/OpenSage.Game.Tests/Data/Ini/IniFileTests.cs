@@ -19,13 +19,12 @@ namespace OpenSage.Tests.Data.Ini
         [Fact]
         public void CanReadIniFiles()
         {
-            // TODO: Finish INI parsing for BFME2 and subsequent games.
+            // TODO: Finish INI parsing for BFME and subsequent games.
             var gameDefinitions = new[]
             {
                 GameDefinition.FromGame(SageGame.CncGenerals),
-                GameDefinition.FromGame(SageGame.CncGeneralsZeroHour),
+                GameDefinition.FromGame(SageGame.CncGeneralsZeroHour)
             };
-
             InstalledFilesTestData.ReadFiles(".ini", _output, gameDefinitions, entry =>
             {
                 switch (Path.GetFileName(entry.FilePath).ToLowerInvariant())
@@ -52,25 +51,25 @@ namespace OpenSage.Tests.Data.Ini
 
                 Assert.NotNull(dataContext.CommandMaps);
 
-                //foreach (var objectDefinition in dataContext.Objects)
-                //{
-                //    foreach (var draw in objectDefinition.Draws)
-                //    {
-                //        switch (draw)
-                //        {
-                //            case W3dModelDrawModuleData md:
-                //                //if (md.DefaultConditionState != null)
-                //                //{
-                //                //    Assert.True(md.DefaultConditionState.Animations.Count <= 1);
-                //                //}
-                //                //foreach (var conditionState in md.ConditionStates)
-                //                //{
-                //                //    Assert.True(conditionState.Animations.Count <= 1);
-                //                //}
-                //                break;
-                //        }
-                //    }
-                //}
+                foreach (var objectDefinition in dataContext.Objects)
+                {
+                    foreach (var draw in objectDefinition.Draws)
+                    {
+                        switch (draw)
+                        {
+                            case W3dModelDrawModuleData md:
+                                //if (md.DefaultConditionState != null)
+                                //{
+                                //    Assert.True(md.DefaultConditionState.Animations.Count <= 1);
+                                //}
+                                //foreach (var conditionState in md.ConditionStates)
+                                //{
+                                //    Assert.True(conditionState.Animations.Count <= 1);
+                                //}
+                                break;
+                        }
+                    }
+                }
             });
         }
     }

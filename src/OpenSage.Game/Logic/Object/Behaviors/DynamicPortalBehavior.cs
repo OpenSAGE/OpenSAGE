@@ -27,7 +27,6 @@ namespace OpenSage.Logic.Object
             { "AboveWall", (parser, x) => x.AboveWall = parser.ParseInteger() },
             { "TopAttackPos", (parser, x) => x.TopAttackPos = parser.ParseVector3() },
             { "TopAttackRadius", (parser, x) => x.TopAttackRadius = parser.ParseInteger() },
-            { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) }
         };
 
         public bool GenerateNow { get; private set; }
@@ -45,9 +44,6 @@ namespace OpenSage.Logic.Object
         public int AboveWall { get; private set; }
         public Vector3 TopAttackPos { get; private set; }
         public int TopAttackRadius { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public ObjectFilter ObjectFilter { get; private set; }
     }
 
     public enum WayPointType

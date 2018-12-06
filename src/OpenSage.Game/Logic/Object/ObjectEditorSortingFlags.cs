@@ -47,8 +47,5 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("OBSOLETE")]
         OBSOLETE            = 1 << 12,
-
-        [IniEnum("SELECTABLE"), AddedIn(SageGame.Bfme2)]
-        SELECTABLE          = 1 << 13,
     }
 }

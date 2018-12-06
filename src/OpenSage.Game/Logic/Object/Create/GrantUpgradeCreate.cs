@@ -9,14 +9,10 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<GrantUpgradeCreateModuleData> FieldParseTable = new IniParseTable<GrantUpgradeCreateModuleData>
         {
             { "UpgradeToGrant", (parser, x) => x.UpgradeToGrant = parser.ParseAssetReference() },
-            { "ExemptStatus", (parser, x) => x.ExemptStatus = parser.ParseEnum<ObjectStatus>() },
-            { "GiveOnBuildComplete", (parser, x) => x.GiveOnBuildComplete = parser.ParseBoolean() }
+            { "ExemptStatus", (parser, x) => x.ExemptStatus = parser.ParseEnum<ObjectStatus>() }
         };
 
         public string UpgradeToGrant { get; private set; }
         public ObjectStatus ExemptStatus { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public bool GiveOnBuildComplete { get; private set; }
     }
 }

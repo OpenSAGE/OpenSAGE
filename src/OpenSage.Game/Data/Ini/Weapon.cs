@@ -87,16 +87,6 @@ namespace OpenSage.Data.Ini
             { "ShockWaveRadius", (parser, x) => x.ShockWaveRadius = parser.ParseFloat() },
             { "ShockWaveTaperOff", (parser, x) => x.ShockWaveTaperOff = parser.ParseFloat() },
             { "MissileCallsOnDie", (parser, x) => x.MissileCallsOnDie = parser.ParseBoolean() },
-            { "FiringDuration", (parser, x) => x.FiringDuration = parser.ParseInteger() },
-            { "ProjectileNugget", (parser, x) => x.ProjectileNugget = ProjectileNugget.Parse(parser) },
-            { "DamageNugget", (parser, x) => x.DamageNugget = DamageNugget.Parse(parser) },
-            { "MetaImpactNugget", (parser, x) => x.MetaImpactNugget = MetaImpactNugget.Parse(parser) },
-            { "MaxWeaponSpeed", (parser, x) => x.MaxWeaponSpeed = parser.ParseInteger() },
-            { "HitPercentage", (parser, x) => x.HitPercentage = parser.ParsePercentage() },
-            { "PreAttackRandomAmount", (parser, x) => x.PreAttackRandomAmount = parser.ParseInteger() },
-            { "IsAimingWeapon", (parser, x) => x.IsAimingWeapon = parser.ParseBoolean() },
-            { "AntiAirborneMonster", (parser, x) => x.AntiAirborneMonster = parser.ParseBoolean() },
-            { "FXTrigger", (parser, x) => x.FxTrigger = parser.ParseEnumFlags<ObjectKinds>() }
         };
 
         private static string ParseVeterancyAssetReference(IniParser parser)
@@ -197,36 +187,6 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool MissileCallsOnDie { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public int FiringDuration { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public ProjectileNugget ProjectileNugget { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public DamageNugget DamageNugget { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public MetaImpactNugget MetaImpactNugget { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public int MaxWeaponSpeed { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public float HitPercentage { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public int PreAttackRandomAmount { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public bool IsAimingWeapon { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public bool AntiAirborneMonster { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public ObjectKinds FxTrigger { get; private set; }
     }
 
     public struct RangeDuration
@@ -260,63 +220,6 @@ namespace OpenSage.Data.Ini
 
         public float Min { get; private set; }
         public float Max { get; private set; }
-    }
-
-    [AddedIn(SageGame.Bfme2)]
-    public class ProjectileNugget
-    {
-        internal static ProjectileNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static readonly IniParseTable<ProjectileNugget> FieldParseTable = new IniParseTable<ProjectileNugget>
-        {
-            { "ProjectileTemplateName", (parser, x) => x.ProjectileTemplateName = parser.ParseAssetReference() },
-            { "WarheadTemplateName", (parser, x) => x.WarheadTemplateName = parser.ParseAssetReference() },
-        };
-
-        public string ProjectileTemplateName { get; private set; }
-        public string WarheadTemplateName { get; private set; }
-    }
-
-    [AddedIn(SageGame.Bfme2)]
-    public class DamageNugget
-    {
-        internal static DamageNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static readonly IniParseTable<DamageNugget> FieldParseTable = new IniParseTable<DamageNugget>
-        {
-            { "Damage", (parser, x) => x.Damage = parser.ParseInteger() },
-            { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
-            { "DelayTime", (parser, x) => x.DelayTime = parser.ParseInteger() },
-            { "DamageType", (parser, x) => x.DamageType = parser.ParseEnum<DamageType>() },
-            { "DamageFXType", (parser, x) => x.DamageFxType = parser.ParseEnum<FxType>() },
-            { "DeathType", (parser, x) => x.DeathType = parser.ParseEnum<DeathType>() },
-        };
-
-        public int Damage { get; private set; }
-        public float Radius { get; private set; }
-        public int DelayTime { get; private set; }
-        public DamageType DamageType { get; private set; }
-        public FxType DamageFxType { get; private set; }
-        public DeathType DeathType { get; private set; }
-    }
-
-    [AddedIn(SageGame.Bfme2)]
-    public class MetaImpactNugget
-    {
-        internal static MetaImpactNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static readonly IniParseTable<MetaImpactNugget> FieldParseTable = new IniParseTable<MetaImpactNugget>
-        {
-            { "HeroResist", (parser, x) => x.HeroResist = parser.ParseFloat() },
-            { "ShockWaveAmount", (parser, x) => x.ShockWaveAmount = parser.ParseFloat() },
-            { "ShockWaveRadius", (parser, x) => x.ShockWaveRadius = parser.ParseFloat() },
-            { "ShockWaveTaperOff", (parser, x) => x.ShockWaveTaperOff = parser.ParseFloat() },
-        };
-
-        public float HeroResist { get; private set; }
-        public float ShockWaveAmount { get; private set; }
-        public float ShockWaveRadius { get; private set; }
-        public float ShockWaveTaperOff { get; private set; }
     }
 
     public enum WeaponReloadType

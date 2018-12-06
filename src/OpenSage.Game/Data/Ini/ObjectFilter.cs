@@ -7,10 +7,8 @@ namespace OpenSage.Data.Ini
     {
         internal static ObjectFilter Parse(IniParser parser)
         {
-            var result = new ObjectFilter
-            {
-                Target = ObjectFilterTarget.All
-            };
+            var result = new ObjectFilter();
+            result.Target = ObjectFilterTarget.All;
 
             IniToken? token;
             if ((token = parser.GetNextTokenOptional()) != null)

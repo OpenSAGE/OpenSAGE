@@ -649,35 +649,5 @@
 
         [IniEnum("SPELL_BOOK"), AddedIn(SageGame.Bfme)]
         SpellBook,
-
-        [IniEnum("NEVER_CULL_FOR_MP"), AddedIn(SageGame.Bfme2)]
-        NeverCullForMP,
-
-        [IniEnum("SCALEABLE_WALL"), AddedIn(SageGame.Bfme2)]
-        ScaleableWall,
-
-        [IniEnum("DONT_HIDE_IF_FOGGED"), AddedIn(SageGame.Bfme2)]
-        DontHideIfFogged,
-
-        [IniEnum("WALL_GATE"), AddedIn(SageGame.Bfme2)]
-        WallGate,
-
-        [IniEnum("DOZER_FACTORY"), AddedIn(SageGame.Bfme2)]
-        DozerFactory,
-
-        [IniEnum("WB_DISPLAY_SCRIPT_NAME"), AddedIn(SageGame.Bfme2)]
-        WbDisplayScriptName,
-
-        [IniEnum("OPTIMIZED_SOUND"), AddedIn(SageGame.Bfme2)]
-        OptimizedSound,
-
-        [IniEnum("BATTLE_TOWER"), AddedIn(SageGame.Bfme2)]
-        BattleTower,
-
-        [IniEnum("WALL"), AddedIn(SageGame.Bfme2)]
-        Wall,
-
-        [IniEnum("LINKED_TO_FLAG"), AddedIn(SageGame.Bfme2)]
-        LinkedToFlag,
     }
 }

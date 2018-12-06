@@ -12,8 +12,7 @@ namespace OpenSage.Logic.Object
             {
                 { "CreationList", (parser, x) => x.CreationList = parser.ParseAssetReference() },
                 { "TransferPreviousHealth", (parser, x) => x.TransferPreviousHealth = parser.ParseBoolean() },
-                { "DebrisPortionOfSelf", (parser, x) => x.DebrisPortionOfSelf = parser.ParseAssetReference() },
-                { "UpgradeRequired", (parser, x) => x.UpgradeRequired = parser.ParseAssetReferenceArray() }
+                { "DebrisPortionOfSelf", (parser, x) => x.DebrisPortionOfSelf = parser.ParseAssetReference() }
             });
 
         public string CreationList { get; private set; }
@@ -23,8 +22,5 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string DebrisPortionOfSelf { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public string[] UpgradeRequired { get; private set; }
     }
 }
