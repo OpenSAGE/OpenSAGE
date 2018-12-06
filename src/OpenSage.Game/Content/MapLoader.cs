@@ -341,9 +341,9 @@ namespace OpenSage.Content
 
                     case RoadType.BridgeStart:
                     case RoadType.BridgeEnd:
-                        // There are plenty of bridges with only a start, in Generals maps.
+                        // Multiple invalid bridges can be found in e.g GLA01.
                         // TODO: Log a warning.
-                        if (!mapObjects[i + 1].RoadType.HasFlag(RoadType.BridgeEnd))
+                        if ((i + 1) >= mapObjects.Length || !mapObjects[i + 1].RoadType.HasFlag(RoadType.BridgeEnd))
                         {
                             continue;
                         }
