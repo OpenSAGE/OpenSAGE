@@ -146,12 +146,14 @@ namespace OpenSage.Logic.Object
             { "WeaponChangeSpecialPowerModule", WeaponChangeSpecialPowerModuleData.Parse },
 
             // SpecialPower
+            { "ActivateModuleSpecialPower", ActivateModuleSpecialPowerModuleData.Parse },
             { "BaikonurLaunchPower", BaikonurLaunchPowerModuleData.Parse },
             { "CashBountyPower", CashBountyPowerModuleData.Parse },
             { "CashHackSpecialPower", CashHackSpecialPowerModuleData.Parse },
             { "CleanupAreaPower", CleanupAreaPowerModuleData.Parse },
             { "CloudBreakSpecialPower", CloudBreakSpecialPowerModuleData.Parse },
             { "CombineHordeSpecialPower", CombineHordeSpecialPowerModuleData.Parse },
+            { "CurseSpecialPower", CurseSpecialPowerModuleData.Parse },
             { "DarknessSpecialPower", DarknessSpecialPowerModuleData.Parse },
             { "DefectorSpecialPower", DefectorSpecialPowerModuleData.Parse },
             { "DeflectSpecialPower", DeflectSpecialPowerModuleData.Parse },
@@ -265,6 +267,7 @@ namespace OpenSage.Logic.Object
             { "SupplyCenterDockUpdate", SupplyCenterDockUpdateModuleData.Parse },
             { "SupplyCenterProductionExitUpdate", SupplyCenterProductionExitUpdateModuleData.Parse },
             { "SupplyWarehouseDockUpdate", SupplyWarehouseDockUpdateModuleData.Parse },
+            { "TeleportSpecialAbilityUpdate", TeleportSpecialAbilityUpdateModuleData.Parse },
             { "TemporarilyDefectUpdate", TemporarilyDefectUpdateModuleData.Parse },
             { "TensileFormationUpdate", TensileFormationUpdateModuleData.Parse },
             { "ToggleHiddenSpecialAbilityUpdate", ToggleHiddenSpecialAbilityUpdateModuleData.Parse },
