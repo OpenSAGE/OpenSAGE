@@ -679,5 +679,11 @@
 
         [IniEnum("LINKED_TO_FLAG"), AddedIn(SageGame.Bfme2)]
         LinkedToFlag,
+
+        [IniEnum("CREATE_A_HERO"), AddedIn(SageGame.Bfme2)]
+        CreateAHero,
+
+        [IniEnum("CAN_CLIMB_WALLS"), AddedIn(SageGame.Bfme2)]
+        CanClimbWalls,
     }
 }

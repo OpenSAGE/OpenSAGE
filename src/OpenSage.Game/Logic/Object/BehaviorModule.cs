@@ -61,6 +61,7 @@ namespace OpenSage.Logic.Object
             { "SlowDeathBehavior", SlowDeathBehaviorModuleData.Parse },
             { "SpawnBehavior", SpawnBehaviorModuleData.Parse },
             { "SpawnUnitBehavior", SpawnUnitBehaviorModuleData.Parse },
+            { "StancesBehavior", StancesBehaviorModuleData.Parse },
             { "SupplyWarehouseCripplingBehavior", SupplyWarehouseCripplingBehaviorModuleData.Parse },
             { "TechBuildingBehavior", TechBuildingBehaviorModuleData.Parse },
             { "BezierProjectileBehavior", BezierProjectileBehaviorData.Parse },
