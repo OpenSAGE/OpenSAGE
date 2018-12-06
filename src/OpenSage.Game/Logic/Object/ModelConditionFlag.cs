@@ -756,5 +756,17 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("EMOTION_AMUSED"), AddedIn(SageGame.Bfme2)]
         EmotionAmused,
+
+        [IniEnum("BUILD_VARIATION_ONE"), AddedIn(SageGame.Bfme2)]
+        BuildVariationOne,
+
+        [IniEnum("BUILD_VARIATION_TWO"), AddedIn(SageGame.Bfme2)]
+        BuildVariationTwo,
+
+        [IniEnum("BUILD_PLACEMENT_CURSOR"), AddedIn(SageGame.Bfme2)]
+        BuildPlacementCursor,
+
+        [IniEnum("PHANTOM_STRUCTURE"), AddedIn(SageGame.Bfme2)]
+        PhantomStructure,
     }
 }

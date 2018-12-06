@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
+using System.Numerics;
 
 namespace OpenSage.Data.Ini
 {
@@ -141,7 +142,7 @@ namespace OpenSage.Data.Ini
             { "PalantirMovie", (parser, x) => x.PalantirMovie = parser.ParseAssetReference() },
             { "PlayerOwned", (parser, x) => x.PlayerOwned = parser.ParseBoolean() },
             { "PlayerControlled", (parser, x) => x.PlayerControlled = parser.ParseBoolean() },
-            { "Position", (parser, x) => x.Position = Coord2D.Parse(parser) },
+            { "Position", (parser, x) => x.Position = parser.ParseVector2() },
             { "IsCity", (parser, x) => x.IsCity = parser.ParseBoolean() }
         };
 
@@ -154,7 +155,7 @@ namespace OpenSage.Data.Ini
         public string PalantirMovie { get; private set; }
         public bool PlayerOwned { get; private set; }
         public bool PlayerControlled { get; private set; }
-        public Coord2D Position { get; private set; }
+        public Vector2 Position { get; private set; }
         public bool IsCity { get; private set; }
     }
 
@@ -194,14 +195,14 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<LivingWorldCampaignActMoveArmy> FieldParseTable = new IniParseTable<LivingWorldCampaignActMoveArmy>
         {
             { "Name", (parser, x) => x.Name = parser.ParseAssetReference() },
-            { "MoveTo", (parser, x) => x.MoveTo = Coord2D.Parse(parser) },
+            { "MoveTo", (parser, x) => x.MoveTo = parser.ParseVector2() },
             { "PalantirMovie", (parser, x) => x.PalantirMovie = parser.ParseAssetReference() },
             { "PlayNextActAfterMove", (parser, x) => x.PlayNextActAfterMove = parser.ParseBoolean() },
             { "MoveSpeed", (parser, x) => x.MoveSpeed = parser.ParseFloat() }
         };
 
         public string Name { get; private set; }
-        public Coord2D MoveTo { get; private set; }
+        public Vector2 MoveTo { get; private set; }
         public string PalantirMovie { get; private set; }
         public bool PlayNextActAfterMove { get; private set; }
         public float MoveSpeed { get; private set; }
@@ -215,15 +216,15 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<LivingWorldCampaignActForceBattle> FieldParseTable = new IniParseTable<LivingWorldCampaignActForceBattle>
         {
             { "Region", (parser, x) => x.Region = parser.ParseAssetReference() },
-            { "Position", (parser, x) => x.Position = Coord2D.Parse(parser) },
+            { "Position", (parser, x) => x.Position = parser.ParseVector2() },
             { "UseArmy", (parser, x) => x.UseArmy = parser.ParseAssetReference() },
-            { "ArmyAttackDirection", (parser, x) => x.ArmyAttackDirection = Coord2D.Parse(parser) },
+            { "ArmyAttackDirection", (parser, x) => x.ArmyAttackDirection = parser.ParseVector2() },
         };
 
         public string Region { get; private set; }
-        public Coord2D Position { get; private set; }
+        public Vector2 Position { get; private set; }
         public string UseArmy { get; private set; }
-        public Coord2D ArmyAttackDirection { get; private set; }
+        public Vector2 ArmyAttackDirection { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -233,10 +234,10 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<LivingWorldCampaignActEyeTowerPoints> FieldParseTable = new IniParseTable<LivingWorldCampaignActEyeTowerPoints>
         {
-            { "LookPoint", (parser, x) => x.LookPoints.Add(Coord2D.Parse(parser)) },
+            { "LookPoint", (parser, x) => x.LookPoints.Add(parser.ParseVector2()) },
         };
 
-        public List<Coord2D> LookPoints { get; } = new List<Coord2D>();
+        public List<Vector2> LookPoints { get; } = new List<Vector2>();
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -247,13 +248,13 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<LivingWorldCampaignActMoveCamera> FieldParseTable = new IniParseTable<LivingWorldCampaignActMoveCamera>
         {
             { "DelayFromActStart", (parser, x) => x.DelayFromActStart = parser.ParseFloat() },
-            { "Position", (parser, x) => x.Position = Coord3D.Parse(parser) },
+            { "Position", (parser, x) => x.Position = parser.ParseVector3() },
             { "ViewAngle", (parser, x) => x.ViewAngle = parser.ParseInteger() },
             { "ScrollTime", (parser, x) => x.ScrollTime = parser.ParseFloat() }
         };
 
         public float DelayFromActStart { get; private set; }
-        public Coord3D Position { get; private set; }
+        public Vector3 Position { get; private set; }
         public int ViewAngle { get; private set; }
         public float ScrollTime { get; private set; }
     }

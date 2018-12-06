@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
@@ -44,7 +45,7 @@ namespace OpenSage.Data.Ini
             { "ModelNames", (parser, x) => x.ModelNames = parser.ParseAssetReferenceArray() },
             { "AnimationSet", (parser, x) => x.AnimationSets.Add(parser.ParseAssetReferenceArray()) },
             { "FXFinal", (parser, x) => x.FXFinal = parser.ParseAssetReference() },
-            { "Offset", (parser, x) => x.Offset = Coord3D.Parse(parser) },
+            { "Offset", (parser, x) => x.Offset = parser.ParseVector3() },
             { "Mass", (parser, x) => x.Mass = parser.ParseFloat() },
             { "Count", (parser, x) => x.Count = parser.ParseInteger() },
             { "Disposition", (parser, x) => x.Disposition = parser.ParseEnumBitArray<ObjectDisposition>() },
@@ -71,7 +72,7 @@ namespace OpenSage.Data.Ini
         public string[] ModelNames { get; private set; }
         public List<string[]> AnimationSets { get; } = new List<string[]>();
         public string FXFinal { get; private set; }
-        public Coord3D Offset { get; private set; }
+        public Vector3 Offset { get; private set; }
         public float Mass { get; private set; }
         public int Count { get; private set; }
         public BitArray<ObjectDisposition> Disposition { get; private set; }
@@ -111,7 +112,7 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<CreateObjectObjectCreationListItem> FieldParseTable = new IniParseTable<CreateObjectObjectCreationListItem>
         {
             { "ObjectNames", (parser, x) => x.ObjectNames = parser.ParseAssetReference() },
-            { "Offset", (parser, x) => x.Offset = Coord3D.Parse(parser) },
+            { "Offset", (parser, x) => x.Offset = parser.ParseVector3() },
             { "Count", (parser, x) => x.Count = parser.ParseInteger() },
             { "SpreadFormation", (parser, x) => x.SpreadFormation = parser.ParseBoolean() },
             { "MinDistanceAFormation", (parser, x) => x.MinDistanceAFormation = parser.ParseFloat() },
@@ -156,7 +157,7 @@ namespace OpenSage.Data.Ini
         };
 
         public string ObjectNames { get; private set; }
-        public Coord3D Offset { get; private set; }
+        public Vector3 Offset { get; private set; }
         public int Count { get; private set; }
         public bool SpreadFormation { get; private set; }
         public float MinDistanceAFormation { get; private set; }
@@ -299,8 +300,8 @@ namespace OpenSage.Data.Ini
             { "DropDelay", (parser, x) => x.DropDelay = parser.ParseInteger() },
             { "ParachuteDirectly", (parser, x) => x.ParachuteDirectly = parser.ParseBoolean() },
             { "PutInContainer", (parser, x) => x.PutInContainer = parser.ParseAssetReference() },
-            { "DropOffset", (parser, x) => x.DropOffset = Coord3D.Parse(parser) },
-            { "DropVariance", (parser, x) => x.DropVariance = Coord3D.Parse(parser) },
+            { "DropOffset", (parser, x) => x.DropOffset = parser.ParseVector3() },
+            { "DropVariance", (parser, x) => x.DropVariance = parser.ParseVector3() },
             { "Payload", (parser, x) => x.Payload = Payload.Parse(parser) },
             { "FireWeapon", (parser, x) => x.FireWeapon = parser.ParseBoolean() },
             { "DeliveryDistance", (parser, x) => x.DeliveryDistance = parser.ParseInteger() },
@@ -335,8 +336,8 @@ namespace OpenSage.Data.Ini
         public int DropDelay { get; private set; }
         public bool ParachuteDirectly { get; private set; }
         public string PutInContainer { get; private set; }
-        public Coord3D DropOffset { get; private set; }
-        public Coord3D DropVariance { get; private set; }
+        public Vector3 DropOffset { get; private set; }
+        public Vector3 DropVariance { get; private set; }
         public Payload Payload { get; private set; }
         public bool FireWeapon { get; private set; }
         public int DeliveryDistance { get; private set; }

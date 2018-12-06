@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
@@ -38,7 +39,7 @@ namespace OpenSage.Data.Ini
             { "ParticleName", (parser, x) => x.ParticleName = parser.ParseFileName() },
             { "PerParticleAttachedSystem", (parser, x) => x.PerParticleAttachedSystem = parser.ParseAssetReference() },
             { "SlaveSystem", (parser, x) => x.SlaveSystem = parser.ParseAssetReference() },
-            { "SlavePosOffset", (parser, x) => x.SlavePosOffset = Coord3D.Parse(parser) },
+            { "SlavePosOffset", (parser, x) => x.SlavePosOffset = parser.ParseVector3() },
             { "Lifetime", (parser, x) => x.Lifetime = RandomVariable.Parse(parser) },
             { "SystemLifetime", (parser, x) => x.SystemLifetime = parser.ParseInteger() },
             { "SortLevel", (parser, x) => x.SortLevel = parser.ParseInteger() },
@@ -134,7 +135,7 @@ namespace OpenSage.Data.Ini
         public string ParticleName { get; private set; }
         public string PerParticleAttachedSystem { get; private set; }
         public string SlaveSystem { get; private set; }
-        public Coord3D SlavePosOffset { get; private set; }
+        public Vector3 SlavePosOffset { get; private set; }
         public RandomVariable Lifetime { get; private set; }
         public int SystemLifetime { get; private set; }
         public int SortLevel { get; private set; }
@@ -325,12 +326,12 @@ namespace OpenSage.Data.Ini
         {
             { "Gravity", (parser, x) => x.Gravity = parser.ParseFloat() },
             { "VelocityDamping", (parser, x) => x.VelocityDamping = RandomVariable.Parse(parser) },
-            { "DriftVelocity", (parser, x) => x.DriftVelocity = Coord3D.Parse(parser) },
+            { "DriftVelocity", (parser, x) => x.DriftVelocity = parser.ParseVector3() },
         };
 
         public float Gravity { get; private set; }
         public RandomVariable VelocityDamping { get; private set; }
-        public Coord3D DriftVelocity { get; private set; }
+        public Vector3 DriftVelocity { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -519,12 +520,12 @@ namespace OpenSage.Data.Ini
         {
             { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
             { "Length", (parser, x) => x.Length = parser.ParseFloat() },
-            { "Offset", (parser, x) => x.Offset = Coord3D.Parse(parser) },
+            { "Offset", (parser, x) => x.Offset = parser.ParseVector3() },
         });
 
         public float Radius { get; private set; }
         public float Length { get; private set; }
-        public Coord3D Offset { get; private set; }
+        public Vector3 Offset { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -534,12 +535,12 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<FXParticleEmissionVolumeLine> FieldParseTable = BaseFieldParseTable.Concat(new IniParseTable<FXParticleEmissionVolumeLine>
         {
-            { "StartPoint", (parser, x) => x.StartPoint = Coord3D.Parse(parser) },
-            { "EndPoint", (parser, x) => x.EndPoint = Coord3D.Parse(parser) },
+            { "StartPoint", (parser, x) => x.StartPoint = parser.ParseVector3() },
+            { "EndPoint", (parser, x) => x.EndPoint = parser.ParseVector3() },
         });
 
-        public Coord3D StartPoint { get; private set; }
-        public Coord3D EndPoint { get; private set; }
+        public Vector3 StartPoint { get; private set; }
+        public Vector3 EndPoint { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -562,10 +563,10 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<FXParticleEmissionVolumeBox> FieldParseTable = BaseFieldParseTable.Concat(new IniParseTable<FXParticleEmissionVolumeBox>
         {
-            { "HalfSize", (parser, x) => x.HalfSize = Coord3D.Parse(parser) }
+            { "HalfSize", (parser, x) => x.HalfSize = parser.ParseVector3() }
         });
 
-        public Coord3D HalfSize { get; private set; }
+        public Vector3 HalfSize { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -583,7 +584,7 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<FXParticleEmissionVolumeLightning> FieldParseTable = BaseFieldParseTable.Concat(new IniParseTable<FXParticleEmissionVolumeLightning>
         {
-            { "EndPoint", (parser, x) => x.EndPoint = Coord3D.Parse(parser) },
+            { "EndPoint", (parser, x) => x.EndPoint = parser.ParseVector3() },
             { "Amplitude1", (parser, x) => x.Amplitude1 = RandomVariable.Parse(parser) },
             { "Frequency1", (parser, x) => x.Frequency1 = RandomVariable.Parse(parser) },
             { "Phase1", (parser, x) => x.Phase1 = RandomVariable.Parse(parser) },
@@ -591,7 +592,7 @@ namespace OpenSage.Data.Ini
             { "Phase3", (parser, x) => x.Phase3 = RandomVariable.Parse(parser) },
         });
 
-        public Coord3D EndPoint { get; private set; }
+        public Vector3 EndPoint { get; private set; }
         public RandomVariable Amplitude1 { get; private set; }
         public RandomVariable Frequency1 { get; private set; }
         public RandomVariable Phase1 { get; private set; }

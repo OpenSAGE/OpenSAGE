@@ -117,6 +117,7 @@ namespace OpenSage.Data.Ini.Parser
         {
              { "#DIVIDE(", (parser) => { return parser.DivideFunc(); } },
              { "#ADD(", (parser) => { return parser.AddFunc(); } },
+             { "#MULTIPLY(", (parser) => { return parser.MultiplyFunc(); } },
         };
 
         private static readonly char[] Separators = { ' ', '\n', '\r', '\t', '=' };
@@ -504,21 +505,34 @@ namespace OpenSage.Data.Ini.Parser
 
         private IniToken DivideFunc()
         {
-            var result = ParseFloat() / ParseFloat();
-            GetNextToken(); //read the ')'
-            return new IniToken(ParseUtility.ToInvariant(result), _tokenReader.CurrentPosition);
+            return Func(ParseFloat() / ParseFloat());
         }
 
         private IniToken AddFunc()
         {
-            var result = ParseFloat() + ParseFloat();
+            return Func(ParseFloat() + ParseFloat());
+        }
+
+        private IniToken MultiplyFunc()
+        {
+            return Func(ParseFloat() * ParseFloat());
+        }
+
+        private IniToken Func(float value)
+        {
             GetNextToken(); //read the ')'
-            return new IniToken(ParseUtility.ToInvariant(result), _tokenReader.CurrentPosition);
+            return new IniToken(ParseUtility.ToInvariant(value), _tokenReader.CurrentPosition);
         }
 
         public IniToken? GetNextTokenOptional(char[] separators = null)
         {
-            return _tokenReader.NextToken(separators ?? Separators);
+            var result = _tokenReader.NextToken(separators ?? Separators);
+
+            if (result.HasValue && _dataContext.Defines.TryGetValue(result.Value.Text, out var macroExpansion))
+            {
+                return macroExpansion;
+            }
+            return result;
         }
 
         public IniToken? PeekNextTokenOptional(char[] separators = null)

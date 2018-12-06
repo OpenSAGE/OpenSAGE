@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
+using System.Numerics;
 
 namespace OpenSage.Data.Ini
 {
@@ -314,7 +315,7 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<AIStructure> FieldParseTable = new IniParseTable<AIStructure>
         {
             { "Name", (parser, x) => x.Name = parser.ParseString() },
-            { "Location", (parser, x) => x.Location = Coord2D.Parse(parser) },
+            { "Location", (parser, x) => x.Location = parser.ParseVector2() },
             { "Rebuilds", (parser, x) => x.Rebuilds = parser.ParseInteger() },
             { "Angle", (parser, x) => x.Angle = parser.ParseFloat() },
             { "InitiallyBuilt", (parser, x) => x.InitiallyBuilt = parser.ParseBoolean() },
@@ -324,7 +325,7 @@ namespace OpenSage.Data.Ini
         public string Key { get; private set; }
 
         public string Name { get; private set; }
-        public Coord2D Location { get; private set; }
+        public Vector2 Location { get; private set; }
         public int Rebuilds { get; private set; }
         public float Angle { get; private set; }
         public bool InitiallyBuilt { get; private set; }

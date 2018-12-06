@@ -75,5 +75,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("RIDERLESS"), AddedIn(SageGame.Bfme)]
         Riderless,
+
+        [IniEnum("HOLDING_THE_RING"), AddedIn(SageGame.Bfme2)]
+        HoldingTheRing,
     }
 }

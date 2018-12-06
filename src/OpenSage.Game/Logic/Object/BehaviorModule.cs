@@ -28,6 +28,7 @@ namespace OpenSage.Logic.Object
             { "DumbProjectileBehavior", DumbProjectileBehaviorModuleData.Parse },
             { "DualWeaponBehavior", DualWeaponBehaviorModuleData.Parse },
             { "DynamicPortalBehaviour", DynamicPortalBehaviorModuleData.Parse },
+            { "FakePathfindPortalBehaviour", FakePathfindPortalBehaviourModuleData.Parse },
             { "FireWeaponWhenDeadBehavior", FireWeaponWhenDeadBehaviorModuleData.Parse },
             { "FireWeaponWhenDamagedBehavior", FireWeaponWhenDamagedBehaviorModuleData.Parse },
             { "FlightDeckBehavior", FlightDeckBehaviorModuleData.Parse },
@@ -64,6 +65,7 @@ namespace OpenSage.Logic.Object
             { "TechBuildingBehavior", TechBuildingBehaviorModuleData.Parse },
             { "BezierProjectileBehavior", BezierProjectileBehaviorData.Parse },
             { "HitReactionBehavior", HitReactionBehaviorData.Parse },
+            { "TerrainResourceBehavior", TerrainResourceBehaviorModuleData.Parse },
 
             // Collide
             { "CivilianSpawnCollide", CivilianSpawnCollideModuleData.Parse },
@@ -87,6 +89,7 @@ namespace OpenSage.Logic.Object
 
             // Contain
             { "AODHordeContain", AodHordeContainModuleData.Parse },
+            { "CitadelSlaughterHordeContain", CitadelSlaughterHordeContainModuleData.Parse },
             { "GarrisonContain", GarrisonContainModuleData.Parse },
             { "HealContain", HealContainModuleData.Parse },
             { "HelixContain", HelixContainModuleData.Parse },
@@ -216,6 +219,7 @@ namespace OpenSage.Logic.Object
             { "HeroModeSpecialAbilityUpdate", HeroModeSpecialAbilityUpdateModuleData.Parse },
             { "HijackerUpdate", HijackerUpdateModuleData.Parse },
             { "HordeUpdate", HordeUpdateModuleData.Parse },
+            { "InvisibilityUpdate", InvisibilityUpdateModuleData.Parse },
             { "LargeGroupAudioUpdate", LargeGroupAudioUpdateModuleData.Parse },
             { "LargeGroupBonusUpdate", LargeGroupBonusUpdateModuleData.Parse },
             { "LifetimeUpdate", LifetimeUpdateModuleData.Parse },
@@ -270,6 +274,8 @@ namespace OpenSage.Logic.Object
             { "WeaponModeSpecialPowerUpdate", WeaponModeSpecialPowerUpdateModuleData.Parse },
 
             // Update/AIUpdate
+            { "AIGateUpdate", AIGateUpdateModuleData.Parse },
+            { "AISpecialPowerUpdate", AISpecialPowerUpdateModuleData.Parse },
             { "AIUpdateInterface", AIUpdateModuleData.Parse },
             { "AnimalAIUpdate", AnimalAIUpdateModuleData.Parse },
             { "AssaultTransportAIUpdate", AssaultTransportAIUpdateModuleData.Parse },

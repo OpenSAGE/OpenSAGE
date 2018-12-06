@@ -5,11 +5,11 @@ using OpenSage.Data.Ini.Parser;
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public sealed class SlaughterHordeContainModuleData : UpgradeModuleData
+    public class SlaughterHordeContainModuleData : UpgradeModuleData
     {
         internal static SlaughterHordeContainModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<SlaughterHordeContainModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+        internal static new readonly IniParseTable<SlaughterHordeContainModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
             .Concat(new IniParseTable<SlaughterHordeContainModuleData>
             {
                 { "PassengerFilter", (parser, x) => x.PassengerFilter = ObjectFilter.Parse(parser) },

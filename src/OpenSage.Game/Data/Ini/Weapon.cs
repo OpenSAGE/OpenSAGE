@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
+using System.Numerics;
 
 namespace OpenSage.Data.Ini
 {
@@ -20,7 +21,7 @@ namespace OpenSage.Data.Ini
             { "ScatterRadius", (parser, x) => x.ScatterRadius = parser.ParseFloat() },
             { "ScatterRadiusVsInfantry", (parser, x) => x.ScatterRadiusVsInfantry = parser.ParseFloat() },
             { "ScatterTargetScalar", (parser, x) => x.ScatterTargetScalar = parser.ParseFloat() },
-            { "ScatterTarget", (parser, x) => x.ScatterTargets.Add(Coord2D.Parse(parser)) },
+            { "ScatterTarget", (parser, x) => x.ScatterTargets.Add(parser.ParseVector2()) },
             { "SecondaryDamage", (parser, x) => x.SecondaryDamage = parser.ParseFloat() },
             { "SecondaryDamageRadius", (parser, x) => x.SecondaryDamageRadius = parser.ParseFloat() },
             { "LeechRangeWeapon", (parser, x) => x.LeechRangeWeapon = parser.ParseBoolean() },
@@ -116,7 +117,7 @@ namespace OpenSage.Data.Ini
         public float ScatterRadius { get; private set; }
         public float ScatterRadiusVsInfantry { get; private set; }
         public float ScatterTargetScalar { get; private set; }
-        public List<Coord2D> ScatterTargets { get; } = new List<Coord2D>();
+        public List<Vector2> ScatterTargets { get; } = new List<Vector2>();
         public float SecondaryDamage { get; private set; }
         public float SecondaryDamageRadius { get; private set; }
         public bool LeechRangeWeapon { get; private set; }
