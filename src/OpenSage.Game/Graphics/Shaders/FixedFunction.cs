@@ -83,11 +83,11 @@ namespace OpenSage.Graphics.Shaders
         public struct ShadingConfiguration
         {
             public DiffuseLightingType DiffuseLightingType;
-            public /*bool*/ uint SpecularEnabled;
-            public /*bool*/ uint TexturingEnabled;
+            public Bool32 SpecularEnabled;
+            public Bool32 TexturingEnabled;
             public SecondaryTextureBlend SecondaryTextureColorBlend;
             public SecondaryTextureBlend SecondaryTextureAlphaBlend;
-            public /*bool*/ uint AlphaTest;
+            public Bool32 AlphaTest;
 
 #pragma warning disable CS0169
             private readonly Vector2 _padding;

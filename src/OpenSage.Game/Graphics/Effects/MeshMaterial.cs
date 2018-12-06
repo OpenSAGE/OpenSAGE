@@ -29,7 +29,7 @@ namespace OpenSage.Graphics.Effects
         [StructLayout(LayoutKind.Sequential)]
         public struct MeshConstants
         {
-            public Bool4 SkinningEnabled;
+            public Bool32 SkinningEnabled;
             public uint NumBones;
 
 #pragma warning disable CS0169

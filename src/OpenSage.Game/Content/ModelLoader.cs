@@ -204,11 +204,11 @@ namespace OpenSage.Content
             return new FixedFunction.ShadingConfiguration
             {
                 DiffuseLightingType = w3dShader.PrimaryGradient.ToDiffuseLightingType(),
-                SpecularEnabled = (w3dShader.SecondaryGradient == W3dShaderSecondaryGradient.Enable) ? 1u : 0u,
-                TexturingEnabled = (w3dShader.Texturing == W3dShaderTexturing.Enable) ? 1u : 0u,
+                SpecularEnabled = w3dShader.SecondaryGradient == W3dShaderSecondaryGradient.Enable,
+                TexturingEnabled = w3dShader.Texturing == W3dShaderTexturing.Enable,
                 SecondaryTextureColorBlend = w3dShader.DetailColorFunc.ToSecondaryTextureBlend(),
                 SecondaryTextureAlphaBlend = w3dShader.DetailAlphaFunc.ToSecondaryTextureBlend(),
-                AlphaTest = (w3dShader.AlphaTest == W3dShaderAlphaTest.Enable) ? 1u : 0u
+                AlphaTest = w3dShader.AlphaTest == W3dShaderAlphaTest.Enable
             };
         }
 
