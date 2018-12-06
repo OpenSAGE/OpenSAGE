@@ -71,7 +71,10 @@ namespace OpenSage.Logic.Object
             { "ShadowOverrideLODVisibility", (parser, x) => x.ShadowOverrideLODVisibility = parser.ParseBoolean() },
             { "StateName", (parser, x) => x.StateName = parser.ParseString() },
             { "RetainSubObjects", (parser, x) => x.RetainSubObjects = parser.ParseBoolean() },
-            { "Texture", (parser, x) => x.Textures = parser.ParseAssetReferenceArray() }
+            { "Texture", (parser, x) => x.Textures = parser.ParseAssetReferenceArray() },
+            { "ModelAnimationPrefix", (parser, x) => x.ModelAnimationPrefix = parser.ParseString() },
+            { "PortraitImageName", (parser, x) => x.PortraitImageName = parser.ParseString() },
+            { "ButtonImageName", (parser, x) => x.ButtonImageName = parser.ParseString() },
         };
 
         private void ParseAnimation(IniParser parser)
@@ -170,6 +173,15 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string[] Textures { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string ModelAnimationPrefix { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string PortraitImageName { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string ButtonImageName { get; private set; }
 
 
         /// <summary>

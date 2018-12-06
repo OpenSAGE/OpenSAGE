@@ -338,7 +338,8 @@ namespace OpenSage.Logic.Object
             { "CommandPointBonus", (parser, x) => x.CommandPointBonus = parser.ParseInteger() },
             { "Flammability", (parser, x) => x.Flammability = Flammability.Parse(parser) },
             { "ThreatBreakdown", (parser, x) => x.ThreatBreakdown = ThreatBreakdown.Parse(parser) },
-            { "DisplayNameInvisibleForEnemy", (parser, x) => x.DisplayNameInvisibleForEnemy = parser.ParseLocalizedStringKey() }
+            { "DisplayNameInvisibleForEnemy", (parser, x) => x.DisplayNameInvisibleForEnemy = parser.ParseLocalizedStringKey() },
+            { "DescriptionStrategic", (parser, x) => x.DescriptionStrategic = parser.ParseLocalizedStringKey() },
         };
 
         public string Name { get; protected set; }
@@ -1053,6 +1054,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string DisplayNameInvisibleForEnemy { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string DescriptionStrategic { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
