@@ -139,15 +139,15 @@ namespace OpenSage.Data
         public static IEnumerable<GameInstallation> FindAllInstallations(IGameDefinition game)
         {
             var locators = GetAllForPlatform();
-            var result = locators.First().FindInstallations(game);
-            if (locators.Count() > 1)
+            var result = new List<GameInstallation>();
+            foreach (var locator in locators)
             {
-                var result2 = locators.ElementAt(1).FindInstallations(game);
-                foreach (var installation in result2)
+                var installations = locator.FindInstallations(game);
+                foreach (var installation in installations)
                 {
                     if (!result.Contains(installation))
                     {
-                        result = result.Append(installation);
+                        result.Add(installation);
                     }
                 }
             }
