@@ -11,10 +11,8 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<StancesBehaviorModuleData>
             {
                 { "StanceTemplate", (parser, x) => x.StanceTemplate = parser.ParseIdentifier() },
-               
             });
 
         public string StanceTemplate { get; private set; }
-      
     }
 }

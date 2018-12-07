@@ -58,6 +58,9 @@ namespace OpenSage.Data.Ini
         public List<LargeGroupAudioMap> LargeGroupAudioMaps { get; } = new List<LargeGroupAudioMap>();
         public LargeGroupAudioUnusedKnownKeys LargeGroupAudioUnusedKnownKeys { get; internal set; }
         public List<LivingWorldCampaign> LivingWorldCampaigns { get; } = new List<LivingWorldCampaign>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public LivingWorldMapInfo LivingWorldMapInfo { get; set; }
         public List<LivingWorldPlayerArmy> LivingWorldPlayerArmies { get; } = new List<LivingWorldPlayerArmy>();
         public List<LivingWorldRegionCampaign> LivingWorldRegionCampaigns { get; } = new List<LivingWorldRegionCampaign>();
         public List<Locomotor> Locomotors { get; } = new List<Locomotor>();

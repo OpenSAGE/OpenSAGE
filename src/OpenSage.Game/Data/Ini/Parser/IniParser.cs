@@ -66,6 +66,7 @@ namespace OpenSage.Data.Ini.Parser
             { "LargeGroupAudioMap", (parser, context) => context.LargeGroupAudioMaps.Add(LargeGroupAudioMap.Parse(parser)) },
             { "LargeGroupAudioUnusedKnownKeys", (parser, context) => context.LargeGroupAudioUnusedKnownKeys = LargeGroupAudioUnusedKnownKeys.Parse(parser) },
             { "LivingWorldCampaign", (parser, context) => context.LivingWorldCampaigns.Add(LivingWorldCampaign.Parse(parser)) },
+            { "LivingWorldMapInfo", (parser, context) => context.LivingWorldMapInfo = LivingWorldMapInfo.Parse(parser) },
             { "LivingWorldPlayerArmy", (parser, context) => context.LivingWorldPlayerArmies.Add(LivingWorldPlayerArmy.Parse(parser)) },
             { "LivingWorldRegionCampaign", (parser, context) => context.LivingWorldRegionCampaigns.Add(LivingWorldRegionCampaign.Parse(parser)) },
             { "LoadSubsystem", (parser, context) => context.Subsystems.Add(LoadSubsystem.Parse(parser)) },
@@ -417,6 +418,14 @@ namespace OpenSage.Data.Ini.Parser
 
         public string[] ParseBoneNameArray() => ParseAssetReferenceArray();
         public string ParseAnimationName() => ParseIdentifier();
+
+        public ColorRgb ParseColorRgb()
+        {
+            var r = ParseAttributeByte("R");
+            var g = ParseAttributeByte("G");
+            var b = ParseAttributeByte("B");
+            return new ColorRgb(r, g, b);
+        }
 
         public ColorRgba ParseColorRgba()
         {
