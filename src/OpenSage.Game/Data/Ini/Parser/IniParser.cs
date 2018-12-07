@@ -69,6 +69,7 @@ namespace OpenSage.Data.Ini.Parser
             { "LargeGroupAudioUnusedKnownKeys", (parser, context) => context.LargeGroupAudioUnusedKnownKeys = LargeGroupAudioUnusedKnownKeys.Parse(parser) },
             { "LivingWorldCampaign", (parser, context) => context.LivingWorldCampaigns.Add(LivingWorldCampaign.Parse(parser)) },
             { "LivingWorldMapInfo", (parser, context) => context.LivingWorldMapInfo = LivingWorldMapInfo.Parse(parser) },
+            { "LivingWorldObject", (parser, context) => context.LivingWorldObjects.Add(LivingWorldObject.Parse(parser)) },
             { "LivingWorldPlayerArmy", (parser, context) => context.LivingWorldPlayerArmies.Add(LivingWorldPlayerArmy.Parse(parser)) },
             { "LivingWorldRegionCampaign", (parser, context) => context.LivingWorldRegionCampaigns.Add(LivingWorldRegionCampaign.Parse(parser)) },
             { "LivingWorldSound", (parser, context) => context.LivingWorldSounds.Add(LivingWorldSound.Parse(parser)) },
@@ -96,6 +97,7 @@ namespace OpenSage.Data.Ini.Parser
             { "PlayerTemplate", (parser, context) => context.PlayerTemplates.Add(PlayerTemplate.Parse(parser)) },
             { "PredefinedEvaEvent", (parser, context) => context.EvaEvents.Add(EvaEvent.Parse(parser)) },
             { "Rank", (parser, context) => context.Ranks.Add(Rank.Parse(parser)) },
+            { "RegionCampain", (parser, context) => context.RegionCampain = RegionCampain.Parse(parser) },
             { "RingEffect", (parser, context) => context.Environment.RingEffect = RingEffect.Parse(parser) },
             { "Road", (parser, context) => context.RoadTemplates.Add(RoadTemplate.Parse(parser)) },
             { "ReallyLowMHz", (parser, context) => context.ReallyLowMHz = parser.ParseInteger() },
@@ -392,9 +394,11 @@ namespace OpenSage.Data.Ini.Parser
             switch (token.Text.ToUpperInvariant())
             {
                 case "YES":
+                case "1":
                     return true;
 
                 case "NO":
+                case "0":
                     return false;
 
                 default:

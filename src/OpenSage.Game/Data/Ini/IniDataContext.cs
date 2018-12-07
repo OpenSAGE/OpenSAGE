@@ -61,6 +61,9 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public LivingWorldMapInfo LivingWorldMapInfo { get; set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<LivingWorldObject> LivingWorldObjects { get; } = new List<LivingWorldObject>();
         public List<LivingWorldPlayerArmy> LivingWorldPlayerArmies { get; } = new List<LivingWorldPlayerArmy>();
 
         [AddedIn(SageGame.Bfme2)]
@@ -69,7 +72,7 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.Bfme2)]
         public List<LivingWorldAnimObject> LivingWorldAnimObjects { get; } = new List<LivingWorldAnimObject>();
 
-                [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme2)]
         public List<LivingWorldSound> LivingWorldSounds { get; } = new List<LivingWorldSound>();
         public List<LivingWorldRegionCampaign> LivingWorldRegionCampaigns { get; } = new List<LivingWorldRegionCampaign>();
         public List<Locomotor> Locomotors { get; } = new List<Locomotor>();
@@ -92,6 +95,9 @@ namespace OpenSage.Data.Ini
         public List<ParticleSystemDefinition> ParticleSystems { get; } = new List<ParticleSystemDefinition>();
         public List<PlayerTemplate> PlayerTemplates { get; } = new List<PlayerTemplate>();
         public List<Rank> Ranks { get; } = new List<Rank>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public RegionCampain RegionCampain{ get; set; }
         public List<RoadTemplate> RoadTemplates { get; } = new List<RoadTemplate>();
         public int ReallyLowMHz { get; internal set; }
         public List<Science> Sciences { get; } = new List<Science>();

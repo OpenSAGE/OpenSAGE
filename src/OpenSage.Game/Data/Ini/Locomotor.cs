@@ -95,6 +95,25 @@ namespace OpenSage.Data.Ini
             { "SwoopTerminalVelocity", (parser, x) => x.SwoopTerminalVelocity = parser.ParseFloat() },
             { "SwoopAccelerationRate", (parser, x) => x.SwoopAccelerationRate = parser.ParseFloat() },
             { "SwoopSpeedTuningFactor", (parser, x) => x.SwoopSpeedTuningFactor = parser.ParseFloat() },
+            { "FormationPriority", (parser, x) => x.FormationPriority = parser.ParseEnum<FormationPriority>() },
+            { "BackingUpSpeed", (parser, x) => x.BackingUpSpeed = parser.ParsePercentage() },
+            { "ChargeAvailable", (parser, x) => x.ChargeAvailable = parser.ParseBoolean() },
+            { "ChargeSpeed", (parser, x) => x.ChargeSpeed = parser.ParsePercentage() },
+            { "TurnThreshold", (parser, x) => x.TurnThreshold = parser.ParseFloat() },
+            { "TurnThresholdHS", (parser, x) => x.TurnThresholdHS = parser.ParseInteger() },
+            { "EnableHighSpeedTurnModelconditions", (parser, x) => x.EnableHighSpeedTurnModelconditions = parser.ParseBoolean() },
+            { "UseTerrainSmoothing", (parser, x) => x.UseTerrainSmoothing = parser.ParseBoolean() },
+            { "WaitForFormation", (parser, x) => x.WaitForFormation = parser.ParseBoolean() },
+            { "MaxTurnWithoutReform", (parser, x) => x.MaxTurnWithoutReform = parser.ParseInteger() },
+            { "AccDecTrigger", (parser, x) => x.AccDecTrigger = parser.ParseFloat() },
+            { "WalkDistance", (parser, x) => x.WalkDistance = parser.ParseInteger() },
+            { "MaxOverlappedHeight", (parser, x) => x.MaxOverlappedHeight = parser.ParseInteger() },
+            { "CrewPowered", (parser, x) => x.CrewPowered = parser.ParseBoolean() },
+            { "BackingUpStopWhenTurning", (parser, x) => x.BackingUpStopWhenTurning = parser.ParseBoolean() },
+            { "BackingUpDistanceMin", (parser, x) => x.BackingUpDistanceMin = parser.ParseInteger() },
+            { "BackingUpDistanceMax", (parser, x) => x.BackingUpDistanceMax = parser.ParseInteger() },
+            { "BackingUpAngle", (parser, x) => x.BackingUpAngle = parser.ParseFloat() },
+            { "LookAheadMult", (parser, x) => x.LookAheadMult = parser.ParseFloat() },
         };
 
         public string Name { get; private set; }
@@ -181,30 +200,98 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public int TurnTime { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public int TurnTimeDamaged { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public float SlowTurnRadius { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public float FastTurnRadius { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public bool NonDirtyTransform { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public int PreferredAttackHeight { get; private set; }
-        [AddedIn(SageGame.Bfme2)]
+
         public float AeleronCorrectionDegree { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public float AeleronCorrectionRate { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public float SwoopStandoffRadius { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public float SwoopStandoffHeight { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public float SwoopTerminalVelocity { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public float SwoopAccelerationRate { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public float SwoopSpeedTuningFactor { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public FormationPriority FormationPriority { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float BackingUpSpeed { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ChargeAvailable { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float ChargeSpeed { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float TurnThreshold { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int TurnThresholdHS { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool EnableHighSpeedTurnModelconditions { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool UseTerrainSmoothing { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool WaitForFormation { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int MaxTurnWithoutReform { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float AccDecTrigger { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int WalkDistance { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int MaxOverlappedHeight { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool CrewPowered { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool BackingUpStopWhenTurning { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int BackingUpDistanceMin { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int BackingUpDistanceMax { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float BackingUpAngle { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float LookAheadMult { get; private set; }
     }
 
     public enum LocomotorAppearance
@@ -235,6 +322,15 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("GIANT_BIRD"), AddedIn(SageGame.Bfme2)]
         GiantBird,
+
+        [IniEnum("HUGE_TWO_LEGS"), AddedIn(SageGame.Bfme2)]
+        HugeTwoLegs,
+
+        [IniEnum("HORDE"), AddedIn(SageGame.Bfme2)]
+        Horde,
+
+        [IniEnum("FOUR_LEGS_HUGE"), AddedIn(SageGame.Bfme2)]
+        FourLegsHuge,
     }
 
     public enum Surface
@@ -253,6 +349,12 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("WATER")]
         Water,
+
+        [IniEnum("IMPASSABLE"), AddedIn(SageGame.Bfme2)]
+        Impassable,
+
+        [IniEnum("OBSTACLE"), AddedIn(SageGame.Bfme2)]
+        Obstacle,
     }
 
     public enum GroupMovementPriority
@@ -283,5 +385,24 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("FIXED_ABSOLUTE_HEIGHT"), AddedIn(SageGame.Bfme2)]
         FixedAbsoluteHeight,
+
+        [IniEnum("FLOATING_Z"), AddedIn(SageGame.Bfme2)]
+        FloatingZ,
+
+        [IniEnum("SEA_LEVEL"), AddedIn(SageGame.Bfme2)]
+        SeaLevel,
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public enum FormationPriority
+    {
+        [IniEnum("NO_FORMATION")]
+        NoFormation,
+
+        [IniEnum("MELEE1")]
+        Melee1,
+
+        [IniEnum("MELEE2")]
+        Melee2,
     }
 }
