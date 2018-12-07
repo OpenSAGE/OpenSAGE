@@ -132,12 +132,12 @@ namespace OpenSage.Logic
             }
 
             var playerId = (uint) Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer);
-            Game.NetworkMessageBuffer.AddLocalOrder(Order.CreateClearSelection(playerId));
+            Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateClearSelection(playerId));
 
             if (closestObject != null)
             {
                 var objectId = (uint) Game.Scene3D.GameObjects.GetObjectId(closestObject);
-                Game.NetworkMessageBuffer.AddLocalOrder(Order.CreateSetSelection(playerId, objectId));
+                Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateSetSelection(playerId, objectId));
             }
         }
 
@@ -162,11 +162,11 @@ namespace OpenSage.Logic
             }
 
             var playerId = (uint) Game.Scene3D.GetPlayerIndex(Game.Scene3D.LocalPlayer);
-            Game.NetworkMessageBuffer.AddLocalOrder(Order.CreateClearSelection(playerId));
+            Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateClearSelection(playerId));
 
             if (selectedObjectIds.Count > 0)
             {
-                Game.NetworkMessageBuffer.AddLocalOrder(Order.CreateSetSelection(playerId, selectedObjectIds));
+                Game.NetworkMessageBuffer?.AddLocalOrder(Order.CreateSetSelection(playerId, selectedObjectIds));
             }
         }
 
