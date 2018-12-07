@@ -62,6 +62,15 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.Bfme2)]
         public LivingWorldMapInfo LivingWorldMapInfo { get; set; }
         public List<LivingWorldPlayerArmy> LivingWorldPlayerArmies { get; } = new List<LivingWorldPlayerArmy>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<LivingWorldArmyIcon> LivingWorldArmyIcons { get; } = new List<LivingWorldArmyIcon>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<LivingWorldAnimObject> LivingWorldAnimObjects { get; } = new List<LivingWorldAnimObject>();
+
+                [AddedIn(SageGame.Bfme2)]
+        public List<LivingWorldSound> LivingWorldSounds { get; } = new List<LivingWorldSound>();
         public List<LivingWorldRegionCampaign> LivingWorldRegionCampaigns { get; } = new List<LivingWorldRegionCampaign>();
         public List<Locomotor> Locomotors { get; } = new List<Locomotor>();
         public List<LodPreset> LodPresets { get; } = new List<LodPreset>();
