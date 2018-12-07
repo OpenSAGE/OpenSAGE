@@ -340,7 +340,10 @@ namespace OpenSage.Data.Ini
         PerClip,
 
         [IniEnum("PER_SHOT")]
-        PerShot
+        PerShot,
+
+        [IniEnum("PER_POSITION")]
+        PerPosition
     }
 
     public enum DeathType

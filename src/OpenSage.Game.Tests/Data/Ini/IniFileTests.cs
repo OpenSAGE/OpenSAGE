@@ -1,6 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using OpenSage.Data.Ini;
-using OpenSage.Logic.Object;
 using OpenSage.Mods.BuiltIn;
 using Xunit;
 using Xunit.Abstractions;
@@ -24,33 +24,54 @@ namespace OpenSage.Tests.Data.Ini
             {
                 //GameDefinition.FromGame(SageGame.CncGenerals),
                 //GameDefinition.FromGame(SageGame.CncGeneralsZeroHour),
-                GameDefinition.FromGame(SageGame.Bfme)
+                GameDefinition.FromGame(SageGame.Bfme),
+                //GameDefinition.FromGame(SageGame.Bfme2),
             };
 
-            InstalledFilesTestData.ReadFiles(".ini", _output, gameDefinitions, entry =>
+            foreach(var gameDefinition in gameDefinitions)
             {
-                switch (Path.GetFileName(entry.FilePath).ToLowerInvariant())
+                //hacky?
+                InstalledFilesTestData.ReadFiles(".ini", _output, new List<IGameDefinition> { gameDefinition }, entry =>
                 {
-                    case "buttonsets.ini": // Doesn't seem to be used?
-                    case "scripts.ini": // Only needed by World Builder?
-                    case "commandmapdebug.ini": // Only applies to DEBUG and INTERNAL builds
-                    case "fxparticlesystemcustom.ini": // Don't know if this is used, it uses Emitter property not used elsewhere
-                    case "lightpoints.ini": // Don't know if this is used.
-                        return;
-                }
+                    switch (Path.GetFileName(entry.FilePath).ToLowerInvariant())
+                    {
+                        case "buttonsets.ini": // Doesn't seem to be used?
+                        case "scripts.ini": // Only needed by World Builder?
+                        case "commandmapdebug.ini": // Only applies to DEBUG and INTERNAL builds
+                        case "fxparticlesystemcustom.ini": // Don't know if this is used, it uses Emitter property not used elsewhere
+                        case "lightpoints.ini": // Don't know if this is used.
 
-                var sageGame = SageGame.CncGenerals; // TODO
-                var dataContext = new IniDataContext(entry.FileSystem, sageGame);
+                        //TODO: for bfme
+                        case "music.ini":
+                        case "optionregistry.ini":
+                        case "pathfinder.ini":
+                        case "playeraitypes.ini":
+                        case "rank.ini":
+                        case "science.ini":
+                        case "specialpower.ini":
+                        case "speech.ini":
+                        case "upgrade.ini":
+                        case "water.ini":
+                        case "weapon.ini":
+                        case "weather.ini":
+                        case "windowtransitions.ini":
+                        case "map.ini":
+                        case "localization.ini":
+                            return;
+                    }
 
-                // BFME I and II need to have GameData.ini loaded before any other INI files,
-                // because GameData.ini contains global macro definitions.
-                if (entry.FilePath.ToLowerInvariant() != @"data\ini\gamedata.ini")
-                {
-                    dataContext.LoadIniFile(@"Data\INI\GameData.ini");
-                }
+                    var dataContext = new IniDataContext(entry.FileSystem, gameDefinition.Game);
 
-                dataContext.LoadIniFile(entry);
-            });
+                    // BFME I and II need to have GameData.ini loaded before any other INI files,
+                    // because GameData.ini contains global macro definitions.
+                    if (entry.FilePath.ToLowerInvariant() != @"data\ini\gamedata.ini")
+                    {
+                        dataContext.LoadIniFile(@"Data\INI\GameData.ini");
+                    }
+
+                    dataContext.LoadIniFile(entry);
+                });
+            }
         }
     }
 }

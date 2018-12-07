@@ -20,6 +20,6 @@ namespace OpenSage.Data.Ini
 
         public string Name { get; private set; }
 
-        public List<string> Textures { get; private set; }
+        public List<string> Textures { get; } = new List<string>();
     }
 }
