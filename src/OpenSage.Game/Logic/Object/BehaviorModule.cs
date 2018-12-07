@@ -28,6 +28,7 @@ namespace OpenSage.Logic.Object
             { "DumbProjectileBehavior", DumbProjectileBehaviorModuleData.Parse },
             { "DualWeaponBehavior", DualWeaponBehaviorModuleData.Parse },
             { "DynamicPortalBehaviour", DynamicPortalBehaviorModuleData.Parse },
+            { "FakePathfindPortalBehaviour", FakePathfindPortalBehaviourModuleData.Parse },
             { "FireWeaponWhenDeadBehavior", FireWeaponWhenDeadBehaviorModuleData.Parse },
             { "FireWeaponWhenDamagedBehavior", FireWeaponWhenDamagedBehaviorModuleData.Parse },
             { "FlightDeckBehavior", FlightDeckBehaviorModuleData.Parse },
@@ -60,10 +61,12 @@ namespace OpenSage.Logic.Object
             { "SlowDeathBehavior", SlowDeathBehaviorModuleData.Parse },
             { "SpawnBehavior", SpawnBehaviorModuleData.Parse },
             { "SpawnUnitBehavior", SpawnUnitBehaviorModuleData.Parse },
+            { "StancesBehavior", StancesBehaviorModuleData.Parse },
             { "SupplyWarehouseCripplingBehavior", SupplyWarehouseCripplingBehaviorModuleData.Parse },
             { "TechBuildingBehavior", TechBuildingBehaviorModuleData.Parse },
             { "BezierProjectileBehavior", BezierProjectileBehaviorData.Parse },
             { "HitReactionBehavior", HitReactionBehaviorData.Parse },
+            { "TerrainResourceBehavior", TerrainResourceBehaviorModuleData.Parse },
 
             // Collide
             { "CivilianSpawnCollide", CivilianSpawnCollideModuleData.Parse },
@@ -87,6 +90,7 @@ namespace OpenSage.Logic.Object
 
             // Contain
             { "AODHordeContain", AodHordeContainModuleData.Parse },
+            { "CitadelSlaughterHordeContain", CitadelSlaughterHordeContainModuleData.Parse },
             { "GarrisonContain", GarrisonContainModuleData.Parse },
             { "HealContain", HealContainModuleData.Parse },
             { "HelixContain", HelixContainModuleData.Parse },
@@ -142,12 +146,14 @@ namespace OpenSage.Logic.Object
             { "WeaponChangeSpecialPowerModule", WeaponChangeSpecialPowerModuleData.Parse },
 
             // SpecialPower
+            { "ActivateModuleSpecialPower", ActivateModuleSpecialPowerModuleData.Parse },
             { "BaikonurLaunchPower", BaikonurLaunchPowerModuleData.Parse },
             { "CashBountyPower", CashBountyPowerModuleData.Parse },
             { "CashHackSpecialPower", CashHackSpecialPowerModuleData.Parse },
             { "CleanupAreaPower", CleanupAreaPowerModuleData.Parse },
             { "CloudBreakSpecialPower", CloudBreakSpecialPowerModuleData.Parse },
             { "CombineHordeSpecialPower", CombineHordeSpecialPowerModuleData.Parse },
+            { "CurseSpecialPower", CurseSpecialPowerModuleData.Parse },
             { "DarknessSpecialPower", DarknessSpecialPowerModuleData.Parse },
             { "DefectorSpecialPower", DefectorSpecialPowerModuleData.Parse },
             { "DeflectSpecialPower", DeflectSpecialPowerModuleData.Parse },
@@ -172,7 +178,9 @@ namespace OpenSage.Logic.Object
             { "SplitHordeSpecialPower", SplitHordeSpecialPowerModuleData.Parse },
             { "SpyVisionSpecialPower", SpyVisionSpecialPowerModuleData.Parse },
             { "StopSpecialPower", StopSpecialPowerModuleData.Parse },
+            { "StoreObjectsSpecialPower", StoreObjectsSpecialPowerModuleData.Parse },
             { "TaintSpecialPower", TaintSpecialPowerModuleData.Parse },
+            { "TeleportToCasterSpecialPower", TeleportToCasterSpecialPowerModuleData.Parse },
 
             // Update
             { "AnimationSteeringUpdate", AnimationSteeringUpdateModuleData.Parse },
@@ -216,6 +224,7 @@ namespace OpenSage.Logic.Object
             { "HeroModeSpecialAbilityUpdate", HeroModeSpecialAbilityUpdateModuleData.Parse },
             { "HijackerUpdate", HijackerUpdateModuleData.Parse },
             { "HordeUpdate", HordeUpdateModuleData.Parse },
+            { "InvisibilityUpdate", InvisibilityUpdateModuleData.Parse },
             { "LargeGroupAudioUpdate", LargeGroupAudioUpdateModuleData.Parse },
             { "LargeGroupBonusUpdate", LargeGroupBonusUpdateModuleData.Parse },
             { "LifetimeUpdate", LifetimeUpdateModuleData.Parse },
@@ -258,6 +267,7 @@ namespace OpenSage.Logic.Object
             { "SupplyCenterDockUpdate", SupplyCenterDockUpdateModuleData.Parse },
             { "SupplyCenterProductionExitUpdate", SupplyCenterProductionExitUpdateModuleData.Parse },
             { "SupplyWarehouseDockUpdate", SupplyWarehouseDockUpdateModuleData.Parse },
+            { "TeleportSpecialAbilityUpdate", TeleportSpecialAbilityUpdateModuleData.Parse },
             { "TemporarilyDefectUpdate", TemporarilyDefectUpdateModuleData.Parse },
             { "TensileFormationUpdate", TensileFormationUpdateModuleData.Parse },
             { "ToggleHiddenSpecialAbilityUpdate", ToggleHiddenSpecialAbilityUpdateModuleData.Parse },
@@ -270,6 +280,8 @@ namespace OpenSage.Logic.Object
             { "WeaponModeSpecialPowerUpdate", WeaponModeSpecialPowerUpdateModuleData.Parse },
 
             // Update/AIUpdate
+            { "AIGateUpdate", AIGateUpdateModuleData.Parse },
+            { "AISpecialPowerUpdate", AISpecialPowerUpdateModuleData.Parse },
             { "AIUpdateInterface", AIUpdateModuleData.Parse },
             { "AnimalAIUpdate", AnimalAIUpdateModuleData.Parse },
             { "AssaultTransportAIUpdate", AssaultTransportAIUpdateModuleData.Parse },
@@ -299,6 +311,7 @@ namespace OpenSage.Logic.Object
             { "CastleUpgrade", CastleUpgradeModuleData.Parse },
             { "CommandSetUpgrade", CommandSetUpgradeModuleData.Parse },
             { "CostModifierUpgrade", CostModifierUpgradeModuleData.Parse },
+            { "DoCommandUpgrade", DoCommandUpgradeModuleData.Parse },
             { "ExperienceScalarUpgrade", ExperienceScalarUpgradeModuleData.Parse },
             { "GeometryUpgrade", GeometryUpgradeModuleData.Parse },
             { "GrantScienceUpgrade", GrantScienceUpgradeModuleData.Parse },

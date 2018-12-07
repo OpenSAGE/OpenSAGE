@@ -22,7 +22,9 @@ namespace OpenSage.Logic.Object
                 { "HealOnlyIfNotInCombat", (parser, x) => x.HealOnlyIfNotInCombat = parser.ParseBoolean() },
                 { "ButtonTriggered", (parser, x) => x.ButtonTriggered = parser.ParseBoolean() },
                 { "HealOnlyOthers", (parser, x) => x.HealOnlyOthers = parser.ParseBoolean() },
-                { "UnitHealPulseFX", (parser, x) => x.UnitHealPulseFX = parser.ParseAssetReference() }
+                { "UnitHealPulseFX", (parser, x) => x.UnitHealPulseFX = parser.ParseAssetReference() },
+                { "AffectsContained", (parser, x) => x.AffectsContained = parser.ParseBoolean() },
+                { "NonStackable", (parser, x) => x.NonStackable = parser.ParseBoolean() },
             });
 
         public float HealingAmount { get; private set; }
@@ -48,5 +50,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string UnitHealPulseFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool AffectsContained { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool NonStackable { get; private set; }
     }
 }

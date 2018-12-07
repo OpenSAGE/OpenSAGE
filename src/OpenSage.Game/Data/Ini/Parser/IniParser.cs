@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Text;
+using Microsoft.Extensions.DependencyModel.Resolution;
 using OpenSage.Data.Utilities;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -117,6 +118,7 @@ namespace OpenSage.Data.Ini.Parser
         {
              { "#DIVIDE(", (parser) => { return parser.DivideFunc(); } },
              { "#ADD(", (parser) => { return parser.AddFunc(); } },
+             { "#MULTIPLY(", (parser) => { return parser.MultiplyFunc(); } },
         };
 
         private static readonly char[] Separators = { ' ', '\n', '\r', '\t', '=' };
@@ -504,21 +506,34 @@ namespace OpenSage.Data.Ini.Parser
 
         private IniToken DivideFunc()
         {
-            var result = ParseFloat() / ParseFloat();
-            GetNextToken(); //read the ')'
-            return new IniToken(ParseUtility.ToInvariant(result), _tokenReader.CurrentPosition);
+            return Func(ParseFloat() / ParseFloat());
         }
 
         private IniToken AddFunc()
         {
-            var result = ParseFloat() + ParseFloat();
+            return Func(ParseFloat() + ParseFloat());
+        }
+
+        private IniToken MultiplyFunc()
+        {
+            return Func(ParseFloat() * ParseFloat());
+        }
+
+        private IniToken Func(float value)
+        {
             GetNextToken(); //read the ')'
-            return new IniToken(ParseUtility.ToInvariant(result), _tokenReader.CurrentPosition);
+            return new IniToken(ParseUtility.ToInvariant(value), _tokenReader.CurrentPosition);
         }
 
         public IniToken? GetNextTokenOptional(char[] separators = null)
         {
-            return _tokenReader.NextToken(separators ?? Separators);
+            var result = _tokenReader.NextToken(separators ?? Separators);
+
+            if (result.HasValue && _dataContext.Defines.TryGetValue(result.Value.Text, out var macroExpansion))
+            {
+                return macroExpansion;
+            }
+            return result;
         }
 
         public IniToken? PeekNextTokenOptional(char[] separators = null)
@@ -609,14 +624,14 @@ namespace OpenSage.Data.Ini.Parser
             return result;
         }
 
-        private void ParseBlockContent<T>(
+        private bool ParseBlockContent<T>(
             T result,
            IIniFieldParserProvider<T> fieldParserProvider,
            bool isIncludedBlock = false)
             where T : class, new()
         {
             var done = false;
-
+            var reachedEndOfBlock = false;
             while (!done)
             {
                 if (_tokenReader.EndOfFile)
@@ -633,18 +648,16 @@ namespace OpenSage.Data.Ini.Parser
 
                 var token = _tokenReader.NextToken(Separators);
 
-                if (token == null)
-                {
-                    continue;
-                }
+                if (token == null) continue;
 
                 if (string.Equals(token.Value.Text, EndToken, StringComparison.InvariantCultureIgnoreCase))
                 {
+                    reachedEndOfBlock = true;
                     done = true;
                 }
                 else if (token.Value.Text == "#include")
                 {
-                    ParseIncludedFile(result, fieldParserProvider);
+                    done = ParseIncludedFile(result, fieldParserProvider);
                 }
                 else
                 {
@@ -653,9 +666,7 @@ namespace OpenSage.Data.Ini.Parser
                     if (fieldParserProvider.TryGetFieldParser(fieldName, out var fieldParser))
                     {
                         _currentBlockOrFieldStack.Push(fieldName);
-
                         fieldParser(this, result);
-                        
                         _currentBlockOrFieldStack.Pop();
                     }
                     else
@@ -664,9 +675,11 @@ namespace OpenSage.Data.Ini.Parser
                     }
                 }
             }
+
+            return reachedEndOfBlock;
         }
 
-        private void ParseIncludedFile<T>(T result, IIniFieldParserProvider<T> fieldParserProvider) where T : class, new()
+        private bool ParseIncludedFile<T>(T result, IIniFieldParserProvider<T> fieldParserProvider) where T : class, new()
         {
             var includeFileName = ParseQuotedString();
             var directory = _directory;
@@ -675,13 +688,15 @@ namespace OpenSage.Data.Ini.Parser
                 includeFileName = includeFileName.Remove(0, 3);
                 directory = directory.Substring(0, directory.LastIndexOf('\\'));
             }
+
             var path = Path.Combine(directory, includeFileName);
             var content = _dataContext.GetIniFileContent(path);
             var tokenReader = new TokenReader(content, path);
             var copy = _tokenReader;
             _tokenReader = tokenReader;
-            ParseBlockContent(result, fieldParserProvider, isIncludedBlock: true);
+            var reachedEndOfBlock = ParseBlockContent(result, fieldParserProvider, isIncludedBlock: true);
             _tokenReader = copy;
+            return reachedEndOfBlock;
         }
 
         public void ParseFile()
@@ -692,32 +707,31 @@ namespace OpenSage.Data.Ini.Parser
 
                 var token = _tokenReader.NextToken(Separators);
 
-                if (token == null)
-                {
-                    continue;
-                }
+                if (token == null) continue;
 
-                if (token.Value.Text == "#define")
+                var fieldName = token.Value.Text;
+
+                if (fieldName == "#define")
                 {
                     var macroName = ParseIdentifier();
                     var macroExpansion = _tokenReader.NextToken(Separators);
 
                     _dataContext.Defines.Add(macroName, macroExpansion.Value);
                 }
-                else if (token.Value.Text == "#include")
+                else if (fieldName == "#include")
                 {
                     var includeFileName = ParseQuotedString();
                     _dataContext.LoadIniFile(Path.Combine(_directory, includeFileName));
                 }
-                else if (BlockParsers.TryGetValue(token.Value.Text, out var blockParser))
+                else if (BlockParsers.TryGetValue(fieldName, out var blockParser))
                 {
-                    _currentBlockOrFieldStack.Push(token.Value.Text);
+                    _currentBlockOrFieldStack.Push(fieldName);
                     blockParser(this, _dataContext);
                     _currentBlockOrFieldStack.Pop();
                 }
                 else
                 {
-                    throw new IniParseException($"Unexpected block '{token.Value.Text}'.", token.Value.Position);
+                    throw new IniParseException($"Unexpected block '{fieldName}'.", token.Value.Position);
                 }
             }
         }

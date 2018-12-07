@@ -17,7 +17,8 @@ namespace OpenSage.Logic.Object
                 { "DominatedFX", (parser, x) => x.DominatedFX = parser.ParseAssetReference() },
                 { "UnpackTime", (parser, x) => x.UnpackTime = parser.ParseInteger() },
                 { "PreparationTime", (parser, x) => x.PreparationTime = parser.ParseInteger() },
-                { "FreezeAfterTriggerDuration", (parser, x) => x.FreezeAfterTriggerDuration = parser.ParseInteger() }
+                { "FreezeAfterTriggerDuration", (parser, x) => x.FreezeAfterTriggerDuration = parser.ParseInteger() },
+                { "PermanentlyConvert", (parser, x) => x.PermanentlyConvert = parser.ParseBoolean() }
             });
 
         public int UnpackingVariation { get; private set; }
@@ -27,5 +28,8 @@ namespace OpenSage.Logic.Object
         public int UnpackTime { get; private set; }
         public int PreparationTime { get; private set; }
         public int FreezeAfterTriggerDuration { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool PermanentlyConvert { get; private set; }
     }
 }

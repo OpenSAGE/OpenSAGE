@@ -6,7 +6,7 @@ namespace OpenSage.Logic.Object
     {
         internal static SpawnBehaviorModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static new readonly IniParseTable<SpawnBehaviorModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
+        private new static readonly IniParseTable<SpawnBehaviorModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
             .Concat(new IniParseTable<SpawnBehaviorModuleData>
             {
                 { "SpawnNumber", (parser, x) => x.SpawnNumber = parser.ParseInteger() },

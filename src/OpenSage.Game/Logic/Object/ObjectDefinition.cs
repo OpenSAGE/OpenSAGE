@@ -335,6 +335,11 @@ namespace OpenSage.Logic.Object
             { "MaxVisionBonusPercent", (parser, x) => x.MaxVisionBonusPercent = parser.ParsePercentage() },
             { "VisionBonusTestRadius", (parser, x) => x.VisionBonusTestRadius = parser.ParseInteger() },
             { "CrowdResponseKey", (parser, x) => x.CrowdResponseKey = parser.ParseIdentifier() },
+            { "CommandPointBonus", (parser, x) => x.CommandPointBonus = parser.ParseInteger() },
+            { "Flammability", (parser, x) => x.Flammability = Flammability.Parse(parser) },
+            { "ThreatBreakdown", (parser, x) => x.ThreatBreakdown = ThreatBreakdown.Parse(parser) },
+            { "DisplayNameInvisibleForEnemy", (parser, x) => x.DisplayNameInvisibleForEnemy = parser.ParseLocalizedStringKey() },
+            { "DescriptionStrategic", (parser, x) => x.DescriptionStrategic = parser.ParseLocalizedStringKey() },
         };
 
         public string Name { get; protected set; }
@@ -1037,6 +1042,21 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string CrowdResponseKey { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int CommandPointBonus { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Flammability Flammability { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ThreatBreakdown ThreatBreakdown { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string DisplayNameInvisibleForEnemy { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string DescriptionStrategic { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -1197,18 +1217,51 @@ namespace OpenSage.Logic.Object
         {
             return new ContactPoint()
             {
-                X = parser.ParseAttributeFloat("X"),
-                Y = parser.ParseAttributeFloat("Y"),
-                Z = parser.ParseAttributeFloat("Z"),
+                Position = parser.ParseVector3(),
                 Type = parser.ParseEnumFlags<ContactPointType>()
             };
         }
 
-        public float X { get; internal set; }
-        public float Y { get; internal set; }
-        public float Z { get; internal set; }
+        public Vector3 Position { get; private set; }
         public ContactPointType Type { get; internal set; }
     }
+
+    [AddedIn(SageGame.Bfme2)]
+    public sealed class Flammability
+    {
+        internal static Flammability Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        internal static readonly IniParseTable<Flammability> FieldParseTable = new IniParseTable<Flammability>
+        {
+            { "Fuel", (parser, x) => x.Fuel = parser.ParseAssetReference() },
+            { "MaxBurnRate", (parser, x) => x.MaxBurnRate = parser.ParseInteger() },
+            { "Decay", (parser, x) => x.Decay = parser.ParseInteger() },
+            { "Resistance", (parser, x) => x.Resistance = parser.ParseInteger() },
+        };
+
+        public string Fuel { get; private set; }
+        public int MaxBurnRate { get; private set; }
+        public int Decay { get; private set; }
+        public int Resistance { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public sealed class ThreatBreakdown
+    {
+        internal static ThreatBreakdown Parse(IniParser parser)
+        {
+            return parser.ParseNamedBlock((x, name) => x.ModuleTag = name, FieldParseTable);
+        }
+
+        internal static readonly IniParseTable<ThreatBreakdown> FieldParseTable = new IniParseTable<ThreatBreakdown>
+        {
+            { "AIKindOf", (parser, x) => x.AiKindOf = parser.ParseEnum<ObjectKinds>() },
+        };
+
+        public string ModuleTag { get; private set; }
+        public ObjectKinds AiKindOf { get; private set; }
+    }
+
 
     [AddedIn(SageGame.Bfme)]
     public enum ContactPointType
