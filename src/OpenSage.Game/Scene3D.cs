@@ -36,6 +36,9 @@ namespace OpenSage
         public Terrain.Terrain Terrain { get; }
         public bool ShowTerrain { get; set; } = true;
 
+        public Terrain.WaterArea[] WaterAreas { get; }
+        public bool ShowWater { get; set; } = true;
+
         public Terrain.Road[] Roads { get; }
         public bool ShowRoads { get; set; } = true;
 
@@ -79,6 +82,7 @@ namespace OpenSage
             ICameraController cameraController,
             MapFile mapFile,
             Terrain.Terrain terrain,
+            Terrain.WaterArea[] waterAreas,
             Terrain.Road[] roads,
             Terrain.Bridge[] bridges,
             MapScriptCollection scripts,
@@ -94,6 +98,7 @@ namespace OpenSage
 
             MapFile = mapFile;
             Terrain = terrain;
+            WaterAreas = waterAreas;
             Roads = roads;
             Bridges = bridges;
             Scripts = scripts;
@@ -155,6 +160,14 @@ namespace OpenSage
             if (ShowTerrain)
             {
                 Terrain?.BuildRenderList(renderList);
+            }
+
+            if (ShowWater)
+            {
+                foreach (var waterArea in WaterAreas)
+                {
+                    waterArea.BuildRenderList(renderList, Lighting.TimeOfDay);
+                }
             }
 
             if (ShowRoads)

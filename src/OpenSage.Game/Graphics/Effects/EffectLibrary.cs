@@ -15,6 +15,7 @@ namespace OpenSage.Graphics.Effects
         public Effect Sprite { get; }
         public Effect Terrain { get; }
         public Effect Road { get; }
+        public Effect Water { get; }
 
         public Effect MeshDepth { get; }
 
@@ -47,6 +48,11 @@ namespace OpenSage.Graphics.Effects
                 graphicsDevice,
                 "Road",
                 RoadVertex.VertexDescriptor));
+
+            Water = AddDisposable(new Effect(
+                graphicsDevice,
+                "Water",
+                WaterVertex.VertexDescriptor));
 
             MeshDepth = AddDisposable(new Effect(
                 graphicsDevice,

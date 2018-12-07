@@ -69,6 +69,12 @@ namespace OpenSage.Viewer.UI.Views
                     _game.Scene3D.ShowTerrain = showTerrain;
                 }
 
+                var showWater = _game.Scene3D.ShowWater;
+                if (ImGui.Checkbox("Show water", ref showWater))
+                {
+                    _game.Scene3D.ShowWater = showWater;
+                }
+
                 var showRoads = _game.Scene3D.ShowRoads;
                 if (ImGui.Checkbox("Show roads", ref showRoads))
                 {
