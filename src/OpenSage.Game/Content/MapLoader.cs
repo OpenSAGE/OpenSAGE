@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using OpenSage.Content.Util;
 using OpenSage.Data;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Data.Tga;
 using OpenSage.Graphics.Cameras;
@@ -333,6 +334,12 @@ namespace OpenSage.Content
                                     gameObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, mapObject.Angle);
 
                                     gameObjects.Add(gameObject);
+
+                                    if (gameObject.Definition.IsBridge)
+                                    {
+                                        // This is a landmark bridge. We need to add towers at the corners.
+                                        CreateTowers(contentManager, gameObjects, gameObject, mapObject);
+                                    }
                                 }
 
                                 break;
@@ -350,12 +357,7 @@ namespace OpenSage.Content
 
                         var bridgeEnd = mapObjects[++i];
 
-                        var bridgeTemplate = contentManager.IniDataContext.Bridges.Find(x => x.Name == mapObject.TypeName);
-
-                        if (bridgeTemplate == null)
-                        {
-                            throw new InvalidDataException($"Missing bridge template: {mapObject.TypeName}");
-                        }
+                        var bridgeTemplate = GetBridgeTemplate(contentManager, mapObject);
 
                         if (Bridge.TryCreateBridge(
                             contentManager,
@@ -447,6 +449,50 @@ namespace OpenSage.Content
             waypointCollection = new WaypointCollection(waypoints);
             roads = roadsList.ToArray();
             bridges = bridgesList.ToArray();
+        }
+
+        private static BridgeTemplate GetBridgeTemplate(ContentManager contentManager, MapObject mapObject)
+        {
+            var template = contentManager.IniDataContext.Bridges.Find(x => x.Name == mapObject.TypeName);
+
+            if (template == null)
+            {
+                throw new InvalidDataException($"Missing bridge template: {mapObject.TypeName}");
+            }
+
+            return template;
+        }
+
+        private void CreateTowers(
+            ContentManager contentManager,
+            GameObjectCollection gameObjects,
+            GameObject gameObject,
+            MapObject mapObject)
+        {
+            var towers = new List<GameObject>();
+
+            void CreateTower(string objectName, float x, float y)
+            {
+                var tower = AddDisposable(contentManager.InstantiateObject(objectName));
+
+                var offset = new Vector3(x, y, 0);
+                var transformedOffset = Vector3.Transform(offset, gameObject.Transform.Rotation);
+
+                tower.Transform.Translation = gameObject.Transform.Translation + transformedOffset;
+                tower.Transform.Rotation = gameObject.Transform.Rotation;
+
+                gameObjects.Add(tower);
+            }
+
+            var landmarkBridgeTemplate = GetBridgeTemplate(contentManager, mapObject);
+
+            var halfLength = gameObject.Definition.Geometry.MinorRadius;
+            var halfWidth = gameObject.Definition.Geometry.MajorRadius;
+
+            CreateTower(landmarkBridgeTemplate.TowerObjectNameFromLeft, -halfWidth, -halfLength);
+            CreateTower(landmarkBridgeTemplate.TowerObjectNameFromRight, halfWidth, -halfLength);
+            CreateTower(landmarkBridgeTemplate.TowerObjectNameToLeft, -halfWidth, halfLength);
+            CreateTower(landmarkBridgeTemplate.TowerObjectNameToRight, halfWidth, halfLength);
         }
 
         private List<TerrainPatch> CreatePatches(

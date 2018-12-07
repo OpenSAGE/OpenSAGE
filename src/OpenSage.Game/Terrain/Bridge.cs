@@ -69,8 +69,6 @@ namespace OpenSage.Terrain
             in Vector3 endPosition,
             out Bridge bridge)
         {
-            // TODO: Support "landmark bridges" like EuropeanLandmarkBridge
-
             var modelPath = Path.Combine("Art", "W3D", template.BridgeModelName + ".W3D");
             var model = contentManager.Load<Model>(modelPath);
 
