@@ -1,5 +1,7 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
 using OpenSage.Content;
+using OpenSage.Graphics.Shaders;
 using Veldrid;
 
 namespace OpenSage.Graphics.Effects
@@ -24,11 +26,15 @@ namespace OpenSage.Graphics.Effects
 
         public override LightingType LightingType => LightingType.Object;
 
-        [StructLayout(LayoutKind.Sequential, Size = 16)]
+        [StructLayout(LayoutKind.Sequential)]
         public struct MeshConstants
         {
-            public bool SkinningEnabled;
+            public Bool32 SkinningEnabled;
             public uint NumBones;
+
+#pragma warning disable CS0169
+            private readonly Vector2 _padding;
+#pragma warning restore CS0169
         }
     }
 }

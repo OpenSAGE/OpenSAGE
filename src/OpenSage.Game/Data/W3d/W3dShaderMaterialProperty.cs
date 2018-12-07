@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Graphics.Shaders;
 
 namespace OpenSage.Data.W3d
 {
@@ -67,7 +68,7 @@ namespace OpenSage.Data.W3d
     public struct W3dShaderMaterialPropertyValue
     {
         [FieldOffset(0)]
-        public bool Bool;
+        public Bool32 Bool;
 
         [FieldOffset(0)]
         public float Float;

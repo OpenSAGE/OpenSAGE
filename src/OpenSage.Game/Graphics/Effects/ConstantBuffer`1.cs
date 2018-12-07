@@ -4,7 +4,7 @@ using Veldrid;
 namespace OpenSage.Graphics.Effects
 {
     public sealed class ConstantBuffer<T> : DisposableBase
-        where T : struct
+        where T : unmanaged
     {
         private readonly GraphicsDevice _graphicsDevice;
 
@@ -12,13 +12,13 @@ namespace OpenSage.Graphics.Effects
 
         public T Value;
 
-        public ConstantBuffer(GraphicsDevice graphicsDevice, string name = null)
+        public unsafe ConstantBuffer(GraphicsDevice graphicsDevice, string name = null)
         {
             _graphicsDevice = graphicsDevice;
 
             Buffer = AddDisposable(graphicsDevice.ResourceFactory.CreateBuffer(
                 new BufferDescription(
-                    (uint) Marshal.SizeOf<T>(),
+                    (uint) sizeof(T),
                     BufferUsage.UniformBuffer | BufferUsage.Dynamic)));
 
             if (name != null)
