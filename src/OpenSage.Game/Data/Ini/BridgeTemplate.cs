@@ -5,16 +5,16 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
-    public sealed class Bridge
+    public sealed class BridgeTemplate
     {
-        internal static Bridge Parse(IniParser parser)
+        internal static BridgeTemplate Parse(IniParser parser)
         {
             return parser.ParseTopLevelNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }
 
-        private static readonly IniParseTable<Bridge> FieldParseTable = new IniParseTable<Bridge>
+        private static readonly IniParseTable<BridgeTemplate> FieldParseTable = new IniParseTable<BridgeTemplate>
         {
             { "BridgeScale", (parser, x) => x.BridgeScale = parser.ParseFloat() },
             { "RadarColor", (parser, x) => x.RadarColor = IniColorRgb.Parse(parser) },

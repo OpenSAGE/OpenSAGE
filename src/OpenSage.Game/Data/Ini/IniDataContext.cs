@@ -26,7 +26,7 @@ namespace OpenSage.Data.Ini
         public List<BannerType> BannerTypes { get; } = new List<BannerType>();
         public BannerUI BannerUI { get; internal set; }
         public List<BenchProfile> BenchProfiles { get; } = new List<BenchProfile>();
-        public List<Bridge> Bridges { get; } = new List<Bridge>();
+        public List<BridgeTemplate> Bridges { get; } = new List<BridgeTemplate>();
         public List<Campaign> Campaigns { get; } = new List<Campaign>();
         public ChallengeGenerals ChallengeGenerals { get; internal set; }
         public List<CommandButton> CommandButtons { get; } = new List<CommandButton>();

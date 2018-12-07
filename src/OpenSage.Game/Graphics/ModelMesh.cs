@@ -114,6 +114,25 @@ namespace OpenSage.Graphics
             in Matrix4x4 modelTransform,
             bool castsShadow)
         {
+            var meshWorldMatrix = Skinned
+                ? modelTransform
+                : modelInstance.AbsoluteBoneTransforms[ParentBone.Index];
+
+            BuildRenderListWithWorldMatrix(
+                renderList,
+                camera,
+                modelInstance,
+                meshWorldMatrix,
+                castsShadow);
+        }
+
+        internal void BuildRenderListWithWorldMatrix(
+            RenderList renderList,
+            Camera camera,
+            ModelInstance modelInstance,
+            in Matrix4x4 meshWorldMatrix,
+            bool castsShadow)
+        {
             if (Hidden)
             {
                 return;
@@ -123,10 +142,6 @@ namespace OpenSage.Graphics
             {
                 return;
             }
-
-            var meshWorldMatrix = Skinned
-                ? modelTransform
-                : modelInstance.AbsoluteBoneTransforms[ParentBone.Index];
 
             Matrix4x4 world;
             if (CameraOriented)

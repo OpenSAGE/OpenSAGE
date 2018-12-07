@@ -31,7 +31,7 @@ namespace OpenSage.Data.Ini.Parser
             { "BannerType", (parser, context) => context.BannerTypes.Add(BannerType.Parse(parser)) },
             { "BannerUI", (parser, context) => context.BannerUI = BannerUI.Parse(parser) },
             { "BenchProfile", (parser, context) => context.BenchProfiles.Add(BenchProfile.Parse(parser)) },
-            { "Bridge", (parser, context) => context.Bridges.Add(Bridge.Parse(parser)) },
+            { "Bridge", (parser, context) => context.Bridges.Add(BridgeTemplate.Parse(parser)) },
             { "Campaign", (parser, context) => context.Campaigns.Add(Campaign.Parse(parser)) },
             { "ChallengeGenerals", (parser, context) => context.ChallengeGenerals = ChallengeGenerals.Parse(parser) },
             { "ChildObject", (parser, context) => context.Objects.Add(ChildObject.Parse(parser)) },

@@ -32,6 +32,7 @@ namespace OpenSage.Viewer.UI.Views.Ini
                 null,
                 null,
                 Array.Empty<Terrain.Road>(),
+                Array.Empty<Terrain.Bridge>(),
                 null,
                 gameObjects,
                 new WaypointCollection(),
