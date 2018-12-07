@@ -22,8 +22,8 @@ namespace OpenSage.Tests.Data.Ini
             // TODO: Finish INI parsing for BFME and subsequent games.
             var gameDefinitions = new[]
             {
-                GameDefinition.FromGame(SageGame.CncGenerals),
-                GameDefinition.FromGame(SageGame.CncGeneralsZeroHour),
+                //GameDefinition.FromGame(SageGame.CncGenerals),
+                //GameDefinition.FromGame(SageGame.CncGeneralsZeroHour),
                 GameDefinition.FromGame(SageGame.Bfme)
             };
 
