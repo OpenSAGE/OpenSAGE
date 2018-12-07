@@ -23,7 +23,8 @@ namespace OpenSage.Tests.Data.Ini
             var gameDefinitions = new[]
             {
                 GameDefinition.FromGame(SageGame.CncGenerals),
-                GameDefinition.FromGame(SageGame.CncGeneralsZeroHour)
+                GameDefinition.FromGame(SageGame.CncGeneralsZeroHour),
+                GameDefinition.FromGame(SageGame.Bfme)
             };
 
             InstalledFilesTestData.ReadFiles(".ini", _output, gameDefinitions, entry =>
