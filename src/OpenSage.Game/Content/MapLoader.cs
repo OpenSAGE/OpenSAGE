@@ -133,6 +133,23 @@ namespace OpenSage.Content
                 out var gameObjects,
                 out var roads);
 
+            var waterAreas = new List<WaterArea>();
+
+            foreach (var polygonTrigger in mapFile.PolygonTriggers.Triggers)
+            {
+                switch (polygonTrigger.TriggerType)
+                {
+                    case PolygonTriggerType.Water:
+                        waterAreas.Add(AddDisposable(new WaterArea(contentManager, polygonTrigger)));
+                        break;
+
+                    case PolygonTriggerType.River:
+                        // TODO: Handle this differently. Water texture should be animated "downstream".
+                        waterAreas.Add(AddDisposable(new WaterArea(contentManager, polygonTrigger)));
+                        break;
+                }
+            }
+
             var lighting = new WorldLighting(
                 mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
                 mapFile.GlobalLighting.Time);
@@ -165,6 +182,7 @@ namespace OpenSage.Content
                 cameraController,
                 mapFile,
                 terrain,
+                waterAreas.ToArray(),
                 roads,
                 mapScripts,
                 gameObjects,
