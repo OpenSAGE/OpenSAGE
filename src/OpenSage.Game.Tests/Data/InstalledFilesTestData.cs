@@ -10,17 +10,10 @@ namespace OpenSage.Tests.Data
 {
     internal static class InstalledFilesTestData
     {
-        private static readonly IInstallationLocator Locator;
-
-        static InstalledFilesTestData()
-        {
-            Locator = new RegistryInstallationLocator();
-        }
-
         public static string GetInstallationDirectory(SageGame game)
         {
             var definition = GameDefinition.FromGame(game);
-            return Locator.FindInstallations(definition).First().Path;
+            return InstallationLocators.FindAllInstallations(definition).First().Path;
         }
 
         public static void ReadFiles(string fileExtension, ITestOutputHelper output, Action<FileSystemEntry> processFileCallback)
@@ -31,7 +24,7 @@ namespace OpenSage.Tests.Data
         public static void ReadFiles(string fileExtension, ITestOutputHelper output, IEnumerable<IGameDefinition> gameDefinitions, Action<FileSystemEntry> processFileCallback)
         {
             var rootDirectories = gameDefinitions
-                .SelectMany(Locator.FindInstallations)
+                .SelectMany(InstallationLocators.FindAllInstallations)
                 .Select(i => i.Path)
                 .Where(x => Directory.Exists(x))
                 .ToList();
@@ -73,7 +66,7 @@ namespace OpenSage.Tests.Data
             var foundAtLeastOneFile = false;
 
             var installations = gameDefinitions
-                .SelectMany(Locator.FindInstallations)
+                .SelectMany(InstallationLocators.FindAllInstallations)
                 .ToList();
 
             using (var window = new GameWindow("Test", 10, 10, 100, 100, null))

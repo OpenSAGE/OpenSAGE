@@ -135,5 +135,23 @@ namespace OpenSage.Data
 
             yield return new EnvironmentInstallationLocator();
         }
+
+        public static IEnumerable<GameInstallation> FindAllInstallations(IGameDefinition game)
+        {
+            var locators = GetAllForPlatform();
+            var result = new List<GameInstallation>();
+            foreach (var locator in locators)
+            {
+                var installations = locator.FindInstallations(game);
+                foreach (var installation in installations)
+                {
+                    if (!result.Contains(installation))
+                    {
+                        result.Add(installation);
+                    }
+                }
+            }
+            return result;
+        }
     }
 }
