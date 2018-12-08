@@ -41,13 +41,9 @@ namespace OpenSage.Tests.Data.Ini
                         case "fxparticlesystemcustom.ini": // Don't know if this is used, it uses Emitter property not used elsewhere
                         case "lightpoints.ini": // Don't know if this is used.
 
-                        //TODO: for bfme
-                        case "optionregistry.ini":
-                        case "pathfinder.ini":
-                        case "playeraitypes.ini":
-                        case "rank.ini":
+                        //BFME
+                        case "optionregistry.ini": // Don't know if this is used
                         case "weapon.ini":
-                        case "windowtransitions.ini":
                         case "map.ini":
                         case "localization.ini":
                             return;

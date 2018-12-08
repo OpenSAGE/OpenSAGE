@@ -93,6 +93,13 @@ namespace OpenSage.Data.Ini
         public List<ObjectCreationList> ObjectCreationLists { get; } = new List<ObjectCreationList>();
         public OnlineChatColors OnlineChatColors { get; internal set; }
         public List<ParticleSystemDefinition> ParticleSystems { get; } = new List<ParticleSystemDefinition>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public Pathfinder Pathfinder { get; set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<PlayerAIType> PlayerAITypes { get; } = new List<PlayerAIType>();
+
         public List<PlayerTemplate> PlayerTemplates { get; } = new List<PlayerTemplate>();
         public List<Rank> Ranks { get; } = new List<Rank>();
 
