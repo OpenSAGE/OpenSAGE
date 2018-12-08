@@ -71,7 +71,8 @@ namespace OpenSage.Graphics
                     new BufferDescription(
                         (uint) (64 * model.Bones.Length),
                         BufferUsage.StructuredBufferReadOnly | BufferUsage.Dynamic,
-                        64)));
+                        64,
+                        true)));
 
                 _skinningBones = new Matrix4x4[model.Bones.Length];
             }
