@@ -116,6 +116,7 @@ namespace OpenSage.Data.Ini.Parser
             { "WaterTransparency", (parser, context) => context.WaterTransparency = WaterTransparency.Parse(parser) },
             { "Weapon", (parser, context) => context.Weapons.Add(Weapon.Parse(parser)) },
             { "Weather", (parser, context) => context.Weather = Weather.Parse(parser) },
+            { "WeatherData", (parser, context) => context.WeatherDatas.Add(WeatherData.Parse(parser)) },
             { "WebpageURL", (parser, context) => context.WebpageUrls.Add(WebpageUrl.Parse(parser)) },
             { "WindowTransition", (parser, context) => context.WindowTransitions.Add(WindowTransition.Parse(parser)) },
         };

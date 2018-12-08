@@ -216,6 +216,7 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.Bfme2)]
         public int PreferredAttackHeight { get; private set; }
 
+        [AddedIn(SageGame.Bfme2)]
         public float AeleronCorrectionDegree { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]

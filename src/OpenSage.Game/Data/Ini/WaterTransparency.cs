@@ -21,6 +21,7 @@ namespace OpenSage.Data.Ini
             { "StandingWaterTexture", (parser, x) => x.StandingWaterTexture = parser.ParseFileName() },
             { "AdditiveBlending", (parser, x) => x.AdditiveBlending = parser.ParseBoolean() },
             { "RadarWaterColor", (parser, x) => x.RadarWaterColor = IniColorRgb.Parse(parser) },
+            { "RiverTransparencyMultiplier", (parser, x) => x.RiverTransparencyMultiplier = parser.ParseFloat() }
         };
 
         public float TransparentWaterMinOpacity { get; private set; }
@@ -43,5 +44,8 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public IniColorRgb RadarWaterColor { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float RiverTransparencyMultiplier { get; private set; }
     }
 }

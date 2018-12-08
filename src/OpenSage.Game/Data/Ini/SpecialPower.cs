@@ -22,7 +22,7 @@ namespace OpenSage.Data.Ini
             { "InitiateAtLocationSound", (parser, x) => x.InitiateAtLocationSound = parser.ParseAssetReference() },
             { "ViewObjectDuration", (parser, x) => x.ViewObjectDuration = parser.ParseInteger() },
             { "ViewObjectRange", (parser, x) => x.ViewObjectRange = parser.ParseInteger() },
-            { "RadiusCursorRadius", (parser, x) => x.RadiusCursorRadius = parser.ParseInteger() },
+            { "RadiusCursorRadius", (parser, x) => x.RadiusCursorRadius = parser.ParseFloat() },
             { "ShortcutPower", (parser, x) => x.ShortcutPower = parser.ParseBoolean() },
             { "AcademyClassify", (parser, x) => x.AcademyClassify = parser.ParseEnum<AcademyType>() }
         };
@@ -38,7 +38,7 @@ namespace OpenSage.Data.Ini
         public string InitiateAtLocationSound { get; private set; }
         public int ViewObjectDuration { get; private set; }
         public int ViewObjectRange { get; private set; }
-        public int RadiusCursorRadius { get; private set; }
+        public float RadiusCursorRadius { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool ShortcutPower { get; private set; }
@@ -253,5 +253,42 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("SUPW_SPECIAL_NEUTRON_MISSILE"), AddedIn(SageGame.CncGeneralsZeroHour)]
         SuperWeaponNeutronMissile,
+
+        [IniEnum("SPECIAL_GRAB_PASSENGER"), AddedIn(SageGame.Bfme2)]
+        SpecialGrabPassenger,
+
+        [IniEnum("SPECIAL_GRAB_CHUNK"), AddedIn(SageGame.Bfme2)]
+        SpecialGrabChunk,
+
+        [IniEnum("SPECIAL_SPAWN_ORCS"), AddedIn(SageGame.Bfme2)]
+        SpecialSpawnOrcs,
+
+        [IniEnum("SPECIAL_REPAIR_STRUCTURE"), AddedIn(SageGame.Bfme2)]
+        SpecialRepairStructure,
+
+        [IniEnum("SPECIAL_SPAWN_OATHBREAKERS"), AddedIn(SageGame.Bfme2)]
+        SpecialSpawnOathbreakers,
+
+        [IniEnum("SPECIAL_GENERAL_TARGETLESS"), AddedIn(SageGame.Bfme2)]
+        SpecialGeneralTargetless,
+
+        [IniEnum("SPECIAL_GENERAL_TARGETLESS_TWO"), AddedIn(SageGame.Bfme2)]
+        SpecialGeneralTargetlessTwo,
+
+        [IniEnum("SPECIAL_BALROG_SCREAM"), AddedIn(SageGame.Bfme2)]
+        SpecialBalrogScream,
+
+        [IniEnum("SPECIAL_HERO_MODE"), AddedIn(SageGame.Bfme2)]
+        SpecialHeroMode,
+
+        [IniEnum("SPECIAL_FLAMING_SWORD"), AddedIn(SageGame.Bfme2)]
+        SpecialFlamingSword,
+
+        [IniEnum("SPECIAL_BALROG_BREATH"), AddedIn(SageGame.Bfme2)]
+        SpecialBalrogBreath,
+
+        [IniEnum("SPECIAL_KNIFE_ATTACK"), AddedIn(SageGame.Bfme2)]
+        SpecialKnifeAttack,
+        
     }
 }

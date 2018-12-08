@@ -193,6 +193,9 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("allies")]
         Allies,
+
+        [IniEnum("FAKE"), AddedIn(SageGame.Bfme2)]
+        Fake,
     }
 
     [Flags]

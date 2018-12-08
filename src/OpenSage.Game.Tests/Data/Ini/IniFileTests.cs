@@ -42,18 +42,11 @@ namespace OpenSage.Tests.Data.Ini
                         case "lightpoints.ini": // Don't know if this is used.
 
                         //TODO: for bfme
-                        case "music.ini":
                         case "optionregistry.ini":
                         case "pathfinder.ini":
                         case "playeraitypes.ini":
                         case "rank.ini":
-                        case "science.ini":
-                        case "specialpower.ini":
-                        case "speech.ini":
-                        case "upgrade.ini":
-                        case "water.ini":
                         case "weapon.ini":
-                        case "weather.ini":
                         case "windowtransitions.ini":
                         case "map.ini":
                         case "localization.ini":
