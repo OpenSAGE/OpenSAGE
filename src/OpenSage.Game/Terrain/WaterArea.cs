@@ -24,18 +24,35 @@ namespace OpenSage.Terrain
 
         private readonly Dictionary<TimeOfDay, WaterMaterial> _materials;
 
-        public WaterArea(
+        public static bool TryCreate(
+            ContentManager contentManager,
+            PolygonTrigger trigger,
+            out WaterArea result)
+        {
+            if (trigger.Points.Length < 3)
+            {
+                // Some maps (such as Training01) have water areas with fewer than 3 points.
+                result = null;
+                return false;
+            }
+
+            result = new WaterArea(contentManager, trigger);
+            return true;
+        }
+
+        private WaterArea(
             ContentManager contentManager,
             PolygonTrigger trigger)
         {
             var triggerPoints = trigger.Points
                 .Select(x => new Vector2(x.X, x.Y))
-                .ToList();
+                .ToArray();
 
-            if (!Triangulator.Process(triggerPoints, out var trianglePoints))
-            {
-                throw new InvalidOperationException();
-            }
+            Triangulator.Triangulate(
+                triggerPoints,
+                WindingOrder.CounterClockwise,
+                out var trianglePoints,
+                out var triangleIndices);
 
             var vertices = trianglePoints
                 .Select(x =>
@@ -51,15 +68,10 @@ namespace OpenSage.Terrain
                 vertices,
                 BufferUsage.VertexBuffer));
 
-            var indices = Enumerable
-                .Range(0, vertices.Length)
-                .Select(x => (ushort) x)
-                .ToArray();
-
-            _numIndices = (uint) indices.Length;
+            _numIndices = (uint) triangleIndices.Length;
 
             _indexBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
-                indices,
+                triangleIndices,
                 BufferUsage.IndexBuffer));
 
             _materials = new Dictionary<TimeOfDay, WaterMaterial>();

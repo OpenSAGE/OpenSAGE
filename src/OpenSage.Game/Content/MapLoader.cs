@@ -142,12 +142,13 @@ namespace OpenSage.Content
                 switch (polygonTrigger.TriggerType)
                 {
                     case PolygonTriggerType.Water:
-                        waterAreas.Add(AddDisposable(new WaterArea(contentManager, polygonTrigger)));
-                        break;
-
-                    case PolygonTriggerType.River:
-                        // TODO: Handle this differently. Water texture should be animated "downstream".
-                        waterAreas.Add(AddDisposable(new WaterArea(contentManager, polygonTrigger)));
+                    case PolygonTriggerType.River: // TODO: Handle this differently. Water texture should be animated "downstream".
+                    case PolygonTriggerType.WaterAndRiver:
+                        if (WaterArea.TryCreate(contentManager, polygonTrigger, out var waterArea))
+                        {
+                            waterAreas.Add(AddDisposable(waterArea));
+                        }
+                        
                         break;
                 }
             }

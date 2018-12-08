@@ -16,7 +16,7 @@ namespace OpenSage.Terrain
             SetProperty("Sampler", contentManager.GraphicsDevice.Aniso4xSampler);
 
             PipelineState = new EffectPipelineState(
-                RasterizerStateDescriptionUtility.CullNoneSolid, // TODO
+                RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
                 DepthStencilStateDescription.DepthOnlyLessEqualRead,
                 BlendStateDescription.SingleAlphaBlend,
                 RenderPipeline.GameOutputDescription);
