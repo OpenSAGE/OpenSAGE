@@ -126,9 +126,11 @@ namespace OpenSage.Content
                     break;
             }
 
+            EffectLibrary = AddDisposable(new EffectLibrary(graphicsDevice));
+
             _contentLoaders = new Dictionary<Type, ContentLoader>
             {
-                { typeof(Model), AddDisposable(new ModelLoader()) },
+                { typeof(Model), AddDisposable(new ModelLoader(this)) },
                 { typeof(Scene3D), AddDisposable(new MapLoader()) },
                 { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
                 { typeof(Window), AddDisposable(new WindowLoader(this, wndCallbackResolver, Language)) },
@@ -136,8 +138,6 @@ namespace OpenSage.Content
             };
 
             _cachedObjects = new Dictionary<string, object>();
-
-            EffectLibrary = AddDisposable(new EffectLibrary(graphicsDevice));
 
             TranslationManager = new TranslationManager(fileSystem, sageGame, Language);
 

@@ -13,7 +13,6 @@ using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
-using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
 
@@ -21,6 +20,13 @@ namespace OpenSage.Content
 {
     internal sealed class ModelLoader : ContentLoader<Model>
     {
+        private readonly MeshDepthMaterial _meshDepthMaterial;
+
+        public ModelLoader(ContentManager contentManager)
+        {
+            _meshDepthMaterial = AddDisposable(new MeshDepthMaterial(contentManager, contentManager.EffectLibrary.MeshDepth));
+        }
+
         protected override Model LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
         {
             var w3dFile = W3dFile.FromFileSystemEntry(entry);
@@ -425,13 +431,11 @@ namespace OpenSage.Content
 
             material.SetMaterialConstants(AddDisposable(materialConstantsBuilder.CreateBuffer()));
 
-            var depthMaterial = new MeshDepthMaterial(contentManager, contentManager.EffectLibrary.MeshDepthShaderMaterial);
-
             meshParts.Add(new ModelMeshPart(
                 0,
                 w3dMesh.Header.NumTris * 3,
                 material,
-                depthMaterial));
+                _meshDepthMaterial));
 
             return new ModelMeshMaterialPass(
                 contentManager.GraphicsDevice,
@@ -742,13 +746,11 @@ namespace OpenSage.Content
             effectMaterial.SetTexture0(CreateTexture(contentManager, w3dMesh, textureIndex0));
             effectMaterial.SetTexture1(CreateTexture(contentManager, w3dMesh, textureIndex1));
 
-            var depthMaterial = new MeshDepthMaterial(contentManager, contentManager.EffectLibrary.MeshDepthFixedFunction);
-
             return new ModelMeshPart(
                 startIndex,
                 indexCount,
                 effectMaterial,
-                depthMaterial);
+                _meshDepthMaterial);
         }
 
         private static Animation CreateAnimation(W3dAnimation w3dAnimation)
