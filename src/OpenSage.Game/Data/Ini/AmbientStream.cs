@@ -37,6 +37,9 @@ namespace OpenSage.Data.Ini
         Voice,
 
         [IniEnum("AMBIENT")]
-        Ambient
+        Ambient,
+
+        [IniEnum("None"), AddedIn(SageGame.Bfme2)]
+        None,
     }
 }

@@ -1,4 +1,6 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using System.Collections.Generic;
+using System.Numerics;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
@@ -24,6 +26,21 @@ namespace OpenSage.Data.Ini
 
             { "SnowPointSprites", (parser, x) => x.SnowPointSprites = parser.ParseBoolean() },
             { "SnowQuadSize", (parser, x) => x.SnowQuadSize = parser.ParseFloat() },
+            { "SnowBoxHeight", (parser, x) => x.SnowBoxHeight = parser.ParseInteger() },
+            { "SnowSpacing", (parser, x) => x.SnowSpacing = parser.ParseInteger() },
+            { "NumberTiles", (parser, x) => x.NumberTiles = parser.ParseInteger() },
+            { "SnowSpeed", (parser, x) => x.SnowSpeed = parser.ParseFloat() },
+
+            { "LightningEnabled", (parser, x) => x.LightningEnabled = parser.ParseBoolean() },
+            { "LightningFactor", (parser, x) => x.LightningFactor = parser.ParseFloatArray() },
+            { "LightningDuration", (parser, x) => x.LightningDuration = parser.ParseInteger() },
+            { "LightningChance", (parser, x) => x.LightningChance = parser.ParseFloat() },
+
+            { "SpellEnabled", (parser, x) => x.SpellEnabled = parser.ParseBoolean() },
+            { "SpellDuration", (parser, x) => x.SpellDuration = parser.ParseInteger() },
+            { "RampControl", (parser, x) => x.RampControl = parser.ParseVector2() },
+            { "RampSpeed", (parser, x) => x.RampSpeed = parser.ParseVector2() },
+            { "RampSpacing", (parser, x) => x.RampSpacing = parser.ParseVector2() },
         };
 
         public bool SnowEnabled { get; private set; }
@@ -44,5 +61,87 @@ namespace OpenSage.Data.Ini
 
         public bool SnowPointSprites { get; private set; }
         public float SnowQuadSize { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int SnowBoxHeight { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int SnowSpacing { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int NumberTiles { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float SnowSpeed { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool LightningEnabled { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float[] LightningFactor { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int LightningDuration { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float LightningChance { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool SpellEnabled { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int SpellDuration { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Vector2 RampControl { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Vector2 RampSpeed { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Vector2 RampSpacing { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<WeatherData> WeatherDatas { get; } = new List<WeatherData>();
+    }
+
+    public sealed class WeatherData
+    {
+        internal static WeatherData Parse(IniParser parser)
+        {
+            var type = parser.ParseEnum<WeatherType>();
+            var result = parser.ParseTopLevelBlock(FieldParseTable);
+            result.WeatherType = type;
+            return result; 
+        }
+
+        private static readonly IniParseTable<WeatherData> FieldParseTable = new IniParseTable<WeatherData>
+        {
+            { "WeatherSound", (parser, x) => x.WeatherSound = parser.ParseAssetReference() },
+            { "HasLightning", (parser, x) => x.HasLightning = parser.ParseBoolean() }
+        };
+
+        public WeatherType WeatherType { get; private set; }
+
+        public string WeatherSound { get; private set; }
+        public bool HasLightning { get; private set; }
+    }
+
+    public enum WeatherType
+    {
+        [IniEnum("NONE")]
+        None,
+
+        [IniEnum("RAINY")]
+        Rainy,
+
+        [IniEnum("CLOUDYRAINY")]
+        CloudyRainy,
+
+        [IniEnum("SUNNY")]
+        Sunny,
+
+        [IniEnum("CLOUDY")]
+        Cloudy,
     }
 }

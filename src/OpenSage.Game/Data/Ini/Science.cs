@@ -18,6 +18,7 @@ namespace OpenSage.Data.Ini
             { "IsGrantable", (parser, x) => x.IsGrantable = parser.ParseBoolean() },
             { "DisplayName", (parser, x) => x.DisplayName = parser.ParseLocalizedStringKey() },
             { "Description", (parser, x) => x.Description = parser.ParseLocalizedStringKey() },
+            { "SciencePurchasePointCostMP", (parser, x) => x.SciencePurchasePointCostMP = parser.ParseInteger() }
         };
 
         public string Name { get; private set; }
@@ -27,5 +28,8 @@ namespace OpenSage.Data.Ini
         public bool IsGrantable { get; private set; }
         public string DisplayName { get; private set; }
         public string Description { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int  SciencePurchasePointCostMP { get; private set; }
     }
 }

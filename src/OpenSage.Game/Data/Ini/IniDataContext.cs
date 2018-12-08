@@ -116,6 +116,10 @@ namespace OpenSage.Data.Ini
         public WaterTransparency WaterTransparency { get; internal set; }
         public List<Weapon> Weapons { get; } = new List<Weapon>();
         public Weather Weather { get; internal set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<WeatherData> WeatherDatas { get; } = new List<WeatherData>();
+
         public List<WebpageUrl> WebpageUrls { get; } = new List<WebpageUrl>();
         public List<WindowTransition> WindowTransitions { get; } = new List<WindowTransition>();
         internal Dictionary<string, IniToken> Defines { get; } = new Dictionary<string, IniToken>();
