@@ -94,6 +94,8 @@ namespace OpenSage.Data.Ini.Parser
             { "ObjectCreationList", (parser, context) => context.ObjectCreationLists.Add(ObjectCreationList.Parse(parser)) },
             { "OnlineChatColors", (parser, context) => context.OnlineChatColors = OnlineChatColors.Parse(parser) },
             { "ParticleSystem", (parser, context) => context.ParticleSystems.Add(ParticleSystemDefinition.Parse(parser)) },
+            { "Pathfinder", (parser, context) => context.Pathfinder = Pathfinder.Parse(parser) },
+            { "PlayerAIType", (parser, context) => context.PlayerAITypes.Add(PlayerAIType.Parse(parser)) },
             { "PlayerTemplate", (parser, context) => context.PlayerTemplates.Add(PlayerTemplate.Parse(parser)) },
             { "PredefinedEvaEvent", (parser, context) => context.EvaEvents.Add(EvaEvent.Parse(parser)) },
             { "Rank", (parser, context) => context.Ranks.Add(Rank.Parse(parser)) },
