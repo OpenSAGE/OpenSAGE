@@ -6,6 +6,5 @@ namespace OpenSage.Content
     {
         // TODO: Refactor this, it's not a good API.
         public bool CacheAsset { get; set; } = true;
-        public ColorRgb HouseColor { get; set; }
     }
 }

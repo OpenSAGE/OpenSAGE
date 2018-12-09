@@ -9,11 +9,10 @@
 
 struct MeshConstantsType
 {
-  vec3 HouseColor;
   bool HasHouseColor;
   bool SkinningEnabled;
   uint NumBones;
-  vec2 _Padding;
+  float _Padding;
 };
 
 struct RenderItemConstantsVSType

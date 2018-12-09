@@ -124,6 +124,12 @@ layout(set = 0, binding = 13) uniform ShadowConstantsPS
 layout(set = 0, binding = 14) uniform texture2DArray Global_ShadowMap;
 layout(set = 0, binding = 15) uniform samplerShadow Global_ShadowSampler;
 
+layout(set = 0, binding = 16) readonly buffer TeamColorBuffer
+{
+    vec3 _TeamColor;
+    float _Padding;
+};
+
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec3 in_WorldNormal;
 layout(location = 2) in vec2 in_UV0;
@@ -254,17 +260,19 @@ void main()
     vec3 specularColor;
 
     vec3 inputDiffuse = _MaterialConstants.Material.Diffuse;
+    vec3 inputAmbient = _MaterialConstants.Material.Ambient;
 
     if(_MeshConstants.HasHouseColor)
     {
-        inputDiffuse = _MeshConstants.HouseColor;
+        inputDiffuse = _TeamColor;
+        inputAmbient = _TeamColor;
     }
 
     DoLighting(
         _GlobalLightingConstantsPS,
         in_WorldPosition,
         in_WorldNormal,
-        _MaterialConstants.Material.Ambient,
+        inputAmbient,
         inputDiffuse,
         _MaterialConstants.Material.Specular,
         _MaterialConstants.Material.Shininess,

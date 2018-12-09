@@ -13,7 +13,6 @@ using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
-using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
 
@@ -21,8 +20,6 @@ namespace OpenSage.Content
 {
     internal sealed class ModelLoader : ContentLoader<Model>
     {
-        private readonly W3dRgb _defaultHouseColor = new W3dRgb { B = 255, R = 0, G = 0 };
-
         protected override Model LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
         {
             var w3dFile = W3dFile.FromFileSystemEntry(entry);
@@ -41,15 +38,13 @@ namespace OpenSage.Content
             return CreateModel(
                 contentManager,
                 w3dFile,
-                w3dHierarchy,
-                 _defaultHouseColor);
+                w3dHierarchy);
         }
 
         private Model CreateModel(
             ContentManager contentManager,
             W3dFile w3dFile,
-            W3dHierarchyDef w3dHierarchy,
-            W3dRgb houseColor)
+            W3dHierarchyDef w3dHierarchy)
         {
             ModelBone[] bones;
             if (w3dHierarchy != null)
@@ -97,10 +92,10 @@ namespace OpenSage.Content
                     bone = bones[0];
                 }
 
-                W3dRgb? meshHouseColor = null;
+                bool houseColor = false;
                 if (w3dMesh.Header.MeshName.StartsWith("HOUSECOLOR"))
                 {
-                    meshHouseColor = houseColor;
+                    houseColor = true;
                 }
 
                 meshes[i] = CreateModelMesh(
@@ -108,7 +103,7 @@ namespace OpenSage.Content
                     w3dMesh,
                     bone,
                     bones.Length,
-                    meshHouseColor);
+                    houseColor);
 
                 //var meshBoundingSphere = mesh.BoundingSphere.Transform(bone.Transform);
 
@@ -138,7 +133,7 @@ namespace OpenSage.Content
             W3dMesh w3dMesh,
             ModelBone parentBone,
             int numBones,
-            W3dRgb? houseColor)
+            bool hasHouseColor)
         {
             W3dShaderMaterial w3dShaderMaterial;
             Effect effect = null;
@@ -196,12 +191,6 @@ namespace OpenSage.Content
             var isSkinned = (w3dMesh.Header.Attributes & W3dMeshFlags.GeometryTypeMask) == W3dMeshFlags.GeometryTypeSkin;
             var cameraOriented = (w3dMesh.Header.Attributes & W3dMeshFlags.GeometryTypeMask) == W3dMeshFlags.GeometryTypeCameraOriented;
 
-            Vector3? hColor = null;
-            if (houseColor.HasValue)
-            {
-                hColor = houseColor.Value.ToVector3();
-            }
-
             return new ModelMesh(
                 contentManager.GraphicsDevice,
                 w3dMesh.Header.MeshName,
@@ -215,7 +204,7 @@ namespace OpenSage.Content
                 boundingBox,
                 w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.Hidden),
                 cameraOriented,
-                hColor);
+                hasHouseColor);
         }
 
         private static FixedFunction.ShadingConfiguration CreateShadingConfiguration(W3dShader w3dShader)

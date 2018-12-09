@@ -225,7 +225,8 @@ namespace OpenSage.Terrain
                     camera,
                     _modelInstance,
                     meshMatrix.Item2,
-                    true);
+                    true,
+                    Vector3.One);
             }
 
             foreach (var tower in _towers)

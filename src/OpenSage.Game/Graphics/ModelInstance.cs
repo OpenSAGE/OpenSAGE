@@ -36,6 +36,10 @@ namespace OpenSage.Graphics
 
         internal DeviceBuffer SkinningBuffer;
 
+        private Vector3 _teamColor;
+
+        internal DeviceBuffer TeamColorBuffer;
+
         public Model Model { get; }
 
         public ModelBoneInstance[] ModelBoneInstances { get; }
@@ -76,6 +80,12 @@ namespace OpenSage.Graphics
 
                 _skinningBones = new Matrix4x4[model.Bones.Length];
             }
+
+            TeamColorBuffer = AddDisposable(graphicsDevice.ResourceFactory.CreateBuffer(
+                    new BufferDescription(
+                        16u,
+                        BufferUsage.StructuredBufferReadOnly | BufferUsage.Dynamic,
+                        16)));
 
             AnimationInstances = new List<AnimationInstance>();
             foreach (var animation in model.Animations)
@@ -138,6 +148,11 @@ namespace OpenSage.Graphics
             }
         }
 
+        public void SetTeamColor(in Vector3 teamColor)
+        {
+            _teamColor = teamColor;
+        }
+
         public void BuildRenderList(
             RenderList renderList,
             Camera camera,
@@ -145,7 +160,7 @@ namespace OpenSage.Graphics
         {
             foreach (var mesh in Model.Meshes)
             {
-                mesh.BuildRenderList(renderList, camera, this, _worldMatrix, castsShadow);
+                mesh.BuildRenderList(renderList, camera, this, _worldMatrix, castsShadow, _teamColor);
             }
         }
     }

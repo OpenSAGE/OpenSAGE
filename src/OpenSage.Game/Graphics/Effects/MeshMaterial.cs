@@ -24,17 +24,21 @@ namespace OpenSage.Graphics.Effects
             SetProperty("MeshConstants", meshConstants);
         }
 
+        public void SetTeamColor(DeviceBuffer colorBuffer)
+        {
+            SetProperty("TeamColorBuffer", colorBuffer);
+        }
+
         public override LightingType LightingType => LightingType.Object;
 
         [StructLayout(LayoutKind.Sequential)]
         public struct MeshConstants
         {
-            public Vector3 HouseColor;
             public Bool32 HasHouseColor;
             public Bool32 SkinningEnabled;
             public uint NumBones;
 #pragma warning disable CS0169
-            private readonly Vector2 _padding;
+            private readonly float _padding;
 #pragma warning restore CS0169
         }
     }

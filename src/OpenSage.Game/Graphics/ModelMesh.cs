@@ -58,7 +58,7 @@ namespace OpenSage.Graphics
             BoundingBox boundingBox,
             bool hidden,
             bool cameraOriented,
-            Vector3? houseColor)
+            bool hasHouseColor)
         {
             Name = name;
 
@@ -68,11 +68,6 @@ namespace OpenSage.Graphics
             BoundingBox = boundingBox;
 
             Skinned = isSkinned;
-
-            if (HasHouseColor = houseColor.HasValue)
-            {
-                HouseColor = houseColor.Value;
-            }
 
             Hidden = hidden;
             CameraOriented = cameraOriented;
@@ -92,11 +87,7 @@ namespace OpenSage.Graphics
             _meshConstantsBuffer = AddDisposable(new ConstantBuffer<MeshMaterial.MeshConstants>(graphicsDevice));
             _meshConstantsBuffer.Value.SkinningEnabled = isSkinned;
             _meshConstantsBuffer.Value.NumBones = numBones;
-            _meshConstantsBuffer.Value.HasHouseColor = houseColor.HasValue;
-            if (houseColor.HasValue)
-            {
-                _meshConstantsBuffer.Value.HouseColor = houseColor.Value;
-            }
+            _meshConstantsBuffer.Value.HasHouseColor = hasHouseColor;
             _meshConstantsBuffer.Update(commandEncoder);
 
             commandEncoder.End();
@@ -126,7 +117,8 @@ namespace OpenSage.Graphics
             Camera camera,
             ModelInstance modelInstance,
             in Matrix4x4 modelTransform,
-            bool castsShadow)
+            bool castsShadow,
+            in Vector3 teamColor)
         {
             var meshWorldMatrix = Skinned
                 ? modelTransform
@@ -137,7 +129,8 @@ namespace OpenSage.Graphics
                 camera,
                 modelInstance,
                 meshWorldMatrix,
-                castsShadow);
+                castsShadow,
+                teamColor);
         }
 
         internal void BuildRenderListWithWorldMatrix(
@@ -145,7 +138,8 @@ namespace OpenSage.Graphics
             Camera camera,
             ModelInstance modelInstance,
             in Matrix4x4 meshWorldMatrix,
-            bool castsShadow)
+            bool castsShadow,
+            in Vector3 teamColor)
         {
             if (Hidden)
             {
@@ -215,6 +209,8 @@ namespace OpenSage.Graphics
                     // Standard pass
 
                     meshPart.Material.SetSkinningBuffer(modelInstance.SkinningBuffer);
+
+                    meshPart.Material.SetTeamColor(modelInstance.TeamColorBuffer);
 
                     var renderQueue = blendEnabled
                         ? renderList.Transparent

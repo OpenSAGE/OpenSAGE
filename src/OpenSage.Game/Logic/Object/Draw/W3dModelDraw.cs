@@ -11,6 +11,7 @@ using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Util;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
@@ -94,7 +95,7 @@ namespace OpenSage.Logic.Object
 
             _activeModelDrawConditionState = AddDisposable(
                 CreateModelDrawConditionStateInstance(
-                    conditionState, teamColor));
+                    conditionState, teamColor.ToVector3()));
         }
 
         public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, ColorRgb teamColor)
@@ -121,10 +122,10 @@ namespace OpenSage.Logic.Object
             SetActiveConditionState(bestConditionState, teamColor);
         }
 
-        private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState, ColorRgb teamColor)
+        private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState, Vector3 teamColor)
         {
             ModelInstance modelInstance = null;
-            LoadOptions options = new LoadOptions { HouseColor = teamColor };
+            LoadOptions options = new LoadOptions();
             if (!string.Equals(conditionState.Model, "NONE", StringComparison.OrdinalIgnoreCase))
             {
                 var w3dFilePath = Path.Combine("Art", "W3D", conditionState.Model + ".W3D");
@@ -194,6 +195,8 @@ namespace OpenSage.Logic.Object
                 }
             }
 
+            SetTeamColor(teamColor);
+
             return modelInstance != null
                ? new W3dModelDrawConditionState(modelInstance, particleSystems)
                : null;
@@ -207,6 +210,11 @@ namespace OpenSage.Logic.Object
         internal override void SetWorldMatrix(in Matrix4x4 worldMatrix)
         {
             _activeModelDrawConditionState?.SetWorldMatrix(worldMatrix);
+        }
+
+        internal void SetTeamColor(in Vector3 teamColor)
+        {
+            _activeModelDrawConditionState?.SetTeamColor(teamColor);
         }
 
         internal override void BuildRenderList(RenderList renderList, Camera camera, bool castsShadow)
@@ -255,6 +263,11 @@ namespace OpenSage.Logic.Object
         public void SetWorldMatrix(in Matrix4x4 worldMatrix)
         {
             _modelInstance.SetWorldMatrix(worldMatrix);
+        }
+
+        public void SetTeamColor(in Vector3 teamColor)
+        {
+            _modelInstance.SetTeamColor(teamColor);
         }
 
         public void BuildRenderList(RenderList renderList, Camera camera, bool castsShadow)
