@@ -2,7 +2,7 @@
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.Bfme2)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class Pathfinder
     {
         internal static Pathfinder Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);

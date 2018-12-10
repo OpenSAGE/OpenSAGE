@@ -237,61 +237,61 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.Bfme2)]
         public float SwoopSpeedTuningFactor { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public FormationPriority FormationPriority { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public float BackingUpSpeed { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public bool ChargeAvailable { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public float ChargeSpeed { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public float TurnThreshold { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public int TurnThresholdHS { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public bool EnableHighSpeedTurnModelconditions { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public bool UseTerrainSmoothing { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public bool WaitForFormation { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public int MaxTurnWithoutReform { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public float AccDecTrigger { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public int WalkDistance { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public int MaxOverlappedHeight { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public bool CrewPowered { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public bool BackingUpStopWhenTurning { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public int BackingUpDistanceMin { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public int BackingUpDistanceMax { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public float BackingUpAngle { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public float LookAheadMult { get; private set; }
     }
 
@@ -324,13 +324,13 @@ namespace OpenSage.Data.Ini
         [IniEnum("GIANT_BIRD"), AddedIn(SageGame.Bfme2)]
         GiantBird,
 
-        [IniEnum("HUGE_TWO_LEGS"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("HUGE_TWO_LEGS"), AddedIn(SageGame.Bfme)]
         HugeTwoLegs,
 
-        [IniEnum("HORDE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("HORDE"), AddedIn(SageGame.Bfme)]
         Horde,
 
-        [IniEnum("FOUR_LEGS_HUGE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("FOUR_LEGS_HUGE"), AddedIn(SageGame.Bfme)]
         FourLegsHuge,
     }
 
@@ -351,10 +351,10 @@ namespace OpenSage.Data.Ini
         [IniEnum("WATER")]
         Water,
 
-        [IniEnum("IMPASSABLE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("IMPASSABLE"), AddedIn(SageGame.Bfme)]
         Impassable,
 
-        [IniEnum("OBSTACLE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("OBSTACLE"), AddedIn(SageGame.Bfme)]
         Obstacle,
     }
 
@@ -387,14 +387,14 @@ namespace OpenSage.Data.Ini
         [IniEnum("FIXED_ABSOLUTE_HEIGHT"), AddedIn(SageGame.Bfme2)]
         FixedAbsoluteHeight,
 
-        [IniEnum("FLOATING_Z"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("FLOATING_Z"), AddedIn(SageGame.Bfme)]
         FloatingZ,
 
-        [IniEnum("SEA_LEVEL"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SEA_LEVEL"), AddedIn(SageGame.Bfme)]
         SeaLevel,
     }
 
-    [AddedIn(SageGame.Bfme2)]
+    [AddedIn(SageGame.Bfme)]
     public enum FormationPriority
     {
         [IniEnum("NO_FORMATION")]

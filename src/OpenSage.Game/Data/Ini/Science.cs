@@ -29,7 +29,7 @@ namespace OpenSage.Data.Ini
         public string DisplayName { get; private set; }
         public string Description { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public int  SciencePurchasePointCostMP { get; private set; }
     }
 }

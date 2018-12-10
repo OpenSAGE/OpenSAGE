@@ -4,7 +4,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.Bfme2)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldMapInfo
     {
         internal static LivingWorldMapInfo Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);

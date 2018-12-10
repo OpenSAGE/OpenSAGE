@@ -522,5 +522,11 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("FLAME")]
         Flame,
+
+        [IniEnum("MAGIC")]
+        Magic,
+
+        [IniEnum("SWORD_SLASH")]
+        SwordSlash,
     }
 }

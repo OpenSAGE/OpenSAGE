@@ -254,245 +254,244 @@ namespace OpenSage.Data.Ini
         [IniEnum("SUPW_SPECIAL_NEUTRON_MISSILE"), AddedIn(SageGame.CncGeneralsZeroHour)]
         SuperWeaponNeutronMissile,
 
-
-        [IniEnum("SPECIAL_GRAB_PASSENGER"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_GRAB_PASSENGER"), AddedIn(SageGame.Bfme)]
         SpecialGrabPassenger,
 
-        [IniEnum("SPECIAL_GRAB_CHUNK"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_GRAB_CHUNK"), AddedIn(SageGame.Bfme)]
         SpecialGrabChunk,
 
-        [IniEnum("SPECIAL_SPAWN_ORCS"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPAWN_ORCS"), AddedIn(SageGame.Bfme)]
         SpecialSpawnOrcs,
 
-        [IniEnum("SPECIAL_REPAIR_STRUCTURE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_REPAIR_STRUCTURE"), AddedIn(SageGame.Bfme)]
         SpecialRepairStructure,
 
-        [IniEnum("SPECIAL_SPAWN_OATHBREAKERS"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPAWN_OATHBREAKERS"), AddedIn(SageGame.Bfme)]
         SpecialSpawnOathbreakers,
 
-        [IniEnum("SPECIAL_GENERAL_TARGETLESS"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_GENERAL_TARGETLESS"), AddedIn(SageGame.Bfme)]
         SpecialGeneralTargetless,
 
-        [IniEnum("SPECIAL_GENERAL_TARGETLESS_TWO"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_GENERAL_TARGETLESS_TWO"), AddedIn(SageGame.Bfme)]
         SpecialGeneralTargetlessTwo,
 
-        [IniEnum("SPECIAL_BALROG_SCREAM"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_BALROG_SCREAM"), AddedIn(SageGame.Bfme)]
         SpecialBalrogScream,
 
-        [IniEnum("SPECIAL_HERO_MODE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_HERO_MODE"), AddedIn(SageGame.Bfme)]
         SpecialHeroMode,
 
-        [IniEnum("SPECIAL_FLAMING_SWORD"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_FLAMING_SWORD"), AddedIn(SageGame.Bfme)]
         SpecialFlamingSword,
 
-        [IniEnum("SPECIAL_BALROG_BREATH"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_BALROG_BREATH"), AddedIn(SageGame.Bfme)]
         SpecialBalrogBreath,
 
-        [IniEnum("SPECIAL_KNIFE_ATTACK"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_KNIFE_ATTACK"), AddedIn(SageGame.Bfme)]
         SpecialKnifeAttack,
 
-        [IniEnum("SPECIAL_ATHELAS"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_ATHELAS"), AddedIn(SageGame.Bfme)]
         SpecialAthelas,
 
-        [IniEnum("SPECIAL_DISGUISE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_DISGUISE"), AddedIn(SageGame.Bfme)]
         SpecialDisguise,
 
-        [IniEnum("SPECIAL_SMITE_CANCELDISGUISE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SMITE_CANCELDISGUISE"), AddedIn(SageGame.Bfme)]
         SpecialSmiteCancelDisguise,
 
-        [IniEnum("SPECIAL_ATTRIBUTEMOD_CANCELDISGUISE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_ATTRIBUTEMOD_CANCELDISGUISE"), AddedIn(SageGame.Bfme)]
         SpecialAttributeModCancelDisguise,
 
-        [IniEnum("SPECIAL_FAKE_LEADERSHIP_BUTTON"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_FAKE_LEADERSHIP_BUTTON"), AddedIn(SageGame.Bfme)]
         SpecialFakeLeadershipButton,
 
-        [IniEnum("SPECIAL_MTTROLL_BORED"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_MTTROLL_BORED"), AddedIn(SageGame.Bfme)]
         SpecialMTTrollBored,
 
-        [IniEnum("SPECIAL_BALROG_WINGS"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_BALROG_WINGS"), AddedIn(SageGame.Bfme)]
         SpecialBalrogWings,
 
-        [IniEnum("SPECIAL_FIRE_WHIP"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_FIRE_WHIP"), AddedIn(SageGame.Bfme)]
         SpecialFireWhip,
 
-        [IniEnum("SPECIAL_WIZARD_BLAST"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_WIZARD_BLAST"), AddedIn(SageGame.Bfme)]
         SpecialWizardBlast,
 
-        [IniEnum("SPECIAL_WORD_OF_POWER"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_WORD_OF_POWER"), AddedIn(SageGame.Bfme)]
         SpecialWordOfPower,
 
-        [IniEnum("SPECIAL_SHIELD_BUBBLE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SHIELD_BUBBLE"), AddedIn(SageGame.Bfme)]
         SpecialShieldBubble,
 
-        [IniEnum("SPECIAL_TELEKENETIC_PUSH"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_TELEKENETIC_PUSH"), AddedIn(SageGame.Bfme)]
         SpecialTelekineticPush,
 
-        [IniEnum("SPECIAL_TOGGLE_MOUNTED"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_TOGGLE_MOUNTED"), AddedIn(SageGame.Bfme)]
         SpecialToggleMounted,
 
-        [IniEnum("SPECIAL_RAIN_OF_FIRE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_RAIN_OF_FIRE"), AddedIn(SageGame.Bfme)]
         SpecialRainOfFire,
 
-        [IniEnum("SPECIAL_CHARGE_ATTACK"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_CHARGE_ATTACK"), AddedIn(SageGame.Bfme)]
         SpecialChargeAttack,
 
-        [IniEnum("SPECIAL_DEFLECT_PROJECTILES"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_DEFLECT_PROJECTILES"), AddedIn(SageGame.Bfme)]
         SpecialDeflectProjectiles,
 
-        [IniEnum("SPECIAL_SIEGEDEPLOY"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SIEGEDEPLOY"), AddedIn(SageGame.Bfme)]
         SpecialSiegedeploy,
 
-        [IniEnum("SPECIAL_STOP"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_STOP"), AddedIn(SageGame.Bfme)]
         SpecialStop,
 
-        [IniEnum("SPECIAL_AT_VISIBLE_OBJECT"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_AT_VISIBLE_OBJECT"), AddedIn(SageGame.Bfme)]
         SpecialAtVisibleObject,
 
-        [IniEnum("SPECIAL_KNIFE_FIGHTER"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_KNIFE_FIGHTER"), AddedIn(SageGame.Bfme)]
         SpecialKnifeFighter,
 
-        [IniEnum("SPECIAL_ARROW_STORM"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_ARROW_STORM"), AddedIn(SageGame.Bfme)]
         SpecialArrowStorm,
 
-        [IniEnum("SPECIAL_WOUND_ARROW"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_WOUND_ARROW"), AddedIn(SageGame.Bfme)]
         SpecialWoundArrow,
 
-        [IniEnum("SPECIAL_KINGS_FAVOR"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_KINGS_FAVOR"), AddedIn(SageGame.Bfme)]
         SpecialKingsFavor,
 
-        [IniEnum("SPECIAL_SWOOP_ATTACK"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SWOOP_ATTACK"), AddedIn(SageGame.Bfme)]
         SpecialSwoopAttack,
 
-        [IniEnum("SPECIAL_LEVEL_ATTACK"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_LEVEL_ATTACK"), AddedIn(SageGame.Bfme)]
         SpecialLevelAttack,
 
-        [IniEnum("SPECIAL_SCREECH"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SCREECH"), AddedIn(SageGame.Bfme)]
         SpecialScreech,
 
-        [IniEnum("SPECIAL_LEVEL_POSITION"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_LEVEL_POSITION"), AddedIn(SageGame.Bfme)]
         SpecialLevelPosition,
 
-        [IniEnum("SPECIAL_GIVE_UPGRADE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_GIVE_UPGRADE"), AddedIn(SageGame.Bfme)]
         SpecialGiveUpgrade,
 
-        [IniEnum("SPECIAL_HARVEST"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_HARVEST"), AddedIn(SageGame.Bfme)]
         SpecialHarvest,
 
-        [IniEnum("SPECIAL_GIVE_UPGRADE_NEAREST"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_GIVE_UPGRADE_NEAREST"), AddedIn(SageGame.Bfme)]
         SpecialGiveUpgradeHarvest,
 
-        [IniEnum("SPECIAL_ROUSING_SPEECH"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_ROUSING_SPEECH"), AddedIn(SageGame.Bfme)]
         SpecialRousingSpeech,
 
-        [IniEnum("SPECIAL_TRIGGER_ATTRIBUTE_MODIFIER"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_TRIGGER_ATTRIBUTE_MODIFIER"), AddedIn(SageGame.Bfme)]
         SpecialTriggerAttributeModifier,
 
-        [IniEnum("SPECIAL_GLORIOUS_CHARGE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_GLORIOUS_CHARGE"), AddedIn(SageGame.Bfme)]
         SpecialGloriousCharge,
 
-        [IniEnum("SPECIAL_REVEAL_MAP_AREA"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_REVEAL_MAP_AREA"), AddedIn(SageGame.Bfme)]
         SpecialRevealMapArea,
 
-        [IniEnum("SPECIAL_PART_THE_HEAVENS"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_PART_THE_HEAVENS"), AddedIn(SageGame.Bfme)]
         SpecialPartTheHeavens,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_BALROG_ALLY"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_BALROG_ALLY"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookBalrogAlly,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_CLOUD_BREAK"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_CLOUD_BREAK"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookCloudBreak,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_CALL_THE_HORDE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_CALL_THE_HORDE"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookCallTheHord,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_DARKNESS"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_DARKNESS"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookDarkness,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_DEVASTATION"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_DEVASTATION"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookDevastation,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_EYE_OF_SAURON"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_EYE_OF_SAURON"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookEyeOfSauron,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_FREEZING_RAIN"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_FREEZING_RAIN"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookFreezingRain,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_FUEL_THE_FIRES"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_FUEL_THE_FIRES"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookFuelTheFires,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_INDUSTRY"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_INDUSTRY"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookIndustry,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_PLUS_1_NAZGUL"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_PLUS_1_NAZGUL"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookPlus1Nazgul,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_PLUS_100_COMMAND_POINTS"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_PLUS_100_COMMAND_POINTS"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookPlus100CommandPoints,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_TAINT"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_TAINT"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookTaint,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_WAR_CHANT"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_WAR_CHANT"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookWarChant,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_ANDURIL"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_ANDURIL"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookAnduril,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_GANDALF_THE_WHITE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_GANDALF_THE_WHITE"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookGandalfTheWhite,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_ARMY_OF_THE_DEAD"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_ARMY_OF_THE_DEAD"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookArmyOfTheDead,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_DRAFT"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_DRAFT"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookDraft,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_EAGLE_ALLIES"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_EAGLE_ALLIES"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookEagleAllies,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_ELVEN_ALLIES"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_ELVEN_ALLIES"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookElvenAllies,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_ELVEN_GIFTS"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_ELVEN_GIFTS"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookElvenGifts,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_ELVEN_WOOD"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_ELVEN_WOOD"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookElvenWood,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_ENT_ALLIES"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_ENT_ALLIES"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookEntAllies,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_HEAL"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_HEAL"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookHeal,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_ROHAN_ALLIES"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_ROHAN_ALLIES"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookRohanAllies,
 
-        [IniEnum("SPECIAL_GIMLI_LEAP"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_GIMLI_LEAP"), AddedIn(SageGame.Bfme)]
         SpecialGimliLeap,
 
-        [IniEnum("SPECIAL_MAN_THE_WALLS"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_MAN_THE_WALLS"), AddedIn(SageGame.Bfme)]
         SpecialManTheWalls,
 
-        [IniEnum("SPECIAL_RANGER_AMBUSH"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_RANGER_AMBUSH"), AddedIn(SageGame.Bfme)]
         SpecialRangerAmbush,
 
-        [IniEnum("SPECIAL_OSGILIATH_VETERANS"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_OSGILIATH_VETERANS"), AddedIn(SageGame.Bfme)]
         SpecialOsgiliathVeterans,
 
-        [IniEnum("SPECIAL_PRINCE_OF_DOL_ARMOTH"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_PRINCE_OF_DOL_ARMOTH"), AddedIn(SageGame.Bfme)]
         SpecialPrinceOfDolAmroth,
 
-        [IniEnum("SPECIAL_SARUMAN_FIRE_BALL"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SARUMAN_FIRE_BALL"), AddedIn(SageGame.Bfme)]
         SpecialSarumanFireBall,
 
-        [IniEnum("SPECIAL_SPELL_BOOK_PALANTIR_VISION"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_SPELL_BOOK_PALANTIR_VISION"), AddedIn(SageGame.Bfme)]
         SpecialSpellBookPalantirVision,
 
-        [IniEnum("SPECIAL_DOMINATE_ENEMY"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_DOMINATE_ENEMY"), AddedIn(SageGame.Bfme)]
         SpecialDominateEnemy,
 
-        [IniEnum("SPECIAL_EAT"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("SPECIAL_EAT"), AddedIn(SageGame.Bfme)]
         SpecialEat,
     }
 }

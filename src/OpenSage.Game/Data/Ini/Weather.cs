@@ -62,49 +62,50 @@ namespace OpenSage.Data.Ini
         public bool SnowPointSprites { get; private set; }
         public float SnowQuadSize { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public int SnowBoxHeight { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public int SnowSpacing { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public int NumberTiles { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public float SnowSpeed { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public bool LightningEnabled { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public float[] LightningFactor { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public int LightningDuration { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public float LightningChance { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public bool SpellEnabled { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public int SpellDuration { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public Vector2 RampControl { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public Vector2 RampSpeed { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public Vector2 RampSpacing { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public List<WeatherData> WeatherDatas { get; } = new List<WeatherData>();
     }
 
+    [AddedIn(SageGame.Bfme)]
     public sealed class WeatherData
     {
         internal static WeatherData Parse(IniParser parser)
@@ -127,6 +128,7 @@ namespace OpenSage.Data.Ini
         public bool HasLightning { get; private set; }
     }
 
+    [AddedIn(SageGame.Bfme)]
     public enum WeatherType
     {
         [IniEnum("NONE")]

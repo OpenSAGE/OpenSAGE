@@ -4,7 +4,7 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.Bfme2)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class LivingWorldAnimObject
     {
         internal static LivingWorldAnimObject Parse(IniParser parser)
