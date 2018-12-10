@@ -59,20 +59,20 @@ namespace OpenSage.Data.Ini
         public LargeGroupAudioUnusedKnownKeys LargeGroupAudioUnusedKnownKeys { get; internal set; }
         public List<LivingWorldCampaign> LivingWorldCampaigns { get; } = new List<LivingWorldCampaign>();
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public LivingWorldMapInfo LivingWorldMapInfo { get; set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public List<LivingWorldObject> LivingWorldObjects { get; } = new List<LivingWorldObject>();
         public List<LivingWorldPlayerArmy> LivingWorldPlayerArmies { get; } = new List<LivingWorldPlayerArmy>();
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public List<LivingWorldArmyIcon> LivingWorldArmyIcons { get; } = new List<LivingWorldArmyIcon>();
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public List<LivingWorldAnimObject> LivingWorldAnimObjects { get; } = new List<LivingWorldAnimObject>();
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public List<LivingWorldSound> LivingWorldSounds { get; } = new List<LivingWorldSound>();
         public List<LivingWorldRegionCampaign> LivingWorldRegionCampaigns { get; } = new List<LivingWorldRegionCampaign>();
         public List<Locomotor> Locomotors { get; } = new List<Locomotor>();
@@ -94,16 +94,16 @@ namespace OpenSage.Data.Ini
         public OnlineChatColors OnlineChatColors { get; internal set; }
         public List<ParticleSystemDefinition> ParticleSystems { get; } = new List<ParticleSystemDefinition>();
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public Pathfinder Pathfinder { get; set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public List<PlayerAIType> PlayerAITypes { get; } = new List<PlayerAIType>();
 
         public List<PlayerTemplate> PlayerTemplates { get; } = new List<PlayerTemplate>();
         public List<Rank> Ranks { get; } = new List<Rank>();
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public RegionCampain RegionCampain{ get; set; }
         public List<RoadTemplate> RoadTemplates { get; } = new List<RoadTemplate>();
         public int ReallyLowMHz { get; internal set; }
@@ -124,7 +124,7 @@ namespace OpenSage.Data.Ini
         public List<Weapon> Weapons { get; } = new List<Weapon>();
         public Weather Weather { get; internal set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public List<WeatherData> WeatherDatas { get; } = new List<WeatherData>();
 
         public List<WebpageUrl> WebpageUrls { get; } = new List<WebpageUrl>();

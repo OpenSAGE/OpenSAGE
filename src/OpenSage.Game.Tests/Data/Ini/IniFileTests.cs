@@ -44,8 +44,8 @@ namespace OpenSage.Tests.Data.Ini
                         //BFME
                         case "optionregistry.ini": // Don't know if this is used
                         case "weapon.ini":
-                        case "map.ini":
-                        case "localization.ini":
+                        //case "map.ini":
+                        case "localization.ini": // Don't know if we need this
                             return;
                     }
 

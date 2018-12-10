@@ -18,7 +18,7 @@ namespace OpenSage.Data.Ini
             { "SciencesGranted", (parser, x) => x.SciencesGranted = parser.ParseAssetReference() },
             { "SciencePurchasePointsGranted", (parser, x) => x.SciencePurchasePointsGranted = parser.ParseInteger() },
             { "SkillPointsNeededDefault", (parser, x) => x.SkillPointsNeededDefault = parser.ParseInteger() },
-             { "SkillPointsNeededCampaign", (parser, x) => x.SkillPointsNeededCampaign = parser.ParseInteger() },
+            { "SkillPointsNeededCampaign", (parser, x) => x.SkillPointsNeededCampaign = parser.ParseInteger() },
         };
 
         public int Level { get; private set; }
@@ -28,10 +28,10 @@ namespace OpenSage.Data.Ini
         public string SciencesGranted { get; private set; }
         public int SciencePurchasePointsGranted { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public int SkillPointsNeededDefault { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public int SkillPointsNeededCampaign { get; private set; }
     }
 }

@@ -3,7 +3,7 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
-    [AddedIn(SageGame.Bfme2)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class RegionCampain
     {
         internal static RegionCampain Parse(IniParser parser)

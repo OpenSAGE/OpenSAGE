@@ -45,16 +45,16 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public AcademyType AcademyClassify { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public string Cursor { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public bool PersistsInCampaign { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public bool NoUpgradeDiscount { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public string UpgradeFX { get; private set; }
     }
 

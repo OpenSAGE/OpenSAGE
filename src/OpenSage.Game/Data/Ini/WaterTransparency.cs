@@ -45,7 +45,7 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public IniColorRgb RadarWaterColor { get; private set; }
 
-        [AddedIn(SageGame.Bfme2)]
+        [AddedIn(SageGame.Bfme)]
         public float RiverTransparencyMultiplier { get; private set; }
     }
 }

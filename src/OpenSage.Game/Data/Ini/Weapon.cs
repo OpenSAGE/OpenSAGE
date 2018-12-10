@@ -290,6 +290,8 @@ namespace OpenSage.Data.Ini
             { "DamageType", (parser, x) => x.DamageType = parser.ParseEnum<DamageType>() },
             { "DamageFXType", (parser, x) => x.DamageFxType = parser.ParseEnum<FxType>() },
             { "DeathType", (parser, x) => x.DeathType = parser.ParseEnum<DeathType>() },
+            { "DamageSpeed", (parser, x) => x.DamageSpeed = parser.ParseFloat() },
+            { "DamageArc", (parser, x) => x.DamageArc = parser.ParseInteger() },
         };
 
         public int Damage { get; private set; }
@@ -298,6 +300,12 @@ namespace OpenSage.Data.Ini
         public DamageType DamageType { get; private set; }
         public FxType DamageFxType { get; private set; }
         public DeathType DeathType { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float DamageSpeed { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int DamageArc { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme2)]
@@ -342,7 +350,7 @@ namespace OpenSage.Data.Ini
         [IniEnum("PER_SHOT")]
         PerShot,
 
-        [IniEnum("PER_POSITION")]
+        [IniEnum("PER_POSITION"), AddedIn(SageGame.Bfme)]
         PerPosition
     }
 

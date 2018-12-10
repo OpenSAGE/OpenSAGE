@@ -39,7 +39,7 @@ namespace OpenSage.Data.Ini
         [IniEnum("AMBIENT")]
         Ambient,
 
-        [IniEnum("None"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("None"), AddedIn(SageGame.Bfme)]
         None,
     }
 }
