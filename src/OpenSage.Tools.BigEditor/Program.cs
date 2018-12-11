@@ -1,6 +1,4 @@
-﻿using System;
-using OpenSage.Data.Big;
-using OpenSage.Tools.BigEditor.UI;
+﻿using OpenSage.Tools.BigEditor.UI;
 using Veldrid;
 using Veldrid.StartupUtilities;
 
@@ -19,6 +17,8 @@ namespace OpenSage.Tools.BigEditor
                 new WindowCreateInfo(100, 100, initialWidth, initialHeight, WindowState.Normal, "OpenSAGE Big Editor"),
                 out var window,
                 out var graphicsDevice);
+
+            graphicsDevice.SyncToVerticalBlank = true;
 
             using (var commandList = graphicsDevice.ResourceFactory.CreateCommandList())
             using (var imGuiRenderer = new ImGuiRenderer(graphicsDevice, graphicsDevice.MainSwapchain.Framebuffer.OutputDescription, initialWidth, initialHeight))

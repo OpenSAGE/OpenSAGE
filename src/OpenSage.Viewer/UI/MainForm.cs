@@ -207,7 +207,7 @@ namespace OpenSage.Viewer.UI
 
             ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0);
             bool open = false;
-            ImGui.Begin("OpenSAGE Viewer", ref open, ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoTitleBar);
+            ImGui.Begin("OpenSAGE Viewer", ref open, ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize);
 
             if (_gamePanel != null)
             {
