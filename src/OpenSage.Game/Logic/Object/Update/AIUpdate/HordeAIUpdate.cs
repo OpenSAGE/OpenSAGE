@@ -12,7 +12,7 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<HordeAIUpdateModuleData>
             {
                 { "ComboLocomotorSet", (parser, x) => x.ComboLocomotorSet = parser.ParseAssetReference() },
-                { "ComboLocoAttackDistance", (parser, x) => x.ComboLocoAttackDistance = parser.ParseInteger() }
+                { "ComboLocoAttackDistance", (parser, x) => x.ComboLocoAttackDistance = parser.ParseInteger() },
             });
 
         public string ComboLocomotorSet { get; private set; }

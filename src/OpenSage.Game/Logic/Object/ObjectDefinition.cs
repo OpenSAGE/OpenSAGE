@@ -340,6 +340,7 @@ namespace OpenSage.Logic.Object
             { "ThreatBreakdown", (parser, x) => x.ThreatBreakdown = ThreatBreakdown.Parse(parser) },
             { "DisplayNameInvisibleForEnemy", (parser, x) => x.DisplayNameInvisibleForEnemy = parser.ParseLocalizedStringKey() },
             { "DescriptionStrategic", (parser, x) => x.DescriptionStrategic = parser.ParseLocalizedStringKey() },
+            { "SupplyOverride", (parser, x) => x.SupplyOverride = parser.ParseInteger() }
         };
 
         public string Name { get; protected set; }
@@ -1001,6 +1002,9 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme)]
         public int ShadowOffsetX { get; private set; }
 
+        [AddedIn(SageGame.Bfme)]
+        public int SupplyOverride { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public string EvaEventDamagedFromShroudedSourceOwner { get; private set; }
 
@@ -1057,6 +1061,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string DescriptionStrategic { get; private set; }
+
+        
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -1159,12 +1165,16 @@ namespace OpenSage.Logic.Object
             { "Behavior", (parser, x) => x.Module = BehaviorModuleData.ParseBehavior(parser) },
             { "Draw", (parser, x) => x.Module = DrawModuleData.ParseDrawModule(parser) },
             { "Body", (parser, x) => x.Module = BodyModuleData.ParseBody(parser) },
-            { "ClientBehavior", (parser, x) => x.Module = ClientBehaviorModuleData.ParseClientBehavior(parser) }
+            { "ClientBehavior", (parser, x) => x.Module = ClientBehaviorModuleData.ParseClientBehavior(parser) },
+            { "ArmorSet", (parser, x) => x.ArmorSet = ArmorSet.Parse(parser) }
         };
 
         public string Name { get; private set; }
 
         public ModuleData Module { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public ArmorSet ArmorSet { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

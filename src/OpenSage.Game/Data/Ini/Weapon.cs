@@ -96,8 +96,17 @@ namespace OpenSage.Data.Ini
             { "PreAttackRandomAmount", (parser, x) => x.PreAttackRandomAmount = parser.ParseInteger() },
             { "IsAimingWeapon", (parser, x) => x.IsAimingWeapon = parser.ParseBoolean() },
             { "AntiAirborneMonster", (parser, x) => x.AntiAirborneMonster = parser.ParseBoolean() },
-            { "FXTrigger", (parser, x) => x.FxTrigger = parser.ParseEnumFlags<ObjectKinds>() }
+            { "FXTrigger", (parser, x) => x.FxTrigger = parser.ParseEnumFlags<ObjectKinds>() },
+
+            { "ClearNuggets", (parser, x) => x.ClearNuggets() },
         };
+
+        private void ClearNuggets()
+        {
+            this.ProjectileNugget = null;
+            this.DamageNugget = null;
+            this.MetaImpactNugget = null;
+        }
 
         private static string ParseVeterancyAssetReference(IniParser parser)
         {
@@ -292,6 +301,8 @@ namespace OpenSage.Data.Ini
             { "DeathType", (parser, x) => x.DeathType = parser.ParseEnum<DeathType>() },
             { "DamageSpeed", (parser, x) => x.DamageSpeed = parser.ParseFloat() },
             { "DamageArc", (parser, x) => x.DamageArc = parser.ParseInteger() },
+            { "DamageScalar", (parser, x) => x.DamageScalar = DamageScalar.Parse(parser) },
+            { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) }
         };
 
         public int Damage { get; private set; }
@@ -306,6 +317,12 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public int DamageArc { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public DamageScalar DamageScalar { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public ObjectFilter SpecialObjectFilter { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme2)]
@@ -319,12 +336,39 @@ namespace OpenSage.Data.Ini
             { "ShockWaveAmount", (parser, x) => x.ShockWaveAmount = parser.ParseFloat() },
             { "ShockWaveRadius", (parser, x) => x.ShockWaveRadius = parser.ParseFloat() },
             { "ShockWaveTaperOff", (parser, x) => x.ShockWaveTaperOff = parser.ParseFloat() },
+            { "ShockWaveArc", (parser, x) => x.ShockWaveArc = parser.ParseInteger() },
+            { "ShockWaveZMult", (parser, x) => x.ShockWaveZMult = parser.ParseInteger() }
         };
 
         public float HeroResist { get; private set; }
         public float ShockWaveAmount { get; private set; }
         public float ShockWaveRadius { get; private set; }
         public float ShockWaveTaperOff { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ShockWaveArc { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float ShockWaveZMult { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public class DamageScalar
+    {
+        internal static DamageScalar Parse(IniParser parser)
+        {
+            var result = new DamageScalar();
+            result.Scalar = parser.ParsePercentage();
+            var token = parser.PeekNextTokenOptional();
+            if (token.HasValue)
+            {
+                result.Targets = ObjectFilter.Parse(parser);
+            }
+            return result;
+        }
+
+        public float Scalar { get; private set; }
+        public ObjectFilter Targets { get; private set; }
     }
 
     public enum WeaponReloadType

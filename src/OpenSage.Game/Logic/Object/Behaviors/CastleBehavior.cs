@@ -26,6 +26,7 @@ namespace OpenSage.Logic.Object
             { "CrewReleaseFX", (parser, x) => x.CrewReleaseFX = parser.ParseAssetReference() },
             { "CrewPrepareFX", (parser, x) => x.CrewPrepareFX = parser.ParseAssetReference() },
             { "CrewPrepareInterval", (parser, x) => x.CrewPrepareInterval = parser.ParseInteger() },
+            { "DisableStructureRotation", (parser, x) => x.DisableStructureRotation = parser.ParseBoolean() },
         };
 
         public List<Side> SidesAllowed { get;} = new List<Side>();
@@ -42,6 +43,7 @@ namespace OpenSage.Logic.Object
         public string CrewReleaseFX { get; private set; }
         public string CrewPrepareFX { get; private set; }
         public int CrewPrepareInterval { get; private set; }
+        public bool DisableStructureRotation { get; private set; }
     }
 
     public sealed class Faction
@@ -52,14 +54,14 @@ namespace OpenSage.Logic.Object
             {
                 FactionName = parser.ParseString(),
                 Camp = parser.ParseAssetReference(),
-                MaybeStartMoney = parser.GetIntegerOptional()
+                MaybeStartMoney = parser.GetFloatOptional()
             };
             return result;
         }
 
         public string FactionName { get; private set; }
         public string Camp { get; private set; }
-        public int MaybeStartMoney { get; private set; }
+        public float MaybeStartMoney { get; private set; }
     }
 
     public sealed class Side
