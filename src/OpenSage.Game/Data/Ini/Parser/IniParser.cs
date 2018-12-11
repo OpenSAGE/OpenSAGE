@@ -375,6 +375,21 @@ namespace OpenSage.Data.Ini.Parser
 
         public float ParseFloat() => ScanFloat(GetNextToken());
 
+        public float GetFloatOptional()
+        {
+            var token = GetNextTokenOptional();
+            if (!token.HasValue)
+            {
+                return 0.0f;
+            }
+
+            if (_dataContext.Defines.TryGetValue(token.Value.Text, out var macroExpansion))
+            {
+                token =  macroExpansion;
+            }
+            return ScanFloat(token.Value);
+        }
+
         public float[] ParseFloatArray()
         {
             var result = new List<float>();

@@ -514,19 +514,28 @@ namespace OpenSage.Data.Ini
         Uniform
     }
 
-    [AddedIn(SageGame.Bfme2)]
+    [AddedIn(SageGame.Bfme)]
     public enum FxType
     {
-        [IniEnum("BIG_ROCK")]
-        BigRock,
-
-        [IniEnum("FLAME")]
-        Flame,
-
         [IniEnum("MAGIC")]
         Magic,
 
         [IniEnum("SWORD_SLASH")]
         SwordSlash,
+
+        [IniEnum("EVIL_ARROW_PIERCE")]
+        EvilArrowPierce,
+
+        [IniEnum("CLUBBING")]
+        Clubbing,
+
+        [IniEnum("SMALL_ROCK")]
+        SmallRock,
+
+        [IniEnum("BIG_ROCK"), AddedIn(SageGame.Bfme2)]
+        BigRock,
+
+        [IniEnum("FLAME"), AddedIn(SageGame.Bfme2)]
+        Flame,
     }
 }

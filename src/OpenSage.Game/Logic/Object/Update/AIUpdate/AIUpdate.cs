@@ -27,7 +27,8 @@ namespace OpenSage.Logic.Object
             { "FadeOnPortals", (parser, x) => x.FadeOnPortals = parser.ParseBoolean() },
             { "StopChaseDistance", (parser, x) => x.StopChaseDistance = parser.ParseInteger() },
             { "RampageRequiresAflame", (parser, x) => x.RampageRequiresAflame = parser.ParseBoolean() },
-            { "MoveForNoOne", (parser, x) => x.MoveForNoOne = parser.ParseBoolean() }
+            { "MoveForNoOne", (parser, x) => x.MoveForNoOne = parser.ParseBoolean() },
+            { "StandGround", (parser, x) => x.StandGround = parser.ParseBoolean() }
         };
 
         /// <summary>
@@ -85,6 +86,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool MoveForNoOne { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool StandGround { get; private set; }
     }
 
     public enum AutoAcquireEnemiesType

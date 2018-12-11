@@ -13,6 +13,7 @@ namespace OpenSage.Logic.Object
                 { "GrantTemporaryStealth", (parser, x) => x.GrantTemporaryStealth = parser.ParseInteger() },
                 { "BonusScience", (parser, x) => x.BonusScience = parser.ParseString() },
                 { "BonusScienceMultiplier", (parser, x) => x.BonusScienceMultiplier = parser.ParsePercentage() },
+                { "ValueMultiplier", (parser, x) => x.ValueMultiplier = parser.ParseFloat() }
             });
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -23,5 +24,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public float BonusScienceMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float ValueMultiplier { get; private set; }
     }
 }
