@@ -33,7 +33,8 @@ namespace OpenSage.Audio
                 case SageGame.Ra3Uprising:
                 case SageGame.Cnc4:
                     // TODO
-                    break;
+                    System.Diagnostics.Debug.WriteLine($"Skipping initialization of {game.ContentManager.SageGame}'s unimplemented AudioSystem settings.");
+                    return;
 
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
