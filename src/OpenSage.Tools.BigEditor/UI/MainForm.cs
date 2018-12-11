@@ -64,7 +64,7 @@ namespace OpenSage.Tools.BigEditor.UI
 
             ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0);
             bool open = false;
-            ImGui.Begin("OpenSAGE Big Editor", ref open, ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoTitleBar);
+            ImGui.Begin("OpenSAGE Big Editor", ref open, ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize);
 
             var wasOpenClicked = false;
 
@@ -223,6 +223,7 @@ namespace OpenSage.Tools.BigEditor.UI
                     {
                         case ".ini":
                         case ".txt":
+                        case ".wnd":
                             using (var stream = entry.Open())
                             using (var reader = new StreamReader(stream))
                             {
@@ -235,11 +236,6 @@ namespace OpenSage.Tools.BigEditor.UI
                             break;
                     }
                 }
-
-                ImGui.NextColumn();
-
-                ImGui.Text(entry.Length.ToString());
-                ImGui.NextColumn();
 
                 var shouldOpenSaveDialog = false;
 
@@ -254,6 +250,11 @@ namespace OpenSage.Tools.BigEditor.UI
 
                     ImGui.EndPopup();
                 }
+
+                ImGui.NextColumn();
+
+                ImGui.Text(entry.Length.ToString());
+                ImGui.NextColumn();
 
                 var exportId = "Export##ExportDialog" + i;
                 if (shouldOpenSaveDialog)
