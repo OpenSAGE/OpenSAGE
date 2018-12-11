@@ -17,16 +17,27 @@ namespace OpenSage.Tests.Utilities
                 new Vector2(1536, 968)
             };
 
-            Assert.True(Triangulator.Process(polygonPoints, out var trianglePoints));
+            Triangulator.Triangulate(
+                polygonPoints,
+                WindingOrder.CounterClockwise,
+                out var trianglePoints,
+                out var triangleIndices);
 
-            Assert.Equal(6, trianglePoints.Count);
+            Assert.Equal(4, trianglePoints.Length);
 
-            Assert.Equal(new Vector2(1536, 968), trianglePoints[0]);
-            Assert.Equal(new Vector2(-22, 577), trianglePoints[1]);
-            Assert.Equal(new Vector2(-20, -694), trianglePoints[2]);
-            Assert.Equal(new Vector2(-20, -694), trianglePoints[3]);
-            Assert.Equal(new Vector2(1513, -696), trianglePoints[4]);
-            Assert.Equal(new Vector2(1536, 968), trianglePoints[5]);
+            Assert.Equal(new Vector2(-22, 577), trianglePoints[0]);
+            Assert.Equal(new Vector2(-20, -694), trianglePoints[1]);
+            Assert.Equal(new Vector2(1513, -696), trianglePoints[2]);
+            Assert.Equal(new Vector2(1536, 968), trianglePoints[3]);
+
+            Assert.Equal(6, triangleIndices.Length);
+
+            Assert.Equal(0, triangleIndices[0]);
+            Assert.Equal(1, triangleIndices[1]);
+            Assert.Equal(3, triangleIndices[2]);
+            Assert.Equal(1, triangleIndices[3]);
+            Assert.Equal(2, triangleIndices[4]);
+            Assert.Equal(3, triangleIndices[5]);
         }
     }
 }
