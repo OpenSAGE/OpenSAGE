@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2003
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28315.86
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Game", "OpenSage.Game\OpenSage.Game.csproj", "{65414137-B69D-42ED-9950-0428974D54CE}"
 EndProject
@@ -26,6 +26,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Launcher", "OpenSage.Launcher\OpenSage.Launcher.csproj", "{1B444162-022A-4E69-A9D3-00582CCE5586}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Viewer", "OpenSage.Viewer\OpenSage.Viewer.csproj", "{1474CCFF-383B-4D41-AF25-A2E91DD62E5D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{DA1B5AB5-4CC9-49CB-ACF1-34CF6A69D5BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Tools.BigEditor", "OpenSage.Tools.BigEditor\OpenSage.Tools.BigEditor.csproj", "{C2F25BA9-74F0-484A-B305-B8D67AC0F398}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,6 +81,10 @@ Global
 		{1474CCFF-383B-4D41-AF25-A2E91DD62E5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1474CCFF-383B-4D41-AF25-A2E91DD62E5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1474CCFF-383B-4D41-AF25-A2E91DD62E5D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2F25BA9-74F0-484A-B305-B8D67AC0F398}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2F25BA9-74F0-484A-B305-B8D67AC0F398}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2F25BA9-74F0-484A-B305-B8D67AC0F398}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2F25BA9-74F0-484A-B305-B8D67AC0F398}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -89,6 +97,7 @@ Global
 		{47798A99-BE2D-401F-AF78-79CA16B8A132} = {9410748F-ABB1-45AF-98E3-98858A8C0010}
 		{0521E24E-859B-4F7A-BE23-9CBC53A14595} = {9410748F-ABB1-45AF-98E3-98858A8C0010}
 		{771E6271-64F9-4BB4-9E38-DF4DA0029898} = {9410748F-ABB1-45AF-98E3-98858A8C0010}
+		{C2F25BA9-74F0-484A-B305-B8D67AC0F398} = {DA1B5AB5-4CC9-49CB-ACF1-34CF6A69D5BE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DBD83F1E-3F41-45D9-AACC-62E00826AD5C}

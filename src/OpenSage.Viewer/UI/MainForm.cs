@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
@@ -143,59 +142,6 @@ namespace OpenSage.Viewer.UI
 
                     _contentView = AddDisposable(new ContentView(
                         new Views.AssetViewContext(_game, _gamePanel, _imGuiRenderer, entry)));
-                }
-
-                var shouldOpenSaveDialog = false;
-
-                if (ImGui.BeginPopupContextItem("context" + i))
-                {
-                    _currentFile = i;
-
-                    if (ImGui.Selectable("Export..."))
-                    {
-                        shouldOpenSaveDialog = true;
-                    }
-
-                    ImGui.EndPopup();
-                }
-
-                var exportId = "Export##ExportDialog" + i;
-                if (shouldOpenSaveDialog)
-                {
-                    ImGui.OpenPopup(exportId);
-                }
-
-                bool open = true;
-
-                if (ImGui.BeginPopupModal(exportId, ref open, ImGuiWindowFlags.AlwaysAutoResize))
-                {
-                    ImGuiUtility.InputText("File Path", _filePathBuffer, out var filePath);
-
-                    if (ImGui.Button("Save"))
-                    {
-                        filePath = ImGuiUtility.TrimToNullByte(filePath);
-
-                        using (var entryStream = entry.Open())
-                        {
-                            using (var fileStream = File.OpenWrite(filePath))
-                            {
-                                entryStream.CopyTo(fileStream);
-                            }
-                        }
-
-                        ImGui.CloseCurrentPopup();
-                    }
-
-                    ImGui.SetItemDefaultFocus();
-
-                    ImGui.SameLine();
-
-                    if (ImGui.Button("Cancel"))
-                    {
-                        ImGui.CloseCurrentPopup();
-                    }
-
-                    ImGui.EndPopup();
                 }
             }
 
