@@ -58,7 +58,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
             Window.Game?.Audio.PlayAudioEvent(Window.ContentManager.IniDataContext.MiscAudio.GuiClickSound);
 
-            Parent.SystemCallback.Invoke(
+            SystemCallback.Invoke(
                 this,
                 new WndWindowMessage(WndWindowMessageType.SelectedButton, this),
                 context);

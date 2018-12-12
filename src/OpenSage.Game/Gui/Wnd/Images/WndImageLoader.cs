@@ -46,7 +46,7 @@ namespace OpenSage.Gui.Wnd.Images
             {
                 bool requiresFlip = !_contentManager.GraphicsDevice.IsUvOriginTopLeft;
 
-                return new Image(mappedImageTexture.SourceRect.Size, size =>
+                return new Image(mappedImageName, mappedImageTexture.SourceRect.Size, size =>
                 {
                     var cacheKey = new WndImageKey
                     {
@@ -103,7 +103,7 @@ namespace OpenSage.Gui.Wnd.Images
 
                 bool requiresFlip = !_contentManager.GraphicsDevice.IsUvOriginTopLeft;
 
-                return new Image(naturalSize, size =>
+                return new Image("WndImage", naturalSize, size =>
                 {
                     var cacheKey = new WndImageKey
                     {
