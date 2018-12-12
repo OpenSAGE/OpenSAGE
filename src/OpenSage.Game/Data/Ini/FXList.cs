@@ -537,5 +537,11 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("FLAME"), AddedIn(SageGame.Bfme2)]
         Flame,
+
+        [IniEnum("ELECTRIC"), AddedIn(SageGame.Bfme)]
+        Electric,
+
+        [IniEnum("BALROG_SWORD"), AddedIn(SageGame.Bfme)]
+        BalrogSword,
     }
 }

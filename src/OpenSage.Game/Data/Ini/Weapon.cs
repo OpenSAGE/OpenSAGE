@@ -99,13 +99,16 @@ namespace OpenSage.Data.Ini
             { "FXTrigger", (parser, x) => x.FxTrigger = parser.ParseEnumFlags<ObjectKinds>() },
 
             { "ClearNuggets", (parser, x) => x.ClearNuggets() },
+
+            { "SpecialModelConditionNugget", (parser, x) => x.SpecialModelConditionNugget = SpecialModelConditionNugget.Parse(parser) },
+            { "ParalyzeNugget", (parser, x) => x.ParalyzeNugget = ParalyzeNugget.Parse(parser) }
         };
 
         private void ClearNuggets()
         {
-            this.ProjectileNugget = null;
-            this.DamageNugget = null;
-            this.MetaImpactNugget = null;
+            ProjectileNugget = null;
+            DamageNugget = null;
+            MetaImpactNugget = null;
         }
 
         private static string ParseVeterancyAssetReference(IniParser parser)
@@ -236,6 +239,12 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public ObjectKinds FxTrigger { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public SpecialModelConditionNugget SpecialModelConditionNugget { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public ParalyzeNugget ParalyzeNugget { get; private set; }
     }
 
     public struct RangeDuration
@@ -302,7 +311,8 @@ namespace OpenSage.Data.Ini
             { "DamageSpeed", (parser, x) => x.DamageSpeed = parser.ParseFloat() },
             { "DamageArc", (parser, x) => x.DamageArc = parser.ParseInteger() },
             { "DamageScalar", (parser, x) => x.DamageScalar = DamageScalar.Parse(parser) },
-            { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) }
+            { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) },
+            { "DamageMaxHeight", (parser,x) => x.DamageMaxHeight = parser.ParseInteger() }
         };
 
         public int Damage { get; private set; }
@@ -323,6 +333,9 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public ObjectFilter SpecialObjectFilter { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int DamageMaxHeight { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme2)]
@@ -337,7 +350,7 @@ namespace OpenSage.Data.Ini
             { "ShockWaveRadius", (parser, x) => x.ShockWaveRadius = parser.ParseFloat() },
             { "ShockWaveTaperOff", (parser, x) => x.ShockWaveTaperOff = parser.ParseFloat() },
             { "ShockWaveArc", (parser, x) => x.ShockWaveArc = parser.ParseInteger() },
-            { "ShockWaveZMult", (parser, x) => x.ShockWaveZMult = parser.ParseInteger() }
+            { "ShockWaveZMult", (parser, x) => x.ShockWaveZMult = parser.ParseFloat() }
         };
 
         public float HeroResist { get; private set; }
@@ -350,6 +363,36 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public float ShockWaveZMult { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public class SpecialModelConditionNugget
+    {
+        internal static SpecialModelConditionNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<SpecialModelConditionNugget> FieldParseTable = new IniParseTable<SpecialModelConditionNugget>
+        {
+            { "ModelConditionNames", (parser, x) => x.ModelConditionNames = parser.ParseAssetReferenceArray() },
+            { "ModelConditionDuration", (parser, x) => x.ModelConditionDuration = parser.ParseInteger() }
+        };
+
+        public string[] ModelConditionNames { get; private set; }
+        public int ModelConditionDuration { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public class ParalyzeNugget
+    {
+        internal static ParalyzeNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<ParalyzeNugget> FieldParseTable = new IniParseTable<ParalyzeNugget>
+        {
+            { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
+            { "Duration", (parser, x) => x.Duration = parser.ParseInteger() }
+        };
+
+        public float Radius { get; private set; }
+        public int Duration { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
