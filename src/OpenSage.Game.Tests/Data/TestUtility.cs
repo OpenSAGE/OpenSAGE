@@ -5,7 +5,7 @@ namespace OpenSage.Tests.Data
 {
     internal static class TestUtility
     {
-        public static void DoRoundtripTest<T>(
+        public static T DoRoundtripTest<T>(
             Func<Stream> getOriginalStream,
             Func<Stream, T> parseCallback,
             Action<T, Stream> serializeCallback,
@@ -39,6 +39,8 @@ namespace OpenSage.Tests.Data
 
                 AssertUtility.Equal(originalUncompressedBytes, serializedBytes);
             }
+
+            return parsedFile;
         }
     }
 }

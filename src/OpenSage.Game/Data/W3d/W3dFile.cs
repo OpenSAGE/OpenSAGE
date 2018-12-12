@@ -25,8 +25,17 @@ namespace OpenSage.Data.W3d
         public static W3dFile FromFileSystemEntry(FileSystemEntry entry)
         {
             using (var stream = entry.Open())
+            {
+                return FromStream(stream, entry.FilePath);
+            }
+        }
+
+        public static W3dFile FromStream(Stream stream, string filePath)
+        {
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))
-                return Parse(reader, entry.FilePath);
+            {
+                return Parse(reader, filePath);
+            }
         }
 
         private static W3dFile Parse(BinaryReader reader, string filePath)
@@ -42,7 +51,7 @@ namespace OpenSage.Data.W3d
             W3dFile result;
             if (reader.BaseStream.Length > 0)
             {
-                result = ParseChunk<W3dFile>(reader, (uint)reader.BaseStream.Length, (x, header) =>
+               result = ParseChunk<W3dFile>(reader, (uint)reader.BaseStream.Length, (x, header) =>
                {
                    switch (header.ChunkType)
                    {
@@ -102,6 +111,14 @@ namespace OpenSage.Data.W3d
             result.Emitters = emitters;
 
             return result;
+        }
+
+        public void WriteTo(Stream stream)
+        {
+            using (var writer = new BinaryWriter(stream))
+            {
+                // TODO
+            }
         }
     }
 }
