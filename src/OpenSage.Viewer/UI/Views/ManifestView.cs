@@ -2,6 +2,7 @@
 using ImGuiNET;
 using OpenSage.Data.StreamFS;
 using OpenSage.Mathematics;
+using OpenSage.Viewer.Util;
 
 namespace OpenSage.Viewer.UI.Views
 {
@@ -31,6 +32,7 @@ namespace OpenSage.Viewer.UI.Views
                     {
                         _selectedAsset = asset;
                     }
+                    ImGuiUtility.DisplayTooltipOnHover(asset.Name);
                 }
 
                 ImGui.EndChild();

@@ -2,6 +2,7 @@
 using ImGuiNET;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Mathematics;
+using OpenSage.Viewer.Util;
 
 namespace OpenSage.Viewer.UI.Views
 {
@@ -40,6 +41,7 @@ namespace OpenSage.Viewer.UI.Views
         private void DrawControlTreeItemRecursive(Control control)
         {
             var opened = ImGui.TreeNodeEx(control.DisplayName, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnDoubleClick);
+            ImGuiUtility.DisplayTooltipOnHover(control.DisplayName);
 
             if (ImGuiNative.igIsItemClicked(0)>0)
             {
