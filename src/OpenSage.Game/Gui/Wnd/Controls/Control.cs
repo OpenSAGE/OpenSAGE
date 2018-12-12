@@ -190,7 +190,7 @@ namespace OpenSage.Gui.Wnd.Controls
         {
             Controls = new ControlCollection(this);
 
-            SystemCallback = (control, message, context) => { };
+            SystemCallback = (control, message, context) => Parent?.SystemCallback(control, message, context);
             InputCallback = DefaultInput;
             DrawCallback = DefaultDraw;
         }

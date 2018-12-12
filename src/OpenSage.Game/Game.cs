@@ -370,7 +370,7 @@ namespace OpenSage
                 gameSystem.Update(gameTime);
             }
 
-            Scene2D.Update(gameTime);
+            Scene2D.Update(gameTime, Scene3D.LocalPlayer);
 
             Scene3D?.Update(gameTime);
         }

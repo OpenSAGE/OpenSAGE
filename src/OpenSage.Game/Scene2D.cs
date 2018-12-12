@@ -1,6 +1,7 @@
 ﻿using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Wnd;
+using OpenSage.Logic;
 
 namespace OpenSage
 {
@@ -16,8 +17,10 @@ namespace OpenSage
             AptWindowManager = new AptWindowManager(game);
         }
 
-        internal void Update(GameTime gameTime)
+        internal void Update(GameTime gameTime, Player localPlayer)
         {
+            ControlBar?.Update(localPlayer);
+
             WndWindowManager.Update(gameTime);
             AptWindowManager.Update(gameTime);
         }

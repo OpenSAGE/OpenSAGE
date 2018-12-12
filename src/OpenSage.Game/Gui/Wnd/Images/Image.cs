@@ -12,10 +12,13 @@ namespace OpenSage.Gui.Wnd.Images
         private Size _size;
         private bool _flipped;
 
+        public string Name { get; }
+
         public Size NaturalSize { get; }
 
-        internal Image(in Size naturalSize, Func<Size, Texture> createTexture, in bool flipped = false)
+        internal Image(string name, in Size naturalSize, Func<Size, Texture> createTexture, in bool flipped = false)
         {
+            Name = name;
             NaturalSize = naturalSize;
             _createTexture = createTexture;
             _flipped = flipped;
@@ -35,6 +38,11 @@ namespace OpenSage.Gui.Wnd.Images
             }
 
             _texture = _createTexture(size);
+
+            if (_texture == null)
+            {
+                throw new InvalidOperationException();
+            }
 
             _size = size;
         }

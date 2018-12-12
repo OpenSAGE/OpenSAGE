@@ -4,6 +4,7 @@ namespace OpenSage.Mathematics
 {
     public readonly struct ColorRgba
     {
+        public static readonly ColorRgba Transparent = new ColorRgba(255, 255, 255, 0);
         public static readonly ColorRgba White = new ColorRgba(255, 255, 255, 255);
         public static readonly ColorRgba DimGray = new ColorRgba(105, 105, 105, 255);
 

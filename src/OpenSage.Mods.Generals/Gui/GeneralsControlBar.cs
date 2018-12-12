@@ -1,10 +1,14 @@
-﻿using OpenSage.Content;
+﻿using System;
+using System.Linq;
+using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Logic;
+using OpenSage.Logic.Orders;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Mods.Generals.Gui
@@ -42,6 +46,8 @@ namespace OpenSage.Mods.Generals.Gui
         private readonly Control _center;
         private readonly Control _right;
 
+        private readonly Control _commandWindow;
+
         private readonly Label _moneyDisplay;
         // TODO: Change this to a ProgressBar when they are implemented.
         private readonly Control _powerBar;
@@ -73,6 +79,8 @@ namespace OpenSage.Mods.Generals.Gui
             _center = FindControl("CenterBackground");
             _right = FindControl("RightHUD");
 
+            _commandWindow = FindControl("CommandWindow");
+
             _moneyDisplay = FindControl("MoneyDisplay") as Label;
             _moneyDisplay.Text = "$ 0";
             _powerBar = FindControl("PowerWindow");
@@ -98,6 +106,16 @@ namespace OpenSage.Mods.Generals.Gui
         public void Update(Player player)
         {
             _moneyDisplay.Text = $"$ {player.Money}";
+
+            if (player.SelectedUnits.Count > 0)
+            {
+                State = new SelectedControlBarState();
+            }
+            else
+            {
+                State = ControlBarState.Default;
+            }
+
             State.Update(player, this);
         }
 
@@ -147,6 +165,74 @@ namespace OpenSage.Mods.Generals.Gui
             public abstract void Update(Player player, GeneralsControlBar controlBar);
 
             public static ControlBarState Default { get; } = new DefaultControlBarState();
+
+            protected void ApplyCommandSet(GeneralsControlBar controlBar, CommandSet commandSet)
+            {
+                for (var i = 1; i <= 12; i++)
+                {
+                    var buttonControl = controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}");
+
+                    if (commandSet.Buttons.TryGetValue(i, out var commandButtonName))
+                    {
+                        var commandButton = controlBar._contentManager.IniDataContext.CommandButtons.Find(x => x.Name == commandButtonName);
+
+                        buttonControl.BackgroundImage = controlBar._contentManager.WndImageLoader.CreateNormalImage(commandButton.ButtonImage);
+
+                        buttonControl.BorderColor = GetBorderColor(commandButton.ButtonBorderType, controlBar._scheme).ToColorRgbaF();
+                        buttonControl.BorderWidth = 1;
+
+                        buttonControl.SystemCallback = (control, mesage, context) =>
+                        {
+                            Order order;
+                            switch (commandButton.Command)
+                            {
+                                case CommandType.DozerConstruct:
+                                    // TODO: This is not right at all - we should be letting the user place the building.
+                                    order = new Order(0, OrderType.BuildObject);
+                                    order.AddIntegerArgument(context.Game.ContentManager.IniDataContext.Objects.FindIndex(x => x.Name == commandButton.Object) + 1); // Object definition ID
+                                    order.AddPositionArgument(context.Game.Scene3D.LocalPlayer.SelectedUnits.First().Transform.Translation); // Position
+                                    order.AddFloatArgument(0); // Angle
+                                    break;
+
+                                default:
+                                    throw new NotImplementedException();
+                            }
+
+                            context.Game.NetworkMessageBuffer.AddLocalOrder(order);
+                        };
+
+                        buttonControl.Show();
+                    }
+                    else
+                    {
+                        buttonControl.Hide();
+                    }
+                }
+            }
+
+            private static ColorRgba GetBorderColor(CommandButtonBorderType borderType, ControlBarScheme scheme)
+            {
+                switch (borderType)
+                {
+                    case CommandButtonBorderType.None:
+                        return ColorRgba.Transparent;
+
+                    case CommandButtonBorderType.Action:
+                        return scheme.ButtonBorderActionColor;
+
+                    case CommandButtonBorderType.Build:
+                        return scheme.ButtonBorderBuildColor;
+
+                    case CommandButtonBorderType.Upgrade:
+                        return scheme.ButtonBorderUpgradeColor;
+                        
+                    case CommandButtonBorderType.System:
+                        return scheme.ButtonBorderSystemColor;
+
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(borderType));
+                }
+            }
         }
 
         private sealed class DefaultControlBarState : ControlBarState
@@ -155,7 +241,18 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 foreach (var control in controlBar._center.Controls)
                 {
-                    control.Hide();
+                    if (control.Name == "ControlBar.wnd:CommandWindow")
+                    {
+                        foreach (var child in control.Controls)
+                        {
+                            child.Hide();
+                        }
+                        control.Show();
+                    }
+                    else
+                    {
+                        control.Hide();
+                    }
                 }
 
                 foreach (var control in controlBar._right.Controls)
@@ -174,12 +271,39 @@ namespace OpenSage.Mods.Generals.Gui
         {
             public override void OnEnterState(GeneralsControlBar controlBar)
             {
-                throw new System.NotImplementedException();
+                
             }
 
             public override void Update(Player player, GeneralsControlBar controlBar)
             {
-                throw new System.NotImplementedException();
+                // TODO: Handle multiple selection.
+                var unit = player.SelectedUnits.First();
+                var commandSet = controlBar._contentManager.IniDataContext.CommandSets.Find(x => x.Name == unit.Definition.CommandSet);
+                ApplyCommandSet(controlBar, commandSet);
+
+                var unitSelectedControl = controlBar._right.Controls.FindControl("ControlBar.wnd:WinUnitSelected");
+
+                var iconControl = unitSelectedControl.Controls.FindControl("ControlBar.wnd:CameoWindow");
+                iconControl.BackgroundImage = controlBar._contentManager.WndImageLoader.CreateNormalImage(unit.Definition.SelectPortrait);
+
+                void ApplyUpgradeImage(string upgradeControlName, string upgradeName)
+                {
+                    var upgrade = upgradeName != null
+                        ? controlBar._contentManager.IniDataContext.Upgrades.Find(x => x.Name == upgradeName)
+                        : null;
+                    var upgradeControl = unitSelectedControl.Controls.FindControl($"ControlBar.wnd:{upgradeControlName}");
+                    upgradeControl.BackgroundImage = upgrade != null
+                        ? controlBar._contentManager.WndImageLoader.CreateNormalImage(upgrade.ButtonImage)
+                        : null;
+                }
+
+                ApplyUpgradeImage("UnitUpgrade1", unit.Definition.UpgradeCameo1);
+                ApplyUpgradeImage("UnitUpgrade2", unit.Definition.UpgradeCameo2);
+                ApplyUpgradeImage("UnitUpgrade3", unit.Definition.UpgradeCameo3);
+                ApplyUpgradeImage("UnitUpgrade4", unit.Definition.UpgradeCameo4);
+                ApplyUpgradeImage("UnitUpgrade5", unit.Definition.UpgradeCameo5);
+
+                unitSelectedControl.Show();
             }
         }
 
@@ -203,6 +327,9 @@ namespace OpenSage.Mods.Generals.Gui
         {
             // TODO: This is not the best place for this.
             contentManager.IniDataContext.LoadIniFile(@"Data\INI\ControlBarScheme.ini");
+            contentManager.IniDataContext.LoadIniFile(@"Data\INI\CommandSet.ini");
+            contentManager.IniDataContext.LoadIniFile(@"Data\INI\CommandButton.ini");
+            contentManager.IniDataContext.LoadIniFile(@"Data\INI\Upgrade.ini");
 
             var scheme = contentManager.IniDataContext.ControlBarSchemes.FindBySide(side);
 
