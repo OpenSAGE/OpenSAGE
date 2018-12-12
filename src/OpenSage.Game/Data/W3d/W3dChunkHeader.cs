@@ -15,7 +15,7 @@ namespace OpenSage.Data.W3d
 
         public bool HasSubChunks { get; private set; }
 
-        public static W3dChunkHeader Parse(BinaryReader reader)
+        internal static W3dChunkHeader Parse(BinaryReader reader)
         {
             var result = new W3dChunkHeader
             {
@@ -27,6 +27,29 @@ namespace OpenSage.Data.W3d
             result.HasSubChunks = (chunkSize >> 31) == 1;
 
             return result;
+        }
+
+        internal W3dChunkHeader(W3dChunkType chunkType, uint chunkSize, bool hasSubChunks)
+        {
+            ChunkType = chunkType;
+            ChunkSize = chunkSize;
+            HasSubChunks = hasSubChunks;
+        }
+
+        private W3dChunkHeader() { }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write((uint) ChunkType);
+
+            var chunkSize = ChunkSize;
+
+            if (HasSubChunks)
+            {
+                chunkSize |= (1 << 30);
+            }
+
+            writer.Write(chunkSize);
         }
     }
 }

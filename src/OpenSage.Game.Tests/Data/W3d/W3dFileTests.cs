@@ -17,7 +17,7 @@ namespace OpenSage.Tests.Data.W3d
         }
 
         [Fact]
-        public void CanReadW3dFiles()
+        public void CanRoundtripW3dFiles()
         {
             InstalledFilesTestData.ReadFiles(".w3d", _output, entry =>
             {
@@ -49,6 +49,12 @@ namespace OpenSage.Tests.Data.W3d
                     case "wbcave_d2c.w3d":
                         return; // Corrupt, or unreferenced and contain chunks that don't exist elsewhere.
                 }
+
+                TestUtility.DoRoundtripTest(
+                    () => entry.Open(),
+                    stream => W3dFile.FromStream(stream, entry.FilePath),
+                    (w3d, stream) => w3d.WriteTo(stream),
+                    false);
 
                 var w3dFile = W3dFile.FromFileSystemEntry(entry);
 
