@@ -99,6 +99,9 @@ namespace OpenSage.Data.Ini
             { "SkirmishBuildList", (parser, x) => x.SkirmishBuildLists.Add(AISkirmishBuildList.Parse(parser)) },
 
             { "AttackPriority", (parser, x) => x.AttackPriorities.Add(AttackPriority.Parse(parser)) },
+
+            { "AltCameraZoomOverride", (parser, x) => x.AltCameraZoomOverride = parser.ParseFloat() },
+            { "AltCameraPitchOverride", (parser, x) => x.AltCameraPitchOverride = parser.ParseFloat() },
         };
 
         [AddedIn(SageGame.Bfme)]
@@ -234,6 +237,12 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public List<AttackPriority> AttackPriorities { get; } = new List<AttackPriority>();
+
+        [AddedIn(SageGame.Bfme)]
+        public float AltCameraZoomOverride { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float AltCameraPitchOverride { get; private set; }
     }
 
     public sealed class AISideInfo

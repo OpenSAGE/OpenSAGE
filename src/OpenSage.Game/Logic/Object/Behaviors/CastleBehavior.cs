@@ -27,6 +27,7 @@ namespace OpenSage.Logic.Object
             { "CrewPrepareFX", (parser, x) => x.CrewPrepareFX = parser.ParseAssetReference() },
             { "CrewPrepareInterval", (parser, x) => x.CrewPrepareInterval = parser.ParseInteger() },
             { "DisableStructureRotation", (parser, x) => x.DisableStructureRotation = parser.ParseBoolean() },
+            { "FactionDecal", (parser, x) => x.FactionDecals.Add(Faction.Parse(parser)) },
         };
 
         public List<Side> SidesAllowed { get;} = new List<Side>();
@@ -44,6 +45,8 @@ namespace OpenSage.Logic.Object
         public string CrewPrepareFX { get; private set; }
         public int CrewPrepareInterval { get; private set; }
         public bool DisableStructureRotation { get; private set; }
+        public List<Faction> FactionDecals { get; } = new List<Faction>();
+
     }
 
     public sealed class Faction
