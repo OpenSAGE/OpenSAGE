@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text;
 
 namespace OpenSage.Data.Ini.Parser
@@ -7,8 +8,6 @@ namespace OpenSage.Data.Ini.Parser
     {
         private readonly string _source;
         private readonly string _fileName;
-
-        private readonly StringBuilder _stringBuilder;
 
         private int _sourceTextIndex;
         private string _currentLineText;
@@ -30,7 +29,6 @@ namespace OpenSage.Data.Ini.Parser
         {
             _source = source;
             _fileName = fileName;
-            _stringBuilder = new StringBuilder(100);
 
             _currentLine = -1;
         }
@@ -50,6 +48,9 @@ namespace OpenSage.Data.Ini.Parser
                 return;
             }
 
+            var startIndex = _sourceTextIndex;
+            var length = 0;
+
             var afterComment = false;
             while (true)
             {
@@ -64,7 +65,6 @@ namespace OpenSage.Data.Ini.Parser
                 // Reached end of line.
                 if (c == '\n')
                 {
-                    _stringBuilder.Append(c);
                     break;
                 }
 
@@ -75,13 +75,11 @@ namespace OpenSage.Data.Ini.Parser
                 }
                 else if (!afterComment)
                 {
-                    _stringBuilder.Append(c);
+                    length++;
                 }
             }
 
-            SetCurrentLine(_stringBuilder.ToString());
-
-            _stringBuilder.Clear();
+            SetCurrentLine(_source.AsSpan(startIndex, length).ToString());
 
             _currentLine++;
         }
@@ -102,12 +100,15 @@ namespace OpenSage.Data.Ini.Parser
                 nextCharIndex++;
             }
 
+            var startIndex = nextCharIndex;
+            var length = 0;
+
             var position = new IniTokenPosition(_fileName, _currentLine + 1, nextCharIndex + 1);
 
             while (nextCharIndex < _currentLineText.Length
                    && !separators.Contains(_currentLineText[nextCharIndex]))
             {
-                _stringBuilder.Append(_currentLineText[nextCharIndex]);
+                length++;
                 nextCharIndex++;
             }
 
@@ -118,9 +119,7 @@ namespace OpenSage.Data.Ini.Parser
                 nextCharIndex++;
             }
 
-            var result = _stringBuilder.ToString();
-
-            _stringBuilder.Clear();
+            var result = _currentLineText.AsSpan(startIndex, length).ToString();
 
             if (result.Length == 0)
             {
