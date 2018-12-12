@@ -143,6 +143,7 @@ namespace OpenSage.Viewer.UI
                     _contentView = AddDisposable(new ContentView(
                         new Views.AssetViewContext(_game, _gamePanel, _imGuiRenderer, entry)));
                 }
+                ImGuiUtility.DisplayTooltipOnHover(entry.FilePath);
             }
 
             ImGui.EndChild();

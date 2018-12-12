@@ -29,5 +29,16 @@ namespace OpenSage.Viewer.Util
 
             return nullIndex >= 0 ? input.Substring(0, nullIndex) : input;
         }
+
+        // Displays a tooltip with specified text when mouse is hovered on the last item.
+        public static void DisplayTooltipOnHover(string text)
+        {
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                ImGui.SetTooltip(text);
+                ImGui.EndTooltip();
+            }
+        }
     }
 }
