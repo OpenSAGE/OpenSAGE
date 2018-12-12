@@ -543,5 +543,20 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("BALROG_SWORD"), AddedIn(SageGame.Bfme)]
         BalrogSword,
+
+        [IniEnum("GOOD_ARROW_PIERCE"), AddedIn(SageGame.Bfme)]
+        GoodArrowPierce,
+
+        [IniEnum("REFLECTED"), AddedIn(SageGame.Bfme)]
+        Reflected,
+
+        [IniEnum("GIMLI_LEAP"), AddedIn(SageGame.Bfme)]
+        GimliLeap,
+
+        [IniEnum("WITCH_KING_MORGUL_BLADE"), AddedIn(SageGame.Bfme)]
+        WitchKingMorgulBlade,
+
+        [IniEnum("STRUCTURAL"), AddedIn(SageGame.Bfme)]
+        Structural,
     }
 }

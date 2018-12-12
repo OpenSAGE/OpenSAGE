@@ -53,7 +53,7 @@ namespace OpenSage.Data.Ini
             { "DelayBetweenShots", (parser, x) => x.DelayBetweenShots = RangeDuration.Parse(parser) },
             { "ShotsPerBarrel", (parser, x) => x.ShotsPerBarrel = parser.ParseInteger() },
             { "ClipSize", (parser, x) => x.ClipSize = parser.ParseInteger() },
-            { "ClipReloadTime", (parser, x) => x.ClipReloadTime = parser.ParseInteger() },
+            { "ClipReloadTime", (parser, x) => x.ClipReloadTime = RangeDuration.Parse(parser) },
             { "AutoReloadWhenIdle", (parser, x) => x.AutoReloadWhenIdle = parser.ParseInteger() },
             { "AutoReloadsClip", (parser, x) => x.AutoReloadsClip = parser.ParseEnum<WeaponReloadType>() },
             { "ContinuousFireOne", (parser, x) => x.ContinuousFireOne = parser.ParseInteger() },
@@ -101,7 +101,34 @@ namespace OpenSage.Data.Ini
             { "ClearNuggets", (parser, x) => x.ClearNuggets() },
 
             { "SpecialModelConditionNugget", (parser, x) => x.SpecialModelConditionNugget = SpecialModelConditionNugget.Parse(parser) },
-            { "ParalyzeNugget", (parser, x) => x.ParalyzeNugget = ParalyzeNugget.Parse(parser) }
+            { "ParalyzeNugget", (parser, x) => x.ParalyzeNugget = ParalyzeNugget.Parse(parser) },
+            { "HitStoredTarget", (parser, x) => x.HitStoredTarget = parser.ParseBoolean() },
+            { "PreferredTargetBone", (parser, x) => x.PreferredTargetBone = parser.ParseAssetReference() },
+            { "MeleeWeapon", (parser, x) => x.MeleeWeapon = parser.ParseBoolean() },
+            { "IdleAfterFiringDelay", (parser, x) => x.IdleAfterFiringDelay = parser.ParseInteger() },
+            { "ProjectileSelf", (parser, x) => x.ProjectileSelf = parser.ParseBoolean() },
+            { "HitPassengerPercentage", (parser, x) => x.HitPassengerPercentage = parser.ParsePercentage() },
+            { "CanBeDodged", (parser, x) => x.CanBeDodged = parser.ParseBoolean() },
+            { "OverrideVoiceAttackSound", (parser, x) => x.OverrideVoiceAttackSound = parser.ParseAssetReference() },
+            { "ProjectileFilterInContainer", (parser, x) => x.ProjectileFilterInContainer = ObjectFilter.Parse(parser) },
+            { "NoVictimNeeded", (parser, x) => x.NoVictimNeeded = parser.ParseBoolean() },
+            { "CanFireWhileMoving", (parser, x) => x.CanFireWhileMoving = parser.ParseBoolean() },
+            { "AntiStructure", (parser, x) => x.AntiStructure = parser.ParseBoolean() },
+            { "RequireFollowThru", (parser, x) => x.RequireFollowThru = parser.ParseBoolean() },
+            { "ScatterIndependently", (parser, x) => x.ScatterIndependently = parser.ParseBoolean() },
+            { "PreAttackFX", (parser, x) => x.PreAttackFX = parser.ParseAssetReference() },
+            { "AimDirection", (parser, x) => x.AimDirection = parser.ParseFloat() },
+            { "HoldAfterFiringDelay", (parser, x) => x.HoldAfterFiringDelay = parser.ParseInteger() },
+            { "FinishAttackOnceStarted", (parser, x) => x.FinishAttackOnceStarted = parser.ParseBoolean() },
+            { "HordeAttackNugget", (parser, x) => x.HordeAttackNugget = HordeAttackNugget.Parse(parser) },
+            { "SpawnAndFadeNugget", (parser, x) => x.SpawnAndFadeNugget = SpawnAndFadeNugget.Parse(parser) },
+            { "ShareTimers", (parser, x) => x.ShareTimers = parser.ParseBoolean() },
+            { "DisableScatterForTargetsOnWall", (parser, x) => x.DisableScatterForTargetsOnWall = parser.ParseBoolean() },
+            { "AttributeModifierNugget", (parser, x) => x.AttributeModifierNugget = AttributeModifierNugget.Parse(parser) },
+            { "ShouldPlayUnderAttackEvaEvent", (parser, x) => x.ShouldPlayUnderAttackEvaEvent = parser.ParseBoolean() },
+            { "CanSwoop", (parser, x) => x.CanSwoop = parser.ParseBoolean() },
+            { "DamageFieldNugget", (parser, x) => x.DamageFieldNugget = DamageFieldNugget.Parse(parser) },
+            { "PassengerProportionalAttack", (parser, x) => x.PassengerProportionalAttack = parser.ParseBoolean() },
         };
 
         private void ClearNuggets()
@@ -109,6 +136,12 @@ namespace OpenSage.Data.Ini
             ProjectileNugget = null;
             DamageNugget = null;
             MetaImpactNugget = null;
+            ParalyzeNugget = null;
+            SpecialModelConditionNugget = null;
+            HordeAttackNugget = null;
+            SpawnAndFadeNugget = null;
+            AttributeModifierNugget = null;
+            DamageFieldNugget = null;
         }
 
         private static string ParseVeterancyAssetReference(IniParser parser)
@@ -164,7 +197,7 @@ namespace OpenSage.Data.Ini
         public RangeDuration DelayBetweenShots { get; private set; }
         public int ShotsPerBarrel { get; private set; }
         public int ClipSize { get; private set; }
-        public int ClipReloadTime { get; private set; }
+        public RangeDuration ClipReloadTime { get; private set; }
         public int AutoReloadWhenIdle { get; private set; }
         public WeaponReloadType AutoReloadsClip { get; private set; } = WeaponReloadType.Auto;
         public int ContinuousFireOne { get; private set; }
@@ -245,7 +278,91 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public ParalyzeNugget ParalyzeNugget { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool HitStoredTarget { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string PreferredTargetBone { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool MeleeWeapon { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int IdleAfterFiringDelay { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ProjectileSelf { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float HitPassengerPercentage { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool CanBeDodged { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string OverrideVoiceAttackSound { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public ObjectFilter ProjectileFilterInContainer { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool NoVictimNeeded { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool CanFireWhileMoving { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool AntiStructure { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool RequireFollowThru { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ScatterIndependently { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string PreAttackFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float AimDirection { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int HoldAfterFiringDelay { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool FinishAttackOnceStarted { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public HordeAttackNugget HordeAttackNugget { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public SpawnAndFadeNugget SpawnAndFadeNugget { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ShareTimers { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool DisableScatterForTargetsOnWall { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public AttributeModifierNugget AttributeModifierNugget { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ShouldPlayUnderAttackEvaEvent { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool CanSwoop { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public DamageFieldNugget DamageFieldNugget { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool PassengerProportionalAttack { get; private set; }
+
     }
+
+
 
     public struct RangeDuration
     {
@@ -289,10 +406,18 @@ namespace OpenSage.Data.Ini
         {
             { "ProjectileTemplateName", (parser, x) => x.ProjectileTemplateName = parser.ParseAssetReference() },
             { "WarheadTemplateName", (parser, x) => x.WarheadTemplateName = parser.ParseAssetReference() },
+            { "ForbiddenUpgradeNames", (parser, x) => x.ForbiddenUpgradeNames = parser.ParseAssetReferenceArray() },
+            { "RequiredUpgradeNames", (parser, x) => x.RequiredUpgradeNames = parser.ParseAssetReferenceArray() },
         };
 
         public string ProjectileTemplateName { get; private set; }
         public string WarheadTemplateName { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string[] ForbiddenUpgradeNames { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string[] RequiredUpgradeNames { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme2)]
@@ -302,7 +427,7 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<DamageNugget> FieldParseTable = new IniParseTable<DamageNugget>
         {
-            { "Damage", (parser, x) => x.Damage = parser.ParseInteger() },
+            { "Damage", (parser, x) => x.Damage = parser.ParseFloat() },
             { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
             { "DelayTime", (parser, x) => x.DelayTime = parser.ParseInteger() },
             { "DamageType", (parser, x) => x.DamageType = parser.ParseEnum<DamageType>() },
@@ -312,10 +437,13 @@ namespace OpenSage.Data.Ini
             { "DamageArc", (parser, x) => x.DamageArc = parser.ParseInteger() },
             { "DamageScalar", (parser, x) => x.DamageScalar = DamageScalar.Parse(parser) },
             { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) },
-            { "DamageMaxHeight", (parser,x) => x.DamageMaxHeight = parser.ParseInteger() }
+            { "DamageMaxHeight", (parser, x) => x.DamageMaxHeight = parser.ParseInteger() },
+            { "AcceptDamageAdd", (parser, x) => x.AcceptDamageAdd = parser.ParseBoolean() },
+            { "ForbiddenUpgradeNames", (parser, x) => x.ForbiddenUpgradeNames = parser.ParseAssetReferenceArray() },
+            { "RequiredUpgradeNames", (parser, x) => x.RequiredUpgradeNames = parser.ParseAssetReferenceArray() },
         };
 
-        public int Damage { get; private set; }
+        public float Damage { get; private set; }
         public float Radius { get; private set; }
         public int DelayTime { get; private set; }
         public DamageType DamageType { get; private set; }
@@ -336,6 +464,15 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public int DamageMaxHeight { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool AcceptDamageAdd { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string[] ForbiddenUpgradeNames { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public string[] RequiredUpgradeNames { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme2)]
@@ -349,8 +486,12 @@ namespace OpenSage.Data.Ini
             { "ShockWaveAmount", (parser, x) => x.ShockWaveAmount = parser.ParseFloat() },
             { "ShockWaveRadius", (parser, x) => x.ShockWaveRadius = parser.ParseFloat() },
             { "ShockWaveTaperOff", (parser, x) => x.ShockWaveTaperOff = parser.ParseFloat() },
-            { "ShockWaveArc", (parser, x) => x.ShockWaveArc = parser.ParseInteger() },
-            { "ShockWaveZMult", (parser, x) => x.ShockWaveZMult = parser.ParseFloat() }
+            { "ShockWaveArc", (parser, x) => x.ShockWaveArc = parser.ParseFloat() },
+            { "ShockWaveZMult", (parser, x) => x.ShockWaveZMult = parser.ParseFloat() },
+            { "ShockWaveSpeed", (parser, x) => x.ShockWaveSpeed = parser.ParseFloat() },
+            { "InvertShockWave", (parser, x) => x.InvertShockWave = parser.ParseBoolean() },
+            { "DelayTime", (parser, x) => x.DelayTime = parser.ParseInteger() },
+            { "FlipDirection", (parser, x) => x.FlipDirection = parser.ParseBoolean() }
         };
 
         public float HeroResist { get; private set; }
@@ -359,10 +500,22 @@ namespace OpenSage.Data.Ini
         public float ShockWaveTaperOff { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int ShockWaveArc { get; private set; }
+        public float ShockWaveArc { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public float ShockWaveZMult { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public float  ShockWaveSpeed { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool InvertShockWave { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int DelayTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool FlipDirection { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -392,6 +545,61 @@ namespace OpenSage.Data.Ini
         };
 
         public float Radius { get; private set; }
+        public int Duration { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public class HordeAttackNugget
+    {
+        internal static HordeAttackNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<HordeAttackNugget> FieldParseTable = new IniParseTable<HordeAttackNugget>
+        {
+        };
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public class SpawnAndFadeNugget
+    {
+        internal static SpawnAndFadeNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<SpawnAndFadeNugget> FieldParseTable = new IniParseTable<SpawnAndFadeNugget>
+        {
+            { "ObjectTargetFilter", (parser, x) => x.ObjectTargetFilter = ObjectFilter.Parse(parser) },
+            { "SpawnedObjectName", (parser, x) => x.SpawnedObjectName = parser.ParseAssetReference() },
+            { "SpawnOffset", (parser, x) => x.SpawnOffset = parser.ParseVector3() }
+        };
+
+        public ObjectFilter ObjectTargetFilter {get; private set; } 
+        public string SpawnedObjectName {get; private set; } 
+        public Vector3 SpawnOffset {get; private set; } 
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public class AttributeModifierNugget
+    {
+        internal static AttributeModifierNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<AttributeModifierNugget> FieldParseTable = new IniParseTable<AttributeModifierNugget>
+        {
+            { "AttributeModifier", (parser, x) => x.AttributeModifier = parser.ParseAssetReference() }
+        };
+
+        public string AttributeModifier { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public class DamageFieldNugget
+    {
+        internal static DamageFieldNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<DamageFieldNugget> FieldParseTable = new IniParseTable<DamageFieldNugget>
+        {
+            { "WeaponTemplateName", (parser, x) => x.WeaponTemplateName = parser.ParseAssetReference() },
+            { "Duration", (parser, x) => x.Duration = parser.ParseInteger() }
+        };
+
+        public string WeaponTemplateName { get; private set; }
         public int Duration { get; private set; }
     }
 
@@ -540,7 +748,16 @@ namespace OpenSage.Data.Ini
         Enemies = 1 << 2,
 
         [IniEnum("SHRUBBERY")]
-        Shrubbery = 1 << 3
+        Shrubbery = 1 << 3,
+
+        [IniEnum("ALLIES")]
+        Allies = 1 << 4,
+
+        [IniEnum("NEUTRAL")]
+        Neutral = 1 << 5,
+
+        [IniEnum("MONSTERS")]
+        Monsters = 1 << 6,
     }
 
     public enum DamageStatusType
