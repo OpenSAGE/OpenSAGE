@@ -29,11 +29,12 @@ namespace OpenSage.Audio
 
             switch (game.ContentManager.SageGame)
             {
+                case SageGame.Cnc3:
+                case SageGame.Cnc3KanesWrath:
                 case SageGame.Ra3:
                 case SageGame.Ra3Uprising:
                 case SageGame.Cnc4:
-                    // TODO
-                    System.Diagnostics.Debug.WriteLine($"Skipping initialization of {game.ContentManager.SageGame}'s unimplemented AudioSystem settings.");
+                    // TODO: implements AudioSystem settings for games from CNC3 onwards
                     return;
 
                 case SageGame.CncGenerals:
