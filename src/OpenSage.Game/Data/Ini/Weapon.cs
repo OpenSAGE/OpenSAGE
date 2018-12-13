@@ -809,10 +809,10 @@ namespace OpenSage.Data.Ini
         NotAirborne = 1 << 6,
 
         [IniEnum("SAME_HEIGHT_ONLY")]
-        SameHeightOnly = 1 << 6,
+        SameHeightOnly = 1 << 7,
 
         [IniEnum("MINES")]
-        Mines = 1 << 7,
+        Mines = 1 << 8,
     }
 
     [Flags]

@@ -19,18 +19,17 @@ namespace OpenSage.Tests.Data.Ini
         [Fact]
         public void CanReadIniFiles()
         {
-            // TODO: Finish INI parsing for BFME and subsequent games.
+            // TODO: Finish INI parsing for BFME2 and subsequent games.
             var gameDefinitions = new[]
             {
-                //GameDefinition.FromGame(SageGame.CncGenerals),
-                //GameDefinition.FromGame(SageGame.CncGeneralsZeroHour),
+                GameDefinition.FromGame(SageGame.CncGenerals),
+                GameDefinition.FromGame(SageGame.CncGeneralsZeroHour),
                 GameDefinition.FromGame(SageGame.Bfme),
                 //GameDefinition.FromGame(SageGame.Bfme2),
             };
 
             foreach(var gameDefinition in gameDefinitions)
             {
-                //hacky?
                 InstalledFilesTestData.ReadFiles(".ini", _output, new List<IGameDefinition> { gameDefinition }, entry =>
                 {
                     switch (Path.GetFileName(entry.FilePath).ToLowerInvariant())

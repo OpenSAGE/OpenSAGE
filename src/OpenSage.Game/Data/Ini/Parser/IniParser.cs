@@ -99,7 +99,7 @@ namespace OpenSage.Data.Ini.Parser
             { "PlayerTemplate", (parser, context) => context.PlayerTemplates.Add(PlayerTemplate.Parse(parser)) },
             { "PredefinedEvaEvent", (parser, context) => context.EvaEvents.Add(EvaEvent.Parse(parser)) },
             { "Rank", (parser, context) => context.Ranks.Add(Rank.Parse(parser)) },
-            { "RegionCampain", (parser, context) => context.RegionCampain = RegionCampain.Parse(parser) },
+            { "RegionCampain", (parser, context) => context.RegionCampaign = RegionCampain.Parse(parser) },
             { "RingEffect", (parser, context) => context.Environment.RingEffect = RingEffect.Parse(parser) },
             { "Road", (parser, context) => context.RoadTemplates.Add(RoadTemplate.Parse(parser)) },
             { "ReallyLowMHz", (parser, context) => context.ReallyLowMHz = parser.ParseInteger() },
