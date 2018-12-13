@@ -558,5 +558,8 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("STRUCTURAL"), AddedIn(SageGame.Bfme)]
         Structural,
+
+        [IniEnum("BALROG_WHIP"), AddedIn(SageGame.Bfme)]
+        BalrogWhip,
     }
 }
