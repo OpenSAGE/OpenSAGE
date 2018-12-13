@@ -183,15 +183,26 @@ namespace OpenSage.Mods.Generals.Gui
 
                         buttonControl.SystemCallback = (control, mesage, context) =>
                         {
+                            var playerIndex = (uint) context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
+                            Order CreateOrder(OrderType type) => new Order(playerIndex, type);
+
                             Order order;
                             switch (commandButton.Command)
                             {
                                 case CommandType.DozerConstruct:
                                     // TODO: This is not right at all - we should be letting the user place the building.
-                                    order = new Order(0, OrderType.BuildObject);
+                                    order = CreateOrder(OrderType.BuildObject);
                                     order.AddIntegerArgument(context.Game.ContentManager.IniDataContext.Objects.FindIndex(x => x.Name == commandButton.Object) + 1); // Object definition ID
-                                    order.AddPositionArgument(context.Game.Scene3D.LocalPlayer.SelectedUnits.First().Transform.Translation); // Position
+                                    order.AddPositionArgument(context.Game.Scene3D.LocalPlayer.SelectedUnits.First().Transform.Translation + new Vector3(-50, 0, 0)); // Position
                                     order.AddFloatArgument(0); // Angle
+                                    break;
+
+                                case CommandType.ToggleOvercharge:
+                                    order = CreateOrder(OrderType.ToggleOvercharge);
+                                    break;
+
+                                case CommandType.Sell:
+                                    order = CreateOrder(OrderType.Sell);
                                     break;
 
                                 default:

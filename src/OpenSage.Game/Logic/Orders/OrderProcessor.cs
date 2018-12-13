@@ -33,6 +33,11 @@ namespace OpenSage.Logic.Orders
                         gameObject.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle);
                         break;
 
+                    case OrderType.Sell:
+                        _game.Scene3D.GameObjects.Remove(player.SelectedUnits.First());
+                        _game.Selection.ClearSelectedObjects(player);
+                        break;
+
                     case OrderType.SetCameraPosition:
                         _game.Scene3D.CameraController.TerrainPosition = order.Arguments[0].Value.Position;
                         break;

@@ -52,5 +52,12 @@ namespace OpenSage.Logic.Object
         {
             return _items[objectId];
         }
+
+        public void Remove(GameObject gameObject)
+        {
+            // TODO: We should probably be using an ID.
+            _items.Remove(gameObject);
+            RemoveToDispose(gameObject);
+        }
     }
 }
