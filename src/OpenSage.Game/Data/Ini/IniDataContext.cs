@@ -104,7 +104,7 @@ namespace OpenSage.Data.Ini
         public List<Rank> Ranks { get; } = new List<Rank>();
 
         [AddedIn(SageGame.Bfme)]
-        public RegionCampain RegionCampain{ get; set; }
+        public RegionCampain RegionCampaign{ get; set; }
         public List<RoadTemplate> RoadTemplates { get; } = new List<RoadTemplate>();
         public int ReallyLowMHz { get; internal set; }
         public List<Science> Sciences { get; } = new List<Science>();
