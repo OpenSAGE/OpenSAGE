@@ -30,8 +30,6 @@ namespace OpenSage.Gui.Apt.ActionScript
             bool branched = false;
             int branchBytes = 0;
 
-            int functioncounter = 0;
-
             while (parsing)
             {
                 //now reader the instructions
@@ -249,7 +247,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                         break;
                     case InstructionType.DefineFunction2:
                         {
-                            functioncounter++;
                             instruction = new DefineFunction2();
                             var name = _reader.ReadStringAtOffset();
                             var nParams = _reader.ReadUInt32();
