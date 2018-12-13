@@ -129,6 +129,14 @@ namespace OpenSage.Data.Ini
             { "CanSwoop", (parser, x) => x.CanSwoop = parser.ParseBoolean() },
             { "DamageFieldNugget", (parser, x) => x.DamageFieldNugget = DamageFieldNugget.Parse(parser) },
             { "PassengerProportionalAttack", (parser, x) => x.PassengerProportionalAttack = parser.ParseBoolean() },
+            { "MaxAttackPassengers", (parser, x) => x.MaxAttackPassengers = parser.ParseInteger() },
+            { "ChaseWeapon", (parser, x) => x.ChaseWeapon = parser.ParseBoolean() },
+            { "CanFireWhileCharging", (parser, x) => x.CanFireWhileCharging = parser.ParseBoolean() },
+            { "IgnoreLinearFirstTarget", (parser, x) => x.IgnoreLinearFirstTarget = parser.ParseBoolean() },
+            { "LinearTarget", (parser, x) => x.LinearTargets.Add(LinearTarget.Parse(parser)) },
+            { "ForceDisplayPercentReady", (parser, x) => x.ForceDisplayPercentReady = parser.ParseBoolean() },
+            { "GrabNugget", (parser, x) => x.GrabNugget = GrabNugget.Parse(parser) },
+            { "RotatingTurret", (parser, x) => x.RotatingTurret = parser.ParseBoolean() },
         };
 
         private void ClearNuggets()
@@ -142,6 +150,7 @@ namespace OpenSage.Data.Ini
             SpawnAndFadeNugget = null;
             AttributeModifierNugget = null;
             DamageFieldNugget = null;
+            GrabNugget = null;
         }
 
         private static string ParseVeterancyAssetReference(IniParser parser)
@@ -360,6 +369,29 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.Bfme)]
         public bool PassengerProportionalAttack { get; private set; }
 
+        [AddedIn(SageGame.Bfme)]
+        public int MaxAttackPassengers { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ChaseWeapon { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool CanFireWhileCharging { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool IgnoreLinearFirstTarget { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public List<LinearTarget> LinearTargets { get; } = new List<LinearTarget>();
+
+        [AddedIn(SageGame.Bfme)]
+        public bool ForceDisplayPercentReady { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public GrabNugget GrabNugget { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public bool RotatingTurret { get; private set; }
     }
 
 
@@ -397,7 +429,7 @@ namespace OpenSage.Data.Ini
         public float Max { get; private set; }
     }
 
-    [AddedIn(SageGame.Bfme2)]
+    [AddedIn(SageGame.Bfme)]
     public class ProjectileNugget
     {
         internal static ProjectileNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -408,16 +440,14 @@ namespace OpenSage.Data.Ini
             { "WarheadTemplateName", (parser, x) => x.WarheadTemplateName = parser.ParseAssetReference() },
             { "ForbiddenUpgradeNames", (parser, x) => x.ForbiddenUpgradeNames = parser.ParseAssetReferenceArray() },
             { "RequiredUpgradeNames", (parser, x) => x.RequiredUpgradeNames = parser.ParseAssetReferenceArray() },
+            { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) }
         };
 
         public string ProjectileTemplateName { get; private set; }
         public string WarheadTemplateName { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
         public string[] ForbiddenUpgradeNames { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
         public string[] RequiredUpgradeNames { get; private set; }
+        public ObjectFilter SpecialObjectFilter { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme2)]
@@ -526,11 +556,13 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<SpecialModelConditionNugget> FieldParseTable = new IniParseTable<SpecialModelConditionNugget>
         {
             { "ModelConditionNames", (parser, x) => x.ModelConditionNames = parser.ParseAssetReferenceArray() },
-            { "ModelConditionDuration", (parser, x) => x.ModelConditionDuration = parser.ParseInteger() }
+            { "ModelConditionDuration", (parser, x) => x.ModelConditionDuration = parser.ParseInteger() },
+            { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) }
         };
 
         public string[] ModelConditionNames { get; private set; }
         public int ModelConditionDuration { get; private set; }
+        public ObjectFilter SpecialObjectFilter { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -582,10 +614,14 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<AttributeModifierNugget> FieldParseTable = new IniParseTable<AttributeModifierNugget>
         {
-            { "AttributeModifier", (parser, x) => x.AttributeModifier = parser.ParseAssetReference() }
+            { "AttributeModifier", (parser, x) => x.AttributeModifier = parser.ParseAssetReference() },
+            { "DamageFXType", (parser, x) => x.DamageFxType = parser.ParseEnum<FxType>() },
+            { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) }
         };
 
         public string AttributeModifier { get; private set; }
+        public FxType DamageFxType { get; private set; }
+        public ObjectFilter SpecialObjectFilter { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -604,12 +640,37 @@ namespace OpenSage.Data.Ini
     }
 
     [AddedIn(SageGame.Bfme)]
+    public class GrabNugget
+    {
+        internal static GrabNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<GrabNugget> FieldParseTable = new IniParseTable<GrabNugget>
+        {
+            { "ContainTargetOnEffect", (parser, x) => x.ContainTargetOnEffect = parser.ParseBoolean() },
+            { "ImpactTargetOnEffect", (parser, x) => x.ImpactTargetOnEffect = parser.ParseBoolean() },
+            { "ShockWaveAmount", (parser, x) => x.ShockWaveAmount = parser.ParseFloat() },
+            { "ShockWaveRadius", (parser, x) => x.ShockWaveRadius = parser.ParseFloat() },
+            { "ShockWaveTaperOff", (parser, x) => x.ShockWaveTaperOff = parser.ParseFloat() },
+            { "ShockWaveZMult", (parser, x) => x.ShockWaveZMult = parser.ParseFloat() },
+        };
+
+        public bool ContainTargetOnEffect { get; private set; }
+        public bool ImpactTargetOnEffect { get; private set; }
+        public float ShockWaveAmount { get; private set; }
+        public float ShockWaveRadius { get; private set; }
+        public float ShockWaveTaperOff { get; private set; }
+        public float ShockWaveZMult { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme)]
     public class DamageScalar
     {
         internal static DamageScalar Parse(IniParser parser)
         {
-            var result = new DamageScalar();
-            result.Scalar = parser.ParsePercentage();
+            var result = new DamageScalar
+            {
+                Scalar = parser.ParsePercentage()
+            };
             var token = parser.PeekNextTokenOptional();
             if (token.HasValue)
             {
@@ -621,6 +682,21 @@ namespace OpenSage.Data.Ini
         public float Scalar { get; private set; }
         public ObjectFilter Targets { get; private set; }
     }
+
+    [AddedIn(SageGame.Bfme)]
+    public class LinearTarget
+    {
+        internal static LinearTarget Parse(IniParser parser)
+        {
+            var offset = parser.ParseVector2();
+            var t = parser.ParseAttributeFloat("T");
+            return new LinearTarget { Offset = offset, T = t};
+        }
+
+        public Vector2 Offset { get; private set; }
+        public float T { get; private set; } //not sure what this is
+    }
+
 
     public enum WeaponReloadType
     {
@@ -730,7 +806,13 @@ namespace OpenSage.Data.Ini
         Suicide = 1 << 5,
 
         [IniEnum("NOT_AIRBORNE")]
-        NotAirborne = 1 << 6
+        NotAirborne = 1 << 6,
+
+        [IniEnum("SAME_HEIGHT_ONLY")]
+        SameHeightOnly = 1 << 6,
+
+        [IniEnum("MINES")]
+        Mines = 1 << 7,
     }
 
     [Flags]
