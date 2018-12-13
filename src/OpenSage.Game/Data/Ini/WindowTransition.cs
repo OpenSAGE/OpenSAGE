@@ -50,7 +50,7 @@ namespace OpenSage.Data.Ini
     {
         internal static WindowTransitionTransition Parse(IniParser parser)
         {
-            var type = parser.ParseEnum<TransitionType>();
+            var type = parser.ParseEnum<WindowTransitionStyle>();
             var result = parser.ParseBlock(FieldParseTable);
             result.Type = type;
             return result;
@@ -68,7 +68,7 @@ namespace OpenSage.Data.Ini
             { "FadeColor", (parser, x) => x.FadeColor = parser.ParseColorRgb() }
         };
 
-        public TransitionType Type { get; private set; }
+        public WindowTransitionStyle Type { get; private set; }
 
         public int StartFrame { get; private set; }
         public int EndFrame { get; private set; }
@@ -122,12 +122,8 @@ namespace OpenSage.Data.Ini
         FullFade,
 
         [IniEnum("CONTROLBARARROW")]
-        ControlBarArrow
-    }
-
-    [AddedIn(SageGame.Bfme)]
-    public enum TransitionType
-    {
+        ControlBarArrow,
+    
         [IniEnum("COUNTUP")]
         Countup,
 
@@ -146,40 +142,7 @@ namespace OpenSage.Data.Ini
         [IniEnum("IMAGECROSSFADE")]
         Imagecrossfade,
 
-        [IniEnum("FLASH")]
-        Flash,
-
-        [IniEnum("BUTTONFLASH")]
-        ButtonFlash,
-
-        [IniEnum("REVERSESOUND")]
-        ReverseSound,
-
         [IniEnum("WINSCALEUP")]
         WinscaleUp,
-
-        [IniEnum("MAINMENUMEDIUMSCALEUP")]
-        MainMenuMediumScaleUp,
-
-        [IniEnum("MAINMENUSCALEUP")]
-        MainMenuScaleUp,
-
-        [IniEnum("TYPETEXT")]
-        TypeText,
-
-        [IniEnum("FULLFADE")]
-        FullFade,
-
-        [IniEnum("SCREENFADE")]
-        ScreenFade,
-
-        [IniEnum("TEXTONFRAME")]
-        TextOnFrame,
-
-        [IniEnum("SCORESCALEUP")]
-        ScoreScaleUp,
-
-        [IniEnum("CONTROLBARARROW")]
-        ControlBarArrow,
     }
 }
