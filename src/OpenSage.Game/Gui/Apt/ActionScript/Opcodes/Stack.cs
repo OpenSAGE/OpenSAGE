@@ -270,6 +270,36 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     /// <summary>
+    /// Push a register's value to the stack
+    /// </summary>
+    public sealed class PushRegister : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.EA_PushRegister;
+
+        public override void Execute(ActionContext context)
+        {
+            context.Stack.Push(Parameters[0].ResolveRegister(context));
+        }
+    }
+
+    /// <summary>
+    /// (Just guessing) Similiar to PushConstantByte,
+    /// read a constant from the pool and push it to stack,
+    /// but it reads a Int16 instead of byte as constant index
+    /// </summary>
+    public sealed class PushConstantWord : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.EA_PushConstantWord;
+        public override uint Size => 1;
+
+        public override void Execute(ActionContext context)
+        {
+            var id = Parameters[0].ToInteger();
+            context.Stack.Push(context.Scope.Constants[id]);
+        }
+    }
+
+    /// <summary>
     /// Pop a value from the stack
     /// </summary>
     public sealed class Pop : InstructionBase
