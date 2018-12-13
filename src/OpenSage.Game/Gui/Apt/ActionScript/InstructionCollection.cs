@@ -425,9 +425,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                         break;
                     case InstructionType.EA_PushRegister:
                         instruction = new PushRegister();
-                        //code at `case InstructionType.SetRegister` used _reader.ReadInt32() to read register number
-                        //but if I use that here, I will end up with unknown instruction values.
-                        //so it looks like here it read byte instead of Int32. - Lanyi
                         parameters.Add(Value.FromInteger(_reader.ReadByte()));
                         break;
                     case InstructionType.EA_PushConstantWord:
