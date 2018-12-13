@@ -292,4 +292,27 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             FunctionCommon.ExecuteFunction(funcName, args, obj, context);
         }
     }
+
+    /// <summary>
+    /// (Just guessing) Call an function which its name is on the stack. Function arguments are also popped from the stack
+    /// </summary>
+    public sealed class CallFunctionPop : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.EA_CallMethodPop;
+
+        public override void Execute(ActionContext context)
+        {
+            var funcName = context.Stack.Pop().ToString();
+
+            var argCount = context.Stack.Pop().ToInteger();
+
+            var args = new Value[argCount];
+            for (int i = 0; i < argCount; ++i)
+            {
+                args[i] = context.Stack.Pop();
+            }
+
+            FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
+        }
+    }
 }

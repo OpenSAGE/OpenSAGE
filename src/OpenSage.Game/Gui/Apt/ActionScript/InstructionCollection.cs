@@ -30,6 +30,8 @@ namespace OpenSage.Gui.Apt.ActionScript
             bool branched = false;
             int branchBytes = 0;
 
+            int functioncounter = 0;
+
             while (parsing)
             {
                 //now reader the instructions
@@ -247,6 +249,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                         break;
                     case InstructionType.DefineFunction2:
                         {
+                            functioncounter++;
                             instruction = new DefineFunction2();
                             var name = _reader.ReadStringAtOffset();
                             var nParams = _reader.ReadUInt32();
@@ -423,6 +426,20 @@ namespace OpenSage.Gui.Apt.ActionScript
                         instruction = new Var();
 
                         break;
+                    case InstructionType.EA_PushRegister:
+                        instruction = new PushRegister();
+                        //code at `case InstructionType.SetRegister` used _reader.ReadInt32() to read register number
+                        //but if I use that here, I will end up with unknown instruction values.
+                        //so it looks like here it read byte instead of Int32. - Lanyi
+                        parameters.Add(Value.FromInteger(_reader.ReadByte()));
+                        break;
+                    case InstructionType.EA_PushConstantWord:
+                        instruction = new PushConstantWord();
+                        parameters.Add(Value.FromConstant(_reader.ReadUInt16()));
+                        break;
+                    case InstructionType.EA_CallFuncPop:
+                        instruction = new CallFunctionPop();
+                        break;
                     default:
                         throw new InvalidDataException("Unimplemented bytecode instruction:" + type.ToString());
                 }
@@ -431,6 +448,19 @@ namespace OpenSage.Gui.Apt.ActionScript
                 {
                     instruction.Parameters = parameters;
                     Items.Add(instruction);
+                    if(instruction.Type == InstructionType.DefineFunction2)
+                    {
+                        Console.WriteLine($"Instruction: {instruction.Type} n {functioncounter}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Instruction: {instruction.Type}");
+                    }
+                    
+                }
+                else
+                {
+                    Console.WriteLine("Instruction null");
                 }
 
                 if (branched)
