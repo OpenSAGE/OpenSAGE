@@ -76,36 +76,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     /// <summary>
-    /// Pop two values from stack and check them for equality. Does work with types. Result on stack
-    /// </summary>
-    public sealed class Equals2 : InstructionBase
-    {
-        public override InstructionType Type => InstructionType.Equals2;
-
-        public override void Execute(ActionContext context)
-        {
-            var a = context.Stack.Pop();
-            var b = context.Stack.Pop();
-            bool eq = a.Equals(b);
-            context.Stack.Push(Value.FromBoolean(eq));
-
-        }
-    }
-
-    /// <summary>
-    /// Pop two values from stack and check them for equality. Does work with strings. Result on stack
-    /// </summary>
-    public sealed class LessThan2 : InstructionBase
-    {
-        public override InstructionType Type => InstructionType.LessThan2;
-
-        public override void Execute(ActionContext context)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    /// <summary>
     /// Pop a value from stack, increments it and pushes it back
     /// </summary>
     public sealed class Increment : InstructionBase

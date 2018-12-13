@@ -217,6 +217,11 @@ namespace OpenSage.Gui.Apt.ActionScript
             return EnumUtility.CastValueAsEnum<int,TEnum>(_number);
         }
 
+        //TODO: According to page 74, ActionEquals2 of SWF7 format specification
+        //http://www.prowiki.org/upload/HelmutLeitner/flash_file_format_specification.pdf
+        //Here an Abstract Equality Comparison Algorithm should be implemented.
+        //(Section 11.9.3, ECMAScript Specification 3)
+        //https://www-archive.mozilla.org/js/language/E262-3.pdf
         public bool Equals(Value b)
         {
             bool result;
@@ -224,6 +229,29 @@ namespace OpenSage.Gui.Apt.ActionScript
             if (Type != b.Type)
                 return false;
 
+            switch (Type)
+            {
+                case ValueType.Undefined:
+                    result = true;
+                    break;
+                case ValueType.String:
+                    result = (b._string == _string);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+
+            return result;
+        }
+
+        public bool StrictEquals(Value b)
+        {
+            bool result;
+
+            if (Type != b.Type)
+                return false;
+
+            //TODO: Implement Strict Equality Comparison Algorithm
             switch (Type)
             {
                 case ValueType.Undefined:

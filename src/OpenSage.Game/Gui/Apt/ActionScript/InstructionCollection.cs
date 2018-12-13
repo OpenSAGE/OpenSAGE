@@ -440,6 +440,9 @@ namespace OpenSage.Gui.Apt.ActionScript
                     case InstructionType.EA_CallFuncPop:
                         instruction = new CallFunctionPop();
                         break;
+                    case InstructionType.StrictEqual:
+                        instruction = new StrictEquals();
+                        break;
                     default:
                         throw new InvalidDataException("Unimplemented bytecode instruction:" + type.ToString());
                 }
@@ -448,19 +451,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                 {
                     instruction.Parameters = parameters;
                     Items.Add(instruction);
-                    if(instruction.Type == InstructionType.DefineFunction2)
-                    {
-                        Console.WriteLine($"Instruction: {instruction.Type} n {functioncounter}");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Instruction: {instruction.Type}");
-                    }
-                    
-                }
-                else
-                {
-                    Console.WriteLine("Instruction null");
                 }
 
                 if (branched)
