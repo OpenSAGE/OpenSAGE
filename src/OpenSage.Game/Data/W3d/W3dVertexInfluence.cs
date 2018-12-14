@@ -11,7 +11,7 @@ namespace OpenSage.Data.W3d
     {
         public ushort BoneIndex;
 
-        public static W3dVertexInfluence Parse(BinaryReader reader)
+        internal static W3dVertexInfluence Parse(BinaryReader reader)
         {
             var result = new W3dVertexInfluence
             {
@@ -21,6 +21,13 @@ namespace OpenSage.Data.W3d
             reader.ReadBytes(6); // Padding
 
             return result;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(BoneIndex);
+
+            writer.BaseStream.Seek(6, SeekOrigin.Current); // Padding
         }
     }
 }

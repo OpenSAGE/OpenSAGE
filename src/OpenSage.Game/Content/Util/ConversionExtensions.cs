@@ -83,10 +83,10 @@ namespace OpenSage.Content.Util
                 Opacity = w3dVertexMaterial.Opacity,
                 TextureMappingStage0 = CreateTextureMapping(
                     w3dVertexMaterial.Stage0Mapping,
-                    w3dMaterial.MapperArgs0),
+                    w3dMaterial.MapperArgs0 ?? new W3dVertexMapperArgs()),
                 TextureMappingStage1 = CreateTextureMapping(
                     w3dVertexMaterial.Stage1Mapping,
-                    w3dMaterial.MapperArgs1)
+                    w3dMaterial.MapperArgs1 ?? new W3dVertexMapperArgs())
             };
         }
 
@@ -210,9 +210,11 @@ namespace OpenSage.Content.Util
                     return FixedFunction.SecondaryTextureBlend.Detail;
 
                 case W3dShaderDetailColorFunc.Scale:
+                case W3dShaderDetailColorFunc.ScaleAlt:
                     return FixedFunction.SecondaryTextureBlend.Scale;
 
                 case W3dShaderDetailColorFunc.InvScale:
+                case W3dShaderDetailColorFunc.InvScaleAlt:
                     return FixedFunction.SecondaryTextureBlend.InvScale;
 
                 case W3dShaderDetailColorFunc.Add:

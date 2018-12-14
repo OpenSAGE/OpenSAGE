@@ -3,8 +3,10 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dBitChannel
+    public sealed class W3dBitChannel : W3dAnimationChannelBase
     {
+        internal override W3dChunkType ChunkType => W3dChunkType.W3D_CHUNK_BIT_CHANNEL;
+
         public ushort FirstFrame { get; private set; }
 
         public ushort LastFrame { get; private set; }
@@ -20,7 +22,7 @@ namespace OpenSage.Data.W3d
 
         public bool[] Data { get; private set; }
 
-        public static W3dBitChannel Parse(BinaryReader reader)
+        internal static W3dBitChannel Parse(BinaryReader reader)
         {
             var result = new W3dBitChannel
             {
@@ -35,6 +37,16 @@ namespace OpenSage.Data.W3d
             result.Data = reader.ReadSingleBitBooleanArray((uint) numElements);
 
             return result;
+        }
+
+        internal override void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(FirstFrame);
+            writer.Write(LastFrame);
+            writer.Write((ushort) ChannelType);
+            writer.Write(Pivot);
+            writer.Write(DefaultValue);
+            writer.WriteSingleBitBooleanArray(Data);
         }
     }
 }

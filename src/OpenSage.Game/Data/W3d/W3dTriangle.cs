@@ -29,7 +29,7 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public float Distance;
 
-        public static W3dTriangle Parse(BinaryReader reader)
+        internal static W3dTriangle Parse(BinaryReader reader)
         {
             return new W3dTriangle
             {
@@ -37,12 +37,25 @@ namespace OpenSage.Data.W3d
                 VIndex1 = reader.ReadUInt32(),
                 VIndex2 = reader.ReadUInt32(),
 
-                SurfaceType = (W3dSurfaceType) reader.ReadUInt32(),
+                SurfaceType = reader.ReadUInt32AsEnum<W3dSurfaceType>(),
 
                 Normal = reader.ReadVector3(),
 
                 Distance = reader.ReadSingle()
             };
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(VIndex0);
+            writer.Write(VIndex1);
+            writer.Write(VIndex2);
+
+            writer.Write((uint) SurfaceType);
+
+            writer.Write(Normal);
+
+            writer.Write(Distance);
         }
     }
 }

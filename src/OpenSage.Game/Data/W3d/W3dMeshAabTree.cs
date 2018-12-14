@@ -39,5 +39,29 @@ namespace OpenSage.Data.W3d
                 }
             });
         }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_AABTREE_HEADER, false, () =>
+            {
+                Header.WriteTo(writer);
+            });
+
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_AABTREE_POLYINDICES, false, () =>
+            {
+                foreach (var index in PolygonIndices)
+                {
+                    writer.Write(index);
+                }
+            });
+
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_AABTREE_NODES, false, () =>
+            {
+                foreach (var node in Nodes)
+                {
+                    node.WriteTo(writer);
+                }
+            });
+        }
     }
 }

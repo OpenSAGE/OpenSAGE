@@ -11,7 +11,7 @@ namespace OpenSage.Data.W3d
 
         public W3dHLodArray Aggregate { get; private set; }
 
-        public static W3dHLod Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dHLod Parse(BinaryReader reader, uint chunkSize)
         {
             var lods = new List<W3dHLodArray>();
 
@@ -44,6 +44,22 @@ namespace OpenSage.Data.W3d
             finalResult.Lods = lods;
 
             return finalResult;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_HLOD_HEADER, false, () =>
+            {
+                Header.WriteTo(writer);
+            });
+
+            foreach (var lod in Lods)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_HLOD_LOD_ARRAY, true, () =>
+                {
+                    lod.WriteTo(writer);
+                });
+            }
         }
     }
 }

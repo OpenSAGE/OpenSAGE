@@ -8,7 +8,7 @@ namespace OpenSage.Data.W3d
 
         public W3dHLodSubObject[] SubObjects { get; private set; }
 
-        public static W3dHLodArray Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dHLodArray Parse(BinaryReader reader, uint chunkSize)
         {
             var currentSubObjectIndex = 0;
 
@@ -30,6 +30,22 @@ namespace OpenSage.Data.W3d
                         throw CreateUnknownChunkException(header);
                 }
             });
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER, false, () =>
+            {
+                Header.WriteTo(writer);
+            });
+
+            foreach (var subObject in SubObjects)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_HLOD_SUB_OBJECT, false, () =>
+                {
+                    subObject.WriteTo(writer);
+                });
+            }
         }
     }
 }

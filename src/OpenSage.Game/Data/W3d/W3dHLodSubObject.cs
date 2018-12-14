@@ -9,13 +9,19 @@ namespace OpenSage.Data.W3d
 
         public string Name { get; private set; }
 
-        public static W3dHLodSubObject Parse(BinaryReader reader)
+        internal static W3dHLodSubObject Parse(BinaryReader reader)
         {
             return new W3dHLodSubObject
             {
                 BoneIndex = reader.ReadUInt32(),
                 Name = reader.ReadFixedLengthString(W3dConstants.NameLength * 2)
             };
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(BoneIndex);
+            writer.WriteFixedLengthString(Name, W3dConstants.NameLength * 2);
         }
     }
 }

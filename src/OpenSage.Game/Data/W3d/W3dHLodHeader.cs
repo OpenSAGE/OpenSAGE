@@ -14,7 +14,7 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public string HierarchyName { get; private set; }
 
-        public static W3dHLodHeader Parse(BinaryReader reader)
+        internal static W3dHLodHeader Parse(BinaryReader reader)
         {
             return new W3dHLodHeader
             {
@@ -23,6 +23,14 @@ namespace OpenSage.Data.W3d
                 Name = reader.ReadFixedLengthString(W3dConstants.NameLength),
                 HierarchyName = reader.ReadFixedLengthString(W3dConstants.NameLength)
             };
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(Version);
+            writer.Write(LodCount);
+            writer.WriteFixedLengthString(Name, W3dConstants.NameLength);
+            writer.WriteFixedLengthString(HierarchyName, W3dConstants.NameLength);
         }
     }
 }

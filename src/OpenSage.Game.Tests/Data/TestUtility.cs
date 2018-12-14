@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Xunit;
 
 namespace OpenSage.Tests.Data
 {
@@ -32,11 +33,16 @@ namespace OpenSage.Tests.Data
                 serializedBytes = serializedStream.ToArray();
             }
 
+            if (originalUncompressedBytes.Length != serializedBytes.Length)
+            {
+                File.WriteAllBytes("original.bin", originalUncompressedBytes);
+                File.WriteAllBytes("serialized.bin", serializedBytes);
+            }
+
+            Assert.Equal(originalUncompressedBytes.Length, serializedBytes.Length);
+
             if (!skipRoundtripEqualityTest)
             {
-                //File.WriteAllBytes("original.bin", originalUncompressedBytes);
-                //File.WriteAllBytes("serialized.bin", serializedBytes);
-
                 AssertUtility.Equal(originalUncompressedBytes, serializedBytes);
             }
 

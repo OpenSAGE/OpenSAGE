@@ -20,7 +20,7 @@ namespace OpenSage.Data.W3d
 
         public Vector3 Extent { get; private set; }
 
-        public static W3dBox Parse(BinaryReader reader)
+        internal static W3dBox Parse(BinaryReader reader)
         {
             var result = new W3dBox
             {
@@ -38,6 +38,19 @@ namespace OpenSage.Data.W3d
             result.Extent = reader.ReadVector3();
 
             return result;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(Version);
+
+            var flags = (uint) BoxType | (uint) CollisionTypes;
+            writer.Write(flags);
+
+            writer.WriteFixedLengthString(Name, W3dConstants.NameLength * 2);
+            writer.Write(Color);
+            writer.Write(Center);
+            writer.Write(Extent);
         }
     }
 }

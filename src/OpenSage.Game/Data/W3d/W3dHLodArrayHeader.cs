@@ -11,13 +11,19 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public float MaxScreenSize { get; private set; }
 
-        public static W3dHLodArrayHeader Parse(BinaryReader reader)
+        internal static W3dHLodArrayHeader Parse(BinaryReader reader)
         {
             return new W3dHLodArrayHeader
             {
                 ModelCount = reader.ReadUInt32(),
                 MaxScreenSize = reader.ReadSingle()
             };
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(ModelCount);
+            writer.Write(MaxScreenSize);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.IO;
 using System.Numerics;
 using System.Text;
 using OpenSage.Data.Map;
+using OpenSage.Data.W3d;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Utilities.Extensions
@@ -47,6 +48,17 @@ namespace OpenSage.Data.Utilities.Extensions
             writer.Write((ushort) value.Length);
 
             writer.Write(Encoding.Unicode.GetBytes(value));
+        }
+
+        public static void WriteFixedLengthString(this BinaryWriter writer, string value, int count)
+        {
+            writer.Write(value.ToCharArray());
+            writer.Write('\0');
+
+            for (var i = value.Length + 1; i < count; i++)
+            {
+                writer.Write((char) 0);
+            }
         }
 
         public static void WriteUInt16Array2D(this BinaryWriter writer, ushort[,] values)
@@ -145,6 +157,27 @@ namespace OpenSage.Data.Utilities.Extensions
             }
         }
 
+        public static void WriteSingleBitBooleanArray(this BinaryWriter writer, bool[] values)
+        {
+            var length = values.Length;
+            byte value = 0;
+            for (var i = 0; i < length; i++)
+            {
+                if (i > 0 && i % 8 == 0)
+                {
+                    writer.Write(value);
+                    value = 0;
+                }
+
+                var boolValue = values[i];
+
+                value |= (byte) ((boolValue ? 1 : 0) << (i % 8));
+            }
+
+            // Write last value.
+            writer.Write(value);
+        }
+
         public static void Write(this BinaryWriter writer, in Vector2 value)
         {
             writer.Write(value.X);
@@ -174,6 +207,22 @@ namespace OpenSage.Data.Utilities.Extensions
             writer.Write(value.W);
         }
 
+        public static void Write(this BinaryWriter writer, in Matrix4x3 value)
+        {
+            writer.Write(value.M11);
+            writer.Write(value.M12);
+            writer.Write(value.M13);
+            writer.Write(value.M21);
+            writer.Write(value.M22);
+            writer.Write(value.M23);
+            writer.Write(value.M31);
+            writer.Write(value.M32);
+            writer.Write(value.M33);
+            writer.Write(value.M41);
+            writer.Write(value.M42);
+            writer.Write(value.M43);
+        }
+
         public static void Write(this BinaryWriter writer, in MapLine2D value)
         {
             writer.Write(value.V0);
@@ -192,6 +241,22 @@ namespace OpenSage.Data.Utilities.Extensions
             writer.Write(value.R);
             writer.Write(value.G);
             writer.Write(value.B);
+        }
+
+        public static void Write(this BinaryWriter writer, in W3dRgb value)
+        {
+            writer.Write(value.R);
+            writer.Write(value.G);
+            writer.Write(value.B);
+            writer.Write((byte) 0); // Padding
+        }
+
+        public static void Write(this BinaryWriter writer, in W3dRgba value)
+        {
+            writer.Write(value.R);
+            writer.Write(value.G);
+            writer.Write(value.B);
+            writer.Write(value.A);
         }
 
         public static void WriteFourCc(this BinaryWriter writer, string fourCc, bool bigEndian = false)

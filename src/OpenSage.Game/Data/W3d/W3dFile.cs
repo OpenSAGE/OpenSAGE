@@ -117,7 +117,61 @@ namespace OpenSage.Data.W3d
         {
             using (var writer = new BinaryWriter(stream))
             {
-                // TODO
+                if (Hierarchy != null)
+                {
+                    WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_HIERARCHY, true, () =>
+                    {
+                        Hierarchy.WriteTo(writer);
+                    });
+                }
+
+                foreach (var animation in Animations)
+                {
+                    WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_ANIMATION, true, () =>
+                    {
+                        animation.WriteTo(writer);
+                    });
+                }
+
+                foreach (var animation in CompressedAnimations)
+                {
+                    WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION, true, () =>
+                    {
+                        animation.WriteTo(writer);
+                    });
+                }
+
+                foreach (var mesh in Meshes)
+                {
+                    WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_MESH, true, () =>
+                    {
+                        mesh.WriteTo(writer);
+                    });
+                }
+
+                foreach (var box in Boxes)
+                {
+                    WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_BOX, false, () =>
+                    {
+                        box.WriteTo(writer);
+                    });
+                }
+
+                if (HLod != null)
+                {
+                    WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_HLOD, true, () =>
+                    {
+                        HLod.WriteTo(writer);
+                    });
+                }
+
+                foreach (var emitter in Emitters)
+                {
+                    WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER, true, () =>
+                    {
+                        emitter.WriteTo(writer);
+                    });
+                }
             }
         }
     }

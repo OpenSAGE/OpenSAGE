@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using OpenSage.Data.Utilities;
+using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
@@ -30,7 +31,7 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public float Translucency { get; private set; }
 
-        public static W3dVertexMaterial Parse(BinaryReader reader)
+        internal static W3dVertexMaterial Parse(BinaryReader reader)
         {
             var rawAttributes = reader.ReadUInt32();
 
@@ -57,6 +58,23 @@ namespace OpenSage.Data.W3d
         private static W3dVertexMappingType ConvertStageMapping(uint attributes, uint mask, int shift)
         {
             return EnumUtility.CastValueAsEnum<uint, W3dVertexMappingType>((attributes & mask) >> shift);
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            var rawAttributes = (uint) Attributes;
+            rawAttributes |= (uint) Stage0Mapping << 16;
+            rawAttributes |= (uint) Stage1Mapping << 8;
+            writer.Write(rawAttributes);
+
+            writer.Write(Ambient);
+            writer.Write(Diffuse);
+            writer.Write(Specular);
+            writer.Write(Emissive);
+
+            writer.Write(Shininess);
+            writer.Write(Opacity);
+            writer.Write(Translucency);
         }
     }
 }

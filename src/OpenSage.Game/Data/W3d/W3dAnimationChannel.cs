@@ -3,8 +3,10 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dAnimationChannel
+    public sealed class W3dAnimationChannel : W3dAnimationChannelBase
     {
+        internal override W3dChunkType ChunkType => W3dChunkType.W3D_CHUNK_ANIMATION_CHANNEL;
+
         public ushort FirstFrame { get; private set; }
 
         public ushort LastFrame { get; private set; }
@@ -21,9 +23,14 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public ushort Pivot { get; private set; }
 
+        // Maybe padding?
+        public ushort Unknown { get; private set; }
+
         public W3dAnimationChannelDatum[] Data { get; private set; }
 
-        public static W3dAnimationChannel Parse(BinaryReader reader, uint chunkSize)
+        public uint NumPadBytes { get; private set; }
+
+        internal static W3dAnimationChannel Parse(BinaryReader reader, uint chunkSize)
         {
             var startPosition = reader.BaseStream.Position;
 
@@ -33,10 +40,9 @@ namespace OpenSage.Data.W3d
                 LastFrame = reader.ReadUInt16(),
                 VectorLength = reader.ReadUInt16(),
                 ChannelType = reader.ReadUInt16AsEnum<W3dAnimationChannelType>(),
-                Pivot = reader.ReadUInt16()
+                Pivot = reader.ReadUInt16(),
+                Unknown = reader.ReadUInt16()
             };
-
-            reader.ReadUInt16(); // Pad
 
             ValidateChannelDataSize(result.ChannelType, result.VectorLength);
 
@@ -50,9 +56,8 @@ namespace OpenSage.Data.W3d
 
             result.Data = data;
 
-            // Pad
-            var endPosition = startPosition + chunkSize;
-            reader.ReadBytes((int) (endPosition - reader.BaseStream.Position));
+            result.NumPadBytes = (uint) ((startPosition + chunkSize) - reader.BaseStream.Position);
+            reader.BaseStream.Seek((int) result.NumPadBytes, SeekOrigin.Current);
 
             return result;
         }
@@ -86,6 +91,26 @@ namespace OpenSage.Data.W3d
 
                 default:
                     throw new InvalidDataException();
+            }
+        }
+
+        internal override void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(FirstFrame);
+            writer.Write(LastFrame);
+            writer.Write(VectorLength);
+            writer.Write((ushort) ChannelType);
+            writer.Write(Pivot);
+            writer.Write(Unknown);
+
+            for (var i = 0; i < Data.Length; i++)
+            {
+                Data[i].WriteTo(writer, ChannelType);
+            }
+
+            for (var i = 0; i < NumPadBytes; i++)
+            {
+                writer.Write((byte) 0);
             }
         }
     }

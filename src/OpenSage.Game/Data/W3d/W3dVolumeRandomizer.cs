@@ -9,7 +9,7 @@ namespace OpenSage.Data.W3d
         public float Value2 { get; private set; }
         public float Value3 { get; private set; }
 
-        public static W3dVolumeRandomizer Parse(BinaryReader reader)
+        internal static W3dVolumeRandomizer Parse(BinaryReader reader)
         {
             var result = new W3dVolumeRandomizer
             {
@@ -22,6 +22,19 @@ namespace OpenSage.Data.W3d
             reader.ReadBytes(4 * sizeof(uint)); // Pad
 
             return result;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(ClassID);
+            writer.Write(Value1);
+            writer.Write(Value2);
+            writer.Write(Value3);
+
+            for (var i = 0; i < 4; i++)
+            {
+                writer.Write(0u);
+            }
         }
     }
 }

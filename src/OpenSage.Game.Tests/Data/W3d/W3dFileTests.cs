@@ -50,13 +50,11 @@ namespace OpenSage.Tests.Data.W3d
                         return; // Corrupt, or unreferenced and contain chunks that don't exist elsewhere.
                 }
 
-                TestUtility.DoRoundtripTest(
+                var w3dFile = TestUtility.DoRoundtripTest(
                     () => entry.Open(),
                     stream => W3dFile.FromStream(stream, entry.FilePath),
                     (w3d, stream) => w3d.WriteTo(stream),
-                    false);
-
-                var w3dFile = W3dFile.FromFileSystemEntry(entry);
+                    true);
 
                 foreach (var mesh in w3dFile.Meshes)
                 {
@@ -64,7 +62,10 @@ namespace OpenSage.Tests.Data.W3d
 
                     Assert.Equal((int) mesh.Header.NumTris, mesh.Triangles.Length);
 
-                    Assert.Equal(mesh.Vertices.Length, mesh.Influences.Length);
+                    if (mesh.Influences != null)
+                    {
+                        Assert.Equal(mesh.Vertices.Length, mesh.Influences.Length);
+                    }
 
                     Assert.Equal((int) mesh.MaterialInfo.PassCount, mesh.MaterialPasses.Length);
 

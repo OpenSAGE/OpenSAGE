@@ -45,6 +45,10 @@
         /// <summary>
         /// (otherAlpha)*local + (~otherAlpha)*other
         /// </summary>
-        DetailBlend
+        DetailBlend,
+
+        // Used only by armyantsglow.w3d in BFME, no idea why.
+        ScaleAlt = 11,
+        InvScaleAlt = 12
     }
 }

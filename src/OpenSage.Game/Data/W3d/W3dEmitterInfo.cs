@@ -25,7 +25,7 @@ namespace OpenSage.Data.W3d
         public W3dRgba StartColor { get; private set; }
         public W3dRgba EndColor { get; private set; }
 
-        public static W3dEmitterInfo Parse(BinaryReader reader)
+        internal static W3dEmitterInfo Parse(BinaryReader reader)
         {
             return new W3dEmitterInfo
             {
@@ -47,6 +47,27 @@ namespace OpenSage.Data.W3d
                 StartColor = W3dRgba.Parse(reader),
                 EndColor = W3dRgba.Parse(reader)
             };
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.WriteFixedLengthString(TextureFileName, 260);
+            writer.Write(StartSize);
+            writer.Write(EndSize);
+            writer.Write(Lifetime);
+            writer.Write(EmissionRate);
+            writer.Write(MaxEmissions);
+            writer.Write(VelocityRandom);
+            writer.Write(PositionRandom);
+            writer.Write(FadeTime);
+            writer.Write(Gravity);
+            writer.Write(Elasticity);
+
+            writer.Write(Velocity);
+            writer.Write(Acceleration);
+
+            writer.Write(StartColor);
+            writer.Write(EndColor);
         }
     }
 }

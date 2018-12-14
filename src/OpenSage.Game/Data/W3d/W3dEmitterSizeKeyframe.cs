@@ -15,5 +15,11 @@ namespace OpenSage.Data.W3d
                 Size = reader.ReadSingle()
             };
         }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(Time);
+            writer.Write(Size);
+        }
     }
 }

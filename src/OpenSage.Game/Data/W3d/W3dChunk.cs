@@ -5,8 +5,6 @@ namespace OpenSage.Data.W3d
 {
     public abstract class W3dChunk
     {
-        protected abstract W3dChunkType ChunkType { get; }
-
         protected static T ParseChunk<T>(
             BinaryReader reader, 
             uint chunkSize,
@@ -29,6 +27,7 @@ namespace OpenSage.Data.W3d
                 parseCallback(result, currentChunk);
 
                 var endPosition = startPosition + currentChunk.ChunkSize;
+
                 if (reader.BaseStream.Position != endPosition)
                 {
                     throw new InvalidDataException($"Error while parsing asset '{typeof(T).Name}'. Expected reader to be at position {endPosition}, but was at {reader.BaseStream.Position}.");
@@ -43,7 +42,7 @@ namespace OpenSage.Data.W3d
             return new InvalidDataException($"Unrecognised chunk: {header.ChunkType}");
         }
 
-        protected void WriteChunkTo(BinaryWriter writer, Action writeCallback)
+        protected void WriteChunkTo(BinaryWriter writer, W3dChunkType type, bool hasSubChunks, Action writeCallback)
         {
             var headerPosition = writer.BaseStream.Position;
 
@@ -59,7 +58,7 @@ namespace OpenSage.Data.W3d
             var dataSize = endPosition - startPosition;
 
             // Back up and write header.
-            var header = new W3dChunkHeader(ChunkType, (uint) dataSize, true);
+            var header = new W3dChunkHeader(type, (uint) dataSize, hasSubChunks);
 
             writer.BaseStream.Position = headerPosition;
             header.WriteTo(writer);

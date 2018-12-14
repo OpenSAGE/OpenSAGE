@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using OpenSage.Data.Utilities.Extensions;
 using static OpenSage.Data.Utilities.ParseUtility;
 
 namespace OpenSage.Data.W3d
@@ -6,6 +8,8 @@ namespace OpenSage.Data.W3d
     // See MAPPERS.TXT in the W3DView folder for more details.
     public sealed class W3dVertexMapperArgs
     {
+        public string RawValue;
+
         public float UPerSec;
         public float VPerSec;
 
@@ -57,9 +61,14 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public float BumpScale = 1;
 
-        public static W3dVertexMapperArgs Parse(string value)
+        internal static W3dVertexMapperArgs Parse(BinaryReader reader, uint chunkSize)
         {
-            var result = new W3dVertexMapperArgs();
+            var value = reader.ReadFixedLengthString((int) chunkSize);
+
+            var result = new W3dVertexMapperArgs
+            {
+                RawValue = value
+            };
 
             if (string.IsNullOrEmpty(value))
             {
@@ -179,6 +188,18 @@ namespace OpenSage.Data.W3d
             }
 
             return result;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            if (RawValue != null)
+            {
+                writer.WriteFixedLengthString(RawValue, RawValue.Length + 1);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

@@ -7,14 +7,11 @@ namespace OpenSage.Data.W3d
     {
         public W3dAnimationHeader Header { get; private set; }
 
-        public IReadOnlyList<W3dAnimationChannel> Channels { get; private set; }
+        public IReadOnlyList<W3dAnimationChannelBase> Channels { get; private set; }
 
-        public IReadOnlyList<W3dBitChannel> BitChannels { get; private set; }
-
-        public static W3dAnimation Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dAnimation Parse(BinaryReader reader, uint chunkSize)
         {
-            var channels = new List<W3dAnimationChannel>();
-            var bitChannels = new List<W3dBitChannel>();
+            var channels = new List<W3dAnimationChannelBase>();
 
             var finalResult = ParseChunk<W3dAnimation>(reader, chunkSize, (result, header) =>
             {
@@ -29,7 +26,7 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_BIT_CHANNEL:
-                        bitChannels.Add(W3dBitChannel.Parse(reader));
+                        channels.Add(W3dBitChannel.Parse(reader));
                         break;
 
                     default:
@@ -38,9 +35,24 @@ namespace OpenSage.Data.W3d
             });
 
             finalResult.Channels = channels;
-            finalResult.BitChannels = bitChannels;
 
             return finalResult;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_ANIMATION_HEADER, false, () =>
+            {
+                Header.WriteTo(writer);
+            });
+
+            foreach (var channel in Channels)
+            {
+                WriteChunkTo(writer, channel.ChunkType, false, () =>
+                {
+                    channel.WriteTo(writer);
+                });
+            }
         }
     }
 }

@@ -3,7 +3,7 @@ using System.IO;
 
 namespace OpenSage.Data.W3d
 {
-    class W3dAdaptiveDelta
+    internal class W3dAdaptiveDelta
     {
         private static readonly float[] Table = CalculateTable();
 
@@ -69,7 +69,7 @@ namespace OpenSage.Data.W3d
             return deltas;
         }
 
-        private static float GetValue(W3dAnimationChannelDatum datum, W3dAnimationChannelType type, int i = 0)
+        private static float GetValue(in W3dAnimationChannelDatum datum, W3dAnimationChannelType type, int i = 0)
         {
             if (i > 0 && type != W3dAnimationChannelType.Quaternion)
             {

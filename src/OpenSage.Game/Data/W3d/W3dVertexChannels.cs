@@ -8,26 +8,29 @@ namespace OpenSage.Data.W3d
         /// <summary>
         /// object-space location of the vertex
         /// </summary>
-        Location = 0x00000001,
+        Location = 1,
 
         /// <summary>
         /// object-space normal for the vertex
         /// </summary>
-        Normal = 0x00000002,
+        Normal = 2,
 
         /// <summary>
         /// texture coordinate
         /// </summary>
-        TexCoord = 0x00000004,
+        TexCoord = 4,
 
         /// <summary>
         /// vertex color
         /// </summary>
-        Color = 0x00000008,
+        Color = 8,
 
         /// <summary>
         /// per-vertex bone id for skins
         /// </summary>
-        BoneId = 0x00000010
+        BoneId = 16,
+
+        Unknown1 = 32,
+        Unknown2 = 64,
     }
 }

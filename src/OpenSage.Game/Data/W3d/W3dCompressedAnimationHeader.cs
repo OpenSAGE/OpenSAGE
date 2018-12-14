@@ -17,7 +17,7 @@ namespace OpenSage.Data.W3d
 
         public W3dCompressedAnimationFlavor Flavor { get; private set; }
 
-        public static W3dCompressedAnimationHeader Parse(BinaryReader reader)
+        internal static W3dCompressedAnimationHeader Parse(BinaryReader reader)
         {
             return new W3dCompressedAnimationHeader
             {
@@ -28,6 +28,16 @@ namespace OpenSage.Data.W3d
                 FrameRate = reader.ReadUInt16(),
                 Flavor = reader.ReadUInt16AsEnum<W3dCompressedAnimationFlavor>()
             };
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(Version);
+            writer.WriteFixedLengthString(Name, W3dConstants.NameLength);
+            writer.WriteFixedLengthString(HierarchyName, W3dConstants.NameLength);
+            writer.Write(NumFrames);
+            writer.Write(FrameRate);
+            writer.Write((ushort) Flavor);
         }
     }
 }

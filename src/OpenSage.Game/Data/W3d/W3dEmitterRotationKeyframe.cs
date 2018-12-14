@@ -19,5 +19,11 @@ namespace OpenSage.Data.W3d
                 Rotation = reader.ReadSingle()
             };
         }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(Time);
+            writer.Write(Rotation);
+        }
     }
 }

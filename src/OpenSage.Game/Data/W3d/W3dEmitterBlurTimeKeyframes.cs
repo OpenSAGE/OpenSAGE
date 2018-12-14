@@ -23,5 +23,15 @@ namespace OpenSage.Data.W3d
 
             return result;
         }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            Header.WriteTo(writer);
+
+            foreach (var keyframe in Keyframes)
+            {
+                keyframe.WriteTo(writer);
+            }
+        }
     }
 }

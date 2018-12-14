@@ -9,13 +9,19 @@ namespace OpenSage.Data.W3d
 
         public string Name { get; private set; }
 
-        public static W3dEmitterHeader Parse(BinaryReader reader)
+        internal static W3dEmitterHeader Parse(BinaryReader reader)
         {
             return new W3dEmitterHeader
             {
                 Version = reader.ReadUInt32(),
                 Name = reader.ReadFixedLengthString(W3dConstants.NameLength)
             };
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(Version);
+            writer.WriteFixedLengthString(Name, W3dConstants.NameLength);
         }
     }
 }

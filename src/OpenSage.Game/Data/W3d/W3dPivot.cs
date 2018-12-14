@@ -31,7 +31,7 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public Quaternion Rotation { get; private set; }
 
-        public static W3dPivot Parse(BinaryReader reader)
+        internal static W3dPivot Parse(BinaryReader reader)
         {
             return new W3dPivot
             {
@@ -41,6 +41,15 @@ namespace OpenSage.Data.W3d
                 EulerAngles = reader.ReadVector3(),
                 Rotation = reader.ReadQuaternion()
             };
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.WriteFixedLengthString(Name, W3dConstants.NameLength);
+            writer.Write(ParentIdx);
+            writer.Write(Translation);
+            writer.Write(EulerAngles);
+            writer.Write(Rotation);
         }
     }
 }

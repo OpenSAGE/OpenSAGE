@@ -29,7 +29,7 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public uint TextureCount { get; private set; }
 
-        public static W3dMaterialInfo Parse(BinaryReader reader)
+        internal static W3dMaterialInfo Parse(BinaryReader reader)
         {
             return new W3dMaterialInfo
             {
@@ -38,6 +38,14 @@ namespace OpenSage.Data.W3d
                 ShaderCount = reader.ReadUInt32(),
                 TextureCount = reader.ReadUInt32()
             };
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(PassCount);
+            writer.Write(VertexMaterialCount);
+            writer.Write(ShaderCount);
+            writer.Write(TextureCount);
         }
     }
 }
