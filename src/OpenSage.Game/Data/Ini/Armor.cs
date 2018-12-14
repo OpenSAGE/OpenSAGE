@@ -15,7 +15,8 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<Armor> FieldParseTable = new IniParseTable<Armor>
         {
             { "DamageScalar", (parser, x) => x.DamageScalar = parser.ParsePercentage() },
-            { "Armor", (parser, x) => x.Values.Add(ArmorValue.Parse(parser)) }
+            { "Armor", (parser, x) => x.Values.Add(ArmorValue.Parse(parser)) },
+            { "FlankedPenalty", (parser, x) => x.FlankedPenalty = parser.ParsePercentage() }
         };
 
         public string Name { get; private set; }
@@ -27,6 +28,9 @@ namespace OpenSage.Data.Ini
         public float DamageScalar { get; private set; }
 
         public List<ArmorValue> Values { get; } = new List<ArmorValue>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public float FlankedPenalty { get; private set; }
     }
 
     public sealed class ArmorValue

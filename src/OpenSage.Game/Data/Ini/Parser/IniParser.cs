@@ -18,6 +18,7 @@ namespace OpenSage.Data.Ini.Parser
             { "AmbientStream", (parser, context) => context.AmbientStreams.Add(AmbientStream.Parse(parser)) },
             { "Animation", (parser, context) => context.Animations.Add(Animation.Parse(parser)) },
             { "AnimationSoundClientBehaviorGlobalSetting", (parser, context) => context.AnimationSoundClientBehaviorGlobalSetting = AnimationSoundClientBehaviorGlobalSetting.Parse(parser) },
+            { "AptButtonTooltipMap", (parser, context) => context.AptButtonTooltipMap = AptButtonTooltipMap.Parse(parser) },
             { "Armor", (parser, context) => context.Armors.Add(Armor.Parse(parser)) },
             { "AudioEvent", (parser, context) =>
                 {
