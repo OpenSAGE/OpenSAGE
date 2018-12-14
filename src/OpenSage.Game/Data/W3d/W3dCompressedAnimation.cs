@@ -15,7 +15,7 @@ namespace OpenSage.Data.W3d
 
         public IReadOnlyList<W3dMotionChannel> MotionChannels { get; private set; }
 
-        public static W3dCompressedAnimation Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dCompressedAnimation Parse(BinaryReader reader, uint chunkSize)
         {
             var timeCodedChannels = new List<W3dTimeCodedAnimationChannel>();
             var adaptiveDeltaChannels = new List<W3dAdaptiveDeltaAnimationChannel>();
@@ -81,6 +81,22 @@ namespace OpenSage.Data.W3d
             finalResult.MotionChannels = motionChannels;
 
             return finalResult;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_HEADER, false, () =>
+            {
+                Header.WriteTo(writer);
+            });
+
+            foreach (var channel in TimeCodedChannels)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL, false, () =>
+                {
+                    channel.WriteTo(writer);
+                });
+            }
         }
     }
 }

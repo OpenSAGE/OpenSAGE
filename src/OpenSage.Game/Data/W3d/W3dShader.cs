@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
@@ -42,40 +43,51 @@ namespace OpenSage.Data.W3d
 
         public W3dShaderDetailAlphaFunc PostDetailAlphaFunc { get; private set; }
 
-        public static W3dShader Parse(BinaryReader reader)
+        internal static W3dShader Parse(BinaryReader reader)
         {
             var result = new W3dShader
             {
-                DepthCompare = (W3dShaderDepthCompare) reader.ReadByte(),
-                DepthMask = (W3dShaderDepthMask) reader.ReadByte(),
+                DepthCompare = reader.ReadByteAsEnum<W3dShaderDepthCompare>(),
+                DepthMask = reader.ReadByteAsEnum<W3dShaderDepthMask>(),
                 ColorMask = reader.ReadByte(),
-                DestBlend = (W3dShaderDestBlendFunc) reader.ReadByte(),
+                DestBlend = reader.ReadByteAsEnum<W3dShaderDestBlendFunc>(),
                 FogFunc = reader.ReadByte(),
-                PrimaryGradient = (W3dShaderPrimaryGradient) reader.ReadByte(),
-                SecondaryGradient = (W3dShaderSecondaryGradient) reader.ReadByte(),
-                SrcBlend = (W3dShaderSrcBlendFunc) reader.ReadByte(),
-                Texturing = (W3dShaderTexturing) reader.ReadByte(),
-                DetailColorFunc = (W3dShaderDetailColorFunc) reader.ReadByte(),
-                DetailAlphaFunc = (W3dShaderDetailAlphaFunc) reader.ReadByte(),
+                PrimaryGradient = reader.ReadByteAsEnum<W3dShaderPrimaryGradient>(),
+                SecondaryGradient = reader.ReadByteAsEnum<W3dShaderSecondaryGradient>(),
+                SrcBlend = reader.ReadByteAsEnum<W3dShaderSrcBlendFunc>(),
+                Texturing = reader.ReadByteAsEnum<W3dShaderTexturing>(),
+                DetailColorFunc = reader.ReadByteAsEnum<W3dShaderDetailColorFunc>(),
+                DetailAlphaFunc = reader.ReadByteAsEnum<W3dShaderDetailAlphaFunc>(),
                 ShaderPreset = reader.ReadByte(),
-                AlphaTest = (W3dShaderAlphaTest) reader.ReadByte(),
-                PostDetailColorFunc = (W3dShaderDetailColorFunc) reader.ReadByte(),
-                PostDetailAlphaFunc = (W3dShaderDetailAlphaFunc) reader.ReadByte()
+                AlphaTest = reader.ReadByteAsEnum<W3dShaderAlphaTest>(),
+                PostDetailColorFunc = reader.ReadByteAsEnum<W3dShaderDetailColorFunc>(),
+                PostDetailAlphaFunc = reader.ReadByteAsEnum<W3dShaderDetailAlphaFunc>()
             };
-
-            // TODO: Need to do this for armyantsglow in BFME, why?
-            if (result.DetailColorFunc == (W3dShaderDetailColorFunc) 11)
-            {
-                result.DetailColorFunc = W3dShaderDetailColorFunc.Scale;
-            }
-            else if (result.DetailColorFunc == (W3dShaderDetailColorFunc) 12)
-            {
-                result.DetailColorFunc = W3dShaderDetailColorFunc.InvScale;
-            }
 
             reader.ReadByte(); // padding
 
             return result;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write((byte) DepthCompare);
+            writer.Write((byte) DepthMask);
+            writer.Write(ColorMask);
+            writer.Write((byte) DestBlend);
+            writer.Write(FogFunc);
+            writer.Write((byte) PrimaryGradient);
+            writer.Write((byte) SecondaryGradient);
+            writer.Write((byte) SrcBlend);
+            writer.Write((byte) Texturing);
+            writer.Write((byte) DetailColorFunc);
+            writer.Write((byte) DetailAlphaFunc);
+            writer.Write(ShaderPreset);
+            writer.Write((byte) AlphaTest);
+            writer.Write((byte) PostDetailColorFunc);
+            writer.Write((byte) PostDetailAlphaFunc);
+
+            writer.Write((byte) 0); // Padding
         }
     }
 }

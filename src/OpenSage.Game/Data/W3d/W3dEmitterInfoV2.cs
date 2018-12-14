@@ -14,7 +14,7 @@ namespace OpenSage.Data.W3d
         public W3dEmitterRenderMode RenderMode { get; private set; }
         public W3dEmitterFrameMode FrameMode { get; private set; }
 
-        public static W3dEmitterInfoV2 Parse(BinaryReader reader)
+        internal static W3dEmitterInfoV2 Parse(BinaryReader reader)
         {
             var result = new W3dEmitterInfoV2
             {
@@ -31,6 +31,24 @@ namespace OpenSage.Data.W3d
             reader.ReadBytes(6 * sizeof(uint)); // Pad
 
             return result;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(BurstSize);
+            CreationVolume.WriteTo(writer);
+            VelRandom.WriteTo(writer);
+            writer.Write(OutwardVel);
+            writer.Write(VelInherit);
+            Shader.WriteTo(writer);
+            writer.Write((uint) RenderMode);
+            writer.Write((uint) FrameMode);
+
+            // Pad
+            for (var i = 0; i < 6; i++)
+            {
+                writer.Write((uint) 0);
+            }
         }
     }
 }

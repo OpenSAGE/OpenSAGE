@@ -12,7 +12,7 @@ namespace OpenSage.Data.W3d
 
         public W3dVectorUInt32[] PerFaceTexCoordIds { get; private set; }
 
-        public static W3dTextureStage Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dTextureStage Parse(BinaryReader reader, uint chunkSize)
         {
             return ParseChunk<W3dTextureStage>(reader, chunkSize, (result, header) =>
             {
@@ -49,6 +49,28 @@ namespace OpenSage.Data.W3d
                         throw CreateUnknownChunkException(header);
                 }
             });
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_TEXTURE_IDS, false, () =>
+            {
+                foreach (var id in TextureIds)
+                {
+                    writer.Write(id != null ? (int) id.Value : -1);
+                }
+            });
+
+            if (TexCoords != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_STAGE_TEXCOORDS, false, () =>
+                {
+                    foreach (var texCoord in TexCoords)
+                    {
+                        writer.Write(texCoord);
+                    }
+                });
+            }
         }
     }
 }

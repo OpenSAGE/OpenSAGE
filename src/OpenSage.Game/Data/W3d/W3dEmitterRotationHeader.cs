@@ -29,5 +29,14 @@ namespace OpenSage.Data.W3d
 
             return result;
         }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(KeyframeCount);
+            writer.Write(Random);
+            writer.Write(OrientationRandom);
+
+            writer.Write((uint) 0); // Pad
+        }
     }
 }

@@ -16,9 +16,16 @@ namespace OpenSage.Data.W3d
                 Random = reader.ReadSingle()
             };
 
-            reader.ReadBytes(sizeof(uint)); // Pad
+            reader.ReadUInt32(); // Pad
 
             return result;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(KeyframeCount);
+            writer.Write(Random);
+            writer.Write((uint) 0); // Pad
         }
     }
 }

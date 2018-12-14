@@ -46,7 +46,7 @@ namespace OpenSage.Data.W3d
 
         public Vector3 Center { get; private set; }
 
-        public static W3dHierarchy Parse(BinaryReader reader)
+        internal static W3dHierarchy Parse(BinaryReader reader)
         {
             return new W3dHierarchy
             {
@@ -55,6 +55,14 @@ namespace OpenSage.Data.W3d
                 NumPivots = reader.ReadUInt32(),
                 Center = reader.ReadVector3()
             };
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(Version);
+            writer.WriteFixedLengthString(Name, W3dConstants.NameLength);
+            writer.Write(NumPivots);
+            writer.Write(Center);
         }
     }
 }

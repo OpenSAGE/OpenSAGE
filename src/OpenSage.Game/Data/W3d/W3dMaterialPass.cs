@@ -35,7 +35,7 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public Vector2[] TexCoords { get; private set; }
 
-        public static W3dMaterialPass Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dMaterialPass Parse(BinaryReader reader, uint chunkSize)
         {
             var textureStages = new List<W3dTextureStage>();
 
@@ -114,6 +114,44 @@ namespace OpenSage.Data.W3d
             r.TextureStages = textureStages;
 
             return r;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL_IDS, false, () =>
+            {
+                foreach (var id in VertexMaterialIds)
+                {
+                    writer.Write(id);
+                }
+            });
+
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_SHADER_IDS, false, () =>
+            {
+                foreach (var id in ShaderIds)
+                {
+                    writer.Write(id);
+                }
+            });
+
+            if (Dcg != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_DCG, false, () =>
+                {
+                    foreach (var color in Dcg)
+                    {
+                        writer.Write(color);
+                    }
+                });
+            }
+
+            foreach (var textureStage in TextureStages)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_TEXTURE_STAGE, true, () =>
+                {
+                    textureStage.WriteTo(writer);
+                });
+            }
         }
     }
 }

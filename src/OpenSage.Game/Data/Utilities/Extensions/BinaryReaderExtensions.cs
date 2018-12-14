@@ -360,6 +360,23 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadSingle());
         }
 
+        public static Matrix4x3 ReadMatrix4x3(this BinaryReader reader)
+        {
+            return new Matrix4x3(
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle(),
+                reader.ReadSingle());
+        }
+
         public static ColorRgbaF ReadColorRgbaF(this BinaryReader reader)
         {
             return new ColorRgbaF(

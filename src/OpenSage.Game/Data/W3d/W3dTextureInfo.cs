@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
@@ -24,15 +25,23 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public float FrameRate { get; private set; }
 
-        public static W3dTextureInfo Parse(BinaryReader reader)
+        internal static W3dTextureInfo Parse(BinaryReader reader)
         {
             return new W3dTextureInfo
             {
-                Attributes = (W3dTextureFlags) reader.ReadUInt16(),
-                AnimationType = (W3dTextureAnimation) reader.ReadUInt16(),
+                Attributes = reader.ReadUInt16AsEnumFlags<W3dTextureFlags>(),
+                AnimationType = reader.ReadUInt16AsEnum<W3dTextureAnimation>(),
                 FrameCount = reader.ReadUInt32(),
                 FrameRate = reader.ReadSingle(),
             };
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write((ushort) Attributes);
+            writer.Write((ushort) AnimationType);
+            writer.Write(FrameCount);
+            writer.Write(FrameRate);
         }
     }
 }

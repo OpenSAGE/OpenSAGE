@@ -181,17 +181,16 @@ namespace OpenSage.Content
                 w3dMesh.Header.Min,
                 w3dMesh.Header.Max);
 
-            var isSkinned = (w3dMesh.Header.Attributes & W3dMeshFlags.GeometryTypeMask) == W3dMeshFlags.GeometryTypeSkin;
             var cameraOriented = (w3dMesh.Header.Attributes & W3dMeshFlags.GeometryTypeMask) == W3dMeshFlags.GeometryTypeCameraOriented;
 
             return new ModelMesh(
                 contentManager.GraphicsDevice,
                 w3dMesh.Header.MeshName,
-                MemoryMarshal.AsBytes(new ReadOnlySpan<MeshVertex.Basic>(CreateVertices(w3dMesh, isSkinned))),
+                MemoryMarshal.AsBytes(new ReadOnlySpan<MeshVertex.Basic>(CreateVertices(w3dMesh, w3dMesh.IsSkinned))),
                 CreateIndices(w3dMesh),
                 effect,
                 materialPasses,
-                isSkinned,
+                w3dMesh.IsSkinned,
                 parentBone,
                 (uint) numBones,
                 boundingBox,
@@ -714,19 +713,24 @@ namespace OpenSage.Content
             var duration = TimeSpan.FromSeconds(w3dAnimation.Header.NumFrames / (double) w3dAnimation.Header.FrameRate);
 
             var channels = w3dAnimation.Channels
+                .OfType<W3dAnimationChannel>()
                 .Where(x => x.ChannelType != W3dAnimationChannelType.UnknownBfme) // Don't know what this channel means.
                 .ToList();
 
-            var clips = new AnimationClip[channels.Count + w3dAnimation.BitChannels.Count];
+            var bitChannels = w3dAnimation.Channels
+                .OfType<W3dBitChannel>()
+                .ToList();
+
+            var clips = new AnimationClip[channels.Count + bitChannels.Count];
 
             for (var i = 0; i < channels.Count; i++)
             {
                 clips[i] = CreateAnimationClip(w3dAnimation, channels[i]);
             }
 
-            for (var i = 0; i < w3dAnimation.BitChannels.Count; i++)
+            for (var i = 0; i < bitChannels.Count; i++)
             {
-                clips[channels.Count + i] = CreateAnimationClip(w3dAnimation, w3dAnimation.BitChannels[i]);
+                clips[channels.Count + i] = CreateAnimationClip(w3dAnimation, bitChannels[i]);
             }
 
             return new Animation(

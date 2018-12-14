@@ -9,7 +9,7 @@ namespace OpenSage.Data.W3d
 
         public W3dTextureInfo TextureInfo { get; private set; }
 
-        public static W3dTexture Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dTexture Parse(BinaryReader reader, uint chunkSize)
         {
             return ParseChunk<W3dTexture>(reader, chunkSize, (result, header) =>
             {
@@ -27,6 +27,22 @@ namespace OpenSage.Data.W3d
                         throw CreateUnknownChunkException(header);
                 }
             });
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_TEXTURE_NAME, false, () =>
+            {
+                writer.WriteFixedLengthString(Name, Name.Length + 1);
+            });
+
+            if (TextureInfo != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_TEXTURE_INFO, false, () =>
+                {
+                    TextureInfo.WriteTo(writer);
+                });
+            }
         }
     }
 }

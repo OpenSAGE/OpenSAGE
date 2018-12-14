@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
@@ -15,7 +16,7 @@ namespace OpenSage.Data.W3d
         public W3dEmitterOpacityKeyframe[] OpacityKeyframes { get; private set; }
         public W3dEmitterSizeKeyframe[] SizeKeyframes { get; private set; }
 
-        public static W3dEmitterProperties Parse(BinaryReader reader)
+        internal static W3dEmitterProperties Parse(BinaryReader reader)
         {
             var result = new W3dEmitterProperties
             {
@@ -48,6 +49,36 @@ namespace OpenSage.Data.W3d
             }
 
             return result;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(ColorKeyframesCount);
+            writer.Write(OpacityKeyframesCount);
+            writer.Write(SizeKeyframesCount);
+            writer.Write(ColorRandom);
+            writer.Write(OpacityRandom);
+            writer.Write(SizeRandom);
+
+            for (var i = 0; i < 4; i++) // Pad
+            {
+                writer.Write((uint) 0);
+            }
+
+            foreach (var keyframe in ColorKeyframes)
+            {
+                keyframe.WriteTo(writer);
+            }
+
+            foreach (var keyframe in OpacityKeyframes)
+            {
+                keyframe.WriteTo(writer);
+            }
+
+            foreach (var keyframe in SizeKeyframes)
+            {
+                keyframe.WriteTo(writer);
+            }
         }
     }
 }

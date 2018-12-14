@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
@@ -14,6 +15,12 @@ namespace OpenSage.Data.W3d
                 Time = reader.ReadSingle(),
                 Color = W3dRgba.Parse(reader)
             };
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(Time);
+            writer.Write(Color);
         }
     }
 }

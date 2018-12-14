@@ -15,7 +15,7 @@ namespace OpenSage.Data.W3d
 
         public uint FrameRate { get; private set; }
 
-        public static W3dAnimationHeader Parse(BinaryReader reader)
+        internal static W3dAnimationHeader Parse(BinaryReader reader)
         {
             return new W3dAnimationHeader
             {
@@ -25,6 +25,15 @@ namespace OpenSage.Data.W3d
                 NumFrames = reader.ReadUInt32(),
                 FrameRate = reader.ReadUInt32()
             };
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(Version);
+            writer.WriteFixedLengthString(Name, W3dConstants.NameLength);
+            writer.WriteFixedLengthString(HierarchyName, W3dConstants.NameLength);
+            writer.Write(NumFrames);
+            writer.Write(FrameRate);
         }
     }
 }

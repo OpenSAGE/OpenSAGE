@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
@@ -12,11 +13,11 @@ namespace OpenSage.Data.W3d
         public float UPerSec { get; private set; }
         public float VPerSec { get; private set; }
 
-        public static W3dEmitterLineProperties Parse(BinaryReader reader)
+        internal static W3dEmitterLineProperties Parse(BinaryReader reader)
         {
             var result = new W3dEmitterLineProperties
             {
-                Flags = (W3dEmitterLineFlags) reader.ReadUInt32(),
+                Flags = reader.ReadUInt32AsEnum<W3dEmitterLineFlags>(),
                 SubdivisionLevel = reader.ReadUInt32(),
                 NoiseAmplitude = reader.ReadSingle(),
                 MergeAbortFactor = reader.ReadSingle(),
@@ -28,6 +29,17 @@ namespace OpenSage.Data.W3d
             reader.ReadBytes(sizeof(uint) * 9); // Padding
 
             return result;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write((uint) Flags);
+            writer.Write(SubdivisionLevel);
+            writer.Write(NoiseAmplitude);
+            writer.Write(MergeAbortFactor);
+            writer.Write(TextureTileFactor);
+            writer.Write(UPerSec);
+            writer.Write(VPerSec);
         }
     }
 }

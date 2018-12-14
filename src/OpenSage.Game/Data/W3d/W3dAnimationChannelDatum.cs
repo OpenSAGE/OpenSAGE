@@ -44,6 +44,26 @@ namespace OpenSage.Data.W3d
             }
         }
 
+        internal void WriteTo(BinaryWriter writer, W3dAnimationChannelType channelType)
+        {
+            switch (channelType)
+            {
+                case W3dAnimationChannelType.Quaternion:
+                    writer.Write(Quaternion);
+                    break;
+
+                case W3dAnimationChannelType.TranslationX:
+                case W3dAnimationChannelType.TranslationY:
+                case W3dAnimationChannelType.TranslationZ:
+                case W3dAnimationChannelType.UnknownBfme:
+                    writer.Write(FloatValue);
+                    break;
+
+                default:
+                    throw new InvalidDataException();
+            }
+        }
+
         public override string ToString()
         {
             return $"Quaterion = {Quaternion}, FloatValue = {FloatValue}";

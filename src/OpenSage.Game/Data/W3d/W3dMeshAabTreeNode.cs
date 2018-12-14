@@ -26,7 +26,7 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public uint BackOrPolyCount { get; private set; }
 
-        public static W3dMeshAabTreeNode Parse(BinaryReader reader)
+        internal static W3dMeshAabTreeNode Parse(BinaryReader reader)
         {
             return new W3dMeshAabTreeNode
             {
@@ -36,6 +36,14 @@ namespace OpenSage.Data.W3d
                 FrontOrPoly0 = reader.ReadUInt32(),
                 BackOrPolyCount = reader.ReadUInt32()
             };
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(Min);
+            writer.Write(Max);
+            writer.Write(FrontOrPoly0);
+            writer.Write(BackOrPolyCount);
         }
     }
 }

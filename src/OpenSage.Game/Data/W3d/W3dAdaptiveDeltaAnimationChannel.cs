@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using OpenSage.Data.Utilities;
+using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
@@ -26,7 +27,7 @@ namespace OpenSage.Data.W3d
 
         public W3dAnimationChannelDatum[] Data { get; private set; }
 
-        public static W3dAdaptiveDeltaAnimationChannel Parse(BinaryReader reader, int nBits)
+        internal static W3dAdaptiveDeltaAnimationChannel Parse(BinaryReader reader, int nBits)
         {
             var startPosition = reader.BaseStream.Position;
 
@@ -35,23 +36,35 @@ namespace OpenSage.Data.W3d
                 NumTimeCodes = reader.ReadUInt32(),
                 Pivot = reader.ReadUInt16(),
                 VectorLength = reader.ReadByte(),
-                ChannelType = EnumUtility.CastValueAsEnum<byte, W3dAnimationChannelType>(reader.ReadByte()),
+                ChannelType = reader.ReadByteAsEnum<W3dAnimationChannelType>(),
                 Scale = reader.ReadSingle(),
             };
 
             W3dAnimationChannel.ValidateChannelDataSize(result.ChannelType, result.VectorLength);
 
-            result.Data = W3dAdaptiveDelta.ReadAdaptiveDelta(reader,
-                                result.NumTimeCodes,
-                                result.ChannelType,
-                                result.VectorLength,
-                                result.Scale,
-                                nBits);
+            result.Data = W3dAdaptiveDelta.ReadAdaptiveDelta(
+                reader,
+                result.NumTimeCodes,
+                result.ChannelType,
+                result.VectorLength,
+                result.Scale,
+                nBits);
 
             //Skip 3 unknown bytes at chunkend. Only set for quaternions.
             reader.BaseStream.Seek(3, SeekOrigin.Current);
 
             return result;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(NumTimeCodes);
+            writer.Write(Pivot);
+            writer.Write(VectorLength);
+            writer.Write((byte) ChannelType);
+            writer.Write(Scale);
+
+            // TODO
         }
     }
 }

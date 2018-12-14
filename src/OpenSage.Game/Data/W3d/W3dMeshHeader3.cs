@@ -54,7 +54,7 @@ namespace OpenSage.Data.W3d
 
         public float SphRadius { get; private set; }			// Bounding sphere radius
 
-        public static W3dMeshHeader3 Parse(BinaryReader reader)
+        internal static W3dMeshHeader3 Parse(BinaryReader reader)
         {
             return new W3dMeshHeader3
             {
@@ -69,13 +69,34 @@ namespace OpenSage.Data.W3d
                 SortLevel = reader.ReadUInt32(),
                 PrelitVersion = reader.ReadUInt32(),
                 FutureCounts = reader.ReadUInt32(),
-                VertexChannels = (W3dVertexChannels) reader.ReadUInt32(),
-                FaceChannels = (W3dFaceChannels) reader.ReadUInt32(),
+                VertexChannels = reader.ReadUInt32AsEnumFlags<W3dVertexChannels>(),
+                FaceChannels = reader.ReadUInt32AsEnum<W3dFaceChannels>(),
                 Min = reader.ReadVector3(),
                 Max = reader.ReadVector3(),
                 SphCenter = reader.ReadVector3(),
                 SphRadius = reader.ReadSingle()
             };
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(Version);
+            writer.Write((uint) Attributes);
+            writer.WriteFixedLengthString(MeshName, W3dConstants.NameLength);
+            writer.WriteFixedLengthString(ContainerName, W3dConstants.NameLength);
+            writer.Write(NumTris);
+            writer.Write(NumVertices);
+            writer.Write(NumMaterials);
+            writer.Write(NumDamageStages);
+            writer.Write(SortLevel);
+            writer.Write(PrelitVersion);
+            writer.Write(FutureCounts);
+            writer.Write((uint) VertexChannels);
+            writer.Write((uint) FaceChannels);
+            writer.Write(Min);
+            writer.Write(Max);
+            writer.Write(SphCenter);
+            writer.Write(SphRadius);
         }
     }
 }

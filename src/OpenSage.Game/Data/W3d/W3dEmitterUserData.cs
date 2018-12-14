@@ -9,7 +9,9 @@ namespace OpenSage.Data.W3d
 
         public string Value { get; private set; }
 
-        public static W3dEmitterUserData Parse(BinaryReader reader, uint chunkSize)
+        public uint NumPadBytes { get; private set; }
+
+        internal static W3dEmitterUserData Parse(BinaryReader reader, uint chunkSize)
         {
             var startPosition = reader.BaseStream.Position;
 
@@ -20,9 +22,29 @@ namespace OpenSage.Data.W3d
             };
 
             var endPosition = startPosition + chunkSize;
-            reader.ReadBytes((int) (endPosition - reader.BaseStream.Position));
+            result.NumPadBytes = (uint) (endPosition - reader.BaseStream.Position);
+            reader.ReadBytes((int) result.NumPadBytes);
 
             return result;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write((uint) Type);
+            if (Value.Length > 0)
+            {
+                writer.Write(Value.Length + 1);
+                writer.WriteFixedLengthString(Value, Value.Length + 1);
+            }
+            else
+            {
+                writer.Write(0u);
+            }
+
+            for (var i = 0; i < NumPadBytes; i++)
+            {
+                writer.Write((byte) 0);
+            }
         }
     }
 }

@@ -22,7 +22,7 @@ namespace OpenSage.Data.W3d
 
         public W3dEmitterBlurTimeKeyframes BlurTimeKeyframes { get; private set; }
 
-        public static W3dEmitter Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dEmitter Parse(BinaryReader reader, uint chunkSize)
         {
             return ParseChunk<W3dEmitter>(reader, chunkSize, (result, header) =>
             {
@@ -73,6 +73,62 @@ namespace OpenSage.Data.W3d
                         throw CreateUnknownChunkException(header);
                 }
             });
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_HEADER, false, () =>
+            {
+                Header.WriteTo(writer);
+            });
+
+            if (UserData != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_USER_DATA, false, () =>
+                {
+                    UserData.WriteTo(writer);
+                });
+            }
+
+            if (Info != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_INFO, false, () =>
+                {
+                    Info.WriteTo(writer);
+                });
+            }
+
+            if (InfoV2 != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_INFOV2, false, () =>
+                {
+                    InfoV2.WriteTo(writer);
+                });
+            }
+
+            if (Properties != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_PROPS, false, () =>
+                {
+                    Properties.WriteTo(writer);
+                });
+            }
+
+            if (RotationKeyframes != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_ROTATION_KEYFRAMES, false, () =>
+                {
+                    RotationKeyframes.WriteTo(writer);
+                });
+            }
+
+            if (FrameKeyframes != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_FRAME_KEYFRAMES, false, () =>
+                {
+                    FrameKeyframes.WriteTo(writer);
+                });
+            }
         }
     }
 }

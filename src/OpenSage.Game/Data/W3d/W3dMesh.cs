@@ -20,6 +20,8 @@ namespace OpenSage.Data.W3d
         public Vector3[] Tangents { get; private set; }
         public Vector3[] Bitangents { get; private set; }
 
+        public bool IsSkinned => (Header.Attributes & W3dMeshFlags.GeometryTypeMask) == W3dMeshFlags.GeometryTypeSkin;
+
         /// <summary>
         /// Vertex influences link vertices of a mesh to bones in a hierarchy.
         /// This is the information needed for skinning.
@@ -39,6 +41,8 @@ namespace OpenSage.Data.W3d
 
         public W3dShader[] Shaders { get; private set; }
 
+        public W3dShaderPs2[] ShadersPs2 { get; private set; }
+
         public IReadOnlyList<W3dTexture> Textures { get; private set; }
 
         public W3dMaterialPass[] MaterialPasses { get; private set; }
@@ -47,7 +51,7 @@ namespace OpenSage.Data.W3d
 
         public W3dShaderMaterials ShaderMaterials { get; private set; }
 
-        public static W3dMesh Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dMesh Parse(BinaryReader reader, uint chunkSize)
         {
             var currentMaterialPass = 0;
 
@@ -62,7 +66,6 @@ namespace OpenSage.Data.W3d
                         result.Vertices = new Vector3[result.Header.NumVertices];
                         result.Normals = new Vector3[result.Header.NumVertices];
                         result.ShadeIndices = new uint[result.Header.NumVertices];
-                        result.Influences = new W3dVertexInfluence[result.Header.NumVertices];
                         result.Triangles = new W3dTriangle[result.Header.NumTris];
                         break;
 
@@ -81,6 +84,7 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_VERTEX_INFLUENCES:
+                        result.Influences = new W3dVertexInfluence[result.Header.NumVertices];
                         for (var count = 0; count < result.Header.NumVertices; count++)
                         {
                             result.Influences[count] = W3dVertexInfluence.Parse(reader);
@@ -160,8 +164,11 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_PS2_SHADERS:
-                        // Don't need this.
-                        reader.ReadBytes((int) header.ChunkSize);
+                        result.ShadersPs2 = new W3dShaderPs2[result.MaterialInfo.ShaderCount];
+                        for (var count = 0; count < result.MaterialInfo.ShaderCount; count++)
+                        {
+                            result.ShadersPs2[count] = W3dShaderPs2.Parse(reader);
+                        }
                         break;
 
                     case W3dChunkType.W3D_CHUNK_MESH_USER_TEXT:
@@ -214,6 +221,122 @@ namespace OpenSage.Data.W3d
             finalResult.Textures = textures;
 
             return finalResult;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_MESH_HEADER3, false, () =>
+            {
+                Header.WriteTo(writer);
+            });
+
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_VERTICES, false, () =>
+            {
+                for (var i = 0; i < Vertices.Length; i++)
+                {
+                    writer.Write(Vertices[i]);
+                }
+            });
+
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_VERTEX_NORMALS, false, () =>
+            {
+                for (var i = 0; i < Normals.Length; i++)
+                {
+                    writer.Write(Normals[i]);
+                }
+            });
+
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_TRIANGLES, false, () =>
+            {
+                for (var i = 0; i < Triangles.Length; i++)
+                {
+                    Triangles[i].WriteTo(writer);
+                }
+            });
+
+            if (Influences != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_VERTEX_INFLUENCES, false, () =>
+                {
+                    for (var i = 0; i < Influences.Length; i++)
+                    {
+                        Influences[i].WriteTo(writer);
+                    }
+                });
+            }
+
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_VERTEX_SHADE_INDICES, false, () =>
+            {
+                for (var i = 0; i < ShadeIndices.Length; i++)
+                {
+                    writer.Write(ShadeIndices[i]);
+                }
+            });
+
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_MATERIAL_INFO, false, () =>
+            {
+                MaterialInfo.WriteTo(writer);
+            });
+
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_VERTEX_MATERIALS, true, () =>
+            {
+                foreach (var material in Materials)
+                {
+                    WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL, true, () =>
+                    {
+                        material.WriteTo(writer);
+                    });
+                }
+            });
+
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_SHADERS, false, () =>
+            {
+                foreach (var shader in Shaders)
+                {
+                    shader.WriteTo(writer);
+                }
+            });
+
+            if (ShadersPs2 != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_SHADERS, false, () =>
+                {
+                    foreach (var shader in ShadersPs2)
+                    {
+                        shader.WriteTo(writer);
+                    }
+                });
+            }
+
+            if (Textures.Count > 0)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_TEXTURES, true, () =>
+                {
+                    foreach (var texture in Textures)
+                    {
+                        WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_TEXTURE, true, () =>
+                        {
+                            texture.WriteTo(writer);
+                        });
+                    }
+                });
+            }
+
+            foreach (var materialPass in MaterialPasses)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_MATERIAL_PASS, true, () =>
+                {
+                    materialPass.WriteTo(writer);
+                });
+            }
+
+            if (AabTree != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_AABTREE, true, () =>
+                {
+                    AabTree.WriteTo(writer);
+                });
+            }
         }
     }
 }

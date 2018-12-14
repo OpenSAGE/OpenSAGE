@@ -46,7 +46,7 @@ namespace OpenSage.Data.W3d
 
             if (HasSubChunks)
             {
-                chunkSize |= (1 << 30);
+                chunkSize |= (1u << 31);
             }
 
             writer.Write(chunkSize);
