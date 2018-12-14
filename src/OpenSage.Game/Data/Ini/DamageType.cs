@@ -187,5 +187,14 @@
 
         [IniEnum("BECOME_UNDEAD"), AddedIn(SageGame.Bfme2)]
         BecomeUndead,
+
+        [IniEnum("CAVALRY_RANGED"), AddedIn(SageGame.Bfme2)]
+        CavalryRanged,
+
+        [IniEnum("CAVALRY"), AddedIn(SageGame.Bfme2)]
+        Cavalry,
+
+        [IniEnum("LOGICAL_FIRE"), AddedIn(SageGame.Bfme2)]
+        LogicalFire,
     }
 }

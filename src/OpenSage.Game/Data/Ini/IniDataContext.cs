@@ -18,6 +18,10 @@ namespace OpenSage.Data.Ini
         public List<AmbientStream> AmbientStreams { get; } = new List<AmbientStream>();
         public List<Animation> Animations { get; } = new List<Animation>();
         public AnimationSoundClientBehaviorGlobalSetting AnimationSoundClientBehaviorGlobalSetting { get; internal set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public AptButtonTooltipMap AptButtonTooltipMap { get; internal set;  }
+
         public List<Armor> Armors { get; } = new List<Armor>();
         public Dictionary<string, AudioEvent> AudioEvents { get; } = new Dictionary<string, AudioEvent>();
         public List<AudioLod> AudioLods { get; } = new List<AudioLod>();
