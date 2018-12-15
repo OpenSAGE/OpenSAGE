@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering.Shadows;
+using OpenSage.Graphics.Util;
 using OpenSage.Gui;
 using OpenSage.Mathematics;
 using Veldrid;
@@ -43,6 +45,9 @@ namespace OpenSage.Graphics.Rendering
         private Framebuffer _intermediateFramebuffer;
 
         private readonly SpriteBatch _intermediateSpriteBatch;
+
+        private readonly List<ConstantBuffer<Vector3>> _dayColors;
+        private readonly List<ConstantBuffer<Vector3>> _nightColors;
 
         public Texture ShadowMap => _shadowMapRenderer.ShadowMap;
 
@@ -85,6 +90,20 @@ namespace OpenSage.Graphics.Rendering
             _shadowMapRenderer = AddDisposable(new ShadowMapRenderer());
 
             _intermediateSpriteBatch = AddDisposable(new SpriteBatch(game.ContentManager, BlendStateDescription.SingleDisabled, game.GraphicsDevice.MainSwapchain.Framebuffer.OutputDescription));
+
+            _dayColors = new List<ConstantBuffer<Vector3>>();
+            _nightColors = new List<ConstantBuffer<Vector3>>();
+
+            foreach (var mpColor in game.ContentManager.IniDataContext.MultiplayerColors)
+            {
+                var dayColor = AddDisposable(new ConstantBuffer<Vector3>(graphicsDevice));
+                dayColor.Value = mpColor.RgbColor.ToVector3();
+                _dayColors.Add(dayColor);
+
+                var nightColor = AddDisposable(new ConstantBuffer<Vector3>(graphicsDevice));
+                nightColor.Value = mpColor.RgbNightColor.ToVector3();
+                _nightColors.Add(nightColor);
+            }
         }
 
         private void EnsureIntermediateFramebuffer(GraphicsDevice graphicsDevice, Framebuffer target)

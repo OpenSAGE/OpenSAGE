@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
+using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
 using Veldrid;
 
@@ -36,7 +37,9 @@ namespace OpenSage.Graphics
 
         internal DeviceBuffer SkinningBuffer;
 
-        private Vector3 _teamColor;
+        private uint _colorIndex;
+
+        private readonly ConstantBuffer<MeshMaterial.MeshConstants> _meshConstantsBuffer;
 
         internal DeviceBuffer TeamColorBuffer;
 
@@ -148,9 +151,9 @@ namespace OpenSage.Graphics
             }
         }
 
-        public void SetTeamColor(in Vector3 teamColor)
+        public void SetTeamColor(uint colorIndex)
         {
-            _teamColor = teamColor;
+            _colorIndex = colorIndex;
         }
 
         public void BuildRenderList(
@@ -160,7 +163,7 @@ namespace OpenSage.Graphics
         {
             foreach (var mesh in Model.Meshes)
             {
-                mesh.BuildRenderList(renderList, camera, this, _worldMatrix, castsShadow, _teamColor);
+                mesh.BuildRenderList(renderList, camera, this, _worldMatrix, castsShadow, _colorIndex);
             }
         }
     }

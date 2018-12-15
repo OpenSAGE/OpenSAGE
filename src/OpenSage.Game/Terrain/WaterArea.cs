@@ -100,7 +100,8 @@ namespace OpenSage.Terrain
                 Matrix4x4.Identity,
                 0,
                 _numIndices,
-                _indexBuffer);
+                _indexBuffer,
+                0);
         }
     }
 

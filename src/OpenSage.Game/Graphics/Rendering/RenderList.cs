@@ -31,7 +31,8 @@ namespace OpenSage.Graphics.Rendering
             in BoundingBox boundingBox,
             in Matrix4x4 world,
             uint vertexStart,
-            uint vertexCount)
+            uint vertexCount,
+            uint colorIndex)
         {
             RenderItems.Add(new RenderItem(
                 material,
@@ -43,7 +44,8 @@ namespace OpenSage.Graphics.Rendering
                 DrawCommand.Draw,
                 vertexStart,
                 vertexCount,
-                0, 0, null));
+                0, 0, null,
+                colorIndex));
         }
 
         public void AddRenderItemDrawIndexed(
@@ -55,7 +57,8 @@ namespace OpenSage.Graphics.Rendering
             in Matrix4x4 world,
             uint startIndex,
             uint indexCount,
-            DeviceBuffer indexBuffer)
+            DeviceBuffer indexBuffer,
+            uint colorIndex)
         {
             RenderItems.Add(new RenderItem(
                 material,
@@ -68,7 +71,8 @@ namespace OpenSage.Graphics.Rendering
                 0, 0,
                 startIndex,
                 indexCount,
-                indexBuffer));
+                indexBuffer,
+                colorIndex));
         }
     }
 

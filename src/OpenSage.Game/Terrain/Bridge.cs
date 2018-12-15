@@ -226,7 +226,8 @@ namespace OpenSage.Terrain
                     _modelInstance,
                     meshMatrix.Item2,
                     true,
-                    Vector3.One);
+                    0
+                    );
             }
 
             foreach (var tower in _towers)

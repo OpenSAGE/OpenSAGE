@@ -20,7 +20,7 @@ namespace OpenSage.Logic.Object
             yield break;
         }
 
-        public virtual void UpdateConditionState(BitArray<ModelConditionFlag> flags, ColorRgb teamColor)
+        public virtual void UpdateConditionState(BitArray<ModelConditionFlag> flags, uint colorIndex)
         {
 
         }
@@ -66,6 +66,6 @@ namespace OpenSage.Logic.Object
             { "W3DTruckDraw", W3dTruckDrawModuleData.Parse },
         };
 
-        internal virtual DrawModule CreateDrawModule(ContentManager contentManager, ColorRgb houseColor) => null; // TODO: Make this abstract.
+        internal virtual DrawModule CreateDrawModule(ContentManager contentManager, uint colorIndex) => null; // TODO: Make this abstract.
     }
 }

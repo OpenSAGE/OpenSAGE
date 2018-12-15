@@ -480,7 +480,8 @@ namespace OpenSage.Graphics.ParticleSystems
                 worldMatrix,
                 0,
                 _numIndices,
-                _indexBuffer);
+                _indexBuffer,
+                0);
         }
     }
 

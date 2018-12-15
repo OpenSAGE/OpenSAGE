@@ -118,7 +118,7 @@ namespace OpenSage.Graphics
             ModelInstance modelInstance,
             in Matrix4x4 modelTransform,
             bool castsShadow,
-            in Vector3 teamColor)
+            uint colorIndex)
         {
             var meshWorldMatrix = Skinned
                 ? modelTransform
@@ -130,7 +130,7 @@ namespace OpenSage.Graphics
                 modelInstance,
                 meshWorldMatrix,
                 castsShadow,
-                teamColor);
+                colorIndex);
         }
 
         internal void BuildRenderListWithWorldMatrix(
@@ -139,7 +139,7 @@ namespace OpenSage.Graphics
             ModelInstance modelInstance,
             in Matrix4x4 meshWorldMatrix,
             bool castsShadow,
-            in Vector3 teamColor)
+            uint colorIndex)
         {
             if (Hidden)
             {
@@ -203,14 +203,13 @@ namespace OpenSage.Graphics
                            world,
                            meshPart.StartIndex,
                            meshPart.IndexCount,
-                           _indexBuffer);
+                           _indexBuffer,
+                           colorIndex);
                     }
 
                     // Standard pass
 
                     meshPart.Material.SetSkinningBuffer(modelInstance.SkinningBuffer);
-
-                    meshPart.Material.SetTeamColor(modelInstance.TeamColorBuffer);
 
                     var renderQueue = blendEnabled
                         ? renderList.Transparent
@@ -225,7 +224,8 @@ namespace OpenSage.Graphics
                         world,
                         meshPart.StartIndex,
                         meshPart.IndexCount,
-                        _indexBuffer);
+                        _indexBuffer,
+                        colorIndex);
                 }
             }
         }

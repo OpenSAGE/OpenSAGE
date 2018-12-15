@@ -44,6 +44,8 @@ namespace OpenSage.Graphics.Rendering
         public readonly DeviceBuffer IndexBuffer;
 
         public readonly uint Key;
+        public readonly uint ColorIndex;
+
 
         public RenderItem(
             EffectMaterial material,
@@ -59,7 +61,8 @@ namespace OpenSage.Graphics.Rendering
 
             uint startIndex,
             uint indexCount,
-            DeviceBuffer indexBuffer)
+            DeviceBuffer indexBuffer,
+            uint colorIndex)
         {
             Effect = material.Effect;
             Material = material;
@@ -86,6 +89,8 @@ namespace OpenSage.Graphics.Rendering
 
             // Bit 8-23: Material
             Key |= (uint) ((material.ID) << 8);
+
+            ColorIndex = colorIndex;
         }
 
         int System.IComparable<RenderItem>.CompareTo(RenderItem other)

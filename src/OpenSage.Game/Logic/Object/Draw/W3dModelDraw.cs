@@ -48,7 +48,7 @@ namespace OpenSage.Logic.Object
                 : Enumerable.Empty<AttachedParticleSystem>();
         }
 
-        internal W3dModelDraw(ContentManager contentManager, W3dModelDrawModuleData data, ColorRgb houseColor)
+        internal W3dModelDraw(ContentManager contentManager, W3dModelDrawModuleData data, uint colorIndex)
         {
             _contentManager = contentManager;
             _data = data;
@@ -79,10 +79,10 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            SetActiveConditionState(_defaultConditionState, houseColor);
+            SetActiveConditionState(_defaultConditionState, colorIndex);
         }
 
-        private void SetActiveConditionState(ModelConditionState conditionState, ColorRgb teamColor)
+        private void SetActiveConditionState(ModelConditionState conditionState, uint colorIndex)
         {
             if (_activeConditionState == conditionState)
             {
@@ -95,10 +95,10 @@ namespace OpenSage.Logic.Object
 
             _activeModelDrawConditionState = AddDisposable(
                 CreateModelDrawConditionStateInstance(
-                    conditionState, teamColor.ToVector3()));
+                    conditionState, colorIndex));
         }
 
-        public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, ColorRgb teamColor)
+        public override void UpdateConditionState(BitArray<ModelConditionFlag> flags, uint colorIndex)
         {
             ModelConditionState bestConditionState = null;
             var bestMatch = int.MinValue;
@@ -119,10 +119,10 @@ namespace OpenSage.Logic.Object
                 bestConditionState = _defaultConditionState;
             }
 
-            SetActiveConditionState(bestConditionState, teamColor);
+            SetActiveConditionState(bestConditionState, colorIndex);
         }
 
-        private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState, Vector3 teamColor)
+        private W3dModelDrawConditionState CreateModelDrawConditionStateInstance(ModelConditionState conditionState, uint colorIndex)
         {
             ModelInstance modelInstance = null;
             LoadOptions options = new LoadOptions();
@@ -195,7 +195,7 @@ namespace OpenSage.Logic.Object
                 }
             }
 
-            SetTeamColor(teamColor);
+            SetTeamColor(colorIndex);
 
             return modelInstance != null
                ? new W3dModelDrawConditionState(modelInstance, particleSystems)
@@ -212,9 +212,9 @@ namespace OpenSage.Logic.Object
             _activeModelDrawConditionState?.SetWorldMatrix(worldMatrix);
         }
 
-        internal void SetTeamColor(in Vector3 teamColor)
+        internal void SetTeamColor(uint colorIndex)
         {
-            _activeModelDrawConditionState?.SetTeamColor(teamColor);
+            _activeModelDrawConditionState?.SetTeamColor(colorIndex);
         }
 
         internal override void BuildRenderList(RenderList renderList, Camera camera, bool castsShadow)
@@ -265,9 +265,9 @@ namespace OpenSage.Logic.Object
             _modelInstance.SetWorldMatrix(worldMatrix);
         }
 
-        public void SetTeamColor(in Vector3 teamColor)
+        public void SetTeamColor(uint colorIndex)
         {
-            _modelInstance.SetTeamColor(teamColor);
+            _modelInstance.SetTeamColor(colorIndex);
         }
 
         public void BuildRenderList(RenderList renderList, Camera camera, bool castsShadow)
@@ -379,9 +379,9 @@ namespace OpenSage.Logic.Object
             ConditionStates.Add(aliasedConditionState);
         }
 
-        internal override DrawModule CreateDrawModule(ContentManager contentManager, ColorRgb houseColor)
+        internal override DrawModule CreateDrawModule(ContentManager contentManager, uint colorIndex)
         {
-            return new W3dModelDraw(contentManager, this, houseColor);
+            return new W3dModelDraw(contentManager, this, colorIndex);
         }
     }
 
