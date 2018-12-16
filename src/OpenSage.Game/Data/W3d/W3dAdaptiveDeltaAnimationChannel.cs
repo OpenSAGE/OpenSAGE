@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using OpenSage.Data.Utilities;
 using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
@@ -25,9 +24,9 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public float Scale { get; private set; }
 
-        public W3dAnimationChannelDatum[] Data { get; private set; }
+        public W3dAdaptiveDeltaData Data { get; private set; }
 
-        internal static W3dAdaptiveDeltaAnimationChannel Parse(BinaryReader reader, int nBits)
+        internal static W3dAdaptiveDeltaAnimationChannel Parse(BinaryReader reader, W3dAdaptiveDeltaBitCount bitCount)
         {
             var startPosition = reader.BaseStream.Position;
 
@@ -42,13 +41,12 @@ namespace OpenSage.Data.W3d
 
             W3dAnimationChannel.ValidateChannelDataSize(result.ChannelType, result.VectorLength);
 
-            result.Data = W3dAdaptiveDelta.ReadAdaptiveDelta(
+            result.Data = W3dAdaptiveDeltaData.Parse(
                 reader,
                 result.NumTimeCodes,
                 result.ChannelType,
                 result.VectorLength,
-                result.Scale,
-                nBits);
+                bitCount);
 
             //Skip 3 unknown bytes at chunkend. Only set for quaternions.
             reader.BaseStream.Seek(3, SeekOrigin.Current);
@@ -64,7 +62,7 @@ namespace OpenSage.Data.W3d
             writer.Write((byte) ChannelType);
             writer.Write(Scale);
 
-            // TODO
+            Data.WriteTo(writer, ChannelType);
         }
     }
 }

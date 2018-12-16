@@ -793,18 +793,18 @@ namespace OpenSage.Content
             for (var i = 0; i < numKeyframes; i++)
             {
                 var time = TimeSpan.FromSeconds((w3dChannel.FirstFrame + i) / (double) w3dAnimation.Header.FrameRate);
-                keyframes[i] = CreateKeyframe(w3dChannel.ChannelType, time, ref data[i]);
+                keyframes[i] = CreateKeyframe(w3dChannel.ChannelType, time, data[i]);
             }
 
             return new AnimationClip(w3dChannel.ChannelType.ToAnimationClipType(), bone, keyframes);
         }
 
-        private static Keyframe CreateKeyframe(W3dAnimationChannelType channelType, TimeSpan time, ref W3dAnimationChannelDatum datum)
+        private static Keyframe CreateKeyframe(W3dAnimationChannelType channelType, TimeSpan time, in W3dAnimationChannelDatum datum)
         {
-            return new Keyframe(time, CreateKeyframeValue(channelType, ref datum));
+            return new Keyframe(time, CreateKeyframeValue(channelType, datum));
         }
 
-        private static KeyframeValue CreateKeyframeValue(W3dAnimationChannelType channelType, ref W3dAnimationChannelDatum datum)
+        private static KeyframeValue CreateKeyframeValue(W3dAnimationChannelType channelType, in W3dAnimationChannelDatum datum)
         {
             switch (channelType)
             {
@@ -881,7 +881,7 @@ namespace OpenSage.Content
             {
                 var timeCodedDatum = w3dChannel.Data[i];
                 var time = TimeSpan.FromSeconds(timeCodedDatum.TimeCode / (double) w3dAnimation.Header.FrameRate);
-                keyframes[i] = CreateKeyframe(w3dChannel.ChannelType, time, ref timeCodedDatum.Value);
+                keyframes[i] = CreateKeyframe(w3dChannel.ChannelType, time, timeCodedDatum.Value);
             }
 
             return new AnimationClip(w3dChannel.ChannelType.ToAnimationClipType(), bone, keyframes);
@@ -893,10 +893,15 @@ namespace OpenSage.Content
 
             var keyframes = new Keyframe[w3dChannel.NumTimeCodes];
 
+            var decodedData = W3dAdaptiveDeltaCodec.Decode(
+                w3dChannel.Data,
+                w3dChannel.NumTimeCodes,
+                w3dChannel.Scale);
+
             for (var i = 0; i < w3dChannel.NumTimeCodes; i++)
             {
                 var time = TimeSpan.FromSeconds(i / (double) w3dAnimation.Header.FrameRate);
-                keyframes[i] = CreateKeyframe(w3dChannel.ChannelType, time, ref w3dChannel.Data[i]);
+                keyframes[i] = CreateKeyframe(w3dChannel.ChannelType, time, decodedData[i]);
             }
 
             return new AnimationClip(w3dChannel.ChannelType.ToAnimationClipType(), bone, keyframes);
@@ -907,11 +912,11 @@ namespace OpenSage.Content
             var bone = w3dChannel.Pivot;
 
             var keyframes = new Keyframe[w3dChannel.NumTimeCodes];
-
-            for (var i = 0; i < w3dChannel.Data.TimeCodes.Length; i++)
+            var i = 0;
+            foreach (var keyframeWithValue in w3dChannel.Data.GetKeyframesWithValues(w3dChannel))
             {
-                var time = TimeSpan.FromSeconds(w3dChannel.Data.TimeCodes[i] / (double) w3dAnimation.Header.FrameRate);
-                keyframes[i] = CreateKeyframe(w3dChannel.ChannelType, time, ref w3dChannel.Data.Values[i]);
+                var time = TimeSpan.FromSeconds(keyframeWithValue.Keyframe / (double) w3dAnimation.Header.FrameRate);
+                keyframes[i++] = CreateKeyframe(w3dChannel.ChannelType, time, keyframeWithValue.Datum);
             }
 
             return new AnimationClip(w3dChannel.ChannelType.ToAnimationClipType(), bone, keyframes);

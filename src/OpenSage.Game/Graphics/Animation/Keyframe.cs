@@ -4,10 +4,10 @@ using System.Runtime.InteropServices;
 
 namespace OpenSage.Graphics.Animation
 {
-    public struct Keyframe
+    public readonly struct Keyframe
     {
-        public TimeSpan Time;
-        public KeyframeValue Value;
+        public readonly TimeSpan Time;
+        public readonly KeyframeValue Value;
 
         public Keyframe(TimeSpan time, KeyframeValue value)
         {
