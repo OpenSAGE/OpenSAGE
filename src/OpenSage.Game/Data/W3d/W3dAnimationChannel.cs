@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Graphics.Animation;
 
 namespace OpenSage.Data.W3d
 {

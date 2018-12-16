@@ -34,7 +34,7 @@ namespace OpenSage.Data.W3d
             {
                 DeltaType = reader.ReadByteAsEnum<W3dMotionChannelDeltaType>(),
                 VectorLength = reader.ReadByte(),
-                ChannelType = (W3dAnimationChannelType) reader.ReadByte(),
+                ChannelType = reader.ReadByteAsEnum<W3dAnimationChannelType>(),
                 NumTimeCodes = reader.ReadUInt16(),
                 Pivot = reader.ReadUInt16()
             };
@@ -48,11 +48,11 @@ namespace OpenSage.Data.W3d
                     break;
 
                 case W3dMotionChannelDeltaType.Delta4:
-                    result.Data = W3dMotionChannelAdaptiveDeltaData.Parse(reader, result.NumTimeCodes, result.ChannelType, result.VectorLength, 4);
+                    result.Data = W3dMotionChannelAdaptiveDeltaData.Parse(reader, result.NumTimeCodes, result.ChannelType, result.VectorLength, W3dAdaptiveDeltaBitCount.FourBits);
                     break;
 
                 case W3dMotionChannelDeltaType.Delta8:
-                    result.Data = W3dMotionChannelAdaptiveDeltaData.Parse(reader, result.NumTimeCodes, result.ChannelType, result.VectorLength, 8);
+                    result.Data = W3dMotionChannelAdaptiveDeltaData.Parse(reader, result.NumTimeCodes, result.ChannelType, result.VectorLength, W3dAdaptiveDeltaBitCount.EightBits);
                     break;
 
                 default:
@@ -60,6 +60,17 @@ namespace OpenSage.Data.W3d
             }
 
             return result;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write((byte) DeltaType);
+            writer.Write(VectorLength);
+            writer.Write((byte) ChannelType);
+            writer.Write(NumTimeCodes);
+            writer.Write(Pivot);
+
+            Data.WriteTo(writer, ChannelType);
         }
     }
 }

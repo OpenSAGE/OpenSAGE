@@ -38,7 +38,7 @@ namespace OpenSage.Data.W3d
                                 break;
 
                             case W3dCompressedAnimationFlavor.AdaptiveDelta4:
-                                adaptiveDeltaChannels.Add(W3dAdaptiveDeltaAnimationChannel.Parse(reader, 4));
+                                adaptiveDeltaChannels.Add(W3dAdaptiveDeltaAnimationChannel.Parse(reader, W3dAdaptiveDeltaBitCount.FourBits));
                                 break;
 
                             default:
@@ -93,6 +93,22 @@ namespace OpenSage.Data.W3d
             foreach (var channel in TimeCodedChannels)
             {
                 WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL, false, () =>
+                {
+                    channel.WriteTo(writer);
+                });
+            }
+
+            foreach (var channel in AdaptiveDeltaChannels)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL, false, () =>
+                {
+                    channel.WriteTo(writer);
+                });
+            }
+
+            foreach (var channel in MotionChannels)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL, false, () =>
                 {
                     channel.WriteTo(writer);
                 });
