@@ -21,7 +21,9 @@ namespace OpenSage.Data.Ini
             { "StandingWaterTexture", (parser, x) => x.StandingWaterTexture = parser.ParseFileName() },
             { "AdditiveBlending", (parser, x) => x.AdditiveBlending = parser.ParseBoolean() },
             { "RadarWaterColor", (parser, x) => x.RadarWaterColor = IniColorRgb.Parse(parser) },
-            { "RiverTransparencyMultiplier", (parser, x) => x.RiverTransparencyMultiplier = parser.ParseFloat() }
+            { "RiverTransparencyMultiplier", (parser, x) => x.RiverTransparencyMultiplier = parser.ParseFloat() },
+            { "ReflectionPlaneZ", (parser, x) => x.ReflectionPlaneZ = parser.ParseFloat() },
+            { "ReflectionOn", (parser, x) => x.ReflectionOn = parser.ParseBoolean() }
         };
 
         public float TransparentWaterMinOpacity { get; private set; }
@@ -47,5 +49,11 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public float RiverTransparencyMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float ReflectionPlaneZ { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ReflectionOn { get; private set; }
     }
 }

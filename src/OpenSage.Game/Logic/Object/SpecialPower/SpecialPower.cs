@@ -27,7 +27,8 @@ namespace OpenSage.Logic.Object
             { "AvailableAtStart", (parser, x) => x.AvailableAtStart = parser.ParseBoolean() },
             { "TargetAllSides", (parser, x) => x.TargetAllSides = parser.ParseBoolean() },
             { "AffectAllies", (parser, x) => x.AffectAllies = parser.ParseBoolean() },
-            { "AttributeModifierWeatherBased", (parser, x) => x.AttributeModifierWeatherBased = parser.ParseBoolean() }
+            { "AttributeModifierWeatherBased", (parser, x) => x.AttributeModifierWeatherBased = parser.ParseBoolean() },
+            { "TargetEnemy", (parser, x) => x.TargetEnemy = parser.ParseBoolean() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -83,5 +84,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool AttributeModifierWeatherBased { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool TargetEnemy { get; private set; }
     }
 }
