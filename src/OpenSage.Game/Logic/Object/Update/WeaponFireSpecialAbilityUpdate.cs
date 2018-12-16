@@ -26,7 +26,8 @@ namespace OpenSage.Logic.Object
             { "BusyForDuration", (parser, x) => x.BusyForDuration = parser.ParseInteger() },
             { "FreezeAfterTriggerDuration", (parser, x) => x.FreezeAfterTriggerDuration = parser.ParseInteger() },
             { "TriggerSound", (parser, x) => x.TriggerSound = parser.ParseAssetReference() },
-            { "PlayWeaponPreFireFX", (parser, x) => x.PlayWeaponPreFireFX = parser.ParseBoolean() }
+            { "PlayWeaponPreFireFX", (parser, x) => x.PlayWeaponPreFireFX = parser.ParseBoolean() },
+            { "Instant", (parser, x) => x.Instant = parser.ParseBoolean() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -48,5 +49,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool PlayWeaponPreFireFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool Instant { get; private set; }
     }
 }
