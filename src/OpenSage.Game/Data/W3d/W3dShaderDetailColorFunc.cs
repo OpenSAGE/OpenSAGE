@@ -47,6 +47,9 @@
         /// </summary>
         DetailBlend,
 
+        // Only used by skybox01.w3d in BFME II, no idea why.
+        DetailAlt = 10,
+
         // Used only by armyantsglow.w3d in BFME, no idea why.
         ScaleAlt = 11,
         InvScaleAlt = 12

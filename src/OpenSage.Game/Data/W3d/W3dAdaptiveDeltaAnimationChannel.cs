@@ -63,6 +63,12 @@ namespace OpenSage.Data.W3d
             writer.Write(Scale);
 
             Data.WriteTo(writer, ChannelType);
+
+            // Skip
+            for (var i = 0; i < 3; i++)
+            {
+                writer.Write((byte) 0);
+            }
         }
     }
 }
