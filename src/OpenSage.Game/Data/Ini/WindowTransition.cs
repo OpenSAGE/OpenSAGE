@@ -123,26 +123,17 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("CONTROLBARARROW"), AddedIn(SageGame.Bfme)]
         ControlBarArrow,
-    
-        [IniEnum("COUNTUP"), AddedIn(SageGame.Bfme)]
-        Countup,
-
-        [IniEnum("WINFADE"), AddedIn(SageGame.Bfme)]
-        Winfade,
 
         [IniEnum("SOUNDFADE"), AddedIn(SageGame.Bfme)]
-        Soundfade,
+        SoundFade,
 
         [IniEnum("FREEZE_POST_LOAD_SOUNDS"), AddedIn(SageGame.Bfme)]
         FreezePostLoadSounds,
 
         [IniEnum("IMAGEFADE"), AddedIn(SageGame.Bfme)]
-        Imagefade,
+        ImageFade,
 
         [IniEnum("IMAGECROSSFADE"), AddedIn(SageGame.Bfme)]
-        Imagecrossfade,
-
-        [IniEnum("WINSCALEUP"), AddedIn(SageGame.Bfme)]
-        WinscaleUp,
+        ImageCrossFade,
     }
 }
