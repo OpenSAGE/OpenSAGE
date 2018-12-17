@@ -14,7 +14,7 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<WeaponSet> FieldParseTable = new IniParseTable<WeaponSet>
         {
-            { "Conditions", (parser, x) => x.Conditions = parser.ParseEnumFlags<WeaponSetConditions>() },
+            { "Conditions", (parser, x) => x.Conditions = parser.ParseEnumBitArray<WeaponSetConditions>() },
             { "Weapon", (parser, x) => x.ParseWeaponSlotProperty(parser, s => s.Weapon = parser.ParseAssetReference()) },
             { "PreferredAgainst", (parser, x) => x.ParseWeaponSlotProperty(parser, s => s.PreferredAgainst = parser.ParseEnumBitArray<ObjectKinds>()) },
             { "AutoChooseSources", (parser, x) => x.ParseWeaponSlotProperty(parser, s => s.AutoChooseSources = parser.ParseEnumFlags<CommandSourceTypes>()) },
@@ -23,7 +23,7 @@ namespace OpenSage.Logic.Object
             { "OnlyAgainst", (parser, x) => x.ParseWeaponSlotProperty(parser, s => s.PreferredAgainst = parser.ParseEnumBitArray<ObjectKinds>()) },
         };
 
-        public WeaponSetConditions Conditions { get; private set; }
+        public BitArray<WeaponSetConditions> Conditions { get; private set; }
         public Dictionary<WeaponSlot, WeaponSetSlot> Slots { get; } = new Dictionary<WeaponSlot, WeaponSetSlot>();
         public bool ShareWeaponReloadTime { get; private set; }
         public bool WeaponLockSharedAcrossSets { get; private set; }

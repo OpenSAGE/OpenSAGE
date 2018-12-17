@@ -181,6 +181,7 @@ namespace OpenSage.Logic.Object
             { "StoreObjectsSpecialPower", StoreObjectsSpecialPowerModuleData.Parse },
             { "TaintSpecialPower", TaintSpecialPowerModuleData.Parse },
             { "TeleportToCasterSpecialPower", TeleportToCasterSpecialPowerModuleData.Parse },
+            { "UntamedAllegianceSpecialPower", UntamedAllegianceSpecialPowerModuleData.Parse },
 
             // Update
             { "AnimationSteeringUpdate", AnimationSteeringUpdateModuleData.Parse },
@@ -232,6 +233,7 @@ namespace OpenSage.Logic.Object
             { "MobMemberSlavedUpdate", MobMemberSlavedUpdateModuleData.Parse },
             { "ModelConditionSpecialAbilityUpdate", ModelConditionSpecialAbilityUpdateModuleData.Parse },
             { "NeutronMissileUpdate", NeutronMissileUpdateModuleData.Parse },
+            { "NotifyTargetsOfImminentProbableCrushingUpdate", NotifyTargetsOfImminentProbableCrushingUpdateModuleData.Parse },
             { "OCLUpdate", OCLUpdateModuleData.Parse },
             { "OneRingPenaltyUpdate", OneRingPenaltyUpdateModuleData.Parse },
             { "ParticleUplinkCannonUpdate", ParticleUplinkCannonUpdateModuleData.Parse },
@@ -325,6 +327,7 @@ namespace OpenSage.Logic.Object
             { "PassengersFireUpgrade", PassengersFireUpgradeModuleData.Parse },
             { "PowerPlantUpgrade", PowerPlantUpgradeModuleData.Parse },
             { "RadarUpgrade", RadarUpgradeModuleData.Parse },
+            { "RemoveUpgradeUpgrade", RemoveUpgradeUpgradeModuleData.Parse },
             { "ReplaceObjectUpgrade", ReplaceObjectUpgradeModuleData.Parse },
             { "StatusBitsUpgrade", StatusBitsUpgradeModuleData.Parse },
             { "StealthUpgrade", StealthUpgradeModuleData.Parse },

@@ -12,6 +12,11 @@ namespace OpenSage.Logic.Object
         internal static WeaponSetUpgradeModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static new readonly IniParseTable<WeaponSetUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
-            .Concat(new IniParseTable<WeaponSetUpgradeModuleData>());
+            .Concat(new IniParseTable<WeaponSetUpgradeModuleData>
+            {
+                { "WeaponCondition", (parser, x) => x.WeaponCondition = parser.ParseEnum<WeaponSetConditions>() },
+            });
+
+        public WeaponSetConditions WeaponCondition { get; private set; }
     }
 }

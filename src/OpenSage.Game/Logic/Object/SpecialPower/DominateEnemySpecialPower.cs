@@ -18,7 +18,8 @@ namespace OpenSage.Logic.Object
                 { "UnpackTime", (parser, x) => x.UnpackTime = parser.ParseInteger() },
                 { "PreparationTime", (parser, x) => x.PreparationTime = parser.ParseInteger() },
                 { "FreezeAfterTriggerDuration", (parser, x) => x.FreezeAfterTriggerDuration = parser.ParseInteger() },
-                { "PermanentlyConvert", (parser, x) => x.PermanentlyConvert = parser.ParseBoolean() }
+                { "PermanentlyConvert", (parser, x) => x.PermanentlyConvert = parser.ParseBoolean() },
+                { "TriggerSound", (parser, x) => x.TriggerSound = parser.ParseAssetReference() }
             });
 
         public int UnpackingVariation { get; private set; }
@@ -31,5 +32,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool PermanentlyConvert { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string TriggerSound { get; private set; }
     }
 }

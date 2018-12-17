@@ -50,6 +50,7 @@ namespace OpenSage.Logic.Object
             { "ExitStealthFX", (parser, x) => x.ExitStealthFX = parser.ParseAssetReference() },
             { "BecomeStealthedOneRingFX", (parser, x) => x.BecomeStealthedOneRingFX = parser.ParseAssetReference() },
             { "ExitStealthOneRingFX", (parser, x) => x.ExitStealthOneRingFX = parser.ParseAssetReference() },
+             { "RequiredUpgradeNames", (parser, x) => x.RequiredUpgradeNames = parser.ParseAssetReferenceArray() },
         };
 
         public int StealthDelay { get; private set; }
@@ -127,5 +128,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string ExitStealthOneRingFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string[] RequiredUpgradeNames { get; private set; }
     }
 }

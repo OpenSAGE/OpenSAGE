@@ -888,5 +888,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("PACKING_TYPE_6"), AddedIn(SageGame.Bfme2)]
         PackingType6,
+
+        [IniEnum("CREATE_A_HERO_65"), AddedIn(SageGame.Bfme2)]
+        CreateAHero65,
+
+        [IniEnum("FIRING_ANY"), AddedIn(SageGame.Bfme2)]
+        FiringAny,
     }
 }
