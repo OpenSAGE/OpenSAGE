@@ -40,6 +40,11 @@ namespace OpenSage.Data.W3d
             writer.Write(TextureTileFactor);
             writer.Write(UPerSec);
             writer.Write(VPerSec);
+
+            for (var i = 0; i < 9; i++) // Padding
+            {
+                writer.Write(0u);
+            }
         }
     }
 }

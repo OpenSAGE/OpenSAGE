@@ -22,6 +22,8 @@ namespace OpenSage.Data.W3d
 
         public W3dEmitterBlurTimeKeyframes BlurTimeKeyframes { get; private set; }
 
+        public byte[] Unknown { get; private set; }
+
         internal static W3dEmitter Parse(BinaryReader reader, uint chunkSize)
         {
             return ParseChunk<W3dEmitter>(reader, chunkSize, (result, header) =>
@@ -64,9 +66,9 @@ namespace OpenSage.Data.W3d
                         result.BlurTimeKeyframes = W3dEmitterBlurTimeKeyframes.Parse(reader);
                         break;
 
-                    case (W3dChunkType) 1293:
+                    case W3dChunkType.W3D_CHUNK_EMITTER_UNKNOWN:
                         // TODO: What is this?
-                        reader.ReadBytes((int)header.ChunkSize);
+                        result.Unknown = reader.ReadBytes((int)header.ChunkSize);
                         break;
 
                     default:
@@ -114,6 +116,14 @@ namespace OpenSage.Data.W3d
                 });
             }
 
+            if (LineProperties != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_LINE_PROPERTIES, false, () =>
+                {
+                    LineProperties.WriteTo(writer);
+                });
+            }
+
             if (RotationKeyframes != null)
             {
                 WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_ROTATION_KEYFRAMES, false, () =>
@@ -127,6 +137,22 @@ namespace OpenSage.Data.W3d
                 WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_FRAME_KEYFRAMES, false, () =>
                 {
                     FrameKeyframes.WriteTo(writer);
+                });
+            }
+
+            if (BlurTimeKeyframes != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_BLUR_TIME_KEYFRAMES, false, () =>
+                {
+                    BlurTimeKeyframes.WriteTo(writer);
+                });
+            }
+
+            if (Unknown != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_UNKNOWN, false, () =>
+                {
+                    writer.Write(Unknown);
                 });
             }
         }
