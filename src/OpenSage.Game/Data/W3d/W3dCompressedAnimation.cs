@@ -98,6 +98,14 @@ namespace OpenSage.Data.W3d
                 });
             }
 
+            foreach (var channel in TimeCodedBitChannels)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_COMPRESSED_BIT_CHANNEL, false, () =>
+                {
+                    channel.WriteTo(writer);
+                });
+            }
+
             foreach (var channel in AdaptiveDeltaChannels)
             {
                 WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL, false, () =>

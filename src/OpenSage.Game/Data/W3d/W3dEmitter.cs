@@ -66,7 +66,7 @@ namespace OpenSage.Data.W3d
                         result.BlurTimeKeyframes = W3dEmitterBlurTimeKeyframes.Parse(reader);
                         break;
 
-                    case W3dChunkType.W3D_CHUNK_EMITTER_UNKNOWN:
+                    case W3dChunkType.W3D_CHUNK_EMITTER_EXTRA_INFO:
                         // TODO: What is this?
                         result.Unknown = reader.ReadBytes((int)header.ChunkSize);
                         break;
@@ -150,7 +150,7 @@ namespace OpenSage.Data.W3d
 
             if (Unknown != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_UNKNOWN, false, () =>
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_EXTRA_INFO, false, () =>
                 {
                     writer.Write(Unknown);
                 });

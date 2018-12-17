@@ -19,7 +19,7 @@ namespace OpenSage.Data.W3d
 
         public W3dTimeCodedBitDatum[] Data { get; private set; }
 
-        public static W3dTimeCodedBitChannel Parse(BinaryReader reader)
+        internal static W3dTimeCodedBitChannel Parse(BinaryReader reader)
         {
             var startPosition = reader.BaseStream.Position;
 
@@ -27,7 +27,7 @@ namespace OpenSage.Data.W3d
             {
                 NumTimeCodes = reader.ReadUInt32(),
                 Pivot = reader.ReadUInt16(),
-                ChannelType = (W3dBitChannelType) reader.ReadByte(),
+                ChannelType = reader.ReadByteAsEnum<W3dBitChannelType>(),
                 DefaultValue = reader.ReadBooleanChecked()
             };
 
@@ -35,34 +35,64 @@ namespace OpenSage.Data.W3d
 
             for (var i = 0; i < result.NumTimeCodes; i++)
             {
-                var timecode = reader.ReadUInt32();
-
-                // TODO: Verify this guess.
-                var value = false;
-                if ((timecode >> 31) == 1)
-                {
-                    value = true;
-
-                    timecode &= ~(1 << 31);
-                }
-
-                data[i] = new W3dTimeCodedBitDatum
-                {
-                    TimeCode = timecode,
-                    Value = value
-                };
+                data[i] = W3dTimeCodedBitDatum.Parse(reader);
             }
 
             result.Data = data;
 
             return result;
         }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(NumTimeCodes);
+            writer.Write(Pivot);
+            writer.Write((byte) ChannelType);
+            writer.Write(DefaultValue);
+
+            for (var i = 0; i < Data.Length; i++)
+            {
+                Data[i].WriteTo(writer);
+            }
+        }
     }
 
     [DebuggerDisplay("TimeCode = {TimeCode}, Value = {Value}")]
     public sealed class W3dTimeCodedBitDatum
     {
-        public uint TimeCode;
-        public bool Value;
+        public uint TimeCode { get; private set; }
+        public bool Value { get; private set; }
+
+        internal static W3dTimeCodedBitDatum Parse(BinaryReader reader)
+        {
+            var timecode = reader.ReadUInt32();
+
+            // TODO: Verify this guess.
+            var value = false;
+            if ((timecode >> 31) == 1)
+            {
+                value = true;
+
+                timecode &= ~(1 << 31);
+            }
+
+            return new W3dTimeCodedBitDatum
+            {
+                TimeCode = timecode,
+                Value = value
+            };
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            var valueToWrite = TimeCode;
+
+            if (Value)
+            {
+                valueToWrite |= (1u << 31);
+            }
+
+            writer.Write(valueToWrite);
+        }
     }
 }
