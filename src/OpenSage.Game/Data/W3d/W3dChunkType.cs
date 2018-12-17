@@ -129,7 +129,7 @@
             W3D_CHUNK_EMITTER_ROTATION_KEYFRAMES,                           // rotation keys for the particles
             W3D_CHUNK_EMITTER_FRAME_KEYFRAMES,                              // frame keys (u-v based frame animation)
             W3D_CHUNK_EMITTER_BLUR_TIME_KEYFRAMES,                      // length of tail for line groups
-            W3D_CHUNK_EMITTER_UNKNOWN,
+            W3D_CHUNK_EMITTER_EXTRA_INFO,
 
         W3D_CHUNK_AGGREGATE = 0x00000600,       // description of an aggregate object
             W3D_CHUNK_AGGREGATE_HEADER,                                     // general information such as name and version
