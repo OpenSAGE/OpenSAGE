@@ -118,21 +118,27 @@ namespace OpenSage.Data.W3d
 
         internal void WriteTo(BinaryWriter writer)
         {
-            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL_IDS, false, () =>
+            if (VertexMaterialIds != null)
             {
-                foreach (var id in VertexMaterialIds)
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL_IDS, false, () =>
                 {
-                    writer.Write(id);
-                }
-            });
+                    foreach (var id in VertexMaterialIds)
+                    {
+                        writer.Write(id);
+                    }
+                });
+            }
 
-            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_SHADER_IDS, false, () =>
+            if (ShaderIds != null)
             {
-                foreach (var id in ShaderIds)
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_SHADER_IDS, false, () =>
                 {
-                    writer.Write(id);
-                }
-            });
+                    foreach (var id in ShaderIds)
+                    {
+                        writer.Write(id);
+                    }
+                });
+            }
 
             if (Dcg != null)
             {
@@ -150,6 +156,25 @@ namespace OpenSage.Data.W3d
                 WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_TEXTURE_STAGE, true, () =>
                 {
                     textureStage.WriteTo(writer);
+                });
+            }
+
+            if (ShaderMaterialId != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_SHADER_MATERIAL_ID, false, () =>
+                {
+                    writer.Write(ShaderMaterialId.Value);
+                });
+            }
+
+            if (TexCoords != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_STAGE_TEXCOORDS, false, () =>
+                {
+                    foreach (var texCoord in TexCoords)
+                    {
+                        writer.Write(texCoord);
+                    }
                 });
             }
         }

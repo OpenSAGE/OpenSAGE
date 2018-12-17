@@ -64,6 +64,8 @@ namespace OpenSage.Data.W3d
 
         internal void WriteTo(BinaryWriter writer)
         {
+            writer.Write((byte) 0);
+
             writer.Write((byte) DeltaType);
             writer.Write(VectorLength);
             writer.Write((byte) ChannelType);

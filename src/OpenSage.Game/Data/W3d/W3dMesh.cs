@@ -278,6 +278,28 @@ namespace OpenSage.Data.W3d
                 });
             }
 
+            if (Tangents != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_TANGENTS, false, () =>
+                {
+                    for (var i = 0; i < Tangents.Length; i++)
+                    {
+                        writer.Write(Tangents[i]);
+                    }
+                });
+            }
+
+            if (Bitangents != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_BITANGENTS, false, () =>
+                {
+                    for (var i = 0; i < Bitangents.Length; i++)
+                    {
+                        writer.Write(Bitangents[i]);
+                    }
+                });
+            }
+
             WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_TRIANGLES, false, () =>
             {
                 for (var i = 0; i < Triangles.Length; i++)
@@ -310,24 +332,38 @@ namespace OpenSage.Data.W3d
                 MaterialInfo.WriteTo(writer);
             });
 
-            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_VERTEX_MATERIALS, true, () =>
+            if (ShaderMaterials != null)
             {
-                foreach (var material in Materials)
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_SHADER_MATERIALS, false, () =>
                 {
-                    WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL, true, () =>
-                    {
-                        material.WriteTo(writer);
-                    });
-                }
-            });
+                    ShaderMaterials.WriteTo(writer);
+                });
+            }
 
-            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_SHADERS, false, () =>
+            if (Materials.Length > 0)
             {
-                foreach (var shader in Shaders)
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_VERTEX_MATERIALS, true, () =>
                 {
-                    shader.WriteTo(writer);
-                }
-            });
+                    foreach (var material in Materials)
+                    {
+                        WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL, true, () =>
+                        {
+                            material.WriteTo(writer);
+                        });
+                    }
+                });
+            }
+
+            if (Shaders.Length > 0)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_SHADERS, false, () =>
+                {
+                    foreach (var shader in Shaders)
+                    {
+                        shader.WriteTo(writer);
+                    }
+                });
+            }
 
             if (ShadersPs2 != null)
             {

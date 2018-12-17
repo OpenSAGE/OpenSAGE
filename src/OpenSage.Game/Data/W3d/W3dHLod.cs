@@ -60,6 +60,14 @@ namespace OpenSage.Data.W3d
                     lod.WriteTo(writer);
                 });
             }
+
+            if (Aggregate != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_HLOD_AGGREGATE_ARRAY, true, () =>
+                {
+                    Aggregate.WriteTo(writer);
+                });
+            }
         }
     }
 }
