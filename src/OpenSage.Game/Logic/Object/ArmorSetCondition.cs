@@ -27,5 +27,23 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("PLAYER_UPGRADE_2"), AddedIn(SageGame.Bfme)]
         PlayerUpgrade2,
+
+        [IniEnum("CREATE_A_HERO_01"), AddedIn(SageGame.Bfme2)]
+        CreateAHero01,
+
+        [IniEnum("CREATE_A_HERO_02"), AddedIn(SageGame.Bfme2)]
+        CreateAHero02,
+
+        [IniEnum("CREATE_A_HERO_03"), AddedIn(SageGame.Bfme2)]
+        CreateAHero03,
+
+        [IniEnum("CREATE_A_HERO_04"), AddedIn(SageGame.Bfme2)]
+        CreateAHero04,
+
+        [IniEnum("CREATE_A_HERO_05"), AddedIn(SageGame.Bfme2)]
+        CreateAHero05,
+
+        [IniEnum("CREATE_A_HERO_06"), AddedIn(SageGame.Bfme2)]
+        CreateAHero06,
     }
 }
