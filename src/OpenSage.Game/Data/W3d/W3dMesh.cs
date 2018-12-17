@@ -9,6 +9,8 @@ namespace OpenSage.Data.W3d
     {
         public W3dMeshHeader3 Header { get; private set; }
 
+        public string UserText { get; private set; }
+
         public Vector3[] Vertices { get; private set; }
         public Vector3[] Normals { get; private set; }
 
@@ -172,9 +174,9 @@ namespace OpenSage.Data.W3d
                         break;
 
                     case W3dChunkType.W3D_CHUNK_MESH_USER_TEXT:
-                        // TODO: Do we need this? It has line-separated key/value pairs
+                        // This has line-separated key/value pairs
                         // for things like mass, elasticity, friction, etc.
-                        reader.ReadBytes((int) header.ChunkSize);
+                       result.UserText = reader.ReadFixedLengthString((int) header.ChunkSize);
                         break;
 
                     case W3dChunkType.W3D_CHUNK_VERTICES_2:
@@ -230,6 +232,14 @@ namespace OpenSage.Data.W3d
                 Header.WriteTo(writer);
             });
 
+            if (UserText != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_MESH_USER_TEXT, false, () =>
+                {
+                    writer.WriteFixedLengthString(UserText, UserText.Length + 1);
+                });
+            }
+
             WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_VERTICES, false, () =>
             {
                 for (var i = 0; i < Vertices.Length; i++)
@@ -238,6 +248,17 @@ namespace OpenSage.Data.W3d
                 }
             });
 
+            if (Vertices2 != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_VERTICES_2, false, () =>
+                {
+                    for (var i = 0; i < Vertices2.Length; i++)
+                    {
+                        writer.Write(Vertices2[i]);
+                    }
+                });
+            }
+
             WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_VERTEX_NORMALS, false, () =>
             {
                 for (var i = 0; i < Normals.Length; i++)
@@ -245,6 +266,17 @@ namespace OpenSage.Data.W3d
                     writer.Write(Normals[i]);
                 }
             });
+
+            if (Normals2 != null)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_NORMALS_2, false, () =>
+                {
+                    for (var i = 0; i < Normals2.Length; i++)
+                    {
+                        writer.Write(Normals2[i]);
+                    }
+                });
+            }
 
             WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_TRIANGLES, false, () =>
             {
