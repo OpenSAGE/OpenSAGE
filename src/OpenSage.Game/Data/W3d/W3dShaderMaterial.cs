@@ -9,7 +9,7 @@ namespace OpenSage.Data.W3d
 
         public IReadOnlyList<W3dShaderMaterialProperty> Properties { get; private set; }
 
-        public static W3dShaderMaterial Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dShaderMaterial Parse(BinaryReader reader, uint chunkSize)
         {
             var properties = new List<W3dShaderMaterialProperty>();
 
@@ -33,6 +33,22 @@ namespace OpenSage.Data.W3d
             finalResult.Properties = properties;
 
             return finalResult;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_SHADER_MATERIAL_HEADER, false, () =>
+            {
+                Header.WriteTo(writer);
+            });
+
+            foreach (var property in Properties)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_SHADER_MATERIAL_PROPERTY, false, () =>
+                {
+                    property.WriteTo(writer);
+                });
+            }
         }
     }
 }

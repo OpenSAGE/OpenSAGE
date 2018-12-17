@@ -8,7 +8,7 @@ namespace OpenSage.Data.W3d
         public byte Number { get; private set; }
         public string TypeName { get; private set; }
 
-        public static W3dShaderMaterialHeader Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dShaderMaterialHeader Parse(BinaryReader reader, uint chunkSize)
         {
             var result = new W3dShaderMaterialHeader
             {
@@ -19,6 +19,14 @@ namespace OpenSage.Data.W3d
             reader.ReadUInt32(); // Reserved
 
             return result;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(Number);
+            writer.WriteFixedLengthString(TypeName, W3dConstants.NameLength * 2);
+
+            writer.Write(0u); // Reserved
         }
     }
 }

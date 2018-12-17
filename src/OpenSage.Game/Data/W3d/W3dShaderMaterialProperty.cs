@@ -14,7 +14,7 @@ namespace OpenSage.Data.W3d
         public string StringValue { get; private set; }
         public W3dShaderMaterialPropertyValue Value { get; private set; }
 
-        public static W3dShaderMaterialProperty Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dShaderMaterialProperty Parse(BinaryReader reader, uint chunkSize)
         {
             var result = new W3dShaderMaterialProperty
             {
@@ -31,27 +31,12 @@ namespace OpenSage.Data.W3d
                     break;
 
                 case W3dShaderMaterialPropertyType.Float:
-                    value.Float = reader.ReadSingle();
-                    break;
-
                 case W3dShaderMaterialPropertyType.Vector2:
-                    value.Vector2 = reader.ReadVector2();
-                    break;
-
                 case W3dShaderMaterialPropertyType.Vector3:
-                    value.Vector3 = reader.ReadVector3();
-                    break;
-
                 case W3dShaderMaterialPropertyType.Vector4:
-                    value.Vector4 = reader.ReadVector4();
-                    break;
-
                 case W3dShaderMaterialPropertyType.Int:
-                    value.Int = reader.ReadInt32();
-                    break;
-
                 case W3dShaderMaterialPropertyType.Bool:
-                    value.Bool = reader.ReadBooleanChecked();
+                    value = W3dShaderMaterialPropertyValue.Parse(reader, result.PropertyType);
                     break;
 
                 default:
@@ -61,6 +46,33 @@ namespace OpenSage.Data.W3d
             result.Value = value;
 
             return result;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            writer.Write((uint) PropertyType);
+            writer.Write((uint) PropertyName.Length + 1);
+            writer.WriteFixedLengthString(PropertyName, PropertyName.Length + 1);
+
+            switch (PropertyType)
+            {
+                case W3dShaderMaterialPropertyType.Texture:
+                    writer.Write(StringValue.Length + 1);
+                    writer.WriteFixedLengthString(StringValue, StringValue.Length + 1);
+                    break;
+
+                case W3dShaderMaterialPropertyType.Float:
+                case W3dShaderMaterialPropertyType.Vector2:
+                case W3dShaderMaterialPropertyType.Vector3:
+                case W3dShaderMaterialPropertyType.Vector4:
+                case W3dShaderMaterialPropertyType.Int:
+                case W3dShaderMaterialPropertyType.Bool:
+                    Value.WriteTo(writer, PropertyType);
+                    break;
+
+                default:
+                    throw new InvalidDataException();
+            }
         }
     }
 
@@ -84,5 +96,83 @@ namespace OpenSage.Data.W3d
 
         [FieldOffset(0)]
         public int Int;
+
+        internal static W3dShaderMaterialPropertyValue Parse(BinaryReader reader, W3dShaderMaterialPropertyType propertyType)
+        {
+            switch (propertyType)
+            {
+                case W3dShaderMaterialPropertyType.Float:
+                    return new W3dShaderMaterialPropertyValue
+                    {
+                        Float = reader.ReadSingle()
+                    };
+
+                case W3dShaderMaterialPropertyType.Vector2:
+                    return new W3dShaderMaterialPropertyValue
+                    {
+                        Vector2 = reader.ReadVector2()
+                    };
+
+                case W3dShaderMaterialPropertyType.Vector3:
+                    return new W3dShaderMaterialPropertyValue
+                    {
+                        Vector3 = reader.ReadVector3()
+                    };
+
+                case W3dShaderMaterialPropertyType.Vector4:
+                    return new W3dShaderMaterialPropertyValue
+                    {
+                        Vector4 = reader.ReadVector4()
+                    };
+
+                case W3dShaderMaterialPropertyType.Int:
+                    return new W3dShaderMaterialPropertyValue
+                    {
+                        Int = reader.ReadInt32()
+                    };
+
+                case W3dShaderMaterialPropertyType.Bool:
+                    return new W3dShaderMaterialPropertyValue
+                    {
+                        Bool = reader.ReadBooleanChecked()
+                    };
+
+                default:
+                    throw new InvalidDataException();
+            }
+        }
+
+        internal void WriteTo(BinaryWriter writer, W3dShaderMaterialPropertyType propertyType)
+        {
+            switch (propertyType)
+            {
+                case W3dShaderMaterialPropertyType.Float:
+                    writer.Write(Float);
+                    break;
+
+                case W3dShaderMaterialPropertyType.Vector2:
+                    writer.Write(Vector2);
+                    break;
+
+                case W3dShaderMaterialPropertyType.Vector3:
+                    writer.Write(Vector3);
+                    break;
+
+                case W3dShaderMaterialPropertyType.Vector4:
+                    writer.Write(Vector4);
+                    break;
+
+                case W3dShaderMaterialPropertyType.Int:
+                    writer.Write(Int);
+                    break;
+
+                case W3dShaderMaterialPropertyType.Bool:
+                    writer.Write(Bool);
+                    break;
+
+                default:
+                    throw new InvalidDataException();
+            }
+        }
     }
 }

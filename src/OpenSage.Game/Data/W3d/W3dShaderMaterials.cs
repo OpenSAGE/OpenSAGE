@@ -7,16 +7,16 @@ namespace OpenSage.Data.W3d
     {
         public IReadOnlyList<W3dShaderMaterial> Materials { get; private set; }
 
-        public static W3dShaderMaterials Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dShaderMaterials Parse(BinaryReader reader, uint chunkSize)
         {
-            var normalMaps = new List<W3dShaderMaterial>();
+            var materials = new List<W3dShaderMaterial>();
 
             var finalResult = ParseChunk<W3dShaderMaterials>(reader, chunkSize, (result, header) =>
             {
                 switch (header.ChunkType)
                 {
                     case W3dChunkType.W3D_CHUNK_SHADER_MATERIAL:
-                        normalMaps.Add(W3dShaderMaterial.Parse(reader, header.ChunkSize));
+                        materials.Add(W3dShaderMaterial.Parse(reader, header.ChunkSize));
                         break;
 
                     default:
@@ -24,9 +24,20 @@ namespace OpenSage.Data.W3d
                 }
             });
 
-            finalResult.Materials = normalMaps;
+            finalResult.Materials = materials;
 
             return finalResult;
+        }
+
+        internal void WriteTo(BinaryWriter writer)
+        {
+            foreach (var material in Materials)
+            {
+                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_SHADER_MATERIAL, true, () =>
+                {
+                    material.WriteTo(writer);
+                });
+            }
         }
     }
 }
