@@ -5,6 +5,7 @@ namespace OpenSage.Data.W3d
     public sealed class W3dAdaptiveDeltaData
     {
         public W3dAdaptiveDeltaBitCount BitCount { get; private set; }
+        public int VectorLength { get; private set; }
 
         public W3dAnimationChannelDatum InitialDatum { get; private set; }
         public W3dAdaptiveDeltaBlock[] DeltaBlocks { get; private set; }
@@ -13,7 +14,7 @@ namespace OpenSage.Data.W3d
             BinaryReader reader,
             uint numFrames,
             W3dAnimationChannelType type,
-            int vectorLen,
+            int vectorLength,
             W3dAdaptiveDeltaBitCount bitCount)
         {
             var count = (numFrames + 15) >> 4;
@@ -22,18 +23,19 @@ namespace OpenSage.Data.W3d
             var result = new W3dAdaptiveDeltaData
             {
                 BitCount = bitCount,
+                VectorLength = vectorLength,
                 InitialDatum = W3dAnimationChannelDatum.Parse(reader, type)
             };
 
             var numBits = (int) bitCount;
 
             // Then read the interleaved delta blocks
-            var deltaBlocks = new W3dAdaptiveDeltaBlock[count * vectorLen];
+            var deltaBlocks = new W3dAdaptiveDeltaBlock[count * vectorLength];
             for (var i = 0; i < count; i++)
             {
-                for (var j = 0; j < vectorLen; j++)
+                for (var j = 0; j < vectorLength; j++)
                 {
-                    deltaBlocks[(i * vectorLen) + j] = W3dAdaptiveDeltaBlock.Parse(
+                    deltaBlocks[(i * vectorLength) + j] = W3dAdaptiveDeltaBlock.Parse(
                         reader,
                         j,
                         numBits);
