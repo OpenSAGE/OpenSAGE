@@ -45,12 +45,10 @@ namespace OpenSage.Data.W3d
                     throw new InvalidOperationException("Adaptive delta only supported 4 bit & 8 bit!");
             }
 
-            var count = (numFrames + 15) >> 4;
             var result = new W3dAnimationChannelDatum[numFrames];
 
             result[0] = data.InitialDatum;
 
-            var idx = 1;
             for (var i = 0; i < data.DeltaBlocks.Length; i++)
             {
                 var deltaBlock = data.DeltaBlocks[i];
@@ -65,6 +63,7 @@ namespace OpenSage.Data.W3d
 
                 for (var j = 0; j < deltas.Length; j++)
                 {
+                    var idx = ((i / data.VectorLength) * 16) + j + 1;
                     if (idx >= numFrames)
                     {
                         break;
