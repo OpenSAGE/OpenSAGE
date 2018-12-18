@@ -694,5 +694,8 @@
 
         [IniEnum("PIKEMAN"), AddedIn(SageGame.Bfme2)]
         Pikeman,
+
+        [IniEnum("PIKE"), AddedIn(SageGame.Bfme2)]
+        Pike,
     }
 }

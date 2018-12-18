@@ -345,7 +345,9 @@ namespace OpenSage.Logic.Object
             { "AutoResolveCombatChain", (parser, x) => x.AutoResolveCombatChain = parser.ParseAssetReference() },
             { "AutoResolveBody", (parser, x) => x.AutoResolveBody = parser.ParseAssetReference() },
             { "AutoResolveArmor", (parser, x) => x.AutoResolveArmor = AutoResolveArmor.Parse(parser) },
-            { "AutoResolveWeapon", (parser, x) => x.AutoResolveWeapon = AutoResolveWeapon.Parse(parser) }
+            { "AutoResolveWeapon", (parser, x) => x.AutoResolveWeapon = AutoResolveWeapon.Parse(parser) },
+            { "DisplayNameStrategic", (parser, x) => x.DisplayNameStrategic = parser.ParseLocalizedStringKey() },
+            { "WorldMapArmoryUpgradesAllowed", (parser, x) => x.WorldMapArmoryUpgradesAllowed = parser.ParseAssetReferenceArray() }
         };
 
         public string Name { get; protected set; }
@@ -1081,6 +1083,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public AutoResolveWeapon AutoResolveWeapon { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string DisplayNameStrategic { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string[] WorldMapArmoryUpgradesAllowed { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -1298,9 +1306,13 @@ namespace OpenSage.Logic.Object
         internal static readonly IniParseTable<AutoResolveArmor> FieldParseTable = new IniParseTable<AutoResolveArmor>
         {
             { "Armor", (parser, x) => x.Armor = parser.ParseAssetReference() },
+            { "RequiredUpgrades", (parser, x) => x.RequiredUpgrades = parser.ParseAssetReferenceArray() },
+            { "ExcludedUpgrades", (parser, x) => x.ExcludedUpgrades = parser.ParseAssetReferenceArray() },
         };
 
         public string Armor { get; private set; }
+        public string[] RequiredUpgrades { get; private set; }
+        public string[] ExcludedUpgrades { get; private set; }
     }
 
 
@@ -1312,11 +1324,14 @@ namespace OpenSage.Logic.Object
         internal static readonly IniParseTable<AutoResolveWeapon> FieldParseTable = new IniParseTable<AutoResolveWeapon>
         {
             { "Weapon", (parser, x) => x.Weapon = parser.ParseAssetReference() },
+            { "RequiredUpgrades", (parser, x) => x.RequiredUpgrades = parser.ParseAssetReferenceArray() },
+            { "ExcludedUpgrades", (parser, x) => x.ExcludedUpgrades = parser.ParseAssetReferenceArray() },
         };
 
         public string Weapon { get; private set; }
+        public string[] RequiredUpgrades { get; private set; }
+        public string[] ExcludedUpgrades { get; private set; }
     }
-
 
     [AddedIn(SageGame.Bfme)]
     public enum ContactPointType

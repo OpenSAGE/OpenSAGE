@@ -14,7 +14,11 @@ namespace OpenSage.Logic.Object
             { "StartsActive", (parser, x) => x.StartsActive  = parser.ParseBoolean() },
             { "InvisibilityNugget", (parser, x) => x.InvisibilityNugget = InvisibilityNugget.Parse(parser) },
             { "RequiredUpgrades", (parser, x) => x.RequiredUpgrades = parser.ParseAssetReferenceArray() },
-            { "ForbiddenUpgrades", (parser, x) => x.ForbiddenUpgrades = parser.ParseAssetReferenceArray() }
+            { "ForbiddenUpgrades", (parser, x) => x.ForbiddenUpgrades = parser.ParseAssetReferenceArray() },
+            { "UnitSpecificSoundNameToUseAsVoiceMoveToStealthyArea", (parser, x) =>
+                x.UnitSpecificSoundNameToUseAsVoiceMoveToStealthyArea = parser.ParseAssetReference() },
+            { "UnitSpecificSoundNameToUseAsVoiceEnterStateMoveToStealthyArea", (parser, x) =>
+                x.UnitSpecificSoundNameToUseAsVoiceEnterStateMoveToStealthyArea = parser.ParseAssetReference() },
         };
 
         public int UpdatePeriod { get; private set; }
@@ -22,6 +26,8 @@ namespace OpenSage.Logic.Object
         public InvisibilityNugget InvisibilityNugget { get; private set; }
         public string[] RequiredUpgrades { get; private set; }
         public string[] ForbiddenUpgrades { get; private set; }
+        public string UnitSpecificSoundNameToUseAsVoiceMoveToStealthyArea { get; private set; }
+        public string UnitSpecificSoundNameToUseAsVoiceEnterStateMoveToStealthyArea { get; private set; }
     }
 
     public sealed class InvisibilityNugget
