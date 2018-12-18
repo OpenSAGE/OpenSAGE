@@ -92,5 +92,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("WEATHERTOP"), AddedIn(SageGame.Bfme2)]
         Weathertop              = 1 << 27,
+
+        [IniEnum("NEUTRAL"), AddedIn(SageGame.Bfme2)]
+        Neutral                 = 1 << 28,
     }
 }

@@ -41,7 +41,8 @@ namespace OpenSage.Logic.Object
             { "FirstPercentHeight", (parser, x) => x.FirstPercentHeight = parser.ParsePercentage() },
             { "SecondPercentHeight", (parser, x) => x.SecondPercentHeight = parser.ParsePercentage() },
             { "FinalStuckTime", (parser, x) => x.FinalStuckTime = parser.ParseInteger() },
-            { "OrientToFlightPath", (parser, x) => x.OrientToFlightPath = parser.ParseBoolean() }
+            { "OrientToFlightPath", (parser, x) => x.OrientToFlightPath = parser.ParseBoolean() },
+            { "PreLandingEmotionAffectsAllies", (parser, x) => x.PreLandingEmotionAffectsAllies = parser.ParseBoolean() },
         };
 
         public int FirstHeight { get; private set; }
@@ -75,5 +76,8 @@ namespace OpenSage.Logic.Object
         public float SecondPercentHeight { get; private set; }
         public int FinalStuckTime { get; private set; }
         public bool OrientToFlightPath { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool PreLandingEmotionAffectsAllies { get; private set; }
     }
 }

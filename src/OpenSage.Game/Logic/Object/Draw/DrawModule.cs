@@ -60,6 +60,7 @@ namespace OpenSage.Logic.Object
             { "W3DSupplyDraw", W3dSupplyDrawModuleData.Parse },
             { "W3DTankDraw", W3dTankDrawModuleData.Parse },
             { "W3DTankTruckDraw", W3dTankTruckDrawModuleData.Parse },
+            { "W3DTornadoDraw", W3dTornadoDrawModuleData.Parse },
             { "W3DTracerDraw", W3dTracerDrawModuleData.Parse },
             { "W3DTreeDraw", W3dTreeDrawModuleData.Parse },
             { "W3DTruckDraw", W3dTruckDrawModuleData.Parse },

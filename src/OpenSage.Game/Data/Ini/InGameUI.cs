@@ -319,9 +319,11 @@ namespace OpenSage.Data.Ini
             { "OpacityThrobTime", (parser, x) => x.OpacityThrobTime = parser.ParseInteger() },
             { "Color", (parser, x) => x.Color = parser.ParseColorRgba() },
             { "OnlyVisibleToOwningPlayer", (parser, x) => x.OnlyVisibleToOwningPlayer = parser.ParseBoolean() },
-            { "MinRadius", (parser, x) => x.MinRadius = parser.ParseInteger() },
-            { "MaxRadius", (parser, x) => x.MaxRadius = parser.ParseInteger() },
+            { "MinRadius", (parser, x) => x.MinRadius = parser.ParseFloat() },
+            { "MaxRadius", (parser, x) => x.MaxRadius = parser.ParseFloat() },
             { "MaxSelectedUnits", (parser, x) => x.MaxSelectedUnits = parser.ParseInteger() },
+            { "RotationsPerMinute", (parser, x) => x.RotationsPerMinute = parser.ParseFloat() },
+            { "SpiralAcceleration", (parser, x) => x.SpiralAcceleration = parser.ParseFloat() },
         };
 
         public string Texture { get; private set; }
@@ -334,13 +336,19 @@ namespace OpenSage.Data.Ini
         public bool OnlyVisibleToOwningPlayer { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int MinRadius { get; private set; }
+        public float MinRadius { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public int MaxRadius { get; private set; }
+        public float MaxRadius { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public int MaxSelectedUnits { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float RotationsPerMinute { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float SpiralAcceleration { get; private set; }
     }
 
     public enum RadiusDecalStyle

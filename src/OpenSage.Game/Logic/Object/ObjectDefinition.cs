@@ -340,7 +340,12 @@ namespace OpenSage.Logic.Object
             { "ThreatBreakdown", (parser, x) => x.ThreatBreakdown = ThreatBreakdown.Parse(parser) },
             { "DisplayNameInvisibleForEnemy", (parser, x) => x.DisplayNameInvisibleForEnemy = parser.ParseLocalizedStringKey() },
             { "DescriptionStrategic", (parser, x) => x.DescriptionStrategic = parser.ParseLocalizedStringKey() },
-            { "SupplyOverride", (parser, x) => x.SupplyOverride = parser.ParseInteger() }
+            { "SupplyOverride", (parser, x) => x.SupplyOverride = parser.ParseInteger() },
+            { "AutoResolveUnitType", (parser, x) => x.AutoResolveUnitType = parser.ParseAssetReference() },
+            { "AutoResolveCombatChain", (parser, x) => x.AutoResolveCombatChain = parser.ParseAssetReference() },
+            { "AutoResolveBody", (parser, x) => x.AutoResolveBody = parser.ParseAssetReference() },
+            { "AutoResolveArmor", (parser, x) => x.AutoResolveArmor = AutoResolveArmor.Parse(parser) },
+            { "AutoResolveWeapon", (parser, x) => x.AutoResolveWeapon = AutoResolveWeapon.Parse(parser) }
         };
 
         public string Name { get; protected set; }
@@ -1062,7 +1067,20 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public string DescriptionStrategic { get; private set; }
 
-        
+        [AddedIn(SageGame.Bfme2)]
+        public string AutoResolveUnitType { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string AutoResolveCombatChain { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string AutoResolveBody { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public AutoResolveArmor AutoResolveArmor { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public AutoResolveWeapon AutoResolveWeapon { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -1270,6 +1288,33 @@ namespace OpenSage.Logic.Object
 
         public string ModuleTag { get; private set; }
         public ObjectKinds AiKindOf { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public sealed class AutoResolveArmor
+    {
+        internal static AutoResolveArmor Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        internal static readonly IniParseTable<AutoResolveArmor> FieldParseTable = new IniParseTable<AutoResolveArmor>
+        {
+            { "Armor", (parser, x) => x.Armor = parser.ParseAssetReference() },
+        };
+
+        public string Armor { get; private set; }
+    }
+
+
+    [AddedIn(SageGame.Bfme2)]
+    public sealed class AutoResolveWeapon
+    {
+        internal static AutoResolveWeapon Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        internal static readonly IniParseTable<AutoResolveWeapon> FieldParseTable = new IniParseTable<AutoResolveWeapon>
+        {
+            { "Weapon", (parser, x) => x.Weapon = parser.ParseAssetReference() },
+        };
+
+        public string Weapon { get; private set; }
     }
 
 
