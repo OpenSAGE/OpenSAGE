@@ -55,6 +55,9 @@ namespace OpenSage.Logic.Object
             { "UpdateWeaponSetFlagsOnHordeToo", (parser, x) => x.UpdateWeaponSetFlagsOnHordeToo = parser.ParseBoolean() },
             { "RankSplit", (parser, x) => x.RankSplit = parser.ParseBoolean() },
             { "SplitHordeNumber", (parser, x) => x.SplitHordeNumber = parser.ParseInteger() },
+            { "FrontAngle", (parser, x) => x.FrontAngle = parser.ParseFloat() },
+            { "FlankedDelay", (parser, x) => x.FlankedDelay = parser.ParseInteger() },
+            { "MeleeBehavior", (parser, x) => x.MeleeBehavior = parser.ParseAssetReference() }
         };
 
         public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
@@ -99,6 +102,15 @@ namespace OpenSage.Logic.Object
         public bool UpdateWeaponSetFlagsOnHordeToo { get; private set; }
         public bool RankSplit { get; private set; }
         public int SplitHordeNumber { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float FrontAngle { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int FlankedDelay { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string MeleeBehavior { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

@@ -149,13 +149,15 @@ namespace OpenSage.Data.Ini
             }
         }
 
-        public void LoadIniFile(string filePath)
+        public void LoadIniFile(string filePath, bool included = false)
         {
-            LoadIniFile(_fileSystem.GetFile(filePath));
+            LoadIniFile(_fileSystem.GetFile(filePath), included);
         }
 
-        public void LoadIniFile(FileSystemEntry entry)
+        public void LoadIniFile(FileSystemEntry entry, bool included = false)
         {
+            if (!included && !entry.FilePath.EndsWith(".ini")) return;
+
             if (_alreadyLoaded.Contains(entry.FilePath))
             {
                 return;

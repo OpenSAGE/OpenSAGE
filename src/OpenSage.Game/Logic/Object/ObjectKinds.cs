@@ -685,5 +685,14 @@
 
         [IniEnum("CAN_CLIMB_WALLS"), AddedIn(SageGame.Bfme2)]
         CanClimbWalls,
+
+        [IniEnum("PASS_EXPERIENCE_TO_PRODUCER"), AddedIn(SageGame.Bfme2)]
+        PassExperienceToProducer,
+
+        [IniEnum("LARGE_RECTANGLE_PATHFIND"), AddedIn(SageGame.Bfme2)]
+        LargeRectanglePathfind,
+
+        [IniEnum("PIKEMAN"), AddedIn(SageGame.Bfme2)]
+        Pikeman,
     }
 }

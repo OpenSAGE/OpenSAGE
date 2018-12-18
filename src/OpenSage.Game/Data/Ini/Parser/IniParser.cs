@@ -756,7 +756,7 @@ namespace OpenSage.Data.Ini.Parser
                 else if (fieldName == "#include")
                 {
                     var includeFileName = ParseQuotedString();
-                    _dataContext.LoadIniFile(Path.Combine(_directory, includeFileName));
+                    _dataContext.LoadIniFile(Path.Combine(_directory, includeFileName), included: true);
                 }
                 else if (BlockParsers.TryGetValue(fieldName, out var blockParser))
                 {
