@@ -240,6 +240,7 @@ namespace OpenSage.Logic.Object
             { "OneRingPenaltyUpdate", OneRingPenaltyUpdateModuleData.Parse },
             { "ParticleUplinkCannonUpdate", ParticleUplinkCannonUpdateModuleData.Parse },
             { "PartTheHeavensUpdate", PartTheHeavensUpdateModuleData.Parse },
+            { "PickupStuffUpdate", PickupStuffUpdateModuleData.Parse },
             { "PilotFindVehicleUpdate", PilotFindVehicleUpdateModuleData.Parse },
             { "PointDefenseLaserUpdate", PointDefenseLaserUpdateModuleData.Parse },
             { "PowerPlantUpdate", PowerPlantUpdateModuleData.Parse },

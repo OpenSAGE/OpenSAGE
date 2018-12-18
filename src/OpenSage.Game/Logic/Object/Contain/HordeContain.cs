@@ -57,7 +57,11 @@ namespace OpenSage.Logic.Object
             { "SplitHordeNumber", (parser, x) => x.SplitHordeNumber = parser.ParseInteger() },
             { "FrontAngle", (parser, x) => x.FrontAngle = parser.ParseFloat() },
             { "FlankedDelay", (parser, x) => x.FlankedDelay = parser.ParseInteger() },
-            { "MeleeBehavior", (parser, x) => x.MeleeBehavior = parser.ParseAssetReference() }
+            { "MeleeBehavior", (parser, x) => x.MeleeBehavior = MeleeBehavior.Parse(parser) },
+            { "IsPorcupineFormation", (parser, x) => x.IsPorcupineFormation = parser.ParseBoolean() },
+            { "MinimumHordeSize", (parser, x) => x.MinimumHordeSize = parser.ParseInteger() },
+            { "VisionRearOverride", (parser, x) => x.VisionRearOverride = parser.ParsePercentage() },
+            { "VisionSideOverride", (parser, x) => x.VisionSideOverride = parser.ParsePercentage() },
         };
 
         public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
@@ -110,7 +114,19 @@ namespace OpenSage.Logic.Object
         public int FlankedDelay { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public string MeleeBehavior { get; private set; }
+        public MeleeBehavior MeleeBehavior { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool IsPorcupineFormation { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int MinimumHordeSize { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float VisionRearOverride { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+		public float VisionSideOverride { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -156,7 +172,8 @@ namespace OpenSage.Logic.Object
             { "UnitType", (parser, x) => x.UnitType = parser.ParseIdentifier() },
             { "Position", (parser, x) => x.Positions.Add(parser.ParseVector2()) },
             { "RevokedWeaponCondition", (parser, x) => x.RevokedWeaponCondition = parser.ParseEnum<WeaponSetConditions>() },
-            { "GrantedWeaponCondition", (parser, x) => x.GrantedWeaponCondition = parser.ParseEnum<WeaponSetConditions>() }
+            { "GrantedWeaponCondition", (parser, x) => x.GrantedWeaponCondition = parser.ParseEnum<WeaponSetConditions>() },
+            { "Leader", (parser, x) => x.Leaders.Add(Leader.Parse(parser)) },
         };
 
         public int RankNumber { get; private set; }
@@ -164,6 +181,9 @@ namespace OpenSage.Logic.Object
         public List<Vector2> Positions { get; } = new List<Vector2>();
         public WeaponSetConditions RevokedWeaponCondition { get; private set; }
         public WeaponSetConditions GrantedWeaponCondition { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<Leader> Leaders { get; } = new List<Leader>();
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -198,5 +218,36 @@ namespace OpenSage.Logic.Object
 
         public string SplitResult { get; private set; }
         public string UnitType { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public sealed class Leader
+    {
+        internal static Leader Parse(IniParser parser)
+        {
+            return new Leader
+            {
+                X = parser.ParseInteger(),
+                Y = parser.ParseInteger(),
+            };
+        }
+
+        public int X { get; private set; }
+        public int Y { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public sealed class MeleeBehavior
+    {
+        internal static MeleeBehavior Parse(IniParser parser)
+        {
+            return parser.ParseNamedBlock((x, name) => x.Name = name, FieldParseTable);
+        }
+
+        internal static readonly IniParseTable<MeleeBehavior> FieldParseTable = new IniParseTable<MeleeBehavior>
+        {
+        };
+
+        public string Name { get; private set; }
     }
 }
