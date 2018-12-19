@@ -20,11 +20,13 @@ namespace OpenSage.Content
 {
     internal sealed class ModelLoader : ContentLoader<Model>
     {
-        private readonly MeshDepthMaterial _meshDepthMaterial;
+        private readonly MeshDepthMaterial _meshDepthMaterialFixedFunction;
+        private readonly MeshDepthMaterial _meshDepthMaterialShader;
 
         public ModelLoader(ContentManager contentManager)
         {
-            _meshDepthMaterial = AddDisposable(new MeshDepthMaterial(contentManager, contentManager.EffectLibrary.MeshDepth));
+            _meshDepthMaterialFixedFunction = AddDisposable(new MeshDepthMaterial(contentManager, contentManager.EffectLibrary.MeshDepthFixedFunction));
+            _meshDepthMaterialShader = AddDisposable(new MeshDepthMaterial(contentManager, contentManager.EffectLibrary.MeshDepthShaderMaterial));
         }
 
         protected override Model LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
@@ -435,7 +437,7 @@ namespace OpenSage.Content
                 0,
                 w3dMesh.Header.NumTris * 3,
                 material,
-                _meshDepthMaterial));
+                _meshDepthMaterialShader));
 
             return new ModelMeshMaterialPass(
                 contentManager.GraphicsDevice,
@@ -750,7 +752,7 @@ namespace OpenSage.Content
                 startIndex,
                 indexCount,
                 effectMaterial,
-                _meshDepthMaterial);
+                _meshDepthMaterialFixedFunction);
         }
 
         private static Animation CreateAnimation(W3dAnimation w3dAnimation)
