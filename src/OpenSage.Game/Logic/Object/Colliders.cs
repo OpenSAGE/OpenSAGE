@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.DebugOverlay;
 using OpenSage.Graphics.Cameras;
@@ -31,7 +30,6 @@ namespace OpenSage.Logic.Object
             return false;
         }
 
-        public abstract List<DebugPoint> GetGridPoints();
         public abstract bool Intersects(in BoundingFrustum frustum);
 
         protected abstract bool IntersectsTransformedRay(in Ray ray, out float depth);
@@ -78,24 +76,6 @@ namespace OpenSage.Logic.Object
             var max = new Vector3(def.Geometry.MajorRadius, def.Geometry.MinorRadius, def.Geometry.Height);
             _bounds = new BoundingBox(min, max);
             _corners = new DebugPoint[4];
-        }
-
-        public override List<DebugPoint> GetGridPoints()
-        {
-            List<DebugPoint> result = new List<DebugPoint>();
-
-            CalculateCorners();
-            for (var x = 0; x < _bounds.Max.X * 2; x += 10)
-            {
-                for (var y = 0; y < _bounds.Max.Y * 2; y += 10)
-                {
-                    //TODO some points are still visibile as grid points
-                    var yPos = _corners[1].Position + Vector3.Transform(new Vector3(x, y, 0), Transform.Rotation);
-                    result.Add(new DebugPoint(yPos));
-                }
-            }
-
-            return result;
         }
 
         protected override bool IntersectsTransformedRay(in Ray transformedRay, out float depth)
@@ -162,11 +142,6 @@ namespace OpenSage.Logic.Object
             return transformedRay.Intersects(_bounds, out depth);
         }
 
-        public override List<DebugPoint> GetGridPoints()
-        {
-            return new List<DebugPoint>(); // TODO implement
-        }
-
         public override bool Intersects(in BoundingFrustum frustum)
         {
             var worldBounds = BoundingSphere.Transform(_bounds, Transform.Matrix);
@@ -207,11 +182,6 @@ namespace OpenSage.Logic.Object
         protected override bool IntersectsTransformedRay(in Ray transformedRay, out float depth)
         {
             return transformedRay.Intersects(_bounds, out depth);
-        }
-
-        public override List<DebugPoint> GetGridPoints()
-        {
-            return new List<DebugPoint>(); // TODO implement
         }
 
         public override bool Intersects(in BoundingFrustum frustum)
