@@ -5,7 +5,6 @@ using OpenSage.DebugOverlay;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Gui;
 using OpenSage.Mathematics;
-using OpenSage.Pathfinder;
 
 namespace OpenSage.Logic.Object
 {
@@ -32,7 +31,7 @@ namespace OpenSage.Logic.Object
             return false;
         }
 
-        public abstract List<GridPoint> GetGridPoints();
+        public abstract List<DebugPoint> GetGridPoints();
         public abstract bool Intersects(in BoundingFrustum frustum);
 
         protected abstract bool IntersectsTransformedRay(in Ray ray, out float depth);
@@ -81,9 +80,9 @@ namespace OpenSage.Logic.Object
             _corners = new DebugPoint[4];
         }
 
-        public override List<GridPoint> GetGridPoints()
+        public override List<DebugPoint> GetGridPoints()
         {
-            List<GridPoint> result = new List<GridPoint>();
+            List<DebugPoint> result = new List<DebugPoint>();
 
             CalculateCorners();
             for (var x = 0; x < _bounds.Max.X * 2; x += 10)
@@ -92,7 +91,7 @@ namespace OpenSage.Logic.Object
                 {
                     //TODO some points are still visibile as grid points
                     var yPos = _corners[1].Position + Vector3.Transform(new Vector3(x, y, 0), Transform.Rotation);
-                    result.Add(new GridPoint(yPos));
+                    result.Add(new DebugPoint(yPos));
                 }
             }
 
@@ -163,9 +162,9 @@ namespace OpenSage.Logic.Object
             return transformedRay.Intersects(_bounds, out depth);
         }
 
-        public override List<GridPoint> GetGridPoints()
+        public override List<DebugPoint> GetGridPoints()
         {
-            return new List<GridPoint>(); // TODO implement
+            return new List<DebugPoint>(); // TODO implement
         }
 
         public override bool Intersects(in BoundingFrustum frustum)
@@ -210,9 +209,9 @@ namespace OpenSage.Logic.Object
             return transformedRay.Intersects(_bounds, out depth);
         }
 
-        public override List<GridPoint> GetGridPoints()
+        public override List<DebugPoint> GetGridPoints()
         {
-            return new List<GridPoint>(); // TODO implement
+            return new List<DebugPoint>(); // TODO implement
         }
 
         public override bool Intersects(in BoundingFrustum frustum)

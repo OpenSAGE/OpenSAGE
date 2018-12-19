@@ -4,41 +4,33 @@ using System.Numerics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Gui;
 using OpenSage.Mathematics;
-using OpenSage.Pathfinder;
 using SixLabors.Fonts;
 
 namespace OpenSage.DebugOverlay
 {
     public class DebugOverlay : GameSystem
     {
-        private bool _showDebugInformations = false;
-        private bool _showGridPoints = false;
+        private bool _showDebugInformations;
+        private bool _showGridPoints;
         private readonly Scene3D _scene3D;
 
         public DebugOverlay(Game game, Scene3D scene3D) : base(game)
         {
             _scene3D = scene3D;
-            Points = new List<IDebuggablePoint>();
-            GridPoints = new List<IDebuggablePoint>();
+            Points = new List<DebugPoint>();
+            new List<DebugPoint>();
         }
 
-        public List<IDebuggablePoint> Points { get; set; }
-        public List<IDebuggablePoint> GridPoints { get; set; }
+        public List<DebugPoint> Points { get; set; }
         public Point2D MousePosition { get; set; }
 
-        public void AddPoint(IDebuggablePoint point)
+        public void AddPoint(DebugPoint point)
         {
             Points.Add(point);
         }
 
-        public void AddGridPoints(List<GridPoint> points)
-        {
-            GridPoints.AddRange(points);
-        }
-
         public void Draw(DrawingContext2D context, Camera camera)
         {
-#if DEBUG
             if (_showDebugInformations)
             {
                 foreach (var point in Points)
@@ -77,25 +69,6 @@ namespace OpenSage.DebugOverlay
                     SystemFonts.CreateFont("Arial", 16, FontStyle.Regular),
                     TextAlignment.Leading, ColorRgbaF.White, new RectangleF(10, 50, 400, 25));
             }
-
-            if (_showGridPoints)
-            {
-                foreach (var point in GridPoints)
-                {
-                    var rect = point.GetBoundingRectangle(camera);
-                    //ugly hack to remove wrong calculated points
-                    if (rect.Width > 10)
-                    {
-                        continue;
-                    }
-
-                    if (point.Intersects(camera.BoundingFrustum))
-                    {
-                        context.DrawRectangle(rect.ToRectangleF(), point.DisplayColor, 1);
-                    }
-                }
-            }
-#endif
         }
 
         public void ToggleDebugView()

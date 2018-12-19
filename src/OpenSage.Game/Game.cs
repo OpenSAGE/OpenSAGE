@@ -15,8 +15,6 @@ using Veldrid;
 
 using Player = OpenSage.Logic.Player;
 using System.Numerics;
-using OpenSage.DebugOverlay;
-using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 
 namespace OpenSage
@@ -66,11 +64,6 @@ namespace OpenSage
         /// Gets the selection system.
         /// </summary>
         public SelectionSystem Selection { get; }
-
-        /// <summary>
-        /// Gets the action system
-        /// </summary>
-        public ActionSystem Action { get; }
 
         /// <summary>
         /// Gets the audio system
@@ -193,8 +186,6 @@ namespace OpenSage
             Scene2D = new Scene2D(this);
 
             Selection = AddDisposable(new SelectionSystem(this));
-
-            Action = AddDisposable(new ActionSystem(this));
 
             Panel.ClientSizeChanged += OnWindowClientSizeChanged;
             OnWindowClientSizeChanged(this, EventArgs.Empty);
