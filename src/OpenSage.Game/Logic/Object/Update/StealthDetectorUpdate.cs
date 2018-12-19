@@ -25,7 +25,8 @@ namespace OpenSage.Logic.Object
             { "IRGridParticleSysName", (parser, x) => x.IRGridParticleSysName = parser.ParseAssetReference() },
             { "IRBeaconParticleSysName", (parser, x) => x.IRBeaconParticleSysName = parser.ParseAssetReference() },
             { "IRParticleSysBone", (parser, x) => x.IRParticleSysBone = parser.ParseBoneName() },
-            { "CancelOneRingEffect", (parser, x) => x.CancelOneRingEffect = parser.ParseBoolean() }
+            { "CancelOneRingEffect", (parser, x) => x.CancelOneRingEffect = parser.ParseBoolean() },
+            { "RequiredUpgrade", (parser, x) => x.RequiredUpgrade = parser.ParseAssetReference() },
         };
 
         /// <summary>
@@ -53,5 +54,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool CancelOneRingEffect { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string RequiredUpgrade { get; private set; }
     }
 }

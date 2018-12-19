@@ -28,6 +28,9 @@ namespace OpenSage.Logic.Object
             { "CrewPrepareInterval", (parser, x) => x.CrewPrepareInterval = parser.ParseInteger() },
             { "DisableStructureRotation", (parser, x) => x.DisableStructureRotation = parser.ParseBoolean() },
             { "FactionDecal", (parser, x) => x.FactionDecals.Add(Faction.Parse(parser)) },
+            { "InstantUnpack", (parser, x) => x.InstantUnpack = parser.ParseBoolean() },
+            { "KeepDeathKillsEverything", (parser, x) => x.KeepDeathKillsEverything = parser.ParseBoolean() },
+            { "EvaEnemyCastleSightedEvent", (parser, x) => x.EvaEnemyCastleSightedEvent = parser.ParseAssetReference() }
         };
 
         public List<Side> SidesAllowed { get;} = new List<Side>();
@@ -47,6 +50,14 @@ namespace OpenSage.Logic.Object
         public bool DisableStructureRotation { get; private set; }
         public List<Faction> FactionDecals { get; } = new List<Faction>();
 
+        [AddedIn(SageGame.Bfme2)]
+        public bool InstantUnpack { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool KeepDeathKillsEverything { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string EvaEnemyCastleSightedEvent { get; private set; }
     }
 
     public sealed class Faction

@@ -15,6 +15,7 @@ namespace OpenSage.Logic.Object
             { "ModelConditionAudioLoopClientBehavior", ModelConditionAudioLoopClientBehaviorData.Parse },
             { "ModelConditionSoundSelectorClientBehavior", ModelConditionSoundSelectorClientBehaviorData.Parse },
             { "RandomSoundSelectorClientBehavior", RandomSoundSelectorClientBehaviorData.Parse },
+            { "TerrainResourceClientBehavior", TerrainResourceClientBehaviorData.Parse },
             { "UpgradeSoundSelectorClientBehavior", UpgradeSoundSelectorClientBehaviorData.Parse }
         };
     }

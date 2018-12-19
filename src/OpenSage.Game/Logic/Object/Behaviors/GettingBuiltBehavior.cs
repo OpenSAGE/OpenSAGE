@@ -19,6 +19,7 @@ namespace OpenSage.Logic.Object
             { "RebuildWhenDead", (parser, x) => x.RebuildWhenDead = parser.ParseBoolean() },
             { "EvilWorkerName", (parser, x) => x.EvilWorkerName = parser.ParseString() },
             { "TestFaction", (parser, x) => x.TestFaction = parser.ParseBoolean() },
+            { "UseSpawnTimerWithoutWorker", (parser, x) => x.UseSpawnTimerWithoutWorker = parser.ParseBoolean() }
         };
 
         public string WorkerName { get; private set; }
@@ -30,5 +31,8 @@ namespace OpenSage.Logic.Object
         public bool RebuildWhenDead { get; private set; }
         public string EvilWorkerName { get; private set; }
         public bool TestFaction { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool UseSpawnTimerWithoutWorker { get; private set; }
     }
 }

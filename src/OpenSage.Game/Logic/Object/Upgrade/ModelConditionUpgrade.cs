@@ -19,6 +19,8 @@ namespace OpenSage.Logic.Object
                 { "Permanent", (parser, x) => x.Permanent = parser.ParseBoolean() },
                 { "RemoveConditionFlags", (parser, x) => x.RemoveConditionFlags = parser.ParseEnumBitArray<ModelConditionFlag>() },
                 { "RemoveConditionFlagsInRange", (parser, x) => x.RemoveConditionFlagsInRange = parser.ParseEnumBitArray<ModelConditionFlag>() },
+                { "AddTempConditionFlag", (parser, x) => x.AddTempConditionFlag = parser.ParseAttributeEnum<ModelConditionFlag>("ModelConditionState") },
+                { "TempConditionTime", (parser, x) => x.TempConditionTime = parser.ParseFloat() },
             });
 
         public ModelConditionFlag ConditionFlag { get; private set; }
@@ -34,5 +36,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public BitArray<ModelConditionFlag> RemoveConditionFlagsInRange { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ModelConditionFlag AddTempConditionFlag { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float TempConditionTime { get; private set; }
     }
 }

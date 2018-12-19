@@ -15,7 +15,8 @@ namespace OpenSage.Logic.Object
                 { "Percentage", (parser, x) => x.Percentages.Add(parser.ParsePercentage()) },
                 { "LabelForPalantirString", (parser, x) => x.LabelForPalantirString = parser.ParseLocalizedStringKey() },
                 { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) },
-                { "UpgradeDiscount", (parser, x) => x.UpgradeDiscount = parser.ParseBoolean() }
+                { "UpgradeDiscount", (parser, x) => x.UpgradeDiscount = parser.ParseBoolean() },
+                { "ApplyToTheseUpgrades", (parser, x) => x.ApplyToTheseUpgrades = parser.ParseAssetReferenceArray() }
             });
 
         public ObjectKinds EffectKindOf { get; private set; }
@@ -29,5 +30,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool UpgradeDiscount { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string[] ApplyToTheseUpgrades { get; private set; }
     }
 }

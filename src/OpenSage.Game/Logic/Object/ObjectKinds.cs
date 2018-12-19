@@ -703,5 +703,8 @@
 
         [IniEnum("CAN_SHOOT_OVER_WALLS"), AddedIn(SageGame.Bfme2)]
         CanShootOverWalls,
+
+        [IniEnum("EXPANSION_PAD"), AddedIn(SageGame.Bfme2)]
+        ExpansionPad,
     }
 }
