@@ -697,5 +697,11 @@
 
         [IniEnum("PIKE"), AddedIn(SageGame.Bfme2)]
         Pike,
+
+        [IniEnum("LIVING_WORLD_BUILDING_MIRROR"), AddedIn(SageGame.Bfme2)]
+        LivingWorldBuildingMirror,
+
+        [IniEnum("CAN_SHOOT_OVER_WALLS"), AddedIn(SageGame.Bfme2)]
+        CanShootOverWalls,
     }
 }
