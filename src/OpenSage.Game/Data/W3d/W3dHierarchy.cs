@@ -33,8 +33,10 @@ namespace OpenSage.Data.W3d
     /// exporter because they are needed to make the animation work with
     /// the new base pose.
     /// </summary>
-    public sealed class W3dHierarchy
+    public sealed class W3dHierarchy : W3dChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_HIERARCHY_HEADER;
+
         public uint Version { get; private set; }
 
         /// <summary>
@@ -46,18 +48,21 @@ namespace OpenSage.Data.W3d
 
         public Vector3 Center { get; private set; }
 
-        internal static W3dHierarchy Parse(BinaryReader reader)
+        internal static W3dHierarchy Parse(BinaryReader reader, W3dParseContext context)
         {
-            return new W3dHierarchy
+            return ParseChunk(reader, context, header =>
             {
-                Version = reader.ReadUInt32(),
-                Name = reader.ReadFixedLengthString(W3dConstants.NameLength),
-                NumPivots = reader.ReadUInt32(),
-                Center = reader.ReadVector3()
-            };
+                return new W3dHierarchy
+                {
+                    Version = reader.ReadUInt32(),
+                    Name = reader.ReadFixedLengthString(W3dConstants.NameLength),
+                    NumPivots = reader.ReadUInt32(),
+                    Center = reader.ReadVector3()
+                };
+            });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write(Version);
             writer.WriteFixedLengthString(Name, W3dConstants.NameLength);

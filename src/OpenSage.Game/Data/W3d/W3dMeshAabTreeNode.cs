@@ -4,6 +4,21 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
+    public sealed class W3dMeshAabTreeNodes : W3dListChunk<W3dMeshAabTreeNodes, W3dMeshAabTreeNode>
+    {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_AABTREE_NODES;
+
+        internal static W3dMeshAabTreeNodes Parse(BinaryReader reader, W3dParseContext context)
+        {
+            return ParseList(reader, context, W3dMeshAabTreeNode.Parse);
+        }
+
+        protected override void WriteItem(BinaryWriter writer, W3dMeshAabTreeNode item)
+        {
+            item.WriteTo(writer);
+        }
+    }
+
     public sealed class W3dMeshAabTreeNode
     {
         /// <summary>

@@ -3,8 +3,10 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dEmitterLineProperties
+    public sealed class W3dEmitterLineProperties : W3dChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_EMITTER_LINE_PROPERTIES;
+
         public W3dEmitterLineFlags Flags { get; private set; }
         public uint SubdivisionLevel { get; private set; }
         public float NoiseAmplitude { get; private set; }
@@ -13,25 +15,28 @@ namespace OpenSage.Data.W3d
         public float UPerSec { get; private set; }
         public float VPerSec { get; private set; }
 
-        internal static W3dEmitterLineProperties Parse(BinaryReader reader)
+        internal static W3dEmitterLineProperties Parse(BinaryReader reader, W3dParseContext context)
         {
-            var result = new W3dEmitterLineProperties
+            return ParseChunk(reader, context, header =>
             {
-                Flags = reader.ReadUInt32AsEnum<W3dEmitterLineFlags>(),
-                SubdivisionLevel = reader.ReadUInt32(),
-                NoiseAmplitude = reader.ReadSingle(),
-                MergeAbortFactor = reader.ReadSingle(),
-                TextureTileFactor = reader.ReadSingle(),
-                UPerSec = reader.ReadSingle(),
-                VPerSec = reader.ReadSingle()
-            };
+                var result = new W3dEmitterLineProperties
+                {
+                    Flags = reader.ReadUInt32AsEnum<W3dEmitterLineFlags>(),
+                    SubdivisionLevel = reader.ReadUInt32(),
+                    NoiseAmplitude = reader.ReadSingle(),
+                    MergeAbortFactor = reader.ReadSingle(),
+                    TextureTileFactor = reader.ReadSingle(),
+                    UPerSec = reader.ReadSingle(),
+                    VPerSec = reader.ReadSingle()
+                };
 
-            reader.ReadBytes(sizeof(uint) * 9); // Padding
+                reader.ReadBytes(sizeof(uint) * 9); // Padding
 
-            return result;
+                return result;
+            });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write((uint) Flags);
             writer.Write(SubdivisionLevel);

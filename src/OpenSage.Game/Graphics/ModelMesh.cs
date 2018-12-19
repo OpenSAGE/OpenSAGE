@@ -26,12 +26,7 @@ namespace OpenSage.Graphics
 
         private readonly ConstantBuffer<MeshMaterial.MeshConstants> _meshConstantsBuffer;
 
-        private readonly Effect _effect;
-
         public string Name { get; }
-
-        public ModelBone ParentBone { get; }
-        public uint NumBones { get; }
 
         public BoundingBox BoundingBox { get; }
 
@@ -47,19 +42,13 @@ namespace OpenSage.Graphics
             string name,
             ReadOnlySpan<byte> vertexData,
             ushort[] indices,
-            Effect effect,
             ModelMeshMaterialPass[] materialPasses,
             bool isSkinned,
-            ModelBone parentBone,
-            uint numBones,
             BoundingBox boundingBox,
             bool hidden,
             bool cameraOriented)
         {
             Name = name;
-
-            ParentBone = parentBone;
-            NumBones = numBones;
 
             BoundingBox = boundingBox;
 
@@ -67,8 +56,6 @@ namespace OpenSage.Graphics
 
             Hidden = hidden;
             CameraOriented = cameraOriented;
-
-            _effect = effect;
 
             _vertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(vertexData, BufferUsage.VertexBuffer));
 
@@ -82,7 +69,6 @@ namespace OpenSage.Graphics
 
             _meshConstantsBuffer = AddDisposable(new ConstantBuffer<MeshMaterial.MeshConstants>(graphicsDevice));
             _meshConstantsBuffer.Value.SkinningEnabled = isSkinned;
-            _meshConstantsBuffer.Value.NumBones = numBones;
             _meshConstantsBuffer.Update(commandEncoder);
 
             commandEncoder.End();
@@ -111,17 +97,19 @@ namespace OpenSage.Graphics
             RenderList renderList,
             Camera camera,
             ModelInstance modelInstance,
+            ModelBone parentBone,
             in Matrix4x4 modelTransform,
             bool castsShadow)
         {
             var meshWorldMatrix = Skinned
                 ? modelTransform
-                : modelInstance.AbsoluteBoneTransforms[ParentBone.Index];
+                : modelInstance.AbsoluteBoneTransforms[parentBone.Index];
 
             BuildRenderListWithWorldMatrix(
                 renderList,
                 camera,
                 modelInstance,
+                parentBone,
                 meshWorldMatrix,
                 castsShadow);
         }
@@ -130,6 +118,7 @@ namespace OpenSage.Graphics
             RenderList renderList,
             Camera camera,
             ModelInstance modelInstance,
+            ModelBone parentBone,
             in Matrix4x4 meshWorldMatrix,
             bool castsShadow)
         {
@@ -138,7 +127,7 @@ namespace OpenSage.Graphics
                 return;
             }
 
-            if (!modelInstance.BoneVisibilities[ParentBone.Index])
+            if (!modelInstance.BoneVisibilities[parentBone.Index])
             {
                 return;
             }

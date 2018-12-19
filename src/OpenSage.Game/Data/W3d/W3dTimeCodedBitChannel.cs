@@ -4,8 +4,10 @@ using System.IO;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dTimeCodedBitChannel
+    public sealed class W3dTimeCodedBitChannel : W3dChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_COMPRESSED_BIT_CHANNEL;
+
         public uint NumTimeCodes { get; private set; }
 
         /// <summary>
@@ -19,31 +21,32 @@ namespace OpenSage.Data.W3d
 
         public W3dTimeCodedBitDatum[] Data { get; private set; }
 
-        internal static W3dTimeCodedBitChannel Parse(BinaryReader reader)
+        internal static W3dTimeCodedBitChannel Parse(BinaryReader reader, W3dParseContext context)
         {
-            var startPosition = reader.BaseStream.Position;
-
-            var result = new W3dTimeCodedBitChannel
+            return ParseChunk(reader, context, header =>
             {
-                NumTimeCodes = reader.ReadUInt32(),
-                Pivot = reader.ReadUInt16(),
-                ChannelType = reader.ReadByteAsEnum<W3dBitChannelType>(),
-                DefaultValue = reader.ReadBooleanChecked()
-            };
+                var result = new W3dTimeCodedBitChannel
+                {
+                    NumTimeCodes = reader.ReadUInt32(),
+                    Pivot = reader.ReadUInt16(),
+                    ChannelType = reader.ReadByteAsEnum<W3dBitChannelType>(),
+                    DefaultValue = reader.ReadBooleanChecked()
+                };
 
-            var data = new W3dTimeCodedBitDatum[result.NumTimeCodes];
+                var data = new W3dTimeCodedBitDatum[result.NumTimeCodes];
 
-            for (var i = 0; i < result.NumTimeCodes; i++)
-            {
-                data[i] = W3dTimeCodedBitDatum.Parse(reader);
-            }
+                for (var i = 0; i < result.NumTimeCodes; i++)
+                {
+                    data[i] = W3dTimeCodedBitDatum.Parse(reader);
+                }
 
-            result.Data = data;
+                result.Data = data;
 
-            return result;
+                return result;
+            });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write(NumTimeCodes);
             writer.Write(Pivot);

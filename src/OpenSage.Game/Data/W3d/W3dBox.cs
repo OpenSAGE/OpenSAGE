@@ -4,8 +4,10 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dBox
+    public sealed class W3dBox : W3dChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_BOX;
+
         public uint Version { get; private set; }
 
         public W3dBoxType BoxType { get; private set; }
@@ -20,27 +22,30 @@ namespace OpenSage.Data.W3d
 
         public Vector3 Extent { get; private set; }
 
-        internal static W3dBox Parse(BinaryReader reader)
+        internal static W3dBox Parse(BinaryReader reader, W3dParseContext context)
         {
-            var result = new W3dBox
+            return ParseChunk(reader, context, header =>
             {
-                Version = reader.ReadUInt32()
-            };
+                var result = new W3dBox
+                {
+                    Version = reader.ReadUInt32()
+                };
 
-            var flags = reader.ReadUInt32();
+                var flags = reader.ReadUInt32();
 
-            result.BoxType = (W3dBoxType) (flags & 0b11);
-            result.CollisionTypes = (W3dBoxCollisionTypes) (flags & 0xFF0);
+                result.BoxType = (W3dBoxType) (flags & 0b11);
+                result.CollisionTypes = (W3dBoxCollisionTypes) (flags & 0xFF0);
 
-            result.Name = reader.ReadFixedLengthString(W3dConstants.NameLength * 2);
-            result.Color = W3dRgb.Parse(reader);
-            result.Center = reader.ReadVector3();
-            result.Extent = reader.ReadVector3();
+                result.Name = reader.ReadFixedLengthString(W3dConstants.NameLength * 2);
+                result.Color = W3dRgb.Parse(reader);
+                result.Center = reader.ReadVector3();
+                result.Extent = reader.ReadVector3();
 
-            return result;
+                return result;
+            });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write(Version);
 

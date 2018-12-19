@@ -57,6 +57,11 @@ namespace OpenSage.Content
 
         public IniDataContext IniDataContext { get; }
 
+        /// <summary>
+        /// Eventually all game data will live here, and be scoped to global or map-specific.
+        /// </summary>
+        public DataContext DataContext { get; }
+
         public TranslationManager TranslationManager { get; }
 
         public WndImageLoader WndImageLoader { get; }
@@ -81,6 +86,8 @@ namespace OpenSage.Content
 
             IniDataContext = new IniDataContext(fileSystem, sageGame);
 
+            DataContext = new DataContext();
+
             SubsystemLoader = Content.SubsystemLoader.Create(game.Definition, _fileSystem, IniDataContext);
 
             switch (sageGame)
@@ -89,8 +96,8 @@ namespace OpenSage.Content
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
                 case SageGame.Bfme:
-                case SageGame.Bfme2:
-                case SageGame.Bfme2Rotwk:
+                //case SageGame.Bfme2:
+                //case SageGame.Bfme2Rotwk:
                     SubsystemLoader.Load(Subsystem.Core);
 
                     // TODO: Move this somewhere else.

@@ -3,22 +3,27 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dEmitterHeader
+    public sealed class W3dEmitterHeader : W3dChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_EMITTER_HEADER;
+
         public uint Version { get; private set; }
 
         public string Name { get; private set; }
 
-        internal static W3dEmitterHeader Parse(BinaryReader reader)
+        internal static W3dEmitterHeader Parse(BinaryReader reader, W3dParseContext context)
         {
-            return new W3dEmitterHeader
+            return ParseChunk(reader, context, header =>
             {
-                Version = reader.ReadUInt32(),
-                Name = reader.ReadFixedLengthString(W3dConstants.NameLength)
-            };
+                return new W3dEmitterHeader
+                {
+                    Version = reader.ReadUInt32(),
+                    Name = reader.ReadFixedLengthString(W3dConstants.NameLength)
+                };
+            });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write(Version);
             writer.WriteFixedLengthString(Name, W3dConstants.NameLength);

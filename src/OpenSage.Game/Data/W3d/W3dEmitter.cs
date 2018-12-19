@@ -1,9 +1,12 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dEmitter : W3dChunk
+    public sealed class W3dEmitter : W3dContainerChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_EMITTER;
+
         public W3dEmitterHeader Header { get; private set; }
 
         public W3dEmitterUserData UserData { get; private set; }
@@ -22,139 +25,138 @@ namespace OpenSage.Data.W3d
 
         public W3dEmitterBlurTimeKeyframes BlurTimeKeyframes { get; private set; }
 
-        public byte[] Unknown { get; private set; }
+        public W3dEmitterExtraInfo ExtraInfo { get; private set; }
 
-        internal static W3dEmitter Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dEmitter Parse(BinaryReader reader, W3dParseContext context)
         {
-            return ParseChunk<W3dEmitter>(reader, chunkSize, (result, header) =>
+            return ParseChunk(reader, context, header =>
             {
-                switch (header.ChunkType)
+                var result = new W3dEmitter();
+
+                ParseChunks(reader, context.CurrentEndPosition, chunkType =>
                 {
-                    case W3dChunkType.W3D_CHUNK_EMITTER_HEADER:
-                        result.Header = W3dEmitterHeader.Parse(reader);
-                        break;
+                    switch (chunkType)
+                    {
+                        case W3dChunkType.W3D_CHUNK_EMITTER_HEADER:
+                            result.Header = W3dEmitterHeader.Parse(reader, context);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_EMITTER_USER_DATA:
-                        result.UserData = W3dEmitterUserData.Parse(reader, header.ChunkSize);
-                        break;
+                        case W3dChunkType.W3D_CHUNK_EMITTER_USER_DATA:
+                            result.UserData = W3dEmitterUserData.Parse(reader, context);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_EMITTER_INFO:
-                        result.Info = W3dEmitterInfo.Parse(reader);
-                        break;
+                        case W3dChunkType.W3D_CHUNK_EMITTER_INFO:
+                            result.Info = W3dEmitterInfo.Parse(reader, context);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_EMITTER_INFOV2:
-                        result.InfoV2 = W3dEmitterInfoV2.Parse(reader);
-                        break;
+                        case W3dChunkType.W3D_CHUNK_EMITTER_INFOV2:
+                            result.InfoV2 = W3dEmitterInfoV2.Parse(reader, context);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_EMITTER_PROPS:
-                        result.Properties = W3dEmitterProperties.Parse(reader);
-                        break;
+                        case W3dChunkType.W3D_CHUNK_EMITTER_PROPS:
+                            result.Properties = W3dEmitterProperties.Parse(reader, context);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_EMITTER_ROTATION_KEYFRAMES:
-                        result.RotationKeyframes = W3dEmitterRotationKeyframes.Parse(reader);
-                        break;
+                        case W3dChunkType.W3D_CHUNK_EMITTER_ROTATION_KEYFRAMES:
+                            result.RotationKeyframes = W3dEmitterRotationKeyframes.Parse(reader, context);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_EMITTER_FRAME_KEYFRAMES:
-                        result.FrameKeyframes = W3dEmitterFrameKeyframes.Parse(reader);
-                        break;
+                        case W3dChunkType.W3D_CHUNK_EMITTER_FRAME_KEYFRAMES:
+                            result.FrameKeyframes = W3dEmitterFrameKeyframes.Parse(reader, context);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_EMITTER_LINE_PROPERTIES:
-                        result.LineProperties = W3dEmitterLineProperties.Parse(reader);
-                        break;
+                        case W3dChunkType.W3D_CHUNK_EMITTER_LINE_PROPERTIES:
+                            result.LineProperties = W3dEmitterLineProperties.Parse(reader, context);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_EMITTER_BLUR_TIME_KEYFRAMES:
-                        result.BlurTimeKeyframes = W3dEmitterBlurTimeKeyframes.Parse(reader);
-                        break;
+                        case W3dChunkType.W3D_CHUNK_EMITTER_BLUR_TIME_KEYFRAMES:
+                            result.BlurTimeKeyframes = W3dEmitterBlurTimeKeyframes.Parse(reader, context);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_EMITTER_EXTRA_INFO:
-                        // TODO: What is this?
-                        result.Unknown = reader.ReadBytes((int)header.ChunkSize);
-                        break;
+                        case W3dChunkType.W3D_CHUNK_EMITTER_EXTRA_INFO:
+                            result.ExtraInfo = W3dEmitterExtraInfo.Parse(reader, context);
+                            break;
 
-                    default:
-                        throw CreateUnknownChunkException(header);
-                }
+                        default:
+                            throw CreateUnknownChunkException(chunkType);
+                    }
+                });
+
+                return result;
             });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override IEnumerable<W3dChunk> GetSubChunksOverride()
         {
-            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_HEADER, false, () =>
-            {
-                Header.WriteTo(writer);
-            });
+            yield return Header;
 
             if (UserData != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_USER_DATA, false, () =>
-                {
-                    UserData.WriteTo(writer);
-                });
+                yield return UserData;
             }
 
             if (Info != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_INFO, false, () =>
-                {
-                    Info.WriteTo(writer);
-                });
+                yield return Info;
             }
 
             if (InfoV2 != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_INFOV2, false, () =>
-                {
-                    InfoV2.WriteTo(writer);
-                });
+                yield return InfoV2;
             }
 
             if (Properties != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_PROPS, false, () =>
-                {
-                    Properties.WriteTo(writer);
-                });
+                yield return Properties;
             }
 
             if (LineProperties != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_LINE_PROPERTIES, false, () =>
-                {
-                    LineProperties.WriteTo(writer);
-                });
+                yield return LineProperties;
             }
 
             if (RotationKeyframes != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_ROTATION_KEYFRAMES, false, () =>
-                {
-                    RotationKeyframes.WriteTo(writer);
-                });
+                yield return RotationKeyframes;
             }
 
             if (FrameKeyframes != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_FRAME_KEYFRAMES, false, () =>
-                {
-                    FrameKeyframes.WriteTo(writer);
-                });
+                yield return FrameKeyframes;
             }
 
             if (BlurTimeKeyframes != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_BLUR_TIME_KEYFRAMES, false, () =>
-                {
-                    BlurTimeKeyframes.WriteTo(writer);
-                });
+                yield return BlurTimeKeyframes;
             }
 
-            if (Unknown != null)
+            if (ExtraInfo != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_EMITTER_EXTRA_INFO, false, () =>
-                {
-                    writer.Write(Unknown);
-                });
+                yield return ExtraInfo;
             }
+        }
+    }
+
+    public sealed class W3dEmitterExtraInfo : W3dChunk
+    {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_EMITTER_EXTRA_INFO;
+
+        public byte[] Unknown { get; private set; }
+
+        internal static W3dEmitterExtraInfo Parse(BinaryReader reader, W3dParseContext context)
+        {
+            return ParseChunk(reader, context, header =>
+            {
+                return new W3dEmitterExtraInfo
+                {
+                    Unknown = reader.ReadBytes((int) header.ChunkSize)
+                };
+            });
+        }
+
+        protected override void WriteToOverride(BinaryWriter writer)
+        {
+            writer.Write(Unknown);
         }
     }
 }

@@ -3,8 +3,10 @@ using System.IO;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dMotionChannel
+    public sealed class W3dMotionChannel : W3dChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL;
+
         /// <summary>
         /// Pivot affected by this channel.
         /// </summary>
@@ -20,49 +22,50 @@ namespace OpenSage.Data.W3d
 
         public W3dMotionChannelData Data { get; private set; }
 
-        public static W3dMotionChannel Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dMotionChannel Parse(BinaryReader reader, W3dParseContext context)
         {
-            var startPosition = reader.BaseStream.Position;
-
-            var zero = reader.ReadByte();
-            if (zero != 0)
+            return ParseChunk(reader, context, header =>
             {
-                throw new InvalidDataException();
-            }
-
-            var result = new W3dMotionChannel
-            {
-                DeltaType = reader.ReadByteAsEnum<W3dMotionChannelDeltaType>(),
-                VectorLength = reader.ReadByte(),
-                ChannelType = reader.ReadByteAsEnum<W3dAnimationChannelType>(),
-                NumTimeCodes = reader.ReadUInt16(),
-                Pivot = reader.ReadUInt16()
-            };
-
-            W3dAnimationChannel.ValidateChannelDataSize(result.ChannelType, result.VectorLength);
-
-            switch (result.DeltaType)
-            {
-                case W3dMotionChannelDeltaType.TimeCoded:
-                    result.Data = W3dMotionChannelTimeCodedData.Parse(reader, result.NumTimeCodes, result.ChannelType);
-                    break;
-
-                case W3dMotionChannelDeltaType.Delta4:
-                    result.Data = W3dMotionChannelAdaptiveDeltaData.Parse(reader, result.NumTimeCodes, result.ChannelType, result.VectorLength, W3dAdaptiveDeltaBitCount.FourBits);
-                    break;
-
-                case W3dMotionChannelDeltaType.Delta8:
-                    result.Data = W3dMotionChannelAdaptiveDeltaData.Parse(reader, result.NumTimeCodes, result.ChannelType, result.VectorLength, W3dAdaptiveDeltaBitCount.EightBits);
-                    break;
-
-                default:
+                var zero = reader.ReadByte();
+                if (zero != 0)
+                {
                     throw new InvalidDataException();
-            }
+                }
 
-            return result;
+                var result = new W3dMotionChannel
+                {
+                    DeltaType = reader.ReadByteAsEnum<W3dMotionChannelDeltaType>(),
+                    VectorLength = reader.ReadByte(),
+                    ChannelType = reader.ReadByteAsEnum<W3dAnimationChannelType>(),
+                    NumTimeCodes = reader.ReadUInt16(),
+                    Pivot = reader.ReadUInt16()
+                };
+
+                W3dAnimationChannel.ValidateChannelDataSize(result.ChannelType, result.VectorLength);
+
+                switch (result.DeltaType)
+                {
+                    case W3dMotionChannelDeltaType.TimeCoded:
+                        result.Data = W3dMotionChannelTimeCodedData.Parse(reader, result.NumTimeCodes, result.ChannelType);
+                        break;
+
+                    case W3dMotionChannelDeltaType.Delta4:
+                        result.Data = W3dMotionChannelAdaptiveDeltaData.Parse(reader, result.NumTimeCodes, result.ChannelType, result.VectorLength, W3dAdaptiveDeltaBitCount.FourBits);
+                        break;
+
+                    case W3dMotionChannelDeltaType.Delta8:
+                        result.Data = W3dMotionChannelAdaptiveDeltaData.Parse(reader, result.NumTimeCodes, result.ChannelType, result.VectorLength, W3dAdaptiveDeltaBitCount.EightBits);
+                        break;
+
+                    default:
+                        throw new InvalidDataException();
+                }
+
+                return result;
+            });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write((byte) 0);
 

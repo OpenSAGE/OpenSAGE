@@ -1,69 +1,73 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using OpenSage.Data.Utilities.Extensions;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dHierarchyDef : W3dChunk
+    public sealed class W3dHierarchyDef : W3dContainerChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_HIERARCHY;
+
         public W3dHierarchy Header { get; private set; }
-        public W3dPivot[] Pivots { get; private set; }
-        public Matrix4x3[] PivotFixups { get; private set; }
+        public W3dPivots Pivots { get; private set; }
+        public W3dPivotFixups PivotFixups { get; private set; }
 
-        internal static W3dHierarchyDef Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dHierarchyDef Parse(BinaryReader reader, W3dParseContext context)
         {
-            return ParseChunk<W3dHierarchyDef>(reader, chunkSize, (result, header) =>
+            return ParseChunk(reader, context, header =>
             {
-                switch (header.ChunkType)
+                var result = new W3dHierarchyDef();
+
+                ParseChunks(reader, context.CurrentEndPosition, chunkType =>
                 {
-                    case W3dChunkType.W3D_CHUNK_HIERARCHY_HEADER:
-                        result.Header = W3dHierarchy.Parse(reader);
-                        result.Pivots = new W3dPivot[result.Header.NumPivots];
-                        break;
+                    switch (chunkType)
+                    {
+                        case W3dChunkType.W3D_CHUNK_HIERARCHY_HEADER:
+                            result.Header = W3dHierarchy.Parse(reader, context);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_PIVOTS:
-                        for (var count = 0; count < result.Header.NumPivots; count++)
-                        {
-                            result.Pivots[count] = W3dPivot.Parse(reader);
-                        }
-                        break;
+                        case W3dChunkType.W3D_CHUNK_PIVOTS:
+                            result.Pivots = W3dPivots.Parse(reader, context);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_PIVOT_FIXUPS:
-                        result.PivotFixups = new Matrix4x3[result.Header.NumPivots];
-                        for (var count = 0; count < result.Header.NumPivots; count++)
-                        {
-                            result.PivotFixups[count] = reader.ReadMatrix4x3();
-                        }
-                        break;
+                        case W3dChunkType.W3D_CHUNK_PIVOT_FIXUPS:
+                            result.PivotFixups = W3dPivotFixups.Parse(reader, context);
+                            break;
 
-                    default:
-                        throw CreateUnknownChunkException(header);
-                }
+                        default:
+                            throw CreateUnknownChunkException(chunkType);
+                    }
+                });
+
+                return result;
             });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override IEnumerable<W3dChunk> GetSubChunksOverride()
         {
-            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_HIERARCHY_HEADER, false, () => Header.WriteTo(writer));
-
-            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_PIVOTS, false, () =>
-            {
-                for (var i = 0; i < Header.NumPivots; i++)
-                {
-                    Pivots[i].WriteTo(writer);
-                }
-            });
+            yield return Header;
+            yield return Pivots;
 
             if (PivotFixups != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_PIVOT_FIXUPS, false, () =>
-                {
-                    for (var i = 0; i < Header.NumPivots; i++)
-                    {
-                        writer.Write(PivotFixups[i]);
-                    }
-                });
+                yield return PivotFixups;
             }
+        }
+    }
+
+    public sealed class W3dPivotFixups : W3dStructListChunk<W3dPivotFixups, Matrix4x3>
+    {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_PIVOT_FIXUPS;
+
+        internal static W3dPivotFixups Parse(BinaryReader reader, W3dParseContext context)
+        {
+            return ParseList(reader, context, r => r.ReadMatrix4x3());
+        }
+
+        protected override void WriteItem(BinaryWriter writer, in Matrix4x3 item)
+        {
+            writer.Write(item);
         }
     }
 }

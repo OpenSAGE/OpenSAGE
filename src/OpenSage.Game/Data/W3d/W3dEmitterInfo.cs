@@ -4,8 +4,12 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dEmitterInfo
+    public sealed class W3dEmitterInfo : W3dChunk
     {
+        private const int TextureFileNameLength = 260;
+
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_EMITTER_INFO;
+
         public string TextureFileName { get; private set; }
 
         public float StartSize { get; private set; }
@@ -25,33 +29,36 @@ namespace OpenSage.Data.W3d
         public W3dRgba StartColor { get; private set; }
         public W3dRgba EndColor { get; private set; }
 
-        internal static W3dEmitterInfo Parse(BinaryReader reader)
+        internal static W3dEmitterInfo Parse(BinaryReader reader, W3dParseContext context)
         {
-            return new W3dEmitterInfo
+            return ParseChunk(reader, context, header =>
             {
-                TextureFileName = reader.ReadFixedLengthString(260),
-                StartSize = reader.ReadSingle(),
-                EndSize = reader.ReadSingle(),
-                Lifetime = reader.ReadSingle(),
-                EmissionRate = reader.ReadSingle(),
-                MaxEmissions = reader.ReadSingle(),
-                VelocityRandom = reader.ReadSingle(),
-                PositionRandom = reader.ReadSingle(),
-                FadeTime = reader.ReadSingle(),
-                Gravity = reader.ReadSingle(),
-                Elasticity = reader.ReadSingle(),
+                return new W3dEmitterInfo
+                {
+                    TextureFileName = reader.ReadFixedLengthString(TextureFileNameLength),
+                    StartSize = reader.ReadSingle(),
+                    EndSize = reader.ReadSingle(),
+                    Lifetime = reader.ReadSingle(),
+                    EmissionRate = reader.ReadSingle(),
+                    MaxEmissions = reader.ReadSingle(),
+                    VelocityRandom = reader.ReadSingle(),
+                    PositionRandom = reader.ReadSingle(),
+                    FadeTime = reader.ReadSingle(),
+                    Gravity = reader.ReadSingle(),
+                    Elasticity = reader.ReadSingle(),
 
-                Velocity = reader.ReadVector3(),
-                Acceleration = reader.ReadVector3(),
+                    Velocity = reader.ReadVector3(),
+                    Acceleration = reader.ReadVector3(),
 
-                StartColor = W3dRgba.Parse(reader),
-                EndColor = W3dRgba.Parse(reader)
-            };
+                    StartColor = W3dRgba.Parse(reader),
+                    EndColor = W3dRgba.Parse(reader)
+                };
+            });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override void WriteToOverride(BinaryWriter writer)
         {
-            writer.WriteFixedLengthString(TextureFileName, 260);
+            writer.WriteFixedLengthString(TextureFileName, TextureFileNameLength);
             writer.Write(StartSize);
             writer.Write(EndSize);
             writer.Write(Lifetime);

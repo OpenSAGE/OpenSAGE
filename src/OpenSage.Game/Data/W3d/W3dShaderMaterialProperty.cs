@@ -8,47 +8,52 @@ namespace OpenSage.Data.W3d
 {
     public sealed class W3dShaderMaterialProperty : W3dChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_SHADER_MATERIAL_PROPERTY;
+
         public W3dShaderMaterialPropertyType PropertyType { get; private set; }
         public string PropertyName { get; private set; }
 
         public string StringValue { get; private set; }
         public W3dShaderMaterialPropertyValue Value { get; private set; }
 
-        internal static W3dShaderMaterialProperty Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dShaderMaterialProperty Parse(BinaryReader reader, W3dParseContext context)
         {
-            var result = new W3dShaderMaterialProperty
+            return ParseChunk(reader, context, header =>
             {
-                PropertyType = reader.ReadUInt32AsEnum<W3dShaderMaterialPropertyType>(),
-                PropertyName = reader.ReadFixedLengthString((int) reader.ReadUInt32())
-            };
+                var result = new W3dShaderMaterialProperty
+                {
+                    PropertyType = reader.ReadUInt32AsEnum<W3dShaderMaterialPropertyType>(),
+                    PropertyName = reader.ReadFixedLengthString((int) reader.ReadUInt32())
+                };
 
-            var value = new W3dShaderMaterialPropertyValue();
+                var value = new W3dShaderMaterialPropertyValue();
 
-            switch (result.PropertyType)
-            {
-                case W3dShaderMaterialPropertyType.Texture:
-                    result.StringValue = reader.ReadFixedLengthString((int) reader.ReadUInt32());
-                    break;
+                switch (result.PropertyType)
+                {
+                    case W3dShaderMaterialPropertyType.Texture:
+                        result.StringValue = reader.ReadFixedLengthString((int) reader.ReadUInt32());
+                        break;
 
-                case W3dShaderMaterialPropertyType.Float:
-                case W3dShaderMaterialPropertyType.Vector2:
-                case W3dShaderMaterialPropertyType.Vector3:
-                case W3dShaderMaterialPropertyType.Vector4:
-                case W3dShaderMaterialPropertyType.Int:
-                case W3dShaderMaterialPropertyType.Bool:
-                    value = W3dShaderMaterialPropertyValue.Parse(reader, result.PropertyType);
-                    break;
+                    case W3dShaderMaterialPropertyType.Float:
+                    case W3dShaderMaterialPropertyType.Vector2:
+                    case W3dShaderMaterialPropertyType.Vector3:
+                    case W3dShaderMaterialPropertyType.Vector4:
+                    case W3dShaderMaterialPropertyType.Int:
+                    case W3dShaderMaterialPropertyType.Bool:
+                        value = W3dShaderMaterialPropertyValue.Parse(reader, result.PropertyType);
+                        break;
 
-                default:
-                    throw new InvalidDataException();
-            }
+                    default:
+                        throw new InvalidDataException();
+                }
 
-            result.Value = value;
+                result.Value = value;
 
-            return result;
+                return result;
+            });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write((uint) PropertyType);
             writer.Write((uint) PropertyName.Length + 1);

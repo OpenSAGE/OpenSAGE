@@ -48,40 +48,36 @@ namespace OpenSage.Graphics
 
             _graphicsDevice = graphicsDevice;
 
-            ModelBoneInstances = new ModelBoneInstance[model.Bones.Length];
-            for (var i = 0; i < model.Bones.Length; i++)
+            ModelBoneInstances = new ModelBoneInstance[model.BoneHierarchy.Bones.Length];
+            for (var i = 0; i < model.BoneHierarchy.Bones.Length; i++)
             {
-                ModelBoneInstances[i] = new ModelBoneInstance(model.Bones[i]);
+                ModelBoneInstances[i] = new ModelBoneInstance(model.BoneHierarchy.Bones[i]);
             }
 
-            RelativeBoneTransforms = new Matrix4x4[model.Bones.Length];
-            AbsoluteBoneTransforms = new Matrix4x4[model.Bones.Length];
+            RelativeBoneTransforms = new Matrix4x4[model.BoneHierarchy.Bones.Length];
+            AbsoluteBoneTransforms = new Matrix4x4[model.BoneHierarchy.Bones.Length];
 
-            BoneVisibilities = new bool[model.Bones.Length];
-            for (var i = 0; i < model.Bones.Length; i++)
+            BoneVisibilities = new bool[model.BoneHierarchy.Bones.Length];
+            for (var i = 0; i < model.BoneHierarchy.Bones.Length; i++)
             {
                 BoneVisibilities[i] = true;
             }
 
-            _hasSkinnedMeshes = model.Meshes.Any(x => x.Skinned);
+            _hasSkinnedMeshes = model.SubObjects.Any(x => x.RenderObject.Skinned);
 
             if (_hasSkinnedMeshes)
             {
                 SkinningBuffer = AddDisposable(graphicsDevice.ResourceFactory.CreateBuffer(
                     new BufferDescription(
-                        (uint) (64 * model.Bones.Length),
+                        (uint) (64 * model.BoneHierarchy.Bones.Length),
                         BufferUsage.StructuredBufferReadOnly | BufferUsage.Dynamic,
                         64,
                         true)));
 
-                _skinningBones = new Matrix4x4[model.Bones.Length];
+                _skinningBones = new Matrix4x4[model.BoneHierarchy.Bones.Length];
             }
 
             AnimationInstances = new List<AnimationInstance>();
-            foreach (var animation in model.Animations)
-            {
-                AnimationInstances.Add(new AnimationInstance(this, animation));
-            }
         }
 
         public void Update(GameTime gameTime)
@@ -93,9 +89,9 @@ namespace OpenSage.Graphics
             }
 
             // Calculate (animated) bone transforms relative to root bone.
-            for (var i = 0; i < Model.Bones.Length; i++)
+            for (var i = 0; i < Model.BoneHierarchy.Bones.Length; i++)
             {
-                var bone = Model.Bones[i];
+                var bone = Model.BoneHierarchy.Bones[i];
 
                 var parentTransform = bone.Parent != null
                     ? RelativeBoneTransforms[bone.Parent.Index]
@@ -119,7 +115,7 @@ namespace OpenSage.Graphics
 
             // If the model has skinned meshes, convert relative bone transforms
             // to Matrix4x3 to send to shader.
-            for (var i = 0; i < Model.Bones.Length; i++)
+            for (var i = 0; i < Model.BoneHierarchy.Bones.Length; i++)
             {
                 _skinningBones[i] = RelativeBoneTransforms[i];
                 //RelativeBoneTransforms[i].ToMatrix4x3(out _skinningBones[i]);
@@ -132,7 +128,7 @@ namespace OpenSage.Graphics
         {
             _worldMatrix = worldMatrix;
 
-            for (var i = 0; i < Model.Bones.Length; i++)
+            for (var i = 0; i < Model.BoneHierarchy.Bones.Length; i++)
             {
                 AbsoluteBoneTransforms[i] = RelativeBoneTransforms[i] * worldMatrix;
             }
@@ -143,9 +139,15 @@ namespace OpenSage.Graphics
             Camera camera,
             bool castsShadow)
         {
-            foreach (var mesh in Model.Meshes)
+            foreach (var subObject in Model.SubObjects)
             {
-                mesh.BuildRenderList(renderList, camera, this, _worldMatrix, castsShadow);
+                subObject.RenderObject.BuildRenderList(
+                    renderList,
+                    camera,
+                    this,
+                    subObject.Bone,
+                    _worldMatrix,
+                    castsShadow);
             }
         }
     }

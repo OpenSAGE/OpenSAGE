@@ -6,6 +6,7 @@ using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Data.W3d;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
@@ -143,32 +144,28 @@ namespace OpenSage.Logic.Object
                     .LastOrDefault();
                 if (firstAnimation != null)
                 {
-                    var splitName = firstAnimation.Animation.Split('.');
-
-                    var w3dFilePath = Path.Combine("Art", "W3D", splitName[0] + ".W3D");
-                    var model = _contentManager.Load<Model>(w3dFilePath);
-
-                    if (model != null && model.Animations.Length == 0)
+                    if (!_contentManager.DataContext.Animations.TryGetValue(firstAnimation.Animation, out var animation))
                     {
-                        // TODO: What is the actual algorithm here?
-                        w3dFilePath = Path.Combine("Art", "W3D", splitName[1] + ".W3D");
-                        model = _contentManager.Load<Model>(w3dFilePath);
-                    }
+                        var splitName = firstAnimation.Animation.Split('.');
 
-                    if (model != null)
-                    {
-                        var animation = model.Animations.FirstOrDefault(x => string.Equals(x.Name, splitName[1], StringComparison.OrdinalIgnoreCase));
-                        if (animation != null)
+                        var w3dFilePath = Path.Combine("Art", "W3D", splitName[1] + ".W3D");
+                        var w3dEntry = _contentManager.FileSystem.GetFile(w3dFilePath);
+                        var w3dFile = W3dFile.FromFileSystemEntry(w3dEntry);
+
+                        var animations = ModelLoader.LoadAnimations(w3dFile, _contentManager);
+                        if (animations.Length != 1 || !string.Equals(animations[0].Name, firstAnimation.Animation, StringComparison.OrdinalIgnoreCase))
                         {
-                            // TODO: Should this ever be null?
-
-                            var animationInstance = new AnimationInstance(modelInstance, animation);
-
-                            modelInstance.AnimationInstances.Add(animationInstance);
-
-                            animationInstance.Play();
+                            throw new NotSupportedException();
                         }
+
+                        animation = animations[0];
+
+                        _contentManager.DataContext.Animations.Add(firstAnimation.Animation, animation);
                     }
+
+                    var animationInstance = new AnimationInstance(modelInstance, animation);
+                    modelInstance.AnimationInstances.Add(animationInstance);
+                    animationInstance.Play();
                 }
             }
 
@@ -178,7 +175,7 @@ namespace OpenSage.Logic.Object
                 foreach (var particleSysBone in conditionState.ParticleSysBones)
                 {
                     var particleSystemDefinition = _contentManager.IniDataContext.ParticleSystems.First(x => x.Name == particleSysBone.ParticleSystem);
-                    var bone = modelInstance.Model.Bones.FirstOrDefault(x => string.Equals(x.Name, particleSysBone.BoneName, StringComparison.OrdinalIgnoreCase));
+                    var bone = modelInstance.Model.BoneHierarchy.Bones.FirstOrDefault(x => string.Equals(x.Name, particleSysBone.BoneName, StringComparison.OrdinalIgnoreCase));
                     if (bone == null)
                     {
                         // TODO: Should this ever happen?

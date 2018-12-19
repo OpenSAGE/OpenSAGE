@@ -29,12 +29,10 @@ namespace OpenSage.Graphics.Effects
         [StructLayout(LayoutKind.Sequential)]
         public struct MeshConstants
         {
-            public Bool32 SkinningEnabled;
-            public uint NumBones;
-
 #pragma warning disable CS0169
-            private readonly Vector2 _padding;
+            private readonly Vector3 _padding;
 #pragma warning restore CS0169
+            public Bool32 SkinningEnabled;
         }
     }
 }

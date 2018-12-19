@@ -3,71 +3,65 @@ using System.IO;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dHLod : W3dChunk
+    public sealed class W3dHLod : W3dContainerChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_HLOD;
+
         public W3dHLodHeader Header { get; private set; }
 
-        public IReadOnlyList<W3dHLodArray> Lods { get; private set; }
+        public List<W3dHLodArray> Lods { get; } = new List<W3dHLodArray>();
 
-        public W3dHLodArray Aggregate { get; private set; }
+        public W3dHLodAggregateArray Aggregate { get; private set; }
 
-        internal static W3dHLod Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dHLod Parse(BinaryReader reader, W3dParseContext context)
         {
-            var lods = new List<W3dHLodArray>();
-
-            var finalResult = ParseChunk<W3dHLod>(reader, chunkSize, (result, header) =>
+            return ParseChunk(reader, context, header =>
             {
-                switch (header.ChunkType)
+                var result = new W3dHLod();
+
+                ParseChunks(reader, context.CurrentEndPosition, chunkType =>
                 {
-                    case W3dChunkType.W3D_CHUNK_HLOD_HEADER:
-                        result.Header = W3dHLodHeader.Parse(reader);
-                        result.Lods = new W3dHLodArray[result.Header.LodCount];
-                        break;
+                    switch (chunkType)
+                    {
+                        case W3dChunkType.W3D_CHUNK_HLOD_HEADER:
+                            result.Header = W3dHLodHeader.Parse(reader, context);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_HLOD_LOD_ARRAY:
-                        lods.Add(W3dHLodArray.Parse(reader, header.ChunkSize));
-                        break;
+                        case W3dChunkType.W3D_CHUNK_HLOD_LOD_ARRAY:
+                            result.Lods.Add(W3dHLodArray.Parse(reader, context));
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_HLOD_AGGREGATE_ARRAY:
-                        if (result.Aggregate != null)
-                        {
-                            throw new InvalidDataException();
-                        }
-                        result.Aggregate = W3dHLodArray.Parse(reader, header.ChunkSize);
-                        break;
+                        case W3dChunkType.W3D_CHUNK_HLOD_AGGREGATE_ARRAY:
+                            result.Aggregate = W3dHLodAggregateArray.Parse(reader, context);
+                            break;
 
-                    default:
-                        throw CreateUnknownChunkException(header);
-                }
+                        default:
+                            throw CreateUnknownChunkException(chunkType);
+                    }
+                });
+
+                return result;
             });
-
-            finalResult.Lods = lods;
-
-            return finalResult;
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override IEnumerable<W3dChunk> GetSubChunksOverride()
         {
-            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_HLOD_HEADER, false, () =>
-            {
-                Header.WriteTo(writer);
-            });
+            yield return Header;
 
             foreach (var lod in Lods)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_HLOD_LOD_ARRAY, true, () =>
-                {
-                    lod.WriteTo(writer);
-                });
+                yield return lod;
             }
 
             if (Aggregate != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_HLOD_AGGREGATE_ARRAY, true, () =>
-                {
-                    Aggregate.WriteTo(writer);
-                });
+                yield return Aggregate;
             }
         }
+    }
+
+    public sealed class W3dHLodAggregateArray : W3dHLodArrayBase<W3dHLodAggregateArray>
+    {
+        
     }
 }

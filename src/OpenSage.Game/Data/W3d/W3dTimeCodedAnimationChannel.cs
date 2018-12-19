@@ -4,8 +4,10 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dTimeCodedAnimationChannel
+    public sealed class W3dTimeCodedAnimationChannel : W3dChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL;
+
         public uint NumTimeCodes { get; private set; }
 
         /// <summary>
@@ -22,32 +24,33 @@ namespace OpenSage.Data.W3d
 
         public W3dTimeCodedDatum[] Data { get; private set; }
 
-        internal static W3dTimeCodedAnimationChannel Parse(BinaryReader reader)
+        internal static W3dTimeCodedAnimationChannel Parse(BinaryReader reader, W3dParseContext context)
         {
-            var startPosition = reader.BaseStream.Position;
-
-            var result = new W3dTimeCodedAnimationChannel
+            return ParseChunk(reader, context, header =>
             {
-                NumTimeCodes = reader.ReadUInt32(),
-                Pivot = reader.ReadUInt16(),
-                VectorLength = reader.ReadByte(),
-                ChannelType = reader.ReadByteAsEnum<W3dAnimationChannelType>()
-            };
+                var result = new W3dTimeCodedAnimationChannel
+                {
+                    NumTimeCodes = reader.ReadUInt32(),
+                    Pivot = reader.ReadUInt16(),
+                    VectorLength = reader.ReadByte(),
+                    ChannelType = reader.ReadByteAsEnum<W3dAnimationChannelType>()
+                };
 
-            W3dAnimationChannel.ValidateChannelDataSize(result.ChannelType, result.VectorLength);
+                W3dAnimationChannel.ValidateChannelDataSize(result.ChannelType, result.VectorLength);
 
-            var data = new W3dTimeCodedDatum[result.NumTimeCodes];
-            for (var i = 0; i < result.NumTimeCodes; i++)
-            {
-                data[i] = W3dTimeCodedDatum.Parse(reader, result.ChannelType);
-            }
+                var data = new W3dTimeCodedDatum[result.NumTimeCodes];
+                for (var i = 0; i < result.NumTimeCodes; i++)
+                {
+                    data[i] = W3dTimeCodedDatum.Parse(reader, result.ChannelType);
+                }
 
-            result.Data = data;
+                result.Data = data;
 
-            return result;
+                return result;
+            });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write(NumTimeCodes);
             writer.Write(Pivot);

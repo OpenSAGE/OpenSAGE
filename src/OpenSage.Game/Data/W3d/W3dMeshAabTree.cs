@@ -1,67 +1,65 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dMeshAabTree : W3dChunk
+    public sealed class W3dMeshAabTree : W3dContainerChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_AABTREE;
+
         public W3dMeshAabTreeHeader Header { get; private set; }
-        public uint[] PolygonIndices { get; private set; }
-        public W3dMeshAabTreeNode[] Nodes { get; private set; }
+        public W3dMeshAabTreePolyIndices PolygonIndices { get; private set; }
+        public W3dMeshAabTreeNodes Nodes { get; private set; }
 
-        public static W3dMeshAabTree Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dMeshAabTree Parse(BinaryReader reader, W3dParseContext context)
         {
-            return ParseChunk<W3dMeshAabTree>(reader, chunkSize, (result, header) =>
+            return ParseChunk<W3dMeshAabTree>(reader, context, header =>
             {
-                switch (header.ChunkType)
+                var result = new W3dMeshAabTree();
+                ParseChunks(reader, context.CurrentEndPosition, chunkType =>
                 {
-                    case W3dChunkType.W3D_CHUNK_AABTREE_HEADER:
-                        result.Header = W3dMeshAabTreeHeader.Parse(reader);
-                        break;
+                    switch (chunkType)
+                    {
+                        case W3dChunkType.W3D_CHUNK_AABTREE_HEADER:
+                            result.Header = W3dMeshAabTreeHeader.Parse(reader, context);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_AABTREE_POLYINDICES:
-                        result.PolygonIndices = new uint[result.Header.PolyCount];
-                        for (var i = 0; i < result.Header.PolyCount; i++)
-                        {
-                            result.PolygonIndices[i] = reader.ReadUInt32();
-                        }
-                        break;
+                        case W3dChunkType.W3D_CHUNK_AABTREE_POLYINDICES:
+                            result.PolygonIndices = W3dMeshAabTreePolyIndices.Parse(reader, context);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_AABTREE_NODES:
-                        result.Nodes = new W3dMeshAabTreeNode[result.Header.NodeCount];
-                        for (var i = 0; i < result.Header.NodeCount; i++)
-                        {
-                            result.Nodes[i] = W3dMeshAabTreeNode.Parse(reader);
-                        }
-                        break;
+                        case W3dChunkType.W3D_CHUNK_AABTREE_NODES:
+                            result.Nodes = W3dMeshAabTreeNodes.Parse(reader, context);
+                            break;
 
-                    default:
-                        throw CreateUnknownChunkException(header);
-                }
+                        default:
+                            throw CreateUnknownChunkException(chunkType);
+                    }
+                });
+                return result;
             });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override IEnumerable<W3dChunk> GetSubChunksOverride()
         {
-            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_AABTREE_HEADER, false, () =>
-            {
-                Header.WriteTo(writer);
-            });
+            yield return Header;
+            yield return PolygonIndices;
+            yield return Nodes;
+        }
+    }
 
-            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_AABTREE_POLYINDICES, false, () =>
-            {
-                foreach (var index in PolygonIndices)
-                {
-                    writer.Write(index);
-                }
-            });
+    public sealed class W3dMeshAabTreePolyIndices : W3dStructListChunk<W3dMeshAabTreePolyIndices, uint>
+    {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_AABTREE_POLYINDICES;
 
-            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_AABTREE_NODES, false, () =>
-            {
-                foreach (var node in Nodes)
-                {
-                    node.WriteTo(writer);
-                }
-            });
+        internal static W3dMeshAabTreePolyIndices Parse(BinaryReader reader, W3dParseContext context)
+        {
+            return ParseList(reader, context, r => r.ReadUInt32());
+        }
+
+        protected override void WriteItem(BinaryWriter writer, in uint item)
+        {
+            writer.Write(item);
         }
     }
 }

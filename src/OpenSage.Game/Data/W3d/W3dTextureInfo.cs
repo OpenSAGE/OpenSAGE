@@ -3,8 +3,10 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dTextureInfo
+    public sealed class W3dTextureInfo : W3dChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_TEXTURE_INFO;
+
         /// <summary>
         /// Flags for this texture
         /// </summary>
@@ -25,18 +27,21 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public float FrameRate { get; private set; }
 
-        internal static W3dTextureInfo Parse(BinaryReader reader)
+        internal static W3dTextureInfo Parse(BinaryReader reader, W3dParseContext context)
         {
-            return new W3dTextureInfo
+            return ParseChunk(reader, context, header =>
             {
-                Attributes = reader.ReadUInt16AsEnumFlags<W3dTextureFlags>(),
-                AnimationType = reader.ReadUInt16AsEnum<W3dTextureAnimation>(),
-                FrameCount = reader.ReadUInt32(),
-                FrameRate = reader.ReadSingle(),
-            };
+                return new W3dTextureInfo
+                {
+                    Attributes = reader.ReadUInt16AsEnumFlags<W3dTextureFlags>(),
+                    AnimationType = reader.ReadUInt16AsEnum<W3dTextureAnimation>(),
+                    FrameCount = reader.ReadUInt32(),
+                    FrameRate = reader.ReadSingle(),
+                };
+            });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write((ushort) Attributes);
             writer.Write((ushort) AnimationType);

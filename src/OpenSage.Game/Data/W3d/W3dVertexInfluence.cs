@@ -11,14 +11,19 @@ namespace OpenSage.Data.W3d
     {
         public ushort BoneIndex;
 
+        public ushort Unknown1;
+        public ushort Unknown2;
+        public ushort Unknown3;
+
         internal static W3dVertexInfluence Parse(BinaryReader reader)
         {
             var result = new W3dVertexInfluence
             {
-                BoneIndex = reader.ReadUInt16()
+                BoneIndex = reader.ReadUInt16(),
+                Unknown1 = reader.ReadUInt16(),
+                Unknown2 = reader.ReadUInt16(),
+                Unknown3 = reader.ReadUInt16()
             };
-
-            reader.ReadBytes(6); // Padding
 
             return result;
         }
@@ -27,7 +32,9 @@ namespace OpenSage.Data.W3d
         {
             writer.Write(BoneIndex);
 
-            writer.BaseStream.Seek(6, SeekOrigin.Current); // Padding
+            writer.Write(Unknown1);
+            writer.Write(Unknown2);
+            writer.Write(Unknown3);
         }
     }
 }

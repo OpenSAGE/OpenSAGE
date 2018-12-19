@@ -1,51 +1,57 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dHLodArray : W3dChunk
+    public abstract class W3dHLodArrayBase<TDerived> : W3dContainerChunk
+        where TDerived : W3dHLodArrayBase<TDerived>, new()
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_HLOD_LOD_ARRAY;
+
         public W3dHLodArrayHeader Header { get; private set; }
 
-        public W3dHLodSubObject[] SubObjects { get; private set; }
+        public List<W3dHLodSubObject> SubObjects { get; } = new List<W3dHLodSubObject>();
 
-        internal static W3dHLodArray Parse(BinaryReader reader, uint chunkSize)
+        internal static TDerived Parse(BinaryReader reader, W3dParseContext context)
         {
-            var currentSubObjectIndex = 0;
-
-            return ParseChunk<W3dHLodArray>(reader, chunkSize, (result, header) =>
+            return ParseChunk(reader, context, header =>
             {
-                switch (header.ChunkType)
+                var result = new TDerived();
+
+                ParseChunks(reader, context.CurrentEndPosition, chunkType =>
                 {
-                    case W3dChunkType.W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER:
-                        result.Header = W3dHLodArrayHeader.Parse(reader);
-                        result.SubObjects = new W3dHLodSubObject[result.Header.ModelCount];
-                        break;
+                    switch (chunkType)
+                    {
+                        case W3dChunkType.W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER:
+                            result.Header = W3dHLodArrayHeader.Parse(reader, context);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_HLOD_SUB_OBJECT:
-                        result.SubObjects[currentSubObjectIndex] = W3dHLodSubObject.Parse(reader);
-                        currentSubObjectIndex++;
-                        break;
+                        case W3dChunkType.W3D_CHUNK_HLOD_SUB_OBJECT:
+                            result.SubObjects.Add(W3dHLodSubObject.Parse(reader, context));
+                            break;
 
-                    default:
-                        throw CreateUnknownChunkException(header);
-                }
+                        default:
+                            throw CreateUnknownChunkException(chunkType);
+                    }
+                });
+
+                return result;
             });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override IEnumerable<W3dChunk> GetSubChunksOverride()
         {
-            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER, false, () =>
-            {
-                Header.WriteTo(writer);
-            });
+            yield return Header;
 
             foreach (var subObject in SubObjects)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_HLOD_SUB_OBJECT, false, () =>
-                {
-                    subObject.WriteTo(writer);
-                });
+                yield return subObject;
             }
         }
+    }
+
+    public sealed class W3dHLodArray : W3dHLodArrayBase<W3dHLodArray>
+    {
+        
     }
 }

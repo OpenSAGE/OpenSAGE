@@ -2,7 +2,7 @@
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dShaderPs2 : W3dChunk
+    public sealed class W3dShaderPs2
     {
         public byte[] Unknown { get; private set; }
 
