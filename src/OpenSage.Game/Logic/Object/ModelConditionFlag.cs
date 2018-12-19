@@ -894,5 +894,23 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("FIRING_ANY"), AddedIn(SageGame.Bfme2)]
         FiringAny,
+
+        [IniEnum("FORTRESS_IMPROVEMENT_1"), AddedIn(SageGame.Bfme2)]
+        FortressImprovement1,
+
+        [IniEnum("FORTRESS_IMPROVEMENT_2"), AddedIn(SageGame.Bfme2)]
+        FortressImprovement2,
+
+        [IniEnum("FORTRESS_IMPROVEMENT_3"), AddedIn(SageGame.Bfme2)]
+        FortressImprovement3,
+
+        [IniEnum("FORTRESS_IMPROVEMENT_4"), AddedIn(SageGame.Bfme2)]
+        FortressImprovement4,
+
+        [IniEnum("UPGRADE_FORTRESS_MONUMENT"), AddedIn(SageGame.Bfme2)]
+        UpgradeFortressMonument,
+
+        [IniEnum("LEASHED_RETURNING"), AddedIn(SageGame.Bfme2)]
+        LeashedReturning,
     }
 }

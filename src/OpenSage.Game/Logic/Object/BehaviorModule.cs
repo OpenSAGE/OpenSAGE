@@ -67,6 +67,7 @@ namespace OpenSage.Logic.Object
             { "BezierProjectileBehavior", BezierProjectileBehaviorData.Parse },
             { "HitReactionBehavior", HitReactionBehaviorData.Parse },
             { "TerrainResourceBehavior", TerrainResourceBehaviorModuleData.Parse },
+            { "WallHubBehavior", WallHubBehaviorModuleData.Parse },
 
             // Collide
             { "CivilianSpawnCollide", CivilianSpawnCollideModuleData.Parse },
@@ -112,6 +113,7 @@ namespace OpenSage.Logic.Object
             // Create
             { "ExperienceLevelCreate", ExperienceLevelCreateModuleData.Parse },
             { "GrantUpgradeCreate", GrantUpgradeCreateModuleData.Parse },
+            { "InheritUpgradeCreate", InheritUpgradeCreateModuleData.Parse },
             { "LockWeaponCreate", LockWeaponCreateModuleData.Parse },
             { "PreorderCreate", PreorderCreateModuleData.Parse },
             { "SpecialPowerCreate", SpecialPowerCreateModuleData.Parse },
@@ -182,6 +184,7 @@ namespace OpenSage.Logic.Object
             { "StoreObjectsSpecialPower", StoreObjectsSpecialPowerModuleData.Parse },
             { "TaintSpecialPower", TaintSpecialPowerModuleData.Parse },
             { "TeleportToCasterSpecialPower", TeleportToCasterSpecialPowerModuleData.Parse },
+            { "UnleashSpecialPower", UnleashSpecialPowerModuleData.Parse },
             { "UntamedAllegianceSpecialPower", UntamedAllegianceSpecialPowerModuleData.Parse },
 
             // Update
@@ -335,6 +338,7 @@ namespace OpenSage.Logic.Object
             { "RadarUpgrade", RadarUpgradeModuleData.Parse },
             { "RemoveUpgradeUpgrade", RemoveUpgradeUpgradeModuleData.Parse },
             { "ReplaceObjectUpgrade", ReplaceObjectUpgradeModuleData.Parse },
+            { "ReplaceSelfUpgrade", ReplaceSelfUpgradeModuleData.Parse },
             { "StatusBitsUpgrade", StatusBitsUpgradeModuleData.Parse },
             { "StealthUpgrade", StealthUpgradeModuleData.Parse },
             { "SubObjectsUpgrade", SubObjectsUpgradeModuleData.Parse },

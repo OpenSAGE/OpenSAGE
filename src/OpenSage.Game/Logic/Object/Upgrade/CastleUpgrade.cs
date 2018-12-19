@@ -10,9 +10,13 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<CastleUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
             .Concat(new IniParseTable<CastleUpgradeModuleData>
             {
-                { "Upgrade", (parser, x) => x.Upgrade = parser.ParseAssetReference() }
+                { "Upgrade", (parser, x) => x.Upgrade = parser.ParseAssetReference() },
+                { "WallUpgradeRadius", (parser, x) => x.WallUpgradeRadius = parser.ParseFloat() },
             });
 
         public string Upgrade { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float WallUpgradeRadius { get; private set; }
     }
 }

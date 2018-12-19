@@ -348,7 +348,8 @@ namespace OpenSage.Logic.Object
             { "AutoResolveWeapon", (parser, x) => x.AutoResolveWeapon = AutoResolveWeapon.Parse(parser) },
             { "DisplayNameStrategic", (parser, x) => x.DisplayNameStrategic = parser.ParseLocalizedStringKey() },
             { "WorldMapArmoryUpgradesAllowed", (parser, x) => x.WorldMapArmoryUpgradesAllowed = parser.ParseAssetReferenceArray() },
-            { "FormationPreviewItemDecal", (parser, x) => x.FormationPreviewItemDecal = FormationPreviewItemDecal.Parse(parser) }
+            { "FormationPreviewItemDecal", (parser, x) => x.FormationPreviewItemDecal = FormationPreviewItemDecal.Parse(parser) },
+            { "GeometryUsedForHealthBox", (parser, x) => x.GeometryUsedForHealthBox = parser.ParseBoolean() },
         };
 
         public string Name { get; protected set; }
@@ -1093,6 +1094,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public FormationPreviewItemDecal FormationPreviewItemDecal { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool GeometryUsedForHealthBox { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -1277,12 +1281,14 @@ namespace OpenSage.Logic.Object
             { "MaxBurnRate", (parser, x) => x.MaxBurnRate = parser.ParseInteger() },
             { "Decay", (parser, x) => x.Decay = parser.ParseInteger() },
             { "Resistance", (parser, x) => x.Resistance = parser.ParseInteger() },
+            { "FuelFactor", (parser, x) => x.FuelFactor = parser.ParseFloat() }
         };
 
         public string Fuel { get; private set; }
         public int MaxBurnRate { get; private set; }
         public int Decay { get; private set; }
         public int Resistance { get; private set; }
+        public float FuelFactor { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme2)]

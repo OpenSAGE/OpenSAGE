@@ -26,7 +26,9 @@ namespace OpenSage.Logic.Object
             { "RepairWeldingSys", (parser, x) => x.RepairWeldingSys = parser.ParseAssetReference() },
             { "RepairWeldingFXBone", (parser, x) => x.RepairWeldingFXBone = parser.ParseBoneName() },
             { "DistToTargetToGrantRangeBonus", (parser, x) => x.DistToTargetToGrantRangeBonus = parser.ParseInteger() },
-            { "StayOnSameLayerAsMaster", (parser, x) => x.StayOnSameLayerAsMaster = parser.ParseBoolean() }
+            { "StayOnSameLayerAsMaster", (parser, x) => x.StayOnSameLayerAsMaster = parser.ParseBoolean() },
+            { "LeashRange", (parser, x) => x.LeashRange = parser.ParseInteger() },
+            { "UseSlaverAsControlForEvaObjectSightedEvents", (parser, x) => x.UseSlaverAsControlForEvaObjectSightedEvents = parser.ParseBoolean() }
         };
 
         public float GuardMaxRange { get; private set; }
@@ -48,5 +50,11 @@ namespace OpenSage.Logic.Object
         public string RepairWeldingFXBone { get; private set; }
         public int DistToTargetToGrantRangeBonus { get; private set; }
         public bool StayOnSameLayerAsMaster { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int LeashRange { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool UseSlaverAsControlForEvaObjectSightedEvents { get; private set; }
     }
 }
