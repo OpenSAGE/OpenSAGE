@@ -1,182 +1,154 @@
 ﻿using OpenSage.Data.Utilities.Extensions;
 using System.Collections.Generic;
 using System.IO;
-using System.Numerics;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dMaterialPass : W3dChunk
+    public sealed class W3dMaterialPass : W3dContainerChunk
     {
-        public uint[] VertexMaterialIds { get; private set; }
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_MATERIAL_PASS;
 
-        public uint[] ShaderIds { get; private set; }
+        public W3dUInt32List VertexMaterialIds { get; private set; }
 
-        public uint? ShaderMaterialId { get; private set; }
+        public W3dUInt32List ShaderIds { get; private set; }
+
+        public W3dUInt32List ShaderMaterialIds { get; private set; }
 
         /// <summary>
         /// per-vertex diffuse color values
         /// </summary>
-        public W3dRgba[] Dcg { get; private set; }
+        public W3dRgbaList Dcg { get; private set; }
 
         /// <summary>
         /// per-vertex diffuse illumination values
         /// </summary>
-        public W3dRgba[] Dig { get; private set; }
+        public W3dRgbaList Dig { get; private set; }
 
         /// <summary>
         /// per-vertex specular color values
         /// </summary>
-        public W3dRgba[] Scg { get; private set; }
+        public W3dRgbaList Scg { get; private set; }
 
-        public IReadOnlyList<W3dTextureStage> TextureStages { get; private set; }
+        public List<W3dTextureStage> TextureStages { get; } = new List<W3dTextureStage>();
 
         /// <summary>
         /// Only present when using shader materials.
         /// </summary>
-        public Vector2[] TexCoords { get; private set; }
+        public W3dVector2List TexCoords { get; private set; }
 
-        internal static W3dMaterialPass Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dMaterialPass Parse(BinaryReader reader, W3dParseContext context)
         {
-            var textureStages = new List<W3dTextureStage>();
-
-            var r = ParseChunk<W3dMaterialPass>(reader, chunkSize, (result, header) =>
+            return ParseChunk(reader, context, header =>
             {
-                switch (header.ChunkType)
+                var result = new W3dMaterialPass();
+
+                ParseChunks(reader, context.CurrentEndPosition, chunkType =>
                 {
-                    case W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL_IDS:
-                        result.VertexMaterialIds = new uint[header.ChunkSize / sizeof(uint)];
-                        for (var count = 0; count < result.VertexMaterialIds.Length; count++)
-                        {
-                            result.VertexMaterialIds[count] = reader.ReadUInt32();
-                        }
-                        break;
+                    switch (chunkType)
+                    {
+                        case W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL_IDS:
+                            result.VertexMaterialIds = W3dUInt32List.Parse(reader, context, chunkType);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_SHADER_IDS:
-                        result.ShaderIds = new uint[header.ChunkSize / sizeof(uint)];
-                        for (var count = 0; count < result.ShaderIds.Length; count++)
-                        {
-                            result.ShaderIds[count] = reader.ReadUInt32();
-                        }
-                        break;
+                        case W3dChunkType.W3D_CHUNK_SHADER_IDS:
+                            result.ShaderIds = W3dUInt32List.Parse(reader, context, chunkType);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_DCG:
-                        result.Dcg = new W3dRgba[header.ChunkSize / W3dRgba.SizeInBytes];
-                        for (var count = 0; count < result.Dcg.Length; count++)
-                        {
-                            result.Dcg[count] = W3dRgba.Parse(reader);
-                        }
-                        break;
+                        case W3dChunkType.W3D_CHUNK_DCG:
+                            result.Dcg = W3dRgbaList.Parse(reader, context, chunkType);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_DIG:
-                        result.Dig = new W3dRgba[header.ChunkSize / W3dRgba.SizeInBytes];
-                        for (var count = 0; count < result.Dig.Length; count++)
-                        {
-                            result.Dig[count] = W3dRgba.Parse(reader);
-                        }
-                        break;
+                        case W3dChunkType.W3D_CHUNK_DIG:
+                            result.Dig = W3dRgbaList.Parse(reader, context, chunkType);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_SCG:
-                        result.Scg = new W3dRgba[header.ChunkSize / W3dRgba.SizeInBytes];
-                        for (var count = 0; count < result.Scg.Length; count++)
-                        {
-                            result.Scg[count] = W3dRgba.Parse(reader);
-                        }
-                        break;
+                        case W3dChunkType.W3D_CHUNK_SCG:
+                            result.Scg = W3dRgbaList.Parse(reader, context, chunkType);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_TEXTURE_STAGE:
-                        textureStages.Add(W3dTextureStage.Parse(reader, header.ChunkSize));
-                        break;
+                        case W3dChunkType.W3D_CHUNK_TEXTURE_STAGE:
+                            result.TextureStages.Add(W3dTextureStage.Parse(reader, context));
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_SHADER_MATERIAL_ID:
-                        if (header.ChunkSize != sizeof(uint))
-                        {
-                            // TODO: If this is thrown: this is an array of IDs
-                            throw new InvalidDataException();
-                        }
-                        result.ShaderMaterialId = reader.ReadUInt32();
-                        break;
+                        case W3dChunkType.W3D_CHUNK_SHADER_MATERIAL_ID:
+                            result.ShaderMaterialIds = W3dUInt32List.Parse(reader, context, chunkType);
+                            break;
 
-                    // Normally this appears inside W3dTextureStage, but it can also
-                    // appear directly under W3dMaterialPass if using shader materials.
-                    case W3dChunkType.W3D_CHUNK_STAGE_TEXCOORDS:
-                        result.TexCoords = new Vector2[header.ChunkSize / (sizeof(float) * 2)];
-                        for (var count = 0; count < result.TexCoords.Length; count++)
-                        {
-                            result.TexCoords[count] = reader.ReadVector2();
-                        }
-                        break;
+                        // Normally this appears inside W3dTextureStage, but it can also
+                        // appear directly under W3dMaterialPass if using shader materials.
+                        case W3dChunkType.W3D_CHUNK_STAGE_TEXCOORDS:
+                            result.TexCoords = W3dVector2List.Parse(reader, context, chunkType);
+                            break;
 
-                    default:
-                        throw CreateUnknownChunkException(header);
-                }
+                        default:
+                            throw CreateUnknownChunkException(chunkType);
+                    }
+                });
+
+                return result;
             });
-
-            r.TextureStages = textureStages;
-
-            return r;
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override IEnumerable<W3dChunk> GetSubChunksOverride()
         {
             if (VertexMaterialIds != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL_IDS, false, () =>
-                {
-                    foreach (var id in VertexMaterialIds)
-                    {
-                        writer.Write(id);
-                    }
-                });
+                yield return VertexMaterialIds;
             }
 
             if (ShaderIds != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_SHADER_IDS, false, () =>
-                {
-                    foreach (var id in ShaderIds)
-                    {
-                        writer.Write(id);
-                    }
-                });
+                yield return ShaderIds;
             }
 
             if (Dcg != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_DCG, false, () =>
-                {
-                    foreach (var color in Dcg)
-                    {
-                        writer.Write(color);
-                    }
-                });
+                yield return Dcg;
+            }
+
+            if (Dig != null)
+            {
+                yield return Dig;
+            }
+
+            if (Scg != null)
+            {
+                yield return Scg;
             }
 
             foreach (var textureStage in TextureStages)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_TEXTURE_STAGE, true, () =>
-                {
-                    textureStage.WriteTo(writer);
-                });
+                yield return textureStage;
             }
 
-            if (ShaderMaterialId != null)
+            if (ShaderMaterialIds != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_SHADER_MATERIAL_ID, false, () =>
-                {
-                    writer.Write(ShaderMaterialId.Value);
-                });
+                yield return ShaderMaterialIds;
             }
 
             if (TexCoords != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_STAGE_TEXCOORDS, false, () =>
-                {
-                    foreach (var texCoord in TexCoords)
-                    {
-                        writer.Write(texCoord);
-                    }
-                });
+                yield return TexCoords;
             }
+        }
+    }
+
+    public sealed class W3dRgbaList : W3dStructListChunk<W3dRgbaList, W3dRgba>
+    {
+        private W3dChunkType _chunkType;
+
+        public override W3dChunkType ChunkType => _chunkType;
+
+        internal static W3dRgbaList Parse(BinaryReader reader, W3dParseContext context, W3dChunkType chunkType)
+        {
+            var result = ParseList(reader, context, W3dRgba.Parse);
+            result._chunkType = chunkType;
+            return result;
+        }
+
+        protected override void WriteItem(BinaryWriter writer, in W3dRgba item)
+        {
+            writer.Write(item);
         }
     }
 }

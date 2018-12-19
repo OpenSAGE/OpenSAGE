@@ -4,8 +4,10 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dMeshHeader3
+    public sealed class W3dMeshHeader3 : W3dChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_MESH_HEADER3;
+
         // boundary values for W3dMeshHeaderStruct::SortLevel
         public const int SortLevelNone = 0;
         public const int SortLevelMax = 32;
@@ -54,31 +56,34 @@ namespace OpenSage.Data.W3d
 
         public float SphRadius { get; private set; }			// Bounding sphere radius
 
-        internal static W3dMeshHeader3 Parse(BinaryReader reader)
+        internal static W3dMeshHeader3 Parse(BinaryReader reader, W3dParseContext context)
         {
-            return new W3dMeshHeader3
+            return ParseChunk(reader, context, header =>
             {
-                Version = reader.ReadUInt32(),
-                Attributes = (W3dMeshFlags) reader.ReadUInt32(),
-                MeshName = reader.ReadFixedLengthString(W3dConstants.NameLength),
-                ContainerName = reader.ReadFixedLengthString(W3dConstants.NameLength),
-                NumTris = reader.ReadUInt32(),
-                NumVertices = reader.ReadUInt32(),
-                NumMaterials = reader.ReadUInt32(),
-                NumDamageStages = reader.ReadUInt32(),
-                SortLevel = reader.ReadUInt32(),
-                PrelitVersion = reader.ReadUInt32(),
-                FutureCounts = reader.ReadUInt32(),
-                VertexChannels = reader.ReadUInt32AsEnumFlags<W3dVertexChannels>(),
-                FaceChannels = reader.ReadUInt32AsEnum<W3dFaceChannels>(),
-                Min = reader.ReadVector3(),
-                Max = reader.ReadVector3(),
-                SphCenter = reader.ReadVector3(),
-                SphRadius = reader.ReadSingle()
-            };
+                return new W3dMeshHeader3
+                {
+                    Version = reader.ReadUInt32(),
+                    Attributes = reader.ReadUInt32AsEnumFlags<W3dMeshFlags>(),
+                    MeshName = reader.ReadFixedLengthString(W3dConstants.NameLength),
+                    ContainerName = reader.ReadFixedLengthString(W3dConstants.NameLength),
+                    NumTris = reader.ReadUInt32(),
+                    NumVertices = reader.ReadUInt32(),
+                    NumMaterials = reader.ReadUInt32(),
+                    NumDamageStages = reader.ReadUInt32(),
+                    SortLevel = reader.ReadUInt32(),
+                    PrelitVersion = reader.ReadUInt32(),
+                    FutureCounts = reader.ReadUInt32(),
+                    VertexChannels = reader.ReadUInt32AsEnumFlags<W3dVertexChannels>(),
+                    FaceChannels = reader.ReadUInt32AsEnum<W3dFaceChannels>(),
+                    Min = reader.ReadVector3(),
+                    Max = reader.ReadVector3(),
+                    SphCenter = reader.ReadVector3(),
+                    SphRadius = reader.ReadSingle()
+                };
+            });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write(Version);
             writer.Write((uint) Attributes);

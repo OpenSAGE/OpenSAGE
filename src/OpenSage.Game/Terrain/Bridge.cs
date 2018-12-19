@@ -17,7 +17,7 @@ namespace OpenSage.Terrain
     {
         private readonly Model _model;
         private readonly ModelInstance _modelInstance;
-        private readonly List<Tuple<ModelMesh, Matrix4x4>> _meshes;
+        private readonly List<Tuple<ModelSubObject, Matrix4x4>> _meshes;
         private readonly List<GameObject> _towers;
 
         private Bridge(
@@ -88,7 +88,7 @@ namespace OpenSage.Terrain
             return true;
         }
 
-        private static List<Tuple<ModelMesh, Matrix4x4>> CreateMeshes(
+        private static List<Tuple<ModelSubObject, Matrix4x4>> CreateMeshes(
             HeightMap heightMap,
             BridgeTemplate template,
             in Vector3 startPosition,
@@ -102,13 +102,13 @@ namespace OpenSage.Terrain
         {
             const float heightBias = 1f;
 
-            var bridgeLeft = model.Meshes.First(x => x.Name.StartsWith("BRIDGE_LEFT"));
-            var bridgeSpan = model.Meshes.First(x => x.Name.StartsWith("BRIDGE_SPAN"));
-            var bridgeRight = model.Meshes.First(x => x.Name.StartsWith("BRIDGE_RIGHT"));
+            var bridgeLeft = model.SubObjects.First(x => x.Name.EndsWith("BRIDGE_LEFT"));
+            var bridgeSpan = model.SubObjects.First(x => x.Name.EndsWith("BRIDGE_SPAN"));
+            var bridgeRight = model.SubObjects.First(x => x.Name.EndsWith("BRIDGE_RIGHT"));
 
-            float GetLength(ModelMesh mesh)
+            float GetLength(ModelSubObject subObject)
             {
-                var transformedBounds = BoundingBox.Transform(mesh.BoundingBox, modelInstance.RelativeBoneTransforms[mesh.ParentBone.Index]);
+                var transformedBounds = BoundingBox.Transform(subObject.RenderObject.BoundingBox, modelInstance.RelativeBoneTransforms[subObject.Bone.Index]);
                 return transformedBounds.Max.X - transformedBounds.Min.X;
             }
 
@@ -146,16 +146,16 @@ namespace OpenSage.Terrain
                 Matrix4x4.CreateFromQuaternion(rotationAroundZ) *
                 Matrix4x4.CreateTranslation(startPositionWithHeight);
 
-            var meshes = new List<Tuple<ModelMesh, Matrix4x4>>();
+            var meshes = new List<Tuple<ModelSubObject, Matrix4x4>>();
 
             var currentOffset = 0f;
-            Matrix4x4 GetLocalTranslation(ModelMesh mesh)
+            Matrix4x4 GetLocalTranslation(ModelSubObject subObject)
             {
-                var transformedBounds = BoundingBox.Transform(mesh.BoundingBox, modelInstance.RelativeBoneTransforms[mesh.ParentBone.Index]);
+                var transformedBounds = BoundingBox.Transform(subObject.RenderObject.BoundingBox, modelInstance.RelativeBoneTransforms[subObject.Bone.Index]);
                 var w3dOffset = transformedBounds.Min.X;
 
                 var result =
-                    modelInstance.RelativeBoneTransforms[mesh.ParentBone.Index] *
+                    modelInstance.RelativeBoneTransforms[subObject.Bone.Index] *
                     Matrix4x4.CreateTranslation(new Vector3(currentOffset, 0, 0)) *
                     Matrix4x4.CreateTranslation(new Vector3(-w3dOffset, 0, 0)) *
                     worldMatrix;
@@ -174,7 +174,7 @@ namespace OpenSage.Terrain
 
             meshes.Add(Tuple.Create(bridgeRight, GetLocalTranslation(bridgeRight)));
 
-            var transformedLeftBounds = BoundingBox.Transform(bridgeLeft.BoundingBox, modelInstance.RelativeBoneTransforms[bridgeLeft.ParentBone.Index]);
+            var transformedLeftBounds = BoundingBox.Transform(bridgeLeft.RenderObject.BoundingBox, modelInstance.RelativeBoneTransforms[bridgeLeft.Bone.Index]);
 
             var width = GetWidth(transformedLeftBounds) * template.BridgeScale;
 
@@ -220,10 +220,11 @@ namespace OpenSage.Terrain
         {
             foreach (var meshMatrix in _meshes)
             {
-                meshMatrix.Item1.BuildRenderListWithWorldMatrix(
+                meshMatrix.Item1.RenderObject.BuildRenderListWithWorldMatrix(
                     renderList,
                     camera,
                     _modelInstance,
+                    meshMatrix.Item1.Bone,
                     meshMatrix.Item2,
                     true);
             }

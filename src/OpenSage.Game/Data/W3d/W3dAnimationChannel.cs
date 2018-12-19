@@ -1,13 +1,11 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using OpenSage.Data.Utilities.Extensions;
-using OpenSage.Graphics.Animation;
 
 namespace OpenSage.Data.W3d
 {
     public sealed class W3dAnimationChannel : W3dAnimationChannelBase
     {
-        internal override W3dChunkType ChunkType => W3dChunkType.W3D_CHUNK_ANIMATION_CHANNEL;
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_ANIMATION_CHANNEL;
 
         public ushort FirstFrame { get; private set; }
 
@@ -32,36 +30,39 @@ namespace OpenSage.Data.W3d
 
         public uint NumPadBytes { get; private set; }
 
-        internal static W3dAnimationChannel Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dAnimationChannel Parse(BinaryReader reader, W3dParseContext context)
         {
-            var startPosition = reader.BaseStream.Position;
-
-            var result = new W3dAnimationChannel
+            return ParseChunk(reader, context, header =>
             {
-                FirstFrame = reader.ReadUInt16(),
-                LastFrame = reader.ReadUInt16(),
-                VectorLength = reader.ReadUInt16(),
-                ChannelType = reader.ReadUInt16AsEnum<W3dAnimationChannelType>(),
-                Pivot = reader.ReadUInt16(),
-                Unknown = reader.ReadUInt16()
-            };
+                var startPosition = reader.BaseStream.Position;
 
-            ValidateChannelDataSize(result.ChannelType, result.VectorLength);
+                var result = new W3dAnimationChannel
+                {
+                    FirstFrame = reader.ReadUInt16(),
+                    LastFrame = reader.ReadUInt16(),
+                    VectorLength = reader.ReadUInt16(),
+                    ChannelType = reader.ReadUInt16AsEnum<W3dAnimationChannelType>(),
+                    Pivot = reader.ReadUInt16(),
+                    Unknown = reader.ReadUInt16()
+                };
 
-            var numElements = result.LastFrame - result.FirstFrame + 1;
-            var data = new W3dAnimationChannelDatum[numElements];
+                ValidateChannelDataSize(result.ChannelType, result.VectorLength);
 
-            for (var i = 0; i < numElements; i++)
-            {
-                data[i] = W3dAnimationChannelDatum.Parse(reader, result.ChannelType);
-            }
+                var numElements = result.LastFrame - result.FirstFrame + 1;
+                var data = new W3dAnimationChannelDatum[numElements];
 
-            result.Data = data;
+                for (var i = 0; i < numElements; i++)
+                {
+                    data[i] = W3dAnimationChannelDatum.Parse(reader, result.ChannelType);
+                }
 
-            result.NumPadBytes = (uint) ((startPosition + chunkSize) - reader.BaseStream.Position);
-            reader.BaseStream.Seek((int) result.NumPadBytes, SeekOrigin.Current);
+                result.Data = data;
 
-            return result;
+                result.NumPadBytes = (uint) (context.CurrentEndPosition - reader.BaseStream.Position);
+                reader.BaseStream.Seek((int) result.NumPadBytes, SeekOrigin.Current);
+
+                return result;
+            });
         }
 
         internal static void ValidateChannelDataSize(W3dAnimationChannelType channelType, int vectorLength)
@@ -96,7 +97,7 @@ namespace OpenSage.Data.W3d
             }
         }
 
-        internal override void WriteTo(BinaryWriter writer)
+        protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write(FirstFrame);
             writer.Write(LastFrame);

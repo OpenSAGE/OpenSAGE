@@ -4,29 +4,39 @@ namespace OpenSage.Graphics
 {
     public sealed class Model : DisposableBase
     {
-        public ModelBone[] Bones { get; }
-        public ModelMesh[] Meshes { get; }
-        public Animation.Animation[] Animations { get; }
+        public ModelBoneHierarchy BoneHierarchy { get; }
+        public ModelSubObject[] SubObjects { get; }
 
         internal Model(
-            ModelBone[] bones,
-            ModelMesh[] meshes,
-            Animation.Animation[] animations)
+            ModelBoneHierarchy boneHierarchy,
+            ModelSubObject[] subObjects)
         {
-            Bones = bones;
+            BoneHierarchy = boneHierarchy;
 
-            foreach (var mesh in meshes)
+            foreach (var subObject in subObjects)
             {
-                AddDisposable(mesh);
+                AddDisposable(subObject.RenderObject);
             }
-            Meshes = meshes;
-
-            Animations = animations;
+            SubObjects = subObjects;
         }
 
         public ModelInstance CreateInstance(GraphicsDevice graphicsDevice)
         {
             return new ModelInstance(this, graphicsDevice);
+        }
+    }
+
+    public sealed class ModelSubObject
+    {
+        public string Name { get; }
+        public ModelBone Bone { get; }
+        public ModelMesh RenderObject { get; }
+
+        internal ModelSubObject(string name, ModelBone bone, ModelMesh renderObject)
+        {
+            Name = name;
+            Bone = bone;
+            RenderObject = renderObject;
         }
     }
 }

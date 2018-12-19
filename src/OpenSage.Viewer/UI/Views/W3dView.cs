@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using ImGuiNET;
+using OpenSage.Content;
 using OpenSage.Data.W3d;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
@@ -68,12 +69,13 @@ namespace OpenSage.Viewer.UI.Views
             var animations = new List<AnimationInstance>(modelInstance.AnimationInstances);
 
             var w3dFile = W3dFile.FromFileSystemEntry(context.Entry);
+            var w3dHLod = w3dFile.GetHLod();
 
             // If this is a skin file, load "external" animations.
             var externalAnimations = new List<AnimationInstance>();
-            if (w3dFile.HLod != null && w3dFile.HLod.Header.Name.EndsWith("_SKN", StringComparison.OrdinalIgnoreCase))
+            if (w3dHLod != null && w3dHLod.Header.Name.EndsWith("_SKN", StringComparison.OrdinalIgnoreCase))
             {
-                var namePrefix = w3dFile.HLod.Header.Name.Substring(0, w3dFile.HLod.Header.Name.LastIndexOf('_') + 1);
+                var namePrefix = w3dHLod.Header.Name.Substring(0, w3dHLod.Header.Name.LastIndexOf('_') + 1);
                 var parentFolder = Path.GetDirectoryName(w3dFile.FilePath);
                 var pathPrefix = Path.Combine(parentFolder, namePrefix);
                 foreach (var animationFileEntry in context.Entry.FileSystem.GetFiles(parentFolder))
@@ -83,10 +85,12 @@ namespace OpenSage.Viewer.UI.Views
                         continue;
                     }
 
-                    var animationModel = game.ContentManager.Load<Model>(animationFileEntry.FilePath);
-                    foreach (var animation in animationModel.Animations)
+                    var w3dAnimationFile = W3dFile.FromFileSystemEntry(animationFileEntry);
+
+                    var w3dAnimations = ModelLoader.LoadAnimations(w3dAnimationFile, game.ContentManager);
+                    foreach (var w3dAnimation in w3dAnimations)
                     {
-                        var externalAnimationInstance = new AnimationInstance(modelInstance, animation);
+                        var externalAnimationInstance = new AnimationInstance(modelInstance, w3dAnimation);
                         modelInstance.AnimationInstances.Add(externalAnimationInstance);
                         externalAnimations.Add(externalAnimationInstance);
                     }
@@ -186,10 +190,10 @@ namespace OpenSage.Viewer.UI.Views
             var boundingBox = default(BoundingBox);
 
             var first = true;
-            foreach (var mesh in modelInstance.Model.Meshes)
+            foreach (var subObject in modelInstance.Model.SubObjects)
             {
-                var transformedBoundingBox = BoundingBox.Transform(mesh.BoundingBox,
-                    modelInstance.ModelBoneInstances[mesh.ParentBone.Index].Matrix);
+                var transformedBoundingBox = BoundingBox.Transform(subObject.RenderObject.BoundingBox,
+                    modelInstance.ModelBoneInstances[subObject.Bone.Index].Matrix);
 
                 if (first)
                 {

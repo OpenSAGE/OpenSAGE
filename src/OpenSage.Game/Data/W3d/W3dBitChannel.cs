@@ -5,7 +5,7 @@ namespace OpenSage.Data.W3d
 {
     public sealed class W3dBitChannel : W3dAnimationChannelBase
     {
-        internal override W3dChunkType ChunkType => W3dChunkType.W3D_CHUNK_BIT_CHANNEL;
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_BIT_CHANNEL;
 
         public ushort FirstFrame { get; private set; }
 
@@ -22,24 +22,27 @@ namespace OpenSage.Data.W3d
 
         public bool[] Data { get; private set; }
 
-        internal static W3dBitChannel Parse(BinaryReader reader)
+        internal static W3dBitChannel Parse(BinaryReader reader, W3dParseContext context)
         {
-            var result = new W3dBitChannel
+            return ParseChunk(reader, context, header =>
             {
-                FirstFrame = reader.ReadUInt16(),
-                LastFrame = reader.ReadUInt16(),
-                ChannelType = reader.ReadUInt16AsEnum<W3dBitChannelType>(),
-                Pivot = reader.ReadUInt16(),
-                DefaultValue = reader.ReadBooleanChecked()
-            };
+                var result = new W3dBitChannel
+                {
+                    FirstFrame = reader.ReadUInt16(),
+                    LastFrame = reader.ReadUInt16(),
+                    ChannelType = reader.ReadUInt16AsEnum<W3dBitChannelType>(),
+                    Pivot = reader.ReadUInt16(),
+                    DefaultValue = reader.ReadBooleanChecked()
+                };
 
-            var numElements = result.LastFrame - result.FirstFrame + 1;
-            result.Data = reader.ReadSingleBitBooleanArray((uint) numElements);
+                var numElements = result.LastFrame - result.FirstFrame + 1;
+                result.Data = reader.ReadSingleBitBooleanArray((uint) numElements);
 
-            return result;
+                return result;
+            });
         }
 
-        internal override void WriteTo(BinaryWriter writer)
+        protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write(FirstFrame);
             writer.Write(LastFrame);

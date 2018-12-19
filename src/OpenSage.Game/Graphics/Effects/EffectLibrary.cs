@@ -17,7 +17,8 @@ namespace OpenSage.Graphics.Effects
         public Effect Road { get; }
         public Effect Water { get; }
 
-        public Effect MeshDepth { get; }
+        public Effect MeshDepthFixedFunction { get; }
+        public Effect MeshDepthShaderMaterial { get; }
 
         public EffectLibrary(GraphicsDevice graphicsDevice)
         {
@@ -27,36 +28,49 @@ namespace OpenSage.Graphics.Effects
             FixedFunction = AddDisposable(new Effect(
                 graphicsDevice,
                 "FixedFunction",
+                PrimitiveTopology.TriangleList,
                 MeshVertex.VertexDescriptors));
 
             Particle = AddDisposable(new Effect(
                 graphicsDevice,
                 "Particle",
+                PrimitiveTopology.TriangleList,
                 ParticleVertex.VertexDescriptor));
 
             Sprite = AddDisposable(new Effect(
                 graphicsDevice,
                 "Sprite",
+                PrimitiveTopology.TriangleList,
                 SpriteVertex.VertexDescriptor));
 
             Terrain = AddDisposable(new Effect(
                 graphicsDevice,
                 "Terrain",
+                PrimitiveTopology.TriangleList, // TODO: Use TriangleStrip
                 TerrainVertex.VertexDescriptor));
 
             Road = AddDisposable(new Effect(
                 graphicsDevice,
                 "Road",
+                PrimitiveTopology.TriangleList,
                 RoadVertex.VertexDescriptor));
 
             Water = AddDisposable(new Effect(
                 graphicsDevice,
                 "Water",
+                PrimitiveTopology.TriangleList,
                 WaterVertex.VertexDescriptor));
 
-            MeshDepth = AddDisposable(new Effect(
+            MeshDepthFixedFunction = AddDisposable(new Effect(
                 graphicsDevice,
                 "MeshDepth",
+                PrimitiveTopology.TriangleList,
+                MeshVertex.VertexDescriptors));
+
+            MeshDepthShaderMaterial = AddDisposable(new Effect(
+                graphicsDevice,
+                "MeshDepth",
+                PrimitiveTopology.TriangleStrip,
                 MeshVertex.VertexDescriptors));
         }
 
@@ -69,6 +83,7 @@ namespace OpenSage.Graphics.Effects
                 _effects[name] = effect = AddDisposable(new Effect(
                     _graphicsDevice,
                     name,
+                    PrimitiveTopology.TriangleStrip,
                     vertexDescriptors));
             }
             return effect;

@@ -3,55 +3,52 @@ using System.IO;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dAnimation : W3dChunk
+    public sealed class W3dAnimation : W3dContainerChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_ANIMATION;
+
         public W3dAnimationHeader Header { get; private set; }
 
-        public IReadOnlyList<W3dAnimationChannelBase> Channels { get; private set; }
+        public List<W3dAnimationChannelBase> Channels { get; } = new List<W3dAnimationChannelBase>();
 
-        internal static W3dAnimation Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dAnimation Parse(BinaryReader reader, W3dParseContext context)
         {
-            var channels = new List<W3dAnimationChannelBase>();
-
-            var finalResult = ParseChunk<W3dAnimation>(reader, chunkSize, (result, header) =>
+            return ParseChunk(reader, context, header =>
             {
-                switch (header.ChunkType)
+                var result = new W3dAnimation();
+
+                ParseChunks(reader, context.CurrentEndPosition, chunkType =>
                 {
-                    case W3dChunkType.W3D_CHUNK_ANIMATION_HEADER:
-                        result.Header = W3dAnimationHeader.Parse(reader);
-                        break;
+                    switch (chunkType)
+                    {
+                        case W3dChunkType.W3D_CHUNK_ANIMATION_HEADER:
+                            result.Header = W3dAnimationHeader.Parse(reader, context);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_ANIMATION_CHANNEL:
-                        channels.Add(W3dAnimationChannel.Parse(reader, header.ChunkSize));
-                        break;
+                        case W3dChunkType.W3D_CHUNK_ANIMATION_CHANNEL:
+                            result.Channels.Add(W3dAnimationChannel.Parse(reader, context));
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_BIT_CHANNEL:
-                        channels.Add(W3dBitChannel.Parse(reader));
-                        break;
+                        case W3dChunkType.W3D_CHUNK_BIT_CHANNEL:
+                            result.Channels.Add(W3dBitChannel.Parse(reader, context));
+                            break;
 
-                    default:
-                        throw CreateUnknownChunkException(header);
-                }
+                        default:
+                            throw CreateUnknownChunkException(chunkType);
+                    }
+                });
+
+                return result;
             });
-
-            finalResult.Channels = channels;
-
-            return finalResult;
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override IEnumerable<W3dChunk> GetSubChunksOverride()
         {
-            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_ANIMATION_HEADER, false, () =>
-            {
-                Header.WriteTo(writer);
-            });
+            yield return Header;
 
             foreach (var channel in Channels)
             {
-                WriteChunkTo(writer, channel.ChunkType, false, () =>
-                {
-                    channel.WriteTo(writer);
-                });
+                yield return channel;
             }
         }
     }

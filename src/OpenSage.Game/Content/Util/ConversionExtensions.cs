@@ -71,22 +71,22 @@ namespace OpenSage.Content.Util
             return new Vector3(value.R / 255.0f, value.G / 255.0f, value.B / 255.0f);
         }
 
-        public static FixedFunction.VertexMaterial ToVertexMaterial(this W3dVertexMaterial w3dVertexMaterial, W3dMaterial w3dMaterial)
+        public static FixedFunction.VertexMaterial ToVertexMaterial(this W3dVertexMaterialInfo w3dVertexMaterialInfo, W3dVertexMaterial w3dVertexMaterial)
         {
             return new FixedFunction.VertexMaterial
             {
-                Ambient = w3dVertexMaterial.Ambient.ToVector3(),
-                Diffuse = w3dVertexMaterial.Diffuse.ToVector3(),
-                Specular = w3dVertexMaterial.Specular.ToVector3(),
-                Emissive = w3dVertexMaterial.Emissive.ToVector3(),
-                Shininess = w3dVertexMaterial.Shininess,
-                Opacity = w3dVertexMaterial.Opacity,
+                Ambient = w3dVertexMaterialInfo.Ambient.ToVector3(),
+                Diffuse = w3dVertexMaterialInfo.Diffuse.ToVector3(),
+                Specular = w3dVertexMaterialInfo.Specular.ToVector3(),
+                Emissive = w3dVertexMaterialInfo.Emissive.ToVector3(),
+                Shininess = w3dVertexMaterialInfo.Shininess,
+                Opacity = w3dVertexMaterialInfo.Opacity,
                 TextureMappingStage0 = CreateTextureMapping(
-                    w3dVertexMaterial.Stage0Mapping,
-                    w3dMaterial.MapperArgs0 ?? new W3dVertexMapperArgs()),
+                    w3dVertexMaterialInfo.Stage0Mapping,
+                    w3dVertexMaterial.MapperArgs0 ?? new W3dVertexMapperArgs(W3dChunkType.W3D_CHUNK_VERTEX_MAPPER_ARGS0)),
                 TextureMappingStage1 = CreateTextureMapping(
-                    w3dVertexMaterial.Stage1Mapping,
-                    w3dMaterial.MapperArgs1 ?? new W3dVertexMapperArgs())
+                    w3dVertexMaterialInfo.Stage1Mapping,
+                    w3dVertexMaterial.MapperArgs1 ?? new W3dVertexMapperArgs(W3dChunkType.W3D_CHUNK_VERTEX_MAPPER_ARGS1))
             };
         }
 

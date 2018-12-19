@@ -2,11 +2,9 @@
 
 namespace OpenSage.Data.W3d
 {
-    public class W3dChunkHeader
+    public sealed class W3dChunkHeader
     {
-        public const int SizeInBytes = sizeof(W3dChunkType) + sizeof(uint);
-
-        public W3dChunkType ChunkType { get; private set; }
+        public const int SizeInBytes = sizeof(uint);
 
         /// <summary>
         /// Size of the chunk, (not including the chunk header)
@@ -17,10 +15,7 @@ namespace OpenSage.Data.W3d
 
         internal static W3dChunkHeader Parse(BinaryReader reader)
         {
-            var result = new W3dChunkHeader
-            {
-                ChunkType = (W3dChunkType)reader.ReadUInt32(),
-            };
+            var result = new W3dChunkHeader();
 
             var chunkSize = reader.ReadUInt32();
             result.ChunkSize = chunkSize & 0x7FFFFFFF;
@@ -29,9 +24,8 @@ namespace OpenSage.Data.W3d
             return result;
         }
 
-        internal W3dChunkHeader(W3dChunkType chunkType, uint chunkSize, bool hasSubChunks)
+        internal W3dChunkHeader(uint chunkSize, bool hasSubChunks)
         {
-            ChunkType = chunkType;
             ChunkSize = chunkSize;
             HasSubChunks = hasSubChunks;
         }
@@ -40,8 +34,6 @@ namespace OpenSage.Data.W3d
 
         internal void WriteTo(BinaryWriter writer)
         {
-            writer.Write((uint) ChunkType);
-
             var chunkSize = ChunkSize;
 
             if (HasSubChunks)

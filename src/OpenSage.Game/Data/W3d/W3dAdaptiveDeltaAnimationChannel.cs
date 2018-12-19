@@ -3,8 +3,10 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dAdaptiveDeltaAnimationChannel
+    public sealed class W3dAdaptiveDeltaAnimationChannel : W3dChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL;
+
         public uint NumTimeCodes { get; private set; }
 
         /// <summary>
@@ -26,35 +28,36 @@ namespace OpenSage.Data.W3d
 
         public W3dAdaptiveDeltaData Data { get; private set; }
 
-        internal static W3dAdaptiveDeltaAnimationChannel Parse(BinaryReader reader, W3dAdaptiveDeltaBitCount bitCount)
+        internal static W3dAdaptiveDeltaAnimationChannel Parse(BinaryReader reader, W3dParseContext context, W3dAdaptiveDeltaBitCount bitCount)
         {
-            var startPosition = reader.BaseStream.Position;
-
-            var result = new W3dAdaptiveDeltaAnimationChannel
+            return ParseChunk(reader, context, header =>
             {
-                NumTimeCodes = reader.ReadUInt32(),
-                Pivot = reader.ReadUInt16(),
-                VectorLength = reader.ReadByte(),
-                ChannelType = reader.ReadByteAsEnum<W3dAnimationChannelType>(),
-                Scale = reader.ReadSingle(),
-            };
+                var result = new W3dAdaptiveDeltaAnimationChannel
+                {
+                    NumTimeCodes = reader.ReadUInt32(),
+                    Pivot = reader.ReadUInt16(),
+                    VectorLength = reader.ReadByte(),
+                    ChannelType = reader.ReadByteAsEnum<W3dAnimationChannelType>(),
+                    Scale = reader.ReadSingle(),
+                };
 
-            W3dAnimationChannel.ValidateChannelDataSize(result.ChannelType, result.VectorLength);
+                W3dAnimationChannel.ValidateChannelDataSize(result.ChannelType, result.VectorLength);
 
-            result.Data = W3dAdaptiveDeltaData.Parse(
-                reader,
-                result.NumTimeCodes,
-                result.ChannelType,
-                result.VectorLength,
-                bitCount);
+                result.Data = W3dAdaptiveDeltaData.Parse(
+                    reader,
+                    result.NumTimeCodes,
+                    result.ChannelType,
+                    result.VectorLength,
+                    bitCount);
 
-            //Skip 3 unknown bytes at chunkend. Only set for quaternions.
-            reader.BaseStream.Seek(3, SeekOrigin.Current);
+                // Skip 3 unknown bytes at chunk end.
+                reader.BaseStream.Seek(3, SeekOrigin.Current);
 
-            return result;
+                return result;
+            });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write(NumTimeCodes);
             writer.Write(Pivot);

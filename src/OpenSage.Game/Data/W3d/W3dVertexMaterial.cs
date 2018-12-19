@@ -1,80 +1,66 @@
-﻿using System.IO;
-using OpenSage.Data.Utilities;
-using OpenSage.Data.Utilities.Extensions;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dVertexMaterial
+    public sealed class W3dVertexMaterial : W3dContainerChunk
     {
-        public W3dVertexMaterialFlags Attributes { get; private set; }
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL;
 
-        public W3dVertexMappingType Stage0Mapping { get; private set; }
-        public W3dVertexMappingType Stage1Mapping { get; private set; }
+        public W3dVertexMaterialName Name { get; private set; }
 
-        public W3dRgb Ambient { get; private set; }
-        public W3dRgb Diffuse { get; private set; }
-        public W3dRgb Specular { get; private set; }
-        public W3dRgb Emissive { get; private set; }
+        public W3dVertexMaterialInfo Info { get; private set; }
 
-        /// <summary>
-        /// how tight the specular highlight will be, 1 - 1000 (default = 1)
-        /// </summary>
-        public float Shininess { get; private set; }
+        public W3dVertexMapperArgs MapperArgs0 { get; private set; }
+        public W3dVertexMapperArgs MapperArgs1 { get; private set; }
 
-        /// <summary>
-        /// how opaque the material is, 0.0 = invisible, 1.0 = fully opaque (default = 1)
-        /// </summary>
-        public float Opacity { get; private set; }
-
-        /// <summary>
-        /// how much light passes through the material. (default = 0)
-        /// </summary>
-        public float Translucency { get; private set; }
-
-        internal static W3dVertexMaterial Parse(BinaryReader reader)
+        internal static W3dVertexMaterial Parse(BinaryReader reader, W3dParseContext context)
         {
-            var rawAttributes = reader.ReadUInt32();
-
-            var result = new W3dVertexMaterial
+            return ParseChunk(reader, context, header =>
             {
-                Attributes = (W3dVertexMaterialFlags) (rawAttributes & 0xF),
+                var result = new W3dVertexMaterial();
+                ParseChunks(reader, context.CurrentEndPosition, chunkType =>
+                {
+                    switch (chunkType)
+                    {
+                        case W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL_NAME:
+                            result.Name = W3dVertexMaterialName.Parse(reader, context);
+                            break;
 
-                Stage0Mapping = ConvertStageMapping(rawAttributes, 0x00FF0000, 16),
-                Stage1Mapping = ConvertStageMapping(rawAttributes, 0x0000FF00, 8),
+                        case W3dChunkType.W3D_CHUNK_VERTEX_MAPPER_ARGS0:
+                            result.MapperArgs0 = W3dVertexMapperArgs.Parse(reader, context, chunkType);
+                            break;
 
-                Ambient = W3dRgb.Parse(reader),
-                Diffuse = W3dRgb.Parse(reader),
-                Specular = W3dRgb.Parse(reader),
-                Emissive = W3dRgb.Parse(reader),
+                        case W3dChunkType.W3D_CHUNK_VERTEX_MAPPER_ARGS1:
+                            result.MapperArgs1 = W3dVertexMapperArgs.Parse(reader, context, chunkType);
+                            break;
 
-                Shininess = reader.ReadSingle(),
-                Opacity = reader.ReadSingle(),
-                Translucency = reader.ReadSingle()
-            };
+                        case W3dChunkType.W3D_CHUNK_VERTEX_MATERIAL_INFO:
+                            result.Info = W3dVertexMaterialInfo.Parse(reader, context);
+                            break;
 
-            return result;
+                        default:
+                            throw CreateUnknownChunkException(chunkType);
+                    }
+                });
+                return result;
+            });
         }
 
-        private static W3dVertexMappingType ConvertStageMapping(uint attributes, uint mask, int shift)
+        protected override IEnumerable<W3dChunk> GetSubChunksOverride()
         {
-            return EnumUtility.CastValueAsEnum<uint, W3dVertexMappingType>((attributes & mask) >> shift);
-        }
+            yield return Name;
+            yield return Info;
 
-        internal void WriteTo(BinaryWriter writer)
-        {
-            var rawAttributes = (uint) Attributes;
-            rawAttributes |= (uint) Stage0Mapping << 16;
-            rawAttributes |= (uint) Stage1Mapping << 8;
-            writer.Write(rawAttributes);
+            if (MapperArgs0 != null)
+            {
+                yield return MapperArgs0;
+            }
 
-            writer.Write(Ambient);
-            writer.Write(Diffuse);
-            writer.Write(Specular);
-            writer.Write(Emissive);
-
-            writer.Write(Shininess);
-            writer.Write(Opacity);
-            writer.Write(Translucency);
+            if (MapperArgs1 != null)
+            {
+                yield return MapperArgs1;
+            }
         }
     }
 }

@@ -7,8 +7,10 @@ namespace OpenSage.Data.W3d
     /// and secondary gradients. The shader defines how those gradients are combined with
     /// the texel and the frame buffer contents.
     /// </summary>
-    public sealed class W3dMaterialInfo
+    public sealed class W3dMaterialInfo : W3dChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_MATERIAL_INFO;
+
         /// <summary>
         /// How many material passes this render object uses
         /// </summary>
@@ -29,18 +31,21 @@ namespace OpenSage.Data.W3d
         /// </summary>
         public uint TextureCount { get; private set; }
 
-        internal static W3dMaterialInfo Parse(BinaryReader reader)
+        internal static W3dMaterialInfo Parse(BinaryReader reader, W3dParseContext context)
         {
-            return new W3dMaterialInfo
+            return ParseChunk(reader, context, header =>
             {
-                PassCount = reader.ReadUInt32(),
-                VertexMaterialCount = reader.ReadUInt32(),
-                ShaderCount = reader.ReadUInt32(),
-                TextureCount = reader.ReadUInt32()
-            };
+                return new W3dMaterialInfo
+                {
+                    PassCount = reader.ReadUInt32(),
+                    VertexMaterialCount = reader.ReadUInt32(),
+                    ShaderCount = reader.ReadUInt32(),
+                    TextureCount = reader.ReadUInt32()
+                };
+            });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write(PassCount);
             writer.Write(VertexMaterialCount);

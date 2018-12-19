@@ -7,25 +7,30 @@ namespace OpenSage.Data.W3d
     /// which is used for collision detection and certain rendering algorithms (like 
     /// texture projection.
     /// </summary>
-    public sealed class W3dMeshAabTreeHeader
+    public sealed class W3dMeshAabTreeHeader : W3dChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_AABTREE_HEADER;
+
         public uint NodeCount { get; private set; }
         public uint PolyCount { get; private set; }
 
-        internal static W3dMeshAabTreeHeader Parse(BinaryReader reader)
+        internal static W3dMeshAabTreeHeader Parse(BinaryReader reader, W3dParseContext context)
         {
-            var result = new W3dMeshAabTreeHeader
+            return ParseChunk(reader, context, header =>
             {
-                NodeCount = reader.ReadUInt32(),
-                PolyCount = reader.ReadUInt32()
-            };
+                var result = new W3dMeshAabTreeHeader
+                {
+                    NodeCount = reader.ReadUInt32(),
+                    PolyCount = reader.ReadUInt32()
+                };
 
-            reader.ReadBytes(6 * sizeof(uint)); // Padding
+                reader.ReadBytes(6 * sizeof(uint)); // Padding
 
-            return result;
+                return result;
+            });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write(NodeCount);
             writer.Write(PolyCount);

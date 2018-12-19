@@ -3,8 +3,10 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dEmitterInfoV2
+    public sealed class W3dEmitterInfoV2 : W3dChunk
     {
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_EMITTER_INFOV2;
+
         public uint BurstSize { get; private set; }
         public W3dVolumeRandomizer CreationVolume { get; private set; }
         public W3dVolumeRandomizer VelRandom { get; private set; }
@@ -14,26 +16,29 @@ namespace OpenSage.Data.W3d
         public W3dEmitterRenderMode RenderMode { get; private set; }
         public W3dEmitterFrameMode FrameMode { get; private set; }
 
-        internal static W3dEmitterInfoV2 Parse(BinaryReader reader)
+        internal static W3dEmitterInfoV2 Parse(BinaryReader reader, W3dParseContext context)
         {
-            var result = new W3dEmitterInfoV2
+            return ParseChunk(reader, context, header =>
             {
-                BurstSize = reader.ReadUInt32(),
-                CreationVolume = W3dVolumeRandomizer.Parse(reader),
-                VelRandom = W3dVolumeRandomizer.Parse(reader),
-                OutwardVel = reader.ReadSingle(),
-                VelInherit = reader.ReadSingle(),
-                Shader = W3dShader.Parse(reader),
-                RenderMode = reader.ReadUInt32AsEnum<W3dEmitterRenderMode>(),
-                FrameMode = reader.ReadUInt32AsEnum<W3dEmitterFrameMode>()
-            };
+                var result = new W3dEmitterInfoV2
+                {
+                    BurstSize = reader.ReadUInt32(),
+                    CreationVolume = W3dVolumeRandomizer.Parse(reader),
+                    VelRandom = W3dVolumeRandomizer.Parse(reader),
+                    OutwardVel = reader.ReadSingle(),
+                    VelInherit = reader.ReadSingle(),
+                    Shader = W3dShader.Parse(reader),
+                    RenderMode = reader.ReadUInt32AsEnum<W3dEmitterRenderMode>(),
+                    FrameMode = reader.ReadUInt32AsEnum<W3dEmitterFrameMode>()
+                };
 
-            reader.ReadBytes(6 * sizeof(uint)); // Pad
+                reader.ReadBytes(6 * sizeof(uint)); // Pad
 
-            return result;
+                return result;
+            });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write(BurstSize);
             CreationVolume.WriteTo(writer);

@@ -1,47 +1,50 @@
-﻿using System.IO;
-using OpenSage.Data.Utilities.Extensions;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace OpenSage.Data.W3d
 {
-    public sealed class W3dTexture : W3dChunk
+    public sealed class W3dTexture : W3dContainerChunk
     {
-        public string Name { get; private set; }
+        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_TEXTURE;
+
+        public W3dTextureName Name { get; private set; }
 
         public W3dTextureInfo TextureInfo { get; private set; }
 
-        internal static W3dTexture Parse(BinaryReader reader, uint chunkSize)
+        internal static W3dTexture Parse(BinaryReader reader, W3dParseContext context)
         {
-            return ParseChunk<W3dTexture>(reader, chunkSize, (result, header) =>
+            return ParseChunk(reader, context, header =>
             {
-                switch (header.ChunkType)
+                var result = new W3dTexture();
+
+                ParseChunks(reader, context.CurrentEndPosition, chunkType =>
                 {
-                    case W3dChunkType.W3D_CHUNK_TEXTURE_NAME:
-                        result.Name = reader.ReadFixedLengthString((int) header.ChunkSize);
-                        break;
+                    switch (chunkType)
+                    {
+                        case W3dChunkType.W3D_CHUNK_TEXTURE_NAME:
+                            result.Name = W3dTextureName.Parse(reader, context);
+                            break;
 
-                    case W3dChunkType.W3D_CHUNK_TEXTURE_INFO:
-                        result.TextureInfo = W3dTextureInfo.Parse(reader);
-                        break;
+                        case W3dChunkType.W3D_CHUNK_TEXTURE_INFO:
+                            result.TextureInfo = W3dTextureInfo.Parse(reader, context);
+                            break;
 
-                    default:
-                        throw CreateUnknownChunkException(header);
-                }
+                        default:
+                            throw CreateUnknownChunkException(chunkType);
+                    }
+                });
+
+                return result;
             });
         }
 
-        internal void WriteTo(BinaryWriter writer)
+        protected override IEnumerable<W3dChunk> GetSubChunksOverride()
         {
-            WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_TEXTURE_NAME, false, () =>
-            {
-                writer.WriteFixedLengthString(Name, Name.Length + 1);
-            });
+            yield return Name;
 
             if (TextureInfo != null)
             {
-                WriteChunkTo(writer, W3dChunkType.W3D_CHUNK_TEXTURE_INFO, false, () =>
-                {
-                    TextureInfo.WriteTo(writer);
-                });
+                yield return TextureInfo;
             }
         }
     }

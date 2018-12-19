@@ -20,6 +20,8 @@ namespace OpenSage.Graphics.Effects
 
         private readonly Dictionary<string, EffectParameter> _parameters;
 
+        private readonly PrimitiveTopology _primitiveTopology;
+
         private EffectPipelineStateHandle _pipelineStateHandle;
         private Pipeline _pipelineState;
 
@@ -39,8 +41,11 @@ namespace OpenSage.Graphics.Effects
         public Effect(
             GraphicsDevice graphicsDevice,
             string shaderName,
+            PrimitiveTopology primitiveTopology,
             params VertexLayoutDescription[] vertexDescriptors)
         {
+            _primitiveTopology = primitiveTopology;
+
             GraphicsDevice = graphicsDevice;
 
             ID = _nextID++;
@@ -170,7 +175,7 @@ namespace OpenSage.Graphics.Effects
                     pipelineStateHandle.EffectPipelineState.BlendState,
                     pipelineStateHandle.EffectPipelineState.DepthStencilState,
                     pipelineStateHandle.EffectPipelineState.RasterizerState,
-                    PrimitiveTopology.TriangleList,
+                    _primitiveTopology,
                     new ShaderSetDescription(
                         _vertexDescriptors,
                         new[] { _vertexShader, _pixelShader }),
