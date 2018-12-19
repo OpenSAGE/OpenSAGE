@@ -126,7 +126,7 @@ namespace OpenSage.Logic.Object
         public float VisionRearOverride { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-		public float VisionSideOverride { get; private set; }
+        public float VisionSideOverride { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

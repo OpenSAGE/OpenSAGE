@@ -10,6 +10,5 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<NotifyTargetsOfImminentProbableCrushingUpdateModuleData> FieldParseTable = new IniParseTable<NotifyTargetsOfImminentProbableCrushingUpdateModuleData>
         {
         };
-
     }
 }

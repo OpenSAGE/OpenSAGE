@@ -25,7 +25,7 @@ namespace OpenSage.Tests.Data.Ini
                 GameDefinition.FromGame(SageGame.CncGenerals),
                 GameDefinition.FromGame(SageGame.CncGeneralsZeroHour),
                 GameDefinition.FromGame(SageGame.Bfme),
-                GameDefinition.FromGame(SageGame.Bfme2),
+                //GameDefinition.FromGame(SageGame.Bfme2),
             };
 
             foreach(var gameDefinition in gameDefinitions)
