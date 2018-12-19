@@ -1,5 +1,4 @@
-﻿using OpenSage.DebugOverlay;
-using OpenSage.Input;
+﻿using OpenSage.Input;
 using Veldrid;
 
 namespace OpenSage.Logic
@@ -22,15 +21,11 @@ namespace OpenSage.Logic
                 case InputMessageType.MouseMove:
                     _overlay.MousePosition = message.Value.MousePosition;
                     break;
-                case InputMessageType.KeyUp:
-                    if (message.Value.Modifier == ModifierKeys.Control && message.Value.Key == Key.D)
+                case InputMessageType.KeyDown:
+                    if (message.Value.Key == Key.F2)
                     {
-                        _overlay.ToggleDebugView();
-                    }
-
-                    if (message.Value.Modifier == ModifierKeys.Control && message.Value.Key == Key.G)
-                    {
-                        _overlay.ToggleGridPointDebugView();
+                        _overlay.Toggle();
+                        return InputMessageResult.Handled;
                     }
                     break;
             }
