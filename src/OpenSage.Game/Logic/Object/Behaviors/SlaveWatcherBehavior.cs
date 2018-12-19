@@ -10,10 +10,14 @@ namespace OpenSage.Logic.Object
         internal static readonly IniParseTable<SlaveWatcherBehaviorModuleData> FieldParseTable = new IniParseTable<SlaveWatcherBehaviorModuleData>
         {
             { "RemoveUpgrade", (parser, x) => x.RemoveUpgrade = parser.ParseAssetReference() },
-            { "GrantUpgrade", (parser, x) => x.GrantUpgrade = parser.ParseAssetReference() }
+            { "GrantUpgrade", (parser, x) => x.GrantUpgrade = parser.ParseAssetReference() },
+            { "ShareUpgrades", (parser, x) => x.ShareUpgrades = parser.ParseBoolean() }
         };
 
         public string RemoveUpgrade { get; private set; }
         public string GrantUpgrade { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ShareUpgrades { get; private set; }
     }
 }

@@ -2,7 +2,6 @@
 
 namespace OpenSage.Logic.Object
 {
-    //since we got > 32 i changed this to BitArray, or should it be flags of type long?
     public enum WeaponSetConditions
     {
         [IniEnum("None")]

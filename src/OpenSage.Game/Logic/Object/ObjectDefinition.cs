@@ -347,7 +347,8 @@ namespace OpenSage.Logic.Object
             { "AutoResolveArmor", (parser, x) => x.AutoResolveArmor = AutoResolveArmor.Parse(parser) },
             { "AutoResolveWeapon", (parser, x) => x.AutoResolveWeapon = AutoResolveWeapon.Parse(parser) },
             { "DisplayNameStrategic", (parser, x) => x.DisplayNameStrategic = parser.ParseLocalizedStringKey() },
-            { "WorldMapArmoryUpgradesAllowed", (parser, x) => x.WorldMapArmoryUpgradesAllowed = parser.ParseAssetReferenceArray() }
+            { "WorldMapArmoryUpgradesAllowed", (parser, x) => x.WorldMapArmoryUpgradesAllowed = parser.ParseAssetReferenceArray() },
+            { "FormationPreviewItemDecal", (parser, x) => x.FormationPreviewItemDecal = FormationPreviewItemDecal.Parse(parser) }
         };
 
         public string Name { get; protected set; }
@@ -1089,6 +1090,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string[] WorldMapArmoryUpgradesAllowed { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public FormationPreviewItemDecal FormationPreviewItemDecal { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -1331,6 +1335,23 @@ namespace OpenSage.Logic.Object
         public string Weapon { get; private set; }
         public string[] RequiredUpgrades { get; private set; }
         public string[] ExcludedUpgrades { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public sealed class FormationPreviewItemDecal
+    {
+        internal static FormationPreviewItemDecal Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        internal static readonly IniParseTable<FormationPreviewItemDecal> FieldParseTable = new IniParseTable<FormationPreviewItemDecal>
+        {
+            { "Texture", (parser, x) => x.Texture = parser.ParseAssetReference() },
+            { "Width", (parser, x) => x.Width = parser.ParseInteger() },
+            { "Height", (parser, x) => x.Height = parser.ParseInteger() },
+        };
+
+        public string Texture { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

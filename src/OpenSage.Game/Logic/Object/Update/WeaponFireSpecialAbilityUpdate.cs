@@ -29,7 +29,8 @@ namespace OpenSage.Logic.Object
             { "PlayWeaponPreFireFX", (parser, x) => x.PlayWeaponPreFireFX = parser.ParseBoolean() },
             { "Instant", (parser, x) => x.Instant = parser.ParseBoolean() },
             { "LoseStealthOnTrigger", (parser, x) => x.LoseStealthOnTrigger = parser.ParseBoolean() },
-            { "PreTriggerUnstealthTime", (parser, x) => x.PreTriggerUnstealthTime = parser.ParseInteger() }
+            { "PreTriggerUnstealthTime", (parser, x) => x.PreTriggerUnstealthTime = parser.ParseInteger() },
+            { "ApproachUntilMembersInRange", (parser, x) => x.ApproachUntilMembersInRange = parser.ParseBoolean() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -60,5 +61,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public int PreTriggerUnstealthTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ApproachUntilMembersInRange { get; private set; }
     }
 }

@@ -38,5 +38,8 @@
 
         [IniEnum("CAMPNESS_TECH_BUILDING"), AddedIn(SageGame.Bfme2)]
         TechBuilding,
+
+        [IniEnum("CAMPNESS_FORTRESS_EXPANSION"), AddedIn(SageGame.Bfme2)]
+        FortressExpansion,
     }
 }
