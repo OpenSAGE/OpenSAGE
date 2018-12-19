@@ -44,7 +44,7 @@ namespace OpenSage.DebugOverlay
 
                     if (point.Intersects(camera.BoundingFrustum))
                     {
-                        context.DrawRectangle(rect.ToRectangleF(), point.DisplayColor, 1);
+                        context.DrawRectangle(rect.ToRectangleF(), point.Color, 1);
                     }
                 }
 

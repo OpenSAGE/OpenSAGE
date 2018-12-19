@@ -4,34 +4,33 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.DebugOverlay
 {
-    public class DebugPoint
+    /// <summary>
+    /// A point in world space with a color.
+    /// </summary>
+    public struct DebugPoint
     {
-        private readonly Transform _transform;
-        public Vector3 Position { get; }
-        public ColorRgbaF DisplayColor { get; }
-        private readonly BoundingBox _bounds;
+        public readonly Vector3 Position;
+        public readonly ColorRgbaF Color;
 
         public DebugPoint(Vector3 position) : this(position, ColorRgbaF.Blue) { }
 
-        public DebugPoint(Vector3 position, ColorRgbaF displayColor)
+        public DebugPoint(Vector3 position, ColorRgbaF color)
         {
             Position = position;
-            _transform = new Transform(position, new Quaternion(0, 0, 0, 0));
-            DisplayColor = displayColor;
-            var min = new Vector3(0, 0, 0);
-            var max = new Vector3(1, 1, 0);
-            _bounds = new BoundingBox(min, max);
+            Color = color;
         }
 
-        public virtual Rectangle GetBoundingRectangle(Camera camera)
+        private static readonly BoundingBox Bounds = new BoundingBox(new Vector3(-0.5f, -0.5f, -0.5f), new Vector3(0.5f, 0.5f, 0.5f));
+
+        public Rectangle GetBoundingRectangle(Camera camera)
         {
-            var worldBounds = BoundingBox.Transform(_bounds, _transform.Matrix);
+            var worldBounds = BoundingBox.Transform(Bounds, Matrix4x4.CreateTranslation(Position));
             return worldBounds.GetBoundingRectangle(camera);
         }
 
-        public virtual bool Intersects(in BoundingFrustum frustum)
+        public bool Intersects(in BoundingFrustum frustum)
         {
-            var worldBounds = BoundingBox.Transform(_bounds, _transform.Matrix);
+            var worldBounds = BoundingBox.Transform(Bounds, Matrix4x4.CreateTranslation(Position));
             return frustum.Intersects(worldBounds);
         }
     }
