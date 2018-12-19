@@ -22,16 +22,16 @@ namespace OpenSage.DebugOverlay
 
         private static readonly BoundingBox Bounds = new BoundingBox(new Vector3(-0.5f, -0.5f, -0.5f), new Vector3(0.5f, 0.5f, 0.5f));
 
+        public BoundingBox WorldBounds => BoundingBox.Transform(Bounds, Matrix4x4.CreateTranslation(Position));
+
         public Rectangle GetBoundingRectangle(Camera camera)
         {
-            var worldBounds = BoundingBox.Transform(Bounds, Matrix4x4.CreateTranslation(Position));
-            return worldBounds.GetBoundingRectangle(camera);
+            return WorldBounds.GetBoundingRectangle(camera);
         }
 
         public bool Intersects(in BoundingFrustum frustum)
         {
-            var worldBounds = BoundingBox.Transform(Bounds, Matrix4x4.CreateTranslation(Position));
-            return frustum.Intersects(worldBounds);
+            return frustum.Intersects(WorldBounds);
         }
     }
 }

@@ -120,9 +120,7 @@ namespace OpenSage
             game.InputMessageBuffer.Handlers.Add(_cameraInputMessageHandler);
             AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_cameraInputMessageHandler));
 
-            DebugOverlay = new DebugOverlay.DebugOverlay(game, this);
-            game.GameSystems.Add(DebugOverlay);
-            DebugOverlay.Initialize();
+            DebugOverlay = new DebugOverlay.DebugOverlay(this, game.ContentManager);
             _debugMessageHandler = new DebugMessageHandler(DebugOverlay);
             game.InputMessageBuffer.Handlers.Add(_debugMessageHandler);
             AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_debugMessageHandler));
@@ -170,6 +168,8 @@ namespace OpenSage
 
             _cameraInputMessageHandler.UpdateInputState(ref _cameraInputState);
             CameraController.UpdateCamera(Camera, _cameraInputState, gameTime);
+
+            DebugOverlay.Update(gameTime);
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera)
