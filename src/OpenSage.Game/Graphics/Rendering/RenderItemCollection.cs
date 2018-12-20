@@ -43,7 +43,7 @@ namespace OpenSage.Graphics.Rendering
         {
             if (Length == _items.Length)
             {
-                var newCapacity = (int) (Length * GrowthFactor);
+                var newCapacity = (int) ((Length + 1) * GrowthFactor);
                 Array.Resize(ref _items, newCapacity);
                 Array.Resize(ref _culled, newCapacity);
             }
