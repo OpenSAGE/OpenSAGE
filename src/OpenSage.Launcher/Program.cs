@@ -35,6 +35,9 @@ namespace OpenSage.Launcher
 
             [Option('m', "map", Required = false, HelpText = "Immediately starts a new skirmish with default settings in the specified map. The map file must be specified with the full pathf.")]
             public string Map { get; set; }
+
+            [Option("novsync", Default = false, Required = false, HelpText = "Disable vsync.")]
+            public bool DisableVsync{ get; set; }
         }
 
         public static void Main(string[] args)
@@ -82,6 +85,8 @@ namespace OpenSage.Launcher
             using (var gamePanel = GamePanel.FromGameWindow(window))
             using (var game = GameFactory.CreateGame(installation, installation.CreateFileSystem(), gamePanel))
             {
+                window.GraphicsDevice.SyncToVerticalBlank = !opts.DisableVsync;
+
                 game.Configuration.LoadShellMap = !opts.NoShellmap;
 
                 if (opts.Map == null)

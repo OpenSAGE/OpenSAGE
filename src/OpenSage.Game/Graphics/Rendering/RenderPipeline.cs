@@ -1,5 +1,4 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Effects;
@@ -12,6 +11,8 @@ namespace OpenSage.Graphics.Rendering
 {
     internal sealed class RenderPipeline : DisposableBase
     {
+        private const int ParallelCullingBatchSize = 128;
+
         public static readonly OutputDescription GameOutputDescription = new OutputDescription(
             new OutputAttachmentDescription(PixelFormat.D24_UNorm_S8_UInt),
             new OutputAttachmentDescription(PixelFormat.B8_G8_R8_A8_UNorm));
@@ -232,21 +233,22 @@ namespace OpenSage.Graphics.Rendering
             Texture cloudTexture,
             Texture shadowMap)
         {
-            Culler.Cull(bucket.RenderItems, bucket.CulledItems, cameraFrustum);
+            // TODO: Make culling batch size configurable at runtime
+            bucket.RenderItems.CullAndSort(cameraFrustum, ParallelCullingBatchSize);
 
-            if (bucket.CulledItems.Count == 0)
+            if (bucket.RenderItems.CulledItemIndices.Count == 0)
             {
                 return;
             }
 
-            bucket.CulledItems.Sort();
-
-            RenderItem? lastRenderItem = null;
             Matrix4x4? lastWorld = null;
+            int? lastRenderItemIndex = null;
 
-            foreach (var renderItem in bucket.CulledItems)
+            foreach (var i in bucket.RenderItems.CulledItemIndices)
             {
-                if (lastRenderItem == null || lastRenderItem.Value.Effect != renderItem.Effect)
+                ref var renderItem = ref bucket.RenderItems[i];
+
+                if (lastRenderItemIndex == null || bucket.RenderItems[lastRenderItemIndex.Value].Effect != renderItem.Effect)
                 {
                     var effect = renderItem.Effect;
 
@@ -255,18 +257,18 @@ namespace OpenSage.Graphics.Rendering
                     SetDefaultMaterialProperties(renderItem.Material, cloudTexture, shadowMap);
                 }
 
-                if (lastRenderItem == null || lastRenderItem.Value.Material != renderItem.Material)
+                if (lastRenderItemIndex == null || bucket.RenderItems[lastRenderItemIndex.Value].Material != renderItem.Material)
                 {
                     renderItem.Material.ApplyPipelineState();
                     renderItem.Effect.ApplyPipelineState(commandList);
                 }
 
-                if (lastRenderItem == null || lastRenderItem.Value.VertexBuffer0 != renderItem.VertexBuffer0)
+                if (lastRenderItemIndex == null || bucket.RenderItems[lastRenderItemIndex.Value].VertexBuffer0 != renderItem.VertexBuffer0)
                 {
                     commandList.SetVertexBuffer(0, renderItem.VertexBuffer0);
                 }
 
-                if (lastRenderItem == null || lastRenderItem.Value.VertexBuffer1 != renderItem.VertexBuffer1)
+                if (lastRenderItemIndex == null || bucket.RenderItems[lastRenderItemIndex.Value].VertexBuffer1 != renderItem.VertexBuffer1)
                 {
                     if (renderItem.VertexBuffer1 != null)
                     {
@@ -317,7 +319,7 @@ namespace OpenSage.Graphics.Rendering
                         throw new System.Exception();
                 }
 
-                lastRenderItem = renderItem;
+                lastRenderItemIndex = i;
             }
         }
 
