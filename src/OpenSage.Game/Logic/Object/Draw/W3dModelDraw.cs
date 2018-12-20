@@ -159,8 +159,6 @@ namespace OpenSage.Logic.Object
                         }
 
                         animation = animations[0];
-
-                        _contentManager.DataContext.Animations.Add(firstAnimation.Animation, animation);
                     }
 
                     var animationInstance = new AnimationInstance(modelInstance, animation);
