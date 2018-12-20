@@ -91,7 +91,8 @@ namespace OpenSage.Graphics.Rendering
                 // Perform culling using the thread pool, in batches of batchSize.
                 Parallel.ForEach(Partitioner.Create(0, Length, batchSize), range =>
                 {
-                    for (var i = range.Item1; i < range.Item2; i++)
+                    var (start, end) = range;
+                    for (var i = start; i < end; i++)
                     {
                         Cull(i, frustum);
                     }
@@ -111,7 +112,6 @@ namespace OpenSage.Graphics.Rendering
 
             // Step 3: Sort the indices by comparing render item keys.
             _culledItemIndices.Sort((a, b) => _items[a].Key.CompareTo(_items[b].Key));
-            // Array.Sort(_resultIndices, 0, _resultIndicesLength, new IndiceComparer(_items));
         }
 
         public void Clear()
@@ -121,18 +121,6 @@ namespace OpenSage.Graphics.Rendering
 
             // TODO: Should we provide a different method for actually clearing the item buffer?
             // Otherwise there might be memory leaks when switching between scenes.
-        }
-
-        internal readonly struct IndiceComparer : IComparer<int>
-        {
-            private readonly RenderItem[] _items;
-
-            public IndiceComparer(RenderItem[] items)
-            {
-                _items = items;
-            }
-
-            public int Compare(int x, int y) => _items[x].Key.CompareTo(_items[y].Key);
         }
     }
 }
