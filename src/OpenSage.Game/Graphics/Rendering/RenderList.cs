@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Numerics;
+﻿using System.Numerics;
 using OpenSage.Graphics.Effects;
 using OpenSage.Mathematics;
 using Veldrid;
@@ -8,19 +7,16 @@ namespace OpenSage.Graphics.Rendering
 {
     public sealed class RenderBucket
     {
-        public readonly List<RenderItem> RenderItems;
-        public readonly List<RenderItem> CulledItems;
+        public readonly RenderItemCollection RenderItems;
 
         public RenderBucket()
         {
-            RenderItems = new List<RenderItem>();
-            CulledItems = new List<RenderItem>();
+            RenderItems = new RenderItemCollection();
         }
 
         public void Clear()
         {
             RenderItems.Clear();
-            CulledItems.Clear();
         }
 
         public void AddRenderItemDraw(
