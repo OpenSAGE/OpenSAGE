@@ -117,6 +117,7 @@ namespace OpenSage.Content
                 case SageGame.CncGenerals:
                 case SageGame.CncGeneralsZeroHour:
                 case SageGame.Bfme:
+                case SageGame.Bfme2:
                     SubsystemLoader.Load(Subsystem.Players);
                     SubsystemLoader.Load(Subsystem.ParticleSystems);
                     SubsystemLoader.Load(Subsystem.ObjectCreation);

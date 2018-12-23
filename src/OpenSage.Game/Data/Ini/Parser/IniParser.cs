@@ -292,7 +292,15 @@ namespace OpenSage.Data.Ini.Parser
             return ScanInteger(token.Value);
         }
 
-        public int ScanInteger(IniToken token) => Convert.ToInt32(token.Text);
+        public int ScanInteger(IniToken token)
+        {
+            switch(token.Text)
+            {
+                case "3w":
+                    return 3;
+            }
+            return Convert.ToInt32(token.Text);
+        }
 
         public int ParseInteger() => ScanInteger(GetNextToken());
 

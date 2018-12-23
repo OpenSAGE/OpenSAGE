@@ -3,7 +3,7 @@
     [AddedIn(SageGame.Bfme2)]
     public enum Campness
     {
-        [IniEnum("CAMPNESS_DEFAULT")]
+        [IniEnum("CAMPNESS_DEFAULT", "0")]
         Default,
 
         [IniEnum("CAMPNESS_FORTRESS")]
@@ -41,5 +41,8 @@
 
         [IniEnum("CAMPNESS_FORTRESS_EXPANSION"), AddedIn(SageGame.Bfme2)]
         FortressExpansion,
+
+        [IniEnum("CAMPNESS_RESOURCE_REBUILD_HOLE"), AddedIn(SageGame.Bfme2)]
+        CampnessResourceRebuildHole,
     }
 }

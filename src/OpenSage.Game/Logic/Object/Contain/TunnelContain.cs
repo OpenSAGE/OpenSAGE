@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Numerics;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
@@ -15,9 +16,41 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<TunnelContainModuleData> FieldParseTable = GarrisonContainModuleData.FieldParseTable
             .Concat(new IniParseTable<TunnelContainModuleData>
             {
-                { "TimeForFullHeal", (parser, x) => x.TimeForFullHeal = parser.ParseInteger() }
+                { "TimeForFullHeal", (parser, x) => x.TimeForFullHeal = parser.ParseInteger() },
+                { "PassengerBonePrefix", (parser, x) => x.PassengerBonePrefix = PassengerBonePrefix.Parse(parser) },
+                { "EntryPosition", (parser, x) => x.EntryPosition = parser.ParseVector3() },
+                { "EntryOffset", (parser, x) => x.EntryOffset = parser.ParseVector3() },
+                { "ExitOffset", (parser, x) => x.ExitOffset = parser.ParseVector3() },
+                { "KillPassengersOnDeath", (parser, x) => x.KillPassengersOnDeath = parser.ParseBoolean() },
+                { "ShowPips", (parser, x) => x.ShowPips = parser.ParseBoolean() },
+                { "ExitDelay", (parser, x) => x.ExitDelay = parser.ParseInteger() },
+                { "AllowOwnPlayerInsideOverride", (parser, x) => x.AllowOwnPlayerInsideOverride = parser.ParseBoolean() },
             });
 
         public int TimeForFullHeal { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public PassengerBonePrefix PassengerBonePrefix { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Vector3 EntryPosition { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Vector3 EntryOffset { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Vector3 ExitOffset { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool KillPassengersOnDeath { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ShowPips { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int ExitDelay { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool AllowOwnPlayerInsideOverride { get; private set; }
     }
 }

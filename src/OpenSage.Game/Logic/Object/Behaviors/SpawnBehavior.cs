@@ -19,7 +19,11 @@ namespace OpenSage.Logic.Object
                 { "InitialBurst", (parser, x) => x.InitialBurst = parser.ParseInteger() },
                 { "AggregateHealth", (parser, x) => x.AggregateHealth = parser.ParseBoolean() },
                 { "SlavesHaveFreeWill", (parser, x) => x.SlavesHaveFreeWill = parser.ParseBoolean() },
-                { "RespectCommandLimit", (parser, x) => x.RespectCommandLimit = parser.ParseBoolean() }
+                { "RespectCommandLimit", (parser, x) => x.RespectCommandLimit = parser.ParseBoolean() },
+                { "KillSpawnsBasedOnModelConditionState", (parser, x) => x.KillSpawnsBasedOnModelConditionState = parser.ParseBoolean() },
+                { "ShareUpgrades", (parser, x) => x.ShareUpgrades = parser.ParseBoolean() },
+                { "FadeInTime", (parser, x) => x.FadeInTime = parser.ParseInteger() },
+                { "SpawnInsideBuilding", (parser, x) => x.SpawnInsideBuilding = parser.ParseBoolean() },
             });
 
         public int SpawnNumber { get; private set; }
@@ -37,5 +41,17 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool RespectCommandLimit { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool KillSpawnsBasedOnModelConditionState { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ShareUpgrades { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int FadeInTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool SpawnInsideBuilding { get; private set; }
     }
 }

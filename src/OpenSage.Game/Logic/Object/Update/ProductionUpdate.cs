@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
@@ -28,7 +29,8 @@ namespace OpenSage.Logic.Object
             { "SpeedBonusAudioLoop", (parser, x) => x.SpeedBonusAudioLoop = parser.ParseAssetReference() },
             { "UnitInvulnerableTime", (parser, x) => x.UnitInvulnerableTime = parser.ParseInteger() },
             { "GiveNoXP", (parser, x) => x.GiveNoXP = parser.ParseBoolean() },
-            { "SpecialPrepModelconditionTime", (parser, x) => x.SpecialPrepModelconditionTime = parser.ParseInteger() }
+            { "SpecialPrepModelconditionTime", (parser, x) => x.SpecialPrepModelconditionTime = parser.ParseInteger() },
+            { "ProductionModifier", (parser, x) => x.ProductionModifiers.Add(ProductionModifier.Parse(parser)) }
         };
 
         /// <summary>
@@ -69,6 +71,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int SpecialPrepModelconditionTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<ProductionModifier> ProductionModifiers { get; } = new List<ProductionModifier>();
     }
 
     public struct QuantityModifier
@@ -82,8 +87,29 @@ namespace OpenSage.Logic.Object
             };
         }
 
-        public string ObjectName;
-        public int Count;
+        public string ObjectName { get; private set; }
+        public int Count { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class ProductionModifier
+    {
+        internal static ProductionModifier Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<ProductionModifier> FieldParseTable = new IniParseTable<ProductionModifier>
+        {
+            { "RequiredUpgrade", (parser, x) => x.RequiredUpgrade = parser.ParseAssetReference() },
+            { "CostMultiplier", (parser, x) => x.CostMultiplier = parser.ParseFloat() },
+            { "TimeMultiplier", (parser, x) => x.TimeMultiplier = parser.ParseFloat() },
+            { "ModifierFilter", (parser, x) => x.ModifierFilter = ObjectFilter.Parse(parser) },
+            { "HeroPurchase", (parser, x) => x.HeroPurchase = parser.ParseBoolean() }
+        };
+
+        public string RequiredUpgrade { get; private set; }
+        public float CostMultiplier { get; private set; }
+        public float TimeMultiplier { get; private set; }
+        public ObjectFilter ModifierFilter { get; private set; }
+        public bool HeroPurchase { get; private set; }
     }
 
     public enum DisabledType
