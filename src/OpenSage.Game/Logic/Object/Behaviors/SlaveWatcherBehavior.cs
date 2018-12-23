@@ -11,7 +11,8 @@ namespace OpenSage.Logic.Object
         {
             { "RemoveUpgrade", (parser, x) => x.RemoveUpgrade = parser.ParseAssetReference() },
             { "GrantUpgrade", (parser, x) => x.GrantUpgrade = parser.ParseAssetReference() },
-            { "ShareUpgrades", (parser, x) => x.ShareUpgrades = parser.ParseBoolean() }
+            { "ShareUpgrades", (parser, x) => x.ShareUpgrades = parser.ParseBoolean() },
+            { "LetSlaveLive", (parser, x) => x.LetSlaveLive = parser.ParseBoolean() },
         };
 
         public string RemoveUpgrade { get; private set; }
@@ -19,5 +20,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool ShareUpgrades { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool LetSlaveLive { get; private set; }
     }
 }

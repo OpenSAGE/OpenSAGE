@@ -912,5 +912,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("LEASHED_RETURNING"), AddedIn(SageGame.Bfme2)]
         LeashedReturning,
+
+        [IniEnum("FORTRESS_MONUMENT_CREATURE_AVAILABLE"), AddedIn(SageGame.Bfme2)]
+        FortressMonumentCreatureAvailable,
+
+        [IniEnum("FORTRESS_MONUMENT_CREATURE_UNAVAILABLE"), AddedIn(SageGame.Bfme2)]
+        FortressMonumentCreatureUnavailable,
     }
 }

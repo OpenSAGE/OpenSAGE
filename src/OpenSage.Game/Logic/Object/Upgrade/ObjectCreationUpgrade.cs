@@ -21,7 +21,8 @@ namespace OpenSage.Logic.Object
                 { "DeathAnimAndDuration", (parser, x) => x.DeathAnimAndDuration = CustomAnimAndDuration.Parse(parser) },
                 { "Offset", (parser, x) => x.Offset = parser.ParseVector3() },
                 { "ThingToSpawn", (parser, x) => x.ThingToSpawn = parser.ParseAssetReference() },
-                { "FadeInTime", (parser, x) => x.FadeInTime = parser.ParseInteger() }
+                { "FadeInTime", (parser, x) => x.FadeInTime = parser.ParseInteger() },
+                { "UseBuildingProduction", (parser, x) => x.UseBuildingProduction = parser.ParseBoolean() }
             });
 
         public string UpgradeObject { get; private set; }
@@ -49,5 +50,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int FadeInTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool UseBuildingProduction { get; private set; }
     }
 }

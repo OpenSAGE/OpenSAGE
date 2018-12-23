@@ -706,5 +706,8 @@
 
         [IniEnum("EXPANSION_PAD"), AddedIn(SageGame.Bfme2)]
         ExpansionPad,
+
+        [IniEnum("PORT"), AddedIn(SageGame.Bfme2)]
+        Port,
     }
 }

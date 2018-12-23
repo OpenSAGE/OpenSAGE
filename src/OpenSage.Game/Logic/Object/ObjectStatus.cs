@@ -78,5 +78,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("HOLDING_THE_RING"), AddedIn(SageGame.Bfme2)]
         HoldingTheRing,
+
+        [IniEnum("SOLD"), AddedIn(SageGame.Bfme2)]
+        Sold,
     }
 }

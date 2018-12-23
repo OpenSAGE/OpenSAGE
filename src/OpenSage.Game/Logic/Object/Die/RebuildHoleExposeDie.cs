@@ -15,9 +15,13 @@ namespace OpenSage.Logic.Object
             {
                 { "HoleName", (parser, x) => x.HoleName = parser.ParseAssetReference() },
                 { "HoleMaxHealth", (parser, x) => x.HoleMaxHealth = parser.ParseFloat() },
+                { "FadeInTimeSeconds", (parser, x) => x.FadeInTimeSeconds = parser.ParseFloat() },
             });
 
         public string HoleName { get; private set; }
         public float HoleMaxHealth { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float FadeInTimeSeconds { get; private set; }
     }
 }
