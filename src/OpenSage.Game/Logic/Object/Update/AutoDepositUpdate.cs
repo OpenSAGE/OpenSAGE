@@ -16,7 +16,9 @@ namespace OpenSage.Logic.Object
             { "UpgradedBoost", (parser, x) => x.UpgradedBoost = BoostUpgrade.Parse(parser) },
             { "Upgrade", (parser, x) => x.Upgrade = parser.ParseAssetReference() },
             { "UpgradeBonusPercent", (parser, x) => x.UpgradeBonusPercent = parser.ParsePercentage() },
-            { "UpgradeMustBePresent", (parser, x) => x.UpgradeMustBePresent = ObjectFilter.Parse(parser) }
+            { "UpgradeMustBePresent", (parser, x) => x.UpgradeMustBePresent = ObjectFilter.Parse(parser) },
+            { "GiveNoXP", (parser, x) => x.GiveNoXP = parser.ParseBoolean() },
+            { "OnlyWhenGarrisoned", (parser, x) => x.OnlyWhenGarrisoned = parser.ParseBoolean() },
         };
 
         /// <summary>
@@ -48,5 +50,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public ObjectFilter UpgradeMustBePresent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool GiveNoXP { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool OnlyWhenGarrisoned { get; private set; }
     }
 }

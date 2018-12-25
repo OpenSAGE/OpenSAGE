@@ -30,6 +30,9 @@ namespace OpenSage.Logic.Object
             { "AttributeModifierWeatherBased", (parser, x) => x.AttributeModifierWeatherBased = parser.ParseBoolean() },
             { "TargetEnemy", (parser, x) => x.TargetEnemy = parser.ParseBoolean() },
             { "OnTriggerRechargeSpecialPower", (parser, x) => x.OnTriggerRechargeSpecialPower = parser.ParseAssetReference() },
+            { "DisableDuringAnimDuration", (parser, x) => x.DisableDuringAnimDuration = parser.ParseBoolean() },
+            { "RequirementsFilterMPSkirmish", (parser, x) => x.RequirementsFilterMPSkirmish = ObjectFilter.Parse(parser) },
+            { "RequirementsFilterStrategic", (parser, x) => x.RequirementsFilterStrategic = ObjectFilter.Parse(parser) }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -91,5 +94,14 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string OnTriggerRechargeSpecialPower { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool DisableDuringAnimDuration { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ObjectFilter RequirementsFilterMPSkirmish { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ObjectFilter RequirementsFilterStrategic { get; private set; }
     }
 }

@@ -49,6 +49,10 @@ namespace OpenSage.Logic.Object
                 { "ReleaseSnappyness", (parser, x) => x.ReleaseSnappyness = parser.ParseFloat() },
                 { "ForceOrientationContainer", (parser, x) => x.ForceOrientationContainer = parser.ParseBoolean() },
                 { "CollidePickup", (parser, x) => x.CollidePickup = parser.ParseBoolean() },
+                { "AllowOwnPlayerInsideOverride", (parser, x) => x.AllowOwnPlayerInsideOverride = parser.ParseBoolean() },
+                { "BoneSpecificConditionState", (parser, x) => x.BoneSpecificConditionStates.Add(BoneSpecificConditionState.Parse(parser)) },
+                { "FadeFilter", (parser, x) => x.FadeFilter = ObjectFilter.Parse(parser) },
+                { "UpgradeCreationTrigger", (parser, x) => x.UpgradeCreationTriggers.Add(UpgradeCreationTrigger.Parse(parser)) } 
             });
 
         public bool PassengersAllowedToFire { get; private set; }
@@ -129,6 +133,18 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool CollidePickup { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool AllowOwnPlayerInsideOverride { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<BoneSpecificConditionState> BoneSpecificConditionStates { get; } = new List<BoneSpecificConditionState>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public ObjectFilter FadeFilter { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<UpgradeCreationTrigger> UpgradeCreationTriggers { get; } = new List<UpgradeCreationTrigger>();
     }
 
     public sealed class PassengerBonePrefix
@@ -143,5 +159,24 @@ namespace OpenSage.Logic.Object
 
         public string BoneName { get; private set; }
         public ObjectKinds ObjectKind { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public sealed class UpgradeCreationTrigger
+    {
+        internal static UpgradeCreationTrigger Parse(IniParser parser)
+        {
+            var result = new UpgradeCreationTrigger
+            {
+                Upgrade = parser.ParseAssetReference(),
+                Model = parser.ParseAssetReference(),
+                Unknown = parser.ParseInteger()
+            };
+            return result;
+        }
+
+        public string Upgrade { get; private set; }
+        public string Model { get; private set; }
+        public int Unknown { get; private set; }
     }
 }

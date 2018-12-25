@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -10,9 +11,17 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<DarknessSpecialPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
             .Concat(new IniParseTable<DarknessSpecialPowerModuleData>
             {
-                { "AffectEvil", (parser, x) => x.AffectEvil = parser.ParseBoolean() }
+                { "AffectEvil", (parser, x) => x.AffectEvil = parser.ParseBoolean() },
+                { "WeatherDuration", (parser, x) => x.WeatherDuration = parser.ParseInteger() },
+                { "ChangeWeather", (parser, x) => x.ChangeWeather = parser.ParseEnum<WeatherType>() }
             });
 
         public bool AffectEvil { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int WeatherDuration { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public WeatherType ChangeWeather { get; private set; }
     }
 }

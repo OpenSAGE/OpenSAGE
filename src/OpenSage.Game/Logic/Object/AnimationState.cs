@@ -31,7 +31,7 @@ namespace OpenSage.Logic.Object
             { "FXEvent", (parser, x) => x.FXEvents.Add(FXEvent.Parse(parser)) },
             { "ShareAnimation", (parser, x) => x.ShareAnimation = parser.ParseBoolean() },
             { "AllowRepeatInRandomPick", (parser, x) => x.AllowRepeatInRandomPick = parser.ParseBoolean() },
-            { "LuaEvent", (parser, x) => x.LuaEvent = LuaEvent.Parse(parser) }
+            { "LuaEvent", (parser, x) => x.LuaEvents.Add(LuaEvent.Parse(parser)) }
         };
 
         public BitArray<ModelConditionFlag> TypeFlags { get; private set; }
@@ -51,7 +51,7 @@ namespace OpenSage.Logic.Object
         public bool AllowRepeatInRandomPick { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public LuaEvent LuaEvent { get; private set; }
+        public List<LuaEvent> LuaEvents { get; } = new List<LuaEvent>();
     }
 
     public sealed class Animation
@@ -131,9 +131,11 @@ namespace OpenSage.Logic.Object
         {
             { "Frame", (parser, x) => x.Frame = parser.ParseInteger() },
             { "Data", (parser, x) => x.Data = parser.ParseString() },
+            { "OnStateEnter", (parser, x) => x.OnStateEnter = true },
         };
 
         public int Frame { get; private set; }
         public string Data { get; private set; }
+        public bool OnStateEnter { get; private set; }
     }
 }

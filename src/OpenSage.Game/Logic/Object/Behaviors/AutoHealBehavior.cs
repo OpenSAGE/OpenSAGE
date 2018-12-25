@@ -25,6 +25,9 @@ namespace OpenSage.Logic.Object
                 { "UnitHealPulseFX", (parser, x) => x.UnitHealPulseFX = parser.ParseAssetReference() },
                 { "AffectsContained", (parser, x) => x.AffectsContained = parser.ParseBoolean() },
                 { "NonStackable", (parser, x) => x.NonStackable = parser.ParseBoolean() },
+                { "RespawnNearbyHordeMembers", (parser, x) => x.RespawnNearbyHordeMembers = parser.ParseBoolean() },
+                { "RespawnFXList", (parser, x) => x.RespawnFXList = parser.ParseAssetReference() },
+                { "RespawnMinimumDelay", (parser, x) => x.RespawnMinimumDelay = parser.ParseInteger() }
             });
 
         public float HealingAmount { get; private set; }
@@ -56,5 +59,14 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool NonStackable { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool RespawnNearbyHordeMembers { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string RespawnFXList { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int RespawnMinimumDelay { get; private set; }
     }
 }

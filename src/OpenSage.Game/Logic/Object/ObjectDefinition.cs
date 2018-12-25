@@ -354,7 +354,13 @@ namespace OpenSage.Logic.Object
             { "FormationPreviewDecal", (parser, x) => x.FormationPreviewDecal = Decal.Parse(parser) },
             { "EvaEnemyObjectSightedAfterRespawnEvent", (parser, x) => x.EvaEnemyObjectSightedAfterRespawnEvent = parser.ParseAssetReference() },
             { "SelectionPriority", (parser, x) => x.SelectionPriority = parser.ParseInteger() },
-            { "CrushOnlyWhileCharging", (parser, x) => x.CrushOnlyWhileCharging = parser.ParseBoolean() }
+            { "CrushOnlyWhileCharging", (parser, x) => x.CrushOnlyWhileCharging = parser.ParseBoolean() },
+            { "MinZIncreaseForVoiceMoveToHigherGround", (parser, x) => x.MinZIncreaseForVoiceMoveToHigherGround = parser.ParseInteger() },
+            { "EvaOnFirstSightingEventEnemy", (parser, x) => x.EvaOnFirstSightingEventEnemy = parser.ParseAssetReference() },
+            { "EvaOnFirstSightingEventNonEnemy", (parser, x) => x.EvaOnFirstSightingEventNonEnemy = parser.ParseAssetReference() },
+            { "EvaEventDetectedEnemy", (parser, x) => x.EvaEventDetectedEnemy = parser.ParseAssetReference() },
+            { "EvaEventDetectedAlly", (parser, x) => x.EvaEventDetectedAlly = parser.ParseAssetReference() },
+            { "EvaEventDetectedOwner", (parser, x) => x.EvaEventDetectedOwner = parser.ParseAssetReference() },
         };
 
         public string Name { get; protected set; }
@@ -1118,6 +1124,24 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool CrushOnlyWhileCharging { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int MinZIncreaseForVoiceMoveToHigherGround { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string EvaOnFirstSightingEventEnemy { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string EvaOnFirstSightingEventNonEnemy { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string EvaEventDetectedEnemy { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string EvaEventDetectedAlly { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string EvaEventDetectedOwner { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

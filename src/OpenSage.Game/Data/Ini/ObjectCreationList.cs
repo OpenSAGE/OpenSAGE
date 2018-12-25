@@ -104,10 +104,7 @@ namespace OpenSage.Data.Ini
 
     public sealed class CreateObjectObjectCreationListItem : ObjectCreationListItem
     {
-        internal static CreateObjectObjectCreationListItem Parse(IniParser parser)
-        {
-            return parser.ParseBlock(FieldParseTable);
-        }
+        internal static CreateObjectObjectCreationListItem Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<CreateObjectObjectCreationListItem> FieldParseTable = new IniParseTable<CreateObjectObjectCreationListItem>
         {
@@ -153,7 +150,19 @@ namespace OpenSage.Data.Ini
             { "StartingBusyTime", (parser, x) => x.StartingBusyTime = parser.ParseInteger() },
             { "ParticleSystem", (parser, x) => x.ParticleSystem = parser.ParseIdentifier() },
             { "InheritScriptingName", (parser, x) => x.InheritScriptingName = parser.ParseBoolean() },
-            { "IgnoreAllObjects", (parser, x) => x.IgnoreAllObjects = parser.ParseBoolean() }
+            { "IgnoreAllObjects", (parser, x) => x.IgnoreAllObjects = parser.ParseBoolean() },
+            { "JustBuiltDuration", (parser, x) => x.JustBuiltDuration = parser.ParseInteger() },
+            { "ForbiddenUpgrades", (parser, x) => x.ForbiddenUpgrades = parser.ParseAssetReferenceArray() },
+            { "RequiredUpgrades", (parser, x) => x.RequiredUpgrades = parser.ParseAssetReferenceArray() },
+            { "OrientInSecondaryDirection", (parser, x) => x.OrientInSecondaryDirection = parser.ParseBoolean() },
+            { "OrientationOffset", (parser, x) => x.OrientationOffset = parser.ParseInteger() },
+            { "ClearRemovables", (parser, x) => x.ClearRemovables = parser.ParseBoolean() },
+            { "IssueMoveAfterCreation", (parser, x) => x.IssueMoveAfterCreation = parser.ParseBoolean() },
+            { "MoveUsesStrafeUpdate", (parser, x) => x.MoveUsesStrafeUpdate = parser.ParseBoolean() },
+            { "OrientInPrimaryDirection", (parser, x) => x.OrientInPrimaryDirection = parser.ParseBoolean() },
+            { "OffsetInLocalSpace", (parser, x) => x.OffsetInLocalSpace = parser.ParseBoolean() },
+            { "DestinationPlayer", (parser, x) => x.DestinationPlayer = parser.ParseAssetReference() },
+            { "WaypointSpawnPoints", (parser, x) => x.WaypointSpawnPoints = parser.ParseAssetReference() },
         };
 
         public string ObjectNames { get; private set; }
@@ -221,6 +230,42 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public bool IgnoreAllObjects { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int JustBuiltDuration { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string[] ForbiddenUpgrades { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string[] RequiredUpgrades { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool OrientInSecondaryDirection { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int OrientationOffset { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ClearRemovables { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool IssueMoveAfterCreation { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool MoveUsesStrafeUpdate { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool OrientInPrimaryDirection { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool OffsetInLocalSpace { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string DestinationPlayer { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string WaypointSpawnPoints { get; private set; }
     }
 
     public sealed class ApplyRandomForceObjectCreationListItem : ObjectCreationListItem
@@ -429,5 +474,17 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("ANIMATED")]
         Animated,
+
+        [IniEnum("RELATIVE_ANGLE"), AddedIn(SageGame.Bfme2)]
+        RelativeAngle,
+
+        [IniEnum("USE_WATER_SURFACE"), AddedIn(SageGame.Bfme2)]
+        UseWaterSurface,
+
+        [IniEnum("USE_CLIFF"), AddedIn(SageGame.Bfme2)]
+        UseCliff,
+
+        [IniEnum("ABSOLUTE_ANGLE"), AddedIn(SageGame.Bfme2)]
+        AbsoluteAngle,
     }
 }

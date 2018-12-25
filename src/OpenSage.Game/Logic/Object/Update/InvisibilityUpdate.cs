@@ -48,7 +48,8 @@ namespace OpenSage.Logic.Object
             { "ForbiddenConditions", (parser, x) => x.ForbiddenConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
             { "BecomeStealthedFX", (parser, x) => x.BecomeStealthedFX = parser.ParseAssetReference() },
             { "ExitStealthFX", (parser, x) => x.ExitStealthFX = parser.ParseAssetReference() },
-            { "ForbiddenWeaponConditions", (parser, x) => x.ForbiddenWeaponConditions = parser.ParseEnumBitArray<WeaponSetConditions>() }
+            { "ForbiddenWeaponConditions", (parser, x) => x.ForbiddenWeaponConditions = parser.ParseEnumBitArray<WeaponSetConditions>() },
+            { "HintDetectableConditions", (parser, x) => x.HintDetectableConditions = parser.ParseEnum<DetectableConditions>() }
         };
 
         public InvisibilityType Type { get; private set; }
@@ -58,6 +59,7 @@ namespace OpenSage.Logic.Object
         public string BecomeStealthedFX { get; private set; }
         public string ExitStealthFX { get; private set; }
         public BitArray<WeaponSetConditions> ForbiddenWeaponConditions { get; private set; }
+        public DetectableConditions HintDetectableConditions { get; private set; }
     }
 
     public enum InvisibilityType
@@ -79,5 +81,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("ALLOW_NEAR_TREES")]
         AllowNearTrees,
+    }
+
+    public enum DetectableConditions
+    {
+        [IniEnum("IS_FIRING_WEAPON")]
+        IsFiringWeapon,
     }
 }

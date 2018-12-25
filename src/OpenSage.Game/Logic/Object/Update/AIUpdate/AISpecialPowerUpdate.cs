@@ -14,11 +14,17 @@ namespace OpenSage.Logic.Object
                 { "CommandButtonName", (parser, x) => x.CommandButtonName = parser.ParseIdentifier() },
                 { "SpecialPowerAIType", (parser, x) => x.SpecialPowerAIType = parser.ParseEnum<SpecialPowerAIType>() },
                 { "SpecialPowerRadius", (parser, x) => x.SpecialPowerRadius = parser.ParseFloat() },
+                { "SpecialPowerRange", (parser, x) => x.SpecialPowerRange = parser.ParseInteger() },
+                { "SpellMakesAStructure", (parser, x) => x.SpellMakesAStructure = parser.ParseBoolean() },
+                { "RandomizeTargetLocation", (parser, x) => x.RandomizeTargetLocation = parser.ParseBoolean() }
             });
 
         public string CommandButtonName { get; private set; }
         public SpecialPowerAIType SpecialPowerAIType { get; private set; }
         public float SpecialPowerRadius { get; private set; }
+        public int SpecialPowerRange { get; private set; }
+        public bool SpellMakesAStructure { get; private set; }
+        public bool RandomizeTargetLocation { get; private set; }
     }
 
     public enum SpecialPowerAIType
@@ -67,5 +73,77 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("AI_SPECIAL_POWER_STANCEHOLDGROUND")]
         StanceHoldGround,
+
+        [IniEnum("AI_SPECIAL_POWER_TARGETAOE_SUMMON")]
+        TargetAoeSummon,
+
+        [IniEnum("AI_SPECIAL_POWER_ENEMY_TYPE_KILLER_STRUCTURES")]
+        EnemyTypeKillerStructures,
+
+        [IniEnum("AI_SPECIAL_POWER_SELFAOEHEALHEROS")]
+        SelfAoeHealHeros,
+
+        [IniEnum("AI_SPELLBOOK_SHROUD_REVEAL")]
+        ShroudReveal,
+
+        [IniEnum("AI_SPECIAL_POWER_HEAL_AOE")]
+        HealAoe,
+
+        [IniEnum("AI_SPECIAL_POWER_LEGOLAS_ARROWWIND")]
+        LegolasArrowWind,
+
+        [IniEnum("AI_SPECIAL_POWER_LEGOLAS_TRAINARCHERS")]
+        LegolasTrainArchers,
+
+        [IniEnum("AI_SPECIAL_POWER_ELENDIL")]
+        Elendil,
+
+        [IniEnum("AI_SPELLBOOK_ASSIST_BATTLE_BUFF")]
+        AssistBattleBuff,
+
+        [IniEnum("AI_SPELLBOOK_ASSIST_BATTLE_DEBUFF")]
+        AssistBattleDebuff,
+
+        [IniEnum("AI_SPELLBOOK_STRUCTURE_BASEKILL")]
+        StructureBasekill,
+
+        [IniEnum("AI_SPELLBOOK_STRUCTURE_BREAKER")]
+        StructureBreaker,
+
+        [IniEnum("AI_SPELLBOOK_STRUCTURE_BREAKER_PREF_WALLS")]
+        StructureBreakerPrefWalls,
+
+        [IniEnum("AI_SPELLBOOK_ALWAYS_FIRE")]
+        AlwaysFire,
+
+        [IniEnum("AI_SPELLBOOK_CAPTURE_CREEP")]
+        CaptureCreep,
+
+        [IniEnum("AI_SPELLBOOK_TREE_KILLER")]
+        TreeKiller,
+
+        [IniEnum("AI_SPELLBOOK_BUFFTERRAIN")]
+        Buffterrain,
+
+        [IniEnum("AI_SPELLBOOK_REBUILD")]
+        Rebuild,
+
+        [IniEnum("AI_SPELLBOOK_BUFFECONOMYBUILDING")]
+        BuffEconomyBuilding,
+
+        [IniEnum("AI_SPELLBOOK_CALLTHEHORDE")]
+        CallTheHorde,
+
+        [IniEnum("AI_SPELLBOOK_HEAL")]
+        Heal,
+
+        [IniEnum("AI_SPELLBOOK_ENSHROUDINGMIST")]
+        Enshroudingmist,
+
+        [IniEnum("AI_SPELLBOOK_ARMY_BREAKER")]
+        ArmyBreaker,
+
+        [IniEnum("AI_SPELLBOOK_CITADEL")]
+        Citadel,
     }
 }

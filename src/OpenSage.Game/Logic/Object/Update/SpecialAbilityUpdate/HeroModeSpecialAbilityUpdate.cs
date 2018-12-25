@@ -19,6 +19,8 @@ namespace OpenSage.Logic.Object
             { "UnpackingVariation", (parser, x) => x.UnpackingVariation = parser.ParseInteger() },
             { "PackTime", (parser, x) => x.PackTime = parser.ParseInteger() },
             { "AwardXPForTriggering", (parser, x) => x.AwardXPForTriggering = parser.ParseInteger() },
+            { "PreparationTime", (parser, x) => x.PreparationTime = parser.ParseInteger() },
+            { "StopUnitBeforeActivating", (parser, x) => x.StopUnitBeforeActivating = parser.ParseBoolean() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -30,5 +32,11 @@ namespace OpenSage.Logic.Object
         public int UnpackingVariation { get; private set; }
         public int PackTime { get; private set; }
         public int AwardXPForTriggering { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int PreparationTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool StopUnitBeforeActivating { get; private set; }
     }
 }

@@ -18,7 +18,8 @@ namespace OpenSage.Logic.Object
             { "ModifierName", (parser, x) => x.ModifierNames.Add(parser.ParseAssetReference()) },
             { "UpgradeRequired", (parser, x) => x.UpgradeRequired = parser.ParseAssetReference() },
             { "NonStackable", (parser, x) => x.NonStackable = parser.ParseBoolean() },
-            { "HealFX", (parser, x) => x.HealFX = parser.ParseAssetReference() }
+            { "HealFX", (parser, x) => x.HealFX = parser.ParseAssetReference() },
+            { "AntiCategories", (parser, x) => x.AntiCategories = parser.ParseEnumBitArray<ModifierCategory>() }
         };
 
         public int EffectRadius { get; private set; }
@@ -35,5 +36,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string HealFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public BitArray<ModifierCategory> AntiCategories { get; private set; }
     }
 }
