@@ -12,9 +12,13 @@ namespace OpenSage.Logic.Object
         {
             { "WeaponSetFlags", (parser, x) => x.WeaponSetFlags = parser.ParseEnumBitArray<WeaponSetConditions>() },
             { "WeaponToggleCommandSet", (parser, x) => x.WeaponToggleCommandSet = parser.ParseAssetReference() },
+            { "ModelConditionFlags", (parser, x) => x.ModelConditionFlags = parser.ParseEnumBitArray<ModelConditionFlag>() },
+            { "ModelConditionCommandSet", (parser, x) => x.ModelConditionCommandSet = parser.ParseAssetReference() }
         };
 
         public BitArray<WeaponSetConditions> WeaponSetFlags { get; private set; }
         public string WeaponToggleCommandSet { get; private set; }
+        public BitArray<ModelConditionFlag> ModelConditionFlags { get; private set; }
+        public string ModelConditionCommandSet { get; private set; }
     }
 }

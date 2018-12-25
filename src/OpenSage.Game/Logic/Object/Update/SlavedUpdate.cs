@@ -30,6 +30,7 @@ namespace OpenSage.Logic.Object
             { "LeashRange", (parser, x) => x.LeashRange = parser.ParseInteger() },
             { "UseSlaverAsControlForEvaObjectSightedEvents", (parser, x) => x.UseSlaverAsControlForEvaObjectSightedEvents = parser.ParseBoolean() },
             { "DieOnMastersDeath", (parser, x) => x.DieOnMastersDeath = parser.ParseBoolean() },
+            { "MarkUnselectable", (parser, x) => x.MarkUnselectable = parser.ParseBoolean() },
         };
 
         public float GuardMaxRange { get; private set; }
@@ -60,5 +61,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool DieOnMastersDeath { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool MarkUnselectable { get; private set; }
     }
 }

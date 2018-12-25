@@ -12,16 +12,42 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<AISpecialPowerUpdateModuleData>
             {
                 { "CommandButtonName", (parser, x) => x.CommandButtonName = parser.ParseIdentifier() },
-                { "SpecialPowerAIType", (parser, x) => x.SpecialPowerAIType = parser.ParseEnum<SpecialPowerAIType>() }
+                { "SpecialPowerAIType", (parser, x) => x.SpecialPowerAIType = parser.ParseEnum<SpecialPowerAIType>() },
+                { "SpecialPowerRadius", (parser, x) => x.SpecialPowerRadius = parser.ParseFloat() },
             });
 
         public string CommandButtonName { get; private set; }
         public SpecialPowerAIType SpecialPowerAIType { get; private set; }
+        public float SpecialPowerRadius { get; private set; }
     }
 
     public enum SpecialPowerAIType
     {
         [IniEnum("AI_SPECIAL_POWER_CAPTURE_BUILDING")]
-        AiSpecialPowerCaptureBuilding,
+        CaptureBuilding,
+
+        [IniEnum("AI_SPECIAL_POWER_TOGGLE_MOUNTED")]
+        ToggleMounted,
+
+        [IniEnum("AI_SPECIAL_POWER_BASIC_SELF_BUFF")]
+        BasicSelfBuff,
+
+        [IniEnum("AI_SPECIAL_POWER_ENEMY_TYPE_KILLER")]
+        EnemyTypeKiller,
+
+        [IniEnum("AI_SPECIAL_POWER_GIVEXP_AOE")]
+        GiveXpAoe,
+
+        [IniEnum("AI_SPECIAL_POWER_GANDALF_WIZARD_BLAST")]
+        GandalfWizardBlast,
+
+        [IniEnum("AI_SPECIAL_POWER_RANGED_AOE_ATTACK")]
+        RangedAoeAttack,
+
+        [IniEnum("AI_SPECIAL_POWER_TOGGLE_SIEGE")]
+        ToggleSiege,
+
+        [IniEnum("AI_SPECIAL_POWER_ENEMY_TYPE_KILLER_RANGED")]
+        EnemyTypeKillerRanged,
     }
 }

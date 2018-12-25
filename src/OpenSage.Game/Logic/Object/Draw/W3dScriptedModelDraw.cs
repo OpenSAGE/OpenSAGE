@@ -35,7 +35,8 @@ namespace OpenSage.Logic.Object
                 { "WadingParticleSys", (parser, x) => x.WadingParticleSys = parser.ParseAssetReference() },
                 { "NoRotate", (parser, x) => x.NoRotate = parser.ParseBoolean() },
                 { "UseProducerTexture", (parser, x) => x.UseProducerTexture = parser.ParseBoolean() },
-                { "ShadowForceDisable", (parser, x) => x.ShadowForceDisable = parser.ParseBoolean() }
+                { "ShadowForceDisable", (parser, x) => x.ShadowForceDisable = parser.ParseBoolean() },
+                { "RandomTextureFixedRandomIndex", (parser, x) => x.RandomTextureFixedRandomIndex = parser.ParseBoolean() }
             });
 
         public bool StaticModelLODMode { get; private set; }
@@ -61,6 +62,9 @@ namespace OpenSage.Logic.Object
         public bool NoRotate { get; private set; }
         public bool UseProducerTexture { get; private set; }
         public bool ShadowForceDisable { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool RandomTextureFixedRandomIndex { get; private set; }
     }
 
     public sealed class RandomTexture

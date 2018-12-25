@@ -169,6 +169,27 @@ namespace OpenSage.Data.Ini.Parser
             return result;
         }
 
+        public BitArray<T> ParseInLineEnumBitArray<T>()
+            where T : struct
+        {
+            var stringToValueMap = GetEnumMap<T>();
+
+            var result = new BitArray<T>();
+
+            IniToken? token;
+            while ((token = PeekNextTokenOptional()) != null)
+            {
+                var value = PeekString();
+                var stringValue = value.ToUpperInvariant();
+                if (ParseBitValue(stringToValueMap, result, stringValue, inLine: true))
+                    GetNextToken(); //to proceed
+                else
+                    return result;
+            }
+
+            return result;
+        }
+
         public BitArray<T> ParseEnumBitArray<T>()
             where T : struct
         {
@@ -203,7 +224,7 @@ namespace OpenSage.Data.Ini.Parser
             return result;
         }
 
-        private void ParseBitValue<T>(Dictionary<string, Enum> stringToValueMap, BitArray<T> result, string stringValue)
+        private bool ParseBitValue<T>(Dictionary<string, Enum> stringToValueMap, BitArray<T> result, string stringValue, bool inLine = false)
             where T : struct
         {
             switch (stringValue)
@@ -226,7 +247,10 @@ namespace OpenSage.Data.Ini.Parser
                     }
                     if (!stringToValueMap.TryGetValue(stringValue, out var enumValue))
                     {
-                        throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{stringValue}'", CurrentPosition);
+                        if (inLine)
+                            return false;
+                        else
+                            throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{stringValue}'", CurrentPosition);
                     }
 
                     // Ugh.
@@ -234,6 +258,7 @@ namespace OpenSage.Data.Ini.Parser
 
                     break;
             }
+            return true;
         }
 
         private static string[] GetIniNames(Type enumType, Enum value)

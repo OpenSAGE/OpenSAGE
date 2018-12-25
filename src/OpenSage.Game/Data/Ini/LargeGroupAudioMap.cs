@@ -17,7 +17,7 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<LargeGroupAudioMap> FieldParseTable = new IniParseTable<LargeGroupAudioMap>
         {
             { "Sound", (parser, x) => x.Sounds.Add(LargeGroupAudioMapSound.Parse(parser)) },
-            { "RequiredModelConditionFlags", (parser, x) => x.RequiredModelConditionFlags = parser.ParseEnumBitArray<ModelConditionFlag>() },
+            { "ModelConditionFlags", (parser, x) => x.RequiredModelConditionFlags = parser.ParseEnumBitArray<ModelConditionFlag>() },
             { "ExcludedModelConditionFlags", (parser, x) => x.ExcludedModelConditionFlags = parser.ParseEnumBitArray<ModelConditionFlag>() },
             { "ExcludedObjectStatusBits", (parser, x) => x.ExcludedObjectStatusBits = parser.ParseEnumBitArray<ObjectStatus>() },
             { "IgnoreStealthedUnits", (parser, x) => x.IgnoreStealthedUnits = parser.ParseBoolean() },

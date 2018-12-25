@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
@@ -30,7 +31,9 @@ namespace OpenSage.Logic.Object
            { "FadePassengerOnEnter", (parser, x) => x.FadePassengerOnEnter = parser.ParseBoolean() },
            { "EnterFadeTime", (parser, x) => x.EnterFadeTime = parser.ParseInteger() },
            { "FadePassengerOnExit", (parser, x) => x.FadePassengerOnExit = parser.ParseBoolean() },
-           { "ExitFadeTime", (parser, x) => x.ExitFadeTime = parser.ParseInteger() }
+           { "ExitFadeTime", (parser, x) => x.ExitFadeTime = parser.ParseInteger() },
+           { "KillPassengersOnDeath", (parser, x) => x.KillPassengersOnDeath = parser.ParseBoolean() },
+           { "InitialPayload", (parser, x) => x.InitialPayloads.Add(Payload.Parse(parser)) },
         };
 
         public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
@@ -54,5 +57,11 @@ namespace OpenSage.Logic.Object
         public int EnterFadeTime { get; private set; }
         public bool FadePassengerOnExit { get; private set; }
         public int ExitFadeTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool KillPassengersOnDeath { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<Payload> InitialPayloads { get; } = new List<Payload>();
     }
 }

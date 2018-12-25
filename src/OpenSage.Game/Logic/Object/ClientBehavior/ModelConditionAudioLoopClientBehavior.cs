@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -17,17 +18,27 @@ namespace OpenSage.Logic.Object
 
     public sealed class ModelCondition
     {
-        internal static ModelCondition Parse(IniParser parser) => parser.ParseAttributeList(FieldParseTable);
+        internal static ModelCondition Parse(IniParser parser)
+        {
+            //var v = parser.ParseAttributeList(FieldParseTable);
+            //TODO: proper parsing, in line enum bit array not working properly
+            var v = parser.ParseAssetReferenceArray();
+            return new ModelCondition();
+        }
 
         internal static readonly IniParseTable<ModelCondition> FieldParseTable = new IniParseTable<ModelCondition>
         {
-            { "REQUIRED", (parser, x) => x.Required = parser.ParseEnum<ModelConditionFlag>() },
+            { "REQUIRED", (parser, x) => x.Required = parser.ParseInLineEnumBitArray<ModelConditionFlag>() },
+            { "Required", (parser, x) => x.Required = parser.ParseInLineEnumBitArray<ModelConditionFlag>() },
+
             { "Sound", (parser, x) => x.Sound = parser.ParseAssetReference() },
-            { "EXCLUDED", (parser, x) => x.Excluded = parser.ParseEnum<ModelConditionFlag>() }
+
+            { "EXCLUDED", (parser, x) => x.Excluded = parser.ParseInLineEnumBitArray<ModelConditionFlag>() },
+            { "Excluded", (parser, x) => x.Excluded = parser.ParseInLineEnumBitArray<ModelConditionFlag>() }
         };
 
-        public ModelConditionFlag Required { get; private set; }
-        public ModelConditionFlag Excluded { get; private set; }
+        public BitArray<ModelConditionFlag> Required { get; private set; }
+        public BitArray<ModelConditionFlag> Excluded { get; private set; }
         public string Sound { get; private set; }
     }
 }

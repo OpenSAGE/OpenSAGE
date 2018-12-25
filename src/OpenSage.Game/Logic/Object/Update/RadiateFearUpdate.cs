@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -16,6 +17,7 @@ namespace OpenSage.Logic.Object
             { "GenerateFear", (parser, x) => x.GenerateFear = parser.ParseBoolean() },
             { "EmotionPulseRadius", (parser, x) => x.EmotionPulseRadius = parser.ParseFloat() },
             { "EmotionPulseInterval", (parser, x) => x.EmotionPulseInterval = parser.ParseInteger() },
+            { "VictimFilter", (parser, x) => x.VictimFilter = ObjectFilter.Parse(parser) },
         };
         
         public bool InitiallyActive { get; private set; }
@@ -25,5 +27,6 @@ namespace OpenSage.Logic.Object
         public bool GenerateFear { get; private set; }
         public float EmotionPulseRadius { get; private set; }
         public int EmotionPulseInterval { get; private set; }
+        public ObjectFilter VictimFilter { get; private set; }
     }
 }

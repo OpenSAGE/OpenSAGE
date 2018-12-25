@@ -17,7 +17,8 @@ namespace OpenSage.Logic.Object
             { "PersistentPrepTime", (parser, x) => x.PersistentPrepTime = parser.ParseInteger() },
             { "PackTime", (parser, x) => x.PackTime = parser.ParseInteger() },
             { "AwardXPForTriggering", (parser, x) => x.AwardXPForTriggering = parser.ParseInteger() },
-            
+            { "EffectDuration", (parser, x) => x.EffectDuration = parser.ParseInteger() },
+            { "ShowPalantirTimer", (parser, x) => x.ShowPalantirTimer = parser.ParseBoolean() },
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -28,5 +29,11 @@ namespace OpenSage.Logic.Object
         public int PersistentPrepTime { get; private set; }
         public int PackTime { get; private set; }
         public int AwardXPForTriggering { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int EffectDuration { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ShowPalantirTimer { get; private set; }
     }
 }

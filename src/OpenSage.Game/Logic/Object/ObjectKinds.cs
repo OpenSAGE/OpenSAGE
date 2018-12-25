@@ -709,5 +709,38 @@
 
         [IniEnum("PORT"), AddedIn(SageGame.Bfme2)]
         Port,
+
+        [IniEnum("HEAVY_MELEE_HITTER"), AddedIn(SageGame.Bfme2)]
+        HeavyMeleeHitter,
+
+        [IniEnum("SHIP"), AddedIn(SageGame.Bfme2)]
+        Ship,
+
+        [IniEnum("PASS_EXPERIENCE_TO_CONTAINER"), AddedIn(SageGame.Bfme2)]
+        PassExperienceToContainer,
+
+        [IniEnum("SHIP_BATTLESHIP"), AddedIn(SageGame.Bfme2)]
+        ShipBattleship,
+
+        [IniEnum("SHIP_BOMBARD"), AddedIn(SageGame.Bfme2)]
+        ShipBombard,
+
+        [IniEnum("SHIP_SUICIDE"), AddedIn(SageGame.Bfme2)]
+        ShipSuicide,
+
+        [IniEnum("MUMAKIL_BUFF_NUGGET"), AddedIn(SageGame.Bfme2)]
+        MumakilBuffNugget,
+
+        [IniEnum("SIEGEWEAPON"), AddedIn(SageGame.Bfme2)]
+        Siegeweapon,
+
+        [IniEnum("AMPHIBIOUS"), AddedIn(SageGame.Bfme2)]
+        Amphibious,
+
+        [IniEnum("TROLL_BUFF_NUGGET"), AddedIn(SageGame.Bfme2)]
+        TrollBuffNugget,
+
+        [IniEnum("GIANT_BIRD"), AddedIn(SageGame.Bfme2)]
+        GiantBird,
     }
 }

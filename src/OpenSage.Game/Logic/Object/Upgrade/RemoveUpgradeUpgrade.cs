@@ -11,10 +11,14 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<RemoveUpgradeUpgradeModuleData>
             {
                 { "UpgradeGroupsToRemove", (parser, x) => x.UpgradeGroupsToRemove = parser.ParseAssetReference() },
-                { "UpgradeToRemove", (parser, x) => x.UpgradeToRemove = parser.ParseAssetReferenceArray() }
+                { "UpgradeToRemove", (parser, x) => x.UpgradeToRemove = parser.ParseAssetReferenceArray() },
+                { "RemoveFromAllPlayerObjects", (parser, x) => x.RemoveFromAllPlayerObjects = parser.ParseBoolean() },
+                { "SuppressEvaEventForRemoval", (parser, x) => x.SuppressEvaEventForRemoval = parser.ParseBoolean() },
             });
 
         public string UpgradeGroupsToRemove { get; private set; }
         public string[] UpgradeToRemove { get; private set; }
+        public bool RemoveFromAllPlayerObjects { get; private set; }
+        public bool SuppressEvaEventForRemoval { get; private set; }
     }
 }

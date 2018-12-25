@@ -21,12 +21,17 @@ namespace OpenSage.Logic.Object
             { "ShareWeaponReloadTime", (parser, x) => x.ShareWeaponReloadTime = parser.ParseBoolean() },
             { "WeaponLockSharedAcrossSets", (parser, x) => x.WeaponLockSharedAcrossSets = parser.ParseBoolean() },
             { "OnlyAgainst", (parser, x) => x.ParseWeaponSlotProperty(parser, s => s.PreferredAgainst = parser.ParseEnumBitArray<ObjectKinds>()) },
+            { "OnlyInCondition", (parser, x) => x.ParseWeaponSlotProperty(parser, s => s.OnlyInCondition = parser.ParseEnumBitArray<ModelConditionFlag>()) },
+            { "ReadyStatusSharedWithinSet", (parser, x) => x.ReadyStatusSharedWithinSet = parser.ParseBoolean() },
         };
 
         public BitArray<WeaponSetConditions> Conditions { get; private set; }
         public Dictionary<WeaponSlot, WeaponSetSlot> Slots { get; } = new Dictionary<WeaponSlot, WeaponSetSlot>();
         public bool ShareWeaponReloadTime { get; private set; }
         public bool WeaponLockSharedAcrossSets { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ReadyStatusSharedWithinSet { get; private set; }
 
         private void ParseWeaponSlotProperty(IniParser parser, Action<WeaponSetSlot> parseValue)
         {

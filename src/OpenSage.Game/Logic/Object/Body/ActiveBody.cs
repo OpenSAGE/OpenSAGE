@@ -29,7 +29,9 @@ namespace OpenSage.Logic.Object
             { "DodgePercent", (parser, x) => x.DodgePercent = parser.ParsePercentage() },
             { "UseDefaultDamageSettings", (parser, x) => x.UseDefaultDamageSettings = parser.ParseBoolean() },
             { "EnteringDamagedTransitionTime", (parser, x) => x.EnteringDamagedTransitionTime = parser.ParseInteger() },
-            { "HealingBuffFx", (parser, x) => x.HealingBuffFx = parser.ParseAssetReference() }
+            { "HealingBuffFx", (parser, x) => x.HealingBuffFx = parser.ParseAssetReference() },
+            { "BurningDeathBehavior", (parser, x) => x.BurningDeathBehavior = parser.ParseBoolean() },
+            { "BurningDeathFX", (parser, x) => x.BurningDeathFX = parser.ParseAssetReference() }
         };
 
         public float MaxHealth { get; private set; }
@@ -82,6 +84,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string HealingBuffFx { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool BurningDeathBehavior { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string BurningDeathFX { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

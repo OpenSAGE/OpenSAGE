@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -30,7 +31,9 @@ namespace OpenSage.Logic.Object
             { "RunToWaterSearchRadius", (parser, x) => x.RunToWaterSearchRadius  = parser.ParseInteger() },
             { "RunToWaterSearchIncrement", (parser, x) => x.RunToWaterSearchIncrement = parser.ParseInteger() },
             { "PanicLocomotorWhileAflame", (parser, x) => x.PanicLocomotorWhileAflame = parser.ParseBoolean() },
-            { "CustomAnimAndDuration", (parser, x) => x.CustomAnimAndDuration = CustomAnimAndDuration.Parse(parser) },
+            { "CustomAnimAndDuration", (parser, x) => x.CustomAnimAndDuration = AnimAndDuration.Parse(parser) },
+            { "SetBurnedStatus", (parser, x) => x.SetBurnedStatus = parser.ParseBoolean() },
+            { "DamageType", (parser, x) => x.DamageType = parser.ParseEnum<DamageType>() }
         };
 
         /// <summary>
@@ -90,6 +93,12 @@ namespace OpenSage.Logic.Object
         public bool PanicLocomotorWhileAflame { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public CustomAnimAndDuration CustomAnimAndDuration { get; private set; }
+        public AnimAndDuration CustomAnimAndDuration { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool SetBurnedStatus { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public DamageType DamageType { get; internal set; }
     }
 }

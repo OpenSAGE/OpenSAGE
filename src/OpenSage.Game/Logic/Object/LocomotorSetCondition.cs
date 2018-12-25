@@ -2,6 +2,7 @@
 
 namespace OpenSage.Logic.Object
 {
+    [AddedIn(SageGame.Bfme)]
     public enum LocomotorSetCondition
     {
         [IniEnum("SET_NORMAL")]
@@ -41,6 +42,9 @@ namespace OpenSage.Logic.Object
         SetCombo,
 
         [IniEnum("SET_CONTAINED")]
-        SetContained
+        SetContained,
+
+        [IniEnum("SET_BURNINGDEATH"), AddedIn(SageGame.Bfme2)]
+        SetBurningDeath,
     }
 }

@@ -435,7 +435,10 @@ namespace OpenSage.Data.Ini
         Secondary,
 
         [IniEnum("TERTIARY")]
-        Tertiary
+        Tertiary,
+
+        [IniEnum("QUINARY")]
+        Quinary,
     }
 
     public enum CommandButtonRadiusCursorType

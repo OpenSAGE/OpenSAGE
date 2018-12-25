@@ -22,7 +22,7 @@ namespace OpenSage.Logic.Object
             { "Link", (parser, x) => x.Links.Add(Link.Parse(parser)) },
             { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReferenceArray() },
             { "ConflictsWith", (parser, x) => x.ConflictsWith = parser.ParseAssetReferenceArray() },
-            { "CustomAnimAndDuration", (parser, x) => x.CustomAnimAndDuration = CustomAnimAndDuration.Parse(parser) },
+            { "CustomAnimAndDuration", (parser, x) => x.CustomAnimAndDuration = AnimAndDuration.Parse(parser) },
             { "ActivationDelaySeconds", (parser, x) => x.ActivationDelaySeconds = parser.ParseFloat() },
             { "AboveWall", (parser, x) => x.AboveWall = parser.ParseInteger() },
             { "TopAttackPos", (parser, x) => x.TopAttackPos = parser.ParseVector3() },
@@ -40,7 +40,7 @@ namespace OpenSage.Logic.Object
         public List<Link> Links { get; private set; } = new List<Link>();
         public string[] TriggeredBy { get; private set; }
         public string[] ConflictsWith { get; private set; }
-        public CustomAnimAndDuration CustomAnimAndDuration { get; private set; }
+        public AnimAndDuration CustomAnimAndDuration { get; private set; }
         public float ActivationDelaySeconds { get; private set; }
         public int AboveWall { get; private set; }
         public Vector3 TopAttackPos { get; private set; }

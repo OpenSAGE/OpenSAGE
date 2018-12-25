@@ -16,6 +16,8 @@ namespace OpenSage.Logic.Object
             { "ApproachRequiresLOS", (parser, x) => x.ApproachRequiresLos = parser.ParseBoolean() },
             { "BusyForDuration", (parser, x) => x.BusyForDuration = parser.ParseInteger() },
             { "DestinationWeaponName", (parser, x) => x.DestinationWeaponName = parser.ParseString() },
+            { "PreparationTime", (parser, x) => x.PreparationTime = parser.ParseInteger() },
+            { "SourceWeaponName", (parser, x) => x.SourceWeaponName = parser.ParseAssetReference() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -25,5 +27,7 @@ namespace OpenSage.Logic.Object
         public bool ApproachRequiresLos { get; private set; }
         public int BusyForDuration { get; private set; }
         public string DestinationWeaponName { get; private set; }
+        public int PreparationTime { get; private set; }
+        public string SourceWeaponName { get; private set; }
     }
 }

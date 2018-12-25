@@ -11,7 +11,7 @@ namespace OpenSage.Logic.Object
             { "RequiresAllTriggers", (parser, x) => x.RequiresAllTriggers = parser.ParseBoolean() },
             { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
             { "Description", (parser, x) => x.Description = parser.ParseLocalizedStringKey() },
-            { "CustomAnimAndDuration", (parser, x) => x.CustomAnimAndDuration = CustomAnimAndDuration.Parse(parser) },
+            { "CustomAnimAndDuration", (parser, x) => x.CustomAnimAndDuration = AnimAndDuration.Parse(parser) },
             { "ActiveDuringConstruction", (parser, x) => x.ActiveDuringConstruction = parser.ParseBoolean() },
         };
 
@@ -26,18 +26,18 @@ namespace OpenSage.Logic.Object
         public string Description { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public CustomAnimAndDuration CustomAnimAndDuration { get; private set; }
+        public AnimAndDuration CustomAnimAndDuration { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public bool ActiveDuringConstruction { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
-    public sealed class CustomAnimAndDuration
+    public sealed class AnimAndDuration
     {
-        internal static CustomAnimAndDuration Parse(IniParser parser)
+        internal static AnimAndDuration Parse(IniParser parser)
         {
-            var result = new CustomAnimAndDuration
+            var result = new AnimAndDuration
             {
                 AnimState = parser.ParseAttributeEnum<ModelConditionFlag>("AnimState"),
                 AnimTime = parser.ParseAttributeInteger("AnimTime")

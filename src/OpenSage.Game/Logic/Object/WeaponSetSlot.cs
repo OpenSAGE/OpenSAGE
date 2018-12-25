@@ -10,5 +10,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public BitArray<ObjectKinds> OnlyAgainst { get; internal set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public BitArray<ModelConditionFlag> OnlyInCondition { get; internal set; }
     }
 }

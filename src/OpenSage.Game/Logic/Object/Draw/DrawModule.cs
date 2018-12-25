@@ -54,6 +54,7 @@ namespace OpenSage.Logic.Object
             { "W3DPropDraw", W3dPropDrawModuleData.Parse },
             { "W3DQuadrupedDraw", W3dQuadrupedDrawModuleData.Parse },
             { "W3DRopeDraw", W3dRopeDrawModuleData.Parse },
+            { "W3DSailModelDraw", W3dSailModelDrawModuleData.Parse },
             { "W3DScienceModelDraw", W3dScienceModelDrawModuleData.Parse },
             { "W3DScriptedModelDraw", W3dScriptedModelDrawModuleData.Parse },
             { "W3DStreakDraw", W3dStreakDrawModuleData.Parse },
