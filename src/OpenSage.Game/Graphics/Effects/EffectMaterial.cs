@@ -12,9 +12,6 @@ namespace OpenSage.Graphics.Effects
         private readonly ContentManager _contentManager;
         private readonly Dictionary<string, EffectMaterialProperty> _properties;
 
-        // TODO_VELDRID: Remove this.
-        private readonly Dictionary<Texture, TextureView> _cachedTextureViews;
-
         public Effect Effect { get; }
 
         public EffectPipelineState PipelineState { get; set; }
@@ -33,8 +30,6 @@ namespace OpenSage.Graphics.Effects
             Effect = effect;
 
             _properties = new Dictionary<string, EffectMaterialProperty>();
-
-            _cachedTextureViews = new Dictionary<Texture, TextureView>();
         }
 
         private EffectMaterialProperty EnsureProperty(string name)
@@ -58,26 +53,17 @@ namespace OpenSage.Graphics.Effects
                         resource = _contentManager.GetNullStructuredBuffer(property.Parameter.ResourceBinding.Type.Size);
                         break;
 
+                    case ResourceKind.TextureReadOnly:
+                    case ResourceKind.TextureReadWrite:
+                        // TODO: This only supports Texture2D shader parameters.
+                        resource = _contentManager.NullTexture;
+                        break;
+
                     default:
                         throw new InvalidOperationException();
                 }
             }
             property.SetData(resource);
-        }
-
-        public void SetProperty(string name, Texture texture)
-        {
-            if (texture == null)
-            {
-                // TODO: This only supports Texture2D shader parameters.
-                texture = _contentManager.NullTexture;
-            }
-
-            if (!_cachedTextureViews.TryGetValue(texture, out var view))
-            {
-                _cachedTextureViews.Add(texture, view = AddDisposable(Effect.GraphicsDevice.ResourceFactory.CreateTextureView(texture)));
-            }
-            SetProperty(name, view);
         }
 
         public void ApplyPipelineState()
