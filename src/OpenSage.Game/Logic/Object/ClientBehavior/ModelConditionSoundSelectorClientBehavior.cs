@@ -95,6 +95,7 @@ namespace OpenSage.Logic.Object
             { "VoiceEnterUnitTransportShip", (parser, x) => x.VoiceEnterUnitTransportShip = parser.ParseAssetReference() },
             { "VoiceInitiateCaptureBuilding", (parser, x) => x.VoiceInitiateCaptureBuilding = parser.ParseAssetReference() },
             { "VoiceAttackFireball", (parser, x) => x.VoiceAttackFireball = parser.ParseAssetReference() },
+            { "VoiceMoveToTrees", (parser, x) => x.VoiceMoveToTrees = parser.ParseAssetReference() },
         };
 
         public string VoiceGarrison { get; private set; }
@@ -116,5 +117,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string VoiceAttackFireball { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string VoiceMoveToTrees { get; private set; }
     }
 }

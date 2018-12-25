@@ -54,6 +54,10 @@ namespace OpenSage.Data.Ini
                     case "NEUTRAL":
                         result.Targets.Set(ObjectFilterTargets.Neutral, true);
                         continue;
+
+                    case "SAME_PLAYER":
+                        result.Targets.Set(ObjectFilterTargets.SamePlayer, true);
+                        continue;
                 }
                 
                 bool isInclude;
@@ -110,6 +114,7 @@ namespace OpenSage.Data.Ini
     {
         Enemies,
         Allies,
-        Neutral
+        Neutral,
+        SamePlayer
     }
 }

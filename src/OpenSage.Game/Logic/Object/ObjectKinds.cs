@@ -748,5 +748,26 @@
 
         [IniEnum("DONT_USE_CANCEL_BUILD_BUTTON"), AddedIn(SageGame.Bfme2)]
         DontUseCancelBuildButton,
+
+        [IniEnum("SKYBOX"), AddedIn(SageGame.Bfme2)]
+        Skybox,
+
+        [IniEnum("CAPTUREFLAG"), AddedIn(SageGame.Bfme2)]
+        Captureflag,
+
+        [IniEnum("NOT_SELLABLE"), AddedIn(SageGame.Bfme2)]
+        NotSelectable,
+
+        [IniEnum("CREEP_STRUCTURE"), AddedIn(SageGame.Bfme2)]
+        CreepStructure,
+
+        [IniEnum("NEUTRALGOLLUM"), AddedIn(SageGame.Bfme2)]
+        NeutralGollum,
+
+        [IniEnum("ORIENTS_TO_CAMERA"), AddedIn(SageGame.Bfme2)]
+        OrientsToCamera,
+
+        [IniEnum("THREAT_FINDER"), AddedIn(SageGame.Bfme2)]
+        ThreatFinder,
     }
 }

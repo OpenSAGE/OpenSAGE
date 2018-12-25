@@ -19,7 +19,9 @@ namespace OpenSage.Logic.Object
             { "RebuildWhenDead", (parser, x) => x.RebuildWhenDead = parser.ParseBoolean() },
             { "EvilWorkerName", (parser, x) => x.EvilWorkerName = parser.ParseString() },
             { "TestFaction", (parser, x) => x.TestFaction = parser.ParseBoolean() },
-            { "UseSpawnTimerWithoutWorker", (parser, x) => x.UseSpawnTimerWithoutWorker = parser.ParseBoolean() }
+            { "UseSpawnTimerWithoutWorker", (parser, x) => x.UseSpawnTimerWithoutWorker = parser.ParseBoolean() },
+            { "DisallowRebuildRange", (parser, x) => x.DisallowRebuildRange = parser.ParseInteger() },
+            { "DisallowRebuildFilter", (parser, x) => x.DisallowRebuildFilter = ObjectFilter.Parse(parser) }
         };
 
         public string WorkerName { get; private set; }
@@ -34,5 +36,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool UseSpawnTimerWithoutWorker { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int DisallowRebuildRange { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ObjectFilter DisallowRebuildFilter { get; private set; }
     }
 }

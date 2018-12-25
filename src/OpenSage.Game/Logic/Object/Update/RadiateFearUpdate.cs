@@ -18,6 +18,7 @@ namespace OpenSage.Logic.Object
             { "EmotionPulseRadius", (parser, x) => x.EmotionPulseRadius = parser.ParseFloat() },
             { "EmotionPulseInterval", (parser, x) => x.EmotionPulseInterval = parser.ParseInteger() },
             { "VictimFilter", (parser, x) => x.VictimFilter = ObjectFilter.Parse(parser) },
+            { "GenerateUncontrollableFear", (parser, x) => x.GenerateUncontrollableFear = parser.ParseBoolean() }
         };
         
         public bool InitiallyActive { get; private set; }
@@ -28,5 +29,6 @@ namespace OpenSage.Logic.Object
         public float EmotionPulseRadius { get; private set; }
         public int EmotionPulseInterval { get; private set; }
         public ObjectFilter VictimFilter { get; private set; }
+        public bool GenerateUncontrollableFear { get; private set; }
     }
 }

@@ -18,7 +18,10 @@ namespace OpenSage.Logic.Object
                 { "OCLAdjustPositionToPassable", (parser, x) => x.OCLAdjustPositionToPassable = parser.ParseBoolean() },
                 { "ReferenceObject", (parser, x) => x.ReferenceObject = parser.ParseAssetReference() },
                 { "UpgradeName", (parser, x) => x.UpgradeName = parser.ParseIdentifier() },
-                { "DisableDuringAnimDuration", (parser, x) => x.DisableDuringAnimDuration = parser.ParseBoolean() },
+                { "NearestSecondaryObjectFilter", (parser, x) => x.NearestSecondaryObjectFilter = ObjectFilter.Parse(parser) },
+                { "ReEnableAntiCategory", (parser, x) => x.ReEnableAntiCategory = parser.ParseBoolean() },
+                { "WeatherDuration", (parser, x) => x.WeatherDuration = parser.ParseInteger() },
+                { "ChangeWeather", (parser, x) => x.ChangeWeather = parser.ParseEnum<WeatherType>() }
             });
 
         public string OCL { get; private set; }
@@ -38,7 +41,17 @@ namespace OpenSage.Logic.Object
         public string UpgradeName { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public bool DisableDuringAnimDuration { get; private set; }
+        public ObjectFilter NearestSecondaryObjectFilter { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ReEnableAntiCategory { get; private set; }
+
+        
+        [AddedIn(SageGame.Bfme2)]
+        public int WeatherDuration { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public WeatherType ChangeWeather { get; private set; }
     }
 
     public sealed class OCLUpgradePair
@@ -75,5 +88,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("CREATE_AT_EDGE_NEAR_TARGET_AND_MOVE_TO_LOCATION"), AddedIn(SageGame.Bfme)]
         CreateAtEdgeNearTargetAndMoveToLocation,
+
+        [IniEnum("USE_SECONDARY_OBJECT_LOCATION"), AddedIn(SageGame.Bfme2)]
+        UseSecondaryObjectLocation,
     }
 }

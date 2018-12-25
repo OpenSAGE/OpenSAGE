@@ -28,6 +28,7 @@ namespace OpenSage.Logic.Object
             {
                 { "EnteringStateFX", (parser, x) => x.EnteringStateFX = parser.ParseAssetReference() },
                 { "BeginScript", (parser, x) => x.Script = IniScript.Parse(parser) },
+                { "LuaEvent", (parser, x) => x.LuaEvents.Add(LuaEvent.Parse(parser)) }
             });
 
         public string FromTransitionKey { get; private set; }
@@ -38,5 +39,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public IniScript Script { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<LuaEvent> LuaEvents { get; } = new List<LuaEvent>();
     }
 }

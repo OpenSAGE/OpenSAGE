@@ -57,7 +57,8 @@ namespace OpenSage.Logic.Object
             { "GrabPassengerHealGainPercent", (parser, x) => x.GrabPassengerHealGainPercent = parser.ParseFloat() },
             { "PersistentCount", (parser, x) => x.PersistentCount = parser.ParseInteger() },
             { "RejectedConditions", (parser, x) => x.RejectedConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
-            { "RequiredConditions", (parser, x) => x.RequiredConditions = parser.ParseEnumBitArray<ModelConditionFlag>() }
+            { "RequiredConditions", (parser, x) => x.RequiredConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
+            { "KillAttributeModifierOnRejected", (parser, x) => x.KillAttributeModifierOnRejected = parser.ParseBoolean() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -140,5 +141,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public BitArray<ModelConditionFlag> RequiredConditions { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool KillAttributeModifierOnRejected	{ get; private set; }
     }
 }

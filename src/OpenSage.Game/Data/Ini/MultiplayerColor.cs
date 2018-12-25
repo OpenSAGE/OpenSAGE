@@ -1,4 +1,5 @@
 ﻿using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -15,7 +16,10 @@ namespace OpenSage.Data.Ini
         {
             { "RGBColor", (parser, x) => x.RgbColor = IniColorRgb.Parse(parser) },
             { "RGBNightColor", (parser, x) => x.RgbNightColor = IniColorRgb.Parse(parser) },
-            { "TooltipName", (parser, x) => x.TooltipName = parser.ParseLocalizedStringKey() }
+            { "TooltipName", (parser, x) => x.TooltipName = parser.ParseLocalizedStringKey() },
+            { "LivingWorldColor", (parser, x) => x.LivingWorldColor = parser.ParseColorRgb() },
+            { "LivingWorldBannerColor", (parser, x) => x.LivingWorldBannerColor = parser.ParseColorRgb() },
+            { "AvailableInWotR", (parser, x) => x.AvailableInWotR = parser.ParseBoolean() }
         };
 
         public string Name { get; private set; }
@@ -23,5 +27,14 @@ namespace OpenSage.Data.Ini
         public IniColorRgb RgbColor { get; private set; }
         public IniColorRgb RgbNightColor { get; private set; }
         public string TooltipName { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ColorRgb LivingWorldColor { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ColorRgb LivingWorldBannerColor { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool AvailableInWotR { get; private set; }
     }
 }

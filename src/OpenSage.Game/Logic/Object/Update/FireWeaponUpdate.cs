@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini;
+﻿using System.Numerics;
+using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
@@ -48,9 +49,11 @@ namespace OpenSage.Logic.Object
             { "WeaponName", (parser, x) => x.WeaponName = parser.ParseAssetReference() },
             { "FireDelay", (parser, x) => x.FireDelay = parser.ParseInteger() },
             { "OneShot", (parser, x) => x.OneShot = parser.ParseBoolean() },
+            { "Offset", (parser, x) => x.Offset = parser.ParseVector3() }
         };
         public string WeaponName { get; private set; }
         public int FireDelay { get; private set; }
         public bool OneShot { get; private set; }
+        public Vector3 Offset { get; private set; }
     }
 }

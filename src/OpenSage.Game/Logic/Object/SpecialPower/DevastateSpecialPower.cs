@@ -13,12 +13,16 @@ namespace OpenSage.Logic.Object
                 { "Radius", (parser, x) => x.Radius = parser.ParseInteger() },
                 { "TreeValueMultiplier", (parser, x) => x.TreeValueMultiplier = parser.ParsePercentage() },
                 { "TreeValueTotalCap", (parser, x) => x.TreeValueTotalCap = parser.ParseInteger() },
-                { "FX", (parser, x) => x.FX = parser.ParseAssetReference() }
+                { "FX", (parser, x) => x.FX = parser.ParseAssetReference() },
+                { "FireWeapon", (parser, x) => x.FireWeapon = parser.ParseAssetReference() }
             });
 
         public int Radius { get; private set; }
         public float TreeValueMultiplier { get; private set; }
         public int TreeValueTotalCap { get; private set; }
         public string FX { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string FireWeapon { get; private set; }
     }
 }

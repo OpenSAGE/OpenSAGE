@@ -972,5 +972,23 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("UPGRADE_HOUSE_OF_HEALING"), AddedIn(SageGame.Bfme2)]
         UpgradeHouseOfHealing,
+
+        [IniEnum("USER_6"), AddedIn(SageGame.Bfme2)]
+        User6,
+
+        [IniEnum("FIRING_OR_RELOADING_E"), AddedIn(SageGame.Bfme2)]
+        FiringOrReloadingE,
+
+        [IniEnum("FIRING_E"), AddedIn(SageGame.Bfme2)]
+        FiringE,
+
+        [IniEnum("SWAPPING_TO_WEAPONSET_2"), AddedIn(SageGame.Bfme2)]
+        SwappingToWeaponset2,
+
+        [IniEnum("START_CAPTURE"), AddedIn(SageGame.Bfme2)]
+        StartCapture,
+
+        [IniEnum("CANCEL_CAPTURE"), AddedIn(SageGame.Bfme2)]
+        CancelCapture,
     }
 }
