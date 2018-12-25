@@ -46,7 +46,6 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.Bfme2)]
         public bool ReEnableAntiCategory { get; private set; }
 
-        
         [AddedIn(SageGame.Bfme2)]
         public int WeatherDuration { get; private set; }
 

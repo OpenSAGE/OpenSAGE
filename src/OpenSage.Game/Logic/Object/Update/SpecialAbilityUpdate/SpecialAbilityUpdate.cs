@@ -143,6 +143,6 @@ namespace OpenSage.Logic.Object
         public BitArray<ModelConditionFlag> RequiredConditions { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public bool KillAttributeModifierOnRejected	{ get; private set; }
+        public bool KillAttributeModifierOnRejected { get; private set; }
     }
 }
