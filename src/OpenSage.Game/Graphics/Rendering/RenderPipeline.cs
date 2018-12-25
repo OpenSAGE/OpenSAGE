@@ -130,7 +130,9 @@ namespace OpenSage.Graphics.Rendering
 
             if (context.Scene != null)
             {
+                _commandList.PushDebugGroup("3D Scene");
                 Render3DScene(_commandList, context.Scene, context);
+                _commandList.PopDebugGroup();
             }
             else
             {
@@ -140,6 +142,8 @@ namespace OpenSage.Graphics.Rendering
 
             // GUI and camera-dependent 2D elements
             {
+                _commandList.PushDebugGroup("2D Scene");
+
                 _drawingContext.Begin(
                     _commandList,
                     context.Game.ContentManager.LinearClampSampler,
@@ -151,7 +155,11 @@ namespace OpenSage.Graphics.Rendering
                 context.Game.RaiseRendering2D(new Rendering2DEventArgs(_drawingContext));
 
                 _drawingContext.End();
+
+                _commandList.PopDebugGroup();
             }
+
+            _commandList.PushDebugGroup("Blitting to screen");
 
             _commandList.SetFramebuffer(context.RenderTarget);
 
@@ -164,6 +172,8 @@ namespace OpenSage.Graphics.Rendering
             _intermediateSpriteBatch.DrawImage(_intermediateTexture, null, new Mathematics.RectangleF(0, 0, (int) _intermediateTexture.Width, (int) _intermediateTexture.Height), ColorRgbaF.White);
 
             _intermediateSpriteBatch.End();
+
+            _commandList.PopDebugGroup();
 
             _commandList.End();
 
@@ -188,6 +198,8 @@ namespace OpenSage.Graphics.Rendering
 
             // Shadow map passes.
 
+            commandList.PushDebugGroup("Shadow pass");
+
             _shadowMapRenderer.RenderShadowMap(
                 scene,
                 context.GraphicsDevice,
@@ -206,7 +218,11 @@ namespace OpenSage.Graphics.Rendering
                     DoRenderPass(commandList, _renderList.Shadow, lightBoundingFrustum, null, null);
                 });
 
+            commandList.PopDebugGroup();
+
             // Standard pass.
+
+            commandList.PushDebugGroup("Forward pass");
 
             commandList.SetFramebuffer(_intermediateFramebuffer);
 
@@ -222,8 +238,15 @@ namespace OpenSage.Graphics.Rendering
 
             var shadowMap = _shadowMapRenderer.ShadowMap;
 
+            commandList.PushDebugGroup("Opaque");
             DoRenderPass(commandList, _renderList.Opaque, standardPassCameraFrustum, cloudTexture, shadowMap);
+            commandList.PopDebugGroup();
+
+            commandList.PushDebugGroup("Transparent");
             DoRenderPass(commandList, _renderList.Transparent, standardPassCameraFrustum, cloudTexture, shadowMap);
+            commandList.PopDebugGroup();
+
+            commandList.PopDebugGroup();
         }
 
         private void DoRenderPass(
