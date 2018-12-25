@@ -918,5 +918,44 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("FORTRESS_MONUMENT_CREATURE_UNAVAILABLE"), AddedIn(SageGame.Bfme2)]
         FortressMonumentCreatureUnavailable,
+
+        [IniEnum("SWIMMING"), AddedIn(SageGame.Bfme2)]
+        Swimming,
+
+        [IniEnum("BURNINGDEATH"), AddedIn(SageGame.Bfme2)]
+        BurningDeath,
+
+        [IniEnum("ARMORSET_PLAYER_UPGRADE"), AddedIn(SageGame.Bfme2)]
+        ArmorsetPlayerUpgrade,
+
+        [IniEnum("SAIL_BLOWN_LEFT"), AddedIn(SageGame.Bfme2)]
+        SailBlownLeft,
+
+        [IniEnum("SAIL_BLOWN_Right"), AddedIn(SageGame.Bfme2)]
+        SailBlownRight,
+
+        [IniEnum("ATTACKING_POSITION"), AddedIn(SageGame.Bfme2)]
+        AttackingPosition,
+
+        [IniEnum("PARALYZED"), AddedIn(SageGame.Bfme2)]
+        Paralyzed,
+
+        [IniEnum("PORCUPINE"), AddedIn(SageGame.Bfme2)]
+        Porcupine,
+
+        [IniEnum("FIRING_OR_RELOADING_C"), AddedIn(SageGame.Bfme2)]
+        FiringOrReloadingC,
+
+        [IniEnum("STONED"), AddedIn(SageGame.Bfme2)]
+        Stoned,
+
+        [IniEnum("FIRING_OR_PREATTACK_E"), AddedIn(SageGame.Bfme2)]
+        FiringOrPreattackE,
+
+        [IniEnum("SWAPPING_TO_WEAPONSET_1"), AddedIn(SageGame.Bfme2)]
+        SwappingToWeaponset1,
+
+        [IniEnum("PREATTACK_E"), AddedIn(SageGame.Bfme2)]
+        PreattackE,
     }
 }

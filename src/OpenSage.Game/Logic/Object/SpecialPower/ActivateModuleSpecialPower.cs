@@ -14,11 +14,13 @@ namespace OpenSage.Logic.Object
                 { "UnpackTime", (parser, x) => x.UnpackTime = parser.ParseInteger() },
                 { "PreparationTime", (parser, x) => x.PreparationTime = parser.ParseInteger() },
                 { "PackTime", (parser, x) => x.PackTime = parser.ParseInteger() },
+                { "StartAbilityRange", (parser, x) => x.StartAbilityRange = parser.ParseInteger() },
             });
 
         public string TriggerSpecialPower { get; private set; }
         public int UnpackTime { get; private set; }
         public int PreparationTime { get; private set; }
         public int PackTime { get; private set; }
+        public int StartAbilityRange { get; private set; }
     }
 }

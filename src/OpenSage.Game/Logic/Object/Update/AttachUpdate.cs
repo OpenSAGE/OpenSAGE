@@ -10,9 +10,11 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<AttachUpdateModuleData> FieldParseTable = new IniParseTable<AttachUpdateModuleData>
         {
-            { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) }
+            { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) },
+            { "ScanRange", (parser, x) => x.ScanRange = parser.ParseInteger() }
         };
 
         public ObjectFilter ObjectFilter { get; private set; }
+        public int ScanRange { get; private set; }
     }
 }

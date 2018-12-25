@@ -44,7 +44,7 @@ namespace OpenSage.Data.Ini
             };
         }
 
-        public DamageType DamageType { get; internal set; }
-        public float Percent { get; internal set; }
+        public DamageType DamageType { get; private set; }
+        public float Percent { get; private set; }
     }
 }

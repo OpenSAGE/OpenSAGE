@@ -129,6 +129,7 @@ namespace OpenSage.Data.Ini.Parser
              { "#DIVIDE(", (parser) => { return parser.DivideFunc(); } },
              { "#ADD(", (parser) => { return parser.AddFunc(); } },
              { "#MULTIPLY(", (parser) => { return parser.MultiplyFunc(); } },
+             { "#SUBTRACT(", (parser) => { return parser.SubtractFunc(); } },
         };
 
         private static readonly char[] Separators = { ' ', '\n', '\r', '\t', '=' };
@@ -292,15 +293,7 @@ namespace OpenSage.Data.Ini.Parser
             return ScanInteger(token.Value);
         }
 
-        public int ScanInteger(IniToken token)
-        {
-            switch(token.Text)
-            {
-                case "3w":
-                    return 3;
-            }
-            return Convert.ToInt32(token.Text);
-        }
+        public int ScanInteger(IniToken token) => Convert.ToInt32(token.Text);
 
         public int ParseInteger() => ScanInteger(GetNextToken());
 
@@ -562,6 +555,11 @@ namespace OpenSage.Data.Ini.Parser
             return Func(ParseFloat() * ParseFloat());
         }
 
+        private IniToken SubtractFunc()
+        {
+            return Func(ParseFloat() - ParseFloat());
+        }
+
         private IniToken Func(float value)
         {
             GetNextToken(); //read the ')'
@@ -593,6 +591,17 @@ namespace OpenSage.Data.Ini.Parser
                 return integer;
             }
 
+            return null;
+        }
+
+        public string PeekString()
+        {
+            var token = PeekNextTokenOptional();
+
+            if (token.HasValue)
+            {
+                return token.Value.Text;
+            }
             return null;
         }
 
@@ -757,9 +766,13 @@ namespace OpenSage.Data.Ini.Parser
                 if (fieldName == "#define")
                 {
                     var macroName = ParseIdentifier();
-                    var macroExpansion = _tokenReader.NextToken(Separators);
+                    var macroExpansionToken = _tokenReader.NextToken(Separators);
+                    if (ResolveFunc(macroExpansionToken.Value.Text, out var resolved))
+                    {
+                        macroExpansionToken = resolved;
+                    }
 
-                    _dataContext.Defines.Add(macroName, macroExpansion.Value);
+                    _dataContext.Defines.Add(macroName, macroExpansionToken.Value);
                 }
                 else if (fieldName == "#include")
                 {

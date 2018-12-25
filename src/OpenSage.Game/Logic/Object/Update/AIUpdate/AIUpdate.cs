@@ -28,7 +28,8 @@ namespace OpenSage.Logic.Object
             { "StopChaseDistance", (parser, x) => x.StopChaseDistance = parser.ParseInteger() },
             { "RampageRequiresAflame", (parser, x) => x.RampageRequiresAflame = parser.ParseBoolean() },
             { "MoveForNoOne", (parser, x) => x.MoveForNoOne = parser.ParseBoolean() },
-            { "StandGround", (parser, x) => x.StandGround = parser.ParseBoolean() }
+            { "StandGround", (parser, x) => x.StandGround = parser.ParseBoolean() },
+            { "BurningDeathTime", (parser, x) => x.BurningDeathTime = parser.ParseInteger() }
         };
 
         /// <summary>
@@ -89,6 +90,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool StandGround { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int BurningDeathTime { get; private set; }
     }
 
     public enum AutoAcquireEnemiesType

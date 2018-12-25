@@ -18,7 +18,7 @@ namespace OpenSage.Logic.Object
                 { "RemoveUpgrade", (parser, x) => x.RemoveUpgrade = parser.ParseAssetReference() },
                 { "GrantUpgrade", (parser, x) => x.GrantUpgrade = parser.ParseAssetReference() },
                 { "DestroyWhenSold", (parser, x) => x.DestroyWhenSold = parser.ParseBoolean() },
-                { "DeathAnimAndDuration", (parser, x) => x.DeathAnimAndDuration = CustomAnimAndDuration.Parse(parser) },
+                { "DeathAnimAndDuration", (parser, x) => x.DeathAnimAndDuration = AnimAndDuration.Parse(parser) },
                 { "Offset", (parser, x) => x.Offset = parser.ParseVector3() },
                 { "ThingToSpawn", (parser, x) => x.ThingToSpawn = parser.ParseAssetReference() },
                 { "FadeInTime", (parser, x) => x.FadeInTime = parser.ParseInteger() },
@@ -40,7 +40,7 @@ namespace OpenSage.Logic.Object
         public bool DestroyWhenSold { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public CustomAnimAndDuration DeathAnimAndDuration { get; private set; }
+        public AnimAndDuration DeathAnimAndDuration { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public Vector3 Offset { get; private set; }

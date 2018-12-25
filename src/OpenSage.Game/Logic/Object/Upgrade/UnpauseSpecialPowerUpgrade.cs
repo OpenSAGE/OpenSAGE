@@ -10,8 +10,12 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<UnpauseSpecialPowerUpgradeModuleData>
             {
                 { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() },
+                { "ObeyRechageOnTrigger", (parser, x) => x.ObeyRechageOnTrigger = parser.ParseBoolean() },
             });
 
         public string SpecialPowerTemplate { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ObeyRechageOnTrigger { get; private set; }
     }
 }

@@ -15,9 +15,13 @@ namespace OpenSage.Logic.Object
             {
                 { "DamageWeaponTemplate", (parser, x) => x.DamageWeaponTemplate = parser.ParseAssetReference() },
                 { "CrushDamageWeaponTemplate", (parser, x) => x.CrushDamageWeaponTemplate = parser.ParseAssetReference() },
+                { "CrusherLevelResisted", (parser, x) => x.CrusherLevelResisted = parser.ParseInteger() },
             });
 
         public string DamageWeaponTemplate { get; private set; }
         public string CrushDamageWeaponTemplate { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int CrusherLevelResisted { get; private set; }
      }
 }

@@ -168,5 +168,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("WEAPONSET_CREATE_A_HERO_WS_32"), AddedIn(SageGame.Bfme2)]
         WeaponsetCreateAHeroWS32,
+
+        [IniEnum("HIDDEN"), AddedIn(SageGame.Bfme2)]
+        Hidden,
+
+        [IniEnum("PASSENGER_TYPE_TWO"), AddedIn(SageGame.Bfme2)]
+        PassengerTypeTwo,
     }
 }

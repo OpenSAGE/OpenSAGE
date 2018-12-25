@@ -17,7 +17,11 @@ namespace OpenSage.Logic.Object
             { "AwardXPForTriggering", (parser, x) => x.AwardXPForTriggering = parser.ParseInteger() },
             { "OpacityTarget", (parser, x) => x.OpacityTarget = parser.ParseFloat() },
             { "TriggerInstantlyOnCreate", (parser, x) => x.TriggerInstantlyOnCreate = parser.ParseBoolean() },
-            { "CancelDisguiseWhenDismounting", (parser, x) => x.CancelDisguiseWhenDismounting = parser.ParseBoolean() }
+            { "CancelDisguiseWhenDismounting", (parser, x) => x.CancelDisguiseWhenDismounting = parser.ParseBoolean() },
+            { "StartAbilityRange", (parser, x) => x.StartAbilityRange = parser.ParseFloat() },
+            { "MountedTemplate", (parser, x) => x.MountedTemplate = parser.ParseAssetReference() },
+            { "SynchronizeTimerOnSpecialPower", (parser, x) => x.SynchronizeTimerOnSpecialPower = parser.ParseAssetReferenceArray() },
+            { "IgnoreFacingCheck", (parser, x) => x.IgnoreFacingCheck = parser.ParseBoolean() },
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -29,5 +33,17 @@ namespace OpenSage.Logic.Object
         public float OpacityTarget { get; private set; }
         public bool TriggerInstantlyOnCreate { get; private set; }
         public bool CancelDisguiseWhenDismounting { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float StartAbilityRange { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string MountedTemplate { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string[] SynchronizeTimerOnSpecialPower { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool IgnoreFacingCheck { get; private set; }
     }
 }

@@ -16,6 +16,7 @@ namespace OpenSage.Logic.Object
                 { "HealRadius", (parser, x) => x.HealRadius = parser.ParseFloat() },
                 { "HealFX", (parser, x) => x.HealFX = parser.ParseAssetReference() },
                 { "HealOCL", (parser, x) => x.HealOCL = parser.ParseAssetReference() },
+                { "HealAsPercent", (parser, x) => x.HealAsPercent = parser.ParseBoolean() }
             });
 
         public ObjectKinds HealAffects { get; private set; }
@@ -23,5 +24,8 @@ namespace OpenSage.Logic.Object
         public float HealRadius { get; private set; }
         public string HealFX { get; private set; }
         public string HealOCL { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool HealAsPercent { get; private set; }
     }
 }

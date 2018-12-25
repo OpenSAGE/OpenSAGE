@@ -65,7 +65,7 @@ namespace OpenSage.Logic.Object
         };
 
         public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
-        public List<Payload> InitialPayloads { get; private set; } = new List<Payload>();
+        public List<Payload> InitialPayloads { get; } = new List<Payload>();
         public int Slots { get; private set; }
         public ObjectFilter PassengerFilter { get; private set; }
         public bool ShowPips { get; private set; }
@@ -73,14 +73,14 @@ namespace OpenSage.Logic.Object
         public Point2D RandomOffset { get; private set; }
 
         // NOTE: Despite the name, in BFME1 this always contains just 1 entry.
-        public List<string> BannerCarriersAllowed { get; private set; } = new List<string>();
-        public List<BannerCarrierPosition> BannerCarrierPositions { get; private set; } = new List<BannerCarrierPosition>();
+        public List<string> BannerCarriersAllowed { get; } = new List<string>();
+        public List<BannerCarrierPosition> BannerCarrierPositions { get; } = new List<BannerCarrierPosition>();
 
         public List<RankInfo> RankInfos { get; private set; } = new List<RankInfo>();
 
         public int[] RanksToReleaseWhenAttacking { get; private set; }
 
-        public List<ComboHorde> ComboHordes { get; private set; } = new List<ComboHorde>();
+        public List<ComboHorde> ComboHordes { get; } = new List<ComboHorde>();
 
         public bool UseSlowHordeMovement { get; private set; }
 

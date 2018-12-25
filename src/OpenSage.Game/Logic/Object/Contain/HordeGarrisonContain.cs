@@ -18,8 +18,7 @@ namespace OpenSage.Logic.Object
                 { "MaxHordeCapacity", (parser, x) => x.MaxHordeCapacity = parser.ParseInteger() },
                 { "EntryPosition", (parser, x) => x.EntryPosition = parser.ParseVector3() },
                 { "EntryOffset", (parser, x) => x.EntryOffset = parser.ParseVector3() },
-                { "ExitOffset", (parser, x) => x.ExitOffset = parser.ParseVector3() },
-                { "KillPassengersOnDeath", (parser, x) => x.KillPassengersOnDeath = parser.ParseBoolean() }
+                { "ExitOffset", (parser, x) => x.ExitOffset = parser.ParseVector3() }
             });
 
         public int ContainMax { get; private set; }
@@ -27,6 +26,5 @@ namespace OpenSage.Logic.Object
         public Vector3 EntryPosition { get; private set; }
         public Vector3 EntryOffset { get; private set; }
         public Vector3 ExitOffset { get; private set; }
-        public bool KillPassengersOnDeath { get; private set; }
     }
 }

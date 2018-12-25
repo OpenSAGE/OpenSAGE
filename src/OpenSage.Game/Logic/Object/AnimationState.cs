@@ -29,7 +29,9 @@ namespace OpenSage.Logic.Object
             { "SimilarRestart", (parser, x) => x.SimilarRestart = parser.ParseBoolean() },
             { "EnteringStateFX", (parser, x) => x.EnteringStateFX = parser.ParseAssetReference() },
             { "FXEvent", (parser, x) => x.FXEvents.Add(FXEvent.Parse(parser)) },
-            { "ShareAnimation", (parser, x) => x.ShareAnimation = parser.ParseBoolean() }
+            { "ShareAnimation", (parser, x) => x.ShareAnimation = parser.ParseBoolean() },
+            { "AllowRepeatInRandomPick", (parser, x) => x.AllowRepeatInRandomPick = parser.ParseBoolean() },
+            { "LuaEvent", (parser, x) => x.LuaEvent = LuaEvent.Parse(parser) }
         };
 
         public BitArray<ModelConditionFlag> TypeFlags { get; private set; }
@@ -44,6 +46,12 @@ namespace OpenSage.Logic.Object
         public string EnteringStateFX { get; private set; }
         public List<FXEvent> FXEvents { get; private set; } = new List<FXEvent>();
         public bool ShareAnimation { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool AllowRepeatInRandomPick { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public LuaEvent LuaEvent { get; private set; }
     }
 
     public sealed class Animation
@@ -102,11 +110,30 @@ namespace OpenSage.Logic.Object
         {
             { "Frame", (parser, x) => x.Frame = parser.ParseInteger() },
             { "Name", (parser, x) => x.Name = parser.ParseIdentifier() },
-            { "FrameStop", (parser, x) => x.FrameStop = parser.ParseInteger() }
+            { "FrameStop", (parser, x) => x.FrameStop = parser.ParseInteger() },
+            { "FireWhenSkipped", (parser, x) => x.FireWhenSkipped = true },
         };
 
         public int Frame { get; private set; }
         public string Name { get; private set; }
         public int FrameStop { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool FireWhenSkipped { get; private set; } = false;
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public sealed class LuaEvent
+    {
+        internal static LuaEvent Parse(IniParser parser) => parser.ParseAttributeList(FieldParseTable);
+
+        internal static readonly IniParseTable<LuaEvent> FieldParseTable = new IniParseTable<LuaEvent>
+        {
+            { "Frame", (parser, x) => x.Frame = parser.ParseInteger() },
+            { "Data", (parser, x) => x.Data = parser.ParseString() },
+        };
+
+        public int Frame { get; private set; }
+        public string Data { get; private set; }
     }
 }

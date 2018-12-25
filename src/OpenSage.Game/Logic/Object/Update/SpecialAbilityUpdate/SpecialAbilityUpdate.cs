@@ -6,11 +6,11 @@ namespace OpenSage.Logic.Object
     /// <summary>
     /// Allows the use of PACKING and UNPACKING condition states.
     /// </summary>
-    public sealed class SpecialAbilityUpdateModuleData : UpdateModuleData
+    public class SpecialAbilityUpdateModuleData : UpdateModuleData
     {
         internal static SpecialAbilityUpdateModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        private static readonly IniParseTable<SpecialAbilityUpdateModuleData> FieldParseTable = new IniParseTable<SpecialAbilityUpdateModuleData>
+        internal static readonly IniParseTable<SpecialAbilityUpdateModuleData> FieldParseTable = new IniParseTable<SpecialAbilityUpdateModuleData>
         {
             { "SpecialPowerTemplate", (parser, x) => x.SpecialPowerTemplate = parser.ParseAssetReference() },
             { "StartAbilityRange", (parser, x) => x.StartAbilityRange = parser.ParseFloat() },
@@ -45,14 +45,19 @@ namespace OpenSage.Logic.Object
             { "PersistenceRequiresRecharge", (parser, x) => x.PersistenceRequiresRecharge = parser.ParseBoolean() },
             { "ChargeAttackSpeedBoost", (parser, x) => x.ChargeAttackSpeedBoost = parser.ParseBoolean() },
             { "Instant", (parser, x) => x.Instant = parser.ParseBoolean() },
-            { "CustomAnimAndDuration", (parser, x) => x.GetCustomAnimAndDuration = CustomAnimAndDuration.Parse(parser) },
+            { "CustomAnimAndDuration", (parser, x) => x.CustomAnimAndDuration = AnimAndDuration.Parse(parser) },
             { "ContactPointOverride", (parser, x) => x.ContactPointOverride = parser.ParseEnum<ContactPointType>() },
             { "UnpackingVariation", (parser, x) => x.UnpackingVariation = parser.ParseInteger() },
             { "TriggerAttributeModifier", (parser, x) => x.TriggerAttributeModifier = parser.ParseIdentifier() },
             { "AttributeModifierDuration", (parser, x) => x.AttributeModifierDuration = parser.ParseInteger() },
             { "KillAttributeModifierOnExit", (parser, x) => x.KillAttributeModifierOnExit = parser.ParseBoolean() },
             { "IgnoreFacingCheck", (parser, x) => x.IgnoreFacingCheck = parser.ParseBoolean() },
-            { "EffectRange", (parser, x) => x.EffectRange = parser.ParseInteger() }
+            { "EffectRange", (parser, x) => x.EffectRange = parser.ParseInteger() },
+            { "GrabPassengerAnimAndDuration", (parser, x) => x.GrabPassengerAnimAndDuration = AnimAndDuration.Parse(parser) },
+            { "GrabPassengerHealGainPercent", (parser, x) => x.GrabPassengerHealGainPercent = parser.ParseFloat() },
+            { "PersistentCount", (parser, x) => x.PersistentCount = parser.ParseInteger() },
+            { "RejectedConditions", (parser, x) => x.RejectedConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
+            { "RequiredConditions", (parser, x) => x.RequiredConditions = parser.ParseEnumBitArray<ModelConditionFlag>() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -98,7 +103,7 @@ namespace OpenSage.Logic.Object
         public bool Instant { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public CustomAnimAndDuration GetCustomAnimAndDuration { get; private set; }
+        public AnimAndDuration CustomAnimAndDuration { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public ContactPointType ContactPointOverride { get; private set; }
@@ -120,5 +125,20 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public int EffectRange { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public AnimAndDuration GrabPassengerAnimAndDuration { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float GrabPassengerHealGainPercent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int PersistentCount { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public BitArray<ModelConditionFlag> RejectedConditions { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public BitArray<ModelConditionFlag> RequiredConditions { get; private set; }
     }
 }

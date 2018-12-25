@@ -18,6 +18,7 @@ namespace OpenSage.Logic.Object
                 { "OCLAdjustPositionToPassable", (parser, x) => x.OCLAdjustPositionToPassable = parser.ParseBoolean() },
                 { "ReferenceObject", (parser, x) => x.ReferenceObject = parser.ParseAssetReference() },
                 { "UpgradeName", (parser, x) => x.UpgradeName = parser.ParseIdentifier() },
+                { "DisableDuringAnimDuration", (parser, x) => x.DisableDuringAnimDuration = parser.ParseBoolean() },
             });
 
         public string OCL { get; private set; }
@@ -35,6 +36,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public string UpgradeName { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool DisableDuringAnimDuration { get; private set; }
     }
 
     public sealed class OCLUpgradePair

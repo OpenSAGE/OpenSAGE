@@ -348,8 +348,12 @@ namespace OpenSage.Logic.Object
             { "AutoResolveWeapon", (parser, x) => x.AutoResolveWeapon = AutoResolveWeapon.Parse(parser) },
             { "DisplayNameStrategic", (parser, x) => x.DisplayNameStrategic = parser.ParseLocalizedStringKey() },
             { "WorldMapArmoryUpgradesAllowed", (parser, x) => x.WorldMapArmoryUpgradesAllowed = parser.ParseAssetReferenceArray() },
-            { "FormationPreviewItemDecal", (parser, x) => x.FormationPreviewItemDecal = FormationPreviewItemDecal.Parse(parser) },
+            { "FormationPreviewItemDecal", (parser, x) => x.FormationPreviewItemDecal = Decal.Parse(parser) },
             { "GeometryUsedForHealthBox", (parser, x) => x.GeometryUsedForHealthBox = parser.ParseBoolean() },
+            { "AutoResolveLeadership", (parser, x) => x.AutoResolveLeadership = parser.ParseAssetReference() },
+            { "FormationPreviewDecal", (parser, x) => x.FormationPreviewDecal = Decal.Parse(parser) },
+            { "EvaEnemyObjectSightedAfterRespawnEvent", (parser, x) => x.EvaEnemyObjectSightedAfterRespawnEvent = parser.ParseAssetReference() },
+            { "SelectionPriority", (parser, x) => x.SelectionPriority = parser.ParseInteger() },
         };
 
         public string Name { get; protected set; }
@@ -1093,10 +1097,22 @@ namespace OpenSage.Logic.Object
         public string[] WorldMapArmoryUpgradesAllowed { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public FormationPreviewItemDecal FormationPreviewItemDecal { get; private set; }
+        public Decal FormationPreviewItemDecal { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public bool GeometryUsedForHealthBox { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string AutoResolveLeadership { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Decal FormationPreviewDecal { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string EvaEnemyObjectSightedAfterRespawnEvent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int SelectionPriority { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -1344,11 +1360,11 @@ namespace OpenSage.Logic.Object
     }
 
     [AddedIn(SageGame.Bfme2)]
-    public sealed class FormationPreviewItemDecal
+    public sealed class Decal
     {
-        internal static FormationPreviewItemDecal Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static Decal Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal static readonly IniParseTable<FormationPreviewItemDecal> FieldParseTable = new IniParseTable<FormationPreviewItemDecal>
+        internal static readonly IniParseTable<Decal> FieldParseTable = new IniParseTable<Decal>
         {
             { "Texture", (parser, x) => x.Texture = parser.ParseAssetReference() },
             { "Width", (parser, x) => x.Width = parser.ParseInteger() },

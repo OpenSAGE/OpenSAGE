@@ -12,6 +12,7 @@ namespace OpenSage.Logic.Object
         {
             // Behavior
             { "AimWeaponBehavior", AimWeaponBehaviorModuleData.Parse },
+            { "AnnounceBirthAndDeathBehavior", AnnounceBirthAndDeathBehaviorModuleData.Parse },
             { "AutoAbilityBehavior", AutoAbilityBehaviorModuleData.Parse },
             { "AutoHealBehavior", AutoHealBehaviorModuleData.Parse },
             { "BattleBusSlowDeathBehavior", BattleBusSlowDeathBehaviorModuleData.Parse },
@@ -56,6 +57,7 @@ namespace OpenSage.Logic.Object
             { "ReplenishUnitsBehavior", ReplenishUnitsBehaviorModuleData.Parse },
             { "RunOffMapBehavior", RunOffMapBehaviorModuleData.Parse },
             { "ShareExperienceBehavior", ShareExperienceBehaviorModuleData.Parse },
+            { "ShipSlowDeathBehavior", ShipSlowDeathBehaviorModuleData.Parse },
             { "SiegeDockingBehavior", SiegeDockingBehaviorModuleData.Parse },
             { "SlaveWatcherBehavior", SlaveWatcherBehaviorModuleData.Parse },
             { "SlowDeathBehavior", SlowDeathBehaviorModuleData.Parse },
@@ -145,6 +147,7 @@ namespace OpenSage.Logic.Object
             { "UpgradeDie", UpgradeDieModuleData.Parse },
 
             //Module
+            { "PillageModule", PillageModuleData.Parse },
             { "SpecialPowerModule", SpecialPowerModuleData.Parse },
             { "WeaponChangeSpecialPowerModule", WeaponChangeSpecialPowerModuleData.Parse },
 
@@ -203,6 +206,7 @@ namespace OpenSage.Logic.Object
             { "BattlePlanUpdate", BattlePlanUpdateModuleData.Parse },
             { "BloodthirstyUpdate", BloodthirstyUpdateModuleData.Parse },
             { "BoneFXUpdate", BoneFXUpdateModuleData.Parse },
+            { "BoredUpdate", BoredUpdateModuleData.Parse },
             { "CheckpointUpdate", CheckpointUpdateModuleData.Parse },
             { "CivilianSpawnUpdate", CivilianSpawnUpdateModuleData.Parse },
             { "CleanupHazardUpdate", CleanupHazardUpdateModuleData.Parse },
@@ -226,6 +230,7 @@ namespace OpenSage.Logic.Object
             { "FirestormDynamicGeometryInfoUpdate", FirestormDynamicGeometryInfoUpdateModuleData.Parse },
             { "FireWeaponUpdate", FireWeaponUpdateModuleData.Parse },
             { "FlammableUpdate", FlammableUpdateModuleData.Parse },
+            { "FlingPassengerSpecialAbilityUpdate", FlingPassengerSpecialAbilityUpdateModuleData.Parse },
             { "FloatUpdate", FloatUpdateModuleData.Parse },
             { "GiveUpgradeUpdate", GiveUpgradeUpdateModuleData.Parse },
             { "HeightDieUpdate", HeightDieUpdateModuleData.Parse },
@@ -277,6 +282,7 @@ namespace OpenSage.Logic.Object
             { "StealthDetectorUpdate", StealthDetectorUpdateModuleData.Parse },
             { "StealthUpdate", StealthUpdateModuleData.Parse },
             { "StickyBombUpdate", StickyBombUpdateModuleData.Parse },
+            { "StrafeAreaUpdate", StrafeAreaUpdateModuleData.Parse },
             { "StructureCollapseUpdate", StructureCollapseUpdateModuleData.Parse },
             { "StructureToppleUpdate", StructureToppleUpdateModuleData.Parse },
             { "SupplyCenterDockUpdate", SupplyCenterDockUpdateModuleData.Parse },
