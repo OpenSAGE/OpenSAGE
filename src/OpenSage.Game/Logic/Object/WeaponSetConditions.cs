@@ -174,5 +174,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("PASSENGER_TYPE_TWO"), AddedIn(SageGame.Bfme2)]
         PassengerTypeTwo,
+
+        [IniEnum("SPECIAL_ONE"), AddedIn(SageGame.Bfme2)]
+        SpecialOne,
+
+        [IniEnum("SPECIAL_TWO"), AddedIn(SageGame.Bfme2)]
+        SpecialTwo,
     }
 }

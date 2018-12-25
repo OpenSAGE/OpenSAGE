@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -11,8 +12,10 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<ReplaceSelfUpgradeModuleData>
             {
                 { "ReplaceWith", (parser, x) => x.ReplaceWith = parser.ParseAssetReference() },
+                { "AndThenAddA", (parser, x) => x.AndThenAddAs.Add(parser.ParseAssetReference()) }
             });
 
         public string ReplaceWith { get; private set; }
+        public List<string> AndThenAddAs { get; } = new List<string>();
     }
 }
