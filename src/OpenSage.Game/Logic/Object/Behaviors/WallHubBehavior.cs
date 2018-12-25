@@ -21,7 +21,7 @@ namespace OpenSage.Logic.Object
             { "ShoreCapTemplateName", (parser, x) => x.ShoreCapTemplateName = parser.ParseAssetReference() },
             { "BorderCapTemplateName", (parser, x) => x.BorderCapTemplateName = parser.ParseAssetReference() },
             { "ElevatedSegmentTemplateName", (parser, x) => x.ElevatedSegmentTemplateName = parser.ParseAssetReference() },
-            { "BuilderRadius", (parser, x) => x.BuilderRadius = parser.ParseInteger() },
+            { "BuilderRadius", (parser, x) => x.BuilderRadius = parser.ParseFloat() },
         };
 
         public CommandButtonOption Options { get; private set; }
@@ -34,6 +34,6 @@ namespace OpenSage.Logic.Object
         public string ShoreCapTemplateName { get; private set; }
         public string BorderCapTemplateName { get; private set; }
         public string ElevatedSegmentTemplateName { get; private set; }
-        public int BuilderRadius { get; private set; }
+        public float BuilderRadius { get; private set; }
     }
 }

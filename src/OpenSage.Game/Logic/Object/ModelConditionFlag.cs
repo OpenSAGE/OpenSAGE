@@ -960,5 +960,17 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("FIRING_OR_PREATTACK_D"), AddedIn(SageGame.Bfme2)]
         FiringOrPreattackD,
+
+        [IniEnum("FORTRESS_IMPROVEMENT_8"), AddedIn(SageGame.Bfme2)]
+        FortressImprovement8,
+
+        [IniEnum("UPGRADE_BOILING_OIL"), AddedIn(SageGame.Bfme2)]
+        UpgradeBoilingOil,
+
+        [IniEnum("UPGRADE_IVORY_TOWER"), AddedIn(SageGame.Bfme2)]
+        UpgradeIvoryTower,
+
+        [IniEnum("UPGRADE_HOUSE_OF_HEALING"), AddedIn(SageGame.Bfme2)]
+        UpgradeHouseOfHealing,
     }
 }

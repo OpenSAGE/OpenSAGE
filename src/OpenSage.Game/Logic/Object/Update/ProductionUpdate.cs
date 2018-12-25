@@ -102,7 +102,8 @@ namespace OpenSage.Logic.Object
             { "CostMultiplier", (parser, x) => x.CostMultiplier = parser.ParseFloat() },
             { "TimeMultiplier", (parser, x) => x.TimeMultiplier = parser.ParseFloat() },
             { "ModifierFilter", (parser, x) => x.ModifierFilter = ObjectFilter.Parse(parser) },
-            { "HeroPurchase", (parser, x) => x.HeroPurchase = parser.ParseBoolean() }
+            { "HeroPurchase", (parser, x) => x.HeroPurchase = parser.ParseBoolean() },
+            { "HeroRevive", (parser, x) => x.HeroRevive = parser.ParseBoolean() }
         };
 
         public string RequiredUpgrade { get; private set; }
@@ -110,6 +111,7 @@ namespace OpenSage.Logic.Object
         public float TimeMultiplier { get; private set; }
         public ObjectFilter ModifierFilter { get; private set; }
         public bool HeroPurchase { get; private set; }
+        public bool HeroRevive { get; private set; }
     }
 
     public enum DisabledType

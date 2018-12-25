@@ -15,7 +15,10 @@ namespace OpenSage.Logic.Object
                 { "MaxIncome", (parser, x) => x.MaxIncome = parser.ParseInteger() },
                 { "IncomeInterval", (parser, x) => x.IncomeInterval = parser.ParseInteger() },
                 { "HighPriority", (parser, x) => x.HighPriority = parser.ParseBoolean() },
-                { "Visible", (parser, x) => x.Visible = parser.ParseBoolean() }
+                { "Visible", (parser, x) => x.Visible = parser.ParseBoolean() },
+                { "Upgrade", (parser, x) => x.Upgrade = parser.ParseAssetReference() },
+                { "UpgradeBonusPercent", (parser, x) => x.UpgradeBonusPercent = parser.ParsePercentage() },
+                { "UpgradeMustBePresent", (parser, x) => x.UpgradeMustBePresent = ObjectFilter.Parse(parser) },
             });
 
         public int Radius { get; private set; }
@@ -23,5 +26,8 @@ namespace OpenSage.Logic.Object
         public int IncomeInterval { get; private set; }
         public bool HighPriority { get; private set; }
         public bool Visible { get; private set; }
+        public string Upgrade { get; private set; }
+        public float UpgradeBonusPercent { get; private set; }
+        public ObjectFilter UpgradeMustBePresent { get; private set; }
     }
 }
