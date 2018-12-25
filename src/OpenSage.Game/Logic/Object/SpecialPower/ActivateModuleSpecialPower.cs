@@ -15,6 +15,8 @@ namespace OpenSage.Logic.Object
                 { "PreparationTime", (parser, x) => x.PreparationTime = parser.ParseInteger() },
                 { "PackTime", (parser, x) => x.PackTime = parser.ParseInteger() },
                 { "StartAbilityRange", (parser, x) => x.StartAbilityRange = parser.ParseInteger() },
+                { "MustFinishAbility", (parser, x) => x.MustFinishAbility = parser.ParseBoolean() },
+                { "UnpackingVariation", (parser, x) => x.UnpackingVariation = parser.ParseInteger() },
             });
 
         public string TriggerSpecialPower { get; private set; }
@@ -22,5 +24,7 @@ namespace OpenSage.Logic.Object
         public int PreparationTime { get; private set; }
         public int PackTime { get; private set; }
         public int StartAbilityRange { get; private set; }
+        public bool MustFinishAbility { get; private set; }
+        public int UnpackingVariation { get; private set; }
     }
 }

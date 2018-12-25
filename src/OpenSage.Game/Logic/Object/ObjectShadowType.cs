@@ -29,6 +29,9 @@ namespace OpenSage.Logic.Object
         ShadowAdditiveDecalDynamic,
 
         [IniEnum("SHADOW_VOLUME_NON_SELF_3"), AddedIn(SageGame.Bfme)]
-        ShadowVolumeNonSelf3
+        ShadowVolumeNonSelf3,
+
+        [IniEnum("SHADOW_ALPHA_DECAL_DYNAMIC"), AddedIn(SageGame.Bfme2)]
+        ShadowAlphaDecalDynamic,
     }
 }

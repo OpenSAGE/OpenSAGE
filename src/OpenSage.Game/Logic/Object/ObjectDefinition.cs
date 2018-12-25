@@ -249,8 +249,8 @@ namespace OpenSage.Logic.Object
             { "FactoryExtraBibWidth", (parser, x) => x.FactoryExtraBibWidth = parser.ParseFloat() },
             { "Shadow", (parser, x) => x.Shadow = parser.ParseEnum<ObjectShadowType>() },
             { "ShadowTexture", (parser, x) => x.ShadowTexture = parser.ParseAssetReference() },
-            { "ShadowSizeX", (parser, x) => x.ShadowSizeX = parser.ParseInteger() },
-            { "ShadowSizeY", (parser, x) => x.ShadowSizeY = parser.ParseInteger() },
+            { "ShadowSizeX", (parser, x) => x.ShadowSizeX = parser.ParseFloat() },
+            { "ShadowSizeY", (parser, x) => x.ShadowSizeY = parser.ParseFloat() },
             { "ShadowMaxHeight", (parser, x) => x.ShadowMaxHeight = parser.ParseInteger() },
             { "InstanceScaleFuzziness", (parser, x) => x.InstanceScaleFuzziness = parser.ParseFloat() },
             { "BuildCompletion", (parser, x) => x.BuildCompletion = parser.ParseAssetReference() },
@@ -818,8 +818,8 @@ namespace OpenSage.Logic.Object
 
         public ObjectShadowType Shadow { get; private set; }
         public string ShadowTexture { get; private set; }
-        public int ShadowSizeX { get; private set; }
-        public int ShadowSizeY { get; private set; }
+        public float ShadowSizeX { get; private set; }
+        public float ShadowSizeY { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public int ShadowMaxHeight { get; private set; }
