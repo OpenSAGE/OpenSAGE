@@ -134,11 +134,13 @@ namespace OpenSage.Logic.Object
     {
         internal static Payload Parse(IniParser parser)
         {
-            return new Payload
+            var payload = new Payload
             {
-                UnitType = parser.ParseAssetReference(),
-                Count = parser.ParseInteger()
+                UnitType = parser.ParseAssetReference()
             };
+
+            payload.Count = parser.GetIntegerOptional();
+            return payload;
         }
 
         public string UnitType { get; private set; }
@@ -246,8 +248,19 @@ namespace OpenSage.Logic.Object
 
         internal static readonly IniParseTable<MeleeBehavior> FieldParseTable = new IniParseTable<MeleeBehavior>
         {
+            { "FacingBonus", (parser, x) => x.FacingBonus = parser.ParseFloat() },
+            { "AngleLimitCos", (parser, x) => x.AngleLimitCos = parser.ParseFloat() },
+            { "InnerRange", (parser, x) => x.InnerRange = parser.ParseInteger() },
+            { "OuterRange", (parser, x) => x.OuterRange = parser.ParseInteger() },
+            { "OuterRangeBuildings", (parser, x) => x.OuterRangeBuildings = parser.ParseInteger() },
         };
 
         public string Name { get; private set; }
+
+        public float FacingBonus { get; private set; }
+        public float AngleLimitCos { get; private set; }
+        public int InnerRange { get; private set; }
+        public int OuterRange { get; private set; }
+        public int OuterRangeBuildings { get; private set; }
     }
 }

@@ -44,5 +44,8 @@
 
         [IniEnum("CAMPNESS_RESOURCE_REBUILD_HOLE"), AddedIn(SageGame.Bfme2)]
         CampnessResourceRebuildHole,
+
+        [IniEnum("CAMPNESS_SUMMONED_CITADEL"), AddedIn(SageGame.Bfme2)]
+        SummonedCitadel,
     }
 }

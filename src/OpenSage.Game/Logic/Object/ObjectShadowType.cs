@@ -33,5 +33,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("SHADOW_ALPHA_DECAL_DYNAMIC"), AddedIn(SageGame.Bfme2)]
         ShadowAlphaDecalDynamic,
+
+        [IniEnum("SHADOW_ALPHA_DECAL"), AddedIn(SageGame.Bfme2)]
+        ShadowAlphaDecal,
     }
 }

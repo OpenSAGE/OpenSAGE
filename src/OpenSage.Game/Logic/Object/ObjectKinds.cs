@@ -745,5 +745,8 @@
 
         [IniEnum("NONCOM"), AddedIn(SageGame.Bfme2)]
         Noncom,
+
+        [IniEnum("DONT_USE_CANCEL_BUILD_BUTTON"), AddedIn(SageGame.Bfme2)]
+        DontUseCancelBuildButton,
     }
 }

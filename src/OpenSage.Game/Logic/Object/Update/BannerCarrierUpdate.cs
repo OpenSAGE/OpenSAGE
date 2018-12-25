@@ -20,6 +20,7 @@ namespace OpenSage.Logic.Object
            { "ReplenishNearbyHorde", (parser, x) => x.ReplenishNearbyHorde = parser.ParseBoolean() },
            { "ScanHordeDistance", (parser, x) => x.ScanHordeDistance = parser.ParseFloat() },
            { "ReplenishAllNearbyHordes", (parser, x) => x.ReplenishAllNearbyHordes = parser.ParseBoolean() },
+           { "UpgradeRequired", (parser, x) => x.UpgradeRequired = parser.ParseAssetReference() }
         };
 
         public int IdleSpawnRate { get; private set; }
@@ -32,6 +33,9 @@ namespace OpenSage.Logic.Object
         public bool ReplenishNearbyHorde { get; private set; }
         public float ScanHordeDistance { get; private set; }
         public bool ReplenishAllNearbyHordes { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string UpgradeRequired { get; private set; }
     }
 
     public sealed class MorphCondition

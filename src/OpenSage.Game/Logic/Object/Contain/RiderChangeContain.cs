@@ -26,7 +26,6 @@ namespace OpenSage.Logic.Object
                 { "InitialCrew", (parser, x) => x.InitialCrew = Crew.Parse(parser) },
                 { "CrewFilter", (parser, x) => x.CrewFilter = ObjectFilter.Parse(parser) },
                 { "CrewMax", (parser, x) => x.CrewMax = parser.ParseInteger() },
-                { "CollidePickup", (parser, x) => x.CollidePickup = parser.ParseBoolean() },
             });
 
         public RiderChangeRider Rider1 { get; private set; }
@@ -54,9 +53,6 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public int CrewMax { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public bool CollidePickup { get; private set; }
     }
 
     public sealed class RiderChangeRider

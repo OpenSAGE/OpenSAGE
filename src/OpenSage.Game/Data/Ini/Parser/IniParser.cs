@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Text;
-using Microsoft.Extensions.DependencyModel.Resolution;
 using OpenSage.Data.Utilities;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -515,22 +514,12 @@ namespace OpenSage.Data.Ini.Parser
                 throw new IniParseException("Expected a token", _tokenReader.CurrentPosition);
             }
 
-            if (_dataContext.Defines.TryGetValue(result.Value.Text, out var macroExpansion))
-            {
-                return macroExpansion;
-            }
-
-            if (ResolveFunc(result.Value.Text, out var funcResult))
-            {
-                return funcResult.Value;
-            }
-
             return result.Value;
         }
 
         private bool ResolveFunc(string text, out IniToken? resolved)
         {
-            if (!text.StartsWith("#"))
+            if (!text.StartsWith("#") || text.StartsWith("#(")) //hacky for #(MODEL)_WLK as animation names
             {
                 resolved = null;
                 return false;
@@ -570,10 +559,18 @@ namespace OpenSage.Data.Ini.Parser
         {
             var result = _tokenReader.NextToken(separators ?? Separators);
 
-            if (result.HasValue && _dataContext.Defines.TryGetValue(result.Value.Text, out var macroExpansion))
+            if (result.HasValue)
             {
-                return macroExpansion;
+                if (_dataContext.Defines.TryGetValue(result.Value.Text, out var macroExpansion))
+                {
+                    return macroExpansion;
+                }
+                else if (ResolveFunc(result.Value.Text, out var funcResult))
+                {
+                    return funcResult.Value;
+                }
             }
+            
             return result;
         }
 
