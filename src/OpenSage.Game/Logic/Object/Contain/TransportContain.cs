@@ -151,10 +151,11 @@ namespace OpenSage.Logic.Object
     {
         internal static PassengerBonePrefix Parse(IniParser parser)
         {
-            var result = new PassengerBonePrefix();
-            result.BoneName = parser.ParseAttribute("PassengerBone", parser.ScanBoneName);
-            result.ObjectKind = parser.ParseAttributeEnum<ObjectKinds>("KindOf");
-            return result;
+            return new PassengerBonePrefix
+            {
+                BoneName = parser.ParseAttribute("PassengerBone", parser.ScanBoneName),
+                ObjectKind = parser.ParseAttributeEnum<ObjectKinds>("KindOf")
+            };
         }
 
         public string BoneName { get; private set; }
@@ -166,13 +167,12 @@ namespace OpenSage.Logic.Object
     {
         internal static UpgradeCreationTrigger Parse(IniParser parser)
         {
-            var result = new UpgradeCreationTrigger
+            return new UpgradeCreationTrigger
             {
                 Upgrade = parser.ParseAssetReference(),
                 Model = parser.ParseAssetReference(),
                 Unknown = parser.ParseInteger()
             };
-            return result;
         }
 
         public string Upgrade { get; private set; }

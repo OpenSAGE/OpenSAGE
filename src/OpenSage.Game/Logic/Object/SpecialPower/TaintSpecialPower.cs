@@ -5,11 +5,7 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public sealed class TaintSpecialPowerModuleData : SpecialPowerModuleData
     {
-        internal static new TaintSpecialPowerModuleData Parse(IniParser parser)
-        {
-            var result = parser.ParseBlock(FieldParseTable);
-            return result;
-        }
+        internal static new TaintSpecialPowerModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static new readonly IniParseTable<TaintSpecialPowerModuleData> FieldParseTable = SpecialPowerModuleData.FieldParseTable
             .Concat(new IniParseTable<TaintSpecialPowerModuleData>
