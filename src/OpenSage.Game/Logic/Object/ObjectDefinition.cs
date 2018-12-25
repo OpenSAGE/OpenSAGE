@@ -354,6 +354,7 @@ namespace OpenSage.Logic.Object
             { "FormationPreviewDecal", (parser, x) => x.FormationPreviewDecal = Decal.Parse(parser) },
             { "EvaEnemyObjectSightedAfterRespawnEvent", (parser, x) => x.EvaEnemyObjectSightedAfterRespawnEvent = parser.ParseAssetReference() },
             { "SelectionPriority", (parser, x) => x.SelectionPriority = parser.ParseInteger() },
+            { "CrushOnlyWhileCharging", (parser, x) => x.CrushOnlyWhileCharging = parser.ParseBoolean() }
         };
 
         public string Name { get; protected set; }
@@ -764,6 +765,7 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public Campness CampnessValue { get; private set; }
+
         [AddedIn(SageGame.Bfme2)]
         public int CampnessValueRadius { get; private set; }
 
@@ -1113,6 +1115,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public int SelectionPriority { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool CrushOnlyWhileCharging { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]

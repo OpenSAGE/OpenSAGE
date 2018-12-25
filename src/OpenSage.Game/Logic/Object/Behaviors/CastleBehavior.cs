@@ -30,7 +30,9 @@ namespace OpenSage.Logic.Object
             { "FactionDecal", (parser, x) => x.FactionDecals.Add(Faction.Parse(parser)) },
             { "InstantUnpack", (parser, x) => x.InstantUnpack = parser.ParseBoolean() },
             { "KeepDeathKillsEverything", (parser, x) => x.KeepDeathKillsEverything = parser.ParseBoolean() },
-            { "EvaEnemyCastleSightedEvent", (parser, x) => x.EvaEnemyCastleSightedEvent = parser.ParseAssetReference() }
+            { "EvaEnemyCastleSightedEvent", (parser, x) => x.EvaEnemyCastleSightedEvent = parser.ParseAssetReference() },
+            { "UnpackDelayTime", (parser, x) => x.UnpackDelayTime = parser.ParseFloat() },
+            { "Summoned", (parser, x) => x.Summoned = parser.ParseBoolean() }
         };
 
         public List<Side> SidesAllowed { get;} = new List<Side>();
@@ -58,6 +60,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string EvaEnemyCastleSightedEvent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float UnpackDelayTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool Summoned { get; private set; }
     }
 
     public sealed class Faction

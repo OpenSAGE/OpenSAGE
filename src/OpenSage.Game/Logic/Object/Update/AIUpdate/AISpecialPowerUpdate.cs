@@ -55,5 +55,17 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("AI_SPECIAL_POWER_GOBLINKING_CALLOFTHEDEEP")]
         GoblinkingCallOfTheDeep,
+
+        [IniEnum("AI_SPECIAL_POWER_CHARGE")]
+        Charge,
+
+        [IniEnum("AI_SPECIAL_POWER_STANCEBATTLE")]
+        StanceBattle,
+
+        [IniEnum("AI_SPECIAL_POWER_STANCEAGGRESSIVE")]
+        StanceAggressive,
+
+        [IniEnum("AI_SPECIAL_POWER_STANCEHOLDGROUND")]
+        StanceHoldGround,
     }
 }

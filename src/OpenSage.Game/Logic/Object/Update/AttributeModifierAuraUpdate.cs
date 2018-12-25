@@ -24,7 +24,8 @@ namespace OpenSage.Logic.Object
             { "AntiFX", (parser, x) => x.AntiFX = parser.ParseAssetReference() },
             { "AllowSelf", (parser, x) => x.AllowSelf = parser.ParseBoolean() },
             { "AllowPowerWhenAttacking", (parser, x) => x.AllowPowerWhenAttacking = parser.ParseBoolean() },
-            { "MaxActiveRank", (parser, x) => x.MaxActiveRank = parser.ParseInteger() }
+            { "MaxActiveRank", (parser, x) => x.MaxActiveRank = parser.ParseInteger() },
+            { "AffectContainedOnly", (parser, x) => x.AffectContainedOnly = parser.ParseBoolean() }
         };
 
         public bool StartsActive { get; private set; }
@@ -42,5 +43,8 @@ namespace OpenSage.Logic.Object
         public bool AllowSelf { get; private set; }
         public bool AllowPowerWhenAttacking { get; private set; }
         public int MaxActiveRank { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool AffectContainedOnly { get; private set; }
     }
 }

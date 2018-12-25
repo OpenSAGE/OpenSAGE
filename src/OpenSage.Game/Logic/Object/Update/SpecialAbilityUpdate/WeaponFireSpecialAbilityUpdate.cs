@@ -19,6 +19,7 @@ namespace OpenSage.Logic.Object
             { "PlayWeaponPreFireFX", (parser, x) => x.PlayWeaponPreFireFX = parser.ParseBoolean() },
             { "ApproachUntilMembersInRange", (parser, x) => x.ApproachUntilMembersInRange = parser.ParseBoolean() },
             { "ChainedButton", (parser, x) => x.ChainedButton = parser.ParseAssetReference() },
+            { "NeedLivingTargets", (parser, x) => x.NeedLivingTargets = parser.ParseBoolean() }
         });
 
         public int WhichSpecialWeapon { get; private set; }
@@ -36,5 +37,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string ChainedButton { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool NeedLivingTargets { get; private set; }
     }
 }

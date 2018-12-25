@@ -16,7 +16,8 @@ namespace OpenSage.Logic.Object
                 { "LabelForPalantirString", (parser, x) => x.LabelForPalantirString = parser.ParseLocalizedStringKey() },
                 { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) },
                 { "UpgradeDiscount", (parser, x) => x.UpgradeDiscount = parser.ParseBoolean() },
-                { "ApplyToTheseUpgrades", (parser, x) => x.ApplyToTheseUpgrades = parser.ParseAssetReferenceArray() }
+                { "ApplyToTheseUpgrades", (parser, x) => x.ApplyToTheseUpgrades = parser.ParseAssetReferenceArray() },
+                { "Slaughter", (parser, x) => x.Slaughter = parser.ParseBoolean() },
             });
 
         public ObjectKinds EffectKindOf { get; private set; }
@@ -33,5 +34,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string[] ApplyToTheseUpgrades { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool Slaughter { get; private set; }
     }
 }

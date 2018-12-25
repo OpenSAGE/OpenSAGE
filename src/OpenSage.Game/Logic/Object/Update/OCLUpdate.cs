@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
@@ -15,7 +14,8 @@ namespace OpenSage.Logic.Object
             { "MaxDelay", (parser, x) => x.MaxDelay = parser.ParseInteger() },
             { "CreateAtEdge", (parser, x) => x.CreateAtEdge = parser.ParseBoolean() },
             { "FactionTriggered", (parser, x) => x.FactionTriggered = parser.ParseBoolean() },
-            { "FactionOCL", (parser, x) => x.FactionOCLs.Add(FactionOCL.Parse(parser)) }
+            { "FactionOCL", (parser, x) => x.FactionOCLs.Add(FactionOCL.Parse(parser)) },
+            { "Amount", (parser, x) => x.Amount = parser.ParseInteger() },
         };
 
         public string OCL { get; private set; }
@@ -28,6 +28,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public List<FactionOCL> FactionOCLs { get; } = new List<FactionOCL>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public int Amount { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
