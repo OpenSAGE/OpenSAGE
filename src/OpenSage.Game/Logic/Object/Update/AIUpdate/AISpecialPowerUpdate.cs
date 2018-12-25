@@ -49,5 +49,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("AI_SPECIAL_POWER_ENEMY_TYPE_KILLER_RANGED")]
         EnemyTypeKillerRanged,
+
+        [IniEnum("AI_SPECIAL_POWER_GOBLINKING_MOUNTED")]
+        GoblinkingMounted,
+
+        [IniEnum("AI_SPECIAL_POWER_GOBLINKING_CALLOFTHEDEEP")]
+        GoblinkingCallOfTheDeep,
     }
 }

@@ -957,5 +957,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("PREATTACK_E"), AddedIn(SageGame.Bfme2)]
         PreattackE,
+
+        [IniEnum("FIRING_OR_PREATTACK_D"), AddedIn(SageGame.Bfme2)]
+        FiringOrPreattackD,
     }
 }

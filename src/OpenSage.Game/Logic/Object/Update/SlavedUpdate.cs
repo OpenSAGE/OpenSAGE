@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using System.Numerics;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -31,6 +32,9 @@ namespace OpenSage.Logic.Object
             { "UseSlaverAsControlForEvaObjectSightedEvents", (parser, x) => x.UseSlaverAsControlForEvaObjectSightedEvents = parser.ParseBoolean() },
             { "DieOnMastersDeath", (parser, x) => x.DieOnMastersDeath = parser.ParseBoolean() },
             { "MarkUnselectable", (parser, x) => x.MarkUnselectable = parser.ParseBoolean() },
+            { "GuardPositionOffset", (parser, x) => x.GuardPositionOffset = parser.ParseVector3() },
+            { "FadeOutRange", (parser, x) => x.FadeOutRange = parser.ParseInteger() },
+            { "FadeTime", (parser, x) => x.FadeTime = parser.ParseInteger() }
         };
 
         public float GuardMaxRange { get; private set; }
@@ -64,5 +68,14 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool MarkUnselectable { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Vector3 GuardPositionOffset { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int FadeOutRange { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int FadeTime { get; private set; }
     }
 }

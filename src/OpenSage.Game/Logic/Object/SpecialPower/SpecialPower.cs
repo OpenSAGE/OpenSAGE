@@ -28,7 +28,8 @@ namespace OpenSage.Logic.Object
             { "TargetAllSides", (parser, x) => x.TargetAllSides = parser.ParseBoolean() },
             { "AffectAllies", (parser, x) => x.AffectAllies = parser.ParseBoolean() },
             { "AttributeModifierWeatherBased", (parser, x) => x.AttributeModifierWeatherBased = parser.ParseBoolean() },
-            { "TargetEnemy", (parser, x) => x.TargetEnemy = parser.ParseBoolean() }
+            { "TargetEnemy", (parser, x) => x.TargetEnemy = parser.ParseBoolean() },
+            { "OnTriggerRechargeSpecialPower", (parser, x) => x.OnTriggerRechargeSpecialPower = parser.ParseAssetReference() },
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -87,5 +88,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool TargetEnemy { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string OnTriggerRechargeSpecialPower { get; private set; }
     }
 }

@@ -742,5 +742,8 @@
 
         [IniEnum("GIANT_BIRD"), AddedIn(SageGame.Bfme2)]
         GiantBird,
+
+        [IniEnum("NONCOM"), AddedIn(SageGame.Bfme2)]
+        Noncom,
     }
 }

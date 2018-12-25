@@ -17,7 +17,8 @@ namespace OpenSage.Logic.Object
             { "BusyForDuration", (parser, x) => x.BusyForDuration = parser.ParseInteger() },
             { "DestinationWeaponName", (parser, x) => x.DestinationWeaponName = parser.ParseString() },
             { "PreparationTime", (parser, x) => x.PreparationTime = parser.ParseInteger() },
-            { "SourceWeaponName", (parser, x) => x.SourceWeaponName = parser.ParseAssetReference() }
+            { "SourceWeaponName", (parser, x) => x.SourceWeaponName = parser.ParseAssetReference() },
+            { "MaxDistance", (parser, x) => x.MaxDistance = parser.ParseFloat() },
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -29,5 +30,6 @@ namespace OpenSage.Logic.Object
         public string DestinationWeaponName { get; private set; }
         public int PreparationTime { get; private set; }
         public string SourceWeaponName { get; private set; }
+        public float MaxDistance { get; private set; }
     }
 }

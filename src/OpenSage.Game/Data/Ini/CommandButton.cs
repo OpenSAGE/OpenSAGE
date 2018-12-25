@@ -437,6 +437,9 @@ namespace OpenSage.Data.Ini
         [IniEnum("TERTIARY")]
         Tertiary,
 
+        [IniEnum("QUATERNARY")]
+        Quaternary,
+
         [IniEnum("QUINARY")]
         Quinary,
     }
