@@ -284,11 +284,6 @@ namespace OpenSage.Data.Ini.Parser
             {
                 return 0;
             }
-
-            if (_dataContext.Defines.TryGetValue(token.Value.Text, out var macroExpansion))
-            {
-                token =  macroExpansion;
-            }
             return ScanInteger(token.Value);
         }
 
@@ -367,10 +362,6 @@ namespace OpenSage.Data.Ini.Parser
 
         public float ScanFloat(IniToken token)
         {
-            if (ResolveFunc(token.Text, out var funcResult))
-            {
-                token = funcResult.Value;
-            }
             return ParseUtility.ParseFloat(GetFloatText(token));
         }
 
@@ -384,10 +375,6 @@ namespace OpenSage.Data.Ini.Parser
                 return 0.0f;
             }
 
-            if (_dataContext.Defines.TryGetValue(token.Value.Text, out var macroExpansion))
-            {
-                token =  macroExpansion;
-            }
             return ScanFloat(token.Value);
         }
 
@@ -519,7 +506,7 @@ namespace OpenSage.Data.Ini.Parser
 
         private bool ResolveFunc(string text, out IniToken? resolved)
         {
-            if (!text.StartsWith("#") || text.StartsWith("#(")) //hacky for #(MODEL)_WLK as animation names
+            if (!text.StartsWith("#") || text.StartsWith("#(")) //hacky for e.g. #(MODEL)_WLK as animation names
             {
                 resolved = null;
                 return false;
