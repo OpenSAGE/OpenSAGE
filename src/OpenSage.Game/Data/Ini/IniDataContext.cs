@@ -156,7 +156,10 @@ namespace OpenSage.Data.Ini
 
         public void LoadIniFile(FileSystemEntry entry, bool included = false)
         {
-            if (!included && !entry.FilePath.EndsWith(".ini")) return;
+            if (!included && !entry.FilePath.ToLowerInvariant().EndsWith(".ini"))
+            {
+                return;
+            }
 
             if (_alreadyLoaded.Contains(entry.FilePath))
             {
