@@ -11,21 +11,10 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<LevelUpUpgradeModuleData>
             {
                 { "LevelsToGain", (parser, x) => x.LevelsToGain = parser.ParseInteger() },
-                { "LevelCap", (parser, x) => x.LevelCap = x.ParseLevelCap(parser) }
+                { "LevelCap", (parser, x) => x.LevelCap = parser.ParseInteger() }
             });
 
         public int LevelsToGain { get; private set; }
         public int LevelCap { get; private set; }
-
-        private int ParseLevelCap(IniParser parser)
-        {
-            var token = parser.GetNextToken();
-            switch(token.Text)
-            {
-                case "3w":
-                    return 3;
-            }
-            return parser.ScanInteger(token);
-        }
     }
 }

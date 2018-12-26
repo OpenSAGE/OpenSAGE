@@ -7,6 +7,8 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public class AnimationState 
     {
+        private string Model { get; set; }
+
         internal static AnimationState Parse(IniParser parser)
         {
             var stateTypeFlags = parser.ParseEnumBitArray<ModelConditionFlag>();
