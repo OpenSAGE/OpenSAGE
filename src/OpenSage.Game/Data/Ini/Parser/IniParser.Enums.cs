@@ -177,12 +177,12 @@ namespace OpenSage.Data.Ini.Parser
             var result = new BitArray<T>();
 
             IniToken? token;
-            while ((token = PeekNextTokenOptional()) != null)
+            while ((token = PeekNextTokenOptional(SeparatorsColon)).HasValue)
             {
                 var value = token.Value.Text.ToUpperInvariant();
                 if (!ParseBitValue(stringToValueMap, result, value, inLine: true))
                     return result;
-                GetNextTokenOptional(); //to proceed
+                GetNextTokenOptional(SeparatorsColon); //to proceed
             }
 
             return result;
@@ -212,7 +212,7 @@ namespace OpenSage.Data.Ini.Parser
 
             var result = new BitArray<T>();
 
-            var values = valuesString.Replace("\"", "").Split(' ');
+            var values = valuesString.Trim().Replace("\"", "").Split(' ');
             for(var i = 0; i < values.Length; i++)
             {
                 var stringValue = values[i];
