@@ -287,7 +287,7 @@ namespace OpenSage.Data.Ini.Parser
             return ScanInteger(token.Value);
         }
 
-        public int ScanInteger(IniToken token) => Convert.ToInt32(token.Text);
+        public int ScanInteger(IniToken token) => ParseUtility.ParseInteger(token.Text);
 
         public int ParseInteger() => ScanInteger(GetNextToken());
 
@@ -575,17 +575,6 @@ namespace OpenSage.Data.Ini.Parser
                 return integer;
             }
 
-            return null;
-        }
-
-        public string PeekString()
-        {
-            var token = PeekNextTokenOptional();
-
-            if (token.HasValue)
-            {
-                return token.Value.Text;
-            }
             return null;
         }
 

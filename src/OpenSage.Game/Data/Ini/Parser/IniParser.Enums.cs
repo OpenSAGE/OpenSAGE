@@ -179,12 +179,10 @@ namespace OpenSage.Data.Ini.Parser
             IniToken? token;
             while ((token = PeekNextTokenOptional()) != null)
             {
-                var value = PeekString();
-                var stringValue = value.ToUpperInvariant();
-                if (ParseBitValue(stringToValueMap, result, stringValue, inLine: true))
-                    GetNextToken(); //to proceed
-                else
+                var value = token.Value.Text.ToUpperInvariant();
+                if (!ParseBitValue(stringToValueMap, result, value, inLine: true))
                     return result;
+                GetNextTokenOptional(); //to proceed
             }
 
             return result;
