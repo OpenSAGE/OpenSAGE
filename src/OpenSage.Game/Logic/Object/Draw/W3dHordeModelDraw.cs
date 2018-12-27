@@ -24,6 +24,7 @@ namespace OpenSage.Logic.Object
         public string WadingParticleSys { get; private set; }
         public List<RandomTexture> RandomTextures { get; private set; } = new List<RandomTexture>();
 
+        [AddedIn(SageGame.Bfme2Rotwk)]
         public BitArray<ModelConditionFlag> DependencySharedModelFlags { get; private set; }
     }
 
