@@ -7,7 +7,7 @@ namespace OpenSage.Data.Utilities
     internal static class ParseUtility
     {
         private static readonly Regex FloatRegex = new Regex("^([-+]?[0-9]*\\.?[0-9]+)", RegexOptions.Compiled);
-        private static readonly Regex IntegerRegex = new Regex("^([-+]?[0-9]*)", RegexOptions.Compiled);
+        private static readonly Regex IntegerRegex = new Regex("^([-+]?[0-9]+)", RegexOptions.Compiled);
 
         public static float ParseFloat(string s)
         {
