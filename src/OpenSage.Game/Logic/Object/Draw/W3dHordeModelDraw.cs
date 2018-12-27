@@ -16,12 +16,15 @@ namespace OpenSage.Logic.Object
                 { "LodOptions", (parser, x) => x.LodOptions.Add(LodOption.Parse(parser)) },
                 { "WadingParticleSys", (parser, x) => x.WadingParticleSys = parser.ParseAssetReference() },
                 { "RandomTexture", (parser, x) => x.RandomTextures.Add(RandomTexture.Parse(parser)) },
+                { "DependencySharedModelFlags", (parser, x) => x.DependencySharedModelFlags = parser.ParseEnumBitArray<ModelConditionFlag>() }
             });
 
         public bool StaticModelLodMode { get; private set; }
         public List<LodOption> LodOptions { get; private set; } = new List<LodOption>();
         public string WadingParticleSys { get; private set; }
         public List<RandomTexture> RandomTextures { get; private set; } = new List<RandomTexture>();
+
+        public BitArray<ModelConditionFlag> DependencySharedModelFlags { get; private set; }
     }
 
     public sealed class LodOption

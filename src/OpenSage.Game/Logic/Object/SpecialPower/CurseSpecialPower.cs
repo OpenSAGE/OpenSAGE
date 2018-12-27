@@ -17,6 +17,8 @@ namespace OpenSage.Logic.Object
                 { "PreparationTime", (parser, x) => x.PreparationTime = parser.ParseInteger() },
                 { "FreezeAfterTriggerDuration", (parser, x) => x.FreezeAfterTriggerDuration = parser.ParseInteger() },
                 { "CursedFX", (parser, x) => x.CursedFX = parser.ParseAssetReference() },
+                { "TriggerModelCondition", (parser, x) => x.TriggerModelCondition = parser.ParseAttributeEnum<ModelConditionFlag>("ModelConditionState") },
+                { "TriggerModelConditionDuration", (parser, x) => x.TriggerModelConditionDuration = parser.ParseInteger() }
             });
 
         public float CursePercentage { get; private set; }
@@ -26,5 +28,11 @@ namespace OpenSage.Logic.Object
         public int PreparationTime { get; private set; }
         public int FreezeAfterTriggerDuration { get; private set; }
         public string CursedFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public ModelConditionFlag TriggerModelCondition { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int TriggerModelConditionDuration { get; private set; }
     }
 }

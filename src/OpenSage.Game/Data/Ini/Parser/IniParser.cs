@@ -548,7 +548,7 @@ namespace OpenSage.Data.Ini.Parser
 
             if (result.HasValue)
             {
-                if (_dataContext.Defines.TryGetValue(result.Value.Text, out var macroExpansion))
+                if (_dataContext.Defines.TryGetValue(result.Value.Text.ToUpper(), out var macroExpansion))
                 {
                     return macroExpansion;
                 }
@@ -745,7 +745,7 @@ namespace OpenSage.Data.Ini.Parser
                         macroExpansionToken = resolved;
                     }
 
-                    _dataContext.Defines.Add(macroName, macroExpansionToken.Value);
+                    _dataContext.Defines.Add(macroName.ToUpper(), macroExpansionToken.Value);
                 }
                 else if (fieldName == "#include")
                 {

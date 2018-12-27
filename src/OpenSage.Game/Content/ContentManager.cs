@@ -97,7 +97,7 @@ namespace OpenSage.Content
                 case SageGame.CncGeneralsZeroHour:
                 case SageGame.Bfme:
                 case SageGame.Bfme2:
-                //case SageGame.Bfme2Rotwk:
+                case SageGame.Bfme2Rotwk:
                     SubsystemLoader.Load(Subsystem.Core);
 
                     // TODO: Move this somewhere else.
@@ -118,6 +118,7 @@ namespace OpenSage.Content
                 case SageGame.CncGeneralsZeroHour:
                 case SageGame.Bfme:
                 case SageGame.Bfme2:
+                case SageGame.Bfme2Rotwk:
                     SubsystemLoader.Load(Subsystem.Players);
                     SubsystemLoader.Load(Subsystem.ParticleSystems);
                     SubsystemLoader.Load(Subsystem.ObjectCreation);

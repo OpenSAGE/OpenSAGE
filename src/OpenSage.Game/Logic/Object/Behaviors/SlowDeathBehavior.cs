@@ -34,6 +34,7 @@ namespace OpenSage.Logic.Object
             { "Sound", (parser, x) => x.Sound = parser.ParseString() },
             { "DecayBeginTime", (parser, x) => x.DecayBeginTime = parser.ParseInteger() },
             { "ShadowWhenDead", (parser, x) => x.ShadowWhenDead = parser.ParseBoolean() },
+            { "DoNotRandomizeMidpoint", (parser, x) => x.DoNotRandomizeMidpoint = parser.ParseBoolean() }
         };
 
         public BitArray<DeathType> DeathTypes { get; private set; }
@@ -72,6 +73,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public bool ShadowWhenDead { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool DoNotRandomizeMidpoint { get; private set; }
 
     }
 

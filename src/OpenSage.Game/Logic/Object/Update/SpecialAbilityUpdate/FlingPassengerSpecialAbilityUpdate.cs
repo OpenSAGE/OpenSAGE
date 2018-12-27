@@ -16,6 +16,7 @@ namespace OpenSage.Logic.Object
            { "FlingPassengerLandingWarhead", (parser, x) => x.FlingPassengerLandingWarhead = parser.ParseAssetReference() },
            { "PackTime", (parser, x) => x.PackTime = parser.ParseInteger() },
            { "CustomAnimAndDuration", (parser, x) => x.GetCustomAnimAndDuration = AnimAndDuration.Parse(parser) },
+           { "MustFinishAbility", (parser, x) => x.MustFinishAbility = parser.ParseBoolean() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -24,5 +25,8 @@ namespace OpenSage.Logic.Object
         public string FlingPassengerLandingWarhead { get; private set; }
         public int PackTime { get; private set; }
         public AnimAndDuration GetCustomAnimAndDuration { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool MustFinishAbility { get; private set; }
     }
 }

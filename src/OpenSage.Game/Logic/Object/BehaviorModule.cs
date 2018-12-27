@@ -127,6 +127,7 @@ namespace OpenSage.Logic.Object
             // Damage
             { "BoneFXDamage", BoneFXDamageModuleData.Parse },
             { "EvacuateDamage", EvacuateDamageModuleData.Parse },
+            { "HordeTransportContainDamage", HordeTransportContainDamageModuleData.Parse },
             { "ReflectDamage", ReflectDamageModuleData.Parse },
             { "TransitionDamageFX", TransitionDamageFXModuleData.Parse },
 
@@ -325,6 +326,7 @@ namespace OpenSage.Logic.Object
             { "HeroModeSpecialAbilityUpdate", HeroModeSpecialAbilityUpdateModuleData.Parse },
             { "ModelConditionSpecialAbilityUpdate", ModelConditionSpecialAbilityUpdateModuleData.Parse },
             { "SpecialAbilityUpdate", SpecialAbilityUpdateModuleData.Parse },
+            { "SummonReplacementSpecialAbilityUpdate", SummonReplacementSpecialAbilityUpdateModuleData.Parse },
             { "TeleportSpecialAbilityUpdate", TeleportSpecialAbilityUpdateModuleData.Parse },
             { "ToggleDeploySpecialAbilityUpdate", ToggleDeploySpecialAbilityUpdateModuleData.Parse },
             { "ToggleHiddenSpecialAbilityUpdate", ToggleHiddenSpecialAbilityUpdateModuleData.Parse },

@@ -62,6 +62,10 @@ namespace OpenSage.Logic.Object
             { "MinimumHordeSize", (parser, x) => x.MinimumHordeSize = parser.ParseInteger() },
             { "VisionRearOverride", (parser, x) => x.VisionRearOverride = parser.ParsePercentage() },
             { "VisionSideOverride", (parser, x) => x.VisionSideOverride = parser.ParsePercentage() },
+            { "BannerCarrierMinLevel", (parser, x) => x.BannerCarrierMinLevel = parser.ParseInteger() },
+            { "BannerCarrierDestroyHordeOnDeath", (parser, x) => x.BannerCarrierDestroyHordeOnDeath = parser.ParseBoolean() },
+            { "BannerCarrierHordeDeathType", (parser, x) => x.BannerCarrierHordeDeathType = parser.ParseEnumBitArray<DeathType>() },
+            { "LivingWorldOverloadTemplate", (parser, x) => x.LivingWorldOverloadTemplate = parser.ParseAssetReference() }
         };
 
         public BitArray<ObjectStatus> ObjectStatusOfContained { get; private set; }
@@ -127,6 +131,18 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public float VisionSideOverride { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int BannerCarrierMinLevel { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool BannerCarrierDestroyHordeOnDeath { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public BitArray<DeathType> BannerCarrierHordeDeathType { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public string LivingWorldOverloadTemplate { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

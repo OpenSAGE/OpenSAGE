@@ -196,5 +196,8 @@
 
         [IniEnum("LOGICAL_FIRE"), AddedIn(SageGame.Bfme2)]
         LogicalFire,
+
+        [IniEnum("BECOME_UNDEAD_ONCE"), AddedIn(SageGame.Bfme2Rotwk)]
+        BecomeUndeadOnce,
     }
 }
