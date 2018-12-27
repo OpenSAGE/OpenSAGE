@@ -19,7 +19,9 @@ namespace OpenSage.Logic.Object
                 { "PreparationTime", (parser, x) => x.PreparationTime = parser.ParseInteger() },
                 { "FreezeAfterTriggerDuration", (parser, x) => x.FreezeAfterTriggerDuration = parser.ParseInteger() },
                 { "PermanentlyConvert", (parser, x) => x.PermanentlyConvert = parser.ParseBoolean() },
-                { "TriggerSound", (parser, x) => x.TriggerSound = parser.ParseAssetReference() }
+                { "TriggerSound", (parser, x) => x.TriggerSound = parser.ParseAssetReference() },
+                { "TriggerModelCondition", (parser, x) => x.TriggerModelCondition = parser.ParseAttributeEnum<ModelConditionFlag>("ModelConditionState") },
+                { "TriggerModelConditionDuration", (parser, x) => x.TriggerModelConditionDuration = parser.ParseInteger() }
             });
 
         public int UnpackingVariation { get; private set; }
@@ -35,5 +37,11 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string TriggerSound { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public ModelConditionFlag TriggerModelCondition { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int TriggerModelConditionDuration { get; private set; }
     }
 }

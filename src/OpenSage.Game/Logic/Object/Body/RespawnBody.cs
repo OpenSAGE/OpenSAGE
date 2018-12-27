@@ -12,8 +12,12 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<RespawnBodyModuleData>
             {
                 { "PermanentlyKilledByFilter", (parser, x) => x.PermanentlyKilledByFilter = ObjectFilter.Parse(parser) },
+                { "CanRespawn", (parser, x) => x.CanRespawn = parser.ParseBoolean() }
             });
 
         public ObjectFilter PermanentlyKilledByFilter { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool CanRespawn { get; private set; }
      }
 }

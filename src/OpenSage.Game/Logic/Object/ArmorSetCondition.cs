@@ -45,5 +45,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("CREATE_A_HERO_06"), AddedIn(SageGame.Bfme2)]
         CreateAHero06,
+
+        [IniEnum("CREATE_A_HERO_07"), AddedIn(SageGame.Bfme2Rotwk)]
+        CreateAHero07,
     }
 }

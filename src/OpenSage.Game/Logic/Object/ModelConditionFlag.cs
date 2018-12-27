@@ -990,5 +990,26 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("CANCEL_CAPTURE"), AddedIn(SageGame.Bfme2)]
         CancelCapture,
+
+        [IniEnum("CREATE_A_HERO_29"), AddedIn(SageGame.Bfme2Rotwk)]
+        CreateAHero29,
+
+        [IniEnum("CREATE_A_HERO_30"), AddedIn(SageGame.Bfme2Rotwk)]
+        CreateAHero30,
+
+        [IniEnum("CREATE_A_HERO_31"), AddedIn(SageGame.Bfme2Rotwk)]
+        CreateAHero31,
+
+        [IniEnum("CREATE_A_HERO_32"), AddedIn(SageGame.Bfme2Rotwk)]
+        CreateAHero32,
+
+        [IniEnum("CREATE_A_HERO_33"), AddedIn(SageGame.Bfme2Rotwk)]
+        CreateAHero33,
+
+        [IniEnum("CREATE_A_HERO_34"), AddedIn(SageGame.Bfme2Rotwk)]
+        CreateAHero34,
+
+        [IniEnum("SPECIAL_POWER_2"), AddedIn(SageGame.Bfme2Rotwk)]
+        SpecialPower2,
     }
 }

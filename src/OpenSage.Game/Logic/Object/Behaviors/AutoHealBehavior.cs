@@ -27,7 +27,8 @@ namespace OpenSage.Logic.Object
                 { "NonStackable", (parser, x) => x.NonStackable = parser.ParseBoolean() },
                 { "RespawnNearbyHordeMembers", (parser, x) => x.RespawnNearbyHordeMembers = parser.ParseBoolean() },
                 { "RespawnFXList", (parser, x) => x.RespawnFXList = parser.ParseAssetReference() },
-                { "RespawnMinimumDelay", (parser, x) => x.RespawnMinimumDelay = parser.ParseInteger() }
+                { "RespawnMinimumDelay", (parser, x) => x.RespawnMinimumDelay = parser.ParseInteger() },
+                { "HealOnlyIfNotUnderAttack", (parser, x) => x.HealOnlyIfNotUnderAttack = parser.ParseBoolean() }
             });
 
         public float HealingAmount { get; private set; }
@@ -68,5 +69,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public int RespawnMinimumDelay { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool HealOnlyIfNotUnderAttack { get; private set; }
     }
 }

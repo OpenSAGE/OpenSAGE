@@ -180,5 +180,35 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("SPECIAL_TWO"), AddedIn(SageGame.Bfme2)]
         SpecialTwo,
+
+        [IniEnum("WEAPONSET_CREATE_A_HERO_WS_33"), AddedIn(SageGame.Bfme2Rotwk)]
+        WeaponsetCreateAHeroWS33,
+
+        [IniEnum("WEAPONSET_CREATE_A_HERO_WS_34"), AddedIn(SageGame.Bfme2Rotwk)]
+        WeaponsetCreateAHeroWS34,
+
+        [IniEnum("WEAPONSET_CREATE_A_HERO_WS_35"), AddedIn(SageGame.Bfme2Rotwk)]
+        WeaponsetCreateAHeroWS35,
+
+        [IniEnum("WEAPONSET_CREATE_A_HERO_WS_36"), AddedIn(SageGame.Bfme2Rotwk)]
+        WeaponsetCreateAHeroWS36,
+
+        [IniEnum("WEAPONSET_CREATE_A_HERO_WS_37"), AddedIn(SageGame.Bfme2Rotwk)]
+        WeaponsetCreateAHeroWS37,
+
+        [IniEnum("WEAPONSET_CREATE_A_HERO_WS_38"), AddedIn(SageGame.Bfme2Rotwk)]
+        WeaponsetCreateAHeroWS38,
+
+        [IniEnum("WEAPONSET_CREATE_A_HERO_WS_39"), AddedIn(SageGame.Bfme2Rotwk)]
+        WeaponsetCreateAHeroWS39,
+
+        [IniEnum("WEAPONSET_CREATE_A_HERO_WS_40"), AddedIn(SageGame.Bfme2Rotwk)]
+        WeaponsetCreateAHeroWS40,
+
+        [IniEnum("WEAPONSET_CREATE_A_HERO_WS_41"), AddedIn(SageGame.Bfme2Rotwk)]
+        WeaponsetCreateAHeroWS41,
+
+        [IniEnum("WEAPONSET_CREATE_A_HERO_WS_42"), AddedIn(SageGame.Bfme2Rotwk)]
+        WeaponsetCreateAHeroWS42,
     }
 }

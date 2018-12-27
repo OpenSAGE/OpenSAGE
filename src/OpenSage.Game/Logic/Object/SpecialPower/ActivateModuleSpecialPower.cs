@@ -17,6 +17,7 @@ namespace OpenSage.Logic.Object
                 { "StartAbilityRange", (parser, x) => x.StartAbilityRange = parser.ParseInteger() },
                 { "MustFinishAbility", (parser, x) => x.MustFinishAbility = parser.ParseBoolean() },
                 { "UnpackingVariation", (parser, x) => x.UnpackingVariation = parser.ParseInteger() },
+                { "EffectRange", (parser, x) => x.EffectRange = parser.ParseFloat() }
             });
 
         public string TriggerSpecialPower { get; private set; }
@@ -26,5 +27,8 @@ namespace OpenSage.Logic.Object
         public int StartAbilityRange { get; private set; }
         public bool MustFinishAbility { get; private set; }
         public int UnpackingVariation { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public float EffectRange { get; private set; }
     }
 }

@@ -145,5 +145,44 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("AI_SPELLBOOK_CITADEL")]
         Citadel,
+
+        [IniEnum("AI_SPECIAL_POWER_DOMINATE_ENEMY"), AddedIn(SageGame.Bfme2Rotwk)]
+        DominateEnemy,
+
+        [IniEnum("AI_SPECIAL_POWER_TOGGLE_MELEE_AND_RANGE"), AddedIn(SageGame.Bfme2Rotwk)]
+        ToggleMeleeAndRange,
+
+        [IniEnum("AI_SPECIAL_POWER_RANGED_AOE_ATTACK_UNITS"), AddedIn(SageGame.Bfme2Rotwk)]
+        RangedAoeAttackUnits,
+
+        [IniEnum("AI_SPECIAL_POWER_SOUL_FREEZE"), AddedIn(SageGame.Bfme2Rotwk)]
+        SoulFreeze,
+
+        [IniEnum("AI_SPECIAL_POWER_AOE_AND_BUFF"), AddedIn(SageGame.Bfme2Rotwk)]
+        AoeAndBuff,
+
+        [IniEnum("AI_SPECIAL_POWER_ATTACK_HEAL_AOE"), AddedIn(SageGame.Bfme2Rotwk)]
+        AttackHealAoe,
+
+        [IniEnum("AI_SPECIAL_POWER_MORGUL_BLADE"), AddedIn(SageGame.Bfme2Rotwk)]
+        MorgulBlade,
+
+        [IniEnum("AI_SPECIAL_POWER_GOBLIN_POISON"), AddedIn(SageGame.Bfme2Rotwk)]
+        GoblinPoison,
+
+        [IniEnum("AI_SPECIAL_POWER_DOMINATE_TROLL"), AddedIn(SageGame.Bfme2Rotwk)]
+        DominateTroll,
+
+        [IniEnum("AI_SPECIAL_POWER_TAME_THE_BEAST"), AddedIn(SageGame.Bfme2Rotwk)]
+        TameTheBeast,
+
+        [IniEnum("AI_SPECIAL_POWER_BASIC_SELF_DEBUFF"), AddedIn(SageGame.Bfme2Rotwk)]
+        BasicSelfDebuff,
+
+        [IniEnum("AI_SPELLBOOK_DEBUFFECONOMYBUILDING"), AddedIn(SageGame.Bfme2Rotwk)]
+        DebuffEconomyBuilding,
+
+        [IniEnum("AI_SPELLBOOK_DEBUFFPRODUCTIONBUILDING"), AddedIn(SageGame.Bfme2Rotwk)]
+        DebuffProductionBuilding,
     }
 }

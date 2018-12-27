@@ -769,5 +769,14 @@
 
         [IniEnum("THREAT_FINDER"), AddedIn(SageGame.Bfme2)]
         ThreatFinder,
+
+        [IniEnum("SUPPORT"), AddedIn(SageGame.Bfme2Rotwk)]
+        Support,
+
+        [IniEnum("HORDE_MONSTER"), AddedIn(SageGame.Bfme2Rotwk)]
+        HordeMonster,
+
+        [IniEnum("SIEGEENGINE"), AddedIn(SageGame.Bfme2Rotwk)]
+        Siegeengine,
     }
 }
