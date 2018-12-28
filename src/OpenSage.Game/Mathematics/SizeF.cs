@@ -9,6 +9,8 @@ namespace OpenSage.Mathematics
         public readonly float Width;
         public readonly float Height;
 
+        public SizeF(float size) : this(size, size) { }
+
         public SizeF(float width, float height)
         {
             Width = width;
