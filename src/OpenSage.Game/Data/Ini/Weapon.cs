@@ -89,7 +89,7 @@ namespace OpenSage.Data.Ini
             { "MissileCallsOnDie", (parser, x) => x.MissileCallsOnDie = parser.ParseBoolean() },
             { "FiringDuration", (parser, x) => x.FiringDuration = parser.ParseInteger() },
             { "ProjectileNugget", (parser, x) => x.ProjectileNugget = ProjectileNugget.Parse(parser) },
-            { "DamageNugget", (parser, x) => x.DamageNugget = DamageNugget.Parse(parser) },
+            { "DamageNugget", (parser, x) => x.DamageNuggets.Add(DamageNugget.Parse(parser)) },
             { "MetaImpactNugget", (parser, x) => x.MetaImpactNugget = MetaImpactNugget.Parse(parser) },
             { "MaxWeaponSpeed", (parser, x) => x.MaxWeaponSpeed = parser.ParseInteger() },
             { "HitPercentage", (parser, x) => x.HitPercentage = parser.ParsePercentage() },
@@ -137,12 +137,25 @@ namespace OpenSage.Data.Ini
             { "ForceDisplayPercentReady", (parser, x) => x.ForceDisplayPercentReady = parser.ParseBoolean() },
             { "GrabNugget", (parser, x) => x.GrabNugget = GrabNugget.Parse(parser) },
             { "RotatingTurret", (parser, x) => x.RotatingTurret = parser.ParseBoolean() },
+            { "RangeBonusMinHeight", (parser, x) => x.RangeBonusMinHeight = parser.ParseInteger() },
+            { "RangeBonus", (parser, x) => x.RangeBonus = parser.ParseInteger() },
+            { "RangeBonusPerFoot", (parser, x) => x.RangeBonusPerFoot = parser.ParseInteger() },
+            { "DOTNugget", (parser, x) => x.DOTNugget = DOTNugget.Parse(parser) },
+            { "FireFlankFX", (parser, x) => x.FireFlankFX = parser.ParseAssetReference() },
+            { "InstantLoadClipOnActivate", (parser, x) => x.InstantLoadClipOnActivate = parser.ParseBoolean() },
+            { "BombardType", (parser, x) => x.BombardType = parser.ParseBoolean() },
+            { "OverrideVoiceEnterStateAttackSound", (parser, x) => x.OverrideVoiceEnterStateAttackSound = parser.ParseAssetReference() },
+            { "HoldDuringReload", (parser, x) => x.HoldDuringReload = parser.ParseBoolean() },
+            { "SlaveAttackNugget", (parser, x) => x.SlaveAttackNugget = SlaveAttackNugget.Parse(parser) },
+            { "FireLogicNugget", (parser, x) => x.FireLogicNugget = FireLogicNugget.Parse(parser) },
+            { "EmotionWeaponNugget", (parser, x) => x.EmotionWeaponNugget = EmotionWeaponNugget.Parse(parser) },
+            { "OpenGateNugget", (parser, x) => x.OpenGateNugget = OpenGateNugget.Parse(parser) }
         };
 
         private void ClearNuggets()
         {
             ProjectileNugget = null;
-            DamageNugget = null;
+            DamageNuggets.Clear();
             MetaImpactNugget = null;
             ParalyzeNugget = null;
             SpecialModelConditionNugget = null;
@@ -151,6 +164,11 @@ namespace OpenSage.Data.Ini
             AttributeModifierNugget = null;
             DamageFieldNugget = null;
             GrabNugget = null;
+            DOTNugget = null;
+            SlaveAttackNugget = null;
+            FireLogicNugget = null;
+            EmotionWeaponNugget = null;
+            OpenGateNugget = null;
         }
 
         private static string ParseVeterancyAssetReference(IniParser parser)
@@ -259,7 +277,7 @@ namespace OpenSage.Data.Ini
         public ProjectileNugget ProjectileNugget { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public DamageNugget DamageNugget { get; private set; }
+        public List<DamageNugget> DamageNuggets { get; } = new List<DamageNugget>();
 
         [AddedIn(SageGame.Bfme2)]
         public MetaImpactNugget MetaImpactNugget { get; private set; }
@@ -392,6 +410,45 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public bool RotatingTurret { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int RangeBonusMinHeight { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int RangeBonus { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int RangeBonusPerFoot { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public DOTNugget DOTNugget { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string FireFlankFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool InstantLoadClipOnActivate { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool BombardType { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string OverrideVoiceEnterStateAttackSound { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool HoldDuringReload { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public SlaveAttackNugget SlaveAttackNugget { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public FireLogicNugget FireLogicNugget { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public EmotionWeaponNugget EmotionWeaponNugget { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public OpenGateNugget OpenGateNugget { get; private set; }
     }
 
 
@@ -440,7 +497,10 @@ namespace OpenSage.Data.Ini
             { "WarheadTemplateName", (parser, x) => x.WarheadTemplateName = parser.ParseAssetReference() },
             { "ForbiddenUpgradeNames", (parser, x) => x.ForbiddenUpgradeNames = parser.ParseAssetReferenceArray() },
             { "RequiredUpgradeNames", (parser, x) => x.RequiredUpgradeNames = parser.ParseAssetReferenceArray() },
-            { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) }
+            { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) },
+            { "AlwaysAttackHereOffset", (parser, x) => x.AlwaysAttackHereOffset = parser.ParseVector3() },
+            { "UseAlwaysAttackOffset", (parser, x) => x.UseAlwaysAttackOffset = parser.ParseBoolean() },
+            { "WeaponLaunchBoneSlotOverride", (parser, x) => x.WeaponLaunchBoneSlotOverride = parser.ParseEnum<WeaponSlot>() }
         };
 
         public string ProjectileTemplateName { get; private set; }
@@ -448,6 +508,15 @@ namespace OpenSage.Data.Ini
         public string[] ForbiddenUpgradeNames { get; private set; }
         public string[] RequiredUpgradeNames { get; private set; }
         public ObjectFilter SpecialObjectFilter { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Vector3 AlwaysAttackHereOffset { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool UseAlwaysAttackOffset { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public WeaponSlot WeaponLaunchBoneSlotOverride { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme2)]
@@ -471,6 +540,12 @@ namespace OpenSage.Data.Ini
             { "AcceptDamageAdd", (parser, x) => x.AcceptDamageAdd = parser.ParseBoolean() },
             { "ForbiddenUpgradeNames", (parser, x) => x.ForbiddenUpgradeNames = parser.ParseAssetReferenceArray() },
             { "RequiredUpgradeNames", (parser, x) => x.RequiredUpgradeNames = parser.ParseAssetReferenceArray() },
+            { "FlankingBonus", (parser, x) => x.FlankingBonus = parser.ParsePercentage() },
+            { "DamageTaperOff", (parser, x) => x.DamageTaperOff = parser.ParseInteger() },
+            { "DamageSubType", (parser, x) => x.DamageSubType = parser.ParseEnum<DamageType>() },
+            { "DrainLife", (parser, x) => x.DrainLife = parser.ParseBoolean() },
+            { "DrainLifeMultiplier", (parser, x) => x.DrainLifeMultiplier = parser.ParseFloat() },
+            { "CylinderAOE", (parser, x) => x.CylinderAOE = parser.ParseBoolean() }
         };
 
         public float Damage { get; private set; }
@@ -503,6 +578,24 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public string[] RequiredUpgradeNames { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float FlankingBonus { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int DamageTaperOff { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public DamageType DamageSubType { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool DrainLife { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float DrainLifeMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool CylinderAOE { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme2)]
@@ -521,7 +614,10 @@ namespace OpenSage.Data.Ini
             { "ShockWaveSpeed", (parser, x) => x.ShockWaveSpeed = parser.ParseFloat() },
             { "InvertShockWave", (parser, x) => x.InvertShockWave = parser.ParseBoolean() },
             { "DelayTime", (parser, x) => x.DelayTime = parser.ParseInteger() },
-            { "FlipDirection", (parser, x) => x.FlipDirection = parser.ParseBoolean() }
+            { "FlipDirection", (parser, x) => x.FlipDirection = parser.ParseBoolean() },
+            { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) },
+            { "OnlyWhenJustDied", (parser, x) => x.OnlyWhenJustDied = parser.ParseBoolean() },
+            { "KillObjectFilter", (parser, x) => x.KillObjectFilter = ObjectFilter.Parse(parser) }
         };
 
         public float HeroResist { get; private set; }
@@ -536,7 +632,7 @@ namespace OpenSage.Data.Ini
         public float ShockWaveZMult { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public float  ShockWaveSpeed { get; private set; }
+        public float ShockWaveSpeed { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public bool InvertShockWave { get; private set; }
@@ -546,6 +642,15 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public bool FlipDirection { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ObjectFilter SpecialObjectFilter { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool OnlyWhenJustDied { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ObjectFilter KillObjectFilter { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -573,11 +678,19 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<ParalyzeNugget> FieldParseTable = new IniParseTable<ParalyzeNugget>
         {
             { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
-            { "Duration", (parser, x) => x.Duration = parser.ParseInteger() }
+            { "Duration", (parser, x) => x.Duration = parser.ParseInteger() },
+            { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) },
+            { "ParalyzeFX", (parser, x) => x.ParalyzeFX = parser.ParseAssetReference() }
         };
 
         public float Radius { get; private set; }
         public int Duration { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ObjectFilter SpecialObjectFilter { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string ParalyzeFX { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -587,7 +700,11 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<HordeAttackNugget> FieldParseTable = new IniParseTable<HordeAttackNugget>
         {
+            { "LockWeaponSlot", (parser, x) => x.LockWeaponSlot = parser.ParseEnum<WeaponSlot>() },
         };
+
+        [AddedIn(SageGame.Bfme2)]
+        public WeaponSlot LockWeaponSlot { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -616,12 +733,16 @@ namespace OpenSage.Data.Ini
         {
             { "AttributeModifier", (parser, x) => x.AttributeModifier = parser.ParseAssetReference() },
             { "DamageFXType", (parser, x) => x.DamageFxType = parser.ParseEnum<FxType>() },
-            { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) }
+            { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) },
+            { "AntiCategories", (parser, x) => x.AntiCategories = parser.ParseEnumBitArray<ModifierCategory>() }
         };
 
         public string AttributeModifier { get; private set; }
         public FxType DamageFxType { get; private set; }
         public ObjectFilter SpecialObjectFilter { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public BitArray<ModifierCategory> AntiCategories { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -660,6 +781,104 @@ namespace OpenSage.Data.Ini
         public float ShockWaveRadius { get; private set; }
         public float ShockWaveTaperOff { get; private set; }
         public float ShockWaveZMult { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class DOTNugget
+    {
+        internal static DOTNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<DOTNugget> FieldParseTable = new IniParseTable<DOTNugget>
+        {
+            { "AcceptDamageAdd", (parser, x) => x.AcceptDamageAdd = parser.ParseBoolean() },
+            { "Damage", (parser, x) => x.Damage = parser.ParseInteger() },
+            { "DamageScalar", (parser, x) => x.DamageScalar = DamageScalar.Parse(parser) },
+            { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
+            { "DelayTime", (parser, x) => x.DelayTime = parser.ParseInteger() },
+            { "DamageType", (parser, x) => x.DamageType = parser.ParseEnum<DamageType>() },
+            { "DamageFXType", (parser, x) => x.DamageFXType = parser.ParseEnum<FxType>() },
+            { "DeathType", (parser, x) => x.DeathType = parser.ParseEnum<DeathType>() },
+            { "DamageInterval", (parser, x) => x.DamageInterval = parser.ParseInteger() },
+            { "DamageDuration", (parser, x) => x.DamageDuration = parser.ParseInteger() },
+            { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) }
+        };
+
+        public bool AcceptDamageAdd { get; private set; }
+        public int Damage { get; private set; }
+        public DamageScalar DamageScalar { get; private set; }
+        public float Radius { get; private set; }
+        public int DelayTime { get; private set; }
+        public DamageType DamageType { get; private set; }
+        public FxType DamageFXType { get; private set; }
+        public DeathType DeathType { get; private set; }
+        public int DamageInterval { get; private set; }
+        public int DamageDuration { get; private set; }
+        public ObjectFilter SpecialObjectFilter { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class SlaveAttackNugget
+    {
+        internal static SlaveAttackNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<SlaveAttackNugget> FieldParseTable = new IniParseTable<SlaveAttackNugget>
+        {
+        };
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class FireLogicNugget
+    {
+        internal static FireLogicNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<FireLogicNugget> FieldParseTable = new IniParseTable<FireLogicNugget>
+        {
+            { "LogicType", (parser, x) => x.LogicType = parser.ParseEnum<FireLogicType>() },
+            { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
+            { "Damage", (parser, x) => x.Damage = parser.ParseInteger() },
+            { "MinMaxBurnRate", (parser, x) => x.MinMaxBurnRate = parser.ParseInteger() },
+            { "MinDecay", (parser, x) => x.MinDecay = parser.ParseInteger() },
+            { "MaxResistance", (parser, x) => x.MaxResistance = parser.ParseInteger() }
+        };
+
+        public FireLogicType LogicType { get; private set; }
+        public float Radius { get; private set; }
+        public int Damage { get; private set; }
+        public int MinMaxBurnRate { get; private set; }
+        public int MinDecay { get; private set; }
+        public int MaxResistance { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class EmotionWeaponNugget
+    {
+        internal static EmotionWeaponNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<EmotionWeaponNugget> FieldParseTable = new IniParseTable<EmotionWeaponNugget>
+        {
+            { "EmotionType", (parser, x) => x.EmotionType = parser.ParseEnum<EmotionType>() },
+            { "Radius", (parser, x) => x.Radius = parser.ParseInteger() },
+            { "Duration", (parser, x) => x.Duration = parser.ParseInteger() },
+            { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) }
+        };
+
+        public EmotionType EmotionType { get; private set; }
+        public int Radius { get; private set; }
+        public int Duration { get; private set; }
+        public ObjectFilter SpecialObjectFilter { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class OpenGateNugget
+    {
+        internal static OpenGateNugget Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<OpenGateNugget> FieldParseTable = new IniParseTable<OpenGateNugget>
+        {
+            { "Radius", (parser, x) => x.Radius = parser.ParseInteger() },
+        };
+
+        public int Radius { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -867,5 +1086,15 @@ namespace OpenSage.Data.Ini
     {
         [IniEnum("FAERIE_FIRE")]
         FaerieFire,
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public enum FireLogicType
+    {
+        [IniEnum("INCREASE_BURN_RATE")]
+        IncreaseBurnRate,
+
+        [IniEnum("INCREASE_FUEL")]
+        IncreaseFuel,
     }
 }
