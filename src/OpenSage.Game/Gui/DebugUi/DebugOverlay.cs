@@ -20,24 +20,55 @@ namespace OpenSage.Gui.DebugUi
         private readonly Scene3D _scene3D;
         private readonly Font _debugFont;
         private readonly StringBuilder _debugStringBuilder;
-        private readonly List<DebugPoint> _points;
+
+        private readonly List<IDebugDrawable> _debugDrawables;
 
         public DebugOverlay(Scene3D scene3D, ContentManager contentManager)
         {
-            _points = new List<DebugPoint>();
-
             _scene3D = scene3D;
             _debugFont = contentManager.GetOrCreateFont("Arial", 16, FontWeight.Normal);
             _debugStringBuilder = new StringBuilder();
+
+            _debugDrawables = new List<IDebugDrawable>();
         }
 
-        public void AddPoint(DebugPoint point)
+        public void AddPoint(Vector3 point, ColorRgbaF color, float? duration = null)
         {
-            _points.Add(point);
+            _debugDrawables.Add(new DebugPoint(point, color, duration));
+        }
+
+        public void DrawPoint(Vector3 point, ColorRgbaF color)
+        {
+            AddPoint(point, color, 0);
+        }
+
+        public void AddLine(Vector3 start, Vector3 end, ColorRgbaF color, float? duration = null)
+        {
+            _debugDrawables.Add(new DebugLine(start, end, color, duration));
+        }
+
+        public void DrawLine(Vector3 start, Vector3 end, ColorRgbaF color)
+        {
+            AddLine(start, end, color, 0);
         }
 
         public void Update(GameTime gameTime)
         {
+            foreach (var drawable in _debugDrawables)
+            {
+                if (!drawable.Timer.HasValue || drawable.Timer == 0)
+                {
+                    continue;
+                }
+
+                drawable.Timer = Math.Max(0, drawable.Timer.Value - (float) gameTime.ElapsedGameTime.TotalSeconds);
+            }
+
+            if (!Enabled)
+            {
+                return;
+            }
+
             var ray = _scene3D.Camera.ScreenPointToRay(new Vector2(MousePosition.X, MousePosition.Y));
             _mouseWorldPosition = _scene3D.Terrain.Intersect(ray);
 
@@ -59,19 +90,9 @@ namespace OpenSage.Gui.DebugUi
                 return;
             }
 
-            foreach (var point in _points)
+            foreach (var drawable in _debugDrawables)
             {
-                if (!camera.BoundingFrustum.Contains(point.Position))
-                {
-                    continue;
-                }
-
-                var rect = camera.WorldToScreenRectangle(point.Position, new SizeF(4.0f));
-
-                if (rect.HasValue)
-                {
-                    context.DrawRectangle(rect.Value, point.Color, 1);
-                }
+                drawable.Render(context, camera);
             }
 
             if (ShowColliders)
@@ -87,6 +108,9 @@ namespace OpenSage.Gui.DebugUi
             }
 
             context.DrawText(_debugStringBuilder.ToString(), _debugFont, TextAlignment.Leading, ColorRgbaF.White, new RectangleF(10, 10, 400, 80));
+
+            // This is done here instead of in Update so that drawables with time of 0 will be drawn at least once.
+            _debugDrawables.RemoveAll(x => x.Timer.HasValue && x.Timer.Value == 0);
         }
 
         public void Toggle()
