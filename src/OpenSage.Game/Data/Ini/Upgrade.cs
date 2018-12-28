@@ -26,6 +26,17 @@ namespace OpenSage.Data.Ini
             { "PersistsInCampaign", (parser, x) => x.PersistsInCampaign = parser.ParseBoolean() },
             { "NoUpgradeDiscount", (parser, x) => x.NoUpgradeDiscount = parser.ParseBoolean() },
             { "UpgradeFX", (parser, x) => x.UpgradeFX = parser.ParseAssetReference() },
+            { "LocalPlayerGainsUpgradeEvaEvent", (parser, x) => x.LocalPlayerGainsUpgradeEvaEvent = parser.ParseAssetReference() },
+            { "AlliedPlayerGainsUpgradeEvaEvent", (parser, x) => x.AlliedPlayerGainsUpgradeEvaEvent = parser.ParseAssetReference() },
+            { "EnemyPlayerGainsUpgradeEvaEvent", (parser, x) => x.EnemyPlayerGainsUpgradeEvaEvent = parser.ParseAssetReference() },
+            { "LocalPlayerLosesUpgradeEvaEvent", (parser, x) => x.LocalPlayerLosesUpgradeEvaEvent = parser.ParseAssetReference() },
+            { "AlliedPlayerLosesUpgradeEvaEvent", (parser, x) => x.AlliedPlayerLosesUpgradeEvaEvent = parser.ParseAssetReference() },
+            { "EnemyPlayerLosesUpgradeEvaEvent", (parser, x) => x.EnemyPlayerLosesUpgradeEvaEvent = parser.ParseAssetReference() },
+            { "UseObjectTemplateForCostDiscount", (parser, x) => x.UseObjectTemplateForCostDiscount = parser.ParseAssetReference() },
+            { "ResearchCompleteEvaEvent", (parser, x) => x.ResearchCompleteEvaEvent = parser.ParseAssetReference() },
+            { "RequiredObjectFilter", (parser, x) => x.RequiredObjectFilter = ObjectFilter.Parse(parser) },
+            { "StrategicIcon", (parser, x) => x.StrategicIcon = parser.ParseAssetReference() },
+            { "SkirmishAIHeuristic", (parser, x) => x.SkirmishAIHeuristic = parser.ParseEnum<AIHeuristic>() }
         };
 
         public string Name { get; private set; }
@@ -56,6 +67,39 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public string UpgradeFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string LocalPlayerGainsUpgradeEvaEvent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string AlliedPlayerGainsUpgradeEvaEvent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string EnemyPlayerGainsUpgradeEvaEvent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string AlliedPlayerLosesUpgradeEvaEvent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string LocalPlayerLosesUpgradeEvaEvent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string EnemyPlayerLosesUpgradeEvaEvent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string UseObjectTemplateForCostDiscount { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string ResearchCompleteEvaEvent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ObjectFilter RequiredObjectFilter { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string StrategicIcon { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public AIHeuristic SkirmishAIHeuristic { get; private set; }
     }
 
     public enum UpgradeType
@@ -65,5 +109,12 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("OBJECT")]
         Object
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public enum AIHeuristic
+    {
+        [IniEnum("AI_UPGRADEHEURISTIC_IMPORTANT")]
+        Important,
     }
 }
