@@ -141,17 +141,19 @@ namespace OpenSage.Graphics.Cameras
             return _viewport.Project(position, Projection, View, Matrix4x4.Identity);
         }
 
-        internal Rectangle? WorldToScreenRectangle(in Vector3 position, in Size screenSize)
+        internal RectangleF? WorldToScreenRectangle(in Vector3 position, in Size screenSize)
         {
             var screenPosition = WorldToScreenPoint(position);
 
             // Check if point is behind camera, or too far away.
             if (screenPosition.Z < _viewport.MinDepth || screenPosition.Z > _viewport.MaxDepth)
+            {
                 return null;
+            }
 
-            return new Rectangle(
-                (int) (screenPosition.X - screenSize.Width / 2.0f),
-                (int) (screenPosition.Y - screenSize.Height / 2.0f),
+            return new RectangleF(
+                screenPosition.X - screenSize.Width / 2.0f,
+                screenPosition.Y - screenSize.Height / 2.0f,
                 screenSize.Width, screenSize.Height);
         }
 

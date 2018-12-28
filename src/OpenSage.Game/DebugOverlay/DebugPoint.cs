@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using OpenSage.Graphics.Cameras;
 using OpenSage.Mathematics;
 
 namespace OpenSage.DebugOverlay
@@ -18,20 +17,6 @@ namespace OpenSage.DebugOverlay
         {
             Position = position;
             Color = color;
-        }
-
-        private static readonly BoundingBox Bounds = new BoundingBox(new Vector3(-0.5f, -0.5f, -0.5f), new Vector3(0.5f, 0.5f, 0.5f));
-
-        public BoundingBox WorldBounds => BoundingBox.Transform(Bounds, Matrix4x4.CreateTranslation(Position));
-
-        public Rectangle GetBoundingRectangle(Camera camera)
-        {
-            return WorldBounds.GetBoundingRectangle(camera);
-        }
-
-        public bool Intersects(in BoundingFrustum frustum)
-        {
-            return frustum.Intersects(WorldBounds);
         }
     }
 }

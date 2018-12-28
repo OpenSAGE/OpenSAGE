@@ -22,10 +22,14 @@ namespace OpenSage.Logic
                     _overlay.MousePosition = message.Value.MousePosition;
                     break;
                 case InputMessageType.KeyDown:
-                    if (message.Value.Key == Key.F2)
+                    switch (message.Value.Key)
                     {
-                        _overlay.Toggle();
-                        return InputMessageResult.Handled;
+                        case Key.F2:
+                            _overlay.Toggle();
+                            return InputMessageResult.Handled;
+                        case Key.F3:
+                            _overlay.ToggleColliders();
+                            return InputMessageResult.Handled;
                     }
                     break;
             }
