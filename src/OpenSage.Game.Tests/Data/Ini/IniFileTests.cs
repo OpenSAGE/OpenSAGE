@@ -34,7 +34,7 @@ namespace OpenSage.Tests.Data.Ini
                 {
                     var filename = Path.GetFileName(entry.FilePath).ToLowerInvariant();
 
-                    if (filename != "weapon.ini") return;
+                    if (filename != "upgrade.ini") return;
                     /*
                     // TODO:implement missing stuff
                     if (gameDefinition.Game == SageGame.Bfme2)
@@ -102,8 +102,6 @@ namespace OpenSage.Tests.Data.Ini
                             case "speech.ini":
                             case "stances.ini":
                             case "strategichud.ini":
-                            case "upgrade.ini":
-                            //case "weapon.ini":
                             case "weather.ini":
                             case "map.ini":
                                 return;
