@@ -572,5 +572,23 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("BOLT"), AddedIn(SageGame.Bfme2)]
         Bolt,
+
+        [IniEnum("TORNADO"), AddedIn(SageGame.Bfme2)]
+        Tornado,
+
+        [IniEnum("FIRE1"), AddedIn(SageGame.Bfme2)]
+        Fire1,
+
+        [IniEnum("FIRE2"), AddedIn(SageGame.Bfme2)]
+        Fire2,
+
+        [IniEnum("FIRE3"), AddedIn(SageGame.Bfme2)]
+        Fire3,
+
+        [IniEnum("FLOOD_HORSE"), AddedIn(SageGame.Bfme2)]
+        FloodHorse,
+
+        [IniEnum("UNDEFINED"), AddedIn(SageGame.Bfme2)]
+        Undefined,
     }
 }
