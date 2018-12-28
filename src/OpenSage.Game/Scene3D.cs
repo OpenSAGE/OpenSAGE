@@ -7,6 +7,7 @@ using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Rendering.Shadows;
 using OpenSage.Gui;
+using OpenSage.Gui.DebugUi;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Scripting;
@@ -68,7 +69,7 @@ namespace OpenSage
         public IReadOnlyList<Player> Players => _players;
         private List<Player> _players;
         public Player LocalPlayer { get; private set; }
-        public DebugOverlay.DebugOverlay DebugOverlay { get; private set; }
+        public DebugOverlay DebugOverlay { get; private set; }
 
         internal IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
         {
@@ -120,7 +121,7 @@ namespace OpenSage
             game.InputMessageBuffer.Handlers.Add(_cameraInputMessageHandler);
             AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_cameraInputMessageHandler));
 
-            DebugOverlay = new DebugOverlay.DebugOverlay(this, game.ContentManager);
+            DebugOverlay = new DebugOverlay(this, game.ContentManager);
             _debugMessageHandler = new DebugMessageHandler(DebugOverlay);
             game.InputMessageBuffer.Handlers.Add(_debugMessageHandler);
             AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_debugMessageHandler));

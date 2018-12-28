@@ -1,15 +1,15 @@
 ﻿using OpenSage.Input;
 using Veldrid;
 
-namespace OpenSage.Logic
+namespace OpenSage.Gui.DebugUi
 {
     public class DebugMessageHandler : InputMessageHandler
     {
-        private readonly DebugOverlay.DebugOverlay _overlay;
+        private readonly DebugOverlay _overlay;
 
         public override HandlingPriority Priority => HandlingPriority.UIPriority;
 
-        public DebugMessageHandler(DebugOverlay.DebugOverlay overlay)
+        public DebugMessageHandler(DebugOverlay overlay)
         {
             _overlay = overlay;
         }

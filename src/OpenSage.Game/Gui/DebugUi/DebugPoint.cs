@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using OpenSage.Mathematics;
 
-namespace OpenSage.DebugOverlay
+namespace OpenSage.Gui.DebugUi
 {
     /// <summary>
     /// A point in world space with a color.
