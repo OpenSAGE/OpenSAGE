@@ -733,7 +733,9 @@ namespace OpenSage.Data.Ini.Parser
                 directory = directory.Substring(0, directory.LastIndexOf(Path.DirectorySeparatorChar));
             }
             if (includeFileName.StartsWith(Path.DirectorySeparatorChar.ToString()))
+            {
                 includeFileName = includeFileName.Remove(0, 1);
+            }
 
             var path = Path.Combine(directory, includeFileName);
             var content = _dataContext.GetIniFileContent(path);
@@ -772,7 +774,10 @@ namespace OpenSage.Data.Ini.Parser
                 {
                     var includeFileName = ParseQuotedString();
                     if (includeFileName.StartsWith(Path.DirectorySeparatorChar.ToString()))
+                    {
                         includeFileName = includeFileName.Remove(0, 1);
+                    }
+
                     _dataContext.LoadIniFile(Path.Combine(_directory, includeFileName), included: true);
                 }
                 else if (BlockParsers.TryGetValue(fieldName, out var blockParser))
