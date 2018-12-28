@@ -4,11 +4,10 @@ using System.Numerics;
 using System.Text;
 using OpenSage.Content;
 using OpenSage.Graphics.Cameras;
-using OpenSage.Gui;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
 
-namespace OpenSage.DebugOverlay
+namespace OpenSage.Gui.DebugUi
 {
     public class DebugOverlay
     {
