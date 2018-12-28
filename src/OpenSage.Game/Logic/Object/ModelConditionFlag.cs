@@ -1011,5 +1011,68 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("SPECIAL_POWER_2"), AddedIn(SageGame.Bfme2Rotwk)]
         SpecialPower2,
+
+        [IniEnum("USER_7"), AddedIn(SageGame.Bfme2Rotwk)]
+        User7,
+
+        [IniEnum("USER_8"), AddedIn(SageGame.Bfme2Rotwk)]
+        User8,
+
+        [IniEnum("USER_9"), AddedIn(SageGame.Bfme2Rotwk)]
+        User9,
+
+        [IniEnum("CREATE_A_HERO_35"), AddedIn(SageGame.Bfme2Rotwk)]
+        CreateAHero35,
+
+        [IniEnum("CREATE_A_HERO_36"), AddedIn(SageGame.Bfme2Rotwk)]
+        CreateAHero36,
+
+        [IniEnum("CREATE_A_HERO_37"), AddedIn(SageGame.Bfme2Rotwk)]
+        CreateAHero37,
+
+        [IniEnum("CREATE_A_HERO_38"), AddedIn(SageGame.Bfme2Rotwk)]
+        CreateAHero38,
+
+        [IniEnum("CREATE_A_HERO_39"), AddedIn(SageGame.Bfme2Rotwk)]
+        CreateAHero39,
+
+        [IniEnum("CREATE_A_HERO_40"), AddedIn(SageGame.Bfme2Rotwk)]
+        CreateAHero40,
+
+        [IniEnum("FORTRESS_IMPROVEMENT_6"), AddedIn(SageGame.Bfme2Rotwk)]
+        FortressImprovement6,
+
+        [IniEnum("USER_10"), AddedIn(SageGame.Bfme2Rotwk)]
+        User10,
+
+        [IniEnum("USER_11"), AddedIn(SageGame.Bfme2Rotwk)]
+        User11,
+
+        [IniEnum("DEATH_5"), AddedIn(SageGame.Bfme2Rotwk)]
+        Death5,
+
+        [IniEnum("FIRING_OR_RELOADING_B"), AddedIn(SageGame.Bfme2Rotwk)]
+        FiringOrReloadingB,
+
+        [IniEnum("FORTRESS_IMPROVEMENT_5"), AddedIn(SageGame.Bfme2Rotwk)]
+        FortressImprovement5,
+
+        [IniEnum("FIRING_OR_RELOADING_D"), AddedIn(SageGame.Bfme2Rotwk)]
+        FiringOrReloadingD,
+
+        [IniEnum("ARMORSET_PLAYER_UPGRADE_2"), AddedIn(SageGame.Bfme2Rotwk)]
+        ArmorsetPlayerUpgrade2,
+
+        [IniEnum("FORTRESS_IMPROVEMENT_7"), AddedIn(SageGame.Bfme2Rotwk)]
+        FortressImprovement7,
+
+        [IniEnum("FORTRESS_IMPROVEMENT_9"), AddedIn(SageGame.Bfme2Rotwk)]
+        FortressImprovement9,
+
+        [IniEnum("SPECIAL_POWER_3"), AddedIn(SageGame.Bfme2Rotwk)]
+        SpecialPower3,
+
+        [IniEnum("WEAPONLOCK_TERTIARY"), AddedIn(SageGame.Bfme2Rotwk)]
+        WeaponlockTertiary,
     }
 }

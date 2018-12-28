@@ -783,6 +783,24 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("SLAUGHTERED"), AddedIn(SageGame.Bfme2)]
         Slaughtered,
+
+        [IniEnum("EXTRA_1"), AddedIn(SageGame.Bfme)]
+        Extra1,
+
+        [IniEnum("EXTRA_3"), AddedIn(SageGame.Bfme)]
+        Extra3,
+
+        [IniEnum("EXTRA_5"), AddedIn(SageGame.Bfme2Rotwk)]
+        Extra5,
+
+        [IniEnum("EXTRA_6"), AddedIn(SageGame.Bfme2Rotwk)]
+        Extra6,
+
+        [IniEnum("EXTRA_7"), AddedIn(SageGame.Bfme2Rotwk)]
+        Extra7,
+
+        [IniEnum("EXTRA_8"), AddedIn(SageGame.Bfme2Rotwk)]
+        Extra8,
     }
 
     [Flags]

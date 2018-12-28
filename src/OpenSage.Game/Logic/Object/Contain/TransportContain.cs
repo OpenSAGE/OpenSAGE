@@ -52,7 +52,12 @@ namespace OpenSage.Logic.Object
                 { "AllowOwnPlayerInsideOverride", (parser, x) => x.AllowOwnPlayerInsideOverride = parser.ParseBoolean() },
                 { "BoneSpecificConditionState", (parser, x) => x.BoneSpecificConditionStates.Add(BoneSpecificConditionState.Parse(parser)) },
                 { "FadeFilter", (parser, x) => x.FadeFilter = ObjectFilter.Parse(parser) },
-                { "UpgradeCreationTrigger", (parser, x) => x.UpgradeCreationTriggers.Add(UpgradeCreationTrigger.Parse(parser)) } 
+                { "UpgradeCreationTrigger", (parser, x) => x.UpgradeCreationTriggers.Add(UpgradeCreationTrigger.Parse(parser)) },
+                { "FadePassengerOnEnter", (parser, x) => x.FadePassengerOnEnter = parser.ParseBoolean() },
+                { "EnterFadeTime", (parser, x) => x.EnterFadeTime = parser.ParseInteger() },
+                { "FadePassengerOnExit", (parser, x) => x.FadePassengerOnExit = parser.ParseBoolean() },
+                { "ExitFadeTime", (parser, x) => x.ExitFadeTime = parser.ParseInteger() },
+                { "ConditionForEntry", (parser, x) => x.ConditionForEntry = parser.ParseAttributeEnum<ModelConditionFlag>("ModelConditionState") }
             });
 
         public bool PassengersAllowedToFire { get; private set; }
@@ -145,6 +150,21 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public List<UpgradeCreationTrigger> UpgradeCreationTriggers { get; } = new List<UpgradeCreationTrigger>();
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool FadePassengerOnEnter { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int EnterFadeTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool FadePassengerOnExit { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int ExitFadeTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public ModelConditionFlag ConditionForEntry { get; private set; }
     }
 
     public sealed class PassengerBonePrefix

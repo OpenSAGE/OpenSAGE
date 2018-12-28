@@ -63,7 +63,7 @@ namespace OpenSage.Logic.Object
             { "IsPrerequisite", (parser, x) => x.IsPrerequisite = parser.ParseBoolean() },
             { "WeaponSet", (parser, x) => x.WeaponSets.Add(WeaponSet.Parse(parser)) },
             { "ArmorSet", (parser, x) => x.ArmorSets.Add(ArmorSet.Parse(parser)) },
-            { "CommandSet", (parser, x) => x.CommandSet = parser.ParseLocalizedStringKey() },
+            { "CommandSet", (parser, x) => x.CommandSet = parser.ParseOptionalLocalizedStringKey() },
             { "Prerequisites", (parser, x) => x.Prerequisites = ObjectPrerequisites.Parse(parser) },
             { "IsTrainable", (parser, x) => x.IsTrainable = parser.ParseBoolean() },
             { "FenceWidth", (parser, x) => x.FenceWidth = parser.ParseFloat() },

@@ -11,19 +11,10 @@ namespace OpenSage.Logic.Object
         private static new readonly IniParseTable<StatusBitsUpgradeModuleData> FieldParseTable = UpgradeModuleData.FieldParseTable
             .Concat(new IniParseTable<StatusBitsUpgradeModuleData>
             {
-                { "StatusToSet", (parser, x) => x.StatusToSet = parser.ParseEnumBitArray<Status>() }
+                { "StatusToSet", (parser, x) => x.StatusToSet = parser.ParseEnumBitArray<ObjectStatus>() }
             });
 
         [AddedIn(SageGame.Bfme2Rotwk)]
-        public BitArray<Status> StatusToSet { get; private set; }
-    }
-
-    public enum Status
-    {
-        [IniEnum("IGNORE_AI_COMMAND")]
-        IgnoreAICommand,
-
-        [IniEnum("SUMMONING_REPLACEMENT")]
-        SummoningReplacement
+        public BitArray<ObjectStatus> StatusToSet { get; private set; }
     }
 }

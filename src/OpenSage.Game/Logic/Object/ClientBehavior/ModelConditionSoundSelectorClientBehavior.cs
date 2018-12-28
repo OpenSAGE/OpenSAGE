@@ -50,6 +50,9 @@ namespace OpenSage.Logic.Object
              { "VoicePriority", (parser, x) => x.VoicePriority = parser.ParseInteger() },
              { "UnitSpecificSounds", (parser, x) => x.UnitSpecificSounds = UnitSpecificSounds.Parse(parser) },
              { "SoundMoveLoop", (parser, x) => x.SoundMoveLoop = parser.ParseAssetReference() },
+             { "VoiceEnterStateAttackCharge", (parser, x) => x.VoiceEnterStateAttackCharge = parser.ParseAssetReference() },
+             { "VoiceCreated", (parser, x) => x.VoiceCreated = parser.ParseAssetReference() },
+             { "VoiceFullyCreated", (parser, x) => x.VoiceFullyCreated = parser.ParseAssetReference() }
         };
 
         public ModelConditionFlag Condition { get; private set; }
@@ -79,6 +82,15 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string SoundMoveLoop { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public string VoiceEnterStateAttackCharge { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public string VoiceCreated { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public string VoiceFullyCreated { get; private set; }
     }
 
     public class UnitSpecificSounds

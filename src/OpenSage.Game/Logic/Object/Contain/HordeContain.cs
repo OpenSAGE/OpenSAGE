@@ -207,15 +207,14 @@ namespace OpenSage.Logic.Object
     [AddedIn(SageGame.Bfme)]
     public sealed class ComboHorde
     {
-        internal static ComboHorde Parse(IniParser parser)
+        internal static ComboHorde Parse(IniParser parser) => parser.ParseAttributeList(FieldParseTable);
+
+        internal static readonly IniParseTable<ComboHorde> FieldParseTable = new IniParseTable<ComboHorde>
         {
-            return new ComboHorde
-            {
-                Target = parser.ParseAttributeIdentifier("Target"),
-                Result = parser.ParseAttributeIdentifier("Result"),
-                InitiateVoice = parser.ParseAttributeIdentifier("InitiateVoice")
-            };
-        }
+            { "Target", (parser, x) => x.Target = parser.ParseIdentifier() },
+            { "Result", (parser, x) => x.Result = parser.ParseIdentifier() },
+            { "InitiateVoice", (parser, x) => x.InitiateVoice = parser.ParseAssetReference() },
+        };
 
         public string Target { get; private set; }
         public string Result { get; private set; }

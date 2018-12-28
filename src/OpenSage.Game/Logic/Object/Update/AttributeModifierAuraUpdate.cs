@@ -13,7 +13,7 @@ namespace OpenSage.Logic.Object
             { "StartsActive", (parser, x) => x.StartsActive = parser.ParseBoolean() },
             { "BonusName", (parser, x) => x.BonusName = parser.ParseString() },
             { "TriggeredBy", (parser, x) => x.TriggeredBy = parser.ParseAssetReference() },
-            { "RefreshDelay", (parser, x) => x.RefreshDelay = parser.ParseInteger() },
+            { "RefreshDelay", (parser, x) => x.RefreshDelay = parser.ParseLong() },
             { "Range", (parser, x) => x.Range = parser.ParseFloat() },
             { "TargetEnemy", (parser, x) => x.TargetEnemy = parser.ParseBoolean() },
             { "ObjectFilter", (parser, x) => x.ObjectFilter = parser.ParseIdentifier() },
@@ -25,13 +25,14 @@ namespace OpenSage.Logic.Object
             { "AllowSelf", (parser, x) => x.AllowSelf = parser.ParseBoolean() },
             { "AllowPowerWhenAttacking", (parser, x) => x.AllowPowerWhenAttacking = parser.ParseBoolean() },
             { "MaxActiveRank", (parser, x) => x.MaxActiveRank = parser.ParseInteger() },
-            { "AffectContainedOnly", (parser, x) => x.AffectContainedOnly = parser.ParseBoolean() }
+            { "AffectContainedOnly", (parser, x) => x.AffectContainedOnly = parser.ParseBoolean() },
+            { "RequiresAllTriggers", (parser, x) => x.RequiresAllTriggers = parser.ParseBoolean() }
         };
 
         public bool StartsActive { get; private set; }
         public string BonusName	{ get; private set; }
         public string TriggeredBy { get; private set; }
-        public int RefreshDelay	{ get; private set; }
+        public long RefreshDelay { get; private set; }
         public float Range { get; private set; }
         public bool TargetEnemy	{ get; private set; }
         public string ObjectFilter { get; private set; }
@@ -46,5 +47,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public bool AffectContainedOnly { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool RequiresAllTriggers { get; private set; }
     }
 }

@@ -11,7 +11,7 @@ namespace OpenSage.Logic.Object
 
         private static readonly IniParseTable<PassiveAreaEffectBehaviorModuleData> FieldParseTable = new IniParseTable<PassiveAreaEffectBehaviorModuleData>
         {
-            { "EffectRadius", (parser, x) => x.EffectRadius = parser.ParseInteger() },
+            { "EffectRadius", (parser, x) => x.EffectRadius = parser.ParseLong() },
             { "PingDelay", (parser, x) => x.PingDelay = parser.ParseInteger() },
             { "HealPercentPerSecond", (parser, x) => x.HealPercentPerSecond = parser.ParsePercentage() },
             { "AllowFilter", (parser, x) => x.AllowFilter = ObjectFilter.Parse(parser) },
@@ -22,7 +22,7 @@ namespace OpenSage.Logic.Object
             { "AntiCategories", (parser, x) => x.AntiCategories = parser.ParseEnumBitArray<ModifierCategory>() }
         };
 
-        public int EffectRadius { get; private set; }
+        public long EffectRadius { get; private set; }
         public int PingDelay { get; private set; }
         public float HealPercentPerSecond { get; private set; }
         public ObjectFilter AllowFilter { get; private set; }

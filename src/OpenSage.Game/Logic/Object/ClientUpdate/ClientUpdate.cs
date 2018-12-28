@@ -14,6 +14,7 @@ namespace OpenSage.Logic.Object
             { "BeaconClientUpdate", BeaconClientUpdateModuleData.Parse },
             { "EvaAnnounceClientCreate", EvaAnnounceClientCreateModuleData.Parse },
             { "LaserUpdate", LaserUpdateModuleData.Parse },
+            { "RadarMarkerClientUpdate", RadarMarkerClientUpdateModuleData.Parse },
             { "SwayClientUpdate", SwayClientUpdateModuleData.Parse },
         };
     }

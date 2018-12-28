@@ -210,5 +210,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("WEAPONSET_CREATE_A_HERO_WS_42"), AddedIn(SageGame.Bfme2Rotwk)]
         WeaponsetCreateAHeroWS42,
+
+        [IniEnum("WEAPONSET_TOGGLE_2"), AddedIn(SageGame.Bfme2Rotwk)]
+        WeaponsetToggle2,
     }
 }

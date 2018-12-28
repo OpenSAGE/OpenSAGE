@@ -19,7 +19,8 @@ namespace OpenSage.Logic.Object
                 { "EnterFadeTime", (parser, x) => x.EnterFadeTime = parser.ParseInteger() },
                 { "FadePassengerOnExit", (parser, x) => x.FadePassengerOnExit = parser.ParseBoolean() },
                 { "ExitFadeTime", (parser, x) => x.ExitFadeTime = parser.ParseInteger() },
-                { "FadeReverse", (parser, x) => x.FadeReverse = parser.ParseBoolean() }
+                { "FadeReverse", (parser, x) => x.FadeReverse = parser.ParseBoolean() },
+                { "UpgradeCreationTrigger", (parser, x) => x.UpgradeCreationTriggers.Add(UpgradeCreationTrigger.Parse(parser)) },
             });
 
         public string EnterSound { get; private set; }
@@ -30,5 +31,8 @@ namespace OpenSage.Logic.Object
         public bool FadePassengerOnExit { get; private set; }
         public int ExitFadeTime { get; private set; }
         public bool FadeReverse { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public List<UpgradeCreationTrigger> UpgradeCreationTriggers { get; } = new List<UpgradeCreationTrigger>();
     }
 }

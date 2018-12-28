@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using System.Collections.Generic;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -13,10 +14,14 @@ namespace OpenSage.Logic.Object
                 { "MaxRotationDegrees", (parser, x) => x.MaxRotationDegrees = parser.ParseInteger() },
                 { "BlowingThresholdDegrees", (parser, x) => x.BlowingThresholdDegrees = parser.ParseInteger() },
                 { "AboutDamping", (parser, x) => x.AboutDamping = parser.ParseFloat() },
+                { "RandomTexture", (parser, x) => x.RandomTextures.Add(RandomTexture.Parse(parser)) }
             });
 
         public int MaxRotationDegrees { get; private set; }
         public int BlowingThresholdDegrees { get; private set; }
         public float AboutDamping { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public List<RandomTexture> RandomTextures { get; } = new List<RandomTexture>();
     }
 }

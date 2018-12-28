@@ -37,6 +37,7 @@ namespace OpenSage.Logic.Object
             { "GateProxyBehavior", GateProxyBehaviorModuleData.Parse },
             { "GenerateMinefieldBehavior", GenerateMinefieldBehaviorModuleData.Parse },
             { "GettingBuiltBehavior", GettingBuiltBehaviorModuleData.Parse },
+            { "GiantBirdSlowDeathBehavior", GiantBirdSlowDeathBehaviorModuleData.Parse },
             { "GrantStealthBehavior", GrantStealthBehaviorModuleData.Parse },
             { "HelicopterSlowDeathBehavior", HelicopterSlowDeathBehaviorModuleData.Parse },
             { "InstantDeathBehavior", InstantDeathBehaviorModuleData.Parse },

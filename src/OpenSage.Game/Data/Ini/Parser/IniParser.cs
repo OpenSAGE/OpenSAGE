@@ -320,7 +320,19 @@ namespace OpenSage.Data.Ini.Parser
 
         public uint ParseUnsignedInteger() => ScanUnsignedInteger(GetNextToken());
 
-        private long ScanLong(IniToken token) => Convert.ToInt64(token.Text);
+        private long ScanLong(IniToken token)
+        {
+            try
+            {
+                return (long)Convert.ToUInt64(token.Text);
+            }
+            catch(Exception _)
+            {
+                if (token.Text.StartsWith("-"))
+                    return long.MinValue;
+                return long.MaxValue;
+            }
+        }
 
         public long ParseLong() => ScanLong(GetNextToken());
 
@@ -422,6 +434,13 @@ namespace OpenSage.Data.Ini.Parser
         public string ParseLocalizedStringKey()
         {
             return ParseIdentifier();
+        }
+
+        public string ParseOptionalLocalizedStringKey()
+        {
+            var token = GetNextTokenOptional();
+            if (token.HasValue) return token.Value.Text;
+            return "";
         }
 
         public string ParseFileName() => ParseIdentifier();
@@ -711,8 +730,10 @@ namespace OpenSage.Data.Ini.Parser
             while (includeFileName.StartsWith(".."))
             {
                 includeFileName = includeFileName.Remove(0, 3);
-                directory = directory.Substring(0, directory.LastIndexOf('\\'));
+                directory = directory.Substring(0, directory.LastIndexOf(Path.DirectorySeparatorChar));
             }
+            if (includeFileName.StartsWith(Path.DirectorySeparatorChar.ToString()))
+                includeFileName = includeFileName.Remove(0, 1);
 
             var path = Path.Combine(directory, includeFileName);
             var content = _dataContext.GetIniFileContent(path);
@@ -750,6 +771,8 @@ namespace OpenSage.Data.Ini.Parser
                 else if (fieldName == "#include")
                 {
                     var includeFileName = ParseQuotedString();
+                    if (includeFileName.StartsWith(Path.DirectorySeparatorChar.ToString()))
+                        includeFileName = includeFileName.Remove(0, 1);
                     _dataContext.LoadIniFile(Path.Combine(_directory, includeFileName), included: true);
                 }
                 else if (BlockParsers.TryGetValue(fieldName, out var blockParser))

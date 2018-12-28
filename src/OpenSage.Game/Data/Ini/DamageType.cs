@@ -199,5 +199,8 @@
 
         [IniEnum("BECOME_UNDEAD_ONCE"), AddedIn(SageGame.Bfme2Rotwk)]
         BecomeUndeadOnce,
+
+        [IniEnum("FROST"), AddedIn(SageGame.Bfme2Rotwk)]
+        Frost,
     }
 }

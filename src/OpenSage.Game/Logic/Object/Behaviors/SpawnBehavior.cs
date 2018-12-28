@@ -10,7 +10,7 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<SpawnBehaviorModuleData>
             {
                 { "SpawnNumber", (parser, x) => x.SpawnNumber = parser.ParseInteger() },
-                { "SpawnReplaceDelay", (parser, x) => x.SpawnReplaceDelay = parser.ParseInteger() },
+                { "SpawnReplaceDelay", (parser, x) => x.SpawnReplaceDelay = parser.ParseLong() },
                 { "SpawnTemplateName", (parser, x) => x.SpawnTemplateName = parser.ParseAssetReference() },
                 { "OneShot", (parser, x) => x.OneShot = parser.ParseBoolean() },
                 { "CanReclaimOrphans", (parser, x) => x.CanReclaimOrphans = parser.ParseBoolean() },
@@ -27,7 +27,7 @@ namespace OpenSage.Logic.Object
             });
 
         public int SpawnNumber { get; private set; }
-        public int SpawnReplaceDelay { get; private set; }
+        public long SpawnReplaceDelay { get; private set; }
         public string SpawnTemplateName { get; private set; }
         public bool OneShot { get; private set; }
         public bool CanReclaimOrphans { get; private set; }
