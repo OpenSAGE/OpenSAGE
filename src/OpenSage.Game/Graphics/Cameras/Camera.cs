@@ -146,7 +146,7 @@ namespace OpenSage.Graphics.Cameras
             var screenPosition = WorldToScreenPoint(position);
 
             // Check if point is behind camera, or too far away.
-            if (screenPosition.Z < _viewport.MinDepth || screenPosition.Z > _viewport.MaxDepth)
+            if (!IsWithinViewportDepth(screenPosition))
             {
                 return null;
             }
@@ -155,6 +155,11 @@ namespace OpenSage.Graphics.Cameras
                 screenPosition.X - screenSize.Width / 2.0f,
                 screenPosition.Y - screenSize.Height / 2.0f,
                 screenSize.Width, screenSize.Height);
+        }
+
+        internal bool IsWithinViewportDepth(Vector3 screenPosition)
+        {
+            return screenPosition.Z >= _viewport.MinDepth && screenPosition.Z <= _viewport.MaxDepth;
         }
 
         /// <summary>
