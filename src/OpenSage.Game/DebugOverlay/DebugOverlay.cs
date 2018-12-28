@@ -70,7 +70,7 @@ namespace OpenSage.DebugOverlay
                 // TODO: Reuse frustum culling results.
                 if (gameObject.Collider != null && gameObject.Collider.Intersects(camera.BoundingFrustum))
                 {
-                    gameObject.Collider?.Draw(context, camera);
+                    gameObject.Collider?.DebugDraw(context, camera);
 
                 }
             }
