@@ -165,20 +165,6 @@ namespace OpenSage.Graphics.Cameras
             return ray.Position + ray.Direction * position.Z;
         }
 
-        /// <summary>
-        /// Converts a screen-space point to world-space. The value of <paramref name="position.Z"/>
-        /// will be used to determine the depth in camera space of the world-space point.
-        /// </summary>
-        public Vector3 ScreenToWorldPoint(Point2D position)
-        {
-            var result = ScreenToWorldPoint(new Vector3(position.X, position.Y, 645));
-            //var z = _game.Scene3D.Terrain.HeightMap.GetHeight(ray.Position.X, ray.Position.Y);
-
-            //var result = ray.Position + ray.Direction * (View.Translation.Z - z);
-            
-            return result;
-        }
-
         internal void OnViewportSizeChanged()
         {
             _viewport = _getViewport();

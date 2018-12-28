@@ -7,7 +7,7 @@ namespace OpenSage.DebugOverlay
     /// <summary>
     /// A point in world space with a color.
     /// </summary>
-    public struct DebugPoint
+    public readonly struct DebugPoint
     {
         public readonly Vector3 Position;
         public readonly ColorRgbaF Color;
