@@ -32,6 +32,8 @@ namespace OpenSage.DebugOverlay
 
         public Point2D MousePosition { get; internal set; }
 
+        private Vector3? _mouseWorldPosition = null;
+
         public void AddPoint(DebugPoint point)
         {
             Points.Add(point);
@@ -40,6 +42,9 @@ namespace OpenSage.DebugOverlay
         public void Update(GameTime gameTime)
         {
             _debugStringBuilder.Clear();
+
+            var ray = _scene3D.Camera.ScreenPointToRay(new Vector2(MousePosition.X, MousePosition.Y));
+            _mouseWorldPosition = _scene3D.Terrain.Intersect(ray);
         }
 
         public void Draw(DrawingContext2D context, Camera camera)
@@ -70,13 +75,14 @@ namespace OpenSage.DebugOverlay
                 }
             }
 
-            var worldPos = camera.ScreenToWorldPoint(new Vector3(MousePosition.X, MousePosition.Y, 0));
-
             _debugStringBuilder.AppendFormat("Screen: X:{0} Y: {1}\n", MousePosition.X, MousePosition.Y);
 
-            // TODO: Calculate these based on a raycast?
-            _debugStringBuilder.AppendFormat("World: X:{0} Y: {1} Z: {2}\n", Math.Round(worldPos.X, 3), Math.Round(worldPos.Y, 3), Math.Round(worldPos.Z, 3));
-            _debugStringBuilder.AppendFormat("Tile: X:{0} Y: {1}\n", (int) worldPos.X / 10, (int) worldPos.Y / 10);
+            if (_mouseWorldPosition != null)
+            {
+                var worldPos = _mouseWorldPosition.Value;
+                _debugStringBuilder.AppendFormat("Terrain: X:{0} Y: {1} Z: {2}\n", Math.Round(worldPos.X, 3), Math.Round(worldPos.Y, 3), Math.Round(worldPos.Z, 3));
+                _debugStringBuilder.AppendFormat("Tile: X:{0} Y: {1}\n", (int) worldPos.X / 10, (int) worldPos.Y / 10);
+            }
 
             context.DrawText(_debugStringBuilder.ToString(), _debugFont, TextAlignment.Leading, ColorRgbaF.White, new RectangleF(10, 10, 400, 80));
         }
