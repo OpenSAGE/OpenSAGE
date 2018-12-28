@@ -59,6 +59,19 @@ namespace OpenSage.Mathematics
 
         public override int GetHashCode() => _matrix.GetHashCode();
 
+        public bool Contains(in Vector3 point)
+        {
+            for (var i = 0; i < PlaneCount; ++i)
+            {
+                if (ClassifyPoint(point, _planes[i]) > 0)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public ContainmentType Contains(in BoundingBox box)
         {
             var intersects = false;
@@ -175,6 +188,19 @@ namespace OpenSage.Mathematics
             p.Normal.Y *= factor;
             p.Normal.Z *= factor;
             p.D *= factor;
+        }
+
+        // Ported from MonoGame:
+        // https://github.com/MonoGame/MonoGame/blob/e517aa9a4449cabf15da6ffad8dc5ebbf0ac4c5f/MonoGame.Framework/Plane.cs#L19
+        /// <summary>
+        /// Returns a value indicating what side (positive/negative) of a plane a point is
+        /// </summary>
+        /// <param name="point">The point to check with</param>
+        /// <param name="plane">The plane to check against</param>
+        /// <returns>Greater than zero if on the positive side, less than zero if on the negative size, 0 otherwise</returns>
+        private static float ClassifyPoint(in Vector3 point, in Plane plane)
+        {
+            return point.X * plane.Normal.X + point.Y * plane.Normal.Y + point.Z * plane.Normal.Z + plane.D;
         }
     }
 }
