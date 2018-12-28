@@ -154,29 +154,25 @@ namespace OpenSage.Mathematics
             var topLeft = new Vector3(float.MaxValue);
             var bottomRight = new Vector3(float.MinValue);
 
-            unsafe
+            Span<Vector3> vertices = stackalloc Vector3[8];
+
+            // Bottom plane
+            vertices[0] = Min;
+            vertices[1] = Min.WithX(Max.X);
+            vertices[2] = Min.WithY(Max.Y);
+            vertices[3] = Max.WithZ(Min.Z);
+
+            // Top plane
+            vertices[4] = Max;
+            vertices[5] = Max.WithX(Min.X);
+            vertices[6] = Max.WithY(Min.Y);
+            vertices[7] = Min.WithZ(Max.Z);
+
+            for (var i = 0; i < 8; i++)
             {
-                // TODO: This should work with Span without unsafe in C# 7.2, but doesn't?
-                var vertices = stackalloc Vector3[8];
-
-                // Bottom plane
-                vertices[0] = Min;
-                vertices[1] = Min.WithX(Max.X);
-                vertices[2] = Min.WithY(Max.Y);
-                vertices[3] = Max.WithZ(Min.Z);
-
-                // Top plane
-                vertices[4] = Max;
-                vertices[5] = Max.WithX(Min.X);
-                vertices[6] = Max.WithY(Min.Y);
-                vertices[7] = Min.WithZ(Max.Z);
-
-                for (var i = 0; i < 8; i++)
-                {
-                    var screenPos = camera.WorldToScreenPoint(vertices[i]);
-                    topLeft = Vector3.Min(topLeft, screenPos);
-                    bottomRight = Vector3.Max(bottomRight, screenPos);
-                }
+                var screenPos = camera.WorldToScreenPoint(vertices[i]);
+                topLeft = Vector3.Min(topLeft, screenPos);
+                bottomRight = Vector3.Max(bottomRight, screenPos);
             }
 
             var size = bottomRight - topLeft;
