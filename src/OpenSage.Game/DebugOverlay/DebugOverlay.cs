@@ -67,7 +67,7 @@ namespace OpenSage.DebugOverlay
                     continue;
                 }
 
-                var rect = camera.WorldToScreenRectangle(point.Position, new Size(2));
+                var rect = camera.WorldToScreenRectangle(point.Position, new SizeF(4.0f));
 
                 if (rect.HasValue)
                 {

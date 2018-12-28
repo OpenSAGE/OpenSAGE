@@ -141,7 +141,7 @@ namespace OpenSage.Graphics.Cameras
             return _viewport.Project(position, Projection, View, Matrix4x4.Identity);
         }
 
-        internal RectangleF? WorldToScreenRectangle(in Vector3 position, in Size screenSize)
+        internal RectangleF? WorldToScreenRectangle(in Vector3 position, in SizeF screenSize)
         {
             var screenPosition = WorldToScreenPoint(position);
 
