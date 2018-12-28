@@ -32,7 +32,85 @@ namespace OpenSage.Tests.Data.Ini
             {
                 InstalledFilesTestData.ReadFiles(".ini", _output, new List<IGameDefinition> { gameDefinition }, entry =>
                 {
-                    switch (Path.GetFileName(entry.FilePath).ToLowerInvariant())
+                    var filename = Path.GetFileName(entry.FilePath).ToLowerInvariant();
+
+                    if (filename != "weapon.ini") return;
+                    /*
+                    // TODO:implement missing stuff
+                    if (gameDefinition.Game == SageGame.Bfme2)
+                    {
+                        switch (filename)
+                        {
+                            //BFME2
+                            case "armysummarydescription.ini":
+                            case "attributemodifier.ini":
+                            case "awardsystem.ini":
+                            case "bannerui.ini":
+                            case "riskcampaign.ini":
+                            case "commandbutton.ini":
+                            case "commandset.ini":
+                            case "crate.ini":
+                            case "createaherospecialpowers.ini":
+                            case "createaherosystem.ini":
+                            case "crowdresponse.ini":
+                            case "damagefx.ini":
+                            case "aidata.ini":
+                            case "eva.ini":
+                            case "skirmishaidata.ini":
+                            case "soundeffects.ini":
+                            case "emotions.ini":
+                            case "environment.ini":
+                            case "experiencelevels.ini":
+                            case "fire.ini":
+                            case "firelogicsystem.ini":
+                            case "formationassistant.ini":
+                            case "fxlist.ini":
+                            case "fxparticlesystem.ini":
+                            case "gamelod.ini":
+                            case "gamelodpresets.ini":
+                            case "ingamenotificationbox.ini":
+                            case "ingameui.ini":
+                            case "largegroupaudio.ini":
+                            case "linearcampaign.ini":
+                            case "livingworld.ini":
+                            case "livingworldaitemplate.ini":
+                            case "livingworldautoresolvearmor.ini":
+                            case "livingworldautoresolvebody.ini":
+                            case "livingworldautoresolvecombatchain.ini":
+                            case "livingworldautoresolvehandicaps.ini":
+                            case "livingworldautoresolveleadership.ini":
+                            case "livingworldautoresolvereinforcementschedule.ini":
+                            case "livingworldautoresolveresourcebonus.ini":
+                            case "livingworldautoresolvesciencepurchasepointbonus.ini":
+                            case "livingworldautoresolveweapon.ini":
+                            case "livingworldbuildingicons.ini":
+                            case "livingworldbuildings.ini":
+                            case "livingworldbuildploticons.ini":
+                            case "dwarficons.ini":
+                            case "elficons.ini":
+                            case "isengardicons.ini":
+                            case "mordoricons.ini":
+                            case "mowicons.ini":
+                            case "wildicons.ini":
+                            case "livingworldplayers.ini":
+                            case "livingworldregioneffects.ini":
+                            case "livingworldteststructures.ini":
+                            case "locomotor.ini":
+                            case "meshinstancingmanager.ini":
+                            case "scoredkillevaannouncer.ini":
+                            case "specialpower.ini":
+                            case "speech.ini":
+                            case "stances.ini":
+                            case "strategichud.ini":
+                            case "upgrade.ini":
+                            //case "weapon.ini":
+                            case "weather.ini":
+                            case "map.ini":
+                                return;
+                        }
+                    }
+
+                    switch (filename)
                     {
                         case "buttonsets.ini": // Doesn't seem to be used?
                         case "scripts.ini": // Only needed by World Builder?
@@ -43,62 +121,9 @@ namespace OpenSage.Tests.Data.Ini
                         //BFME
                         case "optionregistry.ini": // Don't know if this is used
                         case "localization.ini": // Don't know if we need this
-
-                        //BFME2
-                        case "armysummarydescription.ini":
-                        case "attributemodifier.ini":
-                        case "awardsystem.ini":
-                        case "bannerui.ini":
-                        case "riskcampaign.ini":
-                        case "commandbutton.ini":
-                        case "commandset.ini":
-                        case "crate.ini":
-                        case "createaherospecialpowers.ini":
-                        case "createaherosystem.ini":
-                        case "crowdresponse.ini":
-                        case "damagefx.ini":
-                        case "aidata.ini":
-                        case "eva.ini":
-                        case "skirmishaidata.ini":
-                        case "soundeffects.ini":
-                        case "emotions.ini":
-                        case "environment.ini":
-                        case "experiencelevels.ini":
-                        case "fire.ini":
-                        case "firelogicsystem.ini":
-                        case "formationassistant.ini":
-                        case "fxlist.ini":
-                        case "fxparticlesystem.ini":
-                        case "gamelod.ini":
-                        case "gamelodpresets.ini":
-                        case "ingamenotificationbox.ini":
-                        case "ingameui.ini":
-                        case "largegroupaudio.ini":
-                        case "linearcampaign.ini":
-                        case "livingworld.ini":
-                        case "livingworldaitemplate.ini":
-                        case "livingworldautoresolvearmor.ini":
-                        case "livingworldautoresolvebody.ini":
-                        case "livingworldautoresolvecombatchain.ini":
-                        case "livingworldautoresolvehandicaps.ini":
-                        case "livingworldautoresolveleadership.ini":
-                        case "livingworldautoresolvereinforcementschedule.ini":
-                        case "livingworldautoresolveresourcebonus.ini":
-                        case "livingworldautoresolvesciencepurchasepointbonus.ini":
-                        case "livingworldautoresolveweapon.ini":
-                        case "livingworldbuildingicons.ini":
-                        case "livingworldbuildings.ini":
-                        case "livingworldbuildploticons.ini":
-                        case "dwarficons.ini":
-                        case "elficons.ini":
-                        case "isengardicons.ini":
-                        case "mordoricons.ini":
-                        case "mowicons.ini":
-                        case "wildicons.ini":
-                        case "livingworldplayers.ini":
-                        case "livingworldregioneffects.ini":
                             return;
                     }
+                    */
 
                     var dataContext = new IniDataContext(entry.FileSystem, gameDefinition.Game);
 

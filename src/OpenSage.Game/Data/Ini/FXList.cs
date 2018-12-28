@@ -566,5 +566,11 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("BALROG_WHIP"), AddedIn(SageGame.Bfme)]
         BalrogWhip,
+
+        [IniEnum("POISON"), AddedIn(SageGame.Bfme2)]
+        Poison,
+
+        [IniEnum("BOLT"), AddedIn(SageGame.Bfme2)]
+        Bolt,
     }
 }
