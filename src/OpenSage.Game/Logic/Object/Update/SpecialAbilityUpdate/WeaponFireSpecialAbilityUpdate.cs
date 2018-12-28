@@ -15,7 +15,6 @@ namespace OpenSage.Logic.Object
             { "MustFinishAbility", (parser, x) => x.MustFinishAbility = parser.ParseBoolean() },
             { "SpecialWeapon", (parser, x) => x.SpecialWeapon = parser.ParseAssetReference() },
             { "BusyForDuration", (parser, x) => x.BusyForDuration = parser.ParseInteger() },
-            { "FreezeAfterTriggerDuration", (parser, x) => x.FreezeAfterTriggerDuration = parser.ParseInteger() },
             { "PlayWeaponPreFireFX", (parser, x) => x.PlayWeaponPreFireFX = parser.ParseBoolean() },
             { "ApproachUntilMembersInRange", (parser, x) => x.ApproachUntilMembersInRange = parser.ParseBoolean() },
             { "ChainedButton", (parser, x) => x.ChainedButton = parser.ParseAssetReference() },
@@ -27,7 +26,6 @@ namespace OpenSage.Logic.Object
         public bool MustFinishAbility { get; private set; }
         public string SpecialWeapon { get; private set; }
         public int BusyForDuration { get; private set; }
-        public int FreezeAfterTriggerDuration { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public bool PlayWeaponPreFireFX { get; private set; }

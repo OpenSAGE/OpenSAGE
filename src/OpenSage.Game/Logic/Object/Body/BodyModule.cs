@@ -13,6 +13,7 @@ namespace OpenSage.Logic.Object
             { "ActiveBody", ActiveBodyModuleData.Parse },
             { "DelayedDeathBody", DelayedDeathBodyModuleData.Parse },
             { "DetachableRiderBody", DetachableRiderBodyModuleData.Parse },
+            { "FreeLifeBody", FreeLifeBodyModuleData.Parse },
             { "HighlanderBody", HighlanderBodyModuleData.Parse },
             { "HiveStructureBody", HiveStructureBodyModuleData.Parse },
             { "ImmortalBody", ImmortalBodyModuleData.Parse },

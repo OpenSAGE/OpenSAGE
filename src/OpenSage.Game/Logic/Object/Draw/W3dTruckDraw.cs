@@ -48,7 +48,8 @@ namespace OpenSage.Logic.Object
                 { "PowerslideSpray", (parser, x) => x.PowerslideSpray = parser.ParseAssetReference() },
                 { "StaticModelLODMode", (parser, x) => x.StaticModelLODMode = parser.ParseBoolean() },
                 { "WadingParticleSys", (parser, x) => x.WadingParticleSys = parser.ParseString() },
-                { "DependencySharedModelFlags", (parser, x) => x.DependencySharedModelFlags = parser.ParseEnumBitArray<ModelConditionFlag>() }
+                { "DependencySharedModelFlags", (parser, x) => x.DependencySharedModelFlags = parser.ParseEnumBitArray<ModelConditionFlag>() },
+                { "RandomTexture", (parser, x) => x.RandomTexture = RandomTexture.Parse(parser) }
             });
 
         // Settings for the attached "cab" model on the vehicle
@@ -91,5 +92,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public BitArray<ModelConditionFlag> DependencySharedModelFlags { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public RandomTexture RandomTexture { get; private set; }
     }
 }

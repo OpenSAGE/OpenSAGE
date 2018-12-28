@@ -81,5 +81,14 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("SOLD"), AddedIn(SageGame.Bfme2)]
         Sold,
+
+        [IniEnum("IGNORE_AI_COMMAND"), AddedIn(SageGame.Bfme2Rotwk)]
+        IgnoreAICommand,
+
+        [IniEnum("SUMMONING_REPLACEMENT"), AddedIn(SageGame.Bfme2Rotwk)]
+        SummoningReplacement,
+
+        [IniEnum("DESTROYED"), AddedIn(SageGame.Bfme2Rotwk)]
+        Destroyed,
     }
 }

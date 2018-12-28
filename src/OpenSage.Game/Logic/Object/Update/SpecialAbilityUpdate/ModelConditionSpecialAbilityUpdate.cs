@@ -21,7 +21,11 @@ namespace OpenSage.Logic.Object
             { "EmotionPulseRadius", (parser, x) => x.EmotionPulseRadius = parser.ParseInteger() },
             { "DisableWhenWearingTheRing", (parser, x) => x.DisableWhenWearingTheRing = parser.ParseBoolean() },
             { "WhichSpecialPower", (parser, x) => x.WhichSpecialPower = parser.ParseInteger() },
-            { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) }
+            { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) },
+            { "TriggerSound", (parser, x) => x.TriggerSound = parser.ParseAssetReference() },
+            { "MustFinishAbility", (parser, x) => x.MustFinishAbility = parser.ParseBoolean() },
+            { "LoseStealthOnTrigger", (parser, x) => x.LoseStealthOnTrigger = parser.ParseBoolean() },
+            { "PreTriggerUnstealthTime", (parser, x) => x.PreTriggerUnstealthTime = parser.ParseInteger() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -38,5 +42,17 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public ObjectFilter ObjectFilter { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public string TriggerSound { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool MustFinishAbility { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool LoseStealthOnTrigger { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int PreTriggerUnstealthTime { get; private set; }
     }
 }

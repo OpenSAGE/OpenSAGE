@@ -29,6 +29,9 @@ namespace OpenSage.Logic.Object
 
             { "TurretFireAngleSweep", (parser, x) => x.TurretFireAngleSweeps.Add(parser.ParseEnum<WeaponSlot>(), parser.ParseInteger()) },
             { "TurretSweepSpeedModifier", (parser, x) => x.TurretSweepSpeedModifiers.Add(parser.ParseEnum<WeaponSlot>(), parser.ParseFloat()) },
+
+            { "TurretMaxDeflectionCW", (parser, x) => x.TurretMaxDeflectionCW = parser.ParseInteger() },
+            { "TurretMaxDeflectionACW", (parser, x) => x.TurretMaxDeflectionACW = parser.ParseInteger() },
         };
 
         public bool InitiallyDisabled { get; private set; }
@@ -77,5 +80,11 @@ namespace OpenSage.Logic.Object
 
         public Dictionary<WeaponSlot, int> TurretFireAngleSweeps { get; } = new Dictionary<WeaponSlot, int>();
         public Dictionary<WeaponSlot, float> TurretSweepSpeedModifiers { get; } = new Dictionary<WeaponSlot, float>();
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int TurretMaxDeflectionCW { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int TurretMaxDeflectionACW { get; private set; }
     }
 }

@@ -16,7 +16,8 @@ namespace OpenSage.Logic.Object
                 { "LodOptions", (parser, x) => x.LodOptions.Add(LodOption.Parse(parser)) },
                 { "WadingParticleSys", (parser, x) => x.WadingParticleSys = parser.ParseAssetReference() },
                 { "RandomTexture", (parser, x) => x.RandomTextures.Add(RandomTexture.Parse(parser)) },
-                { "DependencySharedModelFlags", (parser, x) => x.DependencySharedModelFlags = parser.ParseEnumBitArray<ModelConditionFlag>() }
+                { "DependencySharedModelFlags", (parser, x) => x.DependencySharedModelFlags = parser.ParseEnumBitArray<ModelConditionFlag>() },
+                { "RandomTextureFixedRandomIndex", (parser, x) => x.RandomTextureFixedRandomIndex = parser.ParseBoolean() }
             });
 
         public bool StaticModelLodMode { get; private set; }
@@ -26,6 +27,9 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public BitArray<ModelConditionFlag> DependencySharedModelFlags { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool RandomTextureFixedRandomIndex { get; private set; }
     }
 
     public sealed class LodOption

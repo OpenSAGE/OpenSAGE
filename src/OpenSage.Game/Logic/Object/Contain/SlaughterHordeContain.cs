@@ -23,6 +23,7 @@ namespace OpenSage.Logic.Object
                 { "EnterSound", (parser, x) => x.EnterSound = parser.ParseAssetReference() },
                 { "EntryOffset", (parser, x) => x.EntryOffset = parser.ParseVector3() },
                 { "ExitOffset", (parser, x) => x.ExitOffset = parser.ParseVector3() },
+                { "EntryPosition", (parser, x) => x.EntryPosition = parser.ParseVector3() },
             });
 
         public ObjectFilter PassengerFilter { get; private set; }
@@ -36,5 +37,8 @@ namespace OpenSage.Logic.Object
         public string EnterSound { get; private set; }
         public Vector3 EntryOffset { get; private set; }
         public Vector3 ExitOffset { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public Vector3 EntryPosition { get; private set; }
     }
 }

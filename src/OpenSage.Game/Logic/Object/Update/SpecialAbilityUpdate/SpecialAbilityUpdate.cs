@@ -60,7 +60,8 @@ namespace OpenSage.Logic.Object
             { "RequiredConditions", (parser, x) => x.RequiredConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
             { "KillAttributeModifierOnRejected", (parser, x) => x.KillAttributeModifierOnRejected = parser.ParseBoolean() },
             { "TriggerModelCondition", (parser, x) => x.TriggerModelCondition = parser.ParseAttributeEnum<ModelConditionFlag>("ModelConditionState") },
-            { "TriggerModelConditionDuration", (parser, x) => x.TriggerModelConditionDuration = parser.ParseInteger() }
+            { "TriggerModelConditionDuration", (parser, x) => x.TriggerModelConditionDuration = parser.ParseInteger() },
+            { "FreezeAfterTriggerDuration", (parser, x) => x.FreezeAfterTriggerDuration = parser.ParseInteger() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -152,5 +153,7 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public int TriggerModelConditionDuration { get; private set; }
+
+        public int FreezeAfterTriggerDuration { get; private set; }
     }
 }

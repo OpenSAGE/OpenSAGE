@@ -11,10 +11,18 @@ namespace OpenSage.Logic.Object
         private static readonly IniParseTable<AttachUpdateModuleData> FieldParseTable = new IniParseTable<AttachUpdateModuleData>
         {
             { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) },
-            { "ScanRange", (parser, x) => x.ScanRange = parser.ParseInteger() }
+            { "ScanRange", (parser, x) => x.ScanRange = parser.ParseInteger() },
+            { "AlwaysTeleport", (parser, x) => x.AlwaysTeleport = parser.ParseBoolean() },
+            { "AnchorToTopOfGeometry", (parser, x) => x.AnchorToTopOfGeometry = parser.ParseBoolean() }
         };
 
         public ObjectFilter ObjectFilter { get; private set; }
         public int ScanRange { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool AlwaysTeleport { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool AnchorToTopOfGeometry { get; private set; }
     }
 }

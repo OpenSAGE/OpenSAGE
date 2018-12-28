@@ -31,7 +31,9 @@ namespace OpenSage.Logic.Object
             { "EnteringDamagedTransitionTime", (parser, x) => x.EnteringDamagedTransitionTime = parser.ParseInteger() },
             { "HealingBuffFx", (parser, x) => x.HealingBuffFx = parser.ParseAssetReference() },
             { "BurningDeathBehavior", (parser, x) => x.BurningDeathBehavior = parser.ParseBoolean() },
-            { "BurningDeathFX", (parser, x) => x.BurningDeathFX = parser.ParseAssetReference() }
+            { "BurningDeathFX", (parser, x) => x.BurningDeathFX = parser.ParseAssetReference() },
+            { "DamagedAttributeModifier", (parser, x) => x.DamagedAttributeModifier = parser.ParseAssetReference() },
+            { "ReallyDamagedAttributeModifier", (parser, x) => x.ReallyDamagedAttributeModifier = parser.ParseAssetReference() }
         };
 
         public float MaxHealth { get; private set; }
@@ -90,6 +92,12 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2)]
         public string BurningDeathFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public string DamagedAttributeModifier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public string ReallyDamagedAttributeModifier { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

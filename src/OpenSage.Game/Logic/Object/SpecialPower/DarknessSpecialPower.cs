@@ -12,14 +12,14 @@ namespace OpenSage.Logic.Object
             .Concat(new IniParseTable<DarknessSpecialPowerModuleData>
             {
                 { "AffectEvil", (parser, x) => x.AffectEvil = parser.ParseBoolean() },
-                { "WeatherDuration", (parser, x) => x.WeatherDuration = parser.ParseInteger() },
+                { "WeatherDuration", (parser, x) => x.WeatherDuration = parser.ParseLong() },
                 { "ChangeWeather", (parser, x) => x.ChangeWeather = parser.ParseEnum<WeatherType>() }
             });
 
         public bool AffectEvil { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public int WeatherDuration { get; private set; }
+        public long WeatherDuration { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public WeatherType ChangeWeather { get; private set; }

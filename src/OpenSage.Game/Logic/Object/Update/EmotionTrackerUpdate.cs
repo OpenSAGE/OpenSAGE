@@ -67,11 +67,15 @@ namespace OpenSage.Logic.Object
         {
             { "AttributeModifier", (parser, x) => x.AttributeModifier = parser.ParseAssetReference() },
             { "Duration", (parser, x) => x.Duration = parser.ParseInteger() },
+            { "AILockDuration", (parser, x) => x.AILockDuration = parser.ParseInteger() },
         };
 
         public EmotionType Type { get; private set; }
         public string EmotionName { get; private set; }
         public string AttributeModifier { get; private set; }
         public int Duration { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int AILockDuration { get; private set; }
     }
 }
