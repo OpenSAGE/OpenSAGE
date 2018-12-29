@@ -209,7 +209,7 @@ namespace OpenSage.Logic.Object
                 var point = Transform.Translation + new Vector3((float) Math.Cos(angle), (float) Math.Sin(angle), 0) * radius;
                 var screenPoint = camera.WorldToScreenPoint(point).Vector2XY();
 
-                // No line gets draw on the first iteration
+                // No line gets drawn on the first iteration
                 if (i == 0)
                 {
                     firstPoint = screenPoint;

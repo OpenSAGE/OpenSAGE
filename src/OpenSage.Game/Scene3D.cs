@@ -24,10 +24,10 @@ namespace OpenSage
         private CameraInputState _cameraInputState;
 
         private readonly SelectionMessageHandler _selectionMessageHandler;
+        public SelectionGui SelectionGui { get; }
 
         private readonly DebugMessageHandler _debugMessageHandler;
-
-        public SelectionGui SelectionGui { get; }
+        public DebugOverlay DebugOverlay { get; private set; }
 
         private readonly ParticleSystemManager _particleSystemManager;
 
@@ -69,7 +69,6 @@ namespace OpenSage
         public IReadOnlyList<Player> Players => _players;
         private List<Player> _players;
         public Player LocalPlayer { get; private set; }
-        public DebugOverlay DebugOverlay { get; private set; }
 
         internal IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
         {

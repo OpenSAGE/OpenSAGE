@@ -5,9 +5,9 @@ namespace OpenSage.Input
 {
     public sealed class InputMessage
     {
-        public static InputMessage CreateKeyUp(Key value, ModifierKeys modifier)
+        public static InputMessage CreateKeyUp(Key value)
         {
-            return new InputMessage(InputMessageType.KeyUp, new InputMessageValue { Key = value, Modifier = modifier });
+            return new InputMessage(InputMessageType.KeyUp, new InputMessageValue { Key = value });
         }
 
         public static InputMessage CreateKeyDown(Key value)
