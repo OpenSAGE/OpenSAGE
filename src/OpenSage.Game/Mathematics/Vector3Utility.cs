@@ -46,6 +46,9 @@ namespace OpenSage.Mathematics
             return vector;
         }
 
+        /// <summary>
+        /// Selects the X and Y fields into a new Vector2.
+        /// </summary>
         public static Vector2 Vector2XY(this Vector3 vector)
         {
             return new Vector2(vector.X, vector.Y);

@@ -10,9 +10,6 @@ namespace OpenSage.Input
         [FieldOffset(0)]
         public Key Key;
 
-        [FieldOffset(8)]
-        public ModifierKeys Modifier;
-
         [FieldOffset(0)]
         public Point2D MousePosition;
 
