@@ -9,6 +9,8 @@ namespace OpenSage.Gui.Wnd.Controls
         public event EventHandler Click;
 
         public Image PushedBackgroundImage { get; set; }
+        public Image HoverOverlayImage { get; set; }
+        public Image PushedOverlayImage { get; set; }
 
         public override Size GetPreferredSize(Size proposedSize)
         {
@@ -20,11 +22,22 @@ namespace OpenSage.Gui.Wnd.Controls
         protected override void LayoutOverride()
         {
             PushedBackgroundImage?.SetSize(Size);
+            HoverOverlayImage?.SetSize(Size);
+            PushedOverlayImage?.SetSize(Size);
         }
 
         protected override void DrawOverride(DrawingContext2D drawingContext)
         {
             DrawText(drawingContext, TextAlignment.Center);
+
+            if (IsMouseDown && PushedOverlayImage != null)
+            {
+                PushedOverlayImage.Draw(drawingContext, ClientRectangle);
+            }
+            else if (IsMouseOver && HoverOverlayImage != null)
+            {
+                HoverOverlayImage.Draw(drawingContext, ClientRectangle);
+            }
         }
 
         protected override void DrawBackgroundImage(DrawingContext2D drawingContext)

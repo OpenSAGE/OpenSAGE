@@ -4,7 +4,6 @@ using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Gui;
-using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Logic;
@@ -64,6 +63,9 @@ namespace OpenSage.Mods.Generals.Gui
         private readonly Image _resizeUpHover;
         private readonly Image _resizeUpPushed;
 
+        private readonly Image _commandButtonHover;
+        private readonly Image _commandButtonPushed;
+
         private ControlBarSize _size = ControlBarSize.Maximized;
 
         private Image LoadImage(string name) => _contentManager.WndImageLoader.CreateNormalImage(name);
@@ -95,6 +97,9 @@ namespace OpenSage.Mods.Generals.Gui
             _resizeUpBackground = LoadImage(_scheme.ToggleButtonUpOn);
             _resizeUpHover = LoadImage(_scheme.ToggleButtonUpIn);
             _resizeUpPushed = LoadImage(_scheme.ToggleButtonUpPushed);
+
+            _commandButtonHover = LoadImage("Cameo_hilited");
+            _commandButtonPushed = LoadImage("Cameo_push");
 
             UpdateResizeButtonStyle();
 
@@ -175,7 +180,7 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 for (var i = 1; i <= 12; i++)
                 {
-                    var buttonControl = controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}");
+                    var buttonControl = controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}") as Button;
 
                     if (commandSet != null && commandSet.Buttons.TryGetValue(i, out var commandButtonName))
                     {
@@ -185,6 +190,9 @@ namespace OpenSage.Mods.Generals.Gui
 
                         buttonControl.BorderColor = GetBorderColor(commandButton.ButtonBorderType, controlBar._scheme).ToColorRgbaF();
                         buttonControl.BorderWidth = 1;
+
+                        buttonControl.HoverOverlayImage = controlBar._commandButtonHover;
+                        buttonControl.PushedOverlayImage = controlBar._commandButtonPushed;
 
                         buttonControl.SystemCallback = (control, mesage, context) =>
                         {
