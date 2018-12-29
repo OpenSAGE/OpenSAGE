@@ -9,13 +9,13 @@ namespace OpenSage.Logic.Orders
     {
         private readonly List<OrderArgument> _arguments;
 
-        public uint PlayerIndex { get; }
+        public int PlayerIndex { get; }
 
         public OrderType OrderType { get; }
 
         public IReadOnlyList<OrderArgument> Arguments => _arguments;
 
-        public Order(uint playerIndex, OrderType orderType)
+        public Order(int playerIndex, OrderType orderType)
         {
             OrderType = orderType;
 
@@ -92,12 +92,12 @@ namespace OpenSage.Logic.Orders
             return sb.ToString();
         }
 
-        public static Order CreateClearSelection(uint playerId)
+        public static Order CreateClearSelection(int playerId)
         {
             return new Order(playerId, OrderType.ClearSelection);
         }
 
-        public static Order CreateSetSelection(uint playedId, uint objectId)
+        public static Order CreateSetSelection(int playedId, uint objectId)
         {
             var order = new Order(playedId, OrderType.SetSelection);
 
@@ -108,7 +108,7 @@ namespace OpenSage.Logic.Orders
             return order;
         }
 
-        public static Order CreateSetSelection(uint playerId, IEnumerable<uint> objectIds)
+        public static Order CreateSetSelection(int playerId, IEnumerable<uint> objectIds)
         {
             var order = new Order(playerId, OrderType.SetSelection);
 
@@ -119,6 +119,17 @@ namespace OpenSage.Logic.Orders
             {
                 order.AddObjectIdArgument(objectId);
             }
+
+            return order;
+        }
+
+        public static Order CreateBuildObject(int playerId, int objectDefinitionId, Vector3 position, float angle)
+        {
+            var order = new Order(playerId, OrderType.BuildObject);
+
+            order.AddIntegerArgument(objectDefinitionId);
+            order.AddPositionArgument(position);
+            order.AddFloatArgument(angle);
 
             return order;
         }

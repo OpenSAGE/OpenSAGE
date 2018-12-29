@@ -28,7 +28,7 @@ namespace OpenSage.Data.Rep
                 argumentCounts[i] = (reader.ReadByteAsEnum<OrderArgumentType>(), reader.ReadByte());
             }
 
-            var order = new Order(result.Header.Number, result.Header.OrderType);
+            var order = new Order((int) result.Header.Number, result.Header.OrderType);
             result.Order = order;
 
             for (var i = 0; i < numUniqueArgumentTypes; i++)

@@ -4,6 +4,7 @@
     {
         CameraPriority,
         SelectionPriority,
+        OrderGeneratorPriority,
         UIPriority,
         BoxSelectionPriority,
         MoveCameraPriority
