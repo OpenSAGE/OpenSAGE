@@ -105,6 +105,11 @@ namespace OpenSage.Mods.Generals.Gui
         // TODO: This takes a player as the state information. Do we need any other state?
         public void Update(Player player)
         {
+            if (player == null)
+            {
+                return;
+            }
+
             _moneyDisplay.Text = $"$ {player.Money}";
 
             if (player.SelectedUnits.Count > 0)
