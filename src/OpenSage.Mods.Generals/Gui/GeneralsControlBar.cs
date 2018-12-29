@@ -177,7 +177,7 @@ namespace OpenSage.Mods.Generals.Gui
                 {
                     var buttonControl = controlBar._commandWindow.Controls.FindControl($"ControlBar.wnd:ButtonCommand{i:D2}");
 
-                    if (commandSet.Buttons.TryGetValue(i, out var commandButtonName))
+                    if (commandSet != null && commandSet.Buttons.TryGetValue(i, out var commandButtonName))
                     {
                         var commandButton = controlBar._contentManager.IniDataContext.CommandButtons.Find(x => x.Name == commandButtonName);
 
