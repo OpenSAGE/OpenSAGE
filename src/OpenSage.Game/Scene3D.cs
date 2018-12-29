@@ -8,6 +8,7 @@ using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Rendering.Shadows;
 using OpenSage.Gui;
 using OpenSage.Gui.DebugUI;
+using OpenSage.Input;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Scripting;
@@ -70,6 +71,8 @@ namespace OpenSage
         private List<Player> _players;
         public Player LocalPlayer { get; private set; }
 
+        private readonly OrderGeneratorInputHandler _orderGeneratorInputHandler;
+
         internal IEnumerable<AttachedParticleSystem> GetAllAttachedParticleSystems()
         {
             foreach (var gameObject in GameObjects.Items)
@@ -112,13 +115,10 @@ namespace OpenSage
             Lighting = lighting;
 
             SelectionGui = new SelectionGui();
-            _selectionMessageHandler = new SelectionMessageHandler(game.Selection);
-            game.InputMessageBuffer.Handlers.Add(_selectionMessageHandler);
-            AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_selectionMessageHandler));
 
-            _cameraInputMessageHandler = new CameraInputMessageHandler();
-            game.InputMessageBuffer.Handlers.Add(_cameraInputMessageHandler);
-            AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_cameraInputMessageHandler));
+            RegisterInputHandler(_selectionMessageHandler = new SelectionMessageHandler(game.Selection), game);
+            RegisterInputHandler(_cameraInputMessageHandler = new CameraInputMessageHandler(), game);
+            RegisterInputHandler(_orderGeneratorInputHandler = new OrderGeneratorInputHandler(game.OrderGenerator), game);
 
             DebugOverlay = new DebugOverlay(this, game.ContentManager);
             _debugMessageHandler = new DebugMessageHandler(DebugOverlay);
@@ -131,6 +131,12 @@ namespace OpenSage
             _teams = teams.ToList();
             // TODO: This is completely wrong.
             LocalPlayer = _players.FirstOrDefault();
+        }
+
+        private void RegisterInputHandler(InputMessageHandler handler, Game game)
+        {
+            game.InputMessageBuffer.Handlers.Add(handler);
+            AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(handler));
         }
 
         public void SetPlayers(IEnumerable<Player> players, Player localPlayer)

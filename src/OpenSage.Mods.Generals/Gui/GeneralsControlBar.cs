@@ -196,18 +196,15 @@ namespace OpenSage.Mods.Generals.Gui
 
                         buttonControl.SystemCallback = (control, mesage, context) =>
                         {
-                            var playerIndex = (uint) context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
+                            var playerIndex = context.Game.Scene3D.GetPlayerIndex(context.Game.Scene3D.LocalPlayer);
                             Order CreateOrder(OrderType type) => new Order(playerIndex, type);
 
-                            Order order;
+                            Order order = null;
                             switch (commandButton.Command)
                             {
                                 case CommandType.DozerConstruct:
-                                    // TODO: This is not right at all - we should be letting the user place the building.
-                                    order = CreateOrder(OrderType.BuildObject);
-                                    order.AddIntegerArgument(context.Game.ContentManager.IniDataContext.Objects.FindIndex(x => x.Name == commandButton.Object) + 1); // Object definition ID
-                                    order.AddPositionArgument(context.Game.Scene3D.LocalPlayer.SelectedUnits.First().Transform.Translation + new Vector3(-50, 0, 0)); // Position
-                                    order.AddFloatArgument(0); // Angle
+                                    var objectDefinition = context.Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == commandButton.Object);
+                                    context.Game.OrderGenerator.StartConstructBuilding(objectDefinition, context.Game.Scene3D.LocalPlayer.SelectedUnits.First());
                                     break;
 
                                 case CommandType.ToggleOvercharge:
@@ -222,7 +219,10 @@ namespace OpenSage.Mods.Generals.Gui
                                     throw new NotImplementedException();
                             }
 
-                            context.Game.NetworkMessageBuffer.AddLocalOrder(order);
+                            if (order != null)
+                            {
+                                context.Game.NetworkMessageBuffer.AddLocalOrder(order);
+                            }
                         };
 
                         buttonControl.Show();

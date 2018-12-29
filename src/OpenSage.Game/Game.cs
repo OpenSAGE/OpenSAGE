@@ -66,6 +66,11 @@ namespace OpenSage
         public SelectionSystem Selection { get; }
 
         /// <summary>
+        /// Gets the order generator system.
+        /// </summary>
+        public OrderGeneratorSystem OrderGenerator { get; }
+
+        /// <summary>
         /// Gets the audio system
         /// </summary>
         public AudioSystem Audio { get; }
@@ -188,6 +193,8 @@ namespace OpenSage
             Scene2D = new Scene2D(this);
 
             Selection = AddDisposable(new SelectionSystem(this));
+
+            OrderGenerator = AddDisposable(new OrderGeneratorSystem(this));
 
             Panel.ClientSizeChanged += OnWindowClientSizeChanged;
             OnWindowClientSizeChanged(this, EventArgs.Empty);

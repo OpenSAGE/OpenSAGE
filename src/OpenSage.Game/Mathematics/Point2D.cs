@@ -34,6 +34,11 @@ namespace OpenSage.Mathematics
             return new Size(X, Y);
         }
 
+        public Vector2 ToVector2()
+        {
+            return new Vector2(X, Y);
+        }
+
         public static Point2D operator+(Point2D a, Point2D b)
         {
             return new Point2D(a.X + b.X, a.Y + b.Y);
