@@ -52,6 +52,16 @@ namespace OpenSage.Gui.DebugUi
             AddLine(start, end, color, 0);
         }
 
+        public void AddCoordAxes(Vector3 point, float? duration = null)
+        {
+            _debugDrawables.Add(new DebugCoordAxes(point, duration));
+        }
+
+        public void DrawCoordAxes(Vector3 point)
+        {
+            AddCoordAxes(point, 0);
+        }
+
         public void Update(GameTime gameTime)
         {
             foreach (var drawable in _debugDrawables)

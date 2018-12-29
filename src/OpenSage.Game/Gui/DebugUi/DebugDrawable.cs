@@ -38,6 +38,25 @@ namespace OpenSage.Gui.DebugUi
         }
     }
 
+    public class DebugCoordAxes : IDebugDrawable
+    {
+        public readonly Vector3 Position;
+        public float? Timer { get; set; }
+
+        public DebugCoordAxes(Vector3 position, float? duration = null)
+        {
+            Position = position;
+            Timer = duration;
+        }
+
+        public void Render(DrawingContext2D context, Camera camera)
+        {
+            DebugDrawingUtils.DrawLine(context, camera, Position, Position + Vector3.UnitX, new ColorRgbaF(1, 0, 0, 1));
+            DebugDrawingUtils.DrawLine(context, camera, Position, Position + Vector3.UnitY, new ColorRgbaF(0, 1, 0, 1));
+            DebugDrawingUtils.DrawLine(context, camera, Position, Position + Vector3.UnitZ, new ColorRgbaF(0, 0, 1, 1));
+        }
+    }
+
     public class DebugLine : IDebugDrawable
     {
         public readonly Vector3 Start;
@@ -55,15 +74,23 @@ namespace OpenSage.Gui.DebugUi
 
         public void Render(DrawingContext2D context, Camera camera)
         {
-            var startScreen3D = camera.WorldToScreenPoint(Start);
-            var endScreen3D = camera.WorldToScreenPoint(End);
+            DebugDrawingUtils.DrawLine(context, camera, Start, End, Color);
+        }
+    }
+
+    internal static class DebugDrawingUtils
+    {
+        public static void DrawLine(DrawingContext2D context, Camera camera, Vector3 start, Vector3 end, ColorRgbaF color)
+        {
+            var startScreen3D = camera.WorldToScreenPoint(start);
+            var endScreen3D = camera.WorldToScreenPoint(end);
 
             if (!camera.IsWithinViewportDepth(startScreen3D) || !camera.IsWithinViewportDepth(endScreen3D))
             {
                 return;
             }
 
-            context.DrawLine(new Line2D(startScreen3D.Vector2XY(), endScreen3D.Vector2XY()), 1.0f, Color);
+            context.DrawLine(new Line2D(startScreen3D.Vector2XY(), endScreen3D.Vector2XY()), 1, color);
         }
     }
 }
