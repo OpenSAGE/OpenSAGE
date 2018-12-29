@@ -118,6 +118,74 @@ namespace OpenSage.Mathematics
             return PlaneIntersectionType.Intersecting;
         }
 
+        // Based on MonoGame
+        // https://github.com/MonoGame/MonoGame/blob/faea8a6a89504673e2bb7e435f0da8cc513d8c30/MonoGame.Framework/BoundingBox.cs#L362
+        public bool Intersects(in BoundingBox box)
+        {
+            if ((Max.X >= box.Min.X) && (Min.X <= box.Max.X))
+            {
+                if ((Max.Y < box.Min.Y) || (Min.Y > box.Max.Y))
+                {
+                    return false;
+                }
+
+                return (Max.Z >= box.Min.Z) && (Min.Z <= box.Max.Z);
+            }
+
+            return false;
+        }
+
+        // Based on MonoGame:
+        // https://github.com/MonoGame/MonoGame/blob/faea8a6a89504673e2bb7e435f0da8cc513d8c30/MonoGame.Framework/BoundingBox.cs#L385
+        public bool Intersects(in BoundingSphere sphere)
+        {
+            if (sphere.Center.X - Min.X > sphere.Radius
+                && sphere.Center.Y - Min.Y > sphere.Radius
+                && sphere.Center.Z - Min.Z > sphere.Radius
+                && Max.X - sphere.Center.X > sphere.Radius
+                && Max.Y - sphere.Center.Y > sphere.Radius
+                && Max.Z - sphere.Center.Z > sphere.Radius)
+            {
+                return true;
+            }
+
+            float dmin = 0;
+
+            if (sphere.Center.X - Min.X <= sphere.Radius)
+            {
+                dmin += (sphere.Center.X - Min.X) * (sphere.Center.X - Min.X);
+            }
+            else if (Max.X - sphere.Center.X <= sphere.Radius)
+            {
+                dmin += (sphere.Center.X - Max.X) * (sphere.Center.X - Max.X);
+            }
+
+            if (sphere.Center.Y - Min.Y <= sphere.Radius)
+            {
+                dmin += (sphere.Center.Y - Min.Y) * (sphere.Center.Y - Min.Y);
+            }
+            else if (Max.Y - sphere.Center.Y <= sphere.Radius)
+            {
+                dmin += (sphere.Center.Y - Max.Y) * (sphere.Center.Y - Max.Y);
+            }
+
+            if (sphere.Center.Z - Min.Z <= sphere.Radius)
+            {
+                dmin += (sphere.Center.Z - Min.Z) * (sphere.Center.Z - Min.Z);
+            }
+            else if (Max.Z - sphere.Center.Z <= sphere.Radius)
+            {
+                dmin += (sphere.Center.Z - Max.Z) * (sphere.Center.Z - Max.Z);
+            }
+
+            if (dmin <= sphere.Radius * sphere.Radius)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         // Based on http://dev.theomader.com/transform-bounding-boxes/
         public static BoundingBox Transform(in BoundingBox box, in Matrix4x4 matrix)
         {

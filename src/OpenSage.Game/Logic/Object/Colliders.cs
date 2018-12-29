@@ -31,6 +31,8 @@ namespace OpenSage.Logic.Object
 
         public abstract bool Intersects(in BoundingFrustum frustum);
 
+        public abstract bool Intersects(in BoundingBox boundingBox);
+
         protected abstract bool IntersectsTransformedRay(in Ray ray, out float depth);
 
         public abstract Rectangle GetBoundingRectangle(Camera camera);
@@ -122,6 +124,11 @@ namespace OpenSage.Logic.Object
             drawingContext.DrawLine(new Line2D(rbScreen, rtScreen), 1, strokeColor);
             drawingContext.DrawLine(new Line2D(rtScreen, ltScreen), 1, strokeColor);
         }
+
+        public override bool Intersects(in BoundingBox boundingBox)
+        {
+            return boundingBox.Intersects(boundingBox);
+        }
     }
 
     public class SphereCollider : Collider
@@ -156,6 +163,11 @@ namespace OpenSage.Logic.Object
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
         {
             //TODO implement
+        }
+
+        public override bool Intersects(in BoundingBox boundingBox)
+        {
+            return boundingBox.Intersects(_bounds);
         }
     }
 
@@ -227,6 +239,11 @@ namespace OpenSage.Logic.Object
 
                 previousPoint = screenPoint;
             }
+        }
+
+        public override bool Intersects(in BoundingBox boundingBox)
+        {
+            return _bounds.Intersects(boundingBox);
         }
     }
 }
