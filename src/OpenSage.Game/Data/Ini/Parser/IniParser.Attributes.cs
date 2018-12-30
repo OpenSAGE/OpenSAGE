@@ -56,7 +56,9 @@ namespace OpenSage.Data.Ini.Parser
             return parse(this);
         }
 
-        public T ParseAttribute<T>(string label, Func<IniToken, T> parseValue)
+        public delegate T ParseValueDelegate<T>(in IniToken token);
+
+        public T ParseAttribute<T>(string label, ParseValueDelegate<T> parseValue)
         {
             var nameToken = GetNextToken(SeparatorsColon);
             if (!string.Equals(nameToken.Text, label, StringComparison.OrdinalIgnoreCase))
@@ -109,10 +111,12 @@ namespace OpenSage.Data.Ini.Parser
 
         public string ParseAttributeIdentifier(string label)
         {
-            return ParseAttribute(label, x => x.Text);
+            string GetText(in IniToken token) => token.Text;
+
+            return ParseAttribute(label, GetText);
         }
 
-        public T ScanAttributeEnum<T>(string label, IniToken token)
+        public T ScanAttributeEnum<T>(string label, in IniToken token)
             where T : struct
         {
             return ParseAttribute<T>(label, ScanEnum<T>);
@@ -121,7 +125,9 @@ namespace OpenSage.Data.Ini.Parser
         public T ParseAttributeEnum<T>(string label)
             where T : struct
         {
-            return ParseAttribute(label, x => ScanEnum<T>(x));
+            T GetValue(in IniToken token) => ScanEnum<T>(token);
+
+            return ParseAttribute(label, GetValue);
         }
 
         public BitArray<T> ParseAttributeEnumBitArray<T>(string label)

@@ -252,7 +252,7 @@ namespace OpenSage.Data.Ini.Parser
             return Encoding.Unicode.GetString(unicodeBytes.ToArray());
         }
 
-        public string ScanAssetReference(IniToken token) => token.Text;
+        public string ScanAssetReference(in IniToken token) => token.Text;
 
         public string ParseAssetReference()
         {
@@ -275,7 +275,7 @@ namespace OpenSage.Data.Ini.Parser
             return result.ToArray();
         }
 
-        public bool IsInteger(IniToken token) => int.TryParse(token.Text, out _);
+        public bool IsInteger(in IniToken token) => int.TryParse(token.Text, out _);
 
         public int GetIntegerOptional()
         {
@@ -287,7 +287,7 @@ namespace OpenSage.Data.Ini.Parser
             return ScanInteger(token.Value);
         }
 
-        public int ScanInteger(IniToken token) => ParseUtility.ParseInteger(token.Text);
+        public int ScanInteger(in IniToken token) => ParseUtility.ParseInteger(token.Text);
 
         public int ParseInteger() => ScanInteger(GetNextToken());
 
@@ -316,11 +316,11 @@ namespace OpenSage.Data.Ini.Parser
             return result.ToArray();
         }
 
-        public uint ScanUnsignedInteger(IniToken token) => Convert.ToUInt32(token.Text);
+        public uint ScanUnsignedInteger(in IniToken token) => Convert.ToUInt32(token.Text);
 
         public uint ParseUnsignedInteger() => ScanUnsignedInteger(GetNextToken());
 
-        private long ScanLong(IniToken token)
+        private long ScanLong(in IniToken token)
         {
             try
             {
@@ -336,11 +336,11 @@ namespace OpenSage.Data.Ini.Parser
 
         public long ParseLong() => ScanLong(GetNextToken());
 
-        public byte ScanByte(IniToken token) => (byte) ScanInteger(token);
+        public byte ScanByte(in IniToken token) => (byte) ScanInteger(token);
 
         public byte ParseByte() => ScanByte(GetNextToken());
 
-        private static string GetFloatText(IniToken token)
+        private static string GetFloatText(in IniToken token)
         {
             var floatText = string.Empty;
             var seenDot = false;
@@ -366,13 +366,13 @@ namespace OpenSage.Data.Ini.Parser
             return floatText;
         }
 
-        public bool IsFloat(IniToken token)
+        public bool IsFloat(in IniToken token)
         {
             var floatText = GetFloatText(token);
             return !string.IsNullOrEmpty(floatText) && ParseUtility.TryParseFloat(floatText, out _);
         }
 
-        public float ScanFloat(IniToken token)
+        public float ScanFloat(in IniToken token)
         {
             return ParseUtility.ParseFloat(GetFloatText(token));
         }
@@ -403,11 +403,11 @@ namespace OpenSage.Data.Ini.Parser
             return result.ToArray();
         }
 
-        private float ScanPercentage(IniToken token) => ScanFloat(token);
+        private float ScanPercentage(in IniToken token) => ScanFloat(token);
 
         public float ParsePercentage() => ScanPercentage(GetNextToken(SeparatorsPercent));
 
-        private bool ScanBoolean(IniToken token)
+        private bool ScanBoolean(in IniToken token)
         {
             switch (token.Text.ToUpperInvariant())
             {
@@ -445,7 +445,7 @@ namespace OpenSage.Data.Ini.Parser
 
         public string ParseFileName() => ParseIdentifier();
 
-        public string ScanBoneName(IniToken token) => token.Text;
+        public string ScanBoneName(in IniToken token) => token.Text;
         public string ParseBoneName() => ScanBoneName(GetNextToken());
 
         public string[] ParseBoneNameArray() => ParseAssetReferenceArray();

@@ -1,6 +1,6 @@
 ﻿namespace OpenSage.Data.Ini.Parser
 {
-    public struct IniTokenPosition
+    public readonly struct IniTokenPosition
     {
         public readonly string File;
         public readonly int Line;
