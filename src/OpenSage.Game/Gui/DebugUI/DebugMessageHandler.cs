@@ -1,7 +1,7 @@
 ﻿using OpenSage.Input;
 using Veldrid;
 
-namespace OpenSage.Gui.DebugUi
+namespace OpenSage.Gui.DebugUI
 {
     public class DebugMessageHandler : InputMessageHandler
     {

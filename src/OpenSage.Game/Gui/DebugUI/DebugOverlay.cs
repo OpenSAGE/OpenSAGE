@@ -7,7 +7,7 @@ using OpenSage.Graphics.Cameras;
 using OpenSage.Mathematics;
 using SixLabors.Fonts;
 
-namespace OpenSage.Gui.DebugUi
+namespace OpenSage.Gui.DebugUI
 {
     public class DebugOverlay
     {
@@ -32,32 +32,32 @@ namespace OpenSage.Gui.DebugUi
             _debugDrawables = new List<IDebugDrawable>();
         }
 
-        public void AddPoint(Vector3 point, ColorRgbaF color, float? duration = null)
+        public void AddPoint(in Vector3 point, ColorRgbaF color, float? duration = null)
         {
             _debugDrawables.Add(new DebugPoint(point, color, duration));
         }
 
-        public void DrawPoint(Vector3 point, ColorRgbaF color)
+        public void DrawPoint(in Vector3 point, ColorRgbaF color)
         {
             AddPoint(point, color, 0);
         }
 
-        public void AddLine(Vector3 start, Vector3 end, ColorRgbaF color, float? duration = null)
+        public void AddLine(in Vector3 start, in Vector3 end, ColorRgbaF color, float? duration = null)
         {
             _debugDrawables.Add(new DebugLine(start, end, color, duration));
         }
 
-        public void DrawLine(Vector3 start, Vector3 end, ColorRgbaF color)
+        public void DrawLine(in Vector3 start, in Vector3 end, ColorRgbaF color)
         {
             AddLine(start, end, color, 0);
         }
 
-        public void AddCoordAxes(Vector3 point, float? duration = null)
+        public void AddCoordAxes(in Vector3 point, float? duration = null)
         {
             _debugDrawables.Add(new DebugCoordAxes(point, duration));
         }
 
-        public void DrawCoordAxes(Vector3 point)
+        public void DrawCoordAxes(in Vector3 point)
         {
             AddCoordAxes(point, 0);
         }

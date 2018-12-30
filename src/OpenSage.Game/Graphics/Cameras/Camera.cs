@@ -157,7 +157,7 @@ namespace OpenSage.Graphics.Cameras
                 screenSize.Width, screenSize.Height);
         }
 
-        internal bool IsWithinViewportDepth(Vector3 screenPosition)
+        internal bool IsWithinViewportDepth(in Vector3 screenPosition)
         {
             return screenPosition.Z >= _viewport.MinDepth && screenPosition.Z <= _viewport.MaxDepth;
         }
@@ -166,7 +166,7 @@ namespace OpenSage.Graphics.Cameras
         /// Converts a screen-space point to world-space. The value of <paramref name="position.Z"/>
         /// will be used to determine the depth in camera space of the world-space point.
         /// </summary>
-        public Vector3 ScreenToWorldPoint(Vector3 position)
+        public Vector3 ScreenToWorldPoint(in Vector3 position)
         {
             var ray = ScreenPointToRay(new Vector2(position.X, position.Y));
             return ray.Position + ray.Direction * position.Z;
