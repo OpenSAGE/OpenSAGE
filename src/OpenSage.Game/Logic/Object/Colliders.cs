@@ -129,6 +129,12 @@ namespace OpenSage.Logic.Object
         {
             return boundingBox.Intersects(boundingBox);
         }
+
+        public bool Intersects(BoxCollider boxCollider)
+        {
+            return BoundingBox.Transform(_bounds, Transform.Matrix).Intersects(
+                   BoundingBox.Transform(boxCollider._bounds, boxCollider.Transform.Matrix));
+        }
     }
 
     public class SphereCollider : Collider

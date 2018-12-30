@@ -28,6 +28,9 @@ namespace OpenSage.Logic
 
                 if (result is OrderGeneratorResult.Success success)
                 {
+                    // TODO: Wrong place, wrong behavior.
+                    Game.Audio.PlayAudioEvent("DozerUSAVoiceBuild");
+
                     foreach (var order in success.Orders)
                     {
                         Game.NetworkMessageBuffer.AddLocalOrder(order);
@@ -40,7 +43,9 @@ namespace OpenSage.Logic
                 }
                 else if (result is OrderGeneratorResult.FailureResult failure)
                 {
-                    // TODO: Show error message in HUD and play EVA event.
+                    // TODO: Wrong place, wrong behavior.
+                    Game.Audio.PlayAudioEvent("DozerUSAVoiceBuildNot");
+                    // TODO: Show error message in HUD
                 }
             }
 
