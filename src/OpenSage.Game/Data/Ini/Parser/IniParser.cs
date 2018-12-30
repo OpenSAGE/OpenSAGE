@@ -324,13 +324,13 @@ namespace OpenSage.Data.Ini.Parser
         {
             try
             {
-                return (long)Convert.ToInt64(token.Text);
+                return Convert.ToInt64(token.Text);
             }
-            catch(Exception _)
+            catch (OverflowException)
             {
-                if (token.Text.StartsWith("-"))
-                    return long.MinValue;
-                return long.MaxValue;
+                return token.Text[0] == '-'
+                    ? long.MinValue
+                    : long.MaxValue;
             }
         }
 
