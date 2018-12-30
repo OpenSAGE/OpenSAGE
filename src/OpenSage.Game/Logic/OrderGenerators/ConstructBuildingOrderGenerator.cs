@@ -47,7 +47,7 @@ namespace OpenSage.Logic.OrderGenerators
             // TODO: This should work for all collider types.
             if (Collider.Create(_buildingDefinition, transform) is BoxCollider collider)
             {
-                // TODO: Optimise using an octree.
+                // TODO: Optimise using a quadtree
                 foreach (var obj in scene.GameObjects.Items)
                 {
                     if (!(obj.Collider is BoxCollider otherCollider))
