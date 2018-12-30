@@ -33,11 +33,30 @@ namespace OpenSage.Logic.OrderGenerators
         {
             var order = Order.CreateBuildObject(scene.GetPlayerIndex(scene.LocalPlayer), _definitionIndex, position, 0);
 
-            // TODO: Check if we still have enough money
+            // TODO: This should work for all collider types.
+            if (Collider.Create(_buildingDefinition, new Transform(position, Quaternion.Identity)) is BoxCollider collider)
+            {
+                // TODO: Optimize using an octree.
+                foreach (var obj in scene.GameObjects.Items)
+                {
+                    if (!(obj.Collider is BoxCollider otherCollider))
+                    {
+                        continue;
+                    }
+
+                    if (collider.Intersects(otherCollider))
+                    {
+                        return OrderGeneratorResult.Failure("Intersects an another building.");
+                    }
+                }
+            }
+
+            // TODO: Check that the target area has been explored
+            // TODO: Check that we still have enough money
             // TODO: Check that the builder can reach target position
-            // TODO: Check that the building has enough space at the target position
             // TODO: Check that the terrain is even enough at the target position
 
+            // TODO: Also send an order to builder to start building.
             return OrderGeneratorResult.SuccessAndExit(new[] { order });
         }
     }

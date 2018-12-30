@@ -1,6 +1,5 @@
 ﻿using OpenSage.Input;
 using OpenSage.Mathematics;
-using OpenSage.Network;
 
 namespace OpenSage.Logic
 {
