@@ -15,7 +15,6 @@ namespace OpenSage.Logic.OrderGenerators
     {
         private readonly ObjectDefinition _buildingDefinition;
         private readonly int _definitionIndex;
-        private readonly GameObject _builder;
         private readonly GameData _config;
         private readonly float _baseAngle;
 
@@ -24,11 +23,10 @@ namespace OpenSage.Logic.OrderGenerators
 
         public bool CanDrag { get; } = true;
 
-        public ConstructBuildingOrderGenerator(ObjectDefinition buildingDefinition, int definitionIndex, GameObject builder, GameData config)
+        public ConstructBuildingOrderGenerator(ObjectDefinition buildingDefinition, int definitionIndex, GameData config)
         {
             _buildingDefinition = buildingDefinition;
             _definitionIndex = definitionIndex;
-            _builder = builder;
             _config = config;
 
             // TODO: Should this be relative to the current camera?

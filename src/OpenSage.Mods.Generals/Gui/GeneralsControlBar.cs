@@ -204,7 +204,7 @@ namespace OpenSage.Mods.Generals.Gui
                             {
                                 case CommandType.DozerConstruct:
                                     var objectDefinition = context.Game.ContentManager.IniDataContext.Objects.Find(x => x.Name == commandButton.Object);
-                                    context.Game.OrderGenerator.StartConstructBuilding(objectDefinition, context.Game.Scene3D.LocalPlayer.SelectedUnits.First());
+                                    context.Game.OrderGenerator.StartConstructBuilding(objectDefinition);
                                     break;
 
                                 case CommandType.ToggleOvercharge:
