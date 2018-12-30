@@ -8,48 +8,60 @@ namespace OpenSage.Logic
 {
     public class OrderGeneratorSystem : GameSystem
     {
-        private IOrderGenerator _currentOrderGenerator;
+        public IOrderGenerator ActiveGenerator;
+
+        public bool HasActiveOrderGenerator => ActiveGenerator != null;
 
         public OrderGeneratorSystem(Game game) : base(game) { }
 
-        public bool OnClick(Vector2 mousePosition)
+        private Vector3? _worldPosition;
+
+        public void UpdatePosition(Vector2 mousePosition)
         {
-            if (_currentOrderGenerator == null)
+            _worldPosition = GetTerrainPosition(mousePosition);
+
+            if (_worldPosition.HasValue && ActiveGenerator != null)
             {
-                return false;
+                ActiveGenerator.UpdatePosition(_worldPosition.Value);
+            }
+        }
+
+        public void OnActivate()
+        {
+            if (!_worldPosition.HasValue || ActiveGenerator == null)
+            {
+                return;
             }
 
+            var result = ActiveGenerator.TryActivate(Game.Scene3D);
+
+            if (result is OrderGeneratorResult.Success success)
+            {
+                // TODO: Wrong place, wrong behavior.
+                Game.Audio.PlayAudioEvent("DozerUSAVoiceBuild");
+
+                foreach (var order in success.Orders)
+                {
+                    Game.NetworkMessageBuffer.AddLocalOrder(order);
+                }
+
+                if (success.Exit)
+                {
+                    ActiveGenerator = null;
+                }
+            }
+            else if (result is OrderGeneratorResult.FailureResult failure)
+            {
+                // TODO: Wrong place, wrong behavior.
+                Game.Audio.PlayAudioEvent("DozerUSAVoiceBuildNot");
+                // TODO: Show error message in HUD
+            }
+        }
+
+        private Vector3? GetTerrainPosition(Vector2 mousePosition)
+        {
             var ray = Game.Scene3D.Camera.ScreenPointToRay(mousePosition);
-            var position = Game.Scene3D.Terrain.Intersect(ray);
-
-            if (position.HasValue)
-            {
-                var result = _currentOrderGenerator.OnActivate(Game.Scene3D, position.Value);
-
-                if (result is OrderGeneratorResult.Success success)
-                {
-                    // TODO: Wrong place, wrong behavior.
-                    Game.Audio.PlayAudioEvent("DozerUSAVoiceBuild");
-
-                    foreach (var order in success.Orders)
-                    {
-                        Game.NetworkMessageBuffer.AddLocalOrder(order);
-                    }
-
-                    if (success.Exit)
-                    {
-                        _currentOrderGenerator = null;
-                    }
-                }
-                else if (result is OrderGeneratorResult.FailureResult failure)
-                {
-                    // TODO: Wrong place, wrong behavior.
-                    Game.Audio.PlayAudioEvent("DozerUSAVoiceBuildNot");
-                    // TODO: Show error message in HUD
-                }
-            }
-
-            return true;
+            return Game.Scene3D.Terrain.Intersect(ray);
         }
 
         public void StartConstructBuilding(ObjectDefinition buildingDefinition, GameObject builder)
@@ -73,7 +85,7 @@ namespace OpenSage.Logic
             var gameData = Game.ContentManager.IniDataContext.GameData;
             var definitionIndex = Game.ContentManager.IniDataContext.Objects.IndexOf(buildingDefinition) + 1;
 
-            _currentOrderGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, builder, gameData);
+            ActiveGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, builder, gameData);
         }
     }
 }

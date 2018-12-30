@@ -49,6 +49,11 @@ namespace OpenSage.Input
             {
                 foreach (var handler in Handlers)
                 {
+                    if (handler.Priority == HandlingPriority.Disabled)
+                    {
+                        continue;
+                    }
+
                     if (handler.Priority == (HandlingPriority) requiredPriority)
                     {
                         yield return handler;

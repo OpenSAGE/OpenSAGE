@@ -58,8 +58,16 @@ namespace OpenSage.Logic.OrderGenerators
 
     public interface IOrderGenerator
     {
+        bool CanDrag { get; }
+
+        // TODO: Should we use some other way of rendering, via Scene3D?
         void BuildRenderList(RenderList renderList);
-        OrderGeneratorResult OnActivate(Scene3D scene, Vector3 position);
+
+        OrderGeneratorResult TryActivate(Scene3D scene);
+
+        void UpdatePosition(Vector3 position);
+
+        void UpdateDrag(Vector2 mouseDelta);
 
         // TODO: Add cursor handling
     }
