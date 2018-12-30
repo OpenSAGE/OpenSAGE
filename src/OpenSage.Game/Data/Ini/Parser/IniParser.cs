@@ -324,7 +324,7 @@ namespace OpenSage.Data.Ini.Parser
         {
             try
             {
-                return (long)Convert.ToUInt64(token.Text);
+                return (long)Convert.ToInt64(token.Text);
             }
             catch(Exception _)
             {
