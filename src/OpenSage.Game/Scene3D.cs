@@ -165,6 +165,8 @@ namespace OpenSage
 
         internal void Update(GameTime gameTime)
         {
+            _orderGeneratorInputHandler.Update();
+
             foreach (var gameObject in GameObjects.Items)
             {
                 gameObject.Update(gameTime);

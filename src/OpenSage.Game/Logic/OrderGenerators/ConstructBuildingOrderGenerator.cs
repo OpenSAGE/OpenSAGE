@@ -1,8 +1,10 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Logic.Object;
 using OpenSage.Logic.Orders;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.OrderGenerators
 {
@@ -15,6 +17,12 @@ namespace OpenSage.Logic.OrderGenerators
         private readonly int _definitionIndex;
         private readonly GameObject _builder;
         private readonly GameData _config;
+        private readonly float _baseAngle;
+
+        private float _angle;
+        private Vector3 _position;
+
+        public bool CanDrag { get; } = true;
 
         public ConstructBuildingOrderGenerator(ObjectDefinition buildingDefinition, int definitionIndex, GameObject builder, GameData config)
         {
@@ -22,6 +30,10 @@ namespace OpenSage.Logic.OrderGenerators
             _definitionIndex = definitionIndex;
             _builder = builder;
             _config = config;
+
+            // TODO: Should this be relative to the current camera?
+            _baseAngle = MathUtility.ToRadians(_buildingDefinition.PlacementViewAngle);
+            _angle = _baseAngle;
         }
 
         public void BuildRenderList(RenderList renderList)
@@ -29,12 +41,11 @@ namespace OpenSage.Logic.OrderGenerators
             // TODO draw building ghost
         }
 
-        public OrderGeneratorResult OnActivate(Scene3D scene, Vector3 position)
+        public OrderGeneratorResult TryActivate(Scene3D scene)
         {
-            var order = Order.CreateBuildObject(scene.GetPlayerIndex(scene.LocalPlayer), _definitionIndex, position, 0);
-
             // TODO: This should work for all collider types.
-            if (Collider.Create(_buildingDefinition, new Transform(position, Quaternion.Identity)) is BoxCollider collider)
+            // TODO: The collider should be created earlier and updated in UpdatePosition/UpdateDrag
+            if (Collider.Create(_buildingDefinition, new Transform(_position, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, _angle))) is BoxCollider collider)
             {
                 // TODO: Optimize using an octree.
                 foreach (var obj in scene.GameObjects.Items)
@@ -51,6 +62,8 @@ namespace OpenSage.Logic.OrderGenerators
                 }
             }
 
+            var order = Order.CreateBuildObject(scene.GetPlayerIndex(scene.LocalPlayer), _definitionIndex, _position, _angle);
+
             // TODO: Check that the target area has been explored
             // TODO: Check that we still have enough money
             // TODO: Check that the builder can reach target position
@@ -58,6 +71,18 @@ namespace OpenSage.Logic.OrderGenerators
 
             // TODO: Also send an order to builder to start building.
             return OrderGeneratorResult.SuccessAndExit(new[] { order });
+        }
+
+        public void UpdatePosition(Vector3 position)
+        {
+            _position = position;
+        }
+
+        public void UpdateDrag(Vector2 mouseDelta)
+        {
+            // TODO: Make this configurable and figure out the real values from SAGE.
+            const int pixelsPerRotation = 250;
+            _angle = _baseAngle + mouseDelta.X / pixelsPerRotation * (float) (2 * Math.PI);
         }
     }
 }

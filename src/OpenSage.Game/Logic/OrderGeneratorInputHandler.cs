@@ -6,13 +6,24 @@ namespace OpenSage.Logic
     public class OrderGeneratorInputHandler : InputMessageHandler
     {
         private readonly OrderGeneratorSystem _orderGeneratorSystem;
-        private Point2D _mousePosition;
 
-        public override HandlingPriority Priority => HandlingPriority.OrderGeneratorPriority;
+        private bool _isDragging;
+        private Point2D _mousePosition;
+        private Point2D _dragEndPosition;
+
+        public override HandlingPriority Priority => _priority;
+        private HandlingPriority _priority = HandlingPriority.Disabled;
 
         public OrderGeneratorInputHandler(OrderGeneratorSystem orderGeneratorSystem)
         {
             _orderGeneratorSystem = orderGeneratorSystem;
+        }
+
+        public void Update()
+        {
+            _priority = _orderGeneratorSystem.HasActiveOrderGenerator ?
+                HandlingPriority.OrderGeneratorPriority :
+                HandlingPriority.Disabled;
         }
 
         public override InputMessageResult HandleMessage(InputMessage message)
@@ -20,15 +31,38 @@ namespace OpenSage.Logic
             switch (message.MessageType)
             {
                 case InputMessageType.MouseMove:
-                    _mousePosition = message.Value.MousePosition;
+                    if (_isDragging)
+                    {
+                        _dragEndPosition = message.Value.MousePosition;
+                        var mouseDelta = (_dragEndPosition - _mousePosition).ToVector2();
+                        _orderGeneratorSystem.ActiveGenerator.UpdateDrag(mouseDelta);
+                    } else
+                    {
+                        _mousePosition = message.Value.MousePosition;
+                        _orderGeneratorSystem.UpdatePosition(_mousePosition.ToVector2());
+                    }
                     break;
                 case InputMessageType.MouseLeftButtonDown:
-                    if (_orderGeneratorSystem.OnClick(_mousePosition.ToVector2()))
+                    if (!_orderGeneratorSystem.ActiveGenerator.CanDrag)
                     {
-                        return InputMessageResult.Handled;
+                        _orderGeneratorSystem.OnActivate();
+                        break;
                     }
 
-                    return InputMessageResult.NotHandled;
+                    _isDragging = true;
+                    // Copy initial position to drag end position so that delta is 0 if the drag ends immediately
+                    _dragEndPosition = _mousePosition;
+                    
+                    return InputMessageResult.Handled;
+                case InputMessageType.MouseLeftButtonUp:
+                    if (_isDragging)
+                    {
+                        _orderGeneratorSystem.OnActivate();
+                    }
+
+                    _isDragging = false;
+
+                    return InputMessageResult.Handled;
             }
 
             return InputMessageResult.NotHandled;

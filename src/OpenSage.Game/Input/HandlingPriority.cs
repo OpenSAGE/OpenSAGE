@@ -2,6 +2,7 @@
 {
     public enum HandlingPriority
     {
+        Disabled,
         CameraPriority,
         SelectionPriority,
         OrderGeneratorPriority,
