@@ -138,7 +138,7 @@ namespace OpenSage.Data.Ini.Parser
             return ScanEnum<T>(GetNextToken());
         }
 
-        public static T ScanEnum<T>(IniToken token)
+        public static T ScanEnum<T>(in IniToken token)
             where T : struct
         {
             var stringToValueMap = GetEnumMap<T>();
