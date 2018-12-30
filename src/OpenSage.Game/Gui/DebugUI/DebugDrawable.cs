@@ -21,7 +21,7 @@ namespace OpenSage.Gui.DebugUI
         public readonly ColorRgbaF Color;
         public float? Timer { get; set; }
 
-        public DebugPoint(in Vector3 position, ColorRgbaF color, float? duration = null)
+        public DebugPoint(in Vector3 position, in ColorRgbaF color, float? duration = null)
         {
             Position = position;
             Color = color;
@@ -64,7 +64,7 @@ namespace OpenSage.Gui.DebugUI
         public readonly ColorRgbaF Color;
         public float? Timer { get; set; }
 
-        public DebugLine(in Vector3 start, in Vector3 end, ColorRgbaF color, float? duration = null)
+        public DebugLine(in Vector3 start, in Vector3 end, in ColorRgbaF color, float? duration = null)
         {
             Start = start;
             End = end;
@@ -80,7 +80,7 @@ namespace OpenSage.Gui.DebugUI
 
     internal static class DebugDrawingUtils
     {
-        public static void DrawLine(DrawingContext2D context, Camera camera, in Vector3 start, in Vector3 end, ColorRgbaF color)
+        public static void DrawLine(DrawingContext2D context, Camera camera, in Vector3 start, in Vector3 end, in ColorRgbaF color)
         {
             var startScreen3D = camera.WorldToScreenPoint(start);
             var endScreen3D = camera.WorldToScreenPoint(end);

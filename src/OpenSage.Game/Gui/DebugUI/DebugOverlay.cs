@@ -32,17 +32,17 @@ namespace OpenSage.Gui.DebugUI
             _debugDrawables = new List<IDebugDrawable>();
         }
 
-        public void AddPoint(in Vector3 point, ColorRgbaF color, float? duration = null)
+        public void AddPoint(in Vector3 point, in ColorRgbaF color, float? duration = null)
         {
             _debugDrawables.Add(new DebugPoint(point, color, duration));
         }
 
-        public void DrawPoint(in Vector3 point, ColorRgbaF color)
+        public void DrawPoint(in Vector3 point, in ColorRgbaF color)
         {
             AddPoint(point, color, 0);
         }
 
-        public void AddLine(in Vector3 start, in Vector3 end, ColorRgbaF color, float? duration = null)
+        public void AddLine(in Vector3 start, in Vector3 end, in ColorRgbaF color, float? duration = null)
         {
             _debugDrawables.Add(new DebugLine(start, end, color, duration));
         }
