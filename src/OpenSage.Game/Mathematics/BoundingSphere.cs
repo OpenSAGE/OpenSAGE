@@ -81,17 +81,5 @@ namespace OpenSage.Mathematics
                 return PlaneIntersectionType.Intersecting;
             }
         }
-
-        // Based on MonoGame:
-        // https://github.com/MonoGame/MonoGame/blob/faea8a6a89504673e2bb7e435f0da8cc513d8c30/MonoGame.Framework/BoundingSphere.cs#L498
-        /// <summary>
-        /// Gets whether or not the other <see cref="BoundingSphere"/> intersects with this sphere.
-        /// </summary>
-        /// <param name="sphere">The other sphere for testing.</param>
-        public bool Intersects(in BoundingSphere sphere)
-        {
-            var sqDistance = Vector3.DistanceSquared(sphere.Center, Center);
-            return sqDistance <= Math.Pow(sphere.Radius + Radius, 2);
-        }
     }
 }
