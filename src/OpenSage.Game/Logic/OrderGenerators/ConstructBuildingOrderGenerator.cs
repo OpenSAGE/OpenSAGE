@@ -29,7 +29,7 @@ namespace OpenSage.Logic.OrderGenerators
             _definitionIndex = definitionIndex;
             _config = config;
 
-            // TODO: Should this be relative to the current camera?
+            // TODO: Should this be relative to the current camera angle?
             _baseAngle = MathUtility.ToRadians(_buildingDefinition.PlacementViewAngle);
             _angle = _baseAngle;
         }
@@ -41,11 +41,13 @@ namespace OpenSage.Logic.OrderGenerators
 
         public OrderGeneratorResult TryActivate(Scene3D scene)
         {
-            // TODO: This should work for all collider types.
+            var transform = new Transform(_position, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, _angle));
+
             // TODO: The collider should be created earlier and updated in UpdatePosition/UpdateDrag
-            if (Collider.Create(_buildingDefinition, new Transform(_position, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, _angle))) is BoxCollider collider)
+            // TODO: This should work for all collider types.
+            if (Collider.Create(_buildingDefinition, transform) is BoxCollider collider)
             {
-                // TODO: Optimize using an octree.
+                // TODO: Optimise using an octree.
                 foreach (var obj in scene.GameObjects.Items)
                 {
                     if (!(obj.Collider is BoxCollider otherCollider))
