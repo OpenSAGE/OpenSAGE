@@ -64,7 +64,7 @@ namespace OpenSage.Logic
             return Game.Scene3D.Terrain.Intersect(ray);
         }
 
-        public void StartConstructBuilding(ObjectDefinition buildingDefinition, GameObject builder)
+        public void StartConstructBuilding(ObjectDefinition buildingDefinition)
         {
             if (!buildingDefinition.KindOf.Get(ObjectKinds.Structure))
             {
@@ -85,7 +85,7 @@ namespace OpenSage.Logic
             var gameData = Game.ContentManager.IniDataContext.GameData;
             var definitionIndex = Game.ContentManager.IniDataContext.Objects.IndexOf(buildingDefinition) + 1;
 
-            ActiveGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, builder, gameData);
+            ActiveGenerator = new ConstructBuildingOrderGenerator(buildingDefinition, definitionIndex, gameData);
         }
     }
 }
