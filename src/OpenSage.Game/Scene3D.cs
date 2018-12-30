@@ -7,7 +7,7 @@ using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Rendering.Shadows;
 using OpenSage.Gui;
-using OpenSage.Gui.DebugUi;
+using OpenSage.Gui.DebugUI;
 using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Scripting;

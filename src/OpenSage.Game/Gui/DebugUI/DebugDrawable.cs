@@ -2,7 +2,7 @@
 using OpenSage.Graphics.Cameras;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Gui.DebugUi
+namespace OpenSage.Gui.DebugUI
 {
     interface IDebugDrawable
     {
@@ -21,7 +21,7 @@ namespace OpenSage.Gui.DebugUi
         public readonly ColorRgbaF Color;
         public float? Timer { get; set; }
 
-        public DebugPoint(Vector3 position, ColorRgbaF color, float? duration = null)
+        public DebugPoint(in Vector3 position, ColorRgbaF color, float? duration = null)
         {
             Position = position;
             Color = color;
@@ -43,7 +43,7 @@ namespace OpenSage.Gui.DebugUi
         public readonly Vector3 Position;
         public float? Timer { get; set; }
 
-        public DebugCoordAxes(Vector3 position, float? duration = null)
+        public DebugCoordAxes(in Vector3 position, float? duration = null)
         {
             Position = position;
             Timer = duration;
@@ -64,7 +64,7 @@ namespace OpenSage.Gui.DebugUi
         public readonly ColorRgbaF Color;
         public float? Timer { get; set; }
 
-        public DebugLine(Vector3 start, Vector3 end, ColorRgbaF color, float? duration = null)
+        public DebugLine(in Vector3 start, in Vector3 end, ColorRgbaF color, float? duration = null)
         {
             Start = start;
             End = end;
@@ -80,7 +80,7 @@ namespace OpenSage.Gui.DebugUi
 
     internal static class DebugDrawingUtils
     {
-        public static void DrawLine(DrawingContext2D context, Camera camera, Vector3 start, Vector3 end, ColorRgbaF color)
+        public static void DrawLine(DrawingContext2D context, Camera camera, in Vector3 start, in Vector3 end, ColorRgbaF color)
         {
             var startScreen3D = camera.WorldToScreenPoint(start);
             var endScreen3D = camera.WorldToScreenPoint(end);
