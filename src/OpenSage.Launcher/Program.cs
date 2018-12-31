@@ -84,9 +84,15 @@ namespace OpenSage.Launcher
             // TODO: Read game version from assembly metadata or .git folder
             // TODO: Set window icon.
             using (var window = new GameWindow("OpenSAGE (master)", 100, 100, 1024, 768, preferredBackend))
+            using (var imGuiRenderer = new ImGuiRenderer(window.GraphicsDevice, window.GraphicsDevice.MainSwapchain.Framebuffer.OutputDescription, window.ClientBounds.Width, window.ClientBounds.Height))
             using (var gamePanel = GamePanel.FromGameWindow(window))
             using (var game = GameFactory.CreateGame(installation, installation.CreateFileSystem(), gamePanel))
             {
+                window.ClientSizeChanged += (sender, e) =>
+                {
+                    imGuiRenderer.WindowResized(window.ClientBounds.Width, window.ClientBounds.Height);
+                };
+
                 window.GraphicsDevice.SyncToVerticalBlank = !opts.DisableVsync;
 
                 game.Configuration.LoadShellMap = !opts.NoShellmap;
@@ -116,7 +122,7 @@ namespace OpenSage.Launcher
                         break;
                     }
 
-                    game.Tick();
+                    game.Tick(game.Panel.Framebuffer);
                 }
             }
 

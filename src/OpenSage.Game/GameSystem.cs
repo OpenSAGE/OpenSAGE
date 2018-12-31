@@ -37,13 +37,6 @@ namespace OpenSage
         {
         }
 
-        /// <summary>
-        /// Override this method with rendering code.
-        /// </summary>
-        public virtual void Draw(GameTime gameTime)
-        {
-        }
-
         internal virtual void BuildRenderList(RenderList renderList) { }
     }
 }

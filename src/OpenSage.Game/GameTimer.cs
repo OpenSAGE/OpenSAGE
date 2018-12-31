@@ -30,11 +30,9 @@ namespace OpenSage
             var deltaTime = now - _lastUpdate;
             _lastUpdate = now;
 
-            CurrentGameTime = new GameTime
-            {
-                TotalGameTime = TimeSpan.FromMilliseconds(now - _startTime),
-                ElapsedGameTime = TimeSpan.FromMilliseconds(deltaTime)
-            };
+            CurrentGameTime = new GameTime(
+                TimeSpan.FromMilliseconds(now - _startTime),
+                TimeSpan.FromMilliseconds(deltaTime));
         }
 
         public void Reset()
@@ -49,9 +47,15 @@ namespace OpenSage
         }
     }
 
-    public struct GameTime
+    public readonly struct GameTime
     {
-        public TimeSpan TotalGameTime;
-        public TimeSpan ElapsedGameTime;
+        public readonly TimeSpan TotalGameTime;
+        public readonly TimeSpan ElapsedGameTime;
+
+        public GameTime(in TimeSpan totalGameTime, in TimeSpan elapsedGameTime)
+        {
+            TotalGameTime = totalGameTime;
+            ElapsedGameTime = elapsedGameTime;
+        }
     }
 }

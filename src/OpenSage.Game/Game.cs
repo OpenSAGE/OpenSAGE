@@ -345,7 +345,7 @@ namespace OpenSage
             Panel.Close();
         }
 
-        public void Tick()
+        public void Tick(Framebuffer framebuffer)
         {
             if (!IsRunning)
             {
@@ -359,7 +359,8 @@ namespace OpenSage
             UpdateTime = gameTime;
 
             Update(gameTime);
-            Draw(gameTime);
+
+            Graphics.Draw(framebuffer, gameTime);
 
             FrameCount += 1;
         }
@@ -387,14 +388,6 @@ namespace OpenSage
             Scene2D.Update(gameTime, Scene3D?.LocalPlayer);
 
             Scene3D?.Update(gameTime);
-        }
-
-        private void Draw(GameTime gameTime)
-        {
-            foreach (var gameSystem in GameSystems)
-            {
-                gameSystem.Draw(gameTime);
-            }
         }
     }
 }
