@@ -44,7 +44,7 @@ namespace OpenSage.Viewer.UI.Views
                     (int) availableSize.X,
                     (int) availableSize.Y));
 
-            Context.Game.Tick();
+            Context.Game.Tick(Context.GamePanel.Framebuffer);
 
             ImGuiNative.igSetItemAllowOverlap();
 
