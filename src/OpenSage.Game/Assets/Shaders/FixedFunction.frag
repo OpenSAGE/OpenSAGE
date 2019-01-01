@@ -255,9 +255,11 @@ void main()
         ivec2(gl_FragCoord.xy), 
         _ShadowConstantsPS);
 
+    vec3 materialAmbientColor = _MaterialConstants.Material.Ambient;
     vec3 materialDiffuseColor = _MaterialConstants.Material.Diffuse;
     if (_MeshConstants.HasHouseColor)
     {
+        materialAmbientColor = _RenderItemConstantsPS.HouseColor;
         materialDiffuseColor = _RenderItemConstantsPS.HouseColor;
     }
 
@@ -268,7 +270,7 @@ void main()
         _GlobalLightingConstantsPS,
         in_WorldPosition,
         in_WorldNormal,
-        _MaterialConstants.Material.Ambient,
+        materialAmbientColor,
         materialDiffuseColor,
         _MaterialConstants.Material.Specular,
         _MaterialConstants.Material.Shininess,
