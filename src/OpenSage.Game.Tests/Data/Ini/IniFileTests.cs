@@ -22,10 +22,10 @@ namespace OpenSage.Tests.Data.Ini
             // TODO: Finish INI parsing for BFME2 and subsequent games.
             var gameDefinitions = new[]
             {
-                GameDefinition.FromGame(SageGame.CncGenerals),
-                GameDefinition.FromGame(SageGame.CncGeneralsZeroHour),
-                GameDefinition.FromGame(SageGame.Bfme),
-                //GameDefinition.FromGame(SageGame.Bfme2),
+                //GameDefinition.FromGame(SageGame.CncGenerals),
+                //GameDefinition.FromGame(SageGame.CncGeneralsZeroHour),
+                //GameDefinition.FromGame(SageGame.Bfme),
+                GameDefinition.FromGame(SageGame.Bfme2),
             };
 
             foreach(var gameDefinition in gameDefinitions)
@@ -43,6 +43,60 @@ namespace OpenSage.Tests.Data.Ini
                         //BFME
                         case "optionregistry.ini": // Don't know if this is used
                         case "localization.ini": // Don't know if we need this
+
+                        //BFME2
+                        case "armysummarydescription.ini":
+                        case "attributemodifier.ini":
+                        case "awardsystem.ini":
+                        case "bannerui.ini":
+                        case "riskcampaign.ini":
+                        case "commandbutton.ini":
+                        case "commandset.ini":
+                        case "crate.ini":
+                        case "createaherospecialpowers.ini":
+                        case "createaherosystem.ini":
+                        case "crowdresponse.ini":
+                        case "damagefx.ini":
+                        case "aidata.ini":
+                        case "eva.ini":
+                        case "skirmishaidata.ini":
+                        case "soundeffects.ini":
+                        case "emotions.ini":
+                        case "environment.ini":
+                        case "experiencelevels.ini":
+                        case "fire.ini":
+                        case "firelogicsystem.ini":
+                        case "formationassistant.ini":
+                        case "fxlist.ini":
+                        case "fxparticlesystem.ini":
+                        case "gamelod.ini":
+                        case "gamelodpresets.ini":
+                        case "ingamenotificationbox.ini":
+                        case "ingameui.ini":
+                        case "largegroupaudio.ini":
+                        case "linearcampaign.ini":
+                        case "livingworld.ini":
+                        case "livingworldaitemplate.ini":
+                        case "livingworldautoresolvearmor.ini":
+                        case "livingworldautoresolvebody.ini":
+                        case "livingworldautoresolvecombatchain.ini":
+                        case "livingworldautoresolvehandicaps.ini":
+                        case "livingworldautoresolveleadership.ini":
+                        case "livingworldautoresolvereinforcementschedule.ini":
+                        case "livingworldautoresolveresourcebonus.ini":
+                        case "livingworldautoresolvesciencepurchasepointbonus.ini":
+                        case "livingworldautoresolveweapon.ini":
+                        case "livingworldbuildingicons.ini":
+                        case "livingworldbuildings.ini":
+                        case "livingworldbuildploticons.ini":
+                        case "dwarficons.ini":
+                        case "elficons.ini":
+                        case "isengardicons.ini":
+                        case "mordoricons.ini":
+                        case "mowicons.ini":
+                        case "wildicons.ini":
+                        case "livingworldplayers.ini":
+                        case "livingworldregioneffects.ini":
                             return;
                     }
 
