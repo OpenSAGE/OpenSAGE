@@ -45,12 +45,12 @@ namespace OpenSage.Logic.Object
         // TODO: This is probably not how real SAGE works.
         public int GetObjectId(GameObject gameObject)
         {
-            return _items.IndexOf(gameObject);
+            return _items.IndexOf(gameObject) + 1;
         }
 
         public GameObject GetObjectById(int objectId)
         {
-            return _items[objectId];
+            return _items[objectId - 1];
         }
 
         public void Remove(GameObject gameObject)
