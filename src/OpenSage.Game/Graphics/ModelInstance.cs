@@ -4,6 +4,7 @@ using System.Numerics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Logic;
 using Veldrid;
 
 namespace OpenSage.Graphics
@@ -137,7 +138,8 @@ namespace OpenSage.Graphics
         public void BuildRenderList(
             RenderList renderList,
             Camera camera,
-            bool castsShadow)
+            bool castsShadow,
+            Player owner)
         {
             foreach (var subObject in Model.SubObjects)
             {
@@ -147,7 +149,8 @@ namespace OpenSage.Graphics
                     this,
                     subObject.Bone,
                     _worldMatrix,
-                    castsShadow);
+                    castsShadow,
+                    owner);
             }
         }
     }

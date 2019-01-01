@@ -104,7 +104,11 @@ namespace OpenSage.Logic.Object
 
             foreach (var drawModule in DrawModules)
             {
-                drawModule.BuildRenderList(renderList, camera, castsShadow);
+                drawModule.BuildRenderList(
+                    renderList,
+                    camera,
+                    castsShadow,
+                    Owner);
             }
         }
 
