@@ -107,6 +107,9 @@ namespace OpenSage.Data.Ini
         [IniEnum("BUFF")]
         Buff,
 
+        [IniEnum("DEBUFF"), AddedIn(SageGame.Bfme2)]
+        Debuff,
+
         [IniEnum("INNATE_DAMAGEMULT"), AddedIn(SageGame.Bfme2Rotwk)]
         InnateDamagemult,
     }

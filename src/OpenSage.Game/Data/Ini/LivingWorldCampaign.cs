@@ -17,8 +17,8 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<LivingWorldCampaign> FieldParseTable = new IniParseTable<LivingWorldCampaign>
         {
             { "IsEvilCampaign", (parser, x) => x.IsEvilCampaign = parser.ParseBoolean() },
-
-            { "Act", (parser, x) => x.Acts.Add(LivingWorldCampaignAct.Parse(parser)) }
+            { "Act", (parser, x) => x.Acts.Add(LivingWorldCampaignAct.Parse(parser)) },
+            { "IsScriptedCampaign", (parser, x) => x.IsScriptedCampaign = parser.ParseBoolean() }
         };
 
         public string Name { get; private set; }
@@ -26,6 +26,9 @@ namespace OpenSage.Data.Ini
         public bool IsEvilCampaign { get; private set; }
 
         public List<LivingWorldCampaignAct> Acts { get; } = new List<LivingWorldCampaignAct>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool IsScriptedCampaign { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
