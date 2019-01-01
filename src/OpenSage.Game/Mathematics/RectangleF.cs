@@ -28,6 +28,7 @@ namespace OpenSage.Mathematics
         /// </summary>
         public readonly float Height;
 
+        public Vector2 Position => new Vector2(X, Y);
         public SizeF Size => new SizeF(Width, Height);
 
         public float Left => X;
@@ -142,13 +143,44 @@ namespace OpenSage.Mathematics
                 && point.Y <= Bottom;
         }
 
+        public bool Contains(Vector2 point)
+        {
+            return point.X >= X
+                && point.X <= Right
+                && point.Y >= Y
+                && point.Y <= Bottom;
+        }
+
+        public bool Contains(in RectangleF rect)
+        {
+            return rect.Left >= Left
+                && rect.Right <= Right
+                && rect.Top >= Top
+                && rect.Bottom <= Bottom;
+        }
+
         public bool IntersectsWith(in RectangleF rect)
         {
-            return
-                (rect.Left <= Right) &&
-                (rect.Right >= Left) &&
-                (rect.Top <= Bottom) &&
-                (rect.Bottom >= Top);
+            return rect.Left <= Right
+                && rect.Right >= Left
+                && rect.Top <= Bottom
+                && rect.Bottom >= Top;
+        }
+
+        // TODO: It might make sense to micro-optimise this, as it's a very common operation.
+        public ContainmentType Intersect(in RectangleF rect)
+        {
+            if (Contains(rect))
+            {
+                return ContainmentType.Contains;
+            }
+
+            if (IntersectsWith(rect))
+            {
+                return ContainmentType.Intersects;
+            }
+
+            return ContainmentType.Disjoint;
         }
 
         public RectangleF WithY(float y)

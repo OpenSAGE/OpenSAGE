@@ -26,5 +26,10 @@ namespace OpenSage.Mathematics
 
             return rect.Size;
         }
+
+        public Vector2 ToVector2()
+        {
+            return new Vector2(Width, Height);
+        }
     }
 }
