@@ -3,6 +3,7 @@ using System.Numerics;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
@@ -36,7 +37,6 @@ namespace OpenSage.Graphics
 
         public bool Hidden { get; }
         public bool CameraOriented { get; }
-        public bool HasHouseColor { get; }
 
         internal ModelMesh(
             GraphicsDevice graphicsDevice,
@@ -58,7 +58,6 @@ namespace OpenSage.Graphics
 
             Hidden = hidden;
             CameraOriented = cameraOriented;
-            HasHouseColor = hasHouseColor;
 
             _vertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(vertexData, BufferUsage.VertexBuffer));
 
@@ -72,6 +71,7 @@ namespace OpenSage.Graphics
 
             _meshConstantsBuffer = AddDisposable(new ConstantBuffer<MeshMaterial.MeshConstants>(graphicsDevice));
             _meshConstantsBuffer.Value.SkinningEnabled = isSkinned;
+            _meshConstantsBuffer.Value.HasHouseColor = hasHouseColor;
             _meshConstantsBuffer.Update(commandEncoder);
 
             commandEncoder.End();
@@ -102,7 +102,8 @@ namespace OpenSage.Graphics
             ModelInstance modelInstance,
             ModelBone parentBone,
             in Matrix4x4 modelTransform,
-            bool castsShadow)
+            bool castsShadow,
+            Player owner)
         {
             var meshWorldMatrix = Skinned
                 ? modelTransform
@@ -114,7 +115,8 @@ namespace OpenSage.Graphics
                 modelInstance,
                 parentBone,
                 meshWorldMatrix,
-                castsShadow);
+                castsShadow,
+                owner);
         }
 
         internal void BuildRenderListWithWorldMatrix(
@@ -123,7 +125,8 @@ namespace OpenSage.Graphics
             ModelInstance modelInstance,
             ModelBone parentBone,
             in Matrix4x4 meshWorldMatrix,
-            bool castsShadow)
+            bool castsShadow,
+            Player owner = null)
         {
             if (Hidden)
             {
@@ -207,7 +210,8 @@ namespace OpenSage.Graphics
                         world,
                         meshPart.StartIndex,
                         meshPart.IndexCount,
-                        _indexBuffer);
+                        _indexBuffer,
+                        owner?.Color);
                 }
             }
         }

@@ -30,9 +30,10 @@ namespace OpenSage.Graphics.Effects
         public struct MeshConstants
         {
 #pragma warning disable CS0169
-            private readonly Vector3 _padding;
+            private readonly Vector2 _padding;
 #pragma warning restore CS0169
             public Bool32 SkinningEnabled;
+            public Bool32 HasHouseColor;
         }
     }
 }

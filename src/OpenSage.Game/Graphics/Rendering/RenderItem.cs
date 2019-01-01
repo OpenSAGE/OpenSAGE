@@ -32,6 +32,8 @@ namespace OpenSage.Graphics.Rendering
 
         public readonly Matrix4x4 World;
 
+        public readonly ColorRgb? HouseColor;
+
         public readonly DrawCommand DrawCommand;
 
         // Draw
@@ -59,7 +61,9 @@ namespace OpenSage.Graphics.Rendering
 
             uint startIndex,
             uint indexCount,
-            DeviceBuffer indexBuffer)
+            DeviceBuffer indexBuffer,
+
+            in ColorRgb? houseColor)
         {
             Effect = material.Effect;
             Material = material;
@@ -69,6 +73,7 @@ namespace OpenSage.Graphics.Rendering
             CullFlags = cullFlags;
             BoundingBox = boundingBox;
             World = world;
+            HouseColor = houseColor;
             DrawCommand = drawCommand;
 
             VertexStart = vertexStart;

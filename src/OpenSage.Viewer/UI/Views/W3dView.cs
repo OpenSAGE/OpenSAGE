@@ -38,7 +38,7 @@ namespace OpenSage.Viewer.UI.Views
             void onBuildingRenderList(object sender, BuildingRenderListEventArgs e)
             {
                 modelInstance.SetWorldMatrix(Matrix4x4.Identity);
-                modelInstance.BuildRenderList(e.RenderList, e.Camera, true);
+                modelInstance.BuildRenderList(e.RenderList, e.Camera, true, game.CivilianPlayer);
             }
 
             game.BuildingRenderList += onBuildingRenderList;

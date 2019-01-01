@@ -25,6 +25,7 @@ namespace OpenSage.Graphics.Rendering
         private readonly ConstantBuffer<GlobalConstantsVS> _globalConstantBufferVS;
         private readonly ConstantBuffer<GlobalConstantsPS> _globalConstantBufferPS;
         private readonly ConstantBuffer<RenderItemConstantsVS> _renderItemConstantsBufferVS;
+        private readonly ConstantBuffer<RenderItemConstantsPS> _renderItemConstantsBufferPS;
         private readonly ConstantBuffer<LightingConstantsVS> _globalLightingVSTerrainBuffer;
         private readonly ConstantBuffer<LightingConstantsPS> _globalLightingPSTerrainBuffer;
         private readonly ConstantBuffer<LightingConstantsVS> _globalLightingVSObjectBuffer;
@@ -56,6 +57,7 @@ namespace OpenSage.Graphics.Rendering
             _globalConstantBufferShared = AddDisposable(new ConstantBuffer<GlobalConstantsShared>(graphicsDevice, "GlobalConstantsShared"));
             _globalConstantBufferVS = AddDisposable(new ConstantBuffer<GlobalConstantsVS>(graphicsDevice, "GlobalConstantsVS"));
             _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<RenderItemConstantsVS>(graphicsDevice, "RenderItemConstantsVS"));
+            _renderItemConstantsBufferPS = AddDisposable(new ConstantBuffer<RenderItemConstantsPS>(graphicsDevice, "RenderItemConstantsPS"));
             _globalConstantBufferPS = AddDisposable(new ConstantBuffer<GlobalConstantsPS>(graphicsDevice, "GlobalConstantsPS"));
             _globalLightingVSTerrainBuffer = AddDisposable(new ConstantBuffer<LightingConstantsVS>(graphicsDevice, "GlobalLightingConstantsVS (terrain)"));
             _globalLightingPSTerrainBuffer = AddDisposable(new ConstantBuffer<LightingConstantsPS>(graphicsDevice, "GlobalLightingConstantsPS (terrain)"));
@@ -315,6 +317,20 @@ namespace OpenSage.Graphics.Rendering
                         _renderItemConstantsBufferVS.Buffer);
                 }
 
+                if (renderItem.HouseColor != null)
+                {
+                    var renderItemConstantsPSParameter = renderItem.Effect.GetParameter("RenderItemConstantsPS", throwIfMissing: false);
+                    if (renderItemConstantsPSParameter != null)
+                    {
+                        _renderItemConstantsBufferPS.Value.HouseColor = renderItem.HouseColor.Value.ToVector3();
+                        _renderItemConstantsBufferPS.Update(commandList);
+
+                        renderItem.Material.SetProperty(
+                            "RenderItemConstantsPS",
+                            _renderItemConstantsBufferPS.Buffer);
+                    }
+                }
+
                 renderItem.Material.ApplyProperties();
                 renderItem.Effect.ApplyParameters(commandList);
 
@@ -469,6 +485,15 @@ namespace OpenSage.Graphics.Rendering
         private struct RenderItemConstantsVS
         {
             public Matrix4x4 World;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RenderItemConstantsPS
+        {
+            public Vector3 HouseColor;
+#pragma warning disable CS0169
+            private readonly float _padding;
+#pragma warning restore CS0169
         }
 
         [StructLayout(LayoutKind.Sequential, Size = 16)]

@@ -9,13 +9,20 @@
 
 struct MeshConstantsType
 {
-    vec3 _Padding;
+    vec2 _Padding;
     bool SkinningEnabled;
+    bool HasHouseColor;
 };
 
 struct RenderItemConstantsVSType
 {
     mat4 World;
+};
+
+struct RenderItemConstantsPSType
+{
+    vec3 HouseColor;
+    float _Padding;
 };
 
 void GetSkinnedVertexData(
