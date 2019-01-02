@@ -40,6 +40,6 @@ namespace OpenSage.Data.W3d
         /// <summary>
         /// Tiled continuously over line
         /// </summary>
-        TiledTextureMap = 0x00000002 << 24
+        TiledTextureMap = 0x00000002 << 24,
     }
 }

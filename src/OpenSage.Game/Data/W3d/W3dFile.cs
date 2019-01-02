@@ -80,6 +80,38 @@ namespace OpenSage.Data.W3d
                         result.Chunks.Add(W3dEmitter.Parse(reader, context));
                         break;
 
+                    case W3dChunkType.W3D_CHUNK_AGGREGATE:
+                        result.Chunks.Add(W3dAggregate.Parse(reader, context));
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_RING:
+                        result.Chunks.Add(W3dRing.Parse(reader, context));
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_SPHERE:
+                        result.Chunks.Add(W3dSphere.Parse(reader, context));
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_HMODEL:
+                        result.Chunks.Add(W3dHModel.Parse(reader, context));
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_DAZZLE:
+                        result.Chunks.Add(W3dDazzle.Parse(reader, context));
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_COLLECTION:
+                        result.Chunks.Add(W3dCollection.Parse(reader, context));
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_SOUNDROBJ:
+                        result.Chunks.Add(W3dSoundRObj.Parse(reader, context));
+                        break;
+
+                    case W3dChunkType.W3D_CHUNK_MORPH_ANIMATION:
+                        result.Chunks.Add(W3dMorphAnimation.Parse(reader, context));
+                        break;
+
                     default:
                         throw W3dContainerChunk.CreateUnknownChunkException(chunkType);
                 }

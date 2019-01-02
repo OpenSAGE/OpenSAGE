@@ -33,7 +33,7 @@ namespace OpenSage.Data.W3d
             {
                 return new W3dTextureInfo
                 {
-                    Attributes = reader.ReadUInt16AsEnumFlags<W3dTextureFlags>(),
+                    Attributes = (W3dTextureFlags) reader.ReadUInt16(),
                     AnimationType = reader.ReadUInt16AsEnum<W3dTextureAnimation>(),
                     FrameCount = reader.ReadUInt32(),
                     FrameRate = reader.ReadSingle(),

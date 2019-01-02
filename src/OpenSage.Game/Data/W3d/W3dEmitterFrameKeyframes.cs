@@ -19,10 +19,16 @@ namespace OpenSage.Data.W3d
                     Header = W3dEmitterFrameHeader.Parse(reader)
                 };
 
-                result.Keyframes = new W3dEmitterFrameKeyframe[result.Header.KeyframeCount + 1];
-                for (var i = 0; i < result.Keyframes.Length; i++)
+                // Certain enb w3d's break without this check. (example: astro00.w3d)
+                if (reader.BaseStream.Position < context.CurrentEndPosition)
                 {
-                    result.Keyframes[i] = W3dEmitterFrameKeyframe.Parse(reader);
+                    var remaining = (int)context.CurrentEndPosition - (int)reader.BaseStream.Position;
+                    var KeyframeCount = remaining / 8;
+                    result.Keyframes = new W3dEmitterFrameKeyframe[KeyframeCount];
+                    for (var i = 0; i < result.Keyframes.Length; i++)
+                    {
+                        result.Keyframes[i] = W3dEmitterFrameKeyframe.Parse(reader);
+                    }
                 }
 
                 return result;
