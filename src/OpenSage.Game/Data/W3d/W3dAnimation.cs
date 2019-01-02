@@ -17,6 +17,9 @@ namespace OpenSage.Data.W3d
             {
                 var result = new W3dAnimation();
 
+                // TODO: generals zero hour assets: UISabotr throw chunktype errors.
+                // Either new chunks were added for zero hour, parsing is incorrect or
+                // they are corrupted w3d files. They all throw errors in w3d viewer.
                 ParseChunks(reader, context.CurrentEndPosition, chunkType =>
                 {
                     switch (chunkType)

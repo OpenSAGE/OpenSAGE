@@ -57,6 +57,16 @@ namespace OpenSage.Data.W3d
         public float UStep;
         public float VStep;
         public float StepsPerSecond;
+        public float Offset;
+        public float Axis;
+        public float UOffset;
+        public float VOffset;
+        public float ClampFix;
+        public float UseReflect;
+        public float VPreSec;
+        public float Period;
+        public float UperSec;
+        public float VPerScale;
 
         /// <summary>
         /// In Hertz. 1 = 1 rotate per second. DEFAULT = 0.0
@@ -88,111 +98,163 @@ namespace OpenSage.Data.W3d
 
                 foreach (var mapperArg in splitMapperArgs0)
                 {
-                    var splitMapperArg = mapperArg.Split('=');
+                    var splitByDash = mapperArg.Contains("-"); // EnB asset ("pu09a.w3d") contains erroneous mapping. - is used instead of =. 
+                    var splitByEquals = mapperArg.Contains("=");
+
+                    var splitValue = (splitByEquals) ? '=' : '-';
+                    var splitMapperArg = mapperArg.Split(splitValue);
 
                     var mapperArgName = splitMapperArg[0].Trim();
 
-                    var mapperArgValue = splitMapperArg[1].Trim();
-                    if (mapperArgValue.Contains(";"))
+                    // enb contains assets that use ":" as comments start as well as some that contain no value or comment dilimeter.
+                    if (!mapperArgName.Contains(";") && !mapperArgName.Contains(":") && splitMapperArg.Length == 2) 
                     {
-                        // ';' indicates a comment
-                        mapperArgValue = mapperArgValue.Substring(0, mapperArgValue.IndexOf(';')).Trim();
-                    }
+                        var mapperArgValue = splitMapperArg[1].Trim();
+                        if (mapperArgValue.Contains(";"))
+                        {
+                            // ';' indicates a comment
+                            mapperArgValue = mapperArgValue.Substring(0, mapperArgValue.IndexOf(';')).Trim();
+                        }
 
-                    mapperArgValue = mapperArgValue.TrimEnd('f').Replace("..", ".");
+                        mapperArgValue = mapperArgValue.TrimEnd('f').Replace("..", ".");
 
-                    switch (mapperArgName)
-                    {
-                        case "UPerSec":
-                            TryParseFloat(mapperArgValue, out result.UPerSec);
-                            break;
+                        switch (mapperArgName)
+                        {
+                            case "UPerSec":
+                                TryParseFloat(mapperArgValue, out result.UPerSec);
+                                break;
 
-                        case "VPerSec":
-                            TryParseFloat(mapperArgValue, out result.VPerSec);
-                            break;
+                            case "VPerSec":
+                                TryParseFloat(mapperArgValue, out result.VPerSec);
+                                break;
 
-                        case "UScale":
-                            TryParseFloat(mapperArgValue, out result.UScale);
-                            break;
+                            case "UScale":
+                                TryParseFloat(mapperArgValue, out result.UScale);
+                                break;
 
-                        case "VScale":
-                            TryParseFloat(mapperArgValue, out result.VScale);
-                            break;
+                            case "VScale":
+                                TryParseFloat(mapperArgValue, out result.VScale);
+                                break;
 
-                        case "FPS":
-                            TryParseFloat(mapperArgValue, out result.FPS);
-                            break;
+                            case "FPS":
+                                TryParseFloat(mapperArgValue, out result.FPS);
+                                break;
 
-                        case "Log1Width":
-                            result.Log1Width = int.Parse(mapperArgValue);
-                            break;
+                            case "Log1Width":
+                                result.Log1Width = int.Parse(mapperArgValue);
+                                break;
 
-                        case "Log2Width":
-                            result.Log2Width = int.Parse(mapperArgValue);
-                            break;
+                            case "Log2Width":
+                                result.Log2Width = int.Parse(mapperArgValue);
+                                break;
 
-                        case "Last":
-                            int.TryParse(mapperArgValue, out result.Last);
-                            break;
+                            case "Last":
+                                int.TryParse(mapperArgValue, out result.Last);
+                                break;
 
-                        case "Speed":
-                            TryParseFloat(mapperArgValue, out result.Speed);
-                            break;
+                            case "Speed":
+                                TryParseFloat(mapperArgValue, out result.Speed);
+                                break;
 
-                        case "UCenter":
-                            TryParseFloat(mapperArgValue, out result.UCenter);
-                            break;
+                            case "UCenter":
+                                TryParseFloat(mapperArgValue, out result.UCenter);
+                                break;
 
-                        case "VCenter":
-                            TryParseFloat(mapperArgValue, out result.VCenter);
-                            break;
+                            case "VCenter":
+                                TryParseFloat(mapperArgValue, out result.VCenter);
+                                break;
 
-                        case "UAmp":
-                            TryParseFloat(mapperArgValue, out result.UAmp);
-                            break;
+                            case "UAmp":
+                                TryParseFloat(mapperArgValue, out result.UAmp);
+                                break;
 
-                        case "UFreq":
-                            TryParseFloat(mapperArgValue, out result.UFreq);
-                            break;
+                            case "UFreq":
+                                TryParseFloat(mapperArgValue, out result.UFreq);
+                                break;
 
-                        case "UPhase":
-                            TryParseFloat(mapperArgValue, out result.UPhase);
-                            break;
+                            case "UPhase":
+                                TryParseFloat(mapperArgValue, out result.UPhase);
+                                break;
 
-                        case "VAmp":
-                            TryParseFloat(mapperArgValue, out result.VAmp);
-                            break;
+                            case "VAmp":
+                                TryParseFloat(mapperArgValue, out result.VAmp);
+                                break;
 
-                        case "VFreq":
-                            TryParseFloat(mapperArgValue, out result.VFreq);
-                            break;
+                            case "VFreq":
+                                TryParseFloat(mapperArgValue, out result.VFreq);
+                                break;
 
-                        case "VPhase":
-                            TryParseFloat(mapperArgValue, out result.VPhase);
-                            break;
+                            case "VPhase":
+                                TryParseFloat(mapperArgValue, out result.VPhase);
+                                break;
 
-                        case "BumpRotation":
-                            TryParseFloat(mapperArgValue, out result.BumpRotation);
-                            break;
+                            case "BumpRotation":
+                                TryParseFloat(mapperArgValue, out result.BumpRotation);
+                                break;
 
-                        case "BumpScale":
-                            TryParseFloat(mapperArgValue, out result.BumpScale);
-                            break;
+                            case "BumpScale":
+                                TryParseFloat(mapperArgValue, out result.BumpScale);
+                                break;
 
-                        case "UStep":
-                            TryParseFloat(mapperArgValue, out result.UStep);
-                            break;
+                            case "UStep":
+                                TryParseFloat(mapperArgValue, out result.UStep);
+                                break;
 
-                        case "VStep":
-                            TryParseFloat(mapperArgValue, out result.VStep);
-                            break;
+                            case "VStep":
+                                TryParseFloat(mapperArgValue, out result.VStep);
+                                break;
 
-                        case "SPS":
-                            TryParseFloat(mapperArgValue, out result.StepsPerSecond);
-                            break;
+                            case "SPS":
+                                TryParseFloat(mapperArgValue, out result.StepsPerSecond);
+                                break;
 
-                        default:
-                            throw new InvalidDataException($"Unknown mapper arg. Name = {mapperArgName}, Value = {splitMapperArg[1]}");
+                            case "Offset":
+                                TryParseFloat(mapperArgValue, out result.Offset);
+                                break;
+
+                            case "Axis":
+                                TryParseFloat(mapperArgValue, out result.Axis);
+                                break;
+
+                            case "UOffset":
+                                TryParseFloat(mapperArgValue, out result.UOffset);
+                                break;
+
+                            case "VOffset":
+                                TryParseFloat(mapperArgValue, out result.VOffset);
+                                break;
+
+                            case "ClampFix":
+                                TryParseFloat(mapperArgValue, out result.ClampFix);
+                                break;
+
+                            case "UseReflect":
+                                TryParseFloat(mapperArgValue, out result.UseReflect);
+                                break;
+
+                            case "VPreSec":
+                                TryParseFloat(mapperArgValue, out result.VPreSec);
+                                break;
+
+                            case "Period":
+                                TryParseFloat(mapperArgValue, out result.Period);
+                                break;
+
+                            case "UperSec":
+                                TryParseFloat(mapperArgValue, out result.UPerSec);
+                                break;
+
+                            case "fps":
+                                TryParseFloat(mapperArgValue, out result.FPS);
+                                break;
+
+                            case "VPerScale":
+                                TryParseFloat(mapperArgValue, out result.VPerScale);
+                                break;
+
+                            default:
+                                throw new InvalidDataException($"Unknown mapper arg. Name = {mapperArgName}, Value = {splitMapperArg[1]}");
+                        }
                     }
                 }
 

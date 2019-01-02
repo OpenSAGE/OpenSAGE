@@ -47,6 +47,9 @@
         /// </summary>
         DetailBlend,
 
+        // Used in "bogeril_dor01.w3d" in EnB, no idea What the Enum should be though.
+        Alt,
+
         // Only used by skybox01.w3d in BFME II, no idea why.
         DetailAlt = 10,
 

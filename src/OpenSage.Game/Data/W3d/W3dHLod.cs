@@ -13,6 +13,8 @@ namespace OpenSage.Data.W3d
 
         public W3dHLodAggregateArray Aggregate { get; private set; }
 
+        public W3dHLodProxyArray Proxy { get; private set; }
+
         internal static W3dHLod Parse(BinaryReader reader, W3dParseContext context)
         {
             return ParseChunk(reader, context, header =>
@@ -33,6 +35,10 @@ namespace OpenSage.Data.W3d
 
                         case W3dChunkType.W3D_CHUNK_HLOD_AGGREGATE_ARRAY:
                             result.Aggregate = W3dHLodAggregateArray.Parse(reader, context);
+                            break;
+
+                        case W3dChunkType.W3D_CHUNK_HLOD_PROXY_ARRAY:
+                            result.Proxy = W3dHLodProxyArray.Parse(reader, context);
                             break;
 
                         default:
@@ -63,5 +69,10 @@ namespace OpenSage.Data.W3d
     public sealed class W3dHLodAggregateArray : W3dHLodArrayBase<W3dHLodAggregateArray>
     {
         
+    }
+
+    public sealed class W3dHLodProxyArray : W3dHLodArrayBase<W3dHLodProxyArray>
+    {
+
     }
 }

@@ -54,6 +54,14 @@ namespace OpenSage.Data.W3d
 
         public W3dShaderMaterials ShaderMaterials { get; private set; }
 
+        public W3dPrelitVertex PrelitVertex { get; private set; }
+
+        public W3dPrelitLightMapMultiPass PrelitLightMapMultiPass { get; private set; }
+
+        public W3dPrelitLightMapMultiTexture PrelitLightMapMultiTexture { get; private set; }
+        
+        public W3dPrelitUnlit PrelitUnlit { get; private set; }
+
         internal static W3dMesh Parse(BinaryReader reader, W3dParseContext context)
         {
             return ParseChunk(reader, context, header =>
@@ -138,6 +146,22 @@ namespace OpenSage.Data.W3d
 
                         case W3dChunkType.W3D_CHUNK_SHADER_MATERIALS:
                             result.ShaderMaterials = W3dShaderMaterials.Parse(reader, context);
+                            break;
+
+                        case W3dChunkType.W3D_CHUNK_PRELIT_VERTEX:
+                            result.PrelitVertex = W3dPrelitVertex.Parse(reader, context);
+                            break;
+
+                        case W3dChunkType.W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS:
+                            result.PrelitLightMapMultiPass = W3dPrelitLightMapMultiPass.Parse(reader, context);
+                            break;
+
+                        case W3dChunkType.W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE:
+                            result.PrelitLightMapMultiTexture = W3dPrelitLightMapMultiTexture.Parse(reader, context);
+                            break;
+
+                        case W3dChunkType.W3D_CHUNK_PRELIT_UNLIT:
+                            result.PrelitUnlit = W3dPrelitUnlit.Parse(reader, context);
                             break;
 
                         default:
