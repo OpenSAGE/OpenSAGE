@@ -102,9 +102,9 @@ namespace OpenSage.Terrain
         {
             const float heightBias = 1f;
 
-            var bridgeLeft = model.SubObjects.First(x => x.Name.EndsWith("BRIDGE_LEFT"));
-            var bridgeSpan = model.SubObjects.First(x => x.Name.EndsWith("BRIDGE_SPAN"));
-            var bridgeRight = model.SubObjects.First(x => x.Name.EndsWith("BRIDGE_RIGHT"));
+            var bridgeLeft = model.SubObjects.First(x => x.Name.Contains("BRIDGE_LEFT"));
+            var bridgeSpan = model.SubObjects.First(x => x.Name.Contains("BRIDGE_SPAN"));
+            var bridgeRight = model.SubObjects.First(x => x.Name.Contains("BRIDGE_RIGHT"));
 
             float GetLength(ModelSubObject subObject)
             {
