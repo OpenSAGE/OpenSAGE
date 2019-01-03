@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>    
-    <TargetFramework>netcoreapp2.0</TargetFramework>    
+    <TargetFramework>netcoreapp2.2</TargetFramework>    
     <RootNamespace>OpenSage.Tests</RootNamespace>
   </PropertyGroup>
   
