@@ -29,7 +29,7 @@ namespace OpenSage.Data.W3d
                     Name = reader.ReadFixedLengthString(W3dConstants.NameLength),
                     HierarchyName = reader.ReadFixedLengthString(W3dConstants.NameLength),
                     ConnectionsCount = reader.ReadUInt16(),
-                    UnknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position)
+                    UnknownBytes = reader.ReadBytes((int) context.CurrentEndPosition - (int) reader.BaseStream.Position)
                 };
 
                 // TODO: Determine W3dHModelHeader UnknownBytes
@@ -41,7 +41,7 @@ namespace OpenSage.Data.W3d
         protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write(Version);
-            writer.Write(Name);
+            writer.WriteFixedLengthString(Name, W3dConstants.NameLength);
             writer.Write(HierarchyName);
             writer.Write(ConnectionsCount);
             writer.Write(UnknownBytes);

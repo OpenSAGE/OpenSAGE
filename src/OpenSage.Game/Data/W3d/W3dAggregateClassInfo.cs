@@ -22,7 +22,7 @@ namespace OpenSage.Data.W3d
                 {
                     OriginalClassID = reader.ReadUInt32(),
                     Flags = reader.ReadUInt32(),
-                    UnknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position)
+                    UnknownBytes = reader.ReadBytes((int) context.CurrentEndPosition - (int) reader.BaseStream.Position)
                 };
 
                 // TODO: Determine what the flags do/are.

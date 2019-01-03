@@ -89,6 +89,12 @@ namespace OpenSage.Data.W3d
         /// <summary>
         /// Grayscale heightmap (to be converted to bumpmap).
         /// </summary>
-        TypeBumpMap = 0x1000
+        TypeBumpMap = 0x1000,
+
+
+        /// <summary>
+        /// Unknonwn - used in enb asset "jss01g.w3d"
+        /// </summary>
+        UnknownENB = 0x0100,
     }
 }

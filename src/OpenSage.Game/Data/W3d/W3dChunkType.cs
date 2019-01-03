@@ -136,7 +136,6 @@
             W3D_CHUNK_AGGREGATE_INFO,                                       // references to 'contained' models
             W3D_CHUNK_TEXTURE_REPLACER_INFO,                                    // information about which meshes need textures replaced
             W3D_CHUNK_AGGREGATE_CLASS_INFO,                                 // information about the original class that created this aggregate
-            W3D_CHUNK_AGGREGATE_UNKNOWN = 393728,                           // Unknown chunk found in enb asset ("npc14b.w3d")
 
         W3D_CHUNK_HLOD = 0x00000700,        // description of an HLod object (see HLodClass)
             W3D_CHUNK_HLOD_HEADER,                                              // general information such as name and version

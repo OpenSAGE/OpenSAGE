@@ -41,5 +41,10 @@ namespace OpenSage.Data.W3d
         /// Tiled continuously over line
         /// </summary>
         TiledTextureMap = 0x00000002 << 24,
+
+        /// <summary>
+        /// Flag used in ENB asset "bst62_shockp4.w3d"
+        /// </summary>
+        UnknownENB = (0x00000002 << 24) + 1,
     }
 }

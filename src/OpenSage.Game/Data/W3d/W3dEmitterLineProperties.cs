@@ -21,7 +21,7 @@ namespace OpenSage.Data.W3d
             {
                 var result = new W3dEmitterLineProperties
                 {
-                    Flags = (W3dEmitterLineFlags)reader.ReadUInt32(),
+                    Flags = reader.ReadUInt32AsEnum<W3dEmitterLineFlags>(),
                     SubdivisionLevel = reader.ReadUInt32(),
                     NoiseAmplitude = reader.ReadSingle(),
                     MergeAbortFactor = reader.ReadSingle(),

@@ -18,7 +18,7 @@ namespace OpenSage.Data.W3d {
                 var result = new W3dTextureReplacerInfo
                 {
                     Version = reader.ReadUInt32(),
-                    UnknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position)
+                    UnknownBytes = reader.ReadBytes((int) context.CurrentEndPosition - (int) reader.BaseStream.Position)
                 };
 
                 // TODO: Determine W3dTextureReplacerInfo UnknownBytes.

@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.W3d
 {
@@ -10,7 +11,7 @@ namespace OpenSage.Data.W3d
 
         public uint ChunkSize { get; private set; }
 
-        public W3dRgbF Color { get; private set; }
+        public ColorRgbF Color { get; private set; }
 
         public float Position { get; private set; }
 

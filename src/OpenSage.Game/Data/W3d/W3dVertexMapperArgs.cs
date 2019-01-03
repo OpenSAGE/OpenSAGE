@@ -63,9 +63,7 @@ namespace OpenSage.Data.W3d
         public float VOffset;
         public float ClampFix;
         public float UseReflect;
-        public float VPreSec;
         public float Period;
-        public float UperSec;
         public float VPerScale;
 
         /// <summary>
@@ -233,7 +231,7 @@ namespace OpenSage.Data.W3d
                                 break;
 
                             case "VPreSec":
-                                TryParseFloat(mapperArgValue, out result.VPreSec);
+                                TryParseFloat(mapperArgValue, out result.VPerSec);
                                 break;
 
                             case "Period":

@@ -23,7 +23,7 @@ namespace OpenSage.Data.W3d
                 // Certain enb w3d's break without this check. (example: astro00.w3d)
                 if (reader.BaseStream.Position < context.CurrentEndPosition)
                 {
-                    var remaining = (int)context.CurrentEndPosition - (int)reader.BaseStream.Position;
+                    var remaining = (int) context.CurrentEndPosition - (int) reader.BaseStream.Position;
                     var KeyframeCount = remaining / 8;
                     result.Keyframes = new W3dEmitterRotationKeyframe[KeyframeCount];
                     for (var i = 0; i < result.Keyframes.Length; i++)

@@ -15,21 +15,21 @@ namespace OpenSage.Data.W3d
             {
                 var result = new W3dSoundRObjDefinition
                 {
-                    UnknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position)
+                    UnknownBytes = reader.ReadBytes((int) context.CurrentEndPosition - (int) reader.BaseStream.Position)
                 };
 
                 // TODO: Determine W3dSoundRObjDefinition Chunk Structure (Currently Unknown)
                 /*
                 var chunkA = reader.ReadUInt32() >> 8;
                 var chunkASize = reader.ReadUInt32();
-                var chunkAArray = reader.ReadBytes((int)chunkASize);
+                var chunkAArray = reader.ReadBytes((int) chunkASize);
 
                 var Flag2 = reader.ReadUInt32() >> 8;
                 var tmp = reader.ReadBytes(4); // unknown
 
                 var chunkB = reader.ReadUInt32() >> 8;
                 var chunkBSize = reader.ReadUInt32();
-                var chunkBArray = reader.ReadBytes((int)chunkBSize);
+                var chunkBArray = reader.ReadBytes((int) chunkBSize);
                 */
 
                 return result;
