@@ -46,7 +46,7 @@ namespace OpenSage.Data.W3d
                 result.LodMin = reader.ReadSingle();
                 result.LodMax = reader.ReadSingle();
 
-                result.FutureUse = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position);
+                result.FutureUse = reader.ReadBytes((int) context.CurrentEndPosition - (int) reader.BaseStream.Position);
 
                 // TODO: Determine If FutureUse are used anywhere or are different between games?
 

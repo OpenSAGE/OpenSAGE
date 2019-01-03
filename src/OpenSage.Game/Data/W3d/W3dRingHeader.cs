@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.W3d
 {
@@ -26,7 +27,7 @@ namespace OpenSage.Data.W3d
 
         public float Duration { get; private set; }
 
-        public W3dRgbF InitialColor { get; private set; }
+        public ColorRgbF InitialColor { get; private set; }
 
         public float InitialOpacity { get; private set; }
 
@@ -74,7 +75,7 @@ namespace OpenSage.Data.W3d
             writer.Write(ChunkSize);
             writer.Write(Version);
             writer.Write(Flags);
-            writer.Write(Name);
+            writer.WriteFixedLengthString(Name, W3dConstants.NameLength * 2);
             writer.Write(Center);
             writer.Write(Extent);
             writer.Write(Duration);
@@ -86,7 +87,7 @@ namespace OpenSage.Data.W3d
             writer.Write(OuterScale);
             writer.Write(InnerRadii);
             writer.Write(OuterRadii);
-            writer.Write(TextureFileName);
+            writer.WriteFixedLengthString(TextureFileName, W3dConstants.NameLength * 2);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace OpenSage.Data.W3d
             var result = parseCallback(chunkHeader);
 
             result.StartPosition = startPosition;
-            result.EndPosition =  endPosition;
+            result.EndPosition = endPosition;
 
             context.PopAsset();
 

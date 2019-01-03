@@ -38,10 +38,10 @@ namespace OpenSage.Data.W3d
         {
             writer.WriteFixedLengthString(BaseModelName, W3dConstants.NameLength * 2);
             writer.Write(SubObjectCount);
-            SubObjects.ForEach(delegate (W3dAggregateSubObject subObject)
+            foreach(var subObject in SubObjects)
             {
                 subObject.WriteTo(writer);
-            });
+            }
         }
     }
 }

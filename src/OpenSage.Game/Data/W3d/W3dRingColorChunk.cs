@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.W3d
 {
@@ -10,7 +11,7 @@ namespace OpenSage.Data.W3d
     {
         public byte Version;
         public byte Size;
-        public W3dRgbF Color;
+        public ColorRgbF Color;
         public float Position;
 
         internal static W3dRingColorChunk Parse(BinaryReader reader)
@@ -20,7 +21,7 @@ namespace OpenSage.Data.W3d
                 Version = reader.ReadByte(),
                 Size = reader.ReadByte(),
                 Color = W3dRgbF.Parse(reader),
-                Position = reader.ReadSingle(),
+                Position = reader.ReadSingle()
             };
         }
 

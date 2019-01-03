@@ -29,7 +29,7 @@ namespace OpenSage.Data.W3d
         {
             for (var i = 0; i < Names.Length; i++)
             {
-                writer.Write(Names[i]);
+                writer.WriteFixedLengthString(Names[i], W3dConstants.NameLength);
             }
         }
     }

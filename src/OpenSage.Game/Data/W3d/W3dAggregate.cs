@@ -21,8 +21,6 @@ namespace OpenSage.Data.W3d
 
         public W3dTextureReplacerInfo TextureReplacerInfo { get; private set; }
 
-        public W3dAggregateUnknown UnknownChunkData { get; private set; }
-
         internal static W3dAggregate Parse(BinaryReader reader, W3dParseContext context)
         {
             var isUnknownChunk = false;
@@ -50,33 +48,13 @@ namespace OpenSage.Data.W3d
                             result.TextureReplacerInfo = W3dTextureReplacerInfo.Parse(reader, context);
                             break;
 
-                        // TODO: Determine if this is a parsing error? Why is this neccessary?
-                        case W3dChunkType.W3D_CHUNK_AGGREGATE_UNKNOWN:      // See enb w3d "npc14b.w3d"
-                            result.UnknownChunkData = W3dAggregateUnknown.Parse(reader, context);
-                            isUnknownChunk = true;
-                            break;
-
                         default:
                             throw CreateUnknownChunkException(chunkType);
                     }
                 });
 
-                // TODO: figure out why this is neccessary (see enb w3d "npc14b.w3d"
-                // Neccessary because parseChunk callback Position check expects 1 byte less.  (Hack only for Unknown Data Chunk)
-                if (result.UnknownChunkData != null)
-                {
-                    reader.BaseStream.Position = context.CurrentEndPosition;
-                }
-
                 return result;
             });
-
-            // TODO: figure out why this is neccessary (see enb w3d "npc14b.w3d"
-            // Neccessary because the parseChunk callback expects Position to be at end of stream. (Hack only for Unknown Data Chunk)
-            if (isUnknownChunk)
-            {
-                reader.BaseStream.Position = reader.BaseStream.Length;
-            }
 
             return parsedChunk;
         }
@@ -98,11 +76,6 @@ namespace OpenSage.Data.W3d
             if (TextureReplacerInfo != null)
             {
                 yield return TextureReplacerInfo;
-            }
-
-            if (UnknownChunkData != null)
-            {
-                yield return UnknownChunkData;
             }
         }
     }

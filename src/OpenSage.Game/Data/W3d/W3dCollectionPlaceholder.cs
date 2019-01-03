@@ -28,7 +28,7 @@ namespace OpenSage.Data.W3d
                     TransformC = reader.ReadVector3(),
                     TransformD = reader.ReadVector3(),
                     Name = reader.ReadFixedLengthString(W3dConstants.NameLength),
-                    UnknownBytes = reader.ReadBytes((int)context.CurrentEndPosition - (int)reader.BaseStream.Position)
+                    UnknownBytes = reader.ReadBytes((int) context.CurrentEndPosition - (int) reader.BaseStream.Position)
                 };
 
                 // TODO: Determine W3dCollectionPlaceholder UnknownBytes
@@ -43,7 +43,7 @@ namespace OpenSage.Data.W3d
             writer.Write(TransformB);
             writer.Write(TransformC);
             writer.Write(TransformD);
-            writer.Write(Name);
+            writer.WriteFixedLengthString(Name, W3dConstants.NameLength);
             writer.Write(UnknownBytes);
         }
     }
