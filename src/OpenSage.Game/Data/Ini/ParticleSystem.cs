@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
@@ -175,6 +176,180 @@ namespace OpenSage.Data.Ini
         public float WindPingPongStartAngleMax { get; private set; }
         public float WindPingPongEndAngleMin { get; private set; }
         public float WindPingPongEndAngleMax { get; private set; }
+
+        public FXParticleSystemTemplate ToFXParticleSystemTemplate()
+        {
+            FXParticleEmissionVelocityBase GetEmissionVelocity()
+            {
+                switch (VelocityType)
+                {
+                    case ParticleVelocityType.None:
+                        return null;
+
+                    case ParticleVelocityType.Ortho:
+                        return new FXParticleEmissionVelocityOrtho
+                        {
+                            X = VelOrthoX,
+                            Y = VelOrthoY,
+                            Z = VelOrthoZ
+                        };
+
+                    case ParticleVelocityType.Hemispherical:
+                        return new FXParticleEmissionVelocityHemisphere
+                        {
+                            Speed = VelHemispherical
+                        };
+
+                    case ParticleVelocityType.Outward:
+                        return new FXParticleEmissionVelocityOutward
+                        {
+                            Speed = VelOutward,
+                            OtherSpeed = VelOutwardOther
+                        };
+
+                    case ParticleVelocityType.Spherical:
+                        return new FXParticleEmissionVelocitySphere
+                        {
+                            Speed = VelSpherical
+                        };
+
+                    case ParticleVelocityType.Cylindrical:
+                        return new FXParticleEmissionVelocityCylinder
+                        {
+                            Normal = VelCylindricalNormal,
+                            Radial = VelCylindricalRadial
+                        };
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            FXParticleEmissionVolumeBase GetEmissionVolume()
+            {
+                switch (VolumeType)
+                {
+                    case ParticleVolumeType.None:
+                        return null;
+                        
+                    case ParticleVolumeType.Point:
+                        return new FXParticleEmissionVolumePoint
+                        {
+                            IsHollow = IsHollow
+                        };
+
+                    case ParticleVolumeType.Line:
+                        return new FXParticleEmissionVolumeLine
+                        {
+                            StartPoint = VolLineStart,
+                            EndPoint = VolLineEnd,
+                            IsHollow = IsHollow
+                        };
+                        
+                    case ParticleVolumeType.Cylinder:
+                        return new FXParticleEmissionVolumeCylinder
+                        {
+                            Radius = VolCylinderRadius,
+                            Length = VolCylinderLength,
+                            IsHollow = IsHollow
+                        };
+                        
+                    case ParticleVolumeType.Sphere:
+                        return new FXParticleEmissionVolumeSphere
+                        {
+                            Radius = VolSphereRadius,
+                            IsHollow = IsHollow
+                        };
+                        
+                    case ParticleVolumeType.Box:
+                        return new FXParticleEmissionVolumeBox
+                        {
+                            HalfSize = VolBoxHalfSize,
+                            IsHollow = IsHollow
+                        };
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            return new FXParticleSystemTemplate
+            {
+                Name = Name,
+                Priority = Priority,
+                IsOneShot = IsOneShot,
+                Shader = Shader,
+                Type = Type,
+                ParticleName = ParticleName,
+                PerParticleAttachedSystem = PerParticleAttachedSystem,
+                SlaveSystem = SlaveSystem,
+                SlavePosOffset = SlavePosOffset,
+                Lifetime = Lifetime,
+                SystemLifetime = SystemLifetime,
+                Size = Size,
+                StartSizeRate = StartSizeRate,
+                IsGroundAligned = IsGroundAligned,
+                IsEmitAboveGroundOnly = IsEmitAboveGroundOnly,
+                IsParticleUpTowardsEmitter = IsParticleUpTowardsEmitter,
+                BurstDelay = BurstDelay,
+                BurstCount = BurstCount,
+                InitialDelay = InitialDelay,
+                Colors = new FXParticleColor
+                {
+                    Color1 = Color1,
+                    Color2 = Color2,
+                    Color3 = Color3,
+                    Color4 = Color4,
+                    Color5 = Color5,
+                    Color6 = Color6,
+                    Color7 = Color7,
+                    Color8 = Color8,
+                    ColorScale = ColorScale
+                },
+                Alpha = new FXParticleAlpha
+                {
+                    Alpha1 = Alpha1,
+                    Alpha2 = Alpha2,
+                    Alpha3 = Alpha3,
+                    Alpha4 = Alpha4,
+                    Alpha5 = Alpha5,
+                    Alpha6 = Alpha6,
+                    Alpha7 = Alpha7,
+                    Alpha8 = Alpha8
+                },
+                Update = new FXParticleUpdateDefault
+                {
+                    AngleZ = AngleZ,
+                    AngularDamping = AngularDamping,
+                    AngularRateZ = AngularRateZ,
+                    SizeRate = SizeRate,
+                    SizeRateDamping = SizeRateDamping
+                },
+                Physics = new FXParticleDefaultPhysics
+                {
+                    DriftVelocity = DriftVelocity,
+                    Gravity = Gravity,
+                    VelocityDamping = VelocityDamping
+                },
+                Draw = new FXParticleDrawDefault(),
+                Wind = new FXParticleWind
+                {
+                    TurbulenceAmplitude = 0,
+                    WindAngleChangeMax = WindAngleChangeMax,
+                    WindAngleChangeMin = WindAngleChangeMin,
+                    WindFullStrengthDist = WindFullStrengthDist,
+                    WindMotion = WindMotion,
+                    WindPingPongEndAngleMax = WindPingPongEndAngleMax,
+                    WindPingPongEndAngleMin = WindPingPongEndAngleMin,
+                    WindPingPongStartAngleMax = WindPingPongStartAngleMax,
+                    WindPingPongStartAngleMin = WindPingPongStartAngleMin,
+                    WindStrength = WindStrength,
+                    WindZeroStrengthDist = WindZeroStrengthDist
+                },
+                EmissionVelocity = GetEmissionVelocity(),
+                EmissionVolume = GetEmissionVolume(),  
+            };
+        }
     }
 
     public sealed class RandomAlphaKeyframe
