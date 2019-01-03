@@ -668,10 +668,10 @@ namespace OpenSage.Data.Ini.Parser
             return result;
         }
 
-        private bool ParseBlockContent<T>(
+        public bool ParseBlockContent<T>(
             T result,
-           IIniFieldParserProvider<T> fieldParserProvider,
-           bool isIncludedBlock = false)
+            IIniFieldParserProvider<T> fieldParserProvider,
+            bool isIncludedBlock = false)
             where T : class, new()
         {
             var done = false;

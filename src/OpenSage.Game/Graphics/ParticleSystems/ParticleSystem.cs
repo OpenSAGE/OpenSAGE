@@ -332,26 +332,29 @@ namespace OpenSage.Graphics.ParticleSystems
 
             var alphas = Definition.Alpha;
 
-            if (alphas.Alpha1 != null)
+            if (alphas != null)
             {
-                alphaKeyframes.Add(new ParticleAlphaKeyframe(alphas.Alpha1));
-            }
-
-            void addAlphaKeyframe(RandomAlphaKeyframe keyframe, RandomAlphaKeyframe previous)
-            {
-                if (keyframe != null && keyframe.Time > previous.Time)
+                if (alphas.Alpha1 != null)
                 {
-                    alphaKeyframes.Add(new ParticleAlphaKeyframe(keyframe));
+                    alphaKeyframes.Add(new ParticleAlphaKeyframe(alphas.Alpha1));
                 }
-            }
 
-            addAlphaKeyframe(alphas.Alpha2, alphas.Alpha1);
-            addAlphaKeyframe(alphas.Alpha3, alphas.Alpha2);
-            addAlphaKeyframe(alphas.Alpha4, alphas.Alpha3);
-            addAlphaKeyframe(alphas.Alpha5, alphas.Alpha4);
-            addAlphaKeyframe(alphas.Alpha6, alphas.Alpha5);
-            addAlphaKeyframe(alphas.Alpha7, alphas.Alpha6);
-            addAlphaKeyframe(alphas.Alpha8, alphas.Alpha7);
+                void addAlphaKeyframe(RandomAlphaKeyframe keyframe, RandomAlphaKeyframe previous)
+                {
+                    if (keyframe != null && keyframe.Time > previous.Time)
+                    {
+                        alphaKeyframes.Add(new ParticleAlphaKeyframe(keyframe));
+                    }
+                }
+
+                addAlphaKeyframe(alphas.Alpha2, alphas.Alpha1);
+                addAlphaKeyframe(alphas.Alpha3, alphas.Alpha2);
+                addAlphaKeyframe(alphas.Alpha4, alphas.Alpha3);
+                addAlphaKeyframe(alphas.Alpha5, alphas.Alpha4);
+                addAlphaKeyframe(alphas.Alpha6, alphas.Alpha5);
+                addAlphaKeyframe(alphas.Alpha7, alphas.Alpha6);
+                addAlphaKeyframe(alphas.Alpha8, alphas.Alpha7);
+            }
         }
 
         private ref Particle FindDeadParticleOrCreateNewOne()
