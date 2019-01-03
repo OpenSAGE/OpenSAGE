@@ -673,13 +673,11 @@ namespace OpenSage.Content
 
             public override int GetHashCode()
             {
-                var hashCode = -493973629;
-                hashCode = hashCode * -1521134295 + base.GetHashCode();
-                hashCode = hashCode * -1521134295 + VertexMaterialID.GetHashCode();
-                hashCode = hashCode * -1521134295 + ShaderID.GetHashCode();
-                hashCode = hashCode * -1521134295 + EqualityComparer<uint?>.Default.GetHashCode(TextureIndex0);
-                hashCode = hashCode * -1521134295 + EqualityComparer<uint?>.Default.GetHashCode(TextureIndex1);
-                return hashCode;
+                return HashCode.Combine(
+                    VertexMaterialID,
+                    ShaderID,
+                    TextureIndex0,
+                    TextureIndex1);
             }
 
             public static bool operator==(CombinedMaterialPermutation l, CombinedMaterialPermutation r)

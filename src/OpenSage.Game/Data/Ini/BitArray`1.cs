@@ -109,7 +109,7 @@ namespace OpenSage.Data.Ini
 
         public override int GetHashCode()
         {
-            return -311176850 + _inner.Count;
+            return HashCode.Combine(_inner.Count);
         }
 
         public string DisplayName

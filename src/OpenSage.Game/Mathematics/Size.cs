@@ -55,13 +55,7 @@ namespace OpenSage.Mathematics
         }
 
         /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (Width * 397) ^ Height;
-            }
-        }
+        public override int GetHashCode() => HashCode.Combine(Width, Height);
 
         /// <summary>
         /// Tests values for equality.
