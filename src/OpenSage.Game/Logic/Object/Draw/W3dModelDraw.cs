@@ -172,7 +172,12 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var particleSysBone in conditionState.ParticleSysBones)
                 {
-                    var particleSystemDefinition = _contentManager.IniDataContext.ParticleSystems.First(x => x.Name == particleSysBone.ParticleSystem);
+                    var particleSystemTemplate = _contentManager.IniDataContext.FXParticleSystems.First(x => x.Name == particleSysBone.ParticleSystem);
+                    if (particleSystemTemplate == null)
+                    {
+                        particleSystemTemplate = _contentManager.IniDataContext.ParticleSystems.First(x => x.Name == particleSysBone.ParticleSystem).ToFXParticleSystemTemplate();
+                    }
+
                     var bone = modelInstance.Model.BoneHierarchy.Bones.FirstOrDefault(x => string.Equals(x.Name, particleSysBone.BoneName, StringComparison.OrdinalIgnoreCase));
                     if (bone == null)
                     {
@@ -182,7 +187,7 @@ namespace OpenSage.Logic.Object
 
                     particleSystems.Add(new ParticleSystem(
                         _contentManager,
-                        particleSystemDefinition.ToFXParticleSystemTemplate(),
+                        particleSystemTemplate,
                         () => ref modelInstance.AbsoluteBoneTransforms[bone.Index]));
                 }
             }
