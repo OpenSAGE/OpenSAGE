@@ -90,7 +90,7 @@ namespace OpenSage.Data.Ini
         private static readonly Dictionary<string, Func<IniParser, FXParticleDrawBase>> DrawModuleParseTable = new Dictionary<string, Func<IniParser, FXParticleDrawBase>>
         {
             { "ButterflyDraw", FXParticleDrawButterfly.Parse },
-            { "DefaultDraw", FXParticleDrawBase.Parse },
+            { "DefaultDraw", FXParticleDrawDefault.Parse },
             { "LightningDraw", FXParticleDrawLightning.Parse },
             { "QuadDraw", FXParticleDrawQuad.Parse },
             { "RenderObjectDraw", FXParticleDrawRenderObject.Parse },
@@ -126,37 +126,37 @@ namespace OpenSage.Data.Ini
             { "TerrainCollision", FXParticleEventCollision.Parse },
         };
 
-        public string Name { get; private set; }
+        public string Name { get; internal set; }
 
-        public ParticleSystemPriority Priority { get; private set; }
-        public bool IsOneShot { get; private set; }
-        public ParticleSystemShader Shader { get; private set; }
-        public ParticleSystemType Type { get; private set; }
-        public string ParticleName { get; private set; }
-        public string PerParticleAttachedSystem { get; private set; }
-        public string SlaveSystem { get; private set; }
-        public Vector3 SlavePosOffset { get; private set; }
-        public RandomVariable Lifetime { get; private set; }
-        public int SystemLifetime { get; private set; }
+        public ParticleSystemPriority Priority { get; internal set; }
+        public bool IsOneShot { get; internal set; }
+        public ParticleSystemShader Shader { get; internal set; }
+        public ParticleSystemType Type { get; internal set; }
+        public string ParticleName { get; internal set; }
+        public string PerParticleAttachedSystem { get; internal set; }
+        public string SlaveSystem { get; internal set; }
+        public Vector3 SlavePosOffset { get; internal set; }
+        public RandomVariable Lifetime { get; internal set; }
+        public int SystemLifetime { get; internal set; }
         public int SortLevel { get; private set; }
-        public RandomVariable Size { get; private set; }
-        public RandomVariable StartSizeRate { get; private set; }
-        public bool IsGroundAligned { get; private set; }
-        public bool IsEmitAboveGroundOnly { get; private set; }
-        public bool IsParticleUpTowardsEmitter { get; private set; }
-        public RandomVariable BurstDelay { get; private set; }
-        public RandomVariable BurstCount { get; private set; }
-        public RandomVariable InitialDelay { get; private set; }
+        public RandomVariable Size { get; internal set; }
+        public RandomVariable StartSizeRate { get; internal set; }
+        public bool IsGroundAligned { get; internal set; }
+        public bool IsEmitAboveGroundOnly { get; internal set; }
+        public bool IsParticleUpTowardsEmitter { get; internal set; }
+        public RandomVariable BurstDelay { get; internal set; }
+        public RandomVariable BurstCount { get; internal set; }
+        public RandomVariable InitialDelay { get; internal set; }
         public bool UseMaximumHeight { get; private set; }
 
-        public FXParticleColor Colors { get; private set; }
-        public FXParticleAlpha Alpha { get; private set; }
-        public FXParticleUpdateBase Update { get; private set; }
-        public FXParticlePhysicsBase Physics { get; private set; }
-        public FXParticleDrawBase Draw { get; private set; }
-        public FXParticleWind Wind { get; private set; }
-        public FXParticleEmissionVelocityBase EmissionVelocity { get; private set; }
-        public FXParticleEmissionVolumeBase EmissionVolume { get; private set; }
+        public FXParticleColor Colors { get; internal set; }
+        public FXParticleAlpha Alpha { get; internal set; }
+        public FXParticleUpdateBase Update { get; internal set; }
+        public FXParticlePhysicsBase Physics { get; internal set; }
+        public FXParticleDrawBase Draw { get; internal set; }
+        public FXParticleWind Wind { get; internal set; }
+        public FXParticleEmissionVelocityBase EmissionVelocity { get; internal set; }
+        public FXParticleEmissionVolumeBase EmissionVolume { get; internal set; }
         public FXParticleEventBase Event { get; private set; }
     }
 
@@ -178,16 +178,16 @@ namespace OpenSage.Data.Ini
             { "ColorScale", (parser, x) => x.ColorScale = RandomVariable.Parse(parser) },
         };
 
-        public RgbColorKeyframe Color1 { get; private set; }
-        public RgbColorKeyframe Color2 { get; private set; }
-        public RgbColorKeyframe Color3 { get; private set; }
-        public RgbColorKeyframe Color4 { get; private set; }
-        public RgbColorKeyframe Color5 { get; private set; }
-        public RgbColorKeyframe Color6 { get; private set; }
-        public RgbColorKeyframe Color7 { get; private set; }
-        public RgbColorKeyframe Color8 { get; private set; }
+        public RgbColorKeyframe Color1 { get; internal set; }
+        public RgbColorKeyframe Color2 { get; internal set; }
+        public RgbColorKeyframe Color3 { get; internal set; }
+        public RgbColorKeyframe Color4 { get; internal set; }
+        public RgbColorKeyframe Color5 { get; internal set; }
+        public RgbColorKeyframe Color6 { get; internal set; }
+        public RgbColorKeyframe Color7 { get; internal set; }
+        public RgbColorKeyframe Color8 { get; internal set; }
 
-        public RandomVariable ColorScale { get; private set; }
+        public RandomVariable ColorScale { get; internal set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -207,14 +207,14 @@ namespace OpenSage.Data.Ini
             { "Alpha8", (parser, x) => x.Alpha8 = RandomAlphaKeyframe.Parse(parser) },
         };
 
-        public RandomAlphaKeyframe Alpha1 { get; private set; }
-        public RandomAlphaKeyframe Alpha2 { get; private set; }
-        public RandomAlphaKeyframe Alpha3 { get; private set; }
-        public RandomAlphaKeyframe Alpha4 { get; private set; }
-        public RandomAlphaKeyframe Alpha5 { get; private set; }
-        public RandomAlphaKeyframe Alpha6 { get; private set; }
-        public RandomAlphaKeyframe Alpha7 { get; private set; }
-        public RandomAlphaKeyframe Alpha8 { get; private set; }
+        public RandomAlphaKeyframe Alpha1 { get; internal set; }
+        public RandomAlphaKeyframe Alpha2 { get; internal set; }
+        public RandomAlphaKeyframe Alpha3 { get; internal set; }
+        public RandomAlphaKeyframe Alpha4 { get; internal set; }
+        public RandomAlphaKeyframe Alpha5 { get; internal set; }
+        public RandomAlphaKeyframe Alpha6 { get; internal set; }
+        public RandomAlphaKeyframe Alpha7 { get; internal set; }
+        public RandomAlphaKeyframe Alpha8 { get; internal set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -239,11 +239,11 @@ namespace OpenSage.Data.Ini
             { "AngularDampingXY", (parser, x) => x.AngularDampingXY = RandomVariable.Parse(parser) },
         };
 
-        public RandomVariable SizeRate { get; private set; }
-        public RandomVariable SizeRateDamping { get; private set; }
-        public RandomVariable AngleZ { get; private set; }
-        public RandomVariable AngularRateZ { get; private set; }
-        public RandomVariable AngularDamping { get; private set; }
+        public RandomVariable SizeRate { get; internal set; }
+        public RandomVariable SizeRateDamping { get; internal set; }
+        public RandomVariable AngleZ { get; internal set; }
+        public RandomVariable AngularRateZ { get; internal set; }
+        public RandomVariable AngularDamping { get; internal set; }
         public FXParticleSystemRotationType Rotation { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
@@ -329,23 +329,29 @@ namespace OpenSage.Data.Ini
             { "DriftVelocity", (parser, x) => x.DriftVelocity = parser.ParseVector3() },
         };
 
-        public float Gravity { get; private set; }
-        public RandomVariable VelocityDamping { get; private set; }
-        public Vector3 DriftVelocity { get; private set; }
+        public float Gravity { get; internal set; }
+        public RandomVariable VelocityDamping { get; internal set; }
+        public Vector3 DriftVelocity { get; internal set; }
     }
 
     [AddedIn(SageGame.Bfme)]
-    public class FXParticleDrawBase
+    public abstract class FXParticleDrawBase
     {
-        internal static FXParticleDrawBase Parse(IniParser parser) => parser.ParseBlock(BaseFieldParseTable);
-
         internal static readonly IniParseTable<FXParticleDrawBase> BaseFieldParseTable = new IniParseTable<FXParticleDrawBase>();
+    }
+
+    [AddedIn(SageGame.Bfme)]
+    public sealed class FXParticleDrawDefault : FXParticleDrawBase
+    {
+        internal static FXParticleDrawDefault Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<FXParticleDrawDefault> FieldParseTable = BaseFieldParseTable.Concat(new IniParseTable<FXParticleDrawDefault>());
     }
 
     [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleDrawRenderObject : FXParticleDrawBase
     {
-        internal new static FXParticleDrawRenderObject Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static FXParticleDrawRenderObject Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<FXParticleDrawRenderObject> FieldParseTable = BaseFieldParseTable.Concat(new IniParseTable<FXParticleDrawRenderObject>());
     }
@@ -353,7 +359,7 @@ namespace OpenSage.Data.Ini
     [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleDrawStreak : FXParticleDrawBase
     {
-        internal new static FXParticleDrawStreak Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static FXParticleDrawStreak Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<FXParticleDrawStreak> FieldParseTable = BaseFieldParseTable.Concat(new IniParseTable<FXParticleDrawStreak>());
     }
@@ -361,7 +367,7 @@ namespace OpenSage.Data.Ini
     [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleDrawButterfly : FXParticleDrawBase
     {
-        internal new static FXParticleDrawButterfly Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static FXParticleDrawButterfly Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<FXParticleDrawButterfly> FieldParseTable = BaseFieldParseTable.Concat(new IniParseTable<FXParticleDrawButterfly>());
     }
@@ -369,7 +375,7 @@ namespace OpenSage.Data.Ini
     [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleDrawLightning : FXParticleDrawBase
     {
-        internal new static FXParticleDrawLightning Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static FXParticleDrawLightning Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<FXParticleDrawLightning> FieldParseTable = BaseFieldParseTable.Concat(new IniParseTable<FXParticleDrawLightning>
         {
@@ -386,7 +392,7 @@ namespace OpenSage.Data.Ini
     [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleDrawQuad : FXParticleDrawBase
     {
-        internal new static FXParticleDrawQuad Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static FXParticleDrawQuad Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<FXParticleDrawQuad> FieldParseTable = BaseFieldParseTable.Concat(new IniParseTable<FXParticleDrawQuad>());
     }
@@ -412,17 +418,17 @@ namespace OpenSage.Data.Ini
             { "TurbulenceFrequency", (parser, x) => x.TurbulenceFrequency = parser.ParseFloat() }
         };
 
-        public ParticleSystemWindMotion WindMotion { get; private set; }
-        public float WindStrength { get; private set; }
-        public float WindFullStrengthDist { get; private set; }
-        public float WindZeroStrengthDist { get; private set; }
-        public float WindAngleChangeMin { get; private set; }
-        public float WindAngleChangeMax { get; private set; }
-        public float WindPingPongStartAngleMin { get; private set; }
-        public float WindPingPongStartAngleMax { get; private set; }
-        public float WindPingPongEndAngleMin { get; private set; }
-        public float WindPingPongEndAngleMax { get; private set; }
-        public float TurbulenceAmplitude { get; private set; }
+        public ParticleSystemWindMotion WindMotion { get; internal set; }
+        public float WindStrength { get; internal set; }
+        public float WindFullStrengthDist { get; internal set; }
+        public float WindZeroStrengthDist { get; internal set; }
+        public float WindAngleChangeMin { get; internal set; }
+        public float WindAngleChangeMax { get; internal set; }
+        public float WindPingPongStartAngleMin { get; internal set; }
+        public float WindPingPongStartAngleMax { get; internal set; }
+        public float WindPingPongEndAngleMin { get; internal set; }
+        public float WindPingPongEndAngleMax { get; internal set; }
+        public float TurbulenceAmplitude { get; internal set; }
         public float TurbulenceFrequency { get; private set; }
     }
 
@@ -443,8 +449,8 @@ namespace OpenSage.Data.Ini
             { "Normal", (parser, x) => x.Normal = RandomVariable.Parse(parser) },
         };
 
-        public RandomVariable Radial { get; private set; }
-        public RandomVariable Normal { get; private set; }
+        public RandomVariable Radial { get; internal set; }
+        public RandomVariable Normal { get; internal set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -459,9 +465,9 @@ namespace OpenSage.Data.Ini
             { "Z", (parser, x) => x.Z = RandomVariable.Parse(parser) },
         };
 
-        public RandomVariable X { get; private set; }
-        public RandomVariable Y { get; private set; }
-        public RandomVariable Z { get; private set; }
+        public RandomVariable X { get; internal set; }
+        public RandomVariable Y { get; internal set; }
+        public RandomVariable Z { get; internal set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -475,8 +481,8 @@ namespace OpenSage.Data.Ini
             { "OtherSpeed", (parser, x) => x.OtherSpeed = RandomVariable.Parse(parser) },
         };
 
-        public RandomVariable Speed { get; private set; }
-        public RandomVariable OtherSpeed { get; private set; }
+        public RandomVariable Speed { get; internal set; }
+        public RandomVariable OtherSpeed { get; internal set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -489,7 +495,7 @@ namespace OpenSage.Data.Ini
             { "Speed", (parser, x) => x.Speed = RandomVariable.Parse(parser) },
         };
 
-        public RandomVariable Speed { get; private set; }
+        public RandomVariable Speed { get; internal set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -508,7 +514,7 @@ namespace OpenSage.Data.Ini
             { "IsHollow", (parser, x) => x.IsHollow = parser.ParseBoolean() },
         };
 
-        public bool IsHollow { get; private set; }
+        public bool IsHollow { get; internal set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -523,8 +529,8 @@ namespace OpenSage.Data.Ini
             { "Offset", (parser, x) => x.Offset = parser.ParseVector3() },
         });
 
-        public float Radius { get; private set; }
-        public float Length { get; private set; }
+        public float Radius { get; internal set; }
+        public float Length { get; internal set; }
         public Vector3 Offset { get; private set; }
     }
 
@@ -539,8 +545,8 @@ namespace OpenSage.Data.Ini
             { "EndPoint", (parser, x) => x.EndPoint = parser.ParseVector3() },
         });
 
-        public Vector3 StartPoint { get; private set; }
-        public Vector3 EndPoint { get; private set; }
+        public Vector3 StartPoint { get; internal set; }
+        public Vector3 EndPoint { get; internal set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -553,7 +559,7 @@ namespace OpenSage.Data.Ini
             { "Radius", (parser, x) => x.Radius = parser.ParseFloat() }
         });
 
-        public float Radius { get; private set; }
+        public float Radius { get; internal set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -566,7 +572,7 @@ namespace OpenSage.Data.Ini
             { "HalfSize", (parser, x) => x.HalfSize = parser.ParseVector3() }
         });
 
-        public Vector3 HalfSize { get; private set; }
+        public Vector3 HalfSize { get; internal set; }
     }
 
     [AddedIn(SageGame.Bfme)]
