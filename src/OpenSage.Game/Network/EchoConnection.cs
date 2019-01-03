@@ -14,8 +14,6 @@ namespace OpenSage.Network
 
         private readonly List<ReceivedPacket> _receivedPackets = new List<ReceivedPacket>();
 
-        public bool IsReplay { get; } = false;
-
         public void Send(uint frame, List<Order> orders)
         {
             _receivedPackets.Add(new ReceivedPacket
