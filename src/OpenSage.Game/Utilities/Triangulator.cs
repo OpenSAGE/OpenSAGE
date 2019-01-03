@@ -731,7 +731,7 @@ namespace OpenSage.Utilities
         /// <summary>
         /// A basic triangle structure that holds the three vertices that make up a given triangle.
         /// </summary>
-        private struct Triangle
+        private readonly struct Triangle
         {
             public readonly Vertex A;
             public readonly Vertex B;
@@ -797,16 +797,7 @@ namespace OpenSage.Utilities
                 return obj.A.Equals(A) && obj.B.Equals(B) && obj.C.Equals(C);
             }
 
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    int result = A.GetHashCode();
-                    result = (result * 397) ^ B.GetHashCode();
-                    result = (result * 397) ^ C.GetHashCode();
-                    return result;
-                }
-            }
+            public override int GetHashCode() => HashCode.Combine(A, B, C);
         }
 
         private struct Vertex
@@ -832,13 +823,7 @@ namespace OpenSage.Utilities
                 return obj.Position.Equals(Position) && obj.Index == Index;
             }
 
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    return (Position.GetHashCode() * 397) ^ Index;
-                }
-            }
+            public override int GetHashCode() => HashCode.Combine(Position, Index);
 
             public override string ToString()
             {

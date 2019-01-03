@@ -89,15 +89,7 @@ namespace OpenSage.Mathematics
                    Height == rectangle.Height;
         }
 
-        public override int GetHashCode()
-        {
-            var hashCode = 466501756;
-            hashCode = hashCode * -1521134295 + X.GetHashCode();
-            hashCode = hashCode * -1521134295 + Y.GetHashCode();
-            hashCode = hashCode * -1521134295 + Width.GetHashCode();
-            hashCode = hashCode * -1521134295 + Height.GetHashCode();
-            return hashCode;
-        }
+        public override int GetHashCode() => HashCode.Combine(X, Y, Width, Height);
 
         public static bool operator ==(Rectangle rectangle1, Rectangle rectangle2)
         {

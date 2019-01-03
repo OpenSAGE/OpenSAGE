@@ -46,6 +46,7 @@ namespace OpenSage.Graphics.Effects
 
         public override int GetHashCode()
         {
+            // Not using HashCode.Combine here, to avoid copying large structs.
             var hashCode = 414621651;
             hashCode = hashCode * -1521134295 + RasterizerState.GetHashCode();
             hashCode = hashCode * -1521134295 + DepthStencilState.GetHashCode();

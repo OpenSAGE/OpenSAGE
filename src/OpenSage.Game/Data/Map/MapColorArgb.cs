@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace OpenSage.Data.Map
 {
@@ -53,14 +54,6 @@ namespace OpenSage.Data.Map
             return $"{{A:{A} R:{R} G:{G} B:{B}}}";
         }
 
-        public override int GetHashCode()
-        {
-            var hashCode = -1749689076;
-            hashCode = hashCode * -1521134295 + A.GetHashCode();
-            hashCode = hashCode * -1521134295 + R.GetHashCode();
-            hashCode = hashCode * -1521134295 + G.GetHashCode();
-            hashCode = hashCode * -1521134295 + B.GetHashCode();
-            return hashCode;
-        }
+        public override int GetHashCode() => HashCode.Combine(A, R, G, B);
     }
 }
