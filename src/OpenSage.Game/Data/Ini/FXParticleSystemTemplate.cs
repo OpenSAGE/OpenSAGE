@@ -19,7 +19,7 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<FXParticleSystemTemplate> FieldParseTable = new IniParseTable<FXParticleSystemTemplate>
         {
-            { "System", (parser, x) => parser.ParseBlock(SystemFieldParseTable) },
+            { "System", (parser, x) => parser.ParseBlockContent(x, SystemFieldParseTable) },
 
             { "Color", (parser, x) => x.Colors = ParseModule(parser, ColorModuleParseTable) },
             { "Alpha", (parser, x) => x.Alpha = ParseModule(parser, AlphaModuleParseTable) },
@@ -132,8 +132,8 @@ namespace OpenSage.Data.Ini
 
         public ParticleSystemPriority Priority { get; internal set; }
         public bool IsOneShot { get; internal set; }
-        public ParticleSystemShader Shader { get; internal set; }
-        public ParticleSystemType Type { get; internal set; }
+        public ParticleSystemShader Shader { get; internal set; } = ParticleSystemShader.Additive;
+        public ParticleSystemType Type { get; internal set; } = ParticleSystemType.Particle;
         public string ParticleName { get; internal set; }
         public string PerParticleAttachedSystem { get; internal set; }
         public string SlaveSystem { get; internal set; }
@@ -180,7 +180,7 @@ namespace OpenSage.Data.Ini
             { "ColorScale", (parser, x) => x.ColorScale = RandomVariable.Parse(parser) },
         };
 
-        public RgbColorKeyframe Color1 { get; internal set; }
+        public RgbColorKeyframe Color1 { get; internal set; } = new RgbColorKeyframe();
         public RgbColorKeyframe Color2 { get; internal set; }
         public RgbColorKeyframe Color3 { get; internal set; }
         public RgbColorKeyframe Color4 { get; internal set; }
