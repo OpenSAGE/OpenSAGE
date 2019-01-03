@@ -7,12 +7,10 @@ namespace OpenSage.Logic.Orders
     public sealed class OrderProcessor
     {
         private readonly Game _game;
-        private readonly bool _isReplay;
 
-        public OrderProcessor(Game game, bool isReplay)
+        public OrderProcessor(Game game)
         {
             _game = game;
-            _isReplay = isReplay;
         }
 
         public void Process(IEnumerable<Order> orders)
@@ -41,11 +39,7 @@ namespace OpenSage.Logic.Orders
                         break;
 
                     case OrderType.SetCameraPosition:
-                        // Ignore SetCameraPosition during replays
-                        if (!_isReplay)
-                        {
-                            _game.Scene3D.CameraController.TerrainPosition = order.Arguments[0].Value.Position;
-                        }
+                        // Ignore this message.
                         break;
 
                     case OrderType.SetSelection:

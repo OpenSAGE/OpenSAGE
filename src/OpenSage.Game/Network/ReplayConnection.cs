@@ -9,8 +9,6 @@ namespace OpenSage.Network
     {
         private readonly Queue<ReplayChunk> _chunks = new Queue<ReplayChunk>();
 
-        public bool IsReplay { get; } = true;
-
         public ReplayConnection(ReplayFile replayFile)
         {
             foreach (var chunk in replayFile.Chunks)

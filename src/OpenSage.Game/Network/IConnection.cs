@@ -6,8 +6,6 @@ namespace OpenSage.Network
 {
     public interface IConnection : IDisposable
     {
-        bool IsReplay { get; }
-
         void Send(uint frame, List<Order> orders);
         void Receive(uint frame, Action<uint, Order> packetFn);
     }

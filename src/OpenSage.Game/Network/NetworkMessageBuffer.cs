@@ -17,7 +17,7 @@ namespace OpenSage.Network
             _frameOrders = new Dictionary<uint, List<Order>>();
             _localOrders = new List<Order>();
             _connection = connection;
-            _orderProcessor = new OrderProcessor(game, connection.IsReplay);
+            _orderProcessor = new OrderProcessor(game);
         }
 
         public void AddLocalOrder(Order order)
