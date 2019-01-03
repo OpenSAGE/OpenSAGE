@@ -7,8 +7,6 @@ using System.Runtime.InteropServices;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics.Effects;
-using OpenSage.Graphics.ParticleSystems.VelocityTypes;
-using OpenSage.Graphics.ParticleSystems.VolumeTypes;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Util;
 using OpenSage.Mathematics;
@@ -26,8 +24,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
         private readonly GraphicsDevice _graphicsDevice;
 
-        private readonly IVelocityType _velocityType;
-        private readonly IVolumeType _volumeType;
+        private readonly FXParticleEmissionVelocityBase _velocityType;
+        private readonly FXParticleEmissionVolumeBase _volumeType;
 
         private readonly ParticleMaterial _particleMaterial;
 
@@ -53,13 +51,13 @@ namespace OpenSage.Graphics.ParticleSystems
         private readonly DeviceBuffer _indexBuffer;
         private readonly uint _numIndices;
 
-        public ParticleSystemDefinition Definition { get; }
+        public FXParticleSystemTemplate Definition { get; }
 
         public ParticleSystemState State { get; private set; }
 
         public ParticleSystem(
             ContentManager contentManager,
-            ParticleSystemDefinition definition,
+            FXParticleSystemTemplate definition,
             GetMatrixReferenceDelegate getWorldMatrix)
         {
             Definition = definition;
@@ -78,8 +76,8 @@ namespace OpenSage.Graphics.ParticleSystems
 
             _particleMaterial = AddDisposable(new ParticleMaterial(contentManager, contentManager.EffectLibrary.Particle));
 
-            _velocityType = VelocityTypeUtility.GetImplementation(Definition.VelocityType);
-            _volumeType = VolumeTypeUtility.GetImplementation(Definition.VolumeType);
+            _velocityType = Definition.EmissionVelocity;
+            _volumeType = Definition.EmissionVolume;
 
             var texturePath = Path.Combine("Art", "Textures", Definition.ParticleName);
             var texture = contentManager.Load<Texture>(texturePath);
@@ -100,9 +98,11 @@ namespace OpenSage.Graphics.ParticleSystems
 
             _colorKeyframes = new List<ParticleColorKeyframe>();
 
-            if (Definition.Color1 != null)
+            var colors = Definition.Colors;
+
+            if (colors.Color1 != null)
             {
-                _colorKeyframes.Add(new ParticleColorKeyframe(Definition.Color1));
+                _colorKeyframes.Add(new ParticleColorKeyframe(colors.Color1));
             }
 
             void addColorKeyframe(RgbColorKeyframe keyframe, RgbColorKeyframe previous)
@@ -113,13 +113,13 @@ namespace OpenSage.Graphics.ParticleSystems
                 }
             }
 
-            addColorKeyframe(Definition.Color2, Definition.Color1);
-            addColorKeyframe(Definition.Color3, Definition.Color2);
-            addColorKeyframe(Definition.Color4, Definition.Color3);
-            addColorKeyframe(Definition.Color5, Definition.Color4);
-            addColorKeyframe(Definition.Color6, Definition.Color5);
-            addColorKeyframe(Definition.Color7, Definition.Color6);
-            addColorKeyframe(Definition.Color8, Definition.Color7);
+            addColorKeyframe(colors.Color2, colors.Color1);
+            addColorKeyframe(colors.Color3, colors.Color2);
+            addColorKeyframe(colors.Color4, colors.Color3);
+            addColorKeyframe(colors.Color5, colors.Color4);
+            addColorKeyframe(colors.Color6, colors.Color5);
+            addColorKeyframe(colors.Color7, colors.Color6);
+            addColorKeyframe(colors.Color8, colors.Color7);
 
             _particles = new Particle[maxParticles];
             for (var i = 0; i < _particles.Length; i++)
@@ -278,9 +278,9 @@ namespace OpenSage.Graphics.ParticleSystems
 
             for (var i = 0; i < burstCount; i++)
             {
-                var ray = _volumeType.GetRay(Definition);
+                var ray = _volumeType.GetRay();
 
-                var velocity = _velocityType.GetVelocity(Definition, ray.Direction);
+                var velocity = _velocityType?.GetVelocity(ray.Direction, Definition.EmissionVolume) ?? Vector3.Zero;
 
                 // TODO: Look at Definition.Type == Streak, etc.
 
@@ -309,26 +309,32 @@ namespace OpenSage.Graphics.ParticleSystems
             particle.Position = position;
             particle.Velocity = velocity;
 
-            particle.AngleZ = Definition.AngleZ.GetRandomFloat();
-            particle.AngularRateZ = Definition.AngularRateZ.GetRandomFloat();
-            particle.AngularDamping = Definition.AngularDamping.GetRandomFloat();
+            var update = (FXParticleUpdateDefault) Definition.Update;
+
+            particle.AngleZ = update.AngleZ.GetRandomFloat();
+            particle.AngularRateZ = update.AngularRateZ.GetRandomFloat();
+            particle.AngularDamping = update.AngularDamping.GetRandomFloat();
 
             particle.Lifetime = Definition.Lifetime.GetRandomInt();
 
-            particle.ColorScale = Definition.ColorScale.GetRandomFloat();
+            particle.ColorScale = Definition.Colors.ColorScale.GetRandomFloat();
 
             particle.Size = startSize + Definition.Size.GetRandomFloat();
-            particle.SizeRate = Definition.SizeRate.GetRandomFloat();
-            particle.SizeRateDamping = Definition.SizeRateDamping.GetRandomFloat();
+            particle.SizeRate = update.SizeRate.GetRandomFloat();
+            particle.SizeRateDamping = update.SizeRateDamping.GetRandomFloat();
 
-            particle.VelocityDamping = Definition.VelocityDamping.GetRandomFloat();
+            var physics = (FXParticleDefaultPhysics) Definition.Physics;
+
+            particle.VelocityDamping = physics.VelocityDamping.GetRandomFloat();
 
             var alphaKeyframes = particle.AlphaKeyframes;
             alphaKeyframes.Clear();
 
-            if (Definition.Alpha1 != null)
+            var alphas = Definition.Alpha;
+
+            if (alphas.Alpha1 != null)
             {
-                alphaKeyframes.Add(new ParticleAlphaKeyframe(Definition.Alpha1));
+                alphaKeyframes.Add(new ParticleAlphaKeyframe(alphas.Alpha1));
             }
 
             void addAlphaKeyframe(RandomAlphaKeyframe keyframe, RandomAlphaKeyframe previous)
@@ -339,13 +345,13 @@ namespace OpenSage.Graphics.ParticleSystems
                 }
             }
 
-            addAlphaKeyframe(Definition.Alpha2, Definition.Alpha1);
-            addAlphaKeyframe(Definition.Alpha3, Definition.Alpha2);
-            addAlphaKeyframe(Definition.Alpha4, Definition.Alpha3);
-            addAlphaKeyframe(Definition.Alpha5, Definition.Alpha4);
-            addAlphaKeyframe(Definition.Alpha6, Definition.Alpha5);
-            addAlphaKeyframe(Definition.Alpha7, Definition.Alpha6);
-            addAlphaKeyframe(Definition.Alpha8, Definition.Alpha7);
+            addAlphaKeyframe(alphas.Alpha2, alphas.Alpha1);
+            addAlphaKeyframe(alphas.Alpha3, alphas.Alpha2);
+            addAlphaKeyframe(alphas.Alpha4, alphas.Alpha3);
+            addAlphaKeyframe(alphas.Alpha5, alphas.Alpha4);
+            addAlphaKeyframe(alphas.Alpha6, alphas.Alpha5);
+            addAlphaKeyframe(alphas.Alpha7, alphas.Alpha6);
+            addAlphaKeyframe(alphas.Alpha8, alphas.Alpha7);
         }
 
         private ref Particle FindDeadParticleOrCreateNewOne()
@@ -364,10 +370,12 @@ namespace OpenSage.Graphics.ParticleSystems
 
         private void UpdateParticle(ref Particle particle)
         {
-            particle.Velocity.Z += Definition.Gravity;
+            var physics = (FXParticleDefaultPhysics) Definition.Physics;
+
+            particle.Velocity.Z += physics.Gravity;
             particle.Velocity *= particle.VelocityDamping;
 
-            var totalVelocity = Definition.DriftVelocity.ToVector3() + particle.Velocity;
+            var totalVelocity = physics.DriftVelocity.ToVector3() + particle.Velocity;
             particle.Position += totalVelocity;
 
             particle.Size = Math.Max(particle.Size + particle.SizeRate, 0.001f);

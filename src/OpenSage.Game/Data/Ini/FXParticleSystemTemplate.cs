@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Graphics.ParticleSystems;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -435,7 +437,7 @@ namespace OpenSage.Data.Ini
     [AddedIn(SageGame.Bfme)]
     public abstract class FXParticleEmissionVelocityBase
     {
-
+        public abstract Vector3 GetVelocity(in Vector3 direction, FXParticleEmissionVolumeBase volume);
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -451,6 +453,17 @@ namespace OpenSage.Data.Ini
 
         public RandomVariable Radial { get; internal set; }
         public RandomVariable Normal { get; internal set; }
+
+        public override Vector3 GetVelocity(in Vector3 direction, FXParticleEmissionVolumeBase volume)
+        {
+            var velocity = Vector3.UnitX * Radial.GetRandomFloat();
+
+            velocity = Vector3.Transform(velocity, Matrix4x4.CreateRotationZ(ParticleSystemUtility.GetRandomAngle()));
+
+            velocity.Z = Normal.GetRandomFloat();
+
+            return velocity;
+        }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -468,6 +481,14 @@ namespace OpenSage.Data.Ini
         public RandomVariable X { get; internal set; }
         public RandomVariable Y { get; internal set; }
         public RandomVariable Z { get; internal set; }
+
+        public override Vector3 GetVelocity(in Vector3 direction, FXParticleEmissionVolumeBase volume)
+        {
+            return new Vector3(
+                X.GetRandomFloat(),
+                Y.GetRandomFloat(),
+                Z.GetRandomFloat());
+        }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -483,6 +504,49 @@ namespace OpenSage.Data.Ini
 
         public RandomVariable Speed { get; internal set; }
         public RandomVariable OtherSpeed { get; internal set; }
+
+        public override Vector3 GetVelocity(in Vector3 direction, FXParticleEmissionVolumeBase volume)
+        {
+            switch (volume)
+            {
+                case FXParticleEmissionVolumeCylinder _:
+                    {
+                        var velocity = direction;
+                        velocity *= Speed.GetRandomFloat();
+                        velocity += Vector3.UnitZ * OtherSpeed.GetRandomFloat();
+                        return velocity;
+                    }
+
+                case FXParticleEmissionVolumeLine _:
+                    {
+                        var up = Vector3.UnitZ;
+                        if (Vector3.Dot(direction, up) <= 0.001f)
+                        {
+                            up = Vector3.UnitY;
+                        }
+                        var dir1 = Vector3.Cross(direction, up);
+                        var dir2 = Vector3.Cross(dir1, dir1);
+                        dir1 *= Speed.GetRandomFloat();
+                        dir2 *= OtherSpeed.GetRandomFloat();
+                        return dir1 + dir2;
+                    }
+
+                case FXParticleEmissionVolumePoint _:
+                    {
+                        return ParticleSystemUtility.GetRandomDirection3D()
+                            * Speed.GetRandomFloat();
+                    }
+
+                case FXParticleEmissionVolumeBox _:
+                case FXParticleEmissionVolumeSphere _:
+                    {
+                        return direction * Speed.GetRandomFloat();
+                    }
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -496,6 +560,13 @@ namespace OpenSage.Data.Ini
         };
 
         public RandomVariable Speed { get; internal set; }
+
+        public override Vector3 GetVelocity(in Vector3 direction, FXParticleEmissionVolumeBase volume)
+        {
+            var velocity = ParticleSystemUtility.GetRandomDirection3D();
+            velocity *= Speed.GetRandomFloat();
+            return velocity;
+        }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -504,6 +575,16 @@ namespace OpenSage.Data.Ini
         internal new static FXParticleEmissionVelocityHemisphere Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<FXParticleEmissionVelocityHemisphere> FieldParseTable = SphereFieldParseTable.Concat(new IniParseTable<FXParticleEmissionVelocityHemisphere>());
+
+        public override Vector3 GetVelocity(in Vector3 direction, FXParticleEmissionVolumeBase volume)
+        {
+            var velocity = ParticleSystemUtility.GetRandomDirection3D();
+            velocity.Z = Math.Abs(velocity.Z);
+
+            velocity *= Speed.GetRandomFloat();
+
+            return velocity;
+        }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -515,6 +596,8 @@ namespace OpenSage.Data.Ini
         };
 
         public bool IsHollow { get; internal set; }
+
+        public abstract Ray GetRay();
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -532,6 +615,25 @@ namespace OpenSage.Data.Ini
         public float Radius { get; internal set; }
         public float Length { get; internal set; }
         public Vector3 Offset { get; private set; }
+
+        public override Ray GetRay()
+        {
+            var angle = ParticleSystemUtility.GetRandomAngle();
+
+            var radius = IsHollow
+                ? Radius
+                : ParticleSystemUtility.GetRandomFloat(0, Radius);
+
+            var z = ParticleSystemUtility.GetRandomFloat(0, Length);
+
+            var direction = Vector3.Transform(
+                Vector3.UnitX,
+                Matrix4x4.CreateRotationZ(angle));
+
+            return new Ray(
+                new Vector3(direction.X * radius, direction.Y * radius, z),
+                direction);
+        }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -547,6 +649,19 @@ namespace OpenSage.Data.Ini
 
         public Vector3 StartPoint { get; internal set; }
         public Vector3 EndPoint { get; internal set; }
+
+        public override Ray GetRay()
+        {
+            var x = ParticleSystemUtility.GetRandomFloat(StartPoint.X, EndPoint.X);
+            var y = ParticleSystemUtility.GetRandomFloat(StartPoint.Y, EndPoint.Y);
+            var z = ParticleSystemUtility.GetRandomFloat(StartPoint.Z, EndPoint.Z);
+
+            var position = new Vector3(x, y, z);
+
+            var direction = Vector3.Normalize(EndPoint - StartPoint);
+
+            return new Ray(position, direction);
+        }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -560,6 +675,19 @@ namespace OpenSage.Data.Ini
         });
 
         public float Radius { get; internal set; }
+
+        public override Ray GetRay()
+        {
+            var direction = ParticleSystemUtility.GetRandomDirection3D();
+
+            var radius = IsHollow
+                ? Radius
+                : ParticleSystemUtility.GetRandomFloat(0, Radius);
+
+            return new Ray(
+                direction * radius,
+                direction);
+        }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -573,6 +701,19 @@ namespace OpenSage.Data.Ini
         });
 
         public Vector3 HalfSize { get; internal set; }
+
+        public override Ray GetRay()
+        {
+            var x = ParticleSystemUtility.GetRandomFloat(-HalfSize.X, HalfSize.X);
+            var y = ParticleSystemUtility.GetRandomFloat(-HalfSize.Y, HalfSize.Y);
+            var z = ParticleSystemUtility.GetRandomFloat(0, HalfSize.Z * 2);
+
+            var position = new Vector3(x, y, z);
+
+            return new Ray(
+                position,
+                Vector3.Normalize(position));
+        }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -581,6 +722,11 @@ namespace OpenSage.Data.Ini
         internal static FXParticleEmissionVolumePoint Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<FXParticleEmissionVolumePoint> FieldParseTable = BaseFieldParseTable.Concat(new IniParseTable<FXParticleEmissionVolumePoint>());
+
+        public override Ray GetRay()
+        {
+            return new Ray(Vector3.Zero, Vector3.Zero);
+        }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -604,6 +750,11 @@ namespace OpenSage.Data.Ini
         public RandomVariable Phase1 { get; private set; }
         public RandomVariable Phase2 { get; private set; }
         public RandomVariable Phase3 { get; private set; }
+
+        public override Ray GetRay()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     [AddedIn(SageGame.Bfme)]

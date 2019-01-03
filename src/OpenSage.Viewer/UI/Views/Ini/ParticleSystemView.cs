@@ -22,7 +22,7 @@ namespace OpenSage.Viewer.UI.Views.Ini
 
             var particleSystem = AddDisposable(new ParticleSystem(
                 game.ContentManager,
-                particleSystemDefinition,
+                particleSystemDefinition.ToFXParticleSystemTemplate(),
                 () => ref WorldIdentity));
 
             void onUpdating(object sender, GameUpdatingEventArgs e)
