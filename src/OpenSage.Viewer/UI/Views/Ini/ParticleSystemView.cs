@@ -15,14 +15,14 @@ namespace OpenSage.Viewer.UI.Views.Ini
         // We need to copy the identity matrix so that we can pass it by reference.
         private static readonly Matrix4x4 WorldIdentity = Matrix4x4.Identity;
 
-        public ParticleSystemView(AssetViewContext context, ParticleSystemDefinition particleSystemDefinition)
+        public ParticleSystemView(AssetViewContext context, FXParticleSystemTemplate particleSystemTemplate)
             : base(context)
         {
             var game = context.Game;
 
             var particleSystem = AddDisposable(new ParticleSystem(
                 game.ContentManager,
-                particleSystemDefinition.ToFXParticleSystemTemplate(),
+                particleSystemTemplate,
                 () => ref WorldIdentity));
 
             void onUpdating(object sender, GameUpdatingEventArgs e)
