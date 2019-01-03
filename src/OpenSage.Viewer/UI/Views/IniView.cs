@@ -40,6 +40,11 @@ namespace OpenSage.Viewer.UI.Views
 
             foreach (var particleSystem in iniDataContext.ParticleSystems)
             {
+                _subObjects.Add(new IniEntry(particleSystem.Name, () => new ParticleSystemView(context, particleSystem.ToFXParticleSystemTemplate())));
+            }
+
+            foreach (var particleSystem in iniDataContext.FXParticleSystems)
+            {
                 _subObjects.Add(new IniEntry(particleSystem.Name, () => new ParticleSystemView(context, particleSystem)));
             }
 
