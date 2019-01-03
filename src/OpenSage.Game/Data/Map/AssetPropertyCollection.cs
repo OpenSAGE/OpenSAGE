@@ -32,12 +32,6 @@ namespace OpenSage.Data.Map
             return item.Key.Name;
         }
 
-        // TODO: Remove this if we retarget the library to .NET Core 2.0
-        public bool TryGetValue(string key, out AssetProperty value)
-        {
-            return Dictionary.TryGetValue(key, out value);
-        }
-
         public AssetProperty GetPropOrNull(string key)
         {
             return TryGetValue(key, out var value) ? value : null;
