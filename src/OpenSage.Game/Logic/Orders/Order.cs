@@ -97,9 +97,9 @@ namespace OpenSage.Logic.Orders
             return new Order(playerId, OrderType.ClearSelection);
         }
 
-        public static Order CreateSetSelection(int playedId, uint objectId)
+        public static Order CreateSetSelection(int playerId, uint objectId)
         {
-            var order = new Order(playedId, OrderType.SetSelection);
+            var order = new Order(playerId, OrderType.SetSelection);
 
             // TODO: Figure out what this parameter means.
             order.AddBooleanArgument(true);

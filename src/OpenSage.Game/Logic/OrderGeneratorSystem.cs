@@ -35,26 +35,30 @@ namespace OpenSage.Logic
 
             var result = ActiveGenerator.TryActivate(Game.Scene3D);
 
-            if (result is OrderGeneratorResult.Success success)
+            switch (result)
             {
-                // TODO: Wrong place, wrong behavior.
-                Game.Audio.PlayAudioEvent("DozerUSAVoiceBuild");
-
-                foreach (var order in success.Orders)
+                case OrderGeneratorResult.Success success:
                 {
-                    Game.NetworkMessageBuffer.AddLocalOrder(order);
-                }
+                    // TODO: Wrong place, wrong behavior.
+                    Game.Audio.PlayAudioEvent("DozerUSAVoiceBuild");
 
-                if (success.Exit)
-                {
-                    ActiveGenerator = null;
+                    foreach (var order in success.Orders)
+                    {
+                        Game.NetworkMessageBuffer.AddLocalOrder(order);
+                    }
+
+                    if (success.Exit)
+                    {
+                        ActiveGenerator = null;
+                    }
+
+                    break;
                 }
-            }
-            else if (result is OrderGeneratorResult.FailureResult failure)
-            {
-                // TODO: Wrong place, wrong behavior.
-                Game.Audio.PlayAudioEvent("DozerUSAVoiceBuildNot");
-                // TODO: Show error message in HUD
+                case OrderGeneratorResult.FailureResult _:
+                    // TODO: Wrong place, wrong behavior.
+                    Game.Audio.PlayAudioEvent("DozerUSAVoiceBuildNot");
+                    // TODO: Show error message in HUD
+                    break;
             }
         }
 
