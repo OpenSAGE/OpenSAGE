@@ -294,11 +294,11 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     /// <summary>
-    /// (Just guessing) Call an function which its name is on the stack. Function arguments are also popped from the stack
+    /// Call an function which its name is on the stack. Function arguments are also popped from the stack
     /// </summary>
     public sealed class CallFunctionPop : InstructionBase
     {
-        public override InstructionType Type => InstructionType.EA_CallMethodPop;
+        public override InstructionType Type => InstructionType.EA_CallFuncPop;
 
         public override void Execute(ActionContext context)
         {

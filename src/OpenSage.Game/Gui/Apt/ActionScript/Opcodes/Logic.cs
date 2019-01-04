@@ -58,8 +58,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         }
     }
 
-    //Pop two values A,B from stack and check if B is greater A (reverse stack order)
-    // ^ Did us forget to edit comment after having copied it?
+    //Pop two values A,B from stack and calculate their bitwise xor. Result on stack
     public sealed class BitwiseXOr : InstructionBase
     {
         public override InstructionType Type => InstructionType.BitwiseXOr;
