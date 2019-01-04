@@ -66,10 +66,10 @@ namespace OpenSage.DataStructures
                     return new RectangleF(Bounds.Position + new Vector2(0, QuadSize.Height), QuadSize);
                 case Quad.LowerRight:
                     return new RectangleF(Bounds.Position + QuadSize.ToVector2(), QuadSize);
+                default:
+                    // This should be unreachable.
+                    return new RectangleF();
             }
-
-            // This should be unreachable.
-            return new RectangleF();
         }
 
         public IEnumerable<T> FindIntersecting(in RectangleF itemBounds)
@@ -128,11 +128,6 @@ namespace OpenSage.DataStructures
             }
         }
 
-        public void Insert<A>(A item) where A : T, IHasBounds
-        {
-            Insert(item.Bounds, item);
-        }
-
         private void Subdivide()
         {
             // TODO: Should we initialie all subtrees while we're at it?
@@ -157,6 +152,11 @@ namespace OpenSage.DataStructures
             }
 
             _items.Add((itemBounds, item));
+        }
+
+        public void Insert<A>(A item) where A : T, IHasBounds
+        {
+            Insert(item.Bounds, item);
         }
 
         public void Insert(in RectangleF itemBounds, T item)
@@ -195,8 +195,8 @@ namespace OpenSage.DataStructures
 
                 switch (containment)
                 {
-                    case ContainmentType.Disjoint:
-                        continue;
+                    case ContainmentType.Disjoint: continue;
+
                     case ContainmentType.Contains:
                     {
                         if (_children[i] == null)
@@ -206,11 +206,72 @@ namespace OpenSage.DataStructures
                         _children[i].InsertInternal(itemBounds, item);
                         return;
                     }
+
                     // 3. Item fits into multiple subtrees.
                     // In that case, add it to this node while ignoring the item limit.
                     case ContainmentType.Intersects:
+                    {
                         InsertToItems(itemBounds, item);
                         return;
+                    }
+                    // This should be unreachable.
+                    default:
+                        return;
+                }
+            }
+        }
+
+        // TODO: Should this also take the value?
+        // If the tree contains duplicate rectangles with different values,
+        // this will remove the one that was inserted first.
+        public void Remove(in RectangleF itemBounds)
+        {
+            if (!Bounds.Contains(itemBounds))
+            {
+                return;
+            }
+
+            RemoveInternal(itemBounds);
+        }
+
+        private void RemoveInternal(in RectangleF itemBounds)
+        {
+            if (!IsLeaf)
+            {
+                foreach (var subtree in _children)
+                {
+                    if (subtree == null)
+                    {
+                        continue;
+                    }
+
+                    var containment = subtree.Bounds.Intersect(itemBounds);
+
+                    switch (containment)
+                    {
+                        case ContainmentType.Disjoint: continue;
+
+                        case ContainmentType.Contains:
+                        {
+                            subtree.RemoveInternal(itemBounds);
+                            return;
+                        }
+
+                        // In this case we'll know the item is either stored in this node or nowhere,
+                        // so we can fall through to the for loop below.
+                        case ContainmentType.Intersects: break;
+                    }
+
+                    break;
+                }
+            }
+
+            for (var i = 0; i < _items.Count; i++)
+            {
+                if (_items[i].Item1.Equals(itemBounds))
+                {
+                    _items.RemoveAt(i);
+                    return;
                 }
             }
         }

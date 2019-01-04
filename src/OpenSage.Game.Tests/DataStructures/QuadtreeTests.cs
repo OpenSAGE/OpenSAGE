@@ -59,5 +59,31 @@ namespace OpenSage.Tests.DataStructures
 
             Assert.Equal(items, quadtree.FindIntersecting(quadtree.Bounds).OrderBy(x => x.Id));
         }
+
+        [Fact]
+        public void InsertAndRemove()
+        {
+            var quadtree = new Quadtree<MockQuadtreeItem>(new RectangleF(0, 0, 10, 10));
+
+            var item = new MockQuadtreeItem(1, new RectangleF(0.5f, 0.5f, 1, 1));
+
+            quadtree.Insert(item);
+            quadtree.Remove(item.Bounds);
+
+            Assert.Empty(quadtree.FindIntersecting(quadtree.Bounds));
+        }
+
+        [Fact]
+        public void InsertAndRemoveNonExistant()
+        {
+            var quadtree = new Quadtree<MockQuadtreeItem>(new RectangleF(0, 0, 10, 10));
+
+            var item = new MockQuadtreeItem(1, new RectangleF(8, 8, 2, 2));
+
+            quadtree.Insert(item);
+            quadtree.Remove(new RectangleF(0, 0, 1, 1));
+
+            Assert.Equal(new[] {item}, quadtree.FindIntersecting(quadtree.Bounds));
+        }
     }
 }
