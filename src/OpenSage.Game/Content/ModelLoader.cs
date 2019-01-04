@@ -329,7 +329,16 @@ namespace OpenSage.Content
                         : Vector3.Zero,
                     BoneIndex = isSkinned
                         ? w3dMesh.Influences.Items[i].BoneIndex
-                        : 0u
+                        : 0u,
+                    Bone2Index = isSkinned
+                        ? w3dMesh.Influences.Items[i].Bone2Index
+                        : 0u,
+                    BoneWeight = isSkinned
+                        ? w3dMesh.Influences.Items[i].BoneWeight
+                        : 0.0f,
+                    Bone2Weight = isSkinned
+                        ? w3dMesh.Influences.Items[i].Bone2Weight
+                        : 0.0f,
                 };
             }
 
