@@ -10,19 +10,18 @@ namespace OpenSage.Data.W3d
     public struct W3dVertexInfluence
     {
         public ushort BoneIndex;
-
-        public ushort Unknown1;
-        public ushort Unknown2;
-        public ushort Unknown3;
+        public ushort Bone2Index;
+        public ushort BoneWeight;
+        public ushort Bone2Weight;
 
         internal static W3dVertexInfluence Parse(BinaryReader reader)
         {
             var result = new W3dVertexInfluence
             {
                 BoneIndex = reader.ReadUInt16(),
-                Unknown1 = reader.ReadUInt16(),
-                Unknown2 = reader.ReadUInt16(),
-                Unknown3 = reader.ReadUInt16()
+                Bone2Index = reader.ReadUInt16(),
+                BoneWeight = (reader.ReadUInt16()),
+                Bone2Weight = (reader.ReadUInt16())
             };
 
             return result;
@@ -31,10 +30,9 @@ namespace OpenSage.Data.W3d
         internal void WriteTo(BinaryWriter writer)
         {
             writer.Write(BoneIndex);
-
-            writer.Write(Unknown1);
-            writer.Write(Unknown2);
-            writer.Write(Unknown3);
+            writer.Write(Bone2Index);
+            writer.Write(BoneWeight);
+            writer.Write(Bone2Weight);
         }
     }
 }

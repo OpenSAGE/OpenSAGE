@@ -14,6 +14,9 @@ namespace OpenSage.Graphics
             public Vector3 Tangent;
             public Vector3 Binormal;
             public uint BoneIndex;
+            public uint Bone2Index;
+            public float BoneWeight;
+            public float Bone2Weight;
         }
 
         [StructLayout(LayoutKind.Sequential)]
