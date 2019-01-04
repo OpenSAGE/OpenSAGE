@@ -39,7 +39,7 @@ namespace OpenSage.Launcher
             public string Map { get; set; }
 
             [Option("novsync", Default = false, Required = false, HelpText = "Disable vsync.")]
-            public bool DisableVsync{ get; set; }
+            public bool DisableVsync { get; set; }
         }
 
         public static void Main(string[] args)
@@ -97,8 +97,8 @@ namespace OpenSage.Launcher
                 }
                 else
                 {
-                   PlayerSetting[] pSettings = new[]
-                   {
+                    var pSettings = new[]
+                    {
                         new PlayerSetting("America", new ColorRgb(255, 0, 0)),
                         new PlayerSetting("GLA", new ColorRgb(255, 255, 255)),
                     };

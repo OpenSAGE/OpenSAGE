@@ -126,7 +126,7 @@ namespace OpenSage.Logic
             return players.Values;
         }
 
-        public static Player FromTemplate(PlayerTemplate template, ContentManager content)
+        public static Player FromTemplate(PlayerTemplate template, ContentManager content, PlayerSetting? setting = null)
         {
             // TODO: Use rest of the properties from the template
             return new Player
@@ -135,7 +135,7 @@ namespace OpenSage.Logic
                 Name = template.Name,
                 DisplayName = content.TranslationManager.Lookup(template.DisplayName),
                 Money = (uint) template.StartMoney,
-                Color = template.PreferredColor.ToColorRgb()
+                Color = setting.HasValue ? setting.Value.Color : template.PreferredColor.ToColorRgb()
             };
         }
     }
