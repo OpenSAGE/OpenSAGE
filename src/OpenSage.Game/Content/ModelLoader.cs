@@ -327,18 +327,18 @@ namespace OpenSage.Content
                     Binormal = w3dMesh.Bitangents != null
                         ? w3dMesh.Bitangents.Items[i]
                         : Vector3.Zero,
-                    BoneIndex = isSkinned
-                        ? w3dMesh.Influences.Items[i].BoneIndex
+                    BoneIndex0 = isSkinned
+                        ? w3dMesh.Influences.Items[i].BoneIndex0
                         : 0u,
-                    Bone2Index = isSkinned
-                        ? w3dMesh.Influences.Items[i].Bone2Index
+                    BoneIndex1 = isSkinned
+                        ? w3dMesh.Influences.Items[i].BoneIndex1
                         : 0u,
-                    BoneWeight = isSkinned
-                        ? w3dMesh.Influences.Items[i].BoneWeight
-                        : 0u,
-                    Bone2Weight = isSkinned
-                        ? w3dMesh.Influences.Items[i].Bone2Weight
-                        : 0u,
+                    BoneWeight0 = isSkinned
+                        ? w3dMesh.Influences.Items[i].BoneWeight0 / 100.0f
+                        : 0.0f,
+                    BoneWeight1 = isSkinned
+                        ? w3dMesh.Influences.Items[i].BoneWeight1 / 100.0f
+                        : 0.0f,
                 };
             }
 
