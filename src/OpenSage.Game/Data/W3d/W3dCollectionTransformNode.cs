@@ -9,8 +9,6 @@ namespace OpenSage.Data.W3d
 
         public string Name { get; private set; }
 
-        public int NameSize { get; private set; }
-
         internal static W3dCollectionTransformNode Parse(BinaryReader reader, W3dParseContext context)
         {
             return ParseChunk(reader, context, header =>
@@ -18,7 +16,6 @@ namespace OpenSage.Data.W3d
                 var result = new W3dCollectionTransformNode
                 {
                     Name = reader.ReadFixedLengthString((int) header.ChunkSize),
-                    NameSize = (int) header.ChunkSize
                 };
 
                 return result;
@@ -27,7 +24,7 @@ namespace OpenSage.Data.W3d
 
         protected override void WriteToOverride(BinaryWriter writer)
         {
-            writer.WriteFixedLengthString(Name, NameSize);
+            writer.WriteFixedLengthString(Name, Name.Length + 1);
         }
     }
 }

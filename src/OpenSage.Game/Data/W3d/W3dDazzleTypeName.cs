@@ -11,17 +11,13 @@ namespace OpenSage.Data.W3d
 
         public string TypeName { get; private set; }
 
-        public int TypeNameSize { get; private set; }
-
         internal static W3dDazzleTypeName Parse(BinaryReader reader, W3dParseContext context)
         {
             return ParseChunk(reader, context, header =>
             {
-                var typeNameSize = (int) context.CurrentEndPosition - (int) reader.BaseStream.Position;
                 var result = new W3dDazzleTypeName
                 {
-                    TypeName = reader.ReadFixedLengthString(typeNameSize),
-                    TypeNameSize = typeNameSize
+                    TypeName = reader.ReadFixedLengthString((int) context.CurrentEndPosition - (int) reader.BaseStream.Position),
                 };
 
                 return result;
@@ -30,7 +26,7 @@ namespace OpenSage.Data.W3d
 
         protected override void WriteToOverride(BinaryWriter writer)
         {
-            writer.WriteFixedLengthString(TypeName, TypeNameSize);
+            writer.WriteFixedLengthString(TypeName, TypeName.Length + 1);
         }
     }
 }
