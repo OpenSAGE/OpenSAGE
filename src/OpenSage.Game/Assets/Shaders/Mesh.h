@@ -3,9 +3,12 @@
     layout(location = 1) in vec3 in_Normal; \
     layout(location = 2) in vec3 in_Tangent; \
     layout(location = 3) in vec3 in_Binormal; \
-    layout(location = 4) in uint in_BoneIndex; \
-    layout(location = 5) in vec2 in_UV0; \
-    layout(location = 6) in vec2 in_UV1;
+    layout(location = 4) in uint in_BoneIndex0; \
+    layout(location = 5) in uint in_BoneIndex1; \
+    layout(location = 6) in uint in_BoneWeight0; \
+    layout(location = 7) in uint in_BoneWeight1; \
+    layout(location = 8) in vec2 in_UV0; \
+    layout(location = 9) in vec2 in_UV1;
 
 struct MeshConstantsType
 {
@@ -28,12 +31,13 @@ struct RenderItemConstantsPSType
 void GetSkinnedVertexData(
     vec3 inputPosition,
     vec3 inputNormal,
-    mat4 skinning,
+    mat4 skinning0,
+    mat4 skinning1,
     out vec3 modifiedPosition,
     out vec3 modifiedNormal)
 {
-    modifiedPosition = (skinning * vec4(inputPosition, 1)).xyz;
-    modifiedNormal = TransformNormal(inputNormal, skinning);
+    modifiedPosition = (skinning0 * vec4(inputPosition, 1)).xyz;
+    modifiedNormal = TransformNormal(inputNormal, skinning0);
 }
 
 void VSSkinnedInstancedPositionOnly(

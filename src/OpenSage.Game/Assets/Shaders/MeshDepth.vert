@@ -37,7 +37,8 @@ void main()
         GetSkinnedVertexData(
             in_Position, 
             in_Normal,
-            _SkinningBuffer[in_BoneIndex],
+            _SkinningBuffer[in_BoneIndex0],
+            _SkinningBuffer[in_BoneIndex1],
             modifiedPosition,
             modifiedNormal);
     }
