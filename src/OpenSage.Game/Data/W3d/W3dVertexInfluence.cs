@@ -20,8 +20,8 @@ namespace OpenSage.Data.W3d
             {
                 BoneIndex = reader.ReadUInt16(),
                 Bone2Index = reader.ReadUInt16(),
-                BoneWeight = (reader.ReadUInt16()),
-                Bone2Weight = (reader.ReadUInt16())
+                BoneWeight = reader.ReadUInt16(),
+                Bone2Weight = reader.ReadUInt16()
             };
 
             return result;
