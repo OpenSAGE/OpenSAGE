@@ -172,7 +172,7 @@ namespace OpenSage
 
             ContentManager = AddDisposable(new ContentManager(
                 this,
-                _fileSystem, 
+                _fileSystem,
                 GraphicsDevice,
                 SageGame,
                 _wndCallbackResolver));
@@ -301,8 +301,7 @@ namespace OpenSage
             for (var i = 0; i < playerSettings.Length; i++)
             {
                 var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == playerSettings[i].Side);
-                players[i] = Player.FromTemplate(playerTemplate, ContentManager);
-                players[i].Color = playerSettings[i].Color;
+                players[i] = Player.FromTemplate(playerTemplate, ContentManager, playerSettings[i]);
 
                 var player1StartPosition = Scene3D.Waypoints[$"Player_{i + 1}_Start"].Position;
                 player1StartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(player1StartPosition.X, player1StartPosition.Y);

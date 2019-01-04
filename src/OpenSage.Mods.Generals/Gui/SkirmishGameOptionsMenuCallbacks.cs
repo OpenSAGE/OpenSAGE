@@ -124,8 +124,8 @@ namespace OpenSage.Mods.Generals.Gui
         //TODO: Parse player count and set stuff
         private static void ParsePlayerSettings(Game game, out PlayerSetting[] settings)
         {
-            List<PlayerSetting> settingsList = new List<PlayerSetting>();
-            Random rnd = new Random();
+            var settingsList = new List<PlayerSetting>();
+            var rnd = new Random();
             int selected = 0;
 
             for (int i = 0; i < 8; i++)
@@ -154,17 +154,19 @@ namespace OpenSage.Mods.Generals.Gui
                     continue;
                 }
 
+                var mpColors = game.ContentManager.IniDataContext.MultiplayerColors;
+
                 //Get the selected player color
                 selected = GetSelectedComboBoxIndex("SkirmishGameOptionsMenu.wnd:ComboBoxColor" + i);
                 if (selected > 0)
                 {
-                    setting.Color = game.ContentManager.IniDataContext.MultiplayerColors[selected - 1].RgbColor.ToColorRgb();
+                    setting.Color = mpColors[selected - 1].RgbColor.ToColorRgb();
                 }
                 else
                 {
                     //TODO: make sure the color isn't already used
-                    int r = rnd.Next(game.ContentManager.IniDataContext.MultiplayerColors.Count);
-                    setting.Color = game.ContentManager.IniDataContext.MultiplayerColors[r].RgbColor.ToColorRgb();
+                    int r = rnd.Next(mpColors.Count);
+                    setting.Color = mpColors[r].RgbColor.ToColorRgb();
                 }
 
                 //Get the selected player faction

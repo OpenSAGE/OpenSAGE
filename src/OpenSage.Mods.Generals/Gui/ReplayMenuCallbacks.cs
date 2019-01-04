@@ -72,7 +72,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                             context.Game.Scene2D.WndWindowManager.PopWindow();
 
-                            //TODO: set the correct factions & colors
+                            // TODO: set the correct factions & colors
                             PlayerSetting[] pSettings = new[]
                             {
                                 new PlayerSetting("America", new ColorRgb(255, 0, 0)),
