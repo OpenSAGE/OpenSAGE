@@ -25,9 +25,10 @@ namespace OpenSage.Data.W3d
                 BoneWeight1 = reader.ReadUInt16()
             };
 
+            //sometimes both weights are 0 and sometimes weight0 is 100
             if (result.BoneWeight0 == 0)
             {
-                throw new Exception();
+                result.BoneWeight0 = 100;
             }
 
             return result;
