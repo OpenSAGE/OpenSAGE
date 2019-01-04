@@ -51,16 +51,16 @@ namespace OpenSage.Graphics.ParticleSystems
         private readonly DeviceBuffer _indexBuffer;
         private readonly uint _numIndices;
 
-        public FXParticleSystemTemplate Definition { get; }
+        public FXParticleSystemTemplate Template { get; }
 
         public ParticleSystemState State { get; private set; }
 
         public ParticleSystem(
             ContentManager contentManager,
-            FXParticleSystemTemplate definition,
+            FXParticleSystemTemplate template,
             GetMatrixReferenceDelegate getWorldMatrix)
         {
-            Definition = definition;
+            Template = template;
 
             _getWorldMatrix = getWorldMatrix;
 
@@ -76,14 +76,14 @@ namespace OpenSage.Graphics.ParticleSystems
 
             _particleMaterial = AddDisposable(new ParticleMaterial(contentManager, contentManager.EffectLibrary.Particle));
 
-            _velocityType = Definition.EmissionVelocity;
-            _volumeType = Definition.EmissionVolume;
+            _velocityType = Template.EmissionVelocity;
+            _volumeType = Template.EmissionVolume;
 
-            var texturePath = Path.Combine("Art", "Textures", Definition.ParticleName);
+            var texturePath = Path.Combine("Art", "Textures", Template.ParticleName);
             var texture = contentManager.Load<Texture>(texturePath);
             _particleMaterial.SetTexture(texture);
 
-            var blendState = GetBlendState(Definition.Shader);
+            var blendState = GetBlendState(Template.Shader);
 
             _particleMaterial.PipelineState = new EffectPipelineState(
                 RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
@@ -91,14 +91,14 @@ namespace OpenSage.Graphics.ParticleSystems
                 blendState,
                 RenderPipeline.GameOutputDescription);
 
-            _initialDelay = Definition.InitialDelay.GetRandomInt();
+            _initialDelay = Template.InitialDelay.GetRandomInt();
 
-            _startSizeRate = Definition.StartSizeRate.GetRandomFloat();
+            _startSizeRate = Template.StartSizeRate.GetRandomFloat();
             _startSize = 0;
 
             _colorKeyframes = new List<ParticleColorKeyframe>();
 
-            var colors = Definition.Colors;
+            var colors = Template.Colors;
 
             if (colors.Color1 != null)
             {
@@ -189,7 +189,7 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             // TODO: Is this right?
             // How about IsOneShot?
-            return (int) Definition.BurstCount.High + (int) Math.Ceiling(((Definition.Lifetime.High) / (Definition.BurstDelay.Low + 1)) * Definition.BurstCount.High);
+            return (int) Template.BurstCount.High + (int) Math.Ceiling(((Template.Lifetime.High) / (Template.BurstDelay.Low + 1)) * Template.BurstCount.High);
         }
 
         public void Update(GameTime gameTime)
@@ -212,7 +212,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 return;
             }
 
-            if (Definition.SystemLifetime != 0 && _timer > Definition.SystemLifetime)
+            if (Template.SystemLifetime != 0 && _timer > Template.SystemLifetime)
             {
                 State = ParticleSystemState.Finished;
             }
@@ -272,15 +272,15 @@ namespace OpenSage.Graphics.ParticleSystems
                 return;
             }
 
-            _nextBurst = Definition.BurstDelay.GetRandomInt();
+            _nextBurst = Template.BurstDelay.GetRandomInt();
 
-            var burstCount = Definition.BurstCount.GetRandomInt();
+            var burstCount = Template.BurstCount.GetRandomInt();
 
             for (var i = 0; i < burstCount; i++)
             {
                 var ray = _volumeType.GetRay();
 
-                var velocity = _velocityType?.GetVelocity(ray.Direction, Definition.EmissionVolume) ?? Vector3.Zero;
+                var velocity = _velocityType?.GetVelocity(ray.Direction, Template.EmissionVolume) ?? Vector3.Zero;
 
                 // TODO: Look at Definition.Type == Streak, etc.
 
@@ -309,28 +309,28 @@ namespace OpenSage.Graphics.ParticleSystems
             particle.Position = position;
             particle.Velocity = velocity;
 
-            var update = (FXParticleUpdateDefault) Definition.Update;
+            var update = (FXParticleUpdateDefault) Template.Update;
 
             particle.AngleZ = update.AngleZ.GetRandomFloat();
             particle.AngularRateZ = update.AngularRateZ.GetRandomFloat();
             particle.AngularDamping = update.AngularDamping.GetRandomFloat();
 
-            particle.Lifetime = Definition.Lifetime.GetRandomInt();
+            particle.Lifetime = Template.Lifetime.GetRandomInt();
 
-            particle.ColorScale = Definition.Colors.ColorScale.GetRandomFloat();
+            particle.ColorScale = Template.Colors.ColorScale.GetRandomFloat();
 
-            particle.Size = startSize + Definition.Size.GetRandomFloat();
+            particle.Size = startSize + Template.Size.GetRandomFloat();
             particle.SizeRate = update.SizeRate.GetRandomFloat();
             particle.SizeRateDamping = update.SizeRateDamping.GetRandomFloat();
 
-            var physics = (FXParticleDefaultPhysics) Definition.Physics;
+            var physics = (FXParticleDefaultPhysics) Template.Physics;
 
             particle.VelocityDamping = physics.VelocityDamping.GetRandomFloat();
 
             var alphaKeyframes = particle.AlphaKeyframes;
             alphaKeyframes.Clear();
 
-            var alphas = Definition.Alpha;
+            var alphas = Template.Alpha;
 
             if (alphas != null)
             {
@@ -373,7 +373,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
         private void UpdateParticle(ref Particle particle)
         {
-            var physics = (FXParticleDefaultPhysics) Definition.Physics;
+            var physics = (FXParticleDefaultPhysics) Template.Physics;
 
             particle.Velocity.Z += physics.Gravity;
             particle.Velocity *= particle.VelocityDamping;
