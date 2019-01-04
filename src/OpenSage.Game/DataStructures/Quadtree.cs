@@ -29,6 +29,10 @@ namespace OpenSage.DataStructures
         private bool ReachedItemLimit => _items != null && _items.Count >= MaxItemsPerLeaf;
         private bool ReachedDepthLimit => _depth >= MaxDepth;
 
+        private int ItemCount => _items?.Count ?? 0;
+        private bool HasSubtrees => _children != null && _children.Any(x => x != null);
+        private bool IsEmpty => !HasSubtrees && ItemCount == 0;
+
         public Quadtree(RectangleF bounds) : this(bounds, 0) { }
 
         private Quadtree(RectangleF bounds, int depth)
@@ -236,10 +240,11 @@ namespace OpenSage.DataStructures
 
         private void RemoveInternal(in RectangleF itemBounds)
         {
-            if (!IsLeaf)
+            if (_children != null)
             {
-                foreach (var subtree in _children)
+                for (var i = 0; i < _children.Length; i++)
                 {
+                    var subtree = _children[i];
                     if (subtree == null)
                     {
                         continue;
@@ -254,6 +259,12 @@ namespace OpenSage.DataStructures
                         case ContainmentType.Contains:
                         {
                             subtree.RemoveInternal(itemBounds);
+
+                            if (subtree.IsEmpty)
+                            {
+                                _children[i] = null;
+                            }
+
                             return;
                         }
 
@@ -266,11 +277,17 @@ namespace OpenSage.DataStructures
                 }
             }
 
-            for (var i = 0; i < _items.Count; i++)
+            if (_items != null)
             {
-                if (_items[i].Item1.Equals(itemBounds))
+                for (var i = 0; i < _items.Count; i++)
                 {
+                    if (!_items[i].Item1.Equals(itemBounds))
+                    {
+                        continue;
+                    }
+
                     _items.RemoveAt(i);
+
                     return;
                 }
             }
