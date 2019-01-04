@@ -4,6 +4,7 @@ using OpenSage.Data;
 using OpenSage.Data.Rep;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
+using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Network;
 
@@ -71,10 +72,17 @@ namespace OpenSage.Mods.Generals.Gui
 
                             context.Game.Scene2D.WndWindowManager.PopWindow();
 
+                            //TODO: set the correct factions & colors
+                            PlayerSetting[] pSettings = new[]
+                            {
+                                new PlayerSetting("America", new ColorRgb(255, 0, 0)),
+                                new PlayerSetting("Observer", new ColorRgb(255, 255, 255)),
+                            };
+
                             context.Game.StartGame(
                                 mapFilename,
                                 new ReplayConnection(replayFile),
-                                new[] { "America", "Observer" }, // TODO
+                                pSettings,
                                 0);
 
                             break;
