@@ -40,9 +40,10 @@ void GetSkinnedVertexData(
 {
     if (weight0 < 0.99f)
     {
-        vec3 modifiedPosition0 = (skinning0 * vec4(inputPosition, 1)).xyz * weight0;
-        vec3 modifiedPosition1 = (skinning1 * vec4(inputPosition, 1)).xyz * weight1;
-        modifiedPosition = modifiedPosition0 + modifiedPosition1;
+
+        vec4 modifiedPosition0 = skinning0 * mat4(weight0) * vec4(inputPosition, 1);
+        vec4 modifiedPosition1 = skinning1 * mat4(weight1) * vec4(inputPosition, 1);
+        modifiedPosition = (modifiedPosition0 + modifiedPosition1).xyz;
     }
     else
     {
