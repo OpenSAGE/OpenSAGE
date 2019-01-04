@@ -96,8 +96,8 @@ namespace OpenSage.Data.W3d
 
                 foreach (var mapperArg in splitMapperArgs0)
                 {
-                    var splitByDash = mapperArg.Contains('-'); // EnB asset ("pu09a.w3d") contains erroneous mapping. - is used instead of =. 
-                    var splitByEquals = mapperArg.Contains('=');
+                    var splitByDash = mapperArg.Contains("-"); // EnB asset ("pu09a.w3d") contains erroneous mapping. - is used instead of =. 
+                    var splitByEquals = mapperArg.Contains("=");
 
                     var splitValue = (splitByEquals) ? '=' : '-';
                     var splitMapperArg = mapperArg.Split(splitValue);
