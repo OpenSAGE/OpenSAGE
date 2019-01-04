@@ -11,8 +11,6 @@ namespace OpenSage.Data.W3d
 
         public string Name { get; private set; }
 
-        public int NameSize { get; private set; }
-
         public uint RenderObjectCount { get; private set; }
 
         internal static W3dCollectionHeader Parse(BinaryReader reader, W3dParseContext context)
@@ -24,8 +22,7 @@ namespace OpenSage.Data.W3d
                     Version = reader.ReadUInt32()
                 };
 
-                result.NameSize = (int) context.CurrentEndPosition - (int) reader.BaseStream.Position - 4;
-                result.Name = reader.ReadFixedLengthString(result.NameSize);
+                result.Name = reader.ReadFixedLengthString((int) context.CurrentEndPosition - (int) reader.BaseStream.Position - 4);
                 result.RenderObjectCount = reader.ReadUInt32();
 
                 return result;
@@ -35,7 +32,7 @@ namespace OpenSage.Data.W3d
         protected override void WriteToOverride(BinaryWriter writer)
         {
             writer.Write(Version);
-            writer.WriteFixedLengthString(Name, NameSize);
+            writer.WriteFixedLengthString(Name, Name.Length + 1);
             writer.Write(RenderObjectCount);
         }
     }

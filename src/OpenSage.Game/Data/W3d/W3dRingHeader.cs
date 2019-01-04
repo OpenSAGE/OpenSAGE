@@ -57,7 +57,7 @@ namespace OpenSage.Data.W3d
             result.Center = reader.ReadVector3();
             result.Extent = reader.ReadVector3();
             result.Duration = reader.ReadSingle();
-            result.InitialColor = W3dRgbF.Parse(reader);
+            result.InitialColor = reader.ReadColorRgbF();
             result.InitialOpacity = reader.ReadSingle();
             result.InnerScale = reader.ReadVector2();
             result.OuterScale = reader.ReadVector2();
@@ -79,9 +79,7 @@ namespace OpenSage.Data.W3d
             writer.Write(Center);
             writer.Write(Extent);
             writer.Write(Duration);
-
-            W3dRgbF.Write(writer, InitialColor);
-
+            writer.Write(InitialColor);
             writer.Write(InitialOpacity);
             writer.Write(InnerScale);
             writer.Write(OuterScale);

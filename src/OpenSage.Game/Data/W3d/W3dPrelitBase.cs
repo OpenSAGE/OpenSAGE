@@ -8,8 +8,6 @@ namespace OpenSage.Data.W3d
     public abstract class W3dPrelitBase<TDerived> : W3dContainerChunk
         where TDerived : W3dPrelitBase<TDerived>, new()
     {
-        public override W3dChunkType ChunkType { get; } = W3dChunkType.W3D_CHUNK_PRELIT_VERTEX;
-
         public W3dMaterialInfo MaterialInfo { get; private set; }
 
         public W3dVertexMaterials VertexMaterials { get; private set; }

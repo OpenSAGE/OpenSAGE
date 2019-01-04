@@ -20,7 +20,7 @@ namespace OpenSage.Data.W3d
             {
                 Version = reader.ReadByte(),
                 Size = reader.ReadByte(),
-                Color = W3dRgbF.Parse(reader),
+                Color = reader.ReadColorRgbF(),
                 Position = reader.ReadSingle()
             };
         }
@@ -29,9 +29,7 @@ namespace OpenSage.Data.W3d
         {
             writer.Write(Version);
             writer.Write(Size);
-
-            W3dRgbF.Write(writer, Color);
-
+            writer.Write(Color);
             writer.Write(Position);
         }
     }

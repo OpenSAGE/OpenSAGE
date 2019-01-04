@@ -21,7 +21,7 @@ namespace OpenSage.Data.W3d
             {
                 ChunkType = reader.ReadByte(),
                 ChunkSize = reader.ReadByte(),
-                Color = W3dRgbF.Parse(reader),
+                Color = reader.ReadColorRgbF(),
                 Position = reader.ReadSingle()
             };
 
@@ -32,7 +32,7 @@ namespace OpenSage.Data.W3d
         {
             writer.Write(ChunkType);
             writer.Write(ChunkSize);
-            W3dRgbF.Write(writer, Color);
+            writer.Write(Color);
             writer.Write(Position);
         }
     }
