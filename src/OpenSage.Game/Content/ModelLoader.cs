@@ -335,10 +335,10 @@ namespace OpenSage.Content
                         : 0u,
                     BoneWeight = isSkinned
                         ? w3dMesh.Influences.Items[i].BoneWeight
-                        : 0.0f,
+                        : 0u,
                     Bone2Weight = isSkinned
                         ? w3dMesh.Influences.Items[i].Bone2Weight
-                        : 0.0f,
+                        : 0u,
                 };
             }
 
