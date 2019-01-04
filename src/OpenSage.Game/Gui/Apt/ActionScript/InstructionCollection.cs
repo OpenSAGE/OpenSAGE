@@ -421,7 +421,6 @@ namespace OpenSage.Gui.Apt.ActionScript
                         break;
                     case InstructionType.Var:
                         instruction = new Var();
-
                         break;
                     case InstructionType.EA_PushRegister:
                         instruction = new PushRegister();
