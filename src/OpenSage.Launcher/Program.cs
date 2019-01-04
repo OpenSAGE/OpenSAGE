@@ -2,6 +2,8 @@
 using System.Linq;
 using CommandLine;
 using OpenSage.Data;
+using OpenSage.Logic;
+using OpenSage.Mathematics;
 using OpenSage.Mods.BuiltIn;
 using OpenSage.Network;
 using Veldrid;
@@ -95,7 +97,16 @@ namespace OpenSage.Launcher
                 }
                 else
                 {
-                    game.StartGame(opts.Map, new EchoConnection(), new[] { "America", "GLA" }, 0);
+                   PlayerSetting[] pSettings = new[]
+                   {
+                        new PlayerSetting("America", new ColorRgb(255, 0, 0)),
+                        new PlayerSetting("GLA", new ColorRgb(255, 255, 255)),
+                    };
+
+                    game.StartGame(opts.Map,
+                         new EchoConnection(),
+                         pSettings,
+                         0);
                 }
 
                 while (game.IsRunning)

@@ -284,8 +284,7 @@ namespace OpenSage
             Definition.MainMenu.AddToScene(ContentManager, Scene2D);
         }
 
-        // TODO: Pass full player details, not just side.
-        public void StartGame(string mapFileName, IConnection connection, string[] sides, int localPlayerIndex)
+        public void StartGame(string mapFileName, IConnection connection, PlayerSetting[] playerSettings, int localPlayerIndex)
         {
             // TODO: Loading screen.
             Scene3D = ContentManager.Load<Scene3D>(mapFileName);
@@ -297,11 +296,13 @@ namespace OpenSage
 
             NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
 
-            var players = new Player[sides.Length];
-            for (var i = 0; i < sides.Length; i++)
+            var players = new Player[playerSettings.Length + 1];
+
+            for (var i = 0; i < playerSettings.Length; i++)
             {
-                var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == sides[i]);
+                var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == playerSettings[i].Side);
                 players[i] = Player.FromTemplate(playerTemplate, ContentManager);
+                players[i].Color = playerSettings[i].Color;
 
                 var player1StartPosition = Scene3D.Waypoints[$"Player_{i + 1}_Start"].Position;
                 player1StartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(player1StartPosition.X, player1StartPosition.Y);
@@ -319,13 +320,13 @@ namespace OpenSage
                 }
             }
 
-            //players[players.Length - 1] = CivilianPlayer;
+            players[players.Length - 1] = CivilianPlayer;
 
             Scene3D.SetPlayers(players, players[localPlayerIndex]);
 
             if (Definition.ControlBar != null)
             {
-                Scene2D.ControlBar = Definition.ControlBar.Create(sides[localPlayerIndex], ContentManager);
+                Scene2D.ControlBar = Definition.ControlBar.Create(playerSettings[localPlayerIndex].Side, ContentManager);
                 Scene2D.ControlBar.AddToScene(Scene2D);
             }
         }
