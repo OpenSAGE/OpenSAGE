@@ -64,6 +64,8 @@ namespace OpenSage.Mods.Generals.Gui
                 context.WindowManager.TransitionManager.QueueTransition(null, control.Window, transition);
             }
 
+            var translation = context.Game.ContentManager.TranslationManager;
+
             switch (message.MessageType)
             {
                 case WndWindowMessageType.SelectedButton:
@@ -117,13 +119,13 @@ namespace OpenSage.Mods.Generals.Gui
 
                         case "MainMenu.wnd:ButtonExit":
                             var exitWindow = context.WindowManager.PushWindow(@"Menus\QuitMessageBox.wnd");
-                            exitWindow.Controls.FindControl("QuitMessageBox.wnd:StaticTextTitle").Text = "EXIT?";
+                            exitWindow.Controls.FindControl("QuitMessageBox.wnd:StaticTextTitle").Text = translation.Lookup("GUI:QuitPopupTitle");
                             ((Label) exitWindow.Controls.FindControl("QuitMessageBox.wnd:StaticTextTitle")).TextAlignment = TextAlignment.Leading;
-                            exitWindow.Controls.FindControl("QuitMessageBox.wnd:StaticTextMessage").Text = "Are you sure you want to exit?";
+                            exitWindow.Controls.FindControl("QuitMessageBox.wnd:StaticTextMessage").Text = translation.Lookup("GUI:QuitPopupMessage");
                             exitWindow.Controls.FindControl("QuitMessageBox.wnd:ButtonOk").Show();
-                            exitWindow.Controls.FindControl("QuitMessageBox.wnd:ButtonOk").Text = "YES";
+                            exitWindow.Controls.FindControl("QuitMessageBox.wnd:ButtonOk").Text = translation.Lookup("GUI:Yes");
                             exitWindow.Controls.FindControl("QuitMessageBox.wnd:ButtonCancel").Show();
-                            exitWindow.Controls.FindControl("QuitMessageBox.wnd:ButtonCancel").Text = "NO";
+                            exitWindow.Controls.FindControl("QuitMessageBox.wnd:ButtonCancel").Text = translation.Lookup("GUI:No");
                             break;
                     }
                     break;

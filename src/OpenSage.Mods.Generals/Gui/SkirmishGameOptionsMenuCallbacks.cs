@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Data.Ini;
+using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Logic;
@@ -21,7 +22,7 @@ namespace OpenSage.Mods.Generals.Gui
         private const string ComboBoxPlayerPrefix = "SkirmishGameOptionsMenu.wnd:ComboBoxPlayer";
         private static Window _window;
         private static Game _game;
-        private static string _map;
+        private static MapCache _currentMap;
 
         public static void SkirmishGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
@@ -37,6 +38,11 @@ namespace OpenSage.Mods.Generals.Gui
                         case "SkirmishGameOptionsMenu.wnd:ButtonStart":
                             ParsePlayerSettings(context.Game, out PlayerSetting[] settings);
 
+                            if (!ValidateSettings(settings, context.WindowManager))
+                            {
+                                return;
+                            }
+
                             context.Game.Scene2D.WndWindowManager.PopWindow();
                             context.Game.StartGame(
                                 @"maps\Alpine Assault\Alpine Assault.map", // TODO
@@ -48,6 +54,10 @@ namespace OpenSage.Mods.Generals.Gui
                         case "SkirmishGameOptionsMenu.wnd:ButtonBack":
                             context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
                             // TODO: Go back to Single Player sub-menu
+                            break;
+
+                        case "MessageBox.wnd:ButtonOk":
+                            context.WindowManager.PopWindow();
                             break;
                     }
                     break;
@@ -100,6 +110,22 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 "GUI:Open", "GUI:Closed", "GUI:EasyAI", "GUI:MediumAI", "GUI:HardAI"
             });
+        }
+
+        private static bool ValidateSettings(in PlayerSetting[] settings, WndWindowManager manager)
+        {
+            if (settings.Length > _currentMap.NumPlayers)
+            {
+                var translation = _game.ContentManager.TranslationManager;
+                var messageBox = manager.PushWindow(@"Menus\MessageBox.wnd");
+                messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle").Text = translation.Lookup("GUI:ErrorStartingGame");
+                ((Label) messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle")).TextAlignment = TextAlignment.Leading;
+                messageBox.Controls.FindControl("MessageBox.wnd:StaticTextMessage").Text = translation.Format("GUI:TooManyPlayers",_currentMap.NumPlayers);
+                messageBox.Controls.FindControl("MessageBox.wnd:ButtonOk").Show();
+                return false;
+            }
+
+            return true;
         }
 
         private static void FillComboBoxOptions(string key, string[] options, int selectedIndex = 0)
@@ -205,6 +231,8 @@ namespace OpenSage.Mods.Generals.Gui
 
         private static void SetCurrentMap(MapCache mapCache)
         {
+            _currentMap = mapCache;
+
             var mapWindow = _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:MapWindow");
 
             var mapPath = mapCache.Name;

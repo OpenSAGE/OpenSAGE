@@ -47,5 +47,15 @@ namespace OpenSage.Content
             var label = _csfFile?.Labels.FirstOrDefault(x => x.Name == key);
             return label?.Strings[0].Value ?? key;
         }
+
+        public string Format(string key, params object[] args)
+        {
+            var label = _csfFile?.Labels.FirstOrDefault(x => x.Name == key);
+            var str = label?.Strings[0].Value ?? key;
+
+            str = str.Replace("%d", "{0}");
+
+            return string.Format(str, args);
+        }
     }
 }
