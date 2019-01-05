@@ -55,10 +55,6 @@ namespace OpenSage.Mods.Generals.Gui
                             context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
                             // TODO: Go back to Single Player sub-menu
                             break;
-
-                        case "MessageBox.wnd:ButtonOk":
-                            context.WindowManager.PopWindow();
-                            break;
                     }
                     break;
             }
