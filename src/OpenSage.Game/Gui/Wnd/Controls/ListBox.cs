@@ -426,7 +426,7 @@ namespace OpenSage.Gui.Wnd.Controls
 
             var font = _parent.Font;
             var itemHeight = int.MinValue;
-            for (var column = 0; column < _parent.ColumnWidths.Length; column++)
+            for (var column = 0; column < _item.ColumnData.Length; column++)
             {
                 var textSize = DrawingContext2D.MeasureText(
                     _item.ColumnData[column],
@@ -484,7 +484,7 @@ namespace OpenSage.Gui.Wnd.Controls
         {
             var itemBounds = GetItemBounds(ClientSize);
 
-            for (var column = 0; column < _parent.ColumnWidths.Length; column++)
+            for (var column = 0; column < _item.ColumnData.Length; column++)
             {
                 drawingContext.DrawText(
                     _item.ColumnData[column],

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using OpenSage.Data.Ini;
 using OpenSage.Gui.Wnd;
@@ -20,6 +21,7 @@ namespace OpenSage.Mods.Generals.Gui
         private const string ComboBoxPlayerPrefix = "SkirmishGameOptionsMenu.wnd:ComboBoxPlayer";
         private static Window _window;
         private static Game _game;
+        private static string _map;
 
         public static void SkirmishGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
@@ -40,7 +42,7 @@ namespace OpenSage.Mods.Generals.Gui
                                 @"maps\Alpine Assault\Alpine Assault.map", // TODO
                                 new EchoConnection(),
                                 settings,
-                                0); 
+                                0);
                             break;
 
                         case "SkirmishGameOptionsMenu.wnd:ButtonBack":
@@ -57,16 +59,27 @@ namespace OpenSage.Mods.Generals.Gui
             _window = window;
             _game = game;
 
-            var playerNameTextBox =  (TextBox)_window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:TextEntryPlayerName");
+            var mapCaches = _game.ContentManager.IniDataContext.MapCaches;
+
+            foreach (var cache in mapCaches)
+            {
+                if (cache.IsMultiplayer)
+                {
+                    SetCurrentMap(cache.Name);
+                    break;
+                }
+            }
+
+            var playerNameTextBox = (TextBox) _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:TextEntryPlayerName");
             playerNameTextBox.IsReadOnly = false;
-            
+
             FillComboBoxOptions(ComboBoxTeamPrefix, new[]
             {
                 "Team:0", "Team:1", "Team:2", "Team:3", "Team:4"
             });
 
             var playableSides = game.ContentManager.IniDataContext.PlayerTemplates.FindAll(i => i.PlayableSide);
-            if(playableSides.Count > 0)
+            if (playableSides.Count > 0)
             {
                 var sideList = playableSides.Select(i => i.DisplayName).ToList();
                 sideList.Insert(0, "GUI:RandomSide");
@@ -82,7 +95,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                 FillColorComboBoxOptions(colors.ToArray());
             }
-            
+
             FillComboBoxOptions(ComboBoxPlayerPrefix, new[]
             {
                 "GUI:Open", "GUI:Closed", "GUI:EasyAI", "GUI:MediumAI", "GUI:HardAI"
@@ -94,9 +107,9 @@ namespace OpenSage.Mods.Generals.Gui
             var comboBoxs = Control.GetSelfAndDescendants(_window).OfType<ComboBox>().Where(i => i.Name.StartsWith(key));
             foreach (ComboBox comboBox in comboBoxs)
             {
-                if(comboBox.Name.Length -1 != key.Length) continue;
+                if (comboBox.Name.Length - 1 != key.Length) continue;
                 ListBoxDataItem[] items = options.Select(i =>
-                    new ListBoxDataItem(comboBox, new[] {_game.ContentManager.TranslationManager.Lookup(i)})).ToArray();
+                    new ListBoxDataItem(comboBox, new[] { _game.ContentManager.TranslationManager.Lookup(i) })).ToArray();
                 comboBox.Items = items;
                 comboBox.SelectedIndex = selectedIndex;
             }
@@ -104,7 +117,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         private static void FillColorComboBoxOptions(KeyValuePair<string, ColorRgbaF>[] options, int selectedIndex = 0)
         {
-            var comboBoxs = Control.GetSelfAndDescendants(_window).OfType<ComboBox>().Where(i=>i.Name.StartsWith(ComboBoxColorPrefix));
+            var comboBoxs = Control.GetSelfAndDescendants(_window).OfType<ComboBox>().Where(i => i.Name.StartsWith(ComboBoxColorPrefix));
             foreach (ComboBox comboBox in comboBoxs)
             {
                 ListBoxDataItem[] items = options.Select(i =>
@@ -190,5 +203,14 @@ namespace OpenSage.Mods.Generals.Gui
             settings = settingsList.ToArray();
         }
 
+        private static void SetCurrentMap(string mapPath)
+        {
+            var mapWindow = _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:MapWindow");
+
+            var basePath = Path.GetDirectoryName(mapPath) + "\\" + Path.GetFileNameWithoutExtension(mapPath);
+            var thumbPath = basePath + ".tga";
+
+            mapWindow.BackgroundImage = _game.ContentManager.WndImageLoader.CreateFileImage(thumbPath);
+        }
     }
 }
