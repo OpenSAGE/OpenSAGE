@@ -216,10 +216,8 @@ namespace OpenSage.Data.Ini.Parser
             return token.Value.Text + " " + restOfQuotedString;
         }
 
-        public string ParseUnicodeString()
+        public static string ToUnicodeString(string text)
         {
-            var text = ParseString();
-
             int ConvertHexNibble(char c)
             {
                 if (c >= '0' && c <= '9')
@@ -248,8 +246,49 @@ namespace OpenSage.Data.Ini.Parser
                     i += 1;
                 }
             }
-            
+
             return Encoding.Unicode.GetString(unicodeBytes.ToArray());
+        }
+
+        public static string ToAsciiString(string text)
+        {
+            int ConvertHexNibble(char c)
+            {
+                if (c >= '0' && c <= '9')
+                {
+                    return c - '0';
+                }
+                return c - 'A' + 10;
+            }
+
+            var unicodeBytes = new List<byte>(text.Length / 2);
+            var i = 0;
+
+            while (i < text.Length)
+            {
+                if (text[i] == '_')
+                {
+                    var firstNibble = ConvertHexNibble(text[i + 1]);
+                    var secondNibble = ConvertHexNibble(text[i + 2]);
+                    var decodedByte = (byte) ((firstNibble << 4) | secondNibble);
+                    unicodeBytes.Add(decodedByte);
+                    i += 3;
+                }
+                else
+                {
+                    unicodeBytes.Add((byte) text[i]);
+                    i += 1;
+                }
+            }
+
+            return Encoding.ASCII.GetString(unicodeBytes.ToArray());
+        }
+
+        public string ParseUnicodeString()
+        {
+            var text = ParseString();
+
+            return ToUnicodeString(text);
         }
 
         public string ScanAssetReference(in IniToken token) => token.Text;

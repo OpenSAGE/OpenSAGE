@@ -29,7 +29,8 @@ namespace OpenSage.Content
                     LoadFiles(
                         @"Data\INI\Default\GameData.ini",
                         @"Data\INI\GameData.ini",
-                        @"Data\INI\Mouse.ini");
+                        @"Data\INI\Mouse.ini",
+                        @"Maps\MapCache.ini");
                     break;
                 case Subsystem.ObjectCreation:
                     LoadFiles(@"Data\INI\Default\Object.ini");

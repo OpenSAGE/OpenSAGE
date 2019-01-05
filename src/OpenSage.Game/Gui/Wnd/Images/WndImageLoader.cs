@@ -37,6 +37,30 @@ namespace OpenSage.Gui.Wnd.Images
             return CreateNormalImage(wndDrawData.Items[index].Image);
         }
 
+        public Image CreateFileImage(string fileImageName)
+        {        
+            bool requiresFlip = !_contentManager.GraphicsDevice.IsUvOriginTopLeft;
+            var texture = _contentManager.Load<Texture>(fileImageName);
+
+            return new Image(fileImageName, new Size((int)texture.Width, (int) texture.Height), size =>
+            {
+                var cacheKey = new WndImageKey
+                {
+                    DestinationSize = size,
+                    LeftImage = fileImageName,
+                };
+
+                if (!_cache.TryGetValue(cacheKey, out var result))
+                {
+                    result = texture;
+
+                    _cache.Add(cacheKey, result);
+                }
+
+                return result;
+            }, requiresFlip);
+        }
+
         public Image CreateNormalImage(string mappedImageName)
         {
             var leftImage = mappedImageName;

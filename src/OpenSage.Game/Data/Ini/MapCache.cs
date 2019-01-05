@@ -9,7 +9,7 @@ namespace OpenSage.Data.Ini
         internal static MapCache Parse(IniParser parser)
         {
             return parser.ParseTopLevelNamedBlock(
-                (x, name) => x.Name = name,
+                (x, name) => x.Name = IniParser.ToAsciiString(name),
                 FieldParseTable);
         }
 
