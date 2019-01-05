@@ -37,6 +37,7 @@ namespace OpenSage.Mods.Generals.Gui
             _window = window;
             _game = game;
 
+            //Official maps
             var mapCaches = _game.ContentManager.IniDataContext.MapCaches;
             var listBoxMaps = (ListBox) _window.Controls.FindControl(ListBoxMapPrefix);
             var items = new List<ListBoxDataItem>();
