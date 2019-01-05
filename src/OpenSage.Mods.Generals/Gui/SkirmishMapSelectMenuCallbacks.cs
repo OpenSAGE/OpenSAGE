@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using OpenSage.Data;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
