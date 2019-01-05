@@ -65,7 +65,7 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 if (cache.IsMultiplayer)
                 {
-                    SetCurrentMap(cache.Name);
+                    SetCurrentMap(cache);
                     break;
                 }
             }
@@ -203,14 +203,19 @@ namespace OpenSage.Mods.Generals.Gui
             settings = settingsList.ToArray();
         }
 
-        private static void SetCurrentMap(string mapPath)
+        private static void SetCurrentMap(MapCache mapCache)
         {
             var mapWindow = _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:MapWindow");
 
+            var mapPath = mapCache.Name;
             var basePath = Path.GetDirectoryName(mapPath) + "\\" + Path.GetFileNameWithoutExtension(mapPath);
             var thumbPath = basePath + ".tga";
 
             mapWindow.BackgroundImage = _game.ContentManager.WndImageLoader.CreateFileImage(thumbPath);
+
+            var textEntryMap = _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:TextEntryMapDisplay");
+
+            textEntryMap.Text = mapCache.DisplayName;
         }
     }
 }
