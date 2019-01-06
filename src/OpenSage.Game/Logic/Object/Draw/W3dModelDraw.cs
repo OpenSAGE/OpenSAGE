@@ -190,14 +190,10 @@ namespace OpenSage.Logic.Object
                         continue;
                     }
 
-                    if (particleSystemTemplate != null)
-                    {
-                        particleSystems.Add(new ParticleSystem(
-                        _contentManager,
-                        particleSystemTemplate,
-                        () => ref modelInstance.AbsoluteBoneTransforms[bone.Index]));
-                    }
-                   
+                    particleSystems.Add(new ParticleSystem(
+                    _contentManager,
+                    particleSystemTemplate,
+                    () => ref modelInstance.AbsoluteBoneTransforms[bone.Index]));
                 }
             }
 

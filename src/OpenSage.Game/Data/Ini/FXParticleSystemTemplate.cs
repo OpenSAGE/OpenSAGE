@@ -162,11 +162,8 @@ namespace OpenSage.Data.Ini
         public FXParticleWind Wind { get; internal set; }
         public FXParticleEmissionVelocityBase EmissionVelocity { get; internal set; }
         public FXParticleEmissionVolumeBase EmissionVolume { get; internal set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public bool ShroudEmitter { get; private set; }
-
         public FXParticleEventBase Event { get; private set; }
+        public bool ShroudEmitter { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -256,15 +253,12 @@ namespace OpenSage.Data.Ini
         public RandomVariable AngularRateZ { get; internal set; }
         public RandomVariable AngularDamping { get; internal set; }
         public FXParticleSystemRotationType Rotation { get; private set; }
+        public RandomVariable AngularRateXY { get; private set; }
+        public RandomVariable AngleXY { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public RandomVariable AngularDampingXY { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public RandomVariable AngularRateXY { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public RandomVariable AngleXY { get; private set; }
+        
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -351,11 +345,7 @@ namespace OpenSage.Data.Ini
         public float Gravity { get; internal set; }
         public RandomVariable VelocityDamping { get; internal set; }
         public Vector3 DriftVelocity { get; internal set; }
-
-        [AddedIn(SageGame.Bfme2)]
         public bool ParticlesAttachToBone { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
         public bool Swirly { get; private set; }
     }
 
@@ -383,7 +373,6 @@ namespace OpenSage.Data.Ini
                 { "Shader1", (parser, x) => x.Shader1 = parser.ParseAssetReference() }
             });
 
-        [AddedIn(SageGame.Bfme2)]
         public string Shader1 { get; private set; }
     }
 
@@ -395,10 +384,10 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<FXParticleDrawStreak> FieldParseTable = BaseFieldParseTable.Concat(new IniParseTable<FXParticleDrawStreak>());
     }
 
-    [AddedIn(SageGame.Bfme2)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleDrawGpu : FXParticleDrawBase
     {
-        internal new static FXParticleDrawGpu Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+        internal static FXParticleDrawGpu Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
         private static readonly IniParseTable<FXParticleDrawGpu> FieldParseTable = BaseFieldParseTable
             .Concat(new IniParseTable<FXParticleDrawGpu>
@@ -666,6 +655,7 @@ namespace OpenSage.Data.Ini
         public float Radius { get; internal set; }
         public float Length { get; internal set; }
         public Vector3 Offset { get; private set; }
+        public float RadiusRate { get; private set; }
 
         public override Ray GetRay()
         {
@@ -685,9 +675,6 @@ namespace OpenSage.Data.Ini
                 new Vector3(direction.X * radius, direction.Y * radius, z),
                 direction);
         }
-
-        [AddedIn(SageGame.Bfme2)]
-        public float RadiusRate { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -744,7 +731,7 @@ namespace OpenSage.Data.Ini
         }
     }
 
-    [AddedIn(SageGame.Bfme2)]
+    [AddedIn(SageGame.Bfme)]
     public sealed class FXParticleEmissionVolumeTerrainFire : FXParticleEmissionVolumeBase
     {
         internal static FXParticleEmissionVolumeTerrainFire Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
@@ -833,20 +820,10 @@ namespace OpenSage.Data.Ini
         public RandomVariable Phase1 { get; private set; }
         public RandomVariable Phase2 { get; private set; }
         public RandomVariable Phase3 { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
         public Vector3 StartPoint { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
         public RandomVariable Amplitude2 { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
         public RandomVariable Amplitude3 { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
         public RandomVariable Frequency2 { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
         public RandomVariable Frequency3 { get; private set; }
 
         public override Ray GetRay()
