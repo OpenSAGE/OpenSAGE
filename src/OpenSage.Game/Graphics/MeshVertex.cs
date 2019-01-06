@@ -11,7 +11,8 @@ namespace OpenSage.Graphics
         {
             public Vector3 Position0;
             public Vector3 Position1;
-            public Vector3 Normal;
+            public Vector3 Normal0;
+            public Vector3 Normal1;
             public Vector3 Tangent;
             public Vector3 Binormal;
             public uint BoneIndex0;
@@ -32,6 +33,7 @@ namespace OpenSage.Graphics
             new VertexLayoutDescription(
                 new VertexElementDescription("POSITION", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
                 new VertexElementDescription("POSITION", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+                new VertexElementDescription("NORMAL", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
                 new VertexElementDescription("NORMAL", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
                 new VertexElementDescription("TANGENT", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
                 new VertexElementDescription("BINORMAL", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),

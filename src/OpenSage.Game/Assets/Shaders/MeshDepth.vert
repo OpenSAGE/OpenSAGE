@@ -30,14 +30,15 @@ MESH_VERTEX_INPUTS
 void main()
 {
     vec3 modifiedPosition = in_Position0;
-    vec3 modifiedNormal = in_Normal;
+    vec3 modifiedNormal = in_Normal0;
 
     if (_MeshConstants.SkinningEnabled)
     {
         GetSkinnedVertexData(
             in_Position0,
             in_Position1,
-            in_Normal,
+            in_Normal0,
+            in_Normal1,
             _SkinningBuffer[in_BoneIndex0],
             _SkinningBuffer[in_BoneIndex1],
             in_BoneWeight0,
