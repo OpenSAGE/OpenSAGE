@@ -166,6 +166,7 @@ namespace OpenSage.Content
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
                             yield return "TheParticleSystemManager";
+                            yield return "TheFXParticleSystemManager";
                             yield break;
                         // TODO: Figure out how to load particle systems for C&C3 and later
                         case SageGame.Cnc3:
