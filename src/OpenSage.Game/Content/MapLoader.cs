@@ -298,7 +298,7 @@ namespace OpenSage.Content
 
             if (mapObject.Properties.TryGetValue("originalOwner", out var teamName))
             {
-                var team = teams.FirstOrDefault(t => t.Name == (string) teamName.Value);
+                var team = teams.FirstOrDefault(t => t.Name == ((string) teamName.Value).Split('/')[1]);
                 gameObject.Team = team;
                 gameObject.Owner = team.Owner;
             }

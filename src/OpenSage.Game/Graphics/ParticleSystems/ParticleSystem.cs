@@ -152,6 +152,7 @@ namespace OpenSage.Graphics.ParticleSystems
             switch (shader)
             {
                 case ParticleSystemShader.Alpha:
+                case ParticleSystemShader.AlphaTest:
                     return BlendStateDescription.SingleAlphaBlend;
 
                 case ParticleSystemShader.Additive:
@@ -325,7 +326,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
             var physics = (FXParticleDefaultPhysics) Template.Physics;
 
-            particle.VelocityDamping = physics.VelocityDamping.GetRandomFloat();
+            particle.VelocityDamping = physics != null ? physics.VelocityDamping.GetRandomFloat() : 0.0f;
 
             var alphaKeyframes = particle.AlphaKeyframes;
             alphaKeyframes.Clear();
@@ -341,7 +342,7 @@ namespace OpenSage.Graphics.ParticleSystems
 
                 void addAlphaKeyframe(RandomAlphaKeyframe keyframe, RandomAlphaKeyframe previous)
                 {
-                    if (keyframe != null && keyframe.Time > previous.Time)
+                    if (keyframe != null && previous != null && keyframe.Time > previous.Time)
                     {
                         alphaKeyframes.Add(new ParticleAlphaKeyframe(keyframe));
                     }
@@ -375,10 +376,15 @@ namespace OpenSage.Graphics.ParticleSystems
         {
             var physics = (FXParticleDefaultPhysics) Template.Physics;
 
-            particle.Velocity.Z += physics.Gravity;
             particle.Velocity *= particle.VelocityDamping;
+            var totalVelocity = particle.Velocity;
 
-            var totalVelocity = physics.DriftVelocity.ToVector3() + particle.Velocity;
+            if (physics != null)
+            {
+                particle.Velocity.Z += physics.Gravity;
+                totalVelocity += physics.DriftVelocity.ToVector3();
+            }
+
             particle.Position += totalVelocity;
 
             particle.Size = Math.Max(particle.Size + particle.SizeRate, 0.001f);
