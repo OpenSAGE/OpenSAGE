@@ -163,7 +163,7 @@
             W3D_CHUNK_SOUNDROBJ_HEADER,                                     // general information such as name and version
             W3D_CHUNK_SOUNDROBJ_DEFINITION,                                 // chunk containing the definition of the sound that is to play	
 
-        W3D_CHUNK_VERTICES_2 = 0xC00, // Unknown - added in BFME
-        W3D_CHUNK_NORMALS_2 = 0xC01, // Unknown - added in BFME
+        W3D_CHUNK_VERTICES_2 = 0xC00, // used for dual bone skinning
+        W3D_CHUNK_NORMALS_2 = 0xC01, // used for dual bone skinning
     }
 }
