@@ -168,6 +168,17 @@ namespace OpenSage.Content
                             DisabledTextColor = wndWindow.TextColor.Disabled.ToColorRgbaF()
                         };
 
+                    case WndWindowType.RadioButton:
+                        return new RadioButton
+                        {
+                            BackgroundImage = imageLoader.CreateStretchableImage(wndWindow.EnabledDrawData, 0, 1, 2),
+                            HoverBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.HiliteDrawData, 0, 1, 2),
+                            DisabledBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.DisabledDrawData, 0, 1, 2),
+
+                            HoverTextColor = wndWindow.TextColor.Hilite.ToColorRgbaF(),
+                            DisabledTextColor = wndWindow.TextColor.Disabled.ToColorRgbaF()
+                        };
+
                     case WndWindowType.StaticText:
                         return new Label
                         {
