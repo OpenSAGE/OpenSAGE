@@ -6,7 +6,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.DataStructures
 {
-    public sealed class Quadtree<T>
+    public sealed class Quadtree<T> where T : class
     {
         public readonly RectangleF Bounds;
         // TODO: Should we cache this?
@@ -225,20 +225,25 @@ namespace OpenSage.DataStructures
             }
         }
 
+        public void Remove<A>(A item) where A : T, IHasBounds
+        {
+            Remove(item.Bounds);
+        }
+
         // TODO: Should this also take the value?
         // If the tree contains duplicate rectangles with different values,
         // this will remove the one that was inserted first.
-        public void Remove(in RectangleF itemBounds)
+        public T Remove(in RectangleF itemBounds)
         {
             if (!Bounds.Contains(itemBounds))
             {
-                return;
+                return null;
             }
 
-            RemoveInternal(itemBounds);
+            return RemoveInternal(itemBounds);
         }
 
-        private void RemoveInternal(in RectangleF itemBounds)
+        private T RemoveInternal(in RectangleF itemBounds)
         {
             if (_children != null)
             {
@@ -258,14 +263,14 @@ namespace OpenSage.DataStructures
 
                         case ContainmentType.Contains:
                         {
-                            subtree.RemoveInternal(itemBounds);
+                            var result = subtree.RemoveInternal(itemBounds);
 
-                            if (subtree.IsEmpty)
+                            if (result != null && subtree.IsEmpty)
                             {
                                 _children[i] = null;
                             }
 
-                            return;
+                            return result;
                         }
 
                         // In this case we'll know the item is either stored in this node or nowhere,
@@ -286,10 +291,24 @@ namespace OpenSage.DataStructures
                         continue;
                     }
 
+                    var result = _items[i].Item2;
+
                     _items.RemoveAt(i);
 
-                    return;
+                    return result;
                 }
+            }
+
+            return null;
+        }
+
+        public void Update(in RectangleF oldRect, in RectangleF newRect)
+        {
+            var item = Remove(oldRect);
+
+            if (item != null)
+            {
+                Insert(newRect, item);
             }
         }
 
