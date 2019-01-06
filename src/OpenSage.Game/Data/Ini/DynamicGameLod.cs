@@ -73,19 +73,19 @@ namespace OpenSage.Data.Ini
         [IniEnum("ALWAYS_RENDER")]
         AlwaysRender,
 
-        [IniEnum("HIGH_OR_ABOVE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("HIGH_OR_ABOVE"), AddedIn(SageGame.Bfme)]
         HighOrAbove,
 
-        [IniEnum("MEDIUM_OR_ABOVE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("MEDIUM_OR_ABOVE"), AddedIn(SageGame.Bfme)]
         MediumOrAbove,
 
-        [IniEnum("VERY_LOW_OR_ABOVE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("VERY_LOW_OR_ABOVE"), AddedIn(SageGame.Bfme)]
         VeryLowOrAbove,
 
-        [IniEnum("NONE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("NONE"), AddedIn(SageGame.Bfme)]
         None,
 
-        [IniEnum("LOW_OR_ABOVE"), AddedIn(SageGame.Bfme2)]
+        [IniEnum("LOW_OR_ABOVE"), AddedIn(SageGame.Bfme)]
         LowOrAbove,
     }
 }
