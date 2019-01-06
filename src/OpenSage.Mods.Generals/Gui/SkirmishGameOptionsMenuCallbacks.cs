@@ -33,7 +33,7 @@ namespace OpenSage.Mods.Generals.Gui
                     switch (message.Element.Name)
                     {
                         case "SkirmishGameOptionsMenu.wnd:ButtonSelectMap":
-                            context.WindowManager.PushWindow(@"Menus\SkirmishMapSelectMenu.wnd");
+                            OpenMapSelection(context);
                             break;
 
                         case "SkirmishGameOptionsMenu.wnd:ButtonStart":
@@ -123,6 +123,49 @@ namespace OpenSage.Mods.Generals.Gui
             }
 
             return true;
+        }
+
+        private static void OpenMapSelection(ControlCallbackContext context)
+        {
+            // Hide controls
+            _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:ButtonSelectMap").Hide();
+            _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:MapWindow").Hide();
+            _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:TextEntryMapDisplay").Hide();
+            _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:StaticTextMapPreview").Hide();
+            _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:StaticTextTeam").Hide();
+            _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:StaticTextFaction").Hide();
+            _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:StaticTextColor").Hide();
+
+            for (int i = 0; i < 8; ++i)
+            {
+                _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:ComboBoxTeam" + i.ToString()).Hide();
+                _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:ComboBoxPlayerTemplate" + i.ToString()).Hide();
+                _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:ComboBoxColor" + i.ToString()).Hide();
+            }
+
+            context.WindowManager.PushWindow(@"Menus\SkirmishMapSelectMenu.wnd");
+            SkirmishMapSelectMenuCallbacks.SetPreviewMap(_currentMap);
+        }
+
+        public static void CloseMapSelection(ControlCallbackContext context)
+        {
+            // Reshow controls
+            _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:ButtonSelectMap").Show();
+            _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:MapWindow").Show();
+            _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:TextEntryMapDisplay").Show();
+            _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:StaticTextMapPreview").Show();
+            _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:StaticTextTeam").Show();
+            _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:StaticTextFaction").Show();
+            _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:StaticTextColor").Show();
+
+            for (int i = 0; i < 8; ++i)
+            {
+                _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:ComboBoxTeam" + i.ToString()).Show();
+                _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:ComboBoxPlayerTemplate" + i.ToString()).Show();
+                _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:ComboBoxColor" + i.ToString()).Show();
+            }
+
+            context.WindowManager.PopWindow();
         }
 
         private static void FillComboBoxOptions(string key, string[] options, int selectedIndex = 0)
@@ -226,7 +269,7 @@ namespace OpenSage.Mods.Generals.Gui
             settings = settingsList.ToArray();
         }
 
-        private static void SetCurrentMap(MapCache mapCache)
+        public static void SetCurrentMap(MapCache mapCache)
         {
             _currentMap = mapCache;
 
@@ -239,6 +282,12 @@ namespace OpenSage.Mods.Generals.Gui
             // Set thumbnail
             mapWindow.BackgroundImage = _game.ContentManager.WndImageLoader.CreateFileImage(thumbPath);
 
+            // Hide all start positions
+            for (int i = 0; i < mapCache.NumPlayers; ++i)
+            {
+                _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:ButtonMapStartPosition" + i.ToString()).Hide();
+            }
+
             // Set starting positions
             for (int i = 0; i < mapCache.NumPlayers; ++i)
             {
@@ -248,38 +297,7 @@ namespace OpenSage.Mods.Generals.Gui
                 startPosCtrl.DisabledBackgroundImage = _game.ContentManager.WndImageLoader.CreateNormalImage("PlayerStartDisabled");
                 startPosCtrl.Show();
 
-                var startPos = Vector3.Zero;
-
-                switch (i)
-                {
-                    case 0:
-                        startPos = mapCache.Player1Start;
-                        break;
-                    case 1:
-                        startPos = mapCache.Player2Start;
-                        break;
-                    case 2:
-                        startPos = mapCache.Player3Start;
-                        break;
-                    case 3:
-                        startPos = mapCache.Player4Start;
-                        break;
-                    case 4:
-                        startPos = mapCache.Player5Start;
-                        break;
-                    case 5:
-                        startPos = mapCache.Player6Start;
-                        break;
-                    case 6:
-                        startPos = mapCache.Player7Start;
-                        break;
-                    case 7:
-                        startPos = mapCache.Player8Start;
-                        break;
-                }
-
-                // TODO: make this accurate
-                var relPos = startPos / mapCache.ExtentMax;
+                var relPos = MapUtils.GetRelativePosition(mapCache, i);
 
                 var newPos = new Point2D((int) (relPos.X * mapWindow.Width) - 8, (int) ((1.0 - relPos.Y) * mapWindow.Height) - 8);
 
