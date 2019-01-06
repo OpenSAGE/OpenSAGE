@@ -47,13 +47,14 @@ layout(location = 5) out float out_ViewSpaceDepth;
 
 void main()
 {
-    vec3 modifiedPosition = in_Position;
+    vec3 modifiedPosition = in_Position0;
     vec3 modifiedNormal = in_Normal;
 
     if (_MeshConstants.SkinningEnabled)
     {
         GetSkinnedVertexData(
-            in_Position, 
+            in_Position0, 
+            in_Position1, 
             in_Normal,
             _SkinningBuffer[in_BoneIndex0],
             _SkinningBuffer[in_BoneIndex1],

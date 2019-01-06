@@ -1,14 +1,15 @@
 #define MESH_VERTEX_INPUTS \
-    layout(location = 0) in vec3 in_Position; \
-    layout(location = 1) in vec3 in_Normal; \
-    layout(location = 2) in vec3 in_Tangent; \
-    layout(location = 3) in vec3 in_Binormal; \
-    layout(location = 4) in uint in_BoneIndex0; \
-    layout(location = 5) in uint in_BoneIndex1; \
-    layout(location = 6) in float in_BoneWeight0; \
-    layout(location = 7) in float in_BoneWeight1; \
-    layout(location = 8) in vec2 in_UV0; \
-    layout(location = 9) in vec2 in_UV1;
+    layout(location = 0) in vec3 in_Position0; \
+    layout(location = 1) in vec3 in_Position1; \
+    layout(location = 2) in vec3 in_Normal; \
+    layout(location = 3) in vec3 in_Tangent; \
+    layout(location = 4) in vec3 in_Binormal; \
+    layout(location = 5) in uint in_BoneIndex0; \
+    layout(location = 6) in uint in_BoneIndex1; \
+    layout(location = 7) in float in_BoneWeight0; \
+    layout(location = 8) in float in_BoneWeight1; \
+    layout(location = 9) in vec2 in_UV0; \
+    layout(location = 10) in vec2 in_UV1;
 
 struct MeshConstantsType
 {
@@ -29,7 +30,8 @@ struct RenderItemConstantsPSType
 };
 
 void GetSkinnedVertexData(
-    vec3 inputPosition,
+    vec3 inputPosition0,
+    vec3 inputPosition1,
     vec3 inputNormal,
     mat4 skinning0,
     mat4 skinning1,
@@ -38,17 +40,9 @@ void GetSkinnedVertexData(
     out vec3 modifiedPosition,
     out vec3 modifiedNormal)
 {
-    if (weight0 < 0.99f)
-    {
+    modifiedPosition = (skinning0 * vec4(inputPosition0, 1)).xyz * weight0;
+    modifiedPosition += (skinning1 * vec4(inputPosition1, 1)).xyz * weight1;
 
-        vec4 modifiedPosition0 = skinning0 * mat4(weight0) * vec4(inputPosition, 1);
-        vec4 modifiedPosition1 = skinning1 * mat4(weight1) * vec4(inputPosition, 1);
-        modifiedPosition = (modifiedPosition0 + modifiedPosition1).xyz;
-    }
-    else
-    {
-        modifiedPosition = (skinning0 * vec4(inputPosition, 1)).xyz;
-    }
     modifiedNormal = TransformNormal(inputNormal, skinning0);
 }
 

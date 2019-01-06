@@ -319,7 +319,10 @@ namespace OpenSage.Content
             {
                 vertices[i] = new MeshVertex.Basic
                 {
-                    Position = w3dMesh.Vertices.Items[i],
+                    Position0 = w3dMesh.Vertices.Items[i],
+                    Position1 = w3dMesh.Vertices2 != null
+                        ? w3dMesh.Vertices2.Items[i]
+                        : w3dMesh.Vertices.Items[i],
                     Normal = w3dMesh.Normals.Items[i],
                     Tangent = w3dMesh.Tangents != null
                         ? w3dMesh.Tangents.Items[i]
