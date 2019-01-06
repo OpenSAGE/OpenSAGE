@@ -427,6 +427,12 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("SMUDGE"), AddedIn(SageGame.Bfme)]
         Smudge,
+
+        [IniEnum("GPU_PARTICLE"), AddedIn(SageGame.Bfme)]
+        GpuParticle,
+
+        [IniEnum("GPU_TERRAINFIRE"), AddedIn(SageGame.Bfme)]
+        GpuTerrainfire,
     }
 
     public enum ParticleVelocityType
