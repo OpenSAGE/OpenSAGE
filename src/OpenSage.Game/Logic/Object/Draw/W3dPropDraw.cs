@@ -3,15 +3,14 @@
 namespace OpenSage.Logic.Object
 {
     [AddedIn(SageGame.Bfme)]
-    public class W3dPropDrawModuleData : W3dModelDrawModuleData
+    public class W3dPropDrawModuleData : DrawModuleData
     {
         internal static W3dPropDrawModuleData Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 
-        internal static new readonly IniParseTable<W3dPropDrawModuleData> FieldParseTable = W3dModelDrawModuleData.FieldParseTable
-            .Concat(new IniParseTable<W3dPropDrawModuleData>
-            {
-                 { "ModelName", (parser, x) => x.ModelName = parser.ParseAssetReference() },
-            });
+        internal static readonly IniParseTable<W3dPropDrawModuleData> FieldParseTable = new IniParseTable<W3dPropDrawModuleData>
+        {
+            { "ModelName", (parser, x) => x.ModelName = parser.ParseAssetReference() },
+        };
 
         public string ModelName { get; private set; }
     }

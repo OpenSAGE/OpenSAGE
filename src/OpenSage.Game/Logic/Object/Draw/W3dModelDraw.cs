@@ -190,10 +190,14 @@ namespace OpenSage.Logic.Object
                         continue;
                     }
 
-                    particleSystems.Add(new ParticleSystem(
+                    if (particleSystemTemplate != null)
+                    {
+                        particleSystems.Add(new ParticleSystem(
                         _contentManager,
                         particleSystemTemplate,
                         () => ref modelInstance.AbsoluteBoneTransforms[bone.Index]));
+                    }
+                   
                 }
             }
 
@@ -364,8 +368,7 @@ namespace OpenSage.Logic.Object
 
         private void ParseAliasConditionState(IniParser parser)
         {
-            var lastConditionState = parser.Temp as ModelConditionState;
-            if (lastConditionState == null)
+            if (!(parser.Temp is ModelConditionState lastConditionState))
             {
                 throw new IniParseException("Cannot use AliasConditionState if there are no preceding ConditionStates", parser.CurrentPosition);
             }
