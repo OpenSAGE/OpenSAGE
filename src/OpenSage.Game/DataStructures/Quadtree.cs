@@ -8,6 +8,10 @@ namespace OpenSage.DataStructures
 {
     public sealed class Quadtree<T> where T : class
     {
+        private const int MaxDepth = 8;
+        private const int MaxItemsPerLeaf = 2;
+        private const bool RemoveEmptyNodes = false;
+
         public readonly RectangleF Bounds;
         // TODO: Should we cache this?
         private SizeF QuadSize => new SizeF(Bounds.Size.Width / 2.0f, Bounds.Size.Height / 2.0f);
@@ -20,10 +24,6 @@ namespace OpenSage.DataStructures
         private List<(RectangleF, T)> _items;
 
         private readonly int _depth;
-
-        // TODO: These could be made const / static, if they work for every case.
-        public readonly int MaxDepth = 8;
-        public readonly int MaxItemsPerLeaf = 2;
 
         private bool IsLeaf => _children == null;
         private bool ReachedItemLimit => _items != null && _items.Count >= MaxItemsPerLeaf;
@@ -265,9 +265,13 @@ namespace OpenSage.DataStructures
                         {
                             var result = subtree.RemoveInternal(itemBounds);
 
-                            if (result != null && subtree.IsEmpty)
+                            if (RemoveEmptyNodes)
                             {
-                                _children[i] = null;
+                                if (result != null && subtree.IsEmpty)
+                                {
+                                    _children[i] = null;
+
+                                }
                             }
 
                             return result;
