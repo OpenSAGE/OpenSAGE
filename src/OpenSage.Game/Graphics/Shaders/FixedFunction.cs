@@ -16,6 +16,8 @@ namespace OpenSage.Graphics.Shaders
             Scale = 7,
             Grid = 8,
             Random = 9,
+            BumpEnv = 10,
+            WsEnvironment = 11,
         }
 
         public struct TextureMapping
@@ -68,7 +70,8 @@ namespace OpenSage.Graphics.Shaders
         {
             Disable = 0,
             Modulate = 1,
-            Add = 2
+            Add = 2,
+            BumpEnvMap = 3,
         }
 
         public enum SecondaryTextureBlend
@@ -77,7 +80,8 @@ namespace OpenSage.Graphics.Shaders
             Detail = 1,
             Scale = 2,
             InvScale = 3,
-            DetailBlend = 4
+            DetailBlend = 4,
+            Add = 5
         }
 
         public struct ShadingConfiguration
