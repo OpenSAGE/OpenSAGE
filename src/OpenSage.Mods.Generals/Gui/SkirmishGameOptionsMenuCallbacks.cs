@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
@@ -10,7 +8,6 @@ using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Network;
-using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Mods.Generals.Gui
 {
@@ -109,14 +106,15 @@ namespace OpenSage.Mods.Generals.Gui
             });
         }
 
-        private static bool ValidateSettings(in PlayerSetting[] settings, WndWindowManager manager)
+        private static bool ValidateSettings(PlayerSetting[] settings, WndWindowManager manager)
         {
             if (settings.Length > _currentMap.NumPlayers)
             {
                 var translation = _game.ContentManager.TranslationManager;
                 var messageBox = manager.PushWindow(@"Menus\MessageBox.wnd");
                 messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle").Text = translation.Lookup("GUI:ErrorStartingGame");
-                ((Label) messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle")).TextAlignment = TextAlignment.Leading;
+                var staticTextTitle = messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle") as Label;
+                staticTextTitle.TextAlignment = TextAlignment.Leading;
                 messageBox.Controls.FindControl("MessageBox.wnd:StaticTextMessage").Text = translation.Format("GUI:TooManyPlayers", _currentMap.NumPlayers);
                 messageBox.Controls.FindControl("MessageBox.wnd:ButtonOk").Show();
                 return false;
@@ -275,34 +273,7 @@ namespace OpenSage.Mods.Generals.Gui
 
             var mapWindow = _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:MapWindow");
 
-            var mapPath = mapCache.Name;
-            var basePath = Path.GetDirectoryName(mapPath) + "\\" + Path.GetFileNameWithoutExtension(mapPath);
-            var thumbPath = basePath + ".tga";
-
-            // Set thumbnail
-            mapWindow.BackgroundImage = _game.ContentManager.WndImageLoader.CreateFileImage(thumbPath);
-
-            // Hide all start positions
-            for (int i = 0; i < mapCache.NumPlayers; ++i)
-            {
-                _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:ButtonMapStartPosition" + i.ToString()).Hide();
-            }
-
-            // Set starting positions
-            for (int i = 0; i < mapCache.NumPlayers; ++i)
-            {
-                var startPosCtrl = _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:ButtonMapStartPosition" + i.ToString());
-                startPosCtrl.BackgroundImage = _game.ContentManager.WndImageLoader.CreateNormalImage("PlayerStart");
-                startPosCtrl.HoverBackgroundImage = _game.ContentManager.WndImageLoader.CreateNormalImage("PlayerStartHilite");
-                startPosCtrl.DisabledBackgroundImage = _game.ContentManager.WndImageLoader.CreateNormalImage("PlayerStartDisabled");
-                startPosCtrl.Show();
-
-                var relPos = MapUtils.GetRelativePosition(mapCache, i);
-
-                var newPos = new Point2D((int) (relPos.X * mapWindow.Width) - 8, (int) ((1.0 - relPos.Y) * mapWindow.Height) - 8);
-
-                startPosCtrl.Bounds = new Rectangle(newPos, new Size(16));
-            }
+            MapUtils.SetMapPreview(mapCache, mapWindow, _game);
 
             // Set map text
             var textEntryMap = _window.Controls.FindControl("SkirmishGameOptionsMenu.wnd:TextEntryMapDisplay");

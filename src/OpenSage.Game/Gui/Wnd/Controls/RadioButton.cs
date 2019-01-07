@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Mathematics;
 
