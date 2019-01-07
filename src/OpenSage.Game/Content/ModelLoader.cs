@@ -322,11 +322,11 @@ namespace OpenSage.Content
                     Position0 = w3dMesh.Vertices.Items[i],
                     Position1 = w3dMesh.Vertices2 != null
                         ? w3dMesh.Vertices2.Items[i]
-                        : w3dMesh.Vertices.Items[i],
+                        : Vector3.Zero,
                     Normal0 = w3dMesh.Normals.Items[i],
                     Normal1 = w3dMesh.Normals2 != null
                         ? w3dMesh.Normals2.Items[i]
-                        : w3dMesh.Normals.Items[i],
+                        : Vector3.Zero,
                     Tangent = w3dMesh.Tangents != null
                         ? w3dMesh.Tangents.Items[i]
                         : Vector3.Zero,
