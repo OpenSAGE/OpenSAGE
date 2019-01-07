@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
@@ -15,8 +14,6 @@ namespace OpenSage.Mods.Generals.Gui
 
         private static Window _window;
         private static Game _game;
-        private static List<FileSystemEntry> _maps;
-        private static List<FileSystemEntry> _thumbnails;
         private static MapCache _previewMap;
 
         public static void SkirmishMapSelectMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
@@ -43,7 +40,7 @@ namespace OpenSage.Mods.Generals.Gui
             _window = window;
             _game = game;
 
-            //Official maps
+            // Official maps
             var mapCaches = _game.ContentManager.IniDataContext.MapCaches;
             var listBoxMaps = (ListBox) _window.Controls.FindControl(ListBoxMapPrefix);
             var items = new List<ListBoxDataItem>();
