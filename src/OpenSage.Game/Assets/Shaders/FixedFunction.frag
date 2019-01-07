@@ -167,7 +167,7 @@ vec4 SampleTexture(
         case TEXTURE_MAPPING_LINEAR_OFFSET:
         {
             vec2 offset = textureMapping.UVPerSec * t;
-            uv = vec2(uv.x, 1 - uv.y) + offset;
+            uv = vec2(uv.x, 1 - uv.y) - offset;
             uv *= textureMapping.UVScale;
             break;
         }
