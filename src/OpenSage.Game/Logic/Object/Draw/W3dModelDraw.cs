@@ -172,10 +172,15 @@ namespace OpenSage.Logic.Object
             {
                 foreach (var particleSysBone in conditionState.ParticleSysBones)
                 {
-                    var particleSystemTemplate = _contentManager.IniDataContext.FXParticleSystems.First(x => x.Name == particleSysBone.ParticleSystem);
+                    var particleSystemTemplate = _contentManager.IniDataContext.FXParticleSystems.FirstOrDefault(x => x.Name == particleSysBone.ParticleSystem);
                     if (particleSystemTemplate == null)
                     {
-                        particleSystemTemplate = _contentManager.IniDataContext.ParticleSystems.First(x => x.Name == particleSysBone.ParticleSystem).ToFXParticleSystemTemplate();
+                        particleSystemTemplate = _contentManager.IniDataContext.ParticleSystems.FirstOrDefault(x => x.Name == particleSysBone.ParticleSystem).ToFXParticleSystemTemplate();
+
+                        if (particleSystemTemplate == null)
+                        {
+                            throw new InvalidOperationException("Missing referenced particle system: " + particleSysBone.ParticleSystem);
+                        }
                     }
 
                     var bone = modelInstance.Model.BoneHierarchy.Bones.FirstOrDefault(x => string.Equals(x.Name, particleSysBone.BoneName, StringComparison.OrdinalIgnoreCase));
