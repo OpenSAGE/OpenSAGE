@@ -43,7 +43,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                             context.Game.Scene2D.WndWindowManager.PopWindow();
                             context.Game.StartGame(
-                                @"maps\Alpine Assault\Alpine Assault.map", // TODO
+                                _currentMap.Name,
                                 new EchoConnection(),
                                 settings,
                                 0);
