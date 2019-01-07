@@ -68,7 +68,6 @@ namespace OpenSage.Viewer.UI.Views
                     if (str.Value.Contains(searchText))
                     {
                         _labels.Add(label);
-                        continue;
                     }
                 }
             }

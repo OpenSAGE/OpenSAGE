@@ -216,7 +216,7 @@ namespace OpenSage.Data.Ini.Parser
             return token.Value.Text + " " + restOfQuotedString;
         }
 
-        public static string ToUnicodeString(string text)
+        private static List<byte> ReadEncodedText(string encoded)
         {
             int ConvertHexNibble(char c)
             {
@@ -227,61 +227,41 @@ namespace OpenSage.Data.Ini.Parser
                 return c - 'A' + 10;
             }
 
-            var unicodeBytes = new List<byte>(text.Length / 2);
+            var result = new List<byte>(encoded.Length / 2);
             var i = 0;
 
-            while (i < text.Length)
+            while (i < encoded.Length)
             {
-                if (text[i] == '_')
+                if (encoded[i] == '_')
                 {
-                    var firstNibble = ConvertHexNibble(text[i + 1]);
-                    var secondNibble = ConvertHexNibble(text[i + 2]);
+                    var firstNibble = ConvertHexNibble(encoded[i + 1]);
+                    var secondNibble = ConvertHexNibble(encoded[i + 2]);
                     var decodedByte = (byte) ((firstNibble << 4) | secondNibble);
-                    unicodeBytes.Add(decodedByte);
+                    result.Add(decodedByte);
                     i += 3;
                 }
                 else
                 {
-                    unicodeBytes.Add((byte) text[i]);
+                    result.Add((byte) encoded[i]);
                     i += 1;
                 }
             }
+
+            return result;
+        }
+
+        public static string ToUnicodeString(string text)
+        {
+            var unicodeBytes = ReadEncodedText(text);
 
             return Encoding.Unicode.GetString(unicodeBytes.ToArray());
         }
 
         public static string ToAsciiString(string text)
         {
-            int ConvertHexNibble(char c)
-            {
-                if (c >= '0' && c <= '9')
-                {
-                    return c - '0';
-                }
-                return c - 'A' + 10;
-            }
+            var asciiBytes = ReadEncodedText(text);
 
-            var unicodeBytes = new List<byte>(text.Length / 2);
-            var i = 0;
-
-            while (i < text.Length)
-            {
-                if (text[i] == '_')
-                {
-                    var firstNibble = ConvertHexNibble(text[i + 1]);
-                    var secondNibble = ConvertHexNibble(text[i + 2]);
-                    var decodedByte = (byte) ((firstNibble << 4) | secondNibble);
-                    unicodeBytes.Add(decodedByte);
-                    i += 3;
-                }
-                else
-                {
-                    unicodeBytes.Add((byte) text[i]);
-                    i += 1;
-                }
-            }
-
-            return Encoding.ASCII.GetString(unicodeBytes.ToArray());
+            return Encoding.ASCII.GetString(asciiBytes.ToArray());
         }
 
         public string ParseUnicodeString()
@@ -615,7 +595,7 @@ namespace OpenSage.Data.Ini.Parser
                     return funcResult.Value;
                 }
             }
-            
+
             return result;
         }
 
