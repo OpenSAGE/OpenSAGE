@@ -175,7 +175,7 @@ namespace OpenSage.Logic.Object
                     var particleSystemTemplate = _contentManager.IniDataContext.FXParticleSystems.FirstOrDefault(x => x.Name == particleSysBone.ParticleSystem);
                     if (particleSystemTemplate == null)
                     {
-                        particleSystemTemplate = _contentManager.IniDataContext.ParticleSystems.FirstOrDefault(x => x.Name == particleSysBone.ParticleSystem).ToFXParticleSystemTemplate();
+                        particleSystemTemplate = _contentManager.IniDataContext.ParticleSystems.FirstOrDefault(x => x.Name == particleSysBone.ParticleSystem)?.ToFXParticleSystemTemplate();
 
                         if (particleSystemTemplate == null)
                         {
