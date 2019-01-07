@@ -20,36 +20,36 @@ namespace OpenSage.Graphics.ParticleSystems
     {
         public delegate ref readonly Matrix4x4 GetMatrixReferenceDelegate();
 
-        private GetMatrixReferenceDelegate _getWorldMatrix;
+        private readonly GetMatrixReferenceDelegate _getWorldMatrix;
 
-        private GraphicsDevice _graphicsDevice;
+        private readonly GraphicsDevice _graphicsDevice;
 
         private readonly FXParticleEmissionVelocityBase _velocityType;
         private readonly FXParticleEmissionVolumeBase _volumeType;
 
-        private ParticleMaterial _particleMaterial;
+        private readonly ParticleMaterial _particleMaterial;
 
         private int _initialDelay;
 
-        private float _startSizeRate;
+        private readonly float _startSizeRate;
 
         private float _startSize;
 
-        private List<ParticleColorKeyframe> _colorKeyframes;
+        private readonly List<ParticleColorKeyframe> _colorKeyframes;
 
         private TimeSpan _nextUpdate;
 
         private int _timer;
         private int _nextBurst;
 
-        private Particle[] _particles;
-        private List<int> _deadList;
+        private readonly Particle[] _particles;
+        private readonly List<int> _deadList;
 
-        private DeviceBuffer _vertexBuffer;
-        private ParticleVertex[] _vertices;
+        private readonly DeviceBuffer _vertexBuffer;
+        private readonly ParticleVertex[] _vertices;
 
-        private DeviceBuffer _indexBuffer;
-        private uint _numIndices;
+        private readonly DeviceBuffer _indexBuffer;
+        private readonly uint _numIndices;
 
         public FXParticleSystemTemplate Template { get; }
 
