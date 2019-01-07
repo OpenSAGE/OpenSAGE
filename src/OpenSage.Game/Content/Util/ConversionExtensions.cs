@@ -172,6 +172,12 @@ namespace OpenSage.Content.Util
                 case W3dVertexMappingType.Random:
                     return FixedFunction.TextureMappingType.Random;
 
+                case W3dVertexMappingType.BumpEnv:
+                    return FixedFunction.TextureMappingType.BumpEnv;
+
+                case W3dVertexMappingType.WsEnvironment:
+                    return FixedFunction.TextureMappingType.WsEnvironment;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -192,7 +198,7 @@ namespace OpenSage.Content.Util
                     return FixedFunction.DiffuseLightingType.Add;
 
                 case W3dShaderPrimaryGradient.BumpEnvMap:
-                    throw new NotImplementedException();
+                    return FixedFunction.DiffuseLightingType.BumpEnvMap;
 
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -218,6 +224,8 @@ namespace OpenSage.Content.Util
                     return FixedFunction.SecondaryTextureBlend.InvScale;
 
                 case W3dShaderDetailColorFunc.Add:
+                    return FixedFunction.SecondaryTextureBlend.Add;
+
                 case W3dShaderDetailColorFunc.Sub:
                 case W3dShaderDetailColorFunc.SubR:
                 case W3dShaderDetailColorFunc.Blend:
