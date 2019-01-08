@@ -14,17 +14,12 @@ namespace OpenSage.Mathematics
         public readonly DFloat Y;
         public readonly DFloat Z;
 
-        // TODO: If we decide to use SSE acceleration, we should add a dummy 32-bit field
-        // because SSE instructions operate on 128 bits at a time.
-        // private readonly float _w;
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DVector3(DFloat x, DFloat y, DFloat z)
         {
             X = x;
             Y = y;
             Z = z;
-            // _w = 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -33,7 +28,6 @@ namespace OpenSage.Mathematics
             X = new DFloat(x);
             Y = new DFloat(y);
             Z = new DFloat(z);
-            // _w = 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -57,21 +51,6 @@ namespace OpenSage.Mathematics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DVector3 operator +(in DVector3 a, in DVector3 b)
         {
-            /*unsafe
-            {
-                fixed (DVector3* aRef = &a)
-                {
-                    fixed (DVector3* bRef = &b)
-                    {
-                        var aReg = Sse.LoadVector128((float*)aRef);
-                        var bReg = Sse.LoadVector128((float*)bRef);
-                        var sumReg = Sse.Add(aReg, bReg);
-                        DVector3 result = default;
-                        Sse.Store((float*)&result, sumReg);
-                        return result;
-                    }
-                }
-            }*/
             return new DVector3(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
         }
 
@@ -95,7 +74,7 @@ namespace OpenSage.Mathematics
 
         public override bool Equals(object obj)
         {
-            return obj is DVector3 f ? this == f : false;
+            return obj is DVector3 f && this == f;
         }
 
         public override string ToString()
