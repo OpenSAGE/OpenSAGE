@@ -28,7 +28,7 @@ namespace OpenSage.Mathematics
 {
     // Internal representation is identical to IEEE binary32 floatingpoints
     [DebuggerDisplay("{ToStringInv()}")]
-    public struct SoftFloat : IEquatable<SoftFloat>, IComparable<SoftFloat>, IComparable, IFormattable
+    public readonly struct SoftFloat : IEquatable<SoftFloat>, IComparable<SoftFloat>, IComparable, IFormattable
     {
         private readonly uint _raw;
 

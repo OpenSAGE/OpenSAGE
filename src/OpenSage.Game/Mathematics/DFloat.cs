@@ -78,7 +78,7 @@ namespace OpenSage.Mathematics
 
         public override bool Equals(object obj)
         {
-            return obj is DFloat f ? _value == f._value : false;
+            return obj is DFloat f && _value == f._value;
         }
 
         public override string ToString()
