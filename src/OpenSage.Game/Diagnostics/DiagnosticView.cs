@@ -8,6 +8,7 @@ namespace OpenSage.Diagnostics
     {
         private bool _isVisible;
 
+        protected DiagnosticViewContext Context { get; }
         protected Game Game { get; }
         protected ImGuiRenderer ImGuiRenderer { get; }
 
@@ -25,6 +26,7 @@ namespace OpenSage.Diagnostics
 
         protected DiagnosticView(DiagnosticViewContext context)
         {
+            Context = context;
             Game = context.Game;
             ImGuiRenderer = context.ImGuiRenderer;
         }
@@ -53,19 +55,5 @@ namespace OpenSage.Diagnostics
         }
 
         protected abstract void DrawOverride(ref bool isGameViewFocused);
-
-        protected Vector2 GetTopLeftUV()
-        {
-            return Game.GraphicsDevice.IsUvOriginTopLeft ?
-                new Vector2(0, 0) :
-                new Vector2(0, 1);
-        }
-
-        protected Vector2 GetBottomRightUV()
-        {
-            return Game.GraphicsDevice.IsUvOriginTopLeft ?
-                new Vector2(1, 1) :
-                new Vector2(1, 0);
-        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Veldrid;
+﻿using OpenSage.Gui.Apt;
+using Veldrid;
 
 namespace OpenSage.Diagnostics
 {
@@ -6,6 +7,8 @@ namespace OpenSage.Diagnostics
     {
         public Game Game { get; }
         public ImGuiRenderer ImGuiRenderer { get; }
+
+        public AptWindow SelectedAptWindow { get; set; }
 
         public DiagnosticViewContext(Game game, ImGuiRenderer imGuiRenderer)
         {
