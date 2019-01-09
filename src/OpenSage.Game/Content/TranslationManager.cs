@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using OpenSage.Data;
 using OpenSage.Data.Csf;
 
@@ -7,6 +8,8 @@ namespace OpenSage.Content
     public sealed class TranslationManager
     {
         private readonly CsfFile _csfFile;
+
+        public IReadOnlyList<CsfLabel> Labels => _csfFile.Labels;
 
         public TranslationManager(FileSystem fileSystem, SageGame game, string language)
         {

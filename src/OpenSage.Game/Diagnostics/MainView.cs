@@ -26,6 +26,7 @@ namespace OpenSage.Diagnostics
             }
 
             AddView(new GameView(context) { IsVisible = true });
+            AddView(new StringsView(context));
         }
 
         public void Draw(ref bool isGameViewFocused)
