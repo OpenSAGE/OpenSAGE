@@ -24,17 +24,11 @@ namespace OpenSage.Viewer.UI
                 case ".ani":
                     return new AniView(context);
 
-                case ".apt":
-                    return new AptView(context);
-
                 case ".bmp":
                     return new ImageView(context);
 
                 case ".const":
                     return new ConstView(context);
-
-                case ".csf":
-                    return new CsfView(context);
 
                 case ".dds":
                     return new DdsView(context);
@@ -44,9 +38,6 @@ namespace OpenSage.Viewer.UI
 
                 case ".jpg":
                     return new ImageView(context);
-
-                case ".map":
-                    return new MapView(context);
 
                 case ".manifest":
                     return new ManifestView(context);
@@ -69,9 +60,6 @@ namespace OpenSage.Viewer.UI
                 case ".mp3":
                 case ".wav":
                     return new SoundView(context);
-
-                case ".wnd":
-                    return new WndView(context);
 
                 default:
                     return null;
