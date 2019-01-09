@@ -13,7 +13,7 @@ using OpenSage.Logic;
 using OpenSage.Logic.Object;
 using OpenSage.Scripting;
 using OpenSage.Settings;
-
+using Veldrid;
 using Player = OpenSage.Logic.Player;
 using Team = OpenSage.Logic.Team;
 
@@ -100,7 +100,7 @@ namespace OpenSage
             Player[] players,
             Team[] teams)
         {
-            Camera = new Camera(() => game.Viewport);
+            Camera = new Camera(getViewport);
             CameraController = cameraController;
 
             MapFile = mapFile;
