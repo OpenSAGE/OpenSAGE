@@ -40,6 +40,8 @@ namespace OpenSage.Content
 
         private FontCollection _fallbackFonts;
 
+        internal IEnumerable<object> CachedObjects => _cachedObjects.Values;
+
         public GraphicsDevice GraphicsDevice { get; }
 
         public SageGame SageGame { get; }
