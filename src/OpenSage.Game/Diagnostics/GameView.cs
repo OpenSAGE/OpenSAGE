@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
 using OpenSage.Input;
@@ -33,7 +34,10 @@ namespace OpenSage.Diagnostics
                     (int) availableSize.X,
                     (int) availableSize.Y));
 
-            var inputMessages = TranslateInputMessages(Game.Window.MessageQueue);
+            var inputMessages = isGameViewFocused
+                ? TranslateInputMessages(Game.Window.MessageQueue)
+                : Array.Empty<InputMessage>();
+
             Game.Tick(inputMessages);
 
             var imagePointer = ImGuiRenderer.GetOrCreateImGuiBinding(
