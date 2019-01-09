@@ -46,7 +46,7 @@ namespace OpenSage
         public Queue<InputMessage> MessageQueue { get; } = new Queue<InputMessage>();
 
 
-        public GameWindow(string title, int x, int y, int width, int height, GraphicsBackend? preferredBackend)
+        internal GameWindow(string title, int x, int y, int width, int height, GraphicsBackend? preferredBackend)
         {
 #if DEBUG
             const bool debug = true;
