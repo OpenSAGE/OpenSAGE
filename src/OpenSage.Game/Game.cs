@@ -342,7 +342,6 @@ namespace OpenSage
             // TODO
             Scene3D = null;
             NetworkMessageBuffer = null;
-            Panel.Close();
         }
 
         public void Tick(Framebuffer framebuffer)
