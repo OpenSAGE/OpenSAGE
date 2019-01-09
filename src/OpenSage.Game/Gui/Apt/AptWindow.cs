@@ -14,6 +14,8 @@ namespace OpenSage.Gui.Apt
         private Rectangle _frame;
         //private float _scale;
 
+        public string Name { get; }
+
         public SpriteItem Root { get; }
 
         public AptWindow(ContentManager contentManager, AptFile aptFile)
@@ -28,6 +30,8 @@ namespace OpenSage.Gui.Apt
 
             Root.Create(aptFile.Movie, _context);
             _context.Root = Root;
+
+            Name = aptFile.MovieName;
         }
 
         internal void Layout(GraphicsDevice gd, in Size windowSize)
