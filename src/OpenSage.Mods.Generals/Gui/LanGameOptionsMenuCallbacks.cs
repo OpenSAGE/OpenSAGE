@@ -5,7 +5,7 @@ using OpenSage.Gui.Wnd.Controls;
 namespace OpenSage.Mods.Generals.Gui
 {
     [WndCallbacks]
-    public static class SkirmishGameOptionsMenuCallbacks
+    class LanGameOptionsMenuCallbacks
     {
         private static Window _window;
         private static Game _game;
@@ -13,7 +13,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         public static GameOptionsUtil GameOptions { get; private set; }
 
-        public static void SkirmishGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+        public static void LanGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
             if (!GameOptions.HandleSystem(control, message, context))
             {
@@ -22,8 +22,8 @@ namespace OpenSage.Mods.Generals.Gui
                     case WndWindowMessageType.SelectedButton:
                         switch (message.Element.Name)
                         {
-                            case "SkirmishGameOptionsMenu.wnd:ButtonBack":
-                                context.WindowManager.SetWindow(@"Menus\MainMenu.wnd");
+                            case "LanGameOptionsMenu.wnd:ButtonBack":
+                                context.WindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
                                 // TODO: Go back to Single Player sub-menu
                                 break;
                         }
@@ -32,9 +32,9 @@ namespace OpenSage.Mods.Generals.Gui
             }
         }
 
-        public static void SkirmishGameOptionsMenuInit(Window window, Game game)
+        public static void LanGameOptionsMenuInit(Window window, Game game)
         {
-            GameOptions = new GameOptionsUtil(window, game, "Skirmish");
+            GameOptions = new GameOptionsUtil(window, game, "Lan");
         }
     }
 }

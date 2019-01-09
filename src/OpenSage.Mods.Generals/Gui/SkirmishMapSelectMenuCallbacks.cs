@@ -24,11 +24,11 @@ namespace OpenSage.Mods.Generals.Gui
                     switch (message.Element.Name)
                     {
                         case "SkirmishMapSelectMenu.wnd:ButtonBack":
-                            SkirmishGameOptionsMenuCallbacks.CloseMapSelection(context);
+                            SkirmishGameOptionsMenuCallbacks.GameOptions.CloseMapSelection(context);
                             break;
                         case "SkirmishMapSelectMenu.wnd:ButtonOK":
-                            SkirmishGameOptionsMenuCallbacks.SetCurrentMap(_previewMap);
-                            SkirmishGameOptionsMenuCallbacks.CloseMapSelection(context);
+                            SkirmishGameOptionsMenuCallbacks.GameOptions.SetCurrentMap(_previewMap);
+                            SkirmishGameOptionsMenuCallbacks.GameOptions.CloseMapSelection(context);
                             break;
                     }
                     break;
@@ -39,6 +39,7 @@ namespace OpenSage.Mods.Generals.Gui
         {
             _window = window;
             _game = game;
+            _previewMap = SkirmishGameOptionsMenuCallbacks.GameOptions.CurrentMap;
 
             // Official maps
             var mapCaches = _game.ContentManager.IniDataContext.MapCaches;

@@ -90,6 +90,10 @@ namespace OpenSage.Mods.Generals.Gui
                             QueueTransition("MainMenuMultiPlayerMenu");
                             break;
 
+                        case "MainMenu.wnd:ButtonNetwork":
+                            context.WindowManager.SetWindow(@"Menus\LanLobbyMenu.wnd");
+                            break;
+
                         case "MainMenu.wnd:ButtonMultiBack":
                             QueueTransition("MainMenuMultiPlayerMenuReverse");
                             QueueTransition("MainMenuDefaultMenu");
