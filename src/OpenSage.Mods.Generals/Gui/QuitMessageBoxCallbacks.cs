@@ -17,7 +17,8 @@ namespace OpenSage.Mods.Generals.Gui
                             context.WindowManager.PopWindow();
                             break;
                         case "QuitMessageBox.wnd:ButtonOk":
-                            context.Game.EndGame();
+                            // TODO: Cleanup resources before closing window.
+                            context.Game.Window.Close();
                             break;
                     }
                     break;
