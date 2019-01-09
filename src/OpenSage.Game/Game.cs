@@ -16,28 +16,14 @@ using OpenSage.Mathematics;
 using OpenSage.Network;
 using OpenSage.Scripting;
 using Veldrid;
-
-using Player = OpenSage.Logic.Player;
 using Veldrid.ImageSharp;
-using OpenSage.Utilities;
+using Player = OpenSage.Logic.Player;
 
 namespace OpenSage
 {
     public sealed class Game : DisposableBase
     {
         public event EventHandler<GameUpdatingEventArgs> Updating;
-
-        public event EventHandler<Rendering2DEventArgs> Rendering2D
-        {
-            add { Graphics.RenderPipeline.Rendering2D += value; }
-            remove { Graphics.RenderPipeline.Rendering2D -= value; }
-        }
-
-        public event EventHandler<BuildingRenderListEventArgs> BuildingRenderList
-        {
-            add { Graphics.RenderPipeline.BuildingRenderList += value; }
-            remove { Graphics.RenderPipeline.BuildingRenderList -= value; }
-        }
 
         private readonly FileSystem _fileSystem;
         private readonly GameTimer _gameTimer;

@@ -99,7 +99,8 @@ namespace OpenSage
             WaypointPathCollection waypointPaths,
             WorldLighting lighting,
             Player[] players,
-            Team[] teams)
+            Team[] teams,
+            bool subscribeToInput = true)
         {
             Camera = new Camera(getViewport);
             CameraController = cameraController;
@@ -115,16 +116,19 @@ namespace OpenSage
             WaypointPaths = waypointPaths;
             Lighting = lighting;
 
-            SelectionGui = new SelectionGui();
+            if (subscribeToInput)
+            {
+                SelectionGui = new SelectionGui();
 
-            RegisterInputHandler(_selectionMessageHandler = new SelectionMessageHandler(game.Selection), game);
-            RegisterInputHandler(_cameraInputMessageHandler = new CameraInputMessageHandler(), game);
-            RegisterInputHandler(_orderGeneratorInputHandler = new OrderGeneratorInputHandler(game.OrderGenerator), game);
+                RegisterInputHandler(_selectionMessageHandler = new SelectionMessageHandler(game.Selection), game);
+                RegisterInputHandler(_cameraInputMessageHandler = new CameraInputMessageHandler(), game);
+                RegisterInputHandler(_orderGeneratorInputHandler = new OrderGeneratorInputHandler(game.OrderGenerator), game);
 
-            DebugOverlay = new DebugOverlay(this, game.ContentManager);
-            _debugMessageHandler = new DebugMessageHandler(DebugOverlay);
-            game.InputMessageBuffer.Handlers.Add(_debugMessageHandler);
-            AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_debugMessageHandler));
+                DebugOverlay = new DebugOverlay(this, game.ContentManager);
+                _debugMessageHandler = new DebugMessageHandler(DebugOverlay);
+                game.InputMessageBuffer.Handlers.Add(_debugMessageHandler);
+                AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_debugMessageHandler));
+            }
 
             _particleSystemManager = AddDisposable(new ParticleSystemManager(this));
 
@@ -166,7 +170,7 @@ namespace OpenSage
 
         internal void Update(GameTime gameTime)
         {
-            _orderGeneratorInputHandler.Update();
+            _orderGeneratorInputHandler?.Update();
 
             foreach (var gameObject in GameObjects.Items)
             {
@@ -175,10 +179,10 @@ namespace OpenSage
 
             _particleSystemManager.Update(gameTime);
 
-            _cameraInputMessageHandler.UpdateInputState(ref _cameraInputState);
+            _cameraInputMessageHandler?.UpdateInputState(ref _cameraInputState);
             CameraController.UpdateCamera(Camera, _cameraInputState, gameTime);
 
-            DebugOverlay.Update(gameTime);
+            DebugOverlay?.Update(gameTime);
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera)
@@ -226,8 +230,8 @@ namespace OpenSage
         // This is for drawing 2D elements which depend on the Scene3D, e.g tooltips and health bars.
         internal void Render(DrawingContext2D drawingContext)
         {
-            SelectionGui.Draw(drawingContext, Camera);
-            DebugOverlay.Draw(drawingContext, Camera);
+            SelectionGui?.Draw(drawingContext, Camera);
+            DebugOverlay?.Draw(drawingContext, Camera);
         }
     }
 }

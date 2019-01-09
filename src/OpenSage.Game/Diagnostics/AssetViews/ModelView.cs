@@ -43,7 +43,8 @@ namespace OpenSage.Diagnostics.AssetViews
                 new WaypointPathCollection(),
                 WorldLighting.CreateDefault(),
                 Array.Empty<Player>(),
-                Array.Empty<Team>()));
+                Array.Empty<Team>(),
+                subscribeToInput: false));
 
             _renderedView = AddDisposable(new RenderedView(context, scene3D));
 
