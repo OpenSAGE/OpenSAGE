@@ -15,8 +15,6 @@ namespace OpenSage
 
         private readonly Sdl2Window _window;
 
-        private readonly Queue<InputMessage> _messageQueue = new Queue<InputMessage>();
-
         private bool _closing;
         private int _lastMouseX;
         private int _lastMouseY;
@@ -37,18 +35,16 @@ namespace OpenSage
             }
         }
 
-        public event EventHandler<InputMessageEventArgs> InputMessageReceived;
-
-        private void RaiseInputMessageReceived(InputMessageEventArgs args)
-        {
-            InputMessageReceived?.Invoke(this, args);
-        }
-
         public bool IsMouseVisible
         {
             get => _window.CursorVisible;
             set => _window.CursorVisible = value;
         }
+
+        public InputSnapshot CurrentInputSnapshot { get; private set; }
+
+        public Queue<InputMessage> MessageQueue { get; } = new Queue<InputMessage>();
+
 
         public GameWindow(string title, int x, int y, int width, int height, GraphicsBackend? preferredBackend)
         {
@@ -106,13 +102,13 @@ namespace OpenSage
         private void HandleKeyDown(KeyEvent evt)
         {
             var message = InputMessage.CreateKeyDown(evt.Key);
-            _messageQueue.Enqueue(message);
+            MessageQueue.Enqueue(message);
         }
 
         private void HandleKeyUp(KeyEvent evt)
         {
             var message = InputMessage.CreateKeyUp(evt.Key);
-            _messageQueue.Enqueue(message);
+            MessageQueue.Enqueue(message);
         }
 
         private void HandleMouseDown(MouseEvent evt)
@@ -139,7 +135,7 @@ namespace OpenSage
             }
 
             var message = InputMessage.CreateMouseButton(messageType.Value, new Point2D(_lastMouseX, _lastMouseY));
-            _messageQueue.Enqueue(message);
+            MessageQueue.Enqueue(message);
         }
 
         private void HandleMouseUp(MouseEvent evt)
@@ -166,7 +162,7 @@ namespace OpenSage
             }
 
             var message = InputMessage.CreateMouseButton(messageType.Value, new Point2D(_lastMouseX, _lastMouseY));
-            _messageQueue.Enqueue(message);
+            MessageQueue.Enqueue(message);
         }
 
         private void HandleMouseMove(MouseMoveEventArgs args)
@@ -175,13 +171,13 @@ namespace OpenSage
             _lastMouseY = args.State.Y;
 
             var message = InputMessage.CreateMouseMove(new Point2D(args.State.X, args.State.Y));
-            _messageQueue.Enqueue(message);
+            MessageQueue.Enqueue(message);
         }
 
         private void HandleMouseWheel(MouseWheelEventArgs args)
         {
             var message = InputMessage.CreateMouseWheel((int) (args.WheelDelta * 100));
-            _messageQueue.Enqueue(message);
+            MessageQueue.Enqueue(message);
         }
 
         public void Close()
@@ -194,8 +190,6 @@ namespace OpenSage
             // TODO
         }
 
-        public InputSnapshot CurrentInputSnapshot { get; private set; }
-
         public bool PumpEvents()
         {
             CurrentInputSnapshot = _window.PumpEvents();
@@ -203,11 +197,6 @@ namespace OpenSage
             if (_closing)
             {
                 return false;
-            }
-
-            while (_messageQueue.Count > 0)
-            {
-                RaiseInputMessageReceived(new InputMessageEventArgs(_messageQueue.Dequeue()));
             }
 
             return true;

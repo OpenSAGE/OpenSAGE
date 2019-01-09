@@ -69,27 +69,22 @@ namespace OpenSage.Tests.Data
                 .SelectMany(InstallationLocators.FindAllInstallations)
                 .ToList();
 
-            using (var window = new GameWindow("Test", 10, 10, 100, 100, null))
-            using (var panel = GamePanel.FromGameWindow(window))
+            foreach (var installation in installations)
             {
-                foreach (var installation in installations)
+                using (var game = new Game(installation, null))
                 {
-                    using (var fileSystem = installation.CreateFileSystem())
-                    using (var game = GameFactory.CreateGame(installation, fileSystem, panel))
+                    foreach (var file in game.ContentManager.FileSystem.Files)
                     {
-                        foreach (var file in fileSystem.Files)
+                        if (Path.GetExtension(file.FilePath).ToLowerInvariant() != fileExtension)
                         {
-                            if (Path.GetExtension(file.FilePath).ToLowerInvariant() != fileExtension)
-                            {
-                                continue;
-                            }
-
-                            output.WriteLine($"Reading file {file.FilePath}.");
-
-                            processFileCallback(game, file);
-
-                            foundAtLeastOneFile = true;
+                            continue;
                         }
+
+                        output.WriteLine($"Reading file {file.FilePath}.");
+
+                        processFileCallback(game, file);
+
+                        foundAtLeastOneFile = true;
                     }
                 }
             }

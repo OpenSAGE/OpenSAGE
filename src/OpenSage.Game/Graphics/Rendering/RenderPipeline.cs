@@ -44,7 +44,7 @@ namespace OpenSage.Graphics.Rendering
         private Texture _intermediateTexture;
         private Framebuffer _intermediateFramebuffer;
 
-        private readonly SpriteBatch _intermediateSpriteBatch;
+        private readonly TextureCopier _textureCopier;
 
         public Texture ShadowMap => _shadowMapRenderer.ShadowMap;
 
@@ -87,7 +87,9 @@ namespace OpenSage.Graphics.Rendering
 
             _shadowMapRenderer = AddDisposable(new ShadowMapRenderer());
 
-            _intermediateSpriteBatch = AddDisposable(new SpriteBatch(game.ContentManager, BlendStateDescription.SingleDisabled, game.GraphicsDevice.MainSwapchain.Framebuffer.OutputDescription));
+            _textureCopier = AddDisposable(new TextureCopier(
+                game,
+                game.Panel.OutputDescription));
         }
 
         private void EnsureIntermediateFramebuffer(GraphicsDevice graphicsDevice, Framebuffer target)
@@ -161,27 +163,13 @@ namespace OpenSage.Graphics.Rendering
                 _commandList.PopDebugGroup();
             }
 
-            _commandList.PushDebugGroup("Blitting to screen");
-
-            _commandList.SetFramebuffer(context.RenderTarget);
-
-            _intermediateSpriteBatch.Begin(
-                _commandList,
-                context.GraphicsDevice.PointSampler,
-                new SizeF(_intermediateTexture.Width, _intermediateTexture.Height),
-                ignoreAlpha: true);
-
-            _intermediateSpriteBatch.DrawImage(_intermediateTexture, null, new Mathematics.RectangleF(0, 0, (int) _intermediateTexture.Width, (int) _intermediateTexture.Height), ColorRgbaF.White);
-
-            _intermediateSpriteBatch.End();
-
-            _commandList.PopDebugGroup();
-
             _commandList.End();
 
             context.GraphicsDevice.SubmitCommands(_commandList);
 
-            context.GraphicsDevice.SwapBuffers();
+            _textureCopier.Execute(
+                _intermediateTexture,
+                context.RenderTarget);
         }
 
         private void Render3DScene(CommandList commandList, Scene3D scene, RenderContext context)
