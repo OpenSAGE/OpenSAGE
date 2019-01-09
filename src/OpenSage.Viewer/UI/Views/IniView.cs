@@ -38,16 +38,6 @@ namespace OpenSage.Viewer.UI.Views
                 _subObjects.Add(new IniEntry(objectDefinition.Name, () => new ObjectDefinitionView(context, objectDefinition)));
             }
 
-            foreach (var particleSystem in iniDataContext.ParticleSystems)
-            {
-                _subObjects.Add(new IniEntry(particleSystem.Name, () => new ParticleSystemView(context, particleSystem.ToFXParticleSystemTemplate())));
-            }
-
-            foreach (var particleSystem in iniDataContext.FXParticleSystems)
-            {
-                _subObjects.Add(new IniEntry(particleSystem.Name, () => new ParticleSystemView(context, particleSystem)));
-            }
-
             // If we can't show this file in object view, default to text view.
             _currentView = _subObjects.Count == 0 ? ViewMode.TextView : ViewMode.ObjectView;
         }
