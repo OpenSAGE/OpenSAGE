@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using OpenSage.Gui.Wnd.Controls;
 
@@ -24,7 +25,7 @@ namespace OpenSage.Gui.Wnd
                 {
                     if (type.GetCustomAttributes(typeof(WndCallbacksAttribute), false).Length > 0)
                     {
-                        foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.Public))
+                        foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.Public).Where(m => !m.IsSpecialName))
                         {
                             _callbackCache.Add(method.Name, method);
                         }
