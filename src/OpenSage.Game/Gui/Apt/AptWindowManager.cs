@@ -8,30 +8,30 @@ namespace OpenSage.Gui.Apt
     {
         private readonly Game _game;
 
-        private readonly Stack<AptWindow> _windowStack;
+        internal Stack<AptWindow> WindowStack { get; }
 
         public AptWindowManager(Game game)
         {
             _game = game;
 
-            _windowStack = new Stack<AptWindow>();
+            WindowStack = new Stack<AptWindow>();
         }
 
         public void PushWindow(AptWindow window)
         {
             CreateSizeDependentResources(window, _game.Panel.ClientBounds.Size);
 
-            _windowStack.Push(window);
+            WindowStack.Push(window);
         }
 
         public void PopWindow()
         {
-            _windowStack.Pop();
+            WindowStack.Pop();
         }
 
         internal void OnViewportSizeChanged(in Size newSize)
         {
-            foreach (var window in _windowStack)
+            foreach (var window in WindowStack)
             {
                 CreateSizeDependentResources(window, newSize);
             }
@@ -44,7 +44,7 @@ namespace OpenSage.Gui.Apt
 
         internal void Update(GameTime gameTime)
         {
-            foreach (var window in _windowStack)
+            foreach (var window in WindowStack)
             {
                 window.Update(gameTime, _game.GraphicsDevice);
             }
@@ -53,7 +53,7 @@ namespace OpenSage.Gui.Apt
         internal void Render(DrawingContext2D drawingContext)
         {
             // TODO: Try to avoid using LINQ here.
-            foreach (var window in _windowStack.Reverse())
+            foreach (var window in WindowStack.Reverse())
             {
                 window.Render(drawingContext);
             }
