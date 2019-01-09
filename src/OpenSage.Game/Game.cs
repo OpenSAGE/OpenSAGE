@@ -168,7 +168,7 @@ namespace OpenSage
 
             // TODO: Read game version from assembly metadata or .git folder
             // TODO: Set window icon.
-            Window = AddDisposable(new GameWindow("OpenSAGE (master)", 100, 100, 1024, 768, preferredBackend));
+            Window = AddDisposable(new GameWindow($"OpenSAGE - {installation.Game.DisplayName} - master", 100, 100, 1024, 768, preferredBackend));
             GraphicsDevice = Window.GraphicsDevice;
 
             Panel = AddDisposable(new GamePanel(GraphicsDevice));
