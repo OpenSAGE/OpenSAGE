@@ -86,6 +86,7 @@ namespace OpenSage
 
         public Scene3D(
             Game game,
+            Func<Viewport> getViewport,
             ICameraController cameraController,
             MapFile mapFile,
             Terrain.Terrain terrain,
@@ -125,7 +126,7 @@ namespace OpenSage
             game.InputMessageBuffer.Handlers.Add(_debugMessageHandler);
             AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_debugMessageHandler));
 
-            _particleSystemManager = AddDisposable(new ParticleSystemManager(game, this));
+            _particleSystemManager = AddDisposable(new ParticleSystemManager(this));
 
             _players = players.ToList();
             _teams = teams.ToList();

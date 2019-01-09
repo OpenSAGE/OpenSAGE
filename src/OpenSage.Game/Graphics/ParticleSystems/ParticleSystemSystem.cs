@@ -8,7 +8,7 @@ namespace OpenSage.Graphics.ParticleSystems
         private readonly Scene3D _scene;
         private readonly List<AttachedParticleSystem> _deadParticleSystems;
 
-        public ParticleSystemManager(Game game, Scene3D scene)
+        public ParticleSystemManager(Scene3D scene)
         {
             _scene = scene;
 
