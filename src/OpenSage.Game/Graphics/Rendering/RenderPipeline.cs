@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Effects;
@@ -11,6 +12,9 @@ namespace OpenSage.Graphics.Rendering
 {
     internal sealed class RenderPipeline : DisposableBase
     {
+        public event EventHandler<Rendering2DEventArgs> Rendering2D;
+        public event EventHandler<BuildingRenderListEventArgs> BuildingRenderList;
+
         private const int ParallelCullingBatchSize = 128;
 
         public static readonly OutputDescription GameOutputDescription = new OutputDescription(
@@ -119,23 +123,18 @@ namespace OpenSage.Graphics.Rendering
 
             _renderList.Clear();
 
-            context.Scene?.BuildRenderList(_renderList, context.Camera);
+            context.Scene3D?.BuildRenderList(_renderList, context.Scene3D.Camera);
 
-            foreach (var system in context.Game.GameSystems)
-            {
-                system.BuildRenderList(_renderList);
-            }
-
-            context.Game.RaiseBuildingRenderList(new BuildingRenderListEventArgs(
+            BuildingRenderList?.Invoke(this, new BuildingRenderListEventArgs(
                 _renderList,
-                context.Camera));
+                context.Scene3D?.Camera));
 
             _commandList.Begin();
 
-            if (context.Scene != null)
+            if (context.Scene3D != null)
             {
                 _commandList.PushDebugGroup("3D Scene");
-                Render3DScene(_commandList, context.Scene, context);
+                Render3DScene(_commandList, context.Scene3D, context);
                 _commandList.PopDebugGroup();
             }
             else
@@ -150,13 +149,13 @@ namespace OpenSage.Graphics.Rendering
 
                 _drawingContext.Begin(
                     _commandList,
-                    context.Game.ContentManager.LinearClampSampler,
-                    new SizeF(context.Game.Viewport.Width, context.Game.Viewport.Height));
+                    context.ContentManager.LinearClampSampler,
+                    new SizeF(context.RenderTarget.Width, context.RenderTarget.Height));
 
-                context.Game.Scene3D?.Render(_drawingContext);
-                context.Game.Scene2D.Render(_drawingContext);
+                context.Scene3D?.Render(_drawingContext);
+                context.Scene2D?.Render(_drawingContext);
 
-                context.Game.RaiseRendering2D(new Rendering2DEventArgs(_drawingContext));
+                Rendering2D?.Invoke(this, new Rendering2DEventArgs(_drawingContext));
 
                 _drawingContext.End();
 
@@ -183,7 +182,7 @@ namespace OpenSage.Graphics.Rendering
             }
             else
             {
-                cloudTexture = context.Game.ContentManager.SolidWhiteTexture;
+                cloudTexture = context.ContentManager.SolidWhiteTexture;
             }
 
             // Shadow map passes.
@@ -224,7 +223,7 @@ namespace OpenSage.Graphics.Rendering
 
             commandList.SetFullViewports();
 
-            var standardPassCameraFrustum = context.Camera.BoundingFrustum;
+            var standardPassCameraFrustum = scene.Camera.BoundingFrustum;
 
             var shadowMap = _shadowMapRenderer.ShadowMap;
 
@@ -421,7 +420,7 @@ namespace OpenSage.Graphics.Rendering
                 CloudShadowMatrix = cloudShadowView * cloudShadowProjection
             };
 
-            var cameraPosition = Matrix4x4Utility.Invert(context.Camera.View).Translation;
+            var cameraPosition = Matrix4x4Utility.Invert(context.Scene3D.Camera.View).Translation;
 
             _globalConstantBufferShared.Value.CameraPosition = cameraPosition;
             _globalConstantBufferShared.Value.TimeInSeconds = (float) context.GameTime.TotalGameTime.TotalSeconds;
@@ -442,14 +441,14 @@ namespace OpenSage.Graphics.Rendering
             updateLightingBuffer(
                 _globalLightingVSTerrainBuffer,
                 _globalLightingPSTerrainBuffer,
-                context.Scene.Lighting.CurrentLightingConfiguration.TerrainLightsPS);
+                context.Scene3D.Lighting.CurrentLightingConfiguration.TerrainLightsPS);
 
             updateLightingBuffer(
                 _globalLightingVSObjectBuffer,
                 _globalLightingPSObjectBuffer,
-                context.Scene.Lighting.CurrentLightingConfiguration.ObjectLightsPS);
+                context.Scene3D.Lighting.CurrentLightingConfiguration.ObjectLightsPS);
 
-            _globalConstantBufferPS.Value.ViewportSize = new Vector2(context.Game.Viewport.Width, context.Game.Viewport.Height);
+            _globalConstantBufferPS.Value.ViewportSize = new Vector2(context.RenderTarget.Width, context.RenderTarget.Height);
             _globalConstantBufferPS.Update(commandEncoder);
 
             _shadowConstantsPSBuffer.Value = _shadowConstants;
