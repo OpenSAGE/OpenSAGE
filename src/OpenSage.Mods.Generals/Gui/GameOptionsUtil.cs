@@ -45,9 +45,6 @@ namespace OpenSage.Mods.Generals.Gui
                 }
             }
 
-            var playerNameTextBox = (TextBox) _window.Controls.FindControl(_optionsPath + ":TextEntryPlayerName");
-            playerNameTextBox.IsReadOnly = false;
-
             FillComboBoxOptions(_optionsPath + ComboBoxTeamPrefix, new[]
             {
                 "Team:0", "Team:1", "Team:2", "Team:3", "Team:4"

@@ -8,38 +8,38 @@ using OpenSage.Gui.Wnd.Controls;
 namespace OpenSage.Mods.Generals.Gui
 {
     [WndCallbacks]
-    public static class SkirmishMapSelectMenuCallbacks
+    public static class LanMapSelectMenuCallbacks
     {
-        private const string ListBoxMapPrefix = "SkirmishMapSelectMenu.wnd:ListboxMap";
+        private const string ListBoxMapPrefix = "LanMapSelectMenu.wnd:ListboxMap";
 
         private static Window _window;
         private static Game _game;
         private static MapCache _previewMap;
 
-        public static void SkirmishMapSelectMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
+        public static void LanMapSelectMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
         {
             switch (message.MessageType)
             {
                 case WndWindowMessageType.SelectedButton:
                     switch (message.Element.Name)
                     {
-                        case "SkirmishMapSelectMenu.wnd:ButtonBack":
-                            SkirmishGameOptionsMenuCallbacks.GameOptions.CloseMapSelection(context);
+                        case "LanMapSelectMenu.wnd:ButtonBack":
+                            LanGameOptionsMenuCallbacks.GameOptions.CloseMapSelection(context);
                             break;
-                        case "SkirmishMapSelectMenu.wnd:ButtonOK":
-                            SkirmishGameOptionsMenuCallbacks.GameOptions.SetCurrentMap(_previewMap);
-                            SkirmishGameOptionsMenuCallbacks.GameOptions.CloseMapSelection(context);
+                        case "LanMapSelectMenu.wnd:ButtonOK":
+                            LanGameOptionsMenuCallbacks.GameOptions.SetCurrentMap(_previewMap);
+                            LanGameOptionsMenuCallbacks.GameOptions.CloseMapSelection(context);
                             break;
                     }
                     break;
             }
         }
 
-        public static void SkirmishMapSelectMenuInit(Window window, Game game)
+        public static void LanMapSelectMenuInit(Window window, Game game)
         {
             _window = window;
             _game = game;
-            SetPreviewMap(SkirmishGameOptionsMenuCallbacks.GameOptions.CurrentMap);
+            SetPreviewMap(LanGameOptionsMenuCallbacks.GameOptions.CurrentMap);
 
             // Official maps
             var mapCaches = _game.ContentManager.IniDataContext.MapCaches;
@@ -50,7 +50,7 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 if (cache.IsMultiplayer)
                 {
-                    items.Add(new ListBoxDataItem(listBoxMaps, new[] { "", _game.ContentManager.TranslationManager.Lookup(cache.DisplayName) }));
+                    items.Add(new ListBoxDataItem(listBoxMaps, new[] { _game.ContentManager.TranslationManager.Lookup(cache.DisplayName) }));
                 }
             }
 
@@ -63,7 +63,7 @@ namespace OpenSage.Mods.Generals.Gui
         {
             var listBoxMaps = (ListBox) _window.Controls.FindControl(ListBoxMapPrefix);
             var selectedItem = listBoxMaps.Items[listBoxMaps.SelectedIndex];
-            var mapName = selectedItem.ColumnData[1];
+            var mapName = selectedItem.ColumnData[0];
 
             var mapCache = _game.ContentManager.IniDataContext.MapCaches.First(x => x.DisplayName == mapName);
 
@@ -74,7 +74,7 @@ namespace OpenSage.Mods.Generals.Gui
         {
             _previewMap = mapCache;
 
-            var mapPreview = _window.Controls.FindControl("SkirmishMapSelectMenu.wnd:WinMapPreview");
+            var mapPreview = _window.Controls.FindControl("LanMapSelectMenu.wnd:WinMapPreview");
 
             MapUtils.SetMapPreview(mapCache, mapPreview, _game);
         }
