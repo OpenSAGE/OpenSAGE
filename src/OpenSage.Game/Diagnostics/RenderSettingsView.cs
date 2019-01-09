@@ -116,8 +116,8 @@ namespace OpenSage.Diagnostics
                         ImGui.Image(
                             imagePointer,
                             new Vector2(250, 250),
-                            GetTopLeftUV(),
-                            GetBottomRightUV(),
+                            Game.GetTopLeftUV(),
+                            Game.GetBottomRightUV(),
                             Vector4.One);
                     }
                 }
