@@ -7,9 +7,9 @@ namespace OpenSage.Graphics
     {
         private readonly RenderContext _renderContext;
 
-        private RenderPipeline _renderPipeline;
+        internal RenderPipeline RenderPipeline { get; private set; }
 
-        public Texture ShadowMap => _renderPipeline.ShadowMap;
+        public Texture ShadowMap => RenderPipeline.ShadowMap;
 
         public GraphicsSystem(Game game)
             : base(game)
@@ -19,20 +19,19 @@ namespace OpenSage.Graphics
 
         public override void Initialize()
         {
-            _renderPipeline = AddDisposable(new RenderPipeline(Game));
+            RenderPipeline = AddDisposable(new RenderPipeline(Game));
         }
 
         internal void Draw(in GameTime gameTime)
         {
-            _renderContext.Game = Game;
+            _renderContext.ContentManager = Game.ContentManager;
             _renderContext.GraphicsDevice = Game.GraphicsDevice;
-            _renderContext.Graphics = this;
-            _renderContext.Camera = Game.Scene3D?.Camera;
-            _renderContext.Scene = Game.Scene3D;
+            _renderContext.Scene3D = Game.Scene3D;
+            _renderContext.Scene2D = Game.Scene2D;
             _renderContext.RenderTarget = Game.Panel.Framebuffer;
             _renderContext.GameTime = gameTime;
 
-            _renderPipeline.Execute(_renderContext);
+            RenderPipeline.Execute(_renderContext);
         }
     }
 }

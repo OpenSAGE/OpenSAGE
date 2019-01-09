@@ -36,7 +36,5 @@ namespace OpenSage
         public virtual void Update(GameTime gameTime)
         {
         }
-
-        internal virtual void BuildRenderList(RenderList renderList) { }
     }
 }

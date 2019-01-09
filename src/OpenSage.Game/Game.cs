@@ -24,17 +24,17 @@ namespace OpenSage
     public sealed class Game : DisposableBase
     {
         public event EventHandler<GameUpdatingEventArgs> Updating;
-        public event EventHandler<Rendering2DEventArgs> Rendering2D;
-        public event EventHandler<BuildingRenderListEventArgs> BuildingRenderList;
 
-        internal void RaiseRendering2D(Rendering2DEventArgs args)
+        public event EventHandler<Rendering2DEventArgs> Rendering2D
         {
-            Rendering2D?.Invoke(this, args);
+            add { Graphics.RenderPipeline.Rendering2D += value; }
+            remove { Graphics.RenderPipeline.Rendering2D -= value; }
         }
 
-        internal void RaiseBuildingRenderList(BuildingRenderListEventArgs args)
+        public event EventHandler<BuildingRenderListEventArgs> BuildingRenderList
         {
-            BuildingRenderList?.Invoke(this, args);
+            add { Graphics.RenderPipeline.BuildingRenderList += value; }
+            remove { Graphics.RenderPipeline.BuildingRenderList -= value; }
         }
 
         private readonly FileSystem _fileSystem;
