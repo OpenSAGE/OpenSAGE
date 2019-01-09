@@ -35,6 +35,7 @@ namespace OpenSage.Diagnostics
             AddView(new StringsView(context));
             AddView(new AptView(context));
             AddView(new AptConstantsView(context));
+            AddView(new AptGeometryView(context));
             AddView(new WndView(context));
         }
 
