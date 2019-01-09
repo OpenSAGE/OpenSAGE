@@ -133,6 +133,7 @@ namespace OpenSage.Gui.Wnd.Controls
             Controls.Add(_downButton);
 
             _thumb = new Button();
+            // TODO: split this in button down/up for dragging.
             _thumb.Click += OnThumbClick;
             Controls.Add(_thumb);
 
@@ -175,13 +176,15 @@ namespace OpenSage.Gui.Wnd.Controls
 
             var thumbSize = _thumb.GetPreferredSize(infiniteSize);
             var thumbHeight = thumbSize.Height;
-            if (IsScrollBarVisible)
-            {
-                var fullHeight = _downButton.Bounds.Top - _upButton.Bounds.Bottom;
-                //TODO We currently have a problem with the propotions of the elements
-                //If you compare the original result with ours, you can see that our elements are larger and the text is smaller.
-                thumbHeight = (int) Math.Max((float) fullHeight / (float) Items.Length * (float) MaxDisplay, 1);
-            }
+
+            //I don't think the thumbButton ever shrinks, but instead always uses the preferred size.
+            //if (IsScrollBarVisible)
+            //{
+            //    var fullHeight = _downButton.Bounds.Top - _upButton.Bounds.Bottom;
+            //    //TODO We currently have a problem with the propotions of the elements
+            //    //If you compare the original result with ours, you can see that our elements are larger and the text is smaller.
+            //    thumbHeight = (int) Math.Max((float) fullHeight / (float) Items.Length * (float) MaxDisplay, 1);
+            //}
 
             _thumb.Bounds = new Rectangle(
                 ClientRectangle.Right - thumbSize.Width,
