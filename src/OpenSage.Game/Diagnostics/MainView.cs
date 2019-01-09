@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using ImGuiNET;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
@@ -39,8 +40,12 @@ namespace OpenSage.Diagnostics
 
         public void Draw(ref bool isGameViewFocused)
         {
+            float menuBarHeight = 0;
+
             if (ImGui.BeginMainMenuBar())
             {
+                menuBarHeight = ImGui.GetWindowHeight();
+
                 if (ImGui.BeginMenu("File"))
                 {
                     if (ImGui.MenuItem("Exit", "Alt+F4", false, true))
@@ -113,6 +118,35 @@ namespace OpenSage.Diagnostics
             foreach (var view in _views)
             {
                 view.Draw(ref isGameViewFocused);
+            }
+
+            var launcherImage = _context.Game.LauncherImage;
+            if (launcherImage != null)
+            {
+                var launcherImageMaxSize = new Vector2(150, 150);
+
+                var launcherImageSize = SizeF.CalculateSizeFittingAspectRatio(
+                    new SizeF(launcherImage.Width, launcherImage.Height),
+                    new Size((int) launcherImageMaxSize.X, (int) launcherImageMaxSize.Y));
+
+                const int launcherImagePadding = 10;
+                ImGui.SetNextWindowPos(new Vector2(
+                    _context.Game.Window.ClientBounds.Width - launcherImageSize.Width - launcherImagePadding,
+                    menuBarHeight + launcherImagePadding));
+
+                ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
+                ImGui.Begin("LauncherImage", ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoSavedSettings | ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoDecoration);
+
+                ImGui.Image(
+                    _context.ImGuiRenderer.GetOrCreateImGuiBinding(_context.Game.GraphicsDevice.ResourceFactory, launcherImage),
+                    new Vector2(launcherImageSize.Width, launcherImageSize.Height),
+                    Vector2.Zero,
+                    Vector2.One,
+                    Vector4.One,
+                    Vector4.Zero);
+
+                ImGui.End();
+                ImGui.PopStyleVar();
             }
         }
 
