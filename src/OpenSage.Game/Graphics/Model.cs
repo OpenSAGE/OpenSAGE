@@ -4,13 +4,17 @@ namespace OpenSage.Graphics
 {
     public sealed class Model : DisposableBase
     {
+        // TODO: Remove this.
+        public string Name { get; }
         public ModelBoneHierarchy BoneHierarchy { get; }
         public ModelSubObject[] SubObjects { get; }
 
         internal Model(
+            string name,
             ModelBoneHierarchy boneHierarchy,
             ModelSubObject[] subObjects)
         {
+            Name = name;
             BoneHierarchy = boneHierarchy;
 
             foreach (var subObject in subObjects)

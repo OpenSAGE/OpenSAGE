@@ -136,9 +136,8 @@ namespace OpenSage.Content
                     mesh));
             }
 
-            LoadAnimations(w3dFile, contentManager);
-
             return new Model(
+                Path.GetFileNameWithoutExtension(w3dFile.FilePath),
                 new ModelBoneHierarchy(bones),
                 subObjects.ToArray());
         }
