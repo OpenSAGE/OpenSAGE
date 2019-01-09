@@ -311,6 +311,11 @@ namespace OpenSage
         public void StartGame(string mapFileName, IConnection connection, PlayerSetting[] playerSettings, int localPlayerIndex)
         {
             // TODO: Loading screen.
+            while (Scene2D.WndWindowManager.OpenWindowCount > 0)
+            {
+                Scene2D.WndWindowManager.PopWindow();
+            }
+
             Scene3D = ContentManager.Load<Scene3D>(mapFileName);
 
             if (Scene3D == null)

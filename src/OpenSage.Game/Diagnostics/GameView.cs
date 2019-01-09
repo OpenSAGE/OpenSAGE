@@ -68,12 +68,15 @@ namespace OpenSage.Diagnostics
         {
             foreach (var message in inputMessages)
             {
-                var windowPos = Game.Panel.Frame.Location;
+                var windowFrame = Game.Panel.Frame;
 
                 Point2D getPositionInPanel()
                 {
                     var pos = message.Value.MousePosition;
-                    pos = new Point2D(pos.X - windowPos.X, pos.Y - windowPos.Y);
+                    pos = new Point2D(pos.X - windowFrame.X, pos.Y - windowFrame.Y);
+                    pos = new Point2D(
+                        MathUtility.Clamp(pos.X, 0, windowFrame.Width),
+                        MathUtility.Clamp(pos.Y, 0, windowFrame.Height));
                     return pos;
                 }
 
