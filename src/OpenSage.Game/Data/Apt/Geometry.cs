@@ -5,6 +5,7 @@ using System.IO;
 using System.Numerics;
 using OpenSage.Mathematics;
 using OpenSage.Data.Utilities;
+using System.Text;
 
 namespace OpenSage.Data.Apt
 {
@@ -23,6 +24,7 @@ namespace OpenSage.Data.Apt
 
     public sealed class Geometry
     {
+        public string RawText { get; private set; }
         public List<IGeometryEntry> Entries { get; private set; }
         public RectangleF BoundingBox { get; private set; }
         public AptFile Container { get; internal set; }
@@ -73,9 +75,13 @@ namespace OpenSage.Data.Apt
                     style = GeometryStyle.Undefined;
                 };
 
+                var rawText = new StringBuilder();
+
                 while ((line = reader.ReadLine()) != null)
                 {
                     line = line.Trim();
+
+                    rawText.AppendLine(line);
 
                     var lineMode = line.First();
                     line = line.TrimStart('c', 's', 'l', 't');
@@ -169,6 +175,8 @@ namespace OpenSage.Data.Apt
                 }
 
                 ApplyStyle();
+
+                geometry.RawText = rawText.ToString();
             }
 
             geometry.CalculateBoundings();
