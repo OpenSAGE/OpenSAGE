@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using ImGuiNET;
-using OpenSage.Data.StreamFS;
 using OpenSage.Viewer.UI.Views;
 
 namespace OpenSage.Viewer.UI
@@ -21,45 +20,11 @@ namespace OpenSage.Viewer.UI
         {
             switch (Path.GetExtension(context.Entry.FilePath).ToLowerInvariant())
             {
-                case ".ani":
-                    return new AniView(context);
-
-                case ".bmp":
-                    return new ImageView(context);
-
-                case ".const":
-                    return new ConstView(context);
-
-                case ".dds":
-                    return new DdsView(context);
-
                 case ".ini":
                     return new IniView(context);
 
-                case ".jpg":
-                    return new ImageView(context);
-
                 case ".manifest":
                     return new ManifestView(context);
-
-                case ".png":
-                    return new ImageView(context);
-
-                case ".ru":
-                    return new RuView(context);
-
-                case ".tga":
-                    return new TgaView(context);
-
-                case ".txt":
-                    return new TxtView(context);
-
-                case ".w3d":
-                    return new W3dView(context);
-
-                case ".mp3":
-                case ".wav":
-                    return new SoundView(context);
 
                 default:
                     return null;
