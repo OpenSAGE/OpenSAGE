@@ -15,7 +15,6 @@
   
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.3.0" />
-    <PackageReference Include="Veldrid.ImGui" Version="$(ImGuiVersion)" />
   </ItemGroup>
 
   <ItemGroup>

@@ -40,6 +40,9 @@ namespace OpenSage.Launcher
 
             [Option("novsync", Default = false, Required = false, HelpText = "Disable vsync.")]
             public bool DisableVsync { get; set; }
+
+            [Option("developermode", Default = false, Required = false, HelpText = "Enable developer mode.")]
+            public bool DeveloperMode { get; set; }
         }
 
         public static void Main(string[] args)
@@ -83,19 +86,13 @@ namespace OpenSage.Launcher
 
             // TODO: Read game version from assembly metadata or .git folder
             // TODO: Set window icon.
-            using (var window = new GameWindow("OpenSAGE (master)", 100, 100, 1024, 768, preferredBackend))
-            using (var imGuiRenderer = new ImGuiRenderer(window.GraphicsDevice, window.GraphicsDevice.MainSwapchain.Framebuffer.OutputDescription, window.ClientBounds.Width, window.ClientBounds.Height))
-            using (var gamePanel = GamePanel.FromGameWindow(window))
-            using (var game = GameFactory.CreateGame(installation, installation.CreateFileSystem(), gamePanel))
+            using (var game = new Game(installation, preferredBackend))
             {
-                window.ClientSizeChanged += (sender, e) =>
-                {
-                    imGuiRenderer.WindowResized(window.ClientBounds.Width, window.ClientBounds.Height);
-                };
-
-                window.GraphicsDevice.SyncToVerticalBlank = !opts.DisableVsync;
+                game.GraphicsDevice.SyncToVerticalBlank = !opts.DisableVsync;
 
                 game.Configuration.LoadShellMap = !opts.NoShellmap;
+
+                game.DeveloperModeEnabled = opts.DeveloperMode;
 
                 if (opts.Map == null)
                 {
@@ -115,15 +112,7 @@ namespace OpenSage.Launcher
                          0);
                 }
 
-                while (game.IsRunning)
-                {
-                    if (!window.PumpEvents())
-                    {
-                        break;
-                    }
-
-                    game.Tick(game.Panel.Framebuffer);
-                }
+                game.Run();
             }
 
             Platform.Stop();

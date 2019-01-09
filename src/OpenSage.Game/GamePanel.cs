@@ -1,68 +1,66 @@
 ﻿using System;
-using OpenSage.Input;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
 
 namespace OpenSage
 {
-    public abstract class GamePanel : DisposableBase
+    public sealed class GamePanel : DisposableBase
     {
-        public abstract GraphicsDevice GraphicsDevice { get; }
+        private Texture _gameColorTarget;
+        private Framebuffer _gameFramebuffer;
 
-        public abstract event EventHandler FramebufferChanged;
+        public GraphicsDevice GraphicsDevice { get; }
 
-        public abstract Framebuffer Framebuffer { get; }
+        public Framebuffer Framebuffer => _gameFramebuffer;
 
-        public abstract event EventHandler ClientSizeChanged;
+        public OutputDescription OutputDescription { get; } = new OutputDescription(
+            null,
+            new OutputAttachmentDescription(PixelFormat.B8_G8_R8_A8_UNorm));
 
-        public abstract Rectangle ClientBounds { get; }
+        public event EventHandler ClientSizeChanged;
 
-        public abstract event EventHandler<InputMessageEventArgs> InputMessageReceived;
+        public Rectangle Frame { get; private set; }
 
-        public abstract void Close();
+        public Rectangle ClientBounds => new Rectangle(0, 0, Frame.Width, Frame.Height);
 
         public void SetCursor(Cursor cursor)
         {
             // TODO
         }
 
-        public static GamePanel FromGameWindow(GameWindow window) => new GameWindowPanel(window);
-
-        private sealed class GameWindowPanel : GamePanel
+        internal GamePanel(GraphicsDevice graphicsDevice)
         {
-            private readonly GameWindow _window;
+            GraphicsDevice = graphicsDevice;
+        }
 
-#pragma warning disable CS0067
-            public override event EventHandler FramebufferChanged;
-#pragma warning restore CS0067
-
-            public override GraphicsDevice GraphicsDevice => _window.GraphicsDevice;
-
-            public override Framebuffer Framebuffer => _window.GraphicsDevice.SwapchainFramebuffer;
-
-            public override event EventHandler ClientSizeChanged
+        public void EnsureFrame(in Rectangle frame)
+        {
+            if (frame == Frame)
             {
-                add => _window.ClientSizeChanged += value;
-                remove => _window.ClientSizeChanged -= value;
+                return;
             }
 
-            public override Rectangle ClientBounds => _window.ClientBounds;
+            Frame = frame;
 
-            public override event EventHandler<InputMessageEventArgs> InputMessageReceived
-            {
-                add => _window.InputMessageReceived += value;
-                remove => _window.InputMessageReceived -= value;
-            }
+            RemoveAndDispose(ref _gameFramebuffer);
+            RemoveAndDispose(ref _gameColorTarget);
 
-            public GameWindowPanel(GameWindow window)
-            {
-                _window = window;
-            }
+            var width = (uint) Frame.Width;
+            var height = (uint) Frame.Height;
 
-            public override void Close()
-            {
-                _window.Close();
-            }
+            _gameColorTarget = AddDisposable(GraphicsDevice.ResourceFactory.CreateTexture(
+                TextureDescription.Texture2D(
+                    width,
+                    height,
+                    1,
+                    1,
+                    PixelFormat.B8_G8_R8_A8_UNorm,
+                    TextureUsage.RenderTarget | TextureUsage.Sampled)));
+
+            _gameFramebuffer = AddDisposable(GraphicsDevice.ResourceFactory.CreateFramebuffer(
+                new FramebufferDescription(null, _gameColorTarget)));
+
+            ClientSizeChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

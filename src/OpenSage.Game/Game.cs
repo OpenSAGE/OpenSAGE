@@ -1,21 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Audio;
 using OpenSage.Data;
+using OpenSage.Diagnostics;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Gui.Wnd;
 using OpenSage.Input;
 using OpenSage.Logic;
+using OpenSage.Mathematics;
 using OpenSage.Network;
 using OpenSage.Scripting;
 using Veldrid;
 
 using Player = OpenSage.Logic.Player;
-using System.Numerics;
-using OpenSage.Mathematics;
 
 namespace OpenSage
 {
@@ -41,6 +43,10 @@ namespace OpenSage
 
         private readonly Dictionary<string, Cursor> _cachedCursors;
         private Cursor _currentCursor;
+
+        private readonly DeveloperModeView _developerModeView;
+
+        private readonly TextureCopier _textureCopier;
 
         public ContentManager ContentManager { get; private set; }
 
@@ -108,6 +114,8 @@ namespace OpenSage
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
             UserDataLeafName);
 
+        public GameWindow Window { get; }
+
         public GamePanel Panel { get; }
 
         public Viewport Viewport { get; private set; }
@@ -149,22 +157,27 @@ namespace OpenSage
 
         public Player CivilianPlayer { get; private set; }
 
+        public bool DeveloperModeEnabled { get; set; }
+
         public Game(
-            IGameDefinition definition,
-            FileSystem fileSystem,
-            GamePanel panel)
+            GameInstallation installation,
+            GraphicsBackend? preferredBackend)
         {
             // TODO: Should we receive this as an argument? Do we need configuration in this constructor?
             Configuration = new Configuration();
 
-            Panel = panel;
-            GraphicsDevice = panel.GraphicsDevice;
+            // TODO: Read game version from assembly metadata or .git folder
+            // TODO: Set window icon.
+            Window = AddDisposable(new GameWindow("OpenSAGE (master)", 100, 100, 1024, 768, preferredBackend));
+            GraphicsDevice = Window.GraphicsDevice;
 
-            InputMessageBuffer = AddDisposable(new InputMessageBuffer(panel));
+            Panel = AddDisposable(new GamePanel(GraphicsDevice));
 
-            Definition = definition;
+            InputMessageBuffer = AddDisposable(new InputMessageBuffer());
 
-            _fileSystem = fileSystem;
+            Definition = installation.Game;
+
+            _fileSystem = AddDisposable(installation.CreateFileSystem());
 
             _gameTimer = AddDisposable(new GameTimer());
             _gameTimer.Start();
@@ -182,6 +195,8 @@ namespace OpenSage
                 SageGame,
                 _wndCallbackResolver));
 
+            _textureCopier = AddDisposable(new TextureCopier(this, GraphicsDevice.SwapchainFramebuffer.OutputDescription));
+
             GameSystems = new List<GameSystem>();
 
             Audio = AddDisposable(new AudioSystem(this));
@@ -196,8 +211,8 @@ namespace OpenSage
 
             OrderGenerator = AddDisposable(new OrderGeneratorSystem(this));
 
-            Panel.ClientSizeChanged += OnWindowClientSizeChanged;
-            OnWindowClientSizeChanged(this, EventArgs.Empty);
+            Panel.ClientSizeChanged += OnPanelSizeChanged;
+            OnPanelSizeChanged(this, EventArgs.Empty);
 
             GameSystems.ForEach(gs => gs.Initialize());
 
@@ -206,10 +221,12 @@ namespace OpenSage
             var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == "Civilian");
             CivilianPlayer = Player.FromTemplate(playerTemplate, ContentManager);
 
+            _developerModeView = AddDisposable(new DeveloperModeView(this));
+
             IsRunning = true;
         }
 
-        private void OnWindowClientSizeChanged(object sender, EventArgs e)
+        private void OnPanelSizeChanged(object sender, EventArgs e)
         {
             var newSize = Panel.ClientBounds.Size;
 
@@ -344,7 +361,44 @@ namespace OpenSage
             NetworkMessageBuffer = null;
         }
 
-        public void Tick(Framebuffer framebuffer)
+        public void Run()
+        {
+            while (IsRunning)
+            {
+                if (!Window.PumpEvents())
+                {
+                    break;
+                }
+
+                if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F11))
+                {
+                    DeveloperModeEnabled = !DeveloperModeEnabled;
+                }
+
+                if (DeveloperModeEnabled)
+                {
+                    _developerModeView.Tick();
+                }
+                else
+                {
+                    Panel.EnsureFrame(Window.ClientBounds);
+
+                    Tick(Window.MessageQueue);
+
+                    _textureCopier.Execute(
+                        Panel.Framebuffer.ColorTargets[0].Target,
+                        GraphicsDevice.SwapchainFramebuffer);
+                }
+
+                Window.MessageQueue.Clear();
+
+                GraphicsDevice.SwapBuffers();
+            }
+
+            // TODO: Cleanup resources.
+        }
+
+        internal void Tick(IEnumerable<InputMessage> inputMessages)
         {
             if (!IsRunning)
             {
@@ -357,9 +411,9 @@ namespace OpenSage
 
             UpdateTime = gameTime;
 
-            Update(gameTime);
+            Update(inputMessages, gameTime);
 
-            Graphics.Draw(framebuffer, gameTime);
+            Graphics.Draw(gameTime);
 
             FrameCount += 1;
         }
@@ -371,9 +425,9 @@ namespace OpenSage
             GC.Collect();
         }
 
-        private void Update(GameTime gameTime)
+        private void Update(IEnumerable<InputMessage> inputMessages, GameTime gameTime)
         {
-            InputMessageBuffer.PumpEvents();
+            InputMessageBuffer.PumpEvents(inputMessages);
 
             NetworkMessageBuffer?.Tick();
 
