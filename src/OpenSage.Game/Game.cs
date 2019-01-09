@@ -18,6 +18,8 @@ using OpenSage.Scripting;
 using Veldrid;
 
 using Player = OpenSage.Logic.Player;
+using Veldrid.ImageSharp;
+using OpenSage.Utilities;
 
 namespace OpenSage
 {
@@ -159,6 +161,8 @@ namespace OpenSage
 
         public bool DeveloperModeEnabled { get; set; }
 
+        public Texture LauncherImage { get; }
+
         public Game(
             GameInstallation installation,
             GraphicsBackend? preferredBackend)
@@ -222,6 +226,8 @@ namespace OpenSage
             CivilianPlayer = Player.FromTemplate(playerTemplate, ContentManager);
 
             _developerModeView = AddDisposable(new DeveloperModeView(this));
+
+            LauncherImage = LoadLauncherImage();
 
             IsRunning = true;
         }
@@ -446,6 +452,28 @@ namespace OpenSage
             Scene2D.Update(gameTime, Scene3D?.LocalPlayer);
 
             Scene3D?.Update(gameTime);
+        }
+
+        private Texture LoadLauncherImage()
+        {
+            var launcherImagePath = Definition.LauncherImagePath;
+            if (launcherImagePath != null)
+            {
+                var prefixLang = Definition.LauncherImagePrefixLang;
+                if (prefixLang)
+                {
+                    launcherImagePath = ContentManager.Language + launcherImagePath;
+                }
+
+                var launcherImageEntry = _fileSystem.GetFile(launcherImagePath);
+                if (launcherImageEntry != null)
+                {
+                    return AddDisposable(new ImageSharpTexture(launcherImageEntry.Open()).CreateDeviceTexture(
+                        GraphicsDevice, GraphicsDevice.ResourceFactory));
+                }
+            }
+
+            return null;
         }
     }
 }
