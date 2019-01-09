@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using ImGuiNET;
-using OpenSage.Input;
+using OpenSage.Logic;
+using OpenSage.Mathematics;
+using OpenSage.Network;
 
 namespace OpenSage.Diagnostics
 {
@@ -48,13 +50,29 @@ namespace OpenSage.Diagnostics
                     ImGui.EndMenu();
                 }
 
-                if (ImGui.BeginMenu("Preferences"))
+                if (ImGui.BeginMenu("Jump"))
                 {
-                    bool isVSyncEnabled = _isVSyncEnabled;
-                    if (ImGui.MenuItem("VSync", null, ref isVSyncEnabled, true))
+                    if (ImGui.BeginMenu("Map"))
                     {
-                        SetVSync(isVSyncEnabled);
+                        foreach (var mapCache in _context.Game.ContentManager.IniDataContext.MapCaches)
+                        {
+                            if (ImGui.MenuItem(mapCache.DisplayName))
+                            {
+                                _context.Game.StartGame(
+                                    mapCache.Name,
+                                    new EchoConnection(),
+                                    new[]
+                                    {
+                                        new PlayerSetting("America", new ColorRgb(255, 0, 0)),
+                                        new PlayerSetting("GLA", new ColorRgb(255, 255, 255)),
+                                    },
+                                    0);
+                            }
+                        }
+
+                        ImGui.EndMenu();
                     }
+
                     ImGui.EndMenu();
                 }
 
@@ -70,6 +88,16 @@ namespace OpenSage.Diagnostics
                         }
                     }
 
+                    ImGui.EndMenu();
+                }
+
+                if (ImGui.BeginMenu("Preferences"))
+                {
+                    bool isVSyncEnabled = _isVSyncEnabled;
+                    if (ImGui.MenuItem("VSync", null, ref isVSyncEnabled, true))
+                    {
+                        SetVSync(isVSyncEnabled);
+                    }
                     ImGui.EndMenu();
                 }
 
