@@ -37,16 +37,7 @@ namespace OpenSage.Diagnostics.AssetViews
 
             AddDisposeAction(() => game.Updating -= OnUpdating);
 
-            void onBuildingRenderList(object sender, BuildingRenderListEventArgs e)
-            {
-                particleSystem.BuildRenderList(e.RenderList, Matrix4x4.Identity);
-            }
-
-            game.BuildingRenderList += onBuildingRenderList;
-
-            AddDisposeAction(() => game.BuildingRenderList -= onBuildingRenderList);
-
-            var scene3D = new Scene3D(
+            var scene3D = AddDisposable(new Scene3D(
                 game,
                 () => new Veldrid.Viewport(0, 0, ImGui.GetContentRegionAvailWidth(), ImGui.GetContentRegionAvail().Y, 0, 1),
                 new ArcballCameraController(Vector3.Zero, 200),
@@ -61,9 +52,19 @@ namespace OpenSage.Diagnostics.AssetViews
                 new WaypointPathCollection(),
                 WorldLighting.CreateDefault(),
                 Array.Empty<Player>(),
-                Array.Empty<Team>());
+                Array.Empty<Team>(),
+                subscribeToInput: false));
 
             _renderedView = AddDisposable(new RenderedView(context, scene3D));
+
+            void onBuildingRenderList(object sender, BuildingRenderListEventArgs e)
+            {
+                particleSystem.BuildRenderList(e.RenderList, Matrix4x4.Identity);
+            }
+
+            _renderedView.RenderPipeline.BuildingRenderList += onBuildingRenderList;
+
+            AddDisposeAction(() => _renderedView.RenderPipeline.BuildingRenderList -= onBuildingRenderList);
         }
 
         public override void Draw()

@@ -80,7 +80,7 @@ namespace OpenSage.Gui.DebugUI
             }
 
             var ray = _scene3D.Camera.ScreenPointToRay(new Vector2(MousePosition.X, MousePosition.Y));
-            _mouseWorldPosition = _scene3D.Terrain.Intersect(ray);
+            _mouseWorldPosition = _scene3D.Terrain?.Intersect(ray);
 
             _debugStringBuilder.Clear();
             _debugStringBuilder.AppendFormat("Screen: X:{0} Y: {1}\n", MousePosition.X, MousePosition.Y);
