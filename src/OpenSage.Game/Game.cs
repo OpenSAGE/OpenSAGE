@@ -475,5 +475,20 @@ namespace OpenSage
 
             return null;
         }
+
+        // TODO: Move these to somewhere more suitable.
+        internal Vector2 GetTopLeftUV()
+        {
+            return GraphicsDevice.IsUvOriginTopLeft ?
+                new Vector2(0, 0) :
+                new Vector2(0, 1);
+        }
+
+        internal Vector2 GetBottomRightUV()
+        {
+            return GraphicsDevice.IsUvOriginTopLeft ?
+                new Vector2(1, 1) :
+                new Vector2(1, 0);
+        }
     }
 }

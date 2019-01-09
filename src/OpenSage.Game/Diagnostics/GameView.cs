@@ -43,8 +43,8 @@ namespace OpenSage.Diagnostics
             if (ImGui.ImageButton(
                 imagePointer,
                 availableSize,
-                GetTopLeftUV(),
-                GetBottomRightUV(),
+                Game.GetTopLeftUV(),
+                Game.GetBottomRightUV(),
                 0,
                 Vector4.Zero,
                 Vector4.One))
