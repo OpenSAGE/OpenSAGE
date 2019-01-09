@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenSage.Graphics;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
 
@@ -6,12 +7,9 @@ namespace OpenSage
 {
     public sealed class GamePanel : DisposableBase
     {
-        private Texture _gameColorTarget;
-        private Framebuffer _gameFramebuffer;
+        private readonly RenderTarget _renderTarget;
 
-        public GraphicsDevice GraphicsDevice { get; }
-
-        public Framebuffer Framebuffer => _gameFramebuffer;
+        public Framebuffer Framebuffer => _renderTarget.Framebuffer;
 
         public OutputDescription OutputDescription { get; } = new OutputDescription(
             null,
@@ -30,7 +28,7 @@ namespace OpenSage
 
         internal GamePanel(GraphicsDevice graphicsDevice)
         {
-            GraphicsDevice = graphicsDevice;
+            _renderTarget = AddDisposable(new RenderTarget(graphicsDevice));
         }
 
         public void EnsureFrame(in Rectangle frame)
@@ -42,25 +40,10 @@ namespace OpenSage
 
             Frame = frame;
 
-            RemoveAndDispose(ref _gameFramebuffer);
-            RemoveAndDispose(ref _gameColorTarget);
-
-            var width = (uint) Frame.Width;
-            var height = (uint) Frame.Height;
-
-            _gameColorTarget = AddDisposable(GraphicsDevice.ResourceFactory.CreateTexture(
-                TextureDescription.Texture2D(
-                    width,
-                    height,
-                    1,
-                    1,
-                    PixelFormat.B8_G8_R8_A8_UNorm,
-                    TextureUsage.RenderTarget | TextureUsage.Sampled)));
-
-            _gameFramebuffer = AddDisposable(GraphicsDevice.ResourceFactory.CreateFramebuffer(
-                new FramebufferDescription(null, _gameColorTarget)));
-
-            ClientSizeChanged?.Invoke(this, EventArgs.Empty);
+            if (_renderTarget.EnsureSize(frame.Size))
+            {
+                ClientSizeChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
     }
 }
