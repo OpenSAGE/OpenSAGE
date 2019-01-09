@@ -29,6 +29,7 @@ namespace OpenSage.Diagnostics
             AddView(new ScriptingView(context));
             AddView(new StringsView(context));
             AddView(new AptView(context));
+            AddView(new WndView(context));
         }
 
         public void Draw(ref bool isGameViewFocused)
