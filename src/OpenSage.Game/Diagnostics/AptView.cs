@@ -16,9 +16,12 @@ namespace OpenSage.Diagnostics
         {
             foreach (var aptWindow in Game.Scene2D.AptWindowManager.WindowStack)
             {
-                if (ImGui.TreeNodeEx(aptWindow.Name, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnArrow))
+                ImGui.Bullet();
+                ImGui.SameLine();
+
+                if (ImGui.Selectable(aptWindow.Name, aptWindow == Context.SelectedAptWindow))
                 {
-                    // TODO
+                    Context.SelectedAptWindow = aptWindow;
                 }
             }
         }

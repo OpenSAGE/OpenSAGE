@@ -33,6 +33,7 @@ namespace OpenSage.Diagnostics
             AddView(new ScriptingView(context));
             AddView(new StringsView(context));
             AddView(new AptView(context));
+            AddView(new AptConstantsView(context));
             AddView(new WndView(context));
         }
 
