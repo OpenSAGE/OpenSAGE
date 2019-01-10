@@ -86,6 +86,7 @@ namespace OpenSage
 
         public Scene3D(
             Game game,
+            InputMessageBuffer inputMessageBuffer,
             Func<Viewport> getViewport,
             ICameraController cameraController,
             MapFile mapFile,
@@ -100,7 +101,7 @@ namespace OpenSage
             WorldLighting lighting,
             Player[] players,
             Team[] teams,
-            bool subscribeToInput = true)
+            bool isDiagnosticScene = false)
         {
             Camera = new Camera(getViewport);
             CameraController = cameraController;
@@ -116,18 +117,17 @@ namespace OpenSage
             WaypointPaths = waypointPaths;
             Lighting = lighting;
 
-            if (subscribeToInput)
+            SelectionGui = new SelectionGui();
+
+            RegisterInputHandler(_cameraInputMessageHandler = new CameraInputMessageHandler(), inputMessageBuffer);
+
+            DebugOverlay = new DebugOverlay(this, game.ContentManager);
+
+            if (!isDiagnosticScene)
             {
-                SelectionGui = new SelectionGui();
-
-                RegisterInputHandler(_selectionMessageHandler = new SelectionMessageHandler(game.Selection), game);
-                RegisterInputHandler(_cameraInputMessageHandler = new CameraInputMessageHandler(), game);
-                RegisterInputHandler(_orderGeneratorInputHandler = new OrderGeneratorInputHandler(game.OrderGenerator), game);
-
-                DebugOverlay = new DebugOverlay(this, game.ContentManager);
-                _debugMessageHandler = new DebugMessageHandler(DebugOverlay);
-                game.InputMessageBuffer.Handlers.Add(_debugMessageHandler);
-                AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(_debugMessageHandler));
+                RegisterInputHandler(_selectionMessageHandler = new SelectionMessageHandler(game.Selection), inputMessageBuffer);
+                RegisterInputHandler(_orderGeneratorInputHandler = new OrderGeneratorInputHandler(game.OrderGenerator), inputMessageBuffer);
+                RegisterInputHandler(_debugMessageHandler = new DebugMessageHandler(DebugOverlay), inputMessageBuffer);
             }
 
             _particleSystemManager = AddDisposable(new ParticleSystemManager(this));
@@ -138,10 +138,10 @@ namespace OpenSage
             LocalPlayer = _players.FirstOrDefault();
         }
 
-        private void RegisterInputHandler(InputMessageHandler handler, Game game)
+        private void RegisterInputHandler(InputMessageHandler handler, InputMessageBuffer inputMessageBuffer)
         {
-            game.InputMessageBuffer.Handlers.Add(handler);
-            AddDisposeAction(() => game.InputMessageBuffer.Handlers.Remove(handler));
+            inputMessageBuffer.Handlers.Add(handler);
+            AddDisposeAction(() => inputMessageBuffer.Handlers.Remove(handler));
         }
 
         public void SetPlayers(IEnumerable<Player> players, Player localPlayer)
@@ -182,7 +182,7 @@ namespace OpenSage
             _cameraInputMessageHandler?.UpdateInputState(ref _cameraInputState);
             CameraController.UpdateCamera(Camera, _cameraInputState, gameTime);
 
-            DebugOverlay?.Update(gameTime);
+            DebugOverlay.Update(gameTime);
         }
 
         internal void BuildRenderList(RenderList renderList, Camera camera)

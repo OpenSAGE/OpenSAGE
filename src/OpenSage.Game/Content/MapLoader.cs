@@ -182,6 +182,7 @@ namespace OpenSage.Content
 
             return new Scene3D(
                 game,
+                game.InputMessageBuffer,
                 () => game.Viewport,
                 cameraController,
                 mapFile,

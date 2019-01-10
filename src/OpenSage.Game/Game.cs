@@ -163,7 +163,7 @@ namespace OpenSage
 
             Panel = AddDisposable(new GamePanel(GraphicsDevice));
 
-            InputMessageBuffer = AddDisposable(new InputMessageBuffer());
+            InputMessageBuffer = new InputMessageBuffer();
 
             Definition = installation.Game;
 

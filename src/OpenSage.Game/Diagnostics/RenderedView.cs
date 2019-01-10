@@ -1,8 +1,15 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using ImGuiNET;
+using OpenSage.Diagnostics.Util;
 using OpenSage.Graphics;
+using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Input;
+using OpenSage.Logic;
+using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
+using OpenSage.Settings;
 using Veldrid;
 
 namespace OpenSage.Diagnostics
@@ -10,6 +17,7 @@ namespace OpenSage.Diagnostics
     internal sealed class RenderedView : DisposableBase
     {
         private readonly DiagnosticViewContext _context;
+        private readonly InputMessageBuffer _inputMessageBuffer;
         private readonly Scene3D _scene3D;
         private readonly RenderTarget _renderTarget;
 
@@ -17,10 +25,37 @@ namespace OpenSage.Diagnostics
 
         public RenderPipeline RenderPipeline { get; }
 
-        public RenderedView(DiagnosticViewContext context, Scene3D scene3D)
+        public RenderedView(
+            DiagnosticViewContext context,
+            in Vector3 cameraTarget = default(Vector3),
+            float cameraDistance = 200,
+            Action<GameObjectCollection> createGameObjects = null)
         {
             _context = context;
-            _scene3D = scene3D;
+
+            _inputMessageBuffer = new InputMessageBuffer();
+
+            var gameObjects = AddDisposable(new GameObjectCollection(context.Game.ContentManager));
+            createGameObjects?.Invoke(gameObjects);
+
+            _scene3D = AddDisposable(new Scene3D(
+                context.Game,
+                _inputMessageBuffer,
+                () => new Viewport(0, 0, ImGui.GetContentRegionAvailWidth(), ImGui.GetContentRegionAvail().Y, 0, 1),
+                new ArcballCameraController(cameraTarget, cameraDistance),
+                null,
+                null,
+                Array.Empty<Terrain.WaterArea>(),
+                Array.Empty<Terrain.Road>(),
+                Array.Empty<Terrain.Bridge>(),
+                null,
+                gameObjects,
+                new WaypointCollection(),
+                new WaypointPathCollection(),
+                WorldLighting.CreateDefault(),
+                Array.Empty<Player>(),
+                Array.Empty<Team>(),
+                isDiagnosticScene: true));
 
             RenderPipeline = AddDisposable(new RenderPipeline(context.Game));
 
@@ -29,6 +64,8 @@ namespace OpenSage.Diagnostics
 
         public void Draw()
         {
+            ImGui.BeginChild("RenderedViewContent", Vector2.Zero, false, ImGuiWindowFlags.NoMove);
+
             var currentSize = ImGui.GetContentRegionAvail();
             if (_cachedSize != currentSize)
             {
@@ -38,6 +75,17 @@ namespace OpenSage.Diagnostics
 
                 _scene3D?.Camera.OnViewportSizeChanged();
             }
+
+            var cursorScreenPos = ImGui.GetCursorScreenPos();
+            var isMouseInRenderedView = ImGui.IsWindowFocused() && ImGui.IsMouseHoveringRect(cursorScreenPos, cursorScreenPos + currentSize);
+
+            var inputMessages = isMouseInRenderedView
+                ? ImGuiUtility.TranslateInputMessages(
+                    new Mathematics.Rectangle((int) cursorScreenPos.X, (int) cursorScreenPos.Y, (int) currentSize.X, (int) currentSize.Y),
+                    _context.Game.Window.MessageQueue)
+                : Array.Empty<InputMessage>();
+
+            _inputMessageBuffer.PumpEvents(inputMessages);
 
             _scene3D.Update(_context.Game.UpdateTime);
 
@@ -60,6 +108,8 @@ namespace OpenSage.Diagnostics
                 currentSize,
                 _context.Game.GetTopLeftUV(),
                 _context.Game.GetBottomRightUV());
+
+            ImGui.EndChild();
         }
     }
 }

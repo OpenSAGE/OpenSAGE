@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-using OpenSage.Content;
-using OpenSage.Graphics.Cameras;
+﻿using OpenSage.Content;
 using Veldrid;
 
 namespace OpenSage.Graphics.Rendering

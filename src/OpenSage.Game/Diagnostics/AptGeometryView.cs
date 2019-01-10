@@ -28,7 +28,7 @@ namespace OpenSage.Diagnostics
         public AptGeometryView(DiagnosticViewContext context)
             : base(context)
         {
-            _renderedView = AddDisposable(new RenderedView(context, null));
+            _renderedView = AddDisposable(new RenderedView(context));
 
             _renderedView.RenderPipeline.Rendering2D += (sender, e) =>
             {
