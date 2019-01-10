@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
+using OpenSage.Diagnostics.Util;
 using OpenSage.Input;
-using OpenSage.Mathematics;
 using Veldrid;
 
 namespace OpenSage.Diagnostics
@@ -35,7 +34,7 @@ namespace OpenSage.Diagnostics
                     (int) availableSize.Y));
 
             var inputMessages = isGameViewFocused
-                ? TranslateInputMessages(Game.Window.MessageQueue)
+                ? ImGuiUtility.TranslateInputMessages(Game.Panel.Frame, Game.Window.MessageQueue)
                 : Array.Empty<InputMessage>();
 
             Game.Tick(inputMessages);
@@ -65,47 +64,6 @@ namespace OpenSage.Diagnostics
             else
             {
                 ImGui.Text("Click in the game view to capture mouse input.");
-            }
-        }
-
-        private IEnumerable<InputMessage> TranslateInputMessages(IEnumerable<InputMessage> inputMessages)
-        {
-            foreach (var message in inputMessages)
-            {
-                var windowFrame = Game.Panel.Frame;
-
-                Point2D getPositionInPanel()
-                {
-                    var pos = message.Value.MousePosition;
-                    pos = new Point2D(pos.X - windowFrame.X, pos.Y - windowFrame.Y);
-                    pos = new Point2D(
-                        MathUtility.Clamp(pos.X, 0, windowFrame.Width),
-                        MathUtility.Clamp(pos.Y, 0, windowFrame.Height));
-                    return pos;
-                }
-
-                var translatedMessage = message;
-
-                switch (message.MessageType)
-                {
-                    case InputMessageType.MouseLeftButtonDown:
-                    case InputMessageType.MouseLeftButtonUp:
-                    case InputMessageType.MouseMiddleButtonDown:
-                    case InputMessageType.MouseMiddleButtonUp:
-                    case InputMessageType.MouseRightButtonDown:
-                    case InputMessageType.MouseRightButtonUp:
-                        translatedMessage = InputMessage.CreateMouseButton(
-                            message.MessageType,
-                            getPositionInPanel());
-                        break;
-
-                    case InputMessageType.MouseMove:
-                        translatedMessage = InputMessage.CreateMouseMove(
-                            getPositionInPanel());
-                        break;
-                }
-
-                yield return translatedMessage;
             }
         }
     }

@@ -1,13 +1,7 @@
-﻿using System;
-using System.Numerics;
-using ImGuiNET;
+﻿using System.Numerics;
 using OpenSage.Data.Ini;
-using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.ParticleSystems;
 using OpenSage.Graphics.Rendering;
-using OpenSage.Logic;
-using OpenSage.Logic.Object;
-using OpenSage.Settings;
 
 namespace OpenSage.Diagnostics.AssetViews
 {
@@ -37,25 +31,7 @@ namespace OpenSage.Diagnostics.AssetViews
 
             AddDisposeAction(() => game.Updating -= OnUpdating);
 
-            var scene3D = AddDisposable(new Scene3D(
-                game,
-                () => new Veldrid.Viewport(0, 0, ImGui.GetContentRegionAvailWidth(), ImGui.GetContentRegionAvail().Y, 0, 1),
-                new ArcballCameraController(Vector3.Zero, 200),
-                null,
-                null,
-                Array.Empty<Terrain.WaterArea>(),
-                Array.Empty<Terrain.Road>(),
-                Array.Empty<Terrain.Bridge>(),
-                null,
-                new GameObjectCollection(game.ContentManager),
-                new WaypointCollection(),
-                new WaypointPathCollection(),
-                WorldLighting.CreateDefault(),
-                Array.Empty<Player>(),
-                Array.Empty<Team>(),
-                subscribeToInput: false));
-
-            _renderedView = AddDisposable(new RenderedView(context, scene3D));
+            _renderedView = AddDisposable(new RenderedView(context));
 
             void onBuildingRenderList(object sender, BuildingRenderListEventArgs e)
             {

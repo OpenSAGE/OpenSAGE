@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace OpenSage.Input
 {
-    public sealed class InputMessageBuffer : DisposableBase
+    public sealed class InputMessageBuffer
     {
         public List<InputMessageHandler> Handlers { get; }
 

@@ -1,13 +1,7 @@
-﻿using System;
-using System.Numerics;
-using ImGuiNET;
+﻿using System.Numerics;
 using OpenSage.Graphics;
-using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
-using OpenSage.Logic;
-using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
-using OpenSage.Settings;
 
 namespace OpenSage.Diagnostics.AssetViews
 {
@@ -24,29 +18,10 @@ namespace OpenSage.Diagnostics.AssetViews
 
             var enclosingBoundingBox = GetEnclosingBoundingBox(_modelInstance);
 
-            var cameraController = new ArcballCameraController(
+            _renderedView = AddDisposable(new RenderedView(
+                context,
                 enclosingBoundingBox.GetCenter(),
-                Vector3.Distance(enclosingBoundingBox.Min, enclosingBoundingBox.Max));
-
-            var scene3D = AddDisposable(new Scene3D(
-                context.Game,
-                () => new Veldrid.Viewport(0, 0, ImGui.GetContentRegionAvailWidth(), ImGui.GetContentRegionAvail().Y, 0, 1),
-                cameraController,
-                null,
-                null,
-                Array.Empty<Terrain.WaterArea>(),
-                Array.Empty<Terrain.Road>(),
-                Array.Empty<Terrain.Bridge>(),
-                null,
-                new GameObjectCollection(context.Game.ContentManager),
-                new WaypointCollection(),
-                new WaypointPathCollection(),
-                WorldLighting.CreateDefault(),
-                Array.Empty<Player>(),
-                Array.Empty<Team>(),
-                subscribeToInput: false));
-
-            _renderedView = AddDisposable(new RenderedView(context, scene3D));
+                Vector3.Distance(enclosingBoundingBox.Min, enclosingBoundingBox.Max)));
 
             void OnBuildingRenderList(object sender, BuildingRenderListEventArgs e)
             {
