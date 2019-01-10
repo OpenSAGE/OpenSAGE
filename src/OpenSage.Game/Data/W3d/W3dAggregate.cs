@@ -23,7 +23,6 @@ namespace OpenSage.Data.W3d
 
         internal static W3dAggregate Parse(BinaryReader reader, W3dParseContext context)
         {
-            var isUnknownChunk = false;
             var parsedChunk = ParseChunk(reader, context, header =>
             {
                 var result = new W3dAggregate();
