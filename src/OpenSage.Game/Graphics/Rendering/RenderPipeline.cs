@@ -52,6 +52,9 @@ namespace OpenSage.Graphics.Rendering
 
         public Texture ShadowMap => _shadowMapRenderer.ShadowMap;
 
+        public int RenderedObjectsOpaque { get; private set; }
+        public int RenderedObjectsTransparent { get; private set; }
+
         public RenderPipeline(Game game)
         {
             _renderList = new RenderList();
@@ -119,6 +122,9 @@ namespace OpenSage.Graphics.Rendering
 
         public void Execute(RenderContext context)
         {
+            RenderedObjectsOpaque = 0;
+            RenderedObjectsTransparent = 0;
+
             EnsureIntermediateFramebuffer(context.GraphicsDevice, context.RenderTarget);
 
             _renderList.Clear();
@@ -215,7 +221,7 @@ namespace OpenSage.Graphics.Rendering
 
             commandList.SetFramebuffer(_intermediateFramebuffer);
 
-            UpdateGlobalConstantBuffers(commandList, scene.Camera.View * scene.Camera.Projection);
+            UpdateGlobalConstantBuffers(commandList, scene.Camera.ViewProjection);
             UpdateStandardPassConstantBuffers(commandList, context);
 
             commandList.ClearColorTarget(0, ColorRgba.DimGray.ToColorRgbaF().ToRgbaFloat());
@@ -228,17 +234,17 @@ namespace OpenSage.Graphics.Rendering
             var shadowMap = _shadowMapRenderer.ShadowMap;
 
             commandList.PushDebugGroup("Opaque");
-            DoRenderPass(commandList, _renderList.Opaque, standardPassCameraFrustum, cloudTexture, shadowMap);
+            RenderedObjectsOpaque = DoRenderPass(commandList, _renderList.Opaque, standardPassCameraFrustum, cloudTexture, shadowMap);
             commandList.PopDebugGroup();
 
             commandList.PushDebugGroup("Transparent");
-            DoRenderPass(commandList, _renderList.Transparent, standardPassCameraFrustum, cloudTexture, shadowMap);
+            RenderedObjectsTransparent = DoRenderPass(commandList, _renderList.Transparent, standardPassCameraFrustum, cloudTexture, shadowMap);
             commandList.PopDebugGroup();
 
             commandList.PopDebugGroup();
         }
 
-        private void DoRenderPass(
+        private int DoRenderPass(
             CommandList commandList,
             RenderBucket bucket,
             BoundingFrustum cameraFrustum,
@@ -250,7 +256,7 @@ namespace OpenSage.Graphics.Rendering
 
             if (bucket.RenderItems.CulledItemIndices.Count == 0)
             {
-                return;
+                return 0;
             }
 
             Matrix4x4? lastWorld = null;
@@ -347,6 +353,8 @@ namespace OpenSage.Graphics.Rendering
 
                 lastRenderItemIndex = i;
             }
+
+            return bucket.RenderItems.CulledItemIndices.Count;
         }
 
         private void SetDefaultMaterialProperties(

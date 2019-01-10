@@ -33,6 +33,7 @@ namespace OpenSage.Diagnostics
             AddView(new MapSettingsView(context));
             AddView(new RenderSettingsView(context));
             AddView(new ScriptingView(context));
+            AddView(new StatisticsView(context));
             AddView(new StringsView(context));
             AddView(new AptView(context));
             AddView(new AptConstantsView(context));
