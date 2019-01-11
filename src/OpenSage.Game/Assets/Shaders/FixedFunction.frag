@@ -44,6 +44,8 @@ layout(set = 0, binding = 9) uniform RenderItemConstantsPS
 #define TEXTURE_MAPPING_SCALE              7
 #define TEXTURE_MAPPING_GRID               8
 #define TEXTURE_MAPPING_RANDOM             9
+#define TEXTURE_MAPPING_BUMP_ENV           10
+#define TEXTURE_MAPPING_WS_ENVIRONMENT     11
 
 struct TextureMapping
 {
@@ -85,15 +87,17 @@ struct VertexMaterial
     TextureMapping TextureMappingStage1;
 };
 
-#define DIFFUSE_LIGHTING_DISABLE  0
-#define DIFFUSE_LIGHTING_MODULATE 1
-#define DIFFUSE_LIGHTING_ADD      2
+#define DIFFUSE_LIGHTING_DISABLE             0
+#define DIFFUSE_LIGHTING_MODULATE            1
+#define DIFFUSE_LIGHTING_ADD                 2
+#define DIFFUSE_LIGHTING_BUMP_ENV_MAP        3
 
 #define SECONDARY_TEXTURE_BLEND_DISABLE      0
 #define SECONDARY_TEXTURE_BLEND_DETAIL       1
 #define SECONDARY_TEXTURE_BLEND_SCALE        2
 #define SECONDARY_TEXTURE_BLEND_INV_SCALE    3
 #define SECONDARY_TEXTURE_BLEND_DETAIL_BLEND 4
+#define SECONDARY_TEXTURE_BLEND_ADD          5
 
 struct ShadingConfiguration
 {
@@ -237,6 +241,20 @@ vec4 SampleTexture(
             // TODO: Haven't seen any non-zero values to test this with yet.
             break;
         }
+
+        case TEXTURE_MAPPING_WS_ENVIRONMENT:
+        {
+            //TODO: this is just a copy of ENVIRONMENT
+            uv = (reflect(viewVector, worldNormal).xy / 2.0) + vec2(0.5f, 0.5f);
+            break;
+        }
+
+        case TEXTURE_MAPPING_BUMP_ENV:
+        {
+            //TODO: this is just a copy of ENVIRONMENT
+            uv = (reflect(viewVector, worldNormal).xy / 2.0) + vec2(0.5f, 0.5f);
+            break;
+        }
     }
 
     return texture(sampler2D(diffuseTexture, Sampler), uv);
@@ -325,6 +343,12 @@ void main()
                         (secondaryTextureColor.x * diffuseTextureColor.xyz) + ((1 - secondaryTextureColor.x) * secondaryTextureColor.xyz),
                         diffuseTextureColor.w);
                     break;
+
+                case SECONDARY_TEXTURE_BLEND_ADD:
+                    diffuseTextureColor = vec4(
+                        diffuseTextureColor.xyz + secondaryTextureColor.xyz,
+                        diffuseTextureColor.w);
+                    break;
             }
 
             switch (_MaterialConstants.Shading.SecondaryTextureAlphaBlend)
@@ -368,6 +392,10 @@ void main()
 
         case DIFFUSE_LIGHTING_ADD:
             objectColor += totalObjectLighting;
+            break;
+
+        case DIFFUSE_LIGHTING_BUMP_ENV_MAP:
+            //TODO
             break;
     }
 

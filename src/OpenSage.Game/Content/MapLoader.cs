@@ -137,25 +137,21 @@ namespace OpenSage.Content
 
             var waterAreas = new List<WaterArea>();
 
-            if (mapFile.PolygonTriggers != null)
+            foreach (var polygonTrigger in mapFile.PolygonTriggers?.Triggers)
             {
-                foreach (var polygonTrigger in mapFile.PolygonTriggers.Triggers)
+                switch (polygonTrigger.TriggerType)
                 {
-                    switch (polygonTrigger.TriggerType)
-                    {
-                        case PolygonTriggerType.Water:
-                        case PolygonTriggerType.River: // TODO: Handle this differently. Water texture should be animated "downstream".
-                        case PolygonTriggerType.WaterAndRiver:
-                            if (WaterArea.TryCreate(contentManager, polygonTrigger, out var waterArea))
-                            {
-                                waterAreas.Add(AddDisposable(waterArea));
-                            }
+                    case PolygonTriggerType.Water:
+                    case PolygonTriggerType.River: // TODO: Handle this differently. Water texture should be animated "downstream".
+                    case PolygonTriggerType.WaterAndRiver:
+                        if (WaterArea.TryCreate(contentManager, polygonTrigger, out var waterArea))
+                        {
+                            waterAreas.Add(AddDisposable(waterArea));
+                        }
                         
-                            break;
-                    }
+                        break;
                 }
             }
-           
 
             var lighting = new WorldLighting(
                 mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
