@@ -1,4 +1,5 @@
 ﻿using OpenSage.Data.Ini.Parser;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Data.Ini
 {
@@ -24,7 +25,14 @@ namespace OpenSage.Data.Ini
             { "ViewObjectRange", (parser, x) => x.ViewObjectRange = parser.ParseInteger() },
             { "RadiusCursorRadius", (parser, x) => x.RadiusCursorRadius = parser.ParseFloat() },
             { "ShortcutPower", (parser, x) => x.ShortcutPower = parser.ParseBoolean() },
-            { "AcademyClassify", (parser, x) => x.AcademyClassify = parser.ParseEnum<AcademyType>() }
+            { "AcademyClassify", (parser, x) => x.AcademyClassify = parser.ParseEnum<AcademyType>() },
+            { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) },
+            { "Flags", (parser, x) => x.Flags = parser.ParseEnumFlags<SpecialPowerFlag>() },
+            { "MaxCastRange", (parser, x) => x.MaxCastRange = parser.ParseInteger() },
+            { "PreventActivationConditions", (parser, x) => x.PreventActivationConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
+            { "ForbiddenObjectFilter", (parser, x) => x.ForbiddenObjectFilter = ObjectFilter.Parse(parser) },
+            { "ForbiddenObjectRange", (parser, x) => x.ForbiddenObjectRange = parser.ParseInteger() },
+            { "RequiredSciences", (parser, x) => x.RequiredSciences = parser.ParseAssetReferenceArray() }
         };
 
         public string Name { get; private set; }
@@ -45,6 +53,27 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public AcademyType AcademyClassify { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ObjectFilter ObjectFilter { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public SpecialPowerFlag Flags { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int MaxCastRange { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public BitArray<ModelConditionFlag> PreventActivationConditions { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ObjectFilter ForbiddenObjectFilter { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int ForbiddenObjectRange { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string[] RequiredSciences { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -493,5 +522,114 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("SPECIAL_EAT"), AddedIn(SageGame.Bfme)]
         SpecialEat,
+
+        [IniEnum("SPECIAL_PERSONAL_FLOOD"), AddedIn(SageGame.Bfme2)]
+        SpecialPersonalFlood,
+
+        [IniEnum("SPECIAL_ELVEN_GRACE"), AddedIn(SageGame.Bfme2)]
+        SpecialElvenGrace,
+
+        [IniEnum("SPECIAL_SONIC_SONG"), AddedIn(SageGame.Bfme2)]
+        SpecialSonicSong,
+
+        [IniEnum("SPECIAL_AT_VISIBLE_GROUNDED_OBJECT"), AddedIn(SageGame.Bfme2)]
+        SpecialAtVisibleGroundedObject,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_BOMBARD"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookBompard,
+
+        [IniEnum("SPECIAL_CALL_OF_THE_DEEP"), AddedIn(SageGame.Bfme2)]
+        SpecialCallOfTheDeep,
+
+        [IniEnum("SPECIAL_SKULL_TOTEM"), AddedIn(SageGame.Bfme2)]
+        SpecialSkullTotem,
+
+        [IniEnum("SPECIAL_SPAWN_TORNADO"), AddedIn(SageGame.Bfme2)]
+        SpecialSpawnTornado,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_MEN_OF_DALE_ALLIES"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookMenOfDaleAllies,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_SPAWN_LONE_TOWER"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookSpawnLoneTower,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_RALLYING_CALL"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookRallyingCall,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_BARRICADE"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookBarricade,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_CREBAIN"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookCrebain,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_CAVE_BATS"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookCaveBats,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_TOM_BOMBADIL"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookTomBombadil,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_HOBBIT_ALLIES"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookHobbitAllies,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_REBUILD"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookRebuild,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_ARROW_VOLLEY_GOOD"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookArrowVolleyGood,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_ENSHROUDING_MIST"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookEnshroudingMist,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_DWARVEN_RICHES"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookDwarvenRiches,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_UNDERMINE"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookUndermine,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_UNTAMED_ALLEGIANCE"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookUntamedAllegiance,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_ARROW_VOLLEY_EVIL"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookArrowVolleyEvil,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_WILD_MEN_ALLIES"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookWildMenAllies,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_SCAVENGER"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookScavenger,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_SPIDERLING_ALLIES"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookSpiderlingAllies,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_DUNEDAIN_ALLIES"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookDunedainAllies,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_AWAKEN_WYRM"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookAwakenWyrm,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_WATCHER_ALLY"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookWatcherAlly,
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public enum SpecialPowerFlag
+    {
+        [IniEnum("LIMIT_DISTANCE")]
+        LimitDistance,
+
+        [IniEnum("WATER_OK")]
+        WaterOk,
+
+        [IniEnum("NO_FORBIDDEN_OBJECTS")]
+        NoForbiddenObjects,
+
+        [IniEnum("PATHABLE_ONLY")]
+        PathableOnly,
+
+        [IniEnum("NEEDS_OBJECT_FILTER")]
+        NeedsObjectFilter,
+
+        [IniEnum("RESPECT_RECHARGE_TIME_DISCOUNT")]
+        RespectRechargeTimeDiscount,
     }
 }
