@@ -36,7 +36,10 @@ namespace OpenSage.Data.Ini
             { "ResearchCompleteEvaEvent", (parser, x) => x.ResearchCompleteEvaEvent = parser.ParseAssetReference() },
             { "RequiredObjectFilter", (parser, x) => x.RequiredObjectFilter = ObjectFilter.Parse(parser) },
             { "StrategicIcon", (parser, x) => x.StrategicIcon = parser.ParseAssetReference() },
-            { "SkirmishAIHeuristic", (parser, x) => x.SkirmishAIHeuristic = parser.ParseEnum<AIHeuristic>() }
+            { "SkirmishAIHeuristic", (parser, x) => x.SkirmishAIHeuristic = parser.ParseEnum<AIHeuristic>() },
+            { "SubUpgradeTemplateNames", (parser, x) => x.SubUpgradeTemplateNames = parser.ParseAssetReferenceArray() },
+            { "GroupName", (parser, x) => x.GroupName = parser.ParseString() },
+            { "GroupOrder", (parser, x) => x.GroupOrder = parser.ParseInteger() }
         };
 
         public string Name { get; private set; }
@@ -100,6 +103,15 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public AIHeuristic SkirmishAIHeuristic { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string[] SubUpgradeTemplateNames { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string GroupName { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int GroupOrder { get; private set; }
     }
 
     public enum UpgradeType
@@ -116,5 +128,11 @@ namespace OpenSage.Data.Ini
     {
         [IniEnum("AI_UPGRADEHEURISTIC_IMPORTANT")]
         Important,
+
+        [IniEnum("AI_UPGRADEHEURISTIC_FORTRESS")]
+        Fortress,
+
+        [IniEnum("AI_UPGRADEHEURISTIC_FACTORY_UNITUNLOCK")]
+        FactoryUnitunlock,
     }
 }
