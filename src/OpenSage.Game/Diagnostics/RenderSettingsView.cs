@@ -13,13 +13,17 @@ namespace OpenSage.Diagnostics
     {
         private readonly Dictionary<Tuple<Texture, int>, TextureView> _cachedTextureViews = new Dictionary<Tuple<Texture, int>, TextureView>();
 
+        private readonly List<uint> _shadowMapSizes;
+        private readonly string[] _shadowMapSizeNames;
+
         public override string DisplayName { get; } = "Render Settings";
 
         public RenderSettingsView(DiagnosticViewContext context)
             : base(context)
         {
-            
-        }
+            _shadowMapSizes = new List<uint> { 256u, 512u, 1024u, 2048u };
+            _shadowMapSizeNames = _shadowMapSizes.Select(x => x.ToString()).ToArray();
+    }
 
         protected override void DrawOverride(ref bool isGameViewFocused)
         {
@@ -61,10 +65,9 @@ namespace OpenSage.Diagnostics
             {
                 ImGui.Separator();
 
-                var shadowMapSizes = new List<uint> { 256, 512, 1024, 2048 };
-                var currentShadowMapSizeIndex = shadowMapSizes.IndexOf(shadowSettings.ShadowMapSize);
-                ImGui.Combo("Shadow map size", ref currentShadowMapSizeIndex, shadowMapSizes.Select(x => x.ToString()).ToArray(), shadowMapSizes.Count);
-                shadowSettings.ShadowMapSize = shadowMapSizes[currentShadowMapSizeIndex];
+                var currentShadowMapSizeIndex = _shadowMapSizes.IndexOf(shadowSettings.ShadowMapSize);
+                ImGui.Combo("Shadow map size", ref currentShadowMapSizeIndex, _shadowMapSizeNames, _shadowMapSizes.Count);
+                shadowSettings.ShadowMapSize = _shadowMapSizes[currentShadowMapSizeIndex];
 
                 ImGui.Text("Shadow cascades");
                 {

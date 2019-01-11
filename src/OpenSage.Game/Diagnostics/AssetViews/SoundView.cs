@@ -22,14 +22,14 @@ namespace OpenSage.Diagnostics.AssetViews
             ImGui.Text("SampleRate: " + _source.Format.SampleRate);
             ImGui.Spacing();
             ImGui.Text("Duration: " + _source.Duration);
-            float progress = (float) (_source.Position / _source.Duration);
+            var progress = (float) (_source.Position / _source.Duration);
             ImGui.SliderFloat("", ref progress, 0.0f, 1.0f, "Position", 1.0f);
             ImGui.Spacing();
 
             if (_playing)
             {
-                //We should reset the stream at this point
-                if(!_source.IsPlaying)
+                // TODO: We should reset the stream at this point
+                if (!_source.IsPlaying)
                 {
                     _playing = false;
                 }

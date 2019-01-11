@@ -73,7 +73,7 @@ namespace OpenSage.Diagnostics
                 _renderTarget.EnsureSize(newSize);
                 _cachedSize = currentSize;
 
-                _scene3D?.Camera.OnViewportSizeChanged();
+                _scene3D.Camera.OnViewportSizeChanged();
             }
 
             var cursorScreenPos = ImGui.GetCursorScreenPos();
