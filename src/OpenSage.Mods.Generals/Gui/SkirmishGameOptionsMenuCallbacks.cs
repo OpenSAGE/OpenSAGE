@@ -7,10 +7,6 @@ namespace OpenSage.Mods.Generals.Gui
     [WndCallbacks]
     public static class SkirmishGameOptionsMenuCallbacks
     {
-        private static Window _window;
-        private static Game _game;
-        private static MapCache _currentMap;
-
         public static GameOptionsUtil GameOptions { get; private set; }
 
         public static void SkirmishGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
