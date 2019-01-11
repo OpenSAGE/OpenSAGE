@@ -6,7 +6,10 @@ using Representation = OpenSage.Mathematics.SoftFloat;
 
 namespace OpenSage.Mathematics
 {
-    // TODO: This is just a wrapper around SoftFloat. Is this necessary?
+    /// <summary>
+    /// A deterministic 32-bit floating point number, with an IEE754-compatible layout.
+    /// Calculations using this type should have exactly the same results on all runtimes and platforms.
+    /// </summary>
     public readonly struct DFloat : IEquatable<DFloat>
     {
         private readonly Representation _value;

@@ -1,12 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-// using System.Runtime.Intrinsics.X86;
 
 namespace OpenSage.Mathematics
 {
+    /// <summary>
+    /// A deterministic vector consisting of three <see cref="OpenSage.Mathematics.DFloat"/> values,
+    /// with a <see cref="System.Numerics.Vector3"/> compatible memory layout.
+    /// Calculations using this type should have exactly the same results on all runtimes and platforms.
+    /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public readonly struct DVector3 : IEquatable<DVector3>
     {
@@ -84,11 +87,7 @@ namespace OpenSage.Mathematics
 
         public override int GetHashCode()
         {
-            var hashCode = -307843816;
-            hashCode = hashCode * -1521134295 + EqualityComparer<DFloat>.Default.GetHashCode(X);
-            hashCode = hashCode * -1521134295 + EqualityComparer<DFloat>.Default.GetHashCode(Y);
-            hashCode = hashCode * -1521134295 + EqualityComparer<DFloat>.Default.GetHashCode(Z);
-            return hashCode;
+            return HashCode.Combine(X.GetHashCode(), Y.GetHashCode(), Z.GetHashCode());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
