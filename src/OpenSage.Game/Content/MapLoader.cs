@@ -300,7 +300,7 @@ namespace OpenSage.Content
             {
                 var team = teams.FirstOrDefault(t => t.Name == (string) teamName.Value);
                 gameObject.Team = team;
-                gameObject.Owner = team.Owner;
+                gameObject.Owner = team?.Owner;
             }
 
             if (mapObject.Properties.TryGetValue("objectSelectable", out var selectable))
