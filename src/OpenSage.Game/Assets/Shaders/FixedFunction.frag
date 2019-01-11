@@ -244,14 +244,14 @@ vec4 SampleTexture(
 
         case TEXTURE_MAPPING_WS_ENVIRONMENT:
         {
-            //TODO: this is just a copy of ENVIRONMENT
+            // TODO: this is just a copy of ENVIRONMENT
             uv = (reflect(viewVector, worldNormal).xy / 2.0) + vec2(0.5f, 0.5f);
             break;
         }
 
         case TEXTURE_MAPPING_BUMP_ENV:
         {
-            //TODO: this is just a copy of ENVIRONMENT
+            // TODO: this is just a copy of ENVIRONMENT
             uv = (reflect(viewVector, worldNormal).xy / 2.0) + vec2(0.5f, 0.5f);
             break;
         }
@@ -395,7 +395,7 @@ void main()
             break;
 
         case DIFFUSE_LIGHTING_BUMP_ENV_MAP:
-            //TODO
+            // TODO
             break;
     }
 
