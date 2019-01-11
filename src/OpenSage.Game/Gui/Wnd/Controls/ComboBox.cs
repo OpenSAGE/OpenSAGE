@@ -167,10 +167,9 @@ namespace OpenSage.Gui.Wnd.Controls
             _dropDownButton.Click += OnDropDownButtonClick;
             Controls.Add(_dropDownButton);
 
-            _listBox = new ListBox();
+            _listBox = new ListBox(new[] { 100 });
             _listBox.SelectedIndexChanged += OnSelectedIndexChanged;
             _listBox.Visible = false;
-            _listBox.ColumnWidths = new[] { 100 }; // ComboBox has always 100% width because we only have 1 Column
             Controls.Add(_listBox);
         }
 

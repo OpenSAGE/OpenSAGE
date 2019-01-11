@@ -22,9 +22,8 @@ namespace OpenSage.Mods.Generals.Gui
         private readonly string _mapSelectPath;
         private Window _window;
         private Game _game;
-        private MapCache _currentMap;
 
-        public MapCache CurrentMap => _currentMap;
+        public MapCache CurrentMap { get; private set; }
 
         public GameOptionsUtil(Window window, Game game, string basePrefix)
         {
@@ -61,8 +60,8 @@ namespace OpenSage.Mods.Generals.Gui
 
             if (game.ContentManager.IniDataContext.MultiplayerColors.Count > 0)
             {
-                var colors = game.ContentManager.IniDataContext.MultiplayerColors.Select(i => new KeyValuePair<string, ColorRgbaF>(i.TooltipName, i.RgbColor.ToColorRgbaF())).ToList();
-                var randomColor = new KeyValuePair<string, ColorRgbaF>("GUI:???", ColorRgbaF.White);
+                var colors = game.ContentManager.IniDataContext.MultiplayerColors.Select(i => new Tuple<string, ColorRgbaF>(i.TooltipName, i.RgbColor.ToColorRgbaF())).ToList();
+                var randomColor = new Tuple<string, ColorRgbaF>("GUI:???", ColorRgbaF.White);
                 colors.Insert(0, randomColor);
 
                 FillColorComboBoxOptions(colors.ToArray());
@@ -94,7 +93,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                         context.Game.Scene2D.WndWindowManager.PopWindow();
                         context.Game.StartGame(
-                            _currentMap.Name,
+                            CurrentMap.Name,
                             new EchoConnection(),
                             settings,
                             0);
@@ -113,14 +112,14 @@ namespace OpenSage.Mods.Generals.Gui
 
         private bool ValidateSettings(PlayerSetting[] settings, WndWindowManager manager)
         {
-            if (settings.Length > _currentMap.NumPlayers)
+            if (settings.Length > CurrentMap.NumPlayers)
             {
                 var translation = _game.ContentManager.TranslationManager;
                 var messageBox = manager.PushWindow(@"Menus\MessageBox.wnd");
                 messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle").Text = translation.Lookup("GUI:ErrorStartingGame");
                 var staticTextTitle = messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle") as Label;
                 staticTextTitle.TextAlignment = TextAlignment.Leading;
-                messageBox.Controls.FindControl("MessageBox.wnd:StaticTextMessage").Text = translation.Format("GUI:TooManyPlayers", _currentMap.NumPlayers);
+                messageBox.Controls.FindControl("MessageBox.wnd:StaticTextMessage").Text = translation.Format("GUI:TooManyPlayers", CurrentMap.NumPlayers);
                 messageBox.Controls.FindControl("MessageBox.wnd:ButtonOk").Show();
                 return false;
             }
@@ -172,24 +171,27 @@ namespace OpenSage.Mods.Generals.Gui
 
         private void FillComboBoxOptions(string key, string[] options, int selectedIndex = 0)
         {
-            var comboBoxs = Control.GetSelfAndDescendants(_window).OfType<ComboBox>().Where(i => i.Name.StartsWith(key));
-            foreach (var comboBox in comboBoxs)
+            var comboBoxes = Control.GetSelfAndDescendants(_window).OfType<ComboBox>().Where(i => i.Name.StartsWith(key));
+            foreach (var comboBox in comboBoxes)
             {
-                if (comboBox.Name.Length - 1 != key.Length) continue;
-                ListBoxDataItem[] items = options.Select(i =>
+                if (comboBox.Name.Length - 1 != key.Length)
+                {
+                    continue;
+                }
+                var items = options.Select(i =>
                     new ListBoxDataItem(comboBox, new[] { _game.ContentManager.TranslationManager.Lookup(i) })).ToArray();
                 comboBox.Items = items;
                 comboBox.SelectedIndex = selectedIndex;
             }
         }
 
-        private void FillColorComboBoxOptions(KeyValuePair<string, ColorRgbaF>[] options, int selectedIndex = 0)
+        private void FillColorComboBoxOptions(Tuple<string, ColorRgbaF>[] options, int selectedIndex = 0)
         {
-            var comboBoxs = Control.GetSelfAndDescendants(_window).OfType<ComboBox>().Where(i => i.Name.StartsWith(_optionsPath + ComboBoxColorPrefix));
-            foreach (var comboBox in comboBoxs)
+            var comboBoxes = Control.GetSelfAndDescendants(_window).OfType<ComboBox>().Where(i => i.Name.StartsWith(_optionsPath + ComboBoxColorPrefix));
+            foreach (var comboBox in comboBoxes)
             {
-                ListBoxDataItem[] items = options.Select(i =>
-                    new ListBoxDataItem(comboBox, new[] { _game.ContentManager.TranslationManager.Lookup(i.Key) }, i.Value)).ToArray();
+                var items = options.Select(i =>
+                    new ListBoxDataItem(comboBox, new[] { _game.ContentManager.TranslationManager.Lookup(i.Item1) }, i.Item2)).ToArray();
                 comboBox.Items = items;
                 comboBox.SelectedIndex = selectedIndex;
             }
@@ -214,7 +216,7 @@ namespace OpenSage.Mods.Generals.Gui
                 var setting = new PlayerSetting();
                 setting.Owner = PlayerOwner.Player;
 
-                //Get the selected player owner
+                // Get the selected player owner
                 if (i >= 1)
                 {
                     selected = GetSelectedComboBoxIndex(_optionsPath + ComboBoxPlayerPrefix + i);
@@ -225,7 +227,7 @@ namespace OpenSage.Mods.Generals.Gui
                     }
                     else
                     {
-                        //TODO: make sure the color isn't already used
+                        // TODO: make sure the color isn't already used
                         setting.Owner = PlayerOwner.None;
                     }
                 }
@@ -237,7 +239,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                 var mpColors = game.ContentManager.IniDataContext.MultiplayerColors;
 
-                //Get the selected player color
+                // Get the selected player color
                 selected = GetSelectedComboBoxIndex(_optionsPath + ComboBoxColorPrefix + i);
                 if (selected > 0)
                 {
@@ -245,12 +247,12 @@ namespace OpenSage.Mods.Generals.Gui
                 }
                 else
                 {
-                    //TODO: make sure the color isn't already used
+                    // TODO: make sure the color isn't already used
                     int r = rnd.Next(mpColors.Count);
                     setting.Color = mpColors[r].RgbColor.ToColorRgb();
                 }
 
-                //Get the selected player faction
+                // Get the selected player faction
                 selected = GetSelectedComboBoxIndex(_optionsPath + ComboBoxPlayerTemplatePrefix + i);
                 var playableSides = game.ContentManager.IniDataContext.PlayerTemplates.FindAll(x => x.PlayableSide);
 
@@ -260,7 +262,7 @@ namespace OpenSage.Mods.Generals.Gui
                 }
                 else
                 {
-                    //TODO: make sure the color isn't already used
+                    // TODO: make sure the color isn't already used
                     int r = rnd.Next(playableSides.Count);
                     setting.Side = playableSides[r].Side;
                 }
@@ -273,7 +275,7 @@ namespace OpenSage.Mods.Generals.Gui
 
         public void SetCurrentMap(MapCache mapCache)
         {
-            _currentMap = mapCache;
+            CurrentMap = mapCache;
 
             var mapWindow = _window.Controls.FindControl(_optionsPath + ":MapWindow");
 

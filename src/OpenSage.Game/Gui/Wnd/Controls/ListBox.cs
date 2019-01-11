@@ -80,12 +80,6 @@ namespace OpenSage.Gui.Wnd.Controls
             set => _itemsArea.SelectedItemHoverBackgroundImage = value;
         }
 
-        public int Columns
-        {
-            get => _itemsArea.Columns;
-            set => _itemsArea.Columns = value;
-        }
-
         public int[] ColumnWidths
         {
             get => _itemsArea.ColumnWidths;
@@ -128,7 +122,7 @@ namespace OpenSage.Gui.Wnd.Controls
             }
         }
 
-        public ListBox()
+        public ListBox(int[] columnWidths, int columns = 0)
         {
             _upButton = new Button();
             _upButton.Click += OnUpButtonClick;
@@ -145,6 +139,26 @@ namespace OpenSage.Gui.Wnd.Controls
 
             _itemsArea = new ListBoxItemsArea();
             Controls.Add(_itemsArea);
+
+            // Calculate the columnwidths
+            int missing = columns - columnWidths.Length;
+            if (missing > 0)
+            {
+                var currentColumns = columnWidths.ToList();
+                int remaining = 100 - columnWidths.Sum();
+
+                // Split the remaining columns evenly
+                for (int i = 0; i < missing; ++i)
+                {
+                    currentColumns.Add(remaining / missing);
+                }
+
+                ColumnWidths = currentColumns.ToArray();
+            }
+            else
+            {
+                ColumnWidths = columnWidths;
+            }
         }
 
         private void OnUpButtonClick(object sender, EventArgs e)
@@ -182,15 +196,6 @@ namespace OpenSage.Gui.Wnd.Controls
 
             var thumbSize = _thumb.GetPreferredSize(infiniteSize);
             var thumbHeight = thumbSize.Height;
-
-            //I don't think the thumbButton ever shrinks, but instead always uses the preferred size.
-            //if (IsScrollBarVisible)
-            //{
-            //    var fullHeight = _downButton.Bounds.Top - _upButton.Bounds.Bottom;
-            //    //TODO We currently have a problem with the propotions of the elements
-            //    //If you compare the original result with ours, you can see that our elements are larger and the text is smaller.
-            //    thumbHeight = (int) Math.Max((float) fullHeight / (float) Items.Length * (float) MaxDisplay, 1);
-            //}
 
             _thumb.Bounds = new Rectangle(
                 ClientRectangle.Right - thumbSize.Width,
@@ -341,17 +346,6 @@ namespace OpenSage.Gui.Wnd.Controls
             _hoveredIndex = nextIndex;
         }
 
-        private int _columns = -1;
-        public int Columns
-        {
-            get => _columns;
-            set
-            {
-                _columns = value;
-                InvalidateLayout();
-            }
-        }
-
         private int[] _columnWidths;
         public int[] ColumnWidths
         {
@@ -437,33 +431,16 @@ namespace OpenSage.Gui.Wnd.Controls
             }
 
             const int horizontalPadding = 3;
-            var availableWidth = proposedSize.Width - ((_parent.Columns + 1) * horizontalPadding);
+            var availableWidth = proposedSize.Width - ((_parent.ColumnWidths.Length + 1) * horizontalPadding);
 
             int calculateColumnWidth(int column)
             {
-                // Distribute the available size evenly
-                if (_parent.ColumnWidths.Length == 0 && _parent.Columns > 0)
-                {
-                    return availableWidth / _parent.Columns;
-                }
-                else if (_parent.ColumnWidths.Length > 0)
-                {
-                    return (int) ((_parent.ColumnWidths[column] / 100.0f) * availableWidth);
-                }
-                else
-                {
-                    throw new InvalidOperationException("Invalid colums layouting");
-                }
-            }
-
-            int getColumnCount()
-            {
-                return _parent.Columns != -1 ? _parent.Columns : _parent.ColumnWidths.Length;
+                return (int) ((_parent.ColumnWidths[column] / 100.0f) * availableWidth);
             }
 
             var font = _parent.Font;
             var itemHeight = int.MinValue;
-            for (var column = 0; column < getColumnCount(); column++)
+            for (var column = 0; column < _parent.ColumnWidths.Length; column++)
             {
                 var textSize = DrawingContext2D.MeasureText(
                     _item.ColumnData[column],
@@ -480,11 +457,11 @@ namespace OpenSage.Gui.Wnd.Controls
             var result = new ListBoxItemDimension
             {
                 Size = new Size(proposedSize.Width, itemHeight),
-                ColumnBounds = new Rectangle[getColumnCount()]
+                ColumnBounds = new Rectangle[_parent.ColumnWidths.Length]
             };
 
             var x = horizontalPadding;
-            for (var column = 0; column < getColumnCount(); column++)
+            for (var column = 0; column < _parent.ColumnWidths.Length; column++)
             {
                 var columnWidth = calculateColumnWidth(column);
 
@@ -521,7 +498,7 @@ namespace OpenSage.Gui.Wnd.Controls
         {
             var itemBounds = GetItemBounds(ClientSize);
 
-            for (var column = 0; column < _parent.Columns; column++)
+            for (var column = 0; column < _parent.ColumnWidths.Length; column++)
             {
                 drawingContext.DrawText(
                     _item.ColumnData[column],

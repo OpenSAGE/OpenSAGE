@@ -127,16 +127,13 @@ namespace OpenSage.Content
                         };
 
                     case WndWindowType.ListBox:
-                        var listBox = new ListBox
+                        var listBox = new ListBox(wndWindow.ListBoxData.ColumnWidths, wndWindow.ListBoxData.Columns)
                         {
                             BorderColor = wndWindow.EnabledDrawData.Items[0].BorderColor.ToColorRgbaF(),
                             BorderWidth = 1,
 
                             SelectedItemBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.EnabledDrawData, 1, 3, 2),
                             SelectedItemHoverBackgroundImage = imageLoader.CreateStretchableImage(wndWindow.HiliteDrawData, 1, 3, 2),
-
-                            Columns = wndWindow.ListBoxData.Columns,
-                            ColumnWidths = wndWindow.ListBoxData.ColumnWidths,
 
                             IsScrollBarVisible = wndWindow.ListBoxData.ScrollBar
                         };

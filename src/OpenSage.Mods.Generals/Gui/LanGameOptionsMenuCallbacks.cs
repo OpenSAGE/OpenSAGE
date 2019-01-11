@@ -7,10 +7,6 @@ namespace OpenSage.Mods.Generals.Gui
     [WndCallbacks]
     class LanGameOptionsMenuCallbacks
     {
-        private static Window _window;
-        private static Game _game;
-        private static MapCache _currentMap;
-
         public static GameOptionsUtil GameOptions { get; private set; }
 
         public static void LanGameOptionsMenuSystem(Control control, WndWindowMessage message, ControlCallbackContext context)
