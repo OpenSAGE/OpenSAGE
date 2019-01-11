@@ -304,7 +304,7 @@ namespace OpenSage.Content
 
             if (!_cachedFonts.TryGetValue(key, out var font))
             {
-                bool embeddedFallback = false;
+                var embeddedFallback = false;
 
                 if (!SystemFonts.TryFind(fontName, out var fontFamily))
                 {

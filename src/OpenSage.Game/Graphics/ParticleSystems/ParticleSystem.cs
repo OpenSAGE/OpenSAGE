@@ -152,7 +152,7 @@ namespace OpenSage.Graphics.ParticleSystems
             switch (shader)
             {
                 case ParticleSystemShader.Alpha:
-                case ParticleSystemShader.AlphaTest:
+                case ParticleSystemShader.AlphaTest: // TODO: proper implementation for AlphaTest
                     return BlendStateDescription.SingleAlphaBlend;
 
                 case ParticleSystemShader.Additive:

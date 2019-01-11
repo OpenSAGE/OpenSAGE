@@ -298,7 +298,7 @@ namespace OpenSage.Content
 
             if (mapObject.Properties.TryGetValue("originalOwner", out var teamName))
             {
-                var name = (string)teamName.Value;
+                var name = (string) teamName.Value;
                 if (name.Contains('/'))
                 {
                     name = name.Split('/')[1];
