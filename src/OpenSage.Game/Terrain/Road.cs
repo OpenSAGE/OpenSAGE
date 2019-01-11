@@ -132,7 +132,7 @@ namespace OpenSage.Terrain
 
         internal void BuildRenderList(RenderList renderList)
         {
-            renderList.Opaque.AddRenderItemDrawIndexed(
+            renderList.Opaque.RenderItems.Add(new RenderItem(
                 _material,
                 _vertexBuffer,
                 null,
@@ -141,7 +141,7 @@ namespace OpenSage.Terrain
                 Matrix4x4.Identity,
                 0,
                 _numIndices,
-                _indexBuffer);
+                _indexBuffer));
         }
     }
 

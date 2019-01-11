@@ -488,7 +488,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 return;
             }
 
-            renderList.Transparent.AddRenderItemDrawIndexed(
+            renderList.Transparent.RenderItems.Add(new RenderItem(
                 _particleMaterial,
                 _vertexBuffer,
                 null,
@@ -497,7 +497,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 worldMatrix,
                 0,
                 _numIndices,
-                _indexBuffer);
+                _indexBuffer));
         }
     }
 

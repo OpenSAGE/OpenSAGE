@@ -181,7 +181,7 @@ namespace OpenSage.Graphics
                     {
                         meshPart.DepthMaterial.SetSkinningBuffer(modelInstance.SkinningBuffer);
 
-                        renderList.Shadow.AddRenderItemDrawIndexed(
+                        renderList.Shadow.RenderItems.Add(new RenderItem(
                            meshPart.DepthMaterial,
                            _vertexBuffer,
                            materialPass.TexCoordVertexBuffer,
@@ -190,7 +190,7 @@ namespace OpenSage.Graphics
                            world,
                            meshPart.StartIndex,
                            meshPart.IndexCount,
-                           _indexBuffer);
+                           _indexBuffer));
                     }
 
                     // Standard pass
@@ -201,7 +201,7 @@ namespace OpenSage.Graphics
                         ? renderList.Transparent
                         : renderList.Opaque;
 
-                    renderQueue.AddRenderItemDrawIndexed(
+                    renderQueue.RenderItems.Add(new RenderItem(
                         meshPart.Material,
                         _vertexBuffer,
                         materialPass.TexCoordVertexBuffer,
@@ -211,7 +211,7 @@ namespace OpenSage.Graphics
                         meshPart.StartIndex,
                         meshPart.IndexCount,
                         _indexBuffer,
-                        owner?.Color);
+                        owner?.Color));
                 }
             }
         }

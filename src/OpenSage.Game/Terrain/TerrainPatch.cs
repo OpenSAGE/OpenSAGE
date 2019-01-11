@@ -74,7 +74,7 @@ namespace OpenSage.Terrain
         {
             _terrainMaterial.SetMacroTexture(macroTexture);
 
-            renderList.Opaque.AddRenderItemDrawIndexed(
+            renderList.Opaque.RenderItems.Add(new RenderItem(
                 _terrainMaterial,
                 _vertexBuffer,
                 null,
@@ -83,7 +83,7 @@ namespace OpenSage.Terrain
                 Matrix4x4.Identity,
                 0,
                 _numIndices,
-                _indexBuffer);
+                _indexBuffer));
         }
     }
 
