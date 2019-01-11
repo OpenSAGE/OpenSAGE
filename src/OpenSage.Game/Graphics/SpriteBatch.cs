@@ -62,7 +62,7 @@ namespace OpenSage.Graphics
         {
             _commandEncoder = commandEncoder;
 
-            _material.Effect.Begin(_commandEncoder);
+            _material.Effect.Begin();
 
             _material.SetSampler(samplerState);
 

@@ -268,15 +268,12 @@ namespace OpenSage.Graphics.Rendering
 
                 if (lastRenderItemIndex == null || bucket.RenderItems[lastRenderItemIndex.Value].Effect != renderItem.Effect)
                 {
-                    var effect = renderItem.Effect;
-
-                    effect.Begin(commandList);
-
-                    SetDefaultMaterialProperties(renderItem.Material, cloudTexture, shadowMap);
+                    renderItem.Effect.Begin();
                 }
 
                 if (lastRenderItemIndex == null || bucket.RenderItems[lastRenderItemIndex.Value].Material != renderItem.Material)
                 {
+                    SetDefaultMaterialProperties(renderItem.Material, cloudTexture, shadowMap);
                     renderItem.Material.ApplyPipelineState();
                     renderItem.Effect.ApplyPipelineState(commandList);
                 }
