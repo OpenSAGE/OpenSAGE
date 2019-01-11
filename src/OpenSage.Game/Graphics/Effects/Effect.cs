@@ -127,7 +127,7 @@ namespace OpenSage.Graphics.Effects
             return result;
         }
 
-        public void Begin(CommandList commandEncoder)
+        public void Begin()
         {
             _dirtyFlags |= EffectDirtyFlags.PipelineState;
 
