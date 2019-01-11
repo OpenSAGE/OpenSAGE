@@ -55,6 +55,18 @@ namespace OpenSage.Data.Ini
             { "AffectsKindOf", (parser, x) => x.AffectsKindOf = parser.ParseEnumBitArray<ObjectKinds>() },
             { "RequiresValidContainer", (parser, x) => x.RequiresValidContainer = parser.ParseBoolean() },
             { "LacksPrerequisiteLabel", (parser, x) => x.LacksPrerequisiteLabel = parser.ParseLocalizedStringKey() },
+            { "Stances", (parser, x) => x.Stances = parser.ParseAssetReferenceArray() },
+            { "TriggerWhenReady", (parser, x) => x.TriggerWhenReady = parser.ParseBoolean() },
+            { "AutoAbilityDisallowedOnModelCondition", (parser, x) => x.AutoAbilityDisallowedOnModelCondition = parser.ParseEnumBitArray<ModelConditionFlag>() },
+            { "ShowButton", (parser, x) => x.ShowButton = parser.ParseBoolean() },
+            { "CommandRangeStart", (parser, x) => x.CommandRangeStart = parser.ParseInteger() },
+            { "CommandRangeCount", (parser, x) => x.CommandRangeCount = parser.ParseInteger() },
+            { "PurchasedLabel", (parser, x) => x.PurchasedLabel = parser.ParseLocalizedStringKey() },
+            { "NeededUpgradeAny", (parser, x) => x.NeededUpgradeAny = parser.ParseBoolean() },
+            { "CreateAHeroUIAllowableUpgrades", (parser, x) => x.CreateAHeroUIAllowableUpgrades = parser.ParseAssetReferenceArray() },
+            { "CreateAHeroUIMinimumLevel", (parser, x) => x.CreateAHeroUIMinimumLevel = parser.ParseInteger() },
+            { "CreateAHeroUIPrerequisiteButtonName", (parser, x) => x.CreateAHeroUIPrerequisiteButtonName = parser.ParseString() },
+            { "ToggleButtonName", (parser, x) => x.ToggleButtonName = parser.ParseAssetReference() }
         };
 
         public string Name { get; private set; }
@@ -150,10 +162,49 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public string LacksPrerequisiteLabel { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string[] Stances { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool TriggerWhenReady { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public BitArray<ModelConditionFlag> AutoAbilityDisallowedOnModelCondition { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ShowButton { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int CommandRangeStart { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int CommandRangeCount { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string PurchasedLabel { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool NeededUpgradeAny { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string[] CreateAHeroUIAllowableUpgrades { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int CreateAHeroUIMinimumLevel { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string CreateAHeroUIPrerequisiteButtonName { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string ToggleButtonName { get; private set; }
     }
 
     public enum CommandType
     {
+        [IniEnum("NONE"), AddedIn(SageGame.Bfme2)]
+        None,
+
         [IniEnum("PLACE_BEACON")]
         PlaceBeacon,
 
@@ -309,6 +360,27 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("START_SELF_REPAIR"), AddedIn(SageGame.Bfme)]
         StartSelfRepair,
+
+        [IniEnum("POP_VISIBLE_COMMAND_RANGE"), AddedIn(SageGame.Bfme2)]
+        PopVisibleCommandRange,
+
+        [IniEnum("TOGGLE_STANCE"), AddedIn(SageGame.Bfme2)]
+        ToggleStance,
+
+        [IniEnum("SET_STANCE"), AddedIn(SageGame.Bfme2)]
+        SetStance,
+
+        [IniEnum("PUSH_VISIBLE_COMMAND_RANGE"), AddedIn(SageGame.Bfme2)]
+        PushVisibleCommandRange,
+
+        [IniEnum("START_NEIGHBORHOOD_REPAIR"), AddedIn(SageGame.Bfme2)]
+        StartNeighborhoodRepair,
+
+        [IniEnum("CANCEL_NEIGHBORHOOD"), AddedIn(SageGame.Bfme2)]
+        CancelNeighborhood,
+
+        [IniEnum("SPECIAL_POWER_TOGGLE"), AddedIn(SageGame.Bfme2)]
+        SpecialPowerToggle,
     }
 
     public enum CommandButtonBorderType
@@ -424,6 +496,9 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("NEEDS_CASTLE_KINDOF"), AddedIn(SageGame.Bfme)]
         NeedsCastleKindOf,
+
+        [IniEnum("OK_FOR_MULTI_EXECUTE"), AddedIn(SageGame.Bfme2)]
+        OkForMultiExecute,
     }
 
     public enum WeaponSlot
@@ -622,5 +697,192 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("DOMINATE"), AddedIn(SageGame.Bfme)]
         Dominate,
+
+        //should this realy be enum values? or just names/strings
+        [IniEnum("ScatterAreaRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        ScatterAreaRadiusCursor,
+
+        [IniEnum("RainOfFireRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        RainOfFireRadiusCursor,
+
+        [IniEnum("FireBreathRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        FireBreathRadiusCursor,
+
+        [IniEnum("TrainingRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        TrainingRadiusCursor,
+
+        [IniEnum("SummonOathBreakersRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        SummonOathBreakersRadiusCursor,
+
+        [IniEnum("KingsFavorRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        KingsFavorRadiusCursor,
+
+        [IniEnum("CaptainOfGondorRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        CaptainOfGondorRadiusCursor,
+
+        [IniEnum("MightyRageRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        MightyRageRadiusCursor,
+
+        [IniEnum("ArrowStormRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        ArrowStormRadiusCursor,
+
+        [IniEnum("AthelasRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        AthelasRadiusCursor,
+
+        [IniEnum("ArcheryTrainingRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        ArcheryTrainingRadiusCursor,
+
+        [IniEnum("FloodRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        FloodRadiusCursor,
+
+        [IniEnum("LightningSwordRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        LightningSwordRadiusCursor,
+
+        [IniEnum("LeapRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        LeapRadiusCursor,
+
+        [IniEnum("FarsightRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        FarsightRadiusCursor,
+
+        [IniEnum("HealRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        HealRadiusCursor,
+
+        [IniEnum("MoveUnseenRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        MoveUnseenRadiusCursor,
+
+        [IniEnum("CallOfTheDeepRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        CallOfTheDeepRadiusCursor,
+
+        [IniEnum("ThunderBoltRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        ThunderBoltRadiusCursor,
+
+        [IniEnum("IndustryRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        IndustryRadiusCursor,
+
+        [IniEnum("TaintRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        TaintRadiusCursor,
+
+        [IniEnum("EyeOfSauronRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        EyeOfSauronRadiusCursor,
+
+        [IniEnum("NaturesWrathRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        NaturesWrathRadiusCursor,
+
+        [IniEnum("BarricadeRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        BarricadeRadiusCursor,
+
+        [IniEnum("WarChantRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        WarChantRadiusCursor,
+
+        [IniEnum("PalantirVisionRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        PalantirVisionRadiusCursor,
+
+        [IniEnum("CrebainRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        CrebainRadiusCursor,
+
+        [IniEnum("CaveBatsRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        CaveBatsRadiusCursor,
+
+        [IniEnum("DevastationRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        DevastationRadiusCursor,
+
+        [IniEnum("UntamedAllegianceRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        UntamedAllegianceRadiusCursor,
+
+        [IniEnum("WildmenAlliesRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        WildmenAlliesRadiusCursor,
+
+        [IniEnum("SpiderlingsRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        SpiderlingsRadiusCursor,
+
+        [IniEnum("WyrmRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        WyrmRadiusCursor,
+
+        [IniEnum("SummonWatcherRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        SummonWatcherRadiusCursor,
+
+        [IniEnum("SummonBalrogRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        SummonBalrogRadiusCursor,
+
+        [IniEnum("SummonDragonRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        SummonDragonRadiusCursor,
+
+        [IniEnum("DragonStrikeRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        DragonStrikeRadiusCursor,
+
+        [IniEnum("LoneTowerRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        LoneTowerRadiusCursor,
+
+        [IniEnum("EnshroudingMistRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        EnshroudingMistRadiusCursor,
+
+        [IniEnum("RallyRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        RallyRadiusCursor,
+
+        [IniEnum("TomBombadilRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        TomBombadilRadiusCursor,
+
+        [IniEnum("ElvenAlliesRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        ElvenAlliesRadiusCursor,
+
+        [IniEnum("RebuildRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        RebuildRadiusCursor,
+
+        [IniEnum("ElvenWoodRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        ElvenWoodRadiusCursor,
+
+        [IniEnum("DwarvenRichesRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        DwarvenRichesRadiusCursor,
+
+        [IniEnum("RohanAlliesRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        RohanAlliesRadiusCursor,
+
+        [IniEnum("DunedainAlliesRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        DunedainAlliesRadiusCursor,
+
+        [IniEnum("EntAlliesRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        EntAlliesRadiusCursor,
+
+        [IniEnum("EagleAlliesRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        EagleAlliesRadiusCursor,
+
+        [IniEnum("UndermineRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        UndermineRadiusCursor,
+
+        [IniEnum("ArmyOfTheDeadRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        ArmyOfTheDeadRadiusCursor,
+
+        [IniEnum("EarthquakeRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        EarthquakeRadiusCursor,
+
+        [IniEnum("SunflareRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        SunflareRadiusCursor,
+
+        [IniEnum("SpeechCraftRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        SpeechCraftRadiusCursor,
+
+        [IniEnum("DominateRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        DominateRadiusCursor,
+
+        [IniEnum("WingBlastRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        WingBlastRadiusCursor,
+
+        [IniEnum("DoubtRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        DoubtRadiusCursor,
+
+        [IniEnum("DissentRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        DissentRadiusCursor,
+
+        [IniEnum("LongShotRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        LongShotRadiusCursor,
+
+        [IniEnum("ExtinguishFireRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        ExtinguishFireRadiusCursor,
+
+        [IniEnum("WordOfPoultryRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        WordOfPoultryRadiusCursor,
+
+        [IniEnum("FamiliarRadiusCursor"), AddedIn(SageGame.Bfme2)]
+        FamiliarRadiusCursor,
     }
 }

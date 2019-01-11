@@ -34,7 +34,7 @@ namespace OpenSage.Tests.Data.Ini
                 {
                     var filename = Path.GetFileName(entry.FilePath).ToLowerInvariant();
 
-                    if (filename != "upgrade.ini") return;
+                    if (filename != "specialpower.ini") return;
                     /*
                     // TODO:implement missing stuff
                     if (gameDefinition.Game == SageGame.Bfme2)
@@ -47,7 +47,6 @@ namespace OpenSage.Tests.Data.Ini
                             case "awardsystem.ini":
                             case "bannerui.ini":
                             case "riskcampaign.ini":
-                            case "commandbutton.ini":
                             case "commandset.ini":
                             case "crate.ini":
                             case "createaherospecialpowers.ini":
@@ -72,6 +71,7 @@ namespace OpenSage.Tests.Data.Ini
                             case "ingameui.ini":
                             case "largegroupaudio.ini":
                             case "linearcampaign.ini":
+
                             case "livingworld.ini":
                             case "livingworldaitemplate.ini":
                             case "livingworldautoresolvearmor.ini":
@@ -86,6 +86,7 @@ namespace OpenSage.Tests.Data.Ini
                             case "livingworldbuildingicons.ini":
                             case "livingworldbuildings.ini":
                             case "livingworldbuildploticons.ini":
+
                             case "dwarficons.ini":
                             case "elficons.ini":
                             case "isengardicons.ini":
@@ -98,7 +99,6 @@ namespace OpenSage.Tests.Data.Ini
                             case "locomotor.ini":
                             case "meshinstancingmanager.ini":
                             case "scoredkillevaannouncer.ini":
-                            case "specialpower.ini":
                             case "speech.ini":
                             case "stances.ini":
                             case "strategichud.ini":
