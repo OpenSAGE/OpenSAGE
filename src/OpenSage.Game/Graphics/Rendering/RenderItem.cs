@@ -12,12 +12,6 @@ namespace OpenSage.Graphics.Rendering
         AlwaysVisible = 0x1
     }
 
-    public enum DrawCommand
-    {
-        Draw,
-        DrawIndexed
-    }
-
     public readonly struct RenderItem : System.IComparable<RenderItem>
     {
         public readonly Effect Effect;
@@ -34,13 +28,6 @@ namespace OpenSage.Graphics.Rendering
 
         public readonly ColorRgb? HouseColor;
 
-        public readonly DrawCommand DrawCommand;
-
-        // Draw
-        public readonly uint VertexStart;
-        public readonly uint VertexCount;
-
-        // DrawIndexed
         public readonly uint StartIndex;
         public readonly uint IndexCount;
         public readonly DeviceBuffer IndexBuffer;
@@ -54,16 +41,10 @@ namespace OpenSage.Graphics.Rendering
             CullFlags cullFlags,
             in BoundingBox boundingBox,
             in Matrix4x4 world,
-            DrawCommand drawCommand,
-
-            uint vertexStart,
-            uint vertexCount,
-
             uint startIndex,
             uint indexCount,
             DeviceBuffer indexBuffer,
-
-            in ColorRgb? houseColor)
+            in ColorRgb? houseColor = null)
         {
             Effect = material.Effect;
             Material = material;
@@ -74,10 +55,6 @@ namespace OpenSage.Graphics.Rendering
             BoundingBox = boundingBox;
             World = world;
             HouseColor = houseColor;
-            DrawCommand = drawCommand;
-
-            VertexStart = vertexStart;
-            VertexCount = vertexCount;
 
             StartIndex = startIndex;
             IndexCount = indexCount;

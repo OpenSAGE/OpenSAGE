@@ -278,17 +278,11 @@ namespace OpenSage.Graphics.Rendering
                     renderItem.Effect.ApplyPipelineState(commandList);
                 }
 
-                if (lastRenderItemIndex == null || bucket.RenderItems[lastRenderItemIndex.Value].VertexBuffer0 != renderItem.VertexBuffer0)
-                {
-                    commandList.SetVertexBuffer(0, renderItem.VertexBuffer0);
-                }
+                commandList.SetVertexBuffer(0, renderItem.VertexBuffer0);
 
-                if (lastRenderItemIndex == null || bucket.RenderItems[lastRenderItemIndex.Value].VertexBuffer1 != renderItem.VertexBuffer1)
+                if (renderItem.VertexBuffer1 != null)
                 {
-                    if (renderItem.VertexBuffer1 != null)
-                    {
-                        commandList.SetVertexBuffer(1, renderItem.VertexBuffer1);
-                    }
+                    commandList.SetVertexBuffer(1, renderItem.VertexBuffer1);
                 }
 
                 var renderItemConstantsVSParameter = renderItem.Effect.GetParameter("RenderItemConstantsVS", throwIfMissing: false);
@@ -324,29 +318,13 @@ namespace OpenSage.Graphics.Rendering
                 renderItem.Material.ApplyProperties();
                 renderItem.Effect.ApplyParameters(commandList);
 
-                switch (renderItem.DrawCommand)
-                {
-                    case DrawCommand.Draw:
-                        commandList.Draw(
-                            renderItem.VertexCount,
-                            1,
-                            renderItem.VertexStart,
-                            0);
-                        break;
-
-                    case DrawCommand.DrawIndexed:
-                        commandList.SetIndexBuffer(renderItem.IndexBuffer, IndexFormat.UInt16);
-                        commandList.DrawIndexed(
-                            renderItem.IndexCount,
-                            1,
-                            renderItem.StartIndex,
-                            0,
-                            0);
-                        break;
-
-                    default:
-                        throw new System.Exception();
-                }
+                commandList.SetIndexBuffer(renderItem.IndexBuffer, IndexFormat.UInt16);
+                commandList.DrawIndexed(
+                    renderItem.IndexCount,
+                    1,
+                    renderItem.StartIndex,
+                    0,
+                    0);
 
                 lastRenderItemIndex = i;
             }

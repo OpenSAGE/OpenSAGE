@@ -91,7 +91,7 @@ namespace OpenSage.Terrain
 
         internal void BuildRenderList(RenderList renderList, TimeOfDay timeOfDay)
         {
-            renderList.Opaque.AddRenderItemDrawIndexed(
+            renderList.Opaque.RenderItems.Add(new RenderItem(
                 _materials[timeOfDay],
                 _vertexBuffer,
                 null,
@@ -100,7 +100,7 @@ namespace OpenSage.Terrain
                 Matrix4x4.Identity,
                 0,
                 _numIndices,
-                _indexBuffer);
+                _indexBuffer));
         }
     }
 
