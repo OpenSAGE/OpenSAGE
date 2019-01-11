@@ -158,11 +158,10 @@ namespace OpenSage.Content
                 animations[w3dAnimations.Count + i] = CreateAnimation(w3dCompressedAnimations[i]);
             }
 
-            // TODO: add this again, commented out for continuous map loading
-            //foreach (var animation in animations)
-            //{
-            //    contentManager.DataContext.Animations.Add(animation.Name, animation);
-            //}
+            foreach (var animation in animations)
+            {
+                contentManager.DataContext.Animations.Add(animation.Name, animation);
+            }
 
             return animations;
         }
