@@ -13,13 +13,9 @@ namespace OpenSage.Diagnostics
         private readonly DiagnosticViewContext _context;
         private readonly List<DiagnosticView> _views;
 
-        private bool _isVSyncEnabled;
-
         public MainView(DiagnosticViewContext context)
         {
             _context = context;
-
-            _isVSyncEnabled = context.Game.GraphicsDevice.SyncToVerticalBlank;
 
             _views = new List<DiagnosticView>();
 
@@ -65,7 +61,7 @@ namespace OpenSage.Diagnostics
                     {
                         foreach (var mapCache in _context.Game.ContentManager.IniDataContext.MapCaches)
                         {
-                            if (ImGui.MenuItem(mapCache.DisplayName))
+                            if (ImGui.MenuItem($"{mapCache.DisplayName} ({mapCache.Name})"))
                             {
                                 _context.Game.StartGame(
                                     mapCache.Name,
@@ -102,10 +98,10 @@ namespace OpenSage.Diagnostics
 
                 if (ImGui.BeginMenu("Preferences"))
                 {
-                    bool isVSyncEnabled = _isVSyncEnabled;
+                    var isVSyncEnabled = _context.Game.GraphicsDevice.SyncToVerticalBlank;
                     if (ImGui.MenuItem("VSync", null, ref isVSyncEnabled, true))
                     {
-                        SetVSync(isVSyncEnabled);
+                        _context.Game.GraphicsDevice.SyncToVerticalBlank = isVSyncEnabled;
                     }
                     ImGui.EndMenu();
                 }
@@ -150,15 +146,6 @@ namespace OpenSage.Diagnostics
 
                 ImGui.End();
                 ImGui.PopStyleVar();
-            }
-        }
-
-        private void SetVSync(bool isEnabled)
-        {
-            if (_isVSyncEnabled != isEnabled)
-            {
-                _isVSyncEnabled = isEnabled;
-                _context.Game.GraphicsDevice.SyncToVerticalBlank = _isVSyncEnabled;
             }
         }
     }

@@ -26,6 +26,11 @@ namespace OpenSage.Diagnostics
             var availableSize = ImGui.GetContentRegionAvail();
             availableSize.Y -= ImGui.GetTextLineHeightWithSpacing();
 
+            if (availableSize.X <= 0 || availableSize.Y <= 0)
+            {
+                return;
+            }
+
             Game.Panel.EnsureFrame(
                 new Mathematics.Rectangle(
                     (int) windowPos.X,

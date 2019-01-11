@@ -36,7 +36,7 @@ namespace OpenSage
 
         private readonly TextureCopier _textureCopier;
 
-        public ContentManager ContentManager { get; private set; }
+        public ContentManager ContentManager { get; }
 
         public GraphicsDevice GraphicsDevice { get; }
 
@@ -72,8 +72,6 @@ namespace OpenSage
         public int FrameCount { get; private set; }
 
         public GameTime UpdateTime { get; private set; }
-
-        public bool IsActive { get; set; }
 
         public bool IsRunning { get; private set; }
 

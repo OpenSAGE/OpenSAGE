@@ -22,7 +22,7 @@ namespace OpenSage.Diagnostics
 
         public override string DisplayName { get; } = "Asset List";
 
-        public override Vector2 DefaultSize { get; } = new Vector2(600, 400);
+        public override Vector2 DefaultSize { get; } = new Vector2(700, 400);
 
         public AssetListView(DiagnosticViewContext context)
             : base(context)
@@ -64,7 +64,7 @@ namespace OpenSage.Diagnostics
 
         protected override void DrawOverride(ref bool isGameViewFocused)
         {
-            ImGui.BeginChild("asset list sidebar", new Vector2(250, 0), true, 0);
+            ImGui.BeginChild("asset list sidebar", new Vector2(350, 0), true, 0);
 
             ImGui.PushItemWidth(-1);
             ImGuiUtility.InputText("##search", _searchTextBuffer, out var searchText);
