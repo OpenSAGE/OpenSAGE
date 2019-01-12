@@ -34,7 +34,7 @@ namespace OpenSage.Tests.Data.Ini
                 {
                     var filename = Path.GetFileName(entry.FilePath).ToLowerInvariant();
 
-                    if (filename != "specialpower.ini") return;
+                    if (filename != "dwarficons.ini") return;
                     /*
                     // TODO:implement missing stuff
                     if (gameDefinition.Game == SageGame.Bfme2)
@@ -49,7 +49,6 @@ namespace OpenSage.Tests.Data.Ini
                             case "riskcampaign.ini":
                             case "commandset.ini":
                             case "crate.ini":
-                            case "createaherospecialpowers.ini":
                             case "createaherosystem.ini":
                             case "crowdresponse.ini":
                             case "damagefx.ini":
@@ -86,6 +85,9 @@ namespace OpenSage.Tests.Data.Ini
                             case "livingworldbuildingicons.ini":
                             case "livingworldbuildings.ini":
                             case "livingworldbuildploticons.ini":
+                            case "livingworldplayers.ini":
+                            case "livingworldregioneffects.ini":
+                            case "livingworldteststructures.ini":
 
                             case "dwarficons.ini":
                             case "elficons.ini":
@@ -93,9 +95,6 @@ namespace OpenSage.Tests.Data.Ini
                             case "mordoricons.ini":
                             case "mowicons.ini":
                             case "wildicons.ini":
-                            case "livingworldplayers.ini":
-                            case "livingworldregioneffects.ini":
-                            case "livingworldteststructures.ini":
                             case "locomotor.ini":
                             case "meshinstancingmanager.ini":
                             case "scoredkillevaannouncer.ini":
