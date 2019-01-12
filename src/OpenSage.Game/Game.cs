@@ -67,11 +67,24 @@ namespace OpenSage
         /// </summary>
         public AudioSystem Audio { get; }
 
-        public int FrameCount { get; private set; }
+        public int CurrentFrame { get; private set; }
 
         public GameTime UpdateTime { get; private set; }
+        private TimeSpan _nextLogicUpdate;
+        private TimeSpan _nextScriptingUpdate;
 
+        public TimeSpan CumulativeLogicUpdateError;
+
+        /// <summary>
+        /// Is the game running?
+        /// This is only false when the game is shutting down.
+        /// </summary>
         public bool IsRunning { get; private set; }
+
+        /// <summary>
+        /// Is the game running logic updates?
+        /// </summary>
+        public bool IsLogicRunning { get; internal set; }
 
         public IGameDefinition Definition { get; }
         public SageGame SageGame => Definition.Game;
@@ -212,6 +225,7 @@ namespace OpenSage
             LauncherImage = LoadLauncherImage();
 
             IsRunning = true;
+            IsLogicRunning = true;
         }
 
         private void OnPanelSizeChanged(object sender, EventArgs e)
@@ -345,6 +359,13 @@ namespace OpenSage
                 Scene2D.ControlBar = Definition.ControlBar.Create(playerSettings[localPlayerIndex].Side, ContentManager);
                 Scene2D.ControlBar.AddToScene(Scene2D);
             }
+
+            // Reset everything, and run the first update on the first frame.
+            CurrentFrame = 0;
+            _gameTimer.Reset();
+            _nextLogicUpdate = TimeSpan.Zero;
+            _nextScriptingUpdate = TimeSpan.Zero;
+            CumulativeLogicUpdateError = TimeSpan.Zero;
         }
 
         public void EndGame()
@@ -356,16 +377,14 @@ namespace OpenSage
 
         public void Run()
         {
+            _nextLogicUpdate = UpdateTime.TotalGameTime;
+            _nextScriptingUpdate = UpdateTime.TotalGameTime;
+
             while (IsRunning)
             {
                 if (!Window.PumpEvents())
                 {
                     break;
-                }
-
-                if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F11))
-                {
-                    DeveloperModeEnabled = !DeveloperModeEnabled;
                 }
 
                 if (DeveloperModeEnabled)
@@ -374,9 +393,11 @@ namespace OpenSage
                 }
                 else
                 {
+                    Update(Window.MessageQueue);
+
                     Panel.EnsureFrame(Window.ClientBounds);
 
-                    Tick(Window.MessageQueue);
+                    Render();
 
                     _textureCopier.Execute(
                         Panel.Framebuffer.ColorTargets[0].Target,
@@ -391,24 +412,61 @@ namespace OpenSage
             // TODO: Cleanup resources.
         }
 
-        internal void Tick(IEnumerable<InputMessage> inputMessages)
+        public void Update(IEnumerable<InputMessage> messages)
         {
-            if (!IsRunning)
+            // Update timers, input and UI state
+            EveryFrameLogicTick(messages);
+
+            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F11))
             {
-                return;
+                DeveloperModeEnabled = !DeveloperModeEnabled;
             }
 
+            // If the game is not paused and it's time to do a logic update, do so.
+            if (IsLogicRunning && UpdateTime.TotalGameTime >= _nextLogicUpdate)
+            {
+                LogicTick();
+                CumulativeLogicUpdateError += (UpdateTime.TotalGameTime - _nextLogicUpdate);
+                // Logic updates happen at 5Hz.
+                _nextLogicUpdate = UpdateTime.TotalGameTime.Add(TimeSpan.FromMilliseconds(1000.0 / 5.0));
+            }
+
+            // TODO: Which update should be performed first?
+            if (IsLogicRunning && UpdateTime.TotalGameTime >= _nextScriptingUpdate)
+            {
+                Scripting.ScriptingTick();
+                // Scripting updates happen at 30Hz.
+                _nextScriptingUpdate = UpdateTime.TotalGameTime.Add(TimeSpan.FromMilliseconds(1000.0 / 30.0));
+            }
+        }
+
+        internal void EveryFrameLogicTick(IEnumerable<InputMessage> messages)
+        {
             _gameTimer.Update();
+            UpdateTime = _gameTimer.CurrentGameTime;
 
-            var gameTime = _gameTimer.CurrentGameTime;
+            InputMessageBuffer.PumpEvents(messages);
+            Updating?.Invoke(this, new GameUpdatingEventArgs(UpdateTime));
+        }
 
-            UpdateTime = gameTime;
+        internal void Render()
+        {
+            Scene2D.Update(UpdateTime, Scene3D?.LocalPlayer);
+            Scene3D?.Update(UpdateTime);
 
-            Update(inputMessages, gameTime);
+            Graphics.Draw(UpdateTime);
+        }
 
-            Graphics.Draw(gameTime);
+        internal void LogicTick()
+        {
+            NetworkMessageBuffer?.Tick();
 
-            FrameCount += 1;
+            foreach (var gameSystem in GameSystems)
+            {
+                gameSystem.LogicTick(CurrentFrame);
+            }
+
+            CurrentFrame += 1;
         }
 
         protected override void Dispose(bool disposeManagedResources)
@@ -416,22 +474,6 @@ namespace OpenSage
             base.Dispose(disposeManagedResources);
 
             GC.Collect();
-        }
-
-        private void Update(IEnumerable<InputMessage> inputMessages, GameTime gameTime)
-        {
-            InputMessageBuffer.PumpEvents(inputMessages);
-
-            NetworkMessageBuffer?.Tick();
-
-            foreach (var gameSystem in GameSystems)
-            {
-                gameSystem.Update(gameTime);
-            }
-
-            Scene2D.Update(gameTime, Scene3D?.LocalPlayer);
-
-            Scene3D?.Update(gameTime);
         }
 
         private Texture LoadLauncherImage()

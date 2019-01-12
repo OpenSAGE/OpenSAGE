@@ -35,6 +35,7 @@ namespace OpenSage.Diagnostics
             AddView(new AptConstantsView(context));
             AddView(new AptGeometryView(context));
             AddView(new WndView(context));
+            AddView(new GameLoopView(context));
         }
 
         public void Draw(ref bool isGameViewFocused)

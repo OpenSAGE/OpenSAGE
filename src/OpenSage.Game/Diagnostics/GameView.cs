@@ -42,7 +42,8 @@ namespace OpenSage.Diagnostics
                 ? ImGuiUtility.TranslateInputMessages(Game.Panel.Frame, Game.Window.MessageQueue)
                 : Array.Empty<InputMessage>();
 
-            Game.Tick(inputMessages);
+            Game.Update(inputMessages);
+            Game.Render();
 
             var imagePointer = ImGuiRenderer.GetOrCreateImGuiBinding(
                 Game.GraphicsDevice.ResourceFactory,

@@ -32,8 +32,6 @@ namespace OpenSage.Scripting
         private readonly List<ActionResult.ActionContinuation> _activeCoroutines;
         private readonly List<ActionResult.ActionContinuation> _finishedCoroutines;
 
-        private bool _30hzHack = true;
-
         private MapScriptCollection _mapScripts;
 
         public Dictionary<string, bool> Flags { get; }
@@ -41,8 +39,6 @@ namespace OpenSage.Scripting
         public TimerCollection Timers { get; }
 
         public bool Active { get; set; }
-
-        public ulong Frame { get; private set; }
 
         public event EventHandler<ScriptingSystem> OnUpdateFinished; 
 
@@ -65,8 +61,6 @@ namespace OpenSage.Scripting
             Flags.Clear();
             Counters.Clear();
             Timers.Clear();
-
-            Frame = 0;
         }
 
         internal override void OnSceneChanged()
@@ -106,16 +100,12 @@ namespace OpenSage.Scripting
             _activeCoroutines.Add(coroutine);
         }
 
-        public override void Update(GameTime gameTime)
+        public void ScriptingTick()
         {
             if (_mapScripts == null)
             {
                 return;
             }
-
-            // TODO: Remove this hack when we have separate update and render loops.
-            _30hzHack = !_30hzHack;
-            if (_30hzHack) return;
 
             if (!Active)
             {
@@ -141,8 +131,6 @@ namespace OpenSage.Scripting
             OnUpdateFinished?.Invoke(this, this);
 
             Timers.Update();
-
-            Frame++;
         }
     }
 }
