@@ -23,16 +23,11 @@
         /// <summary>
         /// Override this to perform any required setup.
         /// </summary>
-        public virtual void Initialize()
-        {
-
-        }
+        public virtual void Initialize() { }
 
         /// <summary>
         /// Override this method to process game logic.
         /// </summary>
-        public virtual void Update(GameTime gameTime)
-        {
-        }
+        public virtual void LogicTick(long frame) { }
     }
 }
