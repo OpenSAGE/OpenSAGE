@@ -30,6 +30,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public InstructionCollection Instructions { get; set; }
         public List<Value> Parameters { get; set; }
         public int NumberRegisters { get; set; }
+        public List<Value> Constants { get; set; }
         public FunctionPreloadFlags Flags { get; set; }
         public bool IsNewVersion { get; set; }
     }

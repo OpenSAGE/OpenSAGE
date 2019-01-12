@@ -238,7 +238,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            // TODO: check if this is correct
+            var name = context.Stack.Pop();
+            context.Scope.Variables.Add(name.ToString(), Value.FromInteger(0));
         }
     }
 
