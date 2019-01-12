@@ -71,6 +71,20 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     }
 
     /// <summary>
+    /// Set a string variable in the current scope
+    /// </summary>
+    public sealed class SetStringVar : InstructionBase
+    {
+        public override InstructionType Type => InstructionType.EA_SetStringVar;
+        public override uint Size => 4;
+
+        public override void Execute(ActionContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
     /// Pops variable name and pushes the corresponding variable back to stack
     /// </summary>
     public sealed class GetVariable : InstructionBase
@@ -109,11 +123,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     /// </summary>
     public sealed class GetMember : InstructionBase
     {
-        public override InstructionType Type => InstructionType.SetMember;
+        public override InstructionType Type => InstructionType.GetMember;
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var member = context.Stack.Pop().ToString();
+            var obj = context.Stack.Pop().ToObject();
+
+            context.Stack.Push(obj.GetMember(member));
         }
     }
 

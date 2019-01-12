@@ -365,7 +365,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                         parameters.Add(Value.FromString(_reader.ReadStringAtOffset()));
                         break;
                     case InstructionType.EA_SetStringVar:
-                        instruction = new SetStringMember();
+                        instruction = new SetStringVar();
                         parameters.Add(Value.FromString(_reader.ReadStringAtOffset()));
                         break;
                     case InstructionType.EA_GetStringMember:

@@ -26,10 +26,16 @@ namespace OpenSage.Gui.Apt.ActionScript
 
             var stream = new InstructionStream(code);
 
+            var localScope = new ObjectContext(scope.Item)
+            {
+                Constants = func.Constants,
+                Variables = scope.Variables
+            };
+
             var context = new ActionContext(func.NumberRegisters)
             {
                 Global = _global,
-                Scope = scope,
+                Scope = localScope,
                 Apt = scope.Item.Context,
                 Stream = stream
             };
@@ -85,7 +91,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 instr = stream.GetInstruction();
             }
 
-            return Value.Undefined();
+            return null;
         }
 
         public void Execute(InstructionCollection code, ObjectContext scope)

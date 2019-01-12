@@ -29,7 +29,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                     var vm = context.Apt.AVM;
                     var ret = vm.Execute(func, args, scope);
 
-                    if (ret.Type != ValueType.Undefined)
+                    if (ret != null)
                         context.Stack.Push(ret);
                 }
                 else
@@ -67,6 +67,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var func = new Function() { Parameters = paramList,
                                         Instructions = code,
                                         NumberRegisters = 4,
+                                        Constants = new List<Value>(context.Scope.Constants),
                                         IsNewVersion = false };
 
             var funcVal = Value.FromFunction(func);
@@ -144,7 +145,18 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var funcName = context.Stack.Pop().ToString();
+            var obj = context.Stack.Pop().ToObject();
+
+            var argCount = context.Stack.Pop().ToInteger();
+
+            var args = new Value[argCount];
+            for (int i = 0; i < argCount; ++i)
+            {
+                args[i] = context.Stack.Pop();
+            }
+
+            FunctionCommon.ExecuteFunction(funcName, args, obj, context);
         }
     }
 
