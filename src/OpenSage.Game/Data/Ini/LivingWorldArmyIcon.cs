@@ -13,11 +13,31 @@ namespace OpenSage.Data.Ini
             { "OnSelectedSound", (parser, x) => x.OnSelectedSound = parser.ParseAssetReference() },
             { "OnMoveSound", (parser, x) => x.OnMoveSound = parser.ParseAssetReference() },
             { "Object", (parser, x) => x.Objects.Add(Object.Parse(parser)) },
+            { "OnMovePlannedSound", (parser, x) => x.OnMovePlannedSound = parser.ParseAssetReference() },
+            { "OnMoveStartedSound", (parser, x) => x.OnMoveStartedSound = parser.ParseAssetReference() },
+            { "WelcomeReinforcementsSound", (parser, x) => x.WelcomeReinforcementsSound = parser.ParseAssetReference() },
+            { "KickOutReinforcementsSound", (parser, x) => x.KickOutReinforcementsSound = parser.ParseAssetReference() },
+            { "DisbandUnitSound", (parser, x) => x.DisbandUnitSound = parser.ParseAssetReference() },
         };
 
         public string OnSelectedSound { get; private set; }
         public string OnMoveSound { get; private set; }
         public List<Object> Objects { get; } = new List<Object>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public string OnMovePlannedSound { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string OnMoveStartedSound { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string WelcomeReinforcementsSound { get; private set; } // Sound played when garrison joins with another garrison
+
+        [AddedIn(SageGame.Bfme2)]
+        public string KickOutReinforcementsSound { get; private set; } // Sound played when we split off some troops
+
+        [AddedIn(SageGame.Bfme2)]
+        public string DisbandUnitSound { get; private set; } // Sound when units are dismissed
     }
 
     public sealed class Object
@@ -39,6 +59,17 @@ namespace OpenSage.Data.Ini
             { "CanFade", (parser, x) => x.CanFade = parser.ParseBoolean() },
             { "OrientAngle", (parser, x) => x.OrientAngle = parser.ParseFloat() },
             { "Pickbox", (parser, x) => x.Pickbox = parser.ParseAssetReference() },
+            { "VisibleArmySizes", (parser, x) => x.VisibleArmySizes = parser.ParseEnumFlags<ArmySizes>() },
+            { "SubObjects", (parser, x) => x.SubObjects = parser.ParseAssetReferenceArray() },
+            { "Shadow", (parser, x) => x.Shadow = parser.ParseAssetReference() },
+            { "UseHouseColor", (parser, x) => x.UseHouseColor = parser.ParseBoolean() },
+            { "HideWhenUnhilighted", (parser, x) => x.HideWhenUnhilighted = parser.ParseBoolean() },
+            { "FadeTypeForHilighting", (parser, x) => x.FadeTypeForHilighting = parser.ParseEnum<FadeType>() },
+            { "FadeTypeForUnhilighting", (parser, x) => x.FadeTypeForUnhilighting = parser.ParseEnum<FadeType>() },
+            { "FadeMethod", (parser, x) => x.FadeMethod = parser.ParseString() },
+            { "HideWhenUnselected", (parser, x) => x.HideWhenUnselected = parser.ParseBoolean() },
+            { "FadeTypeForSelection", (parser, x) => x.FadeTypeForSelection = parser.ParseEnum<FadeType>() },
+            { "FadeHoldPercent", (parser, x) => x.FadeHoldPercent = parser.ParsePercentage() }
         };
 
         public string Name { get; private set; }
@@ -51,5 +82,64 @@ namespace OpenSage.Data.Ini
         public bool CanFade { get; private set; }
         public float OrientAngle { get; private set; }
         public string Pickbox { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ArmySizes VisibleArmySizes { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string[] SubObjects { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string Shadow { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool UseHouseColor { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool HideWhenUnhilighted { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public FadeType FadeTypeForHilighting { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public FadeType FadeTypeForUnhilighting { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string FadeMethod { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool HideWhenUnselected { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public FadeType FadeTypeForSelection { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float FadeHoldPercent { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public enum ArmySizes
+    {
+        [IniEnum("SMALL")]
+        Small,
+
+        [IniEnum("MEDIUM")]
+        Medium,
+
+        [IniEnum("LARGE")]
+        Large,
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public enum FadeType
+    {
+        [IniEnum("IN")]
+        In,
+
+        [IniEnum("OUT")]
+        Out,
+
+        [IniEnum("INOUT")]
+        InOut,
     }
 }
