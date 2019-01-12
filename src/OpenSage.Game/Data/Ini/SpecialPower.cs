@@ -609,6 +609,15 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("SPECIAL_SPELL_BOOK_WATCHER_ALLY"), AddedIn(SageGame.Bfme2)]
         SpecialSpellBookWatcherAlly,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_EARTHQUAKE"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookEarthquake,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_FLOOD"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookFlood,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_SUNFLARE"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookSunflare,
     }
 
     [AddedIn(SageGame.Bfme2)]
