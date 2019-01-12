@@ -30,9 +30,7 @@ namespace OpenSage
             var deltaTime = now - _lastUpdate;
             _lastUpdate = now;
 
-            CurrentGameTime = new GameTime(
-                TimeSpan.FromTicks(now - _startTime),
-                TimeSpan.FromTicks(deltaTime));
+            CurrentGameTime = new GameTime(now - _startTime, deltaTime);
         }
 
         public void Reset()
@@ -52,10 +50,15 @@ namespace OpenSage
         public readonly TimeSpan TotalGameTime;
         public readonly TimeSpan ElapsedGameTime;
 
-        public GameTime(in TimeSpan totalGameTime, in TimeSpan elapsedGameTime)
+        public GameTime(long totalGameTimeTicks, long elapsedGameTimeTicks)
         {
-            TotalGameTime = totalGameTime;
-            ElapsedGameTime = elapsedGameTime;
+            TotalGameTime = new TimeSpan( (long)(totalGameTimeTicks * TickRatio));
+            ElapsedGameTime = new TimeSpan( (long)(elapsedGameTimeTicks * TickRatio));
         }
+
+        public static GameTime Zero { get; } = new GameTime();
+
+        // This is the ratio between stopwatch ticks and timespan ticks
+        private static readonly double TickRatio = 10000000.0 / Stopwatch.Frequency;
     }
 }

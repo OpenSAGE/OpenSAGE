@@ -118,7 +118,7 @@ namespace OpenSage.Gui.Wnd
             return window.GetSelfOrDescendantsAtPoint(mousePosition);
         }
 
-        internal void Update(GameTime gameTime)
+        internal void Update(in GameTime gameTime)
         {
             foreach (var window in WindowStack)
             {

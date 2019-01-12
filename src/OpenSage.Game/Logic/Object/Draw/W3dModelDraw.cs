@@ -202,7 +202,7 @@ namespace OpenSage.Logic.Object
                : null;
         }
 
-        internal override void Update(GameTime gameTime)
+        internal override void Update(in GameTime gameTime)
         {
             _activeModelDrawConditionState?.Update(gameTime);
         }
@@ -249,7 +249,7 @@ namespace OpenSage.Logic.Object
             AttachedParticleSystems = attachedParticleSystems;
         }
 
-        public void Update(GameTime gameTime)
+        public void Update(in GameTime gameTime)
         {
             _modelInstance.Update(gameTime);
         }

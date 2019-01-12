@@ -23,6 +23,10 @@ namespace OpenSage
 {
     public sealed class Game : DisposableBase
     {
+        // TODO: These should be configurable at runtime with GameSpeed.
+        private const double LogicUpdateInterval = 1000.0 / 5.0;
+        private const double ScriptingUpdateInterval = 1000.0 / 30.0;
+
         private readonly FileSystem _fileSystem;
         private readonly GameTimer _gameTimer;
         private readonly WndCallbackResolver _wndCallbackResolver;
@@ -67,7 +71,7 @@ namespace OpenSage
         /// </summary>
         public AudioSystem Audio { get; }
 
-        public int CurrentFrame { get; private set; }
+        public ulong CurrentFrame { get; private set; }
 
         public GameTime UpdateTime { get; private set; }
         private TimeSpan _nextLogicUpdate;
@@ -382,8 +386,9 @@ namespace OpenSage
 
         public void Run()
         {
-            _nextLogicUpdate = UpdateTime.TotalGameTime;
-            _nextScriptingUpdate = UpdateTime.TotalGameTime;
+            var totalGameTime = UpdateTime.TotalGameTime;
+            _nextLogicUpdate = totalGameTime;
+            _nextScriptingUpdate = totalGameTime;
 
             while (IsRunning)
             {
@@ -420,7 +425,7 @@ namespace OpenSage
         public void Update(IEnumerable<InputMessage> messages)
         {
             // Update timers, input and UI state
-            EveryFrameLogicTick(messages);
+            LocalLogicTick(messages);
 
             if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F11))
             {
@@ -428,41 +433,37 @@ namespace OpenSage
             }
 
             // If the game is not paused and it's time to do a logic update, do so.
-            if (IsLogicRunning && UpdateTime.TotalGameTime >= _nextLogicUpdate)
+            var totalGameTime = UpdateTime.TotalGameTime;
+
+            if (IsLogicRunning && totalGameTime >= _nextLogicUpdate)
             {
-                LogicTick();
-                CumulativeLogicUpdateError += (UpdateTime.TotalGameTime - _nextLogicUpdate);
+                LogicTick(CurrentFrame);
+                CumulativeLogicUpdateError += (totalGameTime - _nextLogicUpdate);
                 // Logic updates happen at 5Hz.
-                _nextLogicUpdate = UpdateTime.TotalGameTime.Add(TimeSpan.FromMilliseconds(1000.0 / 5.0));
+                _nextLogicUpdate = totalGameTime + TimeSpan.FromMilliseconds(LogicUpdateInterval);
             }
 
             // TODO: Which update should be performed first?
-            if (IsLogicRunning && UpdateTime.TotalGameTime >= _nextScriptingUpdate)
+            if (IsLogicRunning && totalGameTime >= _nextScriptingUpdate)
             {
                 Scripting.ScriptingTick();
                 // Scripting updates happen at 30Hz.
-                _nextScriptingUpdate = UpdateTime.TotalGameTime.Add(TimeSpan.FromMilliseconds(1000.0 / 30.0));
+                _nextScriptingUpdate = totalGameTime + TimeSpan.FromMilliseconds(ScriptingUpdateInterval);
             }
         }
 
-        internal void EveryFrameLogicTick(IEnumerable<InputMessage> messages)
+        internal void LocalLogicTick(IEnumerable<InputMessage> messages)
         {
             _gameTimer.Update();
             UpdateTime = _gameTimer.CurrentGameTime;
 
             InputMessageBuffer.PumpEvents(messages);
-            Updating?.Invoke(this, new GameUpdatingEventArgs(UpdateTime));
+
+            Scene2D.LocalLogicTick(UpdateTime, Scene3D?.LocalPlayer);
+            Scene3D?.LocalLogicTick(UpdateTime);
         }
 
-        internal void Render()
-        {
-            Scene2D.Update(UpdateTime, Scene3D?.LocalPlayer);
-            Scene3D?.Update(UpdateTime);
-
-            Graphics.Draw(UpdateTime);
-        }
-
-        internal void LogicTick()
+        internal void LogicTick(ulong frame)
         {
             NetworkMessageBuffer?.Tick();
 
@@ -471,7 +472,15 @@ namespace OpenSage
                 gameSystem.LogicTick(CurrentFrame);
             }
 
+            // TODO: What is the order?
+            Scene3D?.LogicTick(frame);
+
             CurrentFrame += 1;
+        }
+
+        internal void Render()
+        {
+            Graphics.Draw(UpdateTime);
         }
 
         protected override void Dispose(bool disposeManagedResources)

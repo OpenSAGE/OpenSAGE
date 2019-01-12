@@ -74,7 +74,12 @@ namespace OpenSage.Logic.Object
             }
         }
 
-        internal void Update(GameTime gameTime)
+        internal void LogicTick(ulong frame)
+        {
+            // TODO: Update modules.
+        }
+
+        internal void LocalLogicTick(in GameTime gameTime)
         {
             foreach (var drawModule in DrawModules)
             {

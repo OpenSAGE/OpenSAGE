@@ -87,7 +87,7 @@ namespace OpenSage.Diagnostics
 
             _inputMessageBuffer.PumpEvents(inputMessages);
 
-            _scene3D.Update(_context.Game.UpdateTime);
+            _scene3D.LocalLogicTick(_context.Game.UpdateTime);
 
             RenderPipeline.Execute(new RenderContext
             {

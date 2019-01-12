@@ -108,7 +108,7 @@ namespace OpenSage.Graphics.Cameras
             throw new NotImplementedException();
         }
 
-        void ICameraController.UpdateCamera(Camera camera, in CameraInputState inputState, GameTime gameTime)
+        void ICameraController.UpdateCamera(Camera camera, in CameraInputState inputState, in GameTime gameTime)
         {
             if (inputState.LeftMouseDown)
             {
