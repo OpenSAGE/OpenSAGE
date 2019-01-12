@@ -6,8 +6,8 @@ namespace OpenSage
     public sealed class GameTimer : IDisposable
     {
         private readonly Stopwatch _stopwatch;
-        private double _startTime;
-        private double _lastUpdate;
+        private long _startTime;
+        private long _lastUpdate;
 
         public GameTime CurrentGameTime { get; private set; }
 
@@ -16,7 +16,7 @@ namespace OpenSage
             _stopwatch = new Stopwatch();
         }
 
-        private double GetTimeNow() => _stopwatch.ElapsedMilliseconds;
+        private long GetTimeNow() => _stopwatch.ElapsedTicks;
 
         public void Start()
         {
@@ -31,8 +31,8 @@ namespace OpenSage
             _lastUpdate = now;
 
             CurrentGameTime = new GameTime(
-                TimeSpan.FromMilliseconds(now - _startTime),
-                TimeSpan.FromMilliseconds(deltaTime));
+                TimeSpan.FromTicks(now - _startTime),
+                TimeSpan.FromTicks(deltaTime));
         }
 
         public void Reset()
