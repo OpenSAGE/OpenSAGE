@@ -168,13 +168,21 @@ namespace OpenSage
             return _players.IndexOf(player);
         }
 
-        internal void Update(GameTime gameTime)
+        internal void LogicTick(ulong frame)
+        {
+            foreach (var gameObject in GameObjects.Items)
+            {
+                gameObject.LogicTick(frame);
+            }
+        }
+
+        internal void LocalLogicTick(in GameTime gameTime)
         {
             _orderGeneratorInputHandler?.Update();
 
             foreach (var gameObject in GameObjects.Items)
             {
-                gameObject.Update(gameTime);
+                gameObject.LocalLogicTick(gameTime);
             }
 
             _cameraInputMessageHandler?.UpdateInputState(ref _cameraInputState);

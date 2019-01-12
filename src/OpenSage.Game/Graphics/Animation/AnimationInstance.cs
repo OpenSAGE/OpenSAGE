@@ -61,7 +61,7 @@ namespace OpenSage.Graphics.Animation
             }
         }
 
-        internal bool Update(GameTime gameTime)
+        internal bool Update(in GameTime gameTime)
         {
             if (!_playing)
             {
@@ -72,7 +72,7 @@ namespace OpenSage.Graphics.Animation
             return true;
         }
 
-        private void UpdateBoneTransforms(GameTime gameTime)
+        private void UpdateBoneTransforms(in GameTime gameTime)
         {
             var time = _currentTimeValue + gameTime.ElapsedGameTime;
 

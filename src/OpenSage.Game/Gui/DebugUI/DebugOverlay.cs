@@ -62,7 +62,7 @@ namespace OpenSage.Gui.DebugUI
             AddCoordAxes(point, 0);
         }
 
-        public void Update(GameTime gameTime)
+        public void Update(in GameTime gameTime)
         {
             foreach (var drawable in _debugDrawables)
             {

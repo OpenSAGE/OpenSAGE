@@ -65,7 +65,7 @@ namespace OpenSage.Graphics.Cameras
             _lookToward = lookToward;
         }
 
-        internal void Update(RtsCameraController camera, GameTime gameTime)
+        internal void Update(RtsCameraController camera, in GameTime gameTime)
         {
             var currentTimeFraction = (float) ((gameTime.TotalGameTime - _startTime).TotalSeconds / _duration.TotalSeconds);
             currentTimeFraction = Math.Min(currentTimeFraction, 1);

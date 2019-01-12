@@ -127,7 +127,7 @@ namespace OpenSage.Graphics
             }
         }
 
-        public void Update(GameTime gameTime)
+        public void Update(in GameTime gameTime)
         {
             // TODO: Don't update animations if model isn't visible.
 
