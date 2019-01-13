@@ -11,12 +11,15 @@ namespace OpenSage.Gui.Apt
         private Vector2 _outputSize;
         private readonly ContentManager _contentManager;
 
-        private Vector2 CalculateScaling(in Vector2 inputPosition, AptContext context)
+        private void CalculateTransform(ref ItemTransform transform, AptContext context)
         {
             var movie = (Movie) context.Root.Character;
             var movieSize = new Vector2(movie.ScreenWidth, movie.ScreenHeight);
 
-            return _outputSize / movieSize;
+            var scaling = _outputSize / movieSize;
+            transform.GeometryRotation.M11 *= scaling.X;
+            transform.GeometryRotation.M22 *= scaling.Y;
+            transform.GeometryRotation.Translation = transform.GeometryTranslation * scaling;
         }
 
         public AptRenderer(ContentManager contentManager)
@@ -28,30 +31,21 @@ namespace OpenSage.Gui.Apt
             Text text, ItemTransform transform)
         {
             var font = _contentManager.GetOrCreateFont("Arial", text.FontHeight, FontWeight.Normal);
-            var matrix = transform.GeometryRotation;
-
-            var scaling = CalculateScaling(transform.GeometryTranslation, context);
-            matrix.Translation = transform.GeometryTranslation * scaling;
-            matrix.M11 *= scaling.X;
-            matrix.M22 *= scaling.Y;
+            CalculateTransform(ref transform, context);
 
             drawingContext.DrawText(
                 text.Content,
                 font,
                 TextAlignment.Center,
                 text.Color.ToColorRgbaF() * transform.ColorTransform,
-                RectangleF.Transform(text.Bounds, matrix));
+                RectangleF.Transform(text.Bounds, transform.GeometryRotation));
         }
 
         public void RenderGeometry(DrawingContext2D drawingContext, AptContext context,
             Geometry shape, ItemTransform transform)
         {
+            CalculateTransform(ref transform, context);
             var matrix = transform.GeometryRotation;
-
-            var scaling = CalculateScaling(transform.GeometryTranslation, context);
-            matrix.Translation = transform.GeometryTranslation * scaling;
-            matrix.M11 *= scaling.X;
-            matrix.M22 *= scaling.Y;
 
             foreach (var e in shape.Entries)
             {
