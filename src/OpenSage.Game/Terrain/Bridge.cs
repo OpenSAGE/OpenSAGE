@@ -185,7 +185,7 @@ namespace OpenSage.Terrain
                     worldMatrix);
                 tower.Transform.Rotation = rotationAroundZ;
 
-                tower.LocalLogicTick(GameTime.Zero);
+                tower.LocalLogicTick(GameTime.Zero, 1.0f);
             }
 
             SetTowerTransform(

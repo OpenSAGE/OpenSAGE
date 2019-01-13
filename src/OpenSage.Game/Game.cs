@@ -15,6 +15,7 @@ using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Network;
 using OpenSage.Scripting;
+using OpenSage.Utilities;
 using Veldrid;
 using Veldrid.ImageSharp;
 using Player = OpenSage.Logic.Player;
@@ -432,15 +433,15 @@ namespace OpenSage
                 DeveloperModeEnabled = !DeveloperModeEnabled;
             }
 
-            // If the game is not paused and it's time to do a logic update, do so.
             var totalGameTime = UpdateTime.TotalGameTime;
-
+        
+            // If the game is not paused and it's time to do a logic update, do so.
             if (IsLogicRunning && totalGameTime >= _nextLogicUpdate)
             {
                 LogicTick(CurrentFrame);
                 CumulativeLogicUpdateError += (totalGameTime - _nextLogicUpdate);
                 // Logic updates happen at 5Hz.
-                _nextLogicUpdate = totalGameTime + TimeSpan.FromMilliseconds(LogicUpdateInterval);
+                _nextLogicUpdate = _nextLogicUpdate + TimeSpan.FromMilliseconds(LogicUpdateInterval);
             }
 
             // TODO: Which update should be performed first?
@@ -448,7 +449,7 @@ namespace OpenSage
             {
                 Scripting.ScriptingTick();
                 // Scripting updates happen at 30Hz.
-                _nextScriptingUpdate = totalGameTime + TimeSpan.FromMilliseconds(ScriptingUpdateInterval);
+                _nextScriptingUpdate = _nextScriptingUpdate + TimeSpan.FromMilliseconds(ScriptingUpdateInterval);
             }
         }
 
@@ -459,8 +460,12 @@ namespace OpenSage
 
             InputMessageBuffer.PumpEvents(messages);
 
+            // How close are we to the next logic frame?
+            var tickT = (float) (1.0 - TimeSpanUtility.Max(_nextLogicUpdate - UpdateTime.TotalGameTime, TimeSpan.Zero)
+                                     .TotalMilliseconds / LogicUpdateInterval);
+
             Scene2D.LocalLogicTick(UpdateTime, Scene3D?.LocalPlayer);
-            Scene3D?.LocalLogicTick(UpdateTime);
+            Scene3D?.LocalLogicTick(UpdateTime, tickT);
         }
 
         internal void LogicTick(ulong frame)
