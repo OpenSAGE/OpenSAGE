@@ -34,7 +34,7 @@ namespace OpenSage.Tests.Data.Ini
                 {
                     var filename = Path.GetFileName(entry.FilePath).ToLowerInvariant();
 
-                    if (filename != "dwarficons.ini") return;
+                    if (filename != "commandset.ini") return;
                     /*
                     // TODO:implement missing stuff
                     if (gameDefinition.Game == SageGame.Bfme2)
@@ -71,6 +71,7 @@ namespace OpenSage.Tests.Data.Ini
                             case "largegroupaudio.ini":
                             case "linearcampaign.ini":
 
+
                             case "livingworld.ini":
                             case "livingworldaitemplate.ini":
                             case "livingworldautoresolvearmor.ini":
@@ -88,13 +89,14 @@ namespace OpenSage.Tests.Data.Ini
                             case "livingworldplayers.ini":
                             case "livingworldregioneffects.ini":
                             case "livingworldteststructures.ini":
-
                             case "dwarficons.ini":
                             case "elficons.ini":
                             case "isengardicons.ini":
                             case "mordoricons.ini":
                             case "mowicons.ini":
                             case "wildicons.ini":
+
+
                             case "locomotor.ini":
                             case "meshinstancingmanager.ini":
                             case "scoredkillevaannouncer.ini":
