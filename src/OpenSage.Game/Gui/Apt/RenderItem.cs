@@ -38,7 +38,7 @@ namespace OpenSage.Gui.Apt
 
         }
 
-        public void Render(ItemTransform pTransform, DrawingContext2D dc)
+        public void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc)
         {
             if (!Visible)
                 return;
@@ -47,12 +47,12 @@ namespace OpenSage.Gui.Apt
             {
                 case Shape s:
                     var geometry = _context.GetGeometry(s.Geometry, _character);
-                    AptRenderer.RenderGeometry(dc, _context, geometry, pTransform);
+                    renderer.RenderGeometry(dc, _context, geometry, pTransform);
                     break;
                 case Text t:
-                    if(t.Value.Length>0)
+                    if (t.Value.Length > 0)
                     {
-                        var val = ScriptObject.ResolveValue(t.Value,ScriptObject);
+                        var val = ScriptObject.ResolveValue(t.Value, ScriptObject);
                         if (val.Type != ValueType.Undefined)
                             t.Content = val.ToString();
                     }
@@ -61,7 +61,7 @@ namespace OpenSage.Gui.Apt
                     t.Content = t.Content.Replace("$", "APT:");
                     t.Content = _context.ContentManager.TranslationManager.Lookup(t.Content);
 
-                    AptRenderer.RenderText(dc, _context, t, pTransform);
+                    renderer.RenderText(dc, _context, t, pTransform);
                     break;
             }
         }

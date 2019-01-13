@@ -11,12 +11,14 @@ namespace OpenSage.Gui.Apt
         private readonly ContentManager _contentManager;
         private readonly AptContext _context;
 
-        private Rectangle _frame;
+        private AptRenderer _renderer;
         //private float _scale;
 
         public AptFile AptFile { get; }
 
         public string Name => AptFile.MovieName;
+
+        public AptRenderer Renderer => _renderer;
 
         public SpriteItem Root { get; }
 
@@ -34,16 +36,13 @@ namespace OpenSage.Gui.Apt
             _context.Root = Root;
 
             AptFile = aptFile;
+
+            _renderer = new AptRenderer(contentManager);
         }
 
         internal void Layout(GraphicsDevice gd, in Size windowSize)
         {
-            //_frame = RectangleF.CalculateRectangleFittingAspectRatio(
-            //    new RectangleF(0, 0, 1024, 768),
-            //    new SizeF(1024, 768),
-            //    windowSize,
-            //    out _scale);
-            _frame = new Rectangle(0, 0, 1024, 768);
+            _renderer.Resize(windowSize);
         }
 
         internal void Update(GameTime gt, GraphicsDevice gd)
@@ -61,7 +60,7 @@ namespace OpenSage.Gui.Apt
             //    Vector2.Zero);
             var transform = ItemTransform.None;
 
-            Root.Render(transform, drawingContext);
+            Root.Render(_renderer, transform, drawingContext);
         }
     }
 }

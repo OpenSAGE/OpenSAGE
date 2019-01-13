@@ -49,7 +49,7 @@ namespace OpenSage.Gui.Apt
         /// The parent displayitem (which must be a SpriteItem)
         void Create(Character chararacter, AptContext context, SpriteItem parent = null);
         void Update(GameTime gt);
-        void Render(ItemTransform pTransform, DrawingContext2D dc);
+        void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc);
         void RunActions(GameTime gt);
     }
 }
