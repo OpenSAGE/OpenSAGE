@@ -97,6 +97,7 @@ namespace OpenSage.Diagnostics
         {
             private readonly Geometry _shape;
             private readonly AptContext _context;
+            private readonly AptRenderer _renderer;
 
             private float _scale;
 
@@ -108,17 +109,20 @@ namespace OpenSage.Diagnostics
             {
                 _shape = shape;
                 _context = new AptContext(map, movieName, contentManager);
+                _renderer = new AptRenderer(contentManager);
             }
 
             public void Update(GraphicsDevice gd, in Size windowSize)
             {
                 var shapeBoundingBox = _shape.BoundingBox;
 
-                RectangleF.CalculateRectangleFittingAspectRatio(
+                var target = RectangleF.CalculateRectangleFittingAspectRatio(
                     shapeBoundingBox,
                     shapeBoundingBox.Size,
                     windowSize,
                     out _scale);
+
+                _renderer.Resize(target.Size);
             }
 
             public void Render(DrawingContext2D drawingContext)
@@ -132,7 +136,7 @@ namespace OpenSage.Diagnostics
                     Matrix3x2.CreateScale(_scale, _scale),
                     translation);
 
-                AptRenderer.RenderGeometry(
+                _renderer.RenderGeometry(
                     drawingContext,
                     _context,
                     _shape,

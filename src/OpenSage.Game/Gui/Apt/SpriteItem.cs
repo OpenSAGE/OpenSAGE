@@ -69,7 +69,7 @@ namespace OpenSage.Gui.Apt
             }
         }
 
-        public void Render(ItemTransform pTransform,DrawingContext2D dc)
+        public void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc)
         {
             if (!Visible)
                 return;
@@ -80,7 +80,7 @@ namespace OpenSage.Gui.Apt
             //render all subitems
             foreach (var item in _content.Items.Values)
             {
-                item.Render(cTransform, dc);
+                item.Render(renderer, cTransform, dc);
             }
         }
 
@@ -96,7 +96,7 @@ namespace OpenSage.Gui.Apt
                 {
                     HandleFrameItem(item);
                 }
-                           
+
                 _currentFrame++;
 
                 //reset to the start, we are looping by default
@@ -123,13 +123,13 @@ namespace OpenSage.Gui.Apt
 
         public void Goto(string label)
         {
-            Debug.WriteLine("[INFO] Goto: "+ label);
+            Debug.WriteLine("[INFO] Goto: " + label);
             _currentFrame = _frameLabels[label];
         }
 
         public void GotoFrame(int frame)
         {
-            _currentFrame = (uint)frame;
+            _currentFrame = (uint) frame;
         }
 
         public void NextFrame()
@@ -198,7 +198,7 @@ namespace OpenSage.Gui.Apt
             {
                 geoRotate = new Matrix3x2(po.RotScale.M11, po.RotScale.M12,
                                             po.RotScale.M21, po.RotScale.M22,
-                                            0,0);
+                                            0, 0);
                 geoTranslate = new Vector2(po.Translation.X, po.Translation.Y);
             }
             else
@@ -217,7 +217,7 @@ namespace OpenSage.Gui.Apt
                 colorTransform = ColorRgbaF.White;
             }
 
-            return new ItemTransform(colorTransform, geoRotate,geoTranslate);
+            return new ItemTransform(colorTransform, geoRotate, geoTranslate);
         }
 
         private void MoveItem(PlaceObject po)
@@ -229,7 +229,7 @@ namespace OpenSage.Gui.Apt
             {
                 cTransform.GeometryRotation = new Matrix3x2(po.RotScale.M11, po.RotScale.M12,
                                                         po.RotScale.M21, po.RotScale.M22,
-                                                        0,0);
+                                                        0, 0);
                 cTransform.GeometryTranslation = new Vector2(po.Translation.X, po.Translation.Y);
             }
 

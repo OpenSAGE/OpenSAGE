@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Mathematics;
@@ -7,13 +8,32 @@ namespace OpenSage.Gui.Apt
 {
     public sealed class AptRenderer
     {
-        public static void RenderText(DrawingContext2D drawingContext, AptContext context,
+        private Vector2 _outputSize;
+        private ContentManager _contentManager;
+
+        private Vector2 CaclulateScaling(in Vector2 inputPosition, in Vector2 inputSize)
+        {
+            return _outputSize / inputSize;
+        }
+
+        public AptRenderer(ContentManager contentManager)
+        {
+            _contentManager = contentManager;
+        }
+
+        public void RenderText(DrawingContext2D drawingContext, AptContext context,
             Text text, ItemTransform transform)
         {
-            var content = context.ContentManager;
-            var font = context.ContentManager.GetOrCreateFont("Arial", text.FontHeight, FontWeight.Normal);
+            var font = _contentManager.GetOrCreateFont("Arial", text.FontHeight, FontWeight.Normal);
             var matrix = transform.GeometryRotation;
             matrix.Translation = transform.GeometryTranslation;
+
+            var movie = (Movie) context.Root.Character;
+            var movieSize = new Vector2(movie.ScreenWidth, movie.ScreenHeight);
+            var scaling = CaclulateScaling(transform.GeometryTranslation, movieSize);
+            matrix.Translation = transform.GeometryTranslation * scaling;
+            matrix.M11 *= scaling.X;
+            matrix.M22 *= scaling.Y;
 
             drawingContext.DrawText(
                 text.Content,
@@ -23,11 +43,17 @@ namespace OpenSage.Gui.Apt
                 RectangleF.Transform(text.Bounds, matrix));
         }
 
-        public static void RenderGeometry(DrawingContext2D drawingContext, AptContext context,
+        public void RenderGeometry(DrawingContext2D drawingContext, AptContext context,
             Geometry shape, ItemTransform transform)
         {
             var matrix = transform.GeometryRotation;
-            matrix.Translation = transform.GeometryTranslation;
+
+            var movie = (Movie) context.Root.Character;
+            var movieSize = new Vector2(movie.ScreenWidth, movie.ScreenHeight);
+            var scaling = CaclulateScaling(transform.GeometryTranslation, movieSize);
+            matrix.Translation = transform.GeometryTranslation * scaling;
+            matrix.M11 *= scaling.X;
+            matrix.M22 *= scaling.Y;
 
             foreach (var e in shape.Entries)
             {
@@ -87,6 +113,12 @@ namespace OpenSage.Gui.Apt
                         }
                 }
             }
+        }
+
+        public void Resize(in Size outputSize)
+        {
+            _outputSize.X = outputSize.Width;
+            _outputSize.Y = outputSize.Height;
         }
     }
 }
