@@ -176,13 +176,13 @@ namespace OpenSage
             }
         }
 
-        internal void LocalLogicTick(in GameTime gameTime)
+        internal void LocalLogicTick(in GameTime gameTime, float tickT)
         {
             _orderGeneratorInputHandler?.Update();
 
             foreach (var gameObject in GameObjects.Items)
             {
-                gameObject.LocalLogicTick(gameTime);
+                gameObject.LocalLogicTick(gameTime, tickT);
             }
 
             _cameraInputMessageHandler?.UpdateInputState(ref _cameraInputState);
