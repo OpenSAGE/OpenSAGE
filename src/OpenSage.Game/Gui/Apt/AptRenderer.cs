@@ -9,11 +9,14 @@ namespace OpenSage.Gui.Apt
     public sealed class AptRenderer
     {
         private Vector2 _outputSize;
-        private ContentManager _contentManager;
+        private readonly ContentManager _contentManager;
 
-        private Vector2 CaclulateScaling(in Vector2 inputPosition, in Vector2 inputSize)
+        private Vector2 CalculateScaling(in Vector2 inputPosition, AptContext context)
         {
-            return _outputSize / inputSize;
+            var movie = (Movie) context.Root.Character;
+            var movieSize = new Vector2(movie.ScreenWidth, movie.ScreenHeight);
+
+            return _outputSize / movieSize;
         }
 
         public AptRenderer(ContentManager contentManager)
@@ -26,11 +29,8 @@ namespace OpenSage.Gui.Apt
         {
             var font = _contentManager.GetOrCreateFont("Arial", text.FontHeight, FontWeight.Normal);
             var matrix = transform.GeometryRotation;
-            matrix.Translation = transform.GeometryTranslation;
 
-            var movie = (Movie) context.Root.Character;
-            var movieSize = new Vector2(movie.ScreenWidth, movie.ScreenHeight);
-            var scaling = CaclulateScaling(transform.GeometryTranslation, movieSize);
+            var scaling = CalculateScaling(transform.GeometryTranslation, context);
             matrix.Translation = transform.GeometryTranslation * scaling;
             matrix.M11 *= scaling.X;
             matrix.M22 *= scaling.Y;
@@ -48,9 +48,7 @@ namespace OpenSage.Gui.Apt
         {
             var matrix = transform.GeometryRotation;
 
-            var movie = (Movie) context.Root.Character;
-            var movieSize = new Vector2(movie.ScreenWidth, movie.ScreenHeight);
-            var scaling = CaclulateScaling(transform.GeometryTranslation, movieSize);
+            var scaling = CalculateScaling(transform.GeometryTranslation, context);
             matrix.Translation = transform.GeometryTranslation * scaling;
             matrix.M11 *= scaling.X;
             matrix.M22 *= scaling.Y;
