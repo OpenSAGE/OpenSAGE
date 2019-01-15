@@ -61,15 +61,19 @@ namespace OpenSage.Diagnostics
                     {
                         foreach (var mapCache in _context.Game.ContentManager.IniDataContext.MapCaches)
                         {
-                            if (ImGui.MenuItem($"{mapCache.DisplayName} ({mapCache.Name})"))
+                            if (mapCache.IsMultiplayer && ImGui.MenuItem($"{mapCache.DisplayName} ({mapCache.Name})"))
                             {
+                                var iniContext = _context.Game.ContentManager.IniDataContext;
+                                var faction1 = iniContext.PlayerTemplates.Find(x => x.PlayableSide == true);
+                                var faction2 = iniContext.PlayerTemplates.FindLast(x => x.PlayableSide == true);
+
                                 _context.Game.StartGame(
                                     mapCache.Name,
                                     new EchoConnection(),
                                     new[]
                                     {
-                                        new PlayerSetting("America", new ColorRgb(255, 0, 0)),
-                                        new PlayerSetting("GLA", new ColorRgb(255, 255, 255)),
+                                        new PlayerSetting(faction1.Side, new ColorRgb(255, 0, 0)),
+                                        new PlayerSetting(faction2.Side, new ColorRgb(255, 255, 255)),
                                     },
                                     0);
                             }

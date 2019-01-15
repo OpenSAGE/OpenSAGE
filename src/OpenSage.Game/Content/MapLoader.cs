@@ -149,19 +149,22 @@ namespace OpenSage.Content
 
             var waterAreas = new List<WaterArea>();
 
-            foreach (var polygonTrigger in mapFile.PolygonTriggers?.Triggers)
+            if (mapFile.PolygonTriggers != null)
             {
-                switch (polygonTrigger.TriggerType)
+                foreach (var polygonTrigger in mapFile.PolygonTriggers.Triggers)
                 {
-                    case PolygonTriggerType.Water:
-                    case PolygonTriggerType.River: // TODO: Handle this differently. Water texture should be animated "downstream".
-                    case PolygonTriggerType.WaterAndRiver:
-                        if (WaterArea.TryCreate(contentManager, polygonTrigger, out var waterArea))
-                        {
-                            waterAreas.Add(AddDisposable(waterArea));
-                        }
-                        
-                        break;
+                    switch (polygonTrigger.TriggerType)
+                    {
+                        case PolygonTriggerType.Water:
+                        case PolygonTriggerType.River: // TODO: Handle this differently. Water texture should be animated "downstream".
+                        case PolygonTriggerType.WaterAndRiver:
+                            if (WaterArea.TryCreate(contentManager, polygonTrigger, out var waterArea))
+                            {
+                                waterAreas.Add(AddDisposable(waterArea));
+                            }
+
+                            break;
+                    }
                 }
             }
 
@@ -412,7 +415,8 @@ namespace OpenSage.Content
                         
                         break;
 
-                    default:
+                    case RoadType.Start:
+                    case RoadType.End:
                         var roadEnd = mapObjects[++i];
 
                         // Some maps have roads with invalid start- or endpoints.
@@ -440,6 +444,7 @@ namespace OpenSage.Content
 
                         roadTopology.AddSegment(roadTemplate, mapObject, roadEnd);
                         break;
+
                 }
 
                 contentManager.GraphicsDevice.WaitForIdle();

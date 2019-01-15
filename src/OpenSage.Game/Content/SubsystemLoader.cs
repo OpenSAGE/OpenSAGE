@@ -110,6 +110,7 @@ namespace OpenSage.Content
                         case SageGame.Bfme:
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
+                            LoadFiles(@"Maps\MapCache.ini");
                             yield return "TheWritableGlobalData";
                             yield break;
                         case SageGame.Cnc3:
@@ -190,7 +191,15 @@ namespace OpenSage.Content
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);
             }
         }
-        
+
+        private void LoadFiles(params string[] files)
+        {
+            foreach (var file in files)
+            {
+                _iniDataContext.LoadIniFile(file);
+            }
+        }
+
         private IEnumerable<FileSystemEntry> GetFilesForSubsystem(Subsystem abstractSubsystem)
         {
             var subsystems = GetSubsystemEntryName(abstractSubsystem).Select(entryName => _subsystems[entryName]).ToList();

@@ -9,6 +9,7 @@ namespace OpenSage.Gui.Apt
         private readonly Game _game;
 
         internal Stack<AptWindow> WindowStack { get; }
+        public int OpenWindowCount => WindowStack.Count;
 
         public AptWindowManager(Game game)
         {
