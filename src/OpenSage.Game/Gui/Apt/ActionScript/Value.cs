@@ -148,6 +148,12 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public ObjectContext ToObject()
         {
+            if(Type == ValueType.Undefined)
+            {
+                Debug.WriteLine("Cannot create object from undefined!");
+                return null;
+            }
+
             if (Type != ValueType.Object)
                 throw new InvalidOperationException();
 

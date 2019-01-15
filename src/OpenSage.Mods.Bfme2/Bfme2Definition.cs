@@ -26,7 +26,7 @@ namespace OpenSage.Mods.Bfme2
 
         public string Identifier { get; } = "bfme2";
 
-        public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");
+        public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt", "art/compiledtextures/in/installload.jpg");
         public IControlBarSource ControlBar { get; }
 
         public static Bfme2Definition Instance { get; } = new Bfme2Definition();

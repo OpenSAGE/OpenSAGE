@@ -16,13 +16,10 @@ namespace OpenSage.Gui.Apt
 
     public sealed class SpriteItem : IDisplayItem
     {
-        private SpriteItem _parent;
         private DisplayList _content;
         private Playable _sprite;
         private uint _currentFrame;
-        private AptContext _context;
         private GameTime _lastUpdate;
-        private ObjectContext _scriptObject;
         private PlayState _state;
         private Dictionary<string, uint> _frameLabels;
         public string Name { get; set; }
@@ -33,20 +30,20 @@ namespace OpenSage.Gui.Apt
         /// </summary>
         private List<Action> _actionList;
 
-        public SpriteItem Parent => _parent;
+        public SpriteItem Parent { get; private set; }
         public Character Character => _sprite;
-        public AptContext Context => _context;
+        public AptContext Context { get; private set; }
         public ItemTransform Transform { get; set; }
-        public ObjectContext ScriptObject => _scriptObject;
+        public ObjectContext ScriptObject { get; private set; }
 
         public void Create(Character chararacter, AptContext context, SpriteItem parent = null)
         {
             _sprite = (Playable) chararacter;
-            _context = context;
+            Context = context;
             _content = new DisplayList();
-            _parent = parent;
+            Parent = parent;
             _currentFrame = 0;
-            _scriptObject = new ObjectContext(this);
+            ScriptObject = new ObjectContext(this);
             _actionList = new List<Action>();
             _frameLabels = new Dictionary<string, uint>();
             _state = PlayState.PLAYING;
@@ -148,7 +145,7 @@ namespace OpenSage.Gui.Apt
             if (_state != PlayState.PLAYING)
                 return false;
 
-            if ((gt.TotalGameTime - _lastUpdate.TotalGameTime).Milliseconds >= _context.MillisecondsPerFrame)
+            if ((gt.TotalGameTime - _lastUpdate.TotalGameTime).Milliseconds >= Context.MillisecondsPerFrame)
             {
                 _lastUpdate = gt;
                 return true;
@@ -240,7 +237,7 @@ namespace OpenSage.Gui.Apt
 
             if (po.Flags.HasFlag(PlaceObjectFlags.HasName))
             {
-                _scriptObject.Variables[po.Name] = Value.FromObject(displayItem.ScriptObject);
+                ScriptObject.Variables[po.Name] = Value.FromObject(displayItem.ScriptObject);
             }
 
             displayItem.Transform = cTransform;
@@ -248,7 +245,7 @@ namespace OpenSage.Gui.Apt
 
         private void PlaceItem(PlaceObject po)
         {
-            var character = _context.GetCharacter(po.Character, _sprite);
+            var character = Context.GetCharacter(po.Character, _sprite);
             var itemTransform = CreateTransform(po);
 
             IDisplayItem displayItem;
@@ -257,12 +254,12 @@ namespace OpenSage.Gui.Apt
             else
                 displayItem = new RenderItem() { Transform = itemTransform };
 
-            displayItem.Create(character, _context, this);
+            displayItem.Create(character, Context, this);
 
             //add this object as an AS property
             if (po.Flags.HasFlag(PlaceObjectFlags.HasName))
             {
-                _scriptObject.Variables[po.Name] = Value.FromObject(displayItem.ScriptObject);
+                ScriptObject.Variables[po.Name] = Value.FromObject(displayItem.ScriptObject);
                 displayItem.Name = po.Name;
             }
 
@@ -274,7 +271,7 @@ namespace OpenSage.Gui.Apt
             //execute all actions now
             foreach (var action in _actionList)
             {
-                _context.AVM.Execute(action.Instructions, _scriptObject);
+                Context.AVM.Execute(action.Instructions, ScriptObject);
             }
             _actionList.Clear();
 

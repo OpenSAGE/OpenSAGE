@@ -20,8 +20,16 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //pop the object
             var objectVal = context.Stack.Pop();
 
-            var valueVal = objectVal.ResolveRegister(context).ToObject().GetMember(member);
-            context.Stack.Push(valueVal);
+            var obj = objectVal.ResolveRegister(context).ToObject();
+
+            if (obj != null)
+            {
+                context.Stack.Push(obj.GetMember(member));
+            }
+            else
+            {
+                context.Stack.Push(Value.Undefined());
+            }
         }
     }
 
@@ -61,7 +69,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var str = Parameters[0].ToString();
 
             //check if this a special object, like _root, _parent etc.
-            Value result = context.GetObject(str);
+            var result = context.GetObject(str);
 
             if (result == null)
                 throw new InvalidOperationException();
