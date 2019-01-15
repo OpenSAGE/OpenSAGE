@@ -5,25 +5,20 @@ namespace OpenSage.Gui.Apt
 {
     public sealed class RenderItem : IDisplayItem
     {
-        private SpriteItem _parent;
-        private Character _character;
-        private AptContext _context;
-        private ObjectContext _scriptObject;
-
-        public SpriteItem Parent => _parent;
-        public Character Character => _character;
-        public AptContext Context => _context;
+        public SpriteItem Parent { get; private set; }
+        public Character Character { get; private set; }
+        public AptContext Context { get; private set; }
         public ItemTransform Transform { get; set; }
-        public ObjectContext ScriptObject => _scriptObject;
+        public ObjectContext ScriptObject { get; private set; }
         public string Name { get; set; }
         public bool Visible { get; set; }
 
         public void Create(Character chararacter, AptContext context, SpriteItem parent = null)
         {
-            _character = chararacter;
-            _context = context;
-            _parent = parent;
-            _scriptObject = new ObjectContext(this);
+            Character = chararacter;
+            Context = context;
+            Parent = parent;
+            ScriptObject = new ObjectContext(this);
             Name = "";
             Visible = true;
         }
@@ -43,11 +38,11 @@ namespace OpenSage.Gui.Apt
             if (!Visible)
                 return;
 
-            switch (_character)
+            switch (Character)
             {
                 case Shape s:
-                    var geometry = _context.GetGeometry(s.Geometry, _character);
-                    renderer.RenderGeometry(dc, _context, geometry, pTransform);
+                    var geometry = Context.GetGeometry(s.Geometry, Character);
+                    renderer.RenderGeometry(dc, Context, geometry, pTransform);
                     break;
                 case Text t:
                     if (t.Value.Length > 0)
@@ -59,9 +54,9 @@ namespace OpenSage.Gui.Apt
 
                     //localize our content
                     t.Content = t.Content.Replace("$", "APT:");
-                    t.Content = _context.ContentManager.TranslationManager.Lookup(t.Content);
+                    t.Content = Context.ContentManager.TranslationManager.Lookup(t.Content);
 
-                    renderer.RenderText(dc, _context, t, pTransform);
+                    renderer.RenderText(dc, Context, t, pTransform);
                     break;
             }
         }

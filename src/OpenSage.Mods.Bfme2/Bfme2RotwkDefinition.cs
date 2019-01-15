@@ -16,7 +16,7 @@ namespace OpenSage.Mods.Bfme2
 
         public IEnumerable<RegistryKeyPath> RegistryKeys { get; } = new[]
         {
-            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\The Lord of the Rings, The Rise of the Witch-king", "InstallPath") 
+            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\The Lord of the Rings, The Rise of the Witch-king", "InstallPath")
         };
 
         public IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; } = new[]
@@ -26,7 +26,7 @@ namespace OpenSage.Mods.Bfme2
 
         public string Identifier { get; } = "bfme2_rotwk";
 
-        public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");
+        public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt", "art/compiledtextures/in/installload.jpg");
         public IControlBarSource ControlBar { get; }
 
         public static Bfme2RotwkDefinition Instance { get; } = new Bfme2RotwkDefinition();

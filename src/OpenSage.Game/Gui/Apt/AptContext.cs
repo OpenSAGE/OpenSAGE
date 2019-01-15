@@ -8,13 +8,11 @@ namespace OpenSage.Gui.Apt
 {
     public sealed class AptContext
     {
-        private ContentManager _contentManager;
-        private ImageMap _imageMap;
-        private string _movieName;
-        private VM _avm;
-    
-        public VM AVM => _avm;
-        public ContentManager ContentManager => _contentManager;
+        private readonly ImageMap _imageMap;
+        private readonly string _movieName;
+
+        public VM AVM { get; }
+        public ContentManager ContentManager { get; }
         public ConstantData Constants { get; set; }
         //Time per frame in milliseconds
         public uint MillisecondsPerFrame { get; set; }
@@ -25,17 +23,17 @@ namespace OpenSage.Gui.Apt
             MillisecondsPerFrame = apt.Movie.MillisecondsPerFrame;
             Constants = apt.Constants;
 
-            _contentManager = contentManager;
-            _avm = new VM();
+            ContentManager = contentManager;
+            AVM = new VM();
         }
 
         //constructor to be used without an apt file
         public AptContext(ImageMap imageMap, string movieName, ContentManager contentManager)
         {
-            _contentManager = contentManager;
+            ContentManager = contentManager;
             _imageMap = imageMap;
             _movieName = movieName;
-            _avm = new VM();
+            AVM = new VM();
         }
 
         //need this to handle import/export correctly
@@ -62,7 +60,7 @@ namespace OpenSage.Gui.Apt
             var movieName = aptFile.MovieName;
             var texturePath = "art/Textures/apt_" + movieName + "_" + texId.ToString() + ".tga";
             var loadOptions = new TextureLoadOptions() { GenerateMipMaps = false };
-            return _contentManager.Load<Texture>(texturePath, loadOptions);
+            return ContentManager.Load<Texture>(texturePath, loadOptions);
         }
 
         public Texture GetTexture(int id, Geometry geom)
@@ -84,7 +82,7 @@ namespace OpenSage.Gui.Apt
             var texId = map.Mapping[id].TextureId;
             var texturePath = "art/Textures/apt_" + movieName + "_" + texId.ToString() + ".tga";
             var loadOptions = new TextureLoadOptions() { GenerateMipMaps = false };
-            return _contentManager.Load<Texture>(texturePath, loadOptions);
+            return ContentManager.Load<Texture>(texturePath, loadOptions);
         }
     }
 }

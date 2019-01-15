@@ -8,16 +8,13 @@ namespace OpenSage.Gui.Apt.ActionScript
     /// </summary>
     public sealed class VM
     {
-        private ObjectContext _global;
-        private ObjectContext _extern;
-
-        public ObjectContext GlobalObject => _global;
-        public ObjectContext ExternObject => _extern;
+        public ObjectContext GlobalObject { get; }
+        public ObjectContext ExternObject { get; }
 
         public VM()
         {
-            _global = new ObjectContext();
-            _extern = new ExternObject();
+            GlobalObject = new ObjectContext();
+            ExternObject = new ExternObject();
         }
 
         public Value Execute(Function func, Value[] args, ObjectContext scope)
@@ -34,7 +31,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
             var context = new ActionContext(func.NumberRegisters)
             {
-                Global = _global,
+                Global = GlobalObject,
                 Scope = localScope,
                 Apt = scope.Item.Context,
                 Stream = stream
@@ -101,7 +98,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             var instr = stream.GetInstruction();
             var context = new ActionContext()
             {
-                Global = _global,
+                Global = GlobalObject,
                 Scope = scope,
                 Apt = scope.Item.Context,
                 Stream = stream

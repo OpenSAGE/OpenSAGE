@@ -33,6 +33,7 @@ namespace OpenSage.Content
         {
             yield return Path.ChangeExtension(filePath, ".dds");
             yield return Path.ChangeExtension(filePath, ".tga");
+            yield return Path.ChangeExtension(filePath, ".jpg");
         }
 
         protected override Texture LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
@@ -63,6 +64,12 @@ namespace OpenSage.Content
                         contentManager.GraphicsDevice,
                         tgaFile,
                         generateMipMaps));
+
+                case ".jpg":
+                    var jpgFile = new ImageSharpTexture(entry.Open());
+                    return jpgFile.CreateDeviceTexture(
+                        contentManager.GraphicsDevice,
+                        contentManager.GraphicsDevice.ResourceFactory);
 
                 default:
                     throw new InvalidOperationException();

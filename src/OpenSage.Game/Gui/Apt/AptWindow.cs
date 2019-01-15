@@ -10,17 +10,15 @@ namespace OpenSage.Gui.Apt
     {
         private readonly ContentManager _contentManager;
         private readonly AptContext _context;
-
-        private AptRenderer _renderer;
-        //private float _scale;
+        private readonly Texture _background;
+        private Size _destinationSize;
 
         public AptFile AptFile { get; }
-
         public string Name => AptFile.MovieName;
-
-        public AptRenderer Renderer => _renderer;
-
+        public AptRenderer Renderer { get; }
         public SpriteItem Root { get; }
+
+        public Texture Background { get; set; }
 
         public AptWindow(ContentManager contentManager, AptFile aptFile)
         {
@@ -37,12 +35,13 @@ namespace OpenSage.Gui.Apt
 
             AptFile = aptFile;
 
-            _renderer = new AptRenderer(contentManager);
+            Renderer = new AptRenderer(contentManager);
         }
 
         internal void Layout(GraphicsDevice gd, in Size windowSize)
         {
-            _renderer.Resize(windowSize);
+            _destinationSize = windowSize;
+            Renderer.Resize(_destinationSize);
         }
 
         internal void Update(GameTime gt, GraphicsDevice gd)
@@ -53,14 +52,15 @@ namespace OpenSage.Gui.Apt
 
         internal void Render(DrawingContext2D drawingContext)
         {
-            //draw the movieclip.
-            //var transform = new ItemTransform(
-            //    ColorRgbaF.White,
-            //    Matrix3x2.CreateScale(_scale),
-            //    Vector2.Zero);
+            var sourceRect = new Rectangle(0, 0,
+                (int) Background.Width,
+                (int) (Background.Height * 0.75f));
+
+            drawingContext.DrawImage(Background, sourceRect, new Rectangle(Point2D.Zero, _destinationSize));
+
             var transform = ItemTransform.None;
 
-            Root.Render(_renderer, transform, drawingContext);
+            Root.Render(Renderer, transform, drawingContext);
         }
     }
 }
