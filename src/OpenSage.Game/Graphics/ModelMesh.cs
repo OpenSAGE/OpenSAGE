@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Graphics.Cameras;
@@ -34,16 +35,16 @@ namespace OpenSage.Graphics
 
         private readonly ResourceSet _samplerResourceSet;
 
-        public string Name { get; }
+        public readonly string Name;
 
-        public BoundingBox BoundingBox { get; }
+        public readonly BoundingBox BoundingBox;
 
-        public ModelMeshMaterialPass[] MaterialPasses { get; }
+        internal readonly List<ModelMeshMaterialPass> MaterialPasses;
 
-        public bool Skinned { get; }
+        public readonly bool Skinned;
 
-        public bool Hidden { get; }
-        public bool CameraOriented { get; }
+        public readonly bool Hidden;
+        public readonly bool CameraOriented;
 
         internal ModelMesh(
             ContentManager contentManager,
@@ -51,7 +52,7 @@ namespace OpenSage.Graphics
             ShaderSet shaderSet,
             ReadOnlySpan<byte> vertexData,
             ushort[] indices,
-            ModelMeshMaterialPass[] materialPasses,
+            List<ModelMeshMaterialPass> materialPasses,
             bool isSkinned,
             BoundingBox boundingBox,
             bool hidden,

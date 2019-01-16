@@ -186,26 +186,26 @@ namespace OpenSage.Content
                 shadingConfigurations[i] = CreateShadingConfiguration(w3dMesh.Shaders.Items[i]);
             }
 
-            var materialPasses = new ModelMeshMaterialPass[w3dMesh.MaterialPasses.Count];
+            var materialPasses = new List<ModelMeshMaterialPass>(w3dMesh.MaterialPasses.Count);
             if (w3dShaderMaterial != null)
             {
-                materialPasses[0] = CreateModelMeshMaterialPassShaderMaterial(
+                materialPasses.Add(CreateModelMeshMaterialPassShaderMaterial(
                     contentManager,
                     w3dMesh,
                     w3dMesh.MaterialPasses[0],
                     w3dShaderMaterial,
-                    shaderSet);
+                    shaderSet));
             }
             else
             {
-                for (var i = 0; i < materialPasses.Length; i++)
+                for (var i = 0; i < w3dMesh.MaterialPasses.Count; i++)
                 {
-                    materialPasses[i] = CreateModelMeshMaterialPassFixedFunction(
+                    materialPasses.Add(CreateModelMeshMaterialPassFixedFunction(
                         contentManager,
                         w3dMesh,
                         w3dMesh.MaterialPasses[i],
                         vertexMaterials,
-                        shadingConfigurations);
+                        shadingConfigurations));
                 }
             }
 

@@ -1,14 +1,13 @@
 ﻿using OpenSage.Content;
-using Veldrid;
 
 namespace OpenSage.Graphics
 {
     public sealed class Model : DisposableBase
     {
         // TODO: Remove this.
-        public string Name { get; }
-        public ModelBoneHierarchy BoneHierarchy { get; }
-        public ModelSubObject[] SubObjects { get; }
+        public readonly string Name;
+        public readonly ModelBoneHierarchy BoneHierarchy;
+        public readonly ModelSubObject[] SubObjects;
 
         internal Model(
             string name,
@@ -33,9 +32,9 @@ namespace OpenSage.Graphics
 
     public sealed class ModelSubObject
     {
-        public string Name { get; }
-        public ModelBone Bone { get; }
-        public ModelMesh RenderObject { get; }
+        public readonly string Name;
+        public readonly ModelBone Bone;
+        public readonly ModelMesh RenderObject;
 
         internal ModelSubObject(string name, ModelBone bone, ModelMesh renderObject)
         {
