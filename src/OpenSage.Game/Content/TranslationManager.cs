@@ -19,16 +19,19 @@ namespace OpenSage.Content
 
             while (currentFileSystem != null)
             {
+
                 switch (game)
                 {
                     case SageGame.CncGenerals:
                     case SageGame.CncGeneralsZeroHour:
-                        csfEntry = currentFileSystem.GetFile($@"Data\{language}\generals.csf");
+                        csfEntry = fileSystem.GetFile($@"Data\{language}\generals.csf");
                         break;
                     case SageGame.Bfme:
+                        csfEntry = fileSystem.GetFile($@"Lang\{language}\lotr.csf");
+                        break;
                     case SageGame.Bfme2:
                     case SageGame.Bfme2Rotwk:
-                        csfEntry = currentFileSystem.GetFile(@"lotr.csf");
+                        csfEntry = fileSystem.GetFile(@"lotr.csf");
                         break;
                     case SageGame.Cnc3:
                         break;

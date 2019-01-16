@@ -24,11 +24,11 @@ namespace OpenSage.Data.Apt.FrameItems
         ReleaseOutside = 0x001000,
         Release = 0x000800,
         Press = 0x000400,
-        Initialize = 0x000200,
+        DragOut = 0x000200,
         Data = 0x000100,
         Construct = 0x000004,
         KeyPress = 0x000002,
-        DragOut = 0x000001,
+        Initialize = 0x000001,
     }
 
     public sealed class ClipEvent

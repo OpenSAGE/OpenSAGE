@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using OpenSage.Gui.Apt.ActionScript.Opcodes;
 
 namespace OpenSage.Gui.Apt.ActionScript
@@ -8,13 +10,50 @@ namespace OpenSage.Gui.Apt.ActionScript
     /// </summary>
     public sealed class VM
     {
+        private GameTime _lastTick;
+        private Dictionary<string, ValueTuple<GameTime, int, Function, ObjectContext, Value[]>> _intervals;
+
         public ObjectContext GlobalObject { get; }
         public ObjectContext ExternObject { get; }
+        public UrlHandler UrlHandler { get; }
 
         public VM()
         {
             GlobalObject = new ObjectContext();
             ExternObject = new ExternObject();
+            UrlHandler = new UrlHandler();
+            _intervals = new Dictionary<string, ValueTuple<GameTime, int, Function, ObjectContext, Value[]>>();
+        }
+
+        public void CreateInterval(string name, int duration, Function func, ObjectContext ctx, Value[] args)
+        {
+            _intervals[name] = (_lastTick,
+                                duration,
+                                func,
+                                ctx,
+                                args
+                                );
+        }
+
+        public void UpdateIntervals(GameTime current)
+        {
+            for (int i = 0; i < _intervals.Count; ++i)
+            {
+                var interval = _intervals.Values.ElementAt(i);
+
+                if (current.TotalGameTime.TotalMilliseconds > (interval.Item1.TotalGameTime.TotalMilliseconds + interval.Item2))
+                {
+                    Execute(interval.Item3, interval.Item5, interval.Item4);
+                    interval.Item1 = current;
+                }
+            }
+
+            _lastTick = current;
+        }
+
+        public void ClearInterval(string name)
+        {
+            _intervals.Remove(name);
         }
 
         public Value Execute(Function func, Value[] args, ObjectContext scope)
@@ -50,10 +89,10 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
             else
             {
-                for (var i = 0; i < func.Parameters.Count; i+=2)
+                for (var i = 0; i < func.Parameters.Count; i += 2)
                 {
                     var reg = func.Parameters[i].ToInteger();
-                    var name = func.Parameters[i+1].ToString();
+                    var name = func.Parameters[i + 1].ToString();
                     var argIndex = i / 2;
                     bool provided = (argIndex) < args.Length;
 
@@ -71,7 +110,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             if (func.IsNewVersion)
             {
                 context.Preload(func.Flags);
-            }           
+            }
 
             var instr = stream.GetInstruction();
 

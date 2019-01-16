@@ -80,9 +80,9 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// Execute a builtin function maybe move builtin functions elsewhere
         /// </summary>
         /// <param name="name"><function name/param>
-        public virtual void CallBuiltInFunction(string name, Value[] args)
+        public virtual void CallBuiltInFunction(ActionContext actx, string name, Value[] args)
         {
-            Builtin.CallBuiltInFunction(name, this, args);
+            Builtin.CallBuiltInFunction(name, actx, this, args);
         }
 
         private void InitializeProperties()
@@ -101,18 +101,19 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// </summary>
         /// <param name="value">value name</param>
         /// <returns></returns>
-        public Value ResolveValue(string value,ObjectContext ctx)
+        public Value ResolveValue(string value, ObjectContext ctx)
         {
             var path = value.Split('.');
             var obj = this;
-            var member = path.First();
+            var member = path.Last();
 
-            if(path.Length>1)
+            for (int i = 0; i < path.Length - 1; i++)
             {
-                if (Builtin.IsBuiltInVariable(path.First()))
+                var fragment = path[i];
+
+                if (Builtin.IsBuiltInVariable(fragment))
                 {
-                    obj = Builtin.GetBuiltInVariable(path.First(),ctx).ToObject();
-                    member = path[1];
+                    obj = Builtin.GetBuiltInVariable(fragment, obj).ToObject();
                 }
                 else
                 {
