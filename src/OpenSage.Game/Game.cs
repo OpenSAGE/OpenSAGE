@@ -23,8 +23,6 @@ namespace OpenSage
 {
     public sealed class Game : DisposableBase
     {
-        public event EventHandler<GameUpdatingEventArgs> Updating;
-
         private readonly FileSystem _fileSystem;
         private readonly GameTimer _gameTimer;
         private readonly WndCallbackResolver _wndCallbackResolver;
@@ -425,8 +423,6 @@ namespace OpenSage
             InputMessageBuffer.PumpEvents(inputMessages);
 
             NetworkMessageBuffer?.Tick();
-
-            Updating?.Invoke(this, new GameUpdatingEventArgs(gameTime));
 
             foreach (var gameSystem in GameSystems)
             {

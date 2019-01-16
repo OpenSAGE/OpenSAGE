@@ -6,9 +6,9 @@ namespace OpenSage.Graphics.ParticleSystems
     {
         private readonly Action<AttachedParticleSystem> _detach;
 
-        public ParticleSystem ParticleSystem { get; }
+        public readonly ParticleSystem ParticleSystem;
 
-        public AttachedParticleSystem(ParticleSystem particleSystem, Action<AttachedParticleSystem> detach)
+        internal AttachedParticleSystem(ParticleSystem particleSystem, Action<AttachedParticleSystem> detach)
         {
             ParticleSystem = particleSystem;
             _detach = detach;

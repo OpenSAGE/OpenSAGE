@@ -179,7 +179,7 @@ namespace OpenSage.Graphics.ParticleSystems
             return (int) Template.BurstCount.High + (int) Math.Ceiling(((Template.Lifetime.High) / (Template.BurstDelay.Low + 1)) * Template.BurstCount.High);
         }
 
-        public void Update(GameTime gameTime)
+        private void Update(CommandList commandList, in GameTime gameTime)
         {
             if (_particles == null)
             {
@@ -241,7 +241,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 anyAlive = true;
             }
 
-            UpdateVertexBuffer();
+            UpdateVertexBuffer(commandList);
 
             if (!anyAlive && State == ParticleSystemState.Finished)
             {
@@ -437,7 +437,7 @@ namespace OpenSage.Graphics.ParticleSystems
             }
         }
 
-        private void UpdateVertexBuffer()
+        private void UpdateVertexBuffer(CommandList commandList)
         {
             var vertexIndex = 0;
 
@@ -462,10 +462,10 @@ namespace OpenSage.Graphics.ParticleSystems
                 _vertices[vertexIndex++] = particleVertex;
             }
 
-            _graphicsDevice.UpdateBuffer(_vertexBuffer, 0, _vertices);
+            commandList.UpdateBuffer(_vertexBuffer, 0, _vertices);
         }
 
-        public void BuildRenderList(RenderList renderList)
+        public void BuildRenderList(RenderList renderList, GameTime gameTime)
         {
             if (_particles == null)
             {
@@ -484,13 +484,16 @@ namespace OpenSage.Graphics.ParticleSystems
             renderList.Transparent.RenderItems.Add(new RenderItem(
                 _shaderSet,
                 _pipeline,
-                BoundingBox.CreateFromSphere(new BoundingSphere(worldMatrix.Translation, 100)), // TODO
+                BoundingBox.CreateFromSphere(new BoundingSphere(worldMatrix.Translation, 10)), // TODO
                 worldMatrix,
                 0,
                 _numIndices,
                 _indexBuffer,
                 cl =>
                 {
+                    // Only update once we know this particle system is visible on screen.
+                    Update(cl, gameTime);
+
                     if (worldMatrixChanged)
                     {
                         _renderItemConstantsBufferVS.Update(cl);

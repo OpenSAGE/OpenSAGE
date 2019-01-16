@@ -177,15 +177,13 @@ namespace OpenSage
                 gameObject.Update(gameTime);
             }
 
-            _particleSystemManager.Update(gameTime);
-
             _cameraInputMessageHandler?.UpdateInputState(ref _cameraInputState);
             CameraController.UpdateCamera(Camera, _cameraInputState, gameTime);
 
             DebugOverlay.Update(gameTime);
         }
 
-        internal void BuildRenderList(RenderList renderList, Camera camera)
+        internal void BuildRenderList(RenderList renderList, Camera camera, in GameTime gameTime)
         {
             if (ShowTerrain)
             {
@@ -224,7 +222,7 @@ namespace OpenSage
                 }
             }
 
-            _particleSystemManager.BuildRenderList(renderList);
+            _particleSystemManager.BuildRenderList(renderList, gameTime);
         }
 
         // This is for drawing 2D elements which depend on the Scene3D, e.g tooltips and health bars.
