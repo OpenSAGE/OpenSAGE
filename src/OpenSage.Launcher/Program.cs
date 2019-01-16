@@ -14,7 +14,6 @@ namespace OpenSage.Launcher
     {
         public sealed class Options
         {
-            //use a string since nullable enums aren't working yet
             [Option('r', "renderer", Default = null, Required = false, HelpText = "Set the renderer backend.")]
             public GraphicsBackend? Renderer { get; set; }
 
