@@ -12,22 +12,11 @@ namespace OpenSage.Launcher
 {
     public static class Program
     {
-        //must match Veldrid.GraphicsBackends. Can be removed once nullable enums work
-        public enum Renderer : byte
-        {
-            Direct3D11 = 0,
-            Vulkan = 1,
-            OpenGL = 2,
-            Metal = 3,
-            OpenGLES = 4,
-            Default
-        }
-
-        public class Options
+        public sealed class Options
         {
             //use a string since nullable enums aren't working yet
-            [Option('r', "renderer", Default = Renderer.Default, Required = false, HelpText = "Set the renderer backend.")]
-            public Renderer Renderer { get; set; }
+            [Option('r', "renderer", Default = null, Required = false, HelpText = "Set the renderer backend.")]
+            public GraphicsBackend? Renderer { get; set; }
 
             [Option("noshellmap", Default = false, Required = false, HelpText = "Disables loading the shell map, speeding up startup time.")]
             public bool NoShellmap { get; set; }
@@ -47,14 +36,13 @@ namespace OpenSage.Launcher
 
         public static void Main(string[] args)
         {
-            CommandLine.Parser.Default.ParseArguments<Options>(args)
-              .WithParsed<Options>(opts => Run(opts));
+            Parser.Default.ParseArguments<Options>(args)
+              .WithParsed(opts => Run(opts));
         }
 
         public static void Run(Options opts)
         {
             var definition = GameDefinition.FromGame(opts.Game);
-            GraphicsBackend? preferredBackend = null;
 
             var installation = GameInstallation
                 .FindAll(new[] { definition })
@@ -77,16 +65,11 @@ namespace OpenSage.Launcher
                 Environment.Exit(1);
             }
 
-            if (opts.Renderer != Renderer.Default)
-            {
-                preferredBackend = (GraphicsBackend) opts.Renderer;
-            }
-
             Platform.Start();
 
             // TODO: Read game version from assembly metadata or .git folder
             // TODO: Set window icon.
-            using (var game = new Game(installation, preferredBackend))
+            using (var game = new Game(installation, opts.Renderer))
             {
                 game.GraphicsDevice.SyncToVerticalBlank = !opts.DisableVsync;
 
