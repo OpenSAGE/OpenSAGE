@@ -1,4 +1,4 @@
-﻿namespace OpenSage.Graphics.Effects
+﻿namespace OpenSage.Graphics.Shaders
 {
     public enum LightingType
     {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
 
@@ -12,7 +13,7 @@ namespace OpenSage.Graphics
 
         internal ModelMeshMaterialPass(
             GraphicsDevice graphicsDevice,
-            MeshVertex.TexCoords[] texCoords,
+            MeshTypes.MeshVertex.TexCoords[] texCoords,
             IReadOnlyList<ModelMeshPart> meshParts)
         {
             if (texCoords != null)

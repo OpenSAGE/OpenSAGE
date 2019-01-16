@@ -38,7 +38,7 @@ namespace OpenSage.Gui
 
             _spriteBatch = AddDisposable(new SpriteBatch(contentManager, blendStateDescription, outputDescription));
 
-            _textCache = AddDisposable(new TextCache(contentManager));
+            _textCache = AddDisposable(new TextCache(contentManager.GraphicsDevice));
 
             _transformStack = new Stack<Matrix3x2>();
             PushTransform(Matrix3x2.Identity);

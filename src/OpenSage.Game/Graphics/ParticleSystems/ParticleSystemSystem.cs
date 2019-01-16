@@ -43,11 +43,7 @@ namespace OpenSage.Graphics.ParticleSystems
             // TODO: Keep particle count under GameData.MaxParticleCount
             foreach (var attachedParticleSystem in _scene.GetAllAttachedParticleSystems())
             {
-                ref readonly var worldMatrix = ref attachedParticleSystem.ParticleSystem.GetWorldMatrix();
-
-                attachedParticleSystem.ParticleSystem.BuildRenderList(
-                    renderList,
-                    worldMatrix);
+                attachedParticleSystem.ParticleSystem.BuildRenderList(renderList);
             }
         }
     }

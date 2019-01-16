@@ -3,17 +3,9 @@
 
 #include "Common.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsShared
-{
-    GlobalConstantsSharedType _GlobalConstantsShared;
-};
+MAKE_GLOBAL_CONSTANTS_RESOURCES_VS(0)
 
-layout(set = 0, binding = 1) uniform GlobalConstantsVS
-{
-    GlobalConstantsVSType _GlobalConstantsVS;
-};
-
-layout(set = 0, binding = 2) uniform RenderItemConstants
+layout(set = 1, binding = 0) uniform RenderItemConstants
 {
     mat4 _World;
 };

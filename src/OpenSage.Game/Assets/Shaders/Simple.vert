@@ -3,38 +3,9 @@
 
 #include "Common.h"
 #include "Lighting.h"
-#include "Cloud.h"
 #include "Mesh.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsShared
-{
-    GlobalConstantsSharedType _GlobalConstantsShared;
-};
-
-layout(set = 0, binding = 1) uniform GlobalConstantsVS
-{
-    GlobalConstantsVSType _GlobalConstantsVS;
-};
-
-layout(set = 0, binding = 2) uniform GlobalLightingConstantsVS
-{
-    GlobalLightingConstantsVSType _GlobalLightingConstantsVS;
-};
-
-layout(set = 0, binding = 3) uniform MeshConstants
-{
-    MeshConstantsType _MeshConstants;
-};
-
-layout(set = 0, binding = 4) uniform RenderItemConstantsVS
-{
-    RenderItemConstantsVSType _RenderItemConstantsVS;
-};
-
-layout(set = 0, binding = 5) readonly buffer SkinningBuffer
-{
-    mat4 _SkinningBuffer[];
-};
+MAKE_MESH_RESOURCES_VS()
 
 MESH_VERTEX_INPUTS
 

@@ -2,7 +2,7 @@
 
 namespace OpenSage.Graphics.Shaders
 {
-    public static class FixedFunction
+    public static class FixedFunctionTypes
     {
         public enum TextureMappingType 
         {

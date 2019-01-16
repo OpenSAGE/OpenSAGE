@@ -1,3 +1,10 @@
+#ifndef CLOUD_H
+
+#define CLOUD_H
+
+#define MAKE_GLOBAL_CLOUD_RESOURCES_PS(resourceSet) \
+    layout(set = resourceSet, binding = 0) uniform texture2D Global_CloudTexture;
+
 vec2 GetCloudUV(
     vec3 worldPosition,
     mat4 cloudShadowMatrix,
@@ -19,3 +26,5 @@ vec3 GetCloudColor(
 {
     return texture(sampler2D(cloudTexture, cloudSampler), cloudUV).xyz;
 }
+
+#endif

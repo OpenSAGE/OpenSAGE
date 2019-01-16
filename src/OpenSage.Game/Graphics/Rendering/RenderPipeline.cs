@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using OpenSage.Data.Map;
-using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering.Shadows;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Gui;
 using OpenSage.Mathematics;
 using Veldrid;
@@ -25,24 +24,15 @@ namespace OpenSage.Graphics.Rendering
 
         private readonly CommandList _commandList;
 
-        private readonly ConstantBuffer<GlobalConstantsShared> _globalConstantBufferShared;
-        private readonly ConstantBuffer<GlobalConstantsVS> _globalConstantBufferVS;
-        private readonly ConstantBuffer<GlobalConstantsPS> _globalConstantBufferPS;
-        private readonly ConstantBuffer<RenderItemConstantsVS> _renderItemConstantsBufferVS;
-        private readonly ConstantBuffer<RenderItemConstantsPS> _renderItemConstantsBufferPS;
-        private readonly ConstantBuffer<LightingConstantsVS> _globalLightingVSTerrainBuffer;
-        private readonly ConstantBuffer<LightingConstantsPS> _globalLightingPSTerrainBuffer;
-        private readonly ConstantBuffer<LightingConstantsVS> _globalLightingVSObjectBuffer;
-        private readonly ConstantBuffer<LightingConstantsPS> _globalLightingPSObjectBuffer;
-        private readonly ConstantBuffer<ShadowConstantsPS> _shadowConstantsPSBuffer;
+        private readonly GlobalResources _globalResources;
+
+        private readonly ConstantBuffer<MeshTypes.RenderItemConstantsVS> _renderItemConstantsBufferVS;
+        private readonly ConstantBuffer<MeshTypes.RenderItemConstantsPS> _renderItemConstantsBufferPS;
+        private readonly ResourceSet _renderItemConstantsResourceSet;
 
         private readonly DrawingContext2D _drawingContext;
 
-        private readonly Sampler _shadowSampler;
-
         private readonly ShadowMapRenderer _shadowMapRenderer;
-
-        private ShadowConstantsPS _shadowConstants;
 
         private Texture _intermediateDepthBuffer;
         private Texture _intermediateTexture;
@@ -61,16 +51,22 @@ namespace OpenSage.Graphics.Rendering
 
             var graphicsDevice = game.GraphicsDevice;
 
-            _globalConstantBufferShared = AddDisposable(new ConstantBuffer<GlobalConstantsShared>(graphicsDevice, "GlobalConstantsShared"));
-            _globalConstantBufferVS = AddDisposable(new ConstantBuffer<GlobalConstantsVS>(graphicsDevice, "GlobalConstantsVS"));
-            _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<RenderItemConstantsVS>(graphicsDevice, "RenderItemConstantsVS"));
-            _renderItemConstantsBufferPS = AddDisposable(new ConstantBuffer<RenderItemConstantsPS>(graphicsDevice, "RenderItemConstantsPS"));
-            _globalConstantBufferPS = AddDisposable(new ConstantBuffer<GlobalConstantsPS>(graphicsDevice, "GlobalConstantsPS"));
-            _globalLightingVSTerrainBuffer = AddDisposable(new ConstantBuffer<LightingConstantsVS>(graphicsDevice, "GlobalLightingConstantsVS (terrain)"));
-            _globalLightingPSTerrainBuffer = AddDisposable(new ConstantBuffer<LightingConstantsPS>(graphicsDevice, "GlobalLightingConstantsPS (terrain)"));
-            _globalLightingVSObjectBuffer = AddDisposable(new ConstantBuffer<LightingConstantsVS>(graphicsDevice, "GlobalLightingConstantsVS (objects)"));
-            _globalLightingPSObjectBuffer = AddDisposable(new ConstantBuffer<LightingConstantsPS>(graphicsDevice, "GlobalLightingConstantsPS (objects)"));
-            _shadowConstantsPSBuffer = AddDisposable(new ConstantBuffer<ShadowConstantsPS>(graphicsDevice, "ShadowConstantsPS"));
+            _globalResources = AddDisposable(new GlobalResources(graphicsDevice, game.ContentManager));
+
+            _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<MeshTypes.RenderItemConstantsVS>(graphicsDevice, "RenderItemConstantsVS"));
+
+            _renderItemConstantsBufferPS = AddDisposable(new ConstantBuffer<MeshTypes.RenderItemConstantsPS>(graphicsDevice, "RenderItemConstantsPS"));
+
+            var renderItemConstantsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+                new ResourceLayoutDescription(
+                    new ResourceLayoutElementDescription("RenderItemConstantsVS", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+                    new ResourceLayoutElementDescription("RenderItemConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment))));
+
+            _renderItemConstantsResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
+                new ResourceSetDescription(
+                    renderItemConstantsResourceLayout,
+                    _renderItemConstantsBufferVS.Buffer,
+                    _renderItemConstantsBufferPS.Buffer)));
 
             _commandList = AddDisposable(graphicsDevice.ResourceFactory.CreateCommandList());
 
@@ -79,20 +75,7 @@ namespace OpenSage.Graphics.Rendering
                 BlendStateDescription.SingleAlphaBlend,
                 GameOutputDescription));
 
-            _shadowSampler = AddDisposable(graphicsDevice.ResourceFactory.CreateSampler(
-                new SamplerDescription(
-                    SamplerAddressMode.Clamp,
-                    SamplerAddressMode.Clamp,
-                    SamplerAddressMode.Clamp,
-                    SamplerFilter.MinLinear_MagLinear_MipLinear,
-                    ComparisonKind.LessEqual,
-                    0,
-                    0,
-                    0,
-                    0,
-                    SamplerBorderColor.OpaqueBlack)));
-
-            _shadowMapRenderer = AddDisposable(new ShadowMapRenderer());
+            _shadowMapRenderer = AddDisposable(new ShadowMapRenderer(game.GraphicsDevice));
 
             _textureCopier = AddDisposable(new TextureCopier(
                 game,
@@ -179,16 +162,16 @@ namespace OpenSage.Graphics.Rendering
 
         private void Render3DScene(CommandList commandList, Scene3D scene, RenderContext context)
         {
-            Texture cloudTexture;
+            ResourceSet cloudResourceSet;
             if (scene.Lighting.TimeOfDay != TimeOfDay.Night
                 && scene.Lighting.EnableCloudShadows
                 && scene.Terrain != null)
             {
-                cloudTexture = scene.Terrain.CloudTexture;
+                cloudResourceSet = scene.Terrain.CloudResourceSet;
             }
             else
             {
-                cloudTexture = context.ContentManager.SolidWhiteTexture;
+                cloudResourceSet = _globalResources.DefaultCloudResourceSet;
             }
 
             // Shadow map passes.
@@ -198,7 +181,7 @@ namespace OpenSage.Graphics.Rendering
             _shadowMapRenderer.RenderShadowMap(
                 scene,
                 context.GraphicsDevice,
-                ref _shadowConstants,
+                commandList,
                 (framebuffer, lightBoundingFrustum) =>
                 {
                     commandList.SetFramebuffer(framebuffer);
@@ -208,9 +191,9 @@ namespace OpenSage.Graphics.Rendering
                     commandList.SetFullViewports();
 
                     var shadowViewProjection = lightBoundingFrustum.Matrix;
-                    UpdateGlobalConstantBuffers(commandList, shadowViewProjection);
+                    _globalResources.UpdateGlobalConstantBuffers(commandList, shadowViewProjection);
 
-                    DoRenderPass(commandList, _renderList.Shadow, lightBoundingFrustum, null, null);
+                    DoRenderPass(commandList, _renderList.Shadow, lightBoundingFrustum, null);
                 });
 
             commandList.PopDebugGroup();
@@ -221,8 +204,8 @@ namespace OpenSage.Graphics.Rendering
 
             commandList.SetFramebuffer(_intermediateFramebuffer);
 
-            UpdateGlobalConstantBuffers(commandList, scene.Camera.ViewProjection);
-            UpdateStandardPassConstantBuffers(commandList, context);
+            _globalResources.UpdateGlobalConstantBuffers(commandList, scene.Camera.ViewProjection);
+            _globalResources.UpdateStandardPassConstantBuffers(commandList, context);
 
             commandList.ClearColorTarget(0, ColorRgba.DimGray.ToColorRgbaF().ToRgbaFloat());
             commandList.ClearDepthStencil(1);
@@ -231,14 +214,12 @@ namespace OpenSage.Graphics.Rendering
 
             var standardPassCameraFrustum = scene.Camera.BoundingFrustum;
 
-            var shadowMap = _shadowMapRenderer.ShadowMap;
-
             commandList.PushDebugGroup("Opaque");
-            RenderedObjectsOpaque = DoRenderPass(commandList, _renderList.Opaque, standardPassCameraFrustum, cloudTexture, shadowMap);
+            RenderedObjectsOpaque = DoRenderPass(commandList, _renderList.Opaque, standardPassCameraFrustum, cloudResourceSet);
             commandList.PopDebugGroup();
 
             commandList.PushDebugGroup("Transparent");
-            RenderedObjectsTransparent = DoRenderPass(commandList, _renderList.Transparent, standardPassCameraFrustum, cloudTexture, shadowMap);
+            RenderedObjectsTransparent = DoRenderPass(commandList, _renderList.Transparent, standardPassCameraFrustum, cloudResourceSet);
             commandList.PopDebugGroup();
 
             commandList.PopDebugGroup();
@@ -248,8 +229,7 @@ namespace OpenSage.Graphics.Rendering
             CommandList commandList,
             RenderBucket bucket,
             BoundingFrustum cameraFrustum,
-            Texture cloudTexture,
-            Texture shadowMap)
+            ResourceSet cloudResourceSet)
         {
             // TODO: Make culling batch size configurable at runtime
             bucket.RenderItems.CullAndSort(cameraFrustum, ParallelCullingBatchSize);
@@ -266,27 +246,18 @@ namespace OpenSage.Graphics.Rendering
             {
                 ref var renderItem = ref bucket.RenderItems[i];
 
-                if (lastRenderItemIndex == null || bucket.RenderItems[lastRenderItemIndex.Value].Effect != renderItem.Effect)
+                if (lastRenderItemIndex == null || bucket.RenderItems[lastRenderItemIndex.Value].Pipeline != renderItem.Pipeline)
                 {
-                    renderItem.Effect.Begin();
+                    commandList.InsertDebugMarker("Setting pipeline");
+                    commandList.SetPipeline(renderItem.Pipeline);
                 }
 
-                if (lastRenderItemIndex == null || bucket.RenderItems[lastRenderItemIndex.Value].Material != renderItem.Material)
+                if (lastRenderItemIndex == null || bucket.RenderItems[lastRenderItemIndex.Value].ShaderSet != renderItem.ShaderSet)
                 {
-                    SetDefaultMaterialProperties(renderItem.Material, cloudTexture, shadowMap);
-                    renderItem.Material.ApplyPipelineState();
-                    renderItem.Effect.ApplyPipelineState(commandList);
+                    SetGlobalResources(commandList, renderItem.ShaderSet.GlobalResourceSetIndices, cloudResourceSet);
                 }
 
-                commandList.SetVertexBuffer(0, renderItem.VertexBuffer0);
-
-                if (renderItem.VertexBuffer1 != null)
-                {
-                    commandList.SetVertexBuffer(1, renderItem.VertexBuffer1);
-                }
-
-                var renderItemConstantsVSParameter = renderItem.Effect.GetParameter("RenderItemConstantsVS", throwIfMissing: false);
-                if (renderItemConstantsVSParameter != null)
+                if (renderItem.ShaderSet.GlobalResourceSetIndices.RenderItemConstants != null)
                 {
                     if (lastWorld == null || lastWorld.Value != renderItem.World)
                     {
@@ -296,27 +267,18 @@ namespace OpenSage.Graphics.Rendering
                         lastWorld = renderItem.World;
                     }
 
-                    renderItem.Material.SetProperty(
-                        "RenderItemConstantsVS",
-                        _renderItemConstantsBufferVS.Buffer);
-                }
-
-                if (renderItem.HouseColor != null)
-                {
-                    var renderItemConstantsPSParameter = renderItem.Effect.GetParameter("RenderItemConstantsPS", throwIfMissing: false);
-                    if (renderItemConstantsPSParameter != null)
+                    if (renderItem.HouseColor != null)
                     {
-                        _renderItemConstantsBufferPS.Value.HouseColor = renderItem.HouseColor.Value.ToVector3();
-                        _renderItemConstantsBufferPS.Update(commandList);
-
-                        renderItem.Material.SetProperty(
-                            "RenderItemConstantsPS",
-                            _renderItemConstantsBufferPS.Buffer);
+                        var houseColor = renderItem.HouseColor.Value.ToVector3();
+                        if (houseColor != _renderItemConstantsBufferPS.Value.HouseColor)
+                        {
+                            _renderItemConstantsBufferPS.Value.HouseColor = houseColor;
+                            _renderItemConstantsBufferPS.Update(commandList);
+                        }
                     }
                 }
 
-                renderItem.Material.ApplyProperties();
-                renderItem.Effect.ApplyParameters(commandList);
+                renderItem.BeforeRenderCallback.Invoke(commandList);
 
                 commandList.SetIndexBuffer(renderItem.IndexBuffer, IndexFormat.UInt16);
                 commandList.DrawIndexed(
@@ -332,144 +294,41 @@ namespace OpenSage.Graphics.Rendering
             return bucket.RenderItems.CulledItemIndices.Count;
         }
 
-        private void SetDefaultMaterialProperties(
-            EffectMaterial material,
-            Texture cloudTexture,
-            Texture shadowMap)
+        private void SetGlobalResources(
+            CommandList commandList,
+            GlobalResourceSetIndices indices,
+            ResourceSet cloudResourceSet)
         {
-            void setDefaultConstantBuffer(string name, DeviceBuffer buffer)
+            if (indices.GlobalConstants != null)
             {
-                var parameter = material.Effect.GetParameter(name, throwIfMissing: false);
-                if (parameter != null)
-                {
-                    material.SetProperty(name, buffer);
-                }
+                commandList.SetGraphicsResourceSet(indices.GlobalConstants.Value, _globalResources.GlobalConstantsResourceSet);
             }
 
-            setDefaultConstantBuffer("GlobalConstantsShared", _globalConstantBufferShared.Buffer);
-            setDefaultConstantBuffer("GlobalConstantsVS", _globalConstantBufferVS.Buffer);
-            setDefaultConstantBuffer("GlobalConstantsPS", _globalConstantBufferPS.Buffer);
-
-            switch (material.LightingType)
+            switch (indices.LightingType)
             {
                 case LightingType.Terrain:
-                    setDefaultConstantBuffer("GlobalLightingConstantsVS", _globalLightingVSTerrainBuffer.Buffer);
-                    setDefaultConstantBuffer("GlobalLightingConstantsPS", _globalLightingPSTerrainBuffer.Buffer);
+                    commandList.SetGraphicsResourceSet(indices.GlobalLightingConstants.Value, _globalResources.GlobalLightingConstantsTerrainResourceSet);
                     break;
 
                 case LightingType.Object:
-                    setDefaultConstantBuffer("GlobalLightingConstantsVS", _globalLightingVSObjectBuffer.Buffer);
-                    setDefaultConstantBuffer("GlobalLightingConstantsPS", _globalLightingPSObjectBuffer.Buffer);
+                    commandList.SetGraphicsResourceSet(indices.GlobalLightingConstants.Value, _globalResources.GlobalLightingConstantsObjectResourceSet);
                     break;
             }
 
-            var cloudTextureParameter = material.Effect.GetParameter("Global_CloudTexture", throwIfMissing: false);
-            if (cloudTextureParameter != null)
+            if (indices.CloudConstants != null)
             {
-                material.SetProperty("Global_CloudTexture", cloudTexture);
+                commandList.SetGraphicsResourceSet(indices.CloudConstants.Value, cloudResourceSet);
             }
 
-            setDefaultConstantBuffer("ShadowConstantsPS", _shadowConstantsPSBuffer.Buffer);
-
-            var shadowMapParameter = material.Effect.GetParameter("Global_ShadowMap", throwIfMissing: false);
-            if (shadowMapParameter != null)
+            if (indices.ShadowConstants != null)
             {
-                material.SetProperty("Global_ShadowMap", shadowMap);
-                material.SetProperty("Global_ShadowSampler", _shadowSampler);
-            }
-        }
-
-        private void UpdateGlobalConstantBuffers(
-            CommandList commandEncoder,
-            in Matrix4x4 viewProjection)
-        {
-            _globalConstantBufferVS.Value.ViewProjection = viewProjection;
-            _globalConstantBufferVS.Update(commandEncoder);
-        }
-
-        private void UpdateStandardPassConstantBuffers(
-            CommandList commandEncoder,
-            RenderContext context)
-        {
-            var cloudShadowView = Matrix4x4.CreateLookAt(
-                Vector3.Zero,
-                Vector3.Normalize(new Vector3(0, 0.2f, -1)),
-                Vector3.UnitY);
-
-            var cloudShadowProjection = Matrix4x4.CreateOrthographic(1, 1, 0, 1);
-
-            var lightingConstantsVS = new LightingConstantsVS
-            {
-                CloudShadowMatrix = cloudShadowView * cloudShadowProjection
-            };
-
-            var cameraPosition = Matrix4x4Utility.Invert(context.Scene3D.Camera.View).Translation;
-
-            _globalConstantBufferShared.Value.CameraPosition = cameraPosition;
-            _globalConstantBufferShared.Value.TimeInSeconds = (float) context.GameTime.TotalGameTime.TotalSeconds;
-            _globalConstantBufferShared.Update(commandEncoder);
-
-            void updateLightingBuffer(
-                ConstantBuffer<LightingConstantsVS> bufferVS,
-                ConstantBuffer<LightingConstantsPS> bufferPS,
-                in LightingConstantsPS constantsPS)
-            {
-                bufferVS.Value = lightingConstantsVS;
-                bufferVS.Update(commandEncoder);
-
-                bufferPS.Value = constantsPS;
-                bufferPS.Update(commandEncoder);
+                commandList.SetGraphicsResourceSet(indices.ShadowConstants.Value, _shadowMapRenderer.ResourceSetForRendering);
             }
 
-            updateLightingBuffer(
-                _globalLightingVSTerrainBuffer,
-                _globalLightingPSTerrainBuffer,
-                context.Scene3D.Lighting.CurrentLightingConfiguration.TerrainLightsPS);
-
-            updateLightingBuffer(
-                _globalLightingVSObjectBuffer,
-                _globalLightingPSObjectBuffer,
-                context.Scene3D.Lighting.CurrentLightingConfiguration.ObjectLightsPS);
-
-            _globalConstantBufferPS.Value.ViewportSize = new Vector2(context.RenderTarget.Width, context.RenderTarget.Height);
-            _globalConstantBufferPS.Update(commandEncoder);
-
-            _shadowConstantsPSBuffer.Value = _shadowConstants;
-            _shadowConstantsPSBuffer.Update(commandEncoder);
-        }
-
-        [StructLayout(LayoutKind.Sequential, Size = 16)]
-        private struct GlobalConstantsShared
-        {
-            public Vector3 CameraPosition;
-            public float TimeInSeconds;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct GlobalConstantsVS
-        {
-            public Matrix4x4 ViewProjection;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct RenderItemConstantsVS
-        {
-            public Matrix4x4 World;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct RenderItemConstantsPS
-        {
-            public Vector3 HouseColor;
-#pragma warning disable CS0169
-            private readonly float _padding;
-#pragma warning restore CS0169
-        }
-
-        [StructLayout(LayoutKind.Sequential, Size = 16)]
-        private struct GlobalConstantsPS
-        {
-            public Vector2 ViewportSize;
+            if (indices.RenderItemConstants != null)
+            {
+                commandList.SetGraphicsResourceSet(indices.RenderItemConstants.Value, _renderItemConstantsResourceSet);
+            }
         }
     }
 }

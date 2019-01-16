@@ -6,28 +6,16 @@
 #include "Cloud.h"
 #include "Shadows.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsShared
-{
-    GlobalConstantsSharedType _GlobalConstantsShared;
-};
+MAKE_GLOBAL_CONSTANTS_RESOURCES_PS(0)
 
-layout(set = 0, binding = 3) uniform GlobalLightingConstantsPS
-{
-    GlobalLightingConstantsPSType _GlobalLightingConstantsPS;
-};
+MAKE_GLOBAL_LIGHTING_CONSTANTS_RESOURCES_PS(1)
 
-layout(set = 0, binding = 4) uniform texture2D Global_CloudTexture;
+MAKE_GLOBAL_CLOUD_RESOURCES_PS(2)
 
-layout(set = 0, binding = 5) uniform texture2D Texture;
-layout(set = 0, binding = 6) uniform sampler Sampler;
+MAKE_GLOBAL_SHADOW_RESOURCES_PS(3)
 
-layout(set = 0, binding = 7) uniform ShadowConstantsPS
-{
-    ShadowConstantsPSType _ShadowConstantsPS;
-};
-
-layout(set = 0, binding = 8) uniform texture2DArray Global_ShadowMap;
-layout(set = 0, binding = 9) uniform samplerShadow Global_ShadowSampler;
+layout(set = 4, binding = 0) uniform texture2D Texture;
+layout(set = 4, binding = 1) uniform sampler Sampler;
 
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec3 in_WorldNormal;

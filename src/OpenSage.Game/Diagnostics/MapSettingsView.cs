@@ -49,14 +49,6 @@ namespace OpenSage.Diagnostics
             {
                 Game.Scene3D.ShowObjects = showObjects;
             }
-
-            ImGui.Separator();
-
-            var enableMacroTexture = Game.Scene3D.Terrain.EnableMacroTexture;
-            if (ImGui.Checkbox("Enable macro texture", ref enableMacroTexture))
-            {
-                Game.Scene3D.Terrain.EnableMacroTexture = enableMacroTexture;
-            }
         }
     }
 }

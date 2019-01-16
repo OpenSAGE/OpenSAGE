@@ -1,14 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using OpenSage.Data.Utilities.Extensions;
-using OpenSage.Data.W3d;
+﻿using System.IO;
 using OpenSage.Data.W3x;
-using OpenSage.Graphics;
-using OpenSage.Graphics.Effects;
-using OpenSage.Graphics.Rendering;
-using OpenSage.Mathematics;
-using Veldrid;
 
 namespace OpenSage.Data.StreamFS.AssetReaders
 {

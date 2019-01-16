@@ -30,7 +30,7 @@ namespace OpenSage.Terrain
         {
             _model = model;
 
-            _modelInstance = AddDisposable(_model.CreateInstance(contentManager.GraphicsDevice));
+            _modelInstance = AddDisposable(_model.CreateInstance(contentManager));
 
             _modelInstance.Update(new GameTime());
 

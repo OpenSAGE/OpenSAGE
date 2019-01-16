@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using OpenSage.Content;
 using OpenSage.Data.Map;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
@@ -22,7 +21,9 @@ namespace OpenSage.Terrain
         private readonly DeviceBuffer _indexBuffer;
         private readonly uint _numIndices;
 
-        private readonly Dictionary<TimeOfDay, WaterMaterial> _materials;
+        private readonly ShaderSet _shaderSet;
+        private readonly Pipeline _pipeline;
+        private readonly Dictionary<TimeOfDay, ResourceSet> _resourceSets;
 
         public static bool TryCreate(
             ContentManager contentManager,
@@ -56,7 +57,7 @@ namespace OpenSage.Terrain
 
             var vertices = trianglePoints
                 .Select(x =>
-                    new WaterVertex
+                    new WaterTypes.WaterVertex
                     {
                         Position = new Vector3(x.X, x.Y, trigger.Points[0].Z)
                     })
@@ -74,42 +75,35 @@ namespace OpenSage.Terrain
                 triangleIndices,
                 BufferUsage.IndexBuffer));
 
-            _materials = new Dictionary<TimeOfDay, WaterMaterial>();
+            _shaderSet = contentManager.ShaderLibrary.Water;
+            _pipeline = contentManager.WaterResourceCache.Pipeline;
+
+            _resourceSets = new Dictionary<TimeOfDay, ResourceSet>();
 
             foreach (var waterSet in contentManager.IniDataContext.WaterSets)
             {
-                var material = AddDisposable(new WaterMaterial(
-                    contentManager,
-                    contentManager.EffectLibrary.Water));
-                
                 var waterTexture = contentManager.Load<Texture>(Path.Combine("Art", "Textures", waterSet.WaterTexture));
-                material.SetWaterTexture(waterTexture);
+                var resourceSet = contentManager.WaterResourceCache.GetResourceSet(waterTexture);
 
-                _materials.Add(waterSet.TimeOfDay, material);
+                _resourceSets.Add(waterSet.TimeOfDay, resourceSet);
             }
         }
 
         internal void BuildRenderList(RenderList renderList, TimeOfDay timeOfDay)
         {
             renderList.Opaque.RenderItems.Add(new RenderItem(
-                _materials[timeOfDay],
-                _vertexBuffer,
-                null,
-                CullFlags.None,
+                _shaderSet,
+                _pipeline,
                 _boundingBox,
                 Matrix4x4.Identity,
                 0,
                 _numIndices,
-                _indexBuffer));
+                _indexBuffer,
+                cl =>
+                {
+                    cl.SetGraphicsResourceSet(4, _resourceSets[timeOfDay]);
+                    cl.SetVertexBuffer(0, _vertexBuffer);
+                }));
         }
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct WaterVertex
-    {
-        public Vector3 Position;
-
-        public static readonly VertexLayoutDescription VertexDescriptor = new VertexLayoutDescription(
-            new VertexElementDescription("POSITION", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3));
     }
 }

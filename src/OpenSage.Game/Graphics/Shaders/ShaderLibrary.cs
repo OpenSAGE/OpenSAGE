@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using OpenSage.Graphics.ParticleSystems;
-using OpenSage.Terrain;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class ShaderSetLibrary : DisposableBase
+    internal sealed class ShaderLibrary : DisposableBase
     {
         private readonly GraphicsDevice _graphicsDevice;
         private readonly Dictionary<string, ShaderSet> _shaderSets;
@@ -17,10 +15,9 @@ namespace OpenSage.Graphics.Shaders
         public ShaderSet Road { get; }
         public ShaderSet Water { get; }
 
-        public ShaderSet MeshDepthFixedFunction { get; }
-        public ShaderSet MeshDepthShaderMaterial { get; }
+        public ShaderSet MeshDepth { get; }
 
-        public ShaderSetLibrary(GraphicsDevice graphicsDevice)
+        public ShaderLibrary(GraphicsDevice graphicsDevice)
         {
             _graphicsDevice = graphicsDevice;
             _shaderSets = new Dictionary<string, ShaderSet>();
@@ -28,54 +25,55 @@ namespace OpenSage.Graphics.Shaders
             FixedFunction = AddDisposable(new ShaderSet(
                 graphicsDevice,
                 "FixedFunction",
-                MeshVertex.VertexDescriptors));
+                new GlobalResourceSetIndices(0u, LightingType.Object, 1u, 2u, 3u, 7u),
+                MeshTypes.MeshVertex.VertexDescriptors));
 
             Particle = AddDisposable(new ShaderSet(
                 graphicsDevice,
                 "Particle",
-                ParticleVertex.VertexDescriptor));
+                new GlobalResourceSetIndices(0u, LightingType.None, null, null, null, null),
+                ParticleTypes.ParticleVertex.VertexDescriptor));
 
             Sprite = AddDisposable(new ShaderSet(
                 graphicsDevice,
                 "Sprite",
-                SpriteVertex.VertexDescriptor));
+                new GlobalResourceSetIndices(null, LightingType.None, null, null, null, null),
+                SpriteTypes.SpriteVertex.VertexDescriptor));
 
             Terrain = AddDisposable(new ShaderSet(
                 graphicsDevice,
                 "Terrain",
-                TerrainVertex.VertexDescriptor));
+                new GlobalResourceSetIndices(0u, LightingType.Terrain, 1u, 2u, 3u, null),
+                TerrainTypes.TerrainVertex.VertexDescriptor));
 
             Road = AddDisposable(new ShaderSet(
                 graphicsDevice,
                 "Road",
-                RoadVertex.VertexDescriptor));
+                new GlobalResourceSetIndices(0u, LightingType.Terrain, 1u, 2u, 3u, null),
+                RoadTypes.RoadVertex.VertexDescriptor));
 
             Water = AddDisposable(new ShaderSet(
                 graphicsDevice,
                 "Water",
-                WaterVertex.VertexDescriptor));
+                new GlobalResourceSetIndices(0u, LightingType.Terrain, 1u, 2u, 3u, null),
+                WaterTypes.WaterVertex.VertexDescriptor));
 
-            MeshDepthFixedFunction = AddDisposable(new ShaderSet(
+            MeshDepth = AddDisposable(new ShaderSet(
                 graphicsDevice,
                 "MeshDepth",
-                MeshVertex.VertexDescriptors));
-
-            MeshDepthShaderMaterial = AddDisposable(new ShaderSet(
-                graphicsDevice,
-                "MeshDepth",
-                MeshVertex.VertexDescriptors));
+                new GlobalResourceSetIndices(0u, LightingType.None, null, null, null, 2u),
+                MeshTypes.MeshVertex.VertexDescriptors));
         }
 
-        public ShaderSet GetShaderSet(
-            string name,
-            VertexLayoutDescription[] vertexDescriptors)
+        public ShaderSet GetMeshShaderSet(string name)
         {
             if (!_shaderSets.TryGetValue(name, out var shaderSet))
             {
                 _shaderSets[name] = shaderSet = AddDisposable(new ShaderSet(
                     _graphicsDevice,
                     name,
-                    vertexDescriptors));
+                    new GlobalResourceSetIndices(0u, LightingType.Object, 1u, 2u, 3u, 6u),
+                    MeshTypes.MeshVertex.VertexDescriptors));
             }
             return shaderSet;
         }

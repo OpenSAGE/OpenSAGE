@@ -7,27 +7,27 @@ namespace OpenSage.Input
     {
         public static InputMessage CreateKeyUp(Key value)
         {
-            return new InputMessage(InputMessageType.KeyUp, new InputMessageValue { Key = value });
+            return new InputMessage(InputMessageType.KeyUp, new InputMessageValue(value));
         }
 
         public static InputMessage CreateKeyDown(Key value)
         {
-            return new InputMessage(InputMessageType.KeyDown, new InputMessageValue { Key = value });
+            return new InputMessage(InputMessageType.KeyDown, new InputMessageValue(value));
         }
 
         public static InputMessage CreateMouseButton(InputMessageType messageType, in Point2D position)
         {
-            return new InputMessage(messageType, new InputMessageValue { MousePosition = position });
+            return new InputMessage(messageType, new InputMessageValue(position));
         }
 
         public static InputMessage CreateMouseMove(in Point2D position)
         {
-            return new InputMessage(InputMessageType.MouseMove, new InputMessageValue { MousePosition = position });
+            return new InputMessage(InputMessageType.MouseMove, new InputMessageValue(position));
         }
 
         public static InputMessage CreateMouseWheel(int value)
         {
-            return new InputMessage(InputMessageType.MouseWheel, new InputMessageValue { ScrollWheel = value });
+            return new InputMessage(InputMessageType.MouseWheel, new InputMessageValue(value));
         }
 
         public InputMessageType MessageType { get; }

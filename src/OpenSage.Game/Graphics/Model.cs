@@ -1,4 +1,5 @@
-﻿using Veldrid;
+﻿using OpenSage.Content;
+using Veldrid;
 
 namespace OpenSage.Graphics
 {
@@ -24,9 +25,9 @@ namespace OpenSage.Graphics
             SubObjects = subObjects;
         }
 
-        public ModelInstance CreateInstance(GraphicsDevice graphicsDevice)
+        public ModelInstance CreateInstance(ContentManager contentManager)
         {
-            return new ModelInstance(this, graphicsDevice);
+            return new ModelInstance(this, contentManager);
         }
     }
 

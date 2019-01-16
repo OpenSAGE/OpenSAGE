@@ -1,3 +1,7 @@
+#ifndef LIGHTING_H
+
+#define LIGHTING_H
+
 struct GlobalLightingConstantsVSType
 {
     mat4 CloudShadowMatrix;
@@ -19,6 +23,18 @@ struct GlobalLightingConstantsPSType
 {
     Light[NUM_LIGHTS] Lights;
 };
+
+#define MAKE_GLOBAL_LIGHTING_CONSTANTS_RESOURCES_VS(resourceSet) \
+    layout(set = resourceSet, binding = 0) uniform GlobalLightingConstantsVS \
+    { \
+        GlobalLightingConstantsVSType _GlobalLightingConstantsVS; \
+    };
+
+#define MAKE_GLOBAL_LIGHTING_CONSTANTS_RESOURCES_PS(resourceSet) \
+    layout(set = resourceSet, binding = 1) uniform GlobalLightingConstantsPS \
+    { \
+        GlobalLightingConstantsPSType _GlobalLightingConstantsPS; \
+    };
 
 vec3 CalculateViewVector(vec3 cameraPosition, vec3 worldPosition)
 {
@@ -75,3 +91,5 @@ void DoLighting(
 
     diffuseColor = saturate(diffuseColor);
 }
+
+#endif

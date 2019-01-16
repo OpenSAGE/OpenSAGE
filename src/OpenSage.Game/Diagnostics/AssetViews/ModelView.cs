@@ -13,7 +13,7 @@ namespace OpenSage.Diagnostics.AssetViews
         public ModelView(DiagnosticViewContext context, Model model)
             : base(context)
         {
-            _modelInstance = AddDisposable(model.CreateInstance(context.Game.GraphicsDevice));
+            _modelInstance = AddDisposable(model.CreateInstance(context.Game.ContentManager));
             _modelInstance.Update(new GameTime());
 
             var enclosingBoundingBox = GetEnclosingBoundingBox(_modelInstance);

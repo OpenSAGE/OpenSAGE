@@ -2,23 +2,20 @@
 #extension GL_GOOGLE_include_directive : enable
 
 #include "Common.h"
+#include "Lighting.h"
 #include "Cloud.h"
+#include "Shadows.h"
+#include "Mesh.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsShared
-{
-    GlobalConstantsSharedType _GlobalConstantsShared;
-};
+MAKE_MESH_RESOURCES_PS()
 
-layout(set = 0, binding = 6) uniform texture2D Global_CloudTexture;
-
-layout(set = 0, binding = 7) uniform MaterialConstants
+layout(set = MESH_MATERIAL_RESOURCE_SET, binding = 0) uniform MaterialConstants
 {
     vec4 ColorEmissive;
     vec4 TexCoordTransform_0;
 } _MaterialConstants;
 
-layout(set = 0, binding = 8) uniform texture2D Texture_0;
-layout(set = 0, binding = 9) uniform sampler Sampler;
+layout(set = MESH_MATERIAL_RESOURCE_SET, binding = 1) uniform texture2D Texture_0;
 
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec3 in_WorldNormal;

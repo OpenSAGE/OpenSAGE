@@ -10,20 +10,51 @@ namespace OpenSage.Graphics.Rendering.Shadows
         private readonly ShadowFrustumCalculator _shadowFrustumCalculator;
         private readonly BoundingFrustum _lightFrustum;
 
+        private readonly Sampler _shadowSampler;
+
+        private readonly ResourceLayout _resourceLayout;
+        private ResourceSet _resourceSet;
+
         private ShadowData _shadowData;
+
+        private readonly ConstantBuffer<ShadowConstantsPS> _shadowConstantsPSBuffer;
+        private ShadowConstantsPS _shadowConstants;
 
         public Texture ShadowMap => _shadowData?.ShadowMap;
 
-        public ShadowMapRenderer()
+        public ResourceSet ResourceSetForRendering => _resourceSet;
+
+        public ShadowMapRenderer(GraphicsDevice graphicsDevice)
         {
             _shadowFrustumCalculator = new ShadowFrustumCalculator();
             _lightFrustum = new BoundingFrustum(Matrix4x4.Identity);
+
+            _shadowSampler = AddDisposable(graphicsDevice.ResourceFactory.CreateSampler(
+                new SamplerDescription(
+                    SamplerAddressMode.Clamp,
+                    SamplerAddressMode.Clamp,
+                    SamplerAddressMode.Clamp,
+                    SamplerFilter.MinLinear_MagLinear_MipLinear,
+                    ComparisonKind.LessEqual,
+                    0,
+                    0,
+                    0,
+                    0,
+                    SamplerBorderColor.OpaqueBlack)));
+
+            _resourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+                new ResourceLayoutDescription(
+                    new ResourceLayoutElementDescription("Global_ShadowConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("Global_ShadowMap", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("Global_ShadowSampler", ResourceKind.Sampler, ShaderStages.Fragment))));
+
+            _shadowConstantsPSBuffer = AddDisposable(new ConstantBuffer<ShadowConstantsPS>(graphicsDevice, "ShadowConstantsPS"));
         }
 
         public void RenderShadowMap(
             Scene3D scene,
             GraphicsDevice graphicsDevice,
-            ref ShadowConstantsPS constants,
+            CommandList commandList,
             Action<Framebuffer, BoundingFrustum> drawSceneCallback)
         {
             // TODO: Use terrain light for terrain self-shadowing?
@@ -41,6 +72,7 @@ namespace OpenSage.Graphics.Rendering.Shadows
                 || _shadowData.NumSplits != numCascades))
             {
                 RemoveAndDispose(ref _shadowData);
+                RemoveAndDispose(ref _resourceSet);
             }
 
             if (_shadowData == null)
@@ -51,31 +83,42 @@ namespace OpenSage.Graphics.Rendering.Shadows
                     scene.Camera.FarPlaneDistance,
                     shadowMapSize,
                     graphicsDevice));
+
+                _resourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
+                    new ResourceSetDescription(
+                        _resourceLayout,
+                        _shadowConstantsPSBuffer.Buffer,
+                        _shadowData.ShadowMap,
+                        _shadowSampler)));
             }
 
-            if (scene.Shadows.ShadowsType == ShadowsType.None)
+            if (scene.Shadows.ShadowsType != ShadowsType.None)
             {
-                constants.ShadowsType = ShadowsType.None;
-                return;
+                _shadowFrustumCalculator.CalculateShadowData(
+                    light,
+                    scene.Camera,
+                    _shadowData,
+                    scene.Shadows);
+
+                _shadowConstants.Set(numCascades, scene.Shadows, _shadowData);
+
+                // Render scene geometry to each split of the cascade.
+                for (var splitIndex = 0; splitIndex < _shadowData.NumSplits; splitIndex++)
+                {
+                    _lightFrustum.Matrix = _shadowData.ShadowCameraViewProjections[splitIndex];
+
+                    drawSceneCallback(
+                        _shadowData.ShadowMapFramebuffers[splitIndex],
+                        _lightFrustum);
+                }
             }
-
-            _shadowFrustumCalculator.CalculateShadowData(
-                light,
-                scene.Camera,
-                _shadowData,
-                scene.Shadows);
-
-            constants.Set(numCascades, scene.Shadows, _shadowData);
-
-            // Render scene geometry to each split of the cascade.
-            for (var splitIndex = 0; splitIndex < _shadowData.NumSplits; splitIndex++)
+            else
             {
-                _lightFrustum.Matrix = _shadowData.ShadowCameraViewProjections[splitIndex];
-
-                drawSceneCallback(
-                    _shadowData.ShadowMapFramebuffers[splitIndex],
-                    _lightFrustum);
+                _shadowConstants.ShadowsType = ShadowsType.None;
             }
+
+            _shadowConstantsPSBuffer.Value = _shadowConstants;
+            _shadowConstantsPSBuffer.Update(commandList);
         }
     }
 }

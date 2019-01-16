@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using OpenSage.Data.Map;
-using OpenSage.Graphics.Effects;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Settings
@@ -20,9 +20,9 @@ namespace OpenSage.Settings
 
         public static WorldLighting CreateDefault()
         {
-            var lights = new LightingConstantsPS
+            var lights = new GlobalLightingTypes.LightingConstantsPS
             {
-                Light0 = new Light
+                Light0 = new GlobalLightingTypes.Light
                 {
                     Ambient = new Vector3(0.3f, 0.3f, 0.3f),
                     Direction = Vector3.Normalize(new Vector3(-0.3f, 0.2f, -0.8f)),

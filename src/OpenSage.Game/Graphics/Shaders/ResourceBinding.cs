@@ -2,11 +2,11 @@
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal class ResourceBinding
+    internal sealed class ResourceBinding
     {
-        public string Name { get; set; }
-        public ResourceKind Kind { get; set; }
-        public ShaderStages Stages { get; set; }
-        public ResourceType Type { get; set; }
+        public uint Set;
+        public uint Binding;
+        public ResourceLayoutElementDescription Description;
+        public ResourceType Type;
     }
 }

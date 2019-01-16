@@ -2,25 +2,18 @@
 #extension GL_GOOGLE_include_directive : enable
 
 #include "Common.h"
-#include "Cloud.h"
 #include "Mesh.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsVS
-{
-    GlobalConstantsVSType _GlobalConstantsVS;
-};
+MAKE_GLOBAL_CONSTANTS_RESOURCES_VS(0)
 
-layout(set = 0, binding = 1) uniform MeshConstants
-{
-    MeshConstantsType _MeshConstants;
-};
+MAKE_MESH_CONSTANTS_RESOURCES(1)
 
-layout(set = 0, binding = 2) uniform RenderItemConstantsVS
+layout(set = 2, binding = 0) uniform RenderItemConstantsVS
 {
     RenderItemConstantsVSType _RenderItemConstantsVS;
 };
 
-layout(set = 0, binding = 3) readonly buffer SkinningBuffer
+layout(set = 3, binding = 0) readonly buffer SkinningBuffer
 {
     mat4 _SkinningBuffer[];
 };
