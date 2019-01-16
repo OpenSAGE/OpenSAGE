@@ -10,6 +10,7 @@ namespace OpenSage.Data.Ini
         public RingEffect FireEffect { get; internal set; }
         public GlowEffect GlowEffect { get; internal set; }
         public RingEffect RingEffect { get; internal set; }
+        public ShadowMap ShadowMap { get; internal set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -137,5 +138,22 @@ namespace OpenSage.Data.Ini
         public Vector2 LightningLightPosition2 { get; private set; }
         public Vector2 LightningLightPosition3 { get; private set; }
         public string LightningFX { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public sealed class ShadowMap
+    {
+        internal static ShadowMap Parse(IniParser parser) => parser.ParseTopLevelBlock(FieldParseTable);
+
+        private static readonly IniParseTable<ShadowMap> FieldParseTable = new IniParseTable<ShadowMap>
+        {
+            { "MapSize", (parser, x) => x.MapSize = parser.ParseInteger() },
+            { "MaxViewDistance", (parser, x) => x.MaxViewDistance = parser.ParseFloat() },
+            { "MinShadowedTerrainHeight", (parser, x) => x.MinShadowedTerrainHeight = parser.ParseFloat() },
+        };
+
+        public int MapSize { get; private set; }
+        public float MaxViewDistance { get; private set; }
+        public float MinShadowedTerrainHeight { get; private set; }
     }
 }
