@@ -13,10 +13,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var target = Parameters[0].ToString();
-            var url = Parameters[1].ToString();
+            var url = Parameters[0].ToString();
+            var target  = Parameters[1].ToString();
 
-            Debug.WriteLine("[URL] Target: " + target + " URL: " + url);
+            context.Apt.AVM.UrlHandler.Handle(url, target);
         }
     }
 
@@ -32,10 +32,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var target = context.Stack.Pop();
             var url = context.Stack.Pop().ToString();
 
-            if(target.Type==ValueType.String)
-                Debug.WriteLine("[URL2] Target: " + target + " URL: " + url);
-            else
-                Debug.WriteLine("[URL2] URL: " + url);
+            context.Apt.AVM.UrlHandler.Handle(url, target.ToString());
         }
     }
 }

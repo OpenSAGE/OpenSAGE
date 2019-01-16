@@ -88,7 +88,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var name = context.Stack.Pop().ToString();
+            context.Scope.Variables[name] = Parameters[0];
         }
     }
 
@@ -205,7 +206,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            throw new NotImplementedException();
+            var memberVal = context.Stack.Pop().ToString();
+            var objectVal = context.Stack.Pop().ToObject();
+
+            objectVal.Variables[memberVal] = Parameters[0];        
         }
     }
 

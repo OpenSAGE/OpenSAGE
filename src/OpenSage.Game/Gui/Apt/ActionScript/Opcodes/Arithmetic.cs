@@ -41,11 +41,18 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var a = context.Stack.Pop().ResolveRegister(context);
             var b = context.Stack.Pop().ResolveRegister(context);
 
-            if (!(a.Type == ValueType.String || a.Type == ValueType.Undefined) ||
-                !(b.Type == ValueType.String || b.Type == ValueType.Undefined))
-                throw new NotImplementedException();
+            if (a.Type == ValueType.Integer && b.Type == ValueType.Integer)
+            {
+                context.Stack.Push(Value.FromInteger(b.ToInteger() + a.ToInteger()));
+            }
+            else
+            {
+                if (!(a.Type == ValueType.String || a.Type == ValueType.Undefined) ||
+                    !(b.Type == ValueType.String || b.Type == ValueType.Undefined))
+                    throw new NotImplementedException();
 
-            context.Stack.Push(Value.FromString(b.ToString() + a.ToString()));
+                context.Stack.Push(Value.FromString(b.ToString() + a.ToString()));
+            }
         }
     }
 

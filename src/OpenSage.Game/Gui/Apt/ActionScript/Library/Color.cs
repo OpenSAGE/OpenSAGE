@@ -27,7 +27,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             return false;
         }
 
-        public override void CallBuiltInFunction(string name, Value[] args)
+        public override void CallBuiltInFunction(ActionContext actx, string name, Value[] args)
         {
             _builtinFunctions[name](this, args);
         }

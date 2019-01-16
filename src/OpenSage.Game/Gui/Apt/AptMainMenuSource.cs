@@ -17,7 +17,7 @@ namespace OpenSage.Gui.Apt
         public void AddToScene(ContentManager contentManager, Scene2D scene)
         {
             var aptWindow = contentManager.Load<AptWindow>(_aptFileName);
-            aptWindow.Background = contentManager.Load<Texture>(_fallbackShell);
+            aptWindow.BackgroundImage = contentManager.Load<Texture>(_fallbackShell);
             scene.AptWindowManager.PushWindow(aptWindow);
         }
     }

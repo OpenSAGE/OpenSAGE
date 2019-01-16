@@ -17,7 +17,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
             if (scope.IsBuiltInFunction(funcName))
             {
-                scope.CallBuiltInFunction(funcName, args);
+                scope.CallBuiltInFunction(context, funcName, args);
             }
             else
             {
@@ -64,11 +64,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //get all the instructions
             var code = context.Stream.GetInstructions(size);
 
-            var func = new Function() { Parameters = paramList,
-                                        Instructions = code,
-                                        NumberRegisters = 4,
-                                        Constants = new List<Value>(context.Scope.Constants),
-                                        IsNewVersion = false };
+            var func = new Function()
+            {
+                Parameters = paramList,
+                Instructions = code,
+                NumberRegisters = 4,
+                Constants = new List<Value>(context.Scope.Constants),
+                IsNewVersion = false
+            };
 
             var funcVal = Value.FromFunction(func);
 
@@ -106,11 +109,14 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //get all the instructions
             var code = context.Stream.GetInstructions(size);
 
-            var func = new Function() { Parameters = paramList,
-                                        Instructions = code,
-                                        NumberRegisters = nRegisters,
-                                        Flags = flags,
-                                        IsNewVersion = true};
+            var func = new Function()
+            {
+                Parameters = paramList,
+                Instructions = code,
+                NumberRegisters = nRegisters,
+                Flags = flags,
+                IsNewVersion = true
+            };
 
             var funcVal = Value.FromFunction(func);
 
@@ -221,8 +227,13 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         {
             var id = Parameters[0].ToInteger();
             var funcName = context.Scope.Constants[id].ToString();
+            var argCount = context.Stack.Pop().ToInteger();
 
-            var args = new Value[0];
+            var args = new Value[argCount];
+            for (int i = 0; i < argCount; ++i)
+            {
+                args[i] = context.Stack.Pop();
+            }
 
             FunctionCommon.ExecuteFunction(funcName, args, context.Scope, context);
         }

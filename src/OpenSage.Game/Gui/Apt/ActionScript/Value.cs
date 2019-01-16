@@ -148,7 +148,7 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public ObjectContext ToObject()
         {
-            if(Type == ValueType.Undefined)
+            if (Type == ValueType.Undefined)
             {
                 Debug.WriteLine("Cannot create object from undefined!");
                 return null;
@@ -162,6 +162,10 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public int ToInteger()
         {
+            if (Type == ValueType.Undefined ||
+                Type == ValueType.String)
+                return 0;
+
             if (Type != ValueType.Integer && Type != ValueType.Constant)
                 throw new InvalidOperationException();
 
@@ -220,7 +224,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             if (Type != ValueType.Integer)
                 throw new InvalidOperationException();
 
-            return EnumUtility.CastValueAsEnum<int,TEnum>(_number);
+            return EnumUtility.CastValueAsEnum<int, TEnum>(_number);
         }
 
         //TODO: According to page 74, ActionEquals2 of SWF7 format specification

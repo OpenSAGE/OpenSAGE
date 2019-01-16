@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Apt.FrameItems;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
+using Action = OpenSage.Data.Apt.FrameItems.Action;
 
 namespace OpenSage.Gui.Apt
 {
@@ -24,6 +26,7 @@ namespace OpenSage.Gui.Apt
         private Dictionary<string, uint> _frameLabels;
         public string Name { get; set; }
         public bool Visible { get; set; }
+        public delegate void ColorDelegate(ColorRgbaF color);
 
         /// <summary>
         /// required, because actions are always executed at the end of each frame
@@ -35,6 +38,7 @@ namespace OpenSage.Gui.Apt
         public AptContext Context { get; private set; }
         public ItemTransform Transform { get; set; }
         public ObjectContext ScriptObject { get; private set; }
+        public ColorDelegate SetBackgroundColor { get; set; }
 
         public void Create(Character chararacter, AptContext context, SpriteItem parent = null)
         {
@@ -50,7 +54,7 @@ namespace OpenSage.Gui.Apt
             Name = "";
             Visible = true;
 
-            //fill the frameLabels in advance
+            // Fill the frameLabels in advance
             foreach (var frame in _sprite.Frames)
             {
                 foreach (var item in frame.FrameItems)
@@ -91,7 +95,10 @@ namespace OpenSage.Gui.Apt
                 //process all frame items
                 foreach (var item in frame.FrameItems)
                 {
-                    HandleFrameItem(item);
+                    if (!(item is FrameLabel))
+                    {
+                        HandleFrameItem(item);
+                    }
                 }
 
                 _currentFrame++;
@@ -126,7 +133,18 @@ namespace OpenSage.Gui.Apt
 
         public void GotoFrame(int frame)
         {
-            _currentFrame = (uint) frame;
+            if (frame < 1)
+            {
+                _currentFrame = 0;
+                return;
+            }
+            else if (frame >= _sprite.Frames.Count)
+            {
+                _currentFrame = (uint) _sprite.Frames.Count - 1;
+                return;
+            }
+
+            _currentFrame = (uint) frame - 1;
         }
 
         public void NextFrame()
@@ -184,6 +202,18 @@ namespace OpenSage.Gui.Apt
                 case Action action:
                     _actionList.Add(action);
                     break;
+                case BackgroundColor bg:
+                    if (SetBackgroundColor != null)
+                    {
+                        SetBackgroundColor(bg.Color.ToColorRgbaF());
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("BackgroundColor can only be set from root!");
+                    }
+                    break;
+                default:
+                    throw new NotImplementedException("Unimplemented frameitem");
             }
         }
 
@@ -261,6 +291,20 @@ namespace OpenSage.Gui.Apt
             {
                 ScriptObject.Variables[po.Name] = Value.FromObject(displayItem.ScriptObject);
                 displayItem.Name = po.Name;
+            }
+
+            if (po.Flags.HasFlag(PlaceObjectFlags.HasClipAction))
+            {
+                if (po.ClipEvents != null)
+                {
+                    foreach (var clipEvent in po.ClipEvents)
+                    {
+                        if (clipEvent.Flags.HasFlag(ClipEventFlags.Initialize))
+                        {
+                            Context.AVM.Execute(clipEvent.Instructions, displayItem.ScriptObject);
+                        }
+                    }
+                }
             }
 
             _content.Items[po.Depth] = displayItem;

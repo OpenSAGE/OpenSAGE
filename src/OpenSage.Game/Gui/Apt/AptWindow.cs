@@ -1,4 +1,5 @@
-﻿using OpenSage.Content;
+﻿using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Apt;
 using OpenSage.Mathematics;
 using Veldrid;
@@ -10,15 +11,25 @@ namespace OpenSage.Gui.Apt
     {
         private readonly ContentManager _contentManager;
         private readonly AptContext _context;
-        private readonly Texture _background;
         private Size _destinationSize;
+
+        /// <summary>
+        /// The background color of the movie set by the BackgroundColor frameitem
+        /// <see cref="Data.Apt.FrameItems.BackgroundColor"/>
+        /// </summary>
+        private ColorRgbaF _backgroundColor { get; set; }
 
         public AptFile AptFile { get; }
         public string Name => AptFile.MovieName;
         public AptRenderer Renderer { get; }
         public SpriteItem Root { get; }
 
-        public Texture Background { get; set; }
+        /// <summary>
+        /// Used for shellmap in MainMenu. Not sure if the correct place.
+        /// </summary>
+        public Texture BackgroundImage { get; set; }
+
+
 
         public AptWindow(ContentManager contentManager, AptFile aptFile)
         {
@@ -29,7 +40,7 @@ namespace OpenSage.Gui.Apt
 
             //First thing to do here is to initialize the display list
             Root = new SpriteItem { Transform = ItemTransform.None };
-
+            Root.SetBackgroundColor = (c) => _backgroundColor = c;
             Root.Create(aptFile.Movie, _context);
             _context.Root = Root;
 
@@ -46,17 +57,26 @@ namespace OpenSage.Gui.Apt
 
         internal void Update(GameTime gt, GraphicsDevice gd)
         {
+            _context.AVM.UpdateIntervals(gt);
             Root.Update(gt);
             Root.RunActions(gt);
         }
 
         internal void Render(DrawingContext2D drawingContext)
         {
-            var sourceRect = new Rectangle(0, 0,
-                (int) Background.Width,
-                (int) (Background.Height * 0.75f));
+            var fullsizeRect = new Rectangle(Point2D.Zero, _destinationSize);
 
-            drawingContext.DrawImage(Background, sourceRect, new Rectangle(Point2D.Zero, _destinationSize));
+            if (BackgroundImage != null)
+            {
+                var sourceRect = new Rectangle(0, 0,
+                    (int) BackgroundImage.Width,
+                    (int) (BackgroundImage.Height * 0.75f));
+
+                drawingContext.DrawImage(BackgroundImage, sourceRect, fullsizeRect);
+            }
+
+            // The background color, which is set by the APT. Should be the clear color?
+            // drawingContext.FillRectangle(fullsizeRect, _backgroundColor);
 
             var transform = ItemTransform.None;
 
