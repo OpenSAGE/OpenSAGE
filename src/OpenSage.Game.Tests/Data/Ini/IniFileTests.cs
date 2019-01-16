@@ -34,7 +34,7 @@ namespace OpenSage.Tests.Data.Ini
                 {
                     var filename = Path.GetFileName(entry.FilePath).ToLowerInvariant();
 
-                    if (filename != "attributemodifier.ini") return;
+                    if (filename != "ingameui.ini") return;
                     /*
                     // TODO:implement missing stuff
                     if (gameDefinition.Game == SageGame.Bfme2)
@@ -44,14 +44,13 @@ namespace OpenSage.Tests.Data.Ini
                             //BFME2
                             case "commandset.ini": //problem
 
-                            case "attributemodifier.ini":
+
                             case "awardsystem.ini":
                             case "bannerui.ini":
                             case "riskcampaign.ini":
                             case "crate.ini":
                             case "createaherosystem.ini":
                             case "crowdresponse.ini":
-                            case "damagefx.ini":
                             case "aidata.ini":
                             case "eva.ini":
                             case "skirmishaidata.ini":
@@ -60,13 +59,18 @@ namespace OpenSage.Tests.Data.Ini
                             case "firelogicsystem.ini":
                             case "formationassistant.ini":
                             case "fxlist.ini":
-                            case "fxparticlesystem.ini":
                             case "gamelod.ini":
                             case "gamelodpresets.ini":
                             case "ingamenotificationbox.ini":
-                            case "ingameui.ini":
                             case "largegroupaudio.ini":
                             case "linearcampaign.ini":
+                            case "meshinstancingmanager.ini":
+                            case "scoredkillevaannouncer.ini":
+                            case "stances.ini":
+                            case "strategichud.ini":
+                            case "map.ini":
+
+
 
 
                             case "livingworld.ini":
@@ -92,13 +96,6 @@ namespace OpenSage.Tests.Data.Ini
                             case "mordoricons.ini":
                             case "mowicons.ini":
                             case "wildicons.ini":
-
-
-                            case "meshinstancingmanager.ini":
-                            case "scoredkillevaannouncer.ini":
-                            case "stances.ini":
-                            case "strategichud.ini":
-                            case "map.ini":
                                 return;
                         }
                     }

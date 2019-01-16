@@ -197,6 +197,18 @@
         [IniEnum("LOGICAL_FIRE"), AddedIn(SageGame.Bfme2)]
         LogicalFire,
 
+        [IniEnum("BOLT"), AddedIn(SageGame.Bfme2)]
+        Bolt,
+
+        [IniEnum("TORNADO"), AddedIn(SageGame.Bfme2)]
+        Tornado,
+
+        [IniEnum("FLOOD_HORSE"), AddedIn(SageGame.Bfme2)]
+        FloodHorse,
+
+        [IniEnum("FIRE3"), AddedIn(SageGame.Bfme2)]
+        Fire3,
+
         [IniEnum("BECOME_UNDEAD_ONCE"), AddedIn(SageGame.Bfme2Rotwk)]
         BecomeUndeadOnce,
 

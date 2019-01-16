@@ -157,6 +157,22 @@ namespace OpenSage.Data.Ini
             { "CaptainOfGondorRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.CaptainOfGondor)) },
             { "WarChantRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.WarChant)) },
             { "PalantirVisionRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.PalantirVision)) },
+            { "MessagePositionLW", (parser, x) => x.MessagePositionLW = parser.ParseVector2() },
+            { "SelectNearestBuilderCycleTimeOut", (parser, x) => x.SelectNearestBuilderCycleTimeOut = parser.ParseInteger() },
+            { "TerrainResourceClaimDecal", (parser, x) => x.TerrainResourceClaimDecal = parser.ParseAssetReference() },
+            { "PlaceTerrainResourceClaimantDecal", (parser, x) => x.PlaceTerrainResourceClaimantDecal = parser.ParseAssetReference() },
+            { "PlaceTerrainResourceClaimantFont", (parser, x) => x.PlaceTerrainResourceClaimantFont = parser.ParseAssetReference() },
+            { "PlaceTerrainResourceClaimantFontColor", (parser, x) => x.PlaceTerrainResourceClaimantFontColor = parser.ParseColorRgba() },
+            { "HeroInitialSpawnNotificationMessage", (parser, x) => x.HeroInitialSpawnNotificationMessage = parser.ParseLocalizedStringKey() },
+            { "HeroInitialSpawnNotificationTimeout", (parser, x) => x.HeroInitialSpawnNotificationTimeout = parser.ParseFloat() },
+            { "HeroRespawnNotificationMessage", (parser, x) => x.HeroRespawnNotificationMessage = parser.ParseLocalizedStringKey() },
+            { "HeroRespawnNotificationTimeout", (parser, x) => x.HeroRespawnNotificationTimeout = parser.ParseFloat() },
+            { "HeroDeathNotificationMessage", (parser, x) => x.HeroDeathNotificationMessage = parser.ParseLocalizedStringKey() },
+            { "HeroDeathNotificationTimeout", (parser, x) => x.HeroDeathNotificationTimeout = parser.ParseFloat() },
+            { "HeroEarnedAwardNotificationMessage", (parser, x) => x.HeroEarnedAwardNotificationMessage = parser.ParseLocalizedStringKey() },
+            { "HeroEarnedAwardNotificationTimeout", (parser, x) => x.HeroEarnedAwardNotificationTimeout = parser.ParseFloat() },
+            { "RadiusCursorUseWeaponScatterRadius", (parser, x) => x.RadiusCursorUseWeaponScatterRadius = parser.ParseAssetReference() },
+            { "RadiusCursorTemplate", (parser, x) => x.RadiusCursorTemplates.Add(RadiusDecalTemplate.Parse(parser)) }
         };
 
         public int MaxSelectionSize { get; private set; }
@@ -284,6 +300,54 @@ namespace OpenSage.Data.Ini
         public float UnitHelpTextDelay { get; private set; }
 
         public List<RadiusCursor> RadiusCursors { get; } = new List<RadiusCursor>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public Vector2 MessagePositionLW { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int SelectNearestBuilderCycleTimeOut { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string TerrainResourceClaimDecal { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string PlaceTerrainResourceClaimantDecal { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string PlaceTerrainResourceClaimantFont { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ColorRgba PlaceTerrainResourceClaimantFontColor { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string HeroInitialSpawnNotificationMessage { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float HeroInitialSpawnNotificationTimeout { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string HeroRespawnNotificationMessage { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float HeroRespawnNotificationTimeout { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string HeroDeathNotificationMessage { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float HeroDeathNotificationTimeout { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string HeroEarnedAwardNotificationMessage { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float HeroEarnedAwardNotificationTimeout { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string RadiusCursorUseWeaponScatterRadius { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<RadiusDecalTemplate> RadiusCursorTemplates { get; } = new List<RadiusDecalTemplate>();
     }
 
     public sealed class RadiusCursor
