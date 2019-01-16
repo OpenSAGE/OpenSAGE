@@ -7,18 +7,16 @@ namespace OpenSage.Graphics.Animation
     public sealed class AnimationInstance
     {
         private readonly int[] _keyframeIndices;
-
         private readonly ModelBoneInstance[] _boneInstances;
+        private readonly Animation _animation;
 
         private TimeSpan _currentTimeValue;
 
         private bool _playing;
 
-        public Animation Animation { get; }
-
         public AnimationInstance(ModelInstance modelInstance, Animation animation)
         {
-            Animation = animation;
+            _animation = animation;
 
             _boneInstances = modelInstance.ModelBoneInstances;
 
@@ -63,14 +61,15 @@ namespace OpenSage.Graphics.Animation
             }
         }
 
-        internal void Update(GameTime gameTime)
+        internal bool Update(GameTime gameTime)
         {
             if (!_playing)
             {
-                return;
+                return false;
             }
 
             UpdateBoneTransforms(gameTime);
+            return true;
         }
 
         private void UpdateBoneTransforms(GameTime gameTime)
@@ -78,9 +77,9 @@ namespace OpenSage.Graphics.Animation
             var time = _currentTimeValue + gameTime.ElapsedGameTime;
 
             // If we reached the end, loop back to the start.
-            while (time >= Animation.Duration)
+            while (time >= _animation.Duration)
             {
-                time -= Animation.Duration;
+                time -= _animation.Duration;
             }
 
             // If we've just moved backwards, reset the keyframe indices.
@@ -94,12 +93,12 @@ namespace OpenSage.Graphics.Animation
             Keyframe? previous;
             Keyframe? next;
 
-            for (var i = 0; i < Animation.Clips.Length; i++)
+            for (var i = 0; i < _animation.Clips.Length; i++)
             {
                 previous = null;
                 next = null;
 
-                var clip = Animation.Clips[i];
+                var clip = _animation.Clips[i];
 
                 if (clip.Bone >= _boneInstances.Length)
                 {
