@@ -32,6 +32,8 @@ namespace OpenSage.Data.Ini
             { "EndFX3", (parser, x) => x.EndFX3 = parser.ParseAssetReference() },
             { "MultiLevelFX", (parser, x) => x.MultiLevelFX = parser.ParseBoolean() },
             { "Upgrade", (parser, x) => x.Upgrade = ModifierUpgrade.Parse(parser) },
+            { "ReplaceInCategoryIfLongest", (parser, x) => x.ReplaceInCategoryIfLongest = parser.ParseBoolean() },
+            { "IgnoreIfAnticategoryActive", (parser, x) => x.IgnoreIfAnticategoryActive = parser.ParseBoolean() }
         };
 
         public string Name { get; private set; }
@@ -49,6 +51,12 @@ namespace OpenSage.Data.Ini
         public string EndFX3 { get; private set; }
         public bool MultiLevelFX { get; private set; }
         public ModifierUpgrade? Upgrade { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ReplaceInCategoryIfLongest { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool IgnoreIfAnticategoryActive { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -110,6 +118,18 @@ namespace OpenSage.Data.Ini
         [IniEnum("DEBUFF"), AddedIn(SageGame.Bfme2)]
         Debuff,
 
+        [IniEnum("INNATE_VISION"), AddedIn(SageGame.Bfme2)]
+        InnateVision,
+
+        [IniEnum("INNATE_ARMOR"), AddedIn(SageGame.Bfme2)]
+        InnateArmor,
+
+        [IniEnum("INNATE_AUTOHEAL"), AddedIn(SageGame.Bfme2)]
+        InnateAutoheal,
+
+        [IniEnum("INNATE_HEALTH"), AddedIn(SageGame.Bfme2)]
+        InnateHealth,
+
         [IniEnum("INNATE_DAMAGEMULT"), AddedIn(SageGame.Bfme2Rotwk)]
         InnateDamagemult,
     }
@@ -166,6 +186,27 @@ namespace OpenSage.Data.Ini
         BountyPercentage,
 
         [IniEnum("MINIMUM_CRUSH_VELOCITY")]
-        MinimumCrushVelocity
+        MinimumCrushVelocity,
+
+        [IniEnum("INVULNERABLE"), AddedIn(SageGame.Bfme2)]
+        Invulnerable,
+
+        [IniEnum("CRUSHER_LEVEL"), AddedIn(SageGame.Bfme2)]
+        CrusherLevel,
+
+        [IniEnum("SHROUD_CLEARING"), AddedIn(SageGame.Bfme2)]
+        ShroudClearing,
+
+        [IniEnum("RATE_OF_FIRE"), AddedIn(SageGame.Bfme2)]
+        RateOfFire,
+
+        [IniEnum("CRUSHED_DECELERATE"), AddedIn(SageGame.Bfme2)]
+        CrushedDecelerate,
+
+        [IniEnum("COMMAND_POINT_BONUS"), AddedIn(SageGame.Bfme2)]
+        CommandPointBonus,
+
+        [IniEnum("HEALTH_MULT"), AddedIn(SageGame.Bfme2)]
+        HealthMult,
     }
 }

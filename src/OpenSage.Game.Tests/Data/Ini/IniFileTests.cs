@@ -34,7 +34,7 @@ namespace OpenSage.Tests.Data.Ini
                 {
                     var filename = Path.GetFileName(entry.FilePath).ToLowerInvariant();
 
-                    if (filename != "locomotor.ini") return;
+                    if (filename != "attributemodifier.ini") return;
                     /*
                     // TODO:implement missing stuff
                     if (gameDefinition.Game == SageGame.Bfme2)
@@ -44,7 +44,6 @@ namespace OpenSage.Tests.Data.Ini
                             //BFME2
                             case "commandset.ini": //problem
 
-                            case "armysummarydescription.ini":
                             case "attributemodifier.ini":
                             case "awardsystem.ini":
                             case "bannerui.ini":
@@ -57,9 +56,7 @@ namespace OpenSage.Tests.Data.Ini
                             case "eva.ini":
                             case "skirmishaidata.ini":
                             case "emotions.ini":
-                            case "environment.ini":
                             case "experiencelevels.ini":
-                            case "fire.ini":
                             case "firelogicsystem.ini":
                             case "formationassistant.ini":
                             case "fxlist.ini":
@@ -97,7 +94,6 @@ namespace OpenSage.Tests.Data.Ini
                             case "wildicons.ini":
 
 
-                            case "locomotor.ini":
                             case "meshinstancingmanager.ini":
                             case "scoredkillevaannouncer.ini":
                             case "stances.ini":

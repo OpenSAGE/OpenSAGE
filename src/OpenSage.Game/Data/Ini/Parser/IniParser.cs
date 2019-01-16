@@ -19,6 +19,7 @@ namespace OpenSage.Data.Ini.Parser
             { "AnimationSoundClientBehaviorGlobalSetting", (parser, context) => context.AnimationSoundClientBehaviorGlobalSetting = AnimationSoundClientBehaviorGlobalSetting.Parse(parser) },
             { "AptButtonTooltipMap", (parser, context) => context.AptButtonTooltipMap = AptButtonTooltipMap.Parse(parser) },
             { "Armor", (parser, context) => context.Armors.Add(Armor.Parse(parser)) },
+            { "ArmySummaryDescription", (parser, x) => x.ArmySummaryDescription = ArmySummaryDescription.Parse(parser) },
             { "AudioEvent", (parser, context) =>
                 {
                     var ev = AudioEvent.Parse(parser);
@@ -52,6 +53,7 @@ namespace OpenSage.Data.Ini.Parser
             { "ExperienceLevel", (parser, context) => context.ExperienceLevels.Add(ExperienceLevel.Parse(parser)) },
             { "ExperienceScalarTable", (parser, context) => context.ExperienceScalarTables.Add(ExperienceScalarTable.Parse(parser)) },
             { "FactionVictoryData", (parser, context) => context.FactionVictoryDatas.Add(FactionVictoryData.Parse(parser)) },
+            { "Fire", (parser, context) => context.Fire = Fire.Parse(parser) },
             { "FireEffect", (parser, context) => context.Environment.FireEffect = RingEffect.Parse(parser) },
             { "FontDefaultSettings", (parser, context) => context.FontDefaultSettings.Add(FontDefaultSetting.Parse(parser)) },
             { "FontSubstitution", (parser, context) => context.FontSubstitutions.Add(FontSubstitution.Parse(parser)) },
@@ -104,6 +106,7 @@ namespace OpenSage.Data.Ini.Parser
             { "Road", (parser, context) => context.RoadTemplates.Add(RoadTemplate.Parse(parser)) },
             { "ReallyLowMHz", (parser, context) => context.ReallyLowMHz = parser.ParseInteger() },
             { "Science", (parser, context) => context.Sciences.Add(Science.Parse(parser)) },
+            { "ShadowMap", (parser, context) => context.Environment.ShadowMap = ShadowMap.Parse(parser) },
             { "ShellMenuScheme", (parser, context) => context.ShellMenuSchemes.Add(ShellMenuScheme.Parse(parser)) },
             { "SkyboxTextureSet", (parser, context) => context.SkyboxTextureSets.Add(SkyboxTextureSet.Parse(parser)) },
             { "SpecialPower", (parser, context) => context.SpecialPowers.Add(SpecialPower.Parse(parser)) },

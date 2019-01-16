@@ -1074,5 +1074,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("WEAPONLOCK_TERTIARY"), AddedIn(SageGame.Bfme2Rotwk)]
         WeaponlockTertiary,
+
+        [IniEnum("EMOTION_DISSIDENT"), AddedIn(SageGame.Bfme2)]
+        EmotionDissident,
     }
 }

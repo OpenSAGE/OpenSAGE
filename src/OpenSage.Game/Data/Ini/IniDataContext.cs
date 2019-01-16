@@ -135,6 +135,12 @@ namespace OpenSage.Data.Ini
         public List<WindowTransition> WindowTransitions { get; } = new List<WindowTransition>();
         internal Dictionary<string, IniToken> Defines { get; } = new Dictionary<string, IniToken>();
 
+        [AddedIn(SageGame.Bfme2)]
+        public Fire Fire { get; internal set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ArmySummaryDescription ArmySummaryDescription { get; internal set; }
+
         public IniDataContext(FileSystem fileSystem, SageGame game)
         {
             _fileSystem = fileSystem;
