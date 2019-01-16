@@ -7,14 +7,14 @@ namespace OpenSage.Graphics
 {
     public sealed class ModelMeshMaterialPass : DisposableBase
     {
-        public IReadOnlyList<ModelMeshPart> MeshParts { get; set; }
+        internal readonly List<ModelMeshPart> MeshParts;
 
         internal DeviceBuffer TexCoordVertexBuffer;
 
         internal ModelMeshMaterialPass(
             GraphicsDevice graphicsDevice,
             MeshTypes.MeshVertex.TexCoords[] texCoords,
-            IReadOnlyList<ModelMeshPart> meshParts)
+            List<ModelMeshPart> meshParts)
         {
             if (texCoords != null)
             {
