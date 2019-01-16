@@ -26,6 +26,8 @@ namespace OpenSage.Graphics
 
         private Matrix4x4 _worldMatrix;
 
+        private bool _relativeBoneTransformsDirty;
+
         /// <summary>
         /// Calculated bone visibilities. Child bones will be hidden
         /// if their parent bones are hidden.
@@ -92,6 +94,8 @@ namespace OpenSage.Graphics
                     skinningBuffer)));
 
             AnimationInstances = new List<AnimationInstance>();
+
+            _relativeBoneTransformsDirty = true;
         }
 
         public void Update(GameTime gameTime)
@@ -101,28 +105,36 @@ namespace OpenSage.Graphics
             // Update animations.
             foreach (var animationInstance in AnimationInstances)
             {
-                animationInstance.Update(gameTime);
+                if (animationInstance.Update(gameTime))
+                {
+                    _relativeBoneTransformsDirty = true;
+                }
             }
 
-            // Calculate (animated) bone transforms relative to root bone.
-            for (var i = 0; i < Model.BoneHierarchy.Bones.Length; i++)
+            if (_relativeBoneTransformsDirty)
             {
-                var bone = Model.BoneHierarchy.Bones[i];
+                // Calculate (animated) bone transforms relative to root bone.
+                for (var i = 0; i < Model.BoneHierarchy.Bones.Length; i++)
+                {
+                    var bone = Model.BoneHierarchy.Bones[i];
 
-                var parentTransform = bone.Parent != null
-                    ? RelativeBoneTransforms[bone.Parent.Index]
-                    : Matrix4x4.Identity;
+                    var parentTransform = bone.Parent != null
+                        ? RelativeBoneTransforms[bone.Parent.Index]
+                        : Matrix4x4.Identity;
 
-                RelativeBoneTransforms[i] =
-                    ModelBoneInstances[i].Matrix *
-                    parentTransform;
+                    RelativeBoneTransforms[i] =
+                        ModelBoneInstances[i].Matrix *
+                        parentTransform;
 
-                var parentVisible = bone.Parent != null
-                    ? BoneVisibilities[i]
-                    : true;
+                    var parentVisible = bone.Parent != null
+                        ? BoneVisibilities[i]
+                        : true;
 
-                BoneVisibilities[i] = parentVisible && ModelBoneInstances[i].Visible;
+                    BoneVisibilities[i] = parentVisible && ModelBoneInstances[i].Visible;
+                }
             }
+
+            _relativeBoneTransformsDirty = false;
 
             if (!_hasSkinnedMeshes)
             {
@@ -142,14 +154,16 @@ namespace OpenSage.Graphics
 
         public void SetWorldMatrix(in Matrix4x4 worldMatrix)
         {
-            if (worldMatrix != _worldMatrix)
+            if (worldMatrix == _worldMatrix)
             {
-                _worldMatrix = worldMatrix;
+                return;
+            }
 
-                for (var i = 0; i < Model.BoneHierarchy.Bones.Length; i++)
-                {
-                    AbsoluteBoneTransforms[i] = RelativeBoneTransforms[i] * worldMatrix;
-                }
+            _worldMatrix = worldMatrix;
+
+            for (var i = 0; i < Model.BoneHierarchy.Bones.Length; i++)
+            {
+                AbsoluteBoneTransforms[i] = RelativeBoneTransforms[i] * worldMatrix;
             }
         }
 
