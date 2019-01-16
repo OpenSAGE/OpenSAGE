@@ -34,7 +34,7 @@ namespace OpenSage.Tests.Data.Ini
                 {
                     var filename = Path.GetFileName(entry.FilePath).ToLowerInvariant();
 
-                    if (filename != "commandset.ini") return;
+                    if (filename != "locomotor.ini") return;
                     /*
                     // TODO:implement missing stuff
                     if (gameDefinition.Game == SageGame.Bfme2)
@@ -42,12 +42,13 @@ namespace OpenSage.Tests.Data.Ini
                         switch (filename)
                         {
                             //BFME2
+                            case "commandset.ini": //problem
+
                             case "armysummarydescription.ini":
                             case "attributemodifier.ini":
                             case "awardsystem.ini":
                             case "bannerui.ini":
                             case "riskcampaign.ini":
-                            case "commandset.ini":
                             case "crate.ini":
                             case "createaherosystem.ini":
                             case "crowdresponse.ini":
@@ -55,7 +56,6 @@ namespace OpenSage.Tests.Data.Ini
                             case "aidata.ini":
                             case "eva.ini":
                             case "skirmishaidata.ini":
-                            case "soundeffects.ini":
                             case "emotions.ini":
                             case "environment.ini":
                             case "experiencelevels.ini":
@@ -100,10 +100,8 @@ namespace OpenSage.Tests.Data.Ini
                             case "locomotor.ini":
                             case "meshinstancingmanager.ini":
                             case "scoredkillevaannouncer.ini":
-                            case "speech.ini":
                             case "stances.ini":
                             case "strategichud.ini":
-                            case "weather.ini":
                             case "map.ini":
                                 return;
                         }

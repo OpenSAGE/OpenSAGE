@@ -114,6 +114,12 @@ namespace OpenSage.Data.Ini
             { "BackingUpDistanceMax", (parser, x) => x.BackingUpDistanceMax = parser.ParseInteger() },
             { "BackingUpAngle", (parser, x) => x.BackingUpAngle = parser.ParseFloat() },
             { "LookAheadMult", (parser, x) => x.LookAheadMult = parser.ParseFloat() },
+            { "ScalesWalls", (parser, x) => x.ScalesWalls = parser.ParseBoolean() },
+            { "ChargeIgnoresCondition", (parser, x) => x.ChargeIgnoresCondition = parser.ParseBoolean() },
+            { "BurningDeathRadius", (parser, x) => x.BurningDeathRadius = parser.ParseInteger() },
+            { "BurningDeathIsCavalry", (parser, x) => x.BurningDeathIsCavalry = parser.ParseBoolean() },
+            { "TurnWhileMoving", (parser, x) => x.TurnWhileMoving = parser.ParseBoolean() },
+            { "RiverModifier", (parser, x) => x.ForwardVelocityPitchFactor = parser.ParsePercentage() }
         };
 
         public string Name { get; private set; }
@@ -293,6 +299,24 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public float LookAheadMult { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ScalesWalls { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ChargeIgnoresCondition { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int BurningDeathRadius { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool BurningDeathIsCavalry { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool TurnWhileMoving { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float RiverModifier { get; private set; }
     }
 
     public enum LocomotorAppearance
@@ -332,6 +356,9 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("FOUR_LEGS_HUGE"), AddedIn(SageGame.Bfme)]
         FourLegsHuge,
+
+        [IniEnum("SHIP"), AddedIn(SageGame.Bfme2)]
+        Ship,
     }
 
     public enum Surface
@@ -356,6 +383,9 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("OBSTACLE"), AddedIn(SageGame.Bfme)]
         Obstacle,
+
+        [IniEnum("DEEP_WATER"), AddedIn(SageGame.Bfme2)]
+        DeepWater,
     }
 
     public enum GroupMovementPriority
@@ -392,6 +422,9 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("SEA_LEVEL"), AddedIn(SageGame.Bfme)]
         SeaLevel,
+
+        [IniEnum("SCALING_WALLS"), AddedIn(SageGame.Bfme2)]
+        ScalingWalls,
     }
 
     [AddedIn(SageGame.Bfme)]

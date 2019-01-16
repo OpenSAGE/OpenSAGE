@@ -80,6 +80,9 @@ namespace OpenSage.Data.Ini
                 { "Decay", (parser, x) => x.Decay = parser.ParseAssetReferenceArray() },
                 { "LoopCount", (parser, x) => x.LoopCount = parser.ParseInteger() },
                 { "VolumeSliderMultiplier", (parser, x) => x.VolumeSliderMultipliers.Add(VolumeSliderMultiplier.Parse(parser)) },
+                { "ZoomedInOffscreenVolumePercent", (parser, x) => x.ZoomedInOffscreenVolumePercent = parser.ParsePercentage() },
+                { "ZoomedInOffscreenMinVolumePercent", (parser, x) => x.ZoomedInOffscreenMinVolumePercent = parser.ParsePercentage() },
+                { "ZoomedInOffscreenOcclusionPercent", (parser, x) => x.ZoomedInOffscreenOcclusionPercent = parser.ParsePercentage() },
             });
 
         public string[] Sounds { get; private set; }
@@ -87,6 +90,15 @@ namespace OpenSage.Data.Ini
         public string[] Decay { get; private set; }
         public int LoopCount { get; private set; }
         public List<VolumeSliderMultiplier> VolumeSliderMultipliers { get; } = new List<VolumeSliderMultiplier>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public float ZoomedInOffscreenVolumePercent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float ZoomedInOffscreenMinVolumePercent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float ZoomedInOffscreenOcclusionPercent { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

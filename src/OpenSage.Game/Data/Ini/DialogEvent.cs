@@ -14,7 +14,7 @@ namespace OpenSage.Data.Ini
         private static new readonly IniParseTable<DialogEvent> FieldParseTable = BaseSingleSound.FieldParseTable
             .Concat(new IniParseTable<DialogEvent>
             {
-                { "Filename", (parser, x) => x.Filename = parser.ParseFileName() }
+                { "Filename", (parser, x) => x.Filename = parser.ParseAssetReference() }
             });
 
         public string Filename { get; private set; }

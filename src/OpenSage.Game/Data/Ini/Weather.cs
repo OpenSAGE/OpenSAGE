@@ -41,6 +41,8 @@ namespace OpenSage.Data.Ini
             { "RampControl", (parser, x) => x.RampControl = parser.ParseVector2() },
             { "RampSpeed", (parser, x) => x.RampSpeed = parser.ParseVector2() },
             { "RampSpacing", (parser, x) => x.RampSpacing = parser.ParseVector2() },
+            { "CloudTextureSize", (parser, x) => x.CloudTextureSize = parser.ParseVector2() },
+            { "CloudOffsetPerSecond", (parser, x) => x.CloudOffsetPerSecond = parser.ParseVector2() }
         };
 
         public bool SnowEnabled { get; private set; }
@@ -103,6 +105,12 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public List<WeatherData> WeatherDatas { get; } = new List<WeatherData>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public Vector2 CloudTextureSize { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Vector2 CloudOffsetPerSecond { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
