@@ -61,7 +61,10 @@ namespace OpenSage.Diagnostics
                     {
                         foreach (var mapCache in _context.Game.ContentManager.IniDataContext.MapCaches)
                         {
-                            if (mapCache.IsMultiplayer && ImGui.MenuItem($"{mapCache.DisplayName} ({mapCache.Name})"))
+                            var mapKey = mapCache.DisplayName.Replace("$", "");
+                            var mapName = _context.Game.ContentManager.TranslationManager.Lookup(mapKey);
+
+                            if (ImGui.MenuItem($"{mapName} ({mapCache.Name})"))
                             {
                                 var iniContext = _context.Game.ContentManager.IniDataContext;
                                 var faction1 = iniContext.PlayerTemplates.Find(x => x.PlayableSide == true);

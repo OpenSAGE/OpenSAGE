@@ -110,7 +110,6 @@ namespace OpenSage.Content
                         case SageGame.Bfme:
                         case SageGame.Bfme2:
                         case SageGame.Bfme2Rotwk:
-                            LoadFiles(@"Maps\MapCache.ini");
                             yield return "TheWritableGlobalData";
                             yield break;
                         case SageGame.Cnc3:
@@ -224,6 +223,21 @@ namespace OpenSage.Content
                             break;
                     }
                 }
+            }
+
+            // Load hardcoded files
+            switch(abstractSubsystem)
+            {
+                case Subsystem.Core:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                            yield return _fileSystem.GetFile(@"Maps\MapCache.ini");
+                            break;
+                    }
+                    break;
             }
         }
     }
