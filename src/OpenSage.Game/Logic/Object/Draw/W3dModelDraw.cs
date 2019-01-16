@@ -130,7 +130,7 @@ namespace OpenSage.Logic.Object
                 var model = _contentManager.Load<Model>(w3dFilePath);
                 if (model != null)
                 {
-                    modelInstance = model.CreateInstance(_contentManager.GraphicsDevice);
+                    modelInstance = model.CreateInstance(_contentManager);
                 }
             }
 

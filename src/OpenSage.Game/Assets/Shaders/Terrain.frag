@@ -7,26 +7,22 @@
 #include "Cloud.h"
 #include "Shadows.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsShared
-{
-    GlobalConstantsSharedType _GlobalConstantsShared;
-};
+MAKE_GLOBAL_CONSTANTS_RESOURCES_PS(0)
 
-layout(set = 0, binding = 4) uniform GlobalLightingConstantsPS
-{
-    GlobalLightingConstantsPSType _GlobalLightingConstantsPS;
-};
+MAKE_GLOBAL_LIGHTING_CONSTANTS_RESOURCES_PS(1)
 
-layout(set = 0, binding = 5) uniform texture2D Global_CloudTexture;
+MAKE_GLOBAL_CLOUD_RESOURCES_PS(2)
 
-layout(set = 0, binding = 6) uniform TerrainMaterialConstants
+MAKE_GLOBAL_SHADOW_RESOURCES_PS(3)
+
+layout(set = 4, binding = 0) uniform TerrainMaterialConstants
 {
     vec2 MapBorderWidth;
     vec2 MapSize;
     bool IsMacroTextureStretched;
 } _TerrainMaterialConstants;
 
-layout(set = 0, binding = 7) uniform utexture2D TileData;
+layout(set = 4, binding = 1) uniform utexture2D TileData;
 
 struct CliffInfo
 {
@@ -36,7 +32,7 @@ struct CliffInfo
     vec2 TopLeftUV;
 };
 
-layout(std430, set = 0, binding = 8) readonly buffer CliffDetails
+layout(std430, set = 4, binding = 2) readonly buffer CliffDetails
 {
     CliffInfo _CliffDetails[];
 };
@@ -48,22 +44,14 @@ struct TextureInfo
     vec2 _Padding;
 };
 
-layout(std430, set = 0, binding = 9) readonly buffer TextureDetails
+layout(std430, set = 4, binding = 3) readonly buffer TextureDetails
 {
     TextureInfo _TextureDetails[];
 };
 
-layout(set = 0, binding = 10) uniform texture2DArray Textures;
-layout(set = 0, binding = 11) uniform texture2D MacroTexture;
-layout(set = 0, binding = 12) uniform sampler Sampler;
-
-layout(set = 0, binding = 13) uniform ShadowConstantsPS
-{
-    ShadowConstantsPSType _ShadowConstantsPS;
-};
-
-layout(set = 0, binding = 14) uniform texture2DArray Global_ShadowMap;
-layout(set = 0, binding = 15) uniform samplerShadow Global_ShadowSampler;
+layout(set = 4, binding = 4) uniform texture2DArray Textures;
+layout(set = 4, binding = 5) uniform texture2D MacroTexture;
+layout(set = 4, binding = 6) uniform sampler Sampler;
 
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec3 in_WorldNormal;

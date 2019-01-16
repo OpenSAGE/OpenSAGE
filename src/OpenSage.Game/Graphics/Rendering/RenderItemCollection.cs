@@ -55,14 +55,7 @@ namespace OpenSage.Graphics.Rendering
         // Increments the provided integer reference if the object was within the frustum.
         private void Cull(int i, in BoundingFrustum cameraFrustum)
         {
-            if (_items[i].CullFlags.HasFlag(CullFlags.AlwaysVisible) || cameraFrustum.Intersects(_items[i].BoundingBox))
-            {
-                _culled[i] = true;
-            }
-            else
-            {
-                _culled[i] = false;
-            }
+            _culled[i] = cameraFrustum.Intersects(_items[i].BoundingBox);
         }
 
         public void CullAndSort(in BoundingFrustum cameraFrustum, int batchSize)

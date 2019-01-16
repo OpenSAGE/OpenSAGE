@@ -6,8 +6,9 @@ layout(set = 0, binding = 1) uniform SpriteConstants
     bool IgnoreAlpha;
 } _SpriteConstants;
 
-layout(set = 0, binding = 2) uniform texture2D Texture;
-layout(set = 0, binding = 3) uniform sampler Sampler;
+layout(set = 1, binding = 0) uniform sampler Sampler;
+
+layout(set = 2, binding = 0) uniform texture2D Texture;
 
 layout(location = 0) in vec2 in_UV;
 layout(location = 1) in vec4 in_Color;

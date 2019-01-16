@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
@@ -13,8 +14,6 @@ namespace OpenSage.Terrain
         private readonly DeviceBuffer _indexBuffer;
         private readonly uint _numIndices;
 
-        private readonly TerrainMaterial _terrainMaterial;
-
         public Rectangle Bounds { get; }
 
         public BoundingBox BoundingBox { get; }
@@ -22,7 +21,6 @@ namespace OpenSage.Terrain
         public Triangle[] Triangles { get; }
 
         internal TerrainPatch(
-            TerrainMaterial terrainMaterial,
             Rectangle patchBounds,
             DeviceBuffer vertexBuffer,
             DeviceBuffer indexBuffer,
@@ -30,8 +28,6 @@ namespace OpenSage.Terrain
             Triangle[] triangles,
             BoundingBox boundingBox)
         {
-            _terrainMaterial = terrainMaterial;
-
             Bounds = patchBounds;
 
             _vertexBuffer = vertexBuffer;
@@ -70,33 +66,21 @@ namespace OpenSage.Terrain
             }
         }
 
-        internal void BuildRenderList(RenderList renderList, Texture macroTexture)
+        internal void BuildRenderList(RenderList renderList, ShaderSet shaderSet, Pipeline pipeline, ResourceSet materialResourceSet)
         {
-            _terrainMaterial.SetMacroTexture(macroTexture);
-
             renderList.Opaque.RenderItems.Add(new RenderItem(
-                _terrainMaterial,
-                _vertexBuffer,
-                null,
-                CullFlags.None,
+                shaderSet,
+                pipeline,
                 BoundingBox,
                 Matrix4x4.Identity,
                 0,
                 _numIndices,
-                _indexBuffer));
+                _indexBuffer,
+                cl =>
+                {
+                    cl.SetGraphicsResourceSet(4, materialResourceSet);
+                    cl.SetVertexBuffer(0, _vertexBuffer);
+                }));
         }
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct TerrainVertex
-    {
-        public Vector3 Position;
-        public Vector3 Normal;
-        public Vector2 UV;
-
-        public static readonly VertexLayoutDescription VertexDescriptor = new VertexLayoutDescription(
-            new VertexElementDescription("POSITION", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-            new VertexElementDescription("NORMAL", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-            new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
     }
 }

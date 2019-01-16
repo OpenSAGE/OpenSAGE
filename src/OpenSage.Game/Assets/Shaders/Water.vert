@@ -5,26 +5,15 @@
 #include "Lighting.h"
 #include "Cloud.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsShared
-{
-    GlobalConstantsSharedType _GlobalConstantsShared;
-};
+MAKE_GLOBAL_CONSTANTS_RESOURCES_VS(0)
 
-layout(set = 0, binding = 1) uniform GlobalConstantsVS
-{
-    GlobalConstantsVSType _GlobalConstantsVS;
-};
-
-layout(set = 0, binding = 2) uniform GlobalLightingConstantsVS
-{
-    GlobalLightingConstantsVSType _GlobalLightingConstantsVS;
-};
+MAKE_GLOBAL_LIGHTING_CONSTANTS_RESOURCES_VS(1)
 
 layout(location = 0) in vec3 in_Position;
 
 layout(location = 0) out vec3 out_WorldPosition;
-layout(location = 3) out vec2 out_CloudUV;
-layout(location = 4) out float out_ViewSpaceDepth;
+layout(location = 1) out vec2 out_CloudUV;
+layout(location = 2) out float out_ViewSpaceDepth;
 
 void main()
 {

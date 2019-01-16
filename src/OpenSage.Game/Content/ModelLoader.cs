@@ -9,8 +9,6 @@ using OpenSage.Data;
 using OpenSage.Data.W3d;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
-using OpenSage.Graphics.Effects;
-using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 using OpenSage.Utilities.Extensions;
@@ -20,15 +18,6 @@ namespace OpenSage.Content
 {
     internal sealed class ModelLoader : ContentLoader<Model>
     {
-        private readonly MeshDepthMaterial _meshDepthMaterialFixedFunction;
-        private readonly MeshDepthMaterial _meshDepthMaterialShader;
-
-        public ModelLoader(ContentManager contentManager)
-        {
-            _meshDepthMaterialFixedFunction = AddDisposable(new MeshDepthMaterial(contentManager, contentManager.EffectLibrary.MeshDepthFixedFunction));
-            _meshDepthMaterialShader = AddDisposable(new MeshDepthMaterial(contentManager, contentManager.EffectLibrary.MeshDepthShaderMaterial));
-        }
-
         protected override Model LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
         {
             var w3dFile = W3dFile.FromFileSystemEntry(entry);
@@ -170,7 +159,7 @@ namespace OpenSage.Content
             W3dMesh w3dMesh)
         {
             W3dShaderMaterial w3dShaderMaterial;
-            Effect effect = null;
+            ShaderSet shaderSet = null;
             if (w3dMesh.MaterialPasses.Count == 1 && w3dMesh.MaterialPasses[0].ShaderMaterialIds != null)
             {
                 if (w3dMesh.MaterialPasses[0].ShaderMaterialIds.Items.Length > 1)
@@ -181,19 +170,17 @@ namespace OpenSage.Content
                 w3dShaderMaterial = w3dMesh.ShaderMaterials.Items[(int) shaderMaterialID];
                 var effectName = w3dShaderMaterial.Header.TypeName.Replace(".fx", string.Empty);
 
-                effect = contentManager.EffectLibrary.GetEffect(
-                    effectName,
-                    MeshVertex.VertexDescriptors);
+                shaderSet = contentManager.ShaderLibrary.GetMeshShaderSet(effectName);
             }
             else
             {
                 w3dShaderMaterial = null;
-                effect = contentManager.EffectLibrary.FixedFunction;
+                shaderSet = contentManager.ShaderLibrary.FixedFunction;
             }
 
             var vertexMaterials = CreateMaterials(w3dMesh);
 
-            var shadingConfigurations = new FixedFunction.ShadingConfiguration[w3dMesh.Shaders.Items.Count];
+            var shadingConfigurations = new FixedFunctionTypes.ShadingConfiguration[w3dMesh.Shaders.Items.Count];
             for (var i = 0; i < shadingConfigurations.Length; i++)
             {
                 shadingConfigurations[i] = CreateShadingConfiguration(w3dMesh.Shaders.Items[i]);
@@ -207,7 +194,7 @@ namespace OpenSage.Content
                     w3dMesh,
                     w3dMesh.MaterialPasses[0],
                     w3dShaderMaterial,
-                    effect);
+                    shaderSet);
             }
             else
             {
@@ -231,9 +218,10 @@ namespace OpenSage.Content
             var hasHouseColor = w3dMesh.Header.MeshName.StartsWith("HOUSECOLOR");
 
             return new ModelMesh(
-                contentManager.GraphicsDevice,
+                contentManager,
                 w3dMesh.Header.MeshName,
-                MemoryMarshal.AsBytes(new ReadOnlySpan<MeshVertex.Basic>(CreateVertices(w3dMesh, w3dMesh.IsSkinned))),
+                contentManager.ShaderLibrary.FixedFunction,
+                MemoryMarshal.AsBytes(new ReadOnlySpan<MeshTypes.MeshVertex.Basic>(CreateVertices(w3dMesh, w3dMesh.IsSkinned))),
                 CreateIndices(w3dMesh, w3dShaderMaterial != null),
                 materialPasses,
                 w3dMesh.IsSkinned,
@@ -243,9 +231,9 @@ namespace OpenSage.Content
                 hasHouseColor);
         }
 
-        private static FixedFunction.ShadingConfiguration CreateShadingConfiguration(W3dShader w3dShader)
+        private static FixedFunctionTypes.ShadingConfiguration CreateShadingConfiguration(W3dShader w3dShader)
         {
-            return new FixedFunction.ShadingConfiguration
+            return new FixedFunctionTypes.ShadingConfiguration
             {
                 DiffuseLightingType = w3dShader.PrimaryGradient.ToDiffuseLightingType(),
                 SpecularEnabled = w3dShader.SecondaryGradient == W3dShaderSecondaryGradient.Enable,
@@ -256,9 +244,9 @@ namespace OpenSage.Content
             };
         }
 
-        private static FixedFunction.VertexMaterial[] CreateMaterials(W3dMesh w3dMesh)
+        private static FixedFunctionTypes.VertexMaterial[] CreateMaterials(W3dMesh w3dMesh)
         {
-            var vertexMaterials = new FixedFunction.VertexMaterial[w3dMesh.VertexMaterials.Items.Count];
+            var vertexMaterials = new FixedFunctionTypes.VertexMaterial[w3dMesh.VertexMaterials.Items.Count];
 
             for (var i = 0; i < w3dMesh.VertexMaterials.Items.Count; i++)
             {
@@ -307,16 +295,16 @@ namespace OpenSage.Content
             return texture;
         }
 
-        private static MeshVertex.Basic[] CreateVertices(
+        private static MeshTypes.MeshVertex.Basic[] CreateVertices(
             W3dMesh w3dMesh,
             bool isSkinned)
         {
             var numVertices = (uint) w3dMesh.Vertices.Items.Length;
-            var vertices = new MeshVertex.Basic[numVertices];
+            var vertices = new MeshTypes.MeshVertex.Basic[numVertices];
 
             for (var i = 0; i < numVertices; i++)
             {
-                vertices[i] = new MeshVertex.Basic
+                vertices[i] = new MeshTypes.MeshVertex.Basic
                 {
                     Position0 = w3dMesh.Vertices.Items[i],
                     Position1 = w3dMesh.Vertices2 != null
@@ -380,9 +368,9 @@ namespace OpenSage.Content
             W3dMesh w3dMesh,
             W3dMaterialPass w3dMaterialPass,
             W3dShaderMaterial w3dShaderMaterial,
-            Effect effect)
+            ShaderSet shaderSet)
         {
-            var texCoords = new MeshVertex.TexCoords[w3dMesh.Header.NumVertices];
+            var texCoords = new MeshTypes.MeshVertex.TexCoords[w3dMesh.Header.NumVertices];
 
             if (w3dMaterialPass.TexCoords != null)
             {
@@ -395,20 +383,14 @@ namespace OpenSage.Content
             var meshParts = new List<ModelMeshPart>();
 
             // TODO: Extract state properties from shader material.
-            var rasterizerState = RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise;
-            var depthState = DepthStencilStateDescription.DepthOnlyLessEqual;
-            var blendState = BlendStateDescription.SingleDisabled;
 
-            var material = new ShaderMaterial(contentManager, effect)
-            {
-                PipelineState = new EffectPipelineState(
-                    rasterizerState,
-                    depthState,
-                    blendState,
-                    RenderPipeline.GameOutputDescription)
-            };
+            var blendEnabled = false;
 
-            var materialConstantsBuilder = new ShaderMaterialConstantsBuilder(effect);
+            var pipeline = contentManager.ShaderMaterialResourceCache.GetPipeline(shaderSet);
+
+            var materialResourceSetBuilder = AddDisposable(new ShaderMaterialResourceSetBuilder(
+                contentManager.GraphicsDevice,
+                shaderSet));
 
             foreach (var w3dShaderProperty in w3dShaderMaterial.Properties)
             {
@@ -416,31 +398,31 @@ namespace OpenSage.Content
                 {
                     case W3dShaderMaterialPropertyType.Texture:
                         var texture = CreateTexture(contentManager, w3dShaderProperty.StringValue);
-                        material.SetProperty(w3dShaderProperty.PropertyName, texture);
+                        materialResourceSetBuilder.SetTexture(w3dShaderProperty.PropertyName, texture);
                         break;
 
                     case W3dShaderMaterialPropertyType.Bool:
-                        materialConstantsBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Bool);
+                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Bool);
                         break;
 
                     case W3dShaderMaterialPropertyType.Float:
-                        materialConstantsBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Float);
+                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Float);
                         break;
 
                     case W3dShaderMaterialPropertyType.Vector2:
-                        materialConstantsBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector2);
+                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector2);
                         break;
 
                     case W3dShaderMaterialPropertyType.Vector3:
-                        materialConstantsBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector3);
+                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector3);
                         break;
 
                     case W3dShaderMaterialPropertyType.Vector4:
-                        materialConstantsBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector4);
+                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Vector4);
                         break;
 
                     case W3dShaderMaterialPropertyType.Int:
-                        materialConstantsBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Int);
+                        materialResourceSetBuilder.SetConstant(w3dShaderProperty.PropertyName, w3dShaderProperty.Value.Int);
                         break;
 
                     default:
@@ -448,13 +430,15 @@ namespace OpenSage.Content
                 }
             }
 
-            material.SetMaterialConstants(AddDisposable(materialConstantsBuilder.CreateBuffer()));
+            var materialResourceSet = materialResourceSetBuilder.CreateResourceSet();
 
             meshParts.Add(new ModelMeshPart(
                 0,
                 w3dMesh.Header.NumTris * 3,
-                material,
-                _meshDepthMaterialShader));
+                blendEnabled,
+                pipeline,
+                materialResourceSet,
+                contentManager.ShaderMaterialResourceCache.DepthPipeline));
 
             return new ModelMeshMaterialPass(
                 contentManager.GraphicsDevice,
@@ -467,8 +451,8 @@ namespace OpenSage.Content
             ContentManager contentManager,
             W3dMesh w3dMesh,
             W3dMaterialPass w3dMaterialPass,
-            FixedFunction.VertexMaterial[] vertexMaterials,
-            FixedFunction.ShadingConfiguration[] shadingConfigurations)
+            FixedFunctionTypes.VertexMaterial[] vertexMaterials,
+            FixedFunctionTypes.ShadingConfiguration[] shadingConfigurations)
         {
             var hasTextureStage0 = w3dMaterialPass.TextureStages.Count > 0;
             var textureStage0 = hasTextureStage0
@@ -484,7 +468,7 @@ namespace OpenSage.Content
                 ? 2u
                 : hasTextureStage0 ? 1u : 0u;
 
-            var texCoords = new MeshVertex.TexCoords[w3dMesh.Header.NumVertices];
+            var texCoords = new MeshTypes.MeshVertex.TexCoords[w3dMesh.Header.NumVertices];
 
             if (hasTextureStage0)
             {
@@ -711,8 +695,8 @@ namespace OpenSage.Content
             uint startIndex,
             uint indexCount,
             W3dMesh w3dMesh,
-            FixedFunction.VertexMaterial[] vertexMaterials,
-            FixedFunction.ShadingConfiguration[] shadingConfigurations,
+            FixedFunctionTypes.VertexMaterial[] vertexMaterials,
+            FixedFunctionTypes.ShadingConfiguration[] shadingConfigurations,
             uint vertexMaterialID,
             uint shaderID,
             uint numTextureStages,
@@ -721,37 +705,29 @@ namespace OpenSage.Content
         {
             var w3dShader = w3dMesh.Shaders.Items[(int) shaderID];
 
-            var rasterizerState = RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise;
-            rasterizerState.CullMode = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.TwoSided)
+            var cullMode = w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.TwoSided)
                 ? FaceCullMode.None
                 : FaceCullMode.Back;
 
-            var depthState = DepthStencilStateDescription.DepthOnlyLessEqual;
-            depthState.DepthWriteEnabled = w3dShader.DepthMask == W3dShaderDepthMask.WriteEnable;
-            depthState.DepthComparison = w3dShader.DepthCompare.ToComparison();
+            var depthWriteEnabled = w3dShader.DepthMask == W3dShaderDepthMask.WriteEnable;
+            var depthComparison = w3dShader.DepthCompare.ToComparison();
 
-            var blendState = new BlendStateDescription(
-                RgbaFloat.White,
-                new BlendAttachmentDescription(
-                    (w3dShader.SrcBlend != W3dShaderSrcBlendFunc.One || w3dShader.DestBlend != W3dShaderDestBlendFunc.Zero),
-                    w3dShader.SrcBlend.ToBlend(),
-                    w3dShader.DestBlend.ToBlend(false),
-                    BlendFunction.Add,
-                    w3dShader.SrcBlend.ToBlend(),
-                    w3dShader.DestBlend.ToBlend(true),
-                    BlendFunction.Add));
+            var blendEnabled = w3dShader.SrcBlend != W3dShaderSrcBlendFunc.One || w3dShader.DestBlend != W3dShaderDestBlendFunc.Zero;
+            var sourceFactor = w3dShader.SrcBlend.ToBlend();
+            var destinationColorFactor = w3dShader.DestBlend.ToBlend(false);
+            var destinationAlphaFactor = w3dShader.DestBlend.ToBlend(true);
 
-            var effectMaterial = new FixedFunctionMaterial(contentManager, contentManager.EffectLibrary.FixedFunction)
-            {
-                PipelineState = new EffectPipelineState(
-                    rasterizerState,
-                    depthState,
-                    blendState,
-                    RenderPipeline.GameOutputDescription)
-            };
+            var pipeline = contentManager.FixedFunctionResourceCache.GetPipeline(
+                cullMode,
+                depthWriteEnabled,
+                depthComparison,
+                blendEnabled,
+                sourceFactor,
+                destinationColorFactor,
+                destinationAlphaFactor);
 
             var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
-                new FixedFunction.MaterialConstantsType
+                new FixedFunctionTypes.MaterialConstantsType
                 {
                     Material = vertexMaterials[vertexMaterialID],
                     Shading = shadingConfigurations[shaderID],
@@ -759,15 +735,20 @@ namespace OpenSage.Content
                 },
                 BufferUsage.UniformBuffer));
 
-            effectMaterial.SetMaterialConstants(materialConstantsBuffer);
-            effectMaterial.SetTexture0(CreateTexture(contentManager, w3dMesh, textureIndex0));
-            effectMaterial.SetTexture1(CreateTexture(contentManager, w3dMesh, textureIndex1));
+            var materialResourceSet = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateResourceSet(
+                new ResourceSetDescription(
+                    contentManager.ShaderLibrary.FixedFunction.ResourceLayouts[5],
+                    materialConstantsBuffer,
+                    CreateTexture(contentManager, w3dMesh, textureIndex0) ?? contentManager.NullTexture,
+                    CreateTexture(contentManager, w3dMesh, textureIndex1) ?? contentManager.NullTexture)));
 
             return new ModelMeshPart(
                 startIndex,
                 indexCount,
-                effectMaterial,
-                _meshDepthMaterialFixedFunction);
+                blendEnabled,
+                pipeline,
+                materialResourceSet,
+                contentManager.FixedFunctionResourceCache.DepthPipeline);
         }
 
         private static Animation CreateAnimation(W3dAnimation w3dAnimation)

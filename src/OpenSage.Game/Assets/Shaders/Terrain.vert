@@ -3,28 +3,11 @@
 
 #include "Common.h"
 #include "Lighting.h"
-#include "Cloud.h"
 #include "Mesh.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsShared
-{
-    GlobalConstantsSharedType _GlobalConstantsShared;
-};
+MAKE_GLOBAL_CONSTANTS_RESOURCES_VS(0)
 
-layout(set = 0, binding = 1) uniform GlobalConstantsVS
-{
-    GlobalConstantsVSType _GlobalConstantsVS;
-};
-
-layout(set = 0, binding = 2) uniform GlobalLightingConstants
-{
-    GlobalLightingConstantsVSType _GlobalLightingConstantsVS;
-};
-
-layout(set = 0, binding = 3) uniform RenderItemConstantsVS
-{
-    RenderItemConstantsVSType _RenderItemConstantsVS;
-};
+MAKE_GLOBAL_LIGHTING_CONSTANTS_RESOURCES_VS(1)
 
 layout(location = 0) in vec3 in_Position;
 layout(location = 1) in vec3 in_Normal;
@@ -38,11 +21,11 @@ layout(location = 4) out float out_ViewSpaceDepth;
 
 void main()
 {
-    out_WorldPosition = (_RenderItemConstantsVS.World * vec4(in_Position, 1)).xyz;
+    out_WorldPosition = in_Position;
 
     gl_Position = _GlobalConstantsVS.ViewProjection * vec4(out_WorldPosition, 1);
 
-    out_WorldNormal = TransformNormal(in_Normal, _RenderItemConstantsVS.World);
+    out_WorldNormal = in_Normal;
 
     out_UV = in_UV;
 

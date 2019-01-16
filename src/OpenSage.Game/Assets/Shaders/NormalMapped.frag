@@ -4,20 +4,12 @@
 #include "Common.h"
 #include "Lighting.h"
 #include "Cloud.h"
+#include "Shadows.h"
+#include "Mesh.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsShared
-{
-    GlobalConstantsSharedType _GlobalConstantsShared;
-};
+MAKE_MESH_RESOURCES_PS()
 
-layout(set = 0, binding = 6) uniform GlobalLightingConstantsPS
-{
-    GlobalLightingConstantsPSType _GlobalLightingConstantsPS;
-};
-
-layout(set = 0, binding = 7) uniform texture2D Global_CloudTexture;
-
-layout(set = 0, binding = 8) uniform MaterialConstants
+layout(set = MESH_MATERIAL_RESOURCE_SET, binding = 0) uniform MaterialConstants
 {
     float BumpScale;
     float SpecularExponent;
@@ -30,9 +22,8 @@ layout(set = 0, binding = 8) uniform MaterialConstants
     vec4 SpecularColor;
 } _MaterialConstants;
 
-layout(set = 0, binding = 9) uniform texture2D DiffuseTexture;
-layout(set = 0, binding = 10) uniform texture2D NormalMap;
-layout(set = 0, binding = 11) uniform sampler Sampler;
+layout(set = MESH_MATERIAL_RESOURCE_SET, binding = 1) uniform texture2D DiffuseTexture;
+layout(set = MESH_MATERIAL_RESOURCE_SET, binding = 2) uniform texture2D NormalMap;
 
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec3 in_WorldNormal;

@@ -1,3 +1,7 @@
+#ifndef COMMON_H
+
+#define COMMON_H
+
 struct GlobalConstantsSharedType
 {
     vec3 CameraPosition;
@@ -13,6 +17,28 @@ struct GlobalConstantsPSType
 {
     vec2 ViewportSize;
 };
+
+#define MAKE_GLOBAL_CONSTANTS_RESOURCES_VS(resourceSet) \
+    layout(set = resourceSet, binding = 0) uniform GlobalConstantsShared \
+    { \
+        GlobalConstantsSharedType _GlobalConstantsShared; \
+    }; \
+    \
+    layout(set = resourceSet, binding = 1) uniform GlobalConstantsVS \
+    { \
+        GlobalConstantsVSType _GlobalConstantsVS; \
+    };
+
+#define MAKE_GLOBAL_CONSTANTS_RESOURCES_PS(resourceSet) \
+    layout(set = resourceSet, binding = 0) uniform GlobalConstantsShared \
+    { \
+        GlobalConstantsSharedType _GlobalConstantsShared; \
+    }; \
+    \
+    layout(set = resourceSet, binding = 2) uniform GlobalConstantsPS \
+    { \
+        GlobalConstantsPSType _GlobalConstantsPS; \
+    };
 
 bool FailsAlphaTest(float alpha)
 {
@@ -34,3 +60,5 @@ vec3 saturate(vec3 v)
 {
     return clamp(v, vec3(0, 0, 0), vec3(1, 1, 1));
 }
+
+#endif

@@ -5,13 +5,15 @@ using System.Reflection;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics;
-using OpenSage.Graphics.Effects;
+using OpenSage.Graphics.ParticleSystems;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Gui;
 using OpenSage.Gui.Apt;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Gui.Wnd.Images;
 using OpenSage.Logic.Object;
+using OpenSage.Terrain;
 using OpenSage.Utilities;
 using OpenSage.Utilities.Extensions;
 using SixLabors.Fonts;
@@ -46,7 +48,14 @@ namespace OpenSage.Content
 
         public SageGame SageGame { get; }
 
-        public EffectLibrary EffectLibrary { get; }
+        internal ShaderLibrary ShaderLibrary { get; }
+
+        internal ParticleResourceCache ParticleResourceCache { get; }
+        internal RoadResourceCache RoadResourceCache { get; }
+        internal WaterResourceCache WaterResourceCache { get; }
+        internal SpriteResourceCache SpriteResourceCache { get; }
+        internal FixedFunctionResourceCache FixedFunctionResourceCache { get; }
+        internal ShaderMaterialResourceCache ShaderMaterialResourceCache { get; }
 
         public Sampler LinearClampSampler { get; }
         public Sampler PointClampSampler { get; }
@@ -130,11 +139,18 @@ namespace OpenSage.Content
                     break;
             }
 
-            EffectLibrary = AddDisposable(new EffectLibrary(graphicsDevice));
+            ShaderLibrary = AddDisposable(new ShaderLibrary(graphicsDevice));
+
+            ParticleResourceCache = AddDisposable(new ParticleResourceCache(this));
+            RoadResourceCache = AddDisposable(new RoadResourceCache(this));
+            WaterResourceCache = AddDisposable(new WaterResourceCache(this));
+            SpriteResourceCache = AddDisposable(new SpriteResourceCache(this));
+            FixedFunctionResourceCache = AddDisposable(new FixedFunctionResourceCache(this));
+            ShaderMaterialResourceCache = AddDisposable(new ShaderMaterialResourceCache(this));
 
             _contentLoaders = new Dictionary<Type, ContentLoader>
             {
-                { typeof(Model), AddDisposable(new ModelLoader(this)) },
+                { typeof(Model), AddDisposable(new ModelLoader()) },
                 { typeof(Scene3D), AddDisposable(new MapLoader()) },
                 { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
                 { typeof(Window), AddDisposable(new WindowLoader(this, wndCallbackResolver, Language)) },

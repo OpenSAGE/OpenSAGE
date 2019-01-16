@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using OpenSage.Graphics.Cameras;
-using OpenSage.Graphics.Effects;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Graphics.Rendering.Shadows
@@ -20,7 +20,7 @@ namespace OpenSage.Graphics.Rendering.Shadows
         /// <param name="camera">The camera viewing the scene.</param>
         /// <param name="shadowData"></param>
         public void CalculateShadowData(
-            in Light light,
+            in GlobalLightingTypes.Light light,
             Camera camera,
             ShadowData shadowData,
             ShadowSettings settings)
@@ -238,7 +238,7 @@ namespace OpenSage.Graphics.Rendering.Shadows
         /// <summary>
         /// Makes the "global" shadow matrix used as the reference point for the cascades.
         /// </summary>
-        private Matrix4x4 MakeGlobalShadowMatrix(in Light light, Camera camera, ShadowSettings settings)
+        private Matrix4x4 MakeGlobalShadowMatrix(in GlobalLightingTypes.Light light, Camera camera, ShadowSettings settings)
         {
             // Get the 8 points of the view frustum in world space
             ResetViewFrustumCorners();

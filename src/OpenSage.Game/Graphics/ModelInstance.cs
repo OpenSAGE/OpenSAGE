@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Cameras;
 using OpenSage.Graphics.Rendering;
@@ -35,7 +36,9 @@ namespace OpenSage.Graphics
 
         private readonly Matrix4x4[] _skinningBones;
 
-        internal DeviceBuffer SkinningBuffer;
+        private readonly DeviceBuffer _skinningBuffer;
+
+        internal readonly ResourceSet SkinningBufferResourceSet;
 
         public Model Model { get; }
 
@@ -43,11 +46,11 @@ namespace OpenSage.Graphics
 
         public List<AnimationInstance> AnimationInstances { get; }
 
-        internal ModelInstance(Model model, GraphicsDevice graphicsDevice)
+        internal ModelInstance(Model model, ContentManager contentManager)
         {
             Model = model;
 
-            _graphicsDevice = graphicsDevice;
+            _graphicsDevice = contentManager.GraphicsDevice;
 
             ModelBoneInstances = new ModelBoneInstance[model.BoneHierarchy.Bones.Length];
             for (var i = 0; i < model.BoneHierarchy.Bones.Length; i++)
@@ -66,9 +69,10 @@ namespace OpenSage.Graphics
 
             _hasSkinnedMeshes = model.SubObjects.Any(x => x.RenderObject.Skinned);
 
+            DeviceBuffer skinningBuffer;
             if (_hasSkinnedMeshes)
             {
-                SkinningBuffer = AddDisposable(graphicsDevice.ResourceFactory.CreateBuffer(
+                _skinningBuffer = skinningBuffer = AddDisposable(_graphicsDevice.ResourceFactory.CreateBuffer(
                     new BufferDescription(
                         (uint) (64 * model.BoneHierarchy.Bones.Length),
                         BufferUsage.StructuredBufferReadOnly | BufferUsage.Dynamic,
@@ -77,12 +81,23 @@ namespace OpenSage.Graphics
 
                 _skinningBones = new Matrix4x4[model.BoneHierarchy.Bones.Length];
             }
+            else
+            {
+                skinningBuffer = contentManager.GetNullStructuredBuffer(64);
+            }
+
+            SkinningBufferResourceSet = AddDisposable(_graphicsDevice.ResourceFactory.CreateResourceSet(
+                new ResourceSetDescription(
+                    contentManager.ShaderLibrary.FixedFunction.ResourceLayouts[8],
+                    skinningBuffer)));
 
             AnimationInstances = new List<AnimationInstance>();
         }
 
         public void Update(GameTime gameTime)
         {
+            // TODO: Don't update animations if model isn't visible.
+
             // Update animations.
             foreach (var animationInstance in AnimationInstances)
             {
@@ -122,7 +137,7 @@ namespace OpenSage.Graphics
                 //RelativeBoneTransforms[i].ToMatrix4x3(out _skinningBones[i]);
             }
 
-            _graphicsDevice.UpdateBuffer(SkinningBuffer, 0, _skinningBones);
+            _graphicsDevice.UpdateBuffer(_skinningBuffer, 0, _skinningBones);
         }
 
         public void SetWorldMatrix(in Matrix4x4 worldMatrix)

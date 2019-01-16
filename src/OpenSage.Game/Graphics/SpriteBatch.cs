@@ -1,6 +1,7 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using OpenSage.Content;
-using OpenSage.Graphics.Effects;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
@@ -10,77 +11,92 @@ namespace OpenSage.Graphics
 {
     public sealed class SpriteBatch : DisposableBase
     {
+        private readonly ContentManager _contentManager;
         private readonly GraphicsDevice _graphicsDevice;
-        private readonly SpriteMaterial _material;
-        private readonly ConstantBuffer<SpriteMaterial.MaterialConstantsVS> _materialConstantsVSBuffer;
-        private readonly ConstantBuffer<SpriteMaterial.SpriteConstantsPS> _spriteConstantsPSBuffer;
+        private readonly Pipeline _pipeline;
+        private readonly ConstantBuffer<SpriteTypes.MaterialConstantsVS> _materialConstantsVSBuffer;
+        private readonly ConstantBuffer<SpriteTypes.SpriteConstantsPS> _spriteConstantsPSBuffer;
+        private readonly ResourceSet _spriteConstantsResourceSet;
+        private readonly Dictionary<Texture, ResourceSet> _textureResourceSets;
         private readonly DeviceBuffer _vertexBuffer;
-        private readonly SpriteVertex[] _vertices;
+        private readonly SpriteTypes.SpriteVertex[] _vertices;
         private readonly DeviceBuffer _indexBuffer;
 
         private const int InitialBatchSize = 256;
         private SpriteBatchItem[] _batchItems;
         private int _currentBatchIndex;
 
-        private CommandList _commandEncoder;
+        private CommandList _commandList;
 
-        public SpriteBatch(ContentManager contentManager, in BlendStateDescription blendStateDescription, in OutputDescription outputDescription)
+        public SpriteBatch(
+            ContentManager contentManager,
+            in BlendStateDescription blendStateDescription,
+            in OutputDescription outputDescription)
         {
+            _contentManager = contentManager;
             _graphicsDevice = contentManager.GraphicsDevice;
 
-            _material = AddDisposable(new SpriteMaterial(
-                contentManager,
-                contentManager.EffectLibrary.Sprite,
+            _pipeline = contentManager.SpriteResourceCache.GetPipeline(
                 blendStateDescription,
-                outputDescription));
+                outputDescription);
 
-            _materialConstantsVSBuffer = AddDisposable(new ConstantBuffer<SpriteMaterial.MaterialConstantsVS>(contentManager.GraphicsDevice));
+            _materialConstantsVSBuffer = AddDisposable(new ConstantBuffer<SpriteTypes.MaterialConstantsVS>(contentManager.GraphicsDevice));
 
-            _material.SetMaterialConstantsVS(_materialConstantsVSBuffer.Buffer);
+            _spriteConstantsPSBuffer = AddDisposable(new ConstantBuffer<SpriteTypes.SpriteConstantsPS>(contentManager.GraphicsDevice));
 
-            _spriteConstantsPSBuffer = AddDisposable(new ConstantBuffer<SpriteMaterial.SpriteConstantsPS>(contentManager.GraphicsDevice));
-
-            _material.SetSpriteConstantsPS(_spriteConstantsPSBuffer.Buffer);
+            _spriteConstantsResourceSet = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateResourceSet(
+                new ResourceSetDescription(
+                    contentManager.ShaderLibrary.Sprite.ResourceLayouts[0],
+                    _materialConstantsVSBuffer.Buffer,
+                    _spriteConstantsPSBuffer.Buffer)));
 
             _vertexBuffer = AddDisposable(_graphicsDevice.ResourceFactory.CreateBuffer(
-                new BufferDescription(SpriteVertex.VertexDescriptor.Stride * 4, BufferUsage.VertexBuffer | BufferUsage.Dynamic)));
+                new BufferDescription(SpriteTypes.SpriteVertex.VertexDescriptor.Stride * 4, BufferUsage.VertexBuffer | BufferUsage.Dynamic)));
 
-            _vertices = new SpriteVertex[4]; // Order is TL, TR, BL, BR
+            _vertices = new SpriteTypes.SpriteVertex[4]; // Order is TL, TR, BL, BR
 
             _indexBuffer = AddDisposable(_graphicsDevice.CreateStaticBuffer(
                 new ushort[] { 0, 1, 2, 2, 1, 3 },
                 BufferUsage.IndexBuffer));
 
             _batchItems = new SpriteBatchItem[InitialBatchSize];
+
+            _textureResourceSets = new Dictionary<Texture, ResourceSet>();
         }
 
         public void Begin(
-            CommandList commandEncoder,
-            Sampler samplerState,
+            CommandList commandList,
+            Sampler sampler,
             in SizeF outputSize,
             bool ignoreAlpha = false)
         {
-            _commandEncoder = commandEncoder;
+            _commandList = commandList;
 
-            _material.Effect.Begin();
+            _commandList.SetPipeline(_pipeline);
 
-            _material.SetSampler(samplerState);
-
-            _materialConstantsVSBuffer.Value.Projection = Matrix4x4.CreateOrthographicOffCenter(
+            var projection = Matrix4x4.CreateOrthographicOffCenter(
                0,
                outputSize.Width,
                outputSize.Height,
                0,
                0,
                -1);
-            _materialConstantsVSBuffer.Update(commandEncoder);
+            if (projection != _materialConstantsVSBuffer.Value.Projection)
+            {
+                _materialConstantsVSBuffer.Value.Projection = projection;
+                _materialConstantsVSBuffer.Update(commandList);
+            }
 
-            _material.SetMaterialConstantsVS(_materialConstantsVSBuffer.Buffer);
+            if (ignoreAlpha != _spriteConstantsPSBuffer.Value.IgnoreAlpha)
+            {
+                _spriteConstantsPSBuffer.Value.IgnoreAlpha = ignoreAlpha;
+                _spriteConstantsPSBuffer.Update(commandList);
+            }
 
-            _spriteConstantsPSBuffer.Value.IgnoreAlpha = ignoreAlpha ? 1u : 0u;
-            _spriteConstantsPSBuffer.Update(commandEncoder);
+            _commandList.SetGraphicsResourceSet(0, _spriteConstantsResourceSet);
 
-            _material.SetSpriteConstantsPS(_spriteConstantsPSBuffer.Buffer);
+            var samplerResourceSet = _contentManager.SpriteResourceCache.GetSamplerResourceSet(sampler);
+            _commandList.SetGraphicsResourceSet(1, samplerResourceSet);
 
             _currentBatchIndex = 0;
         }
@@ -216,24 +232,33 @@ namespace OpenSage.Graphics
                 _vertices[2] = batchItem.VertexBL;
                 _vertices[3] = batchItem.VertexBR;
 
-                _commandEncoder.UpdateBuffer(_vertexBuffer, 0, _vertices);
+                _commandList.UpdateBuffer(_vertexBuffer, 0, _vertices);
 
-                _commandEncoder.SetVertexBuffer(0, _vertexBuffer);
+                _commandList.SetVertexBuffer(0, _vertexBuffer);
 
-                _material.SetTexture(batchItem.Texture);
+                var textureResourceSet = GetTextureResourceSet(batchItem.Texture);
+                _commandList.SetGraphicsResourceSet(2, textureResourceSet);
 
-                _material.ApplyPipelineState();
-                _material.ApplyProperties();
-
-                _material.Effect.ApplyPipelineState(_commandEncoder);
-                _material.Effect.ApplyParameters(_commandEncoder);
+                _commandList.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
 
                 var indexCount = batchItem.ItemType == SpriteBatchItemType.Quad ? 6u : 3u;
-
-                _commandEncoder.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
-
-                _commandEncoder.DrawIndexed(indexCount);
+                _commandList.DrawIndexed(indexCount);
             }
+        }
+
+        private ResourceSet GetTextureResourceSet(Texture texture)
+        {
+            // TODO: Clear not-recently-used textures from the cache.
+            if (!_textureResourceSets.TryGetValue(texture, out var result))
+            {
+                result = AddDisposable(_contentManager.GraphicsDevice.ResourceFactory.CreateResourceSet(
+                    new ResourceSetDescription(
+                        _contentManager.ShaderLibrary.Sprite.ResourceLayouts[2],
+                        texture)));
+
+                _textureResourceSets.Add(texture, result);
+            }
+            return result;
         }
 
         private struct SpriteBatchItem
@@ -242,12 +267,12 @@ namespace OpenSage.Graphics
 
             public SpriteBatchItemType ItemType;
 
-            public SpriteVertex VertexTL;
-            public SpriteVertex VertexTR;
-            public SpriteVertex VertexBL;
+            public SpriteTypes.SpriteVertex VertexTL;
+            public SpriteTypes.SpriteVertex VertexTR;
+            public SpriteTypes.SpriteVertex VertexBL;
 
             // Not used for a triangle item.
-            public SpriteVertex VertexBR;
+            public SpriteTypes.SpriteVertex VertexBR;
 
             public void Set(float x, float y, float dx, float dy, float w, float h, float sin, float cos, in ColorRgbaF color, in Vector2 texCoordTL, in Vector2 texCoordBR, float depth)
             {

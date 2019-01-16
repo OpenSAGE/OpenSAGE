@@ -10,7 +10,10 @@ using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Data.Tga;
+using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
+using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 using OpenSage.Scripting;
@@ -74,18 +77,20 @@ namespace OpenSage.Content
 
             var textureDetailsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticStructuredBuffer(textureDetails));
 
-            var terrainMaterial = AddDisposable(new TerrainMaterial(contentManager, contentManager.EffectLibrary.Terrain));
-
-            terrainMaterial.SetTileData(tileDataTexture);
-            terrainMaterial.SetCliffDetails(cliffDetailsBuffer);
-            terrainMaterial.SetTextureDetails(textureDetailsBuffer);
-            terrainMaterial.SetTextureArray(textureArray);
+            var terrainPipeline = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
+                new GraphicsPipelineDescription(
+                    BlendStateDescription.SingleDisabled,
+                    DepthStencilStateDescription.DepthOnlyLessEqual,
+                    RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
+                    PrimitiveTopology.TriangleList, // TODO: Use triangle strip
+                    contentManager.ShaderLibrary.Terrain.Description,
+                    contentManager.ShaderLibrary.Terrain.ResourceLayouts,
+                    RenderPipeline.GameOutputDescription)));
 
             var terrainPatches = CreatePatches(
                 contentManager.GraphicsDevice,
                 heightMap,
                 mapFile.BlendTileData,
-                terrainMaterial,
                 indexBufferCache);
 
             Texture LoadTexture(string name)
@@ -98,11 +103,8 @@ namespace OpenSage.Content
                 return texture;
             }
 
-            var cloudTexture = LoadTexture(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
-            var macroTexture = LoadTexture(mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds");
-
             var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
-                new TerrainMaterial.TerrainMaterialConstants
+                new TerrainTypes.TerrainMaterialConstants
                 {
                     MapBorderWidth = new Vector2(mapFile.HeightMapData.BorderWidth, mapFile.HeightMapData.BorderWidth) * HeightMap.HorizontalScale,
                     MapSize = new Vector2(mapFile.HeightMapData.Width, mapFile.HeightMapData.Height) * HeightMap.HorizontalScale,
@@ -110,14 +112,37 @@ namespace OpenSage.Content
                 },
                 BufferUsage.UniformBuffer));
 
-            terrainMaterial.SetMaterialConstants(materialConstantsBuffer);
+            var macroTexture = LoadTexture(mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds");
+
+            var materialResourceSet = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateResourceSet(
+                new ResourceSetDescription(
+                    contentManager.ShaderLibrary.Terrain.ResourceLayouts[4],
+                    materialConstantsBuffer,
+                    tileDataTexture,
+                    cliffDetailsBuffer ?? contentManager.GetNullStructuredBuffer(CliffInfo.Size),
+                    textureDetailsBuffer,
+                    textureArray,
+                    macroTexture,
+                    contentManager.GraphicsDevice.Aniso4xSampler)));
+
+            var cloudTexture = LoadTexture(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
+
+            var cloudResoureLayout = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateResourceLayout(
+                new ResourceLayoutDescription(
+                    new ResourceLayoutElementDescription("Global_CloudTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
+
+            var cloudResourceSet = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateResourceSet(
+                new ResourceSetDescription(
+                    cloudResoureLayout,
+                    cloudTexture)));
 
             var terrain = new Terrain.Terrain(
                 heightMap,
                 terrainPatches,
-                cloudTexture,
-                macroTexture,
-                contentManager.SolidWhiteTexture);
+                contentManager.ShaderLibrary.Terrain,
+                terrainPipeline,
+                materialResourceSet,
+                cloudResourceSet);
 
             var players = Player.FromMapData(mapFile.SidesList.Players, contentManager).ToArray();
 
@@ -526,7 +551,6 @@ namespace OpenSage.Content
             GraphicsDevice graphicsDevice,
             HeightMap heightMap,
             BlendTileData blendTileData,
-            TerrainMaterial terrainMaterial,
             TerrainPatchIndexBufferCache indexBufferCache)
         {
             const int numTilesPerPatch = Terrain.Terrain.PatchSize - 1;
@@ -561,7 +585,6 @@ namespace OpenSage.Content
                         Math.Min(Terrain.Terrain.PatchSize, heightMap.Height - patchY));
 
                     patches.Add(CreatePatch(
-                        terrainMaterial,
                         heightMap,
                         blendTileData,
                         patchBounds,
@@ -574,7 +597,6 @@ namespace OpenSage.Content
         }
 
         private TerrainPatch CreatePatch(
-            TerrainMaterial terrainMaterial,
             HeightMap heightMap,
             BlendTileData blendTileData,
             Rectangle patchBounds,
@@ -595,7 +617,6 @@ namespace OpenSage.Content
                 out var triangles));
 
             return new TerrainPatch(
-                terrainMaterial,
                 patchBounds,
                 vertexBuffer,
                 indexBuffer,
@@ -614,7 +635,7 @@ namespace OpenSage.Content
         {
             var numVertices = patchBounds.Width * patchBounds.Height;
 
-            var vertices = new TerrainVertex[numVertices];
+            var vertices = new TerrainTypes.TerrainVertex[numVertices];
             var points = new Vector3[numVertices];
 
             var vertexIndex = 0;
@@ -624,7 +645,7 @@ namespace OpenSage.Content
                 {
                     var position = heightMap.GetPosition(x, y);
                     points[vertexIndex] = position;
-                    vertices[vertexIndex++] = new TerrainVertex
+                    vertices[vertexIndex++] = new TerrainTypes.TerrainVertex
                     {
                         Position = position,
                         Normal = heightMap.Normals[x, y],

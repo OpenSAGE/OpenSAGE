@@ -1,3 +1,7 @@
+#ifndef SHADOWS_H
+
+#define SHADOWS_H
+
 #extension GL_EXT_samplerless_texture_functions : enable
 
 #define NUM_CASCADES 4
@@ -21,6 +25,15 @@ struct ShadowConstantsPSType
     int NumSplits;
     float _Padding;
 };
+
+#define MAKE_GLOBAL_SHADOW_RESOURCES_PS(resourceSet) \
+    layout(set = resourceSet, binding = 0) uniform ShadowConstantsPS \
+    { \
+        ShadowConstantsPSType _ShadowConstantsPS; \
+    }; \
+    \
+    layout(set = resourceSet, binding = 1) uniform texture2DArray Global_ShadowMap; \
+    layout(set = resourceSet, binding = 2) uniform samplerShadow Global_ShadowSampler;
 
 float SampleShadowMap(
     texture2DArray shadowMap,
@@ -315,3 +328,5 @@ vec3 ShadowVisibility(
 
     return shadowVisibility;
 }
+
+#endif

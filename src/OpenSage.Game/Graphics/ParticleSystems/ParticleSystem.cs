@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
-using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Graphics.Util;
 using OpenSage.Mathematics;
 using OpenSage.Utilities.Extensions;
@@ -15,7 +14,6 @@ using Veldrid;
 
 namespace OpenSage.Graphics.ParticleSystems
 {
-
     public sealed class ParticleSystem : DisposableBase
     {
         public delegate ref readonly Matrix4x4 GetMatrixReferenceDelegate();
@@ -27,7 +25,10 @@ namespace OpenSage.Graphics.ParticleSystems
         private readonly FXParticleEmissionVelocityBase _velocityType;
         private readonly FXParticleEmissionVolumeBase _volumeType;
 
-        private readonly ParticleMaterial _particleMaterial;
+        private readonly ConstantBuffer<MeshTypes.RenderItemConstantsVS> _renderItemConstantsBufferVS;
+        private readonly ResourceSet _particleResourceSet;
+        private readonly ShaderSet _shaderSet;
+        private readonly Pipeline _pipeline;
 
         private int _initialDelay;
 
@@ -46,7 +47,7 @@ namespace OpenSage.Graphics.ParticleSystems
         private readonly List<int> _deadList;
 
         private readonly DeviceBuffer _vertexBuffer;
-        private readonly ParticleVertex[] _vertices;
+        private readonly ParticleTypes.ParticleVertex[] _vertices;
 
         private readonly DeviceBuffer _indexBuffer;
         private readonly uint _numIndices;
@@ -74,22 +75,23 @@ namespace OpenSage.Graphics.ParticleSystems
 
             _graphicsDevice = contentManager.GraphicsDevice;
 
-            _particleMaterial = AddDisposable(new ParticleMaterial(contentManager, contentManager.EffectLibrary.Particle));
+            _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<MeshTypes.RenderItemConstantsVS>(_graphicsDevice));
 
             _velocityType = Template.EmissionVelocity;
             _volumeType = Template.EmissionVolume;
 
             var texturePath = Path.Combine("Art", "Textures", Template.ParticleName);
             var texture = contentManager.Load<Texture>(texturePath);
-            _particleMaterial.SetTexture(texture);
 
-            var blendState = GetBlendState(Template.Shader);
+            _particleResourceSet = AddDisposable(_graphicsDevice.ResourceFactory.CreateResourceSet(
+                new ResourceSetDescription(
+                    contentManager.ShaderLibrary.Particle.ResourceLayouts[1],
+                    _renderItemConstantsBufferVS.Buffer,
+                    texture,
+                    _graphicsDevice.LinearSampler)));
 
-            _particleMaterial.PipelineState = new EffectPipelineState(
-                RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
-                DepthStencilStateDescription.DepthOnlyLessEqualRead,
-                blendState,
-                RenderPipeline.GameOutputDescription);
+            _shaderSet = contentManager.ShaderLibrary.Particle;
+            _pipeline = contentManager.ParticleResourceCache.GetPipeline(Template.Shader);
 
             _initialDelay = Template.InitialDelay.GetRandomInt();
 
@@ -134,10 +136,10 @@ namespace OpenSage.Graphics.ParticleSystems
             var numVertices = maxParticles * 4;
             _vertexBuffer = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateBuffer(
                 new BufferDescription(
-                    (uint) (ParticleVertex.VertexDescriptor.Stride * maxParticles * 4),
+                    (uint) (ParticleTypes.ParticleVertex.VertexDescriptor.Stride * maxParticles * 4),
                     BufferUsage.VertexBuffer | BufferUsage.Dynamic)));
 
-            _vertices = new ParticleVertex[numVertices];
+            _vertices = new ParticleTypes.ParticleVertex[numVertices];
 
             _indexBuffer = AddDisposable(CreateIndexBuffer(
                 contentManager.GraphicsDevice,
@@ -145,22 +147,6 @@ namespace OpenSage.Graphics.ParticleSystems
                 out _numIndices));
 
             State = ParticleSystemState.Active;
-        }
-
-        private static BlendStateDescription GetBlendState(ParticleSystemShader shader)
-        {
-            switch (shader)
-            {
-                case ParticleSystemShader.Alpha:
-                case ParticleSystemShader.AlphaTest: // TODO: proper implementation for AlphaTest
-                    return BlendStateDescription.SingleAlphaBlend;
-
-                case ParticleSystemShader.Additive:
-                    return BlendStateDescription.SingleAdditiveBlend;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(shader));
-            }
         }
 
         private static DeviceBuffer CreateIndexBuffer(GraphicsDevice graphicsDevice, int maxParticles, out uint numIndices)
@@ -382,7 +368,7 @@ namespace OpenSage.Graphics.ParticleSystems
             if (physics != null)
             {
                 particle.Velocity.Z += physics.Gravity;
-                totalVelocity += physics.DriftVelocity.ToVector3();
+                totalVelocity += physics.DriftVelocity;
             }
 
             particle.Position += totalVelocity;
@@ -459,7 +445,7 @@ namespace OpenSage.Graphics.ParticleSystems
             {
                 ref var particle = ref _particles[i];
 
-                var particleVertex = new ParticleVertex
+                var particleVertex = new ParticleTypes.ParticleVertex
                 {
                     Position = particle.Position,
                     Size = particle.Dead ? 0 : particle.Size,
@@ -479,43 +465,42 @@ namespace OpenSage.Graphics.ParticleSystems
             _graphicsDevice.UpdateBuffer(_vertexBuffer, 0, _vertices);
         }
 
-        public ref readonly Matrix4x4 GetWorldMatrix() => ref _getWorldMatrix();
-
-        public void BuildRenderList(RenderList renderList, in Matrix4x4 worldMatrix)
+        public void BuildRenderList(RenderList renderList)
         {
             if (_particles == null)
             {
                 return;
             }
 
+            ref readonly var worldMatrix = ref _getWorldMatrix();
+
+            var worldMatrixChanged = false;
+            if (worldMatrix != _renderItemConstantsBufferVS.Value.World)
+            {
+                _renderItemConstantsBufferVS.Value.World = worldMatrix;
+                worldMatrixChanged = true;
+            }
+
             renderList.Transparent.RenderItems.Add(new RenderItem(
-                _particleMaterial,
-                _vertexBuffer,
-                null,
-                CullFlags.None,
+                _shaderSet,
+                _pipeline,
                 BoundingBox.CreateFromSphere(new BoundingSphere(worldMatrix.Translation, 100)), // TODO
                 worldMatrix,
                 0,
                 _numIndices,
-                _indexBuffer));
+                _indexBuffer,
+                cl =>
+                {
+                    if (worldMatrixChanged)
+                    {
+                        _renderItemConstantsBufferVS.Update(cl);
+                    }
+
+                    cl.SetGraphicsResourceSet(1, _particleResourceSet);
+
+                    cl.SetVertexBuffer(0, _vertexBuffer);
+                }));
         }
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct ParticleVertex
-    {
-        public Vector3 Position;
-        public float Size;
-        public Vector3 Color;
-        public float Alpha;
-        public float AngleZ;
-
-        public static readonly VertexLayoutDescription VertexDescriptor = new VertexLayoutDescription(
-            new VertexElementDescription("POSITION", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-            new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float1),
-            new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-            new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float1),
-            new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float1));
     }
 
     public enum ParticleSystemState

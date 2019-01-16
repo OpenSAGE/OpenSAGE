@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 using OpenSage.Utilities.Extensions;
 using Veldrid;
@@ -21,7 +21,9 @@ namespace OpenSage.Terrain
         private readonly DeviceBuffer _indexBuffer;
         private readonly uint _numIndices;
 
-        private readonly RoadMaterial _material;
+        private readonly ShaderSet _shaderSet;
+        private readonly Pipeline _pipeline;
+        private readonly ResourceSet _resourceSet;
 
         internal Road(
             ContentManager contentManager,
@@ -42,7 +44,7 @@ namespace OpenSage.Terrain
 
             var textureAtlasSplit = 1 / 3f;
 
-            var vertices = new List<RoadVertex>();
+            var vertices = new List<RoadTypes.RoadVertex>();
 
             // Step along road segment in units of 10. If the delta between
             // (a) the straight line from previous point to finish and
@@ -57,7 +59,7 @@ namespace OpenSage.Terrain
                 var p0 = position - centerToEdgeDirection * halfWidth;
                 p0.Z += heightBias;
 
-                vertices.Add(new RoadVertex
+                vertices.Add(new RoadTypes.RoadVertex
                 {
                     Position = p0,
                     Normal = up,
@@ -67,7 +69,7 @@ namespace OpenSage.Terrain
                 var p1 = position + centerToEdgeDirection * halfWidth;
                 p1.Z += heightBias;
 
-                vertices.Add(new RoadVertex
+                vertices.Add(new RoadTypes.RoadVertex
                 {
                     Position = p1,
                     Normal = up,
@@ -122,39 +124,28 @@ namespace OpenSage.Terrain
                 indices.ToArray(),
                 BufferUsage.IndexBuffer));
 
-            _material = AddDisposable(new RoadMaterial(
-                contentManager,
-                contentManager.EffectLibrary.Road));
+            _shaderSet = contentManager.ShaderLibrary.Road;
+            _pipeline = contentManager.RoadResourceCache.Pipeline;
 
             var texture = contentManager.Load<Texture>(Path.Combine("Art", "Textures", template.Texture));
-            _material.SetTexture(texture);
+            _resourceSet = contentManager.RoadResourceCache.GetResourceSet(texture);
         }
 
         internal void BuildRenderList(RenderList renderList)
         {
             renderList.Opaque.RenderItems.Add(new RenderItem(
-                _material,
-                _vertexBuffer,
-                null,
-                CullFlags.None,
+                _shaderSet,
+                _pipeline,
                 _boundingBox,
                 Matrix4x4.Identity,
                 0,
                 _numIndices,
-                _indexBuffer));
+                _indexBuffer,
+                cl =>
+                {
+                    cl.SetGraphicsResourceSet(4, _resourceSet);
+                    cl.SetVertexBuffer(0, _vertexBuffer);
+                }));
         }
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct RoadVertex
-    {
-        public Vector3 Position;
-        public Vector3 Normal;
-        public Vector2 UV;
-
-        public static readonly VertexLayoutDescription VertexDescriptor = new VertexLayoutDescription(
-            new VertexElementDescription("POSITION", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-            new VertexElementDescription("NORMAL", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-            new VertexElementDescription("TEXCOORD", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
     }
 }

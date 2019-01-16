@@ -1,7 +1,12 @@
 #version 450
+#extension GL_GOOGLE_include_directive : enable
 
-layout(set = 0, binding = 3) uniform texture2D ParticleTexture;
-layout(set = 0, binding = 4) uniform sampler Sampler;
+#include "Common.h"
+
+MAKE_GLOBAL_CONSTANTS_RESOURCES_PS(0)
+
+layout(set = 1, binding = 1) uniform texture2D ParticleTexture;
+layout(set = 1, binding = 2) uniform sampler Sampler;
 
 layout(location = 0) in vec2 in_TexCoords;
 layout(location = 1) in vec3 in_Color;

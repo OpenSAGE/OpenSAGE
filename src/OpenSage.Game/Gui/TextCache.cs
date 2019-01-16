@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using OpenSage.Content;
 using OpenSage.Mathematics;
 using OpenSage.Utilities;
 using SixLabors.Fonts;
@@ -16,16 +14,54 @@ namespace OpenSage.Gui
 {
     internal sealed class TextCache : DisposableBase
     {
-        private struct TextKey
+        private readonly struct TextKey : IEquatable<TextKey>
         {
-            public string Text;
-            public Font Font;
-            public TextAlignment Alignment;
-            public ColorRgbaF Color;
-            public SizeF Size;
+            public readonly string Text;
+            public readonly Font Font;
+            public readonly TextAlignment Alignment;
+            public readonly ColorRgbaF Color;
+            public readonly SizeF Size;
+
+            public TextKey(string text, Font font, TextAlignment alignment, in ColorRgbaF color, in SizeF size)
+            {
+                Text = text;
+                Font = font;
+                Alignment = alignment;
+                Color = color;
+                Size = size;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is TextKey && Equals((TextKey) obj);
+            }
+
+            public bool Equals(TextKey other)
+            {
+                return
+                    Text == other.Text &&
+                    Font == other.Font &&
+                    Alignment == other.Alignment &&
+                    Color == other.Color &&
+                    Size == other.Size;
+            }
+
+            public override int GetHashCode()
+            {
+                return HashCode.Combine(Text, Font, Alignment, Color, Size);
+            }
+
+            public static bool operator ==(TextKey key1, TextKey key2)
+            {
+                return key1.Equals(key2);
+            }
+
+            public static bool operator !=(TextKey key1, TextKey key2)
+            {
+                return !(key1 == key2);
+            }
         }
 
-        private readonly ContentManager _contentManager;
         private readonly GraphicsDevice _graphicsDevice;
         private readonly Dictionary<TextKey, Texture> _cache;
 
@@ -37,10 +73,9 @@ namespace OpenSage.Gui
 
         private readonly ResourcePool<Image<Bgra32>, ImageKey> _textImagePool;
 
-        public TextCache(ContentManager contentManager)
+        public TextCache(GraphicsDevice graphicsDevice)
         {
-            _contentManager = contentManager;
-            _graphicsDevice = contentManager.GraphicsDevice;
+            _graphicsDevice = graphicsDevice;
 
             _cache = new Dictionary<TextKey, Texture>();
 
@@ -48,16 +83,14 @@ namespace OpenSage.Gui
                 new Image<Bgra32>(key.Width, key.Height)));
         }
 
-        public Texture GetTextTexture(string text, Font font, TextAlignment textAlignment, ColorRgbaF color, SizeF size)
+        public Texture GetTextTexture(
+            string text,
+            Font font,
+            TextAlignment textAlignment,
+            in ColorRgbaF color,
+            in SizeF size)
         {
-            var key = new TextKey
-            {
-                Text = text,
-                Font = font,
-                Alignment = textAlignment,
-                Color = color,
-                Size = size
-            };
+            var key = new TextKey(text, font, textAlignment, color, size);
 
             if (!_cache.TryGetValue(key, out var result))
             {

@@ -1,4 +1,4 @@
-﻿using OpenSage.Graphics.Effects;
+﻿using Veldrid;
 
 namespace OpenSage.Graphics
 {
@@ -7,20 +7,27 @@ namespace OpenSage.Graphics
         public uint StartIndex { get; }
         public uint IndexCount { get; }
 
-        public MeshMaterial Material { get; }
-        public MeshDepthMaterial DepthMaterial { get; }
+        internal readonly bool BlendEnabled;
+        internal readonly Pipeline Pipeline;
+        internal readonly ResourceSet MaterialResourceSet;
+        internal readonly Pipeline DepthPipeline;
 
         internal ModelMeshPart(
             uint startIndex, 
-            uint indexCount, 
-            MeshMaterial material,
-            MeshDepthMaterial depthMaterial)
+            uint indexCount,
+            bool blendEnabled,
+            Pipeline pipeline,
+            ResourceSet materialResourceSet,
+            Pipeline depthPipeline)
         {
             StartIndex = startIndex;
             IndexCount = indexCount;
 
-            Material = material;
-            DepthMaterial = depthMaterial;
+            BlendEnabled = blendEnabled;
+            Pipeline = pipeline;
+            MaterialResourceSet = materialResourceSet;
+
+            DepthPipeline = depthPipeline;
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 using Veldrid;
 
@@ -9,8 +10,9 @@ namespace OpenSage.Terrain
 {
     public sealed class Terrain
     {
-        private readonly Texture _macroTexture;
-        private readonly Texture _whiteTexture;
+        private readonly ShaderSet _shaderSet;
+        private readonly Pipeline _pipeline;
+        private readonly ResourceSet _materialResourceSet;
 
         internal const int PatchSize = 17;
 
@@ -18,25 +20,23 @@ namespace OpenSage.Terrain
 
         public IReadOnlyList<TerrainPatch> Patches { get; }
 
-        public Texture CloudTexture { get; }
-
-        public Texture WhiteTexture { get; }
-
-        public bool EnableMacroTexture { get; set; } = true;
+        public ResourceSet CloudResourceSet { get; }
 
         internal Terrain(
             HeightMap heightMap,
             List<TerrainPatch> patches,
-            Texture cloudTexture,
-            Texture macroTexture,
-            Texture whiteTexture)
+            ShaderSet shaderSet,
+            Pipeline pipeline,
+            ResourceSet materialResourceSet,
+            ResourceSet cloudResourceSet)
         {
             HeightMap = heightMap;
             Patches = patches;
-            CloudTexture = cloudTexture;
+            CloudResourceSet = cloudResourceSet;
 
-            _macroTexture = macroTexture;
-            _whiteTexture = whiteTexture;
+            _shaderSet = shaderSet;
+            _pipeline = pipeline;
+            _materialResourceSet = materialResourceSet;
         }
 
         public Vector3? Intersect(Ray ray)
@@ -62,7 +62,9 @@ namespace OpenSage.Terrain
             {
                 patch.BuildRenderList(
                     renderList,
-                    EnableMacroTexture ? _macroTexture : _whiteTexture);
+                    _shaderSet,
+                    _pipeline,
+                    _materialResourceSet);
             }
         }
     }
@@ -78,6 +80,8 @@ namespace OpenSage.Terrain
     [StructLayout(LayoutKind.Sequential)]
     public struct CliffInfo
     {
+        public const int Size = sizeof(float) * 8;
+
         public Vector2 BottomLeftUV;
         public Vector2 BottomRightUV;
         public Vector2 TopRightUV;

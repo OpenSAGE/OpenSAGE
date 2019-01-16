@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Graphics.Cameras;
-using OpenSage.Graphics.Effects;
 using OpenSage.Graphics.Rendering;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Utilities.Extensions;
@@ -22,10 +23,16 @@ namespace OpenSage.Graphics
     /// </summary>
     public sealed class ModelMesh : DisposableBase
     {
+        private readonly ShaderSet _shaderSet;
+        private readonly ShaderSet _depthShaderSet;
+
         private readonly DeviceBuffer _vertexBuffer;
         private readonly DeviceBuffer _indexBuffer;
 
-        private readonly ConstantBuffer<MeshMaterial.MeshConstants> _meshConstantsBuffer;
+        private readonly ConstantBuffer<MeshTypes.MeshConstants> _meshConstantsBuffer;
+        private readonly ResourceSet _meshConstantsResourceSet;
+
+        private readonly ResourceSet _samplerResourceSet;
 
         public string Name { get; }
 
@@ -39,8 +46,9 @@ namespace OpenSage.Graphics
         public bool CameraOriented { get; }
 
         internal ModelMesh(
-            GraphicsDevice graphicsDevice,
+            ContentManager contentManager,
             string name,
+            ShaderSet shaderSet,
             ReadOnlySpan<byte> vertexData,
             ushort[] indices,
             ModelMeshMaterialPass[] materialPasses,
@@ -52,6 +60,9 @@ namespace OpenSage.Graphics
         {
             Name = name;
 
+            _shaderSet = shaderSet;
+            _depthShaderSet = contentManager.ShaderLibrary.MeshDepth;
+
             BoundingBox = boundingBox;
 
             Skinned = isSkinned;
@@ -59,39 +70,39 @@ namespace OpenSage.Graphics
             Hidden = hidden;
             CameraOriented = cameraOriented;
 
+            var graphicsDevice = contentManager.GraphicsDevice;
+
             _vertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(vertexData, BufferUsage.VertexBuffer));
 
             _indexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
                 indices,
                 BufferUsage.IndexBuffer));
 
-            var commandEncoder = graphicsDevice.ResourceFactory.CreateCommandList();
+            var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
 
-            commandEncoder.Begin();
+            commandList.Begin();
 
-            _meshConstantsBuffer = AddDisposable(new ConstantBuffer<MeshMaterial.MeshConstants>(graphicsDevice));
+            _meshConstantsBuffer = AddDisposable(new ConstantBuffer<MeshTypes.MeshConstants>(graphicsDevice));
             _meshConstantsBuffer.Value.SkinningEnabled = isSkinned;
             _meshConstantsBuffer.Value.HasHouseColor = hasHouseColor;
-            _meshConstantsBuffer.Update(commandEncoder);
+            _meshConstantsBuffer.Update(commandList);
 
-            commandEncoder.End();
+            commandList.End();
 
-            graphicsDevice.SubmitCommands(commandEncoder);
+            graphicsDevice.SubmitCommands(commandList);
 
-            graphicsDevice.DisposeWhenIdle(commandEncoder);
+            graphicsDevice.DisposeWhenIdle(commandList);
+
+            _meshConstantsResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
+                new ResourceSetDescription(
+                    contentManager.ShaderLibrary.FixedFunction.ResourceLayouts[4],
+                    _meshConstantsBuffer.Buffer)));
+
+            _samplerResourceSet = contentManager.FixedFunctionResourceCache.SamplerResourceSet;
 
             foreach (var materialPass in materialPasses)
             {
                 AddDisposable(materialPass);
-
-                foreach (var meshPart in materialPass.MeshParts)
-                {
-                    AddDisposable(meshPart.Material);
-                    meshPart.Material.SetMeshConstants(_meshConstantsBuffer.Buffer);
-
-                    AddDisposable(meshPart.DepthMaterial);
-                    meshPart.DepthMaterial.SetMeshConstants(_meshConstantsBuffer.Buffer);
-                }
             }
             MaterialPasses = materialPasses;
         }
@@ -172,45 +183,65 @@ namespace OpenSage.Graphics
             {
                 foreach (var meshPart in materialPass.MeshParts)
                 {
-                    var blendEnabled = meshPart.Material.PipelineState.BlendState.AttachmentStates[0].BlendEnabled;
+                    var blendEnabled = meshPart.BlendEnabled;
 
                     // Depth pass
 
                     // TODO: With more work, we could draw shadows for translucent and alpha-tested materials.
                     if (!blendEnabled && castsShadow)
                     {
-                        meshPart.DepthMaterial.SetSkinningBuffer(modelInstance.SkinningBuffer);
+                        //meshPart.DepthMaterial.SetSkinningBuffer(modelInstance.SkinningBuffer);
 
                         renderList.Shadow.RenderItems.Add(new RenderItem(
-                           meshPart.DepthMaterial,
-                           _vertexBuffer,
-                           materialPass.TexCoordVertexBuffer,
-                           CullFlags.None,
+                           _depthShaderSet,
+                           meshPart.DepthPipeline,
                            meshBoundingBox,
                            world,
                            meshPart.StartIndex,
                            meshPart.IndexCount,
-                           _indexBuffer));
+                           _indexBuffer,
+                           cl =>
+                           {
+                               cl.SetGraphicsResourceSet(1, _meshConstantsResourceSet);
+                               cl.SetGraphicsResourceSet(3, modelInstance.SkinningBufferResourceSet);
+
+                               cl.SetVertexBuffer(0, _vertexBuffer);
+
+                               if (materialPass.TexCoordVertexBuffer != null)
+                               {
+                                   cl.SetVertexBuffer(1, materialPass.TexCoordVertexBuffer);
+                               }
+                           }));
                     }
 
                     // Standard pass
-
-                    meshPart.Material.SetSkinningBuffer(modelInstance.SkinningBuffer);
 
                     var renderQueue = blendEnabled
                         ? renderList.Transparent
                         : renderList.Opaque;
 
                     renderQueue.RenderItems.Add(new RenderItem(
-                        meshPart.Material,
-                        _vertexBuffer,
-                        materialPass.TexCoordVertexBuffer,
-                        CullFlags.None,
+                        _shaderSet,
+                        meshPart.Pipeline,
                         meshBoundingBox,
                         world,
                         meshPart.StartIndex,
                         meshPart.IndexCount,
                         _indexBuffer,
+                        cl =>
+                        {
+                            cl.SetGraphicsResourceSet(4, _meshConstantsResourceSet);
+                            cl.SetGraphicsResourceSet(5, meshPart.MaterialResourceSet);
+                            cl.SetGraphicsResourceSet(6, _samplerResourceSet);
+                            cl.SetGraphicsResourceSet(8, modelInstance.SkinningBufferResourceSet);
+
+                            cl.SetVertexBuffer(0, _vertexBuffer);
+
+                            if (materialPass.TexCoordVertexBuffer != null)
+                            {
+                                cl.SetVertexBuffer(1, materialPass.TexCoordVertexBuffer);
+                            }
+                        },
                         owner?.Color));
                 }
             }

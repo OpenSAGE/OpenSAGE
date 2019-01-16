@@ -7,32 +7,7 @@
 #include "Shadows.h"
 #include "Mesh.h"
 
-layout(set = 0, binding = 0) uniform GlobalConstantsShared
-{
-    GlobalConstantsSharedType _GlobalConstantsShared;
-};
-
-layout(set = 0, binding = 3) uniform MeshConstants
-{
-    MeshConstantsType _MeshConstants;
-};
-
-layout(set = 0, binding = 6) uniform GlobalConstantsPS
-{
-    GlobalConstantsPSType _GlobalConstantsPS;
-};
-
-layout(set = 0, binding = 7) uniform GlobalLightingConstantsPS
-{
-    GlobalLightingConstantsPSType _GlobalLightingConstantsPS;
-};
-
-layout(set = 0, binding = 8) uniform texture2D Global_CloudTexture;
-
-layout(set = 0, binding = 9) uniform RenderItemConstantsPS
-{
-    RenderItemConstantsPSType _RenderItemConstantsPS;
-};
+MAKE_MESH_RESOURCES_PS()
 
 #define TEXTURE_MAPPING_UV                 0
 #define TEXTURE_MAPPING_ENVIRONMENT        1
@@ -111,7 +86,7 @@ struct ShadingConfiguration
     vec2 _Padding;
 };
 
-layout(set = 0, binding = 10) uniform MaterialConstants
+layout(set = MESH_MATERIAL_RESOURCE_SET, binding = 0) uniform MaterialConstants
 {
     vec3 _Padding;
 
@@ -121,17 +96,8 @@ layout(set = 0, binding = 10) uniform MaterialConstants
     ShadingConfiguration Shading;
 } _MaterialConstants;
 
-layout(set = 0, binding = 11) uniform texture2D Texture0;
-layout(set = 0, binding = 12) uniform texture2D Texture1;
-layout(set = 0, binding = 13) uniform sampler Sampler;
-
-layout(set = 0, binding = 14) uniform ShadowConstantsPS
-{
-    ShadowConstantsPSType _ShadowConstantsPS;
-};
-
-layout(set = 0, binding = 15) uniform texture2DArray Global_ShadowMap;
-layout(set = 0, binding = 16) uniform samplerShadow Global_ShadowSampler;
+layout(set = MESH_MATERIAL_RESOURCE_SET, binding = 1) uniform texture2D Texture0;
+layout(set = MESH_MATERIAL_RESOURCE_SET, binding = 2) uniform texture2D Texture1;
 
 layout(location = 0) in vec3 in_WorldPosition;
 layout(location = 1) in vec3 in_WorldNormal;
