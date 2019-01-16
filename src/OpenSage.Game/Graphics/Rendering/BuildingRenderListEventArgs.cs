@@ -5,22 +5,14 @@ namespace OpenSage.Graphics.Rendering
 {
     public sealed class BuildingRenderListEventArgs : EventArgs
     {
-        public RenderList RenderList { get; }
-        public Camera Camera { get; }
+        public readonly RenderList RenderList;
+        public readonly Camera Camera;
+        public readonly GameTime GameTime;
 
-        public BuildingRenderListEventArgs(RenderList renderList, Camera camera)
+        internal BuildingRenderListEventArgs(RenderList renderList, Camera camera, in GameTime gameTime)
         {
             RenderList = renderList;
             Camera = camera;
-        }
-    }
-
-    public sealed class GameUpdatingEventArgs : EventArgs
-    {
-        public GameTime GameTime { get; }
-
-        public GameUpdatingEventArgs(GameTime gameTime)
-        {
             GameTime = gameTime;
         }
     }

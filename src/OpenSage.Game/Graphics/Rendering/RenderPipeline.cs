@@ -112,11 +112,15 @@ namespace OpenSage.Graphics.Rendering
 
             _renderList.Clear();
 
-            context.Scene3D?.BuildRenderList(_renderList, context.Scene3D.Camera);
+            context.Scene3D?.BuildRenderList(
+                _renderList,
+                context.Scene3D.Camera,
+                context.GameTime);
 
             BuildingRenderList?.Invoke(this, new BuildingRenderListEventArgs(
                 _renderList,
-                context.Scene3D?.Camera));
+                context.Scene3D?.Camera,
+                context.GameTime));
 
             _commandList.Begin();
 

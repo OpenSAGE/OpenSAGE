@@ -22,20 +22,11 @@ namespace OpenSage.Diagnostics.AssetViews
                 particleSystemTemplate,
                 () => ref WorldIdentity));
 
-            void OnUpdating(object sender, GameUpdatingEventArgs e)
-            {
-                particleSystem.Update(e.GameTime);
-            }
-
-            game.Updating += OnUpdating;
-
-            AddDisposeAction(() => game.Updating -= OnUpdating);
-
             _renderedView = AddDisposable(new RenderedView(context));
 
             void onBuildingRenderList(object sender, BuildingRenderListEventArgs e)
             {
-                particleSystem.BuildRenderList(e.RenderList);
+                particleSystem.BuildRenderList(e.RenderList, e.GameTime);
             }
 
             _renderedView.RenderPipeline.BuildingRenderList += onBuildingRenderList;

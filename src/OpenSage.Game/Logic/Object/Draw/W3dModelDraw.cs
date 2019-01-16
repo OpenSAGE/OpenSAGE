@@ -252,11 +252,6 @@ namespace OpenSage.Logic.Object
         public void Update(GameTime gameTime)
         {
             _modelInstance.Update(gameTime);
-
-            foreach (var attachedParticleSystem in AttachedParticleSystems)
-            {
-                attachedParticleSystem.ParticleSystem.Update(gameTime);
-            }
         }
 
         public void SetWorldMatrix(in Matrix4x4 worldMatrix)

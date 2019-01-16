@@ -15,14 +15,15 @@ namespace OpenSage.Graphics.ParticleSystems
             _deadParticleSystems = new List<AttachedParticleSystem>();
         }
 
-        public void Update(GameTime gameTime)
+        public void BuildRenderList(RenderList renderList, in GameTime gameTime)
         {
             // TODO: This could be more efficient if we knew upfront about all particle systems.
+            // TODO: Keep particle count under GameData.MaxParticleCount
             foreach (var attachedParticleSystem in _scene.GetAllAttachedParticleSystems())
             {
                 var particleSystem = attachedParticleSystem.ParticleSystem;
 
-                particleSystem.Update(gameTime);
+                particleSystem.BuildRenderList(renderList, gameTime);
 
                 if (particleSystem.State == ParticleSystemState.Dead)
                 {
@@ -36,15 +37,6 @@ namespace OpenSage.Graphics.ParticleSystems
             }
 
             _deadParticleSystems.Clear();
-        }
-
-        public void BuildRenderList(RenderList renderList)
-        {
-            // TODO: Keep particle count under GameData.MaxParticleCount
-            foreach (var attachedParticleSystem in _scene.GetAllAttachedParticleSystems())
-            {
-                attachedParticleSystem.ParticleSystem.BuildRenderList(renderList);
-            }
         }
     }
 }
