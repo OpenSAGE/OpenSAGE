@@ -17,12 +17,12 @@ namespace OpenSage.Graphics
         /// <summary>
         /// Bone transforms relative to root bone.
         /// </summary>
-        internal Matrix4x4[] RelativeBoneTransforms;
+        internal readonly Matrix4x4[] RelativeBoneTransforms;
 
         /// <summary>
         /// Bone transforms in world space.
         /// </summary>
-        internal Matrix4x4[] AbsoluteBoneTransforms;
+        internal readonly Matrix4x4[] AbsoluteBoneTransforms;
 
         private Matrix4x4 _worldMatrix;
 
@@ -30,7 +30,7 @@ namespace OpenSage.Graphics
         /// Calculated bone visibilities. Child bones will be hidden
         /// if their parent bones are hidden.
         /// </summary>
-        internal bool[] BoneVisibilities;
+        internal readonly bool[] BoneVisibilities;
 
         private readonly bool _hasSkinnedMeshes;
 
@@ -40,11 +40,11 @@ namespace OpenSage.Graphics
 
         internal readonly ResourceSet SkinningBufferResourceSet;
 
-        public Model Model { get; }
+        public readonly Model Model;
 
-        public ModelBoneInstance[] ModelBoneInstances { get; }
+        public readonly ModelBoneInstance[] ModelBoneInstances;
 
-        public List<AnimationInstance> AnimationInstances { get; }
+        public readonly List<AnimationInstance> AnimationInstances;
 
         internal ModelInstance(Model model, ContentManager contentManager)
         {
@@ -142,11 +142,14 @@ namespace OpenSage.Graphics
 
         public void SetWorldMatrix(in Matrix4x4 worldMatrix)
         {
-            _worldMatrix = worldMatrix;
-
-            for (var i = 0; i < Model.BoneHierarchy.Bones.Length; i++)
+            if (worldMatrix != _worldMatrix)
             {
-                AbsoluteBoneTransforms[i] = RelativeBoneTransforms[i] * worldMatrix;
+                _worldMatrix = worldMatrix;
+
+                for (var i = 0; i < Model.BoneHierarchy.Bones.Length; i++)
+                {
+                    AbsoluteBoneTransforms[i] = RelativeBoneTransforms[i] * worldMatrix;
+                }
             }
         }
 
