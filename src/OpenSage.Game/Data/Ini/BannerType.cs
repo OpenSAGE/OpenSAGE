@@ -17,7 +17,8 @@ namespace OpenSage.Data.Ini
             { "FlagObj", (parser, x) => x.FlagObj = parser.ParseAssetReference() },
             { "GlowObj", (parser, x) => x.GlowObj = parser.ParseAssetReference() },
             { "WipeMovie", (parser, x) => x.WipeMovie = parser.ParseAssetReference() },
-            { "WipeFrame", (parser, x) => x.WipeFrame = parser.ParseInteger() }
+            { "WipeFrame", (parser, x) => x.WipeFrame = parser.ParseInteger() },
+            { "Icon", (parser, x) => x.Icon = parser.ParseAssetReference() },
         };
 
         public string Name { get; private set; }
@@ -26,5 +27,8 @@ namespace OpenSage.Data.Ini
         public string GlowObj { get; private set; }
         public string WipeMovie { get; private set; }
         public int WipeFrame { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string Icon { get; private set; }
     }
 }

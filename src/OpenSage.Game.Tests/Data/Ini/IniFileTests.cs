@@ -34,7 +34,7 @@ namespace OpenSage.Tests.Data.Ini
                 {
                     var filename = Path.GetFileName(entry.FilePath).ToLowerInvariant();
 
-                    if (filename != "ingameui.ini") return;
+                    if (filename != "eva.ini") return;
                     /*
                     // TODO:implement missing stuff
                     if (gameDefinition.Game == SageGame.Bfme2)
@@ -46,13 +46,10 @@ namespace OpenSage.Tests.Data.Ini
 
 
                             case "awardsystem.ini":
-                            case "bannerui.ini":
                             case "riskcampaign.ini":
-                            case "crate.ini":
                             case "createaherosystem.ini":
                             case "crowdresponse.ini":
                             case "aidata.ini":
-                            case "eva.ini":
                             case "skirmishaidata.ini":
                             case "emotions.ini":
                             case "experiencelevels.ini":
@@ -62,7 +59,6 @@ namespace OpenSage.Tests.Data.Ini
                             case "gamelod.ini":
                             case "gamelodpresets.ini":
                             case "ingamenotificationbox.ini":
-                            case "largegroupaudio.ini":
                             case "linearcampaign.ini":
                             case "meshinstancingmanager.ini":
                             case "scoredkillevaannouncer.ini":

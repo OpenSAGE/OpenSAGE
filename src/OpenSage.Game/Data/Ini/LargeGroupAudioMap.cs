@@ -51,10 +51,14 @@ namespace OpenSage.Data.Ini
         {
             { "Sound", (parser, x) => x.Sound = parser.ParseAssetReference() },
             { "Key", (parser, x) => x.Keys.AddRange(parser.ParseAssetReferenceArray()) },
+            { "Duck", (parser, x) => x.Duck = Duck.Parse(parser) }
         };
 
         public string Sound { get; private set; }
         public List<string> Keys { get; } = new List<string>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public Duck Duck { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -68,5 +72,22 @@ namespace OpenSage.Data.Ini
         };
 
         public List<string> Keys { get; } = new List<string>();
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public sealed class Duck
+    {
+        internal static Duck Parse(IniParser parser) => parser.ParseAttributeList(FieldParseTable);
+
+        internal static readonly IniParseTable<Duck> FieldParseTable = new IniParseTable<Duck>
+        {
+            { "AudioMap", (parser, x) => x.AudioMap = parser.ParseAssetReference() },
+            { "Sound", (parser, x) => x.Sound = parser.ParseAssetReference() },
+            { "Multiplier", (parser, x) => x.Multiplier = parser.ParsePercentage() }
+        };
+
+        public string AudioMap { get; private set; }
+        public string Sound { get; private set; }
+        public float Multiplier { get; private set; }
     }
 }

@@ -16,6 +16,7 @@ namespace OpenSage.Logic.Object
             { "CountAsFirstSightedAnnoucement", (parser, x) => x.CountAsFirstSightedAnnoucement = parser.ParseBoolean() },
             { "UseObjectsPosition", (parser, x) => x.UseObjectsPosition = parser.ParseBoolean() },
             { "CreateFakeRadarEvent", (parser, x) => x.CreateFakeRadarEvent = parser.ParseBoolean() },
+            { "DelayBeforeAnnouncementMS", (parser, x) => x.DelayBeforeAnnouncementMS = parser.ParseInteger() }
         };
 
         public string AnnouncementEventEnemy { get; private set; }
@@ -25,5 +26,6 @@ namespace OpenSage.Logic.Object
         public bool CountAsFirstSightedAnnoucement { get; private set; }
         public bool UseObjectsPosition { get; private set; }
         public bool CreateFakeRadarEvent { get; private set; }
+        public int DelayBeforeAnnouncementMS { get; private set; }
     }
 }

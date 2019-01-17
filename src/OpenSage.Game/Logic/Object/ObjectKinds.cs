@@ -770,6 +770,9 @@
         [IniEnum("THREAT_FINDER"), AddedIn(SageGame.Bfme2)]
         ThreatFinder,
 
+        [IniEnum("ONE_RING"), AddedIn(SageGame.Bfme2)]
+        OneRing,
+
         [IniEnum("SUPPORT"), AddedIn(SageGame.Bfme2Rotwk)]
         Support,
 
