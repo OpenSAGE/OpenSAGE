@@ -1,6 +1,7 @@
 ﻿using OpenSage.Data.Ini.Parser;
 using System.Numerics;
 using OpenSage.Mathematics;
+using System.Collections.Generic;
 
 namespace OpenSage.Data.Ini
 {
@@ -83,6 +84,34 @@ namespace OpenSage.Data.Ini
             { "ArmySoldierSmall", (parser, x) => x.ArmySoldierSmall = parser.ParseAssetReference() },
 
             { "EyeTower", (parser, x) => x.EyeTower = EyeTower.Parse(parser) },
+            { "NumWorldTiles", (parser, x) => x.NumWorldTiles = parser.ParseInteger() },
+            { "AddShadowSubObject", (parser, x) => x.ShadowSubObjects.Add(parser.ParseAssetReference()) },
+            { "AptCenter", (parser, x) => x.AptCenter = parser.ParseVector2() },
+            { "AptZoom", (parser, x) => x.AptZoom = parser.ParseFloat() },
+            { "AptPitch", (parser, x) => x.AptPitch = parser.ParseFloat() },
+            { "ClickScrollThreshold", (parser, x) => x.ClickScrollThreshold = parser.ParseInteger() },
+            { "MouseWheelZoomPerTick", (parser, x) => x.MouseWheelZoomPerTick = parser.ParseFloat() },
+            { "MouseWheelZoomDampenFactor", (parser, x) => x.MouseWheelZoomDampenFactor = parser.ParseFloat() },
+            { "AutoScrollSpeed", (parser, x) => x.AutoScrollSpeed = parser.ParseFloat() },
+            { "MaxAutoScrollTime", (parser, x) => x.MaxAutoScrollTime = parser.ParseFloat() },
+            { "NumPointsPerArmyLine", (parser, x) => x.NumPointsPerArmyLine = parser.ParseInteger() },
+            { "ArmyLineHeightBias", (parser, x) => x.ArmyLineHeightBias = parser.ParseFloat() },
+            { "ArmyLineWidth", (parser, x) => x.ArmyLineWidth = parser.ParseFloat() },
+            { "ArmyLineColorAttacking", (parser, x) => x.ArmyLineColorAttacking  = parser.ParseColorRgb() },
+            { "ArmyLineColorNeutral", (parser, x) => x.ArmyLineColorNeutral  = parser.ParseColorRgb() },
+            { "ArmyLineColorAllied", (parser, x) => x.ArmyLineColorAllied  = parser.ParseColorRgb() },
+            { "ArmyLineTextureName", (parser, x) => x.ArmyLineTextureName = parser.ParseAssetReference() },
+            { "MenBanner", (parser, x) => x.MenBanner = parser.ParseAssetReference() },
+            { "ElvesBanner", (parser, x) => x.ElvesBanner = parser.ParseAssetReference() },
+            { "DwarvesBanner", (parser, x) => x.DwarvesBanner = parser.ParseAssetReference() },
+            { "WildBanner", (parser, x) => x.WildBanner = parser.ParseAssetReference() },
+            { "MenAnts", (parser, x) => x.MenAnts = parser.ParseAssetReference() },
+            { "ElvesAnts", (parser, x) => x.ElvesAnts = parser.ParseAssetReference() },
+            { "DwarvesAnts", (parser, x) => x.DwarvesAnts = parser.ParseAssetReference() },
+            { "WildAnts", (parser, x) => x.WildAnts = parser.ParseAssetReference() },
+            { "DefaultArmyMoveSpeed", (parser, x) => x.DefaultArmyMoveSpeed = parser.ParseFloat() },
+            { "HeroArmyIconDiameter", (parser, x) => x.HeroArmyIconDiameter = parser.ParseFloat() },
+            { "RegionAwardDisputeMarker", (parser, x) => x.RegionAwardDisputeMarker = parser.ParseAssetReference() },
         };
 
         public string MapObject { get; private set; }
@@ -165,6 +194,90 @@ namespace OpenSage.Data.Ini
         public string ArmySoldierMedium { get; private set; }
         public string ArmySoldierSmall { get; private set; }
         public EyeTower EyeTower { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int NumWorldTiles { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<string> ShadowSubObjects { get; } = new List<string>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public Vector2 AptCenter { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float AptZoom { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float AptPitch { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int ClickScrollThreshold { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float MouseWheelZoomPerTick { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float MouseWheelZoomDampenFactor { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float AutoScrollSpeed { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float MaxAutoScrollTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int NumPointsPerArmyLine { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float ArmyLineHeightBias { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float ArmyLineWidth { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ColorRgb ArmyLineColorAttacking { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ColorRgb ArmyLineColorNeutral { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ColorRgb ArmyLineColorAllied { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string ArmyLineTextureName { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string MenBanner { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string ElvesBanner { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string DwarvesBanner { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string WildBanner { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string MenAnts { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string ElvesAnts { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string DwarvesAnts { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string WildAnts { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float DefaultArmyMoveSpeed { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float HeroArmyIconDiameter { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string RegionAwardDisputeMarker { get; private set; }
     }
 
     public sealed class EyeTower

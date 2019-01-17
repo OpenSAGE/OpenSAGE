@@ -34,7 +34,7 @@ namespace OpenSage.Tests.Data.Ini
                 {
                     var filename = Path.GetFileName(entry.FilePath).ToLowerInvariant();
 
-                    if (filename != "emotions.ini") return;
+                    if (filename != "livingworldteststructures.ini") return;
                     /*
                     // TODO:implement missing stuff
                     if (gameDefinition.Game == SageGame.Bfme2)
@@ -64,8 +64,6 @@ namespace OpenSage.Tests.Data.Ini
 
 
 
-
-                            case "livingworld.ini":
                             case "livingworldaitemplate.ini":
                             case "livingworldautoresolvearmor.ini":
                             case "livingworldautoresolvebody.ini":
@@ -81,13 +79,6 @@ namespace OpenSage.Tests.Data.Ini
                             case "livingworldbuildploticons.ini":
                             case "livingworldplayers.ini":
                             case "livingworldregioneffects.ini":
-                            case "livingworldteststructures.ini":
-                            case "dwarficons.ini":
-                            case "elficons.ini":
-                            case "isengardicons.ini":
-                            case "mordoricons.ini":
-                            case "mowicons.ini":
-                            case "wildicons.ini":
                                 return;
                         }
                     }
