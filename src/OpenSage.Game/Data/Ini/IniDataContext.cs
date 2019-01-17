@@ -46,7 +46,7 @@ namespace OpenSage.Data.Ini
         public List<DynamicGameLod> DynamicGameLods { get; } = new List<DynamicGameLod>();
         public List<EmotionNugget> EmotionNuggets { get; } = new List<EmotionNugget>();
         public Environment Environment { get; } = new Environment();
-        public List<EvaEvent> EvaEvents { get; } = new List<EvaEvent>();
+        public Dictionary<string, EvaEvent> EvaEvents { get; } = new Dictionary<string, EvaEvent>();
         public List<ExperienceLevel> ExperienceLevels { get; } = new List<ExperienceLevel>();
         public List<ExperienceScalarTable> ExperienceScalarTables { get; } = new List<ExperienceScalarTable>();
         public List<FactionVictoryData> FactionVictoryDatas { get; } = new List<FactionVictoryData>();

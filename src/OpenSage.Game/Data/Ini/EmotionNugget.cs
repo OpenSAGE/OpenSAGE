@@ -31,6 +31,8 @@ namespace OpenSage.Data.Ini
             { "AILockDuration", (parser, x) => x.AILockDuration = parser.ParseInteger() },
             { "AIState", (parser, x) => x.AIState = parser.ParseEnum<EmotionAIType>() },
             { "ModelConditions", (parser, x) => x.ModelConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
+            { "ModelConditionsClear", (parser, x) => x.ModelConditionsClear = parser.ParseEnumBitArray<ModelConditionFlag>() },
+            { "PreventPlayerCommands", (parser, x) => x.PreventPlayerCommands = parser.ParseBoolean() }
         };
 
         public string Name { get; private set; }
@@ -51,6 +53,12 @@ namespace OpenSage.Data.Ini
         public int AILockDuration { get; private set; }
         public EmotionAIType AIState { get; private set; }
         public BitArray<ModelConditionFlag> ModelConditions { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public BitArray<ModelConditionFlag> ModelConditionsClear { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool PreventPlayerCommands { get; private set; }
     }
 
     public enum EmotionType
@@ -89,6 +97,12 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("OVERRIDE"), AddedIn(SageGame.Bfme)]
         Override,
+
+        [IniEnum("CHEER_FOR_ABOUT_TO_CRUSH"), AddedIn(SageGame.Bfme2)]
+        CheerForAboutToCrush,
+
+        [IniEnum("BRACE_FOR_BEING_CRUSHED"), AddedIn(SageGame.Bfme2)]
+        BraceForBeingCrushed,
     }
 
     public enum EmotionAIType

@@ -1077,5 +1077,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("EMOTION_DISSIDENT"), AddedIn(SageGame.Bfme2)]
         EmotionDissident,
+
+        [IniEnum("EMOTION_CHEER_FOR_ABOUT_TO_CRUSH"), AddedIn(SageGame.Bfme2)]
+        EmotionCheerForAboutToCrush,
+
+        [IniEnum("EMOTION_BRACE_FOR_BEING_CRUSHED"), AddedIn(SageGame.Bfme2)]
+        EmotionBraceForBeingCrushed,
     }
 }

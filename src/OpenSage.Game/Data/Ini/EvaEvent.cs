@@ -26,10 +26,11 @@ namespace OpenSage.Data.Ini
 
             { "AlwaysPlayFromHomeBase", (parser, x) => x.AlwaysPlayFromHomeBase = parser.ParseBoolean() },
             { "CountAsJumpToLocation", (parser, x) => x.CountAsJumpToLocation = parser.ParseBoolean() },
-            { "MillisecondsToWaitBeforePlaying", (parser, x) => x.MillisecondsToWaitBeforePlaying = parser.ParseInteger() }
+            { "MillisecondsToWaitBeforePlaying", (parser, x) => x.MillisecondsToWaitBeforePlaying = parser.ParseInteger() },
+            { "OtherEvaEventsToBlock", (parser, x) => x.OtherEvaEventsToBlock = parser.ParseAssetReference() }
         };
 
-        public string Name { get; private set; }
+        public string Name { get; internal set; }
 
         public int Priority { get; private set; }
         public int TimeBetweenChecksMS { get; private set; }
@@ -52,6 +53,9 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public int MillisecondsToWaitBeforePlaying { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string OtherEvaEventsToBlock { get; private set; }
     }
 
     public sealed class EvaSideSound
