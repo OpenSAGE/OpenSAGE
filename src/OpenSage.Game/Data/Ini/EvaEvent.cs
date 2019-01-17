@@ -21,9 +21,12 @@ namespace OpenSage.Data.Ini
             { "QuietTimeMS", (parser, x) => x.QuietTimeMS = parser.ParseInteger() },
 
             { "SideSounds", (parser, x) => x.SideSounds.Add(EvaSideSound.Parse(parser)) },
-
             // BFME
             { "SideSound", (parser, x) => x.SideSounds.Add(EvaSideSound.Parse(parser)) },
+
+            { "AlwaysPlayFromHomeBase", (parser, x) => x.AlwaysPlayFromHomeBase = parser.ParseBoolean() },
+            { "CountAsJumpToLocation", (parser, x) => x.CountAsJumpToLocation = parser.ParseBoolean() },
+            { "MillisecondsToWaitBeforePlaying", (parser, x) => x.MillisecondsToWaitBeforePlaying = parser.ParseInteger() }
         };
 
         public string Name { get; private set; }
@@ -40,6 +43,15 @@ namespace OpenSage.Data.Ini
         public int QuietTimeMS { get; private set; }
 
         public List<EvaSideSound> SideSounds { get; } = new List<EvaSideSound>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool AlwaysPlayFromHomeBase { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool CountAsJumpToLocation { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int MillisecondsToWaitBeforePlaying { get; private set; }
     }
 
     public sealed class EvaSideSound

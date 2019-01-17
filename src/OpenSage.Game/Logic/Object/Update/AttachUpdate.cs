@@ -13,7 +13,11 @@ namespace OpenSage.Logic.Object
             { "ObjectFilter", (parser, x) => x.ObjectFilter = ObjectFilter.Parse(parser) },
             { "ScanRange", (parser, x) => x.ScanRange = parser.ParseInteger() },
             { "AlwaysTeleport", (parser, x) => x.AlwaysTeleport = parser.ParseBoolean() },
-            { "AnchorToTopOfGeometry", (parser, x) => x.AnchorToTopOfGeometry = parser.ParseBoolean() }
+            { "AnchorToTopOfGeometry", (parser, x) => x.AnchorToTopOfGeometry = parser.ParseBoolean() },
+            { "ParentStatus", (parser, x) => x.ParentStatus = parser.ParseEnum<ObjectStatus>() },
+            { "ParentOwnerAttachmentEvaEvent", (parser, x) => x.ParentOwnerAttachmentEvaEvent = parser.ParseAssetReference() },
+            { "ParentEnemyAttachmentEvaEvent", (parser, x) => x.ParentEnemyAttachmentEvaEvent = parser.ParseAssetReference() },
+            { "ParentOwnerDiedEvaEvent", (parser, x) => x.ParentOwnerDiedEvaEvent = parser.ParseAssetReference() }
         };
 
         public ObjectFilter ObjectFilter { get; private set; }
@@ -24,5 +28,10 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public bool AnchorToTopOfGeometry { get; private set; }
+
+        public ObjectStatus ParentStatus { get; private set; }
+        public string ParentOwnerAttachmentEvaEvent { get; private set; }
+        public string ParentEnemyAttachmentEvaEvent { get; private set; }
+        public string ParentOwnerDiedEvaEvent { get; private set; }
     }
 }
