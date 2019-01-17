@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Data.Ini
 {
@@ -22,6 +23,7 @@ namespace OpenSage.Data.Ini
             { "HasAnim", (parser, x) => x.HasAnim = parser.ParseBoolean() },
             { "Xfer", (parser, x) => x.Xfer = parser.ParseBoolean() },
             { "OrientAngle", (parser, x) => x.OrientAngle = parser.ParseFloat() },
+            { "Shadow", (parser, x) => x.Shadow = parser.ParseEnum<ObjectShadowType>() }
         };
 
         public string Name { get; private set; }
@@ -32,5 +34,8 @@ namespace OpenSage.Data.Ini
         public bool HasAnim { get; private set; }
         public bool Xfer { get; private set; }
         public float OrientAngle { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ObjectShadowType Shadow { get; private set; }
     }
 }

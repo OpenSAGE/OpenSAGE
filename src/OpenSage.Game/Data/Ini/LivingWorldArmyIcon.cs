@@ -18,6 +18,8 @@ namespace OpenSage.Data.Ini
             { "WelcomeReinforcementsSound", (parser, x) => x.WelcomeReinforcementsSound = parser.ParseAssetReference() },
             { "KickOutReinforcementsSound", (parser, x) => x.KickOutReinforcementsSound = parser.ParseAssetReference() },
             { "DisbandUnitSound", (parser, x) => x.DisbandUnitSound = parser.ParseAssetReference() },
+            { "RetreatTeleportToHomeRegionEvaEvent", (parser, x) => x.RetreatTeleportToHomeRegionEvaEvent = parser.ParseAssetReference() },
+            { "RetreatTeleportToNonHomeRegionEvaEvent", (parser, x) => x.RetreatTeleportToNonHomeRegionEvaEvent = parser.ParseAssetReference() },
         };
 
         public string OnSelectedSound { get; private set; }
@@ -38,6 +40,12 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public string DisbandUnitSound { get; private set; } // Sound when units are dismissed
+
+        [AddedIn(SageGame.Bfme2)]
+        public string RetreatTeleportToHomeRegionEvaEvent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string RetreatTeleportToNonHomeRegionEvaEvent { get; private set; }
     }
 
     public sealed class Object
@@ -69,7 +77,10 @@ namespace OpenSage.Data.Ini
             { "FadeMethod", (parser, x) => x.FadeMethod = parser.ParseString() },
             { "HideWhenUnselected", (parser, x) => x.HideWhenUnselected = parser.ParseBoolean() },
             { "FadeTypeForSelection", (parser, x) => x.FadeTypeForSelection = parser.ParseEnum<FadeType>() },
-            { "FadeHoldPercent", (parser, x) => x.FadeHoldPercent = parser.ParsePercentage() }
+            { "FadeHoldPercent", (parser, x) => x.FadeHoldPercent = parser.ParsePercentage() },
+            { "DisplayAtRallyPoint", (parser, x) => x.DisplayAtRallyPoint = parser.ParseBoolean() },
+            { "ShowOnlyAfterMoveOrder", (parser, x) => x.ShowOnlyAfterMoveOrder = parser.ParseBoolean() },
+            { "ShowOnlyForAllies", (parser, x) => x.ShowOnlyForAllies = parser.ParseBoolean() }
         };
 
         public string Name { get; private set; }
@@ -115,6 +126,15 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public float FadeHoldPercent { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool DisplayAtRallyPoint { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ShowOnlyAfterMoveOrder { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ShowOnlyForAllies { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme2)]
