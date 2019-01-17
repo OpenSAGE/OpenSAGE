@@ -107,6 +107,7 @@ namespace OpenSage.Data.Ini
             { "SetTargetMatrix", (parser, x) => x.SetTargetMatrix = parser.ParseBoolean() },
             { "OnlyIfOnLand", (parser, x) => x.OnlyIfOnLand = parser.ParseBoolean() },
             { "OnlyIfOnWater", (parser, x) => x.OnlyIfOnWater = parser.ParseBoolean() },
+            { "Weather", (parser, x) => x.Weather = parser.ParseEnum<WeatherType>() }
         });
 
         public bool AttachToObject { get; private set; }
@@ -152,6 +153,9 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public bool OnlyIfOnWater { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public WeatherType Weather { get; private set; }
     }
 
     public sealed class SoundFXListItem : FXListItem
@@ -225,11 +229,19 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<TerrainScorchFXListItem> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<TerrainScorchFXListItem>
         {
             { "Type", (parser, x) => x.Type = parser.ParseEnum<TerrainScorchType>() },
-            { "Radius", (parser, x) => x.Radius = parser.ParseInteger() }
+            { "Radius", (parser, x) => x.Radius = parser.ParseInteger() },
+            { "Weather", (parser, x) => x.Weather = parser.ParseEnum<WeatherType>() },
+            { "RandomRange", (parser, x) => x.RandomRange = parser.ParseVector2() }
         });
 
         public TerrainScorchType Type { get; private set; }
         public int Radius { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public WeatherType Weather { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Vector2 RandomRange { get; private set; }
     }
 
     public sealed class TracerFXListItem : FXListItem
@@ -271,6 +283,8 @@ namespace OpenSage.Data.Ini
             { "BuffLifeTime", (parser, x) => x.BuffLifeTime = parser.ParseUnsignedInteger() },
             { "Extrusion", (parser, x) => x.Extrusion = parser.ParseFloat() },
             { "Color", (parser, x) => x.Color = IniColorRgb.Parse(parser) },
+            { "BuffShipTemplate", (parser, x) => x.BuffShipTemplate = parser.ParseAssetReference() },
+            { "BuffMonsterTemplate", (parser, x) => x.BuffMonsterTemplate = parser.ParseAssetReference() }
         });
 
         public string BuffType { get; private set; }
@@ -283,6 +297,12 @@ namespace OpenSage.Data.Ini
         public uint BuffLifeTime { get; private set; }
         public float Extrusion { get; private set; }
         public IniColorRgb Color { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string BuffShipTemplate { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string BuffMonsterTemplate { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -323,6 +343,7 @@ namespace OpenSage.Data.Ini
 
             { "StartingDelay", (parser, x) => x.StartingDelay = parser.ParseInteger() },
             { "Lifetime", (parser, x) => x.Lifetime = parser.ParseInteger() },
+            { "Shader", (parser, x) => x.Shader = parser.ParseEnum<ShaderType>() }
         });
 
         public string DecalName { get; private set; }
@@ -339,6 +360,9 @@ namespace OpenSage.Data.Ini
 
         public int StartingDelay { get; private set; }
         public int Lifetime { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ShaderType Shader { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -590,5 +614,12 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("UNDEFINED"), AddedIn(SageGame.Bfme2)]
         Undefined,
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public enum ShaderType
+    {
+        [IniEnum("ADDITIVE")]
+        Additive
     }
 }

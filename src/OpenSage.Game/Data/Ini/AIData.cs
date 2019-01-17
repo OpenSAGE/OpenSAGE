@@ -102,6 +102,12 @@ namespace OpenSage.Data.Ini
 
             { "AltCameraZoomOverride", (parser, x) => x.AltCameraZoomOverride = parser.ParseFloat() },
             { "AltCameraPitchOverride", (parser, x) => x.AltCameraPitchOverride = parser.ParseFloat() },
+            { "DeepWaterDepth", (parser, x) => x.DeepWaterDepth = parser.ParseFloat() },
+            { "BuildPhase1_PerSecondPriorityModifier", (parser, x) => x.BuildPhase1_PerSecondPriorityModifier = parser.ParseInteger() },
+            { "BuildPhase2_PerSecondPriorityModifier", (parser, x) => x.BuildPhase2_PerSecondPriorityModifier = parser.ParseInteger() },
+            { "BuildPhase3_PerSecondPriorityModifier", (parser, x) => x.BuildPhase3_PerSecondPriorityModifier = parser.ParseInteger() },
+            { "BuildPhaseN_PerSecondPriorityModifier", (parser, x) => x.BuildPhaseN_PerSecondPriorityModifier = parser.ParseInteger() },
+
         };
 
         [AddedIn(SageGame.Bfme)]
@@ -243,6 +249,21 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public float AltCameraPitchOverride { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float DeepWaterDepth { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int BuildPhase1_PerSecondPriorityModifier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int BuildPhase2_PerSecondPriorityModifier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int BuildPhase3_PerSecondPriorityModifier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int BuildPhaseN_PerSecondPriorityModifier { get; private set; }
     }
 
     public sealed class AISideInfo

@@ -153,5 +153,11 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("CLOUDY")]
         Cloudy,
+
+        [IniEnum("NORMAL"), AddedIn(SageGame.Bfme2)]
+        Normal,
+
+        [IniEnum("SNOWY"), AddedIn(SageGame.Bfme2)]
+        Snowy,
     }
 }

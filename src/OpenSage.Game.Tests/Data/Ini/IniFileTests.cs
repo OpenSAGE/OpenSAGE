@@ -34,7 +34,7 @@ namespace OpenSage.Tests.Data.Ini
                 {
                     var filename = Path.GetFileName(entry.FilePath).ToLowerInvariant();
 
-                    if (filename != "eva.ini") return;
+                    if (filename != "emotions.ini") return;
                     /*
                     // TODO:implement missing stuff
                     if (gameDefinition.Game == SageGame.Bfme2)
@@ -49,13 +49,9 @@ namespace OpenSage.Tests.Data.Ini
                             case "riskcampaign.ini":
                             case "createaherosystem.ini":
                             case "crowdresponse.ini":
-                            case "aidata.ini":
                             case "skirmishaidata.ini":
-                            case "emotions.ini":
-                            case "experiencelevels.ini":
                             case "firelogicsystem.ini":
                             case "formationassistant.ini":
-                            case "fxlist.ini":
                             case "gamelod.ini":
                             case "gamelodpresets.ini":
                             case "ingamenotificationbox.ini":
@@ -95,6 +91,8 @@ namespace OpenSage.Tests.Data.Ini
                                 return;
                         }
                     }
+
+
 
                     switch (filename)
                     {

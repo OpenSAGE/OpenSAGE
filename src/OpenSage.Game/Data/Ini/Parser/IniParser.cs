@@ -49,7 +49,18 @@ namespace OpenSage.Data.Ini.Parser
             { "DrawGroupInfo", (parser, context) => context.DrawGroupInfo = DrawGroupInfo.Parse(parser) },
             { "DynamicGameLOD", (parser, context) => context.DynamicGameLods.Add(DynamicGameLod.Parse(parser)) },
             { "EmotionNugget", (parser, context) => context.EmotionNuggets.Add(EmotionNugget.Parse(parser)) },
-            { "EvaEvent", (parser, context) => context.EvaEvents.Add(EvaEvent.Parse(parser)) },
+            { "EvaEvent", (parser, context) =>
+                {
+                    var evaEvent = EvaEvent.Parse(parser);
+                    context.EvaEvents[evaEvent.Name] = evaEvent;
+                }
+            },
+            { "EvaEventForwardReference", (parser, context) =>
+                {
+                    var name = parser.ParseString();
+                    context.EvaEvents[name] = new EvaEvent { Name = name };
+                }
+            },
             { "ExperienceLevel", (parser, context) => context.ExperienceLevels.Add(ExperienceLevel.Parse(parser)) },
             { "ExperienceScalarTable", (parser, context) => context.ExperienceScalarTables.Add(ExperienceScalarTable.Parse(parser)) },
             { "FactionVictoryData", (parser, context) => context.FactionVictoryDatas.Add(FactionVictoryData.Parse(parser)) },
@@ -90,7 +101,12 @@ namespace OpenSage.Data.Ini.Parser
             { "MultiplayerStartingMoneyChoice", (parser, context) => context.MultiplayerStartingMoneyChoices.Add(MultiplayerStartingMoneyChoice.Parse(parser)) },
             { "Multisound", (parser, context) => context.Multisounds.Add(Multisound.Parse(parser)) },
             { "MusicTrack", (parser, context) => context.MusicTracks.Add(MusicTrack.Parse(parser)) },
-            { "NewEvaEvent", (parser, context) => context.EvaEvents.Add(EvaEvent.Parse(parser)) },
+            { "NewEvaEvent", (parser, context) =>
+                {
+                    var evaEvent = EvaEvent.Parse(parser);
+                    context.EvaEvents[evaEvent.Name] = evaEvent;
+                }
+            },
             { "Object", (parser, context) => context.Objects.Add(ObjectDefinition.Parse(parser)) },
             { "ObjectReskin", (parser, context) => context.Objects.Add(ObjectDefinition.ParseReskin(parser)) },
             { "ObjectCreationList", (parser, context) => context.ObjectCreationLists.Add(ObjectCreationList.Parse(parser)) },
@@ -99,7 +115,12 @@ namespace OpenSage.Data.Ini.Parser
             { "Pathfinder", (parser, context) => context.Pathfinder = Pathfinder.Parse(parser) },
             { "PlayerAIType", (parser, context) => context.PlayerAITypes.Add(PlayerAIType.Parse(parser)) },
             { "PlayerTemplate", (parser, context) => context.PlayerTemplates.Add(PlayerTemplate.Parse(parser)) },
-            { "PredefinedEvaEvent", (parser, context) => context.EvaEvents.Add(EvaEvent.Parse(parser)) },
+            { "PredefinedEvaEvent", (parser, context) =>
+                {
+                    var evaEvent = EvaEvent.Parse(parser);
+                    context.EvaEvents[evaEvent.Name] = evaEvent;
+                }
+            },
             { "Rank", (parser, context) => context.Ranks.Add(Rank.Parse(parser)) },
             { "RegionCampain", (parser, context) => context.RegionCampaign = RegionCampain.Parse(parser) },
             { "RingEffect", (parser, context) => context.Environment.RingEffect = RingEffect.Parse(parser) },
