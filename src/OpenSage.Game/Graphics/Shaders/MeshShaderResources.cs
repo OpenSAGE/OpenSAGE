@@ -69,6 +69,24 @@ namespace OpenSage.Graphics.Shaders
             return result;
         }
 
+        public ResourceLayout[] CreateResourceLayouts(
+            GlobalShaderResources globalShaderResources,
+            ResourceLayout materialResourceLayout)
+        {
+            return new[]
+            {
+                globalShaderResources.GlobalConstantsResourceLayout,
+                globalShaderResources.GlobalLightingConstantsResourceLayout,
+                globalShaderResources.GlobalCloudResourceLayout,
+                globalShaderResources.GlobalShadowResourceLayout,
+                MeshConstantsResourceLayout,
+                materialResourceLayout,
+                SamplerResourceLayout,
+                RenderItemConstantsResourceLayout,
+                SkinningResourceLayout
+            };
+        }
+
         private readonly struct MeshConstantsKey : IEquatable<MeshConstantsKey>
         {
             public readonly bool IsSkinned;

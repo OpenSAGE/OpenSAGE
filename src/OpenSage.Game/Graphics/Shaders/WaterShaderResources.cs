@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.Content;
 using OpenSage.Graphics.Rendering;
 using Veldrid;
 
@@ -13,7 +12,9 @@ namespace OpenSage.Graphics.Shaders
 
         public readonly Pipeline Pipeline;
 
-        public WaterShaderResources(GraphicsDevice graphicsDevice)
+        public WaterShaderResources(
+            GraphicsDevice graphicsDevice,
+            GlobalShaderResources globalShaderResources)
             : base(
                 graphicsDevice,
                 "Water",
@@ -25,6 +26,15 @@ namespace OpenSage.Graphics.Shaders
                     new ResourceLayoutElementDescription("WaterTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
 
+            var resourceLayouts = new[]
+            {
+                globalShaderResources.GlobalConstantsResourceLayout,
+                globalShaderResources.GlobalLightingConstantsResourceLayout,
+                globalShaderResources.GlobalCloudResourceLayout,
+                globalShaderResources.GlobalShadowResourceLayout,
+                _materialResourceLayout
+            };
+
             Pipeline = AddDisposable(graphicsDevice.ResourceFactory.CreateGraphicsPipeline(
                 new GraphicsPipelineDescription(
                     BlendStateDescription.SingleAlphaBlend,
@@ -32,7 +42,7 @@ namespace OpenSage.Graphics.Shaders
                     RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
                     PrimitiveTopology.TriangleList,
                     ShaderSet.Description,
-                    ShaderSet.ResourceLayouts,
+                    resourceLayouts,
                     RenderPipeline.GameOutputDescription)));
         }
 

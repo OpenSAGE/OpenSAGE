@@ -15,6 +15,7 @@ namespace OpenSage.Graphics.Shaders
         private readonly ResourceLayout _spriteConstantsResourceLayout;
         private readonly ResourceLayout _samplerResourceLayout;
         private readonly ResourceLayout _textureResourceLayout;
+        private readonly ResourceLayout[] _resourceLayouts;
 
         private static int GetPipelineKey(
             in BlendStateDescription blendStateDescription,
@@ -47,6 +48,13 @@ namespace OpenSage.Graphics.Shaders
             _textureResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("Texture", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
+
+            _resourceLayouts = new[]
+            {
+                _spriteConstantsResourceLayout,
+                _samplerResourceLayout,
+                _textureResourceLayout
+            };
         }
 
         public Pipeline GetCachedPipeline(
@@ -64,7 +72,7 @@ namespace OpenSage.Graphics.Shaders
                         RasterizerStateDescriptionUtility.CullNoneSolid, // TODO
                         PrimitiveTopology.TriangleList,
                         ShaderSet.Description,
-                        ShaderSet.ResourceLayouts,
+                        _resourceLayouts,
                         outputDescription))));
             }
 

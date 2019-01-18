@@ -11,7 +11,9 @@ namespace OpenSage.Graphics.Shaders
 
         public readonly Pipeline Pipeline;
 
-        public TerrainShaderResources(GraphicsDevice graphicsDevice)
+        public TerrainShaderResources(
+            GraphicsDevice graphicsDevice,
+            GlobalShaderResources globalShaderResources)
             : base(
                 graphicsDevice,
                 "Terrain",
@@ -28,6 +30,15 @@ namespace OpenSage.Graphics.Shaders
                     new ResourceLayoutElementDescription("MacroTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
 
+            var resourceLayouts = new[]
+            {
+                globalShaderResources.GlobalConstantsResourceLayout,
+                globalShaderResources.GlobalLightingConstantsResourceLayout,
+                globalShaderResources.GlobalCloudResourceLayout,
+                globalShaderResources.GlobalShadowResourceLayout,
+                _materialResourceLayout
+            };
+
             Pipeline = AddDisposable(graphicsDevice.ResourceFactory.CreateGraphicsPipeline(
                 new GraphicsPipelineDescription(
                     BlendStateDescription.SingleDisabled,
@@ -35,7 +46,7 @@ namespace OpenSage.Graphics.Shaders
                     RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
                     PrimitiveTopology.TriangleList, // TODO: Use triangle strip
                     ShaderSet.Description,
-                    ShaderSet.ResourceLayouts,
+                    resourceLayouts,
                     RenderPipeline.GameOutputDescription)));
         }
 

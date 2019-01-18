@@ -8,7 +8,10 @@ namespace OpenSage.Graphics.Shaders
         public readonly Pipeline TriangleStripPipeline;
         public readonly Pipeline TriangleListPipeline;
 
-        public MeshDepthShaderResources(GraphicsDevice graphicsDevice)
+        public MeshDepthShaderResources(
+            GraphicsDevice graphicsDevice,
+            GlobalShaderResources globalShaderResources,
+            MeshShaderResources meshShaderResources)
             : base(
                 graphicsDevice,
                 "MeshDepth",
@@ -19,6 +22,14 @@ namespace OpenSage.Graphics.Shaders
             depthRasterizerState.DepthClipEnabled = false;
             depthRasterizerState.ScissorTestEnabled = false;
 
+            var resourceLayouts = new[]
+            {
+                globalShaderResources.GlobalConstantsResourceLayout,
+                meshShaderResources.MeshConstantsResourceLayout,
+                meshShaderResources.RenderItemConstantsResourceLayout,
+                meshShaderResources.SkinningResourceLayout
+            };
+
             Pipeline CreatePipeline(PrimitiveTopology topology)
             {
                 return graphicsDevice.ResourceFactory.CreateGraphicsPipeline(
@@ -28,7 +39,7 @@ namespace OpenSage.Graphics.Shaders
                         depthRasterizerState,
                         topology,
                         ShaderSet.Description,
-                        ShaderSet.ResourceLayouts,
+                        resourceLayouts,
                         ShadowData.DepthPassDescription));
             }
 
