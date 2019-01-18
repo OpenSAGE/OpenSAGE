@@ -24,7 +24,8 @@ namespace OpenSage.Graphics.Rendering
 
         private readonly CommandList _commandList;
 
-        private readonly GlobalShaderResources _globalResources;
+        private readonly GlobalShaderResources _globalShaderResources;
+        private readonly GlobalShaderResourceData _globalShaderResourceData;
 
         private readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsVS> _renderItemConstantsBufferVS;
         private readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsPS> _renderItemConstantsBufferPS;
@@ -51,20 +52,15 @@ namespace OpenSage.Graphics.Rendering
 
             var graphicsDevice = game.GraphicsDevice;
 
-            _globalResources = AddDisposable(new GlobalShaderResources(game.GraphicsDevice, game.ContentManager.SolidWhiteTexture));
+            _globalShaderResources = game.ContentManager.ShaderResources.Global;
+            _globalShaderResourceData = AddDisposable(new GlobalShaderResourceData(game.GraphicsDevice, _globalShaderResources));
 
             _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(graphicsDevice, "RenderItemConstantsVS"));
-
             _renderItemConstantsBufferPS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsPS>(graphicsDevice, "RenderItemConstantsPS"));
-
-            var renderItemConstantsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("RenderItemConstantsVS", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-                    new ResourceLayoutElementDescription("RenderItemConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment))));
 
             _renderItemConstantsResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
-                    renderItemConstantsResourceLayout,
+                    game.ContentManager.ShaderResources.Mesh.RenderItemConstantsResourceLayout,
                     _renderItemConstantsBufferVS.Buffer,
                     _renderItemConstantsBufferPS.Buffer)));
 
@@ -75,7 +71,7 @@ namespace OpenSage.Graphics.Rendering
                 BlendStateDescription.SingleAlphaBlend,
                 GameOutputDescription));
 
-            _shadowMapRenderer = AddDisposable(new ShadowMapRenderer(game.GraphicsDevice));
+            _shadowMapRenderer = AddDisposable(new ShadowMapRenderer(game.GraphicsDevice, game.ContentManager.ShaderResources.Global));
 
             _textureCopier = AddDisposable(new TextureCopier(
                 game,
@@ -175,7 +171,7 @@ namespace OpenSage.Graphics.Rendering
             }
             else
             {
-                cloudResourceSet = _globalResources.DefaultCloudResourceSet;
+                cloudResourceSet = _globalShaderResources.DefaultCloudResourceSet;
             }
 
             // Shadow map passes.
@@ -195,7 +191,7 @@ namespace OpenSage.Graphics.Rendering
                     commandList.SetFullViewports();
 
                     var shadowViewProjection = lightBoundingFrustum.Matrix;
-                    _globalResources.UpdateGlobalConstantBuffers(commandList, shadowViewProjection);
+                    _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, shadowViewProjection);
 
                     DoRenderPass(commandList, _renderList.Shadow, lightBoundingFrustum, null);
                 });
@@ -208,8 +204,8 @@ namespace OpenSage.Graphics.Rendering
 
             commandList.SetFramebuffer(_intermediateFramebuffer);
 
-            _globalResources.UpdateGlobalConstantBuffers(commandList, scene.Camera.ViewProjection);
-            _globalResources.UpdateStandardPassConstantBuffers(commandList, context);
+            _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, scene.Camera.ViewProjection);
+            _globalShaderResourceData.UpdateStandardPassConstantBuffers(commandList, context);
 
             commandList.ClearColorTarget(0, ColorRgba.DimGray.ToColorRgbaF().ToRgbaFloat());
             commandList.ClearDepthStencil(1);
@@ -301,17 +297,17 @@ namespace OpenSage.Graphics.Rendering
         {
             if (indices.GlobalConstants != null)
             {
-                commandList.SetGraphicsResourceSet(indices.GlobalConstants.Value, _globalResources.GlobalConstantsResourceSet);
+                commandList.SetGraphicsResourceSet(indices.GlobalConstants.Value, _globalShaderResourceData.GlobalConstantsResourceSet);
             }
 
             switch (indices.LightingType)
             {
                 case LightingType.Terrain:
-                    commandList.SetGraphicsResourceSet(indices.GlobalLightingConstants.Value, _globalResources.GlobalLightingConstantsTerrainResourceSet);
+                    commandList.SetGraphicsResourceSet(indices.GlobalLightingConstants.Value, _globalShaderResourceData.GlobalLightingConstantsTerrainResourceSet);
                     break;
 
                 case LightingType.Object:
-                    commandList.SetGraphicsResourceSet(indices.GlobalLightingConstants.Value, _globalResources.GlobalLightingConstantsObjectResourceSet);
+                    commandList.SetGraphicsResourceSet(indices.GlobalLightingConstants.Value, _globalShaderResourceData.GlobalLightingConstantsObjectResourceSet);
                     break;
             }
 

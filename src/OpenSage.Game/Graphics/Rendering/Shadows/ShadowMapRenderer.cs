@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
 using Veldrid;
 
@@ -9,46 +10,31 @@ namespace OpenSage.Graphics.Rendering.Shadows
     {
         private readonly ShadowFrustumCalculator _shadowFrustumCalculator;
         private readonly BoundingFrustum _lightFrustum;
+        private readonly GlobalShaderResources _globalShaderResources;
 
-        private readonly Sampler _shadowSampler;
-
-        private readonly ResourceLayout _resourceLayout;
         private ResourceSet _resourceSet;
 
         private ShadowData _shadowData;
 
-        private readonly ConstantBuffer<ShadowConstantsPS> _shadowConstantsPSBuffer;
-        private ShadowConstantsPS _shadowConstants;
+        private readonly ConstantBuffer<GlobalShaderResources.ShadowConstantsPS> _shadowConstantsPSBuffer;
+        private GlobalShaderResources.ShadowConstantsPS _shadowConstants;
 
         public Texture ShadowMap => _shadowData?.ShadowMap;
 
         public ResourceSet ResourceSetForRendering => _resourceSet;
 
-        public ShadowMapRenderer(GraphicsDevice graphicsDevice)
+        public ShadowMapRenderer(
+            GraphicsDevice graphicsDevice,
+            GlobalShaderResources globalShaderResources)
         {
             _shadowFrustumCalculator = new ShadowFrustumCalculator();
             _lightFrustum = new BoundingFrustum(Matrix4x4.Identity);
 
-            _shadowSampler = AddDisposable(graphicsDevice.ResourceFactory.CreateSampler(
-                new SamplerDescription(
-                    SamplerAddressMode.Clamp,
-                    SamplerAddressMode.Clamp,
-                    SamplerAddressMode.Clamp,
-                    SamplerFilter.MinLinear_MagLinear_MipLinear,
-                    ComparisonKind.LessEqual,
-                    0,
-                    0,
-                    0,
-                    0,
-                    SamplerBorderColor.OpaqueBlack)));
+            _globalShaderResources = globalShaderResources;
 
-            _resourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("Global_ShadowConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("Global_ShadowMap", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("Global_ShadowSampler", ResourceKind.Sampler, ShaderStages.Fragment))));
-
-            _shadowConstantsPSBuffer = AddDisposable(new ConstantBuffer<ShadowConstantsPS>(graphicsDevice, "ShadowConstantsPS"));
+            _shadowConstantsPSBuffer = AddDisposable(new ConstantBuffer<GlobalShaderResources.ShadowConstantsPS>(
+                graphicsDevice,
+                "ShadowConstantsPS"));
         }
 
         public void RenderShadowMap(
@@ -86,10 +72,10 @@ namespace OpenSage.Graphics.Rendering.Shadows
 
                 _resourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
                     new ResourceSetDescription(
-                        _resourceLayout,
+                        _globalShaderResources.GlobalShadowResourceLayout,
                         _shadowConstantsPSBuffer.Buffer,
                         _shadowData.ShadowMap,
-                        _shadowSampler)));
+                        _globalShaderResources.ShadowSampler)));
             }
 
             if (scene.Shadows.ShadowsType != ShadowsType.None)

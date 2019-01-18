@@ -13,7 +13,7 @@ namespace OpenSage.Tests.Graphics.Rendering.Shadows
         public void CanCalculateFrustum()
         {
             // Arrange.
-            var light = new GlobalLightingTypes.Light { Direction = Vector3.Normalize(new Vector3(-1, -1, -1)) };
+            var light = new GlobalShaderResources.Light { Direction = Vector3.Normalize(new Vector3(-1, -1, -1)) };
 
             var camera = new Camera(() => new Veldrid.Viewport { Width = 800, Height = 600 });
             camera.SetLookAt(new Vector3(5, 3, 10), Vector3.Zero, Vector3.UnitZ);

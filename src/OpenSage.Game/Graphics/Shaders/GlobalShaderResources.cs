@@ -1,133 +1,199 @@
 ﻿using System.Numerics;
-using OpenSage.Data.Map;
-using OpenSage.Graphics.Rendering;
-using OpenSage.Mathematics;
+using System.Runtime.InteropServices;
+using OpenSage.Graphics.Rendering.Shadows;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
     internal sealed class GlobalShaderResources : DisposableBase
     {
-        private readonly ConstantBuffer<GlobalTypes.GlobalConstantsShared> _globalConstantBufferShared;
-        private readonly ConstantBuffer<GlobalTypes.GlobalConstantsVS> _globalConstantBufferVS;
-        private readonly ConstantBuffer<GlobalTypes.GlobalConstantsPS> _globalConstantBufferPS;
+        public readonly ResourceLayout GlobalConstantsResourceLayout;
+        public readonly ResourceLayout GlobalLightingConstantsResourceLayout;
+        public readonly ResourceLayout GlobalCloudResourceLayout;
+        public readonly ResourceLayout GlobalShadowResourceLayout;
 
-        private readonly ConstantBuffer<GlobalLightingTypes.LightingConstantsVS> _globalLightingBufferVS;
-        private readonly ConstantBuffer<GlobalLightingTypes.LightingConstantsPS> _globalLightingTerrainBufferPS;
-        private readonly ConstantBuffer<GlobalLightingTypes.LightingConstantsPS> _globalLightingObjectBufferPS;
-
-        public readonly ResourceSet GlobalConstantsResourceSet;
-        public readonly ResourceSet GlobalLightingConstantsTerrainResourceSet;
-        public readonly ResourceSet GlobalLightingConstantsObjectResourceSet;
         public readonly ResourceSet DefaultCloudResourceSet;
 
-        private TimeOfDay? _cachedTimeOfDay;
+        public readonly Sampler ShadowSampler;
 
         public GlobalShaderResources(
             GraphicsDevice graphicsDevice,
             Texture solidWhiteTexture)
         {
-            _globalConstantBufferShared = AddDisposable(new ConstantBuffer<GlobalTypes.GlobalConstantsShared>(graphicsDevice, "GlobalConstantsShared"));
-            _globalConstantBufferVS = AddDisposable(new ConstantBuffer<GlobalTypes.GlobalConstantsVS>(graphicsDevice, "GlobalConstantsVS"));
-            _globalConstantBufferPS = AddDisposable(new ConstantBuffer<GlobalTypes.GlobalConstantsPS>(graphicsDevice, "GlobalConstantsPS"));
-
-            var globalConstantsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+            GlobalConstantsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("GlobalConstantsShared", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("GlobalConstantsVS", ResourceKind.UniformBuffer, ShaderStages.Vertex),
                     new ResourceLayoutElementDescription("GlobalConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment))));
 
-            GlobalConstantsResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    globalConstantsResourceLayout,
-                    _globalConstantBufferShared.Buffer,
-                    _globalConstantBufferVS.Buffer,
-                    _globalConstantBufferPS.Buffer)));
-
-            _globalLightingBufferVS = AddDisposable(new ConstantBuffer<GlobalLightingTypes.LightingConstantsVS>(graphicsDevice, "GlobalLightingConstantsVS (terrain)"));
-            SetGlobalLightingBufferVS(graphicsDevice);
-
-            _globalLightingTerrainBufferPS = AddDisposable(new ConstantBuffer<GlobalLightingTypes.LightingConstantsPS>(graphicsDevice, "GlobalLightingConstantsPS (terrain)"));
-            _globalLightingObjectBufferPS = AddDisposable(new ConstantBuffer<GlobalLightingTypes.LightingConstantsPS>(graphicsDevice, "GlobalLightingConstantsPS (objects)"));
-
-            var globalLightingConstantsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+            GlobalLightingConstantsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("GlobalLightingConstantsVS", ResourceKind.UniformBuffer, ShaderStages.Vertex),
                     new ResourceLayoutElementDescription("GlobalLightingConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment))));
 
-            GlobalLightingConstantsTerrainResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    globalLightingConstantsResourceLayout,
-                    _globalLightingBufferVS.Buffer,
-                    _globalLightingTerrainBufferPS.Buffer)));
-
-            GlobalLightingConstantsObjectResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    globalLightingConstantsResourceLayout,
-                    _globalLightingBufferVS.Buffer,
-                    _globalLightingObjectBufferPS.Buffer)));
-
-            var cloudResoureLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+            GlobalCloudResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("Global_CloudTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
 
+            GlobalShadowResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+                new ResourceLayoutDescription(
+                    new ResourceLayoutElementDescription("Global_ShadowConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("Global_ShadowMap", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("Global_ShadowSampler", ResourceKind.Sampler, ShaderStages.Fragment))));
+
             DefaultCloudResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
-                    cloudResoureLayout,
+                    GlobalCloudResourceLayout,
                     solidWhiteTexture)));
+
+            ShadowSampler = AddDisposable(graphicsDevice.ResourceFactory.CreateSampler(
+                new SamplerDescription(
+                    SamplerAddressMode.Clamp,
+                    SamplerAddressMode.Clamp,
+                    SamplerAddressMode.Clamp,
+                    SamplerFilter.MinLinear_MagLinear_MipLinear,
+                    ComparisonKind.LessEqual,
+                    0,
+                    0,
+                    0,
+                    0,
+                    SamplerBorderColor.OpaqueBlack)));
         }
 
-        private void SetGlobalLightingBufferVS(GraphicsDevice graphicsDevice)
+        [StructLayout(LayoutKind.Sequential, Size = 16)]
+        public struct GlobalConstantsShared
         {
-            var cloudShadowView = Matrix4x4.CreateLookAt(
-                Vector3.Zero,
-                Vector3.Normalize(new Vector3(0, 0.2f, -1)),
-                Vector3.UnitY);
+            public Vector3 CameraPosition;
+            public float TimeInSeconds;
+        }
 
-            var cloudShadowProjection = Matrix4x4.CreateOrthographic(1, 1, 0, 1);
+        [StructLayout(LayoutKind.Sequential)]
+        public struct GlobalConstantsVS
+        {
+            public Matrix4x4 ViewProjection;
+        }
 
-            var lightingConstantsVS = new GlobalLightingTypes.LightingConstantsVS
+        [StructLayout(LayoutKind.Sequential, Size = 16)]
+        public struct GlobalConstantsPS
+        {
+            public Vector2 ViewportSize;
+        }
+
+        [StructLayout(LayoutKind.Explicit, Size = SizeInBytes)]
+        public struct Light
+        {
+            public const int SizeInBytes = 48;
+
+            [FieldOffset(0)]
+            public Vector3 Ambient;
+
+            [FieldOffset(16)]
+            public Vector3 Color;
+
+            [FieldOffset(32)]
+            public Vector3 Direction;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Size = SizeInBytes)]
+        public struct LightingConstantsVS
+        {
+            public const int SizeInBytes = 64;
+
+            public Matrix4x4 CloudShadowMatrix;
+        }
+
+        [StructLayout(LayoutKind.Explicit, Size = SizeInBytes)]
+        public struct LightingConstantsPS
+        {
+            public const int SizeInBytes = 48 * 3;
+
+            [FieldOffset(0)]
+            public Light Light0;
+
+            [FieldOffset(48)]
+            public Light Light1;
+
+            [FieldOffset(96)]
+            public Light Light2;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct ShadowConstantsPS
+        {
+            public Matrix4x4 ShadowMatrix;
+            public float CascadeSplit0;
+            public float CascadeSplit1;
+            public float CascadeSplit2;
+            public float CascadeSplit3;
+            public Vector4 CascadeOffset0;
+            public Vector4 CascadeOffset1;
+            public Vector4 CascadeOffset2;
+            public Vector4 CascadeOffset3;
+            public Vector4 CascadeScale0;
+            public Vector4 CascadeScale1;
+            public Vector4 CascadeScale2;
+            public Vector4 CascadeScale3;
+            public float Bias;
+            public float OffsetScale;
+            public uint VisualizeCascades;
+            public uint FilterAcrossCascades;
+            public float ShadowDistance;
+            public ShadowsType ShadowsType;
+            public uint NumSplits;
+#pragma warning disable IDE1006, CS0169
+            private readonly float _padding;
+#pragma warning restore IDE1006, CS0169
+
+            public void Set(uint numCascades, ShadowSettings settings, ShadowData data)
             {
-                CloudShadowMatrix = cloudShadowView * cloudShadowProjection
-            };
+                ShadowMatrix = data.ShadowMatrix;
 
-            _globalLightingBufferVS.Value = lightingConstantsVS;
-            _globalLightingBufferVS.Update(graphicsDevice);
-        }
+                SetArrayData(
+                    numCascades,
+                    data.CascadeSplits,
+                    out CascadeSplit0,
+                    out CascadeSplit1,
+                    out CascadeSplit2,
+                    out CascadeSplit3);
 
-        public void UpdateGlobalConstantBuffers(
-            CommandList commandList,
-            in Matrix4x4 viewProjection)
-        {
-            _globalConstantBufferVS.Value.ViewProjection = viewProjection;
-            _globalConstantBufferVS.Update(commandList);
-        }
+                SetArrayData(
+                    numCascades,
+                    data.CascadeOffsets,
+                    out CascadeOffset0,
+                    out CascadeOffset1,
+                    out CascadeOffset2,
+                    out CascadeOffset3);
 
-        public void UpdateStandardPassConstantBuffers(
-            CommandList commandList,
-            RenderContext context)
-        {
-            var cameraPosition = Matrix4x4Utility.Invert(context.Scene3D.Camera.View).Translation;
-            _globalConstantBufferShared.Value.CameraPosition = cameraPosition;
-            _globalConstantBufferShared.Value.TimeInSeconds = (float) context.GameTime.TotalGameTime.TotalSeconds;
-            _globalConstantBufferShared.Update(commandList);
+                SetArrayData(
+                    numCascades,
+                    data.CascadeScales,
+                    out CascadeScale0,
+                    out CascadeScale1,
+                    out CascadeScale2,
+                    out CascadeScale3);
 
-            var viewportSize = new Vector2(context.RenderTarget.Width, context.RenderTarget.Height);
-            if (viewportSize != _globalConstantBufferPS.Value.ViewportSize)
-            {
-                _globalConstantBufferPS.Value.ViewportSize = viewportSize;
-                _globalConstantBufferPS.Update(commandList);
+                Bias = settings.Bias;
+                OffsetScale = settings.NormalOffset;
+                VisualizeCascades = settings.VisualizeCascades ? 1u : 0u;
+                FilterAcrossCascades = 1u;
+                ShadowDistance = settings.ShadowDistance;
+                ShadowsType = settings.ShadowsType;
+                NumSplits = numCascades;
             }
 
-            if (_cachedTimeOfDay != context.Scene3D.Lighting.TimeOfDay)
+            private static void SetArrayData<T>(
+                uint numValues,
+                in T[] values,
+                out T value1,
+                out T value2,
+                out T value3,
+                out T value4)
+                where T : struct
             {
-                _globalLightingTerrainBufferPS.Value = context.Scene3D.Lighting.CurrentLightingConfiguration.TerrainLightsPS;
-                _globalLightingTerrainBufferPS.Update(commandList);
-
-                _globalLightingObjectBufferPS.Value = context.Scene3D.Lighting.CurrentLightingConfiguration.ObjectLightsPS;
-                _globalLightingObjectBufferPS.Update(commandList);
-
-                _cachedTimeOfDay = context.Scene3D.Lighting.TimeOfDay;
+                value1 = values[0];
+                value2 = (numValues > 1) ? values[1] : default;
+                value3 = (numValues > 2) ? values[2] : default;
+                value4 = (numValues > 3) ? values[3] : default;
             }
         }
     }

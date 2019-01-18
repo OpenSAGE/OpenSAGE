@@ -20,9 +20,9 @@ namespace OpenSage.Settings
 
         public static WorldLighting CreateDefault()
         {
-            var lights = new GlobalLightingTypes.LightingConstantsPS
+            var lights = new GlobalShaderResources.LightingConstantsPS
             {
-                Light0 = new GlobalLightingTypes.Light
+                Light0 = new GlobalShaderResources.Light
                 {
                     Ambient = new Vector3(0.3f, 0.3f, 0.3f),
                     Direction = Vector3.Normalize(new Vector3(-0.3f, 0.2f, -0.8f)),

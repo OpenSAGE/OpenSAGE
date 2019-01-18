@@ -11,8 +11,11 @@ namespace OpenSage.Graphics.Shaders
     {
         private readonly GraphicsDevice _graphicsDevice;
         private readonly Dictionary<MeshConstantsKey, ResourceSet> _meshConstantsResourceSets;
-        private readonly ResourceLayout _meshConstantsResourceLayout;
-        private readonly ResourceLayout _skinningResourceLayout;
+
+        public readonly ResourceLayout MeshConstantsResourceLayout;
+        public readonly ResourceLayout SkinningResourceLayout;
+        public readonly ResourceLayout SamplerResourceLayout;
+        public readonly ResourceLayout RenderItemConstantsResourceLayout;
 
         public readonly ResourceSet SamplerResourceSet;
 
@@ -21,22 +24,27 @@ namespace OpenSage.Graphics.Shaders
             _graphicsDevice = graphicsDevice;
             _meshConstantsResourceSets = new Dictionary<MeshConstantsKey, ResourceSet>();
 
-            _meshConstantsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+            MeshConstantsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("MeshConstants", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment))));
 
-            _skinningResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+            SkinningResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("SkinningBuffer", ResourceKind.StructuredBufferReadOnly, ShaderStages.Vertex))));
 
-            var samplerResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+            SamplerResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
 
             SamplerResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
-                    samplerResourceLayout,
+                    SamplerResourceLayout,
                     graphicsDevice.Aniso4xSampler)));
+
+            RenderItemConstantsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+                new ResourceLayoutDescription(
+                    new ResourceLayoutElementDescription("RenderItemConstantsVS", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+                    new ResourceLayoutElementDescription("RenderItemConstantsPS", ResourceKind.UniformBuffer, ShaderStages.Fragment))));
         }
 
         public ResourceSet GetCachedMeshResourceSet(bool isSkinned, bool hasHouseColor)
@@ -52,7 +60,7 @@ namespace OpenSage.Graphics.Shaders
 
                 var meshConstantsResourceSet = AddDisposable(_graphicsDevice.ResourceFactory.CreateResourceSet(
                     new ResourceSetDescription(
-                        _meshConstantsResourceLayout,
+                        MeshConstantsResourceLayout,
                         meshConstantsBuffer.Buffer)));
 
                 _meshConstantsResourceSets.Add(key, result = meshConstantsResourceSet);
@@ -104,7 +112,7 @@ namespace OpenSage.Graphics.Shaders
         {
             return _graphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
-                    _skinningResourceLayout,
+                    SkinningResourceLayout,
                     skinningBuffer));
         }
 

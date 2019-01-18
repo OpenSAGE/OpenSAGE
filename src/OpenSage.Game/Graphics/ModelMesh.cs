@@ -54,7 +54,7 @@ namespace OpenSage.Graphics
             ushort[] indices,
             List<ModelMeshMaterialPass> materialPasses,
             bool isSkinned,
-            BoundingBox boundingBox,
+            in BoundingBox boundingBox,
             bool hidden,
             bool cameraOriented,
             bool hasHouseColor)

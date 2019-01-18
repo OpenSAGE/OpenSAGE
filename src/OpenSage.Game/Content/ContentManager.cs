@@ -172,7 +172,7 @@ namespace OpenSage.Content
                     4, 4, 1, 1),
                 PixelFormat.R8_G8_B8_A8_UNorm));
 
-            ShaderResources = AddDisposable(new ShaderResourceManager(graphicsDevice));
+            ShaderResources = AddDisposable(new ShaderResourceManager(graphicsDevice, SolidWhiteTexture));
 
             WndImageLoader = AddDisposable(new WndImageLoader(this, new MappedImageLoader(this)));
 
