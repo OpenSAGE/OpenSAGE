@@ -11,8 +11,12 @@ namespace OpenSage.Graphics.Shaders
     {
         private readonly Dictionary<PipelineKey, Pipeline> _pipelines;
         private readonly ResourceLayout _materialResourceLayout;
+        private readonly ResourceLayout[] _resourceLayouts;
 
-        public FixedFunctionShaderResources(GraphicsDevice graphicsDevice)
+        public FixedFunctionShaderResources(
+            GraphicsDevice graphicsDevice,
+            GlobalShaderResources globalShaderResources,
+            MeshShaderResources meshShaderResources)
             : base(
                 graphicsDevice,
                 "FixedFunction",
@@ -26,6 +30,19 @@ namespace OpenSage.Graphics.Shaders
                     new ResourceLayoutElementDescription("MaterialConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Texture0", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Texture1", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
+
+            _resourceLayouts = new[]
+            {
+                globalShaderResources.GlobalConstantsResourceLayout,
+                globalShaderResources.GlobalLightingConstantsResourceLayout,
+                globalShaderResources.GlobalCloudResourceLayout,
+                globalShaderResources.GlobalShadowResourceLayout,
+                meshShaderResources.MeshConstantsResourceLayout,
+                _materialResourceLayout,
+                meshShaderResources.SamplerResourceLayout,
+                meshShaderResources.RenderItemConstantsResourceLayout,
+                meshShaderResources.SkinningResourceLayout
+            };
         }
 
         public Pipeline GetCachedPipeline(
@@ -73,7 +90,7 @@ namespace OpenSage.Graphics.Shaders
                         rasterizerState,
                         PrimitiveTopology.TriangleList,
                         ShaderSet.Description,
-                        ShaderSet.ResourceLayouts,
+                        _resourceLayouts,
                         RenderPipeline.GameOutputDescription))));
             }
 

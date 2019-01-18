@@ -7,8 +7,10 @@ namespace OpenSage.Graphics.Shaders
     {
         private readonly Dictionary<string, ShaderMaterialShaderResources> _shaderMaterialResources;
 
-        public readonly FixedFunctionShaderResources FixedFunction;
+        public readonly GlobalShaderResources Global;
         public readonly MeshShaderResources Mesh;
+
+        public readonly FixedFunctionShaderResources FixedFunction;
         public readonly MeshDepthShaderResources MeshDepth;
         public readonly ParticleShaderResources Particle;
         public readonly RoadShaderResources Road;
@@ -16,10 +18,12 @@ namespace OpenSage.Graphics.Shaders
         public readonly TerrainShaderResources Terrain;
         public readonly WaterShaderResources Water;
 
-        public ShaderResourceManager(GraphicsDevice graphicsDevice)
+        public ShaderResourceManager(GraphicsDevice graphicsDevice, Texture solidWhiteTexture)
         {
+            Global = AddDisposable(new GlobalShaderResources(graphicsDevice, solidWhiteTexture));
             Mesh = AddDisposable(new MeshShaderResources(graphicsDevice));
-            FixedFunction = AddDisposable(new FixedFunctionShaderResources(graphicsDevice));
+
+            FixedFunction = AddDisposable(new FixedFunctionShaderResources(graphicsDevice, Global, Mesh));
             MeshDepth = AddDisposable(new MeshDepthShaderResources(graphicsDevice));
             Particle = AddDisposable(new ParticleShaderResources(graphicsDevice));
             Road = AddDisposable(new RoadShaderResources(graphicsDevice));
