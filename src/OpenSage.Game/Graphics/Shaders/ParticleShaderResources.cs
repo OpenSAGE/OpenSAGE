@@ -14,13 +14,27 @@ namespace OpenSage.Graphics.Shaders
 
         private readonly ResourceLayout _particleResourceLayout;
 
-        public ParticleShaderResources(GraphicsDevice graphicsDevice)
+        public ParticleShaderResources(
+            GraphicsDevice graphicsDevice,
+            GlobalShaderResources globalShaderResources)
             : base(
                 graphicsDevice,
                 "Particle",
                 new GlobalResourceSetIndices(0u, LightingType.None, null, null, null, null),
                 ParticleVertex.VertexDescriptor)
         {
+            _particleResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+                new ResourceLayoutDescription(
+                    new ResourceLayoutElementDescription("RenderItemConstants", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+                    new ResourceLayoutElementDescription("ParticleTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
+
+            var resourceLayouts = new[]
+            {
+                globalShaderResources.GlobalConstantsResourceLayout,
+                _particleResourceLayout
+            };
+
             Pipeline CreatePipeline(in BlendStateDescription blendStateDescription)
             {
                 return graphicsDevice.ResourceFactory.CreateGraphicsPipeline(
@@ -30,18 +44,12 @@ namespace OpenSage.Graphics.Shaders
                         RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
                         PrimitiveTopology.TriangleList,
                         ShaderSet.Description,
-                        ShaderSet.ResourceLayouts,
+                        resourceLayouts,
                         RenderPipeline.GameOutputDescription));
             }
 
             _alphaPipeline = AddDisposable(CreatePipeline(BlendStateDescription.SingleAlphaBlend));
             _additivePipeline = AddDisposable(CreatePipeline(BlendStateDescription.SingleAdditiveBlend));
-
-            _particleResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("RenderItemConstants", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-                    new ResourceLayoutElementDescription("ParticleTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
         }
 
         public Pipeline GetCachedPipeline(ParticleSystemShader shader)

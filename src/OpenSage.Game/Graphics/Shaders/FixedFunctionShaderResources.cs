@@ -31,18 +31,9 @@ namespace OpenSage.Graphics.Shaders
                     new ResourceLayoutElementDescription("Texture0", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Texture1", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
 
-            _resourceLayouts = new[]
-            {
-                globalShaderResources.GlobalConstantsResourceLayout,
-                globalShaderResources.GlobalLightingConstantsResourceLayout,
-                globalShaderResources.GlobalCloudResourceLayout,
-                globalShaderResources.GlobalShadowResourceLayout,
-                meshShaderResources.MeshConstantsResourceLayout,
-                _materialResourceLayout,
-                meshShaderResources.SamplerResourceLayout,
-                meshShaderResources.RenderItemConstantsResourceLayout,
-                meshShaderResources.SkinningResourceLayout
-            };
+            _resourceLayouts = meshShaderResources.CreateResourceLayouts(
+                globalShaderResources,
+                _materialResourceLayout);
         }
 
         public Pipeline GetCachedPipeline(

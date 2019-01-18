@@ -24,17 +24,17 @@ namespace OpenSage.Graphics.Shaders
             Mesh = AddDisposable(new MeshShaderResources(graphicsDevice));
 
             FixedFunction = AddDisposable(new FixedFunctionShaderResources(graphicsDevice, Global, Mesh));
-            MeshDepth = AddDisposable(new MeshDepthShaderResources(graphicsDevice));
-            Particle = AddDisposable(new ParticleShaderResources(graphicsDevice));
-            Road = AddDisposable(new RoadShaderResources(graphicsDevice));
+            MeshDepth = AddDisposable(new MeshDepthShaderResources(graphicsDevice, Global, Mesh));
+            Particle = AddDisposable(new ParticleShaderResources(graphicsDevice, Global));
+            Road = AddDisposable(new RoadShaderResources(graphicsDevice, Global));
             Sprite = AddDisposable(new SpriteShaderResources(graphicsDevice));
-            Terrain = AddDisposable(new TerrainShaderResources(graphicsDevice));
-            Water = AddDisposable(new WaterShaderResources(graphicsDevice));
+            Terrain = AddDisposable(new TerrainShaderResources(graphicsDevice, Global));
+            Water = AddDisposable(new WaterShaderResources(graphicsDevice, Global));
 
             _shaderMaterialResources = new Dictionary<string, ShaderMaterialShaderResources>
             {
-                { "NormalMapped", AddDisposable(new NormalMappedShaderResources(graphicsDevice)) },
-                { "Simple", AddDisposable(new SimpleShaderResources(graphicsDevice)) }
+                { "NormalMapped", AddDisposable(new NormalMappedShaderResources(graphicsDevice, Global, Mesh)) },
+                { "Simple", AddDisposable(new SimpleShaderResources(graphicsDevice, Global, Mesh)) }
             };
         }
 

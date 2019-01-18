@@ -11,7 +11,9 @@ namespace OpenSage.Graphics.Shaders
 
         public readonly Pipeline Pipeline;
 
-        public RoadShaderResources(GraphicsDevice graphicsDevice)
+        public RoadShaderResources(
+            GraphicsDevice graphicsDevice,
+            GlobalShaderResources globalShaderResources)
             : base(
                 graphicsDevice,
                 "Road",
@@ -23,6 +25,15 @@ namespace OpenSage.Graphics.Shaders
                     new ResourceLayoutElementDescription("Texture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
 
+            var resourceLayouts = new[]
+            {
+                globalShaderResources.GlobalConstantsResourceLayout,
+                globalShaderResources.GlobalLightingConstantsResourceLayout,
+                globalShaderResources.GlobalCloudResourceLayout,
+                globalShaderResources.GlobalShadowResourceLayout,
+                _materialResourceLayout
+            };
+
             Pipeline = AddDisposable(graphicsDevice.ResourceFactory.CreateGraphicsPipeline(
                 new GraphicsPipelineDescription(
                     BlendStateDescription.SingleAlphaBlend,
@@ -30,7 +41,7 @@ namespace OpenSage.Graphics.Shaders
                     RasterizerStateDescriptionUtility.CullNoneSolid, // TODO
                     PrimitiveTopology.TriangleList,
                     ShaderSet.Description,
-                    ShaderSet.ResourceLayouts,
+                    resourceLayouts,
                     RenderPipeline.GameOutputDescription)));
         }
 
