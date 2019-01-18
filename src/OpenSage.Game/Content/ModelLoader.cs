@@ -160,6 +160,7 @@ namespace OpenSage.Content
         {
             W3dShaderMaterial w3dShaderMaterial;
             ShaderResourcesBase shaderResources;
+            Pipeline depthPipeline;
             if (w3dMesh.MaterialPasses.Count == 1 && w3dMesh.MaterialPasses[0].ShaderMaterialIds != null)
             {
                 if (w3dMesh.MaterialPasses[0].ShaderMaterialIds.Items.Length > 1)
@@ -171,11 +172,13 @@ namespace OpenSage.Content
                 var effectName = w3dShaderMaterial.Header.TypeName.Replace(".fx", string.Empty);
 
                 shaderResources = contentManager.ShaderResources.GetShaderMaterialResources(effectName);
+                depthPipeline = contentManager.ShaderResources.MeshDepth.TriangleListPipeline;
             }
             else
             {
                 w3dShaderMaterial = null;
                 shaderResources = contentManager.ShaderResources.FixedFunction;
+                depthPipeline = contentManager.ShaderResources.MeshDepth.TriangleStripPipeline;
             }
 
             var vertexMaterials = CreateMaterials(w3dMesh);
@@ -186,10 +189,10 @@ namespace OpenSage.Content
                 shadingConfigurations[i] = CreateShadingConfiguration(w3dMesh.Shaders.Items[i]);
             }
 
-            var materialPasses = new List<ModelMeshMaterialPass>(w3dMesh.MaterialPasses.Count);
+            var meshParts = new List<ModelMeshPart>();
             if (w3dShaderMaterial != null)
             {
-                materialPasses.Add(CreateModelMeshMaterialPassShaderMaterial(
+                meshParts.Add(CreateModelMeshPartShaderMaterial(
                     contentManager,
                     w3dMesh,
                     w3dMesh.MaterialPasses[0],
@@ -200,12 +203,13 @@ namespace OpenSage.Content
             {
                 for (var i = 0; i < w3dMesh.MaterialPasses.Count; i++)
                 {
-                    materialPasses.Add(CreateModelMeshMaterialPassFixedFunction(
+                    CreateModelMeshPartsFixedFunction(
                         contentManager,
                         w3dMesh,
                         w3dMesh.MaterialPasses[i],
                         vertexMaterials,
-                        shadingConfigurations));
+                        shadingConfigurations,
+                        meshParts);
                 }
             }
 
@@ -222,9 +226,10 @@ namespace OpenSage.Content
                 contentManager.ShaderResources,
                 w3dMesh.Header.MeshName,
                 shaderResources.ShaderSet,
+                depthPipeline,
                 MemoryMarshal.AsBytes(new ReadOnlySpan<MeshShaderResources.MeshVertex.Basic>(CreateVertices(w3dMesh, w3dMesh.IsSkinned))),
                 CreateIndices(w3dMesh, w3dShaderMaterial != null),
-                materialPasses,
+                meshParts,
                 w3dMesh.IsSkinned,
                 boundingBox,
                 w3dMesh.Header.Attributes.HasFlag(W3dMeshFlags.Hidden),
@@ -364,7 +369,7 @@ namespace OpenSage.Content
             return indices;
         }
 
-        private ModelMeshMaterialPass CreateModelMeshMaterialPassShaderMaterial(
+        private ModelMeshPart CreateModelMeshPartShaderMaterial(
             ContentManager contentManager,
             W3dMesh w3dMesh,
             W3dMaterialPass w3dMaterialPass,
@@ -433,27 +438,27 @@ namespace OpenSage.Content
 
             var materialResourceSet = materialResourceSetBuilder.CreateResourceSet();
 
-            meshParts.Add(new ModelMeshPart(
+            var texCoordsVertexBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
+                texCoords,
+                BufferUsage.VertexBuffer));
+
+            return new ModelMeshPart(
+                texCoordsVertexBuffer,
                 0,
                 w3dMesh.Header.NumTris * 3,
                 blendEnabled,
                 pipeline,
-                materialResourceSet,
-                contentManager.ShaderResources.MeshDepth.TriangleStripPipeline));
-
-            return new ModelMeshMaterialPass(
-                contentManager.GraphicsDevice,
-                texCoords,
-                meshParts);
+                materialResourceSet);
         }
 
         // One ModelMeshMaterialPass for each W3D_CHUNK_MATERIAL_PASS
-        private ModelMeshMaterialPass CreateModelMeshMaterialPassFixedFunction(
+        private void CreateModelMeshPartsFixedFunction(
             ContentManager contentManager,
             W3dMesh w3dMesh,
             W3dMaterialPass w3dMaterialPass,
             FixedFunctionShaderResources.VertexMaterial[] vertexMaterials,
-            FixedFunctionShaderResources.ShadingConfiguration[] shadingConfigurations)
+            FixedFunctionShaderResources.ShadingConfiguration[] shadingConfigurations,
+            List<ModelMeshPart> meshParts)
         {
             var hasTextureStage0 = w3dMaterialPass.TextureStages.Count > 0;
             var textureStage0 = hasTextureStage0
@@ -488,7 +493,9 @@ namespace OpenSage.Content
                 }
             }
 
-            var meshParts = new List<ModelMeshPart>();
+            var texCoordsVertexBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
+                texCoords,
+                BufferUsage.VertexBuffer));
 
             // Optimisation for a fairly common case.
             if (w3dMaterialPass.VertexMaterialIds.Items.Length == 1
@@ -498,6 +505,7 @@ namespace OpenSage.Content
             {
                 meshParts.Add(CreateModelMeshPart(
                     contentManager,
+                    texCoordsVertexBuffer,
                     0, 
                     w3dMesh.Header.NumTris * 3,
                     w3dMesh,
@@ -608,6 +616,7 @@ namespace OpenSage.Content
                     {
                         meshParts.Add(CreateModelMeshPart(
                             contentManager,
+                            texCoordsVertexBuffer,
                             startIndex,
                             indexCount,
                             w3dMesh,
@@ -632,6 +641,7 @@ namespace OpenSage.Content
                 {
                     meshParts.Add(CreateModelMeshPart(
                         contentManager,
+                        texCoordsVertexBuffer,
                         startIndex,
                         indexCount,
                         w3dMesh,
@@ -644,11 +654,6 @@ namespace OpenSage.Content
                         combinedId.TextureIndex1));
                 }
             }
-
-            return new ModelMeshMaterialPass(
-                contentManager.GraphicsDevice,
-                texCoords,
-                meshParts);
         }
 
         private struct CombinedMaterialPermutation
@@ -693,6 +698,7 @@ namespace OpenSage.Content
         // One ModelMeshPart for each unique shader in a W3D_CHUNK_MATERIAL_PASS.
         private ModelMeshPart CreateModelMeshPart(
             ContentManager contentManager,
+            DeviceBuffer texCoordsVertexBuffer,
             uint startIndex,
             uint indexCount,
             W3dMesh w3dMesh,
@@ -742,12 +748,12 @@ namespace OpenSage.Content
                 CreateTexture(contentManager, w3dMesh, textureIndex1) ?? contentManager.NullTexture));
 
             return new ModelMeshPart(
+                texCoordsVertexBuffer,
                 startIndex,
                 indexCount,
                 blendEnabled,
                 pipeline,
-                materialResourceSet,
-                contentManager.ShaderResources.MeshDepth.TriangleListPipeline);
+                materialResourceSet);
         }
 
         private static Animation CreateAnimation(W3dAnimation w3dAnimation)

@@ -4,30 +4,31 @@ namespace OpenSage.Graphics
 {
     public sealed class ModelMeshPart
     {
-        public uint StartIndex { get; }
-        public uint IndexCount { get; }
+        public readonly uint StartIndex;
+        public readonly uint IndexCount;
 
-        internal readonly bool BlendEnabled;
-        internal readonly Pipeline Pipeline;
-        internal readonly ResourceSet MaterialResourceSet;
-        internal readonly Pipeline DepthPipeline;
+        public readonly DeviceBuffer TexCoordVertexBuffer;
+
+        public readonly bool BlendEnabled;
+        public readonly Pipeline Pipeline;
+        public readonly ResourceSet MaterialResourceSet;
 
         internal ModelMeshPart(
+            DeviceBuffer texCoordVertexBuffer,
             uint startIndex, 
             uint indexCount,
             bool blendEnabled,
             Pipeline pipeline,
-            ResourceSet materialResourceSet,
-            Pipeline depthPipeline)
+            ResourceSet materialResourceSet)
         {
+            TexCoordVertexBuffer = texCoordVertexBuffer;
+
             StartIndex = startIndex;
             IndexCount = indexCount;
 
             BlendEnabled = blendEnabled;
             Pipeline = pipeline;
             MaterialResourceSet = materialResourceSet;
-
-            DepthPipeline = depthPipeline;
         }
     }
 }
