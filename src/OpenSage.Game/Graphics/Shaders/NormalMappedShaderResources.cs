@@ -1,4 +1,5 @@
-﻿using Veldrid;
+﻿using System.Collections.Generic;
+using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
@@ -13,18 +14,36 @@ namespace OpenSage.Graphics.Shaders
                 globalShaderResources,
                 meshShaderResources,
                 "NormalMapped",
-                CreateMaterialResourceLayout)
+                CreateMaterialResourceBindings)
         {
 
         }
 
-        private static ResourceLayout CreateMaterialResourceLayout(GraphicsDevice graphicsDevice)
+        private static IEnumerable<ResourceBinding> CreateMaterialResourceBindings()
         {
-            return graphicsDevice.ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("MaterialConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("DiffuseTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("NormalMap", ResourceKind.TextureReadOnly, ShaderStages.Fragment)));
+            yield return new ResourceBinding(
+                0,
+                new ResourceLayoutElementDescription("MaterialConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment),
+                new ResourceType(
+                    "MaterialConstants",
+                    64,
+                    new ResourceTypeMember("BumpScale", ResourceType.Float, 0),
+                    new ResourceTypeMember("SpecularExponent", ResourceType.Float, 4),
+                    new ResourceTypeMember("AlphaTestEnable", ResourceType.Int, 8),
+                    new ResourceTypeMember("_Padding", ResourceType.Float, 12),
+                    new ResourceTypeMember("AmbientColor", ResourceType.Vec4, 16),
+                    new ResourceTypeMember("DiffuseColor", ResourceType.Vec4, 32),
+                    new ResourceTypeMember("SpecularColor", ResourceType.Vec4, 48)));
+
+            yield return new ResourceBinding(
+                1,
+                new ResourceLayoutElementDescription("DiffuseTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+                ResourceType.Texture2D);
+
+            yield return new ResourceBinding(
+                1,
+                new ResourceLayoutElementDescription("NormalMap", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+                ResourceType.Texture2D);
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using OpenSage.Utilities.Extensions;
+﻿using OpenSage.Utilities.Extensions;
 using Veldrid;
 using Veldrid.SPIRV;
 
@@ -10,12 +8,9 @@ namespace OpenSage.Graphics.Shaders
     {
         private static byte _nextId = 0;
 
-        private readonly ShaderDefinition _shaderDefinition;
-
         public readonly byte Id;
 
         public readonly ShaderSetDescription Description;
-        public readonly ResourceLayout[] ResourceLayouts;
         public readonly GlobalResourceSetIndices GlobalResourceSetIndices;
 
         public ShaderSet(
@@ -60,47 +55,6 @@ namespace OpenSage.Graphics.Shaders
             Description = new ShaderSetDescription(
                 vertexDescriptors,
                 new[] { vertexShader, fragmentShader });
-
-            _shaderDefinition = ShaderDefinitions.GetShaderDefinition(shaderName);
-
-            var resourceBindingsGroupedBySet = _shaderDefinition.ResourceBindings
-                .GroupBy(x => x.Set)
-                .OrderBy(x => x.Key);
-
-            var resourceLayouts = new List<ResourceLayout>();
-
-            foreach (var resourceBindingSet in resourceBindingsGroupedBySet)
-            {
-                var resourceLayoutElementDescriptions = new List<ResourceLayoutElementDescription>();
-
-                foreach (var resourceBinding in resourceBindingSet.OrderBy(x => x.Binding))
-                {
-                    resourceLayoutElementDescriptions.Add(resourceBinding.Description);
-                }
-
-                var resourceLayoutDescription = new ResourceLayoutDescription(
-                    resourceLayoutElementDescriptions.ToArray());
-
-                var resourceLayout = AddDisposable(
-                    graphicsDevice.ResourceFactory.CreateResourceLayout(
-                        resourceLayoutDescription));
-
-                resourceLayout.Name = $"{shaderName} Layout {resourceBindingSet.Key}";
-
-                resourceLayouts.Add(resourceLayout);
-            }
-
-            ResourceLayouts = resourceLayouts.ToArray();
-        }
-
-        internal ResourceBinding GetResourceBinding(string name)
-        {
-            return _shaderDefinition.ResourceBindings.FirstOrDefault(x => x.Description.Name == name);
-        }
-
-        internal IEnumerable<ResourceBinding> GetResourceBindings(uint set)
-        {
-            return _shaderDefinition.ResourceBindings.Where(x => x.Set == set);
         }
     }
 

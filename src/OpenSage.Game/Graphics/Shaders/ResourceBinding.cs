@@ -4,9 +4,18 @@ namespace OpenSage.Graphics.Shaders
 {
     internal sealed class ResourceBinding
     {
-        public uint Set;
-        public uint Binding;
-        public ResourceLayoutElementDescription Description;
-        public ResourceType Type;
+        public readonly uint Binding;
+        public readonly ResourceLayoutElementDescription Description;
+        public readonly ResourceType Type;
+
+        public ResourceBinding(
+            uint binding,
+            in ResourceLayoutElementDescription description,
+            ResourceType type)
+        {
+            Binding = binding;
+            Description = description;
+            Type = type;
+        }
     }
 }

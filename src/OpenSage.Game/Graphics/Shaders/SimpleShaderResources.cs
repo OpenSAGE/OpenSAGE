@@ -1,4 +1,5 @@
-﻿using Veldrid;
+﻿using System.Collections.Generic;
+using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
@@ -13,17 +14,26 @@ namespace OpenSage.Graphics.Shaders
                 globalShaderResources,
                 meshShaderResources,
                 "Simple",
-                CreateMaterialResourceLayout)
+                CreateMaterialResourceBindings)
         {
 
         }
 
-        private static ResourceLayout CreateMaterialResourceLayout(GraphicsDevice graphicsDevice)
+        private static IEnumerable<ResourceBinding> CreateMaterialResourceBindings()
         {
-            return graphicsDevice.ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("MaterialConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("Texture_0", ResourceKind.TextureReadOnly, ShaderStages.Fragment)));
+            yield return new ResourceBinding(
+                0,
+                new ResourceLayoutElementDescription("MaterialConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment),
+                new ResourceType(
+                    "MaterialConstants",
+                    32,
+                    new ResourceTypeMember("ColorEmissive", ResourceType.Vec4, 0),
+                    new ResourceTypeMember("TexCoordTransform_0", ResourceType.Vec4, 16)));
+
+            yield return new ResourceBinding(
+                1,
+                new ResourceLayoutElementDescription("Texture_0", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+                ResourceType.Texture2D);
         }
     }
 }
