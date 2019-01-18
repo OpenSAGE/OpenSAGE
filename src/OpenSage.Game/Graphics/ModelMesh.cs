@@ -46,7 +46,8 @@ namespace OpenSage.Graphics
         public readonly bool CameraOriented;
 
         internal ModelMesh(
-            ContentManager contentManager,
+            GraphicsDevice graphicsDevice,
+            ShaderResourceManager shaderResources,
             string name,
             ShaderSet shaderSet,
             ReadOnlySpan<byte> vertexData,
@@ -61,7 +62,7 @@ namespace OpenSage.Graphics
             Name = name;
 
             _shaderSet = shaderSet;
-            _depthShaderSet = contentManager.ShaderResources.MeshDepth.ShaderSet;
+            _depthShaderSet = shaderResources.MeshDepth.ShaderSet;
 
             BoundingBox = boundingBox;
 
@@ -70,19 +71,17 @@ namespace OpenSage.Graphics
             Hidden = hidden;
             CameraOriented = cameraOriented;
 
-            var graphicsDevice = contentManager.GraphicsDevice;
-
             _vertexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(vertexData, BufferUsage.VertexBuffer));
 
             _indexBuffer = AddDisposable(graphicsDevice.CreateStaticBuffer(
                 indices,
                 BufferUsage.IndexBuffer));
 
-            _meshConstantsResourceSet = contentManager.ShaderResources.Mesh.GetCachedMeshResourceSet(
+            _meshConstantsResourceSet = shaderResources.Mesh.GetCachedMeshResourceSet(
                 isSkinned,
                 hasHouseColor);
 
-            _samplerResourceSet = contentManager.ShaderResources.FixedFunction.SamplerResourceSet;
+            _samplerResourceSet = shaderResources.Mesh.SamplerResourceSet;
 
             foreach (var materialPass in materialPasses)
             {

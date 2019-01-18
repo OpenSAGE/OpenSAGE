@@ -159,7 +159,7 @@ namespace OpenSage.Content
             W3dMesh w3dMesh)
         {
             W3dShaderMaterial w3dShaderMaterial;
-            ShaderMaterialShaderResources shaderResources;
+            ShaderResourcesBase shaderResources;
             if (w3dMesh.MaterialPasses.Count == 1 && w3dMesh.MaterialPasses[0].ShaderMaterialIds != null)
             {
                 if (w3dMesh.MaterialPasses[0].ShaderMaterialIds.Items.Length > 1)
@@ -175,7 +175,7 @@ namespace OpenSage.Content
             else
             {
                 w3dShaderMaterial = null;
-                shaderResources = null;
+                shaderResources = contentManager.ShaderResources.FixedFunction;
             }
 
             var vertexMaterials = CreateMaterials(w3dMesh);
@@ -194,7 +194,7 @@ namespace OpenSage.Content
                     w3dMesh,
                     w3dMesh.MaterialPasses[0],
                     w3dShaderMaterial,
-                    shaderResources));
+                    (ShaderMaterialShaderResources) shaderResources));
             }
             else
             {
@@ -218,9 +218,10 @@ namespace OpenSage.Content
             var hasHouseColor = w3dMesh.Header.MeshName.StartsWith("HOUSECOLOR");
 
             return new ModelMesh(
-                contentManager,
+                contentManager.GraphicsDevice,
+                contentManager.ShaderResources,
                 w3dMesh.Header.MeshName,
-                contentManager.ShaderResources.FixedFunction.ShaderSet,
+                shaderResources.ShaderSet,
                 MemoryMarshal.AsBytes(new ReadOnlySpan<MeshShaderResources.MeshVertex.Basic>(CreateVertices(w3dMesh, w3dMesh.IsSkinned))),
                 CreateIndices(w3dMesh, w3dShaderMaterial != null),
                 materialPasses,

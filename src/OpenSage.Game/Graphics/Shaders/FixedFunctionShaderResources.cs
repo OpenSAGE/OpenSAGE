@@ -12,8 +12,6 @@ namespace OpenSage.Graphics.Shaders
         private readonly Dictionary<PipelineKey, Pipeline> _pipelines;
         private readonly ResourceLayout _materialResourceLayout;
 
-        public readonly ResourceSet SamplerResourceSet;
-
         public FixedFunctionShaderResources(GraphicsDevice graphicsDevice)
             : base(
                 graphicsDevice,
@@ -28,11 +26,6 @@ namespace OpenSage.Graphics.Shaders
                     new ResourceLayoutElementDescription("MaterialConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Texture0", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("Texture1", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
-
-            SamplerResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    ShaderSet.ResourceLayouts[6],
-                    graphicsDevice.Aniso4xSampler)));
         }
 
         public Pipeline GetCachedPipeline(
