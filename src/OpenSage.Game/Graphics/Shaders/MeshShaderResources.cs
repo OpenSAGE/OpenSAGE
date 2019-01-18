@@ -14,6 +14,8 @@ namespace OpenSage.Graphics.Shaders
         private readonly ResourceLayout _meshConstantsResourceLayout;
         private readonly ResourceLayout _skinningResourceLayout;
 
+        public readonly ResourceSet SamplerResourceSet;
+
         public MeshShaderResources(GraphicsDevice graphicsDevice)
         {
             _graphicsDevice = graphicsDevice;
@@ -26,6 +28,15 @@ namespace OpenSage.Graphics.Shaders
             _skinningResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("SkinningBuffer", ResourceKind.StructuredBufferReadOnly, ShaderStages.Vertex))));
+
+            var samplerResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+                new ResourceLayoutDescription(
+                    new ResourceLayoutElementDescription("Sampler", ResourceKind.Sampler, ShaderStages.Fragment))));
+
+            SamplerResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
+                new ResourceSetDescription(
+                    samplerResourceLayout,
+                    graphicsDevice.Aniso4xSampler)));
         }
 
         public ResourceSet GetCachedMeshResourceSet(bool isSkinned, bool hasHouseColor)
