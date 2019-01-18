@@ -26,6 +26,13 @@ namespace OpenSage.Gui.Apt
                                      a.GeometryRotation * b.GeometryRotation,
                                      a.GeometryTranslation + b.GeometryTranslation);
         }
+
+        public ItemTransform WithColorTransform(ColorRgbaF color)
+        {
+            return new ItemTransform(color,
+                         GeometryRotation,
+                         GeometryTranslation);
+        }
     }
 
     public interface IDisplayItem

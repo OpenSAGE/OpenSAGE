@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript.Library;
 
@@ -64,6 +62,36 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Check wether or not a string is a builtin flash variable
+        /// </summary>
+        /// <param name="name">variable name</param>
+        /// <returns></returns>
+        public virtual bool IsBuiltInVariable(string name)
+        {
+            return Builtin.IsBuiltInVariable(name);
+        }
+
+        /// <summary>
+        /// Get builtin variable
+        /// </summary>
+        /// <param name="name">variable name</param>
+        /// <returns></returns>
+        public virtual Value GetBuiltInVariable(string name)
+        {
+            return Builtin.GetBuiltInVariable(name, this);
+        }
+
+        /// <summary>
+        /// Set a builtin flash variable
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="val"></param>
+        public virtual void SetBuiltInVariable(string name, Value val)
+        {
+            Builtin.SetBuiltInVariable(name, this, val);
         }
 
         /// <summary>

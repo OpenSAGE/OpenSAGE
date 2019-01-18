@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenSage.Gui.Apt.ActionScript.Opcodes;
 
 namespace OpenSage.Gui.Apt.ActionScript.Library
 {
@@ -14,7 +12,8 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
     {
         private static readonly Dictionary<string, Func<Value[], Value>> _builtinClasses;
         private static readonly Dictionary<string, Action<ActionContext, ObjectContext, Value[]>> _builtinFunctions;
-        private static readonly Dictionary<string, Func<ObjectContext, Value>> _builtinVariables;
+        private static readonly Dictionary<string, Func<ObjectContext, Value>> _builtinVariablesGet;
+        private static readonly Dictionary<string, Action<ObjectContext, Value>> _builtinVariablesSet;
 
         static Builtin()
         {
@@ -23,11 +22,21 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             _builtinClasses["Color"] = (Value[] args) => { return Value.FromObject(new Color()); };
 
             //list of builtin variables
-            _builtinVariables = new Dictionary<string, Func<ObjectContext, Value>>();
-            _builtinVariables["_root"] = (ObjectContext ctx) => { return Value.FromObject(ctx.Item.Context.Root.ScriptObject); };
-            _builtinVariables["_global"] = (ObjectContext ctx) => { return Value.FromObject(ctx.Item.Context.AVM.GlobalObject); };
-            _builtinVariables["_parent"] = (ObjectContext ctx) => { return GetParent(ctx); };
-            _builtinVariables["extern"] = (ObjectContext ctx) => { return Value.FromObject(ctx.Item.Context.AVM.ExternObject); };
+            _builtinVariablesGet = new Dictionary<string, Func<ObjectContext, Value>>();
+            _builtinVariablesGet["_root"] = (ObjectContext ctx) => { return Value.FromObject(ctx.Item.Context.Root.ScriptObject); };
+            _builtinVariablesGet["_global"] = (ObjectContext ctx) => { return Value.FromObject(ctx.Item.Context.AVM.GlobalObject); };
+            _builtinVariablesGet["_parent"] = (ObjectContext ctx) => { return GetParent(ctx); };
+            _builtinVariablesGet["extern"] = (ObjectContext ctx) => { return Value.FromObject(ctx.Item.Context.AVM.ExternObject); };
+
+            //list of builtin variables - set
+            _builtinVariablesSet = new Dictionary<string, Action<ObjectContext, Value>>();
+            _builtinVariablesSet["_alpha"] = (ObjectContext ctx, Value v) =>
+            {
+                Debug.WriteLine("Setting alpha to: " + v.ToInteger());
+
+                var transform = ctx.Item.Transform;
+                ctx.Item.Transform = transform.WithColorTransform(transform.ColorTransform.WithA(v.ToInteger() / 100.0f));
+            };
 
             //list of builtin functions
             _builtinFunctions = new Dictionary<string, Action<ActionContext, ObjectContext, Value[]>>();
@@ -36,7 +45,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             _builtinFunctions["clearInterval"] = (ActionContext actx, ObjectContext ctx, Value[] args) => { ClearInterval(actx, ctx, args); };
             _builtinFunctions["setInterval"] = (ActionContext actx, ObjectContext ctx, Value[] args) => { SetInterval(actx, ctx, args); };
         }
-
 
         public static bool IsBuiltInClass(string name)
         {
@@ -60,7 +68,12 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
 
         public static bool IsBuiltInVariable(string name)
         {
-            if (_builtinVariables.ContainsKey(name))
+            if (_builtinVariablesGet.ContainsKey(name))
+            {
+                return true;
+            }
+
+            if (_builtinVariablesSet.ContainsKey(name))
             {
                 return true;
             }
@@ -75,9 +88,13 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
 
         public static Value GetBuiltInVariable(string name, ObjectContext ctx)
         {
-            return _builtinVariables[name](ctx);
+            return _builtinVariablesGet[name](ctx);
         }
 
+        public static void SetBuiltInVariable(string name, ObjectContext ctx, Value val)
+        {
+            _builtinVariablesSet[name](ctx, val);
+        }
 
         public static Value GetBuiltInClass(string name, Value[] args)
         {
@@ -112,7 +129,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 }
                 else if (args.First().Type == ValueType.Integer)
                 {
-                    si.GotoFrame(args.First().ToInteger());
+                    si.GotoFrame(args.First().ToInteger() - 1);
                 }
                 else
                 {
