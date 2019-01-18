@@ -391,7 +391,7 @@ namespace OpenSage.Content
 
             var materialResourceSetBuilder = AddDisposable(new ShaderMaterialResourceSetBuilder(
                 contentManager.GraphicsDevice,
-                shaderResources.ShaderSet));
+                shaderResources));
 
             foreach (var w3dShaderProperty in w3dShaderMaterial.Properties)
             {

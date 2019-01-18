@@ -2,12 +2,12 @@
 {
     internal sealed class ResourceTypeMember
     {
-        public string Name { get; }
-        public ResourceType Type { get; }
-        public uint Offset { get; }
-        public uint Size { get; }
+        public readonly string Name;
+        public readonly ResourceType Type;
+        public readonly uint Offset;
+        public readonly uint Size;
 
-        internal ResourceTypeMember(string name, ResourceType type, uint offset)
+        public ResourceTypeMember(string name, ResourceType type, uint offset)
         {
             Name = name;
             Type = type;
