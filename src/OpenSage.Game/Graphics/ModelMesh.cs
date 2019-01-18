@@ -27,6 +27,8 @@ namespace OpenSage.Graphics
         private readonly ShaderSet _shaderSet;
         private readonly ShaderSet _depthShaderSet;
 
+        private readonly Pipeline _depthPipeline;
+
         private readonly DeviceBuffer _vertexBuffer;
         private readonly DeviceBuffer _indexBuffer;
 
@@ -38,7 +40,7 @@ namespace OpenSage.Graphics
 
         public readonly BoundingBox BoundingBox;
 
-        internal readonly List<ModelMeshMaterialPass> MaterialPasses;
+        public readonly List<ModelMeshPart> MeshParts;
 
         public readonly bool Skinned;
 
@@ -50,9 +52,10 @@ namespace OpenSage.Graphics
             ShaderResourceManager shaderResources,
             string name,
             ShaderSet shaderSet,
+            Pipeline depthPipeline,
             ReadOnlySpan<byte> vertexData,
             ushort[] indices,
-            List<ModelMeshMaterialPass> materialPasses,
+            List<ModelMeshPart> meshParts,
             bool isSkinned,
             in BoundingBox boundingBox,
             bool hidden,
@@ -63,6 +66,8 @@ namespace OpenSage.Graphics
 
             _shaderSet = shaderSet;
             _depthShaderSet = shaderResources.MeshDepth.ShaderSet;
+
+            _depthPipeline = depthPipeline;
 
             BoundingBox = boundingBox;
 
@@ -83,11 +88,7 @@ namespace OpenSage.Graphics
 
             _samplerResourceSet = shaderResources.Mesh.SamplerResourceSet;
 
-            foreach (var materialPass in materialPasses)
-            {
-                AddDisposable(materialPass);
-            }
-            MaterialPasses = materialPasses;
+            MeshParts = meshParts;
         }
 
         internal void BuildRenderList(
@@ -162,69 +163,66 @@ namespace OpenSage.Graphics
 
             var meshBoundingBox = BoundingBox.Transform(BoundingBox, world); // TODO: Not right for skinned meshes
 
-            foreach (var materialPass in MaterialPasses)
+            foreach (var meshPart in MeshParts)
             {
-                foreach (var meshPart in materialPass.MeshParts)
+                var blendEnabled = meshPart.BlendEnabled;
+
+                // Depth pass
+
+                // TODO: With more work, we could draw shadows for translucent and alpha-tested materials.
+                if (!blendEnabled && castsShadow)
                 {
-                    var blendEnabled = meshPart.BlendEnabled;
+                    renderList.Shadow.RenderItems.Add(new RenderItem(
+                       _depthShaderSet,
+                       _depthPipeline,
+                       meshBoundingBox,
+                       world,
+                       meshPart.StartIndex,
+                       meshPart.IndexCount,
+                       _indexBuffer,
+                       cl =>
+                       {
+                           cl.SetGraphicsResourceSet(1, _meshConstantsResourceSet);
+                           cl.SetGraphicsResourceSet(3, modelInstance.SkinningBufferResourceSet);
 
-                    // Depth pass
+                           cl.SetVertexBuffer(0, _vertexBuffer);
 
-                    // TODO: With more work, we could draw shadows for translucent and alpha-tested materials.
-                    if (!blendEnabled && castsShadow)
-                    {
-                        renderList.Shadow.RenderItems.Add(new RenderItem(
-                           _depthShaderSet,
-                           meshPart.DepthPipeline,
-                           meshBoundingBox,
-                           world,
-                           meshPart.StartIndex,
-                           meshPart.IndexCount,
-                           _indexBuffer,
-                           cl =>
+                           if (meshPart.TexCoordVertexBuffer != null)
                            {
-                               cl.SetGraphicsResourceSet(1, _meshConstantsResourceSet);
-                               cl.SetGraphicsResourceSet(3, modelInstance.SkinningBufferResourceSet);
-
-                               cl.SetVertexBuffer(0, _vertexBuffer);
-
-                               if (materialPass.TexCoordVertexBuffer != null)
-                               {
-                                   cl.SetVertexBuffer(1, materialPass.TexCoordVertexBuffer);
-                               }
-                           }));
-                    }
-
-                    // Standard pass
-
-                    var renderQueue = blendEnabled
-                        ? renderList.Transparent
-                        : renderList.Opaque;
-
-                    renderQueue.RenderItems.Add(new RenderItem(
-                        _shaderSet,
-                        meshPart.Pipeline,
-                        meshBoundingBox,
-                        world,
-                        meshPart.StartIndex,
-                        meshPart.IndexCount,
-                        _indexBuffer,
-                        cl =>
-                        {
-                            cl.SetGraphicsResourceSet(4, _meshConstantsResourceSet);
-                            cl.SetGraphicsResourceSet(5, meshPart.MaterialResourceSet);
-                            cl.SetGraphicsResourceSet(6, _samplerResourceSet);
-                            cl.SetGraphicsResourceSet(8, modelInstance.SkinningBufferResourceSet);
-
-                            cl.SetVertexBuffer(0, _vertexBuffer);
-
-                            if (materialPass.TexCoordVertexBuffer != null)
-                            {
-                                cl.SetVertexBuffer(1, materialPass.TexCoordVertexBuffer);
-                            }
-                        },
-                        owner?.Color));
+                               cl.SetVertexBuffer(1, meshPart.TexCoordVertexBuffer);
+                           }
+                       }));
                 }
+
+                // Standard pass
+
+                var renderQueue = blendEnabled
+                    ? renderList.Transparent
+                    : renderList.Opaque;
+
+                renderQueue.RenderItems.Add(new RenderItem(
+                    _shaderSet,
+                    meshPart.Pipeline,
+                    meshBoundingBox,
+                    world,
+                    meshPart.StartIndex,
+                    meshPart.IndexCount,
+                    _indexBuffer,
+                    cl =>
+                    {
+                        cl.SetGraphicsResourceSet(4, _meshConstantsResourceSet);
+                        cl.SetGraphicsResourceSet(5, meshPart.MaterialResourceSet);
+                        cl.SetGraphicsResourceSet(6, _samplerResourceSet);
+                        cl.SetGraphicsResourceSet(8, modelInstance.SkinningBufferResourceSet);
+
+                        cl.SetVertexBuffer(0, _vertexBuffer);
+
+                        if (meshPart.TexCoordVertexBuffer != null)
+                        {
+                            cl.SetVertexBuffer(1, meshPart.TexCoordVertexBuffer);
+                        }
+                    },
+                    owner?.Color));
             }
         }
     }
