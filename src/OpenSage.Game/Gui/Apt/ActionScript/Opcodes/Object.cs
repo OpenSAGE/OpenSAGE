@@ -45,14 +45,19 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             //pop the value
             var valueVal = context.Stack.Pop().ResolveRegister(context);
             //pop the member name
-            var memberVal = context.Stack.Pop().ResolveRegister(context);
+            var memberName = context.Stack.Pop().ResolveRegister(context).ToString();
             //pop the object
-            var objectVal = context.Stack.Pop().ResolveRegister(context);
+            var obj = context.Stack.Pop().ResolveRegister(context).ToObject();
 
-            //make sure that potential register values are resolved:
-            var obj = objectVal.ToObject();
 
-            obj.Variables[memberVal.ToString()] = valueVal;
+            if (obj.IsBuiltInVariable(memberName))
+            {
+                obj.SetBuiltInVariable(memberName, valueVal);
+            }
+            else
+            {
+                obj.Variables[memberName] = valueVal;
+            }
         }
     }
 

@@ -17,6 +17,10 @@ namespace OpenSage.Gui.Apt.ActionScript
         public ObjectContext ExternObject { get; }
         public UrlHandler UrlHandler { get; }
 
+        public delegate void HandleCommand(string command);
+
+        public HandleCommand CommandHandler;
+
         public VM()
         {
             GlobalObject = new ObjectContext();
@@ -149,6 +153,11 @@ namespace OpenSage.Gui.Apt.ActionScript
 
                 instr = stream.GetInstruction();
             }
+        }
+
+        public void Handle(string url, string target)
+        {
+            UrlHandler.Handle(CommandHandler, url, target);
         }
     }
 }

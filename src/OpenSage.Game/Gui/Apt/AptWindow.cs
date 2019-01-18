@@ -29,8 +29,6 @@ namespace OpenSage.Gui.Apt
         /// </summary>
         public Texture BackgroundImage { get; set; }
 
-
-
         public AptWindow(ContentManager contentManager, AptFile aptFile)
         {
             _contentManager = contentManager;
@@ -43,6 +41,8 @@ namespace OpenSage.Gui.Apt
             Root.SetBackgroundColor = (c) => _backgroundColor = c;
             Root.Create(aptFile.Movie, _context);
             _context.Root = Root;
+
+            _context.AVM.CommandHandler = HandleCommand;
 
             AptFile = aptFile;
 
@@ -81,6 +81,15 @@ namespace OpenSage.Gui.Apt
             var transform = ItemTransform.None;
 
             Root.Render(Renderer, transform, drawingContext);
+        }
+
+        internal void HandleCommand(string cmd)
+        {
+            switch(cmd)
+            {
+                case "AptMainMenu::OnInitialized":
+                    break;
+            }
         }
     }
 }

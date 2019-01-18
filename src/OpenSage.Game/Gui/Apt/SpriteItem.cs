@@ -135,16 +135,14 @@ namespace OpenSage.Gui.Apt
         {
             if (frame < 1)
             {
-                _currentFrame = 0;
-                return;
+                frame = 0;
             }
             else if (frame >= _sprite.Frames.Count)
             {
-                _currentFrame = (uint) _sprite.Frames.Count - 1;
-                return;
+                frame = _sprite.Frames.Count - 1;
             }
 
-            _currentFrame = (uint) frame - 1;
+            _currentFrame = (uint) frame;
         }
 
         public void NextFrame()
