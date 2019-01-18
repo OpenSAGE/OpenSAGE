@@ -29,10 +29,12 @@ namespace OpenSage.Graphics.Shaders
             const bool debug = false;
 #endif
 
+            var assembly = typeof(ShaderSet).Assembly;
+
             byte[] ReadShader(string shaderType)
             {
                 var bytecodeShaderName = $"OpenSage.Assets.Shaders.{shaderName}.{shaderType}.spv";
-                using (var shaderStream = typeof(ShaderSet).Assembly.GetManifestResourceStream(bytecodeShaderName))
+                using (var shaderStream = assembly.GetManifestResourceStream(bytecodeShaderName))
                 {
                     return shaderStream.ReadAllBytes();
                 }
