@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using OpenSage.Mathematics;
 using Veldrid;
 
@@ -19,22 +18,25 @@ namespace OpenSage.Input
 
         internal InputMessageValue(Key key)
         {
-            Key = key;
             MousePosition = Point2D.Zero;
             ScrollWheel = 0;
+
+            Key = key;
         }
 
         internal InputMessageValue(in Point2D mousePosition)
         {
             Key = 0;
-            MousePosition = mousePosition;
             ScrollWheel = 0;
+
+            MousePosition = mousePosition;
         }
 
         internal InputMessageValue(int scrollWheel)
         {
             Key = 0;
             MousePosition = Point2D.Zero;
+
             ScrollWheel = scrollWheel;
         }
     }
