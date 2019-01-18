@@ -1,13 +1,12 @@
 ﻿using System.Numerics;
-using OpenSage.Content;
 using OpenSage.Data.Map;
-using OpenSage.Graphics.Shaders;
+using OpenSage.Graphics.Rendering;
 using OpenSage.Mathematics;
 using Veldrid;
 
-namespace OpenSage.Graphics.Rendering
+namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class GlobalResources : DisposableBase
+    internal sealed class GlobalShaderResources : DisposableBase
     {
         private readonly ConstantBuffer<GlobalTypes.GlobalConstantsShared> _globalConstantBufferShared;
         private readonly ConstantBuffer<GlobalTypes.GlobalConstantsVS> _globalConstantBufferVS;
@@ -24,7 +23,9 @@ namespace OpenSage.Graphics.Rendering
 
         private TimeOfDay? _cachedTimeOfDay;
 
-        public GlobalResources(GraphicsDevice graphicsDevice, ContentManager contentManager)
+        public GlobalShaderResources(
+            GraphicsDevice graphicsDevice,
+            Texture solidWhiteTexture)
         {
             _globalConstantBufferShared = AddDisposable(new ConstantBuffer<GlobalTypes.GlobalConstantsShared>(graphicsDevice, "GlobalConstantsShared"));
             _globalConstantBufferVS = AddDisposable(new ConstantBuffer<GlobalTypes.GlobalConstantsVS>(graphicsDevice, "GlobalConstantsVS"));
@@ -73,7 +74,7 @@ namespace OpenSage.Graphics.Rendering
             DefaultCloudResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
                     cloudResoureLayout,
-                    contentManager.SolidWhiteTexture)));
+                    solidWhiteTexture)));
         }
 
         private void SetGlobalLightingBufferVS(GraphicsDevice graphicsDevice)
@@ -90,17 +91,8 @@ namespace OpenSage.Graphics.Rendering
                 CloudShadowMatrix = cloudShadowView * cloudShadowProjection
             };
 
-            using (var commandList = graphicsDevice.ResourceFactory.CreateCommandList())
-            {
-                commandList.Begin();
-
-                _globalLightingBufferVS.Value = lightingConstantsVS;
-                _globalLightingBufferVS.Update(commandList);
-
-                commandList.End();
-
-                graphicsDevice.SubmitCommands(commandList);
-            }
+            _globalLightingBufferVS.Value = lightingConstantsVS;
+            _globalLightingBufferVS.Update(graphicsDevice);
         }
 
         public void UpdateGlobalConstantBuffers(

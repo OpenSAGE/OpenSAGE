@@ -1,34 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
-using OpenSage.Content;
+using System.Numerics;
+using OpenSage.Graphics.Mathematics;
 using OpenSage.Graphics.Rendering;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
 {
-    internal sealed class FixedFunctionResourceCache : DisposableBase
+    internal sealed class FixedFunctionShaderResources : ShaderResourcesBase
     {
         private readonly Dictionary<PipelineKey, Pipeline> _pipelines;
-        private readonly ContentManager _contentManager;
+        private readonly ResourceLayout _materialResourceLayout;
 
         public readonly ResourceSet SamplerResourceSet;
 
-        public readonly Pipeline DepthPipeline;
-
-        public FixedFunctionResourceCache(ContentManager contentManager)
+        public FixedFunctionShaderResources(GraphicsDevice graphicsDevice)
+            : base(
+                graphicsDevice,
+                "FixedFunction",
+                new GlobalResourceSetIndices(0u, LightingType.Object, 1u, 2u, 3u, 7u),
+                MeshShaderResources.MeshVertex.VertexDescriptors)
         {
             _pipelines = new Dictionary<PipelineKey, Pipeline>();
-            _contentManager = contentManager;
 
-            SamplerResourceSet = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateResourceSet(
+            _materialResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
+                new ResourceLayoutDescription(
+                    new ResourceLayoutElementDescription("MaterialConstants", ResourceKind.UniformBuffer, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("Texture0", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription("Texture1", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
+
+            SamplerResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
-                    contentManager.ShaderLibrary.FixedFunction.ResourceLayouts[6],
-                    contentManager.GraphicsDevice.Aniso4xSampler)));
-
-            DepthPipeline = AddDisposable(MeshDepthResourceUtility.CreateDepthPipeline(contentManager, PrimitiveTopology.TriangleList));
+                    ShaderSet.ResourceLayouts[6],
+                    graphicsDevice.Aniso4xSampler)));
         }
 
-        public Pipeline GetPipeline(
+        public Pipeline GetCachedPipeline(
             FaceCullMode cullMode,
             bool depthWriteEnabled,
             ComparisonKind depthComparison,
@@ -66,14 +73,14 @@ namespace OpenSage.Graphics.Shaders
                 var rasterizerState = RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise;
                 rasterizerState.CullMode = cullMode;
 
-                _pipelines.Add(key, result = AddDisposable(_contentManager.GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
+                _pipelines.Add(key, result = AddDisposable(GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
                     new GraphicsPipelineDescription(
                         blendState,
                         depthState,
                         rasterizerState,
                         PrimitiveTopology.TriangleList,
-                        _contentManager.ShaderLibrary.FixedFunction.Description,
-                        _contentManager.ShaderLibrary.FixedFunction.ResourceLayouts,
+                        ShaderSet.Description,
+                        ShaderSet.ResourceLayouts,
                         RenderPipeline.GameOutputDescription))));
             }
 
@@ -147,6 +154,125 @@ namespace OpenSage.Graphics.Shaders
             {
                 return !(key1 == key2);
             }
+        }
+
+        public ResourceSet CreateMaterialResourceSet(
+            DeviceBuffer materialConstantsBuffer,
+            Texture texture0,
+            Texture texture1)
+        {
+            return GraphicsDevice.ResourceFactory.CreateResourceSet(
+                new ResourceSetDescription(
+                    _materialResourceLayout,
+                    materialConstantsBuffer,
+                    texture0,
+                    texture1));
+        }
+
+        public enum TextureMappingType
+        {
+            Uv = 0,
+            Environment = 1,
+            LinearOffset = 2,
+            Rotate = 3,
+            SineLinearOffset = 4,
+            StepLinearOffset = 5,
+            Screen = 6,
+            Scale = 7,
+            Grid = 8,
+            Random = 9,
+            BumpEnv = 10,
+            WsEnvironment = 11,
+        }
+
+        public struct TextureMapping
+        {
+            public TextureMappingType MappingType;
+
+            public float Speed;
+            public float Fps;
+            public int Log2Width;
+
+            public Vector2 UVPerSec;
+            public Vector2 UVScale;
+            public Vector2 UVCenter;
+            public Vector2 UVAmplitude;
+            public Vector2 UVFrequency;
+            public Vector2 UVPhase;
+
+            public Vector2 UVStep;
+            public float StepsPerSecond;
+
+#pragma warning disable IDE1006, CS0169
+            private readonly float _Padding;
+#pragma warning restore IDE1006, CS0169
+        }
+
+        public struct VertexMaterial
+        {
+            public Vector3 Ambient;
+
+#pragma warning disable CS0169
+            private readonly float _padding1;
+#pragma warning restore CS0169
+
+            public Vector3 Diffuse;
+
+#pragma warning disable CS0169
+            private readonly float _padding2;
+#pragma warning restore CS0169
+
+            public Vector3 Specular;
+            public float Shininess;
+            public Vector3 Emissive;
+            public float Opacity;
+
+            public TextureMapping TextureMappingStage0;
+            public TextureMapping TextureMappingStage1;
+        }
+
+        public enum DiffuseLightingType
+        {
+            Disable = 0,
+            Modulate = 1,
+            Add = 2,
+            BumpEnvMap = 3,
+        }
+
+        public enum SecondaryTextureBlend
+        {
+            Disable = 0,
+            Detail = 1,
+            Scale = 2,
+            InvScale = 3,
+            DetailBlend = 4,
+            Add = 5
+        }
+
+        public struct ShadingConfiguration
+        {
+            public DiffuseLightingType DiffuseLightingType;
+            public Bool32 SpecularEnabled;
+            public Bool32 TexturingEnabled;
+            public SecondaryTextureBlend SecondaryTextureColorBlend;
+            public SecondaryTextureBlend SecondaryTextureAlphaBlend;
+            public Bool32 AlphaTest;
+
+#pragma warning disable CS0169
+            private readonly Vector2 _padding;
+#pragma warning restore CS0169
+        }
+
+        public struct MaterialConstantsType
+        {
+#pragma warning disable CS0169
+            private readonly Vector3 _padding;
+#pragma warning restore CS0169
+
+            public int NumTextureStages;
+
+            public VertexMaterial Material;
+            public ShadingConfiguration Shading;
         }
     }
 }

@@ -44,7 +44,7 @@ namespace OpenSage.Terrain
 
             var textureAtlasSplit = 1 / 3f;
 
-            var vertices = new List<RoadTypes.RoadVertex>();
+            var vertices = new List<RoadShaderResources.RoadVertex>();
 
             // Step along road segment in units of 10. If the delta between
             // (a) the straight line from previous point to finish and
@@ -59,7 +59,7 @@ namespace OpenSage.Terrain
                 var p0 = position - centerToEdgeDirection * halfWidth;
                 p0.Z += heightBias;
 
-                vertices.Add(new RoadTypes.RoadVertex
+                vertices.Add(new RoadShaderResources.RoadVertex
                 {
                     Position = p0,
                     Normal = up,
@@ -69,7 +69,7 @@ namespace OpenSage.Terrain
                 var p1 = position + centerToEdgeDirection * halfWidth;
                 p1.Z += heightBias;
 
-                vertices.Add(new RoadTypes.RoadVertex
+                vertices.Add(new RoadShaderResources.RoadVertex
                 {
                     Position = p1,
                     Normal = up,
@@ -124,11 +124,13 @@ namespace OpenSage.Terrain
                 indices.ToArray(),
                 BufferUsage.IndexBuffer));
 
-            _shaderSet = contentManager.ShaderLibrary.Road;
-            _pipeline = contentManager.RoadResourceCache.Pipeline;
+            _shaderSet = contentManager.ShaderResources.Road.ShaderSet;
+            _pipeline = contentManager.ShaderResources.Road.Pipeline;
 
             var texture = contentManager.Load<Texture>(Path.Combine("Art", "Textures", template.Texture));
-            _resourceSet = contentManager.RoadResourceCache.GetResourceSet(texture);
+
+            // TODO: Cache these resource sets in some sort of scoped data context.
+            _resourceSet = AddDisposable(contentManager.ShaderResources.Road.CreateMaterialResourceSet(texture));
         }
 
         internal void BuildRenderList(RenderList renderList)

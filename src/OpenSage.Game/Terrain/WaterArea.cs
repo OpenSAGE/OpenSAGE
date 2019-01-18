@@ -57,7 +57,7 @@ namespace OpenSage.Terrain
 
             var vertices = trianglePoints
                 .Select(x =>
-                    new WaterTypes.WaterVertex
+                    new WaterShaderResources.WaterVertex
                     {
                         Position = new Vector3(x.X, x.Y, trigger.Points[0].Z)
                     })
@@ -75,15 +75,17 @@ namespace OpenSage.Terrain
                 triangleIndices,
                 BufferUsage.IndexBuffer));
 
-            _shaderSet = contentManager.ShaderLibrary.Water;
-            _pipeline = contentManager.WaterResourceCache.Pipeline;
+            _shaderSet = contentManager.ShaderResources.Water.ShaderSet;
+            _pipeline = contentManager.ShaderResources.Water.Pipeline;
 
             _resourceSets = new Dictionary<TimeOfDay, ResourceSet>();
 
             foreach (var waterSet in contentManager.IniDataContext.WaterSets)
             {
                 var waterTexture = contentManager.Load<Texture>(Path.Combine("Art", "Textures", waterSet.WaterTexture));
-                var resourceSet = contentManager.WaterResourceCache.GetResourceSet(waterTexture);
+
+                // TODO: Cache these resource sets in some sort of scoped data context.
+                var resourceSet = AddDisposable(contentManager.ShaderResources.Water.CreateMaterialResourceSet(waterTexture));
 
                 _resourceSets.Add(waterSet.TimeOfDay, resourceSet);
             }

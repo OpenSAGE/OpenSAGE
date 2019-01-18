@@ -30,7 +30,6 @@ namespace OpenSage.Graphics
         private readonly DeviceBuffer _vertexBuffer;
         private readonly DeviceBuffer _indexBuffer;
 
-        private readonly ConstantBuffer<MeshTypes.MeshConstants> _meshConstantsBuffer;
         private readonly ResourceSet _meshConstantsResourceSet;
 
         private readonly ResourceSet _samplerResourceSet;
@@ -62,7 +61,7 @@ namespace OpenSage.Graphics
             Name = name;
 
             _shaderSet = shaderSet;
-            _depthShaderSet = contentManager.ShaderLibrary.MeshDepth;
+            _depthShaderSet = contentManager.ShaderResources.MeshDepth.ShaderSet;
 
             BoundingBox = boundingBox;
 
@@ -79,27 +78,11 @@ namespace OpenSage.Graphics
                 indices,
                 BufferUsage.IndexBuffer));
 
-            var commandList = graphicsDevice.ResourceFactory.CreateCommandList();
+            _meshConstantsResourceSet = contentManager.ShaderResources.Mesh.GetCachedMeshResourceSet(
+                isSkinned,
+                hasHouseColor);
 
-            commandList.Begin();
-
-            _meshConstantsBuffer = AddDisposable(new ConstantBuffer<MeshTypes.MeshConstants>(graphicsDevice));
-            _meshConstantsBuffer.Value.SkinningEnabled = isSkinned;
-            _meshConstantsBuffer.Value.HasHouseColor = hasHouseColor;
-            _meshConstantsBuffer.Update(commandList);
-
-            commandList.End();
-
-            graphicsDevice.SubmitCommands(commandList);
-
-            graphicsDevice.DisposeWhenIdle(commandList);
-
-            _meshConstantsResourceSet = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    contentManager.ShaderLibrary.FixedFunction.ResourceLayouts[4],
-                    _meshConstantsBuffer.Buffer)));
-
-            _samplerResourceSet = contentManager.FixedFunctionResourceCache.SamplerResourceSet;
+            _samplerResourceSet = contentManager.ShaderResources.FixedFunction.SamplerResourceSet;
 
             foreach (var materialPass in materialPasses)
             {
@@ -191,8 +174,6 @@ namespace OpenSage.Graphics
                     // TODO: With more work, we could draw shadows for translucent and alpha-tested materials.
                     if (!blendEnabled && castsShadow)
                     {
-                        //meshPart.DepthMaterial.SetSkinningBuffer(modelInstance.SkinningBuffer);
-
                         renderList.Shadow.RenderItems.Add(new RenderItem(
                            _depthShaderSet,
                            meshPart.DepthPipeline,
