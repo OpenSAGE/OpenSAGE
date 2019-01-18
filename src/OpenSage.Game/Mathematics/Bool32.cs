@@ -1,4 +1,4 @@
-﻿namespace OpenSage.Graphics.Shaders
+﻿namespace OpenSage.Graphics.Mathematics
 {
     public readonly struct Bool32
     {

@@ -26,5 +26,10 @@ namespace OpenSage.Graphics
         {
             commandList.UpdateBuffer(Buffer, 0, ref Value);
         }
+
+        public void Update(GraphicsDevice graphicsDevice)
+        {
+            graphicsDevice.UpdateBuffer(Buffer, 0, ref Value);
+        }
     }
 }

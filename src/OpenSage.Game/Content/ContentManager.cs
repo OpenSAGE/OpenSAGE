@@ -48,14 +48,7 @@ namespace OpenSage.Content
 
         public SageGame SageGame { get; }
 
-        internal ShaderLibrary ShaderLibrary { get; }
-
-        internal ParticleResourceCache ParticleResourceCache { get; }
-        internal RoadResourceCache RoadResourceCache { get; }
-        internal WaterResourceCache WaterResourceCache { get; }
-        internal SpriteResourceCache SpriteResourceCache { get; }
-        internal FixedFunctionResourceCache FixedFunctionResourceCache { get; }
-        internal ShaderMaterialResourceCache ShaderMaterialResourceCache { get; }
+        internal readonly ShaderResourceManager ShaderResources;
 
         public Sampler LinearClampSampler { get; }
         public Sampler PointClampSampler { get; }
@@ -139,15 +132,6 @@ namespace OpenSage.Content
                     break;
             }
 
-            ShaderLibrary = AddDisposable(new ShaderLibrary(graphicsDevice));
-
-            ParticleResourceCache = AddDisposable(new ParticleResourceCache(this));
-            RoadResourceCache = AddDisposable(new RoadResourceCache(this));
-            WaterResourceCache = AddDisposable(new WaterResourceCache(this));
-            SpriteResourceCache = AddDisposable(new SpriteResourceCache(this));
-            FixedFunctionResourceCache = AddDisposable(new FixedFunctionResourceCache(this));
-            ShaderMaterialResourceCache = AddDisposable(new ShaderMaterialResourceCache(this));
-
             _contentLoaders = new Dictionary<Type, ContentLoader>
             {
                 { typeof(Model), AddDisposable(new ModelLoader()) },
@@ -187,6 +171,8 @@ namespace OpenSage.Content
                     new byte[] { 255, 255, 255, 255 },
                     4, 4, 1, 1),
                 PixelFormat.R8_G8_B8_A8_UNorm));
+
+            ShaderResources = AddDisposable(new ShaderResourceManager(graphicsDevice));
 
             WndImageLoader = AddDisposable(new WndImageLoader(this, new MappedImageLoader(this)));
 

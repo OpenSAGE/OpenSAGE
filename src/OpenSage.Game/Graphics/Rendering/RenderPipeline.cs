@@ -24,10 +24,10 @@ namespace OpenSage.Graphics.Rendering
 
         private readonly CommandList _commandList;
 
-        private readonly GlobalResources _globalResources;
+        private readonly GlobalShaderResources _globalResources;
 
-        private readonly ConstantBuffer<MeshTypes.RenderItemConstantsVS> _renderItemConstantsBufferVS;
-        private readonly ConstantBuffer<MeshTypes.RenderItemConstantsPS> _renderItemConstantsBufferPS;
+        private readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsVS> _renderItemConstantsBufferVS;
+        private readonly ConstantBuffer<MeshShaderResources.RenderItemConstantsPS> _renderItemConstantsBufferPS;
         private readonly ResourceSet _renderItemConstantsResourceSet;
 
         private readonly DrawingContext2D _drawingContext;
@@ -51,11 +51,11 @@ namespace OpenSage.Graphics.Rendering
 
             var graphicsDevice = game.GraphicsDevice;
 
-            _globalResources = AddDisposable(new GlobalResources(graphicsDevice, game.ContentManager));
+            _globalResources = AddDisposable(new GlobalShaderResources(game.GraphicsDevice, game.ContentManager.SolidWhiteTexture));
 
-            _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<MeshTypes.RenderItemConstantsVS>(graphicsDevice, "RenderItemConstantsVS"));
+            _renderItemConstantsBufferVS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsVS>(graphicsDevice, "RenderItemConstantsVS"));
 
-            _renderItemConstantsBufferPS = AddDisposable(new ConstantBuffer<MeshTypes.RenderItemConstantsPS>(graphicsDevice, "RenderItemConstantsPS"));
+            _renderItemConstantsBufferPS = AddDisposable(new ConstantBuffer<MeshShaderResources.RenderItemConstantsPS>(graphicsDevice, "RenderItemConstantsPS"));
 
             var renderItemConstantsResourceLayout = AddDisposable(graphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
@@ -254,10 +254,6 @@ namespace OpenSage.Graphics.Rendering
                 {
                     commandList.InsertDebugMarker("Setting pipeline");
                     commandList.SetPipeline(renderItem.Pipeline);
-                }
-
-                if (lastRenderItemIndex == null || bucket.RenderItems[lastRenderItemIndex.Value].ShaderSet != renderItem.ShaderSet)
-                {
                     SetGlobalResources(commandList, renderItem.ShaderSet.GlobalResourceSetIndices, cloudResourceSet);
                 }
 

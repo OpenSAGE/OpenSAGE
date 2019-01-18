@@ -77,15 +77,7 @@ namespace OpenSage.Content
 
             var textureDetailsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticStructuredBuffer(textureDetails));
 
-            var terrainPipeline = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateGraphicsPipeline(
-                new GraphicsPipelineDescription(
-                    BlendStateDescription.SingleDisabled,
-                    DepthStencilStateDescription.DepthOnlyLessEqual,
-                    RasterizerStateDescriptionUtility.DefaultFrontIsCounterClockwise,
-                    PrimitiveTopology.TriangleList, // TODO: Use triangle strip
-                    contentManager.ShaderLibrary.Terrain.Description,
-                    contentManager.ShaderLibrary.Terrain.ResourceLayouts,
-                    RenderPipeline.GameOutputDescription)));
+            var terrainPipeline = contentManager.ShaderResources.Terrain.Pipeline;
 
             var terrainPatches = CreatePatches(
                 contentManager.GraphicsDevice,
@@ -104,7 +96,7 @@ namespace OpenSage.Content
             }
 
             var materialConstantsBuffer = AddDisposable(contentManager.GraphicsDevice.CreateStaticBuffer(
-                new TerrainTypes.TerrainMaterialConstants
+                new TerrainShaderResources.TerrainMaterialConstants
                 {
                     MapBorderWidth = new Vector2(mapFile.HeightMapData.BorderWidth, mapFile.HeightMapData.BorderWidth) * HeightMap.HorizontalScale,
                     MapSize = new Vector2(mapFile.HeightMapData.Width, mapFile.HeightMapData.Height) * HeightMap.HorizontalScale,
@@ -114,16 +106,13 @@ namespace OpenSage.Content
 
             var macroTexture = LoadTexture(mapFile.EnvironmentData?.MacroTexture ?? "tsnoiseurb.dds");
 
-            var materialResourceSet = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    contentManager.ShaderLibrary.Terrain.ResourceLayouts[4],
-                    materialConstantsBuffer,
-                    tileDataTexture,
-                    cliffDetailsBuffer ?? contentManager.GetNullStructuredBuffer(CliffInfo.Size),
-                    textureDetailsBuffer,
-                    textureArray,
-                    macroTexture,
-                    contentManager.GraphicsDevice.Aniso4xSampler)));
+            var materialResourceSet = AddDisposable(contentManager.ShaderResources.Terrain.CreateMaterialResourceSet(
+                materialConstantsBuffer,
+                tileDataTexture,
+                cliffDetailsBuffer ?? contentManager.GetNullStructuredBuffer(TerrainShaderResources.CliffInfo.Size),
+                textureDetailsBuffer,
+                textureArray,
+                macroTexture));
 
             var cloudTexture = LoadTexture(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
 
@@ -139,7 +128,7 @@ namespace OpenSage.Content
             var terrain = new Terrain.Terrain(
                 heightMap,
                 terrainPatches,
-                contentManager.ShaderLibrary.Terrain,
+                contentManager.ShaderResources.Terrain.ShaderSet,
                 terrainPipeline,
                 materialResourceSet,
                 cloudResourceSet);
@@ -635,7 +624,7 @@ namespace OpenSage.Content
         {
             var numVertices = patchBounds.Width * patchBounds.Height;
 
-            var vertices = new TerrainTypes.TerrainVertex[numVertices];
+            var vertices = new TerrainShaderResources.TerrainVertex[numVertices];
             var points = new Vector3[numVertices];
 
             var vertexIndex = 0;
@@ -645,7 +634,7 @@ namespace OpenSage.Content
                 {
                     var position = heightMap.GetPosition(x, y);
                     points[vertexIndex] = position;
-                    vertices[vertexIndex++] = new TerrainTypes.TerrainVertex
+                    vertices[vertexIndex++] = new TerrainShaderResources.TerrainVertex
                     {
                         Position = position,
                         Normal = heightMap.Normals[x, y],
@@ -779,13 +768,13 @@ namespace OpenSage.Content
             GraphicsDevice graphicsDevice,
             MapFile mapFile)
         {
-            var cliffDetails = new CliffInfo[mapFile.BlendTileData.CliffTextureMappings.Length];
+            var cliffDetails = new TerrainShaderResources.CliffInfo[mapFile.BlendTileData.CliffTextureMappings.Length];
 
             const int cliffScalingFactor = 64;
             for (var i = 0; i < cliffDetails.Length; i++)
             {
                 var cliffMapping = mapFile.BlendTileData.CliffTextureMappings[i];
-                cliffDetails[i] = new CliffInfo
+                cliffDetails[i] = new TerrainShaderResources.CliffInfo
                 {
                     BottomLeftUV = cliffMapping.BottomLeftCoords * cliffScalingFactor,
                     BottomRightUV = cliffMapping.BottomRightCoords * cliffScalingFactor,
@@ -803,7 +792,7 @@ namespace OpenSage.Content
             ContentManager contentManager,
             BlendTileData blendTileData,
             out Texture textureArray,
-            out TextureInfo[] textureDetails)
+            out TerrainShaderResources.TextureInfo[] textureDetails)
         {
             var graphicsDevice = contentManager.GraphicsDevice;
 
@@ -812,7 +801,7 @@ namespace OpenSage.Content
             var textureInfo = new(uint size, FileSystemEntry entry)[numTextures];
             var largestTextureSize = uint.MinValue;
 
-            textureDetails = new TextureInfo[numTextures];
+            textureDetails = new TerrainShaderResources.TextureInfo[numTextures];
 
             for (var i = 0; i < numTextures; i++)
             {
@@ -831,7 +820,7 @@ namespace OpenSage.Content
                     largestTextureSize = size;
                 }
 
-                textureDetails[i] = new TextureInfo
+                textureDetails[i] = new TerrainShaderResources.TextureInfo
                 {
                     TextureIndex = (uint) i,
                     CellSize = mapTexture.CellSize * 2

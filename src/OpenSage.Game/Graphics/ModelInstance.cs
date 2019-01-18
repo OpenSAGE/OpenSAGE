@@ -88,10 +88,7 @@ namespace OpenSage.Graphics
                 skinningBuffer = contentManager.GetNullStructuredBuffer(64);
             }
 
-            SkinningBufferResourceSet = AddDisposable(_graphicsDevice.ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    contentManager.ShaderLibrary.FixedFunction.ResourceLayouts[8],
-                    skinningBuffer)));
+            SkinningBufferResourceSet = AddDisposable(contentManager.ShaderResources.Mesh.CreateSkinningResourceSet(skinningBuffer));
 
             AnimationInstances = new List<AnimationInstance>();
 

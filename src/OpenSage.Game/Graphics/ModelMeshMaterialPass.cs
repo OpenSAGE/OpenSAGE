@@ -13,7 +13,7 @@ namespace OpenSage.Graphics
 
         internal ModelMeshMaterialPass(
             GraphicsDevice graphicsDevice,
-            MeshTypes.MeshVertex.TexCoords[] texCoords,
+            MeshShaderResources.MeshVertex.TexCoords[] texCoords,
             List<ModelMeshPart> meshParts)
         {
             if (texCoords != null)

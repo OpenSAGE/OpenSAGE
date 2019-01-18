@@ -2,7 +2,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Data.Utilities.Extensions;
-using OpenSage.Graphics.Shaders;
+using OpenSage.Graphics.Mathematics;
 
 namespace OpenSage.Data.W3d
 {
