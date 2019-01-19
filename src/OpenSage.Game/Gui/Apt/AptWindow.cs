@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Apt;
+using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
 using Veldrid;
 using Rectangle = OpenSage.Mathematics.Rectangle;
@@ -11,7 +12,9 @@ namespace OpenSage.Gui.Apt
     {
         private readonly ContentManager _contentManager;
         private readonly AptContext _context;
+        private readonly Game _game;
         private Size _destinationSize;
+        private AptCallbackResolver _resolver;
 
         /// <summary>
         /// The background color of the movie set by the BackgroundColor frameitem
@@ -23,13 +26,14 @@ namespace OpenSage.Gui.Apt
         public string Name => AptFile.MovieName;
         public AptRenderer Renderer { get; }
         public SpriteItem Root { get; }
+        public MappedImageLoader ImageLoader { get; }
 
         /// <summary>
         /// Used for shellmap in MainMenu. Not sure if the correct place.
         /// </summary>
-        public Texture BackgroundImage { get; set; }
+        public MappedImageTexture BackgroundImage { get; set; }
 
-        public AptWindow(ContentManager contentManager, AptFile aptFile)
+        public AptWindow(Game game, ContentManager contentManager, AptFile aptFile)
         {
             _contentManager = contentManager;
 
@@ -47,6 +51,10 @@ namespace OpenSage.Gui.Apt
             AptFile = aptFile;
 
             Renderer = new AptRenderer(contentManager);
+
+            ImageLoader = new MappedImageLoader(contentManager);
+
+            _resolver = new AptCallbackResolver(game);
         }
 
         internal void Layout(GraphicsDevice gd, in Size windowSize)
@@ -68,11 +76,7 @@ namespace OpenSage.Gui.Apt
 
             if (BackgroundImage != null)
             {
-                var sourceRect = new Rectangle(0, 0,
-                    (int) BackgroundImage.Width,
-                    (int) (BackgroundImage.Height * 0.75f));
-
-                drawingContext.DrawImage(BackgroundImage, sourceRect, fullsizeRect);
+                drawingContext.DrawImage(BackgroundImage.Texture, BackgroundImage.SourceRect, fullsizeRect);
             }
 
             // The background color, which is set by the APT. Should be the clear color?
@@ -83,13 +87,11 @@ namespace OpenSage.Gui.Apt
             Root.Render(Renderer, transform, drawingContext);
         }
 
-        internal void HandleCommand(string cmd)
+        internal void HandleCommand(ActionContext context, string cmd)
         {
-            switch(cmd)
-            {
-                case "AptMainMenu::OnInitialized":
-                    break;
-            }
+            _resolver.GetCallback(cmd).Invoke(context, this, _game);
         }
+
+        public delegate void ActionscriptCallback(ActionContext context, AptWindow window, Game game);
     }
 }

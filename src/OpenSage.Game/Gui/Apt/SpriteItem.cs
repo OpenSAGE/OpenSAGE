@@ -40,6 +40,8 @@ namespace OpenSage.Gui.Apt
         public ObjectContext ScriptObject { get; private set; }
         public ColorDelegate SetBackgroundColor { get; set; }
 
+        public DisplayList Content => _content;
+
         public void Create(Character chararacter, AptContext context, SpriteItem parent = null)
         {
             _sprite = (Playable) chararacter;
@@ -273,6 +275,11 @@ namespace OpenSage.Gui.Apt
 
         private void PlaceItem(PlaceObject po)
         {
+            if (_content.Items.ContainsKey(po.Depth))
+            {
+                return;
+            }
+
             var character = Context.GetCharacter(po.Character, _sprite);
             var itemTransform = CreateTransform(po);
 
@@ -323,6 +330,11 @@ namespace OpenSage.Gui.Apt
             {
                 item.RunActions(gt);
             }
+        }
+
+        public IDisplayItem GetNamedItem(string name)
+        {
+            return ScriptObject.Variables[name].ToObject().Item;
         }
     }
 }

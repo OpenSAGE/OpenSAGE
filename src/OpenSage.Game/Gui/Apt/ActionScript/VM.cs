@@ -15,9 +15,8 @@ namespace OpenSage.Gui.Apt.ActionScript
 
         public ObjectContext GlobalObject { get; }
         public ObjectContext ExternObject { get; }
-        public UrlHandler UrlHandler { get; }
 
-        public delegate void HandleCommand(string command);
+        public delegate void HandleCommand(ActionContext context, string command);
 
         public HandleCommand CommandHandler;
 
@@ -25,7 +24,6 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             GlobalObject = new ObjectContext();
             ExternObject = new ExternObject();
-            UrlHandler = new UrlHandler();
             _intervals = new Dictionary<string, ValueTuple<GameTime, int, Function, ObjectContext, Value[]>>();
         }
 
@@ -155,9 +153,9 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
         }
 
-        public void Handle(string url, string target)
+        public void Handle(ActionContext context, string url, string target)
         {
-            UrlHandler.Handle(CommandHandler, url, target);
+            UrlHandler.Handle(CommandHandler, context, url, target);
         }
     }
 }
