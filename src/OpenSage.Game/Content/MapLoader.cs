@@ -10,9 +10,7 @@ using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Map;
 using OpenSage.Data.Tga;
-using OpenSage.Graphics;
 using OpenSage.Graphics.Cameras;
-using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -117,13 +115,13 @@ namespace OpenSage.Content
 
             var cloudTexture = LoadTexture(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
 
-            var cloudResoureLayout = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateResourceLayout(
+            var cloudResourceLayout = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("Global_CloudTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment))));
 
             var cloudResourceSet = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
-                    cloudResoureLayout,
+                    cloudResourceLayout,
                     cloudTexture)));
 
             var terrain = new Terrain.Terrain(

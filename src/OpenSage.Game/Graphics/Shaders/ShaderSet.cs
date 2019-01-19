@@ -6,7 +6,7 @@ namespace OpenSage.Graphics.Shaders
 {
     public sealed class ShaderSet : DisposableBase
     {
-        private static byte _nextId = 0;
+        private static byte _nextId;
 
         public readonly byte Id;
 
