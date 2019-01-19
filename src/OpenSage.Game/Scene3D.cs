@@ -194,7 +194,7 @@ namespace OpenSage
             {
                 foreach (var waterArea in WaterAreas)
                 {
-                    waterArea.BuildRenderList(renderList, Lighting.TimeOfDay);
+                    waterArea.BuildRenderList(renderList);
                 }
             }
 

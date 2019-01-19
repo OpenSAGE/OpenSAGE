@@ -160,7 +160,10 @@ namespace OpenSage.Graphics.Rendering
                 context.RenderTarget);
         }
 
-        private void Render3DScene(CommandList commandList, Scene3D scene, RenderContext context)
+        private void Render3DScene(
+            CommandList commandList,
+            Scene3D scene,
+            RenderContext context)
         {
             ResourceSet cloudResourceSet;
             if (scene.Lighting.TimeOfDay != TimeOfDay.Night
@@ -193,7 +196,7 @@ namespace OpenSage.Graphics.Rendering
                     var shadowViewProjection = lightBoundingFrustum.Matrix;
                     _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, shadowViewProjection);
 
-                    DoRenderPass(commandList, _renderList.Shadow, lightBoundingFrustum, null);
+                    DoRenderPass(context, commandList, _renderList.Shadow, lightBoundingFrustum, null);
                 });
 
             commandList.PopDebugGroup();
@@ -215,17 +218,18 @@ namespace OpenSage.Graphics.Rendering
             var standardPassCameraFrustum = scene.Camera.BoundingFrustum;
 
             commandList.PushDebugGroup("Opaque");
-            RenderedObjectsOpaque = DoRenderPass(commandList, _renderList.Opaque, standardPassCameraFrustum, cloudResourceSet);
+            RenderedObjectsOpaque = DoRenderPass(context, commandList, _renderList.Opaque, standardPassCameraFrustum, cloudResourceSet);
             commandList.PopDebugGroup();
 
             commandList.PushDebugGroup("Transparent");
-            RenderedObjectsTransparent = DoRenderPass(commandList, _renderList.Transparent, standardPassCameraFrustum, cloudResourceSet);
+            RenderedObjectsTransparent = DoRenderPass(context, commandList, _renderList.Transparent, standardPassCameraFrustum, cloudResourceSet);
             commandList.PopDebugGroup();
 
             commandList.PopDebugGroup();
         }
 
         private int DoRenderPass(
+            RenderContext context,
             CommandList commandList,
             RenderBucket bucket,
             BoundingFrustum cameraFrustum,
@@ -274,7 +278,7 @@ namespace OpenSage.Graphics.Rendering
                     }
                 }
 
-                renderItem.BeforeRenderCallback.Invoke(commandList);
+                renderItem.BeforeRenderCallback.Invoke(commandList, context);
 
                 commandList.SetIndexBuffer(renderItem.IndexBuffer, IndexFormat.UInt16);
                 commandList.DrawIndexed(

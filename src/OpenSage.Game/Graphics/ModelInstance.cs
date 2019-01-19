@@ -34,6 +34,9 @@ namespace OpenSage.Graphics
         /// </summary>
         internal readonly bool[] BoneVisibilities;
 
+        internal readonly BeforeRenderDelegate[][] BeforeRenderDelegates;
+        internal readonly BeforeRenderDelegate[][] BeforeRenderDelegatesDepth;
+
         private readonly bool _hasSkinnedMeshes;
 
         private readonly Matrix4x4[] _skinningBones;
@@ -93,6 +96,35 @@ namespace OpenSage.Graphics
             AnimationInstances = new List<AnimationInstance>();
 
             _relativeBoneTransformsDirty = true;
+
+            BeforeRenderDelegates = new BeforeRenderDelegate[model.SubObjects.Length][];
+            BeforeRenderDelegatesDepth = new BeforeRenderDelegate[model.SubObjects.Length][];
+
+            for (var i = 0; i < model.SubObjects.Length; i++)
+            {
+                var mesh = model.SubObjects[i].RenderObject;
+
+                BeforeRenderDelegates[i] = new BeforeRenderDelegate[mesh.MeshParts.Count];
+                BeforeRenderDelegatesDepth[i] = new BeforeRenderDelegate[mesh.MeshParts.Count];
+
+                for (var j = 0; j < mesh.MeshParts.Count; j++)
+                {
+                    var meshBeforeRender = mesh.BeforeRenderDelegates[j];
+                    var meshBeforeRenderDepth = mesh.BeforeRenderDelegatesDepth[j];
+
+                    BeforeRenderDelegates[i][j] = (cl, context) =>
+                    {
+                        cl.SetGraphicsResourceSet(8, SkinningBufferResourceSet);
+                        meshBeforeRender(cl, context);
+                    };
+
+                    BeforeRenderDelegatesDepth[i][j] = (cl, context) =>
+                    {
+                        cl.SetGraphicsResourceSet(3, SkinningBufferResourceSet);
+                        meshBeforeRenderDepth(cl, context);
+                    };
+                }
+            }
         }
 
         public void Update(GameTime gameTime)
@@ -164,18 +196,22 @@ namespace OpenSage.Graphics
             }
         }
 
-        public void BuildRenderList(
+        internal void BuildRenderList(
             RenderList renderList,
             Camera camera,
             bool castsShadow,
             Player owner)
         {
-            foreach (var subObject in Model.SubObjects)
+            for (var i = 0; i < Model.SubObjects.Length; i++)
             {
+                var subObject = Model.SubObjects[i];
+
                 subObject.RenderObject.BuildRenderList(
                     renderList,
                     camera,
                     this,
+                    BeforeRenderDelegates[i],
+                    BeforeRenderDelegatesDepth[i],
                     subObject.Bone,
                     _worldMatrix,
                     castsShadow,

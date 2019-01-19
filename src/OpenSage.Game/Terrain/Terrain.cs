@@ -11,7 +11,6 @@ namespace OpenSage.Terrain
     {
         private readonly ShaderSet _shaderSet;
         private readonly Pipeline _pipeline;
-        private readonly ResourceSet _materialResourceSet;
 
         internal const int PatchSize = 17;
 
@@ -26,7 +25,6 @@ namespace OpenSage.Terrain
             List<TerrainPatch> patches,
             ShaderSet shaderSet,
             Pipeline pipeline,
-            ResourceSet materialResourceSet,
             ResourceSet cloudResourceSet)
         {
             HeightMap = heightMap;
@@ -35,7 +33,6 @@ namespace OpenSage.Terrain
 
             _shaderSet = shaderSet;
             _pipeline = pipeline;
-            _materialResourceSet = materialResourceSet;
         }
 
         public Vector3? Intersect(Ray ray)
@@ -62,8 +59,7 @@ namespace OpenSage.Terrain
                 patch.BuildRenderList(
                     renderList,
                     _shaderSet,
-                    _pipeline,
-                    _materialResourceSet);
+                    _pipeline);
             }
         }
     }

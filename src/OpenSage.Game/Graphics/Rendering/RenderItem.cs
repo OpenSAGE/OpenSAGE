@@ -13,7 +13,7 @@ namespace OpenSage.Graphics.Rendering
         public readonly BoundingBox BoundingBox;
         public readonly Matrix4x4 World;
         public readonly ColorRgb? HouseColor;
-        public readonly Action<CommandList> BeforeRenderCallback;
+        public readonly BeforeRenderDelegate BeforeRenderCallback;
         public readonly uint StartIndex;
         public readonly uint IndexCount;
         public readonly DeviceBuffer IndexBuffer;
@@ -28,7 +28,7 @@ namespace OpenSage.Graphics.Rendering
             uint startIndex,
             uint indexCount,
             DeviceBuffer indexBuffer,
-            Action<CommandList> beforeRenderCallback,
+            BeforeRenderDelegate beforeRenderCallback,
             in ColorRgb? houseColor = null)
         {
             ShaderSet = shaderSet;
@@ -56,4 +56,6 @@ namespace OpenSage.Graphics.Rendering
             return Key.CompareTo(other.Key);
         }
     }
+
+    public delegate void BeforeRenderDelegate(CommandList commandList, RenderContext context);
 }

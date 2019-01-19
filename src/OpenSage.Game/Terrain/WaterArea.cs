@@ -25,6 +25,8 @@ namespace OpenSage.Terrain
         private readonly Pipeline _pipeline;
         private readonly Dictionary<TimeOfDay, ResourceSet> _resourceSets;
 
+        private readonly BeforeRenderDelegate _beforeRender;
+
         public static bool TryCreate(
             ContentManager contentManager,
             PolygonTrigger trigger,
@@ -89,9 +91,15 @@ namespace OpenSage.Terrain
 
                 _resourceSets.Add(waterSet.TimeOfDay, resourceSet);
             }
+
+            _beforeRender = (cl, context) =>
+            {
+                cl.SetGraphicsResourceSet(4, _resourceSets[context.Scene3D.Lighting.TimeOfDay]);
+                cl.SetVertexBuffer(0, _vertexBuffer);
+            };
         }
 
-        internal void BuildRenderList(RenderList renderList, TimeOfDay timeOfDay)
+        internal void BuildRenderList(RenderList renderList)
         {
             renderList.Opaque.RenderItems.Add(new RenderItem(
                 _shaderSet,
@@ -101,11 +109,7 @@ namespace OpenSage.Terrain
                 0,
                 _numIndices,
                 _indexBuffer,
-                cl =>
-                {
-                    cl.SetGraphicsResourceSet(4, _resourceSets[timeOfDay]);
-                    cl.SetVertexBuffer(0, _vertexBuffer);
-                }));
+                _beforeRender));
         }
     }
 }

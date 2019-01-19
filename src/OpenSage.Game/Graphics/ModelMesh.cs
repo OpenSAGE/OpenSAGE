@@ -36,6 +36,9 @@ namespace OpenSage.Graphics
 
         private readonly ResourceSet _samplerResourceSet;
 
+        internal readonly BeforeRenderDelegate[] BeforeRenderDelegates;
+        internal readonly BeforeRenderDelegate[] BeforeRenderDelegatesDepth;
+
         public readonly string Name;
 
         public readonly BoundingBox BoundingBox;
@@ -89,12 +92,48 @@ namespace OpenSage.Graphics
             _samplerResourceSet = shaderResources.Mesh.SamplerResourceSet;
 
             MeshParts = meshParts;
+
+            BeforeRenderDelegates = new BeforeRenderDelegate[meshParts.Count];
+            BeforeRenderDelegatesDepth = new BeforeRenderDelegate[meshParts.Count];
+
+            for (var i = 0; i < BeforeRenderDelegates.Length; i++)
+            {
+                var meshPart = meshParts[i];
+
+                BeforeRenderDelegates[i] = (cl, context) =>
+                {
+                    cl.SetGraphicsResourceSet(4, _meshConstantsResourceSet);
+                    cl.SetGraphicsResourceSet(5, meshPart.MaterialResourceSet);
+                    cl.SetGraphicsResourceSet(6, _samplerResourceSet);
+
+                    cl.SetVertexBuffer(0, _vertexBuffer);
+
+                    if (meshPart.TexCoordVertexBuffer != null)
+                    {
+                        cl.SetVertexBuffer(1, meshPart.TexCoordVertexBuffer);
+                    }
+                };
+
+                BeforeRenderDelegatesDepth[i] = (cl, context) =>
+                {
+                    cl.SetGraphicsResourceSet(1, _meshConstantsResourceSet);
+
+                    cl.SetVertexBuffer(0, _vertexBuffer);
+
+                    if (meshPart.TexCoordVertexBuffer != null)
+                    {
+                        cl.SetVertexBuffer(1, meshPart.TexCoordVertexBuffer);
+                    }
+                };
+            }
         }
 
         internal void BuildRenderList(
             RenderList renderList,
             Camera camera,
             ModelInstance modelInstance,
+            BeforeRenderDelegate[] beforeRender,
+            BeforeRenderDelegate[] beforeRenderDepth,
             ModelBone parentBone,
             in Matrix4x4 modelTransform,
             bool castsShadow,
@@ -108,6 +147,8 @@ namespace OpenSage.Graphics
                 renderList,
                 camera,
                 modelInstance,
+                beforeRender,
+                beforeRenderDepth,
                 parentBone,
                 meshWorldMatrix,
                 castsShadow,
@@ -118,6 +159,8 @@ namespace OpenSage.Graphics
             RenderList renderList,
             Camera camera,
             ModelInstance modelInstance,
+            BeforeRenderDelegate[] beforeRender,
+            BeforeRenderDelegate[] beforeRenderDepth,
             ModelBone parentBone,
             in Matrix4x4 meshWorldMatrix,
             bool castsShadow,
@@ -163,8 +206,10 @@ namespace OpenSage.Graphics
 
             var meshBoundingBox = BoundingBox.Transform(BoundingBox, world); // TODO: Not right for skinned meshes
 
-            foreach (var meshPart in MeshParts)
+            for (var i = 0; i < MeshParts.Count; i++)
             {
+                var meshPart = MeshParts[i];
+
                 var blendEnabled = meshPart.BlendEnabled;
 
                 // Depth pass
@@ -180,18 +225,7 @@ namespace OpenSage.Graphics
                        meshPart.StartIndex,
                        meshPart.IndexCount,
                        _indexBuffer,
-                       cl =>
-                       {
-                           cl.SetGraphicsResourceSet(1, _meshConstantsResourceSet);
-                           cl.SetGraphicsResourceSet(3, modelInstance.SkinningBufferResourceSet);
-
-                           cl.SetVertexBuffer(0, _vertexBuffer);
-
-                           if (meshPart.TexCoordVertexBuffer != null)
-                           {
-                               cl.SetVertexBuffer(1, meshPart.TexCoordVertexBuffer);
-                           }
-                       }));
+                       beforeRenderDepth[i]));
                 }
 
                 // Standard pass
@@ -208,20 +242,7 @@ namespace OpenSage.Graphics
                     meshPart.StartIndex,
                     meshPart.IndexCount,
                     _indexBuffer,
-                    cl =>
-                    {
-                        cl.SetGraphicsResourceSet(4, _meshConstantsResourceSet);
-                        cl.SetGraphicsResourceSet(5, meshPart.MaterialResourceSet);
-                        cl.SetGraphicsResourceSet(6, _samplerResourceSet);
-                        cl.SetGraphicsResourceSet(8, modelInstance.SkinningBufferResourceSet);
-
-                        cl.SetVertexBuffer(0, _vertexBuffer);
-
-                        if (meshPart.TexCoordVertexBuffer != null)
-                        {
-                            cl.SetVertexBuffer(1, meshPart.TexCoordVertexBuffer);
-                        }
-                    },
+                    beforeRender[i],
                     owner?.Color));
             }
         }
