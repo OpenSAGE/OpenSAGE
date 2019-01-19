@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using System.Numerics;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
@@ -23,7 +24,8 @@ namespace OpenSage.Data.Ini
             { "RadarWaterColor", (parser, x) => x.RadarWaterColor = IniColorRgb.Parse(parser) },
             { "RiverTransparencyMultiplier", (parser, x) => x.RiverTransparencyMultiplier = parser.ParseFloat() },
             { "ReflectionPlaneZ", (parser, x) => x.ReflectionPlaneZ = parser.ParseFloat() },
-            { "ReflectionOn", (parser, x) => x.ReflectionOn = parser.ParseBoolean() }
+            { "ReflectionOn", (parser, x) => x.ReflectionOn = parser.ParseBoolean() },
+            { "ReflectionGuard", (parser, x) => x.ReflectionGuard = parser.ParseVector2() }
         };
 
         public float TransparentWaterMinOpacity { get; private set; }
@@ -55,5 +57,8 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public bool ReflectionOn { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Vector2 ReflectionGuard { get; private set; }
     }
 }

@@ -89,6 +89,10 @@ namespace OpenSage.Data.Ini
         public List<MappedImage> MappedImages { get; } = new List<MappedImage>();
         public MiscAudio MiscAudio { get; internal set; }
         public MiscEvaData MiscEvaData { get; internal set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public MissionObjectiveList MissionObjectiveList { get; internal set; }
+
         public List<ModifierList> ModifierLists { get; } = new List<ModifierList>();
         public List<MouseCursor> MouseCursors { get; } = new List<MouseCursor>();
         public MouseData MouseData { get; internal set; }
@@ -117,6 +121,10 @@ namespace OpenSage.Data.Ini
         public int ReallyLowMHz { get; internal set; }
         public List<Science> Sciences { get; } = new List<Science>();
         public List<ShellMenuScheme> ShellMenuSchemes { get; } = new List<ShellMenuScheme>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public SkirmishAIData SkirmishAIData { get; internal set; }
+
         public List<SkyboxTextureSet> SkyboxTextureSets { get; } = new List<SkyboxTextureSet>();
         public List<SpecialPower> SpecialPowers { get; } = new List<SpecialPower>();
 

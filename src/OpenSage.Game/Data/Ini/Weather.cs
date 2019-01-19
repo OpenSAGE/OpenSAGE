@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -42,7 +43,12 @@ namespace OpenSage.Data.Ini
             { "RampSpeed", (parser, x) => x.RampSpeed = parser.ParseVector2() },
             { "RampSpacing", (parser, x) => x.RampSpacing = parser.ParseVector2() },
             { "CloudTextureSize", (parser, x) => x.CloudTextureSize = parser.ParseVector2() },
-            { "CloudOffsetPerSecond", (parser, x) => x.CloudOffsetPerSecond = parser.ParseVector2() }
+            { "CloudOffsetPerSecond", (parser, x) => x.CloudOffsetPerSecond = parser.ParseVector2() },
+            { "HardwareFogColor", (parser, x) => x.HardwareFogColor = parser.ParseColorRgb() },
+            { "HardwareFogEnable", (parser, x) => x.HardwareFogEnable = parser.ParseBoolean() },
+            { "HardwareFogStart", (parser, x) => x.HardwareFogStart = parser.ParseInteger() },
+            { "HardwareFogEnd", (parser, x) => x.HardwareFogEnd = parser.ParseInteger() },
+            { "SnowXYSpeed", (parser, x) => x.SnowXYSpeed = parser.ParseVector2() }
         };
 
         public bool SnowEnabled { get; private set; }
@@ -111,6 +117,21 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public Vector2 CloudOffsetPerSecond { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public ColorRgb HardwareFogColor { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool HardwareFogEnable { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int HardwareFogStart { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int HardwareFogEnd { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Vector2 SnowXYSpeed { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

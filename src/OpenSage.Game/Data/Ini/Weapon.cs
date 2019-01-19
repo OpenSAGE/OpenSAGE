@@ -480,7 +480,6 @@ namespace OpenSage.Data.Ini
     }
 
 
-
     public struct RangeDuration
     {
         internal static RangeDuration Parse(IniParser parser)
@@ -576,7 +575,8 @@ namespace OpenSage.Data.Ini
             { "CylinderAOE", (parser, x) => x.CylinderAOE = parser.ParseBoolean() },
             { "DamageArcInverted", (parser, x) => x.DamageArcInverted = parser.ParseBoolean() },
             { "ForceKillObjectFilter", (parser, x) => x.ForceKillObjectFilter = ObjectFilter.Parse(parser) },
-            { "DamageMaxHeightAboveTerrain", (parser, x) => x.DamageMaxHeightAboveTerrain = parser.ParseInteger() }
+            { "DamageMaxHeightAboveTerrain", (parser, x) => x.DamageMaxHeightAboveTerrain = parser.ParseInteger() },
+            { "MinRadius", (parser, x) => x.MinRadius = parser.ParseInteger() },
         };
 
         public float Damage { get; private set; }
@@ -636,6 +636,9 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public int DamageMaxHeightAboveTerrain { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int MinRadius { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme2)]

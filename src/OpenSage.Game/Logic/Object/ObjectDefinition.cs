@@ -210,7 +210,7 @@ namespace OpenSage.Logic.Object
 
             { "EvaEnemyUnitSightedEvent", (parser, x) => x.EvaEnemyUnitSightedEvent = parser.ParseAssetReference() },
 
-            { "CampnessValue", (parser, x) => x.CampnessValue = parser.ParseEnum<Campness>() },
+            { "CampnessValue", (parser, x) => x.CampnessValue = parser.ParseInteger() },
             { "CampnessValueRadius", (parser, x) => x.CampnessValueRadius = parser.ParseInteger() },
 
             { "Behavior", (parser, x) => x.Behaviors.Add(BehaviorModuleData.ParseBehavior(parser)) },
@@ -770,7 +770,7 @@ namespace OpenSage.Logic.Object
         public string EvaEnemyUnitSightedEvent { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public Campness CampnessValue { get; private set; }
+        public int CampnessValue { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public int CampnessValueRadius { get; private set; }
