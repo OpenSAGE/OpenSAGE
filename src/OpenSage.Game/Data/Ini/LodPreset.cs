@@ -12,7 +12,10 @@ namespace OpenSage.Data.Ini
                 CpuType = parser.ParseEnum<CpuType>(),
                 MHz = parser.ParseInteger(),
                 GpuType = parser.ParseEnum<GpuType>(),
-                GpuMemory = parser.ParseInteger()
+                GpuMemory = parser.ParseInteger(),
+                Unknown = parser.ParseInteger(),
+                ResolutionWidth = parser.ParseInteger(),
+                ResolutionHeight = parser.ParseInteger()
             };
         }
 
@@ -21,6 +24,15 @@ namespace OpenSage.Data.Ini
         public int MHz { get; private set; }
         public GpuType GpuType { get; private set; }
         public int GpuMemory { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int Unknown {get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ResolutionWidth { get; private set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public int ResolutionHeight { get; private set; }
     }
 
     public enum GpuType
@@ -68,6 +80,21 @@ namespace OpenSage.Data.Ini
         PS20,
 
         [IniEnum("R300")]
-        R300
+        R300,
+
+        [IniEnum("RADEON_9800"), AddedIn(SageGame.Bfme2)]
+        Radeon9800,
+
+        [IniEnum("_MINIMUM_FOR_LOW_LOD"), AddedIn(SageGame.Bfme2)]
+        MinimumForLowLod,
+
+        [IniEnum("_MINIMUM_FOR_MEDIUM_LOD"), AddedIn(SageGame.Bfme2)]
+        MinimumForMediumLod,
+
+        [IniEnum("_MINIMUM_FOR_HIGH_LOD"), AddedIn(SageGame.Bfme2)]
+        MinimumForHighLod,
+
+        [IniEnum("_MINIMUM_FOR_ULTRA_HIGH_LOD"), AddedIn(SageGame.Bfme2)]
+        MinimumForUltraHighLod,
     }
 }

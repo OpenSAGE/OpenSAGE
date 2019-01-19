@@ -40,6 +40,10 @@ namespace OpenSage.Data.Ini
         public ControlBarSchemeCollection ControlBarSchemes { get; } = new ControlBarSchemeCollection();
         public List<CrateData> CrateDatas { get; } = new List<CrateData>();
         public Credits Credits { get; internal set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<CrowdResponse> CrowdResponses { get; } = new List<CrowdResponse>();
+
         public List<DamageFX> DamageFXs { get; } = new List<DamageFX>();
         public List<DialogEvent> DialogEvents { get; } = new List<DialogEvent>();
         public DrawGroupInfo DrawGroupInfo { get; internal set; }
