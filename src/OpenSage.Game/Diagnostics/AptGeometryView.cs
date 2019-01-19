@@ -140,7 +140,8 @@ namespace OpenSage.Diagnostics
                     drawingContext,
                     _context,
                     _shape,
-                    itemTransform);
+                    itemTransform,
+                    null);
             }
         }
     }

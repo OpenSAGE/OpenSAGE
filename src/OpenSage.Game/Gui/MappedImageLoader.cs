@@ -4,7 +4,7 @@ using OpenSage.Content;
 using OpenSage.Content.Util;
 using Veldrid;
 
-namespace OpenSage.Gui.Wnd.Images
+namespace OpenSage.Gui
 {
     public sealed class MappedImageLoader
     {
@@ -23,11 +23,14 @@ namespace OpenSage.Gui.Wnd.Images
                 return null;
             }
 
+
             var texture = _contentManager.Load<Texture>(
                 new[]
                 {
-                    Path.Combine("Data", "English", "Art", "Textures", mappedImage.Texture),
-                    Path.Combine("Art", "Textures", mappedImage.Texture)
+                    Path.Combine("Data", _contentManager.Language, "Art", "Textures", mappedImage.Texture),
+                    Path.Combine("Lang", _contentManager.Language, "Art", "Textures", mappedImage.Texture),
+                    Path.Combine("Art", "Textures", mappedImage.Texture),
+                    Path.Combine("Art", "Compiledtextures",  mappedImage.Texture.Substring(0,2) , mappedImage.Texture)
                 },
                 new TextureLoadOptions { GenerateMipMaps = false });
 

@@ -3,6 +3,7 @@ using OpenSage.Content;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Mathematics;
+using Veldrid;
 
 namespace OpenSage.Gui.Apt
 {
@@ -42,7 +43,7 @@ namespace OpenSage.Gui.Apt
         }
 
         public void RenderGeometry(DrawingContext2D drawingContext, AptContext context,
-            Geometry shape, ItemTransform transform)
+            Geometry shape, ItemTransform transform, Texture solidTexture)
         {
             CalculateTransform(ref transform, context);
             var matrix = transform.GeometryRotation;
@@ -69,9 +70,30 @@ namespace OpenSage.Gui.Apt
                             var color = st.Color.ToColorRgbaF() * transform.ColorTransform;
                             foreach (var tri in st.Triangles)
                             {
-                                drawingContext.FillTriangle(
-                                    Triangle2D.Transform(tri, matrix),
-                                    color);
+                                if (solidTexture == null)
+                                {
+                                    drawingContext.FillTriangle(
+                                        Triangle2D.Transform(tri, matrix),
+                                        color);
+                                }
+                                else
+                                {
+                                    System.Diagnostics.Debug.WriteLine("Render image with texture");
+
+                                    var destTri = Triangle2D.Transform(tri, matrix);
+                                    var coordTri = new Triangle2D(new Vector2(tri.V0.X / 100.0f * solidTexture.Width,
+                                                                              tri.V0.Y / 100.0f * solidTexture.Height),
+                                                                  new Vector2(tri.V1.X / 100.0f * solidTexture.Width,
+                                                                              tri.V1.Y / 100.0f * solidTexture.Height),
+                                                                  new Vector2(tri.V2.X / 100.0f * solidTexture.Width,
+                                                                              tri.V2.Y / 100.0f * solidTexture.Height));
+
+                                    drawingContext.FillTriangle(
+                                        solidTexture,
+                                        coordTri,
+                                        destTri,
+                                        new ColorRgbaF(1.0f, 1.0f, 1.0f, color.A));
+                                }
                             }
                             break;
                         }

@@ -3,7 +3,6 @@ using System.Linq;
 using OpenSage.Gui.Wnd.Controls;
 using OpenSage.Input;
 using OpenSage.Mathematics;
-using Veldrid;
 
 namespace OpenSage.Gui.Wnd
 {

@@ -1,5 +1,6 @@
 ﻿using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
+using Veldrid;
 
 namespace OpenSage.Gui.Apt
 {
@@ -10,6 +11,7 @@ namespace OpenSage.Gui.Apt
         public AptContext Context { get; private set; }
         public ItemTransform Transform { get; set; }
         public ObjectContext ScriptObject { get; private set; }
+        public Texture Texture { get; set; }
         public string Name { get; set; }
         public bool Visible { get; set; }
 
@@ -42,7 +44,7 @@ namespace OpenSage.Gui.Apt
             {
                 case Shape s:
                     var geometry = Context.GetGeometry(s.Geometry, Character);
-                    renderer.RenderGeometry(dc, Context, geometry, pTransform);
+                    renderer.RenderGeometry(dc, Context, geometry, pTransform,Texture);
                     break;
                 case Text t:
                     if (t.Value.Length > 0)

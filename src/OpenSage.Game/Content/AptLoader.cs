@@ -9,7 +9,7 @@ namespace OpenSage.Content
         protected override AptWindow LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
         {
             var aptFile = AptFile.FromFileSystemEntry(entry);
-            return AddDisposable(new AptWindow(contentManager, aptFile));
+            return AddDisposable(new AptWindow(game, contentManager, aptFile));
         }
     }
 }

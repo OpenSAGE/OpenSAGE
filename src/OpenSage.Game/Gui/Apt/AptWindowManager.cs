@@ -16,6 +16,8 @@ namespace OpenSage.Gui.Apt
             _game = game;
 
             WindowStack = new Stack<AptWindow>();
+
+            game.InputMessageBuffer.Handlers.Add(new AptInputMessageHandler(this, _game));
         }
 
         public void PushWindow(AptWindow window)
