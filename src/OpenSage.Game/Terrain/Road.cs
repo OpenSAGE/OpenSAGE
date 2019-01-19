@@ -25,6 +25,8 @@ namespace OpenSage.Terrain
         private readonly Pipeline _pipeline;
         private readonly ResourceSet _resourceSet;
 
+        private readonly BeforeRenderDelegate _beforeRender;
+
         internal Road(
             ContentManager contentManager,
             HeightMap heightMap,
@@ -131,6 +133,12 @@ namespace OpenSage.Terrain
 
             // TODO: Cache these resource sets in some sort of scoped data context.
             _resourceSet = AddDisposable(contentManager.ShaderResources.Road.CreateMaterialResourceSet(texture));
+
+            _beforeRender = (cl, context) =>
+            {
+                cl.SetGraphicsResourceSet(4, _resourceSet);
+                cl.SetVertexBuffer(0, _vertexBuffer);
+            };
         }
 
         internal void BuildRenderList(RenderList renderList)
@@ -143,11 +151,7 @@ namespace OpenSage.Terrain
                 0,
                 _numIndices,
                 _indexBuffer,
-                cl =>
-                {
-                    cl.SetGraphicsResourceSet(4, _resourceSet);
-                    cl.SetVertexBuffer(0, _vertexBuffer);
-                }));
+                _beforeRender));
         }
     }
 }

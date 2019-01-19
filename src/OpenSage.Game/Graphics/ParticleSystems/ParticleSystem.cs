@@ -30,6 +30,9 @@ namespace OpenSage.Graphics.ParticleSystems
         private readonly ShaderSet _shaderSet;
         private readonly Pipeline _pipeline;
 
+        private readonly BeforeRenderDelegate _beforeRender;
+        private bool _worldMatrixChanged;
+
         private int _initialDelay;
 
         private readonly float _startSizeRate;
@@ -144,6 +147,21 @@ namespace OpenSage.Graphics.ParticleSystems
                 out _numIndices));
 
             State = ParticleSystemState.Active;
+
+            _beforeRender = (cl, context) =>
+            {
+                // Only update once we know this particle system is visible on screen.
+                Update(cl, context.GameTime);
+
+                if (_worldMatrixChanged)
+                {
+                    _renderItemConstantsBufferVS.Update(cl);
+                }
+
+                cl.SetGraphicsResourceSet(1, _particleResourceSet);
+
+                cl.SetVertexBuffer(0, _vertexBuffer);
+            };
         }
 
         private static DeviceBuffer CreateIndexBuffer(GraphicsDevice graphicsDevice, int maxParticles, out uint numIndices)
@@ -462,7 +480,7 @@ namespace OpenSage.Graphics.ParticleSystems
             commandList.UpdateBuffer(_vertexBuffer, 0, _vertices);
         }
 
-        public void BuildRenderList(RenderList renderList, GameTime gameTime)
+        internal void BuildRenderList(RenderList renderList, GameTime gameTime)
         {
             if (_particles == null)
             {
@@ -471,11 +489,11 @@ namespace OpenSage.Graphics.ParticleSystems
 
             ref readonly var worldMatrix = ref _getWorldMatrix();
 
-            var worldMatrixChanged = false;
+            _worldMatrixChanged = false;
             if (worldMatrix != _renderItemConstantsBufferVS.Value.World)
             {
                 _renderItemConstantsBufferVS.Value.World = worldMatrix;
-                worldMatrixChanged = true;
+                _worldMatrixChanged = true;
             }
 
             renderList.Transparent.RenderItems.Add(new RenderItem(
@@ -486,20 +504,7 @@ namespace OpenSage.Graphics.ParticleSystems
                 0,
                 _numIndices,
                 _indexBuffer,
-                cl =>
-                {
-                    // Only update once we know this particle system is visible on screen.
-                    Update(cl, gameTime);
-
-                    if (worldMatrixChanged)
-                    {
-                        _renderItemConstantsBufferVS.Update(cl);
-                    }
-
-                    cl.SetGraphicsResourceSet(1, _particleResourceSet);
-
-                    cl.SetVertexBuffer(0, _vertexBuffer);
-                }));
+                _beforeRender));
         }
     }
 

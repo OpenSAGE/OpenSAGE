@@ -79,12 +79,6 @@ namespace OpenSage.Content
 
             var terrainPipeline = contentManager.ShaderResources.Terrain.Pipeline;
 
-            var terrainPatches = CreatePatches(
-                contentManager.GraphicsDevice,
-                heightMap,
-                mapFile.BlendTileData,
-                indexBufferCache);
-
             Texture LoadTexture(string name)
             {
                 var texture = contentManager.Load<Texture>(Path.Combine("Art", "Textures", name), fallbackToPlaceholder: false);
@@ -114,6 +108,13 @@ namespace OpenSage.Content
                 textureArray,
                 macroTexture));
 
+            var terrainPatches = CreatePatches(
+                contentManager.GraphicsDevice,
+                heightMap,
+                mapFile.BlendTileData,
+                indexBufferCache,
+                materialResourceSet);
+
             var cloudTexture = LoadTexture(mapFile.EnvironmentData?.CloudTexture ?? "tscloudmed.dds");
 
             var cloudResoureLayout = AddDisposable(contentManager.GraphicsDevice.ResourceFactory.CreateResourceLayout(
@@ -130,7 +131,6 @@ namespace OpenSage.Content
                 terrainPatches,
                 contentManager.ShaderResources.Terrain.ShaderSet,
                 terrainPipeline,
-                materialResourceSet,
                 cloudResourceSet);
 
             var players = Player.FromMapData(mapFile.SidesList.Players, contentManager).ToArray();
@@ -540,7 +540,8 @@ namespace OpenSage.Content
             GraphicsDevice graphicsDevice,
             HeightMap heightMap,
             BlendTileData blendTileData,
-            TerrainPatchIndexBufferCache indexBufferCache)
+            TerrainPatchIndexBufferCache indexBufferCache,
+            ResourceSet materialResourceSet)
         {
             const int numTilesPerPatch = Terrain.Terrain.PatchSize - 1;
 
@@ -578,7 +579,8 @@ namespace OpenSage.Content
                         blendTileData,
                         patchBounds,
                         graphicsDevice,
-                        indexBufferCache));
+                        indexBufferCache,
+                        materialResourceSet));
                 }
             }
 
@@ -590,7 +592,8 @@ namespace OpenSage.Content
             BlendTileData blendTileData,
             Rectangle patchBounds,
             GraphicsDevice graphicsDevice,
-            TerrainPatchIndexBufferCache indexBufferCache)
+            TerrainPatchIndexBufferCache indexBufferCache,
+            ResourceSet materialResourceSet)
         {
             var indexBuffer = indexBufferCache.GetIndexBuffer(
                 patchBounds.Width,
@@ -611,7 +614,8 @@ namespace OpenSage.Content
                 indexBuffer,
                 (uint) indices.Length,
                 triangles,
-                boundingBox);
+                boundingBox,
+                materialResourceSet);
         }
 
         private static DeviceBuffer CreateVertexBuffer(

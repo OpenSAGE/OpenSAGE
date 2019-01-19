@@ -220,10 +220,15 @@ namespace OpenSage.Terrain
         {
             foreach (var meshMatrix in _meshes)
             {
+                // TODO: Don't do this.
+                var index = Array.IndexOf(_model.SubObjects, meshMatrix.Item1);
+
                 meshMatrix.Item1.RenderObject.BuildRenderListWithWorldMatrix(
                     renderList,
                     camera,
                     _modelInstance,
+                    _modelInstance.BeforeRenderDelegates[index],
+                    _modelInstance.BeforeRenderDelegatesDepth[index],
                     meshMatrix.Item1.Bone,
                     meshMatrix.Item2,
                     true);

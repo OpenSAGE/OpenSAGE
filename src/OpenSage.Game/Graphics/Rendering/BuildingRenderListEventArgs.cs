@@ -3,7 +3,7 @@ using OpenSage.Graphics.Cameras;
 
 namespace OpenSage.Graphics.Rendering
 {
-    public sealed class BuildingRenderListEventArgs : EventArgs
+    internal sealed class BuildingRenderListEventArgs : EventArgs
     {
         public readonly RenderList RenderList;
         public readonly Camera Camera;

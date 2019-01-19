@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using System.Runtime.InteropServices;
 using OpenSage.Graphics.Rendering;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Mathematics;
@@ -14,6 +13,8 @@ namespace OpenSage.Terrain
         private readonly DeviceBuffer _indexBuffer;
         private readonly uint _numIndices;
 
+        private readonly BeforeRenderDelegate _beforeRender;
+
         public Rectangle Bounds { get; }
 
         public BoundingBox BoundingBox { get; }
@@ -26,7 +27,8 @@ namespace OpenSage.Terrain
             DeviceBuffer indexBuffer,
             uint numIndices,
             Triangle[] triangles,
-            BoundingBox boundingBox)
+            in BoundingBox boundingBox,
+            ResourceSet materialResourceSet)
         {
             Bounds = patchBounds;
 
@@ -36,6 +38,12 @@ namespace OpenSage.Terrain
 
             BoundingBox = boundingBox;
             Triangles = triangles;
+
+            _beforeRender = (cl, context) =>
+            {
+                cl.SetGraphicsResourceSet(4, materialResourceSet);
+                cl.SetVertexBuffer(0, _vertexBuffer);
+            };
         }
 
         internal void Intersect(
@@ -66,7 +74,10 @@ namespace OpenSage.Terrain
             }
         }
 
-        internal void BuildRenderList(RenderList renderList, ShaderSet shaderSet, Pipeline pipeline, ResourceSet materialResourceSet)
+        internal void BuildRenderList(
+            RenderList renderList,
+            ShaderSet shaderSet,
+            Pipeline pipeline)
         {
             renderList.Opaque.RenderItems.Add(new RenderItem(
                 shaderSet,
@@ -76,11 +87,7 @@ namespace OpenSage.Terrain
                 0,
                 _numIndices,
                 _indexBuffer,
-                cl =>
-                {
-                    cl.SetGraphicsResourceSet(4, materialResourceSet);
-                    cl.SetVertexBuffer(0, _vertexBuffer);
-                }));
+                _beforeRender));
         }
     }
 }
