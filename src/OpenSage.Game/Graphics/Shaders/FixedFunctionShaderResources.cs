@@ -129,7 +129,7 @@ namespace OpenSage.Graphics.Shaders
 
             public override bool Equals(object obj)
             {
-                return obj is PipelineKey && Equals((PipelineKey) obj);
+                return obj is PipelineKey a && Equals(a);
             }
 
             public bool Equals(PipelineKey other)
