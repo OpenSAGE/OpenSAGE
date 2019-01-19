@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using OpenSage.Data;
 using OpenSage.Data.Ini;
 using OpenSage.Mods.BuiltIn;
 using Xunit;
@@ -34,54 +36,7 @@ namespace OpenSage.Tests.Data.Ini
                 {
                     var filename = Path.GetFileName(entry.FilePath).ToLowerInvariant();
 
-                    if (filename != "gamelod.ini") return;
-                    /*
-                    // TODO:implement missing stuff
-                    if (gameDefinition.Game == SageGame.Bfme2)
-                    {
-                        switch (filename)
-                        {
-                            //BFME2
-                            case "commandset.ini": //problem
-
-
-                            case "awardsystem.ini":
-                            case "riskcampaign.ini":
-                            case "createaherosystem.ini":
-                            case "crowdresponse.ini":
-                            case "skirmishaidata.ini":
-                            case "firelogicsystem.ini":
-                            case "formationassistant.ini":
-                            case "gamelodpresets.ini":
-                            case "ingamenotificationbox.ini":
-                            case "linearcampaign.ini":
-                            case "meshinstancingmanager.ini":
-                            case "scoredkillevaannouncer.ini":
-                            case "strategichud.ini":
-                            case "map.ini":
-
-
-
-                            case "livingworldaitemplate.ini":
-                            case "livingworldautoresolvearmor.ini":
-                            case "livingworldautoresolvebody.ini":
-                            case "livingworldautoresolvecombatchain.ini":
-                            case "livingworldautoresolvehandicaps.ini":
-                            case "livingworldautoresolveleadership.ini":
-                            case "livingworldautoresolvereinforcementschedule.ini":
-                            case "livingworldautoresolveresourcebonus.ini":
-                            case "livingworldautoresolvesciencepurchasepointbonus.ini":
-                            case "livingworldautoresolveweapon.ini":
-                            case "livingworldbuildingicons.ini":
-                            case "livingworldbuildings.ini":
-                            case "livingworldbuildploticons.ini":
-                            case "livingworldplayers.ini":
-                            case "livingworldregioneffects.ini":
-                                return;
-                        }
-                    }
-
-
+                    //if (filename != "ingamenotificationbox.ini") return;
 
                     switch (filename)
                     {
@@ -90,18 +45,62 @@ namespace OpenSage.Tests.Data.Ini
                         case "commandmapdebug.ini": // Only applies to DEBUG and INTERNAL builds
                         case "fxparticlesystemcustom.ini": // Don't know if this is used, it uses Emitter property not used elsewhere
                         case "lightpoints.ini": // Don't know if this is used.
-
-                        //BFME
-                        case "optionregistry.ini": // Don't know if this is used
-                        case "localization.ini": // Don't know if we need this
                             return;
                     }
-                    */
+
+                    switch (gameDefinition.Game)
+                    {
+                        case SageGame.Bfme:
+                            switch (filename)
+                            {
+                                case "optionregistry.ini": // Don't know if this is used
+                                case "localization.ini": // Don't know if we need this
+                                    return;
+                            }
+                            break;
+                        case SageGame.Bfme2:
+                            switch (filename)
+                            {
+                                case "ingamenotificationbox.ini":
+                                case "commandset.ini": //problem
+                                case "awardsystem.ini":
+                                case "riskcampaign.ini":
+                                case "createaherosystem.ini":
+                                case "skirmishaidata.ini":
+                                case "firelogicsystem.ini":
+                                case "formationassistant.ini":
+                                case "linearcampaign.ini":
+                                case "meshinstancingmanager.ini":
+                                case "scoredkillevaannouncer.ini":
+                                case "strategichud.ini":
+                                case "map.ini":
+
+                                case "livingworldaitemplate.ini":
+                                case "livingworldautoresolvearmor.ini":
+                                case "livingworldautoresolvebody.ini":
+                                case "livingworldautoresolvecombatchain.ini":
+                                case "livingworldautoresolvehandicaps.ini":
+                                case "livingworldautoresolveleadership.ini":
+                                case "livingworldautoresolvereinforcementschedule.ini":
+                                case "livingworldautoresolveresourcebonus.ini":
+                                case "livingworldautoresolvesciencepurchasepointbonus.ini":
+                                case "livingworldautoresolveweapon.ini":
+                                case "livingworldbuildingicons.ini":
+                                case "livingworldbuildings.ini":
+                                case "livingworldbuildploticons.ini":
+                                case "livingworldplayers.ini":
+                                case "livingworldregioneffects.ini":
+                                    return;
+                            }
+                            break;
+                    }
+                    
 
                     var dataContext = new IniDataContext(entry.FileSystem, gameDefinition.Game);
 
                     // BFME I and II need to have GameData.ini loaded before any other INI files,
                     // because GameData.ini contains global macro definitions.
+                    //TODO create only one context for each game definition and load that gamedata.ini on context creation
                     if (entry.FilePath.ToLowerInvariant() != @"data\ini\gamedata.ini")
                     {
                         dataContext.LoadIniFile(@"Data\INI\GameData.ini");

@@ -44,6 +44,7 @@ namespace OpenSage.Data.Ini.Parser
             { "ControlBarScheme", (parser, context) => context.ControlBarSchemes.Add(ControlBarScheme.Parse(parser)) },
             { "CrateData", (parser, context) => context.CrateDatas.Add(CrateData.Parse(parser)) },
             { "Credits", (parser, context) => context.Credits = Credits.Parse(parser) },
+            { "CrowdResponse", (parser, context) => context.CrowdResponses.Add(CrowdResponse.Parse(parser)) },
             { "DamageFX", (parser, context) => context.DamageFXs.Add(DamageFX.Parse(parser)) },
             { "DialogEvent", (parser, context) => context.DialogEvents.Add(DialogEvent.Parse(parser)) },
             { "DrawGroupInfo", (parser, context) => context.DrawGroupInfo = DrawGroupInfo.Parse(parser) },
@@ -651,12 +652,12 @@ namespace OpenSage.Data.Ini.Parser
             return result;
         }
 
-        public T ParseTopLevelNamedBlock<T>(
+        public T ParseTopLevelIndexedBlock<T>(
             Action<T, int> setNameCallback,
             IIniFieldParserProvider<T> fieldParserProvider)
             where T : class, new()
         {
-            var result = ParseNamedBlock(setNameCallback, fieldParserProvider);
+            var result = ParseIndexedBlock(setNameCallback, fieldParserProvider);
 
             return result;
         }
@@ -677,7 +678,7 @@ namespace OpenSage.Data.Ini.Parser
             return result;
         }
 
-        public T ParseNamedBlock<T>(
+        public T ParseIndexedBlock<T>(
             Action<T, int> setNameCallback,
             IIniFieldParserProvider<T> fieldParserProvider)
             where T : class, new()

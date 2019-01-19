@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenSage.Data;
+using OpenSage.Data.Ini;
 using OpenSage.Mods.BuiltIn;
 using Xunit.Abstractions;
 
@@ -30,6 +31,7 @@ namespace OpenSage.Tests.Data
                 .ToList();
 
             var foundAtLeastOneFile = false;
+
             foreach (var rootDirectory in rootDirectories)
             {
                 using (var fileSystem = new FileSystem(rootDirectory))
