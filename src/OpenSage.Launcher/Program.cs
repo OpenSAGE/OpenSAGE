@@ -29,6 +29,9 @@ namespace OpenSage.Launcher
             [Option("novsync", Default = false, Required = false, HelpText = "Disable vsync.")]
             public bool DisableVsync { get; set; }
 
+            [Option('f', "fullscreen", Default = false, Required = false, HelpText = "Enable fullscreen mode.")]
+            public bool Fullscreen { get; set; }
+
             [Option("developermode", Default = false, Required = false, HelpText = "Enable developer mode.")]
             public bool DeveloperMode { get; set; }
         }
@@ -68,7 +71,7 @@ namespace OpenSage.Launcher
 
             // TODO: Read game version from assembly metadata or .git folder
             // TODO: Set window icon.
-            using (var game = new Game(installation, opts.Renderer))
+            using (var game = new Game(installation, opts.Renderer, opts.Fullscreen))
             {
                 game.GraphicsDevice.SyncToVerticalBlank = !opts.DisableVsync;
 

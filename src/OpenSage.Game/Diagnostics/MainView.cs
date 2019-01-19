@@ -146,6 +146,11 @@ namespace OpenSage.Diagnostics
                     {
                         _context.Game.GraphicsDevice.SyncToVerticalBlank = isVSyncEnabled;
                     }
+                    var isFullscreen = _context.Game.Window.Fullscreen;
+                    if (ImGui.MenuItem("Fullscreen", null, ref isFullscreen, true))
+                    {
+                        _context.Game.Window.Fullscreen = isFullscreen;
+                    }
                     ImGui.EndMenu();
                 }
 
