@@ -773,6 +773,12 @@
         [IniEnum("ONE_RING"), AddedIn(SageGame.Bfme2)]
         OneRing,
 
+        [IniEnum("GONDORARAGORNMP"), AddedIn(SageGame.Bfme2)]
+        GondorAragornMp,
+
+        [IniEnum("GONDORGANDALF"), AddedIn(SageGame.Bfme2)]
+        GondorGandalf,
+
         [IniEnum("SUPPORT"), AddedIn(SageGame.Bfme2Rotwk)]
         Support,
 

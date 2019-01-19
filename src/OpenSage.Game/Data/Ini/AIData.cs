@@ -107,6 +107,7 @@ namespace OpenSage.Data.Ini
             { "BuildPhase2_PerSecondPriorityModifier", (parser, x) => x.BuildPhase2_PerSecondPriorityModifier = parser.ParseInteger() },
             { "BuildPhase3_PerSecondPriorityModifier", (parser, x) => x.BuildPhase3_PerSecondPriorityModifier = parser.ParseInteger() },
             { "BuildPhaseN_PerSecondPriorityModifier", (parser, x) => x.BuildPhaseN_PerSecondPriorityModifier = parser.ParseInteger() },
+            { "MinFlightHeight", (parser, x) => x.MinFlightHeight = parser.ParseInteger() }
 
         };
 
@@ -264,6 +265,9 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public int BuildPhaseN_PerSecondPriorityModifier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int MinFlightHeight { get; private set; }
     }
 
     public sealed class AISideInfo

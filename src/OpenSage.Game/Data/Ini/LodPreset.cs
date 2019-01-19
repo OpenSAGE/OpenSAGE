@@ -6,17 +6,22 @@ namespace OpenSage.Data.Ini
     {
         internal static LodPreset Parse(IniParser parser)
         {
-            return new LodPreset
+            var result = new LodPreset
             {
                 Level = parser.ParseEnum<LodType>(),
                 CpuType = parser.ParseEnum<CpuType>(),
                 MHz = parser.ParseInteger(),
                 GpuType = parser.ParseEnum<GpuType>(),
-                GpuMemory = parser.ParseInteger(),
-                Unknown = parser.ParseInteger(),
-                ResolutionWidth = parser.ParseInteger(),
-                ResolutionHeight = parser.ParseInteger()
+                GpuMemory = parser.ParseInteger()
             };
+
+            if (parser.SageGame >= SageGame.Bfme)
+            {
+                result.Unknown = parser.ParseInteger();
+                result.ResolutionWidth = parser.ParseInteger();
+                result.ResolutionHeight = parser.ParseInteger();
+            }
+            return result;
         }
 
         public LodType Level { get; private set; }
