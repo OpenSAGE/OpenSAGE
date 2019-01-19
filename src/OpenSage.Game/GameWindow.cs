@@ -45,8 +45,14 @@ namespace OpenSage
 
         public Queue<InputMessage> MessageQueue { get; } = new Queue<InputMessage>();
 
+        public bool Fullscreen
+        {
+            get { return _window.WindowState == WindowState.BorderlessFullScreen; }
+            set { _window.WindowState = value ? WindowState.BorderlessFullScreen : WindowState.Normal; }
+        }
 
-        internal GameWindow(string title, int x, int y, int width, int height, GraphicsBackend? preferredBackend)
+        internal GameWindow(string title, int x, int y, int width, int height,
+                            GraphicsBackend? preferredBackend, bool fullscreen = false)
         {
 #if DEBUG
             const bool debug = true;
@@ -59,7 +65,9 @@ namespace OpenSage
                 SwapchainSrgbFormat = false
             };
 
-            var windowCreateInfo = new WindowCreateInfo(x, y, width, height, WindowState.Normal, title);
+            var windowState = fullscreen ? WindowState.BorderlessFullScreen : WindowState.Normal;
+
+            var windowCreateInfo = new WindowCreateInfo(x, y, width, height, windowState, title);
 
             var backend = preferredBackend ?? VeldridStartup.GetPlatformDefaultBackend();
 

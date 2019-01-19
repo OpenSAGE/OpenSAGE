@@ -210,14 +210,16 @@ namespace OpenSage
 
         public Game(
             GameInstallation installation,
-            GraphicsBackend? preferredBackend)
+            GraphicsBackend? preferredBackend,
+            bool fullscreen = false)
         {
             // TODO: Should we receive this as an argument? Do we need configuration in this constructor?
             Configuration = new Configuration();
 
             // TODO: Read game version from assembly metadata or .git folder
             // TODO: Set window icon.
-            Window = AddDisposable(new GameWindow($"OpenSAGE - {installation.Game.DisplayName} - master", 100, 100, 1024, 768, preferredBackend));
+            Window = AddDisposable(new GameWindow($"OpenSAGE - {installation.Game.DisplayName} - master",
+                                                    100, 100, 1024, 768, preferredBackend, fullscreen));
             GraphicsDevice = Window.GraphicsDevice;
 
             Panel = AddDisposable(new GamePanel(GraphicsDevice));
@@ -439,6 +441,16 @@ namespace OpenSage
                 if (!Window.PumpEvents())
                 {
                     break;
+                }
+
+                if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F10))
+                {
+                    DeveloperModeEnabled = !DeveloperModeEnabled;
+                }
+
+                if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F11))
+                {
+                    Window.Fullscreen = !Window.Fullscreen;
                 }
 
                 if (DeveloperModeEnabled)
