@@ -109,21 +109,21 @@ namespace OpenSage.Graphics
             return ref _batchItems[_currentBatchIndex++];
         }
 
-        private Vector2 GetTopLeftUV(Rectangle src, Texture img, bool flipped)
+        private static Vector2 GetTopLeftUV(in Rectangle src, Texture img, bool flipped)
         {
             return new Vector2(src.Left / (float) img.Width, flipped ?
                 (src.Bottom / (float) img.Height) :
                 (src.Top / (float) img.Height));
         }
 
-        private Vector2 GetBottomRightUV(Rectangle src, Texture img, bool flipped)
+        private static Vector2 GetBottomRightUV(in Rectangle src, Texture img, bool flipped)
         {
             return new Vector2(src.Right / (float) img.Width, flipped ?
                 (src.Top / (float) img.Height) :
                 (src.Bottom / (float) img.Height));
         }
 
-        private Triangle2D GetTriangleUV(Triangle2D src, Texture img, bool flipped)
+        private static Triangle2D GetTriangleUV(in Triangle2D src, Texture img, bool flipped)
         {
             return new Triangle2D(
                 new Vector2(src.V0.X / img.Width, flipped ? 1 - (src.V0.Y / img.Height) : src.V0.Y / img.Height),
