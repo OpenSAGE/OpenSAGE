@@ -8,7 +8,7 @@ namespace OpenSage.Data.Ini
         internal static StaticGameLod Parse(IniParser parser)
         {
             return parser.ParseTopLevelNamedBlock(
-                (x, name) => x.Level = (GameLodType) Enum.Parse(typeof(GameLodType), name),
+                (x, name) => x.Level = (LodType) Enum.Parse(typeof(LodType), name),
                 FieldParseTable);
         }
 
@@ -36,12 +36,23 @@ namespace OpenSage.Data.Ini
             { "UseHighQualityVideo", (parser, x) => x.UseHighQualityVideo = parser.ParseBoolean() },
             { "UseEmissiveNightMaterials", (parser, x) => x.UseEmissiveNightMaterials = parser.ParseBoolean() },
             { "TextureReductionFactor", (parser, x) => x.TextureReductionFactor = parser.ParseInteger() },
-            { "AnimationDetail", (parser, x) => x.AnimationDetail = parser.ParseEnum<AnimationLodType>() },
+            { "AnimationDetail", (parser, x) => x.AnimationDetail = parser.ParseEnum<LodType>() },
             { "MinParticlePriority", (parser, x) => x.MinParticlePriority = parser.ParseEnum<ParticleSystemPriority>() },
             { "MinParticleSkipPriority", (parser, x) => x.MinParticleSkipPriority = parser.ParseEnum<ParticleSystemPriority>() },
+            { "ModelLOD", (parser, x) => x.ModelLOD = parser.ParseEnum<LodType>() },
+            { "EffectsLOD", (parser, x) => x.EffectsLOD = parser.ParseEnum<LodType>() },
+            { "UseShadowMapping", (parser, x) => x.UseShadowMapping = parser.ParseBoolean() },
+            { "ShadowLOD", (parser, x) => x.ShadowLOD = parser.ParseEnum<LodType>() },
+            { "UseTerrainNormalMap", (parser, x) => x.UseTerrainNormalMap = parser.ParseBoolean() },
+            { "UseDistanceDependantTerrainTextures", (parser, x) => x.UseDistanceDependantTerrainTextures = parser.ParseBoolean() },
+            { "WaterLOD", (parser, x) => x.WaterLOD = parser.ParseEnum<LodType>() },
+            { "ShaderLOD", (parser, x) => x.ShaderLOD = parser.ParseEnum<LodType>() },
+            { "ShaderMaterialReplacement", (parser, x) => x.ShaderMaterialReplacement = parser.ParseBoolean() },
+            { "UseHeatEffects", (parser, x) => x.UseHeatEffects = parser.ParseBoolean() },
+            { "DecalLOD", (parser, x) => x.DecalLOD = parser.ParseEnum<LodType>() },
         };
 
-        public GameLodType Level { get; private set; }
+        public LodType Level { get; private set; }
 
         public int MinimumFps { get; private set; }
         public int MinimumProcessorFps { get; private set; }
@@ -76,16 +87,49 @@ namespace OpenSage.Data.Ini
         public bool UseEmissiveNightMaterials { get; private set; }
         public int TextureReductionFactor { get; private set; }
 
-        public AnimationLodType AnimationDetail { get; private set; }
+        public LodType AnimationDetail { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public ParticleSystemPriority MinParticlePriority { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public ParticleSystemPriority MinParticleSkipPriority { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public LodType ModelLOD { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public LodType EffectsLOD { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool UseShadowMapping { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public LodType ShadowLOD { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool UseTerrainNormalMap { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool UseDistanceDependantTerrainTextures { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public LodType WaterLOD { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public LodType ShaderLOD { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool ShaderMaterialReplacement { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public bool UseHeatEffects { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public LodType DecalLOD { get; private set; }
     }
 
-    public enum GameLodType
+    public enum LodType
     {
         [IniEnum("VeryLow"), AddedIn(SageGame.Bfme)]
         VeryLow,
@@ -104,24 +148,8 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("UltraHigh"), AddedIn(SageGame.Bfme)]
         UltraHigh,
-    }
 
-    [AddedIn(SageGame.Bfme)]
-    public enum AnimationLodType
-    {
-        [IniEnum("VeryLow")]
-        VeryLow,
-
-        [IniEnum("Low")]
-        Low,
-
-        [IniEnum("Medium")]
-        Medium,
-
-        [IniEnum("High")]
-        High,
-
-        [IniEnum("UltraHigh")]
-        UltraHigh,
+        [IniEnum("Off"), AddedIn(SageGame.Bfme2)]
+        Off,
     }
 }

@@ -34,7 +34,7 @@ namespace OpenSage.Tests.Data.Ini
                 {
                     var filename = Path.GetFileName(entry.FilePath).ToLowerInvariant();
 
-                    if (filename != "livingworldteststructures.ini") return;
+                    if (filename != "gamelod.ini") return;
                     /*
                     // TODO:implement missing stuff
                     if (gameDefinition.Game == SageGame.Bfme2)
@@ -52,13 +52,11 @@ namespace OpenSage.Tests.Data.Ini
                             case "skirmishaidata.ini":
                             case "firelogicsystem.ini":
                             case "formationassistant.ini":
-                            case "gamelod.ini":
                             case "gamelodpresets.ini":
                             case "ingamenotificationbox.ini":
                             case "linearcampaign.ini":
                             case "meshinstancingmanager.ini":
                             case "scoredkillevaannouncer.ini":
-                            case "stances.ini":
                             case "strategichud.ini":
                             case "map.ini":
 
