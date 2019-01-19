@@ -78,8 +78,6 @@ namespace OpenSage.Gui.Apt
                                 }
                                 else
                                 {
-                                    System.Diagnostics.Debug.WriteLine("Render image with texture");
-
                                     var destTri = Triangle2D.Transform(tri, matrix);
                                     var coordTri = new Triangle2D(new Vector2(tri.V0.X / 100.0f * solidTexture.Width,
                                                                               tri.V0.Y / 100.0f * solidTexture.Height),
