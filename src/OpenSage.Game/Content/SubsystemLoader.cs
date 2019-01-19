@@ -191,14 +191,6 @@ namespace OpenSage.Content
             }
         }
 
-        private void LoadFiles(params string[] files)
-        {
-            foreach (var file in files)
-            {
-                _iniDataContext.LoadIniFile(file);
-            }
-        }
-
         private IEnumerable<FileSystemEntry> GetFilesForSubsystem(Subsystem abstractSubsystem)
         {
             var subsystems = GetSubsystemEntryName(abstractSubsystem).Select(entryName => _subsystems[entryName]).ToList();
@@ -226,7 +218,7 @@ namespace OpenSage.Content
             }
 
             // Load hardcoded files
-            switch(abstractSubsystem)
+            switch (abstractSubsystem)
             {
                 case Subsystem.Core:
                     switch (_gameDefinition.Game)
