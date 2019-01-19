@@ -44,6 +44,9 @@ namespace OpenSage.Graphics
 
             _spriteConstantsPSBuffer = AddDisposable(new ConstantBuffer<SpriteShaderResources.SpriteConstantsPS>(contentManager.GraphicsDevice));
 
+            _spriteConstantsPSBuffer.Value.IgnoreAlpha = false;
+            _spriteConstantsPSBuffer.Update(_graphicsDevice);
+
             _spriteConstantsResourceSet = AddDisposable(contentManager.ShaderResources.Sprite.CreateSpriteConstantsResourceSet(
                 _materialConstantsVSBuffer.Buffer,
                 _spriteConstantsPSBuffer.Buffer));
