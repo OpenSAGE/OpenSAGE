@@ -162,7 +162,6 @@ namespace OpenSage.Content
                             {
                                 waterAreas.Add(AddDisposable(waterArea));
                             }
-
                             break;
                     }
                 }
