@@ -16,7 +16,7 @@ namespace OpenSage.Diagnostics
         public GameView(DiagnosticViewContext context)
             : base(context)
         {
-            
+
         }
 
         protected override void DrawOverride(ref bool isGameViewFocused)

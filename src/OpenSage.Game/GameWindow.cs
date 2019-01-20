@@ -52,7 +52,7 @@ namespace OpenSage
         }
 
         internal GameWindow(string title, int x, int y, int width, int height,
-                            GraphicsBackend? preferredBackend, bool fullscreen = false)
+                            GraphicsBackend? preferredBackend, bool fullscreen)
         {
 #if DEBUG
             const bool debug = true;
