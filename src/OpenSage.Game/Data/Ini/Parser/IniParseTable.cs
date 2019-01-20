@@ -10,6 +10,7 @@ namespace OpenSage.Data.Ini.Parser
     }
 
     internal delegate void ParseFieldCallback<T>(IniParser parser, T result);
+    internal delegate void ParseNamedFieldCallback<T>(IniParser parser, T result, string field);
 
     internal sealed class IniParseTable<T> : Dictionary<string, ParseFieldCallback<T>>, IIniFieldParserProvider<T>
     {
@@ -55,6 +56,30 @@ namespace OpenSage.Data.Ini.Parser
         {
             fieldParser = (parser, result) => _parseFieldCallback(result, fieldName);
             return true;
+        }
+    }
+
+    internal sealed class PartialFieldParserProvider<T> : IIniFieldParserProvider<T> where T : class
+    {
+        private readonly Func<string, bool> _matchesField;
+        private readonly ParseNamedFieldCallback<T> _parseNamedFieldCallback;
+
+        public PartialFieldParserProvider(Func<string, bool> matchesField, ParseNamedFieldCallback<T> namedFieldCallback)
+        {
+            _matchesField = matchesField;
+            _parseNamedFieldCallback = namedFieldCallback;
+        }
+
+        bool IIniFieldParserProvider<T>.TryGetFieldParser(string fieldName, out ParseFieldCallback<T> fieldParser)
+        {
+            if (_matchesField(fieldName))
+            {
+                fieldParser = (parser, result) => _parseNamedFieldCallback(parser, result, fieldName);
+                return true;
+            }
+
+            fieldParser = null;
+            return false;
         }
     }
 
