@@ -443,16 +443,6 @@ namespace OpenSage
                     break;
                 }
 
-                if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F11))
-                {
-                    DeveloperModeEnabled = !DeveloperModeEnabled;
-                }
-
-                if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.Enter && (x.Modifiers.HasFlag(ModifierKeys.Alt))))
-                {
-                    Window.Fullscreen = !Window.Fullscreen;
-                }
-
                 if (DeveloperModeEnabled)
                 {
                     _developerModeView.Tick();
@@ -545,6 +535,11 @@ namespace OpenSage
             if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F11))
             {
                 DeveloperModeEnabled = !DeveloperModeEnabled;
+            }
+
+            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.Enter && (x.Modifiers.HasFlag(ModifierKeys.Alt))))
+            {
+                Window.Fullscreen = !Window.Fullscreen;
             }
         }
 
