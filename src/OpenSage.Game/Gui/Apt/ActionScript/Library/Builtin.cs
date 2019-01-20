@@ -8,113 +8,94 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
     /// <summary>
     /// This class is meant to access builtin variables and return the corresponding value
     /// </summary>
-    public sealed class Builtin
+    public static class Builtin
     {
-        private static readonly Dictionary<string, Func<Value[], Value>> _builtinClasses;
-        private static readonly Dictionary<string, Action<ActionContext, ObjectContext, Value[]>> _builtinFunctions;
-        private static readonly Dictionary<string, Func<ObjectContext, Value>> _builtinVariablesGet;
-        private static readonly Dictionary<string, Action<ObjectContext, Value>> _builtinVariablesSet;
+        private static readonly Dictionary<string, Func<Value[], Value>> BuiltinClasses;
+        private static readonly Dictionary<string, Action<ActionContext, ObjectContext, Value[]>> BuiltinFunctions;
+        private static readonly Dictionary<string, Func<ObjectContext, Value>> BuiltinVariablesGet;
+        private static readonly Dictionary<string, Action<ObjectContext, Value>> BuiltinVariablesSet;
 
         static Builtin()
         {
-            //list of builtin objects and their corresponding constructors
-            _builtinClasses = new Dictionary<string, Func<Value[], Value>>();
-            _builtinClasses["Color"] = (Value[] args) => { return Value.FromObject(new Color()); };
-
-            //list of builtin variables
-            _builtinVariablesGet = new Dictionary<string, Func<ObjectContext, Value>>();
-            _builtinVariablesGet["_root"] = (ObjectContext ctx) => { return Value.FromObject(ctx.Item.Context.Root.ScriptObject); };
-            _builtinVariablesGet["_global"] = (ObjectContext ctx) => { return Value.FromObject(ctx.Item.Context.AVM.GlobalObject); };
-            _builtinVariablesGet["_parent"] = (ObjectContext ctx) => { return GetParent(ctx); };
-            _builtinVariablesGet["extern"] = (ObjectContext ctx) => { return Value.FromObject(ctx.Item.Context.AVM.ExternObject); };
-
-            //list of builtin variables - set
-            _builtinVariablesSet = new Dictionary<string, Action<ObjectContext, Value>>();
-            _builtinVariablesSet["_alpha"] = (ObjectContext ctx, Value v) =>
+            // list of builtin objects and their corresponding constructors
+            BuiltinClasses = new Dictionary<string, Func<Value[], Value>>
             {
-                Debug.WriteLine("Setting alpha to: " + v.ToInteger());
-
-                var transform = ctx.Item.Transform;
-                ctx.Item.Transform = transform.WithColorTransform(transform.ColorTransform.WithA(v.ToInteger() / 100.0f));
+                ["Color"] = args => Value.FromObject(new Color())
             };
 
-            //list of builtin functions
-            _builtinFunctions = new Dictionary<string, Action<ActionContext, ObjectContext, Value[]>>();
-            _builtinFunctions["gotoAndPlay"] = (ActionContext actx, ObjectContext ctx, Value[] args) => { GotoAndPlay(ctx, args); };
-            _builtinFunctions["stop"] = (ActionContext actx, ObjectContext ctx, Value[] args) => { Stop(ctx); };
-            _builtinFunctions["clearInterval"] = (ActionContext actx, ObjectContext ctx, Value[] args) => { ClearInterval(actx, ctx, args); };
-            _builtinFunctions["setInterval"] = (ActionContext actx, ObjectContext ctx, Value[] args) => { SetInterval(actx, ctx, args); };
+            // list of builtin variables
+            BuiltinVariablesGet = new Dictionary<string, Func<ObjectContext, Value>>
+            {
+                ["_root"] = ctx => Value.FromObject(ctx.Item.Context.Root.ScriptObject),
+                ["_global"] = ctx => Value.FromObject(ctx.Item.Context.AVM.GlobalObject),
+                ["_parent"] = GetParent,
+                ["extern"] = ctx => Value.FromObject(ctx.Item.Context.AVM.ExternObject)
+            };
+
+            // list of builtin variables - set
+            BuiltinVariablesSet = new Dictionary<string, Action<ObjectContext, Value>>
+            {
+                ["_alpha"] = (ctx, v) =>
+                {
+                    Debug.WriteLine("Setting alpha to: " + v.ToInteger());
+
+                    var transform = ctx.Item.Transform;
+                    ctx.Item.Transform =
+                        transform.WithColorTransform(transform.ColorTransform.WithA(v.ToInteger() / 100.0f));
+                }
+            };
+
+            // list of builtin functions
+            BuiltinFunctions = new Dictionary<string, Action<ActionContext, ObjectContext, Value[]>>
+            {
+                ["gotoAndPlay"] = (actx, ctx, args) => GotoAndPlay(ctx, args),
+                ["stop"] = (actx, ctx, args) => Stop(ctx),
+                ["clearInterval"] = ClearInterval,
+                ["setInterval"] = SetInterval
+            };
         }
 
         public static bool IsBuiltInClass(string name)
         {
-            if (_builtinClasses.ContainsKey(name))
-            {
-                return true;
-            }
-
-            return false;
+            return BuiltinClasses.ContainsKey(name);
         }
 
         public static bool IsBuiltInFunction(string name)
         {
-            if (_builtinFunctions.ContainsKey(name))
-            {
-                return true;
-            }
-
-            return false;
+            return BuiltinFunctions.ContainsKey(name);
         }
 
         public static bool IsBuiltInVariable(string name)
         {
-            if (_builtinVariablesGet.ContainsKey(name))
-            {
-                return true;
-            }
-
-            if (_builtinVariablesSet.ContainsKey(name))
-            {
-                return true;
-            }
-
-            return false;
+            return BuiltinVariablesGet.ContainsKey(name) || BuiltinVariablesSet.ContainsKey(name);
         }
 
         public static void CallBuiltInFunction(string name, ActionContext actx, ObjectContext ctx, Value[] args)
         {
-            _builtinFunctions[name](actx, ctx, args);
+            BuiltinFunctions[name](actx, ctx, args);
         }
 
         public static Value GetBuiltInVariable(string name, ObjectContext ctx)
         {
-            return _builtinVariablesGet[name](ctx);
+            return BuiltinVariablesGet[name](ctx);
         }
 
         public static void SetBuiltInVariable(string name, ObjectContext ctx, Value val)
         {
-            _builtinVariablesSet[name](ctx, val);
+            BuiltinVariablesSet[name](ctx, val);
         }
 
         public static Value GetBuiltInClass(string name, Value[] args)
         {
-            return _builtinClasses[name](args);
+            return BuiltinClasses[name](args);
         }
 
         private static Value GetParent(ObjectContext ctx)
         {
             var item = ctx.Item;
-            ObjectContext parent = null;
 
-            //parent of a renderitem is the parent of the containing sprite
-            if (item is RenderItem)
-            {
-                parent = item.Parent.Parent.ScriptObject;
-            }
-            else
-            {
-                parent = item.Parent.ScriptObject;
-            }
+            // Parent of a render item is the parent of the containing sprite
+            var parent = item is RenderItem ? item.Parent.Parent.ScriptObject : item.Parent.ScriptObject;
 
             return Value.FromObject(parent);
         }
@@ -133,8 +114,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 }
                 else
                 {
-                    throw new InvalidOperationException("Can only jump to labels or framenumbers");
+                    throw new InvalidOperationException("Can only jump to labels or frame numbers");
                 }
+
                 si.Play();
             }
             else
