@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -7,6 +8,7 @@ using OpenSage.Data.Utilities.Extensions;
 
 namespace OpenSage.Data.Big
 {
+    [DebuggerDisplay("Archive: {FilePath}")]
     public class BigArchive : DisposableBase
     {
         private readonly object _lockObject = new object();

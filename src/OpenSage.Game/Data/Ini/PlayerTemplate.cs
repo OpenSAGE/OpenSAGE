@@ -1,15 +1,54 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Text.RegularExpressions;
 using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
     public sealed class PlayerTemplate
     {
+        private static readonly Regex StartingUnitFieldRegex = new Regex(@"^(StartingUnit[A-z]*)([0-9]+)$", RegexOptions.Compiled);
+
         internal static PlayerTemplate Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            var startingUnits = new SortedDictionary<int, StartingUnit>();
+
+            var startingUnitParser = new PartialFieldParserProvider<PlayerTemplate>(x => StartingUnitFieldRegex.IsMatch(x),
+                (iniParser, _, name) =>
+                {
+                    var matches = StartingUnitFieldRegex.Matches(name);
+                    var field = matches[0].Groups[1].ToString();
+                    var index = int.Parse(matches[0].Groups[2].ToString());
+
+                    if (!startingUnits.ContainsKey(index))
+                    {
+                        startingUnits[index] = new StartingUnit();
+                    }
+
+                    switch (field)
+                    {
+                        case "StartingUnit":
+                            startingUnits[index].Unit = iniParser.ParseAssetReference();
+                            break;
+                        case "StartingUnitOffset":
+                            startingUnits[index].Offset = iniParser.ParseVector3();
+                            break;
+                        default:
+                            throw new IniParseException($"Unknown starting unit field: {field}",
+                                iniParser.CurrentPosition);
+                    }
+                });
+
+            var compositeParser = new CompositeFieldParserProvider<PlayerTemplate>(FieldParseTable, startingUnitParser);
+
+            var playerTemplate = parser.ParseTopLevelNamedBlock(
                 (x, name) => x.Name = name,
-                FieldParseTable);
+                compositeParser);
+
+            playerTemplate.StartingUnits = startingUnits.Values.ToArray();
+
+            return playerTemplate;
         }
 
         private static readonly IniParseTable<PlayerTemplate> FieldParseTable = new IniParseTable<PlayerTemplate>
@@ -29,7 +68,6 @@ namespace OpenSage.Data.Ini
             { "SpecialPowerShortcutButtonCount", (parser, x) => x.SpecialPowerShortcutButtonCount = parser.ParseInteger() },
             { "DisplayName", (parser, x) => x.DisplayName = parser.ParseLocalizedStringKey() },
             { "StartingBuilding", (parser, x) => x.StartingBuilding = parser.ParseAssetReference() },
-            { "StartingUnit0", (parser, x) => x.StartingUnit0 = parser.ParseAssetReference() },
             { "ScoreScreenImage", (parser, x) => x.ScoreScreenImage = parser.ParseAssetReference() },
             { "LoadScreenImage", (parser, x) => x.LoadScreenImage = parser.ParseAssetReference() },
             { "LoadScreenMusic", (parser, x) => x.LoadScreenMusic = parser.ParseAssetReference() },
@@ -50,9 +88,6 @@ namespace OpenSage.Data.Ini
             { "Evil", (parser, x) => x.PlayableSide = parser.ParseBoolean() },
             { "MaxLevelSP", (parser, x) => x.MaxLevelSP = parser.ParseInteger() },
             { "MaxLevelMP", (parser, x) => x.MaxLevelMP = parser.ParseInteger() },
-            { "StartingUnit1", (parser, x) => x.StartingUnit1 = parser.ParseAssetReference() },
-            { "StartingUnitOffset0", (parser, x) => x.StartingUnitOffset0 = parser.ParseVector3() },
-            { "StartingUnitOffset1", (parser, x) => x.StartingUnitOffset1 = parser.ParseVector3() },
             { "StartingUnitTacticalWOTR", (parser, x) => x.StartingUnitTacticalWOTR = parser.ParseAssetReference() },
             { "IntrinsicSciencesMP", (parser, x) => x.IntrinsicSciencesMP = parser.ParseAssetReferenceArray() },
             { "SpellBook", (parser, x) => x.SpellBook = parser.ParseAssetReference() },
@@ -93,7 +128,7 @@ namespace OpenSage.Data.Ini
         public int SpecialPowerShortcutButtonCount { get; private set; }
         public string DisplayName { get; private set; }
         public string StartingBuilding { get; private set; }
-        public string StartingUnit0 { get; private set; }
+        public StartingUnit[] StartingUnits { get; private set; }
         public string ScoreScreenImage { get; private set; }
         public string LoadScreenImage { get; private set; }
         public string LoadScreenMusic { get; private set; }
@@ -136,15 +171,6 @@ namespace OpenSage.Data.Ini
         public int MaxLevelMP { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public Vector3 StartingUnitOffset0 { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public string StartingUnit1 { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
-        public Vector3 StartingUnitOffset1 { get; private set; }
-
-        [AddedIn(SageGame.Bfme)]
         public string[] IntrinsicSciencesMP { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
@@ -169,10 +195,10 @@ namespace OpenSage.Data.Ini
         public string LightPointsUpSound { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string  ObjectiveAddedSound { get; private set; }
+        public string ObjectiveAddedSound { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public string  ObjectiveCompletedSound { get; private set; }
+        public string ObjectiveCompletedSound { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string[] InitialUpgrades { get; private set; }
@@ -197,5 +223,13 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public string MultiSelectionPortrait { get; private set; }
+    }
+
+    public sealed class StartingUnit
+    {
+        public string Unit { get; internal set; }
+
+        [AddedIn(SageGame.Bfme)]
+        public Vector3 Offset { get; internal set; }
     }
 }
