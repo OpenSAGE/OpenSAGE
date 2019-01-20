@@ -34,7 +34,6 @@ namespace OpenSage.Tests.Data.Ini
             {
                 var rootDirectories = InstallationLocators.FindAllInstallations(gameDefinition)
                 .Select(i => i.Path)
-                .Where(x => Directory.Exists(x))
                 .ToList();
 
                 foreach (var rootDirectory in rootDirectories)
@@ -83,6 +82,7 @@ namespace OpenSage.Tests.Data.Ini
                                     break;
                             }
 
+                            //TODO: parse these files
                             switch (gameDefinition.Game)
                             {
                                 case SageGame.Bfme2:
