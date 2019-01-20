@@ -97,18 +97,7 @@ namespace OpenSage.Diagnostics
                     {
                         foreach (var mapCache in _context.Game.ContentManager.IniDataContext.MapCaches)
                         {
-                            string mapKey = "Unnamed";
-
-                            if (mapCache.NameLookupTag != null)
-                            {
-                                mapKey = mapCache.NameLookupTag;
-                            }
-                            else if (mapCache.DisplayName != null)
-                            {
-                                mapKey = mapCache.DisplayName.Replace("$", "");
-                            }
-
-                            var mapName = _context.Game.ContentManager.TranslationManager.Lookup(mapKey);
+                            var mapName = _context.Game.ContentManager.TranslationManager.Lookup(mapCache.GetNameKey());
 
                             if (ImGui.MenuItem($"{mapName} ({mapCache.Name})"))
                             {

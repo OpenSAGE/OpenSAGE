@@ -74,5 +74,21 @@ namespace OpenSage.Data.Ini
         public Vector3 Player8Start { get; private set; }
         public List<Vector3> TechPositions { get; } = new List<Vector3>();
         public List<Vector3> SupplyPositions { get; } = new List<Vector3>();
+
+        public string GetNameKey()
+        {
+            string result = "Unnamed";
+
+            if (NameLookupTag != null)
+            {
+                result = NameLookupTag;
+            }
+            else if (DisplayName != null)
+            {
+                result = DisplayName.Replace("$", "");
+            }
+
+            return result;
+        }
     }
 }
