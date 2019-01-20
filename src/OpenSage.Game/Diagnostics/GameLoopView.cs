@@ -1,8 +1,10 @@
-﻿using ImGuiNET;
+﻿using System;
+using System.Globalization;
+using ImGuiNET;
 
 namespace OpenSage.Diagnostics
 {
-    internal class GameLoopView : DiagnosticView
+    internal sealed class GameLoopView : DiagnosticView
     {
         public GameLoopView(DiagnosticViewContext context) : base(context)
         {
@@ -15,10 +17,12 @@ namespace OpenSage.Diagnostics
         {
             ImGui.Text($"Logic frame: {Game.CurrentFrame}");
             ImGui.Separator();
-            ImGui.Text($"Map time:    {Game.MapTime.TotalGameTime}");
-            ImGui.Text($"Render time: {Game.RenderTime.TotalGameTime}");
-            ImGui.Text($"Frame time:  {Game.RenderTime.ElapsedGameTime}");
-            ImGui.Text($"Cumulative update time error: {Game.CumulativeLogicUpdateError}");
+            ImGui.Text($"Map time:    {FormatTime(Game.MapTime.TotalGameTime)}");
+            ImGui.Text($"Render time: {FormatTime(Game.RenderTime.TotalGameTime)}");
+            ImGui.Text($"Frame time:  {Game.RenderTime.ElapsedGameTime.TotalMilliseconds.ToString("F2", CultureInfo.InvariantCulture)} ms");
+            ImGui.Text($"Cumulative update time error: {FormatTime(Game.CumulativeLogicUpdateError)}");
         }
+
+        private static string FormatTime(TimeSpan timeSpan) => $"{timeSpan.TotalMinutes:00}:{timeSpan.TotalSeconds:00}:{timeSpan.Milliseconds:000}";
     }
 }
