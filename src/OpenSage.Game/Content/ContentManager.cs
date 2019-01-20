@@ -106,6 +106,7 @@ namespace OpenSage.Content
                     // Subsystem.Core should load mouse and water config, but that isn't the case with at least BFME2.
                     IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
                     IniDataContext.LoadIniFile(@"Data\INI\Water.ini");
+                    IniDataContext.LoadIniFile(@"Data\INI\AudioSettings.ini");
 
                     break;
                 default:
