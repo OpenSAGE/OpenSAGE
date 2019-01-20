@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenSage.Diagnostics;
 using Veldrid;
 
 namespace OpenSage.Graphics.Shaders
@@ -20,22 +21,25 @@ namespace OpenSage.Graphics.Shaders
 
         public ShaderResourceManager(GraphicsDevice graphicsDevice, Texture solidWhiteTexture)
         {
-            Global = AddDisposable(new GlobalShaderResources(graphicsDevice, solidWhiteTexture));
-            Mesh = AddDisposable(new MeshShaderResources(graphicsDevice));
+            using (GameTrace.TraceDurationEvent("ShaderResourceManager()"))
+            {
+                Global = AddDisposable(new GlobalShaderResources(graphicsDevice, solidWhiteTexture));
+                Mesh = AddDisposable(new MeshShaderResources(graphicsDevice));
 
-            FixedFunction = AddDisposable(new FixedFunctionShaderResources(graphicsDevice, Global, Mesh));
-            MeshDepth = AddDisposable(new MeshDepthShaderResources(graphicsDevice, Global, Mesh));
-            Particle = AddDisposable(new ParticleShaderResources(graphicsDevice, Global));
-            Road = AddDisposable(new RoadShaderResources(graphicsDevice, Global));
-            Sprite = AddDisposable(new SpriteShaderResources(graphicsDevice));
-            Terrain = AddDisposable(new TerrainShaderResources(graphicsDevice, Global));
-            Water = AddDisposable(new WaterShaderResources(graphicsDevice, Global));
+                FixedFunction = AddDisposable(new FixedFunctionShaderResources(graphicsDevice, Global, Mesh));
+                MeshDepth = AddDisposable(new MeshDepthShaderResources(graphicsDevice, Global, Mesh));
+                Particle = AddDisposable(new ParticleShaderResources(graphicsDevice, Global));
+                Road = AddDisposable(new RoadShaderResources(graphicsDevice, Global));
+                Sprite = AddDisposable(new SpriteShaderResources(graphicsDevice));
+                Terrain = AddDisposable(new TerrainShaderResources(graphicsDevice, Global));
+                Water = AddDisposable(new WaterShaderResources(graphicsDevice, Global));
 
-            _shaderMaterialResources = new Dictionary<string, ShaderMaterialShaderResources>
+                _shaderMaterialResources = new Dictionary<string, ShaderMaterialShaderResources>
             {
                 { "NormalMapped", AddDisposable(new NormalMappedShaderResources(graphicsDevice, Global, Mesh)) },
                 { "Simple", AddDisposable(new SimpleShaderResources(graphicsDevice, Global, Mesh)) }
             };
+            }
         }
 
         public ShaderMaterialShaderResources GetShaderMaterialResources(string name)

@@ -2,6 +2,7 @@
 using System.Linq;
 using CommandLine;
 using OpenSage.Data;
+using OpenSage.Diagnostics;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Mods.BuiltIn;
@@ -34,6 +35,9 @@ namespace OpenSage.Launcher
 
             [Option("developermode", Default = false, Required = false, HelpText = "Enable developer mode.")]
             public bool DeveloperMode { get; set; }
+
+            [Option("trace", Default = null, Required = false, HelpText = "Trace output path.")]
+            public string Trace { get; set; }
         }
 
         public static void Main(string[] args)
@@ -69,6 +73,12 @@ namespace OpenSage.Launcher
 
             Platform.Start();
 
+            var traceEnabled = !string.IsNullOrEmpty(opts.Trace);
+            if (traceEnabled)
+            {
+                GameTrace.Start(opts.Trace);
+            }
+
             // TODO: Read game version from assembly metadata or .git folder
             // TODO: Set window icon.
             using (var game = new Game(installation, opts.Renderer, opts.Fullscreen))
@@ -98,6 +108,11 @@ namespace OpenSage.Launcher
                 }
 
                 game.Run();
+            }
+
+            if (traceEnabled)
+            {
+                GameTrace.Stop();
             }
 
             Platform.Stop();
