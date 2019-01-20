@@ -85,7 +85,7 @@ namespace OpenSage.Data.Ini
             { "MedallionHilite", (parser, x) => x.MedallionHilite = parser.ParseAssetReference() },
             { "MedallionSelect", (parser, x) => x.MedallionSelect = parser.ParseAssetReference() },
             //BFME
-            { "Evil", (parser, x) => x.PlayableSide = parser.ParseBoolean() },
+            { "Evil", (parser, x) => x.Evil = parser.ParseBoolean() },
             { "MaxLevelSP", (parser, x) => x.MaxLevelSP = parser.ParseInteger() },
             { "MaxLevelMP", (parser, x) => x.MaxLevelMP = parser.ParseInteger() },
             { "StartingUnitTacticalWOTR", (parser, x) => x.StartingUnitTacticalWOTR = parser.ParseAssetReference() },
