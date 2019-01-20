@@ -179,7 +179,7 @@ namespace OpenSage.Mods.Generals.Gui
                     continue;
                 }
                 var items = options.Select(i =>
-                    new ListBoxDataItem(comboBox, new[] { _game.ContentManager.TranslationManager.Lookup(i) })).ToArray();
+                    new ListBoxDataItem(null, new[] { _game.ContentManager.TranslationManager.Lookup(i) }, comboBox.TextColor)).ToArray();
                 comboBox.Items = items;
                 comboBox.SelectedIndex = selectedIndex;
             }
@@ -283,7 +283,20 @@ namespace OpenSage.Mods.Generals.Gui
 
             // Set map text
             var textEntryMap = _window.Controls.FindControl(_optionsPath + ":TextEntryMapDisplay");
-            textEntryMap.Text = mapCache.DisplayName;
+            var translation = _game.ContentManager.TranslationManager;
+
+            if (mapCache.NameLookupTag != null)
+            {
+                textEntryMap.Text = translation.Lookup(mapCache.NameLookupTag);
+            }
+            else if (mapCache.DisplayName != null)
+            {
+                textEntryMap.Text = translation.Lookup(mapCache.DisplayName.Replace("$", ""));
+            }
+            else
+            {
+                textEntryMap.Text = "Missing";
+            }
         }
     }
 }

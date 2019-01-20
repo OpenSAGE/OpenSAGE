@@ -231,13 +231,6 @@ namespace OpenSage.Gui.Wnd.Controls
         public int ListBoxItemHeight { get; set; }
         public ColorRgbaF TextColor { get; }
 
-        public ListBoxDataItem(object dataItem, string[] columnData)
-        {
-            DataItem = dataItem;
-            ColumnData = columnData;
-            TextColor = ((Control) dataItem).TextColor;
-        }
-
         public ListBoxDataItem(object dataItem, string[] columnData, ColorRgbaF textColor)
         {
             DataItem = dataItem;

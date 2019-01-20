@@ -46,11 +46,22 @@ namespace OpenSage.Mods.Generals.Gui
             var listBoxMaps = (ListBox) _window.Controls.FindControl(ListBoxMapPrefix);
             var items = new List<ListBoxDataItem>();
 
-            foreach (var cache in mapCaches)
+            foreach (var mapCache in mapCaches)
             {
-                if (cache.IsMultiplayer)
+                if (mapCache.IsMultiplayer)
                 {
-                    items.Add(new ListBoxDataItem(listBoxMaps, new[] { "", _game.ContentManager.TranslationManager.Lookup(cache.DisplayName) }));
+                    string mapKey = "Unnamed";
+
+                    if (mapCache.NameLookupTag != null)
+                    {
+                        mapKey = mapCache.NameLookupTag;
+                    }
+                    else if (mapCache.DisplayName != null)
+                    {
+                        mapKey = mapCache.DisplayName.Replace("$", "");
+                    }
+
+                    items.Add(new ListBoxDataItem(mapCache, new[] { "", _game.ContentManager.TranslationManager.Lookup(mapKey) }, listBoxMaps.TextColor));
                 }
             }
 
@@ -63,9 +74,8 @@ namespace OpenSage.Mods.Generals.Gui
         {
             var listBoxMaps = (ListBox) _window.Controls.FindControl(ListBoxMapPrefix);
             var selectedItem = listBoxMaps.Items[listBoxMaps.SelectedIndex];
-            var mapName = selectedItem.ColumnData[1];
 
-            var mapCache = _game.ContentManager.IniDataContext.MapCaches.First(x => x.DisplayName == mapName);
+            var mapCache = selectedItem.DataItem as MapCache;
 
             SetPreviewMap(mapCache);
         }

@@ -1,5 +1,4 @@
-﻿using OpenSage.Data.Ini;
-using OpenSage.Gui.Wnd;
+﻿using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
 
 namespace OpenSage.Mods.Generals.Gui

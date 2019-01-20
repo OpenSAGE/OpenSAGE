@@ -97,7 +97,17 @@ namespace OpenSage.Diagnostics
                     {
                         foreach (var mapCache in _context.Game.ContentManager.IniDataContext.MapCaches)
                         {
-                            var mapKey = mapCache.DisplayName.Replace("$", "");
+                            string mapKey = "Unnamed";
+
+                            if (mapCache.NameLookupTag != null)
+                            {
+                                mapKey = mapCache.NameLookupTag;
+                            }
+                            else if (mapCache.DisplayName != null)
+                            {
+                                mapKey = mapCache.DisplayName.Replace("$", "");
+                            }
+
                             var mapName = _context.Game.ContentManager.TranslationManager.Lookup(mapKey);
 
                             if (ImGui.MenuItem($"{mapName} ({mapCache.Name})"))
@@ -147,7 +157,7 @@ namespace OpenSage.Diagnostics
                         _context.Game.GraphicsDevice.SyncToVerticalBlank = isVSyncEnabled;
                     }
                     var isFullscreen = _context.Game.Window.Fullscreen;
-                    if (ImGui.MenuItem("Fullscreen", "Alt+Enter" , ref isFullscreen, true))
+                    if (ImGui.MenuItem("Fullscreen", "Alt+Enter", ref isFullscreen, true))
                     {
                         _context.Game.Window.Fullscreen = isFullscreen;
                     }
