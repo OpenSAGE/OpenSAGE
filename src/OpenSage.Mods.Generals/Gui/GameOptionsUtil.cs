@@ -284,19 +284,9 @@ namespace OpenSage.Mods.Generals.Gui
             // Set map text
             var textEntryMap = _window.Controls.FindControl(_optionsPath + ":TextEntryMapDisplay");
             var translation = _game.ContentManager.TranslationManager;
+            var mapKey = mapCache.GetNameKey();
 
-            if (mapCache.NameLookupTag != null)
-            {
-                textEntryMap.Text = translation.Lookup(mapCache.NameLookupTag);
-            }
-            else if (mapCache.DisplayName != null)
-            {
-                textEntryMap.Text = translation.Lookup(mapCache.DisplayName.Replace("$", ""));
-            }
-            else
-            {
-                textEntryMap.Text = "Missing";
-            }
+            textEntryMap.Text = translation.Lookup(mapKey);         
         }
     }
 }

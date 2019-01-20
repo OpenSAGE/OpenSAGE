@@ -50,16 +50,7 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 if (mapCache.IsMultiplayer)
                 {
-                    string mapKey = "Unnamed";
-
-                    if (mapCache.NameLookupTag != null)
-                    {
-                        mapKey = mapCache.NameLookupTag;
-                    }
-                    else if (mapCache.DisplayName != null)
-                    {
-                        mapKey = mapCache.DisplayName.Replace("$", "");
-                    }
+                    string mapKey = mapCache.GetNameKey();
 
                     items.Add(new ListBoxDataItem(mapCache, new[] { "", _game.ContentManager.TranslationManager.Lookup(mapKey) }, listBoxMaps.TextColor));
                 }
