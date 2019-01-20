@@ -29,6 +29,7 @@ namespace OpenSage.Data.Ini.Parser
             { "AudioLOD", (parser, context) => context.AudioLods.Add(AudioLod.Parse(parser)) },
             { "AudioLowMHz", (parser, context) => context.AudioLowMHz = parser.ParseInteger() },
             { "AudioSettings", (parser, context) => context.AudioSettings = AudioSettings.Parse(parser) },
+            { "AwardSystem", (parser, context) => context.AwardSystem = AwardSystem.Parse(parser) },
             { "BannerType", (parser, context) => context.BannerTypes.Add(BannerType.Parse(parser)) },
             { "BannerUI", (parser, context) => context.BannerUI = BannerUI.Parse(parser) },
             { "BenchProfile", (parser, context) => context.BenchProfiles.Add(BenchProfile.Parse(parser)) },
