@@ -3,7 +3,6 @@ using System.Numerics;
 using ImGuiNET;
 using OpenSage.Diagnostics.Util;
 using OpenSage.Input;
-using Veldrid;
 
 namespace OpenSage.Diagnostics
 {

@@ -15,6 +15,7 @@ namespace OpenSage.Data
         public string RootDirectory { get; }
 
         public IReadOnlyCollection<FileSystemEntry> Files => _fileTable.Values;
+        public FileSystem NextFileSystem => _nextFileSystem;
 
         public FileSystem(string rootDirectory, FileSystem nextFileSystem = null)
         {
