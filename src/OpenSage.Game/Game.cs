@@ -8,7 +8,6 @@ using OpenSage.Audio;
 using OpenSage.Data;
 using OpenSage.Diagnostics;
 using OpenSage.Graphics;
-using OpenSage.Graphics.Rendering;
 using OpenSage.Gui.Wnd;
 using OpenSage.Input;
 using OpenSage.Logic;
@@ -29,7 +28,6 @@ namespace OpenSage
         private const double ScriptingUpdateInterval = 1000.0 / 30.0;
 
         private readonly FileSystem _fileSystem;
-        private readonly GameTimer _gameTimer;
         private readonly WndCallbackResolver _wndCallbackResolver;
 
         private readonly Dictionary<string, Cursor> _cachedCursors;
@@ -72,24 +70,71 @@ namespace OpenSage
         /// </summary>
         public AudioSystem Audio { get; }
 
+        /// <summary>
+        /// The current logic frame. Increments depending on game speed; by default once per 200ms.
+        /// </summary>
         public ulong CurrentFrame { get; private set; }
-
-        public GameTime UpdateTime { get; private set; }
-        private TimeSpan _nextLogicUpdate;
-        private TimeSpan _nextScriptingUpdate;
-
-        public TimeSpan CumulativeLogicUpdateError;
 
         /// <summary>
         /// Is the game running?
         /// This is only false when the game is shutting down.
         /// </summary>
-        public bool IsRunning { get; private set; }
+        public bool IsRunning { get; }
 
         /// <summary>
         /// Is the game running logic updates?
+        /// Automatically starts and stops the map timer.
         /// </summary>
-        public bool IsLogicRunning { get; internal set; }
+        public bool IsLogicRunning
+        {
+            get => _isLogicRunning;
+            internal set
+            {
+                _isLogicRunning = value;
+                _isStepping = false;
+
+                if (!_isLogicRunning)
+                {
+                    _mapTimer.Pause();
+                }
+                else
+                {
+                    _mapTimer.Continue();
+                }
+            }
+        }
+        private bool _isLogicRunning;
+
+        // Are we in the middle of stepping until the next logic frame?
+        private bool _isStepping;
+
+        // Measures time when IsLogicRunning == true.
+        // Is reset when the map changes.
+        private readonly GameTimer _mapTimer;
+
+        /// <summary>
+        /// The amount of time the game has been in this map while running logic updates.
+        /// </summary>
+        public GameTime MapTime { get; private set; }
+
+        // Increments continuously.
+        // Never stops, never resets.
+        // Used for FPS calculations and rendering-related things that should advanced even when the game is paused.
+        private readonly GameTimer _renderTimer;
+
+        /// <summary>
+        /// The amount of time the game has been rendering frames.
+        /// </summary>
+        public GameTime RenderTime { get; private set; }
+
+        // The time of the next logic update.
+        private TimeSpan _nextLogicUpdate;
+
+        // When is the next scripting update?
+        private TimeSpan _nextScriptingUpdate;
+
+        // TODO: Move this to somewhere else, or remove it.
+        public TimeSpan CumulativeLogicUpdateError { get; private set; }
 
         public IGameDefinition Definition { get; }
         public SageGame SageGame => Definition.Game;
@@ -183,14 +228,15 @@ namespace OpenSage
 
             _fileSystem = AddDisposable(installation.CreateFileSystem());
 
-            _gameTimer = AddDisposable(new GameTimer());
-            _gameTimer.Start();
+            _mapTimer = AddDisposable(new GameTimer());
+            _mapTimer.Start();
+
+            _renderTimer = AddDisposable(new GameTimer());
+            _renderTimer.Start();
 
             _cachedCursors = new Dictionary<string, Cursor>();
 
             _wndCallbackResolver = new WndCallbackResolver();
-
-            ResetElapsedTime();
 
             ContentManager = AddDisposable(new ContentManager(
                 this,
@@ -229,6 +275,8 @@ namespace OpenSage
 
             LauncherImage = LoadLauncherImage();
 
+            _mapTimer.Reset();
+
             IsRunning = true;
             IsLogicRunning = true;
         }
@@ -249,11 +297,6 @@ namespace OpenSage
             Scene2D.AptWindowManager.OnViewportSizeChanged(newSize);
 
             Scene3D?.Camera.OnViewportSizeChanged();
-        }
-
-        public void ResetElapsedTime()
-        {
-            _gameTimer.Reset();
         }
 
         // Needed by Data Viewer.
@@ -367,7 +410,7 @@ namespace OpenSage
 
             // Reset everything, and run the first update on the first frame.
             CurrentFrame = 0;
-            _gameTimer.Reset();
+            _mapTimer.Reset();
             _nextLogicUpdate = TimeSpan.Zero;
             _nextScriptingUpdate = TimeSpan.Zero;
             CumulativeLogicUpdateError = TimeSpan.Zero;
@@ -382,7 +425,7 @@ namespace OpenSage
 
         public void Run()
         {
-            var totalGameTime = UpdateTime.TotalGameTime;
+            var totalGameTime = MapTime.TotalGameTime;
             _nextLogicUpdate = totalGameTime;
             _nextScriptingUpdate = totalGameTime;
 
@@ -423,12 +466,10 @@ namespace OpenSage
             // Update timers, input and UI state
             LocalLogicTick(messages);
 
-            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F11))
-            {
-                DeveloperModeEnabled = !DeveloperModeEnabled;
-            }
+            // Check global hotkeys
+            CheckGlobalHotkeys();
 
-            var totalGameTime = UpdateTime.TotalGameTime;
+            var totalGameTime = MapTime.TotalGameTime;
         
             // If the game is not paused and it's time to do a logic update, do so.
             if (IsLogicRunning && totalGameTime >= _nextLogicUpdate)
@@ -436,7 +477,12 @@ namespace OpenSage
                 LogicTick(CurrentFrame);
                 CumulativeLogicUpdateError += (totalGameTime - _nextLogicUpdate);
                 // Logic updates happen at 5Hz.
-                _nextLogicUpdate = _nextLogicUpdate + TimeSpan.FromMilliseconds(LogicUpdateInterval);
+                _nextLogicUpdate += TimeSpan.FromMilliseconds(LogicUpdateInterval);
+
+                if (_isStepping)
+                {
+                    IsLogicRunning = false;
+                }
             }
 
             // TODO: Which update should be performed first?
@@ -444,23 +490,45 @@ namespace OpenSage
             {
                 Scripting.ScriptingTick();
                 // Scripting updates happen at 30Hz.
-                _nextScriptingUpdate = _nextScriptingUpdate + TimeSpan.FromMilliseconds(ScriptingUpdateInterval);
+                _nextScriptingUpdate += TimeSpan.FromMilliseconds(ScriptingUpdateInterval);
             }
         }
 
         internal void LocalLogicTick(IEnumerable<InputMessage> messages)
         {
-            _gameTimer.Update();
-            UpdateTime = _gameTimer.CurrentGameTime;
+            _mapTimer.Update();
+            MapTime = _mapTimer.CurrentGameTime;
+
+            _renderTimer.Update();
+            RenderTime = _renderTimer.CurrentGameTime;
 
             InputMessageBuffer.PumpEvents(messages);
 
             // How close are we to the next logic frame?
-            var tickT = (float) (1.0 - TimeSpanUtility.Max(_nextLogicUpdate - UpdateTime.TotalGameTime, TimeSpan.Zero)
+            var tickT = (float) (1.0 - TimeSpanUtility.Max(_nextLogicUpdate - MapTime.TotalGameTime, TimeSpan.Zero)
                                      .TotalMilliseconds / LogicUpdateInterval);
 
-            Scene2D.LocalLogicTick(UpdateTime, Scene3D?.LocalPlayer);
-            Scene3D?.LocalLogicTick(UpdateTime, tickT);
+            // We pass RenderTime to Scene2D so that the UI remains responsive even when the game is paused.
+            Scene2D.LocalLogicTick(RenderTime, Scene3D?.LocalPlayer);
+            Scene3D?.LocalLogicTick(MapTime, tickT);
+        }
+
+        private void CheckGlobalHotkeys()
+        {
+            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F9))
+            {
+                ToggleLogicRunning();
+            }
+
+            if (!IsLogicRunning && Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F10))
+            {
+                Step();
+            }
+
+            if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F11))
+            {
+                DeveloperModeEnabled = !DeveloperModeEnabled;
+            }
         }
 
         internal void LogicTick(ulong frame)
@@ -478,9 +546,21 @@ namespace OpenSage
             CurrentFrame += 1;
         }
 
+        public void ToggleLogicRunning()
+        {
+            IsLogicRunning = !IsLogicRunning;
+            _isStepping = false;
+        }
+
+        public void Step()
+        {
+            IsLogicRunning = true;
+            _isStepping = true;
+        }
+
         internal void Render()
         {
-            Graphics.Draw(UpdateTime);
+            Graphics.Draw(RenderTime);
         }
 
         protected override void Dispose(bool disposeManagedResources)

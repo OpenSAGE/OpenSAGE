@@ -38,6 +38,41 @@ namespace OpenSage.Diagnostics
             AddView(new GameLoopView(context));
         }
 
+        private void DrawTimingControls()
+        {
+            var (playPauseText, playPauseColor) = _context.Game.IsLogicRunning
+                ? ("Pause (F9)", new Vector4(0.980f, 0, 0.243f, 1))
+                : ("Play (F9)", new Vector4(0.066f, 0.654f, 0.066f, 1));
+
+            var buttonSize = new Vector2(80.0f, ImGui.GetWindowHeight());
+
+            ImGui.SetCursorPosX(ImGui.GetWindowContentRegionWidth() - 250);
+            ImGui.PushStyleColor(ImGuiCol.Button, playPauseColor);
+
+            if (ImGui.Button(playPauseText, buttonSize))
+            {
+                _context.Game.IsLogicRunning = !_context.Game.IsLogicRunning;
+            }
+
+            ImGui.PopStyleColor();
+
+            ImGui.SetCursorPosX(ImGui.GetWindowContentRegionWidth() - 160);
+
+            if (!_context.Game.IsLogicRunning)
+            {
+                if (ImGui.Button("Step (F10)", buttonSize))
+                {
+                    _context.Game.Step();
+                }
+            }
+            else
+            {
+                ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.5f);
+                ImGui.Button("Step (F10)", buttonSize);
+                ImGui.PopStyleVar();
+            }
+        }
+
         public void Draw(ref bool isGameViewFocused)
         {
             float menuBarHeight = 0;
@@ -106,6 +141,8 @@ namespace OpenSage.Diagnostics
                     }
                     ImGui.EndMenu();
                 }
+
+                DrawTimingControls();
 
                 var fpsText = $"{ImGui.GetIO().Framerate:N2} FPS";
                 var fpsTextSize = ImGui.CalcTextSize(fpsText).X;

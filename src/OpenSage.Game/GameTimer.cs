@@ -24,6 +24,17 @@ namespace OpenSage
             Reset();
         }
 
+        public void Continue()
+        {
+            _stopwatch.Start();
+        }
+
+        public void Pause()
+        {
+            _stopwatch.Stop();
+
+        }
+
         public void Update()
         {
             var now = GetTimeNow();

@@ -87,12 +87,12 @@ namespace OpenSage.Diagnostics
 
             _inputMessageBuffer.PumpEvents(inputMessages);
 
-            _scene3D.LocalLogicTick(_context.Game.UpdateTime, 1.0f);
+            _scene3D.LocalLogicTick(_context.Game.MapTime, 1.0f);
 
             RenderPipeline.Execute(new RenderContext
             {
                 ContentManager = _context.Game.ContentManager,
-                GameTime = _context.Game.UpdateTime,
+                GameTime = _context.Game.RenderTime,
                 GraphicsDevice = _context.Game.GraphicsDevice,
                 RenderTarget = _renderTarget.Framebuffer,
                 Scene2D = null,
