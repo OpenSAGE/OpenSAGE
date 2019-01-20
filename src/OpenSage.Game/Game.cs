@@ -213,74 +213,77 @@ namespace OpenSage
             GraphicsBackend? preferredBackend,
             bool fullscreen = false)
         {
-            // TODO: Should we receive this as an argument? Do we need configuration in this constructor?
-            Configuration = new Configuration();
+            using (GameTrace.TraceDurationEvent("Game()"))
+            {
+                // TODO: Should we receive this as an argument? Do we need configuration in this constructor?
+                Configuration = new Configuration();
 
-            // TODO: Read game version from assembly metadata or .git folder
-            // TODO: Set window icon.
-            Window = AddDisposable(new GameWindow($"OpenSAGE - {installation.Game.DisplayName} - master",
-                                                    100, 100, 1024, 768, preferredBackend, fullscreen));
-            GraphicsDevice = Window.GraphicsDevice;
+                // TODO: Read game version from assembly metadata or .git folder
+                // TODO: Set window icon.
+                Window = AddDisposable(new GameWindow($"OpenSAGE - {installation.Game.DisplayName} - master",
+                                                        100, 100, 1024, 768, preferredBackend, fullscreen));
+                GraphicsDevice = Window.GraphicsDevice;
 
-            Panel = AddDisposable(new GamePanel(GraphicsDevice));
+                Panel = AddDisposable(new GamePanel(GraphicsDevice));
 
-            InputMessageBuffer = new InputMessageBuffer();
+                InputMessageBuffer = new InputMessageBuffer();
 
-            Definition = installation.Game;
+                Definition = installation.Game;
 
-            _fileSystem = AddDisposable(installation.CreateFileSystem());
+                _fileSystem = AddDisposable(installation.CreateFileSystem());
 
-            _mapTimer = AddDisposable(new GameTimer());
-            _mapTimer.Start();
+                _mapTimer = AddDisposable(new GameTimer());
+                _mapTimer.Start();
 
-            _renderTimer = AddDisposable(new GameTimer());
-            _renderTimer.Start();
+                _renderTimer = AddDisposable(new GameTimer());
+                _renderTimer.Start();
 
-            _cachedCursors = new Dictionary<string, Cursor>();
+                _cachedCursors = new Dictionary<string, Cursor>();
 
-            _wndCallbackResolver = new WndCallbackResolver();
+                _wndCallbackResolver = new WndCallbackResolver();
 
-            ContentManager = AddDisposable(new ContentManager(
-                this,
-                _fileSystem,
-                GraphicsDevice,
-                SageGame,
-                _wndCallbackResolver));
+                ContentManager = AddDisposable(new ContentManager(
+                    this,
+                    _fileSystem,
+                    GraphicsDevice,
+                    SageGame,
+                    _wndCallbackResolver));
 
-            _textureCopier = AddDisposable(new TextureCopier(this, GraphicsDevice.SwapchainFramebuffer.OutputDescription));
+                _textureCopier = AddDisposable(new TextureCopier(this, GraphicsDevice.SwapchainFramebuffer.OutputDescription));
 
-            GameSystems = new List<GameSystem>();
+                GameSystems = new List<GameSystem>();
 
-            Audio = AddDisposable(new AudioSystem(this));
+                Audio = AddDisposable(new AudioSystem(this));
 
-            Graphics = AddDisposable(new GraphicsSystem(this));
+                Graphics = AddDisposable(new GraphicsSystem(this));
 
-            Scripting = AddDisposable(new ScriptingSystem(this));
+                Scripting = AddDisposable(new ScriptingSystem(this));
 
-            Scene2D = new Scene2D(this);
+                Scene2D = new Scene2D(this);
 
-            Selection = AddDisposable(new SelectionSystem(this));
+                Selection = AddDisposable(new SelectionSystem(this));
 
-            OrderGenerator = AddDisposable(new OrderGeneratorSystem(this));
+                OrderGenerator = AddDisposable(new OrderGeneratorSystem(this));
 
-            Panel.ClientSizeChanged += OnPanelSizeChanged;
-            OnPanelSizeChanged(this, EventArgs.Empty);
+                Panel.ClientSizeChanged += OnPanelSizeChanged;
+                OnPanelSizeChanged(this, EventArgs.Empty);
 
-            GameSystems.ForEach(gs => gs.Initialize());
+                GameSystems.ForEach(gs => gs.Initialize());
 
-            SetCursor("Arrow");
+                SetCursor("Arrow");
 
-            var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == "Civilian");
-            CivilianPlayer = Player.FromTemplate(playerTemplate, ContentManager);
+                var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == "Civilian");
+                CivilianPlayer = Player.FromTemplate(playerTemplate, ContentManager);
 
-            _developerModeView = AddDisposable(new DeveloperModeView(this));
+                _developerModeView = AddDisposable(new DeveloperModeView(this));
 
-            LauncherImage = LoadLauncherImage();
+                LauncherImage = LoadLauncherImage();
 
-            _mapTimer.Reset();
+                _mapTimer.Reset();
 
-            IsRunning = true;
-            IsLogicRunning = true;
+                IsRunning = true;
+                IsLogicRunning = true;
+            }
         }
 
         private void OnPanelSizeChanged(object sender, EventArgs e)

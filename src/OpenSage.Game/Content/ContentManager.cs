@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
+using OpenSage.Diagnostics;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Shaders;
 using OpenSage.Gui;
@@ -77,111 +78,114 @@ namespace OpenSage.Content
             SageGame sageGame,
             WndCallbackResolver wndCallbackResolver)
         {
-            _game = game;
-            _fileSystem = fileSystem;
-
-            GraphicsDevice = graphicsDevice;
-
-            SageGame = sageGame;
-
-            Language = LanguageUtility.ReadCurrentLanguage(game.Definition, fileSystem.RootDirectory);
-
-            IniDataContext = new IniDataContext(fileSystem, sageGame);
-
-            DataContext = new DataContext();
-
-            SubsystemLoader = Content.SubsystemLoader.Create(game.Definition, _fileSystem, IniDataContext);
-
-            switch (sageGame)
+            using (GameTrace.TraceDurationEvent("ContentManager()"))
             {
-                // Only load these INI files for a subset of games, because we can't parse them for others yet.
-                case SageGame.CncGenerals:
-                case SageGame.CncGeneralsZeroHour:
-                case SageGame.Bfme:
-                case SageGame.Bfme2:
-                case SageGame.Bfme2Rotwk:
-                    SubsystemLoader.Load(Subsystem.Core);
+                _game = game;
+                _fileSystem = fileSystem;
 
-                    // TODO: Move this somewhere else.
-                    // Subsystem.Core should load mouse and water config, but that isn't the case with at least BFME2.
-                    IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
-                    IniDataContext.LoadIniFile(@"Data\INI\Water.ini");
-                    IniDataContext.LoadIniFile(@"Data\INI\AudioSettings.ini");
+                GraphicsDevice = graphicsDevice;
 
-                    break;
-                default:
-                    break;
+                SageGame = sageGame;
+
+                Language = LanguageUtility.ReadCurrentLanguage(game.Definition, fileSystem.RootDirectory);
+
+                IniDataContext = new IniDataContext(fileSystem, sageGame);
+
+                DataContext = new DataContext();
+
+                SubsystemLoader = Content.SubsystemLoader.Create(game.Definition, _fileSystem, IniDataContext);
+
+                switch (sageGame)
+                {
+                    // Only load these INI files for a subset of games, because we can't parse them for others yet.
+                    case SageGame.CncGenerals:
+                    case SageGame.CncGeneralsZeroHour:
+                    case SageGame.Bfme:
+                    case SageGame.Bfme2:
+                    case SageGame.Bfme2Rotwk:
+                        SubsystemLoader.Load(Subsystem.Core);
+
+                        // TODO: Move this somewhere else.
+                        // Subsystem.Core should load mouse and water config, but that isn't the case with at least BFME2.
+                        IniDataContext.LoadIniFile(@"Data\INI\Mouse.ini");
+                        IniDataContext.LoadIniFile(@"Data\INI\Water.ini");
+                        IniDataContext.LoadIniFile(@"Data\INI\AudioSettings.ini");
+
+                        break;
+                    default:
+                        break;
+                }
+
+                // TODO: Defer subsystem loading until necessary
+                switch (sageGame)
+                {
+                    // Only load these INI files for a subset of games, because we can't parse them for others yet.
+                    case SageGame.CncGenerals:
+                    case SageGame.CncGeneralsZeroHour:
+                    case SageGame.Bfme:
+                    case SageGame.Bfme2:
+                    case SageGame.Bfme2Rotwk:
+                        SubsystemLoader.Load(Subsystem.Players);
+                        SubsystemLoader.Load(Subsystem.ParticleSystems);
+                        SubsystemLoader.Load(Subsystem.ObjectCreation);
+                        SubsystemLoader.Load(Subsystem.Multiplayer);
+                        SubsystemLoader.Load(Subsystem.LinearCampaign);
+                        break;
+                    default:
+                        break;
+                }
+
+                _contentLoaders = new Dictionary<Type, ContentLoader>
+                {
+                    { typeof(Model), AddDisposable(new ModelLoader()) },
+                    { typeof(Scene3D), AddDisposable(new MapLoader()) },
+                    { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
+                    { typeof(Window), AddDisposable(new WindowLoader(this, wndCallbackResolver, Language)) },
+                    { typeof(AptWindow), AddDisposable(new AptLoader()) },
+                };
+
+                _cachedObjects = new Dictionary<string, object>();
+
+                TranslationManager = new TranslationManager(fileSystem, sageGame, Language);
+
+                _cachedFonts = new Dictionary<FontKey, Font>();
+
+                var linearClampSamplerDescription = SamplerDescription.Linear;
+                linearClampSamplerDescription.AddressModeU = SamplerAddressMode.Clamp;
+                linearClampSamplerDescription.AddressModeV = SamplerAddressMode.Clamp;
+                linearClampSamplerDescription.AddressModeW = SamplerAddressMode.Clamp;
+                LinearClampSampler = AddDisposable(
+                    graphicsDevice.ResourceFactory.CreateSampler(ref linearClampSamplerDescription));
+
+                var pointClampSamplerDescription = SamplerDescription.Point;
+                pointClampSamplerDescription.AddressModeU = SamplerAddressMode.Clamp;
+                pointClampSamplerDescription.AddressModeV = SamplerAddressMode.Clamp;
+                pointClampSamplerDescription.AddressModeW = SamplerAddressMode.Clamp;
+                PointClampSampler = AddDisposable(
+                    graphicsDevice.ResourceFactory.CreateSampler(ref pointClampSamplerDescription));
+
+                NullTexture = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(TextureDescription.Texture2D(1, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Sampled)));
+
+                _cachedNullStructuredBuffers = new Dictionary<uint, DeviceBuffer>();
+
+                SolidWhiteTexture = AddDisposable(graphicsDevice.CreateStaticTexture2D(
+                    1, 1, 1,
+                    new TextureMipMapData(
+                        new byte[] { 255, 255, 255, 255 },
+                        4, 4, 1, 1),
+                    PixelFormat.R8_G8_B8_A8_UNorm));
+
+                ShaderResources = AddDisposable(new ShaderResourceManager(graphicsDevice, SolidWhiteTexture));
+
+                WndImageLoader = AddDisposable(new WndImageLoader(this, new MappedImageLoader(this)));
+
+                _fallbackFonts = new FontCollection();
+                var assembly = Assembly.GetExecutingAssembly();
+                var fontStream = assembly.GetManifestResourceStream($"OpenSage.Content.Fonts.{_fallbackEmbeddedFont}-Regular.ttf");
+                _fallbackFonts.Install(fontStream);
+                fontStream = assembly.GetManifestResourceStream($"OpenSage.Content.Fonts.{_fallbackEmbeddedFont}-Bold.ttf");
+                _fallbackFonts.Install(fontStream);
             }
-
-            // TODO: Defer subsystem loading until necessary
-            switch (sageGame)
-            {
-                // Only load these INI files for a subset of games, because we can't parse them for others yet.
-                case SageGame.CncGenerals:
-                case SageGame.CncGeneralsZeroHour:
-                case SageGame.Bfme:
-                case SageGame.Bfme2:
-                case SageGame.Bfme2Rotwk:
-                    SubsystemLoader.Load(Subsystem.Players);
-                    SubsystemLoader.Load(Subsystem.ParticleSystems);
-                    SubsystemLoader.Load(Subsystem.ObjectCreation);
-                    SubsystemLoader.Load(Subsystem.Multiplayer);
-                    SubsystemLoader.Load(Subsystem.LinearCampaign);
-                    break;
-                default:
-                    break;
-            }
-
-            _contentLoaders = new Dictionary<Type, ContentLoader>
-            {
-                { typeof(Model), AddDisposable(new ModelLoader()) },
-                { typeof(Scene3D), AddDisposable(new MapLoader()) },
-                { typeof(Texture), AddDisposable(new TextureLoader(graphicsDevice)) },
-                { typeof(Window), AddDisposable(new WindowLoader(this, wndCallbackResolver, Language)) },
-                { typeof(AptWindow), AddDisposable(new AptLoader()) },
-            };
-
-            _cachedObjects = new Dictionary<string, object>();
-
-            TranslationManager = new TranslationManager(fileSystem, sageGame, Language);
-
-            _cachedFonts = new Dictionary<FontKey, Font>();
-
-            var linearClampSamplerDescription = SamplerDescription.Linear;
-            linearClampSamplerDescription.AddressModeU = SamplerAddressMode.Clamp;
-            linearClampSamplerDescription.AddressModeV = SamplerAddressMode.Clamp;
-            linearClampSamplerDescription.AddressModeW = SamplerAddressMode.Clamp;
-            LinearClampSampler = AddDisposable(
-                graphicsDevice.ResourceFactory.CreateSampler(ref linearClampSamplerDescription));
-
-            var pointClampSamplerDescription = SamplerDescription.Point;
-            pointClampSamplerDescription.AddressModeU = SamplerAddressMode.Clamp;
-            pointClampSamplerDescription.AddressModeV = SamplerAddressMode.Clamp;
-            pointClampSamplerDescription.AddressModeW = SamplerAddressMode.Clamp;
-            PointClampSampler = AddDisposable(
-                graphicsDevice.ResourceFactory.CreateSampler(ref pointClampSamplerDescription));
-
-            NullTexture = AddDisposable(graphicsDevice.ResourceFactory.CreateTexture(TextureDescription.Texture2D(1, 1, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Sampled)));
-
-            _cachedNullStructuredBuffers = new Dictionary<uint, DeviceBuffer>();
-
-            SolidWhiteTexture = AddDisposable(graphicsDevice.CreateStaticTexture2D(
-                1, 1, 1,
-                new TextureMipMapData(
-                    new byte[] { 255, 255, 255, 255 },
-                    4, 4, 1, 1),
-                PixelFormat.R8_G8_B8_A8_UNorm));
-
-            ShaderResources = AddDisposable(new ShaderResourceManager(graphicsDevice, SolidWhiteTexture));
-
-            WndImageLoader = AddDisposable(new WndImageLoader(this, new MappedImageLoader(this)));
-
-            _fallbackFonts = new FontCollection();
-            var assembly = Assembly.GetExecutingAssembly();
-            var fontStream = assembly.GetManifestResourceStream($"OpenSage.Content.Fonts.{_fallbackEmbeddedFont}-Regular.ttf");
-            _fallbackFonts.Install(fontStream);
-            fontStream = assembly.GetManifestResourceStream($"OpenSage.Content.Fonts.{_fallbackEmbeddedFont}-Bold.ttf");
-            _fallbackFonts.Install(fontStream);
         }
 
         internal DeviceBuffer GetNullStructuredBuffer(uint size)

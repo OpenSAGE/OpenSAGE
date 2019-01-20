@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Diagnostics;
 using OpenSage.Logic.Object;
 
 namespace OpenSage.Data.Ini
@@ -182,28 +183,31 @@ namespace OpenSage.Data.Ini
 
         public void LoadIniFile(FileSystemEntry entry, bool included = false)
         {
-            if (!included && !entry.FilePath.ToLowerInvariant().EndsWith(".ini"))
+            using (GameTrace.TraceDurationEvent($"LoadIniFile('{entry.FilePath}'"))
             {
-                return;
+                if (!included && !entry.FilePath.ToLowerInvariant().EndsWith(".ini"))
+                {
+                    return;
+                }
+
+                if (_alreadyLoaded.Contains(entry.FilePath))
+                {
+                    return;
+                }
+
+                string source;
+
+                using (var stream = entry.Open())
+                using (var reader = new StreamReader(stream, Encoding.ASCII))
+                {
+                    source = reader.ReadToEnd();
+                }
+
+                var parser = new IniParser(source, entry, this, _game);
+                parser.ParseFile();
+
+                _alreadyLoaded.Add(entry.FilePath);
             }
-
-            if (_alreadyLoaded.Contains(entry.FilePath))
-            {
-                return;
-            }
-
-            string source;
-
-            using (var stream = entry.Open())
-            using (var reader = new StreamReader(stream, Encoding.ASCII))
-            {
-                source = reader.ReadToEnd();
-            }
-
-            var parser = new IniParser(source, entry, this, _game);
-            parser.ParseFile();
-
-            _alreadyLoaded.Add(entry.FilePath);
         }
 
         public string GetIniFileContent(string filePath)
