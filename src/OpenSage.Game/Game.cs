@@ -211,7 +211,7 @@ namespace OpenSage
         public Game(
             GameInstallation installation,
             GraphicsBackend? preferredBackend,
-            bool fullscreen)
+            bool fullscreen = false)
         {
             // TODO: Should we receive this as an argument? Do we need configuration in this constructor?
             Configuration = new Configuration();
