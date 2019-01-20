@@ -27,6 +27,10 @@ namespace OpenSage.Data.Ini
         public List<AudioLod> AudioLods { get; } = new List<AudioLod>();
         public int AudioLowMHz { get; internal set; }
         public AudioSettings AudioSettings { get; internal set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public AwardSystem AwardSystem { get; internal set; }
+
         public List<BannerType> BannerTypes { get; } = new List<BannerType>();
         public BannerUI BannerUI { get; internal set; }
         public List<BenchProfile> BenchProfiles { get; } = new List<BenchProfile>();

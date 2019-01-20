@@ -787,5 +787,8 @@
 
         [IniEnum("SIEGEENGINE"), AddedIn(SageGame.Bfme2Rotwk)]
         Siegeengine,
+
+        [IniEnum("OATHBREAKER"), AddedIn(SageGame.Bfme2)]
+        Oathbreaker,
     }
 }

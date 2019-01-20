@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using OpenSage.Data;
 using OpenSage.Data.Ini;
@@ -91,15 +89,14 @@ namespace OpenSage.Tests.Data.Ini
                                     switch (filename)
                                     {
                                         case "ingamenotificationbox.ini":
+                                        case "meshinstancingmanager.ini":
                                         case "commandset.ini": //problem
-                                        case "awardsystem.ini":
                                         case "riskcampaign.ini":
                                         case "createaherosystem.ini":
                                         case "skirmishaidata.ini":
                                         case "firelogicsystem.ini":
                                         case "formationassistant.ini":
                                         case "linearcampaign.ini":
-                                        case "meshinstancingmanager.ini":
                                         case "scoredkillevaannouncer.ini":
                                         case "strategichud.ini":
 
