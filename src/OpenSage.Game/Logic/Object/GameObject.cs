@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using OpenSage.Audio;
 using OpenSage.Content;
 using OpenSage.Data.Ini;
@@ -14,13 +13,7 @@ namespace OpenSage.Logic.Object
     {
         public ObjectDefinition Definition { get; }
 
-        public Transform Transform { get; private set; }
-
-        private Transform _previousTransform;
-        private Transform _smoothTransform;
-
-        // TODO: This is only for prototyping. Replace with locomotors.
-        private Vector3 _velocity;
+        public Transform Transform { get; }
 
         public IEnumerable<BitArray<ModelConditionFlag>> ModelConditionStates { get; }
 
@@ -46,8 +39,6 @@ namespace OpenSage.Logic.Object
             Owner = owner;
 
             Transform = Transform.CreateIdentity();
-            _previousTransform = Transform.CreateIdentity();
-            _smoothTransform = Transform.CreateIdentity();
 
             var drawModules = new List<DrawModule>();
             foreach (var drawData in objectDefinition.Draws)
@@ -87,19 +78,11 @@ namespace OpenSage.Logic.Object
 
         internal void LogicTick(ulong frame)
         {
-            _previousTransform = Transform;
-            // TODO: Remove this allocation.
-            Transform = new Transform(Transform.Translation, Transform.Rotation, Transform.Scale);
-            Transform.Translation += _velocity;
-            _smoothTransform.Translation = Transform.Translation;
             // TODO: Update modules.
         }
 
         internal void LocalLogicTick(in GameTime gameTime, float tickT)
         {
-            _smoothTransform.Translation =
-                Vector3.Lerp(_previousTransform.Translation, Transform.Translation, tickT);
-
             foreach (var drawModule in DrawModules)
             {
                 drawModule.Update(gameTime);
@@ -107,8 +90,7 @@ namespace OpenSage.Logic.Object
 
             // TODO: Make sure we've processed everything that might update
             // this object's transform before updating draw modules' position.
-
-            var worldMatrix = _smoothTransform.Matrix;
+            var worldMatrix = Transform.Matrix;
             foreach (var drawModule in DrawModules)
             {
                 drawModule.SetWorldMatrix(worldMatrix);
@@ -150,9 +132,6 @@ namespace OpenSage.Logic.Object
 
         public void OnLocalSelect(AudioSystem gameAudio)
         {
-            // TODO: Remove this. This is just for testing interpolation.
-            _velocity = new Vector3(0, 0, 1f);
-
             if (Definition.VoiceSelect != null)
             {
                 gameAudio.PlayAudioEvent(Definition.VoiceSelect);
