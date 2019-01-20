@@ -32,7 +32,10 @@ namespace OpenSage.Data.Ini
             { "PreventActivationConditions", (parser, x) => x.PreventActivationConditions = parser.ParseEnumBitArray<ModelConditionFlag>() },
             { "ForbiddenObjectFilter", (parser, x) => x.ForbiddenObjectFilter = ObjectFilter.Parse(parser) },
             { "ForbiddenObjectRange", (parser, x) => x.ForbiddenObjectRange = parser.ParseInteger() },
-            { "RequiredSciences", (parser, x) => x.RequiredSciences = parser.ParseAssetReferenceArray() }
+            { "RequiredSciences", (parser, x) => x.RequiredSciences = parser.ParseAssetReferenceArray() },
+            { "UnitSpecificSoundToUseAsInitiateIntendToDoVoice", (parser, x) => x.UnitSpecificSoundToUseAsInitiateIntendToDoVoice = parser.ParseAssetReference() },
+            { "UnitSpecificSoundToUseAsEnterStateInitiateIntendToDoVoice", (parser, x) => x.UnitSpecificSoundToUseAsEnterStateInitiateIntendToDoVoice = parser.ParseAssetReference() },
+            { "EvaEventToPlayOnSuccess", (parser, x) => x.EvaEventToPlayOnSuccess = parser.ParseAssetReference() }
         };
 
         public string Name { get; private set; }
@@ -74,6 +77,15 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public string[] RequiredSciences { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string UnitSpecificSoundToUseAsInitiateIntendToDoVoice { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string UnitSpecificSoundToUseAsEnterStateInitiateIntendToDoVoice { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string EvaEventToPlayOnSuccess { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -618,6 +630,45 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("SPECIAL_SPELL_BOOK_SUNFLARE"), AddedIn(SageGame.Bfme2)]
         SpecialSpellBookSunflare,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_CITADEL"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookCitadel,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_RAIN_OF_FIRE"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookRainOfFire,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_DRAGON_ALLY"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookDragonAlly,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_DRAGON_STRIKE"), AddedIn(SageGame.Bfme2)]
+        SpecialSpellBookDragonStrike,
+
+        [IniEnum("SPECIAL_EXTINGUISH_FIRE"), AddedIn(SageGame.Bfme2)]
+        SpecialExtinguishFire,
+
+        [IniEnum("SPECIAL_CURSE_ENEMY"), AddedIn(SageGame.Bfme2)]
+        SpecialCurseEnemy,
+
+        [IniEnum("SPECIAL_EVACUATE_GARRISON"), AddedIn(SageGame.Bfme2)]
+        SpecialEvacuateGarrison,
+
+        [IniEnum("SPECIAL_GENERAL_TARGETLESS_THREE"), AddedIn(SageGame.Bfme2)]
+        SpecialGeneralTargetlessThree,
+
+        [IniEnum("SPECIAL_SUMMON_ALLIES"), AddedIn(SageGame.Bfme2)]
+        SpecialSummonAllies,
+
+        [IniEnum("SPECIAL_TELEPORT_TEAM_TO_CASTER"), AddedIn(SageGame.Bfme2)]
+        SpecialTeleportTeamToCaster,
+
+        [IniEnum("SPECIAL_STORE_LIST_1"), AddedIn(SageGame.Bfme2)]
+        SpecialStoreList1,
+
+        [IniEnum("SPECIAL_STORE_LIST_2"), AddedIn(SageGame.Bfme2)]
+        SpecialStoreList2,
+
+        [IniEnum("SPECIAL_TELEPORT_LIST_TO_POSITION"), AddedIn(SageGame.Bfme2)]
+        SpecialTeleportListToPosition,
     }
 
     [AddedIn(SageGame.Bfme2)]
