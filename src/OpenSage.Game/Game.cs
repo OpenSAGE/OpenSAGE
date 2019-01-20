@@ -211,7 +211,7 @@ namespace OpenSage
         public Game(
             GameInstallation installation,
             GraphicsBackend? preferredBackend,
-            bool fullscreen = false)
+            bool fullscreen)
         {
             // TODO: Should we receive this as an argument? Do we need configuration in this constructor?
             Configuration = new Configuration();
@@ -443,12 +443,12 @@ namespace OpenSage
                     break;
                 }
 
-                if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F10))
+                if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F11))
                 {
                     DeveloperModeEnabled = !DeveloperModeEnabled;
                 }
 
-                if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.F11))
+                if (Window.CurrentInputSnapshot.KeyEvents.Any(x => x.Down && x.Key == Key.Enter && (x.Modifiers.HasFlag(ModifierKeys.Alt))))
                 {
                     Window.Fullscreen = !Window.Fullscreen;
                 }
