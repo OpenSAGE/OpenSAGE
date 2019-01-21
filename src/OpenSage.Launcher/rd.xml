@@ -128,5 +128,19 @@
       <Type Name="OpenSage.Data.Ini.BridgeTransitionType[]" Dynamic="Required All" />
       <Type Name="OpenSage.Input.HandlingPriority[]" Dynamic="Required All" />
     </Assembly>
+
+    <Assembly Name="OpenSage.Mods.Generals">
+      <Type Name="OpenSage.Mods.Generals.Gui.MainMenuCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.CreditsMenuCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.LanGameOptionsMenuCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.LanLobbyMenuCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.NetworkDirectConnectCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.OptionsMenuCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.QuitMenuCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.QuitMessageBoxCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.ReplayMenuCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.SkirmishGameOptionsMenuCallbacks" Dynamic="Required All" />
+      <Type Name="OpenSage.Mods.Generals.Gui.SkirmishMapSelectMenuCallbacks" Dynamic="Required All" />
+    </Assembly>
   </Application>
 </Directives>
