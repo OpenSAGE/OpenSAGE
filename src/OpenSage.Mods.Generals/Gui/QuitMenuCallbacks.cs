@@ -15,8 +15,8 @@ namespace OpenSage.Mods.Generals.Gui
                     break;
                 case WndWindowMessageType.SelectedButton when message.Element.Name == "QuitMenu.wnd:ButtonExit":
                     context.WindowManager.PopWindow();
-                    // TODO: Implement this when we can reset the game state and replace the Scene3D without crashing.
-                    // context.Game.EndGame();
+                    // TODO: Show quit confirmation?
+                    context.Game.EndGame();
                     break;
             }
         }
