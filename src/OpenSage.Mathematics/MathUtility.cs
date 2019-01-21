@@ -71,7 +71,7 @@ namespace OpenSage.Mathematics
             return (degrees * Pi / 180);
         }
 
-        internal static uint NextPowerOfTwo(uint value)
+        public static uint NextPowerOfTwo(uint value)
         {
             value--;
             value |= value >> 1;

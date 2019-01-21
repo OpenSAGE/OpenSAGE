@@ -2,7 +2,7 @@
 
 namespace OpenSage.Mathematics
 {
-    internal static class Matrix4x4Utility
+    public static class Matrix4x4Utility
     {
         public static Matrix4x4 Invert(in Matrix4x4 value)
         {

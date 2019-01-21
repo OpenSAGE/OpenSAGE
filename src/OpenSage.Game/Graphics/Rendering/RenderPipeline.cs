@@ -16,6 +16,8 @@ namespace OpenSage.Graphics.Rendering
 
         private const int ParallelCullingBatchSize = 128;
 
+        private static readonly RgbaFloat ClearColor = new RgbaFloat(105, 105, 105, 255);
+
         public static readonly OutputDescription GameOutputDescription = new OutputDescription(
             new OutputAttachmentDescription(PixelFormat.D24_UNorm_S8_UInt),
             new OutputAttachmentDescription(PixelFormat.B8_G8_R8_A8_UNorm));
@@ -129,7 +131,7 @@ namespace OpenSage.Graphics.Rendering
             else
             {
                 _commandList.SetFramebuffer(_intermediateFramebuffer);
-                _commandList.ClearColorTarget(0, ColorRgba.DimGray.ToColorRgbaF().ToRgbaFloat());
+                _commandList.ClearColorTarget(0, ClearColor);
             }
 
             // GUI and camera-dependent 2D elements
@@ -210,7 +212,7 @@ namespace OpenSage.Graphics.Rendering
             _globalShaderResourceData.UpdateGlobalConstantBuffers(commandList, scene.Camera.ViewProjection);
             _globalShaderResourceData.UpdateStandardPassConstantBuffers(commandList, context);
 
-            commandList.ClearColorTarget(0, ColorRgba.DimGray.ToColorRgbaF().ToRgbaFloat());
+            commandList.ClearColorTarget(0, ClearColor);
             commandList.ClearDepthStencil(1);
 
             commandList.SetFullViewports();

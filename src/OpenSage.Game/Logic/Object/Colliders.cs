@@ -89,7 +89,7 @@ namespace OpenSage.Logic.Object
         public override Rectangle GetBoundingRectangle(Camera camera)
         {
             var worldBounds = BoundingBox.Transform(_bounds, Transform.Matrix);
-            return worldBounds.GetBoundingRectangle(camera);
+            return camera.GetBoundingRectangle(worldBounds);
         }
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
@@ -126,8 +126,8 @@ namespace OpenSage.Logic.Object
         public bool Intersects(BoxCollider other)
         {
             // TODO: This ignores the Z dimension. Does that matter?
-            var rectA = TransformedRectangle.FromBoundingBox(_bounds, Transform);
-            var rectB = TransformedRectangle.FromBoundingBox(other._bounds, other.Transform);
+            var rectA = TransformedRectangle.FromBoundingBox(_bounds, Transform.Translation, Transform.Rotation);
+            var rectB = TransformedRectangle.FromBoundingBox(other._bounds, other.Transform.Translation, other.Transform.Rotation);
             return rectA.Intersects(rectB);
         }
     }
@@ -198,7 +198,7 @@ namespace OpenSage.Logic.Object
         public override Rectangle GetBoundingRectangle(Camera camera)
         {
             var worldBounds = BoundingBox.Transform(_bounds, Transform.Matrix);
-            return worldBounds.GetBoundingRectangle(camera);
+            return camera.GetBoundingRectangle(worldBounds);
         }
 
         public override void DebugDraw(DrawingContext2D drawingContext, Camera camera)
