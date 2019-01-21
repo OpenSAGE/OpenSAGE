@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenSage.Content.Translation;
 using OpenSage.Data.Ini;
 using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
@@ -116,10 +117,10 @@ namespace OpenSage.Mods.Generals.Gui
             {
                 var translation = _game.ContentManager.TranslationManager;
                 var messageBox = manager.PushWindow(@"Menus\MessageBox.wnd");
-                messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle").Text = translation.Lookup("GUI:ErrorStartingGame");
+                messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle").Text = "GUI:ErrorStartingGame".Translate();
                 var staticTextTitle = messageBox.Controls.FindControl("MessageBox.wnd:StaticTextTitle") as Label;
                 staticTextTitle.TextAlignment = TextAlignment.Leading;
-                messageBox.Controls.FindControl("MessageBox.wnd:StaticTextMessage").Text = translation.Format("GUI:TooManyPlayers", CurrentMap.NumPlayers);
+                messageBox.Controls.FindControl("MessageBox.wnd:StaticTextMessage").Text = "GUI:TooManyPlayers".TranslateFormatted(CurrentMap.NumPlayers);
                 messageBox.Controls.FindControl("MessageBox.wnd:ButtonOk").Show();
                 return false;
             }
@@ -178,8 +179,7 @@ namespace OpenSage.Mods.Generals.Gui
                 {
                     continue;
                 }
-                var items = options.Select(i =>
-                    new ListBoxDataItem(null, new[] { _game.ContentManager.TranslationManager.Lookup(i) }, comboBox.TextColor)).ToArray();
+                var items = options.Select(i => new ListBoxDataItem(null, new[] { i.Translate() }, comboBox.TextColor)).ToArray();
                 comboBox.Items = items;
                 comboBox.SelectedIndex = selectedIndex;
             }
@@ -191,7 +191,7 @@ namespace OpenSage.Mods.Generals.Gui
             foreach (var comboBox in comboBoxes)
             {
                 var items = options.Select(i =>
-                    new ListBoxDataItem(comboBox, new[] { _game.ContentManager.TranslationManager.Lookup(i.Item1) }, i.Item2)).ToArray();
+                    new ListBoxDataItem(comboBox, new[] { i.Item1.Translate() }, i.Item2)).ToArray();
                 comboBox.Items = items;
                 comboBox.SelectedIndex = selectedIndex;
             }
@@ -286,7 +286,7 @@ namespace OpenSage.Mods.Generals.Gui
             var translation = _game.ContentManager.TranslationManager;
             var mapKey = mapCache.GetNameKey();
 
-            textEntryMap.Text = translation.Lookup(mapKey);         
+            textEntryMap.Text = mapKey.Translate();
         }
     }
 }

@@ -22,5 +22,10 @@ namespace OpenSage.Data
         }
 
         public Stream Open() => _open();
+
+        public override string ToString()
+        {
+            return FilePath;
+        }
     }
 }

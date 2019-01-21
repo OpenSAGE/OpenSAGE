@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
+using OpenSage.Content.Translation;
 using OpenSage.Logic;
 using OpenSage.Mathematics;
 using OpenSage.Network;
@@ -97,7 +98,7 @@ namespace OpenSage.Diagnostics
                     {
                         foreach (var mapCache in _context.Game.ContentManager.IniDataContext.MapCaches)
                         {
-                            var mapName = _context.Game.ContentManager.TranslationManager.Lookup(mapCache.GetNameKey());
+                            var mapName = mapCache.GetNameKey().Translate();
 
                             if (ImGui.MenuItem($"{mapName} ({mapCache.Name})"))
                             {
