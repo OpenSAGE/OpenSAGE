@@ -10,6 +10,9 @@ namespace OpenSage.Mods.Generals.Gui
     {
         private static bool _doneMainMenuFadeIn;
 
+        private static string _currentSide;
+        private static string _currentSideWindowSuffix;
+
         public static void W3DMainMenuInit(Window window, Game game)
         {
             if (!game.Configuration.LoadShellMap)
@@ -64,6 +67,21 @@ namespace OpenSage.Mods.Generals.Gui
                 context.WindowManager.TransitionManager.QueueTransition(null, control.Window, transition);
             }
 
+            void OpenSinglePlayerSideMenu(string side, string sideWindowSuffix)
+            {
+                _currentSide = side;
+                _currentSideWindowSuffix = sideWindowSuffix;
+
+                var selectDifficultyLabel = (Label) control.Window.Controls.FindControl("MainMenu.wnd:StaticTextSelectDifficulty");
+                // TODO: This should be animated as part of the transition.
+                selectDifficultyLabel.Opacity = 1;
+                selectDifficultyLabel.TextOpacity = 1;
+                selectDifficultyLabel.Show();
+
+                QueueTransition("MainMenuSinglePlayerMenuBack");
+                QueueTransition($"MainMenuDifficultyMenu{sideWindowSuffix}");
+            }
+
             var translation = context.Game.ContentManager.TranslationManager;
 
             switch (message.MessageType)
@@ -74,6 +92,33 @@ namespace OpenSage.Mods.Generals.Gui
                         case "MainMenu.wnd:ButtonSinglePlayer":
                             QueueTransition("MainMenuDefaultMenuBack");
                             QueueTransition("MainMenuSinglePlayerMenu");
+                            break;
+
+                        case "MainMenu.wnd:ButtonTRAINING":
+                            OpenSinglePlayerSideMenu("TRAINING", "Training");
+                            break;
+
+                        case "MainMenu.wnd:ButtonChina":
+                            OpenSinglePlayerSideMenu("China", "China");
+                            break;
+
+                        case "MainMenu.wnd:ButtonGLA":
+                            OpenSinglePlayerSideMenu("GLA", "GLA");
+                            break;
+
+                        case "MainMenu.wnd:ButtonUSA":
+                            OpenSinglePlayerSideMenu("USA", "US");
+                            break;
+
+                        case "MainMenu.wnd:ButtonEasy":
+                        case "MainMenu.wnd:ButtonMedium":
+                        case "MainMenu.wnd:ButtonHard":
+                            context.Game.StartCampaign(_currentSide);
+                            break;
+
+                        case "MainMenu.wnd:ButtonDiffBack":
+                            QueueTransition($"MainMenuDifficultyMenu{_currentSideWindowSuffix}Back");
+                            QueueTransition($"MainMenuSinglePlayer{_currentSideWindowSuffix}MenuFromDiff");
                             break;
 
                         case "MainMenu.wnd:ButtonSkirmish":
