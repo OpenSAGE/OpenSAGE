@@ -387,8 +387,6 @@ namespace OpenSage
 
             NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
 
-            string localPlayerSide;
-
             if (isMultiPlayer)
             {
                 var players = new Player[playerSettings.Length + 1];
@@ -465,9 +463,25 @@ namespace OpenSage
 
         public void EndGame()
         {
-            // TODO
+            // TODO: there's a huge memory leak somewhere here...
+            // Hopefully it will be fixed when we refactor ContentManager.
+
+            Scene3D.Dispose();
             Scene3D = null;
+
+            NetworkMessageBuffer.Dispose();
             NetworkMessageBuffer = null;
+
+            while (Scene2D.WndWindowManager.OpenWindowCount > 0)
+            {
+                Scene2D.WndWindowManager.PopWindow();
+            }
+            while (Scene2D.AptWindowManager.OpenWindowCount > 0)
+            {
+                Scene2D.AptWindowManager.PopWindow();
+            }
+
+            ShowMainMenu();
         }
 
         public void Run()
