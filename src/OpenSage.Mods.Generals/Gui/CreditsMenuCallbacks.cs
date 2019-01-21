@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using OpenSage.Content.Translation;
 using OpenSage.Data.Ini;
 using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
@@ -74,7 +75,7 @@ namespace OpenSage.Mods.Generals.Gui
 
                     case CreditTextLine tl:
                         text = measureText = tl.Text.Contains(":")
-                            ? game.ContentManager.TranslationManager.Lookup(tl.Text)
+                            ? tl.Text.Translate()
                             : tl.Text;
                         break;
 

@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using ImGuiNET;
-using OpenSage.Data.Csf;
+using OpenSage.Content.Translation;
 using OpenSage.Diagnostics.Util;
 
 namespace OpenSage.Diagnostics
 {
     internal sealed class StringsView : DiagnosticView
     {
-        private readonly List<CsfLabel> _labels;
+        private readonly List<string> _labels;
         private readonly byte[] _searchTextBuffer;
         private string _searchText;
 
@@ -19,7 +18,7 @@ namespace OpenSage.Diagnostics
         public StringsView(DiagnosticViewContext context)
             : base(context)
         {
-            _labels = new List<CsfLabel>();
+            _labels = new List<string>();
             _searchTextBuffer = new byte[32];
         }
 
@@ -41,16 +40,8 @@ namespace OpenSage.Diagnostics
 
             foreach (var label in _labels)
             {
-                ImGui.Text(label.Name); ImGui.NextColumn();
-
-                string value = null;
-                if (label.Strings.Length > 0)
-                {
-                    var csfString = label.Strings[0];
-                    value = csfString.Value;
-                }
-
-                ImGui.Text(CleanText(value)); ImGui.NextColumn();
+                ImGui.Text(label); ImGui.NextColumn();
+                ImGui.Text(CleanText(label.Translate())); ImGui.NextColumn();
             }
 
             ImGui.Columns(1, null, false);
@@ -73,9 +64,7 @@ namespace OpenSage.Diagnostics
 
             foreach (var label in Context.Game.ContentManager.TranslationManager.Labels)
             {
-                var matchesSearch =
-                    label.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)
-                    || label.Strings.Any(x => x.Value.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+                var matchesSearch = label.Contains(searchText, StringComparison.OrdinalIgnoreCase);
 
                 if (matchesSearch)
                 {

@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Apt.Characters;
+﻿using OpenSage.Content.Translation;
+using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
 using Veldrid;
 
@@ -44,7 +45,7 @@ namespace OpenSage.Gui.Apt
             {
                 case Shape s:
                     var geometry = Context.GetGeometry(s.Geometry, Character);
-                    renderer.RenderGeometry(dc, Context, geometry, pTransform,Texture);
+                    renderer.RenderGeometry(dc, Context, geometry, pTransform, Texture);
                     break;
                 case Text t:
                     if (t.Value.Length > 0)
@@ -56,7 +57,7 @@ namespace OpenSage.Gui.Apt
 
                     //localize our content
                     t.Content = t.Content.Replace("$", "APT:");
-                    t.Content = Context.ContentManager.TranslationManager.Lookup(t.Content);
+                    t.Content = t.Content.Translate();
 
                     renderer.RenderText(dc, Context, t, pTransform);
                     break;

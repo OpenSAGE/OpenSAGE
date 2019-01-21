@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using OpenSage.Content.Translation;
 using OpenSage.Gui;
 using OpenSage.Gui.Wnd;
 using OpenSage.Gui.Wnd.Controls;
@@ -168,13 +169,13 @@ namespace OpenSage.Mods.Generals.Gui
 
                         case "MainMenu.wnd:ButtonExit":
                             var exitWindow = context.WindowManager.PushWindow(@"Menus\QuitMessageBox.wnd");
-                            exitWindow.Controls.FindControl("QuitMessageBox.wnd:StaticTextTitle").Text = translation.Lookup("GUI:QuitPopupTitle");
+                            exitWindow.Controls.FindControl("QuitMessageBox.wnd:StaticTextTitle").Text = "GUI:QuitPopupTitle".Translate();
                             ((Label) exitWindow.Controls.FindControl("QuitMessageBox.wnd:StaticTextTitle")).TextAlignment = TextAlignment.Leading;
-                            exitWindow.Controls.FindControl("QuitMessageBox.wnd:StaticTextMessage").Text = translation.Lookup("GUI:QuitPopupMessage");
+                            exitWindow.Controls.FindControl("QuitMessageBox.wnd:StaticTextMessage").Text = "GUI:QuitPopupMessage".Translate();
                             exitWindow.Controls.FindControl("QuitMessageBox.wnd:ButtonOk").Show();
-                            exitWindow.Controls.FindControl("QuitMessageBox.wnd:ButtonOk").Text = translation.Lookup("GUI:Yes");
+                            exitWindow.Controls.FindControl("QuitMessageBox.wnd:ButtonOk").Text = "GUI:Yes".Translate();
                             exitWindow.Controls.FindControl("QuitMessageBox.wnd:ButtonCancel").Show();
-                            exitWindow.Controls.FindControl("QuitMessageBox.wnd:ButtonCancel").Text = translation.Lookup("GUI:No");
+                            exitWindow.Controls.FindControl("QuitMessageBox.wnd:ButtonCancel").Text = "GUI:No".Translate();
                             break;
                     }
                     break;
