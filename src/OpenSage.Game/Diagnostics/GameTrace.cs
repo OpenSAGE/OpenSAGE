@@ -29,6 +29,11 @@ namespace OpenSage.Diagnostics
 
         public static IDisposable TraceDurationEvent(string name)
         {
+            if (_output == null)
+            {
+                return null;
+            }
+
             WriteEvent("B", name);
 
             return _durationEvents.Rent();
@@ -38,6 +43,11 @@ namespace OpenSage.Diagnostics
             string type,
             string name)
         {
+            if (_output == null)
+            {
+                return;
+            }
+
             var cat = "-"; // TODO
             var timestamp = Stopwatch.GetTimestamp();
             var threadId = Thread.CurrentThread.ManagedThreadId;
