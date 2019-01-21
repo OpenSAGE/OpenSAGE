@@ -177,5 +177,41 @@ namespace OpenSage.Graphics.Cameras
             _viewport = _getViewport();
             UpdateProjection();
         }
+
+        /// <summary>
+        /// Converts the bounding box from world space into a screen space bounding rectangle.
+        /// </summary>
+        public Rectangle GetBoundingRectangle(in BoundingBox boundingBox)
+        {
+            var topLeft = new Vector3(float.MaxValue);
+            var bottomRight = new Vector3(float.MinValue);
+
+            Span<Vector3> vertices = stackalloc Vector3[8];
+
+            var min = boundingBox.Min;
+            var max = boundingBox.Max;
+
+            // Bottom plane
+            vertices[0] = min;
+            vertices[1] = min.WithX(max.X);
+            vertices[2] = min.WithY(max.Y);
+            vertices[3] = max.WithZ(min.Z);
+
+            // Top plane
+            vertices[4] = max;
+            vertices[5] = max.WithX(min.X);
+            vertices[6] = max.WithY(min.Y);
+            vertices[7] = min.WithZ(max.Z);
+
+            for (var i = 0; i < 8; i++)
+            {
+                var screenPos = WorldToScreenPoint(vertices[i]);
+                topLeft = Vector3.Min(topLeft, screenPos);
+                bottomRight = Vector3.Max(bottomRight, screenPos);
+            }
+
+            var size = bottomRight - topLeft;
+            return new Rectangle((int) topLeft.X, (int) topLeft.Y, (int) size.X, (int) size.Y);
+        }
     }
 }

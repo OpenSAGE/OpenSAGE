@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Veldrid;
 
 namespace OpenSage.Mathematics
 {
@@ -41,11 +40,6 @@ namespace OpenSage.Mathematics
         public static bool operator !=(in ColorRgbaF f1, in ColorRgbaF f2)
         {
             return !(f1 == f2);
-        }
-
-        public RgbaFloat ToRgbaFloat()
-        {
-            return new RgbaFloat(R, G, B, A);
         }
 
         public ColorRgbaF WithA(float a)

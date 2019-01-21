@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.102
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28407.52
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Game", "OpenSage.Game\OpenSage.Game.csproj", "{65414137-B69D-42ED-9950-0428974D54CE}"
 EndProject
@@ -31,7 +31,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Tools.BigEditor", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmarks", "Benchmarks", "{FFC49638-8FFE-4C6E-B2B2-AC7D942498D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Benchmarks.DataStructures", "OpenSage.Benchmarks.DataStructures\OpenSage.Benchmarks.DataStructures.csproj", "{8483402D-4DB2-4E7B-AEAA-9091A3F0255C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Benchmarks.DataStructures", "OpenSage.Benchmarks.DataStructures\OpenSage.Benchmarks.DataStructures.csproj", "{8483402D-4DB2-4E7B-AEAA-9091A3F0255C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Mathematics", "OpenSage.Mathematics\OpenSage.Mathematics.csproj", "{77A072B8-05F4-400A-BC97-5D53827D9D11}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -87,6 +89,10 @@ Global
 		{8483402D-4DB2-4E7B-AEAA-9091A3F0255C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8483402D-4DB2-4E7B-AEAA-9091A3F0255C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8483402D-4DB2-4E7B-AEAA-9091A3F0255C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77A072B8-05F4-400A-BC97-5D53827D9D11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77A072B8-05F4-400A-BC97-5D53827D9D11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77A072B8-05F4-400A-BC97-5D53827D9D11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77A072B8-05F4-400A-BC97-5D53827D9D11}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
