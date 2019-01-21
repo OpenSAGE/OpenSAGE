@@ -378,6 +378,9 @@ namespace OpenSage
                 Scene2D.AptWindowManager.PopWindow();
             }
 
+            Scene3D?.Dispose();
+            Scene3D = null;
+
             Scene3D = ContentManager.Load<Scene3D>(mapFileName);
 
             if (Scene3D == null)
