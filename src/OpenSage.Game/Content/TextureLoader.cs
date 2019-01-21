@@ -66,10 +66,13 @@ namespace OpenSage.Content
                         generateMipMaps));
 
                 case ".jpg":
-                    var jpgFile = new ImageSharpTexture(entry.Open());
-                    return jpgFile.CreateDeviceTexture(
-                        contentManager.GraphicsDevice,
-                        contentManager.GraphicsDevice.ResourceFactory);
+                    using (var stream = entry.Open())
+                    {
+                        var jpgFile = new ImageSharpTexture(stream);
+                        return jpgFile.CreateDeviceTexture(
+                            contentManager.GraphicsDevice,
+                            contentManager.GraphicsDevice.ResourceFactory);
+                    }
 
                 default:
                     throw new InvalidOperationException();
