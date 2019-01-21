@@ -105,7 +105,7 @@ namespace OpenSage.Content
                     subObjects.Add(new ModelSubObject(w3dSubObject.Name, bone, mesh));
                 }
             }
-            else
+            else if (w3dMeshes.Count > 0)
             {
                 // Simple models can have only one mesh with no HLod chunk.
                 if (w3dMeshes.Count != 1)
@@ -123,6 +123,10 @@ namespace OpenSage.Content
                     w3dMesh.Header.MeshName,
                     bones[0],
                     mesh));
+            }
+            else
+            {
+                // TODO: Some .w3d files contain a single W3D_BOX.
             }
 
             return new Model(
