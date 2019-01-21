@@ -16,7 +16,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var url = Parameters[0].ToString();
             var target  = Parameters[1].ToString();
 
-            context.Apt.AVM.Handle(context, url, target);
+            context.Apt.Avm.Handle(context, url, target);
         }
     }
 
@@ -32,7 +32,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var target = context.Stack.Pop();
             var url = context.Stack.Pop().ToString();
 
-            context.Apt.AVM.Handle(context, url, target.ToString());
+            context.Apt.Avm.Handle(context, url, target.ToString());
         }
     }
 }

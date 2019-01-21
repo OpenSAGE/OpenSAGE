@@ -26,7 +26,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
                 if (funcVal.Type != ValueType.Undefined)
                 {
                     var func = funcVal.ToFunction();
-                    var vm = context.Apt.AVM;
+                    var vm = context.Apt.Avm;
                     var ret = vm.Execute(func, args, scope);
 
                     if (ret != null)

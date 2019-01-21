@@ -173,12 +173,12 @@ namespace OpenSage.Gui.Apt.ActionScript
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadGlobal))
             {
-                Registers[reg] = Value.FromObject(Apt.AVM.GlobalObject);
+                Registers[reg] = Value.FromObject(Apt.Avm.GlobalObject);
                 ++reg;
             }
             if (flags.HasFlag(FunctionPreloadFlags.PreloadExtern))
             {
-                Registers[reg] = Value.FromObject(Apt.AVM.ExternObject);
+                Registers[reg] = Value.FromObject(Apt.Avm.ExternObject);
                 ++reg;
             }
             if (!flags.HasFlag(FunctionPreloadFlags.SupressSuper))

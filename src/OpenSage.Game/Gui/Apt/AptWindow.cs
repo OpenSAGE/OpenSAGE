@@ -46,7 +46,7 @@ namespace OpenSage.Gui.Apt
             Root.Create(aptFile.Movie, _context);
             _context.Root = Root;
 
-            _context.AVM.CommandHandler = HandleCommand;
+            _context.Avm.CommandHandler = HandleCommand;
 
             AptFile = aptFile;
 
@@ -65,7 +65,7 @@ namespace OpenSage.Gui.Apt
 
         internal void Update(GameTime gt, GraphicsDevice gd)
         {
-            _context.AVM.UpdateIntervals(gt);
+            _context.Avm.UpdateIntervals(gt);
             Root.Update(gt);
             Root.RunActions(gt);
         }

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using OpenSage.Input;
+﻿using OpenSage.Input;
 
 namespace OpenSage.Gui.Apt
 {
-    class AptInputMessageHandler : InputMessageHandler
+    internal sealed class AptInputMessageHandler : InputMessageHandler
     {
         private readonly AptWindowManager _windowManager;
         private readonly Game _game;

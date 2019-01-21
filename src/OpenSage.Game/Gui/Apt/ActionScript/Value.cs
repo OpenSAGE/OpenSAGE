@@ -164,7 +164,9 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             if (Type == ValueType.Undefined ||
                 Type == ValueType.String)
+            {
                 return 0;
+            }
 
             if (Type != ValueType.Integer && Type != ValueType.Constant)
                 throw new InvalidOperationException();

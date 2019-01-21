@@ -306,7 +306,7 @@ namespace OpenSage.Gui.Apt
                     {
                         if (clipEvent.Flags.HasFlag(ClipEventFlags.Initialize))
                         {
-                            Context.AVM.Execute(clipEvent.Instructions, displayItem.ScriptObject);
+                            Context.Avm.Execute(clipEvent.Instructions, displayItem.ScriptObject);
                         }
                     }
                 }
@@ -320,7 +320,7 @@ namespace OpenSage.Gui.Apt
             //execute all actions now
             foreach (var action in _actionList)
             {
-                Context.AVM.Execute(action.Instructions, ScriptObject);
+                Context.Avm.Execute(action.Instructions, ScriptObject);
             }
             _actionList.Clear();
 

@@ -11,7 +11,7 @@ namespace OpenSage.Gui.Apt
         private readonly ImageMap _imageMap;
         private readonly string _movieName;
 
-        public VM AVM { get; }
+        public VM Avm { get; }
         public ContentManager ContentManager { get; }
         public ConstantData Constants { get; set; }
         //Time per frame in milliseconds
@@ -24,7 +24,7 @@ namespace OpenSage.Gui.Apt
             Constants = apt.Constants;
 
             ContentManager = contentManager;
-            AVM = new VM();
+            Avm = new VM();
         }
 
         //constructor to be used without an apt file
@@ -33,7 +33,7 @@ namespace OpenSage.Gui.Apt
             ContentManager = contentManager;
             _imageMap = imageMap;
             _movieName = movieName;
-            AVM = new VM();
+            Avm = new VM();
         }
 
         //need this to handle import/export correctly
