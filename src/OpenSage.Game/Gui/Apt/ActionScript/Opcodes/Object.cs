@@ -141,10 +141,10 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            var member = context.Stack.Pop().ToString();
+            var member = context.Stack.Pop();
             var obj = context.Stack.Pop().ToObject();
 
-            context.Stack.Push(obj.GetMember(member));
+            context.Stack.Push(obj.GetMember(member.ToString()));
         }
     }
 
