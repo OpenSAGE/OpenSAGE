@@ -60,6 +60,9 @@ namespace OpenSage.Content
                 case Subsystem.Multiplayer:
                     LoadFiles(@"Data\INI\Multiplayer.ini");
                     break;
+                case Subsystem.LinearCampaign:
+                    LoadFiles(@"Data\INI\Campaign.ini");
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(subsystem), subsystem, null);
             }
@@ -184,6 +187,18 @@ namespace OpenSage.Content
                         case SageGame.Bfme2Rotwk:
                             yield return "TheMultiplayerSettings";
                             yield break;
+                    }
+                    break;
+                case Subsystem.LinearCampaign:
+                    switch (_gameDefinition.Game)
+                    {
+                        case SageGame.Bfme2:
+                        case SageGame.Bfme2Rotwk:
+                        case SageGame.Cnc3:
+                        case SageGame.Cnc3KanesWrath:
+                            yield return "TheLinearCampaignManager";
+                            yield break;
+                        // TODO: Figure out how to load campaigns for RA3 and later
                     }
                     break;
                 default:

@@ -39,6 +39,11 @@
         /// <summary>
         /// Things that need to be loaded in order to start multiplayer (possibly including Skirmish).
         /// </summary>
-        Multiplayer
+        Multiplayer,
+
+        /// <summary>
+        /// Things that need to be loaded in order to play the single-player campaign.
+        /// </summary>
+        LinearCampaign,
     }
 }
