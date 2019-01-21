@@ -7,13 +7,15 @@
     <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
     <ApplicationManifest>Resources\app.manifest</ApplicationManifest>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <EmbeddedResource Include="Resources\AppIcon.ico" />
+    <RdXmlFile Include="rd.xml" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="1.0.0-alpha-27319-01" />
   </ItemGroup>
 
   <ItemGroup>
