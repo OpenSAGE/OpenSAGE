@@ -36,8 +36,8 @@ namespace OpenSage.Launcher
             [Option("developermode", Default = false, Required = false, HelpText = "Enable developer mode.")]
             public bool DeveloperMode { get; set; }
 
-            [Option("trace", Default = null, Required = false, HelpText = "Trace output path.")]
-            public string Trace { get; set; }
+            [Option("tracefile", Default = null, Required = false, HelpText = "Generate trace output to the specified path, for example `--tracefile trace.json`. Trace files can be loaded into Chrome's tracing GUI at chrome://tracing")]
+            public string TraceFile { get; set; }
         }
 
         public static void Main(string[] args)
@@ -73,10 +73,10 @@ namespace OpenSage.Launcher
 
             Platform.Start();
 
-            var traceEnabled = !string.IsNullOrEmpty(opts.Trace);
+            var traceEnabled = !string.IsNullOrEmpty(opts.TraceFile);
             if (traceEnabled)
             {
-                GameTrace.Start(opts.Trace);
+                GameTrace.Start(opts.TraceFile);
             }
 
             // TODO: Read game version from assembly metadata or .git folder
