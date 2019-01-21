@@ -16,6 +16,7 @@ namespace OpenSage.Content.Translation
             private readonly Dictionary<string, List<ITranslationProvider>> _translationProviders = new Dictionary<string, List<ITranslationProvider>>();
 
             public string Name => nameof(TranslationManager);
+            public string NameOverride { get => Name; set { } } // do nothing on set
             public CultureInfo CurrentLanguage
             {
                 get => CultureInfo.CurrentCulture;
@@ -66,7 +67,7 @@ namespace OpenSage.Content.Translation
 
             public event EventHandler LanguageChanged;
 
-            private IReadOnlyList<ITranslationProvider> GetParticularProviders(string context)
+            public IReadOnlyList<ITranslationProvider> GetParticularProviders(string context)
             {
                 Debug.Assert(!(context is null), $"{nameof(context)} is null");
                 _translationProviders.TryGetValue(context, out var result);
@@ -78,7 +79,7 @@ namespace OpenSage.Content.Translation
                 LanguageChanged?.Invoke(this, EventArgs.Empty);
             }
 
-            public void RegisterProvider(ITranslationProvider provider)
+            public void RegisterProvider(ITranslationProvider provider, bool shouldNotifyLanguageChange = true)
             {
                 if (provider is null)
                 {
@@ -95,6 +96,21 @@ namespace OpenSage.Content.Translation
                     if (!providers.Contains(provider))
                     {
                         providers.Add(provider);
+                    }
+                }
+                if (shouldNotifyLanguageChange && providers == DefaultProviders)
+                {
+                    OnLanguageChanged();
+                }
+            }
+
+            public void UnregisterProvider(ITranslationProvider provider, bool shouldNotifyLanguageChange = true)
+            {
+                if (_translationProviders.TryGetValue(provider.Name, out var providers))
+                {
+                    if (_translationProviders.Remove(provider.Name) && shouldNotifyLanguageChange)
+                    {
+                        OnLanguageChanged();
                     }
                 }
             }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using OpenSage.FileFormats;
 using OpenSage.Utilities.Extensions;
@@ -66,7 +67,6 @@ namespace OpenSage.Content.Translation.Providers
 
             internal readonly Dictionary<string, Dictionary<string, string>> _strings;
 
-            internal string _nameOverride;
             internal int _numStrings;
             internal string _language;
 
@@ -210,8 +210,28 @@ namespace OpenSage.Content.Translation.Providers
         }
 
         private Csf _csf;
+        private string _nameOverride;
 
-        public string Name => _csf._nameOverride ?? _csf._language;
+        public string Name => _nameOverride ?? _csf._language;
+        public string NameOverride
+        {
+            get => _nameOverride;
+            set
+            {
+                var wasRegistered = false;
+                var providers = TranslationManager.Instance.GetParticularProviders(Name);
+                if (providers?.Contains(this) == true)
+                {
+                    wasRegistered = true;
+                    TranslationManager.Instance.UnregisterProvider(this, false);
+                }
+                _nameOverride = value;
+                if (wasRegistered)
+                {
+                    TranslationManager.Instance.RegisterProvider(this);
+                }
+            }
+        }
 
         public IReadOnlyCollection<string> Labels
         {
