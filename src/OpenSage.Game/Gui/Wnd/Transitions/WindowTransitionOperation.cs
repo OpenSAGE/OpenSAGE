@@ -34,6 +34,13 @@ namespace OpenSage.Gui.Wnd.Transitions
                 case WindowTransitionStyle.ReverseSound:
                     return new ReverseSoundTransition(element, startTime);
 
+                case WindowTransitionStyle.MainMenuScaleUp:
+                case WindowTransitionStyle.MainMenuMediumScaleUp: // TODO
+                    return new MainMenuScaleUpTransition(element, startTime);
+
+                case WindowTransitionStyle.TypeText:
+                    return new TypeTextTransition(element, startTime);
+
                 default:
                     throw new NotImplementedException();
             }
