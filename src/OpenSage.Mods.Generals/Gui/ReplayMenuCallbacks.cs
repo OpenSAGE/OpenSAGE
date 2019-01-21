@@ -79,7 +79,7 @@ namespace OpenSage.Mods.Generals.Gui
                                 new PlayerSetting("Observer", new ColorRgb(255, 255, 255)),
                             };
 
-                            context.Game.StartGame(
+                            context.Game.StartMultiPlayerGame(
                                 mapFilename,
                                 new ReplayConnection(replayFile),
                                 pSettings,

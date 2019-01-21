@@ -91,7 +91,7 @@ namespace OpenSage.Launcher
                         new PlayerSetting("GLA", new ColorRgb(255, 255, 255)),
                     };
 
-                    game.StartGame(opts.Map,
+                    game.StartMultiPlayerGame(opts.Map,
                          new EchoConnection(),
                          pSettings,
                          0);
