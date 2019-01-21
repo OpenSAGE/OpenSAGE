@@ -126,6 +126,7 @@ namespace OpenSage.Content
                     SubsystemLoader.Load(Subsystem.ParticleSystems);
                     SubsystemLoader.Load(Subsystem.ObjectCreation);
                     SubsystemLoader.Load(Subsystem.Multiplayer);
+                    SubsystemLoader.Load(Subsystem.LinearCampaign);
                     break;
                 default:
                     break;
