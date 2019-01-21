@@ -6,7 +6,7 @@ namespace OpenSage.Gui.Apt
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public sealed class AptCallbacksAttribute : Attribute
     {
-        public SageGame[] Games { get; private set; }
+        public SageGame[] Games { get; }
 
         public AptCallbacksAttribute(params SageGame[] games)
         {

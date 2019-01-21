@@ -20,14 +20,14 @@ namespace OpenSage.Gui.Apt
             GeometryTranslation = translation;
         }
 
-        public static ItemTransform operator *(ItemTransform a, ItemTransform b)
+        public static ItemTransform operator *(in ItemTransform a, in ItemTransform b)
         {
             return new ItemTransform(a.ColorTransform * b.ColorTransform,
                                      a.GeometryRotation * b.GeometryRotation,
                                      a.GeometryTranslation + b.GeometryTranslation);
         }
 
-        public ItemTransform WithColorTransform(ColorRgbaF color)
+        public ItemTransform WithColorTransform(in ColorRgbaF color)
         {
             return new ItemTransform(color,
                          GeometryRotation,

@@ -27,9 +27,9 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             BuiltinVariablesGet = new Dictionary<string, Func<ObjectContext, Value>>
             {
                 ["_root"] = ctx => Value.FromObject(ctx.Item.Context.Root.ScriptObject),
-                ["_global"] = ctx => Value.FromObject(ctx.Item.Context.AVM.GlobalObject),
+                ["_global"] = ctx => Value.FromObject(ctx.Item.Context.Avm.GlobalObject),
                 ["_parent"] = GetParent,
-                ["extern"] = ctx => Value.FromObject(ctx.Item.Context.AVM.ExternObject)
+                ["extern"] = ctx => Value.FromObject(ctx.Item.Context.Avm.ExternObject)
             };
 
             // list of builtin variables - set
@@ -104,13 +104,15 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
         {
             if (ctx.Item is SpriteItem si)
             {
-                if (args.First().Type == ValueType.String)
+                var dest = args.First();
+
+                if (dest.Type == ValueType.String)
                 {
-                    si.Goto(args.First().ToString());
+                    si.Goto(dest.ToString());
                 }
-                else if (args.First().Type == ValueType.Integer)
+                else if (dest.Type == ValueType.Integer)
                 {
-                    si.GotoFrame(args.First().ToInteger() - 1);
+                    si.GotoFrame(dest.ToInteger() - 1);
                 }
                 else
                 {
@@ -139,17 +141,17 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
 
         private static void SetInterval(ActionContext actionContext, ObjectContext ctx, Value[] args)
         {
-            var vm = actionContext.Apt.AVM;
+            var vm = actionContext.Apt.Avm;
             var name = actionContext.Stack.Pop().ToString();
 
-            vm.CreateInterval(name, args[1].ToInteger(), args[0].ToFunction(), ctx, new Value[0]);
+            vm.CreateInterval(name, args[1].ToInteger(), args[0].ToFunction(), ctx, Array.Empty<Value>());
 
             ctx.Variables[name] = Value.FromString(name);
         }
 
         private static void ClearInterval(ActionContext actionContext, ObjectContext ctx, Value[] args)
         {
-            var vm = actionContext.Apt.AVM;
+            var vm = actionContext.Apt.Avm;
             var name = args[0].ToString();
 
             vm.ClearInterval(name);
