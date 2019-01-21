@@ -360,7 +360,12 @@ namespace OpenSage
             Definition.MainMenu.AddToScene(ContentManager, Scene2D);
         }
 
-        public void StartGame(string mapFileName, IConnection connection, PlayerSetting[] playerSettings, int localPlayerIndex)
+        private void StartGame(
+            string mapFileName,
+            IConnection connection,
+            PlayerSetting[] playerSettings,
+            int localPlayerIndex,
+            bool isMultiPlayer)
         {
             // TODO: Loading screen.
             while (Scene2D.WndWindowManager.OpenWindowCount > 0)
@@ -382,36 +387,42 @@ namespace OpenSage
 
             NetworkMessageBuffer = new NetworkMessageBuffer(this, connection);
 
-            var players = new Player[playerSettings.Length + 1];
+            string localPlayerSide;
 
-            for (var i = 0; i < playerSettings.Length; i++)
+            if (isMultiPlayer)
             {
-                var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == playerSettings[i].Side);
-                players[i] = Player.FromTemplate(playerTemplate, ContentManager, playerSettings[i]);
+                var players = new Player[playerSettings.Length + 1];
 
-                var player1StartPosition = Scene3D.Waypoints[$"Player_{i + 1}_Start"].Position;
-                player1StartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(player1StartPosition.X, player1StartPosition.Y);
-
-                if (playerTemplate.StartingBuilding != null)
+                for (var i = 0; i < playerSettings.Length; i++)
                 {
-                    var startingBuilding = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingBuilding), players[i]);
-                    startingBuilding.Transform.Translation = player1StartPosition;
-                    startingBuilding.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathUtility.ToRadians(startingBuilding.Definition.PlacementViewAngle));
+                    var playerTemplate = ContentManager.IniDataContext.PlayerTemplates.Find(t => t.Side == playerSettings[i].Side);
+                    players[i] = Player.FromTemplate(playerTemplate, ContentManager, playerSettings[i]);
 
-                    var startingUnit0 = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingUnits[0].Unit), players[i]);
-                    var startingUnit0Position = player1StartPosition;
-                    startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
-                    startingUnit0.Transform.Translation = startingUnit0Position;
+
+                    var player1StartPosition = Scene3D.Waypoints[$"Player_{i + 1}_Start"].Position;
+                    player1StartPosition.Z += Scene3D.Terrain.HeightMap.GetHeight(player1StartPosition.X, player1StartPosition.Y);
+
+                    if (playerTemplate.StartingBuilding != null)
+                    {
+                        var startingBuilding = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingBuilding), players[i]);
+                        startingBuilding.Transform.Translation = player1StartPosition;
+                        startingBuilding.Transform.Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathUtility.ToRadians(startingBuilding.Definition.PlacementViewAngle));
+
+                        var startingUnit0 = Scene3D.GameObjects.Add(ContentManager.IniDataContext.Objects.Find(x => x.Name == playerTemplate.StartingUnits[0].Unit), players[i]);
+                        var startingUnit0Position = player1StartPosition;
+                        startingUnit0Position += Vector3.Transform(Vector3.UnitX, startingBuilding.Transform.Rotation) * startingBuilding.Definition.Geometry.MajorRadius;
+                        startingUnit0.Transform.Translation = startingUnit0Position;
+                    }
                 }
+
+                players[players.Length - 1] = CivilianPlayer;
+
+                Scene3D.SetPlayers(players, players[localPlayerIndex]);
             }
-
-            players[players.Length - 1] = CivilianPlayer;
-
-            Scene3D.SetPlayers(players, players[localPlayerIndex]);
 
             if (Definition.ControlBar != null)
             {
-                Scene2D.ControlBar = Definition.ControlBar.Create(playerSettings[localPlayerIndex].Side, ContentManager);
+                Scene2D.ControlBar = Definition.ControlBar.Create(Scene3D.LocalPlayer.Side, ContentManager);
                 Scene2D.ControlBar.AddToScene(Scene2D);
             }
 
@@ -421,6 +432,35 @@ namespace OpenSage
             _nextLogicUpdate = TimeSpan.Zero;
             _nextScriptingUpdate = TimeSpan.Zero;
             CumulativeLogicUpdateError = TimeSpan.Zero;
+        }
+
+        public void StartCampaign(string side)
+        {
+            // TODO: Difficulty
+
+            var campaign = ContentManager.IniDataContext.Campaigns.Single(x => x.Name == side);
+            var firstMission = campaign.Missions.Single(x => x.Name == campaign.FirstMission);
+
+            StartGame(
+                firstMission.Map,
+                new EchoConnection(),
+                null,
+                0,
+                false);
+        }
+
+        public void StartMultiPlayerGame(
+            string mapFileName,
+            IConnection connection,
+            PlayerSetting[] playerSettings,
+            int localPlayerIndex)
+        {
+            StartGame(
+                mapFileName,
+                connection,
+                playerSettings,
+                localPlayerIndex,
+                true);
         }
 
         public void EndGame()

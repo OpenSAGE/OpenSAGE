@@ -92,7 +92,7 @@ namespace OpenSage.Mods.Generals.Gui
                         }
 
                         context.Game.Scene2D.WndWindowManager.PopWindow();
-                        context.Game.StartGame(
+                        context.Game.StartMultiPlayerGame(
                             CurrentMap.Name,
                             new EchoConnection(),
                             settings,

@@ -105,7 +105,7 @@ namespace OpenSage.Diagnostics
                                 var faction1 = iniContext.PlayerTemplates.Find(x => x.PlayableSide == true);
                                 var faction2 = iniContext.PlayerTemplates.FindLast(x => x.PlayableSide == true);
 
-                                _context.Game.StartGame(
+                                _context.Game.StartMultiPlayerGame(
                                     mapCache.Name,
                                     new EchoConnection(),
                                     new[]
