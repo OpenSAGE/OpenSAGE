@@ -226,28 +226,4 @@ namespace OpenSage.Launcher
             Platform.Stop();
         }
     }
-
-    public sealed class Options
-    {
-        [Option('r', "renderer", Default = null, Required = false, HelpText = "Set the renderer backend.")]
-        public GraphicsBackend? Renderer { get; set; }
-
-        [Option("noshellmap", Default = false, Required = false, HelpText = "Disables loading the shell map, speeding up startup time.")]
-        public bool NoShellmap { get; set; }
-
-        [Option('g', "game", Default = SageGame.CncGenerals, Required = false, HelpText = "Chooses which game to start.")]
-        public SageGame Game { get; set; }
-
-        [Option('m', "map", Required = false, HelpText = "Immediately starts a new skirmish with default settings in the specified map. The map file must be specified with the full pathf.")]
-        public string Map { get; set; }
-
-        [Option("novsync", Default = false, Required = false, HelpText = "Disable vsync.")]
-        public bool DisableVsync { get; set; }
-
-        [Option('f', "fullscreen", Default = false, Required = false, HelpText = "Enable fullscreen mode.")]
-        public bool Fullscreen { get; set; }
-
-        [Option("developermode", Default = false, Required = false, HelpText = "Enable developer mode.")]
-        public bool DeveloperMode { get; set; }
-    }
 }
