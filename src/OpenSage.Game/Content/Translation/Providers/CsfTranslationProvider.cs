@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 using OpenSage.FileFormats;
 using OpenSage.Utilities.Extensions;
 
 namespace OpenSage.Content.Translation.Providers
 {
-    public sealed class CsfTranslationProvider : ITranslationProvider
+    public sealed class CsfTranslationProvider : ATranslationProviderBase
     {
         private enum LanguageGenerals
         {
@@ -210,30 +209,9 @@ namespace OpenSage.Content.Translation.Providers
         }
 
         private Csf _csf;
-        private string _nameOverride;
 
-        public string Name => _nameOverride ?? _csf._language;
-        public string NameOverride
-        {
-            get => _nameOverride;
-            set
-            {
-                var wasRegistered = false;
-                var providers = TranslationManager.Instance.GetParticularProviders(Name);
-                if (providers?.Contains(this) == true)
-                {
-                    wasRegistered = true;
-                    TranslationManager.Instance.UnregisterProvider(this, false);
-                }
-                _nameOverride = value;
-                if (wasRegistered)
-                {
-                    TranslationManager.Instance.RegisterProvider(this);
-                }
-            }
-        }
-
-        public IReadOnlyCollection<string> Labels
+        public override string Name => NameOverride ?? _csf._language;
+        public override IReadOnlyCollection<string> Labels
         {
             get
             {
@@ -256,7 +234,7 @@ namespace OpenSage.Content.Translation.Providers
             Csf.ReadCsf(_csf, stream, game);
         }
 
-        public string GetString(string str)
+        public override string GetString(string str)
         {
             Debug.Assert(!(str is null), $"{nameof(str)} is null");
             if (!_csf.TryGetString(str, out var result))
