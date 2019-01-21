@@ -25,11 +25,6 @@ build_script:
       cd $env:APPVEYOR_BUILD_FOLDER\src\OpenSage.Game.Tests
       dotnet build -c $env:configuration -v m
 
-      cd $env:APPVEYOR_BUILD_FOLDER\src\OpenSage.Viewer
-      dotnet publish -c $env:configuration -o "$env:APPVEYOR_BUILD_FOLDER\build\artifacts\win-x64" -v m -r win-x64
-      dotnet publish -c $env:configuration -o "$env:APPVEYOR_BUILD_FOLDER\build\artifacts\osx-x64" -v m -r osx-x64
-      dotnet publish -c $env:configuration -o "$env:APPVEYOR_BUILD_FOLDER\build\artifacts\linux-x64" -v m -r linux-x64
-
       cd $env:APPVEYOR_BUILD_FOLDER\src\OpenSage.Launcher
       dotnet publish -c $env:configuration -o "$env:APPVEYOR_BUILD_FOLDER\build\artifacts\win-x64" -v m -r win-x64
       dotnet publish -c $env:configuration -o "$env:APPVEYOR_BUILD_FOLDER\build\artifacts\osx-x64" -v m -r osx-x64
@@ -56,7 +51,7 @@ deploy:
   auth_token:
     secure: gd108UlSNyLViffYS7AKRgbTQXmzI6N/WgtNXFwkOsO9qGrWrAaJ853qAyv+FXp6
   artifact: win-x64, osx-x64, linux-x64
-  description: "## Instructions\n1. Download the correct .zip file for your operating system\n2. Linux/Mac: export the path to your game path as an environment variable e.g.: `export CNC_GENERALS_PATH=~/generals/`\n3. Start the `OpenSage.Viewer` or `OpenSage.Launcher` executable\n\n## Viewer\nAllows you to view all game files from all detected SAGE games on your computer.\n\n## Launcher\nThis executable will start OpenSAGE with the C&C Generals game files."
+  description: "## Instructions\n1. Download the correct .zip file for your operating system\n2. Linux/Mac: export the path to your game path as an environment variable e.g.: `export CNC_GENERALS_PATH=~/generals/`\n3. Start the `OpenSage.Launcher` executable\n\n## Launcher\nThis executable will start OpenSAGE with the C&C Generals game files. To specify a different SAGE game, or see what other command line options are available, run `OpenSage.Launcher.exe --help`."
   draft: false
   prerelease: true
   on:
