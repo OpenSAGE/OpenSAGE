@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.FileFormats;
 using OpenSage.Logic.Orders;
 
 namespace OpenSage.Data.Rep

@@ -1,7 +1,6 @@
-﻿using OpenSage.Data.Utilities.Extensions;
-using System.IO;
+﻿using System.IO;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     public sealed class W3dMotionChannel : W3dChunk
     {

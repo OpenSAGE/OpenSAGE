@@ -2,6 +2,7 @@
 using System.IO;
 using OpenSage.Data.Apt.FrameItems;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Apt
 {

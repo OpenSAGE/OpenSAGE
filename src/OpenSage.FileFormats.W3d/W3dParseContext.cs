@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     internal sealed class W3dParseContext
     {

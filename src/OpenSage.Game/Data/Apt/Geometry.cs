@@ -6,6 +6,7 @@ using System.Numerics;
 using OpenSage.Mathematics;
 using OpenSage.Data.Utilities;
 using System.Text;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Apt
 {

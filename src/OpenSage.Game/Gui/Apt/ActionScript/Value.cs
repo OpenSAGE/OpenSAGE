@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenSage.Data.Apt;
 using OpenSage.Data.Utilities;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Gui.Apt.ActionScript
 {

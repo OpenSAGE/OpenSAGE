@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using OpenSage.Data.StreamFS;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.FileFormats;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.W3x

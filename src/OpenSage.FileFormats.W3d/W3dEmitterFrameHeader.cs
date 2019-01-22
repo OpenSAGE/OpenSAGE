@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     /// <summary>
     /// Frames keyframes are for sub-texture indexing.

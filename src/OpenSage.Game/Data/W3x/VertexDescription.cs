@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.FileFormats;
 using Veldrid;
 
 namespace OpenSage.Data.W3x

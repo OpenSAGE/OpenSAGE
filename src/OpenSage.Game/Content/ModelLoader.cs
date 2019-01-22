@@ -6,7 +6,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenSage.Content.Util;
 using OpenSage.Data;
-using OpenSage.Data.W3d;
+using OpenSage.FileFormats.W3d;
 using OpenSage.Graphics;
 using OpenSage.Graphics.Animation;
 using OpenSage.Graphics.Shaders;

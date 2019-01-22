@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Map
 {

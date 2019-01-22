@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     /// <summary>
     /// AABTree header. Each mesh can have an associated Axis-Aligned-Bounding-Box tree

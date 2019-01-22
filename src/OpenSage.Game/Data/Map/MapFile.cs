@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Text;
 using OpenSage.Data.RefPack;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Map
 {

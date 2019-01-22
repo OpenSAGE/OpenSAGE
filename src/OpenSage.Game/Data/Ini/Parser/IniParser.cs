@@ -4,6 +4,7 @@ using System.IO;
 using System.Numerics;
 using System.Text;
 using OpenSage.Data.Utilities;
+using OpenSage.FileFormats;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
 

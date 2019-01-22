@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Apt
 {

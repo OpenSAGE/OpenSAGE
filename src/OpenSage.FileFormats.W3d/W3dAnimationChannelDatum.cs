@@ -1,10 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.Data.Utilities.Extensions;
-using System;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     [StructLayout(LayoutKind.Explicit)]
     public readonly struct W3dAnimationChannelDatum

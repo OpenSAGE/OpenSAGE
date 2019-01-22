@@ -1,9 +1,8 @@
 ﻿using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.Data.Utilities.Extensions;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     /// <summary>
     /// A triangle, occurs inside the W3D_CHUNK_TRIANGLES chunk

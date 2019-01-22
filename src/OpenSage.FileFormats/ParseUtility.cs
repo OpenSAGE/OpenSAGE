@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace OpenSage.Data.Utilities
+namespace OpenSage.FileFormats
 {
     public static class ParseUtility
     {

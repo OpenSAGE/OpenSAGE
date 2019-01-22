@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Numerics;
-using OpenSage.Data.Utilities.Extensions;
-
-namespace OpenSage.Data.W3d
+﻿namespace OpenSage.FileFormats.W3d
 {
     public sealed class W3dPrelitLightMapMultiTexture : W3dPrelitBase<W3dPrelitLightMapMultiTexture>
     {

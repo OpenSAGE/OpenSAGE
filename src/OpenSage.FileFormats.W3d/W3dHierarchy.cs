@@ -1,8 +1,7 @@
 ﻿using System.IO;
 using System.Numerics;
-using OpenSage.Data.Utilities.Extensions;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     /// <summary>
     /// WHT ( Westwood Hierarchy Tree )

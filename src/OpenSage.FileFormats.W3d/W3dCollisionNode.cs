@@ -1,9 +1,6 @@
 ﻿using System.IO;
-using System.Numerics;
-using System.Collections.Generic;
-using OpenSage.Data.Utilities.Extensions;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     public sealed class W3dCollisionNode : W3dChunk
     {

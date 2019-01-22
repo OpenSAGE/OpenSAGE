@@ -1,8 +1,7 @@
-﻿using OpenSage.Data.Utilities.Extensions;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     public sealed class W3dTimeCodedBitChannel : W3dChunk
     {

@@ -1,4 +1,4 @@
-﻿namespace OpenSage.Data.W3d
+﻿namespace OpenSage.FileFormats.W3d
 {
     // From https://raw.githubusercontent.com/mikolalysenko/w3d2ply/master/w3d_file.h
     public enum W3dChunkType

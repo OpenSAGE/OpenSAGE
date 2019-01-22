@@ -1,7 +1,6 @@
 ﻿using System.IO;
-using OpenSage.Data.Utilities.Extensions;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     public sealed class W3dVertexMaterialName : W3dChunk
     {
