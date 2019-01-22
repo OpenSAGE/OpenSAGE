@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using OpenSage.Data.Utilities;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.W3d
 {
@@ -13,10 +14,10 @@ namespace OpenSage.Data.W3d
         public W3dVertexMappingType Stage0Mapping { get; private set; }
         public W3dVertexMappingType Stage1Mapping { get; private set; }
 
-        public W3dRgb Ambient { get; private set; }
-        public W3dRgb Diffuse { get; private set; }
-        public W3dRgb Specular { get; private set; }
-        public W3dRgb Emissive { get; private set; }
+        public ColorRgb Ambient { get; private set; }
+        public ColorRgb Diffuse { get; private set; }
+        public ColorRgb Specular { get; private set; }
+        public ColorRgb Emissive { get; private set; }
 
         /// <summary>
         /// how tight the specular highlight will be, 1 - 1000 (default = 1)
@@ -46,10 +47,10 @@ namespace OpenSage.Data.W3d
                     Stage0Mapping = ConvertStageMapping(rawAttributes, 0x00FF0000, 16),
                     Stage1Mapping = ConvertStageMapping(rawAttributes, 0x0000FF00, 8),
 
-                    Ambient = W3dRgb.Parse(reader),
-                    Diffuse = W3dRgb.Parse(reader),
-                    Specular = W3dRgb.Parse(reader),
-                    Emissive = W3dRgb.Parse(reader),
+                    Ambient = reader.ReadColorRgb(true),
+                    Diffuse = reader.ReadColorRgb(true),
+                    Specular = reader.ReadColorRgb(true),
+                    Emissive = reader.ReadColorRgb(true),
 
                     Shininess = reader.ReadSingle(),
                     Opacity = reader.ReadSingle(),
@@ -70,10 +71,10 @@ namespace OpenSage.Data.W3d
             rawAttributes |= (uint) Stage1Mapping << 8;
             writer.Write(rawAttributes);
 
-            writer.Write(Ambient);
-            writer.Write(Diffuse);
-            writer.Write(Specular);
-            writer.Write(Emissive);
+            writer.Write(Ambient, true);
+            writer.Write(Diffuse, true);
+            writer.Write(Specular, true);
+            writer.Write(Emissive, true);
 
             writer.Write(Shininess);
             writer.Write(Opacity);

@@ -1,4 +1,5 @@
 ﻿using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Mathematics;
 using System.Collections.Generic;
 using System.IO;
 
@@ -133,7 +134,7 @@ namespace OpenSage.Data.W3d
         }
     }
 
-    public sealed class W3dRgbaList : W3dStructListChunk<W3dRgbaList, W3dRgba>
+    public sealed class W3dRgbaList : W3dStructListChunk<W3dRgbaList, ColorRgba>
     {
         private W3dChunkType _chunkType;
 
@@ -141,12 +142,12 @@ namespace OpenSage.Data.W3d
 
         internal static W3dRgbaList Parse(BinaryReader reader, W3dParseContext context, W3dChunkType chunkType)
         {
-            var result = ParseList(reader, context, W3dRgba.Parse);
+            var result = ParseList(reader, context, r => r.ReadColorRgba());
             result._chunkType = chunkType;
             return result;
         }
 
-        protected override void WriteItem(BinaryWriter writer, in W3dRgba item)
+        protected override void WriteItem(BinaryWriter writer, in ColorRgba item)
         {
             writer.Write(item);
         }

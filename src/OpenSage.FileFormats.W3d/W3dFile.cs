@@ -21,14 +21,6 @@ namespace OpenSage.Data.W3d
 
         public IReadOnlyList<W3dCompressedAnimation> GetCompressedAnimations() => Chunks.OfType<W3dCompressedAnimation>().ToList();
 
-        public static W3dFile FromFileSystemEntry(FileSystemEntry entry)
-        {
-            using (var stream = entry.Open())
-            {
-                return FromStream(stream, entry.FilePath);
-            }
-        }
-
         public static W3dFile FromStream(Stream stream, string filePath)
         {
             using (var reader = new BinaryReader(stream, Encoding.ASCII, true))

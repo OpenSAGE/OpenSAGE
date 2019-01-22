@@ -2,7 +2,7 @@
 
 namespace OpenSage.Data.W3d
 {
-    internal static class W3dAdaptiveDeltaCodec
+    public static class W3dAdaptiveDeltaCodec
     {
         private static readonly float[] Table = CalculateTable();
 

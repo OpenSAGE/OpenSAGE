@@ -3,7 +3,7 @@ using System.IO;
 
 namespace OpenSage.Data.Utilities
 {
-    internal static class EnumUtility
+    public static class EnumUtility
     {
         public static TEnum CastValueAsEnum<TValue, TEnum>(TValue value)
            where TValue : struct

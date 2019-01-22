@@ -65,11 +65,6 @@ namespace OpenSage.Content.Util
             }
         }
 
-        public static Vector3 ToVector3(this W3dRgb value)
-        {
-            return new Vector3(value.R / 255.0f, value.G / 255.0f, value.B / 255.0f);
-        }
-
         public static FixedFunctionShaderResources.VertexMaterial ToVertexMaterial(this W3dVertexMaterialInfo w3dVertexMaterialInfo, W3dVertexMaterial w3dVertexMaterial)
         {
             return new FixedFunctionShaderResources.VertexMaterial

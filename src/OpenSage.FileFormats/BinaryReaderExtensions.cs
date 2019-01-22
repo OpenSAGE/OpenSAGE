@@ -3,13 +3,11 @@ using System.IO;
 using System.Numerics;
 using System.Text;
 using OpenSage.Mathematics;
-using System.Linq;
 using System.Collections.Generic;
-using OpenSage.Data.Map;
 
 namespace OpenSage.Data.Utilities.Extensions
 {
-    internal static class BinaryReaderExtensions
+    public static class BinaryReaderExtensions
     {
         public static bool ReadBooleanChecked(this BinaryReader reader)
         {
@@ -84,6 +82,12 @@ namespace OpenSage.Data.Utilities.Extensions
             }
 
             return Encoding.ASCII.GetString(bytes.ToArray());
+        }
+
+        public static string ReadBytePrefixedAsciiString(this BinaryReader reader)
+        {
+            var length = reader.ReadByte();
+            return BinaryUtility.AnsiEncoding.GetString(reader.ReadBytes(length));
         }
 
         public static string ReadUInt16PrefixedAsciiString(this BinaryReader reader)
@@ -336,13 +340,6 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadInt32());
         }
 
-        public static MapLine2D ReadLine2D(this BinaryReader reader)
-        {
-            return new MapLine2D(
-                reader.ReadVector2(),
-                reader.ReadVector2());
-        }
-
         public static IndexedTriangle ReadIndexedTri(this BinaryReader reader)
         {
             return new IndexedTriangle(
@@ -394,21 +391,46 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadSingle());
         }
 
-        public static ColorRgb ReadColorRgb(this BinaryReader reader)
+        public static ColorRgb ReadColorRgb(this BinaryReader reader, bool extraBytePadding = false)
         {
-            return new ColorRgb(
+            var result = new ColorRgb(
                 reader.ReadByte(),
                 reader.ReadByte(),
                 reader.ReadByte());
+
+            if (extraBytePadding)
+            {
+                reader.ReadByte();
+            }
+
+            return result;
         }
 
-        public static ColorRgba ReadColorRgba(this BinaryReader reader)
+        public static ColorRgba ReadColorRgba(this BinaryReader reader, ColorRgbaPixelOrder pixelOrder = ColorRgbaPixelOrder.Rgba)
         {
-            return new ColorRgba(
-                reader.ReadByte(),
-                reader.ReadByte(),
-                reader.ReadByte(),
-                reader.ReadByte());
+            byte r, g, b, a;
+
+            switch (pixelOrder)
+            {
+                case ColorRgbaPixelOrder.Rgba:
+                    r = reader.ReadByte();
+                    g = reader.ReadByte();
+                    b = reader.ReadByte();
+                    a = reader.ReadByte();
+                    break;
+
+                case ColorRgbaPixelOrder.Bgra:
+                    b = reader.ReadByte();
+                    g = reader.ReadByte();
+                    r = reader.ReadByte();
+                    a = reader.ReadByte();
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(pixelOrder));
+            }
+
+            return new ColorRgba(r, g, b, a);
         }
 
         public static uint Align(this BinaryReader reader, uint aligment)
@@ -416,7 +438,9 @@ namespace OpenSage.Data.Utilities.Extensions
             var pos = reader.BaseStream.Position;
             var calign = ((uint) pos % aligment);
             if (calign == 0)
+            {
                 return 0;
+            }
 
             var missing = aligment - calign;
             reader.BaseStream.Seek(missing, SeekOrigin.Current);
@@ -694,5 +718,18 @@ namespace OpenSage.Data.Utilities.Extensions
                 reader.ReadSingle(),
                 reader.ReadSingle());
         }
+
+        public static Line2D ReadLine2D(this BinaryReader reader)
+        {
+            return new Line2D(
+                reader.ReadVector2(),
+                reader.ReadVector2());
+        }
+    }
+
+    public enum ColorRgbaPixelOrder
+    {
+        Rgba,
+        Bgra
     }
 }
