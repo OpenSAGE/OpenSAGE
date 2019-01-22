@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenSage.FileFormats\OpenSage.FileFormats.csproj" />
+    <ProjectReference Include="..\OpenSage.Mathematics\OpenSage.Mathematics.csproj" />
+  </ItemGroup>
+
+</Project>

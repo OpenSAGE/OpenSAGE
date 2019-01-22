@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.W3d
 {
@@ -26,8 +27,8 @@ namespace OpenSage.Data.W3d
         public Vector3 Velocity { get; private set; }
         public Vector3 Acceleration { get; private set; }
 
-        public W3dRgba StartColor { get; private set; }
-        public W3dRgba EndColor { get; private set; }
+        public ColorRgba StartColor { get; private set; }
+        public ColorRgba EndColor { get; private set; }
 
         internal static W3dEmitterInfo Parse(BinaryReader reader, W3dParseContext context)
         {
@@ -50,8 +51,8 @@ namespace OpenSage.Data.W3d
                     Velocity = reader.ReadVector3(),
                     Acceleration = reader.ReadVector3(),
 
-                    StartColor = W3dRgba.Parse(reader),
-                    EndColor = W3dRgba.Parse(reader)
+                    StartColor = reader.ReadColorRgba(),
+                    EndColor = reader.ReadColorRgba()
                 };
             });
         }

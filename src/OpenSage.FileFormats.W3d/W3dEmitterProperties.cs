@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.W3d
 {
@@ -10,7 +11,7 @@ namespace OpenSage.Data.W3d
         public uint ColorKeyframesCount { get; private set; }
         public uint OpacityKeyframesCount { get; private set; }
         public uint SizeKeyframesCount { get; private set; }
-        public W3dRgba ColorRandom { get; private set; }
+        public ColorRgba ColorRandom { get; private set; }
         public float OpacityRandom { get; private set; }
         public float SizeRandom { get; private set; }
 
@@ -27,7 +28,7 @@ namespace OpenSage.Data.W3d
                     ColorKeyframesCount = reader.ReadUInt32(),
                     OpacityKeyframesCount = reader.ReadUInt32(),
                     SizeKeyframesCount = reader.ReadUInt32(),
-                    ColorRandom = W3dRgba.Parse(reader),
+                    ColorRandom = reader.ReadColorRgba(),
                     OpacityRandom = reader.ReadSingle(),
                     SizeRandom = reader.ReadSingle()
                 };

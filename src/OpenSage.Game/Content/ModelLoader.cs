@@ -20,7 +20,11 @@ namespace OpenSage.Content
     {
         protected override Model LoadEntry(FileSystemEntry entry, ContentManager contentManager, Game game, LoadOptions loadOptions)
         {
-            var w3dFile = W3dFile.FromFileSystemEntry(entry);
+            W3dFile w3dFile;
+            using (var entryStream = entry.Open())
+            {
+                w3dFile = W3dFile.FromStream(entryStream, entry.FilePath);
+            }
 
             var w3dHLod = w3dFile.GetHLod();
             var w3dHierarchy = w3dFile.GetHierarchy();
@@ -30,7 +34,11 @@ namespace OpenSage.Content
                 var hierarchyFileName = w3dHLod.Header.HierarchyName + ".W3D";
                 var hierarchyFilePath = Path.Combine(Path.GetDirectoryName(w3dFile.FilePath), hierarchyFileName);
                 var hierarchyFileEntry = contentManager.FileSystem.GetFile(hierarchyFilePath);
-                var hierarchyFile = W3dFile.FromFileSystemEntry(hierarchyFileEntry);
+                W3dFile hierarchyFile;
+                using (var entryStream = hierarchyFileEntry.Open())
+                {
+                    hierarchyFile = W3dFile.FromStream(entryStream, hierarchyFileEntry.FilePath);
+                }
                 w3dHierarchy = hierarchyFile.GetHierarchy();
             }
 

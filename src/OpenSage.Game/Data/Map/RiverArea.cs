@@ -5,19 +5,6 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Map
 {
-    // TODO: Use Stephan's Mathematics.Line2D once it's merged.
-    public struct MapLine2D
-    {
-        public Vector2 V0;
-        public Vector2 V1;
-
-        public MapLine2D(in Vector2 v0, in Vector2 v1)
-        {
-            V0 = v0;
-            V1 = v1;
-        }
-    }
-
     public sealed class RiverArea
     {
         public uint UniqueID { get; private set; }
@@ -40,7 +27,7 @@ namespace OpenSage.Data.Map
 
         public string MinimumWaterLod { get; private set; }
 
-        public MapLine2D[] Lines { get; private set; }
+        public Line2D[] Lines { get; private set; }
 
         internal static RiverArea Parse(BinaryReader reader, ushort version)
         {
@@ -75,7 +62,7 @@ namespace OpenSage.Data.Map
             result.MinimumWaterLod = reader.ReadUInt16PrefixedAsciiString();
 
             var numLines = reader.ReadUInt32();
-            result.Lines = new MapLine2D[numLines];
+            result.Lines = new Line2D[numLines];
 
             for (var i = 0; i < numLines; i++)
             {

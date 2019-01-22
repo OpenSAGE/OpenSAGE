@@ -150,7 +150,11 @@ namespace OpenSage.Logic.Object
 
                         var w3dFilePath = Path.Combine("Art", "W3D", splitName[1] + ".W3D");
                         var w3dEntry = _contentManager.FileSystem.GetFile(w3dFilePath);
-                        var w3dFile = W3dFile.FromFileSystemEntry(w3dEntry);
+                        W3dFile w3dFile;
+                        using (var entryStream = w3dEntry.Open())
+                        {
+                            w3dFile = W3dFile.FromStream(entryStream, w3dEntry.FilePath);
+                        }
 
                         var animations = ModelLoader.LoadAnimations(w3dFile, _contentManager);
                         if (animations.Length != 1 || !string.Equals(animations[0].Name, firstAnimation.Animation, StringComparison.OrdinalIgnoreCase))

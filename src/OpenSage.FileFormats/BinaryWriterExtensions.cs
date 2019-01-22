@@ -2,13 +2,11 @@
 using System.IO;
 using System.Numerics;
 using System.Text;
-using OpenSage.Data.Map;
-using OpenSage.Data.W3d;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Utilities.Extensions
 {
-    internal static class BinaryWriterExtensions
+    public static class BinaryWriterExtensions
     {
         public static void WriteBooleanUInt32(this BinaryWriter writer, bool value)
         {
@@ -223,17 +221,39 @@ namespace OpenSage.Data.Utilities.Extensions
             writer.Write(value.M43);
         }
 
-        public static void Write(this BinaryWriter writer, in MapLine2D value)
-        {
-            writer.Write(value.V0);
-            writer.Write(value.V1);
-        }
-
-        public static void Write(this BinaryWriter writer, in ColorRgb value)
+        public static void Write(this BinaryWriter writer, in ColorRgb value, bool extraBytePadding = false)
         {
             writer.Write(value.R);
             writer.Write(value.G);
             writer.Write(value.B);
+
+            if (extraBytePadding)
+            {
+                writer.Write((byte) 0);
+            }
+        }
+
+        public static void Write(this BinaryWriter writer, in ColorRgba value, ColorRgbaPixelOrder pixelOrder = ColorRgbaPixelOrder.Rgba)
+        {
+            switch (pixelOrder)
+            {
+                case ColorRgbaPixelOrder.Rgba:
+                    writer.Write(value.R);
+                    writer.Write(value.G);
+                    writer.Write(value.B);
+                    writer.Write(value.A);
+                    break;
+
+                case ColorRgbaPixelOrder.Bgra:
+                    writer.Write(value.B);
+                    writer.Write(value.G);
+                    writer.Write(value.R);
+                    writer.Write(value.A);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(pixelOrder));
+            }
         }
 
         public static void Write(this BinaryWriter writer, in ColorRgbF value)
@@ -241,22 +261,6 @@ namespace OpenSage.Data.Utilities.Extensions
             writer.Write(value.R);
             writer.Write(value.G);
             writer.Write(value.B);
-        }
-
-        public static void Write(this BinaryWriter writer, in W3dRgb value)
-        {
-            writer.Write(value.R);
-            writer.Write(value.G);
-            writer.Write(value.B);
-            writer.Write((byte) 0); // Padding
-        }
-
-        public static void Write(this BinaryWriter writer, in W3dRgba value)
-        {
-            writer.Write(value.R);
-            writer.Write(value.G);
-            writer.Write(value.B);
-            writer.Write(value.A);
         }
 
         public static void WriteFourCc(this BinaryWriter writer, string fourCc, bool bigEndian = false)
@@ -280,6 +284,12 @@ namespace OpenSage.Data.Utilities.Extensions
                 writer.Write(fourCc[2]);
                 writer.Write(fourCc[3]);
             }
+        }
+
+        public static void Write(this BinaryWriter writer, in Line2D line)
+        {
+            writer.Write(line.V0);
+            writer.Write(line.V1);
         }
     }
 }

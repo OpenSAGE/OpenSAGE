@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Numerics;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.W3d
 {
@@ -16,7 +17,7 @@ namespace OpenSage.Data.W3d
 
         public string Name { get; private set; }
 
-        public W3dRgb Color { get; private set; }
+        public ColorRgb Color { get; private set; }
 
         public Vector3 Center { get; private set; }
 
@@ -37,7 +38,7 @@ namespace OpenSage.Data.W3d
                 result.CollisionTypes = (W3dBoxCollisionTypes) (flags & 0xFF0);
 
                 result.Name = reader.ReadFixedLengthString(W3dConstants.NameLength * 2);
-                result.Color = W3dRgb.Parse(reader);
+                result.Color = reader.ReadColorRgb(true);
                 result.Center = reader.ReadVector3();
                 result.Extent = reader.ReadVector3();
 
@@ -53,7 +54,7 @@ namespace OpenSage.Data.W3d
             writer.Write(flags);
 
             writer.WriteFixedLengthString(Name, W3dConstants.NameLength * 2);
-            writer.Write(Color);
+            writer.Write(Color, true);
             writer.Write(Center);
             writer.Write(Extent);
         }

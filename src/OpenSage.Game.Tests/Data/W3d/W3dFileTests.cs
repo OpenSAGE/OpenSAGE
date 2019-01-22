@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using OpenSage.Data;
 using OpenSage.Data.Big;
 using OpenSage.Data.W3d;
 using Xunit;
@@ -162,7 +161,12 @@ namespace OpenSage.Tests.Data.W3d
             {
                 var entry = bigArchive.GetEntry(@"Art\W3D\ABBarracks_AC.W3D");
 
-                var w3dFile = W3dFile.FromFileSystemEntry(new FileSystemEntry(null, entry.FullName, entry.Length, entry.Open));
+                W3dFile w3dFile;
+                using (var entryStream = entry.Open())
+                {
+                    w3dFile = W3dFile.FromStream(entryStream, entry.FullName);
+                }
+
                 Assert.Equal(3, w3dFile.GetMeshes().Count);
             }
         }

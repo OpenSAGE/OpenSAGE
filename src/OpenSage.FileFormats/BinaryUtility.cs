@@ -2,7 +2,7 @@
 
 namespace OpenSage.Data.Utilities.Extensions
 {
-    internal static class BinaryUtility
+    public static class BinaryUtility
     {
         static BinaryUtility()
         {
