@@ -1,10 +1,8 @@
 ﻿using System.IO;
-using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct W3dRingColorChunk

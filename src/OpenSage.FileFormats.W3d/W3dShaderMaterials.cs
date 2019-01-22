@@ -1,7 +1,6 @@
 ﻿using System.IO;
-using System.Collections.Generic;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     public sealed class W3dShaderMaterials : W3dListContainerChunk<W3dShaderMaterials, W3dShaderMaterial>
     {

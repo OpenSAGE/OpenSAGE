@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace OpenSage.Data.Utilities.Extensions
+namespace OpenSage.FileFormats
 {
     public static class BinaryUtility
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     public abstract class W3dHLodArrayBase<TDerived> : W3dContainerChunk
         where TDerived : W3dHLodArrayBase<TDerived>, new()

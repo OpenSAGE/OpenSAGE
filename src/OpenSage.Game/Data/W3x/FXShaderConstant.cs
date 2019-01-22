@@ -2,7 +2,8 @@
 using System.Numerics;
 using OpenSage.Data.StreamFS;
 using OpenSage.Data.Utilities.Extensions;
-using OpenSage.Data.W3d;
+using OpenSage.FileFormats;
+using OpenSage.FileFormats.W3d;
 using Veldrid;
 
 namespace OpenSage.Data.W3x

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     [Flags]
     public enum W3dEmitterLineFlags : uint

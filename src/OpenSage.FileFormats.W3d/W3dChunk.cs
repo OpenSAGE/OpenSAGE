@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using OpenSage.Data.Utilities.Extensions;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     public abstract class W3dChunk
     {

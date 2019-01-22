@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     public sealed class W3dTextureIds : W3dListChunk<W3dTextureIds, uint?>
     {

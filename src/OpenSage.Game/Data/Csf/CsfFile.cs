@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Csf
 {

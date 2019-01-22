@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace OpenSage.Data.Utilities
+namespace OpenSage.FileFormats
 {
     public static class EnumUtility
     {

@@ -1,10 +1,9 @@
 ﻿using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using OpenSage.Data.Utilities.Extensions;
 using OpenSage.Graphics.Mathematics;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     public sealed class W3dShaderMaterialProperty : W3dChunk
     {

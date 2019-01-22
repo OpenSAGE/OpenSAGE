@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Text;
 using OpenSage.Mathematics;
-using System.Collections.Generic;
 
-namespace OpenSage.Data.Utilities.Extensions
+namespace OpenSage.FileFormats
 {
     public static class BinaryReaderExtensions
     {

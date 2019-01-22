@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using OpenSage.Data.Big;
-using OpenSage.Data.W3d;
+using OpenSage.FileFormats.W3d;
 using Xunit;
 using Xunit.Abstractions;
 

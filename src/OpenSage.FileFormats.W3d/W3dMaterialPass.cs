@@ -1,9 +1,8 @@
-﻿using OpenSage.Data.Utilities.Extensions;
-using OpenSage.Mathematics;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using OpenSage.Mathematics;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     public sealed class W3dMaterialPass : W3dContainerChunk
     {

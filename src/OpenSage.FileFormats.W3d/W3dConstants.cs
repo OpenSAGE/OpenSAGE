@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace OpenSage.Data.W3d
+﻿namespace OpenSage.FileFormats.W3d
 {
     internal static class W3dConstants
     {

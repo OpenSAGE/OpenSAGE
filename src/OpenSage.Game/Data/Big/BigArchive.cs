@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using OpenSage.Data.Utilities.Extensions;
+using OpenSage.FileFormats;
 
 namespace OpenSage.Data.Big
 {

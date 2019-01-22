@@ -4,7 +4,7 @@ using System.Numerics;
 using System.Text;
 using OpenSage.Mathematics;
 
-namespace OpenSage.Data.Utilities.Extensions
+namespace OpenSage.FileFormats
 {
     public static class BinaryWriterExtensions
     {

@@ -1,8 +1,7 @@
-﻿using System.IO;
-using System.Collections.Generic;
-using OpenSage.Data.Utilities.Extensions;
+﻿using System.Collections.Generic;
+using System.IO;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     public sealed class W3dAggregateInfo : W3dChunk
     {

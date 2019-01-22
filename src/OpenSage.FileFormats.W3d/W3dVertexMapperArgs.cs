@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
-using OpenSage.Data.Utilities.Extensions;
-using static OpenSage.Data.Utilities.ParseUtility;
 
-namespace OpenSage.Data.W3d
+namespace OpenSage.FileFormats.W3d
 {
     // See MAPPERS.TXT in the W3DView folder for more details.
     public sealed class W3dVertexMapperArgs : W3dChunk
@@ -119,23 +117,23 @@ namespace OpenSage.Data.W3d
                         switch (mapperArgName)
                         {
                             case "UPerSec":
-                                TryParseFloat(mapperArgValue, out result.UPerSec);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.UPerSec);
                                 break;
 
                             case "VPerSec":
-                                TryParseFloat(mapperArgValue, out result.VPerSec);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.VPerSec);
                                 break;
 
                             case "UScale":
-                                TryParseFloat(mapperArgValue, out result.UScale);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.UScale);
                                 break;
 
                             case "VScale":
-                                TryParseFloat(mapperArgValue, out result.VScale);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.VScale);
                                 break;
 
                             case "FPS":
-                                TryParseFloat(mapperArgValue, out result.FPS);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.FPS);
                                 break;
 
                             case "Log1Width":
@@ -151,103 +149,103 @@ namespace OpenSage.Data.W3d
                                 break;
 
                             case "Speed":
-                                TryParseFloat(mapperArgValue, out result.Speed);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.Speed);
                                 break;
 
                             case "UCenter":
-                                TryParseFloat(mapperArgValue, out result.UCenter);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.UCenter);
                                 break;
 
                             case "VCenter":
-                                TryParseFloat(mapperArgValue, out result.VCenter);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.VCenter);
                                 break;
 
                             case "UAmp":
-                                TryParseFloat(mapperArgValue, out result.UAmp);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.UAmp);
                                 break;
 
                             case "UFreq":
-                                TryParseFloat(mapperArgValue, out result.UFreq);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.UFreq);
                                 break;
 
                             case "UPhase":
-                                TryParseFloat(mapperArgValue, out result.UPhase);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.UPhase);
                                 break;
 
                             case "VAmp":
-                                TryParseFloat(mapperArgValue, out result.VAmp);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.VAmp);
                                 break;
 
                             case "VFreq":
-                                TryParseFloat(mapperArgValue, out result.VFreq);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.VFreq);
                                 break;
 
                             case "VPhase":
-                                TryParseFloat(mapperArgValue, out result.VPhase);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.VPhase);
                                 break;
 
                             case "BumpRotation":
-                                TryParseFloat(mapperArgValue, out result.BumpRotation);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.BumpRotation);
                                 break;
 
                             case "BumpScale":
-                                TryParseFloat(mapperArgValue, out result.BumpScale);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.BumpScale);
                                 break;
 
                             case "UStep":
-                                TryParseFloat(mapperArgValue, out result.UStep);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.UStep);
                                 break;
 
                             case "VStep":
-                                TryParseFloat(mapperArgValue, out result.VStep);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.VStep);
                                 break;
 
                             case "SPS":
-                                TryParseFloat(mapperArgValue, out result.StepsPerSecond);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.StepsPerSecond);
                                 break;
 
                             case "Offset":
-                                TryParseFloat(mapperArgValue, out result.Offset);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.Offset);
                                 break;
 
                             case "Axis":
-                                TryParseFloat(mapperArgValue, out result.Axis);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.Axis);
                                 break;
 
                             case "UOffset":
-                                TryParseFloat(mapperArgValue, out result.UOffset);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.UOffset);
                                 break;
 
                             case "VOffset":
-                                TryParseFloat(mapperArgValue, out result.VOffset);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.VOffset);
                                 break;
 
                             case "ClampFix":
-                                TryParseFloat(mapperArgValue, out result.ClampFix);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.ClampFix);
                                 break;
 
                             case "UseReflect":
-                                TryParseFloat(mapperArgValue, out result.UseReflect);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.UseReflect);
                                 break;
 
                             case "VPreSec":
-                                TryParseFloat(mapperArgValue, out result.VPerSec);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.VPerSec);
                                 break;
 
                             case "Period":
-                                TryParseFloat(mapperArgValue, out result.Period);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.Period);
                                 break;
 
                             case "UperSec":
-                                TryParseFloat(mapperArgValue, out result.UPerSec);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.UPerSec);
                                 break;
 
                             case "fps":
-                                TryParseFloat(mapperArgValue, out result.FPS);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.FPS);
                                 break;
 
                             case "VPerScale":
-                                TryParseFloat(mapperArgValue, out result.VPerScale);
+                                ParseUtility.TryParseFloat(mapperArgValue, out result.VPerScale);
                                 break;
 
                             default:
