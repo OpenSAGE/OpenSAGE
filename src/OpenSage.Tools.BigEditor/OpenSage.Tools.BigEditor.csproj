@@ -13,10 +13,12 @@
 
   <ItemGroup>
     <PackageReference Include="Veldrid.ImGui" Version="$(ImGuiVersion)" />
+    <PackageReference Include="Veldrid.StartupUtilities" Version="$(VeldridVersion)" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OpenSage.Game\OpenSage.Game.csproj" />
+    <ProjectReference Include="..\OpenSage.Core\OpenSage.Core.csproj" />
+    <ProjectReference Include="..\OpenSage.FileFormats.Big\OpenSage.FileFormats.Big.csproj" />
   </ItemGroup>
 
 </Project>

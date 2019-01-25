@@ -4,13 +4,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
-using OpenSage.Data.Utilities.Extensions;
-using OpenSage.FileFormats;
 
-namespace OpenSage.Data.Big
+namespace OpenSage.FileFormats.Big
 {
     [DebuggerDisplay("Archive: {FilePath}")]
-    public class BigArchive : DisposableBase
+    public class BigArchive : IDisposable
     {
         private readonly object _lockObject = new object();
 
@@ -34,11 +32,11 @@ namespace OpenSage.Data.Big
             _entries = new List<BigArchiveEntry>();
             _entriesDictionary = new Dictionary<string, BigArchiveEntry>();
 
-            _stream = AddDisposable(new FileStream(
+            _stream = new FileStream(
                 filePath,
                 FileMode.Open,
                 FileAccess.Read,
-                FileShare.Read));
+                FileShare.Read);
 
             Read();
         }
@@ -118,6 +116,11 @@ namespace OpenSage.Data.Big
 
             _entriesDictionary.TryGetValue(entryName, out var result);
             return result;
+        }
+
+        public void Dispose()
+        {
+            _stream.Dispose();
         }
     }
 

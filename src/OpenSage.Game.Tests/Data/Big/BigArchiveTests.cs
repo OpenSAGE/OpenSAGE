@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using OpenSage.Data.Big;
+using OpenSage.FileFormats.Big;
 using Xunit;
 
 namespace OpenSage.Tests.Data.Big

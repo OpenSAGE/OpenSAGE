@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace OpenSage.Data.RefPack
+namespace OpenSage.FileFormats.RefPack
 {
     // Clean-room implementation based on spec here:
     // http://wiki.niotso.org/RefPack#Bitstream_specification

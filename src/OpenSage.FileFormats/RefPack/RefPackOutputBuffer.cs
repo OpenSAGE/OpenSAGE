@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace OpenSage.Data.RefPack
+namespace OpenSage.FileFormats.RefPack
 {
     internal sealed class RefPackOutputBuffer
     {

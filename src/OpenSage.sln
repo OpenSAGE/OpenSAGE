@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28407.52
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.271
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Game", "OpenSage.Game\OpenSage.Game.csproj", "{65414137-B69D-42ED-9950-0428974D54CE}"
 EndProject
@@ -38,6 +38,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats", "OpenSage.FileFormats\OpenSage.FileFormats.csproj", "{5C98C7B3-5FDF-4EF1-9DEC-F778783F8A4F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats.W3d", "OpenSage.FileFormats.W3d\OpenSage.FileFormats.W3d.csproj", "{C3857171-4F4B-42F6-8741-ED652C13F04B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats.Big", "OpenSage.FileFormats.Big\OpenSage.FileFormats.Big.csproj", "{7E58D531-B547-45E0-8A24-E90403B4DBFD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Core", "OpenSage.Core\OpenSage.Core.csproj", "{5767CC8D-AD47-472E-B263-87D77964DC85}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -105,6 +109,14 @@ Global
 		{C3857171-4F4B-42F6-8741-ED652C13F04B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3857171-4F4B-42F6-8741-ED652C13F04B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3857171-4F4B-42F6-8741-ED652C13F04B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E58D531-B547-45E0-8A24-E90403B4DBFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E58D531-B547-45E0-8A24-E90403B4DBFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E58D531-B547-45E0-8A24-E90403B4DBFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E58D531-B547-45E0-8A24-E90403B4DBFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5767CC8D-AD47-472E-B263-87D77964DC85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5767CC8D-AD47-472E-B263-87D77964DC85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5767CC8D-AD47-472E-B263-87D77964DC85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5767CC8D-AD47-472E-B263-87D77964DC85}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

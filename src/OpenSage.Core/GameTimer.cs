@@ -63,8 +63,8 @@ namespace OpenSage
 
         public GameTime(long totalGameTimeTicks, long elapsedGameTimeTicks)
         {
-            TotalGameTime = new TimeSpan( (long)(totalGameTimeTicks * TickRatio));
-            ElapsedGameTime = new TimeSpan( (long)(elapsedGameTimeTicks * TickRatio));
+            TotalGameTime = new TimeSpan((long) (totalGameTimeTicks * TickRatio));
+            ElapsedGameTime = new TimeSpan((long) (elapsedGameTimeTicks * TickRatio));
         }
 
         public static GameTime Zero { get; } = new GameTime();
