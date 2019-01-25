@@ -120,7 +120,7 @@ namespace OpenSage.Graphics.Cameras
             return 0;
         }
 
-        void ICameraController.UpdateCamera(Camera camera, in CameraInputState inputState, in GameTime gameTime)
+        void ICameraController.UpdateCamera(Camera camera, in CameraInputState inputState, in TimeInterval gameTime)
         {
             if (inputState.LeftMouseDown && inputState.PressedKeys.Contains(Key.AltLeft) || inputState.MiddleMouseDown)
             {

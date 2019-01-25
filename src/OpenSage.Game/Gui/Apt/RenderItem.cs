@@ -25,12 +25,12 @@ namespace OpenSage.Gui.Apt
             Visible = true;
         }
 
-        public void Update(GameTime gt)
+        public void Update(TimeInterval gt)
         {
 
         }
 
-        public void RunActions(GameTime gt)
+        public void RunActions(TimeInterval gt)
         {
 
         }

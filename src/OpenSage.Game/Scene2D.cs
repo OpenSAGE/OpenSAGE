@@ -17,7 +17,7 @@ namespace OpenSage
             AptWindowManager = new AptWindowManager(game);
         }
 
-        internal void LocalLogicTick(in GameTime gameTime, Player localPlayer)
+        internal void LocalLogicTick(in TimeInterval gameTime, Player localPlayer)
         {
             ControlBar?.Update(localPlayer);
 

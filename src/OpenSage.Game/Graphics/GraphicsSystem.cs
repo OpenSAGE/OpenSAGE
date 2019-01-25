@@ -22,7 +22,7 @@ namespace OpenSage.Graphics
             RenderPipeline = AddDisposable(new RenderPipeline(Game));
         }
 
-        internal void Draw(in GameTime gameTime)
+        internal void Draw(in TimeInterval gameTime)
         {
             _renderContext.ContentManager = Game.ContentManager;
             _renderContext.GraphicsDevice = Game.GraphicsDevice;

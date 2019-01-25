@@ -21,7 +21,7 @@ namespace OpenSage.Gui.Apt
         private DisplayList _content;
         private Playable _sprite;
         private uint _currentFrame;
-        private GameTime _lastUpdate;
+        private TimeInterval _lastUpdate;
         private PlayState _state;
         private Dictionary<string, uint> _frameLabels;
         public string Name { get; set; }
@@ -87,7 +87,7 @@ namespace OpenSage.Gui.Apt
             }
         }
 
-        public void Update(GameTime gt)
+        public void Update(TimeInterval gt)
         {
             if (IsNewFrame(gt))
             {
@@ -152,9 +152,9 @@ namespace OpenSage.Gui.Apt
             _currentFrame++;
         }
 
-        private bool IsNewFrame(GameTime gt)
+        private bool IsNewFrame(TimeInterval gt)
         {
-            if (_lastUpdate.TotalGameTime.Milliseconds == 0)
+            if (_lastUpdate.TotalTime.Milliseconds == 0)
             {
                 _lastUpdate = gt;
                 return true;
@@ -163,7 +163,7 @@ namespace OpenSage.Gui.Apt
             if (_state != PlayState.PLAYING)
                 return false;
 
-            if ((gt.TotalGameTime - _lastUpdate.TotalGameTime).Milliseconds >= Context.MillisecondsPerFrame)
+            if ((gt.TotalTime - _lastUpdate.TotalTime).Milliseconds >= Context.MillisecondsPerFrame)
             {
                 _lastUpdate = gt;
                 return true;
@@ -315,7 +315,7 @@ namespace OpenSage.Gui.Apt
             _content.Items[po.Depth] = displayItem;
         }
 
-        public void RunActions(GameTime gt)
+        public void RunActions(TimeInterval gt)
         {
             //execute all actions now
             foreach (var action in _actionList)

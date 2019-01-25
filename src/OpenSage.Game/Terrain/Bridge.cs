@@ -32,7 +32,7 @@ namespace OpenSage.Terrain
 
             _modelInstance = AddDisposable(_model.CreateInstance(contentManager));
 
-            _modelInstance.Update(GameTime.Zero);
+            _modelInstance.Update(TimeInterval.Zero);
 
             _towers = new List<GameObject>();
 
@@ -185,7 +185,7 @@ namespace OpenSage.Terrain
                     worldMatrix);
                 tower.Transform.Rotation = rotationAroundZ;
 
-                tower.LocalLogicTick(GameTime.Zero, 1.0f);
+                tower.LocalLogicTick(TimeInterval.Zero, 1.0f);
             }
 
             SetTowerTransform(

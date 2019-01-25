@@ -17,9 +17,9 @@ namespace OpenSage.Diagnostics
         {
             ImGui.Text($"Logic frame: {Game.CurrentFrame}");
             ImGui.Separator();
-            ImGui.Text($"Map time:    {FormatTime(Game.MapTime.TotalGameTime)}");
-            ImGui.Text($"Render time: {FormatTime(Game.RenderTime.TotalGameTime)}");
-            ImGui.Text($"Frame time:  {Game.RenderTime.ElapsedGameTime.TotalMilliseconds.ToString("F2", CultureInfo.InvariantCulture)} ms");
+            ImGui.Text($"Map time:    {FormatTime(Game.MapTime.TotalTime)}");
+            ImGui.Text($"Render time: {FormatTime(Game.RenderTime.TotalTime)}");
+            ImGui.Text($"Frame time:  {Game.RenderTime.DeltaTime.TotalMilliseconds.ToString("F2", CultureInfo.InvariantCulture)} ms");
             ImGui.Text($"Cumulative update time error: {FormatTime(Game.CumulativeLogicUpdateError)}");
         }
 

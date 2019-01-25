@@ -7,9 +7,9 @@ namespace OpenSage.Graphics.Rendering
     {
         public readonly RenderList RenderList;
         public readonly Camera Camera;
-        public readonly GameTime GameTime;
+        public readonly TimeInterval GameTime;
 
-        internal BuildingRenderListEventArgs(RenderList renderList, Camera camera, in GameTime gameTime)
+        internal BuildingRenderListEventArgs(RenderList renderList, Camera camera, in TimeInterval gameTime)
         {
             RenderList = renderList;
             Camera = camera;

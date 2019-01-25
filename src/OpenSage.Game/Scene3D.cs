@@ -176,7 +176,7 @@ namespace OpenSage
             }
         }
 
-        internal void LocalLogicTick(in GameTime gameTime, float tickT)
+        internal void LocalLogicTick(in TimeInterval gameTime, float tickT)
         {
             _orderGeneratorInputHandler?.Update();
 
@@ -191,7 +191,7 @@ namespace OpenSage
             DebugOverlay.Update(gameTime);
         }
 
-        internal void BuildRenderList(RenderList renderList, Camera camera, in GameTime gameTime)
+        internal void BuildRenderList(RenderList renderList, Camera camera, in TimeInterval gameTime)
         {
             if (ShowTerrain)
             {

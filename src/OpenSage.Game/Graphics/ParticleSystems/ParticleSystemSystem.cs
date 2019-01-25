@@ -15,7 +15,7 @@ namespace OpenSage.Graphics.ParticleSystems
             _deadParticleSystems = new List<AttachedParticleSystem>();
         }
 
-        public void BuildRenderList(RenderList renderList, in GameTime gameTime)
+        public void BuildRenderList(RenderList renderList, in TimeInterval gameTime)
         {
             // TODO: This could be more efficient if we knew upfront about all particle systems.
             // TODO: Keep particle count under GameData.MaxParticleCount

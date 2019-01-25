@@ -46,9 +46,9 @@ namespace OpenSage.Gui.Wnd.Transitions
             });
         }
 
-        public void Update(GameTime currentTime)
+        public void Update(TimeInterval currentTime)
         {
-            var transitionTime = currentTime.TotalGameTime;
+            var transitionTime = currentTime.TotalTime;
 
             if (_currentTransitionState == null && _transitionQueue.Count > 0)
             {
@@ -64,7 +64,7 @@ namespace OpenSage.Gui.Wnd.Transitions
             {
                 _currentTransitionState.Update(transitionTime);
 
-                if (currentTime.TotalGameTime > _currentTransitionState.LastEndTime)
+                if (currentTime.TotalTime > _currentTransitionState.LastEndTime)
                 {
                     _currentTransitionState.Finish();
                     _currentTransitionState = null;

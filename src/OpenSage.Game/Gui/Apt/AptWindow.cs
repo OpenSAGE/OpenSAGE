@@ -63,7 +63,7 @@ namespace OpenSage.Gui.Apt
             Renderer.Resize(_destinationSize);
         }
 
-        internal void Update(GameTime gt, GraphicsDevice gd)
+        internal void Update(TimeInterval gt, GraphicsDevice gd)
         {
             _context.Avm.UpdateIntervals(gt);
             Root.Update(gt);

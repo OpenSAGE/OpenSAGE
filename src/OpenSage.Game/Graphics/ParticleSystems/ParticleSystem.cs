@@ -194,19 +194,19 @@ namespace OpenSage.Graphics.ParticleSystems
             return (int) Template.BurstCount.High + (int) Math.Ceiling(((Template.Lifetime.High) / (Template.BurstDelay.Low + 1)) * Template.BurstCount.High);
         }
 
-        private void Update(CommandList commandList, in GameTime gameTime)
+        private void Update(CommandList commandList, in TimeInterval gameTime)
         {
             if (_particles == null)
             {
                 return;
             }
 
-            if (gameTime.TotalGameTime < _nextUpdate)
+            if (gameTime.TotalTime < _nextUpdate)
             {
                 return;
             }
 
-            _nextUpdate = gameTime.TotalGameTime + TimeSpan.FromSeconds(1 / 30.0f);
+            _nextUpdate = gameTime.TotalTime + TimeSpan.FromSeconds(1 / 30.0f);
 
             if (_initialDelay > 0)
             {
@@ -480,7 +480,7 @@ namespace OpenSage.Graphics.ParticleSystems
             commandList.UpdateBuffer(_vertexBuffer, 0, _vertices);
         }
 
-        internal void BuildRenderList(RenderList renderList, GameTime gameTime)
+        internal void BuildRenderList(RenderList renderList, TimeInterval gameTime)
         {
             if (_particles == null)
             {
