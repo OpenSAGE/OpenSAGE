@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using OpenSage.Data.Big;
+using OpenSage.FileFormats.Big;
 
 namespace OpenSage.Data
 {

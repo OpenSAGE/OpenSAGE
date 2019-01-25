@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using ImGuiNET;
-using OpenSage.Data.Big;
+using OpenSage.FileFormats.Big;
 using OpenSage.Tools.BigEditor.Util;
 using Veldrid.Sdl2;
 

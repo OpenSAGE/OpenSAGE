@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace OpenSage.Data.Big
+namespace OpenSage.FileFormats.Big
 {
     public class BigArchiveEntryStream : Stream
     {

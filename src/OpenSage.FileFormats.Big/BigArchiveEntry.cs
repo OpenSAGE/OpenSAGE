@@ -1,7 +1,7 @@
 ﻿using System.IO;
-using OpenSage.Data.RefPack;
+using OpenSage.FileFormats.RefPack;
 
-namespace OpenSage.Data.Big
+namespace OpenSage.FileFormats.Big
 {
     public class BigArchiveEntry
     {
