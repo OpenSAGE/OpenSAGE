@@ -6,7 +6,7 @@
 
         public ScriptingSystem Scripting => _game.Scripting;
 
-        public GameTime UpdateTime => _game.MapTime;
+        public TimeInterval UpdateTime => _game.MapTime;
 
         public Scene3D Scene => _game.Scene3D;
 

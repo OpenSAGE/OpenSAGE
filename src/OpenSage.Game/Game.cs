@@ -110,22 +110,22 @@ namespace OpenSage
 
         // Measures time when IsLogicRunning == true.
         // Is reset when the map changes.
-        private readonly GameTimer _mapTimer;
+        private readonly DeltaTimer _mapTimer;
 
         /// <summary>
         /// The amount of time the game has been in this map while running logic updates.
         /// </summary>
-        public GameTime MapTime { get; private set; }
+        public TimeInterval MapTime { get; private set; }
 
         // Increments continuously.
         // Never stops, never resets.
         // Used for FPS calculations and rendering-related things that should advanced even when the game is paused.
-        private readonly GameTimer _renderTimer;
+        private readonly DeltaTimer _renderTimer;
 
         /// <summary>
         /// The amount of time the game has been rendering frames.
         /// </summary>
-        public GameTime RenderTime { get; private set; }
+        public TimeInterval RenderTime { get; private set; }
 
         // The time of the next logic update.
         private TimeSpan _nextLogicUpdate;
@@ -232,10 +232,10 @@ namespace OpenSage
 
                 _fileSystem = AddDisposable(installation.CreateFileSystem());
 
-                _mapTimer = AddDisposable(new GameTimer());
+                _mapTimer = AddDisposable(new DeltaTimer());
                 _mapTimer.Start();
 
-                _renderTimer = AddDisposable(new GameTimer());
+                _renderTimer = AddDisposable(new DeltaTimer());
                 _renderTimer.Start();
 
                 _cachedCursors = new Dictionary<string, Cursor>();
@@ -492,7 +492,7 @@ namespace OpenSage
 
         public void Run()
         {
-            var totalGameTime = MapTime.TotalGameTime;
+            var totalGameTime = MapTime.TotalTime;
             _nextLogicUpdate = totalGameTime;
             _nextScriptingUpdate = totalGameTime;
 
@@ -536,7 +536,7 @@ namespace OpenSage
             // Check global hotkeys
             CheckGlobalHotkeys();
 
-            var totalGameTime = MapTime.TotalGameTime;
+            var totalGameTime = MapTime.TotalTime;
         
             // If the game is not paused and it's time to do a logic update, do so.
             if (IsLogicRunning && totalGameTime >= _nextLogicUpdate)
@@ -572,7 +572,7 @@ namespace OpenSage
             InputMessageBuffer.PumpEvents(messages);
 
             // How close are we to the next logic frame?
-            var tickT = (float) (1.0 - TimeSpanUtility.Max(_nextLogicUpdate - MapTime.TotalGameTime, TimeSpan.Zero)
+            var tickT = (float) (1.0 - TimeSpanUtility.Max(_nextLogicUpdate - MapTime.TotalTime, TimeSpan.Zero)
                                      .TotalMilliseconds / LogicUpdateInterval);
 
             // We pass RenderTime to Scene2D so that the UI remains responsive even when the game is paused.

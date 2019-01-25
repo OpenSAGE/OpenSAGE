@@ -10,8 +10,8 @@ namespace OpenSage.Gui.Apt.ActionScript
     /// </summary>
     public sealed class VM
     {
-        private GameTime _lastTick;
-        private Dictionary<string, ValueTuple<GameTime, int, Function, ObjectContext, Value[]>> _intervals;
+        private TimeInterval _lastTick;
+        private Dictionary<string, ValueTuple<TimeInterval, int, Function, ObjectContext, Value[]>> _intervals;
 
         public ObjectContext GlobalObject { get; }
         public ObjectContext ExternObject { get; }
@@ -24,7 +24,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         {
             GlobalObject = new ObjectContext();
             ExternObject = new ExternObject();
-            _intervals = new Dictionary<string, ValueTuple<GameTime, int, Function, ObjectContext, Value[]>>();
+            _intervals = new Dictionary<string, ValueTuple<TimeInterval, int, Function, ObjectContext, Value[]>>();
         }
 
         public void CreateInterval(string name, int duration, Function func, ObjectContext ctx, Value[] args)
@@ -37,13 +37,13 @@ namespace OpenSage.Gui.Apt.ActionScript
                                 );
         }
 
-        public void UpdateIntervals(GameTime current)
+        public void UpdateIntervals(TimeInterval current)
         {
             for (int i = 0; i < _intervals.Count; ++i)
             {
                 var interval = _intervals.Values.ElementAt(i);
 
-                if (current.TotalGameTime.TotalMilliseconds > (interval.Item1.TotalGameTime.TotalMilliseconds + interval.Item2))
+                if (current.TotalTime.TotalMilliseconds > (interval.Item1.TotalTime.TotalMilliseconds + interval.Item2))
                 {
                     Execute(interval.Item3, interval.Item5, interval.Item4);
                     interval.Item1 = current;

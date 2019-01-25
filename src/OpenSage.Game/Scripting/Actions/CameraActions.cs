@@ -107,7 +107,7 @@ namespace OpenSage.Scripting.Actions
             {
                 _animation = context.Scene.CameraController.StartAnimation(
                     new[] {context.Scene.CameraController.TerrainPosition, _targetWaypoint.Position},
-                    context.UpdateTime.TotalGameTime,
+                    context.UpdateTime.TotalTime,
                     _duration);
             }
 
@@ -142,7 +142,7 @@ namespace OpenSage.Scripting.Actions
 
                 _animation = context.Scene.CameraController.StartAnimation(
                     pathWithCurrentPos,
-                    context.UpdateTime.TotalGameTime, _totalDuration);
+                    context.UpdateTime.TotalTime, _totalDuration);
             }
 
             return _animation.Finished ? ActionResult.Finished : this;

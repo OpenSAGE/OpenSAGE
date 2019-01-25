@@ -45,7 +45,7 @@ namespace OpenSage.Gui.Apt
             window.Layout(_game.GraphicsDevice, newSize);
         }
 
-        internal void Update(in GameTime gameTime)
+        internal void Update(in TimeInterval gameTime)
         {
             foreach (var window in WindowStack)
             {

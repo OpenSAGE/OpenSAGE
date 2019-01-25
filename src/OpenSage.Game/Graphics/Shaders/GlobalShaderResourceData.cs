@@ -88,7 +88,7 @@ namespace OpenSage.Graphics.Shaders
         {
             var cameraPosition = Matrix4x4Utility.Invert(context.Scene3D.Camera.View).Translation;
             _globalConstantBufferShared.Value.CameraPosition = cameraPosition;
-            _globalConstantBufferShared.Value.TimeInSeconds = (float) context.GameTime.TotalGameTime.TotalSeconds;
+            _globalConstantBufferShared.Value.TimeInSeconds = (float) context.GameTime.TotalTime.TotalSeconds;
             _globalConstantBufferShared.Update(commandList);
 
             var viewportSize = new Vector2(context.RenderTarget.Width, context.RenderTarget.Height);

@@ -3,15 +3,15 @@ using System.Diagnostics;
 
 namespace OpenSage
 {
-    public sealed class GameTimer : IDisposable
+    public sealed class DeltaTimer : IDisposable
     {
         private readonly Stopwatch _stopwatch;
         private long _startTime;
         private long _lastUpdate;
 
-        public GameTime CurrentGameTime { get; private set; }
+        public TimeInterval CurrentGameTime { get; private set; }
 
-        public GameTimer()
+        public DeltaTimer()
         {
             _stopwatch = new Stopwatch();
         }
@@ -41,7 +41,7 @@ namespace OpenSage
             var deltaTime = now - _lastUpdate;
             _lastUpdate = now;
 
-            CurrentGameTime = new GameTime(now - _startTime, deltaTime);
+            CurrentGameTime = new TimeInterval(now - _startTime, deltaTime);
         }
 
         public void Reset()
@@ -56,18 +56,18 @@ namespace OpenSage
         }
     }
 
-    public readonly struct GameTime
+    public readonly struct TimeInterval
     {
-        public readonly TimeSpan TotalGameTime;
-        public readonly TimeSpan ElapsedGameTime;
+        public readonly TimeSpan TotalTime;
+        public readonly TimeSpan DeltaTime;
 
-        public GameTime(long totalGameTimeTicks, long elapsedGameTimeTicks)
+        public TimeInterval(long totalGameTimeTicks, long elapsedGameTimeTicks)
         {
-            TotalGameTime = new TimeSpan((long) (totalGameTimeTicks * TickRatio));
-            ElapsedGameTime = new TimeSpan((long) (elapsedGameTimeTicks * TickRatio));
+            TotalTime = new TimeSpan((long) (totalGameTimeTicks * TickRatio));
+            DeltaTime = new TimeSpan((long) (elapsedGameTimeTicks * TickRatio));
         }
 
-        public static GameTime Zero { get; } = new GameTime();
+        public static TimeInterval Zero { get; } = new TimeInterval();
 
         // This is the ratio between stopwatch ticks and timespan ticks
         private static readonly double TickRatio = 10000000.0 / Stopwatch.Frequency;

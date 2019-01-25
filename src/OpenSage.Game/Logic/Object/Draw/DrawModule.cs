@@ -24,7 +24,7 @@ namespace OpenSage.Logic.Object
 
         }
 
-        internal abstract void Update(in GameTime time);
+        internal abstract void Update(in TimeInterval time);
 
         internal abstract void SetWorldMatrix(in Matrix4x4 worldMatrix);
 

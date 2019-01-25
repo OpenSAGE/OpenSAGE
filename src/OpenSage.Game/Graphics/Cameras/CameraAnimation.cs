@@ -65,9 +65,9 @@ namespace OpenSage.Graphics.Cameras
             _lookToward = lookToward;
         }
 
-        internal void Update(RtsCameraController camera, in GameTime gameTime)
+        internal void Update(RtsCameraController camera, in TimeInterval gameTime)
         {
-            var currentTimeFraction = (float) ((gameTime.TotalGameTime - _startTime).TotalSeconds / _duration.TotalSeconds);
+            var currentTimeFraction = (float) ((gameTime.TotalTime - _startTime).TotalSeconds / _duration.TotalSeconds);
             currentTimeFraction = Math.Min(currentTimeFraction, 1);
 
             var pos = currentTimeFraction * (_points.Count - 1);
@@ -114,7 +114,7 @@ namespace OpenSage.Graphics.Cameras
                 camera.Zoom = zoom;
             }
 
-            if (gameTime.TotalGameTime > _endTime)
+            if (gameTime.TotalTime > _endTime)
             {
                 Finished = true;
             }

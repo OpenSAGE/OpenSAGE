@@ -43,6 +43,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats.Big", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Core", "OpenSage.Core\OpenSage.Core.csproj", "{5767CC8D-AD47-472E-B263-87D77964DC85}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.FileFormats.RefPack", "OpenSage.FileFormats.Refpack\OpenSage.FileFormats.RefPack.csproj", "{4CB6428E-9600-469D-B6F3-CBD765D0D257}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,6 +119,10 @@ Global
 		{5767CC8D-AD47-472E-B263-87D77964DC85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5767CC8D-AD47-472E-B263-87D77964DC85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5767CC8D-AD47-472E-B263-87D77964DC85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CB6428E-9600-469D-B6F3-CBD765D0D257}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CB6428E-9600-469D-B6F3-CBD765D0D257}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CB6428E-9600-469D-B6F3-CBD765D0D257}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CB6428E-9600-469D-B6F3-CBD765D0D257}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

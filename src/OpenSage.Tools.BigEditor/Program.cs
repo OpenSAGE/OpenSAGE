@@ -22,7 +22,7 @@ namespace OpenSage.Tools.BigEditor
 
             using (var commandList = graphicsDevice.ResourceFactory.CreateCommandList())
             using (var imGuiRenderer = new ImGuiRenderer(graphicsDevice, graphicsDevice.MainSwapchain.Framebuffer.OutputDescription, initialWidth, initialHeight))
-            using (var gameTimer = new GameTimer())
+            using (var gameTimer = new DeltaTimer())
             {
                 window.Resized += () =>
                 {
@@ -50,7 +50,7 @@ namespace OpenSage.Tools.BigEditor
                         commandList.ClearColorTarget(0, RgbaFloat.Clear);
 
                         imGuiRenderer.Update(
-                            (float) gameTimer.CurrentGameTime.ElapsedGameTime.TotalSeconds,
+                            (float) gameTimer.CurrentGameTime.DeltaTime.TotalSeconds,
                             inputSnapshot);
 
                         mainForm.Draw(window);

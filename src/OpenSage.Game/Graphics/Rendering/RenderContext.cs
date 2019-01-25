@@ -12,6 +12,6 @@ namespace OpenSage.Graphics.Rendering
         public Scene2D Scene2D;
         public Framebuffer RenderTarget;
 
-        public GameTime GameTime;
+        public TimeInterval GameTime;
     }
 }

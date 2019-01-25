@@ -62,7 +62,7 @@ namespace OpenSage.Gui.DebugUI
             AddCoordAxes(point, 0);
         }
 
-        public void Update(in GameTime gameTime)
+        public void Update(in TimeInterval gameTime)
         {
             foreach (var drawable in _debugDrawables)
             {
@@ -71,7 +71,7 @@ namespace OpenSage.Gui.DebugUI
                     continue;
                 }
 
-                drawable.Timer = Math.Max(0, drawable.Timer.Value - (float) gameTime.ElapsedGameTime.TotalSeconds);
+                drawable.Timer = Math.Max(0, drawable.Timer.Value - (float) gameTime.DeltaTime.TotalSeconds);
             }
 
             if (!Enabled)
