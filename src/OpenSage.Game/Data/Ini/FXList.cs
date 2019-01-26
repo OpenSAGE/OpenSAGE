@@ -614,6 +614,12 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("UNDEFINED"), AddedIn(SageGame.Bfme2)]
         Undefined,
+
+        [IniEnum("NECRO1"), AddedIn(SageGame.Bfme2Rotwk)]
+        Necro1,
+
+        [IniEnum("NECRO2"), AddedIn(SageGame.Bfme2Rotwk)]
+        Necro2,
     }
 
     [AddedIn(SageGame.Bfme2)]

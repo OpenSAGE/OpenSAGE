@@ -61,6 +61,8 @@ namespace OpenSage.Tests.Data.Ini
 
                             var filename = Path.GetFileName(file.FilePath).ToLowerInvariant();
 
+                            if (filename != "weapon.ini") continue;
+
                             switch (filename)
                             {
                                 case "buttonsets.ini": // Doesn't seem to be used?
@@ -94,7 +96,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "riskcampaign.ini":
                                         case "createaherosystem.ini":
                                         case "skirmishaidata.ini":
-                                        case "firelogicsystem.ini":
                                         case "formationassistant.ini":
                                         case "linearcampaign.ini":
                                         case "scoredkillevaannouncer.ini":
@@ -125,7 +126,7 @@ namespace OpenSage.Tests.Data.Ini
                                         case "awardsystem.ini":
                                         case "riskcampaign.ini":
                                         case "commandbutton.ini":
-                                        case "commandset.ini":
+                                        case "commandset.ini": //problem
                                         case "crate.ini":
                                         case "createaherosystem.ini":
                                         case "credits.ini":
@@ -167,8 +168,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "scoredkillevaannouncer.ini":
                                         case "specialpower.ini":
                                         case "strategichud.ini":
-                                        case "upgrade.ini":
-                                        case "weapon.ini":
                                         case "map.ini":
                                             continue;
                                     }

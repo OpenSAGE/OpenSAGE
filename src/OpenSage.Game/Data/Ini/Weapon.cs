@@ -49,7 +49,7 @@ namespace OpenSage.Data.Ini
             { "FireSound", (parser, x) => x.FireSound = parser.ParseAssetReference() },
             { "FireSoundLoopTime", (parser, x) => x.FireSoundLoopTime = parser.ParseInteger() },
             { "SuspendFXDelay", (parser, x) => x.SuspendFXDelay = parser.ParseInteger() },
-            { "RadiusDamageAffects", (parser, x) => x.RadiusDamageAffects = parser.ParseEnumFlags<WeaponAffectsTypes>() },
+            { "RadiusDamageAffects", (parser, x) => x.RadiusDamageAffects = ObjectFilter.Parse(parser) },
             { "DelayBetweenShots", (parser, x) => x.DelayBetweenShots = RangeDuration.Parse(parser) },
             { "ShotsPerBarrel", (parser, x) => x.ShotsPerBarrel = parser.ParseInteger() },
             { "ClipSize", (parser, x) => x.ClipSize = parser.ParseInteger() },
@@ -230,7 +230,7 @@ namespace OpenSage.Data.Ini
         public string FireSound { get; private set; }
         public int FireSoundLoopTime { get; private set; }
         public int SuspendFXDelay { get; private set; }
-        public WeaponAffectsTypes RadiusDamageAffects { get; private set; }
+        public ObjectFilter RadiusDamageAffects { get; private set; }
         public RangeDuration DelayBetweenShots { get; private set; }
         public int ShotsPerBarrel { get; private set; }
         public int ClipSize { get; private set; }
@@ -665,7 +665,10 @@ namespace OpenSage.Data.Ini
             { "ShockWaveClearMult", (parser, x) => x.ShockWaveClearMult = parser.ParseFloat() },
             { "ShockWaveClearFlingHeight", (parser, x) => x.ShockWaveClearFlingHeight = parser.ParseInteger() },
             { "ShockWaveArcInverted", (parser, x) => x.ShockWaveArcInverted = parser.ParseBoolean() },
-            { "CyclonicFactor", (parser, x) => x.CyclonicFactor = parser.ParseFloat() }
+            { "CyclonicFactor", (parser, x) => x.CyclonicFactor = parser.ParseFloat() },
+            { "RequiredUpgradeNames", (parser, x) => x.RequiredUpgradeNames = parser.ParseAssetReferenceArray() },
+            { "ForbiddenUpgradeNames", (parser, x) => x.ForbiddenUpgradeNames = parser.ParseAssetReferenceArray() },
+            { "AffectHordes", (parser, x) => x.AffectHordes = parser.ParseBoolean() }
         };
 
         public float HeroResist { get; private set; }
@@ -714,6 +717,15 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public float CyclonicFactor { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public string[] RequiredUpgradeNames { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public string[] ForbiddenUpgradeNames { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool AffectHordes { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -743,7 +755,11 @@ namespace OpenSage.Data.Ini
             { "Radius", (parser, x) => x.Radius = parser.ParseFloat() },
             { "Duration", (parser, x) => x.Duration = parser.ParseInteger() },
             { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) },
-            { "ParalyzeFX", (parser, x) => x.ParalyzeFX = parser.ParseAssetReference() }
+            { "ParalyzeFX", (parser, x) => x.ParalyzeFX = parser.ParseAssetReference() },
+            { "FreezeAnimation", (parser, x) => x.FreezeAnimation = parser.ParseAssetReference() },
+            { "AffectHordeMembers", (parser, x) => x.AffectHordeMembers = parser.ParseBoolean() },
+            { "RequiredUpgradeNames", (parser, x) => x.RequiredUpgradeNames = parser.ParseAssetReferenceArray() },
+            { "ForbiddenUpgradeNames", (parser, x) => x.ForbiddenUpgradeNames = parser.ParseAssetReferenceArray() },
         };
 
         public float Radius { get; private set; }
@@ -754,6 +770,18 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public string ParalyzeFX { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public string FreezeAnimation { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool AffectHordeMembers { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public string[] RequiredUpgradeNames { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public string[] ForbiddenUpgradeNames { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -798,7 +826,10 @@ namespace OpenSage.Data.Ini
             { "DamageFXType", (parser, x) => x.DamageFxType = parser.ParseEnum<FxType>() },
             { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) },
             { "AntiCategories", (parser, x) => x.AntiCategories = parser.ParseEnumBitArray<ModifierCategory>() },
-            { "Radius", (parser, x) => x.Radius = parser.ParseInteger() }
+            { "Radius", (parser, x) => x.Radius = parser.ParseLong() },
+            { "AffectHordeMembers", (parser, x) => x.AffectHordeMembers = parser.ParseBoolean() },
+            { "RequiredUpgradeNames", (parser, x) => x.RequiredUpgradeNames = parser.ParseAssetReferenceArray() },
+            { "ForbiddenUpgradeNames", (parser, x) => x.ForbiddenUpgradeNames = parser.ParseAssetReferenceArray() },
         };
 
         public string AttributeModifier { get; private set; }
@@ -809,7 +840,16 @@ namespace OpenSage.Data.Ini
         public BitArray<ModifierCategory> AntiCategories { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
-        public int Radius { get; private set; }
+        public long Radius { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool AffectHordeMembers { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public string[] RequiredUpgradeNames { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public string[] ForbiddenUpgradeNames { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -878,6 +918,10 @@ namespace OpenSage.Data.Ini
             { "SpecialObjectFilter", (parser, x) => x.SpecialObjectFilter = ObjectFilter.Parse(parser) },
             { "ForbiddenUpgradeNames", (parser, x) => x.ForbiddenUpgradeNames = parser.ParseAssetReferenceArray() },
             { "RequiredUpgradeNames", (parser, x) => x.RequiredUpgradeNames = parser.ParseAssetReferenceArray() },
+            { "DamageSubType", (parser, x) => x.DamageSubType = parser.ParseEnum<DamageType>() },
+            { "DamageArc", (parser, x) => x.DamageArc = parser.ParseInteger() },
+            { "DrainLife", (parser, x) => x.DrainLife = parser.ParseBoolean() },
+            { "DrainLifeMultiplier", (parser, x) => x.DrainLifeMultiplier = parser.ParseFloat() },
         };
 
         public bool AcceptDamageAdd { get; private set; }
@@ -893,6 +937,18 @@ namespace OpenSage.Data.Ini
         public ObjectFilter SpecialObjectFilter { get; private set; }
         public string[] ForbiddenUpgradeNames { get; private set; }
         public string[] RequiredUpgradeNames { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public DamageType DamageSubType { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int DamageArc { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool DrainLife { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public float DrainLifeMultiplier { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme2)]
@@ -919,7 +975,8 @@ namespace OpenSage.Data.Ini
             { "MinDecay", (parser, x) => x.MinDecay = parser.ParseInteger() },
             { "MaxResistance", (parser, x) => x.MaxResistance = parser.ParseInteger() },
             { "DelayTime", (parser, x) => x.DelayTime = parser.ParseInteger() },
-            { "DamageArc", (parser, x) => x.DamageArc = parser.ParseInteger() }
+            { "DamageArc", (parser, x) => x.DamageArc = parser.ParseInteger() },
+            { "DamageScalar", (parser, x) => x.DamageScalar = DamageScalar.Parse(parser) },
         };
 
         public FireLogicType LogicType { get; private set; }
@@ -930,6 +987,9 @@ namespace OpenSage.Data.Ini
         public int MaxResistance { get; private set; }
         public int DelayTime { get; private set; }
         public int DamageArc { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public DamageScalar DamageScalar { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme2)]
@@ -1179,39 +1239,6 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("EXTRA_8"), AddedIn(SageGame.Bfme2Rotwk)]
         Extra8,
-    }
-
-    [Flags]
-    public enum WeaponAffectsTypes
-    {
-        None = 0,
-
-        [IniEnum("SELF")]
-        Self = 1 << 0,
-
-        [IniEnum("ALLIES")]
-        Allies = 1 << 1,
-
-        [IniEnum("ENEMIES")]
-        Enemies = 1 << 2,
-
-        [IniEnum("NEUTRALS")]
-        Neutrals = 1 << 3,
-
-        [IniEnum("NOT_SIMILAR")]
-        NotSimilar = 1 << 4,
-
-        [IniEnum("SUICIDE")]
-        Suicide = 1 << 5,
-
-        [IniEnum("NOT_AIRBORNE")]
-        NotAirborne = 1 << 6,
-
-        [IniEnum("SAME_HEIGHT_ONLY")]
-        SameHeightOnly = 1 << 7,
-
-        [IniEnum("MINES")]
-        Mines = 1 << 8,
     }
 
     [Flags]

@@ -134,5 +134,17 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("AI_UPGRADEHEURISTIC_FACTORY_UNITUNLOCK")]
         FactoryUnitunlock,
+
+        [IniEnum("AI_UPGRADEHEURISTIC_ANTISPECIAL"), AddedIn(SageGame.Bfme2Rotwk)]
+        Antispecial,
+
+        [IniEnum("AI_UPGRADEHEURISTIC_ANTIARCHER"), AddedIn(SageGame.Bfme2Rotwk)]
+        Antiarcher,
+
+        [IniEnum("AI_UPGRADEHEURISTIC_ANTICAVALRY"), AddedIn(SageGame.Bfme2Rotwk)]
+        Anticavalry,
+
+        [IniEnum("AI_UPGRADEHEURISTIC_ANTIINFANTRY"), AddedIn(SageGame.Bfme2Rotwk)]
+        Antiinfantry,
     }
 }
