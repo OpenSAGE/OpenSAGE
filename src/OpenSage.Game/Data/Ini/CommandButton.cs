@@ -698,7 +698,6 @@ namespace OpenSage.Data.Ini
         [IniEnum("DOMINATE"), AddedIn(SageGame.Bfme)]
         Dominate,
 
-        //should this realy be enum values? or just names/strings
         [IniEnum("ScatterAreaRadiusCursor"), AddedIn(SageGame.Bfme2)]
         ScatterAreaRadiusCursor,
 
@@ -884,5 +883,68 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("FamiliarRadiusCursor"), AddedIn(SageGame.Bfme2)]
         FamiliarRadiusCursor,
+
+        [IniEnum("scFaramir_Ranger", "scFaramirRanger"), AddedIn(SageGame.Bfme2Rotwk)]
+        scFaramierRanger,
+
+        [IniEnum("SoulFreezeRadiusCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        SoulFreezeRadiusCursor,
+
+        [IniEnum("ChillWindRadiusCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        ChillWindRadiusCursor,
+
+        [IniEnum("MauhurLV10RadiusCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        MauhurLV10RadiusCursor,
+
+        [IniEnum("IronHandRadiusCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        IronHandRadiusCursor,
+
+        [IniEnum("HallderbergeRadiusCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        HallderbergeRadiusCursor,
+
+        [IniEnum("SEagleAlliesRadiusCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        SEagleAlliesRadiusCursor,
+
+        [IniEnum("RadaHerdeRadiusCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        RadaHerdeRadiusCursor,
+
+        [IniEnum("DenethorMadnessRadiusCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        DenethorMadnessRadiusCursor,
+
+        [IniEnum("MoneyRadiusCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        MoneyRadiusCursor,
+
+        [IniEnum("ImrahilGuardRadiusCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        ImrahilGuardRadiusCursor,
+
+        [IniEnum("BoroSoldatenRadiusCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        BoroSoldatenRadiusCursor,
+
+        [IniEnum("ErkenbrandSoldatenRadiusCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        ErkenbrandSoldatenRadiusCursor,
+
+        [IniEnum("RohanHornRadiusCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        RohanHornRadiusCursor,
+
+        [IniEnum("FaramirRangerRadiusCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        FaramirRangerRadiusCursor,
+
+        [IniEnum("GondorStreitmachtCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        GondorStreitmachtCursor,
+        
+        [IniEnum("scUglukLV10"), AddedIn(SageGame.Bfme2Rotwk)]
+        scUglukLV10,
+
+        [IniEnum("UglukSupperCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        UglukSupperCursor,
+
+        [IniEnum("WiederaufbauEdainRadiusCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        WiederaufbauEdainRadiusCursor,
+
+        [IniEnum("GondorHeilenRadiusCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        GondorHeilenRadiusCursor,
+
+        [IniEnum("GondorHornRadiusCursor"), AddedIn(SageGame.Bfme2Rotwk)]
+        GondorHornRadiusCursor,
     }
 }

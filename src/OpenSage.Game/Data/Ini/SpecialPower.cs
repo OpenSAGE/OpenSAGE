@@ -15,7 +15,7 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<SpecialPower> FieldParseTable = new IniParseTable<SpecialPower>
         {
             { "Enum", (parser, x) => x.Type = parser.ParseEnum<SpecialPowerType>() },
-            { "ReloadTime", (parser, x) => x.ReloadTime = parser.ParseInteger() },
+            { "ReloadTime", (parser, x) => x.ReloadTime = parser.ParseLong() },
             { "RequiredScience", (parser, x) => x.RequiredScience = parser.ParseAssetReference() },
             { "PublicTimer", (parser, x) => x.PublicTimer = parser.ParseBoolean() },
             { "SharedSyncedTimer", (parser, x) => x.SharedSyncedTimer = parser.ParseBoolean() },
@@ -35,13 +35,16 @@ namespace OpenSage.Data.Ini
             { "RequiredSciences", (parser, x) => x.RequiredSciences = parser.ParseAssetReferenceArray() },
             { "UnitSpecificSoundToUseAsInitiateIntendToDoVoice", (parser, x) => x.UnitSpecificSoundToUseAsInitiateIntendToDoVoice = parser.ParseAssetReference() },
             { "UnitSpecificSoundToUseAsEnterStateInitiateIntendToDoVoice", (parser, x) => x.UnitSpecificSoundToUseAsEnterStateInitiateIntendToDoVoice = parser.ParseAssetReference() },
-            { "EvaEventToPlayOnSuccess", (parser, x) => x.EvaEventToPlayOnSuccess = parser.ParseAssetReference() }
+            { "EvaEventToPlayOnSuccess", (parser, x) => x.EvaEventToPlayOnSuccess = parser.ParseAssetReference() },
+            { "PalantirMovie", (parser, x) => x.PalantirMovie = parser.ParseAssetReference() },
+            { "UnitCost", (parser, x) => x.UnitCost = parser.ParseInteger() },
+            { "UnitCostDeathType", (parser, x) => x.UnitCostDeathType = parser.ParseInteger() }
         };
 
         public string Name { get; private set; }
 
         public SpecialPowerType Type { get; private set; }
-        public int ReloadTime { get; private set; }
+        public long ReloadTime { get; private set; }
         public string RequiredScience { get; private set; }
         public bool PublicTimer { get; private set; }
         public bool SharedSyncedTimer { get; private set; }
@@ -86,6 +89,15 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public string EvaEventToPlayOnSuccess { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public string PalantirMovie { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int UnitCost { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int UnitCostDeathType { get; private set; }
     }
 
     [AddedIn(SageGame.CncGeneralsZeroHour)]
@@ -669,6 +681,18 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("SPECIAL_TELEPORT_LIST_TO_POSITION"), AddedIn(SageGame.Bfme2)]
         SpecialTeleportListToPosition,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_CHILL_WIND"), AddedIn(SageGame.Bfme2Rotwk)]
+        SpecialSpellBookChillWind,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_GENERAL_SUMMON"), AddedIn(SageGame.Bfme2Rotwk)]
+        SpecialSpellBookGeneralSummon,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_BLIGHT"), AddedIn(SageGame.Bfme2Rotwk)]
+        SpecialSpellBookBlight,
+
+        [IniEnum("SPECIAL_SPELL_BOOK_SNOWBIND"), AddedIn(SageGame.Bfme2Rotwk)]
+        SpecialSpellBookSnowbind,
     }
 
     [AddedIn(SageGame.Bfme2)]
