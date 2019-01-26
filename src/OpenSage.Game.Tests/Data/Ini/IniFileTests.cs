@@ -61,7 +61,7 @@ namespace OpenSage.Tests.Data.Ini
 
                             var filename = Path.GetFileName(file.FilePath).ToLowerInvariant();
 
-                            if (filename != "weapon.ini") continue;
+                            if (filename != "commandbutton.ini") continue;
 
                             switch (filename)
                             {
@@ -125,7 +125,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "attributemodifier.ini":
                                         case "awardsystem.ini":
                                         case "riskcampaign.ini":
-                                        case "commandbutton.ini":
                                         case "commandset.ini": //problem
                                         case "crate.ini":
                                         case "createaherosystem.ini":
@@ -138,6 +137,10 @@ namespace OpenSage.Tests.Data.Ini
                                         case "largegroupaudio.ini":
                                         case "linearcampaign.ini":
                                         case "linearcampaignexpansion1.ini":
+
+                                        case "meshinstancingmanager.ini":
+                                        case "scoredkillevaannouncer.ini":
+                                        case "strategichud.ini":
 
                                         case "livingworld.ini":
                                         case "livingworldaitemplate.ini":
@@ -164,10 +167,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "mowicons.ini":
                                         case "wildicons.ini":
 
-                                        case "meshinstancingmanager.ini":
-                                        case "scoredkillevaannouncer.ini":
-                                        case "specialpower.ini":
-                                        case "strategichud.ini":
                                         case "map.ini":
                                             continue;
                                     }
