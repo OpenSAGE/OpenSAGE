@@ -18,7 +18,7 @@ namespace OpenSage.Logic.Object
             { "StartColor", (parser, x) => x.StartColor = IniColorRgb.Parse(parser) },
             { "EndColor", (parser, x) => x.EndColor = IniColorRgb.Parse(parser) },
             { "DisableFXParticleSystem", (parser, x) => x.DisableFXParticleSystem = parser.ParseAssetReference() },
-            { "DoesNotAffect", (parser, x) => x.DoesNotAffect = parser.ParseEnum<WeaponAffectsTypes>() },
+            { "DoesNotAffect", (parser, x) => x.DoesNotAffect = ObjectFilter.Parse(parser) },
             { "DoesNotAffectMyOwnBuildings", (parser, x) => x.DoesNotAffectMyOwnBuildings = parser.ParseBoolean() },
             { "EffectRadius", (parser, x) => x.EffectRadius = parser.ParseInteger() },
         };
@@ -34,7 +34,7 @@ namespace OpenSage.Logic.Object
         public string DisableFXParticleSystem { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
-        public WeaponAffectsTypes DoesNotAffect { get; private set; }
+        public ObjectFilter DoesNotAffect { get; private set; }
 
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool DoesNotAffectMyOwnBuildings { get; private set; }

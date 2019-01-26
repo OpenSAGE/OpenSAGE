@@ -373,7 +373,7 @@ namespace OpenSage.Data.Ini.Parser
         {
             try
             {
-                return Convert.ToInt64(token.Text);
+                return ParseUtility.ParseLong(token.Text);
             }
             catch (OverflowException)
             {

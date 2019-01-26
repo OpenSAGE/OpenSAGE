@@ -10,28 +10,6 @@ namespace OpenSage.Data.Ini
             var result = new ObjectFilter();
 
             IniToken? token;
-            if ((token = parser.GetNextTokenOptional()) != null)
-            {
-                var stringValue = token.Value.Text.ToUpperInvariant();
-                switch (stringValue)
-                {
-                    case "ALL":
-                        result.Rule = ObjectFilterRule.All;
-                        break;
-
-                    case "NONE":
-                        result.Rule = ObjectFilterRule.None;
-                        break;
-
-                    case "ANY":
-                        result.Rule = ObjectFilterRule.Any;
-                        break;
-
-                    default:
-                        throw new IniParseException($"Expected one of ALL, NONE, or ANY", token.Value.Position);
-                }
-            }
-
             var stringToValueMap = IniParser.GetEnumMap<ObjectKinds>();
 
             var includeThings = new List<string>();
@@ -43,23 +21,59 @@ namespace OpenSage.Data.Ini
 
                 switch (stringValue)
                 {
+                    case "ALL":
+                        result.Rules.Set(ObjectFilterRule.All, true);
+                        continue;
+
+                    case "NONE":
+                        result.Rules.Set(ObjectFilterRule.None, true);
+                        continue;
+
+                    case "ANY":
+                        result.Rules.Set(ObjectFilterRule.Any, true);
+                        continue;
+
                     case "ALLIES":
-                        result.Targets.Set(ObjectFilterTargets.Allies, true);
+                        result.Rules.Set(ObjectFilterRule.Allies, true);
                         continue;
 
                     case "ENEMIES":
-                        result.Targets.Set(ObjectFilterTargets.Enemies, true);
+                        result.Rules.Set(ObjectFilterRule.Enemies, true);
                         continue;
 
                     case "NEUTRAL":
-                        result.Targets.Set(ObjectFilterTargets.Neutral, true);
+                        result.Rules.Set(ObjectFilterRule.Neutrals, true);
                         continue;
 
-                    case "SAME_PLAYER":
-                        result.Targets.Set(ObjectFilterTargets.SamePlayer, true);
+                    case "NEUTRALS":
+                        result.Rules.Set(ObjectFilterRule.Neutrals, true);
+                        continue;
+
+                    case "NOT_SIMILAR":
+                        result.Rules.Set(ObjectFilterRule.NotSimilar, true);
+                        continue;
+
+                    case "SELF":
+                        result.Rules.Set(ObjectFilterRule.Self, true);
+                        continue;
+
+                    case "SUICIDE":
+                        result.Rules.Set(ObjectFilterRule.Suicide, true);
+                        continue;
+
+                    case "NOT_AIRBORNE":
+                        result.Rules.Set(ObjectFilterRule.NotAirborne, true);
+                        continue;
+
+                    case "SAME_HEIGHT_ONLY":
+                        result.Rules.Set(ObjectFilterRule.SameHeightOnly, true);
+                        continue;
+
+                    case "MINES":
+                        result.Rules.Set(ObjectFilterRule.Mines, true);
                         continue;
                 }
-                
+
                 bool isInclude;
                 switch (stringValue[0])
                 {
@@ -72,7 +86,7 @@ namespace OpenSage.Data.Ini
                         break;
 
                     default:
-                        throw new IniParseException($"Expected value to have a + or - prefix", token.Value.Position);
+                        throw new IniParseException($"Expected {stringValue} to have a + or - prefix", token.Value.Position);
                 }
 
                 stringValue = stringValue.Substring(1);
@@ -95,8 +109,7 @@ namespace OpenSage.Data.Ini
             return result;
         }
 
-        public ObjectFilterRule Rule { get; private set; }
-        public BitArray<ObjectFilterTargets> Targets { get; } = new BitArray<ObjectFilterTargets>();
+        public BitArray<ObjectFilterRule> Rules { get; } = new BitArray<ObjectFilterRule>();
         public BitArray<ObjectKinds> Include { get; } = new BitArray<ObjectKinds>();
         public BitArray<ObjectKinds> Exclude { get; } = new BitArray<ObjectKinds>();
         public IReadOnlyList<string> IncludeThings { get; private set; }
@@ -107,14 +120,16 @@ namespace OpenSage.Data.Ini
     {
         All,
         Any,
-        None
-    }
-
-    public enum ObjectFilterTargets
-    {
+        None,
         Enemies,
         Allies,
-        Neutral,
-        SamePlayer
+        Neutrals,
+        SamePlayer,
+        NotSimilar,
+        Self,
+        Suicide,
+        NotAirborne,
+        SameHeightOnly,
+        Mines
     }
 }

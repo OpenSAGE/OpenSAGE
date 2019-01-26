@@ -47,5 +47,19 @@ namespace OpenSage.FileFormats
                 ? match.Groups[1].Value
                 : string.Empty;
         }
+
+        public static long ParseLong(string s)
+        {
+            s = ExtractLong(s);
+            return Convert.ToInt64(s);
+        }
+
+        private static string ExtractLong(string s)
+        {
+            var match = IntegerRegex.Match(s);
+            return match.Success
+                ? match.Groups[1].Value
+                : string.Empty;
+        }
     }
 }
