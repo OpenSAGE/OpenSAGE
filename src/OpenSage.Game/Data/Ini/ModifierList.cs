@@ -21,7 +21,7 @@ namespace OpenSage.Data.Ini
         {
             { "Category", (parser, x) => x.Category = parser.ParseEnum<ModifierCategory>() },
             { "Modifier", (parser, x) => x.Modifiers.Add(Modifier.Parse(parser)) },
-            { "Duration", (parser, x) => x.Duration = parser.ParseInteger() },
+            { "Duration", (parser, x) => x.Duration = parser.ParseLong() },
             { "ClearModelCondition", (parser, x) => x.ClearModelCondition = parser.ParseEnum<ModelConditionFlag>() },
             { "ModelCondition", (parser, x) => x.ModelCondition = parser.ParseEnum<ModelConditionFlag>() },
             { "FX", (parser, x) => x.FX = parser.ParseAssetReference() },
@@ -40,7 +40,7 @@ namespace OpenSage.Data.Ini
 
         public ModifierCategory Category { get; private set; }
         public List<Modifier> Modifiers { get; } = new List<Modifier>();
-        public int Duration { get; private set; }
+        public long Duration { get; private set; }
         public ModelConditionFlag ClearModelCondition { get; private set; }
         public ModelConditionFlag ModelCondition { get; private set; }
         public string FX { get; private set; }
@@ -80,14 +80,22 @@ namespace OpenSage.Data.Ini
     {
         internal static ModifierUpgrade Parse(IniParser parser)
         {
+            var upgrades = new List<string>();
+            var token = parser.PeekNextTokenOptional();
+            while (token.HasValue && !token.Value.Text.Contains(":"))
+            {
+                upgrades.Add(parser.ParseAssetReference());
+                token = parser.PeekNextTokenOptional();
+            }
+
             return new ModifierUpgrade
             {
-                Upgrade = parser.ParseAssetReference(),
+                Upgrades = upgrades.ToArray(),
                 Delay = parser.ParseAttributeInteger("Delay")
             };
         }
 
-        public string Upgrade;
+        public string[] Upgrades;
         public int Delay;
     }
 
@@ -208,5 +216,14 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("HEALTH_MULT"), AddedIn(SageGame.Bfme2)]
         HealthMult,
+
+        [IniEnum("RESIST_TERROR"), AddedIn(SageGame.Bfme2Rotwk)]
+        ResistTerror,
+
+        [IniEnum("CRUSHABLE_LEVEL"), AddedIn(SageGame.Bfme2Rotwk)]
+        CrushableLevel,
+
+        [IniEnum("DAMAGE_STRUCTURE_BOUNTY_ADD"), AddedIn(SageGame.Bfme2Rotwk)]
+        DamageStructureBountyAdd,
     }
 }

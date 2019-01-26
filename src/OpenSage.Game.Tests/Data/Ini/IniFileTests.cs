@@ -61,8 +61,6 @@ namespace OpenSage.Tests.Data.Ini
 
                             var filename = Path.GetFileName(file.FilePath).ToLowerInvariant();
 
-                            if (filename != "damagefx.ini") continue;
-
                             switch (filename)
                             {
                                 case "buttonsets.ini": // Doesn't seem to be used?
@@ -100,6 +98,7 @@ namespace OpenSage.Tests.Data.Ini
                                         case "linearcampaign.ini":
                                         case "scoredkillevaannouncer.ini":
                                         case "strategichud.ini":
+                                        case "firelogicsystem.ini":
 
                                         case "livingworldaitemplate.ini":
                                         case "livingworldautoresolvearmor.ini":
@@ -122,10 +121,6 @@ namespace OpenSage.Tests.Data.Ini
                                 case SageGame.Bfme2Rotwk:
                                     switch (filename)
                                     {
-                                        case "attributemodifier.ini":
-                                        case "largegroupaudio.ini":
-                                        case "map.ini":
-
                                         case "awardsystem.ini":
                                         case "riskcampaign.ini":
                                         case "commandset.ini": //problem

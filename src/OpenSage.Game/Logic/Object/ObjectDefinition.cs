@@ -1245,7 +1245,10 @@ namespace OpenSage.Logic.Object
             { "Draw", (parser, x) => x.Module = DrawModuleData.ParseDrawModule(parser) },
             { "Body", (parser, x) => x.Module = BodyModuleData.ParseBody(parser) },
             { "ClientBehavior", (parser, x) => x.Module = ClientBehaviorModuleData.ParseClientBehavior(parser) },
-            { "ArmorSet", (parser, x) => x.ArmorSet = ArmorSet.Parse(parser) }
+            { "ArmorSet", (parser, x) => x.ArmorSet = ArmorSet.Parse(parser) },
+            { "LocomotorSet", (parser, x) => x.LocomotorSet = LocomotorSet.Parse(parser) },
+            { "CrushableLevel", (parser, x) => x.CrushableLevel = parser.ParseInteger() },
+            { "CrusherLevel", (parser, x) => x.CrusherLevel = parser.ParseInteger() },
         };
 
         public string Name { get; private set; }
@@ -1254,6 +1257,15 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme)]
         public ArmorSet ArmorSet { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public LocomotorSet LocomotorSet { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int CrushableLevel { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int CrusherLevel { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

@@ -90,5 +90,11 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("DESTROYED"), AddedIn(SageGame.Bfme2Rotwk)]
         Destroyed,
+
+        [IniEnum("USER_DEFINED_1"), AddedIn(SageGame.Bfme2Rotwk)]
+        UserDefined1,
+
+        [IniEnum("NO_HERO_PROPERTIES"), AddedIn(SageGame.Bfme2Rotwk)]
+        NoHeroProperties,
     }
 }

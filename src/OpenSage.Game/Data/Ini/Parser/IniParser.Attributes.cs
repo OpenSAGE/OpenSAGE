@@ -84,7 +84,7 @@ namespace OpenSage.Data.Ini.Parser
         {
             var nameToken = GetNextTokenOptional(SeparatorsColon);
 
-            if (nameToken == null)
+            if (!nameToken.HasValue)
             {
                 parsed = default;
                 return false;
