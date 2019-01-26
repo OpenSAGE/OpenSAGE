@@ -74,10 +74,10 @@ namespace OpenSage.Gui.Apt
         {
             var fullsizeRect = new Rectangle(Point2D.Zero, _destinationSize);
 
-            if (BackgroundImage != null)
-            {
-                drawingContext.DrawImage(BackgroundImage.Texture, BackgroundImage.SourceRect, fullsizeRect);
-            }
+            //if (BackgroundImage != null)
+            //{
+            //    drawingContext.DrawImage(BackgroundImage.Texture, BackgroundImage.SourceRect, fullsizeRect);
+            //}
 
             // The background color, which is set by the APT. Should be the clear color?
             // drawingContext.FillRectangle(fullsizeRect, _backgroundColor);
