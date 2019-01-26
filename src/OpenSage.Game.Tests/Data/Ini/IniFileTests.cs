@@ -61,7 +61,7 @@ namespace OpenSage.Tests.Data.Ini
 
                             var filename = Path.GetFileName(file.FilePath).ToLowerInvariant();
 
-                            if (filename != "commandbutton.ini") continue;
+                            if (filename != "damagefx.ini") continue;
 
                             switch (filename)
                             {
@@ -123,21 +123,21 @@ namespace OpenSage.Tests.Data.Ini
                                     switch (filename)
                                     {
                                         case "attributemodifier.ini":
+                                        case "largegroupaudio.ini":
+                                        case "map.ini":
+
                                         case "awardsystem.ini":
                                         case "riskcampaign.ini":
                                         case "commandset.ini": //problem
                                         case "crate.ini":
                                         case "createaherosystem.ini":
                                         case "credits.ini":
-                                        case "damagefx.ini":
                                         case "skirmishaidata.ini":
                                         case "firelogicsystem.ini":
                                         case "formationassistant.ini":
                                         case "ingamenotificationbox.ini":
-                                        case "largegroupaudio.ini":
                                         case "linearcampaign.ini":
                                         case "linearcampaignexpansion1.ini":
-
                                         case "meshinstancingmanager.ini":
                                         case "scoredkillevaannouncer.ini":
                                         case "strategichud.ini":
@@ -166,8 +166,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "mordoricons.ini":
                                         case "mowicons.ini":
                                         case "wildicons.ini":
-
-                                        case "map.ini":
                                             continue;
                                     }
                                     break;
