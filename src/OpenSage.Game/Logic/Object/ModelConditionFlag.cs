@@ -1083,5 +1083,23 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("EMOTION_BRACE_FOR_BEING_CRUSHED"), AddedIn(SageGame.Bfme2)]
         EmotionBraceForBeingCrushed,
+
+        [IniEnum("WEAPONSET_TOGGLE_2"), AddedIn(SageGame.Bfme2Rotwk)]
+        WeaponsetToggle2,
+
+        [IniEnum("USER_20"), AddedIn(SageGame.Bfme2Rotwk)]
+        User20,
+
+        [IniEnum("USER_12"), AddedIn(SageGame.Bfme2Rotwk)]
+        User12,
+
+        [IniEnum("USER_13"), AddedIn(SageGame.Bfme2Rotwk)]
+        User13,
+
+        [IniEnum("USER_14"), AddedIn(SageGame.Bfme2Rotwk)]
+        User14,
+
+        [IniEnum("USER_15"), AddedIn(SageGame.Bfme2Rotwk)]
+        User15,
     }
 }

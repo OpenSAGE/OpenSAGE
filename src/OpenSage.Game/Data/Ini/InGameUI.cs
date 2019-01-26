@@ -96,67 +96,67 @@ namespace OpenSage.Data.Ini
 
             { "UnitHelpTextDelay", (parser, x) => x.UnitHelpTextDelay = parser.ParseFloat() },
 
-            { "SpyDroneRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.SpyDrone)) },
-            { "AttackScatterAreaRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.AttackScatterArea)) },
-            { "SuperweaponScatterAreaRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.SuperweaponScatterArea)) },
-            { "AttackDamageAreaRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.AttackDamageArea)) },
-            { "AttackContinueAreaRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.AttackContinueArea)) },
-            { "GuardAreaRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.GuardArea)) },
-            { "EmergencyRepairRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.EmergencyRepair)) },
-            { "FriendlySpecialPowerRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.FriendlySpecialPower)) },
-            { "OffensiveSpecialPowerRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.OffensiveSpecialPower)) },
-            { "ParticleCannonRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.ParticleCannon)) },
-            { "A10StrikeRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.A10Strike)) },
-            { "CarpetBombRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.CarpetBomb)) },
-            { "DaisyCutterRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.DaisyCutter)) },
-            { "ParadropRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Paradrop)) },
-            { "SpySatelliteRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.SpySatellite)) },
-            { "NuclearMissileRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.NuclearMissile)) },
-            { "EMPPulseRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.EmpPulse)) },
-            { "ArtilleryRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.ArtilleryBarrage)) },
-            { "NapalmStrikeRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.NapalmStrike)) },
-            { "ClusterMinesRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.ClusterMines)) },
-            { "ScudStormRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.ScudStorm)) },
-            { "AnthraxBombRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.AnthraxBomb)) },
-            { "AmbushRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Ambush)) },
-            { "RadarRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Radar)) },
+            { "SpyDroneRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "SpyDrone")) },
+            { "AttackScatterAreaRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "AttackScatterArea")) },
+            { "SuperweaponScatterAreaRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "SuperweaponScatterArea")) },
+            { "AttackDamageAreaRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "AttackDamageArea")) },
+            { "AttackContinueAreaRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "AttackContinueArea")) },
+            { "GuardAreaRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "GuardArea")) },
+            { "EmergencyRepairRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "EmergencyRepair")) },
+            { "FriendlySpecialPowerRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "FriendlySpecialPower")) },
+            { "OffensiveSpecialPowerRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "OffensiveSpecialPower")) },
+            { "ParticleCannonRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "ParticleCannon")) },
+            { "A10StrikeRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "A10Strike")) },
+            { "CarpetBombRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "CarpetBomb")) },
+            { "DaisyCutterRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "DaisyCutter")) },
+            { "ParadropRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "Paradrop")) },
+            { "SpySatelliteRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "SpySatellite")) },
+            { "NuclearMissileRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "NuclearMissile")) },
+            { "EMPPulseRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "EmpPulse")) },
+            { "ArtilleryRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "ArtilleryBarrage")) },
+            { "NapalmStrikeRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "NapalmStrike")) },
+            { "ClusterMinesRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "ClusterMines")) },
+            { "ScudStormRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "ScudStorm")) },
+            { "AnthraxBombRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "AnthraxBomb")) },
+            { "AmbushRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "Ambush")) },
+            { "RadarRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "Radar")) },
 
             // Following set were added in Zero Hour.
-            { "FrenzyRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Frenzy)) },
-            { "SpectreGunshipRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.SpectreGunship)) },
-            { "HelixNapalmBombRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.HelixNapalmBomb)) },
-            { "ClearMinesRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.ClearMines)) },
-            { "AmbulanceRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Ambulance)) },
+            { "FrenzyRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "Frenzy")) },
+            { "SpectreGunshipRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "SpectreGunship")) },
+            { "HelixNapalmBombRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "HelixNapalmBomb")) },
+            { "ClearMinesRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "ClearMines")) },
+            { "AmbulanceRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "Ambulance")) },
 
             // Following set were added in BFME.
-            { "ArrowStormRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.ArrowStorm)) },
-            { "TrainingRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Training)) },
-            { "ArcheryTrainingRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.ArcheryTraining)) },
-            { "SummonBalrogRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.SummonBalrog)) },
-            { "LightningSwordRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.LightningSword)) },
-            { "FireBreathRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.FireBreath)) },
-            { "LeapRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Leap)) },
-            { "SummonOathBreakersRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.SummonOathBreakers)) },
-            { "AthelasRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Athelas)) },
-            { "FellBeastSwoopRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.FellBeastSwoop)) },
-            { "EagleSwoopRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.EagleSwoop)) },
-            { "IndustryRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Industry)) },
-            { "DevastationRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Devastation)) },
-            { "TaintRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Taint)) },
-            { "EyeOfSauronRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.EyeOfSauron)) },
-            { "HealRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Heal)) },
-            { "ElvenAlliesRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.ElvenAllies)) },
-            { "RohanAlliesRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.RohanAllies)) },
-            { "ElvenWoodRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.ElvenWood)) },
-            { "EntAlliesRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.EntAllies)) },
-            { "ArmyOfTheDeadRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.ArmyOfTheDead)) },
-            { "EagleAlliesRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.EagleAllies)) },
-            { "KingsFavorRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.KingsFavor)) },
-            { "DominateRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.Dominate)) },
-            { "SpeechCraftRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.SpeechCraft)) },
-            { "CaptainOfGondorRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.CaptainOfGondor)) },
-            { "WarChantRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.WarChant)) },
-            { "PalantirVisionRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, CommandButtonRadiusCursorType.PalantirVision)) },
+            { "ArrowStormRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "ArrowStorm")) },
+            { "TrainingRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "Training")) },
+            { "ArcheryTrainingRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "ArcheryTraining")) },
+            { "SummonBalrogRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser,"SummonBalrog")) },
+            { "LightningSwordRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "LightningSword")) },
+            { "FireBreathRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "FireBreath")) },
+            { "LeapRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "Leap")) },
+            { "SummonOathBreakersRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "SummonOathBreakers")) },
+            { "AthelasRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "Athelas")) },
+            { "FellBeastSwoopRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "FellBeastSwoop")) },
+            { "EagleSwoopRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "EagleSwoop")) },
+            { "IndustryRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "Industry")) },
+            { "DevastationRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "Devastation")) },
+            { "TaintRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "Taint")) },
+            { "EyeOfSauronRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "EyeOfSauron")) },
+            { "HealRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "Heal")) },
+            { "ElvenAlliesRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "ElvenAllies")) },
+            { "RohanAlliesRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "RohanAllies")) },
+            { "ElvenWoodRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "ElvenWood")) },
+            { "EntAlliesRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "EntAllies")) },
+            { "ArmyOfTheDeadRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "ArmyOfTheDead")) },
+            { "EagleAlliesRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "EagleAllies")) },
+            { "KingsFavorRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "KingsFavor")) },
+            { "DominateRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "Dominate")) },
+            { "SpeechCraftRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "SpeechCraft")) },
+            { "CaptainOfGondorRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "CaptainOfGondor")) },
+            { "WarChantRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "WarChant")) },
+            { "PalantirVisionRadiusCursor", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser, "PalantirVision")) },
             { "MessagePositionLW", (parser, x) => x.MessagePositionLW = parser.ParseVector2() },
             { "SelectNearestBuilderCycleTimeOut", (parser, x) => x.SelectNearestBuilderCycleTimeOut = parser.ParseInteger() },
             { "TerrainResourceClaimDecal", (parser, x) => x.TerrainResourceClaimDecal = parser.ParseAssetReference() },
@@ -172,7 +172,8 @@ namespace OpenSage.Data.Ini
             { "HeroEarnedAwardNotificationMessage", (parser, x) => x.HeroEarnedAwardNotificationMessage = parser.ParseLocalizedStringKey() },
             { "HeroEarnedAwardNotificationTimeout", (parser, x) => x.HeroEarnedAwardNotificationTimeout = parser.ParseFloat() },
             { "RadiusCursorUseWeaponScatterRadius", (parser, x) => x.RadiusCursorUseWeaponScatterRadius = parser.ParseAssetReference() },
-            { "RadiusCursorTemplate", (parser, x) => x.RadiusCursorTemplates.Add(RadiusDecalTemplate.Parse(parser)) }
+
+            { "RadiusCursorTemplate", (parser, x) => x.RadiusCursors.Add(RadiusCursor.Parse(parser)) }
         };
 
         public int MaxSelectionSize { get; private set; }
@@ -345,23 +346,30 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public string RadiusCursorUseWeaponScatterRadius { get; private set; }
-
-        [AddedIn(SageGame.Bfme2)]
-        public List<RadiusDecalTemplate> RadiusCursorTemplates { get; } = new List<RadiusDecalTemplate>();
     }
 
     public sealed class RadiusCursor
     {
-        internal static RadiusCursor Parse(IniParser parser, CommandButtonRadiusCursorType type)
+        internal static RadiusCursor Parse(IniParser parser)
+        {
+            var result =  new RadiusCursor
+            {
+                Name = parser.ParseString(),
+                DecalTemplate = RadiusDecalTemplate.Parse(parser)
+            };
+            return result;
+        }
+
+        internal static RadiusCursor Parse(IniParser parser, string name)
         {
             return new RadiusCursor
             {
-                Type = type,
+                Name = name,
                 DecalTemplate = RadiusDecalTemplate.Parse(parser)
             };
         }
 
-        public CommandButtonRadiusCursorType Type { get; private set; }
+        public string Name { get; private set; }
 
         public RadiusDecalTemplate DecalTemplate { get; private set; }
     }
