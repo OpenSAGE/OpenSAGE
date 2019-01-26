@@ -72,6 +72,10 @@ namespace OpenSage.Data.Ini
                     case "MINES":
                         result.Rules.Set(ObjectFilterRule.Mines, true);
                         continue;
+
+                    case "SAME_PLAYER":
+                        result.Rules.Set(ObjectFilterRule.SamePlayer, true);
+                        continue;
                 }
 
                 bool isInclude;

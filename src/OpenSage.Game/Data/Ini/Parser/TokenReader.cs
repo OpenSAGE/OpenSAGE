@@ -69,7 +69,8 @@ namespace OpenSage.Data.Ini.Parser
                 }
 
                 // Handle comments.
-                if (c == ';' || (c == '/' && _sourceTextIndex < _source.Length && _source[_sourceTextIndex] == '/'))
+                if (c == ';' || (c == '/' && _sourceTextIndex < _source.Length && _source[_sourceTextIndex] == '/')
+                    || (c == '-' && _sourceTextIndex < _source.Length && _source[_sourceTextIndex] == '-'))
                 {
                     afterComment = true;
                 }

@@ -4,6 +4,9 @@ namespace OpenSage.Logic.Object
 {
     public enum ModelConditionFlag
     {
+        [IniEnum("None")]
+        None,
+
         [IniEnum("DAMAGED")]
         Damaged,
 
@@ -1101,5 +1104,47 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("USER_15"), AddedIn(SageGame.Bfme2Rotwk)]
         User15,
+
+        [IniEnum("USER_41"), AddedIn(SageGame.Bfme2Rotwk)]
+        User41,
+
+        [IniEnum("USER_40"), AddedIn(SageGame.Bfme2Rotwk)]
+        User40,
+
+        [IniEnum("USER_30"), AddedIn(SageGame.Bfme2Rotwk)]
+        User30,
+
+        [IniEnum("USER_31"), AddedIn(SageGame.Bfme2Rotwk)]
+        User31,
+
+        [IniEnum("USER_32"), AddedIn(SageGame.Bfme2Rotwk)]
+        User32,
+
+        [IniEnum("USER_33"), AddedIn(SageGame.Bfme2Rotwk)]
+        User33,
+
+        [IniEnum("USER_34"), AddedIn(SageGame.Bfme2Rotwk)]
+        User34,
+
+        [IniEnum("USER_35"), AddedIn(SageGame.Bfme2Rotwk)]
+        User35,
+
+        [IniEnum("USER_36"), AddedIn(SageGame.Bfme2Rotwk)]
+        User36,
+
+        [IniEnum("USER_37"), AddedIn(SageGame.Bfme2Rotwk)]
+        User37,
+
+        [IniEnum("USER_38"), AddedIn(SageGame.Bfme2Rotwk)]
+        User38,
+
+        [IniEnum("USER_39"), AddedIn(SageGame.Bfme2Rotwk)]
+        User39,
+
+        [IniEnum("USER_42"), AddedIn(SageGame.Bfme2Rotwk)]
+        User42,
+
+        [IniEnum("USER_60"), AddedIn(SageGame.Bfme2Rotwk)]
+        User60,
     }
 }

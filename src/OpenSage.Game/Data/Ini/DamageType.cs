@@ -214,5 +214,11 @@
 
         [IniEnum("FROST"), AddedIn(SageGame.Bfme2Rotwk)]
         Frost,
+
+        [IniEnum("NECRO1"), AddedIn(SageGame.Bfme2Rotwk)]
+        Necro1,
+
+        [IniEnum("NECRO2"), AddedIn(SageGame.Bfme2Rotwk)]
+        Necro2,
     }
 }

@@ -306,9 +306,7 @@ namespace OpenSage.Data.Ini.Parser
         public string ParseAssetReference()
         {
             var token = GetNextTokenOptional();
-            if (token.HasValue)
-                return token.Value.Text;
-            return "";
+            return token.HasValue ? token.Value.Text : "";
         }
 
         public string[] ParseAssetReferenceArray()
@@ -316,7 +314,7 @@ namespace OpenSage.Data.Ini.Parser
             var result = new List<string>();
 
             IniToken? token;
-            while ((token = GetNextTokenOptional()) != null)
+            while ((token = GetNextTokenOptional()).HasValue)
             {
                 result.Add(token.Value.Text);
             }
