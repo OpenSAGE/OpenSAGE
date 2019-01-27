@@ -171,15 +171,6 @@ namespace OpenSage.Content
                 mapFile.GlobalLighting.LightingConfigurations.ToLightSettingsDictionary(),
                 mapFile.GlobalLighting.Time);
 
-            var id = 0u;
-            var cameraPoints = new List<Waypoint>();
-            foreach (var camera in mapFile.NamedCameras.Cameras)
-            {
-                cameraPoints.Add(new Waypoint(id++, camera.Name, camera.Position));
-            }
-            waypoints = new WaypointCollection(cameraPoints);
-
-
             var waypointPaths = new WaypointPathCollection(mapFile.WaypointsList.WaypointPaths
                 .Select(path =>
                 {
