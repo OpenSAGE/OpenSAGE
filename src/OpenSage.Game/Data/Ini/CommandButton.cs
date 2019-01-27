@@ -522,4 +522,185 @@ namespace OpenSage.Data.Ini
         [IniEnum("QUINARY")]
         Quinary,
     }
+
+    //only used in Generals, ZH and BFME, since BFME2 those types are replaced by named blocks
+    public enum CommandButtonRadiusCursorType
+    {
+        [IniEnum("NONE"), AddedIn(SageGame.Bfme)]
+        None,
+
+        [IniEnum("DAISYCUTTER")]
+        DaisyCutter,
+
+        [IniEnum("NAPALMSTRIKE")]
+        NapalmStrike,
+
+        [IniEnum("PARADROP")]
+        Paradrop,
+
+        [IniEnum("CLUSTERMINES")]
+        ClusterMines,
+
+        [IniEnum("EMPPULSE")]
+        EmpPulse,
+
+        [IniEnum("A10STRIKE")]
+        A10Strike,
+
+        [IniEnum("PARTICLECANNON")]
+        ParticleCannon,
+
+        [IniEnum("CARPETBOMB")]
+        CarpetBomb,
+
+        [IniEnum("NUCLEARMISSILE")]
+        NuclearMissile,
+
+        [IniEnum("SCUDSTORM")]
+        ScudStorm,
+
+        [IniEnum("ARTILLERYBARRAGE")]
+        ArtilleryBarrage,
+
+        [IniEnum("SPYSATELLITE")]
+        SpySatellite,
+
+        [IniEnum("SPYDRONE")]
+        SpyDrone,
+
+        [IniEnum("RADAR")]
+        Radar,
+
+        [IniEnum("AMBUSH")]
+        Ambush,
+
+        [IniEnum("EMERGENCY_REPAIR")]
+        EmergencyRepair,
+
+        [IniEnum("ANTHRAXBOMB")]
+        AnthraxBomb,
+
+        [IniEnum("GUARD_AREA")]
+        GuardArea,
+
+        [IniEnum("ATTACK_CONTINUE_AREA")]
+        AttackContinueArea,
+
+        [IniEnum("ATTACK_SCATTER_AREA")]
+        AttackScatterArea,
+
+        [IniEnum("ATTACK_DAMAGE_AREA")]
+        AttackDamageArea,
+
+        [IniEnum("SUPERWEAPON_SCATTER_AREA")]
+        SuperweaponScatterArea,
+
+        [IniEnum("FRIENDLY_SPECIALPOWER")]
+        FriendlySpecialPower,
+
+        [IniEnum("OFFENSIVE_SPECIALPOWER")]
+        OffensiveSpecialPower,
+
+        [IniEnum("SPECTREGUNSHIP"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        SpectreGunship,
+
+        [IniEnum("FRENZY"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Frenzy,
+
+        [IniEnum("CLEARMINES"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        ClearMines,
+
+        [IniEnum("AMBULANCE"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        Ambulance,
+
+        [IniEnum("HELIX_NAPALM_BOMB"), AddedIn(SageGame.CncGeneralsZeroHour)]
+        HelixNapalmBomb,
+
+        [IniEnum("FIRE_BREATH"), AddedIn(SageGame.Bfme)]
+        FireBreath,
+
+        [IniEnum("TRAINING"), AddedIn(SageGame.Bfme)]
+        Training,
+
+        [IniEnum("SUMMON_OATH_BREAKERS"), AddedIn(SageGame.Bfme)]
+        SummonOathBreakers,
+
+        [IniEnum("KINGS_FAVOR"), AddedIn(SageGame.Bfme)]
+        KingsFavor,
+
+        [IniEnum("CAPTAIN_OF_GONDOR"), AddedIn(SageGame.Bfme)]
+        CaptainOfGondor,
+
+        [IniEnum("ARROWSTORM"), AddedIn(SageGame.Bfme)]
+        ArrowStorm,
+
+        [IniEnum("ATHELAS"), AddedIn(SageGame.Bfme)]
+        Athelas,
+
+        [IniEnum("ARCHERY_TRAINING"), AddedIn(SageGame.Bfme)]
+        ArcheryTraining,
+
+        [IniEnum("LIGHTNING_SWORD"), AddedIn(SageGame.Bfme)]
+        LightningSword,
+
+        [IniEnum("LEAP"), AddedIn(SageGame.Bfme)]
+        Leap,
+
+        [IniEnum("FELL_BEAST_SWOOP"), AddedIn(SageGame.Bfme)]
+        FellBeastSwoop,
+
+        [IniEnum("EAGLE_SWOOP"), AddedIn(SageGame.Bfme)]
+        EagleSwoop,
+
+        [IniEnum("REVEAL_MAP_AREA"), AddedIn(SageGame.Bfme)]
+        RevealMapArea,
+
+        [IniEnum("WAR_CHANT"), AddedIn(SageGame.Bfme)]
+        WarChant,
+
+        [IniEnum("INDUSTRY"), AddedIn(SageGame.Bfme)]
+        Industry,
+
+        [IniEnum("DEVASTATION"), AddedIn(SageGame.Bfme)]
+        Devastation,
+
+        [IniEnum("TAINT"), AddedIn(SageGame.Bfme)]
+        Taint,
+
+        [IniEnum("EYE_OF_SAURON"), AddedIn(SageGame.Bfme)]
+        EyeOfSauron,
+
+        [IniEnum("SUMMON_BALROG"), AddedIn(SageGame.Bfme)]
+        SummonBalrog,
+
+        [IniEnum("HEAL"), AddedIn(SageGame.Bfme)]
+        Heal,
+
+        [IniEnum("ELVEN_ALLIES"), AddedIn(SageGame.Bfme)]
+        ElvenAllies,
+
+        [IniEnum("ROHAN_ALLIES"), AddedIn(SageGame.Bfme)]
+        RohanAllies,
+
+        [IniEnum("ELVEN_WOOD"), AddedIn(SageGame.Bfme)]
+        ElvenWood,
+
+        [IniEnum("ENT_ALLIES"), AddedIn(SageGame.Bfme)]
+        EntAllies,
+
+        [IniEnum("ARMY_OF_THE_DEAD"), AddedIn(SageGame.Bfme)]
+        ArmyOfTheDead,
+
+        [IniEnum("EAGLE_ALLIES"), AddedIn(SageGame.Bfme)]
+        EagleAllies,
+
+        [IniEnum("PALANTIR_VISION"), AddedIn(SageGame.Bfme)]
+        PalantirVision,
+
+        [IniEnum("SPEECH_CRAFT"), AddedIn(SageGame.Bfme)]
+        SpeechCraft,
+
+        [IniEnum("DOMINATE"), AddedIn(SageGame.Bfme)]
+        Dominate,
+    }
 }
