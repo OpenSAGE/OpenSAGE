@@ -11,6 +11,9 @@
     <None Update="Data\Rep\Assets\*.rep">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Data\Sav\Assets\**\*.sav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Data\Wak\Assets\*.wak">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
