@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Apt
@@ -10,6 +11,7 @@ namespace OpenSage.Gui.Apt
 
         internal Stack<AptWindow> WindowStack { get; }
         public int OpenWindowCount => WindowStack.Count;
+
 
         public AptWindowManager(Game game)
         {

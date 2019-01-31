@@ -42,9 +42,9 @@ namespace OpenSage.Gui.Apt
 
         public DisplayList Content => _content;
 
-        public void Create(Character chararacter, AptContext context, SpriteItem parent = null)
+        public void Create(Character character, AptContext context, SpriteItem parent = null)
         {
-            _sprite = (Playable) chararacter;
+            _sprite = (Playable) character;
             Context = context;
             _content = new DisplayList();
             Parent = parent;
@@ -80,7 +80,7 @@ namespace OpenSage.Gui.Apt
             //calculate the transform for this element
             var cTransform = pTransform * Transform;
 
-            //render all subitems
+            //render all subItems
             foreach (var item in _content.Items.Values)
             {
                 item.Render(renderer, cTransform, dc);
@@ -110,7 +110,7 @@ namespace OpenSage.Gui.Apt
                     _currentFrame = 0;
             }
 
-            //update all subitems
+            //update all subItems
             foreach (var item in _content.Items.Values)
             {
                 item.Update(gt);
