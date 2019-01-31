@@ -53,15 +53,13 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public virtual Value GetMember(string name)
         {
-            Value result;
-
-            if (!Variables.TryGetValue(name, out result))
+            if (Variables.TryGetValue(name, out var result))
             {
-                Debug.WriteLine("[WARN] Undefined variable: " + name);
-                result = Value.Undefined();
+                return result;
             }
 
-            return result;
+            Debug.WriteLine("[WARN] Undefined variable: " + name);
+            return Value.Undefined();
         }
 
         /// <summary>
@@ -95,7 +93,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         }
 
         /// <summary>
-        /// Check wether or not a string is a builtin flash function
+        /// Check whether or not a string is a builtin flash function
         /// </summary>
         /// <param name="name">function name</param>
         /// <returns></returns>
@@ -107,7 +105,9 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <summary>
         /// Execute a builtin function maybe move builtin functions elsewhere
         /// </summary>
-        /// <param name="name"><function name/param>
+        /// <param name="actx"></param>
+        /// <param name="name">function name</param>
+        /// <param name="args"></param>
         public virtual void CallBuiltInFunction(ActionContext actx, string name, Value[] args)
         {
             Builtin.CallBuiltInFunction(name, actx, this, args);
@@ -135,7 +135,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             var obj = this;
             var member = path.Last();
 
-            for (int i = 0; i < path.Length - 1; i++)
+            for (var i = 0; i < path.Length - 1; i++)
             {
                 var fragment = path[i];
 

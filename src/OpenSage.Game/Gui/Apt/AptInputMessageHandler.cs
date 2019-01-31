@@ -1,4 +1,6 @@
-﻿using OpenSage.Input;
+﻿using System;
+using OpenSage.Input;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Apt
 {
@@ -9,6 +11,14 @@ namespace OpenSage.Gui.Apt
 
         public override HandlingPriority Priority => HandlingPriority.UIPriority;
 
+        public struct MouseData
+        {
+            public bool Moved;
+            public Point2D Position;
+        }
+
+        public MouseData _MouseData;
+
         public AptInputMessageHandler(AptWindowManager windowManager, Game game)
         {
             _game = game;
@@ -17,8 +27,28 @@ namespace OpenSage.Gui.Apt
 
         public override InputMessageResult HandleMessage(InputMessage message)
         {
-            return InputMessageResult.NotHandled;
-            //throw new NotImplementedException();
+            switch (message.MessageType)
+            {
+                case InputMessageType.MouseMove:
+                    _MouseData.Position = message.Value.MousePosition;
+                    _MouseData.Moved = true;
+                    return InputMessageResult.Handled;
+                case InputMessageType.MouseLeftButtonUp:
+                    return InputMessageResult.NotHandled;
+
+                case InputMessageType.KeyDown:
+                case InputMessageType.KeyUp:
+                case InputMessageType.MouseLeftButtonDown:
+                case InputMessageType.MouseMiddleButtonDown:
+                case InputMessageType.MouseMiddleButtonUp:
+                case InputMessageType.MouseRightButtonDown:
+                case InputMessageType.MouseRightButtonUp:
+                case InputMessageType.MouseWheel:
+                    //throw new NotImplementedException();
+                    return InputMessageResult.NotHandled;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

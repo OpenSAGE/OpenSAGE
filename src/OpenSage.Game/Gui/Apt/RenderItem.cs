@@ -16,19 +16,41 @@ namespace OpenSage.Gui.Apt
         public string Name { get; set; }
         public bool Visible { get; set; }
 
-        public void Create(Character chararacter, AptContext context, SpriteItem parent = null)
+        private bool IsHovered { get; set; }
+
+        public void Create(Character character, AptContext context, SpriteItem parent = null)
         {
-            Character = chararacter;
+            Character = character;
             Context = context;
             Parent = parent;
             ScriptObject = new ObjectContext(this);
             Name = "";
             Visible = true;
+            IsHovered = false;
         }
 
         public void Update(TimeInterval gt)
         {
+            if (!Visible)
+                return;
 
+            switch (Character)
+            {
+                case Button b:
+                    //if (MouseMoved)
+                    {
+                        if (!IsHovered)
+                        {
+                            foreach (var tri in b.Triangles)
+                            {
+                                //if (mousposition inside tri)
+                                //IsHovered = true;
+                            }
+                        }
+                        break;
+                    }
+                    
+            }
         }
 
         public void RunActions(TimeInterval gt)

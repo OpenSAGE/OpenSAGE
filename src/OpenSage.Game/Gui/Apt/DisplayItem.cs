@@ -48,7 +48,7 @@ namespace OpenSage.Gui.Apt
         /// <summary>
         /// Create a new DisplayItem
         /// </summary>
-        /// <param name="chararacter"></param>
+        /// <param name="character"></param>
         /// The template character that is used for this Item
         /// <param name="context"></param>
         /// Contains information about the AptFile where this is part of
