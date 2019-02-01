@@ -27,42 +27,36 @@ namespace OpenSage.Gui.Apt
 
         public override InputMessageResult HandleMessage(InputMessage message)
         {
-            foreach (var window in _windowManager.WindowStack)
+            switch (message.MessageType)
             {
-                switch (message.MessageType)
-                {
-                    case InputMessageType.KeyDown:
-                        break;
-                    case InputMessageType.KeyUp:
-                        break;
-                    case InputMessageType.MouseLeftButtonDown:
-                        break;
-                    case InputMessageType.MouseLeftButtonUp:
-                        break;
-                    case InputMessageType.MouseMiddleButtonDown:
-                        break;
-                    case InputMessageType.MouseMiddleButtonUp:
-                        break;
-                    case InputMessageType.MouseRightButtonDown:
-                        break;
-                    case InputMessageType.MouseRightButtonUp:
-                        break;
-                    case InputMessageType.MouseMove:
-                        MouseMoved?.Invoke(this, new EventArgs(),
-                                        message.Value.MousePosition.X,
-                                        message.Value.MousePosition.Y);
-                        break;
-                    case InputMessageType.MouseWheel:
-                        break;
-                }
-            }
+                case InputMessageType.KeyDown:
+                    break;
+                case InputMessageType.KeyUp:
+                    break;
+                case InputMessageType.MouseLeftButtonDown:
+                    break;
+                case InputMessageType.MouseLeftButtonUp:
+                    break;
+                case InputMessageType.MouseMiddleButtonDown:
+                    break;
+                case InputMessageType.MouseMiddleButtonUp:
+                    break;
+                case InputMessageType.MouseRightButtonDown:
+                    break;
+                case InputMessageType.MouseRightButtonUp:
+                    break;
+                case InputMessageType.MouseMove:
+                    if(_windowManager.HandleInput(message.Value.MousePosition, false))
+                    {
+                        return InputMessageResult.Handled;
+                    }
+                    break;
+                case InputMessageType.MouseWheel:
+                    break;
+            }          
 
             return InputMessageResult.NotHandled;
         }
 
-
-        // Mouse moved
-        public delegate bool MouseMovedEventHandler(object sender, EventArgs e, int x, int y);
-        public event MouseMovedEventHandler MouseMoved;
     }
 }
