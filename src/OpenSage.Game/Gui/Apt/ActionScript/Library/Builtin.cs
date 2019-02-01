@@ -49,6 +49,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             BuiltinFunctions = new Dictionary<string, Action<ActionContext, ObjectContext, Value[]>>
             {
                 ["gotoAndPlay"] = (actx, ctx, args) => GotoAndPlay(ctx, args),
+                ["gotoAndStop"] = (actx, ctx, args) => GotoAndStop(ctx, args),
                 ["stop"] = (actx, ctx, args) => Stop(ctx),
                 ["clearInterval"] = ClearInterval,
                 ["setInterval"] = SetInterval
@@ -120,6 +121,33 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 }
 
                 si.Play();
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        private static void GotoAndStop(ObjectContext ctx, Value[] args)
+        {
+            if (ctx.Item is SpriteItem si)
+            {
+                var dest = args.First();
+
+                if (dest.Type == ValueType.String)
+                {
+                    si.Goto(dest.ToString());
+                }
+                else if (dest.Type == ValueType.Integer)
+                {
+                    si.GotoFrame(dest.ToInteger() - 1);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Can only jump to labels or frame numbers");
+                }
+
+                si.Stop();
             }
             else
             {

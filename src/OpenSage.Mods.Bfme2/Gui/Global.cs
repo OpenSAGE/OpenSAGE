@@ -6,14 +6,14 @@ namespace OpenSage.Mods.Bfme2.Gui
     [AptCallbacks(SageGame.Bfme2, SageGame.Bfme2Rotwk)]
     static class Global
     {
-        public static void SetBackground(ActionContext context, AptWindow window, Game game)
+        public static void SetBackground(string param, ActionContext context, AptWindow window, Game game)
         {
 
         }
 
-        public static void PlaySound(ActionContext context, AptWindow window, Game game)
+        public static void PlaySound(string param, ActionContext context, AptWindow window, Game game)
         {
-
+            game.Audio.PlayAudioEvent(param);
         }
     }
 }

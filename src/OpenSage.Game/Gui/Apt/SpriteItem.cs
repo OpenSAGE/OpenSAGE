@@ -16,16 +16,13 @@ namespace OpenSage.Gui.Apt
         STOPPED
     }
 
-    public sealed class SpriteItem : IDisplayItem
+    public sealed class SpriteItem : DisplayItem
     {
-        private DisplayList _content;
         private Playable _sprite;
         private uint _currentFrame;
         private TimeInterval _lastUpdate;
         private PlayState _state;
         private Dictionary<string, uint> _frameLabels;
-        public string Name { get; set; }
-        public bool Visible { get; set; }
         public delegate void ColorDelegate(ColorRgbaF color);
 
         /// <summary>
@@ -33,28 +30,25 @@ namespace OpenSage.Gui.Apt
         /// </summary>
         private List<Action> _actionList;
 
-        public SpriteItem Parent { get; private set; }
-        public Character Character => _sprite;
-        public AptContext Context { get; private set; }
-        public ItemTransform Transform { get; set; }
-        public ObjectContext ScriptObject { get; private set; }
         public ColorDelegate SetBackgroundColor { get; set; }
 
-        public DisplayList Content => _content;
+        public DisplayList Content { get; private set; }
 
-        public void Create(Character character, AptContext context, SpriteItem parent = null)
+        public override void Create(Character character, AptContext context, SpriteItem parent = null)
         {
             _sprite = (Playable) character;
-            Context = context;
-            _content = new DisplayList();
-            Parent = parent;
             _currentFrame = 0;
-            ScriptObject = new ObjectContext(this);
             _actionList = new List<Action>();
             _frameLabels = new Dictionary<string, uint>();
             _state = PlayState.PLAYING;
+
             Name = "";
             Visible = true;
+            Character = _sprite;
+            Context = context;
+            Content = new DisplayList();
+            Parent = parent;
+            ScriptObject = new ObjectContext(this);
 
             // Fill the frameLabels in advance
             foreach (var frame in _sprite.Frames)
@@ -72,7 +66,7 @@ namespace OpenSage.Gui.Apt
             }
         }
 
-        public void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc)
+        public override void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc)
         {
             if (!Visible)
                 return;
@@ -81,13 +75,13 @@ namespace OpenSage.Gui.Apt
             var cTransform = pTransform * Transform;
 
             //render all subItems
-            foreach (var item in _content.Items.Values)
+            foreach (var item in Content.Items.Values)
             {
                 item.Render(renderer, cTransform, dc);
             }
         }
 
-        public void Update(TimeInterval gt)
+        public override void Update(TimeInterval gt)
         {
             if (IsNewFrame(gt))
             {
@@ -111,7 +105,7 @@ namespace OpenSage.Gui.Apt
             }
 
             //update all subItems
-            foreach (var item in _content.Items.Values)
+            foreach (var item in Content.Items.Values)
             {
                 item.Update(gt);
             }
@@ -197,7 +191,7 @@ namespace OpenSage.Gui.Apt
                     }
                     break;
                 case RemoveObject ro:
-                    _content.Items.Remove(ro.Depth);
+                    Content.Items.Remove(ro.Depth);
                     break;
                 case Action action:
                     _actionList.Add(action);
@@ -249,13 +243,13 @@ namespace OpenSage.Gui.Apt
 
         private void MoveItem(PlaceObject po)
         {
-            if(!_content.Items.ContainsKey(po.Depth))
+            if(!Content.Items.ContainsKey(po.Depth))
             {
                 //TODO WARN
                 return;
             }
 
-            var displayItem = _content.Items[po.Depth];
+            var displayItem = Content.Items[po.Depth];
             var cTransform = displayItem.Transform;
 
             if (po.Flags.HasFlag(PlaceObjectFlags.HasMatrix))
@@ -281,7 +275,7 @@ namespace OpenSage.Gui.Apt
 
         private void PlaceItem(PlaceObject po)
         {
-            if (_content.Items.ContainsKey(po.Depth))
+            if (Content.Items.ContainsKey(po.Depth))
             {
                 return;
             }
@@ -289,7 +283,7 @@ namespace OpenSage.Gui.Apt
             var character = Context.GetCharacter(po.Character, _sprite);
             var itemTransform = CreateTransform(po);
 
-            IDisplayItem displayItem;
+            DisplayItem displayItem;
             if (character is Playable)
                 displayItem = new SpriteItem() { Transform = itemTransform };
             else if (character is Button)
@@ -320,10 +314,10 @@ namespace OpenSage.Gui.Apt
                 }
             }
 
-            _content.Items[po.Depth] = displayItem;
+            Content.Items[po.Depth] = displayItem;
         }
 
-        public void RunActions(TimeInterval gt)
+        public override void RunActions(TimeInterval gt)
         {
             //execute all actions now
             foreach (var action in _actionList)
@@ -334,13 +328,13 @@ namespace OpenSage.Gui.Apt
 
             //execute all subitems actions now
             //update all subitems
-            foreach (var item in _content.Items.Values)
+            foreach (var item in Content.Items.Values)
             {
                 item.RunActions(gt);
             }
         }
 
-        public IDisplayItem GetNamedItem(string name)
+        public DisplayItem GetNamedItem(string name)
         {
             return ScriptObject.Variables[name].ToObject().Item;
         }
