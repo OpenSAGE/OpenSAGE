@@ -25,6 +25,8 @@ namespace OpenSage.Gui.Apt
         public AptRenderer Renderer { get; }
         public SpriteItem Root { get; }
         public MappedImageLoader ImageLoader { get; }
+        public ContentManager ContentManager { get; }
+        public AptInputMessageHandler InputHandler { get; set; }
 
         /// <summary>
         /// Used for shellmap in MainMenu. Not sure if the correct place.
@@ -34,9 +36,11 @@ namespace OpenSage.Gui.Apt
         public AptWindow(Game game, ContentManager contentManager, AptFile aptFile)
         {
             _game = game;
+            ContentManager = contentManager;
+            AptFile = aptFile;
 
             //Create our context
-            _context = new AptContext(aptFile, contentManager);
+            _context = new AptContext(this);
 
             //First thing to do here is to initialize the display list
             Root = new SpriteItem
@@ -45,11 +49,9 @@ namespace OpenSage.Gui.Apt
                 SetBackgroundColor = (c) => _backgroundColor = c
             };
             Root.Create(aptFile.Movie, _context);
+
             _context.Root = Root;
-
             _context.Avm.CommandHandler = HandleCommand;
-
-            AptFile = aptFile;
 
             Renderer = new AptRenderer(contentManager);
 

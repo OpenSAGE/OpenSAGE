@@ -12,18 +12,19 @@ namespace OpenSage.Gui.Apt
         private readonly string _movieName;
 
         public VM Avm { get; }
-        public ContentManager ContentManager { get; }
-        public ConstantData Constants { get; set; }
+
+        public AptWindow Window { get; }
+        public ConstantData Constants => Window.AptFile.Constants;
         //Time per frame in milliseconds
-        public uint MillisecondsPerFrame { get; set; }
+        public uint MillisecondsPerFrame => Window.AptFile.Movie.MillisecondsPerFrame;
+        public ContentManager ContentManager { get; }
         public SpriteItem Root { get; set; }
 
-        public AptContext(AptFile apt, ContentManager contentManager)
+        public AptContext(AptWindow window)
         {
-            MillisecondsPerFrame = apt.Movie.MillisecondsPerFrame;
-            Constants = apt.Constants;
+            Window = window;
+            ContentManager = window.ContentManager;
 
-            ContentManager = contentManager;
             Avm = new VM();
         }
 

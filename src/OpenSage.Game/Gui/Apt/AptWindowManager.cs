@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Apt
@@ -8,6 +7,7 @@ namespace OpenSage.Gui.Apt
     public sealed class AptWindowManager
     {
         private readonly Game _game;
+        private AptInputMessageHandler _inputHandler;
 
         internal Stack<AptWindow> WindowStack { get; }
         public int OpenWindowCount => WindowStack.Count;
@@ -16,15 +16,18 @@ namespace OpenSage.Gui.Apt
         public AptWindowManager(Game game)
         {
             _game = game;
+            _inputHandler = new AptInputMessageHandler(this, _game);
 
             WindowStack = new Stack<AptWindow>();
 
-            game.InputMessageBuffer.Handlers.Add(new AptInputMessageHandler(this, _game));
+            game.InputMessageBuffer.Handlers.Add(_inputHandler);
         }
 
         public void PushWindow(AptWindow window)
         {
             CreateSizeDependentResources(window, _game.Panel.ClientBounds.Size);
+
+            window.InputHandler = _inputHandler;
 
             WindowStack.Push(window);
         }

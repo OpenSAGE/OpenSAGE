@@ -249,6 +249,12 @@ namespace OpenSage.Gui.Apt
 
         private void MoveItem(PlaceObject po)
         {
+            if(!_content.Items.ContainsKey(po.Depth))
+            {
+                //TODO WARN
+                return;
+            }
+
             var displayItem = _content.Items[po.Depth];
             var cTransform = displayItem.Transform;
 
@@ -286,6 +292,8 @@ namespace OpenSage.Gui.Apt
             IDisplayItem displayItem;
             if (character is Playable)
                 displayItem = new SpriteItem() { Transform = itemTransform };
+            else if (character is Button)
+                displayItem = new ButtonItem() { Transform = itemTransform };
             else
                 displayItem = new RenderItem() { Transform = itemTransform };
 
