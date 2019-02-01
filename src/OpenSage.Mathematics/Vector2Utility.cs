@@ -14,5 +14,16 @@ namespace OpenSage.Mathematics
             var rotated = new Vector2(point.X * cos - point.Y * sin, point.X * sin + point.Y  * cos);
             return rotated + axis;
         }
+
+        public static float CrossProductLength(Vector2 first, Vector2 second)
+        {
+            return (first.X * second.Y) - (first.Y * second.X);
+        }
+
+        public static bool IsCongruentTo(this Vector2 point, in Vector2 otherPoint)
+        {
+            return Vector2.Distance(point, otherPoint) < Constants.EPSILON;
+
+        }
     }
 }
