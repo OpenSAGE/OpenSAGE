@@ -102,6 +102,10 @@ namespace OpenSage.Audio
         private FileSystemEntry ResolveAudioEventPath(AudioEvent ev)
         {
             // TODO: Try to remove these allocations.
+            if(ev.Sounds.Length == 0)
+            {
+                return null;
+            }
 
             // TOOD: Check control flag before choosing at random?
             var soundFileName = $"{ev.Sounds[_random.Next(ev.Sounds.Length)]}.{_settings.SoundsExtension}";

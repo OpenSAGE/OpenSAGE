@@ -16,7 +16,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         public ObjectContext GlobalObject { get; }
         public ObjectContext ExternObject { get; }
 
-        public delegate void HandleCommand(ActionContext context, string command);
+        public delegate void HandleCommand(ActionContext context, string command, string param);
 
         public HandleCommand CommandHandler;
 

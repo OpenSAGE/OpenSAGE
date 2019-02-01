@@ -12,7 +12,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <summary>
         /// The item that this context is connected to
         /// </summary>
-        public IDisplayItem Item { get; private set; }
+        public DisplayItem Item { get; private set; }
 
         /// <summary>
         /// Contains functions and member variables
@@ -36,7 +36,7 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// </summary>
         /// <param name="item"></param>
         /// the item that this context is bound to
-        public ObjectContext(IDisplayItem item)
+        public ObjectContext(DisplayItem item)
         {
             Variables = Variables = new Dictionary<string, Value>(StringComparer.OrdinalIgnoreCase);
             Constants = new List<Value>();

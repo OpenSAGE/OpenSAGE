@@ -90,11 +90,11 @@ namespace OpenSage.Gui.Apt
             Root.Render(Renderer, transform, drawingContext);
         }
 
-        internal void HandleCommand(ActionContext context, string cmd)
+        internal void HandleCommand(ActionContext context, string cmd, string param)
         {
-            _resolver.GetCallback(cmd).Invoke(context, this, _game);
+            _resolver.GetCallback(cmd).Invoke(param, context, this, _game);
         }
 
-        public delegate void ActionscriptCallback(ActionContext context, AptWindow window, Game game);
+        public delegate void ActionscriptCallback(string param, ActionContext context, AptWindow window, Game game);
     }
 }

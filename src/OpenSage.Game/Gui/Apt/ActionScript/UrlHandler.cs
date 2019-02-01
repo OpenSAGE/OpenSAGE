@@ -15,7 +15,7 @@ namespace OpenSage.Gui.Apt.ActionScript
             {
                 var command = url.Replace("FSCommand:", "");
 
-                handler(context, command);
+                handler(context, command, target);
             }
         }
     }

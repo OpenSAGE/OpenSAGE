@@ -6,7 +6,7 @@ namespace OpenSage.Mods.Bfme.Gui
     [AptCallbacks(SageGame.Bfme)]
     static class AptMainMenu
     {
-        public static void OnInitialized(ActionContext context, AptWindow window, Game game)
+        public static void OnInitialized(string param, ActionContext context, AptWindow window, Game game)
         {
             // Set the logo texture
             var imageSprite = window.Root.ScriptObject.Variables["Image"].ToObject().Item as SpriteItem;

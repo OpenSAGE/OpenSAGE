@@ -9,23 +9,14 @@ using Veldrid;
 
 namespace OpenSage.Gui.Apt
 {
-    internal class ButtonItem : IDisplayItem
+    internal class ButtonItem : DisplayItem
     {
         private bool _isHovered = false;
         private ItemTransform _curTransform;
         private List<InstructionCollection> _actionList;
+        public Texture Texture { get; set; }   
 
-        public SpriteItem Parent { get; private set; }
-        public Character Character { get; private set; }
-        public AptContext Context { get; private set; }
-        public ItemTransform Transform { get; set; }
-        public Texture Texture { get; set; }
-        public string Name { get; set; }
-        public bool Visible { get; set; }
-
-        public ObjectContext ScriptObject => null;
-
-        public void Create(Character chararacter, AptContext context, SpriteItem parent = null)
+        public override void Create(Character chararacter, AptContext context, SpriteItem parent = null)
         {
             Character = chararacter;
             Context = context;
@@ -63,54 +54,41 @@ namespace OpenSage.Gui.Apt
                 {
                     if (!_isHovered)
                     {
-                        try
+                        var idx = button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.IdleToOverUp));
+                        if (idx != -1)
                         {
-                            var ev = button.Actions.First(ba => ba.Flags.HasFlag(ButtonActionFlags.IdleToOverUp));
-                            _actionList.Add(ev.Instructions);
-                        }
-                        catch (Exception exc)
-                        {
-
+                            _actionList.Add(button.Actions[idx].Instructions);
                         }
                         _isHovered = true;
+                        return true;
                     }
-
-                    return true;
                 }
             }
 
-            if(_isHovered)
+            if (_isHovered)
             {
-                try
+                var idx = button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverUpToIdle));
+                if (idx != -1)
                 {
-                    var ev = button.Actions.First(ba => ba.Flags.HasFlag(ButtonActionFlags.OverUpToIdle));
-                    _actionList.Add(ev.Instructions);
-                }
-                catch (Exception exc)
-                {
-
+                    _actionList.Add(button.Actions[idx].Instructions);
                 }
                 _isHovered = false;
             }
             return false;
         }
 
-        public void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc)
+        public override void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc)
         {
-            _curTransform = (ItemTransform)pTransform.Clone();
+            _curTransform = (ItemTransform) pTransform.Clone();
         }
 
-        public void RunActions(GameTime gt)
+        public override void RunActions(TimeInterval gt)
         {
             foreach (var action in _actionList)
             {
                 Context.Avm.Execute(action, Parent.ScriptObject);
             }
             _actionList.Clear();
-        }
-
-        public void Update(GameTime gt)
-        {
         }
     }
 }
