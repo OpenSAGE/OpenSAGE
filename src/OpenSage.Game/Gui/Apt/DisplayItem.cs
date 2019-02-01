@@ -67,5 +67,7 @@ namespace OpenSage.Gui.Apt
         public virtual void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc) { }
 
         public virtual void RunActions(TimeInterval gt) { }
+
+        public virtual bool HandleInput(Point2D mousePos, bool mouseDown) { return false; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using OpenSage.Content;
+﻿using System.Numerics;
+using OpenSage.Content;
 using OpenSage.Data.Apt;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
@@ -64,6 +65,11 @@ namespace OpenSage.Gui.Apt
         {
             _destinationSize = windowSize;
             Renderer.Resize(_destinationSize);
+        }
+
+        internal bool HandleInput(Point2D mousePos, bool mouseDown)
+        {
+           return Root.HandleInput(mousePos, mouseDown);
         }
 
         internal void Update(TimeInterval gt, GraphicsDevice gd)

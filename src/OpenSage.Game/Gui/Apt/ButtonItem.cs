@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Numerics;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
@@ -26,12 +24,10 @@ namespace OpenSage.Gui.Apt
 
             var button = Character as Button;
 
-            context.Window.InputHandler.MouseMoved += MouseMoved;
-
             _actionList = new List<InstructionCollection>();
         }
 
-        private bool MouseMoved(object sender, EventArgs e, int x, int y)
+        public override bool HandleInput(Point2D mousePos, bool mouseDown)
         {
             var button = Character as Button;
 
@@ -42,7 +38,7 @@ namespace OpenSage.Gui.Apt
             transform.Translation = _curTransform.GeometryTranslation;// * scaling;
 
             var verts = button.Vertices;
-            var mouse = new Point2D(x, y);
+            var mouse = new Point2D(mousePos.X, mousePos.Y);
 
             foreach (var tri in button.Triangles)
             {

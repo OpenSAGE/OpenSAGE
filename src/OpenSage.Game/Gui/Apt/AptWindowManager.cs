@@ -66,5 +66,18 @@ namespace OpenSage.Gui.Apt
                 window.Render(drawingContext);
             }
         }
+
+        internal bool HandleInput(Point2D mousePos, bool mouseDown)
+        {
+            foreach (var window in WindowStack)
+            {
+                if(window.HandleInput(mousePos,mouseDown))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

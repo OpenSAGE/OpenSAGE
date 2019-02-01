@@ -334,6 +334,19 @@ namespace OpenSage.Gui.Apt
             }
         }
 
+        public override bool HandleInput(Point2D mousePos, bool mouseDown)
+        {
+            foreach (var item in Content.Items.Values)
+            {
+                if(item.HandleInput(mousePos, mouseDown))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public DisplayItem GetNamedItem(string name)
         {
             return ScriptObject.Variables[name].ToObject().Item;
