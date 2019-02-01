@@ -10,5 +10,10 @@ namespace OpenSage.Mods.Bfme2.Gui
         {
 
         }
+
+        public static void PlaySound(ActionContext context, AptWindow window, Game game)
+        {
+
+        }
     }
 }

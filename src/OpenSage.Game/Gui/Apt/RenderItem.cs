@@ -31,31 +31,10 @@ namespace OpenSage.Gui.Apt
 
         public void Update(TimeInterval gt)
         {
-            if (!Visible)
-                return;
-
-            switch (Character)
-            {
-                case Button b:
-                    //if (MouseMoved)
-                    {
-                        if (!IsHovered)
-                        {
-                            foreach (var tri in b.Triangles)
-                            {
-                                //if (mousposition inside tri)
-                                //IsHovered = true;
-                            }
-                        }
-                        break;
-                    }
-                    
-            }
         }
 
         public void RunActions(TimeInterval gt)
         {
-
         }
 
         public void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc)

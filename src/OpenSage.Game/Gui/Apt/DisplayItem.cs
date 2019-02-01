@@ -1,11 +1,12 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Apt
 {
-    public struct ItemTransform
+    public struct ItemTransform : ICloneable
     {
         public static readonly ItemTransform None = new ItemTransform(ColorRgbaF.White, Matrix3x2.Identity, Vector2.Zero);
 
@@ -32,6 +33,11 @@ namespace OpenSage.Gui.Apt
             return new ItemTransform(color,
                          GeometryRotation,
                          GeometryTranslation);
+        }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
         }
     }
 

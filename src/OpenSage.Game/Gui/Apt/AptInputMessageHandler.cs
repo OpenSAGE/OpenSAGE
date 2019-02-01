@@ -4,7 +4,7 @@ using OpenSage.Mathematics;
 
 namespace OpenSage.Gui.Apt
 {
-    internal sealed class AptInputMessageHandler : InputMessageHandler
+    public sealed class AptInputMessageHandler : InputMessageHandler
     {
         private readonly AptWindowManager _windowManager;
         private readonly Game _game;
@@ -27,28 +27,42 @@ namespace OpenSage.Gui.Apt
 
         public override InputMessageResult HandleMessage(InputMessage message)
         {
-            switch (message.MessageType)
+            foreach (var window in _windowManager.WindowStack)
             {
-                case InputMessageType.MouseMove:
-                    _MouseData.Position = message.Value.MousePosition;
-                    _MouseData.Moved = true;
-                    return InputMessageResult.Handled;
-                case InputMessageType.MouseLeftButtonUp:
-                    return InputMessageResult.NotHandled;
-
-                case InputMessageType.KeyDown:
-                case InputMessageType.KeyUp:
-                case InputMessageType.MouseLeftButtonDown:
-                case InputMessageType.MouseMiddleButtonDown:
-                case InputMessageType.MouseMiddleButtonUp:
-                case InputMessageType.MouseRightButtonDown:
-                case InputMessageType.MouseRightButtonUp:
-                case InputMessageType.MouseWheel:
-                    //throw new NotImplementedException();
-                    return InputMessageResult.NotHandled;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                switch (message.MessageType)
+                {
+                    case InputMessageType.KeyDown:
+                        break;
+                    case InputMessageType.KeyUp:
+                        break;
+                    case InputMessageType.MouseLeftButtonDown:
+                        break;
+                    case InputMessageType.MouseLeftButtonUp:
+                        break;
+                    case InputMessageType.MouseMiddleButtonDown:
+                        break;
+                    case InputMessageType.MouseMiddleButtonUp:
+                        break;
+                    case InputMessageType.MouseRightButtonDown:
+                        break;
+                    case InputMessageType.MouseRightButtonUp:
+                        break;
+                    case InputMessageType.MouseMove:
+                        MouseMoved?.Invoke(this, new EventArgs(),
+                                        message.Value.MousePosition.X,
+                                        message.Value.MousePosition.Y);
+                        break;
+                    case InputMessageType.MouseWheel:
+                        break;
+                }
             }
+
+            return InputMessageResult.NotHandled;
         }
+
+
+        // Mouse moved
+        public delegate bool MouseMovedEventHandler(object sender, EventArgs e, int x, int y);
+        public event MouseMovedEventHandler MouseMoved;
     }
 }
