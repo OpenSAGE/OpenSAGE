@@ -40,10 +40,13 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats.W3d", "OpenSage.FileFormats.W3d\OpenSage.FileFormats.W3d.csproj", "{C3857171-4F4B-42F6-8741-ED652C13F04B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats.Big", "OpenSage.FileFormats.Big\OpenSage.FileFormats.Big.csproj", "{7E58D531-B547-45E0-8A24-E90403B4DBFD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5767CC8D-AD47-472E-B263-87D77964DC85} = {5767CC8D-AD47-472E-B263-87D77964DC85}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.Core", "OpenSage.Core\OpenSage.Core.csproj", "{5767CC8D-AD47-472E-B263-87D77964DC85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Core", "OpenSage.Core\OpenSage.Core.csproj", "{5767CC8D-AD47-472E-B263-87D77964DC85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenSage.FileFormats.RefPack", "OpenSage.FileFormats.Refpack\OpenSage.FileFormats.RefPack.csproj", "{4CB6428E-9600-469D-B6F3-CBD765D0D257}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats.RefPack", "OpenSage.FileFormats.Refpack\OpenSage.FileFormats.RefPack.csproj", "{4CB6428E-9600-469D-B6F3-CBD765D0D257}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

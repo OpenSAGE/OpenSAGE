@@ -8,7 +8,7 @@ using System.Threading;
 namespace OpenSage.FileFormats.Big
 {
     [DebuggerDisplay("Archive: {FilePath}")]
-    public class BigArchive : IDisposable
+    public class BigArchive : DisposableBase
     {
         private readonly object _lockObject = new object();
 
@@ -32,11 +32,11 @@ namespace OpenSage.FileFormats.Big
             _entries = new List<BigArchiveEntry>();
             _entriesDictionary = new Dictionary<string, BigArchiveEntry>();
 
-            _stream = new FileStream(
+            _stream = AddDisposable(new FileStream(
                 filePath,
                 FileMode.Open,
                 FileAccess.Read,
-                FileShare.Read);
+                FileShare.Read));
 
             Read();
         }
@@ -116,11 +116,6 @@ namespace OpenSage.FileFormats.Big
 
             _entriesDictionary.TryGetValue(entryName, out var result);
             return result;
-        }
-
-        public void Dispose()
-        {
-            _stream.Dispose();
         }
     }
 
