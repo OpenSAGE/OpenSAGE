@@ -39,6 +39,7 @@ namespace OpenSage.Data.Ini
             { "supplyPosition", (parser, x) => x.SupplyPositions.Add(parser.ParseVector3()) },
             { "isScenarioMP", (parser, x) => x.IsScenarioMP = parser.ParseBoolean() },
             { "description", (parser, x) => x.Description = parser.ParseUnicodeString() },
+            { "PlayerPosition", (parser, x) => x.PlayerPositions.Add(PlayerPosition.Parse(parser)) },
         };
 
         public string Name { get; private set; }
@@ -75,9 +76,12 @@ namespace OpenSage.Data.Ini
         public List<Vector3> TechPositions { get; } = new List<Vector3>();
         public List<Vector3> SupplyPositions { get; } = new List<Vector3>();
 
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public List<PlayerPosition> PlayerPositions { get; } = new List<PlayerPosition>();
+
         public string GetNameKey()
         {
-            string result = "Unnamed";
+            var result = "Unnamed";
 
             if (NameLookupTag != null)
             {
@@ -89,6 +93,32 @@ namespace OpenSage.Data.Ini
             }
 
             return result;
+        }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public class PlayerPosition
+        {
+            internal static PlayerPosition Parse(IniParser parser)
+            {
+                return parser.ParseTopLevelIndexedBlock(
+                    (x, id) => x.ID = id,
+                    FieldParseTable);
+            }
+
+            private static readonly IniParseTable<PlayerPosition> FieldParseTable = new IniParseTable<PlayerPosition>
+            {
+                { "Human", (parser, x) => x.Human = parser.ParseBoolean() },
+                { "Computer", (parser, x) => x.Computer = parser.ParseBoolean() },
+                { "LoadAIScripts", (parser, x) => x.LoadAIScripts = parser.ParseBoolean() },
+                { "ForcePlayerTeam", (parser, x) => x.ForcePlayerTeam = parser.ParseInteger() },
+            };
+
+            public int ID { get; private set; }
+
+            public bool Human { get; private set; }
+            public bool Computer { get; private set; }
+            public bool LoadAIScripts { get; private set; }
+            public int ForcePlayerTeam { get; private set; }
         }
     }
 }

@@ -23,18 +23,16 @@ namespace OpenSage.Tests.Data.Ini
             // TODO: Finish INI parsing for BFME2 and subsequent games.
             var gameDefinitions = new[]
             {
-                GameDefinition.FromGame(SageGame.CncGenerals),
-                GameDefinition.FromGame(SageGame.CncGeneralsZeroHour),
-                GameDefinition.FromGame(SageGame.Bfme),
+                //GameDefinition.FromGame(SageGame.CncGenerals),
+                //GameDefinition.FromGame(SageGame.CncGeneralsZeroHour),
+                //GameDefinition.FromGame(SageGame.Bfme),
                 GameDefinition.FromGame(SageGame.Bfme2),
                 GameDefinition.FromGame(SageGame.Bfme2Rotwk),
             };
 
             foreach(var gameDefinition in gameDefinitions)
             {
-                var rootDirectories = InstallationLocators.FindAllInstallations(gameDefinition)
-                .Select(i => i.Path)
-                .ToList();
+                var rootDirectories = InstallationLocators.FindAllInstallations(gameDefinition).Select(i => i.Path).ToList();
 
                 foreach (var rootDirectory in rootDirectories)
                 {
@@ -50,7 +48,6 @@ namespace OpenSage.Tests.Data.Ini
                                 dataContext.LoadIniFile(@"Data\INI\GameData.ini");
                                 break;
                         }
-                        
 
                         foreach (var file in fileSystem.Files)
                         {
@@ -68,19 +65,38 @@ namespace OpenSage.Tests.Data.Ini
                                 case "commandmapdebug.ini": // Only applies to DEBUG and INTERNAL builds
                                 case "fxparticlesystemcustom.ini": // Don't know if this is used, it uses Emitter property not used elsewhere
                                 case "lightpoints.ini": // Don't know if this is used.
-                                    continue;
 
+                                //added in BFME and subsequent games
                                 case "optionregistry.ini": // Don't know if this is used
                                 case "localization.ini": // Don't know if we need this
-                                    switch(gameDefinition.Game)
-                                    {
-                                        case SageGame.Bfme:
-                                        case SageGame.Bfme2:
-                                        case SageGame.Bfme2Rotwk:
-                                            continue;
-                                    }
+                                    continue;
+
+                                case "credits.ini":
+                                    if(gameDefinition.Game == SageGame.Bfme2Rotwk)//corrupted in rotwk
+                                        continue;
+                                    break;
+
+                                //mods specific
+
+                                //edain mod
+                                case "einstellungen.ini":
+                                case "einstellungendeakt.ini":
+                                case "einstellungenedain.ini":
+                                case "news.ini":
+                                    continue;
+
+                                //unofficial patch 2.02
+                                case "desktop.ini": //got into a big file somehow
+                                case "2.01.ini":
+                                case "disable timer.ini":
+                                case "enable timer.ini":
+                                case "old music.ini":
+                                    continue;
+                                default:
+                                    if (filename.StartsWith("2.02")) { continue; }
                                     break;
                             }
+
 
                             //TODO: parse these files
                             switch (gameDefinition.Game)
@@ -100,8 +116,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "strategichud.ini":
                                         case "firelogicsystem.ini":
 
-                                        case "livingworldaitemplate.ini":
-                                        case "livingworldautoresolvearmor.ini":
                                         case "livingworldautoresolvebody.ini":
                                         case "livingworldautoresolvecombatchain.ini":
                                         case "livingworldautoresolvehandicaps.ini":
@@ -118,15 +132,13 @@ namespace OpenSage.Tests.Data.Ini
                                             continue;
                                     }
                                     break;
+
                                 case SageGame.Bfme2Rotwk:
                                     switch (filename)
                                     {
-                                        case "awardsystem.ini":
                                         case "riskcampaign.ini":
                                         case "commandset.ini": //problem
-                                        case "crate.ini":
                                         case "createaherosystem.ini":
-                                        case "credits.ini":
                                         case "skirmishaidata.ini":
                                         case "firelogicsystem.ini":
                                         case "formationassistant.ini":
@@ -137,7 +149,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "scoredkillevaannouncer.ini":
                                         case "strategichud.ini":
 
-                                        case "livingworld.ini":
                                         case "livingworldaitemplate.ini":
                                         case "livingworldautoresolvearmor.ini":
                                         case "livingworldautoresolvebody.ini":
@@ -153,14 +164,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "livingworldbuildploticons.ini":
                                         case "livingworldplayers.ini":
                                         case "livingworldregioneffects.ini":
-                                        case "angmaricons.ini":
-                                        case "arnoricons.ini":
-                                        case "dwarficons.ini":
-                                        case "elficons.ini":
-                                        case "isengardicons.ini":
-                                        case "mordoricons.ini":
-                                        case "mowicons.ini":
-                                        case "wildicons.ini":
                                             continue;
                                     }
                                     break;

@@ -1,4 +1,5 @@
-﻿using OpenSage.Data.Ini.Parser;
+﻿using OpenSage.Data.Ini;
+using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Logic.Object
 {
@@ -26,7 +27,8 @@ namespace OpenSage.Logic.Object
             { "MaxShots", (parser, x) => x.MaxShots = parser.ParseInteger() },
             { "ParalyzeDurationWhenAborted", (parser, x) => x.ParalyzeDurationWhenAborted = parser.ParseInteger() },
             { "ParalyzeDurationWhenCompleted", (parser, x) => x.ParalyzeDurationWhenCompleted = parser.ParseInteger() },
-            { "CanShootEmptyGround", (parser, x) => x.CanShootEmptyGround = parser.ParseBoolean() }
+            { "CanShootEmptyGround", (parser, x) => x.CanShootEmptyGround = parser.ParseBoolean() },
+            { "RequiredConditions", (parser, x) => x.RequiredConditions = parser.ParseEnumBitArray<ModelConditionFlag>() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -49,5 +51,8 @@ namespace OpenSage.Logic.Object
         public int ParalyzeDurationWhenAborted { get; private set; }
         public int ParalyzeDurationWhenCompleted { get; private set; }
         public bool CanShootEmptyGround { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public BitArray<ModelConditionFlag> RequiredConditions { get; private set; }
     }
 }

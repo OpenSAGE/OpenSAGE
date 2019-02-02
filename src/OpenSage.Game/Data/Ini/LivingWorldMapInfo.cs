@@ -112,6 +112,8 @@ namespace OpenSage.Data.Ini
             { "DefaultArmyMoveSpeed", (parser, x) => x.DefaultArmyMoveSpeed = parser.ParseFloat() },
             { "HeroArmyIconDiameter", (parser, x) => x.HeroArmyIconDiameter = parser.ParseFloat() },
             { "RegionAwardDisputeMarker", (parser, x) => x.RegionAwardDisputeMarker = parser.ParseAssetReference() },
+            { "AngmarBanner", (parser, x) => x.AngmarBanner = parser.ParseAssetReference() },
+            { "AngmarAnts", (parser, x) => x.AngmarAnts = parser.ParseAssetReference() },
         };
 
         public string MapObject { get; private set; }
@@ -278,6 +280,12 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public string RegionAwardDisputeMarker { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public string AngmarBanner { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public string AngmarAnts { get; private set; }
     }
 
     public sealed class EyeTower

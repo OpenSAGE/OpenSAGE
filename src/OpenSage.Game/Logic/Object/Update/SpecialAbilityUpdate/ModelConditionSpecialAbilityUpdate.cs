@@ -25,7 +25,8 @@ namespace OpenSage.Logic.Object
             { "TriggerSound", (parser, x) => x.TriggerSound = parser.ParseAssetReference() },
             { "MustFinishAbility", (parser, x) => x.MustFinishAbility = parser.ParseBoolean() },
             { "LoseStealthOnTrigger", (parser, x) => x.LoseStealthOnTrigger = parser.ParseBoolean() },
-            { "PreTriggerUnstealthTime", (parser, x) => x.PreTriggerUnstealthTime = parser.ParseInteger() }
+            { "PreTriggerUnstealthTime", (parser, x) => x.PreTriggerUnstealthTime = parser.ParseInteger() },
+            { "GenerateUncontrollableFear", (parser, x) => x.GenerateUncontrollableFear = parser.ParseBoolean() }
         };
 
         public string SpecialPowerTemplate { get; private set; }
@@ -54,5 +55,8 @@ namespace OpenSage.Logic.Object
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public int PreTriggerUnstealthTime { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool GenerateUncontrollableFear { get; private set; }
     }
 }

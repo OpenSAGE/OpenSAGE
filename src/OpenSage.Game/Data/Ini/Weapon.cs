@@ -922,6 +922,7 @@ namespace OpenSage.Data.Ini
             { "DamageArc", (parser, x) => x.DamageArc = parser.ParseInteger() },
             { "DrainLife", (parser, x) => x.DrainLife = parser.ParseBoolean() },
             { "DrainLifeMultiplier", (parser, x) => x.DrainLifeMultiplier = parser.ParseFloat() },
+            { "DamageMaxHeightAboveTerrain", (parser, x) => x.DamageMaxHeightAboveTerrain = parser.ParseInteger() }
         };
 
         public bool AcceptDamageAdd { get; private set; }
@@ -949,6 +950,9 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2Rotwk)]
         public float DrainLifeMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int DamageMaxHeightAboveTerrain { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme2)]

@@ -280,7 +280,7 @@ namespace OpenSage.Data.Ini
             { "BuffTrollTemplate", (parser, x) => x.BuffTrollTemplate = parser.ParseAssetReference() },
             { "BuffOrcTemplate", (parser, x) => x.BuffOrcTemplate = parser.ParseAssetReference() },
             { "IsComplexBuff", (parser, x) => x.IsComplexBuff = parser.ParseBoolean() },
-            { "BuffLifeTime", (parser, x) => x.BuffLifeTime = parser.ParseUnsignedInteger() },
+            { "BuffLifeTime", (parser, x) => x.BuffLifeTime = parser.ParseLong() },
             { "Extrusion", (parser, x) => x.Extrusion = parser.ParseFloat() },
             { "Color", (parser, x) => x.Color = IniColorRgb.Parse(parser) },
             { "BuffShipTemplate", (parser, x) => x.BuffShipTemplate = parser.ParseAssetReference() },
@@ -294,7 +294,7 @@ namespace OpenSage.Data.Ini
         public string BuffTrollTemplate { get; private set; }
         public string BuffOrcTemplate { get; private set; }
         public bool IsComplexBuff { get; private set; }
-        public uint BuffLifeTime { get; private set; }
+        public long BuffLifeTime { get; private set; }
         public float Extrusion { get; private set; }
         public IniColorRgb Color { get; private set; }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Logic.Object;
 
 namespace OpenSage.Data.Ini
 {
@@ -36,10 +37,14 @@ namespace OpenSage.Data.Ini
         private static readonly IniParseTable<Stance> FieldParseTable = new IniParseTable<Stance>
         {
             { "AttributeModifier", (parser, x) => x.AttributeModifier = AttributeModifier.Parse(parser) },
+            { "MeleeBehavior", (parser, x) => x.MeleeBehavior = MeleeBehavior.Parse(parser) },
         };
 
         public string Name { get; private set; }
         public AttributeModifier AttributeModifier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public MeleeBehavior MeleeBehavior { get; private set; }
     }
 
     public sealed class AttributeModifier

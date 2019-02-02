@@ -18,7 +18,8 @@ namespace OpenSage.Logic.Object
             { "EmotionPulseRadius", (parser, x) => x.EmotionPulseRadius = parser.ParseFloat() },
             { "EmotionPulseInterval", (parser, x) => x.EmotionPulseInterval = parser.ParseInteger() },
             { "VictimFilter", (parser, x) => x.VictimFilter = ObjectFilter.Parse(parser) },
-            { "GenerateUncontrollableFear", (parser, x) => x.GenerateUncontrollableFear = parser.ParseBoolean() }
+            { "GenerateUncontrollableFear", (parser, x) => x.GenerateUncontrollableFear = parser.ParseBoolean() },
+            { "RequiresAllTriggers", (parser, x) => x.RequiresAllTriggers = parser.ParseBoolean() }
         };
         
         public bool InitiallyActive { get; private set; }
@@ -30,5 +31,8 @@ namespace OpenSage.Logic.Object
         public int EmotionPulseInterval { get; private set; }
         public ObjectFilter VictimFilter { get; private set; }
         public bool GenerateUncontrollableFear { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public bool RequiresAllTriggers { get; private set; }
     }
 }

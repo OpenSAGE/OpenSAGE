@@ -30,6 +30,9 @@ namespace OpenSage.Data.Ini
         public AudioSettings AudioSettings { get; internal set; }
 
         [AddedIn(SageGame.Bfme2)]
+        public List<AutoResolveArmor> AutoResolveArmors { get; } = new List<AutoResolveArmor>();
+
+        [AddedIn(SageGame.Bfme2)]
         public AwardSystem AwardSystem { get; internal set; }
 
         public List<BannerType> BannerTypes { get; } = new List<BannerType>();
@@ -69,6 +72,10 @@ namespace OpenSage.Data.Ini
         public InGameUI InGameUI { get; internal set; }
         public Language Language { get; internal set; }
         public List<LargeGroupAudioMap> LargeGroupAudioMaps { get; } = new List<LargeGroupAudioMap>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public LivingWorldAiTemplate LivingWorldAiTemplate { get; internal set; }
+
         public LargeGroupAudioUnusedKnownKeys LargeGroupAudioUnusedKnownKeys { get; internal set; }
         public List<LivingWorldCampaign> LivingWorldCampaigns { get; } = new List<LivingWorldCampaign>();
 
