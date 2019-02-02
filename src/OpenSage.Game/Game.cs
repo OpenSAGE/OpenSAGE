@@ -352,7 +352,8 @@ namespace OpenSage
 
         public void ShowMainMenu()
         {
-            if (Configuration.LoadShellMap)
+            var useShellMap = Configuration.LoadShellMap;
+            if (useShellMap)
             {
                 var shellMapName = ContentManager.IniDataContext.GameData.ShellMapName;
                 var mainMenuScene = ContentManager.Load<Scene3D>(shellMapName);
@@ -360,7 +361,7 @@ namespace OpenSage
                 Scripting.Active = true;
             }
 
-            Definition.MainMenu.AddToScene(ContentManager, Scene2D);
+            Definition.MainMenu.AddToScene(ContentManager, Scene2D, useShellMap);
         }
 
         private void StartGame(

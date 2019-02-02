@@ -1,5 +1,4 @@
 ﻿using OpenSage.Content;
-using Veldrid;
 
 namespace OpenSage.Gui.Apt
 {
@@ -14,10 +13,13 @@ namespace OpenSage.Gui.Apt
             _fallbackShell = "ShellMapLowLOD";
         }
 
-        public void AddToScene(ContentManager contentManager, Scene2D scene)
+        public void AddToScene(ContentManager contentManager, Scene2D scene, bool useShellMap)
         {
             var aptWindow = contentManager.Load<AptWindow>(_aptFileName);
-            aptWindow.BackgroundImage = aptWindow.ImageLoader.GetMappedImage(_fallbackShell);
+            if (!useShellMap)
+            {
+                aptWindow.BackgroundImage = aptWindow.ImageLoader.GetMappedImage(_fallbackShell);
+            }
             scene.AptWindowManager.PushWindow(aptWindow);
         }
     }
