@@ -3,6 +3,7 @@ using OpenSage.Data.Ini.Parser;
 
 namespace OpenSage.Data.Ini
 {
+    [AddedIn(SageGame.Bfme2)]
     public sealed class AutoResolveArmor
     {
         internal static AutoResolveArmor Parse(IniParser parser)
@@ -62,5 +63,11 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("AutoResolveUnit_Fortress")]
         Fortress,
+
+        [IniEnum("AutoResolveUnit_Siege"), AddedIn(SageGame.Bfme2Rotwk)]
+        Siege,
+
+        [IniEnum("AutoResolveUnit_Support"), AddedIn(SageGame.Bfme2Rotwk)]
+        Support,
     }
 }

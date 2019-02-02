@@ -33,6 +33,9 @@ namespace OpenSage.Data.Ini
         public List<AutoResolveArmor> AutoResolveArmors { get; } = new List<AutoResolveArmor>();
 
         [AddedIn(SageGame.Bfme2)]
+        public List<AutoResolveBody> AutoResolveBodies { get; } = new List<AutoResolveBody>();
+
+        [AddedIn(SageGame.Bfme2)]
         public AwardSystem AwardSystem { get; internal set; }
 
         public List<BannerType> BannerTypes { get; } = new List<BannerType>();
@@ -69,6 +72,10 @@ namespace OpenSage.Data.Ini
         public GameData GameData { get; internal set; }
         public List<HeaderTemplate> HeaderTemplates { get; } = new List<HeaderTemplate>();
         public List<HouseColor> HouseColors { get; } = new List<HouseColor>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public InGameNotificationBox InGameNotificationBox { get; internal set; }
+
         public InGameUI InGameUI { get; internal set; }
         public Language Language { get; internal set; }
         public List<LargeGroupAudioMap> LargeGroupAudioMaps { get; } = new List<LargeGroupAudioMap>();
