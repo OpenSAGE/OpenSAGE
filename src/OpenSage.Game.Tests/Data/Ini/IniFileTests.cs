@@ -73,7 +73,9 @@ namespace OpenSage.Tests.Data.Ini
 
                                 case "credits.ini":
                                     if(gameDefinition.Game == SageGame.Bfme2Rotwk)//corrupted in rotwk
+                                    {
                                         continue;
+                                    }
                                     break;
 
                                 //mods specific
@@ -116,7 +118,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "strategichud.ini":
                                         case "firelogicsystem.ini":
 
-                                        case "livingworldautoresolvebody.ini":
                                         case "livingworldautoresolvecombatchain.ini":
                                         case "livingworldautoresolvehandicaps.ini":
                                         case "livingworldautoresolveleadership.ini":
@@ -142,7 +143,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "skirmishaidata.ini":
                                         case "firelogicsystem.ini":
                                         case "formationassistant.ini":
-                                        case "ingamenotificationbox.ini":
                                         case "linearcampaign.ini":
                                         case "linearcampaignexpansion1.ini":
                                         case "meshinstancingmanager.ini":
@@ -150,8 +150,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "strategichud.ini":
 
                                         case "livingworldaitemplate.ini":
-                                        case "livingworldautoresolvearmor.ini":
-                                        case "livingworldautoresolvebody.ini":
                                         case "livingworldautoresolvecombatchain.ini":
                                         case "livingworldautoresolvehandicaps.ini":
                                         case "livingworldautoresolveleadership.ini":
