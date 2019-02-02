@@ -36,6 +36,9 @@ namespace OpenSage.Data.Ini
         public List<AutoResolveBody> AutoResolveBodies { get; } = new List<AutoResolveBody>();
 
         [AddedIn(SageGame.Bfme2)]
+        public List<AutoResolveCombatChain> AutoResolveCombatChains { get; } = new List<AutoResolveCombatChain>();
+
+        [AddedIn(SageGame.Bfme2)]
         public AwardSystem AwardSystem { get; internal set; }
 
         public List<BannerType> BannerTypes { get; } = new List<BannerType>();

@@ -118,7 +118,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "strategichud.ini":
                                         case "firelogicsystem.ini":
 
-                                        case "livingworldautoresolvecombatchain.ini":
                                         case "livingworldautoresolvehandicaps.ini":
                                         case "livingworldautoresolveleadership.ini":
                                         case "livingworldautoresolvereinforcementschedule.ini":
@@ -149,8 +148,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "scoredkillevaannouncer.ini":
                                         case "strategichud.ini":
 
-                                        case "livingworldaitemplate.ini":
-                                        case "livingworldautoresolvecombatchain.ini":
                                         case "livingworldautoresolvehandicaps.ini":
                                         case "livingworldautoresolveleadership.ini":
                                         case "livingworldautoresolvereinforcementschedule.ini":

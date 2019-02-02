@@ -23,6 +23,8 @@ namespace OpenSage.Data.Ini
             { "DesiredMonsterRatio", (parser, x) => x.DesiredMonsterRatio = parser.ParseInteger() },
             { "DesiredHeroRatio", (parser, x) => x.DesiredHeroRatio = parser.ParseInteger() },
             { "DesiredFortressRatio", (parser, x) => x.DesiredFortressRatio = parser.ParseInteger() },
+            { "DesiredSiegeRatio", (parser, x) => x.DesiredSiegeRatio = parser.ParseInteger() },
+            { "DesiredSupportRatio", (parser, x) => x.DesiredSupportRatio = parser.ParseInteger() },
 
             { "BuildingScoreArmory", (parser, x) => x.BuildingScoreArmory = parser.ParseInteger() },
             { "BuildingScoreBarracks", (parser, x) => x.BuildingScoreBarracks = parser.ParseInteger() },
@@ -35,6 +37,7 @@ namespace OpenSage.Data.Ini
             { "BonusPreferenceAttack", (parser, x) => x.BonusPreferenceAttack = parser.ParseInteger() },
             { "BonusPreferenceDefense", (parser, x) => x.BonusPreferenceDefense = parser.ParseInteger() },
             { "BonusPreferenceExperience", (parser, x) => x.BonusPreferenceExperience = parser.ParseInteger() },
+            { "BonusPreferenceTreasury", (parser, x) => x.BonusPreferenceTreasury = parser.ParseInteger() },
         };
 
         public string Name { get; private set; }
@@ -47,6 +50,12 @@ namespace OpenSage.Data.Ini
         public int DesiredHeroRatio { get; private set; }
         public int DesiredFortressRatio { get; private set; }
 
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int DesiredSiegeRatio { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int DesiredSupportRatio { get; private set; }
+
         public int BuildingScoreArmory { get; private set; }
         public int BuildingScoreBarracks { get; private set; }
         public int BuildingScoreCastle { get; private set; }
@@ -58,5 +67,8 @@ namespace OpenSage.Data.Ini
         public int BonusPreferenceAttack { get; private set; }
         public int BonusPreferenceDefense { get; private set; }
         public int BonusPreferenceExperience { get; private set; }
+
+        [AddedIn(SageGame.Bfme2Rotwk)]
+        public int BonusPreferenceTreasury { get; private set; }
     }
 }
