@@ -32,6 +32,7 @@ namespace OpenSage.Data.Ini.Parser
             { "AudioSettings", (parser, context) => context.AudioSettings = AudioSettings.Parse(parser) },
             { "AutoResolveArmor", (parser, context) => context.AutoResolveArmors.Add(AutoResolveArmor.Parse(parser)) },
             { "AutoResolveBody", (parser, context) => context.AutoResolveBodies.Add(AutoResolveBody.Parse(parser)) },
+            { "AutoResolveCombatChain", (parser, context) => context.AutoResolveCombatChains.Add(AutoResolveCombatChain.Parse(parser)) },
             { "AwardSystem", (parser, context) => context.AwardSystem = AwardSystem.Parse(parser) },
             { "BannerType", (parser, context) => context.BannerTypes.Add(BannerType.Parse(parser)) },
             { "BannerUI", (parser, context) => context.BannerUI = BannerUI.Parse(parser) },
