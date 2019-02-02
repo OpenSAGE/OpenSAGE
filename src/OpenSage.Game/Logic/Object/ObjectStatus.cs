@@ -96,5 +96,8 @@ namespace OpenSage.Logic.Object
 
         [IniEnum("NO_HERO_PROPERTIES"), AddedIn(SageGame.Bfme2Rotwk)]
         NoHeroProperties,
+
+        [IniEnum("HOLDING_THE_SHARD"), AddedIn(SageGame.Bfme2Rotwk)]
+        HoldingTheShard,
     }
 }

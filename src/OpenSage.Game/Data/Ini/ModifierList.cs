@@ -140,6 +140,9 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("INNATE_DAMAGEMULT"), AddedIn(SageGame.Bfme2Rotwk)]
         InnateDamagemult,
+
+        [IniEnum("STUN"), AddedIn(SageGame.Bfme2Rotwk)]
+        Stun,
     }
 
     [AddedIn(SageGame.Bfme)]
