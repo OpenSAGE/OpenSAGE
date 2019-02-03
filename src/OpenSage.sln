@@ -46,7 +46,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats.Big", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.Core", "OpenSage.Core\OpenSage.Core.csproj", "{5767CC8D-AD47-472E-B263-87D77964DC85}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats.RefPack", "OpenSage.FileFormats.Refpack\OpenSage.FileFormats.RefPack.csproj", "{4CB6428E-9600-469D-B6F3-CBD765D0D257}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenSage.FileFormats.RefPack", "OpenSage.FileFormats.RefPack\OpenSage.FileFormats.RefPack.csproj", "{4CB6428E-9600-469D-B6F3-CBD765D0D257}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
