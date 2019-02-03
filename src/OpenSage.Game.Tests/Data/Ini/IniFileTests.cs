@@ -109,11 +109,9 @@ namespace OpenSage.Tests.Data.Ini
                                         case "ingamenotificationbox.ini":
                                         case "meshinstancingmanager.ini":
                                         case "commandset.ini": //problem
-                                        case "riskcampaign.ini":
-                                        case "createaherosystem.ini":
-                                        case "skirmishaidata.ini":
+                                        case "riskcampaign.ini": //complex
+                                        case "createaherosystem.ini": //complex
                                         case "formationassistant.ini":
-                                        case "linearcampaign.ini":
                                         case "scoredkillevaannouncer.ini":
                                         case "strategichud.ini":
                                         case "firelogicsystem.ini":
@@ -139,10 +137,8 @@ namespace OpenSage.Tests.Data.Ini
                                         case "riskcampaign.ini":
                                         case "commandset.ini": //problem
                                         case "createaherosystem.ini":
-                                        case "skirmishaidata.ini":
                                         case "firelogicsystem.ini":
                                         case "formationassistant.ini":
-                                        case "linearcampaign.ini":
                                         case "linearcampaignexpansion1.ini":
                                         case "meshinstancingmanager.ini":
                                         case "scoredkillevaannouncer.ini":

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Text;
-using OpenSage.Data.Utilities;
 using OpenSage.FileFormats;
 using OpenSage.Logic.Object;
 using OpenSage.Mathematics;
@@ -14,6 +13,7 @@ namespace OpenSage.Data.Ini.Parser
     {
         private static readonly Dictionary<string, Action<IniParser, IniDataContext>> BlockParsers = new Dictionary<string, Action<IniParser, IniDataContext>>
         {
+            { "AIBase", (parser, context) => context.AIBases.Add(AIBase.Parse(parser)) },
             { "AIData", (parser, context) => context.AIData = AIData.Parse(parser) },
             { "AmbientStream", (parser, context) => context.AmbientStreams.Add(AmbientStream.Parse(parser)) },
             { "Animation", (parser, context) => context.Animations.Add(Animation.Parse(parser)) },
@@ -84,6 +84,7 @@ namespace OpenSage.Data.Ini.Parser
             { "InGameUI", (parser, context) => context.InGameUI = InGameUI.Parse(parser) },
             { "Language", (parser, context) => context.Language = Language.Parse(parser) },
             { "LargeGroupAudioMap", (parser, context) => context.LargeGroupAudioMaps.Add(LargeGroupAudioMap.Parse(parser)) },
+            { "LinearCampaign", (parser, context) => context.LinearCampaign = LinearCampaign.Parse(parser) },
             { "LivingWorldAITemplate", (parser, context) => context.LivingWorldAiTemplate = LivingWorldAiTemplate.Parse(parser) },
             { "LivingWorldAnimObject", (parser, context) => context.LivingWorldAnimObjects.Add(LivingWorldAnimObject.Parse(parser)) },
             { "LivingWorldArmyIcon", (parser, context) => context.LivingWorldArmyIcons.Add(LivingWorldArmyIcon.Parse(parser)) },
