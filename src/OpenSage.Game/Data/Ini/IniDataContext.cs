@@ -19,6 +19,10 @@ namespace OpenSage.Data.Ini
         public List<AIBase> AIBases { get; } = new List<AIBase>();
 
         public AIData AIData { get; internal set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<AIDozerAssignment> AIDozerAssignments { get; } = new List<AIDozerAssignment>();
+
         public List<AmbientStream> AmbientStreams { get; } = new List<AmbientStream>();
         public List<Animation> Animations { get; } = new List<Animation>();
         public AnimationSoundClientBehaviorGlobalSetting AnimationSoundClientBehaviorGlobalSetting { get; internal set; }
@@ -27,6 +31,10 @@ namespace OpenSage.Data.Ini
         public AptButtonTooltipMap AptButtonTooltipMap { get; internal set;  }
 
         public List<Armor> Armors { get; } = new List<Armor>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<ArmyDefinition> ArmyDefinitions { get; } = new List<ArmyDefinition>();
+
         public Dictionary<string, AudioEvent> AudioEvents { get; } = new Dictionary<string, AudioEvent>();
         public List<AudioLod> AudioLods { get; } = new List<AudioLod>();
         public int AudioLowMHz { get; internal set; }

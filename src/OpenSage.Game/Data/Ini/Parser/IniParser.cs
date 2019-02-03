@@ -15,11 +15,13 @@ namespace OpenSage.Data.Ini.Parser
         {
             { "AIBase", (parser, context) => context.AIBases.Add(AIBase.Parse(parser)) },
             { "AIData", (parser, context) => context.AIData = AIData.Parse(parser) },
+            { "AIDozerAssignment", (parser, context) => context.AIDozerAssignments.Add(AIDozerAssignment.Parse(parser)) },
             { "AmbientStream", (parser, context) => context.AmbientStreams.Add(AmbientStream.Parse(parser)) },
             { "Animation", (parser, context) => context.Animations.Add(Animation.Parse(parser)) },
             { "AnimationSoundClientBehaviorGlobalSetting", (parser, context) => context.AnimationSoundClientBehaviorGlobalSetting = AnimationSoundClientBehaviorGlobalSetting.Parse(parser) },
             { "AptButtonTooltipMap", (parser, context) => context.AptButtonTooltipMap = AptButtonTooltipMap.Parse(parser) },
             { "Armor", (parser, context) => context.Armors.Add(Armor.Parse(parser)) },
+            { "ArmyDefinition", (parser, context) => context.ArmyDefinitions.Add(ArmyDefinition.Parse(parser)) },
             { "ArmySummaryDescription", (parser, x) => x.ArmySummaryDescription = ArmySummaryDescription.Parse(parser) },
             { "AudioEvent", (parser, context) =>
                 {

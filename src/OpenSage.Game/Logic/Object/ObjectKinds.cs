@@ -790,5 +790,8 @@
 
         [IniEnum("OATHBREAKER"), AddedIn(SageGame.Bfme2)]
         Oathbreaker,
+
+        [IniEnum("SHIP_TRANSPORT"), AddedIn(SageGame.Bfme2)]
+        ShipTransport,
     }
 }
