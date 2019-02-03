@@ -15,6 +15,9 @@ namespace OpenSage.Data.Ini
         // TODO: Remove this once we can load all INI files upfront.
         private readonly List<string> _alreadyLoaded = new List<string>();
 
+        [AddedIn(SageGame.Bfme2)]
+        public List<AIBase> AIBases { get; } = new List<AIBase>();
+
         public AIData AIData { get; internal set; }
         public List<AmbientStream> AmbientStreams { get; } = new List<AmbientStream>();
         public List<Animation> Animations { get; } = new List<Animation>();
@@ -82,6 +85,9 @@ namespace OpenSage.Data.Ini
         public InGameUI InGameUI { get; internal set; }
         public Language Language { get; internal set; }
         public List<LargeGroupAudioMap> LargeGroupAudioMaps { get; } = new List<LargeGroupAudioMap>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public LinearCampaign LinearCampaign { get; internal set; }
 
         [AddedIn(SageGame.Bfme2)]
         public LivingWorldAiTemplate LivingWorldAiTemplate { get; internal set; }
