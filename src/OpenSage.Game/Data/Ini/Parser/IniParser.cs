@@ -90,6 +90,7 @@ namespace OpenSage.Data.Ini.Parser
             { "LivingWorldAITemplate", (parser, context) => context.LivingWorldAiTemplate = LivingWorldAiTemplate.Parse(parser) },
             { "LivingWorldAnimObject", (parser, context) => context.LivingWorldAnimObjects.Add(LivingWorldAnimObject.Parse(parser)) },
             { "LivingWorldArmyIcon", (parser, context) => context.LivingWorldArmyIcons.Add(LivingWorldArmyIcon.Parse(parser)) },
+            { "LivingWorldBuildingIcon", (parser, context) => context.LivingWorldBuildingIcons.Add(LivingWorldBuildingIcon.Parse(parser)) },
             { "LargeGroupAudioUnusedKnownKeys", (parser, context) => context.LargeGroupAudioUnusedKnownKeys = LargeGroupAudioUnusedKnownKeys.Parse(parser) },
             { "LivingWorldCampaign", (parser, context) => context.LivingWorldCampaigns.Add(LivingWorldCampaign.Parse(parser)) },
             { "LivingWorldMapInfo", (parser, context) => context.LivingWorldMapInfo = LivingWorldMapInfo.Parse(parser) },
