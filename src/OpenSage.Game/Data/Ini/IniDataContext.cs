@@ -50,6 +50,9 @@ namespace OpenSage.Data.Ini
         public List<AutoResolveCombatChain> AutoResolveCombatChains { get; } = new List<AutoResolveCombatChain>();
 
         [AddedIn(SageGame.Bfme2)]
+        public List<AutoResolveWeapon> AutoResolveWeapons { get; } = new List<AutoResolveWeapon>();
+
+        [AddedIn(SageGame.Bfme2)]
         public AwardSystem AwardSystem { get; internal set; }
 
         public List<BannerType> BannerTypes { get; } = new List<BannerType>();
@@ -136,6 +139,10 @@ namespace OpenSage.Data.Ini
         public List<LodPreset> LodPresets { get; } = new List<LodPreset>();
         public List<MapCache> MapCaches { get; } = new List<MapCache>();
         public List<MappedImage> MappedImages { get; } = new List<MappedImage>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<MeshNameMatches> MeshNameMatches { get; } = new List<MeshNameMatches>();
+
         public MiscAudio MiscAudio { get; internal set; }
         public MiscEvaData MiscEvaData { get; internal set; }
 
@@ -169,6 +176,10 @@ namespace OpenSage.Data.Ini
         public List<RoadTemplate> RoadTemplates { get; } = new List<RoadTemplate>();
         public int ReallyLowMHz { get; internal set; }
         public List<Science> Sciences { get; } = new List<Science>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<ScoredKillEvaAnnouncer> ScoredKillEvaAnnouncers { get; } = new List<ScoredKillEvaAnnouncer>();
+
         public List<ShellMenuScheme> ShellMenuSchemes { get; } = new List<ShellMenuScheme>();
 
         [AddedIn(SageGame.Bfme2)]

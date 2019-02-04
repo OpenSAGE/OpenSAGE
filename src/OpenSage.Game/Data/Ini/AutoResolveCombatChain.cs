@@ -34,7 +34,6 @@ namespace OpenSage.Data.Ini
             };
         }
 
-        //Target = Target:AutoResolveUnit_Soldier Priority:50
         public string Target { get; private set; }
         public int Priority { get; private set; }
     }
