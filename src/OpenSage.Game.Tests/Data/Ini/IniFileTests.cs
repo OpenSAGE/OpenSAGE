@@ -122,7 +122,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "livingworldautoresolveresourcebonus.ini":
                                         case "livingworldautoresolvesciencepurchasepointbonus.ini":
                                         case "livingworldautoresolveweapon.ini":
-                                        case "livingworldbuildingicons.ini":
                                         case "livingworldbuildings.ini":
                                         case "livingworldbuildploticons.ini":
                                         case "livingworldplayers.ini":
@@ -150,7 +149,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "livingworldautoresolveresourcebonus.ini":
                                         case "livingworldautoresolvesciencepurchasepointbonus.ini":
                                         case "livingworldautoresolveweapon.ini":
-                                        case "livingworldbuildingicons.ini":
                                         case "livingworldbuildings.ini":
                                         case "livingworldbuildploticons.ini":
                                         case "livingworldplayers.ini":

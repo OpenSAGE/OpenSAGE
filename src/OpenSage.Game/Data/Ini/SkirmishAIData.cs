@@ -168,6 +168,7 @@ namespace OpenSage.Data.Ini
 
     public class Probability
     {
+        //represents values of type 1 : 1024 etc.
         internal static Probability Parse(IniParser parser)
         {
             var first = parser.ParseInteger();
@@ -192,5 +193,11 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("NORMAL")]
         Normal,
+
+        [IniEnum("HARD")]
+        Hard,
+
+        [IniEnum("BRUTAL")]
+        Brutal,
     }
 }

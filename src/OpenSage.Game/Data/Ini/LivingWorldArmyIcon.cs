@@ -153,6 +153,9 @@ namespace OpenSage.Data.Ini
     [AddedIn(SageGame.Bfme2)]
     public enum FadeType
     {
+        [IniEnum("NONE")]
+        None,
+
         [IniEnum("IN")]
         In,
 
