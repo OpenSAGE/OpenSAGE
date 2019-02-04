@@ -109,7 +109,7 @@ namespace OpenSage.Diagnostics
             {
                 _shape = shape;
                 _context = new AptContext(map, movieName, contentManager);
-                _renderer = new AptRenderer(contentManager);
+                _renderer = new AptRenderer(null, contentManager);
             }
 
             public void Update(GraphicsDevice gd, in Size windowSize)
@@ -121,8 +121,6 @@ namespace OpenSage.Diagnostics
                     shapeBoundingBox.Size,
                     windowSize,
                     out _scale);
-
-                _renderer.Resize(target.Size);
             }
 
             public void Render(DrawingContext2D drawingContext)

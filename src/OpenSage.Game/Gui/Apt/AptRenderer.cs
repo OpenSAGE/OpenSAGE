@@ -9,7 +9,7 @@ namespace OpenSage.Gui.Apt
 {
     public sealed class AptRenderer
     {
-        private Vector2 _outputSize;
+        public AptWindow Window { get; }
         private readonly ContentManager _contentManager;
 
         private void CalculateTransform(ref ItemTransform transform, AptContext context)
@@ -17,15 +17,16 @@ namespace OpenSage.Gui.Apt
             var movie = (Movie) context.Root.Character;
             var movieSize = new Vector2(movie.ScreenWidth, movie.ScreenHeight);
 
-            var scaling = _outputSize / movieSize;
+            var scaling = Window.GetScaling();
             transform.GeometryRotation.M11 *= scaling.X;
             transform.GeometryRotation.M22 *= scaling.Y;
             transform.GeometryRotation.Translation = transform.GeometryTranslation * scaling;
         }
 
-        public AptRenderer(ContentManager contentManager)
+        public AptRenderer(AptWindow window,ContentManager contentManager)
         {
             _contentManager = contentManager;
+            Window = window;
         }
 
         public void RenderText(DrawingContext2D drawingContext, AptContext context,
@@ -125,12 +126,6 @@ namespace OpenSage.Gui.Apt
                         }
                 }
             }
-        }
-
-        public void Resize(in Size outputSize)
-        {
-            _outputSize.X = outputSize.Width;
-            _outputSize.Y = outputSize.Height;
         }
     }
 }

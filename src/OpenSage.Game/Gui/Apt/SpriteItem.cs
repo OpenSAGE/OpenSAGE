@@ -173,7 +173,7 @@ namespace OpenSage.Gui.Apt
                 case PlaceObject po:
                     //place a new display item
                     if (po.Flags.HasFlag(PlaceObjectFlags.HasCharacter) &&
-                       !po.Flags.HasFlag(PlaceObjectFlags.Move))
+                       !po.Flags.HasFlag(PlaceObjectFlags.Move) && !po.Flags.HasFlag(PlaceObjectFlags.HasClipDepth))
                     {
                         PlaceItem(po);
                     }

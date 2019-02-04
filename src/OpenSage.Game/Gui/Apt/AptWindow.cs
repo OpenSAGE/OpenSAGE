@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using OpenSage.Content;
 using OpenSage.Data.Apt;
+using OpenSage.Data.Apt.Characters;
 using OpenSage.Gui.Apt.ActionScript;
 using OpenSage.Mathematics;
 using Veldrid;
@@ -12,8 +13,9 @@ namespace OpenSage.Gui.Apt
     {
         private readonly AptContext _context;
         private readonly Game _game;
-        private Size _destinationSize;
         private readonly AptCallbackResolver _resolver;
+        private Vector2 _movieSize;
+        private Vector2 _destinationSize;
 
         /// <summary>
         /// The background color of the movie set by the BackgroundColor frameItem
@@ -54,7 +56,10 @@ namespace OpenSage.Gui.Apt
             _context.Root = Root;
             _context.Avm.CommandHandler = HandleCommand;
 
-            Renderer = new AptRenderer(contentManager);
+            var m = Root.Character as Movie;
+            _movieSize = new Vector2(m.ScreenWidth, m.ScreenHeight);
+
+            Renderer = new AptRenderer(this, contentManager);
 
             ImageLoader = new MappedImageLoader(contentManager);
 
@@ -63,13 +68,12 @@ namespace OpenSage.Gui.Apt
 
         internal void Layout(GraphicsDevice gd, in Size windowSize)
         {
-            _destinationSize = windowSize;
-            Renderer.Resize(_destinationSize);
+            _destinationSize = new Vector2(windowSize.Width, windowSize.Height);
         }
 
         internal bool HandleInput(Point2D mousePos, bool mouseDown)
         {
-           return Root.HandleInput(mousePos, mouseDown);
+            return Root.HandleInput(mousePos, mouseDown);
         }
 
         internal void Update(TimeInterval gt, GraphicsDevice gd)
@@ -79,9 +83,14 @@ namespace OpenSage.Gui.Apt
             Root.RunActions(gt);
         }
 
+        internal Vector2 GetScaling()
+        {
+            return _destinationSize / _movieSize;
+        }
+
         internal void Render(DrawingContext2D drawingContext)
         {
-            var fullSizeRect = new Rectangle(Point2D.Zero, _destinationSize);
+            var fullSizeRect = new Rectangle(0, 0, (int) _destinationSize.X, (int) _destinationSize.Y);
 
             if (BackgroundImage != null)
             {
