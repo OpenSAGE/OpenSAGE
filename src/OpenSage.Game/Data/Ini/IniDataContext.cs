@@ -124,6 +124,9 @@ namespace OpenSage.Data.Ini
         public List<LivingWorldArmyIcon> LivingWorldArmyIcons { get; } = new List<LivingWorldArmyIcon>();
 
         [AddedIn(SageGame.Bfme2)]
+        public List<LivingWorldBuilding> LivingWorldBuildings { get; } = new List<LivingWorldBuilding>();
+
+        [AddedIn(SageGame.Bfme2)]
         public List<LivingWorldBuildingIcon> LivingWorldBuildingIcons { get; } = new List<LivingWorldBuildingIcon>();
 
         [AddedIn(SageGame.Bfme2)]
