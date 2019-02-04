@@ -124,7 +124,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "livingworldautoresolveweapon.ini":
                                         case "livingworldbuildings.ini":
                                         case "livingworldbuildploticons.ini":
-                                        case "livingworldplayers.ini":
                                         case "livingworldregioneffects.ini":
                                             continue;
                                     }
@@ -151,7 +150,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "livingworldautoresolveweapon.ini":
                                         case "livingworldbuildings.ini":
                                         case "livingworldbuildploticons.ini":
-                                        case "livingworldplayers.ini":
                                         case "livingworldregioneffects.ini":
                                             continue;
                                     }
