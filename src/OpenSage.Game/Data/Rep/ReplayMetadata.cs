@@ -197,12 +197,12 @@ namespace OpenSage.Data.Rep
     {
         Random = -1,
         Gold = 0,
-        Red,
-        Blue,
-        Green,
-        Orange,
-        Cyan,
-        Purple,
-        Pink
+        Red = 1,
+        Blue = 2,
+        Green = 3,
+        Orange = 4,
+        Cyan = 5,
+        Purple = 6,
+        Pink = 7
     }
 }
