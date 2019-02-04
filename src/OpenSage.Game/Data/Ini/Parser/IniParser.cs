@@ -96,6 +96,7 @@ namespace OpenSage.Data.Ini.Parser
             { "LivingWorldMapInfo", (parser, context) => context.LivingWorldMapInfo = LivingWorldMapInfo.Parse(parser) },
             { "LivingWorldObject", (parser, context) => context.LivingWorldObjects.Add(LivingWorldObject.Parse(parser)) },
             { "LivingWorldPlayerArmy", (parser, context) => context.LivingWorldPlayerArmies.Add(LivingWorldPlayerArmy.Parse(parser)) },
+            { "LivingWorldPlayerTemplate", (parser, context) => context.LivingWorldPlayerTemplates.Add(LivingWorldPlayerTemplate.Parse(parser)) },
             { "LivingWorldRegionCampaign", (parser, context) => context.LivingWorldRegionCampaigns.Add(LivingWorldRegionCampaign.Parse(parser)) },
             { "LivingWorldSound", (parser, context) => context.LivingWorldSounds.Add(LivingWorldSound.Parse(parser)) },
             { "LoadSubsystem", (parser, context) => context.Subsystems.Add(LoadSubsystem.Parse(parser)) },

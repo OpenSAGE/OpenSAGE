@@ -110,6 +110,9 @@ namespace OpenSage.Data.Ini
         public List<LivingWorldObject> LivingWorldObjects { get; } = new List<LivingWorldObject>();
         public List<LivingWorldPlayerArmy> LivingWorldPlayerArmies { get; } = new List<LivingWorldPlayerArmy>();
 
+        [AddedIn(SageGame.Bfme2)]
+        public List<LivingWorldPlayerTemplate> LivingWorldPlayerTemplates { get; } = new List<LivingWorldPlayerTemplate>();
+
         [AddedIn(SageGame.Bfme)]
         public List<LivingWorldArmyIcon> LivingWorldArmyIcons { get; } = new List<LivingWorldArmyIcon>();
 
