@@ -79,6 +79,10 @@ namespace OpenSage.Data.Ini
         public List<ExperienceLevel> ExperienceLevels { get; } = new List<ExperienceLevel>();
         public List<ExperienceScalarTable> ExperienceScalarTables { get; } = new List<ExperienceScalarTable>();
         public List<FactionVictoryData> FactionVictoryDatas { get; } = new List<FactionVictoryData>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public FireLogicSystem FireLogicSystem { get; internal set; }
+
         public List<FontDefaultSetting> FontDefaultSettings { get; } = new List<FontDefaultSetting>();
         public List<FontSubstitution> FontSubstitutions { get; } = new List<FontSubstitution>();
         public List<FXList> FXLists { get; } = new List<FXList>();
@@ -118,6 +122,9 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public List<LivingWorldBuildingIcon> LivingWorldBuildingIcons { get; } = new List<LivingWorldBuildingIcon>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<LivingWorldBuildPlotIcon> LivingWorldBuildPlotIcons { get; } = new List<LivingWorldBuildPlotIcon>();
 
         [AddedIn(SageGame.Bfme)]
         public List<LivingWorldAnimObject> LivingWorldAnimObjects { get; } = new List<LivingWorldAnimObject>();

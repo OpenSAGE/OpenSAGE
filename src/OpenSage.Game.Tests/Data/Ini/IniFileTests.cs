@@ -114,7 +114,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "formationassistant.ini":
                                         case "scoredkillevaannouncer.ini":
                                         case "strategichud.ini":
-                                        case "firelogicsystem.ini":
 
                                         case "livingworldautoresolvehandicaps.ini":
                                         case "livingworldautoresolveleadership.ini":
@@ -123,7 +122,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "livingworldautoresolvesciencepurchasepointbonus.ini":
                                         case "livingworldautoresolveweapon.ini":
                                         case "livingworldbuildings.ini":
-                                        case "livingworldbuildploticons.ini":
                                         case "livingworldregioneffects.ini":
                                             continue;
                                     }
@@ -135,7 +133,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "riskcampaign.ini":
                                         case "commandset.ini": //problem
                                         case "createaherosystem.ini":
-                                        case "firelogicsystem.ini":
                                         case "formationassistant.ini":
                                         case "linearcampaignexpansion1.ini":
                                         case "meshinstancingmanager.ini":
@@ -149,7 +146,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "livingworldautoresolvesciencepurchasepointbonus.ini":
                                         case "livingworldautoresolveweapon.ini":
                                         case "livingworldbuildings.ini":
-                                        case "livingworldbuildploticons.ini":
                                         case "livingworldregioneffects.ini":
                                             continue;
                                     }
