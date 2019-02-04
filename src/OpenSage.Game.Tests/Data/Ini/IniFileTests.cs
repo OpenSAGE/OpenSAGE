@@ -106,21 +106,17 @@ namespace OpenSage.Tests.Data.Ini
                                 case SageGame.Bfme2:
                                     switch (filename)
                                     {
-                                        case "ingamenotificationbox.ini":
-                                        case "meshinstancingmanager.ini":
                                         case "commandset.ini": //problem
                                         case "riskcampaign.ini": //complex
                                         case "createaherosystem.ini": //complex
-                                        case "formationassistant.ini":
-                                        case "scoredkillevaannouncer.ini":
-                                        case "strategichud.ini":
+                                        case "formationassistant.ini": //complex
+                                        case "strategichud.ini": // complex
 
                                         case "livingworldautoresolvehandicaps.ini":
                                         case "livingworldautoresolveleadership.ini":
                                         case "livingworldautoresolvereinforcementschedule.ini":
                                         case "livingworldautoresolveresourcebonus.ini":
                                         case "livingworldautoresolvesciencepurchasepointbonus.ini":
-                                        case "livingworldautoresolveweapon.ini":
                                         case "livingworldbuildings.ini":
                                         case "livingworldregioneffects.ini":
                                             continue;
@@ -134,9 +130,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "commandset.ini": //problem
                                         case "createaherosystem.ini":
                                         case "formationassistant.ini":
-                                        case "linearcampaignexpansion1.ini":
-                                        case "meshinstancingmanager.ini":
-                                        case "scoredkillevaannouncer.ini":
                                         case "strategichud.ini":
 
                                         case "livingworldautoresolvehandicaps.ini":
@@ -144,7 +137,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "livingworldautoresolvereinforcementschedule.ini":
                                         case "livingworldautoresolveresourcebonus.ini":
                                         case "livingworldautoresolvesciencepurchasepointbonus.ini":
-                                        case "livingworldautoresolveweapon.ini":
                                         case "livingworldbuildings.ini":
                                         case "livingworldregioneffects.ini":
                                             continue;

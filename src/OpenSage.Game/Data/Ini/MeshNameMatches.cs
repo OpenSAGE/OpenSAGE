@@ -1,0 +1,25 @@
+﻿using OpenSage.Data.Ini.Parser;
+
+namespace OpenSage.Data.Ini
+{
+    //Setup file for the instancing manager.
+    [AddedIn(SageGame.Bfme2)]
+    public sealed class MeshNameMatches
+    {
+        internal static MeshNameMatches Parse(IniParser parser)
+        {
+            return parser.ParseTopLevelNamedBlock(
+                (x, name) => x.Name = name,
+                FieldParseTable);
+        }
+
+        private static readonly IniParseTable<MeshNameMatches> FieldParseTable = new IniParseTable<MeshNameMatches>
+        {
+            { "Instances", (parser, x) => x.Instances = parser.ParseInteger() },
+        };
+
+        public string Name { get; private set; }
+
+        public int Instances { get; private set; }
+    }
+}
