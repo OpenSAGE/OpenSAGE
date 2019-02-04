@@ -117,7 +117,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "livingworldautoresolvereinforcementschedule.ini":
                                         case "livingworldautoresolveresourcebonus.ini":
                                         case "livingworldautoresolvesciencepurchasepointbonus.ini":
-                                        case "livingworldbuildings.ini":
                                         case "livingworldregioneffects.ini":
                                             continue;
                                     }
@@ -137,7 +136,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "livingworldautoresolvereinforcementschedule.ini":
                                         case "livingworldautoresolveresourcebonus.ini":
                                         case "livingworldautoresolvesciencepurchasepointbonus.ini":
-                                        case "livingworldbuildings.ini":
                                         case "livingworldregioneffects.ini":
                                             continue;
                                     }
