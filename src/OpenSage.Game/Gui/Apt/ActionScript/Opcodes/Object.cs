@@ -144,7 +144,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             var member = context.Stack.Pop();
             var obj = context.Stack.Pop().ToObject();
 
-            context.Stack.Push(obj.GetMember(member.ToString()));
+            context.Stack.Push(obj.GetMember(member.ResolveRegister(context).ToString()));
         }
     }
 

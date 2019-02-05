@@ -12,7 +12,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var val = context.Stack.Pop();
-            var boolVal = val.ToBoolean();
+            var boolVal = val.ResolveRegister(context).ToBoolean();
             context.Stack.Push(Value.FromBoolean(!boolVal));
         }
     }

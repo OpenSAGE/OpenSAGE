@@ -27,11 +27,14 @@ namespace OpenSage.Gui.Apt
             if (!Visible)
                 return;
 
+            var cTransform = pTransform * Transform;
+
             switch (Character)
             {
                 case Shape s:
                     var geometry = Context.GetGeometry(s.Geometry, Character);
-                    renderer.RenderGeometry(dc, Context, geometry, pTransform, Texture);
+
+                    renderer.RenderGeometry(dc, Context, geometry, cTransform, Texture);
                     break;
                 case Text t:
                     if (t.Value.Length > 0)
@@ -45,7 +48,7 @@ namespace OpenSage.Gui.Apt
                     t.Content = t.Content.Replace("$", "APT:");
                     t.Content = t.Content.Translate();
 
-                    renderer.RenderText(dc, Context, t, pTransform);
+                    renderer.RenderText(dc, Context, t, cTransform);
                     break;
             }
         }
