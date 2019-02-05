@@ -23,7 +23,7 @@ namespace OpenSage.Mathematics
             A = a;
         }
 
-        public static ColorRgbaF operator*(in ColorRgbaF value1, in ColorRgbaF value2)
+        public static ColorRgbaF operator *(in ColorRgbaF value1, in ColorRgbaF value2)
         {
             return new ColorRgbaF(
                 value1.R * value2.R,
@@ -45,6 +45,11 @@ namespace OpenSage.Mathematics
         public ColorRgbaF WithA(float a)
         {
             return new ColorRgbaF(R, G, B, a);
+        }
+
+        public ColorRgbaF WithRGB(float r, float g, float b)
+        {
+            return new ColorRgbaF(r, g, b, A);
         }
 
         public override bool Equals(object obj)

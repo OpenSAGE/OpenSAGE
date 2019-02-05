@@ -42,6 +42,20 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                     var transform = ctx.Item.Transform;
                     ctx.Item.Transform =
                         transform.WithColorTransform(transform.ColorTransform.WithA(v.ToInteger() / 100.0f));
+                },
+                ["textColor"] = (ctx, v) =>
+                {
+                    var hexStr = v.ToString();
+                    Debug.WriteLine("Setting textcolor to: " + hexStr);
+                    var hexColor = Convert.ToInt32(hexStr, 16);
+
+                    float b = (hexColor & 0xFF) / 255.0f;
+                    float g = ((hexColor & 0xFF00) >> 8) / 255.0f;
+                    float r = ((hexColor & 0xFF0000) >> 16) / 255.0f;
+
+                    var transform = ctx.Item.Transform;
+                    ctx.Item.Transform =
+                        transform.WithColorTransform(transform.ColorTransform.WithRGB(r, g, b));
                 }
             };
 

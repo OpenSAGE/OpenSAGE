@@ -34,8 +34,16 @@ namespace OpenSage.Gui.Apt
                 case InputMessageType.KeyUp:
                     break;
                 case InputMessageType.MouseLeftButtonDown:
+                    if (_windowManager.HandleInput(message.Value.MousePosition, true))
+                    {
+                        return InputMessageResult.Handled;
+                    }
                     break;
                 case InputMessageType.MouseLeftButtonUp:
+                    if (_windowManager.HandleInput(message.Value.MousePosition, false))
+                    {
+                        return InputMessageResult.Handled;
+                    }
                     break;
                 case InputMessageType.MouseMiddleButtonDown:
                     break;

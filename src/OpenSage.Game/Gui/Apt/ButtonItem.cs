@@ -11,6 +11,7 @@ namespace OpenSage.Gui.Apt
     internal class ButtonItem : DisplayItem
     {
         private bool _isHovered = false;
+        private bool _isDown = false;
         private ItemTransform _curTransform;
         private List<InstructionCollection> _actionList;
         public Texture Texture { get; set; }
@@ -58,6 +59,28 @@ namespace OpenSage.Gui.Apt
                         _isHovered = true;
                     }
 
+                    if(_isHovered && mouseDown && !_isDown)
+                    {
+                        Debug.WriteLine("Down: " + mousePos.X + "-" + mousePos.Y);
+                        var idx = button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverUpToOverDown));
+                        if (idx != -1)
+                        {
+                            _actionList.Add(button.Actions[idx].Instructions);
+                        }
+                        _isDown = true;
+                    }
+
+                    if(_isHovered && !mouseDown && _isDown)
+                    {
+                        Debug.WriteLine("Up: " + mousePos.X + "-" + mousePos.Y);
+                        var idx = button.Actions.FindIndex(ba => ba.Flags.HasFlag(ButtonActionFlags.OverDownToOverUp));
+                        if (idx != -1)
+                        {
+                            _actionList.Add(button.Actions[idx].Instructions);
+                        }
+                        _isDown = false;
+                    }
+
                     return true;
                 }
             }
@@ -78,32 +101,29 @@ namespace OpenSage.Gui.Apt
         private void ApplyCurrentRecord(ref Matrix3x2 t)
         {
             var button = Character as Button;
-            if (_isHovered)
+            var idx = button.Records.FindIndex(br => br.Flags.HasFlag(ButtonRecordFlags.StateHit));
+            if(idx != -1)
             {
-                var idx = button.Records.FindIndex(br => br.Flags.HasFlag(ButtonRecordFlags.StateHit));
-                if(idx != -1)
-                {
-                    var br = button.Records[idx];
+                var br = button.Records[idx];
 
-                    var a = new Matrix3x2(t.M11,t.M12, t.M21, t.M22,t.M31,t.M32);
-                    var b = new Matrix3x2(br.RotScale.M11, br.RotScale.M12, br.RotScale.M21, br.RotScale.M22,0,0);
-                    var c = Matrix3x2.Multiply(a, b);
+                var a = new Matrix3x2(t.M11,t.M12, t.M21, t.M22,t.M31,t.M32);
+                var b = new Matrix3x2(br.RotScale.M11, br.RotScale.M12, br.RotScale.M21, br.RotScale.M22,0,0);
+                var c = Matrix3x2.Multiply(a, b);
 
-                    t.M11 = c.M11;
-                    t.M12 = c.M12;
-                    t.M21 = c.M21;
-                    t.M22 = c.M22;
+                t.M11 = c.M11;
+                t.M12 = c.M12;
+                t.M21 = c.M21;
+                t.M22 = c.M22;
 
-                    t.M31 += br.Translation.X;
-                    t.M32 += br.Translation.Y;
-                }
-            }
+                t.M31 += br.Translation.X;
+                t.M32 += br.Translation.Y;
+            }    
         }
 
         public override void Render(AptRenderer renderer, ItemTransform pTransform, DrawingContext2D dc)
         {
             var button = Character as Button;
-            _curTransform = (ItemTransform) pTransform.Clone();
+            _curTransform = pTransform * Transform;
             _curTransform.GeometryTranslation *= renderer.Window.GetScaling();
             _curTransform.GeometryRotation.M11 *= renderer.Window.GetScaling().X;
             _curTransform.GeometryRotation.M22 *= renderer.Window.GetScaling().Y;

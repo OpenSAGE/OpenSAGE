@@ -213,13 +213,25 @@ namespace OpenSage.Gui.Apt.ActionScript
             return _function;
         }
 
+        // Follow ECMA specification 9.8: https://www.ecma-international.org/ecma-262/5.1/#sec-9.8
         public override string ToString()
         {
-            if (Type != ValueType.String &&
-                Type != ValueType.Undefined)
-                throw new InvalidOperationException();
-
-            return _string;
+            switch (Type)
+            {
+                case ValueType.String:
+                    return _string;
+                case ValueType.Boolean:
+                    return _boolean.ToString();
+                case ValueType.Short:
+                case ValueType.Integer:
+                    return _number.ToString();
+                case ValueType.Float:
+                    return _decimal.ToString();     
+                case ValueType.Undefined:
+                    return "undefined";
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         public TEnum ToEnum<TEnum>() where TEnum : struct

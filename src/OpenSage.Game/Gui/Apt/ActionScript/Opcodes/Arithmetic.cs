@@ -37,7 +37,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
         public override void Execute(ActionContext context)
         {
-            //pop two values
+            //Pop two values
             var a = context.Stack.Pop().ResolveRegister(context);
             var b = context.Stack.Pop().ResolveRegister(context);
 
@@ -47,10 +47,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
             }
             else
             {
-                if (!(a.Type == ValueType.String || a.Type == ValueType.Undefined) ||
-                    !(b.Type == ValueType.String || b.Type == ValueType.Undefined))
-                    throw new NotImplementedException();
-
                 context.Stack.Push(Value.FromString(b.ToString() + a.ToString()));
             }
         }
