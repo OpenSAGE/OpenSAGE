@@ -106,17 +106,10 @@ namespace OpenSage.Tests.Data.Ini
                                 case SageGame.Bfme2:
                                     switch (filename)
                                     {
-                                        case "commandset.ini": //problem
                                         case "riskcampaign.ini": //complex
                                         case "createaherosystem.ini": //complex
                                         case "formationassistant.ini": //complex
                                         case "strategichud.ini": // complex
-
-                                        case "livingworldautoresolvehandicaps.ini":
-                                        case "livingworldautoresolveleadership.ini":
-                                        case "livingworldautoresolvereinforcementschedule.ini":
-                                        case "livingworldautoresolveresourcebonus.ini":
-                                        case "livingworldautoresolvesciencepurchasepointbonus.ini":
                                             continue;
                                     }
                                     break;
@@ -125,16 +118,9 @@ namespace OpenSage.Tests.Data.Ini
                                     switch (filename)
                                     {
                                         case "riskcampaign.ini":
-                                        case "commandset.ini": //problem
                                         case "createaherosystem.ini":
                                         case "formationassistant.ini":
                                         case "strategichud.ini":
-
-                                        case "livingworldautoresolvehandicaps.ini":
-                                        case "livingworldautoresolveleadership.ini":
-                                        case "livingworldautoresolvereinforcementschedule.ini":
-                                        case "livingworldautoresolveresourcebonus.ini":
-                                        case "livingworldautoresolvesciencepurchasepointbonus.ini":
                                             continue;
                                     }
                                     break;

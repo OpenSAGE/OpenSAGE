@@ -35,6 +35,9 @@ namespace OpenSage.Data.Ini.Parser
             { "AutoResolveArmor", (parser, context) => context.AutoResolveArmors.Add(AutoResolveArmor.Parse(parser)) },
             { "AutoResolveBody", (parser, context) => context.AutoResolveBodies.Add(AutoResolveBody.Parse(parser)) },
             { "AutoResolveCombatChain", (parser, context) => context.AutoResolveCombatChains.Add(AutoResolveCombatChain.Parse(parser)) },
+            { "AutoResolveHandicapLevel", (parser, context) => context.AutoResolveHandicapLevels.Add(AutoResolveHandicapLevel.Parse(parser)) },
+            { "AutoResolveReinforcementSchedule", (parser, context) => context.AutoResolveReinforcementSchedules.Add(AutoResolveReinforcementSchedule.Parse(parser)) },
+            { "AutoResolveLeadership", (parser, context) => context.AutoResolveLeaderships.Add(AutoResolveLeadership.Parse(parser)) },
             { "AutoResolveWeapon", (parser, context) => context.AutoResolveWeapons.Add(AutoResolveWeapon.Parse(parser)) },
             { "AwardSystem", (parser, context) => context.AwardSystem = AwardSystem.Parse(parser) },
             { "BannerType", (parser, context) => context.BannerTypes.Add(BannerType.Parse(parser)) },
@@ -92,6 +95,8 @@ namespace OpenSage.Data.Ini.Parser
             { "LivingWorldAITemplate", (parser, context) => context.LivingWorldAiTemplate = LivingWorldAiTemplate.Parse(parser) },
             { "LivingWorldAnimObject", (parser, context) => context.LivingWorldAnimObjects.Add(LivingWorldAnimObject.Parse(parser)) },
             { "LivingWorldArmyIcon", (parser, context) => context.LivingWorldArmyIcons.Add(LivingWorldArmyIcon.Parse(parser)) },
+            { "LivingWorldAutoResolveResourceBonus", (parser, context) => context.LivingWorldAutoResolveResourceBonus = LivingWorldAutoResolveResourceBonus.Parse(parser) },
+            { "LivingWorldAutoResolveSciencePurchasePointBonus", (parser, context) => context.LivingWorldAutoResolveSciencePurchasePointBonus = LivingWorldAutoResolveSciencePurchasePointBonus.Parse(parser) },
             { "LivingWorldBuilding", (parser, context) => context.LivingWorldBuildings.Add(LivingWorldBuilding.Parse(parser)) },
             { "LivingWorldBuildPlotIcon", (parser, context) => context.LivingWorldBuildPlotIcons.Add(LivingWorldBuildPlotIcon.Parse(parser)) },
             { "LivingWorldBuildingIcon", (parser, context) => context.LivingWorldBuildingIcons.Add(LivingWorldBuildingIcon.Parse(parser)) },
@@ -663,10 +668,11 @@ namespace OpenSage.Data.Ini.Parser
 
         public T ParseTopLevelNamedBlock<T>(
             Action<T, string> setNameCallback,
-            IIniFieldParserProvider<T> fieldParserProvider)
+            IIniFieldParserProvider<T> fieldParserProvider,
+            IIniFieldParserProvider<T> fieldParserProviderFallback = null)
             where T : class, new()
         {
-            var result = ParseNamedBlock(setNameCallback, fieldParserProvider);
+            var result = ParseNamedBlock(setNameCallback, fieldParserProvider, fieldParserProviderFallback);
 
             return result;
         }
@@ -683,7 +689,8 @@ namespace OpenSage.Data.Ini.Parser
 
         public T ParseNamedBlock<T>(
             Action<T, string> setNameCallback,
-            IIniFieldParserProvider<T> fieldParserProvider)
+            IIniFieldParserProvider<T> fieldParserProvider,
+            IIniFieldParserProvider<T> fieldParserProviderFallback = null)
             where T : class, new()
         {
             var result = new T();
@@ -692,7 +699,7 @@ namespace OpenSage.Data.Ini.Parser
 
             setNameCallback(result, name.Text);
 
-            ParseBlockContent(result, fieldParserProvider);
+            ParseBlockContent(result, fieldParserProvider, false, fieldParserProviderFallback);
 
             return result;
         }
@@ -735,7 +742,8 @@ namespace OpenSage.Data.Ini.Parser
         public bool ParseBlockContent<T>(
             T result,
             IIniFieldParserProvider<T> fieldParserProvider,
-            bool isIncludedBlock = false)
+            bool isIncludedBlock = false,
+            IIniFieldParserProvider<T> fieldParserProviderFallback = null)
             where T : class, new()
         {
             var done = false;
@@ -775,6 +783,12 @@ namespace OpenSage.Data.Ini.Parser
                     {
                         _currentBlockOrFieldStack.Push(fieldName);
                         fieldParser(this, result);
+                        _currentBlockOrFieldStack.Pop();
+                    }
+                    else if (fieldParserProviderFallback != null && fieldParserProviderFallback.TryGetFieldParser(fieldName, out var fieldParserFallback))
+                    {
+                        _currentBlockOrFieldStack.Push(fieldName);
+                        fieldParserFallback(this, result);
                         _currentBlockOrFieldStack.Pop();
                     }
                     else
