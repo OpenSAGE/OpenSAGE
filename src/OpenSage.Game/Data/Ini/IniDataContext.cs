@@ -214,6 +214,10 @@ namespace OpenSage.Data.Ini
         public List<StanceTemplate> StanceTemplates { get; } = new List<StanceTemplate>();
 
         public List<StaticGameLod> StaticGameLods { get; } = new List<StaticGameLod>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public StrategicHud StrategicHud { get; internal set; }
+
         public List<StreamedSound> StreamedSounds { get; } = new List<StreamedSound>();
         public List<LoadSubsystem> Subsystems { get; } = new List<LoadSubsystem>();
         public List<TerrainTexture> TerrainTextures { get; } = new List<TerrainTexture>();
