@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>    
     <TargetFramework>netcoreapp2.2</TargetFramework>    
-    <RootNamespace>OpenSage.Tests</RootNamespace>
+    <RootNamespace>OpenSage.Tests</RootNamespace>    
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   
   <ItemGroup>
