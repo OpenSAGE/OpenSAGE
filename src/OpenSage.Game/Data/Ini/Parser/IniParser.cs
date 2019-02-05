@@ -161,6 +161,7 @@ namespace OpenSage.Data.Ini.Parser
             { "StanceTemplate", (parser, context) => context.StanceTemplates.Add(StanceTemplate.Parse(parser)) },
             { "StreamedSound", (parser, context) => context.StreamedSounds.Add(StreamedSound.Parse(parser)) },
             { "StaticGameLOD", (parser, context) => context.StaticGameLods.Add(StaticGameLod.Parse(parser)) },
+            { "StrategicHUD", (parser, context) => context.StrategicHud = StrategicHud.Parse(parser) },
             { "Terrain", (parser, context) => context.TerrainTextures.Add(TerrainTexture.Parse(parser)) },
             { "Upgrade", (parser, context) => context.Upgrades.Add(Upgrade.Parse(parser)) },
             { "VictorySystemData", (parser, context) => context.VictorySystemDatas.Add(VictorySystemData.Parse(parser)) },

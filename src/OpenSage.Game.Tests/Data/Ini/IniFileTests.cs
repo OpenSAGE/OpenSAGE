@@ -109,7 +109,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "riskcampaign.ini": //complex
                                         case "createaherosystem.ini": //complex
                                         case "formationassistant.ini": //complex
-                                        case "strategichud.ini": // complex
                                             continue;
                                     }
                                     break;
@@ -120,7 +119,6 @@ namespace OpenSage.Tests.Data.Ini
                                         case "riskcampaign.ini":
                                         case "createaherosystem.ini":
                                         case "formationassistant.ini":
-                                        case "strategichud.ini":
                                             continue;
                                     }
                                     break;
