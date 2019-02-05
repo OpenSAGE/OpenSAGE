@@ -50,6 +50,15 @@ namespace OpenSage.Data.Ini
         public List<AutoResolveCombatChain> AutoResolveCombatChains { get; } = new List<AutoResolveCombatChain>();
 
         [AddedIn(SageGame.Bfme2)]
+        public List<AutoResolveHandicapLevel> AutoResolveHandicapLevels { get; } = new List<AutoResolveHandicapLevel>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<AutoResolveLeadership> AutoResolveLeaderships { get; } = new List<AutoResolveLeadership>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<AutoResolveReinforcementSchedule> AutoResolveReinforcementSchedules { get; } = new List<AutoResolveReinforcementSchedule>();
+
+        [AddedIn(SageGame.Bfme2)]
         public List<AutoResolveWeapon> AutoResolveWeapons { get; } = new List<AutoResolveWeapon>();
 
         [AddedIn(SageGame.Bfme2)]
@@ -122,6 +131,12 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme)]
         public List<LivingWorldArmyIcon> LivingWorldArmyIcons { get; } = new List<LivingWorldArmyIcon>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public LivingWorldAutoResolveResourceBonus LivingWorldAutoResolveResourceBonus { get; internal set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public LivingWorldAutoResolveSciencePurchasePointBonus LivingWorldAutoResolveSciencePurchasePointBonus { get; internal set; }
 
         [AddedIn(SageGame.Bfme2)]
         public List<LivingWorldBuilding> LivingWorldBuildings { get; } = new List<LivingWorldBuilding>();
