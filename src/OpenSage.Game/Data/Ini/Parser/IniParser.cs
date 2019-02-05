@@ -102,6 +102,7 @@ namespace OpenSage.Data.Ini.Parser
             { "LivingWorldPlayerArmy", (parser, context) => context.LivingWorldPlayerArmies.Add(LivingWorldPlayerArmy.Parse(parser)) },
             { "LivingWorldPlayerTemplate", (parser, context) => context.LivingWorldPlayerTemplates.Add(LivingWorldPlayerTemplate.Parse(parser)) },
             { "LivingWorldRegionCampaign", (parser, context) => context.LivingWorldRegionCampaigns.Add(LivingWorldRegionCampaign.Parse(parser)) },
+            { "LivingWorldRegionEffects", (parser, x) => x.LivingWorldRegionEffects = LivingWorldRegionEffects.Parse(parser) },
             { "LivingWorldSound", (parser, context) => context.LivingWorldSounds.Add(LivingWorldSound.Parse(parser)) },
             { "LoadSubsystem", (parser, context) => context.Subsystems.Add(LoadSubsystem.Parse(parser)) },
             { "Locomotor", (parser, context) => context.Locomotors.Add(Locomotor.Parse(parser)) },

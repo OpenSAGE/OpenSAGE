@@ -138,6 +138,10 @@ namespace OpenSage.Data.Ini
         [AddedIn(SageGame.Bfme)]
         public List<LivingWorldSound> LivingWorldSounds { get; } = new List<LivingWorldSound>();
         public List<LivingWorldRegionCampaign> LivingWorldRegionCampaigns { get; } = new List<LivingWorldRegionCampaign>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public LivingWorldRegionEffects LivingWorldRegionEffects { get; internal set; }
+
         public List<Locomotor> Locomotors { get; } = new List<Locomotor>();
         public List<LodPreset> LodPresets { get; } = new List<LodPreset>();
         public List<MapCache> MapCaches { get; } = new List<MapCache>();
