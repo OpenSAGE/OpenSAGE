@@ -20,12 +20,12 @@ namespace OpenSage.Data.Ini
             { "NeutralRegionColor", (parser, x) => x.NeutralRegionColor = parser.ParseColorRgb() },
             { "RegionBorderColor", (parser, x) => x.RegionBorderColor = parser.ParseColorRgb() },
             { "ShellStartPositionColor", (parser, x) => x.ShellStartPositionColor = parser.ParseColorRgb() },
-            { "BordersEffect", (parser, x) => x.BordersEffect = BordersEffect.Parse(parser) },
-            { "FilledOwnershipEffect", (parser, x) => x.FilledOwnershipEffect = FilledOwnershipEffect.Parse(parser) },
-            { "MouseoverEffectFlareup", (parser, x) => x.MouseoverEffectFlareup = MouseoverEffectFlareup.Parse(parser) },
-            { "HomeRegionHighlight", (parser, x) => x.HomeRegionHighlight = HomeRegionHighlight.Parse(parser) },
-            { "RegionSelectionEffect", (parser, x) => x.RegionSelectionEffect = RegionSelectionEffect.Parse(parser) },
-            { "UnifiedEffect", (parser, x) => x.UnifiedEffect = UnifiedEffect.Parse(parser) }
+            { "BordersEffect", (parser, x) => x.BordersEffect = RegionEffect.Parse(parser) },
+            { "FilledOwnershipEffect", (parser, x) => x.FilledOwnershipEffect = RegionEffect.Parse(parser) },
+            { "MouseoverEffectFlareup", (parser, x) => x.MouseoverEffectFlareup = RegionEffect.Parse(parser) },
+            { "HomeRegionHighlight", (parser, x) => x.HomeRegionHighlight = RegionEffect.Parse(parser) },
+            { "RegionSelectionEffect", (parser, x) => x.RegionSelectionEffect = RegionEffect.Parse(parser) },
+            { "UnifiedEffect", (parser, x) => x.UnifiedEffect = RegionEffect.Parse(parser) }
         };
 
         public string Name { get; private set; }
@@ -34,16 +34,18 @@ namespace OpenSage.Data.Ini
         public ColorRgb NeutralRegionColor { get; private set; }
         public ColorRgb RegionBorderColor { get; private set; }
         public ColorRgb ShellStartPositionColor { get; private set; }
-        public BordersEffect BordersEffect { get; private set; }
-        public FilledOwnershipEffect FilledOwnershipEffect { get; private set; }
-        public MouseoverEffectFlareup MouseoverEffectFlareup { get; private set; }
-        public HomeRegionHighlight HomeRegionHighlight { get; private set; }
-        public RegionSelectionEffect RegionSelectionEffect { get; private set; }
-        public UnifiedEffect UnifiedEffect { get; private set; }
+        public RegionEffect BordersEffect { get; private set; }
+        public RegionEffect FilledOwnershipEffect { get; private set; }
+        public RegionEffect MouseoverEffectFlareup { get; private set; }
+        public RegionEffect HomeRegionHighlight { get; private set; }
+        public RegionEffect RegionSelectionEffect { get; private set; }
+        public RegionEffect UnifiedEffect { get; private set; }
     }
 
-    public abstract class RegionEffect
+    public class RegionEffect
     {
+        internal static RegionEffect Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
         internal static readonly IniParseTable<RegionEffect> FieldParseTable = new IniParseTable<RegionEffect>
         {
             { "Geometry", (parser, x) => x.Geometries.Add(parser.ParseAssetReference()) },
@@ -68,53 +70,5 @@ namespace OpenSage.Data.Ini
 
         public float Intensity { get; private set; }
         public float Time { get; private set; }
-    }
-
-    public class BordersEffect : RegionEffect
-    {
-        internal static BordersEffect Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static new readonly IniParseTable<BordersEffect> FieldParseTable = RegionEffect.FieldParseTable
-            .Concat(new IniParseTable<BordersEffect>());
-    }
-
-    public class FilledOwnershipEffect : RegionEffect
-    {
-        internal static FilledOwnershipEffect Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static new readonly IniParseTable<FilledOwnershipEffect> FieldParseTable = RegionEffect.FieldParseTable
-            .Concat(new IniParseTable<FilledOwnershipEffect>());
-    }
-
-    public class MouseoverEffectFlareup : RegionEffect
-    {
-        internal static MouseoverEffectFlareup Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static new readonly IniParseTable<MouseoverEffectFlareup> FieldParseTable = RegionEffect.FieldParseTable
-            .Concat(new IniParseTable<MouseoverEffectFlareup>());
-    }
-
-    public class HomeRegionHighlight : RegionEffect
-    {
-        internal static HomeRegionHighlight Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static new readonly IniParseTable<HomeRegionHighlight> FieldParseTable = RegionEffect.FieldParseTable
-            .Concat(new IniParseTable<HomeRegionHighlight>());
-    }
-
-    public class RegionSelectionEffect : RegionEffect
-    {
-        internal static RegionSelectionEffect Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static new readonly IniParseTable<RegionSelectionEffect> FieldParseTable = RegionEffect.FieldParseTable
-            .Concat(new IniParseTable<RegionSelectionEffect>());
-    }
-
-    public class UnifiedEffect : RegionEffect
-    {
-        internal static UnifiedEffect Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static new readonly IniParseTable<UnifiedEffect> FieldParseTable = RegionEffect.FieldParseTable
-            .Concat(new IniParseTable<UnifiedEffect>());
     }
 }

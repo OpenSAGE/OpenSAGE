@@ -81,6 +81,7 @@ namespace OpenSage.Data.Ini.Parser
             { "FireEffect", (parser, context) => context.Environment.FireEffect = RingEffect.Parse(parser) },
             { "FontDefaultSettings", (parser, context) => context.FontDefaultSettings.Add(FontDefaultSetting.Parse(parser)) },
             { "FontSubstitution", (parser, context) => context.FontSubstitutions.Add(FontSubstitution.Parse(parser)) },
+            { "FormationAssistant", (parser, context) => context.FormationAssistant = FormationAssistant.Parse(parser) },
             { "FXList", (parser, context) => context.FXLists.Add(FXList.Parse(parser)) },
             { "FXParticleSystem", (parser, context) => context.FXParticleSystems.Add(FXParticleSystemTemplate.Parse(parser)) },
             { "GameData", (parser, context) => context.GameData = GameData.Parse(parser) },

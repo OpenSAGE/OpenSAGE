@@ -97,6 +97,10 @@ namespace OpenSage.Data.Ini
 
         public List<FontDefaultSetting> FontDefaultSettings { get; } = new List<FontDefaultSetting>();
         public List<FontSubstitution> FontSubstitutions { get; } = new List<FontSubstitution>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public FormationAssistant FormationAssistant { get; internal set; }
+
         public List<FXList> FXLists { get; } = new List<FXList>();
         public List<FXParticleSystemTemplate> FXParticleSystems { get; } = new List<FXParticleSystemTemplate>();
         public GameData GameData { get; internal set; }
