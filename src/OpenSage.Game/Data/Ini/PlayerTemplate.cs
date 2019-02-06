@@ -42,7 +42,7 @@ namespace OpenSage.Data.Ini
 
             var compositeParser = new CompositeFieldParserProvider<PlayerTemplate>(FieldParseTable, startingUnitParser);
 
-            var playerTemplate = parser.ParseTopLevelNamedBlock(
+            var playerTemplate = parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 compositeParser);
 

@@ -10,7 +10,7 @@ namespace OpenSage.Data.Ini
         internal static StanceTemplate Parse(IniParser parser)
         {
             AttributeModifier.AttributeModifiers.Clear();
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }
@@ -29,7 +29,7 @@ namespace OpenSage.Data.Ini
         
         internal static Stance Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }

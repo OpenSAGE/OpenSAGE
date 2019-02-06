@@ -8,7 +8,7 @@ namespace OpenSage.Data.Ini
     {
         internal static AttackPriority Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }

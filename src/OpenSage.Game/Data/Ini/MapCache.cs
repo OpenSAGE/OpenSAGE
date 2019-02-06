@@ -8,7 +8,7 @@ namespace OpenSage.Data.Ini
     {
         internal static MapCache Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = IniParser.ToAsciiString(name),
                 FieldParseTable);
         }
@@ -100,7 +100,7 @@ namespace OpenSage.Data.Ini
         {
             internal static PlayerPosition Parse(IniParser parser)
             {
-                return parser.ParseTopLevelIndexedBlock(
+                return parser.ParseIndexedBlock(
                     (x, id) => x.ID = id,
                     FieldParseTable);
             }

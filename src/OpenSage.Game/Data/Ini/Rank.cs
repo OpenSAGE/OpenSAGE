@@ -6,7 +6,7 @@ namespace OpenSage.Data.Ini
     {
         internal static Rank Parse(IniParser parser)
         {
-            return parser.ParseTopLevelIndexedBlock(
+            return parser.ParseIndexedBlock(
                 (x, level) => x.Level = level,
                 FieldParseTable);
         }

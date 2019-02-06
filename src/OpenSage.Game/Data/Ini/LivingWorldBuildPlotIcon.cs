@@ -8,7 +8,7 @@ namespace OpenSage.Data.Ini
     {
         internal static LivingWorldBuildPlotIcon Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }
@@ -31,7 +31,7 @@ namespace OpenSage.Data.Ini
     {
         internal static BuildPlotIconObject Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }

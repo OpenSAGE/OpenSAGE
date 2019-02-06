@@ -7,7 +7,7 @@ namespace OpenSage.Data.Ini
     {
         internal static DynamicGameLod Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Level = (LodType) Enum.Parse(typeof(LodType), name),
                 FieldParseTable);
         }

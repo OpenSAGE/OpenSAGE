@@ -668,27 +668,6 @@ namespace OpenSage.Data.Ini.Parser
             return null;
         }
 
-        public T ParseTopLevelNamedBlock<T>(
-            Action<T, string> setNameCallback,
-            IIniFieldParserProvider<T> fieldParserProvider,
-            IIniFieldParserProvider<T> fieldParserProviderFallback = null)
-            where T : class, new()
-        {
-            var result = ParseNamedBlock(setNameCallback, fieldParserProvider, fieldParserProviderFallback);
-
-            return result;
-        }
-
-        public T ParseTopLevelIndexedBlock<T>(
-            Action<T, int> setNameCallback,
-            IIniFieldParserProvider<T> fieldParserProvider)
-            where T : class, new()
-        {
-            var result = ParseIndexedBlock(setNameCallback, fieldParserProvider);
-
-            return result;
-        }
-
         public T ParseNamedBlock<T>(
             Action<T, string> setNameCallback,
             IIniFieldParserProvider<T> fieldParserProvider,

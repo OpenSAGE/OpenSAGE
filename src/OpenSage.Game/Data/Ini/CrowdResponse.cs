@@ -9,7 +9,7 @@ namespace OpenSage.Data.Ini
     {
         internal static CrowdResponse Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }
@@ -29,7 +29,7 @@ namespace OpenSage.Data.Ini
     {
         internal static Threshold Parse(IniParser parser)
         {
-            return parser.ParseTopLevelIndexedBlock(
+            return parser.ParseIndexedBlock(
                 (x, index) => x.Index = index,
                 FieldParseTable);
         }

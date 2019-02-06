@@ -9,7 +9,7 @@ namespace OpenSage.Data.Ini
     {
         internal static LivingWorldAiTemplate Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }
