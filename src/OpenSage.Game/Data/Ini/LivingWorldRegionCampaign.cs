@@ -45,7 +45,9 @@ namespace OpenSage.Data.Ini
             { "MouseoverEffectFlareupContested", (parser, x) => x.MouseoverEffectFlareupContested = LivingWorldRegionCampaignEffect.Parse(parser) },
             { "MouseoutEffectFlareupContested", (parser, x) => x.MouseoutEffectFlareupContested = LivingWorldRegionCampaignEffect.Parse(parser) },
 
-            { "Region", (parser, x) => x.Regions.Add(LivingWorldRegionCampaignRegion.Parse(parser)) }
+            { "Region", (parser, x) => x.Regions.Add(LivingWorldRegionCampaignRegion.Parse(parser)) },
+            { "RegionEffectsManagerName", (parser, x) => x.RegionEffectsManagerName = parser.ParseString() },
+            { "HeroOnlyArmyCommandPoints", (parser, x) => x.HeroOnlyArmyCommandPoints = parser.ParseInteger() }
         };
 
         public string Name { get; private set; }
@@ -79,6 +81,12 @@ namespace OpenSage.Data.Ini
         public LivingWorldRegionCampaignEffect MouseoutEffectFlareupContested { get; private set; }
 
         public List<LivingWorldRegionCampaignRegion> Regions { get; } = new List<LivingWorldRegionCampaignRegion>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public string RegionEffectsManagerName { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int HeroOnlyArmyCommandPoints { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

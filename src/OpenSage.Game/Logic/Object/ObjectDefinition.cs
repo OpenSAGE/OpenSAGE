@@ -1401,7 +1401,7 @@ namespace OpenSage.Logic.Object
     }
 
     [AddedIn(SageGame.Bfme2)]
-    public sealed class Decal
+    public class Decal
     {
         internal static Decal Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
 

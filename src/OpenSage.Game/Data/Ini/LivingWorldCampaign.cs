@@ -18,7 +18,11 @@ namespace OpenSage.Data.Ini
         {
             { "IsEvilCampaign", (parser, x) => x.IsEvilCampaign = parser.ParseBoolean() },
             { "Act", (parser, x) => x.Acts.Add(LivingWorldCampaignAct.Parse(parser)) },
-            { "IsScriptedCampaign", (parser, x) => x.IsScriptedCampaign = parser.ParseBoolean() }
+            { "IsScriptedCampaign", (parser, x) => x.IsScriptedCampaign = parser.ParseBoolean() },
+            { "AddPlayer", (parser, x) => x.AddPlayers.Add(AddPlayer.Parse(parser)) },
+            { "LocalPlayer", (parser, x) => x.LocalPlayer = parser.ParseAssetReference() },
+            { "Scenario", (parser, x) => x.Scenario = Scenario.Parse(parser) },
+            { "Tutorial", (parser, x) => x.Tutorial = Tutorial.Parse(parser) }
         };
 
         public string Name { get; private set; }
@@ -29,6 +33,18 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public bool IsScriptedCampaign { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public List<AddPlayer> AddPlayers { get; } = new List<AddPlayer>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public string LocalPlayer { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Scenario Scenario { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public Tutorial Tutorial { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -146,7 +162,12 @@ namespace OpenSage.Data.Ini
             { "PlayerOwned", (parser, x) => x.PlayerOwned = parser.ParseBoolean() },
             { "PlayerControlled", (parser, x) => x.PlayerControlled = parser.ParseBoolean() },
             { "Position", (parser, x) => x.Position = parser.ParseVector2() },
-            { "IsCity", (parser, x) => x.IsCity = parser.ParseBoolean() }
+            { "IsCity", (parser, x) => x.IsCity = parser.ParseBoolean() },
+            { "ScriptingName", (parser, x) => x.ScriptingName = parser.ParseString() },
+            { "SpawnForTemplates", (parser, x) => x.SpawnForTemplates = parser.ParseAssetReferenceArray() },
+            { "HeroTemplateName", (parser, x) => x.HeroTemplateName = parser.ParseString() },
+            { "InitialRegion", (parser, x) => x.InitialRegion = parser.ParseAssetReference() },
+            { "MoveSpeed", (parser, x) => x.MoveSpeed = parser.ParseFloat() }
         };
 
         public string Name { get; private set; }
@@ -160,6 +181,23 @@ namespace OpenSage.Data.Ini
         public bool PlayerControlled { get; private set; }
         public Vector2 Position { get; private set; }
         public bool IsCity { get; private set; }
+
+        //most of the fields above are not used in bfme2 and subsequent games
+
+        [AddedIn(SageGame.Bfme2)]
+        public string ScriptingName { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string[] SpawnForTemplates { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string HeroTemplateName { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public string InitialRegion { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float MoveSpeed { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -319,5 +357,194 @@ namespace OpenSage.Data.Ini
         public int MediumDistanceTime { get; private set; }
         public int FarDistanceTime { get; private set; }
         public string PathFindRule { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class AddPlayer
+    {
+        internal static AddPlayer Parse(IniParser parser)
+        {
+            return parser.ParseNamedBlock(
+                (x, name) => x.Name = name,
+                FieldParseTable);
+        }
+
+        private static readonly IniParseTable<AddPlayer> FieldParseTable = new IniParseTable<AddPlayer>
+        {
+            { "PlayerTemplate", (parser, x) => x.PlayerTemplate = parser.ParseAssetReference() },
+            { "IsDumb", (parser, x) => x.IsDumb = parser.ParseBoolean() },
+            { "AITemplate", (parser, x) => x.AITemplate = parser.ParseAssetReference() },
+            { "BaseRegion", (parser, x) => x.BaseRegion = parser.ParseAssetReference() },
+            { "MP_SlotColorIndex", (parser, x) => x.MP_SlotColorIndex = parser.ParseInteger() },
+            { "TeamNumber", (parser, x) => x.TeamNumber = parser.ParseInteger() },
+        };
+
+        public string Name { get; private set; }
+
+        public string PlayerTemplate { get; private set; }
+        public bool IsDumb { get; private set; }
+        public string AITemplate { get; private set; }
+        public string BaseRegion { get; private set; }
+        public int MP_SlotColorIndex { get; private set; }
+        public int TeamNumber { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class Scenario
+    {
+        internal static Scenario Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<Scenario> FieldParseTable = new IniParseTable<Scenario>
+        {
+            { "DisplayName", (parser, x) => x.DisplayName = parser.ParseLocalizedStringKey() },
+            { "DisplayDescription", (parser, x) => x.DisplayDescription = parser.ParseLocalizedStringKey() },
+            { "RegionCampaign", (parser, x) => x.RegionCampaign = parser.ParseString() },
+            { "PlayerDefeatCondition", (parser, x) => x.PlayerDefeatCondition = DefeatCondition.Parse(parser) },
+            { "TeamDefeatCondition", (parser, x) => x.TeamDefeatCondition = DefeatCondition.Parse(parser) },
+            { "OwnershipSet", (parser, x) => x.OwnershipSets.Add(OwnershipSet.Parse(parser)) }
+        };
+
+        public string DisplayName { get; private set; }
+        public string DisplayDescription { get; private set; }
+        public string RegionCampaign { get; private set; }
+        public DefeatCondition PlayerDefeatCondition { get; private set; }
+        public DefeatCondition TeamDefeatCondition { get; private set; }
+        public List<OwnershipSet> OwnershipSets { get; } = new List<OwnershipSet>();
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class DefeatCondition
+    {
+        internal static DefeatCondition Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<DefeatCondition> FieldParseTable = new IniParseTable<DefeatCondition>
+        {
+            { "Teams", (parser, x) => x.Teams = parser.ParseIntegerArray() },
+            { "LoseIfCapitalLost", (parser, x) => x.LoseIfCapitalLost = parser.ParseBoolean() },
+            { "NumControlledRegionsLessOrEqualTo", (parser, x) => x.NumControlledRegionsLessOrEqualTo = parser.ParseInteger() },
+        };
+
+        public int[] Teams { get; private set; }
+        public bool LoseIfCapitalLost { get; private set; }
+        public int NumControlledRegionsLessOrEqualTo { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class OwnershipSet
+    {
+        internal static OwnershipSet Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<OwnershipSet> FieldParseTable = new IniParseTable<OwnershipSet>
+        {
+            { "Regions", (parser, x) => x.Regions = parser.ParseAssetReferenceArray() },
+            { "SpawnBuildings", (parser, x) => x.SpawnBuildingsList.Add(SpawnBuildings.Parse(parser)) },
+        };
+
+        public string[] Regions { get; private set; }
+        public List<SpawnBuildings> SpawnBuildingsList { get; } = new List<SpawnBuildings>();
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class SpawnBuildings
+    {
+        internal static SpawnBuildings Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<SpawnBuildings> FieldParseTable = new IniParseTable<SpawnBuildings>
+        {
+            { "Region", (parser, x) => x.Region = parser.ParseAssetReference() },
+            { "Buildings", (parser, x) => x.Buildings = parser.ParseAssetReferenceArray() },
+        };
+
+        public string Region { get; private set; }
+        public string[] Buildings { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class Tutorial
+    {
+        internal static Tutorial Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<Tutorial> FieldParseTable = new IniParseTable<Tutorial>
+        {
+            { "Turn", (parser, x) => x.Turns.Add(Turn.Parse(parser)) },
+        };
+
+        public List<Turn> Turns { get; } = new List<Turn>();
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class Turn
+    {
+        internal static Turn Parse(IniParser parser)
+        {
+            return parser.ParseIndexedBlock(
+                (x, index) => x.ID = index,
+                FieldParseTable);
+        }
+
+        private static readonly IniParseTable<Turn> FieldParseTable = new IniParseTable<Turn>
+        {
+            { "Phase", (parser, x) => x.Phases.Add(Phase.Parse(parser)) },
+        };
+
+        public int ID { get; private set; }
+
+        public List<Phase> Phases { get; } = new List<Phase>();
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class Phase
+    {
+        internal static Phase Parse(IniParser parser)
+        {
+            return parser.ParseNamedBlock(
+                (x, name) => x.Name = name,
+                FieldParseTable);
+        }
+
+        private static readonly IniParseTable<Phase> FieldParseTable = new IniParseTable<Phase>
+        {
+            { "Session", (parser, x) => x.Sessions.Add(Session.Parse(parser)) },
+        };
+
+        public string Name { get; private set; }
+
+        public List<Session> Sessions { get; } = new List<Session>();
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class Session
+    {
+        internal static Session Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<Session> FieldParseTable = new IniParseTable<Session>
+        {
+            { "Audio", (parser, x) => x.Audio = parser.ParseAssetReference() },
+            { "Text", (parser, x) => x.Text = parser.ParseLocalizedStringKey() },
+            { "TaskAfterAudio", (parser, x) => x.TaskAfterAudio = Task.Parse(parser) },
+            { "ClearPreviousText", (parser, x) => x.ClearPreviousText = parser.ParseBoolean() }
+        };
+
+        public string Audio { get; private set; }
+        public string Text { get; private set; }
+        public Task TaskAfterAudio { get; private set; }
+        public bool ClearPreviousText { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class Task
+    {
+        internal static Task Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<Task> FieldParseTable = new IniParseTable<Task>
+        {
+            { "Task", (parser, x) => x.TaskName = parser.ParseAssetReference() },
+            { "Params", (parser, x) => x.Params = parser.ParseAssetReferenceArray() },
+            { "Text", (parser, x) => x.Text = parser.ParseLocalizedStringKey() }
+        };
+
+        public string TaskName { get; private set; }
+        public string[] Params { get; private set; }
+        public string Text { get; private set; }
     }
 }

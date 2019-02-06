@@ -13,17 +13,17 @@ namespace OpenSage.Data.Ini
             { "ArmyDetailsPanel", (parser, x) => x.ArmyDetailsPanel = ArmyDetailsPanel.Parse(parser) },
             { "BattleResolver", (parser, x) => x.BattleResolver = BattleResolver.Parse(parser) },
             { "BuildQueueDetailsPanel", (parser, x) => x.BuildQueueDetailsPanel = BuildQueueDetailsPanel.Parse(parser) },
-            { "CancelArmyMemberMoveButton", (parser, x) => x.CancelArmyMemberMoveButton = CancelArmyMemberMoveButton.Parse(parser) },
-            { "CancelArmyMoveButton", (parser, x) => x.CancelArmyMoveButton = CancelArmyMoveButton.Parse(parser) },
+            { "CancelArmyMemberMoveButton", (parser, x) => x.CancelArmyMemberMoveButton = HudButton.Parse(parser) },
+            { "CancelArmyMoveButton", (parser, x) => x.CancelArmyMoveButton = HudButton.Parse(parser) },
             { "Checklist", (parser, x) => x.Checklist = Checklist.Parse(parser) },
-            { "DestroyBuildingButton", (parser, x) => x.DestroyBuildingButton = DestroyBuildingButton.Parse(parser) },
-            { "CancelBuildingConstructionButton", (parser, x) => x.CancelBuildingConstructionButton = CancelBuildingConstructionButton.Parse(parser) },
-            { "DisbandArmyButton", (parser, x) => x.DisbandArmyButton = DisbandArmyButton.Parse(parser) },
-            { "DisbandArmyMemberButton", (parser, x) => x.DisbandArmyMemberButton = DisbandArmyMemberButton.Parse(parser) },
-            { "OptionsButton", (parser, x) => x.OptionsButton = OptionsButton.Parse(parser) },
-            { "ObjectivesButton", (parser, x) => x.ObjectivesButton = ObjectivesButton.Parse(parser) },
-            { "ToggleSelectionDetailsButton", (parser, x) => x.ToggleSelectionDetailsButton = ToggleSelectionDetailsButton.Parse(parser) },
-            { "UpgradeUnitButton", (parser, x) => x.UpgradeUnitButton = UpgradeUnitButton.Parse(parser) },
+            { "DestroyBuildingButton", (parser, x) => x.DestroyBuildingButton = HudButton.Parse(parser) },
+            { "CancelBuildingConstructionButton", (parser, x) => x.CancelBuildingConstructionButton = HudButton.Parse(parser) },
+            { "DisbandArmyButton", (parser, x) => x.DisbandArmyButton = HudButton.Parse(parser) },
+            { "DisbandArmyMemberButton", (parser, x) => x.DisbandArmyMemberButton = HudButton.Parse(parser) },
+            { "OptionsButton", (parser, x) => x.OptionsButton = HudButton.Parse(parser) },
+            { "ObjectivesButton", (parser, x) => x.ObjectivesButton = HudButton.Parse(parser) },
+            { "ToggleSelectionDetailsButton", (parser, x) => x.ToggleSelectionDetailsButton = HudButton.Parse(parser) },
+            { "UpgradeUnitButton", (parser, x) => x.UpgradeUnitButton = HudButton.Parse(parser) },
             { "DynamicAutoResolveDialog", (parser, x) => x.DynamicAutoResolveDialog = DynamicAutoResolveDialog.Parse(parser) },
             { "RegionDetailsPanelStructuresPage", (parser, x) => x.RegionDetailsPanelStructuresPage = RegionDetailsPanelStructuresPage.Parse(parser) },
             { "RegionDisplay", (parser, x) => x.RegionDisplay = RegionDisplay.Parse(parser) },
@@ -34,17 +34,17 @@ namespace OpenSage.Data.Ini
         public ArmyDetailsPanel ArmyDetailsPanel { get; private set; }
         public BattleResolver BattleResolver { get; private set; }
         public BuildQueueDetailsPanel BuildQueueDetailsPanel { get; private set; }
-        public CancelArmyMemberMoveButton CancelArmyMemberMoveButton { get; private set; }
-        public CancelArmyMoveButton CancelArmyMoveButton { get; private set; }
+        public HudButton CancelArmyMemberMoveButton { get; private set; }
+        public HudButton CancelArmyMoveButton { get; private set; }
         public Checklist Checklist { get; private set; }
-        public DestroyBuildingButton DestroyBuildingButton { get; private set; }
-        public CancelBuildingConstructionButton CancelBuildingConstructionButton { get; private set; }
-        public DisbandArmyButton DisbandArmyButton { get; private set; }
-        public DisbandArmyMemberButton DisbandArmyMemberButton { get; private set; }
-        public OptionsButton OptionsButton { get; private set; }
-        public ObjectivesButton ObjectivesButton { get; private set; }
-        public ToggleSelectionDetailsButton ToggleSelectionDetailsButton { get; private set; }
-        public UpgradeUnitButton UpgradeUnitButton { get; private set; }
+        public HudButton DestroyBuildingButton { get; private set; }
+        public HudButton CancelBuildingConstructionButton { get; private set; }
+        public HudButton DisbandArmyButton { get; private set; }
+        public HudButton DisbandArmyMemberButton { get; private set; }
+        public HudButton OptionsButton { get; private set; }
+        public HudButton ObjectivesButton { get; private set; }
+        public HudButton ToggleSelectionDetailsButton { get; private set; }
+        public HudButton UpgradeUnitButton { get; private set; }
         public DynamicAutoResolveDialog DynamicAutoResolveDialog { get; private set; }
         public RegionDetailsPanelStructuresPage RegionDetailsPanelStructuresPage { get; private set; }
         public RegionDisplay RegionDisplay { get; private set; }
@@ -92,8 +92,10 @@ namespace OpenSage.Data.Ini
         public ColorRgba ProgressOverlayColor { get; private set; }
     }
 
-    public abstract class HudButton
+    public class HudButton
     {
+        internal static HudButton Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
         internal static readonly IniParseTable<HudButton> FieldParseTable = new IniParseTable<HudButton>
         {
             { "Image", (parser, x) => x.Image = parser.ParseLocalizedStringKey() },
@@ -104,86 +106,6 @@ namespace OpenSage.Data.Ini
         public string Image { get; private set; }
         public string Title { get; private set; }
         public string Help { get; private set; }
-    }
-
-    public class CancelArmyMemberMoveButton : HudButton
-    {
-        internal static CancelArmyMemberMoveButton Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static new readonly IniParseTable<CancelArmyMemberMoveButton> FieldParseTable = HudButton.FieldParseTable
-            .Concat(new IniParseTable<CancelArmyMemberMoveButton>());
-    }
-
-    public class CancelArmyMoveButton : HudButton
-    {
-        internal static CancelArmyMoveButton Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static new readonly IniParseTable<CancelArmyMoveButton> FieldParseTable = HudButton.FieldParseTable
-            .Concat(new IniParseTable<CancelArmyMoveButton>());
-    }
-
-    public class DestroyBuildingButton : HudButton
-    {
-        internal static DestroyBuildingButton Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static new readonly IniParseTable<DestroyBuildingButton> FieldParseTable = HudButton.FieldParseTable
-            .Concat(new IniParseTable<DestroyBuildingButton>());
-    }
-
-    public class CancelBuildingConstructionButton : HudButton
-    {
-        internal static CancelBuildingConstructionButton Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static new readonly IniParseTable<CancelBuildingConstructionButton> FieldParseTable = HudButton.FieldParseTable
-            .Concat(new IniParseTable<CancelBuildingConstructionButton>());
-    }
-
-    public class DisbandArmyButton : HudButton
-    {
-        internal static DisbandArmyButton Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static new readonly IniParseTable<DisbandArmyButton> FieldParseTable = HudButton.FieldParseTable
-            .Concat(new IniParseTable<DisbandArmyButton>());
-    }
-
-    public class DisbandArmyMemberButton : HudButton
-    {
-        internal static DisbandArmyMemberButton Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static new readonly IniParseTable<DisbandArmyMemberButton> FieldParseTable = HudButton.FieldParseTable
-            .Concat(new IniParseTable<DisbandArmyMemberButton>());
-    }
-
-    public class OptionsButton : HudButton
-    {
-        internal static OptionsButton Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static new readonly IniParseTable<OptionsButton> FieldParseTable = HudButton.FieldParseTable
-            .Concat(new IniParseTable<OptionsButton>());
-    }
-
-    public class ObjectivesButton : HudButton
-    {
-        internal static ObjectivesButton Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static new readonly IniParseTable<ObjectivesButton> FieldParseTable = HudButton.FieldParseTable
-            .Concat(new IniParseTable<ObjectivesButton>());
-    }
-
-    public class ToggleSelectionDetailsButton : HudButton
-    {
-        internal static ToggleSelectionDetailsButton Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static new readonly IniParseTable<ToggleSelectionDetailsButton> FieldParseTable = HudButton.FieldParseTable
-            .Concat(new IniParseTable<ToggleSelectionDetailsButton>());
-    }
-
-    public class UpgradeUnitButton : HudButton
-    {
-        internal static UpgradeUnitButton Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
-
-        private static new readonly IniParseTable<UpgradeUnitButton> FieldParseTable = HudButton.FieldParseTable
-            .Concat(new IniParseTable<UpgradeUnitButton>());
     }
 
     public class Checklist

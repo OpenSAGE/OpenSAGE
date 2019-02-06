@@ -106,9 +106,7 @@ namespace OpenSage.Tests.Data.Ini
                                 case SageGame.Bfme2:
                                     switch (filename)
                                     {
-                                        case "riskcampaign.ini": //complex
                                         case "createaherosystem.ini": //complex
-                                        case "formationassistant.ini": //complex
                                             continue;
                                     }
                                     break;
@@ -118,7 +116,6 @@ namespace OpenSage.Tests.Data.Ini
                                     {
                                         case "riskcampaign.ini":
                                         case "createaherosystem.ini":
-                                        case "formationassistant.ini":
                                             continue;
                                     }
                                     break;
