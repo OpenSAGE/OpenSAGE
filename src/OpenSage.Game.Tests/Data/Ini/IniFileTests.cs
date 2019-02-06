@@ -116,7 +116,6 @@ namespace OpenSage.Tests.Data.Ini
                                     switch (filename)
                                     {
                                         case "riskcampaign.ini":
-                                        case "createaherosystem.ini":
                                             continue;
                                     }
                                     break;
