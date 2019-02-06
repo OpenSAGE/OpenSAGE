@@ -20,12 +20,11 @@ namespace OpenSage.Tests.Data.Ini
         [Fact]
         public void CanReadIniFiles()
         {
-            // TODO: Finish INI parsing for BFME2 and subsequent games.
             var gameDefinitions = new[]
             {
-                //GameDefinition.FromGame(SageGame.CncGenerals),
-                //GameDefinition.FromGame(SageGame.CncGeneralsZeroHour),
-                //GameDefinition.FromGame(SageGame.Bfme),
+                GameDefinition.FromGame(SageGame.CncGenerals),
+                GameDefinition.FromGame(SageGame.CncGeneralsZeroHour),
+                GameDefinition.FromGame(SageGame.Bfme),
                 GameDefinition.FromGame(SageGame.Bfme2),
                 GameDefinition.FromGame(SageGame.Bfme2Rotwk),
             };
@@ -72,7 +71,7 @@ namespace OpenSage.Tests.Data.Ini
                                     continue;
 
                                 case "credits.ini":
-                                    if(gameDefinition.Game == SageGame.Bfme2Rotwk)//corrupted in rotwk
+                                    if(gameDefinition.Game == SageGame.Bfme2Rotwk) //corrupted in rotwk (start of the block is commented out)
                                     {
                                         continue;
                                     }
@@ -96,28 +95,6 @@ namespace OpenSage.Tests.Data.Ini
                                     continue;
                                 default:
                                     if (filename.StartsWith("2.02")) { continue; }
-                                    break;
-                            }
-
-
-                            //TODO: parse these files
-                            switch (gameDefinition.Game)
-                            {
-                                case SageGame.Bfme2:
-                                    switch (filename)
-                                    {
-                                        case "riskcampaign.ini":
-                                        //case "createaherosystem.ini": //complex
-                                            continue;
-                                    }
-                                    break;
-
-                                case SageGame.Bfme2Rotwk:
-                                    switch (filename)
-                                    {
-                                        case "riskcampaign.ini":
-                                            continue;
-                                    }
                                     break;
                             }
 
