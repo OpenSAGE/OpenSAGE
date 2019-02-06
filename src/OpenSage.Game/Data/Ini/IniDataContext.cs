@@ -76,6 +76,10 @@ namespace OpenSage.Data.Ini
         public List<ControlBarResizer> ControlBarResizers { get; } = new List<ControlBarResizer>();
         public ControlBarSchemeCollection ControlBarSchemes { get; } = new ControlBarSchemeCollection();
         public List<CrateData> CrateDatas { get; } = new List<CrateData>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public CreateAHeroSystem CreateAHeroSystem { get; internal set; }
+
         public Credits Credits { get; internal set; }
 
         [AddedIn(SageGame.Bfme2)]

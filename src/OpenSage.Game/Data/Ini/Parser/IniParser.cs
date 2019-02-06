@@ -54,6 +54,7 @@ namespace OpenSage.Data.Ini.Parser
             { "ControlBarResizer", (parser, context) => context.ControlBarResizers.Add(ControlBarResizer.Parse(parser)) },
             { "ControlBarScheme", (parser, context) => context.ControlBarSchemes.Add(ControlBarScheme.Parse(parser)) },
             { "CrateData", (parser, context) => context.CrateDatas.Add(CrateData.Parse(parser)) },
+            { "CreateAHeroSystem", (parser, context) => context.CreateAHeroSystem = CreateAHeroSystem.Parse(parser) },
             { "Credits", (parser, context) => context.Credits = Credits.Parse(parser) },
             { "CrowdResponse", (parser, context) => context.CrowdResponses.Add(CrowdResponse.Parse(parser)) },
             { "DamageFX", (parser, context) => context.DamageFXs.Add(DamageFX.Parse(parser)) },

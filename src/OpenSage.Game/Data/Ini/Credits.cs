@@ -8,7 +8,7 @@ namespace OpenSage.Data.Ini
     {
         internal static Credits Parse(IniParser parser)
         {
-            return parser.ParseTopLevelBlock(FieldParseTable);
+            return parser.ParseBlock(FieldParseTable);
         }
 
         private static readonly IniParseTable<Credits> FieldParseTable = new IniParseTable<Credits>
