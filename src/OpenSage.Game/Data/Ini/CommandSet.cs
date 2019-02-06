@@ -7,7 +7,7 @@ namespace OpenSage.Data.Ini
     {
         internal static CommandSet Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable,
                 new IniArbitraryFieldParserProvider<CommandSet>(

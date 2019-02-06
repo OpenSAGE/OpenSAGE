@@ -12,7 +12,7 @@ namespace OpenSage.Data.Ini
     {
         internal static FXParticleSystemTemplate Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }

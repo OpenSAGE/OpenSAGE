@@ -6,7 +6,7 @@ namespace OpenSage.Data.Ini
     {
         internal static DialogEvent Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }

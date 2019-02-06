@@ -2,7 +2,6 @@
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
-using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -10,7 +9,7 @@ namespace OpenSage.Logic.Object
     {
         internal static ObjectDefinition Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }

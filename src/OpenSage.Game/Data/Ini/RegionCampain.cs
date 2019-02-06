@@ -8,7 +8,7 @@ namespace OpenSage.Data.Ini
     {
         internal static RegionCampain Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }
@@ -29,7 +29,7 @@ namespace OpenSage.Data.Ini
     {
         internal static Region Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }

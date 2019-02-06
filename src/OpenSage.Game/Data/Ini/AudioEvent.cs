@@ -58,7 +58,7 @@ namespace OpenSage.Data.Ini
     {
         internal static AudioEvent Parse(IniParser parser)
         {
-            var audioEvent = parser.ParseTopLevelNamedBlock(
+            var audioEvent = parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
 
@@ -106,7 +106,7 @@ namespace OpenSage.Data.Ini
     {
         internal static StreamedSound Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }

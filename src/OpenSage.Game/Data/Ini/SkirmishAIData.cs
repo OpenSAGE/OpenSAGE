@@ -8,7 +8,7 @@ namespace OpenSage.Data.Ini
     {
         internal static SkirmishAIData Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }
@@ -100,7 +100,7 @@ namespace OpenSage.Data.Ini
     {
         internal static CombatChainDefinition Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }
@@ -123,7 +123,7 @@ namespace OpenSage.Data.Ini
     {
         internal static BrutalDifficultyCheats Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }
@@ -143,7 +143,7 @@ namespace OpenSage.Data.Ini
     {
         internal static DifficultyTuning Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }

@@ -8,7 +8,7 @@ namespace OpenSage.Data.Ini
     {
         internal static AudioLod Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Level = (AudioLodType) Enum.Parse(typeof(AudioLodType), name),
                 FieldParseTable);
         }

@@ -10,7 +10,7 @@ namespace OpenSage.Data.Ini
     {
         internal static LivingWorldRegionCampaign Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }
@@ -139,7 +139,7 @@ namespace OpenSage.Data.Ini
     {
         internal static LivingWorldRegionCampaignRegion Parse(IniParser parser)
         {
-            return parser.ParseTopLevelNamedBlock(
+            return parser.ParseNamedBlock(
                 (x, name) => x.Name = name,
                 FieldParseTable);
         }
@@ -169,12 +169,10 @@ namespace OpenSage.Data.Ini
             { "CustomCenterPoint", (parser, x) => x.CustomCenterPoint = parser.ParseBoolean() },
             { "CenterPoint", (parser, x) => x.CenterPoint = parser.ParseVector2() },
             { "EndOfCampaign", (parser, x) => x.EndOfCampaign = parser.ParseBoolean() },
-
             { "ConnectsTo", (parser, x) => x.ConnectsTo = parser.ParseAssetReferenceArray() },
-
             { "SkirmishOpponent", (parser, x) => x.SkirmishOpponents.Add(LivingWorldRegionCampaignRegionSkirmishOpponent.Parse(parser)) },
-
             { "ArmyPlacementPos", (parser, x) => x.ArmyPlacementPositions.Add(parser.ParseVector2()) },
+            { "ExperienceBonus", (parser, x) => x.ExperienceBonus = parser.ParseInteger() }
         };
 
         public string Name { get; private set; }
@@ -202,12 +200,12 @@ namespace OpenSage.Data.Ini
         public bool CustomCenterPoint { get; private set; }
         public Vector2 CenterPoint { get; private set; }
         public bool EndOfCampaign { get; private set; }
-
         public string[] ConnectsTo { get; private set; }
-
         public List<LivingWorldRegionCampaignRegionSkirmishOpponent> SkirmishOpponents { get; } = new List<LivingWorldRegionCampaignRegionSkirmishOpponent>();
-
         public List<Vector2> ArmyPlacementPositions { get; } = new List<Vector2>();
+
+        [AddedIn(SageGame.Bfme2)]
+        public int ExperienceBonus { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]

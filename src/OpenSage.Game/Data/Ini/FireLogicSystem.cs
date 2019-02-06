@@ -23,7 +23,7 @@ namespace OpenSage.Data.Ini
     {
         internal static TerrainCellType Parse(IniParser parser)
         {
-            return parser.ParseTopLevelIndexedBlock(
+            return parser.ParseIndexedBlock(
                 (x, index) => x.Index = index,
                 FieldParseTable);
         }
