@@ -22,7 +22,12 @@ namespace OpenSage.Data.Ini
             { "AddPlayer", (parser, x) => x.AddPlayers.Add(AddPlayer.Parse(parser)) },
             { "LocalPlayer", (parser, x) => x.LocalPlayer = parser.ParseAssetReference() },
             { "Scenario", (parser, x) => x.Scenario = Scenario.Parse(parser) },
-            { "Tutorial", (parser, x) => x.Tutorial = Tutorial.Parse(parser) }
+            { "Tutorial", (parser, x) => x.Tutorial = Tutorial.Parse(parser) },
+            { "SecondsPerReinforcement", (parser, x) => x.SecondsPerReinforcement = parser.ParseInteger() },
+            { "StartingCashRTS", (parser, x) => x.StartingCashRTS = parser.ParseInteger() },
+            { "StartingCashRTSWithFort", (parser, x) => x.StartingCashRTSWithFort = parser.ParseInteger() },
+            { "InitialRevivalCostMultiplier", (parser, x) => x.InitialRevivalCostMultiplier = parser.ParseFloat() },
+            { "InitialRevivalTimeMultiplier", (parser, x) => x.InitialRevivalTimeMultiplier = parser.ParseFloat() },
         };
 
         public string Name { get; private set; }
@@ -45,6 +50,21 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public Tutorial Tutorial { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int SecondsPerReinforcement { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int StartingCashRTS { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public int StartingCashRTSWithFort { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float InitialRevivalCostMultiplier { get; private set; }
+
+        [AddedIn(SageGame.Bfme2)]
+        public float InitialRevivalTimeMultiplier { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme)]
@@ -401,7 +421,21 @@ namespace OpenSage.Data.Ini
             { "RegionCampaign", (parser, x) => x.RegionCampaign = parser.ParseString() },
             { "PlayerDefeatCondition", (parser, x) => x.PlayerDefeatCondition = DefeatCondition.Parse(parser) },
             { "TeamDefeatCondition", (parser, x) => x.TeamDefeatCondition = DefeatCondition.Parse(parser) },
-            { "OwnershipSet", (parser, x) => x.OwnershipSets.Add(OwnershipSet.Parse(parser)) }
+            { "OwnershipSet", (parser, x) => x.OwnershipSets.Add(OwnershipSet.Parse(parser)) },
+            { "DisplayGameType", (parser, x) => x.DisplayGameType = parser.ParseLocalizedStringKey() },
+            { "DisplayObjectives", (parser, x) => x.DisplayObjectives = parser.ParseLocalizedStringKey() },
+            { "DisplayFiction", (parser, x) => x.DisplayFiction = parser.ParseLocalizedStringKey() },
+            { "DisplayVictoriousText", (parser, x) => x.DisplayVictoriousText = parser.ParseLocalizedStringKey() },
+            { "DisplayDefeatedText", (parser, x) => x.DisplayDefeatedText = parser.ParseLocalizedStringKey() },
+            { "MaxPlayers", (parser, x) => x.MaxPlayers = parser.ParseInteger() },
+            { "DefaultStartSpots", (parser, x) => x.DefaultStartSpots = parser.ParseAssetReferenceArray() },
+            { "TeamVictoryCondition", (parser, x) => x.TeamVictoryCondition = DefeatCondition.Parse(parser) },
+            { "DisallowStartInRegions", (parser, x) => x.DisallowStartInRegions = parser.ParseAssetReferenceArray() },
+            { "DisableRegions", (parser, x) => x.DisableRegions = parser.ParseAssetReferenceArray() },
+            { "MinPlayers", (parser, x) => x.MinPlayers = parser.ParseInteger() },
+            { "DisabledFactions", (parser, x) => x.DisabledFactions = parser.ParseAssetReferenceArray() },
+            { "HistoricalScenario", (parser, x) => x.HistoricalScenario = parser.ParseBoolean() },
+            { "StartingRestriction", (parser, x) => x.StartingRestrictions.Add(StartingRestriction.Parse(parser)) }
         };
 
         public string DisplayName { get; private set; }
@@ -410,6 +444,20 @@ namespace OpenSage.Data.Ini
         public DefeatCondition PlayerDefeatCondition { get; private set; }
         public DefeatCondition TeamDefeatCondition { get; private set; }
         public List<OwnershipSet> OwnershipSets { get; } = new List<OwnershipSet>();
+        public string DisplayGameType { get; private set; }
+        public string DisplayObjectives { get; private set; }
+        public string DisplayFiction { get; private set; }
+        public string DisplayVictoriousText { get; private set; }
+        public string DisplayDefeatedText { get; private set; }
+        public int MaxPlayers { get; private set; }
+        public string[] DefaultStartSpots { get; private set; }
+        public DefeatCondition TeamVictoryCondition { get; private set; }
+        public string[] DisallowStartInRegions { get; private set; }
+        public string[] DisableRegions { get; private set; }
+        public int MinPlayers { get; private set; }
+        public string[] DisabledFactions { get; private set; }
+        public bool HistoricalScenario { get; private set; }
+        public List<StartingRestriction> StartingRestrictions { get; } = new List<StartingRestriction>();
     }
 
     [AddedIn(SageGame.Bfme2)]
@@ -422,11 +470,34 @@ namespace OpenSage.Data.Ini
             { "Teams", (parser, x) => x.Teams = parser.ParseIntegerArray() },
             { "LoseIfCapitalLost", (parser, x) => x.LoseIfCapitalLost = parser.ParseBoolean() },
             { "NumControlledRegionsLessOrEqualTo", (parser, x) => x.NumControlledRegionsLessOrEqualTo = parser.ParseInteger() },
+            { "NumControlledRegionsGreaterOrEqualTo", (parser, x) => x.NumControlledRegionsGreaterOrEqualTo = parser.ParseInteger() },
+            { "ControlledRegions", (parser, x) => x.ControlledRegions = parser.ParseAssetReferenceArray() },
+            { "ControlledRegionsHeldForTurns", (parser, x) => x.ControlledRegionsHeldForTurns = parser.ParseInteger() }
         };
 
         public int[] Teams { get; private set; }
         public bool LoseIfCapitalLost { get; private set; }
         public int NumControlledRegionsLessOrEqualTo { get; private set; }
+        public int NumControlledRegionsGreaterOrEqualTo { get; private set; }
+        public string[] ControlledRegions { get; private set; }
+        public int ControlledRegionsHeldForTurns { get; private set; }
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class StartingRestriction
+    {
+        internal static StartingRestriction Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<StartingRestriction> FieldParseTable = new IniParseTable<StartingRestriction>
+        {
+            { "Factions", (parser, x) => x.Factions = parser.ParseAssetReferenceArray() },
+            { "Regions", (parser, x) => x.Regions = parser.ParseAssetReferenceArray() },
+            { "Teams", (parser, x) => x.Teams = parser.ParseIntegerArray() }
+        };
+
+        public string[] Factions { get; private set; }
+        public string[] Regions { get; private set; }
+        public int[] Teams { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme2)]
@@ -436,12 +507,31 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<OwnershipSet> FieldParseTable = new IniParseTable<OwnershipSet>
         {
+            { "StartRegion", (parser, x) => x.StartRegion = parser.ParseAssetReference() },
             { "Regions", (parser, x) => x.Regions = parser.ParseAssetReferenceArray() },
             { "SpawnBuildings", (parser, x) => x.SpawnBuildingsList.Add(SpawnBuildings.Parse(parser)) },
+            { "SpawnArmies", (parser, x) => x.SpawnArmiesList.Add(SpawnArmies.Parse(parser)) }
         };
 
         public string[] Regions { get; private set; }
         public List<SpawnBuildings> SpawnBuildingsList { get; } = new List<SpawnBuildings>();
+        public string StartRegion { get; private set; }
+        public List<SpawnArmies> SpawnArmiesList { get; } = new List<SpawnArmies>();
+    }
+
+    [AddedIn(SageGame.Bfme2)]
+    public class SpawnArmies
+    {
+        internal static SpawnArmies Parse(IniParser parser) => parser.ParseBlock(FieldParseTable);
+
+        private static readonly IniParseTable<SpawnArmies> FieldParseTable = new IniParseTable<SpawnArmies>
+        {
+            { "Armies", (parser, x) => x.Armies = parser.ParseAssetReferenceArray() },
+            { "Region", (parser, x) => x.Region = parser.ParseAssetReference() }
+        };
+
+        public string[] Armies { get; private set; }
+        public string Region { get; private set; }
     }
 
     [AddedIn(SageGame.Bfme2)]
