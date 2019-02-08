@@ -7,7 +7,7 @@
     <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
     <TrimUnusedDependencies>true</TrimUnusedDependencies>
     <RootPackageReference>false</RootPackageReference>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   
   <ItemGroup>
