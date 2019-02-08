@@ -2,7 +2,6 @@
   <PropertyGroup>    
     <TargetFramework>netcoreapp2.2</TargetFramework>    
     <RootNamespace>OpenSage.Tests</RootNamespace>    
-    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   
   <ItemGroup>
