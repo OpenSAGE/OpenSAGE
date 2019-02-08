@@ -3,7 +3,6 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <RootNamespace>OpenSage</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   
   <ItemGroup>
