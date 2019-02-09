@@ -746,7 +746,10 @@ namespace OpenSage.Data.Ini.Parser
 
                 var token = _tokenReader.NextToken(Separators);
 
-                if (token == null) continue;
+                if (token == null)
+                {
+                    continue;
+                }
 
                 if (string.Equals(token.Value.Text, EndToken, StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -815,7 +818,10 @@ namespace OpenSage.Data.Ini.Parser
 
                 var token = _tokenReader.NextToken(Separators);
 
-                if (token == null) continue;
+                if (token == null)
+                {
+                    continue;
+                }
 
                 var fieldName = token.Value.Text;
 

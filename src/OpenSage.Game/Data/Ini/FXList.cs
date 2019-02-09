@@ -176,14 +176,14 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<LightPulseFXListItem> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<LightPulseFXListItem>
         {
-            { "Color", (parser, x) => x.Color = IniColorRgb.Parse(parser) },
+            { "Color", (parser, x) => x.Color = parser.ParseColorRgb() },
             { "Radius", (parser, x) => x.Radius = parser.ParseInteger() },
             { "RadiusAsPercentOfObjectSize", (parser, x) => x.RadiusAsPercentOfObjectSize = parser.ParsePercentage() },
             { "IncreaseTime", (parser, x) => x.IncreaseTime = parser.ParseInteger() },
             { "DecreaseTime", (parser, x) => x.DecreaseTime = parser.ParseInteger() }
         });
 
-        public IniColorRgb Color { get; private set; }
+        public ColorRgb Color { get; private set; }
         public int Radius { get; private set; }
         public float RadiusAsPercentOfObjectSize { get; private set; }
         public int IncreaseTime { get; private set; }
@@ -250,7 +250,7 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<TracerFXListItem> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<TracerFXListItem>
         {
-            { "Color", (parser, x) => x.Color = IniColorRgb.Parse(parser) },
+            { "Color", (parser, x) => x.Color = parser.ParseColorRgb() },
             { "DecayAt", (parser, x) => x.DecayAt = parser.ParseFloat() },
             { "Length", (parser, x) => x.Length = parser.ParseFloat() },
             { "Probability", (parser, x) => x.Probability = parser.ParseFloat() },
@@ -258,7 +258,7 @@ namespace OpenSage.Data.Ini
             { "Width", (parser, x) => x.Width = parser.ParseFloat() },
         });
 
-        public IniColorRgb Color { get; private set; }
+        public ColorRgb Color { get; private set; }
         public float DecayAt { get; private set; }
         public float Length { get; private set; }
         public float Probability { get; private set; }
@@ -282,7 +282,7 @@ namespace OpenSage.Data.Ini
             { "IsComplexBuff", (parser, x) => x.IsComplexBuff = parser.ParseBoolean() },
             { "BuffLifeTime", (parser, x) => x.BuffLifeTime = parser.ParseLong() },
             { "Extrusion", (parser, x) => x.Extrusion = parser.ParseFloat() },
-            { "Color", (parser, x) => x.Color = IniColorRgb.Parse(parser) },
+            { "Color", (parser, x) => x.Color = parser.ParseColorRgb() },
             { "BuffShipTemplate", (parser, x) => x.BuffShipTemplate = parser.ParseAssetReference() },
             { "BuffMonsterTemplate", (parser, x) => x.BuffMonsterTemplate = parser.ParseAssetReference() }
         });
@@ -296,7 +296,7 @@ namespace OpenSage.Data.Ini
         public bool IsComplexBuff { get; private set; }
         public long BuffLifeTime { get; private set; }
         public float Extrusion { get; private set; }
-        public IniColorRgb Color { get; private set; }
+        public ColorRgb Color { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]
         public string BuffShipTemplate { get; private set; }
@@ -331,7 +331,7 @@ namespace OpenSage.Data.Ini
         {
             { "DecalName", (parser, x) => x.DecalName = parser.ParseAssetReference() },
             { "Size", (parser, x) => x.Size = parser.ParseInteger() },
-            { "Color", (parser, x) => x.Color = IniColorRgb.Parse(parser) },
+            { "Color", (parser, x) => x.Color = parser.ParseColorRgb() },
             { "Offset", (parser, x) => x.Offset = parser.ParseVector2() },
 
             { "OpacityStart", (parser, x) => x.OpacityStart = parser.ParseInteger() },
@@ -348,7 +348,7 @@ namespace OpenSage.Data.Ini
 
         public string DecalName { get; private set; }
         public int Size { get; private set; }
-        public IniColorRgb Color { get; private set; }
+        public ColorRgb Color { get; private set; }
         public Vector2 Offset { get; private set; }
 
         public int OpacityStart { get; private set; }
@@ -387,7 +387,7 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<TintDrawableFXNugget> FieldParseTable = FXListItemFieldParseTable.Concat(new IniParseTable<TintDrawableFXNugget>
         {
-            { "Color", (parser, x) => x.Color = IniColorRgb.Parse(parser) },
+            { "Color", (parser, x) => x.Color = parser.ParseColorRgb() },
             { "PreColorTime", (parser, x) => x.PreColorTime = parser.ParseInteger() },
             { "PostColorTime", (parser, x) => x.PostColorTime = parser.ParseInteger() },
             { "SustainedColorTime", (parser, x) => x.SustainedColorTime = parser.ParseInteger() },
@@ -395,7 +395,7 @@ namespace OpenSage.Data.Ini
             { "Amplitude", (parser, x) => x.Amplitude = parser.ParseFloat() },
         });
 
-        public IniColorRgb Color { get; private set; }
+        public ColorRgb Color { get; private set; }
         public int PreColorTime { get; private set; }
         public int PostColorTime { get; private set; }
         public int SustainedColorTime { get; private set; }
@@ -482,33 +482,6 @@ namespace OpenSage.Data.Ini
 
         [IniEnum("SCORCH_4"), AddedIn(SageGame.CncGeneralsZeroHour)]
         Scorch4,
-    }
-
-    public struct IniColorRgb
-    {
-        internal static IniColorRgb Parse(IniParser parser)
-        {
-            return new IniColorRgb
-            {
-                R = parser.ParseAttributeByte("R"),
-                G = parser.ParseAttributeByte("G"),
-                B = parser.ParseAttributeByte("B")
-            };
-        }
-
-        public byte R;
-        public byte G;
-        public byte B;
-
-        public ColorRgbaF ToColorRgbaF()
-        {
-            return new ColorRgbaF(R / 255.0f, G / 255.0f, B / 255.0f, 1.0f);
-        }
-
-        public ColorRgb ToColorRgb()
-        {
-            return new ColorRgb(R, G, B);
-        }
     }
 
     public struct RandomVariable

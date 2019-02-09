@@ -243,13 +243,13 @@ namespace OpenSage.Mods.Generals.Gui
                 selected = GetSelectedComboBoxIndex(_optionsPath + ComboBoxColorPrefix + i);
                 if (selected > 0)
                 {
-                    setting.Color = mpColors[selected - 1].RgbColor.ToColorRgb();
+                    setting.Color = mpColors[selected - 1].RgbColor;
                 }
                 else
                 {
                     // TODO: make sure the color isn't already used
-                    int r = rnd.Next(mpColors.Count);
-                    setting.Color = mpColors[r].RgbColor.ToColorRgb();
+                    var r = rnd.Next(mpColors.Count);
+                    setting.Color = mpColors[r].RgbColor;
                 }
 
                 // Get the selected player faction

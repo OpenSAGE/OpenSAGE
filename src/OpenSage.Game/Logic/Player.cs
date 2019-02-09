@@ -82,7 +82,7 @@ namespace OpenSage.Logic
             }
             else if (template != null) // Template is null for the neutral faction
             {
-                color = template.PreferredColor.ToColorRgb();
+                color = template.PreferredColor;
             }
             else
             {
@@ -135,7 +135,7 @@ namespace OpenSage.Logic
                 Name = template.Name,
                 DisplayName = content.TranslationManager.Lookup(template.DisplayName),
                 Money = (uint) template.StartMoney,
-                Color = setting.HasValue ? setting.Value.Color : template.PreferredColor.ToColorRgb()
+                Color = setting.HasValue ? setting.Value.Color : template.PreferredColor
             };
         }
     }

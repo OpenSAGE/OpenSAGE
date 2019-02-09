@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -58,7 +59,7 @@ namespace OpenSage.Data.Ini
             { "PlayableSide", (parser, x) => x.PlayableSide = parser.ParseBoolean() },
             { "IsObserver", (parser, x) => x.IsObserver = parser.ParseBoolean() },
             { "StartMoney", (parser, x) => x.StartMoney = parser.ParseInteger() },
-            { "PreferredColor", (parser, x) => x.PreferredColor = IniColorRgb.Parse(parser) },
+            { "PreferredColor", (parser, x) => x.PreferredColor = parser.ParseColorRgb() },
             { "IntrinsicSciences", (parser, x) => x.IntrinsicSciences = parser.ParseAssetReferenceArray() },
             { "PurchaseScienceCommandSetRank1", (parser, x) => x.PurchaseScienceCommandSetRank1 = parser.ParseAssetReference() },
             { "PurchaseScienceCommandSetRank3", (parser, x) => x.PurchaseScienceCommandSetRank3 = parser.ParseAssetReference() },
@@ -118,7 +119,7 @@ namespace OpenSage.Data.Ini
         public bool PlayableSide { get; private set; }
         public bool IsObserver { get; private set; }
         public int StartMoney { get; private set; }
-        public IniColorRgb PreferredColor { get; private set; }
+        public ColorRgb PreferredColor { get; private set; }
         public string[] IntrinsicSciences { get; private set; }
         public string PurchaseScienceCommandSetRank1 { get; private set; }
         public string PurchaseScienceCommandSetRank3 { get; private set; }

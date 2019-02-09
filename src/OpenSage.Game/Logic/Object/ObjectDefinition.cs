@@ -2,6 +2,7 @@
 using System.Numerics;
 using OpenSage.Data.Ini;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Logic.Object
 {
@@ -223,7 +224,7 @@ namespace OpenSage.Logic.Object
             { "RadarPriority", (parser, x) => x.RadarPriority = parser.ParseEnum<RadarPriority>() },
             { "EnterGuard", (parser, x) => x.EnterGuard = parser.ParseBoolean() },
             { "HijackGuard", (parser, x) => x.HijackGuard = parser.ParseBoolean() },
-            { "DisplayColor", (parser, x) => x.DisplayColor = IniColorRgb.Parse(parser) },
+            { "DisplayColor", (parser, x) => x.DisplayColor = parser.ParseColorRgb() },
             { "Scale", (parser, x) => x.Scale = parser.ParseFloat() },
 
             { "Geometry", (parser, x) => x.Geometry =  new Geometry(parser.ParseEnum<ObjectGeometry>()) },
@@ -789,7 +790,7 @@ namespace OpenSage.Logic.Object
         [AddedIn(SageGame.CncGeneralsZeroHour)]
         public bool HijackGuard { get; private set; }
 
-        public IniColorRgb DisplayColor { get; private set; }
+        public ColorRgb DisplayColor { get; private set; }
         public float Scale { get; private set; }
 
         private Geometry CurrentGeometry

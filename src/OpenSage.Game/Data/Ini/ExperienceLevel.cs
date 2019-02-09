@@ -1,4 +1,5 @@
 ﻿using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -24,7 +25,7 @@ namespace OpenSage.Data.Ini
             { "AttributeModifiers", (parser, x) => x.AttributeModifiers = parser.ParseAssetReferenceArray() },
             { "Rank", (parser, x) => x.Rank = parser.ParseInteger() },
             { "LevelUpFx", (parser, x) => x.LevelUpFX = parser.ParseAssetReference() },
-            { "LevelUpTintColor", (parser, x) => x.LevelUpTintColor = IniColorRgb.Parse(parser) },
+            { "LevelUpTintColor", (parser, x) => x.LevelUpTintColor = parser.ParseColorRgb() },
             { "LevelUpTintPreColorTime", (parser, x) => x.LevelUpTintPreColorTime = parser.ParseInteger() },
             { "LevelUpTintPostColorTime", (parser, x) => x.LevelUpTintPostColorTime = parser.ParseInteger() },
             { "LevelUpTintSustainColorTime", (parser, x) => x.LevelUpTintSustainColorTime = parser.ParseInteger() },
@@ -44,7 +45,7 @@ namespace OpenSage.Data.Ini
         public string[] AttributeModifiers { get; private set; }
         public int Rank { get; private set; }
         public string LevelUpFX { get; private set; }
-        public IniColorRgb LevelUpTintColor { get; private set; }
+        public ColorRgb LevelUpTintColor { get; private set; }
         public int LevelUpTintPreColorTime { get; private set; }
         public int LevelUpTintPostColorTime { get; private set; }
         public int LevelUpTintSustainColorTime { get; private set; }

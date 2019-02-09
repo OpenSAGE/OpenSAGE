@@ -2,6 +2,7 @@
 using OpenSage.Data.Ini.Parser;
 using OpenSage.Data.Map;
 using System.Numerics;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -229,52 +230,52 @@ namespace OpenSage.Data.Ini
             { "InfantryLightEveningScale", (parser, x) => x.InfantryLightEveningScale = parser.ParseFloat() },
             { "InfantryLightNightScale", (parser, x) => x.InfantryLightNightScale = parser.ParseFloat() },
 
-            { "TerrainLightingMorningAmbient", (parser, x) => x.TerrainLightingMorningAmbient = IniColorRgb.Parse(parser) },
-            { "TerrainLightingMorningDiffuse", (parser, x) => x.TerrainLightingMorningDiffuse = IniColorRgb.Parse(parser) },
+            { "TerrainLightingMorningAmbient", (parser, x) => x.TerrainLightingMorningAmbient = parser.ParseColorRgb() },
+            { "TerrainLightingMorningDiffuse", (parser, x) => x.TerrainLightingMorningDiffuse = parser.ParseColorRgb() },
             { "TerrainLightingMorningLightPos", (parser, x) => x.TerrainLightingMorningLightPos = parser.ParseVector3() },
 
-            { "TerrainLightingEveningAmbient", (parser, x) => x.TerrainLightingEveningAmbient = IniColorRgb.Parse(parser) },
-            { "TerrainLightingEveningDiffuse", (parser, x) => x.TerrainLightingEveningDiffuse = IniColorRgb.Parse(parser) },
+            { "TerrainLightingEveningAmbient", (parser, x) => x.TerrainLightingEveningAmbient = parser.ParseColorRgb() },
+            { "TerrainLightingEveningDiffuse", (parser, x) => x.TerrainLightingEveningDiffuse = parser.ParseColorRgb() },
             { "TerrainLightingEveningLightPos", (parser, x) => x.TerrainLightingEveningLightPos = parser.ParseVector3() },
 
-            { "TerrainLightingNightAmbient", (parser, x) => x.TerrainLightingNightAmbient = IniColorRgb.Parse(parser) },
-            { "TerrainLightingNightDiffuse", (parser, x) => x.TerrainLightingNightDiffuse = IniColorRgb.Parse(parser) },
+            { "TerrainLightingNightAmbient", (parser, x) => x.TerrainLightingNightAmbient = parser.ParseColorRgb() },
+            { "TerrainLightingNightDiffuse", (parser, x) => x.TerrainLightingNightDiffuse = parser.ParseColorRgb() },
             { "TerrainLightingNightLightPos", (parser, x) => x.TerrainLightingNightLightPos = parser.ParseVector3() },
 
-            { "TerrainObjectsLightingMorningAmbient", (parser, x) => x.TerrainObjectsLightingMorningAmbient = IniColorRgb.Parse(parser) },
-            { "TerrainObjectsLightingMorningDiffuse", (parser, x) => x.TerrainObjectsLightingMorningDiffuse = IniColorRgb.Parse(parser) },
+            { "TerrainObjectsLightingMorningAmbient", (parser, x) => x.TerrainObjectsLightingMorningAmbient = parser.ParseColorRgb() },
+            { "TerrainObjectsLightingMorningDiffuse", (parser, x) => x.TerrainObjectsLightingMorningDiffuse = parser.ParseColorRgb() },
             { "TerrainObjectsLightingMorningLightPos", (parser, x) => x.TerrainObjectsLightingMorningLightPos = parser.ParseVector3() },
 
-            { "TerrainObjectsLightingEveningAmbient", (parser, x) => x.TerrainObjectsLightingEveningAmbient = IniColorRgb.Parse(parser) },
-            { "TerrainObjectsLightingEveningDiffuse", (parser, x) => x.TerrainObjectsLightingEveningDiffuse = IniColorRgb.Parse(parser) },
+            { "TerrainObjectsLightingEveningAmbient", (parser, x) => x.TerrainObjectsLightingEveningAmbient = parser.ParseColorRgb() },
+            { "TerrainObjectsLightingEveningDiffuse", (parser, x) => x.TerrainObjectsLightingEveningDiffuse = parser.ParseColorRgb() },
             { "TerrainObjectsLightingEveningLightPos", (parser, x) => x.TerrainObjectsLightingEveningLightPos = parser.ParseVector3() },
 
-            { "TerrainObjectsLightingNightAmbient", (parser, x) => x.TerrainObjectsLightingNightAmbient = IniColorRgb.Parse(parser) },
-            { "TerrainObjectsLightingNightDiffuse", (parser, x) => x.TerrainObjectsLightingNightDiffuse = IniColorRgb.Parse(parser) },
+            { "TerrainObjectsLightingNightAmbient", (parser, x) => x.TerrainObjectsLightingNightAmbient = parser.ParseColorRgb() },
+            { "TerrainObjectsLightingNightDiffuse", (parser, x) => x.TerrainObjectsLightingNightDiffuse = parser.ParseColorRgb() },
             { "TerrainObjectsLightingNightLightPos", (parser, x) => x.TerrainObjectsLightingNightLightPos = parser.ParseVector3() },
 
-            { "TerrainLightingAfternoonAmbient", (parser, x) => x.TerrainLightingAfternoonAmbient = IniColorRgb.Parse(parser) },
-            { "TerrainLightingAfternoonDiffuse", (parser, x) => x.TerrainLightingAfternoonDiffuse = IniColorRgb.Parse(parser) },
+            { "TerrainLightingAfternoonAmbient", (parser, x) => x.TerrainLightingAfternoonAmbient = parser.ParseColorRgb() },
+            { "TerrainLightingAfternoonDiffuse", (parser, x) => x.TerrainLightingAfternoonDiffuse = parser.ParseColorRgb() },
             { "TerrainLightingAfternoonLightPos", (parser, x) => x.TerrainLightingAfternoonLightPos = parser.ParseVector3() },
 
-            { "TerrainObjectsLightingAfternoonAmbient", (parser, x) => x.TerrainObjectsLightingAfternoonAmbient = IniColorRgb.Parse(parser) },
-            { "TerrainObjectsLightingAfternoonDiffuse", (parser, x) => x.TerrainObjectsLightingAfternoonDiffuse = IniColorRgb.Parse(parser) },
+            { "TerrainObjectsLightingAfternoonAmbient", (parser, x) => x.TerrainObjectsLightingAfternoonAmbient = parser.ParseColorRgb() },
+            { "TerrainObjectsLightingAfternoonDiffuse", (parser, x) => x.TerrainObjectsLightingAfternoonDiffuse = parser.ParseColorRgb() },
             { "TerrainObjectsLightingAfternoonLightPos", (parser, x) => x.TerrainObjectsLightingAfternoonLightPos = parser.ParseVector3() },
 
-            { "TerrainLightingAfternoonAmbient2", (parser, x) => x.TerrainLightingAfternoonAmbient2 = IniColorRgb.Parse(parser) },
-            { "TerrainLightingAfternoonDiffuse2", (parser, x) => x.TerrainLightingAfternoonDiffuse2 = IniColorRgb.Parse(parser) },
+            { "TerrainLightingAfternoonAmbient2", (parser, x) => x.TerrainLightingAfternoonAmbient2 = parser.ParseColorRgb() },
+            { "TerrainLightingAfternoonDiffuse2", (parser, x) => x.TerrainLightingAfternoonDiffuse2 = parser.ParseColorRgb() },
             { "TerrainLightingAfternoonLightPos2", (parser, x) => x.TerrainLightingAfternoonLightPos2 = parser.ParseVector3() },
 
-            { "TerrainObjectsLightingAfternoonAmbient2", (parser, x) => x.TerrainObjectsLightingAfternoonAmbient2 = IniColorRgb.Parse(parser) },
-            { "TerrainObjectsLightingAfternoonDiffuse2", (parser, x) => x.TerrainObjectsLightingAfternoonDiffuse2 = IniColorRgb.Parse(parser) },
+            { "TerrainObjectsLightingAfternoonAmbient2", (parser, x) => x.TerrainObjectsLightingAfternoonAmbient2 = parser.ParseColorRgb() },
+            { "TerrainObjectsLightingAfternoonDiffuse2", (parser, x) => x.TerrainObjectsLightingAfternoonDiffuse2 = parser.ParseColorRgb() },
             { "TerrainObjectsLightingAfternoonLightPos2", (parser, x) => x.TerrainObjectsLightingAfternoonLightPos2 = parser.ParseVector3() },
 
-            { "TerrainLightingAfternoonAmbient3", (parser, x) => x.TerrainLightingAfternoonAmbient3 = IniColorRgb.Parse(parser) },
-            { "TerrainLightingAfternoonDiffuse3", (parser, x) => x.TerrainLightingAfternoonDiffuse3 = IniColorRgb.Parse(parser) },
+            { "TerrainLightingAfternoonAmbient3", (parser, x) => x.TerrainLightingAfternoonAmbient3 = parser.ParseColorRgb() },
+            { "TerrainLightingAfternoonDiffuse3", (parser, x) => x.TerrainLightingAfternoonDiffuse3 = parser.ParseColorRgb() },
             { "TerrainLightingAfternoonLightPos3", (parser, x) => x.TerrainLightingAfternoonLightPos3 = parser.ParseVector3() },
 
-            { "TerrainObjectsLightingAfternoonAmbient3", (parser, x) => x.TerrainObjectsLightingAfternoonAmbient3 = IniColorRgb.Parse(parser) },
-            { "TerrainObjectsLightingAfternoonDiffuse3", (parser, x) => x.TerrainObjectsLightingAfternoonDiffuse3 = IniColorRgb.Parse(parser) },
+            { "TerrainObjectsLightingAfternoonAmbient3", (parser, x) => x.TerrainObjectsLightingAfternoonAmbient3 = parser.ParseColorRgb() },
+            { "TerrainObjectsLightingAfternoonDiffuse3", (parser, x) => x.TerrainObjectsLightingAfternoonDiffuse3 = parser.ParseColorRgb() },
             { "TerrainObjectsLightingAfternoonLightPos3", (parser, x) => x.TerrainObjectsLightingAfternoonLightPos3 = parser.ParseVector3() },
 
             { "AudioOn", (parser, x) => x.AudioOn = parser.ParseBoolean() },
@@ -437,15 +438,15 @@ namespace OpenSage.Data.Ini
 
             { "UnlookPersistDuration", (parser, x) => x.UnlookPersistDuration = parser.ParseInteger() },
 
-            { "ShroudColor", (parser, x) => x.ShroudColor = IniColorRgb.Parse(parser) },
+            { "ShroudColor", (parser, x) => x.ShroudColor = parser.ParseColorRgb() },
             { "ClearAlpha", (parser, x) => x.ClearAlpha = parser.ParseByte() },
             { "FogAlpha", (parser, x) => x.FogAlpha = parser.ParseByte() },
             { "ShroudAlpha", (parser, x) => x.ShroudAlpha = parser.ParseByte() },
 
             { "TaintOn", (parser, x) => x.TaintOn = parser.ParseBoolean() },
-            { "TaintColor", (parser, x) => x.TaintColor = IniColorRgb.Parse(parser) },
+            { "TaintColor", (parser, x) => x.TaintColor = parser.ParseColorRgb() },
             { "TaintAlpha", (parser, x) => x.TaintAlpha = parser.ParseByte() },
-            { "ElvenWoodColor", (parser, x) => x.ElvenWoodColor = IniColorRgb.Parse(parser) },
+            { "ElvenWoodColor", (parser, x) => x.ElvenWoodColor = parser.ParseColorRgb() },
 
             { "NetworkFPSHistoryLength", (parser, x) => x.NetworkFpsHistoryLength = parser.ParseInteger() },
             { "NetworkLatencyHistoryLength", (parser, x) => x.NetworkLatencyHistoryLength = parser.ParseInteger() },
@@ -580,19 +581,19 @@ namespace OpenSage.Data.Ini
 
             { "DebugAerialTileWidth", (parser, x) => x.DebugAerialTileWidth = parser.ParseInteger() },
             { "DebugAerialTileDuration", (parser, x) => x.DebugAerialTileDuration = parser.ParseInteger() },
-            { "DebugAerialTileColor", (parser, x) => x.DebugAerialTileColor = IniColorRgb.Parse(parser) },
+            { "DebugAerialTileColor", (parser, x) => x.DebugAerialTileColor = parser.ParseColorRgb() },
 
             { "DebugProjectileTileWidth", (parser, x) => x.DebugProjectileTileWidth = parser.ParseInteger() },
             { "DebugProjectileTileDuration", (parser, x) => x.DebugProjectileTileDuration = parser.ParseInteger() },
-            { "DebugProjectileTileColor", (parser, x) => x.DebugProjectileTileColor = IniColorRgb.Parse(parser) },
+            { "DebugProjectileTileColor", (parser, x) => x.DebugProjectileTileColor = parser.ParseColorRgb() },
 
             { "DebugVisibilityTileCount", (parser, x) => x.DebugVisibilityTileCount = parser.ParseInteger() },
             { "DebugVisibilityTileWidth", (parser, x) => x.DebugVisibilityTileWidth = parser.ParseFloat() },
             { "DebugVisibilityTileDuration", (parser, x) => x.DebugVisibilityTileDuration = parser.ParseInteger() },
 
-            { "DebugVisibilityTileTargettableColor", (parser, x) => x.DebugVisibilityTileTargettableColor = IniColorRgb.Parse(parser) },
-            { "DebugVisibilityTileDeshroudColor", (parser, x) => x.DebugVisibilityTileDeshroudColor = IniColorRgb.Parse(parser) },
-            { "DebugVisibilityTileGapColor", (parser, x) => x.DebugVisibilityTileGapColor = IniColorRgb.Parse(parser) },
+            { "DebugVisibilityTileTargettableColor", (parser, x) => x.DebugVisibilityTileTargettableColor = parser.ParseColorRgb() },
+            { "DebugVisibilityTileDeshroudColor", (parser, x) => x.DebugVisibilityTileDeshroudColor = parser.ParseColorRgb() },
+            { "DebugVisibilityTileGapColor", (parser, x) => x.DebugVisibilityTileGapColor = parser.ParseColorRgb() },
 
             { "DebugThreatMapTileDuration", (parser, x) => x.DebugThreatMapTileDuration = parser.ParseInteger() },
             { "MaxDebugThreatMapValue", (parser, x) => x.MaxDebugThreatMapValue = parser.ParseInteger() },
@@ -875,52 +876,52 @@ namespace OpenSage.Data.Ini
         public float InfantryLightEveningScale { get; private set; }
         public float InfantryLightNightScale { get; private set; }
 
-        public IniColorRgb TerrainLightingMorningAmbient { get; private set; }
-        public IniColorRgb TerrainLightingMorningDiffuse { get; private set; }
+        public ColorRgb TerrainLightingMorningAmbient { get; private set; }
+        public ColorRgb TerrainLightingMorningDiffuse { get; private set; }
         public Vector3 TerrainLightingMorningLightPos { get; private set; }
 
-        public IniColorRgb TerrainLightingEveningAmbient { get; private set; }
-        public IniColorRgb TerrainLightingEveningDiffuse { get; private set; }
+        public ColorRgb TerrainLightingEveningAmbient { get; private set; }
+        public ColorRgb TerrainLightingEveningDiffuse { get; private set; }
         public Vector3 TerrainLightingEveningLightPos { get; private set; }
 
-        public IniColorRgb TerrainLightingNightAmbient { get; private set; }
-        public IniColorRgb TerrainLightingNightDiffuse { get; private set; }
+        public ColorRgb TerrainLightingNightAmbient { get; private set; }
+        public ColorRgb TerrainLightingNightDiffuse { get; private set; }
         public Vector3 TerrainLightingNightLightPos { get; private set; }
 
-        public IniColorRgb TerrainObjectsLightingMorningAmbient { get; private set; }
-        public IniColorRgb TerrainObjectsLightingMorningDiffuse { get; private set; }
+        public ColorRgb TerrainObjectsLightingMorningAmbient { get; private set; }
+        public ColorRgb TerrainObjectsLightingMorningDiffuse { get; private set; }
         public Vector3 TerrainObjectsLightingMorningLightPos { get; private set; }
 
-        public IniColorRgb TerrainObjectsLightingEveningAmbient { get; private set; }
-        public IniColorRgb TerrainObjectsLightingEveningDiffuse { get; private set; }
+        public ColorRgb TerrainObjectsLightingEveningAmbient { get; private set; }
+        public ColorRgb TerrainObjectsLightingEveningDiffuse { get; private set; }
         public Vector3 TerrainObjectsLightingEveningLightPos { get; private set; }
 
-        public IniColorRgb TerrainObjectsLightingNightAmbient { get; private set; }
-        public IniColorRgb TerrainObjectsLightingNightDiffuse { get; private set; }
+        public ColorRgb TerrainObjectsLightingNightAmbient { get; private set; }
+        public ColorRgb TerrainObjectsLightingNightDiffuse { get; private set; }
         public Vector3 TerrainObjectsLightingNightLightPos { get; private set; }
 
-        public IniColorRgb TerrainLightingAfternoonAmbient { get; private set; }
-        public IniColorRgb TerrainLightingAfternoonDiffuse { get; private set; }
+        public ColorRgb TerrainLightingAfternoonAmbient { get; private set; }
+        public ColorRgb TerrainLightingAfternoonDiffuse { get; private set; }
         public Vector3 TerrainLightingAfternoonLightPos { get; private set; }
 
-        public IniColorRgb TerrainObjectsLightingAfternoonAmbient { get; private set; }
-        public IniColorRgb TerrainObjectsLightingAfternoonDiffuse { get; private set; }
+        public ColorRgb TerrainObjectsLightingAfternoonAmbient { get; private set; }
+        public ColorRgb TerrainObjectsLightingAfternoonDiffuse { get; private set; }
         public Vector3 TerrainObjectsLightingAfternoonLightPos { get; private set; }
 
-        public IniColorRgb TerrainLightingAfternoonAmbient2 { get; private set; }
-        public IniColorRgb TerrainLightingAfternoonDiffuse2 { get; private set; }
+        public ColorRgb TerrainLightingAfternoonAmbient2 { get; private set; }
+        public ColorRgb TerrainLightingAfternoonDiffuse2 { get; private set; }
         public Vector3 TerrainLightingAfternoonLightPos2 { get; private set; }
 
-        public IniColorRgb TerrainObjectsLightingAfternoonAmbient2 { get; private set; }
-        public IniColorRgb TerrainObjectsLightingAfternoonDiffuse2 { get; private set; }
+        public ColorRgb TerrainObjectsLightingAfternoonAmbient2 { get; private set; }
+        public ColorRgb TerrainObjectsLightingAfternoonDiffuse2 { get; private set; }
         public Vector3 TerrainObjectsLightingAfternoonLightPos2 { get; private set; }
 
-        public IniColorRgb TerrainLightingAfternoonAmbient3 { get; private set; }
-        public IniColorRgb TerrainLightingAfternoonDiffuse3 { get; private set; }
+        public ColorRgb TerrainLightingAfternoonAmbient3 { get; private set; }
+        public ColorRgb TerrainLightingAfternoonDiffuse3 { get; private set; }
         public Vector3 TerrainLightingAfternoonLightPos3 { get; private set; }
 
-        public IniColorRgb TerrainObjectsLightingAfternoonAmbient3 { get; private set; }
-        public IniColorRgb TerrainObjectsLightingAfternoonDiffuse3 { get; private set; }
+        public ColorRgb TerrainObjectsLightingAfternoonAmbient3 { get; private set; }
+        public ColorRgb TerrainObjectsLightingAfternoonDiffuse3 { get; private set; }
         public Vector3 TerrainObjectsLightingAfternoonLightPos3 { get; private set; }
 
         public bool AudioOn { get; private set; }
@@ -1205,7 +1206,7 @@ namespace OpenSage.Data.Ini
 
         public int UnlookPersistDuration { get; private set; }
 
-        public IniColorRgb ShroudColor { get; private set; }
+        public ColorRgb ShroudColor { get; private set; }
         public byte ClearAlpha { get; private set; }
         public byte FogAlpha { get; private set; }
         public byte ShroudAlpha { get; private set; }
@@ -1214,13 +1215,13 @@ namespace OpenSage.Data.Ini
         public bool TaintOn { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public IniColorRgb TaintColor { get; private set; }
+        public ColorRgb TaintColor { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public byte TaintAlpha { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public IniColorRgb ElvenWoodColor { get; private set; }
+        public ColorRgb ElvenWoodColor { get; private set; }
 
         public int NetworkFpsHistoryLength { get; private set; }
         public int NetworkLatencyHistoryLength { get; private set; }
@@ -1531,19 +1532,19 @@ namespace OpenSage.Data.Ini
         public int DebugAerialTileDuration { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public IniColorRgb DebugAerialTileColor { get; private set; }
+        public ColorRgb DebugAerialTileColor { get; private set; }
 
         public int DebugProjectileTileWidth { get; private set; }
         public int DebugProjectileTileDuration { get; private set; }
-        public IniColorRgb DebugProjectileTileColor { get; private set; }
+        public ColorRgb DebugProjectileTileColor { get; private set; }
 
         public int DebugVisibilityTileCount { get; private set; }
         public float DebugVisibilityTileWidth { get; private set; }
         public int DebugVisibilityTileDuration { get; private set; }
 
-        public IniColorRgb DebugVisibilityTileTargettableColor { get; private set; }
-        public IniColorRgb DebugVisibilityTileDeshroudColor { get; private set; }
-        public IniColorRgb DebugVisibilityTileGapColor { get; private set; }
+        public ColorRgb DebugVisibilityTileTargettableColor { get; private set; }
+        public ColorRgb DebugVisibilityTileDeshroudColor { get; private set; }
+        public ColorRgb DebugVisibilityTileGapColor { get; private set; }
 
         public int DebugThreatMapTileDuration { get; private set; }
         public int MaxDebugThreatMapValue { get; private set; }
@@ -1584,7 +1585,7 @@ namespace OpenSage.Data.Ini
         {
             var bonusType = parser.ParseEnum<WeaponBonusType>();
 
-            if (!this.TryGetValue(bonusType, out var bonus))
+            if (!TryGetValue(bonusType, out var bonus))
             {
                 Add(bonusType, bonus = new WeaponBonus());
             }
