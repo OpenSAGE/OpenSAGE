@@ -121,19 +121,6 @@ namespace OpenSage.Data.Ini.Parser
             return stringToValueMap;
         }
 
-        private T ParseEnum<T>(Dictionary<string, T> stringToValueMap)
-            where T : struct
-        {
-            var token = GetNextToken();
-
-            if (stringToValueMap.TryGetValue(token.Text.ToUpperInvariant(), out var enumValue))
-            {
-                return enumValue;
-            }
-
-            throw new IniParseException($"Invalid value for type '{typeof(T).Name}': '{token.Text}'", token.Position);
-        }
-
         public T ParseEnum<T>()
             where T : struct
         {
