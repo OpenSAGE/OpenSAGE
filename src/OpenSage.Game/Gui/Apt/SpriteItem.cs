@@ -124,7 +124,14 @@ namespace OpenSage.Gui.Apt
         public void Goto(string label)
         {
             Debug.WriteLine("[INFO] Goto: " + label);
-            _currentFrame = _frameLabels[label];
+            if(_frameLabels.ContainsKey(label))
+            {
+                _currentFrame = _frameLabels[label];
+            }
+            else
+            {
+                Debug.WriteLine("[WARN] Missing framelabel: " + label);
+            }
         }
 
         public void GotoFrame(int frame)

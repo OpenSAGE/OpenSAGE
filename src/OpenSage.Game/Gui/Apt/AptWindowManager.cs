@@ -8,6 +8,7 @@ namespace OpenSage.Gui.Apt
     {
         private readonly Game _game;
         private AptInputMessageHandler _inputHandler;
+        private AptWindow _newWindow;
 
         internal Stack<AptWindow> WindowStack { get; }
         public int OpenWindowCount => WindowStack.Count;
@@ -52,6 +53,13 @@ namespace OpenSage.Gui.Apt
 
         internal void Update(in TimeInterval gameTime)
         {
+            if (_newWindow != null)
+            {
+                WindowStack.Clear();
+                WindowStack.Push(_newWindow);
+                _newWindow = null;
+            }
+
             foreach (var window in WindowStack)
             {
                 window.Update(gameTime, _game.GraphicsDevice);
@@ -78,6 +86,11 @@ namespace OpenSage.Gui.Apt
             }
 
             return false;
+        }
+
+        public void QueryTransition(AptWindow newWindow)
+        {
+            _newWindow = newWindow;
         }
     }
 }

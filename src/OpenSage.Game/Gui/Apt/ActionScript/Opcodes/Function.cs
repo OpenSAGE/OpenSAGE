@@ -47,7 +47,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
     public sealed class DefineFunction : InstructionBase
     {
         public override InstructionType Type => InstructionType.DefineFunction;
-        public override uint Size => 20;
+        public override uint Size => 24;
 
         public override void Execute(ActionContext context)
         {
@@ -176,7 +176,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
         public override void Execute(ActionContext context)
         {
             var funcName = context.Stack.Pop().ToString();
-            var obj = context.Stack.Pop().ToObject();
+            var obj = context.Stack.Pop().ResolveRegister(context).ToObject();
 
             var argCount = context.Stack.Pop().ToInteger();
 

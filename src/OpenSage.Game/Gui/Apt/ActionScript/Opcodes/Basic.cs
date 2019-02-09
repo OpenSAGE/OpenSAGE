@@ -65,7 +65,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Opcodes
 
             //store the value inside the specified register
             var reg = Parameters[0].ToInteger();
-            context.Registers[reg] = val;
+            context.Registers[reg] = val.ResolveRegister(context);
         }
     }
 

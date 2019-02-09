@@ -53,6 +53,11 @@ namespace OpenSage.Gui.Apt.ActionScript
         /// <returns></returns>
         public virtual Value GetMember(string name)
         {
+            if(Builtin.IsBuiltInVariable(name))
+            {
+                return Builtin.GetBuiltInVariable(name, this);
+            }
+
             if (Variables.TryGetValue(name, out var result))
             {
                 return result;
