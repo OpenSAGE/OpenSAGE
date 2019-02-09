@@ -28,5 +28,10 @@ namespace OpenSage.Mathematics
         {
             return new Vector3(R / 255.0f, G / 255.0f, B / 255.0f);
         }
+
+        public ColorRgbaF ToColorRgbaF()
+        {
+            return new ColorRgbaF(R / 255.0f, G / 255.0f, B / 255.0f, 1.0f);
+        }
     }
 }

@@ -14,8 +14,8 @@ namespace OpenSage.Data.Ini
 
         private static readonly IniParseTable<MultiplayerColor> FieldParseTable = new IniParseTable<MultiplayerColor>
         {
-            { "RGBColor", (parser, x) => x.RgbColor = IniColorRgb.Parse(parser) },
-            { "RGBNightColor", (parser, x) => x.RgbNightColor = IniColorRgb.Parse(parser) },
+            { "RGBColor", (parser, x) => x.RgbColor = parser.ParseColorRgb() },
+            { "RGBNightColor", (parser, x) => x.RgbNightColor = parser.ParseColorRgb() },
             { "TooltipName", (parser, x) => x.TooltipName = parser.ParseLocalizedStringKey() },
             { "LivingWorldColor", (parser, x) => x.LivingWorldColor = parser.ParseColorRgb() },
             { "LivingWorldBannerColor", (parser, x) => x.LivingWorldBannerColor = parser.ParseColorRgb() },
@@ -24,8 +24,8 @@ namespace OpenSage.Data.Ini
 
         public string Name { get; private set; }
 
-        public IniColorRgb RgbColor { get; private set; }
-        public IniColorRgb RgbNightColor { get; private set; }
+        public ColorRgb RgbColor { get; private set; }
+        public ColorRgb RgbNightColor { get; private set; }
         public string TooltipName { get; private set; }
 
         [AddedIn(SageGame.Bfme2)]

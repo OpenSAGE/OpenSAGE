@@ -13,8 +13,8 @@ namespace OpenSage.Data.Ini
         {
             { "MaxSelectionSize", (parser, x) => x.MaxSelectionSize = parser.ParseInteger() },
 
-            { "MessageColor1", (parser, x) => x.MessageColor1 = IniColorRgb.Parse(parser) },
-            { "MessageColor2", (parser, x) => x.MessageColor2 = IniColorRgb.Parse(parser) },
+            { "MessageColor1", (parser, x) => x.MessageColor1 = parser.ParseColorRgb() },
+            { "MessageColor2", (parser, x) => x.MessageColor2 = parser.ParseColorRgb() },
             { "MessagePosition", (parser, x) => x.MessagePosition = parser.ParseVector2() },
             { "MessageFont", (parser, x) => x.MessageFont = parser.ParseString() },
             { "MessagePointSize", (parser, x) => x.MessagePointSize = parser.ParseInteger() },
@@ -38,11 +38,11 @@ namespace OpenSage.Data.Ini
             { "DrawableCaptionFont", (parser, x) => x.DrawableCaptionFont = parser.ParseString() },
             { "DrawableCaptionPointSize", (parser, x) => x.DrawableCaptionPointSize = parser.ParseInteger() },
             { "DrawableCaptionBold", (parser, x) => x.DrawableCaptionBold = parser.ParseBoolean() },
-            { "DrawableCaptionColor", (parser, x) => x.DrawableCaptionColor = IniColorRgb.Parse(parser) },
+            { "DrawableCaptionColor", (parser, x) => x.DrawableCaptionColor = parser.ParseColorRgb() },
 
             { "SuperweaponCountdownPosition", (parser, x) => x.SuperweaponCountdownPosition = parser.ParseVector2() },
             { "SuperweaponCountdownFlashDuration", (parser, x) => x.SuperweaponCountdownFlashDuration = parser.ParseInteger() },
-            { "SuperweaponCountdownFlashColor", (parser, x) => x.SuperweaponCountdownFlashColor = IniColorRgb.Parse(parser) },
+            { "SuperweaponCountdownFlashColor", (parser, x) => x.SuperweaponCountdownFlashColor = parser.ParseColorRgb() },
 
             { "SuperweaponCountdownNormalFont", (parser, x) => x.SuperweaponCountdownNormalFont = parser.ParseString() },
             { "SuperweaponCountdownNormalPointSize", (parser, x) => x.SuperweaponCountdownNormalPointSize = parser.ParseInteger() },
@@ -54,37 +54,37 @@ namespace OpenSage.Data.Ini
 
             { "NamedTimerCountdownPosition", (parser, x) => x.NamedTimerCountdownPosition = parser.ParseVector2() },
             { "NamedTimerCountdownFlashDuration", (parser, x) => x.NamedTimerCountdownFlashDuration = parser.ParseInteger() },
-            { "NamedTimerCountdownFlashColor", (parser, x) => x.NamedTimerCountdownFlashColor = IniColorRgb.Parse(parser) },
+            { "NamedTimerCountdownFlashColor", (parser, x) => x.NamedTimerCountdownFlashColor = parser.ParseColorRgb() },
 
             { "NamedTimerCountdownNormalFont", (parser, x) => x.NamedTimerCountdownNormalFont = parser.ParseString() },
             { "NamedTimerCountdownNormalPointSize", (parser, x) => x.NamedTimerCountdownNormalPointSize = parser.ParseInteger() },
             { "NamedTimerCountdownNormalBold", (parser, x) => x.NamedTimerCountdownNormalBold = parser.ParseBoolean() },
-            { "NamedTimerCountdownNormalColor", (parser, x) => x.NamedTimerCountdownNormalColor = IniColorRgb.Parse(parser) },
+            { "NamedTimerCountdownNormalColor", (parser, x) => x.NamedTimerCountdownNormalColor = parser.ParseColorRgb() },
 
             { "NamedTimerCountdownReadyFont", (parser, x) => x.NamedTimerCountdownReadyFont = parser.ParseString() },
             { "NamedTimerCountdownReadyPointSize", (parser, x) => x.NamedTimerCountdownReadyPointSize = parser.ParseInteger() },
             { "NamedTimerCountdownReadyBold", (parser, x) => x.NamedTimerCountdownReadyBold = parser.ParseBoolean() },
-            { "NamedTimerCountdownReadyColor", (parser, x) => x.NamedTimerCountdownReadyColor = IniColorRgb.Parse(parser) },
+            { "NamedTimerCountdownReadyColor", (parser, x) => x.NamedTimerCountdownReadyColor = parser.ParseColorRgb() },
 
             { "HelpBoxNameFont", (parser, x) => x.HelpBoxNameFont = parser.ParseString() },
             { "HelpBoxNamePointSize", (parser, x) => x.HelpBoxNamePointSize = parser.ParseInteger() },
             { "HelpBoxNameBold", (parser, x) => x.HelpBoxNameBold = parser.ParseBoolean() },
-            { "HelpBoxNameColor", (parser, x) => x.HelpBoxNameColor = IniColorRgb.Parse(parser) },
+            { "HelpBoxNameColor", (parser, x) => x.HelpBoxNameColor = parser.ParseColorRgb() },
 
             { "HelpBoxCostFont", (parser, x) => x.HelpBoxCostFont = parser.ParseString() },
             { "HelpBoxCostPointSize", (parser, x) => x.HelpBoxCostPointSize = parser.ParseInteger() },
             { "HelpBoxCostBold", (parser, x) => x.HelpBoxCostBold = parser.ParseBoolean() },
-            { "HelpBoxCostColor", (parser, x) => x.HelpBoxCostColor = IniColorRgb.Parse(parser) },
+            { "HelpBoxCostColor", (parser, x) => x.HelpBoxCostColor = parser.ParseColorRgb() },
 
             { "HelpBoxShortcutFont", (parser, x) => x.HelpBoxShortcutFont = parser.ParseString() },
             { "HelpBoxShortcutPointSize", (parser, x) => x.HelpBoxShortcutPointSize = parser.ParseInteger() },
             { "HelpBoxShortcutBold", (parser, x) => x.HelpBoxShortcutBold = parser.ParseBoolean() },
-            { "HelpBoxShortcutColor", (parser, x) => x.HelpBoxShortcutColor = IniColorRgb.Parse(parser) },
+            { "HelpBoxShortcutColor", (parser, x) => x.HelpBoxShortcutColor = parser.ParseColorRgb() },
 
             { "HelpBoxDescriptionFont", (parser, x) => x.HelpBoxDescriptionFont = parser.ParseString() },
             { "HelpBoxDescriptionPointSize", (parser, x) => x.HelpBoxDescriptionPointSize = parser.ParseInteger() },
             { "HelpBoxDescriptionBold", (parser, x) => x.HelpBoxDescriptionBold = parser.ParseBoolean() },
-            { "HelpBoxDescriptionColor", (parser, x) => x.HelpBoxDescriptionColor = IniColorRgb.Parse(parser) },
+            { "HelpBoxDescriptionColor", (parser, x) => x.HelpBoxDescriptionColor = parser.ParseColorRgb() },
 
             { "FloatingTextTimeOut", (parser, x) => x.FloatingTextTimeOut = parser.ParseInteger() },
             { "FloatingTextMoveUpSpeed", (parser, x) => x.FloatingTextMoveUpSpeed = parser.ParseInteger() },
@@ -178,8 +178,8 @@ namespace OpenSage.Data.Ini
 
         public int MaxSelectionSize { get; private set; }
 
-        public IniColorRgb MessageColor1 { get; private set; }
-        public IniColorRgb MessageColor2 { get; private set; }
+        public ColorRgb MessageColor1 { get; private set; }
+        public ColorRgb MessageColor2 { get; private set; }
         public Vector2 MessagePosition { get; private set; }
         public string MessageFont { get; private set; }
         public int MessagePointSize { get; private set; }
@@ -213,11 +213,11 @@ namespace OpenSage.Data.Ini
         public bool DrawableCaptionBold { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public IniColorRgb DrawableCaptionColor { get; private set; }
+        public ColorRgb DrawableCaptionColor { get; private set; }
 
         public Vector2 SuperweaponCountdownPosition { get; private set; }
         public int SuperweaponCountdownFlashDuration { get; private set; }
-        public IniColorRgb SuperweaponCountdownFlashColor { get; private set; }
+        public ColorRgb SuperweaponCountdownFlashColor { get; private set; }
 
         public string SuperweaponCountdownNormalFont { get; private set; }
         public int SuperweaponCountdownNormalPointSize { get; private set; }
@@ -229,17 +229,17 @@ namespace OpenSage.Data.Ini
 
         public Vector2 NamedTimerCountdownPosition { get; private set; }
         public int NamedTimerCountdownFlashDuration { get; private set; }
-        public IniColorRgb NamedTimerCountdownFlashColor { get; private set; }
+        public ColorRgb NamedTimerCountdownFlashColor { get; private set; }
 
         public string NamedTimerCountdownNormalFont { get; private set; }
         public int NamedTimerCountdownNormalPointSize { get; private set; }
         public bool NamedTimerCountdownNormalBold { get; private set; }
-        public IniColorRgb NamedTimerCountdownNormalColor { get; private set; }
+        public ColorRgb NamedTimerCountdownNormalColor { get; private set; }
 
         public string NamedTimerCountdownReadyFont { get; private set; }
         public int NamedTimerCountdownReadyPointSize { get; private set; }
         public bool NamedTimerCountdownReadyBold { get; private set; }
-        public IniColorRgb NamedTimerCountdownReadyColor { get; private set; }
+        public ColorRgb NamedTimerCountdownReadyColor { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string HelpBoxNameFont { get; private set; }
@@ -251,7 +251,7 @@ namespace OpenSage.Data.Ini
         public bool HelpBoxNameBold { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public IniColorRgb HelpBoxNameColor { get; private set; }
+        public ColorRgb HelpBoxNameColor { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string HelpBoxCostFont { get; private set; }
@@ -263,7 +263,7 @@ namespace OpenSage.Data.Ini
         public bool HelpBoxCostBold { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public IniColorRgb HelpBoxCostColor { get; private set; }
+        public ColorRgb HelpBoxCostColor { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string HelpBoxShortcutFont { get; private set; }
@@ -275,7 +275,7 @@ namespace OpenSage.Data.Ini
         public bool HelpBoxShortcutBold { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public IniColorRgb HelpBoxShortcutColor { get; private set; }
+        public ColorRgb HelpBoxShortcutColor { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
         public string HelpBoxDescriptionFont { get; private set; }
@@ -287,7 +287,7 @@ namespace OpenSage.Data.Ini
         public bool HelpBoxDescriptionBold { get; private set; }
 
         [AddedIn(SageGame.Bfme)]
-        public IniColorRgb HelpBoxDescriptionColor { get; private set; }
+        public ColorRgb HelpBoxDescriptionColor { get; private set; }
 
         public int FloatingTextTimeOut { get; private set; }
         public int FloatingTextMoveUpSpeed { get; private set; }

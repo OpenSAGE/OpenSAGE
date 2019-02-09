@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using OpenSage.Data.Ini.Parser;
+using OpenSage.Mathematics;
 
 namespace OpenSage.Data.Ini
 {
@@ -375,12 +376,12 @@ namespace OpenSage.Data.Ini
         {
             return new RgbColorKeyframe
             {
-                Color = IniColorRgb.Parse(parser),
+                Color = parser.ParseColorRgb(),
                 Time = parser.ParseLong()
             };
         }
 
-        public IniColorRgb Color;
+        public ColorRgb Color;
         public long Time;
     }
 

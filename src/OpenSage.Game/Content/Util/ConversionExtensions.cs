@@ -371,10 +371,5 @@ namespace OpenSage.Content.Util
                 value.B / 255.0f,
                 value.A / 255.0f);
         }
-
-        public static ColorRgb ToColorRgb(this IniColorRgb value)
-        {
-            return new ColorRgb(value.R, value.G, value.B);
-        }
     }
 }

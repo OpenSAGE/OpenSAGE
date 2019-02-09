@@ -6,6 +6,28 @@ namespace OpenSage.Data.Ini
 {
     public abstract class BaseSingleSound
     {
+        internal static readonly IniParseTable<BaseSingleSound> FieldParseTable = new IniParseTable<BaseSingleSound>
+        {
+            { "Volume", (parser, x) => x.Volume = parser.ParseFloat() },
+            { "VolumeShift", (parser, x) => x.VolumeShift = parser.ParseInteger() },
+            { "MinVolume", (parser, x) => x.MinVolume = parser.ParseInteger() },
+            { "PlayPercent", (parser, x) => x.PlayPercent = parser.ParseInteger() },
+            { "Limit", (parser, x) => x.Limit = parser.ParseInteger() },
+            { "Priority", (parser, x) => x.Priority = parser.ParseEnum<AudioPriority>() },
+            { "Type", (parser, x) => x.Type = parser.ParseEnumBitArray<AudioTypeFlags>() },
+            { "Control", (parser, x) => x.Control = parser.ParseEnumFlags<AudioControlFlags>() },
+            { "MinRange", (parser, x) => x.MinRange = parser.ParseFloat() },
+            { "MaxRange", (parser, x) => x.MaxRange = parser.ParseFloat() },
+            { "LowPassCutoff", (parser, x) => x.LowPassCutoff = parser.ParseInteger() },
+            { "ReverbEffectLevel", (parser, x) => x.MaxRange = parser.ParseInteger() },
+            { "DryLevel", (parser, x) => x.MaxRange = parser.ParseInteger() },
+            { "SubmixSlider", (parser, x) => x.SubmixSlider = parser.ParseEnum<AudioVolumeSlider>() },
+            { "PitchShift", (parser, x) => x.PitchShift = FloatRange.Parse(parser) },
+            { "Delay", (parser, x) => x.Delay = IntRange.Parse(parser) },
+            { "PerFileVolumeShift", (parser, x) => x.PerFileVolumeShift = parser.ParseFloatArray() },
+            { "PerFilePitchShift", (parser, x) => x.PerFilePitchShift = parser.ParseFloatArray() },
+        };
+
         public string Name { get; protected set; }
 
         public float Volume { get; private set; } = 100;
@@ -30,28 +52,6 @@ namespace OpenSage.Data.Ini
 
         [AddedIn(SageGame.Bfme2)]
         public float[] PerFilePitchShift { get; private set; }
-
-        internal static readonly IniParseTable<BaseSingleSound> FieldParseTable = new IniParseTable<BaseSingleSound>
-        {
-            { "Volume", (parser, x) => x.Volume = parser.ParseFloat() },
-            { "VolumeShift", (parser, x) => x.VolumeShift = parser.ParseInteger() },
-            { "MinVolume", (parser, x) => x.MinVolume = parser.ParseInteger() },
-            { "PlayPercent", (parser, x) => x.PlayPercent = parser.ParseInteger() },
-            { "Limit", (parser, x) => x.Limit = parser.ParseInteger() },
-            { "Priority", (parser, x) => x.Priority = parser.ParseEnum<AudioPriority>() },
-            { "Type", (parser, x) => x.Type = parser.ParseEnumBitArray<AudioTypeFlags>() },
-            { "Control", (parser, x) => x.Control = parser.ParseEnumFlags<AudioControlFlags>() },
-            { "MinRange", (parser, x) => x.MinRange = parser.ParseFloat() },
-            { "MaxRange", (parser, x) => x.MaxRange = parser.ParseFloat() },
-            { "LowPassCutoff", (parser, x) => x.LowPassCutoff = parser.ParseInteger() },
-            { "ReverbEffectLevel", (parser, x) => x.MaxRange = parser.ParseInteger() },
-            { "DryLevel", (parser, x) => x.MaxRange = parser.ParseInteger() },
-            { "SubmixSlider", (parser, x) => x.SubmixSlider = parser.ParseEnum<AudioVolumeSlider>() },
-            { "PitchShift", (parser, x) => x.PitchShift = FloatRange.Parse(parser) },
-            { "Delay", (parser, x) => x.Delay = IntRange.Parse(parser) },
-            { "PerFileVolumeShift", (parser, x) => x.PerFileVolumeShift = parser.ParseFloatArray() },
-            { "PerFilePitchShift", (parser, x) => x.PerFilePitchShift = parser.ParseFloatArray() },
-        };
     }
 
     public sealed class AudioEvent : BaseSingleSound
