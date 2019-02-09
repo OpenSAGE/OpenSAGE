@@ -228,7 +228,7 @@ namespace OpenSage.Gui.Apt.ActionScript
                 case ValueType.Float:
                     return _decimal.ToString();     
                 case ValueType.Undefined:
-                    return "undefined";
+                    return "";
                 default:
                     throw new NotImplementedException();
             }

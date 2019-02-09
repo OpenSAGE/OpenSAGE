@@ -28,6 +28,7 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             {
                 ["_root"] = ctx => Value.FromObject(ctx.Item.Context.Root.ScriptObject),
                 ["_global"] = ctx => Value.FromObject(ctx.Item.Context.Avm.GlobalObject),
+                ["_name"] = ctx => Value.FromString(ctx.Item.Name),
                 ["_parent"] = GetParent,
                 ["extern"] = ctx => Value.FromObject(ctx.Item.Context.Avm.ExternObject)
             };
@@ -37,8 +38,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
             {
                 ["_alpha"] = (ctx, v) =>
                 {
-                    Debug.WriteLine("Setting alpha to: " + v.ToInteger());
-
                     var transform = ctx.Item.Transform;
                     ctx.Item.Transform =
                         transform.WithColorTransform(transform.ColorTransform.WithA(v.ToInteger() / 100.0f));
@@ -46,7 +45,6 @@ namespace OpenSage.Gui.Apt.ActionScript.Library
                 ["textColor"] = (ctx, v) =>
                 {
                     var hexStr = v.ToString();
-                    Debug.WriteLine("Setting textcolor to: " + hexStr);
                     var hexColor = Convert.ToInt32(hexStr, 16);
 
                     float b = (hexColor & 0xFF) / 255.0f;

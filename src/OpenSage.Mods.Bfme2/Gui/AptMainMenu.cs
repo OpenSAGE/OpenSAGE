@@ -18,12 +18,19 @@ namespace OpenSage.Mods.Bfme2.Gui
         // Close the game
         public static void ExitGame(string param, ActionContext context, AptWindow window, Game game)
         {
-            game.EndGame();
+            game.Window.Close();
         }
 
         public static void ResetResolution(string param, ActionContext context, AptWindow window, Game game)
         {
             // Probably used for debug purposes
+        }
+
+        public static void CreateAHero(string param, ActionContext context, AptWindow window, Game game)
+        {
+            var aptWindow = game.ContentManager.Load<AptWindow>("Skirmish.apt");
+
+            game.Scene2D.AptWindowManager.QueryTransition(aptWindow);
         }
     }
 }

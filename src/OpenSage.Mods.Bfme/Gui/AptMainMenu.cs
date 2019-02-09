@@ -18,7 +18,7 @@ namespace OpenSage.Mods.Bfme.Gui
         // Close the game
         public static void ExitGame(string param, ActionContext context, AptWindow window, Game game)
         {
-            game.EndGame();
+            game.Window.Close();
         }
 
         public static void ResetResolution(string param, ActionContext context, AptWindow window, Game game)
