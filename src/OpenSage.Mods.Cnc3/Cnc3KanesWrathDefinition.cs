@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenSage.Data;
 using OpenSage.Gui;
+using OpenSage.Gui.Apt;
 
 namespace OpenSage.Mods.CnC3
 {
@@ -15,14 +16,22 @@ namespace OpenSage.Mods.CnC3
 
         public IEnumerable<RegistryKeyPath> RegistryKeys { get; } = new[]
         {
-            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\Command and Conquer 3 Kanes Wrath", "InstallPath")
+            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\Command and Conquer 3 Kanes Wrath", "installpath")
         };
 
-        public IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; }
+        public IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; } = new[]
+        {
+            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\Command and Conquer 3 Kanes Wrath", "language")
+        };
+
+        public IEnumerable<RegistryKeyPath> UserDataLeafName { get; } = new[]
+        {
+            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\Command and Conquer 3 Kanes Wrath", "userdataleafname")
+        };
 
         public string Identifier { get; } = "cnc3_kw";
 
-        public IMainMenuSource MainMenu { get; }
+        public IMainMenuSource MainMenu { get; } = new AptMainMenuSource("MainMenu.apt");
         public IControlBarSource ControlBar { get; }
 
         public static Cnc3KanesWrathDefinition Instance { get; } = new Cnc3KanesWrathDefinition();

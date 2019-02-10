@@ -18,7 +18,15 @@ namespace OpenSage.Mods.Ra3
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\Red Alert 3", "Install Dir"),
         };
 
-        public IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; }
+        public IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; } = new[]
+        {
+            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\Red Alert 3", "language")
+        };
+
+        public IEnumerable<RegistryKeyPath> UserDataLeafName { get; } = new[]
+        {
+            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\Red Alert 3", "userdataleafname")
+        };
 
         public string Identifier { get; } = "ra3";
 

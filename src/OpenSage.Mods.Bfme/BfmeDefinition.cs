@@ -20,8 +20,13 @@ namespace OpenSage.Mods.BFME
         };
 
         public IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; } = new[]
-{
+        {
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\The Battle for Middle-earth", "Language")
+        };
+
+        public IEnumerable<RegistryKeyPath> UserDataLeafName { get; } = new[]
+        {
+            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\The Battle for Middle-earth", "UserDataLeafName")
         };
 
         public string Identifier { get; } = "bfme";

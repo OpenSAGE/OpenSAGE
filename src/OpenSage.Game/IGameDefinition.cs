@@ -15,7 +15,8 @@ namespace OpenSage
 
         IEnumerable<RegistryKeyPath> RegistryKeys { get; }
         IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; }
-        
+        IEnumerable<RegistryKeyPath> UserDataLeafName { get; }
+
         IMainMenuSource MainMenu { get; }
         IControlBarSource ControlBar { get; }
 

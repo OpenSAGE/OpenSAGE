@@ -7,6 +7,7 @@ using OpenSage.Mods.Bfme2;
 using OpenSage.Mods.Cnc4;
 using OpenSage.Mods.CnC3;
 using OpenSage.Mods.Ra3;
+//using OpenSage.Mods.CustomGame;
 
 namespace OpenSage.Mods.BuiltIn
 {
@@ -38,7 +39,8 @@ namespace OpenSage.Mods.BuiltIn
                 [SageGame.Cnc3KanesWrath] = Cnc3KanesWrathDefinition.Instance,
                 [SageGame.Ra3] = Ra3Definition.Instance,
                 [SageGame.Ra3Uprising] = Ra3UprisingDefinition.Instance,
-                [SageGame.Cnc4] = Cnc4Definition.Instance
+                [SageGame.Cnc4] = Cnc4Definition.Instance,
+                //[SageGame.CustomGame] = CustomGameDefinition.Instance
             };
         }
     }

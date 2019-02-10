@@ -21,7 +21,12 @@ namespace OpenSage.Mods.Bfme2
 
         public IEnumerable<RegistryKeyPath> LanguageRegistryKeys { get; } = new[]
         {
-            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\The Battle for Middle-earth II", "Language")
+            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\The Lord of the Rings, The Rise of the Witch-king", "Language")
+        };
+
+        public IEnumerable<RegistryKeyPath> UserDataLeafName { get; } = new[]
+        {
+            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\Electronic Arts\The Lord of the Rings, The Rise of the Witch-king", "UserDataLeafName")
         };
 
         public string Identifier { get; } = "bfme2_rotwk";

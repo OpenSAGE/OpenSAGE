@@ -25,6 +25,11 @@ namespace OpenSage.Mods.Generals
             new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\Generals", "Language")
         };
 
+        public IEnumerable<RegistryKeyPath> UserDataLeafName { get; } = new[]
+        {
+            new RegistryKeyPath(@"SOFTWARE\Electronic Arts\EA Games\Generals", "")
+        };
+
         public string Identifier { get; } = "cnc_generals";
 
         public IMainMenuSource MainMenu { get; } = new WndMainMenuSource(@"Menus\MainMenu.wnd");

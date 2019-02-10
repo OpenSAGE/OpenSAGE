@@ -27,10 +27,10 @@ namespace OpenSage.Data
 
     public sealed class GameInstallation
     {
-        public static IEnumerable<GameInstallation> FindAll(IEnumerable<IGameDefinition> gameDefinitions)
+        public static IEnumerable<GameInstallation> FindAll(IEnumerable<IGameDefinition> gameDefinitions, bool ForceUseEnvironmentGamePath)
         {
             return InstallationLocators
-                .GetAllForPlatform()
+                .GetAllForPlatform(ForceUseEnvironmentGamePath)
                 .SelectMany(x => gameDefinitions.SelectMany(y => x.FindInstallations(y)));
         }
 
@@ -126,9 +126,9 @@ namespace OpenSage.Data
 
     public static class InstallationLocators
     {
-        public static IEnumerable<IInstallationLocator> GetAllForPlatform()
+        public static IEnumerable<IInstallationLocator> GetAllForPlatform(bool ForceUseEnvironmentGamePath)
         {
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT && !ForceUseEnvironmentGamePath)
             {
                 yield return new RegistryInstallationLocator();
             }
@@ -136,9 +136,9 @@ namespace OpenSage.Data
             yield return new EnvironmentInstallationLocator();
         }
 
-        public static IEnumerable<GameInstallation> FindAllInstallations(IGameDefinition game)
+        public static IEnumerable<GameInstallation> FindAllInstallations(IGameDefinition game, bool ForceUseEnvironmentGamePath)
         {
-            var locators = GetAllForPlatform();
+            var locators = GetAllForPlatform(ForceUseEnvironmentGamePath);
             var result = new List<GameInstallation>();
             foreach (var locator in locators)
             {
