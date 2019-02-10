@@ -23,7 +23,8 @@ namespace OpenSage.Data.Str
                     if (line.Length == 0
                         || line.StartsWith("//")
                         || line.StartsWith(";")
-                        || line.StartsWith("END"))
+                        || line.StartsWith("END")
+                        || line.StartsWith("End"))
                     {
                         continue;
                     }
@@ -39,20 +40,23 @@ namespace OpenSage.Data.Str
                         {
                             value += line;
                             line = streamReader.ReadLine().Trim();
-                        } while (!streamReader.EndOfStream && !line.StartsWith("END"));
+                        } while (!streamReader.EndOfStream
+                            && !line.StartsWith("END")
+                            && !line.StartsWith("End"));
+
+                        value = value.Replace("\"", "");
 
                         content[blockType][blockName] = value;
                     }
                     else
                     {
                         var tokens = line.Split(':');
-                        if (tokens.Length < 2)
-                        {
-                            throw new InvalidDataException();
-                        }
-
                         blockType = tokens[0];
-                        blockName = tokens[1];
+
+                        if (tokens.Length >= 2)
+                        {
+                            blockName = tokens[1];
+                        }
                     }
                 }
             }
