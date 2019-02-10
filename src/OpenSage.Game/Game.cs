@@ -211,7 +211,9 @@ namespace OpenSage
         public Game(
             GameInstallation installation,
             GraphicsBackend? preferredBackend,
-            bool fullscreen = false)
+            bool fullscreen = false,
+            int xres = 1024,
+            int yres = 768)
         {
             using (GameTrace.TraceDurationEvent("Game()"))
             {
@@ -221,7 +223,7 @@ namespace OpenSage
                 // TODO: Read game version from assembly metadata or .git folder
                 // TODO: Set window icon.
                 Window = AddDisposable(new GameWindow($"OpenSAGE - {installation.Game.DisplayName} - master",
-                                                        100, 100, 1024, 768, preferredBackend, fullscreen));
+                                                        100, 100, xres, yres, preferredBackend, fullscreen));
                 GraphicsDevice = Window.GraphicsDevice;
 
                 Panel = AddDisposable(new GamePanel(GraphicsDevice));
