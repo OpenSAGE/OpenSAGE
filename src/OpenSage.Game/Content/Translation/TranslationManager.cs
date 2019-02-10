@@ -177,41 +177,52 @@ namespace OpenSage.Content.Translation
 
         public static void LoadGameCsf(FileSystem fileSystem, string language, SageGame game)
         {
+            var path = string.Empty;
             FileSystemEntry file = null;
             while (!(fileSystem is null))
             {
-                // TODO: .str files and StrTranslationProvider
                 switch (game)
                 {
                     case SageGame.CncGenerals:
                     case SageGame.CncGeneralsZeroHour:
-                        file = fileSystem.GetFile($"Data/{language}/generals.csf");
+                        path = $"Data/{language}/generals";
                         break;
                     case SageGame.Bfme:
                     case SageGame.Bfme2:
                     case SageGame.Bfme2Rotwk:
-                        file = fileSystem.GetFile("lotr.csf");
+                        path = "data/lotr";
                         break;
                     case SageGame.Cnc3:
                     case SageGame.Cnc3KanesWrath:
-                        file = fileSystem.GetFile("cnc3.csf");
+                        path = "cnc3";
                         break;
                     case SageGame.Ra3:
                     case SageGame.Ra3Uprising: // there is a data/gamestrings_temp.csf in Uprising
                     case SageGame.Cnc4:
-                        file = fileSystem.GetFile("data/gamestrings.csf");
+                        path = "data/gamestrings";
                         break;
                 }
-                if (!(file is null))
+                if (!((file = fileSystem.GetFile($"{path}.csf")) is null))
                 {
                     using (var stream = file.Open())
                     {
                         Instance.RegisterProvider(new CsfTranslationProvider(stream, game));
                     }
+                    return;
                 }
-                fileSystem = fileSystem.NextFileSystem;
+                else if (!((file = fileSystem.GetFile($"{path}.str")) is null))
+                {
+                    using (var stream = file.Open())
+                    {
+                        Instance.RegisterProvider(new StrTranslationProvider(stream, "en-US")); // TODO: set lang
+                    }
+                    return;
+                }
+                else
+                {
+                    fileSystem = fileSystem.NextFileSystem;
+                }
             }
-
         }
     }
 }
