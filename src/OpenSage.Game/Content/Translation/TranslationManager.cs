@@ -188,6 +188,8 @@ namespace OpenSage.Content.Translation
                         path = $"Data/{language}/generals";
                         break;
                     case SageGame.Bfme:
+                        path = $"lang/{language}/lotr";
+                        break;
                     case SageGame.Bfme2:
                     case SageGame.Bfme2Rotwk:
                         path = "data/lotr";
