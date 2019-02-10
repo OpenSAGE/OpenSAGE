@@ -88,7 +88,7 @@ namespace OpenSage.Launcher
             public string Decompress { get; set; }
 
             //not implemented yet
-            [Option("compress", Default = null, Required = false, HelpText = "Use RefPack compression for a file (e.g. map file)")]
+            [Option("compress", Default = null, Required = false, HelpText = "Use RefPack to compress a file (e.g. map file)")]
             public string Compress { get; set; }
 
             //not implemented yet
@@ -97,7 +97,7 @@ namespace OpenSage.Launcher
 
             //not implemented yet
             [Option("compressbig", Default = null, Required = false, HelpText = "Compress BIG files")]
-            public IEnumerable<string> CompressBigFileList { get; set; }
+            public IEnumerable<string> CompressToBigFileList { get; set; }
 
             //not implemented yet
             [Option("viewasset", Default = null, Required = false, HelpText = "View asset (e.g. w3d file)")]
@@ -106,6 +106,10 @@ namespace OpenSage.Launcher
             //not implemented yet
             [Option('u', "userdata", Default = null, Required = false, HelpText = "Use custom userdata folder")]
             public string UserDataFolder { get; set; }
+
+            //not implemented yet
+            [Option('t', "toolmode", Default = false, Required = false, HelpText = "enable toolmode to allow several file operation commands")]
+            public bool Toolmode { get; set; }
 
         }
 
@@ -118,84 +122,110 @@ namespace OpenSage.Launcher
 
         public static void Run(Options opts)
         {
+            if (opts.Toolmode)
+            {
+                if (opts.Decompress != null)
+                {
+                    var FileStream = OpenSage.Data.Map.MapFile.Decompress(File.OpenRead(opts.Decompress));
+                    var UncompressedFilePath = String.Concat(Path.GetFileNameWithoutExtension(opts.Decompress), "_uncompressed", Path.GetExtension(opts.Decompress));
+                    var NewFileStream = File.Create(UncompressedFilePath);
+                    byte[] buffer = new byte[8 * 1024];
+                    int len;
+                    while ((len = FileStream.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        NewFileStream.Write(buffer, 0, len);
+                    }
+                    Console.WriteLine($"Uncompressed file saved to {UncompressedFilePath}");
+                }
+
+                if (opts.Compress != null)
+                {
+
+                }
+
+                if (!(opts.CompressToBigFileList == null || !opts.CompressToBigFileList.Any()))
+                {
+
+                }
+
+                if (!(opts.ExtractBigFileList == null || !opts.ExtractBigFileList.Any()))
+                {
+
+                }
+
+                if (opts.AssetFile != null) 
+                {
+
+                }
+
+                Environment.Exit(1);
+            }
+
+            var DetectedGame = opts.Game;
+            var GameFolder = opts.GamePath;
             var ForceUseEnvironmentGamePath = true;
 
-            if (opts.GamePath == null)
+            if (GameFolder == null)
             {
-                opts.GamePath = Environment.CurrentDirectory;
+                GameFolder = Environment.CurrentDirectory;
             }
-            if (File.Exists(Path.Combine(opts.GamePath, "generals.exe")) && File.Exists(Path.Combine(opts.GamePath, "INI.big")))
+            if (File.Exists(Path.Combine(GameFolder, "generals.exe")) && File.Exists(Path.Combine(GameFolder, "INI.big")))
             {
-                opts.Game = SageGame.CncGenerals;
+                DetectedGame = SageGame.CncGenerals;
             }
-            else if (File.Exists(Path.Combine(opts.GamePath, "generals.exe")) && File.Exists(Path.Combine(opts.GamePath, "INIZH.big")))
+            else if (File.Exists(Path.Combine(GameFolder, "generals.exe")) && File.Exists(Path.Combine(GameFolder, "INIZH.big")))
             {
-                opts.Game = SageGame.CncGeneralsZeroHour;
+                DetectedGame = SageGame.CncGeneralsZeroHour;
             }
-            else if (File.Exists(Path.Combine(opts.GamePath, "lotrbfme.exe")))
+            else if (File.Exists(Path.Combine(GameFolder, "lotrbfme.exe")))
             {
-                opts.Game = SageGame.Bfme;
+                DetectedGame = SageGame.Bfme;
             }
-            else if (File.Exists(Path.Combine(opts.GamePath, "lotrbfme2.exe")))
+            else if (File.Exists(Path.Combine(GameFolder, "lotrbfme2.exe")))
             {
-                opts.Game = SageGame.Bfme2;
+                DetectedGame = SageGame.Bfme2;
             }
-            else if (File.Exists(Path.Combine(opts.GamePath, "lotrbfme2ep1.exe")))
+            else if (File.Exists(Path.Combine(GameFolder, "lotrbfme2ep1.exe")))
             {
-                opts.Game = SageGame.Bfme2Rotwk;
+                DetectedGame = SageGame.Bfme2Rotwk;
             }
-            else if (File.Exists(Path.Combine(opts.GamePath, "CNC3.exe")))
+            else if (File.Exists(Path.Combine(GameFolder, "CNC3.exe")))
             {
-                opts.Game = SageGame.Cnc3;
+                DetectedGame = SageGame.Cnc3;
             }
-            else if (File.Exists(Path.Combine(opts.GamePath, "CNC3EP1.exe")))
+            else if (File.Exists(Path.Combine(GameFolder, "CNC3EP1.exe")))
             {
-                opts.Game = SageGame.Cnc3KanesWrath;
+                DetectedGame = SageGame.Cnc3KanesWrath;
             }
-            else if (File.Exists(Path.Combine(opts.GamePath, "RA3.exe")))
+            else if (File.Exists(Path.Combine(GameFolder, "RA3.exe")))
             {
-                opts.Game = SageGame.Ra3;
+                DetectedGame = SageGame.Ra3;
             }
-            else if (File.Exists(Path.Combine(opts.GamePath, "RA3EP1.exe")))
+            else if (File.Exists(Path.Combine(GameFolder, "RA3EP1.exe")))
             {
-                opts.Game = SageGame.Ra3Uprising;
+                DetectedGame = SageGame.Ra3Uprising;
             }
-            else if (File.Exists(Path.Combine(opts.GamePath, "CNC4.exe")))
+            else if (File.Exists(Path.Combine(GameFolder, "CNC4.exe")))
             {
-                opts.Game = SageGame.Cnc4;
+                DetectedGame = SageGame.Cnc4;
             }
             else
             {
                 //default game
-                opts.Game = SageGame.CncGenerals;
+                DetectedGame = SageGame.CncGenerals;
                 ForceUseEnvironmentGamePath = false;
             }
 
-            var definition = GameDefinition.FromGame(opts.Game);
+            var definition = GameDefinition.FromGame(DetectedGame);
 
             if (ForceUseEnvironmentGamePath)
             {
-                System.Environment.SetEnvironmentVariable(definition.Identifier.ToUpperInvariant() + "_PATH", opts.GamePath);
+                System.Environment.SetEnvironmentVariable(definition.Identifier.ToUpperInvariant() + "_PATH", GameFolder);
             }
 
             var installation = GameInstallation
                 .FindAll(new[] { definition }, ForceUseEnvironmentGamePath)
                 .FirstOrDefault();
-
-            if (opts.Decompress != null)
-            {
-                var FileStream = OpenSage.Data.Map.MapFile.Decompress(File.OpenRead(opts.Decompress));
-                var UncompressedFilePath = String.Concat(Path.GetFileNameWithoutExtension(opts.Decompress), "_uncompressed", Path.GetExtension(opts.Decompress));
-                var NewFileStream = File.Create(UncompressedFilePath);
-                byte[] buffer = new byte[8 * 1024];
-                int len;
-                while ((len = FileStream.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    NewFileStream.Write(buffer, 0, len);
-                }
-                Console.WriteLine($"Uncompressed file saved to {UncompressedFilePath}");
-                Environment.Exit(1);
-            }
 
             if (installation == null)
             {
