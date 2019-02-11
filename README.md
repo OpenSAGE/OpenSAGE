@@ -14,6 +14,8 @@ Generals and Command & Conquer: Generals Zero Hour. Support for other SAGE-based
 games may come later. The primary development target is Windows, with support
 planned for macOS at a later date.
 
+**OpenSAGE-Plus:** a modder and user experience focused fork that wants to deliver entirely new features to the core engine - mainly new gamemodes, more script actions and conditions, extended LUA scripting capabilities, more start parameters including a toolmode to deal with all SAGE file formats. 
+
 ## Work in progress
 
 This project is in the *very* early stages. There is still a long way to go before there's anything playable. 
