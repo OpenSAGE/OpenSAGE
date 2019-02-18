@@ -7,6 +7,7 @@
   
   <ItemGroup>
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.4.0" />
+    <PackageReference Include="MoonSharp" Version="2.0.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-dev002203" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-dev002203" />
     <PackageReference Include="SharpAudio" Version="$(SharpAudioVersion)" />
