@@ -11,6 +11,8 @@ namespace OpenSage.Content.Translation
 
         event EventHandler LanguageChanged;
 
+        void SetCultureFromLanguage(string language);
+
         void RegisterProvider(ITranslationProvider provider, bool shouldNotifyLanguageChange = true);
 
         void UnregisterProvider(ITranslationProvider provider, bool shouldNotifyLanguageChange = true);
